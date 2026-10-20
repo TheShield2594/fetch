@@ -516,6 +516,10 @@ class PlayerRuntimeController(
 
     internal var isInBackground: Boolean = false
     internal var pendingBackgroundCrashRecovery: Boolean = false
+    // ExoPlayer stopped on ON_STOP so its codecs are released while the app is hidden.
+    internal var exoStoppedForLifecycle: Boolean = false
+    // Set when the player is stopped on purpose and prepared again on the same item.
+    internal var holdExoTracksAcrossStop: Boolean = false
     internal var backgroundCrashSavedPositionMs: Long = 0L
 
     internal var skipIntervals: List<SkipInterval> = emptyList()

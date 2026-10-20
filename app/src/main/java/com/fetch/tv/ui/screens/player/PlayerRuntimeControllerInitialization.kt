@@ -145,6 +145,7 @@ private fun PlayerRuntimeController.disposeExoPlayerBeforeRebuild() {
         runCatching { player.release() }
     }
     _exoPlayer = null
+    holdExoTracksAcrossStop = false
     playbackSpeedAwareAudioSink = null
 }
 
@@ -1382,6 +1383,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                     }
 
                     override fun onTracksChanged(tracks: Tracks) {
+                        // stop() empties the tracks until prepare() brings them back; keep the known ones.
+                        if (holdExoTracksAcrossStop) {
+                            if (tracks.isEmpty) return
+                            holdExoTracksAcrossStop = false
+                        }
                         updateAvailableTracks(tracks)
                     }
 

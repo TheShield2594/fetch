@@ -678,6 +678,29 @@ class TmdbMetadataServiceTest {
     }
 
     @Test
+    fun `fetchEnrichment falls back to the English overview when the localized one is missing`() = runTest {
+        val api = mockk<TmdbApi>()
+        coEvery { api.getMovieDetails(10, any(), "el-GR") } returns Response.success(
+            TmdbDetailsResponse(id = 10, title = "Ταινία", overview = "")
+        )
+        coEvery { api.getMovieDetails(10, any(), "en") } returns Response.success(
+            TmdbDetailsResponse(id = 10, title = "Movie", overview = "An English overview.")
+        )
+        coEvery { api.getMovieCredits(any(), any(), any()) } returns Response.success(TmdbCreditsResponse())
+        coEvery { api.getMovieImages(any(), any(), any()) } returns Response.success(TmdbImagesResponse())
+        coEvery { api.getMovieReleaseDates(any(), any()) } returns Response.success(TmdbMovieReleaseDatesResponse())
+        coEvery { api.getMovieVideos(any(), any(), any()) } returns Response.success(TmdbVideosResponse(id = 10))
+
+        val enrichment = TmdbMetadataService(api).fetchEnrichment(
+            tmdbId = "10",
+            contentType = ContentType.MOVIE,
+            language = "el-GR"
+        )
+
+        assertEquals("An English overview.", enrichment?.description)
+    }
+
+    @Test
     fun `fetchEnrichment keeps CJK movie title when language is Japanese`() = runTest {
         val api = mockk<TmdbApi>()
         coEvery { api.getMovieDetails(10, any(), "ja-JP") } returns Response.success(
@@ -685,7 +708,8 @@ class TmdbMetadataServiceTest {
                 id = 10,
                 title = "チェンソーマン総集篇 後篇",
                 originalTitle = "チェンソーマン総集篇 後篇",
-                originalLanguage = "ja"
+                originalLanguage = "ja",
+                overview = "あらすじ"
             )
         )
         coEvery { api.getMovieCredits(any(), any(), any()) } returns Response.success(TmdbCreditsResponse())

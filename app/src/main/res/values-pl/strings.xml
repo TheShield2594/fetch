@@ -972,6 +972,9 @@
     <string name="library_source_local">LOKALNA</string>
     <string name="library_type_all">Wszystkie</string>
     <string name="library_type_items">elementy</string>
+    <string name="library_empty_type_movies">filmów</string>
+    <string name="library_empty_type_series">seriali</string>
+    <string name="library_empty_type_items">elementów</string>
     <string name="library_empty_local_title">Brak %1$s</string>
     <string name="library_empty_trakt_title">Brak %1$s na tej liście</string>
     <string name="library_empty_local_subtitle">Zacznij zapisywać ulubione, aby je tutaj zobaczyć</string>

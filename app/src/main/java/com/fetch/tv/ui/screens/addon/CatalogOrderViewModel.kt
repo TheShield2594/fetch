@@ -11,6 +11,7 @@ import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.enabledAddons
+import com.fetch.tv.domain.model.withFilterRows
 import com.fetch.tv.domain.repository.AddonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,13 +35,18 @@ class CatalogOrderViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CatalogOrderUiState())
     val uiState: StateFlow<CatalogOrderUiState> = _uiState.asStateFlow()
     private var disabledKeysCache: Set<String> = emptySet()
+    // Rows in saved order, pins ignored: moving and unpinning work on this list.
+    private var baseItems: List<CatalogOrderItem> = emptyList()
+    private var pinnedKeysCache: List<String> = emptyList()
 
     init {
         observeCatalogs()
     }
 
     fun moveUp(key: String) {
-        if (_uiState.value.followAddonsOrder) {
+        if (key in pinnedKeysCache) {
+            movePinned(key, -1)
+        } else if (_uiState.value.followAddonsOrder) {
             moveCollectionBetweenAddons(key, -1)
         } else {
             moveCatalog(key, -1)
@@ -48,7 +54,9 @@ class CatalogOrderViewModel @Inject constructor(
     }
 
     fun moveDown(key: String) {
-        if (_uiState.value.followAddonsOrder) {
+        if (key in pinnedKeysCache) {
+            movePinned(key, 1)
+        } else if (_uiState.value.followAddonsOrder) {
             moveCollectionBetweenAddons(key, 1)
         } else {
             moveCatalog(key, 1)
@@ -71,18 +79,45 @@ class CatalogOrderViewModel @Inject constructor(
         }
     }
 
+    fun togglePinned(key: String) {
+        viewModelScope.launch {
+            layoutPreferenceDataStore.togglePinnedHomeCatalogKey(key)
+        }
+    }
+
+    private fun movePinned(key: String, direction: Int) {
+        // Swap with the next pin on screen, inside the stored list: pins whose source is
+        // unavailable right now are not on screen and must survive the move.
+        val visible = _uiState.value.items.filter { it.isPinned }.map { it.key }
+        val neighbor = visible.getOrNull(visible.indexOf(key) + direction) ?: return
+        if (key !in visible) return
+        val reordered = pinnedKeysCache.toMutableList()
+        val from = reordered.indexOf(key)
+        val to = reordered.indexOf(neighbor)
+        if (from == -1 || to == -1) return
+        reordered[from] = neighbor
+        reordered[to] = key
+        viewModelScope.launch {
+            layoutPreferenceDataStore.setPinnedHomeCatalogKeys(reordered)
+        }
+    }
+
     private fun moveCatalog(key: String, direction: Int) {
-        val currentKeys = _uiState.value.items.map { it.key }
+        val allKeys = baseItems.map { it.key }
+        val pinned = pinnedKeysCache.toSet()
+        // Pinned rows keep their saved slot, so unpinning puts them back where they were.
+        val currentKeys = allKeys.filterNot { it in pinned }
         val currentIndex = currentKeys.indexOf(key)
         if (currentIndex == -1) return
 
         val newIndex = currentIndex + direction
         if (newIndex !in currentKeys.indices) return
 
-        val reordered = currentKeys.toMutableList().apply {
+        val movedKeys = currentKeys.toMutableList().apply {
             val item = removeAt(currentIndex)
             add(newIndex, item)
-        }
+        }.iterator()
+        val reordered = allKeys.map { if (it in pinned) it else movedKeys.next() }
 
         viewModelScope.launch {
             layoutPreferenceDataStore.setHomeCatalogOrderKeys(reordered)
@@ -98,7 +133,7 @@ class CatalogOrderViewModel @Inject constructor(
     private fun moveCollectionBetweenAddons(key: String, direction: Int) {
         if (!key.startsWith("collection_")) return
 
-        val items = _uiState.value.items
+        val items = baseItems
         val currentIndex = items.indexOfFirst { it.key == key }
         if (currentIndex == -1) return
 
@@ -160,14 +195,19 @@ class CatalogOrderViewModel @Inject constructor(
     private fun observeCatalogs() {
         viewModelScope.launch {
             combine(
-                combine(addonRepository.getInstalledAddons(), serverCatalog.addons) { installed, servers ->
-                    installed.enabledAddons() + servers
+                combine(
+                    addonRepository.getInstalledAddons(),
+                    serverCatalog.addons,
+                    serverCatalog.filterRows
+                ) { installed, servers, filterRows ->
+                    (installed.enabledAddons() + servers).withFilterRows(filterRows)
                 },
                 collectionsDataStore.collections,
                 layoutPreferenceDataStore.homeCatalogOrderKeys,
                 layoutPreferenceDataStore.disabledHomeCatalogKeys,
                 layoutPreferenceDataStore.customCatalogTitles,
-                layoutPreferenceDataStore.followAddonsOrder
+                layoutPreferenceDataStore.followAddonsOrder,
+                layoutPreferenceDataStore.pinnedHomeCatalogKeys
             ) { values ->
                 @Suppress("UNCHECKED_CAST")
                 val addons = values[0] as List<Addon>
@@ -180,6 +220,8 @@ class CatalogOrderViewModel @Inject constructor(
                 @Suppress("UNCHECKED_CAST")
                 val customTitles = values[4] as Map<String, String>
                 val followAddons = values[5] as Boolean
+                @Suppress("UNCHECKED_CAST")
+                val pinnedKeys = values[6] as List<String>
 
                 val items = buildOrderedCatalogItems(
                     addons = addons,
@@ -189,16 +231,39 @@ class CatalogOrderViewModel @Inject constructor(
                     customTitles = customTitles,
                     followAddonsOrder = followAddons
                 )
-                Pair(items, followAddons)
-            }.collectLatest { (orderedItems, followAddons) ->
+                Triple(items, followAddons, pinnedKeys)
+            }.collectLatest { (orderedItems, followAddons, pinnedKeys) ->
                 disabledKeysCache = orderedItems.filter { it.isDisabled }.map { it.disableKey }.toSet()
+                baseItems = orderedItems
+                pinnedKeysCache = pinnedKeys
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        items = orderedItems,
+                        items = withPinnedFirst(orderedItems, pinnedKeys, followAddons),
                         followAddonsOrder = followAddons
                     )
                 }
+            }
+        }
+    }
+
+    private fun withPinnedFirst(
+        items: List<CatalogOrderItem>,
+        pinnedKeys: List<String>,
+        followAddonsOrder: Boolean
+    ): List<CatalogOrderItem> {
+        val byKey = items.associateBy { it.key }
+        val pinned = pinnedKeys.mapNotNull(byKey::get)
+        if (pinned.isEmpty()) return items
+        val pinnedSet = pinned.map { it.key }.toSet()
+        val rest = items.filterNot { it.key in pinnedSet }
+        return pinned.mapIndexed { index, item ->
+            item.copy(isPinned = true, canMoveUp = index > 0, canMoveDown = index < pinned.lastIndex)
+        } + if (followAddonsOrder) {
+            rest
+        } else {
+            rest.mapIndexed { index, item ->
+                item.copy(canMoveUp = index > 0, canMoveDown = index < rest.lastIndex)
             }
         }
     }
@@ -455,7 +520,8 @@ data class CatalogOrderItem(
     val typeLabel: String,
     val isDisabled: Boolean,
     val canMoveUp: Boolean,
-    val canMoveDown: Boolean
+    val canMoveDown: Boolean,
+    val isPinned: Boolean = false
 )
 
 private data class CatalogOrderEntry(

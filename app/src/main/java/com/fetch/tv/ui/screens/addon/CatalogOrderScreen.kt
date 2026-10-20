@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Card
@@ -162,7 +164,8 @@ fun CatalogOrderScreen(
                                     )
                                 }
                             },
-                            onToggleEnabled = { viewModel.toggleCatalogEnabled(item.disableKey) }
+                            onToggleEnabled = { viewModel.toggleCatalogEnabled(item.disableKey) },
+                            onTogglePinned = { viewModel.togglePinned(item.key) }
                         )
                     }
                 }
@@ -176,7 +179,8 @@ private fun CatalogOrderCard(
     item: CatalogOrderItem,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
-    onToggleEnabled: () -> Unit
+    onToggleEnabled: () -> Unit,
+    onTogglePinned: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -202,6 +206,14 @@ private fun CatalogOrderCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = FetchTheme.colors.TextSecondary
                 )
+                if (item.isPinned) {
+                    Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
+                    Text(
+                        text = stringResource(R.string.catalog_order_pinned_on_home),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FetchTheme.colors.Primary
+                    )
+                }
                 if (item.isDisabled) {
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
                     Text(
@@ -259,6 +271,30 @@ private fun CatalogOrderCard(
                     Icon(
                         imageVector = Icons.Default.ArrowDownward,
                         contentDescription = stringResource(R.string.cd_move_down)
+                    )
+                }
+
+                Button(
+                    onClick = onTogglePinned,
+                    colors = ButtonDefaults.colors(
+                        containerColor = FetchTheme.colors.BackgroundCard,
+                        contentColor = if (item.isPinned) FetchTheme.colors.Primary else FetchTheme.colors.TextSecondary,
+                        focusedContainerColor = FetchTheme.colors.FocusBackground,
+                        focusedContentColor = FetchTheme.colors.Primary
+                    ),
+                    border = ButtonDefaults.border(
+                        focusedBorder = Border(
+                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            shape = RoundedCornerShape(FetchTheme.radii.md)
+                        )
+                    ),
+                    shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                ) {
+                    Icon(
+                        imageVector = if (item.isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                        contentDescription = stringResource(
+                            if (item.isPinned) R.string.catalog_order_unpin else R.string.catalog_order_pin
+                        )
                     )
                 }
 

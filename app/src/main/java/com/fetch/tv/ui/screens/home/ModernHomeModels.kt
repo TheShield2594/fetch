@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.fetch.tv.domain.model.catalogRowLegacyKey
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.CollectionFolder
@@ -126,6 +127,14 @@ data class HeroCarouselRow(
     val hasMore: Boolean = false,
     val isLoading: Boolean = false
 )
+
+/** Home order key of a catalog row, or null for rows that are not catalogs. */
+internal fun HeroCarouselRow.orderKey(): String? {
+    val addonId = addonId ?: return null
+    val catalogId = catalogId ?: return null
+    val apiType = apiType ?: return null
+    return catalogRowLegacyKey(addonId, apiType, catalogId)
+}
 
 @Immutable
 data class CarouselRowLookups(
@@ -691,6 +700,14 @@ internal fun ContinueWatchingItem.season(): Int? {
     return when (this) {
         is ContinueWatchingItem.InProgress -> progress.season
         is ContinueWatchingItem.NextUp -> info.seedSeason
+    }
+}
+
+/** Season of the episode the CW card represents (the upcoming/next episode for NextUp). */
+internal fun ContinueWatchingItem.detailSeason(): Int? {
+    return when (this) {
+        is ContinueWatchingItem.InProgress -> progress.season
+        is ContinueWatchingItem.NextUp -> info.season
     }
 }
 

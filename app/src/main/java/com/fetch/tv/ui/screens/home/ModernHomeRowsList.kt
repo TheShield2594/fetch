@@ -102,7 +102,7 @@ internal fun ModernHomeRowsList(
     onBackdropInteraction: () -> Unit,
     onExpandedCatalogFocusKeyChange: (String?) -> Unit,
     isCatalogItemWatched: (MetaPreview) -> Boolean,
-    onCatalogItemLongPress: (MetaPreview, String) -> Unit,
+    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit,
     onItemFocus: (MetaPreview) -> Unit,
     onPreloadAdjacentItem: (MetaPreview) -> Unit,
     enrichedPreviews: State<StableMap<String, MetaPreview>>,

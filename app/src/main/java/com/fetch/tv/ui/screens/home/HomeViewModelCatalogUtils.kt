@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.domain.model.pinnedFirst
 import com.fetch.tv.domain.model.catalogTypeKey
 import com.fetch.tv.domain.model.catalogRowLegacyKey
 import com.fetch.tv.domain.model.Addon
@@ -280,13 +281,13 @@ internal fun HomeViewModel.rebuildCatalogOrder(addons: List<Addon>) {
 
             synchronized(catalogStateLock) {
                 catalogOrder.clear()
-                catalogOrder.addAll(normalized)
+                catalogOrder.addAll(pinnedFirst(normalized, pinnedHomeCatalogKeys))
             }
         } else {
             // No saved order - manifest order + collections at end
             synchronized(catalogStateLock) {
                 catalogOrder.clear()
-                catalogOrder.addAll(defaultOrder + collectionKeys)
+                catalogOrder.addAll(pinnedFirst(defaultOrder + collectionKeys, pinnedHomeCatalogKeys))
             }
         }
     } else {
@@ -303,7 +304,7 @@ internal fun HomeViewModel.rebuildCatalogOrder(addons: List<Addon>) {
 
         synchronized(catalogStateLock) {
             catalogOrder.clear()
-            catalogOrder.addAll(mergedOrder)
+            catalogOrder.addAll(pinnedFirst(mergedOrder, pinnedHomeCatalogKeys))
         }
     }
 }

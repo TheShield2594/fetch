@@ -9,6 +9,12 @@ import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.CatalogExtra
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.ContentType
+import com.fetch.tv.domain.model.FilterRow
+import com.fetch.tv.domain.model.FilterRowSort
+import com.fetch.tv.domain.model.FilterRowSource
+import com.fetch.tv.domain.model.filterRowIdOf
+import com.fetch.tv.domain.model.isFilterRowKey
+import com.fetch.tv.data.local.FilterRowsDataStore
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -42,13 +48,17 @@ internal fun ServerTitle.catalogPreview(addons: List<Addon>): MetaPreview {
 class ServerCatalog @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repository: ServerRepository,
-    private val addonRepository: AddonRepository
+    private val addonRepository: AddonRepository,
+    private val filterRowsDataStore: FilterRowsDataStore
 ) {
     val detailsLoaded = MutableSharedFlow<ServerItemDetails>(extraBufferCapacity = DETAILS_BUFFER)
 
     val addons: Flow<List<Addon>> = repository.uiState
         .map { state -> state.enabledConnections.mapNotNull(::addonFor) }
         .distinctUntilChanged()
+
+    /** Filter rows, which Home adds to the catalogs of the server or addon they read from. */
+    val filterRows: Flow<List<FilterRow>> = filterRowsDataStore.rows
 
     val searchAddons: Flow<List<Addon>> = addons.map { addons ->
         addons.map { addon ->
@@ -94,6 +104,7 @@ class ServerCatalog @Inject constructor(
                 }
             }
             catalogId.startsWith(SEARCH_PREFIX) -> searchPage(connection, catalogId.removePrefix(SEARCH_PREFIX), query, skip)
+            filterRowIdOf(catalogId) != null -> filterRowPage(connection, catalogId, skip)
             else -> {
                 val library = connection.libraries.firstOrNull { it.id == catalogId }
                     ?: throw ServerException(ServerFailure.NOT_FOUND)
@@ -210,6 +221,31 @@ class ServerCatalog @Inject constructor(
         )
     }
 
+    /** Genres of a library, for the filter row editor. */
+    suspend fun genres(connectionId: String, libraryId: String): List<String> {
+        val library = repository.connection(connectionId)?.libraries?.firstOrNull { it.id == libraryId }
+            ?: throw ServerException(ServerFailure.NOT_FOUND)
+        return repository.call(connectionId) { provider, session -> provider.genres(session, library) }
+    }
+
+    private suspend fun filterRowPage(connection: ServerConnection, catalogId: String, skip: Int): Page {
+        val row = filterRowIdOf(catalogId)?.let { filterRowsDataStore.row(it) }
+            ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val source = row.source as? FilterRowSource.ServerLibrary ?: throw ServerException(ServerFailure.NOT_FOUND)
+        val library = connection.libraries.firstOrNull { it.id == source.libraryId }
+            ?: throw ServerException(ServerFailure.NOT_FOUND)
+        // The server reshuffles a random sort on every request, so later pages would repeat
+        // and skip titles: a random row is one page.
+        val random = row.filters.sort == FilterRowSort.RANDOM
+        if (random && skip > 0) return Page(emptyList(), null)
+        val page = pageOf(connection, skip) {
+            repository.call(connection.id) { provider, session ->
+                provider.filteredLibraryPage(session, library, row.filters, skip, PAGE_SIZE)
+            }
+        }
+        return if (random) Page(page.items, null) else page
+    }
+
     private suspend fun resumePage(connection: ServerConnection, skip: Int): Page {
         if (skip > 0) return Page(emptyList(), null)
         val presenter = presenter(connection)
@@ -270,7 +306,9 @@ class ServerCatalog @Inject constructor(
         fun isCollection(id: String?, type: String?): Boolean =
             type == ServerMediaKind.COLLECTION.contentType && ServerItemRef.isServerId(id)
 
-        fun isServerKey(key: String): Boolean = key.startsWith(ADDON_ID_PREFIX) || key.startsWith(BASE_URL_PREFIX)
+        /** Keys that stay on this device: server rows and filter rows. */
+        fun isServerKey(key: String): Boolean =
+            key.startsWith(ADDON_ID_PREFIX) || key.startsWith(BASE_URL_PREFIX) || isFilterRowKey(key)
 
         fun connectionId(baseUrl: String): String? = baseUrl.takeIf(::isServerAddon)?.removePrefix(BASE_URL_PREFIX)
 

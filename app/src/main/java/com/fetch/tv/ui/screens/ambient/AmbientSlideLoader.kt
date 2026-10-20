@@ -25,8 +25,8 @@ import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val ITEMS_PER_CATALOG = 10
-private const val MAX_SLIDES = 30
+private const val ITEMS_PER_CATALOG = 30
+private const val MAX_SLIDES = 60
 private const val MAX_GENRES = 3
 
 @Singleton
@@ -75,7 +75,8 @@ class AmbientSlideLoader @Inject constructor(
         ).first { it !is NetworkResult.Loading }
         val row = (result as? NetworkResult.Success)?.data ?: return emptyList()
         val visible = if (hideUnreleased) row.filterReleasedItems(LocalDate.now()) else row
-        return visible.items.take(ITEMS_PER_CATALOG)
+        // Sample the whole page, not its top: a fixed top few is all ambient mode would ever show.
+        return visible.items.shuffled().take(ITEMS_PER_CATALOG)
     }
 
     private fun List<List<MetaPreview>>.interleave(): List<MetaPreview> {

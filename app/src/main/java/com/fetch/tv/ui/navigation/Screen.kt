@@ -5,7 +5,7 @@ import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
-    data object Detail : Screen("detail/{itemId}/{itemType}?addonBaseUrl={addonBaseUrl}&returnFocusSeason={returnFocusSeason}&returnFocusEpisode={returnFocusEpisode}&returnToHomeOnBack={returnToHomeOnBack}&heroBackdropUrl={heroBackdropUrl}&playOnLoad={playOnLoad}&manualSelection={manualSelection}") {
+    data object Detail : Screen("detail/{itemId}/{itemType}?addonBaseUrl={addonBaseUrl}&returnFocusSeason={returnFocusSeason}&returnFocusEpisode={returnFocusEpisode}&returnToHomeOnBack={returnToHomeOnBack}&heroBackdropUrl={heroBackdropUrl}&playOnLoad={playOnLoad}&manualSelection={manualSelection}&initialSeason={initialSeason}") {
         private fun encode(value: String): String =
             URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
@@ -18,13 +18,14 @@ sealed class Screen(val route: String) {
             returnToHomeOnBack: Boolean = false,
             heroBackdropUrl: String? = null,
             playOnLoad: Boolean = false,
-            manualSelection: Boolean = false
+            manualSelection: Boolean = false,
+            initialSeason: Int? = null
         ): String {
             val encodedItemId = encode(itemId)
             val encodedItemType = encode(itemType)
             val encodedAddon = addonBaseUrl?.let { encode(it) } ?: ""
             val encodedHeroBackdrop = heroBackdropUrl?.let { encode(it) } ?: ""
-            return "detail/$encodedItemId/$encodedItemType?addonBaseUrl=$encodedAddon&returnFocusSeason=${returnFocusSeason ?: ""}&returnFocusEpisode=${returnFocusEpisode ?: ""}&returnToHomeOnBack=$returnToHomeOnBack&heroBackdropUrl=$encodedHeroBackdrop&playOnLoad=$playOnLoad&manualSelection=$manualSelection"
+            return "detail/$encodedItemId/$encodedItemType?addonBaseUrl=$encodedAddon&returnFocusSeason=${returnFocusSeason ?: ""}&returnFocusEpisode=${returnFocusEpisode ?: ""}&returnToHomeOnBack=$returnToHomeOnBack&heroBackdropUrl=$encodedHeroBackdrop&playOnLoad=$playOnLoad&manualSelection=$manualSelection&initialSeason=${initialSeason ?: ""}"
         }
     }
     data object Stream : Screen("stream/{videoId}/{contentType}/{title}?poster={poster}&backdrop={backdrop}&logo={logo}&season={season}&episode={episode}&episodeName={episodeName}&genres={genres}&year={year}&contentId={contentId}&contentName={contentName}&runtime={runtime}&manualSelection={manualSelection}&returnToDetailOnBack={returnToDetailOnBack}&returnToHomeOnBack={returnToHomeOnBack}&startFromBeginning={startFromBeginning}&contentLanguage={contentLanguage}&profileId={profileId}") {
@@ -172,6 +173,12 @@ sealed class Screen(val route: String) {
     }
 
     data object Collections : Screen("collections")
+
+    data object FilterRows : Screen("filter_rows")
+
+    data object FilterRowEditor : Screen("filter_row_editor?rowId={rowId}") {
+        fun createRoute(rowId: String? = null): String = "filter_row_editor?rowId=${rowId.orEmpty()}"
+    }
 
     data object CollectionEditor : Screen("collection_editor?collectionId={collectionId}") {
         fun createRoute(collectionId: String? = null): String {

@@ -188,7 +188,9 @@ sealed class GridItem {
         val catalogId: String,
         val catalogName: String,
         /** Row this card belongs to, so the grid can report which row holds focus. */
-        val addonId: String = ""
+        val addonId: String = "",
+        /** Type of that row's catalog, which an item's own type may differ from. */
+        val rowApiType: String = ""
     ) : GridItem()
     @Immutable
     data class SeeAll(

@@ -4,6 +4,7 @@ import android.util.Log
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.data.remote.api.TmdbAggregateCreditsResponse
 import com.fetch.tv.data.remote.api.TmdbApi
+import com.fetch.tv.data.remote.api.TmdbDetailsResponse
 import com.fetch.tv.data.remote.api.TmdbCastMember
 import com.fetch.tv.data.remote.api.TmdbCollectionPart
 import com.fetch.tv.data.remote.api.TmdbCreditsResponse
@@ -215,7 +216,29 @@ class TmdbMetadataService(
                 val genres = details?.genres?.mapNotNull { genre ->
                     genre.name.trim().takeIf { name -> name.isNotBlank() }
                 } ?: emptyList()
+                // English details, fetched at most once and only when a fallback needs them.
+                var englishDetailsFetched = false
+                var englishDetailsCache: TmdbDetailsResponse? = null
+                suspend fun englishDetails(): TmdbDetailsResponse? {
+                    if (!englishDetailsFetched) {
+                        englishDetailsFetched = true
+                        englishDetailsCache = runCatching {
+                            when (tmdbType) {
+                                "tv" -> tmdbApi.getTvDetails(numericId, TMDB_API_KEY, "en").body()
+                                else -> tmdbApi.getMovieDetails(numericId, TMDB_API_KEY, "en").body()
+                            }
+                        }.getOrNull()
+                    }
+                    return englishDetailsCache
+                }
+                // TMDB returns an empty overview when a title has none in the chosen language; fall
+                // back to English before the addon's own text, as the details page shows it.
                 val description = details?.overview?.takeIf { it.isNotBlank() }
+                    ?: if (details != null && !normalizedLanguage.startsWith("en")) {
+                        englishDetails()?.overview?.trim()?.takeIf { it.isNotBlank() }
+                    } else {
+                        null
+                    }
                 val status = details?.status?.trim()?.takeIf { it.isNotBlank() }
                 val releaseInfo = if (tmdbType == "tv") {
                     details?.firstAirDate.yearPart()?.let { startYear ->
@@ -253,16 +276,11 @@ class TmdbMetadataService(
                     !isCjkLanguage &&
                     containsCjkOrHangul(localizedTitle ?: originalTitle ?: "")
                 ) {
-                    val englishTitle = runCatching {
-                        when (tmdbType) {
-                            "tv" -> tmdbApi.getTvDetails(numericId, TMDB_API_KEY, "en").body()
-                            else -> tmdbApi.getMovieDetails(numericId, TMDB_API_KEY, "en").body()
-                        }?.let { englishDetails ->
-                            (englishDetails.title ?: englishDetails.name)
-                                ?.trim()
-                                ?.takeIf { it.isNotBlank() && !containsCjkOrHangul(it) }
-                        }
-                    }.getOrNull()
+                    val englishTitle = englishDetails()?.let { englishDetails ->
+                        (englishDetails.title ?: englishDetails.name)
+                            ?.trim()
+                            ?.takeIf { it.isNotBlank() && !containsCjkOrHangul(it) }
+                    }
                     localizedTitle = resolveDisplayLabel(
                         localized = rawLocalizedTitle,
                         original = originalTitle,

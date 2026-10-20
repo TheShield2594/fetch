@@ -40,7 +40,7 @@ class ServerWatchedTest {
         }
         val metaRepository = mockk<MetaRepository> { every { getCachedMeta(any(), any()) } returns null }
         val addonRepository = mockk<AddonRepository> { every { getInstalledAddons() } returns flowOf(emptyList()) }
-        val catalog = ServerCatalog(mockk<Context>(relaxed = true), repository, addonRepository)
+        val catalog = ServerCatalog(mockk<Context>(relaxed = true), repository, addonRepository, mockk(relaxed = true))
         val watched = ServerWatched(
             repository = repository,
             matcher = ServerMatcher(repository, tmdbService, metaRepository),

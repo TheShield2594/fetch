@@ -282,6 +282,11 @@ private fun TabbedGridContent(
     val tabFocusRequesters = remember(uiState.tabs.size) { uiState.tabs.indices.map { FocusRequester() } }
     var gridHasFocus by remember { mutableStateOf(false) }
     var gridScrollToTopTrigger by remember { mutableIntStateOf(0) }
+    // True from (re)entering this screen until the saved grid item has been refocused once.
+    // While pending, incidental tab focus must not switch tabs.
+    var pendingItemRestore by remember {
+        mutableStateOf(tabFocusState.hasSavedFocus && tabFocusState.focusedItemKey != null)
+    }
 
     // Grid Back: focus on grid -> move focus to active tab (grid stays scrolled).
     BackHandler(enabled = gridHasFocus && uiState.tabs.size > 1) {
@@ -340,8 +345,11 @@ private fun TabbedGridContent(
                 uiState.tabs.forEachIndexed { index, tab ->
                     Tab(
                         selected = index == uiState.selectedTabIndex,
-                        onFocus = { onSelectTab(index) },
+                        onFocus = {
+                            if (!pendingItemRestore || index == uiState.selectedTabIndex) onSelectTab(index)
+                        },
                         onClick = {
+                            pendingItemRestore = false
                             onSelectTab(index)
                             gridScrollToTopTrigger++
                         },
@@ -379,6 +387,8 @@ private fun TabbedGridContent(
 
     val currentTab = uiState.tabs.getOrNull(uiState.selectedTabIndex)
     if (currentTab == null) return
+    // A tab with no grid to restore into must not keep tab focus from switching tabs.
+    if (!currentTab.isLoading && currentTab.catalogRow == null) pendingItemRestore = false
 
     when {
         currentTab.isLoading -> {
@@ -413,8 +423,12 @@ private fun TabbedGridContent(
                 initialFirstVisibleItemScrollOffset = tabFocusState.verticalScrollOffset
             )
 
+            var lastScrollToTopKey by remember { mutableStateOf(gridScrollToTopTrigger to uiState.selectedTabIndex) }
             // Scroll grid to top when OK is pressed on a tab or tab changes
             LaunchedEffect(gridScrollToTopTrigger, uiState.selectedTabIndex) {
+                val key = gridScrollToTopTrigger to uiState.selectedTabIndex
+                if (key == lastScrollToTopKey) return@LaunchedEffect // not on (re)entry
+                lastScrollToTopKey = key
                 if (gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0) {
                     gridState.scrollToItem(0, 0)
                 }
@@ -443,14 +457,24 @@ private fun TabbedGridContent(
                 }
             }
 
-            LaunchedEffect(items, tabFocusState.hasSavedFocus, tabFocusState.focusedItemKey) {
-                val targetKey = tabFocusState.focusedItemKey ?: return@LaunchedEffect
-                if (!tabFocusState.hasSavedFocus) return@LaunchedEffect
-                val requester = itemFocusRequesters[targetKey] ?: return@LaunchedEffect
-                repeat(2) { withFrameNanos { } }
-                if (runCatching { requester.requestFocus() }.isSuccess) {
-                    lastFocusedItemKey = targetKey
+            LaunchedEffect(uiState.selectedTabIndex, tabFocusState.focusedItemKey) {
+                if (!pendingItemRestore) return@LaunchedEffect
+                val targetKey = tabFocusState.focusedItemKey
+                if (targetKey == null || !tabFocusState.hasSavedFocus) {
+                    pendingItemRestore = false
+                    return@LaunchedEffect
                 }
+                // Look up the requester after layout; items register their requesters during measure.
+                repeat(8) {
+                    withFrameNanos { }
+                    val requester = itemFocusRequesters[targetKey]
+                    if (requester != null && runCatching { requester.requestFocus() }.isSuccess) {
+                        lastFocusedItemKey = targetKey
+                        pendingItemRestore = false
+                        return@LaunchedEffect
+                    }
+                }
+                pendingItemRestore = false
             }
 
             val catalogRow = currentTab.catalogRow
@@ -1008,7 +1032,8 @@ private fun FollowLayoutContent(
             onLoadMoreCatalog = onLoadMoreCatalog,
             onRemoveContinueWatching = noOpRemoveCw,
             isCatalogItemWatched = isItemWatched,
-            onCatalogItemLongPress = onCatalogItemLongPress,
+            // Folder rows are not Home rows, so there is no row to pin.
+            onCatalogItemLongPress = { item, addonBaseUrl, _ -> onCatalogItemLongPress(item, addonBaseUrl) },
             onNavigateToFolderDetail = noOpFolderDetail,
             onItemFocus = onItemFocus,
             onPreloadAdjacentItem = onPreloadAdjacentItem,

@@ -523,6 +523,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                         .coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
                 }
                 val budgetBytes = budgetMbEffective.toLong() * 1024L * 1024L
+                // The allocator is on the Java heap: time-priority loading may go past a small
+                // target, but never past the heap budget (or the target, if that is larger).
+                val heapBudgetBytes = (MemoryBudget.budgetMb - parallelOverheadMb)
+                    .coerceAtLeast(MemoryBudget.MIN_BUFFER_MB).toLong() * 1024L * 1024L
+                val hardCeilingBytes = maxOf(budgetBytes, heapBudgetBytes)
                 // Build with the user's back buffer so seek-back works immediately, except on a heap
                 // bound device, where the load control would hold it for the whole session.
                 configuredBackBufferMs = bufferSettings.backBufferDurationMs
@@ -563,7 +568,8 @@ internal fun PlayerRuntimeController.initializePlayer(
                     backBufferDurationMs = backBufferMsAtBuild,
                     retainBackBufferFromKeyframe = true,
                     budgetBytes = budgetBytes,
-                    allocator = allocator
+                    allocator = allocator,
+                    hardCeilingBytes = hardCeilingBytes
                 ).also { currentBitrateAwareLoadControl = it }
             } else {
                 // Stock LoadControl: DefaultLoadControl configured with 1.5s back buffer so 1s rewind doesn't clear buffer.

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="phone_hub_title">Configure from phone</string>
+    <string name="phone_hub_description">Scan one code to use your phone as a remote and keyboard, sign in to accounts, and edit long settings.</string>
+    <string name="phone_hub_open">Show phone code</string>
+    <string name="phone_hub_open_description">Your phone must be on the same network as this TV.</string>
+    <string name="phone_hub_instruction">Scan with your phone. The code works once; the page stays open while this screen is.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d phone connected. The remote keeps working for 10 minutes after you close this screen.</item>
+        <item quantity="other">%d phones connected. The remote keeps working for 10 minutes after you close this screen.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">This profile has parental limits. Unlock settings on the TV first.</string>
+</resources>

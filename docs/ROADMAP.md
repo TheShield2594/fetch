@@ -24,7 +24,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Android TV "Watch Next" row | ✅ | `core/recommendations/TvRecommendationManager.kt`, `core/sync/androidtv/`. |
 | Debrid as a built-in setting | ✅ | `core/debrid/` (Real-Debrid, Premiumize, TorBox), `ui/screens/settings/DebridSettingsScreen.kt`. Gap: AllDebrid / Debrid-Link. |
 | Profiles | ✅ | `core/profile/ProfileManager.kt`, per-profile settings and addons. |
-| Parental controls | 🟡 | Profile PINs exist but are verified by the sync server, so they don't work in local-only mode. Needs a local PIN and certification-based filtering / kids profiles. |
+| Parental controls | ✅ | `core/parental/`: local salted PIN hash with lockout (`ProfilePinManager`, works offline; mirrored to the sync server when signed in), per-profile rating limit and unrated toggle (`ParentalControls`, ratings from addons or TMDB), kids preset (no hero or upcoming row), filtering of home rows, search, Discover and Continue Watching, and blocked streams above the limit. The parent PIN guards settings, addon management, phone pages and leaving a restricted profile (`ui/screens/profile/ParentalGate.kt`). |
 | Low-end performance (lazy artwork, capped caches, fast cold start) | 🟡 | Coil memory cache scales with RAM, 200 MB disk cache, RGB565 option, baseline profiles, decoder probing off the main thread. Gap: disk cache is not scaled to free storage; cold-start work in `FetchApplication.onCreate` should be audited on a 1.5 GB device. |
 
 ## What we're changing
@@ -32,7 +32,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | # | Change | Status | Where / notes |
 |---|---|---|---|
 | 1 | Rebuilt stream picker: parsed fields, user rules, device-aware ranking, auto-play best match with other sources one press away | 🟡 | ✅ `core/streams/ranking/` (`StreamTitleParser`, `StreamRanker`, `AndroidDeviceDecodeCapabilities`), "Best match" auto-play mode (default), rule settings in Playback → Stream selection, ranked "All" list, spec line on each card. Next: structured chips instead of raw strings, an "Other sources" button on the player loading screen, unify with the debrid-only filters in `core/debrid/DirectDebridStreamFilter.kt`. |
-| 2 | Configure the TV from a phone | 🟡 | QR + local web pages already cover addons, catalog order, plugin repos, debrid formatting, badges and posters (`core/server/`). Next: Trakt/Simkl/debrid logins and long settings on the phone page, and a phone remote with keyboard for search. |
+| 2 | Configure the TV from a phone | ✅ | Settings → Configure from phone: one QR code for a hub (`core/server/PhoneHubServer.kt`) with a remote and keyboard, account sign-ins (debrid keys, MDBList, Trakt, Simkl, Jellyfin/Emby), stream ranking rules, debrid templates, badges and posters. Addons, catalogs, collections and plugin repos keep their per-screen QR codes because changes are confirmed on the TV. All servers need a one-time pairing token and only answer the LAN; see `docs/architecture/phone-config-security.md`. |
 | 3 | Local-first, private, optional self-hosted sync | 🟡 | ✅ Sentry removed, no hosted backend, local-only by default, issue reports disabled unless a builder sets an endpoint. Sync still speaks the upstream Supabase protocol; a Cataloggy adapter (addon-format watch state) is the next step. |
 | 4 | Jellyfin and Plex as first-class sources | 🟡 | Jellyfin and Emby items already appear in stream lists and outrank streamed results under Best match (`data/mediaserver/`). Plex is not implemented; catalogs/Continue Watching integration should be verified. |
 | 5 | Progressive, visible addon results | ✅ | Parallel, progressive stream loading (`data/repository/StreamRepositoryImpl.kt`), per-addon 25 s timeout, health line on each addon card (`core/streams/AddonHealthTracker.kt`). Next: make the timeout configurable and persist health across restarts. |
@@ -41,11 +41,10 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 ## Follow-ups from the fork
 
-- **Media3 fork.** `app/libs/lib-*-release.aar` are prebuilt Media3 modules from upstream
-  (they expose `androidx.media3.common.NuvioEngineConfig`). Replace them with stock Media3 or
-  a fork built from source in this repo.
-- **QuickJS fork.** `app/libs/quickjs-kt-android-1.0.5-nuvio.aar` is upstream's patched build,
-  used only by local scraper plugins in the `full` flavor.
+- **Media3 and QuickJS forks.** `app/libs/lib-*-release.aar` are prebuilt Media3 modules from
+  upstream, and `quickjs-kt-android-1.0.5-nuvio.aar` is upstream's QuickJS-ng build of
+  quickjs-kt. What they change, where Fetch depends on it, and the replacement options are in
+  `docs/architecture/media3-fork.md` (#1).
 - **Torrent engine.** `core/torrent/TorrentService.kt` keeps the upstream API without an
   engine. An open-source engine (e.g. libtorrent4j) can be plugged in there.
 - **Translations.** Strings whose meaning changed (sync, licenses) fall back to English in

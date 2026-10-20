@@ -67,6 +67,7 @@ class ProfileDataStoreFactory @Inject constructor(
         "debug_settings",
         "device_local_player_prefs",
         "profile_lock_state",
+        "profile_restrictions",
         "profile_settings",
         "sentry_settings",
         "torrent_settings",

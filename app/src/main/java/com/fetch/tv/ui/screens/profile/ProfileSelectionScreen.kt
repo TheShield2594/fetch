@@ -109,6 +109,7 @@ import com.fetch.tv.R
 import com.fetch.tv.core.sync.SetProfilePinResult
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
+import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.domain.model.UserProfile
 import com.fetch.tv.ui.components.AvatarPickerGrid
 import com.fetch.tv.ui.components.CustomProfileBackgroundImage
@@ -176,7 +177,7 @@ enum class ProfileSelectionMode {
     Management
 }
 
-private sealed interface ProfilePinOverlayState {
+internal sealed interface ProfilePinOverlayState {
     val profile: UserProfile
 
     data class Unlock(override val profile: UserProfile) : ProfilePinOverlayState
@@ -184,6 +185,14 @@ private sealed interface ProfilePinOverlayState {
     data class VerifyCurrentForChange(override val profile: UserProfile) : ProfilePinOverlayState
     data class VerifyCurrentForRemove(override val profile: UserProfile) : ProfilePinOverlayState
     data class VerifyCurrentForDelete(override val profile: UserProfile) : ProfilePinOverlayState
+    /**
+     * Parent PIN, asked for before a restricted profile opens settings or leaves the profile,
+     * or before [targetProfile]'s parental limits are edited.
+     */
+    data class ParentGate(
+        override val profile: UserProfile,
+        val targetProfile: UserProfile? = null
+    ) : ProfilePinOverlayState
 }
 
 private enum class ProfilePinEntryStage {
@@ -217,6 +226,7 @@ fun ProfileSelectionScreen(
     val isSaving by viewModel.isSaving.collectAsState()
     val isCopyingSettings by viewModel.isCopyingSettings.collectAsState()
     val profilePinEnabled by viewModel.profilePinEnabled.collectAsState()
+    val profileRestrictions by viewModel.profileRestrictions.collectAsState()
     val isPinOperationInProgress by viewModel.isPinOperationInProgress.collectAsState()
     val avatarImageUrlsById = remember(avatarCatalog, profiles) {
         buildMap {
@@ -238,6 +248,7 @@ fun ProfileSelectionScreen(
     var profileToDelete by remember { mutableStateOf<UserProfile?>(null) }
     var profileToEdit by remember { mutableStateOf<UserProfile?>(null) }
     var settingsCopyTarget by remember { mutableStateOf<UserProfile?>(null) }
+    var limitsTarget by remember { mutableStateOf<UserProfile?>(null) }
     var settingsCopyError by remember { mutableStateOf<String?>(null) }
     var pinOverlayState by remember { mutableStateOf<ProfilePinOverlayState?>(null) }
     var pinOverlayError by remember { mutableStateOf<String?>(null) }
@@ -500,13 +511,41 @@ fun ProfileSelectionScreen(
                                 viewModel.clearProfilePin(
                                     profileId = activePinOverlay.profile.id,
                                     currentPin = pin
-                                ) { success ->
-                                    if (success) {
-                                        pinOverlayError = null
-                                        pinOverlayState = null
-                                        profileActionMessage = context.getString(R.string.profile_pin_lock_removed_for_profile, activePinOverlay.profile.name)
-                                    } else {
-                                        pinOverlayError = context.getString(R.string.profile_pin_incorrect)
+                                ) { result ->
+                                    result.onSuccess { verify ->
+                                        if (verify.unlocked) {
+                                            pinOverlayError = null
+                                            pinOverlayState = null
+                                            profileActionMessage = context.getString(R.string.profile_pin_lock_removed_for_profile, activePinOverlay.profile.name)
+                                        } else {
+                                            pinOverlayError = if (verify.retryAfterSeconds > 0) {
+                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
+                                            } else {
+                                                context.getString(R.string.profile_pin_incorrect)
+                                            }
+                                        }
+                                    }.onFailure {
+                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)
+                                    }
+                                }
+                            }
+
+                            is ProfilePinOverlayState.ParentGate -> {
+                                viewModel.verifyProfilePin(activePinOverlay.profile.id, pin) { result ->
+                                    result.onSuccess { verify ->
+                                        if (verify.unlocked) {
+                                            pinOverlayError = null
+                                            pinOverlayState = null
+                                            limitsTarget = activePinOverlay.targetProfile
+                                        } else {
+                                            pinOverlayError = if (verify.retryAfterSeconds > 0) {
+                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
+                                            } else {
+                                                context.getString(R.string.profile_pin_incorrect)
+                                            }
+                                        }
+                                    }.onFailure {
+                                        pinOverlayError = context.getString(R.string.profile_pin_verify_error)
                                     }
                                 }
                             }
@@ -724,6 +763,29 @@ fun ProfileSelectionScreen(
                     Button(
                         onClick = {
                             longPressedProfile = null
+                            val parent = profiles.firstOrNull { it.isPrimary }
+                            // Limits are the parent's to change, so they sit behind the parent PIN.
+                            if (parent != null && profilePinEnabled[parent.id] == true) {
+                                pinOverlayError = null
+                                pinOverlayState = ProfilePinOverlayState.ParentGate(parent, targetProfile = profile)
+                            } else {
+                                limitsTarget = profile
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.colors(
+                            containerColor = FetchTheme.colors.BackgroundCard,
+                            contentColor = FetchTheme.colors.TextPrimary
+                        )
+                    ) {
+                        Text(stringResource(R.string.parental_limits_label))
+                    }
+                }
+
+                if (!profile.isPrimary) {
+                    Button(
+                        onClick = {
+                            longPressedProfile = null
                             if (profilePinEnabled[profile.id] == true) {
                                 pinOverlayError = null
                                 pinOverlayState = ProfilePinOverlayState.VerifyCurrentForDelete(profile)
@@ -741,6 +803,21 @@ fun ProfileSelectionScreen(
                     }
                 }
             }
+        }
+
+        limitsTarget?.let { targetProfile ->
+            val primaryHasPin = profiles.firstOrNull { it.isPrimary }?.let { profilePinEnabled[it.id] == true } == true
+            ProfileLimitsDialog(
+                profile = targetProfile,
+                initial = profileRestrictions[targetProfile.id] ?: ProfileRestrictions.None,
+                parentPinSet = primaryHasPin,
+                onDismiss = { limitsTarget = null },
+                onSave = { restrictions ->
+                    viewModel.setProfileRestrictions(targetProfile.id, restrictions)
+                    limitsTarget = null
+                    profileActionMessage = context.getString(R.string.parental_limits_saved, targetProfile.name)
+                }
+            )
         }
 
         settingsCopyTarget?.let { targetProfile ->
@@ -2056,7 +2133,7 @@ private fun EditProfileOverlay(
 }
 
 @Composable
-private fun ProfilePinOverlay(
+internal fun ProfilePinOverlay(
     state: ProfilePinOverlayState,
     isWorking: Boolean,
     errorMessage: String?,
@@ -2251,6 +2328,7 @@ private fun ProfilePinOverlay(
             state is ProfilePinOverlayState.VerifyCurrentForChange -> stringResource(R.string.profile_pin_overlay_change_verify_heading, state.profile.name)
             state is ProfilePinOverlayState.VerifyCurrentForRemove -> stringResource(R.string.profile_pin_overlay_remove_verify_heading, state.profile.name)
             state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(R.string.profile_pin_overlay_delete_verify_heading, state.profile.name)
+            state is ProfilePinOverlayState.ParentGate -> stringResource(R.string.parental_gate_heading, state.profile.name)
             entryStage == ProfilePinEntryStage.Confirm -> stringResource(R.string.profile_pin_overlay_confirm_heading)
             else -> stringResource(R.string.profile_pin_overlay_set_heading, state.profile.name)
         }
@@ -2262,6 +2340,7 @@ private fun ProfilePinOverlay(
             state is ProfilePinOverlayState.VerifyCurrentForChange -> stringResource(R.string.profile_pin_overlay_change_verify_support)
             state is ProfilePinOverlayState.VerifyCurrentForRemove -> stringResource(R.string.profile_pin_overlay_remove_verify_support)
             state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(R.string.profile_pin_overlay_delete_verify_support)
+            state is ProfilePinOverlayState.ParentGate -> stringResource(R.string.parental_gate_support)
             entryStage == ProfilePinEntryStage.Confirm -> stringResource(R.string.profile_pin_overlay_confirm_support)
             else -> stringResource(R.string.profile_pin_overlay_set_support)
         }
@@ -2320,7 +2399,8 @@ private fun ProfilePinOverlay(
             if (state is ProfilePinOverlayState.Unlock ||
                 state is ProfilePinOverlayState.VerifyCurrentForChange ||
                 state is ProfilePinOverlayState.VerifyCurrentForRemove ||
-                state is ProfilePinOverlayState.VerifyCurrentForDelete
+                state is ProfilePinOverlayState.VerifyCurrentForDelete ||
+                state is ProfilePinOverlayState.ParentGate
             ) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(

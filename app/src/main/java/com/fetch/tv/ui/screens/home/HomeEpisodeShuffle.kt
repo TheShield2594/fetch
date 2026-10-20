@@ -43,6 +43,8 @@ internal fun HomeViewModel.createShuffleHomeState(): StateFlow<HomeUiState> {
                     season = video.season, episode = video.episode, overview = video.overview, available = video.available)
             }
         }
+    }.combine(parentalControls.filterRevision) { state, _ ->
+        filterContinueWatchingForProfile(state, parentalControls)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, HomeUiState())
 }
 

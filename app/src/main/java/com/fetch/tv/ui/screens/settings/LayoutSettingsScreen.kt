@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,13 @@ fun LayoutSettingsScreen(
     onBackPress: () -> Unit
 ) {
     BackHandler { onBackPress() }
+    // Phone pages are only served while this screen is open.
+    DisposableEffect(viewModel) {
+        onDispose {
+            viewModel.stopStreamBadgeQrMode()
+            viewModel.stopCustomPosterQrMode()
+        }
+    }
 
     SettingsStandaloneScaffold(
         title = stringResource(R.string.layout_title),

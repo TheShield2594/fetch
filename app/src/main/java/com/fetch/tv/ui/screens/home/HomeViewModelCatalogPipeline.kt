@@ -571,7 +571,9 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
 }
 
 internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
-    val (orderedKeys, catalogSnapshot) = snapshotCatalogState()
+    val (orderedKeys, unfilteredCatalogSnapshot) = snapshotCatalogState()
+    // Profile limits apply before anything else so rows, hero and grid all respect them.
+    val catalogSnapshot = unfilteredCatalogSnapshot.mapValues { (_, row) -> parentalControls.filterRow(row) }
     val collectionsSnapshot = collectionsCache.associateBy { "collection_${it.id}" }
     val heroCatalogKeys = currentHeroCatalogKeys
     val currentLayout = _uiState.value.homeLayout

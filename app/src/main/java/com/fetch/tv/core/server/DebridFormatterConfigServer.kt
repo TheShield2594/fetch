@@ -14,12 +14,18 @@ class DebridFormatterConfigServer(
     private val onSettingsChanged: (DebridFormatterSettings) -> Unit,
     private val context: Context? = null,
     private val logoProvider: (() -> ByteArray?)? = null,
-    port: Int = 8090
+    port: Int = 8090,
+    private val pairingGuard: PairingGuard? = null
 ) : NanoHTTPD(port) {
+    /** Address for the QR code, carrying the one-time pairing token. */
+    fun pairingUrl(host: String): String =
+        pairingGuard?.pairingUrl(host, listeningPort) ?: "http://$host:$listeningPort"
+
     private val gson = Gson()
     private val settingsMapType = object : TypeToken<Map<String, Any?>>() {}.type
 
     override fun serve(session: IHTTPSession): Response {
+        pairingGuard?.check(session)?.let { return it }
         return when {
             session.method == Method.GET && session.uri == "/" -> serveWebPage()
             session.method == Method.GET && session.uri == "/logo.png" -> serveLogo()
@@ -135,7 +141,8 @@ class DebridFormatterConfigServer(
                         onSettingsChanged = onSettingsChanged,
                         context = context,
                         logoProvider = logoProvider,
-                        port = port
+                        port = port,
+                        pairingGuard = PairingGuard()
                     )
                     server.start(SOCKET_READ_TIMEOUT, false)
                     return server

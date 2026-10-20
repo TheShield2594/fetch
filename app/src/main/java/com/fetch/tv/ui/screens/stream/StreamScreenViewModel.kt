@@ -108,6 +108,7 @@ class StreamScreenViewModel @Inject constructor(
     private val serverPlayback: ServerPlayback,
     party: com.fetch.tv.core.party.PartyRepository,
     profileManager: com.fetch.tv.core.profile.ProfileManager,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private var autoPlayHandledForSession = false
@@ -379,6 +380,18 @@ class StreamScreenViewModel @Inject constructor(
         return streamAutoPlayMode != StreamAutoPlayMode.MANUAL
     }
 
+    private suspend fun isAllowedForProfile(): Boolean {
+        if (!parentalControls.activeRestrictions.value.isRestricted) return true
+        val baseId = (contentId ?: videoId.substringBefore(":")).takeIf { it.isNotBlank() } ?: return false
+        return parentalControls.isAllowedResolved(
+            com.fetch.tv.core.parental.CertificationQuery(
+                contentId = baseId,
+                type = com.fetch.tv.domain.model.ContentType.fromString(contentType),
+                imdbId = baseId.takeIf { it.startsWith("tt") }
+            )
+        )
+    }
+
     private fun loadStreams(forceRefresh: Boolean = false) {
         streamRepository.setLocalPluginSearchPaused(false)
         streamLoadScope?.cancel()
@@ -394,6 +407,22 @@ class StreamScreenViewModel @Inject constructor(
         streamLoadScope = newScope
         streamLoadJob = newScope.launch {
             streamLoadCompleted = false
+            if (!isAllowedForProfile()) {
+                // Above the profile's certification limit: no streams, so nothing can auto-play.
+                autoPlayHandledForSession = true
+                updateUiStateIfChanged {
+                    it.copy(
+                        isLoading = false,
+                        error = context.getString(R.string.parental_title_blocked),
+                        autoPlayStream = null,
+                        isDirectAutoPlayFlow = false,
+                        showDirectAutoPlayOverlay = false,
+                        directAutoPlayMessage = null
+                    )
+                }
+                streamLoadCompleted = true
+                return@launch
+            }
             val playerSettings = playerSettingsDataStore.playerSettings.first()
             if (manualSelection) {
                 directAutoPlayModeInitializedForSession = true

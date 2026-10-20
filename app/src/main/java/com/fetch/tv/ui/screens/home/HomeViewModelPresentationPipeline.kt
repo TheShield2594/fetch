@@ -91,7 +91,11 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
         combine(
             layoutPreferenceDataStore.selectedLayout,
             layoutPreferenceDataStore.heroCatalogSelections,
-            layoutPreferenceDataStore.heroSectionEnabled,
+            // Kids profiles get a simplified home without the hero section.
+            combine(
+                layoutPreferenceDataStore.heroSectionEnabled,
+                parentalControls.activeRestrictions
+            ) { enabled, restrictions -> enabled && !restrictions.isKidsProfile },
             layoutPreferenceDataStore.posterLabelsEnabled,
             layoutPreferenceDataStore.catalogAddonNameEnabled
         ) { layout, heroCatalogKeys, heroSectionEnabled, posterLabelsEnabled, catalogAddonNameEnabled ->

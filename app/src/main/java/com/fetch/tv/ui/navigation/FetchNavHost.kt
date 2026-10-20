@@ -55,6 +55,7 @@ import com.fetch.tv.ui.screens.home.ContinueWatchingItem
 import com.fetch.tv.ui.screens.account.AuthQrSignInScreen
 import com.fetch.tv.ui.screens.cast.CastDetailScreen
 import com.fetch.tv.ui.screens.profile.ProfileSelectionMode
+import com.fetch.tv.ui.screens.profile.ParentalGuardedRoute
 import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.screens.tmdb.TmdbEntityBrowseScreen
 import com.fetch.tv.ui.screens.home.HeroBackdropState
@@ -1229,17 +1230,28 @@ private fun PlaybackNavHost(
         }
 
         composable(Screen.Settings.route) {
-            SettingsScreen(
-                showBuiltInHeader = !hideBuiltInHeaders,
-                onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
-                onNavigateToPlugins = { navController.navigate(Screen.Plugins.route) },
-                onNavigateToAuthQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
-                onNavigateToManageProfiles = { navController.navigate(Screen.ManageProfiles.route) },
-                onNavigateToLicensesAttributions = {
-                    navController.navigate(Screen.LicensesAttributions.route)
-                },
-                onNavigateToWatchParty = { navController.navigate(Screen.WatchParty.createRoute()) }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                SettingsScreen(
+                    showBuiltInHeader = !hideBuiltInHeaders,
+                    onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
+                    onNavigateToPlugins = { navController.navigate(Screen.Plugins.route) },
+                    onNavigateToAuthQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
+                    onNavigateToManageProfiles = { navController.navigate(Screen.ManageProfiles.route) },
+                    onNavigateToLicensesAttributions = {
+                        navController.navigate(Screen.LicensesAttributions.route)
+                    },
+                    onNavigateToWatchParty = { navController.navigate(Screen.WatchParty.createRoute()) },
+                    onNavigateToPhoneHub = { navController.navigate(Screen.PhoneHub.route) }
+                )
+            }
+        }
+
+        composable(Screen.PhoneHub.route) {
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                com.fetch.tv.ui.screens.phone.PhoneHubScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(
@@ -1259,35 +1271,45 @@ private fun PlaybackNavHost(
         }
 
         composable(Screen.ManageProfiles.route) {
-            ProfileSelectionScreen(
-                onProfileSelected = {},
-                screenMode = ProfileSelectionMode.Management,
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                ProfileSelectionScreen(
+                    onProfileSelected = {},
+                    screenMode = ProfileSelectionMode.Management,
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(Screen.Tracking.route) {
-            TrackingSettingsScreen(
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                TrackingSettingsScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(Screen.TmdbSettings.route) {
-            TmdbSettingsScreen(
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                TmdbSettingsScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(Screen.ThemeSettings.route) {
-            ThemeSettingsScreen(
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                ThemeSettingsScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(Screen.PlaybackSettings.route) {
-            PlaybackSettingsScreen(
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                PlaybackSettingsScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(Screen.About.route) {
@@ -1306,27 +1328,33 @@ private fun PlaybackNavHost(
         }
 
         composable(Screen.AddonManager.route) {
-            AddonManagerScreen(
-                showBuiltInHeader = !hideBuiltInHeaders,
-                onBackPress = { navController.popBackStack() },
-                onNavigateToCatalogOrder = { navController.navigate(Screen.CatalogOrder.route) },
-                onNavigateToCollections = { navController.navigate(Screen.Collections.route) }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                AddonManagerScreen(
+                    showBuiltInHeader = !hideBuiltInHeaders,
+                    onBackPress = { navController.popBackStack() },
+                    onNavigateToCatalogOrder = { navController.navigate(Screen.CatalogOrder.route) },
+                    onNavigateToCollections = { navController.navigate(Screen.Collections.route) }
+                )
+            }
         }
 
         composable(Screen.CatalogOrder.route) {
-            CatalogOrderScreen(
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                CatalogOrderScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(Screen.Collections.route) {
-            com.fetch.tv.ui.screens.collection.CollectionManagementScreen(
-                onNavigateToEditor = { collectionId ->
-                    navController.navigate(Screen.CollectionEditor.createRoute(collectionId))
-                },
-                onBack = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                com.fetch.tv.ui.screens.collection.CollectionManagementScreen(
+                    onNavigateToEditor = { collectionId ->
+                        navController.navigate(Screen.CollectionEditor.createRoute(collectionId))
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(
@@ -1362,34 +1390,44 @@ private fun PlaybackNavHost(
 
         if (AppFeaturePolicy.pluginsEnabled) {
             composable(Screen.Plugins.route) {
-                PluginScreen(
+                ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                    PluginScreen(
+                        onBackPress = { navController.popBackStack() }
+                    )
+                }
+            }
+        }
+
+        composable(Screen.Account.route) {
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                AuthQrSignInScreen(
                     onBackPress = { navController.popBackStack() }
                 )
             }
         }
 
-        composable(Screen.Account.route) {
-            AuthQrSignInScreen(
-                onBackPress = { navController.popBackStack() }
-            )
-        }
-
         composable(Screen.AuthSignIn.route) {
-            AuthQrSignInScreen(
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                AuthQrSignInScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(Screen.AuthQrSignIn.route) {
-            AuthQrSignInScreen(
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                AuthQrSignInScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(Screen.LayoutSettings.route) {
-            LayoutSettingsScreen(
-                onBackPress = { navController.popBackStack() }
-            )
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                LayoutSettingsScreen(
+                    onBackPress = { navController.popBackStack() }
+                )
+            }
         }
 
         composable(

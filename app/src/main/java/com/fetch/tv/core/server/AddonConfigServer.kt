@@ -17,8 +17,12 @@ class AddonConfigServer(
     private val traktMetadataProvider: ((TraktSourceMetadataRequest) -> TraktSourceMetadataInfo?)? = null,
     private val traktSearchProvider: ((TraktSourceSearchRequest) -> List<TraktSourceSearchResultInfo>)? = null,
     private val logoProvider: (() -> ByteArray?)? = null,
-    port: Int = 8080
+    port: Int = 8080,
+    private val pairingGuard: PairingGuard? = null
 ) : NanoHTTPD(port) {
+    /** Address for the QR code, carrying the one-time pairing token. */
+    fun pairingUrl(host: String): String =
+        pairingGuard?.pairingUrl(host, listeningPort) ?: "http://$host:$listeningPort"
 
     private val gson = Gson()
     private val pendingChanges = ConcurrentHashMap<String, PendingAddonChange>()
@@ -32,6 +36,7 @@ class AddonConfigServer(
     }
 
     override fun serve(session: IHTTPSession): Response {
+        pairingGuard?.check(session)?.let { return it }
         val uri = session.uri
         val method = session.method
 
@@ -244,7 +249,8 @@ class AddonConfigServer(
                         traktMetadataProvider = traktMetadataProvider,
                         traktSearchProvider = traktSearchProvider,
                         logoProvider = logoProvider,
-                        port = port
+                        port = port,
+                        pairingGuard = PairingGuard()
                     )
                     server.start(SOCKET_READ_TIMEOUT, false)
                     return server

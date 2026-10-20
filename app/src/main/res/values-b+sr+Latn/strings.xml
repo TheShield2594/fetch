@@ -2053,7 +2053,6 @@
     <string name="server_options_content_description">Opcije servera</string>
     <string name="server_options_connect_custom">Poveži se na sopstveni server</string>
     <string name="server_options_change_custom">Poveži se na drugi server</string>
-    <string name="server_options_use_official">Koristi zvanični server</string>
     <string name="custom_server_title">Poveži se na sopstveni server</string>
     <string name="custom_server_description">Unesite Backend URL koji vam je dostavio administrator servera.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2072,12 +2071,7 @@
     <string name="custom_server_warning_credentials">Operator servera može primiti vaše pristupne podatke i pristupiti podacima koje sinhronizujete preko ovog servera.</string>
     <string name="custom_server_trust_action">Verujem ovom serveru</string>
     <string name="custom_server_switching">Prebacivanje\u2026</string>
-    <string name="official_server_title">Koristiti zvanični server?</string>
-    <string name="official_server_description">Bićete odjavljeni sa sopstvenog servera i aplikacija će se ponovo pokrenuti sa zvaničnim servisom.</string>
-    <string name="official_server_action">Koristi zvanični server</string>
     <string name="custom_server_error_invalid_url">Unesite validan HTTP ili HTTPS Backend URL.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv je zvanični server i već je izabran.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv je zvanični server. Zatvorite ovaj prozor i izaberite Koristi zvanični server da biste se vratili.</string>
     <string name="custom_server_error_connection">Nije moguće pristupiti krajnjoj tački za otkrivanje (discovery endpoint). Proverite URL i dostupnost servera.</string>
     <string name="custom_server_error_http">Krajnja tačka za otkrivanje je vratila HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">Dokument o otkrivanju je veći od dozvoljenog.</string>

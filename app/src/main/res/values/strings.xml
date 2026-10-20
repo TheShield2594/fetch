@@ -2217,7 +2217,7 @@
     <string name="server_options_content_description">Server options</string>
     <string name="server_options_connect_custom">Connect to custom server</string>
     <string name="server_options_change_custom">Connect to another server</string>
-    <string name="server_options_use_official">Use official server</string>
+    <string name="server_options_use_official">Turn off sync</string>
     <string name="custom_server_title">Connect to custom server</string>
     <string name="custom_server_description">Enter the Backend URL provided by your server administrator.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2236,12 +2236,12 @@
     <string name="custom_server_warning_credentials">The server operator can receive your account credentials and access data you sync through this server.</string>
     <string name="custom_server_trust_action">I trust this server</string>
     <string name="custom_server_switching">Switching\u2026</string>
-    <string name="official_server_title">Use official server?</string>
-    <string name="official_server_description">You will be signed out of the custom server and the app will restart with the official service.</string>
-    <string name="official_server_action">Use official server</string>
+    <string name="official_server_title">Turn off sync?</string>
+    <string name="official_server_description">You will be signed out of your sync server and the app will restart in local-only mode. Everything already on this TV stays.</string>
+    <string name="official_server_action">Turn off sync</string>
     <string name="custom_server_error_invalid_url">Enter a valid HTTP or HTTPS Backend URL.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv is the official server and is already selected.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv is the official server. Close this dialog and choose Use official server to switch back.</string>
+    <string name="custom_server_error_official_active">Sync is already off on this TV.</string>
+    <string name="custom_server_error_official_available">That is not a sync server. Close this dialog and choose Turn off sync to go back to local-only mode.</string>
     <string name="custom_server_error_connection">Could not reach the discovery endpoint. Check the URL and server availability.</string>
     <string name="custom_server_error_http">The discovery endpoint returned HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">The discovery document is larger than allowed.</string>
@@ -3067,6 +3067,35 @@
     <string name="network_fast_error_token_missing">fast.com: token not found in bundle</string>
 
     <!-- Torrent service errors -->
+    <string name="autoplay_mode_best">Best match</string>
+    <string name="autoplay_mode_best_desc">Ranks every result by quality, your rules and what this device can play, then starts the winner. Other sources stay one press away.</string>
+    <string name="ranking_preferred_quality">Preferred quality</string>
+    <string name="ranking_preferred_quality_sub">Higher qualities are still allowed, just ranked lower</string>
+    <string name="ranking_max_quality">Maximum quality</string>
+    <string name="ranking_preferred_codec">Preferred video codec</string>
+    <string name="ranking_preferred_size">Preferred file size</string>
+    <string name="ranking_preferred_size_sub">Larger files are ranked lower</string>
+    <string name="ranking_max_size">Maximum file size</string>
+    <string name="ranking_max_size_sub">Larger files are never auto-played</string>
+    <string name="ranking_skip_dv5">Skip Dolby Vision profile 5</string>
+    <string name="ranking_skip_dv5_sub">Profile 5 has no HDR10 fallback. It is always skipped when this TV can\'t display it</string>
+    <string name="ranking_prefer_cached">Prefer cached debrid results</string>
+    <string name="ranking_prefer_cached_sub">Cached files start instantly</string>
+    <string name="ranking_prefer_library">Prefer my own library</string>
+    <string name="ranking_prefer_library_sub">A file on your Jellyfin or Emby server beats anything streamed</string>
+    <string name="ranking_hide_cam">Never auto-play CAM or telesync</string>
+    <string name="ranking_drop_undecodable">Skip streams this device can\'t decode</string>
+    <string name="ranking_drop_undecodable_sub">Based on the decoders, HDR formats and resolution this device reports</string>
+    <string name="ranking_any">Any</string>
+    <string name="ranking_no_limit">No limit</string>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="addon_health_latency">%1$.1f s</string>
+    <string name="addon_health_ok">Responding · %1$s</string>
+    <string name="addon_health_slow">Slow · %1$s</string>
+    <string name="addon_health_failing">Last request failed</string>
+    <string name="addon_health_timed_out">Last request timed out</string>
+    <string name="account_local_only_note">Sync is off. Fetch keeps your addons, progress and settings on this TV and needs no account. To sync between devices, connect your own sync server from the server options.</string>
+    <string name="torrent_engine_unavailable">This is a torrent stream and Fetch has no built-in torrent engine. Turn on a debrid service in Settings → Debrid, or open it in an external player.</string>
     <string name="torrent_error_start_timeout">Torrent stream did not start within %1$ds</string>
 
     <!-- Player runtime: stream / external link errors -->

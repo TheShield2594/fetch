@@ -1,5 +1,6 @@
 package com.nuvio.tv.ui.screens.settings
 
+import com.nuvio.tv.core.torrent.TorrentService
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import androidx.compose.foundation.layout.Arrangement
@@ -64,12 +65,13 @@ fun EssentialPlaybackSettingsContent(
                             StreamAutoPlayMode.FIRST_STREAM -> stringResource(R.string.stream_auto_play_first_stream)
                             StreamAutoPlayMode.MANUAL -> stringResource(R.string.stream_auto_play_manual_short)
                             StreamAutoPlayMode.REGEX_MATCH -> stringResource(R.string.stream_auto_play_smart_match)
+                            StreamAutoPlayMode.BEST_MATCH -> stringResource(R.string.autoplay_mode_best)
                             null -> ""
                         },
                         onClick = {
                             val current = settings?.streamAutoPlayMode ?: StreamAutoPlayMode.MANUAL
                             val next = if (current == StreamAutoPlayMode.MANUAL) {
-                                StreamAutoPlayMode.FIRST_STREAM
+                                StreamAutoPlayMode.BEST_MATCH
                             } else {
                                 StreamAutoPlayMode.MANUAL
                             }
@@ -106,7 +108,7 @@ fun EssentialPlaybackSettingsContent(
                         },
                         enabled = settings != null
                     )
-                    SettingsToggleRow(
+                    if (TorrentService.ENGINE_AVAILABLE) SettingsToggleRow(
                         title = stringResource(R.string.essential_p2p_streams),
                         subtitle = stringResource(R.string.essential_p2p_streams_subtitle),
                         checked = torrentSettings?.p2pEnabled == true,

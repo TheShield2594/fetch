@@ -2107,7 +2107,6 @@
     <string name="server_options_content_description">服务器选项</string>
     <string name="server_options_connect_custom">连接到自定义服务器</string>
     <string name="server_options_change_custom">连接到另一个服务器</string>
-    <string name="server_options_use_official">使用官方服务器</string>
     <string name="custom_server_title">连接到自定义服务器</string>
     <string name="custom_server_description">输入您的服务器管理员提供的后端网址。</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2126,12 +2125,7 @@
     <string name="custom_server_warning_credentials">服务器运营者可以接收您的账户凭据并访问您通过此服务器同步的数据。</string>
     <string name="custom_server_trust_action">我信任此服务器</string>
     <string name="custom_server_switching">切换中…</string>
-    <string name="official_server_title">使用官方服务器？</string>
-    <string name="official_server_description">您将登出自定义服务器，应用将重启并连接到官方服务。</string>
-    <string name="official_server_action">使用官方服务器</string>
     <string name="custom_server_error_invalid_url">请输入有效的 HTTP 或 HTTPS 后端网址。</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv 是官方服务器，且已被选中。</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv 是官方服务器。关闭此对话框并选择「使用官方服务器」以切换回去。</string>
     <string name="custom_server_error_connection">无法访问发现端点。请检查网址和服务器可用性。</string>
     <string name="custom_server_error_http">发现端点返回 HTTP %1$d。</string>
     <string name="custom_server_error_response_too_large">发现文档超出允许的大小。</string>

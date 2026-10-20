@@ -1,5 +1,6 @@
 package com.nuvio.tv.ui.screens.settings
 
+import com.nuvio.tv.core.torrent.TorrentService
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
@@ -38,7 +39,8 @@ internal enum class PlaybackSection(
 
 internal fun visiblePlaybackSections(settings: PlayerSettings): List<PlaybackSection> =
     PlaybackSection.entries.filter { section ->
-        section != PlaybackSection.BUFFER_NETWORK || settings.usesExoPlayerEngine
+        (section != PlaybackSection.BUFFER_NETWORK || settings.usesExoPlayerEngine) &&
+            (section != PlaybackSection.P2P || TorrentService.ENGINE_AVAILABLE)
     }
 
 internal val PlayerSettings.usesExoPlayerEngine: Boolean
@@ -53,6 +55,11 @@ internal enum class PlaybackDialog {
     PLAYER_PREFERENCE,
     INTERNAL_ENGINE,
     STREAM_AUTO_PLAY_MODE,
+    RANKING_PREFERRED_RESOLUTION,
+    RANKING_MAX_RESOLUTION,
+    RANKING_PREFERRED_CODEC,
+    RANKING_PREFERRED_SIZE,
+    RANKING_MAX_SIZE,
     STREAM_AUTO_PLAY_SOURCE,
     STREAM_AUTO_PLAY_ADDONS,
     STREAM_AUTO_PLAY_PLUGINS,

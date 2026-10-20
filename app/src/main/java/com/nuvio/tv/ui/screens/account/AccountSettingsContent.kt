@@ -101,7 +101,11 @@ fun AccountSettingsContent(
                 item(key = "account_sync_note_signed_out") {
                     AccountInlineNote(text = stringResource(R.string.account_sync_restart_note))
                 }
-                item(key = "account_sign_in_qr") {
+                if (!viewModel.isSyncServerConfigured) {
+                    item(key = "account_local_only") {
+                        AccountInlineNote(text = stringResource(R.string.account_local_only_note))
+                    }
+                } else item(key = "account_sign_in_qr") {
                     SettingsActionButton(
                         icon = Icons.Default.VpnKey,
                         title = stringResource(

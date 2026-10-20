@@ -1345,7 +1345,6 @@
     <string name="server_options_content_description">Параметры сервера</string>
     <string name="server_options_connect_custom">Подключиться к своему серверу</string>
     <string name="server_options_change_custom">Подключиться к другому серверу</string>
-    <string name="server_options_use_official">Использовать официальный сервер</string>
     <string name="custom_server_title">Подключение к своему серверу</string>
     <string name="custom_server_description">Введите URL-адрес backend, предоставленный администратором сервера.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -1364,12 +1363,7 @@
     <string name="custom_server_warning_credentials">Оператор сервера может получить учётные данные вашего аккаунта и доступ к данным, которые вы синхронизируете через этот сервер.</string>
     <string name="custom_server_trust_action">Я доверяю этому серверу</string>
     <string name="custom_server_switching">Переключение…</string>
-    <string name="official_server_title">Использовать официальный сервер?</string>
-    <string name="official_server_description">Вы выйдете со своего сервера, и приложение перезапустится с официальным сервисом.</string>
-    <string name="official_server_action">Использовать официальный сервер</string>
     <string name="custom_server_error_invalid_url">Введите корректный URL-адрес backend по HTTP или HTTPS.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv — официальный сервер, он уже выбран.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv — официальный сервер. Закройте это окно и выберите «Использовать официальный сервер», чтобы вернуться к нему.</string>
     <string name="custom_server_error_connection">Не удалось связаться с эндпоинтом обнаружения. Проверьте URL и доступность сервера.</string>
     <string name="custom_server_error_http">Эндпоинт обнаружения вернул HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">Документ обнаружения превышает допустимый размер.</string>

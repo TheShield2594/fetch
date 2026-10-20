@@ -2955,7 +2955,6 @@
     <string name="server_options_content_description">Opcje serwera</string>
     <string name="server_options_connect_custom">Połącz z własnym serwerem</string>
     <string name="server_options_change_custom">Połącz z innym serwerem</string>
-    <string name="server_options_use_official">Użyj oficjalnego serwera</string>
     <string name="custom_server_title">Połącz z własnym serwerem</string>
     <string name="custom_server_description">Wprowadź URL Backendu podany przez administratora serwera.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2974,12 +2973,7 @@
     <string name="custom_server_warning_credentials">Operator serwera może otrzymać dane logowania i mieć dostęp do danych synchronizowanych przez ten serwer.</string>
     <string name="custom_server_trust_action">Ufam temu serwerowi</string>
     <string name="custom_server_switching">Przełączanie\u2026</string>
-    <string name="official_server_title">Użyć oficjalnego serwera?</string>
-    <string name="official_server_description">Zostaniesz wylogowany z własnego serwera, a aplikacja uruchomi się ponownie z oficjalną usługą.</string>
-    <string name="official_server_action">Użyj oficjalnego serwera</string>
     <string name="custom_server_error_invalid_url">Wprowadź prawidłowy adres URL HTTP lub HTTPS Backendu.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv to oficjalny serwer i jest już wybrany.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv to oficjalny serwer. Zamknij to okno i wybierz Użyj oficjalnego serwera, aby przełączyć z powrotem.</string>
     <string name="custom_server_error_connection">Nie można połączyć się z punktem wykrywania. Sprawdź URL i dostępność serwera.</string>
     <string name="custom_server_error_http">Punkt wykrywania zwrócił HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">Dokument wykrywania jest większy niż dozwolone.</string>

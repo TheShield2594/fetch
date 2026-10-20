@@ -1,0 +1,177 @@
+package com.nuvio.tv.core.streams.ranking
+
+import com.nuvio.tv.data.mediaserver.ServerItemRef
+import com.nuvio.tv.data.mediaserver.ServerPlaybackTarget
+import com.nuvio.tv.domain.model.Stream
+import com.nuvio.tv.domain.model.StreamBehaviorHints
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class StreamRankerTest {
+
+    private val dvTv = DeviceDecodeCapabilities(
+        maxResolution = StreamResolution.UHD_2160,
+        decodableCodecs = setOf(VideoCodec.AVC, VideoCodec.HEVC, VideoCodec.AV1),
+        hdrFormats = setOf(HdrFormat.HDR10, HdrFormat.DOLBY_VISION),
+        dolbyVisionProfiles = setOf(5, 8)
+    )
+
+    private val fireStickLite = DeviceDecodeCapabilities(
+        maxResolution = StreamResolution.FHD_1080,
+        decodableCodecs = setOf(VideoCodec.AVC, VideoCodec.HEVC),
+        hdrFormats = emptySet(),
+        dolbyVisionProfiles = emptySet()
+    )
+
+    @Test
+    fun `prefers 1080p hevc under 15 GB as configured`() {
+        val rules = StreamRankingRules(
+            preferredResolution = StreamResolution.FHD_1080,
+            preferredCodecs = listOf(VideoCodec.HEVC),
+            preferredMaxSizeGb = 15.0
+        )
+        val streams = listOf(
+            stream("4K DV HDR HEVC 58 GB"),
+            stream("1080p x264 BluRay 9 GB"),
+            stream("1080p HEVC BluRay 32 GB"),
+            stream("1080p HEVC WEB-DL 6 GB")
+        )
+        val best = StreamRanker.best(streams, rules, dvTv)
+        assertEquals("1080p HEVC WEB-DL 6 GB", best?.stream?.name)
+    }
+
+    @Test
+    fun `never auto plays dolby vision profile 5 on a device that cannot show it`() {
+        val streams = listOf(
+            stream("2160p WEB-DL DV P5 HEVC 12 GB"),
+            stream("2160p WEB-DL HDR10 HEVC 14 GB")
+        )
+        val ranked = StreamRanker.rank(streams, StreamRankingRules(), fireStickLite.copy(maxResolution = StreamResolution.UHD_2160))
+        assertEquals("2160p WEB-DL HDR10 HEVC 14 GB", ranked.first().stream.name)
+        assertEquals(ExclusionReason.UNSUPPORTED_DOLBY_VISION, ranked.last().exclusion)
+    }
+
+    @Test
+    fun `dv only label is treated as likely profile 5`() {
+        val caps = fireStickLite.copy(maxResolution = StreamResolution.UHD_2160)
+        val ranked = StreamRanker.rank(listOf(stream("4K DV WEB-DL")), StreamRankingRules(), caps)
+        assertEquals(ExclusionReason.UNSUPPORTED_DOLBY_VISION, ranked.single().exclusion)
+    }
+
+    @Test
+    fun `dv profile 8 with hdr10 base layer stays eligible without a dv decoder`() {
+        val caps = fireStickLite.copy(maxResolution = StreamResolution.UHD_2160, hdrFormats = setOf(HdrFormat.HDR10))
+        val ranked = StreamRanker.rank(listOf(stream("2160p DV HDR10 HEVC")), StreamRankingRules(), caps)
+        assertTrue(ranked.single().isEligible)
+    }
+
+    @Test
+    fun `user rule excludes dolby vision profile 5 even on capable hardware`() {
+        val rules = StreamRankingRules(excludedDolbyVisionProfiles = setOf(5))
+        val best = StreamRanker.best(
+            listOf(stream("2160p DV P5 HEVC"), stream("1080p HEVC")),
+            rules,
+            dvTv
+        )
+        assertEquals("1080p HEVC", best?.stream?.name)
+    }
+
+    @Test
+    fun `drops codecs the device cannot decode`() {
+        val ranked = StreamRanker.rank(listOf(stream("2160p AV1 10bit"), stream("720p x264")), StreamRankingRules(), fireStickLite)
+        assertEquals("720p x264", ranked.first().stream.name)
+        assertEquals(ExclusionReason.UNSUPPORTED_CODEC, ranked.last().exclusion)
+    }
+
+    @Test
+    fun `resolution above what the display supports is not auto played`() {
+        val best = StreamRanker.best(listOf(stream("2160p HEVC"), stream("1080p HEVC")), StreamRankingRules(), fireStickLite)
+        assertEquals("1080p HEVC", best?.stream?.name)
+    }
+
+    @Test
+    fun `own library file outranks any streamed result`() {
+        val owned = stream("Jellyfin 720p x264").copy(
+            serverTarget = ServerPlaybackTarget(ServerItemRef("home", "42"), mediaSourceId = null)
+        )
+        val ranked = StreamRanker.rank(
+            listOf(stream("[RD+] 2160p DV HDR10 REMUX TrueHD Atmos"), owned),
+            StreamRankingRules(),
+            dvTv
+        )
+        assertEquals(owned, ranked.first().stream)
+        assertTrue(RankReason.OWN_LIBRARY in ranked.first().reasons)
+    }
+
+    @Test
+    fun `cached debrid beats uncached of the same quality`() {
+        val best = StreamRanker.best(
+            listOf(stream("1080p HEVC WEB-DL 👤 900"), stream("[RD+] 1080p HEVC WEB-DL")),
+            StreamRankingRules(),
+            dvTv
+        )
+        assertEquals("[RD+] 1080p HEVC WEB-DL", best?.stream?.name)
+    }
+
+    @Test
+    fun `cam releases and excluded keywords are filtered`() {
+        val rules = StreamRankingRules(excludedKeywords = listOf("HC"))
+        val ranked = StreamRanker.rank(
+            listOf(stream("1080p HDCAM"), stream("1080p WEB-DL HC"), stream("720p WEB-DL")),
+            rules,
+            dvTv
+        )
+        assertEquals("720p WEB-DL", ranked.first().stream.name)
+        assertEquals(setOf(ExclusionReason.CAM_OR_TELESYNC, ExclusionReason.EXCLUDED_KEYWORD), ranked.drop(1).map { it.exclusion }.toSet())
+    }
+
+    @Test
+    fun `max size is a hard cap and unknown size is allowed`() {
+        val rules = StreamRankingRules(maxSizeGb = 20.0)
+        val ranked = StreamRanker.rank(listOf(stream("2160p REMUX 70 GB"), stream("2160p WEB-DL")), rules, dvTv)
+        assertEquals("2160p WEB-DL", ranked.first().stream.name)
+        assertEquals(ExclusionReason.OVER_MAX_SIZE, ranked.last().exclusion)
+    }
+
+    @Test
+    fun `behavior hint video size wins over text`() {
+        val s = stream("1080p 1 GB").copy(
+            behaviorHints = StreamBehaviorHints(
+                notWebReady = null,
+                bingeGroup = null,
+                countryWhitelist = null,
+                proxyHeaders = null,
+                videoSize = 30L * 1_073_741_824
+            )
+        )
+        val ranked = StreamRanker.rank(listOf(s), StreamRankingRules(maxSizeGb = 20.0), dvTv)
+        assertEquals(ExclusionReason.OVER_MAX_SIZE, ranked.single().exclusion)
+    }
+
+    @Test
+    fun `ties keep addon order`() {
+        val ranked = StreamRanker.rank(listOf(stream("1080p A"), stream("1080p B")), StreamRankingRules(), dvTv)
+        assertEquals(listOf("1080p A", "1080p B"), ranked.map { it.stream.name })
+    }
+
+    @Test
+    fun `nothing eligible yields no best stream`() {
+        assertNull(StreamRanker.best(listOf(stream("1080p")), isPlayable = { false }))
+    }
+
+    private fun stream(name: String): Stream = Stream(
+        name = name,
+        title = null,
+        description = null,
+        url = "https://example.com/${name.hashCode()}.mkv",
+        ytId = null,
+        infoHash = null,
+        fileIdx = null,
+        externalUrl = null,
+        behaviorHints = null,
+        addonName = "Addon",
+        addonLogo = null
+    )
+}

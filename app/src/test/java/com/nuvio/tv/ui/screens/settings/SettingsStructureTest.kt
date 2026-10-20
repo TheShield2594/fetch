@@ -21,8 +21,8 @@ class SettingsStructureTest {
                 PlaybackSection.AUDIO,
                 PlaybackSection.SUBTITLES,
                 PlaybackSection.VIDEO,
-                PlaybackSection.BUFFER_NETWORK,
-                PlaybackSection.P2P
+                PlaybackSection.BUFFER_NETWORK
+                // P2P only appears when an on-device torrent engine is compiled in.
             ),
             visiblePlaybackSections(PlayerSettings(internalPlayerEngine = InternalPlayerEngine.EXOPLAYER))
         )

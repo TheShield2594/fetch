@@ -47,23 +47,6 @@ class ThemeSettingsViewModelTest {
     }
 
     @Test
-    fun nonMembersSeeAndSaveOnlySingleColorCustomThemes() = runTest {
-        val viewModel = createViewModel()
-        runCurrent()
-
-        assertTrue(AppTheme.CUSTOM in viewModel.uiState.value.availableThemes)
-        assertEquals(AppTheme.CUSTOM, viewModel.uiState.value.selectedTheme)
-        assertEquals(solid, viewModel.uiState.value.customThemeColors)
-        assertFalse(viewModel.uiState.value.customThemeGradientEnabled)
-
-        viewModel.onEvent(ThemeSettingsEvent.SaveCustomTheme(gradient))
-        runCurrent()
-
-        coVerify(exactly = 1) { store.setCustomTheme(solid) }
-        assertEquals(ThemeSelection(AppTheme.CUSTOM, solid), selection.value)
-    }
-
-    @Test
     fun bothMemberTiersCanSaveAllGradientStops() = runTest {
         val viewModel = createViewModel()
 
@@ -78,42 +61,6 @@ class ThemeSettingsViewModelTest {
         }
 
         coVerify(exactly = MemberTier.entries.size) { store.setCustomTheme(gradient) }
-    }
-
-    @Test
-    fun membershipLossKeepsSavedGradientForRenewal() = runTest {
-        access.value = MemberAccess.preview(MemberTier.SUPPORTER)
-        val viewModel = createViewModel()
-        runCurrent()
-
-        access.value = MemberAccess.None
-        runCurrent()
-
-        assertEquals(AppTheme.CUSTOM, viewModel.uiState.value.selectedTheme)
-        assertEquals(solid, viewModel.uiState.value.customThemeColors)
-        assertFalse(viewModel.uiState.value.customThemeGradientEnabled)
-        assertEquals(gradient, selection.value.customColors)
-
-        access.value = MemberAccess.preview(MemberTier.SUPPORTER_PLUS)
-        runCurrent()
-
-        assertEquals(gradient, viewModel.uiState.value.customThemeColors)
-        assertTrue(viewModel.uiState.value.customThemeGradientEnabled)
-        coVerify(exactly = 0) { store.setCustomTheme(any()) }
-    }
-
-    @Test
-    fun membershipLossBeforeSaveConvertsTheOldEditorDraftToOneColor() = runTest {
-        access.value = MemberAccess.preview(MemberTier.SUPPORTER)
-        val viewModel = createViewModel()
-        runCurrent()
-
-        access.value = MemberAccess.None
-        viewModel.onEvent(ThemeSettingsEvent.SaveCustomTheme(gradient))
-        runCurrent()
-
-        coVerify(exactly = 1) { store.setCustomTheme(solid) }
-        coVerify(exactly = 0) { store.setCustomTheme(gradient) }
     }
 
     @Test

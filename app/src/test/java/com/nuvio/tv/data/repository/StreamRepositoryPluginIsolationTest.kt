@@ -179,7 +179,8 @@ class StreamRepositoryPluginIsolationTest {
                     every { isNativeRequest(any()) } returns false
                     every { revision } returns 0
                     every { sources(any(), any(), any(), any(), any()) } returns emptyList()
-                }
+                },
+                addonHealthTracker = com.nuvio.tv.core.streams.AddonHealthTracker()
             ),
             api = api,
             tmdbService = tmdbService,

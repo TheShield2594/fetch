@@ -59,22 +59,31 @@ class ServerConfigurationStore @Inject constructor(
             .clear()
             .commit()
 
-    private fun officialConfiguration() = ServerConfiguration(
-        backendUrl = BuildConfig.SUPABASE_URL.trimEnd('/'),
+    /**
+     * The built-in default. Fetch ships with no hosted backend, so unless a builder bakes a
+     * self-hosted server into local.properties this is local-only mode: no account, no sync.
+     */
+    private fun officialConfiguration(): ServerConfiguration {
+        val bakedIn = BuildConfig.SUPABASE_URL.isNotBlank() && BuildConfig.SUPABASE_ANON_KEY.isNotBlank()
+        return ServerConfiguration(
+        backendUrl = BuildConfig.SUPABASE_URL.trimEnd('/').ifBlank { LOCAL_ONLY_BACKEND_URL },
         publishableKey = BuildConfig.SUPABASE_ANON_KEY,
         capabilities = ServerCapabilities(
             emailPasswordAuth = false,
-            tvLogin = true,
-            watchParty = true
+            tvLogin = bakedIn,
+            watchParty = bakedIn
         ),
         isCustom = false,
         fallbackBackendUrl = BuildConfig.SUPABASE_FALLBACK_URL.trim().trimEnd('/').takeIf { it.isNotBlank() },
         tvLoginWebBaseUrl = BuildConfig.TV_LOGIN_WEB_BASE_URL,
         deviceLoginWebBaseUrl = BuildConfig.DEVICE_LOGIN_WEB_BASE_URL,
         avatarPublicBaseUrl = BuildConfig.AVATAR_PUBLIC_BASE_URL.trimEnd('/').takeIf { it.isNotBlank() }
-    )
+        )
+    }
 
     private companion object {
+        /** Never contacted: the client needs a syntactically valid URL even when sync is off. */
+        const val LOCAL_ONLY_BACKEND_URL = "https://sync.invalid"
         const val PREFERENCES_NAME = "server_configuration"
         const val KEY_CUSTOM_ENABLED = "custom_enabled"
         const val KEY_BACKEND_URL = "backend_url"

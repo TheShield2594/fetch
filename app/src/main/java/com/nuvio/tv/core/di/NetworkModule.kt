@@ -9,7 +9,6 @@ import com.nuvio.tv.data.remote.api.AniSkipApi
 import com.nuvio.tv.data.remote.api.AnimeSkipApi
 import com.nuvio.tv.data.remote.api.AuthDiagnosticReportApi
 import com.nuvio.tv.data.remote.api.GitHubReleaseApi
-import com.nuvio.tv.data.remote.api.SupportersApi
 import com.nuvio.tv.data.remote.api.TraktApi
 import com.nuvio.tv.data.remote.api.TrailerApi
 import com.nuvio.tv.data.remote.api.IntroDbApi
@@ -22,7 +21,6 @@ import com.nuvio.tv.data.remote.api.RealDebridApi
 import com.nuvio.tv.data.remote.api.SeriesGraphApi
 import com.nuvio.tv.data.remote.api.TmdbApi
 import com.nuvio.tv.data.remote.api.TorboxApi
-import com.nuvio.tv.data.remote.api.UniqueContributionsApi
 import com.nuvio.tv.data.simkl.OkHttpSimklEngine
 import com.nuvio.tv.data.simkl.SimklApiClient
 import com.nuvio.tv.data.simkl.SimklApiConfiguration
@@ -43,7 +41,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import com.nuvio.tv.core.network.IPv4FirstDns
-import com.nuvio.tv.core.diagnostics.SentryNetworkBreadcrumbInterceptor
 import java.io.File
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -117,7 +114,6 @@ object NetworkModule {
                     .build()
                 chain.proceed(request)
             }
-            .addInterceptor(SentryNetworkBreadcrumbInterceptor())
             // Prevent OkHttp from caching error responses (4xx/5xx).
             .addNetworkInterceptor { chain ->
                 val response = chain.proceed(chain.request())
@@ -203,7 +199,6 @@ object NetworkModule {
                     .build()
                 chain.proceed(request)
             }
-            .addInterceptor(SentryNetworkBreadcrumbInterceptor())
             .build()
 
     @Provides
@@ -307,7 +302,7 @@ object NetworkModule {
         moshi: Moshi
     ): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://placeholder.nuvio.tv/")
+            .baseUrl("https://placeholder.invalid/")
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
@@ -482,42 +477,6 @@ object NetworkModule {
     @Singleton
     fun provideGitHubReleaseApi(@Named("github") retrofit: Retrofit): GitHubReleaseApi =
         retrofit.create(GitHubReleaseApi::class.java)
-
-    @Provides
-    @Singleton
-    @Named("uniqueContributionsBaseUrl")
-    fun provideUniqueContributionsBaseUrl(): String =
-        BuildConfig.UNIQUE_CONTRIBUTIONS_BASE_URL
-
-    @Provides
-    @Singleton
-    @Named("uniqueContributions")
-    fun provideUniqueContributionsRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(normalizedBaseUrl(BuildConfig.UNIQUE_CONTRIBUTIONS_BASE_URL, "https://localhost/"))
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideUniqueContributionsApi(@Named("uniqueContributions") retrofit: Retrofit): UniqueContributionsApi =
-        retrofit.create(UniqueContributionsApi::class.java)
-
-    @Provides
-    @Singleton
-    @Named("supporters")
-    fun provideSupportersRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(normalizedBaseUrl(BuildConfig.SUPPORTERS_API_BASE_URL, "https://nuvio.tv/"))
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideSupportersApi(@Named("supporters") retrofit: Retrofit): SupportersApi =
-        retrofit.create(SupportersApi::class.java)
 
     @Provides
     @Singleton

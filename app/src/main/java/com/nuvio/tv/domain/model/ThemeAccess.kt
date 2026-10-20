@@ -38,5 +38,5 @@ fun resolveAppTheme(
     }
 }
 
-fun resolveCustomThemeColors(colors: CustomThemeColors, memberTier: MemberTier?): CustomThemeColors =
-    if (memberTier == null) CustomThemeColors.solid(colors.second) else colors
+@Suppress("UNUSED_PARAMETER")
+fun resolveCustomThemeColors(colors: CustomThemeColors, memberTier: MemberTier?): CustomThemeColors = colors

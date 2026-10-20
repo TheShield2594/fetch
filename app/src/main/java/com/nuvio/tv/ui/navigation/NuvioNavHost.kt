@@ -47,7 +47,6 @@ import com.nuvio.tv.ui.screens.settings.LayoutSettingsScreen
 import com.nuvio.tv.ui.screens.settings.LicensesAttributionsScreen
 import com.nuvio.tv.ui.screens.settings.PlaybackSettingsScreen
 import com.nuvio.tv.ui.screens.settings.SettingsScreen
-import com.nuvio.tv.ui.screens.settings.SupportersContributorsScreen
 import com.nuvio.tv.ui.screens.settings.ThemeSettingsScreen
 import com.nuvio.tv.ui.screens.settings.TrackingSettingsScreen
 import com.nuvio.tv.ui.screens.settings.TmdbSettingsScreen
@@ -1236,9 +1235,6 @@ private fun PlaybackNavHost(
                 onNavigateToPlugins = { navController.navigate(Screen.Plugins.route) },
                 onNavigateToAuthQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
                 onNavigateToManageProfiles = { navController.navigate(Screen.ManageProfiles.route) },
-                onNavigateToSupportersContributors = {
-                    navController.navigate(Screen.SupportersContributors.route)
-                },
                 onNavigateToLicensesAttributions = {
                     navController.navigate(Screen.LicensesAttributions.route)
                 },
@@ -1297,21 +1293,10 @@ private fun PlaybackNavHost(
         composable(Screen.About.route) {
             AboutScreen(
                 onBackPress = { navController.popBackStack() },
-                onNavigateToSupportersContributors = {
-                    navController.navigate(Screen.SupportersContributors.route)
-                },
                 onNavigateToLicensesAttributions = {
                     navController.navigate(Screen.LicensesAttributions.route)
                 }
             )
-        }
-
-        if (AppFeaturePolicy.supportNuvioEnabled) {
-            composable(Screen.SupportersContributors.route) {
-                SupportersContributorsScreen(
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
         }
 
         composable(Screen.LicensesAttributions.route) {

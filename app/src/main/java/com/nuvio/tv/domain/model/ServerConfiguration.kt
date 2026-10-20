@@ -22,6 +22,11 @@ data class ServerConfiguration(
     val isSecure: Boolean
         get() = backendUrl.startsWith("https://", ignoreCase = true)
 
+    /** False in the default local-only mode, where no sync server has been set up. */
+    val isConfigured: Boolean
+        get() = backendUrl.isNotBlank() && publishableKey.isNotBlank() &&
+            (capabilities.emailPasswordAuth || capabilities.tvLogin)
+
     val isPublicHost: Boolean
         get() = isPublicServerHost(backendUrl)
 }

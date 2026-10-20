@@ -87,9 +87,14 @@ internal fun PlaybackStreamSelectionSection(
             StreamAutoPlayMode.MANUAL -> stringResource(R.string.autoplay_mode_manual)
             StreamAutoPlayMode.FIRST_STREAM -> stringResource(R.string.autoplay_mode_first)
             StreamAutoPlayMode.REGEX_MATCH -> stringResource(R.string.autoplay_mode_regex)
+            StreamAutoPlayMode.BEST_MATCH -> stringResource(R.string.autoplay_mode_best)
         },
         onClick = { onOpenDialog(PlaybackDialog.STREAM_AUTO_PLAY_MODE) }
     )
+
+    if (settings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH) {
+        PlaybackStreamRankingRows(settings, onUpdate, onOpenDialog)
+    }
 
     if (settings.streamAutoPlayMode == StreamAutoPlayMode.REGEX_MATCH) {
         SettingsActionRow(
@@ -318,6 +323,10 @@ internal fun AutoPlaySettingsDialogs(
     onUpdate: PlaybackSettingsUpdate,
     onDismiss: () -> Unit
 ) {
+    if (dialog != null && dialog in StreamRankingDialogs) {
+        StreamRankingSettingsDialog(dialog, settings, onUpdate, onDismiss)
+        return
+    }
     when (dialog) {
         PlaybackDialog.STREAM_AUTO_PLAY_MODE -> StreamAutoPlayModeDialog(
             selectedMode = settings.streamAutoPlayMode,
@@ -438,6 +447,7 @@ private fun StreamAutoPlayModeDialog(
     onDismiss: () -> Unit
 ) {
     val options = listOf(
+        SettingsPickerOption(StreamAutoPlayMode.BEST_MATCH, stringResource(R.string.autoplay_mode_best), stringResource(R.string.autoplay_mode_best_desc)),
         SettingsPickerOption(StreamAutoPlayMode.MANUAL, stringResource(R.string.autoplay_mode_manual), stringResource(R.string.autoplay_mode_manual_desc)),
         SettingsPickerOption(StreamAutoPlayMode.FIRST_STREAM, stringResource(R.string.autoplay_mode_first), stringResource(R.string.autoplay_mode_first_desc)),
         SettingsPickerOption(StreamAutoPlayMode.REGEX_MATCH, stringResource(R.string.autoplay_mode_regex), stringResource(R.string.autoplay_mode_regex_desc))
@@ -450,7 +460,7 @@ private fun StreamAutoPlayModeDialog(
         onOptionSelected = onModeSelected,
         onDismiss = onDismiss,
         width = 460.dp,
-        maxHeight = 320.dp
+        maxHeight = 400.dp
     )
 }
 

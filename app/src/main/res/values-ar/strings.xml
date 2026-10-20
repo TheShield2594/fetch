@@ -2641,8 +2641,6 @@
     <string name="custom_server_error_missing_configuration">ينقص مستند الاكتشاف رابط خلفية صالح أو مفتاحًا قابلًا للنشر.</string>
     <string name="custom_server_error_no_auth">الخادم لا يعلن عن طريقة تسجيل دخول مدعومة.</string>
     <string name="custom_server_error_not_self_hosted">مستند الاكتشاف لا يحدد خادمًا مستضافًا ذاتيًا.</string>
-    <string name="custom_server_error_official_active">‏api.nuvio.tv هو الخادم الرسمي وهو محدد بالفعل.</string>
-    <string name="custom_server_error_official_available">‏api.nuvio.tv هو الخادم الرسمي. أغلق هذه النافذة واختر "استخدام الخادم الرسمي" للعودة إليه.</string>
     <string name="custom_server_error_response_too_large">مستند الاكتشاف أكبر من الحجم المسموح.</string>
     <string name="custom_server_error_service">مستند الاكتشاف ليس لهذا التطبيق.</string>
     <string name="custom_server_error_version">هذه النسخة من مستند الاكتشاف غير مدعومة.</string>
@@ -2759,9 +2757,6 @@
     <string name="licenses_attributions_torbox_title">TorBox</string>
     <string name="mdblist_mal_subtitle">إظهار تقييم MyAnimeList</string>
     <string name="mdblist_mal_title">MyAnimeList</string>
-    <string name="official_server_action">استخدام الخادم الرسمي</string>
-    <string name="official_server_description">سيتم تسجيل خروجك من الخادم المخصص وسيُعاد تشغيل التطبيق بالخدمة الرسمية.</string>
-    <string name="official_server_title">استخدام الخادم الرسمي؟</string>
     <string name="playback_buffer_after_rebuffer">التخزين المؤقت بعد الانقطاع</string>
     <string name="playback_buffer_after_rebuffer_sub">مقدار المحتوى المخزن مؤقتًا بعد توقف التشغيل بسبب التخزين المؤقت. القيم الأعلى تقلل انقطاعات التخزين المتكررة.</string>
     <string name="playback_buffer_allow_large">السماح بمخزون هدف أكبر</string>
@@ -2851,7 +2846,6 @@
     <string name="server_options_change_custom">الاتصال بخادم آخر</string>
     <string name="server_options_connect_custom">الاتصال بخادم مخصص</string>
     <string name="server_options_content_description">خيارات الخادم</string>
-    <string name="server_options_use_official">استخدام الخادم الرسمي</string>
     <string name="settings_card_depth_apply_to">التطبيق على</string>
     <string name="settings_card_depth_coverage_full">المحيط كاملًا</string>
     <string name="settings_card_depth_coverage_half">نصف</string>

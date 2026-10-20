@@ -1856,7 +1856,6 @@
     <string name="server_options_content_description">Opsionet e serverit</string>
     <string name="server_options_connect_custom">Lidhu me server të personalizuar</string>
     <string name="server_options_change_custom">Lidhu me një server tjetër</string>
-    <string name="server_options_use_official">Përdor serverin zyrtar</string>
     <string name="custom_server_title">Lidhu me server të personalizuar</string>
     <string name="custom_server_description">Shkruaj URL-në e Backend-it të dhënë nga administratori i serverit.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -1875,12 +1874,7 @@
     <string name="custom_server_warning_credentials">Operatori i serverit mund të marrë kredencialet e llogarisë dhe të ketë qasje në të dhënat që sinkronizoni përmes këtij serveri.</string>
     <string name="custom_server_trust_action">I besoj këtij serveri</string>
     <string name="custom_server_switching">Duke ndërruar\u2026</string>
-    <string name="official_server_title">Të përdoret serveri zyrtar?</string>
-    <string name="official_server_description">Do të dilni nga serveri i personalizuar dhe aplikacioni do të riniset me shërbimin zyrtar.</string>
-    <string name="official_server_action">Përdor serverin zyrtar</string>
     <string name="custom_server_error_invalid_url">Shkruaj një URL Backend-i HTTP ose HTTPS të vlefshme.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv është serveri zyrtar dhe është tashmë i zgjedhur.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv është serveri zyrtar. Mbyll këtë dialog dhe zgjidh Përdor serverin zyrtar për t’u kthyer.</string>
     <string name="custom_server_error_connection">Nuk mund të arrihej endpoint-i i zbulimit. Kontrollo URL-në dhe disponueshmërinë e serverit.</string>
     <string name="custom_server_error_http">Endpoint-i i zbulimit ktheu HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">Dokumenti i zbulimit është më i madh se sa lejohet.</string>

@@ -2215,7 +2215,6 @@
     <string name="server_options_content_description">אפשרויות שרת</string>
     <string name="server_options_connect_custom">התחברות לשרת מותאם אישית</string>
     <string name="server_options_change_custom">התחברות לשרת אחר</string>
-    <string name="server_options_use_official">שימוש בשרת הרשמי</string>
     <string name="custom_server_title">התחברות לשרת מותאם אישית</string>
     <string name="custom_server_description">יש להזין את כתובת ה-Backend שסופקה על ידי מנהל השרת.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2234,12 +2233,7 @@
     <string name="custom_server_warning_credentials">מפעיל השרת יכול לקבל את פרטי החשבון ולגשת לנתונים המסונכרנים דרך שרת זה.</string>
     <string name="custom_server_trust_action">השרת הזה מהימן בעיניי</string>
     <string name="custom_server_switching">מחליף…</string>
-    <string name="official_server_title">להשתמש בשרת הרשמי?</string>
-    <string name="official_server_description">תנותק מהשרת המותאם אישית והאפליקציה תופעל מחדש עם השירות הרשמי.</string>
-    <string name="official_server_action">שימוש בשרת הרשמי</string>
     <string name="custom_server_error_invalid_url">יש להזין כתובת Backend חוקית מסוג HTTP או HTTPS.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv הוא השרת הרשמי והוא כבר נבחר.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv הוא השרת הרשמי. יש לסגור את החלון ולבחור באפשרות \"שימוש בשרת הרשמי\" כדי לחזור אליו.</string>
     <string name="custom_server_error_connection">לא ניתן להגיע לנקודת הקצה של ה-Discovery. יש לבדוק את הכתובת ואת זמינות השרת.</string>
     <string name="custom_server_error_http">נקודת הקצה של ה-Discovery החזירה HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">מסמך ה-Discovery גדול מהמותר.</string>

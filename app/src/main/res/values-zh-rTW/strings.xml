@@ -2107,7 +2107,6 @@
     <string name="server_options_content_description">伺服器選項</string>
     <string name="server_options_connect_custom">連線到自訂伺服器</string>
     <string name="server_options_change_custom">連線到另一個伺服器</string>
-    <string name="server_options_use_official">使用官方伺服器</string>
     <string name="custom_server_title">連線到自訂伺服器</string>
     <string name="custom_server_description">輸入您的伺服器管理員提供的後端網址。</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2126,12 +2125,7 @@
     <string name="custom_server_warning_credentials">伺服器營運者可以接收您的帳戶憑證並存取您透過此伺服器同步的資料。</string>
     <string name="custom_server_trust_action">我信任此伺服器</string>
     <string name="custom_server_switching">切換中…</string>
-    <string name="official_server_title">使用官方伺服器？</string>
-    <string name="official_server_description">您將登出自訂伺服器，應用程式將重新啟動並連線到官方服務。</string>
-    <string name="official_server_action">使用官方伺服器</string>
     <string name="custom_server_error_invalid_url">請輸入有效的 HTTP 或 HTTPS 後端網址。</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv 是官方伺服器，且已被選取。</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv 是官方伺服器。關閉此對話框並選擇「使用官方伺服器」以切換回去。</string>
     <string name="custom_server_error_connection">無法存取探索端點。請檢查網址和伺服器可用性。</string>
     <string name="custom_server_error_http">探索端點回傳 HTTP %1$d。</string>
     <string name="custom_server_error_response_too_large">探索文件超出允許的大小。</string>

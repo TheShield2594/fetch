@@ -17,11 +17,11 @@ class ThemeAccessTest {
     }
 
     @Test
-    fun onlyMembersCanApplyMultipleCustomColors() {
+    fun everyoneCanApplyMultipleCustomColors() {
         val gradient = CustomThemeColors(0xFF0000, 0x00FF00, 0x0000FF)
         val solid = CustomThemeColors.solid(0x00FF00)
 
-        assertEquals(solid, resolveCustomThemeColors(gradient, null))
+        assertEquals(gradient, resolveCustomThemeColors(gradient, null))
         assertEquals(solid, resolveCustomThemeColors(solid, null))
         MemberTier.entries.forEach { tier ->
             assertEquals(gradient, resolveCustomThemeColors(gradient, tier))

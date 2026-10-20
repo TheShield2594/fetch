@@ -93,6 +93,9 @@ class AccountViewModel @Inject constructor(
     private var qrLoginPollAttempt: Int = 0
     private var qrLoginExchangeInFlight: Boolean = false
 
+    val isSyncServerConfigured: Boolean
+        get() = serverConfiguration.isConfigured
+
     val usesEmailPasswordLogin: Boolean
         get() = serverConfiguration.isCustom && serverConfiguration.capabilities.emailPasswordAuth
 

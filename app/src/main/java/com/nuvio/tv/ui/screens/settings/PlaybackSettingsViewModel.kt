@@ -1,5 +1,6 @@
 package com.nuvio.tv.ui.screens.settings
 
+import com.nuvio.tv.core.streams.ranking.StreamRankingRules
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.util.UnstableApi
 import com.nuvio.tv.core.plugin.PluginManager
@@ -474,6 +475,10 @@ class PlaybackSettingsViewModel @Inject constructor(
 
     suspend fun setStreamAutoPlayMode(mode: StreamAutoPlayMode) {
         playerSettingsDataStore.setStreamAutoPlayMode(mode)
+    }
+
+    suspend fun setStreamRankingRules(rules: StreamRankingRules) {
+        playerSettingsDataStore.setStreamRankingRules(rules)
     }
 
     suspend fun setStreamAutoPlaySource(source: StreamAutoPlaySource) {

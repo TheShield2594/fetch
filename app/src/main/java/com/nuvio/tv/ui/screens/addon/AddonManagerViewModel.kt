@@ -1,5 +1,7 @@
 package com.nuvio.tv.ui.screens.addon
 
+import com.nuvio.tv.core.streams.AddonHealth
+import com.nuvio.tv.core.streams.AddonHealthTracker
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -73,8 +75,12 @@ class AddonManagerViewModel @Inject constructor(
     private val profileManager: ProfileManager,
     private val tmdbCollectionSourceResolver: TmdbCollectionSourceResolver,
     private val traktPublicListSourceResolver: TraktPublicListSourceResolver,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    addonHealthTracker: AddonHealthTracker
 ) : ViewModel() {
+
+    /** Latency and failure history per addon name, for the health line on each card. */
+    val addonHealth: StateFlow<Map<String, AddonHealth>> = addonHealthTracker.health
 
     private val _uiState = MutableStateFlow(AddonManagerUiState())
     val uiState: StateFlow<AddonManagerUiState> = _uiState.asStateFlow()

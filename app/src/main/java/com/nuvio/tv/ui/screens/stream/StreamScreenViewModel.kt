@@ -1,5 +1,8 @@
 package com.nuvio.tv.ui.screens.stream
 
+import kotlinx.coroutines.withTimeoutOrNull
+import com.nuvio.tv.core.streams.ranking.DeviceDecodeCapabilities
+import com.nuvio.tv.core.streams.ranking.StreamRanker
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -628,7 +631,8 @@ class StreamScreenViewModel @Inject constructor(
                         selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
                         selectedPlugins = playerSettings.streamAutoPlaySelectedPlugins,
                         preferredBingeGroup = persistedBingeGroup,
-                        preferBingeGroupInSelection = persistedBingeGroup != null
+                        preferBingeGroupInSelection = persistedBingeGroup != null,
+                        rankingRules = playerSettings.streamRankingRules
                     )
                 }
                 if (selectedAutoPlayStream != null) {
@@ -637,7 +641,17 @@ class StreamScreenViewModel @Inject constructor(
 
                 val currentFilter = _uiState.value.selectedAddonFilter
                 val fullFiltered = if (currentFilter == null) {
-                    allStreams
+                    // In "Best match" mode the combined list is shown best first, with streams the
+                    // rules or the device rule out kept at the bottom as "other sources".
+                    if (playerSettings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH) {
+                        StreamRanker.rank(
+                            streams = allStreams,
+                            rules = playerSettings.streamRankingRules,
+                            device = DeviceDecodeCapabilities.current
+                        ).map { it.stream }
+                    } else {
+                        allStreams
+                    }
                 } else {
                     allStreams.filter { it.addonName == currentFilter }
                 }

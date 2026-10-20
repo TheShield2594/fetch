@@ -1,5 +1,8 @@
 package com.nuvio.tv.ui.screens.addon
 
+import com.nuvio.tv.core.streams.AddonHealth
+import com.nuvio.tv.core.streams.AddonHealthStatus
+import com.nuvio.tv.core.streams.AddonRequestOutcome
 import com.nuvio.tv.ui.theme.NuvioPrimitives
 import com.nuvio.tv.ui.theme.NuvioTheme
 
@@ -135,6 +138,7 @@ fun AddonManagerScreen(
     onNavigateToCollections: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val addonHealth by viewModel.addonHealth.collectAsState()
     val firstAddonToggleFocusRequester = remember { FocusRequester() }
     val experienceModeState by remember(viewModel) {
         viewModel.experienceMode.map<ExperienceMode?, AddonExperienceModeState> {
@@ -482,6 +486,7 @@ fun AddonManagerScreen(
                     AddonCard(
                         modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester),
                         addon = addon,
+                        health = addonHealth[addon.displayName],
                         canMoveUp = index > 0,
                         canMoveDown = index < uiState.installedAddons.lastIndex,
                         onMoveUp = {
@@ -1273,6 +1278,7 @@ internal fun ConfirmAddonChangesDialog(
 private fun AddonCard(
     modifier: Modifier = Modifier,
     addon: Addon,
+    health: AddonHealth? = null,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     onMoveUp: () -> Unit,
@@ -1302,7 +1308,7 @@ private fun AddonCard(
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(NuvioTheme.radii.md)),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
         ) {
-            AddonCardContent(addon = addon, isReadOnly = true)
+            AddonCardContent(addon = addon, health = health, isReadOnly = true)
         }
     } else {
         val internalToggleFocusRequester = remember { FocusRequester() }
@@ -1320,6 +1326,7 @@ private fun AddonCard(
         ) {
             AddonCardContent(
                 addon = addon,
+                health = health,
                 isReadOnly = false,
                 canMoveUp = canMoveUp,
                 canMoveDown = canMoveDown,
@@ -1338,6 +1345,7 @@ private fun AddonCard(
 @Composable
 private fun AddonCardContent(
     addon: Addon,
+    health: AddonHealth? = null,
     isReadOnly: Boolean,
     canMoveUp: Boolean = false,
     canMoveDown: Boolean = false,
@@ -1377,6 +1385,9 @@ private fun AddonCardContent(
                             style = MaterialTheme.typography.labelSmall,
                             color = NuvioTheme.colors.TextSecondary
                         )
+                    }
+                    if (health != null && health.status != AddonHealthStatus.UNKNOWN) {
+                        AddonHealthLabel(health)
                     }
                 }
             }
@@ -1494,4 +1505,25 @@ private fun AddonCardContent(
             color = NuvioTheme.colors.TextTertiary
         )
     }
+}
+
+/** "● Slow · 7.4 s" — so a dead or sluggish addon is obvious instead of silently slowing searches. */
+@Composable
+private fun AddonHealthLabel(health: AddonHealth) {
+    val seconds = (health.averageLatencyMs ?: health.lastLatencyMs ?: 0L) / 1000.0
+    val latency = stringResource(R.string.addon_health_latency, seconds)
+    val (color, text) = when (health.status) {
+        AddonHealthStatus.FAILING -> NuvioTheme.colors.Error to if (health.lastOutcome == AddonRequestOutcome.TIMEOUT) {
+            stringResource(R.string.addon_health_timed_out)
+        } else {
+            stringResource(R.string.addon_health_failing)
+        }
+        AddonHealthStatus.SLOW -> Color(0xFFFFB74D) to stringResource(R.string.addon_health_slow, latency)
+        else -> NuvioTheme.colors.Secondary to stringResource(R.string.addon_health_ok, latency)
+    }
+    Text(
+        text = "\u25CF $text",
+        style = MaterialTheme.typography.labelSmall,
+        color = color
+    )
 }

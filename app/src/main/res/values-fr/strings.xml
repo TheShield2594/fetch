@@ -2210,7 +2210,6 @@
     <string name="server_options_content_description">Options du serveur</string>
     <string name="server_options_connect_custom">Se connecter à un serveur personnalisé</string>
     <string name="server_options_change_custom">Se connecter à un autre serveur</string>
-    <string name="server_options_use_official">Utiliser le serveur officiel</string>
     <string name="custom_server_title">Connexion à un serveur personnalisé</string>
     <string name="custom_server_description">Saisissez l’URL du backend fournie par l’administrateur de votre serveur.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2229,12 +2228,7 @@
     <string name="custom_server_warning_credentials">L’exploitant du serveur peut recevoir les identifiants de votre compte et accéder aux données que vous synchronisez via ce serveur.</string>
     <string name="custom_server_trust_action">Je fais confiance à ce serveur</string>
     <string name="custom_server_switching">Changement en cours…</string>
-    <string name="official_server_title">Utiliser le serveur officiel&#160;?</string>
-    <string name="official_server_description">Vous serez déconnecté du serveur personnalisé et l’application redémarrera avec le service officiel.</string>
-    <string name="official_server_action">Utiliser le serveur officiel</string>
     <string name="custom_server_error_invalid_url">Saisissez une URL de backend HTTP ou HTTPS valide.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv est le serveur officiel et il est déjà sélectionné.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv est le serveur officiel. Fermez cette boîte de dialogue et choisissez «&#160;Utiliser le serveur officiel&#160;» pour revenir en arrière.</string>
     <string name="custom_server_error_connection">Impossible de joindre le point de terminaison de découverte. Vérifiez l’URL et la disponibilité du serveur.</string>
     <string name="custom_server_error_http">Le point de terminaison de découverte a renvoyé le code HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">Le document de découverte est plus volumineux que la taille autorisée.</string>

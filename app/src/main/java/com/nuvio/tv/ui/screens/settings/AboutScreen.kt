@@ -49,7 +49,6 @@ import com.nuvio.tv.ui.components.MemberBrandWordmark
 
 @Composable
 fun AboutScreen(
-    onNavigateToSupportersContributors: () -> Unit = {},
     onNavigateToLicensesAttributions: () -> Unit = {},
     onBackPress: () -> Unit = {}
 ) {
@@ -60,7 +59,6 @@ fun AboutScreen(
         subtitle = stringResource(R.string.about_subtitle)
     ) {
         AboutSettingsContent(
-            onNavigateToSupportersContributors = onNavigateToSupportersContributors,
             onNavigateToLicensesAttributions = onNavigateToLicensesAttributions
         )
     }
@@ -68,7 +66,6 @@ fun AboutScreen(
 
 @Composable
 fun AboutSettingsContent(
-    onNavigateToSupportersContributors: () -> Unit = {},
     onNavigateToLicensesAttributions: () -> Unit = {},
     initialFocusRequester: FocusRequester? = null
 ) {
@@ -159,20 +156,11 @@ fun AboutSettingsContent(
                                 onClick = {
                                     val intent = Intent(
                                         Intent.ACTION_VIEW,
-                                        Uri.parse("https://nuvio.tv/privacy-policy")
+                                        Uri.parse("https://github.com/TheShield2594/fetch/blob/main/PRIVACY.md")
                                     )
                                     context.startActivity(intent)
                                 }
                             )
-
-                            if (AppFeaturePolicy.supportNuvioEnabled) {
-                                SettingsActionRow(
-                                    title = stringResource(R.string.support_nuvio_name),
-                                    subtitle = stringResource(R.string.about_supporters_contributors_subtitle),
-                                    trailingIcon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    onClick = onNavigateToSupportersContributors
-                                )
-                            }
 
                             SettingsActionRow(
                                 title = stringResource(R.string.about_licenses_attributions),

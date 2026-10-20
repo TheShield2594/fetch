@@ -1,6 +1,9 @@
 package com.nuvio.tv.core.player
 
 import com.nuvio.tv.core.build.AppFeaturePolicy
+import com.nuvio.tv.core.streams.ranking.DeviceDecodeCapabilities
+import com.nuvio.tv.core.streams.ranking.StreamRanker
+import com.nuvio.tv.core.streams.ranking.StreamRankingRules
 import com.nuvio.tv.data.local.StreamAutoPlayMode
 import com.nuvio.tv.data.local.StreamAutoPlaySource
 import com.nuvio.tv.domain.model.AddonStreams
@@ -67,7 +70,9 @@ object StreamAutoPlaySelector {
         selectedPlugins: Set<String>,
         preferredBingeGroup: String? = null,
         preferBingeGroupInSelection: Boolean = false,
-        bingeGroupOnly: Boolean = false
+        bingeGroupOnly: Boolean = false,
+        rankingRules: StreamRankingRules = StreamRankingRules(),
+        device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.current
     ): Stream? {
         if (streams.isEmpty()) return null
 
@@ -119,6 +124,8 @@ object StreamAutoPlaySelector {
         return when (mode) {
             StreamAutoPlayMode.MANUAL -> null
             StreamAutoPlayMode.FIRST_STREAM -> candidateStreams.firstOrNull { isPlayable(it) }
+            StreamAutoPlayMode.BEST_MATCH ->
+                StreamRanker.best(candidateStreams, rankingRules, device, ::isPlayable)?.stream
             StreamAutoPlayMode.REGEX_MATCH -> {
                 val pattern = regexPattern.trim()
  

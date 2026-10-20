@@ -2203,7 +2203,6 @@
     <string name="server_options_content_description">Sunucu seçenekleri</string>
     <string name="server_options_connect_custom">Özel sunucuya bağlan</string>
     <string name="server_options_change_custom">Başka bir sunucuya bağlan</string>
-    <string name="server_options_use_official">Resmi sunucuyu kullan</string>
     <string name="custom_server_title">Özel sunucuya bağlan</string>
     <string name="custom_server_description">Sunucu yöneticiniz tarafından sağlanan Backend URL\'sini girin.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2222,12 +2221,7 @@
     <string name="custom_server_warning_credentials">Sunucu yöneticisi hesap kimlik bilgilerinizi alabilir ve bu sunucu üzerinden eşitlediğiniz verilere erişebilir.</string>
     <string name="custom_server_trust_action">Bu sunucuya güveniyorum</string>
     <string name="custom_server_switching">Geçiş yapılıyor\u2026</string>
-    <string name="official_server_title">Resmi sunucu kullanılsın mı?</string>
-    <string name="official_server_description">Özel sunucudaki oturumunuz kapatılacak ve uygulama resmi hizmetle yeniden başlatılacaktır.</string>
-    <string name="official_server_action">Resmi sunucuyu kullan</string>
     <string name="custom_server_error_invalid_url">Geçerli bir HTTP veya HTTPS Backend URL\'si girin.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv resmi sunucudur ve zaten seçilidir.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv resmi sunucudur. Bu iletişim kutusunu kapatıp geri dönmek için Resmi sunucuyu kullan seçeneğini belirleyin.</string>
     <string name="custom_server_error_connection">Keşif uç noktasına ulaşılamadı. URL\'yi ve sunucu erişilebilirliğini kontrol edin.</string>
     <string name="custom_server_error_http">Keşif uç noktası HTTP %1$d döndürdü.</string>
     <string name="custom_server_error_response_too_large">Keşif belgesi izin verilenden daha büyük.</string>

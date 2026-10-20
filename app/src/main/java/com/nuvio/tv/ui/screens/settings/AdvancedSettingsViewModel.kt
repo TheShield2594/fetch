@@ -7,7 +7,6 @@ import com.nuvio.tv.data.local.DeviceLocalPlayerPreferences
 import com.nuvio.tv.data.local.ImagePerformancePreferences
 import com.nuvio.tv.data.local.LayoutPreferenceDataStore
 import com.nuvio.tv.data.local.PlayerSettingsDataStore
-import com.nuvio.tv.data.local.SentrySettingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,8 +22,7 @@ data class AdvancedSettingsUiState(
     val composeHighlighterEnabled: Boolean = false,
     val playbackIssueReportsEnabled: Boolean = false,
     val playerStatsHudEnabled: Boolean = false,
-    val rgb565Enabled: Boolean = true,
-    val sentryEnabled: Boolean = true
+    val rgb565Enabled: Boolean = true
 )
 
 sealed class AdvancedSettingsEvent {
@@ -34,7 +32,6 @@ sealed class AdvancedSettingsEvent {
     data class SetPlaybackIssueReportsEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetPlayerStatsHudEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetRgb565Enabled(val enabled: Boolean) : AdvancedSettingsEvent()
-    data class SetSentryEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
 }
 
 @HiltViewModel
@@ -42,7 +39,6 @@ class AdvancedSettingsViewModel @Inject constructor(
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val deviceLocalPlayerPreferences: DeviceLocalPlayerPreferences,
-    private val sentrySettingsDataStore: SentrySettingsDataStore,
     private val imagePerformancePreferences: ImagePerformancePreferences,
     private val appRestarter: AppRestarter
 ) : ViewModel() {
@@ -74,11 +70,6 @@ class AdvancedSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             deviceLocalPlayerPreferences.playerStatsHudEnabled.collectLatest { enabled ->
                 _uiState.update { it.copy(playerStatsHudEnabled = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            sentrySettingsDataStore.enabled.collectLatest { enabled ->
-                _uiState.update { it.copy(sentryEnabled = enabled) }
             }
         }
     }
@@ -114,11 +105,6 @@ class AdvancedSettingsViewModel @Inject constructor(
                 if (imagePerformancePreferences.setRgb565Enabled(event.enabled)) {
                     _uiState.update { it.copy(rgb565Enabled = event.enabled) }
                     appRestarter.restart()
-                }
-            }
-            is AdvancedSettingsEvent.SetSentryEnabled -> {
-                viewModelScope.launch {
-                    sentrySettingsDataStore.setEnabled(event.enabled)
                 }
             }
         }

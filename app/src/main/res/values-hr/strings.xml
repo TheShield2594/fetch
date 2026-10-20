@@ -2164,7 +2164,6 @@
     <string name="server_options_content_description">Opcije poslužitelja</string>
     <string name="server_options_connect_custom">Poveži se s prilagođenim poslužiteljem</string>
     <string name="server_options_change_custom">Poveži se s drugim poslužiteljem</string>
-    <string name="server_options_use_official">Koristi službeni poslužitelj</string>
     <string name="custom_server_title">Poveži se s prilagođenim poslužiteljem</string>
     <string name="custom_server_description">Unesi Backend URL koji ti je dao administrator poslužitelja.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2183,12 +2182,7 @@
     <string name="custom_server_warning_credentials">Operater poslužitelja može primiti vjerodajnice tvog računa i pristupiti podacima koje sinkroniziraš putem ovog poslužitelja.</string>
     <string name="custom_server_trust_action">Vjerujem ovom poslužitelju</string>
     <string name="custom_server_switching">Prebacivanje\u2026</string>
-    <string name="official_server_title">Koristiti službeni poslužitelj?</string>
-    <string name="official_server_description">Prijava na prilagođenom poslužitelju bit će prekinuta i aplikacija će se ponovno pokrenuti sa službenom uslugom.</string>
-    <string name="official_server_action">Koristi službeni poslužitelj</string>
     <string name="custom_server_error_invalid_url">Unesi ispravan HTTP ili HTTPS Backend URL.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv je službeni poslužitelj i već je odabran.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv je službeni poslužitelj. Zatvori ovaj dijalog i odaberi Koristi službeni poslužitelj za povratak.</string>
     <string name="custom_server_error_connection">Nije moguće dosegnuti krajnju točku za otkrivanje. Provjeri URL i dostupnost poslužitelja.</string>
     <string name="custom_server_error_http">Krajnja točka za otkrivanje vratila je HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">Dokument za otkrivanje veći je od dopuštenog.</string>

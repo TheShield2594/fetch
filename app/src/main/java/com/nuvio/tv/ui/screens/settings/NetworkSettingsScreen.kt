@@ -3,6 +3,7 @@
 
 package com.nuvio.tv.ui.screens.settings
 
+import com.nuvio.tv.BuildConfig
 import com.nuvio.tv.ui.theme.NuvioTheme
 
 import android.net.ConnectivityManager
@@ -386,7 +387,6 @@ fun AdvancedSettingsContent(
 
     val networkListState = rememberLazyListState()
     var showExperienceModeConfirmation by remember { mutableStateOf(false) }
-    var showSentryDialog by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn(
         state = networkListState,
@@ -530,13 +530,7 @@ fun AdvancedSettingsContent(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.advanced_section_diagnostics)
             ) {
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_sentry_reports),
-                    subtitle = stringResource(R.string.advanced_sentry_reports_subtitle),
-                    checked = uiState.sentryEnabled,
-                    onToggle = { showSentryDialog = true }
-                )
-                SettingsToggleRow(
+                if (BuildConfig.PLAYBACK_REPORTS_BASE_URL.isNotBlank()) SettingsToggleRow(
                     title = stringResource(R.string.advanced_playback_issue_reports),
                     subtitle = stringResource(R.string.advanced_playback_issue_reports_subtitle),
                     checked = uiState.playbackIssueReportsEnabled,
@@ -829,17 +823,6 @@ fun AdvancedSettingsContent(
         )
     }
 
-    if (showSentryDialog) {
-        SentrySettingsDialog(
-            enabled = uiState.sentryEnabled,
-            onConfirm = {
-                viewModel.onEvent(
-                    AdvancedSettingsEvent.SetSentryEnabled(!uiState.sentryEnabled)
-                )
-            },
-            onDismiss = { showSentryDialog = false }
-        )
-    }
 }
 
 @Composable

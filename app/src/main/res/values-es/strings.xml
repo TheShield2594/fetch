@@ -2106,7 +2106,6 @@
     <string name="server_options_content_description">Opciones del servidor</string>
     <string name="server_options_connect_custom">Conectar a servidor personalizado</string>
     <string name="server_options_change_custom">Conectar a otro servidor</string>
-    <string name="server_options_use_official">Usar servidor oficial</string>
     <string name="custom_server_title">Conectar a servidor personalizado</string>
     <string name="custom_server_description">Introduce la URL de backend proporcionada por el administrador de tu servidor.</string>
     <string name="custom_server_url_placeholder">https://backend.ejemplo.com</string>
@@ -2125,12 +2124,7 @@
     <string name="custom_server_warning_credentials">El operador del servidor puede recibir las credenciales de tu cuenta y acceder a los datos que sincronices a través de este servidor.</string>
     <string name="custom_server_trust_action">Confío en este servidor</string>
     <string name="custom_server_switching">Cambiando\u2026</string>
-    <string name="official_server_title">¿Usar servidor oficial?</string>
-    <string name="official_server_description">Se cerrará tu sesión en el servidor personalizado y la aplicación se reiniciará con el servicio oficial.</string>
-    <string name="official_server_action">Usar servidor oficial</string>
     <string name="custom_server_error_invalid_url">Introduce una URL de backend HTTP o HTTPS válida.</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv es el servidor oficial y ya está seleccionado.</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv es el servidor oficial. Cierra este diálogo y elige Usar servidor oficial para volver a él.</string>
     <string name="custom_server_error_connection">No se pudo contactar con el endpoint de descubrimiento. Comprueba la URL y la disponibilidad del servidor.</string>
     <string name="custom_server_error_http">El endpoint de descubrimiento devolvió HTTP %1$d.</string>
     <string name="custom_server_error_response_too_large">El documento de descubrimiento es más grande de lo permitido.</string>

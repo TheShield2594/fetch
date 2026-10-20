@@ -93,7 +93,8 @@ class DirectDebridStreamPreparer @Inject constructor(
             source = playerSettings.streamAutoPlaySource,
             installedAddonNames = installedAddonNames,
             selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
-            selectedPlugins = playerSettings.streamAutoPlaySelectedPlugins
+            selectedPlugins = playerSettings.streamAutoPlaySelectedPlugins,
+            rankingRules = playerSettings.streamRankingRules
         )
         if (autoPlaySelection?.let { it.isDirectDebrid() || it.isCachedLocalDebridTorrent() } == true) {
             candidates.firstOrNull { it.preparationKey() == autoPlaySelection.preparationKey() }

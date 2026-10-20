@@ -2202,7 +2202,6 @@
     <string name="server_options_content_description">Szerver beállításai</string>
     <string name="server_options_connect_custom">Csatlakozás egyéni szerverhez</string>
     <string name="server_options_change_custom">Csatlakozás másik szerverhez</string>
-    <string name="server_options_use_official">Hivatalos szerver használata</string>
     <string name="custom_server_title">Csatlakozás egyéni szerverhez</string>
     <string name="custom_server_description">Add meg a szerver rendszergazdájától kapott Backend URL-t.</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2221,12 +2220,7 @@
     <string name="custom_server_warning_credentials">A szerver üzemeltetője megkaphatja a fiókod hitelesítő adatait, és hozzáférhet az ezen a szerveren szinkronizált adataidhoz.</string>
     <string name="custom_server_trust_action">Megbízom ebben a szerverben</string>
     <string name="custom_server_switching">Váltás\u2026</string>
-    <string name="official_server_title">Hivatalos szerver használata?</string>
-    <string name="official_server_description">Kijelentkezel az egyéni szerverről, és az alkalmazás a hivatalos szolgáltatással indul újra.</string>
-    <string name="official_server_action">Hivatalos szerver használata</string>
     <string name="custom_server_error_invalid_url">Adj meg egy érvényes HTTP vagy HTTPS Backend URL-t.</string>
-    <string name="custom_server_error_official_active">Az api.nuvio.tv a hivatalos szerver, és már ez van kiválasztva.</string>
-    <string name="custom_server_error_official_available">Az api.nuvio.tv a hivatalos szerver. Zárd be ezt a párbeszédpanelt, és válaszd a Hivatalos szerver használata lehetőséget a visszaváltáshoz.</string>
     <string name="custom_server_error_connection">Nem sikerült elérni a felderítési végpontot. Ellenőrizd az URL-t és a szerver elérhetőségét.</string>
     <string name="custom_server_error_http">A felderítési végpont HTTP %1$d hibát adott vissza.</string>
     <string name="custom_server_error_response_too_large">A felderítési dokumentum nagyobb a megengedettnél.</string>

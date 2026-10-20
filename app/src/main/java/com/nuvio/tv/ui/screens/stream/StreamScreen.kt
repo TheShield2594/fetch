@@ -2,6 +2,8 @@
 
 package com.nuvio.tv.ui.screens.stream
 
+import com.nuvio.tv.core.streams.ranking.StreamTitleParser
+import com.nuvio.tv.core.torrent.TorrentService
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -201,7 +203,7 @@ fun StreamScreen(
             return
         }
         val preference = if (playbackInfo.isServerStream) PlayerPreference.INTERNAL else playerPreference ?: return
-        if (playbackInfo.isTorrent && !p2pEnabled) {
+        if (playbackInfo.isTorrent && !p2pEnabled && TorrentService.ENGINE_AVAILABLE) {
             pendingTorrentPlaybackInfo = playbackInfo
             showP2pConsentDialog = true
             return
@@ -228,7 +230,7 @@ fun StreamScreen(
             return
         }
         // Always check P2P consent for torrents, even in direct auto-play flow
-        if (playbackInfo.isTorrent && !p2pEnabled) {
+        if (playbackInfo.isTorrent && !p2pEnabled && TorrentService.ENGINE_AVAILABLE) {
             pendingTorrentPlaybackInfo = playbackInfo
             showP2pConsentDialog = true
             return
@@ -325,7 +327,7 @@ fun StreamScreen(
         }
         if (playbackInfo.url != null || (playbackInfo.isTorrent && playbackInfo.infoHash != null)) {
             // Torrent cached links still need P2P consent
-            if (playbackInfo.isTorrent && !p2pEnabled) {
+            if (playbackInfo.isTorrent && !p2pEnabled && TorrentService.ENGINE_AVAILABLE) {
                 pendingTorrentPlaybackInfo = playbackInfo
                 showP2pConsentDialog = true
                 return@LaunchedEffect
@@ -1313,6 +1315,10 @@ private fun StreamCard(
     val unknownStreamLabel = stringResource(R.string.stream_unknown)
     val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
+    // Structured summary parsed from the addon's free-form text ("4K · DV · HEVC · 58.0 GB").
+    val specLine = remember(stream) {
+        StreamTitleParser.parse(stream).summaryLabels().joinToString("  ·  ").takeIf { it.isNotEmpty() }
+    }
     val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null) || reserveBadgeSpace
     val cardShape = RoundedCornerShape(NuvioTheme.radii.md)
     val hasGradientFocusRing = NuvioTheme.palette.focusRingGradient.size > 1
@@ -1425,6 +1431,15 @@ private fun StreamCard(
                             )
                         }
                     }
+                }
+
+                specLine?.let { spec ->
+                    Text(
+                        text = spec,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = NuvioTheme.colors.Primary,
+                        maxLines = 1
+                    )
                 }
 
                 streamDescription?.let { description ->

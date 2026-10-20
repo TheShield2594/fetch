@@ -2099,7 +2099,6 @@
     <string name="server_options_content_description">সার্ভার অপশন</string>
     <string name="server_options_connect_custom">কাস্টম সার্ভারের সাথে সংযোগ করুন</string>
     <string name="server_options_change_custom">অন্য সার্ভারের সাথে সংযোগ করুন</string>
-    <string name="server_options_use_official">অফিসিয়াল সার্ভার ব্যবহার করুন</string>
     <string name="custom_server_title">কাস্টম সার্ভারের সাথে সংযোগ করুন</string>
     <string name="custom_server_description">আপনার সার্ভার অ্যাডমিনিস্ট্রেটর দ্বারা প্রদত্ত ব্যাকএন্ড URL লিখুন।</string>
     <string name="custom_server_url_placeholder">https://backend.example.com</string>
@@ -2118,12 +2117,7 @@
     <string name="custom_server_warning_credentials">সার্ভার অপারেটর আপনার অ্যাকাউন্টের শংসাপত্রগুলি গ্রহণ করতে পারে এবং এই সার্ভারের মাধ্যমে আপনার সিঙ্ক করা ডেটা অ্যাক্সেস করতে পারে।</string>
     <string name="custom_server_trust_action">আমি এই সার্ভারকে বিশ্বাস করি</string>
     <string name="custom_server_switching">সুইচ হচ্ছে\u2026</string>
-    <string name="official_server_title">অফিসিয়াল সার্ভার ব্যবহার করবেন?</string>
-    <string name="official_server_description">আপনি কাস্টম সার্ভার থেকে সাইন আউট হয়ে যাবেন এবং অ্যাপটি অফিসিয়াল পরিষেবার সাথে আবার চালু হবে।</string>
-    <string name="official_server_action">অফিসিয়াল সার্ভার ব্যবহার করুন</string>
     <string name="custom_server_error_invalid_url">একটি বৈধ HTTP বা HTTPS ব্যাকএন্ড URL লিখুন।</string>
-    <string name="custom_server_error_official_active">api.nuvio.tv অফিসিয়াল সার্ভার এবং ইতিমধ্যেই নির্বাচিত।</string>
-    <string name="custom_server_error_official_available">api.nuvio.tv হল অফিসিয়াল সার্ভার। এই ডায়ালগটি বন্ধ করুন এবং ফিরে যেতে অফিসিয়াল সার্ভার ব্যবহার করুন বাছুন।</string>
     <string name="custom_server_error_connection">ডিসকভারি এন্ডপয়েন্টে পৌঁছানো যায়নি। URL এবং সার্ভারের প্রাপ্যতা যাচাই করুন।</string>
     <string name="custom_server_error_http">ডিসকভারি এন্ডপয়েন্ট HTTP %1$d কোড ফেরত দিয়েছে।</string>
     <string name="custom_server_error_response_too_large">ডিসকভারি ডকুমেন্টটি অনুমোদিত আকারের চেয়ে বড়।</string>

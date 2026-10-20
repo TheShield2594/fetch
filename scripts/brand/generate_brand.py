@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 RES = os.path.join(ROOT, "app", "src", "main", "res")
 FONT = os.path.join(RES, "font", "dm_sans_variable.ttf")
+GLYPH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mark_glyph.png")
 
 # Primary brand gradient: warm amber to coral. Theme variants reuse the same shapes.
 PALETTES = {
@@ -46,7 +47,11 @@ def gradient(size: int, start, end) -> Image.Image:
 
 
 def mark(size: int, palette, rounded: bool = True) -> Image.Image:
-    """The Fetch mark: a play triangle pulling two motion lines, on a gradient tile."""
+    """The Fetch mark: a dog in profile whose ear is a play triangle, on a gradient tile.
+
+    The glyph (scripts/brand/mark_glyph.png, an alpha mask) was generated with Higgsfield and is
+    tinted white here so every launcher palette reuses the same shape.
+    """
     scale = 4  # supersample for smooth edges
     s = size * scale
     tile = gradient(s, *palette).convert("RGBA")
@@ -57,19 +62,15 @@ def mark(size: int, palette, rounded: bool = True) -> Image.Image:
     out = Image.new("RGBA", (s, s), (0, 0, 0, 0))
     out.paste(tile, (0, 0), mask)
 
-    draw = ImageDraw.Draw(out)
-    white = (255, 255, 255, 255)
-    # Play triangle, nudged right so the motion lines have room.
-    cx, cy = s * 0.58, s * 0.5
-    h = s * 0.42
-    tri = [(cx - h * 0.42, cy - h / 2), (cx - h * 0.42, cy + h / 2), (cx + h * 0.5, cy)]
-    draw.polygon(tri, fill=white)
-    # Motion lines.
-    lw = int(s * 0.055)
-    for dy, length in ((-0.11, 0.17), (0.11, 0.12)):
-        y = cy + s * dy
-        x1 = cx - h * 0.55
-        draw.rounded_rectangle((x1 - s * length, y - lw / 2, x1, y + lw / 2), radius=lw / 2, fill=white)
+    glyph = Image.open(GLYPH).convert("L")
+    box = s * 0.64  # glyph fits inside this square, centred on the tile
+    k = box / max(glyph.size)
+    glyph = glyph.resize((round(glyph.width * k), round(glyph.height * k)), Image.LANCZOS)
+    white = Image.new("RGBA", glyph.size, (255, 255, 255, 255))
+    # Optical centring: the head's mass sits right of the ear, so nudge a touch left and up.
+    x = (s - glyph.width) // 2 - int(s * 0.01)
+    y = (s - glyph.height) // 2 - int(s * 0.01)
+    out.paste(white, (x, y), glyph)
     return out.resize((size, size), Image.LANCZOS)
 
 

@@ -1202,7 +1202,7 @@ fun PlayerScreen(
             type = uiState.contentType,
             description = uiState.description,
             cast = uiState.castMembers,
-            showClock = !uiState.isLive,
+            showClock = uiState.osdClockEnabled && !uiState.isLive,
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(2.5f)

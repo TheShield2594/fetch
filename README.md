@@ -61,6 +61,16 @@ Two flavors exist: `full` (plugins, in-app updates from this repo's GitHub relea
 - **On-device torrent streaming** is not included. Torrent results are resolved through your
   debrid service or handed to an external player.
 
+### Logo
+
+The mark is a dog in profile whose ear is a play button. The glyph lives in
+`scripts/brand/mark_glyph.png` as an alpha mask; every launcher icon (all six palettes), TV
+banner, splash mark and the image at the top of this README is generated from it:
+
+```bash
+python3 scripts/brand/generate_brand.py
+```
+
 ## Privacy
 
 No analytics, no crash reporting, no account. See [PRIVACY.md](PRIVACY.md).

@@ -1694,6 +1694,7 @@ private fun PlayerRuntimeController.switchToEpisodeStreamCommon(
             error = null,
             currentSeason = currentSeason,
             currentEpisode = currentEpisode,
+            currentVideoId = currentVideoId,
             currentEpisodeTitle = currentEpisodeTitle,
             currentStreamName = stream.name ?: stream.addonName,
             currentStreamUrl = "",

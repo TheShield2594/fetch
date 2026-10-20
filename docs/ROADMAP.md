@@ -55,3 +55,23 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
   a refresh cancelled mid-flight leaves the next poll throwing "Progress snapshot fetch
   failed". CI stays red on it until `TraktProgressService.refreshRemoteSnapshot` is fixed.
   (`TraktAuthServiceTest` needs Trakt client credentials and is skipped without them.)
+
+## Tracking
+
+Open work lives in GitHub issues. `roadmap` = planned work, `upstream-bug` = bugs inherited
+from NuvioTV (grouped by area, each linking the original reports).
+
+| Area | Issues |
+|---|---|
+| Stream picker / addons | #8 follow-ups, #9 addon health, #10 addon `/configure`, #15 torrent engine |
+| Player | #1 replace Media3 fork, #17 DV/HDR, #18 refresh rate & judder, #19 playback failures, #20 subtitles, #21 controls & episode flow |
+| Watch state | #2 CI-red Trakt test, #11 skip intro markers, #22 Continue Watching / Trakt / Simkl |
+| Sources | #3 Plex, #12 more debrid, #25 media servers & TMDB |
+| Privacy & sync | #4 self-hosted sync (Cataloggy) |
+| Phone & profiles | #5 phone config & remote, #6 parental controls |
+| Home & navigation | #7 pinned and filter rows, #23 focus, #24 hero/trailers/ambient |
+| Platform | #13 low-end performance, #14 first release, #16 translations |
+
+Upstream bugs not tracked because the feature was removed in Fetch:
+NuvioMedia/NuvioTV#4120 (contributors list), NuvioMedia/NuvioTV#3651 (Nuvio account),
+NuvioMedia/NuvioTV#4110 (Nuvio global sync of catalog order).

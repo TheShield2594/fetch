@@ -453,6 +453,8 @@ class SearchViewModelSuggestionsTest {
             watchedSeriesStateHolder = watchedSeries,
             posterOptions = mockk<PosterOptionsController>(relaxed = true),
             serverCatalog = mockk { every { searchAddons } returns flowOf(emptyList()) },
+            parentalControls = com.fetch.tv.unrestrictedParentalControls(),
+            remoteCommandBus = com.fetch.tv.core.remote.RemoteCommandBus(),
             context = mockk<Context>(relaxed = true)
         )
     }

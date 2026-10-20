@@ -19,15 +19,7 @@ internal class RedirectReportingDataSource(
     private val upstream: DataSource,
     private val requestedUrl: String,
     private val onRedirect: (resolvedUrl: String) -> Unit
-) : DataSource by upstream, androidx.media3.common.ByteBufferDataReader {
-
-    // Interface delegation only covers DataSource, so without these the cache sees an upstream that
-    // cannot do buffer reads and throws once a read crosses from a cached span back to the network.
-    override fun supportsByteBufferRead(): Boolean =
-        upstream is androidx.media3.common.ByteBufferDataReader && upstream.supportsByteBufferRead()
-
-    override fun read(buffer: java.nio.ByteBuffer, length: Int): Int =
-        (upstream as androidx.media3.common.ByteBufferDataReader).read(buffer, length)
+) : DataSource by upstream {
 
     override fun open(dataSpec: DataSpec): Long {
         val length = upstream.open(dataSpec)

@@ -36,12 +36,14 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -59,11 +61,18 @@ class SearchViewModel @Inject constructor(
     private val watchedSeriesStateHolder: com.fetch.tv.data.local.WatchedSeriesStateHolder,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
     private val serverCatalog: ServerCatalog,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
+    private val remoteCommandBus: com.fetch.tv.core.remote.RemoteCommandBus,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
-    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
+
+    // Results are filtered by the profile's certification limit on the way out, and
+    // refiltered when the limit changes or more certifications are known.
+    val uiState: StateFlow<SearchUiState> = combine(_uiState, parentalControls.filterRevision) { state, _ ->
+        state.filteredForProfile(parentalControls)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, SearchUiState())
 
     /** Saved focus state for restoring scroll/focus position after returning from details. */
     var savedFocusRowKey: String? = null
@@ -119,6 +128,15 @@ class SearchViewModel @Inject constructor(
 
     init {
         posterOptions.bind(viewModelScope)
+        viewModelScope.launch {
+            // "Search on TV" from the phone remote.
+            remoteCommandBus.pendingSearch.collect { pending ->
+                if (pending == null) return@collect
+                val query = remoteCommandBus.consumePendingSearch() ?: return@collect
+                onQueryChanged(query)
+                submitSearch()
+            }
+        }
         viewModelScope.launch {
             watchProgressRepository.observeWatchedMovieIds()
                 .collect { ids -> _watchedMovieIds.value = ids }
@@ -252,7 +270,7 @@ class SearchViewModel @Inject constructor(
                 lastRequestKey = null
                 lastCompletedRequestKey = null
                 cancelSearchRun()
-                performSearch(uiState.value.submittedQuery.ifBlank { uiState.value.query })
+                performSearch(_uiState.value.submittedQuery.ifBlank { _uiState.value.query })
             }
         }
     }
@@ -702,7 +720,7 @@ class SearchViewModel @Inject constructor(
                 if (
                     generation == searchGeneration &&
                     activeSearchQuery == query &&
-                    uiState.value.submittedQuery.trim() == query
+                    _uiState.value.submittedQuery.trim() == query
                 ) {
                     lastCompletedRequestKey = requestKey
                     _uiState.update { it.copy(isSearching = false) }
@@ -772,7 +790,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun isCurrentSearch(generation: Long, query: String): Boolean =
-        generation == searchGeneration && uiState.value.submittedQuery.trim() == query
+        generation == searchGeneration && _uiState.value.submittedQuery.trim() == query
 
     /**
      * Pages one row of the current search. The page belongs to the search run that created it:
@@ -790,7 +808,7 @@ class SearchViewModel @Inject constructor(
         }
 
         val generation = searchGeneration
-        val query = uiState.value.submittedQuery.trim()
+        val query = _uiState.value.submittedQuery.trim()
         if (query.isBlank()) {
             return
         }
@@ -799,8 +817,8 @@ class SearchViewModel @Inject constructor(
         scheduleCatalogRowsUpdate()
 
         val job = viewModelScope.launch {
-            val addon = uiState.value.installedAddons.find { it.id == addonId && it.baseUrl == currentRow.addonBaseUrl }
-                ?: uiState.value.installedAddons.find { it.id == addonId } ?: run {
+            val addon = _uiState.value.installedAddons.find { it.id == addonId && it.baseUrl == currentRow.addonBaseUrl }
+                ?: _uiState.value.installedAddons.find { it.id == addonId } ?: run {
                 clearRowLoading(key, generation, query)
                 return@launch
             }

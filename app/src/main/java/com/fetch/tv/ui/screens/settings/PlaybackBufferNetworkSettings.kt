@@ -65,7 +65,7 @@ internal fun PlaybackBufferNetworkSection(
             text = stringResource(
                 R.string.playback_net_device_memory_info,
                 FetchExoPlayerPerformanceHelper.getFriendlyRamLabel(context),
-                FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
             )
         )
     }
@@ -203,12 +203,12 @@ private fun CustomBufferControls(
         0
     }
     val safeMaxMb = if (settings.fetchPerformanceModeEnabled) {
-        FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+        FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
     } else {
         MemoryBudget.maxBufferMb(parallelOverheadMb)
     }
     val warningMaxMb = if (settings.fetchPerformanceModeEnabled) {
-        FetchExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
+        FetchExoPlayerPerformanceHelper.getWarningBufferLimitMb(context)
     } else {
         (((MemoryBudget.budgetMb * 1.25f).toInt() - parallelOverheadMb) / MemoryBudget.BUFFER_STEP_MB * MemoryBudget.BUFFER_STEP_MB)
             .coerceIn(MemoryBudget.MIN_BUFFER_MB, MemoryBudget.MAX_BUFFER_MB)
@@ -404,7 +404,7 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
             if (settings.bufferEngineEnabled && !settings.bufferBudgetManaged) {
                 MemoryBudget.effectiveBufferMb(settings.bufferSettings.targetBufferSizeMb)
             } else {
-                FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
             }
         }
         settings.bufferEngineEnabled -> {
@@ -426,12 +426,12 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
         MemoryBudget.totalUsageMb(effectiveBufferMb, settings.parallelConnectionCount, chunkMb, parallelActive)
     }
     val safeLimitMb = if (settings.fetchPerformanceModeEnabled) {
-        FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+        FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
     } else {
         MemoryBudget.budgetMb
     }
     val warningLimitMb = if (settings.fetchPerformanceModeEnabled) {
-        FetchExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(context)
+        FetchExoPlayerPerformanceHelper.getWarningBufferLimitMb(context)
     } else {
         (MemoryBudget.budgetMb * 1.25f).toInt()
     }

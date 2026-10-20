@@ -59,7 +59,7 @@ android {
 dependencies {
     api(libs.media3.decoder)
     implementation(libs.media3.common)
-    compileOnly(files("../app/libs/lib-exoplayer-release.aar"))
+    compileOnly(libs.media3.exoplayer)
     implementation("androidx.annotation:annotation:1.9.1")
     compileOnly("org.checkerframework:checker-qual:3.48.4")
 }

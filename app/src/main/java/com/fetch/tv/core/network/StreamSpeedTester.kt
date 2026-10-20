@@ -101,7 +101,6 @@ object StreamSpeedTester {
                 upstreamFactory = okHttpFactory,
                 parallelConnections = parallelConnections,
                 chunkSize = chunkSizeBytes,
-                useNativeMemory = true,
                 prefetchDepthChunks = prefetchDepthChunks
             ).apply {
                 addTransferListener(transferListener)

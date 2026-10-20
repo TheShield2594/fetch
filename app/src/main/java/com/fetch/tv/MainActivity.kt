@@ -6,6 +6,8 @@ import android.content.res.Configuration
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.os.SystemClock
+import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -146,6 +148,8 @@ import com.fetch.tv.core.deeplink.DeepLinkParser
 import com.fetch.tv.core.player.PlayerWindowBackdrop
 import com.fetch.tv.core.party.PartyRepository
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.remote.RemoteCommand
+import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.sync.ProfileSyncService
 import com.fetch.tv.core.sync.StartupSyncService
 import com.fetch.tv.core.tracking.TrackingProgressRefreshCoordinator
@@ -297,6 +301,15 @@ open class MainActivity : ComponentActivity() {
     lateinit var profileManager: ProfileManager
 
     @Inject
+    lateinit var profilePinManager: com.fetch.tv.core.parental.ProfilePinManager
+
+    @Inject
+    lateinit var parentalControls: com.fetch.tv.core.parental.ParentalControls
+
+    @Inject
+    lateinit var remoteCommandBus: RemoteCommandBus
+
+    @Inject
     lateinit var authManager: AuthManager
 
     @Inject
@@ -442,25 +455,23 @@ open class MainActivity : ComponentActivity() {
             val activeProfile = remember(activeProfileId, profiles) {
                 profiles.firstOrNull { it.id == activeProfileId }
             }
-            var profilePinStates by remember { mutableStateOf<Map<Int, Boolean>>(emptyMap()) }
+            // Local PINs work without sync; the remote lock states are refreshed when signed in.
+            // Null until read from disk, so a PIN-locked profile is never auto-entered early.
+            val profilePinStates by profilePinManager.pinEnabled.collectAsState(initial = null)
 
             LaunchedEffect(authState, profiles) {
                 if (authState is AuthState.FullAccount) {
-                    profileSyncService.pullProfileLockStates()
-                        .onSuccess { profilePinStates = it }
-                        .onFailure { profilePinStates = emptyMap() }
-                } else {
-                    profilePinStates = emptyMap()
+                    profilePinManager.refreshRemoteStates()
                 }
             }
 
             val activeProfileHasPin = remember(activeProfileId, profilePinStates) {
-                profilePinStates[activeProfileId] == true
+                profilePinStates?.get(activeProfileId) == true
             }
 
             var profileSwitchedManually by remember { mutableStateOf(false) }
             val shouldAutoSelectProfile = rememberLastProfileEnabled &&
-                hasEverSelectedProfile && !activeProfileHasPin &&
+                hasEverSelectedProfile && profilePinStates != null && !activeProfileHasPin &&
                 !hasSelectedProfileThisSession && !profileSwitchedManually
             if (shouldAutoSelectProfile && !splashTriggered) {
                 splashTriggered = true
@@ -734,7 +745,8 @@ open class MainActivity : ComponentActivity() {
 
                     var startupDestination = StartupDestination.Loading
                     val surfaceContentReady = hasSeenAuthQrOnFirstLaunch != null &&
-                        authState !is AuthState.Loading
+                        authState !is AuthState.Loading &&
+                        profilePinStates != null
 
                     if (!surfaceContentReady) {
                         // Still loading auth state; nothing to show yet.
@@ -832,7 +844,9 @@ open class MainActivity : ComponentActivity() {
                     LaunchedEffect(pendingDeepLink) {
                         val url = pendingDeepLink ?: return@LaunchedEffect
                         val deepLink = DeepLinkParser.parse(url)
-                        if (deepLink is AppDeepLink.AddonInstall && (needsEssentialAddonSetup || !layoutChosen)) {
+                        if (deepLink is AppDeepLink.AddonInstall && (needsEssentialAddonSetup || !layoutChosen) &&
+                            !parentalControls.activeRestrictions.value.isRestricted
+                        ) {
                             Toast.makeText(context, context.getString(R.string.addon_installing), Toast.LENGTH_SHORT).show()
                             val installResult = deepLinkHandler.installAddon(deepLink.manifestUrl)
                             if (pendingDeepLinkUrl.value == url) {
@@ -984,6 +998,19 @@ open class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    LaunchedEffect(navController) {
+                        // Phone remote: keys and text become key events in this window only.
+                        remoteCommandBus.commands.collect { command ->
+                            when (command) {
+                                is RemoteCommand.Key -> injectRemoteKey(command.key.keyCode)
+                                is RemoteCommand.Text -> injectRemoteText(command.text)
+                                is RemoteCommand.Search -> navController.navigate(Screen.Search.route) {
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
+                    }
+
                     LaunchedEffect(navController, layoutChosen, pendingDeepLink) {
                         val url = pendingDeepLink ?: return@LaunchedEffect
                         if (!layoutChosen) return@LaunchedEffect
@@ -1005,7 +1032,11 @@ open class MainActivity : ComponentActivity() {
                                     launchSingleTop = true
                                 }
                             }
-                            is AppDeepLink.AddonInstall -> {
+                            is AppDeepLink.AddonInstall -> if (parentalControls.activeRestrictions.value.isRestricted) {
+                                // Restricted profiles can't install addons, even from a link.
+                                pendingDeepLinkUrl.value = null
+                                Toast.makeText(context, context.getString(R.string.parental_addons_blocked), Toast.LENGTH_LONG).show()
+                            } else {
                                 navController.navigate(Screen.AddonManager.route) {
                                     launchSingleTop = true
                                 }
@@ -1149,7 +1180,7 @@ open class MainActivity : ComponentActivity() {
                         onOpenUnknownSources = updateViewModel::openUnknownSourcesSettings,
                         onFeedbackShown = updateViewModel::consumeFeedbackMessage
                     ) {
-                        val handleSwitchProfile = {
+                        val switchProfileNow = {
                             startupSession++
                             splashTriggered = false
                             profileSwitchedManually = true
@@ -1159,6 +1190,10 @@ open class MainActivity : ComponentActivity() {
                             focusedSplashTheme = null
                             hasSelectedProfileThisSession = false
                         }
+                        com.fetch.tv.ui.screens.profile.ParentalGateHost {
+                        // Leaving a restricted profile needs the parent PIN.
+                        val parentalGate = com.fetch.tv.ui.screens.profile.LocalParentalGate.current
+                        val handleSwitchProfile: () -> Unit = { parentalGate.runGuarded(switchProfileNow) }
                         Box(modifier = Modifier.fillMaxSize()) {
                             if (modernSidebarEnabled) {
                                 ModernSidebarScaffold(
@@ -1226,6 +1261,7 @@ open class MainActivity : ComponentActivity() {
                                     !isTrailerPlaying,
                                 onShown = { trailerPlayerPool.stop() }
                             )
+                        }
                         }
                     }
                 } 
@@ -1341,6 +1377,20 @@ open class MainActivity : ComponentActivity() {
     override fun onUserInteraction() {
         super.onUserInteraction()
         ambientIdleController.onInteraction()
+    }
+
+    private fun injectRemoteKey(keyCode: Int) {
+        val now = SystemClock.uptimeMillis()
+        dispatchKeyEvent(KeyEvent(now, now, KeyEvent.ACTION_DOWN, keyCode, 0))
+        dispatchKeyEvent(KeyEvent(now, SystemClock.uptimeMillis(), KeyEvent.ACTION_UP, keyCode, 0))
+    }
+
+    /** Types [text] into the focused field. Characters the virtual keymap can't produce are skipped. */
+    private fun injectRemoteText(text: String) {
+        val keyMap = KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD)
+        text.forEach { character ->
+            keyMap.getEvents(charArrayOf(character))?.forEach { dispatchKeyEvent(it) }
+        }
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {

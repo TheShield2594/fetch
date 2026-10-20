@@ -24,8 +24,13 @@ class StreamBadgeConfigServer(
     private val onSettingsChanged: (StreamBadgeSettings) -> Unit,
     private val context: Context? = null,
     private val logoProvider: (() -> ByteArray?)? = null,
-    port: Int = 8091
+    port: Int = 8091,
+    private val pairingGuard: PairingGuard? = null
 ) : NanoHTTPD(port) {
+    /** Address for the QR code, carrying the one-time pairing token. */
+    fun pairingUrl(host: String): String =
+        pairingGuard?.pairingUrl(host, listeningPort) ?: "http://$host:$listeningPort"
+
     private val gson = Gson()
     private val settingsMapType = object : TypeToken<Map<String, Any?>>() {}.type
     @OptIn(ExperimentalSerializationApi::class)
@@ -35,6 +40,7 @@ class StreamBadgeConfigServer(
     }
 
     override fun serve(session: IHTTPSession): Response {
+        pairingGuard?.check(session)?.let { return it }
         return when {
             session.method == Method.GET && session.uri == "/" -> serveWebPage()
             session.method == Method.GET && session.uri == "/logo.png" -> serveLogo()
@@ -240,7 +246,8 @@ class StreamBadgeConfigServer(
                         onSettingsChanged = onSettingsChanged,
                         context = context,
                         logoProvider = logoProvider,
-                        port = port
+                        port = port,
+                        pairingGuard = PairingGuard()
                     )
                     server.start(SOCKET_READ_TIMEOUT, false)
                     return server

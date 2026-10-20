@@ -2,10 +2,13 @@ package com.fetch.tv.ui.screens.player
 
 import android.media.MediaCodecList
 import android.os.Build
+import androidx.media3.common.C
 import androidx.media3.common.Format
 import androidx.media3.common.MimeTypes
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
+import androidx.media3.exoplayer.RendererCapabilities
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.mediacodec.MediaCodecUtil
 import androidx.media3.exoplayer.video.MediaCodecVideoRenderer
 
 private val HARDWARE_FIRST_VIDEO_TYPES = setOf(
@@ -38,15 +41,50 @@ internal fun hardwareFirstVideoDecoders(format: Format, decoders: List<MediaCode
         runCatching { it.isFormatSupported(format) }.getOrDefault(false)
     }
 
-/** The platform video renderer with [hardwareFirstVideoDecoders] applied to its decoder list. */
-internal class HardwareFirstVideoRenderer(builder: MediaCodecVideoRenderer.Builder) : MediaCodecVideoRenderer(builder) {
+/**
+ * The platform video renderer with [hardwareFirstVideoDecoders] applied to its decoder list.
+ *
+ * With [mapDv7ToHevc], Dolby Vision profile 7 is decoded as its HEVC base layer: HEVC decoders
+ * are offered first and count as support for the track. Stock Media3 only does this for
+ * profiles 4, 8 and 9. HEVC decoders skip the enhancement layer and RPU NAL units.
+ */
+internal class HardwareFirstVideoRenderer(
+    builder: MediaCodecVideoRenderer.Builder,
+    private val mapDv7ToHevc: Boolean = false
+) : MediaCodecVideoRenderer(builder) {
+    override fun supportsFormat(mediaCodecSelector: MediaCodecSelector, format: Format): Int {
+        val support = super.supportsFormat(mediaCodecSelector, format)
+        if (!mapDv7ToHevc || !isDolbyVisionProfile7(format)) return support
+        if (RendererCapabilities.getFormatSupport(support) == C.FORMAT_HANDLED) return support
+        return super.supportsFormat(mediaCodecSelector, dolbyVisionBaseLayerFormat(format))
+    }
+
     override fun getDecoderInfos(
         mediaCodecSelector: MediaCodecSelector,
         format: Format,
         requiresSecureDecoder: Boolean,
-    ): List<MediaCodecInfo> =
-        hardwareFirstVideoDecoders(format, super.getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder))
+    ): List<MediaCodecInfo> {
+        val decoders = super.getDecoderInfos(mediaCodecSelector, format, requiresSecureDecoder)
+        if (!mapDv7ToHevc || !isDolbyVisionProfile7(format)) return hardwareFirstVideoDecoders(format, decoders)
+        val baseLayer = dolbyVisionBaseLayerFormat(format)
+        val hevc = hardwareFirstVideoDecoders(
+            baseLayer,
+            super.getDecoderInfos(mediaCodecSelector, baseLayer, requiresSecureDecoder)
+        )
+        return hevc + decoders.filter { dv -> hevc.none { it.name == dv.name } }
+    }
 }
+
+internal fun isDolbyVisionProfile7(format: Format): Boolean =
+    format.sampleMimeType == MimeTypes.VIDEO_DOLBY_VISION &&
+        MediaCodecUtil.getCodecProfileAndLevel(format)?.first ==
+        android.media.MediaCodecInfo.CodecProfileLevel.DolbyVisionProfileDvheDtb
+
+private fun dolbyVisionBaseLayerFormat(format: Format): Format =
+    format.buildUpon()
+        .setSampleMimeType(MimeTypes.VIDEO_H265)
+        .setCodecs(null)
+        .build()
 
 internal fun isSoftwareDecoder(info: MediaCodecInfo): Boolean =
     info.softwareOnly || hasSoftwareDecoderName(info.name)

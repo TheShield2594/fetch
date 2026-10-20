@@ -257,8 +257,8 @@ private class DebugStatsSampler(context: Context) {
             targetBufferMb > 0 -> "   native $nativeMb / $targetBufferMb MB"
             else -> "   native $nativeMb MB"
         }
-        val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(appContext)
-        val warningLimitMb = FetchExoPlayerPerformanceHelper.getWarningNativeMemoryLimitMb(appContext)
+        val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(appContext)
+        val warningLimitMb = FetchExoPlayerPerformanceHelper.getWarningBufferLimitMb(appContext)
 
         val severity = when {
             nativeMb > 0L && nativeMb > warningLimitMb -> DebugStatSeverity.DANGER

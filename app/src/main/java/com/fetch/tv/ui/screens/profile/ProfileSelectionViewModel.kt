@@ -7,12 +7,12 @@ import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.ProfileSettingsSyncService
 import com.fetch.tv.core.sync.ProfileSyncService
 import com.fetch.tv.core.sync.SetProfilePinResult
-import com.fetch.tv.data.local.ProfileLockStateDataStore
+import com.fetch.tv.core.parental.PinVerifyResult
+import com.fetch.tv.core.parental.ProfilePinManager
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 import com.fetch.tv.data.remote.supabase.AvatarRepository
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundRepository
-import com.fetch.tv.data.remote.supabase.SupabaseProfilePinVerifyResult
 import com.fetch.tv.data.repository.MemberAccessRepository
 import com.fetch.tv.domain.model.CosmeticEntitlement
 import com.fetch.tv.domain.model.UserProfile
@@ -50,7 +50,8 @@ class ProfileSelectionViewModel @Inject constructor(
     private val avatarRepository: AvatarRepository,
     private val profileBackgroundRepository: ProfileBackgroundRepository,
     memberAccessRepository: MemberAccessRepository,
-    private val profileLockStateDataStore: ProfileLockStateDataStore,
+    private val profilePinManager: ProfilePinManager,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     private val themeDataStore: com.fetch.tv.data.local.ThemeDataStore
 ) : ViewModel() {
     val activeProfileId: StateFlow<Int> = profileManager.activeProfileId
@@ -87,8 +88,15 @@ class ProfileSelectionViewModel @Inject constructor(
     private val _isCopyingSettings = MutableStateFlow(false)
     val isCopyingSettings: StateFlow<Boolean> = _isCopyingSettings.asStateFlow()
 
-    val profilePinEnabled: StateFlow<Map<Int, Boolean>> = profileLockStateDataStore.pinEnabled
+    val profilePinEnabled: StateFlow<Map<Int, Boolean>> = profilePinManager.pinEnabled
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
+
+    val profileRestrictions: StateFlow<Map<Int, com.fetch.tv.data.local.ProfileRestrictions>> =
+        parentalControls.allRestrictions
+
+    fun setProfileRestrictions(profileId: Int, restrictions: com.fetch.tv.data.local.ProfileRestrictions) {
+        viewModelScope.launch { parentalControls.setRestrictions(profileId, restrictions) }
+    }
 
     private val _isPinOperationInProgress = MutableStateFlow(false)
     val isPinOperationInProgress: StateFlow<Boolean> = _isPinOperationInProgress.asStateFlow()
@@ -271,11 +279,8 @@ class ProfileSelectionViewModel @Inject constructor(
         viewModelScope.launch {
             var attempt = 0
             while (attempt < 4) {
-                val result = profileSyncService.pullProfileLockStates()
-                if (result.isSuccess) {
-                    profileLockStateDataStore.replaceAll(result.getOrNull().orEmpty())
-                    return@launch
-                }
+                val result = profilePinManager.refreshRemoteStates()
+                if (result.isSuccess) return@launch
                 Log.e(
                     "ProfileSelectionVM",
                     "Failed to refresh profile PIN states (attempt=$attempt)",
@@ -300,35 +305,27 @@ class ProfileSelectionViewModel @Inject constructor(
         if (_isPinOperationInProgress.value) return
         viewModelScope.launch {
             _isPinOperationInProgress.value = true
-            val result = profileSyncService.setProfilePin(profileId, pin, currentPin)
-            // Server reporting CurrentPinRequired means a PIN exists remotely —
-            // reconcile local cache so we never forget it again.
-            if (result is SetProfilePinResult.Success || result is SetProfilePinResult.CurrentPinRequired) {
-                profileLockStateDataStore.setPinEnabled(profileId, true)
-            }
+            val result = profilePinManager.setPin(profileId, pin, currentPin)
             _isPinOperationInProgress.value = false
             onComplete(result)
         }
     }
 
-    fun clearProfilePin(profileId: Int, currentPin: String? = null, onComplete: (Boolean) -> Unit) {
+    fun clearProfilePin(profileId: Int, currentPin: String? = null, onComplete: (Result<PinVerifyResult>) -> Unit) {
         if (_isPinOperationInProgress.value) return
         viewModelScope.launch {
             _isPinOperationInProgress.value = true
-            val success = profileSyncService.clearProfilePin(profileId, currentPin).isSuccess
-            if (success) {
-                profileLockStateDataStore.setPinEnabled(profileId, false)
-            }
+            val result = profilePinManager.clearPin(profileId, currentPin)
             _isPinOperationInProgress.value = false
-            onComplete(success)
+            onComplete(result)
         }
     }
 
-    fun verifyProfilePin(profileId: Int, pin: String, onComplete: (Result<SupabaseProfilePinVerifyResult>) -> Unit) {
+    fun verifyProfilePin(profileId: Int, pin: String, onComplete: (Result<PinVerifyResult>) -> Unit) {
         if (_isPinOperationInProgress.value) return
         viewModelScope.launch {
             _isPinOperationInProgress.value = true
-            val result = profileSyncService.verifyProfilePin(profileId, pin)
+            val result = profilePinManager.verifyPin(profileId, pin)
             _isPinOperationInProgress.value = false
             onComplete(result)
         }

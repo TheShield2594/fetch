@@ -2,8 +2,6 @@ package com.fetch.tv.ui.screens.player
 
 import android.content.Context
 import androidx.media3.common.C
-// NuvioEngineConfig ships in the prebuilt Media3 fork under app/libs (upstream NuvioTV build).
-import androidx.media3.common.NuvioEngineConfig
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
@@ -18,7 +16,7 @@ import com.fetch.tv.ui.screens.settings.MemoryBudget
  * Centralizes all Fetch ExoPlayer performance enhancements behind a single toggle.
  *
  * When [enabled] is `true`, the helper applies:
- * - Large allocator segments (256 KB) with a 400 MB target buffer
+ * - A target buffer sized to the RAM tier and capped by the heap budget
  * - Extended buffer durations (200–280 s) with a 12 s back-buffer
  * - 50 Mbps initial bandwidth estimate
  * - Scrubbing mode for faster seeks (disables audio/metadata, boosts codec rate)
@@ -37,7 +35,6 @@ object FetchExoPlayerPerformanceHelper {
             val supported = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
             val newValue = value && supported
             field = newValue
-            applyEngineConfig(newValue)
         }
 
     // Rebuilding this on a settings change handed already built data sources a pool that nothing
@@ -51,15 +48,11 @@ object FetchExoPlayerPerformanceHelper {
     // ─── Constants ────────────────────────────────────────────────────────────
     const val DEFAULT_FETCH_ALLOCATOR_SEGMENT_SIZE = 64 * 1024        // 64 KB
 
-    // Mirrors ARENA_CHUNK_SIZE in the forked DefaultAllocatorNative, whose pool covers 512 of them.
-    const val NATIVE_ARENA_CHUNK_SIZE = 64 * 1024
-    const val NATIVE_ARENA_POOL_BYTES = 512 * NATIVE_ARENA_CHUNK_SIZE
     const val DEFAULT_FETCH_TARGET_BUFFER_MB = 175
     const val DEFAULT_FETCH_TARGET_BUFFER_BYTES = DEFAULT_FETCH_TARGET_BUFFER_MB * 1024 * 1024
     const val DEFAULT_FETCH_MIN_BUFFER_MS = 15_000
     const val DEFAULT_FETCH_MAX_BUFFER_MS = 45_000
-    // Native holds its buffers in the arena rather than the java heap, so it can afford a back
-    // buffer that keeps a short seek back off the network.
+    // A short back buffer keeps a small seek back off the network.
     const val DEFAULT_FETCH_BACK_BUFFER_MS = 15_000
     const val DEFAULT_FETCH_INITIAL_BITRATE_ESTIMATE = 50_000_000L     // 50 Mbps
     // Parallel chunk fetching keeps more sockets alive than the old cap of 8, which was evicting
@@ -107,7 +100,7 @@ object FetchExoPlayerPerformanceHelper {
         bufferForPlaybackAfterRebufferMs = if (customBuffers) bufferSettings.bufferForPlaybackAfterRebufferMs else 3_000
         backBufferMs = if (customBuffers) bufferSettings.backBufferDurationMs else DEFAULT_FETCH_BACK_BUFFER_MS
 
-        val safeLimitMb = getSafeNativeMemoryLimitMb(context)
+        val safeLimitMb = getSafeBufferLimitMb(context)
         targetBufferSizeMb = if (customBuffers && !settings.bufferBudgetManaged) {
             val storedSize = bufferSettings.targetBufferSizeMb
             if (!settings.allowLargeTargetBuffer && storedSize > safeLimitMb) {
@@ -234,7 +227,7 @@ object FetchExoPlayerPerformanceHelper {
     }
 
     /**
-     * Calculates the safe ExoPlayer native target buffer size limit in MB based on RAM tier thresholds.
+     * Target buffer size limit in MB for the device's RAM tier, before the heap cap in [getSafeBufferLimitMb].
      */
     fun getSafeNativeMemoryLimitMb(context: Context): Int {
         val totalMem = getDevicePhysicalRamBytes(context)
@@ -252,7 +245,18 @@ object FetchExoPlayerPerformanceHelper {
     }
 
     /**
-     * Calculates the warning native target buffer size limit in MB based on RAM tier thresholds.
+     * Largest buffer the player may plan for: the RAM tier limit, capped by the Java heap budget.
+     * Media3's allocator and the parallel chunk buffers both live on the Java heap.
+     */
+    fun getSafeBufferLimitMb(context: Context): Int =
+        getSafeNativeMemoryLimitMb(context).coerceAtMost(MemoryBudget.budgetMb)
+
+    /** Warning threshold for the buffer slider, capped like [getSafeBufferLimitMb]. */
+    fun getWarningBufferLimitMb(context: Context): Int =
+        getWarningNativeMemoryLimitMb(context).coerceAtMost(MemoryBudget.budgetMb)
+
+    /**
+     * Warning buffer size in MB for the device's RAM tier, before the heap cap.
      */
     fun getWarningNativeMemoryLimitMb(context: Context): Int {
         val totalMem = getDevicePhysicalRamBytes(context)
@@ -287,16 +291,7 @@ object FetchExoPlayerPerformanceHelper {
             val targetBufferBytes = (effectiveTargetBufferMb.toLong() * 1024L * 1024L)
                 .coerceAtMost(Int.MAX_VALUE.toLong())
                 .toInt()
-            // A segment size other than the arena chunk size drops every allocation to a JNI path
-            // with no other symptom, so say so rather than failing playback over it.
-            if (DEFAULT_FETCH_ALLOCATOR_SEGMENT_SIZE != NATIVE_ARENA_CHUNK_SIZE) {
-                android.util.Log.w(
-                    "FetchExoPerf",
-                    "Allocator segment $DEFAULT_FETCH_ALLOCATOR_SEGMENT_SIZE does not match the " +
-                        "native arena chunk $NATIVE_ARENA_CHUNK_SIZE; native pooling is disabled"
-                )
-            }
-            val allocator = DefaultAllocator(true, DEFAULT_FETCH_ALLOCATOR_SEGMENT_SIZE, 0, enabled)
+            val allocator = DefaultAllocator(true, DEFAULT_FETCH_ALLOCATOR_SEGMENT_SIZE, 0)
             liveAllocator = allocator
             android.util.Log.i(
                 "ExoPerformance",
@@ -425,7 +420,7 @@ object FetchExoPlayerPerformanceHelper {
     // ─── Memory Logging ───────────────────────────────────────────────────────
 
     /**
-     * Returns `true` when off-heap allocator memory logging should be active.
+     * Returns `true` when allocator memory logging should be active.
      */
     fun shouldLogMemoryFootprint(): Boolean {
         return enabled
@@ -439,22 +434,5 @@ object FetchExoPlayerPerformanceHelper {
      */
     fun shouldGuardTrackRebuild(): Boolean {
         return enabled
-    }
-
-    // ─── Engine Config ───────────────────────────────────────────────────────
-
-    /**
-     * Applies [NuvioEngineConfig] based on the toggle state.
-     * When enabled: native off-heap allocation + zero-copy ByteBuffer pipeline + 64 KB scratch.
-     * When disabled: stock heap allocation + standard byte[] pipeline + 4 KB scratch.
-     *
-     * Must be called **before** building an ExoPlayer instance.
-     */
-    private fun applyEngineConfig(performanceModeEnabled: Boolean) {
-        if (performanceModeEnabled) {
-            NuvioEngineConfig.set(NuvioEngineConfig.nuvioMode())
-        } else {
-            NuvioEngineConfig.set(NuvioEngineConfig.stockMode())
-        }
     }
 }

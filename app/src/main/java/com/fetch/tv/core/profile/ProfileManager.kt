@@ -4,6 +4,8 @@ import android.content.Context
 import com.fetch.tv.R
 import com.fetch.tv.data.local.ProfileDataStore
 import com.fetch.tv.data.local.ProfileDataStoreFactory
+import com.fetch.tv.data.local.ProfileLockStateDataStore
+import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.domain.model.UserProfile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -24,6 +26,8 @@ class ProfileManager @Inject constructor(
     private val profileDataStore: ProfileDataStore,
     private val factory: ProfileDataStoreFactory,
     private val credentialStores: Set<@JvmSuppressWildcards ProfileScopedCredentialStore>,
+    private val profileLockStateDataStore: ProfileLockStateDataStore,
+    private val profileRestrictionsDataStore: ProfileRestrictionsDataStore,
     @ApplicationContext private val context: Context
 ) {
     companion object {
@@ -115,6 +119,9 @@ class ProfileManager @Inject constructor(
         if (id == 1) return false
         if (profiles.value.none { it.id == id }) return false
         credentialStores.forEach { store -> store.removeProfile(id) }
+        // A new profile can reuse this id, so its PIN and limits must not survive.
+        profileLockStateDataStore.removeProfile(id)
+        profileRestrictionsDataStore.removeProfile(id)
         deleteProfileDataAsync(id)
         profileDataStore.deleteProfile(id)
         return true

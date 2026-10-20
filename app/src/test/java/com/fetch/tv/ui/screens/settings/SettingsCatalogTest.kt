@@ -25,6 +25,7 @@ class SettingsCatalogTest {
                 SettingsCategory.PLAYBACK,
                 SettingsCategory.INTEGRATION,
                 SettingsCategory.TRACKING,
+                SettingsCategory.PHONE,
                 SettingsCategory.ADVANCED,
                 SettingsCategory.ABOUT,
                 SettingsCategory.DEBUG
@@ -92,7 +93,7 @@ class SettingsCatalogTest {
                 SettingsCategory.APPEARANCE,
                 SettingsCategory.CONTENT_DISCOVERY,
                 SettingsCategory.INTEGRATION,
-                SettingsCategory.ADVANCED
+                SettingsCategory.PHONE
             ),
             dividerBefore
         )

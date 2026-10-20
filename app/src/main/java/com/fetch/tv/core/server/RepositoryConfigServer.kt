@@ -13,8 +13,12 @@ class RepositoryConfigServer(
     private val currentRepositoriesProvider: () -> List<RepositoryInfo>,
     private val onChangeProposed: (PendingRepoChange) -> Unit,
     private val logoProvider: (() -> ByteArray?)? = null,
-    port: Int = 8090
+    port: Int = 8090,
+    private val pairingGuard: PairingGuard? = null
 ) : NanoHTTPD(port) {
+    /** Address for the QR code, carrying the one-time pairing token. */
+    fun pairingUrl(host: String): String =
+        pairingGuard?.pairingUrl(host, listeningPort) ?: "http://$host:$listeningPort"
 
     data class RepositoryInfo(
         val url: String,
@@ -42,6 +46,7 @@ class RepositoryConfigServer(
     }
 
     override fun serve(session: IHTTPSession): Response {
+        pairingGuard?.check(session)?.let { return it }
         val uri = session.uri
         val method = session.method
 
@@ -129,7 +134,7 @@ class RepositoryConfigServer(
         ): RepositoryConfigServer? {
             for (port in startPort until startPort + maxAttempts) {
                 try {
-                    val server = RepositoryConfigServer(context, currentRepositoriesProvider, onChangeProposed, logoProvider, port)
+                    val server = RepositoryConfigServer(context, currentRepositoriesProvider, onChangeProposed, logoProvider, port, PairingGuard())
                     server.start(SOCKET_READ_TIMEOUT, false)
                     return server
                 } catch (e: Exception) {

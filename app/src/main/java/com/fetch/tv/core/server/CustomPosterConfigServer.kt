@@ -9,10 +9,15 @@ class CustomPosterConfigServer(
     private val currentPatternProvider: () -> String,
     private val onPatternChanged: (String) -> Unit,
     private val context: Context? = null,
-    port: Int = 8092
+    port: Int = 8092,
+    private val pairingGuard: PairingGuard? = null
 ) : NanoHTTPD(port) {
+    /** Address for the QR code, carrying the one-time pairing token. */
+    fun pairingUrl(host: String): String =
+        pairingGuard?.pairingUrl(host, listeningPort) ?: "http://$host:$listeningPort"
 
     override fun serve(session: IHTTPSession): Response {
+        pairingGuard?.check(session)?.let { return it }
         return when {
             session.method == Method.GET && session.uri == "/" -> serveWebPage()
             session.method == Method.GET && session.uri == "/api/pattern" -> serveCurrentPattern()
@@ -112,7 +117,8 @@ class CustomPosterConfigServer(
                         currentPatternProvider = currentPatternProvider,
                         onPatternChanged = onPatternChanged,
                         context = context,
-                        port = port
+                        port = port,
+                        pairingGuard = PairingGuard()
                     )
                     server.start(SOCKET_READ_TIMEOUT, false)
                     return server

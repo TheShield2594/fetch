@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -92,6 +93,10 @@ fun DebridSettingsContent(
     initialFocusRequester: FocusRequester? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // The name-template phone page is only served while this screen is open.
+    DisposableEffect(viewModel) {
+        onDispose { viewModel.stopFormatterQrMode() }
+    }
     // The first two rows are gated on a connected provider and cannot take focus without one,
     // so the entry requester goes to the first row that can accept it. Left on a gated row the
     // request is declined, focus stays on the category rail, and the next press walks the rail

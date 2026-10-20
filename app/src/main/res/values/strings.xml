@@ -3359,4 +3359,25 @@
     <string name="autosync_toast_failed_no_reference">Sync failed: this video has no embedded subtitles to compare with.</string>
     <string name="autosync_toast_failed_unsupported">Sync failed: Auto Sync doesn\'t support this subtitle format.</string>
     <string name="autosync_label_synced">Auto synced</string>
+    <!-- Parental controls -->
+    <string name="parental_title_blocked">This title is above this profile\'s rating limit.</string>
+    <string name="parental_addons_blocked">This profile can\'t install addons. Ask a parent.</string>
+    <string name="parental_gate_heading">Enter %1$s\'s PIN</string>
+    <string name="parental_gate_support">This profile has parental limits. A parent\'s PIN is needed to continue.</string>
+    <string name="parental_limits_label">Parental limits</string>
+    <string name="parental_limits_title">Parental limits for %1$s</string>
+    <string name="parental_limits_subtitle">Changes need the main profile\'s PIN. Titles above the limit are hidden from home, search and Continue Watching and can\'t be played.</string>
+    <string name="parental_limits_subtitle_no_pin">Set a PIN on the main profile, or anyone on this profile can change these limits.</string>
+    <string name="parental_limits_saved">Parental limits saved for %1$s</string>
+    <string name="parental_kids_profile_toggle">Kids profile: %1$s</string>
+    <string name="parental_max_rating">Maximum rating: %1$s</string>
+    <string name="parental_allow_unrated">Show unrated titles: %1$s</string>
+    <string name="parental_on">On</string>
+    <string name="parental_off">Off</string>
+    <string name="parental_level_all_ages">All ages (G, TV-Y, TV-G)</string>
+    <string name="parental_level_older_kids">Older kids (TV-Y7)</string>
+    <string name="parental_level_pg">PG, TV-PG</string>
+    <string name="parental_level_teens">PG-13, TV-14</string>
+    <string name="parental_level_mature">R, TV-MA</string>
+    <string name="parental_level_unrestricted">No limit</string>
 </resources>

@@ -7,7 +7,6 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
-import androidx.media3.exoplayer.upstream.DefaultAllocator
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter
 import com.fetch.tv.data.local.PlayerSettings
 import com.fetch.tv.data.local.PlayerSettingsDataStore
@@ -62,9 +61,6 @@ class TrailerPlayerPool @Inject constructor(
     val isTrailerPlaying: StateFlow<Boolean> = _isTrailerPlaying.asStateFlow()
 
     @Volatile
-    private var cachedForceNative: Boolean = false
-
-    @Volatile
     private var cachedPlayerSettings: PlayerSettings? = null
 
     @Volatile
@@ -78,11 +74,6 @@ class TrailerPlayerPool @Inject constructor(
         settingsScope.launch {
             runCatching {
                 trailerSettingsDataStore.settings.collect { cachedAllow4k = it.allow4k }
-            }
-        }
-        settingsScope.launch {
-            runCatching {
-                playerSettingsDataStore.fetchPerformanceModeEnabled.collect { cachedForceNative = it }
             }
         }
         settingsScope.launch {
@@ -181,12 +172,10 @@ class TrailerPlayerPool @Inject constructor(
     }
 
     private fun createPlayer(): ExoPlayer {
-        val forceNative = cachedForceNative
         val targetBufferMb = trailerTargetBufferMb(cachedPlayerSettings)
         Log.d(
             TAG,
-            "Creating shared trailer ExoPlayer instance with forceNativeAllocation = $forceNative, " +
-                "targetBufferMb = $targetBufferMb"
+            "Creating shared trailer ExoPlayer instance with targetBufferMb = $targetBufferMb"
         )
         val loadControlBuilder = DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -199,15 +188,6 @@ class TrailerPlayerPool @Inject constructor(
             // The byte cap must hold even before minBufferMs is reached, or a high-bitrate
             // trailer keeps allocating until the process is killed for low memory.
             .setPrioritizeTimeOverSizeThresholds(false)
-        if (forceNative) {
-            val allocator = DefaultAllocator(
-                /* trimOnReset = */ true,
-                /* individualAllocationSize = */ 65536,
-                /* initialAllocationCount = */ 0,
-                /* forceNativeAllocation = */ true
-            )
-            loadControlBuilder.setAllocator(allocator)
-        }
         val loadControl = loadControlBuilder.build()
         val trackSelector = DefaultTrackSelector(context).apply {
             setParameters(

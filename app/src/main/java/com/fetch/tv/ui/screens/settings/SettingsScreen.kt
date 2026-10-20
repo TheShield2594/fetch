@@ -38,6 +38,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Groups
+import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Build
@@ -157,6 +158,7 @@ private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec
     SettingsCategory.ACCOUNT -> SettingsSectionSpec(category, stringResource(R.string.settings_account), Icons.Default.Person, destination = SettingsSectionDestination.Inline)
     SettingsCategory.PROFILES -> SettingsSectionSpec(category, stringResource(R.string.settings_profiles), Icons.Default.People, destination = SettingsSectionDestination.Inline)
     SettingsCategory.WATCH_PARTY -> SettingsSectionSpec(category, stringResource(R.string.party_title), Icons.Rounded.Groups, destination = SettingsSectionDestination.Inline)
+    SettingsCategory.PHONE -> SettingsSectionSpec(category, stringResource(R.string.phone_hub_title), Icons.Rounded.PhoneAndroid, destination = SettingsSectionDestination.Inline)
     SettingsCategory.APPEARANCE -> SettingsSectionSpec(category, stringResource(R.string.appearance_title), Icons.Default.Palette, destination = SettingsSectionDestination.Inline)
     SettingsCategory.LAYOUT -> SettingsSectionSpec(category, stringResource(R.string.settings_layout), Icons.Default.GridView, destination = SettingsSectionDestination.Inline)
     SettingsCategory.CONTENT_DISCOVERY -> SettingsSectionSpec(category, stringResource(R.string.settings_content_discovery), Icons.Default.Explore, destination = SettingsSectionDestination.Inline)
@@ -178,6 +180,7 @@ fun SettingsScreen(
     onNavigateToManageProfiles: () -> Unit = {},
     onNavigateToLicensesAttributions: () -> Unit = {},
     onNavigateToWatchParty: () -> Unit = {},
+    onNavigateToPhoneHub: () -> Unit = {},
     profileViewModel: ProfileSettingsViewModel = hiltViewModel(),
     experienceModeViewModel: ExperienceModeSettingsViewModel = hiltViewModel(),
     partyViewModel: PartyViewModel = hiltViewModel()
@@ -229,6 +232,7 @@ fun SettingsScreen(
             SettingsCategory.EXPERIENCE to FocusRequester(),
             SettingsCategory.PROFILES to FocusRequester(),
             SettingsCategory.WATCH_PARTY to FocusRequester(),
+            SettingsCategory.PHONE to FocusRequester(),
             SettingsCategory.LAYOUT to FocusRequester(),
             SettingsCategory.CONTENT_DISCOVERY to FocusRequester(),
             SettingsCategory.INTEGRATION to FocusRequester(),
@@ -650,7 +654,8 @@ fun SettingsScreen(
                                 onNavigateToPlugins = onNavigateToPlugins,
                                 onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
                                 onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
-                                onNavigateToWatchParty = onNavigateToWatchParty
+                                onNavigateToWatchParty = onNavigateToWatchParty,
+                                onNavigateToPhoneHub = onNavigateToPhoneHub
                             )
                         }
                     }
@@ -803,7 +808,8 @@ fun SettingsScreen(
                         onNavigateToPlugins = onNavigateToPlugins,
                         onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
                         onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
-                        onNavigateToWatchParty = onNavigateToWatchParty
+                        onNavigateToWatchParty = onNavigateToWatchParty,
+                        onNavigateToPhoneHub = onNavigateToPhoneHub
                     )
                 }
             }
@@ -831,7 +837,8 @@ private fun SettingsDetailPane(
     onNavigateToPlugins: () -> Unit,
     onNavigateToAuthQrSignIn: () -> Unit,
     onNavigateToLicensesAttributions: () -> Unit,
-    onNavigateToWatchParty: () -> Unit
+    onNavigateToWatchParty: () -> Unit,
+    onNavigateToPhoneHub: () -> Unit
 ) {
     when (selectedCategory) {
         SettingsCategory.EXPERIENCE -> EssentialAdvancedSettingsContent(
@@ -854,6 +861,14 @@ private fun SettingsDetailPane(
             onOpen = onNavigateToWatchParty,
             initialFocusRequester = if (allowDetailAutofocus) {
                 contentFocusRequesters[SettingsCategory.WATCH_PARTY]
+            } else {
+                null
+            }
+        )
+        SettingsCategory.PHONE -> com.fetch.tv.ui.screens.phone.PhoneHubSettingsContent(
+            onOpen = onNavigateToPhoneHub,
+            initialFocusRequester = if (allowDetailAutofocus) {
+                contentFocusRequesters[SettingsCategory.PHONE]
             } else {
                 null
             }

@@ -594,6 +594,24 @@ internal fun PlayerRuntimeController.currentPlaybackDurationMs(): Long {
     }
 }
 
+internal fun PlayerRuntimeController.isCurrentPlaybackSeekable(): Boolean {
+    return if (isUsingMpvEngine()) {
+        mpvView?.isSeekableNow() == true
+    } else {
+        val player = _exoPlayer ?: return false
+        player.isCurrentMediaItemSeekable && player.duration > 0L
+    }
+}
+
+/** Seeking is blocked only for a live stream without a seekable window. */
+internal fun PlayerRuntimeController.isLiveSeekBlocked(): Boolean {
+    if (!_playbackTimeline.value.isLive) return false
+    return LivePlaybackUiPolicy.blocksSeeking(
+        isLive = true,
+        playerSeekable = isCurrentPlaybackSeekable()
+    )
+}
+
 internal fun PlayerRuntimeController.isPlaybackCurrentlyPlaying(): Boolean {
     return if (isUsingMpvEngine()) {
         mpvView?.isPlayingNow() == true

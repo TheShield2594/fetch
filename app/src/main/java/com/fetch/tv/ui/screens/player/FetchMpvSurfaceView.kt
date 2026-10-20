@@ -245,6 +245,11 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         return mpv.getPropertyBoolean("seekable") == false
     }
 
+    fun isSeekableNow(): Boolean {
+        if (!initialized) return false
+        return mpv.getPropertyBoolean("seekable") == true
+    }
+
     fun hasVideoTrackSelectedNow(): Boolean {
         if (!initialized) return false
         val vid = mpv.getPropertyString("vid")?.trim()

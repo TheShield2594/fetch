@@ -19,6 +19,17 @@ class BrowserImageRequestHeadersTest {
     }
 
     @Test
+    fun `replaces a blank referer with the origin`() {
+        val request = Request.Builder()
+            .url("https://images.example.com/a.jpg")
+            .header("Referer", " ")
+            .build()
+            .withBrowserImageRequestHeaders()
+
+        assertEquals("https://images.example.com/", request.header("Referer"))
+    }
+
+    @Test
     fun `keeps headers the caller already set`() {
         val request = Request.Builder()
             .url("https://images.example.com/a.jpg")

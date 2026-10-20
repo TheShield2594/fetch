@@ -65,13 +65,15 @@ data class FilterRowEditorUiState(
     val selectedSourceKey: String? = null,
     val genres: List<String> = emptyList(),
     val genresLoading: Boolean = false,
-    val filters: FilterRowFilters = FilterRowFilters()
+    val filters: FilterRowFilters = FilterRowFilters(),
+    val isSaving: Boolean = false,
+    val saveFailed: Boolean = false
 ) {
     val selectedSource: FilterRowSourceOption?
         get() = sources.firstOrNull { it.key == selectedSourceKey }
 
     val canSave: Boolean
-        get() = selectedSource != null
+        get() = !isSaving && selectedSource?.let { !it.genreRequired || filters.genre != null } == true
 }
 
 @HiltViewModel
@@ -84,6 +86,8 @@ class FilterRowEditorViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(FilterRowEditorUiState())
     val uiState: StateFlow<FilterRowEditorUiState> = _uiState.asStateFlow()
     private var genresJob: Job? = null
+    // One id per editor visit, so a second Save press can't add a second row.
+    private val newRowId = UUID.randomUUID().toString()
 
     init {
         viewModelScope.launch {
@@ -132,24 +136,30 @@ class FilterRowEditorViewModel @Inject constructor(
 
     fun save(defaultTitle: String, onDone: () -> Unit) {
         val state = _uiState.value
+        if (!state.canSave) return
         val source = state.selectedSource?.source ?: return
         val row = FilterRow(
-            id = rowId ?: UUID.randomUUID().toString(),
+            id = rowId ?: newRowId,
             title = state.title.trim().ifEmpty { defaultTitle },
             source = source,
             filters = state.filters
         )
+        _uiState.update { it.copy(isSaving = true, saveFailed = false) }
         viewModelScope.launch {
-            dataStore.save(row)
-            onDone()
+            val saved = dataStore.save(row)
+            _uiState.update { it.copy(isSaving = false, saveFailed = !saved) }
+            if (saved) onDone()
         }
     }
 
     fun delete(onDone: () -> Unit) {
         val id = rowId ?: return onDone()
+        if (_uiState.value.isSaving) return
+        _uiState.update { it.copy(isSaving = true, saveFailed = false) }
         viewModelScope.launch {
-            dataStore.remove(id)
-            onDone()
+            val removed = dataStore.remove(id)
+            _uiState.update { it.copy(isSaving = false, saveFailed = !removed) }
+            if (removed) onDone()
         }
     }
 

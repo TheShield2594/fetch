@@ -86,11 +86,17 @@ class CatalogOrderViewModel @Inject constructor(
     }
 
     private fun movePinned(key: String, direction: Int) {
-        val pinned = _uiState.value.items.filter { it.isPinned }.map { it.key }
-        val currentIndex = pinned.indexOf(key)
-        val newIndex = currentIndex + direction
-        if (currentIndex == -1 || newIndex !in pinned.indices) return
-        val reordered = pinned.toMutableList().apply { add(newIndex, removeAt(currentIndex)) }
+        // Swap with the next pin on screen, inside the stored list: pins whose source is
+        // unavailable right now are not on screen and must survive the move.
+        val visible = _uiState.value.items.filter { it.isPinned }.map { it.key }
+        val neighbor = visible.getOrNull(visible.indexOf(key) + direction) ?: return
+        if (key !in visible) return
+        val reordered = pinnedKeysCache.toMutableList()
+        val from = reordered.indexOf(key)
+        val to = reordered.indexOf(neighbor)
+        if (from == -1 || to == -1) return
+        reordered[from] = neighbor
+        reordered[to] = key
         viewModelScope.launch {
             layoutPreferenceDataStore.setPinnedHomeCatalogKeys(reordered)
         }

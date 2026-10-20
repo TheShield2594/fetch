@@ -387,6 +387,8 @@ private fun TabbedGridContent(
 
     val currentTab = uiState.tabs.getOrNull(uiState.selectedTabIndex)
     if (currentTab == null) return
+    // A tab with no grid to restore into must not keep tab focus from switching tabs.
+    if (!currentTab.isLoading && currentTab.catalogRow == null) pendingItemRestore = false
 
     when {
         currentTab.isLoading -> {

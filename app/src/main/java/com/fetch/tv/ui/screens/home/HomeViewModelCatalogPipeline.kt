@@ -857,7 +857,8 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
                                     addonBaseUrl = row.addonBaseUrl,
                                     catalogId = row.catalogId,
                                     catalogName = row.catalogName,
-                                    addonId = row.addonId
+                                    addonId = row.addonId,
+                                    rowApiType = row.apiType
                                 ))
                             }
                             if (showSeeAll) {

@@ -566,20 +566,31 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     suspend fun setPinnedHomeCatalogKeys(keys: List<String>) {
-        val normalizedKeys = normalizeCatalogOrderKeys(keys)
-        store().edit { prefs ->
-            if (normalizedKeys.isEmpty()) {
-                prefs.remove(pinnedHomeCatalogKeysKey)
-            } else {
-                prefs[pinnedHomeCatalogKeysKey] = gson.toJson(normalizedKeys)
-            }
-        }
+        editPinnedHomeCatalogKeys { normalizeCatalogOrderKeys(keys) }
     }
 
     /** Pins [key] below the rows already pinned, or unpins it. */
     suspend fun togglePinnedHomeCatalogKey(key: String) {
-        val current = pinnedHomeCatalogKeys.first()
-        setPinnedHomeCatalogKeys(if (key in current) current - key else current + key)
+        val normalized = key.trim().takeIf { it.isNotEmpty() } ?: return
+        editPinnedHomeCatalogKeys { current ->
+            if (normalized in current) current - normalized else current + normalized
+        }
+    }
+
+    // Read and write in one edit, on the store pinnedHomeCatalogKeys reads: profiles that use
+    // the primary profile's addons share its pins.
+    private suspend fun editPinnedHomeCatalogKeys(transform: (List<String>) -> List<String>) {
+        val pid = profileManager.activeProfileId.value
+        val profile = profileManager.profiles.value.find { it.id == pid }
+        val effectivePid = if (profile != null && !profile.isPrimary && profile.usesPrimaryAddons) 1 else pid
+        store(effectivePid).edit { prefs ->
+            val updated = transform(parseCatalogKeys(prefs[pinnedHomeCatalogKeysKey]))
+            if (updated.isEmpty()) {
+                prefs.remove(pinnedHomeCatalogKeysKey)
+            } else {
+                prefs[pinnedHomeCatalogKeysKey] = gson.toJson(updated)
+            }
+        }
     }
 
     suspend fun setSidebarCollapsedByDefault(collapsed: Boolean) {

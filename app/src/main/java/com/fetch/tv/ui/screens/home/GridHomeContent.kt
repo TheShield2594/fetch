@@ -788,9 +788,10 @@ fun GridHomeContent(
                                     onCatalogItemLongPress(
                                         gridItem.item,
                                         gridItem.addonBaseUrl,
-                                        gridItem.addonId.takeIf { it.isNotEmpty() }?.let { addonId ->
-                                            catalogRowLegacyKey(addonId, gridItem.item.apiType, gridItem.catalogId)
-                                        }
+                                        gridItem.addonId.takeIf { it.isNotEmpty() && gridItem.rowApiType.isNotEmpty() }
+                                            ?.let { addonId ->
+                                                catalogRowLegacyKey(addonId, gridItem.rowApiType, gridItem.catalogId)
+                                            }
                                     )
                                 }
                             }

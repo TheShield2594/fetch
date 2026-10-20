@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -253,6 +254,13 @@ fun FilterRowEditorScreen(
             }
         }
         item(key = "actions") {
+            if (uiState.saveFailed) {
+                Text(
+                    text = stringResource(R.string.filter_rows_save_failed),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FetchTheme.colors.Error
+                )
+            }
             Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
             Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
                 FetchButton(onClick = { viewModel.save(defaultTitle, onBack) }, enabled = uiState.canSave) {
@@ -278,8 +286,12 @@ fun FilterRowEditorScreen(
         }
         FilterField.GENRE -> {
             title = stringResource(R.string.filter_row_genre)
-            choices = listOf(Choice(anyLabel, { viewModel.setGenre(null) }, filters.genre == null)) +
-                uiState.genres.map { Choice(it, { viewModel.setGenre(it) }, it == filters.genre) }
+            val anyGenre = if (source?.genreRequired == true) {
+                emptyList()
+            } else {
+                listOf(Choice(anyLabel, { viewModel.setGenre(null) }, filters.genre == null))
+            }
+            choices = anyGenre + uiState.genres.map { Choice(it, { viewModel.setGenre(it) }, it == filters.genre) }
         }
         FilterField.YEAR_FROM, FilterField.YEAR_TO -> {
             val isFrom = field == FilterField.YEAR_FROM
@@ -349,6 +361,8 @@ private fun FieldButton(label: String, value: String, onClick: () -> Unit) {
 private fun ChoiceDialog(title: String, loading: Boolean, choices: List<Choice>, onDismiss: () -> Unit) {
     val selectedFocus = remember { FocusRequester() }
     val selectedIndex = choices.indexOfFirst { it.selected }.coerceAtLeast(0)
+    // Start on the current value so it is composed and can take focus in long lists (years).
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = selectedIndex)
     LaunchedEffect(loading) {
         if (!loading) runCatching { selectedFocus.requestFocus() }
     }
@@ -358,6 +372,7 @@ private fun ChoiceDialog(title: String, loading: Boolean, choices: List<Choice>,
             return@FetchDialog
         }
         LazyColumn(
+            state = listState,
             modifier = Modifier.heightIn(max = 420.dp),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
         ) {

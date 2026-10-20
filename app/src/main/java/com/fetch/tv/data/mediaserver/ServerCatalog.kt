@@ -10,6 +10,7 @@ import com.fetch.tv.domain.model.CatalogExtra
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.FilterRow
+import com.fetch.tv.domain.model.FilterRowSort
 import com.fetch.tv.domain.model.FilterRowSource
 import com.fetch.tv.domain.model.filterRowIdOf
 import com.fetch.tv.domain.model.isFilterRowKey
@@ -233,11 +234,16 @@ class ServerCatalog @Inject constructor(
         val source = row.source as? FilterRowSource.ServerLibrary ?: throw ServerException(ServerFailure.NOT_FOUND)
         val library = connection.libraries.firstOrNull { it.id == source.libraryId }
             ?: throw ServerException(ServerFailure.NOT_FOUND)
-        return pageOf(connection, skip) {
+        // The server reshuffles a random sort on every request, so later pages would repeat
+        // and skip titles: a random row is one page.
+        val random = row.filters.sort == FilterRowSort.RANDOM
+        if (random && skip > 0) return Page(emptyList(), null)
+        val page = pageOf(connection, skip) {
             repository.call(connection.id) { provider, session ->
                 provider.filteredLibraryPage(session, library, row.filters, skip, PAGE_SIZE)
             }
         }
+        return if (random) Page(page.items, null) else page
     }
 
     private suspend fun resumePage(connection: ServerConnection, skip: Int): Page {

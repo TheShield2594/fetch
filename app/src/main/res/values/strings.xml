@@ -1710,6 +1710,7 @@
     <string name="filter_rows_edit">Edit</string>
     <string name="filter_rows_delete">Delete</string>
     <string name="filter_rows_save">Save</string>
+    <string name="filter_rows_save_failed">Couldn\'t save. Try again.</string>
     <string name="filter_row_any">Any</string>
     <string name="filter_row_source">Source</string>
     <string name="filter_row_genre">Genre</string>

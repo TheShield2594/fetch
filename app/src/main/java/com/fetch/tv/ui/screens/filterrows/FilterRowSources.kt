@@ -13,7 +13,9 @@ data class FilterRowSourceOption(
     val label: String,
     val source: FilterRowSource,
     /** Genres an addon catalog offers; null for a server library, whose genres are fetched. */
-    val addonGenres: List<String>?
+    val addonGenres: List<String>?,
+    /** The addon rejects requests for this catalog without a genre. */
+    val genreRequired: Boolean = false
 ) {
     val isServer: Boolean
         get() = source is FilterRowSource.ServerLibrary
@@ -46,7 +48,9 @@ class FilterRowSources @Inject constructor(
                         key = key(source),
                         label = "${addon.displayName} · ${catalog.name} (${catalog.apiType})",
                         source = source,
-                        addonGenres = genres
+                        addonGenres = genres,
+                        genreRequired = catalog.extra.any { it.isRequired && it.name.equals("genre", ignoreCase = true) } ||
+                            catalog.extraRequired.any { it.equals("genre", ignoreCase = true) }
                     )
                 }
         }

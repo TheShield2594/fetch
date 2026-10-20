@@ -133,9 +133,11 @@ fun AmbientSlideshow(
                     // duration scale but the slide hold is a plain delay(), so below 1x the motion
                     // used to end seconds before the slide did and the backdrop stood still.
                     val start = withFrameMillis { it }
-                    while (true) {
+                    var progress = 0f
+                    while (progress < 1f) {
                         val elapsed = withFrameMillis { it } - start
-                        motionProgress.snapTo((elapsed.toFloat() / MOTION_DURATION_MS).coerceAtMost(1f))
+                        progress = (elapsed.toFloat() / MOTION_DURATION_MS).coerceAtMost(1f)
+                        motionProgress.snapTo(progress)
                     }
                 }
                 backdropAlpha.animateTo(1f, tween(BACKDROP_FADE_IN_MS, easing = FastOutSlowInEasing))

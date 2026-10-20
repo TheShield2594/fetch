@@ -1704,7 +1704,7 @@ class PlayerSettingsDataStore @Inject constructor(
             prefs[bufferForPlaybackMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS
             prefs[bufferForPlaybackAfterRebufferMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
             if (nativeEnabled) {
-                val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
                 prefs[targetBufferSizeMbKey] =
                     FetchExoPlayerPerformanceHelper.DEFAULT_FETCH_TARGET_BUFFER_MB
                         .coerceAtMost(safeLimitMb)
@@ -1761,7 +1761,7 @@ class PlayerSettingsDataStore @Inject constructor(
             if (!enabled) {
                 val isNativeMemory = isNativeMemoryActive(prefs)
                 val safeLimitMb = if (isNativeMemory) {
-                    FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                    FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
                 } else {
                     val parallelNetworkEnabled = prefs[parallelNetworkEnabledKey] ?: false
                     val useParallelConnections = prefs[useParallelConnectionsKey] ?: false
@@ -1832,7 +1832,7 @@ class PlayerSettingsDataStore @Inject constructor(
         store().edit { prefs ->
             prefs[fetchPerformanceModeEnabledKey] = actualEnabled
             if (actualEnabled) {
-                val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+                val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
                 prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
                 prefs[maxBufferMsKey] = BufferSettings.DEFAULT_MAX_BUFFER_MS
                 prefs[bufferForPlaybackMsKey] = BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS

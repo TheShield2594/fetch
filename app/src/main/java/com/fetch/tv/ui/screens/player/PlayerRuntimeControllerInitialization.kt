@@ -545,8 +545,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                 val allocator = androidx.media3.exoplayer.upstream.DefaultAllocator(
                     true,
                     C.DEFAULT_BUFFER_SEGMENT_SIZE,
-                    64,
-                    playerSettings.fetchPerformanceModeEnabled
+                    64
                 )
                 // Both engines report through the same sampler, so whichever built last owns it.
                 FetchExoPlayerPerformanceHelper.liveAllocator = allocator
@@ -588,7 +587,6 @@ internal fun PlayerRuntimeController.initializePlayer(
             mediaSourceFactory.vodCacheEnabled = playerSettings.vodCacheEnabled
             mediaSourceFactory.vodCacheSizeMode = playerSettings.vodCacheSizeMode
             mediaSourceFactory.vodCacheSizeMb = playerSettings.vodCacheSizeMb
-            mediaSourceFactory.nativeEngineEnabled = playerSettings.fetchPerformanceModeEnabled
 
             mediaSourceFactory.fetchPerformanceModeEnabled = playerSettings.fetchPerformanceModeEnabled
             if (playerSettings.parallelNetworkEnabled && !isTorrentStream) {
@@ -601,15 +599,12 @@ internal fun PlayerRuntimeController.initializePlayer(
             }
 
             // Log the effective state (post-gating), not the raw settings.
-            val engineNative = androidx.media3.common.NuvioEngineConfig.get().isNativeAllocationEnabled()
-            val effectiveNative = mediaSourceFactory.fetchPerformanceModeEnabled || engineNative
             Log.i(
                 PlayerRuntimeController.TAG,
                 "BUFFER_NETWORK: bufferEngine=${playerSettings.bufferEngineEnabled} " +
                         "parallelNetwork=${playerSettings.parallelNetworkEnabled} " +
                         "useParallel=${mediaSourceFactory.useParallelConnections} " +
                         "fetchPerf=${mediaSourceFactory.fetchPerformanceModeEnabled} " +
-                        "engineNative=$engineNative useNativeEffective=$effectiveNative " +
                         "vodCache=${mediaSourceFactory.vodCacheEnabled} " +
                         "host=${url.safeHost()}"
             )
@@ -933,7 +928,6 @@ internal fun PlayerRuntimeController.initializePlayer(
             ).setExtensionRendererMode(effectiveDecoderPriority)
                 .setEnableDecoderFallback(true)
                 .setMediaCodecSelector(codecSelector)
-                .applyMapDv7ToHevcIfSupported(mapDv7ToHevcEnabled)
 
             // The app-level factory performs DV7 conversion for the in-band-RPU containers
             // (MP4/fMP4/TS); MKV goes through the vendored extractor. Pass-through for non-DV.
@@ -2162,7 +2156,7 @@ private class SubtitleOffsetRenderersFactory(
             allowedVideoJoiningTimeMs,
             built
         )
-        // Same settings as the platform renderer it replaces; the factory's own DV7 setting only reaches that one.
+        // Same settings as the platform renderer it replaces, plus the DV7-to-HEVC mapping.
         for (renderer in built) {
             if (renderer::class.java == MediaCodecVideoRenderer::class.java) {
                 val builder = MediaCodecVideoRenderer.Builder(context)
@@ -2173,8 +2167,7 @@ private class SubtitleOffsetRenderersFactory(
                     .setEventHandler(eventHandler)
                     .setEventListener(eventListener)
                     .setMaxDroppedFramesToNotify(DefaultRenderersFactory.MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY)
-                    .setMapDV7ToHevc(mapDv7ToHevc)
-                out.add(HardwareFirstVideoRenderer(builder))
+                out.add(HardwareFirstVideoRenderer(builder, mapDv7ToHevc))
             } else {
                 out.add(renderer)
             }
@@ -2560,7 +2553,7 @@ private fun friendlyVideoHdrType(
 private fun createDolbyVisionFallbackCodecSelector(
     convertToDv81Active: Boolean = false
 ): MediaCodecSelector {
-    // Stripping DV7 to its HEVC base layer is handled by the renderer (setMapDV7ToHevc),
+    // Stripping DV7 to its HEVC base layer is handled by HardwareFirstVideoRenderer,
     // which only touches profile 7. We must NOT force video/dolby-vision to the HEVC
     // decoder here: that also catches DV5, which has no HDR10 base layer and ends up
     // decoded without its reshaping (wrong colors). DV5 keeps the DV decoder.
@@ -2585,14 +2578,6 @@ private fun describeExtensionRendererMode(mode: Int): String {
         DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER -> "prefer"
         else -> mode.toString()
     }
-}
-
-private fun DefaultRenderersFactory.applyMapDv7ToHevcIfSupported(enabled: Boolean): DefaultRenderersFactory {
-    return runCatching {
-        val method = javaClass.getMethod("setMapDV7ToHevc", Boolean::class.javaPrimitiveType)
-        method.invoke(this, enabled)
-        this
-    }.getOrElse { this }
 }
 
 private fun buildStableAudioCapabilities(context: Context, forceOpticalPassthrough: Boolean = false): AudioCapabilities {

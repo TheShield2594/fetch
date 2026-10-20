@@ -5,7 +5,6 @@ import android.os.SystemClock
 import androidx.media3.common.C
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.okhttp.OkHttpDataSource
-import androidx.media3.exoplayer.upstream.Allocation
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -38,20 +37,22 @@ import kotlin.random.Random
 class ParallelRangeChunkLeaseTest {
 
     private class FakeChunkMemory {
-        val live: MutableSet<Allocation> = ConcurrentHashMap.newKeySet()
+        // ByteBuffer equality is by content, so track buffers by identity.
+        val live: MutableSet<ByteBuffer> =
+            java.util.Collections.synchronizedSet(java.util.Collections.newSetFromMap(java.util.IdentityHashMap()))
         val allocated = AtomicInteger()
         val freed = AtomicInteger()
         val badFrees = AtomicInteger()
 
-        fun allocate(size: Int): Allocation =
-            Allocation(ByteBuffer.allocate(size), 0).also { allocated.incrementAndGet(); live.add(it) }
+        fun allocate(size: Int): ByteBuffer =
+            ByteBuffer.allocate(size).also { allocated.incrementAndGet(); live.add(it) }
 
-        fun free(allocation: Allocation) {
+        fun free(allocation: ByteBuffer) {
             if (!live.remove(allocation)) {
                 badFrees.incrementAndGet()
                 return
             }
-            val bytes = allocation.buffer!!
+            val bytes = allocation
             for (i in 0 until bytes.capacity()) bytes.put(i, POISON)
             freed.incrementAndGet()
         }
@@ -62,8 +63,8 @@ class ParallelRangeChunkLeaseTest {
     private val file = Random(7).nextBytes(2 * 1024 * 1024)
     private val clockOffsetMs = AtomicLong()
     private val opened = ConcurrentHashMap.newKeySet<ParallelRangeDataSource>()
-    private lateinit var allocateBefore: (Int) -> Allocation?
-    private lateinit var freeBefore: (Allocation) -> Unit
+    private lateinit var allocateBefore: (Int) -> ByteBuffer?
+    private lateinit var freeBefore: (ByteBuffer) -> Unit
 
     @Before
     fun setUp() {
@@ -116,7 +117,6 @@ class ParallelRangeChunkLeaseTest {
         OkHttpDataSource.Factory(OkHttpClient()),
         parallelConnections = 2,
         chunkSize = CHUNK,
-        useNativeMemory = true,
         allowContinuationReopen = continuation,
     ).also { opened.add(it) }
 
@@ -128,9 +128,9 @@ class ParallelRangeChunkLeaseTest {
 
     private fun spec(position: Long) = DataSpec.Builder().setUri(fileUri).setPosition(position).build()
 
-    private fun pooledBuffer(allocation: Allocation): Any =
+    private fun pooledBuffer(allocation: ByteBuffer): Any =
         Class.forName("com.fetch.tv.ui.screens.player.ParallelRangeDataSource\$PooledBuffer")
-            .declaredConstructors.single().apply { isAccessible = true }.newInstance(allocation, allocation.buffer)
+            .declaredConstructors.single().apply { isAccessible = true }.newInstance(allocation, true)
 
     private fun call(target: Any, name: String, vararg args: Any?): Any? = target.javaClass.declaredMethods
         .single { it.name == name && it.parameterCount == args.size }
@@ -146,13 +146,12 @@ class ParallelRangeChunkLeaseTest {
 
     // Reads like the player: compares every byte with the file and reopens at the same position
     // after a failed read.
-    private inner class Reader(val source: ParallelRangeDataSource, val viaByteBuffer: Boolean = false) {
+    private inner class Reader(val source: ParallelRangeDataSource) {
         var position = 0L
         var mismatches = 0
         var reopens = 0
         private var isOpen = false
         private val scratch = ByteArray(2_000)
-        private val target = ByteBuffer.allocateDirect(2_000)
 
         fun readTo(until: Long, pace: Boolean = false, deadlineMs: Long = System.currentTimeMillis() + 60_000L) {
             while (position < until && System.currentTimeMillis() < deadlineMs) {
@@ -168,12 +167,7 @@ class ParallelRangeChunkLeaseTest {
                 }
                 val wanted = minOf(scratch.size.toLong(), until - position).toInt()
                 val read = try {
-                    if (viaByteBuffer) {
-                        target.clear()
-                        source.read(target, wanted).also { if (it > 0) { target.flip(); target.get(scratch, 0, it) } }
-                    } else {
-                        source.read(scratch, 0, wanted)
-                    }
+                    source.read(scratch, 0, wanted)
                 } catch (_: IOException) {
                     C.RESULT_END_OF_INPUT
                 }
@@ -271,7 +265,7 @@ class ParallelRangeChunkLeaseTest {
     fun `concurrent readers and one release free the memory exactly once and never under a reader`() {
         repeat(300) { round ->
             val allocation = memory.allocate(4_096)
-            val bytes = allocation.buffer!!
+            val bytes = allocation
             for (i in 0 until bytes.capacity()) bytes.put(i, 1)
             val buffer = pooledBuffer(allocation)
             val sawPoison = AtomicInteger()
@@ -302,9 +296,10 @@ class ParallelRangeChunkLeaseTest {
         assertEquals(0, memory.badFrees.get())
     }
 
-    private fun sessionTornDownUnderReader(viaByteBuffer: Boolean) {
+    @Test
+    fun `reader does not read a chunk freed by a session teardown on another thread`() {
         serve()
-        val reader = Reader(source(), viaByteBuffer)
+        val reader = Reader(source())
         holdChunkOne(reader)
         Thread { teardownSessions() }.apply { start() }.join(5_000)
         assertTrue("chunk memory was freed", memory.freed.get() > 0)
@@ -313,16 +308,6 @@ class ParallelRangeChunkLeaseTest {
         assertEquals("bytes read from freed chunk memory, ${reader.stats()}", 0, reader.mismatches)
         assertEquals(3 * CHUNK, reader.position)
         assertAllMemoryReturned()
-    }
-
-    @Test
-    fun `reader does not read a chunk freed by a session teardown on another thread`() {
-        sessionTornDownUnderReader(viaByteBuffer = false)
-    }
-
-    @Test
-    fun `byte buffer reader does not read a chunk freed by a session teardown on another thread`() {
-        sessionTornDownUnderReader(viaByteBuffer = true)
     }
 
     @Test
@@ -357,7 +342,7 @@ class ParallelRangeChunkLeaseTest {
             }
         }
         chaos.start()
-        val reader = Reader(source(), viaByteBuffer = Random.nextBoolean())
+        val reader = Reader(source())
         try {
             reader.readTo(file.size.toLong(), pace = true)
         } finally {

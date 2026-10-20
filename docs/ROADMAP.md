@@ -10,7 +10,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Requirement | Status | Where / notes |
 |---|---|---|
 | Stremio addon protocol: manifest, catalog, meta, stream, subtitles, `behaviorHints` | ✅ | `data/remote/api/AddonApi.kt`, `data/remote/dto/`, `data/mapper/`. Hints: `notWebReady`, `bingeGroup`, `countryWhitelist`, `proxyHeaders`, `videoHash`, `videoSize`, `filename`. Gap: no in-app flow opens an addon's `/configure` page (configure from the phone page instead). |
-| Media3/ExoPlayer + FFmpeg audio extension | ✅ | `ui/screens/player/PlayerRuntimeController*.kt`, `ffmpeg-decoder-downmix/`. Uses a prebuilt Media3 fork in `app/libs/` inherited from upstream (see follow-ups). |
+| Media3/ExoPlayer + FFmpeg audio extension | ✅ | `ui/screens/player/PlayerRuntimeController*.kt`, `ffmpeg-decoder-downmix/`. Stock Media3 1.8.0 from Maven; the prebuilt upstream fork was dropped (`docs/architecture/media3-fork.md`). |
 | libass ASS/SSA | ✅ | `PlayerLibassCompat.kt`, `FetchAssMatroskaExtractor.kt` (`io.github.peerless2012:ass-media`). |
 | Passthrough AC3 / E-AC3 / TrueHD / DTS | ✅ | `AudioOutputRouteDetector.kt`, audio sink setup in `PlayerRuntimeControllerInitialization.kt`, "force optical passthrough" setting. |
 | Automatic refresh-rate matching | ✅ | `core/player/FrameRateUtils.kt`, `DisplayCapabilities.kt`, `AfrPreflightGate.kt`. Off by default; consider defaulting to *start* on capable devices. |
@@ -41,10 +41,9 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 ## Follow-ups from the fork
 
-- **Media3 and QuickJS forks.** `app/libs/lib-*-release.aar` are prebuilt Media3 modules from
-  upstream, and `quickjs-kt-android-1.0.5-nuvio.aar` is upstream's QuickJS-ng build of
-  quickjs-kt. What they change, where Fetch depends on it, and the replacement options are in
-  `docs/architecture/media3-fork.md` (#1).
+- **Media3 and QuickJS forks.** Replaced with stock Media3 1.8.0 and the published
+  quickjs-kt 1.0.5 (#1). What was dropped and what to re-check on devices is in
+  `docs/architecture/media3-fork.md`.
 - **Torrent engine.** `core/torrent/TorrentService.kt` keeps the upstream API without an
   engine. An open-source engine (e.g. libtorrent4j) can be plugged in there.
 - **Translations.** Strings whose meaning changed (sync, licenses) fall back to English in

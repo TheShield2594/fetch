@@ -333,16 +333,6 @@ composeCompiler {
     stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose_stability_config.conf"))
 }
 
-// Globally exclude stock media3 modules — replaced by local :fetch-exoplayer-engine module
-configurations.all {
-    exclude(group = "androidx.media3", module = "media3-exoplayer")
-    exclude(group = "androidx.media3", module = "media3-common")
-    exclude(group = "androidx.media3", module = "media3-datasource")
-    exclude(group = "androidx.media3", module = "media3-datasource-okhttp")
-    exclude(group = "androidx.media3", module = "media3-exoplayer-hls")
-    exclude(group = "androidx.media3", module = "media3-extractor")
-}
-
 baselineProfile {
     automaticGenerationDuringBuild = false
     saveInSrc = true
@@ -415,7 +405,12 @@ dependencies {
     // ViewModel
     implementation(libs.lifecycle.viewmodel.compose)
 
-    // Media3 — remaining stock modules from Maven (not forked)
+    // Media3 (stock, from Maven)
+    implementation(libs.media3.common)
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.datasource)
+    implementation(libs.media3.datasource.okhttp)
+    implementation(libs.media3.extractor)
     implementation(libs.media3.exoplayer.hls)
     implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.exoplayer.smoothstreaming)
@@ -423,24 +418,8 @@ dependencies {
     implementation(libs.media3.decoder)
     implementation(libs.media3.session)
     implementation(libs.media3.container)
-
-    // Transitive dependencies required by forked local AARs (not bundled in AARs):
-    // - Guava: needed by lib-common (ImmutableList/ImmutableSet in Tracks, Player API)
-    // - media3-database: needed by lib-datasource (cache/storage layer)
-    // - annotation-experimental: needed by lib-common (OptIn annotations)
+    // Guava is used directly (dvmkv extractor), not only through Media3.
     implementation("com.google.guava:guava:33.3.1-android")
-    implementation("androidx.media3:media3-database:1.8.0")
-    implementation("androidx.annotation:annotation-experimental:1.3.1")
-
-    // Fetch Engine local AARs (replaces lib-exoplayer, lib-common, lib-datasource, lib-datasource-okhttp, lib-exoplayer-hls, lib-extractor)
-    implementation(files(
-        "libs/lib-common-release.aar",
-        "libs/lib-datasource-release.aar",
-        "libs/lib-datasource-okhttp-release.aar",
-        "libs/lib-exoplayer-release.aar",
-        "libs/lib-exoplayer-hls-release.aar",
-        "libs/lib-extractor-release.aar"
-    ))
     implementation(libs.media3.ui)
 
     // Local decoder AARs (AV1, IAMF, MPEG-H)
@@ -467,7 +446,7 @@ dependencies {
 
     implementation(libs.gson)
 
-    add("fullImplementation", files("libs/quickjs-kt-android-1.0.5-nuvio.aar"))
+    add("fullImplementation", libs.quickjs.kt)
     add("fullImplementation", libs.jsoup)
     add("fullImplementation", "com.fasterxml.jackson.core:jackson-databind:2.17.0")
     add("fullImplementation", "com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")

@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
-import androidx.media3.common.NuvioEngineConfig
 import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.DataSink
 import androidx.media3.datasource.DataSource
@@ -114,13 +113,8 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     var useParallelConnections: Boolean = PlayerSettings.DEFAULT_USE_PARALLEL_CONNECTIONS
     var parallelConnectionCount: Int = PlayerSettings.DEFAULT_PARALLEL_CONNECTION_COUNT
     var parallelChunkSizeKb: Int = PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB
-    // Gated by the parallel network toggle because its only use is the native memory argument to
-    // the chunk data source, which nothing else builds.
+    // Performance mode lets the chunk data source prefetch deeper, within the heap budget.
     var fetchPerformanceModeEnabled: Boolean = PlayerSettings.DEFAULT_FETCH_PERFORMANCE_MODE_ENABLED
-
-    // The engine runs off the setting whether or not the parallel gate above passed, so the log
-    // reports this rather than the gated flag.
-    var nativeEngineEnabled: Boolean = PlayerSettings.DEFAULT_FETCH_PERFORMANCE_MODE_ENABLED
 
     // Reported only: both decide which target the helper hands the load control, so a log without
     // them cannot say why a run used the size it did.
@@ -146,10 +140,10 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     ): Int {
         if (!fetchPerformanceModeEnabled) return connections + 1
         val chunkMb = (chunkBytes / (1024L * 1024L)).toInt().coerceAtLeast(1)
-        val safeNativeMb = FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)
+        val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
         val reserveMb = FetchExoPlayerPerformanceHelper.targetBufferSizeMb.coerceAtLeast(0)
         return com.fetch.tv.ui.screens.settings.MemoryBudget.prefetchDepthChunks(
-            connections, chunkMb, safeNativeMb, reserveMb
+            connections, chunkMb, safeLimitMb, reserveMb
         )
     }
 
@@ -211,13 +205,13 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
 
         Log.i(
             "PlayerMediaSource",
-            "PLAYBACK_CONFIG: native=$nativeEngineEnabled " +
+            "PLAYBACK_CONFIG: performanceMode=$fetchPerformanceModeEnabled " +
                 "customBuffers=$bufferEngineEnabled budgetManaged=$bufferBudgetManaged " +
                 "minBufferMs=${FetchExoPlayerPerformanceHelper.minBufferMs} " +
                 "maxBufferMs=${FetchExoPlayerPerformanceHelper.maxBufferMs} " +
                 "backBufferMs=${FetchExoPlayerPerformanceHelper.backBufferMs} " +
                 "targetMb=${FetchExoPlayerPerformanceHelper.targetBufferSizeMb} " +
-                "safeNativeMb=${FetchExoPlayerPerformanceHelper.getSafeNativeMemoryLimitMb(context)} " +
+                "safeBufferMb=${FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)} " +
                 "parallel=${if (useParallelConnections) parallelConnectionCount else 0} chunkKb=$parallelChunkSizeKb"
         )
         val useChunkSessionSource = useParallelConnections && !isHls && !isDash
@@ -233,13 +227,10 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             val sessionChunkBytes = parallelChunkSizeKb
                 .coerceAtMost(com.fetch.tv.ui.screens.settings.MemoryBudget.tierMaxChunkMb * 1024)
                 .toLong() * 1024L
-            val effectiveNative =
-                fetchPerformanceModeEnabled || NuvioEngineConfig.get().isNativeAllocationEnabled()
             ParallelRangeDataSource.Factory(
                 okHttpFactory,
                 sessionConnections,
                 sessionChunkBytes,
-                useNativeMemory = effectiveNative,
                 prefetchDepthChunks = computePrefetchDepthChunks(
                     sessionConnections,
                     sessionChunkBytes

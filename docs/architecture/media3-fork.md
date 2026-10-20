@@ -1,9 +1,37 @@
 # Prebuilt Media3 and QuickJS forks
 
-`app/libs/` holds prebuilt AARs inherited from NuvioTV. This note records what they change
-compared with the published libraries, where Fetch depends on those changes, and the options
-for replacing them (issue #1). It was put together by listing and diffing the classes in each
-AAR against Media3 1.8.0 and quickjs-kt 1.0.5.
+`app/libs/` held prebuilt AARs inherited from NuvioTV. This note records what they changed
+compared with the published libraries, where Fetch depended on those changes, and what was
+decided for issue #1. It was put together by diffing every public and protected member of each AAR
+against Media3 1.8.0 and quickjs-kt 1.0.5. Changes inside method bodies that add no API were
+not audited.
+
+## Decision
+
+Both forks were removed. Fetch now uses stock Media3 1.8.0 and the published
+`io.github.dokar3:quickjs-kt-android:1.0.5`.
+
+- There is no source for either fork, so keeping one "built from source" would have meant
+  rewriting the native allocator and its JNI code and carrying it as a patch on every Media3
+  upgrade.
+- What the Media3 fork bought was keeping buffers off the Java heap. Instead, the player now
+  plans buffers against the heap: `FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb` caps the
+  RAM-tier limit at `MemoryBudget.budgetMb`. `MemoryBudget` already counts the parallel chunk
+  buffers, which are now heap `ByteBuffer`s that are pooled and reused. The app has
+  `largeHeap` set.
+- "Performance mode" keeps its larger buffers, deeper chunk prefetch, scrubbing and network
+  tuning; only the off-heap allocation and zero-copy reads are gone.
+- The remaining AARs (`lib-decoder-*`, `nextlib-mediainfo-local`) use no fork-only API and
+  run on stock Media3.
+
+To re-check on a Fire TV Stick and a Chromecast with Google TV: a large 4K DV/HDR remux with
+passthrough, in performance mode and with parallel connections on. Watch for GC pauses,
+rebuffering and out-of-memory restarts (`BUFFER:` log lines report heap use). If heap
+pressure shows up on 1 GB devices, lower the low-RAM tier in `MemoryBudget` rather than
+bringing back off-heap memory.
+
+For QuickJS, check the scraper plugins people use; a script that relied on QuickJS-ng-only
+behaviour would now fail.
 
 ## Media3 (`lib-common`, `lib-datasource`, `lib-datasource-okhttp`, `lib-exoplayer`, `lib-exoplayer-hls`, `lib-extractor`)
 
@@ -22,6 +50,9 @@ stock 1.8.0 from Maven and run against the forked `lib-common`.
 | `ByteBufferDataReader`: `read(ByteBuffer, Int)` on data sources, implemented by most stock data sources | `lib-common`, `lib-datasource`, `-okhttp`, `-hls`, `lib-extractor` | `ParallelRangeDataSource`, `LoggingDataSource`, `StreamRedirectReporting` |
 | `LocalhostZeroCopyDataSource`, and `DefaultDataSource` routing loopback URLs to it in zero-copy mode | `lib-datasource` | Indirect: local proxies (torrent, debrid) in performance mode |
 | Extractor scratch size taken from `NuvioEngineConfig` (`DefaultExtractorInput`) | `lib-extractor` | Indirect |
+| Dolby Vision profile 7 decoded as its HEVC base layer (`setMapDV7ToHevc` on `DefaultRenderersFactory` and `MediaCodecVideoRenderer.Builder`; stock only maps profiles 4, 8 and 9) | `lib-exoplayer` | The DV7 "HDR10 base layer" mode. Now done in `HardwareFirstVideoRenderer` |
+| `DefaultAllocator.getAvailableBytes()` / `getMemoryFootprint()` | `lib-exoplayer` | Buffer logging only |
+| `Mp4Extractor` reads text samples out of band (`OutOfBandTextSample`) | `lib-extractor` | Indirect; dropped, so MP4 files with text tracks use stock behaviour |
 
 The four decoder AARs (`av1`, `ffmpeg`, `iamf`, `mpegh`), `lib-ui` and `nextlib-mediainfo`
 use no fork-only API. `lib-ui-release.aar` is not referenced by any build script; the app uses
@@ -31,7 +62,7 @@ against `lib-exoplayer` (compile-only).
 Tests that exist only because of the fork: `app/src/test/java/androidx/media3/**` (4 files),
 `app/src/androidTest/java/androidx/media3/**` (6 files) and `ParallelRangeChunkLeaseTest`.
 
-### Options
+### Options considered
 
 There is no source for the fork, so "build it in this repo" means rewriting the changes on
 top of Media3 1.8.0 source, not rebuilding these AARs.

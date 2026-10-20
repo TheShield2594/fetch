@@ -138,7 +138,7 @@ class RedirectReportingDataSourceTest {
     }
 
     @Test
-    fun `buffer reads still reach the parallel source behind it`() {
+    fun `reads still reach the parallel source behind it`() {
         val factory = reportingFactory(
             ParallelRangeDataSource.Factory(
                 OkHttpDataSource.Factory(OkHttpClient()),
@@ -146,22 +146,18 @@ class RedirectReportingDataSourceTest {
                 chunkSize = 128L * 1024L
             )
         )
-        val source = factory.createDataSource() as androidx.media3.common.ByteBufferDataReader
+        val source = factory.createDataSource()
         val out = ByteArrayOutputStream()
-        val target = ByteBuffer.allocateDirect(64 * 1024)
+        val target = ByteArray(64 * 1024)
         try {
-            (source as DataSource).open(DataSpec.Builder().setUri(uriOf(url("/play"))).build())
+            source.open(DataSpec.Builder().setUri(uriOf(url("/play"))).build())
             while (true) {
-                target.clear()
-                val read = source.read(target, target.capacity())
+                val read = source.read(target, 0, target.size)
                 if (read == C.RESULT_END_OF_INPUT) break
-                target.flip()
-                val bytes = ByteArray(target.remaining())
-                target.get(bytes)
-                out.write(bytes)
+                out.write(target, 0, read)
             }
         } finally {
-            (source as DataSource).close()
+            source.close()
         }
         assertArrayEquals(file, out.toByteArray())
         assertEquals(listOf(url("/release-b")), reported)

@@ -66,6 +66,18 @@ internal class PlaybackSpeedAwareAudioSink(
 
     fun isBluetoothForcePcm(): Boolean = bluetoothForcePcm
 
+    /** True when the sink is being fed an encoded bitstream (passthrough), which plays at 1x only. */
+    fun isEncodedOutputActive(): Boolean {
+        val format = currentInputFormat ?: return false
+        return format.sampleMimeType != MimeTypes.AUDIO_RAW && isEncodedPassthroughCandidate(format)
+    }
+
+    /** True when going back to 1x may hand [format] to passthrough again. */
+    fun canRestorePassthroughAtNormalSpeed(format: Format?): Boolean {
+        if (format == null || startedWithForcedPcm || bluetoothForcePcm) return false
+        return isEncodedPassthroughCandidate(format)
+    }
+
     override fun setListener(listener: AudioSink.Listener) {
         this.listener = listener
         super.setListener(listener)

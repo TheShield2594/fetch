@@ -1364,14 +1364,21 @@ internal fun PlayerRuntimeController.initializePlayer(
                             emitScrobbleStart()
                         } else {
                             if (userPausedManually) schedulePauseOverlay() else cancelPauseOverlay()
-                            if (playbackState == Player.STATE_ENDED || playbackState == Player.STATE_IDLE) {
+                            // A deliberate stop() + prepare() on the same item is a rebuffer, not the end.
+                            val effectivePlaybackState =
+                                if (holdExoTracksAcrossStop && playbackState == Player.STATE_IDLE) {
+                                    Player.STATE_BUFFERING
+                                } else {
+                                    playbackState
+                                }
+                            if (effectivePlaybackState == Player.STATE_ENDED || effectivePlaybackState == Player.STATE_IDLE) {
                                 stopProgressUpdates()
                             }
                             stopWatchProgressSaving()
-                            if (playbackState == Player.STATE_BUFFERING) {
+                            if (effectivePlaybackState == Player.STATE_BUFFERING) {
                                 saveWatchProgressIfNeeded()
                             } else {
-                                when (trackingActionForNonPlayingState(playbackState)) {
+                                when (trackingActionForNonPlayingState(effectivePlaybackState)) {
                                     TrackingScrobbleAction.PAUSE -> emitPauseScrobbleForCurrentProgress()
                                     TrackingScrobbleAction.STOP -> emitStopScrobbleForCurrentProgress()
                                     TrackingScrobbleAction.START, null -> Unit

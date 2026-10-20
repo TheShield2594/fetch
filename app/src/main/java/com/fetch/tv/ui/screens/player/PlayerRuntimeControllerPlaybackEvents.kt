@@ -1477,10 +1477,21 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 setPlaybackSpeedInternal(event.speed)
             } else {
                 _exoPlayer?.let { player ->
+                    val sink = playbackSpeedAwareAudioSink
+                    val restartAudioPath = sink != null && PlaybackSpeedAudioPathPolicy.needsRestart(
+                        oldSpeed = player.playbackParameters.speed,
+                        newSpeed = event.speed,
+                        encodedOutputActive = sink.isEncodedOutputActive(),
+                        canRestorePassthrough = sink.canRestorePassthroughAtNormalSpeed(player.audioFormat)
+                    )
                     player.setPlaybackSpeed(event.speed)
-                    player.trackSelectionParameters = player.trackSelectionParameters
-                        .buildUpon()
-                        .build()
+                    if (restartAudioPath && player.playbackState != Player.STATE_IDLE) {
+                        // Re-enable the renderers so the audio path is picked again for the new
+                        // speed: decode to PCM away from 1x, passthrough again at 1x.
+                        holdExoTracksAcrossStop = true
+                        player.stop()
+                        player.prepare()
+                    }
                 }
             }
             _uiState.update {

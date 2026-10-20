@@ -207,8 +207,22 @@ internal fun StreamSourcesSidePanel(
         streamListState.scrollToItem(0)
     }
 
+    // On open, pull focus into the panel. Until a stream card exists (first, uncached load,
+    // error or empty result) nothing here requested focus, so D-pad input kept going to the
+    // hidden player controls behind the panel (NuvioTV#3834). The first-result effect above
+    // still moves focus to the first stream once one arrives.
+    var panelHasFocus by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        repeat(30) {
+            withFrameNanos { }
+            if (panelHasFocus) return@LaunchedEffect
+            runCatching { closeButtonFocusRequester.requestFocus() }
+        }
+    }
+
     Box(
         modifier = modifier
+            .onFocusChanged { panelHasFocus = it.hasFocus }
             .fillMaxHeight()
             .width(520.dp)
             .clip(RoundedCornerShape(topStart = FetchTheme.spacing.lg, bottomStart = FetchTheme.spacing.lg))

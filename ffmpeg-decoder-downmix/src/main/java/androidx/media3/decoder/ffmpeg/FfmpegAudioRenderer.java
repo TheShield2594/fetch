@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: GPL-3.0-only
  *
- * This modified decoder module is distributed with NuvioTV under GPL-3.0-only.
+ * This modified decoder module is distributed with Fetch under GPL-3.0-only.
  * It is based on AndroidX Media3 decoder_ffmpeg; the original Apache-2.0 notice
  * is preserved below. Additional downmix behavior was adapted from Kodi
  * (GPL-2.0-or-later). See this module's NOTICE.md for provenance details.

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 SPECIAL_RULES = [
     (
-        r"upgrade\s+ass-media\s+so\s+Nuvio's\s+custom\s+ASS\s+Matroska\s+extractor\s+"
+        r"upgrade\s+ass-media\s+so\s+Fetch's\s+custom\s+ASS\s+Matroska\s+extractor\s+"
         r"can\s+register\s+embedded\s+MKV\s+font\s+attachments\s+through\s+"
         r"AssHandler\.addFont\(\.\.\.\)",
         "Improved ASS subtitle font support for embedded Matroska attachments",
@@ -25,8 +25,8 @@ SPECIAL_RULES = [
         "Improved metadata and add-on behavior while fixing Trakt Continue Watching stability",
     ),
     (
-        r"Feat/nuvio\s+exoplayer\s+performance\s+mode\s+clean\s+v2",
-        "Added Nuvio Engine player performance settings",
+        r"Feat/fetch\s+exoplayer\s+performance\s+mode\s+clean\s+v2",
+        "Added Fetch Engine player performance settings",
     ),
     (
         r"make\s+connectionPoolSize\s+dynamic\s+and\s+recreate\s+connection",
@@ -113,8 +113,8 @@ SPECIAL_RULES = [
         "Added experimental real-time sync",
     ),
     (
-        r"use\s+nuvio\.tv\s+for\s+TV\s+login\s+QR\s+links",
-        "Updated TV login QR links to use nuvio.tv",
+        r"use\s+fetch\.tv\s+for\s+TV\s+login\s+QR\s+links",
+        "Updated TV login QR links to use fetch.tv",
     ),
     (
         r"init\s+optional\s+sentry\s+diagnostics",
@@ -230,7 +230,7 @@ SPECIAL_RULES = [
     ),
     (
         r"ASS\s+subtitle\s+gibberish\s+caused\s+by\s+a\s+zlib\s+false-positive\s+"
-        r"on\s+plain-text\s+ASS\s+samples\s+in\s+NuvioAssMatroskaExtractor",
+        r"on\s+plain-text\s+ASS\s+samples\s+in\s+FetchAssMatroskaExtractor",
         "Fixed ASS subtitle gibberish caused by zlib false positives on plain-text samples",
     ),
     (

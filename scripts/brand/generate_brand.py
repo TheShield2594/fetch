@@ -93,7 +93,7 @@ def wordmark(width: int, height: int, color) -> Image.Image:
     return img
 
 
-def banner(width: int, height: int) -> Image.Image:
+def banner(width: int, height: int, palette=PALETTES[""]) -> Image.Image:
     img = Image.new("RGB", (width, height))
     px = img.load()
     for y in range(height):
@@ -102,7 +102,7 @@ def banner(width: int, height: int) -> Image.Image:
         for x in range(width):
             px[x, y] = row
     img = img.convert("RGBA")
-    m = mark(int(height * 0.34), PALETTES[""])
+    m = mark(int(height * 0.34), palette)
     w = wordmark(int(width * 0.42), int(height * 0.24), WORDMARK_COLORS[""])
     w = w.crop(w.getbbox())
     gap = int(width * 0.03)
@@ -133,6 +133,10 @@ def main() -> None:
         save(wordmark(1085, 344, color), RES, "drawable", f"app_logo_wordmark{suffix}.png")
     save(wordmark(1085, 344, WORDMARK_COLORS[""]), ROOT, "assets", "brand", "app_logo_wordmark.png")
     save(wordmark(1000, 230, WORDMARK_COLORS[""]), RES, "drawable", "fetch_text.png")
+
+    # Android TV launcher banners, one per launcher icon theme.
+    for suffix, palette in PALETTES.items():
+        save(banner(320, 180, palette), RES, "mipmap-xhdpi", f"banner{suffix}.png")
 
     b = banner(1280, 720)
     save(b, RES, "drawable", "tv_banner.png")

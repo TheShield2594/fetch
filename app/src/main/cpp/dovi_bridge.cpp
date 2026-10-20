@@ -98,7 +98,7 @@ static inline uint8_t map_conversion_mode(jint mode) {
 #endif
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_nuvio_tv_core_player_DoviBridge_nativeGetBridgeVersion(JNIEnv* env, jclass /* clazz */) {
+Java_com_fetch_tv_core_player_DoviBridge_nativeGetBridgeVersion(JNIEnv* env, jclass /* clazz */) {
 #if DOVI_REAL_LINKED
     return env->NewStringUTF("dovi-bridge-libdovi-capi-0.2");
 #else
@@ -107,7 +107,7 @@ Java_com_nuvio_tv_core_player_DoviBridge_nativeGetBridgeVersion(JNIEnv* env, jcl
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_nuvio_tv_core_player_DoviBridge_nativeIsConversionPathReady(
+Java_com_fetch_tv_core_player_DoviBridge_nativeIsConversionPathReady(
     JNIEnv* /* env */,
     jclass /* clazz */
 ) {
@@ -121,7 +121,7 @@ Java_com_nuvio_tv_core_player_DoviBridge_nativeIsConversionPathReady(
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_com_nuvio_tv_core_player_DoviBridge_nativeConvertDv7RpuToDv81(
+Java_com_fetch_tv_core_player_DoviBridge_nativeConvertDv7RpuToDv81(
     JNIEnv* env,
     jclass /* clazz */,
     jbyteArray payload,
@@ -198,7 +198,7 @@ Java_com_nuvio_tv_core_player_DoviBridge_nativeConvertDv7RpuToDv81(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_nuvio_tv_core_player_DoviBridge_nativeConvertDv7RpuToDv81NonAllocating(
+Java_com_fetch_tv_core_player_DoviBridge_nativeConvertDv7RpuToDv81NonAllocating(
     JNIEnv* env,
     jclass /* clazz */,
     jbyteArray sample,
@@ -456,7 +456,7 @@ static int startCodeLength(const uint8_t* data, int offset, int limit) {
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_nuvio_tv_core_player_DoviBridge_nativeProcessVideoSample(
+Java_com_fetch_tv_core_player_DoviBridge_nativeProcessVideoSample(
     JNIEnv* env,
     jclass /* clazz */,
     jbyteArray sample,

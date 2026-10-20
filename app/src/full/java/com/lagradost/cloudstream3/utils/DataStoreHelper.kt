@@ -12,7 +12,7 @@ import com.lagradost.cloudstream3.TvType
  *
  * CloudStream plugins (notably SyncPlugin) read resume-watching state through
  * [com.lagradost.cloudstream3.ui.home.HomeViewModel.getResumeWatching], whose
- * return type is [ResumeWatchingResult]. NuvioTV stores progress in its own
+ * return type is [ResumeWatchingResult]. Fetch stores progress in its own
  * repositories, so these helpers are no-ops that keep the plugin classloader
  * from crashing on missing CS3 UI types.
  */

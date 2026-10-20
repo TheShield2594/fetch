@@ -19,12 +19,12 @@ case "$cmd" in
     ./gradlew \
       :benchmark:connectedNonMinifiedReleaseAndroidTest \
       :benchmark:collectNonMinifiedReleaseBaselineProfile \
-      -Pandroid.testInstrumentationRunnerArguments.class=com.nuvio.tv.benchmark.NuvioBaselineProfile
+      -Pandroid.testInstrumentationRunnerArguments.class=com.fetch.tv.benchmark.FetchBaselineProfile
     ;;
   benchmark)
     ./gradlew \
       :benchmark:connectedBenchmarkReleaseAndroidTest \
-      -Pandroid.testInstrumentationRunnerArguments.class=com.nuvio.tv.benchmark.NuvioStartupNavBenchmark \
+      -Pandroid.testInstrumentationRunnerArguments.class=com.fetch.tv.benchmark.FetchStartupNavBenchmark \
       -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.suppressErrors=EMULATOR
     ;;
   release-with-profile)

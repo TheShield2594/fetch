@@ -100,7 +100,7 @@
     <!-- HomeScreen -->
     <string name="home_no_addons">ஆடான்கள் எதுவும் நிறுவப்படவில்லை. தொடங்க ஒன்றை சேர்க்கவும்.</string>
     <string name="home_no_catalog_addons">பட்டியல் ஆடான்கள் எதுவும் நிறுவப்படவில்லை. உள்ளடக்கத்தை பார்க்க ஒரு பட்டியல் ஆடானை நிறுவவும்.</string>
-    <string name="auth_notice_nuvio_logged_out">நீங்கள் நுவியோவில் இருந்து வெளியேற்றப்பட்டுள்ளீர்கள். மீண்டும் உள்நுழையவும்.</string>
+    <string name="auth_notice_fetch_logged_out">நீங்கள் நுவியோவில் இருந்து வெளியேற்றப்பட்டுள்ளீர்கள். மீண்டும் உள்நுழையவும்.</string>
     <string name="auth_notice_trakt_logged_out">நீங்கள் ட்ராக்டில் இருந்து வெளியேற்றப்பட்டுள்ளீர்கள். மீண்டும் இணைக்கவும்.</string>
     <string name="error_generic">ஒரு பிழை ஏற்பட்டது</string>
 
@@ -339,8 +339,6 @@
     <string name="about_check_updates_subtitle">சமீபத்திய வெளியீட்டை பதிவிறக்கு</string>
     <string name="about_privacy_policy">தனியுரிமைக் கொள்கை</string>
     <string name="about_privacy_policy_subtitle">எங்கள் தனியுரிமைக் கொள்கையை காண்க</string>
-    <string name="about_supporters_contributors">ஆதரவாளர்கள் &amp; பங்களிப்பாளர்கள்</string>
-    <string name="about_supporters_contributors_subtitle">திறந்த அங்கீகாரம் மற்றும் திட்ட நன்றிகள்</string>
     <string name="about_licenses_attributions">உரிமங்கள் &amp; நன்றிக்குறிப்புகள்</string>
     <string name="about_licenses_attributions_subtitle">தரவு மூலங்கள், நன்றிகள் மற்றும் ஆண்ட்ராய்டு உரிமங்கள்</string>
     <string name="licenses_attributions_title">உரிமங்கள் &amp; நன்றிக்குறிப்புகள்</string>
@@ -348,8 +346,7 @@
     <string name="licenses_attributions_section_app">செயலி உரிமம்</string>
     <string name="licenses_attributions_section_data">தரவு &amp; சேவைகள்</string>
     <string name="licenses_attributions_section_playback">ஆண்ட்ராய்டு இயக்க உரிமங்கள்</string>
-    <string name="licenses_attributions_nuvio_title">நுவியோ டிவி</string>
-    <string name="licenses_attributions_nuvio_body">மூலக் குறியீடு மற்றும் உரிம நிபந்தனைகள் திட்ட களஞ்சியத்தில் கிடைக்கின்றன. GNU பொது உரிமம் v3.0 கீழ் வழங்கப்படுகிறது.</string>
+    <string name="licenses_attributions_fetch_title">நுவியோ டிவி</string>
     <string name="licenses_attributions_tmdb_title">தி மூவி டேட்டாபேஸ் (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">நுவியோ திரைப்படம் மற்றும் டிவி தகவல்கள், கலைப்படங்கள், முன்னோட்டங்கள், நடிகர்கள், தயாரிப்பு விவரங்கள், தொகுப்புகள் மற்றும் பரிந்துரைகளுக்காக TMDB API-ஐ பயன்படுத்துகிறது. இந்த தயாரிப்பு TMDB API-ஐ பயன்படுத்தினாலும் TMDB ஆதரவு அல்லது சான்றளிப்பு பெறவில்லை.</string>
     <string name="licenses_attributions_trakt_title">ட்ராக்ட்</string>
@@ -461,8 +458,8 @@
     <string name="advanced_section_cache">கேச்</string>
     <string name="advanced_fast_horizontal_navigation">வேகமான கிடைமட்ட வழிசெலுத்தல்</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">மீள்வேக கட்டுப்பாட்டை வைத்தபடி டி-பேட் வேகத்தை அதிகரிக்கவும்.</string>
-    <string name="advanced_nuvio_focus_scroll">நுவியோ கவன உருட்டல்</string>
-    <string name="advanced_nuvio_focus_scroll_subtitle">நுவியோவின் தனிப்பயன் கவன உருட்டல் அசைவூட்டலை பயன்படுத்து.</string>
+    <string name="advanced_fetch_focus_scroll">நுவியோ கவன உருட்டல்</string>
+    <string name="advanced_fetch_focus_scroll_subtitle">நுவியோவின் தனிப்பயன் கவன உருட்டல் அசைவூட்டலை பயன்படுத்து.</string>
     <string name="advanced_memory_only_vertical_scroll">நினைவக மட்டும் செங்குத்து உருட்டல்</string>
     <string name="advanced_memory_only_vertical_scroll_subtitle">முகப்பு வரிசைகளை உருட்டும் போது வட்டு மற்றும் இணைய பட கோரிக்கைகளை தவிர்.</string>
     <string name="advanced_compose_highlighter">காம்போஸ் ஒளிர்விப்பு</string>
@@ -498,29 +495,13 @@
     <string name="action_close">மூடு</string>
 
         <!-- SupportersContributorsScreen -->
-    <string name="supporters_contributors_title">ஆதரவாளர்கள் &amp; பங்களிப்பாளர்கள்</string>
-    <string name="supporters_contributors_subtitle">Nuvio-க்கு ஆதரவளிக்கும் மற்றும் டிவி, மொபைல் முழுவதும் இதை உருவாக்கும் நபர்கள்.</string>
-    <string name="supporters_contributors_supporters_copy">ஆதரவாளர்கள் மற்றும் நன்கொடையாளர்கள் இந்த திட்டம் தொடர்ந்து முன்னேற, கட்டமைப்பு செலவுகளை ஏற்க, மற்றும் பெரிய அம்சங்களுக்கு இடமளிக்க உதவுகின்றனர்.</string>
-    <string name="supporters_contributors_donate_copy">Nuvio எப்போதும் இலவசமாகவும் திறந்த மூலமாகவும் இருக்கும். திட்டத்தை ஆதரிக்க விரும்பினால், இதற்கான நேரம் மற்றும் கட்டமைப்பு செலவுகளுக்கு உதவலாம்.</string>
-    <string name="supporters_contributors_donate_button">Nuvio-க்கு நன்கொடை அளிக்கவும்</string>
-    <string name="supporters_contributors_qr_title">நன்கொடை அளிக்க ஸ்கேன் செய்யவும்</string>
-    <string name="supporters_contributors_qr_subtitle">Nuvio-வை ஆதரிக்க உங்கள் தொலைபேசியில் இணைப்பைத் திறக்கவும்.</string>
-    <string name="supporters_contributors_qr_hint">QR குறியீட்டை கேமராவால் ஸ்கேன் செய்யவும் அல்லது கீழே உள்ள பொத்தானைப் பயன்படுத்தவும்.</string>
-    <string name="supporters_contributors_back_button">விவரங்களுக்கு திரும்பு</string>
     <string name="supporters_tab">ஆதரவாளர்கள்</string>
-    <string name="sponsors_tab">ஆதரிப்பாளர்கள்</string>
     <string name="contributors_tab">பங்களிப்பாளர்கள்</string>
     <string name="supporters_loading">ஆதரவாளர்கள் ஏற்றப்படுகிறது…</string>
     <string name="supporters_empty">இன்னும் ஆதரவாளர்கள் இல்லை.</string>
     <string name="supporters_error_title">ஆதரவாளர்களை ஏற்ற முடியவில்லை</string>
     <string name="supporters_no_message">எந்த செய்தியும் பகிரப்படவில்லை.</string>
     <string name="supporters_open_donations">நன்கொடை பக்கத்தை திற</string>
-    <string name="sponsors_loading">ஆதரிப்பாளர்கள் ஏற்றப்படுகிறது…</string>
-    <string name="sponsors_empty">இன்னும் ஆதரிப்பாளர்கள் இல்லை.</string>
-    <string name="sponsors_error_title">ஆதரிப்பாளர்களை ஏற்ற முடியவில்லை</string>
-    <string name="sponsors_detail_copy">வளர்ச்சியின் பல பகுதிகளில் ஆதரவு வழங்கி Nuvio முன்னேற உதவுகின்றனர்.</string>
-    <string name="sponsors_channel_unavailable">ஆதரிப்பாளர் சேனல் கிடைக்கவில்லை.</string>
-    <string name="sponsors_open_channel">ஆதரிப்பாளர் சேனலை திற</string>
     <string name="contributors_loading">GitHub பங்களிப்பாளர்கள் ஏற்றப்படுகிறது…</string>
     <string name="contributors_empty">இன்னும் பங்களிப்பாளர்கள் இல்லை.</string>
     <string name="contributors_error_title">பங்களிப்பாளர்களை ஏற்ற முடியவில்லை</string>
@@ -580,8 +561,8 @@
     <string name="playback_player_ask_desc">ஒவ்வொரு முறையும் பிளேயரை தேர்வு செய்</string>
     <string name="playback_player_auto">தானாக (உள்ளடக்கத்திற்கு சிறந்தது)</string>
     <string name="playback_player_auto_desc">திரைப்படங்கள் &amp; தொடர்களுக்கு ExoPlayer · Anime-க்கு MPV</string>
-    <string name="playback_engine_exoplayer_desc">தற்போதைய Nuvio அம்சங்களுடன் சிறந்த பொருத்தம்.</string>
-    <string name="playback_engine_mvplayer_desc">Nuvio OSD கட்டுப்பாடுகளுடன் libmpv பயன்படுத்துகிறது. சோதனை நிலையில் உள்ளது.</string>
+    <string name="playback_engine_exoplayer_desc">தற்போதைய Fetch அம்சங்களுடன் சிறந்த பொருத்தம்.</string>
+    <string name="playback_engine_mvplayer_desc">Fetch OSD கட்டுப்பாடுகளுடன் libmpv பயன்படுத்துகிறது. சோதனை நிலையில் உள்ளது.</string>
 
         <!-- PlaybackAudioSettings -->
     <string name="audio_trailer_section">ட்ரெய்லர்</string>
@@ -926,19 +907,19 @@
     <string name="trakt_watch_progress_dialog_title">பார்வை முன்னேற்றம்</string>
     <string name="trakt_watch_progress_dialog_subtitle">ட்ராக்ட் ஸ்க்ரோபிளிங் செயலிலேயே இருக்கும் போது, மீண்டும் தொடங்கு மற்றும் தொடர்ந்து பார்ப்பதற்கு ட்ராக்ட் அல்லது நுவியோ ஒத்திசைவை பயன்படுத்த வேண்டுமா என்பதை தேர்வு செய்யவும்.</string>
     <string name="trakt_watch_progress_source_trakt">ட்ராக்ட்</string>
-    <string name="trakt_watch_progress_source_nuvio">நுவியோ ஒத்திசைவு</string>
+    <string name="trakt_watch_progress_source_fetch">நுவியோ ஒத்திசைவு</string>
     <string name="trakt_library_source_title">நூலக மூலம்</string>
     <string name="trakt_library_source_subtitle">உங்கள் தொகுப்பை சேமிக்கவும் பார்க்கவும் எந்த நூலகத்தை பயன்படுத்துவது என்பதை தேர்வு செய்யவும்</string>
     <string name="trakt_library_source_dialog_title">நூலக மூலம்</string>
     <string name="trakt_library_source_dialog_subtitle">உங்கள் நூலக உருப்படிகளை எங்கு சேமித்து நிர்வகிப்பது என்பதை தேர்வு செய்யவும்</string>
     <string name="trakt_library_source_trakt">ட்ராக்ட்</string>
-    <string name="trakt_library_source_nuvio">நுவியோ நூலகம்</string>
+    <string name="trakt_library_source_fetch">நுவியோ நூலகம்</string>
     <string name="trakt_library_source_trakt_selected">ட்ராக்ட் நூலகம் தேர்ந்தெடுக்கப்பட்டது</string>
-    <string name="trakt_library_source_nuvio_selected">நுவியோ நூலகம் தேர்ந்தெடுக்கப்பட்டது</string>
+    <string name="trakt_library_source_fetch_selected">நுவியோ நூலகம் தேர்ந்தெடுக்கப்பட்டது</string>
     <string name="trakt_setting_on">இயக்கம்</string>
     <string name="trakt_setting_off">நிறுத்தம்</string>
     <string name="trakt_watch_progress_trakt_selected">பார்வை முன்னேற்ற மூலம் ட்ராக்ட் ஆக அமைக்கப்பட்டது</string>
-    <string name="trakt_watch_progress_nuvio_selected">பார்வை முன்னேற்ற மூலம் நுவியோ ஒத்திசைவு ஆக அமைக்கப்பட்டது</string>
+    <string name="trakt_watch_progress_fetch_selected">பார்வை முன்னேற்ற மூலம் நுவியோ ஒத்திசைவு ஆக அமைக்கப்பட்டது</string>
     <string name="trakt_continue_watching_window">தொடர்ந்து பார்ப்பது சாளரம்</string>
     <string name="trakt_continue_watching_subtitle">தொடர்ந்து பார்ப்பதற்காக கருதப்படும் ட்ராக்ட் வரலாறு</string>
     <string name="trakt_unaired_next_up">ஒளிபரப்பாகாத அடுத்த அத்தியாயங்கள்</string>
@@ -1417,7 +1398,7 @@
     <string name="library_delete_subtitle">இது பட்டியலையும் அதிலுள்ள அனைத்து உருப்படிகளையும் ட்ராக்டிலிருந்து அகற்றும்.</string>
     <string name="library_delete_confirm">அழி</string>
     <string name="library_source_local">உள்ளகம்</string>
-    <string name="library_source_nuvio">நூவியோ</string>
+    <string name="library_source_fetch">நூவியோ</string>
     <string name="library_source_trakt">ட்ராக்ட்</string>
     <string name="library_watchlist">பார்க்க வேண்டிய பட்டியல்</string>
     <string name="library_syncing_library">நூலகம் ஒத்திசைக்கப்படுகிறது\u2026</string>
@@ -1759,7 +1740,7 @@
     <string name="cd_preview">முன்னோட்டம்</string>
     <string name="cd_test">சோதனை</string>
     <string name="cd_unlink">இணைப்பை நீக்கு</string>
-    <string name="cd_nuvio_logo">நுவியோடிவி</string>
+    <string name="cd_fetch_logo">நுவியோடிவி</string>
     <string name="cd_trakt_logo">ட்ராக்ட் லோகோ</string>
     <string name="cd_trakt_qr">ட்ராக்ட் செயல்படுத்தும் க்யூஆர்</string>
     <string name="cd_imdb">ஐஎம்டிபி</string>
@@ -1770,7 +1751,7 @@
     <string name="cd_expand">விரிவு செய் %1$s</string>
     <string name="cd_collapse">சுருக்கு %1$s</string>
     <string name="cd_qr_login">க்யூஆர் உள்நுழைவு குறியீடு</string>
-    <string name="cd_nuvio">நுவியோ</string>
+    <string name="cd_fetch">நுவியோ</string>
 
     <!-- Debug -->
     <string name="debug_signin_success">வெற்றிகரமாக உள்நுழைந்தது</string>
@@ -1806,7 +1787,7 @@
     <string name="collections_paste_clipboard">கிளிப்போர்டிலிருந்து ஒட்டு</string>
     <string name="collections_validate">சரிபார்</string>
     <string name="collections_paste_hint">தொகுப்பு ஜேசனை இங்கே ஒட்டுங்கள்…</string>
-    <string name="collections_file_description">பதிவிறக்க கோப்பகத்திலிருந்து nuvio-collections.json படிக்கப்படுகிறது.</string>
+    <string name="collections_file_description">பதிவிறக்க கோப்பகத்திலிருந்து fetch-collections.json படிக்கப்படுகிறது.</string>
     <string name="collections_load_file">கோப்பை ஏற்று</string>
     <string name="collections_file_loaded">கோப்பு ஏற்றப்பட்டது (%1$d எழுத்துகள்)</string>
     <string name="collections_fetch_url">யுஆர்எல் பெறு</string>
@@ -2205,11 +2186,9 @@
     <!-- Supporters / contributors / sponsors errors -->
     <string name="supporters_error_load">ஆதரவாளர்களை ஏற்ற முடியவில்லை.</string>
     <string name="contributors_error_load">பங்களிப்பாளர்களை ஏற்ற முடியவில்லை.</string>
-    <string name="sponsors_error_load">ஆதரவுநிதியாளர்களை ஏற்ற முடியவில்லை.</string>
     <string name="contributors_error_api_not_configured">பங்களிப்பாளர்கள் ஏபிஐ அமைக்கப்படவில்லை.</string>
     <string name="contributors_error_api_http">பங்களிப்பாளர்கள் ஏபிஐ பிழை: %1$d</string>
     <string name="supporters_error_api_http">நன்கொடை ஏபிஐ பிழை: %1$d</string>
-    <string name="sponsors_error_api_http">ஆதரவுநிதியாளர்கள் ஏபிஐ பிழை: %1$d</string>
 
     <!-- Contributor role badges -->
     <string name="contributor_role_translator">மொழிபெயர்ப்பாளர்</string>

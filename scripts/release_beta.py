@@ -62,7 +62,7 @@ WORD_REPLACEMENTS = (
     (re.compile(r"\bshowInHome param\b", re.IGNORECASE), "`showInHome` parameter"),
     (re.compile(r"\bui\b"), "UI"),
     (re.compile(r"\btrakt\b", re.IGNORECASE), "Trakt"),
-    (re.compile(r"\bnuvio\b", re.IGNORECASE), "Nuvio"),
+    (re.compile(r"\bfetch\b", re.IGNORECASE), "Fetch"),
 )
 ASSET_ORDER = {
     "arm64-v8a": 0,

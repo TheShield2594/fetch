@@ -10,7 +10,7 @@ class DefaultAllocatorTest {
 
     @Before
     fun setUp() {
-        // Enable Nuvio mode to force native direct ByteBuffer allocation
+        // Enable Fetch mode to force native direct ByteBuffer allocation
         NuvioEngineConfig.set(NuvioEngineConfig.nuvioMode())
     }
 

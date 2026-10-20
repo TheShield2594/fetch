@@ -1,8 +1,8 @@
-# NuvioTV Essential Mode Documentation
+# Fetch Essential Mode Documentation
 
 ## Purpose
 
-Essential mode is a streamlined NuvioTV experience for users who want to install add-ons, find something, and play it without navigating the full customization surface.
+Essential mode is a streamlined Fetch experience for users who want to install add-ons, find something, and play it without navigating the full customization surface.
 
 Advanced mode remains the existing power-user experience. It keeps the complete settings rail, layout controls, integrations, plug-ins, diagnostics, and detailed playback tuning.
 
@@ -12,21 +12,21 @@ The goal is not to remove capabilities from the app. The goal is to put the mini
 
 This spec is based on the current app structure in:
 
-- `app/src/main/java/com/nuvio/tv/MainActivity.kt`
-- `app/src/main/java/com/nuvio/tv/ui/navigation/Screen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/navigation/NuvioNavHost.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/settings/SettingsScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/addon/AddonManagerScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/plugin/PluginScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/settings/LayoutSettingsScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/settings/PlaybackSettingsScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/settings/ThemeSettingsScreen.kt`
-- `app/src/main/java/com/nuvio/tv/ui/screens/player/PlayerScreen.kt`
-- `app/src/main/java/com/nuvio/tv/data/local/*DataStore.kt`
+- `app/src/main/java/com/fetch/tv/MainActivity.kt`
+- `app/src/main/java/com/fetch/tv/ui/navigation/Screen.kt`
+- `app/src/main/java/com/fetch/tv/ui/navigation/FetchNavHost.kt`
+- `app/src/main/java/com/fetch/tv/ui/screens/settings/SettingsScreen.kt`
+- `app/src/main/java/com/fetch/tv/ui/screens/addon/AddonManagerScreen.kt`
+- `app/src/main/java/com/fetch/tv/ui/screens/plugin/PluginScreen.kt`
+- `app/src/main/java/com/fetch/tv/ui/screens/settings/LayoutSettingsScreen.kt`
+- `app/src/main/java/com/fetch/tv/ui/screens/settings/PlaybackSettingsScreen.kt`
+- `app/src/main/java/com/fetch/tv/ui/screens/settings/ThemeSettingsScreen.kt`
+- `app/src/main/java/com/fetch/tv/ui/screens/player/PlayerScreen.kt`
+- `app/src/main/java/com/fetch/tv/data/local/*DataStore.kt`
 
 Current first launch flow:
 
-1. `MainActivity` shows the Nuvio account QR sign-in flow if the first-launch auth prompt has not been completed.
+1. `MainActivity` shows the Fetch account QR sign-in flow if the first-launch auth prompt has not been completed.
 2. If multiple profiles or a PIN are present, `ProfileSelectionScreen` is shown.
 3. If `LayoutPreferenceDataStore.hasChosenLayout` is false, `LayoutSelectionScreen` is shown.
 4. Main app shell loads with root routes for Home, Search, Library, Add-ons, and Settings.
@@ -67,7 +67,7 @@ Current playback path:
 
 Essential mode should answer one user need:
 
-> I just want NuvioTV to work with the least setup possible.
+> I just want Fetch to work with the least setup possible.
 
 Essential mode keeps:
 
@@ -335,7 +335,7 @@ Advanced settings should continue to use the existing `SettingsScreen` rail.
 | TMDB settings | Hide | Show | Keep defaults in Essential. |
 | MDBList settings | Hide | Show | Advanced ratings integration. |
 | Anime-Skip settings | Hide | Show | Advanced integration. |
-| Trakt connection | Show as optional account integration or hide under Advanced | Show full | For Essential, prefer Nuvio account sync first. |
+| Trakt connection | Show as optional account integration or hide under Advanced | Show full | For Essential, prefer Fetch account sync first. |
 | Trakt library/progress/comment settings | Hide | Show | Advanced integration. |
 | Advanced performance settings | Hide | Show | Advanced only. |
 | Network speed test | Hide | Show | Diagnostics. |
@@ -552,7 +552,7 @@ enum class ExperienceMode {
 
 Recommended package:
 
-- `app/src/main/java/com/nuvio/tv/domain/model/ExperienceMode.kt`
+- `app/src/main/java/com/fetch/tv/domain/model/ExperienceMode.kt`
 
 ### 2. Persist Experience Mode
 
@@ -563,14 +563,14 @@ Recommended approach:
 - Use profile-scoped storage through `ProfileDataStoreFactory` if mode should follow each profile.
 - Use app-scoped storage if mode should be device-wide.
 
-Best fit for NuvioTV:
+Best fit for Fetch:
 
 - Use app-scoped storage for first MVP, because experience mode changes the device UI complexity rather than media data.
 - Keep a future option to sync mode per profile.
 
 Suggested file:
 
-- `app/src/main/java/com/nuvio/tv/data/local/ExperienceModeDataStore.kt`
+- `app/src/main/java/com/fetch/tv/data/local/ExperienceModeDataStore.kt`
 
 Migration behavior:
 
@@ -584,7 +584,7 @@ Avoid scattering mode checks across many screens.
 
 Suggested file:
 
-- `app/src/main/java/com/nuvio/tv/core/experience/ExperienceModePolicy.kt`
+- `app/src/main/java/com/fetch/tv/core/experience/ExperienceModePolicy.kt`
 
 Policy should answer questions like:
 
@@ -626,7 +626,7 @@ New logic:
 
 Add screen:
 
-- `app/src/main/java/com/nuvio/tv/ui/screens/ExperienceModeSelectionScreen.kt`
+- `app/src/main/java/com/fetch/tv/ui/screens/ExperienceModeSelectionScreen.kt`
 
 ### 5. Update Navigation
 
@@ -642,7 +642,7 @@ Keep root drawer items stable in both modes:
 - Add-ons
 - Settings
 
-Do not remove root routes from `NuvioNavHost`; mode should control screen content, not break navigation.
+Do not remove root routes from `FetchNavHost`; mode should control screen content, not break navigation.
 
 ### 6. Add Essential Settings Screen
 

@@ -32,7 +32,7 @@
         android:required="false" />
 
     <application
-        android:name=".NuvioApplication"
+        android:name=".FetchApplication"
         android:allowBackup="false"
         android:banner="@mipmap/banner"
         android:icon="@mipmap/ic_launcher"
@@ -86,7 +86,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="nuvio" />
+                <data android:scheme="fetch" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

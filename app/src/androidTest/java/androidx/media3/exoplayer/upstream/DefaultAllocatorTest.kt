@@ -37,7 +37,7 @@ class DefaultAllocatorTest {
     }
 
     @Test
-    fun testAllocationInNuvioMode() {
+    fun testAllocationInFetchMode() {
         NuvioEngineConfig.set(NuvioEngineConfig.nuvioMode())
         
         val allocationSize = 65536
@@ -45,9 +45,9 @@ class DefaultAllocatorTest {
         
         val allocation = allocator.allocate()
         assertNotNull("Allocation should not be null", allocation)
-        assertNull("Allocation data (heap array) should be null in nuvio mode", allocation.data)
-        assertNotNull("Allocation buffer (direct ByteBuffer) should not be null in nuvio mode", allocation.buffer)
-        assertTrue("Allocation buffer should be direct in nuvio mode", allocation.buffer!!.isDirect)
+        assertNull("Allocation data (heap array) should be null in fetch mode", allocation.data)
+        assertNotNull("Allocation buffer (direct ByteBuffer) should not be null in fetch mode", allocation.buffer)
+        assertTrue("Allocation buffer should be direct in fetch mode", allocation.buffer!!.isDirect)
         assertEquals("Allocation buffer capacity should match request", allocationSize, allocation.buffer!!.capacity())
         
         allocator.release(allocation)

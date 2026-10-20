@@ -1,0 +1,25 @@
+package com.fetch.tv.core.player
+
+import com.fetch.tv.data.local.PlayerSettings
+import com.fetch.tv.data.local.StreamAutoPlayMode
+
+object StreamAutoPlayPolicy {
+    fun isEffectivelyEnabled(playerSettings: PlayerSettings): Boolean {
+        if (playerSettings.streamReuseLastLinkEnabled) return true
+        if (playerSettings.streamAutoPlayReuseBingeGroup &&
+            playerSettings.streamAutoPlayPreferBingeGroupForNextEpisode) return true
+
+        return when (playerSettings.streamAutoPlayMode) {
+            StreamAutoPlayMode.MANUAL -> false
+            StreamAutoPlayMode.FIRST_STREAM,
+            StreamAutoPlayMode.BEST_MATCH -> true
+            StreamAutoPlayMode.REGEX_MATCH -> isRegexSelectionConfigured(playerSettings.streamAutoPlayRegex)
+        }
+    }
+
+    fun isRegexSelectionConfigured(regexPattern: String): Boolean {
+        val pattern = regexPattern.trim()
+        if (pattern.isEmpty() || !pattern.any { it.isLetterOrDigit() }) return false
+        return runCatching { Regex(pattern, RegexOption.IGNORE_CASE) }.isSuccess
+    }
+}

@@ -337,7 +337,7 @@ def quality_issues(text: str, source: str) -> tuple[tuple[str, ...], tuple[str, 
         blocking.append(f"{source} still contains implementation terminology")
     if text.endswith(("…", "...")):
         blocking.append(f"{source} appears to be truncated")
-    if re.search(r"\b(?:NUVIO-TV-\w+|[0-9a-f]{7,40})\b", text, flags=re.IGNORECASE):
+    if re.search(r"\b(?:FETCH-TV-\w+|[0-9a-f]{7,40})\b", text, flags=re.IGNORECASE):
         blocking.append(f"{source} still contains an internal identifier")
     if len(text) > 300:
         blocking.append(f"{source} exceeds 300 characters")

@@ -23,7 +23,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "My Application"
+rootProject.name = "Fetch"
 include(":app")
 include(":baselineprofile")
 include(":ffmpeg-decoder-downmix")

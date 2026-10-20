@@ -45,7 +45,7 @@ class PerformanceBenchmark {
     fun runAllBenchmarks() {
         val results = StringBuilder()
         results.append("\n==================================================\n")
-        results.append("         NUVIO TV PERFORMANCE BENCHMARKS          \n")
+        results.append("         FETCH TV PERFORMANCE BENCHMARKS          \n")
         results.append("==================================================\n\n")
 
         runAllocatorBenchmark(results)

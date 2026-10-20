@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Nuvio</string>
+    <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Nastavi gledati</string>
     <string name="type_movie">Film</string>
     <string name="type_movies">Filmovi</string>
@@ -99,7 +99,7 @@
 
     <string name="home_no_addons">Nema instaliranih dodataka. Dodaj jedan za početak.</string>
     <string name="home_no_catalog_addons">Nema instaliranih dodataka s katalozima. Instaliraj dodatak s katalogom za prikaz sadržaja.</string>
-    <string name="auth_notice_nuvio_logged_out">Sesija u Nuviju je završila. Prijavi se ponovno.</string>
+    <string name="auth_notice_fetch_logged_out">Sesija u Nuviju je završila. Prijavi se ponovno.</string>
     <string name="auth_notice_trakt_logged_out">Veza s Traktom je prekinuta. Ponovno se poveži.</string>
     <string name="error_generic">Došlo je do pogreške</string>
 
@@ -372,13 +372,13 @@
     <string name="appearance_settings_style">Stil postavki</string>
     <string name="appearance_settings_style_subtitle">Odaberi kako se prikazuju zasloni postavki</string>
     <string name="appearance_launcher_artwork">Grafika pokretača</string>
-    <string name="appearance_launcher_artwork_subtitle">Odaberi kako se Nuvio prikazuje na početnom zaslonu TV-a</string>
+    <string name="appearance_launcher_artwork_subtitle">Odaberi kako se Fetch prikazuje na početnom zaslonu TV-a</string>
     <string name="appearance_app_icon_and_banner">Ikona i baner aplikacije</string>
     <string name="appearance_app_icon_and_banner_subtitle">Promijeni ikonu i baner aplikacije</string>
     <string name="appearance_app_icon_picker_title">Odaberi ikonu i baner aplikacije</string>
     <string name="appearance_app_icon_picker_subtitle">Svaki stil uključuje odgovarajuću kvadratnu ikonu i TV baner</string>
     <string name="appearance_app_icon_confirmation_title">Promijeniti ikonu aplikacije?</string>
-    <string name="appearance_app_icon_confirmation_message">Promjena na %1$s zatvorit će Nuvio. TV baner možda će zahtijevati ponovno pokretanje uređaja da se ažurira. Odaberi OK za nastavak.</string>
+    <string name="appearance_app_icon_confirmation_message">Promjena na %1$s zatvorit će Fetch. TV baner možda će zahtijevati ponovno pokretanje uređaja da se ažurira. Odaberi OK za nastavak.</string>
     <string name="appearance_app_icon_change_failed">Ikonu i baner nije moguće promijeniti. Pokušaj ponovno.</string>
     <string name="appearance_app_icon_original">Izvorno</string>
     <string name="appearance_app_icon_arctic_blue">Arktičko plava</string>
@@ -413,37 +413,33 @@
     <string name="update_channel_beta_description">Rana ažuriranja koja mogu sadržavati greške, pokvariti značajke ili se ponašati neočekivano.</string>
     <string name="about_privacy_policy">Pravila o privatnosti</string>
     <string name="about_privacy_policy_subtitle">Pogledaj naša pravila o privatnosti</string>
-    <string name="support_nuvio_name">Podrži Nuvio</string>
-    <string name="about_supporters_contributors">Podrži Nuvio</string>
-    <string name="about_supporters_contributors_subtitle">Podrži projekt i pogledaj zasluge zajednice</string>
     <string name="about_licenses_attributions">Licence i atribucije</string>
     <string name="about_licenses_attributions_subtitle">Izvori podataka, zahvale i Android licence</string>
     <string name="licenses_attributions_title">Licence i atribucije</string>
-    <string name="licenses_attributions_subtitle">Pružatelji podataka, zasluge za usluge i Android licence za reprodukciju koje koristi Nuvio TV.</string>
+    <string name="licenses_attributions_subtitle">Pružatelji podataka, zasluge za usluge i Android licence za reprodukciju koje koristi Fetch.</string>
     <string name="licenses_attributions_section_app">LICENCA APLIKACIJE</string>
     <string name="licenses_attributions_section_data">PODACI I USLUGE</string>
     <string name="licenses_attributions_section_playback">ANDROID LICENCE ZA REPRODUKCIJU</string>
     <string name="licenses_attributions_section_ui">UI BIBLIOTEKE</string>
     <string name="licenses_attributions_haze_title">Haze 1.7.2</string>
     <string name="licenses_attributions_haze_body">Koristi se za efekte zamućenja pozadine. Autor: Chris Banes. Licencirano pod Apache licencom, verzija 2.0.</string>
-    <string name="licenses_attributions_nuvio_title">Nuvio TV</string>
-    <string name="licenses_attributions_nuvio_body">Izvorni kôd i uvjeti licence dostupni su u repozitoriju projekta. Licencirano pod GNU General Public License v3.0.</string>
+    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
-    <string name="licenses_attributions_tmdb_body">Nuvio koristi TMDB API za metapodatke o filmovima i serijama, grafike, trailere, glumce, produkcijske detalje, kolekcije i preporuke. Ovaj proizvod koristi TMDB API, ali ga TMDB ne podržava niti certificira.</string>
+    <string name="licenses_attributions_tmdb_body">Fetch koristi TMDB API za metapodatke o filmovima i serijama, grafike, trailere, glumce, produkcijske detalje, kolekcije i preporuke. Ovaj proizvod koristi TMDB API, ali ga TMDB ne podržava niti certificira.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
-    <string name="licenses_attributions_trakt_body">Nuvio se povezuje s Traktom radi autentifikacije računa, povijesti gledanja, sinkronizacije napretka, podataka biblioteke, ocjena, popisa i komentara. Nuvio nije povezan s Traktom niti ga Trakt podržava.</string>
+    <string name="licenses_attributions_trakt_body">Fetch se povezuje s Traktom radi autentifikacije računa, povijesti gledanja, sinkronizacije napretka, podataka biblioteke, ocjena, popisa i komentara. Fetch nije povezan s Traktom niti ga Trakt podržava.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
-    <string name="licenses_attributions_simkl_body">Nuvio se povezuje sa Simklom radi autentifikacije računa, popisa za gledanje, povijesti gledanja, napretka reprodukcije i scrobblanja. Podatke o praćenju filmova, serija i animea pruža Simkl. Nuvio nije povezan sa Simklom niti ga Simkl podržava.</string>
+    <string name="licenses_attributions_simkl_body">Fetch se povezuje sa Simklom radi autentifikacije računa, popisa za gledanje, povijesti gledanja, napretka reprodukcije i scrobblanja. Podatke o praćenju filmova, serija i animea pruža Simkl. Fetch nije povezan sa Simklom niti ga Simkl podržava.</string>
     <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Nuvio se povezuje s Premiumizeom radi autentifikacije računa, pristupa biblioteci u oblaku, provjere predmemorije i reprodukcije iz oblaka. Nuvio nije povezan s Premiumizeom niti ga Premiumize podržava.</string>
+    <string name="licenses_attributions_premiumize_body">Fetch se povezuje s Premiumizeom radi autentifikacije računa, pristupa biblioteci u oblaku, provjere predmemorije i reprodukcije iz oblaka. Fetch nije povezan s Premiumizeom niti ga Premiumize podržava.</string>
     <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Nuvio se povezuje s TorBoxom radi autentifikacije računa, pristupa biblioteci u oblaku, provjere predmemorije i reprodukcije iz oblaka. Nuvio nije povezan s TorBoxom niti ga TorBox podržava.</string>
+    <string name="licenses_attributions_torbox_body">Fetch se povezuje s TorBoxom radi autentifikacije računa, pristupa biblioteci u oblaku, provjere predmemorije i reprodukcije iz oblaka. Fetch nije povezan s TorBoxom niti ga TorBox podržava.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
-    <string name="licenses_attributions_mdblist_body">Nuvio koristi MDBList za ocjene, povijest gledanja i praćenje reprodukcije. Nuvio nije povezan s MDBListom niti ga MDBList podržava.</string>
+    <string name="licenses_attributions_mdblist_body">Fetch koristi MDBList za ocjene, povijest gledanja i praćenje reprodukcije. Fetch nije povezan s MDBListom niti ga MDBList podržava.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
-    <string name="licenses_attributions_introdb_body">Nuvio koristi IntroDB API za vremenske oznake uvoda, sažetaka, odjavne špice i pretpregleda koje pruža zajednica, a koriste ih kontrole preskakanja. Nuvio nije povezan s IntroDB-om niti ga IntroDB podržava.</string>
+    <string name="licenses_attributions_introdb_body">Fetch koristi IntroDB API za vremenske oznake uvoda, sažetaka, odjavne špice i pretpregleda koje pruža zajednica, a koriste ih kontrole preskakanja. Fetch nije povezan s IntroDB-om niti ga IntroDB podržava.</string>
     <string name="licenses_attributions_imdb_title">IMDb nekomercijalni skupovi podataka</string>
-    <string name="licenses_attributions_imdb_body">Nuvio koristi IMDb nekomercijalne skupove podataka, uključujući title.ratings.tsv.gz, za IMDb ocjene i broj glasova. Informacije ljubaznošću IMDb-a (https://www.imdb.com). Korišteno uz dopuštenje. IMDb podaci namijenjeni su osobnoj i nekomercijalnoj upotrebi prema IMDb uvjetima.</string>
+    <string name="licenses_attributions_imdb_body">Fetch koristi IMDb nekomercijalne skupove podataka, uključujući title.ratings.tsv.gz, za IMDb ocjene i broj glasova. Informacije ljubaznošću IMDb-a (https://www.imdb.com). Korišteno uz dopuštenje. IMDb podaci namijenjeni su osobnoj i nekomercijalnoj upotrebi prema IMDb uvjetima.</string>
     <string name="licenses_attributions_exoplayer_title">AndroidX Media3 ExoPlayer 1.8.0</string>
     <string name="licenses_attributions_exoplayer_body">Koristi se kao Android pogon za reprodukciju. Licencirano pod Apache licencom, verzija 2.0.</string>
     <string name="licenses_attributions_libmpv_title">libmpv / libmpv-android</string>
@@ -468,7 +464,7 @@
     <string name="tracking_accounts_title">Računi</string>
     <string name="tracking_accounts_subtitle">Poveži i upravljaj uslugama praćenja</string>
     <string name="tracking_sources_title">Izvori</string>
-    <string name="tracking_sources_subtitle">Odaberi odakle Nuvio čita tvoju biblioteku i napredak gledanja. Reprodukcija se scrobbla na sve povezane usluge.</string>
+    <string name="tracking_sources_subtitle">Odaberi odakle Fetch čita tvoju biblioteku i napredak gledanja. Reprodukcija se scrobbla na sve povezane usluge.</string>
     <string name="tracking_trakt_features_title">Trakt značajke</string>
     <string name="tracking_trakt_features_subtitle">Povijest, recenzije i preporuke specifične za Trakt</string>
     <string name="tracking_simkl_features_title">Simkl značajke</string>
@@ -485,8 +481,8 @@
     <string name="tracking_status_connecting">Povezivanje</string>
     <string name="tracking_finish_connection">Dovrši odobrenje povezivanja</string>
     <string name="tracking_connecting_provider">Pokretanje povezivanja s uslugom %1$s…</string>
-    <string name="tracking_watch_progress_dialog_subtitle">Odaberi uslugu koju Nuvio čita za nastavak reprodukcije i Nastavi gledati. Scrobblanje ostaje aktivno za sve povezane usluge.</string>
-    <string name="tracking_library_source_dialog_subtitle">Odaberi uslugu koju Nuvio čita za tvoju biblioteku. Reprodukcija se scrobbla na sve povezane usluge.</string>
+    <string name="tracking_watch_progress_dialog_subtitle">Odaberi uslugu koju Fetch čita za nastavak reprodukcije i Nastavi gledati. Scrobblanje ostaje aktivno za sve povezane usluge.</string>
+    <string name="tracking_library_source_dialog_subtitle">Odaberi uslugu koju Fetch čita za tvoju biblioteku. Reprodukcija se scrobbla na sve povezane usluge.</string>
     <string name="tracking_trakt_progress_required">Dostupno kada je Trakt izvor napretka gledanja</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
@@ -496,7 +492,7 @@
     <string name="settings_advanced_subtitle">Performanse, navigacija, predmemorija i dijagnostika</string>
     <string name="experience_mode_essential">Osnovno</string>
     <string name="experience_mode_advanced">Napredno</string>
-    <string name="experience_mode_choose_title">Odaberi svoje Nuvio iskustvo</string>
+    <string name="experience_mode_choose_title">Odaberi svoje Fetch iskustvo</string>
     <string name="experience_mode_choose_subtitle">Kreni jednostavno ili otključaj sve prilagodbe. Možeš promijeniti bilo kada.</string>
     <string name="experience_mode_essential_card_subtitle">Usmjereno postavljanje, dodaci, osnove reprodukcije, Trakt i postavke računa.</string>
     <string name="experience_mode_advanced_card_subtitle">Sve postavke, kontrole izgleda, redoslijed kataloga, kolekcije, pluginovi i dijagnostika.</string>
@@ -574,39 +570,24 @@
     <string name="network_connection_offline">Izvan mreže</string>
     <string name="advanced_section_performance">Performanse i navigacija</string>
     <string name="advanced_section_diagnostics">Dijagnostika</string>
-    <string name="advanced_sentry_reports">Sentry izvješća o rušenju</string>
-    <string name="advanced_sentry_reports_subtitle">Šalji izvješća o rušenjima i ANR-ovima sa sigurnim kontekstom. Uključeno prema zadanim postavkama.</string>
     <string name="advanced_playback_issue_reports">Izvješća o problemima s reprodukcijom</string>
     <string name="advanced_playback_issue_reports_subtitle">Prikaži gumbe za prijavu tijekom reprodukcije, dugog učitavanja i pogrešaka reprodukcije</string>
     <string name="advanced_player_stats_hud">Prikaz statistike reprodukcije</string>
     <string name="advanced_player_stats_hud_subtitle">Prikaži gumb u informacijama o streamu za uključivanje prikaza CPU-a, memorije, međuspremnika, bitratea i temperature uživo tijekom reprodukcije</string>
-    <string name="sentry_enable_dialog_title">Uključiti izvješća o rušenju?</string>
-    <string name="sentry_enable_dialog_subtitle">Izvješća o rušenju pomažu u otkrivanju grešaka specifičnih za uređaj bez potrebe da problem reproduciraš s ADB zapisima.</string>
-    <string name="sentry_disable_dialog_title">Isključiti izvješća o rušenju?</string>
-    <string name="sentry_disable_dialog_subtitle">Buduća rušenja i trenutni ANR-ovi s ovog uređaja neće se prijavljivati. To može znatno otežati ispravljanje grešaka specifičnih za uređaj.</string>
-    <string name="sentry_help_title">Kako to pomaže</string>
-    <string name="sentry_help_body">Izvješća se grupiraju prema verziji aplikacije, modelu uređaja, verziji Androida i stack traceu, tako da se najčešća stvarna rušenja mogu prva ispraviti.</string>
-    <string name="sentry_sent_title">Šalje se</string>
-    <string name="sentry_sent_body">Rušenja, trenutni ANR-ovi, stack traceovi, verzija aplikacije, vrsta builda, flavor, metapodaci uređaja i OS-a te sigurni mrežni tragovi s metodom, hostom, putanjom, statusom, trajanjem i vrstom iznimke.</string>
-    <string name="sentry_not_sent_title">Ne šalje se</string>
-    <string name="sentry_not_sent_body">Lozinke, pristupni tokeni, tokeni za osvježavanje, tijela zahtjeva, tijela odgovora, zaglavlja, kolačići, snimke zaslona, hijerarhija prikaza, snimka sesije, sirova dijagnostika te vrijednosti query ili fragment dijela URL-a streama.</string>
-    <string name="sentry_keep_enabled">Ostavi uključeno</string>
-    <string name="sentry_turn_off">Isključi</string>
-    <string name="sentry_turn_on">Uključi</string>
     <string name="advanced_section_cache">Predmemorija</string>
     <string name="advanced_section_startup">Pokretanje i izlaz</string>
     <string name="advanced_section_network_tests">Mrežni testovi</string>
     <string name="advanced_fast_horizontal_navigation">Brza vodoravna navigacija</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Povećaj brzinu ponavljanja D-pada u redovima uz zadržano ograničavanje ponavljanja.</string>
-    <string name="advanced_nuvio_performance_mode">ExoPlayer nativna memorija</string>
-    <string name="advanced_nuvio_performance_mode_subtitle">Omogućuje visokoučinkoviti nativni alokator, memoriju izvan heapa i mrežne optimizacije za glađu reprodukciju</string>
+    <string name="advanced_fetch_performance_mode">ExoPlayer nativna memorija</string>
+    <string name="advanced_fetch_performance_mode_subtitle">Omogućuje visokoučinkoviti nativni alokator, memoriju izvan heapa i mrežne optimizacije za glađu reprodukciju</string>
     <string name="buffer_device_ram_info">RAM uređaja: %s</string>
     <string name="buffer_safe_limit_info">Preporučeno sigurno ograničenje: %d MB</string>
     <string name="buffer_safe_status">Sigurno: unutar preporučenog ograničenja za tvoj uređaj.</string>
     <string name="buffer_unsafe_warning">Upozorenje: premašuje preporučeno sigurno ograničenje (%1$d MB) za tvoj uređaj (%2$s). Može uzrokovati rušenje aplikacije.</string>
     <string name="buffer_auto_limit_active">Automatski prilagođeno sigurno ograničenje: %d MB</string>
-    <string name="advanced_nuvio_focus_scroll">Nuvio fokus pomicanje</string>
-    <string name="advanced_nuvio_focus_scroll_subtitle">Koristi Nuvio prilagođenu globalnu animaciju pomicanja i pozicioniranje fokusa.</string>
+    <string name="advanced_fetch_focus_scroll">Fetch fokus pomicanje</string>
+    <string name="advanced_fetch_focus_scroll_subtitle">Koristi Fetch prilagođenu globalnu animaciju pomicanja i pozicioniranje fokusa.</string>
     <string name="advanced_rgb565">RGB565 dekodiranje slika</string>
     <string name="advanced_rgb565_subtitle">Koristi 16-bitne boje s manjom potrošnjom memorije za prikladne neprozirne slike. Promjena ponovno pokreće aplikaciju.</string>
     <string name="advanced_memory_only_vertical_scroll">Okomito pomicanje samo iz memorije</string>
@@ -648,41 +629,8 @@
     <string name="action_back">Natrag</string>
     <string name="action_close">Zatvori</string>
 
-    <string name="supporters_contributors_title">Podrži Nuvio</string>
-    <string name="supporters_contributors_subtitle">Ljudi koji podržavaju Nuvio i suradnici koji ga razvijaju na TV-u i mobitelima.</string>
-    <string name="supporters_contributors_supporters_copy">Podupiratelji i donatori pomažu da projekt napreduje, financiraju infrastrukturu i omogućuju ambiciozne značajke.</string>
-    <string name="supporters_contributors_donate_copy">Nuvio će ostati besplatan i otvorenog koda. Ako želiš podržati projekt, možeš pomoći pokriti vrijeme i infrastrukturu iza njega.</string>
-    <string name="supporters_contributors_donation_progress_title">Poslužitelji i održavanje ovog mjeseca</string>
-    <string name="supporters_contributors_donation_progress_complete">Pokriveno. Dodatna podrška sada ide u razvoj.</string>
-    <string name="supporters_contributors_donation_progress_remaining">Nakon 100%, dodatna podrška ide u razvoj.</string>
-    <string name="supporters_contributors_loading_donation_progress">Učitavanje napretka financiranja...</string>
-    <string name="supporters_contributors_donate_button">Podrži Nuvio</string>
-    <string name="supporters_contributors_qr_title">Skeniraj za podršku</string>
-    <string name="supporters_contributors_qr_subtitle">Otvori poveznicu na mobitelu i podrži Nuvio.</string>
-    <string name="supporters_contributors_qr_hint">Usmjeri kameru prema QR kodu ili koristi gumb ispod.</string>
-    <string name="supporters_contributors_back_button">Natrag na detalje</string>
-    <string name="supporter_membership_title">Nuvio članstvo za podupiratelje</string>
-    <string name="supporter_membership_description">Podrška Nuviju pomaže pokriti infrastrukturu i kontinuirani razvoj, a osnovno iskustvo ostaje besplatno za sve.</string>
-    <string name="supporter_membership_view">Pogledaj članstvo</string>
-    <string name="supporter_membership_manage">Upravljaj članstvom</string>
-    <string name="supporter_membership_refresh">Osvježi</string>
-    <string name="supporter_membership_refreshing">Osvježavanje</string>
-    <string name="supporter_membership_loading">Učitavanje članstva…</string>
-    <string name="supporter_membership_unable_load">Nije moguće učitati status članstva. Pokušaj ponovno.</string>
-    <string name="supporter_membership_you_are">Ti si</string>
-    <string name="supporter_membership_thank_you">Hvala ti.</string>
-    <string name="supporter_membership_supporter_since">Podupiratelj od %1$s.</string>
-    <string name="supporter_membership_tier_supporter">Podupiratelj</string>
-    <string name="supporter_membership_tier_supporter_plus">Podupiratelj Plus</string>
-    <string name="supporter_membership_connected_title">Patreon je povezan</string>
-    <string name="supporter_membership_connected_description">Na ovom Patreon računu nije pronađena aktivna Nuvio razina. Pogledaj dostupne opcije ili osvježi nakon promjene Patreon članstva.</string>
-    <string name="supporter_membership_scan_support">Skeniraj za prikaz članstva</string>
-    <string name="supporter_membership_scan_support_description">Otvori stranicu članstva za podupiratelje na mobitelu.</string>
-    <string name="supporter_membership_scan_manage">Skeniraj za upravljanje članstvom</string>
-    <string name="supporter_membership_scan_manage_description">Otvori postavke Patreon članstva na mobitelu.</string>
     <string name="cd_membership_qr">QR kôd stranice članstva</string>
     <string name="supporters_tab">Podupiratelji</string>
-    <string name="sponsors_tab">Sponzori</string>
     <string name="contributors_tab">Suradnici</string>
     <string name="supporters_loading">Učitavanje podupiratelja…</string>
     <string name="supporters_empty">Još nisu pronađeni podupiratelji.</string>
@@ -690,15 +638,9 @@
     <string name="supporters_no_message">Poruka nije podijeljena.</string>
     <string name="supporters_level_supporter">Podupiratelj</string>
     <string name="supporters_level_supporter_plus">Podupiratelj+</string>
-    <string name="supporters_since">Podržava Nuvio od %1$s</string>
-    <string name="supporters_since_unknown">Ponosno podržava Nuvio</string>
+    <string name="supporters_since">Podržava Fetch od %1$s</string>
+    <string name="supporters_since_unknown">Ponosno podržava Fetch</string>
     <string name="supporters_open_donations">Otvori stranicu za podršku</string>
-    <string name="sponsors_loading">Učitavanje sponzora…</string>
-    <string name="sponsors_empty">Još nisu pronađeni sponzori.</string>
-    <string name="sponsors_error_title">Nije moguće učitati sponzore</string>
-    <string name="sponsors_detail_copy">Sponzori pomažu Nuviju da napreduje podrškom u različitim dijelovima razvoja.</string>
-    <string name="sponsors_channel_unavailable">Kanal sponzora nije dostupan.</string>
-    <string name="sponsors_open_channel">Otvori kanal sponzora</string>
     <string name="contributors_loading">Učitavanje GitHub suradnika…</string>
     <string name="contributors_empty">Još nisu pronađeni suradnici.</string>
     <string name="contributors_error_title">Nije moguće učitati suradnike</string>
@@ -786,8 +728,8 @@
     <string name="playback_player_ask_desc">Odaberi player svaki put</string>
     <string name="playback_player_auto">Automatski (najbolje za sadržaj)</string>
     <string name="playback_player_auto_desc">ExoPlayer za filmove i serije · MPV za anime</string>
-    <string name="playback_engine_exoplayer_desc">Najbolja kompatibilnost s trenutnim Nuvio značajkama.</string>
-    <string name="playback_engine_mvplayer_desc">Koristi libmpv s Nuvio OSD kontrolama. Eksperimentalno.</string>
+    <string name="playback_engine_exoplayer_desc">Najbolja kompatibilnost s trenutnim Fetch značajkama.</string>
+    <string name="playback_engine_mvplayer_desc">Koristi libmpv s Fetch OSD kontrolama. Eksperimentalno.</string>
 
     <string name="video_section">Video</string>
     <string name="playback_true_black_letterbox">Prave crne trake</string>
@@ -1449,21 +1391,21 @@
     <string name="trakt_watch_progress_title">Napredak gledanja</string>
     <string name="trakt_watch_progress_subtitle">Odaberi koji izvor napretka pokreće nastavak reprodukcije i Nastavi gledati</string>
     <string name="trakt_watch_progress_dialog_title">Napredak gledanja</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Odaberi trebaju li nastavak reprodukcije i Nastavi gledati koristiti Trakt ili Nuvio Sync, dok Trakt scrobblanje ostaje aktivno.</string>
+    <string name="trakt_watch_progress_dialog_subtitle">Odaberi trebaju li nastavak reprodukcije i Nastavi gledati koristiti Trakt ili Fetch Sync, dok Trakt scrobblanje ostaje aktivno.</string>
     <string name="trakt_watch_progress_source_trakt">Trakt</string>
-    <string name="trakt_watch_progress_source_nuvio">Nuvio Sync</string>
+    <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
     <string name="trakt_library_source_title">Izvor biblioteke</string>
-    <string name="trakt_library_source_subtitle">Odaberi koji izvor Nuvio čita za tvoju biblioteku</string>
+    <string name="trakt_library_source_subtitle">Odaberi koji izvor Fetch čita za tvoju biblioteku</string>
     <string name="trakt_library_source_dialog_title">Izvor biblioteke</string>
     <string name="trakt_library_source_dialog_subtitle">Odaberi gdje spremati i upravljati stavkama biblioteke</string>
     <string name="trakt_library_source_trakt">Trakt</string>
-    <string name="trakt_library_source_nuvio">Nuvio biblioteka</string>
+    <string name="trakt_library_source_fetch">Fetch biblioteka</string>
     <string name="trakt_library_source_trakt_selected">Odabrana Trakt biblioteka</string>
-    <string name="trakt_library_source_nuvio_selected">Odabrana Nuvio biblioteka</string>
+    <string name="trakt_library_source_fetch_selected">Odabrana Fetch biblioteka</string>
     <string name="trakt_setting_on">Uključeno</string>
     <string name="trakt_setting_off">Isključeno</string>
     <string name="trakt_watch_progress_trakt_selected">Izvor napretka gledanja postavljen na Trakt</string>
-    <string name="trakt_watch_progress_nuvio_selected">Izvor napretka gledanja postavljen na Nuvio Sync</string>
+    <string name="trakt_watch_progress_fetch_selected">Izvor napretka gledanja postavljen na Fetch Sync</string>
     <string name="trakt_continue_watching_window">Razdoblje za Nastavi gledati</string>
     <string name="trakt_continue_watching_subtitle">Trakt povijest koja se uzima u obzir za Nastavi gledati</string>
     <string name="trakt_unaired_next_up">Neemitirane sljedeće epizode</string>
@@ -1492,7 +1434,7 @@
     <string name="trakt_stat_watched_hours">Odgledani sati</string>
     <string name="trakt_disconnect">Prekini vezu</string>
     <string name="trakt_disconnect_title">Prekinuti vezu s Traktom?</string>
-    <string name="trakt_disconnect_subtitle">Ovo će prekinuti vezu tvog Trakt računa s Nuviom.</string>
+    <string name="trakt_disconnect_subtitle">Ovo će prekinuti vezu tvog Trakt računa s Fetchm.</string>
     <string name="trakt_login">Prijava</string>
     <string name="trakt_retry">Pokušaj ponovno</string>
     <string name="trakt_back">Natrag</string>
@@ -1569,11 +1511,11 @@
     <string name="profile_addons">dodaci</string>
     <string name="profile_plugins">pluginovi</string>
     <string name="profile_choose_avatar">Odaberi avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Prilagođeni URL-ovi avatara mogu se konfigurirati na Nuvio web ploči.</string>
+    <string name="profile_custom_avatar_web_panel_note">Prilagođeni URL-ovi avatara mogu se konfigurirati na Fetch web ploči.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Pozadina</string>
     <string name="profile_choose_background">Odaberi pozadinu profila</string>
-    <string name="profile_background_member_note">Prilagođeni URL-ovi pozadine mogu se konfigurirati na Nuvio web ploči.</string>
+    <string name="profile_background_member_note">Prilagođeni URL-ovi pozadine mogu se konfigurirati na Fetch web ploči.</string>
     <string name="profile_background_normal">Obična</string>
     <string name="profile_background_custom">Prilagođena</string>
     <string name="profile_avatar_none_selected">Nije odabran avatar</string>
@@ -1641,7 +1583,7 @@
     <string name="profile_pin_overlay_set_support">Ovaj PIN bit će potreban prije otvaranja ovog profila.</string>
     <string name="profile_pin_overlay_confirm_support">Ponovno unesi iste 4 znamenke za dovršetak postavljanja.</string>
     <string name="profile_pin_overlay_mismatch">PIN-ovi se nisu podudarali. Ponovno unesi novi PIN.</string>
-    <string name="profile_pin_overlay_forgot_hint">Zaboravljen PIN? Poništi ga putem svog Nuvio računa na Nuvio web stranici.</string>
+    <string name="profile_pin_overlay_forgot_hint">Zaboravljen PIN? Poništi ga putem svog Fetch računa na Fetch web stranici.</string>
     <string name="profile_pin_overlay_back_hint">Pritisni natrag za odustajanje</string>
 
 
@@ -1724,7 +1666,7 @@
     <string name="stream_type_torrent">Torrent</string>
     <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">P2P streamanje</string>
-    <string name="p2p_consent_body">Ovaj stream koristi peer-to-peer (P2P) tehnologiju. Omogućavanjem P2P-a potvrđuješ i prihvaćaš sljedeće:\n\n\u2022 Tvoja IP adresa bit će vidljiva ostalim sudionicima u mreži\n\u2022 Odgovornost za sadržaj kojem pristupaš isključivo je tvoja\n\u2022 Potvrđuješ da imaš zakonsko pravo streamati ovaj sadržaj u svojoj jurisdikciji\n\u2022 Nuvio ne hostira, ne distribuira niti kontrolira bilo kakav P2P sadržaj\n\u2022 Nuvio ne snosi odgovornost za bilo kakve pravne posljedice koje proizlaze iz tvog korištenja P2P streamanja\n\nOvu značajku koristiš u potpunosti na vlastiti rizik. P2P se može isključiti bilo kada u Postavkama.</string>
+    <string name="p2p_consent_body">Ovaj stream koristi peer-to-peer (P2P) tehnologiju. Omogućavanjem P2P-a potvrđuješ i prihvaćaš sljedeće:\n\n\u2022 Tvoja IP adresa bit će vidljiva ostalim sudionicima u mreži\n\u2022 Odgovornost za sadržaj kojem pristupaš isključivo je tvoja\n\u2022 Potvrđuješ da imaš zakonsko pravo streamati ovaj sadržaj u svojoj jurisdikciji\n\u2022 Fetch ne hostira, ne distribuira niti kontrolira bilo kakav P2P sadržaj\n\u2022 Fetch ne snosi odgovornost za bilo kakve pravne posljedice koje proizlaze iz tvog korištenja P2P streamanja\n\nOvu značajku koristiš u potpunosti na vlastiti rizik. P2P se može isključiti bilo kada u Postavkama.</string>
     <string name="p2p_consent_enable">Omogući P2P</string>
     <string name="p2p_consent_cancel">Odustani</string>
     <string name="settings_p2p_title">P2P streamanje</string>
@@ -2067,7 +2009,7 @@
     <string name="library_delete_subtitle">Ovo uklanja popis i sve njegove stavke s Trakta.</string>
     <string name="library_delete_confirm">Izbriši</string>
     <string name="library_source_local">LOKALNO</string>
-    <string name="library_source_nuvio">NUVIO</string>
+    <string name="library_source_fetch">FETCH</string>
     <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">Spremljeno</string>
     <string name="library_source_cloud">Oblak</string>
@@ -2304,7 +2246,7 @@
     <string name="catalog_see_all_empty_title">Nema dostupnih stavki</string>
     <string name="catalog_see_all_empty_subtitle">Isprobaj drugi katalog ili provjeri kasnije</string>
 
-    <string name="layout_selection_welcome">Dobrodošli u Nuvio</string>
+    <string name="layout_selection_welcome">Dobrodošli u Fetch</string>
     <string name="layout_selection_subtitle">Odaberi izgled početnog zaslona</string>
     <string name="layout_selection_continue">Nastavi</string>
 
@@ -2321,7 +2263,7 @@
     <string name="update_unknown_sources">Dopusti instalacije iz nepoznatih izvora za nastavak.</string>
     <!-- AccountScreen -->
     <string name="account_title">Račun</string>
-    <string name="account_sign_in_description">Prijavi se za sinkronizaciju biblioteke, napretka gledanja, dodataka i pluginova na svim uređajima. Sinkronizacija biblioteke koristi Nuvio Sync kada Trakt nije povezan, a napredak gledanja može koristiti Trakt ili Nuvio Sync.</string>
+    <string name="account_sign_in_description">Prijavi se za sinkronizaciju biblioteke, napretka gledanja, dodataka i pluginova na svim uređajima. Sinkronizacija biblioteke koristi Fetch Sync kada Trakt nije povezan, a napredak gledanja može koristiti Trakt ili Fetch Sync.</string>
     <string name="account_sync_code_title">Kôd za sinkronizaciju</string>
     <string name="account_sync_code_description">Sinkroniziraj uređaje bez stvaranja računa.</string>
     <string name="account_linked_devices">Povezani uređaji (%1$d)</string>
@@ -2474,7 +2416,7 @@
     <string name="cd_preview">Pretpregled</string>
     <string name="cd_test">Testiraj</string>
     <string name="cd_unlink">Odspoji</string>
-    <string name="cd_nuvio_logo">NuvioTV</string>
+    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logo</string>
     <string name="cd_trakt_qr">QR za aktivaciju Trakta</string>
     <string name="cd_imdb">IMDb</string>
@@ -2486,7 +2428,7 @@
     <string name="cd_expand">Proširi %1$s</string>
     <string name="cd_collapse">Sažmi %1$s</string>
     <string name="cd_qr_login">QR kôd za prijavu</string>
-    <string name="cd_nuvio">Nuvio</string>
+    <string name="cd_fetch">Fetch</string>
 
     <string name="debug_signin_success">Prijava uspješna</string>
     <string name="debug_generate_description">Debug-generirana stavka %1$s #%2$d</string>
@@ -2521,7 +2463,7 @@
     <string name="collections_paste_clipboard">Zalijepi iz međuspremnika</string>
     <string name="collections_validate">Provjeri</string>
     <string name="collections_paste_hint">Ovdje zalijepi JSON kolekcija…</string>
-    <string name="collections_file_description">Čita nuvio-collections.json iz mape Preuzimanja.</string>
+    <string name="collections_file_description">Čita fetch-collections.json iz mape Preuzimanja.</string>
     <string name="collections_load_file">Učitaj datoteku</string>
     <string name="collections_file_loaded">Datoteka učitana (znakova: %1$d)</string>
     <string name="collections_fetch_url">Dohvati URL</string>
@@ -2629,7 +2571,7 @@
     <string name="collections_editor_tmdb_list_helper">Primjer: https://www.themoviedb.org/list/8504994 ili 8504994.</string>
     <string name="collections_editor_tmdb_person_id">ID osobe</string>
     <string name="collections_editor_tmdb_person_helper">Primjer: https://www.themoviedb.org/person/31-tom-hanks ili 31.</string>
-    <string name="collections_editor_tmdb_title_helper">Prikazuje se kao naziv reda/kartice. Ako je prazno, Nuvio ga stvara iz izvora.</string>
+    <string name="collections_editor_tmdb_title_helper">Prikazuje se kao naziv reda/kartice. Ako je prazno, Fetch ga stvara iz izvora.</string>
     <string name="collections_editor_tmdb_quick_genres">Brzi žanrovi</string>
     <string name="collections_editor_tmdb_quick_languages">Brzi jezici</string>
     <string name="collections_editor_tmdb_quick_countries">Brze države</string>
@@ -2811,7 +2753,7 @@
     <string name="autoplay_regex_preset_no_remux_hdr">Bez REMUX/HDR</string>
 
     <!-- Odjeljci postavki reprodukcije -->
-    <string name="playback_player_internal_desc">Koristi ugrađeni player NuvioTV-a</string>
+    <string name="playback_player_internal_desc">Koristi ugrađeni player Fetch-a</string>
 
     <!-- Player: torrent sloj + zapisi -->
     <string name="player_torrent_peer_info">%1$d seedova · %2$d peerova</string>
@@ -2916,9 +2858,9 @@
     <string name="simkl_visit">Posjeti Simkl</string>
     <string name="simkl_sync_info_action">Kako funkcionira sinkronizacija</string>
     <string name="simkl_sync_info_title">Kako funkcionira Simkl sinkronizacija</string>
-    <string name="simkl_sync_info_description">Nuvio automatski provjerava Simkl najviše jednom svakih %1$d minuta. Promjene napravljene u drugoj aplikaciji ili na Simkl web stranici mogu se pojaviti tek nakon tog vremena.</string>
+    <string name="simkl_sync_info_description">Fetch automatski provjerava Simkl najviše jednom svakih %1$d minuta. Promjene napravljene u drugoj aplikaciji ili na Simkl web stranici mogu se pojaviti tek nakon tog vremena.</string>
     <string name="simkl_sync_info_activity">Svako osvježavanje najprije provjerava prijavljuje li Simkl ikakve promjene i preuzima samo ažuriranja. To poštuje pravila Simkl API-ja, smanjuje nepotrebnu potrošnju podataka i pomaže održati uslugu stabilnom.</string>
-    <string name="simkl_sync_info_manual">Promjene napravljene u Nuviju odmah se šalju na Simkl. Koristi Sinkroniziraj sada kad god želiš da Nuvio ranije provjeri udaljene promjene.</string>
+    <string name="simkl_sync_info_manual">Promjene napravljene u Nuviju odmah se šalju na Simkl. Koristi Sinkroniziraj sada kad god želiš da Fetch ranije provjeri udaljene promjene.</string>
     <string name="simkl_sync_info_library_statuses">Serije stavljene na Simkl popise Na čekanju ili Odustajem skrivene su iz Nastavi gledati. Ostaju skrivene dok god su na nekom od tih popisa.</string>
     <string name="simkl_sync_info_docs">Pročitaj vodič za Simkl sinkronizaciju</string>
     <string name="error_open_browser_failed">Otvaranje preglednika nije uspjelo</string>
@@ -2974,11 +2916,9 @@
     <!-- Pogreške podupiratelja / suradnika / sponzora -->
     <string name="supporters_error_load">Nije moguće učitati podupiratelje.</string>
     <string name="contributors_error_load">Nije moguće učitati suradnike.</string>
-    <string name="sponsors_error_load">Nije moguće učitati sponzore.</string>
     <string name="contributors_error_api_not_configured">API suradnika nije konfiguriran.</string>
     <string name="contributors_error_api_http">Pogreška API-ja suradnika: %1$d</string>
     <string name="supporters_error_api_http">Pogreška API-ja donacija: %1$d</string>
-    <string name="sponsors_error_api_http">Pogreška API-ja sponzora: %1$d</string>
 
     <!-- Oznake uloga suradnika -->
     <string name="contributor_role_translator">Prevoditelj</string>
@@ -3144,9 +3084,9 @@
     <string name="playback_section_buffer_network">Međuspremnik i mreža</string>
     <string name="playback_section_buffer_network_desc">Koliko sadržaja držati u memoriji i kako dohvaćati streamove.</string>
     <string name="playback_net_device_memory_info">Memorija uređaja: %1$s | Preporučeno sigurno ograničenje: %2$d MB</string>
-    <string name="playback_net_nuvio_performance_mode">ExoPlayer nativna memorija</string>
-    <string name="playback_net_nuvio_performance_mode_sub">Omogući nativni alokator izvan heapa i optimizacije premotavanja.</string>
-    <string name="playback_net_nuvio_performance_mode_not_supported">Tvoj uređaj ne podržava ovu značajku.</string>
+    <string name="playback_net_fetch_performance_mode">ExoPlayer nativna memorija</string>
+    <string name="playback_net_fetch_performance_mode_sub">Omogući nativni alokator izvan heapa i optimizacije premotavanja.</string>
+    <string name="playback_net_fetch_performance_mode_not_supported">Tvoj uređaj ne podržava ovu značajku.</string>
     <string name="playback_buffer_custom">Prilagođeni međuspremnici reprodukcije</string>
     <string name="playback_buffer_custom_sub">Zamijeni zadano međuspremanje Media3 vrijednostima ispod. Kada je isključeno, player koristi standardna trajanja i ciljnu veličinu međuspremnika Media3.</string>
     <string name="playback_buffer_header">Međuspremnik</string>

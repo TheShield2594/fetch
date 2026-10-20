@@ -454,7 +454,13 @@ fun LibraryScreen(
 
             if (uiState.visibleItems.isEmpty()) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    val selectedTypeLabel = uiState.selectedTypeTab?.let { localizedTypeLabel(it.key) }?.lowercase() ?: stringResource(R.string.library_type_items)
+                    val typeKey = uiState.selectedTypeTab?.key?.lowercase()
+                    val selectedTypeLabel = when (typeKey) {
+                        "movie" -> stringResource(R.string.library_empty_type_movies)
+                        "series", "tv" -> stringResource(R.string.library_empty_type_series)
+                        null, LibraryTypeTab.ALL_KEY -> stringResource(R.string.library_empty_type_items)
+                        else -> localizedTypeLabel(typeKey.orEmpty()).lowercase()
+                    }
                     val title = when {
                         uiState.sourceMode == LibrarySourceMode.TRAKT && !uiState.isTrackingAuthenticated -> stringResource(R.string.library_empty_trakt_not_auth_title)
                         uiState.sourceMode == LibrarySourceMode.SIMKL && !uiState.isTrackingAuthenticated -> stringResource(R.string.library_empty_simkl_not_auth_title)
@@ -472,7 +478,9 @@ fun LibraryScreen(
                     EmptyScreenState(
                         title = title,
                         subtitle = subtitle,
-                        icon = Icons.Default.BookmarkBorder
+                        icon = Icons.Default.BookmarkBorder,
+                        height = 220.dp,
+                        modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl)
                     )
                 }
             }

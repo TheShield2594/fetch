@@ -210,6 +210,12 @@ fun TrailerPlayer(
                 }
             }
 
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                // Hold the screen only while video actually plays, so an idle or stalled trailer
+                // view never keeps the system screensaver away.
+                playerViewRef.value?.keepScreenOn = isPlaying
+            }
+
             override fun onRenderedFirstFrame() {
                 hasRenderedFirstFrame = true
                 currentOnFirstFrameRendered()
@@ -270,7 +276,7 @@ fun TrailerPlayer(
                         setOnKeyListener { _, keyCode, event ->
                             currentOnRemoteKey(keyCode, event.action, event.repeatCount)
                         }
-                        keepScreenOn = true
+                        keepScreenOn = trailerPlayer.isPlaying
                         resizeMode = if (cropToFill) {
                             AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                         } else {

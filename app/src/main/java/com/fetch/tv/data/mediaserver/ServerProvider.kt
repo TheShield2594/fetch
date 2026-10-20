@@ -1,6 +1,7 @@
 package com.fetch.tv.data.mediaserver
 
 import com.fetch.tv.core.tracking.TrackingExternalIds
+import com.fetch.tv.domain.model.FilterRowFilters
 
 enum class ServerCapability {
     SEARCH,
@@ -26,6 +27,18 @@ interface ServerProvider {
         start: Int,
         limit: Int
     ): ServerPage<ServerTitle>
+
+    /** A page of [library] narrowed and sorted by [filters], for filter rows on Home. */
+    suspend fun filteredLibraryPage(
+        session: ServerSession,
+        library: ServerLibrary,
+        filters: FilterRowFilters,
+        start: Int,
+        limit: Int
+    ): ServerPage<ServerTitle> = unsupported()
+
+    /** Genre names used in [library], for picking a filter row's genre. */
+    suspend fun genres(session: ServerSession, library: ServerLibrary): List<String> = unsupported()
 
     suspend fun details(session: ServerSession, itemId: String): ServerItemDetails
 

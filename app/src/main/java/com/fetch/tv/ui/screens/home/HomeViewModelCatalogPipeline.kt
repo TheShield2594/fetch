@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
 import com.fetch.tv.core.network.NetworkResult
+import com.fetch.tv.domain.model.withFilterRows
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.CatalogRow
@@ -94,6 +95,17 @@ internal fun HomeViewModel.loadDisabledHomeCatalogPreferencePipeline() {
     }
 }
 
+internal fun HomeViewModel.loadPinnedHomeCatalogPreferencePipeline() {
+    viewModelScope.launch {
+        layoutPreferenceDataStore.pinnedHomeCatalogKeys.collectLatest { keys ->
+            if (keys == pinnedHomeCatalogKeys) return@collectLatest
+            pinnedHomeCatalogKeys = keys
+            rebuildCatalogOrder(addonsCache)
+            scheduleUpdateCatalogRows()
+        }
+    }
+}
+
 internal fun HomeViewModel.loadCustomCatalogTitlesPipeline() {
     viewModelScope.launch {
         layoutPreferenceDataStore.customCatalogTitles.collectLatest { titles ->
@@ -129,8 +141,12 @@ internal fun HomeViewModel.observeTmdbSettingsPipeline() {
 @OptIn(FlowPreview::class)
 internal fun HomeViewModel.observeInstalledAddonsPipeline() {
     viewModelScope.launch {
-        combine(addonRepository.getInstalledAddons(), serverCatalog.addons) { installed, servers ->
-            installed.enabledAddons() + servers
+        combine(
+            addonRepository.getInstalledAddons(),
+            serverCatalog.addons,
+            serverCatalog.filterRows
+        ) { installed, servers, filterRows ->
+            (installed.enabledAddons() + servers).withFilterRows(filterRows)
         }
             .distinctUntilChanged()
             .collectLatest { addons ->
@@ -219,6 +235,7 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             return
         }
 
+        val pinnedKeys = pinnedHomeCatalogKeys
         val catalogsToLoad = addons.flatMap { addon ->
             addon.catalogs
                 .filterNot {
@@ -231,6 +248,10 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
                     )
                 }
                 .map { catalog -> addon to catalog }
+        }.sortedBy { (addon, catalog) ->
+            // Pinned rows sit at the top of Home, so they load first instead of as placeholders.
+            val index = pinnedKeys.indexOf(catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id))
+            if (index >= 0) index else Int.MAX_VALUE
         }
 
         // Load hero-selected catalogs even if disabled from home rows —

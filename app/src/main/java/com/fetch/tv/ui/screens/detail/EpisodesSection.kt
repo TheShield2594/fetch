@@ -90,6 +90,7 @@ import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.model.EpisodeOptionsOverlayStyle
 import com.fetch.tv.ui.components.FocusMarqueeText
 import com.fetch.tv.ui.components.ImdbRatingSourceLabel
+import com.fetch.tv.ui.components.LightweightCard
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.WatchedMarker
 import com.fetch.tv.ui.theme.FetchTheme
@@ -810,21 +811,10 @@ private fun EpisodeCard(
     val primaryColor = FetchTheme.colors.Secondary
     val textPrimary = FetchTheme.colors.TextPrimary
     val focusRingBorder = FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
-    val cardShape = CardDefaults.shape(shape = shape)
-    val cardColors = CardDefaults.colors(
-        containerColor = Color.Transparent,
-        focusedContainerColor = Color.Transparent
-    )
-    val cardBorder = CardDefaults.border(
-        focusedBorder = Border(
-            border = focusRingBorder,
-            shape = shape
-        )
-    )
-    val cardScale = CardDefaults.scale(focusedScale = 1.0f)
-    val cardGlow = CardDefaults.glow()
 
-    Card(
+    // LightweightCard reads the focus animation only while placing the card, so moving along
+    // the episodes row recomposes each card once instead of on every animation frame.
+    LightweightCard(
         onClick = {
             if (longPressTriggered) {
                 longPressTriggered = false
@@ -877,11 +867,12 @@ private fun EpisodeCard(
                     down = downFocusRequester
                 }
             },
-        shape = cardShape,
-        colors = cardColors,
-        border = cardBorder,
-        scale = cardScale,
-        glow = cardGlow
+        shape = shape,
+        containerColor = Color.Transparent,
+        focusedBorder = Border(
+            border = focusRingBorder,
+            shape = shape
+        )
     ) {
         Box(
             modifier = Modifier

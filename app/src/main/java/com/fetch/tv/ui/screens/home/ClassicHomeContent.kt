@@ -102,7 +102,7 @@ fun ClassicHomeContent(
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
     onRemoveContinueWatching: (String, Int?, Int?, Boolean) -> Unit,
     isCatalogItemWatched: (MetaPreview) -> Boolean = { false },
-    onCatalogItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
+    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit = { _, _, _ -> },
     onRequestTrailerPreview: (MetaPreview) -> Unit,
     onItemFocus: (MetaPreview) -> Unit = {},
     catalogSeeAllLabel: String? = null,
@@ -648,6 +648,7 @@ fun ClassicHomeContent(
                     showManualPlayOption = showContinueWatchingManualPlayOption,
                     onPlayManually = onContinueWatchingPlayManually,
                     onDetailsClick = { item ->
+                        DetailInitialSeasonState.set(item.detailSeason())
                         onNavigateToDetail(
                             when (item) {
                                 is ContinueWatchingItem.InProgress -> item.progress.contentId
@@ -735,6 +736,7 @@ fun ClassicHomeContent(
                     showManualPlayOption = showContinueWatchingManualPlayOption,
                     onPlayManually = onContinueWatchingPlayManually,
                     onDetailsClick = { item ->
+                        DetailInitialSeasonState.set(item.detailSeason())
                         onNavigateToDetail(
                             when (item) {
                                 is ContinueWatchingItem.InProgress -> item.progress.contentId
@@ -860,7 +862,9 @@ fun ClassicHomeContent(
                         onRequestTrailerPreview = onRequestTrailerPreview,
                         onItemFocus = handleMetaFocus,
                         isItemWatched = isCatalogItemWatched,
-                        onItemLongPress = onCatalogItemLongPress,
+                        onItemLongPress = { item, addonBaseUrl ->
+                            onCatalogItemLongPress(item, addonBaseUrl, catalogRow.legacyKey())
+                        },
                         seeAllLabel = catalogSeeAllLabel,
                         onItemClick = { id, type, addonBaseUrl ->
                             onNavigateToDetail(id, type, addonBaseUrl)

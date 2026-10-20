@@ -133,7 +133,7 @@ fun ModernHomeContent(
     onLoadMoreCatalog: (String, String, String) -> Unit,
     onRemoveContinueWatching: (String, Int?, Int?, Boolean) -> Unit,
     isCatalogItemWatched: (MetaPreview) -> Boolean = { false },
-    onCatalogItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
+    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit = { _, _, _ -> },
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
     onItemFocus: (MetaPreview) -> Unit = {},
     onPreloadAdjacentItem: (MetaPreview) -> Unit = {},
@@ -1288,6 +1288,7 @@ fun ModernHomeContent(
                 optionsItem.value = null
             },
             onDetails = {
+                DetailInitialSeasonState.set(selectedOptionsItem.detailSeason())
                 onNavigateToDetail(selectedOptionsItem.contentId(), selectedOptionsItem.contentType(), "")
                 optionsItem.value = null
             },

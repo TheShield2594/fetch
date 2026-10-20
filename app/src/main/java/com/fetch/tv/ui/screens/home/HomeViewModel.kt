@@ -44,7 +44,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -234,6 +236,7 @@ class HomeViewModel @Inject constructor(
     internal var collectionsCache: List<Collection> = emptyList()
     internal var homeCatalogOrderKeys: List<String> = emptyList()
     internal var disabledHomeCatalogKeys: Set<String> = emptySet()
+    internal var pinnedHomeCatalogKeys: List<String> = emptyList()
     internal var followAddonsOrderEnabled: Boolean = false
     internal var customCatalogTitles: Map<String, String> = emptyMap()
     internal var currentHeroCatalogKeys: List<String> = emptyList()
@@ -375,6 +378,7 @@ class HomeViewModel @Inject constructor(
             loadHomeCatalogOrderPreference()
             loadFollowAddonsOrder()
             loadDisabledHomeCatalogPreference()
+            loadPinnedHomeCatalogPreference()
             loadCustomCatalogTitles()
             observeLibraryState()
             observeTmdbSettings()
@@ -606,6 +610,16 @@ class HomeViewModel @Inject constructor(
 
     fun onItemFocus(item: MetaPreview) = onItemFocusPipeline(item)
 
+    /** Order keys of the rows pinned to the top of Home. */
+    val pinnedRowKeys: StateFlow<List<String>> by lazy {
+        layoutPreferenceDataStore.pinnedHomeCatalogKeys
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    }
+
+    fun toggleRowPinned(rowKey: String) {
+        viewModelScope.launch { layoutPreferenceDataStore.togglePinnedHomeCatalogKey(rowKey) }
+    }
+
     fun preloadAdjacentItem(item: MetaPreview) = preloadAdjacentItemPipeline(item)
 
     private fun loadHomeCatalogOrderPreference() = loadHomeCatalogOrderPreferencePipeline()
@@ -613,6 +627,8 @@ class HomeViewModel @Inject constructor(
     private fun loadFollowAddonsOrder() = loadFollowAddonsOrderPipeline()
 
     private fun loadDisabledHomeCatalogPreference() = loadDisabledHomeCatalogPreferencePipeline()
+
+    private fun loadPinnedHomeCatalogPreference() = loadPinnedHomeCatalogPreferencePipeline()
 
     private fun loadCustomCatalogTitles() = loadCustomCatalogTitlesPipeline()
 

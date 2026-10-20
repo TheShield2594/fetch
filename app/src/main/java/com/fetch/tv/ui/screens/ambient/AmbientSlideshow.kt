@@ -3,7 +3,6 @@ package com.fetch.tv.ui.screens.ambient
 import android.content.Context
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -23,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -129,7 +129,14 @@ fun AmbientSlideshow(
                 motion = nextAmbientMotion(motion)
                 motionProgress.snapTo(0f)
                 val motionJob = launch {
-                    motionProgress.animateTo(1f, tween(MOTION_DURATION_MS, easing = LinearEasing))
+                    // Timed on the frame clock, not with tween(): tweens follow the system animator
+                    // duration scale but the slide hold is a plain delay(), so below 1x the motion
+                    // used to end seconds before the slide did and the backdrop stood still.
+                    val start = withFrameMillis { it }
+                    while (true) {
+                        val elapsed = withFrameMillis { it } - start
+                        motionProgress.snapTo((elapsed.toFloat() / MOTION_DURATION_MS).coerceAtMost(1f))
+                    }
                 }
                 backdropAlpha.animateTo(1f, tween(BACKDROP_FADE_IN_MS, easing = FastOutSlowInEasing))
                 delay(TITLE_DELAY_MS)

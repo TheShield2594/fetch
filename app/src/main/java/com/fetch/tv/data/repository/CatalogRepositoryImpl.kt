@@ -13,6 +13,10 @@ import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.ContentType
+import com.fetch.tv.domain.model.FilterRowSource
+import com.fetch.tv.domain.model.filterRowIdOf
+import com.fetch.tv.data.local.FilterRowsDataStore
+import com.fetch.tv.R
 import com.fetch.tv.domain.repository.CatalogRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
@@ -28,7 +32,8 @@ class CatalogRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val api: AddonApi,
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
-    private val serverCatalog: ServerCatalog
+    private val serverCatalog: ServerCatalog,
+    private val filterRowsDataStore: FilterRowsDataStore
 ) : CatalogRepository {
     companion object {
         private const val TAG = "CatalogRepository"
@@ -62,7 +67,20 @@ class CatalogRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        val url = buildCatalogUrl(addonBaseUrl, type, catalogId, skip, extraArgs)
+        // A filter row over an addon catalog asks that catalog for its genre, and keeps its own
+        // id on the row so paging comes back here.
+        val filterSource = filterRowIdOf(catalogId)?.let { rowId ->
+            val row = filterRowsDataStore.row(rowId)
+            val source = row?.source as? FilterRowSource.AddonCatalog
+            if (row == null || source == null) {
+                emit(NetworkResult.Error(context.getString(R.string.filter_row_source_missing)))
+                return@flow
+            }
+            source to row.filters.genre
+        }
+        val requestCatalogId = filterSource?.first?.catalogId ?: catalogId
+        val requestExtraArgs = filterSource?.second?.let { genre -> extraArgs + ("genre" to genre) } ?: extraArgs
+        val url = buildCatalogUrl(addonBaseUrl, filterSource?.first?.type ?: type, requestCatalogId, skip, requestExtraArgs)
         Log.d(
             TAG,
             "Fetching catalog addonId=$addonId addonName=$addonName type=$type catalogId=$catalogId skip=$skip skipStep=$skipStep supportsSkip=$supportsSkip url=$url"

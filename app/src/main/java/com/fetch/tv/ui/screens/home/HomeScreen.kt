@@ -25,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,7 +70,9 @@ import kotlin.math.roundToInt
 
 private data class HomePosterOptionsTarget(
     val item: MetaPreview,
-    val addonBaseUrl: String
+    val addonBaseUrl: String,
+    /** Order key of the row the poster was long-pressed in, for pinning that row. */
+    val rowKey: String? = null
 )
 
 private const val HOME_STABLE_GATE_TIMEOUT_MS = 5_000L
@@ -152,9 +155,9 @@ fun HomeScreen(
     val isCatalogItemWatched: (MetaPreview) -> Boolean = remember {
         { item: MetaPreview -> latestMovieWatchedStatus.value[homeItemStatusKey(item.id, item.apiType)] == true }
     }
-    val onCatalogItemLongPress: (MetaPreview, String) -> Unit = remember {
-        { item, addonBaseUrl ->
-            posterOptionsTarget = HomePosterOptionsTarget(item, addonBaseUrl)
+    val onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit = remember {
+        { item, addonBaseUrl, rowKey ->
+            posterOptionsTarget = HomePosterOptionsTarget(item, addonBaseUrl, rowKey)
             viewModel.refreshPosterLibraryStatus(item)
         }
     }
@@ -446,6 +449,7 @@ fun HomeScreen(
         }
     }
 
+    val pinnedRowKeys by viewModel.pinnedRowKeys.collectAsState()
     val selectedPoster = posterOptionsTarget
     if (selectedPoster != null) {
         val item = selectedPoster.item
@@ -463,6 +467,7 @@ fun HomeScreen(
             isSeries = isSeries,
             isWatched = movieWatchedStatus[statusKey] == true,
             isWatchedPending = statusKey in uiState.movieWatchedPending,
+            isRowPinned = selectedPoster.rowKey?.let { it in pinnedRowKeys },
             onDismiss = { posterOptionsTarget = null },
             onDetails = {
                 onNavigateToDetail(item.id, item.apiType, selectedPoster.addonBaseUrl)
@@ -482,6 +487,10 @@ fun HomeScreen(
                 } else {
                     viewModel.togglePosterSeriesWatched(item)
                 }
+                posterOptionsTarget = null
+            },
+            onToggleRowPinned = {
+                selectedPoster.rowKey?.let(viewModel::toggleRowPinned)
                 posterOptionsTarget = null
             }
         )
@@ -533,7 +542,7 @@ private fun ClassicHomeRoute(
     onNavigateToCatalogSeeAll: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
     isCatalogItemWatched: (MetaPreview) -> Boolean,
-    onCatalogItemLongPress: (MetaPreview, String) -> Unit
+    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit
 ) {
     val focusState by viewModel.focusState.collectAsStateWithLifecycle()
     val scrollToTopTrigger by viewModel.scrollToTopTrigger.collectAsStateWithLifecycle()
@@ -589,7 +598,7 @@ private fun GridHomeRoute(
     onNavigateToCatalogSeeAll: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
     isCatalogItemWatched: (MetaPreview) -> Boolean,
-    onCatalogItemLongPress: (MetaPreview, String) -> Unit
+    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit
 ) {
     val gridFocusState by viewModel.gridFocusState.collectAsStateWithLifecycle()
     val scrollToTopTrigger by viewModel.scrollToTopTrigger.collectAsStateWithLifecycle()
@@ -639,7 +648,7 @@ private fun ModernHomeRoute(
     showContinueWatchingManualPlayOption: Boolean,
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
     isCatalogItemWatched: (MetaPreview) -> Boolean,
-    onCatalogItemLongPress: (MetaPreview, String) -> Unit
+    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit
 ) {
     val focusState by viewModel.focusState.collectAsStateWithLifecycle()
     val scrollToTopTrigger by viewModel.scrollToTopTrigger.collectAsStateWithLifecycle()
@@ -722,10 +731,13 @@ private fun HomePosterOptionsDialog(
     isSeries: Boolean = false,
     isWatched: Boolean,
     isWatchedPending: Boolean,
+    /** Null when the poster is not in a catalog row that can be pinned. */
+    isRowPinned: Boolean?,
     onDismiss: () -> Unit,
     onDetails: () -> Unit,
     onToggleLibrary: () -> Unit,
-    onToggleWatched: () -> Unit
+    onToggleWatched: () -> Unit,
+    onToggleRowPinned: () -> Unit
 ) {
     val primaryFocusRequester = remember { FocusRequester() }
 
@@ -788,6 +800,25 @@ private fun HomePosterOptionsDialog(
                         stringResource(R.string.hero_mark_unwatched)
                     } else {
                         stringResource(R.string.hero_mark_watched)
+                    }
+                )
+            }
+        }
+
+        if (isRowPinned != null) {
+            Button(
+                onClick = onToggleRowPinned,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(
+                    if (isRowPinned) {
+                        stringResource(R.string.home_poster_unpin_row)
+                    } else {
+                        stringResource(R.string.home_poster_pin_row)
                     }
                 )
             }

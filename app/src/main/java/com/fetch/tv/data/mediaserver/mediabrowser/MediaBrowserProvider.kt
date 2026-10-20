@@ -1,5 +1,8 @@
 package com.fetch.tv.data.mediaserver.mediabrowser
 
+import com.fetch.tv.domain.model.FilterRowFilters
+import com.fetch.tv.domain.model.FilterRowSort
+import com.fetch.tv.domain.model.WatchedFilter
 import com.fetch.tv.data.mediaserver.ServerCandidate
 import com.fetch.tv.data.mediaserver.ServerCapability
 import com.fetch.tv.data.mediaserver.ServerEpisode
@@ -149,6 +152,35 @@ internal abstract class MediaBrowserProvider(
             "enableTotalRecordCount" to "true"
         )
     )
+
+    override suspend fun filteredLibraryPage(
+        session: ServerSession,
+        library: ServerLibrary,
+        filters: FilterRowFilters,
+        start: Int,
+        limit: Int
+    ): ServerPage<ServerTitle> {
+        val result = get(
+            session,
+            itemsEndpoint(session.userId),
+            ItemsResult.serializer(),
+            itemQuery(library) + filterQuery(filters) + mapOf(
+                "startIndex" to start.toString(),
+                "limit" to limit.toString(),
+                "enableTotalRecordCount" to "true"
+            )
+        )
+        val mapper = mapper(session)
+        return ServerPage(result.items.mapNotNull(mapper::title), result.totalRecordCount)
+    }
+
+    override suspend fun genres(session: ServerSession, library: ServerLibrary): List<String> =
+        get(
+            session,
+            Endpoint("/Genres"),
+            ItemsResult.serializer(),
+            mapOf("parentId" to library.id, "userId" to session.userId, "sortBy" to "SortName")
+        ).items.mapNotNull { it.name?.takeIf(String::isNotBlank) }.distinct()
 
     private suspend fun firstGenre(session: ServerSession, library: ServerLibrary): String? =
         get(
@@ -529,6 +561,27 @@ internal abstract class MediaBrowserProvider(
         "fields" to LIST_FIELDS,
         "imageTypeLimit" to "1",
         "enableImageTypes" to "Primary,Backdrop,Logo"
+    )
+
+    private fun filterQuery(filters: FilterRowFilters): Map<String, String?> = mapOf(
+        // Genre names may hold commas; the API splits this list on "|".
+        "genres" to filters.genre,
+        "minPremiereDate" to filters.yearFrom?.let { "$it-01-01T00:00:00Z" },
+        "maxPremiereDate" to filters.yearTo?.let { "$it-12-31T23:59:59Z" },
+        "isPlayed" to when (filters.watched) {
+            WatchedFilter.ANY -> null
+            WatchedFilter.WATCHED -> "true"
+            WatchedFilter.UNWATCHED -> "false"
+        },
+        "minCommunityRating" to filters.minRating?.toString(),
+        "sortBy" to when (filters.sort) {
+            FilterRowSort.DATE_ADDED -> "DateCreated,SortName"
+            FilterRowSort.TITLE -> "SortName"
+            FilterRowSort.RELEASE_DATE -> "PremiereDate,ProductionYear,SortName"
+            FilterRowSort.RATING -> "CommunityRating,SortName"
+            FilterRowSort.RANDOM -> "Random"
+        },
+        "sortOrder" to if (filters.descending) "Descending" else "Ascending"
     )
 
     private val ServerSession.userId: String

@@ -74,6 +74,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val heroCatalogKeysKey = stringPreferencesKey("hero_catalog_keys")
     private val homeCatalogOrderKeysKey = stringPreferencesKey("home_catalog_order_keys")
     private val disabledHomeCatalogKeysKey = stringPreferencesKey("disabled_home_catalog_keys")
+    private val pinnedHomeCatalogKeysKey = stringPreferencesKey("pinned_home_catalog_keys")
     private val customCatalogTitlesKey = stringPreferencesKey("custom_catalog_titles")
     private val sidebarCollapsedKey = booleanPreferencesKey("sidebar_collapsed_by_default")
     private val modernSidebarEnabledKey = booleanPreferencesKey("modern_sidebar_enabled")
@@ -213,6 +214,16 @@ class LayoutPreferenceDataStore @Inject constructor(
         val effectivePid = if (usePrimary) 1 else pid
         factory.get(effectivePid, FEATURE).data.map { prefs ->
             parseCatalogKeys(prefs.getStringOrMigrateSet(disabledHomeCatalogKeysKey))
+        }
+    }
+
+    /** Order keys of rows pinned to the top of Home, in the order they were pinned. */
+    val pinnedHomeCatalogKeys: Flow<List<String>> = profileManager.activeProfileId.flatMapLatest { pid ->
+        val profile = profileManager.profiles.value.find { it.id == pid }
+        val usePrimary = profile != null && !profile.isPrimary && profile.usesPrimaryAddons
+        val effectivePid = if (usePrimary) 1 else pid
+        factory.get(effectivePid, FEATURE).data.map { prefs ->
+            parseCatalogKeys(prefs[pinnedHomeCatalogKeysKey])
         }
     }
 
@@ -552,6 +563,23 @@ class LayoutPreferenceDataStore @Inject constructor(
                 prefs[disabledHomeCatalogKeysKey] = gson.toJson(normalizedKeys)
             }
         }
+    }
+
+    suspend fun setPinnedHomeCatalogKeys(keys: List<String>) {
+        val normalizedKeys = normalizeCatalogOrderKeys(keys)
+        store().edit { prefs ->
+            if (normalizedKeys.isEmpty()) {
+                prefs.remove(pinnedHomeCatalogKeysKey)
+            } else {
+                prefs[pinnedHomeCatalogKeysKey] = gson.toJson(normalizedKeys)
+            }
+        }
+    }
+
+    /** Pins [key] below the rows already pinned, or unpins it. */
+    suspend fun togglePinnedHomeCatalogKey(key: String) {
+        val current = pinnedHomeCatalogKeys.first()
+        setPinnedHomeCatalogKeys(if (key in current) current - key else current + key)
     }
 
     suspend fun setSidebarCollapsedByDefault(collapsed: Boolean) {

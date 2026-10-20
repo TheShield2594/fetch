@@ -22,3 +22,19 @@ object HeroBackdropState {
         return url
     }
 }
+
+/** One-shot handoff: season the details screen should open on (set by CW "Go to details"). */
+object DetailInitialSeasonState {
+    @Volatile
+    private var season: Int? = null
+
+    fun set(value: Int?) {
+        season = value
+    }
+
+    fun consumeAndClear(): Int? {
+        val value = season
+        season = null
+        return value
+    }
+}

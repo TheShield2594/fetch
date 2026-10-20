@@ -335,15 +335,13 @@ private fun ModernCatalogRowItem(
         }
     }
 
-    val suppressCardExpansionForHeroTrailer =
-        effectiveAutoplayEnabled &&
-                trailerPlaybackTarget == FocusedPosterTrailerPlaybackTarget.HERO_MEDIA
     // Expansion is armed from a parent-level focusKey timer that can outlive real
     // card focus (e.g. user moves left into the sidebar). Never show the expanded
-    // backdrop on a card that is not actually focused (#2815).
-    val effectiveBackdropExpanded by remember(isBackdropExpanded, suppressCardExpansionForHeroTrailer) {
+    // backdrop on a card that is not actually focused (#2815). A trailer playing in the hero
+    // does not stop the card expanding: the two settings are independent.
+    val effectiveBackdropExpanded by remember(isBackdropExpanded) {
         derivedStateOf {
-            isCardFocused && isBackdropExpanded() && !suppressCardExpansionForHeroTrailer
+            isCardFocused && isBackdropExpanded()
         }
     }
 
@@ -475,7 +473,7 @@ internal fun ModernRowSection(
     onContinueWatchingClick: (ContinueWatchingItem) -> Unit,
     onContinueWatchingOptions: (ContinueWatchingItem) -> Unit,
     isCatalogItemWatched: (MetaPreview) -> Boolean,
-    onCatalogItemLongPress: (MetaPreview, String) -> Unit,
+    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit,
     onItemFocus: (MetaPreview) -> Unit,
     onPreloadAdjacentItem: (MetaPreview) -> Unit,
     enrichedPreviews: State<StableMap<String, MetaPreview>> = androidx.compose.runtime.mutableStateOf(StableMap()),
@@ -987,9 +985,9 @@ internal fun ModernRowSection(
                             val isPlaceholder = payload is ModernPayload.Catalog &&
                                 payload.itemId.startsWith("__placeholder_")
                             val onLongPress: () -> Unit = when {
-                                payload is ModernPayload.Catalog && metaPreview != null -> remember(metaPreview, payload.addonBaseUrl) {
+                                payload is ModernPayload.Catalog && metaPreview != null -> remember(metaPreview, payload.addonBaseUrl, row.key) {
                                     {
-                                        onCatalogItemLongPress(metaPreview, payload.addonBaseUrl)
+                                        onCatalogItemLongPress(metaPreview, payload.addonBaseUrl, row.orderKey())
                                         Unit
                                     }
                                 }

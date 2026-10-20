@@ -112,6 +112,8 @@ class MetaDetailsViewModel @Inject constructor(
     private val isServerItem = ServerItemRef.isServerId(itemId)
     private val itemType: String = savedStateHandle["itemType"] ?: ""
     private val preferredAddonBaseUrl: String? = savedStateHandle["addonBaseUrl"]
+    /** Season requested by the caller (e.g. CW "Go to details"); wins over next-to-watch. */
+    private val requestedInitialSeason: Int? = savedStateHandle.get<String>("initialSeason")?.toIntOrNull()
 
     private val _uiState = MutableStateFlow(MetaDetailsUiState())
     private val shuffleVisit = System.nanoTime()
@@ -961,13 +963,16 @@ class MetaDetailsViewModel @Inject constructor(
             ?: seasons.firstOrNull()
             ?: 1
         val episodesForSeason = getEpisodesForSeason(meta, selectedSeason)
+        val requestedSeason = requestedInitialSeason?.takeIf { it in seasons }
+        // Keep the requested season; don't let next-to-watch (e.g. S1E1 fallback) override it.
+        if (requestedSeason != null) suppressSeasonAutoSwitch = true
 
         _uiState.update {
             // If nextToWatch already set a season (from pre-computed remap), prefer it
             // over the default season selection.
             val effectiveNextToWatch = initialNextToWatch ?: it.nextToWatch
-            val effectiveSeason = effectiveNextToWatch?.nextSeason
-                ?.takeIf { s -> s in seasons }
+            val effectiveSeason = requestedSeason
+                ?: effectiveNextToWatch?.nextSeason?.takeIf { s -> s in seasons }
                 ?: selectedSeason
             val effectiveEpisodes = if (effectiveSeason != selectedSeason) {
                 getEpisodesForSeason(meta, effectiveSeason)

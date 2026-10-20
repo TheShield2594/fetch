@@ -227,6 +227,11 @@ internal fun DetailChildHost(
                             type = NavType.StringType
                             nullable = true
                             defaultValue = "false"
+                        },
+                        navArgument("initialSeason") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
                         }
                     )
                 ) { nestedEntry ->

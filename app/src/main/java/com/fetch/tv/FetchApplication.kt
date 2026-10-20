@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.StrictMode
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
+import com.fetch.tv.core.image.BrowserImageRequestHeadersInterceptor
 import com.fetch.tv.core.image.CustomPosterFallbackInterceptor
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
@@ -112,6 +113,7 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
                 .connectTimeout(4, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
                 .callTimeout(8, TimeUnit.SECONDS)
+                .addInterceptor(BrowserImageRequestHeadersInterceptor())
                 .addInterceptor { chain ->
                     try {
                         chain.proceed(chain.request())

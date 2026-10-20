@@ -8,12 +8,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -54,13 +52,8 @@ fun AmbientModeHost(
         }
     }
 
-    if (isShowing) {
-        val view = LocalView.current
-        DisposableEffect(view) {
-            view.keepScreenOn = true
-            onDispose { view.keepScreenOn = false }
-        }
-    }
+    // No keep-screen-on here: ambient mode runs until the system screensaver's own timeout, as
+    // other apps do, instead of holding the screen and blocking the screensaver for good.
 
     AnimatedVisibility(
         visible = isShowing,

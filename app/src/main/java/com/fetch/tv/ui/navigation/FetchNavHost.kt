@@ -58,6 +58,7 @@ import com.fetch.tv.ui.screens.profile.ProfileSelectionMode
 import com.fetch.tv.ui.screens.profile.ParentalGuardedRoute
 import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.screens.tmdb.TmdbEntityBrowseScreen
+import com.fetch.tv.ui.screens.home.DetailInitialSeasonState
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
 @Composable
@@ -239,12 +240,14 @@ private fun PlaybackNavHost(
             HomeScreen(
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
                     val heroBackdrop = HeroBackdropState.consumeAndClear()
+                    val initialSeason = DetailInitialSeasonState.consumeAndClear()
                     navController.navigate(
                         Screen.Detail.createRoute(
                             itemId = itemId,
                             itemType = itemType,
                             addonBaseUrl = addonBaseUrl,
-                            heroBackdropUrl = heroBackdrop
+                            heroBackdropUrl = heroBackdrop,
+                            initialSeason = initialSeason
                         )
                     )
                 },
@@ -321,6 +324,11 @@ private fun PlaybackNavHost(
                     type = NavType.StringType
                     nullable = true
                     defaultValue = "false"
+                },
+                navArgument("initialSeason") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
                 }
             )
         ) { backStackEntry ->
@@ -1333,7 +1341,8 @@ private fun PlaybackNavHost(
                     showBuiltInHeader = !hideBuiltInHeaders,
                     onBackPress = { navController.popBackStack() },
                     onNavigateToCatalogOrder = { navController.navigate(Screen.CatalogOrder.route) },
-                    onNavigateToCollections = { navController.navigate(Screen.Collections.route) }
+                    onNavigateToCollections = { navController.navigate(Screen.Collections.route) },
+                    onNavigateToFilterRows = { navController.navigate(Screen.FilterRows.route) }
                 )
             }
         }
@@ -1342,6 +1351,33 @@ private fun PlaybackNavHost(
             ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
                 CatalogOrderScreen(
                     onBackPress = { navController.popBackStack() }
+                )
+            }
+        }
+
+        composable(Screen.FilterRows.route) {
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                com.fetch.tv.ui.screens.filterrows.FilterRowsScreen(
+                    onNavigateToEditor = { rowId ->
+                        navController.navigate(Screen.FilterRowEditor.createRoute(rowId))
+                    },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        composable(
+            route = Screen.FilterRowEditor.route,
+            arguments = listOf(
+                navArgument("rowId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) {
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                com.fetch.tv.ui.screens.filterrows.FilterRowEditorScreen(
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

@@ -34,7 +34,7 @@ class ServerCatalogTest {
         libraries: List<ServerLibrary> = listOf(FakeServerProvider.MOVIE_LIBRARY, FakeServerProvider.SERIES_LIBRARY)
     ): Triple<ServerCatalog, ServerRepository, ServerConnection> {
         val (repository, connection) = fakeServerRepository(provider, libraries = libraries)
-        return Triple(ServerCatalog(context, repository, addonRepository), repository, connection)
+        return Triple(ServerCatalog(context, repository, addonRepository, mockk(relaxed = true)), repository, connection)
     }
 
     private suspend fun ServerCatalog.page(connection: ServerConnection, catalogId: String, skip: Int, extra: Map<String, String> = emptyMap()) =

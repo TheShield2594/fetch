@@ -39,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -135,7 +136,8 @@ fun AddonManagerScreen(
     showBuiltInHeader: Boolean = true,
     onBackPress: () -> Unit = {},
     onNavigateToCatalogOrder: () -> Unit = {},
-    onNavigateToCollections: () -> Unit = {}
+    onNavigateToCollections: () -> Unit = {},
+    onNavigateToFilterRows: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val addonHealth by viewModel.addonHealth.collectAsState()
@@ -436,6 +438,9 @@ fun AddonManagerScreen(
             if (!isEssential) {
                 item {
                     CollectionsEntryCard(onClick = onNavigateToCollections)
+                }
+                item {
+                    FilterRowsEntryCard(onClick = onNavigateToFilterRows)
                 }
             }
 
@@ -758,6 +763,33 @@ private fun CatalogOrderEntryCard(onClick: () -> Unit) {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun CollectionsEntryCard(onClick: () -> Unit) {
+    NavigationEntryCard(
+        icon = Icons.Default.FolderOpen,
+        title = stringResource(R.string.collections_card_title),
+        subtitle = stringResource(R.string.collections_card_subtitle),
+        onClick = onClick
+    )
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun FilterRowsEntryCard(onClick: () -> Unit) {
+    NavigationEntryCard(
+        icon = Icons.Default.FilterList,
+        title = stringResource(R.string.filter_rows_title),
+        subtitle = stringResource(R.string.filter_rows_card_subtitle),
+        onClick = onClick
+    )
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun NavigationEntryCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
     var isFocused by remember { mutableStateOf(false) }
 
     Surface(
@@ -788,7 +820,7 @@ private fun CollectionsEntryCard(onClick: () -> Unit) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    imageVector = Icons.Default.FolderOpen,
+                    imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
                     tint = if (isFocused) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary
@@ -796,12 +828,12 @@ private fun CollectionsEntryCard(onClick: () -> Unit) {
                 Spacer(modifier = Modifier.width(FetchTheme.spacing.lg))
                 Column {
                     Text(
-                        text = stringResource(R.string.collections_card_title),
+                        text = title,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
                         color = FetchTheme.colors.TextPrimary,
                     )
                     Text(
-                        text = stringResource(R.string.collections_card_subtitle),
+                        text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = FetchTheme.colors.TextSecondary
                     )

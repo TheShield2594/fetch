@@ -28,6 +28,7 @@ import com.fetch.tv.data.remote.dto.trakt.TraktWatchedMovieItemDto
 import com.fetch.tv.data.remote.dto.trakt.TraktWatchedShowItemDto
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.repository.MetaRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -1099,6 +1100,8 @@ class TraktProgressService @Inject constructor(
 
             val snapshot = try {
                 progressDeferred.await()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.w(TAG, "fetchAllProgressSnapshot failed, keeping existing snapshot", e)
                 null
@@ -1943,9 +1946,10 @@ class TraktProgressService @Inject constructor(
                     }
                 }.awaitAll().filterNotNull()
             }
-            val history = try { historyDeferred.await() } catch (_: Exception) { null }
-            val movies = try { moviesDeferred.await() } catch (_: Exception) { null }
-            val episodes = try { episodesDeferred.await() } catch (_: Exception) { null }
+            // A cancelled refresh must stay cancelled; only real fetch failures become null.
+            val history = try { historyDeferred.await() } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+            val movies = try { moviesDeferred.await() } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+            val episodes = try { episodesDeferred.await() } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
             Triple(history, movies, episodes)
         }
         // A partial snapshot would drop items from Continue Watching, so fail the whole fetch.

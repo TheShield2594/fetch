@@ -16,7 +16,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,11 +23,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.core.party.PartyMedia
-import com.fetch.tv.domain.model.ExperienceMode
 import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.ui.screens.CatalogSeeAllScreen
 import com.fetch.tv.ui.screens.ExperienceModeSelectionScreen
-import com.fetch.tv.ui.screens.LayoutSelectionScreen
 import com.fetch.tv.ui.screens.detail.MetaDetailsScreen
 import com.fetch.tv.ui.screens.home.HomeScreen
 import com.fetch.tv.ui.screens.addon.AddonManagerScreen
@@ -162,24 +159,9 @@ private fun PlaybackNavHost(
     ) {
         composable(Screen.ExperienceModeSelection.route) {
             ExperienceModeSelectionScreen(
-                onContinue = { mode ->
-                    val destination = if (mode == ExperienceMode.ESSENTIAL) {
-                        Screen.Home.route
-                    } else {
-                        Screen.LayoutSelection.route
-                    }
-                    navController.navigate(destination) {
-                        popUpTo(Screen.ExperienceModeSelection.route) { inclusive = true }
-                    }
-                }
-            )
-        }
-
-        composable(Screen.LayoutSelection.route) {
-            LayoutSelectionScreen(
                 onContinue = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.LayoutSelection.route) { inclusive = true }
+                        popUpTo(Screen.ExperienceModeSelection.route) { inclusive = true }
                     }
                 }
             )

@@ -87,42 +87,42 @@ object FetchComponents {
         posterCard = FetchCardComponentTokens(
             width = 126.dp,
             height = 189.dp,
-            cornerRadius = 12.dp,
+            cornerRadius = 8.dp,
             contentPadding = 8.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = 1.02f
+            focusedBorderWidth = 3.dp,
+            focusedScale = 1.04f
         ),
         backdropCard = FetchCardComponentTokens(
             width = 320.dp,
             height = 180.dp,
-            cornerRadius = 16.dp,
+            cornerRadius = 8.dp,
             contentPadding = 16.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = 1.02f
+            focusedBorderWidth = 3.dp,
+            focusedScale = 1.04f
         ),
         collectionCard = FetchCardComponentTokens(
             width = 320.dp,
             height = 180.dp,
-            cornerRadius = 16.dp,
+            cornerRadius = 8.dp,
             contentPadding = 16.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = 1.02f
+            focusedBorderWidth = 3.dp,
+            focusedScale = 1.04f
         ),
         continueWatchingCard = FetchCardComponentTokens(
             width = 260.dp,
             height = 146.dp,
-            cornerRadius = 12.dp,
+            cornerRadius = 8.dp,
             contentPadding = 12.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = 1.02f
+            focusedBorderWidth = 3.dp,
+            focusedScale = 1.04f
         ),
         episodeCard = FetchCardComponentTokens(
             width = 320.dp,
             height = 207.dp,
-            cornerRadius = 16.dp,
+            cornerRadius = 8.dp,
             contentPadding = 16.dp,
-            focusedBorderWidth = 2.dp,
-            focusedScale = 1.02f
+            focusedBorderWidth = 3.dp,
+            focusedScale = 1.04f
         ),
         row = FetchRowComponentTokens(
             horizontalPadding = 48.dp,

@@ -928,20 +928,12 @@
 
     <string name="layout_title">Elrendezés beállításai</string>
     <string name="layout_subtitle">Kezdőlap elrendezése, tartalom láthatósága és a poszterek viselkedése</string>
-    <string name="layout_classic">Klasszikus nézet</string>
-    <string name="layout_grid">Rácsnézet</string>
-    <string name="layout_modern">Modern nézet</string>
-    <string name="layout_classic_desc">Kategóriák böngészése vízszintes görgetéssel</string>
-    <string name="layout_grid_desc">Minden tartalom függőleges rácsban, kiemelt (hero) szekcióval</string>
-    <string name="layout_modern_desc">Rögzített kiemelt rész egyetlen aktív sorral a gyorsabb böngészésért</string>
     <string name="layout_section_home">Kezdőlap elrendezése</string>
     <string name="layout_section_home_desc">Válaszd ki a felépítést és a kiemelt tartalom forrását.</string>
     <string name="layout_landscape_posters">Fekvő poszterek</string>
     <string name="layout_landscape_posters_sub">Fekvő kártyák használata minden nézetben.</string>
     <string name="layout_preview_row">Előnézeti sor megjelenítése</string>
     <string name="layout_preview_row_sub">A következő sor részleges előnézete Modern elrendezésben.</string>
-    <string name="layout_hero_catalogs">Kiemelt katalógusok</string>
-    <string name="layout_hero_catalogs_sub">Válassz egy vagy több katalógust a kiemelt tartalomhoz.</string>
     <string name="layout_section_content">Kezdőlap tartalma</string>
     <string name="layout_section_content_desc">A kezdőlapon és a keresőben megjelenő tartalmak vezérlése.</string>
     <string name="layout_section_sidebar">Oldalsáv és navigáció</string>
@@ -958,10 +950,6 @@
     <string name="layout_modern_sidebar_blur_sub">Elmosási effektus (blur) az oldalsáv felületein.</string>
     <string name="layout_fullscreen_hero_backdrop">Kiemelt háttér teljes képernyőn</string>
     <string name="layout_fullscreen_hero_backdrop_sub">A kiemelt háttérkép kiterjesztése a teljes képernyőre.</string>
-    <string name="layout_classic_focus_gradient">A kijelölt elem színátmenete</string>
-    <string name="layout_classic_focus_gradient_sub">A borító színeinek elmosása a Klasszikus kezdőlap jobb oldalára.</string>
-    <string name="layout_show_hero">Kiemelt (hero) szekció megjelenítése</string>
-    <string name="layout_show_hero_sub">Kiemelt karusszel megjelenítése a kezdőlap tetején.</string>
     <string name="layout_show_discover">Felfedezés megjelenítése</string>
     <string name="layout_show_discover_sub">A Felfedezés rész megjelenítése tartalmak böngészéséhez.</string>
     <string name="layout_discover_location_action">Felfedezés helye</string>
@@ -1046,12 +1034,9 @@
     <string name="layout_expand_delay">Háttérkiterjesztés késleltetése</string>
     <string name="layout_expand_delay_sub">Várakozási idő a kijelölt kártyák kiterjesztése előtt.</string>
     <string name="layout_autoplay_trailer">Előzetes automatikus lejátszása</string>
-    <string name="layout_autoplay_trailer_expanded">Előzetes automatikus lejátszása kiterjesztett kártyán</string>
     <string name="layout_autoplay_trailer_sub">Előnézeti videó lejátszása a kijelölt tartalomhoz, ha elérhető.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Előzetes lejátszása a kiterjesztett háttérben, ha elérhető.</string>
     <string name="layout_trailer_muted">Előzetes lejátszása némítva</string>
     <string name="layout_trailer_muted_sub_preview">Előzetes hangjának némítása automatikus lejátszáskor.</string>
-    <string name="layout_trailer_muted_sub_expanded">Előzetes hangjának némítása a kiterjesztett kártyákon.</string>
     <string name="layout_section_card_style">Poszterkártya stílusa</string>
     <string name="layout_section_card_style_desc">Kártyaszélesség és sarokkerekítés finomhangolása.</string>
     <string name="settings_card_depth_title">Kártyák mélységhatása</string>
@@ -2284,9 +2269,7 @@
     <string name="catalog_see_all_empty_title">Nincsenek elérhető tételek</string>
     <string name="catalog_see_all_empty_subtitle">Próbálkozz másik katalógussal, vagy térj vissza később</string>
 
-    <string name="layout_selection_welcome">Üdvözöl a Fetch</string>
     <string name="layout_selection_subtitle">Válaszd ki a kezdőképernyő elrendezését</string>
-    <string name="layout_selection_continue">Folytatás</string>
 
     <string name="update_title">Alkalmazásfrissítés</string>
     <string name="update_available">Frissítés elérhető</string>

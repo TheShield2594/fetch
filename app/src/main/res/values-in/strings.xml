@@ -720,20 +720,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Pengaturan Tata Letak</string>
     <string name="layout_subtitle">Sesuaikan tata letak beranda, visibilitas konten, dan perilaku poster</string>
-    <string name="layout_classic">Tampilan Klasik</string>
-    <string name="layout_grid">Tampilan Grid</string>
-    <string name="layout_modern">Tampilan Modern</string>
-    <string name="layout_classic_desc">Gulir melalui kategori secara horizontal</string>
-    <string name="layout_grid_desc">Jelajahi semuanya dalam grid vertikal dengan bagian hero</string>
-    <string name="layout_modern_desc">Hero tetap dengan satu baris aktif untuk penelusuran lebih cepat</string>
     <string name="layout_section_home">Tata Letak Beranda</string>
     <string name="layout_section_home_desc">Pilih struktur dan sumber hero.</string>
     <string name="layout_landscape_posters">Poster Lanskap</string>
     <string name="layout_landscape_posters_sub">Beralih antara kartu portrait dan lanskap untuk tampilan Modern.</string>
     <string name="layout_preview_row">Tampilkan Baris Pratinjau</string>
     <string name="layout_preview_row_sub">Tampilkan pratinjau sebagian baris di bawah dalam tata letak Beranda Modern.</string>
-    <string name="layout_hero_catalogs">Katalog Hero</string>
-    <string name="layout_hero_catalogs_sub">Pilih satu atau lebih katalog untuk konten hero.</string>
     <string name="layout_section_content">Konten Beranda</string>
     <string name="layout_section_content_desc">Kontrol apa yang muncul di beranda dan pencarian.</string>
     <string name="layout_collapse_sidebar">Ciutkan Bilah Sisi</string>
@@ -744,10 +736,6 @@
     <string name="layout_modern_sidebar_blur_sub">Aktifkan efek blur untuk permukaan bilah sisi modern.</string>
     <string name="layout_fullscreen_hero_backdrop">Latar Belakang Hero Layar Penuh</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Perluas latar belakang hero untuk mengisi seluruh layar.</string>
-    <string name="layout_classic_focus_gradient">Gradien Item Terfokus</string>
-    <string name="layout_classic_focus_gradient_sub">Padukan warna gambar visual ke sisi kanan beranda Klasik.</string>
-    <string name="layout_show_hero">Tampilkan Bagian Hero</string>
-    <string name="layout_show_hero_sub">Tampilkan carousel hero di bagian atas beranda.</string>
     <string name="layout_show_discover">Tampilkan/Sembunyikan Penemuan`</string>
     <string name="layout_show_discover_sub">Menambahkan bagian Penemuan untuk penelusuran.</string>
     <string name="layout_discover_location_action">Lokasi Penemuan</string>
@@ -797,12 +785,9 @@
     <string name="layout_expand_delay">Jeda Perluasan Backdrop</string>
     <string name="layout_expand_delay_sub">Berapa lama menunggu sebelum memperluas kartu terfokus.</string>
     <string name="layout_autoplay_trailer">Putar Otomatis Trailer</string>
-    <string name="layout_autoplay_trailer_expanded">Putar Otomatis Trailer di Kartu Diperluas</string>
     <string name="layout_autoplay_trailer_sub">Putar pratinjau trailer untuk konten terfokus saat tersedia.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Putar trailer di dalam backdrop yang diperluas saat tersedia.</string>
     <string name="layout_trailer_muted">Putar Trailer Dibisukan</string>
     <string name="layout_trailer_muted_sub_preview">Bisukan audio trailer saat pratinjau putar otomatis.</string>
-    <string name="layout_trailer_muted_sub_expanded">Bisukan audio trailer di kartu yang diperluas.</string>
     <string name="layout_section_card_style">Kartu Poster</string>
     <string name="layout_section_card_style_desc">Sesuaikan lebar kartu dan radius sudut.</string>
     <string name="layout_open">Buka</string>
@@ -1712,9 +1697,7 @@
     <string name="catalog_see_all_empty_subtitle">Coba katalog lain atau periksa kembali nanti</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Selamat datang di Fetch</string>
     <string name="layout_selection_subtitle">Pilih tata letak layar beranda Anda</string>
-    <string name="layout_selection_continue">Lanjutkan</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Pembaruan Aplikasi</string>

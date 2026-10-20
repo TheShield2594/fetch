@@ -38,6 +38,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 5 | Progressive, visible addon results | ✅ | Parallel, progressive stream loading (`data/repository/StreamRepositoryImpl.kt`), per-addon 25 s timeout, health line on each addon card (`core/streams/AddonHealthTracker.kt`). Next: make the timeout configurable and persist health across restarts. |
 | 6 | Customizable home screen | 🟡 | Reorder and hide rows (`ui/screens/addon/CatalogOrderScreen.kt`), custom rows from TMDB/Trakt/addon filters (`ui/screens/collection/`). Next: pin rows, and filter rows over the user's own Jellyfin library ("unwatched sci-fi"). |
 | 7 | Simple vs advanced settings | ✅ | `ExperienceMode` ESSENTIAL / ADVANCED (`docs/essential-mode.md`). |
+| 8 | Fetch's own look and one Home layout | 🟡 | ✅ One Home layout (Modern; Classic and Grid removed, landscape cards by default), Fetch theme and type (`ui/theme/`, Schibsted Grotesk + Bricolage Grotesque, OFL texts in `docs/third-party/fonts/`), a thicker focus ring and tighter card corners, no blur behind the source list, Play button that names the Best match pick (`core/streams/BestMatchPreviewer.kt`), a live "Fetching" panel with Play now / See all sources on the auto-play loader (`ui/screens/stream/FetchingPanel.kt`), parsed chips on source cards, and a first run that pairs the phone code with the Essential / Advanced choice. Next: show the Best match pick on the Home hero for Continue Watching items without querying addons on every focus move. |
 
 ## Follow-ups from the fork
 

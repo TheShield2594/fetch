@@ -9,7 +9,6 @@ import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.HomeImdbRatingsVisibility
 import com.fetch.tv.domain.model.DetailImdbRatingsVisibility
-import com.fetch.tv.domain.model.HomeLayout
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.MetaPreview
@@ -25,8 +24,7 @@ data class HomeUiState(
     val error: String? = null,
     val selectedItemId: String? = null,
     val installedAddonsCount: Int = 0,
-    val homeLayout: HomeLayout = HomeLayout.MODERN,
-    val modernLandscapePostersEnabled: Boolean = false,
+    val modernLandscapePostersEnabled: Boolean = true,
     val alwaysShowLandscapeClearlogo: Boolean = false,
     val modernHeroFullScreenBackdropEnabled: Boolean = false,
     val homeImdbRatingsVisibility: HomeImdbRatingsVisibility = HomeImdbRatingsVisibility.SHOW_ALL,
@@ -38,7 +36,6 @@ data class HomeUiState(
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,
-    val classicFocusGradientEnabled: Boolean = false,
     val focusedPosterBackdropExpandEnabled: Boolean = false,
     val focusedPosterBackdropExpandDelaySeconds: Int = 3,
     val focusedPosterBackdropTrailerEnabled: Boolean = false,
@@ -47,7 +44,7 @@ data class HomeUiState(
         FocusedPosterTrailerPlaybackTarget.HERO_MEDIA,
     val posterCardWidthDp: Int = 126,
     val posterCardHeightDp: Int = 189,
-    val posterCardCornerRadiusDp: Int = 12,
+    val posterCardCornerRadiusDp: Int = 8,
     val librarySourceMode: LibrarySourceMode = LibrarySourceMode.LOCAL,
     val libraryListTabs: List<LibraryListTab> = emptyList(),
     val posterLibraryMembership: Map<String, Boolean> = emptyMap(),
@@ -61,7 +58,6 @@ data class HomeUiState(
     val posterListPickerPending: Boolean = false,
     val posterListPickerError: String? = null,
     val posterListPickerRemovalConfirmations: List<TrackingMembershipRemovalConfirmation> = emptyList(),
-    val gridItems: List<GridItem> = emptyList(),
     val hideUnreleasedContent: Boolean = false,
     val showFullReleaseDate: Boolean = true,
     val blurUnwatchedEpisodes: Boolean = false,
@@ -167,50 +163,6 @@ sealed class HomeRow {
         val apiType: String,
         val displayTitle: String
     ) : HomeRow()
-}
-
-@Immutable
-sealed class GridItem {
-    @Immutable
-    data class Hero(val items: List<MetaPreview>) : GridItem()
-    @Immutable
-    data class SectionDivider(
-        val catalogName: String,
-        val catalogId: String,
-        val addonBaseUrl: String,
-        val addonId: String,
-        val type: String
-    ) : GridItem()
-    @Immutable
-    data class Content(
-        val item: MetaPreview,
-        val addonBaseUrl: String,
-        val catalogId: String,
-        val catalogName: String,
-        /** Row this card belongs to, so the grid can report which row holds focus. */
-        val addonId: String = "",
-        /** Type of that row's catalog, which an item's own type may differ from. */
-        val rowApiType: String = ""
-    ) : GridItem()
-    @Immutable
-    data class SeeAll(
-        val catalogId: String,
-        val addonId: String,
-        val addonBaseUrl: String,
-        val type: String
-    ) : GridItem()
-    @Immutable
-    data class CollectionHeader(
-        val collectionId: String,
-        val title: String
-    ) : GridItem()
-    @Immutable
-    data class CollectionFolder(
-        val collectionId: String,
-        val collectionTitle: String,
-        val focusGlowEnabled: Boolean,
-        val folder: com.fetch.tv.domain.model.CollectionFolder
-    ) : GridItem()
 }
 
 sealed class HomeEvent {

@@ -714,20 +714,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Layout-Einstellungen</string>
     <string name="layout_subtitle">Anpassen des Startseiten-Layouts, der Sichtbarkeit von Inhalten und des Verhaltens von Postern</string>
-    <string name="layout_classic">Klassische Ansicht</string>
-    <string name="layout_grid">Rasteransicht</string>
-    <string name="layout_modern">Moderne Ansicht</string>
-    <string name="layout_classic_desc">Horizontal durch Kategorien scrollen</string>
-    <string name="layout_grid_desc">Durchsuchen Sie alles in einem vertikalen Raster mit einem Hero-Bereich</string>
-    <string name="layout_modern_desc">Feste Hero-Sektion mit einer einzigen aktiven Zeile für schnelleres Durchsuchen</string>
     <string name="layout_section_home">Startseite-Layout</string>
     <string name="layout_section_home_desc">Wählen Sie Struktur und Hero-Quelle aus.</string>
     <string name="layout_landscape_posters">Poster im Querformat</string>
     <string name="layout_landscape_posters_sub">Wechseln Sie zwischen Hoch-/Querformat-Postern für die moderne Ansicht.</string>
     <string name="layout_preview_row">Vorschau-Zeile anzeigen</string>
     <string name="layout_preview_row_sub">Teilweise Vorschau der Zeile unten im modernen Startseitenlayout anzeigen.</string>
-    <string name="layout_hero_catalogs">Hero-Kataloge</string>
-    <string name="layout_hero_catalogs_sub">Wählen Sie einen oder mehrere Kataloge für Hero-Inhalte aus.</string>
     <string name="layout_section_content">Startseite-Inhalt</string>
     <string name="layout_section_content_desc">Steuern Sie, was auf der Startseite und in der Suche angezeigt wird.</string>
     <string name="layout_collapse_sidebar">Seitenleiste ausblenden</string>
@@ -738,10 +730,6 @@
     <string name="layout_modern_sidebar_blur_sub">Wechseln Sie den Unschärfeeffekt für moderne Seitenleistenoberflächen.</string>
     <string name="layout_fullscreen_hero_backdrop">Vollbild-Hintergrund (Hero)</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Erweitert den Hero-Hintergrund, sodass er den gesamten Bildschirm ausfüllt.</string>
-    <string name="layout_classic_focus_gradient">Farbverlauf für fokussierten Eintrag</string>
-    <string name="layout_classic_focus_gradient_sub">Blend artwork colors into the right side of Classic home.</string>
-    <string name="layout_show_hero">Hero-Bereich anzeigen</string>
-    <string name="layout_show_hero_sub">Hero-Karussell oben auf der Startseite anzeigen.</string>
     <string name="layout_show_discover">Entdecken in der Suche anzeigen</string>
     <string name="layout_show_discover_sub">Entdecken-Bereich anzeigen, wenn die Suche leer ist.</string>
     <string name="layout_discover_location_action">Discover Location</string>
@@ -791,12 +779,9 @@
     <string name="layout_expand_delay">Verzögerung beim Erweitern zum Hintergrund</string>
     <string name="layout_expand_delay_sub">Verzögerung vor dem Erweitern fokussierter Poster.</string>
     <string name="layout_autoplay_trailer">Trailer automatisch abspielen</string>
-    <string name="layout_autoplay_trailer_expanded">Trailer in erweiterter Karte automatisch abspielen</string>
     <string name="layout_autoplay_trailer_sub">Trailer-Vorschau für fokussierte Inhalte abspielen, sofern verfügbar.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Trailer in erweitertem Hintergrund abspielen, sofern verfügbar.</string>
     <string name="layout_trailer_muted">Trailer stumm abspielen</string>
     <string name="layout_trailer_muted_sub_preview">Trailer-Audio während der automatischen Wiedergabe der Vorschau stumm schalten.</string>
-    <string name="layout_trailer_muted_sub_expanded">Trailer-Audio in erweiterten Karten stummschalten.</string>
     <string name="layout_section_card_style">Posterkarte</string>
     <string name="layout_section_card_style_desc">Kartenbreite und Eckenradius anpassen.</string>
     <string name="layout_open">Öffnen</string>
@@ -1540,9 +1525,7 @@
     <string name="catalog_see_all_empty_subtitle">Versuchen Sie es mit einem anderen Katalog oder schauen Sie später noch einmal vorbei</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Willkommen bei Fetch</string>
     <string name="layout_selection_subtitle">Wählen Sie Ihr Startbildschirm-Layout aus</string>
-    <string name="layout_selection_continue">Weiter</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">App-Aktualisierung</string>

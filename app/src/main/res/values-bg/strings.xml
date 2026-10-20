@@ -740,20 +740,12 @@
 
     <string name="layout_title">Настройки на оформлението</string>
     <string name="layout_subtitle">Настрой начално оформление, видимост на съдържанието и поведение на постерите</string>
-    <string name="layout_classic">Класически изглед</string>
-    <string name="layout_grid">Решетъчен изглед</string>
-    <string name="layout_modern">Модерен изглед</string>
-    <string name="layout_classic_desc">Превъртай категории хоризонтално</string>
-    <string name="layout_grid_desc">Преглеждай всичко във вертикална решетка с hero секция</string>
-    <string name="layout_modern_desc">Фиксиран hero с един активен ред за по-бързо преглеждане</string>
     <string name="layout_section_home">Оформление на началния екран</string>
     <string name="layout_section_home_desc">Избери структура и hero източник.</string>
     <string name="layout_landscape_posters">Пейзажни постери</string>
     <string name="layout_landscape_posters_sub">Превключи между портретни и пейзажни карти за Modern изглед.</string>
     <string name="layout_preview_row">Показвай ред за преглед</string>
     <string name="layout_preview_row_sub">Показвай частичен преглед на реда отдолу в Modern Home оформление.</string>
-    <string name="layout_hero_catalogs">Hero каталози</string>
-    <string name="layout_hero_catalogs_sub">Избери един или повече каталози за hero съдържание.</string>
     <string name="layout_section_content">Съдържание на началния екран</string>
     <string name="layout_section_content_desc">Контролирай какво се появява на началния екран и в търсенето.</string>
     <string name="layout_collapse_sidebar">Свий страничната лента</string>
@@ -764,10 +756,6 @@
     <string name="layout_modern_sidebar_blur_sub">Включи/изключи ефекта на размазване за модерните странични повърхности.</string>
     <string name="layout_fullscreen_hero_backdrop">Пълен екран hero backdrop</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Разшири hero backdrop-а да запълни целия екран.</string>
-    <string name="layout_classic_focus_gradient">Градиент на фокусиран елемент</string>
-    <string name="layout_classic_focus_gradient_sub">Смеси цветовете на изображението в дясната страна на Classic home.</string>
-    <string name="layout_show_hero">Показвай Hero секция</string>
-    <string name="layout_show_hero_sub">Показвай hero карусел в горната част на началния екран.</string>
     <string name="layout_show_discover">Показвай/Скривай Discover</string>
     <string name="layout_show_discover_sub">Добавя Discover секция за преглеждане.</string>
     <string name="layout_discover_location_action">Място на Discover</string>
@@ -819,12 +807,9 @@
     <string name="layout_expand_delay">Забавяне на разширяването на backdrop</string>
     <string name="layout_expand_delay_sub">Колко време да се изчака преди разширяване на фокусираните карти.</string>
     <string name="layout_autoplay_trailer">Автоматично пускане на трейлър</string>
-    <string name="layout_autoplay_trailer_expanded">Автоматично пускане на трейлър в разширената карта</string>
     <string name="layout_autoplay_trailer_sub">Пусни преглед на трейлър за фокусираното съдържание, когато е наличен.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Пусни трейлър вътре в разширения backdrop, когато е наличен.</string>
     <string name="layout_trailer_muted">Пусни трейлъра без звук</string>
     <string name="layout_trailer_muted_sub_preview">Заглуши аудиото на трейлъра по време на автоматичен преглед.</string>
-    <string name="layout_trailer_muted_sub_expanded">Заглуши аудиото на трейлъра в разширените карти.</string>
     <string name="layout_section_card_style">Постер карта</string>
     <string name="layout_section_card_style_desc">Настрой ширина и радиус на ъглите на картите.</string>
     <string name="layout_open">Отворено</string>
@@ -1788,9 +1773,7 @@
     <string name="catalog_see_all_empty_title">Няма налични елементи</string>
     <string name="catalog_see_all_empty_subtitle">Опитай друг каталог или провери по-късно</string>
 
-    <string name="layout_selection_welcome">Добре дошъл в Fetch</string>
     <string name="layout_selection_subtitle">Избери оформление на началния екран</string>
-    <string name="layout_selection_continue">Продължи</string>
 
     <string name="update_title">Актуализация на приложението</string>
     <string name="update_downloading">Изтегляне на актуализация</string>

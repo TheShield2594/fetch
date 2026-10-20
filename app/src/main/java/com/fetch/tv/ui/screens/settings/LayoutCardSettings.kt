@@ -64,7 +64,6 @@ import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_EDGE_COVERAGE
 import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_EDGE_STRENGTH
 import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_SHEEN_STRENGTH
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
-import com.fetch.tv.domain.model.HomeLayout
 import com.fetch.tv.ui.components.CardCwStylePreview
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.PosterCwStylePreview
@@ -162,19 +161,15 @@ internal fun LayoutContinueWatchingSection(
     }
 }
 
-internal fun LayoutSettingsUiState.focusedPosterHasOptions(): Boolean {
-    val modernLandscape = selectedLayout == HomeLayout.MODERN && modernLandscapePostersEnabled
-    return selectedLayout != HomeLayout.GRID && (!modernLandscape || AppFeaturePolicy.inAppTrailerPlaybackEnabled)
-}
+internal fun LayoutSettingsUiState.focusedPosterHasOptions(): Boolean =
+    !modernLandscapePostersEnabled || AppFeaturePolicy.inAppTrailerPlaybackEnabled
 
 @Composable
 internal fun LayoutFocusedPosterSection(
     uiState: LayoutSettingsUiState,
     onEvent: (LayoutSettingsEvent) -> Unit
 ) {
-    val isModern = uiState.selectedLayout == HomeLayout.MODERN
-    val isLandscapeActive = uiState.modernLandscapePostersEnabled
-    val isModernLandscape = isModern && isLandscapeActive
+    val isModernLandscape = uiState.modernLandscapePostersEnabled
     val showAutoplayRow = AppFeaturePolicy.inAppTrailerPlaybackEnabled &&
         (uiState.focusedPosterBackdropExpandEnabled || isModernLandscape)
 
@@ -205,12 +200,8 @@ internal fun LayoutFocusedPosterSection(
 
     if (showAutoplayRow) {
         SettingsToggleRow(
-            title = stringResource(
-                if (isModern) R.string.layout_autoplay_trailer else R.string.layout_autoplay_trailer_expanded
-            ),
-            subtitle = stringResource(
-                if (isModern) R.string.layout_autoplay_trailer_sub else R.string.layout_autoplay_trailer_expanded_sub
-            ),
+            title = stringResource(R.string.layout_autoplay_trailer),
+            subtitle = stringResource(R.string.layout_autoplay_trailer_sub),
             checked = uiState.focusedPosterBackdropTrailerEnabled,
             onToggle = {
                 onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerEnabled(!uiState.focusedPosterBackdropTrailerEnabled))
@@ -219,22 +210,18 @@ internal fun LayoutFocusedPosterSection(
         if (uiState.focusedPosterBackdropTrailerEnabled) {
             SettingsToggleRow(
                 title = stringResource(R.string.layout_trailer_muted),
-                subtitle = stringResource(
-                    if (isModern) R.string.layout_trailer_muted_sub_preview else R.string.layout_trailer_muted_sub_expanded
-                ),
+                subtitle = stringResource(R.string.layout_trailer_muted_sub_preview),
                 checked = uiState.focusedPosterBackdropTrailerMuted,
                 onToggle = {
                     onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerMuted(!uiState.focusedPosterBackdropTrailerMuted))
                 }
             )
-            if (isModern) {
-                ModernTrailerPlaybackTargetRow(
-                    selectedTarget = uiState.focusedPosterBackdropTrailerPlaybackTarget,
-                    onTargetSelected = { target ->
-                        onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerPlaybackTarget(target))
-                    }
-                )
-            }
+            ModernTrailerPlaybackTargetRow(
+                selectedTarget = uiState.focusedPosterBackdropTrailerPlaybackTarget,
+                onTargetSelected = { target ->
+                    onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerPlaybackTarget(target))
+                }
+            )
         }
     }
 }

@@ -29,7 +29,6 @@ import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
 import com.fetch.tv.domain.model.LibraryEntryInput
 import com.fetch.tv.domain.model.ListMembershipChanges
-import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.data.repository.MDBListRepository
 import com.fetch.tv.domain.model.MDBListSettings
@@ -49,7 +48,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -153,9 +151,6 @@ class HomeViewModel @Inject constructor(
     private val _focusState = MutableStateFlow(HomeScreenFocusState())
     val focusState: StateFlow<HomeScreenFocusState> = _focusState.asStateFlow()
 
-    private val _gridFocusState = MutableStateFlow(HomeScreenFocusState())
-    val gridFocusState: StateFlow<HomeScreenFocusState> = _gridFocusState.asStateFlow()
-
     private val _scrollToTopTrigger = MutableStateFlow(0)
     val scrollToTopTrigger: StateFlow<Int> = _scrollToTopTrigger.asStateFlow()
 
@@ -170,7 +165,6 @@ class HomeViewModel @Inject constructor(
 
     fun requestScrollToTop() {
         clearFocusState()
-        _gridFocusState.value = HomeScreenFocusState()
         _scrollToTopTrigger.value++
     }
 
@@ -421,8 +415,7 @@ class HomeViewModel @Inject constructor(
                         it.copy(layoutPreferencesReady = false, continueWatchingItems = emptyList())
                     }
                     clearFocusState()
-                    _gridFocusState.value = HomeScreenFocusState()
-                    // Reset so the new profile's pipeline signals first completion correctly.
+                                // Reset so the new profile's pipeline signals first completion correctly.
                     _initialCwResolved.value = false
                     loadContinueWatching()
                     // Clear watched badges so they don't leak between profiles.
@@ -933,27 +926,6 @@ class HomeViewModel @Inject constructor(
         loadCatalogPipeline(addon, catalog, generation)
     }
 
-    /**
-     * Load all pending lazy catalogs at once. Used when switching to GRID layout
-     * which needs all catalogs available upfront.
-     */
-    internal fun loadAllPendingLazyCatalogs() {
-        val pending = synchronized(catalogStateLock) {
-            val copy = pendingLazyCatalogs.toMap()
-            pendingLazyCatalogs.clear()
-            copy
-        }
-        if (pending.isEmpty()) return
-        val generation = catalogLoadGeneration
-        pending.forEach { (key, pair) ->
-            if (lazyLoadRequestedKeys.add(key)) {
-                val (addon, catalog) = pair
-                pendingCatalogLoads = (pendingCatalogLoads + 1)
-                loadCatalogPipeline(addon, catalog, generation)
-            }
-        }
-    }
-
     private suspend fun updateCatalogRows() = updateCatalogRowsPipeline()
 
     internal var posterStatusReconcileJob: Job? = null
@@ -972,11 +944,6 @@ class HomeViewModel @Inject constructor(
         items: List<MetaPreview>,
         settings: TmdbSettings
     ): List<MetaPreview> = enrichHeroItemsPipeline(items, settings)
-
-    private fun replaceGridHeroItems(
-        gridItems: List<GridItem>,
-        heroItems: List<MetaPreview>
-    ): List<GridItem> = replaceGridHeroItemsPipeline(gridItems, heroItems)
 
     private fun heroEnrichmentSignature(items: List<MetaPreview>, settings: TmdbSettings): String =
         heroEnrichmentSignaturePipeline(items, settings)
@@ -1044,26 +1011,6 @@ class HomeViewModel @Inject constructor(
      */
     fun clearFocusState() {
         _focusState.value = HomeScreenFocusState()
-    }
-
-    /**
-     * Saves the grid layout focus and scroll state.
-     */
-    fun saveGridFocusState(
-        verticalScrollIndex: Int,
-        verticalScrollOffset: Int,
-        focusedRowIndex: Int = 0,
-        focusedItemIndex: Int = 0,
-        focusedItemKey: String? = null
-    ) {
-        _gridFocusState.value = HomeScreenFocusState(
-            verticalScrollIndex = verticalScrollIndex,
-            verticalScrollOffset = verticalScrollOffset,
-            focusedRowIndex = focusedRowIndex,
-            focusedItemIndex = focusedItemIndex,
-            focusedItemKey = focusedItemKey,
-            hasSavedFocus = true
-        )
     }
 
     override fun onCleared() {

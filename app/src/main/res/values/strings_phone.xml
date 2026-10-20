@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="first_run_phone_title">Set up with your phone. No remote typing.</string>
+    <string name="first_run_phone_qr_description">Phone setup code</string>
+    <string name="first_run_phone_step_scan">Scan with your phone camera</string>
+    <string name="first_run_phone_step_addons">Paste addons and your debrid key</string>
+    <string name="first_run_phone_step_accounts">Sign in to Trakt, Simkl or Jellyfin</string>
+    <string name="first_run_phone_network">Your phone must be on the same Wi-Fi as this TV. You can also do this later in Settings.</string>
+    <string name="first_run_recommended">Recommended</string>
     <string name="phone_hub_title">Configure from phone</string>
     <string name="phone_hub_description">Scan one code to use your phone as a remote and keyboard, sign in to accounts, and edit long settings.</string>
     <string name="phone_hub_open">Show phone code</string>

@@ -376,20 +376,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Layoutinställningar</string>
     <string name="layout_subtitle">Justera hemlayout, innehållssynlighet och affischbeteende</string>
-    <string name="layout_classic">Klassisk vy</string>
-    <string name="layout_grid">Rutnätsvy</string>
-    <string name="layout_modern">Modern vy</string>
-    <string name="layout_classic_desc">Bläddra genom kategorier horisontellt</string>
-    <string name="layout_grid_desc">Bläddra i allt i ett vertikalt rutnät med en hjältesektion</string>
-    <string name="layout_modern_desc">Fast hjälte med en enda aktiv rad för snabbare bläddring</string>
     <string name="layout_section_home">Hemlayout</string>
     <string name="layout_section_home_desc">Välj struktur och hjältekälla.</string>
     <string name="layout_landscape_posters">Liggande affischer</string>
     <string name="layout_landscape_posters_sub">Växla mellan stående och liggande kort för Modern vy.</string>
     <string name="layout_preview_row">Visa förhandsvisningsrad</string>
     <string name="layout_preview_row_sub">Visa en delvis förhandsvisning av raden nedanför i Modern hemlayout.</string>
-    <string name="layout_hero_catalogs">Karusellkataloger</string>
-    <string name="layout_hero_catalogs_sub">Välj en eller flera kataloger för karusellinnehåll.</string>
     <string name="layout_section_content">Heminnehåll</string>
     <string name="layout_section_content_desc">Styr vad som visas på hem och sök.</string>
     <string name="layout_collapse_sidebar">Fäll ihop sidofält</string>
@@ -398,8 +390,6 @@
     <string name="layout_modern_sidebar_sub">Aktivera flytande sidofältsnavigering.</string>
     <string name="layout_modern_sidebar_blur">Suddigt modernt sidofält</string>
     <string name="layout_modern_sidebar_blur_sub">Växla suddighetseffekt för moderna sidofältsytor.</string>
-    <string name="layout_show_hero">Visa karusellsektion</string>
-    <string name="layout_show_hero_sub">Visa karusell högst upp på hemskärmen.</string>
     <string name="layout_show_discover">Visa Utforska i Sök</string>
     <string name="layout_show_discover_sub">Visa bläddringssektion när sökningen är tom.</string>
     <string name="layout_poster_labels">Visa affischetiketter</string>
@@ -425,12 +415,9 @@
     <string name="layout_expand_delay">Fördröjning för bakgrundsexpansion</string>
     <string name="layout_expand_delay_sub">Hur länge att vänta innan fokuserade kort expanderas.</string>
     <string name="layout_autoplay_trailer">Spela trailer automatiskt</string>
-    <string name="layout_autoplay_trailer_expanded">Spela trailer automatiskt i expanderat kort</string>
     <string name="layout_autoplay_trailer_sub">Spela trailerförhandsvisning för fokuserat innehåll när tillgängligt.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Spela trailer i expanderad bakgrund när tillgängligt.</string>
     <string name="layout_trailer_muted">Spela trailer tyst</string>
     <string name="layout_trailer_muted_sub_preview">Tysta trailerljud under automatisk förhandsvisning.</string>
-    <string name="layout_trailer_muted_sub_expanded">Tysta trailerljud i expanderade kort.</string>
     <string name="layout_section_card_style">Affischkort</string>
     <string name="layout_section_card_style_desc">Justera kortbredd och hörnradie.</string>
     <string name="layout_open">Öppen</string>
@@ -974,9 +961,7 @@
     <string name="catalog_see_all_empty_subtitle">Prova en annan katalog eller kom tillbaka senare</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Välkommen till Fetch</string>
     <string name="layout_selection_subtitle">Välj din hemskärmslayout</string>
-    <string name="layout_selection_continue">Fortsätt</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Appuppdatering</string>

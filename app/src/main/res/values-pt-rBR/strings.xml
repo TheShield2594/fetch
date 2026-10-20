@@ -877,20 +877,12 @@
 
     <string name="layout_title">Configurações de Layout</string>
     <string name="layout_subtitle">Ajuste o visual da home, visibilidade e pôsteres.</string>
-    <string name="layout_classic">Visual Clássico</string>
-    <string name="layout_grid">Visual em Grade</string>
-    <string name="layout_modern">Visual Moderno</string>
-    <string name="layout_classic_desc">Navegue horizontalmente por categorias.</string>
-    <string name="layout_grid_desc">Navegue na vertical com destaque no topo.</string>
-    <string name="layout_modern_desc">Use o destaque fixo e catálogo único para busca rápida.</string>
     <string name="layout_section_home">Layout da Home</string>
     <string name="layout_section_home_desc">Escolha a estrutura e a fonte do destaque.</string>
     <string name="layout_landscape_posters">Pôsteres Horizontais</string>
     <string name="layout_landscape_posters_sub">Alterne os pôsteres para o formato horizontal.</string>
     <string name="layout_preview_row">Mostrar prévia do catálogo</string>
     <string name="layout_preview_row_sub">Exiba parte do catálogo inferior no layout Moderno.</string>
-    <string name="layout_hero_catalogs">Catálogos do Destaque</string>
-    <string name="layout_hero_catalogs_sub">Selecione quais catálogos aparecem no destaque.</string>
     <string name="layout_section_content">Conteúdo da Home</string>
     <string name="layout_section_content_desc">Controle o que aparece na home e na busca.</string>
     <string name="layout_collapse_sidebar">Recolher barra lateral</string>
@@ -903,10 +895,6 @@
     <string name="layout_modern_sidebar_blur_sub">Ative o efeito de desfoque (blur) no menu.</string>
     <string name="layout_fullscreen_hero_backdrop">Fundo em tela cheia</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expanda o fundo do modo Moderno por toda a tela.</string>
-    <string name="layout_classic_focus_gradient">Gradiente no item focado</string>
-    <string name="layout_classic_focus_gradient_sub">Mescla cores da arte na lateral do Visual Clássico</string>
-    <string name="layout_show_hero">Mostrar Destaque</string>
-    <string name="layout_show_hero_sub">Exiba o banner de destaque no topo da home.</string>
     <string name="layout_show_discover">Mostrar/Ocultar Descobrir</string>
     <string name="layout_show_discover_sub">Adiciona seção Descobrir para navegação</string>
     <string name="layout_discover_location_action">Local do Descobrir</string>
@@ -982,12 +970,9 @@
     <string name="layout_expand_delay">Atraso para expansão</string>
     <string name="layout_expand_delay_sub">Ajuste o tempo de espera para expandir o pôster.</string>
     <string name="layout_autoplay_trailer">Autorreprodução de trailer</string>
-    <string name="layout_autoplay_trailer_expanded">Trailer no cartão expandido</string>
     <string name="layout_autoplay_trailer_sub">Reproduza o trailer ao focar no título.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Toque o trailer dentro do fundo expandido.</string>
     <string name="layout_trailer_muted">Trailer mudo</string>
     <string name="layout_trailer_muted_sub_preview">Silencie o áudio na prévia automática.</string>
-    <string name="layout_trailer_muted_sub_expanded">Silencie o áudio nos cartões expandidos.</string>
     <string name="layout_section_card_style">Cartão de Pôster</string>
     <string name="layout_section_card_style_desc">Ajuste a largura e o arredondamento dos itens.</string>
     <string name="settings_card_depth_title">Efeito de Profundidade nos Cartões</string>
@@ -2138,9 +2123,7 @@
     <string name="catalog_see_all_empty_title">Nada por aqui</string>
     <string name="catalog_see_all_empty_subtitle">Tente outro catálogo ou volte mais tarde</string>
 
-    <string name="layout_selection_welcome">Bem-vindo ao Fetch</string>
     <string name="layout_selection_subtitle">Escolha o layout da sua tela inicial</string>
-    <string name="layout_selection_continue">Continuar</string>
 
     <string name="update_title">Atualização do App</string>
     <string name="update_available">Atualização disponível</string>

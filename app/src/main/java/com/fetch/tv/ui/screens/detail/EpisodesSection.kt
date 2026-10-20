@@ -377,7 +377,7 @@ fun EpisodesRow(
     episodeWatchedPendingKeys: Set<String> = emptySet(),
     blurUnwatchedEpisodes: Boolean = false,
     episodeOptionsOverlayStyle: EpisodeOptionsOverlayStyle = EpisodeOptionsOverlayStyle.ARTWORK,
-    posterCardCornerRadiusDp: Int = 12,
+    posterCardCornerRadiusDp: Int = 8,
     onEpisodeClick: (Video) -> Unit,
     canPlayEpisode: (Video) -> Boolean = { true },
     onEpisodeManualPlayClick: (Video) -> Unit = onEpisodeClick,
@@ -1200,7 +1200,7 @@ private data class EpisodeCardMetrics(
 )
 
 @Composable
-private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = 12): EpisodeCardMetrics {
+private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = 8): EpisodeCardMetrics {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
     val userCornerRadius = posterCardCornerRadiusDp.dp
     return remember(screenWidthDp, userCornerRadius) {

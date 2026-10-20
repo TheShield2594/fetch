@@ -16,6 +16,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,16 +37,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -93,6 +91,7 @@ fun HeroContentSection(
     meta: Meta,
     nextEpisode: Video?,
     nextToWatch: NextToWatch?,
+    bestMatch: com.fetch.tv.core.streams.BestMatchPreview? = null,
     onPlayClick: () -> Unit,
     isPlayEnabled: Boolean = true,
     onPlayLongPress: (() -> Unit)? = null,
@@ -252,6 +251,7 @@ fun HeroContentSection(
                     ) {
                         PlayButton(
                             text = if (isPlayEnabled) nextToWatch?.displayText else stringResource(R.string.playback_unavailable),
+                            bestMatch = bestMatch,
                             enabled = isPlayEnabled,
                             onClick = onPlayClick,
                             onLongPress = onPlayLongPress,
@@ -368,6 +368,7 @@ fun HeroContentSection(
 @Composable
 internal fun PlayButton(
     text: String?,
+    bestMatch: com.fetch.tv.core.streams.BestMatchPreview? = null,
     enabled: Boolean = true,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -435,19 +436,21 @@ internal fun PlayButton(
                 false
             }
             .focusProperties { up = FocusRequester.Cancel },
+        // The primary action is always the accent; focus adds a light ring so it still reads
+        // when the ring colour and the button colour are the same.
         colors = ButtonDefaults.colors(
-            containerColor = androidx.compose.ui.graphics.Color.White,
-            focusedContainerColor = androidx.compose.ui.graphics.Color.White,
-            contentColor = androidx.compose.ui.graphics.Color.Black,
-            focusedContentColor = androidx.compose.ui.graphics.Color.Black
+            containerColor = FetchTheme.colors.Secondary,
+            focusedContainerColor = FetchTheme.colors.Secondary,
+            contentColor = FetchTheme.colors.OnSecondary,
+            focusedContentColor = FetchTheme.colors.OnSecondary
         ),
         shape = ButtonDefaults.shape(
-            shape = RoundedCornerShape(FetchTheme.spacing.xxl)
+            shape = RoundedCornerShape(FetchTheme.radii.sm)
         ),
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(FetchTheme.spacing.xxl)
+                border = BorderStroke(FetchTheme.strokes.focus, FetchTheme.colors.TextPrimary),
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
         contentPadding = PaddingValues(horizontal = FetchTheme.spacing.xl, vertical = 14.dp)
@@ -472,10 +475,25 @@ internal fun PlayButton(
                 enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
                 exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
             ) {
-                Text(
-                    text = text ?: "",
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Column {
+                    Text(
+                        text = text ?: "",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    val specLine = bestMatch?.let { rememberBestMatchSpecLine(it) }
+                    AnimatedVisibility(
+                        visible = specLine != null,
+                        enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+                        exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
+                    ) {
+                        Text(
+                            text = specLine.orEmpty(),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                            maxLines = 1,
+                            modifier = Modifier.alpha(if (bestMatch?.isFinal == true) 1f else 0.7f)
+                        )
+                    }
+                }
             }
         }
     }
@@ -946,4 +964,14 @@ private fun MetaInfoDivider() {
         style = MaterialTheme.typography.labelLarge,
         color = FetchTheme.extendedColors.textTertiary
     )
+}
+
+/** "4K · DV P8 · TrueHD Atmos · 18.2 GB · Cached", the file Best match will start. */
+@Composable
+private fun rememberBestMatchSpecLine(preview: com.fetch.tv.core.streams.BestMatchPreview): String? {
+    val cachedLabel = stringResource(R.string.best_match_cached)
+    return remember(preview, cachedLabel) {
+        val parts = preview.labels + listOfNotNull(cachedLabel.takeIf { preview.isCached })
+        parts.takeIf { it.isNotEmpty() }?.joinToString("  ·  ")
+    }
 }

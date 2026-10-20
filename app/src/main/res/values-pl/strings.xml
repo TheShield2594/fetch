@@ -390,20 +390,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Ustawienia układu</string>
     <string name="layout_subtitle">Dostosuj układ strony głównej, widoczność treści i zachowanie kart</string>
-    <string name="layout_classic">Klasyczny</string>
-    <string name="layout_grid">Siatka</string>
-    <string name="layout_modern">Nowoczesny</string>
-    <string name="layout_classic_desc">Przewijaj kategorie poziomo</string>
-    <string name="layout_grid_desc">Przeglądaj wszystko w siatce z sekcją hero</string>
-    <string name="layout_modern_desc">Stały hero z jednym aktywnym rzędem dla szybszego przeglądania</string>
     <string name="layout_section_home">Układ strony głównej</string>
     <string name="layout_section_home_desc">Wybierz strukturę i źródło hero.</string>
     <string name="layout_landscape_posters">Tryb poziomy dla plakatów</string>
     <string name="layout_landscape_posters_sub">Używaj poziomych kart wszędzie.</string>
     <string name="layout_preview_row">Pokaż wiersz podglądu</string>
     <string name="layout_preview_row_sub">Pokaż częściowy podgląd wiersza poniżej w układzie Modern Home.</string>
-    <string name="layout_hero_catalogs">Katalogi hero</string>
-    <string name="layout_hero_catalogs_sub">Wybierz jeden lub więcej katalogów dla treści hero.</string>
     <string name="layout_section_content">Zawartość strony głównej</string>
     <string name="layout_section_content_desc">Kontroluj co pojawia się na stronie głównej i w wyszukiwarce.</string>
     <string name="layout_collapse_sidebar">Zwiń pasek boczny</string>
@@ -414,8 +406,6 @@
     <string name="layout_modern_sidebar_sub">Włącz pływającą nawigację boczną.</string>
     <string name="layout_modern_sidebar_blur">Rozmycie nowoczesnego paska bocznego</string>
     <string name="layout_modern_sidebar_blur_sub">Przełącz efekt rozmycia dla nowoczesnych powierzchni bocznych.</string>
-    <string name="layout_show_hero">Pokaż sekcję hero</string>
-    <string name="layout_show_hero_sub">Wyświetl karuzelę hero na górze strony głównej.</string>
     <string name="layout_show_discover">Pokaż Odkrywaj w wyszukiwarce</string>
     <string name="layout_show_discover_sub">Pokaż sekcję przeglądania gdy wyszukiwarka jest pusta.</string>
     <string name="layout_poster_labels">Pokaż etykiety plakatów</string>
@@ -458,14 +448,11 @@
     <string name="layout_expand_delay">Opóźnienie rozwinięcia tła</string>
     <string name="layout_expand_delay_sub">Jak długo czekać przed rozwinięciem zaznaczonych kart.</string>
     <string name="layout_autoplay_trailer">Auto-odtwarzanie zwiastuna</string>
-    <string name="layout_autoplay_trailer_expanded">Auto-odtwarzanie zwiastuna w rozszerzonej karcie</string>
     <string name="layout_fullscreen_hero_backdrop">Pełnoekranowe tło hero</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozciągnij tło hero na cały ekran.</string>
     <string name="layout_autoplay_trailer_sub">Odtwarzaj podgląd zwiastuna dla zaznaczonej treści gdy dostępny.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Odtwarzaj zwiastun w rozszerzonym tle gdy dostępny.</string>
     <string name="layout_trailer_muted">Odtwarzaj zwiastun bez dźwięku</string>
     <string name="layout_trailer_muted_sub_preview">Wycisz audio zwiastuna podczas podglądu auto-play.</string>
-    <string name="layout_trailer_muted_sub_expanded">Wycisz audio zwiastuna w rozszerzonych kartach.</string>
     <string name="layout_section_sidebar">Pasek boczny i nawigacja</string>
     <string name="layout_section_sidebar_desc">Styl paska bocznego i lokalizacja sekcji Odkrywaj.</string>
     <string name="layout_section_card_depth_desc">Efekt krawędzi światła i połysku na kartach obrazów.</string>
@@ -1085,9 +1072,7 @@
     <string name="catalog_see_all_empty_subtitle">Spróbuj innego katalogu lub wróć później</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Witaj w Fetch</string>
     <string name="layout_selection_subtitle">Wybierz układ ekranu głównego</string>
-    <string name="layout_selection_continue">Kontynuuj</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Aktualizacja aplikacji</string>
@@ -1879,8 +1864,6 @@
     <string name="detail_comments_mode_show">Serial</string>
     <string name="detail_comments_subtitle_episode">Recenzje z Trakt dla S%1$dE%2$d</string>
     <string name="episodes_open_comments">Otwórz komentarze odcinka</string>
-    <string name="layout_classic_focus_gradient">Gradient zaznaczonego elementu</string>
-    <string name="layout_classic_focus_gradient_sub">Wmieszaj kolory grafiki w prawą stronę klasycznego ekranu głównego.</string>
 
     <!-- Missing translations -->
     <string name="action_select">Wybierz</string>

@@ -808,20 +808,12 @@
   <!-- LayoutSettingsScreen -->
   <string name="layout_title">Ρυθμίσεις διάταξης</string>
   <string name="layout_subtitle">Προσαρμογή διάταξης αρχικής οθόνης, ορατότητας περιεχομένου και συμπεριφοράς αφισών</string>
-  <string name="layout_classic">Κλασική προβολή</string>
-  <string name="layout_grid">Προβολή πλέγματος</string>
-  <string name="layout_modern">Μοντέρνα προβολή</string>
-  <string name="layout_classic_desc">Κύλιση κατηγοριών οριζόντια</string>
-  <string name="layout_grid_desc">Περιήγηση σε κάθετα πλέγμα με ηρωική ενότητα</string>
-  <string name="layout_modern_desc">Σταθερή ηρωική ενότητα με μία ενεργή σειρά για γρηγορότερη περιήγηση</string>
   <string name="layout_section_home">Διάταξη αρχικής οθόνης</string>
   <string name="layout_section_home_desc">Επιλογή δομής και πηγής ηρωικής ενότητας.</string>
   <string name="layout_landscape_posters">Οριζόντιες αφίσες</string>
   <string name="layout_landscape_posters_sub">Εναλλαγή μεταξύ πορτρέτου και οριζόντιων καρτών για τη μοντέρνα προβολή.</string>
   <string name="layout_preview_row">Εμφάνιση σειράς προεπισκόπησης</string>
   <string name="layout_preview_row_sub">Εμφάνιση μερικής προεπισκόπησης της σειράς από κάτω στη μοντέρνα διάταξη αρχικής οθόνης.</string>
-  <string name="layout_hero_catalogs">Καταλόγοι ηρωικής ενότητας</string>
-  <string name="layout_hero_catalogs_sub">Επιλογή ενός ή περισσότερων καταλόγων για περιεχόμενο ηρωικής ενότητας.</string>
   <string name="layout_section_content">Περιεχόμενο αρχικής οθόνης</string>
   <string name="layout_section_content_desc">Έλεγχος τι εμφανίζεται στην αρχική οθόνη και στην αναζήτηση.</string>
   <string name="layout_section_sidebar">Πλευρική μπάρα &amp; πλοήγηση</string>
@@ -838,10 +830,6 @@
   <string name="layout_modern_sidebar_blur_sub">Εναλλαγή εφέ θολώματος για τις επιφάνειες μοντέρνας πλευρικής μπάρας.</string>
   <string name="layout_fullscreen_hero_backdrop">Πλήρης οθόνη φόντου ηρωικής ενότητας</string>
   <string name="layout_fullscreen_hero_backdrop_sub">Επέκταση του φόντου της ηρωικής ενότητας σε πλήρη οθόνη</string>
-  <string name="layout_classic_focus_gradient">Διαβάθμιση εστιασμένου στοιχείου</string>
-  <string name="layout_classic_focus_gradient_sub">Ανάμειξη χρωμάτων artwork στη δεξιά πλευρά της κλασικής αρχικής.</string>
-  <string name="layout_show_hero">Εμφάνιση ηρωικής ενότητας</string>
-  <string name="layout_show_hero_sub">Εμφάνιση καρουζέλ ηρωικής ενότητας στην κορυφή της αρχικής οθόνης.</string>
   <string name="layout_show_discover">Εμφάνιση/Απόκρυψη Ανακάλυψης</string>
   <string name="layout_show_discover_sub">Εμφάνιση ενότητας περιήγησης όταν η αναζήτηση είναι κενή.</string>
   <string name="layout_discover_location_action">Θέση Ανακάλυψης</string>
@@ -924,12 +912,9 @@
   <string name="layout_expand_delay">Καθυστέρηση επέκτασης backdrop</string>
   <string name="layout_expand_delay_sub">Πόσο να περιμένουμε πριν επεκταθούν οι εστιασμένες κάρτες.</string>
   <string name="layout_autoplay_trailer">Αυτόματη αναπαραγωγή τρέιλερ</string>
-  <string name="layout_autoplay_trailer_expanded">Αυτόματη αναπαραγωγή τρέιλερ σε επεκταμένη κάρτα</string>
   <string name="layout_autoplay_trailer_sub">Αναπαραγωγή προεπισκόπησης τρέιλερ για εστιασμένο περιεχόμενο όταν είναι διαθέσιμο.</string>
-  <string name="layout_autoplay_trailer_expanded_sub">Αναπαραγωγή τρέιλερ μέσα στην επεκταμένη backdrop όταν είναι διαθέσιμο.</string>
   <string name="layout_trailer_muted">Αναπαραγωγή τρέιλερ χωρίς ήχο</string>
   <string name="layout_trailer_muted_sub_preview">Σίγαση ήχου τρέιλερ κατά την προεπισκόπηση αυτόματης αναπαραγωγής.</string>
-  <string name="layout_trailer_muted_sub_expanded">Σίγαση ήχου τρέιλερ σε επεκταμένες κάρτες.</string>
   <string name="layout_section_card_style">Κάρτα αφίσας</string>
   <string name="layout_section_card_style_desc">Ρύθμιση πλάτους κάρτας και ακτίνας γωνιών.</string>
   <string name="layout_open">Ανοιχτό</string>
@@ -2089,9 +2074,7 @@
   <string name="catalog_see_all_empty_title">Δεν υπάρχουν διαθέσιμα στοιχεία</string>
   <string name="catalog_see_all_empty_subtitle">Δοκιμάστε διαφορετικό κατάλογο ή ελέγξτε αργότερα</string>
   <!-- LayoutSelectionScreen -->
-  <string name="layout_selection_welcome">Καλώς ήρθατε στο Fetch</string>
   <string name="layout_selection_subtitle">Επιλέξτε τη διάταξη αρχικής οθόνης</string>
-  <string name="layout_selection_continue">Συνέχεια</string>
   <!-- UpdatePromptDialog -->
   <string name="update_title">Ενημέρωση εφαρμογής</string>
   <string name="update_downloading">Λήψη ενημέρωσης</string>

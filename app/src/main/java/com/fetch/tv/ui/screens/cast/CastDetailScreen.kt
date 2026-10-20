@@ -176,7 +176,7 @@ private fun CastDetailContent(
     onBiographyExpandedChange: (Boolean) -> Unit,
     onNavigateToDetail: (itemId: String, itemType: String, addonBaseUrl: String?) -> Unit,
     posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
-    posterCardCornerRadiusDp: Int = 12,
+    posterCardCornerRadiusDp: Int = 8,
     isItemWatched: (MetaPreview) -> Boolean = { false }
 ) {
     val backgroundColor = FetchTheme.colors.Background

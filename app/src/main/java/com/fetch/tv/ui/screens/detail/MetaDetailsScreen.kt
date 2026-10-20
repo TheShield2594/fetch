@@ -23,10 +23,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -57,9 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -72,7 +67,6 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.runtime.State
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
@@ -94,10 +88,8 @@ import com.fetch.tv.ui.util.localizedGenreLabel
 import com.fetch.tv.ui.util.recompositionHighlighter
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.ui.draw.clip
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -107,8 +99,6 @@ import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
-import coil3.imageLoader
-import coil3.memory.MemoryCache
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import androidx.compose.ui.platform.LocalContext
@@ -464,6 +454,7 @@ fun MetaDetailsScreen(
     val playbackAvailability = LocalPlaybackAvailability.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val posterCardCornerRadiusDp by viewModel.posterCardCornerRadiusDp.collectAsStateWithLifecycle()
+    val bestMatchPreview by viewModel.bestMatchPreview.collectAsStateWithLifecycle()
     val effectiveAutoplayEnabled by viewModel.effectiveAutoplayEnabled.collectAsStateWithLifecycle(
         initialValue = false
     )
@@ -847,6 +838,8 @@ fun MetaDetailsScreen(
                     },
                     heroBackdropUrl = heroBackdropUrl,
                     meta = meta,
+                    bestMatchPreview = bestMatchPreview,
+                    onRequestBestMatchPreview = viewModel::requestBestMatchPreview,
                     detailReturnEpisodeFocusRequest = DetailReturnEpisodeFocusRequest(
                         season = returnFocusSeason,
                         episode = returnFocusEpisode
@@ -1189,6 +1182,8 @@ private fun MetaDetailsContent(
     modifier: Modifier = Modifier,
     heroBackdropUrl: String? = null,
     meta: Meta,
+    bestMatchPreview: com.fetch.tv.core.streams.BestMatchPreview? = null,
+    onRequestBestMatchPreview: (type: String, videoId: String, season: Int?, episode: Int?) -> Unit = { _, _, _, _ -> },
     detailReturnEpisodeFocusRequest: DetailReturnEpisodeFocusRequest? = null,
     onDetailReturnEpisodeFocusConsumed: () -> Unit,
     lastFocusedEpisodeIdBySeason: MutableMap<Int, String>,
@@ -1215,7 +1210,7 @@ private fun MetaDetailsContent(
     isMovieWatchedPending: Boolean,
     moreLikeThis: List<MetaPreview>,
     moreLikeThisSource: MoreLikeThisSource?,
-    posterCardCornerRadiusDp: Int = 12,
+    posterCardCornerRadiusDp: Int = 8,
     collection: List<MetaPreview>,
     collectionName: String?,
     relatedWatchedStatus: Map<String, Boolean> = emptyMap(),
@@ -1316,6 +1311,13 @@ private fun MetaDetailsContent(
         )
     }
     val isPlayEnabled = playbackAvailability.canStream(meta.apiType, heroVideo?.id ?: meta.id, meta.id, heroVideo)
+    val heroPlaybackVideoId = heroVideo?.id ?: meta.id
+    LaunchedEffect(heroPlaybackVideoId, isPlayEnabled) {
+        if (isPlayEnabled) {
+            onRequestBestMatchPreview(meta.apiType, heroPlaybackVideoId, heroVideo?.season, heroVideo?.episode)
+        }
+    }
+    val heroBestMatch = bestMatchPreview?.takeIf { it.videoId == heroPlaybackVideoId && isPlayEnabled }
     val canPlayEpisode = remember(playbackAvailability, meta.apiType, meta.id) {
         { video: Video -> playbackAvailability.canStream(meta.apiType, video.id, meta.id, video) }
     }
@@ -2469,6 +2471,7 @@ private fun MetaDetailsContent(
                         meta = meta,
                         nextEpisode = nextEpisode,
                         nextToWatch = nextToWatch,
+                        bestMatch = heroBestMatch.takeIf { !shufflePoolEmpty },
                         onPlayClick = { if (shufflePoolEmpty) showRandomEpisodeOverlay = true else heroPlayClick() },
                         isPlayEnabled = shufflePoolEmpty || isPlayEnabled,
                         onPlayLongPress = if (!shufflePoolEmpty && isPlayEnabled && (showManualPlayOption || nextToWatch?.isResume == true)) {

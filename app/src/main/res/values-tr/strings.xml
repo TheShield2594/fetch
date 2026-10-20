@@ -942,20 +942,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Düzen Ayarları</string>
     <string name="layout_subtitle">Ana sayfa düzenini, içerik görünürlüğünü ve poster davranışını ayarlayın</string>
-    <string name="layout_classic">Klasik Görünüm</string>
-    <string name="layout_grid">Izgara Görünümü</string>
-    <string name="layout_modern">Modern Görünüm</string>
-    <string name="layout_classic_desc">Satırlar arasında yatay olarak gezinin</string>
-    <string name="layout_grid_desc">Tüm içerikleri dev bir bölümde dikey ızgara ile inceleyin</string>
-    <string name="layout_modern_desc">Daha hızlı gezinme için tek aktif satırlı sabit hero alanı</string>
     <string name="layout_section_home">Ana Sayfa Düzeni</string>
     <string name="layout_section_home_desc">Yapıyı ve ana gösterim (hero) kaynağını seçin.</string>
     <string name="layout_landscape_posters">Yatay Posterler</string>
     <string name="layout_landscape_posters_sub">Modern görünüm için dikey ve yatay kartlar arasında geçiş yapın.</string>
     <string name="layout_preview_row">Önizleme Satırını Göster</string>
     <string name="layout_preview_row_sub">Modern Ana Sayfa düzeninde aşağıdaki satır için kısmi bir önizleme gösterin.</string>
-    <string name="layout_hero_catalogs">Geniş Gösterim Katalogları (Hero)</string>
-    <string name="layout_hero_catalogs_sub">Ana alandaki içerikler için bir veya daha fazla katalog seçin.</string>
     <string name="layout_section_content">Ana Sayfa İçeriği</string>
     <string name="layout_section_content_desc">Ana sayfada ve aramada nelerin görüneceğini kontrol edin.</string>
     <string name="layout_section_sidebar">Kenar Çubuğu ve Gezinme</string>
@@ -972,10 +964,6 @@
     <string name="layout_modern_sidebar_blur_sub">Modern yan menü yüzeyleri için bulanıklaştırma efektini değiştirin.</string>
     <string name="layout_fullscreen_hero_backdrop">Tam Ekran Hero Arka Planı</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Hero arka planını tüm ekrana yayacak şekilde genişlet.</string>
-    <string name="layout_classic_focus_gradient">Odaklanılan Öğe Gradyanı</string>
-    <string name="layout_classic_focus_gradient_sub">Klasik anasayfanın sağ tarafında kapak renklerini harmanlar.</string>
-    <string name="layout_show_hero">Ana Alanı (Hero) Göster</string>
-    <string name="layout_show_hero_sub">Ana sayfanın üstünde dikkat çeken içerikleri göster.</string>
     <string name="layout_show_discover">Aramada Keşfeti Göster</string>
     <string name="layout_show_discover_sub">Arama boşken gezinme bölümünü göster.</string>
     <string name="layout_discover_location_action">Keşif Konumu</string>
@@ -1060,12 +1048,9 @@
     <string name="layout_expand_delay">Genişletme Gecikmesi</string>
     <string name="layout_expand_delay_sub">Seçilen kartların genişletilmesinden önce ne kadar bekleneceği.</string>
     <string name="layout_autoplay_trailer">Fragmanı Otomatik Oynat</string>
-    <string name="layout_autoplay_trailer_expanded">Genişletilmiş Kartta Fragmanı Otomatik Oynat</string>
     <string name="layout_autoplay_trailer_sub">Mevcut olduğunda seçilen içerik için fragman önizlemesini oynatın.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Mevcut Olduğunda fragmanı genişletilmiş arka plan içinde oynatın.</string>
     <string name="layout_trailer_muted">Fragmanı Sessiz Oynat</string>
     <string name="layout_trailer_muted_sub_preview">Otomatik oynatma önizlemesi sırasında fragman sesini kapat.</string>
-    <string name="layout_trailer_muted_sub_expanded">Genişletilmiş kartlarda fragman sesini kapat.</string>
     <string name="layout_section_card_style">Poster Kartı</string>
     <string name="layout_section_card_style_desc">Kart genişliğini ve köşe yarıçapını ayarlayın.</string>
     <string name="settings_card_depth_title">Kart Derinlik Efekti</string>
@@ -2278,9 +2263,7 @@
     <string name="catalog_see_all_empty_subtitle">Daha sonra başka bir alt alan türünü denemek de faydalı olacaktır</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Fetch\'ya Hoş Geldiniz</string>
     <string name="layout_selection_subtitle">Ana sayfa düzeninizi seçin</string>
-    <string name="layout_selection_continue">Devam Et</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Güncelleme</string>

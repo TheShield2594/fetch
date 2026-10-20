@@ -24,7 +24,6 @@ import com.fetch.tv.data.repository.TraktRelatedService
 import com.fetch.tv.data.repository.parseContentIds
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.LibraryEntryInput
-import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.ListMembershipChanges
 import com.fetch.tv.core.tracking.TrackingMembershipRemovalConfirmation
 import com.fetch.tv.core.tracking.toggleTrackingMembershipSelection
@@ -76,6 +75,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 private const val TAG = "MetaDetailsViewModel"
+private const val BEST_MATCH_PREVIEW_DWELL_MS = 900L
 
 @HiltViewModel
 class MetaDetailsViewModel @Inject constructor(
@@ -105,6 +105,7 @@ class MetaDetailsViewModel @Inject constructor(
     private val profileManager: ProfileManager,
     private val metaDetailsSessionState: MetaDetailsSessionState,
     private val watchedSeriesStateHolder: com.fetch.tv.data.local.WatchedSeriesStateHolder,
+    private val bestMatchPreviewer: com.fetch.tv.core.streams.BestMatchPreviewer,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -116,6 +117,40 @@ class MetaDetailsViewModel @Inject constructor(
     private val requestedInitialSeason: Int? = savedStateHandle.get<String>("initialSeason")?.toIntOrNull()
 
     private val _uiState = MutableStateFlow(MetaDetailsUiState())
+
+    private val _bestMatchPreview = MutableStateFlow<com.fetch.tv.core.streams.BestMatchPreview?>(null)
+    /** What "Best match" will play from the Play button, once the hero target is known. */
+    val bestMatchPreview: StateFlow<com.fetch.tv.core.streams.BestMatchPreview?> = _bestMatchPreview.asStateFlow()
+    private var bestMatchPreviewJob: Job? = null
+    private var bestMatchPreviewKey: String? = null
+
+    /**
+     * Starts looking up the stream Best match would pick for [videoId], after a short dwell so
+     * scrolling past a title does not query every addon. The search lands in the stream session
+     * cache, so pressing Play reuses it.
+     */
+    fun requestBestMatchPreview(type: String, videoId: String, season: Int?, episode: Int?) {
+        val key = "$type|$videoId|$season|$episode"
+        if (key == bestMatchPreviewKey) return
+        bestMatchPreviewKey = key
+        bestMatchPreviewJob?.cancel()
+        if (_bestMatchPreview.value?.videoId != videoId) _bestMatchPreview.value = null
+        bestMatchPreviewJob = viewModelScope.launch {
+            delay(BEST_MATCH_PREVIEW_DWELL_MS)
+            runCatching {
+                bestMatchPreviewer.preview(
+                    type = type,
+                    videoId = videoId,
+                    season = season,
+                    episode = episode,
+                    contentId = itemId.takeIf { it.isNotBlank() }
+                ).collect { preview -> _bestMatchPreview.value = preview }
+            }.onFailure { error ->
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                Log.w(TAG, "Best match preview failed for $videoId", error)
+            }
+        }
+    }
     private val shuffleVisit = System.nanoTime()
     val uiState: StateFlow<MetaDetailsUiState> = combine(
         _uiState, episodeShuffleStore.profiles, watchProgressRepository.continueWatching

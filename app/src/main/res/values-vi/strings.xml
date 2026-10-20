@@ -930,20 +930,12 @@
 
     <string name="layout_title">Cài đặt bố cục</string>
     <string name="layout_subtitle">Điều chỉnh bố cục trang chủ, nội dung hiển thị và cách hiển thị poster.</string>
-    <string name="layout_classic">Giao diện cổ điển</string>
-    <string name="layout_grid">Giao diện lưới</string>
-    <string name="layout_modern">Giao diện hiện đại</string>
-    <string name="layout_classic_desc">Cuộn qua các danh mục theo chiều ngang</string>
-    <string name="layout_grid_desc">Duyệt toàn bộ nội dung trong lưới dọc với Khu vực Nổi bật.</string>
-    <string name="layout_modern_desc">Cố định Khu vực Nổi bật với một hàng đang hoạt động để duyệt nhanh hơn.</string>
     <string name="layout_section_home">Bố cục Trang chủ</string>
     <string name="layout_section_home_desc">Chọn bố cục và nguồn Khu vực Nổi bật.</string>
     <string name="layout_landscape_posters">Poster ngang</string>
     <string name="layout_landscape_posters_sub">Sử dụng thẻ ngang ở mọi vị trí.</string>
     <string name="layout_preview_row">Hiển thị hàng xem trước</string>
     <string name="layout_preview_row_sub">Hiển thị một phần bản xem trước của hàng bên dưới trong bố cục Trang chủ Hiện đại.</string>
-    <string name="layout_hero_catalogs">Danh mục Khu vực Nổi bật</string>
-    <string name="layout_hero_catalogs_sub">Chọn một hoặc nhiều danh mục cho nội dung Khu vực Nổi bật.</string>
     <string name="layout_section_content">Nội dung Trang chủ</string>
     <string name="layout_section_content_desc">Kiểm soát nội dung hiển thị trên Trang chủ và tìm kiếm.</string>
     <string name="layout_section_sidebar">Thanh bên &amp; Điều hướng</string>
@@ -960,10 +952,6 @@
     <string name="layout_modern_sidebar_blur_sub">Bật/tắt hiệu ứng làm mờ thanh bên trong giao diện Hiện đại.</string>
     <string name="layout_fullscreen_hero_backdrop">Phông nền Khu vực Nổi bật toàn màn hình</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Mở rộng phông nền Khu vực Nổi bật để lấp đầy toàn bộ màn hình.</string>
-    <string name="layout_classic_focus_gradient">Dải màu chuyển tiếp mục đang chọn</string>
-    <string name="layout_classic_focus_gradient_sub">Hoà trộn màu ảnh hiển thị vào phần bên phải của Trang chủ Cổ điển.</string>
-    <string name="layout_show_hero">Hiển thị Khu vực Nổi bật</string>
-    <string name="layout_show_hero_sub">Hiển thị Khu vực Nổi bật dạng vòng quay ở đầu Trang chủ.</string>
     <string name="layout_show_discover">Hiển thị/ẩn mục Khám phá</string>
     <string name="layout_show_discover_sub">Thêm mục Khám phá để duyệt nội dung.</string>
     <string name="layout_discover_location_action">Vị trí Khám phá</string>
@@ -1048,12 +1036,9 @@
     <string name="layout_expand_delay">Độ trễ mở rộng phông nền</string>
     <string name="layout_expand_delay_sub">Thời gian chờ trước khi mở rộng các thẻ đang chọn.</string>
     <string name="layout_autoplay_trailer">Tự động phát trailer</string>
-    <string name="layout_autoplay_trailer_expanded">Tự động phát trailer trong Thẻ mở rộng</string>
     <string name="layout_autoplay_trailer_sub">Phát bản xem trước trailer cho nội dung đang chọn khi có sẵn.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Phát trailer bên trong phông nền mở rộng khi có sẵn.</string>
     <string name="layout_trailer_muted">Phát trailer đã tắt tiếng</string>
     <string name="layout_trailer_muted_sub_preview">Tắt âm thanh trailer khi tự động phát bản xem trước.</string>
-    <string name="layout_trailer_muted_sub_expanded">Tắt âm thanh trailer trong thẻ mở rộng.</string>
     <string name="layout_section_card_style">Thẻ poster</string>
     <string name="layout_section_card_style_desc">Điều chỉnh độ rộng và bo tròn góc của thẻ.</string>
     <string name="settings_card_depth_title">Hiệu ứng chiều sâu thẻ</string>
@@ -2292,9 +2277,7 @@
     <string name="catalog_see_all_empty_title">Không có mục nào</string>
     <string name="catalog_see_all_empty_subtitle">Thử danh mục khác hoặc quay lại sau</string>
 
-    <string name="layout_selection_welcome">Chào mừng đến Fetch</string>
     <string name="layout_selection_subtitle">Chọn bố cục màn hình chính</string>
-    <string name="layout_selection_continue">Tiếp tục</string>
 
     <string name="update_title">Cập nhật ứng dụng</string>
     <string name="update_available">Có bản cập nhật mới</string>

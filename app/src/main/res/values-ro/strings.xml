@@ -282,20 +282,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Setări de aranjament</string>
     <string name="layout_subtitle">Ajustați aranjamentul paginii principale, vizibilitatea conținutului și comportamentul posterelor</string>
-    <string name="layout_classic">Vizualizare clasică</string>
-    <string name="layout_grid">Vizualizare în grilă</string>
-    <string name="layout_modern">Vizualizare modernă</string>
-    <string name="layout_classic_desc">Parcurgeți categoriile orizontal</string>
-    <string name="layout_grid_desc">Răsfoiți totul într-o grilă verticală cu o secțiune principală</string>
-    <string name="layout_modern_desc">Hero fix cu un singur rând activ pentru navigare mai rapidă</string>
     <string name="layout_section_home">Aranjament acasă</string>
     <string name="layout_section_home_desc">Alegeți structura și sursa hero.</string>
     <string name="layout_landscape_posters">Postere peisaj</string>
     <string name="layout_landscape_posters_sub">Comutați între carduri portret și peisaj pentru vizualizarea Modernă.</string>
     <string name="layout_preview_row">Afișează rândul de previzualizare</string>
     <string name="layout_preview_row_sub">Afișează o previzualizare parțială a rândului de dedesubt în aranjamentul Modern al paginii principale.</string>
-    <string name="layout_hero_catalogs">Cataloage Hero</string>
-    <string name="layout_hero_catalogs_sub">Selectați unul sau mai multe cataloage pentru conținutul hero.</string>
     <string name="layout_section_content">Conținut acasă</string>
     <string name="layout_section_content_desc">Controlați ce apare pe pagina principală și în căutare.</string>
     <string name="layout_collapse_sidebar">Restrânge bara laterală</string>
@@ -304,8 +296,6 @@
     <string name="layout_modern_sidebar_sub">Activați navigarea cu bară laterală plutitoare.</string>
     <string name="layout_modern_sidebar_blur">Estompare bară laterală modernă</string>
     <string name="layout_modern_sidebar_blur_sub">Comutați efectul de estompare pentru suprafețele barei laterale moderne.</string>
-    <string name="layout_show_hero">Afișează Secțiunea Hero</string>
-    <string name="layout_show_hero_sub">Afișează caruselul hero în partea de sus a paginii principale.</string>
     <string name="layout_show_discover">Afișează Descoperă în Căutare</string>
     <string name="layout_show_discover_sub">Afișează secțiunea de navigare când căutarea este goală.</string>
     <string name="layout_poster_labels">Afișează Etichete Poster</string>
@@ -331,12 +321,9 @@
     <string name="layout_expand_delay">Întârziere Expansiune Fundal</string>
     <string name="layout_expand_delay_sub">Cât timp să se aștepte înainte de a extinde cardurile selectate.</string>
     <string name="layout_autoplay_trailer">Redare automată a trailerului</string>
-    <string name="layout_autoplay_trailer_expanded">Redare automată a trailerului în cardul extins</string>
     <string name="layout_autoplay_trailer_sub">Redă previzualizarea trailerului pentru conținutul selectat când este disponibil.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Redă trailerul în fundalul extins când este disponibil.</string>
     <string name="layout_trailer_muted">Redă trailerul pe mut</string>
     <string name="layout_trailer_muted_sub_preview">Amuțește sunetul trailerului în timpul previzualizării automate.</string>
-    <string name="layout_trailer_muted_sub_expanded">Amuțește sunetul trailerului în cardurile extinse.</string>
     <string name="layout_section_card_style">Card poster</string>
     <string name="layout_section_card_style_desc">Ajustează lățimea cardului și raza colțurilor.</string>
     <string name="layout_open">Deschis</string>
@@ -767,9 +754,7 @@
     <string name="catalog_see_all_empty_subtitle">Încearcă un catalog diferit sau revino mai târziu</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Bine ai venit la Fetch</string>
     <string name="layout_selection_subtitle">Alege aspectul ecranului de pornire</string>
-    <string name="layout_selection_continue">Continuă</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Actualizare aplicație</string>

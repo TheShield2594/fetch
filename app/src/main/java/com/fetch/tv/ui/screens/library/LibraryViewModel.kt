@@ -142,7 +142,7 @@ data class LibraryUiState(
     val isFetchAccount: Boolean = false,
     val isTrackingAuthenticated: Boolean = false,
     val posterCardWidthDp: Int = 126,
-    val posterCardCornerRadiusDp: Int = 12,
+    val posterCardCornerRadiusDp: Int = 8,
     val isLoading: Boolean = true,
     val isSyncing: Boolean = false,
     val errorMessage: String? = null,

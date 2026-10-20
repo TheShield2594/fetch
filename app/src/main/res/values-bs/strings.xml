@@ -489,20 +489,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Postavke Rasporeda</string>
     <string name="layout_subtitle">Prilagodi početni raspored, vidljivost sadržaja i ponašanje postera</string>
-    <string name="layout_classic">Klasično</string>
-    <string name="layout_grid">Mreža</string>
-    <string name="layout_modern">Moderno</string>
-    <string name="layout_classic_desc">Horizontalno listaj kroz kategorije</string>
-    <string name="layout_grid_desc">Pregledaj sadržaj u vertikalnoj mreži s glavnom sekcijom</string>
-    <string name="layout_modern_desc">Fiksni glavni prikaz sa jednim aktivnim redom za brže pregledanje</string>
     <string name="layout_section_home">Početni Raspored</string>
     <string name="layout_section_home_desc">Odaberi strukturu i izvor glavnog prikaza.</string>
     <string name="layout_landscape_posters">Landscape Posteri</string>
     <string name="layout_landscape_posters_sub">Prebacuj između portrait i landscape kartica za Modern prikaz.</string>
     <string name="layout_preview_row">Prikaži Preview Red</string>
     <string name="layout_preview_row_sub">Prikaži djelimični pregled reda ispod u Modern Home rasporedu.</string>
-    <string name="layout_hero_catalogs">Katalozi za Glavni Prikaz</string>
-    <string name="layout_hero_catalogs_sub">Odaberi jedan ili više kataloga za istaknuti sadržaj.</string>
     <string name="layout_section_content">Početni Sadržaj</string>
     <string name="layout_section_content_desc">Kontroliši šta se prikazuje na početnoj i u pretrazi.</string>
     <string name="layout_collapse_sidebar">Skupi Sidebar</string>
@@ -513,8 +505,6 @@
     <string name="layout_modern_sidebar_blur_sub">Uključi/isključi blur efekt za površine u modernom sidebaru.</string>
     <string name="layout_fullscreen_hero_backdrop">Fullscreen Backdrop za Glavni Prikaz</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi backdrop sliku da ispuni cijeli ekran.</string>
-    <string name="layout_show_hero">Prikaži Glavnu Sekciju</string>
-    <string name="layout_show_hero_sub">Prikaži istaknuti carousel na vrhu početne.</string>
     <string name="layout_show_discover">Prikaži Otkrij u Pretrazi</string>
     <string name="layout_show_discover_sub">Prikaži browse sekciju kada je pretraga prazna.</string>
     <string name="layout_poster_labels">Prikaži Nazive Postera</string>
@@ -544,12 +534,9 @@
     <string name="layout_expand_delay">Odgoda Širenja Backdropa</string>
     <string name="layout_expand_delay_sub">Koliko dugo čekati prije proširivanja fokusiranih kartica.</string>
     <string name="layout_autoplay_trailer">Autoplay Trailer</string>
-    <string name="layout_autoplay_trailer_expanded">Autoplay Trailer u Proširenoj Kartici</string>
     <string name="layout_autoplay_trailer_sub">Pusti preview trailera za fokusirani sadržaj kada je dostupan.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Pusti trailer unutar proširenog backdropa kada je dostupan.</string>
     <string name="layout_trailer_muted">Pusti Trailer Bez Zvuka</string>
     <string name="layout_trailer_muted_sub_preview">Utišaj zvuk trailera tokom autoplay previewa.</string>
-    <string name="layout_trailer_muted_sub_expanded">Utišaj zvuk trailera u proširenim karticama.</string>
     <string name="layout_section_card_style">Poster Kartica</string>
     <string name="layout_section_card_style_desc">Podesi širinu kartice i radius uglova.</string>
     <string name="layout_open">Otvoreno</string>
@@ -1208,9 +1195,7 @@
     <string name="catalog_see_all_empty_subtitle">Pokušaj sa drugim katalogom ili provjeri kasnije</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Dobrodošli u Fetch</string>
     <string name="layout_selection_subtitle">Odaberi raspored početnog ekrana</string>
-    <string name="layout_selection_continue">Nastavi</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Ažuriranje Aplikacije</string>

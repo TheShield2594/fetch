@@ -365,20 +365,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Išdėstymo nustatymai</string>
     <string name="layout_subtitle">Reguliuoti pradinio ekrano išdėstymą, turinio matomumą ir plakatų elgesį</string>
-    <string name="layout_classic">Klasikinis rodinys</string>
-    <string name="layout_grid">Tinklelio rodinys</string>
-    <string name="layout_modern">Modernus rodinys</string>
-    <string name="layout_classic_desc">Horizontalus slinkimas per kategorijas</string>
-    <string name="layout_grid_desc">Naršykite viską vertikaliame tinklelyje su pagrindine (hero) dalimi</string>
-    <string name="layout_modern_desc">Fiksuota pagrindinė (hero) dalis su viena aktyvia eilute greitesniam naršymui</string>
     <string name="layout_section_home">Pradinio ekrano išdėstymas</string>
     <string name="layout_section_home_desc">Pasirinkite struktūrą ir pagrindinės dalies šaltinį.</string>
     <string name="layout_landscape_posters">Gulsčiai plakatai</string>
     <string name="layout_landscape_posters_sub">Perjungti tarp stačių ir gulsčių kortelių moderniame rodinyje.</string>
     <string name="layout_preview_row">Rodyti peržiūros eilutę</string>
     <string name="layout_preview_row_sub">Rodyti dalinę žemiau esančios eilutės peržiūrą moderniame pradinio ekrano išdėstyme.</string>
-    <string name="layout_hero_catalogs">Pagrindinės dalies (Hero) katalogai</string>
-    <string name="layout_hero_catalogs_sub">Pasirinkite vieną ar daugiau katalogų pagrindiniam turiniui.</string>
     <string name="layout_section_content">Pradinio ekrano turinys</string>
     <string name="layout_section_content_desc">Valdyti, kas rodoma pradiniame ekrane ir paieškoje.</string>
     <string name="layout_collapse_sidebar">Suskleisti šoninę juostą</string>
@@ -387,8 +379,6 @@
     <string name="layout_modern_sidebar_sub">Įjungti plaukiojančią šoninę navigaciją.</string>
     <string name="layout_modern_sidebar_blur">Modernios šoninės juostos suliejimas</string>
     <string name="layout_modern_sidebar_blur_sub">Perjungti suliejimo efektą modernios šoninės juostos paviršiams.</string>
-    <string name="layout_show_hero">Rodyti pagrindinę (hero) dalį</string>
-    <string name="layout_show_hero_sub">Rodyti pagrindinius elementus pradinio ekrano viršuje.</string>
     <string name="layout_show_discover">Rodyti „Atrasti“ paieškoje</string>
     <string name="layout_show_discover_sub">Rodyti naršymo skiltį, kai paieška tuščia.</string>
     <string name="layout_poster_labels">Rodyti plakatų etiketes</string>
@@ -414,12 +404,9 @@
     <string name="layout_expand_delay">Fono išskleidimo delsa</string>
     <string name="layout_expand_delay_sub">Kiek laiko laukti prieš išskleidžiant fokusuojamas korteles.</string>
     <string name="layout_autoplay_trailer">Automatiškai paleisti anonsą</string>
-    <string name="layout_autoplay_trailer_expanded">Paleisti anonsą išskleistoje kortelėje</string>
     <string name="layout_autoplay_trailer_sub">Paleisti anonso peržiūrą fokusuojamam turiniui, kai jis prieinamas.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Paleisti anonsą išskleistame fone, kai jis prieinamas.</string>
     <string name="layout_trailer_muted">Paleisti anonsą be garso</string>
     <string name="layout_trailer_muted_sub_preview">Nutildyti anonso garsą automatinio paleidimo peržiūros metu.</string>
-    <string name="layout_trailer_muted_sub_expanded">Nutildyti anonso garsą išskleistose kortelėse.</string>
     <string name="layout_section_card_style">Plakato kortelė</string>
     <string name="layout_section_card_style_desc">Reguliuoti kortelės plotį ir kampo spindulį.</string>
     <string name="layout_open">Atidaryta</string>
@@ -922,9 +909,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="catalog_see_all_empty_subtitle">Šiame kataloge turinio nerasta</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Sveiki atvykę į Fetch</string>
     <string name="layout_selection_subtitle">Pasirinkite, kaip norite matyti pradinį ekraną</string>
-    <string name="layout_selection_continue">Tęsti</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Programos atnaujinimas</string>

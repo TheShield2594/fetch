@@ -1,0 +1,28 @@
+*.iml
+.gradle
+.kotlin/
+/local.properties
+/local.dev.properties
+local.properties
+/.idea/
+.DS_Store
+__pycache__/
+*.py[cod]
+/build
+**/build/
+!app/src/**/java/**/core/build/
+!app/src/**/java/**/core/build/*.kt
+/captures
+.externalNativeBuild
+.cxx
+
+# Signing material never belongs in the repo.
+*.jks
+*.keystore
+
+# Optional prebuilt native dependencies fetched locally (see README).
+/DV7/
+/libass-android
+/supabase
+.supabase_db.env
+logs/

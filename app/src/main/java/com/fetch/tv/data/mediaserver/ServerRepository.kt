@@ -113,6 +113,21 @@ class ServerRepository(
         val startedGeneration = generation
         val profileId = loadedProfileId ?: activeProfileId
         val signIn = provider.signIn(address, username, password)
+        return connect(provider, signIn, startedGeneration, profileId)
+    }
+
+    /** Saves a sign-in the provider already completed, e.g. one server found through a link code. */
+    suspend fun connect(provider: ServerProvider, signIn: ServerSignIn): ServerConnection {
+        ensureLoaded()
+        return connect(provider, signIn, generation, loadedProfileId ?: activeProfileId)
+    }
+
+    private suspend fun connect(
+        provider: ServerProvider,
+        signIn: ServerSignIn,
+        startedGeneration: Long,
+        profileId: Int
+    ): ServerConnection {
         val existing = mutableState.value.connections.firstOrNull {
             it.providerId == provider.id &&
                 it.remoteServerId == signIn.serverId &&

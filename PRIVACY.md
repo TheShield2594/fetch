@@ -15,7 +15,8 @@ Fetch only connects to services you add or turn on yourself:
 - **Stremio addons** you install. Each addon receives the IDs of the titles you browse or play.
 - **Debrid services** (Real-Debrid, Premiumize, TorBox) when you add an API key.
 - **Trakt, Simkl, MDBList** when you sign in to them.
-- **Jellyfin / Emby servers** you connect.
+- **Jellyfin / Emby / Plex servers** you connect. Signing in to Plex also talks to plex.tv,
+  which approves the sign-in code and lists the servers your account can reach.
 - **Metadata and artwork providers** your addons point to (for example TMDB image hosts),
   plus optional skip-intro marker services (IntroDB, AniSkip, Anime-Skip) when skip
   segments are enabled.

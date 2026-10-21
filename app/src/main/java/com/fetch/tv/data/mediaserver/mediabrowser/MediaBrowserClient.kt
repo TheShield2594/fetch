@@ -77,7 +77,7 @@ internal class MediaBrowserClient(
             throw ServerException(ServerFailure.NOT_FOUND)
         }
         val response = try {
-            send(request)
+            http.fetch(request)
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
@@ -103,41 +103,6 @@ internal class MediaBrowserClient(
         }
     }
 
-    private suspend fun send(request: Request): ApiResponse = suspendCancellableCoroutine { continuation ->
-        val call = http.newCall(request)
-        continuation.invokeOnCancellation { call.cancel() }
-        call.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                if (continuation.isActive) continuation.resumeWithException(e)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    try {
-                        val body = response.body?.let { readBoundedBody(it.source(), it.contentLength()) }.orEmpty()
-                        if (continuation.isActive) {
-                            continuation.resume(ApiResponse(response.code, body, response.header("Location")))
-                        }
-                    } catch (error: IOException) {
-                        if (continuation.isActive) continuation.resumeWithException(error)
-                    }
-                }
-            }
-        })
-    }
-
-    private fun throwForStatus(status: Int) {
-        val failure = when {
-            status in 200..299 -> return
-            status == 401 -> ServerFailure.AUTH_REQUIRED
-            status == 403 -> ServerFailure.FORBIDDEN
-            status == 404 -> ServerFailure.NOT_FOUND
-            status in 500..599 -> ServerFailure.UNREACHABLE
-            else -> ServerFailure.FAILED
-        }
-        throw ServerException(failure, "HTTP $status")
-    }
-
     private companion object {
         val JSON_MEDIA_TYPE = "application/json".toMediaType()
     }
@@ -149,6 +114,42 @@ internal class ApiResponse(
     val location: String?
 ) {
     override fun toString(): String = "ApiResponse(status=$status)"
+}
+
+/** Runs [request] on OkHttp's dispatcher, cancelling the call with the coroutine. */
+internal suspend fun OkHttpClient.fetch(request: Request): ApiResponse = suspendCancellableCoroutine { continuation ->
+    val call = newCall(request)
+    continuation.invokeOnCancellation { call.cancel() }
+    call.enqueue(object : Callback {
+        override fun onFailure(call: Call, e: IOException) {
+            if (continuation.isActive) continuation.resumeWithException(e)
+        }
+
+        override fun onResponse(call: Call, response: Response) {
+            response.use {
+                try {
+                    val body = response.body?.let { readBoundedBody(it.source(), it.contentLength()) }.orEmpty()
+                    if (continuation.isActive) {
+                        continuation.resume(ApiResponse(response.code, body, response.header("Location")))
+                    }
+                } catch (error: IOException) {
+                    if (continuation.isActive) continuation.resumeWithException(error)
+                }
+            }
+        }
+    })
+}
+
+internal fun throwForStatus(status: Int) {
+    val failure = when {
+        status in 200..299 -> return
+        status == 401 -> ServerFailure.AUTH_REQUIRED
+        status == 403 -> ServerFailure.FORBIDDEN
+        status == 404 -> ServerFailure.NOT_FOUND
+        status in 500..599 -> ServerFailure.UNREACHABLE
+        else -> ServerFailure.FAILED
+    }
+    throw ServerException(failure, "HTTP $status")
 }
 
 internal fun buildUrl(baseUrl: String, path: String, query: Map<String, String?> = emptyMap()): String {
@@ -196,4 +197,4 @@ private fun readBoundedBody(source: BufferedSource, contentLength: Long, maxByte
     }
 }
 
-private fun String.headerValue(): String = filter { it != '"' && it != '\r' && it != '\n' }
+internal fun String.headerValue(): String = filter { it != '"' && it != '\r' && it != '\n' }

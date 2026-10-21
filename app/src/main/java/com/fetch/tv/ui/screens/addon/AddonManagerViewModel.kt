@@ -152,7 +152,7 @@ class AddonManagerViewModel @Inject constructor(
             return
         }
 
-        val normalizedUrl = normalizeAddonUrl(rawUrl)
+        val normalizedUrl = normalizeAddonInstallUrl(rawUrl)
         if (normalizedUrl == null) {
             val message = context.getString(R.string.addon_error_invalid_scheme)
             _uiState.update {
@@ -331,24 +331,6 @@ class AddonManagerViewModel @Inject constructor(
     private fun stopConfigureServer() {
         configureServer?.stop()
         configureServer = null
-    }
-
-    private fun normalizeAddonUrl(input: String): String? {
-        var trimmed = input.trim()
-        if (trimmed.startsWith("stremio://")) {
-            trimmed = trimmed.replaceFirst("stremio://", "https://")
-        }
-        if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
-            return null
-        }
-
-        val withoutManifest = if (trimmed.endsWith("/manifest.json")) {
-            trimmed.removeSuffix("/manifest.json")
-        } else {
-            trimmed
-        }
-
-        return withoutManifest.trimEnd('/')
     }
 
     private fun normalizeUrlForComparison(url: String): String {

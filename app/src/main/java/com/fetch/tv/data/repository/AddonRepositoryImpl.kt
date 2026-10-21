@@ -348,7 +348,9 @@ class AddonRepositoryImpl(
             addAddon(cleanNew)
             return
         }
-        val wasEnabled = preferences.addonEnabledStates.first()[urls[index]] ?: true
+        val wasEnabled = preferences.addonEnabledStates.first().entries
+            .firstOrNull { normalizeUrl(it.key) == normalizeUrl(cleanOld) }
+            ?.value ?: true
         val reordered = urls.toMutableList().apply { set(index, cleanNew) }
             .distinctBy { normalizeUrl(it) }
         if (!preferences.setAddonOrder(reordered)) return

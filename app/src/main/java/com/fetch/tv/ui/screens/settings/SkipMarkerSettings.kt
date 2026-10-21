@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -139,6 +141,7 @@ internal fun SkipMarkerSettingsGroup(
             placeholder = "idb_…",
             initialValue = apiKey,
             keyboardType = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation(),
             onSave = { value -> viewModel.setIntroDbApiKey(value); editing = null },
             onClear = { viewModel.setIntroDbApiKey(""); editing = null },
             onDismiss = { editing = null }
@@ -166,6 +169,7 @@ private fun SettingsTextInputDialog(
     placeholder: String,
     initialValue: String,
     keyboardType: KeyboardType,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     onSave: (String) -> Unit,
     onClear: () -> Unit,
     onDismiss: () -> Unit
@@ -213,6 +217,7 @@ private fun SettingsTextInputDialog(
                                 event.nativeKeyEvent.action == KeyEvent.ACTION_DOWN
                         },
                     singleLine = true,
+                    visualTransformation = visualTransformation,
                     keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                     textStyle = MaterialTheme.typography.bodyMedium.copy(

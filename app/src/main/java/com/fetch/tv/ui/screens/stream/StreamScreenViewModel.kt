@@ -737,18 +737,19 @@ class StreamScreenViewModel @Inject constructor(
                 }
 
                 val currentFilter = _uiState.value.selectedAddonFilter
+                // In "Best match" mode the combined list is shown best first, with streams the
+                // rules or the device rule out kept at the bottom as "other sources", each saying why.
+                val ranked = if (playerSettings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH) {
+                    StreamRanker.rankedList(
+                        streams = allStreams,
+                        rules = playerSettings.streamRankingRules,
+                        device = DeviceDecodeCapabilities.current
+                    )
+                } else {
+                    null
+                }
                 val fullFiltered = if (currentFilter == null) {
-                    // In "Best match" mode the combined list is shown best first, with streams the
-                    // rules or the device rule out kept at the bottom as "other sources".
-                    if (playerSettings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH) {
-                        StreamRanker.rank(
-                            streams = allStreams,
-                            rules = playerSettings.streamRankingRules,
-                            device = DeviceDecodeCapabilities.current
-                        ).map { it.stream }
-                    } else {
-                        allStreams
-                    }
+                    ranked?.streams ?: allStreams
                 } else {
                     allStreams.filter { it.addonName == currentFilter }
                 }
@@ -767,6 +768,7 @@ class StreamScreenViewModel @Inject constructor(
                         addonStreams = mergedAddonStreams,
                         allStreams = allStreams,
                         filteredStreams = paginatedStreams,
+                        streamExclusions = ranked?.exclusions.orEmpty(),
                         availableAddons = availableAddons,
                         sourceChips = mergeSourceChipStatuses(
                             existing = _uiState.value.sourceChips,

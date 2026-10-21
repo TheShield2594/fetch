@@ -7,6 +7,9 @@ import androidx.media3.common.util.UnstableApi
 import com.fetch.tv.core.debrid.DirectDebridPlayableResult
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.player.StreamAutoPlaySelector
+import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
+import com.fetch.tv.core.streams.ranking.RankedStreamList
+import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.data.local.PlayerSettings
 import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.local.StreamAutoPlaySource
@@ -59,15 +62,16 @@ internal fun PlayerRuntimeController.scheduleSourceBadgeApplication() {
                 val updatedAll = current.sourceAllStreams.map { s ->
                     badgedByKey[s.sourceBadgeMergeKey()] ?: s
                 }
-                val selectedAddon = current.sourceSelectedAddonFilter
-                val fullFiltered = updatedAll.filterByAddon(selectedAddon)
+                val tab = sourceTab(updatedAll, current.sourceSelectedAddonFilter)
+                val fullFiltered = tab.streams
                 sourceFilterFullList = fullFiltered
                 val pageEnd = current.sourceFilteredStreams.size.coerceAtMost(fullFiltered.size)
                     .coerceAtLeast(SOURCE_FILTER_PAGE_SIZE.coerceAtMost(fullFiltered.size))
                 current.copy(
                     sourceAllStreams = updatedAll,
                     sourceFilteredStreams = if (pageEnd >= fullFiltered.size) fullFiltered
-                        else fullFiltered.subList(0, pageEnd)
+                        else fullFiltered.subList(0, pageEnd),
+                    sourceStreamExclusions = tab.exclusions
                 )
             }
             val coveredAddons = chunk.map { it.addonName }.toSet()
@@ -270,12 +274,8 @@ internal fun PlayerRuntimeController.loadSourceStreams(forceRefresh: Boolean) {
                         } else {
                             availableAddons
                         }
-                        val selectedAddon = it.sourceSelectedAddonFilter
-                        val filteredStreams = if (selectedAddon == null) {
-                            badgePreserved
-                        } else {
-                            badgePreserved.filter { stream -> stream.addonName == selectedAddon }
-                        }
+                        val tab = sourceTab(badgePreserved, it.sourceSelectedAddonFilter)
+                        val filteredStreams = tab.streams
                         sourceFilterFullList = filteredStreams
                         val paginatedStreams = if (filteredStreams.size > SOURCE_FILTER_PAGE_SIZE) {
                             filteredStreams.subList(0, SOURCE_FILTER_PAGE_SIZE)
@@ -286,6 +286,7 @@ internal fun PlayerRuntimeController.loadSourceStreams(forceRefresh: Boolean) {
                             isLoadingSourceStreams = false,
                             sourceAllStreams = badgePreserved,
                             sourceFilteredStreams = paginatedStreams,
+                            sourceStreamExclusions = tab.exclusions,
                             sourceAvailableAddons = mergedAvailableAddons,
                             sourceChips = mergeSourceChipStatuses(
                                 existing = it.sourceChips,
@@ -377,15 +378,16 @@ private fun PlayerRuntimeController.replacePreparedSourceStream(
         if (updatedStreams == state.sourceAllStreams) {
             state
         } else {
-            val selectedAddon = state.sourceSelectedAddonFilter
-            val fullFiltered = updatedStreams.filterByAddon(selectedAddon)
+            val tab = sourceTab(updatedStreams, state.sourceSelectedAddonFilter)
+            val fullFiltered = tab.streams
             sourceFilterFullList = fullFiltered
             val pageEnd = state.sourceFilteredStreams.size.coerceAtMost(fullFiltered.size)
                 .coerceAtLeast(SOURCE_FILTER_PAGE_SIZE.coerceAtMost(fullFiltered.size))
             state.copy(
                 sourceAllStreams = updatedStreams,
                 sourceFilteredStreams = if (pageEnd >= fullFiltered.size) fullFiltered
-                    else fullFiltered.subList(0, pageEnd)
+                    else fullFiltered.subList(0, pageEnd),
+                sourceStreamExclusions = tab.exclusions
             )
         }
     }
@@ -407,12 +409,8 @@ internal fun PlayerRuntimeController.dismissSourcesPanel() {
 }
 
 internal fun PlayerRuntimeController.filterSourceStreamsByAddon(addonName: String?) {
-    val allStreams = _uiState.value.sourceAllStreams
-    val fullFiltered = if (addonName == null) {
-        allStreams
-    } else {
-        allStreams.filter { it.addonName == addonName }
-    }
+    val tab = sourceTab(_uiState.value.sourceAllStreams, addonName)
+    val fullFiltered = tab.streams
     sourceFilterFullList = fullFiltered
     val paginatedStreams = if (fullFiltered.size > SOURCE_FILTER_PAGE_SIZE) {
         fullFiltered.subList(0, SOURCE_FILTER_PAGE_SIZE)
@@ -422,7 +420,8 @@ internal fun PlayerRuntimeController.filterSourceStreamsByAddon(addonName: Strin
     _uiState.update {
         it.copy(
             sourceSelectedAddonFilter = addonName,
-            sourceFilteredStreams = paginatedStreams
+            sourceFilteredStreams = paginatedStreams,
+            sourceStreamExclusions = tab.exclusions
         )
     }
 }
@@ -1394,6 +1393,20 @@ private fun List<Stream>.filterByAddon(addonName: String?): List<Stream> =
     } else {
         filter { it.addonName == addonName }
     }
+
+/**
+ * A tab of the sources panel. Under Best match "All" is best first, and every tab says why
+ * Best match passed over a stream; addon tabs keep the addon's own order.
+ */
+private fun PlayerRuntimeController.sourceTab(streams: List<Stream>, addonName: String?): RankedStreamList {
+    val ranked = if (streamAutoPlayModeSetting == StreamAutoPlayMode.BEST_MATCH) {
+        StreamRanker.rankedList(streams, streamRankingRulesSetting, DeviceDecodeCapabilities.current)
+    } else {
+        null
+    }
+    val tab = if (addonName == null) ranked?.streams ?: streams else streams.filter { it.addonName == addonName }
+    return RankedStreamList(tab, ranked?.exclusions.orEmpty())
+}
 
 internal fun PlayerRuntimeController.reloadEpisodeStreams() {
     val state = _uiState.value

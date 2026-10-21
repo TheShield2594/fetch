@@ -9,6 +9,8 @@ import android.media.MediaCodecList
 import android.os.Build
 import android.util.Log
 import android.view.Display
+import androidx.media3.common.MimeTypes
+import androidx.media3.decoder.ffmpeg.FfmpegLibrary
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -100,7 +102,7 @@ class AndroidDeviceDecodeCapabilities @Inject constructor(
             hdrFormats = hdr,
             dolbyVisionProfiles = if (HdrFormat.DOLBY_VISION in hdr) dvProfiles else emptySet(),
             passthroughAudio = probePassthrough(),
-            softwareAudioDecoding = true
+            softwareAudio = probeSoftwareAudio()
         ).also { Log.i(TAG, "Device decode capabilities: $it") }
     }
 
@@ -126,8 +128,21 @@ class AndroidDeviceDecodeCapabilities @Inject constructor(
         }
     }
 
+    private fun probeSoftwareAudio(): Set<AudioFormat> {
+        val available = runCatching { FfmpegLibrary.isAvailable() }.getOrDefault(false)
+        if (!available) return emptySet()
+        return SOFTWARE_AUDIO_MIME_TYPES
+            .filter { (_, mimeType) -> runCatching { FfmpegLibrary.supportsFormat(mimeType) }.getOrDefault(false) }
+            .keys
+    }
+
     private companion object {
         const val TAG = "DeviceDecodeCaps"
         const val DV_MIME = "video/dolby-vision"
+        val SOFTWARE_AUDIO_MIME_TYPES = mapOf(
+            AudioFormat.TRUEHD to MimeTypes.AUDIO_TRUEHD,
+            AudioFormat.DTS_HD_MA to MimeTypes.AUDIO_DTS_HD,
+            AudioFormat.DTS_X to MimeTypes.AUDIO_DTS_X
+        )
     }
 }

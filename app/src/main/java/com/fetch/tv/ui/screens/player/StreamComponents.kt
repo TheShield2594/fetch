@@ -72,6 +72,9 @@ import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.launch as coroutineLaunch
 import com.fetch.tv.ui.components.RefreshFilterChip
 import com.fetch.tv.R
+import com.fetch.tv.core.streams.ranking.ExclusionReason
+import com.fetch.tv.core.streams.ranking.StreamTitleParser
+import com.fetch.tv.core.streams.ranking.label
 
 @Composable
 internal fun StreamItem(
@@ -84,11 +87,16 @@ internal fun StreamItem(
     badgePlacement: StreamBadgePlacement = StreamBadgePlacement.BOTTOM,
     onClick: () -> Unit,
     onFocusChanged: ((Boolean) -> Unit)? = null,
-    onUpKey: (() -> Unit)? = null
+    onUpKey: (() -> Unit)? = null,
+    exclusion: ExclusionReason? = null
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val unknownStreamLabel = stringResource(R.string.stream_unknown)
+    val exclusionText = exclusion?.let { reason ->
+        val descriptor = remember(stream) { StreamTitleParser.parse(stream) }
+        stringResource(R.string.best_match_excluded, reason.label(context, descriptor))
+    }
     val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
     val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null)
@@ -204,6 +212,16 @@ internal fun StreamItem(
                             color = FetchTheme.extendedColors.textSecondary
                         )
                     }
+                }
+
+                exclusionText?.let { text ->
+                    Text(
+                        text = text,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FetchTheme.extendedColors.textTertiary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
 
                 if (hasBadges && badgePlacement == StreamBadgePlacement.BOTTOM) {

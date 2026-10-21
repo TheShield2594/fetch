@@ -452,6 +452,7 @@ internal fun StreamSourcesSidePanel(
                                 showFileSizeBadges = uiState.showFileSizeBadges,
                                 showAddonLogo = uiState.showAddonLogo,
                                 badgePlacement = uiState.streamBadgePlacement,
+                                exclusion = uiState.sourceStreamExclusions.takeIf { it.isNotEmpty() }?.get(stream.stableKey()),
                                 onClick = { onStreamSelected(stream) },
                                 onFocusChanged = { focused ->
                                     if (focused) {

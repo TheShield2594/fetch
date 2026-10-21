@@ -10,6 +10,27 @@
 
 </div>
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="Home: Continue Watching first, with the focused show in the hero" width="49%" />
+  <img src="docs/screenshots/detail.png" alt="Detail page: the Play button names the file Best match will start" width="49%" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/sources.png" alt="Sources: parsed chips first, the release name on the focused card" width="49%" />
+  <img src="docs/screenshots/fetching.png" alt="Fetching: addon progress and the best stream so far while auto-play waits" width="49%" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/first-run.png" alt="First run: set up from a phone, then pick Essential or Advanced" width="49%" />
+</p>
+
+Rendered from the app's own Compose screens with made-up sample titles and artwork
+(`app/src/test/java/com/fetch/tv/screenshots/`). To regenerate them:
+
+```bash
+FETCH_SCREENSHOTS=1 ./gradlew :app:testFullDebugUnitTest --tests '*ReadmeScreenshots*'
+```
+
 ## What it is
 
 Fetch is an Android TV client for the Stremio addon ecosystem. Existing addons work unchanged:

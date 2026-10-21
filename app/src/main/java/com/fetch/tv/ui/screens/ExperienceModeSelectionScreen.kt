@@ -102,6 +102,25 @@ fun ExperienceModeSelectionScreen(
         }
     }
 
+    ExperienceModeSelectionContent(
+        showPhoneSetup = showPhoneSetup,
+        qrCode = qrCode,
+        phoneState = phoneState,
+        essentialFocusRequester = essentialFocusRequester,
+        onChoose = ::choose
+    )
+}
+
+/** The first-run layout itself, without the view models, so it can also be rendered with sample state. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+internal fun ExperienceModeSelectionContent(
+    showPhoneSetup: Boolean,
+    qrCode: android.graphics.Bitmap?,
+    phoneState: com.fetch.tv.core.server.PhoneHubState,
+    essentialFocusRequester: FocusRequester,
+    onChoose: (ExperienceMode) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxSize()
@@ -109,8 +128,9 @@ fun ExperienceModeSelectionScreen(
         horizontalArrangement = Arrangement.spacedBy(72.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // The phone side gets more room: its steps sit beside the code and must not wrap word by word.
         if (showPhoneSetup) Column(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1.3f),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
         ) {
             Text(
@@ -124,7 +144,7 @@ fun ExperienceModeSelectionScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(200.dp)
+                        .size(176.dp)
                         .background(FetchTheme.colors.TextPrimary, RoundedCornerShape(FetchTheme.radii.sm))
                         .padding(FetchTheme.spacing.md),
                     contentAlignment = Alignment.Center
@@ -174,14 +194,14 @@ fun ExperienceModeSelectionScreen(
                 title = stringResource(R.string.experience_mode_essential),
                 subtitle = stringResource(R.string.experience_mode_essential_card_subtitle),
                 recommended = true,
-                onClick = { choose(ExperienceMode.ESSENTIAL) },
+                onClick = { onChoose(ExperienceMode.ESSENTIAL) },
                 modifier = Modifier.focusRequester(essentialFocusRequester)
             )
             ExperienceModeCard(
                 title = stringResource(R.string.experience_mode_advanced),
                 subtitle = stringResource(R.string.experience_mode_advanced_card_subtitle),
                 recommended = false,
-                onClick = { choose(ExperienceMode.ADVANCED) }
+                onClick = { onChoose(ExperienceMode.ADVANCED) }
             )
             Text(
                 text = stringResource(R.string.experience_mode_choose_subtitle),
@@ -212,7 +232,7 @@ private fun FirstRunStep(number: Int, text: String) {
         }
         Text(
             text = text,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyLarge,
             color = FetchTheme.colors.TextPrimary
         )
     }

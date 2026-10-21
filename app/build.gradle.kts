@@ -308,6 +308,8 @@ android {
 
     testOptions {
         unitTests.isReturnDefaultValues = true
+        // The README screenshot renderer (ReadmeScreenshots, opt-in) loads the app's fonts and strings.
+        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -494,6 +496,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
+    testImplementation("org.robolectric:robolectric:4.17")
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

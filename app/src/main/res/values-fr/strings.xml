@@ -943,12 +943,6 @@
     <string name="layout_section_custom_poster_desc">Utiliser les visuels d’un service d’affiches externe.</string>
     <string name="layout_collapse_sidebar">Réduire la barre latérale</string>
     <string name="layout_collapse_sidebar_sub">Masquer la barre latérale par défaut&#160;; l’afficher lorsqu’elle est sélectionnée.</string>
-    <string name="layout_hide_floating_pill">Masquer la pastille flottante</string>
-    <string name="layout_hide_floating_pill_sub">Masquer l’indicateur de navigation flottant sur l’écran d’accueil.</string>
-    <string name="layout_modern_sidebar">Barre latérale moderne</string>
-    <string name="layout_modern_sidebar_sub">Activer la navigation par barre latérale flottante.</string>
-    <string name="layout_modern_sidebar_blur">Flou de la barre latérale moderne</string>
-    <string name="layout_modern_sidebar_blur_sub">Activer ou désactiver l’effet de flou sur les surfaces de la barre latérale moderne.</string>
     <string name="layout_fullscreen_hero_backdrop">Arrière-plan du hero en plein écran</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Étendre l’arrière-plan du hero pour remplir tout l’écran.</string>
     <string name="layout_show_discover">Afficher/Masquer Découvrir</string>

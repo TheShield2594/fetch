@@ -886,12 +886,6 @@
     <string name="layout_section_content_desc">Controle o que aparece na home e na busca.</string>
     <string name="layout_collapse_sidebar">Recolher barra lateral</string>
     <string name="layout_collapse_sidebar_sub">Esconda o menu; exiba-o apenas ao focar.</string>
-    <string name="layout_hide_floating_pill">Ocultar indicador flutuante</string>
-    <string name="layout_hide_floating_pill_sub">Esconde o indicador de navegação flutuante na tela inicial.</string>
-    <string name="layout_modern_sidebar">Barra lateral moderna</string>
-    <string name="layout_modern_sidebar_sub">Ative a navegação lateral flutuante.</string>
-    <string name="layout_modern_sidebar_blur">Desfoque no menu lateral</string>
-    <string name="layout_modern_sidebar_blur_sub">Ative o efeito de desfoque (blur) no menu.</string>
     <string name="layout_fullscreen_hero_backdrop">Fundo em tela cheia</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expanda o fundo do modo Moderno por toda a tela.</string>
     <string name="layout_show_discover">Mostrar/Ocultar Descobrir</string>

@@ -896,12 +896,6 @@
     <string name="layout_section_content_desc">控制首页和搜索显示的内容。</string>
     <string name="layout_collapse_sidebar">折叠侧边栏</string>
     <string name="layout_collapse_sidebar_sub">默认隐藏侧边栏；获得焦点时显示。</string>
-    <string name="layout_hide_floating_pill">隐藏浮动胶囊</string>
-    <string name="layout_hide_floating_pill_sub">隐藏首页画面上的浮动导航指示器。</string>
-    <string name="layout_modern_sidebar">现代侧边栏</string>
-    <string name="layout_modern_sidebar_sub">启用浮动式侧边栏导航。</string>
-    <string name="layout_modern_sidebar_blur">现代侧边栏模糊</string>
-    <string name="layout_modern_sidebar_blur_sub">切换现代侧边栏表面的模糊效果。</string>
     <string name="layout_fullscreen_hero_backdrop">全屏焦点区块背景</string>
     <string name="layout_fullscreen_hero_backdrop_sub">将焦点区块背景延伸到整个屏幕。</string>
     <string name="layout_show_discover">显示/隐藏发现</string>

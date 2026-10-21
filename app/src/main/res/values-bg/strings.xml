@@ -749,10 +749,6 @@
     <string name="layout_section_content_desc">Контролирай какво се появява на началния екран и в търсенето.</string>
     <string name="layout_collapse_sidebar">Свий страничната лента</string>
     <string name="layout_collapse_sidebar_sub">Скрий страничната лента по подразбиране; показвай при фокус.</string>
-    <string name="layout_modern_sidebar">Модерна странична лента</string>
-    <string name="layout_modern_sidebar_sub">Включи плаваща странична навигация.</string>
-    <string name="layout_modern_sidebar_blur">Размазване на модерната странична лента</string>
-    <string name="layout_modern_sidebar_blur_sub">Включи/изключи ефекта на размазване за модерните странични повърхности.</string>
     <string name="layout_fullscreen_hero_backdrop">Пълен екран hero backdrop</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Разшири hero backdrop-а да запълни целия екран.</string>
     <string name="layout_show_discover">Показвай/Скривай Discover</string>

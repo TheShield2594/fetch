@@ -955,12 +955,6 @@
     <string name="layout_section_custom_poster_desc">Harici bir poster servisinden görseller kullanın.</string>
     <string name="layout_collapse_sidebar">Yan Menüyü Daralt</string>
     <string name="layout_collapse_sidebar_sub">Yan menüyü varsayılan olarak gizle; odaklanıldığında göster.</string>
-    <string name="layout_hide_floating_pill">Yüzen Göstergeyi Gizle</string>
-    <string name="layout_hide_floating_pill_sub">Ana sayfadaki yüzen gezinme göstergesini gizle.</string>
-    <string name="layout_modern_sidebar">Modern Yan Menü</string>
-    <string name="layout_modern_sidebar_sub">Yüzen yan menü gezinmesini etkinleştir.</string>
-    <string name="layout_modern_sidebar_blur">Modern Yan Menü Bulanıklığı</string>
-    <string name="layout_modern_sidebar_blur_sub">Modern yan menü yüzeyleri için bulanıklaştırma efektini değiştirin.</string>
     <string name="layout_fullscreen_hero_backdrop">Tam Ekran Hero Arka Planı</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Hero arka planını tüm ekrana yayacak şekilde genişlet.</string>
     <string name="layout_show_discover">Aramada Keşfeti Göster</string>

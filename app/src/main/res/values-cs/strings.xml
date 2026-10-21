@@ -783,10 +783,6 @@
     <string name="layout_section_content_desc">Řídit, co se zobrazuje na domovské stránce a ve vyhledávání.</string>
     <string name="layout_collapse_sidebar">Sbalit postranní panel</string>
     <string name="layout_collapse_sidebar_sub">Standardně skrýt postranní panel; zobrazit při zaměření.</string>
-    <string name="layout_modern_sidebar">Moderní postranní panel</string>
-    <string name="layout_modern_sidebar_sub">Povolit plovoucí navigaci postranního panelu.</string>
-    <string name="layout_modern_sidebar_blur">Rozostření moderního postranního panelu</string>
-    <string name="layout_modern_sidebar_blur_sub">Přepnout efekt rozostření pro plochy moderního postranního panelu.</string>
     <string name="layout_fullscreen_hero_backdrop">Pozadí hrdiny přes celou obrazovku</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozšířit pozadí hrdiny, aby vyplnilo celou obrazovku.</string>
     <string name="layout_show_discover">Zobrazit Objevovat ve vyhledávání</string>

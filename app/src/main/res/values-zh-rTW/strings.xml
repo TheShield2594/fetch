@@ -896,12 +896,6 @@
     <string name="layout_section_content_desc">控制首頁和搜尋顯示的內容。</string>
     <string name="layout_collapse_sidebar">摺疊側邊欄</string>
     <string name="layout_collapse_sidebar_sub">預設隱藏側邊欄；獲得焦點時顯示。</string>
-    <string name="layout_hide_floating_pill">隱藏浮動膠囊</string>
-    <string name="layout_hide_floating_pill_sub">隱藏首頁畫面中的浮動導航指示器。</string>
-    <string name="layout_modern_sidebar">現代側邊欄</string>
-    <string name="layout_modern_sidebar_sub">啟用浮動式側邊欄導航。</string>
-    <string name="layout_modern_sidebar_blur">現代側邊欄模糊</string>
-    <string name="layout_modern_sidebar_blur_sub">切換現代側邊欄表面的模糊效果。</string>
     <string name="layout_fullscreen_hero_backdrop">全螢幕焦點區塊背景</string>
     <string name="layout_fullscreen_hero_backdrop_sub">將焦點區塊背景延伸到整個螢幕。</string>
     <string name="layout_show_discover">顯示/隱藏探索</string>

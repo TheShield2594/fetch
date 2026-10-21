@@ -14,22 +14,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.tv.material3.MaterialTheme
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,15 +36,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
@@ -59,7 +51,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.MutableState
@@ -71,7 +62,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -83,7 +73,6 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
@@ -96,7 +85,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -104,7 +92,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.fetch.tv.ui.screens.ambient.AmbientIdleController
 import com.fetch.tv.ui.screens.ambient.AmbientModeHost
@@ -112,15 +99,13 @@ import com.fetch.tv.ui.screens.ambient.LocalAmbientIdleController
 import com.fetch.tv.ui.components.LocalStartupLoadingState
 import com.fetch.tv.ui.components.LocalStartupSplashEnabled
 import com.fetch.tv.ui.components.StartupLoadingState
+import com.fetch.tv.ui.components.FloatingSidebarButton
 import com.fetch.tv.ui.components.StartupDestination
 import com.fetch.tv.ui.components.shouldShowStartupSplash
 import com.fetch.tv.ui.components.startupDestinationForRoute
 import com.fetch.tv.core.runtime.PluginRuntimeHooks
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.os.ConfigurationCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
@@ -129,8 +114,6 @@ import androidx.metrics.performance.PerformanceMetricsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.DrawerValue
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -179,7 +162,6 @@ import com.fetch.tv.domain.model.resolveCustomThemeColors
 import com.fetch.tv.domain.deeplink.AppDeepLink
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.ui.components.FetchScrollDefaults
-import com.fetch.tv.ui.components.BrandWordmark
 import com.fetch.tv.ui.components.LocalCardDepthStyle
 import com.fetch.tv.ui.components.LocalLandscapePosterMode
 import com.fetch.tv.ui.components.LocalAlwaysBackdropWithLogo
@@ -194,12 +176,7 @@ import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.theme.FetchComponents
 import com.fetch.tv.ui.theme.FetchLayout
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchPrimitives
-import com.fetch.tv.ui.theme.FetchRadii
-import com.fetch.tv.ui.theme.FetchStrokes
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.theme.ThemeColors
-import com.fetch.tv.ui.theme.accentBrush
 import com.fetch.tv.ui.theme.brandWordmarkResource
 import com.fetch.tv.ui.util.LocalFastHorizontalNavigationEnabled
 import com.fetch.tv.ui.util.LocalRecompositionHighlighterEnabled
@@ -208,10 +185,6 @@ import com.fetch.tv.ui.util.rememberRawSvgPainter
 import com.fetch.tv.updater.UpdateViewModel
 import com.fetch.tv.updater.ui.UpdateBannerHost
 import dagger.hilt.android.AndroidEntryPoint
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeInputScale
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
 import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.delay
@@ -255,8 +228,6 @@ private data class MainUiPrefs(
     val experienceModeLoaded: Boolean = false,
     val addonSetupSkipped: Boolean = false,
     val sidebarCollapsed: Boolean = false,
-    val modernSidebarEnabled: Boolean = false,
-    val modernSidebarBlurPref: Boolean = false,
     val discoverLocation: DiscoverLocation? = null,
     val smoothBringIntoViewEnabled: Boolean = true,
     val fastHorizontalNavigationEnabled: Boolean = false,
@@ -547,15 +518,11 @@ open class MainActivity : ComponentActivity() {
                 val layoutAndFeaturesFlow = combine(
                     layoutPreferenceDataStore.hasChosenLayout,
                     layoutPreferenceDataStore.sidebarCollapsedByDefault,
-                    layoutPreferenceDataStore.modernSidebarEnabled,
-                    layoutPreferenceDataStore.modernSidebarBlurEnabled,
                     layoutPreferenceDataStore.discoverLocation,
-                ) { hasChosenLayout, sidebarCollapsed, modernSidebarEnabled, modernSidebarBlurPref, discoverLocation ->
+                ) { hasChosenLayout, sidebarCollapsed, discoverLocation ->
                     MainUiPrefs(
                         hasChosenLayout = hasChosenLayout,
                         sidebarCollapsed = sidebarCollapsed,
-                        modernSidebarEnabled = modernSidebarEnabled,
-                        modernSidebarBlurPref = modernSidebarBlurPref,
                         discoverLocation = discoverLocation,
                     )
                 }
@@ -589,8 +556,6 @@ open class MainActivity : ComponentActivity() {
                     themePrefs.copy(
                         hasChosenLayout = layoutPrefs.hasChosenLayout,
                         sidebarCollapsed = layoutPrefs.sidebarCollapsed,
-                        modernSidebarEnabled = layoutPrefs.modernSidebarEnabled,
-                        modernSidebarBlurPref = layoutPrefs.modernSidebarBlurPref,
                         discoverLocation = layoutPrefs.discoverLocation,
                         addonSetupSkipped = extraPrefs.addonSetupSkipped,
                         smoothBringIntoViewEnabled = extraPrefs.smoothBringIntoViewEnabled,
@@ -867,10 +832,6 @@ open class MainActivity : ComponentActivity() {
                         )
                     } else {
                     val sidebarCollapsed = mainUiPrefs.sidebarCollapsed
-                    val modernSidebarEnabled = mainUiPrefs.modernSidebarEnabled
-                    val modernSidebarBlurEnabled =
-                        mainUiPrefs.modernSidebarBlurPref && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
-                    val hideBuiltInHeadersForFloatingPill = modernSidebarEnabled && !sidebarCollapsed
 
                     val startDestination = if (needsExperienceSelection) {
                         Screen.ExperienceModeSelection.route
@@ -1195,47 +1156,24 @@ open class MainActivity : ComponentActivity() {
                         val parentalGate = com.fetch.tv.ui.screens.profile.LocalParentalGate.current
                         val handleSwitchProfile: () -> Unit = { parentalGate.runGuarded(switchProfileNow) }
                         Box(modifier = Modifier.fillMaxSize()) {
-                            if (modernSidebarEnabled) {
-                                ModernSidebarScaffold(
-                                    longPressBackHeld = longPressBackHeld,
-                                    navController = navController,
-                                    startDestination = startDestination,
-                                    currentRoute = currentRoute,
-                                    rootRoutes = rootRoutes,
-                                    drawerItems = drawerItems,
-                                    selectedDrawerRoute = selectedDrawerRoute,
-                                    selectedDrawerItem = selectedDrawerItem,
-                                    sidebarCollapsed = sidebarCollapsed,
-                                    modernSidebarBlurEnabled = modernSidebarBlurEnabled,
-                                    hideBuiltInHeaders = hideBuiltInHeadersForFloatingPill,
-                                    activeProfileName = activeProfile?.name ?: "",
-                                    activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
-                                    activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
-                                    showProfileSelector = profiles.size > 1,
-                                    onSwitchProfile = handleSwitchProfile,
-                                    onNavigate = { optimisticRoute = it },
-                                    onExitApp = handleExitApp
-                                )
-                            } else {
-                                LegacySidebarScaffold(
-                                    longPressBackHeld = longPressBackHeld,
-                                    navController = navController,
-                                    startDestination = startDestination,
-                                    currentRoute = currentRoute,
-                                    rootRoutes = rootRoutes,
-                                    drawerItems = drawerItems,
-                                    selectedDrawerRoute = selectedDrawerRoute,
-                                    sidebarCollapsed = sidebarCollapsed,
-                                    hideBuiltInHeaders = false,
-                                    activeProfileName = activeProfile?.name ?: "",
-                                    activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
-                                    activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
-                                    showProfileSelector = profiles.size > 1,
-                                    onSwitchProfile = handleSwitchProfile,
-                                    onNavigate = { optimisticRoute = it },
-                                    onExitApp = handleExitApp
-                                )
-                            }
+                            FetchSidebarScaffold(
+                                longPressBackHeld = longPressBackHeld,
+                                navController = navController,
+                                startDestination = startDestination,
+                                currentRoute = currentRoute,
+                                rootRoutes = rootRoutes,
+                                drawerItems = drawerItems,
+                                selectedDrawerRoute = selectedDrawerRoute,
+                                sidebarCollapsed = sidebarCollapsed,
+                                hideBuiltInHeaders = false,
+                                activeProfileName = activeProfile?.name ?: "",
+                                activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
+                                activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
+                                showProfileSelector = profiles.size > 1,
+                                onSwitchProfile = handleSwitchProfile,
+                                onNavigate = { optimisticRoute = it },
+                                onExitApp = handleExitApp
+                            )
 
                             val autoNextOverlay by externalPlaybackTracker.autoNextOverlay.collectAsState()
                             autoNextOverlay?.let { ov ->
@@ -1461,8 +1399,13 @@ private fun SidebarFocusRecoveryEffect(
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
+/**
+ * Fetch's sidebar: a column of round icons that floats over the left edge of the root screens.
+ * The current page keeps an accent fill; when focus moves in, the focused icon shows its label
+ * beside it. Back or Left opens it, Right or picking a page closes it.
+ */
 @Composable
-private fun LegacySidebarScaffold(
+private fun FetchSidebarScaffold(
     longPressBackHeld: MutableState<Boolean>,
     navController: NavHostController,
     startDestination: String,
@@ -1491,9 +1434,8 @@ private fun LegacySidebarScaffold(
     }
 
     val sidebarTokens = FetchComponents.tokens.sidebar
-    val closedDrawerWidth = if (sidebarCollapsed) FetchTheme.spacing.none else sidebarTokens.legacyCollapsedWidth
-    val openDrawerWidth = sidebarTokens.legacyExpandedWidth
-    val openDrawerItemWidth = sidebarTokens.itemWidth
+    val closedDrawerWidth = if (sidebarCollapsed) FetchTheme.spacing.none else sidebarTokens.collapsedWidth
+    val openDrawerWidth = sidebarTokens.expandedWidth
 
     val focusManager = LocalFocusManager.current
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -1550,15 +1492,27 @@ private fun LegacySidebarScaffold(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        // A soft fade from the left edge instead of a panel, so the icons and labels stay readable
+        // over artwork while the page itself runs edge to edge.
+        scrimBrush = Brush.horizontalGradient(
+            0f to FetchTheme.colors.Background.copy(alpha = 0.92f),
+            0.35f to FetchTheme.colors.Background.copy(alpha = 0.55f),
+            1f to Color.Transparent
+        ),
         drawerContent = { drawerValue ->
             if (showSidebar) {
-                val drawerWidth = if (drawerValue == DrawerValue.Open) openDrawerWidth else closedDrawerWidth
+                val isExpanded = drawerValue == DrawerValue.Open
+                val drawerWidth = if (isExpanded) openDrawerWidth else closedDrawerWidth
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(drawerWidth)
-                        .background(FetchTheme.colors.Background)
-                        .padding(FetchTheme.spacing.card.outer)
+                        .background(
+                            Brush.horizontalGradient(
+                                0f to FetchTheme.colors.Background.copy(alpha = if (isExpanded) 0f else 0.85f),
+                                1f to Color.Transparent
+                            )
+                        )
                         .selectableGroup()
                         .onPreviewKeyEvent { keyEvent ->
                             if (keyEvent.type == KeyEventType.KeyDown) {
@@ -1574,89 +1528,17 @@ private fun LegacySidebarScaffold(
                             }
                         }
                 ) {
-                    val isExpanded = drawerValue == DrawerValue.Open
-                    val itemWidth by animateDpAsState(
-                        targetValue = if (isExpanded) openDrawerItemWidth else FetchTheme.sizes.avatars.md,
-                        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast, easing = FetchMotion.tokens.easings.standard),
-                        label = "legacySidebarItemWidth"
-                    )
-
-                    if (isExpanded) {
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .fillMaxWidth()
-                        ) {
-                            Spacer(modifier = Modifier.height(30.dp))
-                            if (showProfileSelector && activeProfileName.isNotEmpty()) {
-                                var isProfileFocused by remember { mutableStateOf(false) }
-                                val profileItemShape = FetchTheme.shapes.navItem
-                                val profileLeadingInset = FetchTheme.spacing.lg + FetchTheme.spacing.xxs
-                                val profileAvatarSize = FetchTheme.sizes.sidebar.leadingVisual
-                                val profileLabelStart = 60.dp
-                                val profileGapAfterAvatar =
-                                    (profileLabelStart - profileLeadingInset - profileAvatarSize).coerceAtLeast(FetchTheme.spacing.none)
-                                val profileBgColor = if (isProfileFocused) FetchTheme.colors.FocusBackground else Color.Transparent
-                                Box(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .width(itemWidth)
-                                            .height(sidebarTokens.itemHeight)
-                                            .background(color = profileBgColor, shape = profileItemShape)
-                                            .onFocusChanged { isProfileFocused = it.isFocused }
-                                            .clickable {
-                                                onSwitchProfile()
-                                                drawerState.setValue(DrawerValue.Closed)
-                                            },
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Spacer(modifier = Modifier.width(profileLeadingInset))
-                                        ProfileAvatarCircle(
-                                            name = activeProfileName,
-                                            colorHex = activeProfileColorHex,
-                                            size = profileAvatarSize,
-                                            avatarImageUrl = activeProfileAvatarImageUrl,
-                                            imageCrossfade = false
-                                        )
-                                        Spacer(modifier = Modifier.width(profileGapAfterAvatar))
-                                        Text(
-                                            text = activeProfileName,
-                                            color = if (isProfileFocused) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            textAlign = TextAlign.Start,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
-                                }
-                            } else {
-                                BrandWordmark(
-                                    contentDescription = stringResource(R.string.app_name),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(42.dp)
-                                )
-                            }
-                        }
-                    }
-
                     Column(
                         modifier = Modifier
                             .align(Alignment.CenterStart)
-                            .offset(y = 28.dp)
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                            .padding(start = sidebarTokens.floatingInset),
+                        verticalArrangement = Arrangement.spacedBy(sidebarTokens.floatingGap),
                         horizontalAlignment = Alignment.Start
                     ) {
                         drawerItems.forEach { item ->
                             key(item.route) {
-                                LegacySidebarButton(
+                                FloatingSidebarButton(
                                     label = item.label,
-                                    iconRes = item.iconRes,
-                                    icon = item.icon,
                                     selected = selectedDrawerRoute == item.route,
                                     expanded = isExpanded,
                                     onClick = {
@@ -1673,14 +1555,40 @@ private fun LegacySidebarScaffold(
                                     modifier = Modifier.focusRequester(
                                         drawerItemFocusRequesters.getValue(item.route)
                                     )
-                                        .width(itemWidth)
-                                        .offset(x = FetchTheme.spacing.md)
+                                ) { tint ->
+                                    DrawerItemIcon(
+                                        iconRes = item.iconRes,
+                                        icon = item.icon,
+                                        tint = tint,
+                                        brush = null,
+                                        modifier = Modifier.size(sidebarTokens.iconSize)
+                                    )
+                                }
+                            }
+                        }
+                        if (showProfileSelector && activeProfileName.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(sidebarTokens.floatingGap))
+                            FloatingSidebarButton(
+                                label = activeProfileName,
+                                selected = false,
+                                expanded = isExpanded,
+                                onClick = {
+                                    onSwitchProfile()
+                                    drawerState.setValue(DrawerValue.Closed)
+                                }
+                            ) { _ ->
+                                ProfileAvatarCircle(
+                                    name = activeProfileName,
+                                    colorHex = activeProfileColorHex,
+                                    size = sidebarTokens.floatingButtonSize - FetchTheme.spacing.xs,
+                                    avatarImageUrl = activeProfileAvatarImageUrl,
+                                    imageCrossfade = false
                                 )
+                            }
                         }
                     }
                 }
             }
-        }
         }
     ) {
         val contentStartPadding by animateDpAsState(
@@ -1750,653 +1658,6 @@ private fun LegacySidebarScaffold(
                     startDestination = startDestination,
                     hideBuiltInHeaders = hideBuiltInHeaders
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun LegacySidebarButton(
-    label: String,
-    iconRes: Int?,
-    icon: ImageVector?,
-    selected: Boolean,
-    expanded: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    var isFocused by remember { mutableStateOf(false) }
-    val itemShape = FetchTheme.shapes.navItem
-    val backgroundColor by animateColorAsState(
-        targetValue = when {
-            isFocused -> FetchTheme.colors.FocusBackground
-            expanded && selected -> FetchTheme.colors.Secondary
-            else -> Color.Transparent
-        },
-        label = "legacySidebarItemBackground"
-    )
-    val contentColor by animateColorAsState(
-        targetValue = when {
-            isFocused -> FetchTheme.colors.TextPrimary
-            expanded && selected -> FetchTheme.colors.OnSecondary
-            else -> FetchTheme.colors.TextSecondary
-        },
-        label = "legacySidebarItemContent"
-    )
-    val iconTint by animateColorAsState(
-        targetValue = when {
-            isFocused -> FetchTheme.colors.TextPrimary
-            expanded && selected -> FetchTheme.colors.OnSecondary
-            selected -> FetchTheme.colors.Secondary
-            !expanded -> FetchTheme.colors.TextTertiary
-            else -> FetchTheme.colors.TextSecondary
-        },
-        label = "legacySidebarItemIconTint"
-    )
-    val selectedCollapsedIconBrush = if (selected && !expanded) {
-        FetchTheme.palette.accentBrush()
-    } else {
-        null
-    }
-    val itemScale by animateFloatAsState(
-        targetValue = if (isFocused && expanded) 1.1f else 1f,
-        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast, easing = FetchMotion.tokens.easings.standard),
-        label = "legacySidebarItemScale"
-    )
-
-    Card(
-        onClick = onClick,
-        modifier = modifier
-            .height(FetchComponents.tokens.sidebar.itemHeight)
-            .graphicsLayer {
-                scaleX = itemScale
-                scaleY = itemScale
-                transformOrigin = TransformOrigin.Center
-            }
-            .focusProperties { canFocus = expanded }
-            .onFocusChanged { isFocused = it.hasFocus },
-        colors = CardDefaults.colors(
-            containerColor = backgroundColor,
-            focusedContainerColor = backgroundColor,
-        ),
-        border = CardDefaults.border(
-            border = androidx.tv.material3.Border.None,
-            focusedBorder = androidx.tv.material3.Border(
-                border = androidx.compose.foundation.BorderStroke(FetchStrokes.tokens.thin, Color.Transparent),
-                shape = itemShape
-            )
-        ),
-        shape = CardDefaults.shape(shape = itemShape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .semantics {
-                    contentDescription = label
-                    role = Role.Tab
-                    this.selected = selected
-                }
-        ) {
-        DrawerItemIcon(
-            iconRes = iconRes,
-            icon = icon,
-            tint = iconTint,
-            brush = selectedCollapsedIconBrush,
-            modifier = Modifier
-                .size(FetchComponents.tokens.sidebar.iconSize)
-                .align(Alignment.CenterStart)
-                .offset(x = 13.dp)
-        )
-        if (expanded) {
-            com.fetch.tv.ui.components.AutoResizeText(
-                text = label,
-                color = contentColor,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 54.dp, end = 14.dp)
-            )
-        }
-    }
-}
-}
-
-@Composable
-private fun ModernSidebarScaffold(
-    longPressBackHeld: MutableState<Boolean>,
-    navController: NavHostController,
-    startDestination: String,
-    currentRoute: String?,
-    rootRoutes: Set<String>,
-    drawerItems: List<DrawerItem>,
-    selectedDrawerRoute: String?,
-    selectedDrawerItem: DrawerItem,
-    sidebarCollapsed: Boolean,
-    modernSidebarBlurEnabled: Boolean,
-    hideBuiltInHeaders: Boolean,
-    activeProfileName: String,
-    activeProfileColorHex: String,
-    activeProfileAvatarImageUrl: String?,
-    showProfileSelector: Boolean,
-    onSwitchProfile: () -> Unit,
-    onNavigate: (String) -> Unit,
-    onExitApp: () -> Unit
-) {
-    val showSidebar = currentRoute in rootRoutes
-    val sidebarTokens = FetchComponents.tokens.sidebar
-    val collapsedSidebarWidth = if (sidebarCollapsed) FetchTheme.spacing.none else sidebarTokens.collapsedWidth
-    val openSidebarWidth = sidebarTokens.expandedWidth
-
-    val focusManager = LocalFocusManager.current
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
-    val contentFocusRequester = remember { FocusRequester() }
-    val drawerItemFocusRequesters = rememberDrawerItemFocusRequesters(drawerItems)
-    val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
-
-    var isSidebarExpanded by remember { mutableStateOf(false) }
-    var sidebarCollapsePending by remember { mutableStateOf(false) }
-    var pendingContentFocusTransfer by remember { mutableStateOf(false) }
-    var pendingSidebarFocusRequest by remember { mutableStateOf(false) }
-    var focusedDrawerIndex by remember { mutableStateOf(-1) }
-    var isFloatingPillIconOnly by remember { mutableStateOf(false) }
-    var pillExpandRequestCount by remember { mutableIntStateOf(0) }
-    val keepFloatingPillExpanded = false
-    val keepSidebarFocusDuringCollapse =
-        isSidebarExpanded || sidebarCollapsePending || pendingContentFocusTransfer
-    val hasSidebarProfileItem = showProfileSelector && activeProfileName.isNotEmpty()
-    val sidebarTopBoundaryIndex = if (hasSidebarProfileItem) drawerItems.size else 0
-
-    LaunchedEffect(showSidebar) {
-        if (!showSidebar) {
-            isSidebarExpanded = false
-            sidebarCollapsePending = false
-            pendingContentFocusTransfer = false
-            pendingSidebarFocusRequest = false
-            isFloatingPillIconOnly = false
-        }
-    }
-
-    // Collapse sidebar when navigating between root routes (e.g. Settings -> Home via Back)
-    LaunchedEffect(currentRoute) {
-        if (isSidebarExpanded && showSidebar) {
-            sidebarCollapsePending = true
-        }
-    }
-
-    LaunchedEffect(keepFloatingPillExpanded, showSidebar) {
-        if (!showSidebar || keepFloatingPillExpanded) {
-            isFloatingPillIconOnly = false
-        }
-    }
-
-    // Expand pill label briefly after navigating to a different root route
-    LaunchedEffect(selectedDrawerRoute) {
-        if (showSidebar && !isSidebarExpanded) {
-            isFloatingPillIconOnly = false
-            pillExpandRequestCount++
-        }
-    }
-
-    BackHandler(enabled = currentRoute in rootRoutes && !isSidebarExpanded && !sidebarCollapsePending) {
-        isSidebarExpanded = true
-        sidebarCollapsePending = false
-        pendingSidebarFocusRequest = true
-    }
-
-    BackHandler(enabled = currentRoute in rootRoutes && isSidebarExpanded && !sidebarCollapsePending) {
-        if (longPressBackHeld.value) return@BackHandler
-        onExitApp()
-    }
-
-    LaunchedEffect(sidebarCollapsePending, isSidebarExpanded, showSidebar) {
-        if (!showSidebar || !sidebarCollapsePending) {
-            return@LaunchedEffect
-        }
-        if (!isSidebarExpanded) {
-            sidebarCollapsePending = false
-            return@LaunchedEffect
-        }
-        delay(95L)
-        isSidebarExpanded = false
-        sidebarCollapsePending = false
-    }
-
-    // Auto-collapse the expanded sidebar after a short period of inactivity.
-    // The timer resets every time focus moves between drawer items, so the
-
-    // Auto-collapse the floating pill back to icon-only when the user reveals
-    // its label (DPAD UP from content) and then leaves it idle. The DPAD DOWN
-    // path already collapses it instantly, this just covers the case where the
-    // user releases UP and walks away.
-    LaunchedEffect(isFloatingPillIconOnly, keepFloatingPillExpanded, showSidebar, isSidebarExpanded, pillExpandRequestCount) {
-        if (!showSidebar || isFloatingPillIconOnly || keepFloatingPillExpanded || isSidebarExpanded) {
-            return@LaunchedEffect
-        }
-        delay(SIDEBAR_AUTO_COLLAPSE_DELAY_MS)
-        isFloatingPillIconOnly = true
-    }
-
-    val sidebarVisible = showSidebar && (isSidebarExpanded || !sidebarCollapsed)
-    val sidebarHazeState = remember { HazeState() }
-    // Panel is always laid out at full expanded width; open/close is
-    // purely a graphicsLayer transform (scale + alpha) so Compose never
-    // re-layouts and haze doesn't re-render blur every frame.
-    val sidebarWidth = if (sidebarVisible) openSidebarWidth else collapsedSidebarWidth
-    val animationDuration = if (sidebarVisible) 400 else 300
-    val animationEasing = if (sidebarVisible) FastOutSlowInEasing else FastOutLinearInEasing
-
-    val sidebarSlideX = FetchTheme.spacing.none
-    val sidebarSurfaceAlpha by animateFloatAsState(
-        targetValue = if (isSidebarExpanded) 1f else 0f,
-        animationSpec = tween(durationMillis = if (isSidebarExpanded) 280 else 200, easing = animationEasing),
-        label = "sidebarSurfaceAlpha"
-    )
-    val shouldApplySidebarHaze = showSidebar && modernSidebarBlurEnabled
-    val sidebarTransition = updateTransition(
-        targetState = isSidebarExpanded,
-        label = "sidebarTransition"
-    )
-    // Labels and icons are always at full size — the panel is rendered
-    // complete and the open/close animation is purely graphicsLayer.
-    val sidebarLabelAlpha = 1f
-    val sidebarExpandProgress by sidebarTransition.animateFloat(
-        transitionSpec = {
-            if (targetState) {
-                tween(durationMillis = FetchMotion.tokens.durations.sidebarPanelIn, easing = FastOutSlowInEasing)
-            } else {
-                tween(durationMillis = FetchMotion.tokens.durations.sidebarPanelOut, easing = LinearOutSlowInEasing)
-            }
-        },
-        label = "sidebarExpandProgress"
-    ) { expanded ->
-        if (expanded) 1f else 0f
-    }
-
-    // derivedStateOf prevents per-frame recomposition — only triggers when the boolean crosses the threshold
-    val sidebarBlocksContentKeys by remember { derivedStateOf { sidebarExpandProgress > 0.2f } }
-    val sidebarShowExpandedPanel by remember { derivedStateOf { sidebarExpandProgress > 0.01f } }
-    val sidebarShowCollapsedPill by remember { derivedStateOf { sidebarExpandProgress < 0.98f } }
-
-    val sidebarIconScale = 1f
-    val sidebarBloomScale = 1f
-    val sidebarDeflateOffsetX = FetchTheme.spacing.none
-    val sidebarDeflateOffsetY = FetchTheme.spacing.none
-
-    LaunchedEffect(isSidebarExpanded, sidebarCollapsePending, pendingContentFocusTransfer, showSidebar) {
-        if (!showSidebar || !pendingContentFocusTransfer || isSidebarExpanded || sidebarCollapsePending) {
-            return@LaunchedEffect
-        }
-        repeat(2) { withFrameNanos { } }
-        runCatching { contentFocusRequester.requestFocus() }
-        pendingContentFocusTransfer = false
-    }
-
-    LaunchedEffect(isSidebarExpanded, pendingSidebarFocusRequest, showSidebar, selectedDrawerRoute) {
-        if (!showSidebar || !pendingSidebarFocusRequest || !isSidebarExpanded) {
-            return@LaunchedEffect
-        }
-        val targetRoute = selectedDrawerRoute ?: drawerItems.firstOrNull()?.route ?: run {
-            pendingSidebarFocusRequest = false
-            return@LaunchedEffect
-        }
-        val requester = drawerItemFocusRequesters[targetRoute] ?: run {
-            pendingSidebarFocusRequest = false
-            return@LaunchedEffect
-        }
-        repeat(2) { withFrameNanos { } }
-        runCatching { requester.requestFocus() }
-        pendingSidebarFocusRequest = false
-    }
-
-    SidebarFocusRecoveryEffect(
-        drawerItems = drawerItems,
-        selectedDrawerRoute = selectedDrawerRoute,
-        drawerItemFocusRequesters = drawerItemFocusRequesters,
-        sidebarOwnsFocus = showSidebar && isSidebarExpanded
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .onPreviewKeyEvent { keyEvent ->
-                // Consume all Back key events after long-press until released,
-                // preventing the exit-app BackHandler from firing during the hold.
-                if (longPressBackHeld.value && keyEvent.key == Key.Back) {
-                    if (keyEvent.type == KeyEventType.KeyUp) longPressBackHeld.value = false
-                    return@onPreviewKeyEvent true
-                }
-                false
-            }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .then(
-                    if (shouldApplySidebarHaze) Modifier.hazeSource(state = sidebarHazeState)
-                    else Modifier
-                )
-                .onPreviewKeyEvent { keyEvent ->
-                    // Long-press Back on a root route directly opens the sidebar,
-                    // bypassing the "scroll row to start" BackHandler in home content.
-                    if (keyEvent.key == Key.Back) {
-                        if (
-                            keyEvent.type == KeyEventType.KeyDown &&
-                            showSidebar &&
-                            !isSidebarExpanded &&
-                            !sidebarCollapsePending &&
-                            currentRoute in rootRoutes &&
-                            keyEvent.nativeKeyEvent.isLongPress
-                        ) {
-                            if (!longPressBackHeld.value) {
-                                longPressBackHeld.value = true
-                                isSidebarExpanded = true
-                                sidebarCollapsePending = false
-                                pendingSidebarFocusRequest = true
-                            }
-                            return@onPreviewKeyEvent true
-                        }
-                        if (longPressBackHeld.value) {
-                            if (keyEvent.type == KeyEventType.KeyUp) longPressBackHeld.value = false
-                            return@onPreviewKeyEvent true
-                        }
-                    }
-                    if (
-                        isSidebarExpanded &&
-                        !sidebarCollapsePending &&
-                        sidebarBlocksContentKeys &&
-                        keyEvent.type == KeyEventType.KeyDown &&
-                        isBlockedContentKey(keyEvent.key)
-                    ) {
-                        true
-                    } else {
-                        false
-                    }
-                }
-                .onKeyEvent { keyEvent ->
-                    if (showSidebar && !isSidebarExpanded && keyEvent.type == KeyEventType.KeyDown) {
-                        if (!keepFloatingPillExpanded) {
-                            when (keyEvent.key) {
-                                Key.DirectionDown -> isFloatingPillIconOnly = true
-                                Key.DirectionUp -> {
-                                    isFloatingPillIconOnly = false
-                                    pillExpandRequestCount++
-                                }
-                                else -> Unit
-                            }
-                        }
-                        val openKey = if (isRtl) Key.DirectionRight else Key.DirectionLeft
-                        if (keyEvent.key == openKey) {
-                            if (focusManager.moveFocus(if (isRtl) FocusDirection.Right else FocusDirection.Left)) {
-                                true
-                            } else {
-                                isSidebarExpanded = true
-                                sidebarCollapsePending = false
-                                pendingSidebarFocusRequest = true
-                                true
-                            }
-                        } else {
-                            false
-                        }
-                    } else {
-                        false
-                    }
-                }
-        ) {
-            CompositionLocalProvider(
-                LocalSidebarExpanded provides isSidebarExpanded,
-                LocalContentFocusRequester provides contentFocusRequester
-            ) {
-                FetchNavHost(
-                    navController = navController,
-                    startDestination = startDestination,
-                    hideBuiltInHeaders = hideBuiltInHeaders
-                )
-            }
-        }
-
-        if (showSidebar && (sidebarVisible || sidebarShowExpandedPanel)) {
-            val panelShape = RoundedCornerShape(sidebarTokens.panelRadius)
-            val showExpandedPanel = isSidebarExpanded || sidebarShowExpandedPanel
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .width(openSidebarWidth)
-                    .padding(start = FetchTheme.spacing.lg - FetchTheme.spacing.xxs, top = FetchTheme.spacing.lg, bottom = FetchTheme.spacing.md, end = FetchTheme.spacing.sm)
-                    .graphicsLayer {
-                        val progress = sidebarExpandProgress
-                        alpha = sidebarSurfaceAlpha
-                        val s = 0.92f + 0.08f * progress
-                        scaleX = s
-                        scaleY = s
-                        transformOrigin = TransformOrigin(0f, 0f)
-                    }
-                    .selectableGroup()
-                    .onPreviewKeyEvent { keyEvent ->
-                        if (!isSidebarExpanded || keyEvent.type != KeyEventType.KeyDown) {
-                            return@onPreviewKeyEvent false
-                        }
-                        when (keyEvent.key) {
-                            Key.DirectionUp -> {
-                                if (focusedDrawerIndex == sidebarTopBoundaryIndex) {
-                                    true
-                                } else {
-                                    // Move focus within the sidebar; consume unconditionally
-                                    // so focus never escapes into the content behind.
-                                    focusManager.moveFocus(FocusDirection.Up)
-                                    true
-                                }
-                            }
-
-                            Key.DirectionDown -> {
-                                if (focusedDrawerIndex == drawerItems.lastIndex) {
-                                    // Already at the bottom drawer item — stay put.
-                                    true
-                                } else if (focusedDrawerIndex == drawerItems.size && hasSidebarProfileItem) {
-                                    // Profile → first drawer item: skip moveFocus (the
-                                    // Spacer gap causes it to land in content) and
-                                    // request the first drawer item directly.
-                                    drawerItems.firstOrNull()?.route?.let { route ->
-                                        drawerItemFocusRequesters[route]?.requestFocus()
-                                    }
-                                    true
-                                } else {
-                                    focusManager.moveFocus(FocusDirection.Down)
-                                    true
-                                }
-                            }
-
-                            Key.DirectionRight, Key.DirectionLeft -> {
-                                val collapseKey = if (isRtl) Key.DirectionLeft else Key.DirectionRight
-                                if (keyEvent.key == collapseKey) {
-                                    pendingContentFocusTransfer = false
-                                    sidebarCollapsePending = true
-                                    true
-                                } else {
-                                    false
-                                }
-                            }
-
-                            else -> false
-                        }
-                    }
-            ) {
-                if (showExpandedPanel) {
-                    ModernSidebarBlurPanel(
-                        drawerItems = drawerItems,
-                        selectedDrawerRoute = selectedDrawerRoute,
-                        keepSidebarFocusDuringCollapse = keepSidebarFocusDuringCollapse,
-                        sidebarLabelAlpha = sidebarLabelAlpha,
-                        sidebarIconScale = sidebarIconScale,
-                        sidebarExpandProgress = sidebarExpandProgress,
-                        isSidebarExpanded = isSidebarExpanded,
-                        sidebarCollapsePending = sidebarCollapsePending,
-                        blurEnabled = modernSidebarBlurEnabled,
-                        sidebarHazeState = sidebarHazeState,
-                        panelShape = panelShape,
-                        drawerItemFocusRequesters = drawerItemFocusRequesters,
-                        onDrawerItemFocused = { focusedDrawerIndex = it },
-                        onDrawerItemClick = { targetRoute ->
-                            keyboardController?.hide()
-                            onNavigate(targetRoute)
-                            navigateToDrawerRoute(
-                                navController = navController,
-                                currentRoute = currentRoute,
-                                targetRoute = targetRoute
-                            )
-                            pendingSidebarFocusRequest = false
-                            isSidebarExpanded = false
-                            sidebarCollapsePending = false
-                            pendingContentFocusTransfer = currentRoute == targetRoute
-                        },
-                        activeProfileName = activeProfileName,
-                        activeProfileColorHex = activeProfileColorHex,
-                        activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
-                        showProfileSelector = showProfileSelector,
-                        onSwitchProfile = onSwitchProfile
-                    )
-                }
-            }
-
-            if (
-                !sidebarCollapsed &&
-                sidebarShowCollapsedPill &&
-                selectedDrawerRoute != Screen.Search.route
-            ) {
-                CollapsedSidebarPill(
-                    label = selectedDrawerItem.label,
-                    iconRes = selectedDrawerItem.iconRes,
-                    icon = selectedDrawerItem.icon,
-                    iconOnly = isFloatingPillIconOnly && !keepFloatingPillExpanded,
-                    blurEnabled = modernSidebarBlurEnabled,
-                    hazeState = if (modernSidebarBlurEnabled) sidebarHazeState else null,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .offset {
-                            IntOffset(
-                                (FetchTheme.spacing.lg - FetchTheme.spacing.xxs).roundToPx(),
-                                (FetchTheme.spacing.lg + sidebarDeflateOffsetY).roundToPx()
-                            )
-                        }
-                        .graphicsLayer {
-                            val progress = sidebarExpandProgress
-                            alpha = 1f - progress
-                            val s = 0.9f + (0.1f * (1f - progress))
-                            scaleX = s
-                            scaleY = s
-                            transformOrigin = TransformOrigin(0f, 0f)
-                        },
-                    onExpand = {
-                        isSidebarExpanded = true
-                        sidebarCollapsePending = false
-                        pendingSidebarFocusRequest = true
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun CollapsedSidebarPill(
-    label: String,
-    iconRes: Int?,
-    icon: ImageVector?,
-    iconOnly: Boolean,
-    blurEnabled: Boolean,
-    hazeState: HazeState? = null,
-    modifier: Modifier = Modifier,
-    onExpand: () -> Unit
-) {
-    val pillShape = RoundedCornerShape(FetchRadii.tokens.full)
-    val colors = FetchTheme.colors
-    val bgElevated = colors.BackgroundElevated
-    val bgCard = colors.BackgroundCard
-    val borderBase = colors.Border
-    val mediaColors = colors.media
-    val pillBackgroundBrush = remember(blurEnabled) {
-        val alpha = if (blurEnabled) 0.65f else 0.96f
-        Brush.verticalGradient(listOf(
-            Color(0xFF1C1C1E).copy(alpha = alpha),
-            Color(0xFF1C1C1E).copy(alpha = alpha)
-        ))
-    }
-
-    Row(
-        modifier = modifier
-            .focusProperties { canFocus = false }
-            .clickable(onClick = onExpand)
-            .semantics {
-                role = Role.Button
-                contentDescription = label
-            }
-            .padding(horizontal = FetchTheme.spacing.hairline, vertical = FetchTheme.spacing.xxs),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .height(FetchTheme.sizes.player.control)
-                .clip(pillShape)
-                .then(
-                    if (blurEnabled && hazeState != null) {
-                        Modifier.hazeEffect(state = hazeState) {
-                            blurRadius = 24.dp
-                            inputScale = HazeInputScale.Fixed(0.66f)
-                        }
-                    } else {
-                        Modifier
-                    }
-                )
-                .background(brush = pillBackgroundBrush, shape = pillShape)
-        ) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .fillMaxHeight()
-                    .padding(start = 5.dp, end = 5.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(FetchTheme.sizes.sidebar.leadingVisual),
-                    contentAlignment = Alignment.Center
-                ) {
-                    DrawerItemIcon(
-                        iconRes = iconRes,
-                        icon = icon,
-                        tint = FetchTheme.colors.text.onOverlay,
-                        modifier = Modifier
-                            .size(FetchTheme.sizes.sidebar.leadingVisual - FetchTheme.spacing.md)
-                            .offset(y = (-0.5).dp)
-                    )
-                }
-
-                AnimatedVisibility(
-                    visible = !iconOnly,
-                    enter = expandHorizontally(
-                            animationSpec = tween(FetchMotion.tokens.durations.fast, easing = FastOutSlowInEasing),
-                            expandFrom = Alignment.Start,
-                            clip = true
-                        ),
-                    exit = shrinkHorizontally(
-                            animationSpec = tween(FetchMotion.tokens.durations.fast, easing = FastOutSlowInEasing),
-                            shrinkTowards = Alignment.Start,
-                            clip = true
-                        )
-                ) {
-                    Text(
-                        text = label,
-                        color = FetchTheme.colors.text.onOverlay,
-                        style = androidx.tv.material3.MaterialTheme.typography.titleLarge.copy(
-                            lineHeight = 30.sp
-                        ),
-                        modifier = Modifier
-                            .padding(start = 9.dp, end = FetchTheme.spacing.md - 5.dp)
-                            .offset(y = (-0.5).dp),
-                        maxLines = 1
-                    )
-                }
             }
         }
     }

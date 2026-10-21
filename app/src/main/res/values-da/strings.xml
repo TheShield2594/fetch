@@ -757,10 +757,6 @@
     <string name="layout_section_content_desc">Styr hvad der vises på hjem og søgning.</string>
     <string name="layout_collapse_sidebar">Fold sidebjælken sammen</string>
     <string name="layout_collapse_sidebar_sub">Skjul sidebjælken som standard; vis den, når den er i fokus.</string>
-    <string name="layout_modern_sidebar">Moderne sidebjælke</string>
-    <string name="layout_modern_sidebar_sub">Aktivér flydende sidebjælkenavigation.</string>
-    <string name="layout_modern_sidebar_blur">Sløring af moderne sidebjælke</string>
-    <string name="layout_modern_sidebar_blur_sub">Slå sløreeffekt til/fra for den moderne sidebjælke.</string>
     <string name="layout_fullscreen_hero_backdrop">Fuldskærms hero-baggrund</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Udvid hero-baggrunden til at fylde hele skærmen.</string>
     <string name="layout_show_discover">Vis/Skjul Opdag</string>

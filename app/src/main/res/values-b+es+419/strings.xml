@@ -943,12 +943,6 @@
     <string name="layout_section_custom_poster_desc">Usar imágenes de un servicio externo de pósters.</string>
     <string name="layout_collapse_sidebar">Contraer Barra Lateral</string>
     <string name="layout_collapse_sidebar_sub">Ocultar la barra lateral por defecto; mostrarla al interactuar con ella.</string>
-    <string name="layout_hide_floating_pill">Ocultar indicador flotante</string>
-    <string name="layout_hide_floating_pill_sub">Oculta el indicador de navegación flotante en la pantalla de inicio.</string>
-    <string name="layout_modern_sidebar">Barra Lateral Moderna</string>
-    <string name="layout_modern_sidebar_sub">Habilitar la navegación de la barra lateral flotante.</string>
-    <string name="layout_modern_sidebar_blur">Desenfocar Barra Lateral Moderna</string>
-    <string name="layout_modern_sidebar_blur_sub">Activar el efecto de desenfoque para las superficies de la barra lateral moderna.</string>
     <string name="layout_fullscreen_hero_backdrop">Fondo principal en pantalla completa</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expande el fondo principal para que ocupe toda la pantalla.</string>
     <string name="layout_show_discover">Mostrar/Ocultar Descubrir</string>

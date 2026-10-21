@@ -568,12 +568,6 @@
     <string name="layout_section_content_desc">Управление тем, что отображается на главном экране и в поиске.</string>
     <string name="layout_collapse_sidebar">Сворачивать боковую панель</string>
     <string name="layout_collapse_sidebar_sub">Скрывать боковую панель по умолчанию; показывать при фокусе.</string>
-    <string name="layout_hide_floating_pill">Скрыть плавающий индикатор</string>
-    <string name="layout_hide_floating_pill_sub">Скрыть плавающий индикатор навигации на главном экране.</string>
-    <string name="layout_modern_sidebar">Современная боковая панель</string>
-    <string name="layout_modern_sidebar_sub">Включить плавающую боковую панель навигации.</string>
-    <string name="layout_modern_sidebar_blur">Размытие современной боковой панели</string>
-    <string name="layout_modern_sidebar_blur_sub">Переключить эффект размытия для современной боковой панели.</string>
     <string name="layout_fullscreen_hero_backdrop">Полноэкранный фон главного блока</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Растягивать фон главного блока на весь экран.</string>
     <string name="layout_show_discover">Показывать Навигатор в поиске</string>

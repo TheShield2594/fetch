@@ -757,10 +757,6 @@
     <string name="layout_section_content_desc">التحكم في ما يظهر في الرئيسية والبحث.</string>
     <string name="layout_collapse_sidebar">طي الشريط الجانبي</string>
     <string name="layout_collapse_sidebar_sub">إخفاء الشريط الجانبي تلقائياً؛ وإظهاره عند التركيز.</string>
-    <string name="layout_modern_sidebar">شريط جانبي حديث</string>
-    <string name="layout_modern_sidebar_sub">تفعيل التنقل عبر شريط جانبي عائم.</string>
-    <string name="layout_modern_sidebar_blur">تعتيم الشريط الحديث</string>
-    <string name="layout_modern_sidebar_blur_sub">تفعيل تأثير التعتيم لأسطح الشريط الجانبي الحديث.</string>
     <string name="layout_fullscreen_hero_backdrop">خلفية القسم المميز بملء الشاشة</string>
     <string name="layout_fullscreen_hero_backdrop_sub">توسيع خلفية القسم المميز لتملأ الشاشة بأكملها.</string>
     <string name="layout_show_discover">إظهار "استكشاف" في البحث</string>

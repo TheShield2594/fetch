@@ -732,10 +732,6 @@
     <string name="layout_section_content_desc">Controla o que aparece na página inicial e na pesquisa.</string>
     <string name="layout_collapse_sidebar">Recolher barra lateral</string>
     <string name="layout_collapse_sidebar_sub">Ocultar a barra lateral por predefinição; mostrar quando focada.</string>
-    <string name="layout_modern_sidebar">Barra lateral moderna</string>
-    <string name="layout_modern_sidebar_sub">Ativar a navegação flutuante na barra lateral.</string>
-    <string name="layout_modern_sidebar_blur">Desfocagem da barra lateral moderna</string>
-    <string name="layout_modern_sidebar_blur_sub">Alternar o efeito de desfocagem para as superfícies da barra lateral moderna.</string>
     <string name="layout_fullscreen_hero_backdrop">Fundo em destaque em ecrã inteiro</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expandir o fundo em destaque para preencher o ecrã inteiro.</string>
     <string name="layout_show_discover">Mostrar/Ocultar Descobrir</string>

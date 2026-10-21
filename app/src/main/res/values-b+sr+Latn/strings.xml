@@ -890,12 +890,6 @@
     <string name="layout_section_content_desc">Kontrolišite šta se pojavljuje na početnoj stranici i u pretrazi.</string>
     <string name="layout_collapse_sidebar">Skupi bočnu traku</string>
     <string name="layout_collapse_sidebar_sub">Sakrij bočnu traku po podrazumevanoj vrednosti; prikaži kada je u fokusu.</string>
-    <string name="layout_hide_floating_pill">Sakrij plutajući indikator</string>
-    <string name="layout_hide_floating_pill_sub">Sakrij plutajući indikator navigacije na početnom ekranu.</string>
-    <string name="layout_modern_sidebar">Moderna bočna traka</string>
-    <string name="layout_modern_sidebar_sub">Omogući plutajuću navigaciju u bočnoj traci.</string>
-    <string name="layout_modern_sidebar_blur">Zamućenje moderne bočne trake</string>
-    <string name="layout_modern_sidebar_blur_sub">Uključi/isključi efekat zamućenja za moderne površine bočne trake.</string>
     <string name="layout_fullscreen_hero_backdrop">Pozadina glavne sekcije preko celog ekrana</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi pozadinu glavne sekcije tako da ispuni ceo ekran.</string>
     <string name="layout_show_discover">Prikaži/Sakrij Otkrij</string>

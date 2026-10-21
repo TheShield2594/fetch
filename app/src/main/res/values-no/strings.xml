@@ -426,10 +426,6 @@
     <string name="layout_section_content_desc">Kontroller hva som vises på hjemmet og søket.</string>
     <string name="layout_collapse_sidebar">Skjul sidestolpe</string>
     <string name="layout_collapse_sidebar_sub">Skjul sidestolpe som standard; vis når fokusert.</string>
-    <string name="layout_modern_sidebar">Moderne sidefeltet</string>
-    <string name="layout_modern_sidebar_sub">Aktiver flytende navigasjonsstripe.</string>
-    <string name="layout_modern_sidebar_blur">Moderne bluring av sidefeltet</string>
-    <string name="layout_modern_sidebar_blur_sub">Slå på/av blureffekt for moderne sidefeltsflater.</string>
     <string name="layout_fullscreen_hero_backdrop">Heltkran i fullskjerm</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Utvid heltbakgrunn til å fylle hele skjermen.</string>
     <string name="layout_show_discover">Vis Discover i søk</string>

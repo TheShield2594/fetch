@@ -729,10 +729,6 @@
     <string name="layout_section_content_desc">Kontrol apa yang muncul di beranda dan pencarian.</string>
     <string name="layout_collapse_sidebar">Ciutkan Bilah Sisi</string>
     <string name="layout_collapse_sidebar_sub">Setelan bawaan membunyikan bilah sisi; tampilkan saat difokuskan.</string>
-    <string name="layout_modern_sidebar">Bilah Sisi Modern</string>
-    <string name="layout_modern_sidebar_sub">Aktifkan navigasi bilah sisi mengambang.</string>
-    <string name="layout_modern_sidebar_blur">Blur Bilah Sisi Modern</string>
-    <string name="layout_modern_sidebar_blur_sub">Aktifkan efek blur untuk permukaan bilah sisi modern.</string>
     <string name="layout_fullscreen_hero_backdrop">Latar Belakang Hero Layar Penuh</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Perluas latar belakang hero untuk mengisi seluruh layar.</string>
     <string name="layout_show_discover">Tampilkan/Sembunyikan Penemuan`</string>

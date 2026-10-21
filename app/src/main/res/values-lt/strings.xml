@@ -374,10 +374,6 @@
     <string name="layout_section_content_desc">Valdyti, kas rodoma pradiniame ekrane ir paieškoje.</string>
     <string name="layout_collapse_sidebar">Suskleisti šoninę juostą</string>
     <string name="layout_collapse_sidebar_sub">Slėpti šoninę juostą pagal numatytuosius nustatymus; rodyti, kai fokusuojama.</string>
-    <string name="layout_modern_sidebar">Moderni šoninė juosta</string>
-    <string name="layout_modern_sidebar_sub">Įjungti plaukiojančią šoninę navigaciją.</string>
-    <string name="layout_modern_sidebar_blur">Modernios šoninės juostos suliejimas</string>
-    <string name="layout_modern_sidebar_blur_sub">Perjungti suliejimo efektą modernios šoninės juostos paviršiams.</string>
     <string name="layout_show_discover">Rodyti „Atrasti“ paieškoje</string>
     <string name="layout_show_discover_sub">Rodyti naršymo skiltį, kai paieška tuščia.</string>
     <string name="layout_poster_labels">Rodyti plakatų etiketes</string>

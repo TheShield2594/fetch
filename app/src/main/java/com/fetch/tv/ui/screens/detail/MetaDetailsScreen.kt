@@ -3252,6 +3252,7 @@ private fun BackdropLayer(
     leftGradient: ImageBitmap,
     bottomGradient: ImageBitmap,
 ) {
+    val trailerCropToFill = com.fetch.tv.ui.components.LocalTrailerCropToFill.current
     var showHeroBackdropUnderlay by remember(heroBackdropRequest, backdropRequest) {
         mutableStateOf(heroBackdropRequest != null)
     }
@@ -3316,8 +3317,8 @@ private fun BackdropLayer(
             onProgressChanged = onTrailerProgressChanged,
             onEnded = onTrailerEnded,
             onFirstFrameRendered = { isBackgroundTrailerRendered = true },
-            cropToFill = isBackgroundTrailerPlaying,
-            autoCropLetterbox = isBackgroundTrailerPlaying,
+            cropToFill = isBackgroundTrailerPlaying && trailerCropToFill,
+            autoCropLetterbox = isBackgroundTrailerPlaying && trailerCropToFill,
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {

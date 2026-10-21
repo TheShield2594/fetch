@@ -727,6 +727,10 @@ fun AdvancedSettingsContent(
             }
         }
 
+        item(key = "skip_markers") {
+            SkipMarkerSettingsGroup()
+        }
+
         item(key = "clear_cw_cache") {
             SettingsGroupCard(
                 modifier = Modifier.fillMaxWidth(),

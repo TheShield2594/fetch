@@ -261,6 +261,9 @@ fun ContentCard(
             item.landscapePoster
         } else if (effectiveExpandEnabled && isBackdropExpanded) {
             item.backdropUrl ?: item.poster
+        } else if (item.posterShape == PosterShape.LANDSCAPE) {
+            // A landscape-shaped card has room for the addon's (or custom) landscape art.
+            item.landscapePoster ?: item.poster
         } else {
             item.poster
         }

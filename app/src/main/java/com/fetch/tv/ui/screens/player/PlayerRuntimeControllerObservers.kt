@@ -609,6 +609,7 @@ private fun PlayerRuntimeController.loadCloudLibraryResumeProgress(): WatchProgr
 }
 
 internal fun PlayerRuntimeController.fetchSkipIntervals(id: String?, season: Int?, episode: Int?) {
+    refreshSkipMarkerSubmission()
     if (!skipIntroEnabled) return
     if (id.isNullOrBlank()) return
 

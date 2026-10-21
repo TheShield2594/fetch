@@ -224,6 +224,18 @@ internal fun LayoutFocusedPosterSection(
             )
         }
     }
+
+    // Also covers the details page's background trailer, so it shows without home autoplay.
+    if (AppFeaturePolicy.inAppTrailerPlaybackEnabled) {
+        SettingsToggleRow(
+            title = stringResource(R.string.layout_trailer_crop_to_fill),
+            subtitle = stringResource(R.string.layout_trailer_crop_to_fill_sub),
+            checked = uiState.trailerCropToFill,
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetTrailerCropToFill(!uiState.trailerCropToFill))
+            }
+        )
+    }
 }
 
 @Composable

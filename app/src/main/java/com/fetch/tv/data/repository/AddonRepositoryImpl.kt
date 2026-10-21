@@ -339,6 +339,28 @@ class AddonRepositoryImpl(
         triggerRemoteSync()
     }
 
+    override suspend fun replaceAddonUrl(oldUrl: String, newUrl: String) {
+        val cleanOld = canonicalizeUrl(oldUrl)
+        val cleanNew = canonicalizeUrl(newUrl)
+        val urls = preferences.installedAddonUrls.first()
+        val index = urls.indexOfFirst { normalizeUrl(it) == normalizeUrl(cleanOld) }
+        if (index < 0) {
+            addAddon(cleanNew)
+            return
+        }
+        val wasEnabled = preferences.addonEnabledStates.first()[urls[index]] ?: true
+        val reordered = urls.toMutableList().apply { set(index, cleanNew) }
+            .distinctBy { normalizeUrl(it) }
+        if (!preferences.setAddonOrder(reordered)) return
+        if (!wasEnabled) preferences.setAddonEnabled(cleanNew, false)
+        if (removeCachedManifest(cleanOld)) {
+            persistManifestCacheToDisk()
+            bumpManifestCacheRevision()
+        }
+        if (getCachedManifest(cleanNew) == null) fetchAddon(cleanNew)
+        triggerRemoteSync()
+    }
+
     override suspend fun setAddonEnabled(url: String, enabled: Boolean) {
         val cleanUrl = canonicalizeUrl(url)
         if (!preferences.setAddonEnabled(cleanUrl, enabled)) return

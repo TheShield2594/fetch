@@ -1604,6 +1604,7 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
 
             activeSkipInterval = null,
             skipIntervalDismissed = false,
+            markerStartSec = null,
             postPlayMode = null,
             postPlayDismissedForCurrentEpisode = true,
             playbackEnded = false,
@@ -1717,6 +1718,7 @@ private fun PlayerRuntimeController.switchToEpisodeStreamCommon(
 
             activeSkipInterval = null,
             skipIntervalDismissed = false,
+            markerStartSec = null,
             postPlayMode = null,
             postPlayDismissedForCurrentEpisode = true,
             playbackEnded = false,

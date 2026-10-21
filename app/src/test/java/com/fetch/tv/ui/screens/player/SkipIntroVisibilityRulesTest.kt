@@ -195,4 +195,26 @@ class SkipIntroVisibilityRulesTest {
     fun `auto-hide remaining duration collapses to 1ms when progress already complete`() {
         assertEquals(1, skipIntroAutoHideRemainingMs(progress = 1f))
     }
+
+    // ── Auto-hide timeout (NuvioTV#3748) ───────────────────────────────────
+
+    @Test
+    fun `button stays up for the whole segment`() {
+        assertEquals(60_000, skipIntroAutoHideTimeoutMs(intro))
+    }
+
+    @Test
+    fun `short or open-ended segments use the default timeout`() {
+        assertEquals(SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS, skipIntroAutoHideTimeoutMs(intro.copy(endTime = 15.0)))
+        assertEquals(SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS, skipIntroAutoHideTimeoutMs(intro.copy(endTime = Double.MAX_VALUE)))
+        assertEquals(SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS, skipIntroAutoHideTimeoutMs(null))
+    }
+
+    @Test
+    fun `long credit segments are capped`() {
+        assertEquals(
+            MAX_SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS,
+            skipIntroAutoHideTimeoutMs(intro.copy(type = "outro", endTime = 900.0))
+        )
+    }
 }

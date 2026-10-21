@@ -121,6 +121,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 import com.fetch.tv.R
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import com.fetch.tv.ui.util.rememberLongPressKeyTracker
+import com.fetch.tv.core.addon.needsConfiguration
+import com.fetch.tv.core.addon.isConfigurable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 
@@ -510,6 +514,9 @@ fun AddonManagerScreen(
                         },
                         onRemove = { addonUrlPendingDeletion = addon.baseUrl },
                         onEnabledChange = { enabled -> viewModel.setAddonEnabled(addon.baseUrl, enabled) },
+                        onConfigure = if (addon.isConfigurable) {
+                            { viewModel.configureAddon(addon) }
+                        } else null,
                         isReadOnly = viewModel.isReadOnly,
                         showReorder = !isEssential,
                         toggleFocusRequester = if (index == 0) firstAddonToggleFocusRequester else null
@@ -527,6 +534,19 @@ fun AddonManagerScreen(
                     instruction = qrInstruction,
                     onClose = viewModel::stopQrMode,
                     hasPendingChange = uiState.pendingChange != null
+                )
+            }
+        }
+
+        uiState.configureTarget?.let { target ->
+            Popup(properties = PopupProperties(focusable = true)) {
+                AddonConfigureOverlay(
+                    target = target,
+                    statusMessage = uiState.transientMessage,
+                    statusIsError = uiState.transientMessageIsError,
+                    onConfirm = viewModel::confirmConfiguredUrl,
+                    onReject = viewModel::rejectConfiguredUrl,
+                    onClose = viewModel::stopConfigure
                 )
             }
         }
@@ -1317,6 +1337,7 @@ private fun AddonCard(
     onMoveDown: () -> Unit,
     onRemove: () -> Unit,
     onEnabledChange: (Boolean) -> Unit,
+    onConfigure: (() -> Unit)? = null,
     isReadOnly: Boolean = false,
     showReorder: Boolean = true,
     toggleFocusRequester: FocusRequester? = null
@@ -1345,6 +1366,7 @@ private fun AddonCard(
     } else {
         val internalToggleFocusRequester = remember { FocusRequester() }
         val effectiveToggleFocusRequester = toggleFocusRequester ?: internalToggleFocusRequester
+        val longPressKeyTracker = rememberLongPressKeyTracker()
 
         Card(
             modifier = modifier
@@ -1352,6 +1374,11 @@ private fun AddonCard(
                 .animateContentSize()
                 .focusProperties {
                     enter = { effectiveToggleFocusRequester }
+                }
+                // Holding OK anywhere on a configurable addon's card opens its configuration.
+                .onPreviewKeyEvent { event ->
+                    val configure = onConfigure ?: return@onPreviewKeyEvent false
+                    longPressKeyTracker.handle(event.nativeKeyEvent, ::isAddonCardSelectKey) { configure() }
                 },
             colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundCard),
             shape = RoundedCornerShape(FetchTheme.radii.md)
@@ -1366,6 +1393,7 @@ private fun AddonCard(
                 onMoveDown = onMoveDown,
                 onRemove = onRemove,
                 onEnabledChange = onEnabledChange,
+                onConfigure = onConfigure,
                 showReorder = showReorder,
                 toggleFocusRequester = effectiveToggleFocusRequester
             )
@@ -1385,6 +1413,7 @@ private fun AddonCardContent(
     onMoveDown: () -> Unit = {},
     onRemove: () -> Unit = {},
     onEnabledChange: (Boolean) -> Unit = {},
+    onConfigure: (() -> Unit)? = null,
     showReorder: Boolean = true,
     toggleFocusRequester: FocusRequester? = null
 ) {
@@ -1416,6 +1445,13 @@ private fun AddonCardContent(
                             text = stringResource(R.string.addons_badge_disabled),
                             style = MaterialTheme.typography.labelSmall,
                             color = FetchTheme.colors.TextSecondary
+                        )
+                    }
+                    if (addon.needsConfiguration) {
+                        Text(
+                            text = stringResource(R.string.addon_badge_needs_setup),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = FetchTheme.colors.Error
                         )
                     }
                     if (health != null && health.status != AddonHealthStatus.UNKNOWN) {
@@ -1493,6 +1529,21 @@ private fun AddonCardContent(
                             Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.cd_move_down))
                         }
                     }
+                    if (onConfigure != null) {
+                        Button(
+                            onClick = onConfigure,
+                            modifier = Modifier.semantics { role = Role.Button },
+                            colors = ButtonDefaults.colors(
+                                containerColor = FetchTheme.colors.BackgroundCard,
+                                contentColor = FetchTheme.colors.TextSecondary,
+                                focusedContainerColor = FetchTheme.colors.FocusBackground,
+                                focusedContentColor = FetchTheme.colors.Primary
+                            ),
+                            shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+                        ) {
+                            Text(text = stringResource(R.string.addon_configure))
+                        }
+                    }
                     Button(
                         onClick = onRemove,
                         modifier = Modifier.semantics { role = Role.Button },
@@ -1558,4 +1609,163 @@ private fun AddonHealthLabel(health: AddonHealth) {
         style = MaterialTheme.typography.labelSmall,
         color = color
     )
+}
+
+private fun isAddonCardSelectKey(keyCode: Int): Boolean =
+    keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+        keyCode == android.view.KeyEvent.KEYCODE_ENTER ||
+        keyCode == android.view.KeyEvent.KEYCODE_NUMPAD_ENTER
+
+/**
+ * Configure an addon from the TV: one QR opens the addon's own `/configure` page on the phone,
+ * the other opens the local "Send to TV" page that hands the configured link back.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+internal fun AddonConfigureOverlay(
+    target: AddonConfigureTarget,
+    statusMessage: String?,
+    statusIsError: Boolean,
+    onConfirm: () -> Unit,
+    onReject: () -> Unit,
+    onClose: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    val confirmFocusRequester = remember { FocusRequester() }
+    val received = target.receivedUrl
+    LaunchedEffect(received != null) {
+        runCatching { (if (received != null) confirmFocusRequester else focusRequester).requestFocus() }
+    }
+    BackHandler { onClose() }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.88f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = stringResource(R.string.addon_configure_title, target.name),
+                style = MaterialTheme.typography.headlineSmall,
+                color = FetchTheme.colors.TextPrimary,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
+            Row(horizontalArrangement = Arrangement.spacedBy(48.dp)) {
+                AddonConfigureQrStep(
+                    step = stringResource(R.string.addon_configure_step_open),
+                    bitmap = target.configureQr,
+                    url = target.configureUrl
+                )
+                if (target.sendToTvUrl != null) {
+                    AddonConfigureQrStep(
+                        step = stringResource(R.string.addon_configure_step_send),
+                        bitmap = target.sendToTvQr,
+                        url = target.sendToTvUrl
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
+            Text(
+                text = when {
+                    target.isInstalling -> stringResource(R.string.addon_installing)
+                    !statusMessage.isNullOrBlank() -> statusMessage
+                    target.sendToTvUrl == null -> stringResource(R.string.addon_configure_no_server)
+                    else -> stringResource(R.string.addon_configure_waiting)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (statusIsError && !target.isInstalling && !statusMessage.isNullOrBlank()) {
+                    FetchTheme.colors.Error
+                } else {
+                    FetchTheme.colors.TextSecondary
+                },
+                textAlign = TextAlign.Center,
+                modifier = Modifier.width(620.dp)
+            )
+            if (received != null) {
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+                Text(
+                    text = stringResource(R.string.addon_configure_received, received),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FetchTheme.colors.TextPrimary,
+                    textAlign = TextAlign.Center,
+                    maxLines = 3,
+                    modifier = Modifier.width(620.dp)
+                )
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+                Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
+                    Button(
+                        onClick = onReject,
+                        modifier = Modifier.semantics { role = Role.Button }
+                    ) { Text(stringResource(R.string.action_cancel)) }
+                    Button(
+                        onClick = onConfirm,
+                        modifier = Modifier
+                            .focusRequester(confirmFocusRequester)
+                            .semantics { role = Role.Button }
+                    ) { Text(stringResource(R.string.addon_configure_install)) }
+                }
+            }
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
+            Surface(
+                onClick = onClose,
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .semantics { role = Role.Button },
+                colors = ClickableSurfaceDefaults.colors(
+                    containerColor = FetchTheme.colors.Surface,
+                    focusedContainerColor = FetchTheme.colors.FocusBackground
+                ),
+                border = ClickableSurfaceDefaults.border(
+                    focusedBorder = Border(
+                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        shape = RoundedCornerShape(50)
+                    )
+                ),
+                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(50)),
+                scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
+            ) {
+                Text(
+                    text = stringResource(R.string.addon_qr_close),
+                    color = FetchTheme.colors.TextPrimary,
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddonConfigureQrStep(step: String, bitmap: Bitmap?, url: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(260.dp)
+    ) {
+        Text(
+            text = step,
+            style = MaterialTheme.typography.bodyMedium,
+            color = FetchTheme.colors.TextSecondary,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+        Box(modifier = Modifier.size(200.dp), contentAlignment = Alignment.Center) {
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = stringResource(R.string.cd_qr_code),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+        Text(
+            text = url,
+            style = MaterialTheme.typography.bodySmall,
+            color = FetchTheme.colors.TextTertiary,
+            textAlign = TextAlign.Center,
+            maxLines = 2
+        )
+    }
 }

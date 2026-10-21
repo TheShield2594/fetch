@@ -1469,7 +1469,7 @@ private fun ModernCarouselCard(
                                 onEnded = onTrailerEnded,
                                 onFirstFrameRendered = { trailerFirstFrameRendered = true },
                                 muted = focusedPosterBackdropTrailerMuted,
-                                cropToFill = true,
+                                cropToFill = com.fetch.tv.ui.components.LocalTrailerCropToFill.current,
                                 overscanZoom = MODERN_TRAILER_OVERSCAN_ZOOM,
                                 modifier = Modifier.fillMaxSize()
                             )

@@ -13,7 +13,13 @@ import com.fetch.tv.core.sync.homeCatalogKey
 import com.fetch.tv.core.sync.homeLegacyDisabledCatalogKey
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.qr.QrCodeGenerator
+import com.fetch.tv.core.addon.AddonInstallOutcome
+import com.fetch.tv.core.addon.addonConfigureUrl
+import com.fetch.tv.core.addon.installOrReplace
+import com.fetch.tv.core.addon.normalizeAddonInstallUrl
 import com.fetch.tv.core.server.AddonConfigServer
+import com.fetch.tv.core.server.AddonConfigureServer
+import com.fetch.tv.core.server.AddonConfigureWebText
 import com.fetch.tv.core.server.AddonInfo
 import com.fetch.tv.core.server.AddonWebConfigMode
 import com.fetch.tv.core.server.CatalogInfo
@@ -99,6 +105,7 @@ class AddonManagerViewModel @Inject constructor(
     }
 
     private var server: AddonConfigServer? = null
+    private var configureServer: AddonConfigureServer? = null
     private var logoBytes: ByteArray? = null
     private var homeCatalogOrderKeys: List<String> = emptyList()
     private var disabledHomeCatalogKeys: Set<String> = emptySet()
@@ -160,36 +167,170 @@ class AddonManagerViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isInstalling = true, error = null, transientMessage = null) }
+            val outcome = addonRepository.installOrReplace(normalizedUrl)
+            _uiState.update { it.copy(isInstalling = false) }
+            handleInstallOutcome(outcome, clearInstallField = true)
+        }
+    }
 
-            when (val result = addonRepository.fetchAddon(normalizedUrl)) {
-                is NetworkResult.Success -> {
-                    addonRepository.addAddon(normalizedUrl)
-                    val addonName = result.data.displayName.ifBlank { result.data.baseUrl }
-                    _uiState.update {
-                        it.copy(
-                            isInstalling = false,
-                            installUrl = "",
-                            transientMessage = context.getString(R.string.addon_install_success, addonName),
-                            transientMessageIsError = false
-                        )
-                    }
+    private fun handleInstallOutcome(outcome: AddonInstallOutcome, clearInstallField: Boolean) {
+        when (outcome) {
+            is AddonInstallOutcome.Installed -> {
+                val addonName = outcome.addon.displayName.ifBlank { outcome.addon.baseUrl }
+                _uiState.update {
+                    it.copy(
+                        installUrl = if (clearInstallField) "" else it.installUrl,
+                        transientMessage = context.getString(
+                            if (outcome.replacedUrl != null) R.string.addon_configure_updated else R.string.addon_install_success,
+                            addonName
+                        ),
+                        transientMessageIsError = false
+                    )
                 }
-                is NetworkResult.Error -> {
-                    val message = result.message
-                    _uiState.update {
-                        it.copy(
-                            isInstalling = false,
-                            error = message,
-                            transientMessage = message,
-                            transientMessageIsError = true
-                        )
-                    }
+            }
+            is AddonInstallOutcome.NeedsConfiguration -> {
+                val addonName = outcome.addon.displayName.ifBlank { outcome.addon.baseUrl }
+                _uiState.update {
+                    it.copy(
+                        installUrl = if (clearInstallField) "" else it.installUrl,
+                        transientMessage = context.getString(R.string.addon_needs_configuration, addonName),
+                        transientMessageIsError = false
+                    )
                 }
-                NetworkResult.Loading -> {
-                    _uiState.update { it.copy(isInstalling = true) }
+                startConfigure(name = addonName, baseUrl = outcome.url, replacingUrl = null)
+            }
+            is AddonInstallOutcome.Failed -> {
+                val message = outcome.message.ifBlank { context.getString(R.string.addon_error_invalid_url) }
+                _uiState.update {
+                    it.copy(
+                        error = message,
+                        transientMessage = message,
+                        transientMessageIsError = true
+                    )
                 }
             }
         }
+    }
+
+    /** Opens the configure flow for an installed addon; the configured URL replaces it in place. */
+    fun configureAddon(addon: Addon) {
+        if (isReadOnly) return
+        startConfigure(
+            name = addon.displayName.ifBlank { addon.name.ifBlank { addon.baseUrl } },
+            baseUrl = addon.baseUrl,
+            replacingUrl = addon.baseUrl
+        )
+    }
+
+    private fun startConfigure(name: String, baseUrl: String, replacingUrl: String?) {
+        stopConfigureServer()
+        val configureUrl = addonConfigureUrl(baseUrl)
+        val ip = DeviceIpAddress.get(context)
+        configureServer = ip?.let {
+            AddonConfigureServer.startOnAvailablePort(
+                addonName = name,
+                configureUrl = configureUrl,
+                text = AddonConfigureWebText(
+                    title = context.getString(R.string.addon_configure_web_title),
+                    step1 = context.getString(R.string.addon_configure_web_step1),
+                    openConfigure = context.getString(R.string.addon_configure_web_open),
+                    step2 = context.getString(R.string.addon_configure_web_step2),
+                    placeholder = context.getString(R.string.addon_configure_web_placeholder),
+                    send = context.getString(R.string.addon_configure_web_send),
+                    sent = context.getString(R.string.addon_configure_web_sent),
+                    invalid = context.getString(R.string.addon_configure_web_invalid),
+                    failed = context.getString(R.string.addon_configure_web_failed)
+                ),
+                onUrlReceived = { url -> viewModelScope.launch { onConfiguredUrlSent(url) } }
+            )
+        }
+        val sendToTvUrl = configureServer?.let { server -> ip?.let(server::pairingUrl) }
+        _uiState.update {
+            it.copy(
+                configureTarget = AddonConfigureTarget(
+                    name = name,
+                    replacingUrl = replacingUrl,
+                    configureUrl = configureUrl,
+                    configureQr = null,
+                    sendToTvUrl = sendToTvUrl,
+                    sendToTvQr = null
+                )
+            )
+        }
+        viewModelScope.launch {
+            val (configureQr, sendQr) = withContext(Dispatchers.Default) {
+                runCatching { QrCodeGenerator.generate(configureUrl, 420, margin = 1) }.getOrNull() to
+                    sendToTvUrl?.let { url -> runCatching { QrCodeGenerator.generate(url, 420, margin = 1) }.getOrNull() }
+            }
+            _uiState.update { state ->
+                val target = state.configureTarget ?: return@update state
+                if (target.configureUrl != configureUrl) return@update state
+                state.copy(configureTarget = target.copy(configureQr = configureQr, sendToTvQr = sendQr))
+            }
+        }
+    }
+
+    /** The phone sent a configured link; like other phone changes, it waits for confirmation on the TV. */
+    private fun onConfiguredUrlSent(url: String) {
+        _uiState.update { state ->
+            val target = state.configureTarget ?: return@update state
+            if (target.isInstalling) state
+            else state.copy(configureTarget = target.copy(receivedUrl = url), transientMessage = null)
+        }
+    }
+
+    fun rejectConfiguredUrl() {
+        _uiState.update { state ->
+            state.copy(configureTarget = state.configureTarget?.copy(receivedUrl = null))
+        }
+    }
+
+    /** Installs the link the phone sent, replacing the addon being configured. */
+    fun confirmConfiguredUrl() {
+        val target = _uiState.value.configureTarget ?: return
+        val rawUrl = target.receivedUrl ?: return
+        val url = normalizeAddonInstallUrl(rawUrl) ?: run {
+            _uiState.update {
+                it.copy(
+                    transientMessage = context.getString(R.string.addon_error_invalid_scheme),
+                    transientMessageIsError = true
+                )
+            }
+            return
+        }
+        if (target.isInstalling) return
+        _uiState.update { it.copy(configureTarget = target.copy(isInstalling = true, receivedUrl = null)) }
+        viewModelScope.launch {
+            val outcome = addonRepository.installOrReplace(url, replacing = target.replacingUrl)
+            if (outcome is AddonInstallOutcome.Installed) {
+                stopConfigure()
+            } else {
+                _uiState.update { state ->
+                    state.copy(configureTarget = state.configureTarget?.copy(isInstalling = false))
+                }
+            }
+            if (outcome is AddonInstallOutcome.NeedsConfiguration) {
+                val name = outcome.addon.displayName.ifBlank { outcome.addon.baseUrl }
+                _uiState.update {
+                    it.copy(
+                        transientMessage = context.getString(R.string.addon_configure_still_unconfigured, name),
+                        transientMessageIsError = true
+                    )
+                }
+            } else {
+                handleInstallOutcome(outcome, clearInstallField = false)
+            }
+        }
+    }
+
+    fun stopConfigure() {
+        stopConfigureServer()
+        _uiState.update { it.copy(configureTarget = null) }
+    }
+
+    private fun stopConfigureServer() {
+        configureServer?.stop()
+        configureServer = null
     }
 
     private fun normalizeAddonUrl(input: String): String? {
@@ -820,6 +961,7 @@ class AddonManagerViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopServerInternal()
+        stopConfigureServer()
     }
 
     private fun buildOrderedCatalogEntries(

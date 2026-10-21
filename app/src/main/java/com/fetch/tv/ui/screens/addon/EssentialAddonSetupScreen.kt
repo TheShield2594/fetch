@@ -243,6 +243,19 @@ fun EssentialAddonSetupScreen(
             }
         }
 
+        uiState.configureTarget?.let { target ->
+            Popup(properties = PopupProperties(focusable = true)) {
+                AddonConfigureOverlay(
+                    target = target,
+                    statusMessage = uiState.transientMessage,
+                    statusIsError = uiState.transientMessageIsError,
+                    onConfirm = viewModel::confirmConfiguredUrl,
+                    onReject = viewModel::rejectConfiguredUrl,
+                    onClose = viewModel::stopConfigure
+                )
+            }
+        }
+
         if (uiState.pendingChange != null) {
             Popup(properties = PopupProperties(focusable = true)) {
                 uiState.pendingChange?.let { pending ->

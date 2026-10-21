@@ -530,6 +530,9 @@ class PlayerRuntimeController(
     internal var skipIntroFetchedKey: String? = null
     internal val autoSkippedIntervalKeys: MutableSet<String> = mutableSetOf()
     internal var lastActiveSkipType: String? = null
+    // Key of the segment just skipped: until playback leaves it, a late position tick inside it
+    // must not bring the button back for a moment.
+    internal var skippedIntervalKey: String? = null
     internal var autoSubtitleSelected: Boolean = false
     internal var isUserExplicitSubtitleSelection: Boolean = false
     internal var lastSubtitlePreferredLanguage: String? = null

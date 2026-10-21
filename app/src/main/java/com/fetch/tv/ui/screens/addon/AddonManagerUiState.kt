@@ -16,7 +16,8 @@ data class AddonManagerUiState(
     val qrCodeBitmap: Bitmap? = null,
     val serverUrl: String? = null,
     // Pending change from phone
-    val pendingChange: PendingChangeInfo? = null
+    val pendingChange: PendingChangeInfo? = null,
+    val configureTarget: AddonConfigureTarget? = null
 )
 
 data class PendingChangeInfo(
@@ -37,4 +38,19 @@ data class PendingChangeInfo(
     val proposedDisabledCollectionKeys: List<String> = emptyList(),
     val proposedFollowAddonsOrder: Boolean? = null,
     val isApplying: Boolean = false
+)
+
+/** The addon being configured from the TV (Configure action, or an install that needs setup). */
+data class AddonConfigureTarget(
+    val name: String,
+    /** Installed entry the configured URL replaces; null when installing a new addon. */
+    val replacingUrl: String?,
+    val configureUrl: String,
+    val configureQr: Bitmap?,
+    /** Local "Send to TV" page; null when the local server could not start. */
+    val sendToTvUrl: String?,
+    val sendToTvQr: Bitmap?,
+    /** Link the phone sent, waiting for the viewer to confirm it on the TV. */
+    val receivedUrl: String? = null,
+    val isInstalling: Boolean = false
 )

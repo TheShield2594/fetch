@@ -105,6 +105,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val randomEpisodeEnabledKey = booleanPreferencesKey("random_episode_enabled")
     private val startupSplashEnabledKey = booleanPreferencesKey("startup_splash_enabled")
     private val alwaysShowLandscapeClearlogoKey = booleanPreferencesKey("always_show_landscape_clearlogo")
+    private val trailerCropToFillKey = booleanPreferencesKey("trailer_crop_to_fill")
     private val episodeOptionsOverlayStyleKey = stringPreferencesKey("episode_options_overlay_style")
     private val homeImdbRatingsVisibilityKey = stringPreferencesKey("home_imdb_ratings_visibility")
     private val detailImdbRatingsVisibilityKey = stringPreferencesKey("detail_imdb_ratings_visibility")
@@ -340,6 +341,11 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     val alwaysShowLandscapeClearlogo: Flow<Boolean> = profileFlow { prefs ->
         prefs[alwaysShowLandscapeClearlogoKey] ?: false
+    }
+
+    /** Background trailers zoom to fill their frame (true) or play whole, letterboxed (false). */
+    val trailerCropToFill: Flow<Boolean> = profileFlow { prefs ->
+        prefs[trailerCropToFillKey] ?: true
     }
 
     val episodeOptionsOverlayStyle: Flow<EpisodeOptionsOverlayStyle> = profileFlow { prefs ->
@@ -749,6 +755,12 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun setStartupSplashEnabled(enabled: Boolean) {
         store().edit { prefs ->
             prefs[startupSplashEnabledKey] = enabled
+        }
+    }
+
+    suspend fun setTrailerCropToFill(enabled: Boolean) {
+        store().edit { prefs ->
+            prefs[trailerCropToFillKey] = enabled
         }
     }
 

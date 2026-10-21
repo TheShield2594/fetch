@@ -511,6 +511,8 @@ internal fun buildCatalogItem(
         backdrop = item.backdropUrl,
         imageUrl = if (useLandscapePosters) {
             item.landscapePoster ?: item.backdropUrl ?: item.poster
+        } else if (item.posterShape == PosterShape.LANDSCAPE) {
+            item.landscapePoster ?: item.poster ?: item.backdropUrl
         } else {
             item.poster ?: item.backdropUrl
         },
@@ -526,6 +528,8 @@ internal fun buildCatalogItem(
         subtitle = item.releaseInfo,
         imageUrl = if (useLandscapePosters) {
             item.landscapePoster ?: item.backdropUrl ?: item.poster
+        } else if (item.posterShape == PosterShape.LANDSCAPE) {
+            item.landscapePoster ?: item.poster ?: item.backdropUrl
         } else {
             item.poster ?: item.backdropUrl
         },

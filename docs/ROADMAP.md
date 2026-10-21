@@ -9,7 +9,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 | Requirement | Status | Where / notes |
 |---|---|---|
-| Stremio addon protocol: manifest, catalog, meta, stream, subtitles, `behaviorHints` | ✅ | `data/remote/api/AddonApi.kt`, `data/remote/dto/`, `data/mapper/`. Hints: `notWebReady`, `bingeGroup`, `countryWhitelist`, `proxyHeaders`, `videoHash`, `videoSize`, `filename`. Gap: no in-app flow opens an addon's `/configure` page (configure from the phone page instead). |
+| Stremio addon protocol: manifest, catalog, meta, stream, subtitles, `behaviorHints` | ✅ | `data/remote/api/AddonApi.kt`, `data/remote/dto/`, `data/mapper/`. Hints: `notWebReady`, `bingeGroup`, `countryWhitelist`, `proxyHeaders`, `videoHash`, `videoSize`, `filename`. `configurable` addons get a Configure action (QR to `/configure`, configured link sent back through `core/server/AddonConfigureServer.kt`); `configurationRequired` manifests are not installed until configured. |
 | Media3/ExoPlayer + FFmpeg audio extension | ✅ | `ui/screens/player/PlayerRuntimeController*.kt`, `ffmpeg-decoder-downmix/`. Stock Media3 1.8.0 from Maven; the prebuilt upstream fork was dropped (`docs/architecture/media3-fork.md`). |
 | libass ASS/SSA | ✅ | `PlayerLibassCompat.kt`, `FetchAssMatroskaExtractor.kt` (`io.github.peerless2012:ass-media`). |
 | Passthrough AC3 / E-AC3 / TrueHD / DTS | ✅ | `AudioOutputRouteDetector.kt`, audio sink setup in `PlayerRuntimeControllerInitialization.kt`, "force optical passthrough" setting. |
@@ -19,7 +19,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | One-press external player hand-off | ✅ | `core/player/ExternalPlayerLauncher.kt` (passes headers, position, subtitles, skip segments). |
 | Compose for TV, focus restore on Back, long-press actions, D-pad-only flows | ✅ | `ui/screens/home/HomeScreenFocusState.kt`, `ui/screens/detail/FocusRestoreUtils.kt`, `ui/util/LongPressKeyTracker.kt`, `ui/components/posteroptions/`. |
 | Continue Watching + next-episode autoplay | ✅ | `ui/screens/home/HomeViewModelContinueWatching.kt`, `PlayerNextEpisodeRules.kt`, `NextEpisodeEndPromptOverlay.kt`. |
-| Skip intro / recap from community markers | 🟡 | `data/repository/SkipIntroRepository.kt`: AniSkip and Anime-Skip work out of the box; IntroDB (non-anime) needs `INTRODB_API_URL`. |
+| Skip intro / recap from community markers | ✅ | `data/repository/SkipIntroRepository.kt`: AniSkip, Anime-Skip and IntroDB (public `api.introdb.app` by default, overridable in Advanced settings). |
 | Two-way Trakt and Simkl sync | ✅ | `data/repository/Trakt*`, `data/simkl/`, `core/tracking/`. |
 | Android TV "Watch Next" row | ✅ | `core/recommendations/TvRecommendationManager.kt`, `core/sync/androidtv/`. |
 | Debrid as a built-in setting | ✅ | `core/debrid/` (Real-Debrid, Premiumize, TorBox), `ui/screens/settings/DebridSettingsScreen.kt`. Gap: AllDebrid / Debrid-Link. |
@@ -58,7 +58,7 @@ from NuvioTV (grouped by area, each linking the original reports).
 
 | Area | Issues |
 |---|---|
-| Stream picker / addons | #8 follow-ups, #9 addon health, #10 addon `/configure`, #15 torrent engine |
+| Stream picker / addons | #8 follow-ups, #9 addon health, #15 torrent engine |
 | Player | #1 replace Media3 fork, #17 DV/HDR, #18 refresh rate & judder, #19 playback failures, #20 subtitles, #21 controls & episode flow |
 | Watch state | #11 skip intro markers, #22 Continue Watching / Trakt / Simkl |
 | Sources | #3 Plex, #12 more debrid, #25 media servers & TMDB |

@@ -421,7 +421,8 @@ object NetworkModule {
     @Named("introDb")
     fun provideIntroDbRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
         Retrofit.Builder()
-            .baseUrl(BuildConfig.INTRODB_API_URL.ifEmpty { "https://localhost/" })
+            // Calls pass the full URL of the server chosen in settings (SkipMarkerSettingsDataStore).
+            .baseUrl(com.fetch.tv.data.local.DEFAULT_INTRODB_API_URL)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()

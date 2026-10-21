@@ -71,6 +71,23 @@ internal fun isSkipIntroCanFocus(
     subtitleOverlayVisible: Boolean,
 ): Boolean = !subtitleOverlayVisible
 
+/**
+ * How long the button stays up when left alone: the whole segment, or the default for
+ * segments shorter than that or with no known end.
+ */
+internal fun skipIntroAutoHideTimeoutMs(interval: SkipInterval?): Int {
+    if (interval == null) return SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS
+    val lengthSec = interval.endTime - interval.startTime
+    if (!lengthSec.isFinite() || lengthSec <= 0.0 || interval.endTime == Double.MAX_VALUE) {
+        return SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS
+    }
+    return (lengthSec * 1000.0).coerceAtMost(MAX_SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS.toDouble()).toInt()
+        .coerceAtLeast(SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS)
+}
+
+/** Caps the countdown so long credit segments do not keep the button up for many minutes. */
+internal const val MAX_SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS = 120_000
+
 internal fun skipIntroAutoHideRemainingMs(
     progress: Float,
     totalTimeoutMs: Int = SKIP_INTRO_AUTO_HIDE_TIMEOUT_MS,

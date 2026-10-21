@@ -2,7 +2,9 @@ package com.fetch.tv.core.deeplink
 
 import android.content.Context
 import com.fetch.tv.R
-import com.fetch.tv.core.network.NetworkResult
+import com.fetch.tv.core.addon.AddonInstallOutcome
+import com.fetch.tv.core.addon.installOrReplace
+import com.fetch.tv.core.addon.normalizeAddonInstallUrl
 import com.fetch.tv.domain.repository.AddonRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -12,16 +14,26 @@ class DeepLinkHandler @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     suspend fun installAddon(manifestUrl: String): DeepLinkInstallResult {
-        return when (val result = addonRepository.fetchAddon(manifestUrl)) {
-            is NetworkResult.Success -> {
-                addonRepository.addAddon(manifestUrl)
-                val addonName = result.data.displayName.ifBlank { result.data.baseUrl }
+        val url = normalizeAddonInstallUrl(manifestUrl) ?: manifestUrl
+        return when (val outcome = addonRepository.installOrReplace(url)) {
+            is AddonInstallOutcome.Installed -> {
+                val addonName = outcome.addon.displayName.ifBlank { outcome.addon.baseUrl }
                 DeepLinkInstallResult.Success(
-                    context.getString(R.string.addon_install_success, addonName)
+                    context.getString(
+                        if (outcome.replacedUrl != null) R.string.addon_configure_updated else R.string.addon_install_success,
+                        addonName
+                    )
                 )
             }
-            is NetworkResult.Error -> DeepLinkInstallResult.Error(result.message)
-            NetworkResult.Loading -> DeepLinkInstallResult.Error(context.getString(R.string.addon_error_invalid_url))
+            is AddonInstallOutcome.NeedsConfiguration -> DeepLinkInstallResult.Error(
+                context.getString(
+                    R.string.addon_needs_configuration,
+                    outcome.addon.displayName.ifBlank { outcome.addon.baseUrl }
+                )
+            )
+            is AddonInstallOutcome.Failed -> DeepLinkInstallResult.Error(
+                outcome.message.ifBlank { context.getString(R.string.addon_error_invalid_url) }
+            )
         }
     }
 }

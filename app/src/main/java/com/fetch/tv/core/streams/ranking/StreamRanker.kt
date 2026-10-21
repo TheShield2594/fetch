@@ -18,7 +18,13 @@ data class DeviceDecodeCapabilities(
     /** Formats the audio output can pass through untouched (HDMI/eARC to a receiver). */
     val passthroughAudio: Set<AudioFormat> = emptySet(),
     /** Passthrough-only formats the FFmpeg extension can still decode to PCM. */
-    val softwareAudio: Set<AudioFormat> = AudioFormat.entries.toSet()
+    val softwareAudio: Set<AudioFormat> = AudioFormat.entries.toSet(),
+    /**
+     * True on devices known to show a black screen for Dolby Vision files that also carry
+     * HDR10+ metadata (Fire TV Stick 4K, NuvioMedia/NuvioTV#3996). Such files are kept out
+     * of auto-play; they stay listed under "Other sources".
+     */
+    val dolbyVisionWithHdr10PlusBroken: Boolean = false
 ) {
     fun canDecode(codec: VideoCodec): Boolean =
         codec == VideoCodec.UNKNOWN || codec in decodableCodecs
@@ -109,6 +115,7 @@ enum class ExclusionReason {
     EXCLUDED_KEYWORD,
     UNSUPPORTED_CODEC,
     UNSUPPORTED_DOLBY_VISION,
+    UNSUPPORTED_DOLBY_VISION_HDR10_PLUS,
     UNSUPPORTED_RESOLUTION,
     UNSUPPORTED_AUDIO,
     NOT_PLAYABLE
@@ -322,6 +329,11 @@ object StreamRanker {
             if (!device.canDecode(descriptor.videoCodec)) return ExclusionReason.UNSUPPORTED_CODEC
             if (known && height > device.maxResolution.height) return ExclusionReason.UNSUPPORTED_RESOLUTION
             if (!canPlayDolbyVision(descriptor, device)) return ExclusionReason.UNSUPPORTED_DOLBY_VISION
+            if (device.dolbyVisionWithHdr10PlusBroken && descriptor.hasDolbyVision &&
+                HdrFormat.HDR10_PLUS in descriptor.hdr
+            ) {
+                return ExclusionReason.UNSUPPORTED_DOLBY_VISION_HDR10_PLUS
+            }
             // The server converts audio the TV can't play, so only streamed files are ruled out.
             if (!ownLibrary && descriptor.audio.isNotEmpty() && descriptor.audio.none(device::canPlay)) {
                 return ExclusionReason.UNSUPPORTED_AUDIO

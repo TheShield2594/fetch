@@ -353,6 +353,7 @@
     <string name="exclusion_keyword">matches an excluded keyword</string>
     <string name="exclusion_unsupported_codec">this TV can\'t decode %1$s</string>
     <string name="exclusion_unsupported_dv">DV profile 5 isn\'t supported on this TV</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">DV with HDR10+ shows a black screen on this device</string>
     <string name="exclusion_unsupported_resolution">higher resolution than this TV shows</string>
     <string name="exclusion_unsupported_audio">%1$s needs passthrough or a decoder this TV doesn\'t have</string>
     <string name="exclusion_not_playable">this player can\'t open it</string>

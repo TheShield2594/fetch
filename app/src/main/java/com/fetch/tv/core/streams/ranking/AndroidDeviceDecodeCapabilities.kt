@@ -102,7 +102,9 @@ class AndroidDeviceDecodeCapabilities @Inject constructor(
             hdrFormats = hdr,
             dolbyVisionProfiles = if (HdrFormat.DOLBY_VISION in hdr) dvProfiles else emptySet(),
             passthroughAudio = probePassthrough(),
-            softwareAudio = probeSoftwareAudio()
+            softwareAudio = probeSoftwareAudio(),
+            dolbyVisionWithHdr10PlusBroken = Build.MANUFACTURER.equals("Amazon", ignoreCase = true) &&
+                Build.MODEL in DV_HDR10_PLUS_BLACK_SCREEN_MODELS
         ).also { Log.i(TAG, "Device decode capabilities: $it") }
     }
 
@@ -139,6 +141,13 @@ class AndroidDeviceDecodeCapabilities @Inject constructor(
     private companion object {
         const val TAG = "DeviceDecodeCaps"
         const val DV_MIME = "video/dolby-vision"
+
+        /**
+         * Fire TV Stick 4K (2018, AFTMM) and Fire TV Stick 4K 2nd gen (AFTKM): black screen on
+         * Dolby Vision + HDR10+ files (NuvioMedia/NuvioTV#3996). Extend as more are confirmed.
+         */
+        val DV_HDR10_PLUS_BLACK_SCREEN_MODELS = setOf("AFTMM", "AFTKM")
+
         val SOFTWARE_AUDIO_MIME_TYPES = mapOf(
             AudioFormat.TRUEHD to MimeTypes.AUDIO_TRUEHD,
             AudioFormat.DTS_HD_MA to MimeTypes.AUDIO_DTS_HD,

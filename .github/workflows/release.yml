@@ -73,7 +73,7 @@ jobs:
           PREMIUMIZE_CLIENT_ID: ${{ secrets.PREMIUMIZE_CLIENT_ID }}
           INTRODB_API_URL: ${{ secrets.INTRODB_API_URL }}
         run: |
-          for key in TRAKT_CLIENT_ID TRAKT_CLIENT_SECRET SIMKL_CLIENT_ID MDBLIST_CLIENT_ID TMDB_API_KEY PREMIUMIZE_CLIENT_ID; do
+          for key in TRAKT_CLIENT_ID TRAKT_CLIENT_SECRET TRAKT_REDIRECT_URI SIMKL_CLIENT_ID MDBLIST_CLIENT_ID TMDB_API_KEY PREMIUMIZE_CLIENT_ID; do
             if [ -z "${!key}" ]; then
               echo "::warning::Secret $key is not set; that integration will be unavailable in this build."
             fi

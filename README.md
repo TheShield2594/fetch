@@ -78,7 +78,7 @@ developer. Without them the build works but the integration says its credentials
 
 | Key | Where to get it |
 | --- | --- |
-| `TRAKT_CLIENT_ID`, `TRAKT_CLIENT_SECRET` | [trakt.tv/oauth/applications](https://trakt.tv/oauth/applications), redirect URI `urn:ietf:wg:oauth:2.0:oob` |
+| `TRAKT_CLIENT_ID`, `TRAKT_CLIENT_SECRET`, `TRAKT_REDIRECT_URI` | [trakt.tv/oauth/applications](https://trakt.tv/oauth/applications). Trakt only accepts https redirect URIs; any https page works, e.g. this repo's URL. Fetch signs in with a device code and never opens it, but `TRAKT_REDIRECT_URI` must match the registered value or token refresh fails |
 | `SIMKL_CLIENT_ID` | [simkl.com/settings/developer](https://simkl.com/settings/developer/) |
 | `MDBLIST_CLIENT_ID` | an OAuth app registered with MDBList |
 | `TMDB_API_KEY` | [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) |

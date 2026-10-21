@@ -562,7 +562,10 @@ fun PlayerScreen(
         } else if (!uiState.showControls) {
             // When controls are hidden, let skip intro button take focus if visible
             val skipVisible = uiState.activeSkipInterval != null && !uiState.skipIntervalDismissed
-            val nextEpisodeVisible = uiState.postPlayMode is PostPlayMode.AutoPlay
+            // The still-watching prompt focuses its own Continue button too; taking focus back to
+            // the container here left the prompt unreachable by D-pad/OK (NuvioTV#3768).
+            val nextEpisodeVisible = uiState.postPlayMode is PostPlayMode.AutoPlay ||
+                uiState.postPlayMode is PostPlayMode.StillWatching
             if (!skipVisible && !nextEpisodeVisible) {
                 try {
                     containerFocusRequester.requestFocus()
@@ -1209,7 +1212,7 @@ fun PlayerScreen(
             type = uiState.contentType,
             description = uiState.description,
             cast = uiState.castMembers,
-            showClock = !uiState.isLive,
+            showClock = uiState.osdClockEnabled && !uiState.isLive,
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(2.5f)

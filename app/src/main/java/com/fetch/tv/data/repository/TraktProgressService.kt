@@ -248,7 +248,8 @@ class TraktProgressService @Inject constructor(
     private val watchedMoviesFetchThrottleMs = 15_000L
     private val episodeProgressCacheTtlMs = 5 * 60_000L
     private val episodeProgressFetchThrottleMs = 15_000L
-    private val optimisticTtlMs = 3 * 60_000L
+    @VisibleForTesting
+    internal var optimisticTtlMs = 3 * 60_000L
     private val initialMetadataHydrationDelayMs = 3_000L
     private val maxRecentEpisodeHistoryEntries = 300
     private val metadataHydrationLimit = 110
@@ -644,7 +645,10 @@ class TraktProgressService @Inject constructor(
         val videoCanonicalKey = videoId?.takeIf { it.isNotBlank() && it != contentId }
             ?.let { canonicalLookupKey(it) }
 
-        return combine(watchedMoviesState, optimisticProgress) { watchedMovies, optimistic ->
+        return combine(watchedMoviesState, optimisticProgress) { watchedMovies, allOptimistic ->
+            // An expired entry must not hide the watched state, the same as in observeAllProgress.
+            val now = System.currentTimeMillis()
+            val optimistic = allOptimistic.filterValues { it.expiresAtMs > now }
             val optimisticEntry = optimistic[rawKey]?.progress
                 ?: optimistic[canonicalKey]?.progress
                 ?: videoCanonicalKey?.let { optimistic[it]?.progress }
@@ -663,8 +667,10 @@ class TraktProgressService @Inject constructor(
     fun observeAllWatchedMovieIds(): Flow<Set<String>> {
         return combine(watchedMoviesState, optimisticProgress) { watchedMovies, optimistic ->
             val result = watchedMovies.toMutableSet()
+            val now = System.currentTimeMillis()
             optimistic.forEach { (key, entry) ->
                 when {
+                    entry.expiresAtMs <= now -> Unit
                     entry.progress.isCompleted() -> result.add(key)
                     entry.progress.isInProgress() -> result.remove(key)
                 }
@@ -1063,6 +1069,9 @@ class TraktProgressService @Inject constructor(
             (activityChanged == null && !hasLoadedRemoteProgress.value)
         val progressRecheckDue = !force && progressRecheckAtMs in 1..now
         if (!force && !shouldRefresh && !progressRecheckDue) {
+            // Polls that skip the fetch never reach reconcileOptimistic, so drop expired
+            // optimistic entries here. Otherwise watched-movie flows never re-emit after expiry.
+            pruneExpiredOptimistic(now)
             return
         }
         // With last_activities read, the stale flags say which watched lists changed.
@@ -2797,6 +2806,13 @@ class TraktProgressService @Inject constructor(
                 val remoteNewer = remoteProgress.lastWatched >= entry.progress.lastWatched - 1_000L
                 !(closeEnough && remoteNewer)
             }
+        }
+    }
+
+    private fun pruneExpiredOptimistic(now: Long) {
+        optimisticProgress.update { current ->
+            if (current.values.none { it.expiresAtMs <= now }) current
+            else current.filterValues { it.expiresAtMs > now }
         }
     }
 

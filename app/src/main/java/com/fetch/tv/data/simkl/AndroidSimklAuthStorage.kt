@@ -203,9 +203,10 @@ class AndroidSimklAuthStorage @Inject constructor(
     private fun loadEncrypted(key: String, profileId: Int): String? {
         val scopedKey = profileKey(key, profileId)
         val stored = preferences.getString(scopedKey, null) ?: return null
-        return runCatching { decrypt(stored) }
-            .onFailure { preferences.edit().remove(scopedKey).apply() }
-            .getOrNull()
+        // Keep the stored token when decryption fails. Keystore errors can be transient
+        // (for example right after boot), and deleting the token here signs the user out of
+        // Simkl for good. A new sign-in overwrites the stored value anyway.
+        return runCatching { decrypt(stored) }.getOrNull()
     }
 
     private fun saveEncrypted(key: String, value: String?, profileId: Int) {

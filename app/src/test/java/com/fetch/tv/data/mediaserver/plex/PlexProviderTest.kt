@@ -4,6 +4,7 @@ import com.fetch.tv.core.tracking.TrackingExternalIds
 import com.fetch.tv.data.mediaserver.ServerConnection
 import com.fetch.tv.data.mediaserver.ServerException
 import com.fetch.tv.data.mediaserver.ServerFailure
+import com.fetch.tv.data.mediaserver.ServerIndexEntry
 import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.tv.data.mediaserver.ServerLibrary
 import com.fetch.tv.data.mediaserver.ServerLinkCode
@@ -13,6 +14,7 @@ import com.fetch.tv.data.mediaserver.ServerPlaybackRequest
 import com.fetch.tv.data.mediaserver.ServerPlaybackTarget
 import com.fetch.tv.data.mediaserver.ServerPlayerCapabilities
 import com.fetch.tv.data.mediaserver.ServerSession
+import com.fetch.tv.data.mediaserver.ServerTitleQuery
 import com.fetch.tv.data.mediaserver.mediabrowser.TestHttp
 import com.fetch.tv.data.mediaserver.mediabrowser.testIdentity
 import com.fetch.tv.domain.model.FilterRowFilters
@@ -135,6 +137,34 @@ class PlexProviderTest {
         assertEquals("/photo/:/transcode", poster.encodedPath)
         assertEquals("/library/metadata/101/thumb/1700000000", poster.queryParameter("url"))
         assertEquals("token-1", poster.queryParameter("X-Plex-Token"))
+    }
+
+    @Test
+    fun looksUpATitleByNameAndTriesTheOriginalTitleOnce() = runTest {
+        val http = TestHttp { request ->
+            if (request.url.queryParameter("title") == "Intouchables") {
+                """{"MediaContainer":{"Metadata":[{"ratingKey":"7","title":"Intouchables","type":"movie","year":2011,
+                    "Guid":[{"id":"imdb://tt1675434"}]}]}}"""
+            } else {
+                """{"MediaContainer":{"size":0}}"""
+            }
+        }
+        val plex = PlexProvider(http.client, testIdentity)
+        val library = ServerLibrary("1", "Movies", ServerMediaKind.MOVIE)
+        val ids = TrackingExternalIds(imdb = "tt1675434")
+
+        val found = plex.lookupTitle(session(), library, ServerTitleQuery(ids, "The Intouchables", 2011, originalName = "Intouchables"))
+
+        assertEquals(listOf(ServerIndexEntry("7", ids, year = 2011)), found)
+        assertEquals(listOf("The Intouchables", "Intouchables"), http.requests.map { it.url.queryParameter("title") })
+        val url = http.requests.first().url
+        assertEquals("/library/sections/1/all", url.encodedPath)
+        assertEquals("1", url.queryParameter("type"))
+        assertEquals("1", url.queryParameter("includeGuids"))
+        assertEquals("20", url.queryParameter("X-Plex-Container-Size"))
+
+        assertNull(plex.lookupTitle(session(), library, ServerTitleQuery(ids, name = null, year = null)))
+        assertEquals(2, http.requests.size)
     }
 
     @Test

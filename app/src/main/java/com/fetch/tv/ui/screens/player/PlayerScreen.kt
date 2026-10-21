@@ -220,6 +220,28 @@ fun PlayerScreen(
     val postPlayRecommendationFocusRequester = remember { FocusRequester() }
     val postPlayRecommendationPlayerWindowFocusRequester = remember { FocusRequester() }
     var skipButtonActuallyVisible by remember { mutableStateOf(false) }
+    var preferNextTimeSuggestions by remember {
+        mutableStateOf<List<com.fetch.tv.core.streams.ranking.PreferenceSuggestion>?>(null)
+    }
+    var preferNextTimeFocused by remember { mutableStateOf(false) }
+    val dismissPreferNextTime = {
+        val hadFocus = preferNextTimeFocused
+        preferNextTimeSuggestions = null
+        preferNextTimeFocused = false
+        if (hadFocus) runCatching { containerFocusRequester.requestFocus() }
+    }
+    // A few seconds into playback after the user chose a stream over Best match's pick.
+    LaunchedEffect(uiState.isPlaying) {
+        if (!uiState.isPlaying) return@LaunchedEffect
+        kotlinx.coroutines.delay(PREFER_NEXT_TIME_DELAY_MS)
+        com.fetch.tv.core.streams.ranking.PreferNextTime.take(PREFER_NEXT_TIME_MAX_AGE_MS)
+            ?.let { preferNextTimeSuggestions = it.suggestions }
+    }
+    LaunchedEffect(preferNextTimeSuggestions) {
+        if (preferNextTimeSuggestions == null) return@LaunchedEffect
+        kotlinx.coroutines.delay(PREFER_NEXT_TIME_VISIBLE_MS)
+        dismissPreferNextTime()
+    }
     var restoreStreamInfoFocus by remember { mutableStateOf(false) }
     var focusPlayAfterMoreBack by remember { mutableStateOf(false) }
     var hideControlsAfterStreamInfo by remember { mutableStateOf(false) }
@@ -328,6 +350,10 @@ fun PlayerScreen(
 
     val handleBackPress = handleBackPress@{
         if (externalHandoffInProgress) return@handleBackPress
+        if (preferNextTimeFocused) {
+            dismissPreferNextTime()
+            return@handleBackPress
+        }
         if (postPlayRecommendationState.canReturnToPlayer && !uiState.playbackEnded) {
             returnToPlayerFromPostPlay()
             viewModel.hideControls()
@@ -851,8 +877,8 @@ fun PlayerScreen(
                         }
                         KeyEvent.KEYCODE_DPAD_LEFT,
                         KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                            val overlayButtonsCoexist = skipButtonActuallyVisible &&
-                                uiState.postPlayMode is PostPlayMode.AutoPlay
+                            val overlayButtonsCoexist = (skipButtonActuallyVisible &&
+                                uiState.postPlayMode is PostPlayMode.AutoPlay) || preferNextTimeFocused
                             if (!uiState.showControls && !overlayButtonsCoexist) {
                                 val isLeft =
                                     keyEvent.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DPAD_LEFT
@@ -1364,6 +1390,30 @@ fun PlayerScreen(
                 .zIndex(2.1f)
                 .reportSubtitleClearance(subtitleClearanceGapPx) { postPlayClearancePx = it },
         )
+
+        val preferSuggestions = preferNextTimeSuggestions
+        if (preferSuggestions != null &&
+            !uiState.showSourcesPanel &&
+            !uiState.showEpisodesPanel &&
+            !uiState.showAudioOverlay &&
+            !uiState.showSubtitleOverlay &&
+            !uiState.showPauseOverlay &&
+            uiState.error == null
+        ) {
+            PreferNextTimePrompt(
+                suggestions = preferSuggestions,
+                onPrefer = { suggestion ->
+                    viewModel.preferNextTime(suggestion)
+                    dismissPreferNextTime()
+                },
+                onDismiss = dismissPreferNextTime,
+                onFocusChanged = { preferNextTimeFocused = it },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = FetchTheme.spacing.xxl, end = FetchTheme.spacing.xxl)
+                    .zIndex(2.2f)
+            )
+        }
 
         // Parental guide overlay (shows when video first starts playing)
         ParentalGuideOverlay(
@@ -4100,3 +4150,7 @@ private fun PlayerBufferingIndicator(
         }
     }
 }
+
+private const val PREFER_NEXT_TIME_DELAY_MS = 4_000L
+private const val PREFER_NEXT_TIME_VISIBLE_MS = 12_000L
+private const val PREFER_NEXT_TIME_MAX_AGE_MS = 3 * 60_000L

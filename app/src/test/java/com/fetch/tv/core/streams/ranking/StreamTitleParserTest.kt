@@ -96,4 +96,20 @@ class StreamTitleParserTest {
         val d = StreamTitleParser.parse("2160p DV HDR10 HEVC TrueHD Atmos REMUX 58 GB")
         assertEquals(listOf("4K", "DV", "HDR10", "HEVC", "TrueHD Atmos", "Remux", "58.0 GB"), d.summaryLabels())
     }
+
+    @Test
+    fun `reads audio languages from names, tags and flags`() {
+        assertEquals(
+            setOf(StreamLanguage.ITALIAN, StreamLanguage.ENGLISH),
+            StreamTitleParser.parse("Movie.2024.1080p.WEB-DL.ITA.ENG.DDP5.1-GRP").languages
+        )
+        assertEquals(setOf(StreamLanguage.FRENCH), StreamTitleParser.parse("Film 2024 TRUEFRENCH 1080p").languages)
+        assertEquals(
+            setOf(StreamLanguage.SPANISH, StreamLanguage.LATINO),
+            StreamTitleParser.parse("Torrentio\n1080p\n🇪🇸 / 🇲🇽 💾 2 GB").languages
+        )
+        assertEquals(setOf(StreamLanguage.MULTI), StreamTitleParser.parse("Movie 2160p Dual Audio HEVC").languages)
+        // Two-letter codes are ordinary words in free text and are not read as languages.
+        assertTrue(StreamTitleParser.parse("It Ends With Us 2024 1080p").languages.isEmpty())
+    }
 }

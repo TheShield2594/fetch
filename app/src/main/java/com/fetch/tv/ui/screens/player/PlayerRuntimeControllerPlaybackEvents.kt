@@ -1691,6 +1691,14 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             filterSourceStreamsByAddon(event.addonName)
         }
         is PlayerEvent.OnSourceStreamSelected -> {
+            if (streamAutoPlayModeSetting == com.fetch.tv.data.local.StreamAutoPlayMode.BEST_MATCH) {
+                com.fetch.tv.core.streams.ranking.PreferNextTime.recordManualPick(
+                    picked = event.stream,
+                    streams = _uiState.value.sourceAllStreams,
+                    rules = streamRankingRulesSetting,
+                    device = com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities.current
+                )
+            }
             switchToSourceStream(event.stream)
         }
         PlayerEvent.OnDismissTransientOverlay -> {

@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.stream
 import kotlinx.coroutines.withTimeoutOrNull
 import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.StreamRanker
+import com.fetch.tv.core.streams.ranking.PreferNextTime
 import com.fetch.tv.core.streams.ranking.RankedStreamList
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
@@ -735,8 +736,8 @@ class StreamScreenViewModel @Inject constructor(
                     resolvedAutoPlayTarget = true
                 }
 
-                bestMatchRules = playerSettings.streamRankingRules
-                    .takeIf { playerSettings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH }
+                rankingRules = playerSettings.streamRankingRules
+                rankBestFirst = playerSettings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH
                 val tab = streamTab(allStreams, _uiState.value.selectedAddonFilter)
                 val fullFiltered = tab.streams
                 streamFilterFullList = fullFiltered
@@ -1358,9 +1359,20 @@ class StreamScreenViewModel @Inject constructor(
         return parseRuntimeMinutes(meta.runtime)
     }
 
-    /** The ranking rules while auto-play is in Best match mode, null otherwise. */
+    /** Remembers a stream the user chose over Best match's pick, for "Prefer this next time". */
+    fun onManualPick(stream: Stream) {
+        val rules = rankingRules ?: return
+        if (!rankBestFirst) return
+        PreferNextTime.recordManualPick(stream, _uiState.value.allStreams, rules, DeviceDecodeCapabilities.current)
+    }
+
+    /** The profile's stream rules; null until the first results arrive. */
     @Volatile
-    private var bestMatchRules: StreamRankingRules? = null
+    private var rankingRules: StreamRankingRules? = null
+
+    /** True in Best match mode, where the All tab is ordered by score. */
+    @Volatile
+    private var rankBestFirst = false
 
     private fun filterByAddon(addonName: String?) {
         streamFilterExpandJob?.cancel()
@@ -1385,13 +1397,13 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     /**
-     * A tab of the source list. Under Best match "All" is best first, with streams the rules or
-     * the device rule out kept at the bottom as "other sources", and every tab says why Best
-     * match passed over a stream; addon tabs keep the addon's own order.
+     * A tab of the source list. In "All", streams the rules or the device rule out are kept at
+     * the bottom as "other sources" (best first above them under Best match), and every tab
+     * says why a stream was passed over; addon tabs keep the addon's own order.
      */
     private fun streamTab(streams: List<Stream>, addonName: String?): RankedStreamList {
-        val ranked = bestMatchRules?.let { rules ->
-            StreamRanker.rankedList(streams, rules, DeviceDecodeCapabilities.current)
+        val ranked = rankingRules?.let { rules ->
+            StreamRanker.rankedList(streams, rules, DeviceDecodeCapabilities.current, bestFirst = rankBestFirst)
         }
         val tab = if (addonName == null) ranked?.streams ?: streams else streams.filter { it.addonName == addonName }
         return RankedStreamList(tab, ranked?.exclusions.orEmpty())

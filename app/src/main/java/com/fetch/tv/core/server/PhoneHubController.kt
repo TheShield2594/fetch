@@ -172,8 +172,7 @@ class PhoneHubController @Inject constructor(
                 val settings = runBlocking { debridSettingsDataStore.settings.first() }
                 DebridFormatterSettings(
                     nameTemplate = settings.streamNameTemplate,
-                    descriptionTemplate = settings.streamDescriptionTemplate,
-                    streamPreferences = settings.streamPreferences
+                    descriptionTemplate = settings.streamDescriptionTemplate
                 )
             },
             onSettingsChanged = { settings ->
@@ -182,7 +181,6 @@ class PhoneHubController @Inject constructor(
                         nameTemplate = settings.nameTemplate,
                         descriptionTemplate = settings.descriptionTemplate
                     )
-                    debridSettingsDataStore.setStreamPreferences(settings.streamPreferences)
                 }
             },
             context = context,

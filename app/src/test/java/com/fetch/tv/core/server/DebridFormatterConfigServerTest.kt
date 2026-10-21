@@ -1,9 +1,6 @@
 package com.fetch.tv.core.server
 
 import com.google.gson.Gson
-import com.fetch.tv.domain.model.DebridStreamPreferences
-import com.fetch.tv.domain.model.DebridStreamQuality
-import com.fetch.tv.domain.model.DebridStreamResolution
 import fi.iki.elonen.NanoHTTPD
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -27,12 +24,7 @@ class DebridFormatterConfigServerTest {
         val body = Gson().toJson(
             mapOf(
                 "nameTemplate" to "🔥4K UHD ☁️",
-                "descriptionTemplate" to "🍿 Loki ⚡Ready 🗣️",
-                "streamPreferences" to DebridStreamPreferences(
-                    maxResults = 10,
-                    requiredResolutions = listOf(DebridStreamResolution.P2160),
-                    excludedQualities = listOf(DebridStreamQuality.CAM)
-                )
+                "descriptionTemplate" to "🍿 Loki ⚡Ready 🗣️"
             )
         )
 
@@ -41,9 +33,6 @@ class DebridFormatterConfigServerTest {
         assertEquals(NanoHTTPD.Response.Status.OK, response.status)
         assertEquals("🔥4K UHD ☁️", saved?.nameTemplate)
         assertEquals("🍿 Loki ⚡Ready 🗣️", saved?.descriptionTemplate)
-        assertEquals(10, saved?.streamPreferences?.maxResults)
-        assertEquals(listOf(DebridStreamResolution.P2160), saved?.streamPreferences?.requiredResolutions)
-        assertEquals(listOf(DebridStreamQuality.CAM), saved?.streamPreferences?.excludedQualities)
     }
 
     @Test

@@ -52,14 +52,13 @@ class DebridStreamPresentation @Inject constructor(
             val visibleStreams = group.streams
                 .filterNot { stream -> stream.isInactiveResolverStream(settings) }
                 .filterNot { stream -> stream.isUncachedDebridStream() }
-            val debridStreams = visibleStreams.filter { stream -> stream.isManagedDebridStream() }
-            if (debridStreams.isEmpty()) return@map group.copy(streams = visibleStreams)
-
-            val presentedDebridStreams = DirectDebridStreamFilter.applyPreferencesWithFacts(debridStreams, settings)
-                .map { (stream, facts) -> formatter.format(stream, settings, badgeFilters, facts) }
-            val passthroughStreams = visibleStreams.filterNot { stream -> stream.isManagedDebridStream() }
-
-            group.copy(streams = presentedDebridStreams + passthroughStreams)
+            // Stream rules (resolution, size, languages…) are applied by StreamRanker to every
+            // source alike, so debrid streams only get their labels here.
+            group.copy(
+                streams = visibleStreams.map { stream ->
+                    if (stream.isManagedDebridStream()) formatter.format(stream, settings, badgeFilters) else stream
+                }
+            )
         }
     }
 

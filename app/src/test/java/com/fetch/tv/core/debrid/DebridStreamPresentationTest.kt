@@ -4,8 +4,6 @@ import com.fetch.tv.data.local.DebridSettingsDataStore
 import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.DebridSettings
-import com.fetch.tv.domain.model.DebridStreamEncode
-import com.fetch.tv.domain.model.DebridStreamPreferences
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.StreamClientResolve
 import io.mockk.mockk
@@ -22,13 +20,12 @@ class DebridStreamPresentationTest {
     private val settings = DebridSettings(
         enabled = true,
         torboxApiKey = "key",
-        streamPreferences = DebridStreamPreferences(excludedEncodes = listOf(DebridStreamEncode.AVC)),
         streamNameTemplate = "{stream.resolution} {stream.quality} {stream.encode}",
         streamDescriptionTemplate = "{stream.filename}"
     )
 
     @Test
-    fun `formats filtered debrid streams with the facts computed while filtering`() {
+    fun `labels every debrid stream and leaves filtering to stream ranking`() {
         val passthrough = Stream(
             name = "Regular",
             title = "Movie",
@@ -55,12 +52,10 @@ class DebridStreamPresentationTest {
             includeBadgeMatches = false
         ).single().streams
 
-        val expectedDebrid = DirectDebridStreamFilter.applyPreferences(debridStreams, settings)
-            .map { formatter.format(it, settings) }
-        assertEquals(expectedDebrid + passthrough, result)
+        assertEquals(debridStreams.map { formatter.format(it, settings) } + passthrough, result)
         assertEquals(
-            setOf("1080p WEB-DL HEVC", "2160p BluRay REMUX HEVC", "1440p HDTV AV1"),
-            result.dropLast(1).map { it.name }.toSet()
+            listOf("1080p WEB-DL HEVC", "2160p BluRay REMUX HEVC", "720p WEBRip AVC", "1440p HDTV AV1"),
+            result.dropLast(1).map { it.name }
         )
     }
 

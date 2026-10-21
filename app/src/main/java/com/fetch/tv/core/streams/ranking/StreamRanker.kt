@@ -87,7 +87,29 @@ data class StreamRankingRules(
     val dropUndecodable: Boolean = true,
     /** Case-insensitive keywords; a match drops the stream (e.g. "HC", "KORSUB"). */
     val excludedKeywords: List<String> = emptyList(),
-    val preferredKeywords: List<String> = emptyList()
+    val preferredKeywords: List<String> = emptyList(),
+    /** Streams smaller than this are dropped; null means no minimum. */
+    val minSizeGb: Double? = null,
+    val excludedResolutions: Set<StreamResolution> = emptySet(),
+    val excludedSources: Set<ReleaseSource> = emptySet(),
+    val excludedCodecs: Set<VideoCodec> = emptySet(),
+    /** A stream is dropped when every audio format it names is in here. */
+    val excludedAudio: Set<AudioFormat> = emptySet(),
+    /** Audio languages, most wanted first. */
+    val preferredLanguages: List<StreamLanguage> = emptyList(),
+    /** When set, a stream that names its languages must include one of these. */
+    val requiredLanguages: Set<StreamLanguage> = emptySet(),
+    /** A stream is dropped when every language it names is in here. */
+    val excludedLanguages: Set<StreamLanguage> = emptySet(),
+    /** Release groups, case-insensitive, e.g. a group picked with "Prefer this next time". */
+    val preferredReleaseGroups: List<String> = emptyList(),
+    val excludedReleaseGroups: List<String> = emptyList(),
+    /** Keep at most this many eligible streams per resolution; 0 means no limit. */
+    val maxPerResolution: Int = 0,
+    /** Keep at most this many eligible streams per release source (WEB-DL, BluRay…); 0 means no limit. */
+    val maxPerSource: Int = 0,
+    /** Keep at most this many eligible streams in total; 0 means no limit. */
+    val maxResults: Int = 0
 )
 
 enum class RankReason {
@@ -98,6 +120,8 @@ enum class RankReason {
     HDR,
     PREFERRED_AUDIO,
     PREFERRED_KEYWORD,
+    PREFERRED_LANGUAGE,
+    PREFERRED_RELEASE_GROUP,
     OVER_PREFERRED_SIZE,
     LOW_QUALITY_SOURCE,
     UNKNOWN_QUALITY
@@ -107,6 +131,14 @@ enum class ExclusionReason {
     ABOVE_MAX_RESOLUTION,
     BELOW_MIN_RESOLUTION,
     OVER_MAX_SIZE,
+    UNDER_MIN_SIZE,
+    RESOLUTION_EXCLUDED,
+    SOURCE_EXCLUDED,
+    CODEC_EXCLUDED,
+    AUDIO_EXCLUDED,
+    LANGUAGE_EXCLUDED,
+    RELEASE_GROUP_EXCLUDED,
+    OVER_RESULT_LIMIT,
     DOLBY_VISION_PROFILE_EXCLUDED,
     DOLBY_VISION_EXCLUDED,
     HDR_EXCLUDED,
@@ -159,30 +191,70 @@ object StreamRanker {
         isPlayable: (Stream) -> Boolean = { true },
         parse: (Stream) -> StreamDescriptor = StreamTitleParser::parse
     ): List<RankedStream> {
-        return streams.mapIndexed { index, stream ->
+        val ranked = streams.mapIndexed { index, stream ->
             score(stream, parse(stream), rules, device, isPlayable(stream), index)
-        }.sortedWith(
-            compareBy<RankedStream> { if (it.isEligible) 0 else 1 }
-                .thenByDescending { it.score }
-                .thenBy { it.originalIndex }
-        )
+        }.sortedWith(order)
+        return if (rules.hasLimits) applyLimits(ranked, rules).sortedWith(order) else ranked
+    }
+
+    private val order = compareBy<RankedStream> { if (it.isEligible) 0 else 1 }
+        .thenByDescending { it.score }
+        .thenBy { it.originalIndex }
+
+    private val StreamRankingRules.hasLimits: Boolean
+        get() = maxResults > 0 || maxPerResolution > 0 || maxPerSource > 0
+
+    /**
+     * Moves eligible streams past the user's limits, best first, to "other sources". Files
+     * from the user's own library are never limited.
+     */
+    private fun applyLimits(ranked: List<RankedStream>, rules: StreamRankingRules): List<RankedStream> {
+        val perResolution = mutableMapOf<StreamResolution, Int>()
+        val perSource = mutableMapOf<ReleaseSource, Int>()
+        var kept = 0
+        return ranked.map { item ->
+            if (!item.isEligible || item.stream.serverTarget != null) return@map item
+            val resolution = item.descriptor.resolution
+            val source = item.descriptor.source
+            val overLimit = (rules.maxResults > 0 && kept >= rules.maxResults) ||
+                (rules.maxPerResolution > 0 && (perResolution[resolution] ?: 0) >= rules.maxPerResolution) ||
+                (rules.maxPerSource > 0 && (perSource[source] ?: 0) >= rules.maxPerSource)
+            if (overLimit) return@map item.copy(exclusion = ExclusionReason.OVER_RESULT_LIMIT)
+            kept++
+            perResolution[resolution] = (perResolution[resolution] ?: 0) + 1
+            perSource[source] = (perSource[source] ?: 0) + 1
+            item
+        }
     }
 
     /**
-     * [rank] for a source list: streams best first, and why each ruled-out one would not
-     * auto-play, keyed by [Stream.stableKey].
+     * [rank] for a source list: streams the rules allow first and ruled-out ones last, with
+     * why each ruled-out one would not auto-play, keyed by [Stream.stableKey]. Allowed streams
+     * are best first when [bestFirst], otherwise in the order the addons gave them.
      */
     fun rankedList(
         streams: List<Stream>,
         rules: StreamRankingRules = StreamRankingRules(),
-        device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.Permissive
+        device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.Permissive,
+        bestFirst: Boolean = true
     ): RankedStreamList {
-        val ranked = rank(streams, rules, device)
+        val ranked = rank(streams, rules, device).let { ranked ->
+            if (bestFirst) ranked else ranked.sortedWith(compareBy<RankedStream> { if (it.isEligible) 0 else 1 }.thenBy { it.originalIndex })
+        }
         return RankedStreamList(
             streams = ranked.map { it.stream },
             exclusions = ranked.mapNotNull { item -> item.exclusion?.let { item.stream.stableKey() to it } }.toMap()
         )
     }
+
+    /** [streams] the rules and the device allow, in their original order. */
+    fun eligible(
+        streams: List<Stream>,
+        rules: StreamRankingRules = StreamRankingRules(),
+        device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.Permissive,
+        isPlayable: (Stream) -> Boolean = { true }
+    ): List<Stream> =
+        rank(streams, rules, device, isPlayable).filter { it.isEligible }.sortedBy { it.originalIndex }.map { it.stream }
 
     /** The stream to start immediately when the user presses play, if any qualifies. */
     fun best(
@@ -260,6 +332,22 @@ object StreamRanker {
             reasons += RankReason.PREFERRED_KEYWORD
         }
 
+        val languageRank = descriptor.languages
+            .map { rules.preferredLanguages.indexOf(it) }
+            .filter { it >= 0 }
+            .minOrNull()
+        if (languageRank != null) {
+            score += 300 - 60 * languageRank
+            reasons += RankReason.PREFERRED_LANGUAGE
+        }
+
+        if (descriptor.releaseGroup != null &&
+            rules.preferredReleaseGroups.any { it.equals(descriptor.releaseGroup, ignoreCase = true) }
+        ) {
+            score += 300
+            reasons += RankReason.PREFERRED_RELEASE_GROUP
+        }
+
         score += descriptor.source.qualityRank * 20
         if (descriptor.source.qualityRank <= ReleaseSource.TELESYNC.qualityRank) {
             reasons += RankReason.LOW_QUALITY_SOURCE
@@ -308,6 +396,25 @@ object StreamRanker {
             if (sizeGb != null && rules.maxSizeGb != null && sizeGb > rules.maxSizeGb) {
                 return ExclusionReason.OVER_MAX_SIZE
             }
+            if (sizeGb != null && rules.minSizeGb != null && sizeGb < rules.minSizeGb) {
+                return ExclusionReason.UNDER_MIN_SIZE
+            }
+            if (known && descriptor.resolution in rules.excludedResolutions) return ExclusionReason.RESOLUTION_EXCLUDED
+            if (descriptor.source != ReleaseSource.UNKNOWN && descriptor.source in rules.excludedSources) {
+                return ExclusionReason.SOURCE_EXCLUDED
+            }
+            if (descriptor.videoCodec != VideoCodec.UNKNOWN && descriptor.videoCodec in rules.excludedCodecs) {
+                return ExclusionReason.CODEC_EXCLUDED
+            }
+            if (descriptor.audio.isNotEmpty() && rules.excludedAudio.containsAll(descriptor.audio)) {
+                return ExclusionReason.AUDIO_EXCLUDED
+            }
+            if (!languagesAllowed(descriptor.languages, rules)) return ExclusionReason.LANGUAGE_EXCLUDED
+            if (descriptor.releaseGroup != null &&
+                rules.excludedReleaseGroups.any { it.equals(descriptor.releaseGroup, ignoreCase = true) }
+            ) {
+                return ExclusionReason.RELEASE_GROUP_EXCLUDED
+            }
             if (rules.excludeDolbyVision && descriptor.hasDolbyVision) return ExclusionReason.DOLBY_VISION_EXCLUDED
             val dvProfile = likelyDolbyVisionProfile(descriptor)
             if (dvProfile != null && dvProfile in rules.excludedDolbyVisionProfiles) {
@@ -340,6 +447,15 @@ object StreamRanker {
             }
         }
         return null
+    }
+
+    /** Releases that don't name their languages are never ruled out by language rules. */
+    private fun languagesAllowed(languages: Set<StreamLanguage>, rules: StreamRankingRules): Boolean {
+        if (languages.isEmpty()) return true
+        if (rules.requiredLanguages.isNotEmpty() && languages.none { it in rules.requiredLanguages || it == StreamLanguage.MULTI }) {
+            return false
+        }
+        return !rules.excludedLanguages.containsAll(languages)
     }
 
     /**

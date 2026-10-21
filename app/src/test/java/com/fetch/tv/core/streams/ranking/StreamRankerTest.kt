@@ -229,6 +229,107 @@ class StreamRankerTest {
         assertNull(list.exclusionOf(hdr))
     }
 
+    @Test
+    fun `preferred audio language and release group lift a stream`() {
+        val rules = StreamRankingRules(preferredLanguages = listOf(StreamLanguage.ITALIAN))
+        val best = StreamRanker.best(
+            listOf(stream("1080p WEB-DL x264 ENG-GRP"), stream("1080p WEB-DL x264 ITA ENG-GRP")),
+            rules,
+            dvTv
+        )
+        assertEquals("1080p WEB-DL x264 ITA ENG-GRP", best?.stream?.name)
+
+        val grouped = StreamRanker.best(
+            listOf(stream("Movie.2024.1080p.WEB-DL.x264-AAA"), stream("Movie.2024.1080p.WEB-DL.x264-FLUX")),
+            StreamRankingRules(preferredReleaseGroups = listOf("flux")),
+            dvTv
+        )
+        assertEquals("Movie.2024.1080p.WEB-DL.x264-FLUX", grouped?.stream?.name)
+    }
+
+    @Test
+    fun `language rules only rule out releases that name their languages`() {
+        val rules = StreamRankingRules(excludedLanguages = setOf(StreamLanguage.HINDI))
+        val ranked = StreamRanker.rank(
+            listOf(stream("1080p HINDI x264"), stream("1080p HINDI ENGLISH x264"), stream("1080p x264")),
+            rules,
+            dvTv
+        ).associateBy { it.stream.name }
+        assertEquals(ExclusionReason.LANGUAGE_EXCLUDED, ranked.getValue("1080p HINDI x264").exclusion)
+        assertTrue(ranked.getValue("1080p HINDI ENGLISH x264").isEligible)
+        assertTrue(ranked.getValue("1080p x264").isEligible)
+
+        val onlyItalian = StreamRanker.rank(
+            listOf(stream("1080p ENG x264"), stream("1080p MULTI x264")),
+            StreamRankingRules(requiredLanguages = setOf(StreamLanguage.ITALIAN)),
+            dvTv
+        ).associateBy { it.stream.name }
+        assertEquals(ExclusionReason.LANGUAGE_EXCLUDED, onlyItalian.getValue("1080p ENG x264").exclusion)
+        assertTrue(onlyItalian.getValue("1080p MULTI x264").isEligible)
+    }
+
+    @Test
+    fun `size, source, codec, audio and group exclusions`() {
+        val rules = StreamRankingRules(
+            minSizeGb = 2.0,
+            excludedSources = setOf(ReleaseSource.HDTV),
+            excludedCodecs = setOf(VideoCodec.AV1),
+            excludedAudio = setOf(AudioFormat.AAC),
+            excludedReleaseGroups = listOf("YIFY")
+        )
+        val ranked = StreamRanker.rank(
+            listOf(
+                stream("1080p WEB-DL x264 900 MB"),
+                stream("1080p HDTV x264 4 GB"),
+                stream("1080p WEB-DL AV1 4 GB"),
+                stream("1080p WEB-DL x264 AAC 4 GB"),
+                stream("1080p WEB-DL x264 AAC DDP5.1 4 GB"),
+                stream("Movie.2020.1080p.BluRay.x264-YIFY")
+            ),
+            rules,
+            dvTv
+        ).associate { it.stream.name to it.exclusion }
+        assertEquals(ExclusionReason.UNDER_MIN_SIZE, ranked["1080p WEB-DL x264 900 MB"])
+        assertEquals(ExclusionReason.SOURCE_EXCLUDED, ranked["1080p HDTV x264 4 GB"])
+        assertEquals(ExclusionReason.CODEC_EXCLUDED, ranked["1080p WEB-DL AV1 4 GB"])
+        assertEquals(ExclusionReason.AUDIO_EXCLUDED, ranked["1080p WEB-DL x264 AAC 4 GB"])
+        assertNull(ranked["1080p WEB-DL x264 AAC DDP5.1 4 GB"])
+        assertEquals(ExclusionReason.RELEASE_GROUP_EXCLUDED, ranked["Movie.2020.1080p.BluRay.x264-YIFY"])
+    }
+
+    @Test
+    fun `result limits move the rest to other sources best first`() {
+        val ranked = StreamRanker.rank(
+            listOf(
+                stream("2160p HEVC WEB-DL"),
+                stream("2160p HEVC BluRay"),
+                stream("1080p HEVC WEB-DL"),
+                stream("1080p HEVC BluRay"),
+                stream("720p x264 WEB-DL")
+            ),
+            StreamRankingRules(maxPerResolution = 1, maxResults = 2),
+            dvTv
+        )
+        assertEquals(2, ranked.count { it.isEligible })
+        assertEquals(setOf(StreamResolution.UHD_2160, StreamResolution.FHD_1080), ranked.filter { it.isEligible }.map { it.descriptor.resolution }.toSet())
+        assertTrue(ranked.filterNot { it.isEligible }.all { it.exclusion == ExclusionReason.OVER_RESULT_LIMIT })
+    }
+
+    @Test
+    fun `allowed streams keep addon order outside best match`() {
+        val first = stream("1080p HDTV x264")
+        val second = stream("720p WEB-DL x264")
+        val third = stream("2160p WEB-DL HEVC")
+        val list = StreamRanker.rankedList(
+            listOf(first, second, third),
+            StreamRankingRules(excludedSources = setOf(ReleaseSource.HDTV)),
+            dvTv,
+            bestFirst = false
+        )
+        assertEquals(listOf(second, third, first), list.streams)
+        assertEquals(ExclusionReason.SOURCE_EXCLUDED, list.exclusionOf(first))
+    }
+
     private fun stream(name: String): Stream = Stream(
         name = name,
         title = null,

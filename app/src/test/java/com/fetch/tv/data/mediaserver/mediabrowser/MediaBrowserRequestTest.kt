@@ -307,6 +307,17 @@ class MediaBrowserRequestTest {
     }
 
     @Test
+    fun aFullPageWithoutTheTitleLetsTheMatcherUseTheIndex() = runTest {
+        val others = (1..20).joinToString(",") { """{"Id": "m$it", "ProductionYear": 2009, "ProviderIds": {"Imdb": "tt00000$it"}}""" }
+        val http = TestHttp { """{"Items": [$others]}""" }
+        val jellyfin = JellyfinProvider(http.client, testIdentity)
+        val library = ServerLibrary("lib1", "Movies", ServerMediaKind.MOVIE)
+        val query = ServerTitleQuery(TrackingExternalIds(imdb = "tt1049413"), "Up", 2009)
+
+        assertNull(jellyfin.lookupTitle(session("jellyfin", "https://media.example.com"), library, query))
+    }
+
+    @Test
     fun embyAsksOnceWhateverTheOriginalTitle() = runTest {
         val http = TestHttp { """{"Items": []}""" }
         val emby = EmbyProvider(http.client, testIdentity)

@@ -168,6 +168,15 @@ class PlexProviderTest {
     }
 
     @Test
+    fun aFullTitlePageWithoutTheTitleLetsTheMatcherUseTheIndex() = runTest {
+        val others = (1..20).joinToString(",") { """{"ratingKey":"$it","type":"movie","Guid":[{"id":"imdb://tt00000$it"}]}""" }
+        val http = TestHttp { """{"MediaContainer":{"Metadata":[$others]}}""" }
+        val query = ServerTitleQuery(TrackingExternalIds(imdb = "tt1049413"), "Up", 2009)
+
+        assertNull(PlexProvider(http.client, testIdentity).lookupTitle(session(), ServerLibrary("1", "Movies", ServerMediaKind.MOVIE), query))
+    }
+
+    @Test
     fun showDetailsCarryEpisodeProgress() = runTest {
         val http = TestHttp { request ->
             when (request.url.encodedPath) {

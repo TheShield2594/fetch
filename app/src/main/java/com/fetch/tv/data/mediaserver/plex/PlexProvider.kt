@@ -298,9 +298,14 @@ internal class PlexProvider(
         val name = query.name?.trim()?.takeIf { it.isNotEmpty() } ?: return null
         val found = titleEntries(session, library, name)
         if (verifiedTitleMatches(found, query).isNotEmpty()) return found
-        val original = query.originalName?.trim()?.takeIf { it.isNotEmpty() && !it.equals(name, ignoreCase = true) }
-            ?: return found
-        return found + titleEntries(session, library, original)
+        val retry = query.originalName?.trim()
+            ?.takeIf { it.isNotEmpty() && !it.equals(name, ignoreCase = true) }
+            ?.let { titleEntries(session, library, it) }
+            .orEmpty()
+        // A full page may have cut off the title; null lets the matcher use the full index.
+        return (found + retry).takeUnless {
+            verifiedTitleMatches(it, query).isEmpty() && (found.size >= TITLE_LOOKUP_LIMIT || retry.size >= TITLE_LOOKUP_LIMIT)
+        }
     }
 
     private suspend fun titleEntries(session: ServerSession, library: ServerLibrary, title: String): List<ServerIndexEntry> =

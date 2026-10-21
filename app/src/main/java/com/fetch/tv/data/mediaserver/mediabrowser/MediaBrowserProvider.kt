@@ -364,8 +364,11 @@ internal abstract class MediaBrowserProvider(
         val filter = titleLookupQuery(query) ?: return null
         val found = titleEntries(session, library, filter)
         if (verifiedTitleMatches(found, query).isNotEmpty()) return found
-        val retry = titleRetryQuery(query) ?: return found
-        return found + titleEntries(session, library, retry)
+        val retry = titleRetryQuery(query)?.let { titleEntries(session, library, it) }.orEmpty()
+        // A full page may have cut off the title; null lets the matcher use the full index.
+        return (found + retry).takeUnless {
+            verifiedTitleMatches(it, query).isEmpty() && (found.size >= TITLE_LOOKUP_LIMIT || retry.size >= TITLE_LOOKUP_LIMIT)
+        }
     }
 
     private suspend fun titleEntries(

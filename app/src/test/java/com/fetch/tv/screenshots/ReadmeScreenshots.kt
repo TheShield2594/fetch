@@ -13,8 +13,22 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.requestFocus
 import com.fetch.tv.core.streams.BestMatchPreview
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Home
+import androidx.tv.material3.Icon
+import com.fetch.tv.R
+import com.fetch.tv.ui.components.FloatingSidebarButton
+import com.fetch.tv.ui.components.ProfileAvatarCircle
+import com.fetch.tv.ui.theme.FetchComponents
+import com.fetch.tv.ui.theme.FetchLayout
+import com.fetch.tv.ui.util.rememberRawSvgPainter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -84,7 +98,62 @@ class ReadmeScreenshots {
     }
 
     @Test
-    fun home() = render("home") {
+    fun home() = render("home") { SampleHome() }
+
+    @Test
+    fun sidebar() = render("sidebar", focusOn = "Discover") {
+        Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
+            // The scaffold pads root screens by this much so the icon column has its own lane.
+            Box(Modifier.fillMaxSize().padding(start = FetchLayout.tokens.sidebarContentOffset)) { SampleHome() }
+            // Same fade and column as FetchSidebarScaffold while the sidebar has focus.
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .width(FetchComponents.tokens.sidebar.expandedWidth * 1.6f)
+                    .background(
+                        Brush.horizontalGradient(
+                            0f to FetchTheme.colors.Background.copy(alpha = 0.92f),
+                            0.35f to FetchTheme.colors.Background.copy(alpha = 0.55f),
+                            1f to Color.Transparent
+                        )
+                    )
+            )
+            Column(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = FetchComponents.tokens.sidebar.floatingInset),
+                verticalArrangement = Arrangement.spacedBy(FetchComponents.tokens.sidebar.floatingGap)
+            ) {
+                SidebarSampleItem("Home", selected = true) { tint ->
+                    Icon(Icons.Default.Home, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+                }
+                SidebarSampleItem("Search") { tint ->
+                    Icon(rememberRawSvgPainter(R.raw.sidebar_search), contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+                }
+                SidebarSampleItem("Discover") { tint ->
+                    Icon(Icons.Default.Explore, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+                }
+                SidebarSampleItem("Library") { tint ->
+                    Icon(rememberRawSvgPainter(R.raw.sidebar_library), contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+                }
+                SidebarSampleItem("Settings") { tint ->
+                    Icon(rememberRawSvgPainter(R.raw.sidebar_settings), contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+                }
+                Spacer(Modifier.height(FetchComponents.tokens.sidebar.floatingGap))
+                SidebarSampleItem("Alex") { _ ->
+                    ProfileAvatarCircle(name = "Alex", colorHex = "#C26A3D", size = 40.dp)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun SidebarSampleItem(label: String, selected: Boolean = false, leading: @Composable (Color) -> Unit) {
+        FloatingSidebarButton(label = label, selected = selected, expanded = true, onClick = {}, leading = leading)
+    }
+
+    @Composable
+    private fun SampleHome() {
         val context = LocalContext.current
         val rows = Samples.catalogRows
         val cw = Samples.continueWatching
@@ -289,14 +358,23 @@ class ReadmeScreenshots {
         }
     }
 
-    private fun render(name: String, focusFirst: Boolean = true, content: @Composable () -> Unit) {
+    private fun render(
+        name: String,
+        focusFirst: Boolean = true,
+        focusOn: String? = null,
+        content: @Composable () -> Unit
+    ) {
         compose.setContent { FetchTheme { content() } }
         // Let images load and enter animations settle before drawing.
         repeat(6) {
             compose.mainClock.advanceTimeBy(1_000)
             compose.waitForIdle()
         }
-        if (focusFirst) {
+        if (focusOn != null) {
+            compose.onNodeWithContentDescription(focusOn).requestFocus()
+            compose.mainClock.advanceTimeBy(1_000)
+            compose.waitForIdle()
+        } else if (focusFirst) {
             // On a TV something always has focus; show the focus ring the way a remote would.
             compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Focused)).onFirst().requestFocus()
             compose.mainClock.advanceTimeBy(1_000)

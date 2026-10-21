@@ -77,9 +77,6 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val pinnedHomeCatalogKeysKey = stringPreferencesKey("pinned_home_catalog_keys")
     private val customCatalogTitlesKey = stringPreferencesKey("custom_catalog_titles")
     private val sidebarCollapsedKey = booleanPreferencesKey("sidebar_collapsed_by_default")
-    private val modernSidebarEnabledKey = booleanPreferencesKey("modern_sidebar_enabled")
-    private val legacyModernSidebarEnabledKey = booleanPreferencesKey("glass_sidepanel_enabled")
-    private val modernSidebarBlurEnabledKey = booleanPreferencesKey("modern_sidebar_blur_enabled")
     private val modernLandscapePostersEnabledKey = booleanPreferencesKey("modern_landscape_posters_enabled")
     private val heroSectionEnabledKey = booleanPreferencesKey("hero_section_enabled")
     private val posterLabelsEnabledKey = booleanPreferencesKey("poster_labels_enabled")
@@ -229,14 +226,6 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     val sidebarCollapsedByDefault: Flow<Boolean> = profileFlow { prefs ->
         prefs[sidebarCollapsedKey] ?: false
-    }
-
-    val modernSidebarEnabled: Flow<Boolean> = profileFlow { prefs ->
-        prefs[modernSidebarEnabledKey] ?: prefs[legacyModernSidebarEnabledKey] ?: false
-    }
-
-    val modernSidebarBlurEnabled: Flow<Boolean> = profileFlow { prefs ->
-        prefs[modernSidebarBlurEnabledKey] ?: false
     }
 
     val modernLandscapePostersEnabled: Flow<Boolean> = profileFlow { prefs ->
@@ -587,19 +576,6 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun setSidebarCollapsedByDefault(collapsed: Boolean) {
         store().edit { prefs ->
             prefs[sidebarCollapsedKey] = collapsed
-        }
-    }
-
-    suspend fun setModernSidebarEnabled(enabled: Boolean) {
-        store().edit { prefs ->
-            prefs[modernSidebarEnabledKey] = enabled
-            prefs.remove(legacyModernSidebarEnabledKey)
-        }
-    }
-
-    suspend fun setModernSidebarBlurEnabled(enabled: Boolean) {
-        store().edit { prefs ->
-            prefs[modernSidebarBlurEnabledKey] = enabled
         }
     }
 

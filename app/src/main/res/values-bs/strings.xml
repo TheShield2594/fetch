@@ -498,10 +498,6 @@
     <string name="layout_section_content_desc">Kontroliši šta se prikazuje na početnoj i u pretrazi.</string>
     <string name="layout_collapse_sidebar">Skupi Sidebar</string>
     <string name="layout_collapse_sidebar_sub">Sakrij sidebar po defaultu; prikaži ga kada je fokusiran.</string>
-    <string name="layout_modern_sidebar">Modern Sidebar</string>
-    <string name="layout_modern_sidebar_sub">Omogući floating sidebar navigaciju.</string>
-    <string name="layout_modern_sidebar_blur">Modern Sidebar Blur</string>
-    <string name="layout_modern_sidebar_blur_sub">Uključi/isključi blur efekt za površine u modernom sidebaru.</string>
     <string name="layout_fullscreen_hero_backdrop">Fullscreen Backdrop za Glavni Prikaz</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi backdrop sliku da ispuni cijeli ekran.</string>
     <string name="layout_show_discover">Prikaži Otkrij u Pretrazi</string>

@@ -943,12 +943,6 @@
     <string name="layout_section_custom_poster_desc">Sử dụng ảnh hiển thị từ dịch vụ poster bên ngoài.</string>
     <string name="layout_collapse_sidebar">Thu gọn thanh bên</string>
     <string name="layout_collapse_sidebar_sub">Ẩn thanh bên theo mặc định; hiển thị khi đang chọn.</string>
-    <string name="layout_hide_floating_pill">Ẩn thanh điều hướng nổi</string>
-    <string name="layout_hide_floating_pill_sub">Ẩn chỉ báo điều hướng nổi trên màn hình chính.</string>
-    <string name="layout_modern_sidebar">Thanh bên hiện đại</string>
-    <string name="layout_modern_sidebar_sub">Bật thanh điều hướng nổi.</string>
-    <string name="layout_modern_sidebar_blur">Làm mờ Thanh bên Hiện đại</string>
-    <string name="layout_modern_sidebar_blur_sub">Bật/tắt hiệu ứng làm mờ thanh bên trong giao diện Hiện đại.</string>
     <string name="layout_fullscreen_hero_backdrop">Phông nền Khu vực Nổi bật toàn màn hình</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Mở rộng phông nền Khu vực Nổi bật để lấp đầy toàn bộ màn hình.</string>
     <string name="layout_show_discover">Hiển thị/ẩn mục Khám phá</string>

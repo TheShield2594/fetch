@@ -754,10 +754,6 @@
     <string name="layout_section_content_desc">Керування тим, що відображається на головному екрані та в пошуку.</string>
     <string name="layout_collapse_sidebar">Згортати бічну панель</string>
     <string name="layout_collapse_sidebar_sub">Приховувати бічну панель за замовчуванням; показувати при фокусі.</string>
-    <string name="layout_modern_sidebar">Сучасна бічна панель</string>
-    <string name="layout_modern_sidebar_sub">Увімкнути плаваючу бічну панель навігації.</string>
-    <string name="layout_modern_sidebar_blur">Розмиття сучасної бічної панелі</string>
-    <string name="layout_modern_sidebar_blur_sub">Перемкнути ефект розмиття для сучасної бічної панелі.</string>
     <string name="layout_fullscreen_hero_backdrop">Повноекранний фон головного блоку</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Розтягувати фон головного блоку на весь екран.</string>
     <string name="layout_show_discover">Показувати Навігатор у пошуку</string>

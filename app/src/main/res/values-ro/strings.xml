@@ -291,10 +291,6 @@
     <string name="layout_section_content_desc">Controlați ce apare pe pagina principală și în căutare.</string>
     <string name="layout_collapse_sidebar">Restrânge bara laterală</string>
     <string name="layout_collapse_sidebar_sub">Ascundeți bara laterală implicit; afișați când este focalizată.</string>
-    <string name="layout_modern_sidebar">Bară laterală modernă</string>
-    <string name="layout_modern_sidebar_sub">Activați navigarea cu bară laterală plutitoare.</string>
-    <string name="layout_modern_sidebar_blur">Estompare bară laterală modernă</string>
-    <string name="layout_modern_sidebar_blur_sub">Comutați efectul de estompare pentru suprafețele barei laterale moderne.</string>
     <string name="layout_show_discover">Afișează Descoperă în Căutare</string>
     <string name="layout_show_discover_sub">Afișează secțiunea de navigare când căutarea este goală.</string>
     <string name="layout_poster_labels">Afișează Etichete Poster</string>

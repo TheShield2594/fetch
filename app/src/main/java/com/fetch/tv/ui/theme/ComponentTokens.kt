@@ -24,16 +24,14 @@ data class FetchRowComponentTokens(
 
 @Immutable
 data class FetchSidebarComponentTokens(
-    val legacyCollapsedWidth: Dp,
-    val legacyExpandedWidth: Dp,
+    /** Width of the icon column while browsing. */
     val collapsedWidth: Dp,
+    /** Width while focused, wide enough for the label beside the focused icon. */
     val expandedWidth: Dp,
-    val itemHeight: Dp,
-    val itemWidth: Dp,
-    val iconSize: Dp,
-    val leadingVisual: Dp,
-    val panelRadius: Dp,
-    val contentGap: Dp
+    val floatingButtonSize: Dp,
+    val floatingGap: Dp,
+    val floatingInset: Dp,
+    val iconSize: Dp
 )
 
 @Immutable
@@ -131,16 +129,12 @@ object FetchComponents {
             titleBottomSpacing = 14.dp
         ),
         sidebar = FetchSidebarComponentTokens(
-            legacyCollapsedWidth = 72.dp,
-            legacyExpandedWidth = 196.dp,
-            collapsedWidth = 184.dp,
-            expandedWidth = 230.dp,
-            itemHeight = 52.dp,
-            itemWidth = 148.dp,
-            iconSize = 22.dp,
-            leadingVisual = 34.dp,
-            panelRadius = 30.dp,
-            contentGap = 14.dp
+            collapsedWidth = 72.dp,
+            expandedWidth = 300.dp,
+            floatingButtonSize = 44.dp,
+            floatingGap = 6.dp,
+            floatingInset = 9.dp,
+            iconSize = 22.dp
         ),
         dialog = FetchDialogComponentTokens(
             maxWidth = 720.dp,

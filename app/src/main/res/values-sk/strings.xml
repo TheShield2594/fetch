@@ -735,10 +735,6 @@
     <string name="layout_section_content_desc">Ovládajte, čo sa zobrazuje na domovskej obrazovke a v hľadaní.</string>
     <string name="layout_collapse_sidebar">Skryť bočný panel</string>
     <string name="layout_collapse_sidebar_sub">Skryť bočný panel predvolene; zobraziť pri zameraní.</string>
-    <string name="layout_modern_sidebar">Moderný bočný panel</string>
-    <string name="layout_modern_sidebar_sub">Povoliť plávajúcu bočnú navigáciu.</string>
-    <string name="layout_modern_sidebar_blur">Rozmazanie bočného panelu</string>
-    <string name="layout_modern_sidebar_blur_sub">Prepínať efekt rozmazania pre moderný bočný panel.</string>
     <string name="layout_fullscreen_hero_backdrop">Celostránkové pozadie hero sekcie</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozšíriť pozadie hero sekcie na celú obrazovku.</string>
     <string name="layout_show_discover">Zobraziť/Skryť Objavovať</string>
@@ -3083,8 +3079,6 @@
     <string name="advanced_rgb565_subtitle">Pre vhodné nepriehľadné obrázky použiť 16-bitovú farbu s nižšou pamäťovou náročnosťou.. Zmena tejto možnosti reštartuje aplikáciu.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Softvérová záloha Hi10P G-NEXT (iba pre MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Použiť softvérové dekódovanie G-NEXT, ak podrobnosti streamu identifikujú H.264 Hi10P. Štandardne vypnuté; zapnite iba vtedy, ak sa prehrávanie Hi10P zasekáva alebo zlyháva.</string>
-    <string name="layout_hide_floating_pill">Skryť plávajúci indikátor</string>
-    <string name="layout_hide_floating_pill_sub">Skryť plávajúci navigačný indikátor na domovskej obrazovke.</string>
     <string name="cd_remove_recent_search">Odstrániť %1$s z nedávnych vyhľadávaní</string>
 
     <string name="playback_unavailable">Prehrávanie nie je k dispozícii</string>

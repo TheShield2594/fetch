@@ -38,8 +38,6 @@ import javax.inject.Inject
 
 data class LayoutSettingsUiState(
     val sidebarCollapsedByDefault: Boolean = false,
-    val modernSidebarEnabled: Boolean = false,
-    val modernSidebarBlurEnabled: Boolean = false,
     val modernLandscapePostersEnabled: Boolean = true,
     val modernHeroFullScreenBackdropEnabled: Boolean = false,
     val discoverLocation: DiscoverLocation = DiscoverLocation.IN_SEARCH,
@@ -86,8 +84,6 @@ data class LayoutSettingsUiState(
 
 sealed class LayoutSettingsEvent {
     data class SetSidebarCollapsed(val collapsed: Boolean) : LayoutSettingsEvent()
-    data class SetModernSidebarEnabled(val enabled: Boolean) : LayoutSettingsEvent()
-    data class SetModernSidebarBlurEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetModernLandscapePostersEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetModernHeroFullScreenBackdropEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetDiscoverLocation(val location: DiscoverLocation) : LayoutSettingsEvent()
@@ -181,16 +177,6 @@ class LayoutSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             layoutPreferenceDataStore.sidebarCollapsedByDefault.distinctUntilChanged().collectLatest { collapsed ->
                 updateUiStateIfChanged { it.copy(sidebarCollapsedByDefault = collapsed) }
-            }
-        }
-        viewModelScope.launch {
-            layoutPreferenceDataStore.modernSidebarEnabled.distinctUntilChanged().collectLatest { enabled ->
-                updateUiStateIfChanged { it.copy(modernSidebarEnabled = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            layoutPreferenceDataStore.modernSidebarBlurEnabled.distinctUntilChanged().collectLatest { enabled ->
-                updateUiStateIfChanged { it.copy(modernSidebarBlurEnabled = enabled) }
             }
         }
         viewModelScope.launch {
@@ -398,8 +384,6 @@ class LayoutSettingsViewModel @Inject constructor(
     fun onEvent(event: LayoutSettingsEvent) {
         when (event) {
             is LayoutSettingsEvent.SetSidebarCollapsed -> setSidebarCollapsed(event.collapsed)
-            is LayoutSettingsEvent.SetModernSidebarEnabled -> setModernSidebarEnabled(event.enabled)
-            is LayoutSettingsEvent.SetModernSidebarBlurEnabled -> setModernSidebarBlurEnabled(event.enabled)
             is LayoutSettingsEvent.SetModernLandscapePostersEnabled -> setModernLandscapePostersEnabled(event.enabled)
             is LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled -> setModernHeroFullScreenBackdropEnabled(event.enabled)
             is LayoutSettingsEvent.SetDiscoverLocation -> setDiscoverLocation(event.location)
@@ -522,20 +506,6 @@ class LayoutSettingsViewModel @Inject constructor(
         if (_uiState.value.sidebarCollapsedByDefault == collapsed) return
         viewModelScope.launch {
             layoutPreferenceDataStore.setSidebarCollapsedByDefault(collapsed)
-        }
-    }
-
-    private fun setModernSidebarEnabled(enabled: Boolean) {
-        if (_uiState.value.modernSidebarEnabled == enabled) return
-        viewModelScope.launch {
-            layoutPreferenceDataStore.setModernSidebarEnabled(enabled)
-        }
-    }
-
-    private fun setModernSidebarBlurEnabled(enabled: Boolean) {
-        if (_uiState.value.modernSidebarBlurEnabled == enabled) return
-        viewModelScope.launch {
-            layoutPreferenceDataStore.setModernSidebarBlurEnabled(enabled)
         }
     }
 

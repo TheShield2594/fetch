@@ -707,10 +707,6 @@
     <string name="layout_section_content_desc">முகப்பு மற்றும் தேடலில் என்ன தோன்ற வேண்டும் என்பதை கட்டுப்படுத்து.</string>
     <string name="layout_collapse_sidebar">பக்கப்பட்டியைச் சுருக்கு</string>
     <string name="layout_collapse_sidebar_sub">இயல்பாக மறை; கவனம் செலுத்தும் போது காட்டு.</string>
-    <string name="layout_modern_sidebar">நவீன பக்கப்பட்டி</string>
-    <string name="layout_modern_sidebar_sub">மிதக்கும் பக்கப்பட்டி வழிசெலுத்தலை இயக்கு.</string>
-    <string name="layout_modern_sidebar_blur">நவீன பக்கப்பட்டி மங்கல்</string>
-    <string name="layout_modern_sidebar_blur_sub">நவீன பக்கப்பட்டி மேற்பரப்புகளுக்கான மங்கல் விளைவை மாற்று.</string>
     <string name="layout_fullscreen_hero_backdrop">முழுத்திரை ஹீரோ பின்னணி</string>
     <string name="layout_fullscreen_hero_backdrop_sub">ஹீரோ பின்னணியை முழு திரைக்கும் விரிவாக்கு.</string>
     <string name="layout_show_discover">டிஸ்கவர் காட்டு/மறை</string>

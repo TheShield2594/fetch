@@ -861,10 +861,6 @@
 <string name="layout_section_content_desc">Controlla cosa appare nella home e nella ricerca.</string>
 <string name="layout_collapse_sidebar">Riduci barra laterale</string>
 <string name="layout_collapse_sidebar_sub">Nascondi la barra laterale per impostazione predefinita; mostrala quando è a fuoco.</string>
-<string name="layout_modern_sidebar">Barra laterale Moderna</string>
-<string name="layout_modern_sidebar_sub">Abilita la navigazione con barra laterale fluttuante.</string>
-<string name="layout_modern_sidebar_blur">Sfocatura barra laterale Moderna</string>
-<string name="layout_modern_sidebar_blur_sub">Attiva/disattiva l\'effetto sfocatura per le superfici della barra laterale moderna.</string>
 <string name="layout_fullscreen_hero_backdrop">Sfondo Hero a schermo intero</string>
 <string name="layout_fullscreen_hero_backdrop_sub">Espandi lo sfondo hero per riempire tutto lo schermo.</string>
 <string name="layout_show_discover">Mostra Scopri nella ricerca</string>
@@ -3140,8 +3136,6 @@
     <string name="layout_section_sidebar_desc">Stile della barra laterale e posizione della sezione Scopri.</string>
     <string name="layout_section_card_depth_desc">Effetti di luce sul bordo e brillantezza delle schede.</string>
     <string name="layout_section_custom_poster_desc">Usa le immagini di un servizio esterno di locandine.</string>
-    <string name="layout_hide_floating_pill">Nascondi l\'indicatore di navigazione</string>
-    <string name="layout_hide_floating_pill_sub">Nascondi l\'indicatore di navigazione fluttuante nella schermata Home.</string>
     <string name="layout_trailer_play_in_background">Riproduci in secondo piano</string>
     <string name="layout_trailer_play_in_background_sub">Riproduci il trailer al posto dello sfondo lasciando visibile la pagina.</string>
     <string name="layout_trailer_pause_on_scroll">Metti in pausa durante lo scorrimento</string>

@@ -941,12 +941,6 @@
     <string name="layout_section_custom_poster_desc">Külső szolgáltatástól származó poszterek használata.</string>
     <string name="layout_collapse_sidebar">Oldalsáv összecsukása</string>
     <string name="layout_collapse_sidebar_sub">Oldalsáv elrejtése alapértelmezés szerint, fókusz esetén jelenik meg.</string>
-    <string name="layout_hide_floating_pill">Lebegő navigációs jelző elrejtése</string>
-    <string name="layout_hide_floating_pill_sub">A kezdőképernyő lebegő navigációs jelzőjének elrejtése.</string>
-    <string name="layout_modern_sidebar">Modern oldalsáv</string>
-    <string name="layout_modern_sidebar_sub">Lebegő oldalsó navigáció engedélyezése.</string>
-    <string name="layout_modern_sidebar_blur">Modern oldalsáv elmosása</string>
-    <string name="layout_modern_sidebar_blur_sub">Elmosási effektus (blur) az oldalsáv felületein.</string>
     <string name="layout_fullscreen_hero_backdrop">Kiemelt háttér teljes képernyőn</string>
     <string name="layout_fullscreen_hero_backdrop_sub">A kiemelt háttérkép kiterjesztése a teljes képernyőre.</string>
     <string name="layout_show_discover">Felfedezés megjelenítése</string>

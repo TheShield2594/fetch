@@ -821,12 +821,6 @@
   <string name="layout_section_custom_poster_desc">Χρήση εικόνων από εξωτερική υπηρεσία αφισών.</string>
   <string name="layout_collapse_sidebar">Σύμπτυξη πλευρικής μπάρας</string>
   <string name="layout_collapse_sidebar_sub">Απόκρυψη πλευρικής μπάρας από προεπιλογή, εμφάνιση όταν εστιάζεται.</string>
-  <string name="layout_hide_floating_pill">Απόκρυψη αιωρούμενης ένδειξης</string>
-  <string name="layout_hide_floating_pill_sub">Απόκρυψη της αιωρούμενης ένδειξης πλοήγησης στην αρχική οθόνη.</string>
-  <string name="layout_modern_sidebar">Μοντέρνα πλευρική μπάρα</string>
-  <string name="layout_modern_sidebar_sub">Ενεργοποίηση πλευρικής πλοήγησης που αιωρείται.</string>
-  <string name="layout_modern_sidebar_blur">Θόλωμα μοντέρνας πλευρικής μπάρας</string>
-  <string name="layout_modern_sidebar_blur_sub">Εναλλαγή εφέ θολώματος για τις επιφάνειες μοντέρνας πλευρικής μπάρας.</string>
   <string name="layout_fullscreen_hero_backdrop">Πλήρης οθόνη φόντου ηρωικής ενότητας</string>
   <string name="layout_fullscreen_hero_backdrop_sub">Επέκταση του φόντου της ηρωικής ενότητας σε πλήρη οθόνη</string>
   <string name="layout_show_discover">Εμφάνιση/Απόκρυψη Ανακάλυψης</string>

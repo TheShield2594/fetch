@@ -914,12 +914,6 @@
     <string name="layout_section_custom_poster_desc">Koristi grafike iz vanjske usluge za postere.</string>
     <string name="layout_collapse_sidebar">Sažmi bočnu traku</string>
     <string name="layout_collapse_sidebar_sub">Prema zadanim postavkama sakrij bočnu traku; prikaži je kad je u fokusu.</string>
-    <string name="layout_hide_floating_pill">Sakrij plutajuću oznaku</string>
-    <string name="layout_hide_floating_pill_sub">Sakrij plutajući indikator navigacije na početnom zaslonu.</string>
-    <string name="layout_modern_sidebar">Moderna bočna traka</string>
-    <string name="layout_modern_sidebar_sub">Omogući plutajuću bočnu navigaciju.</string>
-    <string name="layout_modern_sidebar_blur">Zamućenje moderne bočne trake</string>
-    <string name="layout_modern_sidebar_blur_sub">Uključi ili isključi efekt zamućenja za površine moderne bočne trake.</string>
     <string name="layout_fullscreen_hero_backdrop">Istaknuta pozadina preko cijelog zaslona</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi pozadinu istaknutog odjeljka na cijeli zaslon.</string>
     <string name="layout_show_discover">Prikaži/sakrij Otkrij</string>

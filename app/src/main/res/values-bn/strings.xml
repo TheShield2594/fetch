@@ -892,12 +892,6 @@
     <string name="layout_section_custom_poster_desc">একটি এক্সটার্নাল পোস্টার সার্ভিসের আর্টওয়ার্ক ব্যবহার করুন।</string>
     <string name="layout_collapse_sidebar">সাইডবার কলাপ্স করুন</string>
     <string name="layout_collapse_sidebar_sub">ডিফল্টরূপে সাইডবার লুকান; ফোকাস করার সময় দেখান।</string>
-    <string name="layout_hide_floating_pill">ফ্লোটিং পিল লুকান</string>
-    <string name="layout_hide_floating_pill_sub">হোম স্ক্রিনে ফ্লোটিং নেভিগেশন ইন্ডিকেটর লুকান।</string>
-    <string name="layout_modern_sidebar">মডার্ন সাইডবার</string>
-    <string name="layout_modern_sidebar_sub">ফ্লোটিং সাইডবার নেভিগেশন চালু করুন।</string>
-    <string name="layout_modern_sidebar_blur">মডার্ন সাইডবার ব্লার</string>
-    <string name="layout_modern_sidebar_blur_sub">মডার্ন সাইডবার সারফেসের জন্য ব্লার ইফেক্ট টগল করুন।</string>
     <string name="layout_fullscreen_hero_backdrop">ফুলস্ক্রিন হিরো ব্যাকড্রপ</string>
     <string name="layout_fullscreen_hero_backdrop_sub">পুরো স্ক্রিন জুড়ে হিরো ব্যাকড্রপ প্রসারিত করুন।</string>
     <string name="layout_show_discover">Discover দেখান/লুকান</string>

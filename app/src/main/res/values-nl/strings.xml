@@ -865,12 +865,6 @@
     <string name="layout_section_content_desc">Bepaal wat zichtbaar is op het startscherm en bij zoeken.</string>
     <string name="layout_collapse_sidebar">Zijbalk inklappen</string>
     <string name="layout_collapse_sidebar_sub">Verberg de zijbalk standaard; toon bij focus.</string>
-    <string name="layout_hide_floating_pill">Zwevende pil verbergen</string>
-    <string name="layout_hide_floating_pill_sub">Verberg de zwevende navigatie-indicator op het startscherm.</string>
-    <string name="layout_modern_sidebar">Moderne zijbalk</string>
-    <string name="layout_modern_sidebar_sub">Schakel zwevende zijbalknavigatie in.</string>
-    <string name="layout_modern_sidebar_blur">Vervaging moderne zijbalk</string>
-    <string name="layout_modern_sidebar_blur_sub">Schakel vervagingseffect in voor moderne zijbalk.</string>
     <string name="layout_fullscreen_hero_backdrop">Hero-achtergrond op volledig scherm</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Vergroot de hero-achtergrond zodat die het hele scherm vult.</string>
     <string name="layout_show_discover">Ontdekken tonen/verbergen</string>

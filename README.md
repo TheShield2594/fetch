@@ -21,6 +21,7 @@
   <img src="docs/screenshots/fetching.png" alt="Fetching: addon progress and the best stream so far while auto-play waits" width="49%" />
 </p>
 <p align="center">
+  <img src="docs/screenshots/sidebar.png" alt="Sidebar: floating icons, the current page filled, a label beside the focused one" width="49%" />
   <img src="docs/screenshots/first-run.png" alt="First run: set up from a phone, then pick Essential or Advanced" width="49%" />
 </p>
 

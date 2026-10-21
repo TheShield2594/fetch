@@ -806,10 +806,6 @@
     <string name="layout_section_content_desc">Kontrollo çfarë shfaqet në faqen kryesore dhe kërkim.</string>
     <string name="layout_collapse_sidebar">Palos shiritin anësor</string>
     <string name="layout_collapse_sidebar_sub">Fshih shiritin anësor si parazgjedhje; shfaqe kur merr fokusin.</string>
-    <string name="layout_modern_sidebar">Shiriti anësor modern</string>
-    <string name="layout_modern_sidebar_sub">Aktivizo navigimin me shirit anësor lundrues.</string>
-    <string name="layout_modern_sidebar_blur">Turbullimi i shiritit anësor modern</string>
-    <string name="layout_modern_sidebar_blur_sub">Aktivizo ose çaktivizo efektin e turbullimit për sipërfaqet e shiritit anësor modern.</string>
     <string name="layout_fullscreen_hero_backdrop">Sfond hero në ekran të plotë</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Zgjero sfondin e hero-s për të mbushur gjithë ekranin.</string>
     <string name="layout_show_discover">Shfaq/Fshih Zbulo</string>

@@ -385,10 +385,6 @@
     <string name="layout_section_content_desc">Styr vad som visas på hem och sök.</string>
     <string name="layout_collapse_sidebar">Fäll ihop sidofält</string>
     <string name="layout_collapse_sidebar_sub">Dölj sidofältet som standard; visa vid fokus.</string>
-    <string name="layout_modern_sidebar">Modernt sidofält</string>
-    <string name="layout_modern_sidebar_sub">Aktivera flytande sidofältsnavigering.</string>
-    <string name="layout_modern_sidebar_blur">Suddigt modernt sidofält</string>
-    <string name="layout_modern_sidebar_blur_sub">Växla suddighetseffekt för moderna sidofältsytor.</string>
     <string name="layout_show_discover">Visa Utforska i Sök</string>
     <string name="layout_show_discover_sub">Visa bläddringssektion när sökningen är tom.</string>
     <string name="layout_poster_labels">Visa affischetiketter</string>

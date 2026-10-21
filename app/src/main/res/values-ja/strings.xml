@@ -758,10 +758,6 @@
     <string name="layout_section_content_desc">ホームと検索に表示するものを制御</string>
     <string name="layout_collapse_sidebar">サイドバーを折りたたむ</string>
     <string name="layout_collapse_sidebar_sub">デフォルトでサイドバーを非表示にし、フォーカス時に表示</string>
-    <string name="layout_modern_sidebar">モダンサイドバー</string>
-    <string name="layout_modern_sidebar_sub">フローティングサイドバーナビゲーションを有効にする</string>
-    <string name="layout_modern_sidebar_blur">モダンサイドバーのぼかし</string>
-    <string name="layout_modern_sidebar_blur_sub">モダンサイドバーのぼかしエフェクトを切り替え</string>
     <string name="layout_fullscreen_hero_backdrop">フルスクリーンヒーローバックドロップ</string>
     <string name="layout_fullscreen_hero_backdrop_sub">ヒーローの背景画像を画面全体に広げます</string>
     <string name="layout_show_discover">ディスカバーを表示/非表示</string>

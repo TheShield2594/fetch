@@ -684,10 +684,6 @@
     <string name="layout_section_content_desc">Nadzirajte, kaj se prikaže na domačem zaslonu in v iskanju.</string>
     <string name="layout_collapse_sidebar">Strni stransko vrstico</string>
     <string name="layout_collapse_sidebar_sub">Skrij stransko vrstico privzeto; prikaži ob fokusu.</string>
-    <string name="layout_modern_sidebar">Moderna stranska vrstica</string>
-    <string name="layout_modern_sidebar_sub">Omogoči lebdečo navigacijo v stranski vrstici.</string>
-    <string name="layout_modern_sidebar_blur">Zameglitev moderne stranske vrstice</string>
-    <string name="layout_modern_sidebar_blur_sub">Vklopi/izklopi učinek zameglitve za moderne površine stranske vrstice.</string>
     <string name="layout_fullscreen_hero_backdrop">Celozaslonsko glavno ozadje</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Razširi glavno ozadje, da zapolni celoten zaslon.</string>
              <string name="layout_show_discover">Prikaži/skrij Odkrivanje</string>

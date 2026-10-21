@@ -399,12 +399,6 @@
     <string name="layout_section_content_desc">Kontroluj co pojawia się na stronie głównej i w wyszukiwarce.</string>
     <string name="layout_collapse_sidebar">Zwiń pasek boczny</string>
     <string name="layout_collapse_sidebar_sub">Ukryj pasek boczny domyślnie; pokaż po skupieniu.</string>
-    <string name="layout_hide_floating_pill">Ukryj pływający wskaźnik</string>
-    <string name="layout_hide_floating_pill_sub">Ukryj pływający wskaźnik nawigacji na ekranie głównym.</string>
-    <string name="layout_modern_sidebar">Nowoczesny pasek boczny</string>
-    <string name="layout_modern_sidebar_sub">Włącz pływającą nawigację boczną.</string>
-    <string name="layout_modern_sidebar_blur">Rozmycie nowoczesnego paska bocznego</string>
-    <string name="layout_modern_sidebar_blur_sub">Przełącz efekt rozmycia dla nowoczesnych powierzchni bocznych.</string>
     <string name="layout_show_discover">Pokaż Odkrywaj w wyszukiwarce</string>
     <string name="layout_show_discover_sub">Pokaż sekcję przeglądania gdy wyszukiwarka jest pusta.</string>
     <string name="layout_poster_labels">Pokaż etykiety plakatów</string>

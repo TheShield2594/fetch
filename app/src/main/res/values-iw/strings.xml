@@ -947,12 +947,6 @@
     <string name="layout_section_custom_poster_desc">שימוש בעיצוב גרפי משירות פוסטרים חיצוני.</string>
     <string name="layout_collapse_sidebar">כיווץ סרגל צד</string>
     <string name="layout_collapse_sidebar_sub">הסתרת סרגל הצד כברירת מחדל; הצגתו בעת פוקוס.</string>
-    <string name="layout_hide_floating_pill">הסתרת כפתור צף</string>
-    <string name="layout_hide_floating_pill_sub">הסתרת סמן הניווט הצף במסך הבית.</string>
-    <string name="layout_modern_sidebar">סרגל צד מודרני</string>
-    <string name="layout_modern_sidebar_sub">אפשור ניווט בסרגל צד צף.</string>
-    <string name="layout_modern_sidebar_blur">טשטוש סרגל צד מודרני</string>
-    <string name="layout_modern_sidebar_blur_sub">הפעלת אפקט טשטוש לשטחי סרגל הצד המודרני.</string>
     <string name="layout_fullscreen_hero_backdrop">תמונת רקע ראשית במסך מלא</string>
     <string name="layout_fullscreen_hero_backdrop_sub">הרחבת תמונת הרקע הראשית כך שתמלא את כל המסך.</string>
     <string name="layout_show_discover">הצגת כפתור \"גילוי\"</string>

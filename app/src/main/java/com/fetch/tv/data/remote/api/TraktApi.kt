@@ -46,24 +46,27 @@ import retrofit2.http.Path
 import retrofit2.http.PUT
 import retrofit2.http.Query
 
+// Trakt wants every OAuth call on its auth host, not the API host.
+private const val TRAKT_AUTH_URL = "https://auth.trakt.tv/"
+
 interface TraktApi {
 
-    @POST("oauth/device/code")
+    @POST("${TRAKT_AUTH_URL}oauth/device/code")
     suspend fun requestDeviceCode(
         @Body body: TraktDeviceCodeRequestDto
     ): Response<TraktDeviceCodeResponseDto>
 
-    @POST("oauth/device/token")
+    @POST("${TRAKT_AUTH_URL}oauth/device/token")
     suspend fun requestDeviceToken(
         @Body body: TraktDeviceTokenRequestDto
     ): Response<TraktTokenResponseDto>
 
-    @POST("oauth/token")
+    @POST("${TRAKT_AUTH_URL}oauth/token")
     suspend fun refreshToken(
         @Body body: TraktRefreshTokenRequestDto
     ): Response<TraktTokenResponseDto>
 
-    @POST("oauth/revoke")
+    @POST("${TRAKT_AUTH_URL}oauth/revoke")
     suspend fun revokeToken(
         @Body body: TraktRevokeRequestDto
     ): Response<Unit>

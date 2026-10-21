@@ -118,8 +118,11 @@ class TraktAuthService @Inject constructor(
     }
 
     fun hasRequiredCredentials(): Boolean {
-        return BuildConfig.TRAKT_CLIENT_ID.isNotBlank() && BuildConfig.TRAKT_CLIENT_SECRET.isNotBlank()
+        return BuildConfig.TRAKT_CLIENT_ID.isNotBlank()
     }
+
+    // Trakt no longer issues a client secret to new apps; older apps may still send theirs.
+    private fun traktClientSecret(): String? = BuildConfig.TRAKT_CLIENT_SECRET.ifBlank { null }
 
     suspend fun getCurrentAuthState(): TraktAuthState = traktAuthDataStore.getCurrentState()
 
@@ -213,7 +216,7 @@ class TraktAuthService @Inject constructor(
                 TraktDeviceTokenRequestDto(
                     code = deviceCode,
                     clientId = BuildConfig.TRAKT_CLIENT_ID,
-                    clientSecret = BuildConfig.TRAKT_CLIENT_SECRET
+                    clientSecret = traktClientSecret()
                 )
             )
         } catch (e: IOException) {
@@ -276,7 +279,7 @@ class TraktAuthService @Inject constructor(
                     TraktRefreshTokenRequestDto(
                         refreshToken = refreshToken,
                         clientId = BuildConfig.TRAKT_CLIENT_ID,
-                        clientSecret = BuildConfig.TRAKT_CLIENT_SECRET,
+                        clientSecret = traktClientSecret(),
                         redirectUri = traktRedirectUri()
                     )
                 )
@@ -311,7 +314,7 @@ class TraktAuthService @Inject constructor(
                         TraktRevokeRequestDto(
                             token = accessToken,
                             clientId = BuildConfig.TRAKT_CLIENT_ID,
-                            clientSecret = BuildConfig.TRAKT_CLIENT_SECRET
+                            clientSecret = traktClientSecret()
                         )
                     )
                 }

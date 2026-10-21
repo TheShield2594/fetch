@@ -599,7 +599,9 @@ internal fun PlayerRuntimeController.isCurrentPlaybackSeekable(): Boolean {
         mpvView?.isSeekableNow() == true
     } else {
         val player = _exoPlayer ?: return false
-        player.isCurrentMediaItemSeekable && player.duration > 0L
+        // A live window can be seekable while its duration is still unknown.
+        player.isCurrentMediaItemSeekable &&
+            (player.isCurrentMediaItemLive || player.duration > 0L)
     }
 }
 

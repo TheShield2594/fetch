@@ -33,6 +33,7 @@ import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.data.mediaserver.ServerConnection
 import com.fetch.tv.data.mediaserver.ServerFailure
+import com.fetch.tv.data.mediaserver.ServerSignInMethod
 import com.fetch.tv.ui.theme.FetchTheme
 
 @Composable
@@ -91,7 +92,14 @@ internal fun MediaServersSettingsContent(
                     items(viewModel.providers, key = { "provider_${it.id}" }) { provider ->
                         SettingsActionRow(
                             title = provider.displayName,
-                            subtitle = stringResource(R.string.servers_add_description, provider.displayName),
+                            subtitle = stringResource(
+                                if (provider.signInMethod == ServerSignInMethod.LINK_CODE) {
+                                    R.string.servers_add_link_description
+                                } else {
+                                    R.string.servers_add_description
+                                },
+                                provider.displayName
+                            ),
                             onClick = { signIn = ServerSignInRequest(provider) },
                             leadingRawIconRes = serverLogoRes(provider.id),
                             modifier = if (connections.isEmpty() && provider == viewModel.providers.first()) focusModifier else Modifier

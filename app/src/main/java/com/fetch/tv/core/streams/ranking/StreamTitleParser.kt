@@ -12,6 +12,14 @@ import java.util.Locale
  * recognised whether it is separated by spaces, dots, dashes, brackets or emoji.
  */
 object StreamTitleParser {
+    private const val CACHE_SIZE = 2_048
+
+    // Long lists are re-ranked on every addon emission and every card parses its stream again;
+    // the text rarely changes, so parsing it once is enough.
+    private val cache = object : LinkedHashMap<String, StreamDescriptor>(CACHE_SIZE, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, StreamDescriptor>?): Boolean =
+            size > CACHE_SIZE
+    }
 
     fun parse(stream: Stream): StreamDescriptor {
         val text = listOfNotNull(
@@ -20,7 +28,8 @@ object StreamTitleParser {
             stream.description,
             stream.behaviorHints?.filename
         ).joinToString("\n")
-        val parsed = parse(text)
+        val parsed = synchronized(cache) { cache[text] }
+            ?: parse(text).also { descriptor -> synchronized(cache) { cache[text] = descriptor } }
         val cached = parsed.isDebridCached ||
             stream.debridCacheStatus?.state == StreamDebridCacheState.CACHED ||
             stream.isDirectDebrid()

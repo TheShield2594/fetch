@@ -15,7 +15,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Singleton
@@ -39,6 +41,40 @@ class ServerUserStateProjection @Inject constructor(
                 } catch (error: Exception) {
                     Log.w(TAG, "Unable to apply server user state", error)
                 }
+            }
+        }
+        scope.launch {
+            repository.uiState
+                .map { state -> state.enabledConnections.filter { it.importWatchState }.map { it.id } }
+                .distinctUntilChanged()
+                .collect { connectionIds -> connectionIds.forEach { importResume(it) } }
+        }
+    }
+
+    /**
+     * Loads the titles in progress on a server and applies their progress, so they reach
+     * Continue Watching without being opened in Fetch first.
+     */
+    internal suspend fun importResume(connectionId: String) {
+        val titles = try {
+            repository.call(connectionId) { provider, session ->
+                if (provider.supports(ServerCapability.USER_STATE_READ)) provider.resumeItems(session, RESUME_IMPORT_LIMIT) else emptyList()
+            }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Log.w(TAG, "Unable to read titles in progress", error)
+            return
+        }
+        titles.mapNotNull { ServerItemRef.parse(it.preview.id) }.distinct().forEach { ref ->
+            try {
+                // Applied here rather than through catalog.detailsLoaded, whose buffer is smaller
+                // than a full import and drops what doesn't fit.
+                apply(repository.call(ref.connectionId) { provider, session -> provider.details(session, ref.itemId) })
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Log.w(TAG, "Unable to import progress for ${ref.itemId}", error)
             }
         }
     }
@@ -114,5 +150,6 @@ class ServerUserStateProjection @Inject constructor(
 
     private companion object {
         const val TAG = "ServerUserState"
+        const val RESUME_IMPORT_LIMIT = 20
     }
 }

@@ -560,6 +560,8 @@ class PlayerRuntimeController(
     internal var resolvedAutoPlayerEngine: InternalPlayerEngine? = null
     internal var currentInternalPlayerEngine: InternalPlayerEngine = InternalPlayerEngine.EXOPLAYER
     internal var streamAutoPlayModeSetting: StreamAutoPlayMode = StreamAutoPlayMode.MANUAL
+    internal var streamRankingRulesSetting: com.fetch.tv.core.streams.ranking.StreamRankingRules =
+        com.fetch.tv.core.streams.ranking.StreamRankingRules()
     internal var streamAutoPlayNextEpisodeEnabledSetting: Boolean = false
     internal var streamAutoPlayPreferBingeGroupForNextEpisodeSetting: Boolean = false
     internal var streamAutoPlayTimeoutSecondsSetting: Int = 10

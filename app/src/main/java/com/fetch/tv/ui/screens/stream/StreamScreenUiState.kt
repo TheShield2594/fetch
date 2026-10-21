@@ -31,6 +31,8 @@ data class StreamScreenUiState(
     val allStreams: List<Stream> = emptyList(),
     val selectedAddonFilter: String? = null, // null means "All"
     val filteredStreams: List<Stream> = emptyList(),
+    /** Why Best match passed over a stream, keyed by [Stream.stableKey]; empty outside Best match. */
+    val streamExclusions: Map<String, com.fetch.tv.core.streams.ranking.ExclusionReason> = emptyMap(),
     val availableAddons: List<String> = emptyList(),
     val sourceChips: List<SourceChipItem> = emptyList(),
     val autoPlayStream: Stream? = null,

@@ -53,7 +53,7 @@ Highlights:
 - **Watch state.** Continue Watching, next-episode autoplay, skip intro/recap from community
   markers (IntroDB, AniSkip, Anime-Skip), Trakt and Simkl sync, and the Android TV "Watch Next" row.
 - **Debrid built in.** Real-Debrid, Premiumize and TorBox are app settings, not per-addon config.
-- **Your own library.** Jellyfin and Emby items appear alongside addon results and outrank them.
+- **Your own library.** Jellyfin, Emby and Plex items appear alongside addon results and outrank them.
 - **Configure from your phone.** Scan a QR code to manage addons, catalogs, debrid formatting and
   badges from a phone browser on the same network.
 - **Local-first.** Everything lives on the TV. Sync is optional and only talks to a server you run.

@@ -24,6 +24,7 @@ import com.fetch.tv.R
 import com.fetch.tv.data.mediaserver.ServerConnection
 import com.fetch.tv.data.mediaserver.ServerFailure
 import com.fetch.tv.data.mediaserver.ServerProvider
+import com.fetch.tv.data.mediaserver.ServerSignInMethod
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.screens.account.InputField
 import com.fetch.tv.ui.theme.FetchTheme
@@ -41,6 +42,10 @@ internal fun ServerSignInDialog(
     onConnected: (ServerConnection) -> Unit,
     onDismiss: () -> Unit
 ) {
+    if (request.provider.signInMethod == ServerSignInMethod.LINK_CODE) {
+        ServerLinkDialog(request.provider, viewModel, onConnected, onDismiss)
+        return
+    }
     val state by viewModel.signIn.collectAsStateWithLifecycle()
     var address by remember { mutableStateOf(request.address) }
     var username by remember { mutableStateOf(request.username) }
@@ -134,7 +139,7 @@ private fun SignInField(label: String, field: @Composable () -> Unit) {
 }
 
 @Composable
-private fun ServerFailure.signInMessage(provider: ServerProvider): String = when (this) {
+internal fun ServerFailure.signInMessage(provider: ServerProvider): String = when (this) {
     ServerFailure.AUTH_REQUIRED -> stringResource(R.string.servers_error_auth)
     ServerFailure.NOT_FOUND -> stringResource(R.string.servers_error_address)
     ServerFailure.UNREACHABLE -> stringResource(R.string.servers_error_unreachable)

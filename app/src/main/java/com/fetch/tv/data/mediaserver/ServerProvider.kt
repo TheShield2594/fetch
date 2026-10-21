@@ -11,13 +11,44 @@ enum class ServerCapability {
     TRANSCODING
 }
 
+enum class ServerSignInMethod {
+    /** Address, user name and password typed on the TV or sent from the phone. */
+    PASSWORD,
+
+    /** A short code the user approves on another device; the provider finds the servers. */
+    LINK_CODE
+}
+
+/** A sign-in code shown on the TV while the user approves it at [displayUrl]. */
+class ServerLinkCode(
+    val id: String,
+    val code: String,
+    val displayUrl: String,
+    val qrUrl: String,
+    val expiresAtEpochMs: Long,
+    val pollIntervalMs: Long
+) {
+    override fun toString(): String = "ServerLinkCode(id=$id)"
+}
+
 interface ServerProvider {
     val id: String
     val displayName: String
     val capabilities: Set<ServerCapability>
     val minimumVersion: String
+    val signInMethod: ServerSignInMethod
+        get() = ServerSignInMethod.PASSWORD
 
     suspend fun signIn(address: String, username: String, password: String): ServerSignIn = unsupported()
+
+    /** Starts a [ServerSignInMethod.LINK_CODE] sign-in. */
+    suspend fun startLink(): ServerLinkCode = unsupported()
+
+    /**
+     * Null while [link] is waiting for approval. Once approved, one sign-in per server the
+     * account can reach; empty when it has none.
+     */
+    suspend fun completeLink(link: ServerLinkCode): List<ServerSignIn>? = unsupported()
 
     suspend fun libraries(session: ServerSession): List<ServerLibrary>
 
@@ -95,5 +126,16 @@ data class ServerEpisode(
 )
 
 fun ServerProvider.supports(capability: ServerCapability): Boolean = capability in capabilities
+
+/** True when a dotted [version] ("10.9.11", "1.40.2.8395-c67dce28e") is at least [minimum]. */
+internal fun isAtLeastVersion(version: String?, minimum: String): Boolean {
+    val actual = version?.split('.')?.map { it.takeWhile(Char::isDigit).toIntOrNull() } ?: return false
+    if (actual.firstOrNull() == null) return false
+    for ((index, required) in minimum.split('.').map(String::toInt).withIndex()) {
+        val part = actual.getOrNull(index) ?: 0
+        if (part != required) return part > required
+    }
+    return true
+}
 
 private fun unsupported(): Nothing = throw ServerException(ServerFailure.UNSUPPORTED)

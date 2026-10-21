@@ -26,3 +26,4 @@ __pycache__/
 /supabase
 .supabase_db.env
 logs/
+perf/

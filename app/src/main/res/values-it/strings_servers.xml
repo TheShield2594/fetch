@@ -57,4 +57,17 @@
     <string name="library_servers_empty_title">Nessuna libreria selezionata</string>
     <string name="library_servers_empty_message">Scegli quali librerie mostrare in Impostazioni, in Contenuti e scoperta &gt; Server multimediali.</string>
     <string name="library_server_load_failed">Impossibile caricare %1$s</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Accedi con il tuo account %1$s dal telefono. Niente digitazione sulla TV.</string>
+    <string name="servers_link_choose_server">Il tuo account può accedere a più server. Scegli quello da aggiungere.</string>
+    <string name="servers_link_connecting_to">Connessione a %1$s…</string>
+    <string name="servers_link_expired">Il codice è scaduto. Richiedine uno nuovo per riprovare.</string>
+    <string name="servers_link_expires">Il codice scade tra %1$s</string>
+    <string name="servers_link_instruction">Scansiona il codice con il telefono, oppure apri %1$s su qualsiasi dispositivo e inserisci questo codice.</string>
+    <string name="servers_link_loading">Richiesta del codice di accesso…</string>
+    <string name="servers_link_no_servers">Questo account non ha ancora server. Configurane uno o chiedi al proprietario di un server di condividere una libreria con te.</string>
+    <string name="servers_link_qr">Codice QR per accedere a %1$s</string>
+    <string name="servers_link_retry">Richiedi un nuovo codice</string>
+    <string name="servers_link_waiting">In attesa che approvi il codice…</string>
 </resources>

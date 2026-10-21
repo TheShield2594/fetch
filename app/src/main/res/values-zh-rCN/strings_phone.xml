@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">您的手机必须与这台电视连接同一个 Wi-Fi。您也可以稍后在设置中完成此操作。</string>
+    <string name="first_run_phone_qr_description">手机设置二维码</string>
+    <string name="first_run_phone_step_accounts">登录 Trakt、Simkl 或 Jellyfin</string>
+    <string name="first_run_phone_step_addons">粘贴扩展和 debrid 密钥</string>
+    <string name="first_run_phone_step_scan">用手机相机扫码</string>
+    <string name="first_run_phone_title">用手机设置，无需遥控器打字。</string>
+    <string name="first_run_recommended">推荐</string>
+    <string name="phone_hub_description">扫描一个二维码，即可将手机用作遥控器和键盘、登录账户以及编辑较长的设置。</string>
+    <string name="phone_hub_instruction">用手机扫码。二维码仅可使用一次；只要此屏幕保持打开，页面就会保持打开。</string>
+    <string name="phone_hub_open">显示手机二维码</string>
+    <string name="phone_hub_open_description">您的手机必须与这台电视处于同一网络。</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="other">已连接 %d 部手机。关闭此屏幕后，遥控功能仍可使用 10 分钟。</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">此个人资料设有家长限制。请先在电视上解锁设置。</string>
+    <string name="phone_hub_title">通过手机配置</string>
+</resources>

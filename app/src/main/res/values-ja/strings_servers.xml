@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">スマートフォンから%1$sアカウントでサインインします。テレビでの入力は不要です。</string>
+    <string name="servers_link_choose_server">このアカウントは複数のサーバーにアクセスできます。追加するサーバーを選んでください。</string>
+    <string name="servers_link_connecting_to">%1$sに接続中…</string>
+    <string name="servers_link_expired">コードの有効期限が切れました。新しいコードを取得してやり直してください。</string>
+    <string name="servers_link_expires">コードの有効期限: あと%1$s</string>
+    <string name="servers_link_instruction">スマートフォンでコードをスキャンするか、任意のデバイスで%1$sを開いてこのコードを入力してください。</string>
+    <string name="servers_link_loading">サインインコードを取得中…</string>
+    <string name="servers_link_no_servers">このアカウントにはまだサーバーがありません。サーバーを設定するか、サーバーの所有者にライブラリの共有を依頼してください。</string>
+    <string name="servers_link_qr">%1$sにサインインするためのQRコード</string>
+    <string name="servers_link_retry">新しいコードを取得</string>
+    <string name="servers_link_waiting">コードの承認を待っています…</string>
+</resources>

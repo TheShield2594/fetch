@@ -147,7 +147,6 @@
     <string name="cw_percent_watched">%1$d%% set</string>
     <string name="cw_hours_min_left">%1$dh %2$dm tilbage</string>
     <string name="cw_min_left">%1$dm tilbage</string>
-    <string name="cw_almost_done">Næsten færdig</string>
     <string name="cw_airs_date">Sendes %1$s</string>
     <string name="cw_airs_today">Sendes i dag</string>
     <string name="cw_airs_tomorrow">Sendes i morgen</string>
@@ -177,14 +176,12 @@
     <string name="hero_director">Instruktør: %1$s</string>
     <string name="hero_writer">Forfatter: %1$s</string>
     <string name="hero_play">Afspil</string>
-    <string name="hero_play_episode">Afspil S%1$d E%2$d</string>
     <string name="hero_add_to_library">Føj til bibliotek</string>
     <string name="hero_remove_from_library">Fjern fra bibliotek</string>
     <string name="hero_mark_watched">Markér som set</string>
     <string name="hero_mark_unwatched">Markér som ikke set</string>
     <string name="hero_play_trailer">Afspil trailer</string>
     <string name="hero_press_back_trailer">Tryk tilbage for at lukke traileren</string>
-    <string name="cd_rating">Bedømmelse</string>
 
     <string name="episodes_season">Sæson %1$d</string>
     <string name="episodes_specials">Specials</string>
@@ -243,10 +240,8 @@
     <string name="detail_section_production">Produktion</string>
     <string name="detail_comments_empty">Ingen Trakt-anmeldelser tilgængelige endnu.</string>
     <string name="detail_comments_error">Kunne ikke indlæse Trakt-anmeldelser lige nu.</string>
-    <string name="detail_trailer_loading">Indlæser trailer...</string>
     <string name="detail_trailer_error">Kunne ikke indlæse traileren lige nu.</string>
     <string name="detail_comments_spoiler_hidden">Spoiler-anmeldelse. Tryk OK for at afsløre.</string>
-    <string name="detail_comments_reveal_spoiler">Afsløre spoiler</string>
     <string name="detail_comments_reveal_spoiler_hint">Tryk OK for at afsløre spoiler.</string>
     <string name="detail_comments_back_hint">Klik tilbage for at lukke</string>
     <string name="detail_comments_badge_review">Anmeldelse</string>
@@ -377,13 +372,8 @@
     <string name="settings_content_discovery_subtitle">Add-ons, plugins, kataloger og opdagelseskilder</string>
     <string name="settings_content_discovery_addons_subtitle">Administrer add-ons, katalogrækkefølge og samlinger</string>
     <string name="settings_content_discovery_plugins_subtitle">Administrer repositories og stream-udbydere</string>
-    <string name="settings_plugins">Plugins</string>
-    <string name="settings_plugins_subtitle">Repositories og udbydere</string>
     <string name="settings_integration">Integrationer</string>
     <string name="settings_playback">Afspilning</string>
-    <string name="settings_trakt_subtitle">Åbn Trakt-forbindelsesskærm</string>
-    <string name="settings_network">Netværkshastighed</string>
-    <string name="settings_network_subtitle">Latens- og downloaddiagnostik</string>
     <string name="settings_advanced">Avanceret</string>
     <string name="settings_advanced_subtitle">Ydeevne, navigation, cache og diagnostik</string>
     <string name="experience_mode_essential">Grundlæggende</string>
@@ -471,9 +461,7 @@
     <string name="advanced_fast_horizontal_navigation">Hurtig vandret navigation</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Øg D-pad-gentagnelseshastighed i rækker mens gentagelsesbegrænsning forbliver aktiv.</string>
     <string name="advanced_fetch_focus_scroll">Fetch fokusscrolling</string>
-    <string name="advanced_fetch_focus_scroll_subtitle">Brug Fetch\'s brugerdefinerede globale fokusscroll-animation og -positionering.</string>
-    <string name="advanced_memory_only_vertical_scroll">Hukommelsesbaseret lodret scrolling</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">Spring disk- og netværksbilledanmodninger over under lodret scrolling af startsiderækkerne.</string>
+    <string name="advanced_fetch_focus_scroll_subtitle">Brug den brugerdefinerede globale fokusscroll-animation og -positionering i Fetch.</string>
     <string name="advanced_compose_highlighter">Compose-fremhæver</string>
     <string name="advanced_compose_highlighter_subtitle">Flash kanter rundt om UI-elementer der rekomponeres, til ydeevnedebugging.</string>
     <string name="advanced_clear_cw_cache">Ryd cache for fortsæt med at se</string>
@@ -482,7 +470,6 @@
     <string name="advanced_remember_last_profile">Husk seneste profil</string>
     <string name="advanced_remember_last_profile_subtitle">Husk senest valgte profil ved opstart</string>
     <string name="settings_debug">Debug</string>
-    <string name="settings_plugins_section_subtitle">Administrer repositories, udbydere og plugintilstande</string>
     <string name="settings_account_section_subtitle">Konto- og synkroniseringsstatus</string>
     <string name="account_stat_addons">addons</string>
     <string name="account_stat_plugins">plugins</string>
@@ -506,21 +493,6 @@
     <string name="action_none">Ingen</string>
     <string name="action_close">Luk</string>
 
-    <string name="supporters_tab">Støtter</string>
-    <string name="contributors_tab">Bidragydere</string>
-    <string name="supporters_loading">Indlæser støtter…</string>
-    <string name="supporters_empty">Ingen støtter fundet endnu.</string>
-    <string name="supporters_error_title">Kunne ikke indlæse støtter</string>
-    <string name="supporters_no_message">Ingen besked delt.</string>
-    <string name="supporters_open_donations">Åbn donationsside</string>
-    <string name="contributors_loading">Indlæser GitHub-bidragydere…</string>
-    <string name="contributors_empty">Ingen bidragydere fundet endnu.</string>
-    <string name="contributors_error_title">Kunne ikke indlæse bidragydere</string>
-    <string name="contributors_total_contributions">%1$d bidrag i alt</string>
-    <string name="contributors_open_github">Åbn GitHub-profil</string>
-    <string name="contributors_show_kofi_qr">Vis Ko-fi QR</string>
-    <string name="contributors_hide_kofi_qr">Skjul Ko-fi QR</string>
-    <string name="contributors_profile_unavailable">GitHub-profillink utilgængeligt.</string>
 
     <string name="playback_loading_overlay">Indlæsningsoverlay</string>
     <string name="playback_loading_overlay_sub">Vis indlæsningsskærm indtil første videobillede vises.</string>
@@ -577,7 +549,6 @@
     <string name="playback_engine_mvplayer_desc">Bruger libmpv med Fetch OSD-kontrol. Eksperimentel.</string>
 
     <string name="video_section">Video</string>
-    <string name="audio_trailer_section">Trailer</string>
     <string name="audio_autoplay_trailers">Afspil Trailere Automatisk</string>
     <string name="audio_autoplay_trailers_sub">Afspil automatisk trailere på detaljesiden efter en periode uden aktivitet</string>
     <string name="audio_trailer_delay">Trailer-forsinkelse</string>
@@ -654,7 +625,6 @@
     <string name="audio_decoder_prefer_app_desc">Brug FFmpeg-decoder når tilgængelig. Bedre formatunderstøttelse men højere CPU-forbrug.</string>
     <string name="audio_decoder_controls">Styrer om hardware- eller softwaredecoder (FFmpeg) bruges til lyd og video</string>
 
-    <string name="sub_section">Undertekster</string>
     <string name="sub_not_set">Ikke angivet</string>
     <string name="sub_forced_lang">Tvungen</string>
     <string name="sub_preferred_lang">Foretrukket sprog</string>
@@ -663,7 +633,6 @@
     <string name="sub_use_forced_subtitles_desc">Foretræk tvungne undertekster når lydsporet matcher undertekstens sprog; vælg ingenting hvis utilgængeligt</string>
     <string name="sub_show_only_preferred_languages">Vis kun foretrukne sprog</string>
     <string name="sub_show_only_preferred_languages_desc">Skjul alle andre undertekstsprog fra valglisten</string>
-    <string name="sub_organization">Undertekstorganisering</string>
     <string name="sub_size">Størrelse</string>
     <string name="sub_vertical_offset">Lodret forskydning</string>
     <string name="sub_bold">Fed</string>
@@ -686,12 +655,6 @@
     <string name="sub_mode_effects_canvas_sub">Animationsunderstøttelse ved hjælp af Media3-effekter med Canvas-gengivelse.</string>
     <string name="sub_mode_standard">Standard Cues</string>
     <string name="sub_mode_standard_sub">Grundlæggende undertekstgengivelse uden animationsunderstøttelse. Mest kompatibel.</string>
-    <string name="sub_org_none">Ingen (standardrækkefølge)</string>
-    <string name="sub_org_by_lang">Efter sprog</string>
-    <string name="sub_org_by_addon">Efter addon</string>
-    <string name="sub_org_none_desc">Vis undertekster i standard addon-resultatrækkefølge.</string>
-    <string name="sub_org_by_lang_desc">Gruppér undertekster efter sprog.</string>
-    <string name="sub_org_by_addon_desc">Gruppér undertekster efter addon-kilde.</string>
 
     <string name="autoplay_reuse_last_link">Genbrug sidste link</string>
     <string name="autoplay_reuse_last_link_sub">Afspil automatisk din senest fungerende stream for samme film/episode når cachen stadig er gyldig</string>
@@ -717,7 +680,6 @@
     <string name="autoplay_threshold_pct_title">Tærskelprocent</string>
     <string name="autoplay_threshold_pct_sub">Fallback når der ikke findes noget outro-tidsstempel.</string>
     <string name="autoplay_threshold_min_title">Tærskeminutter</string>
-    <string name="autoplay_threshold_min_sub">Fallback når der ikke findes noget outro-tidsstempel.</string>
     <string name="autoplay_scope_all">Alle kilder</string>
     <string name="autoplay_scope_addons">Kun installerede addons</string>
     <string name="autoplay_scope_plugins">Kun aktiverede plugins</string>
@@ -751,8 +713,6 @@
     <string name="layout_section_home_desc">Vælg struktur og hero-kilde.</string>
     <string name="layout_landscape_posters">Landskabspostere</string>
     <string name="layout_landscape_posters_sub">Skift mellem stående og liggende kort i Moderne visning.</string>
-    <string name="layout_preview_row">Vis Forhåndsvisningsrække</string>
-    <string name="layout_preview_row_sub">Vis en delvis forhåndsvisning af rækken nedenunder i Moderne hjemmelayout.</string>
     <string name="layout_section_content">Hjemmeindhold</string>
     <string name="layout_section_content_desc">Styr hvad der vises på hjem og søgning.</string>
     <string name="layout_collapse_sidebar">Fold sidebjælken sammen</string>
@@ -827,8 +787,6 @@
     <string name="layout_preset_balanced">Afbalanceret</string>
     <string name="layout_preset_comfort">Komfort</string>
     <string name="layout_preset_large">Stor</string>
-    <string name="layout_memory_only_scroll">Hukommelsesbaseret lodret scroll</string>
-    <string name="layout_memory_only_scroll_sub">Spring indlæsning af nye billeder over under lodret scrolling.</string>
     <string name="layout_preset_sharp">Skarp</string>
     <string name="layout_preset_subtle">Subtil</string>
     <string name="layout_preset_classic">Klassisk</string>
@@ -845,23 +803,7 @@
     <string name="mdblist_enable_title">Aktivér MDBList-bedømmelser</string>
     <string name="mdblist_enable_subtitle">Hent bedømmelser fra eksterne udbydere i metadata-detaljesiden</string>
     <string name="mdblist_api_key_title">API-nøgle</string>
-    <string name="mdblist_api_key_subtitle">Kræves for at hente bedømmelser fra MDBList</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Vis Trakt-score</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">Vis IMDb-score (og skjul standard IMDb-linjen når tilgængelig)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">Vis TMDB-score</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Vis Letterboxd-score</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">Vis kritikerscoren</string>
-    <string name="mdblist_audience_title">Publikumsscore</string>
-    <string name="mdblist_audience_subtitle">Vis publikumsscoren</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Vis Metacritic-score</string>
     <string name="mdblist_dialog_title">MDBList API-nøgle</string>
-    <string name="mdblist_dialog_subtitle">Indtast din API-nøgle for at hente eksterne bedømmelser</string>
     <string name="mdblist_dialog_placeholder">Indtast MDBList API-nøgle</string>
     <string name="mdblist_not_set">Ikke angivet</string>
     <string name="mdblist_invalid_api_key">Ugyldig MDBList API-nøgle</string>
@@ -880,25 +822,11 @@
     <string name="debrid_section_instant_playback">Linkforberedelse</string>
     <string name="debrid_section_filters">Filtre &amp; Sortering</string>
     <string name="debrid_section_formatting">Formatering</string>
-    <string name="debrid_provider_title">Udbyder</string>
-    <string name="debrid_provider_subtitle">Yderligere udbydere tilføjes senere</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">Tilknyt din Torbox-konto.</string>
     <string name="debrid_provider_description">Tilknyt din %1$s-konto.</string>
     <string name="debrid_provider_device_description">Tilknyt din %1$s-konto i browseren.</string>
     <string name="debrid_api_key_dialog_title">%1$s API-nøgle</string>
     <string name="debrid_api_key_dialog_subtitle">Indtast din %1$s API-nøgle.</string>
     <string name="debrid_api_key_dialog_placeholder">Indtast %1$s API-nøgle</string>
-    <string name="debrid_dialog_title">Torbox API-nøgle</string>
-    <string name="debrid_dialog_subtitle">Indtast din Torbox API-nøgle.</string>
-    <string name="debrid_dialog_placeholder">Indtast Torbox API-nøgle</string>
-    <string name="debrid_real_debrid_api_key_title">Real-Debrid API-token</string>
-    <string name="debrid_real_debrid_api_key_subtitle">Påkrævet for lokal Real-Debrid-linkopløsning</string>
-    <string name="debrid_real_debrid_dialog_title">Real-Debrid API-token</string>
-    <string name="debrid_real_debrid_dialog_subtitle">Indtast din Real-Debrid API-token til Direct Debrid</string>
-    <string name="debrid_real_debrid_dialog_placeholder">Indtast Real-Debrid API-token</string>
     <string name="debrid_not_set">Ikke angivet</string>
     <string name="debrid_connected">Tilknyttet</string>
     <string name="debrid_connect_provider">Tilknyt %1$s</string>
@@ -907,87 +835,19 @@
     <string name="debrid_device_auth_connected">%1$s er tilknyttet på denne enhed.</string>
     <string name="debrid_device_auth_starting">Starter sikker login...</string>
     <string name="debrid_device_auth_instructions">Scan QR-koden og indtast denne kode for at godkende Fetch.</string>
-    <string name="debrid_device_auth_code_copied">Kode kopieret.</string>
     <string name="debrid_device_auth_waiting">Venter på godkendelse...</string>
     <string name="debrid_device_auth_failed">Kunne ikke starte login.</string>
     <string name="debrid_device_auth_missing_configuration">Denne loginmetode er ikke konfigureret i dette build.</string>
     <string name="debrid_device_auth_expired">Denne kode er udløbet. Prøv igen.</string>
     <string name="debrid_key_invalid">Kunne ikke validere denne API-nøgle.</string>
-    <string name="debrid_invalid_torbox_api_key">Kunne ikke validere denne API-nøgle.</string>
-    <string name="debrid_invalid_real_debrid_api_key">Kunne ikke validere denne API-nøgle.</string>
     <string name="debrid_prepare_instant_playback">Forbered links</string>
     <string name="debrid_prepare_instant_playback_description">Løs afspilbare links op, inden afspilningen starter.</string>
     <string name="debrid_prepare_stream_count">Links der skal forberedes</string>
     <string name="debrid_prepare_stream_count_warning">Brug et lavere antal, når det er muligt. Tilknyttede tjenester kan begrænse, hvor mange links der kan løses op i en given periode. Åbning af en film eller et afsnit kan tælle mod disse grænser, selv hvis du ikke trykker på Afspil, fordi links forberedes på forhånd.</string>
     <string name="debrid_prepare_count_one">1 link</string>
     <string name="debrid_prepare_count_many">%1$d links</string>
-    <string name="debrid_stream_max_results_title">Maks. resultater</string>
-    <string name="debrid_stream_max_results_subtitle">Begræns, hvor mange Direct Debrid-kilder der vises.</string>
-    <string name="debrid_stream_max_results_all">Alle streams</string>
-    <string name="debrid_stream_max_results_count">%1$d streams</string>
-    <string name="debrid_stream_sort_title">Sortér resultater</string>
-    <string name="debrid_stream_sort_subtitle">Vælg hvordan resultater sorteres.</string>
-    <string name="debrid_stream_sort_original">Oprindelig rækkefølge</string>
-    <string name="debrid_stream_sort_best_quality">Bedste kvalitet først</string>
-    <string name="debrid_stream_sort_largest">Størst først</string>
-    <string name="debrid_stream_sort_smallest">Mindst først</string>
-    <string name="debrid_stream_sort_best_audio">Bedste lyd først</string>
-    <string name="debrid_stream_sort_language">Sprog først</string>
-    <string name="debrid_stream_sort_default">Oprindelig rækkefølge</string>
-    <string name="debrid_stream_sort_quality">Bedste kvalitet først</string>
-    <string name="debrid_stream_sort_size_desc">Størst først</string>
-    <string name="debrid_stream_sort_size_asc">Mindst først</string>
-    <string name="debrid_stream_min_quality_title">Minimumskvalitet</string>
-    <string name="debrid_stream_min_quality_subtitle">Skjul kilder under den valgte opløsning.</string>
-    <string name="debrid_stream_min_quality_any">Enhver kvalitet</string>
-    <string name="debrid_stream_min_quality_720">720p og derover</string>
-    <string name="debrid_stream_min_quality_1080">1080p og derover</string>
-    <string name="debrid_stream_min_quality_2160">Kun 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">Vis, skjul eller kræv Dolby Vision-kilder.</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">Vis, skjul eller kræv HDR-kilder.</string>
-    <string name="debrid_stream_feature_any">Alle</string>
-    <string name="debrid_stream_feature_exclude">Skjul</string>
-    <string name="debrid_stream_feature_only">Kun</string>
-    <string name="debrid_stream_codec_title">Codec</string>
-    <string name="debrid_stream_codec_subtitle">Filtrer kilder efter videocodec.</string>
-    <string name="debrid_stream_codec_any">Alle codecs</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
 
     <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
-    <string name="debrid_stream_per_resolution_limit_title">Grænse pr. opløsning</string>
-    <string name="debrid_stream_per_resolution_limit_subtitle">Begræns gentagne 2160p-, 1080p- og 720p-resultater efter sortering.</string>
-    <string name="debrid_stream_per_quality_limit_title">Grænse pr. kvalitet</string>
-    <string name="debrid_stream_per_quality_limit_subtitle">Begræns gentagne BluRay-, WEB-DL- og REMUX-resultater efter sortering.</string>
-    <string name="debrid_stream_size_range_title">Størrelsesinterval</string>
-    <string name="debrid_stream_size_range_subtitle">Filtrer streams efter filstørrelse.</string>
-    <string name="debrid_stream_resolutions_preferred">Foretrukne opløsninger</string>
-    <string name="debrid_stream_resolutions_required">Påkrævede opløsninger</string>
-    <string name="debrid_stream_resolutions_excluded">Udelukkede opløsninger</string>
-    <string name="debrid_stream_qualities_preferred">Foretrukne kvaliteter</string>
-    <string name="debrid_stream_qualities_required">Påkrævede kvaliteter</string>
-    <string name="debrid_stream_qualities_excluded">Udelukkede kvaliteter</string>
-    <string name="debrid_stream_visual_tags_preferred">Foretrukne visuelle tags</string>
-    <string name="debrid_stream_visual_tags_required">Påkrævede visuelle tags</string>
-    <string name="debrid_stream_visual_tags_excluded">Udelukkede visuelle tags</string>
-    <string name="debrid_stream_audio_tags_preferred">Foretrukne lydtags</string>
-    <string name="debrid_stream_audio_tags_required">Påkrævede lydtags</string>
-    <string name="debrid_stream_audio_tags_excluded">Udelukkede lydtags</string>
-    <string name="debrid_stream_channels_preferred">Foretrukne kanaler</string>
-    <string name="debrid_stream_channels_required">Påkrævede kanaler</string>
-    <string name="debrid_stream_channels_excluded">Udelukkede kanaler</string>
-    <string name="debrid_stream_encodes_preferred">Foretrukne encodes</string>
-    <string name="debrid_stream_encodes_required">Påkrævede encodes</string>
-    <string name="debrid_stream_encodes_excluded">Udelukkede encodes</string>
-    <string name="debrid_stream_languages_preferred">Foretrukne sprog</string>
-    <string name="debrid_stream_languages_required">Påkrævede sprog</string>
-    <string name="debrid_stream_languages_excluded">Udelukkede sprog</string>
-    <string name="debrid_stream_release_groups_required">Påkrævede udgivelsesgrupper</string>
-    <string name="debrid_stream_release_groups_excluded">Udelukkede udgivelsesgrupper</string>
-    <string name="debrid_stream_release_groups_input_subtitle">Indtast én gruppe pr. linje.</string>
 
     <string name="debrid_formatter_title">Webeditor</string>
     <string name="debrid_formatter_subtitle">Konfigurér kildevisning, filtre og sortering fra en anden enhed.</string>
@@ -1009,11 +869,9 @@
     <string name="settings_stream_badge_position_bottom">Nederst</string>
     <string name="settings_stream_badge_urls_title">Fusion badge-URL\'er</string>
     <string name="settings_stream_badge_urls_description">Importér op til %1$d Fusion-style streambadge JSON-URL\'er. Hver URL kan opdateres eller slettes separat.</string>
-    <string name="settings_stream_badge_urls_search_description">Administrér importerede Fusion-style streambadge JSON-URL\'er.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL\'er, %3$d aktive Fusion-badges</string>
     <string name="settings_fusion_badges_empty">Ingen Fusion badge-URL\'er importeret.</string>
     <string name="settings_fusion_badge_url_label">Fusion badge JSON-URL</string>
-    <string name="settings_fusion_badge_urls_imported">%1$d/%2$d Fusion-URL\'er importeret</string>
     <string name="settings_fusion_badge_url_active">Aktiv</string>
     <string name="settings_fusion_badge_url_inactive">Inaktiv</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, %2$d aktiverede badges, %3$d grupper</string>
@@ -1076,14 +934,12 @@
 
     <string name="trakt_description">Synkronisér din watchlist, se-fremdrift, fortsæt med at se, scrobbles og personlige lister med Trakt.</string>
     <string name="trakt_connected_as">Tilknyttet som %1$s</string>
-    <string name="trakt_account_login">Kontologin</string>
     <string name="trakt_awaiting_instruction">Gå til trakt.tv/activate og indtast denne kode:</string>
     <string name="trakt_waiting_approval">Venter på godkendelse…</string>
     <string name="qr_login_approved">Login godkendt. Afslutter login…</string>
     <string name="qr_login_pending">Venter på godkendelse på din telefon…</string>
     <string name="qr_login_expired">QR-login udløbet. Generér en ny kode.</string>
     <string name="qr_login_preparing">Forbereder QR-login...</string>
-    <string name="qr_login_device_auth_failed">Kunne ikke godkende enheden</string>
     <string name="qr_login_scan_prompt">Scan QR-kode og log ind på din telefon</string>
     <string name="qr_login_start_failed">Kunne ikke starte QR-login</string>
     <string name="qr_login_signing_in">Logger dig ind…</string>
@@ -1091,38 +947,19 @@
     <string name="qr_login_exchange_failed">Kunne ikke fuldføre QR-login</string>
     <string name="trakt_code_expires">Koden udløber om %1$s</string>
     <string name="trakt_token_refreshes">Trakt-adgangstoken opdateres om %1$s</string>
-    <string name="trakt_login_instruction">Tryk på Login for at starte Trakt-enhedsgodkendelse. En QR-kode vises her.</string>
     <string name="trakt_missing_credentials">TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET mangler i local.properties.</string>
     <string name="trakt_watch_progress_title">Se-fremdrift</string>
     <string name="trakt_watch_progress_subtitle">Vælg hvilken fremskridtskilde der styrer genoptag og fortsæt med at se</string>
     <string name="trakt_watch_progress_dialog_title">Se-fremdrift</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Vælg om genoptagelse og fortsæt med at se skal bruge Trakt eller Fetch Sync, mens Trakt-scrobbling forbliver aktiv.</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
     <string name="trakt_library_source_title">Bibliotekskilde</string>
     <string name="trakt_library_source_subtitle">Vælg hvilket bibliotek der bruges til at gemme og se din samling</string>
     <string name="trakt_library_source_dialog_title">Bibliotekskilde</string>
-    <string name="trakt_library_source_dialog_subtitle">Vælg, hvor du vil gemme og administrere dine bibliotekets indhold</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_fetch">Fetch-bibliotek</string>
-    <string name="trakt_library_source_trakt_selected">Trakt-bibliotek valgt</string>
-    <string name="trakt_library_source_fetch_selected">Fetch-bibliotek valgt</string>
-    <string name="trakt_setting_on">Til</string>
-    <string name="trakt_setting_off">Fra</string>
-    <string name="trakt_watch_progress_trakt_selected">Fremskridtskilde indstillet til Trakt</string>
-    <string name="trakt_watch_progress_fetch_selected">Fremskridtskilde indstillet til Fetch Sync</string>
     <string name="trakt_continue_watching_window">Fortsæt med at se-vindue</string>
     <string name="trakt_continue_watching_subtitle">Trakt-historik inkluderet i fortsæt med at se</string>
-    <string name="trakt_unaired_next_up">Kommende næste afsnit</string>
-    <string name="trakt_unaired_next_up_subtitle">Vis kommende afsnit, inden de sendes</string>
-    <string name="trakt_unaired_shown">Vist</string>
-    <string name="trakt_unaired_hidden">Skjult</string>
-    <string name="trakt_unaired_now_shown">Kommende næste afsnit vises nu</string>
-    <string name="trakt_unaired_now_hidden">Kommende næste afsnit er nu skjult</string>
     <string name="trakt_comments_title">Kommentarer</string>
     <string name="trakt_comments_subtitle">Vis Trakt-anmeldelser på metadatasider</string>
-    <string name="trakt_comments_dialog_title">Kommentarer</string>
-    <string name="trakt_comments_dialog_subtitle">Vælg om metadatasider skal vise Trakt-anmeldelser, når din konto er tilknyttet.</string>
     <string name="trakt_comments_now_shown">Trakt-anmeldelser på metadatasider vises nu</string>
     <string name="trakt_comments_now_hidden">Trakt-anmeldelser på metadatasider er nu skjult</string>
     <string name="trakt_more_like_this_source_title">Mere som dette-kilde</string>
@@ -1139,15 +976,8 @@
     <string name="trakt_disconnect">Afbryd</string>
     <string name="trakt_disconnect_title">Afbryd Trakt?</string>
     <string name="trakt_disconnect_subtitle">Dette vil afbryde din Trakt-konto fra Fetch.</string>
-    <string name="trakt_login">Login</string>
-    <string name="trakt_retry">Prøv igen</string>
-    <string name="trakt_back">Tilbage</string>
     <string name="trakt_cw_window_title">Fortsæt med at se-vindue</string>
     <string name="trakt_cw_window_subtitle">Vælg, hvor meget Trakt-aktivitet der skal vises i fortsæt med at se.</string>
-    <string name="trakt_unaired_dialog_title">Kommende næste afsnit</string>
-    <string name="trakt_unaired_dialog_subtitle">Vælg om fortsæt med at se skal inkludere kommende afsnit, inden de udgives.</string>
-    <string name="trakt_show_unaired">Vis kommende afsnit</string>
-    <string name="trakt_hide_unaired">Skjul kommende afsnit</string>
     <string name="trakt_all_history">Al historik</string>
     <string name="trakt_days_format">%1$d dage</string>
 
@@ -1186,26 +1016,15 @@
     <string name="profile_manage_title">Administrer profiler</string>
     <string name="profile_manage_subtitle">Vælg en profil for at redigere, skifte eller oprette en ny</string>
     <string name="profile_manage_hint">Vælg en profil at administrere</string>
-    <string name="profile_primary_label">Primær</string>
-    <string name="profile_shares_primary">Deler primærprofilens %1$s</string>
     <string name="profile_edit_label">Rediger</string>
     <string name="profile_edit_header">Rediger profil</string>
-    <string name="profile_add">Tilføj profil</string>
     <string name="profile_create_title">Opret profil</string>
-    <string name="profile_edit_title">Rediger profil %1$s</string>
     <string name="profile_name_placeholder">Profilnavn</string>
-    <string name="profile_avatar_color">Avatar-farve</string>
-    <string name="profile_use_primary_addons">Brug primærprofilens addons</string>
-    <string name="profile_use_primary_plugins">Brug primærprofilens plugins</string>
     <string name="profile_creating">Opretter\u2026</string>
     <string name="profile_create_btn">Opret</string>
-    <string name="profile_confirm">Bekræft</string>
     <string name="profile_delete">Slet</string>
-    <string name="profile_addons">addons</string>
-    <string name="profile_plugins">plugins</string>
     <string name="profile_choose_avatar">Vælg avatar</string>
     <string name="profile_custom_avatar_web_panel_note">Brugerdefinerede avatar-URL\'er kan konfigureres fra Fetch-webpanelet.</string>
-    <string name="profile_avatar_none_selected">Ingen avatar valgt</string>
     <string name="profile_avatar_focus_hint">Fokusér på en avatar for at se dens navn</string>
     <string name="profile_avatar_category_all">Alle</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -1216,30 +1035,16 @@
     <string name="profile_add_new">Tilføj profil</string>
     <string name="profile_cancel">Annullér</string>
     <string name="profile_save">Gem</string>
-    <string name="profile_pin_title">Profil-PIN-lås</string>
-    <string name="profile_pin_enabled_subtitle">Denne profil kræver en 4-cifret PIN før skift.</string>
-    <string name="profile_pin_disabled_subtitle">Indstil en 4-cifret PIN for at låse denne profil.</string>
     <string name="profile_pin_set">Indstil PIN</string>
     <string name="profile_pin_change">Skift PIN</string>
     <string name="profile_pin_remove">Fjern PIN</string>
-    <string name="profile_pin_set_title">Indstil profil-PIN</string>
-    <string name="profile_pin_set_subtitle">Indtast en 4-cifret PIN og bekræft den.</string>
-    <string name="profile_pin_enter">Indtast 4-cifret PIN</string>
-    <string name="profile_pin_confirm">Bekræft 4-cifret PIN</string>
-    <string name="profile_pin_mismatch">PIN-koderne stemmer ikke overens.</string>
-    <string name="profile_pin_save">Gem PIN</string>
-    <string name="profile_pin_unlock_title">Lås op: %1$s</string>
-    <string name="profile_pin_unlock_subtitle">Indtast den 4-cifrede PIN for at fortsætte.</string>
     <string name="profile_pin_verifying">Verificerer…</string>
-    <string name="profile_pin_unlock_action">Lås op</string>
     <string name="profile_pin_overlay_unlock_heading">Indtast din PIN for at tilgå %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Opret en 4-cifret PIN til %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bekræft din nye PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Brug din fjernbetjening eller dit tastatur til at indtaste 4 cifre.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">Sikkerhedskontrol påkrævet.</string>
     <string name="profile_pin_overlay_change_verify_heading">Indtast nuværende PIN for at skifte PIN til %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Indtast den nuværende 4-cifrede PIN, inden du angiver en ny.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">Sikkerhedskontrol påkrævet.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Indtast nuværende PIN for at fjerne låsen til %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Indtast den nuværende 4-cifrede PIN for at fjerne denne lås.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Indtast nuværende PIN for at slette %1$s.</string>
@@ -1321,8 +1126,6 @@
     <string name="debrid_missing_api_key">Tilføj en Debrid API-nøgle i Indstillinger.</string>
     <string name="debrid_not_cached">Ikke cachet på denne tjeneste.</string>
     <string name="debrid_resolution_failed">Kunne ikke løse denne Debrid-stream op.</string>
-    <string name="stream_type_torrent">Torrent</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">P2P-streaming</string>
     <string name="p2p_consent_body">Denne stream bruger peer-to-peer (P2P)-teknologi. Ved at aktivere P2P anerkender og accepterer du, at:\n\n\u2022 Din IP-adresse vil være synlig for andre peers i netværket\n\u2022 Du er eneansvarlig for det indhold, du tilgår\n\u2022 Du bekræfter, at du har den lovlige ret til at streame dette indhold i din jurisdiktion\n\u2022 Fetch hoster, distribuerer eller kontrollerer ikke noget P2P-indhold\n\u2022 Fetch er ikke ansvarlig for eventuelle juridiske konsekvenser som følge af din brug af P2P-streaming\n\nDu bruger denne funktion udelukkende på eget ansvar. P2P kan deaktiveres når som helst i Indstillinger.</string>
     <string name="p2p_consent_enable">Aktivér P2P</string>
@@ -1331,9 +1134,6 @@
     <string name="settings_p2p_subtitle">Tillad peer-to-peer (torrent)-streams</string>
     <string name="settings_p2p_hide_stats_title">Skjul torrent-statistik</string>
     <string name="settings_p2p_hide_stats_subtitle">Skjul buffer, seeds, peers og downloadhastighed under indlæsning og afspilning</string>
-    <string name="p2p_download_title">Downloader P2P-motor</string>
-    <string name="p2p_download_subtitle">Dette er en engangsdownload, der kræves til P2P-streaming.</string>
-    <string name="stream_type_external">Ekstern</string>
     <string name="stream_player_picker_title">Hvilken afspiller skal bruges?</string>
     <string name="stream_player_internal">Intern</string>
     <string name="stream_player_external">Ekstern</string>
@@ -1343,15 +1143,12 @@
     <string name="player_no_external_player">Ingen ekstern afspiller fundet</string>
     <string name="player_loading_preparing">Forbereder stream…</string>
     <string name="player_loading_detecting_format">Registrerer stream-format…</string>
-    <string name="player_loading_subtitles">Henter undertekster…</string>
     <string name="player_loading_subtitles_from">Henter undertekster fra %1$d addons…</string>
     <string name="player_loading_subtitles_progress">Henter undertekster… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Undertekster: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">Bygger afspiller…</string>
     <string name="player_loading_starting">Starter stream…</string>
     <string name="player_loading_buffering">Bufferer…</string>
-    <string name="player_loading_fallback_pcm_audio">Lydspor-initialisering mislykkedes – skifter til PCM-lyd…</string>
-    <string name="player_loading_fallback_hevc_decoder">Decoder-initialisering mislykkedes – skifter til HEVC-decoder…</string>
     <string name="player_engine_switching_title">Skifter afspillermotor</string>
     <string name="player_engine_switching_message">Opstart mislykkedes. Skifter til %1$s…</string>
     <string name="player_engine_switching_manual_message">Skifter til %1$s...</string>
@@ -1414,14 +1211,12 @@
     <string name="stream_info_player_engine">Afspillermotor</string>
 
     <string name="sources_title">Kilder</string>
-    <string name="sources_reload">Genindlæs</string>
     <string name="sources_close">Luk</string>
     <string name="sources_playing">Afspiller</string>
     <string name="sources_no_streams">Ingen streams fundet</string>
 
     <string name="episodes_panel_close">Luk</string>
     <string name="episodes_panel_back">Tilbage</string>
-    <string name="episodes_panel_reload">Genindlæs</string>
     <string name="episodes_panel_no_streams">Ingen streams fundet</string>
     <string name="episodes_panel_no_episodes">Ingen episoder tilgængelige</string>
     <string name="episodes_panel_title">Episoder</string>
@@ -1437,8 +1232,6 @@
     <string name="player_aspect_mode_cinema_zoom">Biograf-zoom</string>
 
     <string name="audio_dialog_title">Lyd</string>
-    <string name="audio_dialog_tab_tracks">Lyd</string>
-    <string name="audio_dialog_tab_mix">Mix</string>
     <string name="audio_delay_label">Lydforsinkelse</string>
     <string name="audio_delay_range">Område: %1$.2fs til %2$.2fs</string>
     <string name="audio_mix_label">Forstærkning (PCM)</string>
@@ -1456,30 +1249,14 @@
     <string name="audio_maintain_original_audio_on_downmix_subtitle">Når deaktiveret, kan downmix-normalisering reducere den samlede lydstyrke.</string>
 
     <string name="subtitle_dialog_title">Undertekster</string>
-    <string name="subtitle_no_builtin">Ingen indbyggede undertekster tilgængelige</string>
     <string name="subtitle_loading_addon">Indlæser undertekster fra addons\u2026</string>
     <string name="subtitle_no_addon">Ingen addon-undertekster tilgængelige</string>
-    <string name="subtitle_text_color">Tekstfarve</string>
-    <string name="subtitle_outline_color">Omridsfarve</string>
     <string name="subtitle_reset_defaults">Nulstil standarder</string>
-    <string name="subtitle_tab_builtin">Indbyggede</string>
-    <string name="subtitle_tab_addons">Addons</string>
     <string name="subtitle_tab_languages">Sprog</string>
-    <string name="subtitle_tab_style">Stil</string>
     <string name="subtitle_tab_delay">Forsinkelse</string>
     <string name="subtitle_none">Ingen</string>
     <string name="subtitle_built_in">Indbygget</string>
-    <string name="subtitle_all">Alle</string>
-    <string name="subtitle_section_core">Basis</string>
-    <string name="subtitle_section_advanced">Avanceret</string>
-    <string name="subtitle_font_size">Skriftstørrelse</string>
-    <string name="subtitle_bold">Fed</string>
-    <string name="subtitle_outline">Omrids</string>
-    <string name="subtitle_bottom_offset">Bundforskydning</string>
-    <string name="subtitle_on">Til</string>
-    <string name="subtitle_off">Fra</string>
     <string name="subtitle_style_title">Undertekststil</string>
-    <string name="subtitle_style_customize">Tilpas</string>
     <string name="subtitle_style_color">Farve</string>
     <string name="subtitle_style_reset">Nulstil</string>
     <string name="subtitle_style_font_size">Skriftstørrelse</string>
@@ -1492,8 +1269,6 @@
     <string name="subtitle_style_on">Til</string>
     <string name="subtitle_style_off">Fra</string>
     <string name="subtitle_style_weight">Vægt</string>
-    <string name="panel_failed_load_streams">Kunne ikke indlæse streams</string>
-    <string name="panel_failed_load_episodes">Kunne ikke indlæse episoder</string>
 
     <string name="pause_you_are_watching">Du ser</string>
     <string name="pause_cast_label">Medvirkende</string>
@@ -1527,7 +1302,6 @@
     <string name="display_mode_resolution">Opløsning</string>
 
 
-    <string name="search_keyboard_hint">Tryk Udført på tastaturet for at søge</string>
     <string name="search_placeholder">Søg efter film &amp; serier</string>
     <string name="search_start_title">Begynd at søge</string>
     <string name="search_start_subtitle">Indtast mindst 2 tegn</string>
@@ -1542,7 +1316,6 @@
     <string name="search_no_results_subtitle">Prøv at søge med andre søgeord</string>
     <string name="search_error_no_catalogs">Ingen søgbare kataloger fundet i installerede addons</string>
 
-    <string name="library_syncing">Synkroniserer Trakt-bibliotek\u2026</string>
     <string name="library_title">Bibliotek</string>
     <string name="library_filter_list">Liste</string>
     <string name="library_filter_type">Type</string>
@@ -1576,13 +1349,11 @@
     <string name="genre_soap">Soap</string>
     <string name="genre_talk">Talk</string>
     <string name="genre_war_politics">Krig &amp; Politik</string>
-    <string name="library_sort_trakt_order">Trakt-rækkefølge</string>
     <string name="library_sort_added_desc">Tilføjet ↓</string>
     <string name="library_sort_added_asc">Tilføjet ↑</string>
     <string name="library_sort_title_asc">Titel A-Z</string>
     <string name="library_sort_title_desc">Titel Z-A</string>
     <string name="library_manage_lists">Administrer lister</string>
-    <string name="library_manage_trakt_lists">Administrer Trakt-lister</string>
     <string name="library_no_lists">Ingen personlige lister endnu.</string>
     <string name="library_list_create">Opret</string>
     <string name="library_list_edit">Rediger</string>
@@ -1596,16 +1367,12 @@
     <string name="library_list_privacy">Privatliv</string>
     <string name="library_delete_title">Slet denne liste?</string>
     <string name="library_delete_subtitle">Dette fjerner listen og alle listeelementer fra Trakt.</string>
-    <string name="library_delete_confirm">Slet</string>
     <string name="library_source_local">LOKAL</string>
-    <string name="library_source_fetch">FETCH</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">Gemt</string>
     <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Seerliste</string>
     <string name="library_syncing_library">Synkroniserer bibliotek\u2026</string>
     <string name="library_type_all">Alle</string>
-    <string name="library_type_items">elementer</string>
     <string name="library_empty_local_title">Ingen %1$s endnu</string>
     <string name="library_empty_trakt_title">Ingen %1$s på denne liste</string>
     <string name="library_empty_local_subtitle">Begynd at gemme dine favoritter for at se dem her</string>
@@ -1616,18 +1383,13 @@
     <string name="library_list_edit_dialog_title">Rediger liste</string>
     <string name="library_sync_btn">Synkroniser</string>
     <string name="library_syncing_btn">Synkroniserer\u2026</string>
-    <string name="cloud_library_connect_action">Tilslut konto</string>
     <string name="cloud_library_connect_message">Tilslut en konto i indstillingerne for Tilsluttede tjenester for at gennemse afspilbare filer fra dit cloud-bibliotek.</string>
     <string name="cloud_library_connect_title">Ingen cloud-konto tilsluttet</string>
-    <string name="cloud_library_disabled_action">Åbn Tilsluttede tjenester</string>
     <string name="cloud_library_disabled_message">Slå Cloud-bibliotek til i indstillingerne for Tilsluttede tjenester for at gennemse filer fra tilsluttede konti.</string>
     <string name="cloud_library_disabled_title">Cloud-bibliotek er slået fra</string>
     <string name="cloud_library_empty_message">Ingen afspilbare cloud-filer matcher de aktuelle filtre.</string>
     <string name="cloud_library_empty_title">Intet her endnu</string>
     <string name="cloud_library_file_picker_title">Vælg en fil at afspille</string>
-    <string name="cloud_library_load_failed">Kunne ikke indlæse %1$s cloud-bibliotek</string>
-    <string name="cloud_library_no_files_message">Dette element har ingen afspilbar videofil.</string>
-    <string name="cloud_library_no_files_title">Ingen afspilbare filer</string>
     <string name="cloud_library_no_playable_files">Ingen afspilbare filer</string>
     <string name="cloud_library_one_playable_file">1 afspilbar fil</string>
     <string name="cloud_library_opening">Åbner\u2026</string>
@@ -1672,12 +1434,9 @@
     <string name="auth_signin_tv_disabled">Indtastning af e-mail/adgangskode på TV er deaktiveret. Fortsæt med QR-login.</string>
     <string name="auth_signin_qr_btn">Fortsæt med QR</string>
 
-    <string name="auth_qr_title">Log ind med QR</string>
     <string name="auth_qr_finishing">Afslutter login\u2026</string>
-    <string name="auth_qr_code_label">Kode: %1$s</string>
     <string name="auth_qr_expires">Udløber om %1$s</string>
     <string name="auth_qr_scan_instruction">Scan QR, godkend i browseren, og vend tilbage hertil.</string>
-    <string name="auth_qr_code_display">Kode: %1$s</string>
     <string name="auth_qr_refresh">Opdater QR</string>
     <string name="auth_qr_continue_without_account">Fortsæt uden konto</string>
     <string name="auth_qr_connected">Din konto er forbundet på dette TV.</string>
@@ -1712,7 +1471,6 @@
     <string name="plugin_repositories_section">Repositories (%1$d)</string>
     <string name="plugin_providers_section">Udbydere (%1$d)</string>
     <string name="plugin_title">Plugins</string>
-    <string name="plugin_subtitle">Administrer lokale scrapere og udbydere</string>
     <string name="plugin_enable_plugins_title">Aktivér plugin-udbydere globalt</string>
     <string name="plugin_enable_plugins_subtitle">Brug plugin-udbydere i streamsøgning</string>
     <string name="plugin_group_by_repository_title">Gruppér plugin-udbydere efter repository</string>
@@ -1743,8 +1501,6 @@
     <string name="plugin_test_results">Testresultater (%1$d streams)</string>
     <string name="plugin_and_more">... og %1$d mere</string>
     <string name="plugin_providers_count">%1$d udbydere</string>
-    <string name="plugin_enabled">Aktiveret</string>
-    <string name="plugin_disabled">Deaktiveret</string>
     <string name="plugin_no_repos">Ingen repositories tilføjet endnu.\nTilføj et repository for at komme i gang.</string>
     <string name="plugin_error_invalid_url">Indtast venligst en gyldig URL</string>
     <string name="plugin_error_add_repo">Kunne ikke tilføje repository: %1$s</string>
@@ -1779,7 +1535,6 @@
     <string name="layout_selection_subtitle">Vælg dit startskærm-layout</string>
 
     <string name="update_title">App-opdatering</string>
-    <string name="update_downloading">Downloader opdatering</string>
     <string name="update_download">Download</string>
     <string name="update_downloading_ellipsis">Downloader…</string>
     <string name="update_unknown_sources">Tillad installationer fra ukendte kilder for at fortsætte.</string>
@@ -1817,33 +1572,23 @@
     <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">Rediger profil %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Audio passthrough (TrueHD, DTS, AC-3 osv.) er automatisk. Når der er forbindelse til en kompatibel AV-receiver eller soundbar via HDMI, sendes lossless-lyd som den er, uden dekodning.</string>
-    <string name="audio_dv_title">DV7 - HEVC-fallback</string>
-    <string name="audio_dv_sub">Konverter Dolby Vision-profil 7 til standard HEVC for enheder uden hardware-DV-understøttelse</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">Hjem</string>
     <string name="nav_discover">Opdag</string>
     <string name="nav_search">Søg</string>
     <string name="nav_library">Bibliotek</string>
-    <string name="nav_addons">Addons</string>
-    <string name="nav_movies">Film</string>
-    <string name="nav_series">Serier</string>
     <string name="nav_settings">Indstillinger</string>
     <string name="action_select">Vælg</string>
     <string name="settings_rounded_ui">Afrundet UI</string>
-    <string name="cd_expand_sidebar">Udvid sidebjælke</string>
 
-    <string name="update_checking">Søger efter opdateringer…</string>
     <string name="update_download_complete">Download færdig. Klar til installation.</string>
-    <string name="update_up_to_date">Systemet er opdateret. Seneste ændringer:</string>
     <string name="update_close">Luk</string>
     <string name="update_open_settings">Åbn indstillinger</string>
     <string name="update_install">Installer</string>
-    <string name="update_ignore">Ignorer</string>
 
     <!-- Update flow errors -->
     <string name="update_error_check_failed">Opdateringskontrol mislykkedes</string>
@@ -1911,7 +1656,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_addons">Ingen addons installeret</string>
     <string name="home_error_no_catalog_addons">Ingen katalog-addons installeret</string>
 
     <!-- Player errors -->
@@ -1936,7 +1680,6 @@
     <string name="cd_stream_info">Stream-info</string>
     <string name="cd_more_actions">Flere handlinger</string>
     <string name="cd_close_more_actions">Luk flere handlinger</string>
-    <string name="cd_back">Tilbage</string>
     <string name="cd_next_episode_thumbnail">Miniaturebillede for næste episode</string>
     <string name="cd_current">Nuværende</string>
     <string name="cd_loading_backdrop">Indlæser baggrundsbillede</string>
@@ -1958,8 +1701,6 @@
     <string name="cd_imdb">IMDb</string>
     <string name="cd_open_discover">Åbn Opdag</string>
     <string name="cd_voice_search">Stemmesøgning</string>
-    <string name="cd_donation_qr">Donerings-QR-kode</string>
-    <string name="cd_contributor_qr">Bidragsyder-support-QR-kode</string>
     <string name="cd_expand">Udvid %1$s</string>
     <string name="cd_collapse">Skjul %1$s</string>
     <string name="cd_qr_login">QR-loginkode</string>
@@ -2041,7 +1782,6 @@
     <string name="collections_editor_choose_emoji">Vælg emoji</string>
     <string name="collections_editor_back">Tilbage</string>
     <string name="collections_editor_edit_collection">Rediger samling</string>
-    <string name="collections_editor_catalog_count">%1$d katalog(er)</string>
     <string name="collections_editor_source_count">%1$d kilde(r)</string>
     <string name="collections_editor_sources">Kilder</string>
     <string name="collections_editor_source">Kilde</string>
@@ -2071,7 +1811,6 @@
     <string name="collections_editor_tmdb_collection_id">Samlings-ID</string>
     <string name="collections_editor_tmdb_company_search">Produktionsselskabsnavn, ID eller URL</string>
     <string name="collections_editor_tmdb_display_title">Visningstitel</string>
-    <string name="collections_editor_tmdb_title_optional">Titel (valgfri)</string>
     <string name="collections_editor_tmdb_search">Søg</string>
     <string name="collections_editor_add_source">Tilføj kilde</string>
     <string name="collections_editor_save_source">Gem kilde</string>
@@ -2278,7 +2017,7 @@
     <string name="autoplay_regex_preset_no_remux_hdr">No REMUX/HDR</string>
 
     <!-- Playback settings sections -->
-    <string name="playback_player_internal_desc">Brug Fetch\'s indbyggede afspiller</string>
+    <string name="playback_player_internal_desc">Brug den indbyggede afspiller i Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
     <string name="player_torrent_peer_info">%1$d seeders · %2$d peers</string>
@@ -2296,7 +2035,6 @@
     <string name="player_error_stream_rate_limited">\n\nFor mange forespørgsler til stream-kilden. Vent et øjeblik og prøv igen.</string>
     <string name="player_error_stream_unavailable">\n\nStream-serveren er i øjeblikket utilgængelig. Prøv en anden kilde.</string>
     <string name="player_error_source_invalid_content">Kildefejl: Stream-kilden returnerede ugyldigt eller ikke-afspilleligt indhold. Linket kan være udløbet, eller serveren returnerede en fejlside i stedet for video.\n\nPrøv en anden kilde. [%1$s]</string>
-    <string name="player_error_decoder">Decoder-fejl</string>
     <string name="player_error_unsupported_format">Denne stream bruger et format, som din enhed muligvis ikke understøtter. Prøv en anden kilde. [%1$s]</string>
     <string name="player_error_initialize_failed">Kunne ikke initialisere afspiller</string>
     <string name="player_error_mpv_surface_failed">Kunne ikke initialisere libmpv-overflade</string>
@@ -2331,7 +2069,6 @@
     <string name="library_synced">Bibliotek synkroniseret</string>
     <string name="library_error_refresh_failed">Kunne ikke opdatere bibliotek</string>
     <string name="library_list_created">Liste oprettet</string>
-    <string name="library_error_invalid_list">Ugyldig liste</string>
     <string name="library_list_updated">Liste opdateret</string>
     <string name="library_error_save_list_failed">Kunne ikke gemme liste</string>
     <string name="library_list_deleted">Liste slettet</string>
@@ -2340,13 +2077,8 @@
     <string name="library_error_reorder_lists_failed">Kunne ikke ændre listeorden</string>
     <string name="library_list_fallback_title">Liste</string>
     <!-- Library privacy display labels (mapped from API value, not used as a key) -->
-    <string name="library_privacy_private">Privat</string>
-    <string name="library_privacy_link">Link</string>
-    <string name="library_privacy_friends">Venner</string>
-    <string name="library_privacy_public">Offentlig</string>
 
     <!-- Trakt errors -->
-    <string name="trakt_error_auth_required">Trakt-godkendelse påkrævet</string>
     <string name="trakt_library_error_request_failed">Trakt-forespørgsel mislykkedes</string>
     <string name="trakt_library_error_create_list_failed">Oprettelse af liste mislykkedes</string>
     <string name="trakt_library_error_update_list_failed">Opdatering af liste mislykkedes</string>
@@ -2363,7 +2095,6 @@
     <string name="trakt_library_error_auth_expired">Trakt-godkendelse er udløbet</string>
     <string name="trakt_library_error_list_not_found">Trakt-liste ikke fundet</string>
     <string name="trakt_library_error_list_limit_reached">Trakt-listelimit nået. Opgradering påkrævet.</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">Utilstrækkelige Trakt-ID\'er til at markere som set</string>
     <string name="trakt_error_request_failed">Trakt-forespørgsel mislykkedes</string>
     <string name="trakt_error_mark_watched_failed">Markering som set på Trakt mislykkedes (%1$d)</string>
 
@@ -2385,25 +2116,15 @@
     <string name="stream_embedded_group">Indlejrede streams</string>
     <string name="stream_embedded_fallback_name">Indlejret stream</string>
     <string name="stream_quality_unknown">Ukendt</string>
-    <string name="stream_addon_unknown">Ukendt</string>
-    <string name="tmdb_unknown_entity">Ukendt</string>
     <string name="web_tmdb_company_fallback">TMDB Company %1$d</string>
     <string name="web_tmdb_collection_fallback">TMDB Collection %1$d</string>
     <string name="web_error_invalid_request_body">Ugyldig forespørgselstekst</string>
 
     <!-- Subtitle preferred language fallback -->
-    <string name="language_english">Engelsk</string>
 
     <!-- Supporters / contributors / sponsors errors -->
-    <string name="supporters_error_load">Kunne ikke indlæse støtter.</string>
-    <string name="contributors_error_load">Kunne ikke indlæse bidragsydere.</string>
-    <string name="contributors_error_api_not_configured">Bidragsyder-API er ikke konfigureret.</string>
-    <string name="contributors_error_api_http">Bidragsyder-API-fejl: %1$d</string>
-    <string name="supporters_error_api_http">Donationer-API-fejl: %1$d</string>
 
     <!-- Contributor role badges -->
-    <string name="contributor_role_translator">Oversætter</string>
-    <string name="contributor_role_maintainer">Vedligeholder</string>
 
     <!-- Network / safe API errors -->
     <string name="network_error_empty_response_body">Tom svartekst</string>
@@ -2417,7 +2138,6 @@
 
     <!-- Player runtime: stream / external link errors -->
     <string name="player_torrent_starting_engine">Starter P2P-motor…</string>
-    <string name="player_torrent_rebuffer_status">%1$s bufret</string>
     <string name="player_stream_error_invalid_external_url">Ugyldig ekstern URL</string>
     <string name="player_stream_error_open_external_link_failed">Kunne ikke åbne eksternt link</string>
     <string name="player_stream_error_invalid_url">Ugyldig stream-URL</string>
@@ -2425,11 +2145,6 @@
 
     <!-- Meta repository: addon detail error fragments -->
     <string name="meta_error_detail_no_metadata_for_id">returnerede ingen metadata for dette id</string>
-    <string name="meta_error_detail_addon_unreachable">kunne ikke nå addon-serveren</string>
-    <string name="meta_error_detail_addon_connection_failed">forbindelsen til addon\'en mislykkedes</string>
-    <string name="meta_error_detail_addon_timeout">addon-forespørgslen fik timeout</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">addon\'en bruger en usikker HTTP-forbindelse blokeret af Android</string>
-    <string name="meta_error_detail_addon_request_failed">addon-forespørgslen mislykkedes</string>
 
     <!-- Stream repository: addon detail error fragments + fetch -->
     <string name="stream_error_detail_no_streams_for_id">returnerede ingen streams for dette id</string>
@@ -2456,67 +2171,10 @@
     <string name="trakt_comments_error_request_failed">Trakt kommentar-forespørgsel mislykkedes</string>
     <string name="trakt_library_error_fetch_list_items">Hentning af listeelementer mislykkedes</string>
 
-    <string name="watchlist_removed">Fjernet fra watchliste</string>
-    <string name="watchlist_added">Tilføjet til watchliste</string>
 
     <!-- Debrid: filter rule rows (title + subtitle pairs) -->
-    <string name="debrid_picker_preferred_resolutions_title">Foretrukne opløsninger</string>
-    <string name="debrid_picker_preferred_resolutions_subtitle">Sorter valgte opløsninger først, i standardrækkefølge.</string>
-    <string name="debrid_picker_required_resolutions_title">Påkrævede opløsninger</string>
-    <string name="debrid_picker_required_resolutions_subtitle">Vis kun valgte opløsninger.</string>
-    <string name="debrid_picker_excluded_resolutions_title">Ekskluderede opløsninger</string>
-    <string name="debrid_picker_excluded_resolutions_subtitle">Skjul valgte opløsninger.</string>
-    <string name="debrid_picker_preferred_qualities_title">Foretrukne kvaliteter</string>
-    <string name="debrid_picker_preferred_qualities_subtitle">Sorter valgte kvaliteter først, i standardrækkefølge.</string>
-    <string name="debrid_picker_required_qualities_title">Påkrævede kvaliteter</string>
-    <string name="debrid_picker_required_qualities_subtitle">Vis kun valgte kildekvaliteter.</string>
-    <string name="debrid_picker_excluded_qualities_title">Ekskluderede kvaliteter</string>
-    <string name="debrid_picker_excluded_qualities_subtitle">Skjul valgte kildekvaliteter.</string>
-    <string name="debrid_picker_preferred_visual_tags_title">Foretrukne visuelle tags</string>
-    <string name="debrid_picker_preferred_visual_tags_subtitle">Sorter DV, HDR, 10bit, IMAX og lignende tags.</string>
-    <string name="debrid_picker_required_visual_tags_title">Påkrævede visuelle tags</string>
-    <string name="debrid_picker_required_visual_tags_subtitle">Kræv DV, HDR, 10bit, IMAX, SDR og lignende tags.</string>
-    <string name="debrid_picker_excluded_visual_tags_title">Ekskluderede visuelle tags</string>
-    <string name="debrid_picker_excluded_visual_tags_subtitle">Skjul DV, HDR, 10bit, 3D og lignende tags.</string>
-    <string name="debrid_picker_preferred_audio_tags_title">Foretrukne lydtags</string>
-    <string name="debrid_picker_preferred_audio_tags_subtitle">Sorter Atmos, TrueHD, DTS, AAC og lignende tags.</string>
-    <string name="debrid_picker_required_audio_tags_title">Påkrævede lydtags</string>
-    <string name="debrid_picker_required_audio_tags_subtitle">Kræv Atmos, TrueHD, DTS, AAC og lignende tags.</string>
-    <string name="debrid_picker_excluded_audio_tags_title">Ekskluderede lydtags</string>
-    <string name="debrid_picker_excluded_audio_tags_subtitle">Skjul valgte lydtags.</string>
-    <string name="debrid_picker_preferred_audio_channels_title">Foretrukne kanaler</string>
-    <string name="debrid_picker_preferred_audio_channels_subtitle">Sorter foretrukne kanallayout først.</string>
-    <string name="debrid_picker_required_audio_channels_title">Påkrævede kanaler</string>
-    <string name="debrid_picker_required_audio_channels_subtitle">Vis kun valgte kanallayout.</string>
-    <string name="debrid_picker_excluded_audio_channels_title">Ekskluderede kanaler</string>
-    <string name="debrid_picker_excluded_audio_channels_subtitle">Skjul valgte kanallayout.</string>
-    <string name="debrid_picker_preferred_encodes_title">Foretrukne encodes</string>
-    <string name="debrid_picker_preferred_encodes_subtitle">Sorter AV1, HEVC, AVC og lignende encodes.</string>
-    <string name="debrid_picker_required_encodes_title">Påkrævede encodes</string>
-    <string name="debrid_picker_required_encodes_subtitle">Kræv AV1, HEVC, AVC og lignende encodes.</string>
-    <string name="debrid_picker_excluded_encodes_title">Ekskluderede encodes</string>
-    <string name="debrid_picker_excluded_encodes_subtitle">Skjul valgte encodes.</string>
-    <string name="debrid_picker_preferred_languages_title">Foretrukne sprog</string>
-    <string name="debrid_picker_preferred_languages_subtitle">Sorter foretrukne lydsprog først.</string>
-    <string name="debrid_picker_required_languages_title">Påkrævede sprog</string>
-    <string name="debrid_picker_required_languages_subtitle">Vis kun streams med valgte sprog.</string>
-    <string name="debrid_picker_excluded_languages_title">Ekskluderede sprog</string>
-    <string name="debrid_picker_excluded_languages_subtitle">Skjul streams, hvor alle sprog er ekskluderede.</string>
-    <string name="debrid_picker_required_release_groups_title">Påkrævede udgivelsesgrupper</string>
-    <string name="debrid_picker_required_release_groups_subtitle">Vis kun valgte udgivelsesgrupper.</string>
-    <string name="debrid_picker_excluded_release_groups_title">Ekskluderede udgivelsesgrupper</string>
-    <string name="debrid_picker_excluded_release_groups_subtitle">Skjul valgte udgivelsesgrupper.</string>
 
     <!-- Debrid: selection count + size range labels -->
-    <string name="debrid_selection_count_any">Alle</string>
-    <plurals name="debrid_selection_count_value">
-        <item quantity="one">%d valgt</item>
-        <item quantity="other">%d valgt</item>
-    </plurals>
-    <string name="debrid_size_range_any">Alle</string>
-    <string name="debrid_size_range_up_to">Op til %1$dGB</string>
-    <string name="debrid_size_range_min_plus">%1$dGB+</string>
-    <string name="debrid_size_range_min_max">%1$d-%2$dGB</string>
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Ukendt</string>
@@ -2529,17 +2187,10 @@
     <string name="web_debrid_title">Direkte Debrid-indstillinger</string>
     <string name="web_debrid_intro_title">Tilpas Debrid-streams</string>
     <string name="web_debrid_intro_copy">Juster streamlabels, filtre og sortering for direkte Debrid-resultater.</string>
-    <string name="web_debrid_tab_formatter">Formatter</string>
-    <string name="web_debrid_tab_rules">Filtre &amp; sortering</string>
     <string name="web_debrid_template_fields">Skabelonfelter</string>
     <string name="web_debrid_name_template">Navnskabelon</string>
     <string name="web_debrid_description_template">Beskrivelsesskabelon</string>
     <string name="web_debrid_error_templates_required">Begge skabeloner er påkrævet</string>
-    <string name="web_debrid_stream_rules">Streamregler</string>
-    <string name="web_debrid_per_resolution">Per opløsning</string>
-    <string name="web_debrid_per_quality">Per kvalitet</string>
-    <string name="web_debrid_min_size_gb">Min. størrelse GB</string>
-    <string name="web_debrid_max_size_gb">Maks. størrelse GB</string>
     <string name="web_debrid_restore_default">Gendan standard</string>
     <string name="web_debrid_save_settings">Gem indstillinger</string>
     <string name="web_debrid_status_load_error">Kunne ikke indlæse Debrid-indstillinger</string>
@@ -2664,4 +2315,221 @@
     <string name="profile_default_name">Profil %1$d</string>
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
     <string name="collections_editor_tmdb_collection_fallback">TMDB Collection %1$d</string>
+    <!-- Fetch: new and changed strings -->
+    <string name="account_local_only_note">Synkronisering er slået fra. Fetch gemmer dine addons, fremskridt og indstillinger på dette TV og kræver ingen konto. For at synkronisere mellem enheder skal du forbinde din egen synkroniseringsserver under serverindstillingerne.</string>
+    <string name="addon_badge_needs_setup">Skal konfigureres</string>
+    <string name="addon_configure">Konfigurér</string>
+    <string name="addon_configure_install">Installér</string>
+    <string name="addon_configure_no_server">Når du har gemt, så indsæt installationslinket i feltet øverst på denne skærm.</string>
+    <string name="addon_configure_received">Din telefon sendte: %1$s</string>
+    <string name="addon_configure_step_open">1. Scan for at åbne konfigurationssiden på din telefon</string>
+    <string name="addon_configure_step_send">2. Scan for at sende det nye link tilbage til dette TV</string>
+    <string name="addon_configure_still_unconfigured">%1$s er stadig ikke konfigureret. Gør konfigurationssiden færdig, og send linket igen.</string>
+    <string name="addon_configure_title">Konfigurér %1$s</string>
+    <string name="addon_configure_updated">%1$s er opdateret</string>
+    <string name="addon_configure_waiting">Når du har gemt, så kopiér installationslinket fra siden og send det i trin 2.</string>
+    <string name="addon_configure_web_failed">Kunne ikke nå TV\'et. Er det stadig på konfigurationsskærmen?</string>
+    <string name="addon_configure_web_invalid">Det ligner ikke et addon-link.</string>
+    <string name="addon_configure_web_open">Åbn konfigurationsside</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json eller stremio://…</string>
+    <string name="addon_configure_web_send">Send til TV</string>
+    <string name="addon_configure_web_sent">Sendt. Bekræft det på dit TV.</string>
+    <string name="addon_configure_web_step1">Konfigurér først addon\'et på dets egen side.</string>
+    <string name="addon_configure_web_step2">Når den viser et installationslink (eller en manifest.json-adresse), så kopiér det og indsæt det her.</string>
+    <string name="addon_configure_web_title">Send til TV</string>
+    <string name="addon_health_failing">Seneste forespørgsel mislykkedes</string>
+    <string name="addon_health_latency">%1$.1f s</string>
+    <string name="addon_health_ok">Svarer · %1$s</string>
+    <string name="addon_health_slow">Langsom · %1$s</string>
+    <string name="addon_health_timed_out">Seneste forespørgsel fik timeout</string>
+    <string name="addon_needs_configuration">%1$s skal konfigureres, før det kan installeres</string>
+    <string name="advanced_introdb_api_key">IntroDB API-nøgle</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">Opret en nøgle på introdb.app. Den starter med idb_.</string>
+    <string name="advanced_introdb_api_key_subtitle">Lader dig markere intros og rulletekster fra afspilleren og sende dem til IntroDB</string>
+    <string name="advanced_introdb_server">IntroDB-server</string>
+    <string name="advanced_introdb_server_default">Standard (%1$s)</string>
+    <string name="advanced_introdb_server_dialog_subtitle">Et IntroDB-kompatibelt API. Lad feltet være tomt for at bruge den offentlige server.</string>
+    <string name="advanced_introdb_server_invalid">Indtast en http- eller https-adresse</string>
+    <string name="advanced_introdb_server_subtitle">Hvor markører for intro, resumé og rulletekster til almindelig TV og film kommer fra</string>
+    <string name="advanced_section_skip_markers">Spring over-markører</string>
+    <string name="autoplay_allowed_addons_early_sub">Automatisk afspilning starter, så snart disse addons svarer, i stedet for at vente på alle addons.</string>
+    <string name="autoplay_mode_best">Bedste match</string>
+    <string name="autoplay_mode_best_desc">Rangerer alle resultater efter kvalitet, dine regler og hvad denne enhed kan afspille, og starter vinderen. Andre kilder er kun et tryk væk.</string>
+    <string name="best_match_cached">Cachet</string>
+    <string name="best_match_excluded">Afspilles ikke automatisk: %1$s</string>
+    <string name="best_match_preview_sub">Spørger dine stream-addons om en titel, mens du kigger på den, så Afspil-knappen kan vise filen, og afspilningen starter hurtigere. Slå fra for kun at søge, når du trykker på Afspil.</string>
+    <string name="best_match_preview_title">Vis valget på Afspil-knappen</string>
+    <string name="catalog_order_pin">Fastgør øverst</string>
+    <string name="catalog_order_pinned_on_home">Fastgjort øverst på Hjem</string>
+    <string name="catalog_order_unpin">Frigør</string>
+    <string name="cd_mark_credits_end">Markér slutningen af rulleteksterne</string>
+    <string name="cd_mark_credits_start">Markér starten af rulleteksterne</string>
+    <string name="cd_mark_intro_end">Markér slutningen af introen</string>
+    <string name="cd_mark_intro_start">Markér starten af introen</string>
+    <string name="custom_server_error_official_active">Synkronisering er allerede slået fra på dette TV.</string>
+    <string name="custom_server_error_official_available">Det er ikke en synkroniseringsserver. Luk denne dialog, og vælg Slå synkronisering fra for at gå tilbage til lokal tilstand.</string>
+    <string name="debrid_stream_rules_moved">Stream-regler ligger nu under Afspilning → Streamvalg og gælder for alle kilder, også debrid. Regler, du har sat her, er flyttet dertil.</string>
+    <string name="exclusion_3d">3D-udgivelse</string>
+    <string name="exclusion_above_max_resolution">over din maksimale opløsning</string>
+    <string name="exclusion_audio">du springer %1$s-lyd over</string>
+    <string name="exclusion_below_min_resolution">under din minimale opløsning</string>
+    <string name="exclusion_cam">cam- eller telesync-kopi</string>
+    <string name="exclusion_codec">du springer %1$s over</string>
+    <string name="exclusion_dv_excluded">du har slået Dolby Vision fra</string>
+    <string name="exclusion_dv_profile_excluded">du har slået denne Dolby Vision-profil fra</string>
+    <string name="exclusion_hdr_excluded">du har slået HDR fra</string>
+    <string name="exclusion_keyword">matcher et udelukket nøgleord</string>
+    <string name="exclusion_language">du springer %1$s over</string>
+    <string name="exclusion_not_playable">denne afspiller kan ikke åbne den</string>
+    <string name="exclusion_over_max_size">større end din størrelsesgrænse</string>
+    <string name="exclusion_release_group">du springer gruppen %1$s over</string>
+    <string name="exclusion_resolution">du springer %1$s over</string>
+    <string name="exclusion_result_limit">over din resultatgrænse</string>
+    <string name="exclusion_source">du springer %1$s-udgivelser over</string>
+    <string name="exclusion_under_min_size">mindre end din minimumsstørrelse</string>
+    <string name="exclusion_unsupported_audio">%1$s kræver passthrough eller en dekoder, som dette TV ikke har</string>
+    <string name="exclusion_unsupported_codec">dette TV kan ikke afkode %1$s</string>
+    <string name="exclusion_unsupported_dv">DV-profil 5 understøttes ikke på dette TV</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">DV med HDR10+ giver en sort skærm på denne enhed</string>
+    <string name="exclusion_unsupported_resolution">højere opløsning end dette TV viser</string>
+    <string name="fetching_addons_done">Alle %1$d addons har svaret</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="one">Henter… %1$d har svaret, %2$d addon søger stadig</item>
+        <item quantity="other">Henter… %1$d har svaret, %2$d addons søger stadig</item>
+    </plurals>
+    <string name="fetching_best_so_far">Bedste indtil videre</string>
+    <string name="fetching_play_now">Afspil nu</string>
+    <string name="fetching_see_all_sources">Se alle kilder</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="one">Starter om %1$d sekund</item>
+        <item quantity="other">Starter om %1$d sekunder</item>
+    </plurals>
+    <string name="filter_row_addon_note">Addon-kataloger kan kun filtreres efter genre.</string>
+    <string name="filter_row_any">Alle</string>
+    <string name="filter_row_ascending">Stigende</string>
+    <string name="filter_row_descending">Faldende</string>
+    <string name="filter_row_genre">Genre</string>
+    <string name="filter_row_order">Rækkefølge</string>
+    <string name="filter_row_rating">Minimumsbedømmelse</string>
+    <string name="filter_row_rating_value">%1$.1f eller højere</string>
+    <string name="filter_row_sort">Sortér efter</string>
+    <string name="filter_row_sort_added">Dato tilføjet</string>
+    <string name="filter_row_sort_random">Tilfældig</string>
+    <string name="filter_row_sort_rating">Bedømmelse</string>
+    <string name="filter_row_sort_release">Udgivelsesdato</string>
+    <string name="filter_row_sort_title">Titel</string>
+    <string name="filter_row_source">Kilde</string>
+    <string name="filter_row_source_missing">Denne rækkes kilde er ikke længere tilgængelig.</string>
+    <string name="filter_row_unwatched">Kun usete</string>
+    <string name="filter_row_watched">Set</string>
+    <string name="filter_row_watched_only">Kun sete</string>
+    <string name="filter_row_year_from">Fra år</string>
+    <string name="filter_row_year_to">Til år</string>
+    <string name="filter_rows_card_subtitle">Byg rækker på Hjem som \"usete sci-fi fra min Jellyfin\"</string>
+    <string name="filter_rows_delete">Slet</string>
+    <string name="filter_rows_edit">Redigér</string>
+    <string name="filter_rows_edit_title">Redigér filterrække</string>
+    <string name="filter_rows_empty">Ingen filterrækker endnu.</string>
+    <string name="filter_rows_new">Ny filterrække</string>
+    <string name="filter_rows_no_sources">Forbind en medieserver eller installér et addon med genrekataloger for at bygge en filterrække.</string>
+    <string name="filter_rows_save">Gem</string>
+    <string name="filter_rows_save_failed">Kunne ikke gemme. Prøv igen.</string>
+    <string name="filter_rows_subtitle">Rækker bygget af filtre over et mediebibliotek eller et addon-katalog. De vises på Hjem, hvor du kan omarrangere, skjule og fastgøre dem som alle andre rækker.</string>
+    <string name="filter_rows_title">Filterrækker</string>
+    <string name="home_poster_pin_row">Fastgør denne række øverst</string>
+    <string name="home_poster_unpin_row">Frigør denne række</string>
+    <string name="layout_trailer_crop_to_fill">Beskær trailere til at fylde</string>
+    <string name="layout_trailer_crop_to_fill_sub">Zoom baggrundstrailere på Hjem og detaljesider, så de fylder billedet. Slå fra for at se hele billedet med sorte bjælker.</string>
+    <string name="library_empty_type_items">elementer</string>
+    <string name="library_empty_type_movies">film</string>
+    <string name="library_empty_type_series">serier</string>
+    <string name="licenses_attributions_fetch_body">Fetch er fri software under GNU General Public License v3.0. Det er en fork af NuvioTV af Nuvio-bidragyderne (github.com/NuvioMedia/NuvioTV), hvis arbejde udgør størstedelen af denne app.</string>
+    <string name="official_server_action">Slå synkronisering fra</string>
+    <string name="official_server_description">Du bliver logget ud af din synkroniseringsserver, og appen genstarter i lokal tilstand. Alt, hvad der allerede er på dette TV, bliver.</string>
+    <string name="official_server_title">Slå synkronisering fra?</string>
+    <string name="parental_addons_blocked">Denne profil kan ikke installere addons. Spørg en forælder.</string>
+    <string name="parental_allow_unrated">Vis titler uden aldersgrænse: %1$s</string>
+    <string name="parental_gate_heading">Indtast PIN for %1$s</string>
+    <string name="parental_gate_support">Denne profil har forældrebegrænsninger. En forælders PIN er nødvendig for at fortsætte.</string>
+    <string name="parental_kids_profile_toggle">Børneprofil: %1$s</string>
+    <string name="parental_level_all_ages">Alle aldre (G, TV-Y, TV-G)</string>
+    <string name="parental_level_mature">R, TV-MA</string>
+    <string name="parental_level_older_kids">Større børn (TV-Y7)</string>
+    <string name="parental_level_pg">PG, TV-PG</string>
+    <string name="parental_level_teens">PG-13, TV-14</string>
+    <string name="parental_level_unrestricted">Ingen grænse</string>
+    <string name="parental_limits_label">Forældrebegrænsninger</string>
+    <string name="parental_limits_saved">Forældrebegrænsninger gemt for %1$s</string>
+    <string name="parental_limits_subtitle">Ændringer kræver hovedprofilens PIN. Titler over grænsen skjules fra Hjem, søgning og Fortsæt med at se og kan ikke afspilles.</string>
+    <string name="parental_limits_subtitle_no_pin">Angiv en PIN på hovedprofilen, ellers kan alle på denne profil ændre begrænsningerne.</string>
+    <string name="parental_limits_title">Forældrebegrænsninger for %1$s</string>
+    <string name="parental_max_rating">Maksimal aldersgrænse: %1$s</string>
+    <string name="parental_off">Fra</string>
+    <string name="parental_on">Til</string>
+    <string name="parental_title_blocked">Denne titel er over profilens aldersgrænse.</string>
+    <string name="prefer_next_time_group">Gruppen %1$s</string>
+    <string name="prefer_next_time_language">%1$s lyd</string>
+    <string name="prefer_next_time_not_now">Ikke nu</string>
+    <string name="prefer_next_time_saved">Bedste match vil foretrække: %1$s</string>
+    <string name="prefer_next_time_size">Filer op til %1$d GB</string>
+    <string name="prefer_next_time_title">Foretræk dette næste gang?</string>
+    <string name="ranking_any">Alle</string>
+    <string name="ranking_drop_undecodable">Spring streams over, som denne enhed ikke kan afkode</string>
+    <string name="ranking_drop_undecodable_sub">Baseret på de dekodere, HDR-formater og den opløsning, som denne enhed rapporterer</string>
+    <string name="ranking_excluded_audio">Spring lydformater over</string>
+    <string name="ranking_excluded_audio_sub">Udgivelser med kun disse lydformater afspilles aldrig automatisk</string>
+    <string name="ranking_excluded_groups">Spring udgivelsesgrupper over</string>
+    <string name="ranking_excluded_languages">Spring lydsprog over</string>
+    <string name="ranking_excluded_languages_sub">Udgivelser kun på disse sprog afspilles aldrig automatisk</string>
+    <string name="ranking_excluded_sources">Spring udgivelsestyper over</string>
+    <string name="ranking_groups_input_sub">Adskil grupper med kommaer, for eksempel FLUX, NTb.</string>
+    <string name="ranking_hide_cam">Afspil aldrig CAM eller telesync automatisk</string>
+    <string name="ranking_max_per_resolution">Resultater pr. opløsning</string>
+    <string name="ranking_max_quality">Maksimal kvalitet</string>
+    <string name="ranking_max_results">Resultater, der beholdes</string>
+    <string name="ranking_max_results_sub">Resten flyttes til Andre kilder</string>
+    <string name="ranking_max_size">Maksimal filstørrelse</string>
+    <string name="ranking_max_size_sub">Større filer afspilles aldrig automatisk</string>
+    <string name="ranking_min_size">Minimal filstørrelse</string>
+    <string name="ranking_min_size_sub">Mindre filer afspilles aldrig automatisk</string>
+    <string name="ranking_no_limit">Ingen grænse</string>
+    <string name="ranking_none">Ingen</string>
+    <string name="ranking_prefer_cached">Foretræk cachede debrid-resultater</string>
+    <string name="ranking_prefer_cached_sub">Cachede filer starter med det samme</string>
+    <string name="ranking_prefer_library">Foretræk mit eget bibliotek</string>
+    <string name="ranking_prefer_library_sub">En fil på din Jellyfin-, Emby- eller Plex-server slår alt, der streames</string>
+    <string name="ranking_preferred_codec">Foretrukket videocodec</string>
+    <string name="ranking_preferred_groups">Foretrukne udgivelsesgrupper</string>
+    <string name="ranking_preferred_groups_sub">Inkluderer grupper, du har valgt med Foretræk dette næste gang</string>
+    <string name="ranking_preferred_languages">Foretrukne lydsprog</string>
+    <string name="ranking_preferred_languages_sub">Udgivelser, der nævner disse sprog, rangeres højere, førstevalget højest</string>
+    <string name="ranking_preferred_quality">Foretrukken kvalitet</string>
+    <string name="ranking_preferred_quality_sub">Højere kvaliteter er stadig tilladt, men rangeres lavere</string>
+    <string name="ranking_preferred_size">Foretrukken filstørrelse</string>
+    <string name="ranking_preferred_size_sub">Større filer rangeres lavere</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="one">%1$d valgt</item>
+        <item quantity="other">%1$d valgt</item>
+    </plurals>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="ranking_skip_dv5">Spring Dolby Vision-profil 5 over</string>
+    <string name="ranking_skip_dv5_sub">Profil 5 har ingen HDR10-reserve. Den springes altid over, når dette TV ikke kan vise den</string>
+    <string name="server_options_use_official">Slå synkronisering fra</string>
+    <string name="skip_marker_report_failed">Kunne ikke rapportere markøren</string>
+    <string name="skip_marker_reported">Den forkerte markør er rapporteret. Tak!</string>
+    <string name="skip_marker_start_recorded">Start markeret. Tryk igen, hvor den slutter.</string>
+    <string name="skip_marker_submit_failed">Kunne ikke sende markøren til IntroDB</string>
+    <string name="skip_marker_submitted">Markør sendt til IntroDB</string>
+    <string name="skip_source">via %1$s</string>
+    <string name="skip_source_reportable">via %1$s · hold for at rapportere</string>
+    <string name="sub_hdr_brightness">HDR-undertekstlysstyrke</string>
+    <string name="sub_hdr_style">Separat HDR-/Dolby Vision-stil</string>
+    <string name="sub_hdr_style_sub">Brug en anden tekstfarve og en dæmpet lysstyrke til undertekster på HDR- og Dolby Vision-video</string>
+    <string name="sub_hdr_text_color">HDR-tekstfarve</string>
+    <string name="subtitle_style_brightness_hdr">Lysstyrke (HDR)</string>
+    <string name="subtitle_style_text_color_hdr">Tekstfarve (HDR)</string>
+    <string name="subtitle_style_text_opacity_hdr">Tekstgennemsigtighed (HDR)</string>
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="torrent_engine_unavailable">Dette er en torrent-stream, og Fetch har ingen indbygget torrentmotor. Slå en debrid-tjeneste til under Indstillinger → Debrid, eller åbn den i en ekstern afspiller.</string>
+    <string name="stream_torrent_needs_debrid">Torrent: forbind en debrid-tjeneste under Indstillinger → Debrid for at afspille den her, eller åbn den i en ekstern afspiller.</string>
 </resources>

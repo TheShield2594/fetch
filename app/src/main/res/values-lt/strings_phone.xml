@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Telefonas turi būti prijungtas prie to paties „Wi-Fi“ kaip ir šis televizorius. Tai galite padaryti ir vėliau nustatymuose.</string>
+    <string name="first_run_phone_qr_description">Telefono sąrankos kodas</string>
+    <string name="first_run_phone_step_accounts">Prisijunkite prie „Trakt“, „Simkl“ arba „Jellyfin“</string>
+    <string name="first_run_phone_step_addons">Įklijuokite priedus ir „Debrid“ raktą</string>
+    <string name="first_run_phone_step_scan">Nuskenuokite telefono kamera</string>
+    <string name="first_run_phone_title">Nustatykite telefonu. Nereikia rašyti pulteliu.</string>
+    <string name="first_run_recommended">Rekomenduojama</string>
+    <string name="phone_hub_description">Nuskenuokite vieną kodą, kad galėtumėte naudoti telefoną kaip pultelį ir klaviatūrą, prisijungti prie paskyrų ir redaguoti ilgus nustatymus.</string>
+    <string name="phone_hub_instruction">Nuskenuokite telefonu. Kodas veikia vieną kartą; puslapis lieka atidarytas, kol atidarytas šis ekranas.</string>
+    <string name="phone_hub_open">Rodyti telefono kodą</string>
+    <string name="phone_hub_open_description">Telefonas turi būti tame pačiame tinkle kaip ir šis televizorius.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">Prijungtas %d telefonas. Pultelis veikia dar 10 minučių po šio ekrano uždarymo.</item>
+        <item quantity="few">Prijungti %d telefonai. Pultelis veikia dar 10 minučių po šio ekrano uždarymo.</item>
+        <item quantity="many">Prijungta %d telefono. Pultelis veikia dar 10 minučių po šio ekrano uždarymo.</item>
+        <item quantity="other">Prijungta %d telefonų. Pultelis veikia dar 10 minučių po šio ekrano uždarymo.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Šiam profiliui taikomi tėvų apribojimai. Pirmiausia atrakinkite nustatymus televizoriuje.</string>
+    <string name="phone_hub_title">Konfigūruoti telefonu</string>
+</resources>

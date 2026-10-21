@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_title">Atur dengan ponsel. Tanpa mengetik pakai remote.</string>
+    <string name="first_run_phone_qr_description">Kode pengaturan ponsel</string>
+    <string name="first_run_phone_step_scan">Pindai dengan kamera ponsel</string>
+    <string name="first_run_phone_step_addons">Tempel addon dan kunci debrid Anda</string>
+    <string name="first_run_phone_step_accounts">Masuk ke Trakt, Simkl, atau Jellyfin</string>
+    <string name="first_run_phone_network">Ponsel Anda harus terhubung ke Wi-Fi yang sama dengan TV ini. Anda juga bisa melakukannya nanti di Pengaturan.</string>
+    <string name="first_run_recommended">Direkomendasikan</string>
+    <string name="phone_hub_title">Konfigurasi dari ponsel</string>
+    <string name="phone_hub_description">Pindai satu kode untuk memakai ponsel sebagai remote dan keyboard, masuk ke akun, dan mengedit pengaturan yang panjang.</string>
+    <string name="phone_hub_open">Tampilkan kode ponsel</string>
+    <string name="phone_hub_open_description">Ponsel Anda harus berada di jaringan yang sama dengan TV ini.</string>
+    <string name="phone_hub_instruction">Pindai dengan ponsel Anda. Kode hanya berlaku sekali; halaman tetap terbuka selama layar ini terbuka.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="other">%d ponsel terhubung. Remote tetap berfungsi selama 10 menit setelah Anda menutup layar ini.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Profil ini memiliki batasan orang tua. Buka kunci pengaturan di TV terlebih dahulu.</string>
+</resources>

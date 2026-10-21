@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">உங்கள் %1$s கணக்கில் ஃபோனிலிருந்து உள்நுழையவும். டிவியில் தட்டச்சு தேவையில்லை.</string>
+    <string name="servers_link_choose_server">உங்கள் கணக்கு ஒன்றுக்கு மேற்பட்ட சர்வர்களை அணுகும். சேர்க்க வேண்டியதைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="servers_link_connecting_to">%1$s-உடன் இணைக்கிறது…</string>
+    <string name="servers_link_expired">குறியீடு காலாவதியானது. மீண்டும் முயற்சிக்கப் புதிய குறியீட்டைப் பெறவும்.</string>
+    <string name="servers_link_expires">குறியீடு %1$s-இல் காலாவதியாகும்</string>
+    <string name="servers_link_instruction">உங்கள் ஃபோனால் குறியீட்டை ஸ்கேன் செய்யவும், அல்லது ஏதேனும் சாதனத்தில் %1$s-ஐத் திறந்து இந்தக் குறியீட்டை உள்ளிடவும்.</string>
+    <string name="servers_link_loading">உள்நுழைவுக் குறியீட்டைப் பெறுகிறது…</string>
+    <string name="servers_link_no_servers">இந்தக் கணக்கில் இன்னும் சர்வர்கள் இல்லை. ஒன்றை அமைக்கவும், அல்லது ஒரு சர்வர் உரிமையாளரிடம் நூலகத்தைப் பகிரச் சொல்லவும்.</string>
+    <string name="servers_link_qr">%1$s-இல் உள்நுழைவதற்கான QR குறியீடு</string>
+    <string name="servers_link_retry">புதிய குறியீட்டைப் பெறு</string>
+    <string name="servers_link_waiting">நீங்கள் குறியீட்டை அங்கீகரிக்கக் காத்திருக்கிறது…</string>
+</resources>

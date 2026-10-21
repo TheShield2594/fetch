@@ -147,7 +147,6 @@
     <string name="cw_percent_watched">%1$d%% bekeken</string>
     <string name="cw_hours_min_left">%1$du %2$dm resterend</string>
     <string name="cw_min_left">%1$dm resterend</string>
-    <string name="cw_almost_done">Bijna afgelopen</string>
     <string name="cw_airs_date">Wordt uitgezonden op %1$s</string>
     <string name="cw_airs_today">Wordt vandaag uitgezonden</string>
     <string name="cw_airs_tomorrow">Wordt morgen uitgezonden</string>
@@ -177,7 +176,6 @@
     <string name="hero_director">Regisseur: %1$s</string>
     <string name="hero_writer">Schrijver: %1$s</string>
     <string name="hero_play">Afspelen</string>
-    <string name="hero_play_episode">Speel S%1$d A%2$d</string>
     <string name="hero_add_to_library">Toevoegen aan bibliotheek</string>
     <string name="hero_remove_from_library">Verwijderen uit bibliotheek</string>
     <string name="hero_mark_watched">Markeren als bekeken</string>
@@ -186,7 +184,6 @@
     <string name="hero_press_back_trailer">Druk op terug om de trailer af te sluiten</string>
     <string name="hero_synopsis_read_more">Meer lezen</string>
     <string name="hero_synopsis_dismiss_hint">Druk op terug om te sluiten</string>
-    <string name="cd_rating">Beoordeling</string>
 
     <string name="episodes_season">Seizoen %1$d</string>
     <string name="episodes_specials">Specials</string>
@@ -245,10 +242,8 @@
     <string name="detail_section_production">Productie</string>
     <string name="detail_comments_empty">Nog geen Trakt-recensies beschikbaar.</string>
     <string name="detail_comments_error">Trakt-recensies konden nu niet worden geladen.</string>
-    <string name="detail_trailer_loading">Trailer laden...</string>
     <string name="detail_trailer_error">De trailer kon nu niet worden geladen.</string>
     <string name="detail_comments_spoiler_hidden">Recensie met spoiler. Druk op OK om te tonen.</string>
-    <string name="detail_comments_reveal_spoiler">Spoiler tonen</string>
     <string name="detail_comments_reveal_spoiler_hint">Druk op OK om de spoiler te tonen.</string>
     <string name="detail_comments_back_hint">Druk op terug om te sluiten</string>
     <string name="detail_comments_badge_review">Recensie</string>
@@ -438,11 +433,8 @@
     <string name="settings_content_discovery_subtitle">Add-ons, plug-ins, catalogi en ontdekkingsbronnen</string>
     <string name="settings_content_discovery_addons_subtitle">Beheer add-ons, catalogusvolgorde en collecties</string>
     <string name="settings_content_discovery_plugins_subtitle">Beheer repositories en streamproviders</string>
-    <string name="settings_plugins">Plug-ins</string>
-    <string name="settings_plugins_subtitle">Repositories en providers</string>
     <string name="settings_integration">Integraties</string>
     <string name="settings_playback">Afspelen</string>
-    <string name="settings_trakt_subtitle">Open het Trakt-verbindingsscherm</string>
     <string name="settings_tracking_title">Tracking</string>
     <string name="settings_tracking_description">Verbind trackingproviders en kies welke je bibliotheek en Verder kijken aanstuurt.</string>
     <string name="tracking_accounts_title">Accounts</string>
@@ -469,8 +461,6 @@
     <string name="tracking_trakt_progress_required">Beschikbaar wanneer Trakt de bron voor kijkvoortgang is</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
-    <string name="settings_network">Netwerksnelheid</string>
-    <string name="settings_network_subtitle">Diagnostiek voor latentie en downloads</string>
     <string name="settings_advanced">Geavanceerd</string>
     <string name="settings_advanced_subtitle">Prestaties, navigatie, cache en diagnostiek</string>
     <string name="experience_mode_essential">Essentieel</string>
@@ -560,19 +550,10 @@
     <string name="advanced_section_cache">Cache</string>
     <string name="advanced_fast_horizontal_navigation">Snelle horizontale navigatie</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Verhoog de herhaalsnelheid van de D-pad in rijen terwijl de herhalingsbegrenzing ingeschakeld blijft.</string>
-    <string name="advanced_fetch_performance_mode">Native geheugen van ExoPlayer</string>
-    <string name="advanced_fetch_performance_mode_subtitle">Schakelt een krachtige native allocator, geheugen buiten de heap en netwerkoptimalisaties in voor vloeiender afspelen</string>
-    <string name="buffer_device_ram_info">RAM van apparaat: %s</string>
-    <string name="buffer_safe_limit_info">Aanbevolen veilige limiet: %d MB</string>
-    <string name="buffer_safe_status">Veilig: binnen de aanbevolen limiet voor je apparaat.</string>
-    <string name="buffer_unsafe_warning">Waarschuwing: overschrijdt de aanbevolen veilige limiet (%1$d MB) voor je %2$s-apparaat. Kan crashes van de app veroorzaken.</string>
-    <string name="buffer_auto_limit_active">Automatisch geschaalde veilige limiet: %d MB</string>
     <string name="advanced_fetch_focus_scroll">Fetch-focusscrollen</string>
     <string name="advanced_fetch_focus_scroll_subtitle">Gebruik de eigen globale focus-scrollanimatie en -positionering van Fetch.</string>
     <string name="advanced_rgb565">RGB565-beelddecodering</string>
     <string name="advanced_rgb565_subtitle">Gebruik 16-bits kleur met minder geheugengebruik voor geschikte ondoorzichtige afbeeldingen. Bij wijziging wordt de app opnieuw gestart.</string>
-    <string name="advanced_memory_only_vertical_scroll">Verticaal scrollen alleen uit geheugen</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">Sla schijf- en netwerkverzoeken voor afbeeldingen over tijdens verticaal scrollen door startrijen.</string>
     <string name="advanced_compose_highlighter">Compose-highlighter</string>
     <string name="advanced_compose_highlighter_subtitle">Laat randen knipperen rond UI-elementen die opnieuw worden samengesteld, voor prestatiedebugging.</string>
     <string name="advanced_clear_cw_cache">Cache van Verder kijken wissen</string>
@@ -584,7 +565,6 @@
     <string name="advanced_confirm_exit_subtitle">Sluit de app volledig af en maak geheugen vrij bij het afsluiten. Vereist tweemaal op terug drukken ter bevestiging.</string>
     <string name="confirm_exit_toast">Druk nogmaals op terug om af te sluiten</string>
     <string name="settings_debug">Debug</string>
-    <string name="settings_plugins_section_subtitle">Beheer repositories, providers en pluginstatussen</string>
     <string name="settings_account_section_subtitle">Account- en synchronisatiestatus</string>
     <string name="account_stat_addons">add-ons</string>
     <string name="account_stat_plugins">plug-ins</string>
@@ -603,33 +583,12 @@
     <string name="cd_decrease">Verlagen</string>
     <string name="cd_increase">Verhogen</string>
     <string name="action_cancel">Annuleren</string>
-    <string name="action_switch">Wisselen</string>
     <string name="action_apply">Toepassen</string>
     <string name="sub_opacity">Dekking</string>
     <string name="action_none">Geen</string>
     <string name="action_back">Terug</string>
     <string name="action_close">Sluiten</string>
 
-    <string name="cd_membership_qr">QR-code van de lidmaatschapspagina</string>
-    <string name="supporters_tab">Ondersteuners</string>
-    <string name="contributors_tab">Bijdragers</string>
-    <string name="supporters_loading">Ondersteuners laden…</string>
-    <string name="supporters_empty">Nog geen ondersteuners gevonden.</string>
-    <string name="supporters_error_title">Kon ondersteuners niet laden</string>
-    <string name="supporters_no_message">Geen bericht gedeeld.</string>
-    <string name="supporters_level_supporter">Ondersteuner</string>
-    <string name="supporters_level_supporter_plus">Ondersteuner+</string>
-    <string name="supporters_since">Steunt Fetch sinds %1$s</string>
-    <string name="supporters_since_unknown">Steunt Fetch met trots</string>
-    <string name="supporters_open_donations">Steunpagina openen</string>
-    <string name="contributors_loading">GitHub-bijdragers laden…</string>
-    <string name="contributors_empty">Nog geen bijdragers gevonden.</string>
-    <string name="contributors_error_title">Kon bijdragers niet laden</string>
-    <string name="contributors_total_contributions">%1$d bijdragen in totaal</string>
-    <string name="contributors_open_github">GitHub-profiel openen</string>
-    <string name="contributors_show_kofi_qr">Ko-fi-QR tonen</string>
-    <string name="contributors_hide_kofi_qr">Ko-fi-QR verbergen</string>
-    <string name="contributors_profile_unavailable">Link naar GitHub-profiel niet beschikbaar.</string>
 
     <string name="playback_loading_overlay">Laadoverlay</string>
     <string name="playback_loading_overlay_sub">Toon het laadscherm tot het eerste videoframe verschijnt.</string>
@@ -688,7 +647,6 @@
     <string name="playback_engine_mvplayer_desc">Gebruikt libmpv met de OSD-bediening van Fetch. Experimenteel.</string>
 
     <string name="video_section">Video</string>
-    <string name="audio_trailer_section">Trailer</string>
     <string name="audio_autoplay_trailers">Trailers automatisch afspelen</string>
     <string name="audio_autoplay_trailers_sub">Speel trailers automatisch af op het detailscherm en na afloop van een film of aflevering</string>
     <string name="audio_trailer_delay">Trailervertraging</string>
@@ -754,7 +712,6 @@
     <string name="audio_decoder_prefer_app_desc">Gebruik FFmpeg-decoders indien beschikbaar. Betere formaatondersteuning, maar hoger CPU-gebruik.</string>
     <string name="audio_decoder_controls">Bepaalt of hardware- of softwaredecoders (FFmpeg) worden gebruikt voor audio en video</string>
 
-    <string name="sub_section">Ondertiteling</string>
     <string name="sub_not_set">Niet ingesteld</string>
     <string name="sub_forced_lang">Geforceerd</string>
     <string name="sub_preferred_lang">Voorkeurstaal</string>
@@ -765,7 +722,6 @@
     <string name="sub_show_only_preferred_languages_desc">Alle andere ondertiteltalen verbergen in de selectielijst</string>
     <string name="sub_strip_sdh">SDH-ondertiteling verwijderen</string>
     <string name="sub_strip_sdh_desc">Verberg geluidsbeschrijvingen en sprekerlabels in tekstondertiteling</string>
-    <string name="sub_organization">Indeling van ondertiteling</string>
     <string name="sub_size">Grootte</string>
     <string name="sub_vertical_offset">Verticale offset</string>
     <string name="sub_bold">Vetgedrukt</string>
@@ -788,12 +744,6 @@
     <string name="sub_mode_effects_canvas_sub">Ondersteuning voor animaties via Media3-effecten met Canvas-rendering.</string>
     <string name="sub_mode_standard">Standaard cues</string>
     <string name="sub_mode_standard_sub">Basisweergave zonder animatie-ondersteuning. Meest compatibel.</string>
-    <string name="sub_org_none">Geen (standaardvolgorde)</string>
-    <string name="sub_org_by_lang">Op taal</string>
-    <string name="sub_org_by_addon">Op add-on</string>
-    <string name="sub_org_none_desc">Toon ondertitels in de standaardvolgorde van add-onresultaten.</string>
-    <string name="sub_org_by_lang_desc">Groepeer ondertitels op taal.</string>
-    <string name="sub_org_by_addon_desc">Groepeer ondertitels op add-onbron.</string>
 
     <string name="autoplay_reuse_last_link">Laatste link hergebruiken</string>
     <string name="autoplay_reuse_last_link_sub">Speel automatisch je laatst werkende stream voor dezelfde film/aflevering af zolang de cache geldig is</string>
@@ -825,7 +775,6 @@
     <string name="autoplay_threshold_pct_title">Drempelpercentage</string>
     <string name="autoplay_threshold_pct_sub">Terugval wanneer geen outro-tijdstempel beschikbaar is.</string>
     <string name="autoplay_threshold_min_title">Drempel in minuten</string>
-    <string name="autoplay_threshold_min_sub">Terugval wanneer geen outro-tijdstempel beschikbaar is.</string>
     <string name="autoplay_scope_all">Alle bronnen</string>
     <string name="autoplay_scope_addons">Alleen geïnstalleerde add-ons</string>
     <string name="autoplay_scope_plugins">Alleen ingeschakelde plug-ins</string>
@@ -859,8 +808,6 @@
     <string name="layout_section_home_desc">Kies structuur en hero-bron.</string>
     <string name="layout_landscape_posters">Liggende posters</string>
     <string name="layout_landscape_posters_sub">Schakel tussen staande en liggende kaarten in Moderne weergave.</string>
-    <string name="layout_preview_row">Previewrij tonen</string>
-    <string name="layout_preview_row_sub">Toon een gedeeltelijke preview van de rij eronder in het moderne startscherm.</string>
     <string name="layout_section_content">Inhoud van het startscherm</string>
     <string name="layout_section_content_desc">Bepaal wat zichtbaar is op het startscherm en bij zoeken.</string>
     <string name="layout_collapse_sidebar">Zijbalk inklappen</string>
@@ -986,8 +933,6 @@
     <string name="layout_preset_balanced">Gebalanceerd</string>
     <string name="layout_preset_comfort">Comfort</string>
     <string name="layout_preset_large">Groot</string>
-    <string name="layout_memory_only_scroll">Verticaal scrollen alleen uit geheugen</string>
-    <string name="layout_memory_only_scroll_sub">Sla het laden van nieuwe afbeeldingen over tijdens verticaal scrollen.</string>
     <string name="layout_preset_sharp">Scherp</string>
     <string name="layout_preset_subtle">Subtiel</string>
     <string name="layout_preset_classic">Klassiek</string>
@@ -1004,25 +949,7 @@
     <string name="mdblist_enable_title">MDBList-beoordelingen inschakelen</string>
     <string name="mdblist_enable_subtitle">Haal beoordelingen op van externe providers in het detailscherm</string>
     <string name="mdblist_api_key_title">API-sleutel</string>
-    <string name="mdblist_api_key_subtitle">Vereist om beoordelingen van MDBList op te halen</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Toon Trakt-score</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">Toon IMDb-score (en verberg standaard IMDb-regel indien beschikbaar)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">Toon TMDB-score</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Toon Letterboxd-score</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">Toon recensentenscore</string>
-    <string name="mdblist_audience_title">Publieksscore</string>
-    <string name="mdblist_audience_subtitle">Toon publieksscore</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Toon Metacritic-score</string>
-    <string name="mdblist_mal_title">MyAnimeList</string>
-    <string name="mdblist_mal_subtitle">MyAnimeList-beoordeling tonen</string>
     <string name="mdblist_dialog_title">MDBList API-sleutel</string>
-    <string name="mdblist_dialog_subtitle">Voer je API-sleutel in om externe beoordelingen op te halen</string>
     <string name="mdblist_dialog_placeholder">Voer MDBList API-sleutel in</string>
     <string name="mdblist_not_set">Niet ingesteld</string>
     <string name="mdblist_invalid_api_key">Ongeldige MDBList-API-sleutel</string>
@@ -1041,25 +968,11 @@
     <string name="debrid_section_instant_playback">Linkvoorbereiding</string>
     <string name="debrid_section_filters">Filters &amp; sortering</string>
     <string name="debrid_section_formatting">Opmaak</string>
-    <string name="debrid_provider_title">Provider</string>
-    <string name="debrid_provider_subtitle">Er worden later meer providers toegevoegd</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">Verbind je Torbox-account.</string>
     <string name="debrid_provider_description">Verbind je %1$s-account.</string>
     <string name="debrid_provider_device_description">Koppel je %1$s-account in de browser.</string>
     <string name="debrid_api_key_dialog_title">%1$s-API-sleutel</string>
     <string name="debrid_api_key_dialog_subtitle">Voer je %1$s-API-sleutel in.</string>
     <string name="debrid_api_key_dialog_placeholder">Voer de %1$s-API-sleutel in</string>
-    <string name="debrid_dialog_title">Torbox-API-sleutel</string>
-    <string name="debrid_dialog_subtitle">Voer je Torbox-API-sleutel in.</string>
-    <string name="debrid_dialog_placeholder">Voer de Torbox-API-sleutel in</string>
-    <string name="debrid_real_debrid_api_key_title">Real-Debrid-API-token</string>
-    <string name="debrid_real_debrid_api_key_subtitle">Vereist voor lokale linkresolutie van Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_title">Real-Debrid-API-token</string>
-    <string name="debrid_real_debrid_dialog_subtitle">Voer je Real-Debrid-API-token in voor Direct Debrid</string>
-    <string name="debrid_real_debrid_dialog_placeholder">Voer het Real-Debrid-API-token in</string>
     <string name="debrid_not_set">Niet ingesteld</string>
     <string name="debrid_connected">Verbonden</string>
     <string name="debrid_connect_provider">%1$s verbinden</string>
@@ -1068,87 +981,19 @@
     <string name="debrid_device_auth_connected">%1$s is verbonden op dit apparaat.</string>
     <string name="debrid_device_auth_starting">Beveiligde aanmelding starten...</string>
     <string name="debrid_device_auth_instructions">Scan de QR-code en voer deze code in om Fetch goed te keuren.</string>
-    <string name="debrid_device_auth_code_copied">Code gekopieerd.</string>
     <string name="debrid_device_auth_waiting">Wachten op goedkeuring...</string>
     <string name="debrid_device_auth_failed">Kon de aanmelding niet starten.</string>
     <string name="debrid_device_auth_missing_configuration">Deze aanmeldmethode is niet geconfigureerd in deze build.</string>
     <string name="debrid_device_auth_expired">Deze code is verlopen. Probeer het opnieuw.</string>
     <string name="debrid_key_invalid">Kon deze API-sleutel niet valideren.</string>
-    <string name="debrid_invalid_torbox_api_key">Kon deze API-sleutel niet valideren.</string>
-    <string name="debrid_invalid_real_debrid_api_key">Kon deze API-sleutel niet valideren.</string>
     <string name="debrid_prepare_instant_playback">Links voorbereiden</string>
     <string name="debrid_prepare_instant_playback_description">Haal afspeelbare links op voordat het afspelen start.</string>
     <string name="debrid_prepare_stream_count">Voor te bereiden links</string>
     <string name="debrid_prepare_stream_count_warning">Gebruik indien mogelijk een lager aantal. Verbonden services kunnen beperken hoeveel links binnen een bepaalde periode kunnen worden opgehaald. Het openen van een film of aflevering kan meetellen voor die limieten, ook als je niet op Kijken drukt, omdat de links vooraf worden voorbereid.</string>
     <string name="debrid_prepare_count_one">1 link</string>
     <string name="debrid_prepare_count_many">%1$d links</string>
-    <string name="debrid_stream_max_results_title">Maximaal aantal resultaten</string>
-    <string name="debrid_stream_max_results_subtitle">Beperk hoeveel Direct Debrid-bronnen worden getoond.</string>
-    <string name="debrid_stream_max_results_all">Alle streams</string>
-    <string name="debrid_stream_max_results_count">%1$d streams</string>
-    <string name="debrid_stream_sort_title">Resultaten sorteren</string>
-    <string name="debrid_stream_sort_subtitle">Kies hoe resultaten worden gerangschikt.</string>
-    <string name="debrid_stream_sort_original">Oorspronkelijke volgorde</string>
-    <string name="debrid_stream_sort_best_quality">Beste kwaliteit eerst</string>
-    <string name="debrid_stream_sort_largest">Grootste eerst</string>
-    <string name="debrid_stream_sort_smallest">Kleinste eerst</string>
-    <string name="debrid_stream_sort_best_audio">Beste audio eerst</string>
-    <string name="debrid_stream_sort_language">Taal eerst</string>
-    <string name="debrid_stream_sort_default">Oorspronkelijke volgorde</string>
-    <string name="debrid_stream_sort_quality">Beste kwaliteit eerst</string>
-    <string name="debrid_stream_sort_size_desc">Grootste eerst</string>
-    <string name="debrid_stream_sort_size_asc">Kleinste eerst</string>
-    <string name="debrid_stream_min_quality_title">Minimale kwaliteit</string>
-    <string name="debrid_stream_min_quality_subtitle">Verberg bronnen onder de gekozen resolutie.</string>
-    <string name="debrid_stream_min_quality_any">Elke kwaliteit</string>
-    <string name="debrid_stream_min_quality_720">720p en hoger</string>
-    <string name="debrid_stream_min_quality_1080">1080p en hoger</string>
-    <string name="debrid_stream_min_quality_2160">Alleen 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">Toon, verberg of vereis Dolby Vision-bronnen.</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">Toon, verberg of vereis HDR-bronnen.</string>
-    <string name="debrid_stream_feature_any">Alle</string>
-    <string name="debrid_stream_feature_exclude">Verbergen</string>
-    <string name="debrid_stream_feature_only">Alleen</string>
-    <string name="debrid_stream_codec_title">Codec</string>
-    <string name="debrid_stream_codec_subtitle">Filter bronnen op videocodec.</string>
-    <string name="debrid_stream_codec_any">Elke codec</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
 
     <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
-    <string name="debrid_stream_per_resolution_limit_title">Limiet per resolutie</string>
-    <string name="debrid_stream_per_resolution_limit_subtitle">Beperk herhaalde 2160p-, 1080p- en 720p-resultaten na het sorteren.</string>
-    <string name="debrid_stream_per_quality_limit_title">Limiet per kwaliteit</string>
-    <string name="debrid_stream_per_quality_limit_subtitle">Beperk herhaalde BluRay-, WEB-DL- en REMUX-resultaten na het sorteren.</string>
-    <string name="debrid_stream_size_range_title">Groottebereik</string>
-    <string name="debrid_stream_size_range_subtitle">Filter streams op bestandsgrootte.</string>
-    <string name="debrid_stream_resolutions_preferred">Voorkeursresoluties</string>
-    <string name="debrid_stream_resolutions_required">Vereiste resoluties</string>
-    <string name="debrid_stream_resolutions_excluded">Uitgesloten resoluties</string>
-    <string name="debrid_stream_qualities_preferred">Voorkeurskwaliteiten</string>
-    <string name="debrid_stream_qualities_required">Vereiste kwaliteiten</string>
-    <string name="debrid_stream_qualities_excluded">Uitgesloten kwaliteiten</string>
-    <string name="debrid_stream_visual_tags_preferred">Voorkeurstags voor beeld</string>
-    <string name="debrid_stream_visual_tags_required">Vereiste tags voor beeld</string>
-    <string name="debrid_stream_visual_tags_excluded">Uitgesloten tags voor beeld</string>
-    <string name="debrid_stream_audio_tags_preferred">Voorkeurstags voor audio</string>
-    <string name="debrid_stream_audio_tags_required">Vereiste tags voor audio</string>
-    <string name="debrid_stream_audio_tags_excluded">Uitgesloten tags voor audio</string>
-    <string name="debrid_stream_channels_preferred">Voorkeurskanalen</string>
-    <string name="debrid_stream_channels_required">Vereiste kanalen</string>
-    <string name="debrid_stream_channels_excluded">Uitgesloten kanalen</string>
-    <string name="debrid_stream_encodes_preferred">Voorkeursencodes</string>
-    <string name="debrid_stream_encodes_required">Vereiste encodes</string>
-    <string name="debrid_stream_encodes_excluded">Uitgesloten encodes</string>
-    <string name="debrid_stream_languages_preferred">Voorkeurstalen</string>
-    <string name="debrid_stream_languages_required">Vereiste talen</string>
-    <string name="debrid_stream_languages_excluded">Uitgesloten talen</string>
-    <string name="debrid_stream_release_groups_required">Vereiste releasegroepen</string>
-    <string name="debrid_stream_release_groups_excluded">Uitgesloten releasegroepen</string>
-    <string name="debrid_stream_release_groups_input_subtitle">Voer één groep per regel in.</string>
 
     <string name="debrid_formatter_title">Web-editor</string>
     <string name="debrid_formatter_subtitle">Configureer bronweergave, filters en sortering vanaf een ander apparaat.</string>
@@ -1170,11 +1015,9 @@
     <string name="settings_stream_badge_position_bottom">Onder</string>
     <string name="settings_stream_badge_urls_title">URL\'s van Fusion-labels</string>
     <string name="settings_stream_badge_urls_description">Importeer maximaal %1$d JSON-URL\'s met streamlabels in Fusion-stijl. Elke URL kan afzonderlijk worden bijgewerkt of verwijderd.</string>
-    <string name="settings_stream_badge_urls_search_description">Beheer geïmporteerde JSON-URL\'s met streamlabels in Fusion-stijl.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL\'s, %3$d actieve Fusion-labels</string>
     <string name="settings_fusion_badges_empty">Geen Fusion-label-URL\'s geïmporteerd.</string>
     <string name="settings_fusion_badge_url_label">JSON-URL van Fusion-label</string>
-    <string name="settings_fusion_badge_urls_imported">%1$d/%2$d Fusion-URL\'s geïmporteerd</string>
     <string name="settings_fusion_badge_url_active">Actief</string>
     <string name="settings_fusion_badge_url_inactive">Inactief</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, %2$d ingeschakelde labels, %3$d groepen</string>
@@ -1237,14 +1080,12 @@
 
     <string name="trakt_description">Synchroniseer je kijklijst, kijkvoortgang, Verder kijken, scrobbelen en persoonlijke lijsten met Trakt.</string>
     <string name="trakt_connected_as">Verbonden als %1$s</string>
-    <string name="trakt_account_login">Aanmelden bij account</string>
     <string name="trakt_awaiting_instruction">Ga naar trakt.tv/activate en voer deze code in:</string>
     <string name="trakt_waiting_approval">Wachten op goedkeuring…</string>
     <string name="qr_login_approved">Aanmelding goedgekeurd. Aanmelden wordt voltooid…</string>
     <string name="qr_login_pending">Wachten op goedkeuring op je telefoon…</string>
     <string name="qr_login_expired">QR-login verlopen. Genereer een nieuwe code.</string>
     <string name="qr_login_preparing">QR-aanmelding voorbereiden...</string>
-    <string name="qr_login_device_auth_failed">Verificatie van het apparaat is mislukt</string>
     <string name="qr_login_scan_prompt">Scan de QR-code en meld je aan op je telefoon</string>
     <string name="qr_login_start_failed">Kon de QR-aanmelding niet starten</string>
     <string name="qr_login_signing_in">Je wordt aangemeld…</string>
@@ -1252,38 +1093,19 @@
     <string name="qr_login_exchange_failed">Kon de QR-aanmelding niet voltooien</string>
     <string name="trakt_code_expires">Code verloopt over %1$s</string>
     <string name="trakt_token_refreshes">Trakt-toegangstoken wordt vernieuwd over %1$s</string>
-    <string name="trakt_login_instruction">Druk op Aanmelden bij account om de apparaatverificatie van Trakt te starten. Hier verschijnt een QR-code.</string>
     <string name="trakt_missing_credentials">TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET ontbreken in local.properties.</string>
     <string name="trakt_watch_progress_title">Kijkvoortgang</string>
     <string name="trakt_watch_progress_subtitle">Kies welke voortgangsbron hervatten en Verder kijken aanstuurt</string>
     <string name="trakt_watch_progress_dialog_title">Kijkvoortgang</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Kies of hervatten en Verder kijken Trakt of Fetch Sync gebruiken, terwijl Trakt-scrobbelen actief blijft.</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
     <string name="trakt_library_source_title">Bibliotheekbron</string>
     <string name="trakt_library_source_subtitle">Kies welke bron Fetch uitleest voor je bibliotheek</string>
     <string name="trakt_library_source_dialog_title">Bibliotheekbron</string>
-    <string name="trakt_library_source_dialog_subtitle">Kies waar je bibliotheekitems worden opgeslagen en beheerd</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_fetch">Fetch-bibliotheek</string>
-    <string name="trakt_library_source_trakt_selected">Trakt-bibliotheek geselecteerd</string>
-    <string name="trakt_library_source_fetch_selected">Fetch-bibliotheek geselecteerd</string>
-    <string name="trakt_setting_on">Aan</string>
-    <string name="trakt_setting_off">Uit</string>
-    <string name="trakt_watch_progress_trakt_selected">Bron voor kijkvoortgang ingesteld op Trakt</string>
-    <string name="trakt_watch_progress_fetch_selected">Bron voor kijkvoortgang ingesteld op Fetch Sync</string>
     <string name="trakt_continue_watching_window">Verder kijken-venster</string>
     <string name="trakt_continue_watching_subtitle">Trakt-geschiedenis die wordt meegenomen voor Verder kijken</string>
-    <string name="trakt_unaired_next_up">Nog niet uitgezonden afleveringen in Volgende</string>
-    <string name="trakt_unaired_next_up_subtitle">Toon aankomende afleveringen vóór uitzending</string>
-    <string name="trakt_unaired_shown">Getoond</string>
-    <string name="trakt_unaired_hidden">Verborgen</string>
-    <string name="trakt_unaired_now_shown">Nog niet uitgezonden afleveringen in Volgende worden nu getoond</string>
-    <string name="trakt_unaired_now_hidden">Nog niet uitgezonden afleveringen in Volgende worden nu verborgen</string>
     <string name="trakt_comments_title">Reacties</string>
     <string name="trakt_comments_subtitle">Toon Trakt-recensies op metadatapagina\'s</string>
-    <string name="trakt_comments_dialog_title">Reacties</string>
-    <string name="trakt_comments_dialog_subtitle">Kies of metadatapagina\'s Trakt-recensies tonen wanneer je account is verbonden.</string>
     <string name="trakt_comments_now_shown">Trakt-recensies op metadatapagina\'s worden nu getoond</string>
     <string name="trakt_comments_now_hidden">Trakt-recensies op metadatapagina\'s worden nu verborgen</string>
     <string name="trakt_more_like_this_source_title">Bron voor Meer zoals dit</string>
@@ -1300,15 +1122,8 @@
     <string name="trakt_disconnect">Verbinding verbreken</string>
     <string name="trakt_disconnect_title">Verbinding met Trakt verbreken?</string>
     <string name="trakt_disconnect_subtitle">Dit verbreekt de verbinding tussen je Trakt-account en Fetch.</string>
-    <string name="trakt_login">Aanmelden</string>
-    <string name="trakt_retry">Opnieuw proberen</string>
-    <string name="trakt_back">Terug</string>
     <string name="trakt_cw_window_title">Verder kijken-venster</string>
     <string name="trakt_cw_window_subtitle">Kies hoeveel Trakt-activiteit wordt weergegeven bij Verder kijken.</string>
-    <string name="trakt_unaired_dialog_title">Nog niet uitgezonden afleveringen in Volgende</string>
-    <string name="trakt_unaired_dialog_subtitle">Kies of Verder kijken ook aankomende afleveringen vóór release moet tonen.</string>
-    <string name="trakt_show_unaired">Toon niet-uitgezonden afleveringen</string>
-    <string name="trakt_hide_unaired">Verberg niet-uitgezonden afleveringen</string>
     <string name="trakt_all_history">Volledige geschiedenis</string>
     <string name="trakt_days_format">%1$d dagen</string>
 
@@ -1358,23 +1173,13 @@
     <string name="profile_manage_title">Profielen beheren</string>
     <string name="profile_manage_subtitle">Kies een profiel om te bewerken, te wisselen of maak een nieuw profiel</string>
     <string name="profile_manage_hint">Kies een profiel om te beheren</string>
-    <string name="profile_primary_label">Primair</string>
-    <string name="profile_shares_primary">Deelt de %1$s van het primaire profiel</string>
     <string name="profile_edit_label">Bewerken</string>
     <string name="profile_edit_header">Profiel bewerken</string>
-    <string name="profile_add">Profiel toevoegen</string>
     <string name="profile_create_title">Profiel maken</string>
-    <string name="profile_edit_title">Profiel %1$s bewerken</string>
     <string name="profile_name_placeholder">Profielnaam</string>
-    <string name="profile_avatar_color">Avatarkleur</string>
-    <string name="profile_use_primary_addons">Add-ons van het primaire profiel gebruiken</string>
-    <string name="profile_use_primary_plugins">Plug-ins van het primaire profiel gebruiken</string>
     <string name="profile_creating">Maken\u2026</string>
     <string name="profile_create_btn">Maken</string>
-    <string name="profile_confirm">Bevestigen</string>
     <string name="profile_delete">Verwijderen</string>
-    <string name="profile_addons">add-ons</string>
-    <string name="profile_plugins">plug-ins</string>
     <string name="profile_choose_avatar">Avatar kiezen</string>
     <string name="profile_custom_avatar_web_panel_note">Eigen avatar-URL\'s kunnen worden ingesteld via het Fetch-webpaneel.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
@@ -1383,7 +1188,6 @@
     <string name="profile_background_member_note">Eigen achtergrond-URL\'s kunnen worden ingesteld via het Fetch-webpaneel.</string>
     <string name="profile_background_normal">Normaal</string>
     <string name="profile_background_custom">Aangepast</string>
-    <string name="profile_avatar_none_selected">Geen avatar geselecteerd</string>
     <string name="profile_avatar_focus_hint">Zet de focus op een avatar om de naam te zien</string>
     <string name="profile_avatar_category_all">Alle</string>
     <string name="profile_avatar_category_supporter">Ondersteuner</string>
@@ -1417,30 +1221,16 @@
     <string name="profile_copy_settings_created_success">Profiel gemaakt met instellingen van %1$s.</string>
     <string name="profile_copy_settings_created_error">Het profiel is gemaakt, maar de instellingen konden niet worden gekopieerd. Je kunt het opnieuw proberen via Profielopties.</string>
     <string name="profile_create_error">Kon het profiel niet maken. Probeer het opnieuw.</string>
-    <string name="profile_pin_title">Profielvergrendeling met pincode</string>
-    <string name="profile_pin_enabled_subtitle">Dit profiel vereist een 4-cijferige pincode voordat je overschakelt.</string>
-    <string name="profile_pin_disabled_subtitle">Stel een 4-cijferige pincode in om dit profiel te vergrendelen.</string>
     <string name="profile_pin_set">Pincode instellen</string>
     <string name="profile_pin_change">Pincode wijzigen</string>
     <string name="profile_pin_remove">Pincode verwijderen</string>
-    <string name="profile_pin_set_title">Profielpincode instellen</string>
-    <string name="profile_pin_set_subtitle">Voer een 4-cijferige pincode in en bevestig deze.</string>
-    <string name="profile_pin_enter">Voer een 4-cijferige pincode in</string>
-    <string name="profile_pin_confirm">Bevestig de 4-cijferige pincode</string>
-    <string name="profile_pin_mismatch">De pincodes komen niet overeen.</string>
-    <string name="profile_pin_save">Pincode opslaan</string>
-    <string name="profile_pin_unlock_title">%1$s ontgrendelen</string>
-    <string name="profile_pin_unlock_subtitle">Voer de 4-cijferige pincode in om door te gaan.</string>
     <string name="profile_pin_verifying">Verifiëren…</string>
-    <string name="profile_pin_unlock_action">Ontgrendelen</string>
     <string name="profile_pin_overlay_unlock_heading">Voer je pincode in om toegang te krijgen tot %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Maak een 4-cijferige pincode voor %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bevestig je nieuwe pincode.</string>
     <string name="profile_pin_overlay_unlock_support">Gebruik je afstandsbediening of toetsenbord om 4 cijfers in te voeren.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">Beveiligingscontrole vereist.</string>
     <string name="profile_pin_overlay_change_verify_heading">Voer de huidige pincode in om de pincode van %1$s te wijzigen.</string>
     <string name="profile_pin_overlay_change_verify_support">Voer de huidige 4-cijferige pincode in voordat je een nieuwe instelt.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">Beveiligingscontrole vereist.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Voer de huidige pincode in om de vergrendeling van %1$s te verwijderen.</string>
     <string name="profile_pin_overlay_remove_verify_support">Voer de huidige 4-cijferige pincode in om deze vergrendeling te verwijderen.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Voer de huidige pincode in om %1$s te verwijderen.</string>
@@ -1526,8 +1316,6 @@
     <string name="debrid_missing_api_key">Voeg een Debrid-API-sleutel toe in de instellingen.</string>
     <string name="debrid_not_cached">Niet in de cache van deze service.</string>
     <string name="debrid_resolution_failed">Kon deze Debrid-stream niet ophalen.</string>
-    <string name="stream_type_torrent">Torrent</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">P2P-streaming</string>
     <string name="p2p_consent_body">Deze stream gebruikt peer-to-peer-technologie (P2P). Door P2P in te schakelen erken je en ga je ermee akkoord dat:\n\n\u2022 Je IP-adres zichtbaar is voor andere peers in het netwerk\n\u2022 Jij als enige verantwoordelijk bent voor de inhoud die je opent\n\u2022 Je bevestigt dat je het wettelijke recht hebt om deze inhoud in jouw rechtsgebied te streamen\n\u2022 Fetch geen P2P-inhoud host, verspreidt of beheert\n\u2022 Fetch geen aansprakelijkheid draagt voor juridische gevolgen van jouw gebruik van P2P-streaming\n\nJe gebruikt deze functie volledig op eigen risico. P2P kan altijd worden uitgeschakeld in de instellingen.</string>
     <string name="p2p_consent_enable">P2P inschakelen</string>
@@ -1536,9 +1324,6 @@
     <string name="settings_p2p_subtitle">Peer-to-peer-streams (torrent) toestaan</string>
     <string name="settings_p2p_hide_stats_title">Torrentstatistieken verbergen</string>
     <string name="settings_p2p_hide_stats_subtitle">Verberg buffer, seeds, peers en downloadsnelheid tijdens het laden en afspelen</string>
-    <string name="p2p_download_title">P2P-engine downloaden</string>
-    <string name="p2p_download_subtitle">Dit is een eenmalige download die nodig is voor P2P-streaming.</string>
-    <string name="stream_type_external">Extern</string>
     <string name="stream_player_picker_title">Welke speler moet worden gebruikt?</string>
     <string name="stream_player_internal">Intern</string>
     <string name="stream_player_external">Extern</string>
@@ -1549,15 +1334,12 @@
     <string name="player_loading_preparing">Stream voorbereiden…</string>
     <string name="player_loading_detecting_format">Streamformaat detecteren…</string>
     <string name="external_player_loading_skip_segments">Intro-/outrosegmenten laden…</string>
-    <string name="player_loading_subtitles">Ondertiteling ophalen…</string>
     <string name="player_loading_subtitles_from">Ondertiteling ophalen van %1$d add-ons…</string>
     <string name="player_loading_subtitles_progress">Ondertiteling ophalen… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Ondertiteling: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">Speler opbouwen…</string>
     <string name="player_loading_starting">Stream starten…</string>
     <string name="player_loading_buffering">Bufferen…</string>
-    <string name="player_loading_fallback_pcm_audio">Initialisatie van audiospoor mislukt - overschakelen naar PCM-audio…</string>
-    <string name="player_loading_fallback_hevc_decoder">Initialisatie van decoder mislukt - overschakelen naar HEVC-decoder…</string>
     <string name="player_engine_switching_title">Spelerengine wisselen</string>
     <string name="player_engine_switching_message">Opstarten mislukt. Overschakelen naar %1$s…</string>
     <string name="player_engine_switching_manual_message">Overschakelen naar %1$s...</string>
@@ -1634,14 +1416,12 @@
     <string name="stream_info_player_engine">Spelerengine</string>
 
     <string name="sources_title">Bronnen</string>
-    <string name="sources_reload">Vernieuwen</string>
     <string name="sources_close">Sluiten</string>
     <string name="sources_playing">Wordt afgespeeld</string>
     <string name="sources_no_streams">Geen streams gevonden</string>
 
     <string name="episodes_panel_close">Sluiten</string>
     <string name="episodes_panel_back">Terug</string>
-    <string name="episodes_panel_reload">Vernieuwen</string>
     <string name="episodes_panel_no_streams">Geen streams gevonden</string>
     <string name="episodes_panel_no_episodes">Geen afleveringen beschikbaar</string>
     <string name="episodes_panel_title">Afleveringen</string>
@@ -1657,8 +1437,6 @@
     <string name="player_aspect_mode_cinema_zoom">Bioscoopzoom</string>
 
     <string name="audio_dialog_title">Audio</string>
-    <string name="audio_dialog_tab_tracks">Audio</string>
-    <string name="audio_dialog_tab_mix">Mix</string>
     <string name="audio_delay_label">Audiovertraging</string>
     <string name="audio_delay_range">Bereik: %1$.2fs tot %2$.2fs</string>
     <string name="audio_mix_label">Versterking (PCM)</string>
@@ -1676,31 +1454,15 @@
     <string name="audio_maintain_original_audio_on_downmix_subtitle">Als dit uitstaat, kan de downmixnormalisatie het totale volume verlagen.</string>
 
     <string name="subtitle_dialog_title">Ondertiteling</string>
-    <string name="subtitle_no_builtin">Geen ingebouwde ondertitels beschikbaar</string>
     <string name="subtitle_loading_addon">Ondertitels laden van add-ons\u2026</string>
     <string name="subtitle_no_addon">Geen ondertitels van add-ons beschikbaar</string>
-    <string name="subtitle_text_color">Tekstkleur</string>
-    <string name="subtitle_outline_color">Randkleur</string>
     <string name="subtitle_reset_defaults">Standaardwaarden herstellen</string>
-    <string name="subtitle_tab_builtin">Ingebouwd</string>
-    <string name="subtitle_tab_addons">Add-ons</string>
     <string name="subtitle_tab_languages">Talen</string>
-    <string name="subtitle_tab_style">Stijl</string>
     <string name="subtitle_tab_delay">Vertraging</string>
     <string name="subtitle_delay_reset">Herstellen</string>
     <string name="subtitle_none">Geen</string>
     <string name="subtitle_built_in">Ingebouwd</string>
-    <string name="subtitle_all">Alles</string>
-    <string name="subtitle_section_core">Basis</string>
-    <string name="subtitle_section_advanced">Geavanceerd</string>
-    <string name="subtitle_font_size">Lettergrootte</string>
-    <string name="subtitle_bold">Vet</string>
-    <string name="subtitle_outline">Rand</string>
-    <string name="subtitle_bottom_offset">Offset onderaan</string>
-    <string name="subtitle_on">Aan</string>
-    <string name="subtitle_off">Uit</string>
     <string name="subtitle_style_title">Ondertitelstijl</string>
-    <string name="subtitle_style_customize">Aanpassen</string>
     <string name="subtitle_style_color">Kleur</string>
     <string name="subtitle_style_reset">Herstellen</string>
     <string name="subtitle_style_font_size">Lettergrootte</string>
@@ -1713,8 +1475,6 @@
     <string name="subtitle_style_on">Aan</string>
     <string name="subtitle_style_off">Uit</string>
     <string name="subtitle_style_weight">Dikte</string>
-    <string name="panel_failed_load_streams">Streams laden mislukt</string>
-    <string name="panel_failed_load_episodes">Afleveringen laden mislukt</string>
 
     <string name="pause_you_are_watching">Je kijkt naar</string>
     <string name="pause_cast_label">Cast</string>
@@ -1757,7 +1517,6 @@
     <string name="display_mode_resolution">Resolutie</string>
 
 
-    <string name="search_keyboard_hint">Druk op Gereed op het toetsenbord om te zoeken</string>
     <string name="search_placeholder">Zoek films &amp; series</string>
     <string name="search_start_title">Begin met zoeken</string>
     <string name="search_start_subtitle">Voer minimaal 2 tekens in</string>
@@ -1773,7 +1532,6 @@
     <string name="search_no_results_subtitle">Probeer te zoeken met andere trefwoorden</string>
     <string name="search_error_no_catalogs">Geen doorzoekbare catalogi gevonden in de geïnstalleerde add-ons</string>
 
-    <string name="library_syncing">Trakt-bibliotheek synchroniseren\u2026</string>
     <string name="library_title">Bibliotheek</string>
     <string name="library_filter_list">Lijst</string>
     <string name="library_filter_type">Type</string>
@@ -1826,14 +1584,12 @@
     <string name="genre_sporting_event">Sportevenement</string>
     <string name="genre_superhero">Superheld</string>
     <string name="genre_suspense">Spanning</string>
-    <string name="library_sort_trakt_order">Trakt-volgorde</string>
     <string name="library_sort_provider_order">Providervolgorde</string>
     <string name="library_sort_added_desc">Toegevoegd ↓</string>
     <string name="library_sort_added_asc">Toegevoegd ↑</string>
     <string name="library_sort_title_asc">Titel A-Z</string>
     <string name="library_sort_title_desc">Titel Z-A</string>
     <string name="library_manage_lists">Lijsten beheren</string>
-    <string name="library_manage_trakt_lists">Trakt-lijsten beheren</string>
     <string name="library_no_lists">Nog geen persoonlijke lijsten.</string>
     <string name="library_list_create">Maken</string>
     <string name="library_list_edit">Bewerken</string>
@@ -1847,10 +1603,7 @@
     <string name="library_list_privacy">Privacy</string>
     <string name="library_delete_title">Deze lijst verwijderen?</string>
     <string name="library_delete_subtitle">Dit verwijdert de lijst en alle items uit Trakt.</string>
-    <string name="library_delete_confirm">Verwijderen</string>
     <string name="library_source_local">LOKAAL</string>
-    <string name="library_source_fetch">FETCH</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">Opgeslagen</string>
     <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Kijklijst</string>
@@ -1861,7 +1614,6 @@
     <string name="library_status_dropped">Gestopt</string>
     <string name="library_syncing_library">Bibliotheek synchroniseren\u2026</string>
     <string name="library_type_all">Alles</string>
-    <string name="library_type_items">items</string>
     <string name="library_empty_local_title">Nog geen %1$s</string>
     <string name="library_empty_trakt_title">Geen %1$s in deze lijst</string>
     <string name="library_empty_local_subtitle">Begin met het opslaan van je favorieten om ze hier te zien</string>
@@ -1876,18 +1628,13 @@
     <string name="library_list_edit_dialog_title">Lijst bewerken</string>
     <string name="library_sync_btn">Synchroniseren</string>
     <string name="library_syncing_btn">Synchroniseren\u2026</string>
-    <string name="cloud_library_connect_action">Account verbinden</string>
     <string name="cloud_library_connect_message">Verbind een account bij de instellingen voor Verbonden services om afspeelbare bestanden uit je cloudbibliotheek te bekijken.</string>
     <string name="cloud_library_connect_title">Geen cloudaccount verbonden</string>
-    <string name="cloud_library_disabled_action">Verbonden services openen</string>
     <string name="cloud_library_disabled_message">Schakel Cloudbibliotheek in bij de instellingen voor Verbonden services om bestanden van verbonden accounts te bekijken.</string>
     <string name="cloud_library_disabled_title">Cloudbibliotheek staat uit</string>
     <string name="cloud_library_empty_message">Geen afspeelbare cloudbestanden komen overeen met de huidige filters.</string>
     <string name="cloud_library_empty_title">Hier staat nog niets</string>
     <string name="cloud_library_file_picker_title">Kies een bestand om af te spelen</string>
-    <string name="cloud_library_load_failed">Kon de cloudbibliotheek van %1$s niet laden</string>
-    <string name="cloud_library_no_files_message">Dit item bevat geen afspeelbaar videobestand.</string>
-    <string name="cloud_library_no_files_title">Geen afspeelbare bestanden</string>
     <string name="cloud_library_no_playable_files">Geen afspeelbare bestanden</string>
     <string name="cloud_library_one_playable_file">1 afspeelbaar bestand</string>
     <string name="cloud_library_opening">Openen\u2026</string>
@@ -1978,13 +1725,10 @@
     <string name="custom_server_session_clear_failed">Kon de huidige sessie niet veilig wissen. De server is niet gewijzigd.</string>
     <string name="custom_server_restart_failed">De server is opgeslagen, maar de app kon niet automatisch opnieuw opstarten. Start de app handmatig opnieuw op.</string>
 
-    <string name="auth_qr_title">Aanmelden met QR</string>
     <string name="auth_qr_tagline">Bekijk je bibliotheek, waar je ook bent</string>
     <string name="auth_qr_finishing">Aanmelden afronden\u2026</string>
-    <string name="auth_qr_code_label">Code: %1$s</string>
     <string name="auth_qr_expires">Verloopt over %1$s</string>
     <string name="auth_qr_scan_instruction">Scan de QR-code of voer de code in je browser in.</string>
-    <string name="auth_qr_code_display">Code: %1$s</string>
     <string name="auth_qr_manual_instruction">Of ga naar %1$s en voer in</string>
     <string name="auth_qr_refresh">QR vernieuwen</string>
     <string name="auth_qr_continue_without_account">Doorgaan zonder account</string>
@@ -2022,7 +1766,6 @@
     <string name="plugin_repositories_section">Repositories (%1$d)</string>
     <string name="plugin_providers_section">Providers (%1$d)</string>
     <string name="plugin_title">Plug-ins</string>
-    <string name="plugin_subtitle">Beheer lokale scrapers en providers</string>
     <string name="plugin_enable_plugins_title">Plug-inproviders overal inschakelen</string>
     <string name="plugin_enable_plugins_subtitle">Gebruik plug-inproviders tijdens het zoeken naar streams</string>
     <string name="plugin_group_by_repository_title">Plug-inproviders groeperen per repository</string>
@@ -2053,8 +1796,6 @@
     <string name="plugin_test_results">Testresultaten (%1$d streams)</string>
     <string name="plugin_and_more">... en %1$d meer</string>
     <string name="plugin_providers_count">%1$d providers</string>
-    <string name="plugin_enabled">Ingeschakeld</string>
-    <string name="plugin_disabled">Uitgeschakeld</string>
     <string name="plugin_no_repos">Nog geen repositories toegevoegd.\nVoeg een repository toe om te beginnen.</string>
     <string name="plugin_error_invalid_url">Voer een geldige URL in</string>
     <string name="plugin_error_add_repo">Kon de repository niet toevoegen: %1$s</string>
@@ -2090,7 +1831,6 @@
 
     <string name="update_title">App-update</string>
     <string name="update_available">Update beschikbaar</string>
-    <string name="update_downloading">Update downloaden</string>
     <string name="update_download">Downloaden</string>
     <string name="update_downloading_ellipsis">Downloaden…</string>
     <string name="update_downloading_progress">%1$d%% gedownload</string>
@@ -2133,34 +1873,24 @@
     <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">Profiel %1$d bewerken</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Audio passthrough (TrueHD, DTS, AC-3, enz.) is automatisch. Wanneer aangesloten op een compatibele AV-receiver of soundbar via HDMI, wordt lossless audio direct doorgestuurd zonder decodering.</string>
-    <string name="audio_dv_title">DV7 - HEVC-terugval</string>
-    <string name="audio_dv_sub">Zet Dolby Vision Profile 7 om naar standaard HEVC voor apparaten zonder hardwarematige DV-ondersteuning</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">Home</string>
     <string name="nav_discover">Ontdekken</string>
     <string name="nav_search">Zoeken</string>
     <string name="nav_library">Bibliotheek</string>
-    <string name="nav_addons">Add-ons</string>
-    <string name="nav_movies">Films</string>
-    <string name="nav_series">Series</string>
     <string name="nav_settings">Instellingen</string>
     <string name="action_select">Selecteren</string>
     <string name="settings_rounded_ui">Afgeronde UI</string>
-    <string name="cd_expand_sidebar">Zijbalk uitvouwen</string>
 
-    <string name="update_checking">Controleren op updates…</string>
     <string name="update_waiting_for_stable">Je ontvangt de volgende stabiele release zodra die beschikbaar is</string>
     <string name="update_download_complete">Download voltooid. Klaar om te installeren.</string>
-    <string name="update_up_to_date">Het systeem is up-to-date. Laatste wijzigingen:</string>
     <string name="update_close">Sluiten</string>
     <string name="update_open_settings">Instellingen openen</string>
     <string name="update_install">Installeren</string>
-    <string name="update_ignore">Negeren</string>
 
     <!-- Update flow errors -->
     <string name="update_error_check_failed">Controle op updates mislukt</string>
@@ -2228,7 +1958,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_addons">Geen add-ons geïnstalleerd</string>
     <string name="home_error_no_catalog_addons">Geen catalogus-add-ons geïnstalleerd</string>
 
     <!-- Player errors -->
@@ -2253,7 +1982,6 @@
     <string name="cd_stream_info">Streaminfo</string>
     <string name="cd_more_actions">Meer acties</string>
     <string name="cd_close_more_actions">Meer acties sluiten</string>
-    <string name="cd_back">Terug</string>
     <string name="cd_next_episode_thumbnail">Miniatuur van volgende aflevering</string>
     <string name="cd_current">Huidig</string>
     <string name="cd_loading_backdrop">Achtergrond laden</string>
@@ -2276,8 +2004,6 @@
     <string name="cd_open_discover">Ontdekken openen</string>
     <string name="cd_clear_search">Zoekopdracht wissen</string>
     <string name="cd_voice_search">Spraakzoeken</string>
-    <string name="cd_donation_qr">QR-code voor donaties</string>
-    <string name="cd_contributor_qr">QR-code om bijdragers te steunen</string>
     <string name="cd_expand">%1$s uitvouwen</string>
     <string name="cd_collapse">%1$s samenvouwen</string>
     <string name="cd_qr_login">QR-aanmeldcode</string>
@@ -2359,7 +2085,6 @@
     <string name="collections_editor_choose_emoji">Emoji kiezen</string>
     <string name="collections_editor_back">Terug</string>
     <string name="collections_editor_edit_collection">Collectie bewerken</string>
-    <string name="collections_editor_catalog_count">%1$d catalogus(sen)</string>
     <string name="collections_editor_source_count">%1$d bron(nen)</string>
     <string name="collections_editor_sources">Bronnen</string>
     <string name="collections_editor_source">Bron</string>
@@ -2389,7 +2114,6 @@
     <string name="collections_editor_tmdb_collection_id">Collectie-ID</string>
     <string name="collections_editor_tmdb_company_search">Naam, ID of URL van productiebedrijf</string>
     <string name="collections_editor_tmdb_display_title">Weergavetitel</string>
-    <string name="collections_editor_tmdb_title_optional">Titel (optioneel)</string>
     <string name="collections_editor_tmdb_search">Zoeken</string>
     <string name="collections_editor_add_source">Bron toevoegen</string>
     <string name="collections_editor_save_source">Bron opslaan</string>
@@ -2623,7 +2347,6 @@
     <string name="player_error_stream_rate_limited">\n\nTe veel verzoeken aan de streambron. Wacht even en probeer het opnieuw.</string>
     <string name="player_error_stream_unavailable">\n\nDe streamserver is momenteel niet beschikbaar. Probeer een andere bron.</string>
     <string name="player_error_source_invalid_content">Bronfout: de streambron gaf ongeldige of onafspeelbare inhoud terug. De link is mogelijk verlopen of de server gaf een foutpagina terug in plaats van video.\n\nProbeer een andere bron. [%1$s]</string>
-    <string name="player_error_decoder">Decoderfout</string>
     <string name="player_error_unsupported_format">Deze stream gebruikt een formaat dat je apparaat mogelijk niet ondersteunt. Probeer een andere bron. [%1$s]</string>
     <string name="player_error_initialize_failed">Kon de speler niet initialiseren</string>
     <string name="player_error_mpv_surface_failed">Kon het libmpv-oppervlak niet initialiseren</string>
@@ -2658,7 +2381,6 @@
     <string name="library_synced">Bibliotheek gesynchroniseerd</string>
     <string name="library_error_refresh_failed">Kon de bibliotheek niet vernieuwen</string>
     <string name="library_list_created">Lijst gemaakt</string>
-    <string name="library_error_invalid_list">Ongeldige lijst</string>
     <string name="library_list_updated">Lijst bijgewerkt</string>
     <string name="library_error_save_list_failed">Kon de lijst niet opslaan</string>
     <string name="library_list_deleted">Lijst verwijderd</string>
@@ -2667,13 +2389,8 @@
     <string name="library_error_reorder_lists_failed">Kon de lijsten niet opnieuw ordenen</string>
     <string name="library_list_fallback_title">Lijst</string>
     <!-- Library privacy display labels (mapped from API value, not used as a key) -->
-    <string name="library_privacy_private">Privé</string>
-    <string name="library_privacy_link">Link</string>
-    <string name="library_privacy_friends">Vrienden</string>
-    <string name="library_privacy_public">Openbaar</string>
 
     <!-- Trakt errors -->
-    <string name="trakt_error_auth_required">Trakt-verificatie vereist</string>
     <string name="trakt_library_error_request_failed">Trakt-verzoek mislukt</string>
     <string name="trakt_library_error_create_list_failed">Kon de lijst niet maken</string>
     <string name="trakt_library_error_update_list_failed">Kon de lijst niet bijwerken</string>
@@ -2690,18 +2407,13 @@
     <string name="trakt_library_error_auth_expired">Trakt-verificatie is verlopen</string>
     <string name="trakt_library_error_list_not_found">Trakt-lijst niet gevonden</string>
     <string name="trakt_library_error_list_limit_reached">Trakt-lijstlimiet bereikt. Upgrade vereist.</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">Onvoldoende Trakt-ID\'s om als bekeken te markeren</string>
     <string name="trakt_error_request_failed">Trakt-verzoek mislukt</string>
-    <string name="simkl_account_title">Simkl-account</string>
     <string name="simkl_description">Koppel Simkl om lijsten, kijkgeschiedenis, afspeelvoortgang en scrobbelen te synchroniseren.</string>
-    <string name="simkl_connect">Simkl koppelen</string>
-    <string name="simkl_disconnect">Simkl ontkoppelen</string>
     <string name="simkl_disconnect_title">Simkl ontkoppelen?</string>
     <string name="simkl_disconnect_subtitle">Hiermee worden het Simkl-account en de opgeslagen Simkl-gegevens uit dit profiel verwijderd.</string>
     <string name="simkl_connected_as">Gekoppeld als %1$s</string>
     <string name="simkl_user_fallback">Simkl-gebruiker</string>
     <string name="simkl_awaiting_instruction">Open de Simkl-verificatiepagina en voer deze code in.</string>
-    <string name="simkl_code_expires">De code verloopt over %1$s</string>
     <string name="simkl_sync_now">Nu synchroniseren</string>
     <string name="simkl_visit">Simkl bezoeken</string>
     <string name="simkl_sync_info_action">Zo werkt synchroniseren</string>
@@ -2719,8 +2431,6 @@
     <string name="simkl_status_disconnected">Losgekoppeld van Simkl</string>
     <string name="simkl_status_syncing">Simkl synchroniseren…</string>
     <string name="simkl_status_synced">Simkl-synchronisatie voltooid</string>
-    <string name="simkl_watch_progress_selected">Simkl geselecteerd voor Verder kijken</string>
-    <string name="simkl_library_source_selected">Simkl geselecteerd voor Bibliotheek</string>
     <string name="simkl_error_code_expired">De Simkl-code is verlopen. Begin opnieuw.</string>
     <string name="simkl_error_authorization_revoked">De Simkl-autorisatie is ingetrokken. Koppel opnieuw.</string>
     <string name="simkl_error_network">Kan Simkl niet bereiken. Probeer het opnieuw.</string>
@@ -2752,25 +2462,15 @@
     <string name="stream_embedded_group">Ingesloten streams</string>
     <string name="stream_embedded_fallback_name">Ingesloten stream</string>
     <string name="stream_quality_unknown">Onbekend</string>
-    <string name="stream_addon_unknown">Onbekend</string>
-    <string name="tmdb_unknown_entity">Onbekend</string>
     <string name="web_tmdb_company_fallback">TMDB-bedrijf %1$d</string>
     <string name="web_tmdb_collection_fallback">TMDB-collectie %1$d</string>
     <string name="web_error_invalid_request_body">Ongeldige verzoekinhoud</string>
 
     <!-- Subtitle preferred language fallback -->
-    <string name="language_english">Engels</string>
 
     <!-- Supporters / contributors / sponsors errors -->
-    <string name="supporters_error_load">Kan de ondersteuners niet laden.</string>
-    <string name="contributors_error_load">Kan de bijdragers niet laden.</string>
-    <string name="contributors_error_api_not_configured">De bijdragers-API is niet geconfigureerd.</string>
-    <string name="contributors_error_api_http">Fout in de bijdragers-API: %1$d</string>
-    <string name="supporters_error_api_http">Fout in de donatie-API: %1$d</string>
 
     <!-- Contributor role badges -->
-    <string name="contributor_role_translator">Vertaler</string>
-    <string name="contributor_role_maintainer">Beheerder</string>
 
     <!-- Network / safe API errors -->
     <string name="network_error_empty_response_body">Lege antwoordinhoud</string>
@@ -2784,7 +2484,6 @@
 
     <!-- Player runtime: stream / external link errors -->
     <string name="player_torrent_starting_engine">P2P-engine starten…</string>
-    <string name="player_torrent_rebuffer_status">%1$s gebufferd</string>
     <string name="player_stream_error_invalid_external_url">Ongeldige externe URL</string>
     <string name="player_stream_error_open_external_link_failed">Kan de externe link niet openen</string>
     <string name="player_stream_error_invalid_url">Ongeldige stream-URL</string>
@@ -2792,11 +2491,6 @@
 
     <!-- Meta repository: addon detail error fragments -->
     <string name="meta_error_detail_no_metadata_for_id">gaf geen metadata terug voor dit id</string>
-    <string name="meta_error_detail_addon_unreachable">kon de add-onserver niet bereiken</string>
-    <string name="meta_error_detail_addon_connection_failed">de verbinding met de add-on is mislukt</string>
-    <string name="meta_error_detail_addon_timeout">het verzoek aan de add-on duurde te lang</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">de add-on gebruikt een onveilige HTTP-verbinding die door Android wordt geblokkeerd</string>
-    <string name="meta_error_detail_addon_request_failed">het verzoek aan de add-on is mislukt</string>
 
     <!-- Stream repository: addon detail error fragments + fetch -->
     <string name="stream_error_detail_no_streams_for_id">gaf geen streams terug voor dit id</string>
@@ -2823,67 +2517,10 @@
     <string name="trakt_comments_error_request_failed">Trakt-verzoek voor reacties mislukt</string>
     <string name="trakt_library_error_fetch_list_items">Kon de lijstitems niet ophalen</string>
 
-    <string name="watchlist_removed">Verwijderd uit de kijklijst</string>
-    <string name="watchlist_added">Toegevoegd aan de kijklijst</string>
 
     <!-- Debrid: filter rule rows (title + subtitle pairs) -->
-    <string name="debrid_picker_preferred_resolutions_title">Voorkeursresoluties</string>
-    <string name="debrid_picker_preferred_resolutions_subtitle">Zet geselecteerde resoluties vooraan, in de standaardvolgorde.</string>
-    <string name="debrid_picker_required_resolutions_title">Vereiste resoluties</string>
-    <string name="debrid_picker_required_resolutions_subtitle">Toon alleen geselecteerde resoluties.</string>
-    <string name="debrid_picker_excluded_resolutions_title">Uitgesloten resoluties</string>
-    <string name="debrid_picker_excluded_resolutions_subtitle">Verberg geselecteerde resoluties.</string>
-    <string name="debrid_picker_preferred_qualities_title">Voorkeurskwaliteiten</string>
-    <string name="debrid_picker_preferred_qualities_subtitle">Zet geselecteerde kwaliteiten vooraan, in de standaardvolgorde.</string>
-    <string name="debrid_picker_required_qualities_title">Vereiste kwaliteiten</string>
-    <string name="debrid_picker_required_qualities_subtitle">Toon alleen geselecteerde bronkwaliteiten.</string>
-    <string name="debrid_picker_excluded_qualities_title">Uitgesloten kwaliteiten</string>
-    <string name="debrid_picker_excluded_qualities_subtitle">Verberg geselecteerde bronkwaliteiten.</string>
-    <string name="debrid_picker_preferred_visual_tags_title">Voorkeurstags voor beeld</string>
-    <string name="debrid_picker_preferred_visual_tags_subtitle">Sorteer op DV, HDR, 10bit, IMAX en vergelijkbare tags.</string>
-    <string name="debrid_picker_required_visual_tags_title">Vereiste tags voor beeld</string>
-    <string name="debrid_picker_required_visual_tags_subtitle">Vereis DV, HDR, 10bit, IMAX, SDR en vergelijkbare tags.</string>
-    <string name="debrid_picker_excluded_visual_tags_title">Uitgesloten tags voor beeld</string>
-    <string name="debrid_picker_excluded_visual_tags_subtitle">Verberg DV, HDR, 10bit, 3D en vergelijkbare tags.</string>
-    <string name="debrid_picker_preferred_audio_tags_title">Voorkeurstags voor audio</string>
-    <string name="debrid_picker_preferred_audio_tags_subtitle">Sorteer op Atmos, TrueHD, DTS, AAC en vergelijkbare tags.</string>
-    <string name="debrid_picker_required_audio_tags_title">Vereiste tags voor audio</string>
-    <string name="debrid_picker_required_audio_tags_subtitle">Vereis Atmos, TrueHD, DTS, AAC en vergelijkbare tags.</string>
-    <string name="debrid_picker_excluded_audio_tags_title">Uitgesloten tags voor audio</string>
-    <string name="debrid_picker_excluded_audio_tags_subtitle">Verberg geselecteerde audiotags.</string>
-    <string name="debrid_picker_preferred_audio_channels_title">Voorkeurskanalen</string>
-    <string name="debrid_picker_preferred_audio_channels_subtitle">Zet gewenste kanaalindelingen vooraan.</string>
-    <string name="debrid_picker_required_audio_channels_title">Vereiste kanalen</string>
-    <string name="debrid_picker_required_audio_channels_subtitle">Toon alleen geselecteerde kanaalindelingen.</string>
-    <string name="debrid_picker_excluded_audio_channels_title">Uitgesloten kanalen</string>
-    <string name="debrid_picker_excluded_audio_channels_subtitle">Verberg geselecteerde kanaalindelingen.</string>
-    <string name="debrid_picker_preferred_encodes_title">Voorkeurscodecs</string>
-    <string name="debrid_picker_preferred_encodes_subtitle">Sorteer op AV1, HEVC, AVC en vergelijkbare codecs.</string>
-    <string name="debrid_picker_required_encodes_title">Vereiste codecs</string>
-    <string name="debrid_picker_required_encodes_subtitle">Vereis AV1, HEVC, AVC en vergelijkbare codecs.</string>
-    <string name="debrid_picker_excluded_encodes_title">Uitgesloten codecs</string>
-    <string name="debrid_picker_excluded_encodes_subtitle">Verberg geselecteerde codecs.</string>
-    <string name="debrid_picker_preferred_languages_title">Voorkeurstalen</string>
-    <string name="debrid_picker_preferred_languages_subtitle">Zet gewenste audiotalen vooraan.</string>
-    <string name="debrid_picker_required_languages_title">Vereiste talen</string>
-    <string name="debrid_picker_required_languages_subtitle">Toon alleen streams met geselecteerde talen.</string>
-    <string name="debrid_picker_excluded_languages_title">Uitgesloten talen</string>
-    <string name="debrid_picker_excluded_languages_subtitle">Verberg streams waarvan elke taal is uitgesloten.</string>
-    <string name="debrid_picker_required_release_groups_title">Vereiste releasegroepen</string>
-    <string name="debrid_picker_required_release_groups_subtitle">Toon alleen geselecteerde releasegroepen.</string>
-    <string name="debrid_picker_excluded_release_groups_title">Uitgesloten releasegroepen</string>
-    <string name="debrid_picker_excluded_release_groups_subtitle">Verberg geselecteerde releasegroepen.</string>
 
     <!-- Debrid: selection count + size range labels -->
-    <string name="debrid_selection_count_any">Alle</string>
-    <plurals name="debrid_selection_count_value">
-        <item quantity="one">%d geselecteerd</item>
-        <item quantity="other">%d geselecteerd</item>
-    </plurals>
-    <string name="debrid_size_range_any">Alle</string>
-    <string name="debrid_size_range_up_to">Tot %1$d GB</string>
-    <string name="debrid_size_range_min_plus">%1$d GB+</string>
-    <string name="debrid_size_range_min_max">%1$d-%2$d GB</string>
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Onbekend</string>
@@ -2896,17 +2533,10 @@
     <string name="web_debrid_title">Instellingen voor Direct Debrid</string>
     <string name="web_debrid_intro_title">Debrid-streams aanpassen</string>
     <string name="web_debrid_intro_copy">Pas de streamlabels, filters en sortering aan die voor Direct Debrid-resultaten worden gebruikt.</string>
-    <string name="web_debrid_tab_formatter">Opmaak</string>
-    <string name="web_debrid_tab_rules">Filters &amp; sortering</string>
     <string name="web_debrid_template_fields">Sjabloonvelden</string>
     <string name="web_debrid_name_template">Naamsjabloon</string>
     <string name="web_debrid_description_template">Beschrijvingssjabloon</string>
     <string name="web_debrid_error_templates_required">Beide sjablonen zijn vereist</string>
-    <string name="web_debrid_stream_rules">Streamregels</string>
-    <string name="web_debrid_per_resolution">Per resolutie</string>
-    <string name="web_debrid_per_quality">Per kwaliteit</string>
-    <string name="web_debrid_min_size_gb">Min. grootte in GB</string>
-    <string name="web_debrid_max_size_gb">Max. grootte in GB</string>
     <string name="web_debrid_restore_default">Standaard herstellen</string>
     <string name="web_debrid_save_settings">Instellingen opslaan</string>
     <string name="web_debrid_status_load_error">Kon de Debrid-instellingen niet laden</string>
@@ -3042,13 +2672,11 @@
     <string name="stream_test_card_title">Snelheidstest van laatst afgespeelde stream uitvoeren</string>
     <string name="stream_test_server_label">Server: %1$s</string>
     <string name="stream_test_no_stream">Geen weergave geregistreerd. Speel een video af om diagnostische tests op de host uit te voeren.</string>
-    <string name="stream_test_btn_start">Test starten</string>
     <string name="stream_test_btn_measuring_baseline">Basiswaarde meten...</string>
     <string name="stream_test_btn_measuring_parallel1">Parallel meten (1MB)...</string>
     <string name="stream_test_btn_measuring_parallel4">Parallel meten (4MB)...</string>
     <string name="stream_test_btn_measuring_parallel8">Parallel meten (8MB)...</string>
     <string name="stream_test_btn_measuring_parallel16">Parallel meten (16MB)...</string>
-    <string name="stream_test_btn_run_again">Opnieuw uitvoeren</string>
     <string name="stream_test_btn_running">Bezig...</string>
     <string name="stream_test_label_baseline">Standaard enkele verbinding (basiswaarde)</string>
     <string name="stream_test_label_parallel1">Parallelle verbinding (blokken van 1 MB)</string>
@@ -3059,4 +2687,221 @@
     <string name="stream_test_video_bitrate">Gemiddelde videobitrate: %1$s</string>
     <string name="stream_test_error_connection">Verbinding mislukt. De link van de laatst afgespeelde stream is mogelijk verlopen of onbereikbaar. Speel de video opnieuw af en probeer het nogmaals.</string>
 
+    <!-- Fetch: new and changed strings -->
+    <string name="account_local_only_note">Synchronisatie staat uit. Fetch bewaart je add-ons, voortgang en instellingen op deze tv en heeft geen account nodig. Wil je synchroniseren tussen apparaten, koppel dan je eigen synchronisatieserver via de serveropties.</string>
+    <string name="addon_badge_needs_setup">Instellen nodig</string>
+    <string name="addon_configure">Configureren</string>
+    <string name="addon_configure_install">Installeren</string>
+    <string name="addon_configure_no_server">Plak na het opslaan de installatielink in het veld bovenaan dit scherm.</string>
+    <string name="addon_configure_received">Je telefoon stuurde: %1$s</string>
+    <string name="addon_configure_step_open">1. Scan om de configuratiepagina op je telefoon te openen</string>
+    <string name="addon_configure_step_send">2. Scan om de nieuwe link terug te sturen naar deze tv</string>
+    <string name="addon_configure_still_unconfigured">%1$s is nog niet ingesteld. Rond de configuratiepagina af en stuur de link opnieuw.</string>
+    <string name="addon_configure_title">%1$s configureren</string>
+    <string name="addon_configure_updated">%1$s bijgewerkt</string>
+    <string name="addon_configure_waiting">Kopieer na het opslaan de installatielink die de pagina geeft en stuur die via stap 2.</string>
+    <string name="addon_configure_web_failed">Kan de tv niet bereiken. Staat het configuratiescherm nog open?</string>
+    <string name="addon_configure_web_invalid">Dat lijkt geen add-on-link.</string>
+    <string name="addon_configure_web_open">Configuratiepagina openen</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json of stremio://…</string>
+    <string name="addon_configure_web_send">Naar tv sturen</string>
+    <string name="addon_configure_web_sent">Verstuurd. Bevestig het op je tv.</string>
+    <string name="addon_configure_web_step1">Stel de add-on eerst in op zijn eigen pagina.</string>
+    <string name="addon_configure_web_step2">Zodra er een installatielink (of een manifest.json-adres) verschijnt, kopieer je die en plak je hem hier.</string>
+    <string name="addon_configure_web_title">Naar tv sturen</string>
+    <string name="addon_health_failing">Laatste verzoek mislukt</string>
+    <string name="addon_health_latency">%1$.1f s</string>
+    <string name="addon_health_ok">Reageert · %1$s</string>
+    <string name="addon_health_slow">Traag · %1$s</string>
+    <string name="addon_health_timed_out">Time-out bij laatste verzoek</string>
+    <string name="addon_needs_configuration">%1$s moet worden ingesteld voordat je het kunt installeren</string>
+    <string name="advanced_introdb_api_key">IntroDB-API-sleutel</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">Maak een sleutel aan op introdb.app. Die begint met idb_.</string>
+    <string name="advanced_introdb_api_key_subtitle">Hiermee markeer je intro’s en aftiteling vanuit de speler en stuur je ze naar IntroDB</string>
+    <string name="advanced_introdb_server">IntroDB-server</string>
+    <string name="advanced_introdb_server_default">Standaard (%1$s)</string>
+    <string name="advanced_introdb_server_dialog_subtitle">Een IntroDB-compatibele API. Laat leeg om de openbare server te gebruiken.</string>
+    <string name="advanced_introdb_server_invalid">Voer een http- of https-adres in</string>
+    <string name="advanced_introdb_server_subtitle">Waar de markeringen voor intro, samenvatting en aftiteling van gewone series en films vandaan komen</string>
+    <string name="advanced_section_skip_markers">Overslaanmarkeringen</string>
+    <string name="autoplay_allowed_addons_early_sub">Automatisch afspelen start zodra deze add-ons antwoorden, in plaats van op alle add-ons te wachten.</string>
+    <string name="autoplay_mode_best">Beste match</string>
+    <string name="autoplay_mode_best_desc">Rangschikt elk resultaat op kwaliteit, je regels en wat dit apparaat kan afspelen, en start dan de winnaar. Andere bronnen blijven één druk op de knop verwijderd.</string>
+    <string name="best_match_cached">In cache</string>
+    <string name="best_match_excluded">Niet automatisch afgespeeld: %1$s</string>
+    <string name="best_match_preview_sub">Vraagt je stream-add-ons naar een titel terwijl je ernaar kijkt, zodat de afspeelknop het bestand kan tonen en het afspelen sneller start. Zet uit om pas te zoeken nadat je op Afspelen drukt.</string>
+    <string name="best_match_preview_title">Keuze tonen op de afspeelknop</string>
+    <string name="catalog_order_pin">Bovenaan vastzetten</string>
+    <string name="catalog_order_pinned_on_home">Vastgezet bovenaan Home</string>
+    <string name="catalog_order_unpin">Losmaken</string>
+    <string name="cd_mark_credits_end">Einde aftiteling markeren</string>
+    <string name="cd_mark_credits_start">Begin aftiteling markeren</string>
+    <string name="cd_mark_intro_end">Einde intro markeren</string>
+    <string name="cd_mark_intro_start">Begin intro markeren</string>
+    <string name="custom_server_error_official_active">Synchronisatie staat al uit op deze tv.</string>
+    <string name="custom_server_error_official_available">Dat is geen synchronisatieserver. Sluit dit venster en kies Synchronisatie uitzetten om terug te gaan naar alleen-lokaal.</string>
+    <string name="debrid_stream_rules_moved">Streamregels staan nu onder Afspelen → Streamselectie en gelden voor elke bron, debrid inbegrepen. De regels die je hier had ingesteld, zijn daarheen verplaatst.</string>
+    <string name="exclusion_3d">3D-release</string>
+    <string name="exclusion_above_max_resolution">boven je maximale resolutie</string>
+    <string name="exclusion_audio">je slaat %1$s-audio over</string>
+    <string name="exclusion_below_min_resolution">onder je minimale resolutie</string>
+    <string name="exclusion_cam">cam- of telesync-kopie</string>
+    <string name="exclusion_codec">je slaat %1$s over</string>
+    <string name="exclusion_dv_excluded">je hebt Dolby Vision uitgezet</string>
+    <string name="exclusion_dv_profile_excluded">je hebt dit Dolby Vision-profiel uitgezet</string>
+    <string name="exclusion_hdr_excluded">je hebt HDR uitgezet</string>
+    <string name="exclusion_keyword">bevat een uitgesloten trefwoord</string>
+    <string name="exclusion_language">je slaat %1$s over</string>
+    <string name="exclusion_not_playable">deze speler kan het niet openen</string>
+    <string name="exclusion_over_max_size">groter dan je groottelimiet</string>
+    <string name="exclusion_release_group">je slaat de groep %1$s over</string>
+    <string name="exclusion_resolution">je slaat %1$s over</string>
+    <string name="exclusion_result_limit">boven je resultatenlimiet</string>
+    <string name="exclusion_source">je slaat %1$s-releases over</string>
+    <string name="exclusion_under_min_size">kleiner dan je minimale grootte</string>
+    <string name="exclusion_unsupported_audio">%1$s vereist passthrough of een decoder die deze tv niet heeft</string>
+    <string name="exclusion_unsupported_codec">deze tv kan %1$s niet decoderen</string>
+    <string name="exclusion_unsupported_dv">DV-profiel 5 wordt niet ondersteund op deze tv</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">DV met HDR10+ geeft een zwart scherm op dit apparaat</string>
+    <string name="exclusion_unsupported_resolution">hogere resolutie dan deze tv toont</string>
+    <string name="fetching_addons_done">Alle %1$d add-ons hebben geantwoord</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="one">Ophalen… %1$d geantwoord, %2$d add-on zoekt nog</item>
+        <item quantity="other">Ophalen… %1$d geantwoord, %2$d add-ons zoeken nog</item>
+    </plurals>
+    <string name="fetching_best_so_far">Beste tot nu toe</string>
+    <string name="fetching_play_now">Nu afspelen</string>
+    <string name="fetching_see_all_sources">Alle bronnen bekijken</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="one">Start over %1$d seconde</item>
+        <item quantity="other">Start over %1$d seconden</item>
+    </plurals>
+    <string name="filter_row_addon_note">Add-on-catalogi kunnen alleen op genre worden gefilterd.</string>
+    <string name="filter_row_any">Alle</string>
+    <string name="filter_row_ascending">Oplopend</string>
+    <string name="filter_row_descending">Aflopend</string>
+    <string name="filter_row_genre">Genre</string>
+    <string name="filter_row_order">Volgorde</string>
+    <string name="filter_row_rating">Minimale beoordeling</string>
+    <string name="filter_row_rating_value">%1$.1f of hoger</string>
+    <string name="filter_row_sort">Sorteren op</string>
+    <string name="filter_row_sort_added">Datum toegevoegd</string>
+    <string name="filter_row_sort_random">Willekeurig</string>
+    <string name="filter_row_sort_rating">Beoordeling</string>
+    <string name="filter_row_sort_release">Releasedatum</string>
+    <string name="filter_row_sort_title">Titel</string>
+    <string name="filter_row_source">Bron</string>
+    <string name="filter_row_source_missing">De bron van deze rij is niet meer beschikbaar.</string>
+    <string name="filter_row_unwatched">Alleen niet bekeken</string>
+    <string name="filter_row_watched">Bekeken</string>
+    <string name="filter_row_watched_only">Alleen bekeken</string>
+    <string name="filter_row_year_from">Vanaf jaar</string>
+    <string name="filter_row_year_to">Tot jaar</string>
+    <string name="filter_rows_card_subtitle">Maak Home-rijen zoals \"niet bekeken sciencefiction uit mijn Jellyfin\"</string>
+    <string name="filter_rows_delete">Verwijderen</string>
+    <string name="filter_rows_edit">Bewerken</string>
+    <string name="filter_rows_edit_title">Filterrij bewerken</string>
+    <string name="filter_rows_empty">Nog geen filterrijen.</string>
+    <string name="filter_rows_new">Nieuwe filterrij</string>
+    <string name="filter_rows_no_sources">Koppel een mediaserver of installeer een add-on met genrecatalogi om een filterrij te maken.</string>
+    <string name="filter_rows_save">Opslaan</string>
+    <string name="filter_rows_save_failed">Opslaan mislukt. Probeer het opnieuw.</string>
+    <string name="filter_rows_subtitle">Rijen op basis van filters over een mediaserverbibliotheek of een add-on-catalogus. Ze verschijnen op Home, waar je ze net als elke andere rij kunt herschikken, verbergen en vastzetten.</string>
+    <string name="filter_rows_title">Filterrijen</string>
+    <string name="home_poster_pin_row">Deze rij bovenaan vastzetten</string>
+    <string name="home_poster_unpin_row">Deze rij losmaken</string>
+    <string name="layout_trailer_crop_to_fill">Trailers bijsnijden tot schermvullend</string>
+    <string name="layout_trailer_crop_to_fill_sub">Zoom achtergrondtrailers op Home en detailpagina’s in zodat ze het beeld vullen. Zet uit om het hele beeld met zwarte balken te zien.</string>
+    <string name="library_empty_type_items">items</string>
+    <string name="library_empty_type_movies">films</string>
+    <string name="library_empty_type_series">series</string>
+    <string name="licenses_attributions_fetch_body">Fetch is vrije software onder de GNU General Public License v3.0. Het is een fork van NuvioTV door de bijdragers van Nuvio (github.com/NuvioMedia/NuvioTV), wier werk het grootste deel van deze app vormt.</string>
+    <string name="official_server_action">Synchronisatie uitzetten</string>
+    <string name="official_server_description">Je wordt afgemeld bij je synchronisatieserver en de app start opnieuw in alleen-lokale modus. Alles wat al op deze tv staat, blijft bewaard.</string>
+    <string name="official_server_title">Synchronisatie uitzetten?</string>
+    <string name="parental_addons_blocked">Dit profiel kan geen add-ons installeren. Vraag het aan een ouder.</string>
+    <string name="parental_allow_unrated">Titels zonder leeftijdsclassificatie tonen: %1$s</string>
+    <string name="parental_gate_heading">Voer de pincode van %1$s in</string>
+    <string name="parental_gate_support">Dit profiel heeft ouderlijke beperkingen. De pincode van een ouder is nodig om verder te gaan.</string>
+    <string name="parental_kids_profile_toggle">Kinderprofiel: %1$s</string>
+    <string name="parental_level_all_ages">Alle leeftijden (G, TV-Y, TV-G)</string>
+    <string name="parental_level_mature">R, TV-MA</string>
+    <string name="parental_level_older_kids">Oudere kinderen (TV-Y7)</string>
+    <string name="parental_level_pg">PG, TV-PG</string>
+    <string name="parental_level_teens">PG-13, TV-14</string>
+    <string name="parental_level_unrestricted">Geen limiet</string>
+    <string name="parental_limits_label">Ouderlijke beperkingen</string>
+    <string name="parental_limits_saved">Ouderlijke beperkingen opgeslagen voor %1$s</string>
+    <string name="parental_limits_subtitle">Voor wijzigingen is de pincode van het hoofdprofiel nodig. Titels boven de limiet worden verborgen in Home, zoeken en Verder kijken en kunnen niet worden afgespeeld.</string>
+    <string name="parental_limits_subtitle_no_pin">Stel een pincode in op het hoofdprofiel, anders kan iedereen op dit profiel deze beperkingen wijzigen.</string>
+    <string name="parental_limits_title">Ouderlijke beperkingen voor %1$s</string>
+    <string name="parental_max_rating">Maximale classificatie: %1$s</string>
+    <string name="parental_off">Uit</string>
+    <string name="parental_on">Aan</string>
+    <string name="parental_title_blocked">Deze titel valt boven de leeftijdslimiet van dit profiel.</string>
+    <string name="prefer_next_time_group">Groep %1$s</string>
+    <string name="prefer_next_time_language">%1$s audio</string>
+    <string name="prefer_next_time_not_now">Niet nu</string>
+    <string name="prefer_next_time_saved">Beste match geeft voortaan voorkeur aan: %1$s</string>
+    <string name="prefer_next_time_size">Bestanden tot %1$d GB</string>
+    <string name="prefer_next_time_title">Volgende keer hier de voorkeur aan geven?</string>
+    <string name="ranking_any">Alle</string>
+    <string name="ranking_drop_undecodable">Streams overslaan die dit apparaat niet kan decoderen</string>
+    <string name="ranking_drop_undecodable_sub">Op basis van de decoders, HDR-formaten en resolutie die dit apparaat meldt</string>
+    <string name="ranking_excluded_audio">Audioformaten overslaan</string>
+    <string name="ranking_excluded_audio_sub">Releases met alleen deze audioformaten worden nooit automatisch afgespeeld</string>
+    <string name="ranking_excluded_groups">Releasegroepen overslaan</string>
+    <string name="ranking_excluded_languages">Audiotalen overslaan</string>
+    <string name="ranking_excluded_languages_sub">Releases die alleen in deze talen zijn, worden nooit automatisch afgespeeld</string>
+    <string name="ranking_excluded_sources">Releasetypen overslaan</string>
+    <string name="ranking_groups_input_sub">Scheid groepen met komma’s, bijvoorbeeld FLUX, NTb.</string>
+    <string name="ranking_hide_cam">CAM of telesync nooit automatisch afspelen</string>
+    <string name="ranking_max_per_resolution">Resultaten per resolutie</string>
+    <string name="ranking_max_quality">Maximale kwaliteit</string>
+    <string name="ranking_max_results">Te bewaren resultaten</string>
+    <string name="ranking_max_results_sub">De rest gaat naar Andere bronnen</string>
+    <string name="ranking_max_size">Maximale bestandsgrootte</string>
+    <string name="ranking_max_size_sub">Grotere bestanden worden nooit automatisch afgespeeld</string>
+    <string name="ranking_min_size">Minimale bestandsgrootte</string>
+    <string name="ranking_min_size_sub">Kleinere bestanden worden nooit automatisch afgespeeld</string>
+    <string name="ranking_no_limit">Geen limiet</string>
+    <string name="ranking_none">Geen</string>
+    <string name="ranking_prefer_cached">Voorkeur voor gecachte debrid-resultaten</string>
+    <string name="ranking_prefer_cached_sub">Gecachte bestanden starten direct</string>
+    <string name="ranking_prefer_library">Voorkeur voor mijn eigen bibliotheek</string>
+    <string name="ranking_prefer_library_sub">Een bestand op je Jellyfin-, Emby- of Plex-server wint van elke stream</string>
+    <string name="ranking_preferred_codec">Voorkeursvideocodec</string>
+    <string name="ranking_preferred_groups">Voorkeursreleasegroepen</string>
+    <string name="ranking_preferred_groups_sub">Inclusief groepen die je koos met Volgende keer voorkeur geven</string>
+    <string name="ranking_preferred_languages">Voorkeursaudiotalen</string>
+    <string name="ranking_preferred_languages_sub">Releases die deze talen noemen, scoren hoger, met de eerste keuze bovenaan</string>
+    <string name="ranking_preferred_quality">Voorkeurskwaliteit</string>
+    <string name="ranking_preferred_quality_sub">Hogere kwaliteiten blijven toegestaan, maar scoren lager</string>
+    <string name="ranking_preferred_size">Voorkeursbestandsgrootte</string>
+    <string name="ranking_preferred_size_sub">Grotere bestanden scoren lager</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="one">%1$d geselecteerd</item>
+        <item quantity="other">%1$d geselecteerd</item>
+    </plurals>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="ranking_skip_dv5">Dolby Vision-profiel 5 overslaan</string>
+    <string name="ranking_skip_dv5_sub">Profiel 5 heeft geen HDR10-fallback. Het wordt altijd overgeslagen als deze tv het niet kan weergeven</string>
+    <string name="server_options_use_official">Synchronisatie uitzetten</string>
+    <string name="skip_marker_report_failed">Kan de markering niet melden</string>
+    <string name="skip_marker_reported">Verkeerde markering gemeld. Bedankt!</string>
+    <string name="skip_marker_start_recorded">Begin gemarkeerd. Druk nogmaals waar het eindigt.</string>
+    <string name="skip_marker_submit_failed">Kan de markering niet naar IntroDB sturen</string>
+    <string name="skip_marker_submitted">Markering naar IntroDB gestuurd</string>
+    <string name="skip_source">via %1$s</string>
+    <string name="skip_source_reportable">via %1$s · ingedrukt houden om te melden</string>
+    <string name="sub_hdr_brightness">Helderheid HDR-ondertiteling</string>
+    <string name="sub_hdr_style">Aparte stijl voor HDR / Dolby Vision</string>
+    <string name="sub_hdr_style_sub">Gebruik een andere tekstkleur en een lagere helderheid voor ondertiteling bij HDR- en Dolby Vision-video</string>
+    <string name="sub_hdr_text_color">HDR-tekstkleur</string>
+    <string name="subtitle_style_brightness_hdr">Helderheid (HDR)</string>
+    <string name="subtitle_style_text_color_hdr">Tekstkleur (HDR)</string>
+    <string name="subtitle_style_text_opacity_hdr">Tekstdekking (HDR)</string>
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="torrent_engine_unavailable">Dit is een torrentstream en Fetch heeft geen ingebouwde torrent-engine. Zet een debrid-service aan via Instellingen → Debrid, of open het in een externe speler.</string>
+    <string name="stream_torrent_needs_debrid">Torrent: koppel een debrid-dienst via Instellingen → Debrid om hem hier af te spelen, of open hem in een externe speler.</string>
 </resources>

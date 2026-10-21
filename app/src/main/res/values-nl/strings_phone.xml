@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Je telefoon moet op hetzelfde wifinetwerk zitten als deze tv. Je kunt dit ook later doen in Instellingen.</string>
+    <string name="first_run_phone_qr_description">Instelcode voor telefoon</string>
+    <string name="first_run_phone_step_accounts">Log in bij Trakt, Simkl of Jellyfin</string>
+    <string name="first_run_phone_step_addons">Plak add-ons en je debrid-sleutel</string>
+    <string name="first_run_phone_step_scan">Scan met de camera van je telefoon</string>
+    <string name="first_run_phone_title">Instellen met je telefoon. Geen typwerk met de afstandsbediening.</string>
+    <string name="first_run_recommended">Aanbevolen</string>
+    <string name="phone_hub_description">Scan één code om je telefoon als afstandsbediening en toetsenbord te gebruiken, in te loggen bij accounts en lange instellingen te bewerken.</string>
+    <string name="phone_hub_instruction">Scan met je telefoon. De code werkt één keer; de pagina blijft open zolang dit scherm open is.</string>
+    <string name="phone_hub_open">Telefooncode tonen</string>
+    <string name="phone_hub_open_description">Je telefoon moet op hetzelfde netwerk zitten als deze tv.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d telefoon verbonden. De afstandsbediening blijft nog 10 minuten werken nadat je dit scherm sluit.</item>
+        <item quantity="other">%d telefoons verbonden. De afstandsbediening blijft nog 10 minuten werken nadat je dit scherm sluit.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Dit profiel heeft ouderlijke beperkingen. Ontgrendel eerst de instellingen op de tv.</string>
+    <string name="phone_hub_title">Configureren via telefoon</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Váš telefon musí být ve stejné Wi-Fi jako tato TV. Můžete to udělat i později v Nastavení.</string>
+    <string name="first_run_phone_qr_description">Kód pro nastavení telefonem</string>
+    <string name="first_run_phone_step_accounts">Přihlaste se do Trakt, Simkl nebo Jellyfin</string>
+    <string name="first_run_phone_step_addons">Vložte doplňky a svůj debrid klíč</string>
+    <string name="first_run_phone_step_scan">Naskenujte fotoaparátem telefonu</string>
+    <string name="first_run_phone_title">Nastavte telefonem. Žádné psaní ovladačem.</string>
+    <string name="first_run_recommended">Doporučeno</string>
+    <string name="phone_hub_description">Naskenujte jeden kód a používejte telefon jako ovladač a klávesnici, přihlašujte se k účtům a upravujte dlouhá nastavení.</string>
+    <string name="phone_hub_instruction">Naskenujte telefonem. Kód funguje jednou; stránka zůstane otevřená, dokud je otevřená tato obrazovka.</string>
+    <string name="phone_hub_open">Zobrazit kód pro telefon</string>
+    <string name="phone_hub_open_description">Váš telefon musí být ve stejné síti jako tato TV.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">Připojen %d telefon. Ovladač funguje ještě 10 minut po zavření této obrazovky.</item>
+        <item quantity="few">Připojeny %d telefony. Ovladač funguje ještě 10 minut po zavření této obrazovky.</item>
+        <item quantity="many">Připojeno %d telefonu. Ovladač funguje ještě 10 minut po zavření této obrazovky.</item>
+        <item quantity="other">Připojeno %d telefonů. Ovladač funguje ještě 10 minut po zavření této obrazovky.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Tento profil má rodičovská omezení. Nejprve odemkněte nastavení na TV.</string>
+    <string name="phone_hub_title">Konfigurace z telefonu</string>
+</resources>

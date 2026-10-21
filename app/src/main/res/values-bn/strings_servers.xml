@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">আপনার ফোন থেকে আপনার %1$s অ্যাকাউন্ট দিয়ে সাইন ইন করুন। টিভিতে টাইপ করতে হবে না।</string>
+    <string name="servers_link_choose_server">আপনার অ্যাকাউন্ট একাধিক সার্ভারে অ্যাক্সেস পায়। কোনটি যোগ করবেন তা বেছে নিন।</string>
+    <string name="servers_link_connecting_to">%1$s-এ কানেক্ট করা হচ্ছে…</string>
+    <string name="servers_link_expired">কোডের মেয়াদ শেষ। আবার চেষ্টা করতে একটি নতুন কোড নিন।</string>
+    <string name="servers_link_expires">%1$s পরে কোডের মেয়াদ শেষ হবে</string>
+    <string name="servers_link_instruction">আপনার ফোন দিয়ে কোডটি স্ক্যান করুন, অথবা যেকোনো ডিভাইসে %1$s খুলে এই কোডটি লিখুন।</string>
+    <string name="servers_link_loading">সাইন-ইন কোড আনা হচ্ছে…</string>
+    <string name="servers_link_no_servers">এই অ্যাকাউন্টে এখনও কোনো সার্ভার নেই। একটি সেটআপ করুন, অথবা কোনো সার্ভার মালিককে আপনার সাথে একটি লাইব্রেরি শেয়ার করতে বলুন।</string>
+    <string name="servers_link_qr">%1$s-এ সাইন ইন করার QR কোড</string>
+    <string name="servers_link_retry">নতুন কোড নিন</string>
+    <string name="servers_link_waiting">আপনার কোড অনুমোদনের অপেক্ষায়…</string>
+</resources>

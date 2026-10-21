@@ -57,4 +57,17 @@
     <string name="library_servers_empty_title">Aucune bibliothèque sélectionnée</string>
     <string name="library_servers_empty_message">Choisissez les bibliothèques à afficher dans Paramètres, sous Contenu et découverte, puis Serveurs multimédias.</string>
     <string name="library_server_load_failed">Impossible de charger %1$s</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Connectez-vous à votre compte %1$s depuis votre téléphone. Aucune saisie sur la TV.</string>
+    <string name="servers_link_loading">Obtention d’un code de connexion…</string>
+    <string name="servers_link_instruction">Scannez le code avec votre téléphone, ou ouvrez %1$s sur n’importe quel appareil, puis saisissez ce code.</string>
+    <string name="servers_link_connecting_to">Connexion à %1$s…</string>
+    <string name="servers_link_waiting">En attente de votre validation du code…</string>
+    <string name="servers_link_expires">Le code expire dans %1$s</string>
+    <string name="servers_link_expired">Le code a expiré. Obtenez-en un nouveau pour réessayer.</string>
+    <string name="servers_link_retry">Obtenir un nouveau code</string>
+    <string name="servers_link_choose_server">Votre compte a accès à plusieurs serveurs. Choisissez celui à ajouter.</string>
+    <string name="servers_link_no_servers">Ce compte n’a encore aucun serveur. Configurez-en un, ou demandez au propriétaire d’un serveur de partager une bibliothèque avec vous.</string>
+    <string name="servers_link_qr">Code QR pour se connecter à %1$s</string>
 </resources>

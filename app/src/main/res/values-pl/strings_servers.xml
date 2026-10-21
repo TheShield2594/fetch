@@ -57,4 +57,17 @@
     <string name="library_servers_empty_title">Nie wybrano bibliotek</string>
     <string name="library_servers_empty_message">Wybierz biblioteki do wyświetlenia w Ustawieniach, w sekcji Treść i odkrywanie, a następnie Serwery mediów.</string>
     <string name="library_server_load_failed">Nie udało się załadować %1$s</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Zaloguj się kontem %1$s na telefonie. Bez wpisywania na telewizorze.</string>
+    <string name="servers_link_choose_server">Twoje konto ma dostęp do więcej niż jednego serwera. Wybierz ten, który chcesz dodać.</string>
+    <string name="servers_link_connecting_to">Łączenie z %1$s…</string>
+    <string name="servers_link_expired">Kod wygasł. Pobierz nowy, aby spróbować ponownie.</string>
+    <string name="servers_link_expires">Kod wygaśnie za %1$s</string>
+    <string name="servers_link_instruction">Zeskanuj kod telefonem lub otwórz %1$s na dowolnym urządzeniu i wpisz ten kod.</string>
+    <string name="servers_link_loading">Pobieranie kodu logowania…</string>
+    <string name="servers_link_no_servers">To konto nie ma jeszcze serwerów. Skonfiguruj serwer lub poproś właściciela serwera o udostępnienie Ci biblioteki.</string>
+    <string name="servers_link_qr">Kod QR do logowania w %1$s</string>
+    <string name="servers_link_retry">Pobierz nowy kod</string>
+    <string name="servers_link_waiting">Czekam na zatwierdzenie kodu…</string>
 </resources>

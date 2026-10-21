@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Telefon mora biti v istem omrežju Wi-Fi kot ta televizor. To lahko storite tudi pozneje v nastavitvah.</string>
+    <string name="first_run_phone_qr_description">Koda za nastavitev s telefonom</string>
+    <string name="first_run_phone_step_accounts">Prijavite se v Trakt, Simkl ali Jellyfin</string>
+    <string name="first_run_phone_step_addons">Prilepite dodatke in svoj ključ debrid</string>
+    <string name="first_run_phone_step_scan">Skenirajte s kamero telefona</string>
+    <string name="first_run_phone_title">Nastavite s telefonom. Brez tipkanja z daljinskim upravljalnikom.</string>
+    <string name="first_run_recommended">Priporočeno</string>
+    <string name="phone_hub_description">Skenirajte eno kodo, da telefon uporabljate kot daljinski upravljalnik in tipkovnico, se prijavite v račune in urejate dolge nastavitve.</string>
+    <string name="phone_hub_instruction">Skenirajte s telefonom. Koda deluje enkrat; stran ostane odprta, dokler je odprt ta zaslon.</string>
+    <string name="phone_hub_open">Prikaži kodo za telefon</string>
+    <string name="phone_hub_open_description">Telefon mora biti v istem omrežju kot ta televizor.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">Povezan %d telefon. Daljinec deluje še 10 minut po zaprtju tega zaslona.</item>
+        <item quantity="two">Povezana %d telefona. Daljinec deluje še 10 minut po zaprtju tega zaslona.</item>
+        <item quantity="few">Povezani %d telefoni. Daljinec deluje še 10 minut po zaprtju tega zaslona.</item>
+        <item quantity="other">Povezanih %d telefonov. Daljinec deluje še 10 minut po zaprtju tega zaslona.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Ta profil ima starševske omejitve. Najprej odklenite nastavitve na televizorju.</string>
+    <string name="phone_hub_title">Nastavitev s telefonom</string>
+</resources>

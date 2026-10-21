@@ -49,3 +49,15 @@ data class RealDebridUnrestrictLinkDto(
     @Json(name = "streamable") val streamable: Int? = null,
     @Json(name = "type") val type: String? = null
 )
+
+@JsonClass(generateAdapter = true)
+data class RealDebridDownloadDto(
+    @Json(name = "id") val id: String? = null,
+    @Json(name = "filename") val filename: String? = null,
+    @Json(name = "mimeType") val mimeType: String? = null,
+    @Json(name = "filesize") val filesize: Long? = null,
+    @Json(name = "link") val link: String? = null,
+    @Json(name = "host") val host: String? = null,
+    @Json(name = "download") val download: String? = null,
+    @Json(name = "streamable") val streamable: Int? = null
+)

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Prisijunkite prie %1$s paskyros telefonu. Nereikia rašyti televizoriuje.</string>
+    <string name="servers_link_choose_server">Jūsų paskyra gali pasiekti daugiau nei vieną serverį. Pasirinkite, kurį pridėti.</string>
+    <string name="servers_link_connecting_to">Jungiamasi prie %1$s…</string>
+    <string name="servers_link_expired">Kodo galiojimas baigėsi. Gaukite naują ir bandykite dar kartą.</string>
+    <string name="servers_link_expires">Kodas galioja dar %1$s</string>
+    <string name="servers_link_instruction">Nuskenuokite kodą telefonu arba bet kuriame įrenginyje atidarykite %1$s ir įveskite šį kodą.</string>
+    <string name="servers_link_loading">Gaunamas prisijungimo kodas…</string>
+    <string name="servers_link_no_servers">Ši paskyra dar neturi serverių. Nustatykite serverį arba paprašykite serverio savininko pasidalyti su jumis biblioteka.</string>
+    <string name="servers_link_qr">QR kodas prisijungti prie %1$s</string>
+    <string name="servers_link_retry">Gauti naują kodą</string>
+    <string name="servers_link_waiting">Laukiama, kol patvirtinsite kodą…</string>
+</resources>

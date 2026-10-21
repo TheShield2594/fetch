@@ -151,7 +151,6 @@
     <string name="cw_percent_watched">%1$d%% ditonton</string>
     <string name="cw_hours_min_left">Sisa %1$d j %2$d mnt</string>
     <string name="cw_min_left">Sisa %1$d mnt</string>
-    <string name="cw_almost_done">Hampir selesai</string>
     <string name="cw_airs_date">Tayang %1$s</string>
     <string name="cw_airs_today">Tayang hari ini</string>
     <string name="cw_airs_tomorrow">Tayang besok</string>
@@ -183,14 +182,12 @@
     <string name="hero_director">Sutradara: %1$s</string>
     <string name="hero_writer">Penulis: %1$s</string>
     <string name="hero_play">Putar</string>
-    <string name="hero_play_episode">Putar M%1$d E%2$d</string>
     <string name="hero_add_to_library">Tambah ke pustaka</string>
     <string name="hero_remove_from_library">Hapus dari pustaka</string>
     <string name="hero_mark_watched">Tandai sudah ditonton</string>
     <string name="hero_mark_unwatched">Tandai belum ditonton</string>
     <string name="hero_play_trailer">Putar trailer</string>
     <string name="hero_press_back_trailer">Tekan kembali untuk keluar dari trailer</string>
-    <string name="cd_rating">Rating</string>
 
     <!-- EpisodesSection -->
     <string name="episodes_season">Musim %1$d</string>
@@ -252,10 +249,8 @@
     <string name="detail_section_production">Produksi</string>
     <string name="detail_comments_empty">Belum ada ulasan Trakt tersedia.</string>
     <string name="detail_comments_error">Tidak dapat memuat ulasan Trakt saat ini.</string>
-    <string name="detail_trailer_loading">Memuat trailer...</string>
     <string name="detail_trailer_error">Tidak dapat memuat trailer saat ini.</string>
     <string name="detail_comments_spoiler_hidden">Ulasan mengandung spoiler. Tekan OK untuk menampilkan.</string>
-    <string name="detail_comments_reveal_spoiler">Tampilkan spoiler</string>
     <string name="detail_comments_reveal_spoiler_hint">Tekan OK untuk menampilkan spoiler.</string>
     <string name="detail_comments_back_hint">Klik kembali untuk menutup</string>
     <string name="detail_comments_badge_review">Ulasan</string>
@@ -382,13 +377,8 @@
     <string name="settings_account">Akun</string>
     <string name="settings_profiles">Profil</string>
     <string name="settings_layout">Tata Letak</string>
-    <string name="settings_plugins">Plugin</string>
-    <string name="settings_plugins_subtitle">Repositori dan penyedia</string>
     <string name="settings_integration">Integrasi</string>
     <string name="settings_playback">Pemutaran</string>
-    <string name="settings_trakt_subtitle">Buka layar koneksi Trakt</string>
-    <string name="settings_network">Kecepatan jaringan</string>
-    <string name="settings_network_subtitle">Diagnostik latensi dan unduhan</string>
     <string name="settings_advanced">Lanjutan</string>
     <string name="settings_advanced_subtitle">Performa, navigasi, cache, dan diagnostik</string>
     <string name="experience_mode_essential">Esensial</string>
@@ -475,8 +465,6 @@
     <string name="advanced_fast_horizontal_navigation_subtitle">Tingkatkan kecepatan pengulangan D-pad di baris sambil menjaga pembatasan pengulangan tetap aktif.</string>
     <string name="advanced_fetch_focus_scroll">Gulir Fokus Fetch</string>
     <string name="advanced_fetch_focus_scroll_subtitle">Gunakan animasi dan posisi gulir fokus global kustom Fetch.</string>
-    <string name="advanced_memory_only_vertical_scroll">Gulir Vertikal Hanya-Memori</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">Lewati permintaan gambar dari disk dan jaringan saat menggulir vertikal baris beranda.</string>
     <string name="advanced_compose_highlighter">Penyorot Compose</string>
     <string name="advanced_compose_highlighter_subtitle">Kedipkan batas di sekitar elemen UI yang sedang dikomposisi ulang untuk debugging performa.</string>
     <string name="advanced_clear_cw_cache">Hapus Cache Lanjutkan Menonton</string>
@@ -485,7 +473,6 @@
     <string name="advanced_remember_last_profile">Ingat Profil Terakhir</string>
     <string name="advanced_remember_last_profile_subtitle">Ingat profil terakhir yang dipilih saat startup</string>
     <string name="settings_debug">Debug</string>
-    <string name="settings_plugins_section_subtitle">Kelola repositori, penyedia, dan status plugin</string>
     <string name="settings_account_section_subtitle">Status akun dan sinkronisasi</string>
     <string name="account_stat_addons">addon</string>
     <string name="account_stat_plugins">plugin</string>
@@ -511,21 +498,6 @@
     <string name="action_close">Tutup</string>
 
     <!-- SupportersContributorsScreen -->
-    <string name="supporters_tab">Donatur</string>
-    <string name="contributors_tab">Kontributor</string>
-    <string name="supporters_loading">Memuat donatur…</string>
-    <string name="supporters_empty">Belum ada donatur ditemukan.</string>
-    <string name="supporters_error_title">Tidak dapat memuat donatur</string>
-    <string name="supporters_no_message">Tidak ada pesan yang dibagikan.</string>
-    <string name="supporters_open_donations">Buka halaman donasi</string>
-    <string name="contributors_loading">Memuat kontributor GitHub…</string>
-    <string name="contributors_empty">Belum ada kontributor ditemukan.</string>
-    <string name="contributors_error_title">Tidak dapat memuat kontributor</string>
-    <string name="contributors_total_contributions">%1$d total kontribusi</string>
-    <string name="contributors_open_github">Buka Profil GitHub</string>
-    <string name="contributors_show_kofi_qr">Tampilkan QR Ko-fi</string>
-    <string name="contributors_hide_kofi_qr">Sembunyikan QR Ko-fi</string>
-    <string name="contributors_profile_unavailable">Tautan profil GitHub tidak tersedia.</string>
 
     <!-- PlaybackSettingsSections -->
     <string name="playback_loading_overlay">Overlay Pemuatan</string>
@@ -581,7 +553,6 @@
     <string name="playback_engine_mvplayer_desc">Menggunakan libmpv dengan kontrol OSD Fetch. Eksperimental.</string>
 
     <!-- PlaybackAudioSettings -->
-    <string name="audio_trailer_section">Trailer</string>
     <string name="audio_autoplay_trailers">Putar Otomatis Trailer</string>
     <string name="audio_autoplay_trailers_sub">Putar trailer secara otomatis di layar detail setelah periode tidak aktif</string>
     <string name="audio_trailer_delay">Jeda Trailer</string>
@@ -624,7 +595,6 @@
     <string name="audio_decoder_controls">Mengontrol apakah dekoder hardware atau software (FFmpeg) digunakan untuk audio dan video</string>
 
     <!-- PlaybackSubtitleSettings -->
-    <string name="sub_section">Subtitle</string>
     <string name="sub_not_set">Tidak diatur</string>
     <string name="sub_forced_lang">Dipaksa</string>
     <string name="sub_preferred_lang">Bahasa yang Diutamakan</string>
@@ -633,7 +603,6 @@
     <string name="sub_use_forced_subtitles_desc">Utamakan subtitle paksa saat audio cocok dengan bahasa subtitle; jika tidak tersedia, pilih kosong</string>
     <string name="sub_show_only_preferred_languages">Tampilkan Hanya Bahasa yang Diutamakan</string>
     <string name="sub_show_only_preferred_languages_desc">Sembunyikan semua bahasa subtitle lainnya dari daftar pilihan</string>
-    <string name="sub_organization">Organisasi Subtitle</string>
     <string name="sub_size">Ukuran</string>
     <string name="sub_vertical_offset">Offset Vertikal</string>
     <string name="sub_bold">Tebal</string>
@@ -656,12 +625,6 @@
     <string name="sub_mode_effects_canvas_sub">Dukungan animasi menggunakan efek Media3 dengan rendering Canvas.</string>
     <string name="sub_mode_standard">Cue Standar</string>
     <string name="sub_mode_standard_sub">Rendering subtitle dasar tanpa dukungan animasi. Paling kompatibel.</string>
-    <string name="sub_org_none">Tidak ada (urutan bawaan)</string>
-    <string name="sub_org_by_lang">Per bahasa</string>
-    <string name="sub_org_by_addon">Per addon</string>
-    <string name="sub_org_none_desc">Tampilkan subtitle sesuai urutan hasil addon bawaan.</string>
-    <string name="sub_org_by_lang_desc">Kelompokkan subtitle berdasarkan bahasa.</string>
-    <string name="sub_org_by_addon_desc">Kelompokkan subtitle berdasarkan sumber addon.</string>
 
     <!-- PlaybackAutoPlaySettings -->
     <string name="autoplay_reuse_last_link">Gunakan Ulang Tautan Terakhir</string>
@@ -688,7 +651,6 @@
     <string name="autoplay_threshold_pct_title">Persentase Ambang Batas</string>
     <string name="autoplay_threshold_pct_sub">Fallback saat tidak ada cap waktu outro.</string>
     <string name="autoplay_threshold_min_title">Menit Ambang Batas</string>
-    <string name="autoplay_threshold_min_sub">Fallback saat tidak ada cap waktu outro.</string>
     <string name="autoplay_scope_all">Semua sumber</string>
     <string name="autoplay_scope_addons">Hanya addon terpasang</string>
     <string name="autoplay_scope_plugins">Hanya plugin yang diaktifkan</string>
@@ -723,8 +685,6 @@
     <string name="layout_section_home_desc">Pilih struktur dan sumber hero.</string>
     <string name="layout_landscape_posters">Poster Lanskap</string>
     <string name="layout_landscape_posters_sub">Beralih antara kartu portrait dan lanskap untuk tampilan Modern.</string>
-    <string name="layout_preview_row">Tampilkan Baris Pratinjau</string>
-    <string name="layout_preview_row_sub">Tampilkan pratinjau sebagian baris di bawah dalam tata letak Beranda Modern.</string>
     <string name="layout_section_content">Konten Beranda</string>
     <string name="layout_section_content_desc">Kontrol apa yang muncul di beranda dan pencarian.</string>
     <string name="layout_collapse_sidebar">Ciutkan Bilah Sisi</string>
@@ -797,8 +757,6 @@
     <string name="layout_preset_balanced">Seimbang</string>
     <string name="layout_preset_comfort">Nyaman</string>
     <string name="layout_preset_large">Besar</string>
-    <string name="layout_memory_only_scroll">Gulir Vertikal Hanya-Memori</string>
-    <string name="layout_memory_only_scroll_sub">Lewati memuat gambar baru saat menggulir vertikal.</string>
     <string name="layout_preset_sharp">Tajam</string>
     <string name="layout_preset_subtle">Halus</string>
     <string name="layout_preset_classic">Klasik</string>
@@ -816,23 +774,7 @@
     <string name="mdblist_enable_title">Aktifkan Rating MDBList</string>
     <string name="mdblist_enable_subtitle">Ambil rating dari penyedia eksternal di layar detail metadata</string>
     <string name="mdblist_api_key_title">Kunci API</string>
-    <string name="mdblist_api_key_subtitle">Diperlukan untuk mengambil rating dari MDBList</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Tampilkan skor Trakt</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">Tampilkan skor IMDb (dan sembunyikan baris IMDb bawaan saat tersedia)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">Tampilkan skor TMDB</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Tampilkan skor Letterboxd</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">Tampilkan skor kritikus</string>
-    <string name="mdblist_audience_title">Skor Penonton</string>
-    <string name="mdblist_audience_subtitle">Tampilkan skor penonton</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Tampilkan skor Metacritic</string>
     <string name="mdblist_dialog_title">Kunci API MDBList</string>
-    <string name="mdblist_dialog_subtitle">Masukkan kunci API Anda untuk mengambil rating eksternal</string>
     <string name="mdblist_dialog_placeholder">Masukkan kunci API MDBList</string>
     <string name="mdblist_not_set">Tidak diatur</string>
     <string name="mdblist_invalid_api_key">Kunci API MDBList tidak valid</string>
@@ -851,25 +793,11 @@
     <string name="debrid_section_instant_playback">Preparasi sumber</string>
     <string name="debrid_section_filters">Filter &amp; Pengurutan</string>
     <string name="debrid_section_formatting">Format</string>
-    <string name="debrid_provider_title">Penyedia Layanan</string>
-    <string name="debrid_provider_subtitle">Penyedia layanan lain akan ditambahkan kemudian</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">Hubungkan akun Torbox Anda.</string>
     <string name="debrid_provider_description">Hubungkan akun %1$s Anda.</string>
     <string name="debrid_provider_device_description">Hubungkan akun Anda %1$s melalui browser.</string>
     <string name="debrid_api_key_dialog_title">%1$s API Key</string>
     <string name="debrid_api_key_dialog_subtitle">Masukkan %1$s API key Anda.</string>
     <string name="debrid_api_key_dialog_placeholder">Masukkan %1$s API key</string>
-    <string name="debrid_dialog_title">Torbox API Key</string>
-    <string name="debrid_dialog_subtitle">Masukkan Torbox API Key Anda.</string>
-    <string name="debrid_dialog_placeholder">Masukkan Torbox API Key</string>
-    <string name="debrid_real_debrid_api_key_title">Real-Debrid API Token</string>
-    <string name="debrid_real_debrid_api_key_subtitle">Diperlukan untuk mengurai tautan Real-Debrid lokal</string>
-    <string name="debrid_real_debrid_dialog_title">Real-Debrid API Token</string>
-    <string name="debrid_real_debrid_dialog_subtitle">Masukkan Real-Debrid API token untuk Direct Debrid</string>
-    <string name="debrid_real_debrid_dialog_placeholder">Masukkan Real-Debrid API token</string>
     <string name="debrid_not_set">Belum diatur</string>
     <string name="debrid_connected">Terhubung</string>
     <string name="debrid_connect_provider">Hubungkan %1$s</string>
@@ -878,81 +806,19 @@
     <string name="debrid_device_auth_connected">%1$s telah terhubung di perangkat ini.</string>
     <string name="debrid_device_auth_starting">Memulai sign-in dengan aman...</string>
     <string name="debrid_device_auth_instructions">Scan QR dan masukkan kode ini untuk mengizinkan Fetch.</string>
-    <string name="debrid_device_auth_code_copied">Kode tersalin.</string>
     <string name="debrid_device_auth_waiting">Menunggu persetujuan...</string>
     <string name="debrid_device_auth_failed">Tidak dapat memulai sign-in.</string>
     <string name="debrid_device_auth_missing_configuration">Metode sign-in ini tidak dikonfigurasi dalam rilis ini.</string>
     <string name="debrid_device_auth_expired">Kode ini telah kedaluwarsa. Coba lagi.</string>
     <string name="debrid_key_invalid">Tidak dapat memvalidasi API key ini.</string>
-    <string name="debrid_invalid_torbox_api_key">Tidak dapat memvalidasi API key ini.</string>
-    <string name="debrid_invalid_real_debrid_api_key">Tidak dapat memvalidasi token API ini.</string>
     <string name="debrid_prepare_instant_playback">Menyiapkan tautan</string>
     <string name="debrid_prepare_instant_playback_description">Siapkan sumber video sebelum mulai pemutaran dimulai.</string>
     <string name="debrid_prepare_stream_count">Jumlah sumber yang disiapkan</string>
     <string name="debrid_prepare_stream_count_warning">Gunakan jumlah sekecil mungkin. Penyedia layanan Debrid bisa saja membatasi seberapa banyak tautan yang dapat diurai dalam jangka waktu tertentu. Membuka film atau episode serial dihitung dalam batas tersebut meskipun Anda tidak menonton, karena tautan tetap disiapkan terlebih dahulu.</string>
     <string name="debrid_prepare_count_one">1 sumber</string>
     <string name="debrid_prepare_count_many">%1$d sumber</string>
-    <string name="debrid_stream_max_results_title">Hasil maksimal</string>
-    <string name="debrid_stream_max_results_subtitle">Batasi jumlah sumber Direct Debrid yang muncul.</string>
-    <string name="debrid_stream_max_results_all">Semua stream</string>
-    <string name="debrid_stream_max_results_count">%1$d stream</string>
-    <string name="debrid_stream_sort_title">Urutkan stream</string>
-    <string name="debrid_stream_sort_subtitle">Pilih bagaimana sumber Direct Debrid diurutkan.</string>
-    <string name="debrid_stream_sort_default">Setelan Bawaan</string>
-    <string name="debrid_stream_sort_quality">Kualitas, dari yang tertinggi</string>
-    <string name="debrid_stream_sort_size_desc">Ukuran, dari yang terbesar</string>
-    <string name="debrid_stream_sort_size_asc">Ukuran, dari yang terkecil</string>
-    <string name="debrid_stream_min_quality_title">Kualitas minimal</string>
-    <string name="debrid_stream_min_quality_subtitle">Sembunyikan hasil di bawah resolusi yang dipilih.</string>
-    <string name="debrid_stream_min_quality_any">Semua kualitas</string>
-    <string name="debrid_stream_min_quality_720">720p dan ke atas</string>
-    <string name="debrid_stream_min_quality_1080">1080p dan ke atas</string>
-    <string name="debrid_stream_min_quality_2160">Hanya 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">Tampilkan, sembunyikan, atau wajibkan hasil dengan Dolby Vision.</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">Tampilkan, sembunyikan, atau wajibkan hasil dengan HDR.</string>
-    <string name="debrid_stream_feature_any">Semuanya</string>
-    <string name="debrid_stream_feature_exclude">Sembunyikan</string>
-    <string name="debrid_stream_feature_only">Hanya</string>
-    <string name="debrid_stream_codec_title">Codec</string>
-    <string name="debrid_stream_codec_subtitle">Filter hasil berdasarkan codec video.</string>
-    <string name="debrid_stream_codec_any">Semua codec</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
 
     <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
-    <string name="debrid_stream_per_resolution_limit_title">Limit per resolusi</string>
-    <string name="debrid_stream_per_resolution_limit_subtitle">Batasi hasil 2160p, 1080p, 720p yang berulang setelah diurutkan.</string>
-    <string name="debrid_stream_per_quality_limit_title">Limit per kualitas</string>
-    <string name="debrid_stream_per_quality_limit_subtitle">Batas hasil BluRay, WEB-DL, REMUX yang berulang setelah diurutkan.</string>
-    <string name="debrid_stream_size_range_title">Rentang ukuran file</string>
-    <string name="debrid_stream_size_range_subtitle">Filter berdasarkan ukuran file</string>
-    <string name="debrid_stream_resolutions_preferred">Preferensi Resolusi</string>
-    <string name="debrid_stream_resolutions_required">Resolusi wajib</string>
-    <string name="debrid_stream_resolutions_excluded">Resolusi dikecualikan</string>
-    <string name="debrid_stream_qualities_preferred">Preferensi kualitas</string>
-    <string name="debrid_stream_qualities_required">Kualitas wajib</string>
-    <string name="debrid_stream_qualities_excluded">Kualitas dikecualikan</string>
-    <string name="debrid_stream_visual_tags_preferred">Preferensi label visual</string>
-    <string name="debrid_stream_visual_tags_required">Label visual wajib</string>
-    <string name="debrid_stream_visual_tags_excluded">Label visual dikecualikan</string>
-    <string name="debrid_stream_audio_tags_preferred">Preferensi label audio</string>
-    <string name="debrid_stream_audio_tags_required">Label auido wajib</string>
-    <string name="debrid_stream_audio_tags_excluded">Label audio dikecualikan</string>
-    <string name="debrid_stream_channels_preferred">Preferensi saluran audio</string>
-    <string name="debrid_stream_channels_required">Saluran audio wajib</string>
-    <string name="debrid_stream_channels_excluded">Saluran audio dikecualikan</string>
-    <string name="debrid_stream_encodes_preferred">Preferensi video codec</string>
-    <string name="debrid_stream_encodes_required">Codec wajib</string>
-    <string name="debrid_stream_encodes_excluded">Codec dikecualikan</string>
-    <string name="debrid_stream_languages_preferred">Preferensi bahasa</string>
-    <string name="debrid_stream_languages_required">Bahasa wajib</string>
-    <string name="debrid_stream_languages_excluded">Bahasa dikecualikan</string>
-    <string name="debrid_stream_release_groups_required">Grup rilis wajib</string>
-    <string name="debrid_stream_release_groups_excluded">Grup rilis dikeciualikan</string>
-    <string name="debrid_stream_release_groups_input_subtitle">Masukkan satu grup per baris.</string>
 
     <string name="debrid_formatter_title">Editor Web</string>
     <string name="debrid_formatter_subtitle">Konfigurasikan tampilan sumber, filter, dan pengurutan dari perangkat lain.</string>
@@ -1011,14 +877,12 @@
     <!-- TraktScreen -->
     <string name="trakt_description">Sinkronkan daftar tonton, progres menonton, lanjutkan menonton, scrobble, dan daftar pribadi dengan Trakt.</string>
     <string name="trakt_connected_as">Terhubung sebagai %1$s</string>
-    <string name="trakt_account_login">Login Akun</string>
     <string name="trakt_awaiting_instruction">Buka trakt.tv/activate dan masukkan kode ini:</string>
     <string name="trakt_waiting_approval">Menunggu persetujuan…</string>
     <string name="qr_login_approved">Login disetujui. Menyelesaikan masuk…</string>
     <string name="qr_login_pending">Menunggu persetujuan di ponsel Anda…</string>
     <string name="qr_login_expired">Login QR kedaluwarsa. Buat kode baru.</string>
     <string name="qr_login_preparing">Mempersiapkan login QR...</string>
-    <string name="qr_login_device_auth_failed">Gagal mengautentikasi perangkat</string>
     <string name="qr_login_scan_prompt">Pindai QR dan masuk di ponsel Anda</string>
     <string name="qr_login_start_failed">Gagal memulai login QR</string>
     <string name="qr_login_signing_in">Sedang masuk…</string>
@@ -1026,38 +890,19 @@
     <string name="qr_login_exchange_failed">Tidak dapat menyelesaikan masuk QR</string>
     <string name="trakt_code_expires">Kode kedaluwarsa dalam %1$s</string>
     <string name="trakt_token_refreshes">Token akses Trakt diperbarui dalam %1$s</string>
-    <string name="trakt_login_instruction">Tekan Login untuk memulai autentikasi perangkat Trakt. Kode QR akan muncul di sini.</string>
     <string name="trakt_missing_credentials">TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET tidak ada di local.properties.</string>
     <string name="trakt_watch_progress_title">Progres Tonton</string>
     <string name="trakt_watch_progress_subtitle">Pilih sumber progres mana yang menggerakkan lanjutkan dan continue watching</string>
     <string name="trakt_watch_progress_dialog_title">Progres Tonton</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Pilih apakah lanjutkan dan continue watching harus menggunakan Trakt atau Fetch Sync sementara scrobbling Trakt tetap aktif.</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
     <string name="trakt_library_source_title">Sumber Pustaka</string>
     <string name="trakt_library_source_subtitle">Pilih pustaka mana yang digunakan untuk menyimpan dan melihat koleksi Anda</string>
     <string name="trakt_library_source_dialog_title">Sumber Pustaka</string>
-    <string name="trakt_library_source_dialog_subtitle">Pilih di mana menyimpan dan mengelola item pustaka Anda</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_fetch">Pustaka Fetch</string>
-    <string name="trakt_library_source_trakt_selected">Pustaka Trakt dipilih</string>
-    <string name="trakt_library_source_fetch_selected">Pustaka Fetch dipilih</string>
-    <string name="trakt_setting_on">Aktif</string>
-    <string name="trakt_setting_off">Nonaktif</string>
-    <string name="trakt_watch_progress_trakt_selected">Sumber progres tonton diatur ke Trakt</string>
-    <string name="trakt_watch_progress_fetch_selected">Sumber progres tonton diatur ke Fetch Sync</string>
     <string name="trakt_continue_watching_window">Jendela Lanjutkan Menonton</string>
     <string name="trakt_continue_watching_subtitle">Riwayat Trakt yang dipertimbangkan untuk lanjutkan menonton</string>
-    <string name="trakt_unaired_next_up">Episode Selanjutnya yang Belum Tayang</string>
-    <string name="trakt_unaired_next_up_subtitle">Tampilkan episode mendatang sebelum ditayangkan</string>
-    <string name="trakt_unaired_shown">Ditampilkan</string>
-    <string name="trakt_unaired_hidden">Disembunyikan</string>
-    <string name="trakt_unaired_now_shown">Episode Selanjutnya yang belum tayang kini ditampilkan</string>
-    <string name="trakt_unaired_now_hidden">Episode Selanjutnya yang belum tayang kini disembunyikan</string>
     <string name="trakt_comments_title">Komentar</string>
     <string name="trakt_comments_subtitle">Tampilkan ulasan Trakt di halaman metadata</string>
-    <string name="trakt_comments_dialog_title">Komentar</string>
-    <string name="trakt_comments_dialog_subtitle">Pilih apakah halaman metadata harus menampilkan ulasan Trakt saat akun Anda terhubung.</string>
     <string name="trakt_comments_now_shown">Ulasan Trakt di halaman metadata kini ditampilkan</string>
     <string name="trakt_comments_now_hidden">Ulasan Trakt di halaman metadata kini disembunyikan</string>
     <string name="trakt_more_like_this_source_title">Sumber Konten Yang Serupa</string>
@@ -1074,15 +919,8 @@
     <string name="trakt_disconnect">Putuskan</string>
     <string name="trakt_disconnect_title">Putuskan Trakt?</string>
     <string name="trakt_disconnect_subtitle">Ini akan memutuskan akun Trakt Anda dari Fetch.</string>
-    <string name="trakt_login">Masuk</string>
-    <string name="trakt_retry">Coba Lagi</string>
-    <string name="trakt_back">Kembali</string>
     <string name="trakt_cw_window_title">Jendela Lanjutkan Menonton</string>
     <string name="trakt_cw_window_subtitle">Pilih seberapa banyak aktivitas Trakt yang harus muncul di lanjutkan menonton.</string>
-    <string name="trakt_unaired_dialog_title">Episode Selanjutnya yang Belum Tayang</string>
-    <string name="trakt_unaired_dialog_subtitle">Pilih apakah Lanjutkan Menonton harus menyertakan episode mendatang sebelum rilis.</string>
-    <string name="trakt_show_unaired">Tampilkan episode belum tayang</string>
-    <string name="trakt_hide_unaired">Sembunyikan episode belum tayang</string>
     <string name="trakt_all_history">Semua riwayat</string>
     <string name="trakt_days_format">%1$d hari</string>
 
@@ -1121,26 +959,15 @@
     <string name="profile_manage_title">Kelola Profil</string>
     <string name="profile_manage_subtitle">Pilih profil untuk diedit, diganti, atau buat yang baru</string>
     <string name="profile_manage_hint">Pilih profil untuk dikelola</string>
-    <string name="profile_primary_label">Utama</string>
-    <string name="profile_shares_primary">Berbagi %1$s profil utama</string>
     <string name="profile_edit_label">Edit</string>
     <string name="profile_edit_header">Edit Profil</string>
-    <string name="profile_add">Tambah Profil</string>
     <string name="profile_create_title">Buat Profil</string>
-    <string name="profile_edit_title">Edit Profil %1$s</string>
     <string name="profile_name_placeholder">Nama profil</string>
-    <string name="profile_avatar_color">Warna Avatar</string>
-    <string name="profile_use_primary_addons">Gunakan addon profil utama</string>
-    <string name="profile_use_primary_plugins">Gunakan plugin profil utama</string>
     <string name="profile_creating">Membuat\u2026</string>
     <string name="profile_create_btn">Buat</string>
-    <string name="profile_confirm">Konfirmasi</string>
     <string name="profile_delete">Hapus</string>
-    <string name="profile_addons">addon</string>
-    <string name="profile_plugins">plugin</string>
     <string name="profile_choose_avatar">Pilih Avatar</string>
     <string name="profile_custom_avatar_web_panel_note">URL avatar kustom dapat dikonfigurasi dari panel web Fetch.</string>
-    <string name="profile_avatar_none_selected">Tidak ada avatar dipilih</string>
     <string name="profile_avatar_focus_hint">Fokuskan avatar untuk melihat namanya</string>
     <string name="profile_avatar_category_all">Semua</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -1151,30 +978,16 @@
     <string name="profile_add_new">Tambah Profil</string>
     <string name="profile_cancel">Batal</string>
     <string name="profile_save">Simpan</string>
-    <string name="profile_pin_title">Kunci PIN Profil</string>
-    <string name="profile_pin_enabled_subtitle">Profil ini memerlukan PIN 4 digit sebelum beralih.</string>
-    <string name="profile_pin_disabled_subtitle">Atur PIN 4 digit untuk mengunci profil ini.</string>
     <string name="profile_pin_set">Atur PIN</string>
     <string name="profile_pin_change">Ubah PIN</string>
     <string name="profile_pin_remove">Hapus PIN</string>
-    <string name="profile_pin_set_title">Atur PIN profil</string>
-    <string name="profile_pin_set_subtitle">Masukkan PIN 4 digit dan konfirmasikan.</string>
-    <string name="profile_pin_enter">Masukkan PIN 4 digit</string>
-    <string name="profile_pin_confirm">Konfirmasi PIN 4 digit</string>
-    <string name="profile_pin_mismatch">Nilai PIN tidak cocok.</string>
-    <string name="profile_pin_save">Simpan PIN</string>
-    <string name="profile_pin_unlock_title">Buka Kunci %1$s</string>
-    <string name="profile_pin_unlock_subtitle">Masukkan PIN 4 digit untuk melanjutkan.</string>
     <string name="profile_pin_verifying">Memverifikasi…</string>
-    <string name="profile_pin_unlock_action">Buka Kunci</string>
     <string name="profile_pin_overlay_unlock_heading">Masukkan PIN Anda untuk mengakses %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Buat PIN 4 digit untuk %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Konfirmasikan PIN baru Anda.</string>
     <string name="profile_pin_overlay_unlock_support">Gunakan remote atau keyboard untuk memasukkan 4 digit.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">Diperlukan pemeriksaan keamanan.</string>
     <string name="profile_pin_overlay_change_verify_heading">Masukkan PIN saat ini untuk mengubah PIN untuk %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Masukkan PIN 4 digit saat ini sebelum menetapkan yang baru.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">Diperlukan pemeriksaan keamanan.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Masukkan PIN saat ini untuk menghapus kunci untuk %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Masukkan PIN 4 digit saat ini untuk menghapus kunci ini.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Masukkan PIN saat ini untuk menghapus %1$s.</string>
@@ -1182,7 +995,7 @@
     <string name="profile_pin_overlay_set_support">PIN ini akan diperlukan sebelum membuka profil ini.</string>
     <string name="profile_pin_overlay_confirm_support">Masukkan ulang 4 digit yang sama untuk menyelesaikan pengaturan.</string>
     <string name="profile_pin_overlay_mismatch">PIN tidak cocok. Masukkan PIN baru lagi.</string>
-    <string name="profile_pin_overlay_forgot_hint">Lupa PIN? Setel ulang dari akun Fetch Anda di situs web fetch.</string>
+    <string name="profile_pin_overlay_forgot_hint">Lupa PIN? Setel ulang dari akun Fetch Anda di situs web Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Tekan kembali untuk membatalkan</string>
 
 
@@ -1255,8 +1068,6 @@
     <string name="debrid_missing_api_key">Tambahkan kunci API Debrid di Pengaturan.</string>
     <string name="debrid_not_cached">Belum cached di Layanan Debrid ini.</string>
     <string name="debrid_resolution_failed">Tidak dapat mengurai stream Debrid ini.</string>
-    <string name="stream_type_torrent">Torrent</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">Streaming P2P</string>
     <string name="p2p_consent_body">Stream ini menggunakan teknologi peer-to-peer (P2P). Dengan mengaktifkan P2P, Anda mengakui dan menyetujui bahwa:\n\n\u2022 Alamat IP Anda akan terlihat oleh peer lain di jaringan\n\u2022 Anda sepenuhnya bertanggung jawab atas konten yang Anda akses\n\u2022 Anda mengonfirmasi bahwa Anda memiliki hak hukum untuk streaming konten ini di yurisdiksi Anda\n\u2022 Fetch tidak menyelenggarakan, mendistribusikan, atau mengontrol konten P2P apa pun\n\u2022 Fetch tidak bertanggung jawab atas konsekuensi hukum apa pun yang timbul dari penggunaan streaming P2P Anda\n\nAnda menggunakan fitur ini sepenuhnya atas risiko Anda sendiri. P2P dapat dinonaktifkan kapan saja di Pengaturan.</string>
     <string name="p2p_consent_enable">Aktifkan P2P</string>
@@ -1265,9 +1076,6 @@
     <string name="settings_p2p_subtitle">Izinkan stream peer-to-peer (torrent)</string>
     <string name="settings_p2p_hide_stats_title">Sembunyikan statistik torrent</string>
     <string name="settings_p2p_hide_stats_subtitle">Sembunyikan buffer, seed, peer, dan kecepatan unduhan selama pemuatan dan pemutaran</string>
-    <string name="p2p_download_title">Mengunduh Mesin P2P</string>
-    <string name="p2p_download_subtitle">Ini unduhan satu kali yang diperlukan untuk streaming P2P.</string>
-    <string name="stream_type_external">Eksternal</string>
     <string name="stream_player_picker_title">Pemutar apa yang harus digunakan?</string>
     <string name="stream_player_internal">Internal</string>
     <string name="stream_player_external">Eksternal</string>
@@ -1277,15 +1085,12 @@
     <string name="player_no_external_player">Tidak ada pemutar eksternal ditemukan</string>
     <string name="player_loading_preparing">Mempersiapkan stream…</string>
     <string name="player_loading_detecting_format">Mendeteksi format stream…</string>
-    <string name="player_loading_subtitles">Mengambil subtitle…</string>
     <string name="player_loading_subtitles_from">Mengambil subtitle dari %1$d addon…</string>
     <string name="player_loading_subtitles_progress">Mengambil subtitle… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Subtitle: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">Membangun pemutar…</string>
     <string name="player_loading_starting">Memulai stream…</string>
     <string name="player_loading_buffering">Buffering…</string>
-    <string name="player_loading_fallback_pcm_audio">Inisialisasi trek audio gagal - beralih ke audio PCM…</string>
-    <string name="player_loading_fallback_hevc_decoder">Inisialisasi dekoder gagal - beralih ke dekoder HEVC…</string>
     <string name="player_engine_switching_title">Mengganti Mesin Pemutar</string>
     <string name="player_engine_switching_message">Startup gagal. Beralih ke %1$s…</string>
     <string name="player_engine_switching_manual_message">Beralih ke %1$s...</string>
@@ -1348,7 +1153,6 @@
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">Sumber</string>
-    <string name="sources_reload">Muat Ulang</string>
     <string name="sources_close">Tutup</string>
     <string name="sources_playing">Sedang Diputar</string>
     <string name="sources_no_streams">Tidak ada stream ditemukan</string>
@@ -1356,7 +1160,6 @@
     <!-- EpisodesSidePanel -->
     <string name="episodes_panel_close">Tutup</string>
     <string name="episodes_panel_back">Kembali</string>
-    <string name="episodes_panel_reload">Muat Ulang</string>
     <string name="episodes_panel_no_streams">Tidak ada stream ditemukan</string>
     <string name="episodes_panel_no_episodes">Tidak ada episode tersedia</string>
     <string name="episodes_panel_title">Episode</string>
@@ -1373,8 +1176,6 @@
 
     <!-- AudioDialog -->
     <string name="audio_dialog_title">Audio</string>
-    <string name="audio_dialog_tab_tracks">Audio</string>
-    <string name="audio_dialog_tab_mix">Campuran</string>
     <string name="audio_delay_label">Penundaan Audio</string>
     <string name="audio_delay_range">Rentang: %1$.2f dtk hingga %2$.2f dtk</string>
     <string name="audio_mix_label">Amplifikasi (PCM)</string>
@@ -1393,30 +1194,14 @@
 
     <!-- SubtitleDialog / SubtitleStyleSidePanel -->
     <string name="subtitle_dialog_title">Subtitle</string>
-    <string name="subtitle_no_builtin">Tidak ada subtitle bawaan tersedia</string>
     <string name="subtitle_loading_addon">Memuat subtitle dari addon\u2026</string>
     <string name="subtitle_no_addon">Tidak ada subtitle addon tersedia</string>
-    <string name="subtitle_text_color">Warna Teks</string>
-    <string name="subtitle_outline_color">Warna Garis Tepi</string>
     <string name="subtitle_reset_defaults">Setelan Bawaan</string>
-    <string name="subtitle_tab_builtin">Bawaan</string>
-    <string name="subtitle_tab_addons">Addon</string>
     <string name="subtitle_tab_languages">Bahasa</string>
-    <string name="subtitle_tab_style">Gaya</string>
     <string name="subtitle_tab_delay">Penundaan</string>
     <string name="subtitle_none">Tidak ada</string>
     <string name="subtitle_built_in">Bawaan</string>
-    <string name="subtitle_all">Semua</string>
-    <string name="subtitle_section_core">Inti</string>
-    <string name="subtitle_section_advanced">Lanjutan</string>
-    <string name="subtitle_font_size">Ukuran Font</string>
-    <string name="subtitle_bold">Tebal</string>
-    <string name="subtitle_outline">Garis Tepi</string>
-    <string name="subtitle_bottom_offset">Batas Bawah</string>
-    <string name="subtitle_on">Aktif</string>
-    <string name="subtitle_off">Nonaktif</string>
     <string name="subtitle_style_title">Gaya Subtitle</string>
-    <string name="subtitle_style_customize">Kustomisasi</string>
     <string name="subtitle_style_color">Warna</string>
     <string name="subtitle_style_reset">Setel Ulang</string>
     <string name="subtitle_style_font_size">Ukuran Font</string>
@@ -1428,8 +1213,6 @@
     <string name="subtitle_style_defaults">Setelan Bawaan</string>
     <string name="subtitle_style_on">Aktif</string>
     <string name="subtitle_style_off">Nonaktif</string>
-    <string name="panel_failed_load_streams">Gagal memuat stream</string>
-    <string name="panel_failed_load_episodes">Gagal memuat episode</string>
 
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Anda sedang menonton</string>
@@ -1465,7 +1248,6 @@
 
 
     <!-- SearchScreen -->
-    <string name="search_keyboard_hint">Tekan Selesai di keyboard untuk mencari</string>
     <string name="search_placeholder">Cari film &amp; serial</string>
     <string name="search_start_title">Mulai Mencari</string>
     <string name="search_start_subtitle">Masukkan setidaknya 2 karakter</string>
@@ -1478,7 +1260,6 @@
     <string name="search_voice_unavailable">Pencarian suara tidak tersedia di perangkat ini.</string>
 
     <!-- LibraryScreen -->
-    <string name="library_syncing">Menyinkronkan pustaka Trakt\u2026</string>
     <string name="library_title">Pustaka</string>
     <string name="library_filter_list">Daftar</string>
     <string name="library_filter_type">Tipe</string>
@@ -1514,13 +1295,11 @@
     <string name="genre_soap">Sinetron</string>
     <string name="genre_talk">Talk Show</string>
     <string name="genre_war_politics">Perang &amp; Politik</string>
-    <string name="library_sort_trakt_order">Urutan Trakt</string>
     <string name="library_sort_added_desc">Ditambahkan ↓</string>
     <string name="library_sort_added_asc">Ditambahkan ↑</string>
     <string name="library_sort_title_asc">Judul A-Z</string>
     <string name="library_sort_title_desc">Judul Z-A</string>
     <string name="library_manage_lists">Kelola Daftar</string>
-    <string name="library_manage_trakt_lists">Kelola Daftar Trakt</string>
     <string name="library_no_lists">Belum ada daftar pribadi.</string>
     <string name="library_list_create">Buat</string>
     <string name="library_list_edit">Edit</string>
@@ -1534,34 +1313,25 @@
     <string name="library_list_privacy">Privasi</string>
     <string name="library_delete_title">Hapus daftar ini?</string>
     <string name="library_delete_subtitle">Ini menghapus daftar dan semua item daftar dari Trakt.</string>
-    <string name="library_delete_confirm">Hapus</string>
     <string name="library_source_local">LOKAL</string>
-    <string name="library_source_fetch">FETCH</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">Tersimpan</string>
     <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Daftar Tonton</string>
     <string name="library_syncing_library">Menyinkronkan pustaka\u2026</string>
     <string name="library_type_all">Semua</string>
-    <string name="library_type_items">item</string>
     <string name="library_empty_local_title">Belum ada %1$s</string>
     <string name="library_empty_trakt_title">Tidak ada %1$s di daftar ini</string>
     <string name="library_empty_local_subtitle">Mulai simpan favorit Anda untuk melihatnya di sini</string>
     <string name="library_empty_trakt_subtitle">Gunakan + di detail untuk menambahkan item ke daftar tonton atau daftar</string>
     <string name="library_empty_trakt_not_auth_title">Trakt belum terhubung</string>
     <string name="library_empty_trakt_not_auth_subtitle">Hubungkan akun Trakt Anda di Pengaturan untuk melihat pustaka Trakt Anda</string>
-    <string name="cloud_library_connect_action">Hubungkan akun</string>
     <string name="cloud_library_connect_message">Hubungkan akun di pengaturan Layanan Debrid untuk menelusuri file yang dapat diputar dari pustaka cloud Anda.</string>
     <string name="cloud_library_connect_title">Tidak ada akun cloud yang terhubung</string>
-    <string name="cloud_library_disabled_action">Buka Layanan Debrid</string>
     <string name="cloud_library_disabled_message">Aktifkan pustaka cloud di pengaturan Layanan Debrid untuk menelusuri file dari akun yang terhubung.</string>
     <string name="cloud_library_disabled_title">Pustaka cloud tidak aktif</string>
     <string name="cloud_library_empty_message">Tidak ada file yang dapat diputar sesuai dengan filter saat ini.</string>
     <string name="cloud_library_empty_title">Belum ada apapun di sini</string>
     <string name="cloud_library_file_picker_title">Pilih file untuk diputar</string>
-    <string name="cloud_library_load_failed">Tidak dapat memuat pustaka cloud %1$s </string>
-    <string name="cloud_library_no_files_message">Item ini tidak terlihat seperti file video yang dapat diputar.</string>
-    <string name="cloud_library_no_files_title">Tidak ada file yang dapat diputar</string>
     <string name="cloud_library_no_playable_files">Tidak ada file yang dapat diputar</string>
     <string name="cloud_library_one_playable_file">1 file dapat diputar</string>
     <string name="cloud_library_opening">Membuka\u2026</string>
@@ -1596,12 +1366,9 @@
     <string name="auth_signin_qr_btn">Lanjutkan dengan QR</string>
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_title">Masuk dengan QR</string>
     <string name="auth_qr_finishing">Menyelesaikan masuk\u2026</string>
-    <string name="auth_qr_code_label">Kode: %1$s</string>
     <string name="auth_qr_expires">Kedaluwarsa dalam %1$s</string>
     <string name="auth_qr_scan_instruction">Pindai QR, setujui di browser, lalu kembali ke sini.</string>
-    <string name="auth_qr_code_display">Kode: %1$s</string>
     <string name="auth_qr_refresh">Muat Ulang QR</string>
     <string name="auth_qr_continue_without_account">Lanjutkan tanpa akun</string>
     <string name="auth_qr_connected">Akun Anda terhubung di TV ini.</string>
@@ -1636,7 +1403,6 @@
     <string name="plugin_repositories_section">Repositori (%1$d)</string>
     <string name="plugin_providers_section">Penyedia (%1$d)</string>
     <string name="plugin_title">Plugin</string>
-    <string name="plugin_subtitle">Kelola scraper dan penyedia lokal</string>
     <string name="plugin_enable_plugins_title">Aktifkan penyedia plugin secara global</string>
     <string name="plugin_enable_plugins_subtitle">Gunakan penyedia plugin selama pencarian stream</string>
     <string name="plugin_group_by_repository_title">Kelompokkan penyedia plugin per repositori</string>
@@ -1696,7 +1462,6 @@
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Pembaruan Aplikasi</string>
-    <string name="update_downloading">Mengunduh pembaruan</string>
     <string name="update_download">Unduh</string>
     <string name="update_downloading_ellipsis">Mengunduh…</string>
     <string name="update_unknown_sources">Izinkan pemasangan dari sumber tidak dikenal untuk melanjutkan.</string>
@@ -1737,39 +1502,26 @@
     <!-- PluginScreen -->
     <string name="plugin_and_more">... dan %1$d lainnya</string>
     <string name="plugin_providers_count">%1$d penyedia</string>
-    <string name="plugin_enabled">Diaktifkan</string>
-    <string name="plugin_disabled">Dinonaktifkan</string>
     <string name="plugin_no_repos">Belum ada repositori ditambahkan.\nTambahkan repositori untuk memulai.</string>
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">Edit Profil %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Passthrough audio (TrueHD, DTS, AC-3, dll.) bersifat otomatis. Saat terhubung ke penerima AV atau soundbar yang kompatibel melalui HDMI, audio lossless dikirim apa adanya tanpa dekoding.</string>
-    <string name="audio_dv_title">DV7 - Fallback HEVC</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">Beranda</string>
     <string name="nav_discover">Penemuan</string>
     <string name="nav_search">Pencarian</string>
     <string name="nav_library">Pustaka</string>
-    <string name="nav_addons">Addon</string>
-    <string name="nav_movies">Film</string>
-    <string name="nav_series">Serial</string>
     <string name="nav_settings">Pengaturan</string>
     <string name="action_select">Pilih</string>
     <string name="settings_rounded_ui">UI Membulat</string>
-    <string name="cd_expand_sidebar">Luaskan bilah sisi</string>
 
-    <string name="update_checking">Memeriksa pembaruan…</string>
     <string name="update_download_complete">Unduhan selesai. Siap dipasang.</string>
-    <string name="update_up_to_date">Sistem sudah terkini. Perubahan terbaru:</string>
     <string name="update_close">Tutup</string>
     <string name="update_open_settings">Buka Pengaturan</string>
     <string name="update_install">Pasang</string>
-    <string name="update_ignore">Abaikan</string>
-    <string name="watchlist_added">Ditambahkan ke daftar tonton</string>
-    <string name="watchlist_removed">Dihapus dari daftar tonton</string>
 
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Tidak dapat menyimpan PIN. Coba lagi.</string>
@@ -1855,7 +1607,6 @@
     <string name="search_error_no_catalogs">Tidak ada katalog yang bisa dicari ditemukan di addon terpasang</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_addons">Tidak ada addon terpasang</string>
     <string name="home_error_no_catalog_addons">Tidak ada addon katalog terpasang</string>
 
     <!-- Player errors -->
@@ -1890,7 +1641,6 @@
     <string name="cd_stream_info">Info stream</string>
     <string name="cd_more_actions">Aksi lainnya</string>
     <string name="cd_close_more_actions">Tutup aksi lainnya</string>
-    <string name="cd_back">Kembali</string>
     <string name="cd_next_episode_thumbnail">Thumbnail episode berikutnya</string>
     <string name="cd_current">Saat ini</string>
     <string name="cd_loading_backdrop">Memuat backdrop</string>
@@ -1912,8 +1662,6 @@
     <string name="cd_imdb">IMDb</string>
     <string name="cd_open_discover">Buka penemuan</string>
     <string name="cd_voice_search">Pencarian suara</string>
-    <string name="cd_donation_qr">Kode QR donasi</string>
-    <string name="cd_contributor_qr">Kode QR dukungan kontributor</string>
     <string name="cd_expand">Luaskan %1$s</string>
     <string name="cd_collapse">Ciutkan %1$s</string>
     <string name="cd_qr_login">Kode login QR</string>
@@ -1996,7 +1744,6 @@
     <string name="collections_editor_choose_emoji">Pilih Emoji</string>
     <string name="collections_editor_back">Kembali</string>
     <string name="collections_editor_edit_collection">Edit Koleksi</string>
-    <string name="collections_editor_catalog_count">%1$d katalog</string>
     <string name="collections_editor_source_count">%1$d sumber</string>
     <string name="collections_editor_sources">Sumber</string>
     <string name="collections_editor_source">Sumber</string>
@@ -2026,7 +1773,6 @@
     <string name="collections_editor_tmdb_collection_id">ID Koleksi</string>
     <string name="collections_editor_tmdb_company_search">Nama, ID, atau URL perusahaan produksi</string>
     <string name="collections_editor_tmdb_display_title">Judul tampilan</string>
-    <string name="collections_editor_tmdb_title_optional">Judul (opsional)</string>
     <string name="collections_editor_tmdb_search">Cari</string>
     <string name="collections_editor_add_source">Tambah Sumber</string>
     <string name="collections_editor_save_source">Simpan Sumber</string>
@@ -2251,7 +1997,6 @@
     <string name="player_error_stream_rate_limited">\n\nTerlalu banyak permintaan ke sumber stream. Tunggu sebentar dan coba lagi.</string>
     <string name="player_error_stream_unavailable">\n\nServer stream saat ini tidak tersedia. Coba sumber lain.</string>
     <string name="player_error_source_invalid_content">Error sumber: Sumber stream menghasilkan konten tidak valid atau tidak dapat diputar. Tautan mungkin telah kedaluwarsa atau server menghasilkan halaman error, bukan video.\n\nCoba sumber lain. [%1$s]</string>
-    <string name="player_error_decoder">Error dekoder</string>
     <string name="player_error_unsupported_format">Stream ini menggunakan format yang mungkin tidak didukung perangkat Anda. Coba sumber lain. [%1$s]</string>
     <string name="player_error_initialize_failed">Gagal menginisialisasi pemutar</string>
     <string name="player_error_mpv_surface_failed">Gagal menginisialisasi permukaan libmpv</string>
@@ -2286,7 +2031,6 @@
     <string name="library_synced">Pustaka disinkronkan</string>
     <string name="library_error_refresh_failed">Gagal memperbarui pustaka</string>
     <string name="library_list_created">Daftar dibuat</string>
-    <string name="library_error_invalid_list">Daftar tidak valid</string>
     <string name="library_list_updated">Daftar diperbarui</string>
     <string name="library_error_save_list_failed">Gagal menyimpan daftar</string>
     <string name="library_list_deleted">Daftar dihapus</string>
@@ -2295,13 +2039,8 @@
     <string name="library_error_reorder_lists_failed">Gagal menyusun ulang daftar</string>
     <string name="library_list_fallback_title">Daftar</string>
     <!-- Library privacy display labels -->
-    <string name="library_privacy_private">Pribadi</string>
-    <string name="library_privacy_link">Tautan</string>
-    <string name="library_privacy_friends">Teman</string>
-    <string name="library_privacy_public">Publik</string>
 
     <!-- Trakt errors -->
-    <string name="trakt_error_auth_required">Autentikasi Trakt diperlukan</string>
     <string name="trakt_library_error_request_failed">Permintaan Trakt gagal</string>
     <string name="trakt_library_error_create_list_failed">Gagal membuat daftar</string>
     <string name="trakt_library_error_update_list_failed">Gagal memperbarui daftar</string>
@@ -2318,7 +2057,6 @@
     <string name="trakt_library_error_auth_expired">Autentikasi Trakt kedaluwarsa</string>
     <string name="trakt_library_error_list_not_found">Daftar Trakt tidak ditemukan</string>
     <string name="trakt_library_error_list_limit_reached">Batas daftar Trakt tercapai. Diperlukan peningkatan.</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">ID Trakt tidak cukup untuk menandai sudah ditonton</string>
     <string name="trakt_error_request_failed">Permintaan Trakt gagal</string>
     <string name="trakt_error_mark_watched_failed">Gagal menandai sudah ditonton di Trakt (%1$d)</string>
 
@@ -2340,25 +2078,15 @@
     <string name="stream_embedded_group">Stream Tertanam</string>
     <string name="stream_embedded_fallback_name">Stream Embed</string>
     <string name="stream_quality_unknown">Tidak Diketahui</string>
-    <string name="stream_addon_unknown">Tidak Diketahui</string>
-    <string name="tmdb_unknown_entity">Tidak Diketahui</string>
     <string name="web_tmdb_company_fallback">Perusahaan TMDB %1$d</string>
     <string name="web_tmdb_collection_fallback">Koleksi TMDB %1$d</string>
     <string name="web_error_invalid_request_body">Isi permintaan tidak valid</string>
 
     <!-- Subtitle preferred language fallback -->
-    <string name="language_english">Inggris</string>
 
     <!-- Supporters / contributors / sponsors errors -->
-    <string name="supporters_error_load">Tidak dapat memuat donatur.</string>
-    <string name="contributors_error_load">Tidak dapat memuat kontributor.</string>
-    <string name="contributors_error_api_not_configured">API Kontributor belum dikonfigurasi.</string>
-    <string name="contributors_error_api_http">Error API Kontributor: %1$d</string>
-    <string name="supporters_error_api_http">Error API Donasi: %1$d</string>
 
     <!-- Contributor role badges -->
-    <string name="contributor_role_translator">Penerjemah</string>
-    <string name="contributor_role_maintainer">Pemelihara</string>
 
     <!-- Network / safe API errors -->
     <string name="network_error_empty_response_body">Isi respons kosong</string>
@@ -2372,7 +2100,6 @@
 
     <!-- Player runtime: stream / external link errors -->
     <string name="player_torrent_starting_engine">Memulai mesin P2P…</string>
-    <string name="player_torrent_rebuffer_status">%1$s dibuffer</string>
     <string name="player_stream_error_invalid_external_url">URL eksternal tidak valid</string>
     <string name="player_stream_error_open_external_link_failed">Tidak dapat membuka tautan eksternal</string>
     <string name="player_stream_error_invalid_url">URL stream tidak valid</string>
@@ -2380,11 +2107,6 @@
 
     <!-- Meta repository: addon detail error fragments -->
     <string name="meta_error_detail_no_metadata_for_id">tidak menyediakan metadata untuk ID ini</string>
-    <string name="meta_error_detail_addon_unreachable">tidak dapat menjangkau server addon</string>
-    <string name="meta_error_detail_addon_connection_failed">koneksi ke addon gagal</string>
-    <string name="meta_error_detail_addon_timeout">permintaan addon habis waktu</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">addon menggunakan koneksi HTTP tidak aman yang diblokir oleh Android</string>
-    <string name="meta_error_detail_addon_request_failed">permintaan addon gagal</string>
 
     <!-- Stream repository: addon detail error fragments + fetch -->
     <string name="stream_error_detail_no_streams_for_id">tidak menyediakan stream untuk ID ini</string>
@@ -2411,4 +2133,218 @@
     <string name="trakt_comments_error_request_failed">Permintaan komentar Trakt gagal</string>
     <string name="trakt_library_error_fetch_list_items">Gagal mengambil item daftar</string>
 
+    <!-- Fetch: new and changed strings -->
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="best_match_cached">Di cache</string>
+    <string name="debrid_stream_rules_moved">Aturan stream kini ada di Pemutaran → Pemilihan stream dan berlaku untuk semua sumber, termasuk debrid. Aturan yang Anda atur di sini sudah dipindahkan ke sana.</string>
+    <string name="prefer_next_time_title">Utamakan ini lain kali?</string>
+    <string name="prefer_next_time_group">Grup %1$s</string>
+    <string name="prefer_next_time_language">Audio %1$s</string>
+    <string name="prefer_next_time_size">File hingga %1$d GB</string>
+    <string name="prefer_next_time_not_now">Jangan sekarang</string>
+    <string name="prefer_next_time_saved">Kecocokan terbaik akan mengutamakan: %1$s</string>
+    <string name="best_match_excluded">Tidak diputar otomatis: %1$s</string>
+    <string name="exclusion_above_max_resolution">melebihi resolusi maksimum Anda</string>
+    <string name="exclusion_below_min_resolution">di bawah resolusi minimum Anda</string>
+    <string name="exclusion_over_max_size">melebihi batas ukuran Anda</string>
+    <string name="exclusion_under_min_size">lebih kecil dari ukuran minimum Anda</string>
+    <string name="exclusion_resolution">Anda melewati %1$s</string>
+    <string name="exclusion_source">Anda melewati rilis %1$s</string>
+    <string name="exclusion_codec">Anda melewati %1$s</string>
+    <string name="exclusion_audio">Anda melewati audio %1$s</string>
+    <string name="exclusion_language">Anda melewati %1$s</string>
+    <string name="exclusion_release_group">Anda melewati grup %1$s</string>
+    <string name="exclusion_result_limit">melebihi batas hasil Anda</string>
+    <string name="exclusion_dv_profile_excluded">Anda menonaktifkan profil Dolby Vision ini</string>
+    <string name="exclusion_dv_excluded">Anda menonaktifkan Dolby Vision</string>
+    <string name="exclusion_hdr_excluded">Anda menonaktifkan HDR</string>
+    <string name="exclusion_cam">salinan cam atau telesync</string>
+    <string name="exclusion_3d">rilis 3D</string>
+    <string name="exclusion_keyword">cocok dengan kata kunci yang dikecualikan</string>
+    <string name="exclusion_unsupported_codec">TV ini tidak bisa mendekode %1$s</string>
+    <string name="exclusion_unsupported_dv">DV profil 5 tidak didukung di TV ini</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">DV dengan HDR10+ menampilkan layar hitam di perangkat ini</string>
+    <string name="exclusion_unsupported_resolution">resolusi lebih tinggi dari yang bisa ditampilkan TV ini</string>
+    <string name="exclusion_unsupported_audio">%1$s memerlukan passthrough atau dekoder yang tidak dimiliki TV ini</string>
+    <string name="exclusion_not_playable">pemutar ini tidak bisa membukanya</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="other">Mencari… %1$d sudah menjawab, %2$d addon masih mencari</item>
+    </plurals>
+    <string name="fetching_addons_done">Semua %1$d addon sudah menjawab</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="other">Mulai dalam %1$d detik</item>
+    </plurals>
+    <string name="fetching_best_so_far">Terbaik sejauh ini</string>
+    <string name="fetching_play_now">Putar sekarang</string>
+    <string name="fetching_see_all_sources">Lihat semua sumber</string>
+    <string name="licenses_attributions_fetch_body">Fetch adalah perangkat lunak bebas di bawah GNU General Public License v3.0. Fetch merupakan fork dari NuvioTV oleh para kontributor Nuvio (github.com/NuvioMedia/NuvioTV), yang karyanya membentuk sebagian besar aplikasi ini.</string>
+    <string name="advanced_section_skip_markers">Penanda lewati</string>
+    <string name="advanced_introdb_server">Server IntroDB</string>
+    <string name="advanced_introdb_server_subtitle">Sumber penanda intro, rekap, dan kredit untuk acara TV dan film biasa</string>
+    <string name="advanced_introdb_server_default">Default (%1$s)</string>
+    <string name="advanced_introdb_server_dialog_subtitle">API yang kompatibel dengan IntroDB. Biarkan kosong untuk memakai server publik.</string>
+    <string name="advanced_introdb_server_invalid">Masukkan alamat http atau https</string>
+    <string name="advanced_introdb_api_key">Kunci API IntroDB</string>
+    <string name="advanced_introdb_api_key_subtitle">Memungkinkan Anda menandai intro dan kredit akhir dari pemutar lalu mengirimnya ke IntroDB</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">Buat kunci di introdb.app. Kunci diawali dengan idb_.</string>
+    <string name="sub_hdr_style">Gaya HDR / Dolby Vision terpisah</string>
+    <string name="sub_hdr_style_sub">Gunakan warna teks berbeda dan kecerahan lebih redup untuk subtitle pada video HDR dan Dolby Vision</string>
+    <string name="sub_hdr_text_color">Warna Teks HDR</string>
+    <string name="sub_hdr_brightness">Kecerahan Subtitle HDR</string>
+    <string name="best_match_preview_title">Tampilkan pilihan di tombol Putar</string>
+    <string name="best_match_preview_sub">Menanyakan addon stream Anda tentang sebuah judul saat Anda melihatnya, sehingga tombol Putar bisa menyebut file-nya dan pemutaran dimulai lebih cepat. Nonaktifkan agar hanya mencari setelah Anda menekan Putar.</string>
+    <string name="autoplay_allowed_addons_early_sub">Putar otomatis dimulai begitu addon ini menjawab, tanpa menunggu semua addon.</string>
+    <string name="layout_trailer_crop_to_fill">Potong trailer agar memenuhi layar</string>
+    <string name="layout_trailer_crop_to_fill_sub">Perbesar trailer latar di Beranda dan halaman detail agar memenuhi bingkai. Nonaktifkan untuk melihat seluruh gambar dengan bilah hitam.</string>
+    <string name="addon_configure">Konfigurasi</string>
+    <string name="addon_badge_needs_setup">Perlu diatur</string>
+    <string name="addon_needs_configuration">%1$s perlu diatur sebelum bisa dipasang</string>
+    <string name="addon_configure_updated">%1$s diperbarui</string>
+    <string name="addon_configure_still_unconfigured">%1$s masih belum diatur. Selesaikan halaman konfigurasinya, lalu kirim tautannya lagi.</string>
+    <string name="addon_configure_title">Konfigurasi %1$s</string>
+    <string name="addon_configure_received">Ponsel Anda mengirim: %1$s</string>
+    <string name="addon_configure_install">Pasang</string>
+    <string name="addon_configure_step_open">1. Pindai untuk membuka halaman konfigurasinya di ponsel Anda</string>
+    <string name="addon_configure_step_send">2. Pindai untuk mengirim tautan baru kembali ke TV ini</string>
+    <string name="addon_configure_waiting">Setelah menyimpan, salin tautan pemasangan dari halaman tersebut dan kirim dari langkah 2.</string>
+    <string name="addon_configure_no_server">Setelah menyimpan, tempel tautan pemasangan ke kotak di bagian atas layar ini.</string>
+    <string name="addon_configure_web_title">Kirim ke TV</string>
+    <string name="addon_configure_web_step1">Atur addon di halamannya sendiri terlebih dahulu.</string>
+    <string name="addon_configure_web_open">Buka halaman konfigurasi</string>
+    <string name="addon_configure_web_step2">Saat muncul tautan pemasangan (atau alamat manifest.json), salin dan tempel di sini.</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json atau stremio://…</string>
+    <string name="addon_configure_web_send">Kirim ke TV</string>
+    <string name="addon_configure_web_sent">Terkirim. Konfirmasikan di TV Anda.</string>
+    <string name="addon_configure_web_invalid">Itu tidak terlihat seperti tautan addon.</string>
+    <string name="addon_configure_web_failed">Tidak dapat menjangkau TV. Apakah TV masih di layar konfigurasi?</string>
+    <string name="catalog_order_pinned_on_home">Disematkan di atas Beranda</string>
+    <string name="catalog_order_pin">Sematkan di atas</string>
+    <string name="filter_rows_title">Baris filter</string>
+    <string name="filter_rows_subtitle">Baris yang dibuat dari filter atas pustaka server media atau katalog addon. Baris ini muncul di Beranda, tempat Anda bisa mengurutkan ulang, menyembunyikan, dan menyematkannya seperti baris lain.</string>
+    <string name="filter_rows_card_subtitle">Buat baris Beranda seperti \"sci-fi yang belum ditonton dari Jellyfin saya\"</string>
+    <string name="filter_rows_new">Baris filter baru</string>
+    <string name="filter_rows_edit_title">Edit baris filter</string>
+    <string name="filter_rows_empty">Belum ada baris filter.</string>
+    <string name="filter_rows_no_sources">Hubungkan server media atau pasang addon dengan katalog genre untuk membuat baris filter.</string>
+    <string name="filter_rows_edit">Edit</string>
+    <string name="filter_rows_delete">Hapus</string>
+    <string name="filter_rows_save">Simpan</string>
+    <string name="filter_rows_save_failed">Tidak dapat menyimpan. Coba lagi.</string>
+    <string name="filter_row_any">Apa saja</string>
+    <string name="filter_row_source">Sumber</string>
+    <string name="filter_row_genre">Genre</string>
+    <string name="filter_row_year_from">Dari tahun</string>
+    <string name="filter_row_year_to">Sampai tahun</string>
+    <string name="filter_row_watched">Sudah ditonton</string>
+    <string name="filter_row_watched_only">Hanya yang sudah ditonton</string>
+    <string name="filter_row_unwatched">Hanya yang belum ditonton</string>
+    <string name="filter_row_rating">Rating minimum</string>
+    <string name="filter_row_rating_value">%1$.1f atau lebih</string>
+    <string name="filter_row_sort">Urutkan menurut</string>
+    <string name="filter_row_sort_added">Tanggal ditambahkan</string>
+    <string name="filter_row_sort_title">Judul</string>
+    <string name="filter_row_sort_release">Tanggal rilis</string>
+    <string name="filter_row_sort_rating">Rating</string>
+    <string name="filter_row_sort_random">Acak</string>
+    <string name="filter_row_order">Urutan</string>
+    <string name="filter_row_descending">Menurun</string>
+    <string name="filter_row_ascending">Menaik</string>
+    <string name="filter_row_addon_note">Katalog addon hanya bisa difilter menurut genre.</string>
+    <string name="filter_row_source_missing">Sumber baris ini sudah tidak tersedia.</string>
+    <string name="home_poster_pin_row">Sematkan baris ini di atas</string>
+    <string name="home_poster_unpin_row">Lepas sematan baris ini</string>
+    <string name="catalog_order_unpin">Lepas sematan</string>
+    <string name="subtitle_style_text_color_hdr">Warna Teks (HDR)</string>
+    <string name="subtitle_style_text_opacity_hdr">Opasitas Teks (HDR)</string>
+    <string name="subtitle_style_brightness_hdr">Kecerahan (HDR)</string>
+    <string name="skip_source">via %1$s</string>
+    <string name="skip_source_reportable">via %1$s · tahan untuk melaporkan</string>
+    <string name="skip_marker_reported">Penanda yang salah sudah dilaporkan. Terima kasih!</string>
+    <string name="skip_marker_report_failed">Tidak dapat melaporkan penanda</string>
+    <string name="skip_marker_start_recorded">Awal ditandai. Tekan lagi di bagian akhirnya.</string>
+    <string name="skip_marker_submitted">Penanda dikirim ke IntroDB</string>
+    <string name="skip_marker_submit_failed">Tidak dapat mengirim penanda ke IntroDB</string>
+    <string name="library_empty_type_movies">film</string>
+    <string name="library_empty_type_series">serial</string>
+    <string name="library_empty_type_items">item</string>
+    <string name="server_options_use_official">Matikan sinkronisasi</string>
+    <string name="official_server_title">Matikan sinkronisasi?</string>
+    <string name="official_server_description">Anda akan keluar dari server sinkronisasi dan aplikasi akan dimulai ulang dalam mode lokal saja. Semua yang sudah ada di TV ini tetap tersimpan.</string>
+    <string name="official_server_action">Matikan sinkronisasi</string>
+    <string name="custom_server_error_official_active">Sinkronisasi sudah mati di TV ini.</string>
+    <string name="custom_server_error_official_available">Itu bukan server sinkronisasi. Tutup dialog ini dan pilih Matikan sinkronisasi untuk kembali ke mode lokal saja.</string>
+    <string name="cd_mark_intro_start">Tandai awal intro</string>
+    <string name="cd_mark_intro_end">Tandai akhir intro</string>
+    <string name="cd_mark_credits_start">Tandai awal kredit akhir</string>
+    <string name="cd_mark_credits_end">Tandai akhir kredit akhir</string>
+    <string name="autoplay_mode_best">Kecocokan terbaik</string>
+    <string name="autoplay_mode_best_desc">Memeringkat setiap hasil berdasarkan kualitas, aturan Anda, dan apa yang bisa diputar perangkat ini, lalu memulai pemenangnya. Sumber lain tetap bisa dibuka dengan satu tekanan.</string>
+    <string name="ranking_preferred_quality">Kualitas pilihan</string>
+    <string name="ranking_preferred_quality_sub">Kualitas lebih tinggi tetap diizinkan, hanya peringkatnya lebih rendah</string>
+    <string name="ranking_max_quality">Kualitas maksimum</string>
+    <string name="ranking_preferred_codec">Codec video pilihan</string>
+    <string name="ranking_preferred_size">Ukuran file pilihan</string>
+    <string name="ranking_preferred_size_sub">File yang lebih besar diberi peringkat lebih rendah</string>
+    <string name="ranking_max_size">Ukuran file maksimum</string>
+    <string name="ranking_max_size_sub">File yang lebih besar tidak pernah diputar otomatis</string>
+    <string name="ranking_skip_dv5">Lewati Dolby Vision profil 5</string>
+    <string name="ranking_skip_dv5_sub">Profil 5 tidak punya cadangan HDR10. Selalu dilewati jika TV ini tidak bisa menampilkannya</string>
+    <string name="ranking_prefer_cached">Utamakan hasil debrid yang sudah di cache</string>
+    <string name="ranking_prefer_cached_sub">File di cache langsung diputar</string>
+    <string name="ranking_prefer_library">Utamakan pustaka saya sendiri</string>
+    <string name="ranking_prefer_library_sub">File di server Jellyfin, Emby, atau Plex Anda mengalahkan stream apa pun</string>
+    <string name="ranking_hide_cam">Jangan pernah putar otomatis CAM atau telesync</string>
+    <string name="ranking_drop_undecodable">Lewati stream yang tidak bisa didekode perangkat ini</string>
+    <string name="ranking_drop_undecodable_sub">Berdasarkan dekoder, format HDR, dan resolusi yang dilaporkan perangkat ini</string>
+    <string name="ranking_any">Apa saja</string>
+    <string name="ranking_no_limit">Tanpa batas</string>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="ranking_min_size">Ukuran file minimum</string>
+    <string name="ranking_min_size_sub">File yang lebih kecil tidak pernah diputar otomatis</string>
+    <string name="ranking_preferred_languages">Bahasa audio pilihan</string>
+    <string name="ranking_preferred_languages_sub">Rilis yang menyebut bahasa ini diberi peringkat lebih tinggi, pilihan pertama paling tinggi</string>
+    <string name="ranking_excluded_languages">Lewati bahasa audio</string>
+    <string name="ranking_excluded_languages_sub">Rilis yang hanya dalam bahasa ini tidak pernah diputar otomatis</string>
+    <string name="ranking_excluded_sources">Lewati jenis rilis</string>
+    <string name="ranking_excluded_audio">Lewati format audio</string>
+    <string name="ranking_excluded_audio_sub">Rilis yang hanya memiliki format audio ini tidak pernah diputar otomatis</string>
+    <string name="ranking_preferred_groups">Grup rilis pilihan</string>
+    <string name="ranking_preferred_groups_sub">Termasuk grup yang Anda pilih dengan Utamakan ini lain kali</string>
+    <string name="ranking_excluded_groups">Lewati grup rilis</string>
+    <string name="ranking_max_results">Hasil yang disimpan</string>
+    <string name="ranking_max_results_sub">Sisanya dipindahkan ke Sumber lain</string>
+    <string name="ranking_max_per_resolution">Hasil per resolusi</string>
+    <string name="ranking_none">Tidak ada</string>
+    <string name="ranking_groups_input_sub">Pisahkan grup dengan koma, misalnya FLUX, NTb.</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="other">%1$d dipilih</item>
+    </plurals>
+    <string name="addon_health_latency">%1$.1f dtk</string>
+    <string name="addon_health_ok">Merespons · %1$s</string>
+    <string name="addon_health_slow">Lambat · %1$s</string>
+    <string name="addon_health_failing">Permintaan terakhir gagal</string>
+    <string name="addon_health_timed_out">Permintaan terakhir habis waktu</string>
+    <string name="account_local_only_note">Sinkronisasi mati. Fetch menyimpan addon, progres, dan pengaturan Anda di TV ini dan tidak memerlukan akun. Untuk menyinkronkan antarperangkat, hubungkan server sinkronisasi Anda sendiri dari opsi server.</string>
+    <string name="torrent_engine_unavailable">Ini adalah stream torrent dan Fetch tidak punya mesin torrent bawaan. Aktifkan layanan debrid di Pengaturan → Debrid, atau buka di pemutar eksternal.</string>
+    <string name="parental_title_blocked">Judul ini melebihi batas rating profil ini.</string>
+    <string name="parental_addons_blocked">Profil ini tidak bisa memasang addon. Minta bantuan orang tua.</string>
+    <string name="parental_gate_heading">Masukkan PIN %1$s</string>
+    <string name="parental_gate_support">Profil ini memiliki batasan orang tua. PIN orang tua diperlukan untuk melanjutkan.</string>
+    <string name="parental_limits_label">Batasan orang tua</string>
+    <string name="parental_limits_title">Batasan orang tua untuk %1$s</string>
+    <string name="parental_limits_subtitle">Perubahan memerlukan PIN profil utama. Judul di atas batas disembunyikan dari Beranda, pencarian, dan Lanjutkan Menonton, serta tidak bisa diputar.</string>
+    <string name="parental_limits_subtitle_no_pin">Atur PIN pada profil utama, jika tidak siapa pun di profil ini bisa mengubah batasan ini.</string>
+    <string name="parental_limits_saved">Batasan orang tua disimpan untuk %1$s</string>
+    <string name="parental_kids_profile_toggle">Profil anak: %1$s</string>
+    <string name="parental_max_rating">Rating maksimum: %1$s</string>
+    <string name="parental_allow_unrated">Tampilkan judul tanpa rating: %1$s</string>
+    <string name="parental_on">Aktif</string>
+    <string name="parental_off">Nonaktif</string>
+    <string name="parental_level_all_ages">Semua umur (G, TV-Y, TV-G)</string>
+    <string name="parental_level_older_kids">Anak yang lebih besar (TV-Y7)</string>
+    <string name="parental_level_pg">PG, TV-PG</string>
+    <string name="parental_level_teens">PG-13, TV-14</string>
+    <string name="parental_level_mature">R, TV-MA</string>
+    <string name="parental_level_unrestricted">Tanpa batas</string>
+    <string name="stream_torrent_needs_debrid">Torrent: hubungkan layanan debrid di Setelan → Debrid untuk memutarnya di sini, atau buka di pemutar eksternal.</string>
 </resources>

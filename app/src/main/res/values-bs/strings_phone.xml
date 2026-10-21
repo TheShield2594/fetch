@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Tvoj telefon mora biti na istoj Wi-Fi mreži kao ovaj TV. Ovo možeš uraditi i kasnije u Postavkama.</string>
+    <string name="first_run_phone_qr_description">Kod za podešavanje telefonom</string>
+    <string name="first_run_phone_step_accounts">Prijavi se na Trakt, Simkl ili Jellyfin</string>
+    <string name="first_run_phone_step_addons">Zalijepi addone i svoj debrid ključ</string>
+    <string name="first_run_phone_step_scan">Skeniraj kamerom telefona</string>
+    <string name="first_run_phone_title">Podesi pomoću telefona. Bez kucanja daljinskim.</string>
+    <string name="first_run_recommended">Preporučeno</string>
+    <string name="phone_hub_description">Skeniraj jedan kod da koristiš telefon kao daljinski i tastaturu, prijaviš se na račune i mijenjaš duge postavke.</string>
+    <string name="phone_hub_instruction">Skeniraj telefonom. Kod radi jednom; stranica ostaje otvorena dok je otvoren ovaj ekran.</string>
+    <string name="phone_hub_open">Prikaži kod za telefon</string>
+    <string name="phone_hub_open_description">Tvoj telefon mora biti na istoj mreži kao ovaj TV.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">Povezan je %d telefon. Daljinski radi još 10 minuta nakon što zatvoriš ovaj ekran.</item>
+        <item quantity="few">Povezana su %d telefona. Daljinski radi još 10 minuta nakon što zatvoriš ovaj ekran.</item>
+        <item quantity="other">Povezano je %d telefona. Daljinski radi još 10 minuta nakon što zatvoriš ovaj ekran.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Ovaj profil ima roditeljska ograničenja. Prvo otključaj postavke na TV-u.</string>
+    <string name="phone_hub_title">Podešavanje s telefona</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Log via je telefoon in met je %1$s-account. Geen typwerk op de tv.</string>
+    <string name="servers_link_choose_server">Je account heeft toegang tot meer dan één server. Kies welke je wilt toevoegen.</string>
+    <string name="servers_link_connecting_to">Verbinden met %1$s…</string>
+    <string name="servers_link_expired">De code is verlopen. Vraag een nieuwe aan om het opnieuw te proberen.</string>
+    <string name="servers_link_expires">Code verloopt over %1$s</string>
+    <string name="servers_link_instruction">Scan de code met je telefoon, of open %1$s op een willekeurig apparaat en voer deze code in.</string>
+    <string name="servers_link_loading">Inlogcode ophalen…</string>
+    <string name="servers_link_no_servers">Dit account heeft nog geen servers. Stel er een in, of vraag een servereigenaar om een bibliotheek met je te delen.</string>
+    <string name="servers_link_qr">QR-code om in te loggen bij %1$s</string>
+    <string name="servers_link_retry">Nieuwe code ophalen</string>
+    <string name="servers_link_waiting">Wachten tot je de code goedkeurt…</string>
+</resources>

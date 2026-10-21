@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Melden Sie sich per Handy mit Ihrem %1$s-Konto an. Kein Tippen am Fernseher.</string>
+    <string name="servers_link_loading">Anmeldecode wird abgerufen…</string>
+    <string name="servers_link_instruction">Scannen Sie den Code mit dem Handy oder öffnen Sie %1$s auf einem beliebigen Gerät und geben Sie diesen Code ein.</string>
+    <string name="servers_link_connecting_to">Verbindung mit %1$s…</string>
+    <string name="servers_link_waiting">Warten auf Ihre Bestätigung des Codes…</string>
+    <string name="servers_link_expires">Code läuft ab in %1$s</string>
+    <string name="servers_link_expired">Der Code ist abgelaufen. Holen Sie einen neuen, um es erneut zu versuchen.</string>
+    <string name="servers_link_retry">Neuen Code holen</string>
+    <string name="servers_link_choose_server">Ihr Konto hat Zugriff auf mehrere Server. Wählen Sie den, der hinzugefügt werden soll.</string>
+    <string name="servers_link_no_servers">Dieses Konto hat noch keine Server. Richten Sie einen ein oder bitten Sie einen Serverbesitzer, eine Bibliothek mit Ihnen zu teilen.</string>
+    <string name="servers_link_qr">QR-Code zur Anmeldung bei %1$s</string>
+</resources>

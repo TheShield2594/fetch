@@ -115,7 +115,6 @@
     <string name="cw_percent_watched">%1$d%% просмотрено</string>
     <string name="cw_hours_min_left">Осталось %1$d ч %2$d мин</string>
     <string name="cw_min_left">Осталось %1$d мин</string>
-    <string name="cw_almost_done">Почти закончено</string>
     <string name="cw_airs_date">Выходит %1$s</string>
     <string name="cw_airs_today">Выходит сегодня</string>
     <string name="cw_airs_tomorrow">Выходит завтра</string>
@@ -150,7 +149,6 @@
     <string name="hero_director">Режиссер: %1$s</string>
     <string name="hero_writer">Сценарист: %1$s</string>
     <string name="hero_play">Смотреть</string>
-    <string name="hero_play_episode">Смотреть С%1$d, Э%2$d</string>
     <string name="hero_add_to_library">Добавить в библиотеку</string>
     <string name="hero_remove_from_library">Удалить из библиотеки</string>
     <string name="hero_mark_watched">Отметить как просмотренное</string>
@@ -159,7 +157,6 @@
     <string name="hero_press_back_trailer">Нажмите \"Назад\" для выхода из трейлера</string>
     <string name="hero_synopsis_read_more">Читать далее</string>
     <string name="hero_synopsis_dismiss_hint">Нажмите «Назад», чтобы закрыть</string>
-    <string name="cd_rating">Рейтинг</string>
 
     <!-- EpisodesSection -->
     <string name="episodes_season">Сезон %1$d</string>
@@ -212,7 +209,6 @@
     <string name="detail_comments_empty">Пока нет отзывов из Trakt.</string>
     <string name="detail_comments_error">Не удалось загрузить отзывы Trakt в данный момент.</string>
     <string name="detail_comments_spoiler_hidden">Отзыв со спойлером. Нажмите OK, чтобы показать.</string>
-    <string name="detail_comments_reveal_spoiler">Показать спойлер</string>
     <string name="detail_comments_reveal_spoiler_hint">Нажмите OK, чтобы показать спойлер.</string>
     <string name="detail_comments_back_hint">Нажмите Назад, чтобы закрыть</string>
     <string name="detail_comments_badge_review">Отзыв</string>
@@ -293,11 +289,8 @@
     <string name="settings_content_discovery_subtitle">Аддоны, плагины, каталоги и источники поиска контента</string>
     <string name="settings_content_discovery_addons_subtitle">Управление аддонами, порядком каталогов и коллекциями</string>
     <string name="settings_content_discovery_plugins_subtitle">Управление репозиториями и провайдерами потоков</string>
-    <string name="settings_plugins">Плагины</string>
-    <string name="settings_plugins_subtitle">Репозитории и провайдеры</string>
     <string name="settings_integration">Интеграции</string>
     <string name="settings_playback">Воспроизведение</string>
-    <string name="settings_trakt_subtitle">Настройка подключения к Trakt</string>
     <string name="settings_tracking_title">Отслеживание</string>
     <string name="settings_tracking_description">Подключите сервисы отслеживания и выберите, какой из них будет использоваться для Библиотеки и раздела «Продолжить просмотр».</string>
     <string name="tracking_accounts_title">Аккаунты</string>
@@ -324,8 +317,6 @@
     <string name="tracking_trakt_progress_required">Доступно, когда Trakt используется как источник прогресса просмотра</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
-    <string name="settings_network">Скорость сети</string>
-    <string name="settings_network_subtitle">Диагностика задержки и скорости загрузки</string>
     <string name="settings_advanced">Дополнительно</string>
     <string name="settings_advanced_subtitle">Запуск диагностики скорости сети</string>
     <string name="network_speed_test_run">Запустить тест скорости</string>
@@ -342,7 +333,6 @@
     <string name="network_connection_ethernet">Ethernet</string>
     <string name="network_connection_offline">Не в сети</string>
     <string name="settings_debug">Отладка</string>
-    <string name="settings_plugins_section_subtitle">Управление репозиториями, провайдерами и состоянием плагинов</string>
     <string name="settings_account_section_subtitle">Аккаунт и статус синхронизации</string>
     <string name="account_stat_addons">аддоны</string>
     <string name="account_stat_plugins">плагины</string>
@@ -361,32 +351,11 @@
     <string name="cd_decrease">Уменьшить</string>
     <string name="cd_increase">Увеличить</string>
     <string name="action_cancel">Отмена</string>
-    <string name="action_switch">Переключить</string>
     <string name="action_none">Нет</string>
     <string name="action_back">Назад</string>
     <string name="action_close">Закрыть</string>
 
     <!-- SupportersContributorsScreen -->
-    <string name="cd_membership_qr">QR-код страницы членства</string>
-    <string name="supporters_tab">Спонсоры</string>
-    <string name="contributors_tab">Участники</string>
-    <string name="supporters_loading">Загрузка спонсоров…</string>
-    <string name="supporters_empty">Пока нет спонсоров.</string>
-    <string name="supporters_error_title">Не удалось загрузить спонсоров</string>
-    <string name="supporters_no_message">Сообщение не оставлено.</string>
-    <string name="supporters_level_supporter">Спонсор</string>
-    <string name="supporters_level_supporter_plus">Спонсор+</string>
-    <string name="supporters_since">Поддерживает Fetch с %1$s</string>
-    <string name="supporters_since_unknown">С гордостью поддерживает Fetch</string>
-    <string name="supporters_open_donations">Открыть страницу пожертвований</string>
-    <string name="contributors_loading">Загрузка участников GitHub…</string>
-    <string name="contributors_empty">Пока нет участников.</string>
-    <string name="contributors_error_title">Не удалось загрузить участников</string>
-    <string name="contributors_total_contributions">Всего вкладов: %1$d</string>
-    <string name="contributors_open_github">Открыть профиль GitHub</string>
-    <string name="contributors_show_kofi_qr">Показать Ko-fi QR</string>
-    <string name="contributors_hide_kofi_qr">Скрыть Ko-fi QR</string>
-    <string name="contributors_profile_unavailable">Ссылка на профиль GitHub недоступна.</string>
 
     <!-- PlaybackSettingsSections -->
     <string name="playback_loading_overlay">Экран загрузки</string>
@@ -422,7 +391,6 @@
     <string name="playback_engine_mvplayer_desc">Использует libmpv с интерфейсом управления Fetch. Экспериментально.</string>
 
     <!-- PlaybackAudioSettings -->
-    <string name="audio_trailer_section">Трейлер</string>
     <string name="audio_autoplay_trailers">Автовоспроизведение трейлеров</string>
     <string name="audio_autoplay_trailers_sub">Автоматически воспроизводить трейлеры на странице описания после периода бездействия</string>
     <string name="audio_trailer_delay">Задержка трейлера</string>
@@ -462,7 +430,6 @@
     <string name="audio_decoder_controls">Управляет использованием аппаратных или программных (FFmpeg) декодеров для аудио и видео</string>
 
     <!-- PlaybackSubtitleSettings -->
-    <string name="sub_section">Субтитры</string>
     <string name="sub_not_set">Не задано</string>
     <string name="sub_forced_lang">Принудительные (Forced)</string>
     <string name="sub_preferred_lang">Предпочитаемый язык</string>
@@ -473,7 +440,6 @@
     <string name="sub_show_only_preferred_languages_desc">Скрыть все остальные языки субтитров из списка выбора</string>
     <string name="sub_strip_sdh">Удалять субтитры SDH</string>
     <string name="sub_strip_sdh_desc">Скрывать описания звуков и обозначения говорящих в текстовых субтитрах</string>
-    <string name="sub_organization">Сортировка субтитров</string>
     <string name="sub_size">Размер</string>
     <string name="sub_vertical_offset">Вертикальное смещение</string>
     <string name="sub_bold">Жирный</string>
@@ -496,12 +462,6 @@
     <string name="sub_mode_effects_canvas_sub">Поддержка анимации с использованием эффектов Media3 через рендеринг Canvas.</string>
     <string name="sub_mode_standard">Стандартные субтитры (Cues)</string>
     <string name="sub_mode_standard_sub">Базовый рендеринг субтитров без поддержки анимации. Наиболее совместимый.</string>
-    <string name="sub_org_none">Нет (по умолчанию)</string>
-    <string name="sub_org_by_lang">По языку</string>
-    <string name="sub_org_by_addon">По аддону</string>
-    <string name="sub_org_none_desc">Показывать субтитры в порядке выдачи аддоном по умолчанию.</string>
-    <string name="sub_org_by_lang_desc">Группировать субтитры по языку.</string>
-    <string name="sub_org_by_addon_desc">Группировать субтитры по источнику (аддону).</string>
 
     <!-- PlaybackAutoPlaySettings -->
     <string name="autoplay_reuse_last_link">Использовать последнюю ссылку</string>
@@ -527,7 +487,6 @@
     <string name="autoplay_threshold_pct_title">Пороговый процент</string>
     <string name="autoplay_threshold_pct_sub">Резервный вариант, когда нет таймкода окончания (outro).</string>
     <string name="autoplay_threshold_min_title">Пороговые минуты</string>
-    <string name="autoplay_threshold_min_sub">Резервный вариант, когда нет таймкода окончания (outro).</string>
     <string name="autoplay_scope_all">Все источники</string>
     <string name="autoplay_scope_addons">Только установленные аддоны</string>
     <string name="autoplay_scope_plugins">Только включенные плагины</string>
@@ -562,8 +521,6 @@
     <string name="layout_section_home_desc">Выберите структуру и источник для главного блока.</string>
     <string name="layout_landscape_posters">Альбомные постеры</string>
     <string name="layout_landscape_posters_sub">Переключение между портретными и альбомными карточками для Современного вида.</string>
-    <string name="layout_preview_row">Показывать строку предпросмотра</string>
-    <string name="layout_preview_row_sub">Показывать частичный предпросмотр следующей строки в Современном макете.</string>
     <string name="layout_section_content">Контент главного экрана</string>
     <string name="layout_section_content_desc">Управление тем, что отображается на главном экране и в поиске.</string>
     <string name="layout_collapse_sidebar">Сворачивать боковую панель</string>
@@ -677,25 +634,7 @@
     <string name="mdblist_enable_title">Включить рейтинги MDBList</string>
     <string name="mdblist_enable_subtitle">Получать рейтинги от внешних провайдеров на странице метаданных</string>
     <string name="mdblist_api_key_title">API Ключ</string>
-    <string name="mdblist_api_key_subtitle">Требуется для получения рейтингов из MDBList</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Показывать оценку Trakt</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">Показывать оценку IMDb (и скрывать дефолтную строку IMDb, если есть)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">Показывать оценку TMDB</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Показывать оценку Letterboxd</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">Показывать оценку критиков</string>
-    <string name="mdblist_audience_title">Оценка зрителей (Audience)</string>
-    <string name="mdblist_audience_subtitle">Показывать оценку зрителей</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Показывать оценку Metacritic</string>
-    <string name="mdblist_mal_title">MyAnimeList</string>
-    <string name="mdblist_mal_subtitle">Показывать рейтинг MyAnimeList</string>
     <string name="mdblist_dialog_title">API Ключ MDBList</string>
-    <string name="mdblist_dialog_subtitle">Введите ваш API ключ для получения внешних рейтингов</string>
     <string name="mdblist_dialog_placeholder">Введите API ключ MDBList</string>
     <string name="mdblist_not_set">Не задан</string>
     <string name="mdblist_invalid_api_key">Неверный API ключ MDBList</string>
@@ -748,7 +687,6 @@
     <!-- TraktScreen -->
     <string name="trakt_description">Синхронизируйте свой список просмотра, прогресс, историю просмотров (скробблинг) и личные списки с Trakt.</string>
     <string name="trakt_connected_as">Подключен как %1$s</string>
-    <string name="trakt_account_login">Вход в аккаунт</string>
     <string name="trakt_awaiting_instruction">Перейдите на trakt.tv/activate и введите этот код:</string>
     <string name="trakt_waiting_approval">Ожидание подтверждения…</string>
     <string name="qr_login_approved">Вход подтвержден. Завершение…</string>
@@ -756,30 +694,15 @@
     <string name="qr_login_expired">QR-код устарел. Сгенерируйте новый код.</string>
     <string name="trakt_code_expires">Код истекает через %1$s</string>
     <string name="trakt_token_refreshes">Токен доступа Trakt обновится через %1$s</string>
-    <string name="trakt_login_instruction">Нажмите \"Войти\", чтобы начать аутентификацию устройства в Trakt. Здесь появится QR-код.</string>
     <string name="trakt_missing_credentials">Отсутствуют TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET в local.properties.</string>
     <string name="trakt_watch_progress_title">Прогресс просмотра</string>
     <string name="trakt_watch_progress_subtitle">Выберите источник прогресса для продолжения просмотра</string>
     <string name="trakt_watch_progress_dialog_title">Прогресс просмотра</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Выберите, должен ли раздел \"Продолжить просмотр\" использовать Trakt или Fetch Sync (скробблинг в Trakt останется активным).</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
-    <string name="trakt_setting_on">Вкл</string>
-    <string name="trakt_setting_off">Выкл</string>
-    <string name="trakt_watch_progress_trakt_selected">Источник прогресса просмотра установлен на Trakt</string>
-    <string name="trakt_watch_progress_fetch_selected">Источник прогресса просмотра установлен на Fetch Sync</string>
     <string name="trakt_continue_watching_window">Окно \"Продолжить просмотр\"</string>
     <string name="trakt_continue_watching_subtitle">История Trakt, учитываемая для раздела \"Продолжить просмотр\"</string>
-    <string name="trakt_unaired_next_up">Невышедшие эпизоды \"На очереди\"</string>
-    <string name="trakt_unaired_next_up_subtitle">Показывать предстоящие эпизоды до их выхода</string>
-    <string name="trakt_unaired_shown">Отображаются</string>
-    <string name="trakt_unaired_hidden">Скрыты</string>
-    <string name="trakt_unaired_now_shown">Невышедшие эпизоды \"На очереди\" теперь отображаются</string>
-    <string name="trakt_unaired_now_hidden">Невышедшие эпизоды \"На очереди\" теперь скрыты</string>
     <string name="trakt_comments_title">Комментарии</string>
     <string name="trakt_comments_subtitle">Показывать отзывы Trakt на страницах метаданных</string>
-    <string name="trakt_comments_dialog_title">Комментарии</string>
-    <string name="trakt_comments_dialog_subtitle">Выберите, должны ли страницы метаданных показывать отзывы Trakt при подключенном аккаунте.</string>
     <string name="trakt_comments_now_shown">Отзывы Trakt на страницах метаданных теперь отображаются</string>
     <string name="trakt_comments_now_hidden">Отзывы Trakt на страницах метаданных теперь скрыты</string>
     <string name="trakt_cached_label">В кэше</string>
@@ -790,15 +713,8 @@
     <string name="trakt_disconnect">Отключить</string>
     <string name="trakt_disconnect_title">Отключить Trakt?</string>
     <string name="trakt_disconnect_subtitle">Это отключит ваш аккаунт Trakt от Fetch.</string>
-    <string name="trakt_login">Войти</string>
-    <string name="trakt_retry">Повторить</string>
-    <string name="trakt_back">Назад</string>
     <string name="trakt_cw_window_title">Окно \"Продолжить просмотр\"</string>
     <string name="trakt_cw_window_subtitle">Выберите, за какой период активность Trakt должна отображаться в \"Продолжить просмотр\".</string>
-    <string name="trakt_unaired_dialog_title">Невышедшие эпизоды \"На очереди\"</string>
-    <string name="trakt_unaired_dialog_subtitle">Выберите, должен ли раздел \"Продолжить просмотр\" включать предстоящие эпизоды до их релиза.</string>
-    <string name="trakt_show_unaired">Показывать невышедшие эпизоды</string>
-    <string name="trakt_hide_unaired">Скрыть невышедшие эпизоды</string>
     <string name="trakt_all_history">Вся история</string>
     <string name="trakt_days_format">%1$d дней</string>
 
@@ -848,25 +764,14 @@
     <string name="profile_manage_title">Управление профилями</string>
     <string name="profile_manage_subtitle">Выберите профиль для редактирования, переключения или создайте новый</string>
     <string name="profile_manage_hint">Выберите профиль для управления</string>
-    <string name="profile_primary_label">Основной</string>
-    <string name="profile_shares_primary">Использует %1$s основного</string>
     <string name="profile_edit_label">Редактировать</string>
     <string name="profile_edit_header">Редактировать профиль</string>
-    <string name="profile_add">Добавить профиль</string>
     <string name="profile_create_title">Создать профиль</string>
-    <string name="profile_edit_title">Редактировать профиль %1$s</string>
     <string name="profile_name_placeholder">Имя профиля</string>
-    <string name="profile_avatar_color">Цвет аватара</string>
-    <string name="profile_use_primary_addons">Использовать аддоны основного профиля</string>
-    <string name="profile_use_primary_plugins">Использовать плагины основного профиля</string>
     <string name="profile_creating">Создание\u2026</string>
     <string name="profile_create_btn">Создать</string>
-    <string name="profile_confirm">Подтвердить</string>
     <string name="profile_delete">Удалить</string>
-    <string name="profile_addons">аддоны</string>
-    <string name="profile_plugins">плагины</string>
     <string name="profile_choose_avatar">Выбрать аватар</string>
-    <string name="profile_avatar_none_selected">Аватар не выбран</string>
     <string name="profile_avatar_focus_hint">Сфокусируйтесь на аватаре, чтобы увидеть его имя</string>
     <string name="profile_avatar_category_all">Все</string>
     <string name="profile_avatar_category_supporter">Спонсор</string>
@@ -900,30 +805,16 @@
     <string name="profile_copy_settings_created_success">Профиль создан с настройками из %1$s.</string>
     <string name="profile_copy_settings_created_error">Профиль создан, но настройки скопировать не удалось. Повторить попытку можно в параметрах профиля.</string>
     <string name="profile_create_error">Не удалось создать профиль. Попробуйте ещё раз.</string>
-    <string name="profile_pin_title">Блокировка профиля PIN-кодом</string>
-    <string name="profile_pin_enabled_subtitle">Этот профиль требует 4-значный PIN-код перед переключением.</string>
-    <string name="profile_pin_disabled_subtitle">Установите 4-значный PIN-код, чтобы заблокировать этот профиль.</string>
     <string name="profile_pin_set">Установить PIN</string>
     <string name="profile_pin_change">Изменить PIN</string>
     <string name="profile_pin_remove">Удалить PIN</string>
-    <string name="profile_pin_set_title">Установка PIN-кода профиля</string>
-    <string name="profile_pin_set_subtitle">Введите 4-значный PIN-код и подтвердите его.</string>
-    <string name="profile_pin_enter">Введите 4-значный PIN</string>
-    <string name="profile_pin_confirm">Подтвердите 4-значный PIN</string>
-    <string name="profile_pin_mismatch">PIN-коды не совпадают.</string>
-    <string name="profile_pin_save">Сохранить PIN</string>
-    <string name="profile_pin_unlock_title">Разблокировать %1$s</string>
-    <string name="profile_pin_unlock_subtitle">Введите 4-значный PIN-код для продолжения.</string>
     <string name="profile_pin_verifying">Проверка…</string>
-    <string name="profile_pin_unlock_action">Разблокировать</string>
     <string name="profile_pin_overlay_unlock_heading">Введите ваш PIN для доступа к %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Создайте 4-значный PIN для %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Подтвердите ваш новый PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Используйте пульт или клавиатуру для ввода 4 цифр.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">Требуется проверка безопасности.</string>
     <string name="profile_pin_overlay_change_verify_heading">Введите текущий PIN для изменения PIN-кода %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Введите текущий 4-значный PIN-код перед установкой нового.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">Требуется проверка безопасности.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Введите текущий PIN для удаления блокировки %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Введите текущий 4-значный PIN-код, чтобы снять эту блокировку.</string>
     <string name="profile_pin_overlay_set_support">Этот PIN-код будет запрашиваться перед открытием этого профиля.</string>
@@ -980,9 +871,6 @@
     <string name="stream_no_streams">Потоки не найдены</string>
     <string name="stream_no_streams_hint">Попробуйте установить больше аддонов для поиска потоков</string>
     <string name="stream_finding_source">Поиск источника потока</string>
-    <string name="stream_type_torrent">Торрент</string>
-    <string name="stream_type_youtube">YouTube</string>
-    <string name="stream_type_external">Внешний</string>
     <string name="stream_player_picker_title">Какой плеер использовать?</string>
     <string name="stream_player_internal">Встроенный</string>
     <string name="stream_player_external">Внешний</string>
@@ -992,15 +880,12 @@
     <string name="player_loading_preparing">Подготовка потока…</string>
     <string name="player_loading_detecting_format">Определение формата потока…</string>
     <string name="external_player_loading_skip_segments">Загрузка сегментов интро/титров…</string>
-    <string name="player_loading_subtitles">Получение субтитров…</string>
     <string name="player_loading_subtitles_from">Получение субтитров из %1$d аддонов…</string>
     <string name="player_loading_subtitles_progress">Получение субтитров… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Субтитры: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">Настройка плеера…</string>
     <string name="player_loading_starting">Запуск потока…</string>
     <string name="player_loading_buffering">Буферизация…</string>
-    <string name="player_loading_fallback_pcm_audio">Не удалось инициализировать аудиодорожку - переключение на PCM аудио…</string>
-    <string name="player_loading_fallback_hevc_decoder">Не удалось инициализировать декодер - переключение на HEVC декодер…</string>
     <string name="player_engine_switching_title">Переключение движка плеера</string>
     <string name="player_engine_switching_message">Ошибка запуска. Переключение на %1$s…</string>
     <string name="player_engine_switching_manual_message">Переключение на %1$s...</string>
@@ -1065,7 +950,6 @@
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">Источники</string>
-    <string name="sources_reload">Обновить</string>
     <string name="sources_close">Закрыть</string>
     <string name="sources_playing">Воспроизводится</string>
     <string name="sources_no_streams">Потоки не найдены</string>
@@ -1073,7 +957,6 @@
     <!-- EpisodesSidePanel -->
     <string name="episodes_panel_close">Закрыть</string>
     <string name="episodes_panel_back">Назад</string>
-    <string name="episodes_panel_reload">Обновить</string>
     <string name="episodes_panel_no_streams">Потоки не найдены</string>
     <string name="episodes_panel_no_episodes">Нет доступных эпизодов</string>
     <string name="episodes_panel_title">Эпизоды</string>
@@ -1090,8 +973,6 @@
 
     <!-- AudioDialog -->
     <string name="audio_dialog_title">Аудио</string>
-    <string name="audio_dialog_tab_tracks">Аудио</string>
-    <string name="audio_dialog_tab_mix">Микс</string>
     <string name="audio_mix_label">Усиление (PCM)</string>
     <string name="audio_mix_value_db">%1$d дБ</string>
     <string name="audio_mix_persist_on">Сохранять между сессиями: ВКЛ</string>
@@ -1102,31 +983,15 @@
 
     <!-- SubtitleDialog / SubtitleStyleSidePanel -->
     <string name="subtitle_dialog_title">Субтитры</string>
-    <string name="subtitle_no_builtin">Встроенные субтитры недоступны</string>
     <string name="subtitle_loading_addon">Загрузка субтитров из аддонов\u2026</string>
     <string name="subtitle_no_addon">Субтитры аддонов недоступны</string>
-    <string name="subtitle_text_color">Цвет текста</string>
-    <string name="subtitle_outline_color">Цвет обводки</string>
     <string name="subtitle_reset_defaults">Сбросить настройки</string>
-    <string name="subtitle_tab_builtin">Встроенные</string>
-    <string name="subtitle_tab_addons">Аддоны</string>
     <string name="subtitle_tab_languages">Языки</string>
-    <string name="subtitle_tab_style">Стиль</string>
     <string name="subtitle_tab_delay">Задержка</string>
     <string name="subtitle_delay_reset">Сброс</string>
     <string name="subtitle_none">Нет</string>
     <string name="subtitle_built_in">Встроенные</string>
-    <string name="subtitle_all">Все</string>
-    <string name="subtitle_section_core">Основные</string>
-    <string name="subtitle_section_advanced">Дополнительные</string>
-    <string name="subtitle_font_size">Размер шрифта</string>
-    <string name="subtitle_bold">Жирный</string>
-    <string name="subtitle_outline">Обводка</string>
-    <string name="subtitle_bottom_offset">Смещение снизу</string>
-    <string name="subtitle_on">Вкл</string>
-    <string name="subtitle_off">Выкл</string>
     <string name="subtitle_style_title">Стиль субтитров</string>
-    <string name="subtitle_style_customize">Настроить</string>
     <string name="subtitle_style_color">Цвет</string>
     <string name="subtitle_style_reset">Сбросить</string>
     <string name="subtitle_style_font_size">Размер шрифта</string>
@@ -1137,8 +1002,6 @@
     <string name="subtitle_style_defaults">По умолчанию</string>
     <string name="subtitle_style_on">Вкл</string>
     <string name="subtitle_style_off">Выкл</string>
-    <string name="panel_failed_load_streams">Не удалось загрузить потоки</string>
-    <string name="panel_failed_load_episodes">Не удалось загрузить эпизоды</string>
 
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Вы смотрите</string>
@@ -1161,7 +1024,6 @@
     <string name="display_mode_resolution">Разрешение</string>
 
     <!-- SearchScreen -->
-    <string name="search_keyboard_hint">Нажмите \"Готово\" на клавиатуре для поиска</string>
     <string name="search_placeholder">Поиск фильмов и сериалов</string>
     <string name="search_start_title">Начните поиск</string>
     <string name="search_start_subtitle">Введите минимум 2 символа</string>
@@ -1175,7 +1037,6 @@
     <string name="search_voice_unavailable">Голосовой поиск недоступен на этом устройстве.</string>
 
     <!-- LibraryScreen -->
-    <string name="library_syncing">Синхронизация библиотеки Trakt\u2026</string>
     <string name="library_title">Библиотека</string>
     <string name="library_filter_list">Список</string>
     <string name="library_filter_type">Тип</string>
@@ -1230,14 +1091,12 @@
     <string name="genre_sporting_event">Спортивное событие</string>
     <string name="genre_superhero">Супергерои</string>
     <string name="genre_suspense">Саспенс</string>
-    <string name="library_sort_trakt_order">Порядок Trakt</string>
     <string name="library_sort_provider_order">Порядок провайдера</string>
     <string name="library_sort_added_desc">Добавлено ↓</string>
     <string name="library_sort_added_asc">Добавлено ↑</string>
     <string name="library_sort_title_asc">Название А-Я</string>
     <string name="library_sort_title_desc">Название Я-А</string>
     <string name="library_manage_lists">Управление списками</string>
-    <string name="library_manage_trakt_lists">Управление списками Trakt</string>
     <string name="library_no_lists">Пока нет личных списков.</string>
     <string name="library_list_create">Создать</string>
     <string name="library_list_edit">Редактировать</string>
@@ -1250,13 +1109,9 @@
     <string name="library_list_privacy">Приватность</string>
     <string name="library_delete_title">Удалить этот список?</string>
     <string name="library_delete_subtitle">Это удалит список и все его элементы из Trakt.</string>
-    <string name="library_delete_confirm">Удалить</string>
     <string name="library_source_local">ЛОКАЛЬНО</string>
-    <string name="library_source_fetch">FETCH</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_syncing_library">Синхронизация библиотеки\u2026</string>
     <string name="library_type_all">Все</string>
-    <string name="library_type_items">элементов</string>
     <string name="library_empty_local_title">Пока нет %1$s</string>
     <string name="library_empty_trakt_title">В этом списке нет %1$s</string>
     <string name="library_empty_local_subtitle">Начните сохранять любимое, чтобы увидеть это здесь</string>
@@ -1323,13 +1178,10 @@
     <string name="custom_server_restart_failed">Сервер сохранён, но приложение не удалось перезапустить автоматически. Перезапустите его вручную.</string>
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_title">Вход по QR</string>
     <string name="auth_qr_tagline">Смотрите вашу библиотеку где угодно</string>
     <string name="auth_qr_finishing">Завершение входа\u2026</string>
-    <string name="auth_qr_code_label">Код: %1$s</string>
     <string name="auth_qr_expires">Истекает через %1$s</string>
     <string name="auth_qr_scan_instruction">Отсканируйте QR, подтвердите в браузере, затем вернитесь сюда.</string>
-    <string name="auth_qr_code_display">Код: %1$s</string>
     <string name="auth_qr_manual_instruction">Или перейдите на %1$s и введите</string>
     <string name="auth_qr_refresh">Обновить QR</string>
     <string name="auth_qr_continue_without_account">Продолжить без аккаунта</string>
@@ -1367,7 +1219,6 @@
     <string name="plugin_repositories_section">Репозитории (%1$d)</string>
     <string name="plugin_providers_section">Провайдеры (%1$d)</string>
     <string name="plugin_title">Плагины</string>
-    <string name="plugin_subtitle">Управление локальными скрейперами и провайдерами</string>
     <string name="plugin_add_repository">Добавить репозиторий</string>
     <string name="plugin_add_btn">Добавить</string>
     <string name="plugin_manage_from_phone_title">Управлять с телефона</string>
@@ -1421,7 +1272,6 @@
     <!-- UpdatePromptDialog -->
     <string name="update_title">Обновление приложения</string>
     <string name="update_available">Доступно обновление</string>
-    <string name="update_downloading">Скачивание обновления</string>
     <string name="update_download">Скачать</string>
     <string name="update_downloading_ellipsis">Скачивание…</string>
     <string name="update_downloading_progress">Загрузка %1$d%%</string>
@@ -1467,37 +1317,26 @@
     <!-- PluginScreen -->
     <string name="plugin_and_more">... и еще %1$d</string>
     <string name="plugin_providers_count">%1$d провайдеров</string>
-    <string name="plugin_enabled">Включено</string>
-    <string name="plugin_disabled">Отключено</string>
     <string name="plugin_no_repos">Репозитории еще не добавлены.\nДобавьте репозиторий для начала работы.</string>
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">Редактировать профиль %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Проброс звука (TrueHD, DTS, AC-3 и т.д.) работает автоматически. При подключении к совместимому AV-ресиверу или саундбару через HDMI звук без потерь отправляется «как есть» без декодирования.</string>
-    <string name="audio_dv_title">DV7 - Переход на HEVC</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">Главная</string>
     <string name="nav_discover">Навигатор</string>
     <string name="nav_search">Поиск</string>
     <string name="nav_library">Библиотека</string>
-    <string name="nav_addons">Аддоны</string>
     <string name="nav_settings">Настройки</string>
     <string name="settings_rounded_ui">Скругленный интерфейс</string>
-    <string name="cd_expand_sidebar">Развернуть боковую панель</string>
 
-    <string name="update_checking">Проверка обновлений…</string>
     <string name="update_waiting_for_stable">Вы получите следующий стабильный релиз, как только он станет доступен</string>
     <string name="update_download_complete">Скачивание завершено. Готово к установке.</string>
-    <string name="update_up_to_date">Система обновлена. Последние изменения:</string>
     <string name="update_close">Закрыть</string>
     <string name="update_open_settings">Открыть настройки</string>
     <string name="update_install">Установить</string>
-    <string name="update_ignore">Игнорировать</string>
-    <string name="watchlist_added">Добавлено в список просмотра</string>
-    <string name="watchlist_removed">Удалено из списка просмотра</string>
 
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Не удалось сохранить PIN. Попробуйте снова.</string>
@@ -1556,7 +1395,6 @@
     <string name="search_error_no_catalogs">В установленных аддонах нет каталогов для поиска</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_addons">Нет установленных аддонов</string>
     <string name="home_error_no_catalog_addons">Нет установленных аддонов каталогов</string>
 
     <!-- Player errors -->
@@ -1590,7 +1428,6 @@
     <string name="cd_stream_info">Информация о потоке</string>
     <string name="cd_more_actions">Больше действий</string>
     <string name="cd_close_more_actions">Закрыть больше действий</string>
-    <string name="cd_back">Назад</string>
     <string name="cd_next_episode_thumbnail">Превью следующего эпизода</string>
     <string name="cd_current">Текущий</string>
     <string name="cd_loading_backdrop">Загрузка фона</string>
@@ -1613,8 +1450,6 @@
     <string name="cd_open_discover">Открыть Навигатор</string>
     <string name="cd_clear_search">Очистить поиск</string>
     <string name="cd_voice_search">Голосовой поиск</string>
-    <string name="cd_donation_qr">QR-код для доната</string>
-    <string name="cd_contributor_qr">QR-код поддержки участника</string>
     <string name="cd_expand">Развернуть %1$s</string>
     <string name="cd_collapse">Свернуть %1$s</string>
     <string name="cd_qr_login">QR-код входа</string>
@@ -1684,7 +1519,6 @@
     <string name="collections_editor_choose_emoji">Выберите эмодзи</string>
     <string name="collections_editor_back">Назад</string>
     <string name="collections_editor_edit_collection">Редактировать коллекцию</string>
-    <string name="collections_editor_catalog_count">%1$d каталог(ов)</string>
     <string name="collections_editor_view_mode_tabs">Вкладки</string>
     <string name="collections_editor_view_mode_rows">Строки</string>
     <string name="collections_editor_view_mode_follow">Следовать макету главной</string>
@@ -1752,7 +1586,6 @@
     <string name="detail_comments_mode_episode_change">Изменить эпизод (%1$s)</string>
     <string name="detail_comments_episode_picker_title">Выберите эпизод</string>
     <string name="detail_comments_episode_picker_subtitle">Выберите эпизод для просмотра отзывов Trakt</string>
-    <string name="detail_trailer_loading">Загрузка трейлера...</string>
     <string name="detail_trailer_error">Не удалось загрузить трейлер.</string>
     <string name="tmdb_entity_rail_most_voted">С наибольшим числом голосов</string>
     <string name="collections_editor_tmdb_watch_region">Регион просмотра</string>
@@ -1923,19 +1756,10 @@
     <string name="advanced_section_cache">Кэш</string>
     <string name="advanced_fast_horizontal_navigation">Быстрая горизонтальная навигация</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Увеличить скорость повторения D-pad в строках при сохранении дросселирования повторений.</string>
-    <string name="advanced_fetch_performance_mode">Нативная память ExoPlayer</string>
-    <string name="advanced_fetch_performance_mode_subtitle">Включает высокопроизводительный нативный аллокатор, память вне кучи и сетевые оптимизации для более плавного воспроизведения</string>
-    <string name="buffer_device_ram_info">ОЗУ устройства: %s</string>
-    <string name="buffer_safe_limit_info">Рекомендуемый безопасный лимит: %d МБ</string>
-    <string name="buffer_safe_status">Безопасно: в пределах рекомендуемого лимита для вашего устройства.</string>
-    <string name="buffer_unsafe_warning">Предупреждение: превышен рекомендуемый безопасный лимит (%1$d МБ) для вашего устройства %2$s. Может вызвать сбои приложения.</string>
-    <string name="buffer_auto_limit_active">Автоматически подобранный безопасный лимит: %d МБ</string>
     <string name="advanced_fetch_focus_scroll">Прокрутка фокуса Fetch</string>
     <string name="advanced_fetch_focus_scroll_subtitle">Использовать собственную глобальную анимацию прокрутки и позиционирования фокуса Fetch.</string>
     <string name="advanced_rgb565">Декодирование изображений RGB565</string>
     <string name="advanced_rgb565_subtitle">Использовать 16-битный цвет с меньшим расходом памяти для подходящих непрозрачных изображений. При изменении этого параметра приложение перезапустится.</string>
-    <string name="advanced_memory_only_vertical_scroll">Вертикальная прокрутка только из памяти</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">Пропускать запросы изображений с диска и сети при вертикальной прокрутке строк главного экрана.</string>
     <string name="advanced_compose_highlighter">Подсветка Compose</string>
     <string name="advanced_compose_highlighter_subtitle">Мигающие границы вокруг перекомпозируемых элементов UI для отладки производительности.</string>
     <string name="advanced_clear_cw_cache">Очистить кэш «Продолжить просмотр»</string>
@@ -2032,8 +1856,6 @@
     <string name="layout_cw_sort_split_upcoming">Отдельный ряд «Скоро»</string>
     <string name="layout_cw_sort_split_upcoming_desc">Переносить ещё не вышедшие эпизоды в отдельный ряд «Скоро»</string>
     <string name="upcoming_section_title">Скоро</string>
-    <string name="layout_memory_only_scroll">Вертикальная прокрутка только из памяти</string>
-    <string name="layout_memory_only_scroll_sub">Не загружать новые изображения при вертикальной прокрутке.</string>
     <!-- Batch 5: debrid settings -->
     <string name="debrid_title">Подключённые сервисы</string>
     <string name="debrid_subtitle">Подключите аккаунты для доступа к ссылкам и библиотеке</string>
@@ -2049,25 +1871,11 @@
     <string name="debrid_section_instant_playback">Подготовка ссылок</string>
     <string name="debrid_section_filters">Фильтры и сортировка</string>
     <string name="debrid_section_formatting">Форматирование</string>
-    <string name="debrid_provider_title">Провайдер</string>
-    <string name="debrid_provider_subtitle">Дополнительные провайдеры будут добавлены позже</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">Подключите свой аккаунт Torbox.</string>
     <string name="debrid_provider_description">Подключите свой аккаунт %1$s.</string>
     <string name="debrid_provider_device_description">Привяжите аккаунт %1$s через браузер.</string>
     <string name="debrid_api_key_dialog_title">API-ключ %1$s</string>
     <string name="debrid_api_key_dialog_subtitle">Введите API-ключ %1$s.</string>
     <string name="debrid_api_key_dialog_placeholder">Введите API-ключ %1$s</string>
-    <string name="debrid_dialog_title">API-ключ Torbox</string>
-    <string name="debrid_dialog_subtitle">Введите ваш API-ключ Torbox.</string>
-    <string name="debrid_dialog_placeholder">Введите API-ключ Torbox</string>
-    <string name="debrid_real_debrid_api_key_title">API-токен Real-Debrid</string>
-    <string name="debrid_real_debrid_api_key_subtitle">Требуется для локального получения ссылок Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_title">API-токен Real-Debrid</string>
-    <string name="debrid_real_debrid_dialog_subtitle">Введите API-токен Real-Debrid для Direct Debrid</string>
-    <string name="debrid_real_debrid_dialog_placeholder">Введите API-токен Real-Debrid</string>
     <string name="debrid_not_set">Не задан</string>
     <string name="debrid_connected">Подключён</string>
     <string name="debrid_connect_provider">Подключить %1$s</string>
@@ -2076,86 +1884,18 @@
     <string name="debrid_device_auth_connected">%1$s подключён на этом устройстве.</string>
     <string name="debrid_device_auth_starting">Запуск безопасного входа...</string>
     <string name="debrid_device_auth_instructions">Отсканируйте QR и введите этот код для подтверждения Fetch.</string>
-    <string name="debrid_device_auth_code_copied">Код скопирован.</string>
     <string name="debrid_device_auth_waiting">Ожидание подтверждения...</string>
     <string name="debrid_device_auth_failed">Не удалось запустить вход.</string>
     <string name="debrid_device_auth_missing_configuration">Этот метод входа не настроен в данной сборке.</string>
     <string name="debrid_device_auth_expired">Код истёк. Попробуйте ещё раз.</string>
     <string name="debrid_key_invalid">Не удалось проверить этот API-ключ.</string>
-    <string name="debrid_invalid_torbox_api_key">Не удалось проверить этот API-ключ.</string>
-    <string name="debrid_invalid_real_debrid_api_key">Не удалось проверить этот API-ключ.</string>
     <string name="debrid_prepare_instant_playback">Подготовить ссылки</string>
     <string name="debrid_prepare_instant_playback_description">Получать воспроизводимые ссылки до начала воспроизведения.</string>
     <string name="debrid_prepare_stream_count">Ссылок для подготовки</string>
     <string name="debrid_prepare_stream_count_warning">Используйте меньший счётчик, когда возможно. Сервисы могут ограничивать количество запросов. Открытие фильма или эпизода может учитываться даже без нажатия «Смотреть».</string>
     <string name="debrid_prepare_count_one">1 ссылка</string>
     <string name="debrid_prepare_count_many">%1$d ссылок</string>
-    <string name="debrid_stream_max_results_title">Максимум результатов</string>
-    <string name="debrid_stream_max_results_subtitle">Ограничить количество источников Direct Debrid.</string>
-    <string name="debrid_stream_max_results_all">Все потоки</string>
-    <string name="debrid_stream_max_results_count">%1$d потоков</string>
-    <string name="debrid_stream_sort_title">Сортировать результаты</string>
-    <string name="debrid_stream_sort_subtitle">Выберите порядок результатов.</string>
-    <string name="debrid_stream_sort_original">Исходный порядок</string>
-    <string name="debrid_stream_sort_best_quality">Лучшее качество</string>
-    <string name="debrid_stream_sort_largest">Наибольший</string>
-    <string name="debrid_stream_sort_smallest">Наименьший</string>
-    <string name="debrid_stream_sort_best_audio">Лучшее аудио</string>
-    <string name="debrid_stream_sort_language">По языку</string>
-    <string name="debrid_stream_sort_default">Исходный порядок</string>
-    <string name="debrid_stream_sort_quality">Лучшее качество</string>
-    <string name="debrid_stream_sort_size_desc">Наибольший</string>
-    <string name="debrid_stream_sort_size_asc">Наименьший</string>
-    <string name="debrid_stream_min_quality_title">Минимальное качество</string>
-    <string name="debrid_stream_min_quality_subtitle">Скрыть источники ниже выбранного разрешения.</string>
-    <string name="debrid_stream_min_quality_any">Любое качество</string>
-    <string name="debrid_stream_min_quality_720">720p и выше</string>
-    <string name="debrid_stream_min_quality_1080">1080p и выше</string>
-    <string name="debrid_stream_min_quality_2160">Только 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">Показать, скрыть или требовать источники Dolby Vision.</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">Показать, скрыть или требовать источники HDR.</string>
-    <string name="debrid_stream_feature_any">Любой</string>
-    <string name="debrid_stream_feature_exclude">Скрыть</string>
-    <string name="debrid_stream_feature_only">Только</string>
-    <string name="debrid_stream_codec_title">Кодек</string>
-    <string name="debrid_stream_codec_subtitle">Фильтровать источники по видеокодеку.</string>
-    <string name="debrid_stream_codec_any">Любой кодек</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
     <!-- Batch 6: debrid stream filters, formatter, qr_login, trakt library/more like this -->
-    <string name="debrid_stream_per_resolution_limit_title">Лимит на разрешение</string>
-    <string name="debrid_stream_per_resolution_limit_subtitle">Ограничить повторяющиеся результаты 2160p, 1080p, 720p после сортировки.</string>
-    <string name="debrid_stream_per_quality_limit_title">Лимит на качество</string>
-    <string name="debrid_stream_per_quality_limit_subtitle">Ограничить повторяющиеся результаты BluRay, WEB-DL, REMUX после сортировки.</string>
-    <string name="debrid_stream_size_range_title">Диапазон размеров</string>
-    <string name="debrid_stream_size_range_subtitle">Фильтровать потоки по размеру файла.</string>
-    <string name="debrid_stream_resolutions_preferred">Предпочитаемые разрешения</string>
-    <string name="debrid_stream_resolutions_required">Обязательные разрешения</string>
-    <string name="debrid_stream_resolutions_excluded">Исключённые разрешения</string>
-    <string name="debrid_stream_qualities_preferred">Предпочитаемые качества</string>
-    <string name="debrid_stream_qualities_required">Обязательные качества</string>
-    <string name="debrid_stream_qualities_excluded">Исключённые качества</string>
-    <string name="debrid_stream_visual_tags_preferred">Предпочитаемые визуальные теги</string>
-    <string name="debrid_stream_visual_tags_required">Обязательные визуальные теги</string>
-    <string name="debrid_stream_visual_tags_excluded">Исключённые визуальные теги</string>
-    <string name="debrid_stream_audio_tags_preferred">Предпочитаемые аудиотеги</string>
-    <string name="debrid_stream_audio_tags_required">Обязательные аудиотеги</string>
-    <string name="debrid_stream_audio_tags_excluded">Исключённые аудиотеги</string>
-    <string name="debrid_stream_channels_preferred">Предпочитаемые каналы</string>
-    <string name="debrid_stream_channels_required">Обязательные каналы</string>
-    <string name="debrid_stream_channels_excluded">Исключённые каналы</string>
-    <string name="debrid_stream_encodes_preferred">Предпочитаемые кодировки</string>
-    <string name="debrid_stream_encodes_required">Обязательные кодировки</string>
-    <string name="debrid_stream_encodes_excluded">Исключённые кодировки</string>
-    <string name="debrid_stream_languages_preferred">Предпочитаемые языки</string>
-    <string name="debrid_stream_languages_required">Обязательные языки</string>
-    <string name="debrid_stream_languages_excluded">Исключённые языки</string>
-    <string name="debrid_stream_release_groups_required">Обязательные группы релизов</string>
-    <string name="debrid_stream_release_groups_excluded">Исключённые группы релизов</string>
-    <string name="debrid_stream_release_groups_input_subtitle">Введите одну группу на строку.</string>
     <string name="debrid_formatter_title">Веб-редактор</string>
     <string name="debrid_formatter_subtitle">Настройте отображение, фильтры и сортировку источников с другого устройства.</string>
     <string name="debrid_formatter_configure">Открыть веб-редактор</string>
@@ -2176,11 +1916,9 @@
     <string name="settings_stream_badge_position_bottom">Снизу</string>
     <string name="settings_stream_badge_urls_title">URL-адреса значков Fusion</string>
     <string name="settings_stream_badge_urls_description">Импортируйте до %1$d JSON-адресов значков потоков в стиле Fusion. Каждый URL можно обновить или удалить отдельно.</string>
-    <string name="settings_stream_badge_urls_search_description">Управление импортированными JSON-адресами значков потоков в стиле Fusion.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL, активных значков Fusion: %3$d</string>
     <string name="settings_fusion_badges_empty">Нет импортированных URL-адресов значков Fusion.</string>
     <string name="settings_fusion_badge_url_label">JSON URL значка Fusion</string>
-    <string name="settings_fusion_badge_urls_imported">Импортировано %1$d/%2$d URL Fusion</string>
     <string name="settings_fusion_badge_url_active">Активен</string>
     <string name="settings_fusion_badge_url_inactive">Неактивен</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, включённых значков: %2$d, групп: %3$d</string>
@@ -2197,7 +1935,6 @@
     <string name="tmdb_trailers_title">Трейлеры</string>
     <string name="tmdb_trailers_subtitle">Кандидаты на трейлеры из видео TMDB для раздела трейлеров на странице деталей</string>
     <string name="qr_login_preparing">Подготовка QR-входа...</string>
-    <string name="qr_login_device_auth_failed">Не удалось аутентифицировать устройство</string>
     <string name="qr_login_scan_prompt">Отсканируйте QR и войдите на телефоне</string>
     <string name="qr_login_start_failed">Не удалось запустить QR-вход</string>
     <string name="qr_login_signing_in">Выполняется вход…</string>
@@ -2206,11 +1943,7 @@
     <string name="trakt_library_source_title">Источник библиотеки</string>
     <string name="trakt_library_source_subtitle">Выберите библиотеку для сохранения и просмотра коллекции</string>
     <string name="trakt_library_source_dialog_title">Источник библиотеки</string>
-    <string name="trakt_library_source_dialog_subtitle">Выберите, где сохранять и управлять элементами библиотеки</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_fetch">Библиотека Fetch</string>
-    <string name="trakt_library_source_trakt_selected">Выбрана библиотека Trakt</string>
-    <string name="trakt_library_source_fetch_selected">Выбрана библиотека Fetch</string>
     <string name="trakt_more_like_this_source_title">Источник «Похожее»</string>
     <string name="trakt_more_like_this_source_subtitle">Выберите, откуда берутся рекомендации на страницах деталей</string>
     <string name="trakt_more_like_this_source_dialog_title">Источник «Похожее»</string>
@@ -2260,8 +1993,6 @@
     <string name="settings_p2p_subtitle">Разрешить P2P (торрент) потоки</string>
     <string name="settings_p2p_hide_stats_title">Скрыть статистику торрента</string>
     <string name="settings_p2p_hide_stats_subtitle">Скрыть буфер, сиды, пиры и скорость загрузки во время загрузки и воспроизведения</string>
-    <string name="p2p_download_title">Загрузка движка P2P</string>
-    <string name="p2p_download_subtitle">Это одноразовая загрузка, необходимая для P2P-стриминга.</string>
     <string name="stream_filter_all">Все</string>
     <string name="player_sync_line">Строка синхронизации</string>
     <string name="subtitle_timing_press_sync">Нажмите Синхронизация, когда услышите реплику.</string>
@@ -2321,18 +2052,13 @@
     <string name="library_empty_simkl_subtitle">Используйте + на странице описания, чтобы добавить элементы в статус Simkl</string>
     <string name="library_empty_simkl_not_auth_title">Simkl не подключён</string>
     <string name="library_empty_simkl_not_auth_subtitle">Подключите аккаунт Simkl в настройках, чтобы увидеть библиотеку Simkl</string>
-    <string name="cloud_library_connect_action">Подключить аккаунт</string>
     <string name="cloud_library_connect_message">Подключите аккаунт в настройках «Подключённые сервисы» для просмотра файлов из облачной библиотеки.</string>
     <string name="cloud_library_connect_title">Облачный аккаунт не подключён</string>
-    <string name="cloud_library_disabled_action">Открыть подключённые сервисы</string>
     <string name="cloud_library_disabled_message">Включите облачную библиотеку в настройках «Подключённые сервисы» для просмотра файлов.</string>
     <string name="cloud_library_disabled_title">Облачная библиотека отключена</string>
     <string name="cloud_library_empty_message">Нет воспроизводимых облачных файлов, соответствующих текущим фильтрам.</string>
     <string name="cloud_library_empty_title">Здесь пока ничего нет</string>
     <string name="cloud_library_file_picker_title">Выберите файл для воспроизведения</string>
-    <string name="cloud_library_load_failed">Не удалось загрузить облачную библиотеку %1$s</string>
-    <string name="cloud_library_no_files_message">Этот элемент не содержит воспроизводимого видеофайла.</string>
-    <string name="cloud_library_no_files_title">Нет воспроизводимых файлов</string>
     <string name="cloud_library_no_playable_files">Нет воспроизводимых файлов</string>
     <string name="cloud_library_one_playable_file">1 воспроизводимый файл</string>
     <string name="cloud_library_opening">Открытие…</string>
@@ -2361,9 +2087,6 @@
     <string name="plugin_url_or_short_code_placeholder">URL или короткий код</string>
     <string name="plugin_diagnostics_collapse">Диагностика (нажмите для сворачивания)</string>
     <string name="plugin_diagnostics_expand">Диагностика (нажмите для разворачивания)</string>
-    <string name="audio_dv_sub">Преобразовать Dolby Vision Profile 7 в стандартный HEVC для устройств без аппаратной поддержки DV</string>
-    <string name="nav_movies">Фильмы</string>
-    <string name="nav_series">Сериалы</string>
     <string name="action_select">Выбрать</string>
     <string name="update_error_check_failed">Проверка обновлений не удалась</string>
     <string name="update_error_download_failed">Загрузка не удалась</string>
@@ -2429,7 +2152,6 @@
     <string name="collections_editor_tmdb_collection_id">ID коллекции</string>
     <string name="collections_editor_tmdb_company_search">Название, ID или URL студии</string>
     <string name="collections_editor_tmdb_display_title">Отображаемое название</string>
-    <string name="collections_editor_tmdb_title_optional">Название (необязательно)</string>
     <string name="collections_editor_tmdb_search">Поиск</string>
     <string name="collections_editor_add_source">Добавить источник</string>
     <string name="collections_editor_save_source">Сохранить источник</string>
@@ -2645,7 +2367,6 @@
     <string name="player_error_stream_rate_limited">\n\nСлишком много запросов к источнику. Подождите немного и попробуйте снова.</string>
     <string name="player_error_stream_unavailable">\n\nСервер потока временно недоступен. Попробуйте другой источник.</string>
     <string name="player_error_source_invalid_content">Ошибка источника: источник вернул неверный или невоспроизводимый контент. Ссылка могла устареть или сервер вернул страницу ошибки вместо видео.\n\nПопробуйте другой источник. [%1$s]</string>
-    <string name="player_error_decoder">Ошибка декодера</string>
     <string name="player_error_unsupported_format">Поток использует формат, который ваше устройство может не поддерживать. Попробуйте другой источник. [%1$s]</string>
     <string name="player_error_initialize_failed">Не удалось инициализировать плеер</string>
     <string name="player_error_mpv_surface_failed">Не удалось инициализировать поверхность libmpv</string>
@@ -2676,7 +2397,6 @@
     <string name="library_synced">Библиотека синхронизирована</string>
     <string name="library_error_refresh_failed">Не удалось обновить библиотеку</string>
     <string name="library_list_created">Список создан</string>
-    <string name="library_error_invalid_list">Неверный список</string>
     <string name="library_list_updated">Список обновлён</string>
     <string name="library_error_save_list_failed">Не удалось сохранить список</string>
     <string name="library_list_deleted">Список удалён</string>
@@ -2684,11 +2404,6 @@
     <string name="library_list_order_updated">Порядок списков обновлён</string>
     <string name="library_error_reorder_lists_failed">Не удалось изменить порядок списков</string>
     <string name="library_list_fallback_title">Список</string>
-    <string name="library_privacy_private">Приватный</string>
-    <string name="library_privacy_link">По ссылке</string>
-    <string name="library_privacy_friends">Для друзей</string>
-    <string name="library_privacy_public">Публичный</string>
-    <string name="trakt_error_auth_required">Требуется авторизация Trakt</string>
     <string name="trakt_library_error_request_failed">Запрос Trakt не выполнен</string>
     <string name="trakt_library_error_create_list_failed">Не удалось создать список</string>
     <string name="trakt_library_error_update_list_failed">Не удалось обновить список</string>
@@ -2705,18 +2420,13 @@
     <string name="trakt_library_error_auth_expired">Авторизация Trakt истекла</string>
     <string name="trakt_library_error_list_not_found">Список Trakt не найден</string>
     <string name="trakt_library_error_list_limit_reached">Достигнут лимит списков Trakt. Требуется обновление.</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">Недостаточно ID Trakt для отметки просмотра</string>
     <string name="trakt_error_request_failed">Запрос Trakt не выполнен</string>
-    <string name="simkl_account_title">Аккаунт Simkl</string>
     <string name="simkl_description">Подключите Simkl для синхронизации списков, истории просмотренного, прогресса воспроизведения и скробблинга.</string>
-    <string name="simkl_connect">Подключить Simkl</string>
-    <string name="simkl_disconnect">Отключить Simkl</string>
     <string name="simkl_disconnect_title">Отключить Simkl?</string>
     <string name="simkl_disconnect_subtitle">Это удалит аккаунт Simkl и кэшированные данные Simkl из этого профиля.</string>
     <string name="simkl_connected_as">Подключено как %1$s</string>
     <string name="simkl_user_fallback">Пользователь Simkl</string>
     <string name="simkl_awaiting_instruction">Откройте страницу подтверждения Simkl и введите этот код.</string>
-    <string name="simkl_code_expires">Код истекает через %1$s</string>
     <string name="simkl_sync_now">Синхронизировать сейчас</string>
     <string name="simkl_visit">Перейти на Simkl</string>
     <string name="simkl_sync_info_action">Как работает синхронизация</string>
@@ -2734,8 +2444,6 @@
     <string name="simkl_status_disconnected">Отключено от Simkl</string>
     <string name="simkl_status_syncing">Синхронизация Simkl…</string>
     <string name="simkl_status_synced">Синхронизация Simkl завершена</string>
-    <string name="simkl_watch_progress_selected">Simkl выбран для «Продолжить просмотр»</string>
-    <string name="simkl_library_source_selected">Simkl выбран для Библиотеки</string>
     <string name="simkl_error_code_expired">Код Simkl истёк. Начните заново.</string>
     <string name="simkl_error_authorization_revoked">Авторизация Simkl была отозвана. Подключитесь снова.</string>
     <string name="simkl_error_network">Не удалось связаться с Simkl. Попробуйте ещё раз.</string>
@@ -2761,25 +2469,14 @@
     <string name="stream_embedded_group">Встроенные потоки</string>
     <string name="stream_embedded_fallback_name">Встроенный поток</string>
     <string name="stream_quality_unknown">Неизвестно</string>
-    <string name="stream_addon_unknown">Неизвестно</string>
-    <string name="tmdb_unknown_entity">Неизвестно</string>
     <string name="web_tmdb_company_fallback">Компания TMDB %1$d</string>
     <string name="web_tmdb_collection_fallback">Коллекция TMDB %1$d</string>
     <string name="web_error_invalid_request_body">Неверное тело запроса</string>
-    <string name="language_english">Английский</string>
-    <string name="supporters_error_load">Не удалось загрузить спонсоров.</string>
-    <string name="contributors_error_load">Не удалось загрузить участников.</string>
-    <string name="contributors_error_api_not_configured">API участников не настроен.</string>
-    <string name="contributors_error_api_http">Ошибка API участников: %1$d</string>
-    <string name="supporters_error_api_http">Ошибка API пожертвований: %1$d</string>
-    <string name="contributor_role_translator">Переводчик</string>
-    <string name="contributor_role_maintainer">Мейнтейнер</string>
     <string name="network_error_empty_response_body">Пустое тело ответа</string>
     <string name="network_error_unknown">Неизвестная ошибка сети</string>
     <string name="network_fast_error_script_path_missing">Отсутствует путь скрипта fast.com</string>
     <string name="network_fast_error_token_missing">Отсутствует токен fast.com</string>
     <string name="player_torrent_starting_engine">Запуск движка P2P…</string>
-    <string name="player_torrent_rebuffer_status">Перебуферизация %1$s…</string>
     <string name="player_stream_error_invalid_external_url">Неверный внешний URL потока</string>
     <string name="player_stream_error_open_external_link_failed">Не удалось открыть внешнюю ссылку</string>
     <string name="player_stream_error_invalid_url">Неверный URL потока</string>
@@ -2792,17 +2489,6 @@
     <string name="trakt_related_error_request_failed">Не удалось загрузить похожие</string>
     <string name="trakt_comments_error_request_failed">Не удалось загрузить комментарии</string>
     <string name="trakt_library_error_fetch_list_items">Не удалось загрузить элементы списка</string>
-    <string name="debrid_selection_count_any">Любое количество</string>
-    <plurals name="debrid_selection_count_value">
-        <item quantity="one">%d выбрано</item>
-        <item quantity="few">%d выбрано</item>
-        <item quantity="many">%d выбрано</item>
-        <item quantity="other">%d выбрано</item>
-    </plurals>
-    <string name="debrid_size_range_any">Любой размер</string>
-    <string name="debrid_size_range_up_to">До %1$d ГБ</string>
-    <string name="debrid_size_range_min_plus">%1$d ГБ+</string>
-    <string name="debrid_size_range_min_max">%1$d–%2$d ГБ</string>
     <!-- Batch 13 (final): DV diagnostics, meta/stream addon errors, home poster errors, debrid picker filters, subtitle language unknown -->
     <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
@@ -2822,11 +2508,6 @@
     <string name="audio_mpv_hi10p_gnext_sw_title">Программный откат Hi10P G-NEXT (только MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Использовать программное декодирование G-NEXT, когда параметры потока определяют H.264 Hi10P. Отключено по умолчанию; включайте, только если воспроизведение Hi10P зависает или не работает.</string>
     <string name="meta_error_detail_no_metadata_for_id">не вернул метаданные для этого ID</string>
-    <string name="meta_error_detail_addon_unreachable">не удалось связаться с сервером аддона</string>
-    <string name="meta_error_detail_addon_connection_failed">подключение к аддону не удалось</string>
-    <string name="meta_error_detail_addon_timeout">запрос к аддону превысил время ожидания</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">аддон использует незащищённое HTTP-соединение, заблокированное Android</string>
-    <string name="meta_error_detail_addon_request_failed">запрос к аддону не выполнен</string>
     <string name="stream_error_detail_no_streams_for_id">не вернул потоки для этого ID</string>
     <string name="stream_error_detail_addon_unreachable">не удалось связаться с сервером аддона</string>
     <string name="stream_error_detail_addon_connection_failed">подключение к аддону не удалось</string>
@@ -2835,69 +2516,16 @@
     <string name="stream_error_detail_addon_request_failed">запрос к аддону не выполнен</string>
     <string name="home_poster_lists_error_load_failed">Не удалось загрузить списки</string>
     <string name="home_poster_lists_error_update_failed">Не удалось обновить списки</string>
-    <string name="debrid_picker_preferred_resolutions_title">Предпочтительные разрешения</string>
-    <string name="debrid_picker_preferred_resolutions_subtitle">Сначала сортировать выбранные разрешения, в порядке по умолчанию.</string>
-    <string name="debrid_picker_required_resolutions_title">Обязательные разрешения</string>
-    <string name="debrid_picker_required_resolutions_subtitle">Показывать только выбранные разрешения.</string>
-    <string name="debrid_picker_excluded_resolutions_title">Исключённые разрешения</string>
-    <string name="debrid_picker_excluded_resolutions_subtitle">Скрывать выбранные разрешения.</string>
-    <string name="debrid_picker_preferred_qualities_title">Предпочтительные качества</string>
-    <string name="debrid_picker_preferred_qualities_subtitle">Сначала сортировать выбранные качества, в порядке по умолчанию.</string>
-    <string name="debrid_picker_required_qualities_title">Обязательные качества</string>
-    <string name="debrid_picker_required_qualities_subtitle">Показывать только выбранные качества источника.</string>
-    <string name="debrid_picker_excluded_qualities_title">Исключённые качества</string>
-    <string name="debrid_picker_excluded_qualities_subtitle">Скрывать выбранные качества источника.</string>
-    <string name="debrid_picker_preferred_visual_tags_title">Предпочтительные визуальные теги</string>
-    <string name="debrid_picker_preferred_visual_tags_subtitle">Сортировать DV, HDR, 10bit, IMAX и подобные теги.</string>
-    <string name="debrid_picker_required_visual_tags_title">Обязательные визуальные теги</string>
-    <string name="debrid_picker_required_visual_tags_subtitle">Требовать DV, HDR, 10bit, IMAX, SDR и подобные теги.</string>
-    <string name="debrid_picker_excluded_visual_tags_title">Исключённые визуальные теги</string>
-    <string name="debrid_picker_excluded_visual_tags_subtitle">Скрывать DV, HDR, 10bit, 3D и подобные теги.</string>
-    <string name="debrid_picker_preferred_audio_tags_title">Предпочтительные аудио-теги</string>
-    <string name="debrid_picker_preferred_audio_tags_subtitle">Сортировать Atmos, TrueHD, DTS, AAC и подобные теги.</string>
-    <string name="debrid_picker_required_audio_tags_title">Обязательные аудио-теги</string>
-    <string name="debrid_picker_required_audio_tags_subtitle">Требовать Atmos, TrueHD, DTS, AAC и подобные теги.</string>
-    <string name="debrid_picker_excluded_audio_tags_title">Исключённые аудио-теги</string>
-    <string name="debrid_picker_excluded_audio_tags_subtitle">Скрывать выбранные аудио-теги.</string>
-    <string name="debrid_picker_preferred_audio_channels_title">Предпочтительные каналы</string>
-    <string name="debrid_picker_preferred_audio_channels_subtitle">Сначала сортировать предпочтительные конфигурации каналов.</string>
-    <string name="debrid_picker_required_audio_channels_title">Обязательные каналы</string>
-    <string name="debrid_picker_required_audio_channels_subtitle">Показывать только выбранные конфигурации каналов.</string>
-    <string name="debrid_picker_excluded_audio_channels_title">Исключённые каналы</string>
-    <string name="debrid_picker_excluded_audio_channels_subtitle">Скрывать выбранные конфигурации каналов.</string>
-    <string name="debrid_picker_preferred_encodes_title">Предпочтительные кодеки</string>
-    <string name="debrid_picker_preferred_encodes_subtitle">Сортировать AV1, HEVC, AVC и подобные кодеки.</string>
-    <string name="debrid_picker_required_encodes_title">Обязательные кодеки</string>
-    <string name="debrid_picker_required_encodes_subtitle">Требовать AV1, HEVC, AVC и подобные кодеки.</string>
-    <string name="debrid_picker_excluded_encodes_title">Исключённые кодеки</string>
-    <string name="debrid_picker_excluded_encodes_subtitle">Скрывать выбранные кодеки.</string>
-    <string name="debrid_picker_preferred_languages_title">Предпочтительные языки</string>
-    <string name="debrid_picker_preferred_languages_subtitle">Сначала сортировать предпочтительные языки аудио.</string>
-    <string name="debrid_picker_required_languages_title">Обязательные языки</string>
-    <string name="debrid_picker_required_languages_subtitle">Показывать только потоки с выбранными языками.</string>
-    <string name="debrid_picker_excluded_languages_title">Исключённые языки</string>
-    <string name="debrid_picker_excluded_languages_subtitle">Скрывать потоки, где все языки исключены.</string>
-    <string name="debrid_picker_required_release_groups_title">Обязательные релиз-группы</string>
-    <string name="debrid_picker_required_release_groups_subtitle">Показывать только выбранные релиз-группы.</string>
-    <string name="debrid_picker_excluded_release_groups_title">Исключённые релиз-группы</string>
-    <string name="debrid_picker_excluded_release_groups_subtitle">Скрывать выбранные релиз-группы.</string>
     <string name="subtitle_language_unknown">Неизвестный</string>
     <string name="external_playback_notification_text">Воспроизведение во внешнем плеере</string>
     <string name="external_playback_channel_description">Поддерживает работу приложения во время воспроизведения во внешнем плеере</string>
     <string name="web_debrid_title">Настройки прямого дебрида</string>
     <string name="web_debrid_intro_title">Настройка потоков дебрида</string>
     <string name="web_debrid_intro_copy">Настройте метки, фильтры и сортировку потоков, используемые для результатов прямого дебрида.</string>
-    <string name="web_debrid_tab_formatter">Форматирование</string>
-    <string name="web_debrid_tab_rules">Фильтры и сортировка</string>
     <string name="web_debrid_template_fields">Поля шаблона</string>
     <string name="web_debrid_name_template">Шаблон названия</string>
     <string name="web_debrid_description_template">Шаблон описания</string>
     <string name="web_debrid_error_templates_required">Оба шаблона обязательны</string>
-    <string name="web_debrid_stream_rules">Правила потоков</string>
-    <string name="web_debrid_per_resolution">По разрешению</string>
-    <string name="web_debrid_per_quality">По качеству</string>
-    <string name="web_debrid_min_size_gb">Мин. размер, ГБ</string>
-    <string name="web_debrid_max_size_gb">Макс. размер, ГБ</string>
     <string name="web_debrid_restore_default">Восстановить по умолчанию</string>
     <string name="web_debrid_save_settings">Сохранить настройки</string>
     <string name="web_debrid_status_load_error">Не удалось загрузить настройки дебрида</string>
@@ -3017,13 +2645,11 @@
     <string name="stream_test_card_title">Тест скорости последнего воспроизведённого потока</string>
     <string name="stream_test_server_label">Сервер: %1$s</string>
     <string name="stream_test_no_stream">Воспроизведений не зафиксировано. Воспроизведите видео, чтобы запустить диагностический тест его хоста.</string>
-    <string name="stream_test_btn_start">Начать тест</string>
     <string name="stream_test_btn_measuring_baseline">Измерение базовой скорости…</string>
     <string name="stream_test_btn_measuring_parallel1">Измерение параллельного (1 МБ)…</string>
     <string name="stream_test_btn_measuring_parallel4">Измерение параллельного (4 МБ)…</string>
     <string name="stream_test_btn_measuring_parallel8">Измерение параллельного (8 МБ)…</string>
     <string name="stream_test_btn_measuring_parallel16">Измерение параллельного (16 МБ)…</string>
-    <string name="stream_test_btn_run_again">Повторить тест</string>
     <string name="stream_test_btn_running">Выполняется…</string>
     <string name="stream_test_label_baseline">Стандартное одиночное соединение (база)</string>
     <string name="stream_test_label_parallel1">Параллельное соединение (фрагменты по 1 МБ)</string>
@@ -3034,4 +2660,227 @@
     <string name="stream_test_video_bitrate">Средний битрейт видео: %1$s</string>
     <string name="stream_test_error_connection">Ошибка соединения. Возможно, ссылка на последний воспроизведённый поток устарела или недоступна. Воспроизведите видео заново и повторите попытку.</string>
 
+    <!-- Fetch: new and changed strings -->
+    <string name="account_local_only_note">Синхронизация выключена. Fetch хранит ваши аддоны, прогресс и настройки на этом телевизоре и не требует аккаунта. Чтобы синхронизировать устройства, подключите собственный сервер синхронизации в параметрах сервера.</string>
+    <string name="addon_badge_needs_setup">Требует настройки</string>
+    <string name="addon_configure">Настроить</string>
+    <string name="addon_configure_install">Установить</string>
+    <string name="addon_configure_no_server">После сохранения вставьте ссылку установки в поле вверху этого экрана.</string>
+    <string name="addon_configure_received">Ваш телефон отправил: %1$s</string>
+    <string name="addon_configure_step_open">1. Отсканируйте, чтобы открыть страницу настройки на телефоне</string>
+    <string name="addon_configure_step_send">2. Отсканируйте, чтобы отправить новую ссылку на этот телевизор</string>
+    <string name="addon_configure_still_unconfigured">%1$s всё ещё не настроен. Завершите настройку на его странице и отправьте ссылку снова.</string>
+    <string name="addon_configure_title">Настройка %1$s</string>
+    <string name="addon_configure_updated">%1$s обновлён</string>
+    <string name="addon_configure_waiting">После сохранения скопируйте ссылку установки со страницы и отправьте её на шаге 2.</string>
+    <string name="addon_configure_web_failed">Не удалось связаться с телевизором. Он всё ещё на экране настройки?</string>
+    <string name="addon_configure_web_invalid">Это не похоже на ссылку аддона.</string>
+    <string name="addon_configure_web_open">Открыть страницу настройки</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json или stremio://…</string>
+    <string name="addon_configure_web_send">Отправить на ТВ</string>
+    <string name="addon_configure_web_sent">Отправлено. Подтвердите на телевизоре.</string>
+    <string name="addon_configure_web_step1">Сначала настройте аддон на его собственной странице.</string>
+    <string name="addon_configure_web_step2">Когда появится ссылка установки (или адрес manifest.json), скопируйте её и вставьте сюда.</string>
+    <string name="addon_configure_web_title">Отправить на ТВ</string>
+    <string name="addon_health_failing">Последний запрос не удался</string>
+    <string name="addon_health_latency">%1$.1f с</string>
+    <string name="addon_health_ok">Отвечает · %1$s</string>
+    <string name="addon_health_slow">Медленно · %1$s</string>
+    <string name="addon_health_timed_out">Время последнего запроса истекло</string>
+    <string name="addon_needs_configuration">%1$s нужно настроить перед установкой</string>
+    <string name="advanced_introdb_api_key">API-ключ IntroDB</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">Создайте ключ на introdb.app. Он начинается с idb_.</string>
+    <string name="advanced_introdb_api_key_subtitle">Позволяет отмечать заставки и финальные титры из плеера и отправлять их в IntroDB</string>
+    <string name="advanced_introdb_server">Сервер IntroDB</string>
+    <string name="advanced_introdb_server_default">По умолчанию (%1$s)</string>
+    <string name="advanced_introdb_server_dialog_subtitle">API, совместимый с IntroDB. Оставьте пустым, чтобы использовать публичный сервер.</string>
+    <string name="advanced_introdb_server_invalid">Введите адрес http или https</string>
+    <string name="advanced_introdb_server_subtitle">Источник меток заставок, пересказов и титров для обычных сериалов и фильмов</string>
+    <string name="advanced_section_skip_markers">Метки пропуска</string>
+    <string name="autoplay_allowed_addons_early_sub">Автовоспроизведение начинается, как только ответят эти аддоны, не дожидаясь остальных.</string>
+    <string name="autoplay_mode_best">Лучшее совпадение</string>
+    <string name="autoplay_mode_best_desc">Ранжирует все результаты по качеству, вашим правилам и возможностям этого устройства, затем запускает лучший. Остальные источники доступны в одно нажатие.</string>
+    <string name="best_match_cached">В кэше</string>
+    <string name="best_match_excluded">Не воспроизводится автоматически: %1$s</string>
+    <string name="best_match_preview_sub">Опрашивает аддоны потоков, пока вы смотрите на тайтл, чтобы кнопка «Воспроизвести» показывала файл и воспроизведение начиналось быстрее. Выключите, чтобы искать только после нажатия «Воспроизвести».</string>
+    <string name="best_match_preview_title">Показывать выбор на кнопке «Воспроизвести»</string>
+    <string name="catalog_order_pin">Закрепить сверху</string>
+    <string name="catalog_order_pinned_on_home">Закреплено вверху Главной</string>
+    <string name="catalog_order_unpin">Открепить</string>
+    <string name="cd_mark_credits_end">Отметить конец финальных титров</string>
+    <string name="cd_mark_credits_start">Отметить начало финальных титров</string>
+    <string name="cd_mark_intro_end">Отметить конец заставки</string>
+    <string name="cd_mark_intro_start">Отметить начало заставки</string>
+    <string name="custom_server_error_official_active">Синхронизация на этом телевизоре уже выключена.</string>
+    <string name="custom_server_error_official_available">Это не сервер синхронизации. Закройте это окно и выберите «Выключить синхронизацию», чтобы вернуться в локальный режим.</string>
+    <string name="debrid_stream_rules_moved">Правила потоков теперь находятся в разделе Воспроизведение → Выбор потока и применяются ко всем источникам, включая debrid. Заданные здесь правила перенесены туда.</string>
+    <string name="exclusion_3d">3D-релиз</string>
+    <string name="exclusion_above_max_resolution">выше максимального разрешения</string>
+    <string name="exclusion_audio">вы пропускаете аудио %1$s</string>
+    <string name="exclusion_below_min_resolution">ниже минимального разрешения</string>
+    <string name="exclusion_cam">копия CAM или telesync</string>
+    <string name="exclusion_codec">вы пропускаете %1$s</string>
+    <string name="exclusion_dv_excluded">вы отключили Dolby Vision</string>
+    <string name="exclusion_dv_profile_excluded">вы отключили этот профиль Dolby Vision</string>
+    <string name="exclusion_hdr_excluded">вы отключили HDR</string>
+    <string name="exclusion_keyword">содержит исключённое ключевое слово</string>
+    <string name="exclusion_language">вы пропускаете %1$s</string>
+    <string name="exclusion_not_playable">этот плеер не может его открыть</string>
+    <string name="exclusion_over_max_size">больше вашего ограничения размера</string>
+    <string name="exclusion_release_group">вы пропускаете группу %1$s</string>
+    <string name="exclusion_resolution">вы пропускаете %1$s</string>
+    <string name="exclusion_result_limit">сверх лимита результатов</string>
+    <string name="exclusion_source">вы пропускаете релизы %1$s</string>
+    <string name="exclusion_under_min_size">меньше минимального размера</string>
+    <string name="exclusion_unsupported_audio">для %1$s нужен passthrough или декодер, которого нет у этого телевизора</string>
+    <string name="exclusion_unsupported_codec">этот телевизор не может декодировать %1$s</string>
+    <string name="exclusion_unsupported_dv">DV профиль 5 не поддерживается этим телевизором</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">DV с HDR10+ показывает чёрный экран на этом устройстве</string>
+    <string name="exclusion_unsupported_resolution">разрешение выше, чем поддерживает этот телевизор</string>
+    <string name="fetching_addons_done">Ответили все аддоны: %1$d</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="one">Поиск… ответили: %1$d, ещё ищет %2$d аддон</item>
+        <item quantity="few">Поиск… ответили: %1$d, ещё ищут %2$d аддона</item>
+        <item quantity="many">Поиск… ответили: %1$d, ещё ищут %2$d аддонов</item>
+        <item quantity="other">Поиск… ответили: %1$d, ещё ищут %2$d аддона</item>
+    </plurals>
+    <string name="fetching_best_so_far">Лучшее на данный момент</string>
+    <string name="fetching_play_now">Воспроизвести сейчас</string>
+    <string name="fetching_see_all_sources">Все источники</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="one">Запуск через %1$d секунду</item>
+        <item quantity="few">Запуск через %1$d секунды</item>
+        <item quantity="many">Запуск через %1$d секунд</item>
+        <item quantity="other">Запуск через %1$d секунды</item>
+    </plurals>
+    <string name="filter_row_addon_note">Каталоги аддонов можно фильтровать только по жанру.</string>
+    <string name="filter_row_any">Любой</string>
+    <string name="filter_row_ascending">По возрастанию</string>
+    <string name="filter_row_descending">По убыванию</string>
+    <string name="filter_row_genre">Жанр</string>
+    <string name="filter_row_order">Порядок</string>
+    <string name="filter_row_rating">Минимальный рейтинг</string>
+    <string name="filter_row_rating_value">%1$.1f и выше</string>
+    <string name="filter_row_sort">Сортировка</string>
+    <string name="filter_row_sort_added">Дата добавления</string>
+    <string name="filter_row_sort_random">Случайно</string>
+    <string name="filter_row_sort_rating">Рейтинг</string>
+    <string name="filter_row_sort_release">Дата выхода</string>
+    <string name="filter_row_sort_title">Название</string>
+    <string name="filter_row_source">Источник</string>
+    <string name="filter_row_source_missing">Источник этого ряда больше недоступен.</string>
+    <string name="filter_row_unwatched">Только непросмотренные</string>
+    <string name="filter_row_watched">Просмотренные</string>
+    <string name="filter_row_watched_only">Только просмотренные</string>
+    <string name="filter_row_year_from">С года</string>
+    <string name="filter_row_year_to">До года</string>
+    <string name="filter_rows_card_subtitle">Создавайте ряды на Главной, например «непросмотренная фантастика из моего Jellyfin»</string>
+    <string name="filter_rows_delete">Удалить</string>
+    <string name="filter_rows_edit">Изменить</string>
+    <string name="filter_rows_edit_title">Изменить ряд-фильтр</string>
+    <string name="filter_rows_empty">Рядов-фильтров пока нет.</string>
+    <string name="filter_rows_new">Новый ряд-фильтр</string>
+    <string name="filter_rows_no_sources">Подключите медиасервер или установите аддон с каталогами по жанрам, чтобы создать ряд-фильтр.</string>
+    <string name="filter_rows_save">Сохранить</string>
+    <string name="filter_rows_save_failed">Не удалось сохранить. Попробуйте ещё раз.</string>
+    <string name="filter_rows_subtitle">Ряды, созданные фильтрами по библиотеке медиасервера или каталогу аддона. Они появляются на Главной, где их можно переупорядочить, скрыть и закрепить, как любой другой ряд.</string>
+    <string name="filter_rows_title">Ряды-фильтры</string>
+    <string name="home_poster_pin_row">Закрепить этот ряд сверху</string>
+    <string name="home_poster_unpin_row">Открепить этот ряд</string>
+    <string name="layout_trailer_crop_to_fill">Обрезать трейлеры по размеру</string>
+    <string name="layout_trailer_crop_to_fill_sub">Увеличивать фоновые трейлеры на Главной и страницах деталей, чтобы они заполняли кадр. Выключите, чтобы видеть всё изображение с чёрными полосами.</string>
+    <string name="library_empty_type_items">элементов</string>
+    <string name="library_empty_type_movies">фильмов</string>
+    <string name="library_empty_type_series">сериалов</string>
+    <string name="licenses_attributions_fetch_body">Fetch — свободное ПО под лицензией GNU General Public License v3.0. Это форк NuvioTV от участников проекта Nuvio (github.com/NuvioMedia/NuvioTV), чья работа составляет большую часть этого приложения.</string>
+    <string name="official_server_action">Выключить синхронизацию</string>
+    <string name="official_server_description">Вы выйдете из своего сервера синхронизации, и приложение перезапустится в локальном режиме. Всё, что уже есть на этом телевизоре, сохранится.</string>
+    <string name="official_server_title">Выключить синхронизацию?</string>
+    <string name="parental_addons_blocked">Этот профиль не может устанавливать аддоны. Попросите родителя.</string>
+    <string name="parental_allow_unrated">Показывать тайтлы без рейтинга: %1$s</string>
+    <string name="parental_gate_heading">Введите PIN профиля %1$s</string>
+    <string name="parental_gate_support">У этого профиля есть родительские ограничения. Чтобы продолжить, нужен PIN родителя.</string>
+    <string name="parental_kids_profile_toggle">Детский профиль: %1$s</string>
+    <string name="parental_level_all_ages">Для всех возрастов (G, TV-Y, TV-G)</string>
+    <string name="parental_level_mature">R, TV-MA</string>
+    <string name="parental_level_older_kids">Для детей постарше (TV-Y7)</string>
+    <string name="parental_level_pg">PG, TV-PG</string>
+    <string name="parental_level_teens">PG-13, TV-14</string>
+    <string name="parental_level_unrestricted">Без ограничений</string>
+    <string name="parental_limits_label">Родительские ограничения</string>
+    <string name="parental_limits_saved">Родительские ограничения сохранены для %1$s</string>
+    <string name="parental_limits_subtitle">Для изменений нужен PIN основного профиля. Тайтлы выше ограничения скрыты на главной, в поиске и в «Продолжить просмотр» и не воспроизводятся.</string>
+    <string name="parental_limits_subtitle_no_pin">Задайте PIN для основного профиля, иначе любой пользователь этого профиля сможет изменить эти ограничения.</string>
+    <string name="parental_limits_title">Родительские ограничения для %1$s</string>
+    <string name="parental_max_rating">Максимальный рейтинг: %1$s</string>
+    <string name="parental_off">Выкл.</string>
+    <string name="parental_on">Вкл.</string>
+    <string name="parental_title_blocked">Этот тайтл превышает возрастное ограничение профиля.</string>
+    <string name="prefer_next_time_group">Группа %1$s</string>
+    <string name="prefer_next_time_language">Аудио %1$s</string>
+    <string name="prefer_next_time_not_now">Не сейчас</string>
+    <string name="prefer_next_time_saved">Лучшее совпадение будет предпочитать: %1$s</string>
+    <string name="prefer_next_time_size">Файлы до %1$d ГБ</string>
+    <string name="prefer_next_time_title">Предпочитать это в следующий раз?</string>
+    <string name="ranking_any">Любое</string>
+    <string name="ranking_drop_undecodable">Пропускать потоки, которые устройство не может декодировать</string>
+    <string name="ranking_drop_undecodable_sub">На основе декодеров, форматов HDR и разрешения, которые сообщает устройство</string>
+    <string name="ranking_excluded_audio">Пропускать аудиоформаты</string>
+    <string name="ranking_excluded_audio_sub">Релизы только с этими аудиоформатами никогда не воспроизводятся автоматически</string>
+    <string name="ranking_excluded_groups">Пропускать релиз-группы</string>
+    <string name="ranking_excluded_languages">Пропускать языки аудио</string>
+    <string name="ranking_excluded_languages_sub">Релизы только на этих языках никогда не воспроизводятся автоматически</string>
+    <string name="ranking_excluded_sources">Пропускать типы релизов</string>
+    <string name="ranking_groups_input_sub">Разделяйте группы запятыми, например FLUX, NTb.</string>
+    <string name="ranking_hide_cam">Никогда не воспроизводить автоматически CAM и telesync</string>
+    <string name="ranking_max_per_resolution">Результатов на разрешение</string>
+    <string name="ranking_max_quality">Максимальное качество</string>
+    <string name="ranking_max_results">Сколько результатов оставлять</string>
+    <string name="ranking_max_results_sub">Остальные переходят в «Другие источники»</string>
+    <string name="ranking_max_size">Максимальный размер файла</string>
+    <string name="ranking_max_size_sub">Файлы больше никогда не воспроизводятся автоматически</string>
+    <string name="ranking_min_size">Минимальный размер файла</string>
+    <string name="ranking_min_size_sub">Файлы меньше никогда не воспроизводятся автоматически</string>
+    <string name="ranking_no_limit">Без ограничений</string>
+    <string name="ranking_none">Нет</string>
+    <string name="ranking_prefer_cached">Предпочитать кэшированные результаты debrid</string>
+    <string name="ranking_prefer_cached_sub">Кэшированные файлы запускаются мгновенно</string>
+    <string name="ranking_prefer_library">Предпочитать мою библиотеку</string>
+    <string name="ranking_prefer_library_sub">Файл на вашем сервере Jellyfin, Emby или Plex важнее любого потока</string>
+    <string name="ranking_preferred_codec">Предпочитаемый видеокодек</string>
+    <string name="ranking_preferred_groups">Предпочитаемые релиз-группы</string>
+    <string name="ranking_preferred_groups_sub">Включает группы, выбранные через «Предпочитать это в следующий раз»</string>
+    <string name="ranking_preferred_languages">Предпочитаемые языки аудио</string>
+    <string name="ranking_preferred_languages_sub">Релизы с этими языками ранжируются выше, первый выбор — выше всех</string>
+    <string name="ranking_preferred_quality">Предпочитаемое качество</string>
+    <string name="ranking_preferred_quality_sub">Более высокое качество по-прежнему разрешено, но ранжируется ниже</string>
+    <string name="ranking_preferred_size">Предпочитаемый размер файла</string>
+    <string name="ranking_preferred_size_sub">Файлы большего размера ранжируются ниже</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="one">Выбран %1$d</item>
+        <item quantity="few">Выбрано %1$d</item>
+        <item quantity="many">Выбрано %1$d</item>
+        <item quantity="other">Выбрано %1$d</item>
+    </plurals>
+    <string name="ranking_size_gb">%1$d ГБ</string>
+    <string name="ranking_skip_dv5">Пропускать Dolby Vision профиль 5</string>
+    <string name="ranking_skip_dv5_sub">У профиля 5 нет резервного HDR10. Он всегда пропускается, если этот телевизор не может его отобразить</string>
+    <string name="server_options_use_official">Выключить синхронизацию</string>
+    <string name="skip_marker_report_failed">Не удалось отправить жалобу на метку</string>
+    <string name="skip_marker_reported">Неверная метка отмечена. Спасибо!</string>
+    <string name="skip_marker_start_recorded">Начало отмечено. Нажмите ещё раз в месте окончания.</string>
+    <string name="skip_marker_submit_failed">Не удалось отправить метку в IntroDB</string>
+    <string name="skip_marker_submitted">Метка отправлена в IntroDB</string>
+    <string name="skip_source">через %1$s</string>
+    <string name="skip_source_reportable">через %1$s · удерживайте, чтобы пожаловаться</string>
+    <string name="sub_hdr_brightness">Яркость субтитров HDR</string>
+    <string name="sub_hdr_style">Отдельный стиль для HDR / Dolby Vision</string>
+    <string name="sub_hdr_style_sub">Использовать другой цвет текста и меньшую яркость субтитров для видео HDR и Dolby Vision</string>
+    <string name="sub_hdr_text_color">Цвет текста HDR</string>
+    <string name="subtitle_style_brightness_hdr">Яркость (HDR)</string>
+    <string name="subtitle_style_text_color_hdr">Цвет текста (HDR)</string>
+    <string name="subtitle_style_text_opacity_hdr">Прозрачность текста (HDR)</string>
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="torrent_engine_unavailable">Это торрент-поток, а в Fetch нет встроенного торрент-движка. Включите debrid-сервис в Настройки → Debrid или откройте его во внешнем плеере.</string>
+    <string name="stream_torrent_needs_debrid">Торрент: подключите debrid-сервис в Настройки → Debrid, чтобы воспроизвести его здесь, или откройте во внешнем плеере.</string>
 </resources>

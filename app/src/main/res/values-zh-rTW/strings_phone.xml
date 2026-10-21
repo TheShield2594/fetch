@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">您的手機必須與這台電視連線至同一個 Wi-Fi。您也可以稍後在設定中完成此操作。</string>
+    <string name="first_run_phone_qr_description">手機設定 QR 碼</string>
+    <string name="first_run_phone_step_accounts">登入 Trakt、Simkl 或 Jellyfin</string>
+    <string name="first_run_phone_step_addons">貼上擴充套件和 debrid 金鑰</string>
+    <string name="first_run_phone_step_scan">用手機相機掃描</string>
+    <string name="first_run_phone_title">用手機設定，不必用遙控器打字。</string>
+    <string name="first_run_recommended">建議</string>
+    <string name="phone_hub_description">掃描一個 QR 碼，即可將手機當作遙控器和鍵盤、登入帳戶以及編輯較長的設定。</string>
+    <string name="phone_hub_instruction">用手機掃描。QR 碼僅能使用一次；只要此畫面保持開啟，頁面就會保持開啟。</string>
+    <string name="phone_hub_open">顯示手機 QR 碼</string>
+    <string name="phone_hub_open_description">您的手機必須與這台電視位於同一網路。</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="other">已連線 %d 支手機。關閉此畫面後，遙控功能仍可使用 10 分鐘。</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">此個人資料設有家長限制。請先在電視上解鎖設定。</string>
+    <string name="phone_hub_title">透過手機設定</string>
+</resources>

@@ -57,4 +57,17 @@
     <string name="library_servers_empty_title">Nincs kiválasztott könyvtár</string>
     <string name="library_servers_empty_message">A megjelenítendő könyvtárakat a Beállítások > Tartalom és felfedezés > Médiaszerverek alatt választhatod ki.</string>
     <string name="library_server_load_failed">Nem sikerült betölteni: %1$s</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Jelentkezz be a(z) %1$s fiókodba a telefonodról. Nem kell a TV-n gépelni.</string>
+    <string name="servers_link_loading">Bejelentkezési kód lekérése…</string>
+    <string name="servers_link_instruction">Olvasd be a kódot a telefonoddal, vagy nyisd meg a(z) %1$s címet bármely eszközön, és add meg ezt a kódot.</string>
+    <string name="servers_link_connecting_to">Csatlakozás: %1$s…</string>
+    <string name="servers_link_waiting">Várakozás a kód jóváhagyására…</string>
+    <string name="servers_link_expires">A kód %1$s múlva lejár</string>
+    <string name="servers_link_expired">A kód lejárt. Kérj újat, és próbáld újra.</string>
+    <string name="servers_link_retry">Új kód kérése</string>
+    <string name="servers_link_choose_server">A fiókod több szerverhez is hozzáfér. Válaszd ki, melyiket adod hozzá.</string>
+    <string name="servers_link_no_servers">Ehhez a fiókhoz még nem tartozik szerver. Állíts be egyet, vagy kérd meg egy szerver tulajdonosát, hogy osszon meg veled egy könyvtárat.</string>
+    <string name="servers_link_qr">QR-kód a bejelentkezéshez: %1$s</string>
 </resources>

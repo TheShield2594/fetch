@@ -139,7 +139,7 @@ object PhoneHubWebPage {
         body = """
             <h2>Debrid</h2>
             <label for="debridProvider">Service</label>
-            <select id="debridProvider"><option value="torbox">TorBox</option><option value="premiumize">Premiumize</option></select>
+            <select id="debridProvider"><option value="torbox">TorBox</option><option value="premiumize">Premiumize</option><option value="realdebrid">Real-Debrid</option><option value="alldebrid">AllDebrid</option><option value="debridlink">Debrid-Link</option></select>
             <label for="debridKey">API key</label>
             <input id="debridKey" type="password" autocomplete="off">
             <div class="row"><button id="saveDebrid">Save key</button></div>

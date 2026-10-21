@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Prijavite se svojim %1$s nalogom sa telefona. Bez kucanja na TV-u.</string>
+    <string name="servers_link_choose_server">Vaš nalog ima pristup većem broju servera. Izaberite koji želite da dodate.</string>
+    <string name="servers_link_connecting_to">Povezivanje sa %1$s…</string>
+    <string name="servers_link_expired">Kod je istekao. Uzmite novi da biste pokušali ponovo.</string>
+    <string name="servers_link_expires">Kod ističe za %1$s</string>
+    <string name="servers_link_instruction">Skenirajte kod telefonom ili otvorite %1$s na bilo kom uređaju i unesite ovaj kod.</string>
+    <string name="servers_link_loading">Preuzimanje koda za prijavu…</string>
+    <string name="servers_link_no_servers">Ovaj nalog još nema servere. Podesite jedan ili zamolite vlasnika servera da podeli biblioteku sa vama.</string>
+    <string name="servers_link_qr">QR kod za prijavu na %1$s</string>
+    <string name="servers_link_retry">Uzmi novi kod</string>
+    <string name="servers_link_waiting">Čeka se da odobrite kod…</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Увійдіть в акаунт %1$s з телефона. Без набору на телевізорі.</string>
+    <string name="servers_link_choose_server">Вашому акаунту доступно кілька серверів. Виберіть той, який додати.</string>
+    <string name="servers_link_connecting_to">Підключення до %1$s…</string>
+    <string name="servers_link_expired">Термін дії коду минув. Отримайте новий, щоб спробувати ще раз.</string>
+    <string name="servers_link_expires">Код дійсний ще %1$s</string>
+    <string name="servers_link_instruction">Відскануйте код телефоном або відкрийте %1$s на будь-якому пристрої й введіть цей код.</string>
+    <string name="servers_link_loading">Отримання коду входу…</string>
+    <string name="servers_link_no_servers">У цього акаунта ще немає серверів. Налаштуйте сервер або попросіть власника сервера надати вам доступ до бібліотеки.</string>
+    <string name="servers_link_qr">QR-код для входу в %1$s</string>
+    <string name="servers_link_retry">Отримати новий код</string>
+    <string name="servers_link_waiting">Очікування підтвердження коду…</string>
+</resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Tu teléfono debe estar en la misma red Wi-Fi que esta TV. También puedes hacerlo más tarde en Configuración.</string>
+    <string name="first_run_phone_qr_description">Código de configuración para el teléfono</string>
+    <string name="first_run_phone_step_accounts">Inicia sesión en Trakt, Simkl o Jellyfin</string>
+    <string name="first_run_phone_step_addons">Pega addons y tu clave de debrid</string>
+    <string name="first_run_phone_step_scan">Escanea con la cámara de tu teléfono</string>
+    <string name="first_run_phone_title">Configura con tu teléfono. Sin escribir con el control remoto.</string>
+    <string name="first_run_recommended">Recomendado</string>
+    <string name="phone_hub_description">Escanea un solo código para usar tu teléfono como control remoto y teclado, iniciar sesión en cuentas y editar configuraciones largas.</string>
+    <string name="phone_hub_instruction">Escanea con tu teléfono. El código funciona una vez; la página sigue abierta mientras esta pantalla lo esté.</string>
+    <string name="phone_hub_open">Mostrar código para el teléfono</string>
+    <string name="phone_hub_open_description">Tu teléfono debe estar en la misma red que esta TV.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d teléfono conectado. El control remoto sigue funcionando 10 minutos después de cerrar esta pantalla.</item>
+        <item quantity="many">%d teléfonos conectados. El control remoto sigue funcionando 10 minutos después de cerrar esta pantalla.</item>
+        <item quantity="other">%d teléfonos conectados. El control remoto sigue funcionando 10 minutos después de cerrar esta pantalla.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Este perfil tiene límites parentales. Primero desbloquea la configuración en la TV.</string>
+    <string name="phone_hub_title">Configurar desde el teléfono</string>
+</resources>

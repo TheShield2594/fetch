@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_title">Mit dem Handy einrichten. Kein Tippen mit der Fernbedienung.</string>
+    <string name="first_run_phone_qr_description">Code zur Einrichtung per Handy</string>
+    <string name="first_run_phone_step_scan">Mit der Handykamera scannen</string>
+    <string name="first_run_phone_step_addons">Addons und Ihren Debrid-Schlüssel einfügen</string>
+    <string name="first_run_phone_step_accounts">Bei Trakt, Simkl oder Jellyfin anmelden</string>
+    <string name="first_run_phone_network">Ihr Handy muss im selben WLAN wie dieser Fernseher sein. Sie können das auch später in den Optionen erledigen.</string>
+    <string name="first_run_recommended">Empfohlen</string>
+    <string name="phone_hub_title">Per Handy konfigurieren</string>
+    <string name="phone_hub_description">Scannen Sie einen Code, um Ihr Handy als Fernbedienung und Tastatur zu nutzen, sich bei Konten anzumelden und lange Einstellungen zu bearbeiten.</string>
+    <string name="phone_hub_open">Handy-Code anzeigen</string>
+    <string name="phone_hub_open_description">Ihr Handy muss im selben Netzwerk wie dieser Fernseher sein.</string>
+    <string name="phone_hub_instruction">Mit dem Handy scannen. Der Code funktioniert einmal; die Seite bleibt geöffnet, solange dieser Bildschirm offen ist.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d Handy verbunden. Die Fernbedienung funktioniert noch 10 Minuten, nachdem Sie diesen Bildschirm geschlossen haben.</item>
+        <item quantity="other">%d Handys verbunden. Die Fernbedienung funktioniert noch 10 Minuten, nachdem Sie diesen Bildschirm geschlossen haben.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Dieses Profil hat Jugendschutz-Grenzen. Entsperren Sie zuerst die Einstellungen am Fernseher.</string>
+</resources>

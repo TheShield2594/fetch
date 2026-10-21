@@ -53,7 +53,6 @@
     <string name="cw_percent_watched">%1$d%% sedd</string>
     <string name="cw_hours_min_left">%1$dh %2$dm kvar</string>
     <string name="cw_min_left">%1$dm kvar</string>
-    <string name="cw_almost_done">Nästan färdig</string>
     <string name="cw_airs_date">Sänds %1$s</string>
     <string name="cw_airs_today">Sänds idag</string>
     <string name="cw_airs_tomorrow">Sänds imorgon</string>
@@ -84,14 +83,12 @@
     <string name="hero_director">Regissör: %1$s</string>
     <string name="hero_writer">Skribent: %1$s</string>
     <string name="hero_play">Spela</string>
-    <string name="hero_play_episode">Spela S%1$d E%2$d</string>
     <string name="hero_add_to_library">Lägg till i biblioteket</string>
     <string name="hero_remove_from_library">Ta bort från biblioteket</string>
     <string name="hero_mark_watched">Markera som sedd</string>
     <string name="hero_mark_unwatched">Markera som osedd</string>
     <string name="hero_play_trailer">Spela trailer</string>
     <string name="hero_press_back_trailer">Tryck tillbaka för att avsluta trailer</string>
-    <string name="cd_rating">Betyg</string>
 
     <!-- EpisodesSection -->
     <string name="episodes_season">Säsong %1$d</string>
@@ -191,13 +188,9 @@
     <string name="settings_account">Konto</string>
     <string name="settings_profiles">Profiler</string>
     <string name="settings_layout">Layout</string>
-    <string name="settings_plugins">Plugins</string>
-    <string name="settings_plugins_subtitle">Arkiv och leverantörer</string>
     <string name="settings_integration">Integrationer</string>
     <string name="settings_playback">Uppspelning</string>
-    <string name="settings_trakt_subtitle">Öppna Trakt anslutningsskärm</string>
     <string name="settings_debug">Debug</string>
-    <string name="settings_plugins_section_subtitle">Hantera arkiv, leverantörer, och plugin-status</string>
     <string name="settings_account_section_subtitle">Konto och synkroniseringsstatus</string>
     <string name="account_stat_addons">tillägg</string>
     <string name="account_stat_plugins">plugins</string>
@@ -220,21 +213,6 @@
     <string name="action_close">Stäng</string>
 
     <!-- SupportersContributorsScreen -->
-    <string name="supporters_tab">Supportrar</string>
-    <string name="contributors_tab">Bidragsgivare</string>
-    <string name="supporters_loading">Laddar supportrar…</string>
-    <string name="supporters_empty">Inga supportrar hittade ännu.</string>
-    <string name="supporters_error_title">Kunde inte ladda supportrar</string>
-    <string name="supporters_no_message">Inget meddelande delat.</string>
-    <string name="supporters_open_donations">Öppna donationssidan</string>
-    <string name="contributors_loading">Laddar GitHub-bidragsgivare…</string>
-    <string name="contributors_empty">Inga bidragsgivare hittade ännu.</string>
-    <string name="contributors_error_title">Kunde inte ladda bidragsgivare</string>
-    <string name="contributors_total_contributions">%1$d totala bidrag</string>
-    <string name="contributors_open_github">Öppna GitHub-profil</string>
-    <string name="contributors_show_kofi_qr">Visa Ko-fi QR</string>
-    <string name="contributors_hide_kofi_qr">Dölj Ko-fi QR</string>
-    <string name="contributors_profile_unavailable">GitHub-profillänk ej tillgänglig.</string>
 
     <!-- PlaybackSettingsSections -->
     <string name="playback_loading_overlay">Laddningsöverlägg</string>
@@ -263,7 +241,6 @@
     <string name="playback_player_ask_desc">Välj spelare varje gång</string>
 
     <!-- PlaybackAudioSettings -->
-    <string name="audio_trailer_section">Trailer</string>
     <string name="audio_autoplay_trailers">Spela trailers automatiskt</string>
     <string name="audio_autoplay_trailers_sub">Spela automatiskt trailers på detaljskärmen efter en stunds inaktivitet</string>
     <string name="audio_trailer_delay">Trailerfördröjning</string>
@@ -287,7 +264,6 @@
     <string name="audio_decoder_controls">Styr om hårdvaru- eller mjukvaruavkodare (FFmpeg) används för ljud och video</string>
 
     <!-- PlaybackSubtitleSettings -->
-    <string name="sub_section">Undertexter</string>
     <string name="sub_not_set">Ej inställd</string>
     <string name="sub_forced_lang">Tvingad</string>
     <string name="sub_preferred_lang">Föredraget språk</string>
@@ -296,7 +272,6 @@
     <string name="sub_use_forced_subtitles_desc">Föredra tvingade undertexter när ljudet matchar undertextspråket; om de inte finns, välj inget</string>
     <string name="sub_show_only_preferred_languages">Visa endast föredragna språk</string>
     <string name="sub_show_only_preferred_languages_desc">Dölj alla andra undertextspråk från urvalslistan</string>
-    <string name="sub_organization">Undertextorganisering</string>
     <string name="sub_size">Storlek</string>
     <string name="sub_vertical_offset">Vertikalt offset</string>
     <string name="sub_bold">Fetstil</string>
@@ -319,12 +294,6 @@
     <string name="sub_mode_effects_canvas_sub">Animationsstöd med Media3-effekter och Canvas-rendering.</string>
     <string name="sub_mode_standard">Standardtexter</string>
     <string name="sub_mode_standard_sub">Grundläggande undertextrendering utan animationsstöd. Mest kompatibelt.</string>
-    <string name="sub_org_none">Ingen (standardordning)</string>
-    <string name="sub_org_by_lang">Efter språk</string>
-    <string name="sub_org_by_addon">Efter tillägg</string>
-    <string name="sub_org_none_desc">Visa undertexter i standardordning från tillägg.</string>
-    <string name="sub_org_by_lang_desc">Gruppera undertexter efter språk.</string>
-    <string name="sub_org_by_addon_desc">Gruppera undertexter efter tilläggskälla.</string>
 
     <!-- PlaybackAutoPlaySettings -->
     <string name="autoplay_reuse_last_link">Återanvänd senaste länk</string>
@@ -344,7 +313,6 @@
     <string name="autoplay_threshold_pct_title">Tröskelvärdesprocent</string>
     <string name="autoplay_threshold_pct_sub">Reserv när ingen outro-tidsstämpel finns.</string>
     <string name="autoplay_threshold_min_title">Tröskelvärdesminuter</string>
-    <string name="autoplay_threshold_min_sub">Reserv när ingen outro-tidsstämpel finns.</string>
     <string name="autoplay_scope_all">Alla källor</string>
     <string name="autoplay_scope_addons">Endast installerade tillägg</string>
     <string name="autoplay_scope_plugins">Endast aktiverade plugins</string>
@@ -379,8 +347,6 @@
     <string name="layout_section_home_desc">Välj struktur och hjältekälla.</string>
     <string name="layout_landscape_posters">Liggande affischer</string>
     <string name="layout_landscape_posters_sub">Växla mellan stående och liggande kort för Modern vy.</string>
-    <string name="layout_preview_row">Visa förhandsvisningsrad</string>
-    <string name="layout_preview_row_sub">Visa en delvis förhandsvisning av raden nedanför i Modern hemlayout.</string>
     <string name="layout_section_content">Heminnehåll</string>
     <string name="layout_section_content_desc">Styr vad som visas på hem och sök.</string>
     <string name="layout_collapse_sidebar">Fäll ihop sidofält</string>
@@ -444,23 +410,7 @@
     <string name="mdblist_enable_title">Aktivera MDBList-betyg</string>
     <string name="mdblist_enable_subtitle">Hämta betyg från externa leverantörer på metadataskärmen</string>
     <string name="mdblist_api_key_title">API-nyckel</string>
-    <string name="mdblist_api_key_subtitle">Krävs för att hämta betyg från MDBList</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Visa Trakt-poäng</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">Visa IMDb-poäng (och dölj standard-IMDb-raden när tillgänglig)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">Visa TMDB-poäng</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Visa Letterboxd-poäng</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">Visa kritikerpoäng</string>
-    <string name="mdblist_audience_title">Publikpoäng</string>
-    <string name="mdblist_audience_subtitle">Visa publikpoäng</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Visa Metacritic-poäng</string>
     <string name="mdblist_dialog_title">MDBList API-nyckel</string>
-    <string name="mdblist_dialog_subtitle">Ange din API-nyckel för att hämta externa betyg</string>
     <string name="mdblist_dialog_placeholder">Ange MDBList API-nyckel</string>
     <string name="mdblist_not_set">Ej inställd</string>
     <string name="mdblist_invalid_api_key">Ogiltig MDBList API-nyckel</string>
@@ -509,7 +459,6 @@
     <!-- TraktScreen -->
     <string name="trakt_description">Synkronisera din bevakningslista, tittarframsteg, fortsätt titta, scrobbles och personliga listor med Trakt.</string>
     <string name="trakt_connected_as">Ansluten som %1$s</string>
-    <string name="trakt_account_login">Kontoinloggning</string>
     <string name="trakt_awaiting_instruction">Gå till trakt.tv/activate och ange denna kod:</string>
     <string name="trakt_waiting_approval">Väntar på godkännande…</string>
     <string name="qr_login_approved">Inloggning godkänd. Slutför inloggning…</string>
@@ -517,24 +466,13 @@
     <string name="qr_login_expired">QR-inloggningen har gått ut. Generera en ny kod.</string>
     <string name="trakt_code_expires">Koden går ut om %1$s</string>
     <string name="trakt_token_refreshes">Trakt-åtkomsttoken uppdateras om %1$s</string>
-    <string name="trakt_login_instruction">Tryck på Logga in för att starta Trakt-enhetsautentisering. En QR-kod visas här.</string>
     <string name="trakt_missing_credentials">TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET saknas i local.properties.</string>
     <string name="trakt_watch_progress_title">Tittarframsteg</string>
     <string name="trakt_watch_progress_subtitle">Välj vilken framstegskälla som styr återupptagning och fortsätt titta</string>
     <string name="trakt_watch_progress_dialog_title">Tittarframsteg</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Välj om återupptagning och fortsätt titta ska använda Trakt eller Fetch Sync medan Trakt-scrobbling förblir aktiv.</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
-    <string name="trakt_watch_progress_trakt_selected">Tittarframstegskälla satt till Trakt</string>
-    <string name="trakt_watch_progress_fetch_selected">Tittarframstegskälla satt till Fetch Sync</string>
     <string name="trakt_continue_watching_window">Fortsätt titta-fönster</string>
     <string name="trakt_continue_watching_subtitle">Trakt-historik som beaktas för fortsätt titta</string>
-    <string name="trakt_unaired_next_up">Osända nästa avsnitt</string>
-    <string name="trakt_unaired_next_up_subtitle">Visa kommande avsnitt innan de sänds</string>
-    <string name="trakt_unaired_shown">Visas</string>
-    <string name="trakt_unaired_hidden">Dold</string>
-    <string name="trakt_unaired_now_shown">Osända nästa avsnitt visas nu</string>
-    <string name="trakt_unaired_now_hidden">Osända nästa avsnitt är nu dolda</string>
     <string name="trakt_cached_label">Cachad</string>
     <string name="trakt_stat_movies">Filmer</string>
     <string name="trakt_stat_shows">Serier</string>
@@ -543,15 +481,8 @@
     <string name="trakt_disconnect">Koppla från</string>
     <string name="trakt_disconnect_title">Koppla från Trakt?</string>
     <string name="trakt_disconnect_subtitle">Detta kopplar från ditt Trakt-konto från Fetch.</string>
-    <string name="trakt_login">Logga in</string>
-    <string name="trakt_retry">Försök igen</string>
-    <string name="trakt_back">Tillbaka</string>
     <string name="trakt_cw_window_title">Fortsätt titta-fönster</string>
     <string name="trakt_cw_window_subtitle">Välj hur mycket Trakt-aktivitet som ska visas i fortsätt titta.</string>
-    <string name="trakt_unaired_dialog_title">Osända nästa avsnitt</string>
-    <string name="trakt_unaired_dialog_subtitle">Välj om Fortsätt titta ska inkludera kommande avsnitt före premiär.</string>
-    <string name="trakt_show_unaired">Visa osända avsnitt</string>
-    <string name="trakt_hide_unaired">Dölj osända avsnitt</string>
     <string name="trakt_all_history">All historik</string>
     <string name="trakt_days_format">%1$d dagar</string>
 
@@ -584,24 +515,13 @@
     <string name="profile_manage_title">Hantera profiler</string>
     <string name="profile_manage_subtitle">Välj en profil att redigera, byta till, eller skapa en ny</string>
     <string name="profile_manage_hint">Välj en profil att hantera</string>
-    <string name="profile_primary_label">Primär</string>
-    <string name="profile_shares_primary">Delar primärprofilens %1$s</string>
     <string name="profile_edit_label">Redigera</string>
-    <string name="profile_add">Lägg till profil</string>
     <string name="profile_create_title">Skapa profil</string>
-    <string name="profile_edit_title">Redigera profil %1$s</string>
     <string name="profile_name_placeholder">Profilnamn</string>
-    <string name="profile_avatar_color">Avatarfärg</string>
-    <string name="profile_use_primary_addons">Använd primärprofilens tillägg</string>
-    <string name="profile_use_primary_plugins">Använd primärprofilens plugins</string>
     <string name="profile_creating">Skapar\u2026</string>
     <string name="profile_create_btn">Skapa</string>
-    <string name="profile_confirm">Bekräfta</string>
     <string name="profile_delete">Radera</string>
-    <string name="profile_addons">tillägg</string>
-    <string name="profile_plugins">plugins</string>
     <string name="profile_choose_avatar">Välj avatar</string>
-    <string name="profile_avatar_none_selected">Ingen avatar vald</string>
     <string name="profile_avatar_focus_hint">Fokusera en avatar för att se dess namn</string>
     <string name="profile_avatar_category_all">Alla</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -655,9 +575,6 @@
     <string name="stream_no_streams">Inga strömmar hittades</string>
     <string name="stream_no_streams_hint">Försök installera fler tillägg för att hitta strömmar</string>
     <string name="stream_finding_source">Söker strömkälla</string>
-    <string name="stream_type_torrent">Torrent</string>
-    <string name="stream_type_youtube">YouTube</string>
-    <string name="stream_type_external">Extern</string>
     <string name="stream_player_picker_title">Vilken spelare ska användas?</string>
     <string name="stream_player_internal">Intern</string>
     <string name="stream_player_external">Extern</string>
@@ -687,7 +604,6 @@
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">Källor</string>
-    <string name="sources_reload">Ladda om</string>
     <string name="sources_close">Stäng</string>
     <string name="sources_playing">Spelar</string>
     <string name="sources_no_streams">Inga strömmar hittades</string>
@@ -695,7 +611,6 @@
     <!-- EpisodesSidePanel -->
     <string name="episodes_panel_close">Stäng</string>
     <string name="episodes_panel_back">Tillbaka</string>
-    <string name="episodes_panel_reload">Ladda om</string>
     <string name="episodes_panel_no_streams">Inga strömmar hittades</string>
     <string name="episodes_panel_no_episodes">Inga avsnitt tillgängliga</string>
     <string name="episodes_panel_title">Avsnitt</string>
@@ -709,8 +624,6 @@
 
     <!-- AudioDialog -->
     <string name="audio_dialog_title">Ljud</string>
-    <string name="audio_dialog_tab_tracks">Ljud</string>
-    <string name="audio_dialog_tab_mix">Mix</string>
     <string name="audio_mix_label">Förstärkning (PCM)</string>
     <string name="audio_mix_value_db">%1$d dB</string>
     <string name="audio_mix_persist_on">Spara mellan sessioner: PÅ</string>
@@ -721,29 +634,13 @@
 
     <!-- SubtitleDialog / SubtitleStyleSidePanel -->
     <string name="subtitle_dialog_title">Undertexter</string>
-    <string name="subtitle_no_builtin">Inga inbyggda undertexter tillgängliga</string>
     <string name="subtitle_loading_addon">Laddar undertexter från tillägg\u2026</string>
     <string name="subtitle_no_addon">Inga tilläggsundertexter tillgängliga</string>
-    <string name="subtitle_text_color">Textfärg</string>
-    <string name="subtitle_outline_color">Konturfärg</string>
     <string name="subtitle_reset_defaults">Återställ standardvärden</string>
-    <string name="subtitle_tab_builtin">Inbyggda</string>
-    <string name="subtitle_tab_addons">Tillägg</string>
     <string name="subtitle_tab_languages">Språk</string>
-    <string name="subtitle_tab_style">Stil</string>
     <string name="subtitle_tab_delay">Fördröjning</string>
     <string name="subtitle_none">Ingen</string>
-    <string name="subtitle_all">Alla</string>
-    <string name="subtitle_section_core">Grundläggande</string>
-    <string name="subtitle_section_advanced">Avancerat</string>
-    <string name="subtitle_font_size">Teckenstorlek</string>
-    <string name="subtitle_bold">Fetstil</string>
-    <string name="subtitle_outline">Kontur</string>
-    <string name="subtitle_bottom_offset">Nedre offset</string>
-    <string name="subtitle_on">På</string>
-    <string name="subtitle_off">Av</string>
     <string name="subtitle_style_title">Undertextstil</string>
-    <string name="subtitle_style_customize">Anpassa</string>
     <string name="subtitle_style_color">Färg</string>
     <string name="subtitle_style_reset">Återställ</string>
     <string name="subtitle_style_font_size">Teckenstorlek</string>
@@ -754,8 +651,6 @@
     <string name="subtitle_style_defaults">Standardvärden</string>
     <string name="subtitle_style_on">På</string>
     <string name="subtitle_style_off">Av</string>
-    <string name="panel_failed_load_streams">Kunde inte ladda strömmar</string>
-    <string name="panel_failed_load_episodes">Kunde inte ladda avsnitt</string>
 
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Du tittar på</string>
@@ -779,7 +674,6 @@
 
 
     <!-- SearchScreen -->
-    <string name="search_keyboard_hint">Tryck Klar på tangentbordet för att söka</string>
     <string name="search_placeholder">Sök filmer &amp; serier</string>
     <string name="search_start_title">Börja söka</string>
     <string name="search_start_subtitle">Ange minst 2 tecken</string>
@@ -790,7 +684,6 @@
     <string name="search_voice_unavailable">Röstsökning är inte tillgänglig på denna enhet.</string>
 
     <!-- LibraryScreen -->
-    <string name="library_syncing">Synkroniserar Trakt-bibliotek\u2026</string>
     <string name="library_title">Bibliotek</string>
     <string name="library_filter_list">Lista</string>
     <string name="library_filter_type">Typ</string>
@@ -826,13 +719,11 @@
     <string name="genre_soap">Såpa</string>
     <string name="genre_talk">Talkshow</string>
     <string name="genre_war_politics">Krig &amp; politik</string>
-    <string name="library_sort_trakt_order">Trakt-ordning</string>
     <string name="library_sort_added_desc">Tillagd ↓</string>
     <string name="library_sort_added_asc">Tillagd ↑</string>
     <string name="library_sort_title_asc">Titel A-Ö</string>
     <string name="library_sort_title_desc">Titel Ö-A</string>
     <string name="library_manage_lists">Hantera listor</string>
-    <string name="library_manage_trakt_lists">Hantera Trakt-listor</string>
     <string name="library_no_lists">Inga personliga listor ännu.</string>
     <string name="library_list_create">Skapa</string>
     <string name="library_list_edit">Redigera</string>
@@ -845,13 +736,9 @@
     <string name="library_list_privacy">Sekretess</string>
     <string name="library_delete_title">Radera denna lista?</string>
     <string name="library_delete_subtitle">Detta tar bort listan och alla listobjekt från Trakt.</string>
-    <string name="library_delete_confirm">Radera</string>
     <string name="library_source_local">LOKAL</string>
-    <string name="library_source_fetch">FETCH</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_syncing_library">Synkroniserar bibliotek\u2026</string>
     <string name="library_type_all">Alla</string>
-    <string name="library_type_items">objekt</string>
     <string name="library_empty_local_title">Inga %1$s ännu</string>
     <string name="library_empty_trakt_title">Inga %1$s i denna lista</string>
     <string name="library_empty_local_subtitle">Börja spara dina favoriter för att se dem här</string>
@@ -874,12 +761,9 @@
     <string name="auth_signin_qr_btn">Fortsätt med QR</string>
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_title">Logga in med QR</string>
     <string name="auth_qr_finishing">Slutför inloggning\u2026</string>
-    <string name="auth_qr_code_label">Kod: %1$s</string>
     <string name="auth_qr_expires">Går ut om %1$s</string>
     <string name="auth_qr_scan_instruction">Skanna QR, godkänn i webbläsaren och återkom sedan hit.</string>
-    <string name="auth_qr_code_display">Kod: %1$s</string>
     <string name="auth_qr_refresh">Uppdatera QR</string>
     <string name="auth_qr_continue_without_account">Fortsätt utan konto</string>
     <string name="auth_qr_connected">Ditt konto är anslutet på denna TV.</string>
@@ -914,7 +798,6 @@
     <string name="plugin_repositories_section">Arkiv (%1$d)</string>
     <string name="plugin_providers_section">Leverantörer (%1$d)</string>
     <string name="plugin_title">Plugins</string>
-    <string name="plugin_subtitle">Hantera lokala scrapers och leverantörer</string>
     <string name="plugin_add_repository">Lägg till arkiv</string>
     <string name="plugin_add_btn">Lägg till</string>
     <string name="plugin_manage_from_phone_title">Hantera från telefon</string>
@@ -960,7 +843,6 @@
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Appuppdatering</string>
-    <string name="update_downloading">Laddar ner uppdatering</string>
     <string name="update_download">Ladda ner</string>
     <string name="update_downloading_ellipsis">Laddar ner…</string>
     <string name="update_unknown_sources">Tillåt installation från okända källor för att fortsätta.</string>
@@ -1001,12 +883,9 @@
     <!-- PluginScreen -->
     <string name="plugin_and_more">... och %1$d till</string>
     <string name="plugin_providers_count">%1$d leverantörer</string>
-    <string name="plugin_enabled">Aktiverad</string>
-    <string name="plugin_disabled">Inaktiverad</string>
     <string name="plugin_no_repos">Inga arkiv tillagda ännu.\nLägg till ett arkiv för att komma igång.</string>
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">Redigera profil %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Ljudgenomströmning (TrueHD, DTS, AC-3, etc.) är automatisk. När enheten är ansluten till en kompatibel AV-receiver eller soundbar via HDMI skickas förlustfritt ljud som det är utan avkodning.</string>
@@ -1016,17 +895,12 @@
     <string name="nav_discover">Utforska</string>
     <string name="nav_search">Sök</string>
     <string name="nav_library">Bibliotek</string>
-    <string name="nav_addons">Tillägg</string>
     <string name="nav_settings">Inställningar</string>
     <string name="settings_rounded_ui">Rundat gränssnitt</string>
-    <string name="cd_expand_sidebar">Expandera sidofält</string>
 
     <string name="update_close">Stäng</string>
     <string name="update_open_settings">Öppna inställningar</string>
     <string name="update_install">Installera</string>
-    <string name="update_ignore">Ignorera</string>
-    <string name="watchlist_added">Tillagd i bevakningslistan</string>
-    <string name="watchlist_removed">Borttagen från bevakningslistan</string>
 
     <!-- Missing: ErrorState (streams) -->
     <string name="error_stream_no_supported_addon">Inget installerat tillägg stödjer strömmar för \"%1$s\".</string>
@@ -1045,7 +919,6 @@
     <string name="detail_comments_empty">Inga Trakt-recensioner tillgängliga ännu.</string>
     <string name="detail_comments_error">Kunde inte ladda Trakt-recensioner just nu.</string>
     <string name="detail_comments_spoiler_hidden">Spoilerrecension. Tryck OK för att visa.</string>
-    <string name="detail_comments_reveal_spoiler">Visa spoiler</string>
     <string name="detail_comments_reveal_spoiler_hint">Tryck OK för att visa spoiler.</string>
     <string name="detail_comments_back_hint">Tryck tillbaka för att stänga</string>
     <string name="detail_comments_badge_review">Recension</string>
@@ -1066,12 +939,8 @@
     <!-- Missing: Trakt comments settings -->
     <string name="trakt_comments_title">Kommentarer</string>
     <string name="trakt_comments_subtitle">Visa Trakt-recensioner på metadatasidor</string>
-    <string name="trakt_comments_dialog_title">Kommentarer</string>
-    <string name="trakt_comments_dialog_subtitle">Välj om metadatasidor ska visa Trakt-recensioner när ditt konto är anslutet.</string>
     <string name="trakt_comments_now_shown">Trakt-recensioner på metadatasidor visas nu</string>
     <string name="trakt_comments_now_hidden">Trakt-recensioner på metadatasidor är nu dolda</string>
-    <string name="trakt_setting_on">På</string>
-    <string name="trakt_setting_off">Av</string>
 
     <!-- Missing: TMDB settings -->
     <string name="tmdb_modern_home_title">Aktivera på Modern hem</string>
@@ -1107,8 +976,6 @@
     <string name="stream_info_subtitle_source_embedded">Inbäddad</string>
 
     <!-- Missing: Network speed -->
-    <string name="settings_network">Nätverkshastighet</string>
-    <string name="settings_network_subtitle">Latens- och nedladdningsdiagnostik</string>
     <string name="settings_advanced">Avancerat</string>
     <string name="settings_advanced_subtitle">Kör nätverkshastighetstester</string>
     <string name="network_speed_test_run">Kör hastighetstest</string>
@@ -1126,30 +993,16 @@
     <string name="network_connection_offline">Offline</string>
 
     <!-- Missing: Profile PIN -->
-    <string name="profile_pin_title">Profil-PIN-lås</string>
-    <string name="profile_pin_enabled_subtitle">Denna profil kräver en 4-siffrig PIN innan byte.</string>
-    <string name="profile_pin_disabled_subtitle">Ange en 4-siffrig PIN för att låsa denna profil.</string>
     <string name="profile_pin_set">Ange PIN</string>
     <string name="profile_pin_change">Ändra PIN</string>
     <string name="profile_pin_remove">Ta bort PIN</string>
-    <string name="profile_pin_set_title">Ange profil-PIN</string>
-    <string name="profile_pin_set_subtitle">Ange en 4-siffrig PIN och bekräfta den.</string>
-    <string name="profile_pin_enter">Ange 4-siffrig PIN</string>
-    <string name="profile_pin_confirm">Bekräfta 4-siffrig PIN</string>
-    <string name="profile_pin_mismatch">PIN-koderna matchar inte.</string>
-    <string name="profile_pin_save">Spara PIN</string>
-    <string name="profile_pin_unlock_title">Lås upp %1$s</string>
-    <string name="profile_pin_unlock_subtitle">Ange den 4-siffriga PIN-koden för att fortsätta.</string>
     <string name="profile_pin_verifying">Verifierar…</string>
-    <string name="profile_pin_unlock_action">Lås upp</string>
     <string name="profile_pin_overlay_unlock_heading">Ange din PIN för att komma åt %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Skapa en 4-siffrig PIN för %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Bekräfta din nya PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Använd fjärrkontrollen eller tangentbordet för att ange 4 siffror.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">Säkerhetskontroll krävs.</string>
     <string name="profile_pin_overlay_change_verify_heading">Ange nuvarande PIN för att ändra PIN för %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Ange den nuvarande 4-siffriga PIN-koden innan du anger en ny.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">Säkerhetskontroll krävs.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Ange nuvarande PIN för att ta bort låset för %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Ange den nuvarande 4-siffriga PIN-koden för att ta bort detta lås.</string>
     <string name="profile_pin_overlay_set_support">Denna PIN krävs innan denna profil öppnas.</string>
@@ -1172,9 +1025,7 @@
     <string name="cast_detail_age">ålder %1$d</string>
 
     <!-- Missing: Update -->
-    <string name="update_checking">Söker efter uppdateringar…</string>
     <string name="update_download_complete">Nedladdning klar. Redo att installera.</string>
-    <string name="update_up_to_date">Systemet är uppdaterat. Senaste ändringarna:</string>
     <string name="playback_player_auto">Automatiskt (Bäst för innehåll)</string>
     <string name="playback_player_auto_desc">ExoPlayer för filmer och serier · MPV för anime</string>
 
@@ -1243,7 +1094,6 @@
 
     <!-- MetaDetailsScreen -->
     <string name="detail_tab_trailer">Trailer</string>
-    <string name="detail_trailer_loading">Laddar trailer…</string>
     <string name="detail_trailer_error">Kunde inte ladda trailer just nu.</string>
 
     <!-- ThemeSettingsScreen -->
@@ -1294,8 +1144,6 @@
     <string name="sub_mode_overlay_canvas_sub">HDR-stöd med canvas-rendering. Kan blockera UI-tråden.</string>
 
     <!-- LayoutSettingsScreen -->
-    <string name="layout_memory_only_scroll">Vertikal rullning endast minne</string>
-    <string name="layout_memory_only_scroll_sub">Hoppa över laddning av nya bilder vid vertikal rullning.</string>
 
     <!-- TmdbSettingsScreen -->
     <string name="tmdb_trailers_title">Trailers</string>
@@ -1310,11 +1158,7 @@
     <string name="trakt_library_source_title">Bibliotekskälla</string>
     <string name="trakt_library_source_subtitle">Välj vilket bibliotek som används för att spara och visa din samling</string>
     <string name="trakt_library_source_dialog_title">Bibliotekskälla</string>
-    <string name="trakt_library_source_dialog_subtitle">Välj var du vill spara och hantera dina biblioteksobjekt</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_fetch">Fetch-bibliotek</string>
-    <string name="trakt_library_source_trakt_selected">Trakt-bibliotek valt</string>
-    <string name="trakt_library_source_fetch_selected">Fetch-bibliotek valt</string>
 
     <!-- ProfileSettingsContent -->
     <string name="profile_edit_header">Redigera profil</string>
@@ -1332,21 +1176,16 @@
     <string name="settings_p2p_subtitle">Tillåt peer-to-peer (torrent)-strömmar</string>
     <string name="settings_p2p_hide_stats_title">Dölj torrent-statistik</string>
     <string name="settings_p2p_hide_stats_subtitle">Dölj buffer, seeds, peers och nedladdningshastighet under laddning och uppspelning</string>
-    <string name="p2p_download_title">Laddar ner P2P-motor</string>
-    <string name="p2p_download_subtitle">Detta är en engångsnedladdning som krävs för P2P-streaming.</string>
 
     <!-- PlayerScreen -->
     <string name="player_loading_preparing">Förbereder ström…</string>
     <string name="player_loading_detecting_format">Identifierar strömformat…</string>
-    <string name="player_loading_subtitles">Hämtar undertexter…</string>
     <string name="player_loading_subtitles_from">Hämtar undertexter från %1$d tillägg…</string>
     <string name="player_loading_subtitles_progress">Hämtar undertexter… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Undertexter: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">Bygger spelare…</string>
     <string name="player_loading_starting">Startar ström…</string>
     <string name="player_loading_buffering">Buffrar…</string>
-    <string name="player_loading_fallback_pcm_audio">Ljudspårsinitiering misslyckades – byter till PCM-ljud…</string>
-    <string name="player_loading_fallback_hevc_decoder">Avkodarinitiering misslyckades – byter till HEVC-avkodare…</string>
     <string name="player_engine_switching_title">Växlar spelarmotor</string>
     <string name="player_engine_switching_message">Start misslyckades. Växlar till %1$s…</string>
     <string name="player_engine_switching_manual_message">Växlar till %1$s…</string>
@@ -1430,7 +1269,6 @@
     <string name="search_error_no_catalogs">Inga sökbara kataloger hittades i installerade tillägg</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_addons">Inga tillägg installerade</string>
     <string name="home_error_no_catalog_addons">Inga katalogtillägg installerade</string>
 
     <!-- Player errors -->
@@ -1470,7 +1308,6 @@
     <string name="cd_stream_info">Strömningsinfo</string>
     <string name="cd_more_actions">Fler åtgärder</string>
     <string name="cd_close_more_actions">Stäng fler åtgärder</string>
-    <string name="cd_back">Tillbaka</string>
     <string name="cd_next_episode_thumbnail">Miniatyr för nästa avsnitt</string>
     <string name="cd_current">Aktuell</string>
     <string name="cd_loading_backdrop">Laddar bakgrund</string>
@@ -1492,8 +1329,6 @@
     <string name="cd_imdb">IMDb</string>
     <string name="cd_open_discover">Öppna utforska</string>
     <string name="cd_voice_search">Röstsökning</string>
-    <string name="cd_donation_qr">Donations-QR-kod</string>
-    <string name="cd_contributor_qr">QR-kod för bidragsgivarstöd</string>
     <string name="cd_expand">Expandera %1$s</string>
     <string name="cd_collapse">Fäll ihop %1$s</string>
     <string name="cd_qr_login">QR-inloggningskod</string>
@@ -1563,7 +1398,6 @@
     <string name="collections_editor_choose_emoji">Välj emoji</string>
     <string name="collections_editor_back">Tillbaka</string>
     <string name="collections_editor_edit_collection">Redigera samling</string>
-    <string name="collections_editor_catalog_count">%1$d katalog(er)</string>
     <string name="collections_editor_view_mode_tabs">Flikar</string>
     <string name="collections_editor_view_mode_rows">Rader</string>
     <string name="collections_editor_view_mode_follow">Följ hemlayout</string>
@@ -1589,4 +1423,222 @@
     <string name="collections_card_subtitle">Gruppera kataloger i mappar på din hemskärm</string>
     <string name="collections_tab_all">Alla</string>
     <string name="collections_tab_combined">Kombinerat</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="account_local_only_note">Synkning är av. Fetch sparar dina tillägg, ditt framsteg och dina inställningar på den här tv:n och behöver inget konto. Anslut din egen synkserver under serveralternativen för att synka mellan enheter.</string>
+    <string name="addon_badge_needs_setup">Behöver konfigureras</string>
+    <string name="addon_configure">Konfigurera</string>
+    <string name="addon_configure_install">Installera</string>
+    <string name="addon_configure_no_server">När du har sparat klistrar du in installationslänken i rutan högst upp på den här skärmen.</string>
+    <string name="addon_configure_received">Din telefon skickade: %1$s</string>
+    <string name="addon_configure_step_open">1. Skanna för att öppna konfigurationssidan på telefonen</string>
+    <string name="addon_configure_step_send">2. Skanna för att skicka tillbaka den nya länken till den här tv:n</string>
+    <string name="addon_configure_still_unconfigured">%1$s är fortfarande inte konfigurerat. Slutför konfigurationssidan och skicka sedan länken igen.</string>
+    <string name="addon_configure_title">Konfigurera %1$s</string>
+    <string name="addon_configure_updated">%1$s uppdaterades</string>
+    <string name="addon_configure_waiting">När du har sparat kopierar du installationslänken som sidan ger dig och skickar den i steg 2.</string>
+    <string name="addon_configure_web_failed">Kunde inte nå tv:n. Visar den fortfarande konfigurationsskärmen?</string>
+    <string name="addon_configure_web_invalid">Det ser inte ut som en tilläggslänk.</string>
+    <string name="addon_configure_web_open">Öppna konfigurationssidan</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json eller stremio://…</string>
+    <string name="addon_configure_web_send">Skicka till tv:n</string>
+    <string name="addon_configure_web_sent">Skickat. Bekräfta på tv:n.</string>
+    <string name="addon_configure_web_step1">Konfigurera först tillägget på dess egen sida.</string>
+    <string name="addon_configure_web_step2">När den visar en installationslänk (eller en manifest.json-adress) kopierar du den och klistrar in den här.</string>
+    <string name="addon_configure_web_title">Skicka till tv:n</string>
+    <string name="addon_health_failing">Senaste begäran misslyckades</string>
+    <string name="addon_health_latency">%1$.1f s</string>
+    <string name="addon_health_ok">Svarar · %1$s</string>
+    <string name="addon_health_slow">Långsam · %1$s</string>
+    <string name="addon_health_timed_out">Senaste begäran tog för lång tid</string>
+    <string name="addon_needs_configuration">%1$s måste konfigureras innan det kan installeras</string>
+    <string name="advanced_introdb_api_key">API-nyckel för IntroDB</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">Skapa en nyckel på introdb.app. Den börjar med idb_.</string>
+    <string name="advanced_introdb_api_key_subtitle">Låter dig markera intron och eftertexter från spelaren och skicka dem till IntroDB</string>
+    <string name="advanced_introdb_server">IntroDB-server</string>
+    <string name="advanced_introdb_server_default">Standard (%1$s)</string>
+    <string name="advanced_introdb_server_dialog_subtitle">Ett IntroDB-kompatibelt API. Lämna tomt för att använda den publika servern.</string>
+    <string name="advanced_introdb_server_invalid">Ange en http- eller https-adress</string>
+    <string name="advanced_introdb_server_subtitle">Var markörer för intro, återblick och eftertexter för vanliga serier och filmer hämtas</string>
+    <string name="advanced_section_skip_markers">Hoppmarkörer</string>
+    <string name="autoplay_allowed_addons_early_sub">Autouppspelning startar så snart dessa tillägg svarar i stället för att vänta på alla tillägg.</string>
+    <string name="autoplay_mode_best">Bästa matchning</string>
+    <string name="autoplay_mode_best_desc">Rangordnar alla resultat efter kvalitet, dina regler och vad den här enheten kan spela upp, och startar sedan vinnaren. Andra källor finns ett knapptryck bort.</string>
+    <string name="best_match_cached">Cachad</string>
+    <string name="best_match_excluded">Spelas inte upp automatiskt: %1$s</string>
+    <string name="best_match_preview_sub">Frågar dina strömtillägg om en titel medan du tittar på den, så att Spela upp-knappen kan visa filen och uppspelningen startar snabbare. Stäng av för att bara söka efter att du tryckt på Spela upp.</string>
+    <string name="best_match_preview_title">Visa valet på Spela upp-knappen</string>
+    <string name="catalog_order_pin">Fäst högst upp</string>
+    <string name="catalog_order_pinned_on_home">Fäst högst upp på Hem</string>
+    <string name="catalog_order_unpin">Lossa</string>
+    <string name="cd_mark_credits_end">Markera slutet på eftertexterna</string>
+    <string name="cd_mark_credits_start">Markera början på eftertexterna</string>
+    <string name="cd_mark_intro_end">Markera slutet på intro</string>
+    <string name="cd_mark_intro_start">Markera början på intro</string>
+    <string name="custom_server_error_official_active">Synkning är redan av på den här tv:n.</string>
+    <string name="custom_server_error_official_available">Det är ingen synkserver. Stäng den här dialogen och välj Stäng av synkning för att gå tillbaka till endast lokalt läge.</string>
+    <string name="debrid_stream_rules_moved">Strömregler finns nu under Uppspelning → Strömval och gäller alla källor, även debrid. Regler du ställt in här har flyttats dit.</string>
+    <string name="exclusion_3d">3D-utgåva</string>
+    <string name="exclusion_above_max_resolution">över din maximala upplösning</string>
+    <string name="exclusion_audio">du hoppar över %1$s-ljud</string>
+    <string name="exclusion_below_min_resolution">under din minsta upplösning</string>
+    <string name="exclusion_cam">CAM- eller telesync-kopia</string>
+    <string name="exclusion_codec">du hoppar över %1$s</string>
+    <string name="exclusion_dv_excluded">du har stängt av Dolby Vision</string>
+    <string name="exclusion_dv_profile_excluded">du har stängt av den här Dolby Vision-profilen</string>
+    <string name="exclusion_hdr_excluded">du har stängt av HDR</string>
+    <string name="exclusion_keyword">matchar ett exkluderat nyckelord</string>
+    <string name="exclusion_language">du hoppar över %1$s</string>
+    <string name="exclusion_not_playable">den här spelaren kan inte öppna den</string>
+    <string name="exclusion_over_max_size">större än din storleksgräns</string>
+    <string name="exclusion_release_group">du hoppar över gruppen %1$s</string>
+    <string name="exclusion_resolution">du hoppar över %1$s</string>
+    <string name="exclusion_result_limit">över din resultatgräns</string>
+    <string name="exclusion_source">du hoppar över %1$s-utgåvor</string>
+    <string name="exclusion_under_min_size">mindre än din minsta storlek</string>
+    <string name="exclusion_unsupported_audio">%1$s kräver passthrough eller en avkodare som den här tv:n saknar</string>
+    <string name="exclusion_unsupported_codec">den här tv:n kan inte avkoda %1$s</string>
+    <string name="exclusion_unsupported_dv">DV-profil 5 stöds inte på den här tv:n</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">DV med HDR10+ ger svart skärm på den här enheten</string>
+    <string name="exclusion_unsupported_resolution">högre upplösning än den här tv:n visar</string>
+    <string name="fetching_addons_done">Alla %1$d tillägg har svarat</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="one">Hämtar… %1$d har svarat, %2$d tillägg letar fortfarande</item>
+        <item quantity="other">Hämtar… %1$d har svarat, %2$d tillägg letar fortfarande</item>
+    </plurals>
+    <string name="fetching_best_so_far">Bästa hittills</string>
+    <string name="fetching_play_now">Spela nu</string>
+    <string name="fetching_see_all_sources">Visa alla källor</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="one">Startar om %1$d sekund</item>
+        <item quantity="other">Startar om %1$d sekunder</item>
+    </plurals>
+    <string name="filter_row_addon_note">Tilläggskataloger kan bara filtreras efter genre.</string>
+    <string name="filter_row_any">Alla</string>
+    <string name="filter_row_ascending">Stigande</string>
+    <string name="filter_row_descending">Fallande</string>
+    <string name="filter_row_genre">Genre</string>
+    <string name="filter_row_order">Ordning</string>
+    <string name="filter_row_rating">Lägsta betyg</string>
+    <string name="filter_row_rating_value">%1$.1f eller högre</string>
+    <string name="filter_row_sort">Sortera efter</string>
+    <string name="filter_row_sort_added">Datum tillagd</string>
+    <string name="filter_row_sort_random">Slumpmässig</string>
+    <string name="filter_row_sort_rating">Betyg</string>
+    <string name="filter_row_sort_release">Utgivningsdatum</string>
+    <string name="filter_row_sort_title">Titel</string>
+    <string name="filter_row_source">Källa</string>
+    <string name="filter_row_source_missing">Den här radens källa är inte längre tillgänglig.</string>
+    <string name="filter_row_unwatched">Endast osedda</string>
+    <string name="filter_row_watched">Sedda</string>
+    <string name="filter_row_watched_only">Endast sedda</string>
+    <string name="filter_row_year_from">Från år</string>
+    <string name="filter_row_year_to">Till år</string>
+    <string name="filter_rows_card_subtitle">Skapa rader på Hem som \"osedd sci-fi från min Jellyfin\"</string>
+    <string name="filter_rows_delete">Ta bort</string>
+    <string name="filter_rows_edit">Redigera</string>
+    <string name="filter_rows_edit_title">Redigera filterrad</string>
+    <string name="filter_rows_empty">Inga filterrader än.</string>
+    <string name="filter_rows_new">Ny filterrad</string>
+    <string name="filter_rows_no_sources">Anslut en mediaserver eller installera ett tillägg med genrekataloger för att skapa en filterrad.</string>
+    <string name="filter_rows_save">Spara</string>
+    <string name="filter_rows_save_failed">Kunde inte spara. Försök igen.</string>
+    <string name="filter_rows_subtitle">Rader byggda av filter över ett mediaserverbibliotek eller en tilläggskatalog. De visas på Hem, där du kan ordna om, dölja och fästa dem som vilken annan rad som helst.</string>
+    <string name="filter_rows_title">Filterrader</string>
+    <string name="home_poster_pin_row">Fäst den här raden högst upp</string>
+    <string name="home_poster_unpin_row">Lossa den här raden</string>
+    <string name="layout_trailer_crop_to_fill">Beskär trailers för att fylla ut</string>
+    <string name="layout_trailer_crop_to_fill_sub">Zooma bakgrundstrailers på Hem och detaljsidor så att de fyller bilden. Stäng av för att se hela bilden med svarta kanter.</string>
+    <string name="library_empty_type_items">objekt</string>
+    <string name="library_empty_type_movies">filmer</string>
+    <string name="library_empty_type_series">serier</string>
+    <string name="licenses_attributions_fetch_body">Fetch är fri programvara under GNU General Public License v3.0. Det är en fork av NuvioTV av Nuvio-bidragsgivarna (github.com/NuvioMedia/NuvioTV), vars arbete utgör större delen av den här appen.</string>
+    <string name="official_server_action">Stäng av synkning</string>
+    <string name="official_server_description">Du loggas ut från din synkserver och appen startas om i endast lokalt läge. Allt som redan finns på den här tv:n behålls.</string>
+    <string name="official_server_title">Stänga av synkning?</string>
+    <string name="parental_addons_blocked">Den här profilen kan inte installera tillägg. Fråga en förälder.</string>
+    <string name="parental_allow_unrated">Visa titlar utan åldersgräns: %1$s</string>
+    <string name="parental_gate_heading">Ange PIN för %1$s</string>
+    <string name="parental_gate_support">Den här profilen har föräldrabegränsningar. En förälders PIN krävs för att fortsätta.</string>
+    <string name="parental_kids_profile_toggle">Barnprofil: %1$s</string>
+    <string name="parental_level_all_ages">Alla åldrar (G, TV-Y, TV-G)</string>
+    <string name="parental_level_mature">R, TV-MA</string>
+    <string name="parental_level_older_kids">Äldre barn (TV-Y7)</string>
+    <string name="parental_level_pg">PG, TV-PG</string>
+    <string name="parental_level_teens">PG-13, TV-14</string>
+    <string name="parental_level_unrestricted">Ingen gräns</string>
+    <string name="parental_limits_label">Föräldrabegränsningar</string>
+    <string name="parental_limits_saved">Föräldrabegränsningar sparade för %1$s</string>
+    <string name="parental_limits_subtitle">Ändringar kräver huvudprofilens PIN. Titlar över gränsen döljs från hem, sök och Fortsätt titta och kan inte spelas upp.</string>
+    <string name="parental_limits_subtitle_no_pin">Ställ in en PIN på huvudprofilen, annars kan vem som helst på den här profilen ändra begränsningarna.</string>
+    <string name="parental_limits_title">Föräldrabegränsningar för %1$s</string>
+    <string name="parental_max_rating">Högsta åldersgräns: %1$s</string>
+    <string name="parental_off">Av</string>
+    <string name="parental_on">På</string>
+    <string name="parental_title_blocked">Den här titeln överskrider profilens åldersgräns.</string>
+    <string name="prefer_next_time_group">Gruppen %1$s</string>
+    <string name="prefer_next_time_language">Ljud: %1$s</string>
+    <string name="prefer_next_time_not_now">Inte nu</string>
+    <string name="prefer_next_time_saved">Bästa matchning föredrar: %1$s</string>
+    <string name="prefer_next_time_size">Filer upp till %1$d GB</string>
+    <string name="prefer_next_time_title">Föredra detta nästa gång?</string>
+    <string name="ranking_any">Alla</string>
+    <string name="ranking_drop_undecodable">Hoppa över strömmar som den här enheten inte kan avkoda</string>
+    <string name="ranking_drop_undecodable_sub">Baserat på de avkodare, HDR-format och upplösningar som enheten rapporterar</string>
+    <string name="ranking_excluded_audio">Hoppa över ljudformat</string>
+    <string name="ranking_excluded_audio_sub">Utgåvor med endast dessa ljudformat spelas aldrig upp automatiskt</string>
+    <string name="ranking_excluded_groups">Hoppa över releasegrupper</string>
+    <string name="ranking_excluded_languages">Hoppa över ljudspråk</string>
+    <string name="ranking_excluded_languages_sub">Utgåvor endast på dessa språk spelas aldrig upp automatiskt</string>
+    <string name="ranking_excluded_sources">Hoppa över utgåvetyper</string>
+    <string name="ranking_groups_input_sub">Separera grupper med kommatecken, till exempel FLUX, NTb.</string>
+    <string name="ranking_hide_cam">Spela aldrig upp CAM eller telesync automatiskt</string>
+    <string name="ranking_max_per_resolution">Resultat per upplösning</string>
+    <string name="ranking_max_quality">Högsta kvalitet</string>
+    <string name="ranking_max_results">Resultat att behålla</string>
+    <string name="ranking_max_results_sub">Resten flyttas till Andra källor</string>
+    <string name="ranking_max_size">Största filstorlek</string>
+    <string name="ranking_max_size_sub">Större filer spelas aldrig upp automatiskt</string>
+    <string name="ranking_min_size">Minsta filstorlek</string>
+    <string name="ranking_min_size_sub">Mindre filer spelas aldrig upp automatiskt</string>
+    <string name="ranking_no_limit">Ingen gräns</string>
+    <string name="ranking_none">Ingen</string>
+    <string name="ranking_prefer_cached">Föredra cachade debrid-resultat</string>
+    <string name="ranking_prefer_cached_sub">Cachade filer startar direkt</string>
+    <string name="ranking_prefer_library">Föredra mitt eget bibliotek</string>
+    <string name="ranking_prefer_library_sub">En fil på din Jellyfin-, Emby- eller Plex-server går före allt som strömmas</string>
+    <string name="ranking_preferred_codec">Föredragen videocodec</string>
+    <string name="ranking_preferred_groups">Föredragna releasegrupper</string>
+    <string name="ranking_preferred_groups_sub">Inkluderar grupper du valt med Föredra detta nästa gång</string>
+    <string name="ranking_preferred_languages">Föredragna ljudspråk</string>
+    <string name="ranking_preferred_languages_sub">Utgåvor som anger dessa språk rankas högre, förstahandsvalet högst</string>
+    <string name="ranking_preferred_quality">Föredragen kvalitet</string>
+    <string name="ranking_preferred_quality_sub">Högre kvaliteter är fortfarande tillåtna, men rankas lägre</string>
+    <string name="ranking_preferred_size">Föredragen filstorlek</string>
+    <string name="ranking_preferred_size_sub">Större filer rankas lägre</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="one">%1$d vald</item>
+        <item quantity="other">%1$d valda</item>
+    </plurals>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="ranking_skip_dv5">Hoppa över Dolby Vision-profil 5</string>
+    <string name="ranking_skip_dv5_sub">Profil 5 saknar HDR10-reserv. Den hoppas alltid över när den här tv:n inte kan visa den</string>
+    <string name="server_options_use_official">Stäng av synkning</string>
+    <string name="skip_marker_report_failed">Kunde inte rapportera markören</string>
+    <string name="skip_marker_reported">Fel markör rapporterad. Tack!</string>
+    <string name="skip_marker_start_recorded">Start markerad. Tryck igen där det slutar.</string>
+    <string name="skip_marker_submit_failed">Kunde inte skicka markören till IntroDB</string>
+    <string name="skip_marker_submitted">Markören skickades till IntroDB</string>
+    <string name="skip_source">via %1$s</string>
+    <string name="skip_source_reportable">via %1$s · håll in för att rapportera</string>
+    <string name="sub_hdr_brightness">Ljusstyrka för HDR-undertexter</string>
+    <string name="sub_hdr_style">Separat stil för HDR / Dolby Vision</string>
+    <string name="sub_hdr_style_sub">Använd en annan textfärg och lägre ljusstyrka för undertexter i HDR- och Dolby Vision-video</string>
+    <string name="sub_hdr_text_color">HDR-textfärg</string>
+    <string name="subtitle_style_brightness_hdr">Ljusstyrka (HDR)</string>
+    <string name="subtitle_style_text_color_hdr">Textfärg (HDR)</string>
+    <string name="subtitle_style_text_opacity_hdr">Textopacitet (HDR)</string>
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="torrent_engine_unavailable">Det här är en torrentström och Fetch har ingen inbyggd torrentmotor. Aktivera en debrid-tjänst i Inställningar → Debrid, eller öppna den i en extern spelare.</string>
+    <string name="stream_torrent_needs_debrid">Torrent: anslut en debrid-tjänst under Inställningar → Debrid för att spela upp den här, eller öppna den i en extern spelare.</string>
 </resources>

@@ -22,10 +22,10 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Skip intro / recap from community markers | ✅ | `data/repository/SkipIntroRepository.kt`: AniSkip, Anime-Skip and IntroDB (public `api.introdb.app` by default, overridable in Advanced settings). |
 | Two-way Trakt and Simkl sync | ✅ | `data/repository/Trakt*`, `data/simkl/`, `core/tracking/`. |
 | Android TV "Watch Next" row | ✅ | `core/recommendations/TvRecommendationManager.kt`, `core/sync/androidtv/`. |
-| Debrid as a built-in setting | ✅ | `core/debrid/` (Real-Debrid, Premiumize, TorBox), `ui/screens/settings/DebridSettingsScreen.kt`. Gap: AllDebrid / Debrid-Link. |
+| Debrid as a built-in setting | ✅ | `core/debrid/` (TorBox, Premiumize, Real-Debrid, AllDebrid with PIN sign-in, Debrid-Link), `ui/screens/settings/DebridSettingsScreen.kt`. Cloud library (`core/cloud/`) for TorBox, Premiumize and Real-Debrid. Torrent results that nothing can resolve say so on the source card and open the player choice instead of failing in the internal player. |
 | Profiles | ✅ | `core/profile/ProfileManager.kt`, per-profile settings and addons. |
 | Parental controls | ✅ | `core/parental/`: local salted PIN hash with lockout (`ProfilePinManager`, works offline; mirrored to the sync server when signed in), per-profile rating limit and unrated toggle (`ParentalControls`, ratings from addons or TMDB), kids preset (no hero or upcoming row), filtering of home rows, search, Discover and Continue Watching, and blocked streams above the limit. The parent PIN guards settings, addon management, phone pages and leaving a restricted profile (`ui/screens/profile/ParentalGate.kt`). |
-| Low-end performance (lazy artwork, capped caches, fast cold start) | 🟡 | Coil memory cache scales with RAM, 200 MB disk cache, RGB565 option, baseline profiles, decoder probing off the main thread. Gap: disk cache is not scaled to free storage; cold-start work in `FetchApplication.onCreate` should be audited on a 1.5 GB device. |
+| Low-end performance (lazy artwork, capped caches, fast cold start) | 🟡 | Coil memory cache scales with RAM, disk cache scaled to free storage, RGB565 option, deferred startup work, baseline profiles, decoder probing off the main thread. Measurement procedure, cold-start Macrobenchmark and result tables in `docs/performance.md`. Gap: numbers from a Fire TV Stick and a Chromecast with Google TV HD, and a baseline profile regenerated from a Fetch build. |
 
 ## What we're changing
 
@@ -47,8 +47,10 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
   `docs/architecture/media3-fork.md`.
 - **Torrent engine.** `core/torrent/TorrentService.kt` keeps the upstream API without an
   engine. An open-source engine (e.g. libtorrent4j) can be plugged in there.
-- **Translations.** Strings whose meaning changed (sync, licenses) fall back to English in
-  other locales until re-translated. Strings for removed features can be pruned.
+- **Translations.** Changed and new strings are translated in every locale, unused strings
+  are pruned (lint `UnusedResources` is clean for strings), and brand-name grammar was
+  reviewed after the Nuvio → Fetch replacement. Older locales that were already incomplete
+  upstream still fall back to English for strings that existed before the fork.
 - `TraktAuthServiceTest` needs Trakt client credentials and is skipped without them.
 
 ## Tracking

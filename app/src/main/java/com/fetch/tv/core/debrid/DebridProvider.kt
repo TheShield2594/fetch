@@ -32,6 +32,8 @@ object DebridProviders {
     const val TORBOX_ID = "torbox"
     const val PREMIUMIZE_ID = "premiumize"
     const val REAL_DEBRID_ID = "realdebrid"
+    const val ALL_DEBRID_ID = "alldebrid"
+    const val DEBRID_LINK_ID = "debridlink"
 
     val Torbox = DebridProvider(
         id = TORBOX_ID,
@@ -59,15 +61,42 @@ object DebridProviders {
         )
     )
 
+    // Real-Debrid, AllDebrid and Debrid-Link have no instant-availability check any more, so
+    // their torrent results are tried by adding the magnet and taking it only when the
+    // provider already has it.
     val RealDebrid = DebridProvider(
         id = REAL_DEBRID_ID,
         displayName = "Real-Debrid",
         shortName = "RD",
-        visibleInUi = false,
-        capabilities = setOf(DebridProviderCapability.ClientResolve)
+        capabilities = setOf(
+            DebridProviderCapability.ClientResolve,
+            DebridProviderCapability.LocalTorrentResolve,
+            DebridProviderCapability.CloudLibrary
+        )
     )
 
-    private val registered = listOf(Torbox, Premiumize, RealDebrid)
+    val AllDebrid = DebridProvider(
+        id = ALL_DEBRID_ID,
+        displayName = "AllDebrid",
+        shortName = "AD",
+        authMethod = DebridProviderAuthMethod.DeviceCode,
+        capabilities = setOf(
+            DebridProviderCapability.ClientResolve,
+            DebridProviderCapability.LocalTorrentResolve
+        )
+    )
+
+    val DebridLink = DebridProvider(
+        id = DEBRID_LINK_ID,
+        displayName = "Debrid-Link",
+        shortName = "DL",
+        capabilities = setOf(
+            DebridProviderCapability.ClientResolve,
+            DebridProviderCapability.LocalTorrentResolve
+        )
+    )
+
+    private val registered = listOf(Torbox, Premiumize, RealDebrid, AllDebrid, DebridLink)
 
     fun all(): List<DebridProvider> = registered
 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Telefonun bu TV ile aynı Wi-Fi ağında olmalı. Bunu daha sonra Ayarlar\'dan da yapabilirsin.</string>
+    <string name="first_run_phone_qr_description">Telefon kurulum kodu</string>
+    <string name="first_run_phone_step_accounts">Trakt, Simkl veya Jellyfin\'e giriş yap</string>
+    <string name="first_run_phone_step_addons">Eklentileri ve debrid anahtarını yapıştır</string>
+    <string name="first_run_phone_step_scan">Telefon kameranla tara</string>
+    <string name="first_run_phone_title">Telefonunla kur. Kumandayla yazmak yok.</string>
+    <string name="first_run_recommended">Önerilen</string>
+    <string name="phone_hub_description">Telefonunu kumanda ve klavye olarak kullanmak, hesaplara giriş yapmak ve uzun ayarları düzenlemek için tek bir kod tara.</string>
+    <string name="phone_hub_instruction">Telefonunla tara. Kod bir kez çalışır; sayfa bu ekran açık kaldıkça açık kalır.</string>
+    <string name="phone_hub_open">Telefon kodunu göster</string>
+    <string name="phone_hub_open_description">Telefonun bu TV ile aynı ağda olmalı.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d telefon bağlı. Bu ekranı kapattıktan sonra kumanda 10 dakika daha çalışır.</item>
+        <item quantity="other">%d telefon bağlı. Bu ekranı kapattıktan sonra kumanda 10 dakika daha çalışır.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Bu profilde ebeveyn sınırları var. Önce TV\'de ayarların kilidini aç.</string>
+    <string name="phone_hub_title">Telefondan yapılandır</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Entre com sua conta %1$s pelo celular. Sem digitar na TV.</string>
+    <string name="servers_link_choose_server">Sua conta tem acesso a mais de um servidor. Escolha qual adicionar.</string>
+    <string name="servers_link_connecting_to">Conectando a %1$s…</string>
+    <string name="servers_link_expired">O código expirou. Gere um novo para tentar de novo.</string>
+    <string name="servers_link_expires">O código expira em %1$s</string>
+    <string name="servers_link_instruction">Escaneie o código com o celular, ou abra %1$s em qualquer dispositivo e digite este código.</string>
+    <string name="servers_link_loading">Obtendo código de login…</string>
+    <string name="servers_link_no_servers">Esta conta ainda não tem servidores. Configure um, ou peça ao dono de um servidor para compartilhar uma biblioteca com você.</string>
+    <string name="servers_link_qr">Código QR para entrar em %1$s</string>
+    <string name="servers_link_retry">Gerar novo código</string>
+    <string name="servers_link_waiting">Aguardando você aprovar o código…</string>
+</resources>

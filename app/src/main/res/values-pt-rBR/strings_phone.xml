@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Seu celular precisa estar na mesma rede Wi-Fi desta TV. Você também pode fazer isso depois em Configurações.</string>
+    <string name="first_run_phone_qr_description">Código de configuração pelo celular</string>
+    <string name="first_run_phone_step_accounts">Entre no Trakt, Simkl ou Jellyfin</string>
+    <string name="first_run_phone_step_addons">Cole addons e sua chave debrid</string>
+    <string name="first_run_phone_step_scan">Escaneie com a câmera do celular</string>
+    <string name="first_run_phone_title">Configure pelo celular. Sem digitar no controle.</string>
+    <string name="first_run_recommended">Recomendado</string>
+    <string name="phone_hub_description">Escaneie um código para usar o celular como controle e teclado, entrar em contas e editar configurações longas.</string>
+    <string name="phone_hub_instruction">Escaneie com o celular. O código funciona uma vez; a página fica aberta enquanto esta tela estiver.</string>
+    <string name="phone_hub_open">Mostrar código para celular</string>
+    <string name="phone_hub_open_description">Seu celular precisa estar na mesma rede desta TV.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d celular conectado. O controle continua funcionando por 10 minutos depois que você fechar esta tela.</item>
+        <item quantity="other">%d celulares conectados. O controle continua funcionando por 10 minutos depois que você fechar esta tela.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Este perfil tem controle dos pais. Desbloqueie as configurações na TV primeiro.</string>
+    <string name="phone_hub_title">Configurar pelo celular</string>
+</resources>

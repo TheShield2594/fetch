@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Телефонът ти трябва да е в същата Wi-Fi мрежа като този телевизор. Можеш да направиш това и по-късно в Настройки.</string>
+    <string name="first_run_phone_qr_description">Код за настройка с телефон</string>
+    <string name="first_run_phone_step_accounts">Влез в Trakt, Simkl или Jellyfin</string>
+    <string name="first_run_phone_step_addons">Постави добавки и своя debrid ключ</string>
+    <string name="first_run_phone_step_scan">Сканирай с камерата на телефона си</string>
+    <string name="first_run_phone_title">Настрой с телефона си. Без писане с дистанционното.</string>
+    <string name="first_run_recommended">Препоръчително</string>
+    <string name="phone_hub_description">Сканирай един код, за да използваш телефона си като дистанционно и клавиатура, да влизаш в акаунти и да редактираш дълги настройки.</string>
+    <string name="phone_hub_instruction">Сканирай с телефона си. Кодът работи веднъж; страницата остава отворена, докато е отворен този екран.</string>
+    <string name="phone_hub_open">Покажи кода за телефон</string>
+    <string name="phone_hub_open_description">Телефонът ти трябва да е в същата мрежа като този телевизор.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d свързан телефон. Дистанционното работи още 10 минути, след като затвориш този екран.</item>
+        <item quantity="other">%d свързани телефона. Дистанционното работи още 10 минути, след като затвориш този екран.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Този профил има родителски ограничения. Първо отключи настройките на телевизора.</string>
+    <string name="phone_hub_title">Настройка от телефон</string>
+</resources>

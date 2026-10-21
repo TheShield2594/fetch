@@ -57,4 +57,17 @@
     <string name="library_servers_empty_title">Hiçbir kütüphane seçilmedi</string>
     <string name="library_servers_empty_message">Hangi kütüphanelerin gösterileceğini Ayarlar\'da, İçerik ve Keşif altındaki Medya sunucuları bölümünden seçin.</string>
     <string name="library_server_load_failed">%1$s yüklenemedi</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">%1$s hesabınla telefonundan giriş yap. TV\'de yazmak yok.</string>
+    <string name="servers_link_choose_server">Hesabın birden fazla sunucuya erişebiliyor. Eklenecek olanı seç.</string>
+    <string name="servers_link_connecting_to">%1$s sunucusuna bağlanılıyor…</string>
+    <string name="servers_link_expired">Kodun süresi doldu. Tekrar denemek için yeni bir kod al.</string>
+    <string name="servers_link_expires">Kodun kalan süresi: %1$s</string>
+    <string name="servers_link_instruction">Kodu telefonunla tara veya herhangi bir cihazda %1$s adresini açıp bu kodu gir.</string>
+    <string name="servers_link_loading">Giriş kodu alınıyor…</string>
+    <string name="servers_link_no_servers">Bu hesabın henüz sunucusu yok. Bir tane kur veya bir sunucu sahibinden seninle bir kütüphane paylaşmasını iste.</string>
+    <string name="servers_link_qr">%1$s girişi için QR kodu</string>
+    <string name="servers_link_retry">Yeni kod al</string>
+    <string name="servers_link_waiting">Kodu onaylaman bekleniyor…</string>
 </resources>

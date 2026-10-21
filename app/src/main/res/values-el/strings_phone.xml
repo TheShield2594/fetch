@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_title">Ρύθμιση με το τηλέφωνό σας. Χωρίς πληκτρολόγηση με το τηλεχειριστήριο.</string>
+    <string name="first_run_phone_qr_description">Κωδικός ρύθμισης μέσω τηλεφώνου</string>
+    <string name="first_run_phone_step_scan">Σαρώστε με την κάμερα του τηλεφώνου σας</string>
+    <string name="first_run_phone_step_addons">Επικολλήστε πρόσθετα και το κλειδί debrid σας</string>
+    <string name="first_run_phone_step_accounts">Συνδεθείτε στο Trakt, το Simkl ή το Jellyfin</string>
+    <string name="first_run_phone_network">Το τηλέφωνό σας πρέπει να είναι στο ίδιο Wi-Fi με αυτή την τηλεόραση. Μπορείτε επίσης να το κάνετε αργότερα από τις Ρυθμίσεις.</string>
+    <string name="first_run_recommended">Προτείνεται</string>
+    <string name="phone_hub_title">Ρύθμιση από το τηλέφωνο</string>
+    <string name="phone_hub_description">Σαρώστε έναν κωδικό για να χρησιμοποιήσετε το τηλέφωνό σας ως τηλεχειριστήριο και πληκτρολόγιο, να συνδεθείτε σε λογαριασμούς και να επεξεργαστείτε μεγάλες ρυθμίσεις.</string>
+    <string name="phone_hub_open">Εμφάνιση κωδικού τηλεφώνου</string>
+    <string name="phone_hub_open_description">Το τηλέφωνό σας πρέπει να είναι στο ίδιο δίκτυο με αυτή την τηλεόραση.</string>
+    <string name="phone_hub_instruction">Σαρώστε με το τηλέφωνό σας. Ο κωδικός λειτουργεί μία φορά· η σελίδα μένει ανοιχτή όσο είναι ανοιχτή αυτή η οθόνη.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d τηλέφωνο συνδεδεμένο. Το τηλεχειριστήριο λειτουργεί για 10 λεπτά αφού κλείσετε αυτή την οθόνη.</item>
+        <item quantity="other">%d τηλέφωνα συνδεδεμένα. Το τηλεχειριστήριο λειτουργεί για 10 λεπτά αφού κλείσετε αυτή την οθόνη.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Αυτό το προφίλ έχει γονικά όρια. Ξεκλειδώστε πρώτα τις ρυθμίσεις στην τηλεόραση.</string>
+</resources>

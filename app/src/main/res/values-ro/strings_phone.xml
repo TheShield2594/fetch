@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Telefonul trebuie să fie în aceeași rețea Wi-Fi ca acest televizor. Poți face asta și mai târziu din Setări.</string>
+    <string name="first_run_phone_qr_description">Cod de configurare pentru telefon</string>
+    <string name="first_run_phone_step_accounts">Conectează-te la Trakt, Simkl sau Jellyfin</string>
+    <string name="first_run_phone_step_addons">Lipește suplimente și cheia debrid</string>
+    <string name="first_run_phone_step_scan">Scanează cu camera telefonului</string>
+    <string name="first_run_phone_title">Configurează de pe telefon. Fără tastare cu telecomanda.</string>
+    <string name="first_run_recommended">Recomandat</string>
+    <string name="phone_hub_description">Scanează un singur cod pentru a folosi telefonul ca telecomandă și tastatură, a te conecta la conturi și a edita setări lungi.</string>
+    <string name="phone_hub_instruction">Scanează cu telefonul. Codul funcționează o singură dată; pagina rămâne deschisă cât timp este deschis acest ecran.</string>
+    <string name="phone_hub_open">Arată codul pentru telefon</string>
+    <string name="phone_hub_open_description">Telefonul trebuie să fie în aceeași rețea ca acest televizor.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d telefon conectat. Telecomanda funcționează încă 10 minute după ce închizi acest ecran.</item>
+        <item quantity="few">%d telefoane conectate. Telecomanda funcționează încă 10 minute după ce închizi acest ecran.</item>
+        <item quantity="other">%d de telefoane conectate. Telecomanda funcționează încă 10 minute după ce închizi acest ecran.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Acest profil are restricții parentale. Deblochează mai întâi setările pe televizor.</string>
+    <string name="phone_hub_title">Configurează de pe telefon</string>
+</resources>

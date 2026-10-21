@@ -16,10 +16,13 @@ import com.fetch.tv.core.server.DebridFormatterConfigServer
 import com.fetch.tv.core.server.DebridFormatterSettings
 import com.fetch.tv.core.server.DeviceIpAddress
 import com.fetch.tv.data.local.DebridSettingsDataStore
+import com.fetch.tv.data.remote.dto.AllDebridEnvelopeDto
+import com.fetch.tv.data.remote.dto.AllDebridPinCheckDto
 import com.fetch.tv.data.remote.dto.PremiumizeDeviceTokenDto
 import com.fetch.tv.data.remote.dto.TorboxDeviceTokenDto
 import com.fetch.tv.data.remote.dto.TorboxDeviceTokenRequestDto
 import com.fetch.tv.data.remote.dto.TorboxEnvelopeDto
+import com.fetch.tv.data.remote.api.AllDebridApi
 import com.fetch.tv.data.remote.api.PremiumizeApi
 import com.fetch.tv.data.remote.api.TorboxApi
 import com.fetch.tv.domain.model.DEBRID_PREPARE_INSTANT_PLAYBACK_DEFAULT_LIMIT
@@ -43,6 +46,7 @@ class DebridSettingsViewModel @Inject constructor(
     private val dataStore: DebridSettingsDataStore,
     private val torboxApi: TorboxApi,
     private val premiumizeApi: PremiumizeApi,
+    private val allDebridApi: AllDebridApi,
     private val apiKeyValidator: com.fetch.tv.core.debrid.DebridApiKeyValidator
 ) : ViewModel() {
     private var formatterServer: DebridFormatterConfigServer? = null
@@ -228,6 +232,24 @@ class DebridSettingsViewModel @Inject constructor(
                     expiresAt = data.expiresIn?.takeIf { it > 0 }?.let { "${it}s" }
                 )
             }
+            DebridProviders.ALL_DEBRID_ID -> {
+                val response = allDebridApi.getPin()
+                val data = response.body()?.takeIf { response.isSuccessful && it.isSuccess }?.data
+                    ?: return null
+                val pin = data.pin?.takeIf { it.isNotBlank() } ?: return null
+                val check = data.check?.takeIf { it.isNotBlank() } ?: return null
+                val verificationUrl = data.baseUrl?.takeIf { it.isNotBlank() } ?: ALL_DEBRID_PIN_URL
+                DebridDeviceAuthorization(
+                    providerId = DebridProviders.ALL_DEBRID_ID,
+                    // The PIN check needs both values; they travel together as the device code.
+                    deviceCode = "$check$ALL_DEBRID_DEVICE_CODE_SEPARATOR$pin",
+                    userCode = pin,
+                    verificationUrl = verificationUrl,
+                    friendlyVerificationUrl = data.userUrl?.takeIf { it.isNotBlank() } ?: verificationUrl,
+                    intervalSeconds = 5,
+                    expiresAt = data.expiresIn?.takeIf { it > 0 }?.let { "${it}s" }
+                )
+            }
             else -> null
         }
     }
@@ -247,6 +269,12 @@ class DebridSettingsViewModel @Inject constructor(
                     clientId = clientId
                 )
                 premiumizeDeviceAuthorizationTokenResult(response)
+            }
+            DebridProviders.ALL_DEBRID_ID -> {
+                val check = normalized.substringBefore(ALL_DEBRID_DEVICE_CODE_SEPARATOR)
+                val pin = normalized.substringAfter(ALL_DEBRID_DEVICE_CODE_SEPARATOR, missingDelimiterValue = "")
+                if (check.isBlank() || pin.isBlank()) return DebridDeviceAuthorizationTokenResult.Failed(null)
+                allDebridPinResult(allDebridApi.checkPin(check = check, pin = pin))
             }
             else -> DebridDeviceAuthorizationTokenResult.Unsupported
         }
@@ -289,6 +317,26 @@ class DebridSettingsViewModel @Inject constructor(
         }
     }
 
+    private fun allDebridPinResult(
+        response: retrofit2.Response<AllDebridEnvelopeDto<AllDebridPinCheckDto>>
+    ): DebridDeviceAuthorizationTokenResult {
+        val body = response.body()
+        val data = body?.takeIf { response.isSuccessful && it.isSuccess }?.data
+        if (data != null) {
+            val apiKey = data.apiKey?.takeIf { it.isNotBlank() }
+            return if (data.activated == true && apiKey != null) {
+                DebridDeviceAuthorizationTokenResult.Authorized(apiKey)
+            } else {
+                DebridDeviceAuthorizationTokenResult.Pending
+            }
+        }
+        val errorText = body?.error?.code ?: response.errorBody()?.string().orEmpty()
+        return when {
+            errorText.contains("PIN_EXPIRED") -> DebridDeviceAuthorizationTokenResult.Expired
+            else -> DebridDeviceAuthorizationTokenResult.Failed(body?.error?.message)
+        }
+    }
+
     private fun premiumizeDeviceAuthorizationTokenResult(
         response: retrofit2.Response<PremiumizeDeviceTokenDto>
     ): DebridDeviceAuthorizationTokenResult {
@@ -325,12 +373,17 @@ class DebridSettingsViewModel @Inject constructor(
     }
 }
 
+private const val ALL_DEBRID_PIN_URL = "https://alldebrid.com/pin/"
+private const val ALL_DEBRID_DEVICE_CODE_SEPARATOR = '|'
+
 data class DebridSettingsUiState(
     val enabled: Boolean = false,
     val cloudLibraryEnabled: Boolean = true,
     val torboxApiKey: String = "",
     val premiumizeApiKey: String = "",
     val realDebridApiKey: String = "",
+    val allDebridApiKey: String = "",
+    val debridLinkApiKey: String = "",
     val preferredResolverProviderId: String = "",
     val instantPlaybackPreparationLimit: Int = 0,
     val streamNameTemplate: String = "",
@@ -344,7 +397,9 @@ data class DebridSettingsUiState(
         get() = mapOf(
             DebridProviders.TORBOX_ID to torboxApiKey,
             DebridProviders.PREMIUMIZE_ID to premiumizeApiKey,
-            DebridProviders.REAL_DEBRID_ID to realDebridApiKey
+            DebridProviders.REAL_DEBRID_ID to realDebridApiKey,
+            DebridProviders.ALL_DEBRID_ID to allDebridApiKey,
+            DebridProviders.DEBRID_LINK_ID to debridLinkApiKey
         )
 
     val hasAnyApiKey: Boolean
@@ -390,6 +445,8 @@ data class DebridSettingsUiState(
         torboxApiKey = settings.torboxApiKey,
         premiumizeApiKey = settings.premiumizeApiKey,
         realDebridApiKey = settings.realDebridApiKey,
+        allDebridApiKey = settings.allDebridApiKey,
+        debridLinkApiKey = settings.debridLinkApiKey,
         preferredResolverProviderId = settings.preferredResolverProviderId,
         instantPlaybackPreparationLimit = settings.instantPlaybackPreparationLimit,
         streamNameTemplate = settings.streamNameTemplate,

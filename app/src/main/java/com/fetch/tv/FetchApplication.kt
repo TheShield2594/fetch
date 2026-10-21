@@ -33,6 +33,7 @@ import com.fetch.tv.core.streams.ranking.AndroidDeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.data.mediaserver.ServerMatcher
 import com.fetch.tv.data.mediaserver.ServerUserStateProjection
+import com.fetch.tv.core.debrid.DebridRulesMigration
 import com.fetch.tv.data.simkl.SimklAnimeIdPreferenceHolder
 import dagger.hilt.android.HiltAndroidApp
 import okhttp3.Cookie
@@ -52,6 +53,7 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
     @Inject lateinit var imagePerformancePreferences: ImagePerformancePreferences
     @Inject lateinit var simklAnimeIdPreferenceHolder: SimklAnimeIdPreferenceHolder
     @Inject lateinit var serverUserStateProjection: dagger.Lazy<ServerUserStateProjection>
+    @Inject lateinit var debridRulesMigration: dagger.Lazy<DebridRulesMigration>
     @Inject lateinit var serverMatcher: dagger.Lazy<ServerMatcher>
 
     companion object {
@@ -95,6 +97,7 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
         Looper.myQueue().addIdleHandler {
             androidTvChannelSyncService.get().start()
             serverUserStateProjection.get().start()
+            debridRulesMigration.get().start()
             serverMatcher.get().start()
             false
         }

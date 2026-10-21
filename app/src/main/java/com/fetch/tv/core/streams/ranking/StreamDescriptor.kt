@@ -80,7 +80,8 @@ data class StreamDescriptor(
     /** True when the addon marks the file as already cached on a debrid service. */
     val isDebridCached: Boolean = false,
     val seeders: Int? = null,
-    val releaseGroup: String? = null
+    val releaseGroup: String? = null,
+    val languages: Set<StreamLanguage> = emptySet()
 ) {
     val isHdr: Boolean get() = hdr.isNotEmpty()
     val hasDolbyVision: Boolean get() = HdrFormat.DOLBY_VISION in hdr

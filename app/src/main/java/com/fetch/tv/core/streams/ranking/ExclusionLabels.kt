@@ -8,6 +8,20 @@ fun ExclusionReason.label(context: Context, descriptor: StreamDescriptor): Strin
     ExclusionReason.ABOVE_MAX_RESOLUTION -> context.getString(R.string.exclusion_above_max_resolution)
     ExclusionReason.BELOW_MIN_RESOLUTION -> context.getString(R.string.exclusion_below_min_resolution)
     ExclusionReason.OVER_MAX_SIZE -> context.getString(R.string.exclusion_over_max_size)
+    ExclusionReason.UNDER_MIN_SIZE -> context.getString(R.string.exclusion_under_min_size)
+    ExclusionReason.RESOLUTION_EXCLUDED -> context.getString(R.string.exclusion_resolution, descriptor.resolution.label)
+    ExclusionReason.SOURCE_EXCLUDED -> context.getString(R.string.exclusion_source, descriptor.source.label)
+    ExclusionReason.CODEC_EXCLUDED -> context.getString(R.string.exclusion_codec, descriptor.videoCodec.label)
+    ExclusionReason.AUDIO_EXCLUDED -> context.getString(
+        R.string.exclusion_audio,
+        descriptor.audio.joinToString(", ") { it.label }
+    )
+    ExclusionReason.LANGUAGE_EXCLUDED -> context.getString(
+        R.string.exclusion_language,
+        descriptor.languages.joinToString(", ") { it.label }
+    )
+    ExclusionReason.RELEASE_GROUP_EXCLUDED -> context.getString(R.string.exclusion_release_group, descriptor.releaseGroup.orEmpty())
+    ExclusionReason.OVER_RESULT_LIMIT -> context.getString(R.string.exclusion_result_limit)
     ExclusionReason.DOLBY_VISION_PROFILE_EXCLUDED -> context.getString(R.string.exclusion_dv_profile_excluded)
     ExclusionReason.DOLBY_VISION_EXCLUDED -> context.getString(R.string.exclusion_dv_excluded)
     ExclusionReason.HDR_EXCLUDED -> context.getString(R.string.exclusion_hdr_excluded)

@@ -26,7 +26,7 @@ class DebridStreamFormatter @Inject constructor(
     ): Stream {
         if (!stream.isManagedDebridForFormatting()) return stream
         val matchedBadges = StreamBadgeMatcher.matchedBadges(stream, compiledBadgeFilters)
-        val values = buildValues(stream, matchedBadges, facts ?: DirectDebridStreamFilter.facts(stream, settings))
+        val values = buildValues(stream, matchedBadges, facts ?: DirectDebridStreamFilter.facts(stream))
         val formattedName = engine.render(settings.streamNameTemplate, values)
             .lineSequence()
             .joinToString(" ") { it.trim() }

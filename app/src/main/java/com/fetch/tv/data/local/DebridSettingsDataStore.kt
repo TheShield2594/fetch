@@ -166,101 +166,16 @@ class DebridSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setStreamMaxResults(maxResults: Int) {
+    /** Forgets the debrid stream rules once they have moved into stream ranking. */
+    suspend fun clearStreamRules() {
         store().edit {
-            val normalized = normalizeDebridStreamMaxResults(maxResults)
-            it[streamMaxResultsKey] = normalized
-            it[streamPreferencesKey] = gson.toJson(currentStreamPreferences(it[streamPreferencesKey]).copy(maxResults = normalized))
-        }
-    }
-
-    suspend fun setStreamSortMode(mode: DebridStreamSortMode) {
-        store().edit {
-            it[streamSortModeKey] = mode.name
-            it[streamPreferencesKey] = gson.toJson(
-                currentStreamPreferences(it[streamPreferencesKey]).copy(sortCriteria = sortCriteriaForLegacyMode(mode))
-            )
-        }
-    }
-
-    suspend fun setStreamMinimumQuality(quality: DebridStreamMinimumQuality) {
-        store().edit {
-            it[streamMinimumQualityKey] = quality.name
-            it[streamPreferencesKey] = gson.toJson(
-                currentStreamPreferences(it[streamPreferencesKey]).copy(requiredResolutions = resolutionsForMinimumQuality(quality))
-            )
-        }
-    }
-
-    suspend fun setStreamDolbyVisionFilter(filter: DebridStreamFeatureFilter) {
-        store().edit {
-            it[streamDolbyVisionFilterKey] = filter.name
-            val current = currentStreamPreferences(it[streamPreferencesKey])
-            it[streamPreferencesKey] = gson.toJson(
-                when (filter) {
-                    DebridStreamFeatureFilter.ANY -> current.copy(
-                        requiredVisualTags = current.requiredVisualTags - DebridStreamVisualTag.DV - DebridStreamVisualTag.DV_ONLY - DebridStreamVisualTag.HDR_DV,
-                        excludedVisualTags = current.excludedVisualTags - DebridStreamVisualTag.DV - DebridStreamVisualTag.DV_ONLY - DebridStreamVisualTag.HDR_DV
-                    )
-                    DebridStreamFeatureFilter.EXCLUDE -> current.copy(
-                        requiredVisualTags = current.requiredVisualTags - DebridStreamVisualTag.DV - DebridStreamVisualTag.DV_ONLY - DebridStreamVisualTag.HDR_DV,
-                        excludedVisualTags = (current.excludedVisualTags + listOf(DebridStreamVisualTag.DV, DebridStreamVisualTag.DV_ONLY, DebridStreamVisualTag.HDR_DV)).distinct()
-                    )
-                    DebridStreamFeatureFilter.ONLY -> current.copy(
-                        requiredVisualTags = (current.requiredVisualTags + listOf(DebridStreamVisualTag.DV, DebridStreamVisualTag.DV_ONLY, DebridStreamVisualTag.HDR_DV)).distinct(),
-                        excludedVisualTags = current.excludedVisualTags - DebridStreamVisualTag.DV - DebridStreamVisualTag.DV_ONLY - DebridStreamVisualTag.HDR_DV
-                    )
-                }
-            )
-        }
-    }
-
-    suspend fun setStreamHdrFilter(filter: DebridStreamFeatureFilter) {
-        store().edit {
-            it[streamHdrFilterKey] = filter.name
-            val hdrTags = listOf(DebridStreamVisualTag.HDR, DebridStreamVisualTag.HDR10, DebridStreamVisualTag.HDR10_PLUS, DebridStreamVisualTag.HLG, DebridStreamVisualTag.HDR_ONLY, DebridStreamVisualTag.HDR_DV)
-            val current = currentStreamPreferences(it[streamPreferencesKey])
-            it[streamPreferencesKey] = gson.toJson(
-                when (filter) {
-                    DebridStreamFeatureFilter.ANY -> current.copy(
-                        requiredVisualTags = current.requiredVisualTags - hdrTags.toSet(),
-                        excludedVisualTags = current.excludedVisualTags - hdrTags.toSet()
-                    )
-                    DebridStreamFeatureFilter.EXCLUDE -> current.copy(
-                        requiredVisualTags = current.requiredVisualTags - hdrTags.toSet(),
-                        excludedVisualTags = (current.excludedVisualTags + hdrTags).distinct()
-                    )
-                    DebridStreamFeatureFilter.ONLY -> current.copy(
-                        requiredVisualTags = (current.requiredVisualTags + hdrTags).distinct(),
-                        excludedVisualTags = current.excludedVisualTags - hdrTags.toSet()
-                    )
-                }
-            )
-        }
-    }
-
-    suspend fun setStreamCodecFilter(filter: DebridStreamCodecFilter) {
-        store().edit {
-            it[streamCodecFilterKey] = filter.name
-            it[streamPreferencesKey] = gson.toJson(
-                currentStreamPreferences(it[streamPreferencesKey]).copy(
-                    requiredEncodes = when (filter) {
-                        DebridStreamCodecFilter.ANY -> emptyList()
-                        DebridStreamCodecFilter.H264 -> listOf(DebridStreamEncode.AVC)
-                        DebridStreamCodecFilter.HEVC -> listOf(DebridStreamEncode.HEVC)
-                        DebridStreamCodecFilter.AV1 -> listOf(DebridStreamEncode.AV1)
-                    }
-                )
-            )
-        }
-    }
-
-    suspend fun setStreamPreferences(preferences: DebridStreamPreferences) {
-        store().edit {
-            val normalized = preferences.normalized()
-            it[streamPreferencesKey] = gson.toJson(normalized)
-            it[streamMaxResultsKey] = normalizeDebridStreamMaxResults(normalized.maxResults)
-            it[streamSortModeKey] = legacyModeForSortCriteria(normalized.sortCriteria).name
+            it.remove(streamPreferencesKey)
+            it.remove(streamMaxResultsKey)
+            it.remove(streamSortModeKey)
+            it.remove(streamMinimumQualityKey)
+            it.remove(streamDolbyVisionFilterKey)
+            it.remove(streamHdrFilterKey)
+            it.remove(streamCodecFilterKey)
         }
     }
 
@@ -322,10 +237,6 @@ class DebridSettingsDataStore @Inject constructor(
         return runCatching {
             gson.fromJson(value, DebridStreamPreferences::class.java)?.normalized()
         }.getOrNull()
-    }
-
-    private fun currentStreamPreferences(value: String?): DebridStreamPreferences {
-        return parseStreamPreferences(value) ?: DebridStreamPreferences()
     }
 
     private fun legacyStreamPreferences(

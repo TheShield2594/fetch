@@ -1395,17 +1395,19 @@ private fun List<Stream>.filterByAddon(addonName: String?): List<Stream> =
     }
 
 /**
- * A tab of the sources panel. Under Best match "All" is best first, and every tab says why
- * Best match passed over a stream; addon tabs keep the addon's own order.
+ * A tab of the sources panel. In "All", streams the rules rule out are kept at the bottom
+ * (best first above them under Best match), and every tab says why a stream was passed over;
+ * addon tabs keep the addon's own order.
  */
 private fun PlayerRuntimeController.sourceTab(streams: List<Stream>, addonName: String?): RankedStreamList {
-    val ranked = if (streamAutoPlayModeSetting == StreamAutoPlayMode.BEST_MATCH) {
-        StreamRanker.rankedList(streams, streamRankingRulesSetting, DeviceDecodeCapabilities.current)
-    } else {
-        null
-    }
-    val tab = if (addonName == null) ranked?.streams ?: streams else streams.filter { it.addonName == addonName }
-    return RankedStreamList(tab, ranked?.exclusions.orEmpty())
+    val ranked = StreamRanker.rankedList(
+        streams,
+        streamRankingRulesSetting,
+        DeviceDecodeCapabilities.current,
+        bestFirst = streamAutoPlayModeSetting == StreamAutoPlayMode.BEST_MATCH
+    )
+    val tab = if (addonName == null) ranked.streams else streams.filter { it.addonName == addonName }
+    return RankedStreamList(tab, ranked.exclusions)
 }
 
 internal fun PlayerRuntimeController.reloadEpisodeStreams() {

@@ -254,12 +254,58 @@ object PhoneHubWebPage {
             <div class="check"><input type="checkbox" id="dropUndecodable"><label for="dropUndecodable">Skip formats this TV can't play</label></div>
             <label for="preferredKeywords">Preferred keywords (one per line)</label><textarea id="preferredKeywords" rows="3"></textarea>
             <label for="excludedKeywords">Excluded keywords (one per line)</label><textarea id="excludedKeywords" rows="3"></textarea>
+            <label for="minSizeGb">Smallest file (GB, empty for no minimum)</label><input id="minSizeGb" type="number" min="0" step="0.5">
+            <label>Preferred audio languages (first ticked ranks highest)</label><div class="checks" id="preferredLanguages"></div>
+            <label>Only languages (empty for any)</label><div class="checks" id="requiredLanguages"></div>
+            <label>Skip languages</label><div class="checks" id="excludedLanguages"></div>
+            <label>Skip resolutions</label><div class="checks" id="excludedResolutions"></div>
+            <label>Skip release types</label><div class="checks" id="excludedSources"></div>
+            <label>Skip video codecs</label><div class="checks" id="excludedCodecs"></div>
+            <label>Skip audio formats (when a release has nothing else)</label><div class="checks" id="excludedAudio"></div>
+            <label for="preferredReleaseGroups">Preferred release groups (one per line)</label><textarea id="preferredReleaseGroups" rows="3"></textarea>
+            <label for="excludedReleaseGroups">Skipped release groups (one per line)</label><textarea id="excludedReleaseGroups" rows="3"></textarea>
+            <label for="maxResults">Results to keep (0 for all)</label><input id="maxResults" type="number" min="0" step="1">
+            <label for="maxPerResolution">Results per resolution (0 for all)</label><input id="maxPerResolution" type="number" min="0" step="1">
+            <label for="maxPerSource">Results per release type (0 for all)</label><input id="maxPerSource" type="number" min="0" step="1">
             <div class="row"><button id="save">Save</button></div>
             <div id="status" class="status"></div>
         """,
         script = """
             const RESOLUTIONS = ${resolutionOptionsJs()};
             const BOOLEANS = ['preferHdr','excludeHdr','excludeDolbyVision','excludeCamAndTelesync','exclude3d','preferCachedDebrid','preferOwnLibrary','dropUndecodable'];
+            const CHOICES = {
+              preferredLanguages: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.StreamLanguage.entries) { it.label }},
+              requiredLanguages: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.StreamLanguage.entries) { it.label }},
+              excludedLanguages: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.StreamLanguage.entries) { it.label }},
+              excludedResolutions: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.StreamResolution.entries.filter { it.label.isNotBlank() }) { it.label }},
+              excludedSources: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.ReleaseSource.entries.filter { it.label.isNotBlank() }) { it.label }},
+              excludedCodecs: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.VideoCodec.entries.filter { it.label.isNotBlank() }) { it.label }},
+              excludedAudio: ${enumOptionsJs(com.fetch.tv.core.streams.ranking.AudioFormat.entries) { it.label }}
+            };
+            const NUMBERS = ['maxResults','maxPerResolution','maxPerSource'];
+            Object.keys(CHOICES).forEach(function (id) {
+              const box = document.getElementById(id);
+              CHOICES[id].forEach(function (c) {
+                const label = document.createElement('label');
+                label.className = 'check';
+                const input = document.createElement('input');
+                input.type = 'checkbox'; input.value = c[0]; input.dataset.group = id;
+                label.appendChild(input); label.appendChild(document.createTextNode(' ' + c[1]));
+                box.appendChild(label);
+              });
+            });
+            // Ticked order is kept, so the first language ticked is the most preferred.
+            const ticked = {};
+            document.addEventListener('change', function (e) {
+              const g = e.target.dataset && e.target.dataset.group;
+              if (!g) return;
+              ticked[g] = (ticked[g] || []).filter(function (v) { return v !== e.target.value; });
+              if (e.target.checked) ticked[g].push(e.target.value);
+            });
+            function setChoices(id, values) {
+              ticked[id] = (values || []).slice();
+              document.querySelectorAll('[data-group="' + id + '"]').forEach(function (i) { i.checked = ticked[id].indexOf(i.value) >= 0; });
+            }
             let current = {};
             ['preferredResolution','maxResolution','minResolution'].forEach(function (id) {
               const select = document.getElementById(id);
@@ -275,6 +321,11 @@ object PhoneHubWebPage {
               BOOLEANS.forEach(function (id) { document.getElementById(id).checked = !!current[id]; });
               document.getElementById('preferredKeywords').value = (current.preferredKeywords || []).join('\n');
               document.getElementById('excludedKeywords').value = (current.excludedKeywords || []).join('\n');
+              document.getElementById('minSizeGb').value = current.minSizeGb == null ? '' : current.minSizeGb;
+              Object.keys(CHOICES).forEach(function (id) { setChoices(id, current[id]); });
+              document.getElementById('preferredReleaseGroups').value = (current.preferredReleaseGroups || []).join('\n');
+              document.getElementById('excludedReleaseGroups').value = (current.excludedReleaseGroups || []).join('\n');
+              NUMBERS.forEach(function (id) { document.getElementById(id).value = current[id] || 0; });
             });
             document.getElementById('save').addEventListener('click', function () {
               const rules = Object.assign({}, current);
@@ -284,11 +335,21 @@ object PhoneHubWebPage {
               BOOLEANS.forEach(function (id) { rules[id] = document.getElementById(id).checked; });
               rules.preferredKeywords = lines('preferredKeywords');
               rules.excludedKeywords = lines('excludedKeywords');
+              rules.minSizeGb = number('minSizeGb');
+              Object.keys(CHOICES).forEach(function (id) { rules[id] = ticked[id] || []; });
+              rules.preferredReleaseGroups = lines('preferredReleaseGroups');
+              rules.excludedReleaseGroups = lines('excludedReleaseGroups');
+              NUMBERS.forEach(function (id) { rules[id] = Math.max(0, parseInt(document.getElementById(id).value || '0', 10) || 0); });
               post('/api/ranking', { rules: rules }).then(function () { current = rules; show('status', 'Saved'); })
                 .catch(function (e) { show('status', e.message, true); });
             });
         """
     )
+
+    private fun <T : Enum<T>> enumOptionsJs(values: List<T>, label: (T) -> String): String =
+        values.joinToString(prefix = "[", postfix = "]") { value ->
+            "['${value.name}','${label(value).replace("'", "\\'")}']"
+        }
 
     private fun resolutionOptionsJs(): String =
         com.fetch.tv.core.streams.ranking.StreamResolution.entries.joinToString(prefix = "[", postfix = "]") { resolution ->

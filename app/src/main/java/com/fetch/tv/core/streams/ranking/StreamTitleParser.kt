@@ -33,9 +33,12 @@ object StreamTitleParser {
         val cached = parsed.isDebridCached ||
             stream.debridCacheStatus?.state == StreamDebridCacheState.CACHED ||
             stream.isDirectDebrid()
+        val structured = stream.clientResolve?.stream?.raw?.parsed
         return parsed.copy(
             sizeBytes = stream.behaviorHints?.videoSize?.takeIf { it > 0 } ?: parsed.sizeBytes,
-            isDebridCached = cached
+            isDebridCached = cached,
+            languages = parsed.languages + structured?.languages.orEmpty().mapNotNull(StreamLanguage::fromCode),
+            releaseGroup = parsed.releaseGroup ?: structured?.group?.takeIf { it.isNotBlank() }
         )
     }
 
@@ -58,7 +61,8 @@ object StreamTitleParser {
             bitDepth = parseBitDepth(text),
             isDebridCached = DEBRID_CACHED.containsMatchIn(text),
             seeders = SEEDERS.find(text)?.groupValues?.get(1)?.toIntOrNull(),
-            releaseGroup = parseReleaseGroup(rawText)
+            releaseGroup = parseReleaseGroup(rawText),
+            languages = parseLanguages(text)
         )
     }
 
@@ -236,6 +240,17 @@ object StreamTitleParser {
         DVD.containsMatchIn(text) -> ReleaseSource.DVD
         else -> ReleaseSource.UNKNOWN
     }
+
+    // ── Languages ─────────────────────────────────────────────────────────────
+
+    private val LANGUAGE_NAMES = StreamLanguage.entries.associateWith { language ->
+        token(language.names.joinToString("|") { name -> name.split(' ').joinToString("[ .\\-]?") { Regex.escape(it) } })
+    }
+
+    private fun parseLanguages(text: String): Set<StreamLanguage> =
+        StreamLanguage.entries.filterTo(linkedSetOf()) { language ->
+            language.flags.any { it in text } || LANGUAGE_NAMES.getValue(language).containsMatchIn(text)
+        }
 
     // ── Misc ──────────────────────────────────────────────────────────────────
 

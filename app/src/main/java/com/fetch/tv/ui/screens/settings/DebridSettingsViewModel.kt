@@ -24,11 +24,6 @@ import com.fetch.tv.data.remote.api.PremiumizeApi
 import com.fetch.tv.data.remote.api.TorboxApi
 import com.fetch.tv.domain.model.DEBRID_PREPARE_INSTANT_PLAYBACK_DEFAULT_LIMIT
 import com.fetch.tv.domain.model.DebridSettings
-import com.fetch.tv.domain.model.DebridStreamCodecFilter
-import com.fetch.tv.domain.model.DebridStreamFeatureFilter
-import com.fetch.tv.domain.model.DebridStreamMinimumQuality
-import com.fetch.tv.domain.model.DebridStreamPreferences
-import com.fetch.tv.domain.model.DebridStreamSortMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -107,22 +102,19 @@ class DebridSettingsViewModel @Inject constructor(
                 val state = _uiState.value
                 DebridFormatterSettings(
                     nameTemplate = state.streamNameTemplate,
-                    descriptionTemplate = state.streamDescriptionTemplate,
-                    streamPreferences = state.streamPreferences
+                    descriptionTemplate = state.streamDescriptionTemplate
                 )
             },
             onSettingsChanged = { settings ->
                 _uiState.update { it.copy(
                     streamNameTemplate = settings.nameTemplate,
-                    streamDescriptionTemplate = settings.descriptionTemplate,
-                    streamPreferences = settings.streamPreferences
+                    streamDescriptionTemplate = settings.descriptionTemplate
                 ) }
                 viewModelScope.launch {
                     dataStore.setStreamTemplates(
                         nameTemplate = settings.nameTemplate,
                         descriptionTemplate = settings.descriptionTemplate
                     )
-                    dataStore.setStreamPreferences(settings.streamPreferences)
                 }
             },
             context = context,
@@ -170,34 +162,6 @@ class DebridSettingsViewModel @Inject constructor(
 
     fun setInstantPlaybackPreparationLimit(limit: Int) {
         update { dataStore.setInstantPlaybackPreparationLimit(limit) }
-    }
-
-    fun setStreamMaxResults(maxResults: Int) {
-        update { dataStore.setStreamMaxResults(maxResults) }
-    }
-
-    fun setStreamSortMode(mode: DebridStreamSortMode) {
-        update { dataStore.setStreamSortMode(mode) }
-    }
-
-    fun setStreamMinimumQuality(quality: DebridStreamMinimumQuality) {
-        update { dataStore.setStreamMinimumQuality(quality) }
-    }
-
-    fun setStreamDolbyVisionFilter(filter: DebridStreamFeatureFilter) {
-        update { dataStore.setStreamDolbyVisionFilter(filter) }
-    }
-
-    fun setStreamHdrFilter(filter: DebridStreamFeatureFilter) {
-        update { dataStore.setStreamHdrFilter(filter) }
-    }
-
-    fun setStreamCodecFilter(filter: DebridStreamCodecFilter) {
-        update { dataStore.setStreamCodecFilter(filter) }
-    }
-
-    fun setStreamPreferences(preferences: DebridStreamPreferences) {
-        update { dataStore.setStreamPreferences(preferences) }
     }
 
     fun saveProviderCredential(providerId: String, value: String) {
@@ -369,13 +333,6 @@ data class DebridSettingsUiState(
     val realDebridApiKey: String = "",
     val preferredResolverProviderId: String = "",
     val instantPlaybackPreparationLimit: Int = 0,
-    val streamMaxResults: Int = 0,
-    val streamSortMode: DebridStreamSortMode = DebridStreamSortMode.DEFAULT,
-    val streamMinimumQuality: DebridStreamMinimumQuality = DebridStreamMinimumQuality.ANY,
-    val streamDolbyVisionFilter: DebridStreamFeatureFilter = DebridStreamFeatureFilter.ANY,
-    val streamHdrFilter: DebridStreamFeatureFilter = DebridStreamFeatureFilter.ANY,
-    val streamCodecFilter: DebridStreamCodecFilter = DebridStreamCodecFilter.ANY,
-    val streamPreferences: DebridStreamPreferences = DebridStreamPreferences(),
     val streamNameTemplate: String = "",
     val streamDescriptionTemplate: String = "",
     val isFormatterQrModeActive: Boolean = false,
@@ -435,13 +392,6 @@ data class DebridSettingsUiState(
         realDebridApiKey = settings.realDebridApiKey,
         preferredResolverProviderId = settings.preferredResolverProviderId,
         instantPlaybackPreparationLimit = settings.instantPlaybackPreparationLimit,
-        streamMaxResults = settings.streamMaxResults,
-        streamSortMode = settings.streamSortMode,
-        streamMinimumQuality = settings.streamMinimumQuality,
-        streamDolbyVisionFilter = settings.streamDolbyVisionFilter,
-        streamHdrFilter = settings.streamHdrFilter,
-        streamCodecFilter = settings.streamCodecFilter,
-        streamPreferences = settings.streamPreferences,
         streamNameTemplate = settings.streamNameTemplate,
         streamDescriptionTemplate = settings.streamDescriptionTemplate
     )

@@ -152,9 +152,11 @@ object StreamAutoPlaySelector {
 
         if (mode == StreamAutoPlayMode.MANUAL) return null
 
+        // Stream rules hold in every mode: First stream and Regex pick among what they allow.
+        val allowedStreams by lazy { StreamRanker.eligible(candidateStreams, rankingRules, device, ::isPlayable) }
         return when (mode) {
             StreamAutoPlayMode.MANUAL -> null
-            StreamAutoPlayMode.FIRST_STREAM -> candidateStreams.firstOrNull { isPlayable(it) }
+            StreamAutoPlayMode.FIRST_STREAM -> allowedStreams.firstOrNull()
             StreamAutoPlayMode.BEST_MATCH ->
                 StreamRanker.best(candidateStreams, rankingRules, device, ::isPlayable)?.stream
             StreamAutoPlayMode.REGEX_MATCH -> {
@@ -178,7 +180,7 @@ object StreamAutoPlaySelector {
                 } else null
 
                 // 1. Build list of ALL regex‑matching streams
-                val matchingStreams = candidateStreams.filter { stream ->
+                val matchingStreams = allowedStreams.filter { stream ->
                     if (!isPlayable(stream)) return@filter false
 
                     val searchableText = buildString {

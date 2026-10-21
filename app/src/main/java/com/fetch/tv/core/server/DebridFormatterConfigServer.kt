@@ -4,7 +4,6 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.fetch.tv.core.debrid.DebridStreamFormatterDefaults
-import com.fetch.tv.domain.model.DebridStreamPreferences
 import fi.iki.elonen.NanoHTTPD
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
@@ -61,18 +60,15 @@ class DebridFormatterConfigServer(
         val settings = currentSettingsProvider()
         val defaults = DebridFormatterSettings(
             nameTemplate = DebridStreamFormatterDefaults.NAME_TEMPLATE,
-            descriptionTemplate = DebridStreamFormatterDefaults.DESCRIPTION_TEMPLATE,
-            streamPreferences = DebridStreamPreferences()
+            descriptionTemplate = DebridStreamFormatterDefaults.DESCRIPTION_TEMPLATE
         )
         val settingsMap = mapOf(
             "nameTemplate" to settings.nameTemplate,
-            "descriptionTemplate" to settings.descriptionTemplate,
-            "streamPreferences" to settings.streamPreferences
+            "descriptionTemplate" to settings.descriptionTemplate
         )
         val defaultsMap = mapOf(
             "nameTemplate" to defaults.nameTemplate,
-            "descriptionTemplate" to defaults.descriptionTemplate,
-            "streamPreferences" to defaults.streamPreferences
+            "descriptionTemplate" to defaults.descriptionTemplate
         )
         val settingsJson = gson.toJson(settingsMap)
         val defaultsJson = gson.toJson(defaultsMap)
@@ -87,10 +83,6 @@ class DebridFormatterConfigServer(
         }.getOrNull()
         val nameTemplate = parsed?.get("nameTemplate") as? String
         val descriptionTemplate = parsed?.get("descriptionTemplate") as? String
-        val currentSettings = currentSettingsProvider()
-        val streamPreferences = runCatching {
-            gson.fromJson(gson.toJson(parsed?.get("streamPreferences")), DebridStreamPreferences::class.java)
-        }.getOrNull() ?: currentSettings.streamPreferences
         if (nameTemplate == null || descriptionTemplate == null) {
             return errorResponse(context?.getString(com.fetch.tv.R.string.web_debrid_error_templates_required) ?: "Both templates are required")
         }
@@ -98,8 +90,7 @@ class DebridFormatterConfigServer(
         onSettingsChanged(
             DebridFormatterSettings(
                 nameTemplate = nameTemplate,
-                descriptionTemplate = descriptionTemplate,
-                streamPreferences = streamPreferences
+                descriptionTemplate = descriptionTemplate
             )
         )
         return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", gson.toJson(mapOf("status" to "saved")))
@@ -156,6 +147,5 @@ class DebridFormatterConfigServer(
 
 data class DebridFormatterSettings(
     val nameTemplate: String,
-    val descriptionTemplate: String,
-    val streamPreferences: DebridStreamPreferences = DebridStreamPreferences()
+    val descriptionTemplate: String
 )

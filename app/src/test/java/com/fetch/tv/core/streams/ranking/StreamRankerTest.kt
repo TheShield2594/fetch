@@ -183,6 +183,13 @@ class StreamRankerTest {
     }
 
     @Test
+    fun `a dts only receiver still plays the dts core of dts-hd`() {
+        val caps = dvTv.copy(passthroughAudio = setOf(AudioFormat.DTS), softwareAudio = emptySet())
+        val ranked = StreamRanker.rank(listOf(stream("2160p REMUX HEVC DTS-HD MA 7.1")), StreamRankingRules(), caps)
+        assertTrue(ranked.single().isEligible)
+    }
+
+    @Test
     fun `a release with a compatible track besides truehd stays eligible`() {
         val caps = dvTv.copy(passthroughAudio = emptySet(), softwareAudio = emptySet())
         val ranked = StreamRanker.rank(listOf(stream("1080p BluRay TrueHD 7.1 AC3 5.1")), StreamRankingRules(), caps)

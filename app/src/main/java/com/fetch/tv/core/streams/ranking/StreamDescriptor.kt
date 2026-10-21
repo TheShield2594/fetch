@@ -40,7 +40,10 @@ enum class AudioFormat(val label: String, val isLossless: Boolean, val isPassthr
     FLAC("FLAC", isLossless = true, isPassthroughOnly = false),
     OPUS("Opus", isLossless = false, isPassthroughOnly = false),
     AAC("AAC", isLossless = false, isPassthroughOnly = false),
-    MP3("MP3", isLossless = false, isPassthroughOnly = false)
+    MP3("MP3", isLossless = false, isPassthroughOnly = false);
+
+    val hasDtsCore: Boolean
+        get() = this == DTS_HD_MA || this == DTS_X
 }
 
 enum class ReleaseSource(val label: String, val qualityRank: Int) {

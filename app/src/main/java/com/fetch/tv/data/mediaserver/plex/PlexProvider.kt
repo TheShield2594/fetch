@@ -375,32 +375,44 @@ internal class PlexProvider(
             else -> "playing"
         }
         val sessionId = playback.playSessionId
-        client.execute(
-            method = "GET",
-            baseUrl = session.connection.address,
-            path = "/:/timeline",
-            token = session.token,
-            query = mapOf(
-                "ratingKey" to itemId,
-                "key" to "/library/metadata/$itemId",
-                "identifier" to LIBRARY_IDENTIFIER,
-                "state" to state,
-                "time" to event.positionMs.coerceAtLeast(0L).toString(),
-                "duration" to sessionId?.let(playbackDurations::get)?.toString(),
-                "X-Plex-Session-Identifier" to sessionId
-            )
-        )
-        if (event.type == ServerPlaybackEventType.STOP && sessionId != null) {
-            playbackDurations.remove(sessionId)
-            if (playback.playMethod != ServerPlayMethod.DIRECT_PLAY) {
-                client.execute(
-                    method = "GET",
-                    baseUrl = session.connection.address,
-                    path = "/video/:/transcode/universal/stop",
-                    token = session.token,
-                    query = mapOf("session" to sessionId)
+        try {
+            client.execute(
+                method = "GET",
+                baseUrl = session.connection.address,
+                path = "/:/timeline",
+                token = session.token,
+                query = mapOf(
+                    "ratingKey" to itemId,
+                    "key" to "/library/metadata/$itemId",
+                    "identifier" to LIBRARY_IDENTIFIER,
+                    "state" to state,
+                    "time" to event.positionMs.coerceAtLeast(0L).toString(),
+                    "duration" to sessionId?.let(playbackDurations::get)?.toString(),
+                    "X-Plex-Session-Identifier" to sessionId
                 )
+            )
+        } finally {
+            // A failed last report still ends the session, so the server's transcoder is freed.
+            if (event.type == ServerPlaybackEventType.STOP && sessionId != null) {
+                playbackDurations.remove(sessionId)
+                if (playback.playMethod != ServerPlayMethod.DIRECT_PLAY) stopTranscode(session, sessionId)
             }
+        }
+    }
+
+    private suspend fun stopTranscode(session: ServerSession, sessionId: String) {
+        try {
+            client.execute(
+                method = "GET",
+                baseUrl = session.connection.address,
+                path = "/video/:/transcode/universal/stop",
+                token = session.token,
+                query = mapOf("session" to sessionId)
+            )
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: ServerException) {
+            // The server ends an idle transcode on its own.
         }
     }
 

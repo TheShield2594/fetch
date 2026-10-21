@@ -16,6 +16,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -107,7 +108,9 @@ class MediaServersViewModel @Inject constructor(
                     else -> mutableLink.value = ServerLinkState(servers = servers)
                 }
             } catch (error: CancellationException) {
-                throw error
+                // The repository also cancels a connect when the profile or its servers change.
+                if (!isActive) throw error
+                mutableLink.value = ServerLinkState(error = ServerFailure.FAILED)
             } catch (error: Exception) {
                 val failure = error.serverFailure()
                 mutableLink.value = if (failure == ServerFailure.AUTH_REQUIRED) {
@@ -127,7 +130,8 @@ class MediaServersViewModel @Inject constructor(
             try {
                 connectLinked(provider, signIn, onConnected)
             } catch (error: CancellationException) {
-                throw error
+                if (!isActive) throw error
+                mutableLink.value = mutableLink.value.copy(connectingTo = null, error = ServerFailure.FAILED)
             } catch (error: Exception) {
                 mutableLink.value = mutableLink.value.copy(connectingTo = null, error = error.serverFailure())
             }

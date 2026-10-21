@@ -3,6 +3,8 @@ package com.fetch.tv.ui.screens.stream
 import kotlinx.coroutines.withTimeoutOrNull
 import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.StreamRanker
+import com.fetch.tv.core.streams.ranking.RankedStreamList
+import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.streams.playButtonLabels
 import com.fetch.tv.core.streams.supportsStreamResource
@@ -252,12 +254,8 @@ class StreamScreenViewModel @Inject constructor(
                             )
                         }
                         val updatedAllStreams = updatedAddonStreams.flatMap { it.streams }
-                        val currentFilter = state.selectedAddonFilter
-                        val fullFiltered = if (currentFilter == null) {
-                            updatedAllStreams
-                        } else {
-                            updatedAllStreams.filter { it.addonName == currentFilter }
-                        }
+                        val tab = streamTab(updatedAllStreams, state.selectedAddonFilter)
+                        val fullFiltered = tab.streams
                         streamFilterFullList = fullFiltered
                         val pageEnd = state.filteredStreams.size
                             .coerceAtLeast(STREAM_FILTER_PAGE_SIZE.coerceAtMost(fullFiltered.size))
@@ -266,7 +264,8 @@ class StreamScreenViewModel @Inject constructor(
                             addonStreams = updatedAddonStreams,
                             allStreams = updatedAllStreams,
                             filteredStreams = if (pageEnd >= fullFiltered.size) fullFiltered
-                                else fullFiltered.subList(0, pageEnd)
+                                else fullFiltered.subList(0, pageEnd),
+                            streamExclusions = tab.exclusions
                         )
                     }
                 }
@@ -736,23 +735,10 @@ class StreamScreenViewModel @Inject constructor(
                     resolvedAutoPlayTarget = true
                 }
 
-                val currentFilter = _uiState.value.selectedAddonFilter
-                // In "Best match" mode the combined list is shown best first, with streams the
-                // rules or the device rule out kept at the bottom as "other sources", each saying why.
-                val ranked = if (playerSettings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH) {
-                    StreamRanker.rankedList(
-                        streams = allStreams,
-                        rules = playerSettings.streamRankingRules,
-                        device = DeviceDecodeCapabilities.current
-                    )
-                } else {
-                    null
-                }
-                val fullFiltered = if (currentFilter == null) {
-                    ranked?.streams ?: allStreams
-                } else {
-                    allStreams.filter { it.addonName == currentFilter }
-                }
+                bestMatchRules = playerSettings.streamRankingRules
+                    .takeIf { playerSettings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH }
+                val tab = streamTab(allStreams, _uiState.value.selectedAddonFilter)
+                val fullFiltered = tab.streams
                 streamFilterFullList = fullFiltered
                 val currentPageSize = _uiState.value.filteredStreams.size
                 val isFirstLoad = currentPageSize == 0
@@ -768,7 +754,7 @@ class StreamScreenViewModel @Inject constructor(
                         addonStreams = mergedAddonStreams,
                         allStreams = allStreams,
                         filteredStreams = paginatedStreams,
-                        streamExclusions = ranked?.exclusions.orEmpty(),
+                        streamExclusions = tab.exclusions,
                         availableAddons = availableAddons,
                         sourceChips = mergeSourceChipStatuses(
                             existing = _uiState.value.sourceChips,
@@ -872,12 +858,8 @@ class StreamScreenViewModel @Inject constructor(
                                 val updatedAllStreams = updatedGroups.flatMap { addonStreams ->
                                     addonStreams.streams
                                 }
-                                val currentFilter = state.selectedAddonFilter
-                                val fullFiltered = if (currentFilter == null) {
-                                    updatedAllStreams
-                                } else {
-                                    updatedAllStreams.filter { it.addonName == currentFilter }
-                                }
+                                val tab = streamTab(updatedAllStreams, state.selectedAddonFilter)
+                                val fullFiltered = tab.streams
                                 streamFilterFullList = fullFiltered
                                 val pageEnd = state.filteredStreams.size
                                     .coerceAtLeast(STREAM_FILTER_PAGE_SIZE.coerceAtMost(fullFiltered.size))
@@ -886,7 +868,8 @@ class StreamScreenViewModel @Inject constructor(
                                     addonStreams = updatedGroups,
                                     allStreams = updatedAllStreams,
                                     filteredStreams = if (pageEnd >= fullFiltered.size) fullFiltered
-                                        else fullFiltered.subList(0, pageEnd)
+                                        else fullFiltered.subList(0, pageEnd),
+                                    streamExclusions = tab.exclusions
                                 )
                             }
                         }
@@ -1375,17 +1358,18 @@ class StreamScreenViewModel @Inject constructor(
         return parseRuntimeMinutes(meta.runtime)
     }
 
+    /** The ranking rules while auto-play is in Best match mode, null otherwise. */
+    @Volatile
+    private var bestMatchRules: StreamRankingRules? = null
+
     private fun filterByAddon(addonName: String?) {
         streamFilterExpandJob?.cancel()
         updateUiStateIfChanged { state ->
             if (state.selectedAddonFilter == addonName) {
                 return@updateUiStateIfChanged state
             }
-            val fullFiltered = if (addonName == null) {
-                state.allStreams
-            } else {
-                state.allStreams.filter { it.addonName == addonName }
-            }
+            val tab = streamTab(state.allStreams, addonName)
+            val fullFiltered = tab.streams
             streamFilterFullList = fullFiltered
             val paginatedStreams = if (fullFiltered.size > STREAM_FILTER_PAGE_SIZE) {
                 fullFiltered.subList(0, STREAM_FILTER_PAGE_SIZE)
@@ -1394,9 +1378,23 @@ class StreamScreenViewModel @Inject constructor(
             }
             state.copy(
                 selectedAddonFilter = addonName,
-                filteredStreams = paginatedStreams
+                filteredStreams = paginatedStreams,
+                streamExclusions = tab.exclusions
             )
         }
+    }
+
+    /**
+     * A tab of the source list. Under Best match "All" is best first, with streams the rules or
+     * the device rule out kept at the bottom as "other sources", and every tab says why Best
+     * match passed over a stream; addon tabs keep the addon's own order.
+     */
+    private fun streamTab(streams: List<Stream>, addonName: String?): RankedStreamList {
+        val ranked = bestMatchRules?.let { rules ->
+            StreamRanker.rankedList(streams, rules, DeviceDecodeCapabilities.current)
+        }
+        val tab = if (addonName == null) ranked?.streams ?: streams else streams.filter { it.addonName == addonName }
+        return RankedStreamList(tab, ranked?.exclusions.orEmpty())
     }
 
     fun expandFilteredStreamsIfNeeded() {

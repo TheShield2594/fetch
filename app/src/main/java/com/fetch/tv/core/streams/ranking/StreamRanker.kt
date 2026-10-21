@@ -23,9 +23,15 @@ data class DeviceDecodeCapabilities(
     fun canDecode(codec: VideoCodec): Boolean =
         codec == VideoCodec.UNKNOWN || codec in decodableCodecs
 
-    /** Lossless formats like TrueHD and DTS-HD need passthrough or a software decoder. */
+    /**
+     * Lossless formats like TrueHD and DTS-HD need passthrough or a software decoder. DTS-HD
+     * and DTS:X carry a DTS core, which a receiver that only takes DTS still plays.
+     */
     fun canPlay(audio: AudioFormat): Boolean =
-        !audio.isPassthroughOnly || audio in passthroughAudio || audio in softwareAudio
+        !audio.isPassthroughOnly ||
+            audio in passthroughAudio ||
+            audio in softwareAudio ||
+            (audio.hasDtsCore && AudioFormat.DTS in passthroughAudio)
 
     companion object {
         /**

@@ -52,8 +52,8 @@ class ServerUserStateProjection @Inject constructor(
     }
 
     /**
-     * Loads the titles in progress on a server, so they reach Continue Watching without being
-     * opened in Fetch first. Loading the details hands their progress to [apply].
+     * Loads the titles in progress on a server and applies their progress, so they reach
+     * Continue Watching without being opened in Fetch first.
      */
     internal suspend fun importResume(connectionId: String) {
         val titles = try {
@@ -68,7 +68,9 @@ class ServerUserStateProjection @Inject constructor(
         }
         titles.mapNotNull { ServerItemRef.parse(it.preview.id) }.distinct().forEach { ref ->
             try {
-                catalog.details(ref)
+                // Applied here rather than through catalog.detailsLoaded, whose buffer is smaller
+                // than a full import and drops what doesn't fit.
+                apply(repository.call(ref.connectionId) { provider, session -> provider.details(session, ref.itemId) })
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {

@@ -83,6 +83,8 @@ internal fun PlayerRuntimeController.releasePlayer(
         runCatching { player.release() }
     }
     _exoPlayer = null
+    holdExoTracksAcrossStop = false
+    exoStoppedForLifecycle = false
     _loadControl = null
     currentBitrateAwareLoadControl = null
     currentParallelChunkOverheadMb = 0

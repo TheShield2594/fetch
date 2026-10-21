@@ -1262,15 +1262,15 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             showControlsTemporarily()
         }
         PlayerEvent.OnSeekForward -> {
-            if (_playbackTimeline.value.isLive) return
+            if (isLiveSeekBlocked()) return
             onEvent(PlayerEvent.OnSeekBy(deltaMs = PlayerScrubRates.STEP_SHORT_MS))
         }
         PlayerEvent.OnSeekBackward -> {
-            if (_playbackTimeline.value.isLive) return
+            if (isLiveSeekBlocked()) return
             onEvent(PlayerEvent.OnSeekBy(deltaMs = -PlayerScrubRates.STEP_SHORT_MS))
         }
         is PlayerEvent.OnSeekBy -> {
-            if (_playbackTimeline.value.isLive) return
+            if (isLiveSeekBlocked()) return
             pendingPreviewSeekPosition = null
             val current = currentPlaybackPositionMs() ?: 0L
             val maxDuration = currentPlaybackDurationMs().takeIf { it >= 0 } ?: Long.MAX_VALUE
@@ -1294,7 +1294,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
         }
         is PlayerEvent.OnPreviewSeekBy -> {
-            if (_playbackTimeline.value.isLive) return
+            if (isLiveSeekBlocked()) return
             val maxDuration = currentPlaybackDurationMs().takeIf { it >= 0 } ?: Long.MAX_VALUE
             val basePosition = pendingPreviewSeekPosition ?: currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
             val target = (basePosition + event.deltaMs)
@@ -1309,7 +1309,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
         }
         PlayerEvent.OnCommitPreviewSeek -> {
-            if (_playbackTimeline.value.isLive) return
+            if (isLiveSeekBlocked()) return
             val requested = pendingPreviewSeekPosition
             if (requested != null) {
                 val target = if (isPartyControlLocked) ownSeekTarget(requested) else requested
@@ -1331,7 +1331,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
         }
         is PlayerEvent.OnSeekTo -> {
-            if (_playbackTimeline.value.isLive) return
+            if (isLiveSeekBlocked()) return
             pendingPreviewSeekPosition = null
             val target = if (isPartyControlLocked) ownSeekTarget(event.position) ?: return else event.position
             seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
@@ -1477,10 +1477,21 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 setPlaybackSpeedInternal(event.speed)
             } else {
                 _exoPlayer?.let { player ->
+                    val sink = playbackSpeedAwareAudioSink
+                    val restartAudioPath = sink != null && PlaybackSpeedAudioPathPolicy.needsRestart(
+                        oldSpeed = player.playbackParameters.speed,
+                        newSpeed = event.speed,
+                        encodedOutputActive = sink.isEncodedOutputActive(),
+                        canRestorePassthrough = sink.canRestorePassthroughAtNormalSpeed(player.audioFormat)
+                    )
                     player.setPlaybackSpeed(event.speed)
-                    player.trackSelectionParameters = player.trackSelectionParameters
-                        .buildUpon()
-                        .build()
+                    if (restartAudioPath && player.playbackState != Player.STATE_IDLE) {
+                        // Re-enable the renderers so the audio path is picked again for the new
+                        // speed: decode to PCM away from 1x, passthrough again at 1x.
+                        holdExoTracksAcrossStop = true
+                        player.stop()
+                        player.prepare()
+                    }
                 }
             }
             _uiState.update {

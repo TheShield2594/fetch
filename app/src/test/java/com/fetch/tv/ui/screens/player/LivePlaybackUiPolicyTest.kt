@@ -104,4 +104,19 @@ class LivePlaybackUiPolicyTest {
             clock.watchedDurationMs(isLive = false, isPlaying = true, nowElapsedMs = 10_000L)
         )
     }
+
+    @Test
+    fun `live stream with a seekable window can rewind`() {
+        assertEquals(false, LivePlaybackUiPolicy.blocksSeeking(isLive = true, playerSeekable = true))
+    }
+
+    @Test
+    fun `live stream without a seekable window blocks seeking`() {
+        assertEquals(true, LivePlaybackUiPolicy.blocksSeeking(isLive = true, playerSeekable = false))
+    }
+
+    @Test
+    fun `vod never blocks seeking`() {
+        assertEquals(false, LivePlaybackUiPolicy.blocksSeeking(isLive = false, playerSeekable = false))
+    }
 }

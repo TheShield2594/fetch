@@ -3,6 +3,7 @@ package com.fetch.tv.core.player
 import androidx.media3.common.C
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.LoadControl
 import androidx.media3.exoplayer.analytics.PlayerId
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection
 import androidx.media3.exoplayer.upstream.Allocator
@@ -28,7 +29,13 @@ class BitrateAwareLoadControl(
     retainBackBufferFromKeyframe: Boolean,
     /** Memory ceiling in bytes. */
     private val budgetBytes: Long,
-    allocator: DefaultAllocator = DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE, 64)
+    private val allocator: DefaultAllocator = DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE, 64),
+    /**
+     * Bytes the allocator may never exceed. [prioritizeTimeOverSizeThresholds] keeps loading past
+     * [budgetBytes] until the minimum buffer duration is met, which at remux bitrates can be
+     * hundreds of MB more; the allocator lives on the Java heap, so that overshoot is bounded here.
+     */
+    private val hardCeilingBytes: Long = Long.MAX_VALUE
 ) : DefaultLoadControl(
     allocator,
     minBufferMs,
@@ -59,6 +66,24 @@ class BitrateAwareLoadControl(
     /** Set the byte budget at runtime; negative restores the constructed budget. */
     fun setBudgetBytesOverride(bytes: Long) {
         budgetBytesOverride = if (bytes < 0L) -1L else bytes
+    }
+
+    private fun effectiveCeilingBytes(): Long {
+        val override = budgetBytesOverride
+        return if (override >= 0L) override else hardCeilingBytes
+    }
+
+    private fun isAtHardCeiling(): Boolean =
+        allocator.totalBytesAllocated.toLong() >= effectiveCeilingBytes()
+
+    override fun shouldContinueLoading(parameters: LoadControl.Parameters): Boolean {
+        val loading = super.shouldContinueLoading(parameters)
+        return loading && !isAtHardCeiling()
+    }
+
+    // Loading stops at the ceiling, so playback must be allowed to start there too.
+    override fun shouldStartPlayback(parameters: LoadControl.Parameters): Boolean {
+        return super.shouldStartPlayback(parameters) || isAtHardCeiling()
     }
 
     override fun getBackBufferDurationUs(playerId: PlayerId): Long {

@@ -257,6 +257,34 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
     }
 }
 
+/**
+ * The app is no longer visible. A paused ExoPlayer still holds its video and audio codecs, and
+ * some TVs (Sony BRAVIA) reclaim a held decoder from the background app in a way that leaves
+ * video broken in the foreground app. stop() releases the codecs but keeps the media item and
+ * position, so [startForLifecycle] can prepare it again, paused, where it was.
+ */
+internal fun PlayerRuntimeController.stopForLifecycle() {
+    if (isUsingMpvEngine()) return
+    val player = _exoPlayer ?: return
+    if (player.playbackState == androidx.media3.common.Player.STATE_IDLE) return
+    exoStoppedForLifecycle = true
+    holdExoTracksAcrossStop = true
+    player.playWhenReady = false
+    player.stop()
+}
+
+internal fun PlayerRuntimeController.startForLifecycle() {
+    if (!exoStoppedForLifecycle) return
+    exoStoppedForLifecycle = false
+    // resumeForLifecycle rebuilds the player for this case.
+    if (pendingBackgroundCrashRecovery) return
+    val player = _exoPlayer ?: return
+    if (isUsingMpvEngine()) return
+    if (player.playbackState == androidx.media3.common.Player.STATE_IDLE) {
+        player.prepare()
+    }
+}
+
 internal fun PlayerRuntimeController.resumeForLifecycle() {
     isInBackground = false
 
@@ -564,6 +592,26 @@ internal fun PlayerRuntimeController.currentPlaybackDurationMs(): Long {
     } else {
         _exoPlayer?.duration ?: 0L
     }
+}
+
+internal fun PlayerRuntimeController.isCurrentPlaybackSeekable(): Boolean {
+    return if (isUsingMpvEngine()) {
+        mpvView?.isSeekableNow() == true
+    } else {
+        val player = _exoPlayer ?: return false
+        // A live window can be seekable while its duration is still unknown.
+        player.isCurrentMediaItemSeekable &&
+            (player.isCurrentMediaItemLive || player.duration > 0L)
+    }
+}
+
+/** Seeking is blocked only for a live stream without a seekable window. */
+internal fun PlayerRuntimeController.isLiveSeekBlocked(): Boolean {
+    if (!_playbackTimeline.value.isLive) return false
+    return LivePlaybackUiPolicy.blocksSeeking(
+        isLive = true,
+        playerSeekable = isCurrentPlaybackSeekable()
+    )
 }
 
 internal fun PlayerRuntimeController.isPlaybackCurrentlyPlaying(): Boolean {

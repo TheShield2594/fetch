@@ -145,6 +145,7 @@ private fun PlayerRuntimeController.disposeExoPlayerBeforeRebuild() {
         runCatching { player.release() }
     }
     _exoPlayer = null
+    holdExoTracksAcrossStop = false
     playbackSpeedAwareAudioSink = null
 }
 
@@ -522,6 +523,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                         .coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
                 }
                 val budgetBytes = budgetMbEffective.toLong() * 1024L * 1024L
+                // The allocator is on the Java heap: time-priority loading may go past a small
+                // target, but never past the heap budget (or the target, if that is larger).
+                val heapBudgetBytes = (MemoryBudget.budgetMb - parallelOverheadMb)
+                    .coerceAtLeast(MemoryBudget.MIN_BUFFER_MB).toLong() * 1024L * 1024L
+                val hardCeilingBytes = maxOf(budgetBytes, heapBudgetBytes)
                 // Build with the user's back buffer so seek-back works immediately, except on a heap
                 // bound device, where the load control would hold it for the whole session.
                 configuredBackBufferMs = bufferSettings.backBufferDurationMs
@@ -562,7 +568,8 @@ internal fun PlayerRuntimeController.initializePlayer(
                     backBufferDurationMs = backBufferMsAtBuild,
                     retainBackBufferFromKeyframe = true,
                     budgetBytes = budgetBytes,
-                    allocator = allocator
+                    allocator = allocator,
+                    hardCeilingBytes = hardCeilingBytes
                 ).also { currentBitrateAwareLoadControl = it }
             } else {
                 // Stock LoadControl: DefaultLoadControl configured with 1.5s back buffer so 1s rewind doesn't clear buffer.
@@ -1363,14 +1370,21 @@ internal fun PlayerRuntimeController.initializePlayer(
                             emitScrobbleStart()
                         } else {
                             if (userPausedManually) schedulePauseOverlay() else cancelPauseOverlay()
-                            if (playbackState == Player.STATE_ENDED || playbackState == Player.STATE_IDLE) {
+                            // A deliberate stop() + prepare() on the same item is a rebuffer, not the end.
+                            val effectivePlaybackState =
+                                if (holdExoTracksAcrossStop && playbackState == Player.STATE_IDLE) {
+                                    Player.STATE_BUFFERING
+                                } else {
+                                    playbackState
+                                }
+                            if (effectivePlaybackState == Player.STATE_ENDED || effectivePlaybackState == Player.STATE_IDLE) {
                                 stopProgressUpdates()
                             }
                             stopWatchProgressSaving()
-                            if (playbackState == Player.STATE_BUFFERING) {
+                            if (effectivePlaybackState == Player.STATE_BUFFERING) {
                                 saveWatchProgressIfNeeded()
                             } else {
-                                when (trackingActionForNonPlayingState(playbackState)) {
+                                when (trackingActionForNonPlayingState(effectivePlaybackState)) {
                                     TrackingScrobbleAction.PAUSE -> emitPauseScrobbleForCurrentProgress()
                                     TrackingScrobbleAction.STOP -> emitStopScrobbleForCurrentProgress()
                                     TrackingScrobbleAction.START, null -> Unit
@@ -1382,6 +1396,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                     }
 
                     override fun onTracksChanged(tracks: Tracks) {
+                        // stop() empties the tracks until prepare() brings them back; keep the known ones.
+                        if (holdExoTracksAcrossStop) {
+                            if (tracks.isEmpty) return
+                            holdExoTracksAcrossStop = false
+                        }
                         updateAvailableTracks(tracks)
                     }
 
@@ -1428,6 +1447,8 @@ internal fun PlayerRuntimeController.initializePlayer(
 
                     override fun onPlayerError(error: PlaybackException) {
                         if (isReleasingPlayer && error.errorCode == PlaybackException.ERROR_CODE_TIMEOUT) return
+                        // A failed prepare() after a deliberate stop() is a real error, not a rebuffer.
+                        holdExoTracksAcrossStop = false
                         cancelFirstFrameWatchdog()
                         val detailedError = error.toDisplayMessage(context)
                         cancelStableProgressReset()

@@ -82,6 +82,24 @@ class PlaybackAvailabilityTest {
         assertFalse(available.canStream("other", video.id, "uncached-parent"))
     }
 
+    @Test
+    fun `continue watching keeps embedded streams playable when parent metadata is not cached`() {
+        val metaAddon = addon().copy(resources = listOf(AddonResource("meta", listOf("other"), null)))
+        val available = PlaybackAvailability(addons = listOf(metaAddon))
+        assertTrue(available.canStream("other", "embedded-video", "uncached-parent"))
+        assertFalse(available.copy(addons = listOf(metaAddon.copy(enabled = false)))
+            .canStream("other", "embedded-video", "uncached-parent"))
+        assertFalse(available.canStream("movie", "embedded-video", "uncached-parent"))
+    }
+
+    @Test
+    fun `a metadata addon alone does not make plain imdb titles playable`() {
+        val metaAddon = addon().copy(resources = listOf(AddonResource("meta", listOf("movie", "series"), null)))
+        val available = PlaybackAvailability(addons = listOf(metaAddon))
+        assertFalse(available.canStream("movie", "tt123", "tt123"))
+        assertFalse(available.canStream("series", "tt123:1:2", "tt123"))
+    }
+
     private fun addon() = Addon(
         id = "addon", name = "Addon", version = "1", description = null, logo = null,
         baseUrl = "https://example.com", catalogs = emptyList(), types = emptyList(),

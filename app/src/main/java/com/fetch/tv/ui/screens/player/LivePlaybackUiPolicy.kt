@@ -17,6 +17,14 @@ object LivePlaybackUiPolicy {
         return previouslyLatched || playerReportsLive
     }
 
+    /**
+     * Live streams with a DVR window (HLS/DASH timeshift, many M3U and sports feeds) can seek
+     * within that window, so only a live stream the player reports as unseekable blocks seeking.
+     */
+    fun blocksSeeking(isLive: Boolean, playerSeekable: Boolean): Boolean {
+        return isLive && !playerSeekable
+    }
+
     fun isLivePlayback(
         playerReportsLive: Boolean,
         contentType: String?,

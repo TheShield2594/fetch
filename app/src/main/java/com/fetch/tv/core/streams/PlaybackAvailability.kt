@@ -35,5 +35,16 @@ internal data class PlaybackAvailability(
         cachedMeta(type, contentId)?.videos?.any { it.id == videoId && it.streams.isNotEmpty() } == true ||
         addons.any { it.enabled && it.supportsStreamResource(type, videoId) } ||
         scrapers.any { it.enabled && it.supportsType(type) } ||
-        serverStreams(type, videoId)
+        serverStreams(type, videoId) ||
+        canFetchEmbeddedStreams(type, videoId, contentId)
+
+    // The stream screen also looks for streams inside the parent's metadata (see
+    // StreamScreenViewModel.shouldAttemptEmbeddedMetaStreamLookup). That metadata is not cached
+    // after a restart, e.g. for a Continue Watching item, so trust an add-on that serves it.
+    private fun canFetchEmbeddedStreams(type: String, videoId: String, contentId: String): Boolean {
+        if (type.isBlank() || contentId.isBlank()) return false
+        val lookupApplies = type.equals("other", ignoreCase = true) ||
+            !contentId.equals(videoId.substringBefore(":"), ignoreCase = true)
+        return lookupApplies && addons.any { it.enabled && it.supportsResource("meta", type, contentId) }
+    }
 }

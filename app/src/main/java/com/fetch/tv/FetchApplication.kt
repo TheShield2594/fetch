@@ -31,7 +31,6 @@ import com.fetch.tv.core.network.NoDelaySocketFactory
 import com.fetch.tv.data.local.ImagePerformancePreferences
 import com.fetch.tv.core.streams.ranking.AndroidDeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
-import com.fetch.tv.data.mediaserver.ServerMatcher
 import com.fetch.tv.data.mediaserver.ServerUserStateProjection
 import com.fetch.tv.core.debrid.DebridRulesMigration
 import com.fetch.tv.data.simkl.SimklAnimeIdPreferenceHolder
@@ -54,7 +53,6 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
     @Inject lateinit var simklAnimeIdPreferenceHolder: SimklAnimeIdPreferenceHolder
     @Inject lateinit var serverUserStateProjection: dagger.Lazy<ServerUserStateProjection>
     @Inject lateinit var debridRulesMigration: dagger.Lazy<DebridRulesMigration>
-    @Inject lateinit var serverMatcher: dagger.Lazy<ServerMatcher>
 
     companion object {
         /**
@@ -90,7 +88,7 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         PluginRuntimeHooks.onApplicationCreate(this)
         // None of these are needed for the first frame: the launcher channel only matters once
-        // the app is backgrounded, and server matching/projection only react to later screens.
+        // the app is backgrounded, and server projection only reacts to later screens.
         // Building their dependency graphs (DataStores, Room, JobScheduler IPC) on the main
         // thread before the first frame is measurable on Fire TV Stick class devices, so start
         // them once the main looper first goes idle.
@@ -98,7 +96,6 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
             androidTvChannelSyncService.get().start()
             serverUserStateProjection.get().start()
             debridRulesMigration.get().start()
-            serverMatcher.get().start()
             false
         }
         // Probe decoders/HDR/passthrough off the main thread so cold start isn't delayed;

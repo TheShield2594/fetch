@@ -21,11 +21,13 @@ import com.fetch.tv.data.mediaserver.ServerSession
 import com.fetch.tv.data.mediaserver.ServerSignIn
 import com.fetch.tv.data.mediaserver.ServerSignInMethod
 import com.fetch.tv.data.mediaserver.ServerTitle
+import com.fetch.tv.data.mediaserver.ServerTitleQuery
 import com.fetch.tv.data.mediaserver.ServerTrack
 import com.fetch.tv.data.mediaserver.isAtLeastVersion
 import com.fetch.tv.data.mediaserver.mediabrowser.ServerClientIdentity
 import com.fetch.tv.data.mediaserver.mediabrowser.buildUrl
 import com.fetch.tv.data.mediaserver.mediabrowser.pathSegment
+import com.fetch.tv.data.mediaserver.verifiedTitleMatches
 import com.fetch.tv.domain.model.FilterRowFilters
 import com.fetch.tv.domain.model.FilterRowSort
 import com.fetch.tv.domain.model.Subtitle
@@ -287,6 +289,32 @@ internal class PlexProvider(
         )
     }
 
+    /** Plex filters a section by title (a "contains" match); the original title is tried once when that finds nothing. */
+    override suspend fun lookupTitle(
+        session: ServerSession,
+        library: ServerLibrary,
+        query: ServerTitleQuery
+    ): List<ServerIndexEntry>? {
+        val name = query.name?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+        val found = titleEntries(session, library, name)
+        if (verifiedTitleMatches(found, query).isNotEmpty()) return found
+        val retry = query.originalName?.trim()
+            ?.takeIf { it.isNotEmpty() && !it.equals(name, ignoreCase = true) }
+            ?.let { titleEntries(session, library, it) }
+            .orEmpty()
+        // A full page may have cut off the title; null lets the matcher use the full index.
+        return (found + retry).takeUnless {
+            verifiedTitleMatches(it, query).isEmpty() && (found.size >= TITLE_LOOKUP_LIMIT || retry.size >= TITLE_LOOKUP_LIMIT)
+        }
+    }
+
+    private suspend fun titleEntries(session: ServerSession, library: ServerLibrary, title: String): List<ServerIndexEntry> =
+        container(
+            session,
+            "/library/sections/${pathSegment(library.id)}/all",
+            mapOf("type" to library.kind.plexType(), "includeGuids" to "1", "title" to title) + page(0, TITLE_LOOKUP_LIMIT)
+        ).metadata.map { ServerIndexEntry(itemId = it.ratingKey, ids = it.externalIds(), year = it.year) }
+
     override suspend fun findEpisode(
         session: ServerSession,
         seriesItemId: String,
@@ -493,6 +521,7 @@ internal class PlexProvider(
         const val PIN_POLL_INTERVAL_MS = 2_000L
         const val DEFAULT_PIN_LIFETIME_S = 900L
         const val MAX_VIDEO_BITRATE_KBPS = "200000"
+        const val TITLE_LOOKUP_LIMIT = 20
 
         // Let the server copy HEVC and Dolby audio into the HLS stream instead of converting them.
         const val CLIENT_PROFILE_EXTRA =

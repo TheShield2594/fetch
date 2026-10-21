@@ -80,6 +80,7 @@ data class LayoutSettingsUiState(
     val customPosterEnabledScreens: Set<com.fetch.tv.core.poster.CustomPosterScreen> =
         com.fetch.tv.core.poster.CustomPosterScreen.ALL,
     val alwaysShowLandscapeClearlogo: Boolean = false,
+    val trailerCropToFill: Boolean = true,
 )
 
 sealed class LayoutSettingsEvent {
@@ -129,6 +130,7 @@ sealed class LayoutSettingsEvent {
     data class SetContinueWatchingSortMode(val mode: ContinueWatchingSortMode) : LayoutSettingsEvent()
     data class SetContinueWatchingCardStyle(val style: ContinueWatchingCardStyle) : LayoutSettingsEvent()
     data class SetAlwaysShowLandscapeClearlogo(val enabled: Boolean) : LayoutSettingsEvent()
+    data class SetTrailerCropToFill(val enabled: Boolean) : LayoutSettingsEvent()
     data object ResetPosterCardStyle : LayoutSettingsEvent()
     data object ResetCardDepthStyle : LayoutSettingsEvent()
     data class SetCustomPosterUrlPattern(val pattern: String) : LayoutSettingsEvent()
@@ -379,6 +381,13 @@ class LayoutSettingsViewModel @Inject constructor(
                     updateUiStateIfChanged { it.copy(alwaysShowLandscapeClearlogo = enabled) }
                 }
         }
+        viewModelScope.launch {
+            layoutPreferenceDataStore.trailerCropToFill
+                .distinctUntilChanged()
+                .collect { enabled ->
+                    updateUiStateIfChanged { it.copy(trailerCropToFill = enabled) }
+                }
+        }
     }
 
     fun onEvent(event: LayoutSettingsEvent) {
@@ -426,6 +435,7 @@ class LayoutSettingsViewModel @Inject constructor(
             is LayoutSettingsEvent.SetContinueWatchingSortMode -> setContinueWatchingSortMode(event.mode)
             is LayoutSettingsEvent.SetContinueWatchingCardStyle -> setContinueWatchingCardStyle(event.style)
             is LayoutSettingsEvent.SetAlwaysShowLandscapeClearlogo -> setAlwaysShowLandscapeClearlogo(event.enabled)
+            is LayoutSettingsEvent.SetTrailerCropToFill -> setTrailerCropToFill(event.enabled)
             LayoutSettingsEvent.ResetPosterCardStyle -> resetPosterCardStyle()
             LayoutSettingsEvent.ResetCardDepthStyle -> resetCardDepthStyle()
             is LayoutSettingsEvent.SetCustomPosterUrlPattern -> setCustomPosterUrlPattern(event.pattern)
@@ -774,6 +784,13 @@ class LayoutSettingsViewModel @Inject constructor(
         if (_uiState.value.continueWatchingCardStyle == style) return
         viewModelScope.launch {
             layoutPreferenceDataStore.setContinueWatchingCardStyle(style)
+        }
+    }
+
+    private fun setTrailerCropToFill(enabled: Boolean) {
+        if (_uiState.value.trailerCropToFill == enabled) return
+        viewModelScope.launch {
+            layoutPreferenceDataStore.setTrailerCropToFill(enabled)
         }
     }
 

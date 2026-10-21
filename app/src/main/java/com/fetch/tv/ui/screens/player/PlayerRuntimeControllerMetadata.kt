@@ -473,7 +473,9 @@ internal fun PlayerRuntimeController.updateActiveSkipInterval(positionMs: Long) 
     // skip button to appear instead of auto-skipping.
     if (!playerSettingsInitialized) return
 
-    val active = nextActiveSkipInterval(skipIntervals, positionMs)
+    val found = nextActiveSkipInterval(skipIntervals, positionMs)
+    val active = if (found != null && found.autoSkipKey() == skippedIntervalKey) null else found
+    if (found == null || active != null) skippedIntervalKey = null
     val currentActive = _uiState.value.activeSkipInterval
 
     if (active != null) {
@@ -502,7 +504,7 @@ internal fun PlayerRuntimeController.updateActiveSkipInterval(positionMs: Long) 
     }
 }
 
-private fun SkipInterval.autoSkipKey(): String =
+internal fun SkipInterval.autoSkipKey(): String =
     "$provider:$type:$startTime:$endTime"
 
 internal fun PlayerRuntimeController.tryShowParentalGuide() {

@@ -8,6 +8,9 @@ import com.fetch.tv.ui.theme.FetchComponents
 val LocalLandscapePosterMode = staticCompositionLocalOf { false }
 val LocalAlwaysBackdropWithLogo = staticCompositionLocalOf { false }
 
+/** Whether background trailers zoom to fill their frame; false plays them whole, letterboxed. */
+val LocalTrailerCropToFill = staticCompositionLocalOf { true }
+
 @Immutable
 data class PosterCardStyle(
     val width: Dp = FetchComponents.tokens.posterCard.width,

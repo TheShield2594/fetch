@@ -123,6 +123,7 @@ internal fun PlayerRuntimeController.skipInterval(interval: SkipInterval): Boole
     seekPlaybackTo(target, seekParameters)
     scheduleProgressSyncAfterSeek()
     publishPartyPlayback(positionMs = target)
+    skippedIntervalKey = interval.autoSkipKey()
     _uiState.update { it.copy(activeSkipInterval = null, skipIntervalDismissed = true) }
     return true
 }
@@ -1782,6 +1783,12 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         PlayerEvent.OnDismissSkipIntro -> {
             _uiState.update { it.copy(skipIntervalDismissed = true) }
+        }
+        PlayerEvent.OnReportSkipMarker -> {
+            reportActiveSkipMarker()
+        }
+        PlayerEvent.OnMarkSkipSegment -> {
+            markSkipSegmentBoundary()
         }
         PlayerEvent.OnPlayNextEpisode -> {
             playNextEpisode(userInitiated = true)

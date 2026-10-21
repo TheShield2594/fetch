@@ -9,18 +9,40 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Url
 
 // --- IntroDB API ---
 
 interface IntroDbApi {
-    @GET("segments")
+    /** [url] is the full `segments` endpoint on the configured server. */
+    @GET
     suspend fun getSegments(
+        @Url url: String,
         @Query("imdb_id") imdbId: String,
         @Query("season") season: Int? = null,
         @Query("episode") episode: Int? = null,
         @Query("is_movie") isMovie: Boolean? = null
     ): Response<IntroDbSegmentsResponse>
+
+    /** [url] is the full `submit` endpoint on the configured server. */
+    @POST
+    suspend fun submit(
+        @Url url: String,
+        @Header("X-API-Key") apiKey: String,
+        @Body body: IntroDbSubmission
+    ): Response<Unit>
 }
+
+@JsonClass(generateAdapter = true)
+data class IntroDbSubmission(
+    @Json(name = "segment_type") val segmentType: String,
+    @Json(name = "imdb_id") val imdbId: String,
+    @Json(name = "is_movie") val isMovie: Boolean? = null,
+    @Json(name = "season") val season: Int? = null,
+    @Json(name = "episode") val episode: Int? = null,
+    @Json(name = "start_sec") val startSec: Double,
+    @Json(name = "end_sec") val endSec: Double
+)
 
 @JsonClass(generateAdapter = true)
 data class IntroDbSegmentsResponse(
@@ -56,7 +78,19 @@ interface AniSkipApi {
         @Query("types[]") types: List<String>,
         @Query("episodeLength") episodeLength: Int = 0
     ): Response<AniSkipResponse>
+
+    /** Up- or down-votes one submitted segment; a downvote is AniSkip's "wrong marker" report. */
+    @POST("skip-times/{skipId}/votes")
+    suspend fun vote(
+        @Path("skipId") skipId: String,
+        @Body body: AniSkipVoteRequest
+    ): Response<Unit>
 }
+
+@JsonClass(generateAdapter = true)
+data class AniSkipVoteRequest(
+    @Json(name = "voteType") val voteType: String
+)
 
 @JsonClass(generateAdapter = true)
 data class AniSkipResponse(

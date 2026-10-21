@@ -188,6 +188,12 @@ data class PlayerUiState(
     val activeSkipInterval: SkipInterval? = null,
     val activeSkipTargetsPostCredits: Boolean = false,
     val skipIntervalDismissed: Boolean = false,
+    /** Whether the viewer can record and submit a skip marker for this title (IntroDB API key set). */
+    val markerSubmissionAvailable: Boolean = false,
+    /** Segment the viewer is marking: "intro" for episodes, "outro" (end credits) for movies. */
+    val markerSegmentType: String = "intro",
+    /** Start of the segment the viewer is marking, in seconds, until they mark its end. */
+    val markerStartSec: Double? = null,
     // Next episode card
     val nextEpisode: NextEpisodeInfo? = null,
     val isNextEpisodeMetadataResolved: Boolean = false,
@@ -358,6 +364,8 @@ sealed class PlayerEvent {
     data object OnDismissPauseOverlay : PlayerEvent()
     data object OnSkipIntro : PlayerEvent()
     data object OnDismissSkipIntro : PlayerEvent()
+    data object OnReportSkipMarker : PlayerEvent()
+    data object OnMarkSkipSegment : PlayerEvent()
     data object OnPlayNextEpisode : PlayerEvent()
     data object OnDismissNextEpisodeCard : PlayerEvent()
     data object OnStillWatchingContinue : PlayerEvent()

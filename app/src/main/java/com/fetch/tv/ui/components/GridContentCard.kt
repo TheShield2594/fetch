@@ -210,6 +210,8 @@ fun GridContentCard(
                 val effectiveLandscapePoster = if (globalLandscape && alwaysBackdropWithLogo) null else item.landscapePoster
                 val effectiveImageUrl = if (globalLandscape) {
                     effectiveLandscapePoster ?: item.background ?: item.poster
+                } else if (item.posterShape == PosterShape.LANDSCAPE) {
+                    item.landscapePoster ?: item.poster
                 } else {
                     item.poster
                 }

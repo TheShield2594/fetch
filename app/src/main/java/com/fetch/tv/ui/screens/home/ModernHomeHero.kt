@@ -193,7 +193,7 @@ internal fun ModernHeroMediaLayer(
                     onEnded = onTrailerEnded,
                     onFirstFrameRendered = onFirstFrameRendered,
                     muted = mutedVal,
-                    cropToFill = true,
+                    cropToFill = com.fetch.tv.ui.components.LocalTrailerCropToFill.current,
                     overscanZoom = MODERN_TRAILER_OVERSCAN_ZOOM,
                     modifier = Modifier
                         .fillMaxSize()

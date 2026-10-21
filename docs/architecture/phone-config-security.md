@@ -24,6 +24,12 @@ Addons, catalog order, collections and plugin repositories keep their own QR cod
 screen. Those changes decide what the TV loads, so each one is confirmed on the TV before it
 is applied.
 
+**Configure** on an addon card (or installing an addon whose manifest says
+`configurationRequired`) shows two QR codes: the addon's own `/configure` page, and a
+one-page "Send to TV" server (`core/server/AddonConfigureServer.kt`, same pairing and LAN
+rules) where the phone pastes the configured install link. The link is shown on the TV and
+installed only after it is confirmed there; it replaces the addon being configured in place.
+
 ## Threat model
 
 **Protected against**

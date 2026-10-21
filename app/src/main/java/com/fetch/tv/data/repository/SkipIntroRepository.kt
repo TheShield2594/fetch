@@ -1,29 +1,46 @@
 package com.fetch.tv.data.repository
 
 import android.util.Log
-import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.tmdb.TmdbService
 import com.fetch.tv.data.local.AnimeSkipSettingsDataStore
+import com.fetch.tv.data.local.SkipMarkerSettingsDataStore
 import com.fetch.tv.data.remote.api.AniSkipApi
 import com.fetch.tv.data.remote.api.AnimeSkipApi
 import com.fetch.tv.data.remote.api.AnimeSkipRequest
+import com.fetch.tv.data.remote.api.AniSkipVoteRequest
 import com.fetch.tv.data.remote.api.IntroDbApi
 import com.fetch.tv.data.remote.api.IntroDbSegment
 import com.fetch.tv.data.remote.api.IntroDbSegmentsResponse
+import com.fetch.tv.data.remote.api.IntroDbSubmission
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.async
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 
 data class SkipInterval(
     val startTime: Double, // seconds
     val endTime: Double,   // seconds
     val type: String,      // intro/op, recap, outro/ed, movie-credits, post-credits
-    val provider: String   // "introdb", "aniskip", "animeskip"
+    val provider: String,  // "introdb", "aniskip", "animeskip"
+    val sourceId: String? = null // provider's id for this segment, used to report it (AniSkip skipId)
 )
+
+/** Whether the provider of [interval] takes "wrong marker" reports from the player. */
+fun canReportSkipInterval(interval: SkipInterval): Boolean =
+    interval.provider == "aniskip" && !interval.sourceId.isNullOrBlank()
+
+/** IntroDB segment type for a marker the viewer recorded, or null when IntroDB has no such type. */
+internal fun introDbSubmissionType(type: String, isMovie: Boolean): String? = when (type.lowercase()) {
+    "intro", "op" -> if (isMovie) null else "intro"
+    "recap" -> if (isMovie) null else "recap"
+    "outro", "ed", "credits", "movie-credits" -> "outro"
+    "post-credits" -> if (isMovie) "post-credits" else null
+    else -> null
+}
 
 internal fun IntroDbSegmentsResponse.toSkipIntervals(movie: Boolean): List<SkipInterval> {
     if (!movie) return listOfNotNull(
@@ -57,14 +74,13 @@ class SkipIntroRepository @Inject constructor(
     private val animeSkipApi: AnimeSkipApi,
     private val simklResolver: SimklIdResolver,
     private val animeSkipSettingsDataStore: AnimeSkipSettingsDataStore,
+    private val skipMarkerSettingsDataStore: SkipMarkerSettingsDataStore,
     private val tmdbService: TmdbService
 ) {
     private val cache = ConcurrentHashMap<String, List<SkipInterval>>()
     private val animeSkipShowIdCache = ConcurrentHashMap<String, String>()
-    private val introDbConfigured = BuildConfig.INTRODB_API_URL.isNotEmpty()
 
     suspend fun getMovieSkipIntervals(contentId: String?, videoId: String? = null): List<SkipInterval> {
-        if (!introDbConfigured) return emptyList()
         val ids = listOfNotNull(contentId, videoId).distinct()
         val imdbId = ids.firstNotNullOfOrNull { id ->
             id.substringBefore(':').takeIf { it.matches(Regex("tt[0-9]+")) }
@@ -91,7 +107,7 @@ class SkipIntroRepository @Inject constructor(
         cache[cacheKey]?.let { return@coroutineScope it }
 
         val introDbDeferred = async {
-            if (introDbConfigured) fetchFromIntroDb(imdbId, season, episode) else emptyList()
+            fetchFromIntroDb(imdbId, season, episode)
         }
         // Resolve IMDB -> season-specific MAL/AniList via Simkl episode mapping
         val simklIdsDeferred = async { simklResolver.resolveIdsForImdbEpisode(imdbId, season, episode) }
@@ -154,7 +170,7 @@ class SkipIntroRepository @Inject constructor(
             }
             val introDbEpisode = imdbEpisode ?: tvdb?.second ?: episode
             val introDbDeferred = async {
-                if (introDbConfigured) fetchFromIntroDb(resolvedImdbId, introDbSeason, introDbEpisode) else emptyList()
+                fetchFromIntroDb(resolvedImdbId, introDbSeason, introDbEpisode)
             }
             val anilistId = simklIds?.anilist
             val animeSkipDeferred = async {
@@ -205,7 +221,7 @@ class SkipIntroRepository @Inject constructor(
             }
             val introDbEpisode = imdbEpisode ?: tvdb?.second ?: episode
             val introDbDeferred = async {
-                if (introDbConfigured) fetchFromIntroDb(resolvedImdbId, introDbSeason, introDbEpisode) else emptyList()
+                fetchFromIntroDb(resolvedImdbId, introDbSeason, introDbEpisode)
             }
             val anilistId = simklIds?.anilist
             val animeSkipDeferred = async {
@@ -252,7 +268,9 @@ class SkipIntroRepository @Inject constructor(
         isMovie: Boolean = false
     ): List<SkipInterval> {
         return try {
-            val response = introDbApi.getSegments(imdbId, season, episode, true.takeIf { isMovie })
+            val response = introDbApi.getSegments(
+                introDbEndpoint("segments"), imdbId, season, episode, true.takeIf { isMovie }
+            )
             if (response.isSuccessful && response.body() != null) {
                 response.body()!!.toSkipIntervals(isMovie)
             } else emptyList()
@@ -261,6 +279,66 @@ class SkipIntroRepository @Inject constructor(
         } catch (e: Exception) {
             Log.d("SkipIntro", "IntroDB: no data for $imdbId S${season}E${episode}")
             emptyList()
+        }
+    }
+
+    private suspend fun introDbEndpoint(path: String): String =
+        skipMarkerSettingsDataStore.introDbBaseUrl.first() + path
+
+    /** Whether this device has an IntroDB API key, which submitting markers needs. */
+    suspend fun canSubmitMarkers(): Boolean =
+        skipMarkerSettingsDataStore.introDbApiKey.first().isNotBlank()
+
+    /** Tells the marker's provider it is wrong. Returns false when it cannot be reported. */
+    suspend fun reportWrongMarker(interval: SkipInterval): Boolean {
+        if (!canReportSkipInterval(interval)) return false
+        return try {
+            aniSkipApi.vote(interval.sourceId!!, AniSkipVoteRequest(voteType = "downvote")).isSuccessful
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.d("SkipIntro", "AniSkip: report failed for ${interval.sourceId}: ${e.message}")
+            false
+        }
+    }
+
+    /**
+     * Submits a marker the viewer recorded to IntroDB. [season]/[episode] are null for movies.
+     * Clears the cached markers for that title so the next lookup sees the new data.
+     */
+    suspend fun submitMarker(
+        imdbId: String,
+        season: Int?,
+        episode: Int?,
+        type: String,
+        startSec: Double,
+        endSec: Double
+    ): Boolean {
+        val apiKey = skipMarkerSettingsDataStore.introDbApiKey.first()
+        if (apiKey.isBlank() || !imdbId.matches(Regex("tt[0-9]+")) || endSec <= startSec || startSec < 0) return false
+        val isMovie = season == null || episode == null
+        val segmentType = introDbSubmissionType(type, isMovie) ?: return false
+        return try {
+            val ok = introDbApi.submit(
+                url = introDbEndpoint("submit"),
+                apiKey = apiKey,
+                body = IntroDbSubmission(
+                    segmentType = segmentType,
+                    imdbId = imdbId,
+                    isMovie = true.takeIf { isMovie },
+                    season = season.takeIf { !isMovie },
+                    episode = episode.takeIf { !isMovie },
+                    startSec = startSec,
+                    endSec = endSec
+                )
+            ).isSuccessful
+            if (ok) cache.remove(if (isMovie) "movie:$imdbId" else "$imdbId:$season:$episode")
+            ok
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.d("SkipIntro", "IntroDB: submit failed for $imdbId: ${e.message}")
+            false
         }
     }
 
@@ -274,7 +352,8 @@ class SkipIntroRepository @Inject constructor(
                         startTime = result.interval.startTime,
                         endTime = result.interval.endTime,
                         type = result.skipType,
-                        provider = "aniskip"
+                        provider = "aniskip",
+                        sourceId = result.skipId
                     )
                 } ?: emptyList()
             } else emptyList()

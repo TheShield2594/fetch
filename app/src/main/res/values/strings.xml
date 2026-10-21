@@ -600,6 +600,15 @@
     <string name="advanced_player_stats_hud">Playback stats overlay</string>
     <string name="advanced_player_stats_hud_subtitle">Show a button in stream info to toggle live cpu, memory, buffer, bitrate and thermal readings during playback</string>
     <string name="advanced_section_cache">Cache</string>
+    <string name="advanced_section_skip_markers">Skip markers</string>
+    <string name="advanced_introdb_server">IntroDB server</string>
+    <string name="advanced_introdb_server_subtitle">Where intro, recap and credits markers for regular TV and movies come from</string>
+    <string name="advanced_introdb_server_default">Default (%1$s)</string>
+    <string name="advanced_introdb_server_dialog_subtitle">An IntroDB-compatible API. Leave empty to use the public server.</string>
+    <string name="advanced_introdb_server_invalid">Enter an http or https address</string>
+    <string name="advanced_introdb_api_key">IntroDB API key</string>
+    <string name="advanced_introdb_api_key_subtitle">Lets you mark intros and end credits from the player and send them to IntroDB</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">Create a key on introdb.app. It starts with idb_.</string>
     <string name="advanced_section_startup">Startup &amp; exit</string>
     <string name="advanced_section_network_tests">Network tests</string>
     <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
@@ -1052,6 +1061,8 @@
     <string name="layout_expand_delay_sub">How long to wait before expanding focused cards.</string>
     <string name="layout_autoplay_trailer">Autoplay Trailer</string>
     <string name="layout_autoplay_trailer_sub">Play trailer preview for focused content when available.</string>
+    <string name="layout_trailer_crop_to_fill">Crop trailers to fill</string>
+    <string name="layout_trailer_crop_to_fill_sub">Zoom background trailers on Home and details pages so they fill the frame. Turn off to see the whole picture with black bars.</string>
     <string name="layout_trailer_muted">Play Trailer Muted</string>
     <string name="layout_trailer_muted_sub_preview">Mute trailer audio during autoplay preview.</string>
     <string name="layout_section_card_style">Poster Card</string>
@@ -1142,7 +1153,7 @@
     <string name="web_custom_poster_current">Current:</string>
     <string name="web_custom_poster_none">No pattern set</string>
     <string name="web_custom_poster_loading">Loading…</string>
-    <string name="web_custom_poster_placeholders_info">Placeholders: {id} passes all content IDs. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} target a single ID type - if unavailable, the original poster is kept. {imdb_id|tmdb_id|kitsu_id} declares supported ID types - the matching one is used, or the original poster is kept. Add ? to make a placeholder optional, resolving to empty instead of skipping: {imdb_id?}. Other placeholders: {id_type}, {typed_id}, {type}, {shape}.</string>
+    <string name="web_custom_poster_placeholders_info">Placeholders: {id} passes all content IDs. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} target a single ID type - if unavailable, the original poster is kept. {imdb_id|tmdb_id|kitsu_id} declares supported ID types - the matching one is used, or the original poster is kept. Add ? to make a placeholder optional, resolving to empty instead of skipping: {imdb_id?}. Other placeholders: {id_type}, {typed_id}, {type}, {shape}. Landscape cards only get custom art when the pattern contains {shape}.</string>
 
 
     <string name="mdblist_name">MDBList</string>
@@ -1653,6 +1664,27 @@
     <string name="addon_installed_section">Installed</string>
     <string name="addon_empty">No addons installed. Add one to get started.</string>
     <string name="addon_remove">Remove</string>
+    <string name="addon_configure">Configure</string>
+    <string name="addon_badge_needs_setup">Needs setup</string>
+    <string name="addon_needs_configuration">%1$s needs to be set up before it can be installed</string>
+    <string name="addon_configure_updated">Updated %1$s</string>
+    <string name="addon_configure_still_unconfigured">%1$s still isn\'t set up. Finish its configuration page, then send the link again.</string>
+    <string name="addon_configure_title">Configure %1$s</string>
+    <string name="addon_configure_received">Your phone sent: %1$s</string>
+    <string name="addon_configure_install">Install</string>
+    <string name="addon_configure_step_open">1. Scan to open its configuration page on your phone</string>
+    <string name="addon_configure_step_send">2. Scan to send the new link back to this TV</string>
+    <string name="addon_configure_waiting">After saving, copy the install link the page gives you and send it from step 2.</string>
+    <string name="addon_configure_no_server">After saving, paste the install link into the box at the top of this screen.</string>
+    <string name="addon_configure_web_title">Send to TV</string>
+    <string name="addon_configure_web_step1">Set the addon up on its own page first.</string>
+    <string name="addon_configure_web_open">Open configuration page</string>
+    <string name="addon_configure_web_step2">When it shows an install link (or a manifest.json address), copy it and paste it here.</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json or stremio://…</string>
+    <string name="addon_configure_web_send">Send to TV</string>
+    <string name="addon_configure_web_sent">Sent. Confirm it on your TV.</string>
+    <string name="addon_configure_web_invalid">That doesn\'t look like an addon link.</string>
+    <string name="addon_configure_web_failed">Couldn\'t reach the TV. Is it still on the configure screen?</string>
     <string name="addon_delete_confirm_title">Delete addon?</string>
     <string name="addon_delete_confirm_message">Are you sure you want to delete it?</string>
     <string name="addon_delete_no">No</string>
@@ -1996,6 +2028,13 @@
     <string name="skip_ending">Skip Ending</string>
     <string name="skip_recap">Skip Recap</string>
     <string name="skip_generic">Skip</string>
+    <string name="skip_source">via %1$s</string>
+    <string name="skip_source_reportable">via %1$s · hold to report</string>
+    <string name="skip_marker_reported">Reported the wrong marker. Thanks!</string>
+    <string name="skip_marker_report_failed">Couldn\'t report the marker</string>
+    <string name="skip_marker_start_recorded">Start marked. Press again where it ends.</string>
+    <string name="skip_marker_submitted">Marker sent to IntroDB</string>
+    <string name="skip_marker_submit_failed">Couldn\'t send the marker to IntroDB</string>
     <string name="display_mode_refresh">Refresh</string>
     <string name="display_mode_resolution">Resolution</string>
 
@@ -2507,6 +2546,10 @@
     <string name="cd_open_external_player">Open in external player</string>
     <string name="cd_stream_info">Stream info</string>
     <string name="cd_more_actions">More actions</string>
+    <string name="cd_mark_intro_start">Mark intro start</string>
+    <string name="cd_mark_intro_end">Mark intro end</string>
+    <string name="cd_mark_credits_start">Mark end credits start</string>
+    <string name="cd_mark_credits_end">Mark end credits end</string>
     <string name="cd_close_more_actions">Close more actions</string>
     <string name="cd_back">Back</string>
     <string name="cd_next_episode_thumbnail">Next episode thumbnail</string>

@@ -50,6 +50,7 @@ import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.data.repository.SkipInterval
+import com.fetch.tv.data.repository.canReportSkipInterval
 
 /**
  * Skip Intro/Outro/Recap button for the player.
@@ -66,6 +67,7 @@ fun SkipIntroButton(
     canFocus: Boolean = true,
     onSkip: () -> Unit,
     onDismiss: () -> Unit,
+    onReport: (() -> Unit)? = null,
     onHideControls: (() -> Unit)? = null,
     onVisibilityChanged: (Boolean) -> Unit = {},
     onFocused: (() -> Unit)? = null,
@@ -77,7 +79,16 @@ fun SkipIntroButton(
 ) {
 
     var lastType by remember { mutableStateOf(interval?.type) }
-    if (interval != null) lastType = interval.type
+    var lastProvider by remember { mutableStateOf(interval?.provider) }
+    var lastReportable by remember { mutableStateOf(false) }
+    if (interval != null) {
+        lastType = interval.type
+        lastProvider = interval.provider
+        lastReportable = onReport != null && canReportSkipInterval(interval)
+    }
+    // Count down over the segment itself (at least the default), so the button does not
+    // leave a 90-second intro after ten seconds (NuvioTV#3748).
+    val autoHideTimeoutMs = skipIntroAutoHideTimeoutMs(interval)
     val hasActiveInterval = interval != null
     val shouldShow = hasActiveInterval && (!dismissed || controlsVisible)
 
@@ -110,7 +121,7 @@ fun SkipIntroButton(
     LaunchedEffect(shouldShow, autoHidden, controlsVisible) {
         if (shouldShow && !autoHidden && !controlsVisible) {
             progress.animateTo(1f, animationSpec = tween(
-                durationMillis = skipIntroAutoHideRemainingMs(progress.value),
+                durationMillis = skipIntroAutoHideRemainingMs(progress.value, autoHideTimeoutMs),
                 easing = LinearEasing
             ))
             autoHidden = true
@@ -151,6 +162,7 @@ fun SkipIntroButton(
     ) {
         Card(
             onClick = onSkip,
+            onLongClick = if (lastReportable) onReport else null,
             modifier = Modifier
                 .focusRequester(activeFocusRequester)
                 .focusProperties {
@@ -219,6 +231,15 @@ fun SkipIntroButton(
                         modifier = Modifier.padding(start = FetchTheme.spacing.sm)
                     )
                 }
+                skipSourceLabel(lastProvider, lastReportable)?.let { source ->
+                    Text(
+                        text = source,
+                        color = (if (isFocused) FetchTheme.colors.OnSecondary else Color.White).copy(alpha = 0.7f),
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = FetchTheme.spacing.sm)
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -246,4 +267,20 @@ private fun getSkipLabel(type: String?, targetsPostCredits: Boolean): String = w
     "movie-credits" -> stringResource(if (targetsPostCredits) R.string.skip_to_post_credits else R.string.skip_movie_credits)
     "recap" -> stringResource(R.string.skip_recap)
     else -> stringResource(R.string.skip_generic)
+}
+
+/** "via IntroDB"-style attribution for community markers; adds the report hint when supported. */
+@Composable
+private fun skipSourceLabel(provider: String?, reportable: Boolean): String? {
+    val name = when (provider) {
+        "introdb" -> "IntroDB"
+        "aniskip" -> "AniSkip"
+        "animeskip" -> "Anime-Skip"
+        else -> return null
+    }
+    return if (reportable) {
+        stringResource(R.string.skip_source_reportable, name)
+    } else {
+        stringResource(R.string.skip_source, name)
+    }
 }

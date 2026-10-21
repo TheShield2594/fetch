@@ -235,7 +235,8 @@ private data class MainUiPrefs(
     val settingsUiStyle: SettingsUiStyle = SettingsUiStyle.CLASSIC,
     val cardDepthStyle: CardDepthStyle = CardDepthStyle(),
     val landscapePosterMode: Boolean = false,
-    val alwaysBackdropWithLogo: Boolean = false
+    val alwaysBackdropWithLogo: Boolean = false,
+    val trailerCropToFill: Boolean = true
 )
 
 @AndroidEntryPoint
@@ -543,8 +544,9 @@ open class MainActivity : ComponentActivity() {
                 }
                 val landscapePrefsFlow = combine(
                     layoutPreferenceDataStore.modernLandscapePostersEnabled,
-                    layoutPreferenceDataStore.alwaysShowLandscapeClearlogo
-                ) { landscape, backdropWithLogo -> landscape to backdropWithLogo }
+                    layoutPreferenceDataStore.alwaysShowLandscapeClearlogo,
+                    layoutPreferenceDataStore.trailerCropToFill
+                ) { landscape, backdropWithLogo, trailerCrop -> Triple(landscape, backdropWithLogo, trailerCrop) }
 
                 combine(
                     themeAndExperienceFlow,
@@ -552,7 +554,7 @@ open class MainActivity : ComponentActivity() {
                     extraFeaturesFlow,
                     layoutPreferenceDataStore.cardDepthStyle,
                     landscapePrefsFlow
-                ) { themePrefs, layoutPrefs, extraPrefs, cardDepthStyle, (landscapePosterMode, alwaysBackdropWithLogo) ->
+                ) { themePrefs, layoutPrefs, extraPrefs, cardDepthStyle, (landscapePosterMode, alwaysBackdropWithLogo, trailerCropToFill) ->
                     themePrefs.copy(
                         hasChosenLayout = layoutPrefs.hasChosenLayout,
                         sidebarCollapsed = layoutPrefs.sidebarCollapsed,
@@ -564,7 +566,8 @@ open class MainActivity : ComponentActivity() {
                         settingsUiStyle = extraPrefs.settingsUiStyle,
                         cardDepthStyle = cardDepthStyle,
                         landscapePosterMode = landscapePosterMode,
-                        alwaysBackdropWithLogo = alwaysBackdropWithLogo
+                        alwaysBackdropWithLogo = alwaysBackdropWithLogo,
+                        trailerCropToFill = trailerCropToFill
                     )
                 }
             }
@@ -684,6 +687,7 @@ open class MainActivity : ComponentActivity() {
                     LocalCardDepthStyle provides mainUiPrefs.cardDepthStyle,
                     LocalLandscapePosterMode provides mainUiPrefs.landscapePosterMode,
                     LocalAlwaysBackdropWithLogo provides mainUiPrefs.alwaysBackdropWithLogo,
+                    com.fetch.tv.ui.components.LocalTrailerCropToFill provides mainUiPrefs.trailerCropToFill,
                     LocalMemberAccess provides mainUiPrefs.memberAccess,
                     LocalAmbientIdleController provides ambientIdleController,
                     com.fetch.tv.core.player.LocalTrailerPlayerPool provides trailerPlayerPool,

@@ -62,6 +62,7 @@ import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ClosedCaption
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -1322,6 +1323,7 @@ fun PlayerScreen(
                 viewModel.onEvent(PlayerEvent.OnSkipIntro)
             },
             onDismiss = { viewModel.onEvent(PlayerEvent.OnDismissSkipIntro) },
+            onReport = { viewModel.onEvent(PlayerEvent.OnReportSkipMarker) },
             onVisibilityChanged = { skipButtonActuallyVisible = it },
             onFocused = { viewModel.scheduleHideControls() },
             focusRequester = skipIntroFocusRequester,
@@ -1457,6 +1459,7 @@ fun PlayerScreen(
                 },
                 onSwitchPlayerEngine = { viewModel.onEvent(PlayerEvent.OnSwitchInternalPlayerEngine) },
                 onReportPlaybackIssue = { viewModel.onEvent(PlayerEvent.OnReportPlaybackIssue) },
+                onMarkSkipSegment = { viewModel.onEvent(PlayerEvent.OnMarkSkipSegment) },
                 onToggleMoreActions = {
                     if (uiState.showMoreDialog) {
                         viewModel.onEvent(PlayerEvent.OnDismissMoreDialog)
@@ -2396,6 +2399,7 @@ private fun PlayerControlsOverlay(
     onSwitchPlayerEngine: () -> Unit,
     onReportPlaybackIssue: () -> Unit,
     onToggleMoreActions: () -> Unit,
+    onMarkSkipSegment: () -> Unit,
     onOpenInExternalPlayer: (() -> Unit)?,
     onShowStreamInfo: () -> Unit,
     onResetHideTimer: () -> Unit,
@@ -2733,6 +2737,26 @@ private fun PlayerControlsOverlay(
                                 onDownKey = onHideControls,
                                 onFocused = onResetHideTimer
                             )
+                            if (uiState.markerSubmissionAvailable) {
+                                val marking = uiState.markerStartSec != null
+                                val isCredits = uiState.markerSegmentType == "outro"
+                                ControlButton(
+                                    icon = Icons.Default.Flag,
+                                    contentDescription = stringResource(
+                                        when {
+                                            isCredits && marking -> R.string.cd_mark_credits_end
+                                            isCredits -> R.string.cd_mark_credits_start
+                                            marking -> R.string.cd_mark_intro_end
+                                            else -> R.string.cd_mark_intro_start
+                                        }
+                                    ),
+                                    onClick = onMarkSkipSegment,
+                                    upFocusRequester = progressUpTarget,
+                                    onDownKey = onHideControls,
+                                    onFocused = onResetHideTimer,
+                                    contentColor = if (marking) FetchTheme.colors.Secondary else Color.White
+                                )
+                            }
                             if (uiState.playbackIssueReportsEnabled) {
                                 ReportControlButton(
                                     reportId = uiState.playbackIssueReportId,

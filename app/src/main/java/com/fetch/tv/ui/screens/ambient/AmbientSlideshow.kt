@@ -44,6 +44,7 @@ import androidx.tv.material3.Text
 import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
+import coil3.size.Precision
 import coil3.toBitmap
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -249,8 +250,9 @@ private suspend fun loadSlide(
     heightPx: Int,
     logoSizePx: Pair<Int, Int>
 ): LoadedSlide? = coroutineScope {
-    // Decode the logo at its on-screen bound; clearlogos are often 2000px+ wide.
-    val logo = slide.logoUrl?.let { url -> async { loadBitmap(context, url, logoSizePx) } }
+    // Decode the logo at most at its on-screen bound (clearlogos are often 2000px+ wide),
+    // without upscaling small ones.
+    val logo = slide.logoUrl?.let { url -> async { loadBitmap(context, url, logoSizePx, Precision.INEXACT) } }
     val backdrop = loadBitmap(context, slide.backdropUrl, widthPx to heightPx) ?: run {
         logo?.cancel()
         return@coroutineScope null
@@ -261,11 +263,13 @@ private suspend fun loadSlide(
 private suspend fun loadBitmap(
     context: Context,
     url: String,
-    targetSize: Pair<Int, Int>
+    targetSize: Pair<Int, Int>,
+    precision: Precision? = null
 ): ImageBitmap? {
     val request = ImageRequest.Builder(context)
         .data(url)
         .size(targetSize.first, targetSize.second)
+        .apply { if (precision != null) precision(precision) }
         .build()
     val result = context.imageLoader.execute(request) as? SuccessResult ?: return null
     return runCatching { result.image.toBitmap().asImageBitmap() }.getOrNull()

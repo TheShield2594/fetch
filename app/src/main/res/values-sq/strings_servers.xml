@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Identifikohu me llogarinë tënde %1$s nga telefoni. Pa shkruar në TV.</string>
+    <string name="servers_link_choose_server">Llogaria jote ka qasje në më shumë se një server. Zgjidh atë që do të shtosh.</string>
+    <string name="servers_link_connecting_to">Po lidhet me %1$s…</string>
+    <string name="servers_link_expired">Kodi skadoi. Merr një të ri për të provuar përsëri.</string>
+    <string name="servers_link_expires">Kodi skadon pas %1$s</string>
+    <string name="servers_link_instruction">Skano kodin me telefonin, ose hap %1$s në çdo pajisje dhe shkruaj këtë kod.</string>
+    <string name="servers_link_loading">Po merret një kod identifikimi…</string>
+    <string name="servers_link_no_servers">Kjo llogari nuk ka ende servera. Konfiguro një, ose kërkoji pronarit të një serveri të ndajë një bibliotekë me ty.</string>
+    <string name="servers_link_qr">Kodi QR për t’u identifikuar në %1$s</string>
+    <string name="servers_link_retry">Merr një kod të ri</string>
+    <string name="servers_link_waiting">Në pritje të miratimit të kodit…</string>
+</resources>

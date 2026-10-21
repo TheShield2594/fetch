@@ -57,4 +57,16 @@
     <string name="library_servers_empty_title">No hay bibliotecas seleccionadas</string>
     <string name="library_servers_empty_message">Elige qué bibliotecas mostrar en Configuración, en Contenido y descubrimiento &gt; Servidores multimedia.</string>
     <string name="library_server_load_failed">No se pudo cargar %1$s</string>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Inicia sesión con tu cuenta de %1$s desde tu teléfono. Sin escribir en la TV.</string>
+    <string name="servers_link_choose_server">Tu cuenta tiene acceso a más de un servidor. Elige cuál agregar.</string>
+    <string name="servers_link_connecting_to">Conectando con %1$s…</string>
+    <string name="servers_link_expired">El código caducó. Obtén uno nuevo para volver a intentarlo.</string>
+    <string name="servers_link_expires">El código caduca en %1$s</string>
+    <string name="servers_link_instruction">Escanea el código con tu teléfono, o abre %1$s en cualquier dispositivo, e ingresa este código.</string>
+    <string name="servers_link_loading">Obteniendo un código de inicio de sesión…</string>
+    <string name="servers_link_no_servers">Esta cuenta todavía no tiene servidores. Configura uno o pide al propietario de un servidor que comparta una biblioteca contigo.</string>
+    <string name="servers_link_qr">Código QR para iniciar sesión en %1$s</string>
+    <string name="servers_link_retry">Obtener un código nuevo</string>
+    <string name="servers_link_waiting">Esperando a que apruebes el código…</string>
 </resources>

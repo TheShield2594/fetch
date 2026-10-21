@@ -57,4 +57,17 @@
     <string name="library_servers_empty_title">Δεν έχουν επιλεγεί βιβλιοθήκες</string>
     <string name="library_servers_empty_message">Επιλέξτε ποιες βιβλιοθήκες θα εμφανίζονται στις Ρυθμίσεις, στην ενότητα Περιεχόμενο &amp; Ανακάλυψη και έπειτα Διακομιστές πολυμέσων.</string>
     <string name="library_server_load_failed">Αποτυχία φόρτωσης: %1$s</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Συνδεθείτε με τον λογαριασμό %1$s από το τηλέφωνό σας. Χωρίς πληκτρολόγηση στην τηλεόραση.</string>
+    <string name="servers_link_loading">Λήψη κωδικού σύνδεσης…</string>
+    <string name="servers_link_instruction">Σαρώστε τον κωδικό με το τηλέφωνό σας ή ανοίξτε το %1$s σε οποιαδήποτε συσκευή και εισαγάγετε αυτόν τον κωδικό.</string>
+    <string name="servers_link_connecting_to">Σύνδεση με %1$s…</string>
+    <string name="servers_link_waiting">Αναμονή για έγκριση του κωδικού…</string>
+    <string name="servers_link_expires">Ο κωδικός λήγει σε %1$s</string>
+    <string name="servers_link_expired">Ο κωδικός έληξε. Λάβετε νέο για να δοκιμάσετε ξανά.</string>
+    <string name="servers_link_retry">Λήψη νέου κωδικού</string>
+    <string name="servers_link_choose_server">Ο λογαριασμός σας έχει πρόσβαση σε περισσότερους από έναν διακομιστές. Επιλέξτε αυτόν που θα προστεθεί.</string>
+    <string name="servers_link_no_servers">Αυτός ο λογαριασμός δεν έχει ακόμα διακομιστές. Ρυθμίστε έναν ή ζητήστε από τον κάτοχο ενός διακομιστή να μοιραστεί μια βιβλιοθήκη μαζί σας.</string>
+    <string name="servers_link_qr">Κωδικός QR για σύνδεση στο %1$s</string>
 </resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">用手機登入您的 %1$s 帳戶，不必在電視上打字。</string>
+    <string name="servers_link_choose_server">您的帳戶可存取多個伺服器。請選擇要新增的伺服器。</string>
+    <string name="servers_link_connecting_to">正在連線到 %1$s…</string>
+    <string name="servers_link_expired">代碼已過期。取得新代碼後再試一次。</string>
+    <string name="servers_link_expires">代碼將於 %1$s 後過期</string>
+    <string name="servers_link_instruction">用手機掃描 QR 碼，或在任何裝置上開啟 %1$s 並輸入此代碼。</string>
+    <string name="servers_link_loading">正在取得登入代碼…</string>
+    <string name="servers_link_no_servers">此帳戶尚無伺服器。請設定一台伺服器，或請伺服器擁有者與您分享媒體庫。</string>
+    <string name="servers_link_qr">用於登入 %1$s 的 QR 碼</string>
+    <string name="servers_link_retry">取得新代碼</string>
+    <string name="servers_link_waiting">正在等待您核准代碼…</string>
+</resources>

@@ -15,14 +15,14 @@
     <string name="error_state_possible_fix">संभावित समाधान: %1$s</string>
     <string name="error_state_fix_retry_soon">कृपया थोड़ी देर बाद फिर से कोशिश करें।</string>
     <string name="error_state_issue_no_metadata_any_addon">इस आईडी के लिए डिटेल्स लोड नहीं हो सकीं क्योंकि किसी भी इंस्टॉल किए गए ऐडऑन ने मेटाडेटा नहीं दिया।</string>
-    <string name="error_state_fix_no_metadata_any_addon">कोई दूसरा ऐडऑन आज़माएँ, लेआउट सेटिंग्स में "बाहरी ऐडऑन से मेटा को प्राथमिकता दें" बंद करें, या सुनिश्चित करें कि कोई इंस्टॉल किया हुआ ऐडऑन इस आईडी को सपोर्ट करता है।</string>
+    <string name="error_state_fix_no_metadata_any_addon">कोई दूसरा ऐडऑन आज़माएँ, लेआउट सेटिंग्स में \"बाहरी ऐडऑन से मेटा को प्राथमिकता दें\" बंद करें, या सुनिश्चित करें कि कोई इंस्टॉल किया हुआ ऐडऑन इस आईडी को सपोर्ट करता है।</string>
     <string name="error_state_prefix_no_supported_metadata">कोई भी इंस्टॉल किया हुआ ऐडऑन इसके लिए मेटाडेटा सपोर्ट नहीं करता</string>
     <string name="error_state_prefix_no_addon_for_id">किसी भी इंस्टॉल किए गए ऐडऑन के लिए मेटाडेटा प्रदान नहीं किया₹ id=</string>
     <string name="error_state_fix_no_supported_metadata">ऐसा ऐडऑन इंस्टॉल या अपडेट करें जो इस कंटेंट टाइप को सपोर्ट करता हो, फिर दोबारा कोशिश करें।</string>
     <string name="error_state_prefix_tried_meta_addons">आजमाए गए मेटा ऐडऑन:</string>
     <string name="error_state_fix_tried_meta_addons">ऐसा ऐडऑन इंस्टॉल करें जो इस आईडी को सपोर्ट करता हो, या ऐडऑन को दोबारा कॉन्फ़िगर/अपडेट करके फिर से कोशिश करें।</string>
     <string name="error_state_issue_missing_metadata_for_id">इस आईडी के लिए मेटाडेटा उपलब्ध नहीं है</string>
-    <string name="error_state_fix_missing_metadata_for_id">इस आईडी को किसी दूसरे ऐडऑन से खोलें, "बाहरी ऐडऑन से मेटा को प्राथमिकता दें" बंद करें, या जांचें कि ऐडऑन इस आईडी को सपोर्ट करता है।</string>
+    <string name="error_state_fix_missing_metadata_for_id">इस आईडी को किसी दूसरे ऐडऑन से खोलें, \"बाहरी ऐडऑन से मेटा को प्राथमिकता दें\" बंद करें, या जांचें कि ऐडऑन इस आईडी को सपोर्ट करता है।</string>
     <string name="error_state_issue_addon_unreachable">ऐडऑन तक पहुँचा नहीं जा सका</string>
     <string name="error_state_fix_addon_unreachable">अपना इंटरनेट कनेक्शन जांचें, सुनिश्चित करें कि ऐडऑन का URL अभी भी काम कर रहा है, फिर दोबारा कोशिश करें।</string>
     <string name="error_state_issue_addon_connection_failed">कनेक्शन अस्वीकार कर दिया गया</string>
@@ -34,7 +34,7 @@
     <string name="error_state_fix_addon_generic">फिर से कोशिश करें, ऐडऑन अपडेट या पुनः इंस्टॉल करें, या कोई दूसरा ऐडऑन आज़माएँ।</string>
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">मेटा नहीं मिला</string>
-    <string name="error_meta_no_supported_addon">कोई भी इंस्टॉल किया हुआ ऐडऑन "%1$s" के लिए मेटाडेटा सपोर्ट नहीं करता।</string>
+    <string name="error_meta_no_supported_addon">कोई भी इंस्टॉल किया हुआ ऐडऑन \"%1$s\" के लिए मेटाडेटा सपोर्ट नहीं करता।</string>
     <string name="error_meta_no_addon_for_id">किसी भी इंस्टॉल किए गए ऐडऑन ने id=%1$s (type=%2$s) के लिए मेटाडेटा प्रदान नहीं किया।</string>
     <string name="error_meta_tried_none">आजमाए गए मेटा ऐडऑन: %1$s. इनमें से किसी ने भी id=%2$s (type=%3$s) के लिए मेटाडेटा प्रदान नहीं किया।</string>
     <string name="error_meta_tried_generic">आजमाए गए मेटा ऐडऑन: %1$s. id=%2$s (type=%3$s) के लिए मेटाडेटा लोड नहीं हो सका।</string>
@@ -51,7 +51,6 @@
     <string name="cw_percent_watched">%1$d%% देखा गया</string>
     <string name="cw_hours_min_left">%1$dh %2$dm बाकी</string>
     <string name="cw_min_left">%1$dm बाकी</string>
-    <string name="cw_almost_done">लगभग पूरा</string>
     <string name="cw_airs_date">%1$s को प्रसारित होगा</string>
     <string name="cw_airs_today">आज प्रसारित होगा</string>
     <string name="cw_airs_tomorrow">कल प्रसारित होगा</string>
@@ -82,14 +81,12 @@
     <string name="hero_director">निर्देशक: %1$s</string>
     <string name="hero_writer">लेखक: %1$s</string>
     <string name="hero_play">चलाएँ</string>
-    <string name="hero_play_episode">चलाएँ S%1$d E%2$d</string>
     <string name="hero_add_to_library">लाइब्रेरी में जोड़ें</string>
     <string name="hero_remove_from_library">लाइब्रेरी से हटाएँ</string>
     <string name="hero_mark_watched">देख लिया</string>
     <string name="hero_mark_unwatched">नहीं देखा</string>
     <string name="hero_play_trailer">ट्रेलर चलाएँ</string>
     <string name="hero_press_back_trailer">ट्रेलर से बाहर निकलने के लिए बैक दबाएँ</string>
-    <string name="cd_rating">रेटिंग</string>
 
     <!-- EpisodesSection -->
     <string name="episodes_season">सीज़न %1$d</string>
@@ -189,13 +186,9 @@
     <string name="settings_account">अकाउंट</string>
     <string name="settings_profiles">प्रोफाइल</string>
     <string name="settings_layout">लेआउट</string>
-    <string name="settings_plugins">प्लगइन्स</string>
-    <string name="settings_plugins_subtitle">रिपॉजिटरी और प्रोवाइडर्स।</string>
     <string name="settings_integration">इंटीग्रेशन</string>
     <string name="settings_playback">प्लेबैक</string>
-    <string name="settings_trakt_subtitle">Trakt कनेक्शन स्क्रीन खोलें।</string>
     <string name="settings_debug">डीबग</string>
-    <string name="settings_plugins_section_subtitle">रिपॉजिटरी, प्रोवाइडर्स और प्लगइन स्टेट मैनेज करें।</string>
     <string name="settings_account_section_subtitle">अकाउंट और सिंक स्थिति।</string>
     <string name="account_stat_addons">ऐडऑन</string>
     <string name="account_stat_plugins">प्लगइन्स</string>
@@ -218,21 +211,6 @@
     <string name="action_close">बंद करें</string>
 
     <!-- SupportersContributorsScreen -->
-    <string name="supporters_tab">समर्थक</string>
-    <string name="contributors_tab">योगदानकर्ता</string>
-    <string name="supporters_loading">समर्थक लोड हो रहे हैं…</string>
-    <string name="supporters_empty">अभी तक कोई समर्थक नहीं मिला।</string>
-    <string name="supporters_error_title">समर्थकों को लोड नहीं किया जा सका</string>
-    <string name="supporters_no_message">कोई संदेश साझा नहीं किया गया।</string>
-    <string name="supporters_open_donations">डोनेशन पेज खोलें</string>
-    <string name="contributors_loading">GitHub योगदानकर्ता लोड हो रहे हैं…</string>
-    <string name="contributors_empty">अभी तक कोई योगदानकर्ता नहीं मिला।</string>
-    <string name="contributors_error_title">योगदानकर्ताओं को लोड नहीं किया जा सका</string>
-    <string name="contributors_total_contributions">%1$d कुल योगदान</string>
-    <string name="contributors_open_github">GitHub प्रोफाइल खोलें</string>
-    <string name="contributors_show_kofi_qr">Ko-fi QR दिखाएँ</string>
-    <string name="contributors_hide_kofi_qr">Ko-fi QR छिपाएँ</string>
-    <string name="contributors_profile_unavailable">GitHub प्रोफाइल लिंक उपलब्ध नहीं है।</string>
 
     <!-- PlaybackSettingsSections -->
     <string name="playback_loading_overlay">लोडिंग ओवरले</string>
@@ -261,7 +239,6 @@
     <string name="playback_player_ask_desc">हर बार प्लेयर चुनें</string>
 
     <!-- PlaybackAudioSettings -->
-    <string name="audio_trailer_section">ट्रेलर</string>
     <string name="audio_autoplay_trailers">ऑटो-प्ले ट्रेलर</string>
     <string name="audio_autoplay_trailers_sub">कुछ समय की निष्क्रियता के बाद डिटेल स्क्रीन पर ट्रेलर अपने आप चलाएँ</string>
     <string name="audio_trailer_delay">ट्रेलर देरी</string>
@@ -285,7 +262,6 @@
     <string name="audio_decoder_controls">यह नियंत्रित करता है कि ऑडियो और वीडियो के लिए हार्डवेयर या सॉफ़्टवेयर (FFmpeg) डिकोडर उपयोग होंगे</string>
 
     <!-- PlaybackSubtitleSettings -->
-    <string name="sub_section">सबटाइटल</string>
     <string name="sub_not_set">सेट नहीं</string>
     <string name="sub_forced_lang">फोर्स्ड</string>
     <string name="sub_preferred_lang">पसंदीदा भाषा</string>
@@ -294,7 +270,6 @@
     <string name="sub_use_forced_subtitles_desc">जब ऑडियो सबटाइटल भाषा से मेल खाए तो फोर्स्ड सबटाइटल को प्राथमिकता दें; उपलब्ध न होने पर कुछ भी न चुनें</string>
     <string name="sub_show_only_preferred_languages">केवल पसंदीदा भाषाएं दिखाएं</string>
     <string name="sub_show_only_preferred_languages_desc">चयन सूची से अन्य सभी उपशीर्षक भाषाएं छिपाएं</string>
-    <string name="sub_organization">सबटाइटल संगठन</string>
     <string name="sub_size">आकार</string>
     <string name="sub_vertical_offset">वर्टिकल ऑफसेट</string>
     <string name="sub_bold">बोल्ड</string>
@@ -317,12 +292,6 @@
     <string name="sub_mode_effects_canvas_sub">Media3 effects के साथ Canvas रेंडरिंग द्वारा एनीमेशन सपोर्ट।</string>
     <string name="sub_mode_standard">Standard Cues</string>
     <string name="sub_mode_standard_sub">बिना एनीमेशन के बेसिक सबटाइटल रेंडरिंग। सबसे अधिक संगत।</string>
-    <string name="sub_org_none">कोई नहीं (डिफ़ॉल्ट क्रम)</string>
-    <string name="sub_org_by_lang">भाषा के अनुसार</string>
-    <string name="sub_org_by_addon">ऐडऑन के अनुसार</string>
-    <string name="sub_org_none_desc">सबटाइटल को ऐडऑन के डिफ़ॉल्ट परिणाम क्रम में दिखाएँ।</string>
-    <string name="sub_org_by_lang_desc">सबटाइटल को भाषा के अनुसार समूहित करें।</string>
-    <string name="sub_org_by_addon_desc">सबटाइटल को ऐडऑन स्रोत के अनुसार समूहित करें।</string>
 
     <!-- PlaybackAutoPlaySettings -->
     <string name="autoplay_reuse_last_link">पिछला लिंक फिर उपयोग करें</string>
@@ -342,7 +311,6 @@
     <string name="autoplay_threshold_pct_title">थ्रेशोल्ड प्रतिशत</string>
     <string name="autoplay_threshold_pct_sub">जब outro टाइमस्टैम्प उपलब्ध न हो तो फ़ॉलबैक।</string>
     <string name="autoplay_threshold_min_title">थ्रेशोल्ड मिनट</string>
-    <string name="autoplay_threshold_min_sub">जब outro टाइमस्टैम्प उपलब्ध न हो तो फ़ॉलबैक।</string>
     <string name="autoplay_scope_all">सभी सोर्स</string>
     <string name="autoplay_scope_addons">केवल इंस्टॉल किए गए ऐडऑन</string>
     <string name="autoplay_scope_plugins">केवल सक्षम प्लगइन</string>
@@ -377,8 +345,6 @@
     <string name="layout_section_home_desc">स्ट्रक्चर और हीरो सोर्स चुनें।</string>
     <string name="layout_landscape_posters">लैंडस्केप पोस्टर</string>
     <string name="layout_landscape_posters_sub">मॉडर्न व्यू के लिए पोर्ट्रेट और लैंडस्केप कार्ड के बीच स्विच करें।</string>
-    <string name="layout_preview_row">प्रिव्यू रो दिखाएँ</string>
-    <string name="layout_preview_row_sub">मॉडर्न होम लेआउट में नीचे की रो का आंशिक प्रिव्यू दिखाएँ।</string>
     <string name="layout_section_content">होम कंटेंट</string>
     <string name="layout_section_content_desc">होम और सर्च में क्या दिखाई देगा इसे नियंत्रित करें।</string>
     <string name="layout_collapse_sidebar">साइडबार छुपाएँ</string>
@@ -442,23 +408,7 @@
     <string name="mdblist_enable_title">MDBList रेटिंग्स सक्षम करें</string>
     <string name="mdblist_enable_subtitle">मेटाडेटा डिटेल स्क्रीन में बाहरी प्रोवाइडर से रेटिंग प्राप्त करें</string>
     <string name="mdblist_api_key_title">API Key</string>
-    <string name="mdblist_api_key_subtitle">MDBList से रेटिंग प्राप्त करने के लिए आवश्यक</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Trakt स्कोर दिखाएँ</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">IMDb स्कोर दिखाएँ (उपलब्ध होने पर डिफ़ॉल्ट IMDb लाइन छुपाएँ)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">TMDB स्कोर दिखाएँ</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Letterboxd स्कोर दिखाएँ</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">क्रिटिक्स स्कोर दिखाएँ</string>
-    <string name="mdblist_audience_title">ऑडियंस स्कोर</string>
-    <string name="mdblist_audience_subtitle">ऑडियंस स्कोर दिखाएँ</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Metacritic स्कोर दिखाएँ</string>
     <string name="mdblist_dialog_title">MDBList API Key</string>
-    <string name="mdblist_dialog_subtitle">बाहरी रेटिंग प्राप्त करने के लिए अपना API Key दर्ज करें</string>
     <string name="mdblist_dialog_placeholder">MDBList API Key दर्ज करें</string>
     <string name="mdblist_not_set">सेट नहीं</string>
     <string name="mdblist_invalid_api_key">अमान्य MDBList API Key</string>
@@ -507,7 +457,6 @@
     <!-- TraktScreen -->
     <string name="trakt_description">अपनी वॉचलिस्ट, वॉच प्रोग्रेस, कंटिन्यू वॉचिंग, स्क्रॉबल्स और व्यक्तिगत लिस्ट्स को Trakt के साथ सिंक करें।</string>
     <string name="trakt_connected_as">%1$s के रूप में कनेक्टेड</string>
-    <string name="trakt_account_login">अकाउंट लॉगिन</string>
     <string name="trakt_awaiting_instruction">trakt.tv/activate पर जाएँ और यह कोड दर्ज करें:</string>
     <string name="trakt_waiting_approval">स्वीकृति की प्रतीक्षा हो रही है…</string>
     <string name="qr_login_approved">लॉगिन स्वीकृत। साइन इन पूरा किया जा रहा है…</string>
@@ -515,16 +464,9 @@
     <string name="qr_login_expired">QR लॉगिन समाप्त हो गया। नया कोड जनरेट करें।</string>
     <string name="trakt_code_expires">कोड %1$s में समाप्त होगा</string>
     <string name="trakt_token_refreshes">Trakt एक्सेस टोकन %1$s में रिफ्रेश होगा</string>
-    <string name="trakt_login_instruction">Trakt डिवाइस ऑथेंटिकेशन शुरू करने के लिए Login दबाएँ। यहाँ एक QR कोड दिखाई देगा।</string>
     <string name="trakt_missing_credentials">local.properties में TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET नहीं मिला।</string>
     <string name="trakt_continue_watching_window">कंटिन्यू वॉचिंग विंडो</string>
     <string name="trakt_continue_watching_subtitle">कंटिन्यू वॉचिंग के लिए Trakt इतिहास का उपयोग</string>
-    <string name="trakt_unaired_next_up">अनएयर्ड नेक्स्ट अप एपिसोड</string>
-    <string name="trakt_unaired_next_up_subtitle">एयर होने से पहले आने वाले एपिसोड दिखाएँ</string>
-    <string name="trakt_unaired_shown">दिखाया गया</string>
-    <string name="trakt_unaired_hidden">छुपाया गया</string>
-    <string name="trakt_unaired_now_shown">अनएयर्ड नेक्स्ट अप एपिसोड अब दिखाए जाएँगे</string>
-    <string name="trakt_unaired_now_hidden">अनएयर्ड नेक्स्ट अप एपिसोड अब छुपाए जाएँगे</string>
     <string name="trakt_cached_label">कैश्ड</string>
     <string name="trakt_stat_movies">मूवीज़</string>
     <string name="trakt_stat_shows">शो</string>
@@ -533,15 +475,8 @@
     <string name="trakt_disconnect">डिस्कनेक्ट</string>
     <string name="trakt_disconnect_title">Trakt डिस्कनेक्ट करें?</string>
     <string name="trakt_disconnect_subtitle">यह आपके Trakt अकाउंट को Fetch से डिस्कनेक्ट कर देगा।</string>
-    <string name="trakt_login">लॉगिन</string>
-    <string name="trakt_retry">फिर से कोशिश करें</string>
-    <string name="trakt_back">वापस</string>
     <string name="trakt_cw_window_title">कंटिन्यू वॉचिंग विंडो</string>
     <string name="trakt_cw_window_subtitle">चुनें कि कंटिन्यू वॉचिंग में कितना Trakt एक्टिविटी दिखे।</string>
-    <string name="trakt_unaired_dialog_title">अनएयर्ड नेक्स्ट अप एपिसोड</string>
-    <string name="trakt_unaired_dialog_subtitle">चुनें कि कंटिन्यू वॉचिंग में रिलीज़ से पहले आने वाले एपिसोड शामिल हों या नहीं।</string>
-    <string name="trakt_show_unaired">अनएयर्ड एपिसोड दिखाएँ</string>
-    <string name="trakt_hide_unaired">अनएयर्ड एपिसोड छुपाएँ</string>
     <string name="trakt_all_history">सारा इतिहास</string>
     <string name="trakt_days_format">%1$d दिन</string>
 
@@ -574,24 +509,13 @@
     <string name="profile_manage_title">प्रोफाइल मैनेज करें</string>
     <string name="profile_manage_subtitle">संपादित करने, बदलने या नया बनाने के लिए प्रोफाइल चुनें</string>
     <string name="profile_manage_hint">मैनेज करने के लिए प्रोफाइल चुनें</string>
-    <string name="profile_primary_label">प्राइमरी</string>
-    <string name="profile_shares_primary">प्राइमरी का %1$s साझा करता है</string>
     <string name="profile_edit_label">संपादित करें</string>
-    <string name="profile_add">प्रोफाइल जोड़ें</string>
     <string name="profile_create_title">प्रोफाइल बनाएँ</string>
-    <string name="profile_edit_title">प्रोफाइल संपादित करें %1$s</string>
     <string name="profile_name_placeholder">प्रोफाइल नाम</string>
-    <string name="profile_avatar_color">अवतार रंग</string>
-    <string name="profile_use_primary_addons">प्राइमरी प्रोफाइल के ऐडऑन उपयोग करें</string>
-    <string name="profile_use_primary_plugins">प्राइमरी प्रोफाइल के प्लगइन उपयोग करें</string>
     <string name="profile_creating">बनाया जा रहा है\u2026</string>
     <string name="profile_create_btn">बनाएँ</string>
-    <string name="profile_confirm">पुष्टि करें</string>
     <string name="profile_delete">हटाएँ</string>
-    <string name="profile_addons">ऐडऑन</string>
-    <string name="profile_plugins">प्लगइन</string>
     <string name="profile_choose_avatar">अवतार चुनें</string>
-    <string name="profile_avatar_none_selected">कोई अवतार चयनित नहीं</string>
     <string name="profile_avatar_focus_hint">उसका नाम देखने के लिए अवतार पर फोकस करें</string>
     <string name="profile_avatar_category_all">सभी</string>
     <string name="profile_avatar_category_anime">एनीमे</string>
@@ -645,9 +569,6 @@
     <string name="stream_no_streams">कोई स्ट्रीम नहीं मिली</string>
     <string name="stream_no_streams_hint">स्ट्रीम खोजने के लिए और ऐडऑन इंस्टॉल करने की कोशिश करें</string>
     <string name="stream_finding_source">स्ट्रीम सोर्स खोजा जा रहा है</string>
-    <string name="stream_type_torrent">टोरेंट</string>
-    <string name="stream_type_youtube">YouTube</string>
-    <string name="stream_type_external">एक्सटर्नल</string>
     <string name="stream_player_picker_title">कौन सा प्लेयर उपयोग किया जाए?</string>
     <string name="stream_player_internal">इंटरनल</string>
     <string name="stream_player_external">एक्सटर्नल</string>
@@ -677,7 +598,6 @@
 
     <!-- StreamSourcesSidePanel -->
     <string name="sources_title">सोर्स</string>
-    <string name="sources_reload">रीलोड</string>
     <string name="sources_close">बंद करें</string>
     <string name="sources_playing">चल रहा है</string>
     <string name="sources_no_streams">कोई स्ट्रीम नहीं मिली</string>
@@ -685,7 +605,6 @@
     <!-- EpisodesSidePanel -->
     <string name="episodes_panel_close">बंद करें</string>
     <string name="episodes_panel_back">वापस</string>
-    <string name="episodes_panel_reload">रीलोड</string>
     <string name="episodes_panel_no_streams">कोई स्ट्रीम नहीं मिली</string>
     <string name="episodes_panel_no_episodes">कोई एपिसोड उपलब्ध नहीं</string>
     <string name="episodes_panel_title">एपिसोड</string>
@@ -702,27 +621,12 @@
 
     <!-- SubtitleDialog / SubtitleStyleSidePanel -->
     <string name="subtitle_dialog_title">सबटाइटल</string>
-    <string name="subtitle_no_builtin">कोई बिल्ट-इन सबटाइटल उपलब्ध नहीं</string>
     <string name="subtitle_loading_addon">ऐडऑन से सबटाइटल लोड हो रहे हैं\u2026</string>
     <string name="subtitle_no_addon">कोई ऐडऑन सबटाइटल उपलब्ध नहीं</string>
-    <string name="subtitle_text_color">टेक्स्ट रंग</string>
-    <string name="subtitle_outline_color">आउटलाइन रंग</string>
     <string name="subtitle_reset_defaults">डिफ़ॉल्ट रीसेट करें</string>
-    <string name="subtitle_tab_builtin">बिल्ट-इन</string>
-    <string name="subtitle_tab_addons">ऐडऑन</string>
     <string name="subtitle_tab_languages">भाषाएँ</string>
-    <string name="subtitle_tab_style">स्टाइल</string>
     <string name="subtitle_tab_delay">देरी</string>
     <string name="subtitle_none">कोई नहीं</string>
-    <string name="subtitle_all">सभी</string>
-    <string name="subtitle_section_core">कोर</string>
-    <string name="subtitle_section_advanced">एडवांस्ड</string>
-    <string name="subtitle_font_size">फ़ॉन्ट आकार</string>
-    <string name="subtitle_bold">बोल्ड</string>
-    <string name="subtitle_outline">आउटलाइन</string>
-    <string name="subtitle_bottom_offset">बॉटम ऑफसेट</string>
-    <string name="subtitle_on">चालू</string>
-    <string name="subtitle_off">बंद</string>
     <string name="subtitle_style_title">सबटाइटल स्टाइल</string>
     <string name="subtitle_style_color">रंग</string>
     <string name="subtitle_style_reset">रीसेट</string>
@@ -734,8 +638,6 @@
     <string name="subtitle_style_defaults">डिफ़ॉल्ट</string>
     <string name="subtitle_style_on">चालू</string>
     <string name="subtitle_style_off">बंद</string>
-    <string name="panel_failed_load_streams">स्ट्रीम लोड करने में विफल</string>
-    <string name="panel_failed_load_episodes">एपिसोड लोड करने में विफल</string>
 
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">आप देख रहे हैं</string>
@@ -759,7 +661,6 @@
 
 
     <!-- SearchScreen -->
-    <string name="search_keyboard_hint">खोजने के लिए कीबोर्ड पर Done दबाएँ</string>
     <string name="search_placeholder">मूवी और सीरीज़ खोजें</string>
     <string name="search_start_title">खोज शुरू करें</string>
     <string name="search_start_subtitle">कम से कम 2 अक्षर दर्ज करें</string>
@@ -770,18 +671,15 @@
     <string name="search_voice_unavailable">इस डिवाइस पर वॉइस सर्च उपलब्ध नहीं है।</string>
 
     <!-- LibraryScreen -->
-    <string name="library_syncing">Trakt लाइब्रेरी सिंक हो रही है\u2026</string>
     <string name="library_title">लाइब्रेरी</string>
     <string name="library_filter_list">लिस्ट</string>
     <string name="library_filter_type">प्रकार</string>
     <string name="library_filter_sort">सॉर्ट</string>
-    <string name="library_sort_trakt_order">Trakt क्रम</string>
     <string name="library_sort_added_desc">जोड़ा गया ↓</string>
     <string name="library_sort_added_asc">जोड़ा गया ↑</string>
     <string name="library_sort_title_asc">टाइटल A-Z</string>
     <string name="library_sort_title_desc">टाइटल Z-A</string>
     <string name="library_manage_lists">लिस्ट मैनेज करें</string>
-    <string name="library_manage_trakt_lists">Trakt लिस्ट मैनेज करें</string>
     <string name="library_no_lists">अभी कोई व्यक्तिगत लिस्ट नहीं है।</string>
     <string name="library_list_create">बनाएँ</string>
     <string name="library_list_edit">संपादित करें</string>
@@ -794,10 +692,8 @@
     <string name="library_list_privacy">गोपनीयता</string>
     <string name="library_delete_title">क्या इस लिस्ट को हटाएँ?</string>
     <string name="library_delete_subtitle">यह लिस्ट और उसके सभी आइटम Trakt से हटा देगा।</string>
-    <string name="library_delete_confirm">हटाएँ</string>
     <string name="library_source_local">लोकल</string>
     <string name="library_type_all">सभी</string>
-    <string name="library_type_items">आइटम</string>
     <string name="library_empty_local_title">अभी कोई %1$s नहीं</string>
     <string name="library_empty_trakt_title">इस लिस्ट में कोई %1$s नहीं</string>
     <string name="library_empty_local_subtitle">यहाँ देखने के लिए अपने पसंदीदा सेव करना शुरू करें</string>
@@ -820,12 +716,9 @@
     <string name="auth_signin_qr_btn">QR से जारी रखें</string>
 
     <!-- AuthQrSignInScreen -->
-    <string name="auth_qr_title">QR से साइन इन</string>
     <string name="auth_qr_finishing">साइन इन पूरा किया जा रहा है\u2026</string>
-    <string name="auth_qr_code_label">कोड: %1$s</string>
     <string name="auth_qr_expires">%1$s में समाप्त</string>
     <string name="auth_qr_scan_instruction">QR स्कैन करें, ब्राउज़र में अनुमति दें, फिर यहाँ लौटें।</string>
-    <string name="auth_qr_code_display">कोड: %1$s</string>
     <string name="auth_qr_refresh">QR रीफ्रेश करें</string>
     <string name="auth_qr_continue_without_account">अकाउंट के बिना जारी रखें</string>
     <string name="auth_qr_connected">आपका अकाउंट इस टीवी से जुड़ा है।</string>
@@ -860,7 +753,6 @@
     <string name="plugin_repositories_section">रिपॉजिटरी (%1$d)</string>
     <string name="plugin_providers_section">प्रोवाइडर (%1$d)</string>
     <string name="plugin_title">प्लगइन</string>
-    <string name="plugin_subtitle">लोकल स्क्रेपर और प्रोवाइडर मैनेज करें</string>
     <string name="plugin_add_repository">रिपॉजिटरी जोड़ें</string>
     <string name="plugin_add_btn">जोड़ें</string>
     <string name="plugin_manage_from_phone_title">फोन से मैनेज करें</string>
@@ -906,7 +798,6 @@
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">ऐप अपडेट</string>
-    <string name="update_downloading">अपडेट डाउनलोड हो रहा है</string>
     <string name="update_download">डाउनलोड</string>
     <string name="update_downloading_ellipsis">डाउनलोड हो रहा है…</string>
     <string name="update_unknown_sources">जारी रखने के लिए अज्ञात स्रोत से इंस्टॉल की अनुमति दें।</string>
@@ -947,12 +838,9 @@
     <!-- PluginScreen -->
     <string name="plugin_and_more">... और %1$d</string>
     <string name="plugin_providers_count">%1$d प्रोवाइडर</string>
-    <string name="plugin_enabled">सक्षम</string>
-    <string name="plugin_disabled">अक्षम</string>
     <string name="plugin_no_repos">अभी तक कोई रिपॉजिटरी नहीं जोड़ी गई।\nशुरू करने के लिए एक रिपॉजिटरी जोड़ें।</string>
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">प्रोफाइल संपादित करें %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">ऑडियो पासथ्रू (TrueHD, DTS, AC-3 आदि) स्वचालित है। HDMI के माध्यम से संगत AV रिसीवर या साउंडबार से जुड़ने पर लॉसलेस ऑडियो बिना डिकोड किए सीधे भेजा जाता है।</string>
@@ -962,15 +850,230 @@
     <string name="nav_discover">डिस्कवर</string>
     <string name="nav_search">खोज</string>
     <string name="nav_library">लाइब्रेरी</string>
-    <string name="nav_addons">ऐडऑन</string>
     <string name="nav_settings">सेटिंग्स</string>
     <string name="settings_rounded_ui">राउंडेड UI</string>
-    <string name="cd_expand_sidebar">साइडबार विस्तार करें</string>
 
     <string name="update_close">बंद करें</string>
     <string name="update_open_settings">सेटिंग्स खोलें</string>
     <string name="update_install">इंस्टॉल</string>
-    <string name="update_ignore">नज़रअंदाज़ करें</string>
     <string name="playback_player_auto">ऑटो (सामग्री के लिए सर्वश्रेष्ठ)</string>
     <string name="playback_player_auto_desc">ExoPlayer मूवीज़ और टीवी शोज़ के लिए · MPV एनीमे के लिए</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="best_match_cached">कैश में</string>
+    <string name="debrid_stream_rules_moved">स्ट्रीम नियम अब प्लेबैक → स्ट्रीम चयन में हैं और डेब्रिड सहित हर सोर्स पर लागू होते हैं। यहाँ सेट किए गए आपके नियम वहाँ ले जाए गए हैं।</string>
+    <string name="prefer_next_time_title">अगली बार इसे प्राथमिकता दें?</string>
+    <string name="prefer_next_time_group">ग्रुप %1$s</string>
+    <string name="prefer_next_time_language">%1$s ऑडियो</string>
+    <string name="prefer_next_time_size">%1$d GB तक की फ़ाइलें</string>
+    <string name="prefer_next_time_not_now">अभी नहीं</string>
+    <string name="prefer_next_time_saved">बेस्ट मैच इसे प्राथमिकता देगा: %1$s</string>
+    <string name="best_match_excluded">ऑटो-प्ले नहीं हुआ: %1$s</string>
+    <string name="exclusion_above_max_resolution">आपके अधिकतम रिज़ॉल्यूशन से ऊपर</string>
+    <string name="exclusion_below_min_resolution">आपके न्यूनतम रिज़ॉल्यूशन से नीचे</string>
+    <string name="exclusion_over_max_size">आपकी साइज़ सीमा से बड़ा</string>
+    <string name="exclusion_under_min_size">आपके न्यूनतम साइज़ से छोटा</string>
+    <string name="exclusion_resolution">आप %1$s छोड़ते हैं</string>
+    <string name="exclusion_source">आप %1$s रिलीज़ छोड़ते हैं</string>
+    <string name="exclusion_codec">आप %1$s छोड़ते हैं</string>
+    <string name="exclusion_audio">आप %1$s ऑडियो छोड़ते हैं</string>
+    <string name="exclusion_language">आप %1$s छोड़ते हैं</string>
+    <string name="exclusion_release_group">आप %1$s ग्रुप छोड़ते हैं</string>
+    <string name="exclusion_result_limit">आपकी रिज़ल्ट सीमा से ज़्यादा</string>
+    <string name="exclusion_dv_profile_excluded">आपने यह Dolby Vision प्रोफाइल बंद किया है</string>
+    <string name="exclusion_dv_excluded">आपने Dolby Vision बंद किया है</string>
+    <string name="exclusion_hdr_excluded">आपने HDR बंद किया है</string>
+    <string name="exclusion_cam">कैम या टेलीसिंक कॉपी</string>
+    <string name="exclusion_3d">3D रिलीज़</string>
+    <string name="exclusion_keyword">किसी बाहर रखे गए कीवर्ड से मेल खाता है</string>
+    <string name="exclusion_unsupported_codec">यह टीवी %1$s डिकोड नहीं कर सकता</string>
+    <string name="exclusion_unsupported_dv">DV प्रोफाइल 5 इस टीवी पर सपोर्टेड नहीं है</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">HDR10+ वाला DV इस डिवाइस पर काली स्क्रीन दिखाता है</string>
+    <string name="exclusion_unsupported_resolution">इस टीवी की क्षमता से ज़्यादा रिज़ॉल्यूशन</string>
+    <string name="exclusion_unsupported_audio">%1$s के लिए पासथ्रू या ऐसा डिकोडर चाहिए जो इस टीवी में नहीं है</string>
+    <string name="exclusion_not_playable">यह प्लेयर इसे नहीं खोल सकता</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="one">खोज जारी… %1$d ने जवाब दिया, %2$d ऐडऑन अभी भी खोज रहा है</item>
+        <item quantity="other">खोज जारी… %1$d ने जवाब दिया, %2$d ऐडऑन अभी भी खोज रहे हैं</item>
+    </plurals>
+    <string name="fetching_addons_done">सभी %1$d ऐडऑन ने जवाब दिया</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="one">%1$d सेकंड में शुरू हो रहा है</item>
+        <item quantity="other">%1$d सेकंड में शुरू हो रहा है</item>
+    </plurals>
+    <string name="fetching_best_so_far">अब तक का सबसे अच्छा</string>
+    <string name="fetching_play_now">अभी चलाएँ</string>
+    <string name="fetching_see_all_sources">सभी सोर्स देखें</string>
+    <string name="licenses_attributions_fetch_body">Fetch, GNU General Public License v3.0 के तहत मुफ़्त सॉफ़्टवेयर है। यह Nuvio योगदानकर्ताओं के NuvioTV (github.com/NuvioMedia/NuvioTV) का फ़ोर्क है, जिनका काम इस ऐप का ज़्यादातर हिस्सा है।</string>
+    <string name="advanced_section_skip_markers">स्किप मार्कर</string>
+    <string name="advanced_introdb_server">IntroDB सर्वर</string>
+    <string name="advanced_introdb_server_subtitle">सामान्य टीवी शो और मूवी के लिए इंट्रो, रीकैप और क्रेडिट मार्कर कहाँ से आते हैं</string>
+    <string name="advanced_introdb_server_default">डिफ़ॉल्ट (%1$s)</string>
+    <string name="advanced_introdb_server_dialog_subtitle">IntroDB-संगत API। पब्लिक सर्वर इस्तेमाल करने के लिए खाली छोड़ें।</string>
+    <string name="advanced_introdb_server_invalid">कोई http या https पता डालें</string>
+    <string name="advanced_introdb_api_key">IntroDB API की</string>
+    <string name="advanced_introdb_api_key_subtitle">प्लेयर से इंट्रो और एंड क्रेडिट मार्क करके उन्हें IntroDB पर भेजने देता है</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">introdb.app पर एक की बनाएँ। यह idb_ से शुरू होती है।</string>
+    <string name="sub_hdr_style">अलग HDR / Dolby Vision स्टाइल</string>
+    <string name="sub_hdr_style_sub">HDR और Dolby Vision वीडियो पर सबटाइटल के लिए अलग टेक्स्ट रंग और कम ब्राइटनेस इस्तेमाल करें</string>
+    <string name="sub_hdr_text_color">HDR टेक्स्ट रंग</string>
+    <string name="sub_hdr_brightness">HDR सबटाइटल ब्राइटनेस</string>
+    <string name="best_match_preview_title">प्ले बटन पर चुनी गई फ़ाइल दिखाएँ</string>
+    <string name="best_match_preview_sub">जब आप किसी टाइटल को देख रहे होते हैं, तभी आपके स्ट्रीम ऐडऑन से पूछ लेता है, ताकि प्ले बटन फ़ाइल का नाम दिखा सके और प्लेबैक जल्दी शुरू हो। बंद करने पर खोज सिर्फ़ प्ले दबाने के बाद होगी।</string>
+    <string name="autoplay_allowed_addons_early_sub">हर ऐडऑन का इंतज़ार करने के बजाय, इन ऐडऑन के जवाब देते ही ऑटो-प्ले शुरू हो जाता है।</string>
+    <string name="layout_trailer_crop_to_fill">ट्रेलर को क्रॉप करके भरें</string>
+    <string name="layout_trailer_crop_to_fill_sub">होम और डिटेल पेज पर बैकग्राउंड ट्रेलर को ज़ूम करें ताकि वे पूरा फ़्रेम भरें। काली पट्टियों के साथ पूरी तस्वीर देखने के लिए बंद करें।</string>
+    <string name="addon_configure">कॉन्फ़िगर करें</string>
+    <string name="addon_badge_needs_setup">सेटअप ज़रूरी</string>
+    <string name="addon_needs_configuration">%1$s को इंस्टॉल करने से पहले सेट अप करना होगा</string>
+    <string name="addon_configure_updated">%1$s अपडेट हुआ</string>
+    <string name="addon_configure_still_unconfigured">%1$s अभी भी सेट अप नहीं है। उसका कॉन्फ़िगरेशन पेज पूरा करें, फिर लिंक दोबारा भेजें।</string>
+    <string name="addon_configure_title">%1$s कॉन्फ़िगर करें</string>
+    <string name="addon_configure_received">आपके फोन ने भेजा: %1$s</string>
+    <string name="addon_configure_install">इंस्टॉल करें</string>
+    <string name="addon_configure_step_open">1. अपने फोन पर इसका कॉन्फ़िगरेशन पेज खोलने के लिए स्कैन करें</string>
+    <string name="addon_configure_step_send">2. नया लिंक वापस इस टीवी पर भेजने के लिए स्कैन करें</string>
+    <string name="addon_configure_waiting">सेव करने के बाद, पेज से मिला इंस्टॉल लिंक कॉपी करें और चरण 2 से भेजें।</string>
+    <string name="addon_configure_no_server">सेव करने के बाद, इंस्टॉल लिंक को इस स्क्रीन के ऊपर वाले बॉक्स में पेस्ट करें।</string>
+    <string name="addon_configure_web_title">टीवी पर भेजें</string>
+    <string name="addon_configure_web_step1">पहले ऐडऑन को उसके अपने पेज पर सेट अप करें।</string>
+    <string name="addon_configure_web_open">कॉन्फ़िगरेशन पेज खोलें</string>
+    <string name="addon_configure_web_step2">जब यह इंस्टॉल लिंक (या manifest.json पता) दिखाए, तो उसे कॉपी करके यहाँ पेस्ट करें।</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json या stremio://…</string>
+    <string name="addon_configure_web_send">टीवी पर भेजें</string>
+    <string name="addon_configure_web_sent">भेज दिया। अपने टीवी पर कन्फ़र्म करें।</string>
+    <string name="addon_configure_web_invalid">यह ऐडऑन लिंक जैसा नहीं लगता।</string>
+    <string name="addon_configure_web_failed">टीवी तक नहीं पहुँच सके। क्या वह अभी भी कॉन्फ़िगर स्क्रीन पर है?</string>
+    <string name="catalog_order_pinned_on_home">होम में सबसे ऊपर पिन किया गया</string>
+    <string name="catalog_order_pin">ऊपर पिन करें</string>
+    <string name="filter_rows_title">फ़िल्टर रो</string>
+    <string name="filter_rows_subtitle">मीडिया सर्वर लाइब्रेरी या ऐडऑन कैटलॉग पर फ़िल्टर लगाकर बनी रो। ये होम पर दिखती हैं, जहाँ आप इन्हें किसी भी दूसरी रो की तरह क्रम बदल, छुपा और पिन कर सकते हैं।</string>
+    <string name="filter_rows_card_subtitle">होम रो बनाएँ, जैसे \"मेरे Jellyfin से बिना देखी साइंस-फ़िक्शन\"</string>
+    <string name="filter_rows_new">नई फ़िल्टर रो</string>
+    <string name="filter_rows_edit_title">फ़िल्टर रो एडिट करें</string>
+    <string name="filter_rows_empty">अभी कोई फ़िल्टर रो नहीं है।</string>
+    <string name="filter_rows_no_sources">फ़िल्टर रो बनाने के लिए कोई मीडिया सर्वर कनेक्ट करें या जॉनर कैटलॉग वाला ऐडऑन इंस्टॉल करें।</string>
+    <string name="filter_rows_edit">एडिट करें</string>
+    <string name="filter_rows_delete">डिलीट करें</string>
+    <string name="filter_rows_save">सेव करें</string>
+    <string name="filter_rows_save_failed">सेव नहीं हो सका। फिर से कोशिश करें।</string>
+    <string name="filter_row_any">कोई भी</string>
+    <string name="filter_row_source">सोर्स</string>
+    <string name="filter_row_genre">जॉनर</string>
+    <string name="filter_row_year_from">इस साल से</string>
+    <string name="filter_row_year_to">इस साल तक</string>
+    <string name="filter_row_watched">देखा हुआ</string>
+    <string name="filter_row_watched_only">सिर्फ़ देखे हुए</string>
+    <string name="filter_row_unwatched">सिर्फ़ बिना देखे</string>
+    <string name="filter_row_rating">न्यूनतम रेटिंग</string>
+    <string name="filter_row_rating_value">%1$.1f या ज़्यादा</string>
+    <string name="filter_row_sort">इसके अनुसार क्रमबद्ध करें</string>
+    <string name="filter_row_sort_added">जोड़ने की तारीख</string>
+    <string name="filter_row_sort_title">टाइटल</string>
+    <string name="filter_row_sort_release">रिलीज़ तारीख</string>
+    <string name="filter_row_sort_rating">रेटिंग</string>
+    <string name="filter_row_sort_random">रैंडम</string>
+    <string name="filter_row_order">क्रम</string>
+    <string name="filter_row_descending">घटते क्रम में</string>
+    <string name="filter_row_ascending">बढ़ते क्रम में</string>
+    <string name="filter_row_addon_note">ऐडऑन कैटलॉग सिर्फ़ जॉनर के हिसाब से फ़िल्टर किए जा सकते हैं।</string>
+    <string name="filter_row_source_missing">इस रो का सोर्स अब उपलब्ध नहीं है।</string>
+    <string name="home_poster_pin_row">इस रो को सबसे ऊपर पिन करें</string>
+    <string name="home_poster_unpin_row">इस रो को अनपिन करें</string>
+    <string name="catalog_order_unpin">अनपिन करें</string>
+    <string name="subtitle_style_text_color_hdr">टेक्स्ट रंग (HDR)</string>
+    <string name="subtitle_style_text_opacity_hdr">टेक्स्ट अपारदर्शिता (HDR)</string>
+    <string name="subtitle_style_brightness_hdr">ब्राइटनेस (HDR)</string>
+    <string name="skip_source">%1$s के ज़रिए</string>
+    <string name="skip_source_reportable">%1$s के ज़रिए · रिपोर्ट करने के लिए दबाकर रखें</string>
+    <string name="skip_marker_reported">गलत मार्कर रिपोर्ट किया गया। धन्यवाद!</string>
+    <string name="skip_marker_report_failed">मार्कर रिपोर्ट नहीं हो सका</string>
+    <string name="skip_marker_start_recorded">शुरुआत मार्क हो गई। जहाँ खत्म हो वहाँ फिर से दबाएँ।</string>
+    <string name="skip_marker_submitted">मार्कर IntroDB को भेजा गया</string>
+    <string name="skip_marker_submit_failed">मार्कर IntroDB को नहीं भेजा जा सका</string>
+    <string name="library_empty_type_movies">मूवी</string>
+    <string name="library_empty_type_series">सीरीज़</string>
+    <string name="library_empty_type_items">आइटम</string>
+    <string name="server_options_use_official">सिंक बंद करें</string>
+    <string name="official_server_title">सिंक बंद करें?</string>
+    <string name="official_server_description">आप अपने सिंक सर्वर से साइन आउट हो जाएँगे और ऐप सिर्फ़-लोकल मोड में रीस्टार्ट होगा। इस टीवी पर पहले से मौजूद सब कुछ बना रहेगा।</string>
+    <string name="official_server_action">सिंक बंद करें</string>
+    <string name="custom_server_error_official_active">इस टीवी पर सिंक पहले से बंद है।</string>
+    <string name="custom_server_error_official_available">यह सिंक सर्वर नहीं है। सिर्फ़-लोकल मोड पर वापस जाने के लिए यह डायलॉग बंद करें और सिंक बंद करें चुनें।</string>
+    <string name="cd_mark_intro_start">इंट्रो की शुरुआत मार्क करें</string>
+    <string name="cd_mark_intro_end">इंट्रो का अंत मार्क करें</string>
+    <string name="cd_mark_credits_start">एंड क्रेडिट की शुरुआत मार्क करें</string>
+    <string name="cd_mark_credits_end">एंड क्रेडिट का अंत मार्क करें</string>
+    <string name="autoplay_mode_best">बेस्ट मैच</string>
+    <string name="autoplay_mode_best_desc">हर रिज़ल्ट को क्वालिटी, आपके नियमों और इस डिवाइस की प्ले करने की क्षमता के आधार पर रैंक करता है, फिर सबसे अच्छा शुरू करता है। बाकी सोर्स बस एक बटन दूर रहते हैं।</string>
+    <string name="ranking_preferred_quality">पसंदीदा क्वालिटी</string>
+    <string name="ranking_preferred_quality_sub">ऊँची क्वालिटी अब भी चलेगी, बस उसकी रैंक नीचे होगी</string>
+    <string name="ranking_max_quality">अधिकतम क्वालिटी</string>
+    <string name="ranking_preferred_codec">पसंदीदा वीडियो कोडेक</string>
+    <string name="ranking_preferred_size">पसंदीदा फ़ाइल साइज़</string>
+    <string name="ranking_preferred_size_sub">बड़ी फ़ाइलों की रैंक नीचे होती है</string>
+    <string name="ranking_max_size">अधिकतम फ़ाइल साइज़</string>
+    <string name="ranking_max_size_sub">बड़ी फ़ाइलें कभी ऑटो-प्ले नहीं होतीं</string>
+    <string name="ranking_skip_dv5">Dolby Vision प्रोफाइल 5 छोड़ें</string>
+    <string name="ranking_skip_dv5_sub">प्रोफाइल 5 में HDR10 फ़ॉलबैक नहीं होता। अगर यह टीवी इसे नहीं दिखा सकता तो इसे हमेशा छोड़ा जाता है</string>
+    <string name="ranking_prefer_cached">कैश्ड डेब्रिड रिज़ल्ट को प्राथमिकता दें</string>
+    <string name="ranking_prefer_cached_sub">कैश्ड फ़ाइलें तुरंत शुरू होती हैं</string>
+    <string name="ranking_prefer_library">मेरी अपनी लाइब्रेरी को प्राथमिकता दें</string>
+    <string name="ranking_prefer_library_sub">आपके Jellyfin, Emby या Plex सर्वर की फ़ाइल किसी भी स्ट्रीम से ऊपर रहती है</string>
+    <string name="ranking_hide_cam">CAM या टेलीसिंक कभी ऑटो-प्ले न करें</string>
+    <string name="ranking_drop_undecodable">जो स्ट्रीम यह डिवाइस डिकोड नहीं कर सकता उन्हें छोड़ें</string>
+    <string name="ranking_drop_undecodable_sub">इस डिवाइस द्वारा बताए गए डिकोडर, HDR फ़ॉर्मेट और रिज़ॉल्यूशन के आधार पर</string>
+    <string name="ranking_any">कोई भी</string>
+    <string name="ranking_no_limit">कोई सीमा नहीं</string>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="ranking_min_size">न्यूनतम फ़ाइल साइज़</string>
+    <string name="ranking_min_size_sub">छोटी फ़ाइलें कभी ऑटो-प्ले नहीं होतीं</string>
+    <string name="ranking_preferred_languages">पसंदीदा ऑडियो भाषाएँ</string>
+    <string name="ranking_preferred_languages_sub">इन भाषाओं वाली रिलीज़ ऊपर रैंक होती हैं, पहली पसंद सबसे ऊपर</string>
+    <string name="ranking_excluded_languages">ऑडियो भाषाएँ छोड़ें</string>
+    <string name="ranking_excluded_languages_sub">सिर्फ़ इन भाषाओं वाली रिलीज़ कभी ऑटो-प्ले नहीं होतीं</string>
+    <string name="ranking_excluded_sources">रिलीज़ टाइप छोड़ें</string>
+    <string name="ranking_excluded_audio">ऑडियो फ़ॉर्मेट छोड़ें</string>
+    <string name="ranking_excluded_audio_sub">सिर्फ़ इन ऑडियो फ़ॉर्मेट वाली रिलीज़ कभी ऑटो-प्ले नहीं होतीं</string>
+    <string name="ranking_preferred_groups">पसंदीदा रिलीज़ ग्रुप</string>
+    <string name="ranking_preferred_groups_sub">इसमें वे ग्रुप शामिल हैं जिन्हें आपने अगली बार इसे प्राथमिकता दें से चुना</string>
+    <string name="ranking_excluded_groups">रिलीज़ ग्रुप छोड़ें</string>
+    <string name="ranking_max_results">रखने लायक रिज़ल्ट</string>
+    <string name="ranking_max_results_sub">बाकी अन्य सोर्स में चले जाते हैं</string>
+    <string name="ranking_max_per_resolution">प्रति रिज़ॉल्यूशन रिज़ल्ट</string>
+    <string name="ranking_none">कोई नहीं</string>
+    <string name="ranking_groups_input_sub">ग्रुप को कॉमा से अलग करें, जैसे FLUX, NTb.</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="one">%1$d चुना गया</item>
+        <item quantity="other">%1$d चुने गए</item>
+    </plurals>
+    <string name="addon_health_latency">%1$.1f से.</string>
+    <string name="addon_health_ok">जवाब दे रहा है · %1$s</string>
+    <string name="addon_health_slow">धीमा · %1$s</string>
+    <string name="addon_health_failing">पिछली रिक्वेस्ट फ़ेल हुई</string>
+    <string name="addon_health_timed_out">पिछली रिक्वेस्ट का समय खत्म हो गया</string>
+    <string name="account_local_only_note">सिंक बंद है। Fetch आपके ऐडऑन, प्रोग्रेस और सेटिंग्स इसी टीवी पर रखता है और इसके लिए किसी अकाउंट की ज़रूरत नहीं है। डिवाइसों के बीच सिंक करने के लिए, सर्वर विकल्पों से अपना सिंक सर्वर कनेक्ट करें।</string>
+    <string name="torrent_engine_unavailable">यह एक टॉरेंट स्ट्रीम है और Fetch में बिल्ट-इन टॉरेंट इंजन नहीं है। सेटिंग्स → Debrid में कोई डेब्रिड सर्विस चालू करें, या इसे किसी बाहरी प्लेयर में खोलें।</string>
+    <string name="parental_title_blocked">यह टाइटल इस प्रोफाइल की रेटिंग सीमा से ऊपर है।</string>
+    <string name="parental_addons_blocked">यह प्रोफाइल ऐडऑन इंस्टॉल नहीं कर सकता। किसी अभिभावक से कहें।</string>
+    <string name="parental_gate_heading">%1$s का PIN डालें</string>
+    <string name="parental_gate_support">इस प्रोफाइल पर पैरेंटल सीमाएँ हैं। आगे बढ़ने के लिए अभिभावक का PIN चाहिए।</string>
+    <string name="parental_limits_label">पैरेंटल सीमाएँ</string>
+    <string name="parental_limits_title">%1$s के लिए पैरेंटल सीमाएँ</string>
+    <string name="parental_limits_subtitle">बदलावों के लिए मुख्य प्रोफाइल का PIN चाहिए। सीमा से ऊपर के टाइटल होम, सर्च और देखना जारी रखें से छुपे रहते हैं और चलाए नहीं जा सकते।</string>
+    <string name="parental_limits_subtitle_no_pin">मुख्य प्रोफाइल पर PIN सेट करें, वरना इस प्रोफाइल पर कोई भी ये सीमाएँ बदल सकता है।</string>
+    <string name="parental_limits_saved">%1$s के लिए पैरेंटल सीमाएँ सेव हो गईं</string>
+    <string name="parental_kids_profile_toggle">किड्स प्रोफाइल: %1$s</string>
+    <string name="parental_max_rating">अधिकतम रेटिंग: %1$s</string>
+    <string name="parental_allow_unrated">बिना रेटिंग वाले टाइटल दिखाएँ: %1$s</string>
+    <string name="parental_on">चालू</string>
+    <string name="parental_off">बंद</string>
+    <string name="parental_level_all_ages">सभी उम्र (G, TV-Y, TV-G)</string>
+    <string name="parental_level_older_kids">बड़े बच्चे (TV-Y7)</string>
+    <string name="parental_level_pg">PG, TV-PG</string>
+    <string name="parental_level_teens">PG-13, TV-14</string>
+    <string name="parental_level_mature">R, TV-MA</string>
+    <string name="parental_level_unrestricted">कोई सीमा नहीं</string>
+    <string name="stream_torrent_needs_debrid">टोरेंट: इसे यहाँ चलाने के लिए सेटिंग्स → Debrid में कोई debrid सेवा जोड़ें, या इसे किसी बाहरी प्लेयर में खोलें।</string>
 </resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Logga in med ditt %1$s-konto från telefonen. Inget skrivande på tv:n.</string>
+    <string name="servers_link_choose_server">Ditt konto når mer än en server. Välj den du vill lägga till.</string>
+    <string name="servers_link_connecting_to">Ansluter till %1$s…</string>
+    <string name="servers_link_expired">Koden har gått ut. Hämta en ny för att försöka igen.</string>
+    <string name="servers_link_expires">Koden går ut om %1$s</string>
+    <string name="servers_link_instruction">Skanna koden med telefonen, eller öppna %1$s på valfri enhet och ange den här koden.</string>
+    <string name="servers_link_loading">Hämtar en inloggningskod…</string>
+    <string name="servers_link_no_servers">Det här kontot har inga servrar än. Konfigurera en, eller be en serverägare att dela ett bibliotek med dig.</string>
+    <string name="servers_link_qr">QR-kod för att logga in på %1$s</string>
+    <string name="servers_link_retry">Hämta en ny kod</string>
+    <string name="servers_link_waiting">Väntar på att du godkänner koden…</string>
+</resources>

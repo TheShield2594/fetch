@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Conectează-te cu contul %1$s de pe telefon. Fără tastare pe televizor.</string>
+    <string name="servers_link_choose_server">Contul tău are acces la mai multe servere. Alege-l pe cel pe care vrei să-l adaugi.</string>
+    <string name="servers_link_connecting_to">Se conectează la %1$s…</string>
+    <string name="servers_link_expired">Codul a expirat. Obține unul nou pentru a încerca din nou.</string>
+    <string name="servers_link_expires">Codul expiră în %1$s</string>
+    <string name="servers_link_instruction">Scanează codul cu telefonul sau deschide %1$s pe orice dispozitiv și introdu acest cod.</string>
+    <string name="servers_link_loading">Se obține un cod de conectare…</string>
+    <string name="servers_link_no_servers">Acest cont nu are încă servere. Configurează unul sau cere proprietarului unui server să-ți partajeze o bibliotecă.</string>
+    <string name="servers_link_qr">Cod QR pentru conectarea la %1$s</string>
+    <string name="servers_link_retry">Obține un cod nou</string>
+    <string name="servers_link_waiting">Se așteaptă aprobarea codului…</string>
+</resources>

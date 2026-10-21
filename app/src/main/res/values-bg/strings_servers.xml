@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Влез с акаунта си в %1$s от телефона. Без писане на телевизора.</string>
+    <string name="servers_link_choose_server">Акаунтът ти има достъп до повече от един сървър. Избери кой да добавиш.</string>
+    <string name="servers_link_connecting_to">Свързване с %1$s…</string>
+    <string name="servers_link_expired">Кодът изтече. Вземи нов, за да опиташ отново.</string>
+    <string name="servers_link_expires">Кодът изтича след %1$s</string>
+    <string name="servers_link_instruction">Сканирай кода с телефона си или отвори %1$s на което и да е устройство и въведи този код.</string>
+    <string name="servers_link_loading">Получаване на код за вход…</string>
+    <string name="servers_link_no_servers">Този акаунт все още няма сървъри. Настрой един или помоли собственик на сървър да сподели библиотека с теб.</string>
+    <string name="servers_link_qr">QR код за вход в %1$s</string>
+    <string name="servers_link_retry">Вземи нов код</string>
+    <string name="servers_link_waiting">Изчакване да одобриш кода…</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Telefon musi być w tej samej sieci Wi-Fi co ten telewizor. Możesz to zrobić także później w Ustawieniach.</string>
+    <string name="first_run_phone_qr_description">Kod konfiguracji telefonu</string>
+    <string name="first_run_phone_step_accounts">Zaloguj się do Trakt, Simkl lub Jellyfin</string>
+    <string name="first_run_phone_step_addons">Wklej dodatki i klucz debrid</string>
+    <string name="first_run_phone_step_scan">Zeskanuj aparatem telefonu</string>
+    <string name="first_run_phone_title">Skonfiguruj telefonem. Bez wpisywania pilotem.</string>
+    <string name="first_run_recommended">Zalecane</string>
+    <string name="phone_hub_description">Zeskanuj jeden kod, aby używać telefonu jako pilota i klawiatury, logować się do kont i edytować długie ustawienia.</string>
+    <string name="phone_hub_instruction">Zeskanuj telefonem. Kod działa raz; strona pozostaje otwarta, dopóki otwarty jest ten ekran.</string>
+    <string name="phone_hub_open">Pokaż kod dla telefonu</string>
+    <string name="phone_hub_open_description">Telefon musi być w tej samej sieci co ten telewizor.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">Połączono %d telefon. Pilot działa jeszcze 10 minut po zamknięciu tego ekranu.</item>
+        <item quantity="few">Połączono %d telefony. Pilot działa jeszcze 10 minut po zamknięciu tego ekranu.</item>
+        <item quantity="many">Połączono %d telefonów. Pilot działa jeszcze 10 minut po zamknięciu tego ekranu.</item>
+        <item quantity="other">Połączono %d telefonu. Pilot działa jeszcze 10 minut po zamknięciu tego ekranu.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Ten profil ma ograniczenia rodzicielskie. Najpierw odblokuj ustawienia na telewizorze.</string>
+    <string name="phone_hub_title">Konfiguracja z telefonu</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Телефон має бути в тій самій мережі Wi-Fi, що й цей телевізор. Це можна зробити й пізніше в Налаштуваннях.</string>
+    <string name="first_run_phone_qr_description">Код налаштування з телефона</string>
+    <string name="first_run_phone_step_accounts">Увійдіть у Trakt, Simkl або Jellyfin</string>
+    <string name="first_run_phone_step_addons">Вставте адони та ключ debrid</string>
+    <string name="first_run_phone_step_scan">Відскануйте камерою телефона</string>
+    <string name="first_run_phone_title">Налаштуйте з телефона. Без набору пультом.</string>
+    <string name="first_run_recommended">Рекомендовано</string>
+    <string name="phone_hub_description">Відскануйте один код, щоб використовувати телефон як пульт і клавіатуру, входити в акаунти та редагувати довгі налаштування.</string>
+    <string name="phone_hub_instruction">Відскануйте телефоном. Код спрацьовує один раз; сторінка лишається відкритою, поки відкрито цей екран.</string>
+    <string name="phone_hub_open">Показати код для телефона</string>
+    <string name="phone_hub_open_description">Телефон має бути в тій самій мережі, що й цей телевізор.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">Підключено %d телефон. Пульт працює ще 10 хвилин після закриття цього екрана.</item>
+        <item quantity="few">Підключено %d телефони. Пульт працює ще 10 хвилин після закриття цього екрана.</item>
+        <item quantity="many">Підключено %d телефонів. Пульт працює ще 10 хвилин після закриття цього екрана.</item>
+        <item quantity="other">Підключено %d телефона. Пульт працює ще 10 хвилин після закриття цього екрана.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Цей профіль має батьківські обмеження. Спершу розблокуйте налаштування на телевізорі.</string>
+    <string name="phone_hub_title">Налаштувати з телефона</string>
+</resources>

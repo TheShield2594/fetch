@@ -57,4 +57,17 @@
     <string name="library_servers_empty_title">Không có thư viện nào được chọn</string>
     <string name="library_servers_empty_message">Chọn thư viện nào sẽ hiển thị trong Cài đặt, tại mục Nội dung &amp; Khám phá, rồi đến Máy chủ đa phương tiện.</string>
     <string name="library_server_load_failed">Không thể tải %1$s</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Đăng nhập tài khoản %1$s từ điện thoại. Không cần gõ trên TV.</string>
+    <string name="servers_link_choose_server">Tài khoản của bạn truy cập được nhiều máy chủ. Hãy chọn máy chủ muốn thêm.</string>
+    <string name="servers_link_connecting_to">Đang kết nối tới %1$s…</string>
+    <string name="servers_link_expired">Mã đã hết hạn. Lấy mã mới để thử lại.</string>
+    <string name="servers_link_expires">Mã hết hạn sau %1$s</string>
+    <string name="servers_link_instruction">Quét mã bằng điện thoại, hoặc mở %1$s trên bất kỳ thiết bị nào và nhập mã này.</string>
+    <string name="servers_link_loading">Đang lấy mã đăng nhập…</string>
+    <string name="servers_link_no_servers">Tài khoản này chưa có máy chủ nào. Hãy thiết lập một máy chủ, hoặc nhờ chủ máy chủ chia sẻ thư viện với bạn.</string>
+    <string name="servers_link_qr">Mã QR để đăng nhập %1$s</string>
+    <string name="servers_link_retry">Lấy mã mới</string>
+    <string name="servers_link_waiting">Đang chờ bạn phê duyệt mã…</string>
 </resources>

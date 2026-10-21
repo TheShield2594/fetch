@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">用手机登录您的 %1$s 账户，无需在电视上打字。</string>
+    <string name="servers_link_choose_server">您的账户可以访问多个服务器。请选择要添加的服务器。</string>
+    <string name="servers_link_connecting_to">正在连接到 %1$s…</string>
+    <string name="servers_link_expired">代码已过期。获取新代码后重试。</string>
+    <string name="servers_link_expires">代码将在 %1$s 后过期</string>
+    <string name="servers_link_instruction">用手机扫描二维码，或在任意设备上打开 %1$s 并输入此代码。</string>
+    <string name="servers_link_loading">正在获取登录代码…</string>
+    <string name="servers_link_no_servers">此账户还没有服务器。请设置一个服务器，或请服务器所有者与您共享媒体库。</string>
+    <string name="servers_link_qr">用于登录 %1$s 的二维码</string>
+    <string name="servers_link_retry">获取新代码</string>
+    <string name="servers_link_waiting">正在等待您批准代码…</string>
+</resources>

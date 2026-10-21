@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">يجب أن يكون هاتفك على شبكة Wi-Fi نفسها التي يتصل بها هذا التلفاز. يمكنك أيضاً القيام بذلك لاحقاً من الإعدادات.</string>
+    <string name="first_run_phone_qr_description">رمز إعداد الهاتف</string>
+    <string name="first_run_phone_step_accounts">سجّل الدخول إلى Trakt أو Simkl أو Jellyfin</string>
+    <string name="first_run_phone_step_addons">الصق الإضافات ومفتاح الديبريد</string>
+    <string name="first_run_phone_step_scan">امسح الرمز بكاميرا هاتفك</string>
+    <string name="first_run_phone_title">أعدّ التطبيق بهاتفك. بلا كتابة بجهاز التحكم.</string>
+    <string name="first_run_recommended">موصى به</string>
+    <string name="phone_hub_description">امسح رمزاً واحداً لاستخدام هاتفك كجهاز تحكم ولوحة مفاتيح، وتسجيل الدخول إلى الحسابات، وتعديل الإعدادات الطويلة.</string>
+    <string name="phone_hub_instruction">امسح الرمز بهاتفك. يعمل الرمز مرة واحدة؛ وتبقى الصفحة مفتوحة ما دامت هذه الشاشة مفتوحة.</string>
+    <string name="phone_hub_open">إظهار رمز الهاتف</string>
+    <string name="phone_hub_open_description">يجب أن يكون هاتفك على الشبكة نفسها التي يتصل بها هذا التلفاز.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="zero">لا توجد هواتف متصلة (%d). يستمر جهاز التحكم بالعمل 10 دقائق بعد إغلاق هذه الشاشة.</item>
+        <item quantity="one">هاتف واحد متصل (%d). يستمر جهاز التحكم بالعمل 10 دقائق بعد إغلاق هذه الشاشة.</item>
+        <item quantity="two">هاتفان متصلان (%d). يستمر جهاز التحكم بالعمل 10 دقائق بعد إغلاق هذه الشاشة.</item>
+        <item quantity="few">%d هواتف متصلة. يستمر جهاز التحكم بالعمل 10 دقائق بعد إغلاق هذه الشاشة.</item>
+        <item quantity="many">%d هاتفاً متصلاً. يستمر جهاز التحكم بالعمل 10 دقائق بعد إغلاق هذه الشاشة.</item>
+        <item quantity="other">%d هاتف متصل. يستمر جهاز التحكم بالعمل 10 دقائق بعد إغلاق هذه الشاشة.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">لهذا الملف الشخصي قيود أبوية. افتح قفل الإعدادات على التلفاز أولاً.</string>
+    <string name="phone_hub_title">الإعداد من الهاتف</string>
+</resources>

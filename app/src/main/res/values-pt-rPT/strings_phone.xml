@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">O teu telemóvel tem de estar na mesma rede Wi-Fi que esta TV. Também podes fazer isto mais tarde nas Definições.</string>
+    <string name="first_run_phone_qr_description">Código de configuração do telemóvel</string>
+    <string name="first_run_phone_step_accounts">Inicia sessão no Trakt, Simkl ou Jellyfin</string>
+    <string name="first_run_phone_step_addons">Cola addons e a tua chave debrid</string>
+    <string name="first_run_phone_step_scan">Lê com a câmara do telemóvel</string>
+    <string name="first_run_phone_title">Configura com o telemóvel. Sem escrever com o comando.</string>
+    <string name="first_run_recommended">Recomendado</string>
+    <string name="phone_hub_description">Lê um código para usar o telemóvel como comando e teclado, iniciar sessão em contas e editar definições longas.</string>
+    <string name="phone_hub_instruction">Lê com o telemóvel. O código funciona uma vez; a página fica aberta enquanto este ecrã estiver.</string>
+    <string name="phone_hub_open">Mostrar código do telemóvel</string>
+    <string name="phone_hub_open_description">O teu telemóvel tem de estar na mesma rede que esta TV.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d telemóvel ligado. O comando continua a funcionar durante 10 minutos depois de fechares este ecrã.</item>
+        <item quantity="other">%d telemóveis ligados. O comando continua a funcionar durante 10 minutos depois de fechares este ecrã.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Este perfil tem limites parentais. Desbloqueia primeiro as definições na TV.</string>
+    <string name="phone_hub_title">Configurar a partir do telemóvel</string>
+</resources>

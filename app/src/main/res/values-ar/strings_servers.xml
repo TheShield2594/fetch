@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">سجّل الدخول بحساب %1$s من هاتفك. بلا كتابة على التلفاز.</string>
+    <string name="servers_link_choose_server">يمكن لحسابك الوصول إلى أكثر من خادم. اختر الخادم الذي تريد إضافته.</string>
+    <string name="servers_link_connecting_to">جارٍ الاتصال بـ %1$s…</string>
+    <string name="servers_link_expired">انتهت صلاحية الرمز. احصل على رمز جديد للمحاولة مرة أخرى.</string>
+    <string name="servers_link_expires">تنتهي صلاحية الرمز خلال %1$s</string>
+    <string name="servers_link_instruction">امسح الرمز بهاتفك، أو افتح %1$s على أي جهاز، ثم أدخل هذا الرمز.</string>
+    <string name="servers_link_loading">جارٍ الحصول على رمز تسجيل الدخول…</string>
+    <string name="servers_link_no_servers">لا توجد خوادم في هذا الحساب بعد. أعدّ خادماً، أو اطلب من مالك خادم مشاركة مكتبة معك.</string>
+    <string name="servers_link_qr">رمز QR لتسجيل الدخول إلى %1$s</string>
+    <string name="servers_link_retry">الحصول على رمز جديد</string>
+    <string name="servers_link_waiting">في انتظار موافقتك على الرمز…</string>
+</resources>

@@ -99,7 +99,7 @@
 
     <string name="home_no_addons">Nema instaliranih dodataka. Dodaj jedan za početak.</string>
     <string name="home_no_catalog_addons">Nema instaliranih dodataka s katalozima. Instaliraj dodatak s katalogom za prikaz sadržaja.</string>
-    <string name="auth_notice_fetch_logged_out">Sesija u Nuviju je završila. Prijavi se ponovno.</string>
+    <string name="auth_notice_fetch_logged_out">Sesija u Fetchu je završila. Prijavi se ponovno.</string>
     <string name="auth_notice_trakt_logged_out">Veza s Traktom je prekinuta. Ponovno se poveži.</string>
     <string name="error_generic">Došlo je do pogreške</string>
 
@@ -148,7 +148,6 @@
     <string name="cw_percent_watched">Pogledano %1$d%%</string>
     <string name="cw_hours_min_left">Preostalo %1$dh %2$dm</string>
     <string name="cw_min_left">Preostalo %1$dm</string>
-    <string name="cw_almost_done">Skoro gotovo</string>
     <string name="cw_airs_date">Emitira se %1$s</string>
     <string name="cw_airs_today">Emitira se danas</string>
     <string name="cw_airs_tomorrow">Emitira se sutra</string>
@@ -180,7 +179,6 @@
     <string name="hero_director">Redatelj: %1$s</string>
     <string name="hero_writer">Scenarist: %1$s</string>
     <string name="hero_play">Reproduciraj</string>
-    <string name="hero_play_episode">Reproduciraj S%1$d E%2$d</string>
     <string name="hero_add_to_library">Dodaj u biblioteku</string>
     <string name="hero_remove_from_library">Ukloni iz biblioteke</string>
     <string name="hero_mark_watched">Označi kao pogledano</string>
@@ -189,7 +187,6 @@
     <string name="hero_press_back_trailer">Pritisni natrag za izlaz iz trailera</string>
     <string name="hero_synopsis_read_more">Pročitaj više</string>
     <string name="hero_synopsis_dismiss_hint">Pritisni natrag za zatvaranje</string>
-    <string name="cd_rating">Ocjena</string>
 
     <string name="episodes_season">Sezona %1$d</string>
     <string name="episodes_specials">Specijali</string>
@@ -251,10 +248,8 @@
     <string name="detail_section_production">Produkcija</string>
     <string name="detail_comments_empty">Još nema dostupnih Trakt recenzija.</string>
     <string name="detail_comments_error">Trenutno nije moguće učitati Trakt recenzije.</string>
-    <string name="detail_trailer_loading">Učitavanje trailera...</string>
     <string name="detail_trailer_error">Trenutno nije moguće učitati trailer.</string>
     <string name="detail_comments_spoiler_hidden">Recenzija sa spojlerom. Pritisni OK za prikaz.</string>
-    <string name="detail_comments_reveal_spoiler">Prikaži spojler</string>
     <string name="detail_comments_reveal_spoiler_hint">Pritisni OK za prikaz spojlera.</string>
     <string name="detail_comments_back_hint">Pritisni natrag za zatvaranje</string>
     <string name="detail_comments_badge_review">Recenzija</string>
@@ -271,7 +266,7 @@
     <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 kôd države u kojoj je naslov dostupan. Primjer: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Brze regije gledanja</string>
     <string name="collections_editor_tmdb_watch_providers">ID-ovi pružatelja gledanja</string>
-    <string name="collections_editor_tmdb_watch_providers_helper">Koristi TMDB ID-ove pružatelja gledanja. Više njih odvoji zarezima za "I", ili okomitim crtama za "ILI".</string>
+    <string name="collections_editor_tmdb_watch_providers_helper">Koristi TMDB ID-ove pružatelja gledanja. Više njih odvoji zarezima za „I”, ili okomitim crtama za „ILI”.</string>
     <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Isključeni ID-ovi pružatelja gledanja</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Isključi naslove dostupne kod ovih TMDB pružatelja gledanja u odabranoj regiji.</string>
@@ -453,11 +448,8 @@
     <string name="settings_content_discovery_subtitle">Dodaci, pluginovi, katalozi i izvori za otkrivanje</string>
     <string name="settings_content_discovery_addons_subtitle">Upravljaj dodacima, redoslijedom kataloga i kolekcijama</string>
     <string name="settings_content_discovery_plugins_subtitle">Upravljaj repozitorijima i pružateljima streamova</string>
-    <string name="settings_plugins">Pluginovi</string>
-    <string name="settings_plugins_subtitle">Repozitoriji i pružatelji</string>
     <string name="settings_integration">Integracije</string>
     <string name="settings_playback">Reprodukcija</string>
-    <string name="settings_trakt_subtitle">Otvori zaslon za povezivanje s Traktom</string>
     <string name="settings_tracking_title">Praćenje</string>
     <string name="settings_tracking_description">Poveži usluge praćenja i odaberi koja pokreće tvoju biblioteku i Nastavi gledati.</string>
     <string name="tracking_accounts_title">Računi</string>
@@ -485,8 +477,6 @@
     <string name="tracking_trakt_progress_required">Dostupno kada je Trakt izvor napretka gledanja</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
-    <string name="settings_network">Brzina mreže</string>
-    <string name="settings_network_subtitle">Dijagnostika latencije i preuzimanja</string>
     <string name="settings_advanced">Napredno</string>
     <string name="settings_advanced_subtitle">Performanse, navigacija, predmemorija i dijagnostika</string>
     <string name="experience_mode_essential">Osnovno</string>
@@ -578,19 +568,10 @@
     <string name="advanced_section_network_tests">Mrežni testovi</string>
     <string name="advanced_fast_horizontal_navigation">Brza vodoravna navigacija</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Povećaj brzinu ponavljanja D-pada u redovima uz zadržano ograničavanje ponavljanja.</string>
-    <string name="advanced_fetch_performance_mode">ExoPlayer nativna memorija</string>
-    <string name="advanced_fetch_performance_mode_subtitle">Omogućuje visokoučinkoviti nativni alokator, memoriju izvan heapa i mrežne optimizacije za glađu reprodukciju</string>
-    <string name="buffer_device_ram_info">RAM uređaja: %s</string>
-    <string name="buffer_safe_limit_info">Preporučeno sigurno ograničenje: %d MB</string>
-    <string name="buffer_safe_status">Sigurno: unutar preporučenog ograničenja za tvoj uređaj.</string>
-    <string name="buffer_unsafe_warning">Upozorenje: premašuje preporučeno sigurno ograničenje (%1$d MB) za tvoj uređaj (%2$s). Može uzrokovati rušenje aplikacije.</string>
-    <string name="buffer_auto_limit_active">Automatski prilagođeno sigurno ograničenje: %d MB</string>
     <string name="advanced_fetch_focus_scroll">Fetch fokus pomicanje</string>
-    <string name="advanced_fetch_focus_scroll_subtitle">Koristi Fetch prilagođenu globalnu animaciju pomicanja i pozicioniranje fokusa.</string>
+    <string name="advanced_fetch_focus_scroll_subtitle">Koristi Fetchovu prilagođenu globalnu animaciju pomicanja i pozicioniranje fokusa.</string>
     <string name="advanced_rgb565">RGB565 dekodiranje slika</string>
     <string name="advanced_rgb565_subtitle">Koristi 16-bitne boje s manjom potrošnjom memorije za prikladne neprozirne slike. Promjena ponovno pokreće aplikaciju.</string>
-    <string name="advanced_memory_only_vertical_scroll">Okomito pomicanje samo iz memorije</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">Preskoči zahtjeve za slikama s diska i mreže tijekom okomitog pomicanja redova na početnom zaslonu.</string>
     <string name="advanced_compose_highlighter">Compose Highlighter</string>
     <string name="advanced_compose_highlighter_subtitle">Treperi obrubima oko UI elemenata koji se ponovno iscrtavaju radi otklanjanja problema s performansama.</string>
     <string name="advanced_clear_cw_cache">Očisti predmemoriju Nastavi gledati</string>
@@ -602,7 +583,6 @@
     <string name="advanced_confirm_exit_subtitle">Potpuno zatvori aplikaciju i oslobodi memoriju pri izlasku. Za potvrdu je potrebno dvaput pritisnuti natrag.</string>
     <string name="confirm_exit_toast">Ponovno pritisni natrag za izlaz</string>
     <string name="settings_debug">Otklanjanje grešaka</string>
-    <string name="settings_plugins_section_subtitle">Upravljaj repozitorijima, pružateljima i stanjem pluginova</string>
     <string name="settings_account_section_subtitle">Račun i status sinkronizacije</string>
     <string name="account_stat_addons">dodaci</string>
     <string name="account_stat_plugins">pluginovi</string>
@@ -621,33 +601,12 @@
     <string name="cd_decrease">Smanji</string>
     <string name="cd_increase">Povećaj</string>
     <string name="action_cancel">Odustani</string>
-    <string name="action_switch">Prebaci</string>
     <string name="action_apply">Primijeni</string>
     <string name="sub_opacity">Neprozirnost</string>
     <string name="action_none">Ništa</string>
     <string name="action_back">Natrag</string>
     <string name="action_close">Zatvori</string>
 
-    <string name="cd_membership_qr">QR kôd stranice članstva</string>
-    <string name="supporters_tab">Podupiratelji</string>
-    <string name="contributors_tab">Suradnici</string>
-    <string name="supporters_loading">Učitavanje podupiratelja…</string>
-    <string name="supporters_empty">Još nisu pronađeni podupiratelji.</string>
-    <string name="supporters_error_title">Nije moguće učitati podupiratelje</string>
-    <string name="supporters_no_message">Poruka nije podijeljena.</string>
-    <string name="supporters_level_supporter">Podupiratelj</string>
-    <string name="supporters_level_supporter_plus">Podupiratelj+</string>
-    <string name="supporters_since">Podržava Fetch od %1$s</string>
-    <string name="supporters_since_unknown">Ponosno podržava Fetch</string>
-    <string name="supporters_open_donations">Otvori stranicu za podršku</string>
-    <string name="contributors_loading">Učitavanje GitHub suradnika…</string>
-    <string name="contributors_empty">Još nisu pronađeni suradnici.</string>
-    <string name="contributors_error_title">Nije moguće učitati suradnike</string>
-    <string name="contributors_total_contributions">Ukupno doprinosa: %1$d</string>
-    <string name="contributors_open_github">Otvori GitHub profil</string>
-    <string name="contributors_show_kofi_qr">Prikaži Ko-fi QR</string>
-    <string name="contributors_hide_kofi_qr">Sakrij Ko-fi QR</string>
-    <string name="contributors_profile_unavailable">Poveznica na GitHub profil nije dostupna.</string>
 
     <string name="playback_section_player_title">Player</string>
     <string name="playback_section_player_title_desc">Zadani player, interni pogon i rezervna opcija pri pogrešci.</string>
@@ -733,7 +692,6 @@
     <string name="video_section">Video</string>
     <string name="playback_true_black_letterbox">Prave crne trake</string>
     <string name="playback_true_black_letterbox_sub">Ne iscrtavaj trake oko slike kako bi HDR ostao pravo crn. Ostavi isključeno ako se na trakama pojavi svijetla linija.</string>
-    <string name="audio_trailer_section">Trailer</string>
     <string name="audio_autoplay_trailers">Automatski reproduciraj trailere</string>
     <string name="audio_autoplay_trailers_sub">Automatski reproduciraj trailere na zaslonima detalja i nakon gledanja</string>
     <string name="audio_trailer_delay">Odgoda trailera</string>
@@ -799,7 +757,6 @@
     <string name="audio_decoder_prefer_app_desc">Koristi FFmpeg dekodere kada su dostupni. Bolja podrška formatima, ali veće opterećenje procesora.</string>
     <string name="audio_decoder_controls">Određuje koriste li se hardverski ili softverski (FFmpeg) dekoderi za zvuk i video</string>
 
-    <string name="sub_section">Titlovi</string>
     <string name="sub_not_set">Nije postavljeno</string>
     <string name="sub_forced_lang">Prisilni</string>
     <string name="sub_preferred_lang">Preferirani jezik</string>
@@ -810,7 +767,6 @@
     <string name="sub_show_only_preferred_languages_desc">Sakrij sve ostale jezike titlova s popisa za odabir</string>
     <string name="sub_strip_sdh">Ukloni SDH titlove</string>
     <string name="sub_strip_sdh_desc">Sakrij opise zvukova i oznake govornika iz tekstualnih titlova</string>
-    <string name="sub_organization">Organizacija titlova</string>
     <string name="sub_size">Veličina</string>
     <string name="sub_vertical_offset">Okomiti pomak</string>
     <string name="sub_bold">Podebljano</string>
@@ -833,12 +789,6 @@
     <string name="sub_mode_effects_canvas_sub">Podrška za animacije pomoću Media3 efekata s Canvas iscrtavanjem.</string>
     <string name="sub_mode_standard">Standardni znakovi</string>
     <string name="sub_mode_standard_sub">Osnovno iscrtavanje titlova bez podrške za animacije. Najkompatibilnije.</string>
-    <string name="sub_org_none">Ništa (zadani redoslijed)</string>
-    <string name="sub_org_by_lang">Po jeziku</string>
-    <string name="sub_org_by_addon">Po dodatku</string>
-    <string name="sub_org_none_desc">Prikaži titlove zadanim redoslijedom rezultata dodataka.</string>
-    <string name="sub_org_by_lang_desc">Grupiraj titlove po jeziku.</string>
-    <string name="sub_org_by_addon_desc">Grupiraj titlove po izvornom dodatku.</string>
 
     <string name="autoplay_reuse_last_link">Ponovno koristi zadnju poveznicu</string>
     <string name="autoplay_reuse_last_link_sub">Automatski reproduciraj zadnji ispravni stream za isti film/epizodu dok je predmemorija još valjana</string>
@@ -870,7 +820,6 @@
     <string name="autoplay_threshold_pct_title">Postotak praga</string>
     <string name="autoplay_threshold_pct_sub">Rezerva kada ne postoji vremenska oznaka odjave.</string>
     <string name="autoplay_threshold_min_title">Minute praga</string>
-    <string name="autoplay_threshold_min_sub">Rezerva kada ne postoji vremenska oznaka odjave.</string>
     <string name="autoplay_scope_all">Svi izvori</string>
     <string name="autoplay_scope_addons">Samo instalirani dodaci</string>
     <string name="autoplay_scope_plugins">Samo omogućeni pluginovi</string>
@@ -904,8 +853,6 @@
     <string name="layout_section_home_desc">Odaberi strukturu i izvor istaknutog sadržaja.</string>
     <string name="layout_landscape_posters">Vodoravni posteri</string>
     <string name="layout_landscape_posters_sub">Prebaci između okomitih i vodoravnih kartica za Moderni prikaz.</string>
-    <string name="layout_preview_row">Prikaži red pretpregleda</string>
-    <string name="layout_preview_row_sub">Prikaži djelomični pretpregled reda ispod u Modernom izgledu početnog zaslona.</string>
     <string name="layout_section_content">Sadržaj početnog zaslona</string>
     <string name="layout_section_content_desc">Odredi što se prikazuje na početnom zaslonu i u pretraživanju.</string>
     <string name="layout_section_sidebar">Bočna traka i navigacija</string>
@@ -1035,8 +982,6 @@
     <string name="layout_preset_balanced">Uravnoteženo</string>
     <string name="layout_preset_comfort">Udobno</string>
     <string name="layout_preset_large">Veliko</string>
-    <string name="layout_memory_only_scroll">Okomito pomicanje samo iz memorije</string>
-    <string name="layout_memory_only_scroll_sub">Preskoči učitavanje novih slika tijekom okomitog pomicanja.</string>
     <string name="layout_preset_sharp">Oštro</string>
     <string name="layout_preset_subtle">Suptilno</string>
     <string name="layout_preset_classic">Klasično</string>
@@ -1109,32 +1054,13 @@
     <string name="mdblist_enable_title">Omogući MDBList ocjene</string>
     <string name="mdblist_enable_subtitle">Dohvaćaj ocjene vanjskih pružatelja na zaslonu detalja</string>
     <string name="mdblist_api_key_title">API ključ</string>
-    <string name="mdblist_api_key_subtitle">Potreban za dohvaćanje ocjena s MDBLista</string>
     <string name="mdblist_ratings_credentials_subtitle">Koristi MDBList račun povezan u Praćenju ili unesi zaseban API ključ za ocjene.</string>
     <string name="mdblist_ratings_connected_account">Koristi se povezani račun</string>
     <string name="mdblist_ratings_key_override_subtitle">API ključ ima prednost pred povezanim računom za ocjene. Očisti ga kako bi se ponovno koristio povezani račun.</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Prikaži Trakt ocjenu</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">Prikaži IMDb ocjenu (i sakrij zadani IMDb redak kada je dostupna)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">Prikaži TMDB ocjenu</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Prikaži Letterboxd ocjenu</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">Prikaži ocjenu kritičara</string>
-    <string name="mdblist_audience_title">Ocjena publike</string>
-    <string name="mdblist_audience_subtitle">Prikaži ocjenu publike</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Prikaži Metacritic ocjenu</string>
-    <string name="mdblist_mal_title">MyAnimeList</string>
-    <string name="mdblist_mal_subtitle">Prikaži MyAnimeList ocjenu</string>
     <string name="mdblist_show_on_hero_title">Koristi ocjene u istaknutom odjeljku</string>
     <string name="mdblist_show_on_hero_subtitle">Prikaži MDBList ocjene u istaknutom karuselu (moderni i klasični/mrežni)</string>
-    <string name="mdblist_rating_order_title">Redoslijed ocjena</string>
     <string name="mdblist_rating_order_subtitle">Prve 3 omogućene i dostupne ocjene prikazuju se u modernom istaknutom odjeljku. Koristi strelice za promjenu redoslijeda.</string>
     <string name="mdblist_dialog_title">MDBList API ključ</string>
-    <string name="mdblist_dialog_subtitle">Unesi API ključ za dohvaćanje vanjskih ocjena</string>
     <string name="mdblist_dialog_placeholder">Unesi MDBList API ključ</string>
     <string name="mdblist_not_set">Nije postavljeno</string>
     <string name="mdblist_invalid_api_key">Neispravan MDBList API ključ</string>
@@ -1153,25 +1079,11 @@
     <string name="debrid_section_instant_playback">Priprema poveznica</string>
     <string name="debrid_section_filters">Filtri i sortiranje</string>
     <string name="debrid_section_formatting">Oblikovanje</string>
-    <string name="debrid_provider_title">Pružatelj</string>
-    <string name="debrid_provider_subtitle">Dodatni pružatelji bit će dodani kasnije</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">Poveži svoj Torbox račun.</string>
     <string name="debrid_provider_description">Poveži svoj %1$s račun.</string>
     <string name="debrid_provider_device_description">Poveži svoj %1$s račun u pregledniku.</string>
     <string name="debrid_api_key_dialog_title">%1$s API ključ</string>
     <string name="debrid_api_key_dialog_subtitle">Unesi svoj %1$s API ključ.</string>
     <string name="debrid_api_key_dialog_placeholder">Unesi %1$s API ključ</string>
-    <string name="debrid_dialog_title">Torbox API ključ</string>
-    <string name="debrid_dialog_subtitle">Unesi svoj Torbox API ključ.</string>
-    <string name="debrid_dialog_placeholder">Unesi Torbox API ključ</string>
-    <string name="debrid_real_debrid_api_key_title">Real-Debrid API token</string>
-    <string name="debrid_real_debrid_api_key_subtitle">Potreban za lokalno razrješavanje Real-Debrid poveznica</string>
-    <string name="debrid_real_debrid_dialog_title">Real-Debrid API token</string>
-    <string name="debrid_real_debrid_dialog_subtitle">Unesi svoj Real-Debrid API token za Direct Debrid</string>
-    <string name="debrid_real_debrid_dialog_placeholder">Unesi Real-Debrid API token</string>
     <string name="debrid_not_set">Nije postavljeno</string>
     <string name="debrid_connected">Povezano</string>
     <string name="debrid_connect_provider">Poveži %1$s</string>
@@ -1179,88 +1091,20 @@
     <string name="debrid_disconnect">Prekini vezu</string>
     <string name="debrid_device_auth_connected">%1$s je povezan na ovom uređaju.</string>
     <string name="debrid_device_auth_starting">Pokretanje sigurne prijave...</string>
-    <string name="debrid_device_auth_instructions">Skeniraj QR i unesi ovaj kôd za odobrenje Nuvija.</string>
-    <string name="debrid_device_auth_code_copied">Kôd kopiran.</string>
+    <string name="debrid_device_auth_instructions">Skeniraj QR i unesi ovaj kôd za odobrenje Fetcha.</string>
     <string name="debrid_device_auth_waiting">Čeka se odobrenje...</string>
     <string name="debrid_device_auth_failed">Nije moguće pokrenuti prijavu.</string>
     <string name="debrid_device_auth_missing_configuration">Ovaj način prijave nije konfiguriran u ovom buildu.</string>
     <string name="debrid_device_auth_expired">Ovaj kôd je istekao. Pokušaj ponovno.</string>
     <string name="debrid_key_invalid">Nije moguće potvrditi ovaj API ključ.</string>
-    <string name="debrid_invalid_torbox_api_key">Nije moguće potvrditi ovaj API ključ.</string>
-    <string name="debrid_invalid_real_debrid_api_key">Nije moguće potvrditi ovaj API ključ.</string>
     <string name="debrid_prepare_instant_playback">Pripremi poveznice</string>
     <string name="debrid_prepare_instant_playback_description">Razriješi poveznice za reprodukciju prije početka reprodukcije.</string>
     <string name="debrid_prepare_stream_count">Broj poveznica za pripremu</string>
     <string name="debrid_prepare_stream_count_warning">Kad god je moguće, koristi manji broj. Povezane usluge mogu ograničiti koliko se poveznica može razriješiti u određenom razdoblju. Otvaranje filma ili epizode može se ubrojiti u ta ograničenja čak i ako ne pritisneš Gledaj, jer se poveznice pripremaju unaprijed.</string>
     <string name="debrid_prepare_count_one">1 poveznica</string>
     <string name="debrid_prepare_count_many">Poveznica: %1$d</string>
-    <string name="debrid_stream_max_results_title">Najviše rezultata</string>
-    <string name="debrid_stream_max_results_subtitle">Ograniči koliko se Direct Debrid izvora prikazuje.</string>
-    <string name="debrid_stream_max_results_all">Svi streamovi</string>
-    <string name="debrid_stream_max_results_count">Streamova: %1$d</string>
-    <string name="debrid_stream_sort_title">Sortiraj rezultate</string>
-    <string name="debrid_stream_sort_subtitle">Odaberi kako su rezultati poredani.</string>
-    <string name="debrid_stream_sort_original">Izvorni redoslijed</string>
-    <string name="debrid_stream_sort_best_quality">Najbolja kvaliteta prvo</string>
-    <string name="debrid_stream_sort_largest">Najveće prvo</string>
-    <string name="debrid_stream_sort_smallest">Najmanje prvo</string>
-    <string name="debrid_stream_sort_best_audio">Najbolji zvuk prvo</string>
-    <string name="debrid_stream_sort_language">Jezik prvo</string>
-    <string name="debrid_stream_sort_default">Izvorni redoslijed</string>
-    <string name="debrid_stream_sort_quality">Najbolja kvaliteta prvo</string>
-    <string name="debrid_stream_sort_size_desc">Najveće prvo</string>
-    <string name="debrid_stream_sort_size_asc">Najmanje prvo</string>
-    <string name="debrid_stream_min_quality_title">Minimalna kvaliteta</string>
-    <string name="debrid_stream_min_quality_subtitle">Sakrij izvore ispod odabrane rezolucije.</string>
-    <string name="debrid_stream_min_quality_any">Bilo koja kvaliteta</string>
-    <string name="debrid_stream_min_quality_720">720p i više</string>
-    <string name="debrid_stream_min_quality_1080">1080p i više</string>
-    <string name="debrid_stream_min_quality_2160">Samo 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">Prikaži, sakrij ili zahtijevaj Dolby Vision izvore.</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">Prikaži, sakrij ili zahtijevaj HDR izvore.</string>
-    <string name="debrid_stream_feature_any">Bilo koji</string>
-    <string name="debrid_stream_feature_exclude">Sakrij</string>
-    <string name="debrid_stream_feature_only">Samo</string>
-    <string name="debrid_stream_codec_title">Kodek</string>
-    <string name="debrid_stream_codec_subtitle">Filtriraj izvore prema video kodeku.</string>
-    <string name="debrid_stream_codec_any">Bilo koji kodek</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
 
     <!-- Debrid dijalozi filtara streamova -->
-    <string name="debrid_stream_per_resolution_limit_title">Ograničenje po rezoluciji</string>
-    <string name="debrid_stream_per_resolution_limit_subtitle">Ograniči ponovljene 2160p, 1080p, 720p rezultate nakon sortiranja.</string>
-    <string name="debrid_stream_per_quality_limit_title">Ograničenje po kvaliteti</string>
-    <string name="debrid_stream_per_quality_limit_subtitle">Ograniči ponovljene BluRay, WEB-DL, REMUX rezultate nakon sortiranja.</string>
-    <string name="debrid_stream_size_range_title">Raspon veličine</string>
-    <string name="debrid_stream_size_range_subtitle">Filtriraj streamove prema veličini datoteke.</string>
-    <string name="debrid_stream_resolutions_preferred">Preferirane rezolucije</string>
-    <string name="debrid_stream_resolutions_required">Obavezne rezolucije</string>
-    <string name="debrid_stream_resolutions_excluded">Isključene rezolucije</string>
-    <string name="debrid_stream_qualities_preferred">Preferirane kvalitete</string>
-    <string name="debrid_stream_qualities_required">Obavezne kvalitete</string>
-    <string name="debrid_stream_qualities_excluded">Isključene kvalitete</string>
-    <string name="debrid_stream_visual_tags_preferred">Preferirane vizualne oznake</string>
-    <string name="debrid_stream_visual_tags_required">Obavezne vizualne oznake</string>
-    <string name="debrid_stream_visual_tags_excluded">Isključene vizualne oznake</string>
-    <string name="debrid_stream_audio_tags_preferred">Preferirane audio oznake</string>
-    <string name="debrid_stream_audio_tags_required">Obavezne audio oznake</string>
-    <string name="debrid_stream_audio_tags_excluded">Isključene audio oznake</string>
-    <string name="debrid_stream_channels_preferred">Preferirani kanali</string>
-    <string name="debrid_stream_channels_required">Obavezni kanali</string>
-    <string name="debrid_stream_channels_excluded">Isključeni kanali</string>
-    <string name="debrid_stream_encodes_preferred">Preferirana kodiranja</string>
-    <string name="debrid_stream_encodes_required">Obavezna kodiranja</string>
-    <string name="debrid_stream_encodes_excluded">Isključena kodiranja</string>
-    <string name="debrid_stream_languages_preferred">Preferirani jezici</string>
-    <string name="debrid_stream_languages_required">Obavezni jezici</string>
-    <string name="debrid_stream_languages_excluded">Isključeni jezici</string>
-    <string name="debrid_stream_release_groups_required">Obavezne release grupe</string>
-    <string name="debrid_stream_release_groups_excluded">Isključene release grupe</string>
-    <string name="debrid_stream_release_groups_input_subtitle">Unesi jednu grupu po retku.</string>
 
     <string name="debrid_formatter_title">Web uređivač</string>
     <string name="debrid_formatter_subtitle">Konfiguriraj prikaz izvora, filtre i sortiranje s drugog uređaja.</string>
@@ -1282,11 +1126,9 @@
     <string name="settings_stream_badge_position_bottom">Dolje</string>
     <string name="settings_stream_badge_urls_title">URL-ovi Fusion oznaka</string>
     <string name="settings_stream_badge_urls_description">Uvezi do %1$d JSON URL-ova oznaka streamova u Fusion stilu. Svaki URL može se zasebno ažurirati ili izbrisati.</string>
-    <string name="settings_stream_badge_urls_search_description">Upravljaj uvezenim JSON URL-ovima oznaka streamova u Fusion stilu.</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL-ova, %3$d aktivnih Fusion oznaka</string>
     <string name="settings_fusion_badges_empty">Nema uvezenih URL-ova Fusion oznaka.</string>
     <string name="settings_fusion_badge_url_label">JSON URL Fusion oznaka</string>
-    <string name="settings_fusion_badge_urls_imported">Uvezeno %1$d/%2$d Fusion URL-ova</string>
     <string name="settings_fusion_badge_url_active">Aktivno</string>
     <string name="settings_fusion_badge_url_inactive">Neaktivno</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, omogućenih oznaka: %2$d, grupa: %3$d</string>
@@ -1349,14 +1191,12 @@
 
     <string name="trakt_description">Sinkroniziraj popis za gledanje, napredak gledanja, Nastavi gledati, scrobblove i osobne popise s Traktom.</string>
     <string name="trakt_connected_as">Povezano kao %1$s</string>
-    <string name="trakt_account_login">Prijava računom</string>
     <string name="trakt_awaiting_instruction">Idi na trakt.tv/activate i unesi ovaj kôd:</string>
     <string name="trakt_waiting_approval">Čeka se odobrenje…</string>
     <string name="qr_login_approved">Prijava odobrena. Dovršavanje prijave…</string>
     <string name="qr_login_pending">Čeka se odobrenje na mobitelu…</string>
     <string name="qr_login_expired">QR prijava je istekla. Generiraj novi kôd.</string>
     <string name="qr_login_preparing">Priprema QR prijave...</string>
-    <string name="qr_login_device_auth_failed">Autentifikacija uređaja nije uspjela</string>
     <string name="qr_login_scan_prompt">Skeniraj QR i prijavi se na mobitelu</string>
     <string name="qr_login_start_failed">Pokretanje QR prijave nije uspjelo</string>
     <string name="qr_login_signing_in">Prijava u tijeku…</string>
@@ -1364,38 +1204,19 @@
     <string name="qr_login_exchange_failed">Nije moguće dovršiti QR prijavu</string>
     <string name="trakt_code_expires">Kôd istječe za %1$s</string>
     <string name="trakt_token_refreshes">Trakt pristupni token osvježava se za %1$s</string>
-    <string name="trakt_login_instruction">Pritisni Prijava za pokretanje Trakt autentifikacije uređaja. Ovdje će se pojaviti QR kôd.</string>
     <string name="trakt_missing_credentials">Nedostaju TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET u local.properties.</string>
     <string name="trakt_watch_progress_title">Napredak gledanja</string>
     <string name="trakt_watch_progress_subtitle">Odaberi koji izvor napretka pokreće nastavak reprodukcije i Nastavi gledati</string>
     <string name="trakt_watch_progress_dialog_title">Napredak gledanja</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Odaberi trebaju li nastavak reprodukcije i Nastavi gledati koristiti Trakt ili Fetch Sync, dok Trakt scrobblanje ostaje aktivno.</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
     <string name="trakt_library_source_title">Izvor biblioteke</string>
     <string name="trakt_library_source_subtitle">Odaberi koji izvor Fetch čita za tvoju biblioteku</string>
     <string name="trakt_library_source_dialog_title">Izvor biblioteke</string>
-    <string name="trakt_library_source_dialog_subtitle">Odaberi gdje spremati i upravljati stavkama biblioteke</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_fetch">Fetch biblioteka</string>
-    <string name="trakt_library_source_trakt_selected">Odabrana Trakt biblioteka</string>
-    <string name="trakt_library_source_fetch_selected">Odabrana Fetch biblioteka</string>
-    <string name="trakt_setting_on">Uključeno</string>
-    <string name="trakt_setting_off">Isključeno</string>
-    <string name="trakt_watch_progress_trakt_selected">Izvor napretka gledanja postavljen na Trakt</string>
-    <string name="trakt_watch_progress_fetch_selected">Izvor napretka gledanja postavljen na Fetch Sync</string>
     <string name="trakt_continue_watching_window">Razdoblje za Nastavi gledati</string>
     <string name="trakt_continue_watching_subtitle">Trakt povijest koja se uzima u obzir za Nastavi gledati</string>
-    <string name="trakt_unaired_next_up">Neemitirane sljedeće epizode</string>
-    <string name="trakt_unaired_next_up_subtitle">Prikaži nadolazeće epizode prije emitiranja</string>
-    <string name="trakt_unaired_shown">Prikazano</string>
-    <string name="trakt_unaired_hidden">Skriveno</string>
-    <string name="trakt_unaired_now_shown">Neemitirane sljedeće epizode sada se prikazuju</string>
-    <string name="trakt_unaired_now_hidden">Neemitirane sljedeće epizode sada su skrivene</string>
     <string name="trakt_comments_title">Komentari</string>
     <string name="trakt_comments_subtitle">Prikaži Trakt recenzije na stranicama metapodataka</string>
-    <string name="trakt_comments_dialog_title">Komentari</string>
-    <string name="trakt_comments_dialog_subtitle">Odaberi trebaju li stranice metapodataka prikazivati Trakt recenzije kada je tvoj račun povezan.</string>
     <string name="trakt_comments_now_shown">Trakt recenzije na stranicama metapodataka sada se prikazuju</string>
     <string name="trakt_comments_now_hidden">Trakt recenzije na stranicama metapodataka sada su skrivene</string>
     <string name="trakt_more_like_this_source_title">Izvor za Slično ovome</string>
@@ -1412,16 +1233,9 @@
     <string name="trakt_stat_watched_hours">Odgledani sati</string>
     <string name="trakt_disconnect">Prekini vezu</string>
     <string name="trakt_disconnect_title">Prekinuti vezu s Traktom?</string>
-    <string name="trakt_disconnect_subtitle">Ovo će prekinuti vezu tvog Trakt računa s Fetchm.</string>
-    <string name="trakt_login">Prijava</string>
-    <string name="trakt_retry">Pokušaj ponovno</string>
-    <string name="trakt_back">Natrag</string>
+    <string name="trakt_disconnect_subtitle">Ovo će prekinuti vezu tvog Trakt računa s Fetchom.</string>
     <string name="trakt_cw_window_title">Razdoblje za Nastavi gledati</string>
     <string name="trakt_cw_window_subtitle">Odaberi koliko Trakt aktivnosti treba prikazivati u Nastavi gledati.</string>
-    <string name="trakt_unaired_dialog_title">Neemitirane sljedeće epizode</string>
-    <string name="trakt_unaired_dialog_subtitle">Odaberi treba li Nastavi gledati uključivati nadolazeće epizode prije izlaska.</string>
-    <string name="trakt_show_unaired">Prikaži neemitirane epizode</string>
-    <string name="trakt_hide_unaired">Sakrij neemitirane epizode</string>
     <string name="trakt_all_history">Sva povijest</string>
     <string name="trakt_days_format">Dana: %1$d</string>
 
@@ -1471,23 +1285,13 @@
     <string name="profile_manage_title">Upravljanje profilima</string>
     <string name="profile_manage_subtitle">Odaberi profil za uređivanje, promjenu ili stvori novi</string>
     <string name="profile_manage_hint">Odaberi profil za upravljanje</string>
-    <string name="profile_primary_label">Primarni</string>
-    <string name="profile_shares_primary">Dijeli s primarnim: %1$s</string>
     <string name="profile_edit_label">Uredi</string>
     <string name="profile_edit_header">Uredi profil</string>
-    <string name="profile_add">Dodaj profil</string>
     <string name="profile_create_title">Stvori profil</string>
-    <string name="profile_edit_title">Uredi profil %1$s</string>
     <string name="profile_name_placeholder">Naziv profila</string>
-    <string name="profile_avatar_color">Boja avatara</string>
-    <string name="profile_use_primary_addons">Koristi dodatke primarnog profila</string>
-    <string name="profile_use_primary_plugins">Koristi pluginove primarnog profila</string>
     <string name="profile_creating">Stvaranje\u2026</string>
     <string name="profile_create_btn">Stvori</string>
-    <string name="profile_confirm">Potvrdi</string>
     <string name="profile_delete">Izbriši</string>
-    <string name="profile_addons">dodaci</string>
-    <string name="profile_plugins">pluginovi</string>
     <string name="profile_choose_avatar">Odaberi avatar</string>
     <string name="profile_custom_avatar_web_panel_note">Prilagođeni URL-ovi avatara mogu se konfigurirati na Fetch web ploči.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
@@ -1496,7 +1300,6 @@
     <string name="profile_background_member_note">Prilagođeni URL-ovi pozadine mogu se konfigurirati na Fetch web ploči.</string>
     <string name="profile_background_normal">Obična</string>
     <string name="profile_background_custom">Prilagođena</string>
-    <string name="profile_avatar_none_selected">Nije odabran avatar</string>
     <string name="profile_avatar_focus_hint">Fokusiraj avatar za prikaz njegova naziva</string>
     <string name="profile_avatar_category_all">Sve</string>
     <string name="profile_avatar_category_supporter">Podupiratelj</string>
@@ -1530,30 +1333,16 @@
     <string name="profile_copy_settings_created_success">Profil stvoren s postavkama iz %1$s.</string>
     <string name="profile_copy_settings_created_error">Profil je stvoren, ali postavke nije bilo moguće kopirati. Možeš pokušati ponovno iz Opcija profila.</string>
     <string name="profile_create_error">Nije moguće stvoriti profil. Pokušaj ponovno.</string>
-    <string name="profile_pin_title">PIN zaključavanje profila</string>
-    <string name="profile_pin_enabled_subtitle">Ovaj profil zahtijeva 4-znamenkasti PIN prije prebacivanja.</string>
-    <string name="profile_pin_disabled_subtitle">Postavi 4-znamenkasti PIN za zaključavanje ovog profila.</string>
     <string name="profile_pin_set">Postavi PIN</string>
     <string name="profile_pin_change">Promijeni PIN</string>
     <string name="profile_pin_remove">Ukloni PIN</string>
-    <string name="profile_pin_set_title">Postavi PIN profila</string>
-    <string name="profile_pin_set_subtitle">Unesi 4-znamenkasti PIN i potvrdi ga.</string>
-    <string name="profile_pin_enter">Unesi 4-znamenkasti PIN</string>
-    <string name="profile_pin_confirm">Potvrdi 4-znamenkasti PIN</string>
-    <string name="profile_pin_mismatch">PIN-ovi se ne podudaraju.</string>
-    <string name="profile_pin_save">Spremi PIN</string>
-    <string name="profile_pin_unlock_title">Otključaj %1$s</string>
-    <string name="profile_pin_unlock_subtitle">Unesi 4-znamenkasti PIN za nastavak.</string>
     <string name="profile_pin_verifying">Provjera…</string>
-    <string name="profile_pin_unlock_action">Otključaj</string>
     <string name="profile_pin_overlay_unlock_heading">Unesi PIN za pristup profilu %1$s.</string>
     <string name="profile_pin_overlay_set_heading">Stvori 4-znamenkasti PIN za %1$s.</string>
     <string name="profile_pin_overlay_confirm_heading">Potvrdi novi PIN.</string>
     <string name="profile_pin_overlay_unlock_support">Koristi daljinski upravljač ili tipkovnicu za unos 4 znamenke.</string>
-    <string name="profile_pin_overlay_change_verify_kicker">Potrebna je sigurnosna provjera.</string>
     <string name="profile_pin_overlay_change_verify_heading">Unesi trenutni PIN za promjenu PIN-a za %1$s.</string>
     <string name="profile_pin_overlay_change_verify_support">Unesi trenutni 4-znamenkasti PIN prije postavljanja novog.</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">Potrebna je sigurnosna provjera.</string>
     <string name="profile_pin_overlay_remove_verify_heading">Unesi trenutni PIN za uklanjanje zaključavanja za %1$s.</string>
     <string name="profile_pin_overlay_remove_verify_support">Unesi trenutni 4-znamenkasti PIN za uklanjanje ovog zaključavanja.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Unesi trenutni PIN za brisanje profila %1$s.</string>
@@ -1641,8 +1430,6 @@
     <string name="debrid_resolution_failed">Nije moguće razriješiti ovaj Debrid stream.</string>
     <string name="youtube_resolving_stream">Učitavanje YouTube videa</string>
     <string name="youtube_resolution_failed">Nije moguće učitati ovaj YouTube video.</string>
-    <string name="stream_type_torrent">Torrent</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">P2P streamanje</string>
     <string name="p2p_consent_body">Ovaj stream koristi peer-to-peer (P2P) tehnologiju. Omogućavanjem P2P-a potvrđuješ i prihvaćaš sljedeće:\n\n\u2022 Tvoja IP adresa bit će vidljiva ostalim sudionicima u mreži\n\u2022 Odgovornost za sadržaj kojem pristupaš isključivo je tvoja\n\u2022 Potvrđuješ da imaš zakonsko pravo streamati ovaj sadržaj u svojoj jurisdikciji\n\u2022 Fetch ne hostira, ne distribuira niti kontrolira bilo kakav P2P sadržaj\n\u2022 Fetch ne snosi odgovornost za bilo kakve pravne posljedice koje proizlaze iz tvog korištenja P2P streamanja\n\nOvu značajku koristiš u potpunosti na vlastiti rizik. P2P se može isključiti bilo kada u Postavkama.</string>
     <string name="p2p_consent_enable">Omogući P2P</string>
@@ -1671,9 +1458,6 @@
     <string name="settings_p2p_clear_cache_playback_active">Zaustavi P2P reprodukciju prije čišćenja predmemorije</string>
     <string name="settings_p2p_clear_cache_done">Očišćeno %1$s neaktivnih torrent podataka</string>
     <string name="settings_p2p_clear_cache_failed">Nije moguće očistiti torrent predmemoriju</string>
-    <string name="p2p_download_title">Preuzimanje P2P pogona</string>
-    <string name="p2p_download_subtitle">Ovo je jednokratno preuzimanje potrebno za P2P streamanje.</string>
-    <string name="stream_type_external">Vanjski</string>
     <string name="stream_player_picker_title">Koji player koristiti?</string>
     <string name="stream_player_internal">Interni</string>
     <string name="stream_player_external">Vanjski</string>
@@ -1684,15 +1468,12 @@
     <string name="player_loading_preparing">Priprema streama…</string>
     <string name="player_loading_detecting_format">Otkrivanje formata streama…</string>
     <string name="external_player_loading_skip_segments">Učitavanje segmenata uvoda/odjave…</string>
-    <string name="player_loading_subtitles">Dohvaćanje titlova…</string>
     <string name="player_loading_subtitles_from">Dohvaćanje titlova iz dodataka (%1$d)…</string>
     <string name="player_loading_subtitles_progress">Dohvaćanje titlova… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">Titlovi: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">Izgradnja playera…</string>
     <string name="player_loading_starting">Pokretanje streama…</string>
     <string name="player_loading_buffering">Međuspremanje…</string>
-    <string name="player_loading_fallback_pcm_audio">Inicijalizacija audio zapisa nije uspjela - prebacivanje na PCM zvuk…</string>
-    <string name="player_loading_fallback_hevc_decoder">Inicijalizacija dekodera nije uspjela - prebacivanje na HEVC dekoder…</string>
     <string name="player_engine_switching_title">Promjena pogona playera</string>
     <string name="player_engine_switching_message">Pokretanje nije uspjelo. Prebacivanje na %1$s…</string>
     <string name="player_engine_switching_manual_message">Prebacivanje na %1$s...</string>
@@ -1771,14 +1552,12 @@
     <string name="stream_info_player_engine">Pogon playera</string>
 
     <string name="sources_title">Izvori</string>
-    <string name="sources_reload">Ponovno učitaj</string>
     <string name="sources_close">Zatvori</string>
     <string name="sources_playing">Reproducira se</string>
     <string name="sources_no_streams">Nisu pronađeni streamovi</string>
 
     <string name="episodes_panel_close">Zatvori</string>
     <string name="episodes_panel_back">Natrag</string>
-    <string name="episodes_panel_reload">Ponovno učitaj</string>
     <string name="episodes_panel_no_streams">Nisu pronađeni streamovi</string>
     <string name="episodes_panel_no_episodes">Nema dostupnih epizoda</string>
     <string name="episodes_panel_title">Epizode</string>
@@ -1794,8 +1573,6 @@
     <string name="player_aspect_mode_cinema_zoom">Kino povećanje</string>
 
     <string name="audio_dialog_title">Zvuk</string>
-    <string name="audio_dialog_tab_tracks">Zvuk</string>
-    <string name="audio_dialog_tab_mix">Miks</string>
     <string name="audio_delay_label">Kašnjenje zvuka</string>
     <string name="audio_delay_range">Raspon: od %1$.2fs do %2$.2fs</string>
     <string name="audio_mix_label">Pojačanje (PCM)</string>
@@ -1813,31 +1590,15 @@
     <string name="audio_maintain_original_audio_on_downmix_subtitle">Kada je isključeno, normalizacija downmixa može smanjiti ukupnu glasnoću.</string>
 
     <string name="subtitle_dialog_title">Titlovi</string>
-    <string name="subtitle_no_builtin">Nema dostupnih ugrađenih titlova</string>
     <string name="subtitle_loading_addon">Učitavanje titlova iz dodataka\u2026</string>
     <string name="subtitle_no_addon">Nema dostupnih titlova iz dodataka</string>
-    <string name="subtitle_text_color">Boja teksta</string>
-    <string name="subtitle_outline_color">Boja obruba</string>
     <string name="subtitle_reset_defaults">Vrati zadano</string>
-    <string name="subtitle_tab_builtin">Ugrađeni</string>
-    <string name="subtitle_tab_addons">Dodaci</string>
     <string name="subtitle_tab_languages">Jezici</string>
-    <string name="subtitle_tab_style">Stil</string>
     <string name="subtitle_tab_delay">Kašnjenje</string>
     <string name="subtitle_delay_reset">Poništi</string>
     <string name="subtitle_none">Ništa</string>
     <string name="subtitle_built_in">Ugrađeno</string>
-    <string name="subtitle_all">Sve</string>
-    <string name="subtitle_section_core">Osnovno</string>
-    <string name="subtitle_section_advanced">Napredno</string>
-    <string name="subtitle_font_size">Veličina fonta</string>
-    <string name="subtitle_bold">Podebljano</string>
-    <string name="subtitle_outline">Obrub</string>
-    <string name="subtitle_bottom_offset">Donji pomak</string>
-    <string name="subtitle_on">Uključeno</string>
-    <string name="subtitle_off">Isključeno</string>
     <string name="subtitle_style_title">Stil titlova</string>
-    <string name="subtitle_style_customize">Prilagodi</string>
     <string name="subtitle_style_color">Boja</string>
     <string name="subtitle_style_reset">Poništi</string>
     <string name="subtitle_style_font_size">Veličina fonta</string>
@@ -1850,8 +1611,6 @@
     <string name="subtitle_style_on">Uključeno</string>
     <string name="subtitle_style_off">Isključeno</string>
     <string name="subtitle_style_weight">Debljina</string>
-    <string name="panel_failed_load_streams">Učitavanje streamova nije uspjelo</string>
-    <string name="panel_failed_load_episodes">Učitavanje epizoda nije uspjelo</string>
 
     <string name="pause_you_are_watching">Gledaš</string>
     <string name="pause_cast_label">Glumci</string>
@@ -1894,7 +1653,6 @@
     <string name="display_mode_resolution">Rezolucija</string>
 
 
-    <string name="search_keyboard_hint">Pritisni Gotovo na tipkovnici za pretraživanje</string>
     <string name="search_placeholder">Pretraži filmove i serije</string>
     <string name="search_start_title">Započni pretraživanje</string>
     <string name="search_start_subtitle">Unesi najmanje 2 znaka</string>
@@ -1910,7 +1668,6 @@
     <string name="search_no_results_subtitle">Pokušaj pretraživati drugim ključnim riječima</string>
     <string name="search_error_no_catalogs">U instaliranim dodacima nisu pronađeni katalozi koji se mogu pretraživati</string>
 
-    <string name="library_syncing">Sinkronizacija Trakt biblioteke\u2026</string>
     <string name="library_title">Biblioteka</string>
     <string name="library_filter_list">Popis</string>
     <string name="library_filter_type">Vrsta</string>
@@ -1963,7 +1720,6 @@
     <string name="genre_sporting_event">Sportski događaj</string>
     <string name="genre_superhero">Superjunaci</string>
     <string name="genre_suspense">Napetost</string>
-    <string name="library_sort_trakt_order">Trakt redoslijed</string>
     <string name="library_sort_provider_order">Redoslijed pružatelja</string>
     <string name="library_sort_added_desc">Dodano ↓</string>
     <string name="library_sort_added_asc">Dodano ↑</string>
@@ -1971,7 +1727,6 @@
     <string name="library_sort_title_desc">Naslov Ž-A</string>
     <string name="library_error_sort_failed">Nije moguće učitati redoslijed sortiranja. Prikazuje se redoslijed pružatelja.</string>
     <string name="library_manage_lists">Upravljaj popisima</string>
-    <string name="library_manage_trakt_lists">Upravljaj Trakt popisima</string>
     <string name="library_no_lists">Još nema osobnih popisa.</string>
     <string name="library_list_create">Stvori</string>
     <string name="library_list_edit">Uredi</string>
@@ -1985,10 +1740,7 @@
     <string name="library_list_privacy">Privatnost</string>
     <string name="library_delete_title">Izbrisati ovaj popis?</string>
     <string name="library_delete_subtitle">Ovo uklanja popis i sve njegove stavke s Trakta.</string>
-    <string name="library_delete_confirm">Izbriši</string>
     <string name="library_source_local">LOKALNO</string>
-    <string name="library_source_fetch">FETCH</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">Spremljeno</string>
     <string name="library_source_cloud">Oblak</string>
     <string name="library_watchlist">Popis za gledanje</string>
@@ -1999,7 +1751,6 @@
     <string name="library_status_dropped">Odustajem</string>
     <string name="library_syncing_library">Sinkronizacija biblioteke\u2026</string>
     <string name="library_type_all">Sve</string>
-    <string name="library_type_items">stavke</string>
     <string name="library_empty_local_title">Još nema: %1$s</string>
     <string name="library_empty_trakt_title">Na ovom popisu nema: %1$s</string>
     <string name="library_empty_local_subtitle">Počni spremati omiljene naslove kako bi se prikazali ovdje</string>
@@ -2014,18 +1765,13 @@
     <string name="library_list_edit_dialog_title">Uredi popis</string>
     <string name="library_sync_btn">Sinkroniziraj</string>
     <string name="library_syncing_btn">Sinkronizacija\u2026</string>
-    <string name="cloud_library_connect_action">Poveži račun</string>
     <string name="cloud_library_connect_message">Poveži račun u postavkama Povezanih usluga za pregledavanje datoteka iz biblioteke u oblaku.</string>
     <string name="cloud_library_connect_title">Nije povezan račun u oblaku</string>
-    <string name="cloud_library_disabled_action">Otvori Povezane usluge</string>
     <string name="cloud_library_disabled_message">Uključi Biblioteku u oblaku u postavkama Povezanih usluga za pregledavanje datoteka s povezanih računa.</string>
     <string name="cloud_library_disabled_title">Biblioteka u oblaku je isključena</string>
     <string name="cloud_library_empty_message">Nijedna datoteka u oblaku ne odgovara trenutnim filtrima.</string>
     <string name="cloud_library_empty_title">Ovdje još nema ničega</string>
     <string name="cloud_library_file_picker_title">Odaberi datoteku za reprodukciju</string>
-    <string name="cloud_library_load_failed">Nije moguće učitati %1$s biblioteku u oblaku</string>
-    <string name="cloud_library_no_files_message">Ova stavka nema video datoteku za reprodukciju.</string>
-    <string name="cloud_library_no_files_title">Nema datoteka za reprodukciju</string>
     <string name="cloud_library_no_playable_files">Nema datoteka za reprodukciju</string>
     <string name="cloud_library_one_playable_file">1 datoteka za reprodukciju</string>
     <string name="cloud_library_opening">Otvaranje\u2026</string>
@@ -2116,13 +1862,10 @@
     <string name="custom_server_session_clear_failed">Nije moguće sigurno očistiti trenutnu sesiju. Poslužitelj nije promijenjen.</string>
     <string name="custom_server_restart_failed">Poslužitelj je spremljen, ali aplikacija se nije mogla automatski ponovno pokrenuti. Pokreni je ponovno ručno.</string>
 
-    <string name="auth_qr_title">Prijava putem QR-a</string>
     <string name="auth_qr_tagline">Gledaj svoju biblioteku bilo gdje</string>
     <string name="auth_qr_finishing">Dovršavanje prijave\u2026</string>
-    <string name="auth_qr_code_label">Kôd: %1$s</string>
     <string name="auth_qr_expires">Istječe za %1$s</string>
     <string name="auth_qr_scan_instruction">Skeniraj QR kôd ili unesi kratki kôd u pregledniku.</string>
-    <string name="auth_qr_code_display">Kôd: %1$s</string>
     <string name="auth_qr_manual_instruction">Ili idi na %1$s i unesi</string>
     <string name="auth_qr_refresh">Osvježi QR</string>
     <string name="auth_qr_continue_without_account">Nastavi bez računa</string>
@@ -2160,7 +1903,6 @@
     <string name="plugin_repositories_section">Repozitoriji (%1$d)</string>
     <string name="plugin_providers_section">Pružatelji (%1$d)</string>
     <string name="plugin_title">Pluginovi</string>
-    <string name="plugin_subtitle">Upravljaj lokalnim scraperima i pružateljima</string>
     <string name="plugin_enable_plugins_title">Globalno omogući pružatelje iz pluginova</string>
     <string name="plugin_enable_plugins_subtitle">Koristi pružatelje iz pluginova tijekom traženja streamova</string>
     <string name="plugin_group_by_repository_title">Grupiraj pružatelje iz pluginova po repozitoriju</string>
@@ -2191,8 +1933,6 @@
     <string name="plugin_test_results">Rezultati testa (streamova: %1$d)</string>
     <string name="plugin_and_more">... i još %1$d</string>
     <string name="plugin_providers_count">Pružatelja: %1$d</string>
-    <string name="plugin_enabled">Omogućeno</string>
-    <string name="plugin_disabled">Onemogućeno</string>
     <string name="plugin_no_repos">Još nema dodanih repozitorija.\nDodaj repozitorij za početak.</string>
     <string name="plugin_error_invalid_url">Unesi ispravan URL</string>
     <string name="plugin_error_add_repo">Dodavanje repozitorija nije uspjelo: %1$s</string>
@@ -2228,7 +1968,6 @@
 
     <string name="update_title">Ažuriranje aplikacije</string>
     <string name="update_available">Dostupno ažuriranje</string>
-    <string name="update_downloading">Preuzimanje ažuriranja</string>
     <string name="update_download">Preuzmi</string>
     <string name="update_downloading_ellipsis">Preuzimanje…</string>
     <string name="update_downloading_progress">Preuzimanje %1$d%%</string>
@@ -2267,34 +2006,24 @@
     <string name="discover_empty_no_content_subtitle">Isprobaj drugi žanr ili katalog</string>
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">Uredi profil %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Audio passthrough (TrueHD, DTS, AC-3 itd.) je automatski. Kada je uređaj HDMI-jem spojen na kompatibilni AV prijemnik ili soundbar, zvuk bez gubitaka šalje se nepromijenjen, bez dekodiranja.</string>
-    <string name="audio_dv_title">DV7 - HEVC rezerva</string>
-    <string name="audio_dv_sub">Mapiraj Dolby Vision profil 7 u standardni HEVC za uređaje bez hardverske DV podrške</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">Početna</string>
     <string name="nav_discover">Otkrij</string>
     <string name="nav_search">Pretraživanje</string>
     <string name="nav_library">Biblioteka</string>
-    <string name="nav_addons">Dodaci</string>
-    <string name="nav_movies">Filmovi</string>
-    <string name="nav_series">Serije</string>
     <string name="nav_settings">Postavke</string>
     <string name="action_select">Odaberi</string>
     <string name="settings_rounded_ui">Zaobljeno sučelje</string>
-    <string name="cd_expand_sidebar">Proširi bočnu traku</string>
 
-    <string name="update_checking">Provjera ažuriranja…</string>
     <string name="update_waiting_for_stable">Dobit ćeš sljedeće stabilno izdanje kada postane dostupno</string>
     <string name="update_download_complete">Preuzimanje dovršeno. Spremno za instalaciju.</string>
-    <string name="update_up_to_date">Sustav je ažuran. Najnovije promjene:</string>
     <string name="update_close">Zatvori</string>
     <string name="update_open_settings">Otvori postavke</string>
     <string name="update_install">Instaliraj</string>
-    <string name="update_ignore">Zanemari</string>
 
     <!-- Pogreške ažuriranja -->
     <string name="update_error_check_failed">Provjera ažuriranja nije uspjela</string>
@@ -2351,7 +2080,6 @@
     <string name="addon_error_not_found">Dodatak nije pronađen</string>
 
     <!-- Pogreške početnog zaslona -->
-    <string name="home_error_no_addons">Nema instaliranih dodataka</string>
     <string name="home_error_no_catalog_addons">Nema instaliranih dodataka s katalozima</string>
 
     <!-- Pogreške playera -->
@@ -2376,7 +2104,6 @@
     <string name="cd_stream_info">Informacije o streamu</string>
     <string name="cd_more_actions">Više radnji</string>
     <string name="cd_close_more_actions">Zatvori više radnji</string>
-    <string name="cd_back">Natrag</string>
     <string name="cd_next_episode_thumbnail">Sličica sljedeće epizode</string>
     <string name="cd_current">Trenutno</string>
     <string name="cd_loading_backdrop">Učitavanje pozadine</string>
@@ -2399,8 +2126,6 @@
     <string name="cd_open_discover">Otvori Otkrij</string>
     <string name="cd_clear_search">Očisti pretraživanje</string>
     <string name="cd_voice_search">Glasovno pretraživanje</string>
-    <string name="cd_donation_qr">QR kôd za donaciju</string>
-    <string name="cd_contributor_qr">QR kôd za podršku suradniku</string>
     <string name="cd_expand">Proširi %1$s</string>
     <string name="cd_collapse">Sažmi %1$s</string>
     <string name="cd_qr_login">QR kôd za prijavu</string>
@@ -2482,7 +2207,6 @@
     <string name="collections_editor_choose_emoji">Odaberi emoji</string>
     <string name="collections_editor_back">Natrag</string>
     <string name="collections_editor_edit_collection">Uredi kolekciju</string>
-    <string name="collections_editor_catalog_count">Kataloga: %1$d</string>
     <string name="collections_editor_source_count">Izvora: %1$d</string>
     <string name="collections_editor_sources">Izvori</string>
     <string name="collections_editor_source">Izvor</string>
@@ -2513,7 +2237,6 @@
     <string name="collections_editor_tmdb_collection_id">ID kolekcije</string>
     <string name="collections_editor_tmdb_company_search">Naziv, ID ili URL produkcijske kuće</string>
     <string name="collections_editor_tmdb_display_title">Prikazani naslov</string>
-    <string name="collections_editor_tmdb_title_optional">Naslov (neobavezno)</string>
     <string name="collections_editor_tmdb_search">Traži</string>
     <string name="collections_editor_add_source">Dodaj izvor</string>
     <string name="collections_editor_save_source">Spremi izvor</string>
@@ -2729,7 +2452,7 @@
     <string name="autoplay_regex_preset_no_remux_hdr">Bez REMUX/HDR</string>
 
     <!-- Odjeljci postavki reprodukcije -->
-    <string name="playback_player_internal_desc">Koristi ugrađeni player Fetch-a</string>
+    <string name="playback_player_internal_desc">Koristi ugrađeni player Fetcha</string>
 
     <!-- Player: torrent sloj + zapisi -->
     <string name="player_torrent_peer_info">%1$d seedova · %2$d peerova</string>
@@ -2751,7 +2474,6 @@
     <string name="player_error_stream_rate_limited">\n\nPreviše zahtjeva prema izvoru streama. Pričekaj trenutak i pokušaj ponovno.</string>
     <string name="player_error_stream_unavailable">\n\nPoslužitelj streama trenutno nije dostupan. Isprobaj drugi izvor.</string>
     <string name="player_error_source_invalid_content">Pogreška izvora: izvor streama vratio je neispravan sadržaj ili sadržaj koji se ne može reproducirati. Poveznica je možda istekla ili je poslužitelj umjesto videa vratio stranicu s pogreškom.\n\nIsprobaj drugi izvor. [%1$s]</string>
-    <string name="player_error_decoder">Pogreška dekodera</string>
     <string name="player_error_unsupported_format">Ovaj stream koristi format koji tvoj uređaj možda ne podržava. Isprobaj drugi izvor. [%1$s]</string>
     <string name="player_error_initialize_failed">Inicijalizacija playera nije uspjela</string>
     <string name="player_error_mpv_surface_failed">Inicijalizacija libmpv površine nije uspjela</string>
@@ -2786,7 +2508,6 @@
     <string name="library_synced">Biblioteka sinkronizirana</string>
     <string name="library_error_refresh_failed">Osvježavanje biblioteke nije uspjelo</string>
     <string name="library_list_created">Popis stvoren</string>
-    <string name="library_error_invalid_list">Neispravan popis</string>
     <string name="library_list_updated">Popis ažuriran</string>
     <string name="library_error_save_list_failed">Spremanje popisa nije uspjelo</string>
     <string name="library_list_deleted">Popis izbrisan</string>
@@ -2795,13 +2516,8 @@
     <string name="library_error_reorder_lists_failed">Promjena redoslijeda popisa nije uspjela</string>
     <string name="library_list_fallback_title">Popis</string>
     <!-- Oznake privatnosti popisa -->
-    <string name="library_privacy_private">Privatno</string>
-    <string name="library_privacy_link">Putem poveznice</string>
-    <string name="library_privacy_friends">Prijatelji</string>
-    <string name="library_privacy_public">Javno</string>
 
     <!-- Trakt pogreške -->
-    <string name="trakt_error_auth_required">Potrebna je Trakt autentifikacija</string>
     <string name="trakt_library_error_request_failed">Trakt zahtjev nije uspio</string>
     <string name="trakt_library_error_create_list_failed">Stvaranje popisa nije uspjelo</string>
     <string name="trakt_library_error_update_list_failed">Ažuriranje popisa nije uspjelo</string>
@@ -2818,25 +2534,20 @@
     <string name="trakt_library_error_auth_expired">Trakt autentifikacija je istekla</string>
     <string name="trakt_library_error_list_not_found">Trakt popis nije pronađen</string>
     <string name="trakt_library_error_list_limit_reached">Dosegnut je limit Trakt popisa. Potrebna je nadogradnja.</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">Nedovoljno Trakt ID-ova za označavanje kao pogledano</string>
     <string name="trakt_error_request_failed">Trakt zahtjev nije uspio</string>
-    <string name="simkl_account_title">Simkl račun</string>
     <string name="simkl_description">Poveži Simkl za sinkronizaciju popisa, povijesti gledanja, napretka reprodukcije i scrobblova.</string>
-    <string name="simkl_connect">Poveži Simkl</string>
-    <string name="simkl_disconnect">Prekini vezu sa Simklom</string>
     <string name="simkl_disconnect_title">Prekinuti vezu sa Simklom?</string>
     <string name="simkl_disconnect_subtitle">Ovo uklanja Simkl račun i predmemorirane Simkl podatke s ovog profila.</string>
     <string name="simkl_connected_as">Povezano kao %1$s</string>
     <string name="simkl_user_fallback">Simkl korisnik</string>
     <string name="simkl_awaiting_instruction">Otvori Simkl stranicu za potvrdu i unesi ovaj kôd.</string>
-    <string name="simkl_code_expires">Kôd istječe za %1$s</string>
     <string name="simkl_sync_now">Sinkroniziraj sada</string>
     <string name="simkl_visit">Posjeti Simkl</string>
     <string name="simkl_sync_info_action">Kako funkcionira sinkronizacija</string>
     <string name="simkl_sync_info_title">Kako funkcionira Simkl sinkronizacija</string>
     <string name="simkl_sync_info_description">Fetch automatski provjerava Simkl najviše jednom svakih %1$d minuta. Promjene napravljene u drugoj aplikaciji ili na Simkl web stranici mogu se pojaviti tek nakon tog vremena.</string>
     <string name="simkl_sync_info_activity">Svako osvježavanje najprije provjerava prijavljuje li Simkl ikakve promjene i preuzima samo ažuriranja. To poštuje pravila Simkl API-ja, smanjuje nepotrebnu potrošnju podataka i pomaže održati uslugu stabilnom.</string>
-    <string name="simkl_sync_info_manual">Promjene napravljene u Nuviju odmah se šalju na Simkl. Koristi Sinkroniziraj sada kad god želiš da Fetch ranije provjeri udaljene promjene.</string>
+    <string name="simkl_sync_info_manual">Promjene napravljene u Fetchu odmah se šalju na Simkl. Koristi Sinkroniziraj sada kad god želiš da Fetch ranije provjeri udaljene promjene.</string>
     <string name="simkl_sync_info_library_statuses">Serije stavljene na Simkl popise Na čekanju ili Odustajem skrivene su iz Nastavi gledati. Ostaju skrivene dok god su na nekom od tih popisa.</string>
     <string name="simkl_sync_info_docs">Pročitaj vodič za Simkl sinkronizaciju</string>
     <string name="error_open_browser_failed">Otvaranje preglednika nije uspjelo</string>
@@ -2847,8 +2558,6 @@
     <string name="simkl_status_disconnected">Veza sa Simklom prekinuta</string>
     <string name="simkl_status_syncing">Sinkronizacija Simkla…</string>
     <string name="simkl_status_synced">Simkl sinkronizacija dovršena</string>
-    <string name="simkl_watch_progress_selected">Simkl odabran za Nastavi gledati</string>
-    <string name="simkl_library_source_selected">Simkl odabran za biblioteku</string>
     <string name="simkl_error_code_expired">Simkl kôd je istekao. Počni ispočetka.</string>
     <string name="simkl_error_authorization_revoked">Simkl autorizacija je opozvana. Ponovno se poveži.</string>
     <string name="simkl_error_network">Nije moguće dosegnuti Simkl. Pokušaj ponovno.</string>
@@ -2880,25 +2589,15 @@
     <string name="stream_embedded_group">Ugrađeni streamovi</string>
     <string name="stream_embedded_fallback_name">Ugrađeni stream</string>
     <string name="stream_quality_unknown">Nepoznato</string>
-    <string name="stream_addon_unknown">Nepoznato</string>
-    <string name="tmdb_unknown_entity">Nepoznato</string>
     <string name="web_tmdb_company_fallback">TMDB tvrtka %1$d</string>
     <string name="web_tmdb_collection_fallback">TMDB kolekcija %1$d</string>
     <string name="web_error_invalid_request_body">Neispravno tijelo zahtjeva</string>
 
     <!-- Zamjenski preferirani jezik titlova -->
-    <string name="language_english">Engleski</string>
 
     <!-- Pogreške podupiratelja / suradnika / sponzora -->
-    <string name="supporters_error_load">Nije moguće učitati podupiratelje.</string>
-    <string name="contributors_error_load">Nije moguće učitati suradnike.</string>
-    <string name="contributors_error_api_not_configured">API suradnika nije konfiguriran.</string>
-    <string name="contributors_error_api_http">Pogreška API-ja suradnika: %1$d</string>
-    <string name="supporters_error_api_http">Pogreška API-ja donacija: %1$d</string>
 
     <!-- Oznake uloga suradnika -->
-    <string name="contributor_role_translator">Prevoditelj</string>
-    <string name="contributor_role_maintainer">Održavatelj</string>
 
     <!-- Mrežne / API pogreške -->
     <string name="network_error_empty_response_body">Prazno tijelo odgovora</string>
@@ -2913,7 +2612,6 @@
 
     <!-- Player: pogreške streama / vanjskih poveznica -->
     <string name="player_torrent_starting_engine">Pokretanje P2P pogona…</string>
-    <string name="player_torrent_rebuffer_status">%1$s u međuspremniku</string>
     <string name="player_stream_error_invalid_external_url">Neispravan vanjski URL</string>
     <string name="player_stream_error_open_external_link_failed">Nije moguće otvoriti vanjsku poveznicu</string>
     <string name="player_stream_error_invalid_url">Neispravan URL streama</string>
@@ -2921,11 +2619,6 @@
 
     <!-- Repozitorij metapodataka: dijelovi poruka o pogreškama dodataka -->
     <string name="meta_error_detail_no_metadata_for_id">nije vratio metapodatke za ovaj ID</string>
-    <string name="meta_error_detail_addon_unreachable">nije moguće dosegnuti poslužitelj dodatka</string>
-    <string name="meta_error_detail_addon_connection_failed">veza s dodatkom nije uspjela</string>
-    <string name="meta_error_detail_addon_timeout">zahtjev prema dodatku je istekao</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">dodatak koristi nesigurnu HTTP vezu koju je Android blokirao</string>
-    <string name="meta_error_detail_addon_request_failed">zahtjev prema dodatku nije uspio</string>
 
     <!-- Repozitorij streamova: dijelovi poruka o pogreškama dodataka + dohvaćanje -->
     <string name="stream_error_detail_no_streams_for_id">nije vratio streamove za ovaj ID</string>
@@ -2952,68 +2645,10 @@
     <string name="trakt_comments_error_request_failed">Trakt zahtjev za komentare nije uspio</string>
     <string name="trakt_library_error_fetch_list_items">Dohvaćanje stavki popisa nije uspjelo</string>
 
-    <string name="watchlist_removed">Uklonjeno s popisa za gledanje</string>
-    <string name="watchlist_added">Dodano na popis za gledanje</string>
 
     <!-- Debrid: retci pravila filtara (naslov + podnaslov) -->
-    <string name="debrid_picker_preferred_resolutions_title">Preferirane rezolucije</string>
-    <string name="debrid_picker_preferred_resolutions_subtitle">Poredaj odabrane rezolucije prve, zadanim redoslijedom.</string>
-    <string name="debrid_picker_required_resolutions_title">Obavezne rezolucije</string>
-    <string name="debrid_picker_required_resolutions_subtitle">Prikaži samo odabrane rezolucije.</string>
-    <string name="debrid_picker_excluded_resolutions_title">Isključene rezolucije</string>
-    <string name="debrid_picker_excluded_resolutions_subtitle">Sakrij odabrane rezolucije.</string>
-    <string name="debrid_picker_preferred_qualities_title">Preferirane kvalitete</string>
-    <string name="debrid_picker_preferred_qualities_subtitle">Poredaj odabrane kvalitete prve, zadanim redoslijedom.</string>
-    <string name="debrid_picker_required_qualities_title">Obavezne kvalitete</string>
-    <string name="debrid_picker_required_qualities_subtitle">Prikaži samo odabrane kvalitete izvora.</string>
-    <string name="debrid_picker_excluded_qualities_title">Isključene kvalitete</string>
-    <string name="debrid_picker_excluded_qualities_subtitle">Sakrij odabrane kvalitete izvora.</string>
-    <string name="debrid_picker_preferred_visual_tags_title">Preferirane vizualne oznake</string>
-    <string name="debrid_picker_preferred_visual_tags_subtitle">Sortiraj DV, HDR, 10bit, IMAX i slične oznake.</string>
-    <string name="debrid_picker_required_visual_tags_title">Obavezne vizualne oznake</string>
-    <string name="debrid_picker_required_visual_tags_subtitle">Zahtijevaj DV, HDR, 10bit, IMAX, SDR i slične oznake.</string>
-    <string name="debrid_picker_excluded_visual_tags_title">Isključene vizualne oznake</string>
-    <string name="debrid_picker_excluded_visual_tags_subtitle">Sakrij DV, HDR, 10bit, 3D i slične oznake.</string>
-    <string name="debrid_picker_preferred_audio_tags_title">Preferirane audio oznake</string>
-    <string name="debrid_picker_preferred_audio_tags_subtitle">Sortiraj Atmos, TrueHD, DTS, AAC i slične oznake.</string>
-    <string name="debrid_picker_required_audio_tags_title">Obavezne audio oznake</string>
-    <string name="debrid_picker_required_audio_tags_subtitle">Zahtijevaj Atmos, TrueHD, DTS, AAC i slične oznake.</string>
-    <string name="debrid_picker_excluded_audio_tags_title">Isključene audio oznake</string>
-    <string name="debrid_picker_excluded_audio_tags_subtitle">Sakrij odabrane audio oznake.</string>
-    <string name="debrid_picker_preferred_audio_channels_title">Preferirani kanali</string>
-    <string name="debrid_picker_preferred_audio_channels_subtitle">Poredaj preferirane rasporede kanala prve.</string>
-    <string name="debrid_picker_required_audio_channels_title">Obavezni kanali</string>
-    <string name="debrid_picker_required_audio_channels_subtitle">Prikaži samo odabrane rasporede kanala.</string>
-    <string name="debrid_picker_excluded_audio_channels_title">Isključeni kanali</string>
-    <string name="debrid_picker_excluded_audio_channels_subtitle">Sakrij odabrane rasporede kanala.</string>
-    <string name="debrid_picker_preferred_encodes_title">Preferirana kodiranja</string>
-    <string name="debrid_picker_preferred_encodes_subtitle">Sortiraj AV1, HEVC, AVC i slična kodiranja.</string>
-    <string name="debrid_picker_required_encodes_title">Obavezna kodiranja</string>
-    <string name="debrid_picker_required_encodes_subtitle">Zahtijevaj AV1, HEVC, AVC i slična kodiranja.</string>
-    <string name="debrid_picker_excluded_encodes_title">Isključena kodiranja</string>
-    <string name="debrid_picker_excluded_encodes_subtitle">Sakrij odabrana kodiranja.</string>
-    <string name="debrid_picker_preferred_languages_title">Preferirani jezici</string>
-    <string name="debrid_picker_preferred_languages_subtitle">Poredaj preferirane jezike zvuka prve.</string>
-    <string name="debrid_picker_required_languages_title">Obavezni jezici</string>
-    <string name="debrid_picker_required_languages_subtitle">Prikaži samo streamove s odabranim jezicima.</string>
-    <string name="debrid_picker_excluded_languages_title">Isključeni jezici</string>
-    <string name="debrid_picker_excluded_languages_subtitle">Sakrij streamove u kojima su svi jezici isključeni.</string>
-    <string name="debrid_picker_required_release_groups_title">Obavezne release grupe</string>
-    <string name="debrid_picker_required_release_groups_subtitle">Prikaži samo odabrane release grupe.</string>
-    <string name="debrid_picker_excluded_release_groups_title">Isključene release grupe</string>
-    <string name="debrid_picker_excluded_release_groups_subtitle">Sakrij odabrane release grupe.</string>
 
     <!-- Debrid: broj odabranih + oznake raspona veličine -->
-    <string name="debrid_selection_count_any">Bilo koji</string>
-    <plurals name="debrid_selection_count_value">
-        <item quantity="one">%d odabran</item>
-        <item quantity="few">%d odabrana</item>
-        <item quantity="other">%d odabrano</item>
-    </plurals>
-    <string name="debrid_size_range_any">Bilo koja</string>
-    <string name="debrid_size_range_up_to">Do %1$dGB</string>
-    <string name="debrid_size_range_min_plus">%1$dGB+</string>
-    <string name="debrid_size_range_min_max">%1$d-%2$dGB</string>
 
     <!-- Odabir titlova: zamjenska vrijednost za nepoznati jezik -->
     <string name="subtitle_language_unknown">Nepoznato</string>
@@ -3026,17 +2661,10 @@
     <string name="web_debrid_title">Postavke Direct Debrida</string>
     <string name="web_debrid_intro_title">Prilagodi Debrid streamove</string>
     <string name="web_debrid_intro_copy">Podesi oznake streamova, filtre i sortiranje za Direct Debrid rezultate.</string>
-    <string name="web_debrid_tab_formatter">Oblikovanje</string>
-    <string name="web_debrid_tab_rules">Filtri i sortiranje</string>
     <string name="web_debrid_template_fields">Polja predloška</string>
     <string name="web_debrid_name_template">Predložak naziva</string>
     <string name="web_debrid_description_template">Predložak opisa</string>
     <string name="web_debrid_error_templates_required">Oba predloška su obavezna</string>
-    <string name="web_debrid_stream_rules">Pravila streamova</string>
-    <string name="web_debrid_per_resolution">Po rezoluciji</string>
-    <string name="web_debrid_per_quality">Po kvaliteti</string>
-    <string name="web_debrid_min_size_gb">Min. veličina GB</string>
-    <string name="web_debrid_max_size_gb">Maks. veličina GB</string>
     <string name="web_debrid_restore_default">Vrati zadano</string>
     <string name="web_debrid_save_settings">Spremi postavke</string>
     <string name="web_debrid_status_load_error">Nije moguće učitati Debrid postavke</string>
@@ -3096,7 +2724,7 @@
     <string name="playback_cache_vod_size">Veličina VOD predmemorije</string>
     <string name="playback_cache_vod_size_sub">Maksimalna potrošnja diska za progresivnu VOD predmemoriju (LRU uklanjanje).</string>
     <string name="playback_cache_info_range">Raspon: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Automatski način cilja oko 10% slobodnog prostora.</string>
+    <string name="playback_cache_info_auto">Automatski način cilja oko 10 posto slobodnog prostora.</string>
     <string name="playback_cache_info_manual_headroom">Ručni način ostavlja oko %1$dMB rezerve.</string>
     <string name="playback_cache_info_free_disk">Slobodno na disku: %1$s.</string>
     <string name="playback_cache_info_restart">Novo ograničenje predmemorije primjenjuje se nakon ponovnog pokretanja aplikacije pri promjeni načina/veličine.</string>
@@ -3180,13 +2808,11 @@
     <string name="stream_test_card_title">Pokreni test brzine zadnjeg reproduciranog streama</string>
     <string name="stream_test_server_label">Poslužitelj: %1$s</string>
     <string name="stream_test_no_stream">Nema zabilježene reprodukcije. Za pokretanje dijagnostičkih testova na poslužitelju najprije reproduciraj video.</string>
-    <string name="stream_test_btn_start">Pokreni test</string>
     <string name="stream_test_btn_measuring_baseline">Mjerenje osnovne vrijednosti...</string>
     <string name="stream_test_btn_measuring_parallel1">Mjerenje paralelno (1MB)...</string>
     <string name="stream_test_btn_measuring_parallel4">Mjerenje paralelno (4MB)...</string>
     <string name="stream_test_btn_measuring_parallel8">Mjerenje paralelno (8MB)...</string>
     <string name="stream_test_btn_measuring_parallel16">Mjerenje paralelno (16MB)...</string>
-    <string name="stream_test_btn_run_again">Pokreni ponovno</string>
     <string name="stream_test_btn_running">U tijeku...</string>
     <string name="stream_test_label_baseline">Standardna jedna veza (osnovna vrijednost)</string>
     <string name="stream_test_label_parallel1">Paralelna veza (blokovi od 1 MB)</string>
@@ -3218,4 +2844,225 @@
     <string name="shuffle_save_failed">Nije moguće ažurirati nasumičnu reprodukciju. Pokušaj ponovno.</string>
     <string name="shuffle_change_selection">Odaberi epizode</string>
     <string name="shuffle_badge">Nasumična reprodukcija epizoda uključena</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="best_match_cached">U predmemoriji</string>
+    <string name="debrid_stream_rules_moved">Pravila za streamove sada se nalaze u Reprodukcija → Odabir streama i vrijede za sve izvore, uključujući debrid. Pravila koja si ovdje postavio premještena su tamo.</string>
+    <string name="prefer_next_time_title">Sljedeći put dati prednost ovome?</string>
+    <string name="prefer_next_time_group">Grupa %1$s</string>
+    <string name="prefer_next_time_language">Zvuk: %1$s</string>
+    <string name="prefer_next_time_size">Datoteke do %1$d GB</string>
+    <string name="prefer_next_time_not_now">Ne sada</string>
+    <string name="prefer_next_time_saved">Najbolje podudaranje dat će prednost: %1$s</string>
+    <string name="best_match_excluded">Ne reproducira se automatski: %1$s</string>
+    <string name="exclusion_above_max_resolution">iznad tvoje maksimalne rezolucije</string>
+    <string name="exclusion_below_min_resolution">ispod tvoje minimalne rezolucije</string>
+    <string name="exclusion_over_max_size">veće od tvog ograničenja veličine</string>
+    <string name="exclusion_under_min_size">manje od tvoje minimalne veličine</string>
+    <string name="exclusion_resolution">preskačeš %1$s</string>
+    <string name="exclusion_source">preskačeš izdanja %1$s</string>
+    <string name="exclusion_codec">preskačeš %1$s</string>
+    <string name="exclusion_audio">preskačeš zvuk %1$s</string>
+    <string name="exclusion_language">preskačeš %1$s</string>
+    <string name="exclusion_release_group">preskačeš grupu %1$s</string>
+    <string name="exclusion_result_limit">iznad tvog ograničenja rezultata</string>
+    <string name="exclusion_dv_profile_excluded">isključio si ovaj Dolby Vision profil</string>
+    <string name="exclusion_dv_excluded">isključio si Dolby Vision</string>
+    <string name="exclusion_hdr_excluded">isključio si HDR</string>
+    <string name="exclusion_cam">cam ili telesync kopija</string>
+    <string name="exclusion_3d">3D izdanje</string>
+    <string name="exclusion_keyword">sadrži isključenu ključnu riječ</string>
+    <string name="exclusion_unsupported_codec">ovaj TV ne može dekodirati %1$s</string>
+    <string name="exclusion_unsupported_dv">DV profil 5 nije podržan na ovom TV-u</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">DV s HDR10+ prikazuje crni zaslon na ovom uređaju</string>
+    <string name="exclusion_unsupported_resolution">veća rezolucija od one koju ovaj TV prikazuje</string>
+    <string name="exclusion_unsupported_audio">%1$s zahtijeva passthrough ili dekoder koji ovaj TV nema</string>
+    <string name="exclusion_not_playable">ovaj player ga ne može otvoriti</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="one">Pretraživanje… odgovorilo: %1$d, još traži %2$d dodatak</item>
+        <item quantity="few">Pretraživanje… odgovorilo: %1$d, još traže %2$d dodatka</item>
+        <item quantity="other">Pretraživanje… odgovorilo: %1$d, još traži %2$d dodataka</item>
+    </plurals>
+    <string name="fetching_addons_done">Svi dodaci (%1$d) su odgovorili</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="one">Pokretanje za %1$d sekundu</item>
+        <item quantity="few">Pokretanje za %1$d sekunde</item>
+        <item quantity="other">Pokretanje za %1$d sekundi</item>
+    </plurals>
+    <string name="fetching_best_so_far">Zasad najbolje</string>
+    <string name="fetching_play_now">Reproduciraj sada</string>
+    <string name="fetching_see_all_sources">Prikaži sve izvore</string>
+    <string name="licenses_attributions_fetch_body">Fetch je slobodni softver pod licencom GNU General Public License v3.0. Riječ je o forku aplikacije NuvioTV koju su izradili suradnici projekta Nuvio (github.com/NuvioMedia/NuvioTV), čiji rad čini većinu ove aplikacije.</string>
+    <string name="advanced_section_skip_markers">Oznake za preskakanje</string>
+    <string name="advanced_introdb_server">IntroDB poslužitelj</string>
+    <string name="advanced_introdb_server_subtitle">Odakle dolaze oznake uvoda, sažetka i odjavne špice za obične serije i filmove</string>
+    <string name="advanced_introdb_server_default">Zadano (%1$s)</string>
+    <string name="advanced_introdb_server_dialog_subtitle">API kompatibilan s IntroDB-om. Ostavi prazno za korištenje javnog poslužitelja.</string>
+    <string name="advanced_introdb_server_invalid">Unesi http ili https adresu</string>
+    <string name="advanced_introdb_api_key">IntroDB API ključ</string>
+    <string name="advanced_introdb_api_key_subtitle">Omogućuje ti označavanje uvoda i odjavnih špica iz playera i slanje na IntroDB</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">Izradi ključ na introdb.app. Počinje s idb_.</string>
+    <string name="sub_hdr_style">Zaseban stil za HDR / Dolby Vision</string>
+    <string name="sub_hdr_style_sub">Koristi drugu boju teksta i manju svjetlinu za titlove na HDR i Dolby Vision videu</string>
+    <string name="sub_hdr_text_color">Boja teksta za HDR</string>
+    <string name="sub_hdr_brightness">Svjetlina titlova za HDR</string>
+    <string name="best_match_preview_title">Prikaži odabir na gumbu Reproduciraj</string>
+    <string name="best_match_preview_sub">Pita tvoje dodatke za streamove o naslovu dok ga gledaš, tako da gumb Reproduciraj može navesti datoteku i reprodukcija brže započne. Isključi kako bi se tražilo tek nakon što pritisneš Reproduciraj.</string>
+    <string name="autoplay_allowed_addons_early_sub">Automatska reprodukcija počinje čim ovi dodaci odgovore, umjesto da čeka sve dodatke.</string>
+    <string name="layout_trailer_crop_to_fill">Izreži trailere da ispune zaslon</string>
+    <string name="layout_trailer_crop_to_fill_sub">Uvećaj pozadinske trailere na Početnoj i stranicama detalja da ispune okvir. Isključi za prikaz cijele slike s crnim trakama.</string>
+    <string name="addon_configure">Konfiguriraj</string>
+    <string name="addon_badge_needs_setup">Potrebno postavljanje</string>
+    <string name="addon_needs_configuration">%1$s treba postaviti prije instalacije</string>
+    <string name="addon_configure_updated">Ažurirano: %1$s</string>
+    <string name="addon_configure_still_unconfigured">%1$s još nije postavljen. Dovrši njegovu stranicu za konfiguraciju, a zatim ponovno pošalji poveznicu.</string>
+    <string name="addon_configure_title">Konfiguriraj %1$s</string>
+    <string name="addon_configure_received">Tvoj telefon je poslao: %1$s</string>
+    <string name="addon_configure_install">Instaliraj</string>
+    <string name="addon_configure_step_open">1. Skeniraj za otvaranje stranice za konfiguraciju na telefonu</string>
+    <string name="addon_configure_step_send">2. Skeniraj za slanje nove poveznice natrag na ovaj TV</string>
+    <string name="addon_configure_waiting">Nakon spremanja kopiraj instalacijsku poveznicu koju ti stranica da i pošalji je u 2. koraku.</string>
+    <string name="addon_configure_no_server">Nakon spremanja zalijepi instalacijsku poveznicu u polje na vrhu ovog zaslona.</string>
+    <string name="addon_configure_web_title">Pošalji na TV</string>
+    <string name="addon_configure_web_step1">Najprije postavi dodatak na njegovoj stranici.</string>
+    <string name="addon_configure_web_open">Otvori stranicu za konfiguraciju</string>
+    <string name="addon_configure_web_step2">Kad prikaže instalacijsku poveznicu (ili manifest.json adresu), kopiraj je i zalijepi ovdje.</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json ili stremio://…</string>
+    <string name="addon_configure_web_send">Pošalji na TV</string>
+    <string name="addon_configure_web_sent">Poslano. Potvrdi na TV-u.</string>
+    <string name="addon_configure_web_invalid">To ne izgleda kao poveznica dodatka.</string>
+    <string name="addon_configure_web_failed">TV nije dostupan. Je li još na zaslonu za konfiguraciju?</string>
+    <string name="catalog_order_pinned_on_home">Prikvačeno na vrh Početne</string>
+    <string name="catalog_order_pin">Prikvači na vrh</string>
+    <string name="filter_rows_title">Redovi s filtrima</string>
+    <string name="filter_rows_subtitle">Redovi izrađeni filtrima nad bibliotekom medijskog poslužitelja ili katalogom dodatka. Prikazuju se na Početnoj, gdje ih možeš preslagivati, sakrivati i prikvačiti kao i bilo koji drugi red.</string>
+    <string name="filter_rows_card_subtitle">Izradi redove za Početnu poput „neodgledani SF s mog Jellyfina”</string>
+    <string name="filter_rows_new">Novi red s filtrom</string>
+    <string name="filter_rows_edit_title">Uredi red s filtrom</string>
+    <string name="filter_rows_empty">Još nema redova s filtrima.</string>
+    <string name="filter_rows_no_sources">Poveži medijski poslužitelj ili instaliraj dodatak s katalozima žanrova za izradu reda s filtrom.</string>
+    <string name="filter_rows_edit">Uredi</string>
+    <string name="filter_rows_delete">Izbriši</string>
+    <string name="filter_rows_save">Spremi</string>
+    <string name="filter_rows_save_failed">Spremanje nije uspjelo. Pokušaj ponovno.</string>
+    <string name="filter_row_any">Bilo koji</string>
+    <string name="filter_row_source">Izvor</string>
+    <string name="filter_row_genre">Žanr</string>
+    <string name="filter_row_year_from">Od godine</string>
+    <string name="filter_row_year_to">Do godine</string>
+    <string name="filter_row_watched">Pogledano</string>
+    <string name="filter_row_watched_only">Samo pogledano</string>
+    <string name="filter_row_unwatched">Samo nepogledano</string>
+    <string name="filter_row_rating">Minimalna ocjena</string>
+    <string name="filter_row_rating_value">%1$.1f ili više</string>
+    <string name="filter_row_sort">Poredaj po</string>
+    <string name="filter_row_sort_added">Datum dodavanja</string>
+    <string name="filter_row_sort_title">Naslov</string>
+    <string name="filter_row_sort_release">Datum izlaska</string>
+    <string name="filter_row_sort_rating">Ocjena</string>
+    <string name="filter_row_sort_random">Nasumično</string>
+    <string name="filter_row_order">Redoslijed</string>
+    <string name="filter_row_descending">Silazno</string>
+    <string name="filter_row_ascending">Uzlazno</string>
+    <string name="filter_row_addon_note">Katalozi dodataka mogu se filtrirati samo po žanru.</string>
+    <string name="filter_row_source_missing">Izvor ovog reda više nije dostupan.</string>
+    <string name="home_poster_pin_row">Prikvači ovaj red na vrh</string>
+    <string name="home_poster_unpin_row">Otkvači ovaj red</string>
+    <string name="catalog_order_unpin">Otkvači</string>
+    <string name="subtitle_style_text_color_hdr">Boja teksta (HDR)</string>
+    <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
+    <string name="subtitle_style_brightness_hdr">Svjetlina (HDR)</string>
+    <string name="skip_source">putem %1$s</string>
+    <string name="skip_source_reportable">putem %1$s · drži za prijavu</string>
+    <string name="skip_marker_reported">Pogrešna oznaka prijavljena. Hvala!</string>
+    <string name="skip_marker_report_failed">Prijava oznake nije uspjela</string>
+    <string name="skip_marker_start_recorded">Početak označen. Pritisni ponovno gdje završava.</string>
+    <string name="skip_marker_submitted">Oznaka poslana na IntroDB</string>
+    <string name="skip_marker_submit_failed">Slanje oznake na IntroDB nije uspjelo</string>
+    <string name="library_empty_type_movies">filmovi</string>
+    <string name="library_empty_type_series">serije</string>
+    <string name="library_empty_type_items">stavke</string>
+    <string name="server_options_use_official">Isključi sinkronizaciju</string>
+    <string name="official_server_title">Isključiti sinkronizaciju?</string>
+    <string name="official_server_description">Bit ćeš odjavljen sa svog poslužitelja za sinkronizaciju i aplikacija će se ponovno pokrenuti u samo lokalnom načinu. Sve što je već na ovom TV-u ostaje.</string>
+    <string name="official_server_action">Isključi sinkronizaciju</string>
+    <string name="custom_server_error_official_active">Sinkronizacija je na ovom TV-u već isključena.</string>
+    <string name="custom_server_error_official_available">To nije poslužitelj za sinkronizaciju. Zatvori ovaj dijalog i odaberi Isključi sinkronizaciju za povratak u samo lokalni način.</string>
+    <string name="cd_mark_intro_start">Označi početak uvoda</string>
+    <string name="cd_mark_intro_end">Označi kraj uvoda</string>
+    <string name="cd_mark_credits_start">Označi početak odjavne špice</string>
+    <string name="cd_mark_credits_end">Označi kraj odjavne špice</string>
+    <string name="autoplay_mode_best">Najbolje podudaranje</string>
+    <string name="autoplay_mode_best_desc">Rangira svaki rezultat prema kvaliteti, tvojim pravilima i onome što ovaj uređaj može reproducirati, a zatim pokreće pobjednika. Ostali izvori ostaju na jedan pritisak.</string>
+    <string name="ranking_preferred_quality">Željena kvaliteta</string>
+    <string name="ranking_preferred_quality_sub">Više kvalitete i dalje su dopuštene, samo su niže rangirane</string>
+    <string name="ranking_max_quality">Maksimalna kvaliteta</string>
+    <string name="ranking_preferred_codec">Željeni video kodek</string>
+    <string name="ranking_preferred_size">Željena veličina datoteke</string>
+    <string name="ranking_preferred_size_sub">Veće datoteke rangiraju se niže</string>
+    <string name="ranking_max_size">Maksimalna veličina datoteke</string>
+    <string name="ranking_max_size_sub">Veće datoteke nikad se ne reproduciraju automatski</string>
+    <string name="ranking_skip_dv5">Preskoči Dolby Vision profil 5</string>
+    <string name="ranking_skip_dv5_sub">Profil 5 nema HDR10 rezervu. Uvijek se preskače kad ga ovaj TV ne može prikazati</string>
+    <string name="ranking_prefer_cached">Daj prednost debrid rezultatima u predmemoriji</string>
+    <string name="ranking_prefer_cached_sub">Datoteke u predmemoriji pokreću se odmah</string>
+    <string name="ranking_prefer_library">Daj prednost mojoj biblioteci</string>
+    <string name="ranking_prefer_library_sub">Datoteka na tvom Jellyfin, Emby ili Plex poslužitelju pobjeđuje bilo koji stream</string>
+    <string name="ranking_hide_cam">Nikad automatski ne reproduciraj CAM ili telesync</string>
+    <string name="ranking_drop_undecodable">Preskoči streamove koje ovaj uređaj ne može dekodirati</string>
+    <string name="ranking_drop_undecodable_sub">Na temelju dekodera, HDR formata i rezolucije koje ovaj uređaj prijavljuje</string>
+    <string name="ranking_any">Bilo koja</string>
+    <string name="ranking_no_limit">Bez ograničenja</string>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="ranking_min_size">Minimalna veličina datoteke</string>
+    <string name="ranking_min_size_sub">Manje datoteke nikad se ne reproduciraju automatski</string>
+    <string name="ranking_preferred_languages">Željeni jezici zvuka</string>
+    <string name="ranking_preferred_languages_sub">Izdanja koja navode ove jezike rangiraju se više, prvi izbor najviše</string>
+    <string name="ranking_excluded_languages">Preskoči jezike zvuka</string>
+    <string name="ranking_excluded_languages_sub">Izdanja samo na ovim jezicima nikad se ne reproduciraju automatski</string>
+    <string name="ranking_excluded_sources">Preskoči vrste izdanja</string>
+    <string name="ranking_excluded_audio">Preskoči audio formate</string>
+    <string name="ranking_excluded_audio_sub">Izdanja samo s ovim audio formatima nikad se ne reproduciraju automatski</string>
+    <string name="ranking_preferred_groups">Željene grupe izdanja</string>
+    <string name="ranking_preferred_groups_sub">Uključuje grupe koje si odabrao opcijom Sljedeći put dati prednost ovome</string>
+    <string name="ranking_excluded_groups">Preskoči grupe izdanja</string>
+    <string name="ranking_max_results">Broj rezultata koje zadržati</string>
+    <string name="ranking_max_results_sub">Ostali se premještaju u Ostale izvore</string>
+    <string name="ranking_max_per_resolution">Rezultata po rezoluciji</string>
+    <string name="ranking_none">Ništa</string>
+    <string name="ranking_groups_input_sub">Odvoji grupe zarezima, na primjer FLUX, NTb.</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="one">Odabrano: %1$d</item>
+        <item quantity="few">Odabrano: %1$d</item>
+        <item quantity="other">Odabrano: %1$d</item>
+    </plurals>
+    <string name="addon_health_latency">%1$.1f s</string>
+    <string name="addon_health_ok">Odgovara · %1$s</string>
+    <string name="addon_health_slow">Sporo · %1$s</string>
+    <string name="addon_health_failing">Zadnji zahtjev nije uspio</string>
+    <string name="addon_health_timed_out">Zadnjem zahtjevu isteklo je vrijeme</string>
+    <string name="account_local_only_note">Sinkronizacija je isključena. Fetch čuva tvoje dodatke, napredak i postavke na ovom TV-u i ne treba račun. Za sinkronizaciju između uređaja poveži vlastiti poslužitelj za sinkronizaciju u opcijama poslužitelja.</string>
+    <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent pogon. Uključi debrid uslugu u Postavke → Debrid ili ga otvori u vanjskom playeru.</string>
+    <string name="parental_title_blocked">Ovaj naslov prelazi dobno ograničenje ovog profila.</string>
+    <string name="parental_addons_blocked">Ovaj profil ne može instalirati dodatke. Pitaj roditelja.</string>
+    <string name="parental_gate_heading">Unesi PIN za %1$s</string>
+    <string name="parental_gate_support">Ovaj profil ima roditeljska ograničenja. Za nastavak je potreban roditeljski PIN.</string>
+    <string name="parental_limits_label">Roditeljska ograničenja</string>
+    <string name="parental_limits_title">Roditeljska ograničenja za %1$s</string>
+    <string name="parental_limits_subtitle">Za promjene je potreban PIN glavnog profila. Naslovi iznad ograničenja skriveni su s Početne, iz pretraživanja i Nastavi gledati te se ne mogu reproducirati.</string>
+    <string name="parental_limits_subtitle_no_pin">Postavi PIN na glavnom profilu, inače bilo tko na ovom profilu može promijeniti ova ograničenja.</string>
+    <string name="parental_limits_saved">Roditeljska ograničenja spremljena za %1$s</string>
+    <string name="parental_kids_profile_toggle">Dječji profil: %1$s</string>
+    <string name="parental_max_rating">Najviša dobna oznaka: %1$s</string>
+    <string name="parental_allow_unrated">Prikaži naslove bez oznake: %1$s</string>
+    <string name="parental_on">Uključeno</string>
+    <string name="parental_off">Isključeno</string>
+    <string name="parental_level_all_ages">Sve dobi (G, TV-Y, TV-G)</string>
+    <string name="parental_level_older_kids">Starija djeca (TV-Y7)</string>
+    <string name="parental_level_pg">PG, TV-PG</string>
+    <string name="parental_level_teens">PG-13, TV-14</string>
+    <string name="parental_level_mature">R, TV-MA</string>
+    <string name="parental_level_unrestricted">Bez ograničenja</string>
+    <string name="stream_torrent_needs_debrid">Torrent: poveži debrid uslugu u Postavke → Debrid da ga pokreneš ovdje ili ga otvori u vanjskom playeru.</string>
 </resources>

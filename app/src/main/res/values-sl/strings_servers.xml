@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Prijavite se z računom %1$s s telefona. Brez tipkanja na televizorju.</string>
+    <string name="servers_link_choose_server">Vaš račun ima dostop do več strežnikov. Izberite tistega, ki ga želite dodati.</string>
+    <string name="servers_link_connecting_to">Povezovanje s %1$s…</string>
+    <string name="servers_link_expired">Koda je potekla. Pridobite novo in poskusite znova.</string>
+    <string name="servers_link_expires">Koda poteče čez %1$s</string>
+    <string name="servers_link_instruction">Skenirajte kodo s telefonom ali odprite %1$s na kateri koli napravi in vnesite to kodo.</string>
+    <string name="servers_link_loading">Pridobivanje kode za prijavo…</string>
+    <string name="servers_link_no_servers">Ta račun še nima strežnikov. Nastavite svojega ali prosite lastnika strežnika, naj z vami deli knjižnico.</string>
+    <string name="servers_link_qr">Koda QR za prijavo v %1$s</string>
+    <string name="servers_link_retry">Pridobi novo kodo</string>
+    <string name="servers_link_waiting">Čakanje na vašo potrditev kode…</string>
+</resources>

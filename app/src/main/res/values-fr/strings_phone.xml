@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_title">Configurez avec votre téléphone. Pas de saisie à la télécommande.</string>
+    <string name="first_run_phone_qr_description">Code de configuration par téléphone</string>
+    <string name="first_run_phone_step_scan">Scannez avec l’appareil photo de votre téléphone</string>
+    <string name="first_run_phone_step_addons">Collez vos addons et votre clé debrid</string>
+    <string name="first_run_phone_step_accounts">Connectez-vous à Trakt, Simkl ou Jellyfin</string>
+    <string name="first_run_phone_network">Votre téléphone doit être sur le même Wi-Fi que cette TV. Vous pouvez aussi le faire plus tard dans les paramètres.</string>
+    <string name="first_run_recommended">Recommandé</string>
+    <string name="phone_hub_title">Configurer depuis le téléphone</string>
+    <string name="phone_hub_description">Scannez un code pour utiliser votre téléphone comme télécommande et clavier, vous connecter à vos comptes et modifier les paramètres longs.</string>
+    <string name="phone_hub_open">Afficher le code téléphone</string>
+    <string name="phone_hub_open_description">Votre téléphone doit être sur le même réseau que cette TV.</string>
+    <string name="phone_hub_instruction">Scannez avec votre téléphone. Le code ne fonctionne qu’une fois&#160;; la page reste ouverte tant que cet écran l’est.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d téléphone connecté. La télécommande fonctionne encore 10 minutes après la fermeture de cet écran.</item>
+        <item quantity="many">%d de téléphones connectés. La télécommande fonctionne encore 10 minutes après la fermeture de cet écran.</item>
+        <item quantity="other">%d téléphones connectés. La télécommande fonctionne encore 10 minutes après la fermeture de cet écran.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Ce profil a des limites parentales. Déverrouillez d’abord les paramètres sur la TV.</string>
+</resources>

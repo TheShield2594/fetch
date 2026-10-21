@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_title">Beállítás telefonnal. Nem kell a távirányítóval gépelni.</string>
+    <string name="first_run_phone_qr_description">Telefonos beállítási kód</string>
+    <string name="first_run_phone_step_scan">Olvasd be a telefonod kamerájával</string>
+    <string name="first_run_phone_step_addons">Illeszd be a bővítményeket és a debrid kulcsodat</string>
+    <string name="first_run_phone_step_accounts">Jelentkezz be a Trakt, Simkl vagy Jellyfin fiókodba</string>
+    <string name="first_run_phone_network">A telefonodnak ugyanazon a Wi-Fi-hálózaton kell lennie, mint ennek a TV-nek. Ezt később a Beállításokban is megteheted.</string>
+    <string name="first_run_recommended">Ajánlott</string>
+    <string name="phone_hub_title">Beállítás telefonról</string>
+    <string name="phone_hub_description">Egyetlen kód beolvasásával a telefonodat távirányítóként és billentyűzetként használhatod, bejelentkezhetsz fiókokba, és szerkesztheted a hosszú beállításokat.</string>
+    <string name="phone_hub_open">Telefonos kód mutatása</string>
+    <string name="phone_hub_open_description">A telefonodnak ugyanazon a hálózaton kell lennie, mint ennek a TV-nek.</string>
+    <string name="phone_hub_instruction">Olvasd be a telefonoddal. A kód egyszer használható; az oldal addig marad nyitva, amíg ez a képernyő.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d telefon csatlakoztatva. A távirányító a képernyő bezárása után még 10 percig működik.</item>
+        <item quantity="other">%d telefon csatlakoztatva. A távirányító a képernyő bezárása után még 10 percig működik.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Ehhez a profilhoz szülői korlátozás tartozik. Először oldd fel a beállításokat a TV-n.</string>
+</resources>

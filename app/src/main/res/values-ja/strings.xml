@@ -147,7 +147,6 @@
     <string name="cw_percent_watched">%1$d%% 視聴済み</string>
     <string name="cw_hours_min_left">残り%1$d時間%2$d分</string>
     <string name="cw_min_left">残り%1$d分</string>
-    <string name="cw_almost_done">もうすぐ終了</string>
     <string name="cw_airs_date">%1$s 放送予定</string>
     <string name="cw_airs_today">本日放送</string>
     <string name="cw_airs_tomorrow">明日放送</string>
@@ -177,14 +176,12 @@
     <string name="hero_director">監督: %1$s</string>
     <string name="hero_writer">脚本: %1$s</string>
     <string name="hero_play">再生</string>
-    <string name="hero_play_episode">S%1$d E%2$d を再生</string>
     <string name="hero_add_to_library">ライブラリに追加</string>
     <string name="hero_remove_from_library">ライブラリから削除</string>
     <string name="hero_mark_watched">視聴済みにする</string>
     <string name="hero_mark_unwatched">未視聴にする</string>
     <string name="hero_play_trailer">予告編を再生</string>
     <string name="hero_press_back_trailer">戻るボタンで予告編を終了</string>
-    <string name="cd_rating">評価</string>
 
     <string name="episodes_season">シーズン%1$d</string>
     <string name="episodes_specials">スペシャル</string>
@@ -243,10 +240,8 @@
     <string name="detail_section_production">制作会社</string>
     <string name="detail_comments_empty">Traktのレビューはまだありません</string>
     <string name="detail_comments_error">Traktのレビューを読み込めませんでした</string>
-    <string name="detail_trailer_loading">予告編を読み込み中…</string>
     <string name="detail_trailer_error">予告編を読み込めませんでした</string>
     <string name="detail_comments_spoiler_hidden">ネタバレを含むレビューです。OKを押すと表示されます</string>
-    <string name="detail_comments_reveal_spoiler">ネタバレを表示</string>
     <string name="detail_comments_reveal_spoiler_hint">OKを押してネタバレを表示</string>
     <string name="detail_comments_back_hint">戻るボタンで閉じる</string>
     <string name="detail_comments_badge_review">レビュー</string>
@@ -377,13 +372,8 @@
     <string name="settings_content_discovery_subtitle">アドオン、プラグイン、カタログ、発見ソース</string>
     <string name="settings_content_discovery_addons_subtitle">アドオン、カタログ順序、コレクションを管理</string>
     <string name="settings_content_discovery_plugins_subtitle">リポジトリとストリームプロバイダーを管理</string>
-    <string name="settings_plugins">プラグイン</string>
-    <string name="settings_plugins_subtitle">リポジトリとプロバイダー</string>
     <string name="settings_integration">連携</string>
     <string name="settings_playback">再生</string>
-    <string name="settings_trakt_subtitle">Trakt接続画面を開く</string>
-    <string name="settings_network">通信速度</string>
-    <string name="settings_network_subtitle">レイテンシとダウンロードの診断</string>
     <string name="settings_advanced">詳細設定</string>
     <string name="settings_advanced_subtitle">パフォーマンス、ナビゲーション、キャッシュ、診断</string>
     <string name="experience_mode_essential">基本</string>
@@ -472,8 +462,6 @@
     <string name="advanced_fast_horizontal_navigation_subtitle">D-padのリピート速度を上げます（リピートスロットリングは有効のまま）。</string>
     <string name="advanced_fetch_focus_scroll">Fetchフォーカススクロール</string>
     <string name="advanced_fetch_focus_scroll_subtitle">Fetchのカスタムグローバルフォーカススクロールアニメーションと位置決めを使用します。</string>
-    <string name="advanced_memory_only_vertical_scroll">メモリのみの垂直スクロール</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">ホーム行を垂直スクロール中にディスクやネットワークの画像リクエストをスキップします。</string>
     <string name="advanced_compose_highlighter">Composeハイライター</string>
     <string name="advanced_compose_highlighter_subtitle">再コンポーズされるUI要素の周囲に境界線をフラッシュしてパフォーマンスをデバッグします。</string>
     <string name="advanced_clear_cw_cache">視聴を続けるキャッシュをクリア</string>
@@ -482,7 +470,6 @@
     <string name="advanced_remember_last_profile">最後のプロフィールを記憶</string>
     <string name="advanced_remember_last_profile_subtitle">起動時に最後に選択したプロフィールを記憶</string>
     <string name="settings_debug">デバッグ</string>
-    <string name="settings_plugins_section_subtitle">リポジトリ、プロバイダー、プラグインの状態を管理</string>
     <string name="settings_account_section_subtitle">アカウントと同期の状態</string>
     <string name="account_stat_addons">アドオン</string>
     <string name="account_stat_plugins">プラグイン</string>
@@ -506,21 +493,6 @@
     <string name="action_none">なし</string>
     <string name="action_close">閉じる</string>
 
-    <string name="supporters_tab">サポーター</string>
-    <string name="contributors_tab">貢献者</string>
-    <string name="supporters_loading">サポーターを読み込み中…</string>
-    <string name="supporters_empty">まだサポーターが見つかりません</string>
-    <string name="supporters_error_title">サポーターを読み込めませんでした</string>
-    <string name="supporters_no_message">メッセージなし</string>
-    <string name="supporters_open_donations">寄付ページを開く</string>
-    <string name="contributors_loading">GitHub貢献者を読み込み中…</string>
-    <string name="contributors_empty">まだ貢献者が見つかりません</string>
-    <string name="contributors_error_title">貢献者を読み込めませんでした</string>
-    <string name="contributors_total_contributions">合計%1$d件の貢献</string>
-    <string name="contributors_open_github">GitHubプロフィールを開く</string>
-    <string name="contributors_show_kofi_qr">Ko-fi QRを表示</string>
-    <string name="contributors_hide_kofi_qr">Ko-fi QRを非表示</string>
-    <string name="contributors_profile_unavailable">GitHubプロフィールリンクは利用できません</string>
 
     <string name="playback_loading_overlay">ローディングオーバーレイ</string>
     <string name="playback_loading_overlay_sub">最初のフレームが表示されるまでローディング画面を表示</string>
@@ -577,7 +549,6 @@
     <string name="playback_engine_mvplayer_desc">Fetch OSDコントロール付きのlibmpvを使用。実験的。</string>
 
     <string name="video_section">映像</string>
-    <string name="audio_trailer_section">予告編</string>
     <string name="audio_autoplay_trailers">予告編の自動再生</string>
     <string name="audio_autoplay_trailers_sub">詳細画面で一定時間操作がない場合に自動で予告編を再生</string>
     <string name="audio_trailer_delay">予告編の遅延</string>
@@ -654,7 +625,6 @@
     <string name="audio_decoder_prefer_app_desc">利用可能な場合はFFmpegデコーダーを使用。対応形式は増えますがCPU使用率が上がります</string>
     <string name="audio_decoder_controls">音声と動画にハードウェアまたはソフトウェア（FFmpeg）デコーダーを使用するかを制御</string>
 
-    <string name="sub_section">字幕</string>
     <string name="sub_not_set">未設定</string>
     <string name="sub_forced_lang">強制</string>
     <string name="sub_preferred_lang">優先言語</string>
@@ -663,7 +633,6 @@
     <string name="sub_use_forced_subtitles_desc">音声が字幕言語と一致する場合は強制字幕を優先し、利用できない場合は何も選択しません</string>
     <string name="sub_show_only_preferred_languages">優先言語のみ表示</string>
     <string name="sub_show_only_preferred_languages_desc">選択リストから他のすべての字幕言語を非表示にする</string>
-    <string name="sub_organization">字幕の整理</string>
     <string name="sub_size">サイズ</string>
     <string name="sub_vertical_offset">縦位置オフセット</string>
     <string name="sub_bold">太字</string>
@@ -687,12 +656,6 @@
     <string name="sub_mode_effects_canvas_sub">Canvasレンダリングを使用したMedia3エフェクトによるアニメーションサポート</string>
     <string name="sub_mode_standard">標準キュー</string>
     <string name="sub_mode_standard_sub">アニメーションサポートなしの基本的な字幕レンダリング。最も互換性が高い</string>
-    <string name="sub_org_none">なし（デフォルト順）</string>
-    <string name="sub_org_by_lang">言語別</string>
-    <string name="sub_org_by_addon">アドオン別</string>
-    <string name="sub_org_none_desc">デフォルトのアドオン結果順で字幕を表示</string>
-    <string name="sub_org_by_lang_desc">言語別に字幕をグループ化</string>
-    <string name="sub_org_by_addon_desc">アドオンソース別に字幕をグループ化</string>
 
     <string name="autoplay_reuse_last_link">最後のリンクを再利用</string>
     <string name="autoplay_reuse_last_link_sub">キャッシュが有効な間、同じ映画/エピソードの最後に機能したストリームを自動再生</string>
@@ -718,7 +681,6 @@
     <string name="autoplay_threshold_pct_title">しきい値のパーセンテージ</string>
     <string name="autoplay_threshold_pct_sub">アウトロのタイムスタンプがない場合のフォールバック</string>
     <string name="autoplay_threshold_min_title">しきい値の分数</string>
-    <string name="autoplay_threshold_min_sub">アウトロのタイムスタンプがない場合のフォールバック</string>
     <string name="autoplay_scope_all">すべてのソース</string>
     <string name="autoplay_scope_addons">インストール済みアドオンのみ</string>
     <string name="autoplay_scope_plugins">有効なプラグインのみ</string>
@@ -752,8 +714,6 @@
     <string name="layout_section_home_desc">構造とヒーローソースを選択</string>
     <string name="layout_landscape_posters">横向きポスター</string>
     <string name="layout_landscape_posters_sub">モダンビューで縦向きと横向きカードを切り替え</string>
-    <string name="layout_preview_row">プレビュー行を表示</string>
-    <string name="layout_preview_row_sub">モダンホームレイアウトで下の行のプレビューを部分的に表示</string>
     <string name="layout_section_content">ホームコンテンツ</string>
     <string name="layout_section_content_desc">ホームと検索に表示するものを制御</string>
     <string name="layout_collapse_sidebar">サイドバーを折りたたむ</string>
@@ -828,8 +788,6 @@
     <string name="layout_preset_balanced">バランス</string>
     <string name="layout_preset_comfort">コンフォート</string>
     <string name="layout_preset_large">大</string>
-    <string name="layout_memory_only_scroll">メモリのみの垂直スクロール</string>
-    <string name="layout_memory_only_scroll_sub">垂直スクロール中に新しい画像の読み込みをスキップします。</string>
     <string name="layout_preset_sharp">シャープ</string>
     <string name="layout_preset_subtle">サトル</string>
     <string name="layout_preset_classic">クラシック</string>
@@ -845,23 +803,7 @@
     <string name="mdblist_enable_title">MDBList評価を有効にする</string>
     <string name="mdblist_enable_subtitle">メタデータ詳細画面で外部プロバイダーから評価を取得</string>
     <string name="mdblist_api_key_title">APIキー</string>
-    <string name="mdblist_api_key_subtitle">MDBListから評価を取得するために必要</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">Traktスコアを表示</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">IMDbスコアを表示（利用可能な場合はデフォルトのIMDb行を非表示）</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">TMDBスコアを表示</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">Letterboxdスコアを表示</string>
-    <string name="mdblist_tomatoes_title">Rotten Tomatoes</string>
-    <string name="mdblist_tomatoes_subtitle">批評家スコアを表示</string>
-    <string name="mdblist_audience_title">オーディエンススコア</string>
-    <string name="mdblist_audience_subtitle">オーディエンススコアを表示</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">Metacriticスコアを表示</string>
     <string name="mdblist_dialog_title">MDBList APIキー</string>
-    <string name="mdblist_dialog_subtitle">外部評価を取得するためにAPIキーを入力</string>
     <string name="mdblist_dialog_placeholder">MDBList APIキーを入力</string>
     <string name="mdblist_not_set">未設定</string>
     <string name="mdblist_invalid_api_key">無効なMDBList APIキー</string>
@@ -880,25 +822,11 @@
     <string name="debrid_section_instant_playback">リンク準備</string>
     <string name="debrid_section_filters">フィルター &amp; 並べ替え</string>
     <string name="debrid_section_formatting">フォーマット</string>
-    <string name="debrid_provider_title">プロバイダー</string>
-    <string name="debrid_provider_subtitle">追加のプロバイダーは後日追加されます</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">Torboxアカウントを接続します。</string>
     <string name="debrid_provider_description">%1$sアカウントを接続します。</string>
     <string name="debrid_provider_device_description">ブラウザで%1$sアカウントをリンクします。</string>
     <string name="debrid_api_key_dialog_title">%1$s APIキー</string>
     <string name="debrid_api_key_dialog_subtitle">%1$sのAPIキーを入力してください。</string>
     <string name="debrid_api_key_dialog_placeholder">%1$s APIキーを入力</string>
-    <string name="debrid_dialog_title">Torbox APIキー</string>
-    <string name="debrid_dialog_subtitle">Torbox APIキーを入力してください。</string>
-    <string name="debrid_dialog_placeholder">Torbox APIキーを入力</string>
-    <string name="debrid_real_debrid_api_key_title">Real-Debrid APIトークン</string>
-    <string name="debrid_real_debrid_api_key_subtitle">ローカルReal-Debridリンク解決に必要</string>
-    <string name="debrid_real_debrid_dialog_title">Real-Debrid APIトークン</string>
-    <string name="debrid_real_debrid_dialog_subtitle">Direct Debrid用のReal-Debrid APIトークンを入力</string>
-    <string name="debrid_real_debrid_dialog_placeholder">Real-Debrid APIトークンを入力</string>
     <string name="debrid_not_set">未設定</string>
     <string name="debrid_connected">接続済み</string>
     <string name="debrid_connect_provider">%1$sを接続</string>
@@ -907,87 +835,19 @@
     <string name="debrid_device_auth_connected">%1$sがこのデバイスに接続されています。</string>
     <string name="debrid_device_auth_starting">セキュアサインインを開始中…</string>
     <string name="debrid_device_auth_instructions">QRをスキャンし、このコードを入力してFetchを承認してください。</string>
-    <string name="debrid_device_auth_code_copied">コードをコピーしました。</string>
     <string name="debrid_device_auth_waiting">承認待ち…</string>
     <string name="debrid_device_auth_failed">サインインを開始できませんでした。</string>
     <string name="debrid_device_auth_missing_configuration">このサインイン方法はこのビルドでは設定されていません。</string>
     <string name="debrid_device_auth_expired">このコードの有効期限が切れました。もう一度お試しください。</string>
     <string name="debrid_key_invalid">このAPIキーを検証できませんでした。</string>
-    <string name="debrid_invalid_torbox_api_key">このAPIキーを検証できませんでした。</string>
-    <string name="debrid_invalid_real_debrid_api_key">このAPIキーを検証できませんでした。</string>
     <string name="debrid_prepare_instant_playback">リンクを準備</string>
     <string name="debrid_prepare_instant_playback_description">再生開始前に再生可能リンクを解決します。</string>
     <string name="debrid_prepare_stream_count">準備するリンク数</string>
     <string name="debrid_prepare_stream_count_warning">可能な場合は少ない数を指定してください。接続サービスは時間あたりのリンク解決数を制限する場合があります。映画やエピソードを開くだけでも、視聴を押さなくてもリンクが事前に準備されるため、その制限にカウントされることがあります。</string>
     <string name="debrid_prepare_count_one">1リンク</string>
     <string name="debrid_prepare_count_many">%1$dリンク</string>
-    <string name="debrid_stream_max_results_title">最大結果数</string>
-    <string name="debrid_stream_max_results_subtitle">表示するDirect Debridソースの数を制限します。</string>
-    <string name="debrid_stream_max_results_all">すべてのストリーム</string>
-    <string name="debrid_stream_max_results_count">%1$dストリーム</string>
-    <string name="debrid_stream_sort_title">結果の並べ替え</string>
-    <string name="debrid_stream_sort_subtitle">結果の表示順を選択します。</string>
-    <string name="debrid_stream_sort_original">元の順序</string>
-    <string name="debrid_stream_sort_best_quality">高品質優先</string>
-    <string name="debrid_stream_sort_largest">大サイズ優先</string>
-    <string name="debrid_stream_sort_smallest">小サイズ優先</string>
-    <string name="debrid_stream_sort_best_audio">高音質優先</string>
-    <string name="debrid_stream_sort_language">言語優先</string>
-    <string name="debrid_stream_sort_default">元の順序</string>
-    <string name="debrid_stream_sort_quality">高品質優先</string>
-    <string name="debrid_stream_sort_size_desc">大サイズ優先</string>
-    <string name="debrid_stream_sort_size_asc">小サイズ優先</string>
-    <string name="debrid_stream_min_quality_title">最低品質</string>
-    <string name="debrid_stream_min_quality_subtitle">選択した解像度未満のソースを非表示にします。</string>
-    <string name="debrid_stream_min_quality_any">任意の品質</string>
-    <string name="debrid_stream_min_quality_720">720p以上</string>
-    <string name="debrid_stream_min_quality_1080">1080p以上</string>
-    <string name="debrid_stream_min_quality_2160">4Kのみ</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">Dolby Visionソースを表示、非表示、または必須にします。</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">HDRソースを表示、非表示、または必須にします。</string>
-    <string name="debrid_stream_feature_any">任意</string>
-    <string name="debrid_stream_feature_exclude">非表示</string>
-    <string name="debrid_stream_feature_only">のみ</string>
-    <string name="debrid_stream_codec_title">コーデック</string>
-    <string name="debrid_stream_codec_subtitle">ビデオコーデックでソースをフィルターします。</string>
-    <string name="debrid_stream_codec_any">任意のコーデック</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
 
     <!-- Debrid stream filter dialogs -->
-    <string name="debrid_stream_per_resolution_limit_title">解像度ごとの制限</string>
-    <string name="debrid_stream_per_resolution_limit_subtitle">並べ替え後に2160p、1080p、720pの重複を制限します。</string>
-    <string name="debrid_stream_per_quality_limit_title">品質ごとの制限</string>
-    <string name="debrid_stream_per_quality_limit_subtitle">並べ替え後にBluRay、WEB-DL、REMUXの重複を制限します。</string>
-    <string name="debrid_stream_size_range_title">サイズ範囲</string>
-    <string name="debrid_stream_size_range_subtitle">ファイルサイズでストリームをフィルターします。</string>
-    <string name="debrid_stream_resolutions_preferred">優先解像度</string>
-    <string name="debrid_stream_resolutions_required">必須解像度</string>
-    <string name="debrid_stream_resolutions_excluded">除外解像度</string>
-    <string name="debrid_stream_qualities_preferred">優先品質</string>
-    <string name="debrid_stream_qualities_required">必須品質</string>
-    <string name="debrid_stream_qualities_excluded">除外品質</string>
-    <string name="debrid_stream_visual_tags_preferred">優先ビジュアルタグ</string>
-    <string name="debrid_stream_visual_tags_required">必須ビジュアルタグ</string>
-    <string name="debrid_stream_visual_tags_excluded">除外ビジュアルタグ</string>
-    <string name="debrid_stream_audio_tags_preferred">優先音声タグ</string>
-    <string name="debrid_stream_audio_tags_required">必須音声タグ</string>
-    <string name="debrid_stream_audio_tags_excluded">除外音声タグ</string>
-    <string name="debrid_stream_channels_preferred">優先チャンネル</string>
-    <string name="debrid_stream_channels_required">必須チャンネル</string>
-    <string name="debrid_stream_channels_excluded">除外チャンネル</string>
-    <string name="debrid_stream_encodes_preferred">優先エンコード</string>
-    <string name="debrid_stream_encodes_required">必須エンコード</string>
-    <string name="debrid_stream_encodes_excluded">除外エンコード</string>
-    <string name="debrid_stream_languages_preferred">優先言語</string>
-    <string name="debrid_stream_languages_required">必須言語</string>
-    <string name="debrid_stream_languages_excluded">除外言語</string>
-    <string name="debrid_stream_release_groups_required">必須リリースグループ</string>
-    <string name="debrid_stream_release_groups_excluded">除外リリースグループ</string>
-    <string name="debrid_stream_release_groups_input_subtitle">1行に1グループずつ入力してください。</string>
 
     <string name="debrid_formatter_title">Webエディター</string>
     <string name="debrid_formatter_subtitle">別のデバイスからソース表示、フィルター、並べ替えを設定します。</string>
@@ -1009,11 +869,9 @@
     <string name="settings_stream_badge_position_bottom">下</string>
     <string name="settings_stream_badge_urls_title">フュージョンバッジURL</string>
     <string name="settings_stream_badge_urls_description">最大%1$d個のフュージョンスタイルストリームバッジJSON URLをインポートします。各URLは個別に更新または削除できます。</string>
-    <string name="settings_stream_badge_urls_search_description">インポートしたフュージョンスタイルストリームバッジJSON URLを管理します。</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d URL、%3$d有効なフュージョンバッジ</string>
     <string name="settings_fusion_badges_empty">フュージョンバッジURLがインポートされていません。</string>
     <string name="settings_fusion_badge_url_label">フュージョンバッジJSON URL</string>
-    <string name="settings_fusion_badge_urls_imported">%1$d/%2$d個のフュージョンURLをインポート済み</string>
     <string name="settings_fusion_badge_url_active">有効</string>
     <string name="settings_fusion_badge_url_inactive">無効</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s、%2$d有効バッジ、%3$dグループ</string>
@@ -1076,14 +934,12 @@
 
     <string name="trakt_description">ウォッチリスト、視聴進行状況、視聴を続ける、スクロブル、個人リストをTraktで同期</string>
     <string name="trakt_connected_as">%1$s としてログイン中</string>
-    <string name="trakt_account_login">アカウントログイン</string>
     <string name="trakt_awaiting_instruction">trakt.tv/activate にアクセスしてこのコードを入力してください:</string>
     <string name="trakt_waiting_approval">承認待ち…</string>
     <string name="qr_login_approved">ログイン承認済み。サインインを完了中…</string>
     <string name="qr_login_pending">スマートフォンで承認待ち…</string>
     <string name="qr_login_expired">QRログインの期限が切れました。新しいコードを生成してください</string>
     <string name="qr_login_preparing">QRログインを準備中…</string>
-    <string name="qr_login_device_auth_failed">デバイス認証に失敗しました</string>
     <string name="qr_login_scan_prompt">QRをスキャンし、スマートフォンでサインイン</string>
     <string name="qr_login_start_failed">QRログインの開始に失敗しました</string>
     <string name="qr_login_signing_in">サインイン中…</string>
@@ -1091,38 +947,19 @@
     <string name="qr_login_exchange_failed">QRサインインを完了できませんでした</string>
     <string name="trakt_code_expires">コードの有効期限: %1$s</string>
     <string name="trakt_token_refreshes">Traktアクセストークンの更新: %1$s後</string>
-    <string name="trakt_login_instruction">ログインを押してTraktデバイス認証を開始してください。ここにQRコードが表示されます</string>
     <string name="trakt_missing_credentials">local.propertiesにTRAKT_CLIENT_ID / TRAKT_CLIENT_SECRETがありません</string>
     <string name="trakt_watch_progress_title">視聴進行状況</string>
     <string name="trakt_watch_progress_subtitle">再開と「視聴を続ける」を管理する進行状況ソースを選択</string>
     <string name="trakt_watch_progress_dialog_title">視聴進行状況</string>
-    <string name="trakt_watch_progress_dialog_subtitle">Traktのスクロブルが有効な間、再開と視聴を続けるにTraktとFetch Syncのどちらを使用するか選択してください</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
     <string name="trakt_library_source_title">ライブラリソース</string>
     <string name="trakt_library_source_subtitle">コレクションの保存と表示に使用するライブラリを選択</string>
     <string name="trakt_library_source_dialog_title">ライブラリソース</string>
-    <string name="trakt_library_source_dialog_subtitle">ライブラリアイテムの保存・管理先を選択</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_fetch">Fetchライブラリ</string>
-    <string name="trakt_library_source_trakt_selected">Traktライブラリを選択しました</string>
-    <string name="trakt_library_source_fetch_selected">Fetchライブラリを選択しました</string>
-    <string name="trakt_setting_on">オン</string>
-    <string name="trakt_setting_off">オフ</string>
-    <string name="trakt_watch_progress_trakt_selected">視聴進行状況ソースをTraktに設定しました</string>
-    <string name="trakt_watch_progress_fetch_selected">視聴進行状況ソースをFetch Syncに設定しました</string>
     <string name="trakt_continue_watching_window">視聴継続ウィンドウ</string>
     <string name="trakt_continue_watching_subtitle">「視聴を続ける」に表示するTraktの履歴期間</string>
-    <string name="trakt_unaired_next_up">未放送の次のエピソード</string>
-    <string name="trakt_unaired_next_up_subtitle">放送前のエピソードを「次のエピソード」として表示</string>
-    <string name="trakt_unaired_shown">表示</string>
-    <string name="trakt_unaired_hidden">非表示</string>
-    <string name="trakt_unaired_now_shown">未放送の次のエピソードが表示されるようになりました</string>
-    <string name="trakt_unaired_now_hidden">未放送の次のエピソードが非表示になりました</string>
     <string name="trakt_comments_title">コメント</string>
     <string name="trakt_comments_subtitle">メタデータページにTraktのレビューを表示</string>
-    <string name="trakt_comments_dialog_title">コメント</string>
-    <string name="trakt_comments_dialog_subtitle">アカウント接続時にメタデータページでTraktのレビューを表示するか選択してください</string>
     <string name="trakt_comments_now_shown">メタデータページのTraktレビューが表示されるようになりました</string>
     <string name="trakt_comments_now_hidden">メタデータページのTraktレビューが非表示になりました</string>
     <string name="trakt_more_like_this_source_title">関連作品ソース</string>
@@ -1139,15 +976,8 @@
     <string name="trakt_disconnect">切断</string>
     <string name="trakt_disconnect_title">Traktを切断しますか？</string>
     <string name="trakt_disconnect_subtitle">FetchからTraktアカウントが切断されます</string>
-    <string name="trakt_login">ログイン</string>
-    <string name="trakt_retry">再試行</string>
-    <string name="trakt_back">戻る</string>
     <string name="trakt_cw_window_title">視聴継続ウィンドウ</string>
     <string name="trakt_cw_window_subtitle">「視聴を続ける」にどの期間のTrakt履歴を表示するか選択</string>
-    <string name="trakt_unaired_dialog_title">未放送の次のエピソード</string>
-    <string name="trakt_unaired_dialog_subtitle">視聴を続ける」に放送前のエピソードを表示するかどうかを選択</string>
-    <string name="trakt_show_unaired">未放送エピソードを表示</string>
-    <string name="trakt_hide_unaired">未放送エピソードを非表示</string>
     <string name="trakt_all_history">すべての履歴</string>
     <string name="trakt_days_format">%1$d日</string>
 
@@ -1186,26 +1016,15 @@
     <string name="profile_manage_title">プロフィールを管理</string>
     <string name="profile_manage_subtitle">編集、切り替え、または新規作成するプロフィールを選択</string>
     <string name="profile_manage_hint">管理するプロフィールを選択</string>
-    <string name="profile_primary_label">プライマリ</string>
-    <string name="profile_shares_primary">プライマリの%1$sを共有</string>
     <string name="profile_edit_label">編集</string>
     <string name="profile_edit_header">プロフィールを編集</string>
-    <string name="profile_add">プロフィールを追加</string>
     <string name="profile_create_title">プロフィールを作成</string>
-    <string name="profile_edit_title">プロフィール%1$sを編集</string>
     <string name="profile_name_placeholder">プロフィール名</string>
-    <string name="profile_avatar_color">アバターカラー</string>
-    <string name="profile_use_primary_addons">プライマリプロフィールのアドオンを使用</string>
-    <string name="profile_use_primary_plugins">プライマリプロフィールのプラグインを使用</string>
     <string name="profile_creating">作成中\u2026</string>
     <string name="profile_create_btn">作成</string>
-    <string name="profile_confirm">確認</string>
     <string name="profile_delete">削除</string>
-    <string name="profile_addons">アドオン</string>
-    <string name="profile_plugins">プラグイン</string>
     <string name="profile_choose_avatar">アバターを選択</string>
     <string name="profile_custom_avatar_web_panel_note">カスタムアバターURLはFetchウェブパネルから設定できます。</string>
-    <string name="profile_avatar_none_selected">アバターが選択されていません</string>
     <string name="profile_avatar_focus_hint">アバターを選択して名前を確認</string>
     <string name="profile_avatar_category_all">すべて</string>
     <string name="profile_avatar_category_anime">アニメ</string>
@@ -1216,30 +1035,16 @@
     <string name="profile_add_new">プロフィールを追加</string>
     <string name="profile_cancel">キャンセル</string>
     <string name="profile_save">保存</string>
-    <string name="profile_pin_title">プロフィールPINロック</string>
-    <string name="profile_pin_enabled_subtitle">このプロフィールの切り替えには4桁のPINが必要です</string>
-    <string name="profile_pin_disabled_subtitle">4桁のPINを設定してこのプロフィールをロックします</string>
     <string name="profile_pin_set">PINを設定</string>
     <string name="profile_pin_change">PINを変更</string>
     <string name="profile_pin_remove">PINを削除</string>
-    <string name="profile_pin_set_title">プロフィールPINを設定</string>
-    <string name="profile_pin_set_subtitle">4桁のPINを入力して確認してください</string>
-    <string name="profile_pin_enter">4桁のPINを入力</string>
-    <string name="profile_pin_confirm">4桁のPINを確認</string>
-    <string name="profile_pin_mismatch">PINが一致しません</string>
-    <string name="profile_pin_save">PINを保存</string>
-    <string name="profile_pin_unlock_title">%1$sのロックを解除</string>
-    <string name="profile_pin_unlock_subtitle">続けるには4桁のPINを入力してください</string>
     <string name="profile_pin_verifying">確認中…</string>
-    <string name="profile_pin_unlock_action">ロック解除</string>
     <string name="profile_pin_overlay_unlock_heading">%1$sにアクセスするにはPINを入力してください</string>
     <string name="profile_pin_overlay_set_heading">%1$s用の4桁のPINを作成してください</string>
     <string name="profile_pin_overlay_confirm_heading">新しいPINを確認してください</string>
     <string name="profile_pin_overlay_unlock_support">リモコンまたはキーボードで4桁を入力してください</string>
-    <string name="profile_pin_overlay_change_verify_kicker">セキュリティ確認が必要です</string>
     <string name="profile_pin_overlay_change_verify_heading">%1$sのPINを変更するには現在のPINを入力してください</string>
     <string name="profile_pin_overlay_change_verify_support">新しいPINを設定する前に現在の4桁のPINを入力してください</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">セキュリティ確認が必要です</string>
     <string name="profile_pin_overlay_remove_verify_heading">%1$sのロックを解除するには現在のPINを入力してください</string>
     <string name="profile_pin_overlay_remove_verify_support">このロックを削除するには現在の4桁のPINを入力してください</string>
     <string name="profile_pin_overlay_delete_verify_heading">%1$sを削除するには現在のPINを入力してください</string>
@@ -1321,8 +1126,6 @@
     <string name="debrid_missing_api_key">設定でDebrid APIキーを追加してください。</string>
     <string name="debrid_not_cached">このサービスではキャッシュされていません。</string>
     <string name="debrid_resolution_failed">このDebridストリームを解決できませんでした。</string>
-    <string name="stream_type_torrent">トレント</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">P2Pストリーミング</string>
     <string name="p2p_consent_body">このストリームはピアツーピア（P2P）技術を使用します。P2Pを有効にすると、以下を了承したものとみなされます:\n\n\u2022 あなたのIPアドレスはネットワーク上の他のピアに公開されます\n\u2022 アクセスするコンテンツに対する責任はすべてあなた自身にあります\n\u2022 あなたの管轄区域でこのコンテンツをストリーミングする法的権利を有することを確認します\n\u2022 FetchはP2Pコンテンツをホスト、配布、または制御しません\n\u2022 FetchはP2Pストリーミングの使用に起因する法的結果に対して一切の責任を負いません\n\nこの機能は完全に自己責任で使用してください。P2Pはいつでも設定で無効にできます。</string>
     <string name="p2p_consent_enable">P2Pを有効にする</string>
@@ -1331,9 +1134,6 @@
     <string name="settings_p2p_subtitle">ピアツーピア（トレント）ストリームを許可</string>
     <string name="settings_p2p_hide_stats_title">トレント統計を非表示</string>
     <string name="settings_p2p_hide_stats_subtitle">読み込み中と再生中にバッファ、シード、ピア、ダウンロード速度を非表示</string>
-    <string name="p2p_download_title">P2Pエンジンをダウンロード中</string>
-    <string name="p2p_download_subtitle">P2Pストリーミングに必要な1回限りのダウンロードです。</string>
-    <string name="stream_type_external">外部</string>
     <string name="stream_player_picker_title">使用するプレーヤーを選択してください</string>
     <string name="stream_player_internal">内部</string>
     <string name="stream_player_external">外部</string>
@@ -1343,15 +1143,12 @@
     <string name="player_no_external_player">外部プレーヤーが見つかりません</string>
     <string name="player_loading_preparing">ストリームを準備中…</string>
     <string name="player_loading_detecting_format">ストリーム形式を検出中…</string>
-    <string name="player_loading_subtitles">字幕を取得中…</string>
     <string name="player_loading_subtitles_from">%1$d個のアドオンから字幕を取得中…</string>
     <string name="player_loading_subtitles_progress">字幕を取得中… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">字幕: %1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">プレーヤーを構築中…</string>
     <string name="player_loading_starting">ストリームを開始中…</string>
     <string name="player_loading_buffering">バッファリング中…</string>
-    <string name="player_loading_fallback_pcm_audio">オーディオトラックの初期化に失敗 - PCMオーディオに切り替え…</string>
-    <string name="player_loading_fallback_hevc_decoder">デコーダーの初期化に失敗 - HEVCデコーダーに切り替え…</string>
     <string name="player_engine_switching_title">プレーヤーエンジンを切り替え</string>
     <string name="player_engine_switching_message">起動に失敗しました。%1$sに切り替え…</string>
     <string name="player_engine_switching_manual_message">%1$sに切り替え…</string>
@@ -1414,14 +1211,12 @@
     <string name="stream_info_player_engine">Player Engine</string>
 
     <string name="sources_title">ソース</string>
-    <string name="sources_reload">再読み込み</string>
     <string name="sources_close">閉じる</string>
     <string name="sources_playing">再生中</string>
     <string name="sources_no_streams">ストリームが見つかりません</string>
 
     <string name="episodes_panel_close">閉じる</string>
     <string name="episodes_panel_back">戻る</string>
-    <string name="episodes_panel_reload">再読み込み</string>
     <string name="episodes_panel_no_streams">ストリームが見つかりません</string>
     <string name="episodes_panel_no_episodes">エピソードがありません</string>
     <string name="episodes_panel_title">エピソード</string>
@@ -1437,8 +1232,6 @@
     <string name="player_aspect_mode_cinema_zoom">シネマズーム</string>
 
     <string name="audio_dialog_title">音声</string>
-    <string name="audio_dialog_tab_tracks">音声</string>
-    <string name="audio_dialog_tab_mix">ミックス</string>
     <string name="audio_delay_label">音声遅延</string>
     <string name="audio_delay_range">範囲: %1$.2fs ～ %2$.2fs</string>
     <string name="audio_mix_label">増幅（PCM）</string>
@@ -1456,30 +1249,14 @@
     <string name="audio_maintain_original_audio_on_downmix_subtitle">無効にすると、ダウンミックス正規化により全体の音量が低下する可能性があります。</string>
 
     <string name="subtitle_dialog_title">字幕</string>
-    <string name="subtitle_no_builtin">内蔵字幕はありません</string>
     <string name="subtitle_loading_addon">アドオンの字幕を読み込み中\u2026</string>
     <string name="subtitle_no_addon">アドオン字幕はありません</string>
-    <string name="subtitle_text_color">文字色</string>
-    <string name="subtitle_outline_color">アウトラインの色</string>
     <string name="subtitle_reset_defaults">デフォルトにリセット</string>
-    <string name="subtitle_tab_builtin">内蔵</string>
-    <string name="subtitle_tab_addons">アドオン</string>
     <string name="subtitle_tab_languages">言語</string>
-    <string name="subtitle_tab_style">スタイル</string>
     <string name="subtitle_tab_delay">遅延</string>
     <string name="subtitle_none">なし</string>
     <string name="subtitle_built_in">内蔵</string>
-    <string name="subtitle_all">すべて</string>
-    <string name="subtitle_section_core">基本</string>
-    <string name="subtitle_section_advanced">高度</string>
-    <string name="subtitle_font_size">フォントサイズ</string>
-    <string name="subtitle_bold">太字</string>
-    <string name="subtitle_outline">アウトライン</string>
-    <string name="subtitle_bottom_offset">下部オフセット</string>
-    <string name="subtitle_on">オン</string>
-    <string name="subtitle_off">オフ</string>
     <string name="subtitle_style_title">字幕スタイル</string>
-    <string name="subtitle_style_customize">カスタマイズ</string>
     <string name="subtitle_style_color">色</string>
     <string name="subtitle_style_reset">リセット</string>
     <string name="subtitle_style_font_size">フォントサイズ</string>
@@ -1492,8 +1269,6 @@
     <string name="subtitle_style_on">オン</string>
     <string name="subtitle_style_off">オフ</string>
     <string name="subtitle_style_weight">太さ</string>
-    <string name="panel_failed_load_streams">ストリームの読み込みに失敗しました</string>
-    <string name="panel_failed_load_episodes">エピソードの読み込みに失敗しました</string>
 
     <string name="pause_you_are_watching">視聴中</string>
     <string name="pause_cast_label">キャスト</string>
@@ -1527,7 +1302,6 @@
     <string name="display_mode_resolution">解像度</string>
 
     
-    <string name="search_keyboard_hint">検索するにはキーボードの完了を押してください</string>
     <string name="search_placeholder">映画とシリーズを検索</string>
     <string name="search_start_title">検索を始める</string>
     <string name="search_start_subtitle">2文字以上入力してください</string>
@@ -1542,7 +1316,6 @@
     <string name="search_no_results_subtitle">別のキーワードで検索してみてください</string>
     <string name="search_error_no_catalogs">インストール済みアドオンに検索可能なカタログがありません</string>
 
-    <string name="library_syncing">Traktライブラリを同期中\u2026</string>
     <string name="library_title">ライブラリ</string>
     <string name="library_filter_list">リスト</string>
     <string name="library_filter_type">タイプ</string>
@@ -1576,13 +1349,11 @@
     <string name="genre_soap">ソープ</string>
     <string name="genre_talk">トーク</string>
     <string name="genre_war_politics">戦争 &amp; 政治</string>
-    <string name="library_sort_trakt_order">Trakt順</string>
     <string name="library_sort_added_desc">追加日 ↓</string>
     <string name="library_sort_added_asc">追加日 ↑</string>
     <string name="library_sort_title_asc">タイトル A-Z</string>
     <string name="library_sort_title_desc">タイトル Z-A</string>
     <string name="library_manage_lists">リストを管理</string>
-    <string name="library_manage_trakt_lists">Traktリスト管理</string>
     <string name="library_no_lists">個人リストはまだありません</string>
     <string name="library_list_create">作成</string>
     <string name="library_list_edit">編集</string>
@@ -1596,16 +1367,12 @@
     <string name="library_list_privacy">プライバシー</string>
     <string name="library_delete_title">このリストを削除しますか？</string>
     <string name="library_delete_subtitle">Traktからリストとすべてのリストアイテムが削除されます</string>
-    <string name="library_delete_confirm">削除</string>
     <string name="library_source_local">ローカル</string>
-    <string name="library_source_fetch">FETCH</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">保存済み</string>
     <string name="library_source_cloud">クラウド</string>
     <string name="library_watchlist">ウォッチリスト</string>
     <string name="library_syncing_library">ライブラリを同期中\u2026</string>
     <string name="library_type_all">すべて</string>
-    <string name="library_type_items">アイテム</string>
     <string name="library_empty_local_title">%1$sはまだありません</string>
     <string name="library_empty_trakt_title">このリストに%1$sはありません</string>
     <string name="library_empty_local_subtitle">お気に入りを保存するとここに表示されます</string>
@@ -1616,18 +1383,13 @@
     <string name="library_list_edit_dialog_title">リストを編集</string>
     <string name="library_sync_btn">同期</string>
     <string name="library_syncing_btn">同期中\u2026</string>
-    <string name="cloud_library_connect_action">アカウントを接続</string>
     <string name="cloud_library_connect_message">接続サービスの設定でアカウントを接続して、クラウドライブラリから再生可能ファイルを参照してください。</string>
     <string name="cloud_library_connect_title">クラウドアカウントが接続されていません</string>
-    <string name="cloud_library_disabled_action">接続サービスを開く</string>
     <string name="cloud_library_disabled_message">接続サービスの設定でクラウドライブラリをオンにして、接続済みアカウントからファイルを参照してください。</string>
     <string name="cloud_library_disabled_title">クラウドライブラリがオフです</string>
     <string name="cloud_library_empty_message">現在のフィルターに一致する再生可能なクラウドファイルはありません。</string>
     <string name="cloud_library_empty_title">まだ何もありません</string>
     <string name="cloud_library_file_picker_title">再生するファイルを選択</string>
-    <string name="cloud_library_load_failed">%1$sのクラウドライブラリを読み込めませんでした</string>
-    <string name="cloud_library_no_files_message">このアイテムは再生可能なビデオファイルを公開していません。</string>
-    <string name="cloud_library_no_files_title">再生可能ファイルがありません</string>
     <string name="cloud_library_no_playable_files">再生可能ファイルがありません</string>
     <string name="cloud_library_one_playable_file">1個の再生可能ファイル</string>
     <string name="cloud_library_opening">開いています\u2026</string>
@@ -1672,12 +1434,9 @@
     <string name="auth_signin_tv_disabled">TVでのメール/パスワード入力は無効です。QRサインインで続けてください</string>
     <string name="auth_signin_qr_btn">QRで続ける</string>
 
-    <string name="auth_qr_title">QRでサインイン</string>
     <string name="auth_qr_finishing">サインインを完了中\u2026</string>
-    <string name="auth_qr_code_label">コード: %1$s</string>
     <string name="auth_qr_expires">有効期限: %1$s</string>
     <string name="auth_qr_scan_instruction">QRをスキャンし、ブラウザで承認してからここに戻ってください</string>
-    <string name="auth_qr_code_display">コード: %1$s</string>
     <string name="auth_qr_refresh">QRを更新</string>
     <string name="auth_qr_continue_without_account">アカウントなしで続ける</string>
     <string name="auth_qr_connected">このTVにアカウントが接続されています</string>
@@ -1712,7 +1471,6 @@
     <string name="plugin_repositories_section">リポジトリ (%1$d)</string>
     <string name="plugin_providers_section">プロバイダー (%1$d)</string>
     <string name="plugin_title">プラグイン</string>
-    <string name="plugin_subtitle">ローカルスクレイパーとプロバイダーを管理</string>
     <string name="plugin_enable_plugins_title">プラグインプロバイダーをグローバルに有効にする</string>
     <string name="plugin_enable_plugins_subtitle">ストリーム検出中にプラグインプロバイダーを使用</string>
     <string name="plugin_group_by_repository_title">プラグインプロバイダーをリポジトリ別にグループ化</string>
@@ -1743,8 +1501,6 @@
     <string name="plugin_test_results">テスト結果 (%1$dストリーム)</string>
     <string name="plugin_and_more">... あと%1$d件</string>
     <string name="plugin_providers_count">%1$dプロバイダー</string>
-    <string name="plugin_enabled">有効</string>
-    <string name="plugin_disabled">無効</string>
     <string name="plugin_no_repos">リポジトリはまだ追加されていません。\nリポジトリを追加して始めましょう</string>
     <string name="plugin_error_invalid_url">有効なURLを入力してください</string>
     <string name="plugin_error_add_repo">リポジトリの追加に失敗しました: %1$s</string>
@@ -1779,7 +1535,6 @@
     <string name="layout_selection_subtitle">ホーム画面のレイアウトを選択</string>
 
     <string name="update_title">アプリのアップデート</string>
-    <string name="update_downloading">アップデートをダウンロード中</string>
     <string name="update_download">ダウンロード</string>
     <string name="update_downloading_ellipsis">ダウンロード中…</string>
     <string name="update_unknown_sources">続けるには不明なソースからのインストールを許可してください</string>
@@ -1817,33 +1572,23 @@
     <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">プロフィール%1$dを編集</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">音声パススルー（TrueHD・DTS・AC-3など）は自動で有効になります。対応AVレシーバーやサウンドバーにHDMI接続している場合、ロスレスオーディオはデコードなしでそのまま出力されます</string>
-    <string name="audio_dv_title">DV7 - HEVCフォールバック</string>
-    <string name="audio_dv_sub">ハードウェアDVサポートがないデバイス用にDolby Vision Profile 7を標準HEVCにマッピング</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">ホーム</string>
     <string name="nav_discover">ディスカバー</string>
     <string name="nav_search">検索</string>
     <string name="nav_library">ライブラリ</string>
-    <string name="nav_addons">アドオン</string>
-    <string name="nav_movies">映画</string>
-    <string name="nav_series">シリーズ</string>
     <string name="nav_settings">設定</string>
     <string name="action_select">選択</string>
     <string name="settings_rounded_ui">丸みのあるUI</string>
-    <string name="cd_expand_sidebar">サイドバーを展開</string>
 
-    <string name="update_checking">アップデートを確認中…</string>
     <string name="update_download_complete">ダウンロード完了。インストールの準備ができました</string>
-    <string name="update_up_to_date">最新バージョンです。最新の変更内容:</string>
     <string name="update_close">閉じる</string>
     <string name="update_open_settings">設定を開く</string>
     <string name="update_install">インストール</string>
-    <string name="update_ignore">無視</string>
 
     <!-- Update flow errors -->
     <string name="update_error_check_failed">アップデート確認に失敗しました</string>
@@ -1911,7 +1656,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_addons">アドオンがインストールされていません</string>
     <string name="home_error_no_catalog_addons">カタログアドオンがインストールされていません</string>
 
     <!-- Player errors -->
@@ -1933,7 +1677,6 @@
     <string name="cd_stream_info">ストリーム情報</string>
     <string name="cd_more_actions">その他の操作</string>
     <string name="cd_close_more_actions">その他の操作を閉じる</string>
-    <string name="cd_back">戻る</string>
     <string name="cd_next_episode_thumbnail">次のエピソードサムネイル</string>
     <string name="cd_current">現在</string>
     <string name="cd_loading_backdrop">バックドロップ読み込み中</string>
@@ -1955,8 +1698,6 @@
     <string name="cd_imdb">IMDb</string>
     <string name="cd_open_discover">ディスカバーを開く</string>
     <string name="cd_voice_search">音声検索</string>
-    <string name="cd_donation_qr">寄付QRコード</string>
-    <string name="cd_contributor_qr">貢献者サポートQRコード</string>
     <string name="cd_expand">%1$sを展開</string>
     <string name="cd_collapse">%1$sを折りたたむ</string>
     <string name="cd_qr_login">QRログインコード</string>
@@ -2038,7 +1779,6 @@
     <string name="collections_editor_choose_emoji">絵文字を選択</string>
     <string name="collections_editor_back">戻る</string>
     <string name="collections_editor_edit_collection">コレクションを編集</string>
-    <string name="collections_editor_catalog_count">%1$d個のカタログ</string>
     <string name="collections_editor_source_count">%1$d個のソース</string>
     <string name="collections_editor_sources">ソース</string>
     <string name="collections_editor_source">ソース</string>
@@ -2068,7 +1808,6 @@
     <string name="collections_editor_tmdb_collection_id">コレクションID</string>
     <string name="collections_editor_tmdb_company_search">制作会社名、ID、またはURL</string>
     <string name="collections_editor_tmdb_display_title">表示タイトル</string>
-    <string name="collections_editor_tmdb_title_optional">タイトル（任意）</string>
     <string name="collections_editor_tmdb_search">検索</string>
     <string name="collections_editor_add_source">ソースを追加</string>
     <string name="collections_editor_save_source">ソースを保存</string>
@@ -2293,7 +2032,6 @@
     <string name="player_error_stream_rate_limited">\n\nストリームソースへのリクエストが多すぎます。しばらく待ってから再試行してください。</string>
     <string name="player_error_stream_unavailable">\n\nストリームサーバーが現在利用できません。別のソースを試してください。</string>
     <string name="player_error_source_invalid_content">ソースエラー: ストリームソースが無効または再生不可能なコンテンツを返しました。リンクの有効期限が切れたか、サーバーがビデオの代わりにエラーページを返した可能性があります。\n\n別のソースを試してください。[%1$s]</string>
-    <string name="player_error_decoder">デコーダーエラー</string>
     <string name="player_error_unsupported_format">このストリームはお使いのデバイスがサポートしていない形式を使用しています。別のソースを試してください。[%1$s]</string>
     <string name="player_error_initialize_failed">プレーヤーの初期化に失敗しました</string>
     <string name="player_error_mpv_surface_failed">libmpvサーフェスの初期化に失敗しました</string>
@@ -2328,7 +2066,6 @@
     <string name="library_synced">ライブラリを同期しました</string>
     <string name="library_error_refresh_failed">ライブラリの更新に失敗しました</string>
     <string name="library_list_created">リストを作成しました</string>
-    <string name="library_error_invalid_list">無効なリスト</string>
     <string name="library_list_updated">リストを更新しました</string>
     <string name="library_error_save_list_failed">リストの保存に失敗しました</string>
     <string name="library_list_deleted">リストを削除しました</string>
@@ -2337,13 +2074,8 @@
     <string name="library_error_reorder_lists_failed">リストの並べ替えに失敗しました</string>
     <string name="library_list_fallback_title">リスト</string>
     <!-- Library privacy display labels -->
-    <string name="library_privacy_private">非公開</string>
-    <string name="library_privacy_link">リンク</string>
-    <string name="library_privacy_friends">友達</string>
-    <string name="library_privacy_public">公開</string>
 
     <!-- Trakt errors -->
-    <string name="trakt_error_auth_required">Trakt認証が必要です</string>
     <string name="trakt_library_error_request_failed">Traktリクエストに失敗しました</string>
     <string name="trakt_library_error_create_list_failed">リストの作成に失敗しました</string>
     <string name="trakt_library_error_update_list_failed">リストの更新に失敗しました</string>
@@ -2360,7 +2092,6 @@
     <string name="trakt_library_error_auth_expired">Trakt認証の有効期限が切れました</string>
     <string name="trakt_library_error_list_not_found">Traktリストが見つかりません</string>
     <string name="trakt_library_error_list_limit_reached">Traktリストの上限に達しました。アップグレードが必要です。</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">視聴済みにするためのTrakt IDが不足しています</string>
     <string name="trakt_error_request_failed">Traktリクエストに失敗しました</string>
     <string name="trakt_error_mark_watched_failed">Traktで視聴済みにするのに失敗しました (%1$d)</string>
 
@@ -2382,25 +2113,15 @@
     <string name="stream_embedded_group">埋め込みストリーム</string>
     <string name="stream_embedded_fallback_name">埋め込みストリーム</string>
     <string name="stream_quality_unknown">不明</string>
-    <string name="stream_addon_unknown">不明</string>
-    <string name="tmdb_unknown_entity">不明</string>
     <string name="web_tmdb_company_fallback">TMDB制作会社%1$d</string>
     <string name="web_tmdb_collection_fallback">TMDBコレクション%1$d</string>
     <string name="web_error_invalid_request_body">無効なリクエスト本文</string>
 
     <!-- Subtitle preferred language fallback -->
-    <string name="language_english">英語</string>
 
     <!-- Supporters / contributors / sponsors errors -->
-    <string name="supporters_error_load">サポーターを読み込めませんでした。</string>
-    <string name="contributors_error_load">貢献者を読み込めませんでした。</string>
-    <string name="contributors_error_api_not_configured">貢献者APIが設定されていません。</string>
-    <string name="contributors_error_api_http">貢献者APIエラー: %1$d</string>
-    <string name="supporters_error_api_http">寄付APIエラー: %1$d</string>
 
     <!-- Contributor role badges -->
-    <string name="contributor_role_translator">翻訳者</string>
-    <string name="contributor_role_maintainer">メンテナー</string>
 
     <!-- Network / safe API errors -->
     <string name="network_error_empty_response_body">空の応答本文</string>
@@ -2414,7 +2135,6 @@
 
     <!-- Player runtime: stream / external link errors -->
     <string name="player_torrent_starting_engine">P2Pエンジンを起動中…</string>
-    <string name="player_torrent_rebuffer_status">%1$s バッファ済み</string>
     <string name="player_stream_error_invalid_external_url">無効な外部URL</string>
     <string name="player_stream_error_open_external_link_failed">外部リンクを開けませんでした</string>
     <string name="player_stream_error_invalid_url">無効なストリームURL</string>
@@ -2422,11 +2142,6 @@
 
     <!-- Meta repository: addon detail error fragments -->
     <string name="meta_error_detail_no_metadata_for_id">このIDのメタデータを返しませんでした</string>
-    <string name="meta_error_detail_addon_unreachable">アドオンサーバーに到達できませんでした</string>
-    <string name="meta_error_detail_addon_connection_failed">アドオンへの接続に失敗しました</string>
-    <string name="meta_error_detail_addon_timeout">アドオンリクエストがタイムアウトしました</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">アドオンはAndroidにブロックされた安全でないHTTP接続を使用しています</string>
-    <string name="meta_error_detail_addon_request_failed">アドオンリクエストに失敗しました</string>
 
     <!-- Stream repository: addon detail error fragments + fetch -->
     <string name="stream_error_detail_no_streams_for_id">このIDのストリームを返しませんでした</string>
@@ -2453,67 +2168,10 @@
     <string name="trakt_comments_error_request_failed">Traktコメントリクエストに失敗しました</string>
     <string name="trakt_library_error_fetch_list_items">リストアイテムの取得に失敗しました</string>
 
-    <string name="watchlist_removed">ウォッチリストから削除しました</string>
-    <string name="watchlist_added">ウォッチリストに追加しました</string>
 
     <!-- Debrid: filter rule rows (title + subtitle pairs) -->
-    <string name="debrid_picker_preferred_resolutions_title">優先解像度</string>
-    <string name="debrid_picker_preferred_resolutions_subtitle">選択した解像度をデフォルト順で最初に並べ替えます。</string>
-    <string name="debrid_picker_required_resolutions_title">必須解像度</string>
-    <string name="debrid_picker_required_resolutions_subtitle">選択した解像度のみ表示します。</string>
-    <string name="debrid_picker_excluded_resolutions_title">除外解像度</string>
-    <string name="debrid_picker_excluded_resolutions_subtitle">選択した解像度を非表示にします。</string>
-    <string name="debrid_picker_preferred_qualities_title">優先品質</string>
-    <string name="debrid_picker_preferred_qualities_subtitle">選択した品質をデフォルト順で最初に並べ替えます。</string>
-    <string name="debrid_picker_required_qualities_title">必須品質</string>
-    <string name="debrid_picker_required_qualities_subtitle">選択したソース品質のみ表示します。</string>
-    <string name="debrid_picker_excluded_qualities_title">除外品質</string>
-    <string name="debrid_picker_excluded_qualities_subtitle">選択したソース品質を非表示にします。</string>
-    <string name="debrid_picker_preferred_visual_tags_title">優先ビジュアルタグ</string>
-    <string name="debrid_picker_preferred_visual_tags_subtitle">DV、HDR、10bit、IMAXなどのタグを並べ替えます。</string>
-    <string name="debrid_picker_required_visual_tags_title">必須ビジュアルタグ</string>
-    <string name="debrid_picker_required_visual_tags_subtitle">DV、HDR、10bit、IMAX、SDRなどのタグを必須にします。</string>
-    <string name="debrid_picker_excluded_visual_tags_title">除外ビジュアルタグ</string>
-    <string name="debrid_picker_excluded_visual_tags_subtitle">DV、HDR、10bit、3Dなどのタグを非表示にします。</string>
-    <string name="debrid_picker_preferred_audio_tags_title">優先音声タグ</string>
-    <string name="debrid_picker_preferred_audio_tags_subtitle">Atmos、TrueHD、DTS、AACなどのタグを並べ替えます。</string>
-    <string name="debrid_picker_required_audio_tags_title">必須音声タグ</string>
-    <string name="debrid_picker_required_audio_tags_subtitle">Atmos、TrueHD、DTS、AACなどのタグを必須にします。</string>
-    <string name="debrid_picker_excluded_audio_tags_title">除外音声タグ</string>
-    <string name="debrid_picker_excluded_audio_tags_subtitle">選択した音声タグを非表示にします。</string>
-    <string name="debrid_picker_preferred_audio_channels_title">優先チャンネル</string>
-    <string name="debrid_picker_preferred_audio_channels_subtitle">優先チャンネルレイアウトを最初に並べ替えます。</string>
-    <string name="debrid_picker_required_audio_channels_title">必須チャンネル</string>
-    <string name="debrid_picker_required_audio_channels_subtitle">選択したチャンネルレイアウトのみ表示します。</string>
-    <string name="debrid_picker_excluded_audio_channels_title">除外チャンネル</string>
-    <string name="debrid_picker_excluded_audio_channels_subtitle">選択したチャンネルレイアウトを非表示にします。</string>
-    <string name="debrid_picker_preferred_encodes_title">優先エンコード</string>
-    <string name="debrid_picker_preferred_encodes_subtitle">AV1、HEVC、AVCなどのエンコードを並べ替えます。</string>
-    <string name="debrid_picker_required_encodes_title">必須エンコード</string>
-    <string name="debrid_picker_required_encodes_subtitle">AV1、HEVC、AVCなどのエンコードを必須にします。</string>
-    <string name="debrid_picker_excluded_encodes_title">除外エンコード</string>
-    <string name="debrid_picker_excluded_encodes_subtitle">選択したエンコードを非表示にします。</string>
-    <string name="debrid_picker_preferred_languages_title">優先言語</string>
-    <string name="debrid_picker_preferred_languages_subtitle">優先音声言語を最初に並べ替えます。</string>
-    <string name="debrid_picker_required_languages_title">必須言語</string>
-    <string name="debrid_picker_required_languages_subtitle">選択した言語のストリームのみ表示します。</string>
-    <string name="debrid_picker_excluded_languages_title">除外言語</string>
-    <string name="debrid_picker_excluded_languages_subtitle">すべての言語が除外されているストリームを非表示にします。</string>
-    <string name="debrid_picker_required_release_groups_title">必須リリースグループ</string>
-    <string name="debrid_picker_required_release_groups_subtitle">選択したリリースグループのみ表示します。</string>
-    <string name="debrid_picker_excluded_release_groups_title">除外リリースグループ</string>
-    <string name="debrid_picker_excluded_release_groups_subtitle">選択したリリースグループを非表示にします。</string>
 
     <!-- Debrid: selection count + size range labels -->
-    <string name="debrid_selection_count_any">任意</string>
-    <plurals name="debrid_selection_count_value">
-        <item quantity="one">%d個選択</item>
-        <item quantity="other">%d個選択</item>
-    </plurals>
-    <string name="debrid_size_range_any">任意</string>
-    <string name="debrid_size_range_up_to">最大%1$dGB</string>
-    <string name="debrid_size_range_min_plus">%1$dGB+</string>
-    <string name="debrid_size_range_min_max">%1$d-%2$dGB</string>
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">不明</string>
@@ -2526,17 +2184,10 @@
     <string name="web_debrid_title">Direct Debrid設定</string>
     <string name="web_debrid_intro_title">Debridストリームをカスタマイズ</string>
     <string name="web_debrid_intro_copy">Direct Debrid結果に使用するストリームラベル、フィルター、並べ替えを調整します。</string>
-    <string name="web_debrid_tab_formatter">フォーマッター</string>
-    <string name="web_debrid_tab_rules">フィルター &amp; 並べ替え</string>
     <string name="web_debrid_template_fields">テンプレートフィールド</string>
     <string name="web_debrid_name_template">名前テンプレート</string>
     <string name="web_debrid_description_template">説明テンプレート</string>
     <string name="web_debrid_error_templates_required">両方のテンプレートが必要です</string>
-    <string name="web_debrid_stream_rules">ストリームルール</string>
-    <string name="web_debrid_per_resolution">解像度ごと</string>
-    <string name="web_debrid_per_quality">品質ごと</string>
-    <string name="web_debrid_min_size_gb">最小サイズGB</string>
-    <string name="web_debrid_max_size_gb">最大サイズGB</string>
     <string name="web_debrid_restore_default">デフォルトに復元</string>
     <string name="web_debrid_save_settings">設定を保存</string>
     <string name="web_debrid_status_load_error">Debrid設定を読み込めませんでした</string>
@@ -2661,4 +2312,219 @@
     <string name="profile_default_name">プロフィール%1$d</string>
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
     <string name="collections_editor_tmdb_collection_fallback">TMDBコレクション%1$d</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="account_local_only_note">同期はオフです。Fetchはアドオン、視聴進捗、設定をこのテレビに保存するため、アカウントは不要です。デバイス間で同期するには、サーバーオプションから独自の同期サーバーに接続してください。</string>
+    <string name="addon_badge_needs_setup">要設定</string>
+    <string name="addon_configure">設定</string>
+    <string name="addon_configure_install">インストール</string>
+    <string name="addon_configure_no_server">保存したら、インストールリンクをこの画面上部の入力欄に貼り付けてください。</string>
+    <string name="addon_configure_received">スマートフォンから受信: %1$s</string>
+    <string name="addon_configure_step_open">1. スキャンしてスマートフォンで設定ページを開く</string>
+    <string name="addon_configure_step_send">2. スキャンして新しいリンクをこのテレビに送る</string>
+    <string name="addon_configure_still_unconfigured">%1$sはまだ設定されていません。設定ページを完了してから、もう一度リンクを送ってください。</string>
+    <string name="addon_configure_title">%1$sを設定</string>
+    <string name="addon_configure_updated">%1$sを更新しました</string>
+    <string name="addon_configure_waiting">保存したら、ページに表示されるインストールリンクをコピーし、手順2から送信してください。</string>
+    <string name="addon_configure_web_failed">テレビに接続できませんでした。テレビは設定画面のままですか？</string>
+    <string name="addon_configure_web_invalid">アドオンのリンクではないようです。</string>
+    <string name="addon_configure_web_open">設定ページを開く</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json または stremio://…</string>
+    <string name="addon_configure_web_send">テレビに送信</string>
+    <string name="addon_configure_web_sent">送信しました。テレビで確認してください。</string>
+    <string name="addon_configure_web_step1">まずアドオン自身のページで設定してください。</string>
+    <string name="addon_configure_web_step2">インストールリンク（または manifest.json のアドレス）が表示されたら、コピーしてここに貼り付けてください。</string>
+    <string name="addon_configure_web_title">テレビに送信</string>
+    <string name="addon_health_failing">前回のリクエストは失敗しました</string>
+    <string name="addon_health_latency">%1$.1f秒</string>
+    <string name="addon_health_ok">応答あり · %1$s</string>
+    <string name="addon_health_slow">低速 · %1$s</string>
+    <string name="addon_health_timed_out">前回のリクエストはタイムアウトしました</string>
+    <string name="addon_needs_configuration">%1$sはインストール前に設定が必要です</string>
+    <string name="advanced_introdb_api_key">IntroDB APIキー</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">introdb.appでキーを作成してください。キーは idb_ で始まります。</string>
+    <string name="advanced_introdb_api_key_subtitle">プレーヤーからイントロとエンドクレジットをマークしてIntroDBに送信できます</string>
+    <string name="advanced_introdb_server">IntroDBサーバー</string>
+    <string name="advanced_introdb_server_default">デフォルト（%1$s）</string>
+    <string name="advanced_introdb_server_dialog_subtitle">IntroDB互換のAPI。空欄にすると公開サーバーを使用します。</string>
+    <string name="advanced_introdb_server_invalid">httpまたはhttpsのアドレスを入力してください</string>
+    <string name="advanced_introdb_server_subtitle">通常のテレビ番組と映画のイントロ、あらすじ、クレジットのマーカーの取得元</string>
+    <string name="advanced_section_skip_markers">スキップマーカー</string>
+    <string name="autoplay_allowed_addons_early_sub">すべてのアドオンを待たず、これらのアドオンが応答した時点で自動再生を開始します。</string>
+    <string name="autoplay_mode_best">ベストマッチ</string>
+    <string name="autoplay_mode_best_desc">画質、設定したルール、このデバイスで再生できるかどうかですべての結果を順位付けし、最上位を再生します。他のソースもワンタッチで選べます。</string>
+    <string name="best_match_cached">キャッシュ済み</string>
+    <string name="best_match_excluded">自動再生対象外: %1$s</string>
+    <string name="best_match_preview_sub">タイトルを表示している間にストリームアドオンへ問い合わせ、再生ボタンにファイル名を表示して再生を早く開始します。オフにすると再生を押した後にのみ検索します。</string>
+    <string name="best_match_preview_title">再生ボタンに選択結果を表示</string>
+    <string name="catalog_order_pin">先頭に固定</string>
+    <string name="catalog_order_pinned_on_home">ホームの先頭に固定中</string>
+    <string name="catalog_order_unpin">固定を解除</string>
+    <string name="cd_mark_credits_end">エンドクレジットの終了をマーク</string>
+    <string name="cd_mark_credits_start">エンドクレジットの開始をマーク</string>
+    <string name="cd_mark_intro_end">イントロの終了をマーク</string>
+    <string name="cd_mark_intro_start">イントロの開始をマーク</string>
+    <string name="custom_server_error_official_active">このテレビではすでに同期がオフです。</string>
+    <string name="custom_server_error_official_available">これは同期サーバーではありません。このダイアログを閉じ、「同期をオフにする」を選んでローカル専用モードに戻してください。</string>
+    <string name="debrid_stream_rules_moved">ストリームのルールは「再生 → ストリーム選択」に移動し、Debridを含むすべてのソースに適用されるようになりました。ここで設定したルールはそちらに移されました。</string>
+    <string name="exclusion_3d">3Dリリース</string>
+    <string name="exclusion_above_max_resolution">最大解像度を超えています</string>
+    <string name="exclusion_audio">%1$s音声を除外しています</string>
+    <string name="exclusion_below_min_resolution">最小解像度未満です</string>
+    <string name="exclusion_cam">CAMまたはテレシンク版</string>
+    <string name="exclusion_codec">%1$sを除外しています</string>
+    <string name="exclusion_dv_excluded">Dolby Visionをオフにしています</string>
+    <string name="exclusion_dv_profile_excluded">このDolby Visionプロファイルをオフにしています</string>
+    <string name="exclusion_hdr_excluded">HDRをオフにしています</string>
+    <string name="exclusion_keyword">除外キーワードに一致します</string>
+    <string name="exclusion_language">%1$sを除外しています</string>
+    <string name="exclusion_not_playable">このプレーヤーでは開けません</string>
+    <string name="exclusion_over_max_size">サイズ上限を超えています</string>
+    <string name="exclusion_release_group">%1$sグループを除外しています</string>
+    <string name="exclusion_resolution">%1$sを除外しています</string>
+    <string name="exclusion_result_limit">結果数の上限を超えています</string>
+    <string name="exclusion_source">%1$sリリースを除外しています</string>
+    <string name="exclusion_under_min_size">最小サイズ未満です</string>
+    <string name="exclusion_unsupported_audio">%1$sにはパススルーまたはこのテレビにないデコーダーが必要です</string>
+    <string name="exclusion_unsupported_codec">このテレビは%1$sをデコードできません</string>
+    <string name="exclusion_unsupported_dv">このテレビはDVプロファイル5に対応していません</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">このデバイスではHDR10+付きDVは黒い画面になります</string>
+    <string name="exclusion_unsupported_resolution">このテレビの表示解像度を超えています</string>
+    <string name="fetching_addons_done">%1$d個のアドオンがすべて応答しました</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="other">取得中… %1$d個が応答、%2$d個のアドオンが検索中</item>
+    </plurals>
+    <string name="fetching_best_so_far">現時点のベスト</string>
+    <string name="fetching_play_now">今すぐ再生</string>
+    <string name="fetching_see_all_sources">すべてのソースを見る</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="other">%1$d秒後に開始</item>
+    </plurals>
+    <string name="filter_row_addon_note">アドオンのカタログはジャンルでのみ絞り込めます。</string>
+    <string name="filter_row_any">すべて</string>
+    <string name="filter_row_ascending">昇順</string>
+    <string name="filter_row_descending">降順</string>
+    <string name="filter_row_genre">ジャンル</string>
+    <string name="filter_row_order">順序</string>
+    <string name="filter_row_rating">最低評価</string>
+    <string name="filter_row_rating_value">%1$.1f以上</string>
+    <string name="filter_row_sort">並べ替え</string>
+    <string name="filter_row_sort_added">追加日</string>
+    <string name="filter_row_sort_random">ランダム</string>
+    <string name="filter_row_sort_rating">評価</string>
+    <string name="filter_row_sort_release">公開日</string>
+    <string name="filter_row_sort_title">タイトル</string>
+    <string name="filter_row_source">ソース</string>
+    <string name="filter_row_source_missing">この行のソースは利用できなくなりました。</string>
+    <string name="filter_row_unwatched">未視聴のみ</string>
+    <string name="filter_row_watched">視聴済み</string>
+    <string name="filter_row_watched_only">視聴済みのみ</string>
+    <string name="filter_row_year_from">開始年</string>
+    <string name="filter_row_year_to">終了年</string>
+    <string name="filter_rows_card_subtitle">「Jellyfinの未視聴SF」のようなホーム行を作成</string>
+    <string name="filter_rows_delete">削除</string>
+    <string name="filter_rows_edit">編集</string>
+    <string name="filter_rows_edit_title">フィルター行を編集</string>
+    <string name="filter_rows_empty">フィルター行はまだありません。</string>
+    <string name="filter_rows_new">新しいフィルター行</string>
+    <string name="filter_rows_no_sources">フィルター行を作成するには、メディアサーバーに接続するか、ジャンル別カタログのあるアドオンをインストールしてください。</string>
+    <string name="filter_rows_save">保存</string>
+    <string name="filter_rows_save_failed">保存できませんでした。もう一度お試しください。</string>
+    <string name="filter_rows_subtitle">メディアサーバーのライブラリやアドオンのカタログを絞り込んで作る行です。ホームに表示され、他の行と同じように並べ替え、非表示、固定ができます。</string>
+    <string name="filter_rows_title">フィルター行</string>
+    <string name="home_poster_pin_row">この行を先頭に固定</string>
+    <string name="home_poster_unpin_row">この行の固定を解除</string>
+    <string name="layout_trailer_crop_to_fill">予告編を画面いっぱいに表示</string>
+    <string name="layout_trailer_crop_to_fill_sub">ホームと詳細ページの背景予告編を拡大して画面いっぱいに表示します。オフにすると黒帯付きで全体を表示します。</string>
+    <string name="library_empty_type_items">アイテム</string>
+    <string name="library_empty_type_movies">映画</string>
+    <string name="library_empty_type_series">シリーズ</string>
+    <string name="licenses_attributions_fetch_body">FetchはGNU General Public License v3.0のもとで提供されるフリーソフトウェアです。Nuvioのコントリビューターによる NuvioTV（github.com/NuvioMedia/NuvioTV）のフォークであり、このアプリの大部分は彼らの成果によるものです。</string>
+    <string name="official_server_action">同期をオフにする</string>
+    <string name="official_server_description">同期サーバーからサインアウトし、アプリはローカル専用モードで再起動します。このテレビにあるデータはすべて残ります。</string>
+    <string name="official_server_title">同期をオフにしますか？</string>
+    <string name="parental_addons_blocked">このプロフィールではアドオンをインストールできません。保護者に頼んでください。</string>
+    <string name="parental_allow_unrated">レーティングなしのタイトルを表示: %1$s</string>
+    <string name="parental_gate_heading">%1$sのPINを入力</string>
+    <string name="parental_gate_support">このプロフィールには視聴制限があります。続行するには保護者のPINが必要です。</string>
+    <string name="parental_kids_profile_toggle">キッズプロフィール: %1$s</string>
+    <string name="parental_level_all_ages">全年齢（G、TV-Y、TV-G）</string>
+    <string name="parental_level_mature">R、TV-MA</string>
+    <string name="parental_level_older_kids">年長の子ども（TV-Y7）</string>
+    <string name="parental_level_pg">PG、TV-PG</string>
+    <string name="parental_level_teens">PG-13、TV-14</string>
+    <string name="parental_level_unrestricted">制限なし</string>
+    <string name="parental_limits_label">視聴制限</string>
+    <string name="parental_limits_saved">%1$sの視聴制限を保存しました</string>
+    <string name="parental_limits_subtitle">変更にはメインプロフィールのPINが必要です。制限を超えるタイトルはホーム、検索、視聴を続けるから非表示になり、再生できません。</string>
+    <string name="parental_limits_subtitle_no_pin">メインプロフィールにPINを設定してください。設定しないと、このプロフィールの誰でも制限を変更できます。</string>
+    <string name="parental_limits_title">%1$sの視聴制限</string>
+    <string name="parental_max_rating">最大レーティング: %1$s</string>
+    <string name="parental_off">オフ</string>
+    <string name="parental_on">オン</string>
+    <string name="parental_title_blocked">このタイトルはこのプロフィールのレーティング制限を超えています。</string>
+    <string name="prefer_next_time_group">グループ %1$s</string>
+    <string name="prefer_next_time_language">%1$s音声</string>
+    <string name="prefer_next_time_not_now">今はしない</string>
+    <string name="prefer_next_time_saved">ベストマッチで優先: %1$s</string>
+    <string name="prefer_next_time_size">%1$d GBまでのファイル</string>
+    <string name="prefer_next_time_title">次回からこれを優先しますか？</string>
+    <string name="ranking_any">すべて</string>
+    <string name="ranking_drop_undecodable">このデバイスでデコードできないストリームを除外</string>
+    <string name="ranking_drop_undecodable_sub">このデバイスが報告するデコーダー、HDR形式、解像度に基づきます</string>
+    <string name="ranking_excluded_audio">除外する音声形式</string>
+    <string name="ranking_excluded_audio_sub">これらの音声形式しかないリリースは自動再生されません</string>
+    <string name="ranking_excluded_groups">除外するリリースグループ</string>
+    <string name="ranking_excluded_languages">除外する音声言語</string>
+    <string name="ranking_excluded_languages_sub">これらの言語のみのリリースは自動再生されません</string>
+    <string name="ranking_excluded_sources">除外するリリースの種類</string>
+    <string name="ranking_groups_input_sub">グループはカンマで区切ってください（例: FLUX, NTb）。</string>
+    <string name="ranking_hide_cam">CAMやテレシンクは自動再生しない</string>
+    <string name="ranking_max_per_resolution">解像度ごとの結果数</string>
+    <string name="ranking_max_quality">最高画質</string>
+    <string name="ranking_max_results">保持する結果数</string>
+    <string name="ranking_max_results_sub">残りは「その他のソース」に移動します</string>
+    <string name="ranking_max_size">最大ファイルサイズ</string>
+    <string name="ranking_max_size_sub">これより大きいファイルは自動再生されません</string>
+    <string name="ranking_min_size">最小ファイルサイズ</string>
+    <string name="ranking_min_size_sub">これより小さいファイルは自動再生されません</string>
+    <string name="ranking_no_limit">制限なし</string>
+    <string name="ranking_none">なし</string>
+    <string name="ranking_prefer_cached">キャッシュ済みのDebrid結果を優先</string>
+    <string name="ranking_prefer_cached_sub">キャッシュ済みのファイルはすぐに再生できます</string>
+    <string name="ranking_prefer_library">自分のライブラリを優先</string>
+    <string name="ranking_prefer_library_sub">Jellyfin、Emby、Plexサーバー上のファイルをどのストリームよりも優先します</string>
+    <string name="ranking_preferred_codec">優先する動画コーデック</string>
+    <string name="ranking_preferred_groups">優先するリリースグループ</string>
+    <string name="ranking_preferred_groups_sub">「次回からこれを優先」で選んだグループを含みます</string>
+    <string name="ranking_preferred_languages">優先する音声言語</string>
+    <string name="ranking_preferred_languages_sub">これらの言語を明記したリリースが上位になり、第1候補が最上位になります</string>
+    <string name="ranking_preferred_quality">優先する画質</string>
+    <string name="ranking_preferred_quality_sub">より高い画質も許可されますが、順位は下がります</string>
+    <string name="ranking_preferred_size">優先するファイルサイズ</string>
+    <string name="ranking_preferred_size_sub">大きいファイルほど順位が下がります</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="other">%1$d件選択中</item>
+    </plurals>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="ranking_skip_dv5">Dolby Visionプロファイル5を除外</string>
+    <string name="ranking_skip_dv5_sub">プロファイル5にはHDR10のフォールバックがありません。このテレビで表示できない場合は常に除外されます</string>
+    <string name="server_options_use_official">同期をオフにする</string>
+    <string name="skip_marker_report_failed">マーカーを報告できませんでした</string>
+    <string name="skip_marker_reported">誤ったマーカーを報告しました。ありがとうございます！</string>
+    <string name="skip_marker_start_recorded">開始をマークしました。終了位置でもう一度押してください。</string>
+    <string name="skip_marker_submit_failed">マーカーをIntroDBに送信できませんでした</string>
+    <string name="skip_marker_submitted">マーカーをIntroDBに送信しました</string>
+    <string name="skip_source">%1$s経由</string>
+    <string name="skip_source_reportable">%1$s経由 · 長押しで報告</string>
+    <string name="sub_hdr_brightness">HDR字幕の明るさ</string>
+    <string name="sub_hdr_style">HDR / Dolby Vision用に別スタイル</string>
+    <string name="sub_hdr_style_sub">HDRとDolby Vision動画の字幕に別の文字色と控えめな明るさを使用します</string>
+    <string name="sub_hdr_text_color">HDR文字色</string>
+    <string name="subtitle_style_brightness_hdr">明るさ（HDR）</string>
+    <string name="subtitle_style_text_color_hdr">文字色（HDR）</string>
+    <string name="subtitle_style_text_opacity_hdr">文字の不透明度（HDR）</string>
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="torrent_engine_unavailable">これはトレントストリームですが、Fetchにはトレントエンジンが内蔵されていません。設定 → DebridでDebridサービスをオンにするか、外部プレーヤーで開いてください。</string>
+    <string name="stream_torrent_needs_debrid">トレント: ここで再生するには「設定 → Debrid」で debrid サービスを接続するか、外部プレーヤーで開いてください。</string>
 </resources>

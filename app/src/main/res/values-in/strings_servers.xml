@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">Masuk dengan akun %1$s Anda dari ponsel. Tanpa mengetik di TV.</string>
+    <string name="servers_link_loading">Mengambil kode masuk…</string>
+    <string name="servers_link_instruction">Pindai kode dengan ponsel Anda, atau buka %1$s di perangkat apa pun, lalu masukkan kode ini.</string>
+    <string name="servers_link_connecting_to">Menghubungkan ke %1$s…</string>
+    <string name="servers_link_waiting">Menunggu Anda menyetujui kode…</string>
+    <string name="servers_link_expires">Kode kedaluwarsa dalam %1$s</string>
+    <string name="servers_link_expired">Kode sudah kedaluwarsa. Ambil kode baru untuk mencoba lagi.</string>
+    <string name="servers_link_retry">Ambil kode baru</string>
+    <string name="servers_link_choose_server">Akun Anda bisa mengakses lebih dari satu server. Pilih server yang ingin ditambahkan.</string>
+    <string name="servers_link_no_servers">Akun ini belum punya server. Siapkan satu, atau minta pemilik server untuk berbagi pustaka dengan Anda.</string>
+    <string name="servers_link_qr">Kode QR untuk masuk ke %1$s</string>
+</resources>

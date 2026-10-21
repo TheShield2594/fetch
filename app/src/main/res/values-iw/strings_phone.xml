@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">הטלפון צריך להיות באותה רשת Wi-Fi כמו הטלוויזיה. אפשר לעשות זאת גם מאוחר יותר בהגדרות.</string>
+    <string name="first_run_phone_qr_description">קוד הגדרה לטלפון</string>
+    <string name="first_run_phone_step_accounts">התחברות ל-Trakt, Simkl או Jellyfin</string>
+    <string name="first_run_phone_step_addons">הדבקת תוספים ומפתח ה-Debrid שלך</string>
+    <string name="first_run_phone_step_scan">סריקה עם מצלמת הטלפון</string>
+    <string name="first_run_phone_title">הגדרה דרך הטלפון. בלי להקליד בשלט.</string>
+    <string name="first_run_recommended">מומלץ</string>
+    <string name="phone_hub_description">סריקת קוד אחד מאפשרת להשתמש בטלפון כשלט ומקלדת, להתחבר לחשבונות ולערוך הגדרות ארוכות.</string>
+    <string name="phone_hub_instruction">יש לסרוק עם הטלפון. הקוד עובד פעם אחת; הדף נשאר פתוח כל עוד המסך הזה פתוח.</string>
+    <string name="phone_hub_open">הצגת קוד לטלפון</string>
+    <string name="phone_hub_open_description">הטלפון צריך להיות באותה רשת כמו הטלוויזיה.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">טלפון %d מחובר. השלט ממשיך לעבוד 10 דקות אחרי סגירת המסך הזה.</item>
+        <item quantity="two">%d טלפונים מחוברים. השלט ממשיך לעבוד 10 דקות אחרי סגירת המסך הזה.</item>
+        <item quantity="other">%d טלפונים מחוברים. השלט ממשיך לעבוד 10 דקות אחרי סגירת המסך הזה.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">לפרופיל הזה יש הגבלות הורים. יש לבטל קודם את נעילת ההגדרות בטלוויזיה.</string>
+    <string name="phone_hub_title">הגדרה מהטלפון</string>
+</resources>

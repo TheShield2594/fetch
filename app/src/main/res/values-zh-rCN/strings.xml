@@ -147,7 +147,6 @@
     <string name="cw_percent_watched">已观看 %1$d%%</string>
     <string name="cw_hours_min_left">剩余 %1$dh %2$dm</string>
     <string name="cw_min_left">剩余 %1$dm</string>
-    <string name="cw_almost_done">即将完成</string>
     <string name="cw_airs_date">播出时间 %1$s</string>
     <string name="cw_airs_today">今日播出</string>
     <string name="cw_airs_tomorrow">明日播出</string>
@@ -177,7 +176,6 @@
     <string name="hero_director">导演：%1$s</string>
     <string name="hero_writer">编剧：%1$s</string>
     <string name="hero_play">播放</string>
-    <string name="hero_play_episode">播放 S%1$d E%2$d</string>
     <string name="hero_add_to_library">加入媒体库</string>
     <string name="hero_remove_from_library">从媒体库移除</string>
     <string name="hero_mark_watched">标记为已观看</string>
@@ -186,7 +184,6 @@
     <string name="hero_press_back_trailer">按返回键退出预告片</string>
     <string name="hero_synopsis_read_more">阅读更多</string>
     <string name="hero_synopsis_dismiss_hint">按返回键关闭</string>
-    <string name="cd_rating">评分</string>
 
     <string name="episodes_season">第 %1$d 季</string>
     <string name="episodes_specials">特别篇</string>
@@ -247,10 +244,8 @@
     <string name="detail_section_production">制作公司</string>
     <string name="detail_comments_empty">暂无 Trakt 评论。</string>
     <string name="detail_comments_error">目前无法加载 Trakt 评论。</string>
-    <string name="detail_trailer_loading">正在加载预告片…</string>
     <string name="detail_trailer_error">目前无法加载预告片。</string>
     <string name="detail_comments_spoiler_hidden">此评论包含剧透。按确认键以显示。</string>
-    <string name="detail_comments_reveal_spoiler">显示剧透</string>
     <string name="detail_comments_reveal_spoiler_hint">按确认键以显示剧透。</string>
     <string name="detail_comments_back_hint">点击返回键关闭</string>
     <string name="detail_comments_badge_review">评论</string>
@@ -449,11 +444,8 @@
     <string name="settings_content_discovery_subtitle">扩展、插件、目录与发现来源</string>
     <string name="settings_content_discovery_addons_subtitle">管理扩展、目录顺序和收藏</string>
     <string name="settings_content_discovery_plugins_subtitle">管理仓库和流提供者</string>
-    <string name="settings_plugins">插件</string>
-    <string name="settings_plugins_subtitle">仓库与提供者</string>
     <string name="settings_integration">集成</string>
     <string name="settings_playback">播放</string>
-    <string name="settings_trakt_subtitle">打开 Trakt 连接画面</string>
     <string name="settings_tracking_title">追踪</string>
     <string name="settings_tracking_description">连接追踪提供者，并选择由哪一个为您提供媒体库和继续观看数据。</string>
     <string name="tracking_accounts_title">账户</string>
@@ -481,8 +473,6 @@
     <string name="tracking_trakt_progress_required">当 Trakt 为观看进度来源时可用</string>
     <string name="trakt_name">Trakt</string>
     <string name="simkl_name">Simkl</string>
-    <string name="settings_network">网络速度</string>
-    <string name="settings_network_subtitle">延迟与下载诊断</string>
     <string name="settings_advanced">高级</string>
     <string name="settings_advanced_subtitle">性能、导航、缓存与诊断</string>
     <string name="experience_mode_essential">基础模式</string>
@@ -573,19 +563,10 @@
     <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">快速水平导航</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">提高 D-pad 在行内的重复速度，同时保留重复节流功能。</string>
-    <string name="advanced_fetch_performance_mode">ExoPlayer 原生内存</string>
-    <string name="advanced_fetch_performance_mode_subtitle">启用高性能原生分配器、堆外内存和网络优化，实现更流畅的播放</string>
-    <string name="buffer_device_ram_info">设备内存：%s</string>
-    <string name="buffer_safe_limit_info">建议安全限制：%d MB</string>
-    <string name="buffer_safe_status">安全：在您设备的建议限制内。</string>
-    <string name="buffer_unsafe_warning">警告：超出您的 %2$s 设备的建议安全限制 (%1$d MB)。可能导致应用崩溃。</string>
-    <string name="buffer_auto_limit_active">自动缩放安全限制：%d MB</string>
     <string name="advanced_fetch_focus_scroll">Fetch 焦点滚动</string>
     <string name="advanced_fetch_focus_scroll_subtitle">使用 Fetch 的自定义全局焦点滚动动画和定位。</string>
     <string name="advanced_rgb565">RGB565 图像解码</string>
     <string name="advanced_rgb565_subtitle">对符合条件的非透明图像使用更低内存的 16 位色彩。更改此项会重启应用。</string>
-    <string name="advanced_memory_only_vertical_scroll">仅内存垂直滚动</string>
-    <string name="advanced_memory_only_vertical_scroll_subtitle">在垂直滚动首页行时跳过磁盘和网络的图片请求。</string>
     <string name="advanced_compose_highlighter">Compose 高亮器</string>
     <string name="advanced_compose_highlighter_subtitle">为重组的 UI 元素闪烁边框，用于性能调试。</string>
     <string name="advanced_clear_cw_cache">清除继续观看缓存</string>
@@ -597,7 +578,6 @@
     <string name="advanced_confirm_exit_subtitle">退出时完全终止应用并释放内存。需要按两次返回键以确认。</string>
     <string name="confirm_exit_toast">再按一次返回键退出</string>
     <string name="settings_debug">调试</string>
-    <string name="settings_plugins_section_subtitle">管理仓库、提供者和插件状态</string>
     <string name="settings_account_section_subtitle">账户与同步状态</string>
     <string name="account_stat_addons">扩展</string>
     <string name="account_stat_plugins">插件</string>
@@ -616,33 +596,12 @@
     <string name="cd_decrease">减少</string>
     <string name="cd_increase">增加</string>
     <string name="action_cancel">取消</string>
-    <string name="action_switch">切换</string>
     <string name="action_apply">应用</string>
     <string name="sub_opacity">透明度</string>
     <string name="action_none">无</string>
     <string name="action_back">返回</string>
     <string name="action_close">关闭</string>
 
-    <string name="cd_membership_qr">会员页面 QR 码</string>
-    <string name="supporters_tab">支持者</string>
-    <string name="contributors_tab">贡献者</string>
-    <string name="supporters_loading">正在加载支持者…</string>
-    <string name="supporters_empty">尚未找到支持者。</string>
-    <string name="supporters_error_title">无法加载支持者</string>
-    <string name="supporters_no_message">未分享消息。</string>
-    <string name="supporters_level_supporter">支持者</string>
-    <string name="supporters_level_supporter_plus">支持者+</string>
-    <string name="supporters_since">自 %1$s 起支持 Fetch</string>
-    <string name="supporters_since_unknown">自豪地支持 Fetch</string>
-    <string name="supporters_open_donations">打开支持页面</string>
-    <string name="contributors_loading">正在加载 GitHub 贡献者…</string>
-    <string name="contributors_empty">尚未找到贡献者。</string>
-    <string name="contributors_error_title">无法加载贡献者</string>
-    <string name="contributors_total_contributions">共 %1$d 次贡献</string>
-    <string name="contributors_open_github">打开 GitHub 个人资料</string>
-    <string name="contributors_show_kofi_qr">显示 Ko-fi QR 码</string>
-    <string name="contributors_hide_kofi_qr">隐藏 Ko-fi QR 码</string>
-    <string name="contributors_profile_unavailable">GitHub 个人资料链接不可用。</string>
 
     <string name="playback_loading_overlay">加载覆盖层</string>
     <string name="playback_loading_overlay_sub">在出现第一个视频画面之前显示加载画面。</string>
@@ -705,7 +664,6 @@
     <string name="playback_engine_mvplayer_desc">使用带有 Fetch OSD 控制的 libmpv。实验性功能。</string>
 
     <string name="video_section">视频</string>
-    <string name="audio_trailer_section">预告片</string>
     <string name="audio_autoplay_trailers">自动播放预告片</string>
     <string name="audio_autoplay_trailers_sub">在详情和播放后画面自动播放预告片</string>
     <string name="audio_trailer_delay">预告片延迟</string>
@@ -785,7 +743,6 @@
     <string name="audio_decoder_prefer_app_desc">优先使用 FFmpeg 解码器。格式支持更好，但 CPU 使用率较高。</string>
     <string name="audio_decoder_controls">控制音频和视频使用硬件或软件 (FFmpeg) 解码器</string>
 
-    <string name="sub_section">字幕</string>
     <string name="sub_not_set">未设置</string>
     <string name="sub_forced_lang">强制</string>
     <string name="sub_preferred_lang">偏好语言</string>
@@ -796,7 +753,6 @@
     <string name="sub_show_only_preferred_languages_desc">从选择列表中隐藏所有其他字幕语言</string>
     <string name="sub_strip_sdh">移除 SDH 字幕</string>
     <string name="sub_strip_sdh_desc">从文本字幕中隐藏声音描述和说话人标签</string>
-    <string name="sub_organization">字幕排序</string>
     <string name="sub_size">大小</string>
     <string name="sub_vertical_offset">垂直偏移</string>
     <string name="sub_bold">粗体</string>
@@ -819,12 +775,6 @@
     <string name="sub_mode_effects_canvas_sub">使用 Media3 效果搭配 Canvas 渲染支持动画。</string>
     <string name="sub_mode_standard">标准提示</string>
     <string name="sub_mode_standard_sub">不支持动画的基本字幕渲染。兼容性最佳。</string>
-    <string name="sub_org_none">无 (默认顺序)</string>
-    <string name="sub_org_by_lang">按语言</string>
-    <string name="sub_org_by_addon">按扩展</string>
-    <string name="sub_org_none_desc">以扩展默认顺序显示字幕。</string>
-    <string name="sub_org_by_lang_desc">按语言分组字幕。</string>
-    <string name="sub_org_by_addon_desc">按扩展来源分组字幕。</string>
 
     <string name="autoplay_reuse_last_link">重复使用上次链接</string>
     <string name="autoplay_reuse_last_link_sub">当缓存仍有效时，自动播放同一部电影/剧集的上次可用流</string>
@@ -856,7 +806,6 @@
     <string name="autoplay_threshold_pct_title">触发百分比</string>
     <string name="autoplay_threshold_pct_sub">当没有片尾时间戳时的备用方案。</string>
     <string name="autoplay_threshold_min_title">触发分钟数</string>
-    <string name="autoplay_threshold_min_sub">当没有片尾时间戳时的备用方案。</string>
     <string name="autoplay_scope_all">所有来源</string>
     <string name="autoplay_scope_addons">仅已安装的扩展</string>
     <string name="autoplay_scope_plugins">仅已启用的插件</string>
@@ -890,8 +839,6 @@
     <string name="layout_section_home_desc">选择结构和焦点区块来源。</string>
     <string name="layout_landscape_posters">横向海报</string>
     <string name="layout_landscape_posters_sub">在现代视图中切换竖式和横式卡片。</string>
-    <string name="layout_preview_row">显示预览行</string>
-    <string name="layout_preview_row_sub">在现代首页布局中显示下方行的局部预览。</string>
     <string name="layout_section_content">首页内容</string>
     <string name="layout_section_content_desc">控制首页和搜索显示的内容。</string>
     <string name="layout_collapse_sidebar">折叠侧边栏</string>
@@ -1017,8 +964,6 @@
     <string name="layout_preset_balanced">平衡</string>
     <string name="layout_preset_comfort">舒适</string>
     <string name="layout_preset_large">大</string>
-    <string name="layout_memory_only_scroll">仅内存垂直滚动</string>
-    <string name="layout_memory_only_scroll_sub">垂直滚动时跳过加载新图片。</string>
     <string name="layout_preset_sharp">锐利</string>
     <string name="layout_preset_subtle">柔和</string>
     <string name="layout_preset_classic">经典</string>
@@ -1081,28 +1026,10 @@
     <string name="mdblist_enable_title">启用 MDBList 评分</string>
     <string name="mdblist_enable_subtitle">在元数据详情画面中从外部提供者获取评分</string>
     <string name="mdblist_api_key_title">API 密钥</string>
-    <string name="mdblist_api_key_subtitle">从 MDBList 获取评分所需</string>
     <string name="mdblist_ratings_credentials_subtitle">使用您在「追踪」中连接的 MDBList 账户，或为评分单独输入 API 密钥。</string>
     <string name="mdblist_ratings_connected_account">使用已连接的账户</string>
     <string name="mdblist_ratings_key_override_subtitle">API 密钥将覆盖您已连接的账户用于评分。清除它以再次使用已连接的账户。</string>
-    <string name="mdblist_trakt_title">Trakt</string>
-    <string name="mdblist_trakt_subtitle">显示 Trakt 分数</string>
-    <string name="mdblist_imdb_title">IMDb</string>
-    <string name="mdblist_imdb_subtitle">显示 IMDb 分数 (并在可用时隐藏默认的 IMDb 行)</string>
-    <string name="mdblist_tmdb_title">TMDB</string>
-    <string name="mdblist_tmdb_subtitle">显示 TMDB 分数</string>
-    <string name="mdblist_letterboxd_title">Letterboxd</string>
-    <string name="mdblist_letterboxd_subtitle">显示 Letterboxd 分数</string>
-    <string name="mdblist_tomatoes_title">烂番茄</string>
-    <string name="mdblist_tomatoes_subtitle">显示影评人分数</string>
-    <string name="mdblist_audience_title">观众分数</string>
-    <string name="mdblist_audience_subtitle">显示观众分数</string>
-    <string name="mdblist_metacritic_title">Metacritic</string>
-    <string name="mdblist_metacritic_subtitle">显示 Metacritic 分数</string>
-    <string name="mdblist_mal_title">MyAnimeList</string>
-    <string name="mdblist_mal_subtitle">显示 MyAnimeList 评分</string>
     <string name="mdblist_dialog_title">MDBList API 密钥</string>
-    <string name="mdblist_dialog_subtitle">输入您的 API 密钥以获取外部评分</string>
     <string name="mdblist_dialog_placeholder">输入 MDBList API 密钥</string>
     <string name="mdblist_not_set">未设置</string>
     <string name="mdblist_invalid_api_key">无效的 MDBList API 密钥</string>
@@ -1121,25 +1048,11 @@
     <string name="debrid_section_instant_playback">链接准备</string>
     <string name="debrid_section_filters">过滤器与排序</string>
     <string name="debrid_section_formatting">格式设置</string>
-    <string name="debrid_provider_title">提供者</string>
-    <string name="debrid_provider_subtitle">其他提供者将在之后添加</string>
-    <string name="debrid_provider_torbox">Torbox</string>
-    <string name="debrid_provider_available">Torbox</string>
-    <string name="debrid_api_key_title">Torbox</string>
-    <string name="debrid_api_key_subtitle">连接您的 Torbox 账户。</string>
     <string name="debrid_provider_description">连接您的 %1$s 账户。</string>
     <string name="debrid_provider_device_description">在浏览器中链接您的 %1$s 账户。</string>
     <string name="debrid_api_key_dialog_title">%1$s API 密钥</string>
     <string name="debrid_api_key_dialog_subtitle">输入您的 %1$s API 密钥。</string>
     <string name="debrid_api_key_dialog_placeholder">输入 %1$s API 密钥</string>
-    <string name="debrid_dialog_title">Torbox API 密钥</string>
-    <string name="debrid_dialog_subtitle">输入您的 Torbox API 密钥。</string>
-    <string name="debrid_dialog_placeholder">输入 Torbox API 密钥</string>
-    <string name="debrid_real_debrid_api_key_title">Real-Debrid API 令牌</string>
-    <string name="debrid_real_debrid_api_key_subtitle">本地 Real-Debrid 链接解析所需</string>
-    <string name="debrid_real_debrid_dialog_title">Real-Debrid API 令牌</string>
-    <string name="debrid_real_debrid_dialog_subtitle">为 Direct Debrid 输入您的 Real-Debrid API 令牌</string>
-    <string name="debrid_real_debrid_dialog_placeholder">输入 Real-Debrid API 令牌</string>
     <string name="debrid_not_set">未设置</string>
     <string name="debrid_connected">已连接</string>
     <string name="debrid_connect_provider">连接 %1$s</string>
@@ -1148,87 +1061,19 @@
     <string name="debrid_device_auth_connected">%1$s 已在此设备上连接。</string>
     <string name="debrid_device_auth_starting">正在启动安全登录…</string>
     <string name="debrid_device_auth_instructions">扫描 QR 码并输入此代码以批准 Fetch。</string>
-    <string name="debrid_device_auth_code_copied">代码已复制。</string>
     <string name="debrid_device_auth_waiting">正在等待批准…</string>
     <string name="debrid_device_auth_failed">无法启动登录。</string>
     <string name="debrid_device_auth_missing_configuration">此登录方式未在此版本中配置。</string>
     <string name="debrid_device_auth_expired">此代码已过期。请重试。</string>
     <string name="debrid_key_invalid">无法验证此 API 密钥。</string>
-    <string name="debrid_invalid_torbox_api_key">无法验证此 API 密钥。</string>
-    <string name="debrid_invalid_real_debrid_api_key">无法验证此 API 密钥。</string>
     <string name="debrid_prepare_instant_playback">准备链接</string>
     <string name="debrid_prepare_instant_playback_description">在播放开始前解析可播放链接。</string>
     <string name="debrid_prepare_stream_count">要准备的链接数</string>
     <string name="debrid_prepare_stream_count_warning">尽可能使用较低的数量。已连接的服务可能会限制在特定时间内可解析的链接数量。即使您不按下「观看」，打开电影或剧集也可能计入这些限制，因为链接是提前准备好的。</string>
     <string name="debrid_prepare_count_one">1 个链接</string>
     <string name="debrid_prepare_count_many">%1$d 个链接</string>
-    <string name="debrid_stream_max_results_title">最大结果数</string>
-    <string name="debrid_stream_max_results_subtitle">限制 Direct Debrid 来源的显示数量。</string>
-    <string name="debrid_stream_max_results_all">所有流</string>
-    <string name="debrid_stream_max_results_count">%1$d 个流</string>
-    <string name="debrid_stream_sort_title">排序结果</string>
-    <string name="debrid_stream_sort_subtitle">选择结果的排序方式。</string>
-    <string name="debrid_stream_sort_original">原始顺序</string>
-    <string name="debrid_stream_sort_best_quality">最佳品质优先</string>
-    <string name="debrid_stream_sort_largest">最大优先</string>
-    <string name="debrid_stream_sort_smallest">最小优先</string>
-    <string name="debrid_stream_sort_best_audio">最佳音频优先</string>
-    <string name="debrid_stream_sort_language">语言优先</string>
-    <string name="debrid_stream_sort_default">原始顺序</string>
-    <string name="debrid_stream_sort_quality">最佳品质优先</string>
-    <string name="debrid_stream_sort_size_desc">最大优先</string>
-    <string name="debrid_stream_sort_size_asc">最小优先</string>
-    <string name="debrid_stream_min_quality_title">最低品质</string>
-    <string name="debrid_stream_min_quality_subtitle">隐藏低于所选分辨率的来源。</string>
-    <string name="debrid_stream_min_quality_any">任何品质</string>
-    <string name="debrid_stream_min_quality_720">720p 及以上</string>
-    <string name="debrid_stream_min_quality_1080">1080p 及以上</string>
-    <string name="debrid_stream_min_quality_2160">仅 4K</string>
-    <string name="debrid_stream_dolby_vision_title">Dolby Vision</string>
-    <string name="debrid_stream_dolby_vision_subtitle">显示、隐藏或要求 Dolby Vision 来源。</string>
-    <string name="debrid_stream_hdr_title">HDR</string>
-    <string name="debrid_stream_hdr_subtitle">显示、隐藏或要求 HDR 来源。</string>
-    <string name="debrid_stream_feature_any">任何</string>
-    <string name="debrid_stream_feature_exclude">隐藏</string>
-    <string name="debrid_stream_feature_only">仅限</string>
-    <string name="debrid_stream_codec_title">编解码器</string>
-    <string name="debrid_stream_codec_subtitle">按视频编解码器过滤来源。</string>
-    <string name="debrid_stream_codec_any">任何编解码器</string>
-    <string name="debrid_stream_codec_h264">H.264 / AVC</string>
-    <string name="debrid_stream_codec_hevc">HEVC / H.265</string>
-    <string name="debrid_stream_codec_av1">AV1</string>
 
     <!-- Debrid 流过滤对话框 -->
-    <string name="debrid_stream_per_resolution_limit_title">按分辨率限制</string>
-    <string name="debrid_stream_per_resolution_limit_subtitle">排序后限制重复的 2160p、1080p、720p 结果。</string>
-    <string name="debrid_stream_per_quality_limit_title">按品质限制</string>
-    <string name="debrid_stream_per_quality_limit_subtitle">排序后限制重复的 BluRay、WEB-DL、REMUX 结果。</string>
-    <string name="debrid_stream_size_range_title">大小范围</string>
-    <string name="debrid_stream_size_range_subtitle">按文件大小过滤流。</string>
-    <string name="debrid_stream_resolutions_preferred">偏好的分辨率</string>
-    <string name="debrid_stream_resolutions_required">必需的分辨率</string>
-    <string name="debrid_stream_resolutions_excluded">排除的分辨率</string>
-    <string name="debrid_stream_qualities_preferred">偏好的品质</string>
-    <string name="debrid_stream_qualities_required">必需的品质</string>
-    <string name="debrid_stream_qualities_excluded">排除的品质</string>
-    <string name="debrid_stream_visual_tags_preferred">偏好的视觉标签</string>
-    <string name="debrid_stream_visual_tags_required">必需的视觉标签</string>
-    <string name="debrid_stream_visual_tags_excluded">排除的视觉标签</string>
-    <string name="debrid_stream_audio_tags_preferred">偏好的音频标签</string>
-    <string name="debrid_stream_audio_tags_required">必需的音频标签</string>
-    <string name="debrid_stream_audio_tags_excluded">排除的音频标签</string>
-    <string name="debrid_stream_channels_preferred">偏好的声道</string>
-    <string name="debrid_stream_channels_required">必需的声道</string>
-    <string name="debrid_stream_channels_excluded">排除的声道</string>
-    <string name="debrid_stream_encodes_preferred">偏好的编码</string>
-    <string name="debrid_stream_encodes_required">必需的编码</string>
-    <string name="debrid_stream_encodes_excluded">排除的编码</string>
-    <string name="debrid_stream_languages_preferred">偏好的语言</string>
-    <string name="debrid_stream_languages_required">必需的语言</string>
-    <string name="debrid_stream_languages_excluded">排除的语言</string>
-    <string name="debrid_stream_release_groups_required">必需的发行组</string>
-    <string name="debrid_stream_release_groups_excluded">排除的发行组</string>
-    <string name="debrid_stream_release_groups_input_subtitle">每行输入一个组名。</string>
 
     <string name="debrid_formatter_title">网页编辑器</string>
     <string name="debrid_formatter_subtitle">从其他设备配置来源显示、过滤器和排序。</string>
@@ -1250,11 +1095,9 @@
     <string name="settings_stream_badge_position_bottom">下方</string>
     <string name="settings_stream_badge_urls_title">Fusion 徽章网址</string>
     <string name="settings_stream_badge_urls_description">导入最多 %1$d 个 Fusion 风格流徽章 JSON 网址。每个网址可以单独更新或删除。</string>
-    <string name="settings_stream_badge_urls_search_description">管理已导入的 Fusion 风格流徽章 JSON 网址。</string>
     <string name="settings_fusion_badges_summary">%1$d/%2$d 个网址，%3$d 个启用的 Fusion 徽章</string>
     <string name="settings_fusion_badges_empty">未导入 Fusion 徽章网址。</string>
     <string name="settings_fusion_badge_url_label">Fusion 徽章 JSON 网址</string>
-    <string name="settings_fusion_badge_urls_imported">已导入 %1$d/%2$d 个 Fusion 网址</string>
     <string name="settings_fusion_badge_url_active">启用</string>
     <string name="settings_fusion_badge_url_inactive">禁用</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s，%2$d 个已启用徽章，%3$d 个组</string>
@@ -1317,14 +1160,12 @@
 
     <string name="trakt_description">使用 Trakt 同步您的观看列表、观看进度、继续观看、记录和个人列表。</string>
     <string name="trakt_connected_as">以 %1$s 身份连接</string>
-    <string name="trakt_account_login">账户登录</string>
     <string name="trakt_awaiting_instruction">前往 trakt.tv/activate 并输入此代码：</string>
     <string name="trakt_waiting_approval">正在等待批准…</string>
     <string name="qr_login_approved">登录已批准。正在完成登录…</string>
     <string name="qr_login_pending">正在等待手机上的批准…</string>
     <string name="qr_login_expired">QR 码登录已过期。请生成新代码。</string>
     <string name="qr_login_preparing">正在准备 QR 码登录…</string>
-    <string name="qr_login_device_auth_failed">设备验证失败</string>
     <string name="qr_login_scan_prompt">扫描 QR 码并在手机上登录</string>
     <string name="qr_login_start_failed">启动 QR 码登录失败</string>
     <string name="qr_login_signing_in">正在为您登录…</string>
@@ -1332,38 +1173,19 @@
     <string name="qr_login_exchange_failed">无法完成 QR 码登录</string>
     <string name="trakt_code_expires">代码将在 %1$s 后过期</string>
     <string name="trakt_token_refreshes">Trakt 访问令牌将在 %1$s 后刷新</string>
-    <string name="trakt_login_instruction">按下「登录」以启动 Trakt 设备验证。QR 码将在此显示。</string>
     <string name="trakt_missing_credentials">local.properties 中缺少 TRAKT_CLIENT_ID / TRAKT_CLIENT_SECRET。</string>
     <string name="trakt_watch_progress_title">观看进度</string>
     <string name="trakt_watch_progress_subtitle">选择哪个进度来源提供继续播放和继续观看功能</string>
     <string name="trakt_watch_progress_dialog_title">观看进度</string>
-    <string name="trakt_watch_progress_dialog_subtitle">选择继续播放和继续观看应使用 Trakt 还是 Fetch Sync，同时 Trakt 记录保持启用。</string>
-    <string name="trakt_watch_progress_source_trakt">Trakt</string>
     <string name="trakt_watch_progress_source_fetch">Fetch Sync</string>
     <string name="trakt_library_source_title">媒体库来源</string>
     <string name="trakt_library_source_subtitle">选择 Fetch 从哪里读取您的媒体库</string>
     <string name="trakt_library_source_dialog_title">媒体库来源</string>
-    <string name="trakt_library_source_dialog_subtitle">选择存储和管理媒体库项目的位置</string>
-    <string name="trakt_library_source_trakt">Trakt</string>
     <string name="trakt_library_source_fetch">Fetch 媒体库</string>
-    <string name="trakt_library_source_trakt_selected">已选择 Trakt 媒体库</string>
-    <string name="trakt_library_source_fetch_selected">已选择 Fetch 媒体库</string>
-    <string name="trakt_setting_on">开启</string>
-    <string name="trakt_setting_off">关闭</string>
-    <string name="trakt_watch_progress_trakt_selected">观看进度来源设为 Trakt</string>
-    <string name="trakt_watch_progress_fetch_selected">观看进度来源设为 Fetch Sync</string>
     <string name="trakt_continue_watching_window">继续观看范围</string>
     <string name="trakt_continue_watching_subtitle">纳入继续观看的 Trakt 历史记录</string>
-    <string name="trakt_unaired_next_up">未播出的下一集</string>
-    <string name="trakt_unaired_next_up_subtitle">在播出前显示即将播出的剧集</string>
-    <string name="trakt_unaired_shown">显示</string>
-    <string name="trakt_unaired_hidden">隐藏</string>
-    <string name="trakt_unaired_now_shown">现在显示未播出的下一集</string>
-    <string name="trakt_unaired_now_hidden">现在隐藏未播出的下一集</string>
     <string name="trakt_comments_title">评论</string>
     <string name="trakt_comments_subtitle">在元数据页面上显示 Trakt 评论</string>
-    <string name="trakt_comments_dialog_title">评论</string>
-    <string name="trakt_comments_dialog_subtitle">选择当您的账户已连接时，元数据页面是否应显示 Trakt 评论。</string>
     <string name="trakt_comments_now_shown">现在显示元数据页面上的 Trakt 评论</string>
     <string name="trakt_comments_now_hidden">现在隐藏元数据页面上的 Trakt 评论</string>
     <string name="trakt_more_like_this_source_title">更多类似内容来源</string>
@@ -1380,15 +1202,8 @@
     <string name="trakt_disconnect">断开连接</string>
     <string name="trakt_disconnect_title">断开 Trakt 连接？</string>
     <string name="trakt_disconnect_subtitle">这将断开您的 Trakt 账户与 Fetch 的连接。</string>
-    <string name="trakt_login">登录</string>
-    <string name="trakt_retry">重试</string>
-    <string name="trakt_back">返回</string>
     <string name="trakt_cw_window_title">继续观看范围</string>
     <string name="trakt_cw_window_subtitle">选择多少 Trakt 活动应出现在继续观看中。</string>
-    <string name="trakt_unaired_dialog_title">未播出的下一集</string>
-    <string name="trakt_unaired_dialog_subtitle">选择继续观看是否应包含播出前的即将播出剧集。</string>
-    <string name="trakt_show_unaired">显示未播出的剧集</string>
-    <string name="trakt_hide_unaired">隐藏未播出的剧集</string>
     <string name="trakt_all_history">所有历史记录</string>
     <string name="trakt_days_format">%1$d 天</string>
 
@@ -1438,23 +1253,13 @@
     <string name="profile_manage_title">管理个人资料</string>
     <string name="profile_manage_subtitle">选择要编辑、切换或创建新个人资料</string>
     <string name="profile_manage_hint">选择要管理的个人资料</string>
-    <string name="profile_primary_label">主要</string>
-    <string name="profile_shares_primary">共用主要用户的 %1$s</string>
     <string name="profile_edit_label">编辑</string>
     <string name="profile_edit_header">编辑个人资料</string>
-    <string name="profile_add">添加个人资料</string>
     <string name="profile_create_title">创建个人资料</string>
-    <string name="profile_edit_title">编辑个人资料 %1$s</string>
     <string name="profile_name_placeholder">个人资料名称</string>
-    <string name="profile_avatar_color">头像颜色</string>
-    <string name="profile_use_primary_addons">使用主要用户的扩展</string>
-    <string name="profile_use_primary_plugins">使用主要用户的插件</string>
     <string name="profile_creating">创建中…</string>
     <string name="profile_create_btn">创建</string>
-    <string name="profile_confirm">确认</string>
     <string name="profile_delete">删除</string>
-    <string name="profile_addons">扩展</string>
-    <string name="profile_plugins">插件</string>
     <string name="profile_choose_avatar">选择头像</string>
     <string name="profile_custom_avatar_web_panel_note">自定义头像网址可从 Fetch 网页面板配置。</string>
     <string name="profile_editor_tab_avatar">头像</string>
@@ -1463,7 +1268,6 @@
     <string name="profile_background_member_note">自定义背景网址可从 Fetch 网页面板配置。</string>
     <string name="profile_background_normal">普通</string>
     <string name="profile_background_custom">自定义</string>
-    <string name="profile_avatar_none_selected">未选择头像</string>
     <string name="profile_avatar_focus_hint">聚焦头像以查看其名称</string>
     <string name="profile_avatar_category_all">全部</string>
     <string name="profile_avatar_category_supporter">支持者</string>
@@ -1497,30 +1301,16 @@
     <string name="profile_copy_settings_created_success">已使用来自 %1$s 的设置创建个人资料。</string>
     <string name="profile_copy_settings_created_error">个人资料已创建，但无法复制设置。您可以从个人资料选项重试。</string>
     <string name="profile_create_error">无法创建个人资料。请重试。</string>
-    <string name="profile_pin_title">个人资料 PIN 锁</string>
-    <string name="profile_pin_enabled_subtitle">此个人资料在切换前需要输入 4 位数 PIN 码。</string>
-    <string name="profile_pin_disabled_subtitle">设置 4 位数 PIN 码以锁定此个人资料。</string>
     <string name="profile_pin_set">设置 PIN</string>
     <string name="profile_pin_change">更改 PIN</string>
     <string name="profile_pin_remove">移除 PIN</string>
-    <string name="profile_pin_set_title">设置个人资料 PIN</string>
-    <string name="profile_pin_set_subtitle">输入 4 位数 PIN 码并确认。</string>
-    <string name="profile_pin_enter">输入 4 位数 PIN</string>
-    <string name="profile_pin_confirm">确认 4 位数 PIN</string>
-    <string name="profile_pin_mismatch">PIN 码不匹配。</string>
-    <string name="profile_pin_save">保存 PIN</string>
-    <string name="profile_pin_unlock_title">解锁 %1$s</string>
-    <string name="profile_pin_unlock_subtitle">输入 4 位数 PIN 码以继续。</string>
     <string name="profile_pin_verifying">验证中…</string>
-    <string name="profile_pin_unlock_action">解锁</string>
     <string name="profile_pin_overlay_unlock_heading">输入您的 PIN 以访问 %1$s。</string>
     <string name="profile_pin_overlay_set_heading">为 %1$s 创建 4 位数 PIN。</string>
     <string name="profile_pin_overlay_confirm_heading">确认您的新 PIN。</string>
     <string name="profile_pin_overlay_unlock_support">使用遥控器或键盘输入 4 位数字。</string>
-    <string name="profile_pin_overlay_change_verify_kicker">需要安全验证。</string>
     <string name="profile_pin_overlay_change_verify_heading">输入当前的 PIN 以更改 %1$s 的 PIN。</string>
     <string name="profile_pin_overlay_change_verify_support">在设置新 PIN 之前输入当前的 4 位数 PIN。</string>
-    <string name="profile_pin_overlay_remove_verify_kicker">需要安全验证。</string>
     <string name="profile_pin_overlay_remove_verify_heading">输入当前的 PIN 以移除 %1$s 的锁定。</string>
     <string name="profile_pin_overlay_remove_verify_support">输入当前的 4 位数 PIN 以移除此锁定。</string>
     <string name="profile_pin_overlay_delete_verify_heading">输入当前的 PIN 以删除 %1$s。</string>
@@ -1528,7 +1318,7 @@
     <string name="profile_pin_overlay_set_support">打开此个人资料前将需要此 PIN。</string>
     <string name="profile_pin_overlay_confirm_support">重新输入相同的 4 位数字以完成设置。</string>
     <string name="profile_pin_overlay_mismatch">PIN 码不匹配。请重新输入新的 PIN。</string>
-    <string name="profile_pin_overlay_forgot_hint">忘记 PIN？请从 fetch 网站上的 Fetch 账户重置。</string>
+    <string name="profile_pin_overlay_forgot_hint">忘记 PIN？请在 Fetch 网站上从您的 Fetch 账户重置。</string>
     <string name="profile_pin_overlay_back_hint">按返回键取消</string>
 
 
@@ -1606,8 +1396,6 @@
     <string name="debrid_missing_api_key">请在设置中添加 Debrid API 密钥。</string>
     <string name="debrid_not_cached">未在此服务上缓存。</string>
     <string name="debrid_resolution_failed">无法解析此 Debrid 流。</string>
-    <string name="stream_type_torrent">Torrent</string>
-    <string name="stream_type_youtube">YouTube</string>
     <string name="p2p_consent_title">P2P 流</string>
     <string name="p2p_consent_body">此流使用点对点 (P2P) 技术。启用 P2P 即表示您知悉并同意：\n\n\u2022 您的 IP 地址将对网络中的其他对等节点可见\n\u2022 您对所访问的内容负全部责任\n\u2022 您确认在您的司法管辖区内拥有流式传输此内容的合法权利\n\u2022 Fetch 不托管、分发或控制任何 P2P 内容\n\u2022 Fetch 对您因使用 P2P 流而产生的任何法律后果不承担任何责任\n\n您完全自行承担使用此功能的风险。P2P 可随时在设置中禁用。</string>
     <string name="p2p_consent_enable">启用 P2P</string>
@@ -1616,9 +1404,6 @@
     <string name="settings_p2p_subtitle">允许点对点 (torrent) 流</string>
     <string name="settings_p2p_hide_stats_title">隐藏 torrent 统计信息</string>
     <string name="settings_p2p_hide_stats_subtitle">在加载和播放期间隐藏缓冲、种子、对等节点和下载速度</string>
-    <string name="p2p_download_title">正在下载 P2P 引擎</string>
-    <string name="p2p_download_subtitle">这是 P2P 流所需的一次性下载。</string>
-    <string name="stream_type_external">外部</string>
     <string name="stream_player_picker_title">应使用哪个播放器？</string>
     <string name="stream_player_internal">内置</string>
     <string name="stream_player_external">外部</string>
@@ -1629,15 +1414,12 @@
     <string name="player_loading_preparing">正在准备流…</string>
     <string name="player_loading_detecting_format">正在检测流格式…</string>
     <string name="external_player_loading_skip_segments">正在加载片头/片尾片段…</string>
-    <string name="player_loading_subtitles">正在获取字幕…</string>
     <string name="player_loading_subtitles_from">正在从 %1$d 个扩展获取字幕…</string>
     <string name="player_loading_subtitles_progress">正在获取字幕… (%1$d / %2$d)</string>
     <string name="player_loading_subtitles_addon">字幕：%1$s (%2$d / %3$d)</string>
     <string name="player_loading_building">正在构建播放器…</string>
     <string name="player_loading_starting">正在启动流…</string>
     <string name="player_loading_buffering">缓冲中…</string>
-    <string name="player_loading_fallback_pcm_audio">音频轨道初始化失败 - 切换至 PCM 音频…</string>
-    <string name="player_loading_fallback_hevc_decoder">解码器初始化失败 - 切换至 HEVC 解码器…</string>
     <string name="player_engine_switching_title">正在切换播放引擎</string>
     <string name="player_engine_switching_message">启动失败。正在切换至 %1$s…</string>
     <string name="player_engine_switching_manual_message">正在切换至 %1$s…</string>
@@ -1715,14 +1497,12 @@
     <string name="stream_info_player_engine">播放引擎</string>
 
     <string name="sources_title">来源</string>
-    <string name="sources_reload">重新加载</string>
     <string name="sources_close">关闭</string>
     <string name="sources_playing">播放中</string>
     <string name="sources_no_streams">找不到流</string>
 
     <string name="episodes_panel_close">关闭</string>
     <string name="episodes_panel_back">返回</string>
-    <string name="episodes_panel_reload">重新加载</string>
     <string name="episodes_panel_no_streams">找不到流</string>
     <string name="episodes_panel_no_episodes">没有可用的剧集</string>
     <string name="episodes_panel_title">剧集</string>
@@ -1738,8 +1518,6 @@
     <string name="player_aspect_mode_cinema_zoom">电影缩放</string>
 
     <string name="audio_dialog_title">音频</string>
-    <string name="audio_dialog_tab_tracks">音轨</string>
-    <string name="audio_dialog_tab_mix">混音</string>
     <string name="audio_delay_label">音频延迟</string>
     <string name="audio_delay_range">范围：%1$.2fs 至 %2$.2fs</string>
     <string name="audio_mix_label">放大 (PCM)</string>
@@ -1757,31 +1535,15 @@
     <string name="audio_maintain_original_audio_on_downmix_subtitle">禁用时，混音下转归一化可能会降低整体音量。</string>
 
     <string name="subtitle_dialog_title">字幕</string>
-    <string name="subtitle_no_builtin">没有可用的内置字幕</string>
     <string name="subtitle_loading_addon">正在从扩展加载字幕…</string>
     <string name="subtitle_no_addon">没有可用的扩展字幕</string>
-    <string name="subtitle_text_color">文字颜色</string>
-    <string name="subtitle_outline_color">外框颜色</string>
     <string name="subtitle_reset_defaults">重置为默认</string>
-    <string name="subtitle_tab_builtin">内置</string>
-    <string name="subtitle_tab_addons">扩展</string>
     <string name="subtitle_tab_languages">语言</string>
-    <string name="subtitle_tab_style">样式</string>
     <string name="subtitle_tab_delay">延迟</string>
     <string name="subtitle_delay_reset">重置</string>
     <string name="subtitle_none">无</string>
     <string name="subtitle_built_in">内置</string>
-    <string name="subtitle_all">全部</string>
-    <string name="subtitle_section_core">核心</string>
-    <string name="subtitle_section_advanced">高级</string>
-    <string name="subtitle_font_size">字体大小</string>
-    <string name="subtitle_bold">粗体</string>
-    <string name="subtitle_outline">外框</string>
-    <string name="subtitle_bottom_offset">底部偏移</string>
-    <string name="subtitle_on">开启</string>
-    <string name="subtitle_off">关闭</string>
     <string name="subtitle_style_title">字幕样式</string>
-    <string name="subtitle_style_customize">自定义</string>
     <string name="subtitle_style_color">颜色</string>
     <string name="subtitle_style_reset">重置</string>
     <string name="subtitle_style_font_size">字体大小</string>
@@ -1794,8 +1556,6 @@
     <string name="subtitle_style_on">开启</string>
     <string name="subtitle_style_off">关闭</string>
     <string name="subtitle_style_weight">字重</string>
-    <string name="panel_failed_load_streams">加载流失败</string>
-    <string name="panel_failed_load_episodes">加载剧集失败</string>
 
     <string name="pause_you_are_watching">您正在观看</string>
     <string name="pause_cast_label">演员</string>
@@ -1838,7 +1598,6 @@
     <string name="display_mode_resolution">分辨率</string>
 
 
-    <string name="search_keyboard_hint">按键盘上的「完成」以搜索</string>
     <string name="search_placeholder">搜索电影与剧集</string>
     <string name="search_start_title">开始搜索</string>
     <string name="search_start_subtitle">请输入至少 2 个字符</string>
@@ -1854,7 +1613,6 @@
     <string name="search_no_results_subtitle">请尝试使用不同的关键词搜索</string>
     <string name="search_error_no_catalogs">在已安装的扩展中找不到可搜索的目录</string>
 
-    <string name="library_syncing">正在同步 Trakt 媒体库…</string>
     <string name="library_title">媒体库</string>
     <string name="library_filter_list">列表</string>
     <string name="library_filter_type">类型</string>
@@ -1907,14 +1665,12 @@
     <string name="genre_sporting_event">体育赛事</string>
     <string name="genre_superhero">超级英雄</string>
     <string name="genre_suspense">悬念</string>
-    <string name="library_sort_trakt_order">Trakt 顺序</string>
     <string name="library_sort_provider_order">提供者顺序</string>
     <string name="library_sort_added_desc">添加 ↓</string>
     <string name="library_sort_added_asc">添加 ↑</string>
     <string name="library_sort_title_asc">标题 A-Z</string>
     <string name="library_sort_title_desc">标题 Z-A</string>
     <string name="library_manage_lists">管理列表</string>
-    <string name="library_manage_trakt_lists">管理 Trakt 列表</string>
     <string name="library_no_lists">暂无个人列表。</string>
     <string name="library_list_create">创建</string>
     <string name="library_list_edit">编辑</string>
@@ -1928,10 +1684,7 @@
     <string name="library_list_privacy">隐私</string>
     <string name="library_delete_title">删除此列表？</string>
     <string name="library_delete_subtitle">这将从 Trakt 移除该列表及其所有项目。</string>
-    <string name="library_delete_confirm">删除</string>
     <string name="library_source_local">本地</string>
-    <string name="library_source_fetch">FETCH</string>
-    <string name="library_source_trakt">TRAKT</string>
     <string name="library_source_saved">已保存</string>
     <string name="library_source_cloud">云</string>
     <string name="library_watchlist">观看列表</string>
@@ -1942,7 +1695,6 @@
     <string name="library_status_dropped">已放弃</string>
     <string name="library_syncing_library">正在同步媒体库…</string>
     <string name="library_type_all">全部</string>
-    <string name="library_type_items">项目</string>
     <string name="library_empty_local_title">暂无 %1$s</string>
     <string name="library_empty_trakt_title">此列表中没有 %1$s</string>
     <string name="library_empty_local_subtitle">开始保存您的最爱，在此显示</string>
@@ -1957,18 +1709,13 @@
     <string name="library_list_edit_dialog_title">编辑列表</string>
     <string name="library_sync_btn">同步</string>
     <string name="library_syncing_btn">同步中…</string>
-    <string name="cloud_library_connect_action">连接账户</string>
     <string name="cloud_library_connect_message">在「已连接的服务」设置中连接账户，以从您的云媒体库浏览可播放的文件。</string>
     <string name="cloud_library_connect_title">未连接云账户</string>
-    <string name="cloud_library_disabled_action">打开已连接的服务</string>
     <string name="cloud_library_disabled_message">在「已连接的服务」设置中打开云媒体库，以从已连接账户浏览文件。</string>
     <string name="cloud_library_disabled_title">云媒体库已关闭</string>
     <string name="cloud_library_empty_message">没有可播放的云文件符合当前的过滤条件。</string>
     <string name="cloud_library_empty_title">这里还没有内容</string>
     <string name="cloud_library_file_picker_title">选择要播放的文件</string>
-    <string name="cloud_library_load_failed">无法加载 %1$s 云媒体库</string>
-    <string name="cloud_library_no_files_message">此项目未暴露可播放的视频文件。</string>
-    <string name="cloud_library_no_files_title">没有可播放的文件</string>
     <string name="cloud_library_no_playable_files">没有可播放的文件</string>
     <string name="cloud_library_one_playable_file">1 个可播放的文件</string>
     <string name="cloud_library_opening">打开中…</string>
@@ -2059,13 +1806,10 @@
     <string name="custom_server_session_clear_failed">无法安全清除当前会话。服务器未被更改。</string>
     <string name="custom_server_restart_failed">服务器已保存，但应用无法自动重启。请手动重启。</string>
 
-    <string name="auth_qr_title">使用 QR 码登录</string>
     <string name="auth_qr_tagline">随时随地观看您的媒体库</string>
     <string name="auth_qr_finishing">正在完成登录…</string>
-    <string name="auth_qr_code_label">代码：%1$s</string>
     <string name="auth_qr_expires">将在 %1$s 后过期</string>
     <string name="auth_qr_scan_instruction">扫描 QR 码或在浏览器中输入短代码。</string>
-    <string name="auth_qr_code_display">代码：%1$s</string>
     <string name="auth_qr_manual_instruction">或前往 %1$s 并输入</string>
     <string name="auth_qr_refresh">刷新 QR</string>
     <string name="auth_qr_continue_without_account">不使用账户继续</string>
@@ -2103,7 +1847,6 @@
     <string name="plugin_repositories_section">仓库 (%1$d)</string>
     <string name="plugin_providers_section">提供者 (%1$d)</string>
     <string name="plugin_title">插件</string>
-    <string name="plugin_subtitle">管理本地爬虫和提供者</string>
     <string name="plugin_enable_plugins_title">全局启用插件提供者</string>
     <string name="plugin_enable_plugins_subtitle">在流发现期间使用插件提供者</string>
     <string name="plugin_group_by_repository_title">按仓库分组插件提供者</string>
@@ -2134,8 +1877,6 @@
     <string name="plugin_test_results">测试结果 (%1$d 个流)</string>
     <string name="plugin_and_more">... 还有 %1$d 个</string>
     <string name="plugin_providers_count">%1$d 个提供者</string>
-    <string name="plugin_enabled">已启用</string>
-    <string name="plugin_disabled">已禁用</string>
     <string name="plugin_no_repos">尚未添加仓库。\n添加仓库以开始使用。</string>
     <string name="plugin_error_invalid_url">请输入有效的网址</string>
     <string name="plugin_error_add_repo">添加仓库失败：%1$s</string>
@@ -2171,7 +1912,6 @@
 
     <string name="update_title">应用更新</string>
     <string name="update_available">有可用更新</string>
-    <string name="update_downloading">正在下载更新</string>
     <string name="update_download">下载</string>
     <string name="update_downloading_ellipsis">下载中…</string>
     <string name="update_downloading_progress">正在下载 %1$d%%</string>
@@ -2214,34 +1954,24 @@
     <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
-    <string name="profile_edit_title_id">编辑个人资料 %1$d</string>
 
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">音频穿透 (TrueHD、DTS、AC-3 等) 是自动的。当通过 HDMI 连接至兼容的 AV 接收器或 Soundbar 时，无损音频会原样发送，不进行解码。</string>
-    <string name="audio_dv_title">DV7 - HEVC 备用</string>
-    <string name="audio_dv_sub">对于没有硬件 DV 支持的设备，将 Dolby Vision Profile 7 映射至标准 HEVC</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">首页</string>
     <string name="nav_discover">发现</string>
     <string name="nav_search">搜索</string>
     <string name="nav_library">媒体库</string>
-    <string name="nav_addons">扩展</string>
-    <string name="nav_movies">电影</string>
-    <string name="nav_series">剧集</string>
     <string name="nav_settings">设置</string>
     <string name="action_select">选择</string>
     <string name="settings_rounded_ui">圆角 UI</string>
-    <string name="cd_expand_sidebar">展开侧边栏</string>
 
-    <string name="update_checking">正在检查更新…</string>
     <string name="update_waiting_for_stable">下一个稳定版本发布时您将收到通知</string>
     <string name="update_download_complete">下载完成。准备安装。</string>
-    <string name="update_up_to_date">系统已是最新。最新更改：</string>
     <string name="update_close">关闭</string>
     <string name="update_open_settings">打开设置</string>
     <string name="update_install">安装</string>
-    <string name="update_ignore">忽略</string>
 
     <!-- 更新流程错误 -->
     <string name="update_error_check_failed">更新检查失败</string>
@@ -2309,7 +2039,6 @@
     <!-- 搜索错误 -->
 
     <!-- 首页错误 -->
-    <string name="home_error_no_addons">未安装扩展</string>
     <string name="home_error_no_catalog_addons">未安装目录扩展</string>
 
     <!-- 播放器错误 -->
@@ -2334,7 +2063,6 @@
     <string name="cd_stream_info">流信息</string>
     <string name="cd_more_actions">更多操作</string>
     <string name="cd_close_more_actions">关闭更多操作</string>
-    <string name="cd_back">返回</string>
     <string name="cd_next_episode_thumbnail">下一集缩略图</string>
     <string name="cd_current">当前</string>
     <string name="cd_loading_backdrop">加载背景图</string>
@@ -2357,8 +2085,6 @@
     <string name="cd_open_discover">打开发现</string>
     <string name="cd_clear_search">清除搜索</string>
     <string name="cd_voice_search">语音搜索</string>
-    <string name="cd_donation_qr">赞助 QR 码</string>
-    <string name="cd_contributor_qr">贡献者支持 QR 码</string>
     <string name="cd_expand">展开 %1$s</string>
     <string name="cd_collapse">折叠 %1$s</string>
     <string name="cd_qr_login">QR 码登录</string>
@@ -2440,7 +2166,6 @@
     <string name="collections_editor_choose_emoji">选择表情符号</string>
     <string name="collections_editor_back">返回</string>
     <string name="collections_editor_edit_collection">编辑收藏</string>
-    <string name="collections_editor_catalog_count">%1$d 个目录</string>
     <string name="collections_editor_source_count">%1$d 个来源</string>
     <string name="collections_editor_sources">来源</string>
     <string name="collections_editor_source">来源</string>
@@ -2470,7 +2195,6 @@
     <string name="collections_editor_tmdb_collection_id">收藏 ID</string>
     <string name="collections_editor_tmdb_company_search">制作公司名称、ID 或网址</string>
     <string name="collections_editor_tmdb_display_title">显示标题</string>
-    <string name="collections_editor_tmdb_title_optional">标题 (可选)</string>
     <string name="collections_editor_tmdb_search">搜索</string>
     <string name="collections_editor_add_source">添加来源</string>
     <string name="collections_editor_save_source">保存来源</string>
@@ -2704,7 +2428,6 @@
     <string name="player_error_stream_rate_limited">\n\n对流来源的请求过于频繁。请稍等片刻再重试。</string>
     <string name="player_error_stream_unavailable">\n\n流服务器当前不可用。请尝试其他来源。</string>
     <string name="player_error_source_invalid_content">来源错误：流来源返回无效或无法播放的内容。链接可能已过期或服务器返回了错误页面而非视频。\n\n请尝试其他来源。[%1$s]</string>
-    <string name="player_error_decoder">解码器错误</string>
     <string name="player_error_unsupported_format">此流使用的格式您的设备可能不支持。请尝试其他来源。[%1$s]</string>
     <string name="player_error_initialize_failed">初始化播放器失败</string>
     <string name="player_error_mpv_surface_failed">初始化 libmpv 表面失败</string>
@@ -2739,7 +2462,6 @@
     <string name="library_synced">媒体库已同步</string>
     <string name="library_error_refresh_failed">刷新媒体库失败</string>
     <string name="library_list_created">列表已创建</string>
-    <string name="library_error_invalid_list">无效的列表</string>
     <string name="library_list_updated">列表已更新</string>
     <string name="library_error_save_list_failed">保存列表失败</string>
     <string name="library_list_deleted">列表已删除</string>
@@ -2748,13 +2470,8 @@
     <string name="library_error_reorder_lists_failed">重新排序列表失败</string>
     <string name="library_list_fallback_title">列表</string>
     <!-- 媒体库隐私显示标签 -->
-    <string name="library_privacy_private">私有</string>
-    <string name="library_privacy_link">链接</string>
-    <string name="library_privacy_friends">好友</string>
-    <string name="library_privacy_public">公开</string>
 
     <!-- Trakt 错误 -->
-    <string name="trakt_error_auth_required">需要 Trakt 验证</string>
     <string name="trakt_library_error_request_failed">Trakt 请求失败</string>
     <string name="trakt_library_error_create_list_failed">创建列表失败</string>
     <string name="trakt_library_error_update_list_failed">更新列表失败</string>
@@ -2771,18 +2488,13 @@
     <string name="trakt_library_error_auth_expired">Trakt 验证已过期</string>
     <string name="trakt_library_error_list_not_found">找不到 Trakt 列表</string>
     <string name="trakt_library_error_list_limit_reached">已达 Trakt 列表上限。需要升级。</string>
-    <string name="trakt_error_insufficient_ids_mark_watched">标记已观看所需的 Trakt ID 不足</string>
     <string name="trakt_error_request_failed">Trakt 请求失败</string>
-    <string name="simkl_account_title">Simkl 账户</string>
     <string name="simkl_description">连接 Simkl 以同步列表、观看历史、播放进度和记录。</string>
-    <string name="simkl_connect">连接 Simkl</string>
-    <string name="simkl_disconnect">断开 Simkl 连接</string>
     <string name="simkl_disconnect_title">断开 Simkl 连接？</string>
     <string name="simkl_disconnect_subtitle">这将从此个人资料移除 Simkl 账户和缓存的 Simkl 数据。</string>
     <string name="simkl_connected_as">以 %1$s 身份连接</string>
     <string name="simkl_user_fallback">Simkl 用户</string>
     <string name="simkl_awaiting_instruction">打开 Simkl 验证页面并输入此代码。</string>
-    <string name="simkl_code_expires">代码将在 %1$s 后过期</string>
     <string name="simkl_sync_now">立即同步</string>
     <string name="simkl_visit">访问 Simkl</string>
     <string name="simkl_sync_info_action">同步如何工作</string>
@@ -2800,8 +2512,6 @@
     <string name="simkl_status_disconnected">已断开 Simkl 连接</string>
     <string name="simkl_status_syncing">正在同步 Simkl…</string>
     <string name="simkl_status_synced">Simkl 同步完成</string>
-    <string name="simkl_watch_progress_selected">已选择 Simkl 用于继续观看</string>
-    <string name="simkl_library_source_selected">已选择 Simkl 用于媒体库</string>
     <string name="simkl_error_code_expired">Simkl 代码已过期。请重新开始。</string>
     <string name="simkl_error_authorization_revoked">Simkl 授权已被撤销。请重新连接。</string>
     <string name="simkl_error_network">无法访问 Simkl。请重试。</string>
@@ -2833,25 +2543,15 @@
     <string name="stream_embedded_group">内嵌流</string>
     <string name="stream_embedded_fallback_name">内嵌流</string>
     <string name="stream_quality_unknown">未知</string>
-    <string name="stream_addon_unknown">未知</string>
-    <string name="tmdb_unknown_entity">未知</string>
     <string name="web_tmdb_company_fallback">TMDB 公司 %1$d</string>
     <string name="web_tmdb_collection_fallback">TMDB 收藏 %1$d</string>
     <string name="web_error_invalid_request_body">无效的请求主体</string>
 
     <!-- 字幕偏好语言备用文字 -->
-    <string name="language_english">英语</string>
 
     <!-- 支持者 / 贡献者 / 赞助商错误 -->
-    <string name="supporters_error_load">无法加载支持者。</string>
-    <string name="contributors_error_load">无法加载贡献者。</string>
-    <string name="contributors_error_api_not_configured">贡献者 API 未配置。</string>
-    <string name="contributors_error_api_http">贡献者 API 错误：%1$d</string>
-    <string name="supporters_error_api_http">捐赠 API 错误：%1$d</string>
 
     <!-- 贡献者角色徽章 -->
-    <string name="contributor_role_translator">翻译者</string>
-    <string name="contributor_role_maintainer">维护者</string>
 
     <!-- 网络 / 安全 API 错误 -->
     <string name="network_error_empty_response_body">空响应主体</string>
@@ -2865,7 +2565,6 @@
 
     <!-- 播放器运行时：流 / 外部链接错误 -->
     <string name="player_torrent_starting_engine">正在启动 P2P 引擎…</string>
-    <string name="player_torrent_rebuffer_status">%1$s 已缓冲</string>
     <string name="player_stream_error_invalid_external_url">无效的外部网址</string>
     <string name="player_stream_error_open_external_link_failed">无法打开外部链接</string>
     <string name="player_stream_error_invalid_url">无效的流网址</string>
@@ -2873,11 +2572,6 @@
 
     <!-- 元数据仓库：扩展详情错误片段 -->
     <string name="meta_error_detail_no_metadata_for_id">未为此 ID 返回元数据</string>
-    <string name="meta_error_detail_addon_unreachable">无法连接至扩展服务器</string>
-    <string name="meta_error_detail_addon_connection_failed">扩展连接失败</string>
-    <string name="meta_error_detail_addon_timeout">扩展请求超时</string>
-    <string name="meta_error_detail_addon_cleartext_blocked">扩展使用了 Android 阻止的不安全 HTTP 连接</string>
-    <string name="meta_error_detail_addon_request_failed">扩展请求失败</string>
 
     <!-- 流仓库：扩展详情错误片段 + 获取 -->
     <string name="stream_error_detail_no_streams_for_id">未为此 ID 返回流</string>
@@ -2904,67 +2598,10 @@
     <string name="trakt_comments_error_request_failed">Trakt 评论请求失败</string>
     <string name="trakt_library_error_fetch_list_items">获取列表项目失败</string>
 
-    <string name="watchlist_removed">已从观看列表移除</string>
-    <string name="watchlist_added">已添加至观看列表</string>
 
     <!-- Debrid：过滤规则行 -->
-    <string name="debrid_picker_preferred_resolutions_title">偏好的分辨率</string>
-    <string name="debrid_picker_preferred_resolutions_subtitle">将所选分辨率按默认顺序排在前面。</string>
-    <string name="debrid_picker_required_resolutions_title">必需的分辨率</string>
-    <string name="debrid_picker_required_resolutions_subtitle">仅显示所选的分辨率。</string>
-    <string name="debrid_picker_excluded_resolutions_title">排除的分辨率</string>
-    <string name="debrid_picker_excluded_resolutions_subtitle">隐藏所选的分辨率。</string>
-    <string name="debrid_picker_preferred_qualities_title">偏好的品质</string>
-    <string name="debrid_picker_preferred_qualities_subtitle">将所选品质按默认顺序排在前面。</string>
-    <string name="debrid_picker_required_qualities_title">必需的品质</string>
-    <string name="debrid_picker_required_qualities_subtitle">仅显示所选的来源品质。</string>
-    <string name="debrid_picker_excluded_qualities_title">排除的品质</string>
-    <string name="debrid_picker_excluded_qualities_subtitle">隐藏所选的来源品质。</string>
-    <string name="debrid_picker_preferred_visual_tags_title">偏好的视觉标签</string>
-    <string name="debrid_picker_preferred_visual_tags_subtitle">将 DV、HDR、10bit、IMAX 等标签排在前面。</string>
-    <string name="debrid_picker_required_visual_tags_title">必需的视觉标签</string>
-    <string name="debrid_picker_required_visual_tags_subtitle">要求 DV、HDR、10bit、IMAX、SDR 等标签。</string>
-    <string name="debrid_picker_excluded_visual_tags_title">排除的视觉标签</string>
-    <string name="debrid_picker_excluded_visual_tags_subtitle">隐藏 DV、HDR、10bit、3D 等标签。</string>
-    <string name="debrid_picker_preferred_audio_tags_title">偏好的音频标签</string>
-    <string name="debrid_picker_preferred_audio_tags_subtitle">将 Atmos、TrueHD、DTS、AAC 等标签排在前面。</string>
-    <string name="debrid_picker_required_audio_tags_title">必需的音频标签</string>
-    <string name="debrid_picker_required_audio_tags_subtitle">要求 Atmos、TrueHD、DTS、AAC 等标签。</string>
-    <string name="debrid_picker_excluded_audio_tags_title">排除的音频标签</string>
-    <string name="debrid_picker_excluded_audio_tags_subtitle">隐藏所选的音频标签。</string>
-    <string name="debrid_picker_preferred_audio_channels_title">偏好的声道</string>
-    <string name="debrid_picker_preferred_audio_channels_subtitle">将偏好的声道布局排在前面。</string>
-    <string name="debrid_picker_required_audio_channels_title">必需的声道</string>
-    <string name="debrid_picker_required_audio_channels_subtitle">仅显示所选的声道布局。</string>
-    <string name="debrid_picker_excluded_audio_channels_title">排除的声道</string>
-    <string name="debrid_picker_excluded_audio_channels_subtitle">隐藏所选的声道布局。</string>
-    <string name="debrid_picker_preferred_encodes_title">偏好的编码</string>
-    <string name="debrid_picker_preferred_encodes_subtitle">将 AV1、HEVC、AVC 等编码排在前面。</string>
-    <string name="debrid_picker_required_encodes_title">必需的编码</string>
-    <string name="debrid_picker_required_encodes_subtitle">要求 AV1、HEVC、AVC 等编码。</string>
-    <string name="debrid_picker_excluded_encodes_title">排除的编码</string>
-    <string name="debrid_picker_excluded_encodes_subtitle">隐藏所选的编码。</string>
-    <string name="debrid_picker_preferred_languages_title">偏好的语言</string>
-    <string name="debrid_picker_preferred_languages_subtitle">将偏好的音频语言排在前面。</string>
-    <string name="debrid_picker_required_languages_title">必需的语言</string>
-    <string name="debrid_picker_required_languages_subtitle">仅显示有所选语言的流。</string>
-    <string name="debrid_picker_excluded_languages_title">排除的语言</string>
-    <string name="debrid_picker_excluded_languages_subtitle">隐藏所有语言都被排除的流。</string>
-    <string name="debrid_picker_required_release_groups_title">必需的发行组</string>
-    <string name="debrid_picker_required_release_groups_subtitle">仅显示所选的发行组。</string>
-    <string name="debrid_picker_excluded_release_groups_title">排除的发行组</string>
-    <string name="debrid_picker_excluded_release_groups_subtitle">隐藏所选的发行组。</string>
 
     <!-- Debrid：选择计数 + 大小范围标签 -->
-    <string name="debrid_selection_count_any">任何</string>
-    <plurals name="debrid_selection_count_value">
-        <item quantity="one">已选 %d 个</item>
-        <item quantity="other">已选 %d 个</item>
-    </plurals>
-    <string name="debrid_size_range_any">任何</string>
-    <string name="debrid_size_range_up_to">最多 %1$dGB</string>
-    <string name="debrid_size_range_min_plus">%1$dGB+</string>
-    <string name="debrid_size_range_min_max">%1$d-%2$dGB</string>
 
     <!-- 字幕选择：未知语言备用文字 -->
     <string name="subtitle_language_unknown">未知</string>
@@ -2977,17 +2614,10 @@
     <string name="web_debrid_title">Direct Debrid 设置</string>
     <string name="web_debrid_intro_title">自定义 Debrid 流</string>
     <string name="web_debrid_intro_copy">调整 Direct Debrid 结果使用的流标签、过滤器和排序。</string>
-    <string name="web_debrid_tab_formatter">格式化器</string>
-    <string name="web_debrid_tab_rules">过滤器与排序</string>
     <string name="web_debrid_template_fields">模板字段</string>
     <string name="web_debrid_name_template">名称模板</string>
     <string name="web_debrid_description_template">描述模板</string>
     <string name="web_debrid_error_templates_required">两个模板都是必填的</string>
-    <string name="web_debrid_stream_rules">流规则</string>
-    <string name="web_debrid_per_resolution">按分辨率</string>
-    <string name="web_debrid_per_quality">按品质</string>
-    <string name="web_debrid_min_size_gb">最小大小 GB</string>
-    <string name="web_debrid_max_size_gb">最大大小 GB</string>
     <string name="web_debrid_restore_default">还原默认值</string>
     <string name="web_debrid_save_settings">保存设置</string>
     <string name="web_debrid_status_load_error">无法加载 Debrid 设置</string>
@@ -3131,13 +2761,11 @@
     <string name="stream_test_card_title">运行上次播放的流速度测试</string>
     <string name="stream_test_server_label">服务器：%1$s</string>
     <string name="stream_test_no_stream">未记录播放。请播放视频以对其主机运行诊断测试。</string>
-    <string name="stream_test_btn_start">开始测试</string>
     <string name="stream_test_btn_measuring_baseline">正在测量基准…</string>
     <string name="stream_test_btn_measuring_parallel1">正在测量并行 (1MB)…</string>
     <string name="stream_test_btn_measuring_parallel4">正在测量并行 (4MB)…</string>
     <string name="stream_test_btn_measuring_parallel8">正在测量并行 (8MB)…</string>
     <string name="stream_test_btn_measuring_parallel16">正在测量并行 (16MB)…</string>
-    <string name="stream_test_btn_run_again">再次运行</string>
     <string name="stream_test_btn_running">运行中…</string>
     <string name="stream_test_label_baseline">标准单连接 (基准)</string>
     <string name="stream_test_label_parallel1">并行连接 (1 MB 块)</string>
@@ -3148,4 +2776,218 @@
     <string name="stream_test_video_bitrate">平均视频比特率：%1$s</string>
     <string name="stream_test_error_connection">连接失败。上次播放的流链接可能已过期或无法访问。请重新播放视频并重试。</string>
 
+    <!-- Fetch: new and changed strings -->
+    <string name="account_local_only_note">同步已关闭。Fetch 会将您的扩展、进度和设置保存在这台电视上，无需账户。如需在设备间同步，请在服务器选项中连接您自己的同步服务器。</string>
+    <string name="addon_badge_needs_setup">需要设置</string>
+    <string name="addon_configure">配置</string>
+    <string name="addon_configure_install">安装</string>
+    <string name="addon_configure_no_server">保存后，将安装链接粘贴到此屏幕顶部的输入框中。</string>
+    <string name="addon_configure_received">您的手机发送了：%1$s</string>
+    <string name="addon_configure_step_open">1. 扫码在手机上打开配置页面</string>
+    <string name="addon_configure_step_send">2. 扫码将新链接发送回这台电视</string>
+    <string name="addon_configure_still_unconfigured">%1$s 仍未设置。请完成其配置页面，然后再次发送链接。</string>
+    <string name="addon_configure_title">配置 %1$s</string>
+    <string name="addon_configure_updated">已更新 %1$s</string>
+    <string name="addon_configure_waiting">保存后，复制页面提供的安装链接，并在第 2 步中发送。</string>
+    <string name="addon_configure_web_failed">无法连接到电视。电视是否仍停留在配置屏幕？</string>
+    <string name="addon_configure_web_invalid">这看起来不像扩展链接。</string>
+    <string name="addon_configure_web_open">打开配置页面</string>
+    <string name="addon_configure_web_placeholder">https://…/manifest.json 或 stremio://…</string>
+    <string name="addon_configure_web_send">发送到电视</string>
+    <string name="addon_configure_web_sent">已发送。请在电视上确认。</string>
+    <string name="addon_configure_web_step1">先在扩展自己的页面上完成设置。</string>
+    <string name="addon_configure_web_step2">当页面显示安装链接（或 manifest.json 地址）时，将其复制并粘贴到这里。</string>
+    <string name="addon_configure_web_title">发送到电视</string>
+    <string name="addon_health_failing">上次请求失败</string>
+    <string name="addon_health_latency">%1$.1f 秒</string>
+    <string name="addon_health_ok">正常响应 · %1$s</string>
+    <string name="addon_health_slow">响应慢 · %1$s</string>
+    <string name="addon_health_timed_out">上次请求超时</string>
+    <string name="addon_needs_configuration">%1$s 需要先设置才能安装</string>
+    <string name="advanced_introdb_api_key">IntroDB API 密钥</string>
+    <string name="advanced_introdb_api_key_dialog_subtitle">在 introdb.app 上创建密钥，密钥以 idb_ 开头。</string>
+    <string name="advanced_introdb_api_key_subtitle">可在播放器中标记片头和片尾字幕，并提交到 IntroDB</string>
+    <string name="advanced_introdb_server">IntroDB 服务器</string>
+    <string name="advanced_introdb_server_default">默认（%1$s）</string>
+    <string name="advanced_introdb_server_dialog_subtitle">兼容 IntroDB 的 API。留空则使用公共服务器。</string>
+    <string name="advanced_introdb_server_invalid">请输入 http 或 https 地址</string>
+    <string name="advanced_introdb_server_subtitle">普通剧集和电影的片头、前情提要和片尾标记来源</string>
+    <string name="advanced_section_skip_markers">跳过标记</string>
+    <string name="autoplay_allowed_addons_early_sub">只要这些扩展一响应就开始自动播放，无需等待所有扩展。</string>
+    <string name="autoplay_mode_best">最佳匹配</string>
+    <string name="autoplay_mode_best_desc">按画质、您的规则以及本设备的播放能力为每个结果排序，然后播放最佳结果。其他来源按一下即可查看。</string>
+    <string name="best_match_cached">已缓存</string>
+    <string name="best_match_excluded">未自动播放：%1$s</string>
+    <string name="best_match_preview_sub">在您浏览某个影片时预先向流扩展查询，让播放按钮能显示文件名，并更快开始播放。关闭后仅在按下播放后才搜索。</string>
+    <string name="best_match_preview_title">在播放按钮上显示选择结果</string>
+    <string name="catalog_order_pin">置顶</string>
+    <string name="catalog_order_pinned_on_home">已置顶到首页</string>
+    <string name="catalog_order_unpin">取消置顶</string>
+    <string name="cd_mark_credits_end">标记片尾字幕结束</string>
+    <string name="cd_mark_credits_start">标记片尾字幕开始</string>
+    <string name="cd_mark_intro_end">标记片头结束</string>
+    <string name="cd_mark_intro_start">标记片头开始</string>
+    <string name="custom_server_error_official_active">这台电视上的同步已关闭。</string>
+    <string name="custom_server_error_official_available">这不是同步服务器。请关闭此对话框，然后选择「关闭同步」以返回仅本地模式。</string>
+    <string name="debrid_stream_rules_moved">流规则现位于「播放 → 流选择」中，并适用于所有来源，包括 debrid。您在这里设置的规则已移至该处。</string>
+    <string name="exclusion_3d">3D 版本</string>
+    <string name="exclusion_above_max_resolution">高于您的最高分辨率</string>
+    <string name="exclusion_audio">您跳过了 %1$s 音频</string>
+    <string name="exclusion_below_min_resolution">低于您的最低分辨率</string>
+    <string name="exclusion_cam">CAM 或 TS 枪版</string>
+    <string name="exclusion_codec">您跳过了 %1$s</string>
+    <string name="exclusion_dv_excluded">您关闭了 Dolby Vision</string>
+    <string name="exclusion_dv_profile_excluded">您关闭了此 Dolby Vision 配置文件</string>
+    <string name="exclusion_hdr_excluded">您关闭了 HDR</string>
+    <string name="exclusion_keyword">匹配排除的关键字</string>
+    <string name="exclusion_language">您跳过了 %1$s</string>
+    <string name="exclusion_not_playable">此播放器无法打开</string>
+    <string name="exclusion_over_max_size">超过您的大小限制</string>
+    <string name="exclusion_release_group">您跳过了 %1$s 组</string>
+    <string name="exclusion_resolution">您跳过了 %1$s</string>
+    <string name="exclusion_result_limit">超出结果数量限制</string>
+    <string name="exclusion_source">您跳过了 %1$s 版本</string>
+    <string name="exclusion_under_min_size">小于您的最小大小</string>
+    <string name="exclusion_unsupported_audio">%1$s 需要直通或这台电视没有的解码器</string>
+    <string name="exclusion_unsupported_codec">这台电视无法解码 %1$s</string>
+    <string name="exclusion_unsupported_dv">这台电视不支持 DV 配置文件 5</string>
+    <string name="exclusion_unsupported_dv_hdr10_plus">DV 搭配 HDR10+ 在此设备上会黑屏</string>
+    <string name="exclusion_unsupported_resolution">分辨率高于这台电视可显示的范围</string>
+    <string name="fetching_addons_done">全部 %1$d 个扩展均已响应</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="other">正在获取… %1$d 个已响应，%2$d 个扩展仍在搜索</item>
+    </plurals>
+    <string name="fetching_best_so_far">目前最佳</string>
+    <string name="fetching_play_now">立即播放</string>
+    <string name="fetching_see_all_sources">查看所有来源</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="other">%1$d 秒后开始</item>
+    </plurals>
+    <string name="filter_row_addon_note">扩展目录只能按类型筛选。</string>
+    <string name="filter_row_any">任意</string>
+    <string name="filter_row_ascending">升序</string>
+    <string name="filter_row_descending">降序</string>
+    <string name="filter_row_genre">类型</string>
+    <string name="filter_row_order">顺序</string>
+    <string name="filter_row_rating">最低评分</string>
+    <string name="filter_row_rating_value">%1$.1f 分及以上</string>
+    <string name="filter_row_sort">排序方式</string>
+    <string name="filter_row_sort_added">添加日期</string>
+    <string name="filter_row_sort_random">随机</string>
+    <string name="filter_row_sort_rating">评分</string>
+    <string name="filter_row_sort_release">上映日期</string>
+    <string name="filter_row_sort_title">标题</string>
+    <string name="filter_row_source">来源</string>
+    <string name="filter_row_source_missing">此行的来源已不可用。</string>
+    <string name="filter_row_unwatched">仅未观看</string>
+    <string name="filter_row_watched">已观看</string>
+    <string name="filter_row_watched_only">仅已观看</string>
+    <string name="filter_row_year_from">起始年份</string>
+    <string name="filter_row_year_to">结束年份</string>
+    <string name="filter_rows_card_subtitle">创建首页行，例如「我的 Jellyfin 中未看过的科幻片」</string>
+    <string name="filter_rows_delete">删除</string>
+    <string name="filter_rows_edit">编辑</string>
+    <string name="filter_rows_edit_title">编辑筛选行</string>
+    <string name="filter_rows_empty">还没有筛选行。</string>
+    <string name="filter_rows_new">新建筛选行</string>
+    <string name="filter_rows_no_sources">连接媒体服务器或安装带有类型目录的扩展，即可创建筛选行。</string>
+    <string name="filter_rows_save">保存</string>
+    <string name="filter_rows_save_failed">无法保存，请重试。</string>
+    <string name="filter_rows_subtitle">基于媒体服务器库或扩展目录筛选条件生成的行。它们会显示在首页，您可以像其他行一样重新排序、隐藏和置顶。</string>
+    <string name="filter_rows_title">筛选行</string>
+    <string name="home_poster_pin_row">将此行置顶</string>
+    <string name="home_poster_unpin_row">取消置顶此行</string>
+    <string name="layout_trailer_crop_to_fill">裁剪预告片以填满画面</string>
+    <string name="layout_trailer_crop_to_fill_sub">放大首页和详情页的背景预告片，使其填满画面。关闭后可看到完整画面并带有黑边。</string>
+    <string name="library_empty_type_items">项目</string>
+    <string name="library_empty_type_movies">电影</string>
+    <string name="library_empty_type_series">剧集</string>
+    <string name="licenses_attributions_fetch_body">Fetch 是基于 GNU 通用公共许可证 v3.0 的自由软件。它是 Nuvio 贡献者所开发的 NuvioTV（github.com/NuvioMedia/NuvioTV）的分支，本应用的大部分内容来自他们的工作。</string>
+    <string name="official_server_action">关闭同步</string>
+    <string name="official_server_description">您将从同步服务器登出，应用会以仅本地模式重新启动。这台电视上已有的内容都会保留。</string>
+    <string name="official_server_title">关闭同步？</string>
+    <string name="parental_addons_blocked">此个人资料无法安装扩展。请询问家长。</string>
+    <string name="parental_allow_unrated">显示未分级内容：%1$s</string>
+    <string name="parental_gate_heading">输入 %1$s 的 PIN</string>
+    <string name="parental_gate_support">此个人资料设有家长限制，需要家长的 PIN 才能继续。</string>
+    <string name="parental_kids_profile_toggle">儿童个人资料：%1$s</string>
+    <string name="parental_level_all_ages">所有年龄（G、TV-Y、TV-G）</string>
+    <string name="parental_level_mature">R、TV-MA</string>
+    <string name="parental_level_older_kids">大龄儿童（TV-Y7）</string>
+    <string name="parental_level_pg">PG、TV-PG</string>
+    <string name="parental_level_teens">PG-13、TV-14</string>
+    <string name="parental_level_unrestricted">无限制</string>
+    <string name="parental_limits_label">家长限制</string>
+    <string name="parental_limits_saved">已为 %1$s 保存家长限制</string>
+    <string name="parental_limits_subtitle">更改需要主个人资料的 PIN。超出限制的内容将从首页、搜索和继续观看中隐藏，且无法播放。</string>
+    <string name="parental_limits_subtitle_no_pin">请为主个人资料设置 PIN，否则使用此个人资料的任何人都能更改这些限制。</string>
+    <string name="parental_limits_title">%1$s 的家长限制</string>
+    <string name="parental_max_rating">最高分级：%1$s</string>
+    <string name="parental_off">关闭</string>
+    <string name="parental_on">开启</string>
+    <string name="parental_title_blocked">此内容超出此个人资料的分级限制。</string>
+    <string name="prefer_next_time_group">%1$s 组</string>
+    <string name="prefer_next_time_language">%1$s 音频</string>
+    <string name="prefer_next_time_not_now">以后再说</string>
+    <string name="prefer_next_time_saved">最佳匹配将优先选择：%1$s</string>
+    <string name="prefer_next_time_size">最大 %1$d GB 的文件</string>
+    <string name="prefer_next_time_title">下次优先选择这个？</string>
+    <string name="ranking_any">任意</string>
+    <string name="ranking_drop_undecodable">跳过此设备无法解码的流</string>
+    <string name="ranking_drop_undecodable_sub">根据此设备报告的解码器、HDR 格式和分辨率判断</string>
+    <string name="ranking_excluded_audio">跳过的音频格式</string>
+    <string name="ranking_excluded_audio_sub">仅包含这些音频格式的版本永远不会自动播放</string>
+    <string name="ranking_excluded_groups">跳过的发布组</string>
+    <string name="ranking_excluded_languages">跳过的音频语言</string>
+    <string name="ranking_excluded_languages_sub">仅有这些语言的版本永远不会自动播放</string>
+    <string name="ranking_excluded_sources">跳过的版本类型</string>
+    <string name="ranking_groups_input_sub">用逗号分隔各组，例如 FLUX, NTb。</string>
+    <string name="ranking_hide_cam">永不自动播放 CAM 或 TS 枪版</string>
+    <string name="ranking_max_per_resolution">每种分辨率的结果数</string>
+    <string name="ranking_max_quality">最高画质</string>
+    <string name="ranking_max_results">保留的结果数</string>
+    <string name="ranking_max_results_sub">其余结果将移至其他来源</string>
+    <string name="ranking_max_size">最大文件大小</string>
+    <string name="ranking_max_size_sub">更大的文件永远不会自动播放</string>
+    <string name="ranking_min_size">最小文件大小</string>
+    <string name="ranking_min_size_sub">更小的文件永远不会自动播放</string>
+    <string name="ranking_no_limit">无限制</string>
+    <string name="ranking_none">无</string>
+    <string name="ranking_prefer_cached">优先选择已缓存的 debrid 结果</string>
+    <string name="ranking_prefer_cached_sub">已缓存的文件可立即播放</string>
+    <string name="ranking_prefer_library">优先选择我自己的媒体库</string>
+    <string name="ranking_prefer_library_sub">您的 Jellyfin、Emby 或 Plex 服务器上的文件优先于任何在线流</string>
+    <string name="ranking_preferred_codec">首选视频编码</string>
+    <string name="ranking_preferred_groups">首选发布组</string>
+    <string name="ranking_preferred_groups_sub">包括您通过「下次优先选择这个」选中的组</string>
+    <string name="ranking_preferred_languages">首选音频语言</string>
+    <string name="ranking_preferred_languages_sub">标明这些语言的版本排名更高，第一选择最高</string>
+    <string name="ranking_preferred_quality">首选画质</string>
+    <string name="ranking_preferred_quality_sub">更高画质仍可使用，只是排名较低</string>
+    <string name="ranking_preferred_size">首选文件大小</string>
+    <string name="ranking_preferred_size_sub">更大的文件排名较低</string>
+    <plurals name="ranking_selected_count">
+        <item quantity="other">已选择 %1$d 项</item>
+    </plurals>
+    <string name="ranking_size_gb">%1$d GB</string>
+    <string name="ranking_skip_dv5">跳过 Dolby Vision 配置文件 5</string>
+    <string name="ranking_skip_dv5_sub">配置文件 5 没有 HDR10 后备。当这台电视无法显示时总会跳过</string>
+    <string name="server_options_use_official">关闭同步</string>
+    <string name="skip_marker_report_failed">无法报告该标记</string>
+    <string name="skip_marker_reported">已报告错误标记。谢谢！</string>
+    <string name="skip_marker_start_recorded">已标记开始。请在结束处再按一次。</string>
+    <string name="skip_marker_submit_failed">无法将标记发送到 IntroDB</string>
+    <string name="skip_marker_submitted">标记已发送到 IntroDB</string>
+    <string name="skip_source">来自 %1$s</string>
+    <string name="skip_source_reportable">来自 %1$s · 长按以报告</string>
+    <string name="sub_hdr_brightness">HDR 字幕亮度</string>
+    <string name="sub_hdr_style">单独的 HDR / Dolby Vision 样式</string>
+    <string name="sub_hdr_style_sub">为 HDR 和 Dolby Vision 视频的字幕使用不同的文字颜色和较低的亮度</string>
+    <string name="sub_hdr_text_color">HDR 文字颜色</string>
+    <string name="subtitle_style_brightness_hdr">亮度（HDR）</string>
+    <string name="subtitle_style_text_color_hdr">文字颜色（HDR）</string>
+    <string name="subtitle_style_text_opacity_hdr">文字不透明度（HDR）</string>
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="torrent_engine_unavailable">这是种子流，而 Fetch 没有内置种子引擎。请在「设置 → Debrid」中启用 debrid 服务，或在外部播放器中打开。</string>
+    <string name="stream_torrent_needs_debrid">种子：在“设置 → Debrid”中连接 debrid 服务即可在此播放，或在外部播放器中打开。</string>
 </resources>

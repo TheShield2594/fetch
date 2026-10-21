@@ -57,4 +57,17 @@
     <string name="library_servers_empty_title">לא נבחרו ספריות</string>
     <string name="library_servers_empty_message">ניתן לבחור אילו ספריות יוצגו בהגדרות, תחת \"תוכן וגילוי\" ואז \"שרתי מדיה\".</string>
     <string name="library_server_load_failed">לא ניתן לטעון את %1$s</string>
+
+    <!-- Fetch: new and changed strings -->
+    <string name="servers_add_link_description">התחברות לחשבון %1$s שלך מהטלפון. בלי להקליד בטלוויזיה.</string>
+    <string name="servers_link_choose_server">לחשבון שלך יש גישה ליותר משרת אחד. יש לבחור את השרת להוספה.</string>
+    <string name="servers_link_connecting_to">מתחבר ל-%1$s…</string>
+    <string name="servers_link_expired">תוקף הקוד פג. יש לקבל קוד חדש כדי לנסות שוב.</string>
+    <string name="servers_link_expires">הקוד יפוג בעוד %1$s</string>
+    <string name="servers_link_instruction">יש לסרוק את הקוד בטלפון, או לפתוח את %1$s בכל מכשיר ולהזין את הקוד הזה.</string>
+    <string name="servers_link_loading">מקבל קוד התחברות…</string>
+    <string name="servers_link_no_servers">לחשבון הזה אין עדיין שרתים. אפשר להקים שרת, או לבקש מבעלים של שרת לשתף איתך ספרייה.</string>
+    <string name="servers_link_qr">קוד QR להתחברות ל-%1$s</string>
+    <string name="servers_link_retry">קבלת קוד חדש</string>
+    <string name="servers_link_waiting">ממתין לאישור הקוד…</string>
 </resources>

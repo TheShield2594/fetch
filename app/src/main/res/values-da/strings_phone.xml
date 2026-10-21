@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Din telefon skal være på samme Wi-Fi som dette TV. Du kan også gøre det senere i Indstillinger.</string>
+    <string name="first_run_phone_qr_description">Opsætningskode til telefon</string>
+    <string name="first_run_phone_step_accounts">Log ind på Trakt, Simkl eller Jellyfin</string>
+    <string name="first_run_phone_step_addons">Indsæt addons og din debrid-nøgle</string>
+    <string name="first_run_phone_step_scan">Scan med din telefons kamera</string>
+    <string name="first_run_phone_title">Konfigurér med din telefon. Ingen indtastning med fjernbetjeningen.</string>
+    <string name="first_run_recommended">Anbefalet</string>
+    <string name="phone_hub_description">Scan én kode for at bruge din telefon som fjernbetjening og tastatur, logge ind på konti og redigere lange indstillinger.</string>
+    <string name="phone_hub_instruction">Scan med din telefon. Koden virker én gang; siden forbliver åben, så længe denne skærm er åben.</string>
+    <string name="phone_hub_open">Vis telefonkode</string>
+    <string name="phone_hub_open_description">Din telefon skal være på samme netværk som dette TV.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d telefon forbundet. Fjernbetjeningen virker i 10 minutter, efter du lukker denne skærm.</item>
+        <item quantity="other">%d telefoner forbundet. Fjernbetjeningen virker i 10 minutter, efter du lukker denne skærm.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Denne profil har forældrebegrænsninger. Lås indstillingerne op på TV\'et først.</string>
+    <string name="phone_hub_title">Konfigurér fra telefon</string>
+</resources>

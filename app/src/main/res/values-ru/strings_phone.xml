@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Телефон должен быть в той же сети Wi-Fi, что и этот телевизор. Это также можно сделать позже в Настройках.</string>
+    <string name="first_run_phone_qr_description">Код настройки с телефона</string>
+    <string name="first_run_phone_step_accounts">Войдите в Trakt, Simkl или Jellyfin</string>
+    <string name="first_run_phone_step_addons">Вставьте аддоны и ключ debrid</string>
+    <string name="first_run_phone_step_scan">Отсканируйте камерой телефона</string>
+    <string name="first_run_phone_title">Настройте с телефона. Без ввода с пульта.</string>
+    <string name="first_run_recommended">Рекомендуется</string>
+    <string name="phone_hub_description">Отсканируйте один код, чтобы использовать телефон как пульт и клавиатуру, входить в аккаунты и редактировать длинные настройки.</string>
+    <string name="phone_hub_instruction">Отсканируйте телефоном. Код одноразовый; страница остаётся открытой, пока открыт этот экран.</string>
+    <string name="phone_hub_open">Показать код для телефона</string>
+    <string name="phone_hub_open_description">Телефон должен быть в той же сети, что и этот телевизор.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">Подключён %d телефон. Пульт работает ещё 10 минут после закрытия этого экрана.</item>
+        <item quantity="few">Подключено %d телефона. Пульт работает ещё 10 минут после закрытия этого экрана.</item>
+        <item quantity="many">Подключено %d телефонов. Пульт работает ещё 10 минут после закрытия этого экрана.</item>
+        <item quantity="other">Подключено %d телефона. Пульт работает ещё 10 минут после закрытия этого экрана.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">У этого профиля есть родительские ограничения. Сначала разблокируйте настройки на телевизоре.</string>
+    <string name="phone_hub_title">Настройка с телефона</string>
+</resources>

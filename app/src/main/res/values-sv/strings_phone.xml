@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="first_run_phone_network">Telefonen måste vara på samma wifi som den här tv:n. Du kan också göra detta senare i Inställningar.</string>
+    <string name="first_run_phone_qr_description">Konfigurationskod för telefon</string>
+    <string name="first_run_phone_step_accounts">Logga in på Trakt, Simkl eller Jellyfin</string>
+    <string name="first_run_phone_step_addons">Klistra in tillägg och din debrid-nyckel</string>
+    <string name="first_run_phone_step_scan">Skanna med telefonens kamera</string>
+    <string name="first_run_phone_title">Konfigurera med telefonen. Inget skrivande med fjärrkontrollen.</string>
+    <string name="first_run_recommended">Rekommenderas</string>
+    <string name="phone_hub_description">Skanna en kod för att använda telefonen som fjärrkontroll och tangentbord, logga in på konton och redigera långa inställningar.</string>
+    <string name="phone_hub_instruction">Skanna med telefonen. Koden fungerar en gång; sidan är öppen så länge den här skärmen är det.</string>
+    <string name="phone_hub_open">Visa telefonkod</string>
+    <string name="phone_hub_open_description">Telefonen måste vara på samma nätverk som den här tv:n.</string>
+    <plurals name="phone_hub_paired">
+        <item quantity="one">%d telefon ansluten. Fjärrkontrollen fungerar i 10 minuter efter att du stängt den här skärmen.</item>
+        <item quantity="other">%d telefoner anslutna. Fjärrkontrollen fungerar i 10 minuter efter att du stängt den här skärmen.</item>
+    </plurals>
+    <string name="phone_hub_parental_blocked">Den här profilen har föräldrabegränsningar. Lås upp inställningarna på tv:n först.</string>
+    <string name="phone_hub_title">Konfigurera från telefonen</string>
+</resources>

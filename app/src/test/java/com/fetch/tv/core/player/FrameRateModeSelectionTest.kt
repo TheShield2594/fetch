@@ -180,6 +180,23 @@ class FrameRateModeSelectionTest {
     }
 
     @Test
+    fun `film takes 24p on a larger size over 48 Hz on a smaller one`() {
+        val modes = listOf(
+            mode(1, 1920, 1080, 47.952f),
+            mode(2, 1920, 1080, 60f),
+            mode(3, 3840, 2160, 23.976f),
+            mode(4, 3840, 2160, 60f)
+        )
+        assertEquals(3, pick(modes, film, 1920, 1080, activeId = 4))
+    }
+
+    @Test
+    fun `film still takes 48 Hz when no size offers 24p`() {
+        val modes = listOf(mode(1, 1920, 1080, 47.952f), mode(2, 1920, 1080, 60f), mode(3, 3840, 2160, 60f))
+        assertEquals(1, pick(modes, film, 1920, 1080, activeId = 3))
+    }
+
+    @Test
     fun `resolution matching also prefers a clean multiple to pulldown`() {
         val modes = listOf(mode(1, 1920, 1080, 60f), mode(2, 1920, 1080, 120f), mode(3, 3840, 2160, 60f))
         assertEquals(2, pick(modes, 24f, 1920, 1080, activeId = 1))

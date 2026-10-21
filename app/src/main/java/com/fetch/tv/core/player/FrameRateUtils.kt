@@ -274,6 +274,8 @@ object FrameRateUtils {
         return modeExact ?: modeDouble ?: modeMultiple ?: modePulldown ?: modeFallback ?: activeMode
     }
 
+    private fun isFilmRate(frameRate: Float): Boolean = frameRate in 23.5f..24.5f
+
     private fun hasValidVideoSize(videoWidth: Int?, videoHeight: Int?): Boolean {
         return (videoWidth ?: 0) > 0 && (videoHeight ?: 0) > 0
     }
@@ -327,6 +329,13 @@ object FrameRateUtils {
                 videoHeight = videoHeight ?: activeMode.height
             )
             if (sizeGroups.isEmpty()) return null
+            // Film goes out at 24p on any size that has it, not at 48 Hz on a smaller one: some TVs
+            // (Sony Bravia, upstream NuvioTV#4042) judder at 48 Hz where a Shield sends 23.976 Hz.
+            if (isFilmRate(frameRate)) {
+                for (group in sizeGroups) {
+                    pickBestForTarget(group, frameRate)?.let { return it }
+                }
+            }
             // Frame rate first: the smallest size that shows the rate exactly or doubled.
             for (group in sizeGroups) {
                 (pickBestForTarget(group, frameRate) ?: pickBestForTarget(group, frameRate * 2f))

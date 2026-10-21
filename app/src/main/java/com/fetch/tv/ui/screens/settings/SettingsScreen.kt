@@ -106,6 +106,7 @@ import kotlin.math.roundToInt
 
 private enum class IntegrationSettingsSection {
     Hub,
+    Tracking,
     Debrid,
     Tmdb,
     MdbList,
@@ -164,7 +165,6 @@ private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec
     SettingsCategory.CONTENT_DISCOVERY -> SettingsSectionSpec(category, stringResource(R.string.settings_content_discovery), Icons.Default.Explore, destination = SettingsSectionDestination.Inline)
     SettingsCategory.PLAYBACK -> SettingsSectionSpec(category, stringResource(R.string.settings_playback), Icons.Rounded.PlayArrow, destination = SettingsSectionDestination.Inline)
     SettingsCategory.INTEGRATION -> SettingsSectionSpec(category, stringResource(R.string.settings_integration), Icons.Default.Link, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.TRACKING -> SettingsSectionSpec(category, stringResource(R.string.settings_tracking_title), Icons.Default.Sync, destination = SettingsSectionDestination.Inline)
     SettingsCategory.ADVANCED -> SettingsSectionSpec(category, stringResource(R.string.settings_advanced), Icons.Default.Build, destination = SettingsSectionDestination.Inline)
     SettingsCategory.ABOUT -> SettingsSectionSpec(category, stringResource(R.string.about_title), Icons.Default.Info, destination = SettingsSectionDestination.Inline)
     SettingsCategory.DEBUG -> SettingsSectionSpec(category, stringResource(R.string.settings_debug), Icons.Default.BugReport, destination = SettingsSectionDestination.Inline)
@@ -236,7 +236,6 @@ fun SettingsScreen(
             SettingsCategory.LAYOUT to FocusRequester(),
             SettingsCategory.CONTENT_DISCOVERY to FocusRequester(),
             SettingsCategory.INTEGRATION to FocusRequester(),
-            SettingsCategory.TRACKING to FocusRequester(),
             SettingsCategory.PLAYBACK to FocusRequester(),
             SettingsCategory.ADVANCED to FocusRequester(),
             SettingsCategory.ABOUT to FocusRequester(),
@@ -245,6 +244,7 @@ fun SettingsScreen(
     }
     val railContainerFocusRequester = remember { FocusRequester() }
     val integrationHubFocusRequester = remember { FocusRequester() }
+    val integrationTrackingFocusRequester = remember { FocusRequester() }
     val integrationDebridFocusRequester = remember { FocusRequester() }
     val integrationTmdbFocusRequester = remember { FocusRequester() }
     val integrationMdbListFocusRequester = remember { FocusRequester() }
@@ -258,7 +258,7 @@ fun SettingsScreen(
     var allowDetailAutofocus by rememberSaveable { mutableStateOf(false) }
     var detailHasFocus by remember { mutableStateOf(false) }
     // The rail item that last had focus. Not the same as the selected category: an external
-    // category such as tracking never becomes the selected one, and moving along the rail without
+    // category such as account sign-in never becomes the selected one, and moving along the rail without
     // opening anything does not change it either. Saveable so returning from the sidebar, or from
     // a screen a category opened, comes back to the item the user left from.
     var railFocusCategoryName by rememberSaveable { mutableStateOf<String?>(null) }
@@ -645,6 +645,7 @@ fun SettingsScreen(
                                 integrationSection = integrationSection,
                                 onSelectIntegrationSection = { integrationSection = it },
                                 integrationHubFocusRequester = integrationHubFocusRequester,
+                                integrationTrackingFocusRequester = integrationTrackingFocusRequester,
                                 integrationDebridFocusRequester = integrationDebridFocusRequester,
                                 integrationTmdbFocusRequester = integrationTmdbFocusRequester,
                                 integrationMdbListFocusRequester = integrationMdbListFocusRequester,
@@ -799,6 +800,7 @@ fun SettingsScreen(
                         integrationSection = integrationSection,
                         onSelectIntegrationSection = { integrationSection = it },
                         integrationHubFocusRequester = integrationHubFocusRequester,
+                        integrationTrackingFocusRequester = integrationTrackingFocusRequester,
                         integrationDebridFocusRequester = integrationDebridFocusRequester,
                         integrationTmdbFocusRequester = integrationTmdbFocusRequester,
                         integrationMdbListFocusRequester = integrationMdbListFocusRequester,
@@ -828,6 +830,7 @@ private fun SettingsDetailPane(
     integrationSection: IntegrationSettingsSection,
     onSelectIntegrationSection: (IntegrationSettingsSection) -> Unit,
     integrationHubFocusRequester: FocusRequester,
+    integrationTrackingFocusRequester: FocusRequester,
     integrationDebridFocusRequester: FocusRequester,
     integrationTmdbFocusRequester: FocusRequester,
     integrationMdbListFocusRequester: FocusRequester,
@@ -933,6 +936,7 @@ private fun SettingsDetailPane(
                 null
             },
             hubFocusRequester = integrationHubFocusRequester,
+            trackingFocusRequester = integrationTrackingFocusRequester,
             debridFocusRequester = integrationDebridFocusRequester,
             tmdbFocusRequester = integrationTmdbFocusRequester,
             mdbListFocusRequester = integrationMdbListFocusRequester,
@@ -961,13 +965,6 @@ private fun SettingsDetailPane(
             onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
             initialFocusRequester = if (allowDetailAutofocus) {
                 contentFocusRequesters[SettingsCategory.ACCOUNT]
-            } else {
-                null
-            }
-        )
-        SettingsCategory.TRACKING -> TrackingSettingsContent(
-            initialFocusRequester = if (allowDetailAutofocus) {
-                contentFocusRequesters[SettingsCategory.TRACKING]
             } else {
                 null
             }
@@ -1052,6 +1049,7 @@ private fun IntegrationSettingsContent(
     onSelectSection: (IntegrationSettingsSection) -> Unit,
     initialFocusRequester: FocusRequester?,
     hubFocusRequester: FocusRequester,
+    trackingFocusRequester: FocusRequester,
     debridFocusRequester: FocusRequester,
     tmdbFocusRequester: FocusRequester,
     mdbListFocusRequester: FocusRequester,
@@ -1067,6 +1065,7 @@ private fun IntegrationSettingsContent(
         if (!autoFocusEnabled) return@LaunchedEffect
         val requester = when (selectedSection) {
             IntegrationSettingsSection.Hub -> hubEntryFocusRequester
+            IntegrationSettingsSection.Tracking -> trackingFocusRequester
             IntegrationSettingsSection.Debrid -> debridFocusRequester
             IntegrationSettingsSection.Tmdb -> tmdbFocusRequester
             IntegrationSettingsSection.MdbList -> mdbListFocusRequester
@@ -1097,13 +1096,21 @@ private fun IntegrationSettingsContent(
                             state = integrationHubState,
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
+                            item(key = "integration_hub_tracking") {
+                                SettingsActionRow(
+                                    title = stringResource(R.string.settings_tracking_title),
+                                    subtitle = stringResource(R.string.settings_tracking_description),
+                                    leadingIcon = Icons.Default.Sync,
+                                    onClick = { onSelectSection(IntegrationSettingsSection.Tracking) },
+                                    modifier = Modifier.focusRequester(hubEntryFocusRequester)
+                                )
+                            }
                             item(key = "integration_hub_debrid") {
                                 SettingsActionRow(
                                     title = stringResource(R.string.debrid_title),
                                     subtitle = stringResource(R.string.settings_debrid_subtitle),
                                     leadingIcon = Icons.Default.CloudDownload,
-                                    onClick = { onSelectSection(IntegrationSettingsSection.Debrid) },
-                                    modifier = Modifier.focusRequester(hubEntryFocusRequester)
+                                    onClick = { onSelectSection(IntegrationSettingsSection.Debrid) }
                                 )
                             }
                             item(key = "integration_hub_tmdb") {
@@ -1135,6 +1142,12 @@ private fun IntegrationSettingsContent(
                     }
                 }
             }
+        }
+
+        IntegrationSettingsSection.Tracking -> {
+            TrackingSettingsContent(
+                initialFocusRequester = trackingFocusRequester
+            )
         }
 
         IntegrationSettingsSection.Debrid -> {

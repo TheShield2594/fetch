@@ -11,6 +11,37 @@ import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.StreamDebridCacheState
 
 object StreamAutoPlaySelector {
+    /**
+     * The sources auto-play has to hear from before it can pick, when the user limited it to
+     * certain addons. Once all of them have answered nothing slower can change the pick, so
+     * there is no reason to wait for the rest. Null means any source could still win (no addon
+     * limit, plug-ins in play, or plug-ins only), so the caller keeps waiting as before.
+     *
+     * Media server sources always count: they are never filtered out and they outrank addons.
+     */
+    fun sourcesNeededForPick(
+        source: StreamAutoPlaySource,
+        selectedAddons: Set<String>,
+        streamAddonNames: Collection<String>,
+        serverSourceNames: Collection<String>,
+        pluginSourceNames: Collection<String>
+    ): Set<String>? {
+        if (selectedAddons.isEmpty()) return null
+        val effectiveSource = if (!AppFeaturePolicy.pluginsEnabled && source == StreamAutoPlaySource.ENABLED_PLUGINS_ONLY) {
+            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY
+        } else {
+            source
+        }
+        when (effectiveSource) {
+            StreamAutoPlaySource.ENABLED_PLUGINS_ONLY -> return null
+            StreamAutoPlaySource.ALL_SOURCES -> if (pluginSourceNames.isNotEmpty()) return null
+            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY -> Unit
+        }
+        val addons = streamAddonNames.filter { it in selectedAddons }
+        if (addons.isEmpty()) return null
+        return (addons + serverSourceNames).toSet()
+    }
+
     fun orderAddonStreams(
         streams: List<AddonStreams>,
         installedOrder: List<String>,

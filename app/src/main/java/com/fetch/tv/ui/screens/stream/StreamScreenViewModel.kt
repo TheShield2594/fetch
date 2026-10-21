@@ -5,6 +5,7 @@ import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.streams.playButtonLabels
+import com.fetch.tv.core.streams.supportsStreamResource
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -586,6 +587,8 @@ class StreamScreenViewModel @Inject constructor(
             val persistedInfoHash = if (persistedBingeGroup != null) {
                 contentId?.let { bingeGroupCacheDataStore.getInfoHash(it) }
             } else null
+            // Filled once the source chips are known; see StreamAutoPlaySelector.sourcesNeededForPick.
+            var sourcesNeededForPick: Set<String>? = null
 
             fun applySuccess(addonStreamGroups: List<AddonStreams>, isAllLoaded: Boolean) {
                 val orderedAddonStreams = StreamAutoPlaySelector.orderAddonStreams(
@@ -619,6 +622,11 @@ class StreamScreenViewModel @Inject constructor(
 
                 val allStreams = mergedAddonStreams.flatMap { it.streams }
                 val availableAddons = mergedAddonStreams.map { it.addonName }
+                // When auto-play is limited to certain addons, it can also pick as soon as all of
+                // those have answered: the addons still loading cannot change the result.
+                val answeredNames = mergedAddonStreams.mapTo(hashSetOf()) { it.addonName }
+                val pickSourcesAnswered = sourcesNeededForPick?.all { it in answeredNames } == true
+                val readyToPick = isAllLoaded || pickSourcesAnswered
                 val bestSoFarStream = if (
                     directFlowActive &&
                     !autoPlayHandledForSession &&
@@ -645,7 +653,7 @@ class StreamScreenViewModel @Inject constructor(
                         isCached = descriptor.isDebridCached,
                         addonName = stream.addonName.takeIf { it.isNotBlank() },
                         sourceCount = allStreams.size,
-                        isFinal = isAllLoaded
+                        isFinal = readyToPick
                     )
                 }
 
@@ -705,7 +713,7 @@ class StreamScreenViewModel @Inject constructor(
                 // configured timeout has elapsed. This gives slower addons a
                 // chance to return higher-quality streams before the selector
                 // picks from whatever is available.
-                val shouldAutoSelect = !autoPlayHandledForSession && !resolvedAutoPlayTarget && isAllLoaded
+                val shouldAutoSelect = !autoPlayHandledForSession && !resolvedAutoPlayTarget && readyToPick
                 val selectedAutoPlayStream = if (earlyBingeGroupMatch != null) {
                     earlyBingeGroupMatch
                 } else if (!shouldAutoSelect) {
@@ -817,6 +825,19 @@ class StreamScreenViewModel @Inject constructor(
                 includePlugins = !isNativeServerRequest,
                 alreadySucceededNames = alreadySucceededNames
             )
+            if (playerSettings.streamAutoPlayMode != StreamAutoPlayMode.MANUAL) {
+                val streamAddonNames = installedAddons
+                    .filter { it.supportsStreamResource(contentType, videoId) }
+                    .map { it.displayName }
+                val knownNames = (streamAddonNames + serverSourceNames + directDebridSourceNames).toSet()
+                sourcesNeededForPick = StreamAutoPlaySelector.sourcesNeededForPick(
+                    source = playerSettings.streamAutoPlaySource,
+                    selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
+                    streamAddonNames = streamAddonNames,
+                    serverSourceNames = serverSourceNames,
+                    pluginSourceNames = _uiState.value.sourceChips.map { it.name }.filterNot { it in knownNames }
+                )
+            }
 
             var lastSuccessData: List<AddonStreams>? = null
             var autoSelectTriggered = false

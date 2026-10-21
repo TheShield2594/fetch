@@ -59,6 +59,7 @@ class BestMatchPreviewer @Inject constructor(
     ): Flow<BestMatchPreview> = flow {
         val settings = playerSettingsDataStore.playerSettings.first()
         if (settings.streamAutoPlayMode != StreamAutoPlayMode.BEST_MATCH) return@flow
+        if (!settings.bestMatchPreviewEnabled) return@flow
         if (settings.streamReuseLastLinkEnabled &&
             streamLinkCacheDataStore.getValid(
                 contentKey = "${type.lowercase()}|$videoId",

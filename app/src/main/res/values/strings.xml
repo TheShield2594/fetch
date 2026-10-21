@@ -890,6 +890,9 @@
 
     <string name="autoplay_reuse_last_link">Reuse Last Link</string>
     <string name="autoplay_reuse_last_link_sub">Auto-play your last working stream for this same movie/episode when cache is still valid</string>
+    <string name="best_match_preview_title">Show the pick on the Play button</string>
+    <string name="best_match_preview_sub">Asks your stream addons about a title while you look at it, so the Play button can name the file and playback starts sooner. Turn off to only search after you press Play.</string>
+    <string name="autoplay_allowed_addons_early_sub">Auto-play starts as soon as these addons answer instead of waiting for every addon.</string>
     <string name="autoplay_last_link_cache">Last Link Cache Duration</string>
     <string name="cache_duration_hour_one">%1$d hour</string>
     <string name="cache_duration_hour_other">%1$d hours</string>

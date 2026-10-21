@@ -94,6 +94,12 @@ internal fun PlaybackStreamSelectionSection(
 
     if (settings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH) {
         PlaybackStreamRankingRows(settings, onUpdate, onOpenDialog)
+        SettingsToggleRow(
+            title = stringResource(R.string.best_match_preview_title),
+            subtitle = stringResource(R.string.best_match_preview_sub),
+            checked = settings.bestMatchPreviewEnabled,
+            onToggle = { onUpdate { setBestMatchPreviewEnabled(!settings.bestMatchPreviewEnabled) } }
+        )
     }
 
     if (settings.streamAutoPlayMode == StreamAutoPlayMode.REGEX_MATCH) {
@@ -119,7 +125,7 @@ internal fun PlaybackStreamSelectionSection(
         if (effectiveAutoPlaySource != StreamAutoPlaySource.ENABLED_PLUGINS_ONLY) {
             SettingsActionRow(
                 title = stringResource(R.string.autoplay_allowed_addons),
-                subtitle = null,
+                subtitle = stringResource(R.string.autoplay_allowed_addons_early_sub),
                 value = selectionSummary(
                     selectedCount = settings.streamAutoPlaySelectedAddons.size,
                     allLabel = stringResource(R.string.autoplay_all_addons)

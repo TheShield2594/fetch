@@ -24,7 +24,6 @@ class SettingsCatalogTest {
                 SettingsCategory.CONTENT_DISCOVERY,
                 SettingsCategory.PLAYBACK,
                 SettingsCategory.INTEGRATION,
-                SettingsCategory.TRACKING,
                 SettingsCategory.PHONE,
                 SettingsCategory.ADVANCED,
                 SettingsCategory.ABOUT,

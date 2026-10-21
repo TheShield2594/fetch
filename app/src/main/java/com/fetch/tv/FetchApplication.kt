@@ -4,6 +4,8 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.os.Looper
+import android.os.StatFs
 import android.os.StrictMode
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -45,12 +47,12 @@ import javax.inject.Inject
 class FetchApplication : Application(), SingletonImageLoader.Factory {
 
     @Inject lateinit var startupSyncService: StartupSyncService
-    @Inject lateinit var androidTvChannelSyncService: AndroidTvChannelSyncService
+    @Inject lateinit var androidTvChannelSyncService: dagger.Lazy<AndroidTvChannelSyncService>
     @Inject lateinit var deviceDecodeCapabilities: AndroidDeviceDecodeCapabilities
     @Inject lateinit var imagePerformancePreferences: ImagePerformancePreferences
     @Inject lateinit var simklAnimeIdPreferenceHolder: SimklAnimeIdPreferenceHolder
-    @Inject lateinit var serverUserStateProjection: ServerUserStateProjection
-    @Inject lateinit var serverMatcher: ServerMatcher
+    @Inject lateinit var serverUserStateProjection: dagger.Lazy<ServerUserStateProjection>
+    @Inject lateinit var serverMatcher: dagger.Lazy<ServerMatcher>
 
     companion object {
         /**
@@ -85,9 +87,17 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         PluginRuntimeHooks.onApplicationCreate(this)
-        androidTvChannelSyncService.start()
-        serverUserStateProjection.start()
-        serverMatcher.start()
+        // None of these are needed for the first frame: the launcher channel only matters once
+        // the app is backgrounded, and server matching/projection only react to later screens.
+        // Building their dependency graphs (DataStores, Room, JobScheduler IPC) on the main
+        // thread before the first frame is measurable on Fire TV Stick class devices, so start
+        // them once the main looper first goes idle.
+        Looper.myQueue().addIdleHandler {
+            androidTvChannelSyncService.get().start()
+            serverUserStateProjection.get().start()
+            serverMatcher.get().start()
+            false
+        }
         // Probe decoders/HDR/passthrough off the main thread so cold start isn't delayed;
         // stream ranking assumes a capable device until the probe lands.
         Thread({ DeviceDecodeCapabilities.current = deviceDecodeCapabilities.get() }, "decode-caps-probe")
@@ -171,9 +181,10 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
                     .build()
             }
             .diskCache {
+                val directory = cacheDir.resolve("image_cache")
                 DiskCache.Builder()
-                    .directory(cacheDir.resolve("image_cache").toOkioPath())
-                    .maxSizeBytes(200L * 1024 * 1024)
+                    .directory(directory.toOkioPath())
+                    .maxSizeBytes(imageDiskCacheSizeBytes(directory))
                     .build()
             }
             .crossfade(false)
@@ -183,4 +194,27 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
             .bitmapFactoryMaxParallelism(4)
             .build()
     }
+
+    /**
+     * Fire TV Sticks often run with well under 1 GB free, so a flat 200 MB image cache can
+     * starve the system and other apps. Size it to [IMAGE_DISK_CACHE_FREE_FRACTION] of the
+     * space the cache could use (free space plus what it already occupies), clamped to
+     * [IMAGE_DISK_CACHE_MIN_BYTES]..[IMAGE_DISK_CACHE_MAX_BYTES]. Coil builds the disk cache
+     * lazily on a background thread, so the StatFs/listing cost stays off the main thread.
+     */
+    private fun imageDiskCacheSizeBytes(directory: java.io.File): Long {
+        return try {
+            directory.mkdirs()
+            val freeBytes = StatFs(directory.absolutePath).availableBytes
+            val usedBytes = directory.listFiles()?.sumOf { it.length() } ?: 0L
+            ((freeBytes + usedBytes) * IMAGE_DISK_CACHE_FREE_FRACTION).toLong()
+                .coerceIn(IMAGE_DISK_CACHE_MIN_BYTES, IMAGE_DISK_CACHE_MAX_BYTES)
+        } catch (e: Exception) {
+            IMAGE_DISK_CACHE_MIN_BYTES
+        }
+    }
 }
+
+private const val IMAGE_DISK_CACHE_FREE_FRACTION = 0.05
+private const val IMAGE_DISK_CACHE_MIN_BYTES = 32L * 1024 * 1024
+private const val IMAGE_DISK_CACHE_MAX_BYTES = 200L * 1024 * 1024

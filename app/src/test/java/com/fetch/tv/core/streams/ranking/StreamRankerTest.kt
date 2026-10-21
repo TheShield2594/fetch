@@ -68,6 +68,16 @@ class StreamRankerTest {
     }
 
     @Test
+    fun `dv with hdr10 plus is not auto played where that combination shows a black screen`() {
+        val fireStick4k = dvTv.copy(dolbyVisionWithHdr10PlusBroken = true)
+        val streams = listOf(stream("2160p DV HDR10+ HEVC REMUX"), stream("2160p DV HDR10 HEVC WEB-DL"))
+        val ranked = StreamRanker.rank(streams, StreamRankingRules(), fireStick4k)
+        assertEquals("2160p DV HDR10 HEVC WEB-DL", ranked.first().stream.name)
+        assertEquals(ExclusionReason.UNSUPPORTED_DOLBY_VISION, ranked.last().exclusion)
+        assertTrue(StreamRanker.rank(streams, StreamRankingRules(), dvTv).all { it.isEligible })
+    }
+
+    @Test
     fun `user rule excludes dolby vision profile 5 even on capable hardware`() {
         val rules = StreamRankingRules(excludedDolbyVisionProfiles = setOf(5))
         val best = StreamRanker.best(

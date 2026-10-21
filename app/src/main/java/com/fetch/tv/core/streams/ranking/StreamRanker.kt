@@ -18,7 +18,13 @@ data class DeviceDecodeCapabilities(
     /** Formats the audio output can pass through untouched (HDMI/eARC to a receiver). */
     val passthroughAudio: Set<AudioFormat> = emptySet(),
     /** True when the FFmpeg extension is available to decode audio formats in software. */
-    val softwareAudioDecoding: Boolean = true
+    val softwareAudioDecoding: Boolean = true,
+    /**
+     * True on devices known to show a black screen for Dolby Vision files that also carry
+     * HDR10+ metadata (Fire TV Stick 4K, NuvioMedia/NuvioTV#3996). Such files are kept out
+     * of auto-play; they stay listed under "Other sources".
+     */
+    val dolbyVisionWithHdr10PlusBroken: Boolean = false
 ) {
     fun canDecode(codec: VideoCodec): Boolean =
         codec == VideoCodec.UNKNOWN || codec in decodableCodecs
@@ -297,6 +303,7 @@ object StreamRanker {
      */
     private fun canPlayDolbyVision(descriptor: StreamDescriptor, device: DeviceDecodeCapabilities): Boolean {
         if (!descriptor.hasDolbyVision) return true
+        if (device.dolbyVisionWithHdr10PlusBroken && HdrFormat.HDR10_PLUS in descriptor.hdr) return false
         if (likelyDolbyVisionProfile(descriptor) != 5) return true
         return 5 in device.dolbyVisionProfiles
     }

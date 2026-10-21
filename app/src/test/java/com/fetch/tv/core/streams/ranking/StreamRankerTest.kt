@@ -73,7 +73,7 @@ class StreamRankerTest {
         val streams = listOf(stream("2160p DV HDR10+ HEVC REMUX"), stream("2160p DV HDR10 HEVC WEB-DL"))
         val ranked = StreamRanker.rank(streams, StreamRankingRules(), fireStick4k)
         assertEquals("2160p DV HDR10 HEVC WEB-DL", ranked.first().stream.name)
-        assertEquals(ExclusionReason.UNSUPPORTED_DOLBY_VISION, ranked.last().exclusion)
+        assertEquals(ExclusionReason.UNSUPPORTED_DOLBY_VISION_HDR10_PLUS, ranked.last().exclusion)
         assertTrue(StreamRanker.rank(streams, StreamRankingRules(), dvTv).all { it.isEligible })
     }
 
@@ -169,6 +169,64 @@ class StreamRankerTest {
     @Test
     fun `nothing eligible yields no best stream`() {
         assertNull(StreamRanker.best(listOf(stream("1080p")), isPlayable = { false }))
+    }
+
+    @Test
+    fun `skips passthrough-only audio with no passthrough and no software decoder`() {
+        val caps = dvTv.copy(passthroughAudio = emptySet(), softwareAudio = emptySet())
+        val ranked = StreamRanker.rank(
+            listOf(stream("2160p REMUX HEVC TrueHD Atmos 7.1"), stream("2160p WEB-DL HEVC DDP5.1")),
+            StreamRankingRules(),
+            caps
+        )
+        assertEquals("2160p WEB-DL HEVC DDP5.1", ranked.first().stream.name)
+        assertEquals(ExclusionReason.UNSUPPORTED_AUDIO, ranked.last().exclusion)
+    }
+
+    @Test
+    fun `passthrough or the ffmpeg decoder keeps lossless audio playable`() {
+        val remux = listOf(stream("2160p REMUX HEVC DTS-HD MA 7.1"))
+        val receiver = dvTv.copy(passthroughAudio = setOf(AudioFormat.DTS_HD_MA), softwareAudio = emptySet())
+        val ffmpeg = dvTv.copy(passthroughAudio = emptySet(), softwareAudio = setOf(AudioFormat.DTS_HD_MA))
+        assertTrue(StreamRanker.rank(remux, StreamRankingRules(), receiver).single().isEligible)
+        assertTrue(StreamRanker.rank(remux, StreamRankingRules(), ffmpeg).single().isEligible)
+    }
+
+    @Test
+    fun `a dts only receiver still plays the dts core of dts-hd`() {
+        val caps = dvTv.copy(passthroughAudio = setOf(AudioFormat.DTS), softwareAudio = emptySet())
+        val ranked = StreamRanker.rank(listOf(stream("2160p REMUX HEVC DTS-HD MA 7.1")), StreamRankingRules(), caps)
+        assertTrue(ranked.single().isEligible)
+    }
+
+    @Test
+    fun `a release with a compatible track besides truehd stays eligible`() {
+        val caps = dvTv.copy(passthroughAudio = emptySet(), softwareAudio = emptySet())
+        val ranked = StreamRanker.rank(listOf(stream("1080p BluRay TrueHD 7.1 AC3 5.1")), StreamRankingRules(), caps)
+        assertTrue(ranked.single().isEligible)
+    }
+
+    @Test
+    fun `own library audio is converted by the server so it is never ruled out`() {
+        val caps = dvTv.copy(passthroughAudio = emptySet(), softwareAudio = emptySet())
+        val owned = stream("4K TrueHD 7.1").copy(
+            serverTarget = ServerPlaybackTarget(ServerItemRef("home", "42"), mediaSourceId = null)
+        )
+        assertTrue(StreamRanker.rank(listOf(owned), StreamRankingRules(), caps).single().isEligible)
+    }
+
+    @Test
+    fun `ranked list says why each passed over stream was not picked`() {
+        val dv5 = stream("2160p WEB-DL DV P5 HEVC")
+        val hdr = stream("2160p WEB-DL HDR10 HEVC")
+        val list = StreamRanker.rankedList(
+            listOf(dv5, hdr),
+            StreamRankingRules(),
+            fireStickLite.copy(maxResolution = StreamResolution.UHD_2160)
+        )
+        assertEquals(listOf(hdr, dv5), list.streams)
+        assertEquals(ExclusionReason.UNSUPPORTED_DOLBY_VISION, list.exclusionOf(dv5))
+        assertNull(list.exclusionOf(hdr))
     }
 
     private fun stream(name: String): Stream = Stream(

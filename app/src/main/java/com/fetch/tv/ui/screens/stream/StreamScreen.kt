@@ -3,6 +3,8 @@
 package com.fetch.tv.ui.screens.stream
 
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
+import com.fetch.tv.core.streams.ranking.ExclusionReason
+import com.fetch.tv.core.streams.ranking.label
 import com.fetch.tv.core.torrent.TorrentService
 import android.content.Intent
 import android.net.Uri
@@ -447,6 +449,7 @@ fun StreamScreen(
                     isLoading = uiState.isLoading,
                     error = uiState.error,
                     streams = uiState.filteredStreams,
+                    streamExclusions = uiState.streamExclusions,
                     availableAddons = uiState.availableAddons,
                     sourceChips = uiState.sourceChips,
                     selectedAddonFilter = uiState.selectedAddonFilter,
@@ -760,6 +763,7 @@ private fun RightStreamSection(
     onRestoreFocusedStreamHandled: () -> Unit,
     onRetry: () -> Unit,
     onExpandStreams: () -> Unit = {},
+    streamExclusions: Map<String, ExclusionReason> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -914,6 +918,7 @@ private fun RightStreamSection(
                     else -> {
                         StreamsList(
                             streams = streams,
+                            streamExclusions = streamExclusions,
                             sharedStream = sharedStream,
                             partySource = partySource,
                             onSharedStreamSelected = onSharedStreamSelected,
@@ -1036,6 +1041,7 @@ private fun EmptyState() {
 @Composable
 private fun StreamsList(
     streams: List<Stream>,
+    streamExclusions: Map<String, ExclusionReason>,
     sharedStream: SharedStream?,
     partySource: PartySource?,
     onSharedStreamSelected: (Stream) -> Unit,
@@ -1251,6 +1257,7 @@ private fun StreamsList(
                     reserveBadgeSpace = hasBadgeRules && stream.badges.isEmpty(),
                     marked = isPartySource,
                     markedLabel = partySourceLabel.takeIf { isPartySource },
+                    exclusion = if (streamExclusions.isEmpty()) null else streamExclusions[stream.stableKey()],
                     onClick = { onStreamSelected(stream) },
                     focusRequester = when {
                         shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester
@@ -1289,7 +1296,8 @@ internal fun StreamCard(
     onFocusChanged: ((Boolean) -> Unit)? = null,
     onUpKey: (() -> Unit)? = null,
     marked: Boolean = false,
-    markedLabel: String? = null
+    markedLabel: String? = null,
+    exclusion: ExclusionReason? = null
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -1402,6 +1410,15 @@ internal fun StreamCard(
                         specChips.forEach { chip -> StreamSpecChip(chip) }
                         if (descriptor.isDebridCached) StreamSpecChip(cachedLabel, highlighted = true)
                     }
+                }
+                exclusion?.let { reason ->
+                    Text(
+                        text = stringResource(R.string.best_match_excluded, reason.label(context, descriptor)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FetchTheme.colors.TextTertiary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
 
                 Row(

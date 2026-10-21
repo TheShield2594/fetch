@@ -24,6 +24,7 @@ import com.fetch.tv.data.mediaserver.ServerSession
 import com.fetch.tv.data.mediaserver.ServerSignIn
 import com.fetch.tv.data.mediaserver.ServerTitle
 import com.fetch.tv.data.mediaserver.ServerTrack
+import com.fetch.tv.data.mediaserver.isAtLeastVersion
 import com.fetch.tv.domain.model.Subtitle
 import java.net.URLDecoder
 import java.util.concurrent.ConcurrentHashMap
@@ -532,15 +533,7 @@ internal abstract class MediaBrowserProvider(
         )
     }
 
-    internal fun isSupportedVersion(version: String?): Boolean {
-        val actual = version?.split('.')?.map { it.takeWhile(Char::isDigit).toIntOrNull() } ?: return false
-        if (actual.firstOrNull() == null) return false
-        for ((index, minimum) in minimumVersion.split('.').map(String::toInt).withIndex()) {
-            val part = actual.getOrNull(index) ?: 0
-            if (part != minimum) return part > minimum
-        }
-        return true
-    }
+    internal fun isSupportedVersion(version: String?): Boolean = isAtLeastVersion(version, minimumVersion)
 
     private suspend fun item(session: ServerSession, itemId: String, fields: String): BaseItem =
         get(session, itemEndpoint(session.userId, itemId), BaseItem.serializer(), mapOf("fields" to fields))

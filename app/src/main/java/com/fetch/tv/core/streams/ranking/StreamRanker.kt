@@ -17,8 +17,8 @@ data class DeviceDecodeCapabilities(
     val dolbyVisionProfiles: Set<Int> = emptySet(),
     /** Formats the audio output can pass through untouched (HDMI/eARC to a receiver). */
     val passthroughAudio: Set<AudioFormat> = emptySet(),
-    /** True when the FFmpeg extension is available to decode audio formats in software. */
-    val softwareAudioDecoding: Boolean = true,
+    /** Passthrough-only formats the FFmpeg extension can still decode to PCM. */
+    val softwareAudio: Set<AudioFormat> = AudioFormat.entries.toSet(),
     /**
      * True on devices known to show a black screen for Dolby Vision files that also carry
      * HDR10+ metadata (Fire TV Stick 4K, NuvioMedia/NuvioTV#3996). Such files are kept out
@@ -28,6 +28,16 @@ data class DeviceDecodeCapabilities(
 ) {
     fun canDecode(codec: VideoCodec): Boolean =
         codec == VideoCodec.UNKNOWN || codec in decodableCodecs
+
+    /**
+     * Lossless formats like TrueHD and DTS-HD need passthrough or a software decoder. DTS-HD
+     * and DTS:X carry a DTS core, which a receiver that only takes DTS still plays.
+     */
+    fun canPlay(audio: AudioFormat): Boolean =
+        !audio.isPassthroughOnly ||
+            audio in passthroughAudio ||
+            audio in softwareAudio ||
+            (audio.hasDtsCore && AudioFormat.DTS in passthroughAudio)
 
     companion object {
         /**
@@ -105,7 +115,9 @@ enum class ExclusionReason {
     EXCLUDED_KEYWORD,
     UNSUPPORTED_CODEC,
     UNSUPPORTED_DOLBY_VISION,
+    UNSUPPORTED_DOLBY_VISION_HDR10_PLUS,
     UNSUPPORTED_RESOLUTION,
+    UNSUPPORTED_AUDIO,
     NOT_PLAYABLE
 }
 
@@ -121,6 +133,15 @@ data class RankedStream(
     val originalIndex: Int
 ) {
     val isEligible: Boolean get() = exclusion == null
+}
+
+@Immutable
+data class RankedStreamList(
+    val streams: List<Stream>,
+    val exclusions: Map<String, ExclusionReason>
+) {
+    fun exclusionOf(stream: Stream): ExclusionReason? =
+        if (exclusions.isEmpty()) null else exclusions[stream.stableKey()]
 }
 
 /**
@@ -144,6 +165,22 @@ object StreamRanker {
             compareBy<RankedStream> { if (it.isEligible) 0 else 1 }
                 .thenByDescending { it.score }
                 .thenBy { it.originalIndex }
+        )
+    }
+
+    /**
+     * [rank] for a source list: streams best first, and why each ruled-out one would not
+     * auto-play, keyed by [Stream.stableKey].
+     */
+    fun rankedList(
+        streams: List<Stream>,
+        rules: StreamRankingRules = StreamRankingRules(),
+        device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.Permissive
+    ): RankedStreamList {
+        val ranked = rank(streams, rules, device)
+        return RankedStreamList(
+            streams = ranked.map { it.stream },
+            exclusions = ranked.mapNotNull { item -> item.exclusion?.let { item.stream.stableKey() to it } }.toMap()
         )
     }
 
@@ -292,6 +329,15 @@ object StreamRanker {
             if (!device.canDecode(descriptor.videoCodec)) return ExclusionReason.UNSUPPORTED_CODEC
             if (known && height > device.maxResolution.height) return ExclusionReason.UNSUPPORTED_RESOLUTION
             if (!canPlayDolbyVision(descriptor, device)) return ExclusionReason.UNSUPPORTED_DOLBY_VISION
+            if (device.dolbyVisionWithHdr10PlusBroken && descriptor.hasDolbyVision &&
+                HdrFormat.HDR10_PLUS in descriptor.hdr
+            ) {
+                return ExclusionReason.UNSUPPORTED_DOLBY_VISION_HDR10_PLUS
+            }
+            // The server converts audio the TV can't play, so only streamed files are ruled out.
+            if (!ownLibrary && descriptor.audio.isNotEmpty() && descriptor.audio.none(device::canPlay)) {
+                return ExclusionReason.UNSUPPORTED_AUDIO
+            }
         }
         return null
     }
@@ -303,7 +349,6 @@ object StreamRanker {
      */
     private fun canPlayDolbyVision(descriptor: StreamDescriptor, device: DeviceDecodeCapabilities): Boolean {
         if (!descriptor.hasDolbyVision) return true
-        if (device.dolbyVisionWithHdr10PlusBroken && HdrFormat.HDR10_PLUS in descriptor.hdr) return false
         if (likelyDolbyVisionProfile(descriptor) != 5) return true
         return 5 in device.dolbyVisionProfiles
     }

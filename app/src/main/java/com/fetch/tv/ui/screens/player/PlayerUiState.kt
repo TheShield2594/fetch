@@ -169,6 +169,8 @@ data class PlayerUiState(
     val sourceAllStreams: List<Stream> = emptyList(),
     val sourceSelectedAddonFilter: String? = null, // null means "All"
     val sourceFilteredStreams: List<Stream> = emptyList(),
+    /** Why Best match passed over a source, keyed by [Stream.stableKey]. */
+    val sourceStreamExclusions: Map<String, com.fetch.tv.core.streams.ranking.ExclusionReason> = emptyMap(),
     val sourceAvailableAddons: List<String> = emptyList(),
     val sourceChips: List<SourceChipItem> = emptyList(),
     val showFileSizeBadges: Boolean = true,

@@ -17,6 +17,7 @@ import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
 import com.fetch.tv.data.local.TraktAuthDataStore
 import com.fetch.tv.data.mediaserver.ServerException
 import com.fetch.tv.data.mediaserver.ServerRepository
+import com.fetch.tv.data.mediaserver.ServerSignInMethod
 import com.fetch.tv.data.remote.api.MDBListApi
 import com.fetch.tv.data.repository.TraktAuthService
 import com.fetch.tv.data.repository.TraktProgressService
@@ -215,7 +216,10 @@ class PhoneHubController @Inject constructor(
             mdbListKeySet = mdbListSettingsDataStore.settings.first().apiKey.isNotBlank(),
             trakt = PhoneHubTrackerStatus(trakt.isAuthenticated, trakt.username, traktCode.takeUnless { trakt.isAuthenticated }),
             simkl = PhoneHubTrackerStatus(simkl.isAuthenticated, simkl.username, simklCode.takeUnless { simkl.isAuthenticated }),
-            mediaServerProviders = serverRepository.providers.map { it.id to it.displayName },
+            // Link-code providers (Plex) sign in on the TV, where the code is shown.
+            mediaServerProviders = serverRepository.providers
+                .filter { it.signInMethod == ServerSignInMethod.PASSWORD }
+                .map { it.id to it.displayName },
             mediaServers = serverRepository.uiState.value.connections.map { "${it.name} (${it.userName})" }
         )
     }
@@ -259,7 +263,7 @@ class PhoneHubController @Inject constructor(
         password: String
     ): PhoneHubResult {
         settingsBlocked()?.let { return it }
-        val provider = serverRepository.providers.firstOrNull { it.id == providerId }
+        val provider = serverRepository.providers.firstOrNull { it.id == providerId && it.signInMethod == ServerSignInMethod.PASSWORD }
             ?: return PhoneHubResult(false, "Unknown server type.")
         return try {
             val connection = serverRepository.connect(provider, address.trim(), username.trim(), password)

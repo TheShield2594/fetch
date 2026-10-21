@@ -1278,7 +1278,7 @@ private fun StreamsList(
 
 @OptIn(ExperimentalTvMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
-private fun StreamCard(
+internal fun StreamCard(
     stream: Stream,
     showFileSizeBadges: Boolean,
     showAddonLogo: Boolean,

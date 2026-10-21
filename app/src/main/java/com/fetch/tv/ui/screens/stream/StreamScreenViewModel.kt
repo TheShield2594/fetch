@@ -280,6 +280,13 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     init {
+        if (!TorrentService.ENGINE_AVAILABLE) {
+            viewModelScope.launch {
+                directDebridResolver.canResolveTorrents.collect { canResolve ->
+                    _uiState.update { it.copy(torrentsNeedDebrid = !canResolve) }
+                }
+            }
+        }
         viewModelScope.launch {
             _uiState
                 .map { state -> state.directAutoPlayMessage to state.directAutoPlayProgress }

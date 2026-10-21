@@ -196,6 +196,13 @@ fun StreamScreen(
             showP2pConsentDialog = true
             return
         }
+        // With no torrent engine, an unresolved torrent only plays in an external player, so
+        // offer the player choice instead of letting the internal player fail on it.
+        if (playbackInfo.isTorrent && !TorrentService.ENGINE_AVAILABLE && preference == PlayerPreference.INTERNAL) {
+            pendingPlaybackInfo = playbackInfo
+            showPlayerChoiceDialog = true
+            return
+        }
         when (preference) {
             PlayerPreference.INTERNAL -> {
                 launchInternalPlayer(playbackInfo)
@@ -450,6 +457,7 @@ fun StreamScreen(
                     error = uiState.error,
                     streams = uiState.filteredStreams,
                     streamExclusions = uiState.streamExclusions,
+                    torrentsNeedDebrid = uiState.torrentsNeedDebrid,
                     availableAddons = uiState.availableAddons,
                     sourceChips = uiState.sourceChips,
                     selectedAddonFilter = uiState.selectedAddonFilter,
@@ -765,6 +773,7 @@ private fun RightStreamSection(
     onRetry: () -> Unit,
     onExpandStreams: () -> Unit = {},
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
+    torrentsNeedDebrid: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -920,6 +929,7 @@ private fun RightStreamSection(
                         StreamsList(
                             streams = streams,
                             streamExclusions = streamExclusions,
+                            torrentsNeedDebrid = torrentsNeedDebrid,
                             sharedStream = sharedStream,
                             partySource = partySource,
                             onSharedStreamSelected = onSharedStreamSelected,
@@ -1043,6 +1053,7 @@ private fun EmptyState() {
 private fun StreamsList(
     streams: List<Stream>,
     streamExclusions: Map<String, ExclusionReason>,
+    torrentsNeedDebrid: Boolean,
     sharedStream: SharedStream?,
     partySource: PartySource?,
     onSharedStreamSelected: (Stream) -> Unit,
@@ -1259,6 +1270,7 @@ private fun StreamsList(
                     marked = isPartySource,
                     markedLabel = partySourceLabel.takeIf { isPartySource },
                     exclusion = if (streamExclusions.isEmpty()) null else streamExclusions[stream.stableKey()],
+                    needsDebrid = torrentsNeedDebrid && stream.needsLocalDebridResolve(),
                     onClick = { onStreamSelected(stream) },
                     focusRequester = when {
                         shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester
@@ -1298,7 +1310,8 @@ internal fun StreamCard(
     onUpKey: (() -> Unit)? = null,
     marked: Boolean = false,
     markedLabel: String? = null,
-    exclusion: ExclusionReason? = null
+    exclusion: ExclusionReason? = null,
+    needsDebrid: Boolean = false
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -1418,6 +1431,17 @@ internal fun StreamCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = FetchTheme.colors.TextTertiary,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                // Fetch has no torrent engine, so a torrent with no debrid to resolve it can only
+                // open in an external player. Say so here rather than failing once it is picked.
+                if (needsDebrid) {
+                    Text(
+                        text = stringResource(R.string.stream_torrent_needs_debrid),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FetchTheme.colors.TextTertiary,
+                        maxLines = if (isFocused) Int.MAX_VALUE else 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }

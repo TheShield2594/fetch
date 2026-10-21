@@ -206,11 +206,9 @@ class PhoneHubController @Inject constructor(
         val trakt = traktAuthDataStore.getCurrentState()
         val simkl = simklAuthRepository.state.value
         return PhoneHubAccountStatus(
-            debridKeys = mapOf(
-                DebridProviders.TORBOX_ID to debrid.torboxApiKey.isNotBlank(),
-                DebridProviders.PREMIUMIZE_ID to debrid.premiumizeApiKey.isNotBlank(),
-                DebridProviders.REAL_DEBRID_ID to debrid.realDebridApiKey.isNotBlank()
-            ),
+            debridKeys = DebridProviders.visible().associate { provider ->
+                provider.id to debrid.apiKeyFor(provider.id).isNotBlank()
+            },
             mdbListKeySet = mdbListSettingsDataStore.settings.first().apiKey.isNotBlank(),
             trakt = PhoneHubTrackerStatus(trakt.isAuthenticated, trakt.username, traktCode.takeUnless { trakt.isAuthenticated }),
             simkl = PhoneHubTrackerStatus(simkl.isAuthenticated, simkl.username, simklCode.takeUnless { simkl.isAuthenticated }),
@@ -228,7 +226,7 @@ class PhoneHubController @Inject constructor(
 
     override suspend fun saveDebridKey(providerId: String, apiKey: String): PhoneHubResult {
         settingsBlocked()?.let { return it }
-        if (providerId != DebridProviders.TORBOX_ID && providerId != DebridProviders.PREMIUMIZE_ID) {
+        if (!DebridProviders.isVisible(providerId)) {
             return PhoneHubResult(false, "Unknown service.")
         }
         if (apiKey.isNotBlank() && !debridApiKeyValidator.isValid(providerId, apiKey)) {

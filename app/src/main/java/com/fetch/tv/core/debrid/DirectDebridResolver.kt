@@ -11,7 +11,10 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
@@ -23,12 +26,19 @@ class DirectDebridResolver @Inject constructor(
     private val torboxResolver: TorboxDirectDebridResolver,
     private val realDebridResolver: RealDebridDirectDebridResolver,
     private val premiumizeResolver: PremiumizeDirectDebridResolver,
+    private val allDebridResolver: AllDebridDirectDebridResolver,
+    private val debridLinkResolver: DebridLinkDirectDebridResolver,
     private val localDebridService: LocalDebridService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val mutex = Mutex()
     private val resolvedCache = mutableMapOf<String, CachedDirectDebridResolve>()
     private val inFlightResolves = mutableMapOf<String, Deferred<DirectDebridResolveResult>>()
+
+    /** Whether torrent results (no HTTP link) can be turned into playable links right now. */
+    val canResolveTorrents: Flow<Boolean> = dataStore.settings
+        .map { settings -> settings.canResolvePlayableLinks && localTorrentResolveCredential(settings) != null }
+        .distinctUntilChanged()
 
     suspend fun resolve(
         stream: Stream,
@@ -154,6 +164,8 @@ class DirectDebridResolver @Inject constructor(
             DebridProviders.TORBOX_ID -> torboxResolver.resolve(stream, season, episode)
             DebridProviders.PREMIUMIZE_ID -> premiumizeResolver.resolve(stream, season, episode)
             DebridProviders.REAL_DEBRID_ID -> realDebridResolver.resolve(stream, season, episode)
+            DebridProviders.ALL_DEBRID_ID -> allDebridResolver.resolve(stream, season, episode)
+            DebridProviders.DEBRID_LINK_ID -> debridLinkResolver.resolve(stream, season, episode)
             else -> DirectDebridResolveResult.Error
         }
     }
@@ -246,6 +258,9 @@ class DirectDebridResolver @Inject constructor(
         return when (account.provider.id) {
             DebridProviders.TORBOX_ID -> torboxResolver.resolve(resolveStream, season, episode)
             DebridProviders.PREMIUMIZE_ID -> premiumizeResolver.resolve(resolveStream, season, episode)
+            DebridProviders.REAL_DEBRID_ID -> realDebridResolver.resolve(resolveStream, season, episode)
+            DebridProviders.ALL_DEBRID_ID -> allDebridResolver.resolve(resolveStream, season, episode)
+            DebridProviders.DEBRID_LINK_ID -> debridLinkResolver.resolve(resolveStream, season, episode)
             else -> DirectDebridResolveResult.Error
         }
     }

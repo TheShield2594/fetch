@@ -10,6 +10,8 @@ data class DebridSettings(
     val torboxApiKey: String = "",
     val premiumizeApiKey: String = "",
     val realDebridApiKey: String = "",
+    val allDebridApiKey: String = "",
+    val debridLinkApiKey: String = "",
     val preferredResolverProviderId: String = "",
     val instantPlaybackPreparationLimit: Int = 0,
     val streamMaxResults: Int = 0,
@@ -52,6 +54,8 @@ data class DebridSettings(
             DebridProviders.TORBOX_ID -> torboxApiKey
             DebridProviders.PREMIUMIZE_ID -> premiumizeApiKey
             DebridProviders.REAL_DEBRID_ID -> realDebridApiKey
+            DebridProviders.ALL_DEBRID_ID -> allDebridApiKey
+            DebridProviders.DEBRID_LINK_ID -> debridLinkApiKey
             else -> ""
         }
     }

@@ -3,6 +3,7 @@ package com.fetch.tv.core.debrid
 import com.fetch.tv.data.local.DebridSettingsDataStore
 import com.fetch.tv.data.remote.api.RealDebridApi
 import com.fetch.tv.data.remote.dto.RealDebridAddTorrentDto
+import com.fetch.tv.data.remote.dto.RealDebridDownloadDto
 import com.fetch.tv.data.remote.dto.RealDebridTorrentFileDto
 import com.fetch.tv.data.remote.dto.RealDebridTorrentInfoDto
 import com.fetch.tv.data.remote.dto.RealDebridUnrestrictLinkDto
@@ -200,6 +201,16 @@ class RealDebridDirectDebridResolverTest {
             unrestrictCalls++
             return unrestrictResponse
         }
+
+        override suspend fun listTorrents(
+            authorization: String,
+            limit: Int
+        ): Response<List<RealDebridTorrentInfoDto>> = Response.success(emptyList())
+
+        override suspend fun listDownloads(
+            authorization: String,
+            limit: Int
+        ): Response<List<RealDebridDownloadDto>> = Response.success(emptyList())
 
         override suspend fun deleteTorrent(
             authorization: String,

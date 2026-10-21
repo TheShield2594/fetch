@@ -433,7 +433,9 @@ class StreamRepositoryImpl @Inject constructor(
     private fun DebridSettings.withoutRawCredentials(): DebridSettings = copy(
         torboxApiKey = torboxApiKey.sha256(),
         premiumizeApiKey = premiumizeApiKey.sha256(),
-        realDebridApiKey = realDebridApiKey.sha256()
+        realDebridApiKey = realDebridApiKey.sha256(),
+        allDebridApiKey = allDebridApiKey.sha256(),
+        debridLinkApiKey = debridLinkApiKey.sha256()
     )
 
     private fun String.sha256(): String =

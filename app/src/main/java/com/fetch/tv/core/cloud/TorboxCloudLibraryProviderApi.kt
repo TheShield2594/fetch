@@ -210,7 +210,7 @@ private fun Double.toProgressFraction(): Float {
     return normalized.toFloat().coerceIn(0f, 1f)
 }
 
-private fun isPlayableCloudFile(name: String, mimeType: String?): Boolean {
+internal fun isPlayableCloudFile(name: String, mimeType: String?): Boolean {
     val normalizedMime = mimeType?.lowercase().orEmpty()
     if (normalizedMime.startsWith("video/")) return true
     val extension = name.substringAfterLast('.', missingDelimiterValue = "")

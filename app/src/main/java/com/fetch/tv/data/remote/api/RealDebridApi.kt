@@ -1,6 +1,7 @@
 package com.fetch.tv.data.remote.api
 
 import com.fetch.tv.data.remote.dto.RealDebridAddTorrentDto
+import com.fetch.tv.data.remote.dto.RealDebridDownloadDto
 import com.fetch.tv.data.remote.dto.RealDebridTorrentInfoDto
 import com.fetch.tv.data.remote.dto.RealDebridUnrestrictLinkDto
 import okhttp3.ResponseBody
@@ -12,6 +13,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface RealDebridApi {
     @GET("user")
@@ -46,6 +48,18 @@ interface RealDebridApi {
         @Header("Authorization") authorization: String,
         @Field("link") link: String
     ): Response<RealDebridUnrestrictLinkDto>
+
+    @GET("torrents")
+    suspend fun listTorrents(
+        @Header("Authorization") authorization: String,
+        @Query("limit") limit: Int
+    ): Response<List<RealDebridTorrentInfoDto>>
+
+    @GET("downloads")
+    suspend fun listDownloads(
+        @Header("Authorization") authorization: String,
+        @Query("limit") limit: Int
+    ): Response<List<RealDebridDownloadDto>>
 
     @DELETE("torrents/delete/{id}")
     suspend fun deleteTorrent(

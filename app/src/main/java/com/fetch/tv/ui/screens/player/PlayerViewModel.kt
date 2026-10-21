@@ -44,7 +44,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import com.fetch.tv.R
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
@@ -254,6 +256,19 @@ class PlayerViewModel @Inject constructor(
 
     fun returnToPlayerFromPostPlay() {
         postPlayRecommendationController.returnToPlayer()
+    }
+
+    /** Saves a "Prefer this next time" choice into the profile's stream rules. */
+    fun preferNextTime(suggestion: com.fetch.tv.core.streams.ranking.PreferenceSuggestion) {
+        viewModelScope.launch {
+            val rules = playerSettingsDataStore.playerSettings.first().streamRankingRules
+            playerSettingsDataStore.setStreamRankingRules(suggestion.applyTo(rules))
+            android.widget.Toast.makeText(
+                context,
+                context.getString(R.string.prefer_next_time_saved, suggestion.label(context)),
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     fun scheduleHideControls() {

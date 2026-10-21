@@ -482,6 +482,7 @@ fun StreamScreen(
                         if (currentIndex >= 0) {
                             focusedStreamIndex = currentIndex
                         }
+                        viewModel.onManualPick(stream)
                         scope.coroutineLaunch {
                             val playbackInfo = viewModel.resolveStreamForPlayback(stream)
                             if (playbackInfo != null) {

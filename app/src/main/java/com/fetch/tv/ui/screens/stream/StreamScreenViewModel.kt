@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.stream
 import kotlinx.coroutines.withTimeoutOrNull
 import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.StreamRanker
+import com.fetch.tv.core.streams.ranking.PreferNextTime
 import com.fetch.tv.core.streams.ranking.RankedStreamList
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
@@ -1356,6 +1357,13 @@ class StreamScreenViewModel @Inject constructor(
             return meta.videos.firstOrNull { it.season == season && it.episode == episode }?.runtime
         }
         return parseRuntimeMinutes(meta.runtime)
+    }
+
+    /** Remembers a stream the user chose over Best match's pick, for "Prefer this next time". */
+    fun onManualPick(stream: Stream) {
+        val rules = rankingRules ?: return
+        if (!rankBestFirst) return
+        PreferNextTime.recordManualPick(stream, _uiState.value.allStreams, rules, DeviceDecodeCapabilities.current)
     }
 
     /** The profile's stream rules; null until the first results arrive. */

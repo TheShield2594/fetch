@@ -342,6 +342,12 @@
     <string name="theme_color_fetch">Fetch</string>
     <string name="best_match_cached">Cached</string>
     <string name="debrid_stream_rules_moved">Stream rules now live in Playback → Stream selection and apply to every source, debrid included. Rules you set here were moved there.</string>
+    <string name="prefer_next_time_title">Prefer this next time?</string>
+    <string name="prefer_next_time_group">Group %1$s</string>
+    <string name="prefer_next_time_language">%1$s audio</string>
+    <string name="prefer_next_time_size">Files up to %1$d GB</string>
+    <string name="prefer_next_time_not_now">Not now</string>
+    <string name="prefer_next_time_saved">Best match will prefer: %1$s</string>
     <string name="best_match_excluded">Not auto-played: %1$s</string>
     <string name="exclusion_above_max_resolution">above your maximum resolution</string>
     <string name="exclusion_below_min_resolution">below your minimum resolution</string>

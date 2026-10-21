@@ -408,7 +408,6 @@
 
     <string name="about_title">Névjegy</string>
     <string name="about_subtitle">Információk, frissítések és jogi nyilatkozatok</string>
-    <string name="about_made_with_love">Szeretettel (❤️) készítette a Tapframe és barátai</string>
     <string name="about_version">Verzió: %1$s</string>
     <string name="about_update_banner_title">Automatikus frissítési sáv</string>
     <string name="about_update_banner_subtitle">Sáv megjelenítése, ha új verzió elérhető</string>

@@ -409,7 +409,6 @@
 
     <string name="about_title">À propos</string>
     <string name="about_subtitle">Informations sur l’application, mises à jour et liens légaux</string>
-    <string name="about_made_with_love">Fait avec ❤️ par Tapframe et ses amis</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_update_banner_title">Bannière de mise à jour automatique</string>
     <string name="about_update_banner_subtitle">Afficher une bannière lorsqu’une nouvelle version est disponible</string>

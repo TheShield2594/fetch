@@ -394,7 +394,6 @@
 
     <string name="about_title">关于</string>
     <string name="about_subtitle">应用信息、更新和法律链接</string>
-    <string name="about_made_with_love">由 Tapframe 和朋友们 ❤️ 制作</string>
     <string name="about_version">版本 %1$s</string>
     <string name="about_update_banner_title">自动更新横幅</string>
     <string name="about_update_banner_subtitle">有新版本时显示横幅</string>

@@ -341,7 +341,6 @@
     <string name="cd_selected">Zgjedhur</string>
     <string name="about_title">Rreth aplikacionit</string>
     <string name="about_subtitle">Informacione për aplikacionin, përditësime dhe lidhje ligjore</string>
-    <string name="about_made_with_love">Krijuar me ❤️ nga Tapframe dhe miqtë</string>
     <string name="about_version">Versioni %1$s</string>
     <string name="about_update_banner_title">Baneri automatik i përditësimit</string>
     <string name="about_update_banner_subtitle">Shfaq një baner kur është i disponueshëm një version i ri</string>

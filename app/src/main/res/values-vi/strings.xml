@@ -409,7 +409,6 @@
 
     <string name="about_title">Giới thiệu</string>
     <string name="about_subtitle">Thông tin ứng dụng, cập nhật và liên kết pháp lý</string>
-    <string name="about_made_with_love">Được tạo bằng ❤️ bởi Tapframe và bạn bè</string>
     <string name="about_version">Phiên bản %1$s</string>
     <string name="about_update_banner_title">Bảng thông báo cập nhật tự động</string>
     <string name="about_update_banner_subtitle">Hiển thị bảng thông báo khi có phiên bản mới</string>

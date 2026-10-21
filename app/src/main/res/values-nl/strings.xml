@@ -386,7 +386,6 @@
 
     <string name="about_title">Over</string>
     <string name="about_subtitle">App-informatie, updates en juridische links</string>
-    <string name="about_made_with_love">Met ❤️ gemaakt door Tapframe en vrienden</string>
     <string name="about_version">Versie %1$s</string>
     <string name="about_update_banner_title">Banner voor automatische updates</string>
     <string name="about_update_banner_subtitle">Toon een banner wanneer er een nieuwe versie beschikbaar is</string>

@@ -372,7 +372,6 @@
     <string name="cd_selected">নির্বাচিত</string>
     <string name="about_title">সম্পর্কে</string>
     <string name="about_subtitle">অ্যাপের তথ্য, আপডেট এবং লিগ্যাল লিংক</string>
-    <string name="about_made_with_love">Tapframe এবং বন্ধুদের দ্বারা ❤️ দিয়ে তৈরি</string>
     <string name="about_version">সংস্করণ %1$s</string>
     <string name="about_update_banner_title">অটোমেটিক আপডেট ব্যানার</string>
     <string name="about_update_banner_subtitle">নতুন ভার্সন এলে একটি ব্যানার দেখান</string>

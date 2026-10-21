@@ -270,7 +270,6 @@
     <!-- AboutScreen -->
     <string name="about_title">О приложении</string>
     <string name="about_subtitle">Информация о приложении, обновления и ссылки</string>
-    <string name="about_made_with_love">Сделано с ❤️ командой Tapframe и друзьями</string>
     <string name="about_version">Версия %1$s</string>
     <string name="about_update_banner_title">Баннер автообновления</string>
     <string name="about_update_banner_subtitle">Показывать баннер при появлении новой версии</string>

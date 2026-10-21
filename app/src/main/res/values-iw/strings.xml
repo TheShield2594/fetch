@@ -413,7 +413,6 @@
 
     <string name="about_title">אודות</string>
     <string name="about_subtitle">מידע על האפליקציה, עדכונים וקישורים משפטיים</string>
-    <string name="about_made_with_love">נוצר באהבה ❤️ על ידי Tapframe וחברים</string>
     <string name="about_version">גרסה %1$s</string>
     <string name="about_update_banner_title">באנר עדכון אוטומטי</string>
     <string name="about_update_banner_subtitle">הצגת באנר כאשר גרסה חדשה זמינה</string>

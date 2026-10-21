@@ -396,7 +396,6 @@
 
     <string name="about_title">O aplikaciji</string>
     <string name="about_subtitle">Informacije o aplikaciji, ažuriranja i pravne veze</string>
-    <string name="about_made_with_love">Napravljeno sa ❤️ od strane Tapframe-a i prijatelja</string>
     <string name="about_version">Verzija %1$s</string>
     <string name="about_update_banner_title">Baner za automatsko ažuriranje</string>
     <string name="about_update_banner_subtitle">Prikaži baner kada je dostupna nova verzija</string>

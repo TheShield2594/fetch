@@ -369,7 +369,6 @@
 
 <string name="about_title">Informazioni</string>
 <string name="about_subtitle">Informazioni sull\'app, aggiornamenti e link legali</string>
-<string name="about_made_with_love">Fatto con ❤️ da Tapframe e amici</string>
 <string name="about_version">Versione %1$s</string>
 <string name="about_update_banner_title">Banner di aggiornamento automatico</string>
 <string name="about_update_banner_subtitle">Mostra un banner quando è disponibile una nuova versione</string>

@@ -394,7 +394,6 @@
 
     <string name="about_title">關於</string>
     <string name="about_subtitle">應用程式資訊、更新和法律連結</string>
-    <string name="about_made_with_love">由 Tapframe 和朋友們 ❤️ 製作</string>
     <string name="about_version">版本 %1$s</string>
     <string name="about_update_banner_title">自動更新橫幅</string>
     <string name="about_update_banner_subtitle">有新版本時顯示橫幅</string>
@@ -887,20 +886,12 @@
 
     <string name="layout_title">佈局設定</string>
     <string name="layout_subtitle">調整首頁佈局、內容可見性和海報行為</string>
-    <string name="layout_classic">經典檢視</string>
-    <string name="layout_grid">網格檢視</string>
-    <string name="layout_modern">現代檢視</string>
-    <string name="layout_classic_desc">水平滾動瀏覽分類</string>
-    <string name="layout_grid_desc">以垂直網格搭配焦點區塊瀏覽所有內容</string>
-    <string name="layout_modern_desc">固定焦點區塊搭配單一活動列，瀏覽速度更快</string>
     <string name="layout_section_home">首頁佈局</string>
     <string name="layout_section_home_desc">選擇結構和焦點區塊來源。</string>
     <string name="layout_landscape_posters">橫向海報</string>
     <string name="layout_landscape_posters_sub">在現代檢視中切換直式和橫式卡片。</string>
     <string name="layout_preview_row">顯示預覽列</string>
     <string name="layout_preview_row_sub">在現代首頁佈局中顯示下方列的局部預覽。</string>
-    <string name="layout_hero_catalogs">焦點區塊目錄</string>
-    <string name="layout_hero_catalogs_sub">選擇一個或多個目錄作為焦點區塊內容。</string>
     <string name="layout_section_content">首頁內容</string>
     <string name="layout_section_content_desc">控制首頁和搜尋顯示的內容。</string>
     <string name="layout_collapse_sidebar">摺疊側邊欄</string>
@@ -913,10 +904,6 @@
     <string name="layout_modern_sidebar_blur_sub">切換現代側邊欄表面的模糊效果。</string>
     <string name="layout_fullscreen_hero_backdrop">全螢幕焦點區塊背景</string>
     <string name="layout_fullscreen_hero_backdrop_sub">將焦點區塊背景延伸到整個螢幕。</string>
-    <string name="layout_classic_focus_gradient">焦點項目漸層</string>
-    <string name="layout_classic_focus_gradient_sub">將美術圖顏色混合到經典首頁的右側。</string>
-    <string name="layout_show_hero">顯示焦點區塊</string>
-    <string name="layout_show_hero_sub">在首頁頂部顯示焦點區塊輪播。</string>
     <string name="layout_show_discover">顯示/隱藏探索</string>
     <string name="layout_show_discover_sub">新增探索區塊以便瀏覽。</string>
     <string name="layout_discover_location_action">探索位置</string>
@@ -992,12 +979,9 @@
     <string name="layout_expand_delay">背景圖展開延遲</string>
     <string name="layout_expand_delay_sub">展開焦點卡片前的等待時間。</string>
     <string name="layout_autoplay_trailer">自動播放預告片</string>
-    <string name="layout_autoplay_trailer_expanded">在展開的卡片中自動播放預告片</string>
     <string name="layout_autoplay_trailer_sub">在可用時為焦點內容播放預告片預覽。</string>
-    <string name="layout_autoplay_trailer_expanded_sub">在可用時在展開的背景圖中播放預告片。</string>
     <string name="layout_trailer_muted">靜音播放預告片</string>
     <string name="layout_trailer_muted_sub_preview">在自動播放預覽中將預告片音訊靜音。</string>
-    <string name="layout_trailer_muted_sub_expanded">在展開的卡片中將預告片音訊靜音。</string>
     <string name="layout_section_card_style">海報卡</string>
     <string name="layout_section_card_style_desc">調整卡片寬度和圓角半徑。</string>
     <string name="settings_card_depth_title">卡片深度效果</string>
@@ -2189,9 +2173,7 @@
     <string name="catalog_see_all_empty_title">沒有可用的項目</string>
     <string name="catalog_see_all_empty_subtitle">請嘗試其他目錄或稍後再查看</string>
 
-    <string name="layout_selection_welcome">歡迎使用 Fetch</string>
     <string name="layout_selection_subtitle">選擇您的首頁畫面佈局</string>
-    <string name="layout_selection_continue">繼續</string>
 
     <string name="update_title">應用程式更新</string>
     <string name="update_available">有可用更新</string>

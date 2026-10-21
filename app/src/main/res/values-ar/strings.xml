@@ -349,7 +349,6 @@
     <!-- AboutScreen -->
     <string name="about_title">حول</string>
     <string name="about_subtitle">معلومات التطبيق، التحديثات، والروابط القانونية</string>
-    <string name="about_made_with_love">صنع بكل ❤️ بواسطة Tapframe والأصدقاء</string>
     <string name="about_version">الإصدار %1$s</string>
     <string name="about_check_updates">التحقق من التحديثات</string>
     <string name="about_check_updates_subtitle">تحميل أحدث إصدار</string>
@@ -748,20 +747,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">إعدادات التنسيق</string>
     <string name="layout_subtitle">ضبط تنسيق الصفحة الرئيسية، وظهور المحتوى، وسلوك البطاقات</string>
-    <string name="layout_classic">عرض كلاسيكي</string>
-    <string name="layout_grid">عرض شبكي</string>
-    <string name="layout_modern">عرض حديث</string>
-    <string name="layout_classic_desc">تصفح القوائم بشكل أفقي</string>
-    <string name="layout_grid_desc">تصفح كل شيء في شبكة رأسية مع قسم محتوى مميز</string>
-    <string name="layout_modern_desc">قسم مميز ثابت مع صف نشط واحد لتصفح أسرع</string>
     <string name="layout_section_home">تنسيق الواجهة الرئيسية</string>
     <string name="layout_section_home_desc">إختر تصميم القسم ومصدر المحتوى المميز.</string>
     <string name="layout_landscape_posters">بطاقات أفقية</string>
     <string name="layout_landscape_posters_sub">إظهار جزء من الصف السفلي في العرض الحديث.</string>
     <string name="layout_preview_row">إظهار صف المعاينة</string>
     <string name="layout_preview_row_sub">إظهار معاينة جزئية للصف السفلي في التنسيق الحديث.</string>
-    <string name="layout_hero_catalogs">قوائم القسم المميز</string>
-    <string name="layout_hero_catalogs_sub">إختر قائمة واحدة أو أكثر لمحتوى القسم المميز.</string>
     <string name="layout_section_content">محتوى الرئيسية</string>
     <string name="layout_section_content_desc">التحكم في ما يظهر في الرئيسية والبحث.</string>
     <string name="layout_collapse_sidebar">طي الشريط الجانبي</string>
@@ -772,10 +763,6 @@
     <string name="layout_modern_sidebar_blur_sub">تفعيل تأثير التعتيم لأسطح الشريط الجانبي الحديث.</string>
     <string name="layout_fullscreen_hero_backdrop">خلفية القسم المميز بملء الشاشة</string>
     <string name="layout_fullscreen_hero_backdrop_sub">توسيع خلفية القسم المميز لتملأ الشاشة بأكملها.</string>
-    <string name="layout_classic_focus_gradient">تدرج لوني للعنصر المحدد</string>
-    <string name="layout_classic_focus_gradient_sub">دمج ألوان العمل الفني في الجانب الأيمن من الصفحة الرئيسية الكلاسيكية.</string>
-    <string name="layout_show_hero">إظهار القسم المميز</string>
-    <string name="layout_show_hero_sub">عرض شريط القسم المميز في أعلى الرئيسية.</string>
     <string name="layout_show_discover">إظهار "استكشاف" في البحث</string>
     <string name="layout_show_discover_sub">إظهار قسم "استكشاف" عندما يكون حقل البحث فارغاً.</string>
     <string name="layout_discover_location_action">مكان "استكشاف"</string>
@@ -827,12 +814,9 @@
     <string name="layout_expand_delay">مدة انتظار تكبير الصور الخلفية</string>
     <string name="layout_expand_delay_sub">الوقت المطلوب للانتظار قبل تكبير البطاقة المحددة.</string>
     <string name="layout_autoplay_trailer">تشغيل الإعلان تلقائياً</string>
-    <string name="layout_autoplay_trailer_expanded">تشغيل الإعلان في الخلفية الممتدة</string>
     <string name="layout_autoplay_trailer_sub">تشغيل الإعلان تلقائيًا للمحتوى المحدد عند توفره.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">تشغيل الإعلان داخل الخلفية الممتدة عند توفره.</string>
     <string name="layout_trailer_muted">تشغيل الإعلان بدون صوت</string>
     <string name="layout_trailer_muted_sub_preview">كتم صوت الإعلان أثناء المعاينة التلقائية.</string>
-    <string name="layout_trailer_muted_sub_expanded">كتم صوت الإعلان في البطاقات الممتدة.</string>
     <string name="layout_section_card_style">البطاقات</string>
     <string name="layout_section_card_style_desc">ضبط عرض البطاقة وزوايا الانحناء.</string>
     <string name="layout_open">مفتوح</string>
@@ -1816,9 +1800,7 @@
     <string name="catalog_see_all_empty_subtitle">جرب فئة أخرى أو تفقدها لاحقاً</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">مرحباً بك في Fetch</string>
     <string name="layout_selection_subtitle">إختر تنسيق شاشتك الرئيسية</string>
-    <string name="layout_selection_continue">متابعة</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">تحديث التطبيق</string>

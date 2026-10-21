@@ -350,7 +350,6 @@
 
     <string name="about_title">O aplikaci</string>
     <string name="about_subtitle">Informace o aplikaci, aktualizace a právní odkazy</string>
-    <string name="about_made_with_love">Vytvořeno s ❤️ týmem Tapframe a přáteli</string>
     <string name="about_version">Verze %1$s</string>
     <string name="about_check_updates">Zkontrolovat aktualizace</string>
     <string name="about_check_updates_subtitle">Stáhnout nejnovější verzi</string>
@@ -774,20 +773,12 @@
 
     <string name="layout_title">Nastavení rozvržení</string>
     <string name="layout_subtitle">Upravit domovské rozvržení, viditelnost obsahu a chování plakátů</string>
-    <string name="layout_classic">Klasické zobrazení</string>
-    <string name="layout_grid">Zobrazení mřížky</string>
-    <string name="layout_modern">Moderní zobrazení</string>
-    <string name="layout_classic_desc">Procházet kategorie vodorovně</string>
-    <string name="layout_grid_desc">Procházet vše ve svislé mřížce se sekcí hrdiny</string>
-    <string name="layout_modern_desc">Pevný hrdina s jedním aktivním řádkem pro rychlejší procházení</string>
     <string name="layout_section_home">Domovské rozvržení</string>
     <string name="layout_section_home_desc">Vyberte strukturu a zdroj hrdiny.</string>
     <string name="layout_landscape_posters">Plakáty na šířku</string>
     <string name="layout_landscape_posters_sub">Přepínat mezi kartami na výšku a na šířku pro Moderní zobrazení.</string>
     <string name="layout_preview_row">Zobrazit řádek náhledu</string>
     <string name="layout_preview_row_sub">Zobrazit částečný náhled řádku níže v Moderním domovském rozvržení.</string>
-    <string name="layout_hero_catalogs">Katalogy hrdiny</string>
-    <string name="layout_hero_catalogs_sub">Vyberte jeden nebo více katalogů pro obsah hrdiny.</string>
     <string name="layout_section_content">Domovský obsah</string>
     <string name="layout_section_content_desc">Řídit, co se zobrazuje na domovské stránce a ve vyhledávání.</string>
     <string name="layout_collapse_sidebar">Sbalit postranní panel</string>
@@ -798,10 +789,6 @@
     <string name="layout_modern_sidebar_blur_sub">Přepnout efekt rozostření pro plochy moderního postranního panelu.</string>
     <string name="layout_fullscreen_hero_backdrop">Pozadí hrdiny přes celou obrazovku</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozšířit pozadí hrdiny, aby vyplnilo celou obrazovku.</string>
-    <string name="layout_classic_focus_gradient">Přechod zaměřené položky</string>
-    <string name="layout_classic_focus_gradient_sub">Prolínat barvy artworku do pravé strany Klasického domova.</string>
-    <string name="layout_show_hero">Zobrazit sekci hrdiny</string>
-    <string name="layout_show_hero_sub">Zobrazit karusel hrdiny v horní části domova.</string>
     <string name="layout_show_discover">Zobrazit Objevovat ve vyhledávání</string>
     <string name="layout_show_discover_sub">Zobrazit sekci procházení, když je vyhledávání prázdné.</string>
     <string name="layout_discover_location_action">Umístění Objevování</string>
@@ -853,12 +840,9 @@
     <string name="layout_expand_delay">Prodleva rozšíření pozadí</string>
     <string name="layout_expand_delay_sub">Jak dlouho čekat před rozšířením zaměřených karet.</string>
     <string name="layout_autoplay_trailer">Automaticky přehrát trailer</string>
-    <string name="layout_autoplay_trailer_expanded">Automaticky přehrát trailer v rozšířené kartě</string>
     <string name="layout_autoplay_trailer_sub">Přehrát náhled traileru pro zaměřený obsah, když je k dispozici.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Přehrát trailer uvnitř rozšířeného pozadí, když je k dispozici.</string>
     <string name="layout_trailer_muted">Přehrát trailer ztlumený</string>
     <string name="layout_trailer_muted_sub_preview">Ztlumit zvuk traileru během automatického náhledu.</string>
-    <string name="layout_trailer_muted_sub_expanded">Ztlumit zvuk traileru v rozšířených kartách.</string>
     <string name="layout_section_card_style">Karta plakátu</string>
     <string name="layout_section_card_style_desc">Vyladit šířku karty a poloměr rohů.</string>
     <string name="settings_card_depth_title">Efekt hloubky karty</string>
@@ -1882,9 +1866,7 @@
     <string name="catalog_see_all_empty_title">Žádné položky nejsou k dispozici</string>
     <string name="catalog_see_all_empty_subtitle">Zkuste jiný katalog nebo to zkontrolujte později</string>
 
-    <string name="layout_selection_welcome">Vítejte v Fetch</string>
     <string name="layout_selection_subtitle">Vyberte rozvržení domovské obrazovky</string>
-    <string name="layout_selection_continue">Pokračovat</string>
 
     <string name="update_title">Aktualizace aplikace</string>
     <string name="update_downloading">Stahování aktualizace</string>

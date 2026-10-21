@@ -9,7 +9,6 @@ import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.Collection
-import com.fetch.tv.domain.model.HomeLayout
 import com.fetch.tv.domain.model.catalogRowStableKey
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.model.legacyKey
@@ -26,10 +25,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import com.fetch.tv.domain.model.MetaPreview
-import com.fetch.tv.domain.model.PLACEHOLDER_IMAGE_URL
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withPermit
 import com.fetch.tv.core.util.filterReleasedItems
@@ -39,7 +36,6 @@ import java.time.LocalDate
 private data class CatalogUpdateResult(
     val displayRows: List<CatalogRow>,
     val heroItems: List<com.fetch.tv.domain.model.MetaPreview>,
-    val gridItems: List<GridItem>,
     val fullRows: List<CatalogRow>
 )
 
@@ -121,8 +117,7 @@ internal fun HomeViewModel.observeTmdbSettingsPipeline() {
             .collectLatest { settings ->
                 val languageChanged = currentTmdbSettings.language != settings.language
                 currentTmdbSettings = settings
-                val tmdbEnabledForLayout = settings.enabled &&
-                    (_uiState.value.homeLayout != HomeLayout.MODERN || settings.modernHomeEnabled)
+                val tmdbEnabledForLayout = settings.enabled && settings.modernHomeEnabled
                 val enrichEnabled = tmdbEnabledForLayout || externalMetaPrefetchEnabled
                 _uiState.update { it.copy(heroEnrichmentEnabled = enrichEnabled) }
                 if (languageChanged) {
@@ -309,16 +304,9 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             return "$catalogName - $typeLabel"
         }
 
-        // Determine which home catalogs to load eagerly vs lazily.
-        // Grid layout loads all catalogs eagerly since it doesn't support
-        // placeholder shimmer rows — all content must be available upfront.
-        // Wait for layout preferences if not yet ready, to avoid wrong eager/lazy split.
-        if (!_uiState.value.layoutPreferencesReady) {
-            _uiState.first { it.layoutPreferencesReady }
-        }
-        val isGridLayout = _uiState.value.homeLayout == HomeLayout.GRID
-        val eagerHomeCatalogs = if (isGridLayout) catalogsToLoad else catalogsToLoad.take(eagerCatalogLoadCount)
-        val lazyHomeCatalogs = if (isGridLayout) emptyList() else catalogsToLoad.drop(eagerCatalogLoadCount)
+        // Load the first catalogs eagerly; the rest show placeholder rows until they scroll near.
+        val eagerHomeCatalogs = catalogsToLoad.take(eagerCatalogLoadCount)
+        val lazyHomeCatalogs = catalogsToLoad.drop(eagerCatalogLoadCount)
 
         // Build placeholder descriptors for lazy catalogs
         synchronized(catalogStateLock) {
@@ -597,13 +585,11 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
     val catalogSnapshot = unfilteredCatalogSnapshot.mapValues { (_, row) -> parentalControls.filterRow(row) }
     val collectionsSnapshot = collectionsCache.associateBy { "collection_${it.id}" }
     val heroCatalogKeys = currentHeroCatalogKeys
-    val currentLayout = _uiState.value.homeLayout
-    val currentGridItems = _uiState.value.gridItems
     val heroSectionEnabled = _uiState.value.heroSectionEnabled
     val hideUnreleased = _uiState.value.hideUnreleasedContent
     val titlesSnapshot = customCatalogTitles
 
-    val (displayRows, baseHeroItems, baseGridItems, fullRowsFiltered) = withContext(Dispatchers.Default) {
+    val (displayRows, baseHeroItems, fullRowsFiltered) = withContext(Dispatchers.Default) {
         val rawRows = orderedKeys.mapNotNull { key ->
             val row = catalogSnapshot[key] ?: return@mapNotNull null
             val custom = titlesSnapshot[key]
@@ -701,36 +687,10 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
             else -> emptyList()
         }
 
-        val computedDisplayRows = orderedRows.map { row ->
-            val shouldKeepFullRowInModern = currentLayout == HomeLayout.MODERN
-            val gridTruncateLimit = 24
-            if (row.items.size > gridTruncateLimit && !shouldKeepFullRowInModern) {
-                val key = row.legacyKey()
-                val cachedEntry = getTruncatedRowCacheEntry(key)
-                if (cachedEntry != null && cachedEntry.sourceRow === row) {
-                    cachedEntry.truncatedRow
-                } else {
-                    val truncatedRow = row.copy(
-                        items = row.items.take(gridTruncateLimit),
-                        hasMore = true
-                    )
-                    putTruncatedRowCacheEntry(
-                        key,
-                        HomeViewModel.TruncatedRowCacheEntry(
-                            sourceRow = row,
-                            truncatedRow = truncatedRow
-                        )
-                    )
-                    truncatedRow
-                }
-            } else {
-                val key = row.legacyKey()
-                removeTruncatedRowCacheEntry(key)
-                row
-            }
-        }
+        // Rows are kept whole so a card that holds focus is never cut off the end.
+        orderedRows.forEach { row -> removeTruncatedRowCacheEntry(row.legacyKey()) }
 
-        CatalogUpdateResult(computedDisplayRows, computedHeroItems, emptyList(), orderedRows)
+        CatalogUpdateResult(orderedRows, computedHeroItems, orderedRows)
     }
 
     _fullCatalogRows.update { rows ->
@@ -739,7 +699,7 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
 
     heroItemOrder = baseHeroItems.map { it.id }
 
-    val (computedHomeRows, nextGridItems) = withContext(Dispatchers.Default) {
+    val computedHomeRows = withContext(Dispatchers.Default) {
         val computedHomeRows = buildList {
             val displayRowsByKey = displayRows.associateBy { it.legacyKey() }
             // Build a lookup of placeholder descriptors by key for lazy catalogs
@@ -767,7 +727,6 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
                     } else {
                         val placeholder = placeholdersByKey[key]
                         if (placeholder != null) {
-                        if (currentLayout == HomeLayout.MODERN) {
                             add(HomeRow.PlaceholderCatalog(
                                 catalogKey = placeholder.catalogKey,
                                 stableCatalogKey = catalogRowStableKey(
@@ -784,119 +743,13 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
                                 apiType = placeholder.apiType,
                                 displayTitle = placeholder.displayTitle
                             ))
-                        } else {
-                            val fakeItems = (0 until 8).map { i ->
-                                MetaPreview(
-                                    id = "__placeholder_${placeholder.catalogKey}_$i",
-                                    type = com.fetch.tv.domain.model.ContentType.fromString(placeholder.apiType),
-                                    rawType = placeholder.apiType,
-                                    name = " ",
-                                    poster = PLACEHOLDER_IMAGE_URL,
-                                    posterShape = com.fetch.tv.domain.model.PosterShape.POSTER,
-                                    background = null,
-                                    logo = null,
-                                    description = null,
-                                    releaseInfo = " ",
-                                    imdbRating = null,
-                                    genres = emptyList()
-                                )
-                            }
-                            add(HomeRow.Catalog(CatalogRow(
-                                addonId = placeholder.addonId,
-                                addonName = placeholder.addonName,
-                                addonBaseUrl = placeholder.addonBaseUrl,
-                                catalogId = placeholder.catalogId,
-                                catalogName = placeholder.catalogName,
-                                type = com.fetch.tv.domain.model.ContentType.fromString(placeholder.apiType),
-                                rawType = placeholder.apiType,
-                                items = fakeItems,
-                                isLoading = true,
-                                hasMore = false
-                            )))
-                        }
                     }
                 }
             }
         }
     }
 
-    val nextGridItems = if (currentLayout == HomeLayout.GRID) {
-        val posterCardWidthDp = _uiState.value.posterCardWidthDp
-        val rowCount = if (posterCardWidthDp <= 104) 2 else 3
-        // Provide generous upper bound of items — the Composable layer will trim
-        // based on the actual column count from GridCells.Adaptive layout info.
-        // We use 8 as safe max columns (widest known config) to avoid cutting too early.
-        val safeMaxColumns = 8
-        val maxDisplaySlots = safeMaxColumns * rowCount
-        buildList {
-            if (heroSectionEnabled && baseHeroItems.isNotEmpty()) {
-                add(GridItem.Hero(baseHeroItems))
-            }
-            computedHomeRows.forEach { homeRow ->
-                when (homeRow) {
-                    is HomeRow.Catalog -> {
-                        val row = homeRow.row
-                        val isPlaceholderRow = row.isLoading &&
-                            row.items.firstOrNull()?.id?.startsWith("__placeholder_") == true
-                        if (row.items.isNotEmpty() && !isPlaceholderRow) {
-                            add(GridItem.SectionDivider(
-                                catalogName = row.catalogName,
-                                catalogId = row.catalogId,
-                                addonBaseUrl = row.addonBaseUrl,
-                                addonId = row.addonId,
-                                type = row.apiType
-                            ))
-                            // Show "See All" if there are more items than fit in the
-                            // displayed rows, or the API indicates more pages exist.
-                            val showSeeAll = row.hasMore || row.items.size > maxDisplaySlots
-                            val rawMax = if (showSeeAll) maxDisplaySlots - 1 else maxDisplaySlots
-                            val displayItems = row.items.take(rawMax)
-                            displayItems.forEach { item ->
-                                add(GridItem.Content(
-                                    item = item,
-                                    addonBaseUrl = row.addonBaseUrl,
-                                    catalogId = row.catalogId,
-                                    catalogName = row.catalogName,
-                                    addonId = row.addonId,
-                                    rowApiType = row.apiType
-                                ))
-                            }
-                            if (showSeeAll) {
-                                add(GridItem.SeeAll(
-                                    catalogId = row.catalogId,
-                                    addonId = row.addonId,
-                                    addonBaseUrl = row.addonBaseUrl,
-                                    type = row.apiType
-                                ))
-                            }
-                        }
-                    }
-                    is HomeRow.CollectionRow -> {
-                        val col = homeRow.collection
-                        add(GridItem.CollectionHeader(
-                            collectionId = col.id,
-                            title = col.title
-                        ))
-                        col.folders.forEach { folder ->
-                            add(GridItem.CollectionFolder(
-                                collectionId = col.id,
-                                collectionTitle = col.title,
-                                focusGlowEnabled = col.focusGlowEnabled,
-                                folder = folder
-                            ))
-                        }
-                    }
-                    is HomeRow.PlaceholderCatalog -> {
-                        // Grid layout: skip placeholders (grid loads all at once)
-                    }
-                }
-            }
-        }.let { replaceGridHeroItemsPipeline(it, baseHeroItems) }
-    } else {
-        currentGridItems
-    }
-
-        computedHomeRows to nextGridItems
+        computedHomeRows
     }
 
     // Clear any stale error when content is now available (e.g., hero
@@ -907,7 +760,6 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
         state.copy(
             catalogRows = if (state.catalogRows == displayRows) state.catalogRows else displayRows,
             heroItems = if (state.heroItems == baseHeroItems) state.heroItems else baseHeroItems,
-            gridItems = if (state.gridItems == nextGridItems) state.gridItems else nextGridItems,
             homeRows = if (state.homeRows == computedHomeRows) state.homeRows else computedHomeRows,
             isLoading = false,
             error = if (hasContent) null else state.error
@@ -915,8 +767,7 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
     }
 
     val tmdbSettings = currentTmdbSettings
-    val tmdbEnabledForCurrentLayout = tmdbSettings.enabled &&
-        (currentLayout != HomeLayout.MODERN || tmdbSettings.modernHomeEnabled)
+    val tmdbEnabledForCurrentLayout = tmdbSettings.enabled && tmdbSettings.modernHomeEnabled
     val shouldUseEnrichedHeroItems = tmdbEnabledForCurrentLayout &&
         (tmdbSettings.useArtwork || tmdbSettings.useBasicInfo || tmdbSettings.useDetails)
 
@@ -928,11 +779,7 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
                 val cached = lastHeroEnrichedItems
                 _uiState.update { state ->
                     state.copy(
-                        heroItems = if (state.heroItems == cached) state.heroItems else cached,
-                        gridItems = if (currentLayout == HomeLayout.GRID) {
-                            val enrichedGrid = replaceGridHeroItemsPipeline(state.gridItems, cached)
-                            if (state.gridItems == enrichedGrid) state.gridItems else enrichedGrid
-                        } else state.gridItems
+                        heroItems = if (state.heroItems == cached) state.heroItems else cached
                     )
                 }
             } else {
@@ -941,11 +788,7 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
                 lastHeroEnrichedItems = enrichedItems
                 _uiState.update { state ->
                     state.copy(
-                        heroItems = if (state.heroItems == enrichedItems) state.heroItems else enrichedItems,
-                        gridItems = if (currentLayout == HomeLayout.GRID) {
-                            val enrichedGrid = replaceGridHeroItemsPipeline(state.gridItems, enrichedItems)
-                            if (state.gridItems == enrichedGrid) state.gridItems else enrichedGrid
-                        } else state.gridItems
+                        heroItems = if (state.heroItems == enrichedItems) state.heroItems else enrichedItems
                     )
                 }
             }
@@ -1171,12 +1014,7 @@ internal fun HomeViewModel.mergeRefreshedCatalogRow(
 
     if (isPrepend) {
         // Nothing is removed and every card already on screen keeps its key, so the focused card
-        // only shifts along and its node is reused. That holds in the modern layout, which keeps
-        // the whole row; the others cut it at a fixed length, where the focused card can be
-        // pushed past the cut and no key brings back a card that has left the list.
-        if (!requestedByUser && rowHasFocus && _uiState.value.homeLayout != HomeLayout.MODERN) {
-            return true
-        }
+        // only shifts along and its node is reused.
         val shiftedSkip = if (current.supportsSkip && current.nextSkip > 0) {
             current.nextSkip + added.size
         } else {

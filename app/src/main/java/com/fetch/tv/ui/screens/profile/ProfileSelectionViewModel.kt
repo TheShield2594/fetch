@@ -130,7 +130,7 @@ class ProfileSelectionViewModel @Inject constructor(
                     combine(
                         profileList.map { profile ->
                             themeDataStore.observeThemeForProfile(profile.id)
-                                .map { theme -> profile.id to (theme ?: com.fetch.tv.domain.model.AppTheme.WHITE) }
+                                .map { theme -> profile.id to (theme ?: com.fetch.tv.domain.model.DEFAULT_APP_THEME) }
                         }
                     ) { entries -> entries.toMap() }
                 }

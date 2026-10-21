@@ -341,7 +341,6 @@
 
     <string name="about_title">Про застосунок</string>
     <string name="about_subtitle">Інформація про застосунок, оновлення та посилання</string>
-    <string name="about_made_with_love">Зроблено з ❤️ командою Tapframe та друзями</string>
     <string name="about_version">Версія %1$s</string>
     <string name="about_check_updates">Перевірити оновлення</string>
     <string name="about_check_updates_subtitle">Завантажити останній реліз</string>
@@ -745,20 +744,12 @@
 
     <string name="layout_title">Налаштування інтерфейсу</string>
     <string name="layout_subtitle">Налаштування макету головного екрана, видимості контенту та поведінки постерів</string>
-    <string name="layout_classic">Класичний вигляд</string>
-    <string name="layout_grid">Вигляд сітки</string>
-    <string name="layout_modern">Сучасний вигляд</string>
-    <string name="layout_classic_desc">Горизонтальне прокручування категорій</string>
-    <string name="layout_grid_desc">Перегляд всього у вертикальній сітці з головним блоком</string>
-    <string name="layout_modern_desc">Фіксований головний блок з одним активним рядком для швидкого перегляду</string>
     <string name="layout_section_home">Макет головного екрана</string>
     <string name="layout_section_home_desc">Оберіть структуру та джерело для головного блоку.</string>
     <string name="layout_landscape_posters">Альбомні постери</string>
     <string name="layout_landscape_posters_sub">Перемикання між портретними та альбомними картками для Сучасного вигляду.</string>
     <string name="layout_preview_row">Показувати рядок попереднього перегляду</string>
     <string name="layout_preview_row_sub">Показувати частковий попередній перегляд наступного рядка в Сучасному макеті.</string>
-    <string name="layout_hero_catalogs">Каталоги головного блоку (Hero)</string>
-    <string name="layout_hero_catalogs_sub">Оберіть один або кілька каталогів для контенту головного блоку.</string>
     <string name="layout_section_content">Контент головного екрана</string>
     <string name="layout_section_content_desc">Керування тим, що відображається на головному екрані та в пошуку.</string>
     <string name="layout_collapse_sidebar">Згортати бічну панель</string>
@@ -769,10 +760,6 @@
     <string name="layout_modern_sidebar_blur_sub">Перемкнути ефект розмиття для сучасної бічної панелі.</string>
     <string name="layout_fullscreen_hero_backdrop">Повноекранний фон головного блоку</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Розтягувати фон головного блоку на весь екран.</string>
-    <string name="layout_classic_focus_gradient">Градієнт сфокусованого елемента</string>
-    <string name="layout_classic_focus_gradient_sub">Змішувати кольори обкладинки в праву частину класичного головного екрана.</string>
-    <string name="layout_show_hero">Показувати головний блок</string>
-    <string name="layout_show_hero_sub">Відображати карусель головного блоку у верхній частині.</string>
     <string name="layout_show_discover">Показувати Навігатор у пошуку</string>
     <string name="layout_show_discover_sub">Показувати розділ навігації, коли пошук порожній.</string>
     <string name="layout_discover_location_action">Розташування Навігатора</string>
@@ -824,12 +811,9 @@
     <string name="layout_expand_delay">Затримка розгортання фону</string>
     <string name="layout_expand_delay_sub">Скільки чекати перед розгортанням картки у фокусі.</string>
     <string name="layout_autoplay_trailer">Автовідтворення трейлера</string>
-    <string name="layout_autoplay_trailer_expanded">Автовідтворення трейлера в розгорнутій картці</string>
     <string name="layout_autoplay_trailer_sub">Відтворювати прев\'ю трейлера для контенту у фокусі, якщо доступно.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Відтворювати трейлер всередині розгорнутого фону, якщо доступно.</string>
     <string name="layout_trailer_muted">Відтворювати трейлер без звуку</string>
     <string name="layout_trailer_muted_sub_preview">Вимкнути звук трейлера під час автовідтворення прев\'ю.</string>
-    <string name="layout_trailer_muted_sub_expanded">Вимкнути звук трейлера в розгорнутих картках.</string>
     <string name="layout_section_card_style">Картка постера</string>
     <string name="layout_section_card_style_desc">Налаштування ширини картки та радіуса кутів.</string>
     <string name="layout_open">Відкрити</string>
@@ -1790,9 +1774,7 @@
     <string name="catalog_see_all_empty_title">Немає доступних елементів</string>
     <string name="catalog_see_all_empty_subtitle">Спробуйте інший каталог або зайдіть пізніше</string>
 
-    <string name="layout_selection_welcome">Ласкаво просимо до Fetch</string>
     <string name="layout_selection_subtitle">Оберіть макет вашого головного екрана</string>
-    <string name="layout_selection_continue">Продовжити</string>
 
     <string name="update_title">Оновлення застосунку</string>
     <string name="update_downloading">Завантаження оновлення</string>

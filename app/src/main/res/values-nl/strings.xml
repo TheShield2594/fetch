@@ -386,7 +386,6 @@
 
     <string name="about_title">Over</string>
     <string name="about_subtitle">App-informatie, updates en juridische links</string>
-    <string name="about_made_with_love">Met ❤️ gemaakt door Tapframe en vrienden</string>
     <string name="about_version">Versie %1$s</string>
     <string name="about_update_banner_title">Banner voor automatische updates</string>
     <string name="about_update_banner_subtitle">Toon een banner wanneer er een nieuwe versie beschikbaar is</string>
@@ -856,20 +855,12 @@
 
     <string name="layout_title">Indelingsinstellingen</string>
     <string name="layout_subtitle">Pas de indeling van het startscherm, de zichtbaarheid van inhoud en het postergedrag aan</string>
-    <string name="layout_classic">Klassieke weergave</string>
-    <string name="layout_grid">Rasterweergave</string>
-    <string name="layout_modern">Moderne weergave</string>
-    <string name="layout_classic_desc">Scroll horizontaal door categorieën</string>
-    <string name="layout_grid_desc">Blader verticaal door alles met een hero-sectie</string>
-    <string name="layout_modern_desc">Vaste hero met één actieve rij voor sneller bladeren</string>
     <string name="layout_section_home">Indeling van het startscherm</string>
     <string name="layout_section_home_desc">Kies structuur en hero-bron.</string>
     <string name="layout_landscape_posters">Liggende posters</string>
     <string name="layout_landscape_posters_sub">Schakel tussen staande en liggende kaarten in Moderne weergave.</string>
     <string name="layout_preview_row">Previewrij tonen</string>
     <string name="layout_preview_row_sub">Toon een gedeeltelijke preview van de rij eronder in het moderne startscherm.</string>
-    <string name="layout_hero_catalogs">Hero-catalogi</string>
-    <string name="layout_hero_catalogs_sub">Selecteer één of meer catalogi voor hero-inhoud.</string>
     <string name="layout_section_content">Inhoud van het startscherm</string>
     <string name="layout_section_content_desc">Bepaal wat zichtbaar is op het startscherm en bij zoeken.</string>
     <string name="layout_collapse_sidebar">Zijbalk inklappen</string>
@@ -882,10 +873,6 @@
     <string name="layout_modern_sidebar_blur_sub">Schakel vervagingseffect in voor moderne zijbalk.</string>
     <string name="layout_fullscreen_hero_backdrop">Hero-achtergrond op volledig scherm</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Vergroot de hero-achtergrond zodat die het hele scherm vult.</string>
-    <string name="layout_classic_focus_gradient">Kleurverloop bij item met focus</string>
-    <string name="layout_classic_focus_gradient_sub">Meng de kleuren van de illustratie in de rechterkant van het klassieke startscherm.</string>
-    <string name="layout_show_hero">Hero-sectie tonen</string>
-    <string name="layout_show_hero_sub">Toon de hero-carrousel bovenaan het startscherm.</string>
     <string name="layout_show_discover">Ontdekken tonen/verbergen</string>
     <string name="layout_show_discover_sub">Voegt een gedeelte Ontdekken toe om door inhoud te bladeren.</string>
     <string name="layout_discover_location_action">Locatie van Ontdekken</string>
@@ -961,12 +948,9 @@
     <string name="layout_expand_delay">Vertraging voor uitvouwen naar achtergrond</string>
     <string name="layout_expand_delay_sub">Hoe lang er wordt gewacht voordat de kaart met focus wordt uitgevouwen.</string>
     <string name="layout_autoplay_trailer">Trailer automatisch afspelen</string>
-    <string name="layout_autoplay_trailer_expanded">Trailer automatisch afspelen in uitgevouwen kaart</string>
     <string name="layout_autoplay_trailer_sub">Speel een trailerpreview af voor inhoud met focus, indien beschikbaar.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Speel de trailer af binnen de uitgevouwen achtergrond, indien beschikbaar.</string>
     <string name="layout_trailer_muted">Trailer gedempt afspelen</string>
     <string name="layout_trailer_muted_sub_preview">Demp het trailergeluid tijdens de automatische preview.</string>
-    <string name="layout_trailer_muted_sub_expanded">Demp het trailergeluid in uitgevouwen kaarten.</string>
     <string name="layout_section_card_style">Posterkaart</string>
     <string name="layout_section_card_style_desc">Pas kaartbreedte en hoekradius aan.</string>
     <string name="settings_card_depth_title">Diepte-effect van kaarten</string>
@@ -2108,9 +2092,7 @@
     <string name="catalog_see_all_empty_title">Geen items beschikbaar</string>
     <string name="catalog_see_all_empty_subtitle">Probeer een andere catalogus of kom later terug</string>
 
-    <string name="layout_selection_welcome">Welkom bij Fetch</string>
     <string name="layout_selection_subtitle">Kies je startschermindeling</string>
-    <string name="layout_selection_continue">Doorgaan</string>
 
     <string name="update_title">App-update</string>
     <string name="update_available">Update beschikbaar</string>

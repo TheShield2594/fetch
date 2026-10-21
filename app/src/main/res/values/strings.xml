@@ -339,6 +339,20 @@
     <string name="theme_color_amber">Amber</string>
     <string name="theme_color_rose">Rose</string>
     <string name="theme_color_white">White</string>
+    <string name="theme_color_fetch">Fetch</string>
+    <string name="best_match_cached">Cached</string>
+    <plurals name="fetching_addons_waiting">
+        <item quantity="one">Fetching… %1$d answered, %2$d addon still looking</item>
+        <item quantity="other">Fetching… %1$d answered, %2$d addons still looking</item>
+    </plurals>
+    <string name="fetching_addons_done">All %1$d addons answered</string>
+    <plurals name="fetching_starting_in">
+        <item quantity="one">Starting in %1$d second</item>
+        <item quantity="other">Starting in %1$d seconds</item>
+    </plurals>
+    <string name="fetching_best_so_far">Best so far</string>
+    <string name="fetching_play_now">Play now</string>
+    <string name="fetching_see_all_sources">See all sources</string>
     <string name="theme_color_custom">Custom</string>
     <string name="custom_theme_title">Your custom gradient</string>
     <string name="custom_theme_subtitle">Choose three colors for your theme. Select a color to edit it.</string>
@@ -409,7 +423,6 @@
 
     <string name="about_title">About</string>
     <string name="about_subtitle">App information, updates, and legal links</string>
-    <string name="about_made_with_love">Made with ❤️ by Tapframe and friends</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_update_banner_title">Automatic update banner</string>
     <string name="about_update_banner_subtitle">Show a banner when a new version is available</string>
@@ -877,6 +890,9 @@
 
     <string name="autoplay_reuse_last_link">Reuse Last Link</string>
     <string name="autoplay_reuse_last_link_sub">Auto-play your last working stream for this same movie/episode when cache is still valid</string>
+    <string name="best_match_preview_title">Show the pick on the Play button</string>
+    <string name="best_match_preview_sub">Asks your stream addons about a title while you look at it, so the Play button can name the file and playback starts sooner. Turn off to only search after you press Play.</string>
+    <string name="autoplay_allowed_addons_early_sub">Auto-play starts as soon as these addons answer instead of waiting for every addon.</string>
     <string name="autoplay_last_link_cache">Last Link Cache Duration</string>
     <string name="cache_duration_hour_one">%1$d hour</string>
     <string name="cache_duration_hour_other">%1$d hours</string>
@@ -935,20 +951,12 @@
 
     <string name="layout_title">Layout Settings</string>
     <string name="layout_subtitle">Adjust home layout, content visibility, and poster behavior</string>
-    <string name="layout_classic">Classic View</string>
-    <string name="layout_grid">Grid View</string>
-    <string name="layout_modern">Modern View</string>
-    <string name="layout_classic_desc">Scroll through categories horizontally</string>
-    <string name="layout_grid_desc">Browse everything in a vertical grid with a hero section</string>
-    <string name="layout_modern_desc">Fixed hero with a single active row for faster browsing</string>
     <string name="layout_section_home">Home Layout</string>
     <string name="layout_section_home_desc">Choose structure and hero source.</string>
     <string name="layout_landscape_posters">Landscape Poster Mode</string>
     <string name="layout_landscape_posters_sub">Use landscape cards everywhere.</string>
     <string name="layout_preview_row">Show Preview Row</string>
     <string name="layout_preview_row_sub">Show a partial preview of the row below in Modern Home layout.</string>
-    <string name="layout_hero_catalogs">Hero Catalogs</string>
-    <string name="layout_hero_catalogs_sub">Select one or more catalogs for hero content.</string>
     <string name="layout_section_content">Home Content</string>
     <string name="layout_section_content_desc">Control what appears on home and search.</string>
     <string name="layout_section_sidebar">Sidebar &amp; Navigation</string>
@@ -965,10 +973,6 @@
     <string name="layout_modern_sidebar_blur_sub">Toggle blur effect for modern sidebar surfaces.</string>
     <string name="layout_fullscreen_hero_backdrop">Fullscreen Hero Backdrop</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expand the hero backdrop to fill the entire screen.</string>
-    <string name="layout_classic_focus_gradient">Focused Item Gradient</string>
-    <string name="layout_classic_focus_gradient_sub">Blend artwork colors into the right side of Classic home.</string>
-    <string name="layout_show_hero">Show Hero Section</string>
-    <string name="layout_show_hero_sub">Display hero carousel at top of home.</string>
     <string name="layout_show_discover">Show/Hide Discover</string>
     <string name="layout_show_discover_sub">Adds a Discover section for browsing.</string>
     <string name="layout_discover_location_action">Discover Location</string>
@@ -1053,12 +1057,9 @@
     <string name="layout_expand_delay">Backdrop Expand Delay</string>
     <string name="layout_expand_delay_sub">How long to wait before expanding focused cards.</string>
     <string name="layout_autoplay_trailer">Autoplay Trailer</string>
-    <string name="layout_autoplay_trailer_expanded">Autoplay Trailer in Expanded Card</string>
     <string name="layout_autoplay_trailer_sub">Play trailer preview for focused content when available.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Play trailer inside expanded backdrop when available.</string>
     <string name="layout_trailer_muted">Play Trailer Muted</string>
     <string name="layout_trailer_muted_sub_preview">Mute trailer audio during autoplay preview.</string>
-    <string name="layout_trailer_muted_sub_expanded">Mute trailer audio in expanded cards.</string>
     <string name="layout_section_card_style">Poster Card</string>
     <string name="layout_section_card_style_desc">Tune card width and corner radius.</string>
     <string name="settings_card_depth_title">Card Depth Effect</string>
@@ -2346,9 +2347,7 @@
     <string name="catalog_see_all_empty_title">No items available</string>
     <string name="catalog_see_all_empty_subtitle">Try a different catalog or check back later</string>
 
-    <string name="layout_selection_welcome">Welcome to Fetch</string>
     <string name="layout_selection_subtitle">Choose your home screen layout</string>
-    <string name="layout_selection_continue">Continue</string>
 
     <string name="update_title">App Update</string>
     <string name="update_available">Update available</string>

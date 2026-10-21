@@ -553,6 +553,10 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setStreamReuseLastLinkEnabled(enabled)
     }
 
+    suspend fun setBestMatchPreviewEnabled(enabled: Boolean) {
+        playerSettingsDataStore.setBestMatchPreviewEnabled(enabled)
+    }
+
     suspend fun setStreamReuseLastLinkCacheHours(hours: Int) {
         playerSettingsDataStore.setStreamReuseLastLinkCacheHours(hours)
     }

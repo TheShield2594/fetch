@@ -21,7 +21,6 @@ import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.FolderViewMode
 import com.fetch.tv.domain.model.HomeImdbRatingsVisibility
-import com.fetch.tv.domain.model.HomeLayout
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.TmdbCollectionSource
 import com.fetch.tv.domain.model.TraktCollectionSource
@@ -33,7 +32,6 @@ import com.fetch.tv.domain.model.skipStep
 import com.fetch.tv.domain.model.supportsExtra
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.domain.repository.WatchProgressRepository
-import com.fetch.tv.ui.screens.home.GridItem
 import com.fetch.tv.ui.screens.home.HomeRow
 import com.fetch.tv.ui.screens.home.HomeUiState
 import com.fetch.tv.ui.screens.home.ModernCarouselRowBuildCache
@@ -65,14 +63,13 @@ data class FolderDetailUiState(
     val folder: CollectionFolder? = null,
     val collectionTitle: String = "",
     val viewMode: FolderViewMode = FolderViewMode.TABBED_GRID,
-    val homeLayout: HomeLayout = HomeLayout.MODERN,
     val homeImdbRatingsVisibility: HomeImdbRatingsVisibility = HomeImdbRatingsVisibility.SHOW_ALL,
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,
     val hideUnreleasedContent: Boolean = false,
     val showFullReleaseDate: Boolean = true,
-    val modernLandscapePostersEnabled: Boolean = false,
+    val modernLandscapePostersEnabled: Boolean = true,
     val modernHeroFullScreenBackdropEnabled: Boolean = false,
     val focusedPosterBackdropExpandEnabled: Boolean = false,
     val focusedPosterBackdropExpandDelaySeconds: Int = 3,
@@ -80,10 +77,9 @@ data class FolderDetailUiState(
     val focusedPosterBackdropTrailerMuted: Boolean = true,
     val focusedPosterBackdropTrailerPlaybackTarget: FocusedPosterTrailerPlaybackTarget =
         FocusedPosterTrailerPlaybackTarget.HERO_MEDIA,
-    val classicFocusGradientEnabled: Boolean = false,
     val posterCardWidthDp: Int = 126,
     val posterCardHeightDp: Int = 189,
-    val posterCardCornerRadiusDp: Int = 12,
+    val posterCardCornerRadiusDp: Int = 8,
     val tabs: List<FolderTab> = emptyList(),
     val selectedTabIndex: Int = 0,
     val isLoading: Boolean = true,
@@ -249,7 +245,6 @@ class FolderDetailViewModel @Inject constructor(
             }
 
             val addons = addonRepository.getInstalledAddons().first().enabledAddons()
-            val homeLayout = layoutPreferenceDataStore.selectedLayout.first()
             val homeImdbRatingsVisibility = layoutPreferenceDataStore.homeImdbRatingsVisibility.first()
             val posterLabelsEnabled = layoutPreferenceDataStore.posterLabelsEnabled.first()
             val catalogAddonNameEnabled = layoutPreferenceDataStore.catalogAddonNameEnabled.first()
@@ -264,15 +259,13 @@ class FolderDetailViewModel @Inject constructor(
             val focusedPosterBackdropTrailerMuted = layoutPreferenceDataStore.focusedPosterBackdropTrailerMuted.first()
             val focusedPosterBackdropTrailerPlaybackTarget =
                 layoutPreferenceDataStore.focusedPosterBackdropTrailerPlaybackTarget.first()
-            val classicFocusGradientEnabled = layoutPreferenceDataStore.classicFocusGradientEnabled.first()
             val posterCardWidthDp = layoutPreferenceDataStore.posterCardWidthDp.first()
             val posterCardHeightDp = layoutPreferenceDataStore.posterCardHeightDp.first()
             val posterCardCornerRadiusDp = layoutPreferenceDataStore.posterCardCornerRadiusDp.first()
             val showAll = (collection?.showAllTab ?: true) && folder.sources.size >= 2
 
             val viewMode = collection?.viewMode ?: FolderViewMode.TABBED_GRID
-            val useShimmerPlaceholders = viewMode == FolderViewMode.FOLLOW_LAYOUT &&
-                (homeLayout == HomeLayout.MODERN || homeLayout == HomeLayout.CLASSIC)
+            val useShimmerPlaceholders = viewMode == FolderViewMode.FOLLOW_LAYOUT
 
             val sourceTabs = folder.sources.map { source ->
                 val (name, typeLabel, rawType) = when (source) {
@@ -348,7 +341,6 @@ class FolderDetailViewModel @Inject constructor(
                     folder = folder,
                     collectionTitle = collection?.title ?: "",
                     viewMode = viewMode,
-                    homeLayout = homeLayout,
                     homeImdbRatingsVisibility = homeImdbRatingsVisibility,
                     posterLabelsEnabled = posterLabelsEnabled,
                     catalogAddonNameEnabled = catalogAddonNameEnabled,
@@ -363,7 +355,6 @@ class FolderDetailViewModel @Inject constructor(
                         AppFeaturePolicy.inAppTrailerPlaybackEnabled,
                     focusedPosterBackdropTrailerMuted = focusedPosterBackdropTrailerMuted,
                     focusedPosterBackdropTrailerPlaybackTarget = focusedPosterBackdropTrailerPlaybackTarget,
-                    classicFocusGradientEnabled = classicFocusGradientEnabled && homeLayout == HomeLayout.CLASSIC,
                     posterCardWidthDp = posterCardWidthDp,
                     posterCardHeightDp = posterCardHeightDp,
                     posterCardCornerRadiusDp = posterCardCornerRadiusDp,
@@ -443,11 +434,8 @@ class FolderDetailViewModel @Inject constructor(
         val state = _uiState.value
         if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT) return
         val sourceTabs = state.tabs.filter { !it.isAllTab }
-        val loadedRows = sourceTabs.mapNotNull { it.catalogRow }
-        val useShimmer = state.homeLayout == HomeLayout.MODERN || state.homeLayout == HomeLayout.CLASSIC
-
-        // Build rows including placeholder shimmer rows for tabs still loading (Modern/Classic)
-        val allRows = if (useShimmer) {
+        // Build rows including placeholder shimmer rows for tabs still loading
+        val allRows = run {
             sourceTabs.map { tab ->
                 if (tab.catalogRow != null) {
                     tab.catalogRow
@@ -492,117 +480,43 @@ class FolderDetailViewModel @Inject constructor(
                     null // error state or other – skip
                 }
             }.filterNotNull()
-        } else {
-            loadedRows
         }
 
         if (allRows.isEmpty()) return
 
         val homeRows = allRows.map { HomeRow.Catalog(it) }
-        // Only include real (non-placeholder) rows in grid items
-        val realRows = allRows.filter { !it.isLoading }
-        val gridItems = buildList<GridItem> {
-            realRows.forEach { row ->
-                add(GridItem.SectionDivider(
-                    catalogName = row.catalogName,
-                    catalogId = row.catalogId,
-                    addonBaseUrl = row.addonBaseUrl,
-                    addonId = row.addonId,
-                    type = row.apiType
-                ))
-                row.items.forEach { item ->
-                    add(GridItem.Content(
-                        item = item,
-                        addonBaseUrl = row.addonBaseUrl,
-                        catalogId = row.catalogId,
-                        catalogName = row.catalogName
-                    ))
-                }
-                if (row.hasMore && !row.isLoading) {
-                    add(GridItem.SeeAll(
-                        catalogId = row.catalogId,
-                        addonId = row.addonId,
-                        addonBaseUrl = row.addonBaseUrl,
-                        type = row.apiType
-                    ))
-                }
-            }
-        }
-
         val anyLoading = sourceTabs.any { it.isLoading }
 
         // Build modern presentation off the main thread to avoid jank.
-        val needsModernPresentation = _uiState.value.homeLayout == HomeLayout.MODERN
-        if (needsModernPresentation) {
-            viewModelScope.launch(kotlinx.coroutines.Dispatchers.Default) {
-                val tmdbSettings = tmdbSettingsDataStore.settings.first()
-                val currentHomeLayout = _uiState.value.homeLayout
-                val tmdbEnabledForModern = tmdbSettings.enabled &&
-                    (currentHomeLayout != HomeLayout.MODERN || tmdbSettings.modernHomeEnabled)
-                val externalMetaEnabled = layoutPreferenceDataStore.preferExternalMetaAddonDetail.first()
-                val computedHeroEnrichmentEnabled = tmdbEnabledForModern || externalMetaEnabled
-                val modernPresentation = buildModernHomePresentation(
-                    input = ModernHomePresentationInput(
-                        homeRows = homeRows,
-                        catalogRows = allRows,
-                        continueWatchingItems = emptyList(),
-                        upcomingItems = emptyList(),
-                        useLandscapePosters = state.modernLandscapePostersEnabled,
-                        showCatalogTypeSuffix = state.catalogTypeSuffixEnabled,
-                        showFullReleaseDate = state.showFullReleaseDate,
-                        showImdbRatings = state.homeImdbRatingsVisibility.showRatings,
-                        localeTag = com.fetch.tv.LocaleCache.localeTag
-                    ),
-                    cache = modernCarouselRowBuildCache,
-                    context = appContext
-                )
-                _uiState.update { s ->
-                    val homeState = HomeUiState(
-                        catalogRows = allRows,
-                        homeRows = homeRows,
-                        gridItems = gridItems,
-                        heroItems = emptyList(),
-                        heroSectionEnabled = false,
-                        isLoading = anyLoading,
-                        homeLayout = s.homeLayout,
-                        homeImdbRatingsVisibility = s.homeImdbRatingsVisibility,
-                        posterLabelsEnabled = if (s.homeLayout == HomeLayout.MODERN) false else s.posterLabelsEnabled,
-                        modernLandscapePostersEnabled = s.modernLandscapePostersEnabled,
-                        modernHeroFullScreenBackdropEnabled = s.modernHeroFullScreenBackdropEnabled,
-                        catalogAddonNameEnabled = s.catalogAddonNameEnabled,
-                        catalogTypeSuffixEnabled = s.catalogTypeSuffixEnabled,
-                        focusedPosterBackdropExpandEnabled = s.focusedPosterBackdropExpandEnabled,
-                        focusedPosterBackdropExpandDelaySeconds = s.focusedPosterBackdropExpandDelaySeconds,
-                        focusedPosterBackdropTrailerEnabled = s.focusedPosterBackdropTrailerEnabled,
-                        focusedPosterBackdropTrailerMuted = s.focusedPosterBackdropTrailerMuted,
-                        focusedPosterBackdropTrailerPlaybackTarget = s.focusedPosterBackdropTrailerPlaybackTarget,
-                        posterCardWidthDp = s.posterCardWidthDp,
-                        posterCardHeightDp = s.posterCardHeightDp,
-                        posterCardCornerRadiusDp = s.posterCardCornerRadiusDp,
-                        hideUnreleasedContent = s.hideUnreleasedContent,
-                        showFullReleaseDate = s.showFullReleaseDate,
-                        movieWatchedStatus = s.movieWatchedStatus,
-                        heroEnrichmentEnabled = computedHeroEnrichmentEnabled,
-                        classicFocusGradientEnabled = s.classicFocusGradientEnabled,
-                        mdbListShowOnHero = currentMdbListSettings?.showOnHero ?: false,
-                        mdbListRatingOrder = currentMdbListSettings?.enabledRatingOrder() ?: com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
-                    )
-                    s.copy(followLayoutHomeState = homeState.copy(modernHomePresentation = modernPresentation))
-                }
-                scheduleMdbBatchPrefetch()
-            }
-        } else {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.Default) {
+            val tmdbSettings = tmdbSettingsDataStore.settings.first()
+            val tmdbEnabledForModern = tmdbSettings.enabled && tmdbSettings.modernHomeEnabled
+            val externalMetaEnabled = layoutPreferenceDataStore.preferExternalMetaAddonDetail.first()
+            val computedHeroEnrichmentEnabled = tmdbEnabledForModern || externalMetaEnabled
+            val modernPresentation = buildModernHomePresentation(
+                input = ModernHomePresentationInput(
+                    homeRows = homeRows,
+                    catalogRows = allRows,
+                    continueWatchingItems = emptyList(),
+                    upcomingItems = emptyList(),
+                    useLandscapePosters = state.modernLandscapePostersEnabled,
+                    showCatalogTypeSuffix = state.catalogTypeSuffixEnabled,
+                    showFullReleaseDate = state.showFullReleaseDate,
+                    showImdbRatings = state.homeImdbRatingsVisibility.showRatings,
+                    localeTag = com.fetch.tv.LocaleCache.localeTag
+                ),
+                cache = modernCarouselRowBuildCache,
+                context = appContext
+            )
             _uiState.update { s ->
                 val homeState = HomeUiState(
                     catalogRows = allRows,
                     homeRows = homeRows,
-                    gridItems = gridItems,
                     heroItems = emptyList(),
                     heroSectionEnabled = false,
                     isLoading = anyLoading,
-                    homeLayout = s.homeLayout,
                     homeImdbRatingsVisibility = s.homeImdbRatingsVisibility,
-                    posterLabelsEnabled = s.posterLabelsEnabled,
+                    posterLabelsEnabled = false,
                     modernLandscapePostersEnabled = s.modernLandscapePostersEnabled,
                     modernHeroFullScreenBackdropEnabled = s.modernHeroFullScreenBackdropEnabled,
                     catalogAddonNameEnabled = s.catalogAddonNameEnabled,
@@ -618,12 +532,11 @@ class FolderDetailViewModel @Inject constructor(
                     hideUnreleasedContent = s.hideUnreleasedContent,
                     showFullReleaseDate = s.showFullReleaseDate,
                     movieWatchedStatus = s.movieWatchedStatus,
-                    heroEnrichmentEnabled = false,
-                    classicFocusGradientEnabled = s.classicFocusGradientEnabled,
+                    heroEnrichmentEnabled = computedHeroEnrichmentEnabled,
                     mdbListShowOnHero = currentMdbListSettings?.showOnHero ?: false,
                     mdbListRatingOrder = currentMdbListSettings?.enabledRatingOrder() ?: com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
                 )
-                s.copy(followLayoutHomeState = homeState)
+                s.copy(followLayoutHomeState = homeState.copy(modernHomePresentation = modernPresentation))
             }
             scheduleMdbBatchPrefetch()
         }
@@ -633,7 +546,7 @@ class FolderDetailViewModel @Inject constructor(
         if (rowKey == null) return
         mdbLastFocusedRowKey = rowKey
         val state = _uiState.value
-        if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT || state.homeLayout != HomeLayout.MODERN) return
+        if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT) return
         val settings = currentMdbListSettings
         if (settings == null || !mdbListRepository.isAvailable(settings) || !settings.showOnHero) return
 
@@ -714,7 +627,7 @@ class FolderDetailViewModel @Inject constructor(
 
     private fun scheduleMdbBatchPrefetch() {
         val state = _uiState.value
-        if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT || state.homeLayout != HomeLayout.MODERN) return
+        if (state.viewMode != FolderViewMode.FOLLOW_LAYOUT) return
         val homeState = state.followLayoutHomeState ?: return
         val rowKey = mdbLastFocusedRowKey
             ?: homeState.modernHomePresentation.rows.list.firstOrNull()?.key
@@ -1259,9 +1172,7 @@ class FolderDetailViewModel @Inject constructor(
             }
 
             val tmdbSettings = tmdbSettingsDataStore.settings.first()
-            val homeLayout = _uiState.value.homeLayout
-            val tmdbEnabled = tmdbSettings.enabled &&
-                (homeLayout != HomeLayout.MODERN || tmdbSettings.modernHomeEnabled)
+            val tmdbEnabled = tmdbSettings.enabled && tmdbSettings.modernHomeEnabled
             val externalMetaEnabled = layoutPreferenceDataStore.preferExternalMetaAddonDetail.first()
 
             // Only signal enriching if at least one source is active and we're
@@ -1269,7 +1180,7 @@ class FolderDetailViewModel @Inject constructor(
             // when no enrichment source can provide data.
             val viewMode = _uiState.value.viewMode
             val willEnrich = tmdbEnabled || externalMetaEnabled
-            if (willEnrich && viewMode == FolderViewMode.FOLLOW_LAYOUT && homeLayout == HomeLayout.MODERN) {
+            if (willEnrich && viewMode == FolderViewMode.FOLLOW_LAYOUT) {
                 _enrichingItemId.value = item.id
             }
 
@@ -1313,9 +1224,8 @@ class FolderDetailViewModel @Inject constructor(
                     var result = merged
                 if (finalEnrichment != null) {
                     if (tmdbSettings.useBasicInfo) {
-                        val isModern = _uiState.value.homeLayout == HomeLayout.MODERN
                         result = result.copy(
-                            name = if (isModern) finalEnrichment.localizedTitle ?: result.name else result.name,
+                            name = finalEnrichment.localizedTitle ?: result.name,
                             description = finalEnrichment.description ?: result.description,
                             genres = if (finalEnrichment.genres.isNotEmpty()) finalEnrichment.genres else result.genres
                         )
@@ -1578,9 +1488,7 @@ class FolderDetailViewModel @Inject constructor(
             if (item.id in prefetchedTmdbIds || item.id in prefetchedExternalMetaIds) return@launch
 
             val tmdbSettings = tmdbSettingsDataStore.settings.first()
-            val homeLayout = _uiState.value.homeLayout
-            val tmdbEnabled = tmdbSettings.enabled &&
-                (homeLayout != HomeLayout.MODERN || tmdbSettings.modernHomeEnabled)
+            val tmdbEnabled = tmdbSettings.enabled && tmdbSettings.modernHomeEnabled
             val externalMetaEnabled = layoutPreferenceDataStore.preferExternalMetaAddonDetail.first()
 
             if (!tmdbEnabled && !externalMetaEnabled) return@launch
@@ -1607,9 +1515,8 @@ class FolderDetailViewModel @Inject constructor(
                             updateItemInTabs(item.id) { merged ->
                                 var result = merged
                                 if (tmdbSettings.useBasicInfo) {
-                                    val isModern = _uiState.value.homeLayout == HomeLayout.MODERN
                                     result = result.copy(
-                                        name = if (isModern) enrichment.localizedTitle ?: result.name else result.name,
+                                        name = enrichment.localizedTitle ?: result.name,
                                         description = enrichment.description ?: result.description,
                                         genres = if (enrichment.genres.isNotEmpty()) enrichment.genres else result.genres
                                     )

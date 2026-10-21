@@ -6,7 +6,6 @@ import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.torrent.TorrentService
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import androidx.activity.compose.BackHandler
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -30,7 +29,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -42,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,24 +47,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import android.view.KeyEvent
 import androidx.compose.ui.input.key.Key
@@ -114,10 +107,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import android.util.Log
-import dev.chrisbanes.haze.HazeInputScale
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.hazeEffect
-import dev.chrisbanes.haze.hazeSource
 
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -151,9 +140,6 @@ fun StreamScreen(
         initialValue = StreamBadgeSettings()
     )
     val scope = rememberCoroutineScope()
-    val streamHazeState = remember {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) HazeState() else null
-    }
 
     LaunchedEffect(restoreSourceSelection) {
         if (restoreSourceSelection) {
@@ -398,11 +384,7 @@ fun StreamScreen(
         StreamBackdrop(
             backdrop = uiState.backdrop ?: uiState.poster,
             isLoading = uiState.isLoading,
-            modifier = if (streamHazeState != null && uiState.autoPlayDecided && !showOverlay) {
-                Modifier.hazeSource(state = streamHazeState)
-            } else {
-                Modifier
-            }
+            modifier = Modifier
         )
 
         if (!uiState.autoPlayDecided) {
@@ -422,6 +404,23 @@ fun StreamScreen(
                 progress = uiState.directAutoPlayProgress,
                 modifier = Modifier.fillMaxSize()
             )
+            val waitingForPick = uiState.showDirectAutoPlayOverlay &&
+                !uiState.externalPlayerOverlayVisible &&
+                uiState.autoPlayStream == null &&
+                uiState.autoPlayPlaybackInfo == null &&
+                uiState.sourceChips.isNotEmpty()
+            if (waitingForPick) {
+                FetchingPanel(
+                    sourceChips = uiState.sourceChips,
+                    bestSoFar = uiState.bestSoFar,
+                    deadlineElapsedMs = uiState.autoPlayDeadlineElapsedMs,
+                    onPlayNow = { viewModel.onEvent(StreamScreenEvent.OnPlayBestSoFar) },
+                    onShowAllSources = { viewModel.onEvent(StreamScreenEvent.OnShowAllSources) },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = FetchTheme.spacing.xxxl, start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl)
+                )
+            }
         } else {
             // Content overlay
             Row(
@@ -500,7 +499,6 @@ fun StreamScreen(
                     },
                     onRetry = { viewModel.onEvent(StreamScreenEvent.OnRetry) },
                     onExpandStreams = { viewModel.expandFilteredStreamsIfNeeded() },
-                    hazeState = streamHazeState,
                     modifier = Modifier
                         .weight(0.6f)
                         .fillMaxHeight()
@@ -762,7 +760,6 @@ private fun RightStreamSection(
     onRestoreFocusedStreamHandled: () -> Unit,
     onRetry: () -> Unit,
     onExpandStreams: () -> Unit = {},
-    hazeState: HazeState?,
     modifier: Modifier = Modifier
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -896,25 +893,9 @@ private fun RightStreamSection(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(FetchTheme.radii.xl))
-                    .then(
-                        if (hazeState != null) {
-                            Modifier.hazeEffect(state = hazeState) {
-                                blurRadius = FetchTheme.effects.blurPanel
-                                noiseFactor = 0.04f
-                                inputScale = HazeInputScale.Fixed(0.66f)
-                            }
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .background(
-                        if (hazeState != null) {
-                            Color(0xFF1C1C1E).copy(alpha = 0.65f)
-                        } else {
-                            FetchTheme.colors.BackgroundCard.copy(alpha = 0.5f)
-                        }
-                    ),
+                    .clip(RoundedCornerShape(FetchTheme.radii.md))
+                    // Flat and nearly opaque: no blur, so low-end boxes keep their frame budget.
+                    .background(FetchTheme.colors.BackgroundElevated.copy(alpha = 0.94f)),
                 contentAlignment = Alignment.Center
             ) {
                 when {
@@ -1295,7 +1276,7 @@ private fun StreamsList(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun StreamCard(
     stream: Stream,
@@ -1315,13 +1296,17 @@ private fun StreamCard(
     val unknownStreamLabel = stringResource(R.string.stream_unknown)
     val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
-    // Structured summary parsed from the addon's free-form text ("4K · DV · HEVC · 58.0 GB").
-    val specLine = remember(stream) {
-        StreamTitleParser.parse(stream).summaryLabels().joinToString("  ·  ").takeIf { it.isNotEmpty() }
+    // Parsed from the addon's free-form text: the card leads with these chips and keeps the raw
+    // release name for the focused card, where there is room to read it.
+    val descriptor = remember(stream) { StreamTitleParser.parse(stream) }
+    val headline = descriptor.resolution.label.takeIf { it.isNotEmpty() }
+    val specChips = remember(descriptor) {
+        descriptor.summaryLabels().filterNot { it == descriptor.resolution.label }
     }
+    val cachedLabel = stringResource(R.string.best_match_cached)
+    val hasParsedSpec = headline != null || specChips.isNotEmpty()
     val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null) || reserveBadgeSpace
     val cardShape = RoundedCornerShape(FetchTheme.radii.md)
-    val hasGradientFocusRing = FetchTheme.palette.focusRingGradient.size > 1
 
     var isFocused by remember { mutableStateOf(false) }
 
@@ -1365,17 +1350,13 @@ private fun StreamCard(
             focusedContainerColor = FetchTheme.colors.BackgroundElevated
         ),
         shape = CardDefaults.shape(shape = cardShape),
-        border = if (hasGradientFocusRing) {
-            CardDefaults.border(
-                border = markedBorder(marked, cardShape),
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = cardShape
-                )
+        border = CardDefaults.border(
+            border = markedBorder(marked, cardShape),
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                shape = cardShape
             )
-        } else {
-            CardDefaults.border(border = markedBorder(marked, cardShape))
-        },
+        ),
         scale = CardDefaults.scale(focusedScale = 1f)
     ) {
         Row(
@@ -1404,6 +1385,25 @@ private fun StreamCard(
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.xxs))
                 }
 
+                if (hasParsedSpec) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
+                        itemVerticalAlignment = Alignment.CenterVertically
+                    ) {
+                        headline?.let { label ->
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = FetchTheme.colors.TextPrimary,
+                                modifier = Modifier.padding(end = FetchTheme.spacing.xs)
+                            )
+                        }
+                        specChips.forEach { chip -> StreamSpecChip(chip) }
+                        if (descriptor.isDebridCached) StreamSpecChip(cachedLabel, highlighted = true)
+                    }
+                }
+
                 Row(
                     modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1412,10 +1412,14 @@ private fun StreamCard(
                     Text(
                         text = streamName,
                         modifier = Modifier.weight(1f, fill = false),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            textDirection = streamName.contentTextDirection()
-                        ),
-                        color = FetchTheme.colors.TextPrimary
+                        style = if (hasParsedSpec) {
+                            MaterialTheme.typography.bodySmall.copy(textDirection = streamName.contentTextDirection())
+                        } else {
+                            MaterialTheme.typography.titleMedium.copy(textDirection = streamName.contentTextDirection())
+                        },
+                        color = if (hasParsedSpec) FetchTheme.extendedColors.textSecondary else FetchTheme.colors.TextPrimary,
+                        maxLines = if (hasParsedSpec && !isFocused) 1 else Int.MAX_VALUE,
+                        overflow = TextOverflow.Ellipsis
                     )
                     if (markedLabel != null) {
                         Box(
@@ -1433,17 +1437,10 @@ private fun StreamCard(
                     }
                 }
 
-                specLine?.let { spec ->
-                    Text(
-                        text = spec,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = FetchTheme.colors.Primary,
-                        maxLines = 1
-                    )
-                }
-
                 streamDescription?.let { description ->
-                    if (description.isNotBlank() && description != streamName) {
+                    // The parsed chips already say what the description spells out; show the
+                    // addon's own text only on the focused card.
+                    if (description.isNotBlank() && description != streamName && (!hasParsedSpec || isFocused)) {
                         Text(
                             text = description,
                             modifier = Modifier.align(description.contentTextDirection().toAbsoluteAlignment()),
@@ -1500,6 +1497,20 @@ private fun StreamCard(
             }
         }
     }
+}
+
+@Composable
+private fun StreamSpecChip(text: String, highlighted: Boolean = false) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+        color = if (highlighted) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(RoundedCornerShape(FetchTheme.radii.xs))
+            .background(if (highlighted) FetchTheme.colors.Secondary else FetchTheme.colors.BackgroundCard)
+            .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
+    )
 }
 
 @Composable

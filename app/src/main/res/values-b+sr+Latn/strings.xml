@@ -396,7 +396,6 @@
 
     <string name="about_title">O aplikaciji</string>
     <string name="about_subtitle">Informacije o aplikaciji, ažuriranja i pravne veze</string>
-    <string name="about_made_with_love">Napravljeno sa ❤️ od strane Tapframe-a i prijatelja</string>
     <string name="about_version">Verzija %1$s</string>
     <string name="about_update_banner_title">Baner za automatsko ažuriranje</string>
     <string name="about_update_banner_subtitle">Prikaži baner kada je dostupna nova verzija</string>
@@ -881,20 +880,12 @@
 
     <string name="layout_title">Podešavanja rasporeda</string>
     <string name="layout_subtitle">Podesite početni raspored, vidljivost sadržaja i ponašanje postera</string>
-    <string name="layout_classic">Klasični prikaz</string>
-    <string name="layout_grid">Prikaz mreže</string>
-    <string name="layout_modern">Moderni prikaz</string>
-    <string name="layout_classic_desc">Listajte kroz kategorije horizontalno</string>
-    <string name="layout_grid_desc">Pregledajte sve u vertikalnoj mreži sa glavnim (hero) odeljkom</string>
-    <string name="layout_modern_desc">Fiksirani glavne sekcije sa jednim aktivnim redom za brže pregledanje</string>
     <string name="layout_section_home">Početni raspored</string>
     <string name="layout_section_home_desc">Izaberite strukturu i izvor glavnog odeljka.</string>
     <string name="layout_landscape_posters">Horizontalni posteri</string>
     <string name="layout_landscape_posters_sub">Prebacujte se između vertikalnih i horizontalnih kartica za Moderni prikaz.</string>
     <string name="layout_preview_row">Prikaži red za pregled</string>
     <string name="layout_preview_row_sub">Prikaži delimični pregled reda ispod u Modernom početnom rasporedu.</string>
-    <string name="layout_hero_catalogs">Katalozi glavne sekcije</string>
-    <string name="layout_hero_catalogs_sub">Izaberite jedan ili više kataloga za istaknuti sadržaj.</string>
     <string name="layout_section_content">Početni sadržaj</string>
     <string name="layout_section_content_desc">Kontrolišite šta se pojavljuje na početnoj stranici i u pretrazi.</string>
     <string name="layout_collapse_sidebar">Skupi bočnu traku</string>
@@ -907,10 +898,6 @@
     <string name="layout_modern_sidebar_blur_sub">Uključi/isključi efekat zamućenja za moderne površine bočne trake.</string>
     <string name="layout_fullscreen_hero_backdrop">Pozadina glavne sekcije preko celog ekrana</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi pozadinu glavne sekcije tako da ispuni ceo ekran.</string>
-    <string name="layout_classic_focus_gradient">Gradijent fokusirane stavke</string>
-    <string name="layout_classic_focus_gradient_sub">Stopi boje ilustracije u desnu stranu Klasičnog početnog ekrana.</string>
-    <string name="layout_show_hero">Prikaži glavnu sekciju (Hero)</string>
-    <string name="layout_show_hero_sub">Prikaži vrtuljak glavne sekcije pri vrhu početnog ekrana.</string>
     <string name="layout_show_discover">Prikaži/Sakrij Otkrij</string>
     <string name="layout_show_discover_sub">Dodaje odeljak Otkrij za pregledanje.</string>
     <string name="layout_discover_location_action">Lokacija za Otkrij</string>
@@ -986,12 +973,9 @@
     <string name="layout_expand_delay">Kašnjenje proširenja pozadinske slike</string>
     <string name="layout_expand_delay_sub">Koliko dugo čekati pre proširenja fokusiranih kartica.</string>
     <string name="layout_autoplay_trailer">Automatski pusti trejler</string>
-    <string name="layout_autoplay_trailer_expanded">Automatski pusti trejler u proširenoj kartici</string>
     <string name="layout_autoplay_trailer_sub">Pusti pregled trejlera za fokusirani sadržaj kada je dostupan.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Pusti trejler unutar proširene pozadine kada je dostupan.</string>
     <string name="layout_trailer_muted">Pusti trejler bez zvuka</string>
     <string name="layout_trailer_muted_sub_preview">Utišaj zvuk trejlera tokom pregleda automatskog puštanja.</string>
-    <string name="layout_trailer_muted_sub_expanded">Utišaj zvuk trejlera u proširenim karticama.</string>
     <string name="layout_section_card_style">Kartica postera</string>
     <string name="layout_section_card_style_desc">Podesite širinu kartice i poluprečnik uglova.</string>
     <string name="settings_card_depth_title">Efekat dubine kartice</string>
@@ -2135,9 +2119,7 @@
     <string name="catalog_see_all_empty_title">Nema dostupnih stavki</string>
     <string name="catalog_see_all_empty_subtitle">Pokušajte sa drugim katalogom ili proverite ponovo kasnije</string>
 
-    <string name="layout_selection_welcome">Welcome to Fetch</string>
     <string name="layout_selection_subtitle">Izaberite raspored početnog ekrana</string>
-    <string name="layout_selection_continue">Continue</string>
 
     <string name="update_title">Ažuriranje aplikacije</string>
     <string name="update_available">Dostupno je ažuriranje</string>

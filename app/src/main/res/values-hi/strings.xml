@@ -179,7 +179,6 @@
     <!-- AboutScreen -->
     <string name="about_title">ऐप के बारे में</string>
     <string name="about_subtitle">ऐप जानकारी, अपडेट और कानूनी लिंक</string>
-    <string name="about_made_with_love">Tapframe और दोस्तों द्वारा ❤️ के साथ बनाया गया</string>
     <string name="about_version">वर्ज़न %1$s</string>
     <string name="about_check_updates">अपडेट जांचें</string>
     <string name="about_check_updates_subtitle">नवीनतम रिलीज़ डाउनलोड करें</string>
@@ -374,20 +373,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">लेआउट सेटिंग्स</string>
     <string name="layout_subtitle">होम लेआउट, कंटेंट दृश्यता और पोस्टर व्यवहार समायोजित करें</string>
-    <string name="layout_classic">क्लासिक व्यू</string>
-    <string name="layout_grid">ग्रिड व्यू</string>
-    <string name="layout_modern">मॉडर्न व्यू</string>
-    <string name="layout_classic_desc">कैटेगरी को क्षैतिज रूप से स्क्रॉल करें</string>
-    <string name="layout_grid_desc">हीरो सेक्शन के साथ वर्टिकल ग्रिड में सब कुछ ब्राउज़ करें</string>
-    <string name="layout_modern_desc">तेज़ ब्राउज़िंग के लिए एक सक्रिय रो के साथ फिक्स्ड हीरो</string>
     <string name="layout_section_home">होम लेआउट</string>
     <string name="layout_section_home_desc">स्ट्रक्चर और हीरो सोर्स चुनें।</string>
     <string name="layout_landscape_posters">लैंडस्केप पोस्टर</string>
     <string name="layout_landscape_posters_sub">मॉडर्न व्यू के लिए पोर्ट्रेट और लैंडस्केप कार्ड के बीच स्विच करें।</string>
     <string name="layout_preview_row">प्रिव्यू रो दिखाएँ</string>
     <string name="layout_preview_row_sub">मॉडर्न होम लेआउट में नीचे की रो का आंशिक प्रिव्यू दिखाएँ।</string>
-    <string name="layout_hero_catalogs">हीरो कैटलॉग</string>
-    <string name="layout_hero_catalogs_sub">हीरो कंटेंट के लिए एक या अधिक कैटलॉग चुनें।</string>
     <string name="layout_section_content">होम कंटेंट</string>
     <string name="layout_section_content_desc">होम और सर्च में क्या दिखाई देगा इसे नियंत्रित करें।</string>
     <string name="layout_collapse_sidebar">साइडबार छुपाएँ</string>
@@ -396,8 +387,6 @@
     <string name="layout_modern_sidebar_sub">फ्लोटिंग साइडबार नेविगेशन सक्षम करें।</string>
     <string name="layout_modern_sidebar_blur">मॉडर्न साइडबार ब्लर</string>
     <string name="layout_modern_sidebar_blur_sub">मॉडर्न साइडबार सतहों के लिए ब्लर प्रभाव टॉगल करें।</string>
-    <string name="layout_show_hero">हीरो सेक्शन दिखाएँ</string>
-    <string name="layout_show_hero_sub">होम के शीर्ष पर हीरो कैरोसेल दिखाएँ।</string>
     <string name="layout_show_discover">सर्च में डिस्कवर दिखाएँ</string>
     <string name="layout_show_discover_sub">जब सर्च खाली हो तो ब्राउज़ सेक्शन दिखाएँ।</string>
     <string name="layout_poster_labels">पोस्टर लेबल दिखाएँ</string>
@@ -423,12 +412,9 @@
     <string name="layout_expand_delay">बैकड्रॉप विस्तार देरी</string>
     <string name="layout_expand_delay_sub">फोकस्ड कार्ड को विस्तारित करने से पहले कितना इंतजार करना है।</string>
     <string name="layout_autoplay_trailer">ट्रेलर ऑटो-प्ले</string>
-    <string name="layout_autoplay_trailer_expanded">विस्तारित कार्ड में ट्रेलर ऑटो-प्ले</string>
     <string name="layout_autoplay_trailer_sub">उपलब्ध होने पर फोकस्ड कंटेंट के लिए ट्रेलर प्रिव्यू चलाएँ।</string>
-    <string name="layout_autoplay_trailer_expanded_sub">उपलब्ध होने पर विस्तारित बैकड्रॉप में ट्रेलर चलाएँ।</string>
     <string name="layout_trailer_muted">म्यूट ट्रेलर चलाएँ</string>
     <string name="layout_trailer_muted_sub_preview">ऑटो-प्ले प्रिव्यू के दौरान ट्रेलर ऑडियो म्यूट करें।</string>
-    <string name="layout_trailer_muted_sub_expanded">विस्तारित कार्ड में ट्रेलर ऑडियो म्यूट करें।</string>
     <string name="layout_section_card_style">पोस्टर कार्ड</string>
     <string name="layout_section_card_style_desc">कार्ड चौड़ाई और कॉर्नर रेडियस समायोजित करें।</string>
     <string name="layout_open">खुला</string>
@@ -920,9 +906,7 @@
     <string name="catalog_see_all_empty_subtitle">कोई दूसरा कैटलॉग आज़माएँ या बाद में देखें</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Fetch में आपका स्वागत है</string>
     <string name="layout_selection_subtitle">अपना होम स्क्रीन लेआउट चुनें</string>
-    <string name="layout_selection_continue">जारी रखें</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">ऐप अपडेट</string>

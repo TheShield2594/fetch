@@ -77,8 +77,7 @@ class SettingsStructureTest {
     }
 
     @Test
-    fun `focused poster has no options on the grid layout`() {
-        assertFalse(LayoutSettingsUiState(selectedLayout = com.fetch.tv.domain.model.HomeLayout.GRID).focusedPosterHasOptions())
-        assertTrue(LayoutSettingsUiState(selectedLayout = com.fetch.tv.domain.model.HomeLayout.CLASSIC).focusedPosterHasOptions())
+    fun `focused poster keeps its options with poster cards`() {
+        assertTrue(LayoutSettingsUiState(modernLandscapePostersEnabled = false).focusedPosterHasOptions())
     }
 }

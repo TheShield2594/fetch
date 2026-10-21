@@ -322,7 +322,6 @@
     <!-- AboutScreen -->
     <string name="about_title">O aplikaciji</string>
     <string name="about_subtitle">Informacije o aplikaciji, posodobitve in pravne povezave</string>
-    <string name="about_made_with_love">Ustvarjeno z ❤️ (Tapframe in prijatelji)</string>
     <string name="about_version">Različica %1$s</string>
     <string name="about_check_updates">Preveri za posodobitve</string>
     <string name="about_check_updates_subtitle">Prenesi najnovejšo različico</string>
@@ -675,20 +674,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Nastavitve postavitve</string>
     <string name="layout_subtitle">Prilagodite postavitev domačega zaslona, vidnost vsebine in obnašanje plakatov</string>
-    <string name="layout_classic">Klasični pogled</string>
-    <string name="layout_grid">Mrežni pogled</string>
-    <string name="layout_modern">Moderni pogled</string>
-    <string name="layout_classic_desc">Drsite skozi kategorije vodoravno</string>
-    <string name="layout_grid_desc">Brskajte po vsem v navpični mreži z glavno vsebino</string>
-    <string name="layout_modern_desc">Fiksna glavna vsebina z eno aktivno vrstico za hitrejše brskanje</string>
     <string name="layout_section_home">Postavitev domačega zaslona</string>
     <string name="layout_section_home_desc">Izberite strukturo in vir za glavno vsebino.</string>
     <string name="layout_landscape_posters">Vodoravni plakati (Landscape)</string>
     <string name="layout_landscape_posters_sub">Preklopite med pokončnimi in ležečimi karticami za Moderni pogled.</string>
     <string name="layout_preview_row">Prikaži predogledno vrstico</string>
     <string name="layout_preview_row_sub">Prikaži delen predogled spodnje vrstice v moderni postavitvi.</string>
-    <string name="layout_hero_catalogs">Katalogi za glavno vsebino</string>
-    <string name="layout_hero_catalogs_sub">Izberite enega ali več katalogov za glavno vsebino.</string>
     <string name="layout_section_content">Vsebina domačega zaslona</string>
     <string name="layout_section_content_desc">Nadzirajte, kaj se prikaže na domačem zaslonu in v iskanju.</string>
     <string name="layout_collapse_sidebar">Strni stransko vrstico</string>
@@ -699,11 +690,7 @@
     <string name="layout_modern_sidebar_blur_sub">Vklopi/izklopi učinek zameglitve za moderne površine stranske vrstice.</string>
     <string name="layout_fullscreen_hero_backdrop">Celozaslonsko glavno ozadje</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Razširi glavno ozadje, da zapolni celoten zaslon.</string>
-	<string name="layout_classic_focus_gradient">Preliv označenega elementa</string>
-    <string name="layout_classic_focus_gradient_sub">Zlij barve naslovnice v desno stran klasičnega začetnega zaslona.</string>
-    <string name="layout_show_hero">Prikaži glavni razdelek</string>
-    <string name="layout_show_hero_sub">Prikaži glavni vrtiljak na vrhu začetnega zaslona.</string>
-    <string name="layout_show_discover">Prikaži/skrij Odkrivanje</string>
+             <string name="layout_show_discover">Prikaži/skrij Odkrivanje</string>
     <string name="layout_show_discover_sub">Doda razdelek Odkrivanje za brskanje.</string>
     <string name="layout_discover_location_action">Mesto Odkrivanja</string>
     <string name="layout_discover_location_dialog_title">Mesto Odkrivanja</string>
@@ -752,12 +739,9 @@
     <string name="layout_expand_delay">Zakasnitev razširitve ozadja</string>
     <string name="layout_expand_delay_sub">Kako dolgo naj se čaka pred razširitvijo fokusiranih kartic.</string>
     <string name="layout_autoplay_trailer">Samodejno predvajaj napovednik</string>
-    <string name="layout_autoplay_trailer_expanded">Samodejno predvajaj napovednik v razširjeni kartici</string>
     <string name="layout_autoplay_trailer_sub">Predvajaj predogled napovednika za fokusirano vsebino, ko je na voljo.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Predvajaj napovednik znotraj razširjenega ozadja, ko je na voljo.</string>
     <string name="layout_trailer_muted">Predvajaj napovednik brez zvoka</string>
     <string name="layout_trailer_muted_sub_preview">Utišaj zvok napovednika med samodejnim predogledom.</string>
-    <string name="layout_trailer_muted_sub_expanded">Utišaj zvok napovednika v razširjenih karticah.</string>
     <string name="layout_section_card_style">Kartica plakata</string>
     <string name="layout_section_card_style_desc">Prilagodite širino kartice in radij vogalov.</string>
     <string name="layout_open">Razširjeno</string>
@@ -1459,9 +1443,7 @@
     <string name="catalog_see_all_empty_title">Ni elementov na voljo</string>
     <string name="catalog_see_all_empty_subtitle">Poskusite z drugim katalogom ali preverite kasneje</string>
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Dobrodošli v Fetch</string>
     <string name="layout_selection_subtitle">Izberite postavitev vašega domačega zaslona</string>
-    <string name="layout_selection_continue">Nadaljuj</string>
     <!-- UpdatePromptDialog -->
     <string name="update_title">Posodobitev aplikacije</string>
     <string name="update_downloading">Prenašanje posodobitve</string>

@@ -27,6 +27,25 @@ data class ThemeColorPalette(
 )
 
 object ThemeColors {
+    /** Fetch's own look: near-black surfaces and a tennis-ball accent that reads on any poster. */
+    val Fetch = ThemeColorPalette(
+        secondary = Color(0xFFD7F75B),
+        secondaryVariant = Color(0xFFB9DC3A),
+        onSecondary = Color(0xFF0D0E10),
+        onSecondaryVariant = Color(0xFF0D0E10),
+        focusRing = Color(0xFFD7F75B),
+        focusBackground = Color(0xFF23262C),
+        background = Color(0xFF0D0E10),
+        backgroundElevated = Color(0xFF141519),
+        backgroundCard = Color(0xFF17191D),
+        surface = Color(0xFF1B1D22),
+        surfaceVariant = Color(0xFF23262C),
+        panel = Color(0xFF141519),
+        field = Color(0xFF1B1D22),
+        menu = Color(0xFF1B1D22),
+        modal = Color(0xFF141519)
+    )
+
     val Crimson = ThemeColorPalette(
         secondary = FetchPrimitives.red500,
         secondaryVariant = FetchPrimitives.red600,
@@ -109,6 +128,7 @@ object ThemeColors {
             AppTheme.AMBER -> Amber
             AppTheme.ROSE -> Rose
             AppTheme.WHITE -> White
+            AppTheme.FETCH -> Fetch
         }
     }
 }

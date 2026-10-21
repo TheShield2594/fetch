@@ -2,138 +2,32 @@
 
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.theme.FetchTheme
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Icon
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.HomeImdbRatingsVisibility
-import com.fetch.tv.domain.model.HomeLayout
-import com.fetch.tv.ui.components.ClassicLayoutPreview
-import com.fetch.tv.ui.components.GridLayoutPreview
-import com.fetch.tv.ui.components.ModernLayoutPreview
 
 @Composable
 internal fun LayoutHomeLayoutSection(
     uiState: LayoutSettingsUiState,
     onEvent: (LayoutSettingsEvent) -> Unit
 ) {
-    val firstHomeLayoutFocusRequester = remember { FocusRequester() }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .settingsOptionRow(firstHomeLayoutFocusRequester),
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-    ) {
-        listOf(HomeLayout.MODERN, HomeLayout.GRID, HomeLayout.CLASSIC).forEachIndexed { index, layout ->
-            LayoutCard(
-                layout = layout,
-                isSelected = uiState.selectedLayout == layout,
-                onClick = { onEvent(LayoutSettingsEvent.SelectLayout(layout)) },
-                modifier = Modifier
-                    .weight(1f)
-                    .then(if (index == 0) Modifier.focusRequester(firstHomeLayoutFocusRequester) else Modifier)
-            )
+    SettingsToggleRow(
+        title = stringResource(R.string.layout_fullscreen_hero_backdrop),
+        subtitle = stringResource(R.string.layout_fullscreen_hero_backdrop_sub),
+        checked = uiState.modernHeroFullScreenBackdropEnabled,
+        onToggle = {
+            onEvent(LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled(!uiState.modernHeroFullScreenBackdropEnabled))
         }
-    }
-
-    if (uiState.selectedLayout == HomeLayout.MODERN) {
-        SettingsToggleRow(
-            title = stringResource(R.string.layout_fullscreen_hero_backdrop),
-            subtitle = stringResource(R.string.layout_fullscreen_hero_backdrop_sub),
-            checked = uiState.modernHeroFullScreenBackdropEnabled,
-            onToggle = {
-                onEvent(LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled(!uiState.modernHeroFullScreenBackdropEnabled))
-            }
-        )
-    }
-
-    if (uiState.selectedLayout == HomeLayout.CLASSIC) {
-        SettingsToggleRow(
-            title = stringResource(R.string.layout_classic_focus_gradient),
-            subtitle = stringResource(R.string.layout_classic_focus_gradient_sub),
-            checked = uiState.classicFocusGradientEnabled,
-            onToggle = {
-                onEvent(LayoutSettingsEvent.SetClassicFocusGradientEnabled(!uiState.classicFocusGradientEnabled))
-            }
-        )
-    }
-
-    if (uiState.selectedLayout != HomeLayout.MODERN) {
-        SettingsToggleRow(
-            title = stringResource(R.string.layout_show_hero),
-            subtitle = stringResource(R.string.layout_show_hero_sub),
-            checked = uiState.heroSectionEnabled,
-            onToggle = { onEvent(LayoutSettingsEvent.SetHeroSectionEnabled(!uiState.heroSectionEnabled)) }
-        )
-        if (uiState.heroSectionEnabled && uiState.availableCatalogs.isNotEmpty()) {
-            Text(
-                text = stringResource(R.string.layout_hero_catalogs),
-                style = MaterialTheme.typography.labelLarge,
-                color = FetchTheme.colors.TextSecondary
-            )
-            Text(
-                text = stringResource(R.string.layout_hero_catalogs_sub),
-                style = MaterialTheme.typography.bodySmall,
-                color = FetchTheme.colors.TextTertiary
-            )
-            val firstHeroCatalogFocusRequester = remember { FocusRequester() }
-            LazyRow(
-                modifier = Modifier.settingsOptionRow(firstHeroCatalogFocusRequester),
-                contentPadding = PaddingValues(end = FetchTheme.spacing.sm),
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-            ) {
-                itemsIndexed(
-                    items = uiState.availableCatalogs,
-                    key = { _, catalog -> catalog.key }
-                ) { catalogIndex, catalog ->
-                    CatalogChip(
-                        catalogInfo = catalog,
-                        isSelected = catalog.key in uiState.heroCatalogKeys,
-                        onClick = { onEvent(LayoutSettingsEvent.ToggleHeroCatalog(catalog.key)) },
-                        modifier = if (catalogIndex == 0) {
-                            Modifier.focusRequester(firstHeroCatalogFocusRequester)
-                        } else {
-                            Modifier
-                        }
-                    )
-                }
-            }
-        }
-    }
+    )
 }
 
 @Composable
@@ -141,20 +35,19 @@ internal fun LayoutHomeContentSection(
     uiState: LayoutSettingsUiState,
     onEvent: (LayoutSettingsEvent) -> Unit
 ) {
-    if (uiState.selectedLayout != HomeLayout.MODERN) {
-        SettingsToggleRow(
-            title = stringResource(R.string.layout_poster_labels),
-            subtitle = stringResource(R.string.layout_poster_labels_sub),
-            checked = uiState.posterLabelsEnabled,
-            onToggle = { onEvent(LayoutSettingsEvent.SetPosterLabelsEnabled(!uiState.posterLabelsEnabled)) }
-        )
-        SettingsToggleRow(
-            title = stringResource(R.string.layout_addon_name),
-            subtitle = stringResource(R.string.layout_addon_name_sub),
-            checked = uiState.catalogAddonNameEnabled,
-            onToggle = { onEvent(LayoutSettingsEvent.SetCatalogAddonNameEnabled(!uiState.catalogAddonNameEnabled)) }
-        )
-    }
+    // Home cards carry their own titles; these two apply to the poster grids in Search and See all.
+    SettingsToggleRow(
+        title = stringResource(R.string.layout_poster_labels),
+        subtitle = stringResource(R.string.layout_poster_labels_sub),
+        checked = uiState.posterLabelsEnabled,
+        onToggle = { onEvent(LayoutSettingsEvent.SetPosterLabelsEnabled(!uiState.posterLabelsEnabled)) }
+    )
+    SettingsToggleRow(
+        title = stringResource(R.string.layout_addon_name),
+        subtitle = stringResource(R.string.layout_addon_name_sub),
+        checked = uiState.catalogAddonNameEnabled,
+        onToggle = { onEvent(LayoutSettingsEvent.SetCatalogAddonNameEnabled(!uiState.catalogAddonNameEnabled)) }
+    )
     SettingsToggleRow(
         title = stringResource(R.string.layout_catalog_type),
         subtitle = stringResource(R.string.layout_catalog_type_sub),
@@ -226,113 +119,6 @@ internal fun LayoutSidebarSection(
         selectedLocation = uiState.discoverLocation,
         rememberedLocation = uiState.lastNonOffDiscoverLocation,
         onLocationSelected = { location -> onEvent(LayoutSettingsEvent.SetDiscoverLocation(location)) }
-    )
-}
-
-@Composable
-private fun LayoutCard(
-    layout: HomeLayout,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var isFocused by remember { mutableStateOf(false) }
-    val animatePreview = isSelected || isFocused
-
-    Card(
-        onClick = onClick,
-        modifier = modifier.onFocusChanged { state ->
-            val nowFocused = state.isFocused
-            if (isFocused != nowFocused) {
-                isFocused = nowFocused
-            }
-        },
-        colors = CardDefaults.colors(
-            containerColor = FetchTheme.colors.Background,
-            focusedContainerColor = FetchTheme.colors.Background
-        ),
-        border = CardDefaults.border(
-            border = if (isSelected) Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            ) else Border.None,
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsSecondaryCardRadius)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(112.dp)
-            ) {
-                when (layout) {
-                    HomeLayout.CLASSIC -> ClassicLayoutPreview(
-                        modifier = Modifier.fillMaxWidth(),
-                        animated = animatePreview
-                    )
-                    HomeLayout.GRID -> GridLayoutPreview(
-                        modifier = Modifier.fillMaxWidth(),
-                        animated = animatePreview
-                    )
-                    HomeLayout.MODERN -> ModernLayoutPreview(
-                        modifier = Modifier.fillMaxWidth(),
-                        animated = animatePreview
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                if (isSelected) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = stringResource(R.string.cd_selected),
-                        tint = FetchTheme.colors.FocusRing,
-                        modifier = Modifier
-                            .size(FetchTheme.spacing.lg)
-                            .padding(end = 6.dp)
-                    )
-                }
-                Text(
-                    text = when (layout) {
-                        HomeLayout.CLASSIC -> stringResource(R.string.layout_classic)
-                        HomeLayout.GRID -> stringResource(R.string.layout_grid)
-                        HomeLayout.MODERN -> stringResource(R.string.layout_modern)
-                    },
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected || isFocused) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun CatalogChip(
-    catalogInfo: CatalogInfo,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    SettingsChoiceChip(
-        modifier = modifier,
-        label = catalogInfo.name,
-        selected = isSelected,
-        onClick = onClick
     )
 }
 

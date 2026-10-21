@@ -413,7 +413,6 @@
 
     <string name="about_title">אודות</string>
     <string name="about_subtitle">מידע על האפליקציה, עדכונים וקישורים משפטיים</string>
-    <string name="about_made_with_love">נוצר באהבה ❤️ על ידי Tapframe וחברים</string>
     <string name="about_version">גרסה %1$s</string>
     <string name="about_update_banner_title">באנר עדכון אוטומטי</string>
     <string name="about_update_banner_subtitle">הצגת באנר כאשר גרסה חדשה זמינה</string>
@@ -934,20 +933,12 @@
 
     <string name="layout_title">הגדרות תצוגה</string>
     <string name="layout_subtitle">הגדרת מבנה הבית ואפשרויות הפוסטרים</string>
-    <string name="layout_classic">קלאסי</string>
-    <string name="layout_grid">רשת</string>
-    <string name="layout_modern">מודרני</string>
-    <string name="layout_classic_desc">גלילה בין קטגוריות אופקית</string>
-    <string name="layout_grid_desc">עיון בהכול ברשת אנכית עם באנר ראשי</string>
-    <string name="layout_modern_desc">באנר ראשי קבוע עם שורה פעילה אחת לגלישה מהירה</string>
     <string name="layout_section_home">מסך הבית</string>
     <string name="layout_section_home_desc">הגדרות מסך הבית הכללי.</string>
     <string name="layout_landscape_posters">פוסטרים לרוחב</string>
     <string name="layout_landscape_posters_sub">מעבר בין כרטיסים לאורך ולרוחב בתצוגה המודרנית.</string>
     <string name="layout_preview_row">הצגת שורת תצוגה מקדימה</string>
     <string name="layout_preview_row_sub">הצגת תצוגה מקדימה חלקית של השורה הבאה בפריסת הבית המודרני.</string>
-    <string name="layout_hero_catalogs">קטלוגי הבאנר הראשי</string>
-    <string name="layout_hero_catalogs_sub">בחירת קטלוג אחד או יותר לתוכן הבאנר הראשי.</string>
     <string name="layout_section_content">תוכן הבית</string>
     <string name="layout_section_content_desc">שליטה במה שמופיע בבית ובחיפוש.</string>
     <string name="layout_section_sidebar">סרגל צד וניווט</string>
@@ -964,10 +955,6 @@
     <string name="layout_modern_sidebar_blur_sub">הפעלת אפקט טשטוש לשטחי סרגל הצד המודרני.</string>
     <string name="layout_fullscreen_hero_backdrop">תמונת רקע ראשית במסך מלא</string>
     <string name="layout_fullscreen_hero_backdrop_sub">הרחבת תמונת הרקע הראשית כך שתמלא את כל המסך.</string>
-    <string name="layout_classic_focus_gradient">מעבר צבעים לפריט ממוקד</string>
-    <string name="layout_classic_focus_gradient_sub">שילוב צבעי התמונה בצד הימני של דף הבית הקלאסי.</string>
-    <string name="layout_show_hero">הצגת הבאנר הראשי</string>
-    <string name="layout_show_hero_sub">הצגת קרוסלת הבאנר הראשי בראש הבית.</string>
     <string name="layout_show_discover">הצגת כפתור \"גילוי\"</string>
     <string name="layout_show_discover_sub">הצגת אזור גילוי למציאת סרטים וסדרות.</string>
     <string name="layout_discover_location_action">מיקום \"גילוי\"</string>
@@ -1052,12 +1039,9 @@
     <string name="layout_expand_delay">עיכוב לפני הרחבת הרקע</string>
     <string name="layout_expand_delay_sub">כמה זמן להמתין לפני הרחבת כרטיסים ממוקדים.</string>
     <string name="layout_autoplay_trailer">הפעלה אוטומטית של טריילר</string>
-    <string name="layout_autoplay_trailer_expanded">הפעלה אוטומטית של טריילר בכרטיס מורחב</string>
     <string name="layout_autoplay_trailer_sub">הפעלת תצוגה מקדימה של טריילר לתוכן ממוקד כשזמין.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">הפעלת טריילר בתוך רקע מורחב כשזמין.</string>
     <string name="layout_trailer_muted">הפעלת טריילר ללא שמע</string>
     <string name="layout_trailer_muted_sub_preview">השתקת שמע הטריילר בתצוגה מקדימה אוטומטית.</string>
-    <string name="layout_trailer_muted_sub_expanded">השתקת שמע הטריילר בכרטיסים מורחבים.</string>
     <string name="layout_section_card_style">כרטיס פוסטר</string>
     <string name="layout_section_card_style_desc">כוונון רוחב כרטיס ורדיוס פינה.</string>
     <string name="settings_card_depth_title">אפקט עומק לכרטיס</string>
@@ -2297,9 +2281,7 @@
     <string name="catalog_see_all_empty_title">אין פריטים זמינים</string>
     <string name="catalog_see_all_empty_subtitle">אפשר לנסות קטלוג אחר או לחזור מאוחר יותר</string>
 
-    <string name="layout_selection_welcome">ברוכים הבאים ל-Fetch</string>
     <string name="layout_selection_subtitle">בחירת פריסת מסך הבית</string>
-    <string name="layout_selection_continue">המשך</string>
 
     <string name="update_title">עדכון אפליקציה</string>
     <string name="update_available">עדכון זמין</string>

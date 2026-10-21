@@ -3,7 +3,6 @@ package com.fetch.tv.ui.screens.home
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import androidx.lifecycle.viewModelScope
-import com.fetch.tv.LocaleCache
 import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.poster.CustomPosterScreen
@@ -14,7 +13,6 @@ import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.HomeImdbRatingsVisibility
 import com.fetch.tv.domain.model.DetailImdbRatingsVisibility
-import com.fetch.tv.domain.model.HomeLayout
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.TmdbSettings
@@ -33,13 +31,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private data class CoreLayoutPrefs(
-    val layout: HomeLayout,
     val heroCatalogKeys: List<String>,
     val heroSectionEnabled: Boolean,
     val posterLabelsEnabled: Boolean,
     val catalogAddonNameEnabled: Boolean,
     val catalogTypeSuffixEnabled: Boolean,
-    val classicFocusGradientEnabled: Boolean,
     val hideUnreleasedContent: Boolean,
     val showFullReleaseDate: Boolean
 )
@@ -53,13 +49,11 @@ private data class FocusedBackdropPrefs(
 )
 
 private data class LayoutUiPrefs(
-    val layout: HomeLayout,
     val heroCatalogKeys: List<String>,
     val heroSectionEnabled: Boolean,
     val posterLabelsEnabled: Boolean,
     val catalogAddonNameEnabled: Boolean,
     val catalogTypeSuffixEnabled: Boolean,
-    val classicFocusGradientEnabled: Boolean,
     val hideUnreleasedContent: Boolean,
     val showFullReleaseDate: Boolean,
     val modernLandscapePostersEnabled: Boolean,
@@ -89,7 +83,6 @@ private data class ModernLayoutPrefs(
 internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
     val coreLayoutPrefsFlow = combine(
         combine(
-            layoutPreferenceDataStore.selectedLayout,
             layoutPreferenceDataStore.heroCatalogSelections,
             // Kids profiles get a simplified home without the hero section.
             combine(
@@ -98,27 +91,23 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
             ) { enabled, restrictions -> enabled && !restrictions.isKidsProfile },
             layoutPreferenceDataStore.posterLabelsEnabled,
             layoutPreferenceDataStore.catalogAddonNameEnabled
-        ) { layout, heroCatalogKeys, heroSectionEnabled, posterLabelsEnabled, catalogAddonNameEnabled ->
+        ) { heroCatalogKeys, heroSectionEnabled, posterLabelsEnabled, catalogAddonNameEnabled ->
             CoreLayoutPrefs(
-                layout = layout,
                 heroCatalogKeys = heroCatalogKeys,
                 heroSectionEnabled = heroSectionEnabled,
                 posterLabelsEnabled = posterLabelsEnabled,
                 catalogAddonNameEnabled = catalogAddonNameEnabled,
                 catalogTypeSuffixEnabled = true,
-                classicFocusGradientEnabled = false,
                 hideUnreleasedContent = false,
                 showFullReleaseDate = true
             )
         },
         layoutPreferenceDataStore.catalogTypeSuffixEnabled,
         layoutPreferenceDataStore.hideUnreleasedContent,
-        layoutPreferenceDataStore.showFullReleaseDate,
-        layoutPreferenceDataStore.classicFocusGradientEnabled
-    ) { corePrefs, catalogTypeSuffixEnabled, hideUnreleasedContent, showFullReleaseDate, classicFocusGradientEnabled ->
+        layoutPreferenceDataStore.showFullReleaseDate
+    ) { corePrefs, catalogTypeSuffixEnabled, hideUnreleasedContent, showFullReleaseDate ->
         corePrefs.copy(
             catalogTypeSuffixEnabled = catalogTypeSuffixEnabled,
-            classicFocusGradientEnabled = classicFocusGradientEnabled,
             hideUnreleasedContent = hideUnreleasedContent,
             showFullReleaseDate = showFullReleaseDate
         )
@@ -164,13 +153,11 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
         layoutPreferenceDataStore.posterCardCornerRadiusDp
     ) { corePrefs, focusedBackdropPrefs, posterCardWidthDp, posterCardHeightDp, posterCardCornerRadiusDp ->
         LayoutUiPrefs(
-            layout = corePrefs.layout,
             heroCatalogKeys = corePrefs.heroCatalogKeys,
             heroSectionEnabled = corePrefs.heroSectionEnabled,
             posterLabelsEnabled = corePrefs.posterLabelsEnabled,
             catalogAddonNameEnabled = corePrefs.catalogAddonNameEnabled,
             catalogTypeSuffixEnabled = corePrefs.catalogTypeSuffixEnabled,
-            classicFocusGradientEnabled = corePrefs.classicFocusGradientEnabled,
             hideUnreleasedContent = corePrefs.hideUnreleasedContent,
             showFullReleaseDate = corePrefs.showFullReleaseDate,
             modernLandscapePostersEnabled = false,
@@ -204,41 +191,25 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
             .distinctUntilChanged()
             .debounce(300)
             .collectLatest { prefs ->
-                val effectivePosterLabelsEnabled = if (prefs.layout == HomeLayout.MODERN) {
-                    false
-                } else {
-                    prefs.posterLabelsEnabled
-                }
+                // Modern cards carry their own title treatment, so poster labels stay off on Home.
+                val effectivePosterLabelsEnabled = false
                 val previousState = _uiState.value
                 val heroKeysChanged = currentHeroCatalogKeys != prefs.heroCatalogKeys
                 val shouldRefreshCatalogPresentation =
                     heroKeysChanged ||
                         previousState.heroSectionEnabled != prefs.heroSectionEnabled ||
-                        previousState.homeLayout != prefs.layout ||
                         previousState.hideUnreleasedContent != prefs.hideUnreleasedContent ||
                         previousState.posterCardWidthDp != prefs.posterCardWidthDp ||
                         previousState.homeImdbRatingsVisibility != prefs.homeImdbRatingsVisibility
                 currentHeroCatalogKeys = prefs.heroCatalogKeys
-                // Reset focus state when layout changes so the outgoing
-                // layout's onDispose doesn't poison the incoming layout
-                // (e.g., Modern dispose saves hasSavedFocus=true right
-                // before Classic composes, preventing hero initial focus).
-                if (previousState.layoutPreferencesReady && previousState.homeLayout != prefs.layout) {
-                    // Suppress the outgoing layout's onDispose from saving
-                    // stale focus state before the incoming layout composes.
-                    suppressFocusSave = true
-                    clearFocusState()
-                }
                 _uiState.update {
                     it.copy(
                         layoutPreferencesReady = true,
-                        homeLayout = prefs.layout,
                         heroCatalogKeys = prefs.heroCatalogKeys,
                         heroSectionEnabled = prefs.heroSectionEnabled,
                         posterLabelsEnabled = effectivePosterLabelsEnabled,
                         catalogAddonNameEnabled = prefs.catalogAddonNameEnabled,
                         catalogTypeSuffixEnabled = prefs.catalogTypeSuffixEnabled,
-                        classicFocusGradientEnabled = prefs.classicFocusGradientEnabled && prefs.layout == HomeLayout.CLASSIC,
                         hideUnreleasedContent = prefs.hideUnreleasedContent,
                         showFullReleaseDate = prefs.showFullReleaseDate,
                         modernLandscapePostersEnabled = prefs.modernLandscapePostersEnabled,
@@ -257,11 +228,6 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                     )
                 }
                 if (shouldRefreshCatalogPresentation) {
-                    // When switching to GRID layout, load all pending lazy catalogs
-                    // since grid doesn't support placeholder shimmer rows.
-                    if (prefs.layout == HomeLayout.GRID) {
-                        loadAllPendingLazyCatalogs()
-                    }
                     // When hero catalog keys change, load any hero catalogs
                     // not yet in catalogsMap (e.g., after startup race or
                     // when user changes hero selection in settings).
@@ -609,8 +575,7 @@ internal fun HomeViewModel.onItemFocusPipeline(item: MetaPreview) {
         setEnrichingItemId(null)
     }
 
-    val tmdbEnabledForCurrentLayout = currentTmdbSettings.enabled &&
-        (_uiState.value.homeLayout != HomeLayout.MODERN || currentTmdbSettings.modernHomeEnabled)
+    val tmdbEnabledForCurrentLayout = currentTmdbSettings.enabled && currentTmdbSettings.modernHomeEnabled
     val willEnrich = tmdbEnabledForCurrentLayout || externalMetaPrefetchEnabled
 
     pendingTmdbEnrichItemId = item.id
@@ -759,8 +724,7 @@ internal fun HomeViewModel.preloadAdjacentItemPipeline(item: MetaPreview) {
     pendingAdjacentPrefetchItemId = item.id
     adjacentItemPrefetchJob?.cancel()
     adjacentItemPrefetchJob = viewModelScope.launch(Dispatchers.IO) {
-        val tmdbEnabledForCurrentLayout = currentTmdbSettings.enabled &&
-            (_uiState.value.homeLayout != HomeLayout.MODERN || currentTmdbSettings.modernHomeEnabled)
+        val tmdbEnabledForCurrentLayout = currentTmdbSettings.enabled && currentTmdbSettings.modernHomeEnabled
         delay(HomeViewModel.EXTERNAL_META_PREFETCH_ADJACENT_DEBOUNCE_MS)
         if (pendingAdjacentPrefetchItemId != item.id) return@launch
 
@@ -836,72 +800,13 @@ internal fun HomeViewModel.preloadAdjacentItemPipeline(item: MetaPreview) {
     }
 }
 
-/**
- * Applies enrichment to the collections consumed by the non-modern layouts.
- *
- * [transform] must be pure and idempotent: _uiState.update can retry, and the item is merged in
- * each collection independently.
- */
-private fun HomeViewModel.applyEnrichmentToDisplayedRows(
-    itemId: String,
-    transform: (MetaPreview) -> MetaPreview
-) {
-    _uiState.update { state ->
-        if (state.homeLayout == HomeLayout.MODERN) return@update state
-        var changed = false
-
-        fun patch(row: com.fetch.tv.domain.model.CatalogRow): com.fetch.tv.domain.model.CatalogRow {
-            val index = row.items.indexOfFirst { it.id == itemId }
-            if (index < 0) return row
-            val merged = transform(row.items[index])
-            if (merged == row.items[index]) return row
-            changed = true
-            return row.copy(items = row.items.toMutableList().apply { set(index, merged) })
-        }
-
-        val updatedCatalogRows = state.catalogRows.map(::patch)
-        val updatedHomeRows = state.homeRows.map { homeRow ->
-            if (homeRow is HomeRow.Catalog) {
-                val patched = patch(homeRow.row)
-                if (patched === homeRow.row) homeRow else HomeRow.Catalog(patched)
-            } else {
-                homeRow
-            }
-        }
-        val updatedGridItems = state.gridItems.map { gridItem ->
-            if (gridItem is GridItem.Content && gridItem.item.id == itemId) {
-                val merged = transform(gridItem.item)
-                if (merged == gridItem.item) {
-                    gridItem
-                } else {
-                    changed = true
-                    gridItem.copy(item = merged)
-                }
-            } else {
-                gridItem
-            }
-        }
-
-        if (changed) {
-            state.copy(
-                catalogRows = updatedCatalogRows,
-                homeRows = updatedHomeRows,
-                gridItems = updatedGridItems
-            )
-        } else {
-            state
-        }
-    }
-}
-
 private fun HomeViewModel.updateCatalogItemWithTmdb(itemId: String, enrichment: TmdbEnrichment) {
     enrichmentMergedIds.add(itemId)
-    val isModernLayout = _uiState.value.homeLayout == HomeLayout.MODERN
     fun mergeItem(currentItem: MetaPreview): MetaPreview {
         var merged = currentItem
         if (currentTmdbSettings.useBasicInfo) {
             merged = merged.copy(
-                name = if (isModernLayout) enrichment.localizedTitle ?: merged.name else merged.name,
+                name = enrichment.localizedTitle ?: merged.name,
                 description = enrichment.description ?: merged.description,
                 genres = if (enrichment.genres.isNotEmpty()) enrichment.genres else merged.genres
             )
@@ -925,8 +830,6 @@ private fun HomeViewModel.updateCatalogItemWithTmdb(itemId: String, enrichment: 
     updateIndexedCatalogItem(itemId, ::mergeItem)
     clearEnrichmentFailure(itemId)
 
-    applyEnrichmentToDisplayedRows(itemId, ::mergeItem)
-
     findCatalogItemById(itemId)?.let { enriched ->
         _lastEnrichedPreview.value = enriched
         addEnrichedPreview(itemId, enriched)
@@ -946,9 +849,7 @@ internal fun HomeViewModel.updateCatalogItemMdbListRatings(
         )
 
     updateIndexedCatalogItem(itemId, ::mergeItem)
-    // Apply to _uiState.catalogRows for ALL layouts including MODERN.
-    // applyEnrichmentToDisplayedRows skips MODERN, but MDB ratings must
-    // reach catalogRows so the carousel presentation rebuild picks them up.
+    // MDB ratings must reach catalogRows so the carousel presentation rebuild picks them up.
     _uiState.update { state ->
         var changed = false
         val updatedRows = state.catalogRows.map { row ->
@@ -1029,7 +930,6 @@ private fun HomeViewModel.updateCatalogItemWithMeta(itemId: String, meta: Meta) 
     updateIndexedCatalogItem(itemId, ::mergeItem)
     clearEnrichmentFailure(itemId)
 
-    applyEnrichmentToDisplayedRows(itemId, ::mergeItem)
     findCatalogItemById(itemId)?.let { enriched ->
         _lastEnrichedPreview.value = enriched
         addEnrichedPreview(itemId, enriched)
@@ -1086,20 +986,6 @@ internal suspend fun HomeViewModel.enrichHeroItemsPipeline(
     items: List<MetaPreview>,
     settings: TmdbSettings
 ): List<MetaPreview> = metaPreviewEnricher.enrich(items, settings, currentMdbListSettings)
-
-internal fun HomeViewModel.replaceGridHeroItemsPipeline(
-    gridItems: List<GridItem>,
-    heroItems: List<MetaPreview>
-): List<GridItem> {
-    if (gridItems.isEmpty()) return gridItems
-    return gridItems.map { item ->
-        if (item is GridItem.Hero) {
-            item.copy(items = heroItems)
-        } else {
-            item
-        }
-    }
-}
 
 internal fun HomeViewModel.heroEnrichmentSignaturePipeline(
     items: List<MetaPreview>,

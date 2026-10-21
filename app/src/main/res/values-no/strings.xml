@@ -205,7 +205,6 @@
     <!-- AboutScreen -->
     <string name="about_title">Om</string>
     <string name="about_subtitle">Appinformasjon, oppdateringer og juridiske lenker</string>
-    <string name="about_made_with_love">Laget med ❤️ av Tapframe og venner</string>
     <string name="about_version">Versjon %1$s</string>
     <string name="about_check_updates">Se etter oppdateringer</string>
     <string name="about_check_updates_subtitle">Last ned siste versjon</string>
@@ -417,20 +416,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Oppsettinnstillinger</string>
     <string name="layout_subtitle">Juster hjemmeoppsettet, innholdsvisning og posteroppførsel</string>
-    <string name="layout_classic">Klassisk visning</string>
-    <string name="layout_grid">Rutenettsvisning</string>
-    <string name="layout_modern">Moderne visning</string>
-    <string name="layout_classic_desc">Bla gjennom kategorier horisontalt</string>
-    <string name="layout_grid_desc">Bla gjennom alt i et vertikalt rutenett med en helt-rad</string>
-    <string name="layout_modern_desc">Fast helt med en enkelt aktiv rad for raskere blanding</string>
     <string name="layout_section_home">Hjemmeoppsettet</string>
     <string name="layout_section_home_desc">Velg struktur og heltkilde.</string>
     <string name="layout_landscape_posters">Landskapsplataler</string>
     <string name="layout_landscape_posters_sub">Bytt mellom portrett og landskapskort for moderne visning.</string>
     <string name="layout_preview_row">Vis forhåndsvisningsrad</string>
     <string name="layout_preview_row_sub">Vis en delvis forhåndsvisning av raden nedenfor i moderne hjemmeoppsettet.</string>
-    <string name="layout_hero_catalogs">Heltkataloger</string>
-    <string name="layout_hero_catalogs_sub">Velg en eller flere kataloger for heltinnhold.</string>
     <string name="layout_section_content">Hjemmeinnhold</string>
     <string name="layout_section_content_desc">Kontroller hva som vises på hjemmet og søket.</string>
     <string name="layout_collapse_sidebar">Skjul sidestolpe</string>
@@ -441,8 +432,6 @@
     <string name="layout_modern_sidebar_blur_sub">Slå på/av blureffekt for moderne sidefeltsflater.</string>
     <string name="layout_fullscreen_hero_backdrop">Heltkran i fullskjerm</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Utvid heltbakgrunn til å fylle hele skjermen.</string>
-    <string name="layout_show_hero">Vis heltseksjonen</string>
-    <string name="layout_show_hero_sub">Vis heltkarusell øverst på hjemmet.</string>
     <string name="layout_show_discover">Vis Discover i søk</string>
     <string name="layout_show_discover_sub">Vis blareavsnitt når søket er tomt.</string>
     <string name="layout_poster_labels">Vis plakatlabeler</string>
@@ -470,12 +459,9 @@
     <string name="layout_expand_delay">Utvidelsestid for bakgrunnstap</string>
     <string name="layout_expand_delay_sub">Hvor lenge skal ventes før fokuserte kort utvides.</string>
     <string name="layout_autoplay_trailer">Autoavspill trailer</string>
-    <string name="layout_autoplay_trailer_expanded">Autoavspill trailer i utvidet kort</string>
     <string name="layout_autoplay_trailer_sub">Spill trailerforhåndsvisning for fokusert innhold når tilgjengelig.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Spill trailer inni utvidet bakgrunnstap når tilgjengelig.</string>
     <string name="layout_trailer_muted">Spill trailer uten lyd</string>
     <string name="layout_trailer_muted_sub_preview">Dempet trailerlyd under autoavspillingsforhåndsvisning.</string>
-    <string name="layout_trailer_muted_sub_expanded">Dempet trailerlyd i utvidede kort.</string>
     <string name="layout_section_card_style">Plakatkort</string>
     <string name="layout_section_card_style_desc">Juster kortbredde og hjørneradius.</string>
     <string name="layout_open">Åpne</string>
@@ -1040,9 +1026,7 @@
     <string name="catalog_see_all_empty_subtitle">Prøv en annen katalog eller kom tilbake senere</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Velkommen til Fetch</string>
     <string name="layout_selection_subtitle">Velg oppsettet for hjemmeskjermen</string>
-    <string name="layout_selection_continue">Fortsett</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Appoppdatering</string>

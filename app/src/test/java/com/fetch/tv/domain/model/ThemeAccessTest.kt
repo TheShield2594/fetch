@@ -12,7 +12,7 @@ class ThemeAccessTest {
 
         assertEquals(AppTheme.CUSTOM, themes.first())
         assertEquals(AppTheme.CUSTOM, resolveAppTheme(AppTheme.CUSTOM, CosmeticEntitlements.None))
-        assertEquals(AppTheme.WHITE, resolveAppTheme(null, CosmeticEntitlements.None))
+        assertEquals(DEFAULT_APP_THEME, resolveAppTheme(null, CosmeticEntitlements.None))
         assertEquals(themes.size, themes.distinct().size)
     }
 
@@ -38,7 +38,7 @@ class ThemeAccessTest {
         assertFalse(AppTheme.ROSE_GOLD in availableThemes)
         assertFalse(AppTheme.ARCTIC_BLUE in availableThemes)
         assertFalse(AppTheme.GRAPHITE in availableThemes)
-        assertEquals(AppTheme.WHITE, resolveAppTheme(AppTheme.GOLD, CosmeticEntitlements.None))
+        assertEquals(DEFAULT_APP_THEME, resolveAppTheme(AppTheme.GOLD, CosmeticEntitlements.None))
     }
 
     @Test

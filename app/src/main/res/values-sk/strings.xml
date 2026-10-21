@@ -354,7 +354,6 @@
     
     <string name="about_title">O aplikácii</string>
     <string name="about_subtitle">Informácie o aplikácii, aktualizácie a právne odkazy</string>
-    <string name="about_made_with_love">Vytvorené s ❤️ tímom Tapframe a priateľmi</string>
     <string name="about_version">Verzia %1$s</string>
     <string name="about_check_updates">Skontrolovať aktualizácie</string>
     <string name="about_check_updates_subtitle">Stiahnuť najnovšiu verziu</string>
@@ -726,20 +725,12 @@
         
     <string name="layout_title">Nastavenia rozloženia</string>
     <string name="layout_subtitle">Upravte domáce rozloženie, viditeľnosť obsahu a správanie posterov</string>
-    <string name="layout_classic">Klasické zobrazenie</string>
-    <string name="layout_grid">Mriežkové zobrazenie</string>
-    <string name="layout_modern">Moderné zobrazenie</string>
-    <string name="layout_classic_desc">Prechádzajte kategórie horizontálne</string>
-    <string name="layout_grid_desc">Prehliadajte všetko vo vertikálnej mriežke s hero sekciou</string>
-    <string name="layout_modern_desc">Fixný hero s jedným aktívnym riadkom pre rýchlejšie prehliadanie</string>
     <string name="layout_section_home">Domáce rozloženie</string>
     <string name="layout_section_home_desc">Vyberte štruktúru a zdroj hero obsahu.</string>
     <string name="layout_landscape_posters">Na šírku</string>
     <string name="layout_landscape_posters_sub">Prepínať medzi portrétnymi a landscape kartami v modernom zobrazení.</string>
     <string name="layout_preview_row">Zobraziť náhľadový riadok</string>
     <string name="layout_preview_row_sub">Zobraziť čiastočný náhľad nasledujúceho riadku v modernom rozložení.</string>
-    <string name="layout_hero_catalogs">Hero katalógy</string>
-    <string name="layout_hero_catalogs_sub">Vyberte jeden alebo viac katalógov pre hero obsah.</string>
     <string name="layout_section_content">Obsah domovskej obrazovky</string>
     <string name="layout_section_content_desc">Ovládajte, čo sa zobrazuje na domovskej obrazovke a v hľadaní.</string>
     <string name="layout_collapse_sidebar">Skryť bočný panel</string>
@@ -750,10 +741,6 @@
     <string name="layout_modern_sidebar_blur_sub">Prepínať efekt rozmazania pre moderný bočný panel.</string>
     <string name="layout_fullscreen_hero_backdrop">Celostránkové pozadie hero sekcie</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozšíriť pozadie hero sekcie na celú obrazovku.</string>
-    <string name="layout_classic_focus_gradient">Gradient zameranej položky</string>
-    <string name="layout_classic_focus_gradient_sub">Prelínať farby grafiky do pravej strany klasickej domovskej obrazovky.</string>
-    <string name="layout_show_hero">Zobraziť hero sekciu</string>
-    <string name="layout_show_hero_sub">Zobraziť hero karusel v hornej časti domovskej obrazovky.</string>
     <string name="layout_show_discover">Zobraziť/Skryť Objavovať</string>
     <string name="layout_show_discover_sub">Pridá sekciu Objavovať pre prehliadanie.</string>
     <string name="layout_discover_location_action">Umiestnenie Objavovania</string>
@@ -803,12 +790,9 @@
     <string name="layout_expand_delay">Oneskorenie rozšírenia</string>
     <string name="layout_expand_delay_sub">Ako dlho čakať pred rozšírením zameraných kariet.</string>
     <string name="layout_autoplay_trailer">Automaticky prehrať trailer</string>
-    <string name="layout_autoplay_trailer_expanded">Automaticky prehrať trailer v rozšírenej karte</string>
     <string name="layout_autoplay_trailer_sub">Prehrať trailer pre zameraný obsah, ak je dostupný.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Prehrať trailer v rozšírenom pozadí, ak je dostupný.</string>
     <string name="layout_trailer_muted">Prehrať trailer bez zvuku</string>
     <string name="layout_trailer_muted_sub_preview">Stlmiť zvuk traileru počas náhľadu.</string>
-    <string name="layout_trailer_muted_sub_expanded">Stlmiť zvuk traileru v rozšírených kartách.</string>
     <string name="layout_section_card_style">Plagáty</string>
     <string name="layout_section_card_style_desc">Upraviť šírku a zaoblenie rohov kariet.</string>
     <string name="layout_open">Otvorené</string>
@@ -1718,9 +1702,7 @@
     <string name="catalog_see_all_empty_subtitle">Skúste iný katalóg alebo sa vráťte neskôr</string>
 
     
-    <string name="layout_selection_welcome">Vitajte v Fetch</string>
     <string name="layout_selection_subtitle">Vyberte rozloženie domovskej obrazovky</string>
-    <string name="layout_selection_continue">Pokračovať</string>
 
     
     <string name="update_title">Aktualizácia aplikácie</string>

@@ -34,6 +34,11 @@ data class StreamScreenUiState(
     val availableAddons: List<String> = emptyList(),
     val sourceChips: List<SourceChipItem> = emptyList(),
     val autoPlayStream: Stream? = null,
+    /** Best match among the streams that have arrived so far, while auto-play still waits. */
+    val bestSoFarStream: Stream? = null,
+    val bestSoFar: com.fetch.tv.core.streams.BestMatchPreview? = null,
+    /** SystemClock.elapsedRealtime() at which auto-play stops waiting for slower addons. */
+    val autoPlayDeadlineElapsedMs: Long? = null,
     val autoPlayPlaybackInfo: StreamPlaybackInfo? = null,
     val error: String? = null,
     val playbackErrorMessage: String? = null
@@ -49,6 +54,10 @@ sealed class StreamScreenEvent {
     data object OnRetry : StreamScreenEvent()
     data object OnBackPress : StreamScreenEvent()
     data object OnResume : StreamScreenEvent()
+    /** Play the best stream found so far instead of waiting for the remaining addons. */
+    data object OnPlayBestSoFar : StreamScreenEvent()
+    /** Leave the auto-play loader for the full source list. */
+    data object OnShowAllSources : StreamScreenEvent()
 }
 
 data class SharedStream(

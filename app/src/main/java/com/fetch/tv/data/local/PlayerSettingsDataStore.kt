@@ -325,6 +325,8 @@ data class PlayerSettings(
     val nextEpisodeThresholdPercent: Float = 99f,
     val nextEpisodeThresholdMinutesBeforeEnd: Float = 2f,
     val streamReuseLastLinkEnabled: Boolean = true,
+    /** Look up the Best match pick on detail pages so the Play button can name it. */
+    val bestMatchPreviewEnabled: Boolean = true,
     val streamReuseLastLinkCacheHours: Int = 1,
     val externalPlayerForwardSubtitles: Boolean = false,
     val externalPlayerSendSkipSegments: Boolean = false,
@@ -598,6 +600,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val nextEpisodeThresholdPercentKey = floatPreferencesKey("next_episode_threshold_percent_v2")
     private val nextEpisodeThresholdMinutesBeforeEndKey = floatPreferencesKey("next_episode_threshold_minutes_before_end_v2")
     private val streamReuseLastLinkEnabledKey = booleanPreferencesKey("stream_reuse_last_link_enabled")
+    private val bestMatchPreviewEnabledKey = booleanPreferencesKey("best_match_preview_enabled")
     private val streamReuseLastLinkCacheHoursKey = intPreferencesKey("stream_reuse_last_link_cache_hours")
     private val externalPlayerForwardSubtitlesKey = booleanPreferencesKey("external_player_forward_subtitles")
     private val externalPlayerSendSkipSegmentsKey = booleanPreferencesKey("external_player_send_skip_segments")
@@ -1021,6 +1024,7 @@ class PlayerSettingsDataStore @Inject constructor(
                     max = 3.5f
                 ),
                 streamReuseLastLinkEnabled = prefs[streamReuseLastLinkEnabledKey] ?: false,
+                bestMatchPreviewEnabled = prefs[bestMatchPreviewEnabledKey] ?: true,
                 streamReuseLastLinkCacheHours = (prefs[streamReuseLastLinkCacheHoursKey] ?: 24).coerceIn(1, 168),
                 externalPlayerForwardSubtitles = prefs[externalPlayerForwardSubtitlesKey] ?: false,
                 externalPlayerSendSkipSegments = prefs[externalPlayerSendSkipSegmentsKey] ?: false,
@@ -1458,6 +1462,12 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setStreamReuseLastLinkEnabled(enabled: Boolean) {
         store().edit { prefs ->
             prefs[streamReuseLastLinkEnabledKey] = enabled
+        }
+    }
+
+    suspend fun setBestMatchPreviewEnabled(enabled: Boolean) {
+        store().edit { prefs ->
+            prefs[bestMatchPreviewEnabledKey] = enabled
         }
     }
 

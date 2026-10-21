@@ -32,10 +32,36 @@ val OpenSansFamily = FontFamily(
     Font(R.font.opensans_variable, FontWeight.Bold)
 )
 
+val SchibstedGroteskFamily = FontFamily(
+    Font(R.font.schibsted_grotesk_variable, FontWeight.Normal),
+    Font(R.font.schibsted_grotesk_variable, FontWeight.Medium),
+    Font(R.font.schibsted_grotesk_variable, FontWeight.SemiBold),
+    Font(R.font.schibsted_grotesk_variable, FontWeight.Bold),
+    Font(R.font.schibsted_grotesk_variable, FontWeight.ExtraBold)
+)
+
+/** Fetch's display face: titles, hero names and section headings. */
+val BricolageGrotesqueFamily = FontFamily(
+    Font(R.font.bricolage_grotesque_variable, FontWeight.Medium),
+    Font(R.font.bricolage_grotesque_variable, FontWeight.SemiBold),
+    Font(R.font.bricolage_grotesque_variable, FontWeight.Bold),
+    Font(R.font.bricolage_grotesque_variable, FontWeight.ExtraBold)
+)
+
 fun getFontFamily(appFont: AppFont): FontFamily = when (appFont) {
+    AppFont.SCHIBSTED_GROTESK -> SchibstedGroteskFamily
     AppFont.INTER -> InterFamily
     AppFont.DM_SANS -> DMSansFamily
     AppFont.OPEN_SANS -> OpenSansFamily
+}
+
+/**
+ * The Fetch font pairs Schibsted Grotesk text with Bricolage Grotesque headings. Picking another
+ * font in settings uses that font for headings too.
+ */
+fun getDisplayFontFamily(appFont: AppFont): FontFamily = when (appFont) {
+    AppFont.SCHIBSTED_GROTESK -> BricolageGrotesqueFamily
+    else -> getFontFamily(appFont)
 }
 
 @Immutable
@@ -56,33 +82,50 @@ data class FetchTextStyleTokens(
 )
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-fun buildFetchTypography(fontFamily: FontFamily): Typography = Typography(
+fun buildFetchTypography(
+    fontFamily: FontFamily,
+    displayFontFamily: FontFamily = fontFamily
+): Typography = Typography(
     displayLarge = TextStyle(
-        fontFamily = fontFamily,
-        fontWeight = FontWeight.Bold,
+        fontFamily = displayFontFamily,
+        fontWeight = FontWeight.ExtraBold,
         fontSize = 48.sp,
-        lineHeight = 56.sp,
-        letterSpacing = (-0.5).sp
+        lineHeight = 52.sp,
+        letterSpacing = (-1).sp
     ),
     displayMedium = TextStyle(
-        fontFamily = fontFamily,
+        fontFamily = displayFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 36.sp,
-        lineHeight = 44.sp,
-        letterSpacing = 0.sp
+        lineHeight = 42.sp,
+        letterSpacing = (-0.5).sp
+    ),
+    displaySmall = TextStyle(
+        fontFamily = displayFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp,
+        lineHeight = 38.sp,
+        letterSpacing = (-0.5).sp
     ),
     headlineLarge = TextStyle(
-        fontFamily = fontFamily,
-        fontWeight = FontWeight.SemiBold,
+        fontFamily = displayFontFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
-        lineHeight = 36.sp,
-        letterSpacing = 0.sp
+        lineHeight = 34.sp,
+        letterSpacing = (-0.25).sp
     ),
     headlineMedium = TextStyle(
-        fontFamily = fontFamily,
-        fontWeight = FontWeight.SemiBold,
+        fontFamily = displayFontFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 24.sp,
-        lineHeight = 32.sp,
+        lineHeight = 30.sp,
+        letterSpacing = 0.sp
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = displayFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
+        lineHeight = 26.sp,
         letterSpacing = 0.sp
     ),
     titleLarge = TextStyle(
@@ -151,7 +194,7 @@ fun buildFetchTypography(fontFamily: FontFamily): Typography = Typography(
 )
 
 @OptIn(ExperimentalTvMaterial3Api::class)
-val FetchTypography = buildFetchTypography(InterFamily)
+val FetchTypography = buildFetchTypography(SchibstedGroteskFamily, BricolageGrotesqueFamily)
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 fun buildFetchTextStyles(typography: Typography): FetchTextStyleTokens = FetchTextStyleTokens(

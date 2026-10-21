@@ -24,7 +24,7 @@ data class FetchExtendedColors(
 )
 
 val LocalFetchColors = staticCompositionLocalOf {
-    FetchColorScheme(ThemeColors.Ocean)
+    FetchColorScheme(ThemeColors.Fetch)
 }
 
 val LocalFetchExtendedColors = staticCompositionLocalOf {
@@ -33,29 +33,29 @@ val LocalFetchExtendedColors = staticCompositionLocalOf {
         backgroundCard = Color(0xFF242424),
         textSecondary = Color(0xFFB3B3B3),
         textTertiary = Color(0xFF808080),
-        focusRing = ThemeColors.Ocean.focusRing,
-        focusBackground = ThemeColors.Ocean.focusBackground,
+        focusRing = ThemeColors.Fetch.focusRing,
+        focusBackground = ThemeColors.Fetch.focusBackground,
         rating = Color(0xFFFFD700)
     )
 }
 
 val LocalFetchTextStyles = staticCompositionLocalOf { FetchTextStyles }
 
-val LocalAppTheme = staticCompositionLocalOf { AppTheme.WHITE }
+val LocalAppTheme = staticCompositionLocalOf { com.fetch.tv.domain.model.DEFAULT_APP_THEME }
 
 val LocalThemePalette = staticCompositionLocalOf { ThemeColors.White }
 
 val LocalSettingsUiStyle = staticCompositionLocalOf { SettingsUiStyle.CLASSIC }
 
 val LocalFetchFocusRingStyle = staticCompositionLocalOf {
-    createFocusRingStyle(ThemeColors.Ocean)
+    createFocusRingStyle(ThemeColors.Fetch)
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun FetchTheme(
-    appTheme: AppTheme = AppTheme.WHITE,
-    appFont: AppFont = AppFont.INTER,
+    appTheme: AppTheme = com.fetch.tv.domain.model.DEFAULT_APP_THEME,
+    appFont: AppFont = AppFont.SCHIBSTED_GROTESK,
     amoledMode: Boolean = false,
     amoledSurfacesMode: Boolean = false,
     settingsUiStyle: SettingsUiStyle = SettingsUiStyle.CLASSIC,
@@ -71,7 +71,7 @@ fun FetchTheme(
         amoledMode = amoledMode,
         amoledSurfacesMode = amoledSurfacesMode
     )
-    val typography = buildFetchTypography(getFontFamily(appFont))
+    val typography = buildFetchTypography(getFontFamily(appFont), getDisplayFontFamily(appFont))
     val textStyles = buildFetchTextStyles(typography)
 
     val materialColorScheme = darkColorScheme(

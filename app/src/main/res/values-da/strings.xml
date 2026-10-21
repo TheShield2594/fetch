@@ -336,7 +336,6 @@
 
     <string name="about_title">Om</string>
     <string name="about_subtitle">App-information, opdateringer og juridiske links</string>
-    <string name="about_made_with_love">Lavet med ❤️ af Tapframe og venner</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_check_updates">Søg efter opdateringer</string>
     <string name="about_check_updates_subtitle">Download nyeste version</string>
@@ -748,20 +747,12 @@
 
     <string name="layout_title">Layoutindstillinger</string>
     <string name="layout_subtitle">Tilpas hjemmelayout, indholdssynlighed og posteradfærd</string>
-    <string name="layout_classic">Klassisk visning</string>
-    <string name="layout_grid">Gittervisning</string>
-    <string name="layout_modern">Moderne visning</string>
-    <string name="layout_classic_desc">Rul gennem kategorier vandret</string>
-    <string name="layout_grid_desc">Gennemse alt i et lodret gitter med en hero-sektion</string>
-    <string name="layout_modern_desc">Fast hero med én aktiv række for hurtigere gennemsyn</string>
     <string name="layout_section_home">Hjemmelayout</string>
     <string name="layout_section_home_desc">Vælg struktur og hero-kilde.</string>
     <string name="layout_landscape_posters">Landskabspostere</string>
     <string name="layout_landscape_posters_sub">Skift mellem stående og liggende kort i Moderne visning.</string>
     <string name="layout_preview_row">Vis Forhåndsvisningsrække</string>
     <string name="layout_preview_row_sub">Vis en delvis forhåndsvisning af rækken nedenunder i Moderne hjemmelayout.</string>
-    <string name="layout_hero_catalogs">Hero-kataloger</string>
-    <string name="layout_hero_catalogs_sub">Vælg ét eller flere kataloger til hero-indhold.</string>
     <string name="layout_section_content">Hjemmeindhold</string>
     <string name="layout_section_content_desc">Styr hvad der vises på hjem og søgning.</string>
     <string name="layout_collapse_sidebar">Fold sidebjælken sammen</string>
@@ -772,10 +763,6 @@
     <string name="layout_modern_sidebar_blur_sub">Slå sløreeffekt til/fra for den moderne sidebjælke.</string>
     <string name="layout_fullscreen_hero_backdrop">Fuldskærms hero-baggrund</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Udvid hero-baggrunden til at fylde hele skærmen.</string>
-    <string name="layout_classic_focus_gradient">Gradient for fokuseret element</string>
-    <string name="layout_classic_focus_gradient_sub">Bland kunstværkets farver ind i højre side af klassisk hjem.</string>
-    <string name="layout_show_hero">Vis hero-sektion</string>
-    <string name="layout_show_hero_sub">Vis hero-karrusellen øverst på hjemmeskærmen.</string>
     <string name="layout_show_discover">Vis/Skjul Opdag</string>
     <string name="layout_show_discover_sub">Tilføjer en Opdag-sektion til gennemsyn.</string>
     <string name="layout_discover_location_action">Opdag-placering</string>
@@ -827,12 +814,9 @@
     <string name="layout_expand_delay">Forsinkelse for udvidelse af baggrundsbilled</string>
     <string name="layout_expand_delay_sub">Hvor længe der skal ventes før fokuserede kort udvides.</string>
     <string name="layout_autoplay_trailer">Afspil trailer automatisk</string>
-    <string name="layout_autoplay_trailer_expanded">Afspil trailer automatisk i udvidet kort</string>
     <string name="layout_autoplay_trailer_sub">Afspil trailer-forhåndsvisning for fokuseret indhold når tilgængeligt.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Afspil trailer inde i udvidet baggrundsbillede når tilgængeligt.</string>
     <string name="layout_trailer_muted">Afspil trailer uden lyd</string>
     <string name="layout_trailer_muted_sub_preview">Slå trailer-lyd fra under automatisk afspilningsforhåndsvisning.</string>
-    <string name="layout_trailer_muted_sub_expanded">Slå trailer-lyd fra i udvidede kort.</string>
     <string name="layout_section_card_style">Posterkort</string>
     <string name="layout_section_card_style_desc">Justér kortbredde og hjørneradius.</string>
     <string name="layout_open">Åben</string>
@@ -1796,9 +1780,7 @@
     <string name="catalog_see_all_empty_title">Ingen indhold tilgængeligt</string>
     <string name="catalog_see_all_empty_subtitle">Prøv et andet katalog, eller kom tilbage senere</string>
 
-    <string name="layout_selection_welcome">Velkommen til Fetch</string>
     <string name="layout_selection_subtitle">Vælg dit startskærm-layout</string>
-    <string name="layout_selection_continue">Fortsæt</string>
 
     <string name="update_title">App-opdatering</string>
     <string name="update_downloading">Downloader opdatering</string>

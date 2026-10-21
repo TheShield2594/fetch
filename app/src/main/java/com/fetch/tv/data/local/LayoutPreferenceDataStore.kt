@@ -30,7 +30,6 @@ import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.EpisodeOptionsOverlayStyle
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.DetailImdbRatingsVisibility
-import com.fetch.tv.domain.model.HomeLayout
 import com.fetch.tv.domain.model.HomeImdbRatingsVisibility
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,7 +55,7 @@ class LayoutPreferenceDataStore @Inject constructor(
         private const val FEATURE = "layout_settings"
         private const val DEFAULT_POSTER_CARD_WIDTH_DP = 126
         private const val DEFAULT_POSTER_CARD_HEIGHT_DP = 189
-        private const val DEFAULT_POSTER_CARD_CORNER_RADIUS_DP = 12
+        private const val DEFAULT_POSTER_CARD_CORNER_RADIUS_DP = 8
         private const val DEFAULT_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS = 3
         private const val MIN_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS = 0
     }
@@ -68,7 +67,8 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     private val gson = Gson()
 
-    private val layoutKey = stringPreferencesKey("selected_layout")
+    private val legacyLayoutKey = stringPreferencesKey("selected_layout")
+    // Set once first-run setup finished. The key name predates the single Home layout.
     private val hasChosenKey = booleanPreferencesKey("has_chosen_layout")
     private val heroCatalogKey = stringPreferencesKey("hero_catalog_key")
     private val heroCatalogKeysKey = stringPreferencesKey("hero_catalog_keys")
@@ -85,7 +85,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val posterLabelsEnabledKey = booleanPreferencesKey("poster_labels_enabled")
     private val catalogAddonNameEnabledKey = booleanPreferencesKey("catalog_addon_name_enabled")
     private val catalogTypeSuffixEnabledKey = booleanPreferencesKey("catalog_type_suffix_enabled")
-    private val classicFocusGradientEnabledKey = booleanPreferencesKey("classic_focus_gradient_enabled")
+    private val legacyClassicFocusGradientEnabledKey = booleanPreferencesKey("classic_focus_gradient_enabled")
     private val focusedPosterBackdropExpandEnabledKey = booleanPreferencesKey("focused_poster_backdrop_expand_enabled")
     private val focusedPosterBackdropExpandDelaySecondsKey = intPreferencesKey("focused_poster_backdrop_expand_delay_seconds")
     private val focusedPosterBackdropTrailerEnabledKey = booleanPreferencesKey("focused_poster_backdrop_trailer_enabled")
@@ -155,15 +155,6 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     private fun positiveOrDefault(value: Int?, defaultValue: Int): Int =
         value?.takeIf { it > 0 } ?: defaultValue
-
-    val selectedLayout: Flow<HomeLayout> = profileFlow { prefs ->
-        val layoutName = prefs[layoutKey] ?: HomeLayout.MODERN.name
-        try {
-            HomeLayout.valueOf(layoutName)
-        } catch (e: IllegalArgumentException) {
-            HomeLayout.MODERN
-        }
-    }
 
     val continueWatchingEnabled: Flow<Boolean> = profileFlow { prefs ->
         prefs[continueWatchingEnabledKey] ?: true
@@ -249,7 +240,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     }
 
     val modernLandscapePostersEnabled: Flow<Boolean> = profileFlow { prefs ->
-        prefs[modernLandscapePostersEnabledKey] ?: false
+        prefs[modernLandscapePostersEnabledKey] ?: true
     }
 
     val modernHeroFullScreenBackdropEnabled: Flow<Boolean> = profileFlow { prefs ->
@@ -286,10 +277,6 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     val catalogTypeSuffixEnabled: Flow<Boolean> = profileFlow { prefs ->
         prefs[catalogTypeSuffixEnabledKey] ?: true
-    }
-
-    val classicFocusGradientEnabled: Flow<Boolean> = profileFlow { prefs ->
-        prefs[classicFocusGradientEnabledKey] ?: false
     }
 
     val focusedPosterBackdropExpandEnabled: Flow<Boolean> = profileFlow { prefs ->
@@ -510,19 +497,23 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    suspend fun setLayout(layout: HomeLayout) {
+    /**
+     * Marks first-run setup as done. A fresh profile also starts with hero trailers, the default
+     * the Home layout is designed around.
+     */
+    suspend fun markHomeSetUp() {
         store().edit { prefs ->
-            val hadChosenLayout = prefs[hasChosenKey] ?: false
-            prefs[layoutKey] = layout.name
-            if (
-                layout == HomeLayout.MODERN &&
-                !hadChosenLayout &&
-                prefs[focusedPosterBackdropTrailerPlaybackTargetKey] == null
-            ) {
-                prefs[focusedPosterBackdropTrailerPlaybackTargetKey] =
-                    FocusedPosterTrailerPlaybackTarget.HERO_MEDIA.name
+            val wasSetUp = prefs[hasChosenKey] ?: false
+            if (!wasSetUp) {
+                if (prefs[focusedPosterBackdropTrailerPlaybackTargetKey] == null) {
+                    prefs[focusedPosterBackdropTrailerPlaybackTargetKey] =
+                        FocusedPosterTrailerPlaybackTarget.HERO_MEDIA.name
+                }
             }
             prefs[hasChosenKey] = true
+            // Classic and Grid are gone; drop their stored choices so nothing reads them again.
+            prefs.remove(legacyLayoutKey)
+            prefs.remove(legacyClassicFocusGradientEnabledKey)
         }
     }
 
@@ -655,12 +646,6 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun setCatalogTypeSuffixEnabled(enabled: Boolean) {
         store().edit { prefs ->
             prefs[catalogTypeSuffixEnabledKey] = enabled
-        }
-    }
-
-    suspend fun setClassicFocusGradientEnabled(enabled: Boolean) {
-        store().edit { prefs ->
-            prefs[classicFocusGradientEnabledKey] = enabled
         }
     }
 

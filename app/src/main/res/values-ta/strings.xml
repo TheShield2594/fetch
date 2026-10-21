@@ -333,7 +333,6 @@
     <!-- AboutScreen -->
     <string name="about_title">பற்றி</string>
     <string name="about_subtitle">செயலி தகவல், புதுப்பிப்புகள் மற்றும் சட்ட இணைப்புகள்</string>
-    <string name="about_made_with_love">❤️ உடன் டாப்ஃப்ரேம் மற்றும் நண்பர்களால் உருவாக்கப்பட்டது</string>
     <string name="about_version">பதிப்பு %1$s</string>
     <string name="about_check_updates">புதுப்பிப்புகளை சரிபார்</string>
     <string name="about_check_updates_subtitle">சமீபத்திய வெளியீட்டை பதிவிறக்கு</string>
@@ -698,20 +697,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">தளவமைப்பு அமைப்புகள்</string>
     <string name="layout_subtitle">முகப்பு தளவமைப்பு, உள்ளடக்க காட்சியமைப்பு மற்றும் போஸ்டர் நடத்தையை சரிசெய்</string>
-    <string name="layout_classic">கிளாசிக் காட்சி</string>
-    <string name="layout_grid">கிரிட் காட்சி</string>
-    <string name="layout_modern">நவீன காட்சி</string>
-    <string name="layout_classic_desc">பிரிவுகளை கிடைமட்டமாக உருட்டிப் பார்</string>
-    <string name="layout_grid_desc">ஹீரோ பிரிவுடன் செங்குத்து கிரிட்டில் அனைத்தையும் உலாவு</string>
-    <string name="layout_modern_desc">வேகமான உலாவலுக்கு ஒரே செயலில் உள்ள வரியுடன் நிலையான ஹீரோ</string>
     <string name="layout_section_home">முகப்பு தளவமைப்பு</string>
     <string name="layout_section_home_desc">வடிவமைப்பு மற்றும் ஹீரோ மூலத்தைத் தேர்ந்தெடு.</string>
     <string name="layout_landscape_posters">கிடைநிலை போஸ்டர்கள்</string>
     <string name="layout_landscape_posters_sub">நவீன காட்சிக்காக நேர்நிலை மற்றும் கிடைநிலை அட்டைகளுக்கு இடையில் மாற்று.</string>
     <string name="layout_preview_row">முன்னோட்ட வரியைக் காட்டு</string>
     <string name="layout_preview_row_sub">நவீன முகப்பு தளவமைப்பில் கீழே உள்ள வரியின் பகுதி முன்னோட்டத்தைக் காட்டு.</string>
-    <string name="layout_hero_catalogs">ஹீரோ பட்டியல்கள்</string>
-    <string name="layout_hero_catalogs_sub">ஹீரோ உள்ளடக்கத்திற்காக ஒன்று அல்லது அதற்கு மேற்பட்ட பட்டியல்களைத் தேர்ந்தெடு.</string>
     <string name="layout_section_content">முகப்பு உள்ளடக்கம்</string>
     <string name="layout_section_content_desc">முகப்பு மற்றும் தேடலில் என்ன தோன்ற வேண்டும் என்பதை கட்டுப்படுத்து.</string>
     <string name="layout_collapse_sidebar">பக்கப்பட்டியைச் சுருக்கு</string>
@@ -722,10 +713,6 @@
     <string name="layout_modern_sidebar_blur_sub">நவீன பக்கப்பட்டி மேற்பரப்புகளுக்கான மங்கல் விளைவை மாற்று.</string>
     <string name="layout_fullscreen_hero_backdrop">முழுத்திரை ஹீரோ பின்னணி</string>
     <string name="layout_fullscreen_hero_backdrop_sub">ஹீரோ பின்னணியை முழு திரைக்கும் விரிவாக்கு.</string>
-    <string name="layout_classic_focus_gradient">கவனிக்கப்பட்ட உருப்படி கிரேடியன்ட்</string>
-    <string name="layout_classic_focus_gradient_sub">கிளாசிக் முகப்பின் வலப்பக்கத்தில் கலைநிறங்களை கலக்கு.</string>
-    <string name="layout_show_hero">ஹீரோ பகுதியைக் காட்டு</string>
-    <string name="layout_show_hero_sub">முகப்பின் மேல் ஹீரோ கரூசலை காட்டு.</string>
     <string name="layout_show_discover">டிஸ்கவர் காட்டு/மறை</string>
     <string name="layout_show_discover_sub">உலாவுவதற்கான டிஸ்கவர் பகுதியை சேர்க்கும்.</string>
     <string name="layout_discover_location_action">டிஸ்கவர் இடம்</string>
@@ -775,12 +762,9 @@
     <string name="layout_expand_delay">பின்னணி விரிவாக்க தாமதம்</string>
     <string name="layout_expand_delay_sub">கவனிக்கப்பட்ட அட்டைகளை விரிவாக்குவதற்கு முன் எவ்வளவு நேரம் காத்திருக்க வேண்டும்.</string>
     <string name="layout_autoplay_trailer">தானியங்கி டிரெய்லர் இயக்கம்</string>
-    <string name="layout_autoplay_trailer_expanded">விரிவாக்கப்பட்ட அட்டையில் தானியங்கி டிரெய்லர் இயக்கம்</string>
     <string name="layout_autoplay_trailer_sub">கிடைத்தால் கவனிக்கப்பட்ட உள்ளடக்கத்திற்கான டிரெய்லர் முன்னோட்டத்தை இயக்கு.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">கிடைத்தால் விரிவாக்கப்பட்ட பின்னணிக்குள் டிரெய்லரை இயக்கு.</string>
     <string name="layout_trailer_muted">ஒலியின்றி டிரெய்லரை இயக்கு</string>
     <string name="layout_trailer_muted_sub_preview">தானியங்கி முன்னோட்டத்தின் போது டிரெய்லர் ஒலியை அமைதிப்படுத்து.</string>
-    <string name="layout_trailer_muted_sub_expanded">விரிவாக்கப்பட்ட அட்டைகளில் டிரெய்லர் ஒலியை அமைதிப்படுத்து.</string>
     <string name="layout_section_card_style">போஸ்டர் அட்டை</string>
     <string name="layout_section_card_style_desc">அட்டையின் அகலம் மற்றும் மூலை வளைவை அமை.</string>
     <string name="layout_open">திறந்த</string>
@@ -1524,9 +1508,7 @@
     <string name="catalog_see_all_empty_subtitle">வேறு கேட்டலாக் முயற்சிக்கவும் அல்லது பின்னர் பார்க்கவும்</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">நூவியோவிற்கு வரவேற்கிறோம்</string>
     <string name="layout_selection_subtitle">உங்கள் முகப்புத்திரை வடிவமைப்பை தேர்ந்தெடுக்கவும்</string>
-    <string name="layout_selection_continue">தொடர்க</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">செயலி புதுப்பிப்பு</string>

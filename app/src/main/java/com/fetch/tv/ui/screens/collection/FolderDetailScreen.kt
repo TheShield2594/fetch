@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,11 +44,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.dpadRepeatThrottle
@@ -72,7 +67,6 @@ import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.fetch.tv.domain.model.FolderViewMode
-import com.fetch.tv.domain.model.HomeLayout
 import com.fetch.tv.ui.components.CatalogRowSection
 import com.fetch.tv.ui.components.ContentCard
 import com.fetch.tv.ui.components.GridContentCard
@@ -85,12 +79,7 @@ import com.fetch.tv.ui.components.LocalCardDepthStyle
 import com.fetch.tv.ui.components.LocalLandscapePosterMode
 import com.fetch.tv.ui.components.fetchCardDepth
 import com.fetch.tv.domain.model.CardDepthSurface
-import com.fetch.tv.ui.screens.home.ClassicFocusArtwork
-import com.fetch.tv.ui.screens.home.ClassicFocusGradientBackdrop
-import com.fetch.tv.ui.screens.home.ClassicHomeContent
-import com.fetch.tv.ui.screens.home.toClassicFocusArtwork
 import com.fetch.tv.ui.screens.home.ContinueWatchingItem
-import com.fetch.tv.ui.screens.home.GridHomeContent
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 import com.fetch.tv.ui.screens.home.HomeScreenFocusState
 import com.fetch.tv.ui.screens.home.key
@@ -934,113 +923,35 @@ private fun FollowLayoutContent(
         return
     }
 
-    val posterCardStyle = remember {
-        PosterCardStyle(
-            width = homeState.posterCardWidthDp.dp,
-            height = homeState.posterCardHeightDp.dp,
-            cornerRadius = homeState.posterCardCornerRadiusDp.dp
-        )
-    }
     val noOpCwClick: (ContinueWatchingItem) -> Unit = remember { { } }
     val noOpRemoveCw: (String, Int?, Int?, Boolean) -> Unit = remember { { _, _, _, _ -> } }
     val noOpFolderDetail: (String, String) -> Unit = remember { { _, _ -> } }
     val isItemWatched: (MetaPreview) -> Boolean = remember(homeState.movieWatchedStatus) {
         { item -> homeState.movieWatchedStatus[com.fetch.tv.ui.screens.home.homeItemStatusKey(item.id, item.apiType)] == true }
     }
-    val loadMoreLabel = stringResource(R.string.action_load_more)
-
-    when (uiState.homeLayout) {
-        HomeLayout.CLASSIC -> {
-            val classicPosterCardStyle = remember(posterCardStyle) {
-                val scale = 1.35f // matches CLASSIC_CATALOG_POSTER_SCALE in ClassicHomeContent
-                posterCardStyle.copy(
-                    width = posterCardStyle.width * scale,
-                    height = posterCardStyle.height * scale
-                )
-            }
-            var focusedArtwork by remember { mutableStateOf<ClassicFocusArtwork?>(null) }
-            val classicFocusGradientEnabled = homeState.classicFocusGradientEnabled
-            val focusedPosterBackdropExpandEnabled = homeState.focusedPosterBackdropExpandEnabled
-
-            LaunchedEffect(classicFocusGradientEnabled) {
-                if (!classicFocusGradientEnabled) {
-                    focusedArtwork = null
-                }
-            }
-
-            val handleItemFocus: (MetaPreview) -> Unit = remember(classicFocusGradientEnabled, focusedPosterBackdropExpandEnabled) {
-                { item ->
-                    if (classicFocusGradientEnabled) {
-                        focusedArtwork = item.toClassicFocusArtwork(focusedPosterBackdropExpandEnabled)
-                    }
-                    onItemFocus(item)
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                ClassicFocusGradientBackdrop(
-                    artworkProvider = { focusedArtwork },
-                    enabled = classicFocusGradientEnabled,
-                    modifier = Modifier.fillMaxSize()
-                )
-                RowsContent(
-                    uiState = uiState,
-                    focusState = focusState,
-                    onNavigateToDetail = onNavigateToDetail,
-                    onLoadMoreCatalog = onLoadMoreCatalog,
-                    onSaveFocusState = onSaveFocusState,
-                    isItemWatched = isItemWatched,
-                    onItemFocus = handleItemFocus,
-                    onItemLongPress = onCatalogItemLongPress,
-                    posterCardStyle = classicPosterCardStyle,
-                    focusedPosterBackdropExpandEnabled = focusedPosterBackdropExpandEnabled,
-                    focusedPosterBackdropExpandDelaySeconds = homeState.focusedPosterBackdropExpandDelaySeconds,
-                    focusedPosterBackdropTrailerEnabled = homeState.focusedPosterBackdropTrailerEnabled,
-                    focusedPosterBackdropTrailerMuted = homeState.focusedPosterBackdropTrailerMuted,
-                    trailerPreviewUrls = trailerPreviewUrls,
-                    trailerPreviewAudioUrls = trailerPreviewAudioUrls
-                )
-            }
-        }
-        HomeLayout.GRID -> {
-            Column(modifier = Modifier.fillMaxSize()) {
-                TabbedGridContent(
-                    uiState = uiState,
-                    folder = uiState.folder ?: return,
-                    tabFocusState = FolderDetailGridFocusState(),
-                    onSelectTab = onSelectTab,
-                    onNavigateToDetail = onNavigateToDetail,
-                    isItemWatched = isItemWatched,
-                    onLoadMore = onLoadMoreForSelectedTab,
-                    onSaveFocusState = { _, _, _ -> },
-                    onItemLongPress = onCatalogItemLongPress
-                )
-            }
-        }
-        HomeLayout.MODERN -> ModernHomeContent(
-            uiState = homeState,
-            modernPresentation = homeState.modernHomePresentation,
-            focusState = focusState,
-            enrichingItemId = enrichingItemId,
-            enrichedPreviews = enrichedPreviews,
-            failedEnrichmentIds = failedEnrichmentIds,
-            trailerPreviewUrls = trailerPreviewUrls,
-            trailerPreviewAudioUrls = trailerPreviewAudioUrls,
-            onNavigateToDetail = onNavigateToDetail,
-            onContinueWatchingClick = noOpCwClick,
-            onRequestTrailerPreview = onRequestTrailerPreview,
-            onLoadMoreCatalog = onLoadMoreCatalog,
-            onRemoveContinueWatching = noOpRemoveCw,
-            isCatalogItemWatched = isItemWatched,
-            // Folder rows are not Home rows, so there is no row to pin.
-            onCatalogItemLongPress = { item, addonBaseUrl, _ -> onCatalogItemLongPress(item, addonBaseUrl) },
-            onNavigateToFolderDetail = noOpFolderDetail,
-            onItemFocus = onItemFocus,
-            onPreloadAdjacentItem = onPreloadAdjacentItem,
-            onSaveFocusState = onSaveFocusState,
-            onFocusedRowKeyChanged = onFocusedRowKeyChanged,
-            scrollToTopTrigger = scrollToTopTrigger,
-            blockLeftOnFirstExpandedItem = true
-        )
-    }
+    ModernHomeContent(
+        uiState = homeState,
+        modernPresentation = homeState.modernHomePresentation,
+        focusState = focusState,
+        enrichingItemId = enrichingItemId,
+        enrichedPreviews = enrichedPreviews,
+        failedEnrichmentIds = failedEnrichmentIds,
+        trailerPreviewUrls = trailerPreviewUrls,
+        trailerPreviewAudioUrls = trailerPreviewAudioUrls,
+        onNavigateToDetail = onNavigateToDetail,
+        onContinueWatchingClick = noOpCwClick,
+        onRequestTrailerPreview = onRequestTrailerPreview,
+        onLoadMoreCatalog = onLoadMoreCatalog,
+        onRemoveContinueWatching = noOpRemoveCw,
+        isCatalogItemWatched = isItemWatched,
+        // Folder rows are not Home rows, so there is no row to pin.
+        onCatalogItemLongPress = { item, addonBaseUrl, _ -> onCatalogItemLongPress(item, addonBaseUrl) },
+        onNavigateToFolderDetail = noOpFolderDetail,
+        onItemFocus = onItemFocus,
+        onPreloadAdjacentItem = onPreloadAdjacentItem,
+        onSaveFocusState = onSaveFocusState,
+        onFocusedRowKeyChanged = onFocusedRowKeyChanged,
+        scrollToTopTrigger = scrollToTopTrigger,
+        blockLeftOnFirstExpandedItem = true
+    )
 }

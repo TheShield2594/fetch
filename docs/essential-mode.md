@@ -28,7 +28,7 @@ Current first launch flow:
 
 1. `MainActivity` shows the Fetch account QR sign-in flow if the first-launch auth prompt has not been completed.
 2. If multiple profiles or a PIN are present, `ProfileSelectionScreen` is shown.
-3. If `LayoutPreferenceDataStore.hasChosenLayout` is false, `LayoutSelectionScreen` is shown.
+3. If no experience mode is stored, `ExperienceModeSelectionScreen` is shown: a phone setup code next to the Essential / Advanced choice. Picking either calls `LayoutPreferenceDataStore.markHomeSetUp()`, which sets `hasChosenLayout`.
 4. Main app shell loads with root routes for Home, Search, Library, Add-ons, and Settings.
 
 Current root navigation:
@@ -107,7 +107,7 @@ Advanced mode is for users who want:
 
 ### New Users
 
-For a fresh install, show a mode choice before the current layout selection step:
+For a fresh install, show a mode choice next to the phone setup code (there is a single Home layout, so there is no layout step):
 
 - Essential: recommended, simple setup, default for most TV users.
 - Advanced: full customization and all settings.
@@ -115,15 +115,14 @@ For a fresh install, show a mode choice before the current layout selection step
 If the user chooses Essential:
 
 1. Mark the mode as Essential.
-2. Set the home layout to Modern.
-3. Mark layout selection as completed.
-4. Continue to Add-on Setup if no add-ons are installed.
+2. Mark first-run setup as done (`markHomeSetUp()`).
+3. Continue to Add-on Setup if no add-ons are installed.
 
 If the user chooses Advanced:
 
 1. Mark the mode as Advanced.
-2. Continue to the existing `LayoutSelectionScreen`.
-3. Show the full app experience after layout selection.
+2. Mark first-run setup as done (`markHomeSetUp()`).
+3. Show the full app experience.
 
 ### Existing Users
 
@@ -133,7 +132,7 @@ This avoids hiding settings for users who already use the current app.
 
 ### Returning Essential Users
 
-Essential users should land directly in the main app shell after account/profile gates. They should not see the layout selection screen again.
+Essential users should land directly in the main app shell after account/profile gates. They should not see the first-run screen again.
 
 If they have no installed add-ons, Home and Search empty states should deep-link to Add-ons.
 
@@ -303,7 +302,7 @@ Advanced settings should continue to use the existing `SettingsScreen` rail.
 | Appearance: language | Show | Show | Accessibility and localization. |
 | Appearance: font | Optional | Show | Keep if it does not clutter Essential. |
 | AMOLED options | Hide | Show | Advanced visual preference. |
-| Layout selection | Skip after Essential choice | Show | Essential sets Modern. |
+| Layout selection | Never shown | Never shown | There is one Home layout. |
 | Layout settings | Hide | Show | Advanced customization. |
 | Playback player preference | Show | Show | Recovery path if internal playback fails. |
 | Internal player engine | Hide | Show | Advanced playback tuning. |
@@ -358,7 +357,7 @@ Recommended defaults for a new Essential user:
 | --- | --- | --- |
 | Experience mode | Essential | Streamlined first-run. |
 | Home layout | Modern | Best current TV-first experience. |
-| Layout chosen | true | Skips layout selection. |
+| Layout chosen | true | Marks first-run setup as done. |
 | Search Discover | true | Helps users find content. |
 | Player preference | Internal | Fewer external app dependencies. |
 | Internal engine | ExoPlayer | Current default. |
@@ -614,15 +613,14 @@ Current logic:
 
 - Account QR gate.
 - Profile selection gate.
-- Layout selection gate.
+- First-run gate.
 - Main shell.
 
 New logic:
 
 1. Load experience mode state.
 2. If mode is unknown and this is a new install, show `ExperienceModeSelectionScreen`.
-3. If Essential is selected, call `layoutPreferenceDataStore.setLayout(HomeLayout.MODERN)` so `hasChosenLayout` becomes true.
-4. If Advanced is selected, keep current `LayoutSelectionScreen`.
+3. Either choice calls `layoutPreferenceDataStore.markHomeSetUp()` so `hasChosenLayout` becomes true, then goes to Home.
 
 Add screen:
 
@@ -819,7 +817,7 @@ Switching modes must never:
 
 Switching to Essential only changes visibility.
 
-The only exception is first-run Essential setup, where selecting Essential can set layout to Modern and mark layout selection completed because no prior layout preference exists.
+The only exception is first-run setup, which marks Home as set up because no prior preference exists.
 
 ## Build Flavor Rules
 
@@ -842,8 +840,7 @@ Essential mode should respect `AppFeaturePolicy` in both flavors.
 Fresh install, Essential:
 
 - User can choose Essential.
-- Layout selection is skipped.
-- Modern home is selected.
+- No layout step appears.
 - If no add-ons are installed, Home/Search guide the user to Add-ons.
 - User can install add-on by URL.
 - User can install/manage add-ons from phone QR.
@@ -855,7 +852,7 @@ Fresh install, Essential:
 Fresh install, Advanced:
 
 - User can choose Advanced.
-- Existing layout selection appears.
+- No layout step appears.
 - Full settings rail appears.
 - Add-ons, plug-ins, catalog order, collections, integrations, playback tuning, advanced, and debug behave as before.
 

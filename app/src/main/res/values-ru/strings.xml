@@ -270,7 +270,6 @@
     <!-- AboutScreen -->
     <string name="about_title">О приложении</string>
     <string name="about_subtitle">Информация о приложении, обновления и ссылки</string>
-    <string name="about_made_with_love">Сделано с ❤️ командой Tapframe и друзьями</string>
     <string name="about_version">Версия %1$s</string>
     <string name="about_update_banner_title">Баннер автообновления</string>
     <string name="about_update_banner_subtitle">Показывать баннер при появлении новой версии</string>
@@ -559,20 +558,12 @@
     <!-- LayoutSettingsScreen -->
     <string name="layout_title">Настройки интерфейса</string>
     <string name="layout_subtitle">Настройка макета главного экрана, видимости контента и поведения постеров</string>
-    <string name="layout_classic">Классический вид</string>
-    <string name="layout_grid">Вид сетки</string>
-    <string name="layout_modern">Современный вид</string>
-    <string name="layout_classic_desc">Горизонтальная прокрутка категорий</string>
-    <string name="layout_grid_desc">Просмотр всего в вертикальной сетке с главным блоком</string>
-    <string name="layout_modern_desc">Фиксированный главный блок с одной активной строкой для быстрого просмотра</string>
     <string name="layout_section_home">Макет главного экрана</string>
     <string name="layout_section_home_desc">Выберите структуру и источник для главного блока.</string>
     <string name="layout_landscape_posters">Альбомные постеры</string>
     <string name="layout_landscape_posters_sub">Переключение между портретными и альбомными карточками для Современного вида.</string>
     <string name="layout_preview_row">Показывать строку предпросмотра</string>
     <string name="layout_preview_row_sub">Показывать частичный предпросмотр следующей строки в Современном макете.</string>
-    <string name="layout_hero_catalogs">Каталоги главного блока (Hero)</string>
-    <string name="layout_hero_catalogs_sub">Выберите один или несколько каталогов для контента главного блока.</string>
     <string name="layout_section_content">Контент главного экрана</string>
     <string name="layout_section_content_desc">Управление тем, что отображается на главном экране и в поиске.</string>
     <string name="layout_collapse_sidebar">Сворачивать боковую панель</string>
@@ -585,8 +576,6 @@
     <string name="layout_modern_sidebar_blur_sub">Переключить эффект размытия для современной боковой панели.</string>
     <string name="layout_fullscreen_hero_backdrop">Полноэкранный фон главного блока</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Растягивать фон главного блока на весь экран.</string>
-    <string name="layout_show_hero">Показывать главный блок</string>
-    <string name="layout_show_hero_sub">Отображать карусель главного блока в верхней части.</string>
     <string name="layout_show_discover">Показывать Навигатор в поиске</string>
     <string name="layout_show_discover_sub">Показывать раздел навигации, когда поиск пуст.</string>
     <string name="layout_poster_labels">Показывать названия под постерами</string>
@@ -634,12 +623,9 @@
     <string name="layout_expand_delay">Задержка разворачивания фона</string>
     <string name="layout_expand_delay_sub">Сколько ждать перед разворачиванием карточки в фокусе.</string>
     <string name="layout_autoplay_trailer">Автовоспроизведение трейлера</string>
-    <string name="layout_autoplay_trailer_expanded">Автовоспроизведение трейлера в развернутой карточке</string>
     <string name="layout_autoplay_trailer_sub">Воспроизводить превью трейлера для контента в фокусе, если доступно.</string>
-    <string name="layout_autoplay_trailer_expanded_sub">Воспроизводить трейлер внутри развернутого фона, если доступно.</string>
     <string name="layout_trailer_muted">Воспроизводить трейлер без звука</string>
     <string name="layout_trailer_muted_sub_preview">Отключить звук трейлера во время автовоспроизведения превью.</string>
-    <string name="layout_trailer_muted_sub_expanded">Отключить звук трейлера в развернутых карточках.</string>
     <string name="layout_section_card_style">Карточка постера</string>
     <string name="layout_section_card_style_desc">Настройка ширины карточки и радиуса углов.</string>
     <string name="settings_card_depth_title">Эффект объёма карточек</string>
@@ -1436,9 +1422,7 @@
     <string name="catalog_see_all_empty_subtitle">Попробуйте другой каталог или загляните позже</string>
 
     <!-- LayoutSelectionScreen -->
-    <string name="layout_selection_welcome">Добро пожаловать в Fetch</string>
     <string name="layout_selection_subtitle">Выберите макет вашего главного экрана</string>
-    <string name="layout_selection_continue">Продолжить</string>
 
     <!-- UpdatePromptDialog -->
     <string name="update_title">Обновление приложения</string>
@@ -2026,8 +2010,6 @@
     <string name="cache_duration_days_hours">%1$dд %2$dч</string>
     <string name="autoplay_reuse_binge_group">Повторно использовать группу Binge</string>
     <string name="autoplay_reuse_binge_group_sub">Запоминать и повторно использовать последнюю группу Binge между сессиями.</string>
-    <string name="layout_classic_focus_gradient">Градиент сфокусированного элемента</string>
-    <string name="layout_classic_focus_gradient_sub">Смешивать цвета обложки в правую часть классического главного экрана.</string>
     <string name="layout_discover_location_action">Расположение Навигатора</string>
     <string name="layout_discover_location_dialog_title">Расположение Навигатора</string>
     <string name="layout_discover_location_in_search">Показать в Поиске</string>

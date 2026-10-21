@@ -168,7 +168,7 @@ private fun TmdbEntityBrowseContent(
     sourceType: String,
     watchedMovieIds: Set<String>,
     watchedSeriesIds: Set<String>,
-    posterCardCornerRadiusDp: Int = 12,
+    posterCardCornerRadiusDp: Int = 8,
     onNavigateToDetail: (itemId: String, itemType: String, addonBaseUrl: String?) -> Unit,
     onItemLongPress: (MetaPreview) -> Unit = {},
     onLoadMoreRail: (TmdbEntityMediaType, TmdbEntityRailType) -> Unit

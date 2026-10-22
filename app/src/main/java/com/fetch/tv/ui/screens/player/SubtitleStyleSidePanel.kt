@@ -90,7 +90,7 @@ internal fun SubtitleStyleSidePanel(
         modifier = modifier
             .width(PlayerSidePanelWidth)
             .height(330.dp)
-            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+            .clip(RoundedCornerShape(bottomStart = FetchTheme.radii.xxl, bottomEnd = FetchTheme.radii.xxl))
             .background(Color(0xFF101010))
             .then(if (isStyleDisabledByLibass) Modifier.focusProperties { canFocus = false } else Modifier)
             .padding(start = FetchTheme.spacing.lg, end = FetchTheme.spacing.lg, top = 22.dp, bottom = 10.dp)

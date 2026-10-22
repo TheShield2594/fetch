@@ -17,7 +17,7 @@ class ThemeLiteralGuardTest {
 
     private enum class Kind(val pattern: Regex, val fix: String) {
         RADIUS(
-            Regex("""RoundedCornerShape\([^)]*?\b\d+(\.\d+)?\.dp"""),
+            Regex("""RoundedCornerShape\([^)]*\)"""),
             "use FetchRadii.tokens or FetchTheme.radii"
         ),
         DURATION(
@@ -25,12 +25,13 @@ class ThemeLiteralGuardTest {
             "use FetchMotion.tokens.durations"
         ),
         COLOR(
-            Regex("""\bColor\(0x[0-9A-Fa-f]+\)"""),
+            Regex("""\bColor\(\s*0x[0-9A-Fa-f]+\s*\)"""),
             "use FetchTheme.colors"
         )
     }
 
     private val sourceRoot = File("src/main/java")
+    private val DP_LITERAL = Regex("""\b\d+(\.\d+)?\.dp""")
     private val themeDir = File(sourceRoot, "com/fetch/tv/ui/theme").path
 
     private fun counts(): Map<String, Int> = sourceRoot.walkTopDown()
@@ -39,7 +40,10 @@ class ThemeLiteralGuardTest {
             val text = file.readText()
             val path = file.relativeTo(sourceRoot).invariantSeparatorsPath
             Kind.entries.mapNotNull { kind ->
-                kind.pattern.findAll(text).count().takeIf { it > 0 }?.let { "$path|${kind.name}" to it }
+                val matches = kind.pattern.findAll(text)
+                // A shape can set each corner separately, so every hard-coded corner counts.
+                val count = if (kind == Kind.RADIUS) matches.sumOf { DP_LITERAL.findAll(it.value).count() } else matches.count()
+                count.takeIf { it > 0 }?.let { "$path|${kind.name}" to it }
             }
         }
         .toMap()

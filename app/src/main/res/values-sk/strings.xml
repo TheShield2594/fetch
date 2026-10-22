@@ -489,7 +489,6 @@
     <string name="settings_tmdb_subtitle">Ovládanie obohatenia metadát</string>
     <string name="settings_mdblist_subtitle">Externí poskytovatelia hodnotení</string>
     <string name="settings_animeskip_subtitle">Časové značky preskočenia intra/outra anime</string>
-    <string name="settings_debrid_subtitle">Experimentálne cloudové zdroje účtov</string>
 
     
     <string name="playback_title">Nastavenia prehrávania</string>
@@ -784,53 +783,9 @@
     <string name="mdblist_not_set">Nenastavené</string>
     <string name="mdblist_invalid_api_key">Neplatný MDBList API kľúč</string>
 
-      <string name="debrid_title">Pripojené služby</string>
-    <string name="debrid_subtitle">Pripojte účty pre odkazy a prístup do knižnice</string>
-    <string name="debrid_experimental_notice">Tieto integrácie sú experimentálne a môžu byť neskôr zachované, zmenené alebo odstránené.</string>
-    <string name="debrid_cloud_library">Cloudová knižnica</string>
-    <string name="debrid_cloud_library_description">Prehliadajte a prehrávajte súbory, ktoré už máte vo svojich pripojených účtoch.</string>
-    <string name="debrid_enable_title">Rozlišovať prehrateľné odkazy</string>
-    <string name="debrid_enable_subtitle">Požiadať pripojenú službu o prehrateľné odkazy, keď to výsledok vyžaduje. Tým sa môže položka pridať do danej služby.</string>
-    <string name="debrid_resolve_with">Rozlišovať pomocou</string>
-    <string name="debrid_resolve_with_description">Vyberte, ktorý pripojený účet bude spracovávať prehrateľné odkazy.</string>
-    <string name="debrid_add_key_first">Najprv pripojte účet.</string>
-    <string name="debrid_section_account">Účty</string>
-    <string name="debrid_section_instant_playback">Príprava odkazov</string>
-    <string name="debrid_section_filters">Filtre a zoradenie</string>
-    <string name="debrid_section_formatting">Formátovanie</string>
-    <string name="debrid_provider_description">Pripojte svoj účet %1$s.</string>
-    <string name="debrid_provider_device_description">Prepojte svoj účet %1$s v prehliadači.</string>
-    <string name="debrid_api_key_dialog_title">API kľúč %1$s</string>
-    <string name="debrid_api_key_dialog_subtitle">Zadajte svoj API kľúč %1$s.</string>
-    <string name="debrid_api_key_dialog_placeholder">Zadajte API kľúč %1$s</string>
-    <string name="debrid_not_set">Nenastavené</string>
-    <string name="debrid_connected">Pripojené</string>
-    <string name="debrid_connect_provider">Pripojiť %1$s</string>
-    <string name="debrid_disconnect_provider">Odpojiť %1$s</string>
-    <string name="debrid_disconnect">Odpojiť</string>
-    <string name="debrid_device_auth_connected">%1$s je pripojený na tomto zariadení.</string>
-    <string name="debrid_device_auth_starting">Spúšťa sa bezpečné prihlásenie...</string>
-    <string name="debrid_device_auth_instructions">Naskenujte QR a zadajte tento kód na schválenie aplikácie Fetch.</string>
-    <string name="debrid_device_auth_waiting">Čaká sa na schválenie...</string>
-    <string name="debrid_device_auth_failed">Nepodarilo sa spustiť prihlásenie.</string>
-    <string name="debrid_device_auth_missing_configuration">Táto metóda prihlásenia nie je v tomto builde nakonfigurovaná.</string>
-    <string name="debrid_device_auth_expired">Platnosť tohto kódu vypršala. Skúste to znova.</string>
-    <string name="debrid_key_invalid">Tento API kľúč sa nepodarilo overiť.</string>
-    <string name="debrid_prepare_instant_playback">Pripraviť odkazy</string>
-    <string name="debrid_prepare_instant_playback_description">Rozlíšiť prehrateľné odkazy ešte pred spustením prehrávania.</string>
-    <string name="debrid_prepare_stream_count">Počet odkazov na prípravu</string>
-    <string name="debrid_prepare_stream_count_warning">Ak je to možné, použite nižší počet. Pripojené služby môžu obmedziť počet odkazov, ktoré možno rozlíšiť v určitom časovom období. Otvorenie filmu alebo epizódy sa môže započítať do týchto limitov aj vtedy, ak nestlačíte Sledovať, pretože odkazy sa pripravujú vopred.</string>
-    <string name="debrid_prepare_count_one">1 odkaz</string>
-    <string name="debrid_prepare_count_many">%1$d odkazov</string>
 
     
 
-    <string name="debrid_formatter_title">Webový editor</string>
-    <string name="debrid_formatter_subtitle">Nakonfigurujte zobrazenie zdrojov, filtre a zoradenie z iného zariadenia.</string>
-    <string name="debrid_formatter_configure">Otvoriť webový editor</string>
-    <string name="debrid_formatter_reset_title">Obnoviť formátovanie</string>
-    <string name="debrid_formatter_reset_subtitle">Obnoviť predvolené formátovanie zdrojov.</string>
-    <string name="debrid_formatter_qr_instruction">Naskenujte tento QR kód na telefóne pre konfiguráciu nastavení Debrid zdrojov.</string>
 
     
     <string name="animeskip_title">Anime Skip</string>
@@ -1068,11 +1023,6 @@
     <string name="stream_no_streams">Nenašli sa žiadne streamy</string>
     <string name="stream_no_streams_hint">Skúste nainštalovať viac doplnkov</string>
     <string name="stream_finding_source">Hľadá sa zdroj streamu</string>
-    <string name="debrid_resolving_stream">Rozlišuje sa debrid stream</string>
-    <string name="debrid_stale_stream">Tento Debrid výsledok vypršal. Obnovujú sa streamy.</string>
-    <string name="debrid_missing_api_key">Pridajte Debrid API kľúč v Nastaveniach.</string>
-    <string name="debrid_not_cached">Nie je uložené v cache tejto služby.</string>
-    <string name="debrid_resolution_failed">Nepodarilo sa rozlíšiť tento Debrid stream.</string>
     <string name="p2p_consent_title">P2P streamovanie</string>
     <string name="p2p_consent_body">Tento stream používa peer-to-peer (P2P) technológiu. Povolením P2P beriete na vedomie a súhlasíte s tým, že:\n\n\u2022 Vaša IP adresa bude viditeľná pre ostatných účastníkov siete\n\u2022 Ste výhradne zodpovední za obsah, ku ktorému pristupujete\n\u2022 Potvrdzujete, že máte zákonné právo streamovať tento obsah vo vašej jurisdikcii\n\u2022 Fetch nehostuje, nedistribuuje ani nekontroluje žiadny P2P obsah\n\u2022 Fetch nenesie žiadnu zodpovednosť za právne dôsledky vyplývajúce z vášho používania P2P streamovania\n\nTúto funkciu používate výhradne na vlastné riziko. P2P je možné kedykoľvek zakázať v Nastaveniach.</string>
     <string name="p2p_consent_enable">Povoliť P2P</string>
@@ -1320,7 +1270,6 @@
     <string name="library_delete_subtitle">Týmto sa odstráni zoznam aj všetky položky zoznamu z Trakt.</string>
     <string name="library_source_local">LOKÁLNE</string>
     <string name="library_source_saved">Uložené</string>
-    <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Watchlist</string>
     <string name="library_syncing_library">Synchronizuje sa knižnica…</string>
     <string name="library_type_all">Všetko</string>
@@ -1330,29 +1279,6 @@
     <string name="library_empty_trakt_subtitle">Použite + v detailoch pre pridanie položiek do watchlistu alebo zoznamov</string>
     <string name="library_empty_trakt_not_auth_title">Trakt nie je pripojený</string>
     <string name="library_empty_trakt_not_auth_subtitle">Pripojte svoj účet Trakt v Nastaveniach pre zobrazenie knižnice Trakt</string>
-    <string name="cloud_library_connect_message">Pripojte účet v nastaveniach Pripojených služieb, aby ste mohli prehliadať prehrateľné súbory z cloudovej knižnice.</string>
-    <string name="cloud_library_connect_title">Nie je pripojený žiadny cloudový účet</string>
-    <string name="cloud_library_disabled_message">Zapnite Cloudovú knižnicu v nastaveniach Pripojených služieb, aby ste mohli prehliadať súbory z pripojených účtov.</string>
-    <string name="cloud_library_disabled_title">Cloudová knižnica je vypnutá</string>
-    <string name="cloud_library_empty_message">Aktuálnym filtrom nezodpovedajú žiadne prehrateľné cloudové súbory.</string>
-    <string name="cloud_library_empty_title">Zatiaľ tu nič nie je</string>
-    <string name="cloud_library_file_picker_title">Vyberte súbor na prehranie</string>
-    <string name="cloud_library_no_playable_files">Žiadne prehrateľné súbory</string>
-    <string name="cloud_library_one_playable_file">1 prehrateľný súbor</string>
-    <string name="cloud_library_opening">Otvára sa…</string>
-    <string name="cloud_library_play_failed">Tento cloudový súbor sa nepodarilo prehrať.</string>
-    <string name="cloud_library_play_file">Prehrať súbor</string>
-    <string name="cloud_library_playable_file_count">%1$d prehrateľných súborov</string>
-    <string name="cloud_library_provider_all">Všetky</string>
-    <string name="cloud_library_refresh">Obnoviť cloudovú knižnicu</string>
-    <string name="cloud_library_select_provider">Vybrať poskytovateľa</string>
-    <string name="cloud_library_select_type">Vybrať typ</string>
-    <string name="cloud_library_status_ready">Pripravené na prehrávanie</string>
-    <string name="cloud_library_type_all">Všetko</string>
-    <string name="cloud_library_type_torrents">Torrenty</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Súbory</string>
 
     
     <string name="account_loading">Načítava sa…</string>
@@ -2148,10 +2074,6 @@
 <string name="settings_style_zen_desc">Jednoduché, ploché rozloženie</string>
 <string name="settings_style_horizon">Horný panel</string>
 <string name="settings_style_horizon_desc">Navigačné karty v hornej časti</string>
-<string name="licenses_attributions_premiumize_title">Premiumize</string>
-<string name="licenses_attributions_premiumize_body">Fetch sa pripája k Premiumize na overenie účtu, prístup do cloudovej knižnice, kontrolu vyrovnávacej pamäte a funkcie cloudového prehrávania. Fetch nie je spojený s Premiumize a nie je ním podporovaný.</string>
-<string name="licenses_attributions_torbox_title">TorBox</string>
-<string name="licenses_attributions_torbox_body">Fetch sa pripája k TorBox na overenie účtu, prístup do cloudovej knižnice, kontrolu vyrovnávacej pamäte a funkcie cloudového prehrávania. Fetch nie je spojený s TorBox a nie je ním podporovaný.</string>
 <string name="settings_content_discovery">Obsah a objavovanie</string>
 <string name="settings_content_discovery_subtitle">Doplnky, pluginy, katalógy a zdroje objavovania</string>
 <string name="settings_content_discovery_addons_subtitle">Spravovať doplnky, poradie katalógu a kolekcie</string>
@@ -2277,10 +2199,6 @@
 <string name="player_report_issue_sent_button">Hlásenie odoslané</string>
 <string name="player_report_issue_failed">Nepodarilo sa odoslať hlásenie</string>
 <string name="player_report_loading_issue">Nahlásiť problém s načítaním</string>
-<string name="cloud_library_search_clear">Vymazať vyhľadávanie</string>
-<string name="cloud_library_search_label">Hľadať v cloudovej knižnici</string>
-<string name="cloud_library_error_provider_unavailable">Cloudová knižnica nie je dostupná pre %1$s.</string>
-<string name="cloud_library_error_disabled">Cloudová knižnica je vypnutá.</string>
 <string name="account_signin_email_title">Prihlásiť sa</string>
 <string name="account_signin_email_subtitle">Zadajte e-mail a heslo k účtu na vlastnom serveri</string>
 <string name="account_sign_out_confirm_title">Odhlásiť sa?</string>
@@ -2301,17 +2219,6 @@
 <string name="subtitle_language_unknown">Neznámy</string>
 <string name="external_playback_notification_text">Prehrávanie v externom prehrávači</string>
 <string name="external_playback_channel_description">Udržiava aplikáciu aktívnu počas prehrávania v externom prehrávači</string>
-<string name="web_debrid_title">Nastavenia priameho Debridu</string>
-<string name="web_debrid_intro_title">Prispôsobiť streamy Debrid</string>
-<string name="web_debrid_intro_copy">Upraviť štítky streamov, filtre a triedenie používané pre výsledky Direct Debrid.</string>
-<string name="web_debrid_template_fields">Polia šablóny</string>
-<string name="web_debrid_name_template">Šablóna názvu</string>
-<string name="web_debrid_description_template">Šablóna popisu</string>
-<string name="web_debrid_error_templates_required">Obe šablóny sú povinné</string>
-<string name="web_debrid_restore_default">Obnoviť predvolené</string>
-<string name="web_debrid_save_settings">Uložiť nastavenia</string>
-<string name="web_debrid_status_load_error">Nepodarilo sa načítať nastavenia Debridu</string>
-<string name="web_status_saving">Ukladanie…</string>
 <string name="web_status_saved_streams">Uložené. Nové streamy budú používať toto nastavenie.</string>
 <string name="web_status_could_not_save">Nepodarilo sa uložiť</string>
 <string name="web_stream_badge_importing">Importuje sa…</string>
@@ -2976,7 +2883,6 @@
     <string name="cd_mark_intro_start">Označiť začiatok intra</string>
     <string name="custom_server_error_official_active">Synchronizácia je v tomto televízore už vypnutá.</string>
     <string name="custom_server_error_official_available">Toto nie je synchronizačný server. Zatvorte toto okno a vyberte Vypnúť synchronizáciu, ak sa chcete vrátiť do režimu iba lokálne.</string>
-    <string name="debrid_stream_rules_moved">Pravidlá streamov sú teraz v sekcii Prehrávanie → Výber streamu a platia pre všetky zdroje vrátane debrid. Pravidlá, ktoré ste nastavili tu, boli presunuté tam.</string>
     <string name="exclusion_3d">3D verzia</string>
     <string name="exclusion_above_max_resolution">nad vaším maximálnym rozlíšením</string>
     <string name="exclusion_audio">preskakujete zvuk %1$s</string>
@@ -3145,5 +3051,4 @@
     <string name="subtitle_style_text_opacity_hdr">Nepriehľadnosť textu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Toto je torrentový stream a aplikácia Fetch nemá vstavaný torrentový modul. Zapnite službu debrid v Nastavenia → Debrid alebo ho otvorte v externom prehrávači.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: na prehratie tu pripojte službu debrid v Nastavenia → Debrid alebo ho otvorte v externom prehrávači.</string>
 </resources>

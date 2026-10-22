@@ -353,10 +353,6 @@
     <string name="licenses_attributions_tmdb_body">Fetch використовує API TMDB для метаданих фільмів та ТВ, ілюстрацій, трейлерів, акторів, виробничих деталей, колекцій та рекомендацій. Цей продукт використовує API TMDB, але не схвалений та не сертифікований TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch підключається до Trakt для авторизації, історії переглядів, синхронізації прогресу, даних бібліотеки, рейтингів, списків та коментарів. Fetch не афілійований з Trakt та не схвалений ним.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch підключається до Premiumize для авторизації акаунту, доступу до хмарної бібліотеки, перевірки кешу та хмарного відтворення. Fetch не афілійований з Premiumize та не схвалений ним.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch підключається до TorBox для авторизації акаунту, доступу до хмарної бібліотеки, перевірки кешу та хмарного відтворення. Fetch не афілійований з TorBox та не схвалений ним.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch використовує MDBList для рейтингів та даних зовнішніх провайдерів оцінок. Fetch не афілійований з MDBList та не схвалений ним.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -482,7 +478,6 @@
     <string name="settings_tmdb_subtitle">Налаштування збагачення метаданими</string>
     <string name="settings_mdblist_subtitle">Провайдери зовнішніх рейтингів</string>
     <string name="settings_animeskip_subtitle">Таймкоди пропуску інтро/аутро для аніме</string>
-    <string name="settings_debrid_subtitle">Експериментальні хмарні джерела акаунтів</string>
 
     <string name="playback_title">Налаштування відтворення</string>
     <string name="playback_subtitle">Налаштування параметрів відео та субтитрів</string>
@@ -805,53 +800,8 @@
     <string name="mdblist_not_set">Не задано</string>
     <string name="mdblist_invalid_api_key">Невірний API ключ MDBList</string>
 
-    <string name="debrid_title">Підключені сервіси</string>
-    <string name="debrid_subtitle">Підключіть акаунти для доступу до посилань та бібліотеки</string>
-    <string name="debrid_experimental_notice">Ці інтеграції є експериментальними та можуть бути збережені, змінені або видалені пізніше.</string>
-    <string name="debrid_cloud_library">Хмарна бібліотека</string>
-    <string name="debrid_cloud_library_description">Переглядайте та відтворюйте файли, що вже знаходяться в підключених акаунтах.</string>
-    <string name="debrid_enable_title">Отримувати відтворювані посилання</string>
-    <string name="debrid_enable_subtitle">Запитувати відтворювані посилання у підключеного сервісу при необхідності. Це може додати елемент до цього сервісу.</string>
-    <string name="debrid_resolve_with">Отримувати через</string>
-    <string name="debrid_resolve_with_description">Оберіть, який підключений акаунт обробляє відтворювані посилання.</string>
-    <string name="debrid_add_key_first">Спочатку підключіть акаунт.</string>
-    <string name="debrid_section_account">Акаунти</string>
-    <string name="debrid_section_instant_playback">Підготовка посилань</string>
-    <string name="debrid_section_filters">Фільтри та сортування</string>
-    <string name="debrid_section_formatting">Форматування</string>
-    <string name="debrid_provider_description">Підключіть свій акаунт %1$s.</string>
-    <string name="debrid_provider_device_description">Прив\'яжіть акаунт %1$s через браузер.</string>
-    <string name="debrid_api_key_dialog_title">API-ключ %1$s</string>
-    <string name="debrid_api_key_dialog_subtitle">Введіть API-ключ %1$s.</string>
-    <string name="debrid_api_key_dialog_placeholder">Введіть API-ключ %1$s</string>
-    <string name="debrid_not_set">Не задано</string>
-    <string name="debrid_connected">Підключено</string>
-    <string name="debrid_connect_provider">Підключити %1$s</string>
-    <string name="debrid_disconnect_provider">Відключити %1$s</string>
-    <string name="debrid_disconnect">Відключити</string>
-    <string name="debrid_device_auth_connected">%1$s підключено на цьому пристрої.</string>
-    <string name="debrid_device_auth_starting">Запуск безпечного входу...</string>
-    <string name="debrid_device_auth_instructions">Відскануйте QR та введіть цей код для підтвердження Fetch.</string>
-    <string name="debrid_device_auth_waiting">Очікування підтвердження...</string>
-    <string name="debrid_device_auth_failed">Не вдалося запустити вхід.</string>
-    <string name="debrid_device_auth_missing_configuration">Цей метод входу не налаштовано в даній збірці.</string>
-    <string name="debrid_device_auth_expired">Код закінчився. Спробуйте ще раз.</string>
-    <string name="debrid_key_invalid">Не вдалося перевірити цей API-ключ.</string>
-    <string name="debrid_prepare_instant_playback">Підготувати посилання</string>
-    <string name="debrid_prepare_instant_playback_description">Отримувати відтворювані посилання до початку відтворення.</string>
-    <string name="debrid_prepare_stream_count">Посилань для підготовки</string>
-    <string name="debrid_prepare_stream_count_warning">Використовуйте менший лічильник, коли можливо. Сервіси можуть обмежувати кількість запитів. Відкриття фільму або епізоду може враховуватися навіть без натискання «Дивитися».</string>
-    <string name="debrid_prepare_count_one">1 посилання</string>
-    <string name="debrid_prepare_count_many">%1$d посилань</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
 
-    <string name="debrid_formatter_title">Веб-редактор</string>
-    <string name="debrid_formatter_subtitle">Налаштуйте відображення, фільтри та сортування джерел з іншого пристрою.</string>
-    <string name="debrid_formatter_configure">Відкрити веб-редактор</string>
-    <string name="debrid_formatter_reset_title">Скинути форматування</string>
-    <string name="debrid_formatter_reset_subtitle">Відновити форматування джерел за замовчуванням.</string>
-    <string name="debrid_formatter_qr_instruction">Відскануйте цей QR-код на телефоні для налаштування джерел Debrid.</string>
     <string name="settings_stream_badges_section">Стиль Fusion</string>
     <string name="settings_stream_size_badges_title">Значки розміру</string>
     <string name="settings_stream_size_badges_description">Показувати значки розміру файлу в результатах потоків та панелях джерел плеєра.</string>
@@ -1115,11 +1065,6 @@
     <string name="stream_no_streams">Потоки не знайдено</string>
     <string name="stream_no_streams_hint">Спробуйте встановити більше адонів для пошуку потоків</string>
     <string name="stream_finding_source">Пошук джерела потоку</string>
-    <string name="debrid_resolving_stream">Отримання debrid-потоку</string>
-    <string name="debrid_stale_stream">Цей результат Debrid застарів. Оновлення потоків.</string>
-    <string name="debrid_missing_api_key">Додайте API-ключ Debrid у Налаштуваннях.</string>
-    <string name="debrid_not_cached">Не кешовано в цьому сервісі.</string>
-    <string name="debrid_resolution_failed">Не вдалося отримати цей потік Debrid.</string>
     <string name="p2p_consent_title">P2P Стримінг</string>
     <string name="p2p_consent_body">Цей потік використовує технологію P2P. Вмикаючи P2P, ви визнаєте та погоджуєтесь з тим, що:\n\n\u2022 Ваша IP-адреса буде видима іншим учасникам мережі\n\u2022 Ви несете повну відповідальність за контент, до якого звертаєтесь\n\u2022 Ви підтверджуєте законність стримінгу у вашій юрисдикції\n\u2022 Fetch не розміщує, не розповсюджує та не контролює P2P-контент\n\u2022 Fetch не несе відповідальності за юридичні наслідки\n\nВи використовуєте цю функцію на власний ризик. P2P можна вимкнути в Налаштуваннях.</string>
     <string name="p2p_consent_enable">Увімкнути P2P</string>
@@ -1363,7 +1308,6 @@
     <string name="library_delete_subtitle">Це видалить список та всі його елементи з Trakt.</string>
     <string name="library_source_local">ЛОКАЛЬНО</string>
     <string name="library_source_saved">Збережене</string>
-    <string name="library_source_cloud">Хмара</string>
     <string name="library_watchlist">Список для перегляду</string>
     <string name="library_syncing_library">Синхронізація бібліотеки\u2026</string>
     <string name="library_type_all">Всі</string>
@@ -1377,33 +1321,7 @@
     <string name="library_list_edit_dialog_title">Редагувати список</string>
     <string name="library_sync_btn">Синхронізувати</string>
     <string name="library_syncing_btn">Синхронізація\u2026</string>
-    <string name="cloud_library_connect_message">Підключіть акаунт у налаштуваннях «Підключені сервіси» для перегляду файлів з хмарної бібліотеки.</string>
-    <string name="cloud_library_connect_title">Хмарний акаунт не підключено</string>
-    <string name="cloud_library_disabled_message">Увімкніть хмарну бібліотеку в налаштуваннях «Підключені сервіси» для перегляду файлів.</string>
-    <string name="cloud_library_disabled_title">Хмарна бібліотека вимкнена</string>
-    <string name="cloud_library_empty_message">Немає відтворюваних хмарних файлів, що відповідають поточним фільтрам.</string>
-    <string name="cloud_library_empty_title">Тут поки що нічого немає</string>
-    <string name="cloud_library_file_picker_title">Оберіть файл для відтворення</string>
-    <string name="cloud_library_no_playable_files">Немає відтворюваних файлів</string>
-    <string name="cloud_library_one_playable_file">1 відтворюваний файл</string>
-    <string name="cloud_library_opening">Відкриття…</string>
-    <string name="cloud_library_play_failed">Не вдалося відтворити цей хмарний файл.</string>
-    <string name="cloud_library_play_file">Відтворити файл</string>
-    <string name="cloud_library_playable_file_count">%1$d відтворюваних файлів</string>
-    <string name="cloud_library_provider_all">Всі</string>
-    <string name="cloud_library_refresh">Оновити хмарну бібліотеку</string>
-    <string name="cloud_library_select_provider">Оберіть провайдера</string>
-    <string name="cloud_library_select_type">Оберіть тип</string>
-    <string name="cloud_library_status_ready">Готово до відтворення</string>
-    <string name="cloud_library_type_all">Всі</string>
-    <string name="cloud_library_type_torrents">Торенти</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Файли</string>
 
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">Хмарна бібліотека недоступна для %1$s.</string>
-    <string name="cloud_library_error_disabled">Хмарну бібліотеку вимкнено.</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Завантаження\u2026</string>
@@ -2166,9 +2084,7 @@
     <string name="trakt_library_error_fetch_list_items">Не вдалося завантажити елементи списку</string>
 
 
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
 
-    <!-- Debrid: selection count + size range labels -->
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Невідома</string>
@@ -2177,19 +2093,8 @@
     <string name="external_playback_notification_text">Відтворення у зовнішньому плеєрі</string>
     <string name="external_playback_channel_description">Утримує застосунок активним під час відтворення у зовнішньому плеєрі</string>
 
-    <!-- Web config page: Direct Debrid formatter -->
-    <string name="web_debrid_title">Налаштування Direct Debrid</string>
-    <string name="web_debrid_intro_title">Налаштування потоків Debrid</string>
-    <string name="web_debrid_intro_copy">Налаштуйте мітки потоків, фільтри та сортування для результатів Direct Debrid.</string>
-    <string name="web_debrid_template_fields">Поля шаблону</string>
-    <string name="web_debrid_name_template">Шаблон назви</string>
-    <string name="web_debrid_description_template">Шаблон опису</string>
-    <string name="web_debrid_restore_default">Відновити за замовчуванням</string>
-    <string name="web_debrid_save_settings">Зберегти налаштування</string>
-    <string name="web_debrid_status_load_error">Не вдалося завантажити налаштування Debrid</string>
 
     <!-- Web config pages: shared save status -->
-    <string name="web_status_saving">Збереження…</string>
     <string name="web_status_saved_streams">Збережено. Нові потоки використовуватимуть ці налаштування.</string>
     <string name="web_status_could_not_save">Не вдалося зберегти</string>
 
@@ -2275,7 +2180,6 @@
         <item quantity="many">Все ще завантажується після %1$d секунд</item>
         <item quantity="other">Все ще завантажується після %1$d секунди</item>
     </plurals>
-    <string name="web_debrid_error_templates_required">Потрібні обидва шаблони</string>
     <string name="web_stream_badge_error_url_required">Введіть URL JSON значка.</string>
     <string name="web_stream_badge_error_url_scheme">URL значка має починатися з http:// або https://.</string>
     <string name="web_stream_badge_error_import_limit">Можна імпортувати до %1$d URL значків.</string>
@@ -2387,7 +2291,6 @@
     <string name="cd_mark_intro_start">Позначити початок вступу</string>
     <string name="custom_server_error_official_active">Синхронізацію на цьому телевізорі вже вимкнено.</string>
     <string name="custom_server_error_official_available">Це не сервер синхронізації. Закрийте це вікно й виберіть «Вимкнути синхронізацію», щоб повернутися до локального режиму.</string>
-    <string name="debrid_stream_rules_moved">Правила потоків тепер у розділі Відтворення → Вибір потоку й діють для всіх джерел, зокрема debrid. Правила, які ви задали тут, перенесено туди.</string>
     <string name="exclusion_3d">3D-реліз</string>
     <string name="exclusion_above_max_resolution">вище за вашу максимальну роздільність</string>
     <string name="exclusion_audio">ви пропускаєте аудіо %1$s</string>
@@ -2556,5 +2459,4 @@
     <string name="subtitle_style_text_opacity_hdr">Непрозорість тексту (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Це торент-потік, а Fetch не має вбудованого торент-рушія. Увімкніть сервіс debrid у Налаштування → Debrid або відкрийте його в зовнішньому плеєрі.</string>
-    <string name="stream_torrent_needs_debrid">Торент: підключіть debrid-сервіс у Налаштування → Debrid, щоб відтворити його тут, або відкрийте в зовнішньому плеєрі.</string>
 </resources>

@@ -502,23 +502,19 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
 }
 
 internal fun PlayerRuntimeController.loadSavedProgressFor(season: Int?, episode: Int?) {
-    val isCloudLibraryPlayback = contentType.equals("cloud", ignoreCase = true)
-    val progressContentId = contentId
-    if (!isCloudLibraryPlayback && progressContentId == null) return
+    val progressContentId = contentId ?: return
 
     scope.launch {
         pendingResumeProgress = null
-        val local = if (isCloudLibraryPlayback) {
-            loadCloudLibraryResumeProgress()
-        } else if (season != null && episode != null) {
+        val local = if (season != null && episode != null) {
             watchProgressRepository.getEpisodeProgress(
-                progressContentId!!,
+                progressContentId,
                 season,
                 episode,
                 profileId
             ).firstOrNull()
         } else {
-            watchProgressRepository.getProgress(progressContentId!!, profileId).firstOrNull()
+            watchProgressRepository.getProgress(progressContentId, profileId).firstOrNull()
         }
         val progress = newerServerProgress(local)
 
@@ -553,22 +549,18 @@ internal fun PlayerRuntimeController.loadSavedProgressFor(season: Int?, episode:
  * player lifecycle and can lose the resume position entirely.
  */
 internal suspend fun PlayerRuntimeController.loadSavedProgressSuspend(season: Int?, episode: Int?) {
-    val isCloudLibraryPlayback = contentType.equals("cloud", ignoreCase = true)
-    val progressContentId = contentId
-    if (!isCloudLibraryPlayback && progressContentId == null) return
+    val progressContentId = contentId ?: return
 
     pendingResumeProgress = null
-    val local = if (isCloudLibraryPlayback) {
-        loadCloudLibraryResumeProgress()
-    } else if (season != null && episode != null) {
+    val local = if (season != null && episode != null) {
         watchProgressRepository.getEpisodeProgress(
-            progressContentId!!,
+            progressContentId,
             season,
             episode,
             profileId
         ).firstOrNull()
     } else {
-        watchProgressRepository.getProgress(progressContentId!!, profileId).firstOrNull()
+        watchProgressRepository.getProgress(progressContentId, profileId).firstOrNull()
     }
     val progress = newerServerProgress(local)
 
@@ -583,30 +575,6 @@ internal suspend fun PlayerRuntimeController.loadSavedProgressSuspend(season: In
             )
         }
     }
-}
-
-private fun PlayerRuntimeController.loadCloudLibraryResumeProgress(): WatchProgress? {
-    val playbackContext = cloudPlaybackContext ?: return null
-    val file = playbackContext.fileForVideoId(currentVideoId) ?: return null
-    val saved = cloudPlaybackProgressStore.load(playbackContext.item, file) ?: return null
-    if (!saved.isInProgress) return null
-
-    return WatchProgress(
-        contentId = playbackContext.item.stableKey,
-        contentType = "cloud",
-        name = playbackContext.item.name,
-        poster = null,
-        backdrop = null,
-        logo = null,
-        videoId = playbackContext.videoId(file),
-        season = 1,
-        episode = playbackContext.episodeNumber(file),
-        episodeTitle = file.name,
-        position = saved.positionMs,
-        duration = saved.durationMs,
-        lastWatched = saved.updatedAtMs,
-        progressPercent = if (saved.durationMs <= 0L) 5f else null
-    )
 }
 
 internal fun PlayerRuntimeController.fetchSkipIntervals(id: String?, season: Int?, episode: Int?) {

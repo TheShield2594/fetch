@@ -38,25 +38,6 @@ internal fun PlayerRuntimeController.fetchMetaDetails(id: String?, type: String?
     }
 }
 
-internal fun PlayerRuntimeController.initializeCloudPlaybackSequence() {
-    val playbackContext = cloudPlaybackContext ?: return
-    metaVideos = playbackContext.asVideos()
-    val currentFile = playbackContext.currentFile ?: return
-    currentVideoId = playbackContext.videoId(currentFile)
-    currentSeason = 1
-    currentEpisode = playbackContext.currentIndex + 1
-    currentEpisodeTitle = currentFile.name
-    _uiState.update {
-        it.copy(
-            currentVideoId = currentVideoId,
-            currentSeason = currentSeason,
-            currentEpisode = currentEpisode,
-            currentEpisodeTitle = currentEpisodeTitle
-        )
-    }
-    recomputeNextEpisode(resetVisibility = false)
-}
-
 internal fun PlayerRuntimeController.applyMetaDetails(meta: Meta) {
     metaVideos = meta.videos
     metaGenres = meta.genres
@@ -100,11 +81,8 @@ internal fun PlayerRuntimeController.updateEpisodeDescription() {
     // Push episode metadata to the MediaSession so Google Home shows the new episode.
     updateMediaSessionMetadata()
 
-    // Cloud library IDs belong to the provider, not TMDB.
-    if (!contentType.equals("cloud", ignoreCase = true)) {
-        scope.launch {
-            enrichDescriptionFromTmdb(contentId, contentType)
-        }
+    scope.launch {
+        enrichDescriptionFromTmdb(contentId, contentType)
     }
 }
 
@@ -217,13 +195,13 @@ private suspend fun PlayerRuntimeController.enrichDescriptionFromTmdb(id: String
 
 internal fun PlayerRuntimeController.recomputeNextEpisode(resetVisibility: Boolean) {
     val normalizedType = contentType?.lowercase()
-    if (normalizedType !in listOf("series", "tv", "other", "cloud")) {
+    if (normalizedType !in listOf("series", "tv", "other")) {
         nextEpisodeVideo = null
         clearNextEpisodeAndCancelPostPlay()
         return
     }
 
-    if (normalizedType == "other" || normalizedType == "cloud") {
+    if (normalizedType == "other") {
         val currentId = currentVideoId
         val idx = if (currentId != null) metaVideos.indexOfFirst { it.id == currentId } else -1
         val resolvedNext = if (idx >= 0 && idx < metaVideos.size - 1) metaVideos[idx + 1] else null
@@ -242,7 +220,7 @@ internal fun PlayerRuntimeController.recomputeNextEpisode(resetVisibility: Boole
             released = resolvedNext.released,
             hasAired = true,
             unairedMessage = null,
-            isOtherType = normalizedType == "other" || normalizedType == "cloud"
+            isOtherType = true
         )
         applyRecomputedNextEpisode(nextInfo, resetVisibility)
         return

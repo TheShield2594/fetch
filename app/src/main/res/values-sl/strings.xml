@@ -1993,7 +1993,6 @@
     <string name="cd_mark_intro_start">Označi začetek uvoda</string>
     <string name="custom_server_error_official_active">Sinhronizacija je na tem televizorju že izklopljena.</string>
     <string name="custom_server_error_official_available">To ni strežnik za sinhronizacijo. Zaprite to okno in izberite Izklopi sinhronizacijo, da se vrnete v samo lokalni način.</string>
-    <string name="debrid_stream_rules_moved">Pravila za vire so zdaj v Predvajanje → Izbira vira in veljajo za vse vire, tudi debrid. Pravila, ki ste jih nastavili tukaj, so bila premaknjena tja.</string>
     <string name="exclusion_3d">izdaja 3D</string>
     <string name="exclusion_above_max_resolution">nad vašo največjo ločljivostjo</string>
     <string name="exclusion_audio">preskakujete zvok %1$s</string>
@@ -2162,5 +2161,4 @@
     <string name="subtitle_style_text_opacity_hdr">Prosojnost besedila (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">To je torrent vir, Fetch pa nima vgrajenega torrent pogona. Vklopite storitev debrid v Nastavitve → Debrid ali ga odprite v zunanjem predvajalniku.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: za predvajanje tukaj povežite storitev debrid v Nastavitve → Debrid ali ga odprite v zunanjem predvajalniku.</string>
 </resources>

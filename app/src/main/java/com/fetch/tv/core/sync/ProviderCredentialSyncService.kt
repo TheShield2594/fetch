@@ -3,10 +3,8 @@ package com.fetch.tv.core.sync
 import android.os.SystemClock
 import android.util.Log
 import com.fetch.tv.core.auth.AuthManager
-import com.fetch.tv.core.debrid.DebridProviders
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.AnimeSkipSettingsDataStore
-import com.fetch.tv.data.local.DebridSettingsDataStore
 import com.fetch.tv.data.local.MDBListSettingsDataStore
 import com.fetch.tv.data.remote.supabase.SupabaseProviderCredential
 import com.fetch.tv.domain.model.AuthState
@@ -52,7 +50,6 @@ class ProviderCredentialSyncService @Inject constructor(
     private val postgrest: Postgrest,
     private val authManager: AuthManager,
     private val profileManager: ProfileManager,
-    private val debridSettingsDataStore: DebridSettingsDataStore,
     private val mdbListSettingsDataStore: MDBListSettingsDataStore,
     private val animeSkipSettingsDataStore: AnimeSkipSettingsDataStore,
     private val syncClientIdentity: SyncClientIdentity
@@ -190,22 +187,12 @@ class ProviderCredentialSyncService @Inject constructor(
 
     private suspend fun currentSnapshot(profileId: Int): ProviderCredentialSnapshot {
         check(profileManager.activeProfileId.value == profileId)
-        val debrid = debridSettingsDataStore.settings.first()
         val mdbList = mdbListSettingsDataStore.settings.first()
         val animeSkipClientId = animeSkipSettingsDataStore.clientId.first()
         check(profileManager.activeProfileId.value == profileId)
         return ProviderCredentialSnapshot(
             profileId = profileId,
             values = buildList {
-                DebridProviders.all().forEach { provider ->
-                    add(
-                        ProviderCredentialValue(
-                            provider = ProviderCredentialIds.debrid(provider.id),
-                            field = API_KEY_FIELD,
-                            value = debrid.apiKeyFor(provider.id)
-                        )
-                    )
-                }
                 add(
                     ProviderCredentialValue(
                         provider = ProviderCredentialIds.MDBLIST,
@@ -228,10 +215,6 @@ class ProviderCredentialSyncService @Inject constructor(
         snapshot.values.forEach { credential ->
             check(profileManager.activeProfileId.value == snapshot.profileId)
             when {
-                credential.provider.startsWith("debrid:") -> {
-                    val providerId = credential.provider.substringAfter("debrid:")
-                    debridSettingsDataStore.setProviderApiKey(providerId, credential.value)
-                }
                 credential.provider == ProviderCredentialIds.MDBLIST -> {
                     mdbListSettingsDataStore.setApiKey(credential.value)
                 }
@@ -260,22 +243,12 @@ class ProviderCredentialSyncService @Inject constructor(
             profileManager.activeProfileId
                 .flatMapLatest { profileId ->
                     combine(
-                        debridSettingsDataStore.settings,
                         mdbListSettingsDataStore.settings,
                         animeSkipSettingsDataStore.clientId
-                    ) { debrid, mdbList, animeSkipClientId ->
+                    ) { mdbList, animeSkipClientId ->
                         ProviderCredentialSnapshot(
                             profileId = profileId,
                             values = buildList {
-                                DebridProviders.all().forEach { provider ->
-                                    add(
-                                        ProviderCredentialValue(
-                                            provider = ProviderCredentialIds.debrid(provider.id),
-                                            field = API_KEY_FIELD,
-                                            value = debrid.apiKeyFor(provider.id)
-                                        )
-                                    )
-                                }
                                 add(
                                     ProviderCredentialValue(
                                         provider = ProviderCredentialIds.MDBLIST,

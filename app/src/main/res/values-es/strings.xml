@@ -424,10 +424,6 @@
     <string name="licenses_attributions_trakt_body">Fetch se conecta a Trakt para autenticación de cuenta, historial de visualización, sincronización de progreso, datos de biblioteca, calificaciones, listas y comentarios. Fetch no está afiliado ni respaldado por Trakt.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch se conecta a Simkl para autenticación de cuenta, listas de deseos, historial de visualización, progreso de reproducción y scrobbling. Los datos de seguimiento de películas, series y anime los proporciona Simkl. Fetch no está afiliado ni respaldado por Simkl.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch se conecta a Premiumize para autenticación de cuenta, acceso a la biblioteca en la nube, comprobaciones de caché y funciones de reproducción en la nube. Fetch no está afiliado ni respaldado por Premiumize.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch se conecta a TorBox para autenticación de cuenta, acceso a la biblioteca en la nube, comprobaciones de caché y funciones de reproducción en la nube. Fetch no está afiliado ni respaldado por TorBox.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch usa MDBList para calificaciones, historial de visualización y seguimiento de reproducción. Fetch no está afiliado ni respaldado por MDBList.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -592,7 +588,6 @@
     <string name="settings_tmdb_subtitle">Controles de enriquecimiento de metadatos</string>
     <string name="settings_mdblist_subtitle">Proveedores de calificaciones externas</string>
     <string name="settings_animeskip_subtitle">Marcas de tiempo de salto de intro/outro de anime</string>
-    <string name="settings_debrid_subtitle">Fuentes experimentales de cuentas en la nube</string>
 
     <string name="playback_title">Configuración de reproducción</string>
     <string name="playback_subtitle">Configura opciones de reproducción de vídeo y subtítulos</string>
@@ -1031,53 +1026,8 @@
     <string name="mdblist_not_set">No configurado</string>
     <string name="mdblist_invalid_api_key">Clave API de MDBList inválida</string>
 
-    <string name="debrid_title">Servicios conectados</string>
-    <string name="debrid_subtitle">Conecta cuentas para acceso a enlaces y biblioteca</string>
-    <string name="debrid_experimental_notice">Estas integraciones son experimentales y pueden mantenerse, cambiarse o eliminarse más adelante.</string>
-    <string name="debrid_cloud_library">Biblioteca en la nube</string>
-    <string name="debrid_cloud_library_description">Explora y reproduce archivos que ya están en tus cuentas conectadas.</string>
-    <string name="debrid_enable_title">Resolver enlaces reproducibles</string>
-    <string name="debrid_enable_subtitle">Solicita enlaces reproducibles a un servicio conectado cuando un resultado lo necesite. Esto puede añadir el elemento a ese servicio.</string>
-    <string name="debrid_resolve_with">Resolver con</string>
-    <string name="debrid_resolve_with_description">Elige qué cuenta conectada gestiona los enlaces reproducibles.</string>
-    <string name="debrid_add_key_first">Conecta una cuenta primero.</string>
-    <string name="debrid_section_account">Cuentas</string>
-    <string name="debrid_section_instant_playback">Preparación de enlaces</string>
-    <string name="debrid_section_filters">Filtros &amp; ordenación</string>
-    <string name="debrid_section_formatting">Formato</string>
-    <string name="debrid_provider_description">Conecta tu cuenta de %1$s.</string>
-    <string name="debrid_provider_device_description">Vincula tu cuenta de %1$s en el navegador.</string>
-    <string name="debrid_api_key_dialog_title">Clave API de %1$s</string>
-    <string name="debrid_api_key_dialog_subtitle">Introduce tu clave API de %1$s.</string>
-    <string name="debrid_api_key_dialog_placeholder">Introduce clave API de %1$s</string>
-    <string name="debrid_not_set">No configurado</string>
-    <string name="debrid_connected">Conectado</string>
-    <string name="debrid_connect_provider">Conectar %1$s</string>
-    <string name="debrid_disconnect_provider">Desconectar %1$s</string>
-    <string name="debrid_disconnect">Desconectar</string>
-    <string name="debrid_device_auth_connected">%1$s está conectado en este dispositivo.</string>
-    <string name="debrid_device_auth_starting">Iniciando sesión segura…</string>
-    <string name="debrid_device_auth_instructions">Escanea el QR e introduce este código para aprobar Fetch.</string>
-    <string name="debrid_device_auth_waiting">Esperando aprobación…</string>
-    <string name="debrid_device_auth_failed">No se pudo iniciar sesión.</string>
-    <string name="debrid_device_auth_missing_configuration">Este método de inicio de sesión no está configurado en esta compilación.</string>
-    <string name="debrid_device_auth_expired">Este código ha expirado. Inténtalo de nuevo.</string>
-    <string name="debrid_key_invalid">No se pudo validar esta clave API.</string>
-    <string name="debrid_prepare_instant_playback">Preparar enlaces</string>
-    <string name="debrid_prepare_instant_playback_description">Resuelve enlaces reproducibles antes de que comience la reproducción.</string>
-    <string name="debrid_prepare_stream_count">Enlaces a preparar</string>
-    <string name="debrid_prepare_stream_count_warning">Usa un número menor cuando sea posible. Los servicios conectados pueden limitar la cantidad de enlaces que se pueden resolver en un período de tiempo. Abrir una película o episodio puede contar para esos límites aunque no presiones Ver, porque los enlaces se preparan con antelación.</string>
-    <string name="debrid_prepare_count_one">1 enlace</string>
-    <string name="debrid_prepare_count_many">%1$d enlaces</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
 
-    <string name="debrid_formatter_title">Editor web</string>
-    <string name="debrid_formatter_subtitle">Configura la visualización de fuentes, filtros y orden desde otro dispositivo.</string>
-    <string name="debrid_formatter_configure">Abrir editor web</string>
-    <string name="debrid_formatter_reset_title">Restablecer formato</string>
-    <string name="debrid_formatter_reset_subtitle">Restaura el formato de fuente predeterminado.</string>
-    <string name="debrid_formatter_qr_instruction">Escanea este código QR con tu teléfono para configurar los ajustes de fuentes de Debrid.</string>
     <string name="settings_stream_badges_section">Estilo Fusion</string>
     <string name="settings_stream_size_badges_title">Insignias de tamaño</string>
     <string name="settings_stream_size_badges_description">Muestra insignias de tamaño de archivo en los resultados de transmisiones y en los paneles de fuentes del reproductor.</string>
@@ -1389,11 +1339,6 @@
     <string name="stream_no_streams">No se encontraron transmisiones</string>
     <string name="stream_no_streams_hint">Intenta instalar más complementos para encontrar transmisiones</string>
     <string name="stream_finding_source">Buscando fuente de transmisión</string>
-    <string name="debrid_resolving_stream">Resolviendo transmisión debrid</string>
-    <string name="debrid_stale_stream">Este resultado de Debrid ha caducado. Actualizando transmisiones.</string>
-    <string name="debrid_missing_api_key">Añade una clave API de Debrid en Ajustes.</string>
-    <string name="debrid_not_cached">No está en caché en este servicio.</string>
-    <string name="debrid_resolution_failed">No se pudo resolver esta transmisión de Debrid.</string>
     <string name="p2p_consent_title">Transmisión P2P</string>
     <string name="p2p_consent_body">Esta transmisión utiliza tecnología de igual a igual (P2P). Al activar P2P, reconoces y aceptas que:\n\n• Tu dirección IP será visible para otros pares de la red\n• Eres el único responsable del contenido al que accedes\n• Confirmas que tienes el derecho legal de transmitir este contenido en tu jurisdicción\n• Fetch no aloja, distribuye ni controla ningún contenido P2P\n• Fetch no asume ninguna responsabilidad por las consecuencias legales derivadas del uso de transmisión P2P\n\nUtilizas esta función bajo tu entera responsabilidad. P2P se puede desactivar en cualquier momento desde Ajustes.</string>
     <string name="p2p_consent_enable">Activar P2P</string>
@@ -1685,7 +1630,6 @@
     <string name="library_delete_subtitle">Esto elimina la lista y todos los elementos de la lista de Trakt.</string>
     <string name="library_source_local">LOCAL</string>
     <string name="library_source_saved">Guardado</string>
-    <string name="library_source_cloud">Nube</string>
     <string name="library_watchlist">Lista de deseos</string>
     <string name="library_status_watching">Viendo</string>
     <string name="library_status_plan_to_watch">Por ver</string>
@@ -1708,35 +1652,7 @@
     <string name="library_list_edit_dialog_title">Editar lista</string>
     <string name="library_sync_btn">Sincronizar</string>
     <string name="library_syncing_btn">Sincronizando\u2026</string>
-    <string name="cloud_library_connect_message">Conecta una cuenta en configuración de Servicios conectados para explorar archivos reproducibles de tu biblioteca en la nube.</string>
-    <string name="cloud_library_connect_title">Ninguna cuenta en la nube conectada</string>
-    <string name="cloud_library_disabled_message">Activa Biblioteca en la nube en configuración de Servicios conectados para explorar archivos de cuentas conectadas.</string>
-    <string name="cloud_library_disabled_title">La biblioteca en la nube está desactivada</string>
-    <string name="cloud_library_empty_message">Ningún archivo en la nube reproducible coincide con los filtros actuales.</string>
-    <string name="cloud_library_empty_title">Aún no hay nada aquí</string>
-    <string name="cloud_library_file_picker_title">Elige un archivo para reproducir</string>
-    <string name="cloud_library_no_playable_files">Sin archivos reproducibles</string>
-    <string name="cloud_library_one_playable_file">1 archivo reproducible</string>
-    <string name="cloud_library_opening">Abriendo\u2026</string>
-    <string name="cloud_library_play_failed">No se pudo reproducir este archivo en la nube.</string>
-    <string name="cloud_library_play_file">Reproducir archivo</string>
-    <string name="cloud_library_playable_file_count">%1$d archivos reproducibles</string>
-    <string name="cloud_library_provider_all">Todos</string>
-    <string name="cloud_library_refresh">Actualizar biblioteca en la nube</string>
-    <string name="cloud_library_search_clear">Borrar búsqueda</string>
-    <string name="cloud_library_search_label">Buscar en biblioteca en la nube</string>
-    <string name="cloud_library_select_provider">Seleccionar proveedor</string>
-    <string name="cloud_library_select_type">Seleccionar tipo</string>
-    <string name="cloud_library_status_ready">Listo para reproducir</string>
-    <string name="cloud_library_type_all">Todos</string>
-    <string name="cloud_library_type_torrents">Torrents</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Archivos</string>
 
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">La biblioteca en la nube no está disponible para %1$s.</string>
-    <string name="cloud_library_error_disabled">La biblioteca en la nube está desactivada.</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Cargando\u2026</string>
@@ -2598,9 +2514,7 @@
     <string name="trakt_library_error_fetch_list_items">No se pudieron obtener los elementos de la lista</string>
 
 
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
 
-    <!-- Debrid: selection count + size range labels -->
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Desconocido</string>
@@ -2609,20 +2523,8 @@
     <string name="external_playback_notification_text">Reproduciendo en reproductor externo</string>
     <string name="external_playback_channel_description">Mantiene la aplicación activa durante la reproducción en un reproductor externo</string>
 
-    <!-- Web config page: Direct Debrid formatter -->
-    <string name="web_debrid_title">Ajustes de Debrid Directo</string>
-    <string name="web_debrid_intro_title">Personaliza las transmisiones de Debrid</string>
-    <string name="web_debrid_intro_copy">Ajusta las etiquetas, los filtros y el orden usados en los resultados de Debrid Directo.</string>
-    <string name="web_debrid_template_fields">Campos de plantilla</string>
-    <string name="web_debrid_name_template">Plantilla de nombre</string>
-    <string name="web_debrid_description_template">Plantilla de descripción</string>
-    <string name="web_debrid_error_templates_required">Se requieren ambas plantillas</string>
-    <string name="web_debrid_restore_default">Restaurar valores predeterminados</string>
-    <string name="web_debrid_save_settings">Guardar ajustes</string>
-    <string name="web_debrid_status_load_error">No se pudieron cargar los ajustes de Debrid</string>
 
     <!-- Web config pages: shared save status -->
-    <string name="web_status_saving">Guardando…</string>
     <string name="web_status_saved_streams">Guardado. Las nuevas transmisiones usarán estos ajustes.</string>
     <string name="web_status_could_not_save">No se pudo guardar</string>
 
@@ -2778,7 +2680,6 @@
     <!-- Fetch: new and changed strings -->
     <string name="theme_color_fetch">Fetch</string>
     <string name="best_match_cached">En caché</string>
-    <string name="debrid_stream_rules_moved">Las reglas de transmisión ahora están en Reproducción → Selección de transmisión y se aplican a todas las fuentes, incluido debrid. Las reglas que configuraste aquí se movieron allí.</string>
     <string name="prefer_next_time_title">¿Preferir esto la próxima vez?</string>
     <string name="prefer_next_time_group">Grupo %1$s</string>
     <string name="prefer_next_time_language">Audio en %1$s</string>
@@ -2994,5 +2895,4 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Sin límite</string>
-    <string name="stream_torrent_needs_debrid">Torrent: conecta un servicio debrid en Ajustes → Debrid para reproducirlo aquí, o ábrelo en un reproductor externo.</string>
 </resources>

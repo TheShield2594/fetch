@@ -484,7 +484,6 @@
     <string name="settings_tmdb_subtitle">Kontrol pengayaan metadata</string>
     <string name="settings_mdblist_subtitle">Penyedia rating eksternal</string>
     <string name="settings_animeskip_subtitle">Cap waktu lewati intro/outro anime</string>
-    <string name="settings_debrid_subtitle">Sumber akun cloud eksperimental</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Pengaturan Pemutaran</string>
@@ -779,53 +778,8 @@
     <string name="mdblist_not_set">Tidak diatur</string>
     <string name="mdblist_invalid_api_key">Kunci API MDBList tidak valid</string>
 
-    <string name="debrid_title">Layanan Debrid</string>
-    <string name="debrid_subtitle">Hubungkan akun untuk akses link dan pustaka cloud</string>
-    <string name="debrid_experimental_notice">Integrasi ini masih bersifat eksperimental dan dapat dipertahankan, diubah, atau dihapus di sewaktu-waktu.</string>
-    <string name="debrid_cloud_library">Pustaka Cloud</string>
-    <string name="debrid_cloud_library_description">Telusuri dan mainkan file yang tersedia di akun Anda.</string>
-    <string name="debrid_enable_title">Uraikan link yang dapat diputar</string>
-    <string name="debrid_enable_subtitle">Minta layanan debrid menyediakan link ketika dibutuhkan. Hal ini dapat menambahkan item ke layanan itu.</string>
-    <string name="debrid_resolve_with">Uraikan dengan</string>
-    <string name="debrid_resolve_with_description">Pilih akun layanan debrid mana untuk menangani link yang dapat dimainkan.</string>
-    <string name="debrid_add_key_first">Hubungkan akun terlebih dahulu.</string>
-    <string name="debrid_section_account">Akun</string>
-    <string name="debrid_section_instant_playback">Preparasi sumber</string>
-    <string name="debrid_section_filters">Filter &amp; Pengurutan</string>
-    <string name="debrid_section_formatting">Format</string>
-    <string name="debrid_provider_description">Hubungkan akun %1$s Anda.</string>
-    <string name="debrid_provider_device_description">Hubungkan akun Anda %1$s melalui browser.</string>
-    <string name="debrid_api_key_dialog_title">%1$s API Key</string>
-    <string name="debrid_api_key_dialog_subtitle">Masukkan %1$s API key Anda.</string>
-    <string name="debrid_api_key_dialog_placeholder">Masukkan %1$s API key</string>
-    <string name="debrid_not_set">Belum diatur</string>
-    <string name="debrid_connected">Terhubung</string>
-    <string name="debrid_connect_provider">Hubungkan %1$s</string>
-    <string name="debrid_disconnect_provider">Putuskan %1$s</string>
-    <string name="debrid_disconnect">Terputus</string>
-    <string name="debrid_device_auth_connected">%1$s telah terhubung di perangkat ini.</string>
-    <string name="debrid_device_auth_starting">Memulai sign-in dengan aman...</string>
-    <string name="debrid_device_auth_instructions">Scan QR dan masukkan kode ini untuk mengizinkan Fetch.</string>
-    <string name="debrid_device_auth_waiting">Menunggu persetujuan...</string>
-    <string name="debrid_device_auth_failed">Tidak dapat memulai sign-in.</string>
-    <string name="debrid_device_auth_missing_configuration">Metode sign-in ini tidak dikonfigurasi dalam rilis ini.</string>
-    <string name="debrid_device_auth_expired">Kode ini telah kedaluwarsa. Coba lagi.</string>
-    <string name="debrid_key_invalid">Tidak dapat memvalidasi API key ini.</string>
-    <string name="debrid_prepare_instant_playback">Menyiapkan tautan</string>
-    <string name="debrid_prepare_instant_playback_description">Siapkan sumber video sebelum mulai pemutaran dimulai.</string>
-    <string name="debrid_prepare_stream_count">Jumlah sumber yang disiapkan</string>
-    <string name="debrid_prepare_stream_count_warning">Gunakan jumlah sekecil mungkin. Penyedia layanan Debrid bisa saja membatasi seberapa banyak tautan yang dapat diurai dalam jangka waktu tertentu. Membuka film atau episode serial dihitung dalam batas tersebut meskipun Anda tidak menonton, karena tautan tetap disiapkan terlebih dahulu.</string>
-    <string name="debrid_prepare_count_one">1 sumber</string>
-    <string name="debrid_prepare_count_many">%1$d sumber</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
 
-    <string name="debrid_formatter_title">Editor Web</string>
-    <string name="debrid_formatter_subtitle">Konfigurasikan tampilan sumber, filter, dan pengurutan dari perangkat lain.</string>
-    <string name="debrid_formatter_configure">Buka editor web</string>
-    <string name="debrid_formatter_reset_title">Atur ulang format</string>
-    <string name="debrid_formatter_reset_subtitle">Kembalikan format ke setelan bawaan.</string>
-    <string name="debrid_formatter_qr_instruction">Pindai kode QR ini di ponsel Anda untuk mengonfigurasi pengaturan sumber Debrid.</string>
 
     <!-- Anime-Skip -->
     <string name="animeskip_title">Anime Skip</string>
@@ -1063,11 +1017,6 @@
     <string name="stream_no_streams">Tidak ada stream ditemukan</string>
     <string name="stream_no_streams_hint">Coba pasang lebih banyak addon untuk menemukan stream</string>
     <string name="stream_finding_source">Mencari sumber stream</string>
-    <string name="debrid_resolving_stream">Mengurai stream debrid</string>
-    <string name="debrid_stale_stream">Hasil Debrid ini telah kedaluwarsa. Muat ulang stream.</string>
-    <string name="debrid_missing_api_key">Tambahkan kunci API Debrid di Pengaturan.</string>
-    <string name="debrid_not_cached">Belum cached di Layanan Debrid ini.</string>
-    <string name="debrid_resolution_failed">Tidak dapat mengurai stream Debrid ini.</string>
     <string name="p2p_consent_title">Streaming P2P</string>
     <string name="p2p_consent_body">Stream ini menggunakan teknologi peer-to-peer (P2P). Dengan mengaktifkan P2P, Anda mengakui dan menyetujui bahwa:\n\n\u2022 Alamat IP Anda akan terlihat oleh peer lain di jaringan\n\u2022 Anda sepenuhnya bertanggung jawab atas konten yang Anda akses\n\u2022 Anda mengonfirmasi bahwa Anda memiliki hak hukum untuk streaming konten ini di yurisdiksi Anda\n\u2022 Fetch tidak menyelenggarakan, mendistribusikan, atau mengontrol konten P2P apa pun\n\u2022 Fetch tidak bertanggung jawab atas konsekuensi hukum apa pun yang timbul dari penggunaan streaming P2P Anda\n\nAnda menggunakan fitur ini sepenuhnya atas risiko Anda sendiri. P2P dapat dinonaktifkan kapan saja di Pengaturan.</string>
     <string name="p2p_consent_enable">Aktifkan P2P</string>
@@ -1315,7 +1264,6 @@
     <string name="library_delete_subtitle">Ini menghapus daftar dan semua item daftar dari Trakt.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Tersimpan</string>
-    <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Daftar Tonton</string>
     <string name="library_syncing_library">Menyinkronkan pustaka\u2026</string>
     <string name="library_type_all">Semua</string>
@@ -1325,29 +1273,6 @@
     <string name="library_empty_trakt_subtitle">Gunakan + di detail untuk menambahkan item ke daftar tonton atau daftar</string>
     <string name="library_empty_trakt_not_auth_title">Trakt belum terhubung</string>
     <string name="library_empty_trakt_not_auth_subtitle">Hubungkan akun Trakt Anda di Pengaturan untuk melihat pustaka Trakt Anda</string>
-    <string name="cloud_library_connect_message">Hubungkan akun di pengaturan Layanan Debrid untuk menelusuri file yang dapat diputar dari pustaka cloud Anda.</string>
-    <string name="cloud_library_connect_title">Tidak ada akun cloud yang terhubung</string>
-    <string name="cloud_library_disabled_message">Aktifkan pustaka cloud di pengaturan Layanan Debrid untuk menelusuri file dari akun yang terhubung.</string>
-    <string name="cloud_library_disabled_title">Pustaka cloud tidak aktif</string>
-    <string name="cloud_library_empty_message">Tidak ada file yang dapat diputar sesuai dengan filter saat ini.</string>
-    <string name="cloud_library_empty_title">Belum ada apapun di sini</string>
-    <string name="cloud_library_file_picker_title">Pilih file untuk diputar</string>
-    <string name="cloud_library_no_playable_files">Tidak ada file yang dapat diputar</string>
-    <string name="cloud_library_one_playable_file">1 file dapat diputar</string>
-    <string name="cloud_library_opening">Membuka\u2026</string>
-    <string name="cloud_library_play_failed">Tidak dapat memutar file ini.</string>
-    <string name="cloud_library_play_file">Memutar file</string>
-    <string name="cloud_library_playable_file_count">%1$d file dapat diputar</string>
-    <string name="cloud_library_provider_all">Semua</string>
-    <string name="cloud_library_refresh">Perbarui pustaka cloud</string>
-    <string name="cloud_library_select_provider">Pilih provider</string>
-    <string name="cloud_library_select_type">Pilih tipe</string>
-    <string name="cloud_library_status_ready">Siap diputar</string>
-    <string name="cloud_library_type_all">Semua</string>
-    <string name="cloud_library_type_torrents">Torrents</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Files</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Memuat\u2026</string>
@@ -2136,7 +2061,6 @@
     <!-- Fetch: new and changed strings -->
     <string name="theme_color_fetch">Fetch</string>
     <string name="best_match_cached">Di cache</string>
-    <string name="debrid_stream_rules_moved">Aturan stream kini ada di Pemutaran → Pemilihan stream dan berlaku untuk semua sumber, termasuk debrid. Aturan yang Anda atur di sini sudah dipindahkan ke sana.</string>
     <string name="prefer_next_time_title">Utamakan ini lain kali?</string>
     <string name="prefer_next_time_group">Grup %1$s</string>
     <string name="prefer_next_time_language">Audio %1$s</string>
@@ -2346,5 +2270,4 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Tanpa batas</string>
-    <string name="stream_torrent_needs_debrid">Torrent: hubungkan layanan debrid di Setelan → Debrid untuk memutarnya di sini, atau buka di pemutar eksternal.</string>
 </resources>

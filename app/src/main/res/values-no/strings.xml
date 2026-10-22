@@ -1005,7 +1005,6 @@
     <string name="cd_mark_intro_start">Marker start på intro</string>
     <string name="custom_server_error_official_active">Synkronisering er allerede av på denne TV-en.</string>
     <string name="custom_server_error_official_available">Det er ikke en synkroniseringsserver. Lukk denne dialogen og velg Slå av synkronisering for å gå tilbake til bare lokal modus.</string>
-    <string name="debrid_stream_rules_moved">Strømmeregler ligger nå under Avspilling → Strømvalg og gjelder for alle kilder, også debrid. Reglene du satte her, er flyttet dit.</string>
     <string name="exclusion_3d">3D-utgivelse</string>
     <string name="exclusion_above_max_resolution">over maksimal oppløsning</string>
     <string name="exclusion_audio">du hopper over %1$s-lyd</string>
@@ -1168,5 +1167,4 @@
     <string name="subtitle_style_text_opacity_hdr">Tekstopasitet (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Dette er en torrentstrøm, og Fetch har ingen innebygd torrentmotor. Slå på en debrid-tjeneste i Innstillinger → Debrid, eller åpne den i en ekstern spiller.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: koble til en debrid-tjeneste under Innstillinger → Debrid for å spille den av her, eller åpne den i en ekstern spiller.</string>
 </resources>

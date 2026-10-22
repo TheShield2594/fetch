@@ -150,13 +150,6 @@ private val localOnlyTrailerProfileSettingsKeys = setOf(
 )
 
 private val credentialProfileSettingsKeys = mapOf(
-    "debrid_settings" to setOf(
-        "torbox_api_key",
-        "premiumize_api_key",
-        "real_debrid_api_key",
-        "all_debrid_api_key",
-        "debrid_link_api_key"
-    ),
     "mdblist_settings" to setOf("mdblist_api_key"),
     "animeskip_settings" to setOf("animeskip_client_id")
 )
@@ -209,7 +202,6 @@ class ProfileSettingsSyncService @Inject constructor(
         "tmdb_settings",
         "mdblist_settings",
         "trakt_settings",
-        "debrid_settings",
         "animeskip_settings",
         "track_preference"
     )

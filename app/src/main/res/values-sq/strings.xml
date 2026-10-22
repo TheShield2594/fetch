@@ -357,10 +357,6 @@
     <string name="licenses_attributions_trakt_body">Fetch lidhet me Trakt për autentifikimin e llogarisë, historikun e shikimit, sinkronizimin e progresit, të dhënat e bibliotekës, vlerësimet, listat dhe komentet. Fetch nuk është i lidhur me dhe as i mbështetur nga Trakt.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch lidhet me Simkl për autentifikimin e llogarisë, listat e shikimit, historikun e shikimit, progresin e riprodhimit dhe scrobbling. Të dhënat e gjurmimit për filma, seriale dhe anime ofrohen nga Simkl. Fetch nuk është i lidhur me dhe as i mbështetur nga Simkl.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch lidhet me Premiumize për autentifikimin e llogarisë, qasjen në bibliotekën cloud, kontrollet e cache-it dhe veçoritë e riprodhimit nga cloud. Fetch nuk është i lidhur me dhe as i mbështetur nga Premiumize.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch lidhet me TorBox për autentifikimin e llogarisë, qasjen në bibliotekën cloud, kontrollet e cache-it dhe veçoritë e riprodhimit nga cloud. Fetch nuk është i lidhur me dhe as i mbështetur nga TorBox.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch përdor MDBList për vlerësime dhe të dhëna nga ofrues të jashtëm të pikëve. Fetch nuk është i lidhur me dhe as i mbështetur nga MDBList.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -517,7 +513,6 @@
     <string name="settings_tmdb_subtitle">Kontrollet e pasurimit të metadata-ve</string>
     <string name="settings_mdblist_subtitle">Ofrues të jashtëm vlerësimesh</string>
     <string name="settings_animeskip_subtitle">Kohëshënues për kapërcimin e hyrjes/daljes së animeve</string>
-    <string name="settings_debrid_subtitle">Burime eksperimentale të llogarive cloud</string>
     <string name="playback_title">Cilësimet e riprodhimit</string>
     <string name="playback_subtitle">Konfiguro riprodhimin e videos dhe opsionet e titrave</string>
     <string name="cd_decrease">Zvogëlo</string>
@@ -885,51 +880,6 @@
     <string name="mdblist_dialog_placeholder">Shkruaj çelësin API të MDBList</string>
     <string name="mdblist_not_set">Nuk është caktuar</string>
     <string name="mdblist_invalid_api_key">Çelës API i pavlefshëm i MDBList</string>
-    <string name="debrid_title">Shërbimet e lidhura</string>
-    <string name="debrid_subtitle">Lidh llogaritë për lidhje dhe qasje në bibliotekë</string>
-    <string name="debrid_experimental_notice">Këto integrime janë eksperimentale dhe mund të ruhen, ndryshohen ose hiqen më vonë.</string>
-    <string name="debrid_cloud_library">Biblioteka cloud</string>
-    <string name="debrid_cloud_library_description">Shfleto dhe luaj skedarët që tashmë gjenden në llogaritë e tua të lidhura.</string>
-    <string name="debrid_enable_title">Zgjidh lidhjet e luajtshme</string>
-    <string name="debrid_enable_subtitle">Kërkoji një shërbimi të lidhur lidhje të luajtshme kur një rezultat ka nevojë për to. Kjo mund ta shtojë artikullin në atë shërbim.</string>
-    <string name="debrid_resolve_with">Zgjidh me</string>
-    <string name="debrid_resolve_with_description">Zgjidh cila llogari e lidhur trajton lidhjet e luajtshme.</string>
-    <string name="debrid_add_key_first">Lidh fillimisht një llogari.</string>
-    <string name="debrid_section_account">Llogaritë</string>
-    <string name="debrid_section_instant_playback">Përgatitja e lidhjeve</string>
-    <string name="debrid_section_filters">Filtrat dhe renditja</string>
-    <string name="debrid_section_formatting">Formatimi</string>
-    <string name="debrid_provider_description">Lidh llogarinë tënde %1$s.</string>
-    <string name="debrid_provider_device_description">Lidh llogarinë tënde %1$s në shfletues.</string>
-    <string name="debrid_api_key_dialog_title">Çelësi API i %1$s</string>
-    <string name="debrid_api_key_dialog_subtitle">Shkruaj çelësin tënd API të %1$s.</string>
-    <string name="debrid_api_key_dialog_placeholder">Shkruaj çelësin API të %1$s</string>
-    <string name="debrid_not_set">Nuk është caktuar</string>
-    <string name="debrid_connected">Lidhur</string>
-    <string name="debrid_connect_provider">Lidh %1$s</string>
-    <string name="debrid_disconnect_provider">Shkëput %1$s</string>
-    <string name="debrid_disconnect">Shkëput</string>
-    <string name="debrid_device_auth_connected">%1$s është i lidhur në këtë pajisje.</string>
-    <string name="debrid_device_auth_starting">Duke nisur hyrjen e sigurt...</string>
-    <string name="debrid_device_auth_instructions">Skano QR-në dhe shkruaj këtë kod për të miratuar Fetch.</string>
-    <string name="debrid_device_auth_waiting">Në pritje të miratimit...</string>
-    <string name="debrid_device_auth_failed">Nuk mund të nisej hyrja.</string>
-    <string name="debrid_device_auth_missing_configuration">Kjo mënyrë hyrjeje nuk është konfiguruar në këtë build.</string>
-    <string name="debrid_device_auth_expired">Ky kod ka skaduar. Provo përsëri.</string>
-    <string name="debrid_key_invalid">Nuk mund të verifikohej ky çelës API.</string>
-    <string name="debrid_prepare_instant_playback">Përgatit lidhjet</string>
-    <string name="debrid_prepare_instant_playback_description">Zgjidh lidhjet e luajtshme para se të fillojë riprodhimi.</string>
-    <string name="debrid_prepare_stream_count">Lidhjet për t’u përgatitur</string>
-    <string name="debrid_prepare_stream_count_warning">Përdor një numër më të ulët kur është e mundur. Shërbimet e lidhura mund të kufizojnë sa lidhje mund të zgjidhen brenda një periudhe. Hapja e një filmi ose episodi mund të llogaritet në këto kufij edhe nëse nuk shtyp Shiko, sepse lidhjet përgatiten paraprakisht.</string>
-    <string name="debrid_prepare_count_one">1 lidhje</string>
-    <string name="debrid_prepare_count_many">%1$d lidhje</string>
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
-    <string name="debrid_formatter_title">Redaktuesi web</string>
-    <string name="debrid_formatter_subtitle">Konfiguro shfaqjen e burimeve, filtrat dhe renditjen nga një pajisje tjetër.</string>
-    <string name="debrid_formatter_configure">Hap redaktuesin web</string>
-    <string name="debrid_formatter_reset_title">Rivendos formatimin</string>
-    <string name="debrid_formatter_reset_subtitle">Rikthe formatimin e parazgjedhur të burimeve.</string>
-    <string name="debrid_formatter_qr_instruction">Skano këtë kod QR në telefon për të konfiguruar cilësimet e burimeve Debrid.</string>
     <string name="settings_stream_badges_section">Stili Fusion</string>
     <string name="settings_stream_size_badges_title">Etiketat e madhësisë</string>
     <string name="settings_stream_size_badges_description">Shfaq etiketat e madhësisë së skedarit në rezultatet e transmetimit dhe panelet e burimeve të luajtësit.</string>
@@ -1207,11 +1157,6 @@
     <string name="stream_no_streams">Nuk u gjetën transmetime</string>
     <string name="stream_no_streams_hint">Provo të instalosh më shumë shtesa për të gjetur transmetime</string>
     <string name="stream_finding_source">Duke kërkuar burimin e transmetimit</string>
-    <string name="debrid_resolving_stream">Duke zgjidhur transmetimin debrid</string>
-    <string name="debrid_stale_stream">Ky rezultat Debrid ka skaduar. Duke rifreskuar transmetimet.</string>
-    <string name="debrid_missing_api_key">Shto një çelës API Debrid te Cilësimet.</string>
-    <string name="debrid_not_cached">Nuk është në cache në këtë shërbim.</string>
-    <string name="debrid_resolution_failed">Nuk mund të zgjidhej ky transmetim Debrid.</string>
     <string name="p2p_consent_title">Transmetim P2P</string>
     <string name="p2p_consent_body">Ky transmetim përdor teknologjinë peer-to-peer (P2P). Duke aktivizuar P2P, pranon dhe konfirmon se:\n\n\u2022 Adresa jote IP do të jetë e dukshme për pjesëmarrësit e tjerë në rrjet\n\u2022 Je vetëm ti përgjegjës për përmbajtjen që qasesh\n\u2022 Konfirmon se ke të drejtën ligjore për ta transmetuar këtë përmbajtje në juridiksionin tënd\n\u2022 Fetch nuk hoston, shpërndan apo kontrollon asnjë përmbajtje P2P\n\u2022 Fetch nuk mban përgjegjësi për pasoja ligjore që mund të lindin nga përdorimi yt i transmetimit P2P\n\nKëtë veçori e përdor tërësisht me rrezikun tënd. P2P mund të çaktivizohet në çdo kohë te Cilësimet.</string>
     <string name="p2p_consent_enable">Aktivizo P2P</string>
@@ -1460,7 +1405,6 @@
     <string name="library_delete_subtitle">Kjo heq listën dhe të gjithë artikujt e saj nga Trakt.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Ruajtur</string>
-    <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Lista e shikimit</string>
     <string name="library_status_watching">Duke shikuar</string>
     <string name="library_status_plan_to_watch">Planifikuar për t’u shikuar</string>
@@ -1483,34 +1427,6 @@
     <string name="library_list_edit_dialog_title">Redakto listën</string>
     <string name="library_sync_btn">Sinkronizo</string>
     <string name="library_syncing_btn">Duke sinkronizuar\u2026</string>
-    <string name="cloud_library_connect_message">Lidh një llogari te cilësimet e Shërbimeve të lidhura për të shfletuar skedarë të luajtshëm nga biblioteka jote cloud.</string>
-    <string name="cloud_library_connect_title">Nuk ka llogari cloud të lidhur</string>
-    <string name="cloud_library_disabled_message">Aktivizo Bibliotekën cloud te cilësimet e Shërbimeve të lidhura për të shfletuar skedarë nga llogaritë e lidhura.</string>
-    <string name="cloud_library_disabled_title">Biblioteka cloud është joaktive</string>
-    <string name="cloud_library_empty_message">Asnjë skedar cloud i luajtshëm nuk përputhet me filtrat aktualë.</string>
-    <string name="cloud_library_empty_title">Ende nuk ka asgjë këtu</string>
-    <string name="cloud_library_file_picker_title">Zgjidh një skedar për ta luajtur</string>
-    <string name="cloud_library_no_playable_files">Nuk ka skedarë të luajtshëm</string>
-    <string name="cloud_library_one_playable_file">1 skedar i luajtshëm</string>
-    <string name="cloud_library_opening">Duke hapur\u2026</string>
-    <string name="cloud_library_play_failed">Nuk mund të luhet ky skedar cloud.</string>
-    <string name="cloud_library_play_file">Luaj skedarin</string>
-    <string name="cloud_library_playable_file_count">%1$d skedarë të luajtshëm</string>
-    <string name="cloud_library_provider_all">Të gjitha</string>
-    <string name="cloud_library_refresh">Rifresko bibliotekën cloud</string>
-    <string name="cloud_library_search_clear">Pastro kërkimin</string>
-    <string name="cloud_library_search_label">Kërko në bibliotekën cloud</string>
-    <string name="cloud_library_select_provider">Zgjidh ofruesin</string>
-    <string name="cloud_library_select_type">Zgjidh llojin</string>
-    <string name="cloud_library_status_ready">Gati për t’u luajtur</string>
-    <string name="cloud_library_type_all">Të gjitha</string>
-    <string name="cloud_library_type_torrents">Torrentë</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Skedarë</string>
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">Biblioteka cloud nuk është e disponueshme për %1$s.</string>
-    <string name="cloud_library_error_disabled">Biblioteka cloud është çaktivizuar.</string>
     <!-- AccountSettingsContent -->
     <string name="account_loading">Duke ngarkuar\u2026</string>
     <string name="account_sync_description">Sinkronizo bibliotekën, progresin e shikimit, shtesat dhe shtojcat në të gjitha pajisjet.</string>
@@ -2304,26 +2220,12 @@
     <string name="trakt_related_error_request_failed">Kërkesa e lidhur me Trakt dështoi</string>
     <string name="trakt_comments_error_request_failed">Kërkesa për komentet Trakt dështoi</string>
     <string name="trakt_library_error_fetch_list_items">Marrja e artikujve të listës dështoi</string>
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
-    <!-- Debrid: selection count + size range labels -->
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">E panjohur</string>
     <!-- External playback keep-alive service -->
     <string name="external_playback_notification_text">Duke luajtur në luajtës të jashtëm</string>
     <string name="external_playback_channel_description">E mban aplikacionin aktiv gjatë riprodhimit në luajtësin e jashtëm</string>
-    <!-- Web config page: Direct Debrid formatter -->
-    <string name="web_debrid_title">Cilësimet Direct Debrid</string>
-    <string name="web_debrid_intro_title">Personalizo transmetimet Debrid</string>
-    <string name="web_debrid_intro_copy">Rregullo etiketat e transmetimeve, filtrat dhe renditjen e përdorur për rezultatet Direct Debrid.</string>
-    <string name="web_debrid_template_fields">Fushat e shabllonit</string>
-    <string name="web_debrid_name_template">Shablloni i emrit</string>
-    <string name="web_debrid_description_template">Shablloni i përshkrimit</string>
-    <string name="web_debrid_error_templates_required">Kërkohen të dy shabllonet</string>
-    <string name="web_debrid_restore_default">Rikthe parazgjedhjen</string>
-    <string name="web_debrid_save_settings">Ruaj cilësimet</string>
-    <string name="web_debrid_status_load_error">Nuk mund të ngarkohen cilësimet Debrid</string>
     <!-- Web config pages: shared save status -->
-    <string name="web_status_saving">Duke ruajtur…</string>
     <string name="web_status_saved_streams">U ruajt. Transmetimet e reja do t’i përdorin këto cilësime.</string>
     <string name="web_status_could_not_save">Nuk mund të ruhet</string>
     <!-- Web config page: stream badge import status -->
@@ -2514,7 +2416,6 @@
     <string name="cd_mark_intro_start">Shëno fillimin e hyrjes</string>
     <string name="custom_server_error_official_active">Sinkronizimi është tashmë i çaktivizuar në këtë TV.</string>
     <string name="custom_server_error_official_available">Ky nuk është server sinkronizimi. Mbyll këtë dritare dhe zgjidh Çaktivizo sinkronizimin për t’u kthyer te modaliteti vetëm lokal.</string>
-    <string name="debrid_stream_rules_moved">Rregullat e transmetimeve tani ndodhen te Riprodhimi → Zgjedhja e transmetimit dhe zbatohen për çdo burim, përfshirë debrid. Rregullat që vendose këtu u zhvendosën atje.</string>
     <string name="exclusion_3d">version 3D</string>
     <string name="exclusion_above_max_resolution">mbi rezolucionin tënd maksimal</string>
     <string name="exclusion_audio">e kapërcen audion %1$s</string>
@@ -2677,5 +2578,4 @@
     <string name="subtitle_style_text_opacity_hdr">Opaciteti i tekstit (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Ky është një transmetim torrent dhe Fetch nuk ka motor torrent të integruar. Aktivizo një shërbim debrid te Cilësimet → Debrid, ose hape në një luajtës të jashtëm.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: lidh një shërbim debrid te Cilësimet → Debrid për ta luajtur këtu, ose hape në një luajtës të jashtëm.</string>
 </resources>

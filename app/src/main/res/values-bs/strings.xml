@@ -1361,7 +1361,6 @@
     <string name="cd_mark_intro_start">Označi početak uvoda</string>
     <string name="custom_server_error_official_active">Sinhronizacija je već isključena na ovom TV-u.</string>
     <string name="custom_server_error_official_available">To nije server za sinhronizaciju. Zatvori ovaj dijalog i izaberi Isključi sinhronizaciju da se vratiš u lokalni način rada.</string>
-    <string name="debrid_stream_rules_moved">Pravila za streamove sada su u Playback → Odabir streama i važe za svaki izvor, uključujući debrid. Pravila koja si ovdje podesio premještena su tamo.</string>
     <string name="exclusion_3d">3D izdanje</string>
     <string name="exclusion_above_max_resolution">iznad tvoje maksimalne rezolucije</string>
     <string name="exclusion_audio">preskačeš %1$s zvuk</string>
@@ -1527,5 +1526,4 @@
     <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent engine. Uključi debrid uslugu u Postavke → Debrid ili ga otvori u vanjskom playeru.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: poveži debrid servis u Postavke → Debrid da ga pustiš ovdje ili ga otvori u vanjskom playeru.</string>
 </resources>

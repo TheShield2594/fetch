@@ -1,20 +1,16 @@
 package com.fetch.tv.data.repository
 
 import android.content.Context
-import com.fetch.tv.core.debrid.DebridStreamPresentation
-import com.fetch.tv.core.debrid.LocalDebridAvailabilityService
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.tmdb.TmdbService
-import com.fetch.tv.data.local.DebridSettingsDataStore
 import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.data.remote.dto.StreamDto
 import com.fetch.tv.data.remote.dto.StreamResponseDto
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonResource
 import com.fetch.tv.domain.model.AddonStreams
-import com.fetch.tv.domain.model.DebridSettings
 import com.fetch.tv.domain.model.RepositoryType
 import com.fetch.tv.domain.model.ScraperInfo
 import com.fetch.tv.domain.repository.AddonRepository
@@ -150,19 +146,6 @@ class StreamRepositoryPluginIsolationTest {
         every { profileManager.activeProfileId } returns MutableStateFlow(1)
 
         val tmdbService = mockk<TmdbService>(relaxed = true)
-        val debridSettingsDataStore = mockk<DebridSettingsDataStore>()
-        every { debridSettingsDataStore.settings } returns flowOf(DebridSettings())
-        val presentation = mockk<DebridStreamPresentation>()
-        every { presentation.apply(any(), any<DebridSettings>(), any(), any()) } answers {
-            firstArg<List<AddonStreams>>()
-        }
-        val availability = mockk<LocalDebridAvailabilityService>()
-        coEvery { availability.markChecking(any()) } coAnswers {
-            firstArg<List<AddonStreams>>()
-        }
-        coEvery { availability.annotateCachedAvailability(any()) } coAnswers {
-            firstArg<List<AddonStreams>>()
-        }
 
         return Harness(
             repository = StreamRepositoryImpl(
@@ -171,10 +154,7 @@ class StreamRepositoryPluginIsolationTest {
                 addonRepository = addonRepository,
                 pluginManager = pluginManager,
                 profileManager = profileManager,
-                debridSettingsDataStore = debridSettingsDataStore,
                 tmdbService = tmdbService,
-                debridStreamPresentation = presentation,
-                localDebridAvailabilityService = availability,
                 serverStreams = mockk {
                     every { isNativeRequest(any()) } returns false
                     every { revision } returns 0

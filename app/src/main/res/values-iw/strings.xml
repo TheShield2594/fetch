@@ -439,10 +439,6 @@
     <string name="licenses_attributions_trakt_body">Fetch מתחברת ל-Trakt לצורך אימות חשבון, היסטוריית צפייה, סנכרון התקדמות, נתוני ספרייה, דירוגים, רשימות ותגובות. Fetch אינה קשורה או מאושרת על ידי Trakt.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch מתחברת ל-Simkl לצורך אימות חשבון, רשימות צפייה, היסטוריית צפייה, התקדמות צפייה וסקרובלינג. נתוני מעקב סרטים, סדרות ואנימה מסופקים על ידי Simkl. Fetch אינה קשורה או מאושרת על ידי Simkl.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch מתחברת ל-Premiumize לצורך אימות חשבון, גישה לספריית ענן, בדיקות מטמון ותכונות הפעלה בענן. Fetch אינה קשורה או מאושרת על ידי Premiumize.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch מתחברת ל-TorBox לצורך אימות חשבון, גישה לספריית ענן, בדיקות מטמון ותכונות הפעלה בענן. Fetch אינה קשורה או מאושרת על ידי TorBox.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch משתמשת ב-MDBList עבור דירוגים ונתוני ספקי ציון חיצוניים. Fetch אינה קשורה או מאושרת על ידי MDBList.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -610,7 +606,6 @@
     <string name="settings_tmdb_subtitle">בקרות העשרת מטא-דאטה</string>
     <string name="settings_mdblist_subtitle">ספקי דירוג חיצוניים</string>
     <string name="settings_animeskip_subtitle">חותמות זמן לדילוג על פתיחים וסיומים באנימה</string>
-    <string name="settings_debrid_subtitle">מקורות חשבון ענן ניסיוניים</string>
 
     <string name="playback_title">הגדרות הפעלה</string>
     <string name="playback_subtitle">הגדרת אפשרויות הפעלת וידאו וכתוביות</string>
@@ -1114,53 +1109,8 @@
     <string name="tracking_mdblist_features_title">תכונות MDBList</string>
     <string name="tracking_mdblist_features_subtitle">הגדרות ייעודיות ל-MDBList</string>
 
-    <string name="debrid_title">שירותים מחוברים</string>
-    <string name="debrid_subtitle">חיבור חשבונות לגישה לקישורים ולספרייה</string>
-    <string name="debrid_experimental_notice">אינטגרציות אלו הן ניסיוניות וייתכן שיישארו, ישתנו או יוסרו בהמשך.</string>
-    <string name="debrid_cloud_library">ספריית ענן</string>
-    <string name="debrid_cloud_library_description">עיון והפעלה של קבצים שכבר נמצאים בחשבונות המחוברים.</string>
-    <string name="debrid_enable_title">פיענוח קישורים ניתנים לצפייה</string>
-    <string name="debrid_enable_subtitle">בקשת קישורים ניתנים לצפייה משירות מחובר כאשר תוצאה זקוקה לכך. פעולה זו עשויה להוסיף את הפריט לאותו שירות.</string>
-    <string name="debrid_resolve_with">פיענוח באמצעות</string>
-    <string name="debrid_resolve_with_description">בחירת החשבון המחובר שמטפל בקישורים ניתנים לצפייה.</string>
-    <string name="debrid_add_key_first">יש לחבר חשבון תחילה.</string>
-    <string name="debrid_section_account">חשבונות</string>
-    <string name="debrid_section_instant_playback">הכנת קישורים</string>
-    <string name="debrid_section_filters">סינון ומיון</string>
-    <string name="debrid_section_formatting">עיצוב</string>
-    <string name="debrid_provider_description">חיבור חשבון ה-%1$s.</string>
-    <string name="debrid_provider_device_description">קישור חשבון ה-%1$s בדפדפן.</string>
-    <string name="debrid_api_key_dialog_title">מפתח API של %1$s</string>
-    <string name="debrid_api_key_dialog_subtitle">הזנת מפתח ה-API של %1$s.</string>
-    <string name="debrid_api_key_dialog_placeholder">מפתח API של %1$s</string>
-    <string name="debrid_not_set">לא הוגדר</string>
-    <string name="debrid_connected">מחובר</string>
-    <string name="debrid_connect_provider">חיבור %1$s</string>
-    <string name="debrid_disconnect_provider">ניתוק %1$s</string>
-    <string name="debrid_disconnect">ניתוק</string>
-    <string name="debrid_device_auth_connected">%1$s מחובר במכשיר זה.</string>
-    <string name="debrid_device_auth_starting">מתחיל התחברות מאובטחת…</string>
-    <string name="debrid_device_auth_instructions">יש לסרוק את קוד ה-QR ולהזין קוד זה כדי לאשר את Fetch.</string>
-    <string name="debrid_device_auth_waiting">ממתין לאישור…</string>
-    <string name="debrid_device_auth_failed">לא ניתן להתחיל את תהליך ההתחברות.</string>
-    <string name="debrid_device_auth_missing_configuration">שיטת התחברות זו אינה מוגדרת בגרסה זו.</string>
-    <string name="debrid_device_auth_expired">הקוד פג תוקף. כדאי לנסות שוב.</string>
-    <string name="debrid_key_invalid">לא ניתן לאמת מפתח API זה.</string>
-    <string name="debrid_prepare_instant_playback">הכנת קישורים</string>
-    <string name="debrid_prepare_instant_playback_description">פענוח קישורים ניתנים להפעלה עוד לפני תחילת ההפעלה.</string>
-    <string name="debrid_prepare_stream_count">קישורים להכנה</string>
-    <string name="debrid_prepare_stream_count_warning">מומלץ להשתמש במספר נמוך יותר כשניתן. שירותים מחוברים עשויים להגביל את קצב פענוח הקישורים לפרק זמן נתון. פתיחת סרט או פרק יכולה להיספר במגבלה הזו גם ללא לחיצה על \"הפעלה\", כי הקישורים מוכנים מראש.</string>
-    <string name="debrid_prepare_count_one">קישור אחד</string>
-    <string name="debrid_prepare_count_many">%1$d קישורים</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
 
-    <string name="debrid_formatter_title">עורך אינטרנטי</string>
-    <string name="debrid_formatter_subtitle">הגדרת תצוגת מקור, סינון ומיון ממכשיר אחר.</string>
-    <string name="debrid_formatter_configure">פתיחת עורך אינטרנטי</string>
-    <string name="debrid_formatter_reset_title">איפוס עיצוב</string>
-    <string name="debrid_formatter_reset_subtitle">שחזור עיצוב מקור לברירת מחדל.</string>
-    <string name="debrid_formatter_qr_instruction">יש לסרוק את קוד ה-QR הזה בטלפון כדי להגדיר את הגדרות מקור ה-Debrid.</string>
     <string name="settings_stream_badges_section">סגנון Fusion</string>
     <string name="settings_stream_size_badges_title">תגי גודל</string>
     <string name="settings_stream_size_badges_description">הצגת תגי גודל קובץ בתוצאות מקור ובפאנלי מקור בנגן.</string>
@@ -1472,11 +1422,6 @@
     <string name="stream_no_streams">לא נמצאו מקורות. לכו לקולנוע.</string>
     <string name="stream_no_streams_hint">ניתן להתקין תוספים נוספים למציאת מקורות</string>
     <string name="stream_finding_source">מחפש מקור</string>
-    <string name="debrid_resolving_stream">מפענח מקור Debrid</string>
-    <string name="debrid_stale_stream">פג תוקפה של תוצאת ה-Debrid הזו. מרענן מקורות.</string>
-    <string name="debrid_missing_api_key">יש להוסיף מפתח API של Debrid בהגדרות.</string>
-    <string name="debrid_not_cached">לא שמור במטמון בשירות זה.</string>
-    <string name="debrid_resolution_failed">לא ניתן היה לפענח את מקור ה-Debrid הזה.</string>
     <string name="youtube_resolving_stream">טוען סרטון YouTube…</string>
     <string name="youtube_resolution_failed">לא ניתן היה לטעון את סרטון ה-YouTube הזה.</string>
     <string name="p2p_consent_title">P2P סטרימינג</string>
@@ -1793,7 +1738,6 @@
     <string name="library_delete_subtitle">פעולה זו תסיר את הרשימה וכל הפריטים שבה מ-Trakt.</string>
     <string name="library_source_local">מקומי</string>
     <string name="library_source_saved">נשמר</string>
-    <string name="library_source_cloud">ענן</string>
     <string name="library_watchlist">רשימת צפייה</string>
     <string name="library_status_watching">בצפייה</string>
     <string name="library_status_plan_to_watch">מתוכנן לצפייה</string>
@@ -1816,35 +1760,7 @@
     <string name="library_list_edit_dialog_title">עריכת רשימה</string>
     <string name="library_sync_btn">סנכרון</string>
     <string name="library_syncing_btn">מסנכרן…</string>
-    <string name="cloud_library_connect_message">יש לחבר חשבון בהגדרות השירותים המחוברים כדי לעיין בקבצים הניתנים לצפייה מספריית הענן שלך.</string>
-    <string name="cloud_library_connect_title">אין חשבון ענן מחובר</string>
-    <string name="cloud_library_disabled_message">הפעלת ספריית ענן בהגדרות השירותים המחוברים כדי לעיין בקבצים מחשבונות מחוברים.</string>
-    <string name="cloud_library_disabled_title">ספריית הענן כבויה</string>
-    <string name="cloud_library_empty_message">אין קבצי ענן הניתנים להפעלה התואמים לסינון הנוכחי.</string>
-    <string name="cloud_library_empty_title">אין כאן עדיין כלום</string>
-    <string name="cloud_library_file_picker_title">בחירת קובץ להפעלה</string>
-    <string name="cloud_library_no_playable_files">אין קבצים שניתנים להפעלה</string>
-    <string name="cloud_library_one_playable_file">קובץ אחד שניתן להפעיל</string>
-    <string name="cloud_library_opening">פותח…</string>
-    <string name="cloud_library_play_failed">לא ניתן היה להפעיל קובץ ענן זה.</string>
-    <string name="cloud_library_play_file">הפעלת קובץ</string>
-    <string name="cloud_library_playable_file_count">%1$d קבצים ניתנים להפעלה</string>
-    <string name="cloud_library_provider_all">הכול</string>
-    <string name="cloud_library_refresh">רענון ספריית ענן</string>
-    <string name="cloud_library_search_clear">ניקוי חיפוש</string>
-    <string name="cloud_library_search_label">חיפוש בספריית הענן</string>
-    <string name="cloud_library_select_provider">בחירת ספק</string>
-    <string name="cloud_library_select_type">בחירת סוג</string>
-    <string name="cloud_library_status_ready">מוכן להפעלה</string>
-    <string name="cloud_library_type_all">הכול</string>
-    <string name="cloud_library_type_torrents">טורנטים</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">אינטרנט</string>
-    <string name="cloud_library_type_files">קבצים</string>
 
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">ספריית הענן אינה זמינה עבור %1$s.</string>
-    <string name="cloud_library_error_disabled">ספריית הענן מושבתת</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">טוען…</string>
@@ -2712,9 +2628,7 @@
     <string name="trakt_library_error_fetch_list_items">משיכת פריטי הרשימה נכשלה</string>
 
 
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
 
-    <!-- Debrid: selection count + size range labels -->
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">לא ידוע</string>
@@ -2723,20 +2637,8 @@
     <string name="external_playback_notification_text">מתבצעת הפעלה בנגן חיצוני</string>
     <string name="external_playback_channel_description">שומר את האפליקציה פעילה במהלך הפעלה בנגן חיצוני</string>
 
-    <!-- Web config page: Direct Debrid formatter -->
-    <string name="web_debrid_title">הגדרות Direct Debrid</string>
-    <string name="web_debrid_intro_title">התאמה אישית של מקורות Debrid</string>
-    <string name="web_debrid_intro_copy">כיוונון תוויות, מסננים ומיון עבור תוצאות Direct Debrid.</string>
-    <string name="web_debrid_template_fields">שדות תבנית</string>
-    <string name="web_debrid_name_template">תבנית שם</string>
-    <string name="web_debrid_description_template">תבנית תיאור</string>
-    <string name="web_debrid_error_templates_required">שתי התבניות נדרשות</string>
-    <string name="web_debrid_restore_default">שחזור ברירת מחדל</string>
-    <string name="web_debrid_save_settings">שמירת הגדרות</string>
-    <string name="web_debrid_status_load_error">לא ניתן היה לטעון את הגדרות ה-Debrid</string>
 
     <!-- Web config pages: shared save status -->
-    <string name="web_status_saving">שומר…</string>
     <string name="web_status_saved_streams">נשמר. זרמים חדשים ישתמשו בהגדרות אלה.</string>
     <string name="web_status_could_not_save">לא ניתן היה לשמור</string>
 
@@ -2978,7 +2880,6 @@
     <string name="cd_mark_intro_start">סימון תחילת הפתיח</string>
     <string name="custom_server_error_official_active">הסנכרון כבר כבוי בטלוויזיה הזו.</string>
     <string name="custom_server_error_official_available">זה אינו שרת סנכרון. יש לסגור את החלון ולבחור \"כיבוי סנכרון\" כדי לחזור למצב מקומי בלבד.</string>
-    <string name="debrid_stream_rules_moved">כללי הסטרים נמצאים עכשיו בהפעלה ← בחירת מקור וחלים על כל מקור, כולל Debrid. הכללים שהגדרת כאן הועברו לשם.</string>
     <string name="exclusion_3d">גרסת תלת־ממד</string>
     <string name="exclusion_above_max_resolution">מעל הרזולוציה המרבית שלך</string>
     <string name="exclusion_audio">בחרת לדלג על שמע %1$s</string>
@@ -3144,5 +3045,4 @@
     <string name="subtitle_style_text_opacity_hdr">אטימות טקסט (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">זהו סטרים טורנט ול-Fetch אין מנוע טורנט מובנה. יש להפעיל שירות Debrid בהגדרות ← Debrid, או לפתוח אותו בנגן חיצוני.</string>
-    <string name="stream_torrent_needs_debrid">טורנט: חבר שירות debrid בהגדרות ← Debrid כדי לנגן אותו כאן, או פתח אותו בנגן חיצוני.</string>
 </resources>

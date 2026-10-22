@@ -457,7 +457,7 @@ fun StreamScreen(
                     error = uiState.error,
                     streams = uiState.filteredStreams,
                     streamExclusions = uiState.streamExclusions,
-                    torrentsNeedDebrid = uiState.torrentsNeedDebrid,
+                    torrentsNeedExternalPlayer = uiState.torrentsNeedExternalPlayer,
                     availableAddons = uiState.availableAddons,
                     sourceChips = uiState.sourceChips,
                     selectedAddonFilter = uiState.selectedAddonFilter,
@@ -773,7 +773,7 @@ private fun RightStreamSection(
     onRetry: () -> Unit,
     onExpandStreams: () -> Unit = {},
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
-    torrentsNeedDebrid: Boolean = false,
+    torrentsNeedExternalPlayer: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -929,7 +929,7 @@ private fun RightStreamSection(
                         StreamsList(
                             streams = streams,
                             streamExclusions = streamExclusions,
-                            torrentsNeedDebrid = torrentsNeedDebrid,
+                            torrentsNeedExternalPlayer = torrentsNeedExternalPlayer,
                             sharedStream = sharedStream,
                             partySource = partySource,
                             onSharedStreamSelected = onSharedStreamSelected,
@@ -1053,7 +1053,7 @@ private fun EmptyState() {
 private fun StreamsList(
     streams: List<Stream>,
     streamExclusions: Map<String, ExclusionReason>,
-    torrentsNeedDebrid: Boolean,
+    torrentsNeedExternalPlayer: Boolean,
     sharedStream: SharedStream?,
     partySource: PartySource?,
     onSharedStreamSelected: (Stream) -> Unit,
@@ -1270,7 +1270,7 @@ private fun StreamsList(
                     marked = isPartySource,
                     markedLabel = partySourceLabel.takeIf { isPartySource },
                     exclusion = if (streamExclusions.isEmpty()) null else streamExclusions[stream.stableKey()],
-                    needsDebrid = torrentsNeedDebrid && stream.needsLocalDebridResolve(),
+                    needsExternalPlayer = torrentsNeedExternalPlayer && stream.isTorrent(),
                     onClick = { onStreamSelected(stream) },
                     focusRequester = when {
                         shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester
@@ -1311,7 +1311,7 @@ internal fun StreamCard(
     marked: Boolean = false,
     markedLabel: String? = null,
     exclusion: ExclusionReason? = null,
-    needsDebrid: Boolean = false
+    needsExternalPlayer: Boolean = false
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -1434,11 +1434,11 @@ internal fun StreamCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                // Fetch has no torrent engine, so a torrent with no debrid to resolve it can only
-                // open in an external player. Say so here rather than failing once it is picked.
-                if (needsDebrid) {
+                // Fetch has no torrent engine, so a torrent can only open in an external player.
+                // Say so here rather than failing once it is picked.
+                if (needsExternalPlayer) {
                     Text(
-                        text = stringResource(R.string.stream_torrent_needs_debrid),
+                        text = stringResource(R.string.stream_torrent_external_player),
                         style = MaterialTheme.typography.bodySmall,
                         color = FetchTheme.colors.TextTertiary,
                         maxLines = if (isFocused) Int.MAX_VALUE else 1,

@@ -13,12 +13,11 @@ scanning a QR code. This note covers what those pages can do and how they are pr
   the query. Commands go through `RemoteCommandBus` to `MainActivity`, which turns them into
   key events in Fetch's own window. Nothing is injected into other apps, and no accessibility
   or system permission is used.
-- **Accounts**: TorBox and Premiumize API keys (checked with the provider before saving), the
-  MDBList API key, Trakt and Simkl sign-in (the phone shows the device code; the TV finishes
+- **Accounts**: the MDBList API key, Trakt and Simkl sign-in (the phone shows the device code; the TV finishes
   signing in) and Jellyfin/Emby sign-in.
 - **Stream ranking**: the `StreamRankingRules` used by Best match.
-- **Debrid name templates, stream badges and custom posters**: the existing pages, served under
-  `/templates/`, `/badges/` and `/posters/`.
+- **Stream badges and custom posters**: the existing pages, served under `/badges/` and
+  `/posters/`.
 
 Addons, catalog order, collections and plugin repositories keep their own QR code on their TV
 screen. Those changes decide what the TV loads, so each one is confirmed on the TV before it

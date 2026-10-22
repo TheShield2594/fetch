@@ -33,8 +33,8 @@ data class StreamScreenUiState(
     val filteredStreams: List<Stream> = emptyList(),
     /** Why Best match passed over a stream, keyed by [Stream.stableKey]; empty outside Best match. */
     val streamExclusions: Map<String, com.fetch.tv.core.streams.ranking.ExclusionReason> = emptyMap(),
-    /** Torrent results can't play here: no torrent engine and no debrid that resolves torrents. */
-    val torrentsNeedDebrid: Boolean = false,
+    /** Torrent results can't play here: there is no torrent engine, so they open externally. */
+    val torrentsNeedExternalPlayer: Boolean = !com.fetch.tv.core.torrent.TorrentService.ENGINE_AVAILABLE,
     val availableAddons: List<String> = emptyList(),
     val sourceChips: List<SourceChipItem> = emptyList(),
     val autoPlayStream: Stream? = null,

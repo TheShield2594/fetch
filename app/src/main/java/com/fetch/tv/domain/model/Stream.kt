@@ -1,7 +1,6 @@
 package com.fetch.tv.domain.model
 
 import androidx.compose.runtime.Immutable
-import com.fetch.tv.core.debrid.DebridProviders
 import com.fetch.tv.data.mediaserver.ServerPlaybackTarget
 import kotlin.math.roundToInt
 import kotlinx.serialization.Serializable
@@ -26,7 +25,6 @@ data class Stream(
     val quality: String? = null,
     val qualityValue: Int = -1,
     val clientResolve: StreamClientResolve? = null,
-    val debridCacheStatus: StreamDebridCacheStatus? = null,
     val badges: List<StreamBadge> = emptyList(),
     val subtitles: List<Subtitle> = emptyList(),
     val serverTarget: ServerPlaybackTarget? = null
@@ -48,12 +46,17 @@ data class Stream(
      * the HTTP url is preferred and this returns false.
      */
     fun isTorrent(): Boolean =
-        !isDirectDebrid() &&
-            getStreamUrl().isNullOrBlank() &&
+        getStreamUrl().isNullOrBlank() &&
             (!infoHash.isNullOrBlank() || !torrentMagnetUri().isNullOrBlank() || hasTorrentUrl())
 
-    fun needsLocalDebridResolve(): Boolean =
-        isTorrent() && getStreamUrl().isNullOrBlank()
+    /**
+     * Returns true for an addon stream that leaves debrid resolving to the client
+     * (`clientResolve.type == "debrid"` with no playable URL). Fetch has no built-in
+     * debrid service, so these can't be played.
+     */
+    fun needsClientDebridResolve(): Boolean =
+        clientResolve?.type.equals("debrid", ignoreCase = true) &&
+            getStreamUrl().isNullOrBlank()
 
     fun getEffectiveInfoHash(): String? =
         infoHash?.takeIf { it.isNotBlank() }
@@ -97,13 +100,6 @@ data class Stream(
         return idxStr.toIntOrNull()
     }
 
-    fun isDirectDebrid(): Boolean {
-        val resolve = clientResolve ?: return false
-        return resolve.type.equals("debrid", ignoreCase = true) &&
-            DebridProviders.isSupported(resolve.service) &&
-            resolve.isCached == true
-    }
-
     /**
      * Returns true if this is a YouTube stream
      */
@@ -116,7 +112,7 @@ data class Stream(
     fun youTubeIdToResolve(): String? =
         ytId?.trim()
             ?.takeIf { it.isNotEmpty() }
-            ?.takeIf { getStreamUrl() == null && !isTorrent() && !isDirectDebrid() }
+            ?.takeIf { getStreamUrl() == null && !isTorrent() }
 
     /**
      * Returns true if this is an external URL (opens in browser)
@@ -176,22 +172,6 @@ data class StreamBadge(
     val textColor: String = "",
     val borderColor: String = ""
 )
-
-@Immutable
-data class StreamDebridCacheStatus(
-    val providerId: String,
-    val providerName: String,
-    val state: StreamDebridCacheState,
-    val cachedName: String? = null,
-    val cachedSize: Long? = null
-)
-
-enum class StreamDebridCacheState {
-    CHECKING,
-    CACHED,
-    NOT_CACHED,
-    UNKNOWN
-}
 
 const val AUDIO_DELAY_MIN_MS = -60000
 const val AUDIO_DELAY_MAX_MS = 60000

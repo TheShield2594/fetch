@@ -810,11 +810,6 @@ private fun PlaybackNavHost(
                     nullable = true
                     defaultValue = null
                 },
-                navArgument("cloudSessionToken") {
-                    type = NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                },
                 navArgument("launchStartedAtMs") {
                     type = NavType.StringType
                     nullable = true
@@ -1194,27 +1189,6 @@ private fun PlaybackNavHost(
                 },
                 onNavigateToCatalogSeeAll = { catalogId, addonId, type ->
                     navController.navigate(Screen.CatalogSeeAll.createRoute(catalogId, addonId, type))
-                },
-                onCloudPlaybackResolved = { info ->
-                    val filename = info.filename ?: info.file.name
-                    navController.navigate(
-                        Screen.Player.createRoute(
-                            streamUrl = info.url,
-                            title = filename,
-                            streamName = filename,
-                            contentType = "cloud",
-                            contentName = info.item.name,
-                            videoId = "${info.item.stableKey}:${info.file.stableKey}",
-                            season = 1,
-                            episode = info.sequenceIndex + 1,
-                            episodeTitle = filename,
-                            filename = filename,
-                            videoSize = info.videoSizeBytes,
-                            addonName = info.item.providerName,
-                            streamDescription = info.item.name,
-                            cloudSessionToken = info.sessionToken
-                        )
-                    )
                 }
             )
         }

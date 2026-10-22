@@ -438,10 +438,6 @@
     <string name="licenses_attributions_trakt_body">Fetch, hesap doğrulama, izleme geçmişi, ilerleme senkronizasyonu, kütüphane verileri, puanlar, listeler ve yorumlar için Trakt\'a bağlanır. Fetch Trakt ile bağlantılı veya onaylanmış değildir.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch; hesap doğrulama, izleme listeleri, izleme geçmişi, oynatma ilerlemesi ve scrobbling için Simkl\'a bağlanır. Film, dizi ve anime takip verileri Simkl tarafından sağlanır. Fetch, Simkl ile bağlantılı veya onaylanmış değildir.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch; hesap doğrulama, bulut kütüphanesine erişim, önbellek kontrolü ve bulut oynatma özellikleri için Premiumize\'a bağlanır. Fetch\'in Premiumize ile herhangi bir ortaklığı veya resmi bağı yoktur.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch; hesap doğrulama, bulut kütüphanesine erişim, önbellek kontrolü ve bulut oynatma özellikleri için TorBox\'a bağlanır. Fetch\'in TorBox ile herhangi bir ortaklığı veya resmi bağı yoktur.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch, puanlar ve harici skor sağlayıcı verileri için MDBList\'i kullanır. Fetch MDBList ile bağlantılı veya onaylanmış değildir.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -611,7 +607,6 @@
     <string name="settings_tmdb_subtitle">Meta veri zenginleştirme kontrolleri</string>
     <string name="settings_mdblist_subtitle">Harici değerlendirme sağlayıcıları</string>
     <string name="settings_animeskip_subtitle">Anime jeneriklerini (intro/outro) otomatik atlama ayarları</string>
-    <string name="settings_debrid_subtitle">Deneysel bulut hesabı kaynakları</string>
 
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Oynatma Ayarları</string>
@@ -1115,52 +1110,7 @@
     <string name="mdblist_library_lists_summary">%1$d / %2$d gösteriliyor</string>
     <string name="tracking_mdblist_features_title">MDBList özellikleri</string>
     <string name="tracking_mdblist_features_subtitle">MDBList\'e özel ayarlar</string>
-    <string name="debrid_title">Bağlı Servisler</string>
-    <string name="debrid_subtitle">Bağlantılar ve kütüphane erişimi için hesapları bağlayın</string>
-    <string name="debrid_experimental_notice">Bu entegrasyonlar deneyseldir; daha sonra tutulabilir, değiştirilebilir veya kaldırılabilir.</string>
-    <string name="debrid_cloud_library">Bulut kütüphanesi</string>
-    <string name="debrid_cloud_library_description">Bağlı hesaplarınızda zaten var olan dosyalara göz atın ve oynatın.</string>
-    <string name="debrid_enable_title">Oynatılabilir bağlantıları çöz</string>
-    <string name="debrid_enable_subtitle">Bir sonuç gerektirdiğinde bağlı bir servisten oynatılabilir bağlantılar isteyin. Bu, öğeyi o servise ekleyebilir.</string>
-    <string name="debrid_resolve_with">Şununla çöz:</string>
-    <string name="debrid_resolve_with_description">Oynatılabilir bağlantıları hangi bağlı hesabın işleyeceğini seçin.</string>
-    <string name="debrid_add_key_first">Önce bir hesap bağlayın.</string>
-    <string name="debrid_section_account">Hesaplar</string>
-    <string name="debrid_section_instant_playback">Bağlantı Hazırlığı</string>
-    <string name="debrid_section_filters">Filtreleme ve Sıralama</string>
-    <string name="debrid_section_formatting">Biçimlendirme</string>
-    <string name="debrid_provider_description">%1$s hesabınızı bağlayın.</string>
-    <string name="debrid_provider_device_description">Tarayıcıda %1$s hesabınızı bağlayın.</string>
-    <string name="debrid_api_key_dialog_title">%1$s API Anahtarı</string>
-    <string name="debrid_api_key_dialog_subtitle">%1$s API anahtarınızı girin.</string>
-    <string name="debrid_api_key_dialog_placeholder">%1$s API anahtarını girin</string>
-    <string name="debrid_not_set">Ayarlanmadı</string>
-    <string name="debrid_connected">Bağlandı</string>
-    <string name="debrid_connect_provider">%1$s Bağla</string>
-    <string name="debrid_disconnect_provider">%1$s Bağlantısını Kes</string>
-    <string name="debrid_disconnect">Bağlantıyı Kes</string>
-    <string name="debrid_device_auth_connected">%1$s bu cihaza bağlandı.</string>
-    <string name="debrid_device_auth_starting">Güvenli giriş başlatılıyor...</string>
-    <string name="debrid_device_auth_instructions">Fetch\'i onaylamak için QR kodu taratın ve bu kodu girin.</string>
-    <string name="debrid_device_auth_waiting">Onay bekleniyor...</string>
-    <string name="debrid_device_auth_failed">Giriş başlatıladı.</string>
-    <string name="debrid_device_auth_missing_configuration">Bu giriş yöntemi bu sürümde yapılandırılmamış.</string>
-    <string name="debrid_device_auth_expired">Bu kodun süresi doldu. Tekrar deneyin.</string>
-    <string name="debrid_key_invalid">Bu API anahtarı doğrulanamadı.</string>
-    <string name="debrid_prepare_instant_playback">Bağlantıları hazırla</string>
-    <string name="debrid_prepare_instant_playback_description">Oynatma başlamadan önce oynatılabilir bağlantıları çözün.</string>
-    <string name="debrid_prepare_stream_count">Hazırlanacak bağlantı sayısı</string>
-    <string name="debrid_prepare_stream_count_warning">Mümkünse daha düşük bir sayı kullanın. Bağlı servisler, belirli bir süre içinde çözülebilecek bağlantı sayısını sınırlayabilir. Bir film veya bölümü açmak, İzle seçeneğine basmasanız bile bu limitlere sayılabilir çünkü bağlantılar önceden hazırlanır.</string>
-    <string name="debrid_prepare_count_one">1 bağlantı</string>
-    <string name="debrid_prepare_count_many">%1$d bağlantı</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
-    <string name="debrid_formatter_title">Web düzenleyici</string>
-    <string name="debrid_formatter_subtitle">Kaynak görünümünü, filtrelerini ve sıralamasını başka bir cihazdan yapılandırın.</string>
-    <string name="debrid_formatter_configure">Web düzenleyiciyi aç</string>
-    <string name="debrid_formatter_reset_title">Biçimlendirmeyi sıfırla</string>
-    <string name="debrid_formatter_reset_subtitle">Varsayılan kaynak biçimlendirmesini geri yükleyin.</string>
-    <string name="debrid_formatter_qr_instruction">Debrid kaynak ayarlarını yapılandırmak için bu QR kodu telefonunuzda taratın.</string>
     <string name="settings_stream_badges_section">Fusion Tarzı</string>
     <string name="settings_stream_size_badges_title">Boyut etiketleri</string>
     <string name="settings_stream_size_badges_description">Yayın sonuçlarında ve oynatıcı kaynak panellerinde dosya boyutu etiketlerini gösterir.</string>
@@ -1468,11 +1418,6 @@
     <string name="stream_no_streams">Akış bulunamadı</string>
     <string name="stream_no_streams_hint">Daha fazla akış bulmak için farklı eklentiler kurmayı deneyin</string>
     <string name="stream_finding_source">Kaynak aranıyor</string>
-    <string name="debrid_resolving_stream">Debrid yayını çözümleniyor</string>
-    <string name="debrid_stale_stream">Bu Debrid sonucunun süresi doldu. Yayınlar yenileniyor.</string>
-    <string name="debrid_missing_api_key">Ayarlar\'dan bir Debrid API anahtarı ekleyin.</string>
-    <string name="debrid_not_cached">Bu serviste önbelleğe alınmamış.</string>
-    <string name="debrid_resolution_failed">Bu Debrid yayını çözümlenemedi.</string>
     <string name="youtube_resolving_stream">YouTube videosu yükleniyor…</string>
     <string name="youtube_resolution_failed">Bu YouTube videosu yüklenemedi.</string>
     <string name="p2p_consent_title">P2P Yayın</string>
@@ -1792,7 +1737,6 @@
     <string name="library_delete_subtitle">Bu işlem listeyi ve içindeki tüm öğeleri Trakt hesabınızdan kaldırır.</string>
     <string name="library_source_local">YEREL</string>
     <string name="library_source_saved">Kaydedildi</string>
-    <string name="library_source_cloud">Bulut</string>
     <string name="library_watchlist">İzleme Listesi</string>
     <string name="library_status_watching">İzleniyor</string>
     <string name="library_status_plan_to_watch">İzlenecekler</string>
@@ -1811,35 +1755,7 @@
     <string name="library_empty_simkl_subtitle">Bir Simkl durumuna eklemek için detaylarda + tuşunu kullan</string>
     <string name="library_empty_simkl_not_auth_title">Simkl bağlı değil</string>
     <string name="library_empty_simkl_not_auth_subtitle">Simkl kütüphaneni görmek için Ayarlar\'dan Simkl hesabını bağla</string>
-    <string name="cloud_library_connect_message">Bulut kütüphanenizdeki oynatılabilir dosyalara göz atmak için Bağlı Servisler ayarlarından bir hesap bağlayın.</string>
-    <string name="cloud_library_connect_title">Hiçbir bulut hesabı bağlı değil</string>
-    <string name="cloud_library_disabled_message">Bağlı hesaplardaki dosyalara göz atmak için Bağlı Servisler ayarlarında Bulut kütüphanesini açın.</string>
-    <string name="cloud_library_disabled_title">Bulut kütüphanesi kapalı</string>
-    <string name="cloud_library_empty_message">Mevcut filtrelerle eşleşen oynatılabilir bulut dosyası yok.</string>
-    <string name="cloud_library_empty_title">Henüz burada bir şey yok</string>
-    <string name="cloud_library_file_picker_title">Oynatmak için bir dosya seçin</string>
-    <string name="cloud_library_no_playable_files">Oynatılabilir dosya yok</string>
-    <string name="cloud_library_one_playable_file">1 oynatılabilir dosya</string>
-    <string name="cloud_library_opening">Açılıyor…</string>
-    <string name="cloud_library_play_failed">Bu bulut dosyası oynatılamadı.</string>
-    <string name="cloud_library_play_file">Dosyayı oynat</string>
-    <string name="cloud_library_playable_file_count">%1$d oynatılabilir dosya</string>
-    <string name="cloud_library_provider_all">Tümü</string>
-    <string name="cloud_library_refresh">Bulut kütüphanesini yenile</string>
-    <string name="cloud_library_search_clear">Aramayı temizle</string>
-    <string name="cloud_library_search_label">Bulut kütüphanesinde ara</string>
-    <string name="cloud_library_select_provider">Sağlayıcı seçin</string>
-    <string name="cloud_library_select_type">Tür seçin</string>
-    <string name="cloud_library_status_ready">Oynatmaya hazır</string>
-    <string name="cloud_library_type_all">Tümü</string>
-    <string name="cloud_library_type_torrents">Torrentler</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Dosyalar</string>
 
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">%1$s için bulut kütüphanesi kullanılamıyor.</string>
-    <string name="cloud_library_error_disabled">Bulut kütüphanesi kapalı.</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Yükleniyor\u2026</string>
@@ -2075,9 +1991,7 @@
     <string name="update_error_download_failed">İndirme başarısız oldu</string>
     <string name="update_error_apk_missing">İndirilen dosya bulunamadı</string>
 
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
 
-    <!-- Debrid: selection count + size range labels -->
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Bilinmiyor</string>
@@ -2086,20 +2000,8 @@
     <string name="external_playback_notification_text">Harici oynatıcıda oynatılıyor</string>
     <string name="external_playback_channel_description">Harici oynatıcıda oynatılırken uygulamanın açık kalmasını sağlar</string>
 
-    <!-- Web config page: Direct Debrid formatter -->
-    <string name="web_debrid_title">Doğrudan Debrid Ayarları</string>
-    <string name="web_debrid_intro_title">Debrid yayınlarını özelleştirin</string>
-    <string name="web_debrid_intro_copy">Doğrudan Debrid sonuçlarında kullanılan yayın etiketlerini, filtreleri ve sıralamayı ayarlayın.</string>
-    <string name="web_debrid_template_fields">Şablon alanları</string>
-    <string name="web_debrid_name_template">İsim Şablonu</string>
-    <string name="web_debrid_description_template">Açıklama Şablonu</string>
-    <string name="web_debrid_error_templates_required">Her iki şablonun da doldurulması zorunludur</string>
-    <string name="web_debrid_restore_default">Varsayılana Sıfırla</string>
-    <string name="web_debrid_save_settings">Ayarları Kaydet</string>
-    <string name="web_debrid_status_load_error">Debrid ayarları yüklenemedi</string>
 
     <!-- Web config pages: shared save status -->
-    <string name="web_status_saving">Kaydediliyor…</string>
     <string name="web_status_saved_streams">Kaydedildi. Yeni yayınlar bu ayarları kullanacak.</string>
     <string name="web_status_could_not_save">Kaydedilemedi</string>
 
@@ -2988,7 +2890,6 @@
     <string name="cd_mark_intro_start">İntro başlangıcını işaretle</string>
     <string name="custom_server_error_official_active">Bu TV\'de senkronizasyon zaten kapalı.</string>
     <string name="custom_server_error_official_available">Bu bir senkronizasyon sunucusu değil. Bu pencereyi kapat ve yalnızca yerel moda dönmek için Senkronizasyonu kapat\'ı seç.</string>
-    <string name="debrid_stream_rules_moved">Yayın kuralları artık Oynatma → Yayın seçimi altında ve debrid dahil her kaynağa uygulanıyor. Burada belirlediğin kurallar oraya taşındı.</string>
     <string name="exclusion_3d">3D sürüm</string>
     <string name="exclusion_above_max_resolution">azami çözünürlüğünün üstünde</string>
     <string name="exclusion_audio">%1$s sesi atlıyorsun</string>
@@ -3151,5 +3052,4 @@
     <string name="subtitle_style_text_opacity_hdr">Metin Opaklığı (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Bu bir torrent yayını ve Fetch\'in yerleşik bir torrent motoru yok. Ayarlar → Debrid\'den bir debrid hizmetini aç veya harici bir oynatıcıda aç.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: burada oynatmak için Ayarlar → Debrid bölümünden bir debrid hizmeti bağlayın veya harici bir oynatıcıda açın.</string>
 </resources>

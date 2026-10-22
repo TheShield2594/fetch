@@ -2043,7 +2043,6 @@
     <!-- Fetch: new and changed strings -->
     <string name="theme_color_fetch">Fetch</string>
     <string name="best_match_cached">Im Cache</string>
-    <string name="debrid_stream_rules_moved">Stream-Regeln befinden sich jetzt unter Wiedergabe → Stream-Auswahl und gelten für alle Quellen, auch Debrid. Ihre hier festgelegten Regeln wurden dorthin übernommen.</string>
     <string name="prefer_next_time_title">Nächstes Mal bevorzugen?</string>
     <string name="prefer_next_time_group">Gruppe %1$s</string>
     <string name="prefer_next_time_language">Audio: %1$s</string>
@@ -2256,5 +2255,4 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Kein Limit</string>
-    <string name="stream_torrent_needs_debrid">Torrent: Verbinden Sie unter Einstellungen → Debrid einen Debrid-Dienst, um ihn hier abzuspielen, oder öffnen Sie ihn in einem externen Player.</string>
 </resources>

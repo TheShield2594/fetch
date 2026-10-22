@@ -1477,7 +1477,6 @@
     <string name="cd_mark_intro_start">Markera början på intro</string>
     <string name="custom_server_error_official_active">Synkning är redan av på den här tv:n.</string>
     <string name="custom_server_error_official_available">Det är ingen synkserver. Stäng den här dialogen och välj Stäng av synkning för att gå tillbaka till endast lokalt läge.</string>
-    <string name="debrid_stream_rules_moved">Strömregler finns nu under Uppspelning → Strömval och gäller alla källor, även debrid. Regler du ställt in här har flyttats dit.</string>
     <string name="exclusion_3d">3D-utgåva</string>
     <string name="exclusion_above_max_resolution">över din maximala upplösning</string>
     <string name="exclusion_audio">du hoppar över %1$s-ljud</string>
@@ -1640,5 +1639,4 @@
     <string name="subtitle_style_text_opacity_hdr">Textopacitet (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Det här är en torrentström och Fetch har ingen inbyggd torrentmotor. Aktivera en debrid-tjänst i Inställningar → Debrid, eller öppna den i en extern spelare.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: anslut en debrid-tjänst under Inställningar → Debrid för att spela upp den här, eller öppna den i en extern spelare.</string>
 </resources>

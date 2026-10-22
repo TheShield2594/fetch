@@ -82,19 +82,13 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import com.fetch.tv.core.cloud.CloudLibraryFile
-import com.fetch.tv.core.cloud.CloudLibraryItem
-import com.fetch.tv.core.cloud.CloudLibraryItemType
-import com.fetch.tv.core.cloud.CloudLibraryPlaybackInfo
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.PosterShape
-import com.fetch.tv.data.local.PlayerPreference
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.home.HeroBackdropState
-import com.fetch.tv.ui.screens.stream.PlayerChoiceDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.fetch.tv.ui.components.PosterCardDefaults
@@ -114,7 +108,6 @@ private const val KEY_REPEAT_THROTTLE_MS = 80L
 
 private enum class LibraryViewMode {
     Saved,
-    Cloud,
     Servers
 }
 
@@ -131,14 +124,11 @@ fun LibraryScreen(
     serversViewModel: LibraryServersViewModel = hiltViewModel(),
     showBuiltInHeader: Boolean = true,
     onNavigateToDetail: (String, String, String?) -> Unit,
-    onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> },
-    onCloudPlaybackResolved: (CloudLibraryPlaybackInfo) -> Unit = {}
+    onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsState()
-    val activityContext = LocalContext.current
-    val scope = rememberCoroutineScope()
     var showDeleteConfirm by remember(uiState.showManageDialog) { mutableStateOf(false) }
     var expandedPicker by remember { mutableStateOf<String?>(null) }
     var selectedViewMode by rememberSaveable { mutableStateOf(LibraryViewMode.Saved) }
@@ -147,9 +137,6 @@ fun LibraryScreen(
     val hasServers = servers.enabledConnections.isNotEmpty()
     val viewModes = LibraryViewMode.entries.filter { it != LibraryViewMode.Servers || hasServers }
     val viewMode = selectedViewMode.takeIf { it in viewModes } ?: LibraryViewMode.Saved
-    var activeCloudItem by remember { mutableStateOf<CloudLibraryItem?>(null) }
-    var pendingCloudPlayback by remember { mutableStateOf<CloudLibraryPlaybackInfo?>(null) }
-    var showCloudPlayerChoice by remember { mutableStateOf(false) }
     val primaryFocusRequester = remember { FocusRequester() }
     val selectorFocusRequester = remember { FocusRequester() }
     val gridState = rememberLazyGridState()
@@ -181,27 +168,6 @@ fun LibraryScreen(
         height = (uiState.posterCardWidthDp * 3 / 2).dp,
         cornerRadius = uiState.posterCardCornerRadiusDp.dp
     )
-
-    val routeCloudPlayback: (CloudLibraryPlaybackInfo) -> Unit = { info ->
-        scope.launch {
-            when (viewModel.getPlayerPreference()) {
-                PlayerPreference.INTERNAL -> onCloudPlaybackResolved(info)
-                PlayerPreference.EXTERNAL -> {
-                    viewModel.launchCloudPlaybackExternally(info, activityContext)
-                }
-                PlayerPreference.ASK_EVERY_TIME -> {
-                    pendingCloudPlayback = info
-                    showCloudPlayerChoice = true
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(viewMode, uiState.cloudLibrary.isEnabled, uiState.cloudLibrary.isLoaded, uiState.cloudLibrarySettingsVersion) {
-        if (viewMode == LibraryViewMode.Cloud) {
-            viewModel.ensureCloudLibraryLoaded()
-        }
-    }
 
     LaunchedEffect(viewMode, servers.revision) {
         if (viewMode == LibraryViewMode.Servers) serversViewModel.load()
@@ -341,7 +307,6 @@ fun LibraryScreen(
                 )
                 Text(
                     text = when {
-                        viewMode == LibraryViewMode.Cloud -> stringResource(R.string.library_source_cloud).uppercase()
                         viewMode == LibraryViewMode.Servers -> stringResource(R.string.library_source_servers).uppercase()
                         uiState.sourceMode == LibrarySourceMode.TRAKT -> "TRAKT"
                         uiState.sourceMode == LibrarySourceMode.SIMKL -> "SIMKL"
@@ -365,29 +330,6 @@ fun LibraryScreen(
                 onSelected = { mode ->
                     selectedViewMode = mode
                     expandedPicker = null
-                },
-                // Refresh belongs to the cloud view only, pinned right in line with the tabs.
-                trailing = if (viewMode == LibraryViewMode.Cloud) {
-                    {
-                        Button(
-                            onClick = viewModel::refreshCloudLibrary,
-                            enabled = !uiState.cloudLibrary.isRefreshing,
-                            colors = ButtonDefaults.colors(
-                                containerColor = FetchTheme.colors.BackgroundCard,
-                                contentColor = FetchTheme.colors.TextPrimary
-                            )
-                        ) {
-                            Text(
-                                if (uiState.cloudLibrary.isRefreshing) {
-                                    stringResource(R.string.library_syncing_btn)
-                                } else {
-                                    stringResource(R.string.cloud_library_refresh)
-                                }
-                            )
-                        }
-                    }
-                } else {
-                    null
                 }
             )
         }
@@ -513,7 +455,7 @@ fun LibraryScreen(
                     }
                 )
             }
-        } else if (viewMode == LibraryViewMode.Servers) {
+        } else {
             libraryServerContent(
                 shelves = serverShelves,
                 posterCardStyle = posterCardStyle,
@@ -535,87 +477,6 @@ fun LibraryScreen(
                 onSeeAll = { row -> onNavigateToCatalogSeeAll(row.catalogId, row.addonId, row.apiType) },
                 onItemLongPress = { item, addonBaseUrl -> viewModel.posterOptions.show(item, addonBaseUrl) }
             )
-        } else {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                CloudLibrarySelectorsRow(
-                    providerOptions = uiState.availableCloudProviders,
-                    typeOptions = uiState.availableCloudTypes,
-                    selectedProviderId = uiState.selectedCloudProviderId,
-                    selectedType = uiState.selectedCloudType,
-                    upFocusRequester = primaryFocusRequester,
-                    expandedPicker = expandedPicker,
-                    onExpandedChange = { picker, shouldExpand ->
-                        expandedPicker = if (shouldExpand) picker else null
-                    },
-                    onSelectProvider = { providerId ->
-                        viewModel.onSelectCloudProvider(providerId)
-                        expandedPicker = null
-                    },
-                    onSelectType = { type ->
-                        viewModel.onSelectCloudType(type)
-                        expandedPicker = null
-                    }
-                )
-            }
-
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                CloudLibrarySearchRow(
-                    query = uiState.cloudSearchQuery,
-                    onQueryChange = viewModel::onCloudSearchQueryChange
-                )
-            }
-
-            if (uiState.cloudLibrary.isRefreshing && uiState.visibleCloudItems.isEmpty()) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    CloudLibraryLoadingState()
-                }
-            } else if (!uiState.cloudLibrary.isEnabled) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    EmptyScreenState(
-                        title = stringResource(R.string.cloud_library_disabled_title),
-                        subtitle = stringResource(R.string.cloud_library_disabled_message),
-                        icon = Icons.Default.BookmarkBorder,
-                        height = 260.dp
-                    )
-                }
-            } else if (!uiState.cloudLibrary.hasConnectedProvider) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    EmptyScreenState(
-                        title = stringResource(R.string.cloud_library_connect_title),
-                        subtitle = stringResource(R.string.cloud_library_connect_message),
-                        icon = Icons.Default.BookmarkBorder,
-                        height = 260.dp
-                    )
-                }
-            } else if (uiState.visibleCloudItems.isEmpty()) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    EmptyScreenState(
-                        title = stringResource(R.string.cloud_library_empty_title),
-                        subtitle = stringResource(R.string.cloud_library_empty_message),
-                        icon = Icons.Default.BookmarkBorder,
-                        height = 260.dp
-                    )
-                }
-            }
-
-            items(
-                items = uiState.visibleCloudItems,
-                key = { it.stableKey },
-                span = { GridItemSpan(maxLineSpan) }
-            ) { item ->
-                CloudLibraryCard(
-                    item = item,
-                    isResolving = uiState.resolvingCloudFileKey?.startsWith(item.stableKey) == true,
-                    onClick = {
-                        val playableFiles = item.playableFiles
-                        when (playableFiles.size) {
-                            0 -> viewModel.onCloudItemHasNoPlayableFiles()
-                            1 -> viewModel.resolveCloudPlayback(item, playableFiles.first(), routeCloudPlayback)
-                            else -> activeCloudItem = item
-                        }
-                    }
-                )
-            }
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(FetchTheme.spacing.sm)) }
@@ -663,42 +524,6 @@ fun LibraryScreen(
         )
     }
 
-    activeCloudItem?.let { item ->
-        CloudFilePickerDialog(
-            item = item,
-            resolvingFileKey = uiState.resolvingCloudFileKey,
-            onPlay = { file ->
-                viewModel.resolveCloudPlayback(item, file) { info ->
-                    activeCloudItem = null
-                    routeCloudPlayback(info)
-                }
-            },
-            onDismiss = { activeCloudItem = null }
-        )
-    }
-
-    if (showCloudPlayerChoice && pendingCloudPlayback != null) {
-        PlayerChoiceDialog(
-            onInternalSelected = {
-                showCloudPlayerChoice = false
-                pendingCloudPlayback?.let(onCloudPlaybackResolved)
-                pendingCloudPlayback = null
-            },
-            onExternalSelected = {
-                showCloudPlayerChoice = false
-                val info = pendingCloudPlayback
-                pendingCloudPlayback = null
-                if (info != null) {
-                    scope.launch { viewModel.launchCloudPlaybackExternally(info, activityContext) }
-                }
-            },
-            onDismiss = {
-                showCloudPlayerChoice = false
-                pendingCloudPlayback = null
-            }
-        )
-    }
-
     val transientMessage = uiState.transientMessage
     if (!transientMessage.isNullOrBlank()) {
         Box(
@@ -734,9 +559,7 @@ private fun LibraryViewModeRow(
     modes: List<LibraryViewMode>,
     selectedMode: LibraryViewMode,
     primaryFocusRequester: FocusRequester,
-    onSelected: (LibraryViewMode) -> Unit,
-    /** Optional action pinned to the right of the tabs (used for the cloud refresh button). */
-    trailing: (@Composable () -> Unit)? = null
+    onSelected: (LibraryViewMode) -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -758,391 +581,9 @@ private fun LibraryViewModeRow(
                     Text(
                         text = when (mode) {
                             LibraryViewMode.Saved -> stringResource(R.string.library_source_saved)
-                            LibraryViewMode.Cloud -> stringResource(R.string.library_source_cloud)
                             LibraryViewMode.Servers -> stringResource(R.string.library_source_servers)
                         }
                     )
-                }
-            }
-        }
-        trailing?.invoke()
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun CloudLibrarySelectorsRow(
-    providerOptions: List<FilterOption>,
-    typeOptions: List<FilterOption>,
-    selectedProviderId: String?,
-    selectedType: CloudLibraryItemType?,
-    upFocusRequester: FocusRequester,
-    expandedPicker: String?,
-    onExpandedChange: (String, Boolean) -> Unit,
-    onSelectProvider: (String?) -> Unit,
-    onSelectType: (CloudLibraryItemType?) -> Unit
-) {
-    val allLabel = stringResource(R.string.cloud_library_provider_all)
-    val typeAllLabel = stringResource(R.string.cloud_library_type_all)
-    val selectedProviderLabel = providerOptions.firstOrNull { it.key == selectedProviderId }?.label ?: allLabel
-    val selectedTypeLabel = selectedType?.localizedLabel() ?: typeAllLabel
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-    ) {
-        LibraryDropdownPicker(
-            modifier = Modifier.weight(1f),
-            upFocusRequester = upFocusRequester,
-            title = stringResource(R.string.cloud_library_select_provider),
-            value = selectedProviderLabel,
-            selectedValue = selectedProviderId ?: "__all__",
-            expanded = expandedPicker == "cloud_provider",
-            options = listOf(LibraryOption(allLabel, "__all__")) + providerOptions.map {
-                LibraryOption("${it.label} (${it.count})", it.key)
-            },
-            onExpandedChange = { onExpandedChange("cloud_provider", it) },
-            onSelect = { option ->
-                onSelectProvider(if (option.value == "__all__") null else option.value)
-            }
-        )
-
-        LibraryDropdownPicker(
-            modifier = Modifier.weight(1f),
-            upFocusRequester = upFocusRequester,
-            title = stringResource(R.string.cloud_library_select_type),
-            value = selectedTypeLabel,
-            selectedValue = selectedType?.name ?: "__all__",
-            expanded = expandedPicker == "cloud_type",
-            options = listOf(LibraryOption(typeAllLabel, "__all__")) + typeOptions.map {
-                LibraryOption("${it.label} (${it.count})", it.key)
-            },
-            onExpandedChange = { onExpandedChange("cloud_type", it) },
-            onSelect = { option ->
-                onSelectType(CloudLibraryItemType.entries.firstOrNull { it.name == option.value })
-            }
-        )
-    }
-}
-
-@Composable
-private fun CloudLibraryItemType.localizedLabel(): String =
-    when (this) {
-        CloudLibraryItemType.Torrent -> stringResource(R.string.cloud_library_type_torrents)
-        CloudLibraryItemType.Usenet -> stringResource(R.string.cloud_library_type_usenet)
-        CloudLibraryItemType.WebDownload -> stringResource(R.string.cloud_library_type_web)
-        CloudLibraryItemType.File -> stringResource(R.string.cloud_library_type_files)
-    }
-
-/**
- * Free-text filter over the already-loaded cloud library. Purely local: it never triggers a
- * provider request, it just narrows [LibraryUiState.visibleCloudItems]. Filtering is applied on
- * every keystroke, so results narrow live as you type.
- */
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun CloudLibrarySearchRow(
-    query: String,
-    onQueryChange: (String) -> Unit
-) {
-    var editing by remember { mutableStateOf(false) }
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
-    val fieldFocusRequester = remember { FocusRequester() }
-    val editorFocusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(editing) {
-        if (editing) {
-            editorFocusRequester.requestFocus()
-            keyboardController?.show()
-        }
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-    ) {
-        Surface(
-            onClick = { editing = true },
-            modifier = Modifier
-                .weight(1f)
-                .focusRequester(fieldFocusRequester),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                focusedContainerColor = FetchTheme.colors.BackgroundCard
-            ),
-            border = ClickableSurfaceDefaults.border(
-                border = Border(
-                    border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = RoundedCornerShape(FetchTheme.radii.md)
-                ),
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchTheme.radii.md)
-                )
-            ),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
-        ) {
-            BasicTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = FetchTheme.spacing.lg, vertical = 14.dp)
-                    .focusRequester(editorFocusRequester)
-                    .focusProperties { canFocus = editing }
-                    .onFocusChanged {
-                        if (!it.isFocused && editing) {
-                            editing = false
-                            keyboardController?.hide()
-                        }
-                    }
-                    .onPreviewKeyEvent { event ->
-                        val native = event.nativeKeyEvent
-                        if (native.action != AndroidKeyEvent.ACTION_DOWN) {
-                            return@onPreviewKeyEvent false
-                        }
-                        val direction = when (native.keyCode) {
-                            AndroidKeyEvent.KEYCODE_DPAD_UP -> FocusDirection.Up
-                            AndroidKeyEvent.KEYCODE_DPAD_DOWN -> FocusDirection.Down
-                            else -> return@onPreviewKeyEvent false
-                        }
-                        editing = false
-                        keyboardController?.hide()
-                        focusManager.moveFocus(direction)
-                        true
-                    },
-                readOnly = !editing,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        editing = false
-                        keyboardController?.hide()
-                        fieldFocusRequester.requestFocus()
-                    }
-                ),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = FetchTheme.colors.TextPrimary,
-                                            textDirection = TextDirection.Content
-                ),
-                cursorBrush = SolidColor(
-                    if (editing) FetchTheme.colors.FocusRing else Color.Transparent
-                ),
-                decorationBox = { innerTextField ->
-                    if (query.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.cloud_library_search_label),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = FetchTheme.colors.TextTertiary
-                        )
-                    }
-                    innerTextField()
-                }
-            )
-        }
-
-        if (query.isNotEmpty()) {
-            Button(
-                onClick = {
-                    onQueryChange("")
-                    editing = false
-                },
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
-            ) {
-                Text(stringResource(R.string.cloud_library_search_clear))
-            }
-        }
-    }
-}
-
-@Composable
-private fun CloudLibraryLoadingState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(260.dp),
-        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        LoadingIndicator()
-        Spacer(modifier = Modifier.height(14.dp))
-        Text(
-            text = stringResource(R.string.library_syncing_library),
-            style = MaterialTheme.typography.bodyMedium,
-            color = FetchTheme.colors.TextSecondary
-        )
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun CloudLibraryCard(
-    item: CloudLibraryItem,
-    isResolving: Boolean,
-    onClick: () -> Unit
-) {
-    val fileLine = cloudLibraryFileLine(item)
-    Card(
-        onClick = { if (!isResolving) onClick() },
-        modifier = Modifier.fillMaxWidth(),
-        shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
-        colors = CardDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            border = Border(border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border), shape = RoundedCornerShape(10.dp)),
-            focusedBorder = Border(border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs), shape = RoundedCornerShape(10.dp))
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp)
-        ) {
-            Text(
-                text = item.name,
-                style = MaterialTheme.typography.titleSmall,
-                color = FetchTheme.colors.TextPrimary,
-                fontWeight = FontWeight.SemiBold
-            )
-            fileLine?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = FetchTheme.colors.TextSecondary
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = cloudLibraryMetadata(item),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = FetchTheme.colors.TextTertiary
-                )
-                Text(
-                    text = if (isResolving) {
-                        stringResource(R.string.cloud_library_opening)
-                    } else {
-                        cloudLibraryPlayableLabel(item)
-                    },
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (item.playableFiles.isEmpty()) FetchTheme.colors.TextTertiary else FetchTheme.colors.Primary
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun cloudLibraryFileLine(item: CloudLibraryItem): String? =
-    when (val count = item.playableFiles.size) {
-        0 -> stringResource(R.string.cloud_library_no_playable_files)
-        1 -> item.playableFiles.first().name.takeIf { it != item.name }
-        else -> stringResource(R.string.cloud_library_playable_file_count, count)
-    }
-
-@Composable
-private fun cloudLibraryPlayableLabel(item: CloudLibraryItem): String =
-    when (val count = item.playableFiles.size) {
-        0 -> stringResource(R.string.cloud_library_no_playable_files)
-        1 -> stringResource(R.string.cloud_library_one_playable_file)
-        else -> stringResource(R.string.cloud_library_playable_file_count, count)
-    }
-
-@Composable
-private fun cloudLibraryMetadata(item: CloudLibraryItem): String {
-    val parts = listOfNotNull(
-        item.providerName.takeIf { it.isNotBlank() },
-        item.type.localizedLabel(),
-        item.status?.takeIf { it.isNotBlank() } ?: stringResource(R.string.cloud_library_status_ready),
-        formatCloudSize(item.sizeBytes)
-    )
-    return parts.joinToString(" • ")
-}
-
-private fun formatCloudSize(sizeBytes: Long?): String? {
-    val bytes = sizeBytes ?: return null
-    if (bytes <= 0L) return null
-    val gb = bytes / 1_000_000_000.0
-    return if (gb >= 1.0) {
-        String.format(java.util.Locale.US, "%.1f GB", gb)
-    } else {
-        val mb = bytes / 1_000_000.0
-        String.format(java.util.Locale.US, "%.0f MB", mb)
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun CloudFilePickerDialog(
-    item: CloudLibraryItem,
-    resolvingFileKey: String?,
-    onPlay: (CloudLibraryFile) -> Unit,
-    onDismiss: () -> Unit
-) {
-    FetchDialog(
-        onDismiss = onDismiss,
-        title = stringResource(R.string.cloud_library_file_picker_title),
-        subtitle = item.name,
-        width = 860.dp,
-        suppressFirstKeyUp = false
-    ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 420.dp),
-            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-        ) {
-            items(item.playableFiles, key = { it.stableKey }) { file ->
-                val resolving = resolvingFileKey == "${item.stableKey}:${file.stableKey}"
-                Card(
-                    onClick = { if (!resolving) onPlay(file) },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.colors(
-                        containerColor = FetchTheme.colors.BackgroundCard,
-                        focusedContainerColor = FetchTheme.colors.FocusBackground
-                    ),
-                    shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
-                    scale = CardDefaults.scale(focusedScale = 1f)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-                    ) {
-                        Text(
-                            text = file.name,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = FetchTheme.colors.TextPrimary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        formatCloudSize(file.sizeBytes)?.let { size ->
-                            Text(
-                                text = size,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = FetchTheme.colors.TextSecondary
-                            )
-                        }
-                        Text(
-                            text = stringResource(R.string.cloud_library_play_file),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = FetchTheme.colors.Primary
-                        )
-                    }
                 }
             }
         }

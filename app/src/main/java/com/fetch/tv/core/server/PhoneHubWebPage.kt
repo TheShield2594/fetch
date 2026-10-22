@@ -67,9 +67,6 @@ object PhoneHubWebPage {
 
     fun landing(sections: Set<String>): String {
         val extra = buildString {
-            if (PhoneHubServer.SECTION_TEMPLATES in sections) {
-                append(card("/${PhoneHubServer.SECTION_TEMPLATES}/", "Debrid name templates", "How debrid results are named and described"))
-            }
             if (PhoneHubServer.SECTION_BADGES in sections) {
                 append(card("/${PhoneHubServer.SECTION_BADGES}/", "Stream badges", "Import and choose badge sets"))
             }
@@ -82,7 +79,7 @@ object PhoneHubWebPage {
             showBack = false,
             body = """
                 ${card("/remote", "Remote and keyboard", "D-pad, OK, Back, play/pause, and typing into the TV")}
-                ${card("/accounts", "Accounts", "Debrid keys, MDBList, Trakt, Simkl and media servers")}
+                ${card("/accounts", "Accounts", "MDBList, Trakt, Simkl and media servers")}
                 ${card("/ranking", "Stream ranking", "Resolution, size, codecs and keywords for Best match")}
                 $extra
                 <h2>On the TV</h2>
@@ -137,14 +134,6 @@ object PhoneHubWebPage {
     fun accounts(): String = page(
         title = "Accounts",
         body = """
-            <h2>Debrid</h2>
-            <label for="debridProvider">Service</label>
-            <select id="debridProvider"><option value="torbox">TorBox</option><option value="premiumize">Premiumize</option><option value="realdebrid">Real-Debrid</option><option value="alldebrid">AllDebrid</option><option value="debridlink">Debrid-Link</option></select>
-            <label for="debridKey">API key</label>
-            <input id="debridKey" type="password" autocomplete="off">
-            <div class="row"><button id="saveDebrid">Save key</button></div>
-            <div id="debridStatus" class="status"></div>
-
             <h2>MDBList ratings</h2>
             <label for="mdbKey">API key</label>
             <input id="mdbKey" type="password" autocomplete="off">
@@ -174,8 +163,6 @@ object PhoneHubWebPage {
             }
             function refresh() {
               fetch('/api/accounts').then(function (r) { return r.json(); }).then(function (s) {
-                const keys = Object.keys(s.debrid).filter(function (id) { return s.debrid[id]; });
-                show('debridStatus', keys.length ? 'Saved for: ' + keys.join(', ') : '');
                 show('mdbStatus', s.mdbList ? 'A key is saved.' : '');
                 const trackers = [];
                 if (s.trakt.connected) trackers.push('Trakt' + (s.trakt.username ? ' (' + s.trakt.username + ')' : ''));
@@ -191,12 +178,6 @@ object PhoneHubWebPage {
                 if (s.mediaServers.length) show('serverStatus', 'Connected: ' + s.mediaServers.join(', '));
               });
             }
-            document.getElementById('saveDebrid').addEventListener('click', function () {
-              show('debridStatus', 'Checking...');
-              post('/api/accounts/debrid', { provider: document.getElementById('debridProvider').value, apiKey: document.getElementById('debridKey').value })
-                .then(function (d) { document.getElementById('debridKey').value = ''; show('debridStatus', d.message || 'Saved'); refresh(); })
-                .catch(function (e) { show('debridStatus', e.message, true); });
-            });
             document.getElementById('saveMdb').addEventListener('click', function () {
               show('mdbStatus', 'Checking...');
               post('/api/accounts/mdblist', { apiKey: document.getElementById('mdbKey').value })

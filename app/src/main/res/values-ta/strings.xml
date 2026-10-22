@@ -2079,7 +2079,6 @@
     <string name="cd_mark_intro_start">அறிமுகத் தொடக்கத்தைக் குறி</string>
     <string name="custom_server_error_official_active">இந்த டிவியில் ஒத்திசைவு ஏற்கனவே முடக்கப்பட்டுள்ளது.</string>
     <string name="custom_server_error_official_available">இது ஒத்திசைவு சர்வர் அல்ல. இந்த உரையாடலை மூடி, உள்ளூர் மட்டும் பயன்முறைக்குத் திரும்ப ஒத்திசைவை அணை என்பதைத் தேர்ந்தெடுக்கவும்.</string>
-    <string name="debrid_stream_rules_moved">ஸ்ட்ரீம் விதிகள் இப்போது இயக்கம் → ஸ்ட்ரீம் தேர்வு பகுதியில் உள்ளன, debrid உட்பட எல்லா மூலங்களுக்கும் பொருந்தும். நீங்கள் இங்கே அமைத்த விதிகள் அங்கே நகர்த்தப்பட்டன.</string>
     <string name="exclusion_3d">3D வெளியீடு</string>
     <string name="exclusion_above_max_resolution">உங்கள் அதிகபட்ச தெளிவுத்திறனுக்கு மேல்</string>
     <string name="exclusion_audio">நீங்கள் %1$s ஒலியைத் தவிர்க்கிறீர்கள்</string>
@@ -2242,5 +2241,4 @@
     <string name="subtitle_style_text_opacity_hdr">உரை ஒளிபுகாத்தன்மை (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">இது ஒரு டொரண்ட் ஸ்ட்ரீம்; Fetch-இல் உள்ளமைந்த டொரண்ட் இயந்திரம் இல்லை. அமைப்புகள் → Debrid-இல் ஒரு debrid சேவையை இயக்கவும், அல்லது வெளிப்புற பிளேயரில் திறக்கவும்.</string>
-    <string name="stream_torrent_needs_debrid">டொரண்ட்: இங்கே இயக்க அமைப்புகள் → Debrid-இல் ஒரு debrid சேவையை இணைக்கவும் அல்லது வெளிப்புற பிளேயரில் திறக்கவும்.</string>
 </resources>

@@ -348,10 +348,6 @@
     <string name="licenses_attributions_tmdb_body">Fetch bruger TMDB API til film- og TV-metadata, artwork, trailere, cast, produktionsdetaljer, samlinger og anbefalinger. Dette produkt bruger TMDB API, men er ikke godkendt eller certificeret af TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch forbinder til Trakt til kontoautentificering, se-historik, fremskridtssynkronisering, biblioteksdata, vurderinger, lister og kommentarer. Fetch er ikke tilknyttet eller godkendt af Trakt.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch forbinder til Premiumize til kontoautentificering, adgang til cloudbibliotek, cache-tjek og cloud-afspilningsfunktioner. Fetch er ikke tilknyttet eller godkendt af Premiumize.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch forbinder til TorBox til kontoautentificering, adgang til cloudbibliotek, cache-tjek og cloud-afspilningsfunktioner. Fetch er ikke tilknyttet eller godkendt af TorBox.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch bruger MDBList til vurderinger og data fra eksterne scoreudbydere. Fetch er ikke tilknyttet eller godkendt af MDBList.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -481,7 +477,6 @@
     <string name="settings_tmdb_subtitle">Kontrol af metadataberigelse</string>
     <string name="settings_mdblist_subtitle">Eksterne vurderingsudbydere</string>
     <string name="settings_animeskip_subtitle">Anime intro/outro spring-over-tidsstempler</string>
-    <string name="settings_debrid_subtitle">Eksperimentelle cloud-kontokilder</string>
 
     <string name="playback_title">Afspilningsindstillinger</string>
     <string name="playback_subtitle">Konfigurer videoafspilning og undertekstindstillinger</string>
@@ -808,53 +803,8 @@
     <string name="mdblist_not_set">Ikke angivet</string>
     <string name="mdblist_invalid_api_key">Ugyldig MDBList API-nøgle</string>
 
-    <string name="debrid_title">Tilknyttede tjenester</string>
-    <string name="debrid_subtitle">Tilknyt konti for links og adgang til bibliotek</string>
-    <string name="debrid_experimental_notice">Disse integrationer er eksperimentelle og kan blive bevaret, ændret eller fjernet senere.</string>
-    <string name="debrid_cloud_library">Cloudbibliotek</string>
-    <string name="debrid_cloud_library_description">Gennemse og afspil filer, der allerede findes i dine tilknyttede konti.</string>
-    <string name="debrid_enable_title">Aktivér afspilbare links</string>
-    <string name="debrid_enable_subtitle">Bed en tilknyttet tjeneste om afspilbare links, når et resultat kræver det. Dette kan tilføje elementet til den pågældende tjeneste.</string>
-    <string name="debrid_resolve_with">Brug tjeneste</string>
-    <string name="debrid_resolve_with_description">Vælg hvilken tilknyttet konto der håndterer afspilbare links.</string>
-    <string name="debrid_add_key_first">Tilknyt en konto først.</string>
-    <string name="debrid_section_account">Konti</string>
-    <string name="debrid_section_instant_playback">Linkforberedelse</string>
-    <string name="debrid_section_filters">Filtre &amp; Sortering</string>
-    <string name="debrid_section_formatting">Formatering</string>
-    <string name="debrid_provider_description">Tilknyt din %1$s-konto.</string>
-    <string name="debrid_provider_device_description">Tilknyt din %1$s-konto i browseren.</string>
-    <string name="debrid_api_key_dialog_title">%1$s API-nøgle</string>
-    <string name="debrid_api_key_dialog_subtitle">Indtast din %1$s API-nøgle.</string>
-    <string name="debrid_api_key_dialog_placeholder">Indtast %1$s API-nøgle</string>
-    <string name="debrid_not_set">Ikke angivet</string>
-    <string name="debrid_connected">Tilknyttet</string>
-    <string name="debrid_connect_provider">Tilknyt %1$s</string>
-    <string name="debrid_disconnect_provider">Afbryd %1$s</string>
-    <string name="debrid_disconnect">Afbryd</string>
-    <string name="debrid_device_auth_connected">%1$s er tilknyttet på denne enhed.</string>
-    <string name="debrid_device_auth_starting">Starter sikker login...</string>
-    <string name="debrid_device_auth_instructions">Scan QR-koden og indtast denne kode for at godkende Fetch.</string>
-    <string name="debrid_device_auth_waiting">Venter på godkendelse...</string>
-    <string name="debrid_device_auth_failed">Kunne ikke starte login.</string>
-    <string name="debrid_device_auth_missing_configuration">Denne loginmetode er ikke konfigureret i dette build.</string>
-    <string name="debrid_device_auth_expired">Denne kode er udløbet. Prøv igen.</string>
-    <string name="debrid_key_invalid">Kunne ikke validere denne API-nøgle.</string>
-    <string name="debrid_prepare_instant_playback">Forbered links</string>
-    <string name="debrid_prepare_instant_playback_description">Løs afspilbare links op, inden afspilningen starter.</string>
-    <string name="debrid_prepare_stream_count">Links der skal forberedes</string>
-    <string name="debrid_prepare_stream_count_warning">Brug et lavere antal, når det er muligt. Tilknyttede tjenester kan begrænse, hvor mange links der kan løses op i en given periode. Åbning af en film eller et afsnit kan tælle mod disse grænser, selv hvis du ikke trykker på Afspil, fordi links forberedes på forhånd.</string>
-    <string name="debrid_prepare_count_one">1 link</string>
-    <string name="debrid_prepare_count_many">%1$d links</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
 
-    <string name="debrid_formatter_title">Webeditor</string>
-    <string name="debrid_formatter_subtitle">Konfigurér kildevisning, filtre og sortering fra en anden enhed.</string>
-    <string name="debrid_formatter_configure">Åbn webeditor</string>
-    <string name="debrid_formatter_reset_title">Nulstil formatering</string>
-    <string name="debrid_formatter_reset_subtitle">Gendan standardformatering af kilder.</string>
-    <string name="debrid_formatter_qr_instruction">Scan denne QR-kode på din telefon for at konfigurere Debrid-kildeindstillinger.</string>
     <string name="settings_stream_badges_section">Fusion Style</string>
     <string name="settings_stream_size_badges_title">Størrelsesbadges</string>
     <string name="settings_stream_size_badges_description">Vis størrelsesbadges i streamresultater og afspillerens kildevisning.</string>
@@ -1121,11 +1071,6 @@
     <string name="stream_no_streams">Ingen streams fundet</string>
     <string name="stream_no_streams_hint">Prøv at installere flere addons for at finde streams</string>
     <string name="stream_finding_source">Finder stream-kilde</string>
-    <string name="debrid_resolving_stream">Løser debrid-stream op</string>
-    <string name="debrid_stale_stream">Dette Debrid-resultat er udløbet. Opdaterer streams.</string>
-    <string name="debrid_missing_api_key">Tilføj en Debrid API-nøgle i Indstillinger.</string>
-    <string name="debrid_not_cached">Ikke cachet på denne tjeneste.</string>
-    <string name="debrid_resolution_failed">Kunne ikke løse denne Debrid-stream op.</string>
     <string name="p2p_consent_title">P2P-streaming</string>
     <string name="p2p_consent_body">Denne stream bruger peer-to-peer (P2P)-teknologi. Ved at aktivere P2P anerkender og accepterer du, at:\n\n\u2022 Din IP-adresse vil være synlig for andre peers i netværket\n\u2022 Du er eneansvarlig for det indhold, du tilgår\n\u2022 Du bekræfter, at du har den lovlige ret til at streame dette indhold i din jurisdiktion\n\u2022 Fetch hoster, distribuerer eller kontrollerer ikke noget P2P-indhold\n\u2022 Fetch er ikke ansvarlig for eventuelle juridiske konsekvenser som følge af din brug af P2P-streaming\n\nDu bruger denne funktion udelukkende på eget ansvar. P2P kan deaktiveres når som helst i Indstillinger.</string>
     <string name="p2p_consent_enable">Aktivér P2P</string>
@@ -1369,7 +1314,6 @@
     <string name="library_delete_subtitle">Dette fjerner listen og alle listeelementer fra Trakt.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Gemt</string>
-    <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Seerliste</string>
     <string name="library_syncing_library">Synkroniserer bibliotek\u2026</string>
     <string name="library_type_all">Alle</string>
@@ -1383,33 +1327,7 @@
     <string name="library_list_edit_dialog_title">Rediger liste</string>
     <string name="library_sync_btn">Synkroniser</string>
     <string name="library_syncing_btn">Synkroniserer\u2026</string>
-    <string name="cloud_library_connect_message">Tilslut en konto i indstillingerne for Tilsluttede tjenester for at gennemse afspilbare filer fra dit cloud-bibliotek.</string>
-    <string name="cloud_library_connect_title">Ingen cloud-konto tilsluttet</string>
-    <string name="cloud_library_disabled_message">Slå Cloud-bibliotek til i indstillingerne for Tilsluttede tjenester for at gennemse filer fra tilsluttede konti.</string>
-    <string name="cloud_library_disabled_title">Cloud-bibliotek er slået fra</string>
-    <string name="cloud_library_empty_message">Ingen afspilbare cloud-filer matcher de aktuelle filtre.</string>
-    <string name="cloud_library_empty_title">Intet her endnu</string>
-    <string name="cloud_library_file_picker_title">Vælg en fil at afspille</string>
-    <string name="cloud_library_no_playable_files">Ingen afspilbare filer</string>
-    <string name="cloud_library_one_playable_file">1 afspilbar fil</string>
-    <string name="cloud_library_opening">Åbner\u2026</string>
-    <string name="cloud_library_play_failed">Kunne ikke afspille denne cloud-fil.</string>
-    <string name="cloud_library_play_file">Afspil fil</string>
-    <string name="cloud_library_playable_file_count">%1$d afspilbare filer</string>
-    <string name="cloud_library_provider_all">Alle</string>
-    <string name="cloud_library_refresh">Opdater cloud-bibliotek</string>
-    <string name="cloud_library_select_provider">Vælg udbyder</string>
-    <string name="cloud_library_select_type">Vælg type</string>
-    <string name="cloud_library_status_ready">Klar til afspilning</string>
-    <string name="cloud_library_type_all">Alle</string>
-    <string name="cloud_library_type_torrents">Torrents</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Filer</string>
 
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">Cloud-bibliotek er ikke tilgængeligt for %1$s.</string>
-    <string name="cloud_library_error_disabled">Cloud-bibliotek er deaktiveret.</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Indlæser\u2026</string>
@@ -2172,9 +2090,7 @@
     <string name="trakt_library_error_fetch_list_items">Hentning af listeelementer mislykkedes</string>
 
 
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
 
-    <!-- Debrid: selection count + size range labels -->
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Ukendt</string>
@@ -2183,20 +2099,8 @@
     <string name="external_playback_notification_text">Afspiller i ekstern afspiller</string>
     <string name="external_playback_channel_description">Holder appen aktiv under afspilning i ekstern afspiller</string>
 
-    <!-- Web config page: Direct Debrid formatter -->
-    <string name="web_debrid_title">Direkte Debrid-indstillinger</string>
-    <string name="web_debrid_intro_title">Tilpas Debrid-streams</string>
-    <string name="web_debrid_intro_copy">Juster streamlabels, filtre og sortering for direkte Debrid-resultater.</string>
-    <string name="web_debrid_template_fields">Skabelonfelter</string>
-    <string name="web_debrid_name_template">Navnskabelon</string>
-    <string name="web_debrid_description_template">Beskrivelsesskabelon</string>
-    <string name="web_debrid_error_templates_required">Begge skabeloner er påkrævet</string>
-    <string name="web_debrid_restore_default">Gendan standard</string>
-    <string name="web_debrid_save_settings">Gem indstillinger</string>
-    <string name="web_debrid_status_load_error">Kunne ikke indlæse Debrid-indstillinger</string>
 
     <!-- Web config pages: shared save status -->
-    <string name="web_status_saving">Gemmer…</string>
     <string name="web_status_saved_streams">Gemt. Nye streams vil bruge disse indstillinger.</string>
     <string name="web_status_could_not_save">Kunne ikke gemme</string>
 
@@ -2368,7 +2272,6 @@
     <string name="cd_mark_intro_start">Markér starten af introen</string>
     <string name="custom_server_error_official_active">Synkronisering er allerede slået fra på dette TV.</string>
     <string name="custom_server_error_official_available">Det er ikke en synkroniseringsserver. Luk denne dialog, og vælg Slå synkronisering fra for at gå tilbage til lokal tilstand.</string>
-    <string name="debrid_stream_rules_moved">Stream-regler ligger nu under Afspilning → Streamvalg og gælder for alle kilder, også debrid. Regler, du har sat her, er flyttet dertil.</string>
     <string name="exclusion_3d">3D-udgivelse</string>
     <string name="exclusion_above_max_resolution">over din maksimale opløsning</string>
     <string name="exclusion_audio">du springer %1$s-lyd over</string>
@@ -2531,5 +2434,4 @@
     <string name="subtitle_style_text_opacity_hdr">Tekstgennemsigtighed (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Dette er en torrent-stream, og Fetch har ingen indbygget torrentmotor. Slå en debrid-tjeneste til under Indstillinger → Debrid, eller åbn den i en ekstern afspiller.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: forbind en debrid-tjeneste under Indstillinger → Debrid for at afspille den her, eller åbn den i en ekstern afspiller.</string>
 </resources>

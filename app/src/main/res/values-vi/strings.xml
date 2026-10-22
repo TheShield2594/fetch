@@ -235,6 +235,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">Cung cấp bởi TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">Cung cấp bởi Trakt</string>
     <string name="detail_more_like_this_powered_by_simkl">Cung cấp bởi Simkl</string>
+    <string name="because_you_watched_row_title">Vì bạn đã xem %1$s</string>
+    <string name="because_you_watched_reason_collection">Cũng thuộc %1$s</string>
+    <string name="because_you_watched_reason_director">Cùng đạo diễn: %1$s</string>
+    <string name="because_you_watched_reason_creator">Cùng nhà sáng tạo: %1$s</string>
+    <string name="because_you_watched_reason_writer">Cùng biên kịch: %1$s</string>
+    <string name="because_you_watched_reason_cast">Cũng có %1$s</string>
     <string name="detail_comments_title">Bình luận</string>
     <string name="detail_comments_subtitle">Đánh giá và bình luận từ Trakt</string>
     <string name="detail_comments_subtitle_episode">Đánh giá từ Trakt cho M%1$dT%2$d</string>

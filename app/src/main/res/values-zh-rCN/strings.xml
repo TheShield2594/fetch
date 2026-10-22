@@ -2892,4 +2892,10 @@
     <string name="subtitle_style_text_opacity_hdr">文字不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">这是种子流，而 Fetch 没有内置种子引擎。请在插件中设置 debrid 以获取可在此播放的链接，或在外部播放器中打开。</string>
+    <string name="because_you_watched_row_title">因为您看过《%1$s》</string>
+    <string name="because_you_watched_reason_collection">同系列：%1$s</string>
+    <string name="because_you_watched_reason_director">同一导演：%1$s</string>
+    <string name="because_you_watched_reason_creator">同一创作者：%1$s</string>
+    <string name="because_you_watched_reason_writer">同一编剧：%1$s</string>
+    <string name="because_you_watched_reason_cast">同一演员：%1$s</string>
 </resources>

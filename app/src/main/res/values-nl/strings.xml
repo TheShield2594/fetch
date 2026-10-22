@@ -2805,4 +2805,10 @@
     <string name="subtitle_style_text_opacity_hdr">Tekstdekking (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Dit is een torrentstream en Fetch heeft geen ingebouwde torrent-engine. Stel debrid in de add-on in om een link te krijgen die hier afspeelt, of open hem in een externe speler.</string>
+    <string name="because_you_watched_row_title">Omdat je %1$s hebt gekeken</string>
+    <string name="because_you_watched_reason_collection">Ook in %1$s</string>
+    <string name="because_you_watched_reason_director">Ook geregisseerd door %1$s</string>
+    <string name="because_you_watched_reason_creator">Ook gemaakt door %1$s</string>
+    <string name="because_you_watched_reason_writer">Ook geschreven door %1$s</string>
+    <string name="because_you_watched_reason_cast">Ook met %1$s</string>
 </resources>

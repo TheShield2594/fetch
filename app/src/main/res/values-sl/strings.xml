@@ -2170,4 +2170,10 @@
     <string name="subtitle_style_text_opacity_hdr">Prosojnost besedila (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">To je torrent pretok in Fetch nima vgrajenega torrent pogona. Nastavite debrid v dodatku, da dobite povezavo, ki se predvaja tukaj, ali ga odprite v zunanjem predvajalniku.</string>
+    <string name="because_you_watched_row_title">Ker ste gledali %1$s</string>
+    <string name="because_you_watched_reason_collection">Tudi iz: %1$s</string>
+    <string name="because_you_watched_reason_director">Isti režiser: %1$s</string>
+    <string name="because_you_watched_reason_creator">Isti ustvarjalec: %1$s</string>
+    <string name="because_you_watched_reason_writer">Isti scenarist: %1$s</string>
+    <string name="because_you_watched_reason_cast">Igra tudi %1$s</string>
 </resources>

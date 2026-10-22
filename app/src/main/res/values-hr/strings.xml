@@ -238,6 +238,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">Pokreće TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">Pokreće Trakt</string>
     <string name="detail_more_like_this_powered_by_simkl">Pokreće Simkl</string>
+    <string name="because_you_watched_row_title">Zato što ste gledali %1$s</string>
+    <string name="because_you_watched_reason_collection">Također iz: %1$s</string>
+    <string name="because_you_watched_reason_director">Isti redatelj: %1$s</string>
+    <string name="because_you_watched_reason_creator">Isti autor: %1$s</string>
+    <string name="because_you_watched_reason_writer">Isti scenarist: %1$s</string>
+    <string name="because_you_watched_reason_cast">Također glumi %1$s</string>
     <string name="detail_comments_title">Komentari</string>
     <string name="detail_comments_subtitle">Recenzije s Trakta</string>
     <string name="detail_comments_subtitle_episode">Recenzije s Trakta za S%1$dE%2$d</string>

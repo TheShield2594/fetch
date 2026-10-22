@@ -218,6 +218,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">TMDB-এর সৌজন্যে</string>
     <string name="detail_more_like_this_powered_by_trakt">Trakt-এর সৌজন্যে</string>
     <string name="detail_more_like_this_powered_by_simkl">Simkl-এর সৌজন্যে</string>
+    <string name="because_you_watched_row_title">যেহেতু আপনি %1$s দেখেছেন</string>
+    <string name="because_you_watched_reason_collection">%1$s-এর অংশ</string>
+    <string name="because_you_watched_reason_director">একই পরিচালক: %1$s</string>
+    <string name="because_you_watched_reason_creator">একই নির্মাতা: %1$s</string>
+    <string name="because_you_watched_reason_writer">একই লেখক: %1$s</string>
+    <string name="because_you_watched_reason_cast">এতেও আছেন %1$s</string>
     <string name="detail_comments_title">মন্তব্য</string>
     <string name="detail_comments_subtitle">Trakt থেকে রিভিউ</string>
     <string name="detail_comments_subtitle_episode">S%1$dE%2$d-এর জন্য Trakt থেকে রিভিউ</string>

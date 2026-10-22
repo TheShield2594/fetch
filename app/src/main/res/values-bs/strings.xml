@@ -1535,4 +1535,10 @@
     <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent mehanizam. Podesite debrid u dodatku da dobijete link koji se ovdje reproducira, ili ga otvorite u vanjskom playeru.</string>
+    <string name="because_you_watched_row_title">Zato što ste gledali %1$s</string>
+    <string name="because_you_watched_reason_collection">Također iz: %1$s</string>
+    <string name="because_you_watched_reason_director">Isti režiser: %1$s</string>
+    <string name="because_you_watched_reason_creator">Isti kreator: %1$s</string>
+    <string name="because_you_watched_reason_writer">Isti scenarist: %1$s</string>
+    <string name="because_you_watched_reason_cast">Također glumi %1$s</string>
 </resources>

@@ -67,6 +67,8 @@ data class HomeUiState(
     val heroEnrichmentEnabled: Boolean = false,
     val startupAuthNotice: StartupAuthNotice? = null,
     val homeRows: List<HomeRow> = emptyList(),
+    /** "Because you watched" rows, shown after Continue Watching and pinned collections. */
+    val becauseYouWatchedRows: List<CatalogRow> = emptyList(),
     val customPosterUrlPattern: String = "",
     val customPosterEnabledScreens: Set<com.fetch.tv.core.poster.CustomPosterScreen> =
         com.fetch.tv.core.poster.CustomPosterScreen.ALL,

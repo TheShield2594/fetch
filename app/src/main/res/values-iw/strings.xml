@@ -238,6 +238,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">מבוסס על TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">מבוסס על Trakt</string>
     <string name="detail_more_like_this_powered_by_simkl">מבוסס על Simkl</string>
+    <string name="because_you_watched_row_title">כי צפית ב-%1$s</string>
+    <string name="because_you_watched_reason_collection">גם ב-%1$s</string>
+    <string name="because_you_watched_reason_director">גם בבימוי %1$s</string>
+    <string name="because_you_watched_reason_creator">גם מאת %1$s</string>
+    <string name="because_you_watched_reason_writer">גם בכתיבת %1$s</string>
+    <string name="because_you_watched_reason_cast">גם בכיכוב %1$s</string>
     <string name="detail_comments_title">תגובות</string>
     <string name="detail_comments_subtitle">ביקורות מ-Trakt</string>
     <string name="detail_comments_subtitle_episode">ביקורות מ-Trakt עבור S%1$dE%2$d</string>

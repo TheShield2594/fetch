@@ -1648,4 +1648,10 @@
     <string name="subtitle_style_text_opacity_hdr">Textopacitet (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Det här är en torrentström och Fetch har ingen inbyggd torrentmotor. Ställ in debrid i tillägget för att få en länk som spelas här, eller öppna den i en extern spelare.</string>
+    <string name="because_you_watched_row_title">Eftersom du såg %1$s</string>
+    <string name="because_you_watched_reason_collection">Även i %1$s</string>
+    <string name="because_you_watched_reason_director">Även regisserad av %1$s</string>
+    <string name="because_you_watched_reason_creator">Även skapad av %1$s</string>
+    <string name="because_you_watched_reason_writer">Även skriven av %1$s</string>
+    <string name="because_you_watched_reason_cast">Även med %1$s</string>
 </resources>

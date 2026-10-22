@@ -641,7 +641,12 @@ class TmdbMetadataService(
                                     TMDB_API_KEY,
                                     normalizedLanguage
                                 )
-                                response.body()?.episodes.orEmpty().mapNotNull { episode ->
+                                val body = response.body()
+                                if (!response.isSuccessful || body == null) {
+                                    Log.w(TAG, "TMDB season $season for $tmdbId returned HTTP ${response.code()}")
+                                    return@withPermit null
+                                }
+                                body.episodes.orEmpty().mapNotNull { episode ->
                                     val episodeNumber = episode.episodeNumber ?: return@mapNotNull null
                                     (season to episodeNumber) to episode.toEnrichment()
                                 }.toMap()
@@ -649,7 +654,7 @@ class TmdbMetadataService(
                                 throw e
                             } catch (e: Exception) {
                                 Log.w(TAG, "Failed to fetch TMDB season $season: ${e.message}")
-                                emptyMap()
+                                null
                             }
                         }
                     }
@@ -657,9 +662,10 @@ class TmdbMetadataService(
             }
 
             val finalResult = buildMap {
-                seasonResults.forEach(::putAll)
+                seasonResults.forEach { it?.let(::putAll) }
             }
-            if (finalResult.isNotEmpty()) {
+            // A failed season leaves a gap; caching it would keep that gap for the whole session.
+            if (finalResult.isNotEmpty() && seasonResults.none { it == null }) {
                 episodeCache[cacheKey] = finalResult
             }
             requestDeferred.complete(finalResult)

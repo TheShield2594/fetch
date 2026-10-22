@@ -233,6 +233,12 @@
   <string name="detail_more_like_this_powered_by_tmdb">Με την υποστήριξη του TMDB</string>
   <string name="detail_more_like_this_powered_by_trakt">Με την υποστήριξη του Trakt</string>
   <string name="detail_more_like_this_powered_by_simkl">Με την υποστήριξη του Simkl</string>
+  <string name="because_you_watched_row_title">Επειδή είδατε: %1$s</string>
+  <string name="because_you_watched_reason_collection">Επίσης σε: %1$s</string>
+  <string name="because_you_watched_reason_director">Ίδιος σκηνοθέτης: %1$s</string>
+  <string name="because_you_watched_reason_creator">Ίδιος δημιουργός: %1$s</string>
+  <string name="because_you_watched_reason_writer">Ίδιος σεναριογράφος: %1$s</string>
+  <string name="because_you_watched_reason_cast">Παίζει επίσης: %1$s</string>
   <string name="detail_comments_title">Σχόλια</string>
   <string name="detail_comments_subtitle">Κριτικές από το Trakt</string>
   <string name="detail_comments_subtitle_episode">Κριτικές από το Trakt για S%1$dE%2$d</string>

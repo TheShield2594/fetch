@@ -2834,4 +2834,10 @@
     <string name="subtitle_style_text_opacity_hdr">Opacidade do texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Este é um stream torrent e o Fetch não tem um mecanismo de torrent integrado. Configure o debrid no addon para obter um link que toque aqui, ou abra-o em um player externo.</string>
+    <string name="because_you_watched_row_title">Porque você assistiu %1$s</string>
+    <string name="because_you_watched_reason_collection">Também em %1$s</string>
+    <string name="because_you_watched_reason_director">Também dirigido por %1$s</string>
+    <string name="because_you_watched_reason_creator">Também criado por %1$s</string>
+    <string name="because_you_watched_reason_writer">Também escrito por %1$s</string>
+    <string name="because_you_watched_reason_cast">Também com %1$s</string>
 </resources>

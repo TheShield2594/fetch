@@ -46,6 +46,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Response
 import java.util.concurrent.atomic.AtomicInteger
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TmdbMetadataServiceTest {
@@ -238,6 +240,38 @@ class TmdbMetadataServiceTest {
         assertEquals(6, callCount.get())
         assertEquals(6, result.size)
         assertEquals("Season 6 premiere", result[6 to 1]?.title)
+    }
+
+    @Test
+    fun `episode enrichment with a failed season is not cached`() = runTest {
+        val api = mockk<TmdbApi>()
+        val seasonTwoCalls = AtomicInteger()
+        coEvery { api.getTvSeasonDetails(any(), any(), any(), any()) } coAnswers {
+            val season = arg<Int>(1)
+            if (season == 2 && seasonTwoCalls.incrementAndGet() == 1) {
+                Response.error(
+                    429,
+                    "{}".toResponseBody("application/json".toMediaType())
+                )
+            } else {
+                Response.success(
+                    TmdbSeasonResponse(
+                        seasonNumber = season,
+                        episodes = listOf(TmdbEpisode(episodeNumber = 1, name = "S$season E1"))
+                    )
+                )
+            }
+        }
+
+        val service = TmdbMetadataService(api)
+        val partial = service.fetchEpisodeEnrichment(tmdbId = "42", seasonNumbers = listOf(1, 2))
+        assertEquals(setOf(1 to 1), partial.keys)
+
+        val complete = service.fetchEpisodeEnrichment(tmdbId = "42", seasonNumbers = listOf(1, 2))
+        assertEquals(setOf(1 to 1, 2 to 1), complete.keys)
+
+        service.fetchEpisodeEnrichment(tmdbId = "42", seasonNumbers = listOf(1, 2))
+        coVerify(exactly = 4) { api.getTvSeasonDetails(any(), any(), any(), any()) }
     }
 
     @Test

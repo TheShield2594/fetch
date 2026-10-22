@@ -292,6 +292,7 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                 ModernHomePresentationInput(
                     homeRows = state.homeRows,
                     catalogRows = state.catalogRows,
+                    becauseYouWatchedRows = state.becauseYouWatchedRows,
                     continueWatchingItems = overlay.continueWatchingItems,
                     upcomingItems = overlay.upcomingItems,
                     useLandscapePosters = state.modernLandscapePostersEnabled,
@@ -308,6 +309,7 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
             // via lastEnrichedPreview instead.
             .distinctUntilChanged { old, new ->
                 old.homeRows === new.homeRows
+                    && old.becauseYouWatchedRows == new.becauseYouWatchedRows
                     && old.continueWatchingItems == new.continueWatchingItems
                     && old.upcomingItems == new.upcomingItems
                     && old.useLandscapePosters == new.useLandscapePosters

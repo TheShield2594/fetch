@@ -2279,4 +2279,10 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Tanpa batas</string>
+    <string name="because_you_watched_row_title">Karena Anda menonton %1$s</string>
+    <string name="because_you_watched_reason_collection">Juga di %1$s</string>
+    <string name="because_you_watched_reason_director">Juga disutradarai %1$s</string>
+    <string name="because_you_watched_reason_creator">Juga dibuat oleh %1$s</string>
+    <string name="because_you_watched_reason_writer">Juga ditulis oleh %1$s</string>
+    <string name="because_you_watched_reason_cast">Juga dibintangi %1$s</string>
 </resources>

@@ -235,6 +235,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">Données fournies par TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">Données fournies par Trakt</string>
     <string name="detail_more_like_this_powered_by_simkl">Données fournies par Simkl</string>
+    <string name="because_you_watched_row_title">Parce que vous avez regardé %1$s</string>
+    <string name="because_you_watched_reason_collection">Également dans %1$s</string>
+    <string name="because_you_watched_reason_director">Du même réalisateur&#160;: %1$s</string>
+    <string name="because_you_watched_reason_creator">Du même créateur&#160;: %1$s</string>
+    <string name="because_you_watched_reason_writer">Du même scénariste&#160;: %1$s</string>
+    <string name="because_you_watched_reason_cast">Avec également %1$s</string>
     <string name="detail_comments_title">Commentaires</string>
     <string name="detail_comments_subtitle">Critiques de Trakt</string>
     <string name="detail_comments_subtitle_episode">Critiques de Trakt pour S%1$dE%2$d</string>

@@ -244,6 +244,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">TMDB tarafından desteklenmektedir</string>
     <string name="detail_more_like_this_powered_by_trakt">Trakt tarafından desteklenmektedir</string>
     <string name="detail_more_like_this_powered_by_simkl">Simkl tarafından desteklenmektedir</string>
+    <string name="because_you_watched_row_title">İzlediğiniz için: %1$s</string>
+    <string name="because_you_watched_reason_collection">Aynı seriden: %1$s</string>
+    <string name="because_you_watched_reason_director">Aynı yönetmen: %1$s</string>
+    <string name="because_you_watched_reason_creator">Aynı yapımcı: %1$s</string>
+    <string name="because_you_watched_reason_writer">Aynı yazar: %1$s</string>
+    <string name="because_you_watched_reason_cast">Aynı oyuncu: %1$s</string>
     <string name="detail_comments_title">Yorumlar</string>
     <string name="detail_comments_subtitle">Trakt incelemeleri</string>
     <string name="detail_comments_subtitle_episode">S%1$dE%2$d için Trakt incelemeleri</string>

@@ -19,9 +19,9 @@ import retrofit2.Response
 class TraktAuthServiceTest {
     @Test
     fun `refresh token 400 clears credentials and prevents another refresh`() = runTest {
-        // refreshTokenIfNeeded() returns early without Trakt client credentials, which
-        // builds without a local.properties (CI, forks) don't have.
-        assumeTrue(BuildConfig.TRAKT_CLIENT_ID.isNotBlank() && BuildConfig.TRAKT_CLIENT_SECRET.isNotBlank())
+        // refreshTokenIfNeeded() returns early without a Trakt client ID, which builds
+        // without a local.properties (CI, forks) don't have.
+        assumeTrue(BuildConfig.TRAKT_CLIENT_ID.isNotBlank())
         val traktApi = mockk<TraktApi>()
         val traktAuthDataStore = mockk<TraktAuthDataStore>()
         val authSessionNoticeDataStore = mockk<AuthSessionNoticeDataStore>()

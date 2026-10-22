@@ -72,6 +72,23 @@ Requires a JDK (17+) and the Android SDK (compile SDK 36). No keys are needed to
 `local.example.properties` lists optional ones (TMDB, Trakt, Simkl, MDBList client IDs, a
 default self-hosted sync server, release signing).
 
+### Trakt, Simkl, MDBList and other API keys
+
+Sync and ratings integrations need app credentials that each service issues to the app's
+developer. Without them the build works but the integration says its credentials are missing.
+
+| Key | Where to get it |
+| --- | --- |
+| `TRAKT_CLIENT_ID`, `TRAKT_REDIRECT_URI` | [trakt.tv/oauth/applications](https://trakt.tv/oauth/applications). Trakt only accepts https redirect URIs; any https page works, e.g. this repo's URL. Fetch signs in with a device code and never opens it, but `TRAKT_REDIRECT_URI` must match the registered value or token refresh fails. New apps get no client secret; `TRAKT_CLIENT_SECRET` is only for older apps that have one |
+| `SIMKL_CLIENT_ID` | [simkl.com/settings/developer](https://simkl.com/settings/developer/), app type "TV, devices & command line" (PIN sign-in, no secret or redirect URL) |
+| `MDBLIST_CLIENT_ID` | an OAuth app registered with MDBList |
+| `TMDB_API_KEY` | [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) |
+| `PREMIUMIZE_CLIENT_ID` | Premiumize developer support |
+
+Put them in `local.properties` for local builds, or export them as environment variables
+(these take precedence). The Release workflow reads repository secrets with the same names
+(Settings → Secrets and variables → Actions) and warns in its log for each one that is unset.
+
 Two flavors exist: `full` (plugins, in-app updates from this repo's GitHub releases) and
 `playstore` (store-safe feature set).
 

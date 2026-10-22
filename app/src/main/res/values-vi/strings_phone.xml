@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">Điện thoại phải dùng cùng mạng Wi-Fi với TV này. Bạn cũng có thể làm việc này sau trong Cài đặt.</string>
     <string name="first_run_phone_qr_description">Mã thiết lập qua điện thoại</string>
     <string name="first_run_phone_step_accounts">Đăng nhập Trakt, Simkl hoặc Jellyfin</string>
-    <string name="first_run_phone_step_addons">Dán tiện ích và khóa debrid</string>
+    <string name="first_run_phone_step_rules">Chọn quy tắc chất lượng luồng</string>
     <string name="first_run_phone_step_scan">Quét bằng camera điện thoại</string>
     <string name="first_run_phone_title">Thiết lập bằng điện thoại. Không cần gõ bằng điều khiển.</string>
     <string name="first_run_recommended">Đề xuất</string>

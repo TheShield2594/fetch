@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">Tvoj telefon mora biti na istoj Wi-Fi mreži kao ovaj TV. Ovo možeš uraditi i kasnije u Postavkama.</string>
     <string name="first_run_phone_qr_description">Kod za podešavanje telefonom</string>
     <string name="first_run_phone_step_accounts">Prijavi se na Trakt, Simkl ili Jellyfin</string>
-    <string name="first_run_phone_step_addons">Zalijepi addone i svoj debrid ključ</string>
+    <string name="first_run_phone_step_rules">Odaberite pravila kvaliteta streamova</string>
     <string name="first_run_phone_step_scan">Skeniraj kamerom telefona</string>
     <string name="first_run_phone_title">Podesi pomoću telefona. Bez kucanja daljinskim.</string>
     <string name="first_run_recommended">Preporučeno</string>

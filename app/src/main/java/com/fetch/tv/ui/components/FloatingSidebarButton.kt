@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -41,6 +42,19 @@ import androidx.tv.material3.Text
 import com.fetch.tv.ui.theme.FetchComponents
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
+
+/**
+ * The full-screen fade behind the open sidebar: a soft fade from the left edge instead of a
+ * panel, so the icons and labels stay readable over artwork while the page runs edge to edge.
+ * It stays near-opaque across the open sidebar's width (about a third of a 960dp TV screen) so
+ * page text, such as the Home hero's meta lines, doesn't show through beside the focused label.
+ */
+internal fun sidebarScrimBrush(background: Color): Brush = Brush.horizontalGradient(
+    0f to background.copy(alpha = 0.96f),
+    0.32f to background.copy(alpha = 0.9f),
+    0.55f to background.copy(alpha = 0.4f),
+    1f to Color.Transparent
+)
 
 /**
  * One sidebar entry: a round icon that keeps an accent fill for the current page, and a label

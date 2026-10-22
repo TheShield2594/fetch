@@ -333,14 +333,6 @@
     <string name="appearance_amoled_mode_subtitle">Použít čistě černou pro pozadí aplikace</string>
     <string name="appearance_amoled_surfaces_mode">Čistě černé plochy</string>
     <string name="appearance_amoled_surfaces_mode_subtitle">Také udělat karty, panely a kontejnery čistě černé</string>
-    <string name="appearance_settings_style">Styl nastavení</string>
-    <string name="appearance_settings_style_subtitle">Vyberte, jak budou obrazovky nastavení zobrazeny</string>
-    <string name="settings_style_classic">Výchozí</string>
-    <string name="settings_style_classic_desc">Standardní rozvržení s kartami</string>
-    <string name="settings_style_zen">Minimalistický</string>
-    <string name="settings_style_zen_desc">Jednoduché, ploché rozvržení</string>
-    <string name="settings_style_horizon">Horní lišta</string>
-    <string name="settings_style_horizon_desc">Navigační karty nahoře</string>
     <string name="appearance_font_and_language">Písmo a jazyk</string>
     <string name="appearance_font_and_language_subtitle">Vyberte typ písma a lokalitu používanou v celé aplikaci</string>
     <string name="cd_selected">Vybráno</string>
@@ -2552,7 +2544,7 @@
     <string name="subtitle_style_text_color_hdr">Barva textu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprůhlednost textu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Toto je torrentový stream a Fetch nemá vestavěný torrentový engine. Zapněte debrid službu v Nastavení → Debrid, nebo jej otevřete v externím přehrávači.</string>
+    <string name="torrent_engine_unavailable">Toto je torrentový stream a Fetch nemá vestavěný torrentový engine. Nastavte debrid v doplňku, abyste získali odkaz, který se přehraje zde, nebo ho otevřete v externím přehrávači.</string>
     <string name="because_you_watched_row_title">Protože jste sledovali %1$s</string>
     <string name="because_you_watched_reason_collection">Také z: %1$s</string>
     <string name="because_you_watched_reason_director">Stejný režisér: %1$s</string>

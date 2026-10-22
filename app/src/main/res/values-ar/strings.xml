@@ -2129,8 +2129,6 @@
     <string name="action_remove_anyway">إزالة على أي حال</string>
     <string name="advanced_playback_issue_reports">تقارير مشاكل التشغيل</string>
     <string name="advanced_playback_issue_reports_subtitle">إظهار أزرار التقرير أثناء التشغيل والتحميل الطويل وأخطاء التشغيل</string>
-    <string name="appearance_settings_style">نمط الإعدادات</string>
-    <string name="appearance_settings_style_subtitle">اختر طريقة عرض شاشات الإعدادات</string>
     <string name="audio_enable_downmix_subtitle">يستخدم مسار الدمج (Downmix) في FFmpeg. يتطلب تفضيل مفككات التطبيق (FFmpeg). عند التعطيل، يتبع الصوت المسار السابق لنظام أندرويد/الجهاز.</string>
     <string name="audio_force_optical_passthrough">فرض تحويل AC-3 (بصري/SPDIF)</string>
     <string name="audio_force_optical_passthrough_sub">يحوّل الصيغ متعددة القنوات (TrueHD وDTS وAAC وغيرها) إلى دولبي ديجيتال 5.1 في الوقت الفعلي لاتصالات البصري/SPDIF.</string>
@@ -2399,12 +2397,6 @@
     <string name="settings_stream_badge_position_title">موضع الشارات</string>
     <string name="settings_stream_badge_position_top">أعلى</string>
     <string name="settings_stream_display_section">العرض</string>
-    <string name="settings_style_classic">افتراضي</string>
-    <string name="settings_style_classic_desc">تخطيط قياسي مع بطاقات</string>
-    <string name="settings_style_horizon">شريط علوي</string>
-    <string name="settings_style_horizon_desc">تبويبات التنقل في الأعلى</string>
-    <string name="settings_style_zen">مبسط</string>
-    <string name="settings_style_zen_desc">تخطيط بسيط ومسطح</string>
     <string name="settings_tracking_description">اربط مزودي التتبع واختر الذي يشغّل مكتبتك ومتابعة المشاهدة.</string>
     <string name="settings_tracking_title">التتبع</string>
     <string name="simkl_awaiting_instruction">افتح صفحة التحقق من Simkl وأدخل هذا الرمز.</string>
@@ -2737,7 +2729,7 @@
     <string name="subtitle_style_text_color_hdr">لون النص (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">شفافية النص (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">هذا مصدر تورنت ولا يحتوي Fetch على محرك تورنت مدمج. فعّل خدمة ديبريد من الإعدادات ← Debrid، أو افتحه في مشغل خارجي.</string>
+    <string name="torrent_engine_unavailable">هذا مصدر تورنت ولا يحتوي Fetch على محرك تورنت مدمج. فعّل ديبريد في الإضافة للحصول على رابط يعمل هنا، أو افتحه في مشغل خارجي.</string>
     <string name="because_you_watched_row_title">لأنك شاهدت %1$s</string>
     <string name="because_you_watched_reason_collection">ضمن %1$s أيضًا</string>
     <string name="because_you_watched_reason_director">من إخراج %1$s أيضًا</string>

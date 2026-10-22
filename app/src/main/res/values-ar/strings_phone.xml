@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">يجب أن يكون هاتفك على شبكة Wi-Fi نفسها التي يتصل بها هذا التلفاز. يمكنك أيضاً القيام بذلك لاحقاً من الإعدادات.</string>
     <string name="first_run_phone_qr_description">رمز إعداد الهاتف</string>
     <string name="first_run_phone_step_accounts">سجّل الدخول إلى Trakt أو Simkl أو Jellyfin</string>
-    <string name="first_run_phone_step_addons">الصق الإضافات ومفتاح الديبريد</string>
+    <string name="first_run_phone_step_rules">اختر قواعد جودة البث</string>
     <string name="first_run_phone_step_scan">امسح الرمز بكاميرا هاتفك</string>
     <string name="first_run_phone_title">أعدّ التطبيق بهاتفك. بلا كتابة بجهاز التحكم.</string>
     <string name="first_run_recommended">موصى به</string>

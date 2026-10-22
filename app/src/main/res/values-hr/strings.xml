@@ -372,8 +372,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">Također oboji kartice, ploče i spremnike u čisto crnu</string>
     <string name="appearance_startup_splash">Početni zaslon pri pokretanju</string>
     <string name="appearance_startup_splash_subtitle">Prikaži logo i indikator učitavanja nakon odabira profila</string>
-    <string name="appearance_settings_style">Stil postavki</string>
-    <string name="appearance_settings_style_subtitle">Odaberi kako se prikazuju zasloni postavki</string>
     <string name="appearance_launcher_artwork">Grafika pokretača</string>
     <string name="appearance_launcher_artwork_subtitle">Odaberi kako se Fetch prikazuje na početnom zaslonu TV-a</string>
     <string name="appearance_app_icon_and_banner">Ikona i baner aplikacije</string>
@@ -389,12 +387,6 @@
     <string name="appearance_app_icon_rose_gold">Ružičasto zlato</string>
     <string name="appearance_app_icon_copper">Bakrena</string>
     <string name="appearance_app_icon_graphite">Grafit</string>
-    <string name="settings_style_classic">Zadano</string>
-    <string name="settings_style_classic_desc">Standardni raspored s karticama</string>
-    <string name="settings_style_zen">Minimalno</string>
-    <string name="settings_style_zen_desc">Jednostavan, ravan raspored</string>
-    <string name="settings_style_horizon">Gornja traka</string>
-    <string name="settings_style_horizon_desc">Kartice za navigaciju na vrhu</string>
     <string name="appearance_font_and_language">Font i jezik</string>
     <string name="appearance_font_and_language_subtitle">Odaberi pismo i jezik koji se koriste u aplikaciji</string>
     <string name="cd_selected">Odabrano</string>
@@ -2960,7 +2952,7 @@
     <string name="addon_health_failing">Zadnji zahtjev nije uspio</string>
     <string name="addon_health_timed_out">Zadnjem zahtjevu isteklo je vrijeme</string>
     <string name="account_local_only_note">Sinkronizacija je isključena. Fetch čuva tvoje dodatke, napredak i postavke na ovom TV-u i ne treba račun. Za sinkronizaciju između uređaja poveži vlastiti poslužitelj za sinkronizaciju u opcijama poslužitelja.</string>
-    <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent pogon. Uključi debrid uslugu u Postavke → Debrid ili ga otvori u vanjskom playeru.</string>
+    <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent mehanizam. Postavite debrid u dodatku da biste dobili poveznicu koja se reproducira ovdje, ili ga otvorite u vanjskom playeru.</string>
     <string name="parental_title_blocked">Ovaj naslov prelazi dobno ograničenje ovog profila.</string>
     <string name="parental_addons_blocked">Ovaj profil ne može instalirati dodatke. Pitaj roditelja.</string>
     <string name="parental_gate_heading">Unesi PIN za %1$s</string>

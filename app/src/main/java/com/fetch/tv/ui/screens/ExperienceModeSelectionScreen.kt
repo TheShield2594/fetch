@@ -162,7 +162,7 @@ internal fun ExperienceModeSelectionContent(
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
                     FirstRunStep(1, stringResource(R.string.first_run_phone_step_scan))
-                    FirstRunStep(2, stringResource(R.string.first_run_phone_step_addons))
+                    FirstRunStep(2, stringResource(R.string.first_run_phone_step_rules))
                     FirstRunStep(3, stringResource(R.string.first_run_phone_step_accounts))
                 }
             }

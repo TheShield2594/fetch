@@ -2243,7 +2243,7 @@
     <string name="addon_health_failing">Letzte Anfrage fehlgeschlagen</string>
     <string name="addon_health_timed_out">Letzte Anfrage hat das Zeitlimit überschritten</string>
     <string name="account_local_only_note">Die Synchronisierung ist aus. Fetch speichert Ihre Addons, Ihren Fortschritt und Ihre Einstellungen auf diesem Fernseher und benötigt kein Konto. Um zwischen Geräten zu synchronisieren, verbinden Sie in den Serveroptionen Ihren eigenen Sync-Server.</string>
-    <string name="torrent_engine_unavailable">Dies ist ein Torrent-Stream und Fetch hat keine eingebaute Torrent-Engine. Aktivieren Sie einen Debrid-Dienst unter Optionen → Debrid oder öffnen Sie ihn in einem externen Player.</string>
+    <string name="torrent_engine_unavailable">Dies ist ein Torrent-Stream und Fetch hat keine eingebaute Torrent-Engine. Richten Sie Debrid im Addon ein, um einen Link zu erhalten, der hier abgespielt wird, oder öffnen Sie ihn in einem externen Player.</string>
     <string name="parental_title_blocked">Dieser Titel liegt über der Altersgrenze dieses Profils.</string>
     <string name="parental_addons_blocked">Dieses Profil kann keine Addons installieren. Fragen Sie einen Elternteil.</string>
     <string name="parental_gate_heading">PIN von %1$s eingeben</string>

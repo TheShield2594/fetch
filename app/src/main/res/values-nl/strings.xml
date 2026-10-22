@@ -354,8 +354,6 @@
     <string name="appearance_amoled_mode_subtitle">Gebruik puur zwart voor de achtergronden van de app</string>
     <string name="appearance_amoled_surfaces_mode">Puur zwarte oppervlakken</string>
     <string name="appearance_amoled_surfaces_mode_subtitle">Maak ook kaarten, panelen en containers puur zwart</string>
-    <string name="appearance_settings_style">Stijl van instellingen</string>
-    <string name="appearance_settings_style_subtitle">Kies hoe de instellingenschermen worden weergegeven</string>
     <string name="appearance_launcher_artwork">Launcher-illustratie</string>
     <string name="appearance_launcher_artwork_subtitle">Kies hoe Fetch op je tv-startscherm verschijnt</string>
     <string name="appearance_app_icon_and_banner">App-icoon &amp; banner</string>
@@ -371,12 +369,6 @@
     <string name="appearance_app_icon_rose_gold">Roségoud</string>
     <string name="appearance_app_icon_copper">Koper</string>
     <string name="appearance_app_icon_graphite">Grafiet</string>
-    <string name="settings_style_classic">Standaard</string>
-    <string name="settings_style_classic_desc">Standaardindeling met kaarten</string>
-    <string name="settings_style_zen">Minimaal</string>
-    <string name="settings_style_zen_desc">Eenvoudige, vlakke indeling</string>
-    <string name="settings_style_horizon">Bovenbalk</string>
-    <string name="settings_style_horizon_desc">Navigatietabbladen bovenaan</string>
     <string name="appearance_font_and_language">Lettertype en taal</string>
     <string name="appearance_font_and_language_subtitle">Kies het lettertype en de taal die in de hele app worden gebruikt</string>
     <string name="cd_selected">Geselecteerd</string>
@@ -2812,7 +2804,7 @@
     <string name="subtitle_style_text_color_hdr">Tekstkleur (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Tekstdekking (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Dit is een torrentstream en Fetch heeft geen ingebouwde torrent-engine. Zet een debrid-service aan via Instellingen → Debrid, of open het in een externe speler.</string>
+    <string name="torrent_engine_unavailable">Dit is een torrentstream en Fetch heeft geen ingebouwde torrent-engine. Stel debrid in de add-on in om een link te krijgen die hier afspeelt, of open hem in een externe speler.</string>
     <string name="because_you_watched_row_title">Omdat je %1$s hebt gekeken</string>
     <string name="because_you_watched_reason_collection">Ook in %1$s</string>
     <string name="because_you_watched_reason_director">Ook geregisseerd door %1$s</string>

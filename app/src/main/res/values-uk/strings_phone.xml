@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">Телефон має бути в тій самій мережі Wi-Fi, що й цей телевізор. Це можна зробити й пізніше в Налаштуваннях.</string>
     <string name="first_run_phone_qr_description">Код налаштування з телефона</string>
     <string name="first_run_phone_step_accounts">Увійдіть у Trakt, Simkl або Jellyfin</string>
-    <string name="first_run_phone_step_addons">Вставте адони та ключ debrid</string>
+    <string name="first_run_phone_step_rules">Виберіть правила якості потоків</string>
     <string name="first_run_phone_step_scan">Відскануйте камерою телефона</string>
     <string name="first_run_phone_title">Налаштуйте з телефона. Без набору пультом.</string>
     <string name="first_run_recommended">Рекомендовано</string>

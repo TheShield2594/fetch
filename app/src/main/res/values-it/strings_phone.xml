@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">Il telefono deve essere sulla stessa rete Wi-Fi di questa TV. Puoi farlo anche più tardi nelle Impostazioni.</string>
     <string name="first_run_phone_qr_description">Codice di configurazione per telefono</string>
     <string name="first_run_phone_step_accounts">Accedi a Trakt, Simkl o Jellyfin</string>
-    <string name="first_run_phone_step_addons">Incolla gli addon e la tua chiave debrid</string>
+    <string name="first_run_phone_step_rules">Scegli le regole di qualità degli stream</string>
     <string name="first_run_phone_step_scan">Scansiona con la fotocamera del telefono</string>
     <string name="first_run_phone_title">Configura con il telefono. Niente digitazione col telecomando.</string>
     <string name="first_run_recommended">Consigliato</string>

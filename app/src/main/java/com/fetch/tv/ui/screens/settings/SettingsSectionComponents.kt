@@ -148,43 +148,27 @@ internal fun SettingsRailDivider() {
 }
 
 @Composable
-internal fun SettingsTopBarDivider() {
-    Box(
-        modifier = Modifier
-            .padding(end = FetchTheme.spacing.sm)
-            .width(FetchTheme.spacing.hairline)
-            .height(20.dp)
-            .background(FetchTheme.colors.Border)
-    )
-}
-
-@Composable
 internal fun SettingsResetButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onFocused: () -> Unit = {}
 ) {
-    val flat = isFlatSettingsStyle()
-    val shape = if (flat) settingsRowShape() else RoundedCornerShape(SettingsPillRadius)
+    val shape = RoundedCornerShape(SettingsPillRadius)
     Button(
         onClick = onClick,
         modifier = modifier.onFocusChanged { if (it.isFocused) onFocused() },
         shape = ButtonDefaults.shape(shape = shape),
         colors = ButtonDefaults.colors(
             containerColor = FetchTheme.colors.Background,
-            focusedContainerColor = if (flat) settingsFocusFillColor() else FetchTheme.colors.Background
+            focusedContainerColor = FetchTheme.colors.Background
         ),
-        border = if (flat) {
-            ButtonDefaults.border(border = Border.None, focusedBorder = Border.None)
-        } else {
-            ButtonDefaults.border(
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = shape
-                )
+        border = ButtonDefaults.border(
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                shape = shape
             )
-        },
+        ),
         scale = ButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

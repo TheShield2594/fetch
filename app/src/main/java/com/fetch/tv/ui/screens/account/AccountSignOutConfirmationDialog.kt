@@ -60,7 +60,7 @@ internal fun AccountSignOutConfirmationDialog(
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.colors(
                     containerColor = FetchPrimitives.red600.copy(alpha = 0.25f),
-                    contentColor = Color(0xFFF44336)
+                    contentColor = FetchTheme.colors.Error
                 )
             ) {
                 Text(stringResource(R.string.account_sign_out))

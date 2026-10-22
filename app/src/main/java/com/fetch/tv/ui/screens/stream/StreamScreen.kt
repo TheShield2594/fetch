@@ -71,11 +71,13 @@ import androidx.compose.ui.input.key.onKeyEvent
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import com.fetch.tv.core.party.PartySource
 import com.fetch.tv.core.party.matches
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.toAbsoluteAlignment
+import com.fetch.tv.ui.util.isPlaceholderEpisodeTitle
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
@@ -400,6 +402,14 @@ fun StreamScreen(
             // Don't render overlay or stream list until ViewModel decides
             // whether direct autoplay is active — prevents single-frame flash.
         } else if (showOverlay) {
+            val waitingForPick = uiState.showDirectAutoPlayOverlay &&
+                !uiState.externalPlayerOverlayVisible &&
+                uiState.autoPlayStream == null &&
+                uiState.autoPlayPlaybackInfo == null &&
+                uiState.sourceChips.isNotEmpty()
+            val fetchingPanelBottomPadding = FetchTheme.spacing.xxxl
+            var fetchingPanelHeight by remember { mutableStateOf(0.dp) }
+            val density = LocalDensity.current
             LoadingOverlay(
                 visible = true,
                 backdropUrl = uiState.backdrop ?: uiState.poster,
@@ -411,13 +421,14 @@ fun StreamScreen(
                     null
                 },
                 progress = uiState.directAutoPlayProgress,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                // Centre the logo above the Fetching panel instead of behind its top edge.
+                bottomInset = if (waitingForPick && fetchingPanelHeight > 0.dp) {
+                    fetchingPanelHeight + fetchingPanelBottomPadding
+                } else {
+                    0.dp
+                }
             )
-            val waitingForPick = uiState.showDirectAutoPlayOverlay &&
-                !uiState.externalPlayerOverlayVisible &&
-                uiState.autoPlayStream == null &&
-                uiState.autoPlayPlaybackInfo == null &&
-                uiState.sourceChips.isNotEmpty()
             if (waitingForPick) {
                 FetchingPanel(
                     sourceChips = uiState.sourceChips,
@@ -427,7 +438,8 @@ fun StreamScreen(
                     onShowAllSources = { viewModel.onEvent(StreamScreenEvent.OnShowAllSources) },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = FetchTheme.spacing.xxxl, start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl)
+                        .padding(bottom = fetchingPanelBottomPadding, start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl)
+                        .onSizeChanged { fetchingPanelHeight = with(density) { it.height.toDp() } }
                 )
             }
         } else {
@@ -705,7 +717,8 @@ private fun LeftContentSection(
                     color = FetchTheme.extendedColors.textSecondary,
                     textAlign = TextAlign.Center
                 )
-                if (episodeName != null) {
+                // "Episode 6" would only repeat the line above.
+                if (episodeName != null && !episodeName.isPlaceholderEpisodeTitle()) {
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
                     Text(
                         text = episodeName.localizeEpisodeTitle(LocalContext.current),
@@ -1316,7 +1329,6 @@ internal fun StreamCard(
     val context = LocalContext.current
     val density = LocalDensity.current
     val unknownStreamLabel = stringResource(R.string.stream_unknown)
-    val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
     // Parsed from the addon's free-form text: the card leads with these chips and keeps the raw
     // release name for the focused card, where there is room to read it.
@@ -1327,6 +1339,11 @@ internal fun StreamCard(
     }
     val cachedLabel = stringResource(R.string.best_match_cached)
     val hasParsedSpec = headline != null || specChips.isNotEmpty()
+    // With chips shown, a name line like "4k DV" only repeats them.
+    val streamName = remember(stream, unknownStreamLabel, hasParsedSpec) {
+        val name = stream.getDisplayNameOrNull() ?: unknownStreamLabel
+        if (hasParsedSpec) withoutSpecOnlyLines(name) else name
+    }
     val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null) || reserveBadgeSpace
     val cardShape = RoundedCornerShape(FetchTheme.radii.md)
 
@@ -1421,8 +1438,10 @@ internal fun StreamCard(
                                 modifier = Modifier.padding(end = FetchTheme.spacing.xs)
                             )
                         }
-                        specChips.forEach { chip -> StreamSpecChip(chip) }
+                        // Cached comes first: it matters most, and the last chip is the one
+                        // that wraps when the row runs out of width.
                         if (descriptor.isDebridCached) StreamSpecChip(cachedLabel, highlighted = true)
+                        specChips.forEach { chip -> StreamSpecChip(chip) }
                     }
                 }
                 exclusion?.let { reason ->

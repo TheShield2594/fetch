@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">আপনার ফোনকে এই টিভির একই Wi-Fi-তে থাকতে হবে। আপনি এটি পরে সেটিংস থেকেও করতে পারেন।</string>
     <string name="first_run_phone_qr_description">ফোন সেটআপ কোড</string>
     <string name="first_run_phone_step_accounts">Trakt, Simkl বা Jellyfin-এ সাইন ইন করুন</string>
-    <string name="first_run_phone_step_addons">অ্যাডন এবং আপনার ডেব্রিড কী পেস্ট করুন</string>
+    <string name="first_run_phone_step_rules">স্ট্রিমের মানের নিয়ম বেছে নিন</string>
     <string name="first_run_phone_step_scan">আপনার ফোনের ক্যামেরা দিয়ে স্ক্যান করুন</string>
     <string name="first_run_phone_title">আপনার ফোন দিয়ে সেটআপ করুন। রিমোটে টাইপ করার ঝামেলা নেই।</string>
     <string name="first_run_recommended">প্রস্তাবিত</string>

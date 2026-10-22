@@ -1085,7 +1085,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="subtitle_style_text_color_hdr">Teksto spalva (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Teksto neskaidrumas (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Tai torrent srautas, o „Fetch“ neturi integruoto torrent variklio. Įjunkite „Debrid“ paslaugą skiltyje „Nustatymai → Debrid“ arba atidarykite jį išoriniame grotuve.</string>
+    <string name="torrent_engine_unavailable">Tai torrent srautas, o Fetch neturi įmontuoto torrent variklio. Nustatykite debrid priede, kad gautumėte čia paleidžiamą nuorodą, arba atidarykite jį išoriniame grotuve.</string>
     <string name="because_you_watched_row_title">Nes žiūrėjote: %1$s</string>
     <string name="because_you_watched_reason_collection">Taip pat iš: %1$s</string>
     <string name="because_you_watched_reason_director">Tas pats režisierius: %1$s</string>

@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">スマートフォンをこのテレビと同じWi-Fiに接続してください。後から設定で行うこともできます。</string>
     <string name="first_run_phone_qr_description">スマートフォン設定用コード</string>
     <string name="first_run_phone_step_accounts">Trakt、Simkl、Jellyfinにサインイン</string>
-    <string name="first_run_phone_step_addons">アドオンとDebridキーを貼り付け</string>
+    <string name="first_run_phone_step_rules">ストリーム品質のルールを選ぶ</string>
     <string name="first_run_phone_step_scan">スマートフォンのカメラでスキャン</string>
     <string name="first_run_phone_title">スマートフォンで設定。リモコンでの入力は不要です。</string>
     <string name="first_run_recommended">おすすめ</string>

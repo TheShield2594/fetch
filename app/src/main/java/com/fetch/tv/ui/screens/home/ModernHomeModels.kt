@@ -14,6 +14,7 @@ import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.stableKey
 import com.fetch.tv.ui.util.localizeEpisodeTitle
+import com.fetch.tv.ui.util.isPlaceholderEpisodeTitle
 import com.fetch.tv.ui.util.localizedContentType
 import com.fetch.tv.ui.util.computeAirDateBadgeText
 import com.fetch.tv.ui.util.formatHeroRuntime
@@ -346,7 +347,10 @@ internal fun buildContinueWatchingItem(
             } else {
                 null
             }
-            val episodeTitle = item.progress.episodeTitle?.takeIf { it.isNotBlank() }?.localizeEpisodeTitle(context)
+            // "Episode 5" only repeats the code, and the title is already in the label line.
+            val episodeTitle = item.progress.episodeTitle
+                ?.takeIf { it.isNotBlank() && !it.isPlaceholderEpisodeTitle() }
+                ?.localizeEpisodeTitle(context)
             val episodeLabel = when {
                 isSeries && episodeCode != null && episodeTitle != null -> "$episodeCode · $episodeTitle"
                 isSeries && episodeCode != null -> episodeCode
@@ -364,7 +368,7 @@ internal fun buildContinueWatchingItem(
             HeroPreview(
                 title = item.progress.name,
                 logo = item.progress.logo,
-                description = item.episodeDescription ?: item.progress.episodeTitle?.localizeEpisodeTitle(context),
+                description = item.episodeDescription,
                 contentTypeText = episodeLabel,
                 isSeries = isSeries,
                 yearText = extractYearOrRange(item.releaseInfo),
@@ -400,13 +404,14 @@ internal fun buildContinueWatchingItem(
                 item.info.season,
                 item.info.episode
             )
-            val episodeTitle = item.info.episodeTitle?.takeIf { it.isNotBlank() }?.localizeEpisodeTitle(context)
+            val episodeTitle = item.info.episodeTitle
+                ?.takeIf { it.isNotBlank() && !it.isPlaceholderEpisodeTitle() }
+                ?.localizeEpisodeTitle(context)
             val episodeLabel = if (episodeTitle != null) "$episodeCode · $episodeTitle" else episodeCode
             HeroPreview(
                 title = item.info.name,
                 logo = item.info.logo,
                 description = item.info.episodeDescription
-                    ?: item.info.episodeTitle?.localizeEpisodeTitle(context)
                     ?: item.info.airDateLabel?.let { airsDateTemplate.format(it) },
                 contentTypeText = episodeLabel,
                 isSeries = true,

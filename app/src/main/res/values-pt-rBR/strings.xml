@@ -360,8 +360,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">Também aplica preto puro em cartões, painéis e menus</string>
     <string name="appearance_startup_splash">Tela inicial</string>
     <string name="appearance_startup_splash_subtitle">Exibir o logotipo e a tela de carregamento depois que você escolher seu perfil</string>
-    <string name="appearance_settings_style">Estilo das Configurações</string>
-    <string name="appearance_settings_style_subtitle">Escolha como deseja visualizar as telas de configuração</string>
     <string name="appearance_launcher_artwork">Arte do App</string>
     <string name="appearance_launcher_artwork_subtitle">Escolha como o Fetch aparece na tela inicial da sua TV</string>
     <string name="appearance_app_icon_and_banner">Ícone e Banner do App</string>
@@ -377,12 +375,6 @@
     <string name="appearance_app_icon_rose_gold">Rose Gold</string>
     <string name="appearance_app_icon_copper">Cobre</string>
     <string name="appearance_app_icon_graphite">Grafite</string>
-    <string name="settings_style_classic">Padrão</string>
-    <string name="settings_style_classic_desc">Layout tradicional com cartões</string>
-    <string name="settings_style_zen">Minimalista</string>
-    <string name="settings_style_zen_desc">Visual simples e direto, sem elementos extras</string>
-    <string name="settings_style_horizon">Barra Superior</string>
-    <string name="settings_style_horizon_desc">Navegação por abas posicionadas no topo da tela</string>
     <string name="appearance_font_and_language">Fonte e Idioma</string>
     <string name="appearance_font_and_language_subtitle">Escolha o tipo de letra e o idioma usado em todo o app</string>
     <string name="cd_selected">Selecionado</string>
@@ -2841,7 +2833,7 @@
     <string name="subtitle_style_text_color_hdr">Cor do texto (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacidade do texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Este é um stream torrent e o Fetch não tem um mecanismo de torrent integrado. Ative um serviço debrid em Configurações → Debrid ou abra-o em um player externo.</string>
+    <string name="torrent_engine_unavailable">Este é um stream torrent e o Fetch não tem um mecanismo de torrent integrado. Configure o debrid no addon para obter um link que toque aqui, ou abra-o em um player externo.</string>
     <string name="because_you_watched_row_title">Porque você assistiu %1$s</string>
     <string name="because_you_watched_reason_collection">Também em %1$s</string>
     <string name="because_you_watched_reason_director">Também dirigido por %1$s</string>

@@ -2526,14 +2526,6 @@
     <string name="hero_synopsis_dismiss_hint">Naciśnij wstecz, aby zamknąć</string>
 
     <!-- Appearance settings style -->
-    <string name="appearance_settings_style">Styl ustawień</string>
-    <string name="appearance_settings_style_subtitle">Wybierz sposób prezentacji ekranów ustawień</string>
-    <string name="settings_style_classic">Domyślny</string>
-    <string name="settings_style_classic_desc">Standardowy układ z kartami</string>
-    <string name="settings_style_zen">Minimalny</string>
-    <string name="settings_style_zen_desc">Prosty, płaski układ</string>
-    <string name="settings_style_horizon">Pasek górny</string>
-    <string name="settings_style_horizon_desc">Zakładki nawigacyjne na górze</string>
 
     <!-- Audio advanced -->
     <string name="audio_force_optical_passthrough">Wymuś transkodowanie AC-3 (Optyczne/SPDIF)</string>
@@ -3134,5 +3126,5 @@
     <string name="subtitle_style_text_color_hdr">Kolor tekstu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Krycie tekstu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">To jest stream torrent, a Fetch nie ma wbudowanego silnika torrent. Włącz usługę debrid w Ustawienia → Debrid lub otwórz go w zewnętrznym odtwarzaczu.</string>
+    <string name="torrent_engine_unavailable">To jest stream torrent, a Fetch nie ma wbudowanego silnika torrent. Skonfiguruj debrid w dodatku, aby otrzymać link odtwarzany tutaj, lub otwórz go w zewnętrznym odtwarzaczu.</string>
 </resources>

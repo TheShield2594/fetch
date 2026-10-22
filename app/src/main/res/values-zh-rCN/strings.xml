@@ -362,8 +362,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">同时让卡片、面板和容器使用纯黑色</string>
     <string name="appearance_startup_splash">启动闪屏</string>
     <string name="appearance_startup_splash_subtitle">选择个人资料后显示标志和加载指示器</string>
-    <string name="appearance_settings_style">设置样式</string>
-    <string name="appearance_settings_style_subtitle">选择设置界面的呈现方式</string>
     <string name="appearance_launcher_artwork">启动器图标</string>
     <string name="appearance_launcher_artwork_subtitle">选择 Fetch 在电视主屏幕上的显示方式</string>
     <string name="appearance_app_icon_and_banner">应用图标与横幅</string>
@@ -379,12 +377,6 @@
     <string name="appearance_app_icon_rose_gold">玫瑰金</string>
     <string name="appearance_app_icon_copper">铜色</string>
     <string name="appearance_app_icon_graphite">石墨</string>
-    <string name="settings_style_classic">默认</string>
-    <string name="settings_style_classic_desc">带卡片的标准布局</string>
-    <string name="settings_style_zen">极简</string>
-    <string name="settings_style_zen_desc">简洁的平面布局</string>
-    <string name="settings_style_horizon">顶部标签栏</string>
-    <string name="settings_style_horizon_desc">导航标签在顶部</string>
     <string name="appearance_font_and_language">字体与语言</string>
     <string name="appearance_font_and_language_subtitle">选择应用使用的字体和语言</string>
     <string name="cd_selected">已选中</string>
@@ -2899,7 +2891,7 @@
     <string name="subtitle_style_text_color_hdr">文字颜色（HDR）</string>
     <string name="subtitle_style_text_opacity_hdr">文字不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">这是种子流，而 Fetch 没有内置种子引擎。请在「设置 → Debrid」中启用 debrid 服务，或在外部播放器中打开。</string>
+    <string name="torrent_engine_unavailable">这是种子流，而 Fetch 没有内置种子引擎。请在插件中设置 debrid 以获取可在此播放的链接，或在外部播放器中打开。</string>
     <string name="because_you_watched_row_title">因为您看过《%1$s》</string>
     <string name="because_you_watched_reason_collection">同系列：%1$s</string>
     <string name="because_you_watched_reason_director">同一导演：%1$s</string>

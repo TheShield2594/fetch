@@ -90,7 +90,6 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
-import com.fetch.tv.domain.model.SettingsUiStyle
 import com.fetch.tv.ui.components.FocusMarqueeText
 import com.fetch.tv.ui.components.BrandWordmark
 import com.fetch.tv.ui.util.contentTextDirection
@@ -105,10 +104,6 @@ internal val SettingsPillRadius = FetchRadii.tokens.full
 internal val SettingsSecondaryCardRadius = FetchComponents.tokens.settings.secondaryCardRadius
 internal val SettingsRailItemHeight = FetchComponents.tokens.settings.railItemHeight
 
-internal val SettingsZenRowShape = RoundedCornerShape(12.dp)
-internal val SettingsHorizonRowShape = RoundedCornerShape(10.dp)
-internal val SettingsHorizonGroupShape = RoundedCornerShape(16.dp)
-
 /**
  * Marks a row that holds several options side by side. Without it, moving into the row uses a
  * geometric search and lands on whichever option sits nearest the full width row above, which is
@@ -122,62 +117,26 @@ internal fun Modifier.settingsOptionRow(fallbackOption: FocusRequester): Modifie
     .focusRestorer(fallbackOption)
     .focusGroup()
 
-@Composable
-@androidx.compose.runtime.ReadOnlyComposable
-internal fun isFlatSettingsStyle(): Boolean = FetchTheme.settingsUiStyle != SettingsUiStyle.CLASSIC
+internal fun settingsRowShape(): RoundedCornerShape = RoundedCornerShape(SettingsPillRadius)
+
+internal fun settingsTallRowShape(): RoundedCornerShape = RoundedCornerShape(SettingsSecondaryCardRadius)
 
 @Composable
-@androidx.compose.runtime.ReadOnlyComposable
-internal fun settingsFocusFillColor(): Color = FetchTheme.colors.TextPrimary.copy(alpha = 0.1f)
-
-@Composable
-@androidx.compose.runtime.ReadOnlyComposable
-internal fun settingsHeaderInset(): Dp = when (FetchTheme.settingsUiStyle) {
-    SettingsUiStyle.CLASSIC -> 0.dp
-    SettingsUiStyle.ZEN -> FetchTheme.spacing.md
-    SettingsUiStyle.HORIZON -> FetchTheme.spacing.xs
-}
-
-@Composable
-@androidx.compose.runtime.ReadOnlyComposable
-internal fun settingsRowShape(): RoundedCornerShape = when (FetchTheme.settingsUiStyle) {
-    SettingsUiStyle.CLASSIC -> RoundedCornerShape(SettingsPillRadius)
-    SettingsUiStyle.ZEN -> SettingsZenRowShape
-    SettingsUiStyle.HORIZON -> SettingsHorizonRowShape
-}
-
-@Composable
-@androidx.compose.runtime.ReadOnlyComposable
-internal fun settingsTallRowShape(): RoundedCornerShape =
-    if (isFlatSettingsStyle()) settingsRowShape() else RoundedCornerShape(SettingsSecondaryCardRadius)
-
-@Composable
-internal fun settingsRowColors(): CardColors = if (isFlatSettingsStyle()) {
-    CardDefaults.colors(
-        containerColor = Color.Transparent,
-        focusedContainerColor = settingsFocusFillColor()
-    )
-} else {
-    CardDefaults.colors(
-        containerColor = FetchTheme.colors.Background,
-        focusedContainerColor = FetchTheme.colors.Background
-    )
-}
+internal fun settingsRowColors(): CardColors = CardDefaults.colors(
+    containerColor = FetchTheme.colors.Background,
+    focusedContainerColor = FetchTheme.colors.Background
+)
 
 @Composable
 internal fun settingsRowBorder(
     contentAlpha: Float = 1f,
     shape: RoundedCornerShape = settingsRowShape()
-): CardBorder = if (isFlatSettingsStyle()) {
-    CardDefaults.border(border = Border.None, focusedBorder = Border.None)
-} else {
-    CardDefaults.border(
-        focusedBorder = Border(
-            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs, alpha = contentAlpha),
-            shape = shape
-        )
+): CardBorder = CardDefaults.border(
+    focusedBorder = Border(
+        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs, alpha = contentAlpha),
+        shape = shape
     )
-}
+)
 
 internal object SettingsTestTags {
     const val ROW_ICON = "settings_row_icon"
@@ -328,7 +287,7 @@ internal fun SettingsWorkspaceSurface(
     classicContainer: Boolean = true,
     content: @Composable BoxScope.() -> Unit
 ) {
-    if (isFlatSettingsStyle() || !classicContainer) {
+    if (!classicContainer) {
         Box(
             modifier = modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
             content = content
@@ -362,8 +321,7 @@ internal fun SettingsRailButton(
     suppressSelectedVisual: Boolean = false
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val zen = isFlatSettingsStyle()
-    val railShape = if (zen) SettingsZenRowShape else RoundedCornerShape(SettingsPillRadius)
+    val railShape = RoundedCornerShape(SettingsPillRadius)
     val appliedModifier = if (focusRequester != null) {
         modifier.focusRequester(focusRequester)
     } else {
@@ -385,27 +343,19 @@ internal fun SettingsRailButton(
                 }
             },
         colors = CardDefaults.colors(
-            containerColor = when {
-                zen -> Color.Transparent
-                showSelected -> FetchTheme.colors.BackgroundCard
-                else -> FetchTheme.colors.Background
-            },
-            focusedContainerColor = if (zen) settingsFocusFillColor() else FetchTheme.colors.BackgroundCard
+            containerColor = if (showSelected) FetchTheme.colors.BackgroundCard else FetchTheme.colors.Background,
+            focusedContainerColor = FetchTheme.colors.BackgroundCard
         ),
-        border = if (zen) {
-            CardDefaults.border(border = Border.None, focusedBorder = Border.None)
-        } else {
-            CardDefaults.border(
-                border = if (showSelected) Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                ) else Border.None,
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                )
+        border = CardDefaults.border(
+            border = if (showSelected) Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                shape = railShape
+            ) else Border.None,
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                shape = railShape
             )
-        },
+        ),
         shape = CardDefaults.shape(railShape),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
@@ -423,7 +373,7 @@ internal fun SettingsRailButton(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = if (zen) 14.dp else 18.dp),
+                    .padding(horizontal = 18.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -431,18 +381,6 @@ internal fun SettingsRailButton(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (zen) {
-                        Box(
-                            modifier = Modifier
-                                .width(3.dp)
-                                .height(16.dp)
-                                .clip(RoundedCornerShape(SettingsPillRadius))
-                                .background(
-                                    if (showSelected) FetchTheme.colors.Secondary else Color.Transparent
-                                )
-                        )
-                        Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
-                    }
                     if (rawIconRes != null) {
                         Image(
                             painter = rememberRawSvgPainter(rawIconRes),
@@ -476,115 +414,13 @@ internal fun SettingsRailButton(
                     )
                 }
 
-                if (!zen) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = FetchTheme.colors.TextTertiary,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-internal fun SettingsTopBarTab(
-    title: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    focusRequester: FocusRequester? = null,
-    onFocused: () -> Unit = {},
-    icon: ImageVector? = null,
-    rawIconRes: Int? = null,
-    onFocusedTabPositioned: ((LayoutCoordinates) -> Unit)? = null,
-    suppressSelectedVisual: Boolean = false
-) {
-    var isFocused by remember { mutableStateOf(false) }
-    var tabCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    val glideIndicator = onFocusedTabPositioned != null
-    val appliedModifier = if (focusRequester != null) {
-        modifier.focusRequester(focusRequester)
-    } else {
-        modifier
-    }
-    val showSelected = isSelected && !suppressSelectedVisual
-    val contentColor by animateColorAsState(
-        targetValue = when {
-            isFocused -> FetchTheme.colors.OnSecondary
-            showSelected -> FetchTheme.colors.TextPrimary
-            else -> FetchTheme.colors.TextSecondary
-        },
-        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
-        label = "topBarTabContentColor"
-    )
-
-    Card(
-        onClick = onClick,
-        modifier = appliedModifier
-            .onGloballyPositioned { coordinates ->
-                tabCoordinates = coordinates
-                if (isFocused) onFocusedTabPositioned?.invoke(coordinates)
-            }
-            .onFocusChanged { state ->
-                val nowFocused = state.isFocused
-                if (isFocused != nowFocused) {
-                    isFocused = nowFocused
-                    if (nowFocused) {
-                        onFocused()
-                        tabCoordinates?.let { onFocusedTabPositioned?.invoke(it) }
-                    }
-                }
-            },
-        colors = CardDefaults.colors(
-            containerColor = if (showSelected) {
-                FetchTheme.colors.Secondary.copy(alpha = 0.18f)
-            } else {
-                Color.Transparent
-            },
-            focusedContainerColor = if (glideIndicator) {
-                Color.Transparent
-            } else {
-                FetchTheme.colors.Secondary
-            }
-        ),
-        border = CardDefaults.border(border = Border.None, focusedBorder = Border.None),
-        shape = CardDefaults.shape(RoundedCornerShape(SettingsPillRadius)),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (rawIconRes != null) {
-                Image(
-                    painter = rememberRawSvgPainter(rawIconRes),
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(contentColor)
-                )
-                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
-            } else if (icon != null) {
                 Icon(
-                    imageVector = icon,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
-                    tint = contentColor,
-                    modifier = Modifier.size(16.dp)
+                    tint = FetchTheme.colors.TextTertiary,
+                    modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
             }
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall.copy(
-                    fontWeight = if (showSelected || isFocused) FontWeight.SemiBold else FontWeight.Medium
-                ),
-                color = contentColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }
@@ -595,56 +431,20 @@ internal fun SettingsDetailHeader(
     subtitle: String,
     modifier: Modifier = Modifier
 ) {
-    when (FetchTheme.settingsUiStyle) {
-        SettingsUiStyle.ZEN -> Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(start = settingsHeaderInset(), bottom = FetchTheme.spacing.sm),
-            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = FetchTheme.colors.TextPrimary
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = FetchTheme.colors.TextTertiary
-            )
-        }
-        SettingsUiStyle.HORIZON -> Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(start = settingsHeaderInset(), bottom = FetchTheme.spacing.sm),
-            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = FetchTheme.colors.TextPrimary
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = FetchTheme.colors.TextSecondary
-            )
-        }
-        SettingsUiStyle.CLASSIC -> Column(
-            modifier = modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = FetchTheme.colors.TextPrimary
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = FetchTheme.colors.TextSecondary
-            )
-        }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+            color = FetchTheme.colors.TextPrimary
+        )
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = FetchTheme.colors.TextSecondary
+        )
     }
 }
 
@@ -655,70 +455,34 @@ internal fun SettingsGroupCard(
     subtitle: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    when (FetchTheme.settingsUiStyle) {
-        SettingsUiStyle.ZEN, SettingsUiStyle.HORIZON -> Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(top = FetchTheme.spacing.xs),
-            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-        ) {
-            if (!title.isNullOrBlank()) {
-                Text(
-                    text = title.uppercase(),
-                    style = MaterialTheme.typography.labelMedium,
-                    letterSpacing = 1.2.sp,
-                    color = FetchTheme.colors.TextTertiary,
-                    modifier = Modifier.padding(start = FetchTheme.spacing.lg)
-                )
-            }
-            if (!subtitle.isNullOrBlank()) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = FetchTheme.colors.TextTertiary.copy(alpha = 0.8f),
-                    modifier = Modifier.padding(start = FetchTheme.spacing.lg)
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(SettingsHorizonGroupShape)
-                    .background(FetchTheme.colors.BackgroundCard.copy(alpha = 0.55f))
-                    .padding(FetchTheme.spacing.sm),
-                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
-            ) {
-                content()
-            }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(SettingsSecondaryCardRadius))
+            .background(FetchTheme.colors.BackgroundCard)
+            .border(
+                width = FetchTheme.spacing.hairline,
+                color = FetchTheme.colors.Border,
+                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
+            )
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        if (!title.isNullOrBlank()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = FetchTheme.colors.TextPrimary
+            )
         }
-        SettingsUiStyle.CLASSIC -> Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(SettingsSecondaryCardRadius))
-                .background(FetchTheme.colors.BackgroundCard)
-                .border(
-                    width = FetchTheme.spacing.hairline,
-                    color = FetchTheme.colors.Border,
-                    shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-                )
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            if (!title.isNullOrBlank()) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = FetchTheme.colors.TextPrimary
-                )
-            }
-            if (!subtitle.isNullOrBlank()) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = FetchTheme.colors.TextSecondary
-                )
-            }
-            content()
+        if (!subtitle.isNullOrBlank()) {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.TextSecondary
+            )
         }
+        content()
     }
 }
 
@@ -1193,7 +957,6 @@ internal fun SettingsChoiceChip(
     onFocused: () -> Unit = {}
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val zen = isFlatSettingsStyle()
 
     Card(
         onClick = onClick,
@@ -1205,41 +968,19 @@ internal fun SettingsChoiceChip(
             }
         },
         colors = CardDefaults.colors(
-            containerColor = when {
-                zen && selected -> FetchTheme.colors.Secondary.copy(alpha = 0.18f)
-                zen -> Color.Transparent
-                selected -> FetchTheme.colors.FocusRing.copy(alpha = 0.2f)
-                else -> FetchTheme.colors.Background
-            },
-            focusedContainerColor = when {
-                zen -> settingsFocusFillColor()
-                selected -> FetchTheme.colors.FocusRing.copy(alpha = 0.2f)
-                else -> FetchTheme.colors.Background
-            }
+            containerColor = if (selected) FetchTheme.colors.FocusRing.copy(alpha = 0.2f) else FetchTheme.colors.Background,
+            focusedContainerColor = if (selected) FetchTheme.colors.FocusRing.copy(alpha = 0.2f) else FetchTheme.colors.Background
         ),
-        border = if (zen) {
-            CardDefaults.border(
-                border = if (selected) Border(
-                    border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Secondary.copy(alpha = 0.6f)),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                ) else Border.None,
-                focusedBorder = if (selected) Border(
-                    border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Secondary.copy(alpha = 0.6f)),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                ) else Border.None
+        border = CardDefaults.border(
+            border = if (selected) Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                shape = RoundedCornerShape(SettingsPillRadius)
+            ) else Border.None,
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                shape = RoundedCornerShape(SettingsPillRadius)
             )
-        } else {
-            CardDefaults.border(
-                border = if (selected) Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                ) else Border.None,
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
-                    shape = RoundedCornerShape(SettingsPillRadius)
-                )
-            )
-        },
+        ),
         shape = CardDefaults.shape(RoundedCornerShape(SettingsPillRadius)),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
@@ -1260,17 +1001,12 @@ private fun SettingsTogglePill(
     enabled: Boolean
 ) {
     val alpha = if (enabled) 1f else 0.35f
-    val zen = isFlatSettingsStyle()
-    val trackColor = when {
-        zen && checked -> FetchTheme.colors.Secondary.copy(alpha = 0.9f * alpha)
-        checked -> FetchTheme.colors.Secondary.copy(alpha = 0.35f * alpha)
-        else -> FetchTheme.colors.Border.copy(alpha = alpha)
-    }
-    val knobColor = if (zen && checked) {
-        FetchTheme.colors.OnSecondary.copy(alpha = alpha)
+    val trackColor = if (checked) {
+        FetchTheme.colors.Secondary.copy(alpha = 0.35f * alpha)
     } else {
-        Color.White.copy(alpha = alpha)
+        FetchTheme.colors.Border.copy(alpha = alpha)
     }
+    val knobColor = Color.White.copy(alpha = alpha)
     Box(
         modifier = Modifier
             .width(46.dp)

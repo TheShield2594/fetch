@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">您的手機必須與這台電視連線至同一個 Wi-Fi。您也可以稍後在設定中完成此操作。</string>
     <string name="first_run_phone_qr_description">手機設定 QR 碼</string>
     <string name="first_run_phone_step_accounts">登入 Trakt、Simkl 或 Jellyfin</string>
-    <string name="first_run_phone_step_addons">貼上擴充套件和 debrid 金鑰</string>
+    <string name="first_run_phone_step_rules">選擇串流畫質規則</string>
     <string name="first_run_phone_step_scan">用手機相機掃描</string>
     <string name="first_run_phone_title">用手機設定，不必用遙控器打字。</string>
     <string name="first_run_recommended">建議</string>

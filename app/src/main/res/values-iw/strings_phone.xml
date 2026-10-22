@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">הטלפון צריך להיות באותה רשת Wi-Fi כמו הטלוויזיה. אפשר לעשות זאת גם מאוחר יותר בהגדרות.</string>
     <string name="first_run_phone_qr_description">קוד הגדרה לטלפון</string>
     <string name="first_run_phone_step_accounts">התחברות ל-Trakt, Simkl או Jellyfin</string>
-    <string name="first_run_phone_step_addons">הדבקת תוספים ומפתח ה-Debrid שלך</string>
+    <string name="first_run_phone_step_rules">בחרו כללי איכות לסטרימים</string>
     <string name="first_run_phone_step_scan">סריקה עם מצלמת הטלפון</string>
     <string name="first_run_phone_title">הגדרה דרך הטלפון. בלי להקליד בשלט.</string>
     <string name="first_run_recommended">מומלץ</string>

@@ -100,6 +100,7 @@ import com.fetch.tv.ui.components.LocalStartupLoadingState
 import com.fetch.tv.ui.components.LocalStartupSplashEnabled
 import com.fetch.tv.ui.components.StartupLoadingState
 import com.fetch.tv.ui.components.FloatingSidebarButton
+import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.StartupDestination
 import com.fetch.tv.ui.components.shouldShowStartupSplash
 import com.fetch.tv.ui.components.startupDestinationForRoute
@@ -156,7 +157,6 @@ import com.fetch.tv.domain.model.ExperienceMode
 import com.fetch.tv.domain.model.MemberAccess
 import com.fetch.tv.domain.model.ProfileBackgroundSelection
 import com.fetch.tv.domain.model.resolveProfileBackgroundSelection
-import com.fetch.tv.domain.model.SettingsUiStyle
 import com.fetch.tv.domain.model.resolveAppTheme
 import com.fetch.tv.domain.model.resolveCustomThemeColors
 import com.fetch.tv.domain.deeplink.AppDeepLink
@@ -232,7 +232,6 @@ private data class MainUiPrefs(
     val smoothBringIntoViewEnabled: Boolean = true,
     val fastHorizontalNavigationEnabled: Boolean = false,
     val composeHighlighterEnabled: Boolean = false,
-    val settingsUiStyle: SettingsUiStyle = SettingsUiStyle.CLASSIC,
     val cardDepthStyle: CardDepthStyle = CardDepthStyle(),
     val landscapePosterMode: Boolean = false,
     val alwaysBackdropWithLogo: Boolean = false,
@@ -532,14 +531,12 @@ open class MainActivity : ComponentActivity() {
                     layoutPreferenceDataStore.smoothBringIntoViewEnabled,
                     layoutPreferenceDataStore.fastHorizontalNavigationEnabled,
                     layoutPreferenceDataStore.composeHighlighterEnabled,
-                    themeDataStore.settingsUiStyle,
-                ) { addonSetupSkipped, smoothBringIntoView, fastHorizontalNav, composeHighlighter, settingsUiStyle ->
+                ) { addonSetupSkipped, smoothBringIntoView, fastHorizontalNav, composeHighlighter ->
                     MainUiPrefs(
                         addonSetupSkipped = addonSetupSkipped,
                         smoothBringIntoViewEnabled = smoothBringIntoView,
                         fastHorizontalNavigationEnabled = fastHorizontalNav,
                         composeHighlighterEnabled = composeHighlighter,
-                        settingsUiStyle = settingsUiStyle,
                     )
                 }
                 val landscapePrefsFlow = combine(
@@ -563,7 +560,6 @@ open class MainActivity : ComponentActivity() {
                         smoothBringIntoViewEnabled = extraPrefs.smoothBringIntoViewEnabled,
                         fastHorizontalNavigationEnabled = extraPrefs.fastHorizontalNavigationEnabled,
                         composeHighlighterEnabled = extraPrefs.composeHighlighterEnabled,
-                        settingsUiStyle = extraPrefs.settingsUiStyle,
                         cardDepthStyle = cardDepthStyle,
                         landscapePosterMode = landscapePosterMode,
                         alwaysBackdropWithLogo = alwaysBackdropWithLogo,
@@ -586,8 +582,7 @@ open class MainActivity : ComponentActivity() {
                 customThemeColors = mainUiPrefs.customThemeColors,
                 appFont = mainUiPrefs.font,
                 amoledMode = mainUiPrefs.amoledMode,
-                amoledSurfacesMode = mainUiPrefs.amoledSurfacesMode,
-                settingsUiStyle = mainUiPrefs.settingsUiStyle
+                amoledSurfacesMode = mainUiPrefs.amoledSurfacesMode
             ) {
                 val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
                 val bringIntoViewSpec = if (mainUiPrefs.smoothBringIntoViewEnabled) {
@@ -1496,13 +1491,7 @@ private fun FetchSidebarScaffold(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        // A soft fade from the left edge instead of a panel, so the icons and labels stay readable
-        // over artwork while the page itself runs edge to edge.
-        scrimBrush = Brush.horizontalGradient(
-            0f to FetchTheme.colors.Background.copy(alpha = 0.92f),
-            0.35f to FetchTheme.colors.Background.copy(alpha = 0.55f),
-            1f to Color.Transparent
-        ),
+        scrimBrush = sidebarScrimBrush(FetchTheme.colors.Background),
         drawerContent = { drawerValue ->
             if (showSidebar) {
                 val isExpanded = drawerValue == DrawerValue.Open

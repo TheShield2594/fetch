@@ -327,8 +327,8 @@ private fun LinkedDevicesSection(
                         colors = ButtonDefaults.colors(
                             containerColor = FetchPrimitives.red600.copy(alpha = 0.2f),
                             focusedContainerColor = FetchPrimitives.red600.copy(alpha = 0.4f),
-                            contentColor = Color(0xFFF44336),
-                            focusedContentColor = Color(0xFFF44336)
+                            contentColor = FetchTheme.colors.Error,
+                            focusedContentColor = FetchTheme.colors.Error
                         ),
                         shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm))
                     ) {
@@ -354,8 +354,8 @@ private fun SignOutButton(onClick: () -> Unit) {
         colors = ButtonDefaults.colors(
             containerColor = FetchPrimitives.red600.copy(alpha = 0.15f),
             focusedContainerColor = FetchPrimitives.red600.copy(alpha = 0.3f),
-            contentColor = Color(0xFFF44336),
-            focusedContentColor = Color(0xFFF44336)
+            contentColor = FetchTheme.colors.Error,
+            focusedContentColor = FetchTheme.colors.Error
         ),
         shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
     ) {

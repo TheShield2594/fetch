@@ -63,7 +63,7 @@ from NuvioTV (grouped by area, each linking the original reports).
 | Stream picker / addons | #8 follow-ups, #9 addon health, #15 torrent engine |
 | Player | #1 replace Media3 fork, #17 DV/HDR, #18 refresh rate & judder, #19 playback failures, #20 subtitles, #21 controls & episode flow |
 | Watch state | #11 skip intro markers, #22 Continue Watching / Trakt / Simkl |
-| Sources | #3 Plex, #12 more debrid, #25 media servers & TMDB |
+| Sources | #3 Plex, #25 media servers & TMDB |
 | Privacy & sync | #4 self-hosted sync (Cataloggy) |
 | Phone & profiles | #5 phone config & remote, #6 parental controls |
 | Home & navigation | #7 pinned and filter rows, #23 focus, #24 hero/trailers/ambient |

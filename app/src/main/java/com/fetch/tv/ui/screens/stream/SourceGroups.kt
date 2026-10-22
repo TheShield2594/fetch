@@ -1,6 +1,9 @@
 package com.fetch.tv.ui.screens.stream
 
+import com.fetch.tv.core.streams.ranking.ExclusionReason
 import com.fetch.tv.core.streams.ranking.StreamResolution
+import com.fetch.tv.core.streams.ranking.StreamTitleParser
+import com.fetch.tv.domain.model.Stream
 
 /** The sections the source list is split into, in the order they appear. */
 internal enum class SourceGroup { BEST_MATCH, UHD, FHD, OTHER, PASSED_OVER }
@@ -36,3 +39,21 @@ internal fun groupSourcesByQuality(
         buckets.getValue(group).takeIf { it.isNotEmpty() }?.let { SourceSection(group, it) }
     }
 }
+
+/**
+ * The source list's sections for [streams]. Best match's pick leads only on the All tab
+ * ([addonFilter] null), the one Best match orders; addon tabs keep the addon's own order.
+ */
+internal fun sourceSections(
+    streams: List<Stream>,
+    exclusions: Map<String, ExclusionReason>,
+    bestMatchFirst: Boolean,
+    addonFilter: String?
+): List<SourceSection> = groupSourcesByQuality(
+    resolutions = streams.map { StreamTitleParser.parse(it).resolution },
+    passedOver = streams.map { exclusions.isNotEmpty() && exclusions.containsKey(it.stableKey()) },
+    bestMatchFirst = bestMatchFirst && addonFilter == null
+)
+
+/** The stream shown first, which is not always the first in ranked order. */
+internal fun List<SourceSection>.firstShownIndex(): Int? = firstOrNull()?.indices?.firstOrNull()

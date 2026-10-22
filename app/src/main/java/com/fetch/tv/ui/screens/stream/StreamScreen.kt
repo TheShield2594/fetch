@@ -816,7 +816,11 @@ private fun RightStreamSection(
             sourceChips.forEach { if (it.name !in this) add(it.name) }
         }
     }
-    val firstStreamKey = streams.firstOrNull()?.stableKey(0)
+    val sections = remember(streams, streamExclusions, bestMatchFirst, selectedAddonFilter) {
+        sourceSections(streams, streamExclusions, bestMatchFirst, selectedAddonFilter)
+    }
+    // The first card shown: grouping can lead with a stream that isn't first in ranked order.
+    val firstStreamKey = sections.firstShownIndex()?.let { streams.getOrNull(it) }?.stableKey(0)
     val refreshFocusRequester = remember { FocusRequester() }
     val allFocusRequester = remember { FocusRequester() }
     val addonFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
@@ -964,7 +968,7 @@ private fun RightStreamSection(
                         StreamsList(
                             streams = streams,
                             streamExclusions = streamExclusions,
-                            bestMatchFirst = bestMatchFirst,
+                            sections = sections,
                             torrentsNeedExternalPlayer = torrentsNeedExternalPlayer,
                             sharedStream = sharedStream,
                             partySource = partySource,
@@ -1008,7 +1012,8 @@ private fun LoadingState(showAddonLogo: Boolean = true) {
 internal fun StreamsList(
     streams: List<Stream>,
     streamExclusions: Map<String, ExclusionReason>,
-    bestMatchFirst: Boolean = false,
+    /** The list's quality sections, from [sourceSections]. */
+    sections: List<SourceSection>,
     torrentsNeedExternalPlayer: Boolean,
     sharedStream: SharedStream?,
     partySource: PartySource?,
@@ -1045,18 +1050,9 @@ internal fun StreamsList(
             stream.stableKey(occurrence)
         }
     }
-    // Quality sections, each still in ranked order. Best match's pick leads only on the All tab,
-    // the one Best match orders; addon tabs keep the addon's own order within each section.
-    val sections = remember(streams, streamExclusions, bestMatchFirst, selectedAddonFilter) {
-        groupSourcesByQuality(
-            resolutions = streams.map { StreamTitleParser.parse(it).resolution },
-            passedOver = streams.map { streamExclusions.isNotEmpty() && streamExclusions.containsKey(it.stableKey()) },
-            bestMatchFirst = bestMatchFirst && selectedAddonFilter == null
-        )
-    }
     // A single section needs no header: the list is already what it says.
     val showSectionHeaders = sections.size > 1
-    val firstShownIndex = sections.firstOrNull()?.indices?.firstOrNull() ?: 0
+    val firstShownIndex = sections.firstShownIndex() ?: 0
     // Where each stream sits in the lazy list, counting the party card and section headers.
     val lazyIndexOfStream = remember(sections, showSectionHeaders, sharedStream != null) {
         val positions = IntArray(streams.size)
@@ -1088,7 +1084,8 @@ internal fun StreamsList(
         prevStreamKeysRef.value = streamKeys
         prevLazyIndexRef.value = lazyIndexOfStream
         val key = focusedStreamKey
-        if (key != null && prevKeys !== streamKeys) {
+        // Sections can move a card without the keys changing, when Best match's exclusions do.
+        if (key != null && (prevKeys !== streamKeys || prevLazyIndex !== lazyIndexOfStream)) {
             val oldIndex = prevKeys.indexOf(key).let { if (it >= 0) prevLazyIndex.getOrElse(it) { -1 } else -1 }
             val newIndex = streamKeys.indexOf(key).let { if (it >= 0) lazyIndexOfStream.getOrElse(it) { -1 } else -1 }
             if (oldIndex >= 0 && newIndex >= 0 && oldIndex != newIndex && oldIndex > 0) {

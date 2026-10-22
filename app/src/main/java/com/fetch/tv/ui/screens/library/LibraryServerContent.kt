@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.library
 
+import com.fetch.tv.ui.components.CatalogRowsSkeleton
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,11 +20,12 @@ import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.CatalogRowSection
 import com.fetch.tv.ui.components.EmptyScreenState
-import com.fetch.tv.ui.components.LoadingIndicator
+import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.PosterCardStyle
 
 internal fun LazyGridScope.libraryServerContent(
     shelves: List<LibraryServerShelf>?,
+    onNavigateToSettings: () -> Unit,
     posterCardStyle: PosterCardStyle,
     rowInset: Dp,
     focusTarget: Pair<String, Int>?,
@@ -36,9 +38,7 @@ internal fun LazyGridScope.libraryServerContent(
 ) {
     when {
         shelves == null -> item(span = { GridItemSpan(maxLineSpan) }) {
-            Box(modifier = Modifier.fillMaxWidth().height(260.dp), contentAlignment = Alignment.Center) {
-                LoadingIndicator()
-            }
+            CatalogRowsSkeleton(rowCount = 1, startPadding = 0.dp)
         }
 
         shelves.isEmpty() -> item(span = { GridItemSpan(maxLineSpan) }) {
@@ -46,7 +46,8 @@ internal fun LazyGridScope.libraryServerContent(
                 title = stringResource(R.string.library_servers_empty_title),
                 subtitle = stringResource(R.string.library_servers_empty_message),
                 icon = Icons.Default.Dns,
-                height = 260.dp
+                height = 320.dp,
+                action = StateAction(stringResource(R.string.nav_settings), onNavigateToSettings)
             )
         }
 

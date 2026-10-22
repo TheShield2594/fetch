@@ -2453,4 +2453,5 @@
     <string name="home_row_ready_tonight">Klar i aften</string>
     <string name="ready_check_title">Tjek i baggrunden, hvad der er klar</string>
     <string name="ready_check_sub">På Wi-Fi eller Ethernet spørger den dine tilføjelser om op til 6 titler fra Fortsæt med at se og din Seerliste, hver højst hver 12. time, så Hjem kan markere dem, der starter med det samme.</string>
+    <string name="empty_state_add_addon">Tilføj en tilføjelse</string>
 </resources>

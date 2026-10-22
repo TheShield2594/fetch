@@ -2844,4 +2844,5 @@
     <string name="home_row_ready_tonight">Pronto para hoje à noite</string>
     <string name="ready_check_title">Verificar em segundo plano o que está pronto</string>
     <string name="ready_check_sub">No Wi-Fi ou Ethernet, consulta seus addons sobre até 6 títulos de Continuar Assistindo e da Minha Lista, cada um no máximo a cada 12 horas, para que o Início marque os que começam na hora.</string>
+    <string name="empty_state_add_addon">Adicionar um complemento</string>
 </resources>

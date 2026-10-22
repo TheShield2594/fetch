@@ -1186,4 +1186,5 @@
     <string name="home_row_ready_tonight">Klar for i kveld</string>
     <string name="ready_check_title">Sjekk i bakgrunnen hva som er klart</string>
     <string name="ready_check_sub">På Wi-Fi eller Ethernet spør den tilleggene dine om opptil 6 titler fra Fortsett å se og se-listen din, hver høyst hver 12. time, slik at Hjem kan merke de som starter med en gang.</string>
+    <string name="empty_state_add_addon">Legg til et tillegg</string>
 </resources>

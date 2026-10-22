@@ -2902,4 +2902,5 @@
     <string name="home_row_ready_tonight">今晚可看</string>
     <string name="ready_check_title">在后台检查哪些可以立即播放</string>
     <string name="ready_check_sub">在 Wi-Fi 或以太网下，向插件查询“继续观看”和观看列表中最多 6 部作品，每部最多每 12 小时一次，以便主页标出可以立即播放的内容。</string>
+    <string name="empty_state_add_addon">添加插件</string>
 </resources>

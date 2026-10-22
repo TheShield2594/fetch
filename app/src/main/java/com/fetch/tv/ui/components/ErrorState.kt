@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Text as CoreText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,12 +22,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
+import androidx.tv.material3.Icon
 import com.fetch.tv.R
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -40,29 +40,27 @@ fun ErrorState(
     ).annotated
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = FetchTheme.spacing.xxl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = null,
+            modifier = Modifier.size(FetchTheme.spacing.xxxl),
+            tint = FetchTheme.colors.Error
+        )
+        Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
         CoreText(
             text = displayMessage,
             style = MaterialTheme.typography.bodyLarge,
             color = FetchTheme.colors.TextSecondary,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
-        Button(
-            onClick = onRetry,
-            colors = ButtonDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                contentColor = FetchTheme.colors.TextPrimary,
-                focusedContainerColor = FetchTheme.colors.FocusBackground,
-                focusedContentColor = FetchTheme.colors.Primary
-            ),
-            shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
-        ) {
-            Text(stringResource(R.string.action_retry))
-        }
+        Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
+        StateActionButton(StateAction(stringResource(R.string.action_retry), onRetry))
     }
 }
 

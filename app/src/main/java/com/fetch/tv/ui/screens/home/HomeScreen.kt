@@ -54,7 +54,12 @@ import com.fetch.tv.domain.model.localizedMembershipTitle
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.ErrorState
-import com.fetch.tv.ui.components.LoadingIndicator
+import com.fetch.tv.ui.components.CatalogRowsSkeleton
+import com.fetch.tv.ui.components.EmptyScreenState
+import com.fetch.tv.ui.components.StateAction
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.ui.unit.Dp
 import com.fetch.tv.ui.components.LocalStartupLoadingState
 import com.fetch.tv.ui.components.LocalStartupSplashEnabled
 import com.fetch.tv.ui.components.shouldShowHomeStartupLoader
@@ -97,7 +102,8 @@ fun HomeScreen(
     onContinueWatchingStartFromBeginning: (ContinueWatchingItem) -> Unit = onContinueWatchingClick,
     onContinueWatchingPlayManually: (ContinueWatchingItem) -> Unit = onContinueWatchingClick,
     onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> },
-    onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> }
+    onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
+    onNavigateToAddons: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -252,16 +258,13 @@ fun HomeScreen(
                 if (!homeStableGateReleased) {
                     Unit
                 } else {
-                    Box(
+                    EmptyScreenState(
+                        title = stringResource(R.string.home_no_addons),
+                        icon = Icons.Default.Extension,
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.home_no_addons),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = FetchTheme.colors.TextSecondary
-                        )
-                    }
+                        height = Dp.Unspecified,
+                        action = StateAction(stringResource(R.string.empty_state_add_addon), onNavigateToAddons)
+                    )
                 }
             }
 
@@ -269,16 +272,13 @@ fun HomeScreen(
                 if (!homeStableGateReleased) {
                     Unit
                 } else {
-                    Box(
+                    EmptyScreenState(
+                        title = stringResource(R.string.home_no_catalog_addons),
+                        icon = Icons.Default.Extension,
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.home_no_catalog_addons),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = FetchTheme.colors.TextSecondary
-                        )
-                    }
+                        height = Dp.Unspecified,
+                        action = StateAction(stringResource(R.string.empty_state_add_addon), onNavigateToAddons)
+                    )
                 }
             }
 
@@ -295,16 +295,13 @@ fun HomeScreen(
                 if (!homeStableGateReleased) {
                     Unit
                 } else {
-                    Box(
+                    EmptyScreenState(
+                        title = stringResource(R.string.web_no_catalogs),
+                        icon = Icons.Default.Extension,
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.web_no_catalogs),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = FetchTheme.colors.TextSecondary
-                        )
-                    }
+                        height = Dp.Unspecified,
+                        action = StateAction(stringResource(R.string.empty_state_add_addon), onNavigateToAddons)
+                    )
                 }
             }
 
@@ -363,12 +360,12 @@ fun HomeScreen(
         }
 
         if (showHomeLoader) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                LoadingIndicator()
-            }
+            CatalogRowsSkeleton(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(FetchTheme.colors.Background),
+                showHero = true
+            )
         }
 
         val startupAuthNotice = uiState.startupAuthNotice

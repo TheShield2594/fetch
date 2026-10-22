@@ -94,7 +94,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.domain.model.localizedTitle
-import com.fetch.tv.ui.components.LoadingIndicator
+import com.fetch.tv.ui.components.PosterGridSkeleton
+import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.localizedContentType
@@ -125,7 +126,9 @@ fun LibraryScreen(
     serversViewModel: LibraryServersViewModel = hiltViewModel(),
     showBuiltInHeader: Boolean = true,
     onNavigateToDetail: (String, String, String?) -> Unit,
-    onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> }
+    onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> },
+    onNavigateToSearch: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
@@ -232,11 +235,7 @@ fun LibraryScreen(
             loadingFocusRequester.requestFocus()
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = androidx.compose.ui.Alignment.Center
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -244,15 +243,15 @@ fun LibraryScreen(
                     .focusable()
             )
             Column(
-                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                modifier = Modifier.padding(start = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.xl),
+                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
             ) {
-                LoadingIndicator()
                 Text(
                     text = stringResource(R.string.library_syncing_library),
                     style = MaterialTheme.typography.bodyMedium,
                     color = FetchTheme.colors.TextSecondary
                 )
+                PosterGridSkeleton(cardWidth = posterCardStyle.width, cardHeight = posterCardStyle.height)
             }
         }
         return
@@ -418,12 +417,19 @@ fun LibraryScreen(
                         uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.library_empty_simkl_subtitle)
                         else -> stringResource(R.string.library_empty_local_subtitle)
                     }
+                    val signedOut = !uiState.isTrackingAuthenticated &&
+                        (uiState.sourceMode == LibrarySourceMode.TRAKT || uiState.sourceMode == LibrarySourceMode.SIMKL)
                     EmptyScreenState(
                         title = title,
                         subtitle = subtitle,
                         icon = Icons.Default.BookmarkBorder,
-                        height = 220.dp,
-                        modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl)
+                        height = 300.dp,
+                        modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl),
+                        action = if (signedOut) {
+                            StateAction(stringResource(R.string.nav_settings), onNavigateToSettings)
+                        } else {
+                            StateAction(stringResource(R.string.nav_search), onNavigateToSearch)
+                        }
                     )
                 }
             }
@@ -459,6 +465,7 @@ fun LibraryScreen(
         } else {
             libraryServerContent(
                 shelves = serverShelves,
+                onNavigateToSettings = onNavigateToSettings,
                 posterCardStyle = posterCardStyle,
                 rowInset = FetchTheme.spacing.xxxl,
                 focusTarget = serverFocusTarget,

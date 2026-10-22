@@ -3056,4 +3056,5 @@
     <string name="home_row_ready_tonight">מוכן להערב</string>
     <string name="ready_check_title">בדיקה ברקע של מה שמוכן</string>
     <string name="ready_check_sub">ב-Wi-Fi או ב-Ethernet, שואל את התוספים שלכם על עד 6 כותרים מ\'המשך בצפייה\' ומרשימת הצפייה, כל אחד לכל היותר פעם ב-12 שעות, כדי שמסך הבית יסמן את אלה שמתחילים מיד.</string>
+    <string name="empty_state_add_addon">הוספת תוסף</string>
 </resources>

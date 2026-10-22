@@ -2960,4 +2960,5 @@
     <string name="home_row_ready_tonight">Έτοιμο για απόψε</string>
     <string name="ready_check_title">Έλεγχος στο παρασκήνιο για ό,τι είναι έτοιμο</string>
     <string name="ready_check_sub">Σε Wi-Fi ή Ethernet ρωτά τα πρόσθετά σας για έως 6 τίτλους από τη Συνέχεια παρακολούθησης και τη Λίστα παρακολούθησης, τον καθένα το πολύ κάθε 12 ώρες, ώστε η Αρχική να σημειώνει όσους ξεκινούν αμέσως.</string>
+    <string name="empty_state_add_addon">Προσθήκη πρόσθετου</string>
 </resources>

@@ -2,6 +2,10 @@
 
 package com.fetch.tv.ui.screens.stream
 
+import androidx.compose.material.icons.filled.Extension
+import com.fetch.tv.ui.components.StateAction
+import com.fetch.tv.ui.components.ErrorState
+import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
@@ -124,7 +128,8 @@ fun StreamScreen(
     onSourceSelectionRestoreHandled: () -> Unit = {},
     onBackPress: () -> Unit,
     onStreamSelected: (StreamPlaybackInfo) -> Unit,
-    onAutoPlayResolved: (StreamPlaybackInfo) -> Unit
+    onAutoPlayResolved: (StreamPlaybackInfo) -> Unit,
+    onNavigateToAddons: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val sharedStream by viewModel.sharedStream.collectAsStateWithLifecycle()
@@ -525,6 +530,7 @@ fun StreamScreen(
                     },
                     onRetry = { viewModel.onEvent(StreamScreenEvent.OnRetry) },
                     onExpandStreams = { viewModel.expandFilteredStreamsIfNeeded() },
+                    onNavigateToAddons = onNavigateToAddons,
                     modifier = Modifier
                         .weight(0.6f)
                         .fillMaxHeight()
@@ -787,6 +793,7 @@ private fun RightStreamSection(
     onRestoreFocusedStreamHandled: () -> Unit,
     onRetry: () -> Unit,
     onExpandStreams: () -> Unit = {},
+    onNavigateToAddons: () -> Unit = {},
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
     torrentsNeedExternalPlayer: Boolean = false,
     modifier: Modifier = Modifier
@@ -938,7 +945,12 @@ private fun RightStreamSection(
                         )
                     }
                     sharedStream == null && streams.isEmpty() -> {
-                        EmptyState()
+                        EmptyScreenState(
+                            title = stringResource(R.string.stream_no_streams),
+                            subtitle = stringResource(R.string.stream_no_streams_hint),
+                            icon = Icons.Default.Extension,
+                            action = StateAction(stringResource(R.string.empty_state_add_addon), onNavigateToAddons)
+                        )
                     }
                     else -> {
                         StreamsList(
@@ -980,87 +992,6 @@ private fun RightStreamSection(
 @Composable
 private fun LoadingState(showAddonLogo: Boolean = true) {
     StreamsSkeletonList(showAddonLogo = showAddonLogo)
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun ErrorState(
-    message: String,
-    onRetry: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(FetchTheme.spacing.xxl)
-    ) {
-        Icon(
-            imageVector = Icons.Default.Warning,
-            contentDescription = null,
-            modifier = Modifier.size(FetchTheme.spacing.xxxl),
-            tint = FetchTheme.colors.Error
-        )
-
-        Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
-
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyLarge,
-            color = FetchTheme.extendedColors.textSecondary,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
-
-        var isFocused by remember { mutableStateOf(false) }
-        Card(
-            onClick = onRetry,
-            modifier = Modifier.onFocusChanged { isFocused = it.isFocused },
-            colors = CardDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                focusedContainerColor = FetchTheme.colors.Secondary
-            ),
-            border = CardDefaults.border(
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchTheme.radii.sm)
-                )
-            ),
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm)),
-            scale = CardDefaults.scale(focusedScale = 1.02f)
-        ) {
-            Text(
-                text = stringResource(R.string.stream_retry),
-                style = MaterialTheme.typography.labelLarge,
-                color = if (isFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyState() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(FetchTheme.spacing.xxl)
-    ) {
-        Text(
-            text = stringResource(R.string.stream_no_streams),
-            style = MaterialTheme.typography.bodyLarge,
-            color = FetchTheme.extendedColors.textSecondary,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
-
-        Text(
-            text = stringResource(R.string.stream_no_streams_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = FetchTheme.extendedColors.textSecondary,
-            textAlign = TextAlign.Center
-        )
-    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

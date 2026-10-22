@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens
 
+import com.fetch.tv.ui.components.PosterGridSkeleton
 import com.fetch.tv.domain.model.catalogRowLegacyKey
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -351,12 +352,13 @@ fun CatalogSeeAllScreen(
                 }
             }
         } else if (isCatalogLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                LoadingIndicator()
-            }
+            PosterGridSkeleton(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.md),
+                cardWidth = posterCardStyle.width,
+                cardHeight = posterCardStyle.height
+            )
         } else {
             EmptyScreenState(
                 title = stringResource(R.string.catalog_see_all_empty_title),

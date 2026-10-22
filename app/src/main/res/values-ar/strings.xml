@@ -2740,4 +2740,5 @@
     <string name="home_row_ready_tonight">جاهز الليلة</string>
     <string name="ready_check_title">التحقق من الجاهز في الخلفية</string>
     <string name="ready_check_sub">عبر Wi-Fi أو Ethernet، يسأل إضافاتك عن 6 عناوين كحد أقصى من متابعة المشاهدة وقائمة المشاهدة، كل عنوان مرة كل 12 ساعة على الأكثر، لتُظهر الرئيسية ما يبدأ فورًا.</string>
+    <string name="empty_state_add_addon">إضافة إضافة</string>
 </resources>

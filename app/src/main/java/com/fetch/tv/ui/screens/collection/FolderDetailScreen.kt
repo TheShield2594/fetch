@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.collection
 
+import com.fetch.tv.ui.components.PosterGridSkeleton
+import com.fetch.tv.ui.components.CatalogRowsSkeleton
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -103,9 +105,11 @@ fun FolderDetailScreen(
     val folder = uiState.folder
 
     if (uiState.isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            LoadingIndicator()
-        }
+        PosterGridSkeleton(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.huge)
+        )
         return
     }
 
@@ -381,9 +385,13 @@ private fun TabbedGridContent(
 
     when {
         currentTab.isLoading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                LoadingIndicator()
-            }
+            PosterGridSkeleton(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.md),
+                cardWidth = uiState.posterCardWidthDp.dp,
+                cardHeight = (uiState.posterCardWidthDp * 1.5f).dp
+            )
         }
         currentTab.error != null -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -917,9 +925,7 @@ private fun FollowLayoutContent(
     val homeState = uiState.followLayoutHomeState
 
     if (homeState == null || (homeState.isLoading && homeState.catalogRows.isEmpty())) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            LoadingIndicator()
-        }
+        CatalogRowsSkeleton(modifier = Modifier.fillMaxSize(), showHero = true)
         return
     }
 

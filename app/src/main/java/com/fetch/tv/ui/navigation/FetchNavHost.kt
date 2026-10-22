@@ -263,7 +263,8 @@ private fun PlaybackNavHost(
                 },
                 onNavigateToFolderDetail = { collectionId, folderId ->
                     navController.navigate(Screen.FolderDetail.createRoute(collectionId, folderId))
-                }
+                },
+                onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) }
             )
         }
 
@@ -633,6 +634,7 @@ private fun PlaybackNavHost(
                         )
                     }
                 },
+                onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
                 onAutoPlayResolved = { playbackInfo ->
                     val autoPlayUrl = playbackInfo.url
                         ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else null
@@ -1212,7 +1214,9 @@ private fun PlaybackNavHost(
                 },
                 onNavigateToCatalogSeeAll = { catalogId, addonId, type ->
                     navController.navigate(Screen.CatalogSeeAll.createRoute(catalogId, addonId, type))
-                }
+                },
+                onNavigateToSearch = { navController.navigate(Screen.Search.route) { launchSingleTop = true } },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
             )
         }
 

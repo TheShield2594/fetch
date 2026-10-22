@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.home
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
+import com.fetch.tv.ui.components.offersPlayLaunchOrigin
 import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
@@ -717,6 +718,7 @@ private fun HeroResumeRow(
     ) {
         Row(
             modifier = Modifier
+                .offersPlayLaunchOrigin()
                 .background(FetchTheme.colors.TextPrimary, RoundedCornerShape(50))
                 .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,

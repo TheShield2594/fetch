@@ -6,6 +6,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.PlayLaunchOrigin
 import com.fetch.tv.ui.components.CatalogRowsSkeleton
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
@@ -1196,6 +1197,13 @@ fun ModernHomeContent(
             val onExpandedCatalogFocusKeyChangeLambda = remember { { key: String? -> expandedCatalogFocusKey.value = key } }
             val onBackdropInteractionLambda = remember { { expansionInteractionNonce.intValue++; Unit } }
             val onContinueWatchingOptionsLambda = remember { { item: ContinueWatchingItem -> optionsItem.value = item } }
+            // OK on a Continue Watching card does what the hero's Resume pill says, so it launches from there.
+            val onContinueWatchingLaunch = remember(onContinueWatchingClick) {
+                { item: ContinueWatchingItem ->
+                    PlayLaunchOrigin.launchFromOffer()
+                    onContinueWatchingClick(item)
+                }
+            }
             val onPendingRowFocusClearedLambda = remember {
                 {
                     pendingRowFocusKey.value = null
@@ -1241,7 +1249,7 @@ fun ModernHomeContent(
                 onNavigateToDetail = onNavigateToDetail,
                 onNavigateToFolderDetail = onNavigateToFolderDetail,
                 onLoadMoreCatalog = onLoadMoreCatalog,
-                onContinueWatchingClick = onContinueWatchingClick,
+                onContinueWatchingClick = onContinueWatchingLaunch,
                 onContinueWatchingOptions = onContinueWatchingOptionsLambda,
                 onRequestLazyCatalogLoad = stableOnRequestLazyCatalogLoad,
                 onBackdropInteraction = onBackdropInteractionLambda,

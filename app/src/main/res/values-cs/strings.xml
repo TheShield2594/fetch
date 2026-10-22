@@ -2563,4 +2563,11 @@
     <string name="source_rule_prefer_addon">Upřednostnit %1$s</string>
     <string name="source_rule_never_group">Nikdy nepřehrávat vydání %1$s</string>
     <string name="source_rule_never_saved">Nejlepší shoda přeskočí vydání %1$s</string>
+    <string name="settings_group_accounts">Účty</string>
+    <string name="settings_group_system">Systém</string>
+    <string name="settings_search_title">Hledat</string>
+    <string name="settings_search_subtitle">Najděte nastavení podle názvu a otevřete stránku, na které je.</string>
+    <string name="settings_search_hint">Hledat v nastavení</string>
+    <string name="settings_search_prompt">Napište část názvu nastavení.</string>
+    <string name="settings_search_empty">Žádné nastavení neodpovídá \"%1$s\".</string>
 </resources>

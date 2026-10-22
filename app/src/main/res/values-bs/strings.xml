@@ -1553,4 +1553,11 @@
     <string name="source_rule_prefer_addon">Preferiraj %1$s</string>
     <string name="source_rule_never_group">Nikad ne puštaj izdanja %1$s</string>
     <string name="source_rule_never_saved">Najbolje podudaranje će preskakati izdanja %1$s</string>
+    <string name="settings_group_accounts">Računi</string>
+    <string name="settings_group_system">Sistem</string>
+    <string name="settings_search_title">Pretraga</string>
+    <string name="settings_search_subtitle">Pronađite postavku po nazivu, pa otvorite stranicu na kojoj se nalazi.</string>
+    <string name="settings_search_hint">Pretraži postavke</string>
+    <string name="settings_search_prompt">Upišite dio naziva postavke.</string>
+    <string name="settings_search_empty">Nijedna postavka ne odgovara \"%1$s\".</string>
 </resources>

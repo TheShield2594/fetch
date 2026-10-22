@@ -2914,4 +2914,11 @@
     <string name="source_rule_prefer_addon">Preferir %1$s</string>
     <string name="source_rule_never_group">No reproducir nunca lanzamientos de %1$s</string>
     <string name="source_rule_never_saved">Mejor coincidencia omitirá los lanzamientos de %1$s</string>
+    <string name="settings_group_accounts">Cuentas</string>
+    <string name="settings_group_system">Sistema</string>
+    <string name="settings_search_title">Buscar</string>
+    <string name="settings_search_subtitle">Busca un ajuste por su nombre y abre la página en la que está.</string>
+    <string name="settings_search_hint">Buscar ajustes</string>
+    <string name="settings_search_prompt">Escribe parte del nombre de un ajuste.</string>
+    <string name="settings_search_empty">Ningún ajuste coincide con \"%1$s\".</string>
 </resources>

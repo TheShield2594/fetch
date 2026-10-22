@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
@@ -137,13 +138,21 @@ internal fun SettingsNote(
 }
 
 @Composable
-internal fun SettingsRailDivider() {
-    Box(
+internal fun SettingsRailHeading(text: String, first: Boolean) {
+    // Not focusable: it names the category, and only its entries can be picked.
+    Text(
+        text = text.uppercase(),
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+        color = FetchTheme.colors.TextTertiary,
+        maxLines = 1,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = SettingsRowContentInset, end = SettingsRowContentInset, bottom = 10.dp)
-            .height(FetchTheme.spacing.hairline)
-            .background(FetchTheme.colors.Border)
+            .padding(
+                start = SettingsRowContentInset,
+                end = SettingsRowContentInset,
+                top = if (first) FetchTheme.spacing.none else FetchTheme.spacing.md,
+                bottom = FetchTheme.spacing.xs
+            )
     )
 }
 

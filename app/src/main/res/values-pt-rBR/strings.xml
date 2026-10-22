@@ -2852,4 +2852,11 @@
     <string name="source_rule_prefer_addon">Preferir %1$s</string>
     <string name="source_rule_never_group">Nunca reproduzir lançamentos de %1$s</string>
     <string name="source_rule_never_saved">A Melhor opção vai pular lançamentos de %1$s</string>
+    <string name="settings_group_accounts">Contas</string>
+    <string name="settings_group_system">Sistema</string>
+    <string name="settings_search_title">Pesquisar</string>
+    <string name="settings_search_subtitle">Encontre uma configuração pelo nome e abra a página em que ela está.</string>
+    <string name="settings_search_hint">Pesquisar configurações</string>
+    <string name="settings_search_prompt">Digite parte do nome de uma configuração.</string>
+    <string name="settings_search_empty">Nenhuma configuração corresponde a \"%1$s\".</string>
 </resources>

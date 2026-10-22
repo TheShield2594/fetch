@@ -2823,4 +2823,11 @@
     <string name="source_rule_prefer_addon">%1$s voorkeur geven</string>
     <string name="source_rule_never_group">Releases van %1$s nooit afspelen</string>
     <string name="source_rule_never_saved">Beste match slaat releases van %1$s over</string>
+    <string name="settings_group_accounts">Accounts</string>
+    <string name="settings_group_system">Systeem</string>
+    <string name="settings_search_title">Zoeken</string>
+    <string name="settings_search_subtitle">Zoek een instelling op naam en open de pagina waarop die staat.</string>
+    <string name="settings_search_hint">Instellingen zoeken</string>
+    <string name="settings_search_prompt">Typ een deel van de naam van een instelling.</string>
+    <string name="settings_search_empty">Geen instellingen gevonden voor \"%1$s\".</string>
 </resources>

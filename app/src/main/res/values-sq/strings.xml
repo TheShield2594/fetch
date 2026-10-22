@@ -2597,4 +2597,11 @@
     <string name="source_rule_prefer_addon">Prefero %1$s</string>
     <string name="source_rule_never_group">Mos luaj kurrë publikime të %1$s</string>
     <string name="source_rule_never_saved">Përputhja më e mirë do të anashkalojë publikimet e %1$s</string>
+    <string name="settings_group_accounts">Llogaritë</string>
+    <string name="settings_group_system">Sistemi</string>
+    <string name="settings_search_title">Kërko</string>
+    <string name="settings_search_subtitle">Gjej një cilësim sipas emrit, pastaj hap faqen ku ndodhet.</string>
+    <string name="settings_search_hint">Kërko te cilësimet</string>
+    <string name="settings_search_prompt">Shkruaj një pjesë të emrit të një cilësimi.</string>
+    <string name="settings_search_empty">Asnjë cilësim nuk përputhet me \"%1$s\".</string>
 </resources>

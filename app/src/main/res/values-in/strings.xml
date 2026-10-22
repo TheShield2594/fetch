@@ -2297,4 +2297,11 @@
     <string name="source_rule_prefer_addon">Utamakan %1$s</string>
     <string name="source_rule_never_group">Jangan pernah putar rilis %1$s</string>
     <string name="source_rule_never_saved">Kecocokan terbaik akan melewati rilis %1$s</string>
+    <string name="settings_group_accounts">Akun</string>
+    <string name="settings_group_system">Sistem</string>
+    <string name="settings_search_title">Cari</string>
+    <string name="settings_search_subtitle">Temukan setelan berdasarkan namanya, lalu buka halaman tempat setelan itu berada.</string>
+    <string name="settings_search_hint">Cari setelan</string>
+    <string name="settings_search_prompt">Ketik sebagian nama setelan.</string>
+    <string name="settings_search_empty">Tidak ada setelan yang cocok dengan \"%1$s\".</string>
 </resources>

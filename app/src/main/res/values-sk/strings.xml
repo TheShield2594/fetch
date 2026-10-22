@@ -3070,4 +3070,11 @@
     <string name="source_rule_prefer_addon">Uprednostniť %1$s</string>
     <string name="source_rule_never_group">Nikdy neprehrávať vydania %1$s</string>
     <string name="source_rule_never_saved">Najlepšia zhoda preskočí vydania %1$s</string>
+    <string name="settings_group_accounts">Účty</string>
+    <string name="settings_group_system">Systém</string>
+    <string name="settings_search_title">Hľadať</string>
+    <string name="settings_search_subtitle">Nájdite nastavenie podľa názvu a otvorte stránku, na ktorej je.</string>
+    <string name="settings_search_hint">Hľadať v nastaveniach</string>
+    <string name="settings_search_prompt">Napíšte časť názvu nastavenia.</string>
+    <string name="settings_search_empty">Žiadne nastavenie nezodpovedá \"%1$s\".</string>
 </resources>

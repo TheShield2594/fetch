@@ -503,6 +503,14 @@
     <string name="settings_integration">Integrations</string>
     <string name="settings_playback">Playback</string>
     <string name="settings_tracking_title">Tracking</string>
+    <string name="settings_group_accounts">Accounts</string>
+    <string name="settings_group_system">System</string>
+    <string name="settings_search_title">Search</string>
+    <string name="settings_search_subtitle">Find a setting by name, then open the page that has it.</string>
+    <string name="settings_search_hint">Search settings</string>
+    <string name="settings_search_prompt">Type part of a setting\'s name.</string>
+    <string name="settings_search_empty">No settings match \"%1$s\".</string>
+    <string name="settings_search_path" translatable="false">%1$s › %2$s</string>
     <string name="settings_tracking_description">Connect tracking providers and choose which one powers your Library and Continue Watching.</string>
     <string name="tracking_accounts_title">Accounts</string>
     <string name="tracking_accounts_subtitle">Connect and manage tracking services</string>

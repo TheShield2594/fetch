@@ -2910,4 +2910,11 @@
     <string name="source_rule_prefer_addon">優先 %1$s</string>
     <string name="source_rule_never_group">永不播放 %1$s 的版本</string>
     <string name="source_rule_never_saved">最佳符合將略過 %1$s 的版本</string>
+    <string name="settings_group_accounts">帳戶</string>
+    <string name="settings_group_system">系統</string>
+    <string name="settings_search_title">搜尋</string>
+    <string name="settings_search_subtitle">依名稱尋找設定，然後開啟它所在的頁面。</string>
+    <string name="settings_search_hint">搜尋設定</string>
+    <string name="settings_search_prompt">輸入設定名稱的一部分。</string>
+    <string name="settings_search_empty">沒有符合「%1$s」的設定。</string>
 </resources>

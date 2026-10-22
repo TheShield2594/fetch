@@ -2461,4 +2461,11 @@
     <string name="source_rule_prefer_addon">Foretræk %1$s</string>
     <string name="source_rule_never_group">Afspil aldrig udgivelser fra %1$s</string>
     <string name="source_rule_never_saved">Bedste match springer udgivelser fra %1$s over</string>
+    <string name="settings_group_accounts">Konti</string>
+    <string name="settings_group_system">System</string>
+    <string name="settings_search_title">Søg</string>
+    <string name="settings_search_subtitle">Find en indstilling efter navn, og åbn den side, den er på.</string>
+    <string name="settings_search_hint">Søg i indstillinger</string>
+    <string name="settings_search_prompt">Skriv en del af en indstillings navn.</string>
+    <string name="settings_search_empty">Ingen indstillinger matcher \"%1$s\".</string>
 </resources>

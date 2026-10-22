@@ -1666,4 +1666,11 @@
     <string name="source_rule_prefer_addon">Föredra %1$s</string>
     <string name="source_rule_never_group">Spela aldrig utgåvor från %1$s</string>
     <string name="source_rule_never_saved">Bästa matchning hoppar över utgåvor från %1$s</string>
+    <string name="settings_group_accounts">Konton</string>
+    <string name="settings_group_system">System</string>
+    <string name="settings_search_title">Sök</string>
+    <string name="settings_search_subtitle">Hitta en inställning efter namn och öppna sidan där den finns.</string>
+    <string name="settings_search_hint">Sök i inställningar</string>
+    <string name="settings_search_prompt">Skriv en del av namnet på en inställning.</string>
+    <string name="settings_search_empty">Inga inställningar matchar \"%1$s\".</string>
 </resources>

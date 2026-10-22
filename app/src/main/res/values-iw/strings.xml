@@ -3064,4 +3064,11 @@
     <string name="source_rule_prefer_addon">להעדיף את %1$s</string>
     <string name="source_rule_never_group">לעולם לא לנגן גרסאות של %1$s</string>
     <string name="source_rule_never_saved">ההתאמה הטובה ביותר תדלג על גרסאות של %1$s</string>
+    <string name="settings_group_accounts">חשבונות</string>
+    <string name="settings_group_system">מערכת</string>
+    <string name="settings_search_title">חיפוש</string>
+    <string name="settings_search_subtitle">מצאו הגדרה לפי השם שלה ופתחו את הדף שבו היא נמצאת.</string>
+    <string name="settings_search_hint">חיפוש בהגדרות</string>
+    <string name="settings_search_prompt">הקלידו חלק משם של הגדרה.</string>
+    <string name="settings_search_empty">אין הגדרות שתואמות ל-\"%1$s\".</string>
 </resources>

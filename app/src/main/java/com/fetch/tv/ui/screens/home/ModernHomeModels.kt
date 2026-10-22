@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.fetch.tv.core.recommendations.BECAUSE_YOU_WATCHED_ADDON_ID
 import com.fetch.tv.domain.model.catalogRowLegacyKey
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.Collection
@@ -136,7 +137,7 @@ data class HeroCarouselRow(
 
 /** Home order key of a catalog row, or null for rows that are not catalogs. */
 internal fun HeroCarouselRow.orderKey(): String? {
-    val addonId = addonId ?: return null
+    val addonId = addonId?.takeIf { it != BECAUSE_YOU_WATCHED_ADDON_ID } ?: return null
     val catalogId = catalogId ?: return null
     val apiType = apiType ?: return null
     return catalogRowLegacyKey(addonId, apiType, catalogId)
@@ -560,7 +561,7 @@ internal fun buildCatalogItem(
     return ModernCarouselItem(
         key = "catalog_${row.key()}_${item.id}_${occurrence}",
         title = item.name,
-        subtitle = item.releaseInfo,
+        subtitle = item.recommendationReason ?: item.releaseInfo,
         imageUrl = if (useLandscapePosters) {
             item.landscapePoster ?: item.backdropUrl ?: item.poster
         } else if (item.posterShape == PosterShape.LANDSCAPE) {

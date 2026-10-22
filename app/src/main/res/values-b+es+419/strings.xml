@@ -235,6 +235,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">Con tecnología de TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">Con tecnología de Trakt</string>
     <string name="detail_more_like_this_powered_by_simkl">Desarrollado por Simkl</string>
+    <string name="because_you_watched_row_title">Porque viste %1$s</string>
+    <string name="because_you_watched_reason_collection">También en %1$s</string>
+    <string name="because_you_watched_reason_director">También dirigido por %1$s</string>
+    <string name="because_you_watched_reason_creator">También creado por %1$s</string>
+    <string name="because_you_watched_reason_writer">También escrito por %1$s</string>
+    <string name="because_you_watched_reason_cast">También con %1$s</string>
     <string name="detail_comments_title">Comentarios</string>
     <string name="detail_comments_subtitle">Reseñas de Trakt</string>
     <string name="detail_comments_subtitle_episode">Reseñas de Trakt para T%1$dE%2$d</string>

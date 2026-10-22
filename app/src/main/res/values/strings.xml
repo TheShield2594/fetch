@@ -235,6 +235,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">Powered by TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">Powered by Trakt</string>
     <string name="detail_more_like_this_powered_by_simkl">Powered by Simkl</string>
+    <string name="because_you_watched_row_title">Because you watched %1$s</string>
+    <string name="because_you_watched_reason_collection">Also in %1$s</string>
+    <string name="because_you_watched_reason_director">Also directed by %1$s</string>
+    <string name="because_you_watched_reason_creator">Also created by %1$s</string>
+    <string name="because_you_watched_reason_writer">Also written by %1$s</string>
+    <string name="because_you_watched_reason_cast">Also stars %1$s</string>
     <string name="detail_comments_title">Comments</string>
     <string name="detail_comments_subtitle">Reviews from Trakt</string>
     <string name="detail_comments_subtitle_episode">Reviews from Trakt for S%1$dE%2$d</string>
@@ -1243,7 +1249,7 @@
     <string name="tmdb_trailers_title">Trailers</string>
     <string name="tmdb_trailers_subtitle">Trailer candidates from TMDB videos for the detail trailer section</string>
     <string name="tmdb_more_like_this_title">More Like This</string>
-    <string name="tmdb_more_like_this_subtitle">TMDB recommendation backdrops on detail and post-play screens</string>
+    <string name="tmdb_more_like_this_subtitle">TMDB recommendations on Home, detail and post-play screens</string>
     <string name="tmdb_collections_title">Collections</string>
     <string name="tmdb_collections_subtitle">TMDB movie collections in release order</string>
 

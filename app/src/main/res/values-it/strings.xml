@@ -2597,6 +2597,12 @@
     <string name="playback_unavailable">Riproduzione non disponibile</string>
     <string name="playback_unavailable_message">La riproduzione non è disponibile per questo titolo con la configurazione attuale.</string>
     <string name="detail_more_like_this_powered_by_simkl">Offerto da Simkl</string>
+    <string name="because_you_watched_row_title">Perché hai guardato %1$s</string>
+    <string name="because_you_watched_reason_collection">Anche in %1$s</string>
+    <string name="because_you_watched_reason_director">Anche diretto da %1$s</string>
+    <string name="because_you_watched_reason_creator">Anche creato da %1$s</string>
+    <string name="because_you_watched_reason_writer">Anche scritto da %1$s</string>
+    <string name="because_you_watched_reason_cast">Anche con %1$s</string>
     <string name="theme_color_custom">Personalizzato</string>
     <string name="custom_theme_title">Il tuo gradiente personalizzato</string>
     <string name="custom_theme_subtitle">Scegli tre colori per il tema. Seleziona un colore per modificarlo.</string>

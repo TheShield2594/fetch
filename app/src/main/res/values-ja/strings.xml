@@ -2438,4 +2438,10 @@
     <string name="subtitle_style_text_opacity_hdr">文字の不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">これはトレントストリームですが、Fetchにはトレントエンジンが内蔵されていません。設定 → DebridでDebridサービスをオンにするか、外部プレーヤーで開いてください。</string>
+    <string name="because_you_watched_row_title">「%1$s」を視聴したあなたへ</string>
+    <string name="because_you_watched_reason_collection">同じシリーズ: %1$s</string>
+    <string name="because_you_watched_reason_director">同じ監督: %1$s</string>
+    <string name="because_you_watched_reason_creator">同じ制作者: %1$s</string>
+    <string name="because_you_watched_reason_writer">同じ脚本家: %1$s</string>
+    <string name="because_you_watched_reason_cast">同じ出演者: %1$s</string>
 </resources>

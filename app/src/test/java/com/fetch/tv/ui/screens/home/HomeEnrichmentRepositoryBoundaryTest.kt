@@ -204,7 +204,8 @@ class HomeEnrichmentRepositoryBoundaryTest {
             serverCatalog = mockk(relaxed = true),
             parentalControls = com.fetch.tv.unrestrictedParentalControls(),
             bestMatchCacheDataStore = mockk(relaxed = true),
-            episodeQueueStore = mockk(relaxed = true)
+            episodeQueueStore = mockk(relaxed = true),
+            becauseYouWatchedService = mockk(relaxed = true)
         )
         viewModel.startupGracePeriodActive = false
         viewModel.externalMetaPrefetchEnabled = true

@@ -2587,4 +2587,10 @@
     <string name="subtitle_style_text_opacity_hdr">Opaciteti i tekstit (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Ky është një transmetim torrent dhe Fetch nuk ka motor torrent të integruar. Aktivizo një shërbim debrid te Cilësimet → Debrid, ose hape në një luajtës të jashtëm.</string>
+    <string name="because_you_watched_row_title">Sepse shikuat %1$s</string>
+    <string name="because_you_watched_reason_collection">Gjithashtu në: %1$s</string>
+    <string name="because_you_watched_reason_director">I njëjti regjisor: %1$s</string>
+    <string name="because_you_watched_reason_creator">I njëjti krijues: %1$s</string>
+    <string name="because_you_watched_reason_writer">I njëjti skenarist: %1$s</string>
+    <string name="because_you_watched_reason_cast">Luan gjithashtu: %1$s</string>
 </resources>

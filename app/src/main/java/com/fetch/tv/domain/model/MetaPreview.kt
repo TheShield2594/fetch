@@ -36,7 +36,9 @@ data class MetaPreview(
     val voteCount: Int? = null,
     val sourceAddonBaseUrl: String? = null,
     val mdbListRatings: MDBListRatings? = null,
-    val mdbListRatingOrder: List<String> = MDBListSettings.DEFAULT_RATING_ORDER
+    val mdbListRatingOrder: List<String> = MDBListSettings.DEFAULT_RATING_ORDER,
+    /** Why a "Because you watched" row holds this title, shown under its card. */
+    val recommendationReason: String? = null
 ) {
     val apiType: String
         get() = type.toApiString(rawType)

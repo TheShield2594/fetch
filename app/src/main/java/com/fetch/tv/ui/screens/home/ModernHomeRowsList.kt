@@ -381,13 +381,7 @@ internal fun ModernHomeRowsList(
                         
                         if (rowBecameActive || itemChanged) {
                             val now = System.currentTimeMillis()
-                            val timeSinceLastHeroNav = now - lastHeroNavigationAtMs.value
-                            onHeroFocusSettleDelayChange(
-                                if (lastHeroNavigationAtMs.value != 0L &&
-                                    timeSinceLastHeroNav in 1 until 130L // MODERN_HERO_RAPID_NAV_THRESHOLD_MS
-                                ) 400L // MODERN_HERO_RAPID_NAV_SETTLE_MS
-                                else 450L // MODERN_HERO_FOCUS_DEBOUNCE_MS
-                            )
+                            onHeroFocusSettleDelayChange(MODERN_HERO_FOCUS_DEBOUNCE_MS)
                             onLastHeroNavigationAtMsChange(now)
                             onActiveRowKeyChange(rowKey)
                             onActiveItemIndexChange(index)

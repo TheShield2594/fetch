@@ -93,6 +93,7 @@ import com.fetch.tv.ui.util.recompositionHighlighter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -1076,6 +1077,31 @@ fun ModernHomeContent(
                 }.coerceAtLeast(1)
             }
 
+            // Load the backdrops either side of the focused card at the size the hero asks for, so a
+            // step left or right crossfades from the memory cache instead of waiting on the network.
+            val latestEnrichedPreviews by rememberUpdatedState(enrichedPreviews)
+            val heroPreloadContext = LocalContext.current
+            LaunchedEffect(rowByKey, heroMediaWidthPx, heroMediaHeightPx) {
+                snapshotFlow {
+                    val row = activeRowKey.value?.let { rowByKey[it] } ?: return@snapshotFlow emptyList()
+                    neighbourHeroBackdrops(row.items.list, activeItemIndex.intValue, latestEnrichedPreviews)
+                }
+                    .distinctUntilChanged()
+                    .collectLatest { urls ->
+                        // Wait out a held D-pad, the same settle the hero art itself waits for.
+                        delay(MODERN_HERO_FOCUS_DEBOUNCE_MS)
+                        val loader = heroPreloadContext.imageLoader
+                        urls.forEach { url ->
+                            loader.enqueue(
+                                ImageRequest.Builder(heroPreloadContext)
+                                    .data(url)
+                                    .size(width = heroMediaWidthPx, height = heroMediaHeightPx)
+                                    .build()
+                            )
+                        }
+                    }
+            }
+
             val heroMediaModifier = remember(heroBackdropHeight, screenHeight, fullScreenBackdrop) {
                 if (fullScreenBackdrop) {
                     Modifier.align(Alignment.TopStart).fillMaxWidth().height(screenHeight)
@@ -1128,16 +1154,10 @@ fun ModernHomeContent(
                     .fillMaxWidth(MODERN_HERO_TEXT_WIDTH_FRACTION)
             }
 
+            // The title and metadata follow focus at once, from the catalog's data until enrichment
+            // replaces it. Only the art above waits for focus to settle and enrichment to land.
             HeroTitleBlock(
-                previewProvider = {
-                    val state = heroSceneStateLambda()
-                    if (isRapidHorizontalNav.value || state.enrichmentActive) null
-                    else state.preview
-                },
-                enrichmentActive = {
-                    if (isRapidHorizontalNav.value) false
-                    else heroSceneStateLambda().enrichmentActive
-                },
+                previewProvider = { currentLiveHeroSceneStateHolder.value.preview },
                 bestMatchFor = { key -> latestCachedBestMatches.value[key] },
                 portraitMode = !useLandscapePosters,
                 showImdbRatings = uiState.homeImdbRatingsVisibility.showRatings,

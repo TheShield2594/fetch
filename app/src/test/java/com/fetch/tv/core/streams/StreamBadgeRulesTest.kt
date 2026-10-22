@@ -1,11 +1,5 @@
-package com.fetch.tv.core.debrid
+package com.fetch.tv.core.streams
 
-import com.fetch.tv.core.streams.StreamBadgeFilter
-import com.fetch.tv.core.streams.StreamBadgeImport
-import com.fetch.tv.core.streams.StreamBadgeMatcher
-import com.fetch.tv.core.streams.StreamBadgeRules
-import com.fetch.tv.core.streams.StreamBadgeRulesParser
-import com.fetch.tv.domain.model.DebridSettings
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.StreamBehaviorHints
 import com.fetch.tv.domain.model.StreamClientResolve
@@ -96,7 +90,7 @@ class StreamBadgeRulesTest {
 
     @Test
     fun `matches active badge filters against stream metadata`() {
-        val stream = directDebridStream()
+        val stream = clientResolveStream()
         val rules = StreamBadgeRules(
             imports = listOf(
                 badgeImport("inactive", active = false, name = "Inactive", pattern = "Movie"),
@@ -115,32 +109,6 @@ class StreamBadgeRulesTest {
         val badges = StreamBadgeMatcher.matchedBadges(stream, StreamBadgeMatcher.compile(rules))
 
         assertEquals(listOf("Dolby Vision", "Atmos"), badges.map { it.name })
-    }
-
-    @Test
-    fun `formatter exposes matched badges and badge variables`() {
-        val formatter = DebridStreamFormatter(DebridStreamTemplateEngine())
-        val rules = StreamBadgeRules(
-            imports = listOf(
-                StreamBadgeImport(
-                    sourceUrl = "https://example.com/badges.json",
-                    filters = listOf(
-                        StreamBadgeFilter(name = "Dolby Vision", pattern = "DV", imageURL = "https://cdn/dv.png"),
-                        StreamBadgeFilter(name = "Atmos", pattern = "Atmos", imageURL = "https://cdn/atmos.png")
-                    )
-                )
-            )
-        )
-        val settings = DebridSettings(
-            streamNameTemplate = "{stream.rseMatched::join(' + ')}",
-            streamDescriptionTemplate = "{stream.regexMatched::join(', ')}"
-        )
-
-        val formatted = formatter.format(directDebridStream(), settings, StreamBadgeMatcher.compile(rules))
-
-        assertEquals("Dolby Vision + Atmos", formatted.name)
-        assertEquals("Dolby Vision, Atmos", formatted.description)
-        assertEquals(listOf("Dolby Vision", "Atmos"), formatted.badges.map { it.name })
     }
 
     @Test
@@ -187,7 +155,7 @@ class StreamBadgeRulesTest {
             filters = listOf(StreamBadgeFilter(name = name, pattern = pattern))
         )
 
-    private fun directDebridStream(): Stream =
+    private fun clientResolveStream(): Stream =
         Stream(
             name = "Movie 2026 DV Atmos",
             title = "Movie",
@@ -220,7 +188,7 @@ class StreamBadgeRulesTest {
                 title = "Movie",
                 season = null,
                 episode = null,
-                service = DebridProviders.TORBOX_ID,
+                service = "torbox",
                 serviceIndex = 0,
                 serviceExtension = "TB",
                 isCached = true,

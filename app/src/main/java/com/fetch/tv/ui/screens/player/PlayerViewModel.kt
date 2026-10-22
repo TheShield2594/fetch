@@ -5,11 +5,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.exoplayer.ExoPlayer
-import com.fetch.tv.core.debrid.DirectDebridResolver
-import com.fetch.tv.core.debrid.DirectDebridStreamPreparer
-import com.fetch.tv.core.cloud.CloudLibraryPlaybackSessionStore
-import com.fetch.tv.core.cloud.CloudLibraryPlaybackProgressStore
-import com.fetch.tv.core.cloud.CloudLibraryRepository
 import com.fetch.tv.core.party.PartyMedia
 import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.core.player.StreamAutoPlayPolicy
@@ -89,12 +84,7 @@ class PlayerViewModel @Inject constructor(
     private val traktSettingsDataStore: TraktSettingsDataStore,
     private val simklRelatedService: com.fetch.tv.data.simkl.SimklRelatedService,
     private val simklAuthRepository: com.fetch.tv.data.simkl.SimklAuthRepository,
-    private val directDebridResolver: DirectDebridResolver,
     private val youTubeStreamResolver: com.fetch.tv.core.streams.YouTubeStreamResolver,
-    private val directDebridStreamPreparer: DirectDebridStreamPreparer,
-    private val cloudLibraryRepository: CloudLibraryRepository,
-    private val cloudPlaybackProgressStore: CloudLibraryPlaybackProgressStore,
-    private val cloudPlaybackSessionStore: CloudLibraryPlaybackSessionStore,
     private val streamBadgePresentation: com.fetch.tv.core.streams.StreamBadgePresentation,
     private val playbackIssueReportRepository: com.fetch.tv.data.repository.PlaybackIssueReportRepository,
     private val externalPlaybackTracker: com.fetch.tv.core.player.ExternalPlaybackTracker,
@@ -140,12 +130,7 @@ class PlayerViewModel @Inject constructor(
         tmdbService = tmdbService,
         tmdbMetadataService = tmdbMetadataService,
         tmdbSettingsDataStore = tmdbSettingsDataStore,
-        directDebridResolver = directDebridResolver,
         youTubeStreamResolver = youTubeStreamResolver,
-        directDebridStreamPreparer = directDebridStreamPreparer,
-        cloudLibraryRepository = cloudLibraryRepository,
-        cloudPlaybackProgressStore = cloudPlaybackProgressStore,
-        cloudPlaybackSessionStore = cloudPlaybackSessionStore,
         streamBadgePresentation = streamBadgePresentation,
         playbackIssueReportRepository = playbackIssueReportRepository,
         tvRecommendationManager = tvRecommendationManager,
@@ -361,9 +346,7 @@ class PlayerViewModel @Inject constructor(
             onResult(false)
             return
         }
-        val contentId = controller.contentId
-            ?: controller.cloudPlaybackContext?.item?.stableKey
-            ?: run {
+        val contentId = controller.contentId ?: run {
             onResult(false)
             return
         }
@@ -425,7 +408,6 @@ class PlayerViewModel @Inject constructor(
                     resumePositionMs = resumePositionMs,
                     subtitles = cachedSubtitles,
                     nextEpisodeSnapshot = nextEpisodeSnapshot,
-                    cloudSessionToken = controller.cloudSessionToken,
                     context = activityContext
                 )
             } catch (_: Exception) {

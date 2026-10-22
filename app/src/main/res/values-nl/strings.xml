@@ -409,10 +409,6 @@
     <string name="licenses_attributions_trakt_body">Fetch maakt verbinding met Trakt voor accountverificatie, kijkgeschiedenis, voortgangssynchronisatie, bibliotheekgegevens, beoordelingen, lijsten en reacties. Fetch is niet verbonden aan of onderschreven door Trakt.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch maakt verbinding met Simkl voor accountverificatie, kijklijsten, kijkgeschiedenis, afspeelvoortgang en scrobbelen. Trackinggegevens voor films, series en anime worden geleverd door Simkl. Fetch is niet verbonden aan of onderschreven door Simkl.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch maakt verbinding met Premiumize voor accountverificatie, toegang tot de cloudbibliotheek, cachecontroles en cloudafspeelfuncties. Fetch is niet verbonden aan of onderschreven door Premiumize.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch maakt verbinding met TorBox voor accountverificatie, toegang tot de cloudbibliotheek, cachecontroles en cloudafspeelfuncties. Fetch is niet verbonden aan of onderschreven door TorBox.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch gebruikt MDBList voor beoordelingen en gegevens van externe scoreleveranciers. Fetch is niet verbonden aan of onderschreven door MDBList.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -576,7 +572,6 @@
     <string name="settings_tmdb_subtitle">Instellingen voor metadata-verrijking</string>
     <string name="settings_mdblist_subtitle">Externe beoordelingsproviders</string>
     <string name="settings_animeskip_subtitle">Tijdstempels voor intro-/outro-overslaan bij anime</string>
-    <string name="settings_debrid_subtitle">Experimentele cloudaccountbronnen</string>
 
     <string name="playback_title">Afspeelinstellingen</string>
     <string name="playback_subtitle">Configureer videoweergave en ondertitelopties</string>
@@ -954,53 +949,8 @@
     <string name="mdblist_not_set">Niet ingesteld</string>
     <string name="mdblist_invalid_api_key">Ongeldige MDBList-API-sleutel</string>
 
-    <string name="debrid_title">Verbonden services</string>
-    <string name="debrid_subtitle">Verbind accounts voor links en bibliotheektoegang</string>
-    <string name="debrid_experimental_notice">Deze integraties zijn experimenteel en kunnen later worden behouden, gewijzigd of verwijderd.</string>
-    <string name="debrid_cloud_library">Cloudbibliotheek</string>
-    <string name="debrid_cloud_library_description">Blader door en speel bestanden af die al in je verbonden accounts staan.</string>
-    <string name="debrid_enable_title">Afspeelbare links ophalen</string>
-    <string name="debrid_enable_subtitle">Vraag een verbonden service om afspeelbare links wanneer een resultaat dat nodig heeft. Hierdoor kan het item aan die service worden toegevoegd.</string>
-    <string name="debrid_resolve_with">Ophalen via</string>
-    <string name="debrid_resolve_with_description">Kies welk verbonden account afspeelbare links afhandelt.</string>
-    <string name="debrid_add_key_first">Verbind eerst een account.</string>
-    <string name="debrid_section_account">Accounts</string>
-    <string name="debrid_section_instant_playback">Linkvoorbereiding</string>
-    <string name="debrid_section_filters">Filters &amp; sortering</string>
-    <string name="debrid_section_formatting">Opmaak</string>
-    <string name="debrid_provider_description">Verbind je %1$s-account.</string>
-    <string name="debrid_provider_device_description">Koppel je %1$s-account in de browser.</string>
-    <string name="debrid_api_key_dialog_title">%1$s-API-sleutel</string>
-    <string name="debrid_api_key_dialog_subtitle">Voer je %1$s-API-sleutel in.</string>
-    <string name="debrid_api_key_dialog_placeholder">Voer de %1$s-API-sleutel in</string>
-    <string name="debrid_not_set">Niet ingesteld</string>
-    <string name="debrid_connected">Verbonden</string>
-    <string name="debrid_connect_provider">%1$s verbinden</string>
-    <string name="debrid_disconnect_provider">%1$s loskoppelen</string>
-    <string name="debrid_disconnect">Loskoppelen</string>
-    <string name="debrid_device_auth_connected">%1$s is verbonden op dit apparaat.</string>
-    <string name="debrid_device_auth_starting">Beveiligde aanmelding starten...</string>
-    <string name="debrid_device_auth_instructions">Scan de QR-code en voer deze code in om Fetch goed te keuren.</string>
-    <string name="debrid_device_auth_waiting">Wachten op goedkeuring...</string>
-    <string name="debrid_device_auth_failed">Kon de aanmelding niet starten.</string>
-    <string name="debrid_device_auth_missing_configuration">Deze aanmeldmethode is niet geconfigureerd in deze build.</string>
-    <string name="debrid_device_auth_expired">Deze code is verlopen. Probeer het opnieuw.</string>
-    <string name="debrid_key_invalid">Kon deze API-sleutel niet valideren.</string>
-    <string name="debrid_prepare_instant_playback">Links voorbereiden</string>
-    <string name="debrid_prepare_instant_playback_description">Haal afspeelbare links op voordat het afspelen start.</string>
-    <string name="debrid_prepare_stream_count">Voor te bereiden links</string>
-    <string name="debrid_prepare_stream_count_warning">Gebruik indien mogelijk een lager aantal. Verbonden services kunnen beperken hoeveel links binnen een bepaalde periode kunnen worden opgehaald. Het openen van een film of aflevering kan meetellen voor die limieten, ook als je niet op Kijken drukt, omdat de links vooraf worden voorbereid.</string>
-    <string name="debrid_prepare_count_one">1 link</string>
-    <string name="debrid_prepare_count_many">%1$d links</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
 
-    <string name="debrid_formatter_title">Web-editor</string>
-    <string name="debrid_formatter_subtitle">Configureer bronweergave, filters en sortering vanaf een ander apparaat.</string>
-    <string name="debrid_formatter_configure">Web-editor openen</string>
-    <string name="debrid_formatter_reset_title">Opmaak herstellen</string>
-    <string name="debrid_formatter_reset_subtitle">Herstel de standaardopmaak van bronnen.</string>
-    <string name="debrid_formatter_qr_instruction">Scan deze QR-code met je telefoon om de instellingen van Debrid-bronnen te configureren.</string>
     <string name="settings_stream_badges_section">Fusion-stijl</string>
     <string name="settings_stream_size_badges_title">Groottelabels</string>
     <string name="settings_stream_size_badges_description">Toon labels met bestandsgrootte in streamresultaten en bronpanelen van de speler.</string>
@@ -1311,11 +1261,6 @@
     <string name="stream_no_streams">Geen streams gevonden</string>
     <string name="stream_no_streams_hint">Probeer meer add-ons te installeren om streams te vinden</string>
     <string name="stream_finding_source">Streambron zoeken</string>
-    <string name="debrid_resolving_stream">Debrid-stream ophalen</string>
-    <string name="debrid_stale_stream">Dit Debrid-resultaat is verlopen. Streams worden vernieuwd.</string>
-    <string name="debrid_missing_api_key">Voeg een Debrid-API-sleutel toe in de instellingen.</string>
-    <string name="debrid_not_cached">Niet in de cache van deze service.</string>
-    <string name="debrid_resolution_failed">Kon deze Debrid-stream niet ophalen.</string>
     <string name="p2p_consent_title">P2P-streaming</string>
     <string name="p2p_consent_body">Deze stream gebruikt peer-to-peer-technologie (P2P). Door P2P in te schakelen erken je en ga je ermee akkoord dat:\n\n\u2022 Je IP-adres zichtbaar is voor andere peers in het netwerk\n\u2022 Jij als enige verantwoordelijk bent voor de inhoud die je opent\n\u2022 Je bevestigt dat je het wettelijke recht hebt om deze inhoud in jouw rechtsgebied te streamen\n\u2022 Fetch geen P2P-inhoud host, verspreidt of beheert\n\u2022 Fetch geen aansprakelijkheid draagt voor juridische gevolgen van jouw gebruik van P2P-streaming\n\nJe gebruikt deze functie volledig op eigen risico. P2P kan altijd worden uitgeschakeld in de instellingen.</string>
     <string name="p2p_consent_enable">P2P inschakelen</string>
@@ -1605,7 +1550,6 @@
     <string name="library_delete_subtitle">Dit verwijdert de lijst en alle items uit Trakt.</string>
     <string name="library_source_local">LOKAAL</string>
     <string name="library_source_saved">Opgeslagen</string>
-    <string name="library_source_cloud">Cloud</string>
     <string name="library_watchlist">Kijklijst</string>
     <string name="library_status_watching">Aan het kijken</string>
     <string name="library_status_plan_to_watch">Van plan te kijken</string>
@@ -1628,35 +1572,7 @@
     <string name="library_list_edit_dialog_title">Lijst bewerken</string>
     <string name="library_sync_btn">Synchroniseren</string>
     <string name="library_syncing_btn">Synchroniseren\u2026</string>
-    <string name="cloud_library_connect_message">Verbind een account bij de instellingen voor Verbonden services om afspeelbare bestanden uit je cloudbibliotheek te bekijken.</string>
-    <string name="cloud_library_connect_title">Geen cloudaccount verbonden</string>
-    <string name="cloud_library_disabled_message">Schakel Cloudbibliotheek in bij de instellingen voor Verbonden services om bestanden van verbonden accounts te bekijken.</string>
-    <string name="cloud_library_disabled_title">Cloudbibliotheek staat uit</string>
-    <string name="cloud_library_empty_message">Geen afspeelbare cloudbestanden komen overeen met de huidige filters.</string>
-    <string name="cloud_library_empty_title">Hier staat nog niets</string>
-    <string name="cloud_library_file_picker_title">Kies een bestand om af te spelen</string>
-    <string name="cloud_library_no_playable_files">Geen afspeelbare bestanden</string>
-    <string name="cloud_library_one_playable_file">1 afspeelbaar bestand</string>
-    <string name="cloud_library_opening">Openen\u2026</string>
-    <string name="cloud_library_play_failed">Kon dit cloudbestand niet afspelen.</string>
-    <string name="cloud_library_play_file">Bestand afspelen</string>
-    <string name="cloud_library_playable_file_count">%1$d afspeelbare bestanden</string>
-    <string name="cloud_library_provider_all">Alle</string>
-    <string name="cloud_library_refresh">Cloudbibliotheek vernieuwen</string>
-    <string name="cloud_library_search_clear">Zoekopdracht wissen</string>
-    <string name="cloud_library_search_label">Cloudbibliotheek doorzoeken</string>
-    <string name="cloud_library_select_provider">Provider kiezen</string>
-    <string name="cloud_library_select_type">Type kiezen</string>
-    <string name="cloud_library_status_ready">Klaar om af te spelen</string>
-    <string name="cloud_library_type_all">Alle</string>
-    <string name="cloud_library_type_torrents">Torrents</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Bestanden</string>
 
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">De cloudbibliotheek is niet beschikbaar voor %1$s.</string>
-    <string name="cloud_library_error_disabled">De cloudbibliotheek is uitgeschakeld.</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Laden\u2026</string>
@@ -2518,9 +2434,7 @@
     <string name="trakt_library_error_fetch_list_items">Kon de lijstitems niet ophalen</string>
 
 
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
 
-    <!-- Debrid: selection count + size range labels -->
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Onbekend</string>
@@ -2529,20 +2443,8 @@
     <string name="external_playback_notification_text">Afspelen in externe speler</string>
     <string name="external_playback_channel_description">Houdt de app actief tijdens afspelen in een externe speler</string>
 
-    <!-- Web config page: Direct Debrid formatter -->
-    <string name="web_debrid_title">Instellingen voor Direct Debrid</string>
-    <string name="web_debrid_intro_title">Debrid-streams aanpassen</string>
-    <string name="web_debrid_intro_copy">Pas de streamlabels, filters en sortering aan die voor Direct Debrid-resultaten worden gebruikt.</string>
-    <string name="web_debrid_template_fields">Sjabloonvelden</string>
-    <string name="web_debrid_name_template">Naamsjabloon</string>
-    <string name="web_debrid_description_template">Beschrijvingssjabloon</string>
-    <string name="web_debrid_error_templates_required">Beide sjablonen zijn vereist</string>
-    <string name="web_debrid_restore_default">Standaard herstellen</string>
-    <string name="web_debrid_save_settings">Instellingen opslaan</string>
-    <string name="web_debrid_status_load_error">Kon de Debrid-instellingen niet laden</string>
 
     <!-- Web config pages: shared save status -->
-    <string name="web_status_saving">Opslaan…</string>
     <string name="web_status_saved_streams">Opgeslagen. Nieuwe streams gebruiken deze instellingen.</string>
     <string name="web_status_could_not_save">Kon niet opslaan</string>
 
@@ -2740,7 +2642,6 @@
     <string name="cd_mark_intro_start">Begin intro markeren</string>
     <string name="custom_server_error_official_active">Synchronisatie staat al uit op deze tv.</string>
     <string name="custom_server_error_official_available">Dat is geen synchronisatieserver. Sluit dit venster en kies Synchronisatie uitzetten om terug te gaan naar alleen-lokaal.</string>
-    <string name="debrid_stream_rules_moved">Streamregels staan nu onder Afspelen → Streamselectie en gelden voor elke bron, debrid inbegrepen. De regels die je hier had ingesteld, zijn daarheen verplaatst.</string>
     <string name="exclusion_3d">3D-release</string>
     <string name="exclusion_above_max_resolution">boven je maximale resolutie</string>
     <string name="exclusion_audio">je slaat %1$s-audio over</string>
@@ -2903,5 +2804,4 @@
     <string name="subtitle_style_text_opacity_hdr">Tekstdekking (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Dit is een torrentstream en Fetch heeft geen ingebouwde torrent-engine. Zet een debrid-service aan via Instellingen → Debrid, of open het in een externe speler.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: koppel een debrid-dienst via Instellingen → Debrid om hem hier af te spelen, of open hem in een externe speler.</string>
 </resources>

@@ -8,7 +8,6 @@ import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.local.StreamAutoPlaySource
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
-import com.fetch.tv.domain.model.StreamDebridCacheState
 
 object StreamAutoPlaySelector {
     /**
@@ -60,30 +59,18 @@ object StreamAutoPlaySelector {
             }
         }
 
-        val (directDebridEntries, remainingEntries) = streams.partition {
-            it.streams.any { stream -> stream.isDirectDebrid() }
-        }
-        if (installedOrder.isEmpty()) return directDebridEntries + remainingEntries
-        val (addonEntries, pluginEntries) = remainingEntries.partition { it.addonName in addonRankByName }
+        if (installedOrder.isEmpty()) return streams
+        val (addonEntries, pluginEntries) = streams.partition { it.addonName in addonRankByName }
         val orderedAddons = addonEntries.sortedBy { addonRankByName.getValue(it.addonName) }
-        return directDebridEntries + orderedAddons + pluginEntries
+        return orderedAddons + pluginEntries
     }
 
     private fun isPlayable(stream: Stream): Boolean {
         // External URL streams (e.g. error pages, web links) are not playable.
         if (stream.isExternal()) return false
         if (stream.serverTarget != null) return true
-        // Streams with a direct URL are always playable regardless of debrid cache status.
         if (stream.getStreamUrl() != null) return true
-        when (stream.debridCacheStatus?.state) {
-            StreamDebridCacheState.CHECKING,
-            StreamDebridCacheState.NOT_CACHED,
-            StreamDebridCacheState.UNKNOWN -> return false
-            StreamDebridCacheState.CACHED,
-            null -> Unit
-        }
         return stream.isTorrent() ||
-            stream.isDirectDebrid() ||
             // A YouTube id is resolved to a playable URL on the device when the stream is played.
             // Builds without in-app YouTube playback open the watch page instead, an external link.
             (AppFeaturePolicy.inAppTrailerPlaybackEnabled && stream.youTubeIdToResolve() != null)

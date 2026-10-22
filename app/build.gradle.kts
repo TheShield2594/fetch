@@ -134,7 +134,6 @@ android {
         }
         buildConfigField("String", "AVATAR_PUBLIC_BASE_URL", "\"${localProperties.getProperty("AVATAR_PUBLIC_BASE_URL", "")}\"")
         buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(localProperties.getProperty("PLAYBACK_REPORTS_BASE_URL", "")))
-        buildConfigField("String", "PREMIUMIZE_CLIENT_ID", buildConfigString(resolveProperty(devProperties, localProperties, "PREMIUMIZE_CLIENT_ID")))
 
         // In-app updater (GitHub Releases)
         buildConfigField("String", "GITHUB_OWNER", "\"TheShield2594\"")
@@ -204,7 +203,6 @@ android {
             buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", "\"${devProperties.getProperty("IMDB_TAPFRAME_API_BASE_URL", "")}\"")
             buildConfigField("String", "AVATAR_PUBLIC_BASE_URL", "\"${devProperties.getProperty("AVATAR_PUBLIC_BASE_URL", localProperties.getProperty("AVATAR_PUBLIC_BASE_URL", ""))}\"")
             buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "PLAYBACK_REPORTS_BASE_URL")))
-            buildConfigField("String", "PREMIUMIZE_CLIENT_ID", buildConfigString(resolveProperty(devProperties, localProperties, "PREMIUMIZE_CLIENT_ID")))
         }
         release {
             isMinifyEnabled = true
@@ -235,7 +233,6 @@ android {
             buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", "\"${localProperties.getProperty("IMDB_TAPFRAME_API_BASE_URL", "")}\"")
             buildConfigField("String", "AVATAR_PUBLIC_BASE_URL", "\"${localProperties.getProperty("AVATAR_PUBLIC_BASE_URL", "")}\"")
             buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(localProperties.getProperty("PLAYBACK_REPORTS_BASE_URL", "")))
-            buildConfigField("String", "PREMIUMIZE_CLIENT_ID", buildConfigString(resolveProperty(Properties(), localProperties, "PREMIUMIZE_CLIENT_ID")))
         }
         create("benchmark") {
             initWith(buildTypes.getByName("release"))

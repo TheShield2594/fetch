@@ -13,12 +13,6 @@ import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer
 import com.fetch.tv.core.player.BitrateAwareLoadControl
 import com.fetch.tv.core.player.LastPlaybackDiagnostics
-import com.fetch.tv.core.debrid.DirectDebridResolver
-import com.fetch.tv.core.debrid.DirectDebridStreamPreparer
-import com.fetch.tv.core.cloud.CloudLibraryPlaybackContext
-import com.fetch.tv.core.cloud.CloudLibraryPlaybackProgressStore
-import com.fetch.tv.core.cloud.CloudLibraryPlaybackSessionStore
-import com.fetch.tv.core.cloud.CloudLibraryRepository
 import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.core.tracking.TrackingMediaReference
 import com.fetch.tv.core.tracking.TrackingScrobbleCoordinator
@@ -94,12 +88,7 @@ class PlayerRuntimeController(
     internal val tmdbService: com.fetch.tv.core.tmdb.TmdbService,
     internal val tmdbMetadataService: com.fetch.tv.core.tmdb.TmdbMetadataService,
     internal val tmdbSettingsDataStore: com.fetch.tv.data.local.TmdbSettingsDataStore,
-    internal val directDebridResolver: DirectDebridResolver,
     internal val youTubeStreamResolver: com.fetch.tv.core.streams.YouTubeStreamResolver,
-    internal val directDebridStreamPreparer: DirectDebridStreamPreparer,
-    internal val cloudLibraryRepository: CloudLibraryRepository,
-    internal val cloudPlaybackProgressStore: CloudLibraryPlaybackProgressStore,
-    internal val cloudPlaybackSessionStore: CloudLibraryPlaybackSessionStore,
     internal val streamBadgePresentation: com.fetch.tv.core.streams.StreamBadgePresentation,
     internal val playbackIssueReportRepository: PlaybackIssueReportRepository,
     internal val tvRecommendationManager: com.fetch.tv.core.recommendations.TvRecommendationManager,
@@ -192,7 +181,6 @@ class PlayerRuntimeController(
     internal val launchStartedAtElapsedMs: Long? = navigationArgs.launchStartedAtMs
     internal val rememberedAudioLanguage: String? = navigationArgs.rememberedAudioLanguage
     internal val rememberedAudioName: String? = navigationArgs.rememberedAudioName
-    internal val cloudSessionToken: String? = navigationArgs.cloudSessionToken
     internal val mediaSourceFactory = PlayerMediaSourceFactory(context.applicationContext).apply {
         onStreamRedirected = { requestedUrl, resolvedUrl -> handleStreamRedirect(requestedUrl, resolvedUrl) }
     }
@@ -447,7 +435,7 @@ class PlayerRuntimeController(
     /** Cancels previous TEXT-track bounce jobs when subtitle delay is adjusted repeatedly. */
     internal var subtitleTimingRefreshJob: Job? = null
     internal var nextEpisodeAutoPlayJob: Job? = null
-    internal var debridResolveJob: Job? = null
+    internal var streamResolveJob: Job? = null
     internal var stillWatchingPromptJob: Job? = null
     internal var startupLoadingReportJob: Job? = null
     internal var sourceStreamsJob: Job? = null
@@ -504,8 +492,6 @@ class PlayerRuntimeController(
     internal var configuredBackBufferMs: Int = 0
     internal var metaVideos: List<Video> = emptyList()
     internal var playbackShuffleState: com.fetch.tv.core.player.PlaybackShuffleState? = null
-    internal var cloudPlaybackContext: CloudLibraryPlaybackContext? =
-        cloudPlaybackSessionStore.load(cloudSessionToken)
     internal var metaGenres: List<String> = emptyList()
     internal var metaCountry: String? = null
     internal var metaFetchJob: Job? = null
@@ -747,11 +733,7 @@ class PlayerRuntimeController(
         // causing the resume seek to be silently lost when ExoPlayer's STATE_READY
         // fired before the DB read completed.
         observeSubtitleSettings()
-        if (contentType.equals("cloud", ignoreCase = true)) {
-            initializeCloudPlaybackSequence()
-        } else {
-            fetchMetaDetails(contentId, contentType)
-        }
+        fetchMetaDetails(contentId, contentType)
         observeBlurUnwatchedEpisodes()
         observeEpisodeOptionsOverlayStyle()
         observeEpisodeWatchProgress()

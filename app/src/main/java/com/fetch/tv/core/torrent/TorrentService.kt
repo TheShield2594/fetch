@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * Entry point for on-device P2P playback of torrent streams.
  *
  * The upstream app shipped a closed-source native torrent engine here. Fetch does not
- * bundle one: torrent results are resolved through the built-in debrid integration
- * (Settings → Debrid) or handed to an external player. The API is kept so an
+ * bundle one: torrent results are handed to an external player, and debrid links come
+ * resolved from addons. The API is kept so an
  * open-source engine can be plugged in later without touching the player.
  */
 @Singleton

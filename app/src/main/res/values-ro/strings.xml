@@ -774,7 +774,6 @@
     <string name="cd_mark_intro_start">Marchează începutul intro-ului</string>
     <string name="custom_server_error_official_active">Sincronizarea este deja dezactivată pe acest televizor.</string>
     <string name="custom_server_error_official_available">Acesta nu este un server de sincronizare. Închide acest dialog și alege Dezactivează sincronizarea pentru a reveni la modul doar local.</string>
-    <string name="debrid_stream_rules_moved">Regulile pentru fluxuri se află acum în Redare → Selecția fluxului și se aplică tuturor surselor, inclusiv debrid. Regulile setate aici au fost mutate acolo.</string>
     <string name="exclusion_3d">versiune 3D</string>
     <string name="exclusion_above_max_resolution">peste rezoluția maximă setată</string>
     <string name="exclusion_audio">omiți audio %1$s</string>
@@ -940,5 +939,4 @@
     <string name="subtitle_style_text_opacity_hdr">Opacitate text (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Acesta este un flux torrent, iar Fetch nu are un motor torrent integrat. Activează un serviciu debrid în Setări → Debrid sau deschide-l într-un player extern.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: conectează un serviciu debrid în Setări → Debrid ca să-l redai aici sau deschide-l într-un player extern.</string>
 </resources>

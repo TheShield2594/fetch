@@ -9,8 +9,6 @@ import kotlinx.serialization.json.put
 internal object ProviderCredentialIds {
     const val MDBLIST = "mdblist"
     const val ANIMESKIP = "animeskip"
-
-    fun debrid(providerId: String): String = "debrid:$providerId"
 }
 
 internal data class ProviderCredentialValue(

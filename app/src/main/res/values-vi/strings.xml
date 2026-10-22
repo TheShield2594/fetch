@@ -435,10 +435,6 @@
     <string name="licenses_attributions_trakt_body">Fetch kết nối với Trakt để xác thực tài khoản, đồng bộ lịch sử đã xem, tiến độ xem, dữ liệu thư viện, đánh giá, danh sách và bình luận. Fetch không liên kết hoặc được Trakt xác nhận.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch kết nối với Simkl để xác thực tài khoản, đồng bộ danh sách theo dõi, lịch sử đã xem, tiến trình phát lại và ghi nhật ký phát lại. Dữ liệu theo dõi phim, TV và anime do Simkl cung cấp. Fetch không liên kết hoặc được xác nhận bởi Simkl.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch kết nối với Premiumize để xác thực tài khoản, truy cập thư viện đám mây, kiểm tra bộ nhớ đệm và tính năng phát từ đám mây. Fetch không liên kết hoặc được xác nhận bởi Premiumize.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch kết nối với TorBox để xác thực tài khoản, truy cập thư viện đám mây, kiểm tra bộ nhớ đệm và tính năng phát từ đám mây. Fetch không liên kết hoặc được xác nhận bởi TorBox.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch sử dụng MDBList để cung cấp điểm đánh giá và dữ liệu từ các nhà cung cấp điểm số bên ngoài. Fetch không liên kết hoặc được xác nhận bởi MDBList.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -606,7 +602,6 @@
     <string name="settings_tmdb_subtitle">Kiểm soát việc bổ sung siêu dữ liệu</string>
     <string name="settings_mdblist_subtitle">Nhà cung cấp điểm đánh giá bên ngoài</string>
     <string name="settings_animeskip_subtitle">Mốc thời gian bỏ qua phần mở đầu/kết thúc anime</string>
-    <string name="settings_debrid_subtitle">Nguồn tài khoản đám mây thử nghiệm</string>
 
     <string name="playback_title">Cài đặt phát lại</string>
     <string name="playback_subtitle">Cấu hình trình phát lại video và tuỳ chọn phụ đề</string>
@@ -1110,53 +1105,8 @@
     <string name="tracking_mdblist_features_title">Tính năng MDBList</string>
     <string name="tracking_mdblist_features_subtitle">Cài đặt riêng cho MDBList</string>
 
-    <string name="debrid_title">Dịch vụ liên kết</string>
-    <string name="debrid_subtitle">Kết nối tài khoản để truy cập liên kết và thư viện nội dung</string>
-    <string name="debrid_experimental_notice">Các tích hợp này đang thử nghiệm và có thể được giữ lại, thay đổi hoặc gỡ bỏ sau này.</string>
-    <string name="debrid_cloud_library">Thư viện đám mây</string>
-    <string name="debrid_cloud_library_description">Duyệt và phát các tệp đã có sẵn trong tài khoản đã kết nối.</string>
-    <string name="debrid_enable_title">Phân giải liên kết phát được</string>
-    <string name="debrid_enable_subtitle">Yêu cầu dịch vụ liên kết cung cấp các liên kết phát được khi kết quả tìm kiếm cần đến. Điều này có thể sẽ thêm mục đó vào dịch vụ.</string>
-    <string name="debrid_resolve_with">Phân giải bằng</string>
-    <string name="debrid_resolve_with_description">Chọn tài khoản đã liên kết để xử lý liên kết phát được.</string>
-    <string name="debrid_add_key_first">Vui lòng kết nối tài khoản trước.</string>
-    <string name="debrid_section_account">Tài khoản</string>
-    <string name="debrid_section_instant_playback">Chuẩn bị liên kết</string>
-    <string name="debrid_section_filters">Bộ lọc &amp; Sắp xếp</string>
-    <string name="debrid_section_formatting">Định dạng</string>
-    <string name="debrid_provider_description">Kết nối tài khoản %1$s của bạn</string>
-    <string name="debrid_provider_device_description">Liên kết tài khoản %1$s của bạn trong trình duyệt.</string>
-    <string name="debrid_api_key_dialog_title">Mã khóa API %1$s</string>
-    <string name="debrid_api_key_dialog_subtitle">Nhập mã khóa API %1$s của bạn</string>
-    <string name="debrid_api_key_dialog_placeholder">Nhập mã khóa API %1$s</string>
-    <string name="debrid_not_set">Chưa thiết lập</string>
-    <string name="debrid_connected">Đã kết nối</string>
-    <string name="debrid_connect_provider">Kết nối %1$s</string>
-    <string name="debrid_disconnect_provider">Ngắt kết nối %1$s</string>
-    <string name="debrid_disconnect">Ngắt kết nối</string>
-    <string name="debrid_device_auth_connected">%1$s đã được kết nối trên thiết bị này</string>
-    <string name="debrid_device_auth_starting">Đang bắt đầu đăng nhập bảo mật…</string>
-    <string name="debrid_device_auth_instructions">Quét mã QR và nhập mã này để phê duyệt Fetch.</string>
-    <string name="debrid_device_auth_waiting">Đang chờ phê duyệt…</string>
-    <string name="debrid_device_auth_failed">Không thể đăng nhập.</string>
-    <string name="debrid_device_auth_missing_configuration">Phương thức đăng nhập này chưa được cấu hình trong bản dựng này.</string>
-    <string name="debrid_device_auth_expired">Mã này đã hết hạn. Vui lòng thử lại</string>
-    <string name="debrid_key_invalid">Không thể xác minh mã khóa API này</string>
-    <string name="debrid_prepare_instant_playback">Chuẩn bị liên kết</string>
-    <string name="debrid_prepare_instant_playback_description">Phân giải các liên kết phát được trước khi bắt đầu phát.</string>
-    <string name="debrid_prepare_stream_count">Liên kết cần chuẩn bị</string>
-    <string name="debrid_prepare_stream_count_warning">Sử dụng số lượng thấp hơn khi có thể. Các dịch vụ liên kết có thể giới hạn số liên kết được phân giải trong một khoảng thời gian. Việc mở một bộ phim hoặc tập phim có thể được tính vào giới hạn đó ngay cả khi bạn không nhấn Xem, vì các liên kết được chuẩn bị trước.</string>
-    <string name="debrid_prepare_count_one">1 liên kết</string>
-    <string name="debrid_prepare_count_many">%1$d liên kết</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
 
-    <string name="debrid_formatter_title">Trình chỉnh sửa web</string>
-    <string name="debrid_formatter_subtitle">Cấu hình cách hiển thị nguồn, bộ lọc và sắp xếp trên thiết bị khác.</string>
-    <string name="debrid_formatter_configure">Mở trình chỉnh sửa web</string>
-    <string name="debrid_formatter_reset_title">Đặt lại định dạng</string>
-    <string name="debrid_formatter_reset_subtitle">Khôi phục định dạng nguồn mặc định.</string>
-    <string name="debrid_formatter_qr_instruction">Quét mã QR này bằng điện thoại để cấu hình cài đặt nguồn Debrid.</string>
     <string name="settings_stream_badges_section">Kiểu Fusion</string>
     <string name="settings_stream_size_badges_title">Nhãn dung lượng</string>
     <string name="settings_stream_size_badges_description">Hiển thị nhãn dung lượng tệp trong kết quả luồng và bảng chọn nguồn phát.</string>
@@ -1468,11 +1418,6 @@
     <string name="stream_no_streams">Không tìm thấy luồng</string>
     <string name="stream_no_streams_hint">Thử cài đặt thêm tiện ích để tìm luồng phát</string>
     <string name="stream_finding_source">Đang tìm nguồn phát</string>
-    <string name="debrid_resolving_stream">Đang phân giải luồng debrid</string>
-    <string name="debrid_stale_stream">Nguồn phát Debrid này đã hết hạn. Đang làm mới các luồng.</string>
-    <string name="debrid_missing_api_key">Thêm mã khóa API Debrid trong phần Cài đặt</string>
-    <string name="debrid_not_cached">Chưa được lưu sẵn trên dịch vụ này.</string>
-    <string name="debrid_resolution_failed">Không thể phân giải luồng Debrid này.</string>
     <string name="youtube_resolving_stream">Đang tải video YouTube</string>
     <string name="youtube_resolution_failed">Không thể tải video YouTube này.</string>
     <string name="p2p_consent_title">Phát luồng P2P</string>
@@ -1788,7 +1733,6 @@
     <string name="library_delete_subtitle">Thao tác này sẽ xóa danh sách và tất cả mục danh sách khỏi Trakt.</string>
     <string name="library_source_local">CỤC BỘ</string>
     <string name="library_source_saved">Đã lưu</string>
-    <string name="library_source_cloud">Đám mây</string>
     <string name="library_watchlist">Danh sách theo dõi</string>
     <string name="library_status_watching">Đang xem</string>
     <string name="library_status_plan_to_watch">Xem sau</string>
@@ -1811,35 +1755,7 @@
     <string name="library_list_edit_dialog_title">Chỉnh sửa danh sách</string>
     <string name="library_sync_btn">Đồng bộ</string>
     <string name="library_syncing_btn">Đang đồng bộ\u2026</string>
-    <string name="cloud_library_connect_message">Kết nối tài khoản trong Dịch vụ liên kết để duyệt tập tin phát được từ thư viện đám mây của bạn.</string>
-    <string name="cloud_library_connect_title">Không có tài khoản đám mây đã kết nối</string>
-    <string name="cloud_library_disabled_message">Bật Thư viện đám mây trong Dịch vụ liên kết để duyệt các tệp từ tài khoản đã kết nối</string>
-    <string name="cloud_library_disabled_title">Thư viện đám mây đang tắt</string>
-    <string name="cloud_library_empty_message">Không có tệp đám mây phát được phù hợp với bộ lọc hiện tại</string>
-    <string name="cloud_library_empty_title">Chưa có nội dung</string>
-    <string name="cloud_library_file_picker_title">Chọn tệp để phát</string>
-    <string name="cloud_library_no_playable_files">Không tìm thấy tệp phát được</string>
-    <string name="cloud_library_one_playable_file">1 tệp phát được</string>
-    <string name="cloud_library_opening">Đang mở\u2026</string>
-    <string name="cloud_library_play_failed">Không thể phát tệp đám mây này</string>
-    <string name="cloud_library_play_file">Phát tệp</string>
-    <string name="cloud_library_playable_file_count">%1$d tệp phát được</string>
-    <string name="cloud_library_provider_all">Tất cả</string>
-    <string name="cloud_library_refresh">Làm mới thư viện đám mây</string>
-    <string name="cloud_library_search_clear">Xóa tìm kiếm</string>
-    <string name="cloud_library_search_label">Tìm kiếm thư viện đám mây</string>
-    <string name="cloud_library_select_provider">Chọn nhà cung cấp</string>
-    <string name="cloud_library_select_type">Chọn loại</string>
-    <string name="cloud_library_status_ready">Sẵn sàng để phát</string>
-    <string name="cloud_library_type_all">Tất cả</string>
-    <string name="cloud_library_type_torrents">Torrent</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Tệp</string>
 
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">Thư viện đám mây không khả dụng với %1$s</string>
-    <string name="cloud_library_error_disabled">Thư viện đám mây đang tắt</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Đang tải\u2026</string>
@@ -2707,9 +2623,7 @@
     <string name="trakt_library_error_fetch_list_items">Không thể tải các mục danh sách</string>
 
 
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
 
-    <!-- Debrid: selection count + size range labels -->
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Không xác định</string>
@@ -2718,20 +2632,8 @@
     <string name="external_playback_notification_text">Đang phát bằng trình phát bên ngoài</string>
     <string name="external_playback_channel_description">Giữ ứng dụng hoạt động trong khi phát bằng trình phát bên ngoài</string>
 
-    <!-- Web config page: Direct Debrid formatter -->
-    <string name="web_debrid_title">Cài đặt Direct Debrid</string>
-    <string name="web_debrid_intro_title">Tùy chỉnh các luồng Debrid</string>
-    <string name="web_debrid_intro_copy">Điều chỉnh nhãn, bộ lọc và thứ tự sắp xếp luồng dùng cho kết quả Direct Debrid.</string>
-    <string name="web_debrid_template_fields">Các trường mẫu</string>
-    <string name="web_debrid_name_template">Mẫu tên</string>
-    <string name="web_debrid_description_template">Mẫu mô tả</string>
-    <string name="web_debrid_error_templates_required">Cả hai mẫu đều bắt buộc</string>
-    <string name="web_debrid_restore_default">Khôi phục mặc định</string>
-    <string name="web_debrid_save_settings">Lưu cài đặt</string>
-    <string name="web_debrid_status_load_error">Không thể tải cài đặt Debrid</string>
 
     <!-- Web config pages: shared save status -->
-    <string name="web_status_saving">Đang lưu…</string>
     <string name="web_status_saved_streams">Đã lưu. Các luồng mới sẽ sử dụng những cài đặt này.</string>
     <string name="web_status_could_not_save">Không thể lưu</string>
 
@@ -2973,7 +2875,6 @@
     <string name="cd_mark_intro_start">Đánh dấu bắt đầu phần giới thiệu</string>
     <string name="custom_server_error_official_active">Đồng bộ trên TV này đã tắt.</string>
     <string name="custom_server_error_official_available">Đây không phải máy chủ đồng bộ. Đóng hộp thoại này và chọn Tắt đồng bộ để quay về chế độ chỉ dùng cục bộ.</string>
-    <string name="debrid_stream_rules_moved">Quy tắc luồng giờ nằm ở Phát lại → Lựa chọn luồng và áp dụng cho mọi nguồn, kể cả debrid. Các quy tắc bạn đặt ở đây đã được chuyển sang đó.</string>
     <string name="exclusion_3d">Bản phát hành 3D</string>
     <string name="exclusion_above_max_resolution">vượt độ phân giải tối đa của bạn</string>
     <string name="exclusion_audio">bạn bỏ qua âm thanh %1$s</string>
@@ -3133,5 +3034,4 @@
     <string name="subtitle_style_text_opacity_hdr">Độ mờ đục chữ (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Đây là luồng torrent và Fetch không có công cụ torrent tích hợp. Hãy bật dịch vụ debrid trong Cài đặt → Debrid, hoặc mở bằng trình phát bên ngoài.</string>
-    <string name="stream_torrent_needs_debrid">Torrent: kết nối dịch vụ debrid trong Cài đặt → Debrid để phát tại đây, hoặc mở bằng trình phát bên ngoài.</string>
 </resources>

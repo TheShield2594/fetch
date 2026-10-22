@@ -434,10 +434,6 @@
     <string name="licenses_attributions_trakt_body">A Fetch a Trakthoz kapcsolódik fiókhitelesítéshez, a megtekintési előzmények és a megtekintési állapot szinkronizálásához, valamint a könyvtár, az értékelések, a listák és a vélemények kezeléséhez. A Fetch nem áll kapcsolatban a Trakttal, és a Trakt nem támogatja.</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">A Fetch a Simklhez kapcsolódik fiókhitelesítéshez, a várólisták, a megtekintési előzmények és a lejátszási állapot szinkronizálásához, valamint a lejátszási adatok automatikus küldéséhez. A filmek, sorozatok és animék követési adatait a Simkl szolgáltatja. A Fetch nem áll kapcsolatban a Simkllel, és a Simkl nem támogatja.</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">A Fetch a Premiumize-hoz kapcsolódik fiókhitelesítéshez, felhőkönyvtár-eléréshez, gyorsítótár-ellenőrzésekhez és felhős lejátszási funkciókhoz. A Fetch nem áll kapcsolatban a Premiumize-zal, és a Premiumize nem támogatja.</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">A Fetch a TorBox-hoz kapcsolódik fiókhitelesítéshez, felhőkönyvtár-eléréshez, gyorsítótár-ellenőrzésekhez és felhős lejátszási funkciókhoz. A Fetch nem áll kapcsolatban a TorBox-szal, és a TorBox nem támogatja.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">A Fetch az MDBList szolgáltatását használja az értékelésekhez, a megtekintési előzményekhez és a lejátszás követéséhez. A Fetch nem áll kapcsolatban az MDBListtel, és az MDBList nem támogatja.</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -605,7 +601,6 @@
     <string name="settings_tmdb_subtitle">Metaadat-bővítési beállítások</string>
     <string name="settings_mdblist_subtitle">Külső értékelési szolgáltatók</string>
     <string name="settings_animeskip_subtitle">Anime intro/outro átugrási időbélyegek</string>
-    <string name="settings_debrid_subtitle">Kísérleti források felhőfiókokból</string>
 
     <string name="playback_title">Lejátszási beállítások</string>
     <string name="playback_subtitle">Videólejátszás és feliratok konfigurálása</string>
@@ -1102,53 +1097,8 @@
     <string name="tracking_mdblist_features_title">MDBList-funkciók</string>
     <string name="tracking_mdblist_features_subtitle">MDBList-specifikus beállítások</string>
 
-    <string name="debrid_title">Kapcsolódó szolgáltatások</string>
-    <string name="debrid_subtitle">Fiókok csatlakoztatása lejátszási linkekhez és a könyvtár eléréséhez</string>
-    <string name="debrid_experimental_notice">Ezek az integrációk kísérleti jellegűek; később megmaradhatnak, változhatnak vagy megszűnhetnek.</string>
-    <string name="debrid_cloud_library">Felhőkönyvtár</string>
-    <string name="debrid_cloud_library_description">A már összekapcsolt fiókjaidban lévő fájlok böngészése és lejátszása.</string>
-    <string name="debrid_enable_title">Lejátszási linkek lekérése</string>
-    <string name="debrid_enable_subtitle">Szükség esetén lejátszható linket kér a csatlakoztatott szolgáltatástól. Ez hozzáadhatja a tartalmat a szolgáltatáshoz.</string>
-    <string name="debrid_resolve_with">Feloldás ezzel</string>
-    <string name="debrid_resolve_with_description">Válaszd ki, melyik összekapcsolt fiók kezelje a lejátszható linkeket.</string>
-    <string name="debrid_add_key_first">Először csatlakoztass egy fiókot.</string>
-    <string name="debrid_section_account">Fiókok</string>
-    <string name="debrid_section_instant_playback">Linkek előkészítése</string>
-    <string name="debrid_section_filters">Szűrők és rendezés</string>
-    <string name="debrid_section_formatting">Formázás</string>
-    <string name="debrid_provider_description">Kapcsold össze a %1$s fiókodat.</string>
-    <string name="debrid_provider_device_description">Kapcsold össze a %1$s fiókodat a böngészőben.</string>
-    <string name="debrid_api_key_dialog_title">%1$s API-kulcs</string>
-    <string name="debrid_api_key_dialog_subtitle">Add meg a %1$s API-kulcsodat.</string>
-    <string name="debrid_api_key_dialog_placeholder">%1$s API-kulcs megadása</string>
-    <string name="debrid_not_set">Nincs beállítva</string>
-    <string name="debrid_connected">Csatlakoztatva</string>
-    <string name="debrid_connect_provider">%1$s csatlakoztatása</string>
-    <string name="debrid_disconnect_provider">%1$s leválasztása</string>
-    <string name="debrid_disconnect">Leválasztás</string>
-    <string name="debrid_device_auth_connected">A %1$s csatlakoztatva van ezen az eszközön.</string>
-    <string name="debrid_device_auth_starting">Biztonságos bejelentkezés indítása...</string>
-    <string name="debrid_device_auth_instructions">Olvasd be a QR-kódot, és írd be ezt a kódot a Fetch jóváhagyásához.</string>
-    <string name="debrid_device_auth_waiting">Várakozás a jóváhagyásra...</string>
-    <string name="debrid_device_auth_failed">Nem sikerült elindítani a bejelentkezést.</string>
-    <string name="debrid_device_auth_missing_configuration">Ez a bejelentkezési mód nincs konfigurálva ebben a verzióban.</string>
-    <string name="debrid_device_auth_expired">Ez a kód lejárt. Próbáld újra.</string>
-    <string name="debrid_key_invalid">Nem sikerült érvényesíteni ezt az API-kulcsot.</string>
-    <string name="debrid_prepare_instant_playback">Linkek előkészítése</string>
-    <string name="debrid_prepare_instant_playback_description">Lejátszható linkek lekérése a lejátszás megkezdése előtt.</string>
-    <string name="debrid_prepare_stream_count">Előkészítendő linkek</string>
-    <string name="debrid_prepare_stream_count_warning">Lehetőség szerint adj meg alacsonyabb számot. A csatlakoztatott szolgáltatások korlátozhatják, hogy adott időn belül hány lejátszási linket kérhetsz le. Egy film vagy epizód megnyitása akkor is beleszámíthat ebbe a korlátba, ha nem indítod el a lejátszást, mert a linkek előre elkészülnek.</string>
-    <string name="debrid_prepare_count_one">1 link</string>
-    <string name="debrid_prepare_count_many">%1$d link</string>
 
-    <!-- Debrid stream filter dialogs (per-resolution / quality / size / multi-choice pickers) -->
 
-    <string name="debrid_formatter_title">Webes szerkesztő</string>
-    <string name="debrid_formatter_subtitle">Konfiguráld a forrás megjelenítését, a szűrőket és a rendezést egy másik eszközről.</string>
-    <string name="debrid_formatter_configure">Webes szerkesztő megnyitása</string>
-    <string name="debrid_formatter_reset_title">Formázás visszaállítása</string>
-    <string name="debrid_formatter_reset_subtitle">Alapértelmezett forrásformázás visszaállítása.</string>
-    <string name="debrid_formatter_qr_instruction">Olvasd be ezt a QR-kódot a telefonodon a Debrid forrás beállításainak konfigurálásához.</string>
     <string name="settings_stream_badges_section">Fusion stílus</string>
     <string name="settings_stream_size_badges_title">Fájlméretjelzők</string>
     <string name="settings_stream_size_badges_description">Fájlméretjelzők megjelenítése a forrástalálatoknál és a lejátszó forráspanelein.</string>
@@ -1460,11 +1410,6 @@
     <string name="stream_no_streams">Nem találhatók források</string>
     <string name="stream_no_streams_hint">Próbálj meg több bővítményt telepíteni a források kereséséhez</string>
     <string name="stream_finding_source">Forrás keresése</string>
-    <string name="debrid_resolving_stream">Debrid stream feloldása</string>
-    <string name="debrid_stale_stream">Ez a Debrid eredmény lejárt. Streamek frissítése.</string>
-    <string name="debrid_missing_api_key">Adj hozzá egy Debrid API-kulcsot a Beállításokban.</string>
-    <string name="debrid_not_cached">Nincs gyorsítótárazva ezen a szolgáltatáson.</string>
-    <string name="debrid_resolution_failed">Nem sikerült feloldani ezt a Debrid streamet.</string>
     <string name="youtube_resolving_stream">YouTube-videó betöltése</string>
     <string name="youtube_resolution_failed">Nem sikerült betölteni ezt a YouTube-videót.</string>
     <string name="p2p_consent_title">P2P Streamelés</string>
@@ -1780,7 +1725,6 @@
     <string name="library_delete_subtitle">Ez eltávolítja a listát és annak minden elemét a Trakt-ról.</string>
     <string name="library_source_local">HELYI</string>
     <string name="library_source_saved">Mentett</string>
-    <string name="library_source_cloud">Felhő</string>
     <string name="library_watchlist">Várólista</string>
     <string name="library_status_watching">Folyamatban</string>
     <string name="library_status_plan_to_watch">Megnézendő</string>
@@ -1803,35 +1747,7 @@
     <string name="library_list_edit_dialog_title">Lista szerkesztése</string>
     <string name="library_sync_btn">Szinkronizálás</string>
     <string name="library_syncing_btn">Szinkronizálás\u2026</string>
-    <string name="cloud_library_connect_message">Csatlakoztass egy fiókot a Kapcsolódó szolgáltatások beállításaiban, hogy böngészhesd a felhőkönyvtáradban lévő lejátszható fájlokat.</string>
-    <string name="cloud_library_connect_title">Nincs csatlakoztatva felhőfiók</string>
-    <string name="cloud_library_disabled_message">Kapcsold be a Felhőkönyvtárat a Kapcsolódó szolgáltatások beállításaiban a csatlakoztatott fiókok fájljainak böngészéséhez.</string>
-    <string name="cloud_library_disabled_title">A felhőkönyvtár ki van kapcsolva</string>
-    <string name="cloud_library_empty_message">Egyetlen lejátszható felhőfájl sem felel meg a jelenlegi szűrőknek.</string>
-    <string name="cloud_library_empty_title">Még nincs itt semmi</string>
-    <string name="cloud_library_file_picker_title">Válassz ki egy fájlt a lejátszáshoz</string>
-    <string name="cloud_library_no_playable_files">Nincsenek lejátszható fájlok</string>
-    <string name="cloud_library_one_playable_file">1 lejátszható fájl</string>
-    <string name="cloud_library_opening">Megnyitás…</string>
-    <string name="cloud_library_play_failed">Nem sikerült lejátszani ezt a felhőfájlt.</string>
-    <string name="cloud_library_play_file">Fájl lejátszása</string>
-    <string name="cloud_library_playable_file_count">%1$d lejátszható fájl</string>
-    <string name="cloud_library_provider_all">Összes</string>
-    <string name="cloud_library_refresh">Felhőkönyvtár frissítése</string>
-    <string name="cloud_library_search_clear">Keresés törlése</string>
-    <string name="cloud_library_search_label">Keresés a felhőkönyvtárban</string>
-    <string name="cloud_library_select_provider">Szolgáltató kiválasztása</string>
-    <string name="cloud_library_select_type">Típus kiválasztása</string>
-    <string name="cloud_library_status_ready">Lejátszásra kész</string>
-    <string name="cloud_library_type_all">Összes</string>
-    <string name="cloud_library_type_torrents">Torrentek</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">Web</string>
-    <string name="cloud_library_type_files">Fájlok</string>
 
-    <!-- Cloud library repository errors -->
-    <string name="cloud_library_error_provider_unavailable">A felhőkönyvtár nem érhető el ennél a szolgáltatónál: %1$s.</string>
-    <string name="cloud_library_error_disabled">A felhőkönyvtár ki van kapcsolva.</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Betöltés\u2026</string>
@@ -2699,25 +2615,12 @@
     <string name="trakt_library_error_fetch_list_items">A listaelemek lekérése sikertelen</string>
 
 
-    <!-- Debrid: filter rule rows (title + subtitle pairs) -->
 
-    <!-- Debrid: selection count + size range labels -->
 
     <!-- Subtitle selection: unknown language fallback -->
     <string name="subtitle_language_unknown">Ismeretlen</string>
     <string name="external_playback_notification_text">Lejátszás külső lejátszóban</string>
     <string name="external_playback_channel_description">Az alkalmazás futtatása a háttérben a külső lejátszó használata közben</string>
-    <string name="web_debrid_title">Direct Debrid beállításai</string>
-    <string name="web_debrid_intro_title">Debrid streamek testreszabása</string>
-    <string name="web_debrid_intro_copy">Állítsd be a Direct Debrid találatainál megjelenő forrásfeliratokat, a szűrőket és a rendezést.</string>
-    <string name="web_debrid_template_fields">Sablonmezők</string>
-    <string name="web_debrid_name_template">Név sablon</string>
-    <string name="web_debrid_description_template">Leírás sablon</string>
-    <string name="web_debrid_error_templates_required">Mindkét sablon megadása kötelező</string>
-    <string name="web_debrid_restore_default">Alapértelmezett visszaállítása</string>
-    <string name="web_debrid_save_settings">Beállítások mentése</string>
-    <string name="web_debrid_status_load_error">A Debrid beállítások betöltése nem sikerült</string>
-    <string name="web_status_saving">Mentés…</string>
     <string name="web_status_saved_streams">Mentve. Az új streamek ezeket a beállításokat használják.</string>
     <string name="web_status_could_not_save">A mentés nem sikerült</string>
     <string name="web_stream_badge_importing">Importálás…</string>
@@ -2894,7 +2797,6 @@
     <!-- Fetch: new and changed strings -->
     <string name="theme_color_fetch">Fetch</string>
     <string name="best_match_cached">Gyorsítótárban</string>
-    <string name="debrid_stream_rules_moved">A forrásszabályok mostantól a Lejátszás → Forrásválasztás alatt találhatók, és minden forrásra érvényesek, a debridet is beleértve. Az itt megadott szabályaidat oda helyeztük át.</string>
     <string name="prefer_next_time_title">Legközelebb is ezt részesítsük előnyben?</string>
     <string name="prefer_next_time_group">%1$s csoport</string>
     <string name="prefer_next_time_language">%1$s hang</string>
@@ -3107,5 +3009,4 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Nincs korlát</string>
-    <string name="stream_torrent_needs_debrid">Torrent: a lejátszáshoz kapcsolj be egy debrid szolgáltatást a Beállítások → Debrid menüben, vagy nyisd meg külső lejátszóban.</string>
 </resources>

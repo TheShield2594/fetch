@@ -1,7 +1,6 @@
 package com.fetch.tv.core.streams.ranking
 
 import com.fetch.tv.domain.model.Stream
-import com.fetch.tv.domain.model.StreamDebridCacheState
 import java.util.Locale
 
 /**
@@ -30,13 +29,9 @@ object StreamTitleParser {
         ).joinToString("\n")
         val parsed = synchronized(cache) { cache[text] }
             ?: parse(text).also { descriptor -> synchronized(cache) { cache[text] = descriptor } }
-        val cached = parsed.isDebridCached ||
-            stream.debridCacheStatus?.state == StreamDebridCacheState.CACHED ||
-            stream.isDirectDebrid()
         val structured = stream.clientResolve?.stream?.raw?.parsed
         return parsed.copy(
             sizeBytes = stream.behaviorHints?.videoSize?.takeIf { it > 0 } ?: parsed.sizeBytes,
-            isDebridCached = cached,
             languages = parsed.languages + structured?.languages.orEmpty().mapNotNull(StreamLanguage::fromCode),
             releaseGroup = parsed.releaseGroup ?: structured?.group?.takeIf { it.isNotBlank() }
         )

@@ -15,7 +15,6 @@ class PhoneHubServerTest {
     private class FakeActions : PhoneHubActions {
         val commands = mutableListOf<RemoteCommand>()
         var savedRules: StreamRankingRules? = null
-        var savedDebrid: Pair<String, String>? = null
 
         override fun sendRemote(command: RemoteCommand): Boolean {
             commands += command
@@ -23,18 +22,12 @@ class PhoneHubServerTest {
         }
 
         override suspend fun accountStatus() = PhoneHubAccountStatus(
-            debridKeys = mapOf("torbox" to true, "premiumize" to false),
             mdbListKeySet = false,
             trakt = PhoneHubTrackerStatus(connected = true, username = "sam"),
             simkl = PhoneHubTrackerStatus(connected = false),
             mediaServerProviders = listOf("jellyfin" to "Jellyfin"),
             mediaServers = emptyList()
         )
-
-        override suspend fun saveDebridKey(providerId: String, apiKey: String): PhoneHubResult {
-            savedDebrid = providerId to apiKey
-            return PhoneHubResult(true, "Key saved.")
-        }
 
         override suspend fun saveMdbListKey(apiKey: String) = PhoneHubResult(false, "That key wasn't accepted by MDBList.")
 
@@ -101,16 +94,13 @@ class PhoneHubServerTest {
     @Test
     fun `account status never includes secrets`() {
         val json = body(server.serve(FakeHttpSession("/api/accounts")))
-        assertTrue(json.contains("\"torbox\":true"))
+        assertTrue(json.contains("\"connected\":true"))
         assertTrue(json.contains("\"username\":\"sam\""))
         assertFalse(json.contains("apiKey"))
     }
 
     @Test
     fun `saves accounts and reports failures`() {
-        assertEquals(NanoHTTPD.Response.Status.OK, post("/api/accounts/debrid", """{"provider":"torbox","apiKey":" k1 "}""").status)
-        assertEquals("torbox" to "k1", actions.savedDebrid)
-
         val rejected = post("/api/accounts/mdblist", """{"apiKey":"bad"}""")
         assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, rejected.status)
         assertTrue(body(rejected).contains("MDBList"))

@@ -31,7 +31,7 @@ internal val PlayerRuntimeController.partyKey: String
     get() = partyMediaKey(contentType.orEmpty(), contentId.orEmpty(), currentSeason, currentEpisode)
 
 internal val PlayerRuntimeController.canUseParty: Boolean
-    get() = !contentId.isNullOrBlank() && !contentType.isNullOrBlank() && !contentType.equals("cloud", ignoreCase = true)
+    get() = !contentId.isNullOrBlank() && !contentType.isNullOrBlank()
 
 internal val PlayerRuntimeController.isPartySynced: Boolean
     get() = party.state.value.party?.media?.key == partyKey

@@ -42,7 +42,6 @@ import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.GridView
@@ -107,7 +106,6 @@ import kotlin.math.roundToInt
 private enum class IntegrationSettingsSection {
     Hub,
     Tracking,
-    Debrid,
     Tmdb,
     MdbList,
     AnimeSkip
@@ -245,7 +243,6 @@ fun SettingsScreen(
     val railContainerFocusRequester = remember { FocusRequester() }
     val integrationHubFocusRequester = remember { FocusRequester() }
     val integrationTrackingFocusRequester = remember { FocusRequester() }
-    val integrationDebridFocusRequester = remember { FocusRequester() }
     val integrationTmdbFocusRequester = remember { FocusRequester() }
     val integrationMdbListFocusRequester = remember { FocusRequester() }
     val integrationAnimeSkipFocusRequester = remember { FocusRequester() }
@@ -646,7 +643,6 @@ fun SettingsScreen(
                                 onSelectIntegrationSection = { integrationSection = it },
                                 integrationHubFocusRequester = integrationHubFocusRequester,
                                 integrationTrackingFocusRequester = integrationTrackingFocusRequester,
-                                integrationDebridFocusRequester = integrationDebridFocusRequester,
                                 integrationTmdbFocusRequester = integrationTmdbFocusRequester,
                                 integrationMdbListFocusRequester = integrationMdbListFocusRequester,
                                 integrationAnimeSkipFocusRequester = integrationAnimeSkipFocusRequester,
@@ -801,7 +797,6 @@ fun SettingsScreen(
                         onSelectIntegrationSection = { integrationSection = it },
                         integrationHubFocusRequester = integrationHubFocusRequester,
                         integrationTrackingFocusRequester = integrationTrackingFocusRequester,
-                        integrationDebridFocusRequester = integrationDebridFocusRequester,
                         integrationTmdbFocusRequester = integrationTmdbFocusRequester,
                         integrationMdbListFocusRequester = integrationMdbListFocusRequester,
                         integrationAnimeSkipFocusRequester = integrationAnimeSkipFocusRequester,
@@ -831,7 +826,6 @@ private fun SettingsDetailPane(
     onSelectIntegrationSection: (IntegrationSettingsSection) -> Unit,
     integrationHubFocusRequester: FocusRequester,
     integrationTrackingFocusRequester: FocusRequester,
-    integrationDebridFocusRequester: FocusRequester,
     integrationTmdbFocusRequester: FocusRequester,
     integrationMdbListFocusRequester: FocusRequester,
     integrationAnimeSkipFocusRequester: FocusRequester,
@@ -937,7 +931,6 @@ private fun SettingsDetailPane(
             },
             hubFocusRequester = integrationHubFocusRequester,
             trackingFocusRequester = integrationTrackingFocusRequester,
-            debridFocusRequester = integrationDebridFocusRequester,
             tmdbFocusRequester = integrationTmdbFocusRequester,
             mdbListFocusRequester = integrationMdbListFocusRequester,
             animeSkipFocusRequester = integrationAnimeSkipFocusRequester,
@@ -1050,7 +1043,6 @@ private fun IntegrationSettingsContent(
     initialFocusRequester: FocusRequester?,
     hubFocusRequester: FocusRequester,
     trackingFocusRequester: FocusRequester,
-    debridFocusRequester: FocusRequester,
     tmdbFocusRequester: FocusRequester,
     mdbListFocusRequester: FocusRequester,
     animeSkipFocusRequester: FocusRequester,
@@ -1066,7 +1058,6 @@ private fun IntegrationSettingsContent(
         val requester = when (selectedSection) {
             IntegrationSettingsSection.Hub -> hubEntryFocusRequester
             IntegrationSettingsSection.Tracking -> trackingFocusRequester
-            IntegrationSettingsSection.Debrid -> debridFocusRequester
             IntegrationSettingsSection.Tmdb -> tmdbFocusRequester
             IntegrationSettingsSection.MdbList -> mdbListFocusRequester
             IntegrationSettingsSection.AnimeSkip -> animeSkipFocusRequester
@@ -1105,14 +1096,6 @@ private fun IntegrationSettingsContent(
                                     modifier = Modifier.focusRequester(hubEntryFocusRequester)
                                 )
                             }
-                            item(key = "integration_hub_debrid") {
-                                SettingsActionRow(
-                                    title = stringResource(R.string.debrid_title),
-                                    subtitle = stringResource(R.string.settings_debrid_subtitle),
-                                    leadingIcon = Icons.Default.CloudDownload,
-                                    onClick = { onSelectSection(IntegrationSettingsSection.Debrid) }
-                                )
-                            }
                             item(key = "integration_hub_tmdb") {
                                 SettingsActionRow(
                                     title = "TMDB",
@@ -1147,12 +1130,6 @@ private fun IntegrationSettingsContent(
         IntegrationSettingsSection.Tracking -> {
             TrackingSettingsContent(
                 initialFocusRequester = trackingFocusRequester
-            )
-        }
-
-        IntegrationSettingsSection.Debrid -> {
-            DebridSettingsContent(
-                initialFocusRequester = debridFocusRequester
             )
         }
 

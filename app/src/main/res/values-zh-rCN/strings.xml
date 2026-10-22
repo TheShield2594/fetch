@@ -420,10 +420,6 @@
     <string name="licenses_attributions_trakt_body">Fetch 连接至 Trakt 以进行账户验证、观看历史、进度同步、媒体库数据、评分、列表和评论。Fetch 与 Trakt 无关联或未经其认可。</string>
     <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch 连接至 Simkl 以进行账户验证、观看列表、观看历史、播放进度和记录。电影、电视和动画追踪数据由 Simkl 提供。Fetch 与 Simkl 无关联或未经其认可。</string>
-    <string name="licenses_attributions_premiumize_title">Premiumize</string>
-    <string name="licenses_attributions_premiumize_body">Fetch 连接至 Premiumize 以进行账户验证、云媒体库访问、缓存检查和云播放功能。Fetch 与 Premiumize 无关联或未经其认可。</string>
-    <string name="licenses_attributions_torbox_title">TorBox</string>
-    <string name="licenses_attributions_torbox_body">Fetch 连接至 TorBox 以进行账户验证、云媒体库访问、缓存检查和云播放功能。Fetch 与 TorBox 无关联或未经其认可。</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch 使用 MDBList 获取评分、观看历史和播放追踪。Fetch 与 MDBList 无关联或未经其认可。</string>
     <string name="licenses_attributions_introdb_title">IntroDB</string>
@@ -589,7 +585,6 @@
     <string name="settings_tmdb_subtitle">元数据增强控制</string>
     <string name="settings_mdblist_subtitle">外部评分提供者</string>
     <string name="settings_animeskip_subtitle">动画片头/片尾跳过时间戳</string>
-    <string name="settings_debrid_subtitle">实验性云账户来源</string>
 
     <string name="playback_title">播放设置</string>
     <string name="playback_subtitle">配置视频播放和字幕选项</string>
@@ -1034,53 +1029,8 @@
     <string name="mdblist_not_set">未设置</string>
     <string name="mdblist_invalid_api_key">无效的 MDBList API 密钥</string>
 
-    <string name="debrid_title">已连接的服务</string>
-    <string name="debrid_subtitle">连接账户以获取链接和媒体库访问</string>
-    <string name="debrid_experimental_notice">这些集成为实验性功能，可能会被保留、更改或移除。</string>
-    <string name="debrid_cloud_library">云媒体库</string>
-    <string name="debrid_cloud_library_description">浏览并播放已连接账户中的文件。</string>
-    <string name="debrid_enable_title">解析可播放链接</string>
-    <string name="debrid_enable_subtitle">当结果需要时，向已连接的服务请求可播放链接。这可能会将该项目添加至该服务。</string>
-    <string name="debrid_resolve_with">使用以下服务解析</string>
-    <string name="debrid_resolve_with_description">选择哪个已连接账户处理可播放链接。</string>
-    <string name="debrid_add_key_first">请先连接账户。</string>
-    <string name="debrid_section_account">账户</string>
-    <string name="debrid_section_instant_playback">链接准备</string>
-    <string name="debrid_section_filters">过滤器与排序</string>
-    <string name="debrid_section_formatting">格式设置</string>
-    <string name="debrid_provider_description">连接您的 %1$s 账户。</string>
-    <string name="debrid_provider_device_description">在浏览器中链接您的 %1$s 账户。</string>
-    <string name="debrid_api_key_dialog_title">%1$s API 密钥</string>
-    <string name="debrid_api_key_dialog_subtitle">输入您的 %1$s API 密钥。</string>
-    <string name="debrid_api_key_dialog_placeholder">输入 %1$s API 密钥</string>
-    <string name="debrid_not_set">未设置</string>
-    <string name="debrid_connected">已连接</string>
-    <string name="debrid_connect_provider">连接 %1$s</string>
-    <string name="debrid_disconnect_provider">断开 %1$s 连接</string>
-    <string name="debrid_disconnect">断开连接</string>
-    <string name="debrid_device_auth_connected">%1$s 已在此设备上连接。</string>
-    <string name="debrid_device_auth_starting">正在启动安全登录…</string>
-    <string name="debrid_device_auth_instructions">扫描 QR 码并输入此代码以批准 Fetch。</string>
-    <string name="debrid_device_auth_waiting">正在等待批准…</string>
-    <string name="debrid_device_auth_failed">无法启动登录。</string>
-    <string name="debrid_device_auth_missing_configuration">此登录方式未在此版本中配置。</string>
-    <string name="debrid_device_auth_expired">此代码已过期。请重试。</string>
-    <string name="debrid_key_invalid">无法验证此 API 密钥。</string>
-    <string name="debrid_prepare_instant_playback">准备链接</string>
-    <string name="debrid_prepare_instant_playback_description">在播放开始前解析可播放链接。</string>
-    <string name="debrid_prepare_stream_count">要准备的链接数</string>
-    <string name="debrid_prepare_stream_count_warning">尽可能使用较低的数量。已连接的服务可能会限制在特定时间内可解析的链接数量。即使您不按下「观看」，打开电影或剧集也可能计入这些限制，因为链接是提前准备好的。</string>
-    <string name="debrid_prepare_count_one">1 个链接</string>
-    <string name="debrid_prepare_count_many">%1$d 个链接</string>
 
-    <!-- Debrid 流过滤对话框 -->
 
-    <string name="debrid_formatter_title">网页编辑器</string>
-    <string name="debrid_formatter_subtitle">从其他设备配置来源显示、过滤器和排序。</string>
-    <string name="debrid_formatter_configure">打开网页编辑器</string>
-    <string name="debrid_formatter_reset_title">重置格式设置</string>
-    <string name="debrid_formatter_reset_subtitle">还原默认来源格式。</string>
-    <string name="debrid_formatter_qr_instruction">在手机上扫描此 QR 码以配置 Debrid 来源设置。</string>
     <string name="settings_stream_badges_section">Fusion 样式</string>
     <string name="settings_stream_size_badges_title">大小徽章</string>
     <string name="settings_stream_size_badges_description">在流结果和播放器来源面板中显示文件大小徽章。</string>
@@ -1391,11 +1341,6 @@
     <string name="stream_no_streams">找不到流</string>
     <string name="stream_no_streams_hint">尝试安装更多扩展以寻找流</string>
     <string name="stream_finding_source">正在寻找流来源</string>
-    <string name="debrid_resolving_stream">正在解析 Debrid 流</string>
-    <string name="debrid_stale_stream">此 Debrid 结果已过期。正在刷新流。</string>
-    <string name="debrid_missing_api_key">请在设置中添加 Debrid API 密钥。</string>
-    <string name="debrid_not_cached">未在此服务上缓存。</string>
-    <string name="debrid_resolution_failed">无法解析此 Debrid 流。</string>
     <string name="p2p_consent_title">P2P 流</string>
     <string name="p2p_consent_body">此流使用点对点 (P2P) 技术。启用 P2P 即表示您知悉并同意：\n\n\u2022 您的 IP 地址将对网络中的其他对等节点可见\n\u2022 您对所访问的内容负全部责任\n\u2022 您确认在您的司法管辖区内拥有流式传输此内容的合法权利\n\u2022 Fetch 不托管、分发或控制任何 P2P 内容\n\u2022 Fetch 对您因使用 P2P 流而产生的任何法律后果不承担任何责任\n\n您完全自行承担使用此功能的风险。P2P 可随时在设置中禁用。</string>
     <string name="p2p_consent_enable">启用 P2P</string>
@@ -1686,7 +1631,6 @@
     <string name="library_delete_subtitle">这将从 Trakt 移除该列表及其所有项目。</string>
     <string name="library_source_local">本地</string>
     <string name="library_source_saved">已保存</string>
-    <string name="library_source_cloud">云</string>
     <string name="library_watchlist">观看列表</string>
     <string name="library_status_watching">观看中</string>
     <string name="library_status_plan_to_watch">计划观看</string>
@@ -1709,35 +1653,8 @@
     <string name="library_list_edit_dialog_title">编辑列表</string>
     <string name="library_sync_btn">同步</string>
     <string name="library_syncing_btn">同步中…</string>
-    <string name="cloud_library_connect_message">在「已连接的服务」设置中连接账户，以从您的云媒体库浏览可播放的文件。</string>
-    <string name="cloud_library_connect_title">未连接云账户</string>
-    <string name="cloud_library_disabled_message">在「已连接的服务」设置中打开云媒体库，以从已连接账户浏览文件。</string>
-    <string name="cloud_library_disabled_title">云媒体库已关闭</string>
-    <string name="cloud_library_empty_message">没有可播放的云文件符合当前的过滤条件。</string>
-    <string name="cloud_library_empty_title">这里还没有内容</string>
-    <string name="cloud_library_file_picker_title">选择要播放的文件</string>
-    <string name="cloud_library_no_playable_files">没有可播放的文件</string>
-    <string name="cloud_library_one_playable_file">1 个可播放的文件</string>
-    <string name="cloud_library_opening">打开中…</string>
-    <string name="cloud_library_play_failed">无法播放此云文件。</string>
-    <string name="cloud_library_play_file">播放文件</string>
-    <string name="cloud_library_playable_file_count">%1$d 个可播放的文件</string>
-    <string name="cloud_library_provider_all">全部</string>
-    <string name="cloud_library_refresh">刷新云媒体库</string>
-    <string name="cloud_library_search_clear">清除搜索</string>
-    <string name="cloud_library_search_label">搜索云媒体库</string>
-    <string name="cloud_library_select_provider">选择提供者</string>
-    <string name="cloud_library_select_type">选择类型</string>
-    <string name="cloud_library_status_ready">准备好播放</string>
-    <string name="cloud_library_type_all">全部</string>
-    <string name="cloud_library_type_torrents">Torrent</string>
-    <string name="cloud_library_type_usenet">Usenet</string>
-    <string name="cloud_library_type_web">网页</string>
-    <string name="cloud_library_type_files">文件</string>
 
     <!-- 云媒体库仓库错误 -->
-    <string name="cloud_library_error_provider_unavailable">%1$s 的云媒体库不可用。</string>
-    <string name="cloud_library_error_disabled">云媒体库已禁用。</string>
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">加载中…</string>
@@ -2599,9 +2516,7 @@
     <string name="trakt_library_error_fetch_list_items">获取列表项目失败</string>
 
 
-    <!-- Debrid：过滤规则行 -->
 
-    <!-- Debrid：选择计数 + 大小范围标签 -->
 
     <!-- 字幕选择：未知语言备用文字 -->
     <string name="subtitle_language_unknown">未知</string>
@@ -2610,20 +2525,8 @@
     <string name="external_playback_notification_text">在外部播放器中播放</string>
     <string name="external_playback_channel_description">在外部播放器播放期间保持应用活跃</string>
 
-    <!-- 网页配置页面：Direct Debrid 格式化器 -->
-    <string name="web_debrid_title">Direct Debrid 设置</string>
-    <string name="web_debrid_intro_title">自定义 Debrid 流</string>
-    <string name="web_debrid_intro_copy">调整 Direct Debrid 结果使用的流标签、过滤器和排序。</string>
-    <string name="web_debrid_template_fields">模板字段</string>
-    <string name="web_debrid_name_template">名称模板</string>
-    <string name="web_debrid_description_template">描述模板</string>
-    <string name="web_debrid_error_templates_required">两个模板都是必填的</string>
-    <string name="web_debrid_restore_default">还原默认值</string>
-    <string name="web_debrid_save_settings">保存设置</string>
-    <string name="web_debrid_status_load_error">无法加载 Debrid 设置</string>
 
     <!-- 网页配置页面：共享保存状态 -->
-    <string name="web_status_saving">保存中…</string>
     <string name="web_status_saved_streams">已保存。新的流将使用这些设置。</string>
     <string name="web_status_could_not_save">无法保存</string>
 
@@ -2829,7 +2732,6 @@
     <string name="cd_mark_intro_start">标记片头开始</string>
     <string name="custom_server_error_official_active">这台电视上的同步已关闭。</string>
     <string name="custom_server_error_official_available">这不是同步服务器。请关闭此对话框，然后选择「关闭同步」以返回仅本地模式。</string>
-    <string name="debrid_stream_rules_moved">流规则现位于「播放 → 流选择」中，并适用于所有来源，包括 debrid。您在这里设置的规则已移至该处。</string>
     <string name="exclusion_3d">3D 版本</string>
     <string name="exclusion_above_max_resolution">高于您的最高分辨率</string>
     <string name="exclusion_audio">您跳过了 %1$s 音频</string>
@@ -2989,5 +2891,4 @@
     <string name="subtitle_style_text_opacity_hdr">文字不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">这是种子流，而 Fetch 没有内置种子引擎。请在「设置 → Debrid」中启用 debrid 服务，或在外部播放器中打开。</string>
-    <string name="stream_torrent_needs_debrid">种子：在“设置 → Debrid”中连接 debrid 服务即可在此播放，或在外部播放器中打开。</string>
 </resources>

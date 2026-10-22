@@ -8,12 +8,10 @@ import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
 import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
 import com.fetch.tv.core.tracking.TrackingListManager
 import com.fetch.tv.core.tracking.TrackingProviderId
-import com.fetch.tv.data.local.DebridSettingsDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.LibraryPreferences
 import com.fetch.tv.data.local.WatchedSeriesStateHolder
 import com.fetch.tv.domain.model.AuthState
-import com.fetch.tv.domain.model.DebridSettings
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryListPrivacy
 import com.fetch.tv.domain.model.LibraryListTab
@@ -51,9 +49,7 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
         every { listSorter } returns sorter
     }
     val viewModel = LibraryViewModel(
-        libraryRepository = repository, cloudLibraryRepository = mockk(relaxed = true), cloudPlaybackSessionStore = mockk(),
-        externalPlaybackTracker = mockk(), playerSettingsDataStore = mockk(), metaRepository = mockk(),
-        debridSettingsDataStore = mockk<DebridSettingsDataStore> { every { settings } returns flowOf(DebridSettings(cloudLibraryEnabled = false)) },
+        libraryRepository = repository, metaRepository = mockk(),
         layoutPreferenceDataStore = mockk<LayoutPreferenceDataStore> {
             every { posterCardWidthDp } returns flowOf(126)
             every { posterCardCornerRadiusDp } returns flowOf(12)

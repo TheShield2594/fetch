@@ -909,7 +909,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="cd_mark_intro_start">Pažymėti įžangos pradžią</string>
     <string name="custom_server_error_official_active">Šiame televizoriuje sinchronizavimas jau išjungtas.</string>
     <string name="custom_server_error_official_available">Tai nėra sinchronizavimo serveris. Uždarykite šį langą ir pasirinkite „Išjungti sinchronizavimą“, kad grįžtumėte į tik vietinį režimą.</string>
-    <string name="debrid_stream_rules_moved">Srautų taisyklės dabar yra skiltyje „Atkūrimas → Srauto pasirinkimas“ ir taikomos visiems šaltiniams, įskaitant „Debrid“. Čia nustatytos taisyklės perkeltos ten.</string>
     <string name="exclusion_3d">3D leidimas</string>
     <string name="exclusion_above_max_resolution">viršija jūsų didžiausią raišką</string>
     <string name="exclusion_audio">praleidžiate %1$s garsą</string>
@@ -1078,5 +1077,4 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="subtitle_style_text_opacity_hdr">Teksto neskaidrumas (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Tai torrent srautas, o „Fetch“ neturi integruoto torrent variklio. Įjunkite „Debrid“ paslaugą skiltyje „Nustatymai → Debrid“ arba atidarykite jį išoriniame grotuve.</string>
-    <string name="stream_torrent_needs_debrid">Torentas: norėdami paleisti čia, prijunkite debrid paslaugą skiltyje Nustatymai → Debrid arba atidarykite išoriniu grotuvu.</string>
 </resources>

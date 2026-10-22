@@ -3,13 +3,10 @@ package com.fetch.tv.core.server
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.R
-import com.fetch.tv.core.debrid.DebridApiKeyValidator
-import com.fetch.tv.core.debrid.DebridProviders
 import com.fetch.tv.core.parental.ParentalControls
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
-import com.fetch.tv.data.local.DebridSettingsDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.MDBListSettingsDataStore
 import com.fetch.tv.data.local.PlayerSettingsDataStore
@@ -64,8 +61,6 @@ data class PhoneHubState(
 class PhoneHubController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val remoteCommandBus: RemoteCommandBus,
-    private val debridSettingsDataStore: DebridSettingsDataStore,
-    private val debridApiKeyValidator: DebridApiKeyValidator,
     private val mdbListSettingsDataStore: MDBListSettingsDataStore,
     private val mdbListApi: MDBListApi,
     private val traktAuthService: TraktAuthService,
@@ -167,25 +162,6 @@ class PhoneHubController @Inject constructor(
     }
 
     private fun buildSections(): Map<String, NanoHTTPD> = mapOf(
-        PhoneHubServer.SECTION_TEMPLATES to DebridFormatterConfigServer(
-            currentSettingsProvider = {
-                val settings = runBlocking { debridSettingsDataStore.settings.first() }
-                DebridFormatterSettings(
-                    nameTemplate = settings.streamNameTemplate,
-                    descriptionTemplate = settings.streamDescriptionTemplate
-                )
-            },
-            onSettingsChanged = { settings ->
-                scope.launch {
-                    debridSettingsDataStore.setStreamTemplates(
-                        nameTemplate = settings.nameTemplate,
-                        descriptionTemplate = settings.descriptionTemplate
-                    )
-                }
-            },
-            context = context,
-            logoProvider = { logoBytes }
-        ),
         PhoneHubServer.SECTION_BADGES to StreamBadgeConfigServer(
             currentSettingsProvider = { runBlocking { streamBadgeSettingsDataStore.settings.first() } },
             onSettingsChanged = { settings -> scope.launch { streamBadgeSettingsDataStore.setSettings(settings) } },
@@ -202,13 +178,9 @@ class PhoneHubController @Inject constructor(
     override fun sendRemote(command: RemoteCommand): Boolean = remoteCommandBus.send(command)
 
     override suspend fun accountStatus(): PhoneHubAccountStatus {
-        val debrid = debridSettingsDataStore.settings.first()
         val trakt = traktAuthDataStore.getCurrentState()
         val simkl = simklAuthRepository.state.value
         return PhoneHubAccountStatus(
-            debridKeys = DebridProviders.visible().associate { provider ->
-                provider.id to debrid.apiKeyFor(provider.id).isNotBlank()
-            },
             mdbListKeySet = mdbListSettingsDataStore.settings.first().apiKey.isNotBlank(),
             trakt = PhoneHubTrackerStatus(trakt.isAuthenticated, trakt.username, traktCode.takeUnless { trakt.isAuthenticated }),
             simkl = PhoneHubTrackerStatus(simkl.isAuthenticated, simkl.username, simklCode.takeUnless { simkl.isAuthenticated }),
@@ -223,18 +195,6 @@ class PhoneHubController @Inject constructor(
     // Account changes are also settings changes, so restricted profiles need the TV unlocked.
     private fun settingsBlocked(): PhoneHubResult? =
         if (parentalControls.needsGate()) PhoneHubResult(false, context.getString(R.string.phone_hub_parental_blocked)) else null
-
-    override suspend fun saveDebridKey(providerId: String, apiKey: String): PhoneHubResult {
-        settingsBlocked()?.let { return it }
-        if (!DebridProviders.isVisible(providerId)) {
-            return PhoneHubResult(false, "Unknown service.")
-        }
-        if (apiKey.isNotBlank() && !debridApiKeyValidator.isValid(providerId, apiKey)) {
-            return PhoneHubResult(false, context.getString(R.string.debrid_key_invalid))
-        }
-        debridSettingsDataStore.setProviderApiKey(providerId, apiKey)
-        return PhoneHubResult(true, if (apiKey.isBlank()) "Key removed." else "Key saved.")
-    }
 
     override suspend fun saveMdbListKey(apiKey: String): PhoneHubResult {
         settingsBlocked()?.let { return it }

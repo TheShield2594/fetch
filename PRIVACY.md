@@ -5,7 +5,7 @@ required account.
 
 ## What stays on your TV
 
-Your addons, profiles, watch progress, library, settings and debrid/Trakt/Simkl keys are
+Your addons, profiles, watch progress, library, settings and Trakt/Simkl/MDBList keys are
 stored on the device. Uninstalling Fetch deletes them.
 
 ## What Fetch talks to
@@ -13,7 +13,6 @@ stored on the device. Uninstalling Fetch deletes them.
 Fetch only connects to services you add or turn on yourself:
 
 - **Stremio addons** you install. Each addon receives the IDs of the titles you browse or play.
-- **Debrid services** (Real-Debrid, Premiumize, TorBox) when you add an API key.
 - **Trakt, Simkl, MDBList** when you sign in to them.
 - **Jellyfin / Emby / Plex servers** you connect. Signing in to Plex also talks to plex.tv,
   which approves the sign-in code and lists the servers your account can reach.

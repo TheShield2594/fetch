@@ -5,7 +5,7 @@
   <p>
     A Stremio-addon media player for Android TV, built for a remote and for low-end hardware.
     <br />
-    Bring your own addons, debrid service and media server. No telemetry, no required account.
+    Bring your own addons and media server. No telemetry, no required account.
   </p>
 
 </div>
@@ -52,9 +52,9 @@ Highlights:
   long-press context actions, and every flow works with D-pad, OK and Back.
 - **Watch state.** Continue Watching, next-episode autoplay, skip intro/recap from community
   markers (IntroDB, AniSkip, Anime-Skip), Trakt and Simkl sync, and the Android TV "Watch Next" row.
-- **Debrid built in.** Real-Debrid, Premiumize and TorBox are app settings, not per-addon config.
+- **Debrid through addons.** Like Stremio, debrid accounts are set up in the addons that support them.
 - **Your own library.** Jellyfin, Emby and Plex items appear alongside addon results and outrank them.
-- **Configure from your phone.** Scan a QR code to manage addons, catalogs, debrid formatting and
+- **Configure from your phone.** Scan a QR code to manage addons, catalogs, stream ranking and
   badges from a phone browser on the same network.
 - **Local-first.** Everything lives on the TV. Sync is optional and only talks to a server you run.
 
@@ -83,7 +83,6 @@ developer. Without them the build works but the integration says its credentials
 | `SIMKL_CLIENT_ID` | [simkl.com/settings/developer](https://simkl.com/settings/developer/), app type "TV, devices & command line" (PIN sign-in, no secret or redirect URL) |
 | `MDBLIST_CLIENT_ID` | an OAuth app registered with MDBList |
 | `TMDB_API_KEY` | [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) |
-| `PREMIUMIZE_CLIENT_ID` | Premiumize developer support |
 
 Put them in `local.properties` for local builds, or export them as environment variables
 (these take precedence). The Release workflow reads repository secrets with the same names
@@ -97,8 +96,8 @@ Two flavors exist: `full` (plugins, in-app updates from this repo's GitHub relea
 - **DV7 → 8.1 conversion** links a prebuilt [libdovi](https://github.com/quietvoid/dovi_tool)
   when `DOVI_NATIVE_ENABLED=true`. The static archives are not committed; build or download
   them into `DV7/libdovi/<abi>/` and point `DOVI_LIBDOVI_PREBUILT_ROOT` at that folder.
-- **On-device torrent streaming** is not included. Torrent results are resolved through your
-  debrid service or handed to an external player.
+- **On-device torrent streaming** is not included. Torrent results are handed to an external
+  player; debrid links come from addons already resolved.
 
 ### Logo
 

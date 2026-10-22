@@ -16,13 +16,8 @@ import com.fetch.tv.data.remote.api.ImdbTapframeApi
 import com.fetch.tv.data.remote.api.MDBListApi
 import com.fetch.tv.data.remote.api.ParentalGuideApi
 import com.fetch.tv.data.remote.api.PlaybackIssueReportApi
-import com.fetch.tv.data.remote.api.PremiumizeApi
-import com.fetch.tv.data.remote.api.RealDebridApi
-import com.fetch.tv.data.remote.api.AllDebridApi
-import com.fetch.tv.data.remote.api.DebridLinkApi
 import com.fetch.tv.data.remote.api.SeriesGraphApi
 import com.fetch.tv.data.remote.api.TmdbApi
-import com.fetch.tv.data.remote.api.TorboxApi
 import com.fetch.tv.data.simkl.OkHttpSimklEngine
 import com.fetch.tv.data.simkl.SimklApiClient
 import com.fetch.tv.data.simkl.SimklApiConfiguration
@@ -186,25 +181,6 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    @Named("directDebrid")
-    fun provideDirectDebridOkHttpClient(): OkHttpClient =
-        OkHttpClient.Builder()
-            .dns(IPv4FirstDns())
-            .socketFactory(NoDelaySocketFactory)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor { chain ->
-                val version = BuildConfig.VERSION_NAME.ifBlank { "dev" }
-                val request = chain.request().newBuilder()
-                    .header("User-Agent", "Fetch/$version")
-                    .header("Accept-Language", buildAcceptLanguageHeader())
-                    .build()
-                chain.proceed(request)
-            }
-            .build()
-
-    @Provides
-    @Singleton
     @Named("simkl")
     fun provideSimklOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
         .dns(IPv4FirstDns())
@@ -336,96 +312,6 @@ object NetworkModule {
     @Singleton
     fun provideAddonApi(retrofit: Retrofit): AddonApi =
         retrofit.create(AddonApi::class.java)
-
-    @Provides
-    @Singleton
-    @Named("torbox")
-    fun provideTorboxRetrofit(
-        @Named("directDebrid") okHttpClient: OkHttpClient,
-        moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.torbox.app/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideTorboxApi(@Named("torbox") retrofit: Retrofit): TorboxApi =
-        retrofit.create(TorboxApi::class.java)
-
-    @Provides
-    @Singleton
-    @Named("realdebrid")
-    fun provideRealDebridRetrofit(
-        @Named("directDebrid") okHttpClient: OkHttpClient,
-        moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.real-debrid.com/rest/1.0/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideRealDebridApi(@Named("realdebrid") retrofit: Retrofit): RealDebridApi =
-        retrofit.create(RealDebridApi::class.java)
-
-    @Provides
-    @Singleton
-    @Named("alldebrid")
-    fun provideAllDebridRetrofit(
-        @Named("directDebrid") okHttpClient: OkHttpClient,
-        moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://api.alldebrid.com/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideAllDebridApi(@Named("alldebrid") retrofit: Retrofit): AllDebridApi =
-        retrofit.create(AllDebridApi::class.java)
-
-    @Provides
-    @Singleton
-    @Named("debridlink")
-    fun provideDebridLinkRetrofit(
-        @Named("directDebrid") okHttpClient: OkHttpClient,
-        moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://debrid-link.com/api/v2/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-    @Provides
-    @Singleton
-    fun provideDebridLinkApi(@Named("debridlink") retrofit: Retrofit): DebridLinkApi =
-        retrofit.create(DebridLinkApi::class.java)
-
-    @Provides
-    @Singleton
-    @Named("premiumize")
-    fun providePremiumizeRetrofit(
-        @Named("directDebrid") okHttpClient: OkHttpClient,
-        moshi: Moshi
-    ): Retrofit =
-        Retrofit.Builder()
-            .baseUrl("https://www.premiumize.me/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-    @Provides
-    @Singleton
-    fun providePremiumizeApi(@Named("premiumize") retrofit: Retrofit): PremiumizeApi =
-        retrofit.create(PremiumizeApi::class.java)
 
     @Provides
     @Singleton

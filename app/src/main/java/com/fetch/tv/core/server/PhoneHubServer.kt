@@ -30,8 +30,6 @@ data class PhoneHubTrackerStatus(
 )
 
 data class PhoneHubAccountStatus(
-    /** Debrid provider id to whether a key is saved. Keys themselves are never sent. */
-    val debridKeys: Map<String, Boolean>,
     val mdbListKeySet: Boolean,
     val trakt: PhoneHubTrackerStatus,
     val simkl: PhoneHubTrackerStatus,
@@ -43,7 +41,6 @@ data class PhoneHubAccountStatus(
 interface PhoneHubActions {
     fun sendRemote(command: RemoteCommand): Boolean
     suspend fun accountStatus(): PhoneHubAccountStatus
-    suspend fun saveDebridKey(providerId: String, apiKey: String): PhoneHubResult
     suspend fun saveMdbListKey(apiKey: String): PhoneHubResult
     suspend fun connectMediaServer(providerId: String, address: String, username: String, password: String): PhoneHubResult
     suspend fun startTrackerSignIn(tracker: String): Result<PhoneHubDeviceCode>
@@ -53,8 +50,8 @@ interface PhoneHubActions {
 
 /**
  * One phone page for everything that needs typing: the landing page links to the remote and
- * keyboard, account sign-ins, stream ranking rules, and the existing pages for debrid name
- * templates, stream badges and custom posters, which are served under their own prefix.
+ * keyboard, account sign-ins, stream ranking rules, and the existing pages for stream badges
+ * and custom posters, which are served under their own prefix.
  */
 class PhoneHubServer(
     private val actions: PhoneHubActions,
@@ -95,7 +92,6 @@ class PhoneHubServer(
         session.method == Method.GET && uri == "/ranking" -> html(PhoneHubWebPage.ranking())
         session.method == Method.POST && uri == "/api/remote" -> handleRemote(readJson(session))
         session.method == Method.GET && uri == "/api/accounts" -> jsonResponse(accountsJson())
-        session.method == Method.POST && uri == "/api/accounts/debrid" -> handleDebrid(readJson(session))
         session.method == Method.POST && uri == "/api/accounts/mdblist" -> handleMdbList(readJson(session))
         session.method == Method.POST && uri == "/api/accounts/mediaserver" -> handleMediaServer(readJson(session))
         session.method == Method.POST && uri == "/api/accounts/tracker" -> handleTracker(readJson(session))
@@ -115,10 +111,6 @@ class PhoneHubServer(
         }
         return if (actions.sendRemote(command)) ok() else errorResponse("The TV is busy. Try again.")
     }
-
-    private fun handleDebrid(body: JsonObject): Response = result(
-        runBlocking { actions.saveDebridKey(body.requiredText("provider"), body.string("apiKey").orEmpty().trim()) }
-    )
 
     private fun handleMdbList(body: JsonObject): Response = result(
         runBlocking { actions.saveMdbListKey(body.string("apiKey").orEmpty().trim()) }
@@ -171,7 +163,6 @@ class PhoneHubServer(
             }
         }
         return buildJsonObject {
-            put("debrid", buildJsonObject { status.debridKeys.forEach { (id, set) -> put(id, set) } })
             put("mdbList", status.mdbListKeySet)
             put("trakt", tracker(status.trakt))
             put("simkl", tracker(status.simkl))
@@ -264,7 +255,6 @@ class PhoneHubServer(
     )
 
     companion object {
-        const val SECTION_TEMPLATES = "templates"
         const val SECTION_BADGES = "badges"
         const val SECTION_POSTERS = "posters"
         private const val MAX_BODY_BYTES = 256 * 1024

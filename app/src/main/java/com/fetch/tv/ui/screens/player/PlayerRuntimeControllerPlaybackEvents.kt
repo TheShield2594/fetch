@@ -726,11 +726,7 @@ internal fun PlayerRuntimeController.handleNaturalPlaybackEnded() {
     }
 
     emitCompletionScrobbleStop(progressPercent = 99.5f)
-    if (contentType.equals("cloud", ignoreCase = true)) {
-        saveCloudLibraryProgress(position, duration, completed = true)
-    } else {
-        saveWatchProgress()
-    }
+    saveWatchProgress()
     resetPostPlayStateAfterPlaybackEnded()
 }
 
@@ -769,10 +765,6 @@ internal fun PlayerRuntimeController.currentWatchProgress(
 )
 
 internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, duration: Long, syncRemote: Boolean = true) {
-    if (contentType.equals("cloud", ignoreCase = true)) {
-        saveCloudLibraryProgress(position, duration, completed = false)
-        return
-    }
     val parentContentId = contentId?.takeIf { it.isNotEmpty() } ?: return
     val parentContentType = contentType?.takeIf { it.isNotEmpty() } ?: return
 
@@ -815,23 +807,6 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, d
             runCatching { tvRecommendationManager.updateSingleWatchNextProgram(normalizedProgress) }
         }
     }
-}
-
-private fun PlayerRuntimeController.saveCloudLibraryProgress(
-    position: Long,
-    duration: Long,
-    completed: Boolean
-) {
-    if (!completed && position < 1_000L) return
-    val playbackContext = cloudPlaybackContext ?: return
-    val file = playbackContext.fileForVideoId(currentVideoId) ?: return
-    cloudPlaybackProgressStore.save(
-        item = playbackContext.item,
-        file = file,
-        positionMs = position,
-        durationMs = duration,
-        completed = completed
-    )
 }
 
 internal fun PlayerRuntimeController.currentPlaybackProgressPercent(): Float {

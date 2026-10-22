@@ -1,7 +1,9 @@
 package com.fetch.tv.domain.model
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class StreamYouTubeTest {
@@ -45,10 +47,13 @@ class StreamYouTubeTest {
     }
 
     @Test
-    fun `a cached debrid stream takes precedence over the ytId`() {
-        val stream = stream(ytId = "dQw4w9WgXcQ", clientResolve = cachedTorboxResolve())
-
-        assertNull(stream.youTubeIdToResolve())
+    fun `a stream left for the client to resolve through debrid is flagged`() {
+        assertTrue(stream(ytId = null, clientResolve = cachedTorboxResolve()).needsClientDebridResolve())
+        assertFalse(stream(ytId = "dQw4w9WgXcQ").needsClientDebridResolve())
+        assertFalse(
+            stream(ytId = null, url = "https://example.com/video.mp4", clientResolve = cachedTorboxResolve())
+                .needsClientDebridResolve()
+        )
     }
 
     @Test

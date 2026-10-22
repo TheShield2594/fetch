@@ -162,7 +162,7 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
             hideUnreleasedContent = corePrefs.hideUnreleasedContent,
             showFullReleaseDate = corePrefs.showFullReleaseDate,
             modernLandscapePostersEnabled = false,
-            modernHeroFullScreenBackdropEnabled = false,
+            modernHeroFullScreenBackdropEnabled = true,
             homeImdbRatingsVisibility = HomeImdbRatingsVisibility.SHOW_ALL,
             focusedBackdropExpandEnabled = focusedBackdropPrefs.expandEnabled,
             focusedBackdropExpandDelaySeconds = focusedBackdropPrefs.expandDelaySeconds,

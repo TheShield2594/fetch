@@ -356,7 +356,9 @@ private fun HeroTitleContent(
 ) {
     val preview = previewProvider() ?: return
     val highlighterEnabled = LocalRecompositionHighlighterEnabled.current
-    val descriptionMaxLines = 4
+    // The hero keeps little text over the art: two lines of description at most, and none when
+    // Resume is there to be the main thing.
+    val descriptionMaxLines = 2
     val descriptionScale = if (portraitMode) 0.90f else 1f
     val titleScale = if (portraitMode) 0.92f else 1f
     val metaScale = 1f
@@ -657,7 +659,7 @@ private fun HeroTitleContent(
             }
         }
 
-        preview.description?.takeIf { it.isNotBlank() }?.let { description ->
+        preview.description?.takeIf { it.isNotBlank() && preview.resumeActionText == null }?.let { description ->
             Text(
                 text = description,
                 style = scaledDescriptionStyle.copy(textDirection = description.contentTextDirection()),
@@ -707,15 +709,16 @@ private fun HeroResumeRow(
     textStyle: androidx.compose.ui.text.TextStyle,
     modifier: Modifier = Modifier
 ) {
-    // The spec line sits under the button: beside it, the hero's narrow column cut it short.
-    Column(
+    // The spec strip sits beside the button, so the action and what it will play read as one line.
+    Row(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
         Row(
             modifier = Modifier
                 .background(FetchTheme.colors.TextPrimary, RoundedCornerShape(50))
-                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
+                .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
         ) {
@@ -723,7 +726,7 @@ private fun HeroResumeRow(
                 imageVector = Icons.Filled.PlayArrow,
                 contentDescription = null,
                 tint = FetchTheme.colors.Background,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(20.dp)
             )
             Text(
                 text = actionText,
@@ -733,7 +736,7 @@ private fun HeroResumeRow(
             )
         }
         specLine?.let { line ->
-            SpecStrip(line = line, style = textStyle)
+            SpecStrip(line = line, style = textStyle, modifier = Modifier.weight(1f, fill = false))
         }
     }
 }

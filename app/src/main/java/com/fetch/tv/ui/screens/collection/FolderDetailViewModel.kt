@@ -70,7 +70,7 @@ data class FolderDetailUiState(
     val hideUnreleasedContent: Boolean = false,
     val showFullReleaseDate: Boolean = true,
     val modernLandscapePostersEnabled: Boolean = true,
-    val modernHeroFullScreenBackdropEnabled: Boolean = false,
+    val modernHeroFullScreenBackdropEnabled: Boolean = true,
     val focusedPosterBackdropExpandEnabled: Boolean = false,
     val focusedPosterBackdropExpandDelaySeconds: Int = 3,
     val focusedPosterBackdropTrailerEnabled: Boolean = false,

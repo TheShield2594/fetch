@@ -165,6 +165,8 @@
     <string name="cw_action_go_to_details">Gå til detaljer</string>
     <string name="cw_action_start_from_beginning">Start fra begyndelsen</string>
     <string name="cw_action_remove">Fjern</string>
+    <string name="cw_action_add_to_queue">Føj til kø</string>
+    <string name="cw_action_remove_from_queue">Fjern fra kø</string>
     <string name="cw_dialog_subtitle">Vælg hvad du vil gøre med dette element.</string>
     <string name="home_poster_dialog_subtitle">Titelhandlinger</string>
 
@@ -1121,6 +1123,13 @@
     <string name="parental_severity_moderate">Moderat</string>
     <string name="parental_severity_mild">Mild</string>
     <string name="player_ends_at">Slutter kl. %1$s</string>
+    <string name="player_queue">Kø</string>
+    <string name="player_queue_empty">Din kø er tom. Hold en titel nede i Fortsæt med at se, og vælg Føj til kø.</string>
+    <string name="player_up_next_in_queue">Næste i køen</string>
+    <string name="player_queue_move_up">Flyt op</string>
+    <string name="player_queue_move_down">Flyt ned</string>
+    <string name="player_seek_back_10">10 sekunder tilbage</string>
+    <string name="player_seek_forward_30">30 sekunder frem</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>

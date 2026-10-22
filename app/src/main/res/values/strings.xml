@@ -1619,8 +1619,6 @@
     <string name="player_up_next_in_queue">Up next in queue</string>
     <string name="player_queue_move_up">Move up</string>
     <string name="player_queue_move_down">Move down</string>
-    <string name="player_queue_remove">Remove from queue</string>
-    <string name="player_queue_playing_now">Playing now</string>
     <string name="player_seek_back_10">Back 10 seconds</string>
     <string name="player_seek_forward_30">Forward 30 seconds</string>
     <string name="player_live_watched">LIVE  %1$s</string>

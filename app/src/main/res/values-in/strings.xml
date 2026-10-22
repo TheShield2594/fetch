@@ -169,6 +169,8 @@
     <string name="cw_action_go_to_details">Lihat detail</string>
     <string name="cw_action_start_from_beginning">Mulai dari awal</string>
     <string name="cw_action_remove">Hapus</string>
+    <string name="cw_action_add_to_queue">Tambahkan ke antrean</string>
+    <string name="cw_action_remove_from_queue">Hapus dari antrean</string>
     <string name="cw_dialog_subtitle">Pilih apa yang ingin Anda lakukan dengan item ini.</string>
     <string name="home_poster_dialog_subtitle">Aksi judul</string>
 
@@ -1067,6 +1069,13 @@
     <string name="parental_severity_moderate">Sedang</string>
     <string name="parental_severity_mild">Ringan</string>
     <string name="player_ends_at">Berakhir pukul %1$s</string>
+    <string name="player_queue">Antrean</string>
+    <string name="player_queue_empty">Antrean Anda kosong. Tekan lama judul di Lanjutkan Menonton lalu pilih Tambahkan ke antrean.</string>
+    <string name="player_up_next_in_queue">Berikutnya di antrean</string>
+    <string name="player_queue_move_up">Naikkan</string>
+    <string name="player_queue_move_down">Turunkan</string>
+    <string name="player_seek_back_10">Mundur 10 detik</string>
+    <string name="player_seek_forward_30">Maju 30 detik</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">M%1$d E%2$d</string>

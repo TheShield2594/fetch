@@ -165,6 +165,8 @@
     <string name="cw_action_go_to_details">Отиди към детайлите</string>
     <string name="cw_action_start_from_beginning">Започни от началото</string>
     <string name="cw_action_remove">Премахни</string>
+    <string name="cw_action_add_to_queue">Добави в опашката</string>
+    <string name="cw_action_remove_from_queue">Премахни от опашката</string>
     <string name="cw_dialog_subtitle">Изберете какво искате да направите с този елемент.</string>
     <string name="home_poster_dialog_subtitle">Действия за заглавие</string>
 
@@ -1113,6 +1115,13 @@
     <string name="parental_severity_moderate">Умерено</string>
     <string name="parental_severity_mild">Леко</string>
     <string name="player_ends_at">Завършва в %1$s</string>
+    <string name="player_queue">Опашка</string>
+    <string name="player_queue_empty">Опашката е празна. Задръжте заглавие в „Продължаване на гледането“ и изберете „Добави в опашката“.</string>
+    <string name="player_up_next_in_queue">Следващо в опашката</string>
+    <string name="player_queue_move_up">Премести нагоре</string>
+    <string name="player_queue_move_down">Премести надолу</string>
+    <string name="player_seek_back_10">Назад 10 секунди</string>
+    <string name="player_seek_forward_30">Напред 30 секунди</string>
     <string name="player_via">чрез %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>

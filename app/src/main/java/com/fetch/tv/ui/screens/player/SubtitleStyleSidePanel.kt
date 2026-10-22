@@ -54,7 +54,7 @@ import com.fetch.tv.data.local.SubtitleStyleSettings
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 
-private val StyleCardWidth = 220.dp
+private val StyleCardWidth = 184.dp
 private val StyleCardHeight = 102.dp
 private val StyleCardGap = FetchTheme.spacing.md
 private val StyleGridWidth = (StyleCardWidth * 3) + (StyleCardGap * 2)
@@ -87,7 +87,7 @@ internal fun SubtitleStyleSidePanel(
 
     Column(
         modifier = modifier
-            .width(760.dp)
+            .width(PlayerSidePanelWidth)
             .height(330.dp)
             .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
             .background(Color(0xFF101010))

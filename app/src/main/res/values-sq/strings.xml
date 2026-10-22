@@ -161,6 +161,8 @@
     <string name="cw_action_go_to_details">Shko te detajet</string>
     <string name="cw_action_start_from_beginning">Fillo nga fillimi</string>
     <string name="cw_action_remove">Hiq</string>
+    <string name="cw_action_add_to_queue">Shto në radhë</string>
+    <string name="cw_action_remove_from_queue">Hiq nga radha</string>
     <string name="cw_dialog_subtitle">Zgjidh çfarë dëshiron të bësh me këtë artikull.</string>
     <string name="home_poster_dialog_subtitle">Veprimet e titullit</string>
     <string name="catalog_from_addon">nga %1$s</string>
@@ -1206,6 +1208,13 @@
     <string name="parental_severity_moderate">Mesatare</string>
     <string name="parental_severity_mild">E lehtë</string>
     <string name="player_ends_at">Përfundon në %1$s</string>
+    <string name="player_queue">Radha</string>
+    <string name="player_queue_empty">Radha jote është bosh. Shtyp gjatë një titull te Vazhdo shikimin dhe zgjidh Shto në radhë.</string>
+    <string name="player_up_next_in_queue">Në vijim në radhë</string>
+    <string name="player_queue_move_up">Lëviz lart</string>
+    <string name="player_queue_move_down">Lëviz poshtë</string>
+    <string name="player_seek_back_10">Prapa 10 sekonda</string>
+    <string name="player_seek_forward_30">Përpara 30 sekonda</string>
     <string name="player_via">përmes %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>

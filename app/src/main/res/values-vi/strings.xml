@@ -165,6 +165,8 @@
     <string name="cw_action_go_to_details">Xem chi tiết</string>
     <string name="cw_action_start_from_beginning">Xem từ đầu</string>
     <string name="cw_action_remove">Xóa</string>
+    <string name="cw_action_add_to_queue">Thêm vào hàng chờ</string>
+    <string name="cw_action_remove_from_queue">Xóa khỏi hàng chờ</string>
     <string name="cw_dialog_subtitle">Chọn thao tác cho mục này.</string>
     <string name="home_poster_dialog_subtitle">Thao tác trên thanh tiêu đề</string>
 
@@ -1491,6 +1493,13 @@
     <string name="parental_severity_moderate">Vừa phải</string>
     <string name="parental_severity_mild">Nhẹ</string>
     <string name="player_ends_at">Kết thúc lúc %1$s</string>
+    <string name="player_queue">Hàng chờ</string>
+    <string name="player_queue_empty">Hàng chờ của bạn đang trống. Nhấn giữ một tựa trong Tiếp tục xem và chọn Thêm vào hàng chờ.</string>
+    <string name="player_up_next_in_queue">Tiếp theo trong hàng chờ</string>
+    <string name="player_queue_move_up">Di chuyển lên</string>
+    <string name="player_queue_move_down">Di chuyển xuống</string>
+    <string name="player_seek_back_10">Lùi 10 giây</string>
+    <string name="player_seek_forward_30">Tiến 30 giây</string>
     <string name="player_live_watched">TRỰC TIẾP  %1$s</string>
     <string name="player_via">qua %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

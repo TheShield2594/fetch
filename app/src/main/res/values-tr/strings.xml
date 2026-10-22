@@ -169,6 +169,8 @@
     <string name="cw_action_go_to_details">Detaylara git</string>
     <string name="cw_action_start_from_beginning">Baştan başla</string>
     <string name="cw_action_remove">Kaldır</string>
+    <string name="cw_action_add_to_queue">Sıraya ekle</string>
+    <string name="cw_action_remove_from_queue">Sıradan kaldır</string>
     <string name="cw_dialog_subtitle">Bu öğe ile ne yapmak istediğinizi seçin.</string>
     <string name="home_poster_dialog_subtitle">İçerik işlemleri</string>
 
@@ -1492,6 +1494,13 @@
     <string name="parental_severity_moderate">Orta</string>
     <string name="parental_severity_mild">Hafif</string>
     <string name="player_ends_at">Bitiş saati: %1$s</string>
+    <string name="player_queue">Sıra</string>
+    <string name="player_queue_empty">Sıranız boş. İzlemeye Devam Et bölümünde bir içeriğe uzun basın ve Sıraya ekle seçeneğini seçin.</string>
+    <string name="player_up_next_in_queue">Sırada sonraki</string>
+    <string name="player_queue_move_up">Yukarı taşı</string>
+    <string name="player_queue_move_down">Aşağı taşı</string>
+    <string name="player_seek_back_10">10 saniye geri</string>
+    <string name="player_seek_forward_30">30 saniye ileri</string>
     <string name="player_live_watched">CANLI  %1$s</string>
     <string name="player_via">Sağlayıcı: %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

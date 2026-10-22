@@ -164,6 +164,8 @@
     <string name="cw_action_go_to_details">Részletek</string>
     <string name="cw_action_start_from_beginning">Indítás elölről</string>
     <string name="cw_action_remove">Eltávolítás</string>
+    <string name="cw_action_add_to_queue">Hozzáadás a sorhoz</string>
+    <string name="cw_action_remove_from_queue">Eltávolítás a sorból</string>
     <string name="cw_dialog_subtitle">Válaszd ki a műveletet.</string>
     <string name="home_poster_dialog_subtitle">Műveletek</string>
 
@@ -1483,6 +1485,13 @@
     <string name="parental_severity_moderate">Mérsékelt</string>
     <string name="parental_severity_mild">Enyhe</string>
     <string name="player_ends_at">Befejezés: %1$s</string>
+    <string name="player_queue">Sor</string>
+    <string name="player_queue_empty">A sorod üres. Nyomj hosszan egy címet a Megtekintés folytatása sorban, és válaszd a Hozzáadás a sorhoz lehetőséget.</string>
+    <string name="player_up_next_in_queue">Következő a sorban</string>
+    <string name="player_queue_move_up">Feljebb</string>
+    <string name="player_queue_move_down">Lejjebb</string>
+    <string name="player_seek_back_10">Vissza 10 másodpercet</string>
+    <string name="player_seek_forward_30">Előre 30 másodpercet</string>
     <string name="player_live_watched">ÉLŐ  %1$s</string>
     <string name="player_via">forrás: %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

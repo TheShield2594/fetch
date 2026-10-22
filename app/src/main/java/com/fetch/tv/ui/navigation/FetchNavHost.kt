@@ -1095,6 +1095,29 @@ private fun PlaybackNavHost(
                     )
                 },
                 onOpenPartyMedia = ::openPartyMedia,
+                onPlayQueueItem = { item ->
+                    // A queued title gets its own stream search, the same way Continue Watching starts one.
+                    navController.navigate(
+                        Screen.Stream.createRoute(
+                            videoId = item.videoId,
+                            contentType = item.contentType,
+                            title = item.name,
+                            poster = item.poster,
+                            backdrop = item.backdrop,
+                            logo = item.logo,
+                            season = item.season,
+                            episode = item.episode,
+                            episodeName = item.episodeTitle,
+                            contentId = item.contentId,
+                            contentName = item.name,
+                            returnToDetailOnBack = item.contentType.equals("series", ignoreCase = true),
+                            returnToHomeOnBack = true,
+                            profileId = backStackEntry.arguments?.getString("profileId")?.toIntOrNull()
+                        )
+                    ) {
+                        popUpTo(Screen.Player.route) { inclusive = true }
+                    }
+                },
                 onPlaybackErrorBack = {
                     val returnedToStream = popBackToStream()
                     if (!returnedToStream) {

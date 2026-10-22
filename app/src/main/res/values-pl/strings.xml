@@ -41,6 +41,8 @@
     </plurals>
     <string name="cw_action_go_to_details">Przejdź do szczegółów</string>
     <string name="cw_action_remove">Usuń</string>
+    <string name="cw_action_add_to_queue">Dodaj do kolejki</string>
+    <string name="cw_action_remove_from_queue">Usuń z kolejki</string>
     <string name="cw_dialog_subtitle">Wybierz co chcesz zrobić z tym elementem.</string>
     <string name="home_poster_dialog_subtitle">Akcje tytułu</string>
 
@@ -699,6 +701,13 @@
 
     <!-- PlayerScreen -->
     <string name="player_ends_at">Koniec o: %1$s</string>
+    <string name="player_queue">Kolejka</string>
+    <string name="player_queue_empty">Twoja kolejka jest pusta. Przytrzymaj tytuł w sekcji Kontynuuj oglądanie i wybierz Dodaj do kolejki.</string>
+    <string name="player_up_next_in_queue">Następne w kolejce</string>
+    <string name="player_queue_move_up">Przenieś w górę</string>
+    <string name="player_queue_move_down">Przenieś w dół</string>
+    <string name="player_seek_back_10">10 sekund wstecz</string>
+    <string name="player_seek_forward_30">30 sekund do przodu</string>
     <string name="player_no_external_player">Nie znaleziono zewnętrznego odtwarzacza</string>
 
     <!-- ParentalGuideOverlay -->

@@ -161,6 +161,8 @@
     <string name="cw_action_go_to_details">Prejsť na detaily</string>
     <string name="cw_action_start_from_beginning">Začať od začiatku</string>
     <string name="cw_action_remove">Odobrať</string>
+    <string name="cw_action_add_to_queue">Pridať do frontu</string>
+    <string name="cw_action_remove_from_queue">Odobrať z frontu</string>
     <string name="cw_dialog_subtitle">Vyberte, čo chcete s touto položkou urobiť.</string>
     <string name="home_poster_dialog_subtitle">Možnosti titulu</string>
 
@@ -1073,6 +1075,13 @@
     <string name="parental_severity_moderate">Stredné</string>
     <string name="parental_severity_mild">Mierne</string>
     <string name="player_ends_at">Končí o %1$s</string>
+    <string name="player_queue">Front</string>
+    <string name="player_queue_empty">Front je prázdny. Podržte titul v sekcii Pokračovať v sledovaní a zvoľte Pridať do frontu.</string>
+    <string name="player_up_next_in_queue">Ďalšie vo fronte</string>
+    <string name="player_queue_move_up">Posunúť nahor</string>
+    <string name="player_queue_move_down">Posunúť nadol</string>
+    <string name="player_seek_back_10">Späť o 10 sekúnd</string>
+    <string name="player_seek_forward_30">Vpred o 30 sekúnd</string>
     <string name="player_via">cez %1$s</string>
     
     <string name="season_episode_format">S%1$d E%2$d</string>

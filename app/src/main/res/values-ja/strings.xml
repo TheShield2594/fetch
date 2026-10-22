@@ -165,6 +165,8 @@
     <string name="cw_action_go_to_details">詳細へ</string>
     <string name="cw_action_start_from_beginning">最初から再生</string>
     <string name="cw_action_remove">削除</string>
+    <string name="cw_action_add_to_queue">キューに追加</string>
+    <string name="cw_action_remove_from_queue">キューから削除</string>
     <string name="cw_dialog_subtitle">このアイテムに対する操作を選択してください</string>
     <string name="home_poster_dialog_subtitle">タイトルの操作</string>
 
@@ -1121,6 +1123,13 @@
     <string name="parental_severity_moderate">中程度</string>
     <string name="parental_severity_mild">軽度</string>
     <string name="player_ends_at">%1$sに終了</string>
+    <string name="player_queue">キュー</string>
+    <string name="player_queue_empty">キューは空です。「視聴を続ける」のタイトルを長押しして「キューに追加」を選んでください。</string>
+    <string name="player_up_next_in_queue">キューの次の作品</string>
+    <string name="player_queue_move_up">上へ移動</string>
+    <string name="player_queue_move_down">下へ移動</string>
+    <string name="player_seek_back_10">10秒戻る</string>
+    <string name="player_seek_forward_30">30秒進む</string>
     <string name="player_via">%1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02) -->
     <string name="season_episode_format">S%1$d E%2$d</string>

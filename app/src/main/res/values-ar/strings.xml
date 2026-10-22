@@ -169,6 +169,8 @@
     <string name="cw_action_go_to_details">التفاصيل</string>
     <string name="cw_action_start_from_beginning">البدء من البداية</string>
     <string name="cw_action_remove">إزالة</string>
+    <string name="cw_action_add_to_queue">إضافة إلى قائمة الانتظار</string>
+    <string name="cw_action_remove_from_queue">إزالة من قائمة الانتظار</string>
     <string name="cw_dialog_subtitle">حدد الاجراء المطلوب.</string>
     <string name="home_poster_dialog_subtitle">خيارات العمل</string>
 
@@ -1126,6 +1128,13 @@
     <string name="parental_severity_moderate">متوسط</string>
     <string name="parental_severity_mild">خفيف</string>
     <string name="player_ends_at">ينتهي في: %1$s</string>
+    <string name="player_queue">قائمة الانتظار</string>
+    <string name="player_queue_empty">قائمة الانتظار فارغة. اضغط مطولاً على عنوان في «متابعة المشاهدة» واختر «إضافة إلى قائمة الانتظار».</string>
+    <string name="player_up_next_in_queue">التالي في قائمة الانتظار</string>
+    <string name="player_queue_move_up">نقل لأعلى</string>
+    <string name="player_queue_move_down">نقل لأسفل</string>
+    <string name="player_seek_back_10">رجوع 10 ثوانٍ</string>
+    <string name="player_seek_forward_30">تقديم 30 ثانية</string>
     <string name="player_via">بواسطة %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>

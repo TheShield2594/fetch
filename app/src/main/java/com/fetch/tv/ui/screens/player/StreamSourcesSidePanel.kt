@@ -224,7 +224,7 @@ internal fun StreamSourcesSidePanel(
         modifier = modifier
             .onFocusChanged { panelHasFocus = it.hasFocus }
             .fillMaxHeight()
-            .width(520.dp)
+            .width(PlayerSidePanelWidth)
             .clip(RoundedCornerShape(topStart = FetchTheme.spacing.lg, bottomStart = FetchTheme.spacing.lg))
             .background(FetchTheme.colors.BackgroundElevated)
     ) {

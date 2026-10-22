@@ -161,6 +161,8 @@
     <string name="cw_action_go_to_details">Ir para os detalhes</string>
     <string name="cw_action_start_from_beginning">Começar do início</string>
     <string name="cw_action_remove">Remover</string>
+    <string name="cw_action_add_to_queue">Adicionar à fila</string>
+    <string name="cw_action_remove_from_queue">Remover da fila</string>
     <string name="cw_dialog_subtitle">Escolhe o que queres fazer com este item.</string>
     <string name="home_poster_dialog_subtitle">Ações do título</string>
     <string name="catalog_from_addon">de %1$s</string>
@@ -1084,6 +1086,13 @@
     <string name="parental_severity_moderate">Moderado</string>
     <string name="parental_severity_mild">Ligeiro</string>
     <string name="player_ends_at">Termina às %1$s</string>
+    <string name="player_queue">Fila</string>
+    <string name="player_queue_empty">A sua fila está vazia. Mantenha premido um título em Continuar a ver e escolha Adicionar à fila.</string>
+    <string name="player_up_next_in_queue">A seguir na fila</string>
+    <string name="player_queue_move_up">Mover para cima</string>
+    <string name="player_queue_move_down">Mover para baixo</string>
+    <string name="player_seek_back_10">Recuar 10 segundos</string>
+    <string name="player_seek_forward_30">Avançar 30 segundos</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">T%1$d E%2$d</string>

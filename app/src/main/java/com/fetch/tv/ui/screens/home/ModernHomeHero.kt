@@ -713,10 +713,10 @@ private fun HeroResumeRow(
     textStyle: androidx.compose.ui.text.TextStyle,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    // The spec line sits under the button: beside it, the hero's narrow column cut it short.
+    Column(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
     ) {
         Row(
             modifier = Modifier

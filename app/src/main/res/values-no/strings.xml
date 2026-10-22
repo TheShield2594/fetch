@@ -76,6 +76,8 @@
     <string name="cw_action_go_to_details">Gå til detaljer</string>
     <string name="cw_action_start_from_beginning">Start fra begynnelsen</string>
     <string name="cw_action_remove">Fjern</string>
+    <string name="cw_action_add_to_queue">Legg til i kø</string>
+    <string name="cw_action_remove_from_queue">Fjern fra kø</string>
     <string name="cw_dialog_subtitle">Velg hva du vil gjøre med denne gjenstanden.</string>
     <string name="home_poster_dialog_subtitle">Tittelhandlinger</string>
 
@@ -668,6 +670,13 @@
     <string name="parental_severity_moderate">Moderat</string>
     <string name="parental_severity_mild">Mild</string>
     <string name="player_ends_at">Slutter klokken %1$s</string>
+    <string name="player_queue">Kø</string>
+    <string name="player_queue_empty">Køen din er tom. Hold inne en tittel i Fortsett å se og velg Legg til i kø.</string>
+    <string name="player_up_next_in_queue">Neste i køen</string>
+    <string name="player_queue_move_up">Flytt opp</string>
+    <string name="player_queue_move_down">Flytt ned</string>
+    <string name="player_seek_back_10">10 sekunder tilbake</string>
+    <string name="player_seek_forward_30">30 sekunder frem</string>
     <string name="player_via">via %1$s</string>
     <string name="player_subtitle_delay">Undertekst forsinkelse</string>
     <string name="player_error_title">Avspillingsfeil</string>

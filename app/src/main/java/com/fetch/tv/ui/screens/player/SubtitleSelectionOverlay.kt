@@ -388,13 +388,7 @@ internal fun SubtitleSelectionOverlay(
         requestStyleFocus(targetKey = styleTargetKey, reason = "option_to_style")
     }
 
-    PlayerOverlayScaffold(
-        visible = visible,
-        onDismiss = onDismiss,
-        modifier = modifier,
-        captureKeys = false,
-        contentPadding = PaddingValues(start = 52.dp, end = 52.dp, top = 36.dp, bottom = 76.dp)
-    ) {
+    PlayerSidePanel(visible = visible, modifier = modifier, drawSurface = true) {
         LaunchedEffect(visible) {
             if (!visible) return@LaunchedEffect
             if (sessionInitialLanguageKey != SubtitleOffLanguageKey && sessionInitialSelectedOptionId != null) {
@@ -461,7 +455,7 @@ internal fun SubtitleSelectionOverlay(
             pendingStyleFocusKey = null
         }
 
-        Column(verticalArrangement = Arrangement.Bottom) {
+        Column(verticalArrangement = Arrangement.Top) {
             Text(
                 text = stringResource(R.string.subtitle_dialog_title),
                 style = MaterialTheme.typography.headlineMedium,
@@ -661,7 +655,7 @@ private fun SubtitleLanguageRail(
         onFocusRequestConsumed()
     }
 
-    RailColumn(width = 200.dp, title = stringResource(R.string.subtitle_tab_languages)) {
+    RailColumn(width = 140.dp, title = stringResource(R.string.subtitle_tab_languages)) {
         LazyColumn(
             state = listState,
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
@@ -741,7 +735,7 @@ private fun SubtitleOptionsRail(
         onFocusRequestConsumed()
     }
 
-    RailColumn(width = 300.dp, title = stringResource(R.string.subtitle_dialog_title)) {
+    RailColumn(width = 220.dp, title = stringResource(R.string.subtitle_dialog_title)) {
         when {
             selectedLanguageKey == SubtitleOffLanguageKey -> {
                 OverlayEmptyCard(text = stringResource(R.string.subtitle_none))
@@ -816,7 +810,7 @@ private fun SubtitleStyleRail(
     val styleCardModifier = if (isStyleDisabledByLibass) Modifier.alpha(0.35f) else Modifier
     val styleRailModifier = if (isStyleDisabledByLibass) Modifier.focusProperties { canFocus = false } else Modifier
     RailColumn(
-        width = 280.dp,
+        width = 212.dp,
         title = stringResource(R.string.subtitle_style_title),
         modifier = styleRailModifier
     ) {

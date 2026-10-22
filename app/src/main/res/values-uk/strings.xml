@@ -170,6 +170,8 @@
     <string name="cw_action_go_to_details">Перейти до деталей</string>
     <string name="cw_action_start_from_beginning">Почати спочатку</string>
     <string name="cw_action_remove">Видалити</string>
+    <string name="cw_action_add_to_queue">Додати до черги</string>
+    <string name="cw_action_remove_from_queue">Прибрати з черги</string>
     <string name="cw_dialog_subtitle">Оберіть дію для цього елемента.</string>
     <string name="home_poster_dialog_subtitle">Дії з тайтлом</string>
 
@@ -1115,6 +1117,13 @@
     <string name="parental_severity_moderate">Помірно</string>
     <string name="parental_severity_mild">Незначно</string>
     <string name="player_ends_at">Закінчиться о %1$s</string>
+    <string name="player_queue">Черга</string>
+    <string name="player_queue_empty">Черга порожня. Утримуйте назву в розділі «Продовжити перегляд» і виберіть «Додати до черги».</string>
+    <string name="player_up_next_in_queue">Далі в черзі</string>
+    <string name="player_queue_move_up">Перемістити вгору</string>
+    <string name="player_queue_move_down">Перемістити вниз</string>
+    <string name="player_seek_back_10">Назад на 10 секунд</string>
+    <string name="player_seek_forward_30">Уперед на 30 секунд</string>
     <string name="player_via">через %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">С%1$d Е%2$d</string>

@@ -285,7 +285,7 @@ fun AddonManagerScreen(
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1A3A5C)),
+                        colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundElevated),
                         shape = RoundedCornerShape(FetchTheme.radii.md)
                     ) {
                         Text(
@@ -674,10 +674,10 @@ private fun ManageFromPhoneCard(
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
     ) {
         Row(
@@ -736,10 +736,10 @@ private fun CatalogOrderEntryCard(onClick: () -> Unit) {
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
     ) {
         Row(
@@ -825,10 +825,10 @@ private fun NavigationEntryCard(
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
     ) {
         Row(
@@ -891,10 +891,10 @@ private fun RefreshAddonsEntryCard(
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
     ) {
         Row(
@@ -1601,7 +1601,7 @@ private fun AddonHealthLabel(health: AddonHealth) {
         } else {
             stringResource(R.string.addon_health_failing)
         }
-        AddonHealthStatus.SLOW -> Color(0xFFFFB74D) to stringResource(R.string.addon_health_slow, latency)
+        AddonHealthStatus.SLOW -> FetchTheme.colors.Warning to stringResource(R.string.addon_health_slow, latency)
         else -> FetchTheme.colors.Secondary to stringResource(R.string.addon_health_ok, latency)
     }
     Text(

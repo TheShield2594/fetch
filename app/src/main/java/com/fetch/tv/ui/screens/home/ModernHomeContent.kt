@@ -1157,7 +1157,9 @@ fun ModernHomeContent(
             // The title and metadata follow focus at once, from the catalog's data until enrichment
             // replaces it. Only the art above waits for focus to settle and enrichment to land.
             HeroTitleBlock(
-                previewProvider = { currentLiveHeroSceneStateHolder.value.preview },
+                // The resolved hero, not the scene's preview: the scene holds no preview while
+                // enrichment is pending, and this block should show the catalog title meanwhile.
+                previewProvider = { resolvedHeroState.value.second },
                 bestMatchFor = { key -> latestCachedBestMatches.value[key] },
                 portraitMode = !useLandscapePosters,
                 showImdbRatings = uiState.homeImdbRatingsVisibility.showRatings,

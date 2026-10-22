@@ -444,7 +444,9 @@ fun ContinueWatchingCard(
     cardStyle: ContinueWatchingCardStyle = ContinueWatchingCardStyle.CARD,
     isFocused: Boolean = false,
     cornerRadius: Dp = FetchTheme.radii.md,
-    posterTitleOverride: TextStyle? = null
+    posterTitleOverride: TextStyle? = null,
+    /** True when this card's Best match is cached and recently confirmed, so it starts at once. */
+    isReady: Boolean = false
 ) {
     val isPosterStyle = cardStyle == ContinueWatchingCardStyle.POSTER
     val isWideStyle = cardStyle == ContinueWatchingCardStyle.WIDE
@@ -690,6 +692,7 @@ fun ContinueWatchingCard(
                 badgeBackground = badgeBackground,
                 showBadge = progress == null,
                 shufflePlayback = item.shufflePlayback,
+                isReady = isReady,
                 progressFraction = progressFraction,
                 hasProgress = progress != null,
                 onImageError = {
@@ -796,6 +799,7 @@ fun ContinueWatchingCard(
                 }
 
                 if (item.shufflePlayback) EpisodeShuffleBadge(Modifier.align(Alignment.TopStart))
+                if (isReady) ReadyDot(Modifier.align(Alignment.TopStart).padding(FetchTheme.spacing.sm))
 
                 // Content info at bottom
                 if (!textBelowArtwork) {
@@ -922,6 +926,7 @@ private fun WideCardContent(
     badgeBackground: Color,
     showBadge: Boolean,
     shufflePlayback: Boolean,
+    isReady: Boolean,
     progressFraction: Float,
     hasProgress: Boolean,
     onImageError: () -> Unit
@@ -961,6 +966,7 @@ private fun WideCardContent(
                 )
             }
             if (shufflePlayback) EpisodeShuffleBadge(Modifier.align(Alignment.TopStart))
+            if (isReady) ReadyDot(Modifier.align(Alignment.TopStart).padding(FetchTheme.spacing.xs))
         }
 
         Column(

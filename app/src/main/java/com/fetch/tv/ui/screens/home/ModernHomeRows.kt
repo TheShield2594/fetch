@@ -202,6 +202,9 @@ private fun ModernContinueWatchingRowItem(
         }
     }
 
+    val readyKeys = LocalReadyBestMatchKeys.current
+    val isReady = remember(item, readyKeys) { item.bestMatchKey()?.let { it in readyKeys } == true }
+
     ContinueWatchingCard(
         item = item,
         onClick = onClick,
@@ -213,6 +216,7 @@ private fun ModernContinueWatchingRowItem(
         cardStyle = continueWatchingCardStyle,
         cornerRadius = continueWatchingCornerRadius,
         isFocused = isCardFocused,
+        isReady = isReady,
         modifier = modifier
             .focusRequester(requester)
             .onFocusChanged {
@@ -938,7 +942,7 @@ internal fun ModernRowSection(
                     }
                 ) { index, item ->
                     val requester = itemFocusRequesters.getOrPut(index) { FocusRequester() }
-                    val isContinueWatchingRow = row.key == MODERN_CONTINUE_WATCHING_ROW_KEY || row.key == MODERN_UPCOMING_ROW_KEY
+                    val isContinueWatchingRow = isContinueWatchingStyleRow(row.key)
                     val onFocused = remember(row.key, index, isContinueWatchingRow) {
                         {
                             onRowItemFocused(row.key, index, isContinueWatchingRow)

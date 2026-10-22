@@ -58,10 +58,39 @@ class BestMatchCacheDataStore @Inject constructor(
         store().edit { prefs ->
             val current = decodeBestMatchEntries(prefs[ENTRIES_KEY])
             val entry = CachedBestMatch(labels = labels, isCached = isCached, savedAtMs = System.currentTimeMillis())
-            if (current[key]?.let { it.labels == labels && it.isCached == isCached } == true) return@edit
-            prefs[ENTRIES_KEY] = encodeBestMatchEntries(trimBestMatchEntries(current + (key to entry)))
+            val merged = mergeBestMatchEntry(current, key, entry) ?: return@edit
+            prefs[ENTRIES_KEY] = encodeBestMatchEntries(trimBestMatchEntries(merged))
         }
     }
+}
+
+/** How long a cached pick counts as ready to start instantly; debrid caches can drop files. */
+internal const val READY_WINDOW_MS = 24L * 60L * 60L * 1000L
+
+/** An unchanged pick is re-saved at most this often, only to record that it was checked again. */
+internal const val RECHECK_TOUCH_MS = 60L * 60L * 1000L
+
+/**
+ * True when this pick is cached on a debrid service and was confirmed in the last
+ * [READY_WINDOW_MS], so pressing Play should start it at once.
+ */
+fun CachedBestMatch.isReady(nowMs: Long): Boolean =
+    isCached && nowMs - savedAtMs in 0..READY_WINDOW_MS
+
+/**
+ * The entries after saving [entry] under [key], or null when nothing needs writing: the pick is
+ * unchanged and was confirmed less than [RECHECK_TOUCH_MS] ago. An unchanged pick older than
+ * that is re-saved so its time records the latest check, which [isReady] reads.
+ */
+internal fun mergeBestMatchEntry(
+    current: Map<String, CachedBestMatch>,
+    key: String,
+    entry: CachedBestMatch
+): Map<String, CachedBestMatch>? {
+    val existing = current[key]
+    val unchanged = existing != null && existing.labels == entry.labels && existing.isCached == entry.isCached
+    if (unchanged && entry.savedAtMs - existing!!.savedAtMs < RECHECK_TOUCH_MS) return null
+    return current + (key to entry)
 }
 
 internal fun trimBestMatchEntries(

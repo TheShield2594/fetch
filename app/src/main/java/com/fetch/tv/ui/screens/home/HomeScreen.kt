@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
@@ -523,43 +524,56 @@ private fun ModernHomeRoute(
         .collectAsStateWithLifecycle(initialValue = emptyMap())
     val queuedVideoIds by remember(viewModel) { viewModel.queuedVideoIds }
         .collectAsStateWithLifecycle(initialValue = emptySet())
-    ModernHomeContent(
-        uiState = uiState,
-        cachedBestMatches = cachedBestMatches,
-        queuedVideoIds = queuedVideoIds,
-        onToggleQueue = remember(viewModel) { { item: ContinueWatchingItem -> viewModel.toggleQueued(item) } },
-        modernPresentation = modernPresentation,
-        focusState = focusState,
-        scrollToTopTrigger = scrollToTopTrigger,
-        enrichingItemId = enrichingItemId,
-        lastEnrichedPreview = lastEnrichedPreview,
-        enrichedPreviews = enrichedPreviews,
-        failedEnrichmentIds = failedEnrichmentIds,
-        trailerPreviewUrls = viewModel.trailerPreviewUrls,
-        trailerPreviewAudioUrls = viewModel.trailerPreviewAudioUrls,
-        onNavigateToDetail = onNavigateToDetail,
-        onContinueWatchingClick = onContinueWatchingClick,
-        onContinueWatchingStartFromBeginning = onContinueWatchingStartFromBeginning,
-        onContinueWatchingPlayManually = onContinueWatchingPlayManually,
-        showContinueWatchingManualPlayOption = showContinueWatchingManualPlayOption,
-        onRequestTrailerPreview = requestTrailerPreview,
-        onLoadMoreCatalog = loadMoreCatalog,
-        onRemoveContinueWatching = removeContinueWatching,
-        isCatalogItemWatched = isCatalogItemWatched,
-        onCatalogItemLongPress = onCatalogItemLongPress,
-        onNavigateToFolderDetail = onNavigateToFolderDetail,
-        onItemFocus = remember(viewModel) {
-            { item -> viewModel.onItemFocus(item) }
-        },
-        onPreloadAdjacentItem = preloadAdjacentItem,
-        onSaveFocusState = saveModernFocusState,
-        onFocusedRowKeyChanged = remember(viewModel) {
-            { key: String? -> viewModel.setLiveFocusedRowKey(key) }
-        },
-        onRequestLazyCatalogLoad = remember(viewModel) {
-            { catalogKey: String -> viewModel.requestLazyCatalogLoad(catalogKey) }
-        }
-    )
+    // Checks a few titles in the background once Continue Watching settles. Leaving Home (to the
+    // player, say) cancels it, so it never competes with playback.
+    val readyCheckItems = uiState.continueWatchingItems
+    LaunchedEffect(readyCheckItems) {
+        delay(READY_CHECK_SETTLE_MS)
+        viewModel.runReadyCheck(readyCheckItems)
+    }
+    // Ready means cached and confirmed in the last day; the dot and "Ready tonight" both read this.
+    val readyBestMatchKeys = remember(cachedBestMatches) {
+        readyBestMatchKeys(cachedBestMatches, System.currentTimeMillis())
+    }
+    CompositionLocalProvider(LocalReadyBestMatchKeys provides readyBestMatchKeys) {
+        ModernHomeContent(
+            uiState = uiState,
+            cachedBestMatches = cachedBestMatches,
+            queuedVideoIds = queuedVideoIds,
+            onToggleQueue = remember(viewModel) { { item: ContinueWatchingItem -> viewModel.toggleQueued(item) } },
+            modernPresentation = modernPresentation,
+            focusState = focusState,
+            scrollToTopTrigger = scrollToTopTrigger,
+            enrichingItemId = enrichingItemId,
+            lastEnrichedPreview = lastEnrichedPreview,
+            enrichedPreviews = enrichedPreviews,
+            failedEnrichmentIds = failedEnrichmentIds,
+            trailerPreviewUrls = viewModel.trailerPreviewUrls,
+            trailerPreviewAudioUrls = viewModel.trailerPreviewAudioUrls,
+            onNavigateToDetail = onNavigateToDetail,
+            onContinueWatchingClick = onContinueWatchingClick,
+            onContinueWatchingStartFromBeginning = onContinueWatchingStartFromBeginning,
+            onContinueWatchingPlayManually = onContinueWatchingPlayManually,
+            showContinueWatchingManualPlayOption = showContinueWatchingManualPlayOption,
+            onRequestTrailerPreview = requestTrailerPreview,
+            onLoadMoreCatalog = loadMoreCatalog,
+            onRemoveContinueWatching = removeContinueWatching,
+            isCatalogItemWatched = isCatalogItemWatched,
+            onCatalogItemLongPress = onCatalogItemLongPress,
+            onNavigateToFolderDetail = onNavigateToFolderDetail,
+            onItemFocus = remember(viewModel) {
+                { item -> viewModel.onItemFocus(item) }
+            },
+            onPreloadAdjacentItem = preloadAdjacentItem,
+            onSaveFocusState = saveModernFocusState,
+            onFocusedRowKeyChanged = remember(viewModel) {
+                { key: String? -> viewModel.setLiveFocusedRowKey(key) }
+            },
+            onRequestLazyCatalogLoad = remember(viewModel) {
+                { catalogKey: String -> viewModel.requestLazyCatalogLoad(catalogKey) }
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

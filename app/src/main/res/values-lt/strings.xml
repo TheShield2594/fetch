@@ -1096,4 +1096,5 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="home_row_ready_tonight">Paruošta šiam vakarui</string>
     <string name="ready_check_title">Fone tikrinti, kas paruošta</string>
     <string name="ready_check_sub">Per „Wi-Fi“ ar eternetą paklausia jūsų priedų apie ne daugiau kaip 6 pavadinimus iš „Tęsti žiūrėjimą“ ir žiūrėjimo sąrašo, apie kiekvieną ne dažniau kaip kas 12 valandų, kad pradžios ekranas pažymėtų tuos, kuriuos galima paleisti iškart.</string>
+    <string name="empty_state_add_addon">Pridėti priedą</string>
 </resources>

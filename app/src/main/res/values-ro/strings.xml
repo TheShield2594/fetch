@@ -958,4 +958,5 @@
     <string name="home_row_ready_tonight">Gata pentru diseară</string>
     <string name="ready_check_title">Verifică în fundal ce este gata</string>
     <string name="ready_check_sub">Pe Wi-Fi sau Ethernet, întreabă addon-urile despre cel mult 6 titluri din Continuă vizionarea și din lista de urmărit, fiecare cel mult o dată la 12 ore, ca ecranul principal să le marcheze pe cele care pornesc imediat.</string>
+    <string name="empty_state_add_addon">Adaugă un complement</string>
 </resources>

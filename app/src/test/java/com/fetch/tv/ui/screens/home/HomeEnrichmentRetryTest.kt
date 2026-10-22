@@ -41,9 +41,9 @@ import java.util.concurrent.atomic.AtomicInteger
  * takes is a relaxed mock. Its init block suspends on profileManager.activeProfileReady, which a
  * relaxed mock never completes, so nothing beyond the pipeline under test runs.
  *
- * Uses runBlocking and polling rather than virtual time: onItemFocusPipeline launches on
- * Dispatchers.IO and debounces for 220ms, so the assertions wait for a monotonic call count
- * instead of advancing a scheduler the pipeline does not use.
+ * Uses runBlocking rather than virtual time: onItemFocusPipeline launches on Dispatchers.IO and
+ * debounces for 220ms, a scheduler the test can't advance. Each focus instead waits for its own
+ * enrichment job to finish, so assertions never run while that focus is still settling.
  */
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class HomeEnrichmentRetryTest {
@@ -85,7 +85,7 @@ class HomeEnrichmentRetryTest {
         val viewModel = newViewModel(repository)
         viewModel.seedCatalog(item(itemId))
 
-        viewModel.onItemFocusPipeline(item(itemId))
+        focusAndSettle(viewModel, item(itemId))
         awaitCalls(calls, expected = 1, what = "the first focus should have attempted one fetch")
 
         // The addon comes back. Focus has to move away and back, which is what a remote does.
@@ -143,7 +143,7 @@ class HomeEnrichmentRetryTest {
         viewModel.currentTmdbSettings = TmdbSettings(enabled = true, modernHomeEnabled = true)
         viewModel.seedCatalog(item(itemId))
 
-        viewModel.onItemFocusPipeline(item(itemId))
+        focusAndSettle(viewModel, item(itemId))
         awaitCalls(calls, 1, "TMDB succeeding should not stop the external fetch being attempted")
 
         // The state the second gate reads: TMDB resolved and is cached, external failed and is not.
@@ -203,7 +203,7 @@ class HomeEnrichmentRetryTest {
         val viewModel = newViewModel(repository)
         viewModel.seedCatalog(item(itemId))
 
-        viewModel.onItemFocusPipeline(item(itemId))
+        focusAndSettle(viewModel, item(itemId))
         awaitCalls(calls, 1, "the first focus should have attempted one fetch")
 
         focusAndSettle(viewModel, item(otherId))
@@ -314,10 +314,17 @@ class HomeEnrichmentRetryTest {
         assertEquals("a not-found answer must not be refetched", 1, calls.get())
     }
 
+    /**
+     * Focuses [item] and waits for that focus's enrichment job to finish: the debounce, both
+     * fetches and the cache writes. Waiting on the job rather than a fixed sleep keeps a slow
+     * machine from asserting before the pipeline is done.
+     */
     private suspend fun focusAndSettle(viewModel: HomeViewModel, item: MetaPreview) {
         viewModel.onItemFocusPipeline(item)
-        // Debounce plus the fetch itself; the assertions that need a specific count poll instead.
-        delay(HomeViewModel.EXTERNAL_META_PREFETCH_FOCUS_DEBOUNCE_MS + 400)
+        val settled = runCatching {
+            withTimeout(5_000) { viewModel.tmdbEnrichFocusJob?.join() }
+        }.isSuccess
+        assertEquals("the focus on ${item.id} should finish", true, settled)
     }
 
     /**

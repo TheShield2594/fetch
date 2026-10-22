@@ -2448,4 +2448,5 @@
     <string name="home_row_ready_tonight">今夜すぐ見られる</string>
     <string name="ready_check_title">すぐ見られる作品をバックグラウンドで確認</string>
     <string name="ready_check_sub">Wi-Fi またはイーサネット接続時に、「視聴を続ける」とウォッチリストの最大 6 作品について、各作品 12 時間に 1 回までアドオンに問い合わせ、すぐに再生できる作品をホームに表示します。</string>
+    <string name="empty_state_add_addon">アドオンを追加</string>
 </resources>

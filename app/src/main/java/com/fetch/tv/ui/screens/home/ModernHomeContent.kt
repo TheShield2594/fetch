@@ -6,6 +6,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.CatalogRowsSkeleton
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -180,9 +181,7 @@ fun ModernHomeContent(
     }
     val hasCatalogs = uiState.catalogRows.isNotEmpty()
     if (hasCollections && !hasCatalogs && uiState.installedAddonsCount > 0 && uiState.isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            LoadingIndicator()
-        }
+        CatalogRowsSkeleton(modifier = Modifier.fillMaxSize())
         return
     }
 

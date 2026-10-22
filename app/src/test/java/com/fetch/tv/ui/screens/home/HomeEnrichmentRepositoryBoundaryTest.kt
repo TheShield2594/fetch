@@ -74,7 +74,7 @@ class HomeEnrichmentRepositoryBoundaryTest {
         val viewModel = newViewModel(realRepository(api))
         viewModel.seedCatalog(item(itemId))
 
-        viewModel.onItemFocusPipeline(item(itemId))
+        focusAndSettle(viewModel, item(itemId))
         awaitAtLeast(metaCalls, 1)
 
         reachable.set(true)
@@ -91,9 +91,17 @@ class HomeEnrichmentRepositoryBoundaryTest {
         )
     }
 
+    /**
+     * Focuses [item] and waits for that focus's enrichment job to finish: the debounce, both
+     * fetches and the cache writes. Waiting on the job rather than a fixed sleep keeps a slow
+     * machine from asserting before the pipeline is done.
+     */
     private suspend fun focusAndSettle(viewModel: HomeViewModel, item: MetaPreview) {
         viewModel.onItemFocusPipeline(item)
-        delay(HomeViewModel.EXTERNAL_META_PREFETCH_FOCUS_DEBOUNCE_MS + 400)
+        val settled = runCatching {
+            withTimeout(5_000) { viewModel.tmdbEnrichFocusJob?.join() }
+        }.isSuccess
+        assertEquals("the focus on ${item.id} should finish", true, settled)
     }
 
     private suspend fun awaitAtLeast(counter: AtomicInteger, expected: Int) {

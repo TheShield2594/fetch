@@ -3045,4 +3045,5 @@
     <string name="home_row_ready_tonight">Sẵn sàng tối nay</string>
     <string name="ready_check_title">Kiểm tra nội dung sẵn sàng trong nền</string>
     <string name="ready_check_sub">Khi dùng Wi-Fi hoặc Ethernet, hỏi các addon về tối đa 6 nội dung trong Tiếp tục xem và Danh sách theo dõi, mỗi nội dung tối đa 12 giờ một lần, để Trang chủ đánh dấu những mục phát được ngay.</string>
+    <string name="empty_state_add_addon">Thêm tiện ích</string>
 </resources>

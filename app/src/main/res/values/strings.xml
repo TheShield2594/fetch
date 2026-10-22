@@ -3048,4 +3048,5 @@
     <string name="home_row_ready_tonight">Ready tonight</string>
     <string name="ready_check_title">Check what\'s ready in the background</string>
     <string name="ready_check_sub">On Wi-Fi or Ethernet, asks your addons about up to 6 titles from Continue Watching and your Watchlist, each at most every 12 hours, so Home can mark the ones that start instantly.</string>
+    <string name="empty_state_add_addon">Add an addon</string>
 </resources>

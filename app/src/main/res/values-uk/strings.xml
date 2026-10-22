@@ -2478,4 +2478,5 @@
     <string name="home_row_ready_tonight">Готово на вечір</string>
     <string name="ready_check_title">Перевіряти у фоні, що готово</string>
     <string name="ready_check_sub">Через Wi-Fi або Ethernet запитує доповнення про не більше ніж 6 назв із «Продовжити перегляд» і «Списку для перегляду», про кожну не частіше ніж раз на 12 годин, щоб головна позначала ті, що запустяться одразу.</string>
+    <string name="empty_state_add_addon">Додати адон</string>
 </resources>

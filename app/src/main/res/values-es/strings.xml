@@ -2906,4 +2906,5 @@
     <string name="home_row_ready_tonight">Listo para esta noche</string>
     <string name="ready_check_title">Comprobar en segundo plano qué está listo</string>
     <string name="ready_check_sub">Con Wi-Fi o Ethernet, consulta a tus addons hasta 6 títulos de Continuar viendo y tu Lista de deseos, cada uno como máximo cada 12 horas, para que Inicio marque los que empiezan al instante.</string>
+    <string name="empty_state_add_addon">Añadir un complemento</string>
 </resources>

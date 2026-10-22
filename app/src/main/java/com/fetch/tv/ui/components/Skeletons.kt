@@ -27,6 +27,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -468,3 +470,90 @@ fun rememberShimmerBrush(backdropAware: Boolean = false): Brush {
         end = Offset(translate, 0f)
     )
 }
+
+/**
+ * Placeholder rows of cards for screens built from catalog rows, such as Home, while their first
+ * catalogs load. [showHero] adds the title, metadata line and button that sit above Home's rows.
+ */
+@Composable
+fun CatalogRowsSkeleton(
+    modifier: Modifier = Modifier,
+    rowCount: Int = 3,
+    showHero: Boolean = false,
+    startPadding: Dp = FetchTheme.spacing.screen.horizontal,
+    cardWidth: Dp = FetchTheme.sizes.cards.posterWidth,
+    cardHeight: Dp = FetchTheme.sizes.cards.posterHeight
+) {
+    val shimmerBrush = rememberShimmerBrush()
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clipToBounds()
+            .padding(start = startPadding, top = FetchTheme.spacing.xl),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
+    ) {
+        if (showHero) {
+            Column(
+                modifier = Modifier.padding(top = FetchTheme.spacing.huge, bottom = FetchTheme.spacing.xl),
+                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+            ) {
+                SkeletonBar(width = 360.dp, height = FetchTheme.spacing.xxxl, brush = shimmerBrush)
+                SkeletonBar(width = 280.dp, height = FetchTheme.spacing.lg, brush = shimmerBrush)
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
+                SkeletonPill(width = 160.dp, height = FetchTheme.spacing.xxxl, brush = shimmerBrush)
+            }
+        }
+        repeat(rowCount) {
+            Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
+                SkeletonBar(width = 180.dp, height = FetchTheme.spacing.lg, brush = shimmerBrush)
+                Row(
+                    modifier = Modifier.wrapContentWidth(Alignment.Start, unbounded = true),
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+                ) {
+                    repeat(SKELETON_ROW_CARDS) {
+                        SkeletonBar(
+                            width = cardWidth,
+                            height = cardHeight,
+                            brush = shimmerBrush,
+                            cornerRadius = FetchTheme.radii.sm
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Placeholder posters for grid screens, such as the library and "See all", while they load. */
+@Composable
+fun PosterGridSkeleton(
+    modifier: Modifier = Modifier,
+    rowCount: Int = 3,
+    cardWidth: Dp = FetchTheme.sizes.cards.posterWidth,
+    cardHeight: Dp = FetchTheme.sizes.cards.posterHeight
+) {
+    val shimmerBrush = rememberShimmerBrush()
+    Column(
+        modifier = modifier.fillMaxWidth().clipToBounds(),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
+    ) {
+        repeat(rowCount) {
+            Row(
+                modifier = Modifier.wrapContentWidth(Alignment.Start, unbounded = true),
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+            ) {
+                repeat(SKELETON_ROW_CARDS) {
+                    SkeletonBar(
+                        width = cardWidth,
+                        height = cardHeight,
+                        brush = shimmerBrush,
+                        cornerRadius = FetchTheme.radii.sm
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Enough cards to run past the right edge of a 1080p screen at the smallest card size. */
+private const val SKELETON_ROW_CARDS = 12

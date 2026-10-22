@@ -74,8 +74,8 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlinx.coroutines.delay
 
-private val AuthTextPrimary = Color(0xFFF5F7F8)
-private val AuthTextSecondary = Color(0xFF969CA3)
+private val AuthTextPrimary: Color @Composable get() = FetchTheme.colors.TextPrimary
+private val AuthTextSecondary: Color @Composable get() = FetchTheme.colors.TextSecondary
 private val AuthPaneBackground = Color.White.copy(alpha = 0.022f)
 private val AuthPaneBorder = Color.White.copy(alpha = 0.07f)
 private val AuthSecondaryButtonBackground = Color.White.copy(alpha = 0.05f)
@@ -177,8 +177,10 @@ fun AuthQrSignInScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
-            .authGradientBackground()
+            .authGradientBackground(
+                base = FetchTheme.colors.Background,
+                glow = FetchTheme.colors.Secondary
+            )
     ) {
         Row(
             modifier = Modifier
@@ -306,7 +308,7 @@ private fun AuthQrBrandPanel(
             Text(
                 text = fullAccount.email,
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF7CFF9B)
+                color = FetchTheme.colors.Success
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
@@ -388,15 +390,15 @@ private fun AuthQrLoginPane(
                     modifier = if (focusMainAction) Modifier.focusRequester(initialFocusRequester) else Modifier,
                     colors = ButtonDefaults.colors(
                         containerColor = AuthSecondaryButtonBackground,
-                        focusedContainerColor = Color.White,
+                        focusedContainerColor = FetchTheme.colors.Secondary,
                         contentColor = AuthTextPrimary,
-                        focusedContentColor = Color.Black,
+                        focusedContentColor = FetchTheme.colors.OnSecondary,
                         disabledContainerColor = AuthSecondaryButtonBackground.copy(alpha = 0.45f)
                     ),
                     border = ButtonDefaults.border(
                         border = androidx.tv.material3.Border(
                             border = androidx.compose.foundation.BorderStroke(1.dp, AuthSecondaryButtonBorder),
-                            shape = RoundedCornerShape(16.dp)
+                            shape = RoundedCornerShape(FetchTheme.radii.sm)
                         )
                     )
                 ) {
@@ -418,14 +420,14 @@ private fun AuthQrLoginPane(
                 },
                 colors = ButtonDefaults.colors(
                     containerColor = AuthSecondaryButtonBackground,
-                    focusedContainerColor = Color.White,
+                    focusedContainerColor = FetchTheme.colors.Secondary,
                     contentColor = AuthTextPrimary,
-                    focusedContentColor = Color.Black
+                    focusedContentColor = FetchTheme.colors.OnSecondary
                 ),
                 border = ButtonDefaults.border(
                     border = androidx.tv.material3.Border(
                         border = androidx.compose.foundation.BorderStroke(1.dp, AuthSecondaryButtonBorder),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(FetchTheme.radii.sm)
                     )
                 )
             ) {
@@ -482,14 +484,14 @@ private fun AuthEmailLoginForm(
             enabled = canSignIn,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.colors(
-                containerColor = Color.White,
-                focusedContainerColor = Color.White,
-                contentColor = Color.Black,
-                focusedContentColor = Color.Black,
-                disabledContainerColor = Color.White.copy(alpha = 0.12f),
+                containerColor = FetchTheme.colors.Secondary,
+                focusedContainerColor = FetchTheme.colors.Secondary,
+                contentColor = FetchTheme.colors.OnSecondary,
+                focusedContentColor = FetchTheme.colors.OnSecondary,
+                disabledContainerColor = AuthTextPrimary.copy(alpha = 0.12f),
                 disabledContentColor = AuthTextPrimary.copy(alpha = 0.58f)
             ),
-            shape = ButtonDefaults.shape(RoundedCornerShape(16.dp))
+            shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm))
         ) {
             Box(
                 modifier = Modifier
@@ -512,8 +514,8 @@ private fun AuthEmailLoginForm(
         uiState.error?.takeIf { it.isNotBlank() }?.let { error ->
             StatusPill(
                 text = error,
-                containerColor = Color(0x33C62828),
-                contentColor = Color(0xFFFF6E6E)
+                containerColor = FetchTheme.colors.Error.copy(alpha = 0.2f),
+                contentColor = FetchTheme.colors.Error
             )
         }
     }
@@ -568,8 +570,8 @@ private fun AuthQrCodeBlock(
         if (uiState.error != null) {
             StatusPill(
                 text = statusText,
-                containerColor = Color(0x33C62828),
-                contentColor = Color(0xFFFF6E6E)
+                containerColor = FetchTheme.colors.Error.copy(alpha = 0.2f),
+                contentColor = FetchTheme.colors.Error
             )
         } else {
             Text(
@@ -809,7 +811,8 @@ private fun AccountStatItem(
     }
 }
 
-private fun Modifier.authGradientBackground(): Modifier = drawWithCache {
+/** Fetch's background with a faint accent glow from the top-left corner. */
+private fun Modifier.authGradientBackground(base: Color, glow: Color): Modifier = drawWithCache {
     val angleRadians = 122.0 * PI / 180.0
     val directionX = sin(angleRadians).toFloat()
     val directionY = (-cos(angleRadians)).toFloat()
@@ -825,19 +828,17 @@ private fun Modifier.authGradientBackground(): Modifier = drawWithCache {
     )
     val brush = Brush.linearGradient(
         colorStops = arrayOf(
-            0f to Color(0xFF21113B),
-            0.14f to Color(0xFF21113B),
-            0.26f to Color(0xFF1A0E2F),
-            0.36f to Color(0xFF130A23),
-            0.48f to Color(0xFF0A060F),
-            0.60f to Color(0xFF050408),
-            0.70f to Color.Black,
-            1f to Color.Black
+            0f to glow.copy(alpha = 0.16f),
+            0.14f to glow.copy(alpha = 0.12f),
+            0.36f to glow.copy(alpha = 0.05f),
+            0.60f to Color.Transparent,
+            1f to Color.Transparent
         ),
         start = start,
         end = end
     )
     onDrawBehind {
+        drawRect(color = base)
         drawRect(brush = brush)
     }
 }

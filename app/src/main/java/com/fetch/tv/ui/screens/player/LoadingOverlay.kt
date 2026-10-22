@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.ui.theme.FetchMotion
-
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.AnimatedVisibility
@@ -9,6 +8,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -17,6 +17,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,6 +42,7 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -60,10 +62,17 @@ fun LoadingOverlay(
     title: String? = null,
     message: String? = null,
     progress: Float? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Height of a panel drawn over the bottom of the overlay; the logo centres above it. */
+    bottomInset: Dp = 0.dp
 ) {
     var logoLoadFailed by remember(logoUrl) { mutableStateOf(false) }
     val showLogo = !logoUrl.isNullOrBlank() && !logoLoadFailed
+    val animatedBottomInset by animateDpAsState(
+        targetValue = bottomInset,
+        animationSpec = tween(FetchMotion.tokens.durations.medium, easing = FetchMotion.tokens.easings.standard),
+        label = "loadingBottomInset"
+    )
 
     AnimatedVisibility(
         visible = visible,
@@ -135,10 +144,14 @@ fun LoadingOverlay(
                     .background(overlayBrush)
             )
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = animatedBottomInset),
                 contentAlignment = Alignment.Center
             ) {
+                // Shrinks the logo only when a bottom panel leaves less room than it needs.
+                val logoHeight = (maxHeight - FetchTheme.spacing.xl * 2).coerceIn(48.dp, 180.dp)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -158,8 +171,8 @@ fun LoadingOverlay(
                         )
                         Box(
                             modifier = Modifier
-                                .width(320.dp)
-                                .height(180.dp)
+                                .width(logoHeight * 16f / 9f)
+                                .height(logoHeight)
                         ) {
                             // Base layer: semi-transparent logo (always visible).
                             // When the fill effect is active we hold a steady low

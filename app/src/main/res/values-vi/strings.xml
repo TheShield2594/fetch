@@ -369,8 +369,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">Đồng thời dùng màu đen tuyệt đối cho các thẻ, bảng và khung chứa</string>
     <string name="appearance_startup_splash">Màn hình chờ khởi động</string>
     <string name="appearance_startup_splash_subtitle">Hiển thị logo và biểu tượng tải dữ liệu sau khi chọn hồ sơ</string>
-    <string name="appearance_settings_style">Kiểu màn hình Cài đặt</string>
-    <string name="appearance_settings_style_subtitle">Chọn cách hiển thị các màn hình Cài đặt</string>
     <string name="appearance_launcher_artwork">Ảnh hiển thị Trình khởi chạy</string>
     <string name="appearance_launcher_artwork_subtitle">Chọn cách Fetch hiển thị trên màn hình chính TV của bạn</string>
     <string name="ambient_mode_title">Chế độ môi trường xung quanh</string>
@@ -400,12 +398,6 @@
     <string name="appearance_app_icon_rose_gold">Vàng Hồng</string>
     <string name="appearance_app_icon_copper">Đồng</string>
     <string name="appearance_app_icon_graphite">Than chì</string>
-    <string name="settings_style_classic">Mặc định</string>
-    <string name="settings_style_classic_desc">Bố cục tiêu chuẩn với các thẻ</string>
-    <string name="settings_style_zen">Tối giản</string>
-    <string name="settings_style_zen_desc">Bố cục đơn giản, phẳng</string>
-    <string name="settings_style_horizon">Thanh trên cùng</string>
-    <string name="settings_style_horizon_desc">Các thẻ điều hướng ở trên cùng</string>
     <string name="appearance_font_and_language">Phông chữ và ngôn ngữ</string>
     <string name="appearance_font_and_language_subtitle">Chọn phông chữ và ngôn ngữ cho toàn bộ ứng dụng</string>
     <string name="cd_selected">Đã chọn</string>
@@ -3048,5 +3040,5 @@
     <string name="subtitle_style_text_color_hdr">Màu chữ (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Độ mờ đục chữ (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Đây là luồng torrent và Fetch không có công cụ torrent tích hợp. Hãy bật dịch vụ debrid trong Cài đặt → Debrid, hoặc mở bằng trình phát bên ngoài.</string>
+    <string name="torrent_engine_unavailable">Đây là luồng torrent và Fetch không có trình torrent tích hợp. Thiết lập debrid trong addon để nhận liên kết phát được ở đây, hoặc mở nó trong trình phát bên ngoài.</string>
 </resources>

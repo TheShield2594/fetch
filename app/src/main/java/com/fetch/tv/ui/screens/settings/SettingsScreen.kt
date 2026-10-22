@@ -96,7 +96,6 @@ import com.fetch.tv.BuildConfig
 import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.domain.model.ExperienceMode
-import com.fetch.tv.domain.model.SettingsUiStyle
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -215,7 +214,6 @@ fun SettingsScreen(
     val visibleSections = visibleCategories.map { category -> settingsSectionSpec(category) }
 
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
-    val isHorizonStyle = FetchTheme.settingsUiStyle == SettingsUiStyle.HORIZON
     var selectedCategory by rememberSaveable {
         mutableStateOf(
             visibleSections.firstOrNull()?.category ?: SettingsCategory.APPEARANCE
@@ -400,7 +398,7 @@ fun SettingsScreen(
             if (!requested) withFrameNanos { }
         }
         if (!requested) {
-            focusManager.moveFocus(if (isHorizonStyle) FocusDirection.Down else FocusDirection.Right)
+            focusManager.moveFocus(FocusDirection.Right)
         }
         pendingContentFocusCategory = null
     }
@@ -468,347 +466,156 @@ fun SettingsScreen(
                 }
             }
 
-            if (isHorizonStyle) {
-                var topBarCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
-                var focusedTabBounds by remember { mutableStateOf<Rect?>(null) }
-                val density = LocalDensity.current
-
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onGloballyPositioned { topBarCoordinates = it }
-                    ) {
-                        focusedTabBounds?.let { bounds ->
-                            val glideSpec = tween<Float>(durationMillis = 250, easing = FastOutSlowInEasing)
-                            val pillLeft by animateFloatAsState(bounds.left, glideSpec, label = "pillLeft")
-                            val pillTop by animateFloatAsState(bounds.top, glideSpec, label = "pillTop")
-                            val pillWidth by animateFloatAsState(bounds.width, glideSpec, label = "pillWidth")
-                            val pillHeight by animateFloatAsState(bounds.height, glideSpec, label = "pillHeight")
-                            val pillAlpha by animateFloatAsState(
-                                targetValue = if (railHadFocus) 1f else 0f,
-                                animationSpec = tween(durationMillis = 200),
-                                label = "pillAlpha"
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .align(AbsoluteAlignment.TopLeft)
-                                    .absoluteOffset { IntOffset(pillLeft.roundToInt(), pillTop.roundToInt()) }
-                                    .size(
-                                        width = with(density) { pillWidth.toDp() },
-                                        height = with(density) { pillHeight.toDp() }
-                                    )
-                                    .graphicsLayer { alpha = pillAlpha }
-                                    .clip(RoundedCornerShape(SettingsPillRadius))
-                                    .background(FetchTheme.colors.Secondary)
-                            )
-                        }
-                        LazyRow(
-                            state = railListState,
-                            modifier = Modifier
-                                .focusRequester(railContainerFocusRequester)
-                                // Lets the rail resolve its own focus enter to the item that was on it when
-                                // it last lost focus. Without this the enter is resolved by stepping on from
-                                // whatever holds focus, which lands an item further along and drags the rail
-                                // with it. It agrees with focusRailCategory rather than competing with it:
-                                // both name the item the rail was left on. It cannot restore an item that is
-                                // no longer composed, which is what the retry there is for.
-                                .focusRestorer()
-                                .fillMaxWidth()
-                                .onFocusChanged { state ->
-                                    val justGainedFocus = !railHadFocus && state.hasFocus
-                                    railHadFocus = state.hasFocus
-                                    if (justGainedFocus) {
-                                        if (railFallbackAttempt == railFocusAttempt) {
-                                            railFallbackAttempt = NO_RAIL_FALLBACK
-                                        } else {
-                                            focusRailCategory(railFocusCategory)
-                                        }
-                                    }
-                                }
-                                .onPreviewKeyEvent { event ->
-                                    // The user moving is the one signal that is unambiguously
-                                    // theirs, unlike a focus change, which the rail also produces
-                                    // on its own. Stop a restoration still retrying.
-                                    if (event.type == KeyEventType.KeyDown && event.key.isDirection()) {
-                                        // Retired by number as well as cancelled. The loops check the
-                                        // attempt number rather than isActive, so bumping it is what
-                                        // actually stops them; the cancel is just the quicker of the
-                                        // two.
-                                        railFocusAttempt += 1L
-                                        railFocusJob?.cancel()
-                                        railFocusJob = null
-                                        railRestoringCategory = null
-                                    }
-                                    if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
-                                        focusedTabCategory?.let(selectFocusedTab)
-                                        allowDetailAutofocus = true
-                                    }
-                                    false
-                                },
-                            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm, Alignment.CenterHorizontally),
-                            contentPadding = PaddingValues(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
-                        ) {
-                            itemsIndexed(
-                                items = visibleSections,
-                                key = { _, section -> section.category }
-                            ) { index, section ->
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    if (visibleCategories.startsNewGroup(index)) {
-                                        SettingsTopBarDivider()
-                                    }
-                                    SettingsTopBarTab(
-                                        title = section.title,
-                                        icon = section.icon,
-                                        rawIconRes = section.rawIconRes,
-                                        isSelected = selectedCategory == section.category,
-                                        focusRequester = railFocusRequesters[section.category],
-                                        onClick = { onSectionClick(section) },
-                                        onFocused = {
-                                            val restoringTo = railRestoringCategory
-                                            if (section.category == restoringTo) {
-                                                // Cleared here rather than waiting for the attempt to
-                                                // reach its next suspension point. The attempt is left
-                                                // running: it ends on its own once the request lands, and
-                                                // a directional press stops it early.
-                                                railRestoringCategory = null
-                                                railFocusCategoryName = section.category.name
-                                            } else if (restoringTo == null) {
-                                                railFocusCategoryName = section.category.name
-                                            }
-                                            if (section.destination == SettingsSectionDestination.Inline) {
-                                                focusedTabCategory = section.category
-                                            }
-                                        },
-                                        onFocusedTabPositioned = { tabCoordinates ->
-                                            topBarCoordinates?.let { container ->
-                                                focusedTabBounds = container.localBoundingBoxOf(tabCoordinates, clipBounds = false)
-                                            }
-                                        },
-                                        suppressSelectedVisual = railHadFocus
-                                            && focusedTabCategory != null
-                                            && focusedTabCategory != section.category
-                                    )
-                                }
-                            }
-                        }
-                        SettingsHorizontalScrollIndicators(state = railListState)
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .onFocusChanged { state ->
-                                detailHasFocus = state.hasFocus
-                                if (state.hasFocus && !allowDetailAutofocus) {
-                                    focusRailCategory(railFocusCategory)
-                                }
-                            }
-                    ) {
-                        AnimatedContent(
-                            targetState = selectedCategory,
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .fillMaxHeight()
-                                .widthIn(max = 880.dp)
-                                .fillMaxWidth(),
-                            transitionSpec = {
-                                val order = visibleSections.map { it.category }
-                                val forward = order.indexOf(targetState) >= order.indexOf(initialState)
-                                val toStart = forward != isRtl
-                                (slideInHorizontally(
-                                    animationSpec = tween(SETTINGS_DETAIL_ANIM_IN_DURATION_MS, easing = FastOutSlowInEasing)
-                                ) { fullWidth -> if (toStart) fullWidth / 4 else -fullWidth / 4 } +
-                                    fadeIn(tween(SETTINGS_DETAIL_ANIM_IN_DURATION_MS)))
-                                    .togetherWith(
-                                        slideOutHorizontally(
-                                            animationSpec = tween(SETTINGS_DETAIL_ANIM_OUT_DURATION_MS, easing = FastOutSlowInEasing)
-                                        ) { fullWidth -> if (toStart) -fullWidth / 4 else fullWidth / 4 } +
-                                            fadeOut(tween(SETTINGS_DETAIL_ANIM_OUT_DURATION_MS))
-                                    )
-                            },
-                            label = "settingsDetailTransition"
-                        ) { animatedCategory ->
-                            SettingsDetailPane(
-                                selectedCategory = animatedCategory,
-                                isEssentialMode = isEssentialMode,
-                                allowDetailAutofocus = allowDetailAutofocus,
-                                contentFocusRequesters = contentFocusRequesters,
-                                experienceModeViewModel = experienceModeViewModel,
-                                integrationSection = integrationSection,
-                                onSelectIntegrationSection = { integrationSection = it },
-                                integrationHubFocusRequester = integrationHubFocusRequester,
-                                integrationTrackingFocusRequester = integrationTrackingFocusRequester,
-                                integrationTmdbFocusRequester = integrationTmdbFocusRequester,
-                                integrationMdbListFocusRequester = integrationMdbListFocusRequester,
-                                integrationAnimeSkipFocusRequester = integrationAnimeSkipFocusRequester,
-                                onNavigateToManageProfiles = onNavigateToManageProfiles,
-                                onNavigateToAddons = onNavigateToAddons,
-                                onNavigateToPlugins = onNavigateToPlugins,
-                                onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
-                                onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
-                                onNavigateToWatchParty = onNavigateToWatchParty,
-                                onNavigateToPhoneHub = onNavigateToPhoneHub
-                            )
-                        }
-                    }
-                }
-            } else {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(220.dp)
+                    .fillMaxHeight()
             ) {
-                Box(
+                LazyColumn(
+                    state = railListState,
                     modifier = Modifier
-                        .width(220.dp)
-                        .fillMaxHeight()
-                ) {
-                    LazyColumn(
-                        state = railListState,
-                        modifier = Modifier
-                            .focusRequester(railContainerFocusRequester)
-                            // Lets the rail resolve its own focus enter to the item that was on it when
-                            // it last lost focus. Without this the enter is resolved by stepping on from
-                            // whatever holds focus, which lands an item further along and drags the rail
-                            // with it. It agrees with focusRailCategory rather than competing with it:
-                            // both name the item the rail was left on. It cannot restore an item that is
-                            // no longer composed, which is what the retry there is for.
-                            .focusRestorer()
-                            .fillMaxSize()
-                            .onFocusChanged { state ->
-                                val justGainedFocus = !railHadFocus && state.hasFocus
-                                railHadFocus = state.hasFocus
-                                if (justGainedFocus) {
-                                    if (railFallbackAttempt == railFocusAttempt) {
-                                        railFallbackAttempt = NO_RAIL_FALLBACK
-                                    } else {
-                                        focusRailCategory(railFocusCategory)
-                                    }
-                                }
-                            }
-                            .onPreviewKeyEvent { event ->
-                                // The user moving is the one signal that is unambiguously theirs,
-                                // unlike a focus change, which the rail also produces on its own.
-                                // Stop a restoration still retrying.
-                                if (event.type == KeyEventType.KeyDown && event.key.isDirection()) {
-                                    // Retired by number as well as cancelled. The loops check the
-                                    // attempt number rather than isActive, so bumping it is what
-                                    // actually stops them; the cancel is just the quicker of the
-                                    // two.
-                                    railFocusAttempt += 1L
-                                    railFocusJob?.cancel()
-                                    railFocusJob = null
-                                    railRestoringCategory = null
-                                }
-                                val toDetailKey = if (isRtl) Key.DirectionLeft else Key.DirectionRight
-                                if (event.type == KeyEventType.KeyDown && event.key == toDetailKey) {
-                                    val pendingSection = focusedTabCategory
-                                        ?.takeIf { it != selectedCategory || !allowDetailAutofocus }
-                                        ?.let { category -> visibleSections.firstOrNull { it.category == category } }
-                                    if (pendingSection != null) {
-                                        onSectionClick(pendingSection)
-                                        true
-                                    } else {
-                                        allowDetailAutofocus = true
-                                        false
-                                    }
+                        .focusRequester(railContainerFocusRequester)
+                        // Lets the rail resolve its own focus enter to the item that was on it when
+                        // it last lost focus. Without this the enter is resolved by stepping on from
+                        // whatever holds focus, which lands an item further along and drags the rail
+                        // with it. It agrees with focusRailCategory rather than competing with it:
+                        // both name the item the rail was left on. It cannot restore an item that is
+                        // no longer composed, which is what the retry there is for.
+                        .focusRestorer()
+                        .fillMaxSize()
+                        .onFocusChanged { state ->
+                            val justGainedFocus = !railHadFocus && state.hasFocus
+                            railHadFocus = state.hasFocus
+                            if (justGainedFocus) {
+                                if (railFallbackAttempt == railFocusAttempt) {
+                                    railFallbackAttempt = NO_RAIL_FALLBACK
                                 } else {
-                                    false
-                                }
-                            },
-                        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
-                    ) {
-                        itemsIndexed(
-                            items = visibleSections,
-                            key = { _, section -> section.category }
-                        ) { index, section ->
-                            Column {
-                                if (visibleCategories.startsNewGroup(index)) {
-                                    SettingsRailDivider()
-                                }
-                                SettingsRailButton(
-                                    onFocused = {
-                                        val restoringTo = railRestoringCategory
-                                        if (section.category == restoringTo) {
-                                            // Cleared here rather than waiting for the attempt to
-                                            // reach its next suspension point. The attempt is left
-                                            // running: it ends on its own once the request lands, and
-                                            // a directional press stops it early.
-                                            railRestoringCategory = null
-                                            railFocusCategoryName = section.category.name
-                                        } else if (restoringTo == null) {
-                                            railFocusCategoryName = section.category.name
-                                        }
-                                        if (section.destination == SettingsSectionDestination.Inline) {
-                                            focusedTabCategory = section.category
-                                        }
-                                    },
-                                    title = section.title,
-                                    icon = section.icon,
-                                    rawIconRes = section.rawIconRes,
-                                    isSelected = selectedCategory == section.category,
-                                    focusRequester = railFocusRequesters[section.category],
-                                    onClick = { onSectionClick(section) },
-                                    suppressSelectedVisual = railHadFocus
-                                        && focusedTabCategory != null
-                                        && focusedTabCategory != section.category
-                                )
-                            }
-                        }
-                    }
-                    SettingsVerticalScrollIndicators(state = railListState)
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .onKeyEvent { event ->
-                            val toRailKey = if (isRtl) Key.DirectionRight else Key.DirectionLeft
-                            if (event.type == KeyEventType.KeyDown && event.key == toRailKey) {
-                                val movedLeft = focusManager.moveFocus(if (isRtl) FocusDirection.Right else FocusDirection.Left)
-                                if (!movedLeft) {
-                                    allowDetailAutofocus = false
                                     focusRailCategory(railFocusCategory)
                                 }
-                                true
+                            }
+                        }
+                        .onPreviewKeyEvent { event ->
+                            // The user moving is the one signal that is unambiguously theirs,
+                            // unlike a focus change, which the rail also produces on its own.
+                            // Stop a restoration still retrying.
+                            if (event.type == KeyEventType.KeyDown && event.key.isDirection()) {
+                                // Retired by number as well as cancelled. The loops check the
+                                // attempt number rather than isActive, so bumping it is what
+                                // actually stops them; the cancel is just the quicker of the
+                                // two.
+                                railFocusAttempt += 1L
+                                railFocusJob?.cancel()
+                                railFocusJob = null
+                                railRestoringCategory = null
+                            }
+                            val toDetailKey = if (isRtl) Key.DirectionLeft else Key.DirectionRight
+                            if (event.type == KeyEventType.KeyDown && event.key == toDetailKey) {
+                                val pendingSection = focusedTabCategory
+                                    ?.takeIf { it != selectedCategory || !allowDetailAutofocus }
+                                    ?.let { category -> visibleSections.firstOrNull { it.category == category } }
+                                if (pendingSection != null) {
+                                    onSectionClick(pendingSection)
+                                    true
+                                } else {
+                                    allowDetailAutofocus = true
+                                    false
+                                }
                             } else {
                                 false
                             }
+                        },
+                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
+                ) {
+                    itemsIndexed(
+                        items = visibleSections,
+                        key = { _, section -> section.category }
+                    ) { index, section ->
+                        Column {
+                            if (visibleCategories.startsNewGroup(index)) {
+                                SettingsRailDivider()
+                            }
+                            SettingsRailButton(
+                                onFocused = {
+                                    val restoringTo = railRestoringCategory
+                                    if (section.category == restoringTo) {
+                                        // Cleared here rather than waiting for the attempt to
+                                        // reach its next suspension point. The attempt is left
+                                        // running: it ends on its own once the request lands, and
+                                        // a directional press stops it early.
+                                        railRestoringCategory = null
+                                        railFocusCategoryName = section.category.name
+                                    } else if (restoringTo == null) {
+                                        railFocusCategoryName = section.category.name
+                                    }
+                                    if (section.destination == SettingsSectionDestination.Inline) {
+                                        focusedTabCategory = section.category
+                                    }
+                                },
+                                title = section.title,
+                                icon = section.icon,
+                                rawIconRes = section.rawIconRes,
+                                isSelected = selectedCategory == section.category,
+                                focusRequester = railFocusRequesters[section.category],
+                                onClick = { onSectionClick(section) },
+                                suppressSelectedVisual = railHadFocus
+                                    && focusedTabCategory != null
+                                    && focusedTabCategory != section.category
+                            )
                         }
-                        .onFocusChanged { state ->
-                            detailHasFocus = state.hasFocus
-                            if (state.hasFocus && !allowDetailAutofocus) {
+                    }
+                }
+                SettingsVerticalScrollIndicators(state = railListState)
+            }
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .onKeyEvent { event ->
+                        val toRailKey = if (isRtl) Key.DirectionRight else Key.DirectionLeft
+                        if (event.type == KeyEventType.KeyDown && event.key == toRailKey) {
+                            val movedLeft = focusManager.moveFocus(if (isRtl) FocusDirection.Right else FocusDirection.Left)
+                            if (!movedLeft) {
+                                allowDetailAutofocus = false
                                 focusRailCategory(railFocusCategory)
                             }
+                            true
+                        } else {
+                            false
                         }
-                ) {
-                    SettingsDetailPane(
-                        selectedCategory = selectedCategory,
-                        isEssentialMode = isEssentialMode,
-                        allowDetailAutofocus = allowDetailAutofocus,
-                        contentFocusRequesters = contentFocusRequesters,
-                        experienceModeViewModel = experienceModeViewModel,
-                        integrationSection = integrationSection,
-                        onSelectIntegrationSection = { integrationSection = it },
-                        integrationHubFocusRequester = integrationHubFocusRequester,
-                        integrationTrackingFocusRequester = integrationTrackingFocusRequester,
-                        integrationTmdbFocusRequester = integrationTmdbFocusRequester,
-                        integrationMdbListFocusRequester = integrationMdbListFocusRequester,
-                        integrationAnimeSkipFocusRequester = integrationAnimeSkipFocusRequester,
-                        onNavigateToManageProfiles = onNavigateToManageProfiles,
-                        onNavigateToAddons = onNavigateToAddons,
-                        onNavigateToPlugins = onNavigateToPlugins,
-                        onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
-                        onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
-                        onNavigateToWatchParty = onNavigateToWatchParty,
-                        onNavigateToPhoneHub = onNavigateToPhoneHub
-                    )
-                }
+                    }
+                    .onFocusChanged { state ->
+                        detailHasFocus = state.hasFocus
+                        if (state.hasFocus && !allowDetailAutofocus) {
+                            focusRailCategory(railFocusCategory)
+                        }
+                    }
+            ) {
+                SettingsDetailPane(
+                    selectedCategory = selectedCategory,
+                    isEssentialMode = isEssentialMode,
+                    allowDetailAutofocus = allowDetailAutofocus,
+                    contentFocusRequesters = contentFocusRequesters,
+                    experienceModeViewModel = experienceModeViewModel,
+                    integrationSection = integrationSection,
+                    onSelectIntegrationSection = { integrationSection = it },
+                    integrationHubFocusRequester = integrationHubFocusRequester,
+                    integrationTrackingFocusRequester = integrationTrackingFocusRequester,
+                    integrationTmdbFocusRequester = integrationTmdbFocusRequester,
+                    integrationMdbListFocusRequester = integrationMdbListFocusRequester,
+                    integrationAnimeSkipFocusRequester = integrationAnimeSkipFocusRequester,
+                    onNavigateToManageProfiles = onNavigateToManageProfiles,
+                    onNavigateToAddons = onNavigateToAddons,
+                    onNavigateToPlugins = onNavigateToPlugins,
+                    onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
+                    onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
+                    onNavigateToWatchParty = onNavigateToWatchParty,
+                    onNavigateToPhoneHub = onNavigateToPhoneHub
+                )
             }
             }
         }

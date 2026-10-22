@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">O teu telemóvel tem de estar na mesma rede Wi-Fi que esta TV. Também podes fazer isto mais tarde nas Definições.</string>
     <string name="first_run_phone_qr_description">Código de configuração do telemóvel</string>
     <string name="first_run_phone_step_accounts">Inicia sessão no Trakt, Simkl ou Jellyfin</string>
-    <string name="first_run_phone_step_addons">Cola addons e a tua chave debrid</string>
+    <string name="first_run_phone_step_rules">Escolha as suas regras de qualidade de stream</string>
     <string name="first_run_phone_step_scan">Lê com a câmara do telemóvel</string>
     <string name="first_run_phone_title">Configura com o telemóvel. Sem escrever com o comando.</string>
     <string name="first_run_recommended">Recomendado</string>

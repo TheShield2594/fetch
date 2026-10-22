@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">您的手机必须与这台电视连接同一个 Wi-Fi。您也可以稍后在设置中完成此操作。</string>
     <string name="first_run_phone_qr_description">手机设置二维码</string>
     <string name="first_run_phone_step_accounts">登录 Trakt、Simkl 或 Jellyfin</string>
-    <string name="first_run_phone_step_addons">粘贴扩展和 debrid 密钥</string>
+    <string name="first_run_phone_step_rules">选择流媒体画质规则</string>
     <string name="first_run_phone_step_scan">用手机相机扫码</string>
     <string name="first_run_phone_title">用手机设置，无需遥控器打字。</string>
     <string name="first_run_recommended">推荐</string>

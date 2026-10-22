@@ -369,8 +369,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">Mettre aussi en noir pur les cartes, les panneaux et les conteneurs</string>
     <string name="appearance_startup_splash">Écran de démarrage</string>
     <string name="appearance_startup_splash_subtitle">Afficher le logo et un indicateur de chargement après la sélection d’un profil</string>
-    <string name="appearance_settings_style">Style des paramètres</string>
-    <string name="appearance_settings_style_subtitle">Choisir la présentation des écrans de paramètres</string>
     <string name="appearance_launcher_artwork">Visuel du lanceur</string>
     <string name="appearance_launcher_artwork_subtitle">Choisissez l’apparence de Fetch sur l’écran d’accueil de votre TV</string>
     <string name="ambient_mode_title">Mode ambiance</string>
@@ -400,12 +398,6 @@
     <string name="appearance_app_icon_rose_gold">Or rose</string>
     <string name="appearance_app_icon_copper">Cuivre</string>
     <string name="appearance_app_icon_graphite">Graphite</string>
-    <string name="settings_style_classic">Par défaut</string>
-    <string name="settings_style_classic_desc">Disposition standard avec des cartes</string>
-    <string name="settings_style_zen">Minimal</string>
-    <string name="settings_style_zen_desc">Disposition simple et épurée</string>
-    <string name="settings_style_horizon">Barre supérieure</string>
-    <string name="settings_style_horizon_desc">Onglets de navigation en haut</string>
     <string name="appearance_font_and_language">Police et langue</string>
     <string name="appearance_font_and_language_subtitle">Choisissez la police et la langue utilisées dans toute l’application</string>
     <string name="cd_selected">Sélectionné</string>
@@ -3034,7 +3026,7 @@
     <string name="addon_health_failing">Échec de la dernière requête</string>
     <string name="addon_health_timed_out">Délai dépassé pour la dernière requête</string>
     <string name="account_local_only_note">La synchronisation est désactivée. Fetch conserve vos addons, votre progression et vos paramètres sur cette TV et ne nécessite aucun compte. Pour synchroniser entre appareils, connectez votre propre serveur de synchronisation depuis les options du serveur.</string>
-    <string name="torrent_engine_unavailable">Il s’agit d’un flux torrent et Fetch n’a pas de moteur torrent intégré. Activez un service debrid dans Paramètres → Debrid, ou ouvrez-le dans un lecteur externe.</string>
+    <string name="torrent_engine_unavailable">Il s’agit d’un flux torrent et Fetch n’a pas de moteur torrent intégré. Configurez debrid dans l’addon pour obtenir un lien lisible ici, ou ouvrez-le dans un lecteur externe.</string>
     <string name="parental_title_blocked">Ce titre dépasse la limite de classification de ce profil.</string>
     <string name="parental_addons_blocked">Ce profil ne peut pas installer d’addons. Demandez à un parent.</string>
     <string name="parental_gate_heading">Saisissez le code PIN de %1$s</string>

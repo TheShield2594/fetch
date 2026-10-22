@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">Telefonul trebuie să fie în aceeași rețea Wi-Fi ca acest televizor. Poți face asta și mai târziu din Setări.</string>
     <string name="first_run_phone_qr_description">Cod de configurare pentru telefon</string>
     <string name="first_run_phone_step_accounts">Conectează-te la Trakt, Simkl sau Jellyfin</string>
-    <string name="first_run_phone_step_addons">Lipește suplimente și cheia debrid</string>
+    <string name="first_run_phone_step_rules">Alegeți regulile de calitate a streamurilor</string>
     <string name="first_run_phone_step_scan">Scanează cu camera telefonului</string>
     <string name="first_run_phone_title">Configurează de pe telefon. Fără tastare cu telecomanda.</string>
     <string name="first_run_recommended">Recomandat</string>

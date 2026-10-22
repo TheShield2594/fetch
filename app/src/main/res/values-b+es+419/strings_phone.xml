@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">Tu teléfono debe estar en la misma red Wi-Fi que esta TV. También puedes hacerlo más tarde en Configuración.</string>
     <string name="first_run_phone_qr_description">Código de configuración para el teléfono</string>
     <string name="first_run_phone_step_accounts">Inicia sesión en Trakt, Simkl o Jellyfin</string>
-    <string name="first_run_phone_step_addons">Pega addons y tu clave de debrid</string>
+    <string name="first_run_phone_step_rules">Elige tus reglas de calidad de stream</string>
     <string name="first_run_phone_step_scan">Escanea con la cámara de tu teléfono</string>
     <string name="first_run_phone_title">Configura con tu teléfono. Sin escribir con el control remoto.</string>
     <string name="first_run_recommended">Recomendado</string>

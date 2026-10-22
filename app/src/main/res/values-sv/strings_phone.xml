@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">Telefonen måste vara på samma wifi som den här tv:n. Du kan också göra detta senare i Inställningar.</string>
     <string name="first_run_phone_qr_description">Konfigurationskod för telefon</string>
     <string name="first_run_phone_step_accounts">Logga in på Trakt, Simkl eller Jellyfin</string>
-    <string name="first_run_phone_step_addons">Klistra in tillägg och din debrid-nyckel</string>
+    <string name="first_run_phone_step_rules">Välj regler för strömkvalitet</string>
     <string name="first_run_phone_step_scan">Skanna med telefonens kamera</string>
     <string name="first_run_phone_title">Konfigurera med telefonen. Inget skrivande med fjärrkontrollen.</string>
     <string name="first_run_recommended">Rekommenderas</string>

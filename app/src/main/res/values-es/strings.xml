@@ -372,8 +372,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">También hace que las tarjetas, paneles y contenedores sean negro puro</string>
     <string name="appearance_startup_splash">Pantalla de inicio</string>
     <string name="appearance_startup_splash_subtitle">Muestra el logotipo y un indicador de carga después de seleccionar un perfil</string>
-    <string name="appearance_settings_style">Estilo de configuración</string>
-    <string name="appearance_settings_style_subtitle">Elige cómo se presentan las pantallas de configuración</string>
     <string name="appearance_launcher_artwork">Ilustración del lanzador</string>
     <string name="appearance_launcher_artwork_subtitle">Elige cómo aparece Fetch en la pantalla de inicio de tu TV</string>
     <string name="appearance_app_icon_and_banner">Icono &amp; banner de la app</string>
@@ -389,12 +387,6 @@
     <string name="appearance_app_icon_rose_gold">Oro rosa</string>
     <string name="appearance_app_icon_copper">Cobre</string>
     <string name="appearance_app_icon_graphite">Grafito</string>
-    <string name="settings_style_classic">Predeterminado</string>
-    <string name="settings_style_classic_desc">Diseño estándar con tarjetas</string>
-    <string name="settings_style_zen">Minimalista</string>
-    <string name="settings_style_zen_desc">Diseño simple y plano</string>
-    <string name="settings_style_horizon">Barra superior</string>
-    <string name="settings_style_horizon_desc">Pestañas de navegación en la parte superior</string>
     <string name="appearance_font_and_language">Fuente e idioma</string>
     <string name="appearance_font_and_language_subtitle">Elige la tipografía y la configuración regional usadas en toda la aplicación</string>
     <string name="cd_selected">Seleccionado</string>
@@ -2889,7 +2881,7 @@
     <string name="addon_health_failing">La última solicitud falló</string>
     <string name="addon_health_timed_out">La última solicitud agotó el tiempo de espera</string>
     <string name="account_local_only_note">La sincronización está desactivada. Fetch guarda tus complementos, progreso y ajustes en esta TV y no necesita cuenta. Para sincronizar entre dispositivos, conecta tu propio servidor de sincronización desde las opciones de servidor.</string>
-    <string name="torrent_engine_unavailable">Esta es una transmisión torrent y Fetch no tiene motor de torrent integrado. Activa un servicio debrid en Configuración → Debrid o ábrela en un reproductor externo.</string>
+    <string name="torrent_engine_unavailable">Este es un stream torrent y Fetch no tiene un motor torrent integrado. Configura debrid en el addon para obtener un enlace que se reproduzca aquí, o ábrelo en un reproductor externo.</string>
     <string name="parental_title_blocked">Este título supera el límite de clasificación de este perfil.</string>
     <string name="parental_addons_blocked">Este perfil no puede instalar complementos. Pídeselo a un adulto.</string>
     <string name="parental_gate_heading">Introduce el PIN de %1$s</string>

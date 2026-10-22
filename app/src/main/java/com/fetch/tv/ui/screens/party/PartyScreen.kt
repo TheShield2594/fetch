@@ -66,7 +66,6 @@ import com.fetch.tv.ui.screens.settings.SettingsDetailHeader
 import com.fetch.tv.ui.screens.settings.SettingsGroupCard
 import com.fetch.tv.ui.screens.settings.SettingsStandaloneScaffold
 import com.fetch.tv.ui.screens.settings.SettingsVerticalScrollIndicators
-import com.fetch.tv.ui.screens.settings.settingsHeaderInset
 import com.fetch.tv.ui.screens.stream.StreamBackdrop
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
@@ -143,8 +142,7 @@ fun PartyScreen(
                 label = "partyScreenMode",
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
-                    .padding(start = settingsHeaderInset()),
+                    .fillMaxWidth(),
             ) { target ->
                 when (target) {
                     PartyScreenMode.Join -> JoinContent(

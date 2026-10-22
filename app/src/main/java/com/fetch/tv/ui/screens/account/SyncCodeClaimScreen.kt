@@ -171,7 +171,7 @@ fun SyncCodeClaimScreen(
                     Text(
                         text = uiState.error ?: "",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFFF44336)
+                        color = FetchTheme.colors.Error
                     )
                 }
 

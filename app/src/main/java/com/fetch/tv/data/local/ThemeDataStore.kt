@@ -7,7 +7,6 @@ import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.domain.model.AppFont
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
-import com.fetch.tv.domain.model.SettingsUiStyle
 import com.fetch.tv.domain.model.ThemeSelection
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -33,7 +32,6 @@ class ThemeDataStore @Inject constructor(
     private val fontKey = stringPreferencesKey("selected_font")
     private val amoledModeKey = booleanPreferencesKey("amoled_mode")
     private val amoledSurfacesModeKey = booleanPreferencesKey("amoled_surfaces_mode")
-    private val settingsUiStyleKey = stringPreferencesKey("settings_ui_style")
 
     val themeSelection: Flow<ThemeSelection> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
@@ -64,17 +62,6 @@ class ThemeDataStore @Inject constructor(
     val amoledSurfacesMode: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
             prefs[amoledSurfacesModeKey] ?: false
-        }
-    }
-
-    val settingsUiStyle: Flow<SettingsUiStyle> = profileManager.activeProfileId.flatMapLatest { pid ->
-        factory.get(pid, FEATURE).data.map { prefs ->
-            val styleName = prefs[settingsUiStyleKey] ?: SettingsUiStyle.CLASSIC.name
-            try {
-                SettingsUiStyle.valueOf(styleName)
-            } catch (e: IllegalArgumentException) {
-                SettingsUiStyle.CLASSIC
-            }
         }
     }
 
@@ -112,11 +99,6 @@ class ThemeDataStore @Inject constructor(
         }
     }
 
-    suspend fun setSettingsUiStyle(style: SettingsUiStyle) {
-        store().edit { prefs ->
-            prefs[settingsUiStyleKey] = style.name
-        }
-    }
 
     suspend fun getThemeForProfile(profileId: Int): AppTheme? {
         val prefs = factory.get(profileId, FEATURE).data.first()

@@ -1637,8 +1637,6 @@
     <string name="appearance_amoled_mode_subtitle">Использовать чисто чёрный фон в приложении</string>
     <string name="appearance_amoled_surfaces_mode">Чисто чёрные поверхности</string>
     <string name="appearance_amoled_surfaces_mode_subtitle">Также делать карточки, панели и контейнеры чисто чёрными</string>
-    <string name="appearance_settings_style">Стиль настроек</string>
-    <string name="appearance_settings_style_subtitle">Выберите, как отображаются экраны настроек</string>
     <string name="appearance_launcher_artwork">Оформление значка на главном экране</string>
     <string name="appearance_launcher_artwork_subtitle">Выберите, как Fetch отображается на главном экране телевизора</string>
     <string name="appearance_app_icon_and_banner">Значок приложения и баннер</string>
@@ -1654,12 +1652,6 @@
     <string name="appearance_app_icon_rose_gold">Розовое золото</string>
     <string name="appearance_app_icon_copper">Медный</string>
     <string name="appearance_app_icon_graphite">Графит</string>
-    <string name="settings_style_classic">Стандартный</string>
-    <string name="settings_style_classic_desc">Стандартный макет с карточками</string>
-    <string name="settings_style_zen">Минимальный</string>
-    <string name="settings_style_zen_desc">Простой, плоский макет</string>
-    <string name="settings_style_horizon">Верхняя панель</string>
-    <string name="settings_style_horizon_desc">Вкладки навигации сверху</string>
     <string name="appearance_font_and_language">Шрифт и язык</string>
     <string name="appearance_font_and_language_subtitle">Выберите шрифт и локаль для всего приложения</string>
     <string name="about_licenses_attributions">Лицензии и указание авторства</string>
@@ -2796,7 +2788,7 @@
     <string name="subtitle_style_text_color_hdr">Цвет текста (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Прозрачность текста (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Это торрент-поток, а в Fetch нет встроенного торрент-движка. Включите debrid-сервис в Настройки → Debrid или откройте его во внешнем плеере.</string>
+    <string name="torrent_engine_unavailable">Это торрент-поток, а в Fetch нет встроенного торрент-движка. Настройте debrid в аддоне, чтобы получить ссылку, которая воспроизводится здесь, или откройте его во внешнем плеере.</string>
     <string name="because_you_watched_row_title">Потому что вы смотрели %1$s</string>
     <string name="because_you_watched_reason_collection">Также из: %1$s</string>
     <string name="because_you_watched_reason_director">Тот же режиссер: %1$s</string>

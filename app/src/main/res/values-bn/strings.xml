@@ -347,8 +347,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">কার্ড, প্যানেল এবং কন্টেইনারগুলোও পিওর ব্ল্যাক করুন</string>
     <string name="appearance_startup_splash">স্টার্টআপ স্প্ল্যাশ</string>
     <string name="appearance_startup_splash_subtitle">প্রোফাইল সিলেক্ট করার পর লোগো এবং লোডিং ইন্ডিকেটর দেখান</string>
-    <string name="appearance_settings_style">সেটিংস স্টাইল</string>
-    <string name="appearance_settings_style_subtitle">সেটিংস স্ক্রিনগুলো কীভাবে দেখানো হবে তা বেছে নিন</string>
     <string name="appearance_launcher_artwork">লঞ্চার আর্টওয়ার্ক</string>
     <string name="appearance_launcher_artwork_subtitle">টিভির হোম স্ক্রিনে Fetch কীভাবে দেখাবে তা বেছে নিন</string>
     <string name="appearance_app_icon_and_banner">অ্যাপ আইকন এবং ব্যানার</string>
@@ -364,12 +362,6 @@
     <string name="appearance_app_icon_rose_gold">রোজ গোল্ড</string>
     <string name="appearance_app_icon_copper">কপার</string>
     <string name="appearance_app_icon_graphite">গ্রাফাইট</string>
-    <string name="settings_style_classic">ডিফল্ট</string>
-    <string name="settings_style_classic_desc">কার্ডসহ স্ট্যান্ডার্ড লেআউট</string>
-    <string name="settings_style_zen">মিনিমাল</string>
-    <string name="settings_style_zen_desc">সাধারণ, ফ্ল্যাট লেআউট</string>
-    <string name="settings_style_horizon">টপ বার</string>
-    <string name="settings_style_horizon_desc">উপরে নেভিগেশন ট্যাব</string>
     <string name="appearance_font_and_language">ফন্ট এবং ভাষা</string>
     <string name="appearance_font_and_language_subtitle">অ্যাপজুড়ে ব্যবহার করার জন্য টাইপফেস এবং লোকেল বেছে নিন</string>
     <string name="cd_selected">নির্বাচিত</string>
@@ -2800,5 +2792,5 @@
     <string name="subtitle_style_text_color_hdr">টেক্সট কালার (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">টেক্সট অপাসিটি (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">এটি একটি টরেন্ট স্ট্রিম এবং Fetch-এ কোনো বিল্ট-ইন টরেন্ট ইঞ্জিন নেই। সেটিংস → Debrid-এ একটি ডেব্রিড সার্ভিস চালু করুন, অথবা এটি একটি এক্সটার্নাল প্লেয়ারে খুলুন।</string>
+    <string name="torrent_engine_unavailable">এটি একটি টরেন্ট স্ট্রিম এবং Fetch-এ কোনো বিল্ট-ইন টরেন্ট ইঞ্জিন নেই। এখানে চলবে এমন লিঙ্ক পেতে অ্যাডঅনে debrid সেট আপ করুন, অথবা বাইরের প্লেয়ারে খুলুন।</string>
 </resources>

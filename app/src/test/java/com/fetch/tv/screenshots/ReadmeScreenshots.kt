@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.tv.material3.Icon
 import com.fetch.tv.R
 import com.fetch.tv.ui.components.FloatingSidebarButton
+import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.ProfileAvatarCircle
 import com.fetch.tv.ui.theme.FetchComponents
 import com.fetch.tv.ui.theme.FetchLayout
@@ -46,6 +47,11 @@ import com.fetch.tv.ui.screens.player.LoadingOverlay
 import com.fetch.tv.ui.screens.stream.StreamCard
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -106,18 +112,7 @@ class ReadmeScreenshots {
             // The scaffold pads root screens by this much so the icon column has its own lane.
             Box(Modifier.fillMaxSize().padding(start = FetchLayout.tokens.sidebarContentOffset)) { SampleHome() }
             // Same fade and column as FetchSidebarScaffold while the sidebar has focus.
-            Box(
-                Modifier
-                    .fillMaxHeight()
-                    .width(FetchComponents.tokens.sidebar.expandedWidth * 1.6f)
-                    .background(
-                        Brush.horizontalGradient(
-                            0f to FetchTheme.colors.Background.copy(alpha = 0.92f),
-                            0.35f to FetchTheme.colors.Background.copy(alpha = 0.55f),
-                            1f to Color.Transparent
-                        )
-                    )
-            )
+            Box(Modifier.fillMaxSize().background(sidebarScrimBrush(FetchTheme.colors.Background)))
             Column(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -263,17 +258,22 @@ class ReadmeScreenshots {
                 .fillMaxSize()
                 .background(FetchTheme.colors.Background)
         ) {
+            // Same layout as StreamScreen: the logo centres above the measured panel.
+            var panelHeight by remember { mutableStateOf(0.dp) }
+            val density = LocalDensity.current
             LoadingOverlay(
                 visible = true,
                 backdropUrl = meta.background,
                 logoUrl = meta.logo,
                 title = meta.name,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                bottomInset = if (panelHeight > 0.dp) panelHeight + 48.dp else 0.dp
             )
             FetchingPanel(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 48.dp, start = 48.dp, end = 48.dp),
+                    .padding(bottom = 48.dp, start = 48.dp, end = 48.dp)
+                    .onSizeChanged { panelHeight = with(density) { it.height.toDp() } },
                 sourceChips = listOf(
                     SourceChipItem("Jellyfin", SourceChipStatus.SUCCESS),
                     SourceChipItem("Torrentio", SourceChipStatus.SUCCESS),
@@ -336,7 +336,7 @@ class ReadmeScreenshots {
             ) {
                 AsyncImage(model = meta.logo, contentDescription = null, modifier = Modifier.height(90.dp))
                 Text(
-                    text = "S2 E6 · Episode 6",
+                    text = "S2 E6",
                     style = MaterialTheme.typography.titleMedium,
                     color = FetchTheme.colors.TextSecondary
                 )

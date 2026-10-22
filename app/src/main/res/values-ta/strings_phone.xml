@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">உங்கள் ஃபோன் இந்த டிவி இருக்கும் அதே Wi-Fi-இல் இருக்க வேண்டும். இதைப் பின்னர் அமைப்புகளிலும் செய்யலாம்.</string>
     <string name="first_run_phone_qr_description">ஃபோன் அமைவுக் குறியீடு</string>
     <string name="first_run_phone_step_accounts">Trakt, Simkl அல்லது Jellyfin-இல் உள்நுழையவும்</string>
-    <string name="first_run_phone_step_addons">ஆட்ஆன்களையும் உங்கள் debrid விசையையும் ஒட்டவும்</string>
+    <string name="first_run_phone_step_rules">ஸ்ட்ரீம் தர விதிகளைத் தேர்ந்தெடுக்கவும்</string>
     <string name="first_run_phone_step_scan">ஃபோன் கேமராவால் ஸ்கேன் செய்யவும்</string>
     <string name="first_run_phone_title">ஃபோன் மூலம் அமைக்கவும். ரிமோட்டில் தட்டச்சு தேவையில்லை.</string>
     <string name="first_run_recommended">பரிந்துரைக்கப்பட்டது</string>

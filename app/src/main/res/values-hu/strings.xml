@@ -368,8 +368,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">A kártyák, panelek és konténerek is legyenek teljesen feketék</string>
     <string name="appearance_startup_splash">Indítóképernyő</string>
     <string name="appearance_startup_splash_subtitle">Logó és töltésjelző megjelenítése a profil kiválasztása után</string>
-    <string name="appearance_settings_style">Beállítások stílusa</string>
-    <string name="appearance_settings_style_subtitle">Válaszd ki, hogyan jelenjenek meg a beállítási képernyők</string>
     <string name="appearance_launcher_artwork">Megjelenés a TV kezdőképernyőjén</string>
     <string name="appearance_launcher_artwork_subtitle">Válaszd ki, hogyan jelenjen meg a Fetch a TV kezdőképernyőjén</string>
     <string name="ambient_mode_title">Ambient mód</string>
@@ -399,12 +397,6 @@
     <string name="appearance_app_icon_rose_gold">Rózsaarany</string>
     <string name="appearance_app_icon_copper">Réz</string>
     <string name="appearance_app_icon_graphite">Grafit</string>
-    <string name="settings_style_classic">Alapértelmezett</string>
-    <string name="settings_style_classic_desc">Hagyományos elrendezés kártyákkal</string>
-    <string name="settings_style_zen">Minimál</string>
-    <string name="settings_style_zen_desc">Egyszerű, lapos elrendezés</string>
-    <string name="settings_style_horizon">Felső sáv</string>
-    <string name="settings_style_horizon_desc">Navigációs fülek felül</string>
     <string name="appearance_font_and_language">Betűtípus és nyelv</string>
     <string name="appearance_font_and_language_subtitle">Válaszd ki az alkalmazásban használt betűtípust és nyelvet</string>
     <string name="cd_selected">Kiválasztva</string>
@@ -3003,7 +2995,7 @@
     <string name="addon_health_failing">Az utolsó kérés sikertelen volt</string>
     <string name="addon_health_timed_out">Az utolsó kérés túllépte az időkorlátot</string>
     <string name="account_local_only_note">A szinkronizálás ki van kapcsolva. A Fetch ezen a TV-n tárolja a bővítményeidet, a megtekintési állapotot és a beállításokat, és nincs szüksége fiókra. Az eszközök közötti szinkronizáláshoz csatlakoztasd a saját szinkronizálási szerveredet a szerverbeállításokban.</string>
-    <string name="torrent_engine_unavailable">Ez egy torrent forrás, a Fetch pedig nem rendelkezik beépített torrentmotorral. Kapcsolj be egy debrid szolgáltatást a Beállítások → Debrid menüben, vagy nyisd meg külső lejátszóban.</string>
+    <string name="torrent_engine_unavailable">Ez egy torrent stream, és a Fetch nem rendelkezik beépített torrent motorral. Állítsa be a debridet a kiegészítőben, hogy itt lejátszható linket kapjon, vagy nyissa meg külső lejátszóban.</string>
     <string name="parental_title_blocked">Ez a cím meghaladja a profil korhatár-besorolási korlátját.</string>
     <string name="parental_addons_blocked">Ez a profil nem telepíthet bővítményeket. Kérd meg egy szülőt.</string>
     <string name="parental_gate_heading">Add meg %1$s PIN-kódját</string>

@@ -477,7 +477,7 @@ private fun SignOutSettingsButton(
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FetchTheme.spacing.xxs, Color(0xFFF44336).copy(alpha = 0.5f)),
+                border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Error.copy(alpha = 0.5f)),
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
         ),
@@ -492,13 +492,13 @@ private fun SignOutSettingsButton(
                 imageVector = Icons.AutoMirrored.Filled.Logout,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
-                tint = Color(0xFFF44336)
+                tint = FetchTheme.colors.Error
             )
             Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = stringResource(R.string.account_sign_out),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFF44336),
+                color = FetchTheme.colors.Error,
                 fontWeight = FontWeight.Medium
             )
         }

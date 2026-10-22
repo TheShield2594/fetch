@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">Je telefoon moet op hetzelfde wifinetwerk zitten als deze tv. Je kunt dit ook later doen in Instellingen.</string>
     <string name="first_run_phone_qr_description">Instelcode voor telefoon</string>
     <string name="first_run_phone_step_accounts">Log in bij Trakt, Simkl of Jellyfin</string>
-    <string name="first_run_phone_step_addons">Plak add-ons en je debrid-sleutel</string>
+    <string name="first_run_phone_step_rules">Kies je regels voor streamkwaliteit</string>
     <string name="first_run_phone_step_scan">Scan met de camera van je telefoon</string>
     <string name="first_run_phone_title">Instellen met je telefoon. Geen typwerk met de afstandsbediening.</string>
     <string name="first_run_recommended">Aanbevolen</string>

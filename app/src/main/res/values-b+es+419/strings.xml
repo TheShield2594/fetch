@@ -369,8 +369,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">También aplica negro puro a tarjetas, paneles y contenedores</string>
     <string name="appearance_startup_splash">Pantalla de inicio</string>
     <string name="appearance_startup_splash_subtitle">Muestra el logo y el indicador de carga después de seleccionar un perfil</string>
-    <string name="appearance_settings_style">Estilo de configuración</string>
-    <string name="appearance_settings_style_subtitle">Elige cómo se muestran las pantallas de configuración</string>
     <string name="appearance_launcher_artwork">Ilustración del launcher</string>
     <string name="appearance_launcher_artwork_subtitle">Elige cómo aparece Fetch en la pantalla de inicio de tu TV</string>
     <string name="ambient_mode_title">Modo ambiente</string>
@@ -400,12 +398,6 @@
     <string name="appearance_app_icon_rose_gold">Oro Rosa</string>
     <string name="appearance_app_icon_copper">Cobre</string>
     <string name="appearance_app_icon_graphite">Grafito</string>
-    <string name="settings_style_classic">Predeterminado</string>
-    <string name="settings_style_classic_desc">Diseño estándar con tarjetas</string>
-    <string name="settings_style_zen">Minimalista</string>
-    <string name="settings_style_zen_desc">Diseño simple y plano</string>
-    <string name="settings_style_horizon">Barra superior</string>
-    <string name="settings_style_horizon_desc">Pestañas de navegación en la parte superior</string>
     <string name="appearance_font_and_language">Fuente y idioma</string>
     <string name="appearance_font_and_language_subtitle">Elige la tipografía y región usadas en toda la app</string>
     <string name="cd_selected">Seleccionado</string>
@@ -3054,5 +3046,5 @@
     <string name="subtitle_style_text_color_hdr">Color del texto (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacidad del texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Este es un stream de torrent y Fetch no tiene un motor de torrent integrado. Activa un servicio debrid en Configuración → Debrid, o ábrelo en un reproductor externo.</string>
+    <string name="torrent_engine_unavailable">Este es un stream torrent y Fetch no tiene un motor torrent integrado. Configura debrid en el addon para obtener un enlace que se reproduzca aquí, o ábrelo en un reproductor externo.</string>
 </resources>

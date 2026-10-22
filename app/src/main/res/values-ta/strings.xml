@@ -2249,7 +2249,7 @@
     <string name="subtitle_style_text_color_hdr">உரை நிறம் (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">உரை ஒளிபுகாத்தன்மை (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">இது ஒரு டொரண்ட் ஸ்ட்ரீம்; Fetch-இல் உள்ளமைந்த டொரண்ட் இயந்திரம் இல்லை. அமைப்புகள் → Debrid-இல் ஒரு debrid சேவையை இயக்கவும், அல்லது வெளிப்புற பிளேயரில் திறக்கவும்.</string>
+    <string name="torrent_engine_unavailable">இது ஒரு டொரென்ட் ஸ்ட்ரீம், Fetch-இல் உள்ளமைந்த டொரென்ட் இயந்திரம் இல்லை. இங்கே இயங்கும் இணைப்பைப் பெற செருகுநிரலில் debrid-ஐ அமைக்கவும், அல்லது வெளிப்புற பிளேயரில் திறக்கவும்.</string>
     <string name="because_you_watched_row_title">நீங்கள் %1$s பார்த்ததால்</string>
     <string name="because_you_watched_reason_collection">இதுவும் %1$s-இல்</string>
     <string name="because_you_watched_reason_director">அதே இயக்குனர்: %1$s</string>

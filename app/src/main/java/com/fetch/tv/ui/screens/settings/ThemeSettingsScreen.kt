@@ -71,7 +71,6 @@ import com.fetch.tv.R
 import com.fetch.tv.domain.model.AppIconOption
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
-import com.fetch.tv.domain.model.SettingsUiStyle
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.theme.ThemeColors
@@ -142,7 +141,6 @@ fun ThemeSettingsContent(
         }
     }
 
-    val styleFocusRequesters = remember { SettingsUiStyle.entries.associateWith { FocusRequester() } }
     val firstThemeFocusRequester = remember { FocusRequester() }
     val customThemeFocusRequester = remember { FocusRequester() }
     LaunchedEffect(showCustomThemeDialog, uiState.availableThemes) {
@@ -154,12 +152,6 @@ fun ThemeSettingsContent(
         } else if (!showCustomThemeDialog && restoreCustomThemeFocus) {
             restoreCustomThemeFocus = false
             customThemeFocusRequester.requestFocusAfterFrames()
-        }
-    }
-    val appliedSettingsUiStyle = FetchTheme.settingsUiStyle
-    LaunchedEffect(Unit) {
-        if (viewModel.consumeStyleFocusRestore()) {
-            styleFocusRequesters[appliedSettingsUiStyle]?.requestFocusAfterFrames()
         }
     }
 
@@ -258,35 +250,6 @@ fun ThemeSettingsContent(
                             )
                         }
                     )
-                }
-            }
-
-            SettingsGroupCard(
-                modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.appearance_settings_style),
-                subtitle = stringResource(R.string.appearance_settings_style_subtitle)
-            ) {
-                val firstAvailableStyle = uiState.availableSettingsUiStyles.firstOrNull()
-                    ?: SettingsUiStyle.entries.first()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min)
-                        .padding(horizontal = FetchTheme.spacing.xs, vertical = FetchTheme.spacing.xs)
-                        .settingsOptionRow(styleFocusRequesters.getValue(firstAvailableStyle)),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    uiState.availableSettingsUiStyles.forEach { style ->
-                        SettingsStyleOptionCard(
-                            style = style,
-                            isSelected = style == uiState.settingsUiStyle,
-                            onClick = { viewModel.onEvent(ThemeSettingsEvent.SelectSettingsUiStyle(style)) },
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .focusRequester(styleFocusRequesters.getValue(style))
-                        )
-                    }
                 }
             }
 
@@ -497,93 +460,6 @@ private fun ThemeSwatchChip(
             )
         }
     }
-}
-
-@Composable
-private fun SettingsStyleOptionCard(
-    style: SettingsUiStyle,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var isFocused by remember { mutableStateOf(false) }
-    val cardShape = RoundedCornerShape(18.dp)
-
-    Card(
-        onClick = onClick,
-        modifier = modifier
-            .onFocusChanged { state ->
-                val nowFocused = state.isFocused
-                if (isFocused != nowFocused) {
-                    isFocused = nowFocused
-                }
-            },
-        colors = CardDefaults.colors(
-            containerColor = FetchTheme.colors.Background,
-            focusedContainerColor = FetchTheme.colors.Background
-        ),
-        border = CardDefaults.border(
-            border = if (isSelected) Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
-                shape = cardShape
-            ) else Border.None,
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = cardShape
-            )
-        ),
-        shape = CardDefaults.shape(cardShape),
-        scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(FetchTheme.spacing.md)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = style.localizedName(),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (isFocused || isSelected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                    maxLines = 1,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                )
-                if (isSelected) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = stringResource(R.string.cd_selected),
-                        tint = FetchTheme.colors.Secondary,
-                        modifier = Modifier
-                            .size(16.dp)
-                            .align(Alignment.CenterEnd)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(FetchTheme.spacing.xxs))
-
-            Text(
-                text = style.localizedDescription(),
-                style = MaterialTheme.typography.bodySmall,
-                color = FetchTheme.colors.TextTertiary,
-                maxLines = 2
-            )
-        }
-    }
-}
-
-@Composable
-private fun SettingsUiStyle.localizedName(): String = when (this) {
-    SettingsUiStyle.CLASSIC -> stringResource(R.string.settings_style_classic)
-    SettingsUiStyle.ZEN -> stringResource(R.string.settings_style_zen)
-    SettingsUiStyle.HORIZON -> stringResource(R.string.settings_style_horizon)
-}
-
-@Composable
-private fun SettingsUiStyle.localizedDescription(): String = when (this) {
-    SettingsUiStyle.CLASSIC -> stringResource(R.string.settings_style_classic_desc)
-    SettingsUiStyle.ZEN -> stringResource(R.string.settings_style_zen_desc)
-    SettingsUiStyle.HORIZON -> stringResource(R.string.settings_style_horizon_desc)
 }
 
 @Composable

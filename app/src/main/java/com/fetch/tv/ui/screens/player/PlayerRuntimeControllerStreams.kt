@@ -1409,6 +1409,7 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
         )
     }
     showStreamSourceIndicator(stream)
+    rememberCurrentEpisodeForRestore(stream, isTorrent = false)
     recomputeNextEpisode(resetVisibility = true)
 
     updateEpisodeDescription()
@@ -1439,6 +1440,31 @@ private fun String.safeStreamTraceHost(): String {
     return runCatching {
         Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
+}
+
+// A torrent's local url only lives as long as this session, so a restore restarts it from the
+// info hash instead.
+private fun PlayerRuntimeController.rememberCurrentEpisodeForRestore(stream: Stream, isTorrent: Boolean) {
+    savedStateHandle.rememberEpisodeForRestore(
+        streamUrl = if (isTorrent) "" else currentStreamUrl,
+        headersJson = currentHeaders.takeIf { !isTorrent && it.isNotEmpty() }
+            ?.let { org.json.JSONObject(it).toString() },
+        videoId = currentVideoId,
+        season = currentSeason,
+        episode = currentEpisode,
+        episodeTitle = currentEpisodeTitle,
+        streamName = stream.name ?: stream.addonName,
+        filename = currentFilename,
+        bingeGroup = currentStreamBingeGroup,
+        videoHash = currentVideoHash,
+        videoSize = currentVideoSize,
+        addonName = currentAddonName,
+        addonLogo = currentAddonLogo,
+        streamDescription = currentStreamDescription,
+        infoHash = stream.getEffectiveInfoHash(),
+        fileIdx = stream.getEffectiveFileIdx(),
+        sources = stream.sources
+    )
 }
 
 /**
@@ -1523,6 +1549,7 @@ private fun PlayerRuntimeController.switchToEpisodeStreamCommon(
         )
     }
     showStreamSourceIndicator(stream)
+    rememberCurrentEpisodeForRestore(stream, isTorrent = true)
     recomputeNextEpisode(resetVisibility = true)
     updateEpisodeDescription()
     refreshSubtitlesForCurrentEpisode()

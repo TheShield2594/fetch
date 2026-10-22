@@ -363,18 +363,23 @@ open class MainActivity : ComponentActivity() {
         }
 
         // Extract extras set by the Continue Watching launcher channel preview programs.
-        val launchContentId = intent?.getStringExtra("contentId")
-        val launchContentType = intent?.getStringExtra("contentType")
-        val launchMode = intent?.getStringExtra("launchMode")
-        val launchVideoId = intent?.getStringExtra("videoId")
-        val launchName = intent?.getStringExtra("name")
-        val launchPoster = intent?.getStringExtra("poster")
-        val launchBackdrop = intent?.getStringExtra("backdrop")
-        val launchLogo = intent?.getStringExtra("logo")
-        val launchSeason = intent?.getIntExtra("season", -1)?.takeIf { it >= 0 }
-        val launchEpisode = intent?.getIntExtra("episode", -1)?.takeIf { it >= 0 }
-        val launchEpisodeTitle = intent?.getStringExtra("episodeTitle")
-        captureDeepLinkIntent(intent)
+        // A recreated activity (savedInstanceState != null, e.g. after the system killed the
+        // app behind a screensaver) still carries the original launch intent. Replaying it would
+        // navigate back to the episode the session started on instead of the restored one
+        // (NuvioTV#3502), so only a fresh launch acts on it.
+        val launchIntent = intent?.takeIf { savedInstanceState == null }
+        val launchContentId = launchIntent?.getStringExtra("contentId")
+        val launchContentType = launchIntent?.getStringExtra("contentType")
+        val launchMode = launchIntent?.getStringExtra("launchMode")
+        val launchVideoId = launchIntent?.getStringExtra("videoId")
+        val launchName = launchIntent?.getStringExtra("name")
+        val launchPoster = launchIntent?.getStringExtra("poster")
+        val launchBackdrop = launchIntent?.getStringExtra("backdrop")
+        val launchLogo = launchIntent?.getStringExtra("logo")
+        val launchSeason = launchIntent?.getIntExtra("season", -1)?.takeIf { it >= 0 }
+        val launchEpisode = launchIntent?.getIntExtra("episode", -1)?.takeIf { it >= 0 }
+        val launchEpisodeTitle = launchIntent?.getStringExtra("episodeTitle")
+        captureDeepLinkIntent(launchIntent)
 
         setContent {
             var hasSelectedProfileThisSession by rememberSaveable { mutableStateOf(false) }

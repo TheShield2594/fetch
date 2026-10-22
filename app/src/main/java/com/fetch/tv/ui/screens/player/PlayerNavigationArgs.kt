@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.player
 import androidx.lifecycle.SavedStateHandle
 import org.json.JSONArray
 import java.net.URLDecoder
+import java.net.URLEncoder
 
 internal data class PlayerNavigationArgs(
     val streamUrl: String,
@@ -100,4 +101,53 @@ internal data class PlayerNavigationArgs(
             )
         }
     }
+}
+
+/**
+ * Points the saved navigation args at the episode now playing. The player switches episodes in
+ * place, so without this a process restore (for example after the TV's screensaver let the
+ * system kill the app) rebuilds the player from the episode the session started on
+ * (NuvioTV#3502). Keys that [PlayerNavigationArgs.from] URL-decodes are stored encoded.
+ */
+internal fun SavedStateHandle.rememberEpisodeForRestore(
+    streamUrl: String,
+    headersJson: String?,
+    videoId: String?,
+    season: Int?,
+    episode: Int?,
+    episodeTitle: String?,
+    streamName: String?,
+    filename: String?,
+    bingeGroup: String?,
+    videoHash: String?,
+    videoSize: Long?,
+    addonName: String?,
+    addonLogo: String?,
+    streamDescription: String?,
+    infoHash: String?,
+    fileIdx: Int?,
+    sources: List<String>?
+) {
+    fun encoded(value: String?): String =
+        value?.let { URLEncoder.encode(it, "UTF-8").replace("+", "%20") } ?: ""
+
+    this["streamUrl"] = streamUrl
+    this["headers"] = encoded(headersJson)
+    this["videoId"] = videoId ?: ""
+    this["season"] = season?.toString() ?: ""
+    this["episode"] = episode?.toString() ?: ""
+    this["episodeTitle"] = encoded(episodeTitle)
+    this["streamName"] = encoded(streamName)
+    this["filename"] = encoded(filename)
+    this["bingeGroup"] = bingeGroup ?: ""
+    this["videoHash"] = videoHash ?: ""
+    this["videoSize"] = videoSize?.toString() ?: ""
+    this["addonName"] = encoded(addonName)
+    this["infoHash"] = infoHash ?: ""
+    this["fileIdx"] = fileIdx?.toString() ?: ""
+    this["sources"] = encoded(sources?.let { JSONArray(it).toString() })
+    this["addonLogo"] = encoded(addonLogo)
+    this["streamDescription"] = encoded(streamDescription)
+    // The restored episode resumes from its saved progress, not from the start.
+    this["startFromBeginning"] = "false"
 }

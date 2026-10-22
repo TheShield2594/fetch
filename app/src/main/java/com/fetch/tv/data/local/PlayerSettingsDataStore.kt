@@ -905,7 +905,7 @@ class PlayerSettingsDataStore @Inject constructor(
                     runCatching { InternalPlayerEngine.valueOf(it) }.getOrDefault(InternalPlayerEngine.EXOPLAYER)
                 } ?: InternalPlayerEngine.EXOPLAYER,
                 autoSwitchInternalPlayerOnError = prefs[autoSwitchInternalPlayerOnErrorKey] ?: false,
-                useLibass = prefs[useLibassKey] ?: false,
+                useLibass = prefs[useLibassKey] ?: true,
                 libassRenderType = prefs[libassRenderTypeKey]?.let {
                     try { LibassRenderType.valueOf(it) } catch (e: Exception) { LibassRenderType.OVERLAY_OPEN_GL }
                 } ?: LibassRenderType.OVERLAY_OPEN_GL,
@@ -1107,7 +1107,7 @@ class PlayerSettingsDataStore @Inject constructor(
     val useLibass: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.onStart { migrateProfile(pid) }
     }.map { prefs ->
-        prefs[useLibassKey] ?: false
+        prefs[useLibassKey] ?: true
     }
 
     val libassRenderType: Flow<LibassRenderType> = profileManager.activeProfileId.flatMapLatest { pid ->

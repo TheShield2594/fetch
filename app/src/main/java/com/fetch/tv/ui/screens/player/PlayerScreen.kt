@@ -2709,9 +2709,7 @@ internal fun PlayerControlsOverlay(
                     sourceSpecLine?.let { line ->
                         SpecStrip(
                             line = line,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontFeatureSettings = FetchTheme.textStyles.spec.fontFeatureSettings
-                            ),
+                            style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.78f)
                         )
                     }

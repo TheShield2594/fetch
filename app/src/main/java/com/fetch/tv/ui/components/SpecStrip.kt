@@ -14,7 +14,7 @@ import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.theme.FetchTheme
 
 /**
- * Draws a [SpecLine] in Fetch's spec style: tabular figures, dimmed separators, and the cached
+ * Draws a [SpecLine] in Fetch's spec style: dimmed separators, and the cached
  * label in [cachedColor] so the one thing that means "starts instantly" stands out.
  *
  * On an accent-coloured surface, such as the detail page's Play button, pass the surface's

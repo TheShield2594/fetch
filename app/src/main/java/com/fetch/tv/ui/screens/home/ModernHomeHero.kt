@@ -742,10 +742,7 @@ private fun HeroResumeRow(
             )
         }
         specLine?.let { line ->
-            SpecStrip(
-                line = line,
-                style = textStyle.copy(fontFeatureSettings = FetchTheme.textStyles.spec.fontFeatureSettings)
-            )
+            SpecStrip(line = line, style = textStyle)
         }
     }
 }

@@ -165,6 +165,8 @@
     <string name="cw_action_go_to_details">Naar details gaan</string>
     <string name="cw_action_start_from_beginning">Vanaf het begin starten</string>
     <string name="cw_action_remove">Verwijderen</string>
+    <string name="cw_action_add_to_queue">Toevoegen aan wachtrij</string>
+    <string name="cw_action_remove_from_queue">Verwijderen uit wachtrij</string>
     <string name="cw_dialog_subtitle">Kies wat je wilt doen met dit item.</string>
     <string name="home_poster_dialog_subtitle">Titelacties</string>
 
@@ -1312,6 +1314,13 @@
     <string name="parental_severity_moderate">Matig</string>
     <string name="parental_severity_mild">Licht</string>
     <string name="player_ends_at">Eindigt om %1$s</string>
+    <string name="player_queue">Wachtrij</string>
+    <string name="player_queue_empty">Je wachtrij is leeg. Houd een titel in Verder kijken ingedrukt en kies Toevoegen aan wachtrij.</string>
+    <string name="player_up_next_in_queue">Volgende in de wachtrij</string>
+    <string name="player_queue_move_up">Omhoog</string>
+    <string name="player_queue_move_down">Omlaag</string>
+    <string name="player_seek_back_10">10 seconden terug</string>
+    <string name="player_seek_forward_30">30 seconden vooruit</string>
     <string name="player_live_watched">LIVE  %1$s</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

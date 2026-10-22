@@ -69,6 +69,8 @@
     <string name="cw_action_go_to_details">विवरण देखें</string>
     <string name="cw_action_start_from_beginning">शुरुआत से चलाएँ</string>
     <string name="cw_action_remove">हटाएँ</string>
+    <string name="cw_action_add_to_queue">कतार में जोड़ें</string>
+    <string name="cw_action_remove_from_queue">कतार से हटाएँ</string>
     <string name="cw_dialog_subtitle">इस आइटम के साथ क्या करना है चुनें।</string>
     <string name="home_poster_dialog_subtitle">टाइटल एक्शन</string>
 
@@ -586,6 +588,13 @@
     <string name="parental_severity_moderate">मध्यम</string>
     <string name="parental_severity_mild">हल्का</string>
     <string name="player_ends_at">%1$s पर समाप्त होगा</string>
+    <string name="player_queue">कतार</string>
+    <string name="player_queue_empty">आपकी कतार खाली है। देखना जारी रखें में किसी टाइटल को देर तक दबाएँ और कतार में जोड़ें चुनें।</string>
+    <string name="player_up_next_in_queue">कतार में अगला</string>
+    <string name="player_queue_move_up">ऊपर ले जाएँ</string>
+    <string name="player_queue_move_down">नीचे ले जाएँ</string>
+    <string name="player_seek_back_10">10 सेकंड पीछे</string>
+    <string name="player_seek_forward_30">30 सेकंड आगे</string>
     <string name="player_via">%1$s के माध्यम से</string>
     <string name="player_subtitle_delay">सबटाइटल देरी</string>
     <string name="player_error_title">प्लेबैक त्रुटि</string>

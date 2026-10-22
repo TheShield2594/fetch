@@ -167,6 +167,8 @@
     <string name="cw_action_go_to_details">Idi na detalje</string>
     <string name="cw_action_start_from_beginning">Pusti od početka</string>
     <string name="cw_action_remove">Ukloni</string>
+    <string name="cw_action_add_to_queue">Dodaj u red</string>
+    <string name="cw_action_remove_from_queue">Ukloni iz reda</string>
     <string name="cw_dialog_subtitle">Izaberite šta želite da uradite sa ovom stavkom.</string>
     <string name="home_poster_dialog_subtitle">Akcije za naslov</string>
 
@@ -1337,6 +1339,13 @@
     <string name="parental_severity_moderate">Umereno</string>
     <string name="parental_severity_mild">Blago</string>
     <string name="player_ends_at">Završava se u %1$s</string>
+    <string name="player_queue">Red</string>
+    <string name="player_queue_empty">Red je prazan. Dugo pritisnite naslov u odeljku Nastavi gledanje i izaberite Dodaj u red.</string>
+    <string name="player_up_next_in_queue">Sledeće u redu</string>
+    <string name="player_queue_move_up">Pomeri gore</string>
+    <string name="player_queue_move_down">Pomeri dole</string>
+    <string name="player_seek_back_10">Nazad 10 sekundi</string>
+    <string name="player_seek_forward_30">Napred 30 sekundi</string>
     <string name="player_live_watched">UŽIVO %1$s</string>
     <string name="player_via">preko %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

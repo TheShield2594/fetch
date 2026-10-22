@@ -203,7 +203,8 @@ class ProfileSettingsSyncService @Inject constructor(
         "mdblist_settings",
         "trakt_settings",
         "animeskip_settings",
-        "track_preference"
+        "track_preference",
+        com.fetch.tv.data.local.EpisodeQueueStore.FEATURE
     )
 
     init {

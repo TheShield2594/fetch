@@ -9,6 +9,7 @@ import com.fetch.tv.data.local.BingeGroupCacheDataStore
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.local.StreamLinkCacheDataStore
+import com.fetch.tv.data.local.BestMatchCacheDataStore
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -25,6 +26,8 @@ data class BestMatchPreview(
     val videoId: String,
     /** What matters about the pick, most important first ("4K", "DV P8", "TrueHD Atmos", "18.2 GB"). */
     val labels: List<String>,
+    /** [labels] without the size, for a one-line spec ("4K · DV · Atmos"). */
+    val specLabels: List<String> = labels,
     val isCached: Boolean,
     val addonName: String?,
     val sourceCount: Int,
@@ -43,7 +46,8 @@ class BestMatchPreviewer @Inject constructor(
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val addonRepository: AddonRepository,
     private val bingeGroupCacheDataStore: BingeGroupCacheDataStore,
-    private val streamLinkCacheDataStore: StreamLinkCacheDataStore
+    private val streamLinkCacheDataStore: StreamLinkCacheDataStore,
+    private val bestMatchCacheDataStore: BestMatchCacheDataStore
 ) {
     /**
      * Emits the best pick so far as addons answer, ending with a final one. Emits nothing when
@@ -97,6 +101,7 @@ class BestMatchPreviewer @Inject constructor(
             return BestMatchPreview(
                 videoId = videoId,
                 labels = descriptor.playButtonLabels(),
+                specLabels = descriptor.specLineLabels(),
                 isCached = descriptor.isDebridCached,
                 addonName = stream.addonName.takeIf { it.isNotBlank() },
                 sourceCount = streams.size,
@@ -116,7 +121,11 @@ class BestMatchPreviewer @Inject constructor(
                 pick(latest, isFinal = false)?.let { emit(it) }
             }
         }
-        pick(latest, isFinal = true)?.let { emit(it) }
+        pick(latest, isFinal = true)?.let { final ->
+            // Home's hero reads this instead of asking addons again.
+            bestMatchCacheDataStore.save(type, videoId, final.specLabels, final.isCached)
+            emit(final)
+        }
     }
 }
 
@@ -125,4 +134,10 @@ internal fun StreamDescriptor.playButtonLabels(): List<String> {
     val all = summaryLabels()
     val codecAndSource = setOf(videoCodec.label, source.label).filter { it.isNotEmpty() }
     return all.filterNot { it in codecAndSource }
+}
+
+/** [playButtonLabels] without the size: what a spec line names ("4K · DV · Atmos"). */
+internal fun StreamDescriptor.specLineLabels(): List<String> {
+    val size = sizeBytes?.let(StreamDescriptor::formatSize)
+    return playButtonLabels().filterNot { it == size }
 }

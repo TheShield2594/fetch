@@ -259,6 +259,7 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                                 (pos > 0L || (playingNow && !cacheBuffering && playerDuration > 0L))
                             if (firstFrameReady) {
                                 hasRenderedFirstFrame = true
+                                onCurrentStreamFirstFrame()
                                 resetMpvStartupWatchdog()
                                 scheduleMpvStableProgressReset()
                                 val clickToFirstFrameMs = launchStartedAtElapsedMs
@@ -1652,6 +1653,24 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         PlayerEvent.OnDismissSourcesPanel -> {
             dismissSourcesPanel()
+        }
+        PlayerEvent.OnShowQueuePanel -> {
+            showQueuePanel()
+        }
+        PlayerEvent.OnDismissQueuePanel -> {
+            dismissQueuePanel()
+        }
+        is PlayerEvent.OnPlayQueueItem -> {
+            playQueueItem(event.item)
+        }
+        is PlayerEvent.OnRemoveQueueItem -> {
+            removeQueueItem(event.videoId)
+        }
+        is PlayerEvent.OnMoveQueueItem -> {
+            moveQueueItem(event.videoId, event.up)
+        }
+        PlayerEvent.OnQueuePlaybackHandled -> {
+            _uiState.update { it.copy(pendingQueuePlayback = null) }
         }
         PlayerEvent.OnShowPartyPanel -> {
             showPartyPanel()

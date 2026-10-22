@@ -29,6 +29,8 @@
     <string name="cw_action_go_to_details">Accesează detalii</string>
     <string name="cw_action_start_from_beginning">Începe de la început</string>
     <string name="cw_action_remove">Elimină</string>
+    <string name="cw_action_add_to_queue">Adaugă în coadă</string>
+    <string name="cw_action_remove_from_queue">Elimină din coadă</string>
     <string name="cw_dialog_subtitle">Alege ce vrei să faci cu acest element.</string>
     <string name="home_poster_dialog_subtitle">Acțiuni titlu</string>
 
@@ -467,6 +469,13 @@
 
     <!-- PlayerScreen -->
     <string name="player_ends_at">Se termină la %1$s</string>
+    <string name="player_queue">Coadă</string>
+    <string name="player_queue_empty">Coada ta este goală. Apasă lung un titlu din Continuă vizionarea și alege Adaugă în coadă.</string>
+    <string name="player_up_next_in_queue">Următorul în coadă</string>
+    <string name="player_queue_move_up">Mută în sus</string>
+    <string name="player_queue_move_down">Mută în jos</string>
+    <string name="player_seek_back_10">Înapoi 10 secunde</string>
+    <string name="player_seek_forward_30">Înainte 30 de secunde</string>
     <string name="player_via">prin %1$s</string>
     <string name="player_subtitle_delay">Întârziere subtitrări</string>
     <string name="player_error_title">Eroare de redare</string>

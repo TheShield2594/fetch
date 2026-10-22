@@ -142,8 +142,12 @@ fun ModernHomeContent(
     scrollToTopTrigger: Int = 0,
     onRequestLazyCatalogLoad: (String) -> Unit = {},
     onRowItemFocusedCallback: (String, Int, Boolean) -> Unit = { _, _, _ -> },
-    blockLeftOnFirstExpandedItem: Boolean = false
+    blockLeftOnFirstExpandedItem: Boolean = false,
+    cachedBestMatches: Map<String, com.fetch.tv.data.local.CachedBestMatch> = emptyMap(),
+    queuedVideoIds: Set<String> = emptySet(),
+    onToggleQueue: (ContinueWatchingItem) -> Unit = {}
 ) {
+    val latestCachedBestMatches = rememberUpdatedState(cachedBestMatches)
     val onRowItemFocusedPassedDown = rememberUpdatedState(onRowItemFocusedCallback)
     val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
     val sidebarExpanded = LocalSidebarExpanded.current
@@ -746,7 +750,10 @@ fun ModernHomeContent(
                             mdbListRatings = enrichedItem.mdbListRatings,
                             mdbListRatingOrder = enrichedItem.mdbListRatingOrder,
                             frozenBackdropUrl = activeCarouselItem?.heroPreview?.frozenBackdropUrl,
-                            frozenLogoUrl = activeCarouselItem?.heroPreview?.frozenLogoUrl
+                            frozenLogoUrl = activeCarouselItem?.heroPreview?.frozenLogoUrl,
+                            resumeActionText = activeCarouselItem?.heroPreview?.resumeActionText,
+                            resumeTimeLeftText = activeCarouselItem?.heroPreview?.resumeTimeLeftText,
+                            bestMatchKey = activeCarouselItem?.heroPreview?.bestMatchKey
                         )
                     } else null
 
@@ -1131,6 +1138,7 @@ fun ModernHomeContent(
                     if (isRapidHorizontalNav.value) false
                     else heroSceneStateLambda().enrichmentActive
                 },
+                bestMatchFor = { key -> latestCachedBestMatches.value[key] },
                 portraitMode = !useLandscapePosters,
                 showImdbRatings = uiState.homeImdbRatingsVisibility.showRatings,
                 mdbListShowOnHero = uiState.mdbListShowOnHero,
@@ -1299,6 +1307,11 @@ fun ModernHomeContent(
             showPlayManually = showContinueWatchingManualPlayOption,
             onPlayManually = {
                 onContinueWatchingPlayManually(selectedOptionsItem)
+                optionsItem.value = null
+            },
+            isQueued = selectedOptionsItem.queueItemOrNull()?.let { it.videoId in queuedVideoIds },
+            onToggleQueue = {
+                onToggleQueue(selectedOptionsItem)
                 optionsItem.value = null
             }
         )

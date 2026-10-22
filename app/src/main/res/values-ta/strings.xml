@@ -153,6 +153,8 @@
     <string name="cw_action_go_to_details">விவரங்களுக்கு செல்</string>
     <string name="cw_action_start_from_beginning">தொடக்கத்திலிருந்து தொடங்கு</string>
     <string name="cw_action_remove">நீக்கு</string>
+    <string name="cw_action_add_to_queue">வரிசையில் சேர்</string>
+    <string name="cw_action_remove_from_queue">வரிசையிலிருந்து நீக்கு</string>
     <string name="cw_dialog_subtitle">இந்த உருப்படிக்கு என்ன செய்ய வேண்டும் என்பதை தேர்வு செய்யவும்.</string>
     <string name="home_poster_dialog_subtitle">தலைப்பு செயல்கள்</string>
 
@@ -1042,6 +1044,13 @@
     <string name="parental_severity_moderate">மிதமான</string>
     <string name="parental_severity_mild">லேசான</string>
     <string name="player_ends_at">%1$s இல் முடியும்</string>
+    <string name="player_queue">வரிசை</string>
+    <string name="player_queue_empty">உங்கள் வரிசை காலியாக உள்ளது. தொடர்ந்து பார்க்க பகுதியில் ஒரு தலைப்பை நீண்ட நேரம் அழுத்தி வரிசையில் சேர் என்பதைத் தேர்வுசெய்யவும்.</string>
+    <string name="player_up_next_in_queue">வரிசையில் அடுத்தது</string>
+    <string name="player_queue_move_up">மேலே நகர்த்து</string>
+    <string name="player_queue_move_down">கீழே நகர்த்து</string>
+    <string name="player_seek_back_10">10 வினாடிகள் பின்னால்</string>
+    <string name="player_seek_forward_30">30 வினாடிகள் முன்னால்</string>
     <string name="player_via">%1$s மூலம்</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>

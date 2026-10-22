@@ -165,6 +165,8 @@
     <string name="cw_action_go_to_details">Voir les détails</string>
     <string name="cw_action_start_from_beginning">Recommencer depuis le début</string>
     <string name="cw_action_remove">Retirer</string>
+    <string name="cw_action_add_to_queue">Ajouter à la file d\'attente</string>
+    <string name="cw_action_remove_from_queue">Retirer de la file d\'attente</string>
     <string name="cw_dialog_subtitle">Choisissez l’action à effectuer pour cet élément.</string>
     <string name="home_poster_dialog_subtitle">Actions sur le titre</string>
 
@@ -1491,6 +1493,13 @@
     <string name="parental_severity_moderate">Modéré</string>
     <string name="parental_severity_mild">Léger</string>
     <string name="player_ends_at">Fin à %1$s</string>
+    <string name="player_queue">File d\'attente</string>
+    <string name="player_queue_empty">Votre file d\'attente est vide. Appuyez longuement sur un titre dans Continuer à regarder et choisissez Ajouter à la file d\'attente.</string>
+    <string name="player_up_next_in_queue">À suivre dans la file d\'attente</string>
+    <string name="player_queue_move_up">Monter</string>
+    <string name="player_queue_move_down">Descendre</string>
+    <string name="player_seek_back_10">Reculer de 10 secondes</string>
+    <string name="player_seek_forward_30">Avancer de 30 secondes</string>
     <string name="player_live_watched">EN DIRECT  %1$s</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

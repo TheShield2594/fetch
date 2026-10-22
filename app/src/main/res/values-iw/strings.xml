@@ -168,6 +168,8 @@
     <string name="cw_action_go_to_details">מעבר לפרטים</string>
     <string name="cw_action_start_from_beginning">צפייה מההתחלה</string>
     <string name="cw_action_remove">הסרה</string>
+    <string name="cw_action_add_to_queue">הוספה לתור</string>
+    <string name="cw_action_remove_from_queue">הסרה מהתור</string>
     <string name="cw_dialog_subtitle">מה לעשות עם הפריט הזה?</string>
     <string name="home_poster_dialog_subtitle">פעולות עבור הכותרת הזו</string>
 
@@ -1495,6 +1497,13 @@
     <string name="parental_severity_moderate">בינוני</string>
     <string name="parental_severity_mild">קל</string>
     <string name="player_ends_at">מסתיים ב-%1$s</string>
+    <string name="player_queue">תור</string>
+    <string name="player_queue_empty">התור שלך ריק. לחיצה ארוכה על כותר בהמשך בצפייה ובחירה בהוספה לתור.</string>
+    <string name="player_up_next_in_queue">הבא בתור</string>
+    <string name="player_queue_move_up">העברה למעלה</string>
+    <string name="player_queue_move_down">העברה למטה</string>
+    <string name="player_seek_back_10">10 שניות אחורה</string>
+    <string name="player_seek_forward_30">30 שניות קדימה</string>
     <string name="player_live_watched">LIVE  %1$s</string>
     <string name="player_via">דרך %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

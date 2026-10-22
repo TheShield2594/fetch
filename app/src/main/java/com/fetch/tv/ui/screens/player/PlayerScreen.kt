@@ -67,6 +67,10 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.Replay10
+import androidx.compose.material.icons.filled.Forward30
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
+import androidx.compose.runtime.Stable
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.rounded.Groups
@@ -188,7 +192,8 @@ fun PlayerScreen(
     onPlaybackEnded: ((nextVideoId: String?, nextSeason: Int?, nextEpisode: Int?, exitReason: PlayerExitReason?) -> Unit)? = null,
     onPlayRecommendation: (PostPlayRecommendation, manualSelection: Boolean) -> Unit = { _, _ -> },
     onOpenRecommendationDetails: (PostPlayRecommendation) -> Unit = {},
-    onOpenPartyMedia: (PartyMedia) -> Unit = {}
+    onOpenPartyMedia: (PartyMedia) -> Unit = {},
+    onPlayQueueItem: (com.fetch.tv.data.local.QueueItem) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val partyState by viewModel.party.state.collectAsState()
@@ -246,6 +251,10 @@ fun PlayerScreen(
     var focusPlayAfterMoreBack by remember { mutableStateOf(false) }
     var hideControlsAfterStreamInfo by remember { mutableStateOf(false) }
     val nextEpisodeFocusRequester = remember { FocusRequester() }
+    val upNextQueueFocusRequester = remember { FocusRequester() }
+    val panelButtonFocus = remember { PlayerPanelButtonFocus() }
+    // The button that opened the side panel now open; focus goes back to it when the panel closes.
+    var panelReturnFocus by remember { mutableStateOf<FocusRequester?>(null) }
     var subtitleDelayFocusTarget by remember { mutableStateOf(SubtitleDelayFocusTarget.SLIDER) }
     val subtitleDelayResetFocusRequester = remember { FocusRequester() }
     val subtitleDelaySyncLineFocusRequester = remember { FocusRequester() }
@@ -387,6 +396,8 @@ fun PlayerScreen(
             viewModel.onEvent(PlayerEvent.OnDismissSubtitleStylePanel)
         } else if (uiState.showPartyPanel) {
             viewModel.onEvent(PlayerEvent.OnDismissPartyPanel)
+        } else if (uiState.showQueuePanel) {
+            viewModel.onEvent(PlayerEvent.OnDismissQueuePanel)
         } else if (uiState.showSourcesPanel) {
             if (uiState.currentStreamUrl.isNullOrBlank()) {
                 exitPlayer()
@@ -421,6 +432,16 @@ fun PlayerScreen(
 
     BackHandler {
         handleBackPress()
+    }
+
+    val currentOnPlayQueueItem by rememberUpdatedState(onPlayQueueItem)
+    LaunchedEffect(uiState.pendingQueuePlayback) {
+        val item = uiState.pendingQueuePlayback ?: return@LaunchedEffect
+        viewModel.onEvent(PlayerEvent.OnQueuePlaybackHandled)
+        if (exitDispatched) return@LaunchedEffect
+        exitDispatched = true
+        viewModel.stopAndRelease()
+        currentOnPlayQueueItem(item)
     }
 
     LaunchedEffect(
@@ -560,6 +581,7 @@ fun PlayerScreen(
         uiState.showControls,
         uiState.showEpisodesPanel,
         uiState.showSourcesPanel,
+        uiState.showQueuePanel,
         uiState.showPartyPanel,
         uiState.showSubtitleStylePanel,
         uiState.showSubtitleDelayOverlay,
@@ -574,19 +596,26 @@ fun PlayerScreen(
         if (uiState.error != null) return@LaunchedEffect
         if (uiState.showPartyPanel) return@LaunchedEffect
         if (uiState.showControls && !uiState.showEpisodesPanel && !uiState.showSourcesPanel &&
-            !uiState.showAudioOverlay && !uiState.showSubtitleOverlay &&
+            !uiState.showQueuePanel && !uiState.showAudioOverlay && !uiState.showSubtitleOverlay &&
             !uiState.showSubtitleStylePanel && !uiState.showSubtitleDelayOverlay &&
             !uiState.showSubtitleTimingDialog &&
             !uiState.showSpeedDialog
         ) {
             // Wait for AnimatedVisibility animation to complete before focusing play/pause button
             kotlinx.coroutines.delay(250)
-            try {
-                playPauseFocusRequester.requestFocus()
-            } catch (e: Exception) {
-                // Focus requester may not be ready yet
+            val returnTo = panelReturnFocus
+            panelReturnFocus = null
+            val restored = returnTo != null &&
+                runCatching { returnTo.requestFocus(androidx.compose.ui.focus.FocusDirection.Enter) }.getOrDefault(false)
+            if (!restored) {
+                try {
+                    playPauseFocusRequester.requestFocus()
+                } catch (e: Exception) {
+                    // Focus requester may not be ready yet
+                }
             }
         } else if (!uiState.showControls) {
+            panelReturnFocus = null
             // When controls are hidden, let skip intro button take focus if visible
             val skipVisible = uiState.activeSkipInterval != null && !uiState.skipIntervalDismissed
             // The still-watching prompt focuses its own Continue button too; taking focus back to
@@ -698,6 +727,7 @@ fun PlayerScreen(
                 } else if (
                     !uiState.showEpisodesPanel &&
                     !uiState.showSourcesPanel &&
+                    !uiState.showQueuePanel &&
                     !uiState.showPartyPanel &&
                     !uiState.showAudioOverlay &&
                     !uiState.showSubtitleOverlay &&
@@ -822,6 +852,7 @@ fun PlayerScreen(
 
                 // When a side panel or dialog is open, let it handle all keys
                 val panelOrDialogOpen = uiState.showEpisodesPanel || uiState.showSourcesPanel || uiState.showPartyPanel ||
+                        uiState.showQueuePanel ||
                         uiState.showAudioOverlay || uiState.showSubtitleOverlay ||
                         uiState.showSubtitleStylePanel || uiState.showSpeedDialog ||
                         uiState.showSubtitleDelayOverlay || uiState.showSubtitleTimingDialog ||
@@ -1029,6 +1060,7 @@ fun PlayerScreen(
                 !uiState.showStreamInfoOverlay &&
                 !uiState.showEpisodesPanel &&
                 !uiState.showSourcesPanel &&
+                !uiState.showQueuePanel &&
                 !uiState.showPartyPanel &&
                 !uiState.showAudioOverlay &&
                 !uiState.showSubtitleOverlay &&
@@ -1050,6 +1082,7 @@ fun PlayerScreen(
             !uiState.showSubtitleDelayOverlay &&
             !uiState.showEpisodesPanel &&
             !uiState.showSourcesPanel &&
+            !uiState.showQueuePanel &&
             !uiState.showPartyPanel &&
             !uiState.showAudioOverlay &&
             !uiState.showSubtitleOverlay &&
@@ -1320,7 +1353,8 @@ fun PlayerScreen(
         }
 
         val skipButtonBottomPadding by animateDpAsState(
-            targetValue = if (uiState.showControls) 122.dp else 30.dp,
+            // Clears the scrubber with the transport and panel rows below it.
+            targetValue = if (uiState.showControls) 174.dp else 30.dp,
             animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
             label = "skipButtonBottomPadding"
         )
@@ -1386,7 +1420,7 @@ fun PlayerScreen(
             onDismissStillWatching = { viewModel.onEvent(PlayerEvent.OnDismissStillWatchingPrompt) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 26.dp, bottom = if (uiState.showControls) 122.dp else 30.dp)
+                .padding(end = 26.dp, bottom = if (uiState.showControls) 174.dp else 30.dp)
                 .zIndex(2.1f)
                 .reportSubtitleClearance(subtitleClearanceGapPx) { postPlayClearancePx = it },
         )
@@ -1394,6 +1428,7 @@ fun PlayerScreen(
         val preferSuggestions = preferNextTimeSuggestions
         if (preferSuggestions != null &&
             !uiState.showSourcesPanel &&
+            !uiState.showQueuePanel &&
             !uiState.showEpisodesPanel &&
             !uiState.showAudioOverlay &&
             !uiState.showSubtitleOverlay &&
@@ -1443,6 +1478,7 @@ fun PlayerScreen(
             !uiState.showPauseOverlay &&
             !uiState.showEpisodesPanel &&
             !uiState.showSourcesPanel &&
+            !uiState.showQueuePanel &&
             !uiState.showPartyPanel &&
             !uiState.showAudioOverlay &&
             !uiState.showSubtitleOverlay &&
@@ -1482,26 +1518,46 @@ fun PlayerScreen(
                 progressBarFocusRequester = progressBarFocusRequester,
                 streamInfoFocusRequester = streamInfoFocusRequester,
                 reportCodeVisible = reportCodeVisible,
+                panelButtonFocus = panelButtonFocus,
+                upNextFocusRequester = upNextQueueFocusRequester,
                 progressBarUpFocusRequester = when {
                     skipButtonActuallyVisible -> skipIntroFocusRequester
                     uiState.postPlayMode is PostPlayMode.AutoPlay -> nextEpisodeFocusRequester
+                    uiState.postPlayMode == null &&
+                        upcomingQueueItems(uiState.queueItems, uiState.currentVideoId).isNotEmpty() ->
+                        upNextQueueFocusRequester
                     else -> null
                 },
                 onPlayPause = { viewModel.onEvent(PlayerEvent.OnPlayPause) },
                 onPlayNextEpisode = { viewModel.onEvent(PlayerEvent.OnPlayNextEpisode) },
-                onSeekForward = { viewModel.onEvent(PlayerEvent.OnSeekForward) },
-                onSeekBackward = { viewModel.onEvent(PlayerEvent.OnSeekBackward) },
-                onSeekTo = { viewModel.onEvent(PlayerEvent.OnSeekTo(it)) },
-                onShowEpisodesPanel = { viewModel.onEvent(PlayerEvent.OnShowEpisodesPanel) },
-                onShowSourcesPanel = { viewModel.onEvent(PlayerEvent.OnShowSourcesPanel) },
+                onSeekBy = { viewModel.onEvent(PlayerEvent.OnSeekBy(it)) },
+                onShowEpisodesPanel = {
+                    panelReturnFocus = panelButtonFocus.episodes
+                    viewModel.onEvent(PlayerEvent.OnShowEpisodesPanel)
+                },
+                onShowSourcesPanel = {
+                    panelReturnFocus = panelButtonFocus.sources
+                    viewModel.onEvent(PlayerEvent.OnShowSourcesPanel)
+                },
+                onShowQueuePanel = {
+                    panelReturnFocus = panelButtonFocus.queue
+                    viewModel.onEvent(PlayerEvent.OnShowQueuePanel)
+                },
+                onPlayQueueItem = { viewModel.onEvent(PlayerEvent.OnPlayQueueItem(it)) },
                 onShowPartyPanel = if (partyAvailable && viewModel.canUseParty) {
                     { viewModel.onEvent(PlayerEvent.OnShowPartyPanel) }
                 } else {
                     null
                 },
                 partyActive = partyState.party != null,
-                onShowAudioDialog = { viewModel.onEvent(PlayerEvent.OnShowAudioOverlay) },
-                onShowSubtitleDialog = { viewModel.onEvent(PlayerEvent.OnShowSubtitleOverlay) },
+                onShowAudioDialog = {
+                    panelReturnFocus = panelButtonFocus.audio
+                    viewModel.onEvent(PlayerEvent.OnShowAudioOverlay)
+                },
+                onShowSubtitleDialog = {
+                    panelReturnFocus = panelButtonFocus.subtitles
+                    viewModel.onEvent(PlayerEvent.OnShowSubtitleOverlay)
+                },
                 onShowSpeedDialog = { viewModel.onEvent(PlayerEvent.OnShowSpeedDialog) },
                 onToggleAspectRatio = {
                     Log.d("PlayerScreen", "onToggleAspectRatio called - dispatching event")
@@ -1548,9 +1604,7 @@ fun PlayerScreen(
                     viewModel.scheduleHideControls()
                     viewModel.onUserInteraction()
                 },
-                onHideControls = { viewModel.hideControls() },
-                onBack = { exitPlayer() },
-                skipButtonVisible = skipButtonActuallyVisible
+                onHideControls = { viewModel.hideControls() }
             )
         }
 
@@ -1630,6 +1684,7 @@ fun PlayerScreen(
                 !uiState.showSubtitleStylePanel &&
                 !uiState.showEpisodesPanel &&
                 !uiState.showSourcesPanel &&
+                !uiState.showQueuePanel &&
                 !uiState.showPartyPanel &&
                 !uiState.showAudioOverlay &&
                 !uiState.showSubtitleOverlay &&
@@ -1675,33 +1730,8 @@ fun PlayerScreen(
             SeekOverlayHost(viewModel = viewModel)
         }
 
-        // Episodes/streams side panel (slides in from right)
-        AnimatedVisibility(
-            visible = uiState.showEpisodesPanel && uiState.error == null,
-            enter = fadeIn(animationSpec = tween(120)),
-            exit = fadeOut(animationSpec = tween(120))
-        ) {
-            // Scrim (fades in/out, no slide)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.45f))
-            )
-        }
-
-        // Panel itself (slides in from right)
-        AnimatedVisibility(
-            visible = uiState.showEpisodesPanel && uiState.error == null,
-            enter = slideInHorizontally(
-                animationSpec = tween(220),
-                initialOffsetX = { it }
-            ),
-            exit = slideOutHorizontally(
-                animationSpec = tween(220),
-                targetOffsetX = { it }
-            )
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+        // Episodes/streams side panel
+        PlayerSidePanel(visible = uiState.showEpisodesPanel && uiState.error == null) {
                 EpisodesSidePanel(
                     uiState = uiState,
                     episodesFocusRequester = episodesFocusRequester,
@@ -1712,38 +1742,12 @@ fun PlayerScreen(
                     onSeasonSelected = { viewModel.onEvent(PlayerEvent.OnEpisodeSeasonSelected(it)) },
                     onAddonFilterSelected = { viewModel.onEvent(PlayerEvent.OnEpisodeAddonFilterSelected(it)) },
                     onEpisodeSelected = { viewModel.onEvent(PlayerEvent.OnEpisodeSelected(it)) },
-                    onStreamSelected = { viewModel.onEvent(PlayerEvent.OnEpisodeStreamSelected(it)) },
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                    onStreamSelected = { viewModel.onEvent(PlayerEvent.OnEpisodeStreamSelected(it)) }
                 )
-            }
         }
 
-        // Sources panel scrim
-        AnimatedVisibility(
-            visible = uiState.showSourcesPanel && uiState.error == null,
-            enter = fadeIn(animationSpec = tween(120)),
-            exit = fadeOut(animationSpec = tween(120))
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.45f))
-            )
-        }
-
-        // Sources panel (slides in from right)
-        AnimatedVisibility(
-            visible = uiState.showSourcesPanel && uiState.error == null,
-            enter = slideInHorizontally(
-                animationSpec = tween(220),
-                initialOffsetX = { it }
-            ),
-            exit = slideOutHorizontally(
-                animationSpec = tween(220),
-                targetOffsetX = { it }
-            )
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+        // Sources panel
+        PlayerSidePanel(visible = uiState.showSourcesPanel && uiState.error == null) {
                 StreamSourcesSidePanel(
                     uiState = uiState,
                     streamsFocusRequester = sourceStreamsFocusRequester,
@@ -1757,10 +1761,20 @@ fun PlayerScreen(
                     onReload = { viewModel.onEvent(PlayerEvent.OnReloadSourceStreams) },
                     onAddonFilterSelected = { viewModel.onEvent(PlayerEvent.OnSourceAddonFilterSelected(it)) },
                     onStreamSelected = { viewModel.onEvent(PlayerEvent.OnSourceStreamSelected(it)) },
-                    onExpandStreams = { viewModel.controller.expandSourceFilteredStreamsIfNeeded() },
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                    onExpandStreams = { viewModel.controller.expandSourceFilteredStreamsIfNeeded() }
                 )
-            }
+        }
+
+        // Queue panel
+        PlayerSidePanel(visible = uiState.showQueuePanel && uiState.error == null) {
+            QueueSidePanel(
+                items = uiState.queueItems,
+                currentVideoId = uiState.currentVideoId,
+                onPlay = { viewModel.onEvent(PlayerEvent.OnPlayQueueItem(it)) },
+                onMove = { item, up -> viewModel.onEvent(PlayerEvent.OnMoveQueueItem(item.videoId, up)) },
+                onRemove = { viewModel.onEvent(PlayerEvent.OnRemoveQueueItem(it.videoId)) },
+                onClose = { viewModel.onEvent(PlayerEvent.OnDismissQueuePanel) }
+            )
         }
 
         AnimatedVisibility(
@@ -1940,6 +1954,7 @@ fun PlayerScreen(
                 !uiState.showPauseOverlay &&
                 !uiState.showEpisodesPanel &&
                 !uiState.showSourcesPanel &&
+                !uiState.showQueuePanel &&
                 !uiState.showPartyPanel &&
                 !uiState.showAudioOverlay &&
                 !uiState.showSubtitleOverlay &&
@@ -2426,20 +2441,22 @@ private fun PlayerView.setAssOverlayVisibility(visibility: Int) {
 }
 
 @Composable
-private fun PlayerControlsOverlay(
+internal fun PlayerControlsOverlay(
     uiState: PlayerUiState,
     viewModel: PlayerViewModel,
     playPauseFocusRequester: FocusRequester,
     progressBarFocusRequester: FocusRequester,
     streamInfoFocusRequester: FocusRequester,
+    panelButtonFocus: PlayerPanelButtonFocus,
+    upNextFocusRequester: FocusRequester,
     progressBarUpFocusRequester: FocusRequester? = null,
     onPlayPause: () -> Unit,
     onPlayNextEpisode: () -> Unit,
-    onSeekForward: () -> Unit,
-    onSeekBackward: () -> Unit,
-    onSeekTo: (Long) -> Unit,
+    onSeekBy: (Long) -> Unit,
     onShowEpisodesPanel: () -> Unit,
     onShowSourcesPanel: () -> Unit,
+    onShowQueuePanel: () -> Unit,
+    onPlayQueueItem: (com.fetch.tv.data.local.QueueItem) -> Unit,
     onShowPartyPanel: (() -> Unit)?,
     partyActive: Boolean,
     onShowAudioDialog: () -> Unit,
@@ -2454,9 +2471,7 @@ private fun PlayerControlsOverlay(
     onShowStreamInfo: () -> Unit,
     onResetHideTimer: () -> Unit,
     onHideControls: () -> Unit,
-    onBack: () -> Unit,
     reportCodeVisible: Boolean,
-    skipButtonVisible: Boolean = false,
     onSubtitleClearanceChanged: (Float) -> Unit = {}
 ) {
     val density = LocalDensity.current
@@ -2476,13 +2491,22 @@ private fun PlayerControlsOverlay(
     } else {
         progressBarFocusRequester
     }
+    // The next-episode card takes this spot near the end, so the queue card steps aside for it.
+    val upNextItem = remember(uiState.queueItems, uiState.currentVideoId, uiState.postPlayMode) {
+        if (uiState.postPlayMode != null) null
+        else upcomingQueueItems(uiState.queueItems, uiState.currentVideoId).firstOrNull()
+    }
+    val cachedLabel = stringResource(R.string.best_match_cached)
+    val sourceSpecLine = remember(uiState.currentSourceSpecLabels, uiState.currentSourceIsCached, cachedLabel) {
+        playerSourceSpecLine(uiState.currentSourceSpecLabels, uiState.currentSourceIsCached, cachedLabel)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Top gradient
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
+                .height(170.dp)
                 .align(Alignment.TopCenter)
                 .background(
                     Brush.verticalGradient(
@@ -2498,17 +2522,84 @@ private fun PlayerControlsOverlay(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(280.dp)
                 .align(Alignment.BottomCenter)
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.8f)
+                            Color.Black.copy(alpha = 0.85f)
                         )
                     )
                 )
         )
+
+        // Top bar: title and episode on the left. The clock and "Ends at" sit on the right
+        // (PlayerClockOverlay), so the column stops short of them.
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .fillMaxWidth()
+                .padding(start = FetchTheme.spacing.xxl, end = 180.dp, top = FetchTheme.spacing.xl)
+        ) {
+            val displayName = if (uiState.currentSeason != null && uiState.currentEpisode != null) {
+                uiState.contentName ?: uiState.title
+            } else {
+                uiState.title
+            }
+
+            Text(
+                text = displayName,
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            if (uiState.currentSeason != null && uiState.currentEpisode != null) {
+                val seasonEpisodeCode = stringResource(
+                    R.string.season_episode_format,
+                    uiState.currentSeason,
+                    uiState.currentEpisode
+                )
+                val appContext = LocalContext.current
+                val localizedEpisodeTitle = uiState.currentEpisodeTitle
+                    ?.takeIf { it.isNotBlank() }
+                    ?.localizeEpisodeTitle(appContext)
+                val episodeInfo = if (localizedEpisodeTitle != null) {
+                    "$seasonEpisodeCode • $localizedEpisodeTitle"
+                } else {
+                    seasonEpisodeCode
+                }
+                Text(
+                    text = episodeInfo,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White.copy(alpha = 0.9f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            } else if (!uiState.releaseYear.isNullOrBlank()) {
+                Text(
+                    text = uiState.releaseYear,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.68f)
+                )
+            }
+
+            AnimatedVisibility(
+                visible = !uiState.isPlaying && !uiState.currentStreamName.isNullOrBlank(),
+                enter = fadeIn(animationSpec = tween(durationMillis = 220)),
+                exit = fadeOut(animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast))
+            ) {
+                Text(
+                    text = stringResource(R.string.player_via, (uiState.currentStreamName ?: "").replace("\n", " · ")),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.68f),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -2523,85 +2614,22 @@ private fun PlayerControlsOverlay(
                 }
                 .padding(horizontal = FetchTheme.spacing.xxl, vertical = FetchTheme.spacing.xl)
         ) {
-            val skipIntroVisible = uiState.activeSkipInterval != null
-
-            AnimatedVisibility(
-                visible = !skipIntroVisible,
-                enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
-                exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    val displayName = if (uiState.currentSeason != null && uiState.currentEpisode != null) {
-                        uiState.contentName ?: uiState.title
-                    } else {
-                        uiState.title
-                    }
-
-                    Text(
-                        text = displayName,
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = Color.White,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+            // "Up next in queue" sits on the right; the Skip intro pill keeps the bottom left.
+            if (upNextItem != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    UpNextQueueCard(
+                        item = upNextItem,
+                        focusRequester = upNextFocusRequester,
+                        downFocusRequester = if (isLivePlayback) playPauseFocusRequester else progressBarFocusRequester,
+                        onFocused = onResetHideTimer,
+                        onClick = { onPlayQueueItem(upNextItem) }
                     )
-
-                    if (uiState.currentSeason != null && uiState.currentEpisode != null) {
-                        val seasonEpisodeCode = stringResource(
-                            R.string.season_episode_format,
-                            uiState.currentSeason,
-                            uiState.currentEpisode
-                        )
-                        val appContext = LocalContext.current
-                        val localizedEpisodeTitle = uiState.currentEpisodeTitle
-                            ?.takeIf { it.isNotBlank() }
-                            ?.localizeEpisodeTitle(appContext)
-                        val episodeInfo = if (localizedEpisodeTitle != null) {
-                            "$seasonEpisodeCode • $localizedEpisodeTitle"
-                        } else {
-                            seasonEpisodeCode
-                        }
-                        Text(
-                            text = episodeInfo,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White.copy(alpha = 0.9f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-
-                    val hasYear = !uiState.releaseYear.isNullOrBlank()
-                    val showVia = !uiState.isPlaying && !uiState.currentStreamName.isNullOrBlank()
-                    val yearText = uiState.releaseYear.orEmpty()
-
-                    if (hasYear || showVia) {
-                        Column {
-                            if (hasYear) {
-                                Text(
-                                    text = yearText,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.White.copy(alpha = 0.68f)
-                                )
-                            }
-
-                            AnimatedVisibility(
-                                visible = showVia,
-                                enter = fadeIn(animationSpec = tween(durationMillis = 220)),
-                                exit = fadeOut(animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast))
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.player_via, (uiState.currentStreamName ?: "").replace("\n", " · ")),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color.White.copy(alpha = 0.68f),
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    }
                 }
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
             }
-
-            Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
 
             if (!isLivePlayback) {
                 // Progress bar — always LTR regardless of locale
@@ -2617,231 +2645,294 @@ private fun PlayerControlsOverlay(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
             } else {
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
             }
 
-            // Control buttons row — always LTR regardless of locale
+            // Transport row and panel row — always LTR regardless of locale
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
-                    verticalAlignment = Alignment.CenterVertically
+                val showNextEpisodeButton = uiState.nextEpisode?.hasAired == true &&
+                    (uiState.postPlayMode as? PostPlayMode.AutoPlay)?.let {
+                        !it.searching && it.countdownSec == null
+                    } != false
+
+                ControlButton(
+                    icon = if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    iconPainter = if (uiState.isPlaying) customPausePainter else customPlayPainter,
+                    contentDescription = if (uiState.isPlaying) stringResource(R.string.cd_pause) else stringResource(R.string.cd_play),
+                    onClick = onPlayPause,
+                    focusRequester = playPauseFocusRequester,
+                    upFocusRequester = progressUpTarget,
+                    onFocused = onResetHideTimer
+                )
+
+                if (!isLivePlayback) {
+                    ControlButton(
+                        icon = Icons.Default.Replay10,
+                        contentDescription = stringResource(R.string.player_seek_back_10),
+                        onClick = { onSeekBy(-PLAYER_SEEK_BACK_MS) },
+                        upFocusRequester = progressUpTarget,
+                        onFocused = onResetHideTimer
+                    )
+                    ControlButton(
+                        icon = Icons.Default.Forward30,
+                        contentDescription = stringResource(R.string.player_seek_forward_30),
+                        onClick = { onSeekBy(PLAYER_SEEK_FORWARD_MS) },
+                        upFocusRequester = progressUpTarget,
+                        onFocused = onResetHideTimer
+                    )
+                }
+
+                if (showNextEpisodeButton) {
+                    ControlButton(
+                        icon = Icons.Default.SkipNext,
+                        contentDescription = stringResource(R.string.next_episode_label),
+                        onClick = onPlayNextEpisode,
+                        upFocusRequester = progressUpTarget,
+                        onFocused = onResetHideTimer
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = FetchTheme.spacing.md)
                 ) {
-                    val hasEpisodeContext = uiState.currentSeason != null && uiState.currentEpisode != null
-                    val hasSubtitleControl = uiState.subtitleTracks.isNotEmpty() || uiState.addonSubtitles.isNotEmpty()
-                    val hasAudioControl = uiState.audioTracks.isNotEmpty()
-                    val showNextEpisodeButton = uiState.nextEpisode?.hasAired == true &&
-                        (uiState.postPlayMode as? PostPlayMode.AutoPlay)?.let {
-                            !it.searching && it.countdownSec == null
-                        } != false
-
-                    ControlButton(
-                        icon = if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        iconPainter = if (uiState.isPlaying) customPausePainter else customPlayPainter,
-                        contentDescription = if (uiState.isPlaying) stringResource(R.string.cd_pause) else stringResource(R.string.cd_play),
-                        onClick = onPlayPause,
-                        focusRequester = playPauseFocusRequester,
-                        upFocusRequester = progressUpTarget,
-                        onDownKey = onHideControls,
-                        onFocused = onResetHideTimer
-                    )
-
-                    if (showNextEpisodeButton) {
-                        ControlButton(
-                            icon = Icons.Default.SkipNext,
-                            contentDescription = stringResource(R.string.next_episode_label),
-                            onClick = onPlayNextEpisode,
-                            upFocusRequester = progressUpTarget,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer
+                    sourceSpecLine?.let { line ->
+                        Text(
+                            text = line,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.78f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
+                }
 
-                    if (hasSubtitleControl) {
-                        ControlButton(
-                            icon = Icons.Default.ClosedCaption,
-                            iconPainter = customSubtitlePainter,
-                            contentDescription = stringResource(R.string.cd_subtitles),
-                            onClick = onShowSubtitleDialog,
-                            upFocusRequester = progressUpTarget,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer
-                        )
-                    }
+                PlayerControlsTimeTextHost(viewModel = viewModel)
+            }
 
-                    if (hasAudioControl) {
-                        ControlButton(
-                            icon = Icons.AutoMirrored.Filled.VolumeUp,
-                            iconPainter = customAudioPainter,
-                            contentDescription = stringResource(R.string.cd_audio_tracks),
-                            onClick = onShowAudioDialog,
-                            upFocusRequester = progressUpTarget,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer
-                        )
-                    }
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
 
-                    ControlButton(
-                        icon = Icons.Default.SwapHoriz,
-                        iconPainter = customSourcePainter,
-                        contentDescription = stringResource(R.string.cd_sources),
-                        onClick = onShowSourcesPanel,
-                        upFocusRequester = progressUpTarget,
-                        onDownKey = onHideControls,
-                        onFocused = onResetHideTimer
-                    )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val hasEpisodeContext = uiState.currentSeason != null && uiState.currentEpisode != null
+                val hasSubtitleControl = uiState.subtitleTracks.isNotEmpty() || uiState.addonSubtitles.isNotEmpty()
+                val hasAudioControl = uiState.audioTracks.isNotEmpty()
 
-                    ControlButton(
-                        icon = Icons.Default.SwapHoriz,
-                        contentDescription = stringResource(R.string.cd_switch_player_engine),
-                        onClick = onSwitchPlayerEngine,
-                        upFocusRequester = progressUpTarget,
-                        onDownKey = onHideControls,
-                        onFocused = onResetHideTimer
-                    )
-
-                    if (hasEpisodeContext) {
-                        ControlButton(
-                            icon = Icons.AutoMirrored.Filled.List,
-                            iconPainter = customEpisodesPainter,
-                            contentDescription = stringResource(R.string.cd_episodes),
-                            onClick = onShowEpisodesPanel,
-                            upFocusRequester = progressUpTarget,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer
-                        )
-                    }
-
-                    if (onShowPartyPanel != null) {
-                        ControlButton(
-                            icon = Icons.Rounded.Groups,
-                            contentDescription = stringResource(R.string.party_title),
-                            onClick = onShowPartyPanel,
-                            upFocusRequester = progressUpTarget,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer,
-                            contentColor = if (partyActive) FetchTheme.colors.Secondary else Color.White
-                        )
-                    }
-
-                    AnimatedVisibility(
-                        visible = uiState.showMoreDialog,
-                        enter = slideInHorizontally(
-                            animationSpec = tween(FetchMotion.tokens.durations.fast),
-                            initialOffsetX = { it / 2 }
-                        ) + fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
-                        exit = slideOutHorizontally(
-                            animationSpec = tween(160),
-                            targetOffsetX = { it / 2 }
-                        ) + fadeOut(animationSpec = tween(160))
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            ControlButton(
-                                icon = Icons.Default.Speed,
-                                contentDescription = stringResource(R.string.cd_playback_speed),
-                                onClick = {
-                                    onShowSpeedDialog()
-                                },
-                                upFocusRequester = progressUpTarget,
-                                onDownKey = onHideControls,
-                                onFocused = onResetHideTimer
-                            )
-                            ControlButton(
-                                icon = Icons.Default.AspectRatio,
-                                iconPainter = customAspectPainter,
-                                contentDescription = stringResource(R.string.cd_aspect_ratio),
-                                onClick = {
-                                    onToggleAspectRatio()
-                                },
-                                upFocusRequester = progressUpTarget,
-                                onDownKey = onHideControls,
-                                onFocused = onResetHideTimer
-                            )
-                            onOpenInExternalPlayer?.let { openInExternalPlayer ->
-                                ControlButton(
-                                    icon = Icons.AutoMirrored.Filled.OpenInNew,
-                                    contentDescription = stringResource(R.string.cd_open_external_player),
-                                    onClick = openInExternalPlayer,
-                                    upFocusRequester = progressUpTarget,
-                                    onDownKey = onHideControls,
-                                    onFocused = onResetHideTimer
-                                )
-                            }
-                            ControlButton(
-                                icon = Icons.Default.Info,
-                                contentDescription = stringResource(R.string.cd_stream_info),
-                                onClick = {
-                                    onShowStreamInfo()
-                                },
-                                focusRequester = streamInfoFocusRequester,
-                                upFocusRequester = progressUpTarget,
-                                onDownKey = onHideControls,
-                                onFocused = onResetHideTimer
-                            )
-                            if (uiState.markerSubmissionAvailable) {
-                                val marking = uiState.markerStartSec != null
-                                val isCredits = uiState.markerSegmentType == "outro"
-                                ControlButton(
-                                    icon = Icons.Default.Flag,
-                                    contentDescription = stringResource(
-                                        when {
-                                            isCredits && marking -> R.string.cd_mark_credits_end
-                                            isCredits -> R.string.cd_mark_credits_start
-                                            marking -> R.string.cd_mark_intro_end
-                                            else -> R.string.cd_mark_intro_start
-                                        }
-                                    ),
-                                    onClick = onMarkSkipSegment,
-                                    upFocusRequester = progressUpTarget,
-                                    onDownKey = onHideControls,
-                                    onFocused = onResetHideTimer,
-                                    contentColor = if (marking) FetchTheme.colors.Secondary else Color.White
-                                )
-                            }
-                            if (uiState.playbackIssueReportsEnabled) {
-                                ReportControlButton(
-                                    reportId = uiState.playbackIssueReportId,
-                                    showReportId = reportCodeVisible,
-                                    onClick = onReportPlaybackIssue,
-                                    enabled = uiState.playbackIssueReportStatus != PlaybackIssueReportStatus.Sending &&
-                                        uiState.playbackIssueReportStatus != PlaybackIssueReportStatus.Sent,
-                                    upFocusRequester = progressUpTarget,
-                                    onDownKey = onHideControls,
-                                    onFocused = onResetHideTimer
-                                )
-                            }
-                        }
-                    }
-
-                    ControlButton(
-                        icon = if (uiState.showMoreDialog) {
-                            Icons.AutoMirrored.Filled.KeyboardArrowLeft
-                        } else {
-                            Icons.AutoMirrored.Filled.KeyboardArrowRight
-                        },
-                        contentDescription = if (uiState.showMoreDialog) stringResource(R.string.cd_close_more_actions) else stringResource(R.string.cd_more_actions),
-                        onClick = onToggleMoreActions,
-                        upFocusRequester = progressUpTarget,
+                if (hasAudioControl) {
+                    PanelControlButton(
+                        label = stringResource(R.string.audio_dialog_title),
+                        iconPainter = customAudioPainter,
+                        onClick = onShowAudioDialog,
+                        focusRequester = panelButtonFocus.audio,
+                        upFocusRequester = playPauseFocusRequester,
                         onDownKey = onHideControls,
                         onFocused = onResetHideTimer
                     )
                 }
 
-                // Right side - Time display only
-                PlayerControlsTimeTextHost(viewModel = viewModel)
+                if (hasSubtitleControl) {
+                    PanelControlButton(
+                        label = stringResource(R.string.subtitle_dialog_title),
+                        iconPainter = customSubtitlePainter,
+                        onClick = onShowSubtitleDialog,
+                        focusRequester = panelButtonFocus.subtitles,
+                        upFocusRequester = playPauseFocusRequester,
+                        onDownKey = onHideControls,
+                        onFocused = onResetHideTimer
+                    )
+                }
+
+                PanelControlButton(
+                    label = stringResource(R.string.sources_title),
+                    iconPainter = customSourcePainter,
+                    onClick = onShowSourcesPanel,
+                    focusRequester = panelButtonFocus.sources,
+                    upFocusRequester = playPauseFocusRequester,
+                    onDownKey = onHideControls,
+                    onFocused = onResetHideTimer
+                )
+
+                PanelControlButton(
+                    label = stringResource(R.string.player_queue),
+                    icon = Icons.AutoMirrored.Filled.QueueMusic,
+                    onClick = onShowQueuePanel,
+                    focusRequester = panelButtonFocus.queue,
+                    upFocusRequester = playPauseFocusRequester,
+                    onDownKey = onHideControls,
+                    onFocused = onResetHideTimer
+                )
+
+                if (hasEpisodeContext) {
+                    PanelControlButton(
+                        label = stringResource(R.string.episodes_panel_title),
+                        iconPainter = customEpisodesPainter,
+                        onClick = onShowEpisodesPanel,
+                        focusRequester = panelButtonFocus.episodes,
+                        upFocusRequester = playPauseFocusRequester,
+                        onDownKey = onHideControls,
+                        onFocused = onResetHideTimer
+                    )
+                }
+
+                if (onShowPartyPanel != null) {
+                    ControlButton(
+                        icon = Icons.Rounded.Groups,
+                        contentDescription = stringResource(R.string.party_title),
+                        onClick = onShowPartyPanel,
+                        upFocusRequester = playPauseFocusRequester,
+                        onDownKey = onHideControls,
+                        onFocused = onResetHideTimer,
+                        contentColor = if (partyActive) FetchTheme.colors.Secondary else Color.White
+                    )
+                }
+
+                ControlButton(
+                    icon = Icons.Default.SwapHoriz,
+                    contentDescription = stringResource(R.string.cd_switch_player_engine),
+                    onClick = onSwitchPlayerEngine,
+                    upFocusRequester = playPauseFocusRequester,
+                    onDownKey = onHideControls,
+                    onFocused = onResetHideTimer
+                )
+
+                AnimatedVisibility(
+                    visible = uiState.showMoreDialog,
+                    enter = slideInHorizontally(
+                        animationSpec = tween(FetchMotion.tokens.durations.fast),
+                        initialOffsetX = { it / 2 }
+                    ) + fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+                    exit = slideOutHorizontally(
+                        animationSpec = tween(160),
+                        targetOffsetX = { it / 2 }
+                    ) + fadeOut(animationSpec = tween(160))
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ControlButton(
+                            icon = Icons.Default.Speed,
+                            contentDescription = stringResource(R.string.cd_playback_speed),
+                            onClick = {
+                                onShowSpeedDialog()
+                            },
+                            upFocusRequester = playPauseFocusRequester,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer
+                        )
+                        ControlButton(
+                            icon = Icons.Default.AspectRatio,
+                            iconPainter = customAspectPainter,
+                            contentDescription = stringResource(R.string.cd_aspect_ratio),
+                            onClick = {
+                                onToggleAspectRatio()
+                            },
+                            upFocusRequester = playPauseFocusRequester,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer
+                        )
+                        onOpenInExternalPlayer?.let { openInExternalPlayer ->
+                            ControlButton(
+                                icon = Icons.AutoMirrored.Filled.OpenInNew,
+                                contentDescription = stringResource(R.string.cd_open_external_player),
+                                onClick = openInExternalPlayer,
+                                upFocusRequester = playPauseFocusRequester,
+                                onDownKey = onHideControls,
+                                onFocused = onResetHideTimer
+                            )
+                        }
+                        ControlButton(
+                            icon = Icons.Default.Info,
+                            contentDescription = stringResource(R.string.cd_stream_info),
+                            onClick = {
+                                onShowStreamInfo()
+                            },
+                            focusRequester = streamInfoFocusRequester,
+                            upFocusRequester = playPauseFocusRequester,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer
+                        )
+                        if (uiState.markerSubmissionAvailable) {
+                            val marking = uiState.markerStartSec != null
+                            val isCredits = uiState.markerSegmentType == "outro"
+                            ControlButton(
+                                icon = Icons.Default.Flag,
+                                contentDescription = stringResource(
+                                    when {
+                                        isCredits && marking -> R.string.cd_mark_credits_end
+                                        isCredits -> R.string.cd_mark_credits_start
+                                        marking -> R.string.cd_mark_intro_end
+                                        else -> R.string.cd_mark_intro_start
+                                    }
+                                ),
+                                onClick = onMarkSkipSegment,
+                                upFocusRequester = playPauseFocusRequester,
+                                onDownKey = onHideControls,
+                                onFocused = onResetHideTimer,
+                                contentColor = if (marking) FetchTheme.colors.Secondary else Color.White
+                            )
+                        }
+                        if (uiState.playbackIssueReportsEnabled) {
+                            ReportControlButton(
+                                reportId = uiState.playbackIssueReportId,
+                                showReportId = reportCodeVisible,
+                                onClick = onReportPlaybackIssue,
+                                enabled = uiState.playbackIssueReportStatus != PlaybackIssueReportStatus.Sending &&
+                                    uiState.playbackIssueReportStatus != PlaybackIssueReportStatus.Sent,
+                                upFocusRequester = playPauseFocusRequester,
+                                onDownKey = onHideControls,
+                                onFocused = onResetHideTimer
+                            )
+                        }
+                    }
+                }
+
+                ControlButton(
+                    icon = if (uiState.showMoreDialog) {
+                        Icons.AutoMirrored.Filled.KeyboardArrowLeft
+                    } else {
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight
+                    },
+                    contentDescription = if (uiState.showMoreDialog) stringResource(R.string.cd_close_more_actions) else stringResource(R.string.cd_more_actions),
+                    onClick = onToggleMoreActions,
+                    upFocusRequester = playPauseFocusRequester,
+                    onDownKey = onHideControls,
+                    onFocused = onResetHideTimer
+                )
             }
             }
         }
     }
+}
+
+private const val PLAYER_SEEK_BACK_MS = 10_000L
+private const val PLAYER_SEEK_FORWARD_MS = 30_000L
+
+/** "4K · DV · Atmos · Cached" for the playing stream, or null when nothing is known about it. */
+internal fun playerSourceSpecLine(labels: List<String>, isCached: Boolean, cachedLabel: String): String? =
+    buildList {
+        addAll(labels.filter { it.isNotBlank() })
+        if (isCached) add(cachedLabel)
+    }.takeIf { it.isNotEmpty() }?.joinToString(separator = " · ")
+
+/** Focus targets of the buttons that open a side panel, so closing one returns focus there. */
+@Stable
+internal class PlayerPanelButtonFocus {
+    val audio = FocusRequester()
+    val subtitles = FocusRequester()
+    val sources = FocusRequester()
+    val queue = FocusRequester()
+    val episodes = FocusRequester()
 }
 
 @Composable
@@ -3008,6 +3099,138 @@ private fun ControlButton(
                 contentDescription = contentDescription,
                 modifier = Modifier.size(28.dp)
             )
+        }
+    }
+}
+
+/** A labelled pill in the player's bottom row; each one opens a right-hand side panel. */
+@Composable
+private fun PanelControlButton(
+    label: String,
+    onClick: () -> Unit,
+    focusRequester: FocusRequester,
+    upFocusRequester: FocusRequester,
+    onDownKey: () -> Unit,
+    onFocused: () -> Unit,
+    icon: ImageVector? = null,
+    iconPainter: Painter? = null
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .height(FetchTheme.spacing.xxxl)
+            .focusRequester(focusRequester)
+            .focusProperties { up = upFocusRequester }
+            .onPreviewKeyEvent { keyEvent ->
+                if (keyEvent.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
+                when (keyEvent.nativeKeyEvent.keyCode) {
+                    KeyEvent.KEYCODE_DPAD_UP -> {
+                        runCatching { upFocusRequester.requestFocus() }
+                        true
+                    }
+                    KeyEvent.KEYCODE_DPAD_DOWN -> {
+                        onDownKey()
+                        true
+                    }
+                    else -> false
+                }
+            }
+            .onFocusChanged { if (it.isFocused) onFocused() },
+        colors = ButtonDefaults.colors(
+            containerColor = Color.White.copy(alpha = 0.12f),
+            contentColor = Color.White,
+            focusedContainerColor = Color.White,
+            focusedContentColor = Color.Black
+        ),
+        shape = ButtonDefaults.shape(shape = CircleShape),
+        scale = ButtonDefaults.scale(focusedScale = 1f),
+        contentPadding = PaddingValues(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.xs)
+    ) {
+        when {
+            iconPainter != null -> Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(20.dp))
+            icon != null -> Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(20.dp))
+        }
+        Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            maxLines = 1
+        )
+    }
+}
+
+/** The head of the episode queue, above the scrubber; OK plays it. */
+@Composable
+private fun UpNextQueueCard(
+    item: com.fetch.tv.data.local.QueueItem,
+    focusRequester: FocusRequester,
+    downFocusRequester: FocusRequester,
+    onFocused: () -> Unit,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .width(340.dp)
+            .focusRequester(focusRequester)
+            .focusProperties { down = downFocusRequester }
+            .onFocusChanged { if (it.isFocused) onFocused() },
+        colors = CardDefaults.colors(
+            containerColor = Color.Black.copy(alpha = 0.55f),
+            focusedContainerColor = Color.White.copy(alpha = 0.18f)
+        ),
+        border = CardDefaults.border(
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                shape = RoundedCornerShape(FetchTheme.radii.lg)
+            )
+        ),
+        scale = CardDefaults.scale(focusedScale = 1f),
+        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.lg))
+    ) {
+        Row(
+            modifier = Modifier.padding(FetchTheme.spacing.sm),
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(96.dp)
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(FetchTheme.radii.md))
+                    .background(Color.White.copy(alpha = 0.08f))
+            ) {
+                coil3.compose.AsyncImage(
+                    model = item.backdrop ?: item.poster,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.player_up_next_in_queue),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.White.copy(alpha = 0.7f),
+                    maxLines = 1
+                )
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                queueItemSubtitle(item)?.let { subtitle ->
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.78f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
         }
     }
 }

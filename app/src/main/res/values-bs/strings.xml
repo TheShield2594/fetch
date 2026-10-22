@@ -124,6 +124,8 @@
     <string name="cw_action_go_to_details">Idi na detalje</string>
     <string name="cw_action_start_from_beginning">Počni ispočetka</string>
     <string name="cw_action_remove">Ukloni</string>
+    <string name="cw_action_add_to_queue">Dodaj u red</string>
+    <string name="cw_action_remove_from_queue">Ukloni iz reda</string>
     <string name="cw_dialog_subtitle">Odaberi šta želiš uraditi s ovom stavkom.</string>
     <string name="home_poster_dialog_subtitle">Akcije za naslov</string>
 
@@ -768,6 +770,13 @@
     <string name="parental_severity_moderate">Umjereno</string>
     <string name="parental_severity_mild">Blago</string>
     <string name="player_ends_at">Završava u %1$s</string>
+    <string name="player_queue">Red</string>
+    <string name="player_queue_empty">Red je prazan. Dugo pritisnite naslov u Nastavi Gledati i odaberite Dodaj u red.</string>
+    <string name="player_up_next_in_queue">Sljedeće u redu</string>
+    <string name="player_queue_move_up">Pomjeri gore</string>
+    <string name="player_queue_move_down">Pomjeri dolje</string>
+    <string name="player_seek_back_10">Nazad 10 sekundi</string>
+    <string name="player_seek_forward_30">Naprijed 30 sekundi</string>
     <string name="player_via">preko %1$s</string>
     <string name="player_subtitle_delay">Odgoda Titlova</string>
     <string name="player_error_title">Greška Reprodukcije</string>

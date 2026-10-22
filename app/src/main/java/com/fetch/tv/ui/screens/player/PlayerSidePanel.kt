@@ -1,0 +1,99 @@
+package com.fetch.tv.ui.screens.player
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.fetch.tv.ui.theme.FetchTheme
+
+/** Every right-hand panel in the player is this wide (Audio, Subtitles, Sources, Queue, Episodes). */
+internal val PlayerSidePanelWidth = 640.dp
+internal val PlayerSidePanelContentPadding = 20.dp
+
+/**
+ * The right-hand panel frame the player's panels share: a scrim, a slide in from the right, and
+ * a focus trap so D-pad moves stay inside the panel while it is open. Back is handled by the
+ * player screen, which closes an open panel before anything else and gives focus back to the
+ * button that opened it.
+ */
+@Composable
+internal fun PlayerSidePanel(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    scrimAlpha: Float = 0.45f,
+    /** Draws the standard panel surface and padding; panels that style themselves leave it off. */
+    drawSurface: Boolean = false,
+    content: @Composable BoxScope.() -> Unit
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(animationSpec = tween(120)),
+            exit = fadeOut(animationSpec = tween(120))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = scrimAlpha))
+            )
+        }
+        AnimatedVisibility(
+            visible = visible,
+            enter = slideInHorizontally(animationSpec = tween(220), initialOffsetX = { it }),
+            exit = slideOutHorizontally(animationSpec = tween(220), targetOffsetX = { it }),
+            modifier = Modifier.align(Alignment.CenterEnd)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(PlayerSidePanelWidth)
+                    .playerSidePanelFocusTrap(open = visible)
+                    .then(
+                        if (drawSurface) {
+                            Modifier
+                                .clip(RoundedCornerShape(topStart = FetchTheme.spacing.lg, bottomStart = FetchTheme.spacing.lg))
+                                .background(FetchTheme.colors.BackgroundElevated)
+                                .padding(horizontal = PlayerSidePanelContentPadding, vertical = FetchTheme.spacing.xl)
+                        } else {
+                            Modifier
+                        }
+                    ),
+                content = content
+            )
+        }
+    }
+}
+
+/**
+ * Keeps focus inside the panel while [open]. Once the panel starts closing the trap lets go, so
+ * the screen can move focus back to the button that opened it during the exit animation.
+ */
+@Composable
+internal fun Modifier.playerSidePanelFocusTrap(open: Boolean): Modifier {
+    val isOpen by rememberUpdatedState(open)
+    return this
+        .focusProperties {
+            onExit = { if (isOpen) cancelFocusChange() }
+        }
+        .focusGroup()
+}

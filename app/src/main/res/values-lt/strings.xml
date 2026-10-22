@@ -60,6 +60,8 @@
     <string name="cw_action_go_to_details">Eiti į informaciją</string>
     <string name="cw_action_start_from_beginning">Pradėti iš pradžių</string>
     <string name="cw_action_remove">Pašalinti</string>
+    <string name="cw_action_add_to_queue">Pridėti į eilę</string>
+    <string name="cw_action_remove_from_queue">Pašalinti iš eilės</string>
     <string name="cw_dialog_subtitle">Pasirinkite, ką norite daryti su šiuo elementu.</string>
     <string name="home_poster_dialog_subtitle">Pavadinimo veiksmai</string>
 
@@ -583,6 +585,13 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="parental_severity_moderate">Vidutinis</string>
     <string name="parental_severity_mild">Lengvas</string>
     <string name="player_ends_at">Baigiasi %1$s</string>
+    <string name="player_queue">Eilė</string>
+    <string name="player_queue_empty">Jūsų eilė tuščia. Ilgai paspauskite pavadinimą skiltyje Tęsti žiūrėjimą ir pasirinkite Pridėti į eilę.</string>
+    <string name="player_up_next_in_queue">Kitas eilėje</string>
+    <string name="player_queue_move_up">Perkelti aukštyn</string>
+    <string name="player_queue_move_down">Perkelti žemyn</string>
+    <string name="player_seek_back_10">Atgal 10 sekundžių</string>
+    <string name="player_seek_forward_30">Pirmyn 30 sekundžių</string>
     <string name="player_via">per %1$s</string>
     <string name="player_subtitle_delay">Subtitrų delsa</string>
     <string name="player_error_title">Atkūrimo klaida</string>

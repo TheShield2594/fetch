@@ -165,6 +165,8 @@
     <string name="cw_action_go_to_details">Ir a los detalles</string>
     <string name="cw_action_start_from_beginning">Empezar desde el principio</string>
     <string name="cw_action_remove">Eliminar</string>
+    <string name="cw_action_add_to_queue">Agregar a la cola</string>
+    <string name="cw_action_remove_from_queue">Quitar de la cola</string>
     <string name="cw_dialog_subtitle">Elige qué quieres hacer con este elemento.</string>
     <string name="home_poster_dialog_subtitle">Acciones del título</string>
 
@@ -1491,6 +1493,13 @@
     <string name="parental_severity_moderate">Moderado</string>
     <string name="parental_severity_mild">Leve</string>
     <string name="player_ends_at">Termina a las %1$s</string>
+    <string name="player_queue">Cola</string>
+    <string name="player_queue_empty">No hay nada en tu cola. Mantén presionado un título en Seguir Viendo y elige Agregar a la cola.</string>
+    <string name="player_up_next_in_queue">Siguiente en la cola</string>
+    <string name="player_queue_move_up">Subir</string>
+    <string name="player_queue_move_down">Bajar</string>
+    <string name="player_seek_back_10">Retroceder 10 segundos</string>
+    <string name="player_seek_forward_30">Avanzar 30 segundos</string>
     <string name="player_live_watched">EN VIVO  %1$s</string>
     <string name="player_via">vía %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

@@ -71,6 +71,8 @@
     <string name="cw_action_go_to_details">Gå till detaljer</string>
     <string name="cw_action_start_from_beginning">Börja om från början</string>
     <string name="cw_action_remove">Ta bort</string>
+    <string name="cw_action_add_to_queue">Lägg till i kön</string>
+    <string name="cw_action_remove_from_queue">Ta bort från kön</string>
     <string name="cw_dialog_subtitle">Välj vad du vill göra med detta objekt.</string>
     <string name="home_poster_dialog_subtitle">Titel händelse</string>
 
@@ -592,6 +594,13 @@
     <string name="parental_severity_moderate">Måttligt</string>
     <string name="parental_severity_mild">Milt</string>
     <string name="player_ends_at">Slutar kl %1$s</string>
+    <string name="player_queue">Kö</string>
+    <string name="player_queue_empty">Din kö är tom. Håll ned en titel i Fortsätt titta och välj Lägg till i kön.</string>
+    <string name="player_up_next_in_queue">Nästa i kön</string>
+    <string name="player_queue_move_up">Flytta upp</string>
+    <string name="player_queue_move_down">Flytta ned</string>
+    <string name="player_seek_back_10">10 sekunder bakåt</string>
+    <string name="player_seek_forward_30">30 sekunder framåt</string>
     <string name="player_via">via %1$s</string>
     <string name="player_subtitle_delay">Undertextfördröjning</string>
     <string name="player_error_title">Uppspelningsfel</string>

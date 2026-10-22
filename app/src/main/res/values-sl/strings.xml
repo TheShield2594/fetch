@@ -158,6 +158,8 @@
     <string name="cw_action_go_to_details">Pojdi na podrobnosti</string>
     <string name="cw_action_start_from_beginning">Začni od začetka</string>											   
 	<string name="cw_action_remove">Odstrani</string>											   
+    <string name="cw_action_add_to_queue">Dodaj v čakalno vrsto</string>
+    <string name="cw_action_remove_from_queue">Odstrani iz čakalne vrste</string>
     <string name="cw_dialog_subtitle">Izberite, kaj želite storiti s tem elementom.</string>
 	<string name="home_poster_dialog_subtitle">Dejanja naslova</string>																 
     <!-- CatalogRowSection -->
@@ -1003,6 +1005,13 @@
     <string name="parental_severity_moderate">Zmerno</string>
     <string name="parental_severity_mild">Blago</string>
     <string name="player_ends_at">Konča se ob %1$s</string>
+    <string name="player_queue">Čakalna vrsta</string>
+    <string name="player_queue_empty">Čakalna vrsta je prazna. Dolgo pritisnite naslov v razdelku Nadaljuj z gledanjem in izberite Dodaj v čakalno vrsto.</string>
+    <string name="player_up_next_in_queue">Naslednje v čakalni vrsti</string>
+    <string name="player_queue_move_up">Premakni gor</string>
+    <string name="player_queue_move_down">Premakni dol</string>
+    <string name="player_seek_back_10">Nazaj 10 sekund</string>
+    <string name="player_seek_forward_30">Naprej 30 sekund</string>
     <string name="player_via">prek %1$s</string>
 	 <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->																							 
 	<string name="season_episode_format">S%1$d E%2$d</string>														 

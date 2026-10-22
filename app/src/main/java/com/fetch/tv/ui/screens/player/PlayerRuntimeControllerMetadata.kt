@@ -266,6 +266,7 @@ internal fun PlayerRuntimeController.recomputeNextEpisode(resetVisibility: Boole
         }
     )
     applyRecomputedNextEpisode(nextInfo, resetVisibility)
+    seedQueueWithNextEpisode(nextInfo)
 }
 
 private fun PlayerRuntimeController.clearNextEpisodeAndCancelPostPlay() {

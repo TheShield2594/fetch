@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -154,19 +155,10 @@ internal fun AudioSelectionOverlay(
         pendingControlFocusTarget = null
     }
 
-    PlayerOverlayScaffold(
-        visible = visible,
-        onDismiss = onDismiss,
-        modifier = modifier,
-        captureKeys = false,
-        contentPadding = PaddingValues(start = 44.dp, end = 44.dp, top = 28.dp, bottom = 64.dp)
-    ) {
+    PlayerSidePanel(visible = visible, modifier = modifier, drawSurface = true) {
         Column(
-            modifier = Modifier
-                .width(724.dp)
-                .align(Alignment.BottomStart)
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.Bottom
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top
         ) {
             Text(
                 text = stringResource(R.string.audio_dialog_title),
@@ -180,7 +172,7 @@ internal fun AudioSelectionOverlay(
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier.padding(bottom = FetchTheme.spacing.sm)
             ) {
-                Column(modifier = Modifier.width(444.dp)) {
+                Column(modifier = Modifier.width(344.dp)) {
                     AudioTracksContent(
                         tracks = tracks,
                         selectedIndex = selectedIndex,
@@ -199,7 +191,7 @@ internal fun AudioSelectionOverlay(
                         onTrackSelected = onTrackSelected
                     )
                 }
-                Column(modifier = Modifier.width(268.dp)) {
+                Column(modifier = Modifier.width(240.dp)) {
                     AudioControlsContent(
                         audioDelayMs = audioDelayMs,
                         audioAmplificationDb = audioAmplificationDb,

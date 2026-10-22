@@ -519,8 +519,15 @@ private fun ModernHomeRoute(
             viewModel.preloadAdjacentItem(item)
         }
     }
+    val cachedBestMatches by remember(viewModel) { viewModel.cachedBestMatches }
+        .collectAsStateWithLifecycle(initialValue = emptyMap())
+    val queuedVideoIds by remember(viewModel) { viewModel.queuedVideoIds }
+        .collectAsStateWithLifecycle(initialValue = emptySet())
     ModernHomeContent(
         uiState = uiState,
+        cachedBestMatches = cachedBestMatches,
+        queuedVideoIds = queuedVideoIds,
+        onToggleQueue = remember(viewModel) { { item: ContinueWatchingItem -> viewModel.toggleQueued(item) } },
         modernPresentation = modernPresentation,
         focusState = focusState,
         scrollToTopTrigger = scrollToTopTrigger,

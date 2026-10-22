@@ -72,6 +72,9 @@ data class PlayerUiState(
     val currentStreamInfoHash: String? = null, // InfoHash of the currently playing stream (for debrid matching)
     val currentStreamFileIdx: Int? = null, // FileIdx of the currently playing stream (for debrid matching)
     val currentStreamAddonName: String? = null, // Addon name of the currently playing stream
+    /** Picture, HDR and sound of the playing stream ("4K", "DV", "Atmos"), set at its first frame. */
+    val currentSourceSpecLabels: List<String> = emptyList(),
+    val currentSourceIsCached: Boolean = false,
     val backdrop: String? = null,
     val logo: String? = null,
     val description: String? = null,
@@ -164,6 +167,11 @@ data class PlayerUiState(
     val partyBehindMs: Long? = null,
     // Stream sources side panel (for switching streams during playback)
     val showSourcesPanel: Boolean = false,
+    val showQueuePanel: Boolean = false,
+    /** The profile's episode queue, including the video playing now if it was queued. */
+    val queueItems: List<com.fetch.tv.data.local.QueueItem> = emptyList(),
+    /** A queue item the player cannot start in place; the screen hands it to navigation once. */
+    val pendingQueuePlayback: com.fetch.tv.data.local.QueueItem? = null,
     val isLoadingSourceStreams: Boolean = false,
     val sourceStreamsError: String? = null,
     val sourceAllStreams: List<Stream> = emptyList(),
@@ -352,6 +360,12 @@ sealed class PlayerEvent {
     data class OnEpisodeStreamSelected(val stream: Stream) : PlayerEvent()
     data object OnShowSourcesPanel : PlayerEvent()
     data object OnDismissSourcesPanel : PlayerEvent()
+    data object OnShowQueuePanel : PlayerEvent()
+    data object OnDismissQueuePanel : PlayerEvent()
+    data class OnPlayQueueItem(val item: com.fetch.tv.data.local.QueueItem) : PlayerEvent()
+    data class OnRemoveQueueItem(val videoId: String) : PlayerEvent()
+    data class OnMoveQueueItem(val videoId: String, val up: Boolean) : PlayerEvent()
+    data object OnQueuePlaybackHandled : PlayerEvent()
     data object OnShowPartyPanel : PlayerEvent()
     data object OnDismissPartyPanel : PlayerEvent()
     data object OnReloadSourceStreams : PlayerEvent()

@@ -169,6 +169,8 @@
     <string name="cw_action_go_to_details">Přejít na podrobnosti</string>
     <string name="cw_action_start_from_beginning">Přehrát od začátku</string>
     <string name="cw_action_remove">Odebrat</string>
+    <string name="cw_action_add_to_queue">Přidat do fronty</string>
+    <string name="cw_action_remove_from_queue">Odebrat z fronty</string>
     <string name="cw_dialog_subtitle">Vyberte, co chcete s touto položkou udělat.</string>
     <string name="home_poster_dialog_subtitle">Akce titulu</string>
 
@@ -1173,6 +1175,13 @@
     <string name="parental_severity_moderate">Střední</string>
     <string name="parental_severity_mild">Mírné</string>
     <string name="player_ends_at">Končí v %1$s</string>
+    <string name="player_queue">Fronta</string>
+    <string name="player_queue_empty">Fronta je prázdná. Podržte titul v sekci Pokračovat ve sledování a zvolte Přidat do fronty.</string>
+    <string name="player_up_next_in_queue">Další ve frontě</string>
+    <string name="player_queue_move_up">Posunout nahoru</string>
+    <string name="player_queue_move_down">Posunout dolů</string>
+    <string name="player_seek_back_10">Zpět o 10 sekund</string>
+    <string name="player_seek_forward_30">Vpřed o 30 sekund</string>
     <string name="player_via">přes %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>

@@ -137,6 +137,8 @@
     <string name="cw_action_go_to_details">Перейти к деталям</string>
     <string name="cw_action_start_from_beginning">Начать сначала</string>
     <string name="cw_action_remove">Удалить</string>
+    <string name="cw_action_add_to_queue">Добавить в очередь</string>
+    <string name="cw_action_remove_from_queue">Убрать из очереди</string>
     <string name="cw_dialog_subtitle">Выберите действие для этого элемента.</string>
     <string name="home_poster_dialog_subtitle">Действия с тайтлом</string>
 
@@ -902,6 +904,13 @@
     <string name="parental_severity_moderate">Умеренно</string>
     <string name="parental_severity_mild">Незначительно</string>
     <string name="player_ends_at">Закончится в %1$s</string>
+    <string name="player_queue">Очередь</string>
+    <string name="player_queue_empty">Очередь пуста. Удерживайте название в разделе «Продолжить просмотр» и выберите «Добавить в очередь».</string>
+    <string name="player_up_next_in_queue">Далее в очереди</string>
+    <string name="player_queue_move_up">Переместить вверх</string>
+    <string name="player_queue_move_down">Переместить вниз</string>
+    <string name="player_seek_back_10">Назад на 10 секунд</string>
+    <string name="player_seek_forward_30">Вперёд на 30 секунд</string>
     <string name="player_live_watched">ЭФИР  %1$s</string>
     <string name="player_via">через %1$s</string>
     <string name="player_subtitle_delay">Задержка субтитров</string>

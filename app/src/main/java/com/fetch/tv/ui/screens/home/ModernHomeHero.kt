@@ -52,6 +52,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import androidx.tv.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -299,6 +302,7 @@ internal fun ModernHeroGradientLayer(
 internal fun HeroTitleBlock(
     previewProvider: () -> HeroPreview?,
     enrichmentActive: () -> Boolean = { false },
+    bestMatchFor: (String) -> com.fetch.tv.data.local.CachedBestMatch? = { null },
     portraitMode: Boolean,
     showImdbRatings: Boolean,
     mdbListShowOnHero: Boolean = false,
@@ -337,6 +341,7 @@ internal fun HeroTitleBlock(
     ) {
         HeroTitleContent(
             previewProvider = { displayPreview },
+            bestMatchFor = bestMatchFor,
             portraitMode = portraitMode,
             showImdbRatings = showImdbRatings,
             mdbListShowOnHero = mdbListShowOnHero,
@@ -349,6 +354,7 @@ internal fun HeroTitleBlock(
 @Composable
 private fun HeroTitleContent(
     previewProvider: () -> HeroPreview?,
+    bestMatchFor: (String) -> com.fetch.tv.data.local.CachedBestMatch?,
     portraitMode: Boolean,
     showImdbRatings: Boolean,
     mdbListShowOnHero: Boolean = false,
@@ -666,6 +672,79 @@ private fun HeroTitleContent(
                 maxLines = descriptionMaxLines,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.graphicsLayer { alpha = metaAlpha }
+            )
+        }
+
+        preview.resumeActionText?.let { actionText ->
+            val cachedMatch = preview.bestMatchKey?.let(bestMatchFor)
+            val cachedLabel = stringResource(R.string.best_match_cached)
+            val specLine = remember(preview.resumeTimeLeftText, cachedMatch, cachedLabel) {
+                heroResumeSpecLine(preview.resumeTimeLeftText, cachedMatch, cachedLabel)
+            }
+            HeroResumeRow(
+                actionText = actionText,
+                specLine = specLine,
+                textStyle = labelMedium,
+                modifier = Modifier.graphicsLayer { alpha = metaAlpha }
+            )
+        }
+    }
+}
+
+/**
+ * "38m left · 4K · DV · Atmos · Cached". Only the cached Best match adds stream details, so with
+ * nothing cached the line says the time left and nothing it can't verify.
+ */
+internal fun heroResumeSpecLine(
+    timeLeftText: String?,
+    cachedMatch: com.fetch.tv.data.local.CachedBestMatch?,
+    cachedLabel: String
+): String? = buildList {
+    timeLeftText?.takeIf { it.isNotBlank() }?.let(::add)
+    cachedMatch?.labels?.filter { it.isNotBlank() }?.let(::addAll)
+    if (cachedMatch?.isCached == true) add(cachedLabel)
+}.takeIf { it.isNotEmpty() }?.joinToString(separator = " · ")
+
+/** Not focusable: it names what OK on the focused Continue Watching card does. */
+@Composable
+private fun HeroResumeRow(
+    actionText: String,
+    specLine: String?,
+    textStyle: androidx.compose.ui.text.TextStyle,
+    modifier: Modifier = Modifier
+) {
+    // The spec line sits under the button: beside it, the hero's narrow column cut it short.
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+    ) {
+        Row(
+            modifier = Modifier
+                .background(FetchTheme.colors.TextPrimary, RoundedCornerShape(50))
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.PlayArrow,
+                contentDescription = null,
+                tint = FetchTheme.colors.Background,
+                modifier = Modifier.size(16.dp)
+            )
+            Text(
+                text = actionText,
+                style = textStyle.copy(fontWeight = FontWeight.SemiBold),
+                color = FetchTheme.colors.Background,
+                maxLines = 1
+            )
+        }
+        specLine?.let { line ->
+            Text(
+                text = line,
+                style = textStyle,
+                color = FetchTheme.colors.TextSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

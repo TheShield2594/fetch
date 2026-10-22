@@ -165,6 +165,8 @@
   <string name="cw_action_go_to_details">Μετάβαση σε λεπτομέρειες</string>
   <string name="cw_action_start_from_beginning">Έναρξη από την αρχή</string>
   <string name="cw_action_remove">Αφαίρεση</string>
+    <string name="cw_action_add_to_queue">Προσθήκη στην ουρά</string>
+    <string name="cw_action_remove_from_queue">Αφαίρεση από την ουρά</string>
   <string name="cw_dialog_subtitle">Επιλέξτε τι θέλετε να κάνετε με αυτό το στοιχείο.</string>
   <string name="home_poster_dialog_subtitle">Ενέργειες τίτλου</string>
   <!-- CatalogRowSection -->
@@ -1389,6 +1391,13 @@
   <string name="parental_severity_moderate">Μέτριο</string>
   <string name="parental_severity_mild">Ήπιο</string>
   <string name="player_ends_at">Τελειώνει στις %1$s</string>
+    <string name="player_queue">Ουρά</string>
+    <string name="player_queue_empty">Η ουρά σας είναι κενή. Πατήστε παρατεταμένα έναν τίτλο στη Συνέχεια παρακολούθησης και επιλέξτε Προσθήκη στην ουρά.</string>
+    <string name="player_up_next_in_queue">Επόμενο στην ουρά</string>
+    <string name="player_queue_move_up">Μετακίνηση πάνω</string>
+    <string name="player_queue_move_down">Μετακίνηση κάτω</string>
+    <string name="player_seek_back_10">Πίσω 10 δευτερόλεπτα</string>
+    <string name="player_seek_forward_30">Μπροστά 30 δευτερόλεπτα</string>
   <string name="player_live_watched">ΖΩΝΤΑΝΑ  %1$s</string>
   <string name="player_via">μέσω %1$s</string>
   <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

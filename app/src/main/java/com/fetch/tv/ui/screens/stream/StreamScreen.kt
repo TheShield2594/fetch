@@ -1442,6 +1442,18 @@ internal fun StreamCard(
                         // that wraps when the row runs out of width.
                         if (descriptor.isDebridCached) StreamSpecChip(cachedLabel, highlighted = true)
                         specChips.forEach { chip -> StreamSpecChip(chip) }
+                        // The addon ends the strip rather than taking a line of its own.
+                        if (showAddonLogo && stream.addonName.isNotBlank()) {
+                            Text(
+                                text = stream.addonName,
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    textDirection = stream.addonName.contentTextDirection()
+                                ),
+                                color = FetchTheme.extendedColors.textTertiary,
+                                maxLines = 1,
+                                modifier = Modifier.padding(start = FetchTheme.spacing.xs)
+                            )
+                        }
                     }
                 }
                 exclusion?.let { reason ->
@@ -1465,7 +1477,9 @@ internal fun StreamCard(
                     )
                 }
 
-                Row(
+                // With the spec strip shown, the addon's name line mostly repeats it, so it joins
+                // the release name on the focused card. A party mark keeps the line visible.
+                if (!hasParsedSpec || isFocused || markedLabel != null) Row(
                     modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
@@ -1544,6 +1558,8 @@ internal fun StreamCard(
                         )
                     }
 
+                    // The spec strip names the addon when there is one; otherwise it stays here.
+                    if (!hasParsedSpec) {
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
 
                     Text(
@@ -1554,6 +1570,7 @@ internal fun StreamCard(
                         color = FetchTheme.extendedColors.textTertiary,
                         maxLines = 1
                     )
+                    }
                 }
             }
         }

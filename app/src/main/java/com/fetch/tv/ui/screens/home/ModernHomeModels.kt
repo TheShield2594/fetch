@@ -30,7 +30,11 @@ internal val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 internal const val MODERN_HERO_TEXT_WIDTH_FRACTION = 0.42f
 internal const val MODERN_HERO_MEDIA_WIDTH_FRACTION = 0.72f
 internal const val MODERN_TRAILER_OVERSCAN_ZOOM = 1.35f
-internal const val MODERN_HERO_FOCUS_DEBOUNCE_MS = 450L
+/**
+ * How long focus must rest before the hero art follows it. The title and metadata follow at once;
+ * only the backdrop waits, so holding the D-pad doesn't crossfade through every card.
+ */
+internal const val MODERN_HERO_FOCUS_DEBOUNCE_MS = 200L
 internal val MODERN_ROW_HEADER_FOCUS_INSET = 40.dp
 internal const val MODERN_CONTINUE_WATCHING_ROW_KEY = "continue_watching"
 internal const val MODERN_UPCOMING_ROW_KEY = "upcoming_section"
@@ -680,6 +684,29 @@ internal fun CatalogRow.key(): String {
 internal fun isSeriesType(type: String?): Boolean {
     return type.equals("series", ignoreCase = true) || type.equals("tv", ignoreCase = true)
 }
+
+/**
+ * The backdrop the hero would show for [item], with the same precedence the hero uses: enriched
+ * art first when [enriched] has landed, otherwise the catalog's own art.
+ */
+internal fun heroBackdropFor(item: ModernCarouselItem, enriched: MetaPreview?): String? {
+    val hero = item.heroPreview
+    return if (enriched != null) {
+        firstNonBlank(enriched.backdropUrl, hero.imageUrl, enriched.poster)
+    } else {
+        firstNonBlank(hero.backdrop, hero.imageUrl, hero.poster)
+    }
+}
+
+/** Backdrops of the cards either side of [index] in [items], so the hero can load them early. */
+internal fun neighbourHeroBackdrops(
+    items: List<ModernCarouselItem>,
+    index: Int,
+    enrichedPreviews: Map<String, MetaPreview>
+): List<String> = listOf(index - 1, index + 1).mapNotNull { i ->
+    val item = items.getOrNull(i) ?: return@mapNotNull null
+    heroBackdropFor(item, item.metaPreview?.id?.let { enrichedPreviews[it] })
+}.distinct()
 
 internal fun firstNonBlank(vararg candidates: String?): String? {
     return candidates.firstOrNull { !it.isNullOrBlank() }?.trim()

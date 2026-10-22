@@ -304,7 +304,6 @@ internal fun ModernHeroGradientLayer(
 @Composable
 internal fun HeroTitleBlock(
     previewProvider: () -> HeroPreview?,
-    enrichmentActive: () -> Boolean = { false },
     bestMatchFor: (String) -> com.fetch.tv.data.local.CachedBestMatch? = { null },
     portraitMode: Boolean,
     showImdbRatings: Boolean,
@@ -313,29 +312,20 @@ internal fun HeroTitleBlock(
     trailerPlaying: () -> Boolean = { false },
     modifier: Modifier = Modifier
 ) {
-    // The providers read hero state that is rewritten on every focus move, often with an equal
-    // value. Deriving the pair recomposes this block only when what it shows actually changes.
+    // The provider reads hero state that is rewritten on every focus move, often with an equal
+    // value. Deriving it recomposes this block only when what it shows actually changes.
     val latestPreviewProvider = rememberUpdatedState(previewProvider)
-    val latestEnrichmentActive = rememberUpdatedState(enrichmentActive)
-    val displayInputs by remember {
-        derivedStateOf { latestPreviewProvider.value() to latestEnrichmentActive.value() }
-    }
-    val currentPreview = displayInputs.first
-    val isEnriching = displayInputs.second
-    
-    var stablePreview by remember { mutableStateOf<HeroPreview?>(null) }
+    val currentPreview by remember { derivedStateOf { latestPreviewProvider.value() } }
 
+    // Keeps the last title on screen while focus passes over a gap with nothing to show.
+    var stablePreview by remember { mutableStateOf<HeroPreview?>(null) }
     LaunchedEffect(Unit) {
-        snapshotFlow { Pair(previewProvider(), enrichmentActive()) }.collect { (p, e) ->
-            if (!e && p != null) {
-                if (stablePreview != p) stablePreview = p
-            } else if (e) {
-                if (stablePreview != null) stablePreview = null
-            }
+        snapshotFlow { previewProvider() }.collect { p ->
+            if (p != null && stablePreview != p) stablePreview = p
         }
     }
 
-    val displayPreview = if (!isEnriching && currentPreview != null) currentPreview else stablePreview
+    val displayPreview = currentPreview ?: stablePreview
     if (displayPreview == null) return
     
     Box(

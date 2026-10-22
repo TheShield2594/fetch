@@ -949,7 +949,12 @@ private fun RightStreamSection(
                             title = stringResource(R.string.stream_no_streams),
                             subtitle = stringResource(R.string.stream_no_streams_hint),
                             icon = Icons.Default.Extension,
-                            action = StateAction(stringResource(R.string.empty_state_add_addon), onNavigateToAddons)
+                            // With an addon filter on, other addons may still have streams.
+                            action = if (selectedAddonFilter == null) {
+                                StateAction(stringResource(R.string.empty_state_add_addon), onNavigateToAddons)
+                            } else {
+                                null
+                            }
                         )
                     }
                     else -> {

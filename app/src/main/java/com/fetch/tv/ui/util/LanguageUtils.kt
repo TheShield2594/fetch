@@ -12,6 +12,9 @@ fun String.localizeEpisodeTitle(appContext: Context): String {
     return "${appContext.getString(R.string.episodes_episode)} $number"
 }
 
+/** True for addon filler titles like "Episode 5", which only repeat the episode number. */
+fun String.isPlaceholderEpisodeTitle(): Boolean = EPISODE_PATTERN.matches(trim())
+
 internal val LANGUAGE_DISPLAY_OVERRIDES = mapOf(
     "id" to "Indonesia",
     "in" to "Indonesia",

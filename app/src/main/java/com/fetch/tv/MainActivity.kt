@@ -100,6 +100,7 @@ import com.fetch.tv.ui.components.LocalStartupLoadingState
 import com.fetch.tv.ui.components.LocalStartupSplashEnabled
 import com.fetch.tv.ui.components.StartupLoadingState
 import com.fetch.tv.ui.components.FloatingSidebarButton
+import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.StartupDestination
 import com.fetch.tv.ui.components.shouldShowStartupSplash
 import com.fetch.tv.ui.components.startupDestinationForRoute
@@ -1496,13 +1497,7 @@ private fun FetchSidebarScaffold(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        // A soft fade from the left edge instead of a panel, so the icons and labels stay readable
-        // over artwork while the page itself runs edge to edge.
-        scrimBrush = Brush.horizontalGradient(
-            0f to FetchTheme.colors.Background.copy(alpha = 0.92f),
-            0.35f to FetchTheme.colors.Background.copy(alpha = 0.55f),
-            1f to Color.Transparent
-        ),
+        scrimBrush = sidebarScrimBrush(FetchTheme.colors.Background),
         drawerContent = { drawerValue ->
             if (showSidebar) {
                 val isExpanded = drawerValue == DrawerValue.Open

@@ -126,7 +126,8 @@ internal fun SavedStateHandle.rememberEpisodeForRestore(
     streamDescription: String?,
     infoHash: String?,
     fileIdx: Int?,
-    sources: List<String>?
+    sources: List<String>?,
+    audioDelayMs: Int?
 ) {
     fun encoded(value: String?): String =
         value?.let { URLEncoder.encode(it, "UTF-8").replace("+", "%20") } ?: ""
@@ -146,6 +147,7 @@ internal fun SavedStateHandle.rememberEpisodeForRestore(
     this["infoHash"] = infoHash ?: ""
     this["fileIdx"] = fileIdx?.toString() ?: ""
     this["sources"] = encoded(sources?.let { JSONArray(it).toString() })
+    this["audioDelayMs"] = audioDelayMs?.toString() ?: ""
     this["addonLogo"] = encoded(addonLogo)
     this["streamDescription"] = encoded(streamDescription)
     // The restored episode resumes from its saved progress, not from the start.

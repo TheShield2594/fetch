@@ -1463,7 +1463,8 @@ private fun PlayerRuntimeController.rememberCurrentEpisodeForRestore(stream: Str
         streamDescription = currentStreamDescription,
         infoHash = stream.getEffectiveInfoHash(),
         fileIdx = stream.getEffectiveFileIdx(),
-        sources = stream.sources
+        sources = stream.sources,
+        audioDelayMs = stream.behaviorHints?.audioDelayMs
     )
 }
 

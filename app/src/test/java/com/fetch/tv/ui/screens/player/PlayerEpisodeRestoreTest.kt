@@ -18,6 +18,7 @@ class PlayerEpisodeRestoreTest {
             "episodeTitle" to "Pilot",
             "startFromBeginning" to "true",
             "infoHash" to "",
+            "audioDelayMs" to "-100",
         )
     )
 
@@ -42,7 +43,8 @@ class PlayerEpisodeRestoreTest {
             streamDescription = null,
             infoHash = null,
             fileIdx = null,
-            sources = null
+            sources = null,
+            audioDelayMs = 250
         )
 
         val args = PlayerNavigationArgs.from(handle)
@@ -55,6 +57,7 @@ class PlayerEpisodeRestoreTest {
         assertEquals(123L, args.videoSize)
         assertNull(args.infoHash)
         assertFalse(args.startFromBeginning)
+        assertEquals(250, args.audioDelayMs)
         // Untouched launch args survive.
         assertEquals("Show", args.title)
     }
@@ -80,7 +83,8 @@ class PlayerEpisodeRestoreTest {
             streamDescription = null,
             infoHash = "deadbeef",
             fileIdx = 3,
-            sources = listOf("tracker:udp://tracker.example:80")
+            sources = listOf("tracker:udp://tracker.example:80"),
+            audioDelayMs = null
         )
 
         val args = PlayerNavigationArgs.from(handle)
@@ -90,5 +94,7 @@ class PlayerEpisodeRestoreTest {
         assertEquals(listOf("udp://tracker.example:80"), args.torrentTrackers)
         assertNull(args.headersJson)
         assertNull(args.initialEpisodeTitle)
+        // The first stream's delay doesn't carry over to one without a hint.
+        assertNull(args.audioDelayMs)
     }
 }

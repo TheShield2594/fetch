@@ -13,20 +13,20 @@ class HeroResumeSpecLineTest {
 
         assertEquals(
             "38m left · 4K · DV · Atmos · Cached",
-            heroResumeSpecLine("38m left", match, cachedLabel = "Cached")
+            heroResumeSpecLine("38m left", match, cachedLabel = "Cached")?.text
         )
     }
 
     @Test
     fun `without a cached match only the time left is shown`() {
-        assertEquals("38m left", heroResumeSpecLine("38m left", null, cachedLabel = "Cached"))
+        assertEquals("38m left", heroResumeSpecLine("38m left", null, cachedLabel = "Cached")?.text)
     }
 
     @Test
     fun `an uncached pick is not called cached`() {
         val match = CachedBestMatch(listOf("1080p"), isCached = false, savedAtMs = 1L)
 
-        assertEquals("1080p", heroResumeSpecLine(null, match, cachedLabel = "Cached"))
+        assertEquals("1080p", heroResumeSpecLine(null, match, cachedLabel = "Cached")?.text)
     }
 
     @Test

@@ -74,6 +74,8 @@ data class FetchTextStyleTokens(
     val body: TextStyle,
     val bodyCompact: TextStyle,
     val metadata: TextStyle,
+    /** Stream specs ("4K · DV · Atmos · Cached"). */
+    val spec: TextStyle,
     val badge: TextStyle,
     val button: TextStyle,
     val tab: TextStyle,
@@ -206,6 +208,12 @@ fun buildFetchTextStyles(typography: Typography): FetchTextStyleTokens = FetchTe
     body = typography.bodyLarge,
     bodyCompact = typography.bodyMedium,
     metadata = typography.labelMedium,
+    // No tabular figures: they widen the decimal point ("18 . 2 GB") and a spec line never
+    // lines up in columns.
+    spec = typography.labelMedium.copy(
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.3.sp
+    ),
     badge = typography.labelSmall.copy(
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.8.sp

@@ -157,7 +157,16 @@ class ReadmeScreenshots {
         val cw = Samples.continueWatching
         // The first two titles have a cached Best match: they get the ready dot and "Ready tonight".
         val ready = cw.take(2)
-        val readyKeys = ready.mapNotNull { it.bestMatchKey() }.toSet()
+        // A movie from the watchlist with a ready pick follows them in Ready tonight.
+        val readyMovie = rows.first().items.first().let { movie ->
+            com.fetch.tv.domain.model.LibraryEntry(
+                id = movie.id, type = "movie", name = movie.name, poster = movie.poster,
+                background = movie.background, logo = movie.logo, description = movie.description,
+                releaseInfo = movie.releaseInfo, imdbRating = movie.imdbRating, genres = movie.genres,
+                addonBaseUrl = null, landscapePoster = movie.landscapePoster
+            )
+        }
+        val readyKeys = ready.mapNotNull { it.bestMatchKey() }.toSet() + readyMovie.bestMatchKey()
         val presentation = remember {
             buildModernHomePresentation(
                 input = ModernHomePresentationInput(
@@ -166,6 +175,7 @@ class ReadmeScreenshots {
                     continueWatchingItems = cw,
                     upcomingItems = emptyList(),
                     readyTonightItems = ready,
+                    readyWatchlistMovies = listOf(readyMovie),
                     useLandscapePosters = true,
                     showCatalogTypeSuffix = true,
                     showFullReleaseDate = false,

@@ -22,6 +22,8 @@ internal data class ModernHomePresentationInput(
     val upcomingItems: List<ContinueWatchingItem>,
     /** Continue Watching items whose Best match is ready; see [readyTonightItems]. */
     val readyTonightItems: List<ContinueWatchingItem> = emptyList(),
+    /** Ready watchlist movies not already in Continue Watching; shown after [readyTonightItems]. */
+    val readyWatchlistMovies: List<com.fetch.tv.domain.model.LibraryEntry> = emptyList(),
     val useLandscapePosters: Boolean,
     val showCatalogTypeSuffix: Boolean,
     val showFullReleaseDate: Boolean,
@@ -95,23 +97,38 @@ internal fun buildModernHomePresentation(
 
         // Ready tonight: titles that will start instantly. A single one would only repeat a card
         // from the row above, so the row needs at least two.
-        if (input.readyTonightItems.size >= READY_TONIGHT_MIN_ITEMS) {
+        // Watchlist movies follow as catalog cards: OK opens their detail page, where Play
+        // names the same ready pick.
+        if (input.readyTonightItems.size + input.readyWatchlistMovies.size >= READY_TONIGHT_MIN_ITEMS) {
+            val continueWatchingCards = input.readyTonightItems.map { item ->
+                buildContinueWatchingItem(
+                    item = item,
+                    useLandscapePosters = input.useLandscapePosters,
+                    showImdbRatings = input.showImdbRatings,
+                    detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
+                    airsDateTemplate = strAirsDate,
+                    upcomingLabel = strUpcoming,
+                    context = localizedContext
+                )
+            }
+            val watchlistCards = input.readyWatchlistMovies.map { entry ->
+                buildCatalogItem(
+                    item = entry.toMetaPreview(),
+                    row = readyWatchlistRow(entry),
+                    useLandscapePosters = input.useLandscapePosters,
+                    occurrence = 0,
+                    strTypeMovie = strTypeMovie,
+                    strTypeSeries = strTypeSeries,
+                    showFullReleaseDate = input.showFullReleaseDate,
+                    showImdbRatings = input.showImdbRatings
+                )
+            }
             add(
                 HeroCarouselRow(
                     key = MODERN_READY_TONIGHT_ROW_KEY,
                     title = localizedContext.getString(R.string.home_row_ready_tonight),
                     globalRowIndex = -1,
-                    items = input.readyTonightItems.map { item ->
-                        buildContinueWatchingItem(
-                            item = item,
-                            useLandscapePosters = input.useLandscapePosters,
-                            showImdbRatings = input.showImdbRatings,
-                            detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
-                            airsDateTemplate = strAirsDate,
-                            upcomingLabel = strUpcoming,
-                            context = localizedContext
-                        )
-                    }.asStable()
+                    items = (continueWatchingCards + watchlistCards).asStable()
                 )
             )
         }
@@ -462,3 +479,14 @@ internal fun buildCarouselRowLookups(carouselRows: List<HeroCarouselRow>): Carou
         activeCatalogItemIds = activeCatalogItemIds.asStable()
     )
 }
+
+/** A stand-in catalog row so a ready watchlist movie opens its detail page through its own addon. */
+private fun readyWatchlistRow(entry: com.fetch.tv.domain.model.LibraryEntry): CatalogRow = CatalogRow(
+    addonId = MODERN_READY_TONIGHT_ROW_KEY,
+    addonName = "",
+    addonBaseUrl = entry.addonBaseUrl.orEmpty(),
+    catalogId = "watchlist",
+    catalogName = "",
+    type = com.fetch.tv.domain.model.ContentType.MOVIE,
+    items = emptyList()
+)

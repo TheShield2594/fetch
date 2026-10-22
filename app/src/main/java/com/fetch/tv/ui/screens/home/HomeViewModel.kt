@@ -93,6 +93,7 @@ class HomeViewModel @Inject constructor(
     internal val bestMatchCacheDataStore: com.fetch.tv.data.local.BestMatchCacheDataStore,
     internal val episodeQueueStore: com.fetch.tv.data.local.EpisodeQueueStore,
     internal val becauseYouWatchedService: com.fetch.tv.core.recommendations.BecauseYouWatchedService,
+    internal val readyChecker: HomeReadyChecker,
     internal val metaPreviewEnricher: MetaPreviewEnricher = MetaPreviewEnricher(
         tmdbService,
         tmdbMetadataService,
@@ -129,6 +130,9 @@ class HomeViewModel @Inject constructor(
     internal val _uiState = MutableStateFlow(HomeUiState())
     internal val shuffleHomeRefresh = MutableStateFlow(HomeShuffleRefresh())
     val uiState: StateFlow<HomeUiState> by lazy { createShuffleHomeState() }
+
+    /** Background ready check for these Continue Watching items; see [HomeReadyChecker]. */
+    suspend fun runReadyCheck(items: List<ContinueWatchingItem>) = readyChecker.check(items)
 
     fun beginShuffleHomeVisit() {
         shuffleHomeRefresh.update { it.copy(visit = it.visit + 1) }

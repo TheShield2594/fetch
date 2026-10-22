@@ -3059,4 +3059,8 @@
     <string name="subtitle_style_text_opacity_hdr">Metin Opaklığı (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Bu bir torrent yayını ve Fetch\'te yerleşik bir torrent motoru yok. Burada oynatılan bir bağlantı almak için eklentide debrid ayarla veya harici bir oynatıcıda aç.</string>
+    <string name="ready_to_play">Oynatmaya hazır</string>
+    <string name="home_row_ready_tonight">Bu akşam için hazır</string>
+    <string name="ready_check_title">İzlemeye devam et\'i arka planda denetle</string>
+    <string name="ready_check_sub">Wi-Fi veya Ethernet\'te, en fazla 12 saatte bir İzlemeye devam et\'teki en fazla 6 başlık için eklentilerine sorar; böylece Ana sayfa hemen başlayanları işaretleyebilir.</string>
 </resources>

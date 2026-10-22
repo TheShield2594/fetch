@@ -20,6 +20,8 @@ internal data class ModernHomePresentationInput(
     val becauseYouWatchedRows: List<CatalogRow> = emptyList(),
     val continueWatchingItems: List<ContinueWatchingItem>,
     val upcomingItems: List<ContinueWatchingItem>,
+    /** Continue Watching items whose Best match is ready; see [readyTonightItems]. */
+    val readyTonightItems: List<ContinueWatchingItem> = emptyList(),
     val useLandscapePosters: Boolean,
     val showCatalogTypeSuffix: Boolean,
     val showFullReleaseDate: Boolean,
@@ -89,6 +91,29 @@ internal fun buildModernHomePresentation(
         } else {
             cache.continueWatchingItems = emptyList()
             cache.continueWatchingRow = null
+        }
+
+        // Ready tonight: titles that will start instantly. A single one would only repeat a card
+        // from the row above, so the row needs at least two.
+        if (input.readyTonightItems.size >= READY_TONIGHT_MIN_ITEMS) {
+            add(
+                HeroCarouselRow(
+                    key = MODERN_READY_TONIGHT_ROW_KEY,
+                    title = localizedContext.getString(R.string.home_row_ready_tonight),
+                    globalRowIndex = -1,
+                    items = input.readyTonightItems.map { item ->
+                        buildContinueWatchingItem(
+                            item = item,
+                            useLandscapePosters = input.useLandscapePosters,
+                            showImdbRatings = input.showImdbRatings,
+                            detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
+                            airsDateTemplate = strAirsDate,
+                            upcomingLabel = strUpcoming,
+                            context = localizedContext
+                        )
+                    }.asStable()
+                )
+            )
         }
 
         // Upcoming row (SPLIT_UPCOMING mode)

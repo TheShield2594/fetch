@@ -1654,4 +1654,8 @@
     <string name="because_you_watched_reason_creator">Även skapad av %1$s</string>
     <string name="because_you_watched_reason_writer">Även skriven av %1$s</string>
     <string name="because_you_watched_reason_cast">Även med %1$s</string>
+    <string name="ready_to_play">Redo att spela</string>
+    <string name="home_row_ready_tonight">Redo i kväll</string>
+    <string name="ready_check_title">Kontrollera Fortsätt titta i bakgrunden</string>
+    <string name="ready_check_sub">På Wi-Fi eller Ethernet frågar den dina tillägg om upp till 6 titlar från Fortsätt titta högst var 12:e timme, så att Hem kan markera de som startar direkt.</string>
 </resources>

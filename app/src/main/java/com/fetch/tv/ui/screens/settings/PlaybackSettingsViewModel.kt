@@ -557,6 +557,10 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setBestMatchPreviewEnabled(enabled)
     }
 
+    suspend fun setReadyCheckEnabled(enabled: Boolean) {
+        playerSettingsDataStore.setReadyCheckEnabled(enabled)
+    }
+
     suspend fun setStreamReuseLastLinkCacheHours(hours: Int) {
         playerSettingsDataStore.setStreamReuseLastLinkCacheHours(hours)
     }

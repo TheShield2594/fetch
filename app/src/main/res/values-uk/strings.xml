@@ -2474,4 +2474,8 @@
     <string name="because_you_watched_reason_creator">Той самий автор: %1$s</string>
     <string name="because_you_watched_reason_writer">Той самий сценарист: %1$s</string>
     <string name="because_you_watched_reason_cast">Також у ролях: %1$s</string>
+    <string name="ready_to_play">Готово до відтворення</string>
+    <string name="home_row_ready_tonight">Готово на вечір</string>
+    <string name="ready_check_title">Перевіряти «Продовжити перегляд» у фоні</string>
+    <string name="ready_check_sub">Через Wi-Fi або Ethernet не частіше ніж раз на 12 годин запитує доповнення про не більше ніж 6 назв із «Продовжити перегляд», щоб головна позначала ті, що запустяться одразу.</string>
 </resources>

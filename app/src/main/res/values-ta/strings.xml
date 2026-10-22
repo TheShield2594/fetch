@@ -2256,4 +2256,8 @@
     <string name="because_you_watched_reason_creator">அதே உருவாக்கியவர்: %1$s</string>
     <string name="because_you_watched_reason_writer">அதே எழுத்தாளர்: %1$s</string>
     <string name="because_you_watched_reason_cast">இதிலும் நடித்தவர்: %1$s</string>
+    <string name="ready_to_play">இயக்கத் தயார்</string>
+    <string name="home_row_ready_tonight">இன்றிரவுக்குத் தயார்</string>
+    <string name="ready_check_title">தொடர்ந்து பார்ப்பதைப் பின்னணியில் சரிபார்</string>
+    <string name="ready_check_sub">Wi-Fi அல்லது Ethernet-இல், 12 மணி நேரத்துக்கு அதிகபட்சம் ஒருமுறை தொடர்ந்து பார்க்கும் அதிகபட்சம் 6 தலைப்புகள் பற்றி உங்கள் செருகுநிரல்களிடம் கேட்கிறது, இதனால் முகப்பு உடனே தொடங்குபவற்றைக் குறிக்கும்.</string>
 </resources>

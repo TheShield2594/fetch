@@ -2551,4 +2551,8 @@
     <string name="because_you_watched_reason_creator">Stejný tvůrce: %1$s</string>
     <string name="because_you_watched_reason_writer">Stejný scenárista: %1$s</string>
     <string name="because_you_watched_reason_cast">Také hraje %1$s</string>
+    <string name="ready_to_play">Připraveno k přehrání</string>
+    <string name="home_row_ready_tonight">Připraveno na dnešní večer</string>
+    <string name="ready_check_title">Kontrolovat Pokračovat ve sledování na pozadí</string>
+    <string name="ready_check_sub">Přes Wi-Fi nebo Ethernet se zeptá doplňků na nejvýše 6 titulů z Pokračovat ve sledování nejvýše jednou za 12 hodin, aby Domů mohla označit ty, které začnou okamžitě.</string>
 </resources>

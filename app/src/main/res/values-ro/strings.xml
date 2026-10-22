@@ -954,4 +954,8 @@
     <string name="because_you_watched_reason_creator">Același creator: %1$s</string>
     <string name="because_you_watched_reason_writer">Același scenarist: %1$s</string>
     <string name="because_you_watched_reason_cast">Tot cu %1$s</string>
+    <string name="ready_to_play">Gata de redare</string>
+    <string name="home_row_ready_tonight">Gata pentru diseară</string>
+    <string name="ready_check_title">Verifică Continuă vizionarea în fundal</string>
+    <string name="ready_check_sub">Pe Wi-Fi sau Ethernet, întreabă addon-urile despre cel mult 6 titluri din Continuă vizionarea, cel mult o dată la 12 ore, ca ecranul principal să le marcheze pe cele care pornesc imediat.</string>
 </resources>

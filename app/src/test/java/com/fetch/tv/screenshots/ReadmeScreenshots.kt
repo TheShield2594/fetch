@@ -1,5 +1,8 @@
 package com.fetch.tv.screenshots
 
+import com.fetch.tv.ui.screens.home.bestMatchKey
+import com.fetch.tv.ui.screens.home.LocalReadyBestMatchKeys
+import androidx.compose.runtime.CompositionLocalProvider
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.activity.ComponentActivity
@@ -152,6 +155,9 @@ class ReadmeScreenshots {
         val context = LocalContext.current
         val rows = Samples.catalogRows
         val cw = Samples.continueWatching
+        // The first two titles have a cached Best match: they get the ready dot and "Ready tonight".
+        val ready = cw.take(2)
+        val readyKeys = ready.mapNotNull { it.bestMatchKey() }.toSet()
         val presentation = remember {
             buildModernHomePresentation(
                 input = ModernHomePresentationInput(
@@ -159,6 +165,7 @@ class ReadmeScreenshots {
                     catalogRows = rows,
                     continueWatchingItems = cw,
                     upcomingItems = emptyList(),
+                    readyTonightItems = ready,
                     useLandscapePosters = true,
                     showCatalogTypeSuffix = true,
                     showFullReleaseDate = false,
@@ -169,6 +176,7 @@ class ReadmeScreenshots {
                 context = context
             )
         }
+        CompositionLocalProvider(LocalReadyBestMatchKeys provides readyKeys) {
         Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
             ModernHomeContent(
                 uiState = HomeUiState(
@@ -190,6 +198,7 @@ class ReadmeScreenshots {
                 onRemoveContinueWatching = { _, _, _, _ -> },
                 onSaveFocusState = { _, _, _, _, _, _, _, _ -> }
             )
+        }
         }
     }
 

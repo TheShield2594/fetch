@@ -3127,4 +3127,8 @@
     <string name="subtitle_style_text_opacity_hdr">Krycie tekstu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">To jest stream torrent, a Fetch nie ma wbudowanego silnika torrent. Skonfiguruj debrid w dodatku, aby otrzymać link odtwarzany tutaj, lub otwórz go w zewnętrznym odtwarzaczu.</string>
+    <string name="ready_to_play">Gotowe do odtworzenia</string>
+    <string name="home_row_ready_tonight">Gotowe na dziś wieczór</string>
+    <string name="ready_check_title">Sprawdzaj Kontynuuj oglądanie w tle</string>
+    <string name="ready_check_sub">Przez Wi-Fi lub Ethernet pyta dodatki o maksymalnie 6 tytułów z Kontynuuj oglądanie nie częściej niż co 12 godzin, aby ekran główny oznaczył te, które startują od razu.</string>
 </resources>

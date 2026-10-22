@@ -2438,4 +2438,8 @@
     <string name="because_you_watched_reason_creator">Същият създател: %1$s</string>
     <string name="because_you_watched_reason_writer">Същият сценарист: %1$s</string>
     <string name="because_you_watched_reason_cast">Също с %1$s</string>
+    <string name="ready_to_play">Готово за пускане</string>
+    <string name="home_row_ready_tonight">Готово за тази вечер</string>
+    <string name="ready_check_title">Проверка на „Продължи гледането“ във фонов режим</string>
+    <string name="ready_check_sub">През Wi-Fi или Ethernet пита добавките за до 6 заглавия от „Продължи гледането“ най-много веднъж на 12 часа, за да отбележи началният екран тези, които тръгват веднага.</string>
 </resources>

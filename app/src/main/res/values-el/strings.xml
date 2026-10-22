@@ -2956,4 +2956,8 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Χωρίς όριο</string>
+    <string name="ready_to_play">Έτοιμο για αναπαραγωγή</string>
+    <string name="home_row_ready_tonight">Έτοιμο για απόψε</string>
+    <string name="ready_check_title">Έλεγχος «Συνέχεια παρακολούθησης» στο παρασκήνιο</string>
+    <string name="ready_check_sub">Σε Wi-Fi ή Ethernet ρωτά τα πρόσθετά σας για έως 6 τίτλους της «Συνέχειας παρακολούθησης» το πολύ κάθε 12 ώρες, ώστε η Αρχική να σημειώνει όσους ξεκινούν αμέσως.</string>
 </resources>

@@ -2902,4 +2902,8 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Sin límite</string>
+    <string name="ready_to_play">Listo para reproducir</string>
+    <string name="home_row_ready_tonight">Listo para esta noche</string>
+    <string name="ready_check_title">Comprobar Seguir viendo en segundo plano</string>
+    <string name="ready_check_sub">Con Wi-Fi o Ethernet, consulta a tus addons hasta 6 títulos de Seguir viendo como máximo cada 12 horas, para que Inicio marque los que empiezan al instante.</string>
 </resources>

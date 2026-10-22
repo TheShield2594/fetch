@@ -666,7 +666,7 @@ fun ContinueWatchingCard(
             Border.None
         } else {
             Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                border = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth),
                 shape = cwCardShape
             )
         }
@@ -734,7 +734,7 @@ fun ContinueWatchingCard(
                     .then(
                         if (textBelowArtwork && isFocused) {
                             Modifier.border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                border = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth),
                                 shape = cwClipShape
                             )
                         } else {
@@ -853,21 +853,7 @@ fun ContinueWatchingCard(
                                 }
                             )
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(1.5.dp))
-                                .height(3.dp)
-                                .background(Color.Black.copy(alpha = 0.3f))
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(progressFraction)
-                                    .clip(RoundedCornerShape(1.5.dp))
-                                    .height(3.dp)
-                                    .background(FetchTheme.colors.Secondary)
-                            )
-                        }
+                        Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.Secondary))
                     }
                 }
             }
@@ -1050,21 +1036,7 @@ private fun WideCardContent(
                     .alpha(if (hasProgress) 1f else 0f),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(1.5.dp))
-                        .height(3.dp)
-                        .background(Color.Black.copy(alpha = 0.3f))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(progressFraction)
-                            .clip(RoundedCornerShape(1.5.dp))
-                            .height(3.dp)
-                            .background(FetchTheme.colors.Secondary)
-                    )
-                }
+                Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.Secondary))
                 Text(
                     text = badgeText,
                     style = MaterialTheme.typography.labelSmall,

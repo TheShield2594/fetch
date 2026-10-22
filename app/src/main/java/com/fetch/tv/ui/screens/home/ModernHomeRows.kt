@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.FetchCardDefaults
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -1269,7 +1270,7 @@ private fun ModernCarouselCard(
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
     val backgroundCardColor = FetchTheme.colors.BackgroundCard
-    val focusRingBorder = FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+    val focusRingBorder = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth)
     val titleMedium = MaterialTheme.typography.titleMedium
     val backgroundPainter = remember(backgroundCardColor) { ColorPainter(backgroundCardColor) }
     val focusedBorder = remember(cardShape, focusRingBorder) {

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.components.FetchCardDefaults
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -111,8 +112,8 @@ fun CollectionSection(
             width = 260.dp,
             height = 146.dp,
             cornerRadius = posterCardCornerRadius,
-            focusedBorderWidth = FetchTheme.spacing.xxs,
-            focusedScale = 1.02f
+            focusedBorderWidth = FetchCardDefaults.FocusedBorderWidth,
+            focusedScale = FetchCardDefaults.FocusedScale
         )
     }
 

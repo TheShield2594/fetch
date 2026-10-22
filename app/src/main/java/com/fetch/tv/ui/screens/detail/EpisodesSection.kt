@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.components.fetchCardProgress
+import com.fetch.tv.ui.components.FetchCardDefaults
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.BorderStroke
@@ -737,7 +739,6 @@ private fun EpisodeCard(
     }
     val badgeBgColor = remember { Color.Black.copy(alpha = 0.42f) }
     val badgeShape = remember(cardMetrics.episodeBadgeCornerRadius) { RoundedCornerShape(cardMetrics.episodeBadgeCornerRadius) }
-    val progressBgColor = remember { Color.Black.copy(alpha = 0.45f) }
     val notStartedBadgeColor = remember(textSecondary) { textSecondary.copy(alpha = 0.9f) }
     val thumbnailRequest = remember(context, episode.thumbnail, thumbnailWidthPx, thumbnailHeightPx, shouldBlur) {
         ImageRequest.Builder(context)
@@ -810,7 +811,7 @@ private fun EpisodeCard(
 
     val primaryColor = FetchTheme.colors.Secondary
     val textPrimary = FetchTheme.colors.TextPrimary
-    val focusRingBorder = FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+    val focusRingBorder = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth)
 
     // LightweightCard reads the focus animation only while placing the card, so moving along
     // the episodes row recomposes each card once instead of on every animation frame.
@@ -1037,7 +1038,6 @@ private fun EpisodeCard(
             }
 
             if (showProgress) {
-                val progressBarRadius = cardMetrics.progressBarHeight / 2
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -1046,21 +1046,7 @@ private fun EpisodeCard(
                             end = cardMetrics.contentPadding,
                             bottom = cardMetrics.contentPadding * 0.5f
                         )
-                        .fillMaxWidth()
-                        .height(cardMetrics.progressBarHeight)
-                        .drawWithCache {
-                            val r = progressBarRadius.toPx()
-                            val cr = androidx.compose.ui.geometry.CornerRadius(r)
-                            val fillWidth = size.width * progressPercent
-                            onDrawBehind {
-                                drawRoundRect(color = progressBgColor, cornerRadius = cr)
-                                drawRoundRect(
-                                    color = primaryColor,
-                                    size = androidx.compose.ui.geometry.Size(fillWidth, size.height),
-                                    cornerRadius = cr
-                                )
-                            }
-                        }
+                        .fetchCardProgress(progressPercent, primaryColor)
                 )
             }
 

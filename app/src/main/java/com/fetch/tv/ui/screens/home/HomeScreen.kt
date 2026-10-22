@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.ReportDrawnWhen
@@ -336,10 +338,10 @@ fun HomeScreen(
                         enter = if (hasShownInitialHomeContent) {
                             EnterTransition.None
                         } else {
-                            fadeIn(animationSpec = tween(320)) +
+                            fadeIn(animationSpec = tween(FetchMotion.tokens.durations.medium)) +
                                 slideInVertically(
                                     initialOffsetY = { it / 24 },
-                                    animationSpec = tween(320)
+                                    animationSpec = tween(FetchMotion.tokens.durations.medium)
                                 )
                         }
                     ) {
@@ -377,7 +379,7 @@ fun HomeScreen(
                     .padding(top = FetchTheme.spacing.xl)
                     .background(
                         color = Color(0xFF5A1C1C),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(FetchRadii.tokens.sm)
                     )
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             ) {

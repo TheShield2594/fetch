@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.party
 
+import com.fetch.tv.ui.theme.FetchMotion
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -101,10 +102,10 @@ private fun CodeSlot(
             char != null -> FetchTheme.colors.TextSecondary
             else -> FetchTheme.colors.Border
         },
-        animationSpec = tween(180),
+        animationSpec = tween(FetchMotion.tokens.durations.fast),
         label = "codeSlotLine",
     )
-    val lineHeight by animateDpAsState(if (active) FetchTheme.strokes.heavy else FetchTheme.strokes.medium, tween(180), label = "codeSlotLineHeight")
+    val lineHeight by animateDpAsState(if (active) FetchTheme.strokes.heavy else FetchTheme.strokes.medium, tween(FetchMotion.tokens.durations.fast), label = "codeSlotLineHeight")
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -118,8 +119,8 @@ private fun CodeSlot(
             AnimatedContent(
                 targetState = char,
                 transitionSpec = {
-                    (fadeIn(tween(120)) + scaleIn(spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium), initialScale = 0.5f)) togetherWith
-                        fadeOut(tween(90))
+                    (fadeIn(tween(FetchMotion.tokens.durations.quick)) + scaleIn(spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium), initialScale = 0.5f)) togetherWith
+                        fadeOut(tween(FetchMotion.tokens.durations.quick))
                 },
                 label = "codeSlotChar",
             ) { value ->
@@ -151,7 +152,7 @@ private fun Caret() {
     val alpha by transition.animateFloat(
         initialValue = 1f,
         targetValue = 0f,
-        animationSpec = infiniteRepeatable(tween(520), RepeatMode.Reverse),
+        animationSpec = infiniteRepeatable(tween(FetchMotion.tokens.durations.slow), RepeatMode.Reverse),
         label = "codeCaretAlpha",
     )
     Box(

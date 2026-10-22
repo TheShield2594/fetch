@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.background
@@ -89,7 +90,7 @@ internal fun SubtitleStyleSidePanel(
         modifier = modifier
             .width(PlayerSidePanelWidth)
             .height(330.dp)
-            .clip(RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp))
+            .clip(RoundedCornerShape(bottomStart = FetchTheme.radii.xxl, bottomEnd = FetchTheme.radii.xxl))
             .background(Color(0xFF101010))
             .then(if (isStyleDisabledByLibass) Modifier.focusProperties { canFocus = false } else Modifier)
             .padding(start = FetchTheme.spacing.lg, end = FetchTheme.spacing.lg, top = 22.dp, bottom = 10.dp)
@@ -325,7 +326,7 @@ private fun SubtitleStyleSection(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.lg))
             .background(Color.White.copy(alpha = 0.06f))
             .padding(FetchTheme.spacing.md)
     ) {
@@ -394,7 +395,7 @@ private fun SubtitleStyleStepperButton(
             contentColor = Color.White,
             focusedContentColor = Color.White
         ),
-        shape = IconButtonDefaults.shape(shape = RoundedCornerShape(10.dp))
+        shape = IconButtonDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.sm))
     ) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(FetchTheme.spacing.lg))
     }
@@ -405,7 +406,7 @@ private fun SubtitleStyleValueDisplay(text: String) {
     Box(
         modifier = Modifier
             .widthIn(min = 52.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
             .background(Color.White.copy(alpha = 0.12f))
             .padding(horizontal = 10.dp, vertical = 5.dp),
         contentAlignment = Alignment.Center
@@ -466,7 +467,7 @@ private fun SubtitleStyleToggleButton(
             containerColor = if (isEnabled) Color.White.copy(alpha = 0.18f) else Color.White.copy(alpha = 0.08f),
             focusedContainerColor = Color.White.copy(alpha = 0.28f)
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(10.dp))
+        shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm))
     ) {
         Text(
             text = if (isEnabled) stringResource(R.string.subtitle_style_on) else stringResource(R.string.subtitle_style_off),

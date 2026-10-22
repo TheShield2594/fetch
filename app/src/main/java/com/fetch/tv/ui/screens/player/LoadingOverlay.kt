@@ -76,14 +76,14 @@ fun LoadingOverlay(
 
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(250)),
-        exit = fadeOut(animationSpec = tween(200)),
+        enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+        exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast)),
         modifier = modifier
     ) {
         val context = LocalContext.current
         val logoAlpha by animateFloatAsState(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 700, delayMillis = 400, easing = LinearEasing),
+            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.long, delayMillis = 400, easing = LinearEasing),
             label = "loadingLogoAlpha"
         )
         val infiniteTransition = rememberInfiniteTransition(label = "loadingLogoPulse")
@@ -253,7 +253,7 @@ fun LoadingOverlay(
                     ) {
                         Crossfade(
                             targetState = message?.takeIf { it.isNotBlank() },
-                            animationSpec = tween(durationMillis = 260),
+                            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
                             label = "loadingMessageCrossfade",
                             modifier = Modifier
                                 .fillMaxWidth()

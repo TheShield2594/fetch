@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.accentBrush
 
@@ -68,15 +69,15 @@ fun ParentalGuideOverlay(
 
             // FADE IN sequence
             // Container fade in
-            containerAlpha.animateTo(1f, tween(300))
+            containerAlpha.animateTo(1f, tween(FetchMotion.tokens.durations.medium))
 
             // Line grows top to bottom
-            lineHeightFraction.animateTo(1f, tween(400, easing = FastOutSlowInEasing))
+            lineHeightFraction.animateTo(1f, tween(FetchMotion.tokens.durations.slow, easing = FastOutSlowInEasing))
 
             // Items fade in one by one (staggered after line)
             for (i in 0 until count) {
                 delay(80)
-                itemAlphas[i].animateTo(1f, tween(200))
+                itemAlphas[i].animateTo(1f, tween(FetchMotion.tokens.durations.fast))
             }
 
             // Hold visible for 5 seconds
@@ -85,16 +86,16 @@ fun ParentalGuideOverlay(
             // FADE OUT sequence: items reverse order (bottom to top)
             for (i in (count - 1) downTo 0) {
                 delay(60)
-                itemAlphas[i].animateTo(0f, tween(150))
+                itemAlphas[i].animateTo(0f, tween(FetchMotion.tokens.durations.quick))
             }
 
             // Line shrinks
             delay(100)
-            lineHeightFraction.animateTo(0f, tween(300, easing = FastOutSlowInEasing))
+            lineHeightFraction.animateTo(0f, tween(FetchMotion.tokens.durations.medium, easing = FastOutSlowInEasing))
 
             // Container fades out
             delay(200)
-            containerAlpha.animateTo(0f, tween(200))
+            containerAlpha.animateTo(0f, tween(FetchMotion.tokens.durations.fast))
 
             animating = false
             onAnimationComplete()

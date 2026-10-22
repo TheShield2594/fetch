@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -161,7 +162,7 @@ private fun AppIconOptionCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(FetchRadii.tokens.md)
     Card(
         onClick = { if (enabled) onClick() },
         modifier = modifier.alpha(if (enabled) 1f else 0.55f),
@@ -193,7 +194,7 @@ private fun AppIconOptionCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .clip(RoundedCornerShape(8.dp)),
+                    .clip(RoundedCornerShape(FetchRadii.tokens.sm)),
                 contentScale = ContentScale.Fit
             )
             Row(
@@ -207,7 +208,7 @@ private fun AppIconOptionCard(
                     contentDescription = null,
                     modifier = Modifier
                         .size(34.dp)
-                        .clip(RoundedCornerShape(7.dp)),
+                        .clip(RoundedCornerShape(FetchRadii.tokens.sm)),
                     contentScale = ContentScale.Fit
                 )
                 Spacer(modifier = Modifier.width(8.dp))

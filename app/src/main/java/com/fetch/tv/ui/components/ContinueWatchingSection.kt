@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.screens.home.shuffleFocusKey
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -849,7 +850,7 @@ fun ContinueWatchingCard(
                             .then(
                                 if (isPosterStyle) {
                                     Modifier
-                                        .clip(RoundedCornerShape(999.dp))
+                                        .clip(RoundedCornerShape(FetchRadii.tokens.full))
                                         .background(FetchTheme.colors.Background.copy(alpha = 0.7f))
                                         .padding(FetchTheme.spacing.xxs)
                                 } else {

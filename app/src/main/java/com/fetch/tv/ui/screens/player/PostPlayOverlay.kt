@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
@@ -93,10 +94,10 @@ fun PostPlayOverlay(
 
     transition.AnimatedVisibility(
         visible = { it != null },
-        enter = slideInHorizontally(animationSpec = tween(260), initialOffsetX = { it / 2 }) +
-            fadeIn(animationSpec = tween(220)),
-        exit = slideOutHorizontally(animationSpec = tween(200), targetOffsetX = { it / 2 }) +
-            fadeOut(animationSpec = tween(160)),
+        enter = slideInHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), initialOffsetX = { it / 2 }) +
+            fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+        exit = slideOutHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), targetOffsetX = { it / 2 }) +
+            fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast)),
         modifier = modifier,
     ) {
         val onCardClick: () -> Unit = when {
@@ -106,7 +107,7 @@ fun PostPlayOverlay(
         }
         Card(
             onClick = onCardClick,
-            shape = CardDefaults.shape(shape = RoundedCornerShape(14.dp)),
+            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.lg)),
             colors = CardDefaults.colors(
                 containerColor = Color(0xE3191919),
                 focusedContainerColor = Color(0xE3191919),
@@ -114,11 +115,11 @@ fun PostPlayOverlay(
             border = CardDefaults.border(
                 border = Border(
                     border = BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.16f)),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(FetchRadii.tokens.lg),
                 ),
                 focusedBorder = Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(FetchRadii.tokens.lg),
                 ),
             ),
             scale = CardDefaults.scale(focusedScale = 1f),
@@ -145,7 +146,7 @@ fun PostPlayOverlay(
             transition.AnimatedContent(
                 transitionSpec = {
                     fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)) togetherWith
-                        fadeOut(animationSpec = tween(120))
+                        fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
                 },
                 contentKey = { it?.let { current -> current::class } },
             ) { current ->
@@ -407,7 +408,7 @@ private fun NextEpisodeThumbnail(
     Box(
         modifier = modifier
             .size(width = 112.dp, height = 64.dp)
-            .clip(RoundedCornerShape(9.dp)),
+            .clip(RoundedCornerShape(FetchRadii.tokens.sm)),
     ) {
         AsyncImage(
             model = imageRequest,

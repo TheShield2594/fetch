@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.graphics.ColorSpace
@@ -169,7 +171,7 @@ fun HeroCarousel(
         // Crossfade between slides
         Crossfade(
             targetState = activeIndex,
-            animationSpec = tween(300),
+            animationSpec = tween(FetchMotion.tokens.durations.medium),
             label = "heroSlide"
         ) { index ->
             val item = items.getOrNull(index) ?: return@Crossfade
@@ -185,7 +187,7 @@ fun HeroCarousel(
         // Indicator dots — optimized to minimize recompositions and layout passes
         val focusRingBrush = FetchTheme.focusRing.brush()
         val dotColorInactive = remember { Color.White.copy(alpha = 0.3f) }
-        val dotShape = remember { RoundedCornerShape(3.dp) }
+        val dotShape = remember { RoundedCornerShape(FetchRadii.tokens.xs) }
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)

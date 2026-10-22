@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -197,9 +198,9 @@ internal fun CustomThemeEditor(
                         containerColor = FetchTheme.colors.Background,
                         focusedContainerColor = FetchTheme.colors.Background
                     ),
-                    shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
+                    shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                     border = CardDefaults.border(
-                        focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(10.dp))
+                        focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(FetchRadii.tokens.sm))
                     ),
                     scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
                 ) {
@@ -278,7 +279,7 @@ private fun ThemeColorSlot(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(FetchRadii.tokens.md)
     val label = stringResource(R.string.custom_theme_color_number, index + 1)
     Card(
         onClick = onClick,
@@ -316,10 +317,10 @@ private fun ThemeColorSlot(
 private fun CustomThemeSample(colors: CustomThemeColors, modifier: Modifier = Modifier) {
     val palette = remember(colors) { colors.toColorPalette() }
     val brush = palette.accentBrush()
-    val sampleShape = RoundedCornerShape(12.dp)
+    val sampleShape = RoundedCornerShape(FetchRadii.tokens.md)
     Column(
         modifier = modifier
-            .background(palette.background, RoundedCornerShape(16.dp))
+            .background(palette.background, RoundedCornerShape(FetchRadii.tokens.xl))
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -61,8 +62,8 @@ fun TrailerPlayer(
     overscanZoom: Float = 1f,
     autoCropLetterbox: Boolean = false,
     modifier: Modifier = Modifier,
-    enter: EnterTransition = fadeIn(animationSpec = tween(800)),
-    exit: ExitTransition = fadeOut(animationSpec = tween(500)),
+    enter: EnterTransition = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.long)),
+    exit: ExitTransition = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.slow)),
     trailerPlayerPool: TrailerPlayerPool? = null
 ) {
     val context = LocalContext.current
@@ -79,14 +80,14 @@ fun TrailerPlayer(
     var hasRenderedFirstFrame by remember(trailerUrl) { mutableStateOf(false) }
     val playerAlphaState = animateFloatAsState(
         targetValue = if (isPlaying && hasRenderedFirstFrame) 1f else 0f,
-        animationSpec = tween(durationMillis = 300),
+        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.medium),
         label = "trailerFirstFrameAlpha"
     )
     val playerViewRef = remember { mutableStateOf<PlayerView?>(null) }
     var letterboxZoom by remember(trailerUrl) { mutableFloatStateOf(1f) }
     val letterboxZoomState = animateFloatAsState(
         targetValue = if (autoCropLetterbox) letterboxZoom else 1f,
-        animationSpec = tween(durationMillis = 400),
+        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.slow),
         label = "trailerLetterboxZoom"
     )
 

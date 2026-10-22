@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -129,20 +131,20 @@ private fun ProfileBackgroundItem(
     val interactionSource = remember { MutableInteractionSource() }
     val scale by animateFloatAsState(
         targetValue = if (isFocused) 1.04f else 1f,
-        animationSpec = tween(150),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileBackgroundScale"
     )
     val borderWidth by animateDpAsState(
         targetValue = if (isSelected) 3.dp else if (isFocused) 2.dp else 1.dp,
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileBackgroundBorder"
     )
     val labelColor by animateColorAsState(
         targetValue = if (isSelected || isFocused) Color.White else FetchTheme.colors.TextSecondary,
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileBackgroundLabel"
     )
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(FetchRadii.tokens.md)
 
     Column(
         modifier = Modifier

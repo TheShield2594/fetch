@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.theme.FetchRadii
 import androidx.tv.material3.LocalContentColor
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
@@ -162,17 +163,17 @@ fun HeroContentSection(
     // Animate logo properties for trailer mode
     val logoHeight by animateDpAsState(
         targetValue = if (isTrailerPlaying) 60.dp else 100.dp,
-        animationSpec = tween(600),
+        animationSpec = tween(FetchMotion.tokens.durations.long),
         label = "logoHeight"
     )
     val logoBottomPadding by animateDpAsState(
         targetValue = if (isTrailerPlaying) FetchTheme.spacing.xl else FetchTheme.spacing.lg,
-        animationSpec = tween(600),
+        animationSpec = tween(FetchMotion.tokens.durations.long),
         label = "logoPadding"
     )
     val logoMaxWidth by animateFloatAsState(
         targetValue = if (isTrailerPlaying) 0.25f else 0.4f,
-        animationSpec = tween(600),
+        animationSpec = tween(FetchMotion.tokens.durations.long),
         label = "logoWidth"
     )
     // During a trailer the hero fills the screen so the logo sits at the bottom
@@ -180,7 +181,7 @@ fun HeroContentSection(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val heroHeight by animateDpAsState(
         targetValue = if (isTrailerPlaying) maxOf(540.dp, screenHeight) else 540.dp,
-        animationSpec = tween(600),
+        animationSpec = tween(FetchMotion.tokens.durations.long),
         label = "heroHeight"
     )
     Column(
@@ -193,7 +194,7 @@ fun HeroContentSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize(
-                    animationSpec = tween(600)
+                    animationSpec = tween(FetchMotion.tokens.durations.long)
                 )
                 .padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, bottom = FetchTheme.spacing.lg),
             verticalArrangement = Arrangement.Bottom
@@ -230,8 +231,8 @@ fun HeroContentSection(
             // Everything below the logo fades out during trailer
             AnimatedVisibility(
                 visible = isTrailerPlaying && !hideLogoDuringTrailer,
-                enter = fadeIn(tween(600)),
-                exit = fadeOut(tween(300))
+                enter = fadeIn(tween(FetchMotion.tokens.durations.long)),
+                exit = fadeOut(tween(FetchMotion.tokens.durations.medium))
             ) {
                 Text(
                     text = stringResource(R.string.hero_press_back_trailer),
@@ -839,7 +840,7 @@ private fun HeroMetaBadge(
         modifier = Modifier
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
-                shape = RoundedCornerShape(6.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         contentAlignment = Alignment.Center
@@ -865,7 +866,7 @@ private fun CombinedMetaBadge(
         modifier = Modifier
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, dividerColor),
-                shape = RoundedCornerShape(6.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,

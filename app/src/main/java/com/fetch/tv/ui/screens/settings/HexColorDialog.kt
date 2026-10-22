@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.theme.FetchRadii
 import android.view.KeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -106,7 +107,7 @@ internal fun HexColorEditor(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(FetchTheme.colors.Background, RoundedCornerShape(12.dp))
+                .background(FetchTheme.colors.Background, RoundedCornerShape(FetchRadii.tokens.md))
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -114,7 +115,7 @@ internal fun HexColorEditor(
             Box(
                 Modifier
                     .size(32.dp)
-                    .background(Color((color ?: initialColor) or 0xFF000000.toInt()), RoundedCornerShape(8.dp))
+                    .background(Color((color ?: initialColor) or 0xFF000000.toInt()), RoundedCornerShape(FetchRadii.tokens.sm))
             )
             Text(
                 text = "#" + digits.padEnd(6, '–'),
@@ -122,7 +123,7 @@ internal fun HexColorEditor(
                 color = FetchTheme.colors.TextPrimary,
                 modifier = Modifier.background(
                     if (replaceOnInput) Color.White.copy(alpha = 0.14f) else Color.Transparent,
-                    RoundedCornerShape(4.dp)
+                    RoundedCornerShape(FetchRadii.tokens.xs)
                 )
             )
         }

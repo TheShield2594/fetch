@@ -6,6 +6,7 @@
 
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.contentTextDirection
 
@@ -340,7 +341,7 @@ private fun FolderCard(
                 var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                 val gifAlpha by animateFloatAsState(
                     targetValue = if (gifLoaded) 1f else 0f,
-                    animationSpec = tween(durationMillis = 200),
+                    animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
                     label = "gifFadeIn"
                 )
                 AsyncImage(

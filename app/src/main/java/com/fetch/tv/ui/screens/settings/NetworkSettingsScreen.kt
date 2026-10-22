@@ -3,6 +3,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -115,7 +116,7 @@ private fun ConnectionStatusBadge(type: ConnectionType) {
     }
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(999.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.full))
             .background(color.copy(alpha = 0.12f))
             .padding(horizontal = FetchTheme.spacing.md, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,

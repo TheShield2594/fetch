@@ -5,6 +5,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.screens.detail.formatPlaybackTime
@@ -1492,8 +1493,8 @@ fun PlayerScreen(
 
         AnimatedVisibility(
             visible = showClockOverlay,
-            enter = fadeIn(animationSpec = tween(150)),
-            exit = fadeOut(animationSpec = tween(150)),
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick)),
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(end = 28.dp, top = FetchTheme.spacing.xl)
@@ -1508,8 +1509,8 @@ fun PlayerScreen(
         // Controls overlay
         AnimatedVisibility(
             visible = playerControlsVisible,
-            enter = fadeIn(animationSpec = tween(200)),
-            exit = fadeOut(animationSpec = tween(200))
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
         ) {
             val context = LocalContext.current
             PlayerControlsOverlay(
@@ -1613,8 +1614,8 @@ fun PlayerScreen(
         // Aspect ratio indicator (floating pill)
         AnimatedVisibility(
             visible = uiState.showAspectRatioIndicator,
-            enter = fadeIn(animationSpec = tween(200)),
-            exit = fadeOut(animationSpec = tween(200)),
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast)),
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 80.dp)
@@ -1692,8 +1693,8 @@ fun PlayerScreen(
                 !uiState.showSubtitleOverlay &&
                 !uiState.showSubtitleTimingDialog &&
                 !uiState.showSpeedDialog,
-            enter = fadeIn(animationSpec = tween(120)),
-            exit = fadeOut(animationSpec = tween(120)),
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick)),
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 44.dp)
@@ -1723,8 +1724,8 @@ fun PlayerScreen(
 
         AnimatedVisibility(
             visible = seekOverlayVisible,
-            enter = fadeIn(animationSpec = tween(150)),
-            exit = fadeOut(animationSpec = tween(150)),
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick)),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .reportSubtitleClearance(subtitleClearanceGapPx) { seekClearancePx = it }
@@ -1781,8 +1782,8 @@ fun PlayerScreen(
 
         AnimatedVisibility(
             visible = uiState.showPartyPanel && uiState.error == null,
-            enter = fadeIn(animationSpec = tween(120)),
-            exit = fadeOut(animationSpec = tween(120))
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
         ) {
             Box(
                 modifier = Modifier
@@ -1794,11 +1795,11 @@ fun PlayerScreen(
         AnimatedVisibility(
             visible = uiState.showPartyPanel && uiState.error == null,
             enter = slideInHorizontally(
-                animationSpec = tween(220),
+                animationSpec = tween(FetchMotion.tokens.durations.fast),
                 initialOffsetX = { it }
             ),
             exit = slideOutHorizontally(
-                animationSpec = tween(220),
+                animationSpec = tween(FetchMotion.tokens.durations.fast),
                 targetOffsetX = { it }
             )
         ) {
@@ -1844,8 +1845,8 @@ fun PlayerScreen(
         // Subtitle style panel scrim
         AnimatedVisibility(
             visible = uiState.showSubtitleStylePanel && uiState.error == null,
-            enter = fadeIn(animationSpec = tween(120)),
-            exit = fadeOut(animationSpec = tween(120))
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
         ) {
             Box(
                 modifier = Modifier
@@ -1858,11 +1859,11 @@ fun PlayerScreen(
         AnimatedVisibility(
             visible = uiState.showSubtitleStylePanel && uiState.error == null,
             enter = slideInVertically(
-                animationSpec = tween(220),
+                animationSpec = tween(FetchMotion.tokens.durations.fast),
                 initialOffsetY = { -it }
             ),
             exit = slideOutVertically(
-                animationSpec = tween(220),
+                animationSpec = tween(FetchMotion.tokens.durations.fast),
                 targetOffsetY = { -it }
             )
         ) {
@@ -2590,7 +2591,7 @@ internal fun PlayerControlsOverlay(
 
             AnimatedVisibility(
                 visible = !uiState.isPlaying && !uiState.currentStreamName.isNullOrBlank(),
-                enter = fadeIn(animationSpec = tween(durationMillis = 220)),
+                enter = fadeIn(animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast)),
                 exit = fadeOut(animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast))
             ) {
                 Text(
@@ -2812,9 +2813,9 @@ internal fun PlayerControlsOverlay(
                         initialOffsetX = { it / 2 }
                     ) + fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
                     exit = slideOutHorizontally(
-                        animationSpec = tween(160),
+                        animationSpec = tween(FetchMotion.tokens.durations.fast),
                         targetOffsetX = { it / 2 }
-                    ) + fadeOut(animationSpec = tween(160))
+                    ) + fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
@@ -3013,7 +3014,7 @@ private fun ReportControlButton(
                 color = Color.White,
                 maxLines = 1,
                 modifier = Modifier
-                    .background(Color.Black.copy(alpha = 0.78f), RoundedCornerShape(5.dp))
+                    .background(Color.Black.copy(alpha = 0.78f), RoundedCornerShape(FetchRadii.tokens.xs))
                     .padding(horizontal = 8.dp, vertical = 3.dp)
             )
         }
@@ -3258,12 +3259,12 @@ private fun ProgressBar(
 
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
-        animationSpec = tween(100),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "progress"
     )
     val animatedBufferedProgress by animateFloatAsState(
         targetValue = bufferedProgress,
-        animationSpec = tween(200),
+        animationSpec = tween(FetchMotion.tokens.durations.fast),
         label = "bufferedProgress"
     )
     var isFocused by remember { mutableStateOf(false) }
@@ -3377,7 +3378,7 @@ private fun ProgressBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(if (isFocused) FetchTheme.spacing.md else FetchTheme.spacing.sm)
-                .clip(RoundedCornerShape(3.dp))
+                .clip(RoundedCornerShape(FetchRadii.tokens.xs))
                 .background(
                     if (isFocused) Color.White.copy(alpha = 0.45f)
                     else Color.White.copy(alpha = 0.3f)
@@ -3588,7 +3589,7 @@ private fun StreamSourceIndicator(text: String) {
         modifier = Modifier
             .background(
                 color = Color.Black.copy(alpha = 0.82f),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
             )
             .padding(horizontal = 14.dp, vertical = FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
@@ -3610,7 +3611,7 @@ private fun PlayerEngineSwitchIndicator(
 ) {
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
             .background(Color.Black.copy(alpha = 0.86f))
             .padding(horizontal = 22.dp, vertical = FetchTheme.spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -3669,7 +3670,7 @@ private fun SubtitleDelayOverlay(
     Column(
         modifier = Modifier
             .fillMaxWidth(0.6f)
-            .clip(RoundedCornerShape(26.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.panel))
             .background(Color(0xCC0F0F0F))
             .padding(horizontal = 26.dp, vertical = 20.dp)
     ) {
@@ -4186,7 +4187,7 @@ private fun MoreActionItem(
             containerColor = FetchTheme.colors.BackgroundCard,
             focusedContainerColor = FetchTheme.colors.FocusBackground
         ),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(10.dp))
+        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.sm))
     ) {
         Text(
             text = text,

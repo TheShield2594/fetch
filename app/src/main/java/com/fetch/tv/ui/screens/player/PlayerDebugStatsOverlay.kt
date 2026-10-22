@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchRadii
 import android.content.Context
 import android.net.TrafficStats
 import android.os.Build
@@ -124,7 +125,7 @@ internal fun PlayerDebugStatsOverlay(
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
             .background(Color(0x99000000))
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp)

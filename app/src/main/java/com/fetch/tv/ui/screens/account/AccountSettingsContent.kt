@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.account
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.contentTextDirection
@@ -218,7 +219,7 @@ private fun SyncOverviewCard(overview: SyncOverview) {
                     .fillMaxWidth()
                     .background(
                         color = FetchTheme.colors.BackgroundElevated,
-                        shape = RoundedCornerShape(6.dp)
+                        shape = RoundedCornerShape(FetchRadii.tokens.sm)
                     )
                     .padding(horizontal = FetchTheme.spacing.sm, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -273,7 +274,7 @@ private fun SyncStatChip(label: String, value: String) {
 private fun ProfileSyncRow(profile: ProfileSyncStats) {
     val color = runCatching { Color(android.graphics.Color.parseColor(profile.avatarColorHex)) }
         .getOrDefault(FetchPrimitives.blue500)
-    val rowShape = RoundedCornerShape(6.dp)
+    val rowShape = RoundedCornerShape(FetchRadii.tokens.sm)
     var isFocused by remember { mutableStateOf(false) }
 
     Row(

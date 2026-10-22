@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.components.fetchCardProgress
 import com.fetch.tv.ui.components.FetchCardDefaults
 import android.view.KeyEvent as AndroidKeyEvent
@@ -135,11 +136,11 @@ fun SeasonTabs(
         regularSeasons + specials
     }
 
-    val tabShape = remember { RoundedCornerShape(20.dp) }
+    val tabShape = remember { RoundedCornerShape(FetchRadii.tokens.xxl) }
     val tabBorder = CardDefaults.border(
         focusedBorder = Border(
             border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-            shape = RoundedCornerShape(20.dp)
+            shape = RoundedCornerShape(FetchRadii.tokens.xxl)
         )
     )
     val tabScale = CardDefaults.scale(focusedScale = 1.0f)

@@ -18,6 +18,8 @@ data class FetchMotionDurations(
     val fast: Int,
     val medium: Int,
     val slow: Int,
+    /** Large, deliberate moves such as the detail hero growing to full screen. */
+    val long: Int,
     val overlay: Int,
     val sidebarLabelIn: Int,
     val sidebarLabelOut: Int,
@@ -67,6 +69,7 @@ object FetchMotion {
             fast = 180,
             medium = 350,
             slow = 450,
+            long = 600,
             overlay = 400,
             sidebarLabelIn = 125,
             sidebarLabelOut = 145,

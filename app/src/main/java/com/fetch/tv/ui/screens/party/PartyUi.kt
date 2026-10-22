@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.party
 
+import com.fetch.tv.ui.theme.FetchMotion
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
@@ -288,7 +289,7 @@ internal fun PulsingDot() {
     val alpha by transition.animateFloat(
         initialValue = 1f,
         targetValue = 0.25f,
-        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
+        animationSpec = infiniteRepeatable(tween(FetchMotion.tokens.durations.long), RepeatMode.Reverse),
         label = "pulsingDotAlpha",
     )
     Box(

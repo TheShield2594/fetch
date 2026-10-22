@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.MarqueeSpacing
@@ -86,7 +88,7 @@ private fun getBadgeImageLoader(context: android.content.Context): ImageLoader {
 }
 
 /** Shared shape instance — all badge chips use the same corner radius. */
-private val BadgeChipShape = RoundedCornerShape(6.dp)
+private val BadgeChipShape = RoundedCornerShape(FetchRadii.tokens.sm)
 
 /** Marquee scroll speed — matches FocusMarqueeText velocity for visual consistency. */
 private val MarqueeVelocity = 45.dp
@@ -107,7 +109,7 @@ fun StreamBadgeChips(
     val chipAlpha = if (animate) {
         val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
         androidx.compose.runtime.LaunchedEffect(Unit) {
-            alpha.animateTo(1f, animationSpec = androidx.compose.animation.core.tween(200))
+            alpha.animateTo(1f, animationSpec = androidx.compose.animation.core.tween(FetchMotion.tokens.durations.fast))
         }
         alpha.value
     } else {

@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.party
 
+import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -82,7 +83,7 @@ internal fun CodeSection(
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)) {
         AnimatedContent(
             targetState = connected,
-            transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(150)) },
+            transitionSpec = { fadeIn(tween(FetchMotion.tokens.durations.fast)) togetherWith fadeOut(tween(FetchMotion.tokens.durations.quick)) },
             label = "partyCodeLabel",
         ) { isConnected ->
             if (isConnected) {
@@ -140,7 +141,7 @@ internal fun MembersSection(
                 val appear = remember { MutableTransitionState(member.id in initialIds).apply { targetState = true } }
                 AnimatedVisibility(
                     visibleState = appear,
-                    enter = fadeIn(tween(240)) + expandVertically(tween(280)),
+                    enter = fadeIn(tween(FetchMotion.tokens.durations.fast)) + expandVertically(tween(FetchMotion.tokens.durations.medium)),
                 ) {
                     MemberRow(
                         party = party,
@@ -239,8 +240,8 @@ private fun MemberRow(
             AnimatedContent(
                 targetState = status,
                 transitionSpec = {
-                    (fadeIn(tween(200)) + slideInVertically(tween(240)) { it / 2 }) togetherWith
-                        (fadeOut(tween(120)) + slideOutVertically(tween(160)) { -it / 2 })
+                    (fadeIn(tween(FetchMotion.tokens.durations.fast)) + slideInVertically(tween(FetchMotion.tokens.durations.fast)) { it / 2 }) togetherWith
+                        (fadeOut(tween(FetchMotion.tokens.durations.quick)) + slideOutVertically(tween(FetchMotion.tokens.durations.fast)) { -it / 2 })
                 },
                 label = "partyMemberStatus",
             ) { label ->
@@ -305,7 +306,7 @@ private fun SeatDots(filled: Int, total: Int) {
         repeat(total) { index ->
             val color by animateColorAsState(
                 targetValue = if (index < filled) FetchTheme.colors.Secondary else FetchTheme.colors.Border,
-                animationSpec = tween(300),
+                animationSpec = tween(FetchMotion.tokens.durations.medium),
                 label = "seatDot",
             )
             Box(

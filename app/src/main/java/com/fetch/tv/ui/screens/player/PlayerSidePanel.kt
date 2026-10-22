@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -48,8 +49,8 @@ internal fun PlayerSidePanel(
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedVisibility(
             visible = visible,
-            enter = fadeIn(animationSpec = tween(120)),
-            exit = fadeOut(animationSpec = tween(120))
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
         ) {
             Box(
                 modifier = Modifier
@@ -59,8 +60,8 @@ internal fun PlayerSidePanel(
         }
         AnimatedVisibility(
             visible = visible,
-            enter = slideInHorizontally(animationSpec = tween(220), initialOffsetX = { it }),
-            exit = slideOutHorizontally(animationSpec = tween(220), targetOffsetX = { it }),
+            enter = slideInHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), initialOffsetX = { it }),
+            exit = slideOutHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), targetOffsetX = { it }),
             modifier = Modifier.align(Alignment.CenterEnd)
         ) {
             Box(

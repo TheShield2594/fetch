@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -156,8 +157,8 @@ fun SkipIntroButton(
 
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(tween(300)) + scaleIn(tween(300), initialScale = 0.8f),
-        exit = fadeOut(tween(200)) + scaleOut(tween(200), targetScale = 0.8f),
+        enter = fadeIn(tween(FetchMotion.tokens.durations.medium)) + scaleIn(tween(FetchMotion.tokens.durations.medium), initialScale = 0.8f),
+        exit = fadeOut(tween(FetchMotion.tokens.durations.fast)) + scaleOut(tween(FetchMotion.tokens.durations.fast), targetScale = 0.8f),
         modifier = modifier
     ) {
         Card(

@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.AnimatedVisibility
@@ -264,8 +266,8 @@ fun TrailerSeekOverlayHost(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(150)),
-        exit = fadeOut(animationSpec = tween(150)),
+        enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
+        exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick)),
         modifier = modifier
     ) {
         TrailerSeekOverlay(
@@ -287,7 +289,7 @@ fun TrailerSeekOverlay(
     }
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
-        animationSpec = tween(100),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "trailerSeekProgress"
     )
 
@@ -303,14 +305,14 @@ fun TrailerSeekOverlay(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp))
+                    .clip(RoundedCornerShape(FetchRadii.tokens.xs))
                     .background(Color.White.copy(alpha = 0.3f))
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(animatedProgress)
-                        .clip(RoundedCornerShape(3.dp))
+                        .clip(RoundedCornerShape(FetchRadii.tokens.xs))
                         .background(FetchTheme.colors.Secondary)
                 )
             }

@@ -5,6 +5,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -293,8 +294,8 @@ internal fun StreamSourcesSidePanel(
 
             AnimatedVisibility(
                 visible = uiState.sourceChips.isNotEmpty() || uiState.sourceAvailableAddons.isNotEmpty(),
-                enter = fadeIn(animationSpec = tween(200)),
-                exit = fadeOut(animationSpec = tween(120))
+                enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+                exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
             ) {
                 Box(modifier = Modifier.onFocusChanged { chipsHasFocus = it.hasFocus }) {
                     AddonFilterChips(

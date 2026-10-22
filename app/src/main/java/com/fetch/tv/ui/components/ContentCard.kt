@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -451,7 +453,7 @@ fun ContentCard(
                 val trailerCoverAlpha = if (shouldPlayTrailerPreview) {
                     val alpha by animateFloatAsState(
                         targetValue = if (!trailerFirstFrameRendered) 1f else 0f,
-                        animationSpec = tween(durationMillis = 250),
+                        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
                         label = "trailerCoverAlpha"
                     )
                     alpha
@@ -682,7 +684,7 @@ fun ContentCard(
                                             FetchTheme.spacing.hairline,
                                             FetchTheme.extendedColors.textSecondary.copy(alpha = 0.55f)
                                         ),
-                                        shape = RoundedCornerShape(4.dp)
+                                        shape = RoundedCornerShape(FetchRadii.tokens.xs)
                                     )
                                     .padding(horizontal = FetchTheme.spacing.sm, vertical = 2.dp),
                                 contentAlignment = Alignment.Center

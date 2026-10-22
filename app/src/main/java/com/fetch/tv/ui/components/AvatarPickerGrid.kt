@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.animateColorAsState
@@ -207,7 +209,7 @@ private fun CategoryTab(
             isFocused -> FetchTheme.colors.FocusBackground
             else -> Color.White.copy(alpha = 0.06f)
         },
-        animationSpec = tween(150),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "categoryBg"
     )
     val borderColor by animateColorAsState(
@@ -217,7 +219,7 @@ private fun CategoryTab(
             isSelected -> FetchTheme.colors.Secondary
             else -> FetchTheme.colors.Border
         },
-        animationSpec = tween(150),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "categoryBorder"
     )
     val borderWidth by animateDpAsState(
@@ -227,12 +229,12 @@ private fun CategoryTab(
             isSelected -> FetchTheme.spacing.hairline
             else -> FetchTheme.spacing.hairline
         },
-        animationSpec = tween(150),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "categoryBorderWidth"
     )
     val textColor by animateColorAsState(
         targetValue = if (isSelected || isFocused) Color.White else FetchTheme.colors.TextSecondary,
-        animationSpec = tween(150),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "categoryText"
     )
 
@@ -246,7 +248,7 @@ private fun CategoryTab(
                     Modifier
                 }
             )
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
             .background(bgColor)
             .border(
                 border = if (isFocused) {
@@ -254,7 +256,7 @@ private fun CategoryTab(
                 } else {
                     BorderStroke(borderWidth, borderColor)
                 },
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
             )
             .onFocusChanged { isFocused = it.isFocused }
             .clickable(
@@ -292,7 +294,7 @@ private fun AvatarGridItem(
 
     val scale by animateFloatAsState(
         targetValue = if (isFocused) 1.1f else 1f,
-        animationSpec = tween(150),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "avatarScale"
     )
     val borderWidth by animateDpAsState(
@@ -301,7 +303,7 @@ private fun AvatarGridItem(
             isFocused -> FetchTheme.spacing.xxs
             else -> FetchTheme.spacing.none
         },
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "avatarBorder"
     )
     Box(

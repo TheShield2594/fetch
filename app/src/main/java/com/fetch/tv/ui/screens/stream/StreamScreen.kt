@@ -2,6 +2,8 @@
 
 package com.fetch.tv.ui.screens.stream
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.streams.ranking.ExclusionReason
 import com.fetch.tv.core.streams.ranking.label
@@ -593,7 +595,7 @@ internal fun StreamBackdrop(
     }
     val imageAlpha by animateFloatAsState(
         targetValue = if (isLoading) 0.7f else 0.5f,
-        animationSpec = tween(500),
+        animationSpec = tween(FetchMotion.tokens.durations.slow),
         label = "backdrop_image_alpha"
     )
 
@@ -884,8 +886,8 @@ private fun RightStreamSection(
         Box(modifier = Modifier.height(chipRowHeight)) {
             androidx.compose.animation.AnimatedVisibility(
                 visible = sourceChips.isNotEmpty() || (!isLoading && availableAddons.isNotEmpty()),
-                enter = fadeIn(animationSpec = tween(300)),
-                exit = fadeOut(animationSpec = tween(300))
+                enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.medium)),
+                exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.medium))
             ) {
                 AddonFilterChips(
                     addons = availableAddons,
@@ -909,12 +911,12 @@ private fun RightStreamSection(
 
         androidx.compose.animation.AnimatedVisibility(
             visible = enter,
-            enter = fadeIn(animationSpec = tween(260)) +
+            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)) +
                 slideInHorizontally(
-                    animationSpec = tween(260),
+                    animationSpec = tween(FetchMotion.tokens.durations.fast),
                     initialOffsetX = { fullWidth -> (fullWidth * 0.06f).toInt() }
                 ),
-            exit = fadeOut(animationSpec = tween(120))
+            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
         ) {
             // Content area
             Box(
@@ -1485,7 +1487,7 @@ internal fun StreamCard(
                     if (markedLabel != null) {
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(999.dp))
+                                .clip(RoundedCornerShape(FetchRadii.tokens.full))
                                 .background(FetchTheme.colors.Primary.copy(alpha = 0.2f))
                                 .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
                         ) {

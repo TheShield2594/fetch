@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.ambient
 
+import com.fetch.tv.ui.theme.FetchMotion
 import android.os.SystemClock
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -57,8 +58,8 @@ fun AmbientModeHost(
 
     AnimatedVisibility(
         visible = isShowing,
-        enter = fadeIn(tween(900)),
-        exit = fadeOut(tween(400))
+        enter = fadeIn(tween(FetchMotion.tokens.durations.long)),
+        exit = fadeOut(tween(FetchMotion.tokens.durations.slow))
     ) {
         AmbientSlideshow(
             slides = slides,

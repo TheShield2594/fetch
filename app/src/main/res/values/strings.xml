@@ -165,6 +165,8 @@
     <string name="cw_action_go_to_details">Go to details</string>
     <string name="cw_action_start_from_beginning">Start from beginning</string>
     <string name="cw_action_remove">Remove</string>
+    <string name="cw_action_add_to_queue">Add to queue</string>
+    <string name="cw_action_remove_from_queue">Remove from queue</string>
     <string name="cw_dialog_subtitle">Choose what you want to do with this item.</string>
     <string name="home_poster_dialog_subtitle">Title actions</string>
 
@@ -1612,6 +1614,15 @@
     <string name="parental_severity_moderate">Moderate</string>
     <string name="parental_severity_mild">Mild</string>
     <string name="player_ends_at">Ends at %1$s</string>
+    <string name="player_queue">Queue</string>
+    <string name="player_queue_empty">Nothing in your queue. Long-press a title in Continue Watching and choose Add to queue.</string>
+    <string name="player_up_next_in_queue">Up next in queue</string>
+    <string name="player_queue_move_up">Move up</string>
+    <string name="player_queue_move_down">Move down</string>
+    <string name="player_queue_remove">Remove from queue</string>
+    <string name="player_queue_playing_now">Playing now</string>
+    <string name="player_seek_back_10">Back 10 seconds</string>
+    <string name="player_seek_forward_30">Forward 30 seconds</string>
     <string name="player_live_watched">LIVE  %1$s</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->

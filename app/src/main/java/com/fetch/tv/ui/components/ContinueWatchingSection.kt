@@ -1121,7 +1121,9 @@ fun ContinueWatchingOptionsDialog(
     onDetails: () -> Unit,
     onStartFromBeginning: () -> Unit = {},
     showPlayManually: Boolean = false,
-    onPlayManually: () -> Unit = {}
+    onPlayManually: () -> Unit = {},
+    isQueued: Boolean? = null,
+    onToggleQueue: () -> Unit = {}
 ) {
     val isPlayEnabled = LocalPlaybackAvailability.current.canStream(item)
     val title = when (item) {
@@ -1176,6 +1178,24 @@ fun ContinueWatchingOptionsDialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.cw_action_start_from_beginning))
+            }
+        }
+
+        // Null when the queue is not offered for this item (for example an episode not out yet).
+        if (isQueued != null && isPlayEnabled) {
+            Button(
+                onClick = onToggleQueue,
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    stringResource(
+                        if (isQueued) R.string.cw_action_remove_from_queue else R.string.cw_action_add_to_queue
+                    )
+                )
             }
         }
 

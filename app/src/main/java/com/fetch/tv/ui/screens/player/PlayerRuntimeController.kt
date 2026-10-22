@@ -76,6 +76,8 @@ class PlayerRuntimeController(
     internal val playerSettingsDataStore: PlayerSettingsDataStore,
     internal val deviceLocalPlayerPreferences: DeviceLocalPlayerPreferences,
     internal val streamLinkCacheDataStore: StreamLinkCacheDataStore,
+    internal val bestMatchCacheDataStore: com.fetch.tv.data.local.BestMatchCacheDataStore,
+    internal val episodeQueueStore: com.fetch.tv.data.local.EpisodeQueueStore,
     internal val streamBadgeSettingsDataStore: StreamBadgeSettingsDataStore,
     internal val bingeGroupCacheDataStore: BingeGroupCacheDataStore,
     internal val layoutPreferenceDataStore: com.fetch.tv.data.local.LayoutPreferenceDataStore,
@@ -743,6 +745,7 @@ class PlayerRuntimeController(
         observeDeviceLocalTransparentLetterbox()
         observeDeviceLocalTunneledSurfaceFill()
         observePlayerStatsHud()
+        observeEpisodeQueue()
     }
 
     private fun observeTorrentSettings() {

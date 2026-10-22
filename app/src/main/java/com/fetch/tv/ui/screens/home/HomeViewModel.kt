@@ -90,6 +90,8 @@ class HomeViewModel @Inject constructor(
     internal val tvRecommendationManager: TvRecommendationManager,
     internal val serverCatalog: ServerCatalog,
     internal val parentalControls: com.fetch.tv.core.parental.ParentalControls,
+    internal val bestMatchCacheDataStore: com.fetch.tv.data.local.BestMatchCacheDataStore,
+    internal val episodeQueueStore: com.fetch.tv.data.local.EpisodeQueueStore,
     internal val metaPreviewEnricher: MetaPreviewEnricher = MetaPreviewEnricher(
         tmdbService,
         tmdbMetadataService,
@@ -129,6 +131,22 @@ class HomeViewModel @Inject constructor(
 
     fun beginShuffleHomeVisit() {
         shuffleHomeRefresh.update { it.copy(visit = it.visit + 1) }
+    }
+
+    /** Last Best match per video; the hero reads only this, so focus moves query no addon. */
+    val cachedBestMatches: kotlinx.coroutines.flow.Flow<Map<String, com.fetch.tv.data.local.CachedBestMatch>>
+        get() = bestMatchCacheDataStore.entries
+
+    /** Videos in the profile's episode queue, for the Continue Watching long-press option. */
+    val queuedVideoIds: kotlinx.coroutines.flow.Flow<Set<String>>
+        get() = episodeQueueStore.items.map { items -> items.mapTo(HashSet()) { it.videoId } }
+
+    fun toggleQueued(item: ContinueWatchingItem) {
+        val queueItem = item.queueItemOrNull() ?: return
+        viewModelScope.launch {
+            val queued = episodeQueueStore.items.first().any { it.videoId == queueItem.videoId }
+            if (queued) episodeQueueStore.remove(queueItem.videoId) else episodeQueueStore.add(queueItem)
+        }
     }
 
     internal val _modernHomePresentation = MutableStateFlow(ModernHomePresentationState())

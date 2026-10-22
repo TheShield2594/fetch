@@ -1257,6 +1257,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                                 is PlayerStartupPlaybackPolicy.ReadyAction.TunneledFirstReady -> {
                                     mediaSourceFactory.unlockStartupPrefetch()
                                     playbackAnalyticsDiagnostics.onSyntheticFirstFrame(this@apply)
+                                    onCurrentStreamFirstFrame()
                                     if (_uiState.value.postPlayDismissedForCurrentEpisode) {
                                         _uiState.update { it.copy(postPlayDismissedForCurrentEpisode = false) }
                                     }
@@ -1428,6 +1429,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                         }
                         refreshStableProgressResetGate()
                         cancelFirstFrameWatchdog()
+                        if (isFirstFrame) onCurrentStreamFirstFrame()
                         _uiState.update {
                             it.copy(
                                 showLoadingOverlay = false,

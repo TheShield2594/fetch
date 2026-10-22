@@ -66,7 +66,13 @@ data class HeroPreview(
      *  even after navigation away and back. */
     val frozenBackdropUrl: String? = null,
     /** Same idea for the logo URL. */
-    val frozenLogoUrl: String? = null
+    val frozenLogoUrl: String? = null,
+    /** Continue Watching only: what OK does ("Resume S2 E6"), shown as the hero's button. */
+    val resumeActionText: String? = null,
+    /** Continue Watching only: time left ("38m left"), the first part of the spec line. */
+    val resumeTimeLeftText: String? = null,
+    /** Continue Watching only: key of this video in the Best match cache. */
+    val bestMatchKey: String? = null
 )
 
 @Immutable
@@ -346,6 +352,14 @@ internal fun buildContinueWatchingItem(
                 isSeries && episodeTitle != null -> episodeTitle
                 else -> localizedContentType(context, item.progress.contentType)
             }
+            val resumeLabel = context.getString(R.string.cw_resume)
+            val timeLeft = formatContinueWatchingProgressLabel(
+                progress = item.progress,
+                resumeLabel = resumeLabel,
+                percentWatchedLabel = context.getString(R.string.cw_percent_watched),
+                hoursMinLeftLabel = context.getString(R.string.cw_hours_min_left),
+                minLeftLabel = context.getString(R.string.cw_min_left)
+            ).takeIf { it != resumeLabel }
             HeroPreview(
                 title = item.progress.name,
                 logo = item.progress.logo,
@@ -353,7 +367,18 @@ internal fun buildContinueWatchingItem(
                 contentTypeText = episodeLabel,
                 isSeries = isSeries,
                 yearText = extractYearOrRange(item.releaseInfo),
-                secondaryHighlightText = secondaryHighlightText,
+                // The time left moves to the spec line under the Resume button.
+                secondaryHighlightText = null,
+                resumeActionText = if (isSeries && s != null && e != null) {
+                    context.getString(R.string.detail_btn_resume_episode, s, e)
+                } else {
+                    context.getString(R.string.detail_btn_resume)
+                },
+                resumeTimeLeftText = timeLeft,
+                bestMatchKey = com.fetch.tv.data.local.BestMatchCacheDataStore.contentKey(
+                    item.progress.contentType,
+                    item.progress.videoId
+                ),
                 imdbText = item.episodeImdbRating
                     ?.takeIf { !isSeries || detailImdbRatingsVisibility.showEpisodeRating(isWatched = item.progress.isCompleted()) }
                     ?.let { String.format("%.1f", it) },
@@ -386,6 +411,16 @@ internal fun buildContinueWatchingItem(
                 isSeries = true,
                 yearText = extractYearOrRange(item.info.releaseInfo),
                 secondaryHighlightText = secondaryHighlightText,
+                resumeActionText = if (item.info.hasAired) {
+                    context.getString(R.string.detail_btn_play_episode, item.info.season, item.info.episode)
+                } else {
+                    null
+                },
+                bestMatchKey = if (item.info.hasAired) {
+                    com.fetch.tv.data.local.BestMatchCacheDataStore.contentKey(item.info.contentType, item.info.videoId)
+                } else {
+                    null
+                },
                 imdbText = item.info.imdbRating
                     ?.takeIf { detailImdbRatingsVisibility.showEpisodeRating(isWatched = false) }
                     ?.let { String.format("%.1f", it) },
@@ -719,5 +754,37 @@ internal fun ContinueWatchingItem.episode(): Int? {
     return when (this) {
         is ContinueWatchingItem.InProgress -> progress.episode
         is ContinueWatchingItem.NextUp -> info.seedEpisode
+    }
+}
+
+/** What "Add to queue" stores for this card; null for an episode that is not out yet. */
+internal fun ContinueWatchingItem.queueItemOrNull(): com.fetch.tv.data.local.QueueItem? = when (this) {
+    is ContinueWatchingItem.InProgress -> com.fetch.tv.data.local.QueueItem(
+        contentId = progress.contentId,
+        contentType = progress.contentType,
+        videoId = progress.videoId,
+        name = progress.name,
+        season = progress.season,
+        episode = progress.episode,
+        episodeTitle = progress.episodeTitle,
+        poster = progress.poster,
+        backdrop = progress.backdrop,
+        logo = progress.logo
+    )
+    is ContinueWatchingItem.NextUp -> if (!info.hasAired) {
+        null
+    } else {
+        com.fetch.tv.data.local.QueueItem(
+            contentId = info.contentId,
+            contentType = info.contentType,
+            videoId = info.videoId,
+            name = info.name,
+            season = info.season,
+            episode = info.episode,
+            episodeTitle = info.episodeTitle,
+            poster = info.thumbnail ?: info.poster,
+            backdrop = info.backdrop,
+            logo = info.logo
+        )
     }
 }

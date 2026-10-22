@@ -92,6 +92,7 @@ class HomeViewModel @Inject constructor(
     internal val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     internal val bestMatchCacheDataStore: com.fetch.tv.data.local.BestMatchCacheDataStore,
     internal val episodeQueueStore: com.fetch.tv.data.local.EpisodeQueueStore,
+    internal val becauseYouWatchedService: com.fetch.tv.core.recommendations.BecauseYouWatchedService,
     internal val metaPreviewEnricher: MetaPreviewEnricher = MetaPreviewEnricher(
         tmdbService,
         tmdbMetadataService,
@@ -394,6 +395,7 @@ class HomeViewModel @Inject constructor(
             loadCustomCatalogTitles()
             observeLibraryState()
             observeTmdbSettings()
+            observeBecauseYouWatchedPipeline()
             observeMdbListSettings()
             observeBlurUnwatchedEpisodes()
             observeProgressSourceChanges()

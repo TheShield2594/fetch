@@ -234,6 +234,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">A TMDB adatai alapján</string>
     <string name="detail_more_like_this_powered_by_trakt">A Trakt adatai alapján</string>
     <string name="detail_more_like_this_powered_by_simkl">A Simkl adatai alapján</string>
+    <string name="because_you_watched_row_title">Mert megnézted: %1$s</string>
+    <string name="because_you_watched_reason_collection">Szintén innen: %1$s</string>
+    <string name="because_you_watched_reason_director">Ugyanaz a rendező: %1$s</string>
+    <string name="because_you_watched_reason_creator">Ugyanaz az alkotó: %1$s</string>
+    <string name="because_you_watched_reason_writer">Ugyanaz az író: %1$s</string>
+    <string name="because_you_watched_reason_cast">Szintén szerepel: %1$s</string>
     <string name="detail_comments_title">Vélemények</string>
     <string name="detail_comments_subtitle">Vélemények a Traktról</string>
     <string name="detail_comments_subtitle_episode">Vélemények a Traktról (S%1$dE%2$d)</string>

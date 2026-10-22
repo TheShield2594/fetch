@@ -2317,4 +2317,10 @@
     <string name="subtitle_style_text_opacity_hdr">Opacidade do texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Este é um stream torrent e o Fetch não tem um motor de torrent integrado. Ativa um serviço debrid em Definições → Debrid, ou abre-o num leitor externo.</string>
+    <string name="because_you_watched_row_title">Porque viste %1$s</string>
+    <string name="because_you_watched_reason_collection">Também em %1$s</string>
+    <string name="because_you_watched_reason_director">Também realizado por %1$s</string>
+    <string name="because_you_watched_reason_creator">Também criado por %1$s</string>
+    <string name="because_you_watched_reason_writer">Também escrito por %1$s</string>
+    <string name="because_you_watched_reason_cast">Também com %1$s</string>
 </resources>

@@ -2900,4 +2900,10 @@
     <string name="subtitle_style_text_opacity_hdr">文字不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">這是 torrent 串流，而 Fetch 沒有內建 torrent 引擎。請在「設定 → Debrid」中啟用 debrid 服務，或在外部播放器中開啟。</string>
+    <string name="because_you_watched_row_title">因為您看過《%1$s》</string>
+    <string name="because_you_watched_reason_collection">同系列：%1$s</string>
+    <string name="because_you_watched_reason_director">同一導演：%1$s</string>
+    <string name="because_you_watched_reason_creator">同一創作者：%1$s</string>
+    <string name="because_you_watched_reason_writer">同一編劇：%1$s</string>
+    <string name="because_you_watched_reason_cast">同一演員：%1$s</string>
 </resources>

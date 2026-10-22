@@ -2843,4 +2843,10 @@
     <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Ovo je torent strim, a Fetch nema ugrađeni torent mehanizam. Uključite debrid uslugu u Podešavanja → Debrid ili ga otvorite u spoljnom plejeru.</string>
+    <string name="because_you_watched_row_title">Zato što ste gledali %1$s</string>
+    <string name="because_you_watched_reason_collection">Takođe iz: %1$s</string>
+    <string name="because_you_watched_reason_director">Isti režiser: %1$s</string>
+    <string name="because_you_watched_reason_creator">Isti autor: %1$s</string>
+    <string name="because_you_watched_reason_writer">Isti scenarista: %1$s</string>
+    <string name="because_you_watched_reason_cast">Takođe glumi %1$s</string>
 </resources>

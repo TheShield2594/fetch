@@ -1086,4 +1086,10 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="subtitle_style_text_opacity_hdr">Teksto neskaidrumas (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Tai torrent srautas, o „Fetch“ neturi integruoto torrent variklio. Įjunkite „Debrid“ paslaugą skiltyje „Nustatymai → Debrid“ arba atidarykite jį išoriniame grotuve.</string>
+    <string name="because_you_watched_row_title">Nes žiūrėjote: %1$s</string>
+    <string name="because_you_watched_reason_collection">Taip pat iš: %1$s</string>
+    <string name="because_you_watched_reason_director">Tas pats režisierius: %1$s</string>
+    <string name="because_you_watched_reason_creator">Tas pats kūrėjas: %1$s</string>
+    <string name="because_you_watched_reason_writer">Tas pats scenaristas: %1$s</string>
+    <string name="because_you_watched_reason_cast">Taip pat vaidina %1$s</string>
 </resources>

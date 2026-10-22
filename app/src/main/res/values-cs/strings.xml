@@ -2553,4 +2553,10 @@
     <string name="subtitle_style_text_opacity_hdr">Neprůhlednost textu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Toto je torrentový stream a Fetch nemá vestavěný torrentový engine. Zapněte debrid službu v Nastavení → Debrid, nebo jej otevřete v externím přehrávači.</string>
+    <string name="because_you_watched_row_title">Protože jste sledovali %1$s</string>
+    <string name="because_you_watched_reason_collection">Také z: %1$s</string>
+    <string name="because_you_watched_reason_director">Stejný režisér: %1$s</string>
+    <string name="because_you_watched_reason_creator">Stejný tvůrce: %1$s</string>
+    <string name="because_you_watched_reason_writer">Stejný scenárista: %1$s</string>
+    <string name="because_you_watched_reason_cast">Také hraje %1$s</string>
 </resources>

@@ -1083,4 +1083,10 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">कोई सीमा नहीं</string>
+    <string name="because_you_watched_row_title">क्योंकि आपने %1$s देखा</string>
+    <string name="because_you_watched_reason_collection">%1$s में भी</string>
+    <string name="because_you_watched_reason_director">वही डायरेक्टर: %1$s</string>
+    <string name="because_you_watched_reason_creator">वही क्रिएटर: %1$s</string>
+    <string name="because_you_watched_reason_writer">वही राइटर: %1$s</string>
+    <string name="because_you_watched_reason_cast">इसमें भी %1$s</string>
 </resources>

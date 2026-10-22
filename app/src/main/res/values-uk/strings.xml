@@ -2468,4 +2468,10 @@
     <string name="subtitle_style_text_opacity_hdr">Непрозорість тексту (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Це торент-потік, а Fetch не має вбудованого торент-рушія. Увімкніть сервіс debrid у Налаштування → Debrid або відкрийте його в зовнішньому плеєрі.</string>
+    <string name="because_you_watched_row_title">Тому що ви дивилися %1$s</string>
+    <string name="because_you_watched_reason_collection">Також із: %1$s</string>
+    <string name="because_you_watched_reason_director">Той самий режисер: %1$s</string>
+    <string name="because_you_watched_reason_creator">Той самий автор: %1$s</string>
+    <string name="because_you_watched_reason_writer">Той самий сценарист: %1$s</string>
+    <string name="because_you_watched_reason_cast">Також у ролях: %1$s</string>
 </resources>

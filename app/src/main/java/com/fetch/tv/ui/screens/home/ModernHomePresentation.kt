@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 internal data class ModernHomePresentationInput(
     val homeRows: List<HomeRow>,
     val catalogRows: List<CatalogRow>,
+    val becauseYouWatchedRows: List<CatalogRow> = emptyList(),
     val continueWatchingItems: List<ContinueWatchingItem>,
     val upcomingItems: List<ContinueWatchingItem>,
     val useLandscapePosters: Boolean,
@@ -336,6 +337,18 @@ internal fun buildModernHomePresentation(
 }
 
 private fun resolveVisibleHomeRows(input: ModernHomePresentationInput): List<HomeRow> {
+    val rows = resolveConfiguredHomeRows(input)
+    val recommendationRows = input.becauseYouWatchedRows
+        .filter { it.items.isNotEmpty() }
+        .map(HomeRow::Catalog)
+    if (recommendationRows.isEmpty()) return rows
+    val pinnedCount = rows.indexOfFirst { row ->
+        !(row is HomeRow.CollectionRow && row.collection.pinToTop)
+    }.let { if (it < 0) rows.size else it }
+    return rows.take(pinnedCount) + recommendationRows + rows.drop(pinnedCount)
+}
+
+private fun resolveConfiguredHomeRows(input: ModernHomePresentationInput): List<HomeRow> {
     if (input.homeRows.isNotEmpty()) {
         val latestCatalogByKey = input.catalogRows.associateBy(::catalogRowKey)
         return input.homeRows.mapNotNull { homeRow ->

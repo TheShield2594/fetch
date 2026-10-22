@@ -2738,4 +2738,10 @@
     <string name="subtitle_style_text_opacity_hdr">شفافية النص (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">هذا مصدر تورنت ولا يحتوي Fetch على محرك تورنت مدمج. فعّل خدمة ديبريد من الإعدادات ← Debrid، أو افتحه في مشغل خارجي.</string>
+    <string name="because_you_watched_row_title">لأنك شاهدت %1$s</string>
+    <string name="because_you_watched_reason_collection">ضمن %1$s أيضًا</string>
+    <string name="because_you_watched_reason_director">من إخراج %1$s أيضًا</string>
+    <string name="because_you_watched_reason_creator">من تأليف %1$s أيضًا</string>
+    <string name="because_you_watched_reason_writer">من كتابة %1$s أيضًا</string>
+    <string name="because_you_watched_reason_cast">بطولة %1$s أيضًا</string>
 </resources>

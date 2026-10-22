@@ -2432,4 +2432,10 @@
     <string name="subtitle_style_text_opacity_hdr">Непрозрачност на текста (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="torrent_engine_unavailable">Това е торент поток, а Fetch няма вграден торент двигател. Включи debrid услуга в Настройки → Debrid или го отвори във външен плейър.</string>
+    <string name="because_you_watched_row_title">Защото гледахте %1$s</string>
+    <string name="because_you_watched_reason_collection">Също от: %1$s</string>
+    <string name="because_you_watched_reason_director">Същият режисьор: %1$s</string>
+    <string name="because_you_watched_reason_creator">Същият създател: %1$s</string>
+    <string name="because_you_watched_reason_writer">Същият сценарист: %1$s</string>
+    <string name="because_you_watched_reason_cast">Също с %1$s</string>
 </resources>

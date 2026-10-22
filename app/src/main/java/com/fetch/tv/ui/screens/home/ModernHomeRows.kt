@@ -1517,7 +1517,9 @@ private fun ModernCarouselCard(
             }
         }
 
-        if (showLabels && !isBackdropExpanded && item.title.isNotBlank()) {
+        // A recommendation's reason is the point of its card, so it shows even with labels off.
+        val hasRecommendationReason = !item.metaPreview?.recommendationReason.isNullOrBlank()
+        if ((showLabels || hasRecommendationReason) && !isBackdropExpanded && item.title.isNotBlank()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

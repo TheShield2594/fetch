@@ -2264,4 +2264,10 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Kein Limit</string>
+    <string name="because_you_watched_row_title">Weil Sie %1$s gesehen haben</string>
+    <string name="because_you_watched_reason_collection">Auch in %1$s</string>
+    <string name="because_you_watched_reason_director">Auch Regie: %1$s</string>
+    <string name="because_you_watched_reason_creator">Auch von %1$s</string>
+    <string name="because_you_watched_reason_writer">Auch Drehbuch: %1$s</string>
+    <string name="because_you_watched_reason_cast">Auch mit %1$s</string>
 </resources>

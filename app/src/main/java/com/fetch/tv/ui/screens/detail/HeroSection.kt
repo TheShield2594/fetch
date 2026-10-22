@@ -1,5 +1,8 @@
 package com.fetch.tv.ui.screens.detail
 
+import androidx.tv.material3.LocalContentColor
+import com.fetch.tv.core.streams.SpecLine
+import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.theme.FetchMotion
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -486,12 +489,17 @@ internal fun PlayButton(
                         enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
                         exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
                     ) {
-                        Text(
-                            text = specLine.orEmpty(),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                            maxLines = 1,
-                            modifier = Modifier.alpha(if (bestMatch?.isFinal == true) 1f else 0.7f)
-                        )
+                        // The accent would vanish on the accent button, so Cached keeps the content colour.
+                        val contentColor = LocalContentColor.current
+                        specLine?.let { line ->
+                            SpecStrip(
+                                line = line,
+                                style = FetchTheme.textStyles.spec.copy(fontWeight = FontWeight.SemiBold),
+                                color = contentColor,
+                                cachedColor = contentColor,
+                                modifier = Modifier.alpha(if (bestMatch?.isFinal == true) 1f else 0.7f)
+                            )
+                        }
                     }
                 }
             }
@@ -968,10 +976,9 @@ private fun MetaInfoDivider() {
 
 /** "4K · DV P8 · TrueHD Atmos · 18.2 GB · Cached", the file Best match will start. */
 @Composable
-private fun rememberBestMatchSpecLine(preview: com.fetch.tv.core.streams.BestMatchPreview): String? {
+private fun rememberBestMatchSpecLine(preview: com.fetch.tv.core.streams.BestMatchPreview): SpecLine? {
     val cachedLabel = stringResource(R.string.best_match_cached)
     return remember(preview, cachedLabel) {
-        val parts = preview.labels + listOfNotNull(cachedLabel.takeIf { preview.isCached })
-        parts.takeIf { it.isNotEmpty() }?.joinToString("  ·  ")
+        SpecLine.of(preview.labels, preview.isCached, cachedLabel)
     }
 }

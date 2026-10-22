@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.core.streams.SpecLine
+import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
@@ -699,17 +701,18 @@ internal fun heroResumeSpecLine(
     timeLeftText: String?,
     cachedMatch: com.fetch.tv.data.local.CachedBestMatch?,
     cachedLabel: String
-): String? = buildList {
-    timeLeftText?.takeIf { it.isNotBlank() }?.let(::add)
-    cachedMatch?.labels?.filter { it.isNotBlank() }?.let(::addAll)
-    if (cachedMatch?.isCached == true) add(cachedLabel)
-}.takeIf { it.isNotEmpty() }?.joinToString(separator = " · ")
+): SpecLine? = SpecLine.of(
+    labels = cachedMatch?.labels.orEmpty(),
+    isCached = cachedMatch?.isCached == true,
+    cachedLabel = cachedLabel,
+    leading = timeLeftText
+)
 
 /** Not focusable: it names what OK on the focused Continue Watching card does. */
 @Composable
 private fun HeroResumeRow(
     actionText: String,
-    specLine: String?,
+    specLine: SpecLine?,
     textStyle: androidx.compose.ui.text.TextStyle,
     modifier: Modifier = Modifier
 ) {
@@ -739,12 +742,9 @@ private fun HeroResumeRow(
             )
         }
         specLine?.let { line ->
-            Text(
-                text = line,
-                style = textStyle,
-                color = FetchTheme.colors.TextSecondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            SpecStrip(
+                line = line,
+                style = textStyle.copy(fontFeatureSettings = FetchTheme.textStyles.spec.fontFeatureSettings)
             )
         }
     }

@@ -5,6 +5,8 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.core.streams.SpecLine
+import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.screens.detail.formatPlaybackTime
 import com.fetch.tv.ui.theme.FetchMotion
 
@@ -2705,12 +2707,12 @@ internal fun PlayerControlsOverlay(
                         .padding(horizontal = FetchTheme.spacing.md)
                 ) {
                     sourceSpecLine?.let { line ->
-                        Text(
-                            text = line,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.78f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                        SpecStrip(
+                            line = line,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontFeatureSettings = FetchTheme.textStyles.spec.fontFeatureSettings
+                            ),
+                            color = Color.White.copy(alpha = 0.78f)
                         )
                     }
                 }
@@ -2919,11 +2921,8 @@ private const val PLAYER_SEEK_BACK_MS = 10_000L
 private const val PLAYER_SEEK_FORWARD_MS = 30_000L
 
 /** "4K · DV · Atmos · Cached" for the playing stream, or null when nothing is known about it. */
-internal fun playerSourceSpecLine(labels: List<String>, isCached: Boolean, cachedLabel: String): String? =
-    buildList {
-        addAll(labels.filter { it.isNotBlank() })
-        if (isCached) add(cachedLabel)
-    }.takeIf { it.isNotEmpty() }?.joinToString(separator = " · ")
+internal fun playerSourceSpecLine(labels: List<String>, isCached: Boolean, cachedLabel: String): SpecLine? =
+    SpecLine.of(labels, isCached, cachedLabel)
 
 /** Focus targets of the buttons that open a side panel, so closing one returns focus there. */
 @Stable

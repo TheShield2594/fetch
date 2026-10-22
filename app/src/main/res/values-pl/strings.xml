@@ -1200,12 +1200,12 @@
     <string name="detail_more_like_this_powered_by_tmdb">Na podstawie danych TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">Na podstawie danych Trakt</string>
     <string name="detail_more_like_this_powered_by_simkl">Na podstawie danych Simkl</string>
-    <string name="because_you_watched_row_title">Ponieważ oglądasz: %1$s</string>
+    <string name="because_you_watched_row_title">Ponieważ obejrzałeś: %1$s</string>
     <string name="because_you_watched_reason_collection">Również z: %1$s</string>
     <string name="because_you_watched_reason_director">Ten sam reżyser: %1$s</string>
     <string name="because_you_watched_reason_creator">Ten sam twórca: %1$s</string>
     <string name="because_you_watched_reason_writer">Ten sam scenarzysta: %1$s</string>
-    <string name="because_you_watched_reason_cast">Również gra %1$s</string>
+    <string name="because_you_watched_reason_cast">Z udziałem: %1$s</string>
     <string name="library_filter_genre">Gatunek</string>
     <string name="library_filter_year">Rok</string>
     <string name="library_filter_watched">Obejrzane</string>

@@ -432,7 +432,11 @@ class HomeViewModel @Inject constructor(
                     cwLastBadgeEpisodeKeys = emptySet()
                     cwLastShowIdSiblings = emptyMap()
                     _uiState.update {
-                        it.copy(layoutPreferencesReady = false, continueWatchingItems = emptyList())
+                        it.copy(
+                            layoutPreferencesReady = false,
+                            continueWatchingItems = emptyList(),
+                            becauseYouWatchedRows = emptyList()
+                        )
                     }
                     clearFocusState()
                                 // Reset so the new profile's pipeline signals first completion correctly.

@@ -22,6 +22,7 @@ private const val MAX_BECAUSE_YOU_WATCHED_ROWS = 2
 private const val BECAUSE_YOU_WATCHED_DEBOUNCE_MS = 1_000L
 
 private data class BecauseYouWatchedInput(
+    val profileId: Int,
     val enabled: Boolean,
     val language: String,
     val localeTag: String,
@@ -48,13 +49,18 @@ internal fun HomeViewModel.observeBecauseYouWatchedPipeline() {
             .map { (it.enabled && it.useMoreLikeThis) to it.language }
             .distinctUntilChanged()
 
-        val rows = combine(seeds, settings, _currentLocaleTag) { seedList, (enabled, language), localeTag ->
-            BecauseYouWatchedInput(enabled, language, localeTag, seedList)
+        val rows = combine(
+            profileManager.activeProfileId,
+            seeds,
+            settings,
+            _currentLocaleTag
+        ) { profileId, seedList, (enabled, language), localeTag ->
+            BecauseYouWatchedInput(profileId, enabled, language, localeTag, seedList)
         }
             .distinctUntilChanged()
             .debounce(BECAUSE_YOU_WATCHED_DEBOUNCE_MS)
             .mapLatest { input ->
-                if (!input.enabled || input.seeds.isEmpty()) {
+                val builtRows = if (!input.enabled || input.seeds.isEmpty()) {
                     emptyList()
                 } else {
                     coroutineScope {
@@ -64,10 +70,16 @@ internal fun HomeViewModel.observeBecauseYouWatchedPipeline() {
                             .filterNotNull()
                     }
                 }
+                input.profileId to builtRows
             }
 
-        combine(rows, parentalControls.filterRevision) { builtRows, _ ->
-            builtRows.map(parentalControls::filterRow).filter { it.items.isNotEmpty() }
+        combine(rows, parentalControls.filterRevision) { (profileId, builtRows), _ ->
+            // Rows built for a profile that is no longer active must not reach the new one.
+            if (profileId != profileManager.activeProfileId.value) {
+                emptyList()
+            } else {
+                builtRows.map(parentalControls::filterRow).filter { it.items.isNotEmpty() }
+            }
         }.collect { filteredRows: List<CatalogRow> ->
             _uiState.update { state ->
                 if (state.becauseYouWatchedRows == filteredRows) state

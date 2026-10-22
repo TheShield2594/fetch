@@ -2800,4 +2800,9 @@
     <string name="empty_state_add_addon">একটি অ্যাডঅন যোগ করুন</string>
     <string name="source_group_other">অন্যান্য মান</string>
     <string name="source_group_passed_over">অটো-প্লে হবে না</string>
+    <string name="source_options_title">সেরা মিলকে শেখান</string>
+    <string name="source_options_subtitle">আপনার স্ট্রিম নিয়মে সংরক্ষিত হয়, যা ফোন হাবও সম্পাদনা করে।</string>
+    <string name="source_rule_prefer_addon">%1$s পছন্দ করুন</string>
+    <string name="source_rule_never_group">%1$s রিলিজ কখনও চালাবেন না</string>
+    <string name="source_rule_never_saved">সেরা মিল %1$s রিলিজ এড়িয়ে যাবে</string>
 </resources>

@@ -1295,6 +1295,37 @@ class StreamScreenViewModel @Inject constructor(
     @Volatile
     private var rankBestFirst = false
 
+    /** What a source's long-press menu can offer; empty outside Best match, which the rules order. */
+    internal fun sourceRuleOptions(stream: Stream): List<SourceRule> {
+        val rules = rankingRules ?: return emptyList()
+        if (!rankBestFirst) return emptyList()
+        return sourceRulesFor(stream, rules)
+    }
+
+    /** Saves a rule from a source's long-press menu and re-ranks the open list with it. */
+    internal fun applySourceRule(rule: SourceRule) {
+        viewModelScope.launch {
+            val updated = rule.applyTo(playerSettingsDataStore.playerSettings.first().streamRankingRules)
+            playerSettingsDataStore.setStreamRankingRules(updated)
+            rankingRules = updated
+            updateUiStateIfChanged { state ->
+                val tab = streamTab(state.allStreams, state.selectedAddonFilter)
+                streamFilterFullList = tab.streams
+                // Keep as many rows loaded as before, so the list doesn't shrink under the user.
+                val loaded = state.filteredStreams.size.coerceAtLeast(STREAM_FILTER_PAGE_SIZE)
+                state.copy(
+                    filteredStreams = tab.streams.subList(0, loaded.coerceAtMost(tab.streams.size)),
+                    streamExclusions = tab.exclusions
+                )
+            }
+            val message = when (rule) {
+                is SourceRule.PreferAddon -> context.getString(R.string.prefer_next_time_saved, rule.addon)
+                is SourceRule.NeverReleaseGroup -> context.getString(R.string.source_rule_never_saved, rule.group)
+            }
+            android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun filterByAddon(addonName: String?) {
         streamFilterExpandJob?.cancel()
         updateUiStateIfChanged { state ->

@@ -3134,4 +3134,9 @@
     <string name="empty_state_add_addon">Dodaj dodatek</string>
     <string name="source_group_other">Inna jakość</string>
     <string name="source_group_passed_over">Nie odtwarzane automatycznie</string>
+    <string name="source_options_title">Naucz Najlepsze dopasowanie</string>
+    <string name="source_options_subtitle">Zapisywane w regułach strumieni, które edytuje też centrum telefonu.</string>
+    <string name="source_rule_prefer_addon">Preferuj %1$s</string>
+    <string name="source_rule_never_group">Nigdy nie odtwarzaj wydań %1$s</string>
+    <string name="source_rule_never_saved">Najlepsze dopasowanie pominie wydania %1$s</string>
 </resources>

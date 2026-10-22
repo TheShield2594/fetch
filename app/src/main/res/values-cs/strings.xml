@@ -2558,4 +2558,9 @@
     <string name="empty_state_add_addon">Přidat doplněk</string>
     <string name="source_group_other">Jiná kvalita</string>
     <string name="source_group_passed_over">Nepřehrává se automaticky</string>
+    <string name="source_options_title">Nauč Nejlepší shodu</string>
+    <string name="source_options_subtitle">Uloží se do pravidel streamů, která upravuje i telefonní centrum.</string>
+    <string name="source_rule_prefer_addon">Upřednostnit %1$s</string>
+    <string name="source_rule_never_group">Nikdy nepřehrávat vydání %1$s</string>
+    <string name="source_rule_never_saved">Nejlepší shoda přeskočí vydání %1$s</string>
 </resources>

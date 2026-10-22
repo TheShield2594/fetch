@@ -2481,4 +2481,9 @@
     <string name="empty_state_add_addon">Додати адон</string>
     <string name="source_group_other">Інша якість</string>
     <string name="source_group_passed_over">Не відтворено автоматично</string>
+    <string name="source_options_title">Навчити «Найкращий збіг»</string>
+    <string name="source_options_subtitle">Зберігається в правилах потоків, які редагує й центр на телефоні.</string>
+    <string name="source_rule_prefer_addon">Надавати перевагу %1$s</string>
+    <string name="source_rule_never_group">Ніколи не вмикати релізи %1$s</string>
+    <string name="source_rule_never_saved">«Найкращий збіг» пропускатиме релізи %1$s</string>
 </resources>

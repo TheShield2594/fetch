@@ -3065,4 +3065,9 @@
     <string name="empty_state_add_addon">Pridať doplnok</string>
     <string name="source_group_other">Iná kvalita</string>
     <string name="source_group_passed_over">Neprehrá sa automaticky</string>
+    <string name="source_options_title">Nauč Najlepšiu zhodu</string>
+    <string name="source_options_subtitle">Uloží sa do pravidiel streamov, ktoré upravuje aj telefónne centrum.</string>
+    <string name="source_rule_prefer_addon">Uprednostniť %1$s</string>
+    <string name="source_rule_never_group">Nikdy neprehrávať vydania %1$s</string>
+    <string name="source_rule_never_saved">Najlepšia zhoda preskočí vydania %1$s</string>
 </resources>

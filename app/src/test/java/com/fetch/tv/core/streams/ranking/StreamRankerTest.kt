@@ -43,6 +43,20 @@ class StreamRankerTest {
     }
 
     @Test
+    fun `a preferred addon wins between otherwise equal streams, ignoring case`() {
+        val rules = StreamRankingRules(preferredAddons = listOf("comet"))
+        val streams = listOf(
+            stream("1080p HEVC WEB-DL 6 GB").copy(addonName = "Torrentio"),
+            stream("1080p HEVC WEB-DL 6 GB ").copy(addonName = "Comet")
+        )
+
+        val best = StreamRanker.best(streams, rules, dvTv)
+
+        assertEquals("Comet", best?.stream?.addonName)
+        assertTrue(RankReason.PREFERRED_ADDON in best!!.reasons)
+    }
+
+    @Test
     fun `never auto plays dolby vision profile 5 on a device that cannot show it`() {
         val streams = listOf(
             stream("2160p WEB-DL DV P5 HEVC 12 GB"),

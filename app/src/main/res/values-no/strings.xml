@@ -1189,4 +1189,9 @@
     <string name="empty_state_add_addon">Legg til et tillegg</string>
     <string name="source_group_other">Annen kvalitet</string>
     <string name="source_group_passed_over">Ikke autoavspilt</string>
+    <string name="source_options_title">Lær Beste treff</string>
+    <string name="source_options_subtitle">Lagres i strømreglene dine, som telefonhuben også redigerer.</string>
+    <string name="source_rule_prefer_addon">Foretrekk %1$s</string>
+    <string name="source_rule_never_group">Spill aldri utgivelser fra %1$s</string>
+    <string name="source_rule_never_saved">Beste treff hopper over utgivelser fra %1$s</string>
 </resources>

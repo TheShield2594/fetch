@@ -1099,4 +1099,9 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="empty_state_add_addon">Pridėti priedą</string>
     <string name="source_group_other">Kita kokybė</string>
     <string name="source_group_passed_over">Nepaleista automatiškai</string>
+    <string name="source_options_title">Mokyti Geriausią atitikmenį</string>
+    <string name="source_options_subtitle">Įrašoma į srautų taisykles, kurias redaguoja ir telefono centras.</string>
+    <string name="source_rule_prefer_addon">Teikti pirmenybę %1$s</string>
+    <string name="source_rule_never_group">Niekada neleisti %1$s leidimų</string>
+    <string name="source_rule_never_saved">Geriausias atitikmuo praleis %1$s leidimus</string>
 </resources>

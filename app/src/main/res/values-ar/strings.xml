@@ -2743,4 +2743,9 @@
     <string name="empty_state_add_addon">أضف إضافة</string>
     <string name="source_group_other">جودة أخرى</string>
     <string name="source_group_passed_over">لا يُشغَّل تلقائياً</string>
+    <string name="source_options_title">علِّم أفضل تطابق</string>
+    <string name="source_options_subtitle">يُحفظ في قواعد البث التي يعدّلها مركز الهاتف أيضًا.</string>
+    <string name="source_rule_prefer_addon">تفضيل %1$s</string>
+    <string name="source_rule_never_group">عدم تشغيل إصدارات %1$s أبدًا</string>
+    <string name="source_rule_never_saved">سيتخطى أفضل تطابق إصدارات %1$s</string>
 </resources>

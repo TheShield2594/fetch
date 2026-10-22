@@ -2802,4 +2802,9 @@
     <string name="empty_state_add_addon">Добавить аддон</string>
     <string name="source_group_other">Другое качество</string>
     <string name="source_group_passed_over">Не воспроизводится автоматически</string>
+    <string name="source_options_title">Научить «Лучшее совпадение»</string>
+    <string name="source_options_subtitle">Сохраняется в правилах потоков, которые редактирует и центр на телефоне.</string>
+    <string name="source_rule_prefer_addon">Предпочитать %1$s</string>
+    <string name="source_rule_never_group">Никогда не включать релизы %1$s</string>
+    <string name="source_rule_never_saved">«Лучшее совпадение» будет пропускать релизы %1$s</string>
 </resources>

@@ -245,6 +245,7 @@ object PhoneHubWebPage {
             <label>Skip audio formats (when a release has nothing else)</label><div class="checks" id="excludedAudio"></div>
             <label for="preferredReleaseGroups">Preferred release groups (one per line)</label><textarea id="preferredReleaseGroups" rows="3"></textarea>
             <label for="excludedReleaseGroups">Skipped release groups (one per line)</label><textarea id="excludedReleaseGroups" rows="3"></textarea>
+            <label for="preferredAddons">Preferred addons (one per line)</label><textarea id="preferredAddons" rows="3"></textarea>
             <label for="maxResults">Results to keep (0 for all)</label><input id="maxResults" type="number" min="0" step="1">
             <label for="maxPerResolution">Results per resolution (0 for all)</label><input id="maxPerResolution" type="number" min="0" step="1">
             <label for="maxPerSource">Results per release type (0 for all)</label><input id="maxPerSource" type="number" min="0" step="1">
@@ -306,6 +307,7 @@ object PhoneHubWebPage {
               Object.keys(CHOICES).forEach(function (id) { setChoices(id, current[id]); });
               document.getElementById('preferredReleaseGroups').value = (current.preferredReleaseGroups || []).join('\n');
               document.getElementById('excludedReleaseGroups').value = (current.excludedReleaseGroups || []).join('\n');
+              document.getElementById('preferredAddons').value = (current.preferredAddons || []).join('\n');
               NUMBERS.forEach(function (id) { document.getElementById(id).value = current[id] || 0; });
             });
             document.getElementById('save').addEventListener('click', function () {
@@ -320,6 +322,7 @@ object PhoneHubWebPage {
               Object.keys(CHOICES).forEach(function (id) { rules[id] = ticked[id] || []; });
               rules.preferredReleaseGroups = lines('preferredReleaseGroups');
               rules.excludedReleaseGroups = lines('excludedReleaseGroups');
+              rules.preferredAddons = lines('preferredAddons');
               NUMBERS.forEach(function (id) { rules[id] = Math.max(0, parseInt(document.getElementById(id).value || '0', 10) || 0); });
               post('/api/ranking', { rules: rules }).then(function () { current = rules; show('status', 'Saved'); })
                 .catch(function (e) { show('status', e.message, true); });

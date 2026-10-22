@@ -2909,4 +2909,9 @@
     <string name="empty_state_add_addon">Añadir un complemento</string>
     <string name="source_group_other">Otra calidad</string>
     <string name="source_group_passed_over">No se reproduce automáticamente</string>
+    <string name="source_options_title">Enseñar a Mejor coincidencia</string>
+    <string name="source_options_subtitle">Se guarda en tus reglas de streams, que también edita el centro del móvil.</string>
+    <string name="source_rule_prefer_addon">Preferir %1$s</string>
+    <string name="source_rule_never_group">No reproducir nunca lanzamientos de %1$s</string>
+    <string name="source_rule_never_saved">Mejor coincidencia omitirá los lanzamientos de %1$s</string>
 </resources>

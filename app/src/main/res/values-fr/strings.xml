@@ -3054,4 +3054,9 @@
     <string name="empty_state_add_addon">Ajouter un addon</string>
     <string name="source_group_other">Autre qualité</string>
     <string name="source_group_passed_over">Pas de lecture automatique</string>
+    <string name="source_options_title">Guider Meilleure correspondance</string>
+    <string name="source_options_subtitle">Enregistré dans vos règles de flux, que le hub mobile modifie aussi.</string>
+    <string name="source_rule_prefer_addon">Préférer %1$s</string>
+    <string name="source_rule_never_group">Ne jamais lire les sorties %1$s</string>
+    <string name="source_rule_never_saved">Meilleure correspondance ignorera les sorties %1$s</string>
 </resources>

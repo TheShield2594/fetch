@@ -2277,4 +2277,9 @@
     <string name="empty_state_add_addon">Add-on hinzufügen</string>
     <string name="source_group_other">Andere Qualität</string>
     <string name="source_group_passed_over">Nicht automatisch abgespielt</string>
+    <string name="source_options_title">Bester Treffer anlernen</string>
+    <string name="source_options_subtitle">Wird in deinen Stream-Regeln gespeichert, die auch der Handy-Hub bearbeitet.</string>
+    <string name="source_rule_prefer_addon">%1$s bevorzugen</string>
+    <string name="source_rule_never_group">Releases von %1$s nie abspielen</string>
+    <string name="source_rule_never_saved">Bester Treffer überspringt Releases von %1$s</string>
 </resources>

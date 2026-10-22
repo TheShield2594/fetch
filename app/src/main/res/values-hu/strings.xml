@@ -3016,4 +3016,8 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Nincs korlát</string>
+    <string name="ready_to_play">Lejátszásra kész</string>
+    <string name="home_row_ready_tonight">Ma estére kész</string>
+    <string name="ready_check_title">Ellenőrzés a háttérben, mi áll készen</string>
+    <string name="ready_check_sub">Wi-Fi-n vagy Etherneten megkérdezi a kiegészítőket legfeljebb 6 címről a Megtekintés folytatása és a Várólista közül, mindegyikről legfeljebb 12 óránként egyszer, hogy a Kezdőlap megjelölhesse az azonnal induló címeket.</string>
 </resources>

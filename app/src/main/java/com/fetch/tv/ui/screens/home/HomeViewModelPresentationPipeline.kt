@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -288,13 +289,32 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
             }
             .distinctUntilChanged()
 
-        combine(uiState, _currentLocaleTag, posterOverlay) { state, localeTag, overlay ->
+        // The cache only emits once read; start empty so Home never waits on it.
+        // Re-emitted on a timer too, so picks past their window leave Ready tonight.
+        val bestMatches = bestMatchCacheDataStore.entries
+            .onStart { emit(emptyMap()) }
+            .combine(readinessTicks()) { entries, _ -> entries }
+
+        combine(
+            uiState,
+            _currentLocaleTag,
+            posterOverlay,
+            bestMatches,
+            readyWatchlistCandidates
+        ) { state, localeTag, overlay, entries, watchlist ->
+                val readyKeys = readyBestMatchKeys(entries, System.currentTimeMillis())
                 ModernHomePresentationInput(
                     homeRows = state.homeRows,
                     catalogRows = state.catalogRows,
                     becauseYouWatchedRows = state.becauseYouWatchedRows,
                     continueWatchingItems = overlay.continueWatchingItems,
                     upcomingItems = overlay.upcomingItems,
+                    readyTonightItems = readyTonightItems(overlay.continueWatchingItems, readyKeys),
+                    readyWatchlistMovies = readyWatchlistMovies(
+                        movies = watchlist,
+                        readyKeys = readyKeys,
+                        exceptKeys = overlay.continueWatchingItems.mapNotNull { it.bestMatchKey() }.toSet()
+                    ),
                     useLandscapePosters = state.modernLandscapePostersEnabled,
                     showCatalogTypeSuffix = state.catalogTypeSuffixEnabled,
                     showFullReleaseDate = state.showFullReleaseDate,
@@ -312,6 +332,8 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     && old.becauseYouWatchedRows == new.becauseYouWatchedRows
                     && old.continueWatchingItems == new.continueWatchingItems
                     && old.upcomingItems == new.upcomingItems
+                    && old.readyTonightItems == new.readyTonightItems
+                    && old.readyWatchlistMovies == new.readyWatchlistMovies
                     && old.useLandscapePosters == new.useLandscapePosters
                     && old.showCatalogTypeSuffix == new.showCatalogTypeSuffix
                     && old.showFullReleaseDate == new.showFullReleaseDate

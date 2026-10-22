@@ -2270,4 +2270,8 @@
     <string name="because_you_watched_reason_creator">Auch von %1$s</string>
     <string name="because_you_watched_reason_writer">Auch Drehbuch: %1$s</string>
     <string name="because_you_watched_reason_cast">Auch mit %1$s</string>
+    <string name="ready_to_play">Bereit zur Wiedergabe</string>
+    <string name="home_row_ready_tonight">Bereit für heute Abend</string>
+    <string name="ready_check_title">Im Hintergrund prüfen, was bereit ist</string>
+    <string name="ready_check_sub">Fragt im WLAN oder über Ethernet Ihre Addons zu bis zu 6 Titeln aus „Weiter ansehen“ und Ihrer Watchlist, jeden höchstens alle 12 Stunden, damit die Startseite die markiert, die sofort starten.</string>
 </resources>

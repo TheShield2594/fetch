@@ -123,6 +123,7 @@ import com.fetch.tv.ui.components.continueWatchingUsesEpisodeThumbnails
 import com.fetch.tv.ui.components.LocalCardDepthStyle
 import com.fetch.tv.ui.components.MonochromePosterPlaceholder
 import com.fetch.tv.ui.components.TrailerPlayer
+import com.fetch.tv.ui.components.ReadyDot
 import com.fetch.tv.ui.components.WatchedMarker
 import com.fetch.tv.ui.components.placeholderCardShimmer
 import com.fetch.tv.ui.components.fetchCardDepth
@@ -202,6 +203,9 @@ private fun ModernContinueWatchingRowItem(
         }
     }
 
+    val readyKeys = LocalReadyBestMatchKeys.current
+    val isReady = remember(item, readyKeys) { item.bestMatchKey()?.let { it in readyKeys } == true }
+
     ContinueWatchingCard(
         item = item,
         onClick = onClick,
@@ -213,6 +217,7 @@ private fun ModernContinueWatchingRowItem(
         cardStyle = continueWatchingCardStyle,
         cornerRadius = continueWatchingCornerRadius,
         isFocused = isCardFocused,
+        isReady = isReady,
         modifier = modifier
             .focusRequester(requester)
             .onFocusChanged {
@@ -269,6 +274,13 @@ private fun ModernCatalogRowItem(
 
     val metaPreview = item.metaPreview
     val isWatched = metaPreview?.let { isCatalogItemWatched(it) } ?: false
+    // Only a movie's card names one video, so only movies can be ready.
+    val readyKeys = LocalReadyBestMatchKeys.current
+    val isReady = remember(payload, readyKeys) {
+        (payload as? ModernPayload.Catalog)
+            ?.takeIf { it.itemType.equals("movie", ignoreCase = true) }
+            ?.let { com.fetch.tv.data.local.BestMatchCacheDataStore.contentKey(it.itemType, it.itemId) in readyKeys } == true
+    }
     val enrichedMeta by remember {
         derivedStateOf { (payload as? ModernPayload.Catalog)?.itemId?.let { enrichedPreviews.value.map[it] } }
     }
@@ -394,6 +406,7 @@ private fun ModernCatalogRowItem(
         trailerPreviewUrl = trailerPreviewUrl,
         trailerPreviewAudioUrl = trailerPreviewAudioUrl,
         isWatched = isWatched,
+        isReady = isReady,
         enrichedLogoUrl = enrichedLogoUrl,
         enrichedBackdropUrl = enrichedBackdropUrl,
         focusRequester = requester,
@@ -938,7 +951,7 @@ internal fun ModernRowSection(
                     }
                 ) { index, item ->
                     val requester = itemFocusRequesters.getOrPut(index) { FocusRequester() }
-                    val isContinueWatchingRow = row.key == MODERN_CONTINUE_WATCHING_ROW_KEY || row.key == MODERN_UPCOMING_ROW_KEY
+                    val isContinueWatchingRow = isContinueWatchingStyleRow(row.key)
                     val onFocused = remember(row.key, index, isContinueWatchingRow) {
                         {
                             onRowItemFocused(row.key, index, isContinueWatchingRow)
@@ -1080,6 +1093,7 @@ private fun ModernCarouselCard(
     trailerPreviewUrl: String?,
     trailerPreviewAudioUrl: String?,
     isWatched: Boolean,
+    isReady: Boolean = false,
     enrichedLogoUrl: String? = null,
     enrichedBackdropUrl: String? = null,
     focusRequester: FocusRequester,
@@ -1512,6 +1526,14 @@ private fun ModernCarouselCard(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(end = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm)
+                            .zIndex(2f)
+                    )
+                }
+                if (isReady) {
+                    ReadyDot(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(FetchTheme.spacing.sm)
                             .zIndex(2f)
                     )
                 }

@@ -3047,4 +3047,8 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Aucune limite</string>
+    <string name="ready_to_play">Prêt à lire</string>
+    <string name="home_row_ready_tonight">Prêt pour ce soir</string>
+    <string name="ready_check_title">Vérifier en arrière-plan ce qui est prêt</string>
+    <string name="ready_check_sub">En Wi-Fi ou Ethernet, interroge vos addons sur 6 titres au plus de Continuer à regarder et de votre Liste de suivi, chacun au maximum toutes les 12 heures, pour que l’accueil signale ceux qui démarrent tout de suite.</string>
 </resources>

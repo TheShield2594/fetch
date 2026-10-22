@@ -1092,4 +1092,8 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="because_you_watched_reason_creator">Tas pats kūrėjas: %1$s</string>
     <string name="because_you_watched_reason_writer">Tas pats scenaristas: %1$s</string>
     <string name="because_you_watched_reason_cast">Taip pat vaidina %1$s</string>
+    <string name="ready_to_play">Paruošta paleisti</string>
+    <string name="home_row_ready_tonight">Paruošta šiam vakarui</string>
+    <string name="ready_check_title">Fone tikrinti, kas paruošta</string>
+    <string name="ready_check_sub">Per „Wi-Fi“ ar eternetą paklausia jūsų priedų apie ne daugiau kaip 6 pavadinimus iš „Tęsti žiūrėjimą“ ir žiūrėjimo sąrašo, apie kiekvieną ne dažniau kaip kas 12 valandų, kad pradžios ekranas pažymėtų tuos, kuriuos galima paleisti iškart.</string>
 </resources>

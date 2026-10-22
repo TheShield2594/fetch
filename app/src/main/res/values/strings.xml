@@ -3044,4 +3044,8 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">No limit</string>
+    <string name="ready_to_play">Ready to play</string>
+    <string name="home_row_ready_tonight">Ready tonight</string>
+    <string name="ready_check_title">Check what\'s ready in the background</string>
+    <string name="ready_check_sub">On Wi-Fi or Ethernet, asks your addons about up to 6 titles from Continue Watching and your Watchlist, each at most every 12 hours, so Home can mark the ones that start instantly.</string>
 </resources>

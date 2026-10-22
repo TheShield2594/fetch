@@ -100,6 +100,15 @@ internal fun PlaybackStreamSelectionSection(
             checked = settings.bestMatchPreviewEnabled,
             onToggle = { onUpdate { setBestMatchPreviewEnabled(!settings.bestMatchPreviewEnabled) } }
         )
+        // The ready check runs the same lookup, so it only applies while the preview is on.
+        if (settings.bestMatchPreviewEnabled) {
+            SettingsToggleRow(
+                title = stringResource(R.string.ready_check_title),
+                subtitle = stringResource(R.string.ready_check_sub),
+                checked = settings.readyCheckEnabled,
+                onToggle = { onUpdate { setReadyCheckEnabled(!settings.readyCheckEnabled) } }
+            )
+        }
     }
 
     if (settings.streamAutoPlayMode == StreamAutoPlayMode.REGEX_MATCH) {

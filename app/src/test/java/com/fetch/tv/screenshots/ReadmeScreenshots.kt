@@ -1,5 +1,8 @@
 package com.fetch.tv.screenshots
 
+import com.fetch.tv.ui.screens.home.bestMatchKey
+import com.fetch.tv.ui.screens.home.LocalReadyBestMatchKeys
+import androidx.compose.runtime.CompositionLocalProvider
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.activity.ComponentActivity
@@ -152,6 +155,18 @@ class ReadmeScreenshots {
         val context = LocalContext.current
         val rows = Samples.catalogRows
         val cw = Samples.continueWatching
+        // The first two titles have a cached Best match: they get the ready dot and "Ready tonight".
+        val ready = cw.take(2)
+        // A movie from the watchlist with a ready pick follows them in Ready tonight.
+        val readyMovie = rows.first().items.first().let { movie ->
+            com.fetch.tv.domain.model.LibraryEntry(
+                id = movie.id, type = "movie", name = movie.name, poster = movie.poster,
+                background = movie.background, logo = movie.logo, description = movie.description,
+                releaseInfo = movie.releaseInfo, imdbRating = movie.imdbRating, genres = movie.genres,
+                addonBaseUrl = null, landscapePoster = movie.landscapePoster
+            )
+        }
+        val readyKeys = ready.mapNotNull { it.bestMatchKey() }.toSet() + readyMovie.bestMatchKey()
         val presentation = remember {
             buildModernHomePresentation(
                 input = ModernHomePresentationInput(
@@ -159,6 +174,8 @@ class ReadmeScreenshots {
                     catalogRows = rows,
                     continueWatchingItems = cw,
                     upcomingItems = emptyList(),
+                    readyTonightItems = ready,
+                    readyWatchlistMovies = listOf(readyMovie),
                     useLandscapePosters = true,
                     showCatalogTypeSuffix = true,
                     showFullReleaseDate = false,
@@ -169,6 +186,7 @@ class ReadmeScreenshots {
                 context = context
             )
         }
+        CompositionLocalProvider(LocalReadyBestMatchKeys provides readyKeys) {
         Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
             ModernHomeContent(
                 uiState = HomeUiState(
@@ -190,6 +208,7 @@ class ReadmeScreenshots {
                 onRemoveContinueWatching = { _, _, _, _ -> },
                 onSaveFocusState = { _, _, _, _, _, _, _, _ -> }
             )
+        }
         }
     }
 

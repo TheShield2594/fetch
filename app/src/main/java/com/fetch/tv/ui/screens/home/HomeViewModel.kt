@@ -42,6 +42,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import com.fetch.tv.core.parental.certificationQuery
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -93,6 +95,7 @@ class HomeViewModel @Inject constructor(
     internal val bestMatchCacheDataStore: com.fetch.tv.data.local.BestMatchCacheDataStore,
     internal val episodeQueueStore: com.fetch.tv.data.local.EpisodeQueueStore,
     internal val becauseYouWatchedService: com.fetch.tv.core.recommendations.BecauseYouWatchedService,
+    internal val readyChecker: HomeReadyChecker,
     internal val metaPreviewEnricher: MetaPreviewEnricher = MetaPreviewEnricher(
         tmdbService,
         tmdbMetadataService,
@@ -129,6 +132,27 @@ class HomeViewModel @Inject constructor(
     internal val _uiState = MutableStateFlow(HomeUiState())
     internal val shuffleHomeRefresh = MutableStateFlow(HomeShuffleRefresh())
     val uiState: StateFlow<HomeUiState> by lazy { createShuffleHomeState() }
+
+    /**
+     * Watchlist movies Ready tonight may show, newest first and within the profile's limits.
+     * Starts empty so Home never waits on the library.
+     */
+    internal val readyWatchlistCandidates: kotlinx.coroutines.flow.Flow<List<com.fetch.tv.domain.model.LibraryEntry>> by lazy {
+        kotlinx.coroutines.flow.combine(
+            libraryRepository.libraryItems,
+            libraryRepository.listTabs,
+            libraryRepository.sourceMode,
+            parentalControls.activeRestrictions
+        ) { entries, tabs, mode, _ ->
+            parentalControls.filterAllowed(watchlistMovies(entries, tabs, mode)) { it.toMetaPreview().certificationQuery() }
+        }
+            .onStart { emit(emptyList()) }
+            .distinctUntilChanged()
+    }
+
+    /** Background ready check for Continue Watching and the watchlist; see [HomeReadyChecker]. */
+    suspend fun runReadyCheck(items: List<ContinueWatchingItem>) =
+        readyChecker.check(items, readyWatchlistCandidates.first())
 
     fun beginShuffleHomeVisit() {
         shuffleHomeRefresh.update { it.copy(visit = it.visit + 1) }

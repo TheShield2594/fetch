@@ -2736,4 +2736,8 @@
     <string name="because_you_watched_reason_creator">من تأليف %1$s أيضًا</string>
     <string name="because_you_watched_reason_writer">من كتابة %1$s أيضًا</string>
     <string name="because_you_watched_reason_cast">بطولة %1$s أيضًا</string>
+    <string name="ready_to_play">جاهز للتشغيل</string>
+    <string name="home_row_ready_tonight">جاهز الليلة</string>
+    <string name="ready_check_title">التحقق من الجاهز في الخلفية</string>
+    <string name="ready_check_sub">عبر Wi-Fi أو Ethernet، يسأل إضافاتك عن 6 عناوين كحد أقصى من متابعة المشاهدة وقائمة المشاهدة، كل عنوان مرة كل 12 ساعة على الأكثر، لتُظهر الرئيسية ما يبدأ فورًا.</string>
 </resources>

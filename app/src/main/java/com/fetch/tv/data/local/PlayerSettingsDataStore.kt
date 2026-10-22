@@ -327,6 +327,11 @@ data class PlayerSettings(
     val streamReuseLastLinkEnabled: Boolean = true,
     /** Look up the Best match pick on detail pages so the Play button can name it. */
     val bestMatchPreviewEnabled: Boolean = true,
+    /**
+     * Ask addons in the background about a few Continue Watching titles, on unmetered networks,
+     * so Home can mark the ones that will start instantly.
+     */
+    val readyCheckEnabled: Boolean = true,
     val streamReuseLastLinkCacheHours: Int = 1,
     val externalPlayerForwardSubtitles: Boolean = false,
     val externalPlayerSendSkipSegments: Boolean = false,
@@ -601,6 +606,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val nextEpisodeThresholdMinutesBeforeEndKey = floatPreferencesKey("next_episode_threshold_minutes_before_end_v2")
     private val streamReuseLastLinkEnabledKey = booleanPreferencesKey("stream_reuse_last_link_enabled")
     private val bestMatchPreviewEnabledKey = booleanPreferencesKey("best_match_preview_enabled")
+    private val readyCheckEnabledKey = booleanPreferencesKey("ready_check_enabled")
     private val streamReuseLastLinkCacheHoursKey = intPreferencesKey("stream_reuse_last_link_cache_hours")
     private val externalPlayerForwardSubtitlesKey = booleanPreferencesKey("external_player_forward_subtitles")
     private val externalPlayerSendSkipSegmentsKey = booleanPreferencesKey("external_player_send_skip_segments")
@@ -1025,6 +1031,7 @@ class PlayerSettingsDataStore @Inject constructor(
                 ),
                 streamReuseLastLinkEnabled = prefs[streamReuseLastLinkEnabledKey] ?: false,
                 bestMatchPreviewEnabled = prefs[bestMatchPreviewEnabledKey] ?: true,
+                readyCheckEnabled = prefs[readyCheckEnabledKey] ?: true,
                 streamReuseLastLinkCacheHours = (prefs[streamReuseLastLinkCacheHoursKey] ?: 24).coerceIn(1, 168),
                 externalPlayerForwardSubtitles = prefs[externalPlayerForwardSubtitlesKey] ?: false,
                 externalPlayerSendSkipSegments = prefs[externalPlayerSendSkipSegmentsKey] ?: false,
@@ -1468,6 +1475,12 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setBestMatchPreviewEnabled(enabled: Boolean) {
         store().edit { prefs ->
             prefs[bestMatchPreviewEnabledKey] = enabled
+        }
+    }
+
+    suspend fun setReadyCheckEnabled(enabled: Boolean) {
+        store().edit { prefs ->
+            prefs[readyCheckEnabledKey] = enabled
         }
     }
 

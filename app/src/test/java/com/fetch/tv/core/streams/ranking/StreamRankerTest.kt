@@ -47,12 +47,13 @@ class StreamRankerTest {
         val rules = StreamRankingRules(preferredAddons = listOf("comet"))
         val streams = listOf(
             stream("1080p HEVC WEB-DL 6 GB").copy(addonName = "Torrentio"),
-            stream("1080p HEVC WEB-DL 6 GB ").copy(addonName = "Comet")
+            // Saved trimmed, matched trimmed: stray spaces in the addon's name don't break the rule.
+            stream("1080p HEVC WEB-DL 6 GB ").copy(addonName = " Comet ")
         )
 
         val best = StreamRanker.best(streams, rules, dvTv)
 
-        assertEquals("Comet", best?.stream?.addonName)
+        assertEquals(" Comet ", best?.stream?.addonName)
         assertTrue(RankReason.PREFERRED_ADDON in best!!.reasons)
     }
 

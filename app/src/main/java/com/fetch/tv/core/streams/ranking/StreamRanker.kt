@@ -351,9 +351,8 @@ object StreamRanker {
             reasons += RankReason.PREFERRED_RELEASE_GROUP
         }
 
-        if (stream.addonName.isNotBlank() &&
-            rules.preferredAddons.any { it.equals(stream.addonName, ignoreCase = true) }
-        ) {
+        val addonName = stream.addonName.trim()
+        if (addonName.isNotEmpty() && rules.preferredAddons.any { it.trim().equals(addonName, ignoreCase = true) }) {
             score += 300
             reasons += RankReason.PREFERRED_ADDON
         }

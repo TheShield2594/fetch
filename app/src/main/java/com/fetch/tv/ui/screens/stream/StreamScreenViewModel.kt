@@ -726,7 +726,8 @@ class StreamScreenViewModel @Inject constructor(
                     resolvedAutoPlayTarget = true
                 }
 
-                rankingRules = playerSettings.streamRankingRules
+                // A rule saved from a long-press outlives the settings this load read when it began.
+                rankingRules = sourceRuleRules ?: playerSettings.streamRankingRules
                 rankBestFirst = playerSettings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH
                 val tab = streamTab(allStreams, _uiState.value.selectedAddonFilter)
                 val fullFiltered = tab.streams
@@ -1291,6 +1292,13 @@ class StreamScreenViewModel @Inject constructor(
     @Volatile
     private var rankingRules: StreamRankingRules? = null
 
+    /**
+     * The rules as last saved from a source's long-press menu. A load in flight read the settings
+     * when it began, so later results would otherwise re-rank with the rules from before the save.
+     */
+    @Volatile
+    private var sourceRuleRules: StreamRankingRules? = null
+
     /** True in Best match mode, where the All tab is ordered by score. */
     @Volatile
     private var rankBestFirst = false
@@ -1307,6 +1315,7 @@ class StreamScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val updated = rule.applyTo(playerSettingsDataStore.playerSettings.first().streamRankingRules)
             playerSettingsDataStore.setStreamRankingRules(updated)
+            sourceRuleRules = updated
             rankingRules = updated
             updateUiStateIfChanged { state ->
                 val tab = streamTab(state.allStreams, state.selectedAddonFilter)

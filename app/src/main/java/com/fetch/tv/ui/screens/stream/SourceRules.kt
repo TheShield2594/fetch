@@ -31,7 +31,8 @@ internal fun sourceRulesFor(stream: Stream, rules: StreamRankingRules): List<Sou
     if (addon.isNotEmpty() && rules.preferredAddons.none { it.equals(addon, ignoreCase = true) }) {
         add(SourceRule.PreferAddon(addon))
     }
-    val group = StreamTitleParser.parse(stream).releaseGroup
+    // Files from the user's own library are never skipped for taste rules, so the rule would do nothing.
+    val group = if (stream.serverTarget == null) StreamTitleParser.parse(stream).releaseGroup else null
     if (group != null && rules.excludedReleaseGroups.none { it.equals(group, ignoreCase = true) }) {
         add(SourceRule.NeverReleaseGroup(group))
     }

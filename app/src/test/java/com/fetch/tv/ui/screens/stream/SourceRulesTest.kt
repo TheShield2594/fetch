@@ -1,6 +1,8 @@
 package com.fetch.tv.ui.screens.stream
 
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
+import com.fetch.tv.data.mediaserver.ServerItemRef
+import com.fetch.tv.data.mediaserver.ServerPlaybackTarget
 import com.fetch.tv.domain.model.Stream
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -50,5 +52,13 @@ class SourceRulesTest {
 
         assertEquals(listOf("grp"), updated.excludedReleaseGroups)
         assertEquals(listOf("Other"), updated.preferredReleaseGroups)
+    }
+
+    @Test
+    fun `a library file is not offered a release-group skip it would ignore`() {
+        val owned = stream("Jellyfin", "Show.S01E01.1080p.WEB-DL-GRP")
+            .copy(serverTarget = ServerPlaybackTarget(ServerItemRef("home", "42"), mediaSourceId = null))
+
+        assertEquals(listOf(SourceRule.PreferAddon("Jellyfin")), sourceRulesFor(owned, StreamRankingRules()))
     }
 }

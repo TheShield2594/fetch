@@ -2905,7 +2905,7 @@
     <string name="empty_state_add_addon">添加扩展</string>
     <string name="source_group_other">其他画质</string>
     <string name="source_group_passed_over">未自动播放</string>
-    <string name="source_options_title">调教最佳匹配</string>
+    <string name="source_options_title">让最佳匹配学习</string>
     <string name="source_options_subtitle">保存到你的流规则中，手机中心也可编辑这些规则。</string>
     <string name="source_rule_prefer_addon">优先 %1$s</string>
     <string name="source_rule_never_group">永不播放 %1$s 的版本</string>

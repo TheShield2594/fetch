@@ -77,6 +77,7 @@ import com.fetch.tv.core.party.PartySource
 import com.fetch.tv.core.party.matches
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.toAbsoluteAlignment
+import com.fetch.tv.ui.util.isPlaceholderEpisodeTitle
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
@@ -716,7 +717,8 @@ private fun LeftContentSection(
                     color = FetchTheme.extendedColors.textSecondary,
                     textAlign = TextAlign.Center
                 )
-                if (episodeName != null) {
+                // "Episode 6" would only repeat the line above.
+                if (episodeName != null && !episodeName.isPlaceholderEpisodeTitle()) {
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
                     Text(
                         text = episodeName.localizeEpisodeTitle(LocalContext.current),
@@ -1327,7 +1329,6 @@ internal fun StreamCard(
     val context = LocalContext.current
     val density = LocalDensity.current
     val unknownStreamLabel = stringResource(R.string.stream_unknown)
-    val streamName = remember(stream, unknownStreamLabel) { stream.getDisplayNameOrNull() ?: unknownStreamLabel }
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
     // Parsed from the addon's free-form text: the card leads with these chips and keeps the raw
     // release name for the focused card, where there is room to read it.
@@ -1338,6 +1339,11 @@ internal fun StreamCard(
     }
     val cachedLabel = stringResource(R.string.best_match_cached)
     val hasParsedSpec = headline != null || specChips.isNotEmpty()
+    // With chips shown, a name line like "4k DV" only repeats them.
+    val streamName = remember(stream, unknownStreamLabel, hasParsedSpec) {
+        val name = stream.getDisplayNameOrNull() ?: unknownStreamLabel
+        if (hasParsedSpec) withoutSpecOnlyLines(name) else name
+    }
     val hasBadges = stream.badges.isNotEmpty() || (showFileSizeBadges && stream.behaviorHints?.videoSize != null) || reserveBadgeSpace
     val cardShape = RoundedCornerShape(FetchTheme.radii.md)
 
@@ -1432,8 +1438,10 @@ internal fun StreamCard(
                                 modifier = Modifier.padding(end = FetchTheme.spacing.xs)
                             )
                         }
-                        specChips.forEach { chip -> StreamSpecChip(chip) }
+                        // Cached comes first: it matters most, and the last chip is the one
+                        // that wraps when the row runs out of width.
                         if (descriptor.isDebridCached) StreamSpecChip(cachedLabel, highlighted = true)
+                        specChips.forEach { chip -> StreamSpecChip(chip) }
                     }
                 }
                 exclusion?.let { reason ->

@@ -336,7 +336,7 @@ class ReadmeScreenshots {
             ) {
                 AsyncImage(model = meta.logo, contentDescription = null, modifier = Modifier.height(90.dp))
                 Text(
-                    text = "S2 E6 · Episode 6",
+                    text = "S2 E6",
                     style = MaterialTheme.typography.titleMedium,
                     color = FetchTheme.colors.TextSecondary
                 )

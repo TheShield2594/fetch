@@ -3132,4 +3132,6 @@
     <string name="ready_check_title">Sprawdzaj w tle, co jest gotowe</string>
     <string name="ready_check_sub">Przez Wi-Fi lub Ethernet pyta dodatki o maksymalnie 6 tytułów z Kontynuuj oglądanie i Listy do obejrzenia, o każdy nie częściej niż co 12 godzin, aby ekran główny oznaczył te, które startują od razu.</string>
     <string name="empty_state_add_addon">Dodaj dodatek</string>
+    <string name="source_group_other">Inna jakość</string>
+    <string name="source_group_passed_over">Nie odtwarzane automatycznie</string>
 </resources>

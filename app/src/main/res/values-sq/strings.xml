@@ -2590,4 +2590,6 @@
     <string name="ready_check_title">Kontrollo në sfond çfarë është gati</string>
     <string name="ready_check_sub">Në Wi-Fi ose Ethernet, pyet shtesat e tua për deri në 6 tituj nga Vazhdo shikimin dhe Lista e shikimit, secilin më së shumti një herë në 12 orë, që Kreu të shënojë ata që nisin menjëherë.</string>
     <string name="empty_state_add_addon">Shto një shtesë</string>
+    <string name="source_group_other">Cilësi tjetër</string>
+    <string name="source_group_passed_over">Nuk luhet automatikisht</string>
 </resources>

@@ -2449,4 +2449,6 @@
     <string name="ready_check_title">すぐ見られる作品をバックグラウンドで確認</string>
     <string name="ready_check_sub">Wi-Fi またはイーサネット接続時に、「視聴を続ける」とウォッチリストの最大 6 作品について、各作品 12 時間に 1 回までアドオンに問い合わせ、すぐに再生できる作品をホームに表示します。</string>
     <string name="empty_state_add_addon">アドオンを追加</string>
+    <string name="source_group_other">その他の画質</string>
+    <string name="source_group_passed_over">自動再生対象外</string>
 </resources>

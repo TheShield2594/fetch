@@ -2443,4 +2443,6 @@
     <string name="ready_check_title">Проверка във фонов режим кое е готово</string>
     <string name="ready_check_sub">През Wi-Fi или Ethernet пита добавките за до 6 заглавия от „Продължаване на гледането“ и „Списък за гледане“, всяко най-много веднъж на 12 часа, за да отбележи началният екран тези, които тръгват веднага.</string>
     <string name="empty_state_add_addon">Добавяне на добавка</string>
+    <string name="source_group_other">Друго качество</string>
+    <string name="source_group_passed_over">Не се пуска автоматично</string>
 </resources>

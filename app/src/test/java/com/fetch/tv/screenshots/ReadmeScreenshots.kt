@@ -336,15 +336,21 @@ class ReadmeScreenshots {
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Samples.streams.forEach { stream ->
-                    StreamCard(
-                        stream = stream,
-                        showFileSizeBadges = false,
-                        showAddonLogo = true,
-                        badgePlacement = StreamBadgePlacement.BOTTOM,
-                        onClick = {}
-                    )
-                }
+                // The real list, so the screenshot shows Best match's pick and the quality sections.
+                com.fetch.tv.ui.screens.stream.StreamsList(
+                    streams = Samples.streams,
+                    streamExclusions = emptyMap(),
+                    sections = com.fetch.tv.ui.screens.stream.sourceSections(
+                        Samples.streams, emptyMap(), bestMatchFirst = true, addonFilter = null
+                    ),
+                    torrentsNeedExternalPlayer = false,
+                    sharedStream = null,
+                    partySource = null,
+                    onSharedStreamSelected = {},
+                    onStreamSelected = {},
+                    showFileSizeBadges = false,
+                    badgePlacement = StreamBadgePlacement.BOTTOM
+                )
             }
             Column(
                 modifier = Modifier

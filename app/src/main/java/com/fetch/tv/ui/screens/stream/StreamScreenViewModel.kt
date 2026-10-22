@@ -746,6 +746,7 @@ class StreamScreenViewModel @Inject constructor(
                         allStreams = allStreams,
                         filteredStreams = paginatedStreams,
                         streamExclusions = tab.exclusions,
+                        bestMatchFirst = rankBestFirst && rankingRules != null,
                         availableAddons = availableAddons,
                         sourceChips = mergeSourceChipStatuses(
                             existing = _uiState.value.sourceChips,

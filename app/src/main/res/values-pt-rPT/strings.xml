@@ -2328,4 +2328,6 @@
     <string name="ready_check_title">Verificar em segundo plano o que está pronto</string>
     <string name="ready_check_sub">Em Wi-Fi ou Ethernet, consulta os seus addons sobre até 6 títulos de Continuar a ver e da Lista de Interesse, cada um no máximo a cada 12 horas, para que o Início assinale os que começam de imediato.</string>
     <string name="empty_state_add_addon">Adicionar um addon</string>
+    <string name="source_group_other">Outra qualidade</string>
+    <string name="source_group_passed_over">Não reproduzido automaticamente</string>
 </resources>

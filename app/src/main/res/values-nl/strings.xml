@@ -2816,4 +2816,6 @@
     <string name="ready_check_title">Op de achtergrond controleren wat klaarstaat</string>
     <string name="ready_check_sub">Vraagt via wifi of ethernet je add-ons naar maximaal 6 titels uit Verder kijken en je Kijklijst, elke titel hoogstens elke 12 uur, zodat Home de titels kan markeren die direct starten.</string>
     <string name="empty_state_add_addon">Add-on toevoegen</string>
+    <string name="source_group_other">Andere kwaliteit</string>
+    <string name="source_group_passed_over">Niet automatisch afgespeeld</string>
 </resources>

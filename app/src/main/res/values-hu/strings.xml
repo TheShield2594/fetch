@@ -3021,4 +3021,6 @@
     <string name="ready_check_title">Ellenőrzés a háttérben, mi áll készen</string>
     <string name="ready_check_sub">Wi-Fi-n vagy Etherneten megkérdezi a kiegészítőket legfeljebb 6 címről a Megtekintés folytatása és a Várólista közül, mindegyikről legfeljebb 12 óránként egyszer, hogy a Kezdőlap megjelölhesse az azonnal induló címeket.</string>
     <string name="empty_state_add_addon">Bővítmény hozzáadása</string>
+    <string name="source_group_other">Egyéb minőség</string>
+    <string name="source_group_passed_over">Nincs automatikus lejátszás</string>
 </resources>

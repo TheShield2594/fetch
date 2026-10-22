@@ -2800,4 +2800,6 @@
     <string name="ready_check_title">Проверять в фоне, что готово</string>
     <string name="ready_check_sub">По Wi-Fi или Ethernet спрашивает аддоны о не более чем 6 тайтлах из «Продолжить просмотр» и «Списка для просмотра», о каждом не чаще раза в 12 часов, чтобы главная отмечала те, что запустятся сразу.</string>
     <string name="empty_state_add_addon">Добавить аддон</string>
+    <string name="source_group_other">Другое качество</string>
+    <string name="source_group_passed_over">Не воспроизводится автоматически</string>
 </resources>

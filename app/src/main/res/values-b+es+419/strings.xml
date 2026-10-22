@@ -3049,6 +3049,6 @@
     <string name="torrent_engine_unavailable">Este es un stream torrent y Fetch no tiene un motor torrent integrado. Configura debrid en el addon para obtener un enlace que se reproduzca aquí, o ábrelo en un reproductor externo.</string>
     <string name="ready_to_play">Listo para reproducir</string>
     <string name="home_row_ready_tonight">Listo para esta noche</string>
-    <string name="ready_check_title">Revisar Seguir viendo en segundo plano</string>
-    <string name="ready_check_sub">Con Wi-Fi o Ethernet, consulta a tus addons hasta 6 títulos de Seguir viendo como máximo cada 12 horas, para que Inicio marque los que empiezan al instante.</string>
+    <string name="ready_check_title">Revisar en segundo plano qué está listo</string>
+    <string name="ready_check_sub">Con Wi-Fi o Ethernet, consulta a tus addons hasta 6 títulos de Seguir Viendo y tu Lista de seguimiento, cada uno como máximo cada 12 horas, para que Inicio marque los que empiezan al instante.</string>
 </resources>

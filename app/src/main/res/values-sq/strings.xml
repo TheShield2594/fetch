@@ -2587,6 +2587,6 @@
     <string name="because_you_watched_reason_cast">Luan gjithashtu: %1$s</string>
     <string name="ready_to_play">Gati për luajtje</string>
     <string name="home_row_ready_tonight">Gati për sonte</string>
-    <string name="ready_check_title">Kontrollo Vazhdo shikimin në sfond</string>
-    <string name="ready_check_sub">Në Wi-Fi ose Ethernet, pyet shtesat e tua për deri në 6 tituj nga Vazhdo shikimin, më së shumti një herë në 12 orë, që Kreu të shënojë ata që nisin menjëherë.</string>
+    <string name="ready_check_title">Kontrollo në sfond çfarë është gati</string>
+    <string name="ready_check_sub">Në Wi-Fi ose Ethernet, pyet shtesat e tua për deri në 6 tituj nga Vazhdo shikimin dhe Lista e shikimit, secilin më së shumti një herë në 12 orë, që Kreu të shënojë ata që nisin menjëherë.</string>
 </resources>

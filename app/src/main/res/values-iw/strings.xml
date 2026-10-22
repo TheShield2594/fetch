@@ -3054,6 +3054,6 @@
     <string name="torrent_engine_unavailable">זהו סטרים טורנט ול-Fetch אין מנוע טורנט מובנה. הגדירו debrid בתוסף כדי לקבל קישור שמתנגן כאן, או פתחו אותו בנגן חיצוני.</string>
     <string name="ready_to_play">מוכן לניגון</string>
     <string name="home_row_ready_tonight">מוכן להערב</string>
-    <string name="ready_check_title">בדיקת \'המשך צפייה\' ברקע</string>
-    <string name="ready_check_sub">ב-Wi-Fi או ב-Ethernet, שואל את התוספים שלכם על עד 6 כותרים מ\'המשך צפייה\' לכל היותר פעם ב-12 שעות, כדי שמסך הבית יסמן את אלה שמתחילים מיד.</string>
+    <string name="ready_check_title">בדיקה ברקע של מה שמוכן</string>
+    <string name="ready_check_sub">ב-Wi-Fi או ב-Ethernet, שואל את התוספים שלכם על עד 6 כותרים מ\'המשך בצפייה\' ומרשימת הצפייה, כל אחד לכל היותר פעם ב-12 שעות, כדי שמסך הבית יסמן את אלה שמתחילים מיד.</string>
 </resources>

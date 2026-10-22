@@ -2325,6 +2325,6 @@
     <string name="because_you_watched_reason_cast">Também com %1$s</string>
     <string name="ready_to_play">Pronto a reproduzir</string>
     <string name="home_row_ready_tonight">Pronto para esta noite</string>
-    <string name="ready_check_title">Verificar Continuar a ver em segundo plano</string>
-    <string name="ready_check_sub">Em Wi-Fi ou Ethernet, consulta os seus addons sobre até 6 títulos de Continuar a ver, no máximo a cada 12 horas, para que o Início assinale os que começam de imediato.</string>
+    <string name="ready_check_title">Verificar em segundo plano o que está pronto</string>
+    <string name="ready_check_sub">Em Wi-Fi ou Ethernet, consulta os seus addons sobre até 6 títulos de Continuar a ver e da Lista de Interesse, cada um no máximo a cada 12 horas, para que o Início assinale os que começam de imediato.</string>
 </resources>

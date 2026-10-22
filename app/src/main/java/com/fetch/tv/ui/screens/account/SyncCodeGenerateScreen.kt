@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.account
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -60,7 +61,7 @@ fun SyncCodeGenerateScreen(
                 .fillMaxWidth(0.5f)
                 .background(
                     color = FetchTheme.colors.BackgroundElevated,
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(FetchRadii.tokens.xxl)
                 )
                 .padding(FetchTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally

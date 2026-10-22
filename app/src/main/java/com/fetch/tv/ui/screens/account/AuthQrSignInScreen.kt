@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.account
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.content.Intent
@@ -533,7 +534,7 @@ private fun AuthQrCodeBlock(
             contentDescription = stringResource(R.string.cd_qr_login),
             modifier = Modifier
                 .size(206.dp)
-                .background(Color.White, RoundedCornerShape(8.dp))
+                .background(Color.White, RoundedCornerShape(FetchRadii.tokens.sm))
                 .padding(8.dp),
             contentScale = ContentScale.Fit
         )
@@ -541,8 +542,8 @@ private fun AuthQrCodeBlock(
         Box(
             modifier = Modifier
                 .size(206.dp)
-                .background(AuthSecondaryButtonBackground, RoundedCornerShape(8.dp))
-                .border(1.dp, AuthSecondaryButtonBorder, RoundedCornerShape(8.dp)),
+                .background(AuthSecondaryButtonBackground, RoundedCornerShape(FetchRadii.tokens.sm))
+                .border(1.dp, AuthSecondaryButtonBorder, RoundedCornerShape(FetchRadii.tokens.sm)),
             contentAlignment = Alignment.Center
         ) {
             Text(

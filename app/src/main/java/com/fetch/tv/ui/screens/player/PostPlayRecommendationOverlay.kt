@@ -139,17 +139,17 @@ fun PostPlayRecommendationOverlay(
     var pendingNavigationFocusDirection by remember { mutableIntStateOf(0) }
     val logoHeight by animateDpAsState(
         targetValue = if (state.isTrailerPlaying) 60.dp else 92.dp,
-        animationSpec = tween(600),
+        animationSpec = tween(FetchMotion.tokens.durations.long),
         label = "postPlayRecommendationLogoHeight"
     )
     val logoMaxWidth by animateFloatAsState(
         targetValue = if (state.isTrailerPlaying) 0.48f else 0.76f,
-        animationSpec = tween(600),
+        animationSpec = tween(FetchMotion.tokens.durations.long),
         label = "postPlayRecommendationLogoWidth"
     )
     val actionTopSpacing by animateDpAsState(
         targetValue = if (state.isTrailerPlaying) FetchTheme.spacing.md else FetchTheme.spacing.xl,
-        animationSpec = tween(600),
+        animationSpec = tween(FetchMotion.tokens.durations.long),
         label = "postPlayRecommendationActionSpacing"
     )
     val horizontalScrim = if (isRtl) {
@@ -215,8 +215,8 @@ fun PostPlayRecommendationOverlay(
 
     AnimatedVisibility(
         visible = state.isVisible,
-        enter = fadeIn(animationSpec = tween(360)),
-        exit = fadeOut(animationSpec = tween(220)),
+        enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.medium)),
+        exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast)),
         modifier = modifier
     ) {
         Box(
@@ -489,8 +489,8 @@ private fun PostPlayRecommendationSummary(
     Column {
         AnimatedVisibility(
             visibleState = headerVisibility,
-            enter = fadeIn(tween(600)) + expandVertically(expandFrom = Alignment.Bottom),
-            exit = fadeOut(tween(240)) + shrinkVertically(shrinkTowards = Alignment.Bottom)
+            enter = fadeIn(tween(FetchMotion.tokens.durations.long)) + expandVertically(expandFrom = Alignment.Bottom),
+            exit = fadeOut(tween(FetchMotion.tokens.durations.fast)) + shrinkVertically(shrinkTowards = Alignment.Bottom)
         ) {
             Column {
                 Text(
@@ -537,7 +537,7 @@ private fun PostPlayRecommendationSummary(
                 AnimatedContent(
                     targetState = isTrailerPlaying,
                     transitionSpec = {
-                        fadeIn(tween(600)) togetherWith fadeOut(tween(240))
+                        fadeIn(tween(FetchMotion.tokens.durations.long)) togetherWith fadeOut(tween(FetchMotion.tokens.durations.fast))
                     },
                     label = "postPlayRecommendationTitleSize"
                 ) { trailerPlaying ->
@@ -558,8 +558,8 @@ private fun PostPlayRecommendationSummary(
 
         AnimatedVisibility(
             visibleState = detailsVisibility,
-            enter = fadeIn(tween(600)) + expandVertically(expandFrom = Alignment.Bottom),
-            exit = fadeOut(tween(240)) + shrinkVertically(shrinkTowards = Alignment.Bottom)
+            enter = fadeIn(tween(FetchMotion.tokens.durations.long)) + expandVertically(expandFrom = Alignment.Bottom),
+            exit = fadeOut(tween(FetchMotion.tokens.durations.fast)) + shrinkVertically(shrinkTowards = Alignment.Bottom)
         ) {
             AnimatedContent(
                 targetState = recommendation,
@@ -817,7 +817,7 @@ private fun PostPlayRecommendationButton(
             AnimatedContent(
                 targetState = label,
                 transitionSpec = {
-                    fadeIn(tween(140)) togetherWith fadeOut(tween(100))
+                    fadeIn(tween(FetchMotion.tokens.durations.quick)) togetherWith fadeOut(tween(FetchMotion.tokens.durations.quick))
                 },
                 label = "postPlayRecommendationButtonLabel"
             ) { currentLabel ->

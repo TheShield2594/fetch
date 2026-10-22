@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.util.Log
@@ -1288,7 +1289,7 @@ private fun CountBadge(
                 } else {
                     FetchTheme.colors.Secondary.copy(alpha = 0.85f)
                 },
-                shape = RoundedCornerShape(999.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.full)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = 3.dp)
     ) {
@@ -1310,14 +1311,14 @@ private fun SourceChip(label: String, selected: Boolean = false) {
                 } else {
                     Color.White.copy(alpha = 0.08f)
                 },
-                RoundedCornerShape(999.dp)
+                RoundedCornerShape(FetchRadii.tokens.full)
             )
             .then(
                 if (selected) {
                     Modifier.border(
                         width = FetchTheme.spacing.hairline,
                         color = FetchTheme.colors.OnSecondary.copy(alpha = 0.22f),
-                        shape = RoundedCornerShape(999.dp)
+                        shape = RoundedCornerShape(FetchRadii.tokens.full)
                     )
                 } else {
                     Modifier

@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.components.FetchCardDefaults
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -1461,7 +1462,7 @@ private fun ModernCarouselCard(
                         var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                         val gifAlpha by animateFloatAsState(
                             targetValue = if (gifLoaded) 1f else 0f,
-                            animationSpec = tween(durationMillis = 200),
+                            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
                             label = "gifFadeIn"
                         )
                         AsyncImage(

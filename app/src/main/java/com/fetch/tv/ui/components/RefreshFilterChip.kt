@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -95,14 +96,14 @@ fun RefreshFilterChip(
         border = FilterChipDefaults.border(
             border = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
             ),
             focusedBorder = Border(
                 border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.FocusRing),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
             )
         ),
-        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(20.dp))
+        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.xxl))
     ) {
         Icon(
             imageVector = Icons.Rounded.Refresh,

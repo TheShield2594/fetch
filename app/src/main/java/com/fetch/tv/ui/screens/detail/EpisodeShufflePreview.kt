@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.theme.FetchRadii
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -212,7 +213,7 @@ private fun ShuffleEpisodeArtwork(episode: Video, isWatched: Boolean, hidden: Bo
     }
     Box(
         modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
-            .clip(RoundedCornerShape(16.dp)).background(FetchTheme.colors.BackgroundCard),
+            .clip(RoundedCornerShape(FetchRadii.tokens.xl)).background(FetchTheme.colors.BackgroundCard),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -227,7 +228,7 @@ private fun ShuffleEpisodeArtwork(episode: Video, isWatched: Boolean, hidden: Bo
             stringResource(if (isWatched) R.string.library_filter_watched else R.string.library_watched_filter_unwatched),
             style = MaterialTheme.typography.labelMedium, color = Color.White,
             modifier = Modifier.align(Alignment.BottomStart).padding(14.dp)
-                .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(6.dp))
+                .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(FetchRadii.tokens.sm))
                 .padding(horizontal = 10.dp, vertical = 5.dp)
         )
     }

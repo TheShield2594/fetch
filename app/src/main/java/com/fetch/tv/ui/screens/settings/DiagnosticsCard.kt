@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -232,10 +233,10 @@ private fun DiagnosticsSectionCard(
         border = CardDefaults.border(
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs, alpha = 0.5f),
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.sm)
             )
         ),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(10.dp)),
+        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.sm)),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Column(

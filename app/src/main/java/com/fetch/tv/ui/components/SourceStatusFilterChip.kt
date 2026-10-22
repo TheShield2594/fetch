@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.contentTextDirection
 
@@ -61,19 +63,19 @@ fun SourceStatusFilterChip(
 
         alphaPulse.animateTo(
             targetValue = 0.9f,
-            animationSpec = tween(durationMillis = 120, easing = FastOutSlowInEasing)
+            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.quick, easing = FastOutSlowInEasing)
         )
         alphaPulse.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 160, easing = FastOutSlowInEasing)
+            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast, easing = FastOutSlowInEasing)
         )
 
         // Two gentle shakes (less abrupt than the previous infinite shake/blink loop).
-        shakeOffsetPx.animateTo(3f, tween(80, easing = FastOutSlowInEasing))
-        shakeOffsetPx.animateTo(-3f, tween(110, easing = FastOutSlowInEasing))
-        shakeOffsetPx.animateTo(2f, tween(90, easing = FastOutSlowInEasing))
-        shakeOffsetPx.animateTo(-2f, tween(90, easing = FastOutSlowInEasing))
-        shakeOffsetPx.animateTo(0f, tween(140, easing = FastOutSlowInEasing))
+        shakeOffsetPx.animateTo(3f, tween(FetchMotion.tokens.durations.quick, easing = FastOutSlowInEasing))
+        shakeOffsetPx.animateTo(-3f, tween(FetchMotion.tokens.durations.quick, easing = FastOutSlowInEasing))
+        shakeOffsetPx.animateTo(2f, tween(FetchMotion.tokens.durations.quick, easing = FastOutSlowInEasing))
+        shakeOffsetPx.animateTo(-2f, tween(FetchMotion.tokens.durations.quick, easing = FastOutSlowInEasing))
+        shakeOffsetPx.animateTo(0f, tween(FetchMotion.tokens.durations.quick, easing = FastOutSlowInEasing))
     }
 
     val textColor = when {
@@ -110,7 +112,7 @@ fun SourceStatusFilterChip(
         border = FilterChipDefaults.border(
             border = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, if (isError) FetchTheme.colors.Error.copy(alpha = 0.7f) else FetchTheme.colors.Border),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
             ),
             focusedBorder = Border(
                 border = if (isError) {
@@ -118,11 +120,11 @@ fun SourceStatusFilterChip(
                 } else {
                     FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
                 },
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
             ),
             selectedBorder = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, if (isError) FetchTheme.colors.Error.copy(alpha = 0.75f) else FetchTheme.colors.Primary),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
             ),
             focusedSelectedBorder = Border(
                 border = if (isError) {
@@ -130,10 +132,10 @@ fun SourceStatusFilterChip(
                 } else {
                     FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
                 },
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
             )
         ),
-        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(20.dp))
+        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.xxl))
     ) {
         Text(
             text = name,

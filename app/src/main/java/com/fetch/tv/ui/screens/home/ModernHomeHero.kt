@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.theme.FetchMotion
@@ -135,7 +136,7 @@ internal fun ModernHeroMediaLayer(
     val trailerRendered by remember { derivedStateOf { heroTrailerFirstFrameRendered() } }
     val transitionProgressState = animateFloatAsState(
         targetValue = if (shouldPlay && trailerRendered) 1f else 0f,
-        animationSpec = tween(durationMillis = 480),
+        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.slow),
         label = "heroBackdropTrailerCrossfadeProgress"
     )
     val localContext = LocalContext.current
@@ -394,7 +395,7 @@ private fun HeroTitleContent(
     val trailerPlayingValue by remember { derivedStateOf { latestTrailerPlaying.value() } }
     val metaAlpha by animateFloatAsState(
         targetValue = if (trailerPlayingValue) 0f else 1f,
-        animationSpec = tween(durationMillis = 480),
+        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.slow),
         label = "heroMetaFade"
     )
     val scaledTitleStyle = remember(headlineLarge, titleScale) {
@@ -788,10 +789,10 @@ private fun HeroCombinedMetaBadge(
     val dividerColor = contentColor.copy(alpha = 0.55f)
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, dividerColor),
-                shape = RoundedCornerShape(6.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
@@ -829,10 +830,10 @@ private fun HeroMetaBadge(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
-                shape = RoundedCornerShape(6.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         contentAlignment = Alignment.Center

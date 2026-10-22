@@ -6,6 +6,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -1114,7 +1115,7 @@ fun ModernHomeContent(
             // hero video) is playing in fullscreen — not just catalog trailers.
             val trailerContentAlphaState = animateFloatAsState(
                 targetValue = if (fullScreenBackdropUpdated && (shouldPlayCatalogHeroTrailerUpdated || shouldPlayCollectionHeroVideoUpdated) && heroTrailerFirstFrameRenderedUpdated) 0f else 1f,
-                animationSpec = tween(durationMillis = 480),
+                animationSpec = tween(durationMillis = FetchMotion.tokens.durations.slow),
                 label = "trailerContentFade"
             )
 

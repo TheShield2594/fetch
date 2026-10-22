@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.party
 
+import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -105,7 +106,7 @@ fun PartyPanel(
             AnimatedContent(
                 targetState = state.party,
                 contentKey = { it != null },
-                transitionSpec = { fadeIn(tween(220)) togetherWith fadeOut(tween(150)) },
+                transitionSpec = { fadeIn(tween(FetchMotion.tokens.durations.fast)) togetherWith fadeOut(tween(FetchMotion.tokens.durations.quick)) },
                 label = "partyPanelContent",
                 modifier = Modifier.fillMaxSize(),
             ) { party ->
@@ -376,8 +377,8 @@ fun PartyStatusPill(
             AnimatedContent(
                 targetState = message,
                 transitionSpec = {
-                    (fadeIn(tween(200)) + slideInVertically(tween(240)) { it / 2 }) togetherWith
-                        (fadeOut(tween(120)) + slideOutVertically(tween(160)) { -it / 2 })
+                    (fadeIn(tween(FetchMotion.tokens.durations.fast)) + slideInVertically(tween(FetchMotion.tokens.durations.fast)) { it / 2 }) togetherWith
+                        (fadeOut(tween(FetchMotion.tokens.durations.quick)) + slideOutVertically(tween(FetchMotion.tokens.durations.fast)) { -it / 2 })
                 },
                 label = "partyStatusMessage",
             ) { text ->

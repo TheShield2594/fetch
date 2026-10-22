@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -346,7 +347,7 @@ internal fun LayoutCustomPosterSection(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(10.dp))
+                .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchRadii.tokens.sm))
                 .padding(horizontal = 14.dp, vertical = FetchTheme.spacing.md)
         )
     }

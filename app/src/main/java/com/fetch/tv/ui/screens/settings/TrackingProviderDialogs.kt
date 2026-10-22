@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.theme.FetchRadii
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.Crossfade
@@ -775,7 +776,7 @@ private fun TrackingBrandMessage(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
             .background(
                 if (isError) {
                     TrackingBrandError.copy(alpha = 0.14f)
@@ -867,7 +868,7 @@ private fun TraktConnectedStatsStrip(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
             .background(Color.White.copy(alpha = 0.08f))
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)

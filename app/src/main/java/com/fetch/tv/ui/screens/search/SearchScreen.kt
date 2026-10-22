@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -1050,7 +1051,7 @@ private fun RecentSearchesSection(
                     var isSearchFocused by remember(recentQuery) { mutableStateOf(false) }
                     val searchScale by animateFloatAsState(
                         targetValue = if (isSearchFocused) 1.02f else 1f,
-                        animationSpec = tween(durationMillis = 140),
+                        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.quick),
                         label = "recentSearchScale"
                     )
                     Button(
@@ -1232,7 +1233,7 @@ private fun SearchInputField(
                 initialValue = 1f,
                 targetValue = 1.35f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(800, easing = LinearEasing),
+                    animation = tween(FetchMotion.tokens.durations.long, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart
                 ),
                 label = "pulseScale"
@@ -1241,7 +1242,7 @@ private fun SearchInputField(
                 initialValue = 0.5f,
                 targetValue = 0f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(800, easing = LinearEasing),
+                    animation = tween(FetchMotion.tokens.durations.long, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart
                 ),
                 label = "pulseAlpha"
@@ -1250,7 +1251,7 @@ private fun SearchInputField(
             // RMS-based ring — smoothly follows mic input level
             val animatedRms by animateFloatAsState(
                 targetValue = if (isVoiceListening) voiceRmsLevel else 0f,
-                animationSpec = tween(100),
+                animationSpec = tween(FetchMotion.tokens.durations.quick),
                 label = "rmsRing"
             )
 

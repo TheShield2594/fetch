@@ -743,7 +743,7 @@ internal fun <T> SettingsSingleChoiceDialog(
                             containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                             focusedContainerColor = FetchTheme.colors.FocusBackground
                         ),
-                        shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
+                        shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                         scale = CardDefaults.scale(focusedScale = 1f)
                     ) {
                         Row(
@@ -858,7 +858,7 @@ internal fun <T> SettingsMultiChoiceDialog(
                                 containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground
                             ),
-                            shape = CardDefaults.shape(RoundedCornerShape(10.dp)),
+                            shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                             scale = CardDefaults.scale(focusedScale = 1f)
                         ) {
                             Row(

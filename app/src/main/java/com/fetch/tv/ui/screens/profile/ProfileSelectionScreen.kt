@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.profile
 
+import com.fetch.tv.ui.theme.FetchRadii
 import androidx.tv.material3.MaterialTheme
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.util.contentTextDirection
@@ -378,14 +379,14 @@ fun ProfileSelectionScreen(
         AnimatedContent(
             targetState = pinOverlayState,
             transitionSpec = {
-                val entering = fadeIn(tween(240)) + slideInHorizontally(
-                    animationSpec = tween(320, easing = ProfileCardFocusEasing),
+                val entering = fadeIn(tween(FetchMotion.tokens.durations.fast)) + slideInHorizontally(
+                    animationSpec = tween(FetchMotion.tokens.durations.medium, easing = ProfileCardFocusEasing),
                     initialOffsetX = { fullWidth ->
                         if (targetState == null) -fullWidth / 10 else fullWidth / 12
                     }
                 )
                 val exiting = fadeOut(tween(FetchMotion.tokens.durations.fast)) + slideOutHorizontally(
-                    animationSpec = tween(240),
+                    animationSpec = tween(FetchMotion.tokens.durations.fast),
                     targetOffsetX = { fullWidth ->
                         if (targetState == null) fullWidth / 12 else -fullWidth / 12
                     }
@@ -578,8 +579,8 @@ fun ProfileSelectionScreen(
         // Create Profile Overlay
         AnimatedVisibility(
             visible = showCreateProfile,
-            enter = fadeIn(tween(200)),
-            exit = fadeOut(tween(150))
+            enter = fadeIn(tween(FetchMotion.tokens.durations.fast)),
+            exit = fadeOut(tween(FetchMotion.tokens.durations.quick))
         ) {
             CreateProfileOverlay(
                 profiles = profiles,
@@ -652,12 +653,12 @@ fun ProfileSelectionScreen(
                 Box(
                     modifier = Modifier
                         .padding(bottom = 34.dp)
-                        .clip(RoundedCornerShape(999.dp))
+                        .clip(RoundedCornerShape(FetchRadii.tokens.full))
                         .background(Color.Black.copy(alpha = 0.78f))
                         .border(
                             width = FetchTheme.spacing.hairline,
                             color = Color.White.copy(alpha = 0.14f),
-                            shape = RoundedCornerShape(999.dp)
+                            shape = RoundedCornerShape(FetchRadii.tokens.full)
                         )
                         .padding(horizontal = FetchTheme.spacing.xl, vertical = 14.dp)
                 ) {
@@ -894,7 +895,7 @@ private fun ProfileSelectionBackground(
 ) {
     val animatedAvatarColor by animateColorAsState(
         targetValue = focusedAvatarColor,
-        animationSpec = tween(durationMillis = 520),
+        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.slow),
         label = "focusedAvatarColor"
     )
     // Use fixed dark colors so the gradient is consistent.
@@ -909,7 +910,7 @@ private fun ProfileSelectionBackground(
     AnimatedContent(
         targetState = profileBackground,
         transitionSpec = {
-            fadeIn(tween(320)) togetherWith fadeOut(tween(240))
+            fadeIn(tween(FetchMotion.tokens.durations.medium)) togetherWith fadeOut(tween(FetchMotion.tokens.durations.fast))
         },
         contentKey = { background ->
             when (background) {
@@ -1158,7 +1159,7 @@ private fun ProfileCard(
     val interactionSource = remember { MutableInteractionSource() }
     val focusProgress by animateFloatAsState(
         targetValue = if (isFocused) 1f else 0f,
-        animationSpec = tween(durationMillis = 210, easing = ProfileCardFocusEasing),
+        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast, easing = ProfileCardFocusEasing),
         label = "profileFocusProgress"
     )
     val profileFocusRing = remember(profileTheme) {
@@ -1351,7 +1352,7 @@ private fun AddProfileCard(
     val interactionSource = remember { MutableInteractionSource() }
     val focusProgress by animateFloatAsState(
         targetValue = if (isFocused) 1f else 0f,
-        animationSpec = tween(durationMillis = 210, easing = ProfileCardFocusEasing),
+        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast, easing = ProfileCardFocusEasing),
         label = "addFocusProgress"
     )
     val itemScale = 1f + (0.04f * focusProgress)
@@ -1435,14 +1436,14 @@ private fun AddProfileCard(
                         modifier = Modifier
                             .width(if (compact) 22.dp else 26.dp)
                             .height(3.dp)
-                            .clip(RoundedCornerShape(999.dp))
+                            .clip(RoundedCornerShape(FetchRadii.tokens.full))
                             .background(plusColor)
                     )
                     Box(
                         modifier = Modifier
                             .width(3.dp)
                             .height(if (compact) 22.dp else 26.dp)
-                            .clip(RoundedCornerShape(999.dp))
+                            .clip(RoundedCornerShape(FetchRadii.tokens.full))
                             .background(plusColor)
                     )
                 }
@@ -1530,9 +1531,9 @@ private fun CreateProfileOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
                 .background(FetchTheme.colors.BackgroundElevated)
-                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(20.dp))
+                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xxl))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -1702,9 +1703,9 @@ private fun CreateProfileOverlay(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(160.dp)
-                                .clip(RoundedCornerShape(18.dp))
+                                .clip(RoundedCornerShape(FetchRadii.tokens.xl))
                                 .background(FetchTheme.colors.BackgroundCard)
-                                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(18.dp)),
+                                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xl)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -1878,9 +1879,9 @@ private fun EditProfileOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
                 .background(FetchTheme.colors.BackgroundElevated)
-                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(20.dp))
+                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xxl))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -2050,12 +2051,12 @@ private fun EditProfileOverlay(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(160.dp)
-                                        .clip(RoundedCornerShape(18.dp))
+                                        .clip(RoundedCornerShape(FetchRadii.tokens.xl))
                                         .background(FetchTheme.colors.BackgroundCard)
                                         .border(
                                             FetchTheme.spacing.hairline,
                                             FetchTheme.colors.Border,
-                                            RoundedCornerShape(18.dp)
+                                            RoundedCornerShape(FetchRadii.tokens.xl)
                                         ),
                                     contentAlignment = Alignment.Center
                                 ) {
@@ -2157,7 +2158,7 @@ internal fun ProfilePinOverlay(
         initialValue = 0.25f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(520),
+            animation = tween(FetchMotion.tokens.durations.slow),
             repeatMode = RepeatMode.Reverse
         ),
         label = "pinCursorAlpha"
@@ -2503,7 +2504,7 @@ private fun ProfilePinBoxes(
                     isActive -> Color.White
                     else -> Color.White.copy(alpha = 0.72f)
                 },
-                animationSpec = tween(140),
+                animationSpec = tween(FetchMotion.tokens.durations.quick),
                 label = "pinBoxBorder"
             )
             val backgroundColor by animateColorAsState(
@@ -2513,12 +2514,12 @@ private fun ProfilePinBoxes(
                     isActive -> Color.White.copy(alpha = 0.04f)
                     else -> Color.Transparent
                 },
-                animationSpec = tween(140),
+                animationSpec = tween(FetchMotion.tokens.durations.quick),
                 label = "pinBoxBackground"
             )
             val borderWidth by animateDpAsState(
                 targetValue = if (isActive || isErrorState) FetchTheme.spacing.xxs else FetchTheme.spacing.hairline,
-                animationSpec = tween(140),
+                animationSpec = tween(FetchMotion.tokens.durations.quick),
                 label = "pinBoxBorderWidth"
             )
 
@@ -2584,12 +2585,12 @@ private fun ProfileNameField(
     val focusManager = LocalFocusManager.current
     val backgroundColor by animateColorAsState(
         targetValue = if (isFocused) FetchTheme.colors.FocusBackground else Color.White.copy(alpha = 0.05f),
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileNameBackground"
     )
     val borderWidth by animateDpAsState(
         targetValue = if (isFocused) FetchTheme.spacing.xxs else FetchTheme.spacing.hairline,
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileNameBorderWidth"
     )
 
@@ -2658,7 +2659,7 @@ private fun OverlayButton(
             isFocused -> FetchTheme.colors.FocusBackground
             else -> Color.White.copy(alpha = 0.06f)
         },
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "btnBg"
     )
     val borderColor by animateColorAsState(
@@ -2668,12 +2669,12 @@ private fun OverlayButton(
             isPrimary -> FetchTheme.colors.Secondary
             else -> FetchTheme.colors.Border
         },
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "btnBorder"
     )
     val borderWidth by animateDpAsState(
         targetValue = if (isFocused) FetchTheme.spacing.xxs else FetchTheme.spacing.hairline,
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "btnBorderWidth"
     )
     val textColor = when {

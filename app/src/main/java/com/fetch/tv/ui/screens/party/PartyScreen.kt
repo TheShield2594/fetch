@@ -137,7 +137,7 @@ fun PartyScreen(
             AnimatedContent(
                 targetState = mode,
                 transitionSpec = {
-                    (fadeIn(tween(260, delayMillis = 60)) + scaleIn(tween(320), initialScale = 0.96f)) togetherWith fadeOut(tween(140))
+                    (fadeIn(tween(FetchMotion.tokens.durations.fast, delayMillis = 60)) + scaleIn(tween(FetchMotion.tokens.durations.medium), initialScale = 0.96f)) togetherWith fadeOut(tween(FetchMotion.tokens.durations.quick))
                 },
                 label = "partyScreenMode",
                 modifier = Modifier
@@ -281,7 +281,7 @@ private fun JoinContent(
                 targetState = preview,
                 contentKey = { it != null },
                 transitionSpec = {
-                    (fadeIn(tween(240, delayMillis = 60)) + slideInVertically(tween(300)) { it / 10 }) togetherWith fadeOut(tween(140))
+                    (fadeIn(tween(FetchMotion.tokens.durations.fast, delayMillis = 60)) + slideInVertically(tween(FetchMotion.tokens.durations.medium)) { it / 10 }) togetherWith fadeOut(tween(FetchMotion.tokens.durations.quick))
                 },
                 label = "partyJoinPreview",
             ) { current ->
@@ -321,7 +321,7 @@ private fun JoinContent(
             AnimatedContent(
                 targetState = shownError,
                 transitionSpec = {
-                    (fadeIn(tween(180)) + slideInVertically(tween(220)) { -it / 2 }) togetherWith fadeOut(tween(120))
+                    (fadeIn(tween(FetchMotion.tokens.durations.fast)) + slideInVertically(tween(FetchMotion.tokens.durations.fast)) { -it / 2 }) togetherWith fadeOut(tween(FetchMotion.tokens.durations.quick))
                 },
                 label = "partyJoinError",
             ) { current ->

@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.account
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -63,7 +64,7 @@ fun SyncCodeClaimScreen(
                 .fillMaxWidth(0.5f)
                 .background(
                     color = FetchTheme.colors.BackgroundElevated,
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(FetchRadii.tokens.xxl)
                 )
                 .padding(FetchTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally

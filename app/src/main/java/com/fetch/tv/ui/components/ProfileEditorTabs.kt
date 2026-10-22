@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -77,15 +79,15 @@ private fun ProfileEditorTabItem(
             isSelected -> FetchTheme.colors.Secondary.copy(alpha = 0.22f)
             else -> Color.White.copy(alpha = 0.06f)
         },
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileEditorTabBackground"
     )
     val textColor by animateColorAsState(
         targetValue = if (isSelected || isFocused) Color.White else FetchTheme.colors.TextSecondary,
-        animationSpec = tween(120),
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileEditorTabText"
     )
-    val shape = RoundedCornerShape(20.dp)
+    val shape = RoundedCornerShape(FetchRadii.tokens.xxl)
 
     Text(
         text = label,

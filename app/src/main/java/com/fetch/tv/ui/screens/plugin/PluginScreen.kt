@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.plugin
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -614,10 +615,10 @@ private fun ManageFromPhoneCard(onClick: () -> Unit) {
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchRadii.tokens.xl)),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
     ) {
         Row(
@@ -1110,12 +1111,12 @@ private fun RepositoryCard(
             }
             .background(
                 color = FetchTheme.colors.BackgroundCard,
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
             .border(
                 width = if (isCardFocused) FetchTheme.spacing.xxs else FetchTheme.spacing.none,
                 color = cardBorderColor,
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
     ) {
         Row(
@@ -1273,12 +1274,12 @@ private fun ScraperCard(
             }
             .background(
                 color = FetchTheme.colors.BackgroundCard,
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
             .border(
                 width = if (isCardFocused) FetchTheme.spacing.xxs else FetchTheme.spacing.none,
                 color = cardBorderColor,
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
     ) {
         Column(
@@ -1408,11 +1409,11 @@ private fun ScraperCard(
                                 contentColor = FetchTheme.colors.TextSecondary,
                                 focusedContentColor = FetchTheme.colors.TextSecondary
                             ),
-                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(6.dp)),
+                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                             border = ClickableSurfaceDefaults.border(
                                 focusedBorder = Border(
                                     BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Primary),
-                                    shape = RoundedCornerShape(6.dp)
+                                    shape = RoundedCornerShape(FetchRadii.tokens.sm)
                                 )
                             ),
                             modifier = Modifier
@@ -1493,7 +1494,7 @@ private fun TestResultItem(result: LocalScraperResult) {
             .fillMaxWidth()
             .background(
                 color = FetchTheme.colors.Surface,
-                shape = RoundedCornerShape(6.dp)
+                shape = RoundedCornerShape(FetchRadii.tokens.sm)
             )
             .padding(FetchTheme.spacing.sm)
     ) {

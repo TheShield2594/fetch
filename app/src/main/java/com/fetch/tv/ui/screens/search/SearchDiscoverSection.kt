@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -343,7 +344,7 @@ private fun DiscoverDropdownPicker(
                     if (blockFocus) Modifier.focusProperties { canFocus = false }
                     else Modifier
                 ),
-            shape = CardDefaults.shape(shape = RoundedCornerShape(14.dp)),
+            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.lg)),
             colors = CardDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
                 focusedContainerColor = FetchTheme.colors.FocusBackground
@@ -351,11 +352,11 @@ private fun DiscoverDropdownPicker(
             border = CardDefaults.border(
                 border = Border(
                     border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(FetchRadii.tokens.lg)
                 ),
                 focusedBorder = Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(FetchRadii.tokens.lg)
                 )
             ),
             scale = CardDefaults.scale(
@@ -407,7 +408,7 @@ private fun DiscoverDropdownPicker(
             modifier = Modifier
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(14.dp),
+            shape = RoundedCornerShape(FetchRadii.tokens.lg),
             containerColor = FetchTheme.colors.BackgroundCard,
             tonalElevation = FetchTheme.spacing.none,
             shadowElevation = FetchTheme.spacing.sm,
@@ -441,7 +442,7 @@ private fun DiscoverDropdownPicker(
                         .padding(horizontal = 6.dp, vertical = FetchTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
-                            shape = RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(FetchRadii.tokens.sm)
                         )
                         .onFocusChanged { state ->
                             val hasFocus = state.isFocused || state.hasFocus

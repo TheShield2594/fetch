@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -453,8 +454,8 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = FetchTheme.colors.BackgroundCard, shape = RoundedCornerShape(10.dp))
-            .border(FetchTheme.spacing.hairline, usageColor.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+            .background(color = FetchTheme.colors.BackgroundCard, shape = RoundedCornerShape(FetchRadii.tokens.sm))
+            .border(FetchTheme.spacing.hairline, usageColor.copy(alpha = 0.35f), RoundedCornerShape(FetchRadii.tokens.sm))
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Text(

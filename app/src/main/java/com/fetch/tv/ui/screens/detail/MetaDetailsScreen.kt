@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.components.LocalPlaybackAvailability
 import com.fetch.tv.ui.navigation.LocalDetailChildClosedEpoch
 import com.fetch.tv.ui.navigation.LocalDetailChildOverlayVisible
@@ -1124,7 +1125,7 @@ fun MetaDetailsScreen(
                         } else {
                             FetchTheme.colors.BackgroundElevated
                         },
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(FetchRadii.tokens.sm)
                     )
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             ) {
@@ -2691,7 +2692,7 @@ private fun MetaDetailsContent(
 
                     Crossfade(
                         targetState = visiblePeopleSection,
-                        animationSpec = tween(durationMillis = 160),
+                        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
                         label = "peopleSectionSwitch"
                     ) { section ->
                         when (section) {

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.AnimatedContent
@@ -600,7 +601,7 @@ private fun CommentCard(
 
 @Composable
 private fun CommentChip(text: String) {
-    val shape = RoundedCornerShape(999.dp)
+    val shape = RoundedCornerShape(FetchRadii.tokens.full)
     Box(
         modifier = Modifier
             .background(

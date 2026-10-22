@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchMotion
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -40,8 +41,8 @@ internal fun PlayerOverlayScaffold(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(250)),
-        exit = fadeOut(animationSpec = tween(200)),
+        enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+        exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast)),
         modifier = modifier
     ) {
         val focusRequester = remember { FocusRequester() }

@@ -2,6 +2,8 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.core.Animatable
@@ -66,26 +68,26 @@ fun DisplayModeOverlay(
         if (isVisible && !animating) {
             animating = true
 
-            containerAlpha.animateTo(1f, tween(300))
-            lineHeightFraction.animateTo(1f, tween(400, easing = FastOutSlowInEasing))
+            containerAlpha.animateTo(1f, tween(FetchMotion.tokens.durations.medium))
+            lineHeightFraction.animateTo(1f, tween(FetchMotion.tokens.durations.slow, easing = FastOutSlowInEasing))
 
             for (i in 0 until count) {
                 delay(80)
-                itemAlphas[i].animateTo(1f, tween(200))
+                itemAlphas[i].animateTo(1f, tween(FetchMotion.tokens.durations.fast))
             }
 
             delay(5000)
 
             for (i in (count - 1) downTo 0) {
                 delay(60)
-                itemAlphas[i].animateTo(0f, tween(150))
+                itemAlphas[i].animateTo(0f, tween(FetchMotion.tokens.durations.quick))
             }
 
             delay(100)
-            lineHeightFraction.animateTo(0f, tween(300, easing = FastOutSlowInEasing))
+            lineHeightFraction.animateTo(0f, tween(FetchMotion.tokens.durations.medium, easing = FastOutSlowInEasing))
 
             delay(200)
-            containerAlpha.animateTo(0f, tween(200))
+            containerAlpha.animateTo(0f, tween(FetchMotion.tokens.durations.fast))
 
             animating = false
             onAnimationComplete()
@@ -118,7 +120,7 @@ fun DisplayModeOverlay(
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
+                    .clip(RoundedCornerShape(FetchRadii.tokens.sm))
                     .background(Color.Black.copy(alpha = 0.45f))
                     .padding(horizontal = 10.dp, vertical = 6.dp)
             )

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.CubicBezierEasing
@@ -87,7 +88,7 @@ fun MemberBrandWordmark(
     ) {
         Crossfade(
             targetState = drawableOverride,
-            animationSpec = tween(durationMillis = 180),
+            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
             label = "brandWordmarkCrossfade"
         ) { currentDrawable ->
             BrandWordmark(
@@ -207,9 +208,9 @@ private fun MemberSuffixVisibility(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(tween(360)) +
-            expandHorizontally(tween(420), expandFrom = Alignment.Start) +
-            scaleIn(tween(420), initialScale = 0.94f)
+        enter = fadeIn(tween(FetchMotion.tokens.durations.medium)) +
+            expandHorizontally(tween(FetchMotion.tokens.durations.slow), expandFrom = Alignment.Start) +
+            scaleIn(tween(FetchMotion.tokens.durations.slow), initialScale = 0.94f)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Spacer(modifier = Modifier.width(spacing))

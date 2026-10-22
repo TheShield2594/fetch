@@ -5,6 +5,8 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -351,8 +353,8 @@ private fun EpisodeStreamsView(
     // --- Filter chips ---
     AnimatedVisibility(
         visible = uiState.episodeSourceChips.isNotEmpty() || uiState.episodeAvailableAddons.isNotEmpty(),
-        enter = fadeIn(animationSpec = tween(200)),
-        exit = fadeOut(animationSpec = tween(120))
+        enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+        exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
     ) {
         Box(modifier = Modifier.onFocusChanged { chipsHasFocus = it.hasFocus }) {
             AddonFilterChips(
@@ -876,7 +878,7 @@ private fun EpisodeItem(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .padding(FetchTheme.spacing.sm)
-                            .clip(RoundedCornerShape(6.dp))
+                            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
                             .background(Color.Black.copy(alpha = 0.75f))
                             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
                     ) {
@@ -894,7 +896,7 @@ private fun EpisodeItem(
                             .align(Alignment.TopEnd)
                             .padding(6.dp)
                             .size(22.dp)
-                            .clip(RoundedCornerShape(11.dp))
+                            .clip(RoundedCornerShape(FetchRadii.tokens.md))
                             .background(Color.Black.copy(alpha = 0.7f)),
                         contentAlignment = Alignment.Center
                     ) {
@@ -911,7 +913,7 @@ private fun EpisodeItem(
                             .align(Alignment.TopEnd)
                             .padding(6.dp)
                             .size(22.dp)
-                            .clip(RoundedCornerShape(11.dp))
+                            .clip(RoundedCornerShape(FetchRadii.tokens.md))
                             .background(Color.Black.copy(alpha = 0.7f)),
                         contentAlignment = Alignment.Center
                     ) {

@@ -2978,4 +2978,6 @@
     <string name="ready_check_title">Provjeravaj u pozadini što je spremno</string>
     <string name="ready_check_sub">Preko Wi-Fi ili Etherneta pita vaše dodatke za najviše 6 naslova iz Nastavi gledati i Popisa za gledanje, svaki najviše jednom u 12 sati, kako bi Početna označila one koji počinju odmah.</string>
     <string name="empty_state_add_addon">Dodaj dodatak</string>
+    <string name="source_group_other">Druga kvaliteta</string>
+    <string name="source_group_passed_over">Ne reproducira se automatski</string>
 </resources>

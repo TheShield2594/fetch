@@ -2903,4 +2903,6 @@
     <string name="ready_check_title">在背景檢查哪些可以立即播放</string>
     <string name="ready_check_sub">在 Wi-Fi 或乙太網路下，向附加元件查詢「繼續觀看」與觀看清單中最多 6 部作品，每部最多每 12 小時一次，讓首頁標出可以立即播放的內容。</string>
     <string name="empty_state_add_addon">新增擴充套件</string>
+    <string name="source_group_other">其他畫質</string>
+    <string name="source_group_passed_over">未自動播放</string>
 </resources>

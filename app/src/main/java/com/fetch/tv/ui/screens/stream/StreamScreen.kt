@@ -69,6 +69,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import android.view.KeyEvent
 import androidx.compose.ui.input.key.Key
@@ -476,6 +477,7 @@ fun StreamScreen(
                     error = uiState.error,
                     streams = uiState.filteredStreams,
                     streamExclusions = uiState.streamExclusions,
+                    bestMatchFirst = uiState.bestMatchFirst,
                     torrentsNeedExternalPlayer = uiState.torrentsNeedExternalPlayer,
                     availableAddons = uiState.availableAddons,
                     sourceChips = uiState.sourceChips,
@@ -795,6 +797,7 @@ private fun RightStreamSection(
     onExpandStreams: () -> Unit = {},
     onNavigateToAddons: () -> Unit = {},
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
+    bestMatchFirst: Boolean = false,
     torrentsNeedExternalPlayer: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -961,6 +964,7 @@ private fun RightStreamSection(
                         StreamsList(
                             streams = streams,
                             streamExclusions = streamExclusions,
+                            bestMatchFirst = bestMatchFirst,
                             torrentsNeedExternalPlayer = torrentsNeedExternalPlayer,
                             sharedStream = sharedStream,
                             partySource = partySource,
@@ -1001,9 +1005,10 @@ private fun LoadingState(showAddonLogo: Boolean = true) {
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun StreamsList(
+internal fun StreamsList(
     streams: List<Stream>,
     streamExclusions: Map<String, ExclusionReason>,
+    bestMatchFirst: Boolean = false,
     torrentsNeedExternalPlayer: Boolean,
     sharedStream: SharedStream?,
     partySource: PartySource?,
@@ -1040,7 +1045,29 @@ private fun StreamsList(
             stream.stableKey(occurrence)
         }
     }
-    val firstStreamKey = streamKeys.firstOrNull()
+    // Quality sections, each still in ranked order. Best match's pick leads only on the All tab,
+    // the one Best match orders; addon tabs keep the addon's own order within each section.
+    val sections = remember(streams, streamExclusions, bestMatchFirst, selectedAddonFilter) {
+        groupSourcesByQuality(
+            resolutions = streams.map { StreamTitleParser.parse(it).resolution },
+            passedOver = streams.map { streamExclusions.isNotEmpty() && streamExclusions.containsKey(it.stableKey()) },
+            bestMatchFirst = bestMatchFirst && selectedAddonFilter == null
+        )
+    }
+    // A single section needs no header: the list is already what it says.
+    val showSectionHeaders = sections.size > 1
+    val firstShownIndex = sections.firstOrNull()?.indices?.firstOrNull() ?: 0
+    // Where each stream sits in the lazy list, counting the party card and section headers.
+    val lazyIndexOfStream = remember(sections, showSectionHeaders, sharedStream != null) {
+        val positions = IntArray(streams.size)
+        var next = if (sharedStream != null) 1 else 0
+        sections.forEach { section ->
+            if (showSectionHeaders) next++
+            section.indices.forEach { positions[it] = next++ }
+        }
+        positions
+    }
+    val firstStreamKey = streamKeys.getOrNull(firstShownIndex)
     val streamFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     remember(streamKeys) {
         val validKeys = streamKeys.toHashSet()
@@ -1053,18 +1080,21 @@ private fun StreamsList(
 
     var focusedStreamKey by remember { mutableStateOf<String?>(null) }
     val prevStreamKeysRef = remember { mutableStateOf(streamKeys) }
+    val prevLazyIndexRef = remember { mutableStateOf(lazyIndexOfStream) }
 
-    LaunchedEffect(streamKeys) {
+    LaunchedEffect(streamKeys, lazyIndexOfStream) {
         val prevKeys = prevStreamKeysRef.value
+        val prevLazyIndex = prevLazyIndexRef.value
         prevStreamKeysRef.value = streamKeys
+        prevLazyIndexRef.value = lazyIndexOfStream
         val key = focusedStreamKey
         if (key != null && prevKeys !== streamKeys) {
-            val oldIndex = prevKeys.indexOf(key)
-            val newIndex = streamKeys.indexOf(key)
+            val oldIndex = prevKeys.indexOf(key).let { if (it >= 0) prevLazyIndex.getOrElse(it) { -1 } else -1 }
+            val newIndex = streamKeys.indexOf(key).let { if (it >= 0) lazyIndexOfStream.getOrElse(it) { -1 } else -1 }
             if (oldIndex >= 0 && newIndex >= 0 && oldIndex != newIndex && oldIndex > 0) {
                 val shift = newIndex - oldIndex
                 val correctedFirst = (streamListState.firstVisibleItemIndex + shift)
-                    .coerceIn(0, (streamKeys.size - 1).coerceAtLeast(0))
+                    .coerceIn(0, (streamListState.layoutInfo.totalItemsCount - 1).coerceAtLeast(0))
                 try {
                     streamListState.scrollToItem(correctedFirst, streamListState.firstVisibleItemScrollOffset)
                 } catch (_: Exception) { }
@@ -1113,7 +1143,7 @@ private fun StreamsList(
         }
         repeat(2) { withFrameNanos { } }
         try {
-            streamListState.scrollToItem(targetIndex)
+            streamListState.scrollToItem(lazyIndexOfStream.getOrElse(targetIndex) { targetIndex })
             withFrameNanos { }
             restoreFocusRequester.requestFocus()
         } catch (_: Exception) {
@@ -1128,7 +1158,7 @@ private fun StreamsList(
         }
     }
     LaunchedEffect(lastVisibleIndex.value, streams.size) {
-        if (lastVisibleIndex.value >= streams.size - 20) {
+        if (lastVisibleIndex.value >= streamListState.layoutInfo.totalItemsCount - 20) {
             onExpandStreams()
         }
     }
@@ -1207,9 +1237,14 @@ private fun StreamsList(
                 }
             }
         }
-        itemsIndexed(streams, key = { index, _ ->
-            streamKeys[index]
-        }) { index, stream ->
+        sections.forEach { section ->
+        if (showSectionHeaders) {
+            item(key = "source_group_${section.group}", contentType = "source_group_header") {
+                SourceGroupHeader(group = section.group, count = section.indices.size)
+            }
+        }
+        items(section.indices, key = { index -> streamKeys[index] }) { index ->
+            val stream = streams[index]
             Box(modifier = Modifier.padding(vertical = FetchTheme.spacing.xs)) {
                 val isPartySource = partySource?.matches(stream) == true
                 StreamCard(
@@ -1232,11 +1267,11 @@ private fun StreamsList(
                             focusedStreamKey = streamKeys.getOrNull(index)
                             onFocusedStreamKeyChanged(focusedStreamKey)
                         }
-                        if (index == 0) {
+                        if (index == firstShownIndex) {
                             firstCardHasFocus = focused
                         }
                     },
-                    onUpKey = if (index == 0 && sharedStream == null) {{
+                    onUpKey = if (index == firstShownIndex && sharedStream == null) {{
                         val idx = if (selectedAddonFilter == null) 1
                                   else orderedAddonNames.indexOf(selectedAddonFilter) + 2
                         onRequestChipFocus(idx)
@@ -1244,6 +1279,36 @@ private fun StreamsList(
                 )
             }
         }
+        }
+    }
+}
+
+/** A quality section's title and how many sources it holds. Not focusable: D-pad skips it. */
+@Composable
+private fun SourceGroupHeader(group: SourceGroup, count: Int) {
+    val title = when (group) {
+        SourceGroup.BEST_MATCH -> stringResource(R.string.autoplay_mode_best)
+        SourceGroup.UHD -> com.fetch.tv.core.streams.ranking.StreamResolution.UHD_2160.label
+        SourceGroup.FHD -> com.fetch.tv.core.streams.ranking.StreamResolution.FHD_1080.label
+        SourceGroup.OTHER -> stringResource(R.string.source_group_other)
+        SourceGroup.PASSED_OVER -> stringResource(R.string.source_group_passed_over)
+    }
+    // More space above than below, so a header reads as the start of its section.
+    Row(
+        modifier = Modifier.padding(start = FetchTheme.spacing.xs, top = FetchTheme.spacing.lg),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = FetchTheme.colors.TextPrimary
+        )
+        Text(
+            text = count.toString(),
+            style = FetchTheme.textStyles.spec,
+            color = FetchTheme.colors.TextTertiary
+        )
     }
 }
 

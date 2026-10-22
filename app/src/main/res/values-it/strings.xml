@@ -3041,4 +3041,6 @@
     <string name="ready_check_title">Controlla in background cosa è pronto</string>
     <string name="ready_check_sub">Su Wi-Fi o Ethernet, interroga i tuoi addon su un massimo di 6 titoli da Continua a guardare e dalla Lista da guardare, ognuno non più di una volta ogni 12 ore, così la Home può indicare quelli che si avviano subito.</string>
     <string name="empty_state_add_addon">Aggiungi un addon</string>
+    <string name="source_group_other">Altra qualità</string>
+    <string name="source_group_passed_over">Non riprodotto automaticamente</string>
 </resources>

@@ -3064,4 +3064,6 @@
     <string name="ready_check_title">Neyin hazır olduğunu arka planda denetle</string>
     <string name="ready_check_sub">Wi-Fi veya Ethernet\'te, İzlemeye Devam Et ve İzleme Listesi\'ndeki en fazla 6 başlık için eklentilerine sorar, her birini en fazla 12 saatte bir; böylece Ana sayfa hemen başlayanları işaretleyebilir.</string>
     <string name="empty_state_add_addon">Eklenti ekle</string>
+    <string name="source_group_other">Diğer kalite</string>
+    <string name="source_group_passed_over">Otomatik oynatılmadı</string>
 </resources>

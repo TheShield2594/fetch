@@ -3063,4 +3063,6 @@
     <string name="ready_check_title">Kontrolovať na pozadí, čo je pripravené</string>
     <string name="ready_check_sub">Cez Wi-Fi alebo Ethernet sa opýta doplnkov na najviac 6 titulov z Pokračovať v sledovaní a Watchlistu, na každý najviac raz za 12 hodín, aby Domov mohla označiť tie, ktoré sa spustia okamžite.</string>
     <string name="empty_state_add_addon">Pridať doplnok</string>
+    <string name="source_group_other">Iná kvalita</string>
+    <string name="source_group_passed_over">Neprehrá sa automaticky</string>
 </resources>

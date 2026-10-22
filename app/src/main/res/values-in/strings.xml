@@ -2290,4 +2290,6 @@
     <string name="ready_check_title">Periksa yang siap di latar belakang</string>
     <string name="ready_check_sub">Melalui Wi-Fi atau Ethernet, menanyakan addon Anda tentang maksimal 6 judul dari Lanjutkan Menonton dan Daftar Tonton, masing-masing paling sering setiap 12 jam, agar Beranda dapat menandai yang langsung diputar.</string>
     <string name="empty_state_add_addon">Tambahkan addon</string>
+    <string name="source_group_other">Kualitas lain</string>
+    <string name="source_group_passed_over">Tidak diputar otomatis</string>
 </resources>

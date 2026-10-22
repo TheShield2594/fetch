@@ -2275,4 +2275,6 @@
     <string name="ready_check_title">Im Hintergrund prüfen, was bereit ist</string>
     <string name="ready_check_sub">Fragt im WLAN oder über Ethernet Ihre Addons zu bis zu 6 Titeln aus „Weiter ansehen“ und Ihrer Watchlist, jeden höchstens alle 12 Stunden, damit die Startseite die markiert, die sofort starten.</string>
     <string name="empty_state_add_addon">Add-on hinzufügen</string>
+    <string name="source_group_other">Andere Qualität</string>
+    <string name="source_group_passed_over">Nicht automatisch abgespielt</string>
 </resources>

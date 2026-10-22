@@ -4,7 +4,7 @@
     <string name="first_run_phone_title">Ρύθμιση με το τηλέφωνό σας. Χωρίς πληκτρολόγηση με το τηλεχειριστήριο.</string>
     <string name="first_run_phone_qr_description">Κωδικός ρύθμισης μέσω τηλεφώνου</string>
     <string name="first_run_phone_step_scan">Σαρώστε με την κάμερα του τηλεφώνου σας</string>
-    <string name="first_run_phone_step_addons">Επικολλήστε πρόσθετα και το κλειδί debrid σας</string>
+    <string name="first_run_phone_step_rules">Επιλέξτε κανόνες ποιότητας ροής</string>
     <string name="first_run_phone_step_accounts">Συνδεθείτε στο Trakt, το Simkl ή το Jellyfin</string>
     <string name="first_run_phone_network">Το τηλέφωνό σας πρέπει να είναι στο ίδιο Wi-Fi με αυτή την τηλεόραση. Μπορείτε επίσης να το κάνετε αργότερα από τις Ρυθμίσεις.</string>
     <string name="first_run_recommended">Προτείνεται</string>

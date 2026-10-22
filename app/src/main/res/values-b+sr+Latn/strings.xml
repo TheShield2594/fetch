@@ -2842,5 +2842,5 @@
     <string name="subtitle_style_text_color_hdr">Boja teksta (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Ovo je torent strim, a Fetch nema ugrađeni torent mehanizam. Uključite debrid uslugu u Podešavanja → Debrid ili ga otvorite u spoljnom plejeru.</string>
+    <string name="torrent_engine_unavailable">Ovo je torrent strim, a Fetch nema ugrađeni torrent mehanizam. Podesite debrid u dodatku da biste dobili link koji se ovde reprodukuje, ili ga otvorite u spoljnom plejeru.</string>
 </resources>

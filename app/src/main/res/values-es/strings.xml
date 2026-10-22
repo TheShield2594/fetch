@@ -2883,7 +2883,7 @@
     <string name="addon_health_failing">La última solicitud falló</string>
     <string name="addon_health_timed_out">La última solicitud agotó el tiempo de espera</string>
     <string name="account_local_only_note">La sincronización está desactivada. Fetch guarda tus complementos, progreso y ajustes en esta TV y no necesita cuenta. Para sincronizar entre dispositivos, conecta tu propio servidor de sincronización desde las opciones de servidor.</string>
-    <string name="torrent_engine_unavailable">Esta es una transmisión torrent y Fetch no tiene motor de torrent integrado. Activa un servicio debrid en Configuración → Debrid o ábrela en un reproductor externo.</string>
+    <string name="torrent_engine_unavailable">Este es un stream torrent y Fetch no tiene un motor torrent integrado. Configura debrid en el addon para obtener un enlace que se reproduzca aquí, o ábrelo en un reproductor externo.</string>
     <string name="parental_title_blocked">Este título supera el límite de clasificación de este perfil.</string>
     <string name="parental_addons_blocked">Este perfil no puede instalar complementos. Pídeselo a un adulto.</string>
     <string name="parental_gate_heading">Introduce el PIN de %1$s</string>

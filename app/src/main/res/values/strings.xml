@@ -2787,7 +2787,7 @@
     <string name="addon_health_failing">Last request failed</string>
     <string name="addon_health_timed_out">Last request timed out</string>
     <string name="account_local_only_note">Sync is off. Fetch keeps your addons, progress and settings on this TV and needs no account. To sync between devices, connect your own sync server from the server options.</string>
-    <string name="torrent_engine_unavailable">This is a torrent stream and Fetch has no built-in torrent engine. Turn on a debrid service in Settings → Debrid, or open it in an external player.</string>
+    <string name="torrent_engine_unavailable">This is a torrent stream and Fetch has no built-in torrent engine. Set up debrid in the addon to get a link that plays here, or open it in an external player.</string>
     <string name="stream_torrent_external_player">Torrent: opens in an external player. Set up debrid in the addon to get a link that plays here.</string>
     <string name="torrent_error_start_timeout">Torrent stream did not start within %1$ds</string>
 

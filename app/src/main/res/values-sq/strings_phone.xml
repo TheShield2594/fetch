@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">Telefoni yt duhet të jetë në të njëjtin Wi-Fi me këtë TV. Mund ta bësh këtë edhe më vonë te Cilësimet.</string>
     <string name="first_run_phone_qr_description">Kodi i konfigurimit me telefon</string>
     <string name="first_run_phone_step_accounts">Identifikohu në Trakt, Simkl ose Jellyfin</string>
-    <string name="first_run_phone_step_addons">Ngjit shtesat dhe çelësin tënd debrid</string>
+    <string name="first_run_phone_step_rules">Zgjidhni rregullat e cilësisë së transmetimeve</string>
     <string name="first_run_phone_step_scan">Skano me kamerën e telefonit</string>
     <string name="first_run_phone_title">Konfiguro me telefon. Pa shkruar me telekomandë.</string>
     <string name="first_run_recommended">Rekomanduar</string>

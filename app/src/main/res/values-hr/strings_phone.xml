@@ -4,7 +4,7 @@
     <string name="first_run_phone_title">Postavi putem telefona. Bez tipkanja daljinskim.</string>
     <string name="first_run_phone_qr_description">Kôd za postavljanje putem telefona</string>
     <string name="first_run_phone_step_scan">Skeniraj kamerom telefona</string>
-    <string name="first_run_phone_step_addons">Zalijepi dodatke i svoj debrid ključ</string>
+    <string name="first_run_phone_step_rules">Odaberite pravila kvalitete streamova</string>
     <string name="first_run_phone_step_accounts">Prijavi se na Trakt, Simkl ili Jellyfin</string>
     <string name="first_run_phone_network">Telefon mora biti na istoj Wi-Fi mreži kao ovaj TV. To možeš učiniti i kasnije u Postavkama.</string>
     <string name="first_run_recommended">Preporučeno</string>

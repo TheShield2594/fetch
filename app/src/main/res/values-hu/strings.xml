@@ -2997,7 +2997,7 @@
     <string name="addon_health_failing">Az utolsó kérés sikertelen volt</string>
     <string name="addon_health_timed_out">Az utolsó kérés túllépte az időkorlátot</string>
     <string name="account_local_only_note">A szinkronizálás ki van kapcsolva. A Fetch ezen a TV-n tárolja a bővítményeidet, a megtekintési állapotot és a beállításokat, és nincs szüksége fiókra. Az eszközök közötti szinkronizáláshoz csatlakoztasd a saját szinkronizálási szerveredet a szerverbeállításokban.</string>
-    <string name="torrent_engine_unavailable">Ez egy torrent forrás, a Fetch pedig nem rendelkezik beépített torrentmotorral. Kapcsolj be egy debrid szolgáltatást a Beállítások → Debrid menüben, vagy nyisd meg külső lejátszóban.</string>
+    <string name="torrent_engine_unavailable">Ez egy torrent stream, és a Fetch nem rendelkezik beépített torrent motorral. Állítsa be a debridet a kiegészítőben, hogy itt lejátszható linket kapjon, vagy nyissa meg külső lejátszóban.</string>
     <string name="parental_title_blocked">Ez a cím meghaladja a profil korhatár-besorolási korlátját.</string>
     <string name="parental_addons_blocked">Ez a profil nem telepíthet bővítményeket. Kérd meg egy szülőt.</string>
     <string name="parental_gate_heading">Add meg %1$s PIN-kódját</string>

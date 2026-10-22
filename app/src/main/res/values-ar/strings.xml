@@ -2737,5 +2737,5 @@
     <string name="subtitle_style_text_color_hdr">لون النص (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">شفافية النص (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">هذا مصدر تورنت ولا يحتوي Fetch على محرك تورنت مدمج. فعّل خدمة ديبريد من الإعدادات ← Debrid، أو افتحه في مشغل خارجي.</string>
+    <string name="torrent_engine_unavailable">هذا مصدر تورنت ولا يحتوي Fetch على محرك تورنت مدمج. فعّل ديبريد في الإضافة للحصول على رابط يعمل هنا، أو افتحه في مشغل خارجي.</string>
 </resources>

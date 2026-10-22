@@ -2841,5 +2841,5 @@
     <string name="subtitle_style_text_color_hdr">Cor do texto (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacidade do texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Este é um stream torrent e o Fetch não tem um mecanismo de torrent integrado. Ative um serviço debrid em Configurações → Debrid ou abra-o em um player externo.</string>
+    <string name="torrent_engine_unavailable">Este é um stream torrent e o Fetch não tem um mecanismo de torrent integrado. Configure o debrid no addon para obter um link que toque aqui, ou abra-o em um player externo.</string>
 </resources>

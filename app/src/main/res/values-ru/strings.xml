@@ -2796,5 +2796,5 @@
     <string name="subtitle_style_text_color_hdr">Цвет текста (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Прозрачность текста (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Это торрент-поток, а в Fetch нет встроенного торрент-движка. Включите debrid-сервис в Настройки → Debrid или откройте его во внешнем плеере.</string>
+    <string name="torrent_engine_unavailable">Это торрент-поток, а в Fetch нет встроенного торрент-движка. Настройте debrid в аддоне, чтобы получить ссылку, которая воспроизводится здесь, или откройте его во внешнем плеере.</string>
 </resources>

@@ -2552,5 +2552,5 @@
     <string name="subtitle_style_text_color_hdr">Barva textu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprůhlednost textu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Toto je torrentový stream a Fetch nemá vestavěný torrentový engine. Zapněte debrid službu v Nastavení → Debrid, nebo jej otevřete v externím přehrávači.</string>
+    <string name="torrent_engine_unavailable">Toto je torrentový stream a Fetch nemá vestavěný torrentový engine. Nastavte debrid v doplňku, abyste získali odkaz, který se přehraje zde, nebo ho otevřete v externím přehrávači.</string>
 </resources>

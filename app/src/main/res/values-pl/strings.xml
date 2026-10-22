@@ -3128,5 +3128,5 @@
     <string name="subtitle_style_text_color_hdr">Kolor tekstu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Krycie tekstu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">To jest stream torrent, a Fetch nie ma wbudowanego silnika torrent. Włącz usługę debrid w Ustawienia → Debrid lub otwórz go w zewnętrznym odtwarzaczu.</string>
+    <string name="torrent_engine_unavailable">To jest stream torrent, a Fetch nie ma wbudowanego silnika torrent. Skonfiguruj debrid w dodatku, aby otrzymać link odtwarzany tutaj, lub otwórz go w zewnętrznym odtwarzaczu.</string>
 </resources>

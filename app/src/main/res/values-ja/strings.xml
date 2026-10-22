@@ -2437,5 +2437,5 @@
     <string name="subtitle_style_text_color_hdr">文字色（HDR）</string>
     <string name="subtitle_style_text_opacity_hdr">文字の不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">これはトレントストリームですが、Fetchにはトレントエンジンが内蔵されていません。設定 → DebridでDebridサービスをオンにするか、外部プレーヤーで開いてください。</string>
+    <string name="torrent_engine_unavailable">これはトレントストリームで、Fetch にはトレントエンジンが内蔵されていません。ここで再生できるリンクを得るにはアドオンで Debrid を設定するか、外部プレーヤーで開いてください。</string>
 </resources>

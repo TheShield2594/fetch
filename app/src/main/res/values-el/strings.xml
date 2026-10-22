@@ -2937,7 +2937,7 @@
     <string name="addon_health_failing">Το τελευταίο αίτημα απέτυχε</string>
     <string name="addon_health_timed_out">Το τελευταίο αίτημα έληξε</string>
     <string name="account_local_only_note">Ο συγχρονισμός είναι απενεργοποιημένος. Το Fetch κρατά τα πρόσθετα, την πρόοδο και τις ρυθμίσεις σας σε αυτή την τηλεόραση και δεν χρειάζεται λογαριασμό. Για συγχρονισμό μεταξύ συσκευών, συνδέστε τον δικό σας διακομιστή συγχρονισμού από τις επιλογές διακομιστή.</string>
-    <string name="torrent_engine_unavailable">Αυτή είναι ροή torrent και το Fetch δεν διαθέτει ενσωματωμένη μηχανή torrent. Ενεργοποιήστε μια υπηρεσία debrid στις Ρυθμίσεις → Debrid ή ανοίξτε τη σε εξωτερικό πρόγραμμα αναπαραγωγής.</string>
+    <string name="torrent_engine_unavailable">Αυτή είναι ροή torrent και το Fetch δεν έχει ενσωματωμένη μηχανή torrent. Ρυθμίστε το debrid στο πρόσθετο για να λάβετε σύνδεσμο που παίζει εδώ, ή ανοίξτε το σε εξωτερικό πρόγραμμα αναπαραγωγής.</string>
     <string name="parental_title_blocked">Αυτός ο τίτλος ξεπερνά το όριο καταλληλότητας αυτού του προφίλ.</string>
     <string name="parental_addons_blocked">Αυτό το προφίλ δεν μπορεί να εγκαταστήσει πρόσθετα. Ζητήστε από έναν γονέα.</string>
     <string name="parental_gate_heading">Εισαγάγετε το PIN του προφίλ %1$s</string>

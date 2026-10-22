@@ -2794,5 +2794,5 @@
     <string name="subtitle_style_text_color_hdr">টেক্সট কালার (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">টেক্সট অপাসিটি (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">এটি একটি টরেন্ট স্ট্রিম এবং Fetch-এ কোনো বিল্ট-ইন টরেন্ট ইঞ্জিন নেই। সেটিংস → Debrid-এ একটি ডেব্রিড সার্ভিস চালু করুন, অথবা এটি একটি এক্সটার্নাল প্লেয়ারে খুলুন।</string>
+    <string name="torrent_engine_unavailable">এটি একটি টরেন্ট স্ট্রিম এবং Fetch-এ কোনো বিল্ট-ইন টরেন্ট ইঞ্জিন নেই। এখানে চলবে এমন লিঙ্ক পেতে অ্যাডঅনে debrid সেট আপ করুন, অথবা বাইরের প্লেয়ারে খুলুন।</string>
 </resources>

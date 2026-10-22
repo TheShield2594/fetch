@@ -1647,5 +1647,5 @@
     <string name="subtitle_style_text_color_hdr">Textfärg (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Textopacitet (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Det här är en torrentström och Fetch har ingen inbyggd torrentmotor. Aktivera en debrid-tjänst i Inställningar → Debrid, eller öppna den i en extern spelare.</string>
+    <string name="torrent_engine_unavailable">Det här är en torrentström och Fetch har ingen inbyggd torrentmotor. Ställ in debrid i tillägget för att få en länk som spelas här, eller öppna den i en extern spelare.</string>
 </resources>

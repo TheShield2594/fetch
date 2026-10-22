@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">Telefon mora biti v istem omrežju Wi-Fi kot ta televizor. To lahko storite tudi pozneje v nastavitvah.</string>
     <string name="first_run_phone_qr_description">Koda za nastavitev s telefonom</string>
     <string name="first_run_phone_step_accounts">Prijavite se v Trakt, Simkl ali Jellyfin</string>
-    <string name="first_run_phone_step_addons">Prilepite dodatke in svoj ključ debrid</string>
+    <string name="first_run_phone_step_rules">Izberite pravila kakovosti pretokov</string>
     <string name="first_run_phone_step_scan">Skenirajte s kamero telefona</string>
     <string name="first_run_phone_title">Nastavite s telefonom. Brez tipkanja z daljinskim upravljalnikom.</string>
     <string name="first_run_recommended">Priporočeno</string>

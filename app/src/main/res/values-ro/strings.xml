@@ -947,5 +947,5 @@
     <string name="subtitle_style_text_color_hdr">Culoare text (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacitate text (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Acesta este un flux torrent, iar Fetch nu are un motor torrent integrat. Activează un serviciu debrid în Setări → Debrid sau deschide-l într-un player extern.</string>
+    <string name="torrent_engine_unavailable">Acesta este un stream torrent, iar Fetch nu are un motor torrent integrat. Configurați debrid în addon pentru a obține un link care rulează aici, sau deschideți-l într-un player extern.</string>
 </resources>

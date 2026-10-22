@@ -1062,7 +1062,7 @@
     <string name="addon_health_failing">पिछली रिक्वेस्ट फ़ेल हुई</string>
     <string name="addon_health_timed_out">पिछली रिक्वेस्ट का समय खत्म हो गया</string>
     <string name="account_local_only_note">सिंक बंद है। Fetch आपके ऐडऑन, प्रोग्रेस और सेटिंग्स इसी टीवी पर रखता है और इसके लिए किसी अकाउंट की ज़रूरत नहीं है। डिवाइसों के बीच सिंक करने के लिए, सर्वर विकल्पों से अपना सिंक सर्वर कनेक्ट करें।</string>
-    <string name="torrent_engine_unavailable">यह एक टॉरेंट स्ट्रीम है और Fetch में बिल्ट-इन टॉरेंट इंजन नहीं है। सेटिंग्स → Debrid में कोई डेब्रिड सर्विस चालू करें, या इसे किसी बाहरी प्लेयर में खोलें।</string>
+    <string name="torrent_engine_unavailable">यह एक टोरेंट स्ट्रीम है और Fetch में कोई बिल्ट-इन टोरेंट इंजन नहीं है। यहाँ चलने वाला लिंक पाने के लिए ऐडऑन में debrid सेट करें, या इसे किसी बाहरी प्लेयर में खोलें।</string>
     <string name="parental_title_blocked">यह टाइटल इस प्रोफाइल की रेटिंग सीमा से ऊपर है।</string>
     <string name="parental_addons_blocked">यह प्रोफाइल ऐडऑन इंस्टॉल नहीं कर सकता। किसी अभिभावक से कहें।</string>
     <string name="parental_gate_heading">%1$s का PIN डालें</string>

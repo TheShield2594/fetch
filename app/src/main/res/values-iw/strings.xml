@@ -3053,5 +3053,5 @@
     <string name="subtitle_style_text_color_hdr">צבע טקסט (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">אטימות טקסט (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">זהו סטרים טורנט ול-Fetch אין מנוע טורנט מובנה. יש להפעיל שירות Debrid בהגדרות ← Debrid, או לפתוח אותו בנגן חיצוני.</string>
+    <string name="torrent_engine_unavailable">זהו סטרים טורנט ול-Fetch אין מנוע טורנט מובנה. הגדירו debrid בתוסף כדי לקבל קישור שמתנגן כאן, או פתחו אותו בנגן חיצוני.</string>
 </resources>

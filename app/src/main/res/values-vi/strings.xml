@@ -3042,5 +3042,5 @@
     <string name="subtitle_style_text_color_hdr">Màu chữ (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Độ mờ đục chữ (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Đây là luồng torrent và Fetch không có công cụ torrent tích hợp. Hãy bật dịch vụ debrid trong Cài đặt → Debrid, hoặc mở bằng trình phát bên ngoài.</string>
+    <string name="torrent_engine_unavailable">Đây là luồng torrent và Fetch không có trình torrent tích hợp. Thiết lập debrid trong addon để nhận liên kết phát được ở đây, hoặc mở nó trong trình phát bên ngoài.</string>
 </resources>

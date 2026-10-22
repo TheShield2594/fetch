@@ -2586,5 +2586,5 @@
     <string name="subtitle_style_text_color_hdr">Ngjyra e tekstit (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opaciteti i tekstit (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Ky është një transmetim torrent dhe Fetch nuk ka motor torrent të integruar. Aktivizo një shërbim debrid te Cilësimet → Debrid, ose hape në një luajtës të jashtëm.</string>
+    <string name="torrent_engine_unavailable">Ky është një transmetim torrent dhe Fetch nuk ka motor torrent të integruar. Konfiguroni debrid në shtesë për të marrë një lidhje që luhet këtu, ose hapeni në një luajtës të jashtëm.</string>
 </resources>

@@ -2812,5 +2812,5 @@
     <string name="subtitle_style_text_color_hdr">Tekstkleur (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Tekstdekking (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Dit is een torrentstream en Fetch heeft geen ingebouwde torrent-engine. Zet een debrid-service aan via Instellingen → Debrid, of open het in een externe speler.</string>
+    <string name="torrent_engine_unavailable">Dit is een torrentstream en Fetch heeft geen ingebouwde torrent-engine. Stel debrid in de add-on in om een link te krijgen die hier afspeelt, of open hem in een externe speler.</string>
 </resources>

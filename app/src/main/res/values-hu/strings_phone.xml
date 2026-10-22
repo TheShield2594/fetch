@@ -4,7 +4,7 @@
     <string name="first_run_phone_title">Beállítás telefonnal. Nem kell a távirányítóval gépelni.</string>
     <string name="first_run_phone_qr_description">Telefonos beállítási kód</string>
     <string name="first_run_phone_step_scan">Olvasd be a telefonod kamerájával</string>
-    <string name="first_run_phone_step_addons">Illeszd be a bővítményeket és a debrid kulcsodat</string>
+    <string name="first_run_phone_step_rules">Válassza ki a stream minőségi szabályait</string>
     <string name="first_run_phone_step_accounts">Jelentkezz be a Trakt, Simkl vagy Jellyfin fiókodba</string>
     <string name="first_run_phone_network">A telefonodnak ugyanazon a Wi-Fi-hálózaton kell lennie, mint ennek a TV-nek. Ezt később a Beállításokban is megteheted.</string>
     <string name="first_run_recommended">Ajánlott</string>

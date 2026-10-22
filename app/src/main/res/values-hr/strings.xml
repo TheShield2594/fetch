@@ -2954,7 +2954,7 @@
     <string name="addon_health_failing">Zadnji zahtjev nije uspio</string>
     <string name="addon_health_timed_out">Zadnjem zahtjevu isteklo je vrijeme</string>
     <string name="account_local_only_note">Sinkronizacija je isključena. Fetch čuva tvoje dodatke, napredak i postavke na ovom TV-u i ne treba račun. Za sinkronizaciju između uređaja poveži vlastiti poslužitelj za sinkronizaciju u opcijama poslužitelja.</string>
-    <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent pogon. Uključi debrid uslugu u Postavke → Debrid ili ga otvori u vanjskom playeru.</string>
+    <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent mehanizam. Postavite debrid u dodatku da biste dobili poveznicu koja se reproducira ovdje, ili ga otvorite u vanjskom playeru.</string>
     <string name="parental_title_blocked">Ovaj naslov prelazi dobno ograničenje ovog profila.</string>
     <string name="parental_addons_blocked">Ovaj profil ne može instalirati dodatke. Pitaj roditelja.</string>
     <string name="parental_gate_heading">Unesi PIN za %1$s</string>

@@ -2258,7 +2258,7 @@
     <string name="addon_health_failing">Permintaan terakhir gagal</string>
     <string name="addon_health_timed_out">Permintaan terakhir habis waktu</string>
     <string name="account_local_only_note">Sinkronisasi mati. Fetch menyimpan addon, progres, dan pengaturan Anda di TV ini dan tidak memerlukan akun. Untuk menyinkronkan antarperangkat, hubungkan server sinkronisasi Anda sendiri dari opsi server.</string>
-    <string name="torrent_engine_unavailable">Ini adalah stream torrent dan Fetch tidak punya mesin torrent bawaan. Aktifkan layanan debrid di Pengaturan → Debrid, atau buka di pemutar eksternal.</string>
+    <string name="torrent_engine_unavailable">Ini adalah stream torrent dan Fetch tidak memiliki mesin torrent bawaan. Atur debrid di addon untuk mendapatkan tautan yang dapat diputar di sini, atau buka di pemutar eksternal.</string>
     <string name="parental_title_blocked">Judul ini melebihi batas rating profil ini.</string>
     <string name="parental_addons_blocked">Profil ini tidak bisa memasang addon. Minta bantuan orang tua.</string>
     <string name="parental_gate_heading">Masukkan PIN %1$s</string>

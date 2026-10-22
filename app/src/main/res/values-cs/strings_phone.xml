@@ -4,7 +4,7 @@
     <string name="first_run_phone_network">Váš telefon musí být ve stejné Wi-Fi jako tato TV. Můžete to udělat i později v Nastavení.</string>
     <string name="first_run_phone_qr_description">Kód pro nastavení telefonem</string>
     <string name="first_run_phone_step_accounts">Přihlaste se do Trakt, Simkl nebo Jellyfin</string>
-    <string name="first_run_phone_step_addons">Vložte doplňky a svůj debrid klíč</string>
+    <string name="first_run_phone_step_rules">Vyberte pravidla kvality streamů</string>
     <string name="first_run_phone_step_scan">Naskenujte fotoaparátem telefonu</string>
     <string name="first_run_phone_title">Nastavte telefonem. Žádné psaní ovladačem.</string>
     <string name="first_run_recommended">Doporučeno</string>

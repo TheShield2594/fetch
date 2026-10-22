@@ -3060,5 +3060,5 @@
     <string name="subtitle_style_text_color_hdr">Metin Rengi (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Metin Opaklığı (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Bu bir torrent yayını ve Fetch\'in yerleşik bir torrent motoru yok. Ayarlar → Debrid\'den bir debrid hizmetini aç veya harici bir oynatıcıda aç.</string>
+    <string name="torrent_engine_unavailable">Bu bir torrent yayını ve Fetch\'te yerleşik bir torrent motoru yok. Burada oynatılan bir bağlantı almak için eklentide debrid ayarla veya harici bir oynatıcıda aç.</string>
 </resources>

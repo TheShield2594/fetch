@@ -5,7 +5,7 @@
     <string name="first_run_phone_network">Telefonas turi būti prijungtas prie to paties „Wi-Fi“ kaip ir šis televizorius. Tai galite padaryti ir vėliau nustatymuose.</string>
     <string name="first_run_phone_qr_description">Telefono sąrankos kodas</string>
     <string name="first_run_phone_step_accounts">Prisijunkite prie „Trakt“, „Simkl“ arba „Jellyfin“</string>
-    <string name="first_run_phone_step_addons">Įklijuokite priedus ir „Debrid“ raktą</string>
+    <string name="first_run_phone_step_rules">Pasirinkite srautų kokybės taisykles</string>
     <string name="first_run_phone_step_scan">Nuskenuokite telefono kamera</string>
     <string name="first_run_phone_title">Nustatykite telefonu. Nereikia rašyti pulteliu.</string>
     <string name="first_run_recommended">Rekomenduojama</string>

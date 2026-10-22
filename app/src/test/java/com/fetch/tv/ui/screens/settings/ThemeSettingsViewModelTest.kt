@@ -8,7 +8,6 @@ import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
 import com.fetch.tv.domain.model.MemberAccess
 import com.fetch.tv.domain.model.MemberTier
-import com.fetch.tv.domain.model.SettingsUiStyle
 import com.fetch.tv.domain.model.ThemeSelection
 import com.fetch.tv.launcher.AppIconManager
 import com.fetch.tv.launcher.AppIconSettingsState
@@ -40,7 +39,6 @@ class ThemeSettingsViewModelTest {
         every { selectedFont } returns flowOf(AppFont.INTER)
         every { amoledMode } returns flowOf(false)
         every { amoledSurfacesMode } returns flowOf(false)
-        every { settingsUiStyle } returns flowOf(SettingsUiStyle.CLASSIC)
         coEvery { setCustomTheme(any()) } coAnswers {
             selection.value = ThemeSelection(AppTheme.CUSTOM, firstArg())
         }

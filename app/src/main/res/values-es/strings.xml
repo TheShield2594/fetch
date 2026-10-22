@@ -366,8 +366,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">También hace que las tarjetas, paneles y contenedores sean negro puro</string>
     <string name="appearance_startup_splash">Pantalla de inicio</string>
     <string name="appearance_startup_splash_subtitle">Muestra el logotipo y un indicador de carga después de seleccionar un perfil</string>
-    <string name="appearance_settings_style">Estilo de configuración</string>
-    <string name="appearance_settings_style_subtitle">Elige cómo se presentan las pantallas de configuración</string>
     <string name="appearance_launcher_artwork">Ilustración del lanzador</string>
     <string name="appearance_launcher_artwork_subtitle">Elige cómo aparece Fetch en la pantalla de inicio de tu TV</string>
     <string name="appearance_app_icon_and_banner">Icono &amp; banner de la app</string>
@@ -383,12 +381,6 @@
     <string name="appearance_app_icon_rose_gold">Oro rosa</string>
     <string name="appearance_app_icon_copper">Cobre</string>
     <string name="appearance_app_icon_graphite">Grafito</string>
-    <string name="settings_style_classic">Predeterminado</string>
-    <string name="settings_style_classic_desc">Diseño estándar con tarjetas</string>
-    <string name="settings_style_zen">Minimalista</string>
-    <string name="settings_style_zen_desc">Diseño simple y plano</string>
-    <string name="settings_style_horizon">Barra superior</string>
-    <string name="settings_style_horizon_desc">Pestañas de navegación en la parte superior</string>
     <string name="appearance_font_and_language">Fuente e idioma</string>
     <string name="appearance_font_and_language_subtitle">Elige la tipografía y la configuración regional usadas en toda la aplicación</string>
     <string name="cd_selected">Seleccionado</string>

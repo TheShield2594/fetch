@@ -362,8 +362,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">A kártyák, panelek és konténerek is legyenek teljesen feketék</string>
     <string name="appearance_startup_splash">Indítóképernyő</string>
     <string name="appearance_startup_splash_subtitle">Logó és töltésjelző megjelenítése a profil kiválasztása után</string>
-    <string name="appearance_settings_style">Beállítások stílusa</string>
-    <string name="appearance_settings_style_subtitle">Válaszd ki, hogyan jelenjenek meg a beállítási képernyők</string>
     <string name="appearance_launcher_artwork">Megjelenés a TV kezdőképernyőjén</string>
     <string name="appearance_launcher_artwork_subtitle">Válaszd ki, hogyan jelenjen meg a Fetch a TV kezdőképernyőjén</string>
     <string name="ambient_mode_title">Ambient mód</string>
@@ -393,12 +391,6 @@
     <string name="appearance_app_icon_rose_gold">Rózsaarany</string>
     <string name="appearance_app_icon_copper">Réz</string>
     <string name="appearance_app_icon_graphite">Grafit</string>
-    <string name="settings_style_classic">Alapértelmezett</string>
-    <string name="settings_style_classic_desc">Hagyományos elrendezés kártyákkal</string>
-    <string name="settings_style_zen">Minimál</string>
-    <string name="settings_style_zen_desc">Egyszerű, lapos elrendezés</string>
-    <string name="settings_style_horizon">Felső sáv</string>
-    <string name="settings_style_horizon_desc">Navigációs fülek felül</string>
     <string name="appearance_font_and_language">Betűtípus és nyelv</string>
     <string name="appearance_font_and_language_subtitle">Válaszd ki az alkalmazásban használt betűtípust és nyelvet</string>
     <string name="cd_selected">Kiválasztva</string>

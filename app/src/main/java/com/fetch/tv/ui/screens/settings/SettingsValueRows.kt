@@ -263,7 +263,6 @@ private fun SliderStepButton(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val contentAlpha = if (enabled) 1f else 0.4f
-    val flat = isFlatSettingsStyle()
 
     Card(
         onClick = { if (enabled) onClick() },
@@ -276,18 +275,14 @@ private fun SliderStepButton(
         },
         colors = CardDefaults.colors(
             containerColor = FetchTheme.colors.Background,
-            focusedContainerColor = if (flat) settingsFocusFillColor() else FetchTheme.colors.Background
+            focusedContainerColor = FetchTheme.colors.Background
         ),
-        border = if (flat) {
-            CardDefaults.border(border = Border.None, focusedBorder = Border.None)
-        } else {
-            CardDefaults.border(
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = CircleShape
-                )
+        border = CardDefaults.border(
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                shape = CircleShape
             )
-        },
+        ),
         shape = CardDefaults.shape(shape = CircleShape),
         scale = CardDefaults.scale(focusedScale = 1.1f)
     ) {

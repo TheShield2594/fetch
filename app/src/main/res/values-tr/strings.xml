@@ -365,8 +365,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">Kartlar ve paneller için de tamamen siyah arka plan kullan</string>
     <string name="appearance_startup_splash">Açılış Ekranı</string>
     <string name="appearance_startup_splash_subtitle">Profil seçildikten sonra logoyu ve yükleme göstergesini göster</string>
-    <string name="appearance_settings_style">Ayarlar Stili</string>
-    <string name="appearance_settings_style_subtitle">Ayar ekranlarının nasıl görüneceğini seç</string>
     <string name="appearance_launcher_artwork">Başlatıcı Görseli</string>
     <string name="appearance_launcher_artwork_subtitle">Fetch\'in TV ana ekranında nasıl görüneceğini seçin</string>
     <string name="ambient_mode_title">Ortam Modu</string>
@@ -396,12 +394,6 @@
     <string name="appearance_app_icon_rose_gold">Roze Altın</string>
     <string name="appearance_app_icon_copper">Bakır</string>
     <string name="appearance_app_icon_graphite">Grafit</string>
-    <string name="settings_style_classic">Varsayılan</string>
-    <string name="settings_style_classic_desc">Kartlı standart düzen</string>
-    <string name="settings_style_zen">Sade</string>
-    <string name="settings_style_zen_desc">Basit, düz düzen</string>
-    <string name="settings_style_horizon">Üst Çubuk</string>
-    <string name="settings_style_horizon_desc">Gezinme sekmeleri üstte</string>
     <string name="appearance_font_and_language">Yazı Tipi ve Dil</string>
     <string name="appearance_font_and_language_subtitle">Uygulama dilini ve arayüz yazı tipini özelleştirin</string>
     <string name="cd_selected">Seçili</string>

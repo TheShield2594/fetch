@@ -325,14 +325,6 @@
     <string name="appearance_amoled_mode_subtitle">Përdor të zezë të pastër për sfondet e aplikacionit</string>
     <string name="appearance_amoled_surfaces_mode">Sipërfaqe të zeza të pastra</string>
     <string name="appearance_amoled_surfaces_mode_subtitle">Bëji gjithashtu kartat, panelet dhe kontejnerët të zinj të pastër</string>
-    <string name="appearance_settings_style">Stili i cilësimeve</string>
-    <string name="appearance_settings_style_subtitle">Zgjidh si paraqiten ekranet e cilësimeve</string>
-    <string name="settings_style_classic">Parazgjedhur</string>
-    <string name="settings_style_classic_desc">Paraqitje standarde me karta</string>
-    <string name="settings_style_zen">Minimal</string>
-    <string name="settings_style_zen_desc">Paraqitje e thjeshtë dhe e sheshtë</string>
-    <string name="settings_style_horizon">Shiriti i sipërm</string>
-    <string name="settings_style_horizon_desc">Skedat e navigimit në krye</string>
     <string name="appearance_font_and_language">Fonti dhe gjuha</string>
     <string name="appearance_font_and_language_subtitle">Zgjidh llojin e shkronjave dhe lokalizimin që përdoret në të gjithë aplikacionin</string>
     <string name="cd_selected">Zgjedhur</string>

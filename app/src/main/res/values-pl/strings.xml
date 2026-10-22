@@ -2520,14 +2520,6 @@
     <string name="hero_synopsis_dismiss_hint">Naciśnij wstecz, aby zamknąć</string>
 
     <!-- Appearance settings style -->
-    <string name="appearance_settings_style">Styl ustawień</string>
-    <string name="appearance_settings_style_subtitle">Wybierz sposób prezentacji ekranów ustawień</string>
-    <string name="settings_style_classic">Domyślny</string>
-    <string name="settings_style_classic_desc">Standardowy układ z kartami</string>
-    <string name="settings_style_zen">Minimalny</string>
-    <string name="settings_style_zen_desc">Prosty, płaski układ</string>
-    <string name="settings_style_horizon">Pasek górny</string>
-    <string name="settings_style_horizon_desc">Zakładki nawigacyjne na górze</string>
 
     <!-- Audio advanced -->
     <string name="audio_force_optical_passthrough">Wymuś transkodowanie AC-3 (Optyczne/SPDIF)</string>

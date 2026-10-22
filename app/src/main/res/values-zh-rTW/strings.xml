@@ -362,8 +362,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">同時讓卡片、面板和容器使用純黑色</string>
     <string name="appearance_startup_splash">啟動閃屏</string>
     <string name="appearance_startup_splash_subtitle">選擇個人資料後顯示標誌和載入指示器</string>
-    <string name="appearance_settings_style">設定樣式</string>
-    <string name="appearance_settings_style_subtitle">選擇設定介面的呈現方式</string>
     <string name="appearance_launcher_artwork">啟動器圖示</string>
     <string name="appearance_launcher_artwork_subtitle">選擇 Fetch 在電視主畫面上的顯示方式</string>
     <string name="appearance_app_icon_and_banner">應用程式圖示與橫幅</string>
@@ -379,12 +377,6 @@
     <string name="appearance_app_icon_rose_gold">玫瑰金</string>
     <string name="appearance_app_icon_copper">銅色</string>
     <string name="appearance_app_icon_graphite">石墨</string>
-    <string name="settings_style_classic">預設</string>
-    <string name="settings_style_classic_desc">帶卡片的標準佈局</string>
-    <string name="settings_style_zen">極簡</string>
-    <string name="settings_style_zen_desc">簡潔的平面佈局</string>
-    <string name="settings_style_horizon">頂部標籤欄</string>
-    <string name="settings_style_horizon_desc">導航標籤在頂部</string>
     <string name="appearance_font_and_language">字體與語言</string>
     <string name="appearance_font_and_language_subtitle">選擇應用程式使用的字體和語言</string>
     <string name="cd_selected">已選取</string>

@@ -2666,8 +2666,6 @@
   <string name="web_stream_badge_imported">Το URL διακριτικού εισήχθη.</string>
   <string name="account_sign_out_confirm_title">Αποσύνδεση;</string>
   <string name="account_sign_out_confirm_subtitle">Θα χρειαστεί να συνδεθείτε ξανά για να συγχρονίσετε τη βιβλιοθήκη, την πρόοδο παρακολούθησης, τα πρόσθετα και τα plugins σε αυτήν τη συσκευή.</string>
-  <string name="appearance_settings_style">Στυλ ρυθμίσεων</string>
-  <string name="appearance_settings_style_subtitle">Επιλέξτε πώς εμφανίζονται οι οθόνες ρυθμίσεων</string>
   <string name="appearance_launcher_artwork">Εικόνα εκκίνησης</string>
   <string name="appearance_launcher_artwork_subtitle">Επιλέξτε πώς εμφανίζεται το Fetch στην αρχική οθόνη του TV σας</string>
   <string name="ambient_mode_title">Λειτουργία περιβάλλοντος</string>
@@ -2697,12 +2695,6 @@
   <string name="appearance_app_icon_rose_gold">Ροζ χρυσό</string>
   <string name="appearance_app_icon_copper">Χαλκός</string>
   <string name="appearance_app_icon_graphite">Γραφίτης</string>
-  <string name="settings_style_classic">Προεπιλογή</string>
-  <string name="settings_style_classic_desc">Τυπική διάταξη με κάρτες</string>
-  <string name="settings_style_zen">Μινιμαλιστικό</string>
-  <string name="settings_style_zen_desc">Απλή, επίπεδη διάταξη</string>
-  <string name="settings_style_horizon">Επάνω γραμμή</string>
-  <string name="settings_style_horizon_desc">Καρτέλες πλοήγησης στο επάνω μέρος</string>
   <string name="debug_section_progress">Δείκτης προόδου</string>
   <string name="debug_progress_indicator_title">Δείκτης φόρτωσης</string>
   <string name="debug_progress_indicator_subtitle">Προεπισκόπηση του κοινού κινούμενου δείκτη φόρτωσης σε συνήθη μεγέθη διεπαφής</string>

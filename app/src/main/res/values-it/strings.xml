@@ -337,8 +337,6 @@
 <string name="appearance_amoled_mode_subtitle">Usa il nero assoluto per gli sfondi dell\'app</string>
 <string name="appearance_amoled_surfaces_mode">Superfici nero assoluto</string>
 <string name="appearance_amoled_surfaces_mode_subtitle">Rendi nero assoluto anche schede, pannelli e contenitori</string>
-<string name="appearance_settings_style">Stile impostazioni</string>
-<string name="appearance_settings_style_subtitle">Scegli come vengono mostrate le schermate delle impostazioni</string>
 <string name="appearance_launcher_artwork">Grafica launcher</string>
 <string name="appearance_launcher_artwork_subtitle">Scegli come appare Fetch nella home della tua TV</string>
 <string name="appearance_app_icon_and_banner">Icona e banner dell\'app</string>
@@ -354,12 +352,6 @@
 <string name="appearance_app_icon_rose_gold">Oro rosa</string>
 <string name="appearance_app_icon_copper">Rame</string>
 <string name="appearance_app_icon_graphite">Grafite</string>
-<string name="settings_style_classic">Predefinito</string>
-<string name="settings_style_classic_desc">Layout standard con schede</string>
-<string name="settings_style_zen">Minimale</string>
-<string name="settings_style_zen_desc">Layout semplice e piatto</string>
-<string name="settings_style_horizon">Barra superiore</string>
-<string name="settings_style_horizon_desc">Schede di navigazione in alto</string>
 <string name="appearance_font_and_language">Carattere e Lingua</string>
 <string name="appearance_font_and_language_subtitle">Scegli il font e la lingua locale usati nell\'app</string>
 <string name="cd_selected">Selezionato</string>

@@ -364,8 +364,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">Takođe postavi kartice, panele i kontejnere na čistu crnu boju</string>
     <string name="appearance_startup_splash">Početni ekran</string>
     <string name="appearance_startup_splash_subtitle">Prikaži logo i indikator učitavanja nakon izbora profila</string>
-    <string name="appearance_settings_style">Stil podešavanja</string>
-    <string name="appearance_settings_style_subtitle">Izaberite kako su prikazani ekrani sa podešavanjima</string>
     <string name="appearance_launcher_artwork">Grafika pokretača</string>
     <string name="appearance_launcher_artwork_subtitle">Izaberite kako se Fetch prikazuje na početnom ekranu vašeg TV-a</string>
     <string name="appearance_app_icon_and_banner">Ikonica i baner aplikacije</string>
@@ -381,12 +379,6 @@
     <string name="appearance_app_icon_rose_gold">Roze zlato</string>
     <string name="appearance_app_icon_copper">Bakar</string>
     <string name="appearance_app_icon_graphite">Grafitna</string>
-    <string name="settings_style_classic">Podrazumevano</string>
-    <string name="settings_style_classic_desc">Standardni raspored sa karticama</string>
-    <string name="settings_style_zen">Minimalni</string>
-    <string name="settings_style_zen_desc">Jednostavan, ravan raspored</string>
-    <string name="settings_style_horizon">Gornja traka</string>
-    <string name="settings_style_horizon_desc">Navigacioni jezičci pri vrhu</string>
     <string name="appearance_font_and_language">Font i jezik</string>
     <string name="appearance_font_and_language_subtitle">Izaberite pismo i lokalitet koji se koriste u aplikaciji</string>
     <string name="cd_selected">Izabrano</string>

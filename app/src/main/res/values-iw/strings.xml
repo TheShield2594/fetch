@@ -366,8 +366,6 @@
     <string name="appearance_amoled_surfaces_mode_subtitle">הפיכת גם כרטיסים, פאנלים ומכלים לשחור טהור</string>
     <string name="appearance_startup_splash">מסך פתיחה</string>
     <string name="appearance_startup_splash_subtitle">הצגת לוגו וסמן טעינה אחרי בחירת פרופיל</string>
-    <string name="appearance_settings_style">סגנון הגדרות</string>
-    <string name="appearance_settings_style_subtitle">בחירת האופן שבו יוצגו מסכי ההגדרות</string>
     <string name="appearance_launcher_artwork">עיצוב מסך הבית</string>
     <string name="appearance_launcher_artwork_subtitle">בחירת האופן שבו Fetch מופיע במסך הבית של הטלוויזיה</string>
     <string name="ambient_mode_title">מצב אווירה</string>
@@ -398,12 +396,6 @@
     <string name="appearance_app_icon_rose_gold">רוז גולד</string>
     <string name="appearance_app_icon_copper">נחושת</string>
     <string name="appearance_app_icon_graphite">גרפיט</string>
-    <string name="settings_style_classic">ברירת מחדל</string>
-    <string name="settings_style_classic_desc">פריסה רגילה עם כרטיסים</string>
-    <string name="settings_style_zen">מינימלי</string>
-    <string name="settings_style_zen_desc">פריסה פשוטה ושטוחה</string>
-    <string name="settings_style_horizon">סרגל עליון</string>
-    <string name="settings_style_horizon_desc">לשוניות ניווט בחלק העליון</string>
     <string name="appearance_font_and_language">גופן ושפה</string>
     <string name="appearance_font_and_language_subtitle">בחירת הגופן והשפה המשמשים בכל האפליקציה</string>
     <string name="cd_selected">נבחר</string>

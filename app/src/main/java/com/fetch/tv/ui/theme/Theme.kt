@@ -11,7 +11,6 @@ import androidx.tv.material3.darkColorScheme
 import com.fetch.tv.domain.model.AppFont
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
-import com.fetch.tv.domain.model.SettingsUiStyle
 
 data class FetchExtendedColors(
     val backgroundElevated: Color,
@@ -45,8 +44,6 @@ val LocalAppTheme = staticCompositionLocalOf { com.fetch.tv.domain.model.DEFAULT
 
 val LocalThemePalette = staticCompositionLocalOf { ThemeColors.White }
 
-val LocalSettingsUiStyle = staticCompositionLocalOf { SettingsUiStyle.CLASSIC }
-
 val LocalFetchFocusRingStyle = staticCompositionLocalOf {
     createFocusRingStyle(ThemeColors.Fetch)
 }
@@ -58,7 +55,6 @@ fun FetchTheme(
     appFont: AppFont = AppFont.SCHIBSTED_GROTESK,
     amoledMode: Boolean = false,
     amoledSurfacesMode: Boolean = false,
-    settingsUiStyle: SettingsUiStyle = SettingsUiStyle.CLASSIC,
     customThemeColors: CustomThemeColors = CustomThemeColors.Default,
     content: @Composable () -> Unit
 ) {
@@ -104,7 +100,6 @@ fun FetchTheme(
         LocalFetchTextStyles provides textStyles,
         LocalAppTheme provides appTheme,
         LocalThemePalette provides palette,
-        LocalSettingsUiStyle provides settingsUiStyle,
         LocalFetchFocusRingStyle provides focusRingStyle
     ) {
         MaterialTheme(
@@ -181,9 +176,4 @@ object FetchTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalAppTheme.current
-
-    val settingsUiStyle: SettingsUiStyle
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalSettingsUiStyle.current
 }

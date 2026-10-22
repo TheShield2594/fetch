@@ -2075,14 +2075,6 @@
 
 <string name="hero_synopsis_read_more">Čítať viac</string>
 <string name="hero_synopsis_dismiss_hint">Stlačiť Späť na zatvorenie</string>
-<string name="appearance_settings_style">Štýl nastavení</string>
-<string name="appearance_settings_style_subtitle">Vyberte, ako sa budú zobrazovať obrazovky nastavení</string>
-<string name="settings_style_classic">Predvolené</string>
-<string name="settings_style_classic_desc">Štandardné rozloženie s kartami</string>
-<string name="settings_style_zen">Minimálne</string>
-<string name="settings_style_zen_desc">Jednoduché, ploché rozloženie</string>
-<string name="settings_style_horizon">Horný panel</string>
-<string name="settings_style_horizon_desc">Navigačné karty v hornej časti</string>
 <string name="settings_content_discovery">Obsah a objavovanie</string>
 <string name="settings_content_discovery_subtitle">Doplnky, pluginy, katalógy a zdroje objavovania</string>
 <string name="settings_content_discovery_addons_subtitle">Spravovať doplnky, poradie katalógu a kolekcie</string>

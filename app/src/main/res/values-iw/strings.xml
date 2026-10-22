@@ -3059,4 +3059,9 @@
     <string name="empty_state_add_addon">הוספת תוסף</string>
     <string name="source_group_other">איכות אחרת</string>
     <string name="source_group_passed_over">לא הופעל אוטומטית</string>
+    <string name="source_options_title">ללמד את ההתאמה הטובה ביותר</string>
+    <string name="source_options_subtitle">נשמר בכללי הזרמים, שגם מרכז הטלפון עורך.</string>
+    <string name="source_rule_prefer_addon">להעדיף את %1$s</string>
+    <string name="source_rule_never_group">לעולם לא לנגן גרסאות של %1$s</string>
+    <string name="source_rule_never_saved">ההתאמה הטובה ביותר תדלג על גרסאות של %1$s</string>
 </resources>

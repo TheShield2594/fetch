@@ -2456,4 +2456,9 @@
     <string name="empty_state_add_addon">Tilføj en tilføjelse</string>
     <string name="source_group_other">Anden kvalitet</string>
     <string name="source_group_passed_over">Afspilles ikke automatisk</string>
+    <string name="source_options_title">Lær Bedste match</string>
+    <string name="source_options_subtitle">Gemmes i dine streamregler, som telefonhubben også redigerer.</string>
+    <string name="source_rule_prefer_addon">Foretræk %1$s</string>
+    <string name="source_rule_never_group">Afspil aldrig udgivelser fra %1$s</string>
+    <string name="source_rule_never_saved">Bedste match springer udgivelser fra %1$s over</string>
 </resources>

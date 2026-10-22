@@ -2818,4 +2818,9 @@
     <string name="empty_state_add_addon">Add-on toevoegen</string>
     <string name="source_group_other">Andere kwaliteit</string>
     <string name="source_group_passed_over">Niet automatisch afgespeeld</string>
+    <string name="source_options_title">Beste match leren</string>
+    <string name="source_options_subtitle">Opgeslagen in je streamregels, die de telefoonhub ook bewerkt.</string>
+    <string name="source_rule_prefer_addon">%1$s voorkeur geven</string>
+    <string name="source_rule_never_group">Releases van %1$s nooit afspelen</string>
+    <string name="source_rule_never_saved">Beste match slaat releases van %1$s over</string>
 </resources>

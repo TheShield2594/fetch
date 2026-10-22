@@ -2980,4 +2980,9 @@
     <string name="empty_state_add_addon">Dodaj dodatak</string>
     <string name="source_group_other">Druga kvaliteta</string>
     <string name="source_group_passed_over">Ne reproducira se automatski</string>
+    <string name="source_options_title">Nauči Najbolje podudaranje</string>
+    <string name="source_options_subtitle">Sprema se u tvoja pravila streamova, koja uređuje i telefonski centar.</string>
+    <string name="source_rule_prefer_addon">Preferiraj %1$s</string>
+    <string name="source_rule_never_group">Nikad ne reproduciraj izdanja %1$s</string>
+    <string name="source_rule_never_saved">Najbolje podudaranje preskočit će izdanja %1$s</string>
 </resources>

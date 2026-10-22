@@ -1661,4 +1661,9 @@
     <string name="empty_state_add_addon">Lägg till ett tillägg</string>
     <string name="source_group_other">Annan kvalitet</string>
     <string name="source_group_passed_over">Spelas inte upp automatiskt</string>
+    <string name="source_options_title">Lär Bästa matchning</string>
+    <string name="source_options_subtitle">Sparas i dina strömregler, som telefonhubben också redigerar.</string>
+    <string name="source_rule_prefer_addon">Föredra %1$s</string>
+    <string name="source_rule_never_group">Spela aldrig utgåvor från %1$s</string>
+    <string name="source_rule_never_saved">Bästa matchning hoppar över utgåvor från %1$s</string>
 </resources>

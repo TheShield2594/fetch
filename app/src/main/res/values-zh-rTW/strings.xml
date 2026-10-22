@@ -2905,4 +2905,9 @@
     <string name="empty_state_add_addon">新增擴充套件</string>
     <string name="source_group_other">其他畫質</string>
     <string name="source_group_passed_over">未自動播放</string>
+    <string name="source_options_title">讓最佳符合學習</string>
+    <string name="source_options_subtitle">儲存到你的串流規則，手機中心也能編輯這些規則。</string>
+    <string name="source_rule_prefer_addon">優先 %1$s</string>
+    <string name="source_rule_never_group">永不播放 %1$s 的版本</string>
+    <string name="source_rule_never_saved">最佳符合將略過 %1$s 的版本</string>
 </resources>

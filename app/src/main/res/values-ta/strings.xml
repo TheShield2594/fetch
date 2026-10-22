@@ -2263,4 +2263,9 @@
     <string name="empty_state_add_addon">அட்ஆனைச் சேர்</string>
     <string name="source_group_other">பிற தரம்</string>
     <string name="source_group_passed_over">தானாக இயக்கப்படவில்லை</string>
+    <string name="source_options_title">சிறந்த பொருத்தத்திற்குக் கற்பி</string>
+    <string name="source_options_subtitle">உங்கள் ஸ்ட்ரீம் விதிகளில் சேமிக்கப்படும்; தொலைபேசி மையமும் இதைத் திருத்தும்.</string>
+    <string name="source_rule_prefer_addon">%1$s ஐ முன்னுரிமை</string>
+    <string name="source_rule_never_group">%1$s வெளியீடுகளை ஒருபோதும் இயக்காதே</string>
+    <string name="source_rule_never_saved">சிறந்த பொருத்தம் %1$s வெளியீடுகளைத் தவிர்க்கும்</string>
 </resources>

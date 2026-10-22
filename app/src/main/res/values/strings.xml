@@ -3051,4 +3051,9 @@
     <string name="empty_state_add_addon">Add an addon</string>
     <string name="source_group_other">Other quality</string>
     <string name="source_group_passed_over">Not auto-played</string>
+    <string name="source_options_title">Teach Best match</string>
+    <string name="source_options_subtitle">Saved to your stream rules, which the phone hub also edits.</string>
+    <string name="source_rule_prefer_addon">Prefer %1$s</string>
+    <string name="source_rule_never_group">Never play %1$s releases</string>
+    <string name="source_rule_never_saved">Best match will skip %1$s releases</string>
 </resources>

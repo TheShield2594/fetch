@@ -3043,4 +3043,9 @@
     <string name="empty_state_add_addon">Aggiungi un addon</string>
     <string name="source_group_other">Altra qualità</string>
     <string name="source_group_passed_over">Non riprodotto automaticamente</string>
+    <string name="source_options_title">Migliora Miglior risultato</string>
+    <string name="source_options_subtitle">Le modifiche vengono salvate nelle regole degli stream, che puoi modificare anche dall\'hub del telefono.</string>
+    <string name="source_rule_prefer_addon">Preferisci %1$s</string>
+    <string name="source_rule_never_group">Non riprodurre mai le release di %1$s</string>
+    <string name="source_rule_never_saved">Miglior risultato salterà le release di %1$s</string>
 </resources>

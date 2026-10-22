@@ -3066,4 +3066,9 @@
     <string name="empty_state_add_addon">Eklenti ekle</string>
     <string name="source_group_other">Diğer kalite</string>
     <string name="source_group_passed_over">Otomatik oynatılmadı</string>
+    <string name="source_options_title">En iyi eşleşmeyi eğit</string>
+    <string name="source_options_subtitle">Telefon merkezinin de düzenlediği akış kurallarına kaydedilir.</string>
+    <string name="source_rule_prefer_addon">%1$s tercih et</string>
+    <string name="source_rule_never_group">%1$s sürümlerini asla oynatma</string>
+    <string name="source_rule_never_saved">En iyi eşleşme %1$s sürümlerini atlayacak</string>
 </resources>

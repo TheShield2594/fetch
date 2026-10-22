@@ -2183,4 +2183,9 @@
     <string name="empty_state_add_addon">Dodaj dodatek</string>
     <string name="source_group_other">Druga kakovost</string>
     <string name="source_group_passed_over">Ni samodejno predvajano</string>
+    <string name="source_options_title">Nauči Najboljše ujemanje</string>
+    <string name="source_options_subtitle">Shrani se v pravila pretokov, ki jih ureja tudi središče na telefonu.</string>
+    <string name="source_rule_prefer_addon">Daj prednost %1$s</string>
+    <string name="source_rule_never_group">Nikoli ne predvajaj izdaj %1$s</string>
+    <string name="source_rule_never_saved">Najboljše ujemanje bo preskočilo izdaje %1$s</string>
 </resources>

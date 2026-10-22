@@ -2451,4 +2451,9 @@
     <string name="empty_state_add_addon">アドオンを追加</string>
     <string name="source_group_other">その他の画質</string>
     <string name="source_group_passed_over">自動再生対象外</string>
+    <string name="source_options_title">ベストマッチに教える</string>
+    <string name="source_options_subtitle">ストリームのルールに保存されます。スマホハブでも編集できます。</string>
+    <string name="source_rule_prefer_addon">%1$s を優先</string>
+    <string name="source_rule_never_group">%1$s のリリースは再生しない</string>
+    <string name="source_rule_never_saved">ベストマッチは %1$s のリリースをスキップします</string>
 </resources>

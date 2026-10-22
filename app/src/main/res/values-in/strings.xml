@@ -2292,4 +2292,9 @@
     <string name="empty_state_add_addon">Tambahkan addon</string>
     <string name="source_group_other">Kualitas lain</string>
     <string name="source_group_passed_over">Tidak diputar otomatis</string>
+    <string name="source_options_title">Ajari Kecocokan terbaik</string>
+    <string name="source_options_subtitle">Disimpan di aturan stream Anda, yang juga diedit oleh hub ponsel.</string>
+    <string name="source_rule_prefer_addon">Utamakan %1$s</string>
+    <string name="source_rule_never_group">Jangan pernah putar rilis %1$s</string>
+    <string name="source_rule_never_saved">Kecocokan terbaik akan melewati rilis %1$s</string>
 </resources>

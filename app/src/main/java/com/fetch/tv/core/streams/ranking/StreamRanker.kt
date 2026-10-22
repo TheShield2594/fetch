@@ -104,6 +104,8 @@ data class StreamRankingRules(
     /** Release groups, case-insensitive, e.g. a group picked with "Prefer this next time". */
     val preferredReleaseGroups: List<String> = emptyList(),
     val excludedReleaseGroups: List<String> = emptyList(),
+    /** Addons, case-insensitive, whose streams rank higher, e.g. one picked with "Prefer this addon". */
+    val preferredAddons: List<String> = emptyList(),
     /** Keep at most this many eligible streams per resolution; 0 means no limit. */
     val maxPerResolution: Int = 0,
     /** Keep at most this many eligible streams per release source (WEB-DL, BluRay…); 0 means no limit. */
@@ -122,6 +124,7 @@ enum class RankReason {
     PREFERRED_KEYWORD,
     PREFERRED_LANGUAGE,
     PREFERRED_RELEASE_GROUP,
+    PREFERRED_ADDON,
     OVER_PREFERRED_SIZE,
     LOW_QUALITY_SOURCE,
     UNKNOWN_QUALITY
@@ -346,6 +349,12 @@ object StreamRanker {
         ) {
             score += 300
             reasons += RankReason.PREFERRED_RELEASE_GROUP
+        }
+
+        val addonName = stream.addonName.trim()
+        if (addonName.isNotEmpty() && rules.preferredAddons.any { it.trim().equals(addonName, ignoreCase = true) }) {
+            score += 300
+            reasons += RankReason.PREFERRED_ADDON
         }
 
         score += descriptor.source.qualityRank * 20

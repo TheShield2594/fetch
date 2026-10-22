@@ -961,4 +961,9 @@
     <string name="empty_state_add_addon">Adaugă un complement</string>
     <string name="source_group_other">Altă calitate</string>
     <string name="source_group_passed_over">Nu se redă automat</string>
+    <string name="source_options_title">Învață Cea mai bună potrivire</string>
+    <string name="source_options_subtitle">Se salvează în regulile de stream, pe care le editează și centrul de pe telefon.</string>
+    <string name="source_rule_prefer_addon">Preferă %1$s</string>
+    <string name="source_rule_never_group">Nu reda niciodată lansările %1$s</string>
+    <string name="source_rule_never_saved">Cea mai bună potrivire va sări lansările %1$s</string>
 </resources>

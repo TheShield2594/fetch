@@ -3023,4 +3023,9 @@
     <string name="empty_state_add_addon">Bővítmény hozzáadása</string>
     <string name="source_group_other">Egyéb minőség</string>
     <string name="source_group_passed_over">Nincs automatikus lejátszás</string>
+    <string name="source_options_title">A Legjobb találat tanítása</string>
+    <string name="source_options_subtitle">A streamszabályaidba kerül, amelyeket a telefonos központ is szerkeszt.</string>
+    <string name="source_rule_prefer_addon">%1$s előnyben</string>
+    <string name="source_rule_never_group">Soha ne játssza a(z) %1$s kiadásait</string>
+    <string name="source_rule_never_saved">A Legjobb találat kihagyja a(z) %1$s kiadásait</string>
 </resources>

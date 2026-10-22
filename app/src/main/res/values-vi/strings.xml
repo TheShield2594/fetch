@@ -3048,4 +3048,9 @@
     <string name="empty_state_add_addon">Thêm tiện ích</string>
     <string name="source_group_other">Chất lượng khác</string>
     <string name="source_group_passed_over">Không tự động phát</string>
+    <string name="source_options_title">Dạy Khớp nhất</string>
+    <string name="source_options_subtitle">Được lưu vào quy tắc luồng, cũng là nơi trung tâm điện thoại chỉnh sửa.</string>
+    <string name="source_rule_prefer_addon">Ưu tiên %1$s</string>
+    <string name="source_rule_never_group">Không bao giờ phát bản phát hành của %1$s</string>
+    <string name="source_rule_never_saved">Khớp nhất sẽ bỏ qua bản phát hành của %1$s</string>
 </resources>

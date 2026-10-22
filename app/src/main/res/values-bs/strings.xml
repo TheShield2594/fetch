@@ -1548,4 +1548,9 @@
     <string name="empty_state_add_addon">Dodaj dodatak</string>
     <string name="source_group_other">Drugi kvalitet</string>
     <string name="source_group_passed_over">Ne pušta se automatski</string>
+    <string name="source_options_title">Nauči Najbolje podudaranje</string>
+    <string name="source_options_subtitle">Sprema se u tvoja pravila strimova, koja uređuje i telefonski centar.</string>
+    <string name="source_rule_prefer_addon">Preferiraj %1$s</string>
+    <string name="source_rule_never_group">Nikad ne puštaj izdanja %1$s</string>
+    <string name="source_rule_never_saved">Najbolje podudaranje će preskakati izdanja %1$s</string>
 </resources>

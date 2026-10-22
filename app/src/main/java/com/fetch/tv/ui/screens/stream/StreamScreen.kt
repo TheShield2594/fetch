@@ -144,6 +144,7 @@ fun StreamScreen(
     var restoreFocusedStream by rememberSaveable { mutableStateOf(false) }
     var pendingRestoreOnResume by rememberSaveable { mutableStateOf(false) }
     var showPlayerChoiceDialog by remember { mutableStateOf(false) }
+    var sourceOptions by remember { mutableStateOf<List<SourceRule>?>(null) }
     var pendingPlaybackInfo by remember { mutableStateOf<StreamPlaybackInfo?>(null) }
     var showP2pConsentDialog by remember { mutableStateOf(false) }
     var pendingTorrentPlaybackInfo by remember { mutableStateOf<StreamPlaybackInfo?>(null) }
@@ -532,6 +533,8 @@ fun StreamScreen(
                     },
                     onRetry = { viewModel.onEvent(StreamScreenEvent.OnRetry) },
                     onExpandStreams = { viewModel.expandFilteredStreamsIfNeeded() },
+                    sourceRuleOptions = { stream -> viewModel.sourceRuleOptions(stream) },
+                    onSourceOptions = { _, options -> sourceOptions = options },
                     onNavigateToAddons = onNavigateToAddons,
                     modifier = Modifier
                         .weight(0.6f)
@@ -541,6 +544,16 @@ fun StreamScreen(
         }
 
         // Player choice dialog for "Ask every time" preference
+        sourceOptions?.let { options ->
+            SourceOptionsDialog(
+                rules = options,
+                onRuleSelected = { rule ->
+                    sourceOptions = null
+                    viewModel.applySourceRule(rule)
+                },
+                onDismiss = { sourceOptions = null }
+            )
+        }
         if (showPlayerChoiceDialog && pendingPlaybackInfo != null) {
             PlayerChoiceDialog(
                 onInternalSelected = {
@@ -796,6 +809,8 @@ private fun RightStreamSection(
     onRetry: () -> Unit,
     onExpandStreams: () -> Unit = {},
     onNavigateToAddons: () -> Unit = {},
+    sourceRuleOptions: (Stream) -> List<SourceRule> = { emptyList() },
+    onSourceOptions: (Stream, List<SourceRule>) -> Unit = { _, _ -> },
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
     bestMatchFirst: Boolean = false,
     torrentsNeedExternalPlayer: Boolean = false,
@@ -992,7 +1007,9 @@ private fun RightStreamSection(
                             },
                             onFocusedStreamKeyChanged = { focusedStreamKeyInList = it },
                             onFocusChanged = { listHasFocus = it },
-                            onExpandStreams = onExpandStreams
+                            onExpandStreams = onExpandStreams,
+                            sourceRuleOptions = sourceRuleOptions,
+                            onSourceOptions = onSourceOptions
                         )
                     }
                 }
@@ -1035,7 +1052,10 @@ internal fun StreamsList(
     onUserNavigatedFromFirstResult: () -> Unit = {},
     onFocusedStreamKeyChanged: (String?) -> Unit = {},
     onFocusChanged: (Boolean) -> Unit = {},
-    onExpandStreams: () -> Unit = {}
+    onExpandStreams: () -> Unit = {},
+    /** The rules a source's long-press menu offers; empty means the card ignores a long press. */
+    sourceRuleOptions: (Stream) -> List<SourceRule> = { emptyList() },
+    onSourceOptions: (Stream, List<SourceRule>) -> Unit = { _, _ -> }
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val lastKeyRepeatDispatchRef = remember { java.util.concurrent.atomic.AtomicLong(0L) }
@@ -1255,6 +1275,10 @@ internal fun StreamsList(
                     exclusion = if (streamExclusions.isEmpty()) null else streamExclusions[stream.stableKey()],
                     needsExternalPlayer = torrentsNeedExternalPlayer && stream.isTorrent(),
                     onClick = { onStreamSelected(stream) },
+                    onLongClick = {
+                        val options = sourceRuleOptions(stream)
+                        if (options.isNotEmpty()) onSourceOptions(stream, options)
+                    },
                     focusRequester = when {
                         shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester
                         else -> streamFocusRequesters.getOrPut(streamKeys[index]) { FocusRequester() }
@@ -1324,7 +1348,8 @@ internal fun StreamCard(
     marked: Boolean = false,
     markedLabel: String? = null,
     exclusion: ExclusionReason? = null,
-    needsExternalPlayer: Boolean = false
+    needsExternalPlayer: Boolean = false,
+    onLongClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -1372,6 +1397,7 @@ internal fun StreamCard(
 
     Card(
         onClick = onClick,
+        onLongClick = onLongClick,
         modifier = Modifier
             .fillMaxWidth()
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
@@ -1442,6 +1468,18 @@ internal fun StreamCard(
                         // that wraps when the row runs out of width.
                         if (descriptor.isDebridCached) StreamSpecChip(cachedLabel, highlighted = true)
                         specChips.forEach { chip -> StreamSpecChip(chip) }
+                        // The addon ends the strip rather than taking a line of its own.
+                        if (showAddonLogo && stream.addonName.isNotBlank()) {
+                            Text(
+                                text = stream.addonName,
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    textDirection = stream.addonName.contentTextDirection()
+                                ),
+                                color = FetchTheme.extendedColors.textTertiary,
+                                maxLines = 1,
+                                modifier = Modifier.padding(start = FetchTheme.spacing.xs)
+                            )
+                        }
                     }
                 }
                 exclusion?.let { reason ->
@@ -1465,7 +1503,9 @@ internal fun StreamCard(
                     )
                 }
 
-                Row(
+                // With the spec strip shown, the addon's name line mostly repeats it, so it joins
+                // the release name on the focused card. A party mark keeps the line visible.
+                if (!hasParsedSpec || isFocused || markedLabel != null) Row(
                     modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
@@ -1544,6 +1584,8 @@ internal fun StreamCard(
                         )
                     }
 
+                    // The spec strip names the addon when there is one; otherwise it stays here.
+                    if (!hasParsedSpec) {
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
 
                     Text(
@@ -1554,6 +1596,7 @@ internal fun StreamCard(
                         color = FetchTheme.extendedColors.textTertiary,
                         maxLines = 1
                     )
+                    }
                 }
             }
         }

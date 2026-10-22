@@ -2847,4 +2847,9 @@
     <string name="empty_state_add_addon">Adicionar um addon</string>
     <string name="source_group_other">Outra qualidade</string>
     <string name="source_group_passed_over">Não reproduzido automaticamente</string>
+    <string name="source_options_title">Ensinar a Melhor opção</string>
+    <string name="source_options_subtitle">Salvo nas suas regras de streams, que a central do celular também edita.</string>
+    <string name="source_rule_prefer_addon">Preferir %1$s</string>
+    <string name="source_rule_never_group">Nunca reproduzir lançamentos de %1$s</string>
+    <string name="source_rule_never_saved">A Melhor opção vai pular lançamentos de %1$s</string>
 </resources>

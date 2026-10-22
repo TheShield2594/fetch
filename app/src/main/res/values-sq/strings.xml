@@ -2592,4 +2592,9 @@
     <string name="empty_state_add_addon">Shto një shtesë</string>
     <string name="source_group_other">Cilësi tjetër</string>
     <string name="source_group_passed_over">Nuk luhet automatikisht</string>
+    <string name="source_options_title">Mësoji Përputhjes më të mirë</string>
+    <string name="source_options_subtitle">Ruhet te rregullat e transmetimeve, që i redakton edhe qendra e telefonit.</string>
+    <string name="source_rule_prefer_addon">Prefero %1$s</string>
+    <string name="source_rule_never_group">Mos luaj kurrë publikime të %1$s</string>
+    <string name="source_rule_never_saved">Përputhja më e mirë do të anashkalojë publikimet e %1$s</string>
 </resources>

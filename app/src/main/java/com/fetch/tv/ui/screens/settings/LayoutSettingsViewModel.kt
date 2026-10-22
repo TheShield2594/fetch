@@ -39,7 +39,7 @@ import javax.inject.Inject
 data class LayoutSettingsUiState(
     val sidebarCollapsedByDefault: Boolean = false,
     val modernLandscapePostersEnabled: Boolean = true,
-    val modernHeroFullScreenBackdropEnabled: Boolean = false,
+    val modernHeroFullScreenBackdropEnabled: Boolean = true,
     val discoverLocation: DiscoverLocation = DiscoverLocation.IN_SEARCH,
     val lastNonOffDiscoverLocation: DiscoverLocation = DiscoverLocation.IN_SEARCH,
     val posterLabelsEnabled: Boolean = true,

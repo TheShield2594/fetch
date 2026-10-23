@@ -13,22 +13,21 @@
 
 import { mkdir, readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
-import { INK_ON_DARK, loadSharp, logoSvg, repoRoot } from "./brand.mjs";
+import { loadSharp, logoSvg, repoRoot } from "./brand.mjs";
 
 const OUT_DIR = join(repoRoot, "apps/web/public/splash");
 
 // Keep in sync with the PWA manifest's `background_color` in
 // apps/web/vite.config.ts. The splash is intentionally the dark brand colour
 // rather than the default light theme: it is the installed-app launch screen,
-// and the manifest already declares dark as the app's background. The mark is
-// therefore drawn in its light ink — the default near-black one would be
-// invisible here.
+// and the manifest already declares dark as the app's background. The mark
+// brings its own tile, so it reads the same on dark as on light.
 const BACKGROUND = "#0d0b0a";
 
 // The box the logo is scaled to fit inside, as a fraction of each screen edge.
-// The mark is taller than it is wide, so height is what binds in portrait and
-// width in landscape — capping both keeps it the same comfortable size either
-// way up, rather than filling the screen in one orientation.
+// Height binds in landscape and width in portrait. Capping both keeps it the
+// same comfortable size either way up, rather than filling the screen in one
+// orientation.
 const LOGO_MAX_WIDTH_RATIO = 0.5;
 const LOGO_MAX_HEIGHT_RATIO = 0.4;
 
@@ -91,10 +90,9 @@ function htmlTags() {
 async function generateImages() {
   const sharp = await loadSharp("generate-splash.mjs");
 
-  // Trim the mark's transparent padding so it can be centred and scaled by its
-  // visible bounds rather than the square viewBox it is drawn in. Rendered
-  // large enough that every screen below scales it down rather than up.
-  const svg = await logoSvg(INK_ON_DARK);
+  // Rendered large enough that every screen below scales it down rather than
+  // up. The tile fills its viewBox, so the trim only removes antialiasing.
+  const svg = await logoSvg();
   const logo = await sharp(svg)
     .resize({ height: 2048 })
     .trim({ threshold: 0 })

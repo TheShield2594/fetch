@@ -12,24 +12,30 @@ import { fileURLToPath } from "node:url";
 export const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const LOGO_SVG = join(repoRoot, "apps/web/public/logo.svg");
 
-/** The cat's ink on a light surface, and the same on a dark one. */
-export const INK_ON_LIGHT = "#2a2b2f";
-export const INK_ON_DARK = "#faf5f0";
-
-/** The light surface every icon is drawn on — `--bg-0` in the light theme. */
-export const CREAM = "#faf6ef";
+/**
+ * The mark as an SVG buffer, exactly as browsers get it: the dog on a rounded
+ * amber-to-coral tile, the same artwork as the Android TV launcher icon.
+ */
+export async function logoSvg() {
+  return Buffer.from(await readFile(LOGO_SVG, "utf8"));
+}
 
 /**
- * The mark as an SVG buffer, with the cat's ink swapped for `ink`.
- *
- * The file states its ink both as a presentation attribute and as a CSS rule
- * so a dark browser UI gets a legible favicon; librsvg (what sharp renders
- * with) never matches `prefers-color-scheme`, so choosing the ink here is a
- * substitution rather than a media query.
+ * The mark for a `maskable` icon: the tile runs to the square's edges, since the
+ * platform supplies its own mask shape, and the dog is scaled by `glyphScale`
+ * around the centre so it stays inside the 80% safe circle.
  */
-export async function logoSvg(ink = INK_ON_LIGHT) {
+export async function maskableSvg(glyphScale) {
   const svg = await readFile(LOGO_SVG, "utf8");
-  return Buffer.from(svg.replaceAll(INK_ON_LIGHT, ink));
+  const offset = 50 * (1 - glyphScale);
+  return Buffer.from(
+    svg
+      .replace('rx="23"', 'rx="0"')
+      .replace(
+        /(<path fill="#fff"[^>]*\/>)/,
+        `<g transform="translate(${offset} ${offset}) scale(${glyphScale})">$1</g>`
+      )
+  );
 }
 
 /** Loads sharp, or explains how to install it for the length of one run. */

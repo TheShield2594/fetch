@@ -11,48 +11,36 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { CREAM, loadSharp, logoSvg, repoRoot } from "./brand.mjs";
+import { loadSharp, logoSvg, maskableSvg, repoRoot } from "./brand.mjs";
 
 const PUBLIC_DIR = join(repoRoot, "apps/web/public");
 
-// Height of the mark as a fraction of the icon it sits on.
-//
-// icon-512 is the `maskable` entry, so Android may crop it to anything inside a
-// circle 80% of its width: at 0.62 the mark's corners stay inside that circle
-// with room to spare. That padding is dead weight anywhere the icon is drawn
-// whole, though, which is why the manifest declares `any` and `maskable`
-// separately and icon-512-full carries the mark at the same 0.86 the favicon
-// uses. 192 is only ever shown whole (browser tab strips, the iOS home screen,
-// notifications), so it can breathe closer to the edge, and the favicon is
-// small enough that padding is mostly wasted pixels.
-const ICO_FILL = 0.86;
+// Every icon but the maskable one is the rounded tile itself, filling the
+// canvas edge to edge with transparent corners, the way the Android TV app's
+// launcher icon is drawn. icon-512 is the `maskable` entry: Android may crop it
+// to anything inside a circle 80% of its width, so it is a full-bleed square
+// with the dog scaled down to sit inside that circle. The manifest declares
+// `any` and `maskable` separately, so icon-512-full is what is shown whole.
+const MASKABLE_GLYPH_SCALE = 0.72;
 const TARGETS = [
-  { file: "icons/icon-512.png", size: 512, fill: 0.62 },
-  { file: "icons/icon-512-full.png", size: 512, fill: ICO_FILL },
-  { file: "icons/icon-192.png", size: 192, fill: 0.76 },
+  { file: "icons/icon-512.png", size: 512, maskable: true },
+  { file: "icons/icon-512-full.png", size: 512 },
+  { file: "icons/icon-192.png", size: 192 },
 ];
 const ICO_SIZES = [16, 32, 48];
 
 const sharp = await loadSharp("generate-icons.mjs");
-const svg = await logoSvg();
+const tile = await logoSvg();
+const maskable = await maskableSvg(MASKABLE_GLYPH_SCALE);
 
-/** The mark centred on a cream square, as PNG bytes. */
-async function icon(size, fill) {
-  const height = Math.round(size * fill);
-  // Rendered from the SVG at final size rather than resized from one raster,
-  // so the small icons get their own hinting-free but correctly sampled edges.
-  const mark = await sharp(svg)
-    .resize({ height, fit: "inside" })
-    .toBuffer({ resolveWithObject: true });
-
-  return sharp({ create: { width: size, height: size, channels: 4, background: CREAM } })
-    .composite([
-      {
-        input: mark.data,
-        left: Math.round((size - mark.info.width) / 2),
-        top: Math.round((size - mark.info.height) / 2),
-      },
-    ])
+/**
+ * The mark rendered at its final size, as PNG bytes. Rendered from the SVG at
+ * each size rather than resized from one raster, so the small icons get their
+ * own correctly sampled edges.
+ */
+async function icon(size, isMaskable = false) {
+  return sharp(isMaskable ? maskable : tile, { density: Math.max(72, (size / 100) * 72 * 4) })
+    .resize(size, size)
     .png({ compressionLevel: 9, effort: 10 })
     .toBuffer();
 }
@@ -88,11 +76,11 @@ function ico(images) {
 await mkdir(join(PUBLIC_DIR, "icons"), { recursive: true });
 
 for (const target of TARGETS) {
-  await writeFile(join(PUBLIC_DIR, target.file), await icon(target.size, target.fill));
+  await writeFile(join(PUBLIC_DIR, target.file), await icon(target.size, target.maskable));
   console.log(`Wrote apps/web/public/${target.file}`);
 }
 
 const frames = [];
-for (const size of ICO_SIZES) frames.push({ size, data: await icon(size, ICO_FILL) });
+for (const size of ICO_SIZES) frames.push({ size, data: await icon(size) });
 await writeFile(join(PUBLIC_DIR, "favicon.ico"), ico(frames));
 console.log(`Wrote apps/web/public/favicon.ico (${ICO_SIZES.join(", ")}px)`);

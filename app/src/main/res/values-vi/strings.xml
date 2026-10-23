@@ -3031,4 +3031,9 @@
     <string name="settings_search_hint">Tìm trong cài đặt</string>
     <string name="settings_search_prompt">Nhập một phần tên của cài đặt.</string>
     <string name="settings_search_empty">Không có cài đặt nào khớp với \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Đã khớp %1$s</string>
+    <string name="playback_details_refresh_display">Màn hình %1$s</string>
+    <string name="playback_details_audio_passthrough">Âm thanh passthrough</string>
+    <string name="playback_details_audio_decoded">Âm thanh đã giải mã</string>
+    <string name="playback_details_sources_hint">Lên để xem nguồn</string>
 </resources>

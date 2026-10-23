@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchTheme
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -17,7 +18,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 fun Modifier.shimmer(active: Boolean = true): Modifier {
-    if (!active) return this
+    if (!active || !FetchTheme.fullMotion) return this
     val progress = rememberInfiniteTransition(label = "shimmer").animateFloat(
         initialValue = 0f,
         targetValue = 1f,

@@ -2802,4 +2802,9 @@
     <string name="settings_search_hint">Instellingen zoeken</string>
     <string name="settings_search_prompt">Typ een deel van de naam van een instelling.</string>
     <string name="settings_search_empty">Geen instellingen gevonden voor \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Afgestemd %1$s</string>
+    <string name="playback_details_refresh_display">Scherm %1$s</string>
+    <string name="playback_details_audio_passthrough">Audio-passthrough</string>
+    <string name="playback_details_audio_decoded">Audio gedecodeerd</string>
+    <string name="playback_details_sources_hint">Omhoog voor bronnen</string>
 </resources>

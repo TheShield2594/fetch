@@ -236,7 +236,7 @@ fun SkipIntroButton(
                     Text(
                         text = source,
                         color = (if (isFocused) FetchTheme.colors.OnSecondary else Color.White).copy(alpha = 0.7f),
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         maxLines = 1,
                         modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = FetchTheme.spacing.sm)
                     )

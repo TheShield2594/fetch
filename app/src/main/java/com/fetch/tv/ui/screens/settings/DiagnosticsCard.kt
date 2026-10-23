@@ -3,7 +3,6 @@
 package com.fetch.tv.ui.screens.settings
 
 import com.fetch.tv.ui.theme.FetchRadii
-import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.BorderStroke
@@ -24,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -210,8 +208,8 @@ internal fun LazyListScope.diagnosticsCardItems(
                 stringResource(R.string.diag_label_result),
                 diagnostics.result,
                 valueColor = when {
-                    diagnostics.result.startsWith("Error", ignoreCase = true) -> Color(0xFFF44336)
-                    diagnostics.result == "Played" -> FetchPrimitives.success
+                    diagnostics.result.startsWith("Error", ignoreCase = true) -> FetchTheme.colors.Error
+                    diagnostics.result == "Played" -> FetchTheme.colors.Success
                     else -> FetchTheme.colors.TextPrimary
                 }
             )
@@ -261,8 +259,7 @@ private fun SectionHeader(label: String, subtitle: String? = null) {
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodySmall,
-            color = FetchTheme.colors.TextSecondary,
-            fontSize = 11.sp
+            color = FetchTheme.colors.TextSecondary
         )
     }
     Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))

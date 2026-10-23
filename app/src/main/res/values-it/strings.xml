@@ -3026,4 +3026,9 @@
     <string name="settings_search_hint">Cerca nelle impostazioni</string>
     <string name="settings_search_prompt">Digita parte del nome di un\'impostazione.</string>
     <string name="settings_search_empty">Nessuna impostazione corrisponde a \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Adattato %1$s</string>
+    <string name="playback_details_refresh_display">Schermo %1$s</string>
+    <string name="playback_details_audio_passthrough">Audio passthrough</string>
+    <string name="playback_details_audio_decoded">Audio decodificato</string>
+    <string name="playback_details_sources_hint">Su per le fonti</string>
 </resources>

@@ -45,7 +45,9 @@ object FrameRateUtils {
     private const val REFRESH_ERROR_SLACK = 0.0001f
 
     data class DisplayModeSwitchResult(
-        val appliedMode: Display.Mode
+        val appliedMode: Display.Mode,
+        /** True when the display now runs at the rate picked for the video, switched or already there. */
+        val matched: Boolean
     )
 
     private var originalModeId: Int? = null
@@ -383,7 +385,7 @@ object FrameRateUtils {
             if (modeBest == null) {
                 return@withContext Pair<Display.Mode?, DisplayModeSwitchResult?>(
                     null,
-                    DisplayModeSwitchResult(activeMode)
+                    DisplayModeSwitchResult(activeMode, matched = false)
                 )
             }
             recordOriginalMode(display)
@@ -391,7 +393,7 @@ object FrameRateUtils {
                 Log.d(TAG, "Display already at optimal rate ${activeMode.refreshRate}Hz for ${frameRate}fps")
                 return@withContext Pair<Display.Mode?, DisplayModeSwitchResult?>(
                     null,
-                    DisplayModeSwitchResult(activeMode)
+                    DisplayModeSwitchResult(activeMode, matched = true)
                 )
             }
 
@@ -431,7 +433,7 @@ object FrameRateUtils {
                         TAG,
                         "Display mode switch stabilized at ${mode.refreshRate}Hz (modeId=${mode.modeId})"
                     )
-                    return DisplayModeSwitchResult(mode)
+                    return DisplayModeSwitchResult(mode, matched = true)
                 }
             } else {
                 stablePolls = 0
@@ -444,7 +446,10 @@ object FrameRateUtils {
             TAG,
             "Display mode polling timed out after ${SWITCH_TIMEOUT_MS}ms, using ${fallbackMode.refreshRate}Hz"
         )
-        return DisplayModeSwitchResult(fallbackMode)
+        return DisplayModeSwitchResult(
+            fallbackMode,
+            matched = matchesTargetRefresh(fallbackMode.refreshRate, expectedMode.refreshRate)
+        )
     }
 
     fun cleanupDisplayListener() {

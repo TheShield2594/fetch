@@ -79,6 +79,7 @@ object SupporterThemeColors {
         secondary = Color(0xFFEC70A9),
         secondaryVariant = Color(0xFFB75AFF),
         onSecondary = FetchPrimitives.neutral925,
+        onSecondaryVariant = FetchPrimitives.neutral925,
         accentGradient = roseGoldGradient,
         focusRing = Color(0xFFFFB37A),
         focusRingGradient = roseGoldGradient,
@@ -97,6 +98,7 @@ object SupporterThemeColors {
     val ArcticBlue = ThemeColorPalette(
         secondary = Color(0xFF3185F5),
         secondaryVariant = Color(0xFF4D55E8),
+        onSecondary = FetchPrimitives.neutral925,
         accentGradient = arcticBlueGradient,
         focusRing = Color(0xFF4DE3FF),
         focusRingGradient = arcticBlueGradient,

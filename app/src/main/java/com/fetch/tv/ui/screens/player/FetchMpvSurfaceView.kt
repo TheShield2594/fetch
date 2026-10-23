@@ -190,6 +190,22 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         return mpv.getPropertyDouble("demuxer-cache-duration") ?: 0.0
     }
 
+    /** Whether mpv sends the audio on as an S/PDIF bitstream; null until the output is open. */
+    fun isAudioPassthroughNow(): Boolean? {
+        if (!initialized) return null
+        val format = runCatching { mpv.getPropertyString("audio-out-params/format") }.getOrNull()
+            ?.takeIf { it.isNotBlank() } ?: return null
+        return format.startsWith("spdif")
+    }
+
+    /** The demuxed video plus audio bitrate mpv measures as it plays, or null before it has one. */
+    fun currentBitrateBps(): Long? {
+        if (!initialized) return null
+        val video = runCatching { mpv.getPropertyDouble("video-bitrate") }.getOrNull() ?: 0.0
+        val audio = runCatching { mpv.getPropertyDouble("audio-bitrate") }.getOrNull() ?: 0.0
+        return (video + audio).toLong().takeIf { it > 0L }
+    }
+
     fun isCoreIdleNow(): Boolean {
         if (!initialized) return false
         return mpv.getPropertyBoolean("core-idle") == true

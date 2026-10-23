@@ -973,4 +973,9 @@
     <string name="settings_search_hint">Caută în setări</string>
     <string name="settings_search_prompt">Scrie o parte din numele unei setări.</string>
     <string name="settings_search_empty">Nicio setare nu se potrivește cu \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Potrivit %1$s</string>
+    <string name="playback_details_refresh_display">Ecran %1$s</string>
+    <string name="playback_details_audio_passthrough">Audio passthrough</string>
+    <string name="playback_details_audio_decoded">Audio decodat</string>
+    <string name="playback_details_sources_hint">Sus pentru surse</string>
 </resources>

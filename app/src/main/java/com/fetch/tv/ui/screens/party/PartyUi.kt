@@ -119,13 +119,17 @@ private fun PresenceDot(
     val accent = FetchTheme.colors.Secondary
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         if (state == PartyPresenceState.Busy) {
-            val transition = rememberInfiniteTransition(label = "presence")
-            val pulse by transition.animateFloat(
-                initialValue = 0f,
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(tween(1100), RepeatMode.Restart),
-                label = "presencePulse",
-            )
+            // Reduced motion holds the halo still, partway out, so Busy still reads as a ring.
+            val pulse = if (FetchTheme.fullMotion) {
+                rememberInfiniteTransition(label = "presence").animateFloat(
+                    initialValue = 0f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(tween(1100), RepeatMode.Restart),
+                    label = "presencePulse",
+                ).value
+            } else {
+                0.35f
+            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -285,13 +289,16 @@ internal fun SeatsHero(
 
 @Composable
 internal fun PulsingDot() {
-    val transition = rememberInfiniteTransition(label = "pulsingDot")
-    val alpha by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.25f,
-        animationSpec = infiniteRepeatable(tween(FetchMotion.tokens.durations.long), RepeatMode.Reverse),
-        label = "pulsingDotAlpha",
-    )
+    val alpha = if (FetchTheme.fullMotion) {
+        rememberInfiniteTransition(label = "pulsingDot").animateFloat(
+            initialValue = 1f,
+            targetValue = 0.25f,
+            animationSpec = infiniteRepeatable(tween(FetchMotion.tokens.durations.long), RepeatMode.Reverse),
+            label = "pulsingDotAlpha",
+        ).value
+    } else {
+        1f
+    }
     Box(
         modifier = Modifier
             .size(8.dp)

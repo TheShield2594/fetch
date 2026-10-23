@@ -148,13 +148,16 @@ private fun CodeSlot(
 
 @Composable
 private fun Caret() {
-    val transition = rememberInfiniteTransition(label = "codeCaret")
-    val alpha by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(tween(FetchMotion.tokens.durations.slow), RepeatMode.Reverse),
-        label = "codeCaretAlpha",
-    )
+    val alpha = if (FetchTheme.fullMotion) {
+        rememberInfiniteTransition(label = "codeCaret").animateFloat(
+            initialValue = 1f,
+            targetValue = 0f,
+            animationSpec = infiniteRepeatable(tween(FetchMotion.tokens.durations.slow), RepeatMode.Reverse),
+            label = "codeCaretAlpha",
+        ).value
+    } else {
+        1f
+    }
     Box(
         modifier = Modifier
             .width(FetchTheme.strokes.medium)

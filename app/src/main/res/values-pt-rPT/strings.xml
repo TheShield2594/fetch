@@ -2340,4 +2340,9 @@
     <string name="settings_search_hint">Pesquisar definições</string>
     <string name="settings_search_prompt">Escreva parte do nome de uma definição.</string>
     <string name="settings_search_empty">Nenhuma definição corresponde a \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Ajustado %1$s</string>
+    <string name="playback_details_refresh_display">Ecrã %1$s</string>
+    <string name="playback_details_audio_passthrough">Áudio em passthrough</string>
+    <string name="playback_details_audio_decoded">Áudio descodificado</string>
+    <string name="playback_details_sources_hint">Para cima para fontes</string>
 </resources>

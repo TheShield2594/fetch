@@ -2946,4 +2946,9 @@
     <string name="settings_search_hint">Αναζήτηση ρυθμίσεων</string>
     <string name="settings_search_prompt">Πληκτρολογήστε μέρος του ονόματος μιας ρύθμισης.</string>
     <string name="settings_search_empty">Καμία ρύθμιση δεν ταιριάζει με \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Αντιστοίχιση %1$s</string>
+    <string name="playback_details_refresh_display">Οθόνη %1$s</string>
+    <string name="playback_details_audio_passthrough">Διέλευση ήχου</string>
+    <string name="playback_details_audio_decoded">Αποκωδικοποιημένος ήχος</string>
+    <string name="playback_details_sources_hint">Πάνω για πηγές</string>
 </resources>

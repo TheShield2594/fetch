@@ -2832,4 +2832,9 @@
     <string name="settings_search_hint">Pretraži podešavanja</string>
     <string name="settings_search_prompt">Unesite deo imena podešavanja.</string>
     <string name="settings_search_empty">Nijedno podešavanje ne odgovara \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Usklađeno %1$s</string>
+    <string name="playback_details_refresh_display">Ekran %1$s</string>
+    <string name="playback_details_audio_passthrough">Prosleđivanje zvuka</string>
+    <string name="playback_details_audio_decoded">Dekodiran zvuk</string>
+    <string name="playback_details_sources_hint">Gore za izvore</string>
 </resources>

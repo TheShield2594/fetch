@@ -264,7 +264,7 @@ private fun SyncStatChip(label: String, value: String) {
         )
         Text(
             text = label,
-            fontSize = 9.sp,
+            fontSize = 12.sp,
             color = FetchTheme.colors.TextTertiary
         )
     }
@@ -304,7 +304,7 @@ private fun ProfileSyncRow(profile: ProfileSyncStats) {
             Text(
                 text = profile.profileName.firstOrNull()?.uppercase() ?: "?",
                 color = Color.White,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -347,7 +347,7 @@ private fun ProfileStatValue(count: Int, label: String) {
         )
         Text(
             text = label,
-            fontSize = 8.sp,
+            fontSize = 12.sp,
             color = FetchTheme.colors.TextTertiary
         )
     }
@@ -423,7 +423,7 @@ private fun SettingsActionButton(
                 )
                 Text(
                     text = subtitle,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     color = FetchTheme.colors.TextSecondary
                 )
             }

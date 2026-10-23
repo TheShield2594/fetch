@@ -1108,4 +1108,9 @@
     <string name="settings_search_hint">सेटिंग खोजें</string>
     <string name="settings_search_prompt">किसी सेटिंग के नाम का हिस्सा लिखें।</string>
     <string name="settings_search_empty">\"%1$s\" से कोई सेटिंग मेल नहीं खाती।</string>
+    <string name="playback_details_refresh_matched">मिलान %1$s</string>
+    <string name="playback_details_refresh_display">डिस्प्ले %1$s</string>
+    <string name="playback_details_audio_passthrough">ऑडियो पासथ्रू</string>
+    <string name="playback_details_audio_decoded">ऑडियो डिकोड किया गया</string>
+    <string name="playback_details_sources_hint">स्रोतों के लिए ऊपर</string>
 </resources>

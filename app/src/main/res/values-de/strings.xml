@@ -2287,4 +2287,9 @@
     <string name="settings_search_hint">Einstellungen durchsuchen</string>
     <string name="settings_search_prompt">Gib einen Teil des Namens einer Einstellung ein.</string>
     <string name="settings_search_empty">Keine Einstellung passt zu \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Angepasst %1$s</string>
+    <string name="playback_details_refresh_display">Anzeige %1$s</string>
+    <string name="playback_details_audio_passthrough">Audio-Passthrough</string>
+    <string name="playback_details_audio_decoded">Audio dekodiert</string>
+    <string name="playback_details_sources_hint">Hoch für Quellen</string>
 </resources>

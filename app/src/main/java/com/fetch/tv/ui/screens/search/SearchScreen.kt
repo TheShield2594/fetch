@@ -1227,26 +1227,32 @@ private fun SearchInputField(
         if (showVoiceSearch) {
             val themeAccent = FetchTheme.colors.Secondary
 
-            // Pulsating animation (constant rhythm while listening)
-            val pulseTransition = rememberInfiniteTransition(label = "voicePulse")
-            val pulseScale by pulseTransition.animateFloat(
-                initialValue = 1f,
-                targetValue = 1.35f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(FetchMotion.tokens.durations.long, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                ),
-                label = "pulseScale"
-            )
-            val pulseAlpha by pulseTransition.animateFloat(
-                initialValue = 0.5f,
-                targetValue = 0f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(FetchMotion.tokens.durations.long, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                ),
-                label = "pulseAlpha"
-            )
+            // Pulsating animation (constant rhythm while listening); reduced motion drops it and
+            // leaves the level ring below, which follows the voice rather than a clock.
+            val (pulseScale, pulseAlpha) = if (FetchTheme.fullMotion) {
+                val pulseTransition = rememberInfiniteTransition(label = "voicePulse")
+                val scale by pulseTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.35f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(FetchMotion.tokens.durations.long, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "pulseScale"
+                )
+                val alpha by pulseTransition.animateFloat(
+                    initialValue = 0.5f,
+                    targetValue = 0f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(FetchMotion.tokens.durations.long, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "pulseAlpha"
+                )
+                scale to alpha
+            } else {
+                1f to 0f
+            }
 
             // RMS-based ring — smoothly follows mic input level
             val animatedRms by animateFloatAsState(

@@ -96,7 +96,9 @@ data class FetchSourceColors(
 @Immutable
 data class FetchContrastPair(
     val foreground: Color,
-    val background: Color
+    val background: Color,
+    /** Names the pair in ThemeContrastTest's report. */
+    val label: String = ""
 )
 
 class FetchColorScheme(
@@ -130,7 +132,7 @@ class FetchColorScheme(
 
     val TextPrimary = FetchPrimitives.white
     val TextSecondary = FetchPrimitives.neutral400
-    val TextTertiary = FetchPrimitives.neutral600
+    val TextTertiary = FetchPrimitives.neutral450
     val TextDisabled = FetchPrimitives.neutral700
     val TextInverse = FetchPrimitives.neutral925
 
@@ -244,14 +246,44 @@ class FetchColorScheme(
         mdblist = FetchPrimitives.mdblist
     )
 
-    val contrastPairs = listOf(
-        FetchContrastPair(TextPrimary, Background),
-        FetchContrastPair(TextPrimary, BackgroundCard),
-        FetchContrastPair(TextSecondary, Background),
-        FetchContrastPair(OnSecondary, Secondary),
-        FetchContrastPair(FocusContent, FocusBackground),
-        FetchContrastPair(FetchPrimitives.white, PlayerOverlay)
-    )
+    /**
+     * Every text colour on every surface it is drawn on. ThemeContrastTest holds each to WCAG AA
+     * (4.5:1) in every built-in theme; translucent surfaces are measured over [Background].
+     */
+    val contrastPairs: List<FetchContrastPair> by lazy(LazyThreadSafetyMode.NONE) {
+        buildList {
+            val surfacesByName = listOf(
+                "background" to Background,
+                "elevated" to BackgroundElevated,
+                "card" to BackgroundCard,
+                "surface" to Surface,
+                "surfaceVariant" to SurfaceVariant,
+                "panel" to Panel,
+                "field" to Field,
+                "menu" to Menu,
+                "modal" to Modal,
+                "overlay" to Overlay,
+                "playerOverlay" to PlayerOverlay,
+                "focusBackground" to FocusBackground
+            )
+            val textByName = listOf(
+                "textPrimary" to TextPrimary,
+                "textSecondary" to TextSecondary,
+                "textTertiary" to TextTertiary,
+                "error" to Error,
+                "warning" to Warning,
+                "success" to Success
+            )
+            textByName.forEach { (textName, text) ->
+                surfacesByName.forEach { (surfaceName, surface) ->
+                    add(FetchContrastPair(text, surface, "$textName on $surfaceName"))
+                }
+            }
+            add(FetchContrastPair(OnSecondary, Secondary, "onSecondary on secondary"))
+            add(FetchContrastPair(OnSecondaryVariant, SecondaryVariant, "onSecondaryVariant on secondaryVariant"))
+            add(FetchContrastPair(FocusContent, FocusBackground, "focusContent on focusBackground"))
+        }
+    }
 }
 
 object FetchColors {
@@ -285,7 +317,7 @@ object FetchColors {
     val OnPrimary = FetchPrimitives.white
     val TextPrimary = FetchPrimitives.white
     val TextSecondary = FetchPrimitives.neutral400
-    val TextTertiary = FetchPrimitives.neutral600
+    val TextTertiary = FetchPrimitives.neutral450
     val TextDisabled = FetchPrimitives.neutral700
     val Rating = FetchPrimitives.rating
     val Error = FetchPrimitives.error

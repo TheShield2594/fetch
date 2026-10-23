@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.ui.theme.FetchRadii
+import com.fetch.tv.ui.theme.FetchTheme
 import android.content.Context
 import android.net.TrafficStats
 import android.os.Build
@@ -25,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -126,7 +126,8 @@ internal fun PlayerDebugStatsOverlay(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(FetchRadii.tokens.sm))
-            .background(Color(0x99000000))
+            // Over video, so the darkest player scrim: it keeps the labels legible on a bright frame.
+            .background(FetchTheme.colors.PlayerOverlay)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
@@ -136,19 +137,19 @@ internal fun PlayerDebugStatsOverlay(
                     text = stat.label,
                     modifier = Modifier.width(64.dp),
                     fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF8A8A8A)
+                    color = FetchTheme.colors.TextTertiary
                 )
                 val (color, fontWeight) = when (stat.severity) {
-                    DebugStatSeverity.DANGER -> Color(0xFFF44336) to FontWeight.Bold
-                    DebugStatSeverity.WARNING -> Color(0xFFFFB300) to FontWeight.Bold
-                    DebugStatSeverity.NORMAL -> Color(0xFFF0F0F0) to FontWeight.Normal
+                    DebugStatSeverity.DANGER -> FetchTheme.colors.Error to FontWeight.Bold
+                    DebugStatSeverity.WARNING -> FetchTheme.colors.Warning to FontWeight.Bold
+                    DebugStatSeverity.NORMAL -> FetchTheme.colors.TextPrimary to FontWeight.Normal
                 }
                 Text(
                     text = stat.value,
                     fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = fontWeight,
                     color = color
                 )

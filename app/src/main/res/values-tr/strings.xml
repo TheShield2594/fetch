@@ -3049,4 +3049,9 @@
     <string name="settings_search_hint">Ayarlarda ara</string>
     <string name="settings_search_prompt">Bir ayarın adının bir kısmını yazın.</string>
     <string name="settings_search_empty">\"%1$s\" ile eşleşen ayar yok.</string>
+    <string name="playback_details_refresh_matched">Eşleşti %1$s</string>
+    <string name="playback_details_refresh_display">Ekran %1$s</string>
+    <string name="playback_details_audio_passthrough">Ses doğrudan aktarım</string>
+    <string name="playback_details_audio_decoded">Ses çözüldü</string>
+    <string name="playback_details_sources_hint">Kaynaklar için yukarı</string>
 </resources>

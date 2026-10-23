@@ -3036,4 +3036,10 @@
     <string name="source_rule_prefer_addon">Prefer %1$s</string>
     <string name="source_rule_never_group">Never play %1$s releases</string>
     <string name="source_rule_never_saved">Best match will skip %1$s releases</string>
+    <string name="playback_details_refresh_matched">Matched %1$s</string>
+    <string name="playback_details_refresh_display">Display %1$s</string>
+    <string name="playback_details_audio_passthrough">Audio passthrough</string>
+    <string name="playback_details_audio_decoded">Audio decoded</string>
+    <string name="playback_details_bitrate" translatable="false">%1$s Mbps</string>
+    <string name="playback_details_sources_hint">Up for sources</string>
 </resources>

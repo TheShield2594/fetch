@@ -2273,4 +2273,9 @@
     <string name="settings_search_hint">அமைப்புகளில் தேடு</string>
     <string name="settings_search_prompt">ஒரு அமைப்பின் பெயரின் ஒரு பகுதியை உள்ளிடவும்.</string>
     <string name="settings_search_empty">\"%1$s\" உடன் எந்த அமைப்பும் பொருந்தவில்லை.</string>
+    <string name="playback_details_refresh_matched">பொருந்தியது %1$s</string>
+    <string name="playback_details_refresh_display">திரை %1$s</string>
+    <string name="playback_details_audio_passthrough">ஆடியோ பாஸ்த்ரூ</string>
+    <string name="playback_details_audio_decoded">ஆடியோ டிகோட் செய்யப்பட்டது</string>
+    <string name="playback_details_sources_hint">மூலங்களுக்கு மேலே</string>
 </resources>

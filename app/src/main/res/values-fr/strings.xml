@@ -3037,4 +3037,9 @@
     <string name="settings_search_hint">Rechercher dans les réglages</string>
     <string name="settings_search_prompt">Saisissez une partie du nom d\'un réglage.</string>
     <string name="settings_search_empty">Aucun réglage ne correspond à \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Synchronisé %1$s</string>
+    <string name="playback_details_refresh_display">Écran %1$s</string>
+    <string name="playback_details_audio_passthrough">Audio en passthrough</string>
+    <string name="playback_details_audio_decoded">Audio décodé</string>
+    <string name="playback_details_sources_hint">Haut pour les sources</string>
 </resources>

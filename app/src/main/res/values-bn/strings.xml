@@ -2783,4 +2783,9 @@
     <string name="settings_search_hint">সেটিংস খুঁজুন</string>
     <string name="settings_search_prompt">একটি সেটিংয়ের নামের অংশ লিখুন।</string>
     <string name="settings_search_empty">\"%1$s\"-এর সাথে কোনো সেটিং মেলে না।</string>
+    <string name="playback_details_refresh_matched">মিলেছে %1$s</string>
+    <string name="playback_details_refresh_display">ডিসপ্লে %1$s</string>
+    <string name="playback_details_audio_passthrough">অডিও পাসথ্রু</string>
+    <string name="playback_details_audio_decoded">অডিও ডিকোড করা</string>
+    <string name="playback_details_sources_hint">উৎসের জন্য উপরে</string>
 </resources>

@@ -3048,4 +3048,9 @@
     <string name="settings_search_hint">Hľadať v nastaveniach</string>
     <string name="settings_search_prompt">Napíšte časť názvu nastavenia.</string>
     <string name="settings_search_empty">Žiadne nastavenie nezodpovedá \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Zladené %1$s</string>
+    <string name="playback_details_refresh_display">Displej %1$s</string>
+    <string name="playback_details_audio_passthrough">Priechod zvuku</string>
+    <string name="playback_details_audio_decoded">Dekódovaný zvuk</string>
+    <string name="playback_details_sources_hint">Hore pre zdroje</string>
 </resources>

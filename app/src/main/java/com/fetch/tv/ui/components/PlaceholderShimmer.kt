@@ -1,5 +1,8 @@
 package com.fetch.tv.ui.components
 
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import com.fetch.tv.ui.theme.FetchTheme
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -26,6 +29,8 @@ private val PLACEHOLDER_SHIMMER_COLOR_STOPS = arrayOf(
 
 @Composable
 fun rememberPlaceholderShimmerOffsetState(label: String): State<Float> {
+    // Parked before the card's left edge, the band never draws, which leaves the plain placeholder.
+    if (!FetchTheme.fullMotion) return remember { mutableFloatStateOf(-1f) }
     val shimmerTransition = rememberInfiniteTransition(label = label)
     return shimmerTransition.animateFloat(
         initialValue = -1f,

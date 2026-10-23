@@ -115,7 +115,7 @@ fun DisplayModeOverlay(
         if (statusMessage != null) {
             Text(
                 text = statusMessage,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 color = FetchTheme.colors.Secondary,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
@@ -141,19 +141,19 @@ fun DisplayModeOverlay(
                     ) {
                         Text(
                             text = item.first,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             color = Color.White.copy(alpha = 0.85f),
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.End
                         )
                         Text(
                             text = " - ",
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             color = Color.White.copy(alpha = 0.4f),
                         )
                         Text(
                             text = item.second,
-                            fontSize = 11.sp,
+                            fontSize = 12.sp,
                             color = Color.White.copy(alpha = 0.6f),
                             textAlign = TextAlign.End
                         )
@@ -172,7 +172,7 @@ fun DisplayModeOverlay(
     }
 }
 
-private fun formatHz(rate: Float): String {
+internal fun formatHz(rate: Float): String {
     val rounded = (rate * 1000f).roundToInt() / 1000f
     val whole = rounded.roundToInt()
     val display = if (abs(rounded - whole.toFloat()) < 0.01f) {

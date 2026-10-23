@@ -1671,4 +1671,9 @@
     <string name="settings_search_hint">Sök i inställningar</string>
     <string name="settings_search_prompt">Skriv en del av namnet på en inställning.</string>
     <string name="settings_search_empty">Inga inställningar matchar \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Matchad %1$s</string>
+    <string name="playback_details_refresh_display">Skärm %1$s</string>
+    <string name="playback_details_audio_passthrough">Ljud-passthrough</string>
+    <string name="playback_details_audio_decoded">Ljud avkodat</string>
+    <string name="playback_details_sources_hint">Upp för källor</string>
 </resources>

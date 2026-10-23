@@ -3006,4 +3006,9 @@
     <string name="settings_search_hint">Keresés a beállításokban</string>
     <string name="settings_search_prompt">Írd be egy beállítás nevének egy részét.</string>
     <string name="settings_search_empty">Egy beállítás sem egyezik ezzel: \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Illesztve %1$s</string>
+    <string name="playback_details_refresh_display">Kijelző %1$s</string>
+    <string name="playback_details_audio_passthrough">Hang átengedése</string>
+    <string name="playback_details_audio_decoded">Dekódolt hang</string>
+    <string name="playback_details_sources_hint">Fel a forrásokhoz</string>
 </resources>

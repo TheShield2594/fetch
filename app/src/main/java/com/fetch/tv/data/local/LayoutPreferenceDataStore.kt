@@ -18,14 +18,9 @@ import com.fetch.tv.core.sync.homeCollectionKey
 import com.fetch.tv.core.sync.withLocalServerKeys
 import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.domain.model.Addon
-import com.fetch.tv.domain.model.CardDepthStyle
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
-import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_EDGE_COVERAGE
-import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_EDGE_STRENGTH
-import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_SHEEN_STRENGTH
 import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.EpisodeOptionsOverlayStyle
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
@@ -92,15 +87,6 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val posterCardWidthDpKey = intPreferencesKey("poster_card_width_dp")
     private val posterCardHeightDpKey = intPreferencesKey("poster_card_height_dp")
     private val posterCardCornerRadiusDpKey = intPreferencesKey("poster_card_corner_radius_dp")
-    private val cardDepthEnabledKey = booleanPreferencesKey("card_depth_enabled")
-    private val cardDepthEdgeStrengthKey = intPreferencesKey("card_depth_edge_strength")
-    private val cardDepthSheenStrengthKey = intPreferencesKey("card_depth_sheen_strength")
-    private val cardDepthEdgeCoverageKey = intPreferencesKey("card_depth_edge_coverage")
-    private val cardDepthPostersEnabledKey = booleanPreferencesKey("card_depth_posters_enabled")
-    private val cardDepthContinueWatchingEnabledKey = booleanPreferencesKey("card_depth_continue_watching_enabled")
-    private val cardDepthEpisodeCardsEnabledKey = booleanPreferencesKey("card_depth_episode_cards_enabled")
-    private val cardDepthCastEnabledKey = booleanPreferencesKey("card_depth_cast_enabled")
-    private val cardDepthTrailersEnabledKey = booleanPreferencesKey("card_depth_trailers_enabled")
     private val blurUnwatchedEpisodesKey = booleanPreferencesKey("blur_unwatched_episodes")
     private val randomEpisodeEnabledKey = booleanPreferencesKey("random_episode_enabled")
     private val startupSplashEnabledKey = booleanPreferencesKey("startup_splash_enabled")
@@ -305,23 +291,6 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     val posterCardCornerRadiusDp: Flow<Int> = profileFlow { prefs ->
         prefs[posterCardCornerRadiusDpKey] ?: DEFAULT_POSTER_CARD_CORNER_RADIUS_DP
-    }
-
-    val cardDepthStyle: Flow<CardDepthStyle> = profileFlow { prefs ->
-        CardDepthStyle(
-            enabled = prefs[cardDepthEnabledKey] ?: false,
-            edgeStrength = (prefs[cardDepthEdgeStrengthKey]
-                ?: DEFAULT_CARD_DEPTH_EDGE_STRENGTH).coerceIn(0, 100),
-            sheenStrength = (prefs[cardDepthSheenStrengthKey]
-                ?: DEFAULT_CARD_DEPTH_SHEEN_STRENGTH).coerceIn(0, 100),
-            edgeCoverage = (prefs[cardDepthEdgeCoverageKey]
-                ?: DEFAULT_CARD_DEPTH_EDGE_COVERAGE).coerceIn(0, 100),
-            postersEnabled = prefs[cardDepthPostersEnabledKey] ?: true,
-            continueWatchingEnabled = prefs[cardDepthContinueWatchingEnabledKey] ?: true,
-            episodeCardsEnabled = prefs[cardDepthEpisodeCardsEnabledKey] ?: true,
-            castEnabled = prefs[cardDepthCastEnabledKey] ?: true,
-            trailersEnabled = prefs[cardDepthTrailersEnabledKey] ?: true
-        )
     }
 
     val blurUnwatchedEpisodes: Flow<Boolean> = profileFlow { prefs ->
@@ -686,57 +655,6 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun setPosterCardCornerRadiusDp(cornerRadiusDp: Int) {
         store().edit { prefs ->
             prefs[posterCardCornerRadiusDpKey] = cornerRadiusDp
-        }
-    }
-
-    suspend fun setCardDepthEnabled(enabled: Boolean) {
-        store().edit { prefs ->
-            prefs[cardDepthEnabledKey] = enabled
-        }
-    }
-
-    suspend fun setCardDepthEdgeStrength(strength: Int) {
-        store().edit { prefs ->
-            prefs[cardDepthEdgeStrengthKey] = strength.coerceIn(0, 100)
-        }
-    }
-
-    suspend fun setCardDepthSheenStrength(strength: Int) {
-        store().edit { prefs ->
-            prefs[cardDepthSheenStrengthKey] = strength.coerceIn(0, 100)
-        }
-    }
-
-    suspend fun setCardDepthEdgeCoverage(coverage: Int) {
-        store().edit { prefs ->
-            prefs[cardDepthEdgeCoverageKey] = coverage.coerceIn(0, 100)
-        }
-    }
-
-    suspend fun setCardDepthSurfaceEnabled(surface: CardDepthSurface, enabled: Boolean) {
-        store().edit { prefs ->
-            val key = when (surface) {
-                CardDepthSurface.POSTERS -> cardDepthPostersEnabledKey
-                CardDepthSurface.CONTINUE_WATCHING -> cardDepthContinueWatchingEnabledKey
-                CardDepthSurface.EPISODE_CARDS -> cardDepthEpisodeCardsEnabledKey
-                CardDepthSurface.CAST -> cardDepthCastEnabledKey
-                CardDepthSurface.TRAILERS -> cardDepthTrailersEnabledKey
-            }
-            prefs[key] = enabled
-        }
-    }
-
-    suspend fun resetCardDepthStyle() {
-        store().edit { prefs ->
-            prefs.remove(cardDepthEnabledKey)
-            prefs.remove(cardDepthEdgeStrengthKey)
-            prefs.remove(cardDepthSheenStrengthKey)
-            prefs.remove(cardDepthEdgeCoverageKey)
-            prefs.remove(cardDepthPostersEnabledKey)
-            prefs.remove(cardDepthContinueWatchingEnabledKey)
-            prefs.remove(cardDepthEpisodeCardsEnabledKey)
-            prefs.remove(cardDepthCastEnabledKey)
-            prefs.remove(cardDepthTrailersEnabledKey)
         }
     }
 

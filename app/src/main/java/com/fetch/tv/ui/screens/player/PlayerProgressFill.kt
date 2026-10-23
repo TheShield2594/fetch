@@ -2,6 +2,8 @@ package com.fetch.tv.ui.screens.player
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -32,4 +34,23 @@ internal fun Modifier.playerProgressFill(
             drawRoundRect(brush = playedBrush, cornerRadius = radius)
         }
     }
+}
+
+/**
+ * The playhead: the same accent dot as a card's ready mark, centred on the end of the played
+ * fill. Drawn over the bar on a parent that isn't clipped, so the dot can stand taller than it.
+ */
+internal fun Modifier.playerPlayhead(
+    progress: () -> Float,
+    dotColor: Color,
+    ringColor: Color
+): Modifier = drawWithContent {
+    drawContent()
+    val ring = 2.dp.toPx()
+    val radius = 6.dp.toPx()
+    if (size.width < radius * 2f) return@drawWithContent
+    val x = (size.width * progress().coerceIn(0f, 1f)).coerceIn(radius, size.width - radius)
+    val center = Offset(x, size.height / 2f)
+    drawCircle(color = ringColor, radius = radius, center = center)
+    drawCircle(color = dotColor, radius = radius - ring, center = center)
 }

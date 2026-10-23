@@ -52,7 +52,6 @@ class SettingsStructureTest {
                 LayoutSection.CONTINUE_WATCHING,
                 LayoutSection.FOCUSED_POSTER,
                 LayoutSection.POSTER_CARD,
-                LayoutSection.CARD_DEPTH,
                 LayoutSection.CUSTOM_POSTERS,
                 LayoutSection.DETAIL_PAGE,
                 LayoutSection.STREAMS

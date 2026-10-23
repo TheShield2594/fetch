@@ -1651,8 +1651,6 @@
     <string name="collections_editor_backdrop">Gambar Backdrop</string>
     <string name="collections_editor_pin_above">Sematkan di Atas Katalog</string>
     <string name="collections_editor_pin_above_desc">Tampilkan koleksi ini di atas semua katalog beranda biasa. Beberapa koleksi yang disematkan mengikuti urutan pembuatan koleksi.</string>
-    <string name="collections_editor_focus_glow">Cahaya Fokus</string>
-    <string name="collections_editor_focus_glow_desc">Gunakan cahaya TV asli pada kartu katalog kustom layar beranda koleksi ini</string>
     <string name="collections_editor_view_mode">Mode Tampilan</string>
     <string name="collections_editor_show_all_tab">Tampilkan Tab \"Semua\"</string>
     <string name="collections_editor_show_all_tab_desc">Gabungkan semua katalog menjadi satu tab</string>

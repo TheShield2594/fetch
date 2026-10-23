@@ -430,7 +430,6 @@
     <string name="layout_trailer_muted_sub_preview">Wycisz audio zwiastuna podczas podglądu auto-play.</string>
     <string name="layout_section_sidebar">Pasek boczny i nawigacja</string>
     <string name="layout_section_sidebar_desc">Styl paska bocznego i lokalizacja sekcji Odkrywaj.</string>
-    <string name="layout_section_card_depth_desc">Efekt krawędzi światła i połysku na kartach obrazów.</string>
     <string name="layout_section_custom_poster_desc">Używaj grafik z zewnętrznej usługi plakatów.</string>
     <string name="layout_section_card_style">Karta plakatu</string>
     <string name="layout_section_card_style_desc">Dostosuj szerokość karty i promień narożnika.</string>
@@ -1458,8 +1457,6 @@
     <string name="collections_editor_backdrop">Obraz tła</string>
     <string name="collections_editor_pin_above">Przypnij nad katalogami</string>
     <string name="collections_editor_pin_above_desc">Pokaż tę kolekcję nad wszystkimi zwykłymi katalogami. Wiele przypiętych kolekcji zachowuje kolejność tworzenia.</string>
-    <string name="collections_editor_focus_glow">Poświata zaznaczonej karty</string>
-    <string name="collections_editor_focus_glow_desc">Użyj natywnej poświaty TV na kartach tej kolekcji na ekranie głównym</string>
     <string name="collections_editor_view_mode">Tryb widoku</string>
     <string name="collections_editor_show_all_tab">Pokaż kartę \"Wszystko\"</string>
     <string name="collections_editor_show_all_tab_desc">Połącz wszystkie katalogi w jednej karcie</string>
@@ -2578,33 +2575,7 @@
     <!-- Sentry -->
 
     <!-- Card depth settings -->
-    <string name="settings_card_depth_title">Efekt głębi kart</string>
-    <string name="settings_card_depth_description">Dodaje podświetloną górną krawędź i delikatny połysk do kart graficznych, tworząc subtelne wrażenie głębi.</string>
-    <string name="settings_card_depth_enabled">Włącz efekt głębi</string>
-    <string name="settings_card_depth_edge">Poświata krawędzi</string>
-    <string name="settings_card_depth_edge_subtle">Subtelna</string>
-    <string name="settings_card_depth_edge_balanced">Zrównoważona</string>
-    <string name="settings_card_depth_edge_bold">Wyraźna</string>
-    <string name="settings_card_depth_edge_coverage">Pokrycie krawędzi</string>
-    <string name="settings_card_depth_edge_value">Poświata krawędzi</string>
-    <string name="settings_card_depth_sheen">Górny połysk</string>
-    <string name="settings_card_depth_sheen_off">Wyłączony</string>
-    <string name="settings_card_depth_sheen_soft">Delikatny</string>
-    <string name="settings_card_depth_sheen_bright">Jasny</string>
-    <string name="settings_card_depth_sheen_value">Połysk</string>
-    <string name="settings_card_depth_coverage_top">Tylko góra</string>
-    <string name="settings_card_depth_coverage_half">Połowa</string>
-    <string name="settings_card_depth_coverage_full">Pełny obrys</string>
-    <string name="settings_card_depth_coverage_value">Pokrycie krawędzi</string>
-    <string name="settings_card_depth_fine_tune">Dostrojenie</string>
-    <string name="settings_card_depth_fine_tune_title">Dostrojenie głębi</string>
-    <string name="settings_card_depth_fine_tune_hint_tv">Użyj lewo i prawo na pilocie, aby regulować każdą wartość.</string>
-    <string name="settings_card_depth_apply_to">Zastosuj do</string>
-    <string name="settings_card_depth_surface_posters">Plakaty</string>
-    <string name="settings_card_depth_surface_episodes">Karty odcinków</string>
-    <string name="settings_card_depth_surface_cast">Obsada</string>
-    <string name="settings_card_depth_surface_continue_watching">Kontynuuj oglądanie</string>
-    <string name="settings_card_depth_surface_trailers">Zwiastuny</string>
+    <string name="layout_custom_poster_apply_to">Zastosuj do</string>
 
     <!-- Stream test -->
     <string name="stream_test_section_header">Diagnostyka przepustowości strumienia</string>

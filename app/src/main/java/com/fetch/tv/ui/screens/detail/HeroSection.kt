@@ -17,7 +17,9 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,6 +28,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -82,6 +85,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import com.fetch.tv.core.streams.ranking.label
 import androidx.compose.ui.graphics.painter.Painter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -128,7 +132,12 @@ fun HeroContentSection(
     onHeroActionFocused: () -> Unit = {},
     onPlayFocusRestored: () -> Unit = {},
     onShowFullDescription: () -> Unit = {},
-    onTruncationChanged: (Boolean) -> Unit = {}
+    onTruncationChanged: (Boolean) -> Unit = {},
+    /**
+     * For a series in progress: the next episodes, shown right under Play in place of the
+     * credits, ratings and synopsis, because the next episode is the most likely action.
+     */
+    upNext: (@Composable () -> Unit)? = null
 ) {
     val context = LocalContext.current
     val isSeriesApi = remember(meta.apiType) {
@@ -227,6 +236,8 @@ fun HeroContentSection(
                         text = meta.name,
                         style = MaterialTheme.typography.displayMedium,
                         color = FetchTheme.colors.TextPrimary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(bottom = FetchTheme.spacing.sm)
                     )
                 }
@@ -325,48 +336,79 @@ fun HeroContentSection(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
-
-                    // Director/Writer line above description
-                    if (!creditLine.isNullOrBlank()) {
+                    bestMatch?.skipped?.takeIf { isPlayEnabled }?.let { skipped ->
+                        val context = LocalContext.current
+                        val reason = remember(skipped, context) { skipped.reason.label(context, skipped.descriptor) }
                         Text(
-                            text = creditLine,
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                textDirection = creditLine.contentTextDirection()
+                            text = stringResource(
+                                R.string.best_match_skipped,
+                                skipped.pictureLabels.joinToString(" "),
+                                reason
                             ),
-                            color = FetchTheme.extendedColors.textSecondary,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = FetchTheme.colors.TextSecondary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.fillMaxWidth(0.6f)
-                        )
-                        Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
-                    }
-
-                    if (mdbListRatings?.isEmpty() == false) {
-                        MDBListRatingsRow(ratings = mdbListRatings, order = mdbListRatingOrder)
-                        Spacer(modifier = Modifier.height(14.dp))
-                    }
-
-                    meta.description?.let { description ->
-                        SynopsisDescription(
-                            description = description,
-                            onShowFullDescription = onShowFullDescription,
-                            upFocusRequester = playButtonFocusRequester,
-                            onFocused = onHeroActionFocused,
-                            onTruncationChanged = onTruncationChanged,
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)
-                                .padding(bottom = FetchTheme.spacing.md)
+                                .padding(top = FetchTheme.spacing.sm)
                         )
                     }
 
-                    MetaInfoRow(
-                        meta = meta,
-                        hideImdbRating = hideMetaInfoImdb,
-                        showFullReleaseDate = showFullReleaseDate,
-                        tmdbRating = tmdbRating
-                    )
+                    if (upNext == null) {
+                        Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
+
+                        // Director/Writer line above description
+                        if (!creditLine.isNullOrBlank()) {
+                            Text(
+                                text = creditLine,
+                                style = MaterialTheme.typography.labelLarge.copy(
+                                    textDirection = creditLine.contentTextDirection()
+                                ),
+                                color = FetchTheme.extendedColors.textSecondary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.fillMaxWidth(0.6f)
+                            )
+                            Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+                        }
+
+                        if (mdbListRatings?.isEmpty() == false) {
+                            MDBListRatingsRow(ratings = mdbListRatings, order = mdbListRatingOrder)
+                            Spacer(modifier = Modifier.height(14.dp))
+                        }
+
+                        meta.description?.let { description ->
+                            SynopsisDescription(
+                                description = description,
+                                onShowFullDescription = onShowFullDescription,
+                                upFocusRequester = playButtonFocusRequester,
+                                onFocused = onHeroActionFocused,
+                                onTruncationChanged = onTruncationChanged,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .padding(bottom = FetchTheme.spacing.md)
+                            )
+                        }
+
+                        MetaInfoRow(
+                            meta = meta,
+                            hideImdbRating = hideMetaInfoImdb,
+                            showFullReleaseDate = showFullReleaseDate,
+                            tmdbRating = tmdbRating
+                        )
+                    }
                 }
+            }
+        }
+        // Full width, so the row keeps its own edge padding and scrolls to the screen edge.
+        if (upNext != null) {
+            AnimatedVisibility(
+                visible = !isTrailerPlaying,
+                enter = fadeIn(tween(FetchMotion.tokens.durations.overlay)),
+                exit = fadeOut(tween(FetchMotion.tokens.durations.overlay))
+            ) {
+                upNext()
             }
         }
     }
@@ -525,36 +567,41 @@ private fun ActionIconButtonPainter(
     onFocused: () -> Unit = {},
     enabled: Boolean = true
 ) {
-    IconButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier
-            .size(FetchTheme.spacing.xxxl)
-            .onFocusChanged { state ->
-                if (state.isFocused) onFocused()
-            }
-            .focusProperties { up = FocusRequester.Cancel },
-        colors = IconButtonDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.Secondary,
-            contentColor = FetchTheme.colors.TextPrimary,
-            focusedContentColor = FetchTheme.colors.OnSecondary
-        ),
-        border = IconButtonDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+    var isFocused by remember { mutableStateOf(false) }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(
+            onClick = onClick,
+            enabled = enabled,
+            modifier = Modifier
+                .size(FetchTheme.spacing.xxxl)
+                .onFocusChanged { state ->
+                    isFocused = state.isFocused
+                    if (state.isFocused) onFocused()
+                }
+                .focusProperties { up = FocusRequester.Cancel },
+            colors = IconButtonDefaults.colors(
+                containerColor = FetchTheme.colors.BackgroundCard,
+                focusedContainerColor = FetchTheme.colors.Secondary,
+                contentColor = FetchTheme.colors.TextPrimary,
+                focusedContentColor = FetchTheme.colors.OnSecondary
+            ),
+            border = IconButtonDefaults.border(
+                focusedBorder = Border(
+                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    shape = CircleShape
+                )
+            ),
+            shape = IconButtonDefaults.shape(
                 shape = CircleShape
             )
-        ),
-        shape = IconButtonDefaults.shape(
-            shape = CircleShape
-        )
-    ) {
-        Icon(
-            painter = painter,
-            contentDescription = contentDescription,
-            modifier = Modifier.size(22.dp)
-        )
+        ) {
+            Icon(
+                painter = painter,
+                contentDescription = contentDescription,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+        ActionFocusLabel(text = contentDescription, visible = isFocused)
     }
 }
 
@@ -575,83 +622,116 @@ private fun ActionIconButton(
 ) {
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
+    var isFocused by remember { mutableStateOf(false) }
 
-    IconButton(
-        onClick = {
-            if (longPressTriggered) {
-                longPressTriggered = false
-            } else {
-                onClick()
-            }
-        },
-        enabled = enabled,
-        modifier = Modifier
-            .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
-            .size(FetchTheme.spacing.xxxl)
-            .onFocusChanged { state ->
-                if (state.isFocused) onFocused()
-            }
-            .onPreviewKeyEvent { event ->
-                val native = event.nativeKeyEvent
-                if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0 && isSelectKey(native.keyCode)) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(
+            onClick = {
+                if (longPressTriggered) {
                     longPressTriggered = false
+                } else {
+                    onClick()
                 }
-                if (onLongPress != null && native.action == AndroidKeyEvent.ACTION_DOWN) {
-                    if (native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
-                        longPressTriggered = true
-                        if (native.repeatCount == 0) onLongPress()
-                        return@onPreviewKeyEvent true
-                    }
+            },
+            enabled = enabled,
+            modifier = Modifier
+                .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+                .size(FetchTheme.spacing.xxxl)
+                .onFocusChanged { state ->
+                    isFocused = state.isFocused
+                    if (state.isFocused) onFocused()
                 }
-                if (onLongPress != null &&
-                    longPressKeyTracker.handle(native, ::isSelectKey) {
-                        longPressTriggered = true
-                        onLongPress()
-                    }
-                ) {
-                    if (native.action == AndroidKeyEvent.ACTION_UP) {
+                .onPreviewKeyEvent { event ->
+                    val native = event.nativeKeyEvent
+                    if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0 && isSelectKey(native.keyCode)) {
                         longPressTriggered = false
                     }
-                    return@onPreviewKeyEvent true
-                }
+                    if (onLongPress != null && native.action == AndroidKeyEvent.ACTION_DOWN) {
+                        if (native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
+                            longPressTriggered = true
+                            if (native.repeatCount == 0) onLongPress()
+                            return@onPreviewKeyEvent true
+                        }
+                    }
+                    if (onLongPress != null &&
+                        longPressKeyTracker.handle(native, ::isSelectKey) {
+                            longPressTriggered = true
+                            onLongPress()
+                        }
+                    ) {
+                        if (native.action == AndroidKeyEvent.ACTION_UP) {
+                            longPressTriggered = false
+                        }
+                        return@onPreviewKeyEvent true
+                    }
 
-                if (native.action == AndroidKeyEvent.ACTION_UP && longPressTriggered) {
-                    if (isSelectOrMenuKey(native.keyCode)) {
-                        longPressTriggered = false
-                        return@onPreviewKeyEvent true
+                    if (native.action == AndroidKeyEvent.ACTION_UP && longPressTriggered) {
+                        if (isSelectOrMenuKey(native.keyCode)) {
+                            longPressTriggered = false
+                            return@onPreviewKeyEvent true
+                        }
                     }
+                    false
                 }
-                false
-            }
-            .focusProperties { up = FocusRequester.Cancel },
-        colors = IconButtonDefaults.colors(
-            containerColor = if (selected) selectedContainerColor else FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.Secondary,
-            contentColor = if (selected) selectedContentColor else FetchTheme.colors.TextPrimary,
-            focusedContentColor = FetchTheme.colors.OnSecondary
-        ),
-        border = IconButtonDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                .focusProperties { up = FocusRequester.Cancel },
+            colors = IconButtonDefaults.colors(
+                containerColor = if (selected) selectedContainerColor else FetchTheme.colors.BackgroundCard,
+                focusedContainerColor = FetchTheme.colors.Secondary,
+                contentColor = if (selected) selectedContentColor else FetchTheme.colors.TextPrimary,
+                focusedContentColor = FetchTheme.colors.OnSecondary
+            ),
+            border = IconButtonDefaults.border(
+                focusedBorder = Border(
+                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    shape = CircleShape
+                )
+            ),
+            shape = IconButtonDefaults.shape(
                 shape = CircleShape
             )
-        ),
-        shape = IconButtonDefaults.shape(
-            shape = CircleShape
-        )
-    ) {
-        when {
-            painter != null -> Icon(
-                painter = painter,
-                contentDescription = contentDescription,
-                modifier = Modifier.size(22.dp)
-            )
-            icon != null -> Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                modifier = Modifier.size(FetchTheme.spacing.xl)
-            )
+        ) {
+            when {
+                painter != null -> Icon(
+                    painter = painter,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.size(22.dp)
+                )
+                icon != null -> Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.size(FetchTheme.spacing.xl)
+                )
+            }
         }
+        ActionFocusLabel(text = contentDescription, visible = isFocused)
+    }
+}
+
+/**
+ * The name of a round hero action, slid out beside it while it has focus, the way the sidebar
+ * labels its icons. The button already carries the name as its content description.
+ */
+@Composable
+private fun ActionFocusLabel(text: String, visible: Boolean) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(tween(FetchMotion.tokens.durations.fast)) +
+            expandHorizontally(tween(FetchMotion.tokens.durations.fast)),
+        exit = fadeOut(tween(FetchMotion.tokens.durations.quick)) +
+            shrinkHorizontally(tween(FetchMotion.tokens.durations.quick))
+    ) {
+        Text(
+            text = text,
+            color = FetchTheme.colors.TextPrimary,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(start = FetchTheme.spacing.sm)
+                .clearAndSetSemantics { }
+                .background(FetchTheme.colors.BackgroundCard, FetchTheme.shapes.navItem)
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
+        )
     }
 }
 

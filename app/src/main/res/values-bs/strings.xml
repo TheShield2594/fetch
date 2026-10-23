@@ -1275,8 +1275,6 @@
     <string name="collections_editor_backdrop">Backdrop Slika</string>
     <string name="collections_editor_pin_above">Zakači iznad Kataloga</string>
     <string name="collections_editor_pin_above_desc">Prikaži ovu kolekciju iznad svih običnih početnih kataloga. Više zakačenih kolekcija prati redoslijed njihovog kreiranja.</string>
-    <string name="collections_editor_focus_glow">Glow pri Fokusu</string>
-    <string name="collections_editor_focus_glow_desc">Koristi nativni TV sjaj (glow) na prilagođenim karticama kataloga ove kolekcije na početnom ekranu</string>
     <string name="collections_editor_view_mode">Mod Prikaza</string>
     <string name="collections_editor_show_all_tab">Prikaži tab \"Sve\"</string>
     <string name="collections_editor_show_all_tab_desc">Kombinuj sve kataloge u jedan tab</string>

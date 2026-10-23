@@ -1151,7 +1151,6 @@ var i18n = {
   newCollection: '${context.getString(R.string.collections_new).replace("'", "\\'")}',
   backdrop: '${context.getString(R.string.collections_editor_backdrop).replace("'", "\\'")}',
   pinAbove: '${context.getString(R.string.collections_editor_pin_above).replace("'", "\\'")}',
-  focusGlow: '${context.getString(R.string.collections_editor_focus_glow).replace("'", "\\'")}',
   viewMode: '${context.getString(R.string.collections_editor_view_mode).replace("'", "\\'")}',
   tabs: '${context.getString(R.string.collections_editor_view_mode_tabs).replace("'", "\\'")}',
   rows: '${context.getString(R.string.collections_editor_view_mode_rows).replace("'", "\\'")}',
@@ -2148,7 +2147,7 @@ function isCollectionDisabled(ci) {
 }
 
 function addCollection() {
-  collections.push({ id: generateId(), title: i18n.newCollection, backdropImageUrl: null, pinToTop: false, focusGlowEnabled: true, viewMode: 'TABBED_GRID', showAllTab: true, folders: [] });
+  collections.push({ id: generateId(), title: i18n.newCollection, backdropImageUrl: null, pinToTop: false, viewMode: 'TABBED_GRID', showAllTab: true, folders: [] });
   expandedCollection = collections.length - 1;
   expandedFolder = null;
   renderCollections();
@@ -2288,10 +2287,6 @@ function updateCollectionShowAllTab(ci, checked) {
 
 function updateCollectionPinToTop(ci, checked) {
   collections[ci].pinToTop = checked;
-}
-
-function updateCollectionFocusGlow(ci, checked) {
-  collections[ci].focusGlowEnabled = checked;
 }
 
 function updateFolderHideTitle(ci, fi, checked) {
@@ -2968,14 +2963,6 @@ function renderCollections() {
           '<span class="toggle-label">' + i18n.pinAbove + '</span>' +
           '<label class="toggle-switch" onclick="event.stopPropagation()">' +
             '<input type="checkbox"' + (col.pinToTop ? ' checked' : '') + ' onchange="updateCollectionPinToTop(' + ci + ',this.checked)">' +
-            '<span class="toggle-track"></span>' +
-            '<span class="toggle-thumb"></span>' +
-          '</label>' +
-        '</div>' +
-        '<div class="col-setting-row">' +
-          '<span class="toggle-label">' + i18n.focusGlow + '</span>' +
-          '<label class="toggle-switch" onclick="event.stopPropagation()">' +
-            '<input type="checkbox"' + (col.focusGlowEnabled !== false ? ' checked' : '') + ' onchange="updateCollectionFocusGlow(' + ci + ',this.checked)">' +
             '<span class="toggle-track"></span>' +
             '<span class="toggle-thumb"></span>' +
           '</label>' +

@@ -779,7 +779,6 @@
   <string name="layout_section_content_desc">Έλεγχος τι εμφανίζεται στην αρχική οθόνη και στην αναζήτηση.</string>
   <string name="layout_section_sidebar">Πλευρική μπάρα &amp; πλοήγηση</string>
   <string name="layout_section_sidebar_desc">Στυλ πλευρικής μπάρας και πού εμφανίζεται η Ανακάλυψη.</string>
-  <string name="layout_section_card_depth_desc">Φωτισμός άκρων και λάμψη στις κάρτες εικόνων.</string>
   <string name="layout_section_custom_poster_desc">Χρήση εικόνων από εξωτερική υπηρεσία αφισών.</string>
   <string name="layout_collapse_sidebar">Σύμπτυξη πλευρικής μπάρας</string>
   <string name="layout_collapse_sidebar_sub">Απόκρυψη πλευρικής μπάρας από προεπιλογή, εμφάνιση όταν εστιάζεται.</string>
@@ -894,33 +893,7 @@
   <string name="layout_reset_default">Επαναφορά σε προεπιλογή</string>
   <string name="layout_custom">Προσαρμοσμένο</string>
   <!-- Card depth effect -->
-  <string name="settings_card_depth_title">Εφέ βάθους καρτών</string>
-  <string name="settings_card_depth_description">Προσθέτει φωτισμένη πάνω ακμή και απαλή λάμψη στις κάρτες εικόνων για διακριτική αίσθηση βάθους.</string>
-  <string name="settings_card_depth_enabled">Ενεργοποίηση εφέ βάθους</string>
-  <string name="settings_card_depth_edge">Λάμψη ακμής</string>
-  <string name="settings_card_depth_edge_subtle">Διακριτική</string>
-  <string name="settings_card_depth_edge_balanced">Ισορροπημένη</string>
-  <string name="settings_card_depth_edge_bold">Έντονη</string>
-  <string name="settings_card_depth_sheen">Πάνω λάμψη</string>
-  <string name="settings_card_depth_sheen_off">Απενεργοποιημένη</string>
-  <string name="settings_card_depth_sheen_soft">Απαλή</string>
-  <string name="settings_card_depth_sheen_bright">Φωτεινή</string>
-  <string name="settings_card_depth_apply_to">Εφαρμογή σε</string>
-  <string name="settings_card_depth_fine_tune">Λεπτομερής ρύθμιση</string>
-  <string name="settings_card_depth_fine_tune_title">Λεπτομερής ρύθμιση βάθους</string>
-  <string name="settings_card_depth_fine_tune_hint_tv">Χρησιμοποιήστε αριστερά και δεξιά στο τηλεχειριστήριο για να ρυθμίσετε κάθε τιμή.</string>
-  <string name="settings_card_depth_edge_value">Λάμψη ακμής</string>
-  <string name="settings_card_depth_sheen_value">Λάμψη</string>
-  <string name="settings_card_depth_edge_coverage">Κάλυψη ακμής</string>
-  <string name="settings_card_depth_coverage_top">Μόνο πάνω</string>
-  <string name="settings_card_depth_coverage_half">Μισή</string>
-  <string name="settings_card_depth_coverage_full">Πλήρες περίγραμμα</string>
-  <string name="settings_card_depth_coverage_value">Κάλυψη ακμής</string>
-  <string name="settings_card_depth_surface_posters">Αφίσες</string>
-  <string name="settings_card_depth_surface_continue_watching">Συνέχεια παρακολούθησης</string>
-  <string name="settings_card_depth_surface_episodes">Κάρτες επεισοδίων</string>
-  <string name="settings_card_depth_surface_cast">Ηθοποιοί</string>
-  <string name="settings_card_depth_surface_trailers">Τρέιλερ</string>
+  <string name="layout_custom_poster_apply_to">Εφαρμογή σε</string>
   <!-- MDBListSettingsScreen -->
   <string name="layout_custom_poster_title">Προσαρμοσμένη πηγή αφίσας</string>
   <string name="layout_custom_poster_description">Δώστε ένα μοτίβο URL αφίσας από εξωτερική υπηρεσία. Αν ένα σύμβολο θέσης δεν έχει τιμή για κάποιον τίτλο, χρησιμοποιείται η αρχική αφίσα.</string>
@@ -2025,8 +1998,6 @@
   <string name="collections_editor_backdrop">Εικόνα φόντου</string>
   <string name="collections_editor_pin_above">Καρφίτσωμα πάνω από τους καταλόγους</string>
   <string name="collections_editor_pin_above_desc">Εμφάνιση αυτής της συλλογής πάνω από όλους τους κανονικούς καταλόγους αρχικής. Πολλές καρφιτσωμένες συλλογές ακολουθούν τη σειρά δημιουργίας των συλλογών.</string>
-  <string name="collections_editor_focus_glow">Λάμψη εστίασης</string>
-  <string name="collections_editor_focus_glow_desc">Χρήση της εγγενούς λάμψης TV στις προσαρμοσμένες κάρτες καταλόγου αυτής της συλλογής στην αρχική οθόνη</string>
   <string name="collections_editor_view_mode">Τρόπος προβολής</string>
   <string name="collections_editor_show_all_tab">Εμφάνιση καρτέλας «Όλα»</string>
   <string name="collections_editor_show_all_tab_desc">Συνδυάστε όλους τους καταλόγους σε μία καρτέλα</string>

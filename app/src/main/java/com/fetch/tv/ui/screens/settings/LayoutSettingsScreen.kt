@@ -167,7 +167,6 @@ private fun LayoutSectionContent(
         LayoutSection.CONTINUE_WATCHING -> LayoutContinueWatchingSection(uiState, onEvent)
         LayoutSection.FOCUSED_POSTER -> LayoutFocusedPosterSection(uiState, onEvent)
         LayoutSection.POSTER_CARD -> LayoutPosterCardSection(uiState, onEvent)
-        LayoutSection.CARD_DEPTH -> LayoutCardDepthSection(uiState, onEvent)
         LayoutSection.CUSTOM_POSTERS -> LayoutCustomPosterSection(
             uiState = uiState,
             onEvent = onEvent,

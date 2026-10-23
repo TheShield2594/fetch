@@ -1679,8 +1679,6 @@
     <string name="collections_editor_backdrop">背景画像</string>
     <string name="collections_editor_pin_above">カタログの上に固定</string>
     <string name="collections_editor_pin_above_desc">このコレクションをすべての通常のホームカタログの上に表示します。複数の固定コレクションは作成順に従います。</string>
-    <string name="collections_editor_focus_glow">フォーカスグロー</string>
-    <string name="collections_editor_focus_glow_desc">このコレクションのホーム画面カスタムカタログカードにネイティブTVグローを使用</string>
     <string name="collections_editor_view_mode">表示モード</string>
     <string name="collections_editor_show_all_tab">「すべて」タブを表示</string>
     <string name="collections_editor_show_all_tab_desc">すべてのカタログを1つのタブにまとめる</string>

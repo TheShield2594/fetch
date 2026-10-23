@@ -97,6 +97,12 @@ data class StreamDescriptor(
         sizeBytes?.let { add(formatSize(it)) }
     }
 
+    /** Just the picture: resolution and HDR ("4K DV P5", "1080p HDR10"). */
+    fun pictureLabels(): List<String> = summaryLabels().take(
+        (if (resolution.label.isNotEmpty()) 1 else 0) + (if (hasDolbyVision) 1 else 0) +
+            hdr.count { it != HdrFormat.DOLBY_VISION }
+    )
+
     companion object {
         val Empty = StreamDescriptor()
 

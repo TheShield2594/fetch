@@ -77,10 +77,7 @@ import com.fetch.tv.R
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.ui.components.PosterCardStyle
-import com.fetch.tv.ui.components.LocalCardDepthStyle
 import com.fetch.tv.ui.components.LocalLandscapePosterMode
-import com.fetch.tv.ui.components.fetchCardDepth
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.ui.screens.home.ContinueWatchingItem
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 import com.fetch.tv.ui.screens.home.HomeScreenFocusState
@@ -543,7 +540,6 @@ private fun TabbedGridContent(
                         key = "loading_more"
                     ) {
                         val cardShape = RoundedCornerShape(posterCardStyle.cornerRadius)
-                        val cardDepthStyle = LocalCardDepthStyle.current
                         val globalLandscape = LocalLandscapePosterMode.current
                         val loadingCardHeight = if (globalLandscape) {
                             posterCardStyle.width / com.fetch.tv.domain.model.PosterShape.LANDSCAPE.aspectRatio()
@@ -568,12 +564,7 @@ private fun TabbedGridContent(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .clip(cardShape)
-                                        .fetchCardDepth(
-                                            shape = cardShape,
-                                            surface = CardDepthSurface.POSTERS,
-                                            style = cardDepthStyle
-                                        ),
+                                        .clip(cardShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     LoadingIndicator()

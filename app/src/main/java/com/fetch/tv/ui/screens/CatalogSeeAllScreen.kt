@@ -55,8 +55,6 @@ import com.fetch.tv.R
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.LoadingIndicator
-import com.fetch.tv.ui.components.LocalCardDepthStyle
-import com.fetch.tv.ui.components.fetchCardDepth
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.ui.components.PosterCardStyle
 import com.fetch.tv.ui.screens.home.HomeEvent
@@ -304,7 +302,6 @@ fun CatalogSeeAllScreen(
                             val cardShape = remember(posterCardStyle.cornerRadius) {
                                 androidx.compose.foundation.shape.RoundedCornerShape(posterCardStyle.cornerRadius)
                             }
-                            val cardDepthStyle = com.fetch.tv.ui.components.LocalCardDepthStyle.current
                             val globalLandscape = com.fetch.tv.ui.components.LocalLandscapePosterMode.current
                             Column(
                                 modifier = Modifier
@@ -327,14 +324,7 @@ fun CatalogSeeAllScreen(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .clip(cardShape)
-                                            .then(
-                                                Modifier.fetchCardDepth(
-                                                    shape = cardShape,
-                                                    surface = com.fetch.tv.domain.model.CardDepthSurface.POSTERS,
-                                                    style = cardDepthStyle
-                                                )
-                                            ),
+                                            .clip(cardShape),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         LoadingIndicator()

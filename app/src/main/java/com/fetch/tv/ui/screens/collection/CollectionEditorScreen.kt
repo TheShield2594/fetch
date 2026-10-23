@@ -254,59 +254,6 @@ fun CollectionEditorScreen(
             Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
         }
 
-        item(key = "focus_glow") {
-            Card(
-                onClick = { viewModel.setFocusGlowEnabled(!uiState.focusGlowEnabled) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    focusedContainerColor = FetchTheme.colors.FocusBackground
-                ),
-                border = CardDefaults.border(
-                    focusedBorder = Border(
-                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                        shape = RoundedCornerShape(FetchTheme.radii.md)
-                    )
-                ),
-                shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-                scale = CardDefaults.scale(focusedScale = 1.02f)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.collections_editor_focus_glow),
-                            style = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Content),
-                            color = FetchTheme.colors.TextPrimary,
-                        )
-                        Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
-                        Text(
-                            text = stringResource(R.string.collections_editor_focus_glow_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = FetchTheme.colors.TextSecondary
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
-                    Switch(
-                        checked = uiState.focusGlowEnabled,
-                        onCheckedChange = null,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = FetchTheme.colors.Secondary,
-                            checkedTrackColor = FetchTheme.colors.Secondary.copy(alpha = 0.3f),
-                            uncheckedThumbColor = FetchTheme.colors.TextSecondary,
-                            uncheckedTrackColor = FetchTheme.colors.BackgroundCard
-                        )
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
-        }
-
         item(key = "view_mode") {
             Text(
                 text = stringResource(R.string.collections_editor_view_mode),

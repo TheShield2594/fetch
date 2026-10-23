@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.components
 
-import android.os.Build
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -23,41 +22,33 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.Border
-import androidx.tv.material3.Glow
 import androidx.tv.material3.LocalContentColor
-import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.contentColorFor
-import androidx.tv.material3.surfaceColorAtElevation
 import kotlinx.coroutines.launch
 
 /**
  * Drop-in replacement for tv-material `Card` as the home rows configure it: one [shape] and
- * [containerColor] for every state, no scale, [focusedBorder] while focused or pressed and
- * [focusedGlow] while focused (`CardDefaults.border(focusedBorder = ...)`,
- * `CardDefaults.glow(focusedGlow = ...)`, `CardDefaults.scale(focusedScale = 1f)`).
+ * [containerColor] for every state, no scale, no glow and [focusedBorder] while focused or
+ * pressed (`CardDefaults.border(focusedBorder = ...)`, `CardDefaults.scale(focusedScale = 1f)`).
  *
- * It draws the same layers in the same order as tv-material's `Surface` (glow, z-index, border,
+ * It draws the same layers in the same order as tv-material's `Surface` (z-index, border,
  * background, clip) and handles D-pad select, focus and semantics the same way. The difference is
  * where the focus animation is read: tv-material reads its animated z-index during composition,
  * so every focus change recomposes the old and the new card on each frame of that animation.
@@ -71,7 +62,6 @@ fun LightweightCard(
     containerColor: Color,
     modifier: Modifier = Modifier,
     focusedBorder: Border = Border.None,
-    focusedGlow: Glow = Glow.None,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -82,13 +72,6 @@ fun LightweightCard(
         label = "zIndex"
     )
     val border = if (focused || pressed) focusedBorder else Border.None
-    val glow = if (focused && !pressed) focusedGlow else Glow.None
-    val glowColor = if (glow.elevationColor == MaterialTheme.colorScheme.surface) {
-        MaterialTheme.colorScheme.surfaceColorAtElevation(glow.elevation)
-    } else {
-        glow.elevationColor
-    }
-    val glowBlurRadiusPx = with(LocalDensity.current) { glow.elevation.toPx() }
     val coroutineScope = rememberCoroutineScope()
     val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
 
@@ -127,13 +110,6 @@ fun LightweightCard(
                     onLongClick { false }
                 }
                 .graphicsLayer(scaleX = 1f, scaleY = 1f)
-                .then(
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        CardGlowElement(shape, glowBlurRadiusPx, glowColor)
-                    } else {
-                        Modifier
-                    }
-                )
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
                     layout(placeable.width, placeable.height) {
@@ -186,63 +162,6 @@ private class OutlineCache {
         this.layoutDirection = layoutDirection
         this.density = density
         return shape.createOutline(size, layoutDirection, density).also { outline = it }
-    }
-}
-
-private data class CardGlowElement(
-    val shape: Shape,
-    val glowBlurRadiusPx: Float,
-    val color: Color
-) : ModifierNodeElement<CardGlowNode>() {
-    override fun create() = CardGlowNode(shape, glowBlurRadiusPx, color)
-
-    override fun update(node: CardGlowNode) {
-        node.update(shape, glowBlurRadiusPx, color)
-    }
-}
-
-private class CardGlowNode(
-    private var shape: Shape,
-    private var glowBlurRadiusPx: Float,
-    private var color: Color
-) : DrawModifierNode, Modifier.Node() {
-    private val paint = Paint()
-    private val outlineCache = OutlineCache()
-
-    init {
-        applyShadowLayer()
-    }
-
-    fun update(shape: Shape, glowBlurRadiusPx: Float, color: Color) {
-        this.shape = shape
-        this.glowBlurRadiusPx = glowBlurRadiusPx
-        this.color = color
-        applyShadowLayer()
-    }
-
-    private fun applyShadowLayer() {
-        val frameworkPaint = paint.asFrameworkPaint()
-        frameworkPaint.color = color.copy(alpha = 0f).toArgb()
-        frameworkPaint.setShadowLayer(glowBlurRadiusPx, 0f, 0f, color.toArgb())
-    }
-
-    override fun ContentDrawScope.draw() {
-        drawIntoCanvas { canvas ->
-            when (val outline = outlineCache.get(shape, size, layoutDirection, this)) {
-                is Outline.Rectangle -> canvas.drawRect(outline.rect, paint)
-                is Outline.Rounded -> canvas.drawRoundRect(
-                    left = 0f,
-                    top = 0f,
-                    right = size.width,
-                    bottom = size.height,
-                    radiusX = outline.roundRect.topLeftCornerRadius.x,
-                    radiusY = outline.roundRect.topLeftCornerRadius.y,
-                    paint = paint
-                )
-                is Outline.Generic -> canvas.drawPath(outline.path, paint)
-            }
-        }
-        drawContent()
     }
 }
 

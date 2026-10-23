@@ -70,7 +70,6 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.ContentType
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.ui.theme.FetchTheme
@@ -115,7 +114,6 @@ fun ContentCard(
     onClick: () -> Unit = {}
 ) {
     val cardShape = remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
-    val cardDepthStyle = LocalCardDepthStyle.current
     val globalLandscape = LocalLandscapePosterMode.current
     val effectivePosterShape = if (globalLandscape) PosterShape.LANDSCAPE else item.posterShape
     val baseCardWidth = when (effectivePosterShape) {
@@ -398,11 +396,6 @@ fun ContentCard(
                     .fillMaxWidth()
                     .height(baseCardHeight)
                     .clip(cardShape)
-                    .fetchCardDepth(
-                        shape = cardShape,
-                        surface = CardDepthSurface.POSTERS,
-                        style = cardDepthStyle
-                    )
             ) {
                 val isPlaceholderItem = imageUrl == PLACEHOLDER_IMAGE_URL
                 if (isPlaceholderItem) {

@@ -44,7 +44,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.fetch.tv.R
-import com.fetch.tv.domain.model.CardDepthSurface
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyListState
@@ -90,7 +89,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.TextStyle
-import com.fetch.tv.domain.model.CardDepthStyle
 import kotlinx.coroutines.delay
 
 private val BadgeShape = RoundedCornerShape(FetchTheme.radii.xs)
@@ -468,7 +466,6 @@ fun ContinueWatchingCard(
         }
     }
     var longPressTriggered by remember { mutableStateOf(false) }
-    val cardDepthStyle = LocalCardDepthStyle.current
     val longPressKeyTracker = rememberLongPressKeyTracker()
 
     val progress = remember(item) { (item as? ContinueWatchingItem.InProgress)?.progress }
@@ -683,7 +680,6 @@ fun ContinueWatchingCard(
                 stripWidth = artworkWidth,
                 stripHeight = imageHeight,
                 cardShape = cwCardShape,
-                cardDepthStyle = cardDepthStyle,
                 titleText = titleText,
                 titleStyle = titleStyle,
                 titleMarqueeActive = titleMarqueeActive,
@@ -707,33 +703,12 @@ fun ContinueWatchingCard(
             )
             return@LightweightCard
         }
-        Column(
-            modifier = if (textBelowArtwork) {
-                Modifier
-            } else {
-                Modifier.fetchCardDepth(
-                    shape = cwCardShape,
-                    surface = CardDepthSurface.CONTINUE_WATCHING,
-                    style = cardDepthStyle
-                )
-            }
-        ) {
+        Column {
             // Thumbnail with progress overlay
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(imageHeight)
-                    .then(
-                        if (textBelowArtwork) {
-                            Modifier.fetchCardDepth(
-                                shape = cwClipShape,
-                                surface = CardDepthSurface.CONTINUE_WATCHING,
-                                style = cardDepthStyle
-                            )
-                        } else {
-                            Modifier
-                        }
-                    )
                     .clip(cwClipShape)
                     .then(
                         if (textBelowArtwork && isFocused) {
@@ -917,7 +892,6 @@ private fun WideCardContent(
     stripWidth: Dp,
     stripHeight: Dp,
     cardShape: RoundedCornerShape,
-    cardDepthStyle: CardDepthStyle,
     titleText: String,
     titleStyle: TextStyle,
     titleMarqueeActive: Boolean,
@@ -937,11 +911,6 @@ private fun WideCardContent(
         modifier = Modifier
             .fillMaxWidth()
             .height(stripHeight)
-            .fetchCardDepth(
-                shape = cardShape,
-                surface = CardDepthSurface.CONTINUE_WATCHING,
-                style = cardDepthStyle
-            )
             .clip(cardShape)
             .background(FetchTheme.colors.BackgroundCard)
     ) {

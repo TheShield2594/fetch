@@ -1595,8 +1595,6 @@
     <string name="collections_editor_backdrop">Imagem de Fundo (Backdrop)</string>
     <string name="collections_editor_pin_above">Fixar acima dos catálogos</string>
     <string name="collections_editor_pin_above_desc">Mostra esta coleção acima de todos os catálogos normais da página inicial. Se fixares várias coleções, elas seguirão a ordem de criação.</string>
-    <string name="collections_editor_focus_glow">Brilho de Foco</string>
-    <string name="collections_editor_focus_glow_desc">Utiliza o brilho nativo da TV nos cartões de catálogo personalizados desta coleção na página inicial.</string>
     <string name="collections_editor_view_mode">Modo de visualização</string>
     <string name="collections_editor_show_all_tab">Mostrar separador \"Tudo\"</string>
     <string name="collections_editor_show_all_tab_desc">Combinar todos os catálogos num único separador</string>

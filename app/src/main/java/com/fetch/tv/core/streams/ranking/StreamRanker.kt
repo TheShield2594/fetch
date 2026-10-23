@@ -267,6 +267,36 @@ object StreamRanker {
         isPlayable: (Stream) -> Boolean = { true }
     ): RankedStream? = rank(streams, rules, device, isPlayable).firstOrNull { it.isEligible }
 
+    /**
+     * The ruled-out stream in [ranked] that would have looked better than [picked]: a higher
+     * resolution, or Dolby Vision or HDR the pick lacks. Null when nothing better was passed
+     * over, or only for reasons that don't say anything about the picture (a results limit,
+     * a cam copy, a link the player can't open).
+     */
+    fun skippedBetterLooking(ranked: List<RankedStream>, picked: Stream): RankedStream? {
+        val pickedTier = ranked.firstOrNull { it.stream === picked }?.descriptor?.pictureTier ?: return null
+        return ranked
+            .filter { it.exclusion != null && it.exclusion !in reasonsNotAboutPicture }
+            // A cam copy can be ruled out for another reason first (a 4K cam over the size cap).
+            .filter { it.descriptor.source != ReleaseSource.CAM && it.descriptor.source != ReleaseSource.TELESYNC }
+            .filter { it.descriptor.resolution != StreamResolution.UNKNOWN && it.descriptor.pictureTier > pickedTier }
+            .maxByOrNull { it.descriptor.pictureTier }
+    }
+
+    private val reasonsNotAboutPicture = setOf(
+        ExclusionReason.OVER_RESULT_LIMIT,
+        ExclusionReason.CAM_OR_TELESYNC,
+        ExclusionReason.NOT_PLAYABLE
+    )
+
+    /** Resolution first, then Dolby Vision over other HDR over SDR at the same resolution. */
+    private val StreamDescriptor.pictureTier: Int
+        get() = resolution.height * 10 + when {
+            hasDolbyVision -> 2
+            isHdr -> 1
+            else -> 0
+        }
+
     internal fun score(
         stream: Stream,
         descriptor: StreamDescriptor,

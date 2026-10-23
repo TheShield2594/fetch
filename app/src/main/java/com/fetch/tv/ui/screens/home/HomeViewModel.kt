@@ -319,6 +319,8 @@ class HomeViewModel @Inject constructor(
     @Volatile internal var mdbBatchHasFired: Boolean = false
     internal val cwMetaCache: MutableMap<String, CwMetaSummary?> = createLruMap(MAX_CW_CACHE_SIZE)
     internal val cwMetaNegativeCacheTimestamps: MutableMap<String, Long> = createLruMap(MAX_CW_CACHE_SIZE)
+    /** When each cwMetaCache hit was fetched, so episode lists refresh while the app stays open. */
+    internal val cwMetaCachedAtMs: MutableMap<String, Long> = createLruMap(MAX_CW_CACHE_SIZE)
     /** Ultra-light cache for badge evaluation: contentId → set of aired (season, episode) pairs. */
     internal val cwBadgeEpisodeCache: MutableMap<String, Set<Pair<Int, Int>>?> = createLruMap(MAX_CW_CACHE_SIZE)
     /** Per-series earliest upcoming season release date (epochMs) for smart TTL scheduling. */
@@ -443,6 +445,7 @@ class HomeViewModel @Inject constructor(
                     // profile doesn't leak into the new one.
                     cwMetaCache.clear()
                     cwMetaNegativeCacheTimestamps.clear()
+                    cwMetaCachedAtMs.clear()
                     cwBadgeEpisodeCache.clear()
                     cwBadgeNextSeasonMs.clear()
                     cwTmdbIdCache.clear()
@@ -500,6 +503,7 @@ class HomeViewModel @Inject constructor(
     private fun clearAllCwInMemoryCaches() {
         cwMetaCache.clear()
         cwMetaNegativeCacheTimestamps.clear()
+        cwMetaCachedAtMs.clear()
         cwBadgeEpisodeCache.clear()
         cwBadgeNextSeasonMs.clear()
         cwTmdbIdCache.clear()

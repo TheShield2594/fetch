@@ -799,6 +799,26 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     val processedContentIds = synchronized(cwLastProcessedNextUpContentIds) {
                         cwLastProcessedNextUpContentIds.toSet()
                     }
+                    // A series checked earlier in this session with no next episode is due
+                    // again once its revalidation deadline passes (usually the next
+                    // episode's air date). Without this a season premiering while Fetch
+                    // stays open never reached Continue Watching (NuvioTV#3845).
+                    val dueAgainContentIds = olderSeedsDueForRecheck(
+                        processedOlderSeedContentIds = cwProcessedOlderSeedContentIds.toSet(),
+                        negativeResolutionKeys = synchronized(cwNextUpResolutionCache) {
+                            cwNextUpResolutionCache.filterValues { it == null }.keys.toSet()
+                        },
+                        hasBeenValidated = fullyWatchedSeriesIds::hasBeenValidated,
+                        isValidationFresh = fullyWatchedSeriesIds::isSeriesValidationFresh
+                    )
+                    if (dueAgainContentIds.isNotEmpty()) {
+                        cwProcessedOlderSeedContentIds -= dueAgainContentIds
+                        synchronized(cwNextUpResolutionCache) {
+                            cwNextUpResolutionCache.keys.removeAll { key ->
+                                cwNextUpResolutionCache[key] == null && key.substringBefore('|') in dueAgainContentIds
+                            }
+                        }
+                    }
                     val olderSeedContentIds = allSeedContentIds - processedContentIds - cwProcessedOlderSeedContentIds
                     val uncachedOlderSeedIds = olderSeedContentIds.filter { contentId ->
                         // Skip series validated recently — no new episodes expected within TTL.
@@ -1211,6 +1231,23 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                 throw cancelled
             }
         }
+    }
+}
+
+/**
+ * Older seeds this session already resolved to "no next episode" whose revalidation
+ * deadline has since passed. Seeds without a deadline (meta never resolved) stay
+ * checked once per session, as before.
+ */
+internal fun olderSeedsDueForRecheck(
+    processedOlderSeedContentIds: Set<String>,
+    negativeResolutionKeys: Set<String>,
+    hasBeenValidated: (String) -> Boolean,
+    isValidationFresh: (String) -> Boolean
+): Set<String> {
+    val negativeContentIds = negativeResolutionKeys.mapTo(mutableSetOf()) { it.substringBefore('|') }
+    return processedOlderSeedContentIds.filterTo(mutableSetOf()) { contentId ->
+        contentId in negativeContentIds && hasBeenValidated(contentId) && !isValidationFresh(contentId)
     }
 }
 
@@ -2376,6 +2413,13 @@ internal fun resolveNextUpVideoFromMeta(
 
 private const val CW_META_NEGATIVE_CACHE_TTL_MS = 5 * 60_000L
 
+// Episode lists change: a new season gets added. A list cached for the whole
+// session hid that season until Fetch restarted (NuvioTV#3845).
+internal const val CW_META_CACHE_TTL_MS = 6 * 60 * 60_000L
+
+internal fun isCwMetaCacheFresh(cachedAtMs: Long?, nowMs: Long): Boolean =
+    cachedAtMs != null && nowMs - cachedAtMs < CW_META_CACHE_TTL_MS
+
 internal suspend fun HomeViewModel.resolveCwMeta(progress: WatchProgress) =
     resolveMetaForProgress(progress, cwMetaCache)
 
@@ -2389,7 +2433,7 @@ private suspend fun HomeViewModel.resolveMetaForProgress(
     synchronized(metaCache) {
         if (metaCache.containsKey(cacheKey)) {
             val cached = metaCache[cacheKey]
-            if (cached != null) {
+            if (cached != null && isCwMetaCacheFresh(cwMetaCachedAtMs[cacheKey], SystemClock.elapsedRealtime())) {
                 debug?.recordMetaCacheHit(progress)
                 return cached
             }
@@ -2402,6 +2446,7 @@ private suspend fun HomeViewModel.resolveMetaForProgress(
             }
             metaCache.remove(cacheKey)
             cwMetaNegativeCacheTimestamps.remove(cacheKey)
+            cwMetaCachedAtMs.remove(cacheKey)
         }
     }
 
@@ -2501,8 +2546,10 @@ private suspend fun HomeViewModel.resolveMetaForProgress(
         metaCache[cacheKey] = resolved
         if (resolved == null) {
             cwMetaNegativeCacheTimestamps[cacheKey] = SystemClock.elapsedRealtime()
+            cwMetaCachedAtMs.remove(cacheKey)
         } else {
             cwMetaNegativeCacheTimestamps.remove(cacheKey)
+            cwMetaCachedAtMs[cacheKey] = SystemClock.elapsedRealtime()
         }
     }
     shuffleHomeRefresh.update { it.copy(metadata = it.metadata + 1) }

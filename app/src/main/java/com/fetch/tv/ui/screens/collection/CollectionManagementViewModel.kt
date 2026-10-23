@@ -41,6 +41,7 @@ data class CollectionManagementUiState(
 class CollectionManagementViewModel @Inject constructor(
     private val collectionsDataStore: CollectionsDataStore,
     private val collectionSyncService: CollectionSyncService,
+    private val okHttpClient: okhttp3.OkHttpClient,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -190,14 +191,14 @@ class CollectionManagementViewModel @Inject constructor(
         _uiState.update { it.copy(isLoadingImport = true, importError = null) }
         viewModelScope.launch {
             try {
-                val client = okhttp3.OkHttpClient.Builder()
-                    .dns(com.fetch.tv.core.network.IPv4FirstDns())
-                    .socketFactory(com.fetch.tv.core.network.NoDelaySocketFactory)
+                // Skip the shared HTTP cache so re-importing an edited file gets the new copy.
+                val request = okhttp3.Request.Builder()
+                    .url(url)
+                    .cacheControl(okhttp3.CacheControl.FORCE_NETWORK)
                     .build()
-                val request = okhttp3.Request.Builder().url(url).build()
                 // Read the body on IO too: execute() only returns the headers.
                 val (code, body) = withContext(Dispatchers.IO) {
-                    client.newCall(request).execute().use { response ->
+                    okHttpClient.newCall(request).execute().use { response ->
                         response.code to if (response.isSuccessful) response.body?.string().orEmpty() else null
                     }
                 }

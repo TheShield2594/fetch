@@ -4,6 +4,10 @@ import com.fetch.tv.ui.theme.FetchRadii
 import androidx.tv.material3.LocalContentColor
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
+import com.fetch.tv.ui.components.PlayLaunchOrigin
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import com.fetch.tv.ui.theme.FetchMotion
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -390,6 +394,8 @@ internal fun PlayButton(
         }
     }
     val playPainter = rememberRawSvgPainter(rawIconRes = com.fetch.tv.R.raw.ic_player_play)
+    // Where the button is, so the Fetching panel can grow out of it; not state, nothing redraws.
+    val launchBounds = remember { arrayOfNulls<Rect>(1) }
 
     Button(
         enabled = enabled,
@@ -397,10 +403,12 @@ internal fun PlayButton(
             if (longPressTriggered) {
                 longPressTriggered = false
             } else {
+                launchBounds[0]?.let { PlayLaunchOrigin.launchFrom(it) }
                 onClick()
             }
         },
         modifier = modifier
+            .onGloballyPositioned { launchBounds[0] = it.boundsInWindow() }
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .onFocusChanged {
                 if (it.isFocused) {

@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.stream
 
 import android.os.SystemClock
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,7 +43,11 @@ import com.fetch.tv.core.streams.BestMatchPreview
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.FetchMotion
 import kotlinx.coroutines.delay
+
+/** The panel's background opacity; the launch morph ends on the same colour. */
+internal const val FETCHING_PANEL_ALPHA = 0.94f
 
 /**
  * Shown over the auto-play loader while addons are still answering: how many have answered,
@@ -62,6 +69,14 @@ internal fun FetchingPanel(
     val playNowFocus = remember { FocusRequester() }
     val seeAllFocus = remember { FocusRequester() }
     val hasBest = bestSoFar != null
+    // Names in the order their addons answered, so the filled dots grow from the left.
+    val answerOrder = remember { mutableStateListOf<String>() }
+    LaunchedEffect(sourceChips) {
+        sourceChips.forEach { chip ->
+            if (chip.status != SourceChipStatus.LOADING && chip.name !in answerOrder) answerOrder += chip.name
+        }
+    }
+    val orderedChips = addonsInAnswerOrder(sourceChips, answerOrder)
 
     LaunchedEffect(hasBest) {
         runCatching { if (hasBest) playNowFocus.requestFocus() else seeAllFocus.requestFocus() }
@@ -70,7 +85,7 @@ internal fun FetchingPanel(
     Column(
         modifier = modifier
             .widthIn(max = 880.dp)
-            .background(FetchTheme.colors.BackgroundElevated.copy(alpha = 0.94f), RoundedCornerShape(FetchTheme.radii.md))
+            .background(FetchTheme.colors.BackgroundElevated.copy(alpha = FETCHING_PANEL_ALPHA), RoundedCornerShape(FetchTheme.radii.md))
             .padding(FetchTheme.spacing.xl),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
@@ -146,7 +161,7 @@ internal fun FetchingPanel(
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
             ) {
-                sourceChips.forEach { chip -> AddonStatus(chip) }
+                orderedChips.forEach { chip -> key(chip.name) { AddonStatus(chip) } }
             }
         }
     }
@@ -190,11 +205,15 @@ private fun SpecChip(text: String, highlighted: Boolean = false) {
 
 @Composable
 private fun AddonStatus(chip: SourceChipItem) {
-    val dotColor = when (chip.status) {
-        SourceChipStatus.SUCCESS -> FetchTheme.colors.Secondary
-        SourceChipStatus.LOADING -> FetchTheme.colors.TextSecondary
-        SourceChipStatus.ERROR -> FetchTheme.colors.Error
-    }
+    val dotColor by animateColorAsState(
+        targetValue = when (chip.status) {
+            SourceChipStatus.SUCCESS -> FetchTheme.colors.Secondary
+            SourceChipStatus.LOADING -> FetchTheme.colors.TextSecondary
+            SourceChipStatus.ERROR -> FetchTheme.colors.Error
+        },
+        animationSpec = FetchMotion.focusTween(),
+        label = "addonDot"
+    )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)

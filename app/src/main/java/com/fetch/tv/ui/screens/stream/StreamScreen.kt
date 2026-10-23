@@ -7,6 +7,17 @@ import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.components.PlayLaunchOrigin
+import com.fetch.tv.ui.theme.rememberFullMotionAllowed
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.graphics.graphicsLayer
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.streams.ranking.ExclusionReason
@@ -396,9 +407,19 @@ fun StreamScreen(
     }
 
     val showOverlay = uiState.showDirectAutoPlayOverlay || uiState.externalPlayerOverlayVisible
+    val fullMotion = rememberFullMotionAllowed()
+    // The Play or Resume press that opened this screen, if it was just now.
+    val launchOrigin = remember { PlayLaunchOrigin.take()?.takeIf { fullMotion } }
+    var rootTopLeft by remember { mutableStateOf(Offset.Zero) }
+    var fetchingPanelBounds by remember { mutableStateOf<Rect?>(null) }
+    val launchProgress = remember { Animatable(if (launchOrigin != null) 0f else 1f) }
+    // Read in composition only when it flips; the morph reads the value itself while it draws.
+    val launchDone by remember { derivedStateOf { launchProgress.value >= 1f } }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .onGloballyPositioned { rootTopLeft = it.positionInWindow() }
     ) {
         // Full screen backdrop
         StreamBackdrop(
@@ -439,6 +460,16 @@ fun StreamScreen(
                 }
             )
             if (waitingForPick) {
+                // Drawn first, so the panel's content fades in over the shape rather than under it.
+                val panelBounds = fetchingPanelBounds
+                if (launchOrigin != null && panelBounds != null && !launchDone) {
+                    FetchLaunchMorph(
+                        from = launchOrigin.bounds.translate(-rootTopLeft),
+                        to = panelBounds.translate(-rootTopLeft),
+                        progress = { launchProgress.value },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 FetchingPanel(
                     sourceChips = uiState.sourceChips,
                     bestSoFar = uiState.bestSoFar,
@@ -449,7 +480,26 @@ fun StreamScreen(
                         .align(Alignment.BottomCenter)
                         .padding(bottom = fetchingPanelBottomPadding, start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl)
                         .onSizeChanged { fetchingPanelHeight = with(density) { it.height.toDp() } }
+                        .onGloballyPositioned { fetchingPanelBounds = it.boundsInWindow() }
+                        .graphicsLayer { alpha = launchContentAlpha(launchProgress.value) }
                 )
+                LaunchedEffect(panelBounds != null) {
+                    if (panelBounds == null || launchProgress.value >= 1f) return@LaunchedEffect
+                    // A panel that shows up well after the press no longer reads as its result.
+                    val pressedAtMs = launchOrigin?.atMs ?: 0L
+                    if (android.os.SystemClock.elapsedRealtime() - pressedAtMs > PlayLaunchOrigin.MAX_AGE_MS) {
+                        launchProgress.snapTo(1f)
+                    } else {
+                        launchProgress.animateTo(
+                            targetValue = 1f,
+                            animationSpec = tween(
+                                durationMillis = FetchMotion.tokens.durations.hero,
+                                // Linear time; FetchLaunchMorph eases the growth itself.
+                                easing = LinearEasing
+                            )
+                        )
+                    }
+                }
             }
         } else {
             // Content overlay

@@ -1,0 +1,49 @@
+import { type FormEvent, useState } from "react";
+import { runtimeConfig } from "../../api";
+import { useTransientFlag } from "../../hooks/useTransientFlag";
+import { Eye, EyeOff, Check } from "lucide-react";
+
+export function ApiTokenSettings() {
+  const [token, setToken] = useState(runtimeConfig.getToken());
+  const [showToken, setShowToken] = useState(false);
+  const [saved, setSaved] = useTransientFlag();
+
+  const save = (e: FormEvent) => {
+    e.preventDefault();
+    runtimeConfig.setToken(token);
+    setSaved(true);
+  };
+
+  return (
+    <form onSubmit={save} className="space-y-4">
+      <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
+        The API token authenticates requests to your Fetch server. It is stored in localStorage.
+      </p>
+      <div className="relative">
+        <input
+          type={showToken ? "text" : "password"}
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          placeholder="Paste your API token"
+          aria-label="API token"
+          className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg-0)] px-4 py-3 pr-20 text-sm text-[var(--text)] focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        />
+        <button
+          type="button"
+          onClick={() => setShowToken((p) => !p)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-[var(--text-mute)] transition-colors hover:bg-[var(--surface-strong)] hover:text-[var(--text-dim)]"
+          aria-label={showToken ? "Hide token" : "Show token"}
+        >
+          {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      </div>
+      <p className="text-xs text-warning">Only use this on trusted devices.</p>
+      <button
+        type="submit"
+        className={`btn-primary ${saved ? "btn-saved" : ""}`}
+      >
+        {saved ? <><Check size={16} /> Saved</> : "Save token"}
+      </button>
+    </form>
+  );
+}

@@ -1,0 +1,276 @@
+# All four app images move together, so the version they run is one setting:
+# CATALOGGY_IMAGE_TAG in .env. It defaults to `latest`, which follows whatever
+# was last built from main — fine for trying Fetch out, but it means
+# `docker compose pull` can move you onto an untested build, and there is no
+# version to roll back to. Once the stack works, pin it: every image is also
+# published as `sha-<short-sha>` and, for tagged releases, `vX.Y.Z`.
+#
+#     CATALOGGY_IMAGE_TAG=v0.1.0
+#
+# Rolling back is the same edit with the previous tag, followed by
+# `docker compose pull && docker compose up -d`. Keep the four images on the
+# same tag — the migrate image applies the schema the api image expects.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    # Digest-pinned so a rebuild pulls the exact image this stack was tested
+    # against; the tag is kept alongside it for readability. Dependabot bumps
+    # the pair together (see .github/dependabot.yml).
+    image: postgres:16@sha256:33f923b05f64ca54ac4401c01126a6b92afe839a0aa0a52bc5aeb5cc958e5f20
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cataloggy}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}
+    # Bind Postgres to loopback only. The api/addon services reach it over the
+    # internal "cataloggy" Docker network (host db:5432), so no host mapping is
+    # needed for the app to work. Publishing on 0.0.0.0 would expose the
+    # database — including stored OAuth tokens — to the whole LAN (and the
+    # internet if the host is port-forwarded), bypassing API_TOKEN entirely.
+    # Loopback keeps host-side psql/backups working without that exposure.
+    # Remove this block entirely if you never need host-side DB access.
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    # The database entrypoint still needs the capabilities it uses to chown
+    # the data directory and drop to the postgres user at init, so only the
+    # privilege-escalation block applies here.
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cataloggy"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging: *default-logging
+    networks:
+      - cataloggy
+
+  # Applies pending database migrations, then exits. The api service waits for
+  # it to finish. It ships as a separate image because it needs the Prisma CLI,
+  # which is around 250 MB of tooling the api service never loads — keeping the
+  # CLI out of that image is what lets it stay small.
+  migrate:
+    image: ghcr.io/theshield2594/fetch-migrate:${CATALOGGY_IMAGE_TAG:-latest}
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}@db:5432/${POSTGRES_DB:-cataloggy}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    # Nothing in these services runs as root, binds a low port, or changes
+    # file ownership, so they need no Linux capabilities at all.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging: *default-logging
+    networks:
+      - cataloggy
+
+  api:
+    image: ghcr.io/theshield2594/fetch-api:${CATALOGGY_IMAGE_TAG:-latest}
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}@db:5432/${POSTGRES_DB:-cataloggy}
+      PORT: "7000"
+      # Connections the API keeps to Postgres (1–100, default 10). Postgres
+      # itself allows 100 by default, shared with the migrate container and any
+      # psql session, so raising this past ~80 needs the database raised too.
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX}
+      # How long one statement may run before Postgres cancels it, in ms
+      # (1000–600000, default 30000; 0 removes the limit). Raise it only if a
+      # genuinely large library trips it — the limit is what stops one runaway
+      # query from holding a pooled connection indefinitely.
+      DATABASE_STATEMENT_TIMEOUT_MS: ${DATABASE_STATEMENT_TIMEOUT_MS}
+      # Queries at or above this many ms are logged with their SQL (never their
+      # parameters). 1–60000, default 1000; 0 turns the logging off.
+      DATABASE_SLOW_QUERY_MS: ${DATABASE_SLOW_QUERY_MS}
+      API_TOKEN: ${API_TOKEN:?Set API_TOKEN in a .env file next to docker-compose.yml — see README.md}
+      CATALOGGY_ALLOWED_ORIGINS: ${CATALOGGY_ALLOWED_ORIGINS:-http://192.168.1.25:7002,http://localhost:7002,http://127.0.0.1:7002}
+      CATALOGGY_API_PUBLIC: ${CATALOGGY_API_PUBLIC:-http://192.168.1.25:7000}
+      # Public URL of the web service — used to build the "Configure" link
+      # Stremio shows for this addon's manifest (redirects to /settings), and
+      # the link notification channels point at. Without it, notifications are
+      # still sent, just with nothing to tap.
+      CATALOGGY_WEB_PUBLIC: ${CATALOGGY_WEB_PUBLIC:-http://192.168.1.25:7002}
+      # Which reverse proxies may set X-Forwarded-For. Unset trusts none of
+      # them, so behind a proxy every client arrives as the proxy's own address
+      # and the whole household shares one rate-limit budget. Set it to the
+      # proxy's IP/CIDR as this container sees it — not to "true", which trusts
+      # the whole forwarded chain and lets any client pick its own request.ip.
+      # See .env.example for the long version.
+      TRUST_PROXY: ${TRUST_PROXY}
+      # Path prefixes a reverse proxy may mount this service under; each is
+      # stripped before routing. Defaults to /api. It has a service-specific
+      # name in .env because the addon needs a different value — and because
+      # /addon must not appear here: the api serves its own built-in Stremio
+      # manifest under that path, and stripping the prefix would break it.
+      PROXY_PATH_PREFIXES: ${API_PROXY_PATH_PREFIXES:-/api}
+      # Largest request body the API accepts, in MB (1–1024, default 32).
+      # Raise it if restoring a large export is rejected with a 413.
+      MAX_BODY_SIZE_MB: ${MAX_BODY_SIZE_MB}
+      # How often to check tracked shows for new episodes, in seconds.
+      # 0 disables the check entirely (the API says so at startup).
+      NOTIFICATION_CHECK_INTERVAL_SEC: ${NOTIFICATION_CHECK_INTERVAL_SEC:-3600}
+      # Contact address sent to push services (Chrome FCM, Mozilla Push) to
+      # identify this server. The default is materialized here rather than left
+      # empty, because an empty VAPID subject is rejected by the push library
+      # where an absent one falls back to this same value.
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:admin@cataloggy.local}
+      # Shared secret for the Plex/Jellyfin webhook endpoints. Unset leaves
+      # them rejecting every request; the API warns about it at startup. See
+      # README.md "Webhook secret placement" before choosing how to send it.
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      # Optional second layer for internet-reachable webhooks: a comma-separated
+      # allowlist of source IPs (your Plex/Jellyfin servers). Behind a proxy this
+      # only works if TRUST_PROXY above is set, or every request looks like the
+      # proxy. Unset allows any IP.
+      WEBHOOK_ALLOWED_IPS: ${WEBHOOK_ALLOWED_IPS}
+      # Optional integrations — set these in a .env file or export them.
+      # Leaving them unset is safe; the API validates at startup/request time
+      # and returns clear error messages if they are missing when needed.
+      TRAKT_CLIENT_ID: ${TRAKT_CLIENT_ID}
+      TRAKT_CLIENT_SECRET: ${TRAKT_CLIENT_SECRET}
+      TRAKT_REDIRECT_URI: ${TRAKT_REDIRECT_URI:-http://192.168.1.25:7000/trakt/oauth/callback}
+      TRAKT_POLL_INTERVAL_SEC: ${TRAKT_POLL_INTERVAL_SEC:-300}
+      TRAKT_POLL_MAX_PAGES: ${TRAKT_POLL_MAX_PAGES:-20}
+      TRAKT_BACKFILL_MAX_PAGES: ${TRAKT_BACKFILL_MAX_PAGES:-500}
+      TRAKT_WATCHLIST_MIRROR_DELETES: ${TRAKT_WATCHLIST_MIRROR_DELETES:-false}
+      STREMIO_POLL_INTERVAL_SEC: ${STREMIO_POLL_INTERVAL_SEC:-0}
+      STREMIO_API_BASE: ${STREMIO_API_BASE:-https://api.strem.io}
+      STREMIO_PLAY_DETECTION: ${STREMIO_PLAY_DETECTION:-false}
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      AI_REFRESH_INTERVAL_SEC: ${AI_REFRESH_INTERVAL_SEC:-86400}
+      TWITCH_CLIENT_ID: ${TWITCH_CLIENT_ID}
+      TWITCH_CLIENT_SECRET: ${TWITCH_CLIENT_SECRET}
+      STEAM_API_KEY: ${STEAM_API_KEY}
+      STEAM_ID: ${STEAM_ID}
+      STEAM_SYNC_INTERVAL_SEC: ${STEAM_SYNC_INTERVAL_SEC:-86400}
+      # Optional: report unhandled errors to a Sentry project. Leave unset
+      # to disable error tracking entirely (default).
+      SENTRY_DSN: ${SENTRY_DSN}
+    ports:
+      - "7000:7000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    # Nothing in these services runs as root, binds a low port, or changes
+    # file ownership, so they need no Linux capabilities at all.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # Readiness, not liveness: /health answers from the process alone and would
+    # report a container healthy while its database is unreachable, so compose
+    # would keep the api in the rotation that the addon and web wait on.
+    # /health/ready runs a SELECT 1 (2s deadline, inside the timeout below), so
+    # an exhausted pool or a down database shows up as an unhealthy container.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:7000/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    logging: *default-logging
+    networks:
+      - cataloggy
+
+  addon:
+    image: ghcr.io/theshield2594/fetch-addon:${CATALOGGY_IMAGE_TAG:-latest}
+    environment:
+      PORT: "7001"
+      CATALOGGY_API_BASE: http://api:7000
+      CATALOGGY_API_TOKEN: ${API_TOKEN:?Set API_TOKEN in a .env file next to docker-compose.yml — see README.md}
+      ADDON_PUBLIC_BASE: ${ADDON_PUBLIC_BASE:-http://192.168.1.25:7001}
+      # Public URL of the web service — used to build the "Configure" link
+      # Stremio shows for this addon's manifest (redirects to /settings).
+      CATALOGGY_WEB_PUBLIC: ${CATALOGGY_WEB_PUBLIC:-http://192.168.1.25:7002}
+      # Must match the api service's value — the addon observes the signals and
+      # the api decides what to do with them, so enabling it on only one side
+      # does nothing.
+      STREMIO_PLAY_DETECTION: ${STREMIO_PLAY_DETECTION:-false}
+      # Shared with the api service: same meaning, same .env variable, because
+      # a proxy that forwards to one of them forwards to both.
+      TRUST_PROXY: ${TRUST_PROXY}
+      # Path prefixes a reverse proxy may mount this service under. Defaults to
+      # /addon, and is a separate .env variable from the api's for that reason.
+      PROXY_PATH_PREFIXES: ${ADDON_PROXY_PATH_PREFIXES:-/addon}
+      # Fastify log level: fatal, error, warn, info, debug, trace or silent.
+      # The default is materialized here because an empty value is not a level
+      # the logger accepts.
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SENTRY_DSN: ${SENTRY_DSN}
+    ports:
+      - "7001:7001"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    # Nothing in these services runs as root, binds a low port, or changes
+    # file ownership, so they need no Linux capabilities at all.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:7001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    logging: *default-logging
+    networks:
+      - cataloggy
+
+  web:
+    image: ghcr.io/theshield2594/fetch-web:${CATALOGGY_IMAGE_TAG:-latest}
+    environment:
+      VITE_API_BASE: ${VITE_API_BASE:-http://192.168.1.25:7000}
+      # Public URL of the dedicated addon service — the full-featured
+      # Stremio addon (meta/subtitles/search/genre support). Used to build
+      # the manifest URL shown in Settings.
+      VITE_ADDON_BASE: ${VITE_ADDON_BASE:-http://192.168.1.25:7001}
+      # Extra origins the browser may connect to, on top of VITE_API_BASE,
+      # VITE_ADDON_BASE and SENTRY_DSN (already allowed by the page's
+      # Content-Security-Policy). Only needed when some browsers reach the API
+      # at a different address — e.g. one set per-browser in Settings.
+      CSP_CONNECT_SRC_EXTRA: ${CSP_CONNECT_SRC_EXTRA:-}
+      SENTRY_DSN: ${SENTRY_DSN}
+    ports:
+      - "7002:7002"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    # Nothing in these services runs as root, binds a low port, or changes
+    # file ownership, so they need no Linux capabilities at all.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:7002/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    logging: *default-logging
+    networks:
+      - cataloggy
+
+volumes:
+  pgdata:
+
+networks:
+  cataloggy:
+    driver: bridge

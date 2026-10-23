@@ -1,0 +1,570 @@
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router";
+import { Award, BarChart3, Calendar, Clock, Film, Flame, Minus, Star, Trophy, TrendingDown, TrendingUp } from "lucide-react";
+import { api, type DetailedWatchStats, type WatchStats, type YearInReviewStats } from "../api";
+import { TicketTile } from "../components/TicketTile";
+import { useCachedState } from "../hooks/useCachedState";
+import { formatRating, formatStars, ratingLabel, starsLabel } from "../utils/rating";
+import { monthlyBarGeometry } from "../utils/monthlyBars";
+import { PAGE_TITLE, SECTION_TITLE, KICKER } from "../components/typography";
+import { SelectField } from "../components/SelectField";
+import { useEscapeKey } from "../hooks/useEscapeKey";
+import { SectionError } from "../components/SectionError";
+import { PosterGrid } from "../components/PosterGrid";
+import { PosterCard } from "../components/PosterCard";
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+type Milestone = { label: string; threshold: number; icon: typeof Film };
+
+const MOVIE_MILESTONES: Milestone[] = [
+  { label: "10 Movies", threshold: 10, icon: Film },
+  { label: "50 Movies", threshold: 50, icon: Film },
+  { label: "100 Movies", threshold: 100, icon: Film },
+  { label: "250 Movies", threshold: 250, icon: Film },
+  { label: "500 Movies", threshold: 500, icon: Film },
+];
+
+const EPISODE_MILESTONES: Milestone[] = [
+  { label: "100 Episodes", threshold: 100, icon: BarChart3 },
+  { label: "500 Episodes", threshold: 500, icon: BarChart3 },
+  { label: "1,000 Episodes", threshold: 1000, icon: BarChart3 },
+  { label: "2,500 Episodes", threshold: 2500, icon: BarChart3 },
+];
+
+const STREAK_MILESTONES: Milestone[] = [
+  { label: "3-Day Streak", threshold: 3, icon: Flame },
+  { label: "7-Day Streak", threshold: 7, icon: Flame },
+  { label: "30-Day Streak", threshold: 30, icon: Flame },
+  { label: "100-Day Streak", threshold: 100, icon: Flame },
+];
+
+function nextMilestone(milestones: Milestone[], value: number) {
+  return milestones.find((m) => value < m.threshold) ?? null;
+}
+
+/**
+ * The stats page: watch totals, streak milestones and charts (day/type bars and
+ * progress meters) summarising viewing activity, with a year-in-review section.
+ */
+export function StatsPage() {
+  const [stats, setStats, statsMeta] = useCachedState<WatchStats | null>("stats:summary", null);
+  const [detailed, setDetailed, detailedMeta] = useCachedState<DetailedWatchStats | null>("stats:detailed", null);
+  const [loading, setLoading] = useState(!statsMeta.hadCachedValue || !detailedMeta.hadCachedValue);
+  const [error, setError] = useState<string | null>(null);
+  const [hoveredMonth, setHoveredMonth] = useState<string | null>(null);
+
+  // SC 1.4.13: content shown on hover has to be dismissible without moving the
+  // pointer. The tooltip is already hoverable (it renders inside the column that
+  // owns the hover, so moving onto it doesn't dismiss it) and persistent (it
+  // stays until the pointer leaves), but there was no way to get rid of it at
+  // all — which matters most to the people it obscures the chart for, magnifier
+  // and low-vision users who can't simply look past it.
+  //
+  // Through useEscapeKey rather than a bare listener so it takes its place in
+  // the layer stack: the tooltip is the topmost transient thing while it is up,
+  // and dismissing it must not also close whatever is underneath.
+  useEscapeKey(() => setHoveredMonth(null), hoveredMonth !== null);
+  // The year you're in, not the one that just ended. A "year in review" that
+  // opens on last year reads as stale for the eleven months after January —
+  // the current year is listed right above it in the picker, empty-looking by
+  // comparison, and nothing says the panel isn't showing it.
+  const [year, setYear] = useState(() => new Date().getFullYear());
+  const [yearReview, setYearReview] = useState<YearInReviewStats | null>(null);
+  const [yearError, setYearError] = useState<string | null>(null);
+
+  const load = useCallback(async (signal?: AbortSignal) => {
+    try {
+      const [s, d] = await Promise.all([
+        api.getWatchStats(signal),
+        api.getDetailedStats(signal),
+      ]);
+      if (signal?.aborted) return;
+      setStats(s);
+      setDetailed(d);
+    } catch (err) {
+      if (signal?.aborted) return;
+      setError(err instanceof Error ? err.message : "Failed to load stats");
+    } finally {
+      if (!signal?.aborted) setLoading(false);
+    }
+    // Both come from useCachedState, which memoises its setter on the cache key
+    // — constant here — so this is a truthful dependency list rather than a new
+    // callback on every render.
+  }, [setStats, setDetailed]);
+
+  // Cancelled on unmount so a response can't land under whoever is signed in by
+  // the time it arrives — leaving a page is as much a reason to drop the answer
+  // as switching profile is.
+  useEffect(() => {
+    const controller = new AbortController();
+    void load(controller.signal);
+    return () => controller.abort();
+  }, [load]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setYearError(null);
+    setYearReview(null);
+    api.getYearInReview(year)
+      .then((data) => { if (!cancelled) setYearReview(data); })
+      .catch((err) => { if (!cancelled) setYearError(err instanceof Error ? err.message : "Failed to load year in review"); });
+    return () => { cancelled = true; };
+  }, [year]);
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-6">
+        <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Watch Statistics</h1>
+        <SectionError
+          variant="page"
+          message={error}
+          onRetry={() => {
+            setError(null);
+            setLoading(true);
+            void load();
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-6">
+        <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Watch Statistics</h1>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton h-28 rounded-2xl" />
+          ))}
+        </div>
+        <div className="skeleton h-64 rounded-2xl" />
+      </div>
+    );
+  }
+
+  /*
+   * A profile with no watch history has nothing to compute statistics from, and
+   * the page rendered that as four zero tiles, a flat chart, an empty genre list
+   * and "No badges earned yet — keep watching!" — a screen that reads as a
+   * failure and offers no way out of it. Every other page says what its empty
+   * state means and points somewhere; this was the one that said nothing.
+   *
+   * `stats` is non-null by here (the error and loading branches have both
+   * returned), and the two counts are of watch-event rows, so no rows means
+   * both are zero — the same condition as `totalPlays === 0`, stated in the
+   * terms the tiles above use.
+   */
+  if (stats && stats.totalMovies === 0 && stats.totalEpisodes === 0) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-6">
+        <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Watch Statistics</h1>
+        <div className="glass-panel rounded-2xl p-8 text-center" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
+          <BarChart3 className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
+          <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
+            Nothing watched yet, so there is nothing to count.
+          </p>
+          {/* The expected state for a new profile, not a fault — and the reason
+              the streaks and badges below are missing rather than broken. */}
+          <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
+            Every figure here — streaks, genres, badges, your year in review — is built from your watch history.
+          </p>
+          <Link to="/search" className="mt-2 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+            Find something to watch &rarr;
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const maxMonthlyTotal = detailed?.monthly.length
+    ? Math.max(...detailed.monthly.map((m) => m.movies + m.episodes), 1)
+    : 1;
+
+  const maxGenreCount = detailed?.genreDistribution[0]?.count ?? 1;
+
+  const momComparison = (() => {
+    // Two months is the minimum a month-on-month comparison has anything to
+    // say about, and having both of these is that same condition.
+    const current = detailed?.monthly.at(-1);
+    const previous = detailed?.monthly.at(-2);
+    if (!current || !previous) return null;
+    const currentTotal = current.movies + current.episodes;
+    const previousTotal = previous.movies + previous.episodes;
+    const diff = currentTotal - previousTotal;
+    const percent = previousTotal > 0 ? Math.round((diff / previousTotal) * 100) : null;
+    return { diff, percent };
+  })();
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-8">
+      <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Watch Statistics</h1>
+
+      {/* Summary tiles */}
+      {stats && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <TicketTile icon={Film} label="Movies" value={stats.totalMovies} />
+          <TicketTile icon={BarChart3} label="Episodes" value={stats.totalEpisodes} />
+          <TicketTile icon={Flame} label="Current Streak" value={`${detailed?.currentStreak ?? 0}d`} />
+          <TicketTile icon={Trophy} label="Longest Streak" value={`${detailed?.longestStreak ?? 0}d`} />
+        </div>
+      )}
+
+      {/* Achievement badges */}
+      {stats && (
+        <MilestoneBadges
+          totalMovies={stats.totalMovies}
+          totalEpisodes={stats.totalEpisodes}
+          longestStreak={detailed?.longestStreak ?? 0}
+        />
+      )}
+
+      {/* Monthly activity chart */}
+      {detailed && detailed.monthly.length > 0 && (
+        <section className="glass-panel rounded-2xl p-5" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className={SECTION_TITLE} style={{ color: "var(--text)" }}>Monthly Activity</h2>
+            {momComparison && (
+              <span
+                className={`flex items-center gap-1 text-xs font-medium ${
+                  momComparison.diff > 0
+                    ? "text-success"
+                    : momComparison.diff < 0
+                      ? "text-danger"
+                      : ""
+                }`}
+                style={momComparison.diff === 0 ? { color: "var(--text-dim)" } : undefined}
+              >
+                {momComparison.diff > 0 ? (
+                  <TrendingUp className="h-3.5 w-3.5" />
+                ) : momComparison.diff < 0 ? (
+                  <TrendingDown className="h-3.5 w-3.5" />
+                ) : (
+                  <Minus className="h-3.5 w-3.5" />
+                )}
+                {momComparison.diff > 0 ? "+" : ""}
+                {momComparison.diff}
+                {momComparison.percent !== null ? ` (${momComparison.diff > 0 ? "+" : ""}${momComparison.percent}%)` : ""} vs last month
+              </span>
+            )}
+          </div>
+          {/* Twelve columns whose month labels have a min-content width the
+              flex track can't go below. At a 320px viewport that pushed the
+              chart 14px past the edge, where `body { overflow-x: hidden }`
+              clipped December off rather than letting anyone scroll to it —
+              content lost, which is what SC 1.4.10 is about.
+
+              A chart is one of the things 1.4.10 explicitly allows to scroll
+              sideways ("content requiring two-dimensional layout"), so the
+              overflow is moved off the page and into the chart, which keeps
+              its columns readable. `tabIndex` because a scroll container with
+              no focusable children is otherwise unreachable by keyboard; the
+              label and role ride with it. */}
+          <div
+            tabIndex={0}
+            role="img"
+            aria-label={`Monthly activity chart for ${detailed.monthly
+              .map((m) => `${new Date(m.month + "-15").toLocaleDateString(undefined, { month: "long", year: "numeric" })}: ${m.movies} movies, ${m.episodes} episodes`)
+              .join("; ")}`}
+            className="-mx-1 overflow-x-auto px-1 pb-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+          >
+            <div
+              className="flex min-w-[21rem] items-end gap-1.5 sm:gap-2"
+              style={{ height: "180px" }}
+            >
+            {detailed.monthly.map((m, idx) => {
+              const { total, height, movieHeight, episodeHeight } = monthlyBarGeometry(m.movies, m.episodes, maxMonthlyTotal);
+              const label = new Date(m.month + "-15").toLocaleDateString(undefined, { month: "short" });
+              const isHovered = hoveredMonth === m.month;
+              const isFirst = idx === 0;
+              const isLast = idx === detailed.monthly.length - 1;
+              return (
+                <div
+                  key={m.month}
+                  className="relative flex flex-1 flex-col items-center gap-1"
+                  onMouseEnter={() => setHoveredMonth(m.month)}
+                  onMouseLeave={() => setHoveredMonth(null)}
+                  onTouchStart={() => setHoveredMonth(m.month)}
+                  onTouchEnd={() => setHoveredMonth(null)}
+                  onTouchCancel={() => setHoveredMonth(null)}
+                >
+                  {isHovered && (
+                    <div
+                      className={`absolute bottom-full z-10 mb-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-2xs shadow-e2 ${
+                        isFirst ? "left-0" : isLast ? "right-0" : "left-1/2 -translate-x-1/2"
+                      }`}
+                      // A normal themed surface, not --bg-2. The inverted
+                      // background is near-white on the four dark themes, and
+                      // the two series lines below are painted in the same
+                      // light accent tints as the bars they describe — on
+                      // near-white they were unreadable. On --bg-1 the swatch
+                      // carries the series and the label stays --text.
+                      style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}
+                    >
+                      <p className="font-semibold" style={{ color: "var(--text)" }}>
+                        {new Date(m.month + "-15").toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+                      </p>
+                      <p className="flex items-center gap-1.5" style={{ color: "var(--text-dim)" }}>
+                        <span className="h-2 w-2 flex-none rounded-sm bg-claw-500/70" />
+                        {m.movies} movies
+                      </p>
+                      <p className="flex items-center gap-1.5" style={{ color: "var(--text-dim)" }}>
+                        <span className="h-2 w-2 flex-none rounded-sm bg-plum-500/70" />
+                        {m.episodes} episodes
+                      </p>
+                    </div>
+                  )}
+                  <div className="relative flex w-full flex-col justify-end" style={{ height: "140px" }}>
+                    {/* Rides its own bar rather than sitting in a row above the
+                        column, which put every value on one line at the top of
+                        the chart. `bottom` is the stack height, so the number
+                        sits on the bar whatever that height turns out to be.
+                        Hidden while this column's tooltip is open, since the
+                        tooltip opens into exactly this space. */}
+                    {total > 0 && !isHovered && (
+                      <span
+                        className="meta pointer-events-none absolute inset-x-0 text-center"
+                        style={{ bottom: `calc(${height}% + 2px)`, color: "var(--text-mute)" }}
+                      >
+                        {total}
+                      </span>
+                    )}
+                    {episodeHeight > 0 && (
+                      <div
+                        className={`w-full rounded-t bg-plum-500/70 transition-[height,background-color] duration-slow ${isHovered ? "bg-plum-500" : ""}`}
+                        style={{ height: `${episodeHeight}%` }}
+                      />
+                    )}
+                    {movieHeight > 0 && (
+                      <div
+                        className={`w-full bg-claw-500/70 transition-[height,background-color] duration-slow ${episodeHeight === 0 ? "rounded-t" : ""} rounded-b ${isHovered ? "bg-claw-500" : ""}`}
+                        style={{ height: `${movieHeight}%` }}
+                      />
+                    )}
+                    {total === 0 && (
+                      <div
+                        className="w-full rounded border border-dashed"
+                        style={{ height: "4%", background: "var(--surface-strong)", borderColor: "var(--border-strong)" }}
+                      />
+                    )}
+                  </div>
+                  <span className="meta-row" style={{ color: "var(--text-mute)" }}>{label}</span>
+                </div>
+              );
+            })}
+            </div>
+          </div>
+          <div className="mt-3 flex items-center gap-4 text-xs" style={{ color: "var(--text-dim)" }}>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm bg-claw-500/70" /> Movies
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm bg-plum-500/70" /> Episodes
+            </span>
+          </div>
+        </section>
+      )}
+
+      {/* Genre distribution */}
+      {detailed && detailed.genreDistribution.length > 0 && (
+        <section className="glass-panel rounded-2xl p-5" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
+          <h2 className={`mb-4 ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>Top Genres</h2>
+          <div className="space-y-2.5">
+            {detailed.genreDistribution.map((g) => (
+              <div key={g.genre} className="flex items-center gap-3">
+                <span className="w-28 shrink-0 truncate text-sm" style={{ color: "var(--text-dim)" }}>{g.genre}</span>
+                <div
+                  className="flex-1 h-5 overflow-hidden rounded-full"
+                  style={{ background: "var(--surface-strong)" }}
+                  title={`${g.genre}: ${g.count} watched`}
+                >
+                  <div
+                    className="h-full rounded-full bg-claw-500/80 transition-[width] duration-slow"
+                    style={{ width: `${(g.count / maxGenreCount) * 100}%` }}
+                  />
+                </div>
+                <span className="meta w-8 text-right" style={{ color: "var(--text-mute)" }}>{g.count}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Top rated watched content */}
+      {detailed && detailed.topRated.length > 0 && (
+        <section className="glass-panel rounded-2xl p-5" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
+          <h2 className={`mb-4 flex items-center gap-2 ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>
+            <Star className="h-5 w-5 text-warning" /> Top Rated Watched
+          </h2>
+          <PosterGrid density="compact">
+            {detailed.topRated.map((item, index) => (
+              <PosterCard
+                key={item.imdbId}
+                poster={item.poster}
+                name={item.name}
+                eager={index < 5}
+                overlay={
+                  /* Fixed amber, not --status-warn: this badge sits on a black
+                     scrim over poster art rather than on a theme surface, so it
+                     can't take a token that goes dark on the light theme — that
+                     pairing measured 1.46:1. Against the scrim this is 5.2:1
+                     even over a white poster. */
+                  item.rating != null && (
+                    <div role="img" aria-label={ratingLabel(item.rating)} title={ratingLabel(item.rating)} className="absolute top-2 left-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/70 backdrop-blur-sm" style={{ boxShadow: "0 0 0 1.5px rgba(245,158,11,0.7)" }}>
+                      <span aria-hidden="true" className="meta font-bold text-[#f5c451]">{formatRating(item.rating)}</span>
+                    </div>
+                  )
+                }
+              >
+                <p className="mt-1.5 truncate text-sm font-medium" style={{ color: "var(--text)" }}>{item.name}</p>
+                <p className="meta-row" style={{ color: "var(--text-mute)" }}>{item.type}</p>
+              </PosterCard>
+            ))}
+          </PosterGrid>
+        </section>
+      )}
+
+      {/* Year in Review */}
+      <section className="glass-panel rounded-2xl p-5" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className={SECTION_TITLE} style={{ color: "var(--text)" }}>Year in Review</h2>
+          <SelectField
+            aria-label="Year in review: year"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            className="rounded-lg px-3 py-1.5 text-sm"
+          >
+            {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map((y) => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </SelectField>
+        </div>
+
+        {yearError && <p role="alert" className="text-sm text-danger">{yearError}</p>}
+
+        {!yearError && yearReview && (
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <TicketTile icon={Film} label="Movies Watched" value={yearReview.totalMovies} />
+              <TicketTile icon={BarChart3} label="Episodes Watched" value={yearReview.totalEpisodes} />
+              <TicketTile icon={Clock} label="Hours Watched" value={Math.round(yearReview.totalRuntimeMinutes / 60)} />
+              <TicketTile icon={Calendar} label="Busiest Month" value={(yearReview.busiestMonth !== null ? MONTH_NAMES[yearReview.busiestMonth] : null) ?? "—"} />
+            </div>
+
+            {yearReview.topGenres.length > 0 && (
+              <div>
+                <h3 className={`mb-2 ${KICKER}`} style={{ color: "var(--text-dim)" }}>Top Genres</h3>
+                <div className="flex flex-wrap gap-2">
+                  {yearReview.topGenres.map((g) => (
+                    <span
+                      key={g.genre}
+                      className="rounded-full px-3 py-1 text-xs"
+                      style={{ border: "1px solid var(--border)", background: "var(--surface-strong)", color: "var(--text-dim)" }}
+                    >
+                      {g.genre} <span style={{ color: "var(--text-mute)" }}>{g.count}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {yearReview.topRated.length > 0 && (
+              <div>
+                <h3 className={`mb-2 flex items-center gap-2 ${KICKER}`} style={{ color: "var(--text-dim)" }}>
+                  <Star className="h-4 w-4 text-warning" /> Top Rated Picks
+                </h3>
+                <PosterGrid density="compact">
+                  {yearReview.topRated.map((item) => (
+                    <PosterCard
+                      key={item.imdbId}
+                      poster={item.poster}
+                      name={item.name ?? item.imdbId}
+                      overlay={
+                        /* Your own rating, so it wears the five-star scale the
+                           pickers use — unlike the community score on the card
+                           above, which is TMDB's and stays out of ten. */
+                        <div role="img" aria-label={starsLabel(item.rating)} title={starsLabel(item.rating)} className="absolute top-2 left-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/70 backdrop-blur-sm" style={{ boxShadow: "0 0 0 1.5px rgba(245,158,11,0.7)" }}>
+                          <span aria-hidden="true" className="meta font-bold text-[#f5c451]">{formatStars(item.rating)}</span>
+                        </div>
+                      }
+                    >
+                      <p className="mt-1.5 truncate text-sm font-medium" style={{ color: "var(--text)" }}>{item.name ?? item.imdbId}</p>
+                      <p className="meta-row" style={{ color: "var(--text-mute)" }}>{item.type}</p>
+                    </PosterCard>
+                  ))}
+                </PosterGrid>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function MilestoneBadges({
+  totalMovies,
+  totalEpisodes,
+  longestStreak,
+}: {
+  totalMovies: number;
+  totalEpisodes: number;
+  longestStreak: number;
+}) {
+  const groups = [
+    { value: totalMovies, milestones: MOVIE_MILESTONES },
+    { value: totalEpisodes, milestones: EPISODE_MILESTONES },
+    { value: longestStreak, milestones: STREAK_MILESTONES },
+  ];
+
+  const earned = groups.flatMap(({ value, milestones }) =>
+    milestones.filter((m) => value >= m.threshold)
+  );
+  const upcoming = groups
+    .map(({ value, milestones }) => {
+      const next = nextMilestone(milestones, value);
+      return next ? { ...next, value } : null;
+    })
+    .filter((m): m is Milestone & { value: number } => m !== null);
+
+  if (earned.length === 0 && upcoming.length === 0) return null;
+
+  return (
+    <section className="glass-panel rounded-2xl p-5" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
+      <h2 className={`mb-4 flex items-center gap-2 ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>
+        <Award className="h-5 w-5 text-warning" /> Achievements
+      </h2>
+      {earned.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {earned.map((m) => (
+            <span
+              key={m.label}
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-warning"
+              style={{ border: "1px solid rgba(245,158,11,0.3)", background: "rgba(245,158,11,0.1)" }}
+            >
+              <m.icon className="h-3.5 w-3.5" /> {m.label}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm" style={{ color: "var(--text-dim)" }}>No badges earned yet — keep watching!</p>
+      )}
+      {upcoming.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {upcoming.map((m) => (
+            <span
+              key={m.label}
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+              style={{ border: "1px solid var(--border)", background: "var(--surface-strong)", color: "var(--text-dim)" }}
+            >
+              <m.icon className="h-3.5 w-3.5" /> {m.label} ({m.value}/{m.threshold})
+            </span>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}

@@ -1,0 +1,387 @@
+import { type FormEvent, useEffect, useState } from "react";
+import { AlertCircle, ArrowRight, Loader2, Lock, Plus, X } from "lucide-react";
+import { api, ApiError, type Profile, runtimeConfig } from "../api";
+import { BRAND_WORDMARK, BrandLockup, BrandMark } from "../components/BrandMark";
+import { useEscapeKey } from "../hooks/useEscapeKey";
+import { useExitAnimation } from "../hooks/useExitAnimation";
+import { useFocusTrap } from "../hooks/useFocusTrap";
+import { useScrollLock } from "../hooks/useScrollLock";
+import { SECTION_TITLE } from "../components/typography";
+import { avatarColor, initials } from "../utils/avatar";
+
+// Standing in for the switcher's own title. As a full page (first run) it is the
+// document's h1; opened as a modal over the app, the page behind already owns the
+// h1, so the same title drops a level.
+type HeadingTag = "h1" | "h2";
+
+function Shell({ children, onClose }: { children: React.ReactNode; onClose?: (() => void) | undefined }) {
+  // All three gated on `onClose`: without it this renders as a full page
+  // (first-run profile setup), not a modal, and must not lock scroll or
+  // swallow Escape.
+  const isModal = !!onClose;
+  const dialogRef = useFocusTrap<HTMLDivElement>(isModal);
+  const { exiting, requestClose, onExitAnimationEnd } = useExitAnimation(() => onClose?.());
+  useScrollLock(isModal);
+  useEscapeKey(requestClose, isModal);
+
+  if (onClose) {
+    return (
+      <div
+        className={`overlay-scrim overlay-fade fixed inset-0 z-[200] flex items-center justify-center px-6 py-12 ${exiting ? "overlay-exit" : ""}`}
+        onClick={requestClose}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Switch profile"
+      >
+        <div
+          ref={dialogRef}
+          tabIndex={-1}
+          inert={exiting}
+          className={`overlay-dialog w-full max-w-md space-y-6 ${exiting ? "overlay-exit" : ""}`}
+          onClick={(e) => e.stopPropagation()}
+          onAnimationEnd={onExitAnimationEnd}
+        >
+          <div className="flex items-center justify-center gap-2.5">
+            <BrandMark className="h-10 w-10 flex-none" />
+            <span className={`text-2xl ${BRAND_WORDMARK}`} style={{ color: "var(--text)" }}>Fetch</span>
+          </div>
+
+          <div className="glass-surface relative rounded-3xl border p-6 shadow-e3" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>
+            <button
+              type="button"
+              onClick={requestClose}
+              aria-label="Close"
+              className="tap-target absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+              style={{ color: "var(--text-mute)" }}
+            >
+              <X className="h-4 w-4" />
+            </button>
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center px-6 py-12">
+      <div className="w-full max-w-md space-y-6">
+        <BrandLockup />
+
+        <div className="rounded-2xl border p-6 shadow-e1" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CreateProfileForm({
+  title,
+  subtitle,
+  headingTag: Heading,
+  onCreated,
+  onCancel,
+}: {
+  title: string;
+  subtitle: string;
+  headingTag: HeadingTag;
+  onCreated: (profile: Profile) => void;
+  onCancel?: (() => void) | undefined;
+}) {
+  const [name, setName] = useState("");
+  const [pin, setPin] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+
+    setCreating(true);
+    setError(null);
+    try {
+      const { profile } = await api.createProfile({
+        name: trimmedName,
+        pin: pin.trim() || undefined,
+      });
+      onCreated(profile);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not create profile.");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-4">
+      <div>
+        <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>{title}</Heading>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>{subtitle}</p>
+      </div>
+      <input
+        autoFocus
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Profile name"
+        aria-label="Profile name"
+        className="w-full rounded-xl border px-4 py-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+      />
+      <input
+        type="password"
+        inputMode="numeric"
+        // Matches MIN_PIN_LENGTH on the server.
+        minLength={4}
+        value={pin}
+        onChange={(e) => setPin(e.target.value)}
+        placeholder="PIN (optional)"
+        aria-label="PIN (optional)"
+        className="w-full rounded-xl border px-4 py-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+      />
+      {error && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+      )}
+      <div className="flex gap-2">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="btn-secondary btn-lg flex-1"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={creating || !name.trim()}
+          className="btn-primary btn-lg flex-1"
+        >
+          {creating ? <><Loader2 size={16} className="animate-spin" /> Creating...</> : <>Create <ArrowRight size={16} /></>}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function PinPrompt({
+  profile,
+  headingTag: Heading,
+  onVerified,
+  onBack,
+}: {
+  profile: Profile;
+  headingTag: HeadingTag;
+  onVerified: (profile: Profile) => void;
+  onBack: () => void;
+}) {
+  const [pin, setPin] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setVerifying(true);
+    setError(null);
+    try {
+      const result = await api.verifyProfile(profile.id, pin.trim());
+      onVerified({ id: result.id, name: result.name, hasPin: true });
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setError("Incorrect PIN.");
+      } else {
+        setError(err instanceof Error ? err.message : "Could not verify PIN.");
+      }
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-4">
+      <div>
+        <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>Enter PIN for {profile.name}</Heading>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>This profile is PIN-protected.</p>
+      </div>
+      <input
+        autoFocus
+        type="password"
+        inputMode="numeric"
+        value={pin}
+        onChange={(e) => setPin(e.target.value)}
+        placeholder="PIN"
+        aria-label={`PIN for ${profile.name}`}
+        className="w-full rounded-xl border px-4 py-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+      />
+      {error && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+      )}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={onBack}
+          className="btn-secondary btn-lg flex-1"
+        >
+          Back
+        </button>
+        <button
+          type="submit"
+          disabled={verifying || !pin.trim()}
+          className="btn-primary btn-lg flex-1"
+        >
+          {verifying ? <Loader2 size={16} className="animate-spin" /> : <>Unlock <ArrowRight size={16} /></>}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function ProfilePicker({
+  profiles,
+  headingTag: Heading,
+  onSelect,
+  onCreateNew,
+}: {
+  profiles: Profile[];
+  headingTag: HeadingTag;
+  onSelect: (profile: Profile) => void;
+  onCreateNew: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>Who's watching?</Heading>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>Choose a profile to continue.</p>
+      </div>
+      <div className="space-y-2">
+        {profiles.map((profile) => (
+          <button
+            key={profile.id}
+            type="button"
+            onClick={() => onSelect(profile)}
+            className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors hover:border-claw-500/60 hover:bg-[var(--surface)]"
+            style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+          >
+            <span
+              className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-xs font-bold text-white"
+              style={{ backgroundColor: avatarColor(profile.name) }}
+            >
+              {initials(profile.name)}
+            </span>
+            <span className="flex-1">{profile.name}</span>
+            {profile.hasPin && <Lock className="h-4 w-4" style={{ color: "var(--text-mute)" }} />}
+          </button>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={onCreateNew}
+        className="btn-secondary btn-lg w-full"
+      >
+        <Plus size={16} /> New Profile
+      </button>
+    </div>
+  );
+}
+
+export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile: Profile) => void; onClose?: (() => void) | undefined }) {
+  const [loading, setLoading] = useState(true);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"picker" | "create" | "pin">("picker");
+  const [pinTarget, setPinTarget] = useState<Profile | null>(null);
+  const headingTag: HeadingTag = onClose ? "h2" : "h1";
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { profiles: fetched } = await api.getProfiles();
+        if (cancelled) return;
+        setProfiles(fetched);
+        setMode(fetched.length === 0 ? "create" : "picker");
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Could not load profiles.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const selectProfile = async (profile: Profile) => {
+    if (profile.hasPin) {
+      setPinTarget(profile);
+      setMode("pin");
+      return;
+    }
+    try {
+      const result = await api.verifyProfile(profile.id);
+      runtimeConfig.setProfileId(result.id);
+      onSelected({ id: result.id, name: result.name, hasPin: profile.hasPin });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not select profile.");
+    }
+  };
+
+  // Neither branch has a title to show, but both are still the whole surface, so
+  // they carry a hidden one rather than leaving the outline empty.
+  const Heading = headingTag;
+
+  if (loading) {
+    return (
+      <Shell onClose={onClose}>
+        <Heading className="sr-only">Profiles</Heading>
+        <div className="flex items-center justify-center gap-2 py-6 text-sm" style={{ color: "var(--text-mute)" }}>
+          <Loader2 size={16} className="animate-spin" /> Loading profiles...
+        </div>
+      </Shell>
+    );
+  }
+
+  if (error) {
+    return (
+      <Shell onClose={onClose}>
+        <Heading className="sr-only">Profiles</Heading>
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+      </Shell>
+    );
+  }
+
+  return (
+    <Shell onClose={onClose}>
+      {mode === "picker" && (
+        <ProfilePicker profiles={profiles} headingTag={headingTag} onSelect={selectProfile} onCreateNew={() => setMode("create")} />
+      )}
+      {mode === "create" && (
+        <CreateProfileForm
+          title={profiles.length === 0 ? "Create your first profile" : "New Profile"}
+          subtitle="Each profile gets its own watch history, lists, and stats."
+          headingTag={headingTag}
+          onCreated={(profile) => {
+            runtimeConfig.setProfileId(profile.id);
+            onSelected(profile);
+          }}
+          onCancel={profiles.length > 0 ? () => setMode("picker") : undefined}
+        />
+      )}
+      {mode === "pin" && pinTarget && (
+        <PinPrompt
+          profile={pinTarget}
+          headingTag={headingTag}
+          onVerified={(profile) => {
+            runtimeConfig.setProfileId(profile.id);
+            onSelected(profile);
+          }}
+          onBack={() => setMode("picker")}
+        />
+      )}
+    </Shell>
+  );
+}

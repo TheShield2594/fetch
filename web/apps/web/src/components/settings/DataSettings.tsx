@@ -1,0 +1,240 @@
+import { useRef, useState } from "react";
+import { api } from "../../api";
+import { Loader2, Check, AlertCircle, Download, Upload } from "lucide-react";
+import { SelectField } from "../SelectField";
+
+export function DataSettings() {
+  const [syncing, setSyncing] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const [exporting, setExporting] = useState(false);
+  const [importingJson, setImportingJson] = useState(false);
+  const [importingCsv, setImportingCsv] = useState(false);
+  const [importResult, setImportResult] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+
+  const [externalFormat, setExternalFormat] = useState<
+    "letterboxd-diary" | "letterboxd-ratings" | "imdb-ratings" | "simkl"
+  >("letterboxd-diary");
+  const [importingExternal, setImportingExternal] = useState(false);
+  const [externalResult, setExternalResult] = useState<string | null>(null);
+  const [externalError, setExternalError] = useState<string | null>(null);
+
+  const jsonFileInputRef = useRef<HTMLInputElement>(null);
+  const csvFileInputRef = useRef<HTMLInputElement>(null);
+  const externalFileInputRef = useRef<HTMLInputElement>(null);
+
+  const refreshAll = async () => {
+    setSyncing(true);
+    setResult(null);
+    setError(null);
+    try {
+      const res = await api.refreshAllMetadata();
+      setResult(`Refreshed ${res.refreshed} of ${res.total} items`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Metadata sync failed");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    setImportError(null);
+    try {
+      const payload = await api.exportData();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `cataloggy-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleImportJsonFile = async (file: File) => {
+    setImportingJson(true);
+    setImportResult(null);
+    setImportError(null);
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      const res = await api.importData(payload);
+      const s = res.summary;
+      setImportResult(
+        `Imported ${s.watchEvents} watch events, ${s.listItems} list items, ${s.seriesProgress} series progress entries, ${s.ratings} ratings` +
+          (s.playback ? `, ${s.playback} resume points` : "")
+      );
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Import failed");
+    } finally {
+      setImportingJson(false);
+    }
+  };
+
+  const handleImportCsvFile = async (file: File) => {
+    setImportingCsv(true);
+    setImportResult(null);
+    setImportError(null);
+    try {
+      const csv = await file.text();
+      const res = await api.importCsv(csv);
+      setImportResult(`Imported ${res.summary.imported} watch events (${res.summary.skipped} rows skipped)`);
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "CSV import failed");
+    } finally {
+      setImportingCsv(false);
+    }
+  };
+
+  const handleImportExternalFile = async (file: File) => {
+    setImportingExternal(true);
+    setExternalResult(null);
+    setExternalError(null);
+    try {
+      const csv = await file.text();
+      const res = await api.importExternal(externalFormat, csv);
+      setExternalResult(
+        `Imported ${res.summary.imported} watch events, ${res.summary.ratingsImported} ratings (${res.summary.skipped} rows skipped)`
+      );
+    } catch (err) {
+      setExternalError(err instanceof Error ? err.message : "Import failed");
+    } finally {
+      setImportingExternal(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>Re-fetch metadata (posters, descriptions, etc.) for all tracked items from TMDB.</p>
+        <button
+          type="button"
+          onClick={refreshAll}
+          disabled={syncing}
+          className="btn-primary"
+        >
+          {syncing ? <><Loader2 size={16} className="animate-spin" /> Syncing...</> : "Sync all metadata"}
+        </button>
+        {result && <p className="flex items-center gap-2 text-sm text-success"><Check size={16} /> {result}</p>}
+        {error && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>}
+      </div>
+
+      <div className="space-y-4 pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-dim)" }}>Export your data</p>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>Download a JSON file with your lists, watch history, series progress, and ratings.</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={exporting}
+          className="btn-secondary"
+        >
+          {exporting ? <><Loader2 size={16} className="animate-spin" /> Exporting...</> : <><Download size={16} /> Download export</>}
+        </button>
+      </div>
+
+      <div className="space-y-4 pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-dim)" }}>Import data</p>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
+            Restore from a Fetch JSON export, or import watch history from a CSV file with columns <code>imdbId,type,season,episode,watchedAt</code>.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            ref={jsonFileInputRef}
+            type="file"
+            accept="application/json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleImportJsonFile(file);
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => jsonFileInputRef.current?.click()}
+            disabled={importingJson}
+            className="btn-secondary"
+          >
+            {importingJson ? <><Loader2 size={16} className="animate-spin" /> Importing...</> : <><Upload size={16} /> Import JSON export</>}
+          </button>
+
+          <input
+            ref={csvFileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleImportCsvFile(file);
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => csvFileInputRef.current?.click()}
+            disabled={importingCsv}
+            className="btn-secondary"
+          >
+            {importingCsv ? <><Loader2 size={16} className="animate-spin" /> Importing...</> : <><Upload size={16} /> Import CSV history</>}
+          </button>
+        </div>
+        {importResult && <p className="flex items-center gap-2 text-sm text-success"><Check size={16} /> {importResult}</p>}
+        {importError && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {importError}</p>}
+      </div>
+
+      <div className="space-y-4 pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+        <div>
+          <p className="text-sm font-semibold" style={{ color: "var(--text-dim)" }}>Import from another tracker</p>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
+            Migrate watch history and ratings from a Letterboxd, IMDb, or Simkl export.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <SelectField
+            aria-label="Import format"
+            value={externalFormat}
+            onChange={(e) => setExternalFormat(e.target.value as typeof externalFormat)}
+            className="rounded-xl px-4 py-2.5 text-sm font-medium"
+          >
+            <option value="letterboxd-diary">Letterboxd diary export</option>
+            <option value="letterboxd-ratings">Letterboxd ratings export</option>
+            <option value="imdb-ratings">IMDb ratings export</option>
+            <option value="simkl">Simkl export</option>
+          </SelectField>
+          <input
+            ref={externalFileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleImportExternalFile(file);
+              e.target.value = "";
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => externalFileInputRef.current?.click()}
+            disabled={importingExternal}
+            className="btn-secondary"
+          >
+            {importingExternal ? <><Loader2 size={16} className="animate-spin" /> Importing...</> : <><Upload size={16} /> Import CSV</>}
+          </button>
+        </div>
+        {externalResult && <p className="flex items-center gap-2 text-sm text-success"><Check size={16} /> {externalResult}</p>}
+        {externalError && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {externalError}</p>}
+      </div>
+    </div>
+  );
+}

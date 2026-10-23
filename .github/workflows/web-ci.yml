@@ -1,0 +1,24 @@
+name: Web CI
+
+# The Fetch website (web/): API, addon and PWA. Only runs when something it
+# builds from changed, so an Android-only change doesn't wait on Postgres.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web/**"
+      - ".github/workflows/web-*.yml"
+  pull_request:
+    paths:
+      - "web/**"
+      - ".github/workflows/web-*.yml"
+
+jobs:
+  # The checks themselves live in web-verify.yml, which web-dockerpublish.yml
+  # calls too, so the bar a commit clears here is the same bar an image clears
+  # before it is pushed.
+  verify:
+    uses: ./.github/workflows/web-verify.yml
+    permissions:
+      contents: read

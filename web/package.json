@@ -1,0 +1,33 @@
+{
+  "name": "fetch-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "author": "TheShield2594",
+  "packageManager": "pnpm@11.18.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm --filter @fetch/shared build && pnpm -r typecheck",
+    "lint": "pnpm --filter @fetch/shared build && eslint eslint.config.mjs scripts apps/web/scripts && pnpm -r lint",
+    "test": "pnpm -r --if-present test",
+    "test:int": "pnpm -r --if-present test:int",
+    "check:env": "node scripts/check-compose-env.mjs",
+    "check:actions": "node scripts/check-action-pins.mjs",
+    "check:audit": "node scripts/check-audit.mjs",
+    "version:set": "node scripts/set-version.mjs",
+    "smoke": "tsx scripts/smoke.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.9.0",
+    "tsx": "^4.23.12",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.66.0"
+  }
+}

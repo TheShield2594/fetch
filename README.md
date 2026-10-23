@@ -60,6 +60,15 @@ Highlights:
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the full requirements list and what is done.
 
+## The Fetch website
+
+[`web/`](web/) is Fetch's optional self-hosted server and web app, formerly
+[Cataloggy](https://github.com/TheShield2594/cataloggy). Run it with Docker Compose
+and manage profiles, lists, watch history and settings from a phone or computer.
+Lists already reach the TV through its Stremio addon. Syncing the TV app to it is in
+progress; [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) has the plan and
+[web/README.md](web/README.md) has setup.
+
 ## Build
 
 ```bash
@@ -117,7 +126,7 @@ No analytics, no crash reporting, no account. See [PRIVACY.md](PRIVACY.md).
 
 Fetch is a fork of [NuvioTV](https://github.com/NuvioMedia/NuvioTV) by the Nuvio contributors,
 whose work makes up most of this app. Like upstream it is licensed under the
-[GNU General Public License v3.0](./LICENSE).
+[GNU General Public License v3.0](./LICENSE). That covers the website in `web/` too.
 
 Media3, mpv, libass, Coil, Haze and the other dependencies are credited in
 Settings → About → Licenses & attributions.

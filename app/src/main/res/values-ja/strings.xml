@@ -2465,5 +2465,5 @@
     <string name="playback_details_refresh_display">ディスプレイ %1$s</string>
     <string name="playback_details_audio_passthrough">音声パススルー</string>
     <string name="playback_details_audio_decoded">音声デコード</string>
-    <string name="playback_details_sources_hint">上でソース</string>
+    <string name="playback_details_sources_hint">上ボタンでソースを表示</string>
 </resources>

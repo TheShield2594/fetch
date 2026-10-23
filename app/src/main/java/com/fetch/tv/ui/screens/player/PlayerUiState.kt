@@ -414,7 +414,9 @@ data class DisplayModeInfo(
     val width: Int,
     val height: Int,
     val refreshRate: Float,
-    val statusMessage: String? = null
+    val statusMessage: String? = null,
+    /** False when no mode suited the video or the switch timed out short of the rate it asked for. */
+    val refreshMatched: Boolean = false
 )
 
 enum class FrameRateSource {

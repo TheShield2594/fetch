@@ -123,7 +123,8 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
                         displayModeInfo = DisplayModeInfo(
                             width = result.appliedMode.physicalWidth,
                             height = result.appliedMode.physicalHeight,
-                            refreshRate = result.appliedMode.refreshRate
+                            refreshRate = result.appliedMode.refreshRate,
+                            refreshMatched = result.matched
                         ),
                         showDisplayModeInfo = true
                     )
@@ -257,7 +258,8 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
                     displayModeInfo = DisplayModeInfo(
                         width = result.appliedMode.physicalWidth,
                         height = result.appliedMode.physicalHeight,
-                        refreshRate = result.appliedMode.refreshRate
+                        refreshRate = result.appliedMode.refreshRate,
+                        refreshMatched = result.matched
                     ),
                     showDisplayModeInfo = true
                 )

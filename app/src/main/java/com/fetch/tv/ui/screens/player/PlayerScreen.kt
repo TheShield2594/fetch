@@ -267,6 +267,8 @@ fun PlayerScreen(
     // Up with the controls hidden opens the playback details bar; each press restarts its timer.
     var showPlaybackDetails by remember { mutableStateOf(false) }
     var playbackDetailsPresses by remember { mutableIntStateOf(0) }
+    val playbackDetailsVisible = showPlaybackDetails && !uiState.showControls && uiState.error == null &&
+        !uiState.showLoadingOverlay && !postPlayRecommendationState.isVisible
     var exitDispatched by remember { mutableStateOf(false) }
     var externalHandoffInProgress by remember { mutableStateOf(false) }
     val autoPlayEnabledForBack = playerBackTreatsSkipAsAutoPlay(
@@ -370,7 +372,7 @@ fun PlayerScreen(
             dismissPreferNextTime()
             return@handleBackPress
         }
-        if (showPlaybackDetails) {
+        if (playbackDetailsVisible) {
             showPlaybackDetails = false
             return@handleBackPress
         }
@@ -938,7 +940,7 @@ fun PlayerScreen(
                         }
                         KeyEvent.KEYCODE_DPAD_UP -> {
                                 if (!uiState.showControls) {
-                                    if (showPlaybackDetails) {
+                                    if (playbackDetailsVisible) {
                                         // The second Up goes on to the sources behind the details.
                                         showPlaybackDetails = false
                                         panelReturnFocus = panelButtonFocus.sources
@@ -1485,17 +1487,19 @@ fun PlayerScreen(
                 showPlaybackDetails = false
             }
         }
-        // The controls carry the same spec line, so the bar steps aside for them and any panel.
-        LaunchedEffect(uiState.showControls, uiState.showPauseOverlay) {
-            if (uiState.showControls || uiState.showPauseOverlay) showPlaybackDetails = false
+        // Anything that hides the bar (the controls, which carry the same spec line, an error,
+        // loading, post-play) also closes it, so it does not reappear later or swallow a Back.
+        LaunchedEffect(showPlaybackDetails, playbackDetailsVisible, uiState.showPauseOverlay) {
+            if (showPlaybackDetails && (!playbackDetailsVisible || uiState.showPauseOverlay)) {
+                showPlaybackDetails = false
+            }
         }
         val detailsCachedLabel = stringResource(R.string.best_match_cached)
         val detailsSpecLine = remember(uiState.currentSourceSpecLabels, uiState.currentSourceIsCached, detailsCachedLabel) {
             playerSourceSpecLine(uiState.currentSourceSpecLabels, uiState.currentSourceIsCached, detailsCachedLabel)
         }
         PlaybackDetailsBar(
-            visible = showPlaybackDetails && !uiState.showControls && uiState.error == null &&
-                !uiState.showLoadingOverlay && !postPlayRecommendationState.isVisible,
+            visible = playbackDetailsVisible,
             specLine = detailsSpecLine,
             displayModeInfo = uiState.displayModeInfo,
             frameRateMatchingMode = uiState.frameRateMatchingMode,

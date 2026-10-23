@@ -49,13 +49,16 @@ class TypeScaleFloorTest {
     fun `screens set no font size below 12sp`() {
         val sourceRoot = File("src/main/java")
         check(sourceRoot.isDirectory) { "Run from the app module; ${sourceRoot.absolutePath} is missing" }
-        val literal = Regex("""\b(?:fontSize|minFontSize|textSize)\s*(?::\s*TextUnit\s*)?=\s*(\d+(?:\.\d+)?)\.sp""")
+        val literal = Regex("""\b(?:fontSize|minFontSize|textSize)\s*(?::\s*TextUnit\s*)?=\s*(\d+(?:\.\d+)?)[fF]?\.sp""")
         val problems = sourceRoot.walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
             .flatMap { file ->
-                file.readLines().mapIndexedNotNull { index, line ->
-                    val size = literal.find(line)?.groupValues?.get(1)?.toFloat() ?: return@mapIndexedNotNull null
-                    if (size < minSp) "${file.relativeTo(sourceRoot).invariantSeparatorsPath}:${index + 1}: ${size}sp" else null
+                file.readLines().flatMapIndexed { index, line ->
+                    literal.findAll(line)
+                        .map { it.groupValues[1].toFloat() }
+                        .filter { it < minSp }
+                        .map { "${file.relativeTo(sourceRoot).invariantSeparatorsPath}:${index + 1}: ${it}sp" }
+                        .toList()
                 }
             }
             .toList()

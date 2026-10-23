@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.streams.SpecLine
@@ -110,10 +111,10 @@ internal fun PlaybackDetailsBar(
                 delay(1_000L)
             }
         }
-        // A matched rate comes from the switch Fetch made; otherwise the display's own mode is
-        // the honest answer, since nothing changed it for this file.
+        // Matched only when frame-rate matching reached the video's rate; otherwise the display's
+        // own mode is the honest answer.
         val view = LocalView.current
-        val matchedHz = displayModeInfo?.refreshRate
+        val matchedHz = displayModeInfo?.takeIf { it.refreshMatched }?.refreshRate
             ?.takeIf { frameRateMatchingMode != FrameRateMatchingMode.OFF && it > 0f }
         val displayHz = matchedHz ?: remember(view) { view.display?.mode?.refreshRate }?.takeIf { it > 0f }
 
@@ -158,11 +159,15 @@ internal fun PlaybackDetailsBar(
                     )
                 }
                 if (details.isNotEmpty()) {
+                    // Shares the row with the spec line, so long translations ellipsize instead of
+                    // pushing it out.
                     Text(
                         text = details.joinToString(SpecLine.SEPARATOR),
                         style = FetchTheme.textStyles.spec,
                         color = FetchTheme.colors.TextSecondary,
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
                 }
             }

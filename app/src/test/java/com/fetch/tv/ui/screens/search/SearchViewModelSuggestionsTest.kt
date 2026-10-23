@@ -487,7 +487,8 @@ class SearchViewModelSuggestionsTest {
             skipStep: Int,
             extraArgs: Map<String, String>,
             supportsSkip: Boolean,
-            posterScreen: com.fetch.tv.core.poster.CustomPosterScreen
+            posterScreen: com.fetch.tv.core.poster.CustomPosterScreen,
+            cachedFirst: Boolean
         ): Flow<NetworkResult<CatalogRow>> = flow {
             val query = extraArgs["search"].orEmpty()
             val matches = ignoresQuery || (query.isNotBlank() && TITLE.contains(query, ignoreCase = true))
@@ -534,7 +535,8 @@ class SearchViewModelSuggestionsTest {
             skipStep: Int,
             extraArgs: Map<String, String>,
             supportsSkip: Boolean,
-            posterScreen: com.fetch.tv.core.poster.CustomPosterScreen
+            posterScreen: com.fetch.tv.core.poster.CustomPosterScreen,
+            cachedFirst: Boolean
         ): Flow<NetworkResult<CatalogRow>> = flow {
             emit(NetworkResult.Loading)
             if (catalogId == MATCHING_CATALOG) {
@@ -588,7 +590,8 @@ class SearchViewModelSuggestionsTest {
             skipStep: Int,
             extraArgs: Map<String, String>,
             supportsSkip: Boolean,
-            posterScreen: com.fetch.tv.core.poster.CustomPosterScreen
+            posterScreen: com.fetch.tv.core.poster.CustomPosterScreen,
+            cachedFirst: Boolean
         ): Flow<NetworkResult<CatalogRow>> = flow {
             emit(NetworkResult.Loading)
             if (catalogId in slowCatalogs) delay(100)

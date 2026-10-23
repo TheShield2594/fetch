@@ -282,29 +282,26 @@ internal fun ModernCarouselItem.catalogCardMetrics(
     }
 }
 
-internal fun ModernCarouselItem.catalogCardRequestMetrics(
-    useLandscapePosters: Boolean,
-    portraitCardWidth: androidx.compose.ui.unit.Dp,
-    portraitCardHeight: androidx.compose.ui.unit.Dp,
-    landscapeCardWidth: androidx.compose.ui.unit.Dp,
-    landscapeCardHeight: androidx.compose.ui.unit.Dp,
-    expandEnabled: Boolean = false
-): ModernCatalogCardMetrics {
-    val base = catalogCardMetrics(
-        useLandscapePosters = useLandscapePosters,
-        portraitCardWidth = portraitCardWidth,
-        portraitCardHeight = portraitCardHeight,
-        landscapeCardWidth = landscapeCardWidth,
-        landscapeCardHeight = landscapeCardHeight
-    )
-    if (!expandEnabled) return base
+/** Memory cache key for a catalog card's artwork; prefetches use it too so the card finds their bitmap. */
+internal fun catalogCardImageCacheKey(url: String, widthPx: Int, heightPx: Int, revalidationKey: Int = 0): String =
+    "${url}_${widthPx}x${heightPx}_v$revalidationKey"
 
-    val expandedWidth = if (useLandscapePosters && payload !is ModernPayload.CollectionFolder) {
-        base.width
+/** Cache key extras for a catalog card's artwork, carrying the URL to fall back to if [imageUrl] fails. */
+internal fun ModernCarouselItem.catalogCardImageCacheExtras(
+    imageUrl: String,
+    isLandscapeCustomPoster: Boolean
+): Map<String, String> {
+    val fallbackUrl = if (isLandscapeCustomPoster) {
+        // Landscape custom poster -> fall back to original backdrop
+        metaPreview?.background ?: heroPreview.backdrop ?: metaPreview?.rawPosterUrl
     } else {
-        base.height * (16f / 9f)
+        metaPreview?.rawPosterUrl
     }
-    return base.copy(width = maxOf(base.width, expandedWidth))
+    return if (!fallbackUrl.isNullOrBlank() && fallbackUrl != imageUrl) {
+        mapOf(com.fetch.tv.core.image.CustomPosterFallbackInterceptor.FALLBACK_URL_KEY to fallbackUrl)
+    } else {
+        emptyMap()
+    }
 }
 
 

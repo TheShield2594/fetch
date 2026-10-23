@@ -16,9 +16,10 @@ private const val TAG = "SyncRepositoryImpl"
 
 @Singleton
 class SyncRepositoryImpl @Inject constructor(
-    private val postgrest: Postgrest,
+    private val postgrestLazy: dagger.Lazy<Postgrest>,
     private val authManager: AuthManager
 ) : SyncRepository {
+    private val postgrest: Postgrest get() = postgrestLazy.get()
 
     override suspend fun generateSyncCode(pin: String): Result<String> {
         return try {

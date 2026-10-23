@@ -52,13 +52,15 @@ import kotlin.time.TimeMark
 @Singleton
 class PartyRepository @Inject constructor(
     private val api: PartyApi,
-    private val realtime: Realtime,
+    private val realtimeLazy: dagger.Lazy<Realtime>,
     private val authManager: AuthManager,
     private val profileManager: ProfileManager,
     private val avatarRepository: AvatarRepository,
     private val syncClientIdentity: SyncClientIdentity,
     private val serverConfiguration: ServerConfiguration,
 ) {
+    private val realtime: Realtime get() = realtimeLazy.get()
+
     private val dispatcher = Dispatchers.Default.limitedParallelism(1)
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private val mutex = Mutex()

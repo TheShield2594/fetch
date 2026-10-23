@@ -130,7 +130,8 @@ class SearchViewModelPaginationTest {
             skipStep: Int,
             extraArgs: Map<String, String>,
             supportsSkip: Boolean,
-            posterScreen: com.fetch.tv.core.poster.CustomPosterScreen
+            posterScreen: com.fetch.tv.core.poster.CustomPosterScreen,
+            cachedFirst: Boolean
         ): Flow<NetworkResult<CatalogRow>> = flow {
             val query = extraArgs["search"].orEmpty()
             emit(NetworkResult.Loading)

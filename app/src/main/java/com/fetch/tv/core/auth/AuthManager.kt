@@ -79,8 +79,8 @@ private data class SessionRefreshOutcome(
 
 @Singleton
 class AuthManager @Inject constructor(
-    private val auth: Auth,
-    private val postgrest: Postgrest,
+    private val authLazy: dagger.Lazy<Auth>,
+    private val postgrestLazy: dagger.Lazy<Postgrest>,
     private val httpClient: OkHttpClient,
     @param:Named("customServerAuth") private val customServerHttpClient: OkHttpClient,
     private val authSessionNoticeDataStore: AuthSessionNoticeDataStore,
@@ -88,10 +88,13 @@ class AuthManager @Inject constructor(
     private val authDiagnosticReportRepository: AuthDiagnosticReportRepository,
     private val serverConfiguration: ServerConfiguration
 ) {
+    private val auth: Auth get() = authLazy.get()
+    private val postgrest: Postgrest get() = postgrestLazy.get()
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val json = Json { ignoreUnknownKeys = true }
     private val refreshMutex = Mutex()
-    private val sessionValidator = AuthSessionValidator(auth)
+    private val sessionValidator by lazy { AuthSessionValidator(auth) }
     private val startupAuthLock = Any()
     private val authHttpClient = if (serverConfiguration.isCustom) customServerHttpClient else httpClient
 

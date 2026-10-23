@@ -78,12 +78,13 @@ class AccountViewModel @Inject constructor(
     private val libraryPreferences: LibraryPreferences,
     private val watchedItemsPreferences: WatchedItemsPreferences,
     private val traktAuthDataStore: TraktAuthDataStore,
-    private val postgrest: Postgrest,
+    private val postgrestLazy: dagger.Lazy<Postgrest>,
     private val profileManager: ProfileManager,
     private val authDiagnosticReportRepository: AuthDiagnosticReportRepository,
     private val serverConfiguration: ServerConfiguration,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: Context
 ) : ViewModel() {
+    private val postgrest: Postgrest get() = postgrestLazy.get()
 
     private val _uiState = MutableStateFlow(AccountUiState())
     val uiState: StateFlow<AccountUiState> = _uiState.asStateFlow()

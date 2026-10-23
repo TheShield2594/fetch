@@ -170,7 +170,6 @@ internal fun ModernHomeRowsList(
         verticalRowListState,
         density,
         useLandscapePosters,
-        effectiveExpandEnabled,
         portraitCatalogCardWidth,
         portraitCatalogCardHeight,
         landscapeCatalogCardWidth,
@@ -191,23 +190,25 @@ internal fun ModernHomeRowsList(
                         for (i in 0 until minOf(prefetchItemsPerRow, row.items.list.size)) {
                             val item = row.items.list[i]
                             val url = item.imageUrl ?: continue
-                            val metrics = item.catalogCardRequestMetrics(
+                            // Collapsed card size and key, matching what the card itself requests.
+                            val metrics = item.catalogCardMetrics(
                                 useLandscapePosters = useLandscapePosters,
                                 portraitCardWidth = portraitCatalogCardWidth,
                                 portraitCardHeight = portraitCatalogCardHeight,
                                 landscapeCardWidth = landscapeCatalogCardWidth,
-                                landscapeCardHeight = landscapeCatalogCardHeight,
-                                expandEnabled = effectiveExpandEnabled
+                                landscapeCardHeight = landscapeCatalogCardHeight
                             )
                             val wPx = with(density) { metrics.width.roundToPx() }
                             val hPx = with(density) { metrics.height.roundToPx() }
                             if (wPx <= 0 || hPx <= 0) continue
-                            val cacheKey = "${url}_${wPx}x${hPx}"
-                            if (verticalPrefetchImageLoader.memoryCache?.get(MemoryCache.Key(cacheKey)) != null) continue
+                            val cacheKey = catalogCardImageCacheKey(url, wPx, hPx)
+                            val extras = item.catalogCardImageCacheExtras(imageUrl = url, isLandscapeCustomPoster = false)
+                            if (verticalPrefetchImageLoader.memoryCache?.get(MemoryCache.Key(cacheKey, extras)) != null) continue
                             verticalPrefetchImageLoader.enqueue(
                                 ImageRequest.Builder(context)
                                     .data(url)
                                     .memoryCacheKey(cacheKey)
+                                    .memoryCacheKeyExtras(extras)
                                     .size(width = wPx, height = hPx)
                                     .build()
                             )
@@ -273,6 +274,15 @@ internal fun ModernHomeRowsList(
         rememberPlaceholderShimmerOffsetState(label = "sharedRowShimmer")
     } else {
         null
+    }
+    // Key rows by identity so inserting or removing one keeps the rows below it (scroll, focus,
+    // decoded images); a repeated key gets an occurrence suffix since LazyColumn keys must be unique.
+    val rowListKeys = remember(carouselRows) {
+        val occurrences = HashMap<String, Int>()
+        carouselRows.list.map { row ->
+            val occurrence = occurrences.merge(row.key, 1, Int::plus) ?: 1
+            if (occurrence == 1) row.key else "${row.key}#$occurrence"
+        }
     }
 
     CompositionLocalProvider(
@@ -368,7 +378,7 @@ internal fun ModernHomeRowsList(
         ) {
             itemsIndexed(
                 items = carouselRows.list,
-                key = { index, row -> "${row.key}_$index" },
+                key = { index, row -> rowListKeys.getOrNull(index) ?: "${row.key}_$index" },
                 contentType = { _, row -> row.apiType ?: "modern_home_row" }
             ) { _, row ->
                 val stableOnContinueWatchingOptions = remember(onContinueWatchingOptions) {

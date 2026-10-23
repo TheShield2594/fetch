@@ -72,7 +72,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -831,7 +833,13 @@ class StreamScreenViewModel @Inject constructor(
                     season = season,
                     episode = episode,
                     forceRefresh = forceRefresh
-                ).collect { result ->
+                ).onEach { result ->
+                    // Parse release names off the main thread; ranking in applySuccess then reads
+                    // the parser's cache instead of running its regexes on every emission.
+                    if (result is NetworkResult.Success) {
+                        result.data.forEach { group -> group.streams.forEach(StreamTitleParser::parse) }
+                    }
+                }.flowOn(kotlinx.coroutines.Dispatchers.Default).collect { result ->
                     when (result) {
                         is NetworkResult.Success -> {
                             lastSuccessData = result.data

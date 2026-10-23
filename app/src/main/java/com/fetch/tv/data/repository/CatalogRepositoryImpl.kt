@@ -37,6 +37,7 @@ class CatalogRepositoryImpl @Inject constructor(
 ) : CatalogRepository {
     companion object {
         private const val TAG = "CatalogRepository"
+        private const val CACHED_CATALOG_CACHE_CONTROL = "only-if-cached, max-stale=604800"
     }
 
     override fun getCatalog(
@@ -50,7 +51,8 @@ class CatalogRepositoryImpl @Inject constructor(
         skipStep: Int,
         extraArgs: Map<String, String>,
         supportsSkip: Boolean,
-        posterScreen: com.fetch.tv.core.poster.CustomPosterScreen
+        posterScreen: com.fetch.tv.core.poster.CustomPosterScreen,
+        cachedFirst: Boolean
     ): Flow<NetworkResult<CatalogRow>> = flow {
         emit(NetworkResult.Loading)
 
@@ -86,49 +88,73 @@ class CatalogRepositoryImpl @Inject constructor(
             "Fetching catalog addonId=$addonId addonName=$addonName type=$type catalogId=$catalogId skip=$skip skipStep=$skipStep supportsSkip=$supportsSkip url=$url"
         )
 
+        suspend fun toCatalogRow(response: com.fetch.tv.data.remote.dto.CatalogResponseDto): CatalogRow {
+            val rawItemCount = response.metas.size
+            val posterPattern = layoutPreferenceDataStore.customPosterUrlPattern
+                .let { flow -> flow.first() }
+            val enabledScreens = layoutPreferenceDataStore.customPosterEnabledScreens.first()
+
+            val items = response.metas
+                .mapNotNull { it?.toDomainOrNull(type, addonBaseUrl) }
+                .distinctBy { it.id }
+                .withCustomPosterUrls(
+                    com.fetch.tv.core.poster.patternForScreen(posterPattern, posterScreen, enabledScreens)
+                )
+            return CatalogRow(
+                addonId = addonId,
+                addonName = addonName,
+                addonBaseUrl = addonBaseUrl,
+                catalogId = catalogId,
+                catalogName = catalogName,
+                type = ContentType.fromString(type),
+                rawType = type,
+                items = items,
+                isLoading = false,
+                hasMore = supportsSkip && rawItemCount > 0,
+                currentPage = if (skipStep > 0) skip / skipStep else 0,
+                supportsSkip = supportsSkip,
+                skipStep = skipStep,
+                nextSkip = if (supportsSkip && rawItemCount > 0) skip + rawItemCount else skip,
+                extraArgs = extraArgs
+            )
+        }
+
+        // Show the last copy straight from disk so the row isn't empty while the network answers.
+        // Only addons whose responses are cacheable land in the HTTP cache; the rest skip this.
+        val cachedRow = if (cachedFirst) {
+            val cached = safeApiCall(context) { api.getCachedCatalog(url, CACHED_CATALOG_CACHE_CONTROL) }
+            (cached as? NetworkResult.Success)?.data
+                ?.takeIf { it.metas.isNotEmpty() }
+                ?.let { toCatalogRow(it) }
+                ?.also { row ->
+                    Log.d(TAG, "Catalog cache hit addonId=$addonId type=$type catalogId=$catalogId items=${row.items.size}")
+                    emit(NetworkResult.Success(row))
+                }
+        } else {
+            null
+        }
+
         when (val result = safeApiCall(context) { api.getCatalog(url) }) {
             is NetworkResult.Success -> {
-                val rawItemCount = result.data.metas.size
-                val posterPattern = layoutPreferenceDataStore.customPosterUrlPattern
-                    .let { flow -> flow.first() }
-                val enabledScreens = layoutPreferenceDataStore.customPosterEnabledScreens.first()
-
-                val items = result.data.metas
-                    .mapNotNull { it?.toDomainOrNull(type, addonBaseUrl) }
-                    .distinctBy { it.id }
-                    .withCustomPosterUrls(
-                        com.fetch.tv.core.poster.patternForScreen(posterPattern, posterScreen, enabledScreens)
-                    )
+                val catalogRow = toCatalogRow(result.data)
                 Log.d(
                     TAG,
-                    "Catalog fetch success addonId=$addonId type=$type catalogId=$catalogId items=${items.size}"
+                    "Catalog fetch success addonId=$addonId type=$type catalogId=$catalogId items=${catalogRow.items.size}"
                 )
-
-                val catalogRow = CatalogRow(
-                    addonId = addonId,
-                    addonName = addonName,
-                    addonBaseUrl = addonBaseUrl,
-                    catalogId = catalogId,
-                    catalogName = catalogName,
-                    type = ContentType.fromString(type),
-                    rawType = type,
-                    items = items,
-                    isLoading = false,
-                    hasMore = supportsSkip && rawItemCount > 0,
-                    currentPage = if (skipStep > 0) skip / skipStep else 0,
-                    supportsSkip = supportsSkip,
-                    skipStep = skipStep,
-                    nextSkip = if (supportsSkip && rawItemCount > 0) skip + rawItemCount else skip,
-                    extraArgs = extraArgs
-                )
-                emit(NetworkResult.Success(catalogRow))
+                // A response still fresh in the cache comes back identical; don't make Home redo the row.
+                if (catalogRow != cachedRow) {
+                    emit(NetworkResult.Success(catalogRow))
+                }
             }
             is NetworkResult.Error -> {
                 Log.w(
                     TAG,
                     "Catalog fetch failed addonId=$addonId type=$type catalogId=$catalogId code=${result.code} message=${result.message} url=$url"
                 )
-                emit(result)
+                // Offline or failing: the cached row already on screen is better than an error.
+                if (cachedRow == null) {
+                    emit(result)
+                }
             }
             NetworkResult.Loading -> { /* Already emitted */ }
         }

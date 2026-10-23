@@ -442,7 +442,9 @@ internal fun HomeViewModel.loadCatalogPipeline(
                 type = catalog.apiType,
                 skip = 0,
                 skipStep = skipStep,
-                supportsSkip = supportsSkip
+                supportsSkip = supportsSkip,
+                // A refresh merges into rows already on screen, so only a fresh load needs the cache.
+                cachedFirst = !isRefresh
             ).collect { result ->
                 if (generation != catalogLoadGeneration) return@collect
                 when (result) {

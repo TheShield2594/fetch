@@ -58,12 +58,15 @@ data class AvatarCatalogItem(
 
 @Singleton
 class AvatarRepository @Inject constructor(
-    private val postgrest: Postgrest,
-    private val storage: Storage,
+    private val postgrestLazy: dagger.Lazy<Postgrest>,
+    private val storageLazy: dagger.Lazy<Storage>,
     private val serverConfiguration: ServerConfiguration,
     private val memberCatalogStorage: MemberCatalogStorage,
     @ApplicationContext private val context: Context
 ) {
+    private val postgrest: Postgrest get() = postgrestLazy.get()
+    private val storage: Storage get() = storageLazy.get()
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val storedCatalog = loadStoredCatalog()

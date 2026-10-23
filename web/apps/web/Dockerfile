@@ -7,11 +7,16 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json eslint.c
 COPY apps/web/package.json ./apps/web/package.json
 COPY apps/api/package.json ./apps/api/package.json
 COPY apps/addon/package.json ./apps/addon/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
 
 RUN pnpm install --frozen-lockfile
 
 COPY apps/web ./apps/web
+# The web app imports the API's request and response types from
+# @fetch/shared/contracts, which resolves to the package's built dist/.
+COPY packages/shared ./packages/shared
 
+RUN pnpm --filter @fetch/shared build
 RUN pnpm --filter @fetch/web build
 
 FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS runtime

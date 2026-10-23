@@ -91,6 +91,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Fixed
 
+- **The `web` image builds again.** Its Dockerfile never copied `packages/shared`, so once the web app began importing the API's types from `@fetch/shared/contracts` the image build failed and `latest` stopped updating, while the `api`, `migrate` and `addon` images kept publishing. It now copies and builds the shared package first, as the other two Dockerfiles do.
+
 - **A failed Stats or History page can be retried without reloading the browser.** Both hand-rolled their own red error card, and neither had a retry button — so a request dropped by a flaky connection left the page a dead end whose only way out was the browser's reload. They now use the dashboard's error card, which has always had one ([#509](https://github.com/TheShield2594/cataloggy/issues/509)).
 - **Every poster placeholder behaves the same.** Search results, Lists items, Games covers and both Stats grids rendered a raw `<img>` rather than going through the shared `<Poster>`, so on those screens a poster still loading showed nothing instead of the shimmer, and one whose URL failed showed a broken image instead of the title's initials ([#509](https://github.com/TheShield2594/cataloggy/issues/509)).
 - **The cast rail's arrows are reachable on a touch screen and visible to a keyboard.** They were a second, drifted copy of the dashboard's scroll arrows: 24px buttons with no touch target around them — under the 24×24 minimum on their own — and no focus ring at all ([#509](https://github.com/TheShield2594/cataloggy/issues/509)).

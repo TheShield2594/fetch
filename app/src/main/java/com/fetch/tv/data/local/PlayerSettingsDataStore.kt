@@ -213,7 +213,7 @@ data class BufferSettings(
     companion object {
         const val DEFAULT_MIN_BUFFER_MS = 15_000
         const val DEFAULT_MAX_BUFFER_MS = 45_000
-        const val DEFAULT_BUFFER_FOR_PLAYBACK_MS = 5_000
+        const val DEFAULT_BUFFER_FOR_PLAYBACK_MS = 3_000
         const val DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS = 3_000
         const val DEFAULT_TARGET_BUFFER_SIZE_MB: Int = 50
         const val DEFAULT_BACK_BUFFER_DURATION_MS = 0
@@ -724,7 +724,7 @@ class PlayerSettingsDataStore @Inject constructor(
                     val currentBackBuffer = prefs[backBufferDurationMsKey]
                     val currentRetainBackBuffer = prefs[retainBackBufferFromKeyframeKey]
 
-                    val previousRetunedDefaultsDetected = currentMin == 50_000 && currentMax == 50_000 && currentPlayback == BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS && currentPlaybackAfterRebuffer == BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS && currentTargetBuffer == BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB && (currentBackBuffer == null || currentBackBuffer == BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS) && (currentRetainBackBuffer == null || !currentRetainBackBuffer)
+                    val previousRetunedDefaultsDetected = currentMin == 50_000 && currentMax == 50_000 && currentPlayback == 5_000 && currentPlaybackAfterRebuffer == BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS && currentTargetBuffer == BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB && (currentBackBuffer == null || currentBackBuffer == BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS) && (currentRetainBackBuffer == null || !currentRetainBackBuffer)
 
                     if (previousRetunedDefaultsDetected) prefs[minBufferMsKey] = BufferSettings.DEFAULT_MIN_BUFFER_MS
                     prefs[migrationLoadControlMinBufferRetunedDoneKey] = true

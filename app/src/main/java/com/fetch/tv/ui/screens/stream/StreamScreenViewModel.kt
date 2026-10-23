@@ -106,6 +106,7 @@ class StreamScreenViewModel @Inject constructor(
     private val torrentService: TorrentService,
     private val serverStreams: ServerStreams,
     private val serverPlayback: ServerPlayback,
+    private val okHttpClient: okhttp3.OkHttpClient,
     party: com.fetch.tv.core.party.PartyRepository,
     profileManager: com.fetch.tv.core.profile.ProfileManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
@@ -1771,9 +1772,9 @@ class StreamScreenViewModel @Inject constructor(
                 playUrl = localUrl
                 isTorrentStreamStarted = true
 
-                val client = okhttp3.OkHttpClient.Builder()
-                    .dns(com.fetch.tv.core.network.IPv4FirstDns())
-                    .socketFactory(com.fetch.tv.core.network.NoDelaySocketFactory)
+                // Share the app's connection pool, but keep the stream out of its HTTP cache.
+                val client = okHttpClient.newBuilder()
+                    .cache(null)
                     .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
                     .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
                     .build()

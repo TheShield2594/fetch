@@ -1,3 +1,5 @@
+# The Android app (Gradle) is not covered here; these are the website's
+# dependencies under web/, plus the GitHub Actions every workflow uses.
 version: 2
 updates:
   - package-ecosystem: "github-actions"
@@ -6,7 +8,7 @@ updates:
       interval: "weekly"
 
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "/web"
     schedule:
       interval: "weekly"
     groups:
@@ -25,24 +27,24 @@ updates:
           - "version-update:semver-major"
           - "version-update:semver-minor"
 
-  # docker-compose.yml, for the digest-pinned postgres image. Compose files are
+  # web/docker-compose.yml, for the digest-pinned postgres image. Compose files are
   # their own ecosystem — the "docker" one below only reads Dockerfiles.
   - package-ecosystem: "docker-compose"
-    directory: "/"
+    directory: "/web"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "docker"
-    directory: "/apps/api"
+    directory: "/web/apps/api"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "docker"
-    directory: "/apps/web"
+    directory: "/web/apps/web"
     schedule:
       interval: "weekly"
 
   - package-ecosystem: "docker"
-    directory: "/apps/addon"
+    directory: "/web/apps/addon"
     schedule:
       interval: "weekly"

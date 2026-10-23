@@ -3,7 +3,14 @@ name: CI
 on:
   push:
     branches: [main]
+    # The website under web/ has its own workflows (web-*.yml).
+    paths-ignore:
+      - "web/**"
+      - ".github/workflows/web-*.yml"
   pull_request:
+    paths-ignore:
+      - "web/**"
+      - ".github/workflows/web-*.yml"
   workflow_dispatch:
 
 permissions:

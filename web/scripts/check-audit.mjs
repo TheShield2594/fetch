@@ -12,7 +12,7 @@
 // When an override is available it remains the right fix; this is for when one
 // is not, and the alternatives are a merge freeze or deleting the gate.
 //
-// So: .github/audit-allowlist.json may waive an advisory, and every waiver
+// So: audit-allowlist.json may waive an advisory, and every waiver
 // needs a reason and an expiry date. The expiry is the point — it is what
 // stops "temporarily ignore this" from becoming the permanent state nobody
 // revisits. Once it passes, the advisory blocks merges again, exactly as if
@@ -34,7 +34,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const ALLOWLIST = ".github/audit-allowlist.json";
+const ALLOWLIST = "audit-allowlist.json";
 // Matches the `--audit-level=high` this replaces.
 const BLOCKING = new Set(["high", "critical"]);
 const MAX_WAIVER_DAYS = 90;

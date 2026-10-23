@@ -1,16 +1,21 @@
-name: Build and Publish Docker Images
+name: Web Docker Images
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "web/**"
+      - ".github/workflows/web-*.yml"
+    # Website releases are tagged web-vX.Y.Z; plain vX.Y.Z tags are the Android
+    # app's APK releases and must not publish images.
     tags:
-      - "v*"
+      - "web-v*"
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/theshield2594/cataloggy
+  IMAGE_PREFIX: ghcr.io/theshield2594/fetch
 
 jobs:
   # The same job CI runs, not a copy of it — including the Postgres service and
@@ -18,9 +23,9 @@ jobs:
   # publish, because the `migrate` container runs that exact command and the
   # `api` service waits on it succeeding; an image published past a broken
   # migration leaves a self-hoster with an API that never starts. This also
-  # covers `v*` tag pushes and manual runs, which ci.yml never sees.
+  # covers `web-v*` tag pushes and manual runs, which web-ci.yml never sees.
   verify:
-    uses: ./.github/workflows/verify.yml
+    uses: ./.github/workflows/web-verify.yml
     permissions:
       contents: read
 
@@ -48,7 +53,7 @@ jobs:
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       # Every image also gets a `sha-<short-sha>` tag (and a semver tag when
-      # triggered by a `vX.Y.Z` tag push) so self-hosters can pin a known-good
+      # triggered by a `web-vX.Y.Z` tag push) so self-hosters can pin a known-good
       # version and roll back, instead of only ever having `:latest`.
       - name: Compute image tags
         id: vars
@@ -56,7 +61,8 @@ jobs:
           SHORT_SHA=$(git rev-parse --short=12 HEAD)
           VERSION=""
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
-            VERSION="$GITHUB_REF_NAME"
+            # web-v0.2.0 -> v0.2.0: the image tag a self-hoster writes.
+            VERSION="${GITHUB_REF_NAME#web-}"
           fi
           {
             echo "sha=$SHORT_SHA"
@@ -66,8 +72,8 @@ jobs:
       - name: Build and push API image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
-          context: .
-          file: apps/api/Dockerfile
+          context: web
+          file: web/apps/api/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}-api:latest
@@ -81,8 +87,8 @@ jobs:
       - name: Build and push Migrate image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
-          context: .
-          file: apps/api/Dockerfile
+          context: web
+          file: web/apps/api/Dockerfile
           target: migrate
           push: true
           tags: |
@@ -95,8 +101,8 @@ jobs:
       - name: Build and push Addon image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
-          context: .
-          file: apps/addon/Dockerfile
+          context: web
+          file: web/apps/addon/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}-addon:latest
@@ -108,8 +114,8 @@ jobs:
       - name: Build and push Web image
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
-          context: .
-          file: apps/web/Dockerfile
+          context: web
+          file: web/apps/web/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_PREFIX }}-web:latest

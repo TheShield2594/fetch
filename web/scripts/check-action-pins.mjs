@@ -28,11 +28,16 @@
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { basename, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const WORKFLOW_ROOT = join(ROOT, ".github");
+// The website lives in web/ of the Fetch repository, and its workflows sit at
+// the repository root as .github/workflows/web-*.yml. Only those are checked:
+// the Android app's workflows follow their own pinning convention.
+const REPO_ROOT = join(ROOT, "..");
+const WORKFLOW_ROOT = join(REPO_ROOT, ".github", "workflows");
+const OWNED = /^web-.*\.ya?ml$/;
 const VERIFY_TAGS = process.argv.includes("--verify-tags");
 
 // `uses: owner/repo@ref` or `uses: owner/repo/sub/path@ref`, with the version
@@ -54,8 +59,8 @@ const problems = [];
 /** @type {Map<string, { sha: string, version: string, sites: string[] }[]>} */
 const byAction = new Map();
 
-for (const file of yamlFiles(WORKFLOW_ROOT)) {
-  const where = relative(ROOT, file);
+for (const file of yamlFiles(WORKFLOW_ROOT).filter((f) => OWNED.test(basename(f)))) {
+  const where = relative(REPO_ROOT, file);
   readFileSync(file, "utf8").split("\n").forEach((line, index) => {
     const match = USES.exec(line);
     if (!match) return;

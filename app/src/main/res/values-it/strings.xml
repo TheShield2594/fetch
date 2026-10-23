@@ -1095,11 +1095,9 @@
 <string name="profile_create_btn">Crea</string>
 <string name="profile_delete">Elimina</string>
 <string name="profile_choose_avatar">Scegli Avatar</string>
-<string name="profile_custom_avatar_web_panel_note">Gli URL degli avatar personalizzati possono essere configurati dal pannello web di Fetch.</string>
 <string name="profile_editor_tab_avatar">Avatar</string>
 <string name="profile_editor_tab_background">Sfondo</string>
 <string name="profile_choose_background">Scegli sfondo profilo</string>
-<string name="profile_background_member_note">Gli URL personalizzati per lo sfondo possono essere configurati dal pannello web di Fetch.</string>
 <string name="profile_background_normal">Normale</string>
 <string name="profile_background_custom">Personalizzato</string>
 <string name="profile_avatar_focus_hint">Seleziona un avatar per vedere il suo nome</string>

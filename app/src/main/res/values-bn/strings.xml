@@ -1178,11 +1178,9 @@
     <string name="profile_create_btn">তৈরি করুন</string>
     <string name="profile_delete">মুছুন</string>
     <string name="profile_choose_avatar">একটি অবতার বাছুন</string>
-    <string name="profile_custom_avatar_web_panel_note">Fetch ওয়েব প্যানেল থেকে কাস্টম অ্যাভাটার ইউআরএল কনফিগার করা যাবে।</string>
     <string name="profile_editor_tab_avatar">অ্যাভাটার</string>
     <string name="profile_editor_tab_background">ব্যাকগ্রাউন্ড</string>
     <string name="profile_choose_background">প্রোফাইল ব্যাকগ্রাউন্ড বাছুন</string>
-    <string name="profile_background_member_note">কাস্টম ব্যাকগ্রাউন্ড ইউআরএল Fetch ওয়েব প্যানেল থেকে কনফিগার করা যেতে পারে।</string>
     <string name="profile_background_normal">স্বাভাবিক</string>
     <string name="profile_background_custom">কাস্টম</string>
     <string name="profile_avatar_focus_hint">নাম দেখতে একটি অ্যাভাটারের উপর ফোকাস করুন</string>

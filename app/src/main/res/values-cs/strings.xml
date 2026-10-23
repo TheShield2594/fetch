@@ -993,7 +993,6 @@
     <string name="profile_create_btn">Vytvořit</string>
     <string name="profile_delete">Smazat</string>
     <string name="profile_choose_avatar">Vybrat avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Vlastní URL avatarů lze konfigurovat z webového panelu Fetch.</string>
     <string name="profile_avatar_focus_hint">Zaměřte avatara pro zobrazení jeho jména</string>
     <string name="profile_avatar_category_all">Vše</string>
     <string name="profile_avatar_category_anime">Anime</string>

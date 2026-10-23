@@ -24,6 +24,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -106,7 +107,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
+import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.core.sync.SetProfilePinResult
@@ -115,6 +120,7 @@ import com.fetch.tv.core.parental.ResetPinResult
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.fetch.tv.data.local.ProfileRestrictions
+import com.fetch.tv.domain.model.PROFILE_AVATAR_COLORS
 import com.fetch.tv.domain.model.UserProfile
 import com.fetch.tv.ui.components.AvatarPickerGrid
 import com.fetch.tv.ui.components.CustomProfileBackgroundImage
@@ -381,7 +387,10 @@ fun ProfileSelectionScreen(
             )
         }
     }
-    val isManagementMode = screenMode == ProfileSelectionMode.Management
+    // The startup picker can switch into managing in place; Manage Profiles opens already in it.
+    val canToggleManagement = screenMode == ProfileSelectionMode.Selection
+    var isManagingInPlace by rememberSaveable { mutableStateOf(false) }
+    val isManagementMode = screenMode == ProfileSelectionMode.Management || isManagingInPlace
     val screenTitle = if (isManagementMode) {
         stringResource(R.string.profile_manage_title)
     } else {
@@ -495,10 +504,16 @@ fun ProfileSelectionScreen(
                     screenSubtitle = screenSubtitle,
                     screenHint = screenHint,
                     isManagementMode = isManagementMode,
+                    onToggleManagement = if (canToggleManagement) {
+                        { isManagingInPlace = !isManagingInPlace }
+                    } else {
+                        null
+                    },
                     profiles = profiles,
                     activeProfileId = activeProfileId,
                     canAddProfile = viewModel.canAddProfile,
                     profilePinEnabled = profilePinEnabled,
+                    profileRestrictions = profileRestrictions,
                     avatarImageUrlsById = avatarImageUrlsById,
                     brandWordmarkRes = focusedBrandWordmarkRes,
                     profileThemes = profileThemes,
@@ -1183,10 +1198,12 @@ private fun ProfileSelectionMainContent(
     screenSubtitle: String,
     screenHint: String,
     isManagementMode: Boolean,
+    onToggleManagement: (() -> Unit)?,
     profiles: List<UserProfile>,
     activeProfileId: Int,
     canAddProfile: Boolean,
     profilePinEnabled: Map<Int, Boolean>,
+    profileRestrictions: Map<Int, ProfileRestrictions>,
     avatarImageUrlsById: Map<String, String>,
     brandWordmarkRes: Int? = null,
     profileThemes: Map<Int, com.fetch.tv.domain.model.AppTheme> = emptyMap(),
@@ -1237,6 +1254,7 @@ private fun ProfileSelectionMainContent(
             isManagementMode = isManagementMode,
             canAddProfile = canAddProfile,
             profilePinEnabled = profilePinEnabled,
+            profileRestrictions = profileRestrictions,
             avatarImageUrlsById = avatarImageUrlsById,
             profileThemes = profileThemes,
             onProfileFocused = onProfileFocused,
@@ -1246,6 +1264,17 @@ private fun ProfileSelectionMainContent(
         )
 
         Spacer(modifier = Modifier.weight(1f, fill = true))
+
+        if (onToggleManagement != null) {
+            OverlayButton(
+                text = stringResource(
+                    if (isManagementMode) R.string.profile_manage_done else R.string.profile_manage_button
+                ),
+                isPrimary = false,
+                onClick = onToggleManagement
+            )
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+        }
 
         Text(
             text = screenHint,
@@ -1263,6 +1292,7 @@ private fun ProfileGrid(
     isManagementMode: Boolean,
     canAddProfile: Boolean,
     profilePinEnabled: Map<Int, Boolean>,
+    profileRestrictions: Map<Int, ProfileRestrictions>,
     avatarImageUrlsById: Map<String, String>,
     profileThemes: Map<Int, com.fetch.tv.domain.model.AppTheme> = emptyMap(),
     onProfileFocused: (UserProfile?) -> Unit,
@@ -1327,6 +1357,8 @@ private fun ProfileGrid(
                             ?: profile.avatarId?.let(avatarImageUrlsById::get),
                         focusRequester = focusRequesters[index],
                         compact = useCompactCards,
+                        isLocked = profilePinEnabled[profile.id] == true,
+                        isKids = profileRestrictions[profile.id]?.isKidsProfile == true,
                         profileTheme = profileThemes[profile.id],
                         onFocused = { onProfileFocused(profile) },
                         onClick = { onProfileSelected(profile) },
@@ -1362,6 +1394,8 @@ private fun ProfileCard(
     avatarImageUrl: String?,
     focusRequester: FocusRequester,
     compact: Boolean,
+    isLocked: Boolean,
+    isKids: Boolean,
     profileTheme: com.fetch.tv.domain.model.AppTheme? = null,
     onFocused: () -> Unit,
     onClick: () -> Unit,
@@ -1485,6 +1519,30 @@ private fun ProfileCard(
                 )
             }
 
+            if (isLocked) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = FetchTheme.spacing.xxs, y = -FetchTheme.spacing.hairline)
+                        .size(if (compact) 22.dp else 26.dp)
+                        .clip(CircleShape)
+                        .background(FetchTheme.colors.SurfaceVariant, CircleShape)
+                        .border(
+                            width = FetchTheme.spacing.xxs,
+                            color = FetchTheme.colors.Background,
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Lock,
+                        contentDescription = stringResource(R.string.cd_profile_locked),
+                        tint = Color.White,
+                        modifier = Modifier.size(if (compact) 12.dp else 14.dp)
+                    )
+                }
+            }
+
             if (profile.isPrimary) {
                 Box(
                     modifier = Modifier
@@ -1541,6 +1599,14 @@ private fun ProfileCard(
                 Text(
                     text = stringResource(R.string.profile_selection_primary_badge),
                     color = Color(0xFFFFB300),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.8.sp
+                )
+            } else if (isKids) {
+                Text(
+                    text = stringResource(R.string.profile_selection_kids_badge),
+                    color = FetchTheme.colors.Info,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.8.sp
@@ -1704,7 +1770,8 @@ private fun CreateProfileOverlay(
     BackHandler(onBack = onDismiss)
 
     var profileName by remember { mutableStateOf("") }
-    var selectedColorHex by remember { mutableStateOf("#1E88E5") }
+    val defaultColorHex = remember { nextProfileColor(profiles) }
+    var selectedColorHex by remember { mutableStateOf(defaultColorHex) }
     var selectedAvatarId by remember { mutableStateOf<String?>(null) }
     var focusedAvatarName by remember { mutableStateOf<String?>(null) }
     var selectedCopySourceId by remember { mutableStateOf<Int?>(null) }
@@ -1842,6 +1909,11 @@ private fun CreateProfileOverlay(
                         focusRequester = nameFocusRequester
                     )
 
+                    ProfileColorPicker(
+                        selectedColorHex = selectedColorHex,
+                        onColorSelected = { selectedColorHex = it }
+                    )
+
                     val selectedCopySource = profiles.firstOrNull { it.id == selectedCopySourceId }
                     OverlayButton(
                         text = if (selectedCopySource == null) {
@@ -1877,14 +1949,6 @@ private fun CreateProfileOverlay(
                         textAlign = TextAlign.Center
                     )
 
-                    Text(
-                        text = stringResource(R.string.profile_custom_avatar_web_panel_note),
-                        modifier = Modifier.fillMaxWidth(),
-                        color = FetchTheme.colors.TextTertiary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
 
                     if (avatarCatalog.isNotEmpty()) {
                         AvatarPickerGrid(
@@ -1893,7 +1957,7 @@ private fun CreateProfileOverlay(
                             onAvatarSelected = { avatar ->
                                 if (selectedAvatarId == avatar.id) {
                                     selectedAvatarId = null
-                                    selectedColorHex = "#1E88E5"
+                                    selectedColorHex = defaultColorHex
                                 } else {
                                     selectedAvatarId = avatar.id
                                     avatar.bgColor?.let { selectedColorHex = it }
@@ -2072,8 +2136,11 @@ private fun EditProfileOverlay(
         runCatching { nameFocusRequester.requestFocus() }
     }
 
-    LaunchedEffect(hasProfileBackgroundAccess) {
-        if (!hasProfileBackgroundAccess) selectedEditorTab = ProfileEditorTab.Avatar
+    // Backgrounds come from a sync server's catalog or a custom URL; without either there's only "Normal".
+    val showBackgroundTab = hasProfileBackgroundAccess &&
+        (profileBackgroundCatalog.isNotEmpty() || !profile.profileBackgroundUrl.isNullOrBlank())
+    LaunchedEffect(showBackgroundTab) {
+        if (!showBackgroundTab) selectedEditorTab = ProfileEditorTab.Avatar
     }
 
     Box(
@@ -2169,8 +2236,8 @@ private fun EditProfileOverlay(
                 Column(
                     modifier = Modifier
                         .width(ProfileSelectionSpacing.EditorPreviewWidth)
-                        .padding(start = FetchTheme.spacing.xl, top = FetchTheme.spacing.xl + ProfileSelectionSpacing.EditorPreviewTopOffset, end = FetchTheme.spacing.xl, bottom = FetchTheme.spacing.xl),
-                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                        .padding(start = FetchTheme.spacing.xl, top = FetchTheme.spacing.xl, end = FetchTheme.spacing.xl, bottom = FetchTheme.spacing.xl),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     ProfileAvatarCircle(
@@ -2199,9 +2266,14 @@ private fun EditProfileOverlay(
                         focusRequester = nameFocusRequester
                     )
 
+                    ProfileColorPicker(
+                        selectedColorHex = selectedColorHex,
+                        onColorSelected = { selectedColorHex = it }
+                    )
+
                     OverlayButton(
                         text = stringResource(R.string.profile_cancel),
-                        isPrimary = true,
+                        isPrimary = false,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = onDismiss
                     )
@@ -2215,12 +2287,14 @@ private fun EditProfileOverlay(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
-                    ProfileEditorTabs(
-                        selectedTab = selectedEditorTab,
-                        showBackgroundTab = hasProfileBackgroundAccess,
-                        onTabSelected = { selectedEditorTab = it },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                    if (showBackgroundTab) {
+                        ProfileEditorTabs(
+                            selectedTab = selectedEditorTab,
+                            showBackgroundTab = true,
+                            onTabSelected = { selectedEditorTab = it },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
 
                     when (selectedEditorTab) {
                         ProfileEditorTab.Avatar -> {
@@ -2233,14 +2307,6 @@ private fun EditProfileOverlay(
                                 textAlign = TextAlign.Center
                             )
 
-                            Text(
-                                text = stringResource(R.string.profile_custom_avatar_web_panel_note),
-                                modifier = Modifier.fillMaxWidth(),
-                                color = FetchTheme.colors.TextTertiary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
-                            )
 
                             if (avatarCatalog.isNotEmpty()) {
                                 AvatarPickerGrid(
@@ -2302,14 +2368,6 @@ private fun EditProfileOverlay(
                                 textAlign = TextAlign.Center
                             )
 
-                            Text(
-                                text = stringResource(R.string.profile_background_member_note),
-                                modifier = Modifier.fillMaxWidth(),
-                                color = FetchTheme.colors.TextTertiary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
-                            )
 
                             ProfileBackgroundPicker(
                                 backgrounds = profileBackgroundCatalog,
@@ -2987,5 +3045,82 @@ private fun OverlayButton(
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+/** First palette colour no profile uses yet, so new profiles don't all look alike. */
+internal fun nextProfileColor(profiles: List<UserProfile>): String {
+    val used = profiles.map { it.avatarColorHex.uppercase() }.toSet()
+    return PROFILE_AVATAR_COLORS.firstOrNull { it.uppercase() !in used }
+        ?: PROFILE_AVATAR_COLORS[profiles.size % PROFILE_AVATAR_COLORS.size]
+}
+
+// One row so it fits the editor's left column on a 960x540dp screen.
+@Composable
+private fun ProfileColorPicker(
+    selectedColorHex: String,
+    onColorSelected: (String) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        PROFILE_AVATAR_COLORS.forEach { colorHex ->
+            ProfileColorSwatch(
+                colorHex = colorHex,
+                isSelected = colorHex.equals(selectedColorHex, ignoreCase = true),
+                onClick = { onColorSelected(colorHex) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileColorSwatch(
+    colorHex: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val scale by animateFloatAsState(
+        targetValue = if (isFocused) 1.25f else 1f,
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
+        label = "swatchScale"
+    )
+    Box(
+        modifier = Modifier
+            .size(22.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .onFocusChanged { isFocused = it.isFocused }
+            .clip(CircleShape)
+            .background(parseProfileColor(colorHex), CircleShape)
+            .border(
+                border = when {
+                    isFocused -> FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                    isSelected -> BorderStroke(FetchTheme.spacing.xxs, Color.White)
+                    else -> BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.2f))
+                },
+                shape = CircleShape
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .semantics {
+                role = Role.RadioButton
+                selected = isSelected
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+            )
+        }
     }
 }

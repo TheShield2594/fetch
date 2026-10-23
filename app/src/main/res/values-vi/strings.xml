@@ -1261,11 +1261,9 @@
     <string name="profile_create_btn">Tạo</string>
     <string name="profile_delete">Xóa</string>
     <string name="profile_choose_avatar">Chọn Ảnh đại diện</string>
-    <string name="profile_custom_avatar_web_panel_note">URL ảnh đại diện tùy chỉnh có thể được cấu hình tại bảng điều khiển web Fetch.</string>
     <string name="profile_editor_tab_avatar">Ảnh đại diện</string>
     <string name="profile_editor_tab_background">Hình nền</string>
     <string name="profile_choose_background">Chọn hình nền hồ sơ</string>
-    <string name="profile_background_member_note">URL hình nền tùy chỉnh có thể được cấu hình từ bảng điều khiển web Fetch.</string>
     <string name="profile_background_normal">Mặc định</string>
     <string name="profile_background_custom">Tùy chỉnh</string>
     <string name="profile_avatar_focus_hint">Chọn ảnh đại diện để xem tên</string>

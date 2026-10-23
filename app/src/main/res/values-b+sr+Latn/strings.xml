@@ -1124,11 +1124,9 @@
     <string name="profile_create_btn">Kreiraj</string>
     <string name="profile_delete">Obriši</string>
     <string name="profile_choose_avatar">Izaberite avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Prilagođeni URL-ovi avatara mogu se konfigurisati iz Fetch veb panela.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Pozadina</string>
     <string name="profile_choose_background">Izaberite pozadinu profila</string>
-    <string name="profile_background_member_note">Prilagođeni URL-ovi pozadine mogu se konfigurisati iz Fetch veb panela.</string>
     <string name="profile_background_normal">Normalno</string>
     <string name="profile_background_custom">Prilagođeno</string>
     <string name="profile_avatar_focus_hint">Fokusirajte avatar da vidite njegovo ime</string>

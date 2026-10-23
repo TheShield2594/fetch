@@ -1262,11 +1262,9 @@
     <string name="profile_create_btn">Oluştur</string>
     <string name="profile_delete">Sil</string>
     <string name="profile_choose_avatar">Profil Resmi Seçin</string>
-    <string name="profile_custom_avatar_web_panel_note">Özel avatar URL\'leri Fetch web panelinden yapılandırılabilir.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Arka Plan</string>
     <string name="profile_choose_background">Profil Arka Planını Seçin</string>
-    <string name="profile_background_member_note">Özel arka plan URL\'leri Fetch web panelinden yapılandırılabilir.</string>
     <string name="profile_background_normal">Normal</string>
     <string name="profile_background_custom">Özel</string>
     <string name="profile_avatar_focus_hint">İsmini görmek için resmin üzerine gelin</string>

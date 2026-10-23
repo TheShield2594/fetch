@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import androidx.compose.ui.graphics.SolidColor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.core.LinearEasing
@@ -454,6 +455,8 @@ fun rememberShimmerBrush(backdropAware: Boolean = false): Brush {
             FetchTheme.colors.SurfaceVariant.copy(alpha = 0.30f)
         )
     }
+    // Reduced motion keeps the placeholder's resting colour without the sweep.
+    if (!FetchTheme.fullMotion) return SolidColor(shimmerColors.first())
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translate by transition.animateFloat(
         initialValue = 0f,

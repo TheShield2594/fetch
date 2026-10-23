@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.screens.settings
 
 import com.fetch.tv.ui.theme.FetchRadii
-import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.background
@@ -16,7 +15,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -437,9 +435,9 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
         (MemoryBudget.budgetMb * 1.25f).toInt()
     }
     val usageColor = when (MemoryBudget.getUsageStatus(totalUsageMb, safeLimitMb, warningLimitMb)) {
-        MemoryUsageStatus.DANGER -> Color(0xFFF44336)
-        MemoryUsageStatus.WARNING -> Color(0xFFFF9800)
-        MemoryUsageStatus.SAFE -> FetchPrimitives.success
+        MemoryUsageStatus.DANGER -> FetchTheme.colors.Error
+        MemoryUsageStatus.WARNING -> FetchTheme.colors.Warning
+        MemoryUsageStatus.SAFE -> FetchTheme.colors.Success
     }
     val effectiveExoMb = (effectiveBufferMb - parallelOverheadMb).coerceAtLeast(MemoryBudget.MIN_BUFFER_MB)
     val baseText = stringResource(R.string.playback_estimated_memory_usage, totalUsageMb, warningLimitMb)

@@ -26,7 +26,7 @@ fun AutoResizeText(
     color: Color,
     modifier: Modifier = Modifier,
     style: TextStyle = LocalTextStyle.current,
-    minFontSize: TextUnit = 9.sp,
+    minFontSize: TextUnit = 12.sp,
     textAlign: TextAlign? = null
 ) {
     val maxFontSize = if (style.fontSize.type == TextUnitType.Sp) style.fontSize else 14.sp

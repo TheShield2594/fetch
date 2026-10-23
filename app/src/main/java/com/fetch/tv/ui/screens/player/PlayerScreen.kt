@@ -3531,7 +3531,7 @@ private fun PlayerClockOverlay(
         if (!isLive) {
             Text(
                 text = stringResource(R.string.player_ends_at, endTimeText),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 10.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                 color = Color.White.copy(alpha = 0.78f)
             )
         }

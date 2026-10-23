@@ -31,7 +31,7 @@ val LocalFetchExtendedColors = staticCompositionLocalOf {
         backgroundElevated = Color(0xFF1A1A1A),
         backgroundCard = Color(0xFF242424),
         textSecondary = Color(0xFFB3B3B3),
-        textTertiary = Color(0xFF808080),
+        textTertiary = Color(0xFFA3A3A3),
         focusRing = ThemeColors.Fetch.focusRing,
         focusBackground = ThemeColors.Fetch.focusBackground,
         rating = Color(0xFFFFD700)
@@ -47,6 +47,9 @@ val LocalThemePalette = staticCompositionLocalOf { ThemeColors.White }
 val LocalFetchFocusRingStyle = staticCompositionLocalOf {
     createFocusRingStyle(ThemeColors.Fetch)
 }
+
+/** See [isFullMotionAllowed]; read it through [FetchTheme.fullMotion]. */
+val LocalFullMotion = staticCompositionLocalOf { true }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -69,6 +72,7 @@ fun FetchTheme(
     )
     val typography = buildFetchTypography(getFontFamily(appFont), getDisplayFontFamily(appFont))
     val textStyles = buildFetchTextStyles(typography)
+    val fullMotion = rememberFullMotionAllowed()
 
     val materialColorScheme = darkColorScheme(
         primary = colorScheme.Primary,
@@ -100,7 +104,8 @@ fun FetchTheme(
         LocalFetchTextStyles provides textStyles,
         LocalAppTheme provides appTheme,
         LocalThemePalette provides palette,
-        LocalFetchFocusRingStyle provides focusRingStyle
+        LocalFetchFocusRingStyle provides focusRingStyle,
+        LocalFullMotion provides fullMotion
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,
@@ -171,6 +176,15 @@ object FetchTheme {
 
     val components: FetchComponentTokens
         get() = FetchComponents.tokens
+
+    /**
+     * False when the system's animations are off or the device is low on RAM. Decorative motion
+     * (shimmers, pulses, slides) then holds still or cuts straight to its end state.
+     */
+    val fullMotion: Boolean
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalFullMotion.current
 
     val currentTheme: AppTheme
         @Composable

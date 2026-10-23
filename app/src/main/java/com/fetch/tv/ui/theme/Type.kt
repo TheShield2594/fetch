@@ -189,8 +189,9 @@ fun buildFetchTypography(
     labelSmall = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 10.sp,
-        lineHeight = 14.sp,
+        // 12sp is the floor for every style: 24px at 1080p, the usual minimum for TV text.
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
 )

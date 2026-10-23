@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -148,6 +149,9 @@ internal fun rememberMemberBadgeGradientBrush(
     style: MemberBadgeStyle,
     size: IntSize
 ): Brush {
+    if (!FetchTheme.fullMotion) {
+        return remember(style, size) { memberBadgeGradientBrush(style = style, size = size, progress = 0f) }
+    }
     val gradientTransition = rememberInfiniteTransition(label = "memberBadgeGradient")
     val gradientProgress by gradientTransition.animateFloat(
         initialValue = 0f,

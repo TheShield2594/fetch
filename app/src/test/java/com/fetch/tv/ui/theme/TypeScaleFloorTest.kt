@@ -1,0 +1,64 @@
+package com.fetch.tv.ui.theme
+
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Test
+import java.io.File
+
+/**
+ * Keeps text at or above 12sp, which is 24px on a 1080p TV (density 2): the usual minimum for
+ * body text and labels read from across a room.
+ */
+class TypeScaleFloorTest {
+
+    private val minSp = 12f
+
+    @Test
+    fun `every type style is at least 12sp`() {
+        val typography = buildFetchTypography(FontFamily.Default)
+        val styles: Map<String, TextStyle> = mapOf(
+            "displayLarge" to typography.displayLarge,
+            "displayMedium" to typography.displayMedium,
+            "displaySmall" to typography.displaySmall,
+            "headlineLarge" to typography.headlineLarge,
+            "headlineMedium" to typography.headlineMedium,
+            "headlineSmall" to typography.headlineSmall,
+            "titleLarge" to typography.titleLarge,
+            "titleMedium" to typography.titleMedium,
+            "titleSmall" to typography.titleSmall,
+            "bodyLarge" to typography.bodyLarge,
+            "bodyMedium" to typography.bodyMedium,
+            "bodySmall" to typography.bodySmall,
+            "labelLarge" to typography.labelLarge,
+            "labelMedium" to typography.labelMedium,
+            "labelSmall" to typography.labelSmall
+        ) + buildFetchTextStyles(typography).let { tokens ->
+            mapOf(
+                "metadata" to tokens.metadata,
+                "spec" to tokens.spec,
+                "badge" to tokens.badge
+            )
+        }
+        val small = styles.filterValues { it.fontSize.value < minSp }
+        assertTrue("Below ${minSp}sp: ${small.keys}", small.isEmpty())
+    }
+
+    @Test
+    fun `screens set no font size below 12sp`() {
+        val sourceRoot = File("src/main/java")
+        check(sourceRoot.isDirectory) { "Run from the app module; ${sourceRoot.absolutePath} is missing" }
+        val literal = Regex("""\b(?:fontSize|minFontSize|textSize)\s*(?::\s*TextUnit\s*)?=\s*(\d+(?:\.\d+)?)\.sp""")
+        val problems = sourceRoot.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .flatMap { file ->
+                file.readLines().mapIndexedNotNull { index, line ->
+                    val size = literal.find(line)?.groupValues?.get(1)?.toFloat() ?: return@mapIndexedNotNull null
+                    if (size < minSp) "${file.relativeTo(sourceRoot).invariantSeparatorsPath}:${index + 1}: ${size}sp" else null
+                }
+            }
+            .toList()
+        if (problems.isNotEmpty()) fail("Text below ${minSp}sp:\n" + problems.joinToString("\n"))
+    }
+}

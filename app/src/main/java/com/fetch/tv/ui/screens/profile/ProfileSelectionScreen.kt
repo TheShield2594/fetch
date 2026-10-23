@@ -1327,7 +1327,7 @@ private fun ProfileCard(
                 Text(
                     text = stringResource(R.string.profile_selection_primary_badge),
                     color = Color(0xFFFFB300),
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.8.sp
                 )
@@ -2154,15 +2154,19 @@ internal fun ProfilePinOverlay(
     var isInputFocused by remember(state) { mutableStateOf(false) }
     var keyboardWasVisible by remember(state) { mutableStateOf(false) }
     val shakeOffset = remember(state) { androidx.compose.animation.core.Animatable(0f) }
-    val cursorAlpha by rememberInfiniteTransition(label = "pinCursor").animateFloat(
-        initialValue = 0.25f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(FetchMotion.tokens.durations.slow),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pinCursorAlpha"
-    )
+    val cursorAlpha = if (FetchTheme.fullMotion) {
+        rememberInfiniteTransition(label = "pinCursor").animateFloat(
+            initialValue = 0.25f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(FetchMotion.tokens.durations.slow),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pinCursorAlpha"
+        ).value
+    } else {
+        1f
+    }
     val resolvedErrorMessage = if (isSingleEntryMode) errorMessage else internalErrorMessage ?: errorMessage
     val isErrorState = !resolvedErrorMessage.isNullOrEmpty()
     val mismatchMessage = stringResource(R.string.profile_pin_overlay_mismatch)

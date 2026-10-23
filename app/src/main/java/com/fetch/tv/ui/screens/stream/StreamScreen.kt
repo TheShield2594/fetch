@@ -8,7 +8,6 @@ import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.components.PlayLaunchOrigin
-import com.fetch.tv.ui.theme.rememberFullMotionAllowed
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.runtime.derivedStateOf
@@ -407,7 +406,7 @@ fun StreamScreen(
     }
 
     val showOverlay = uiState.showDirectAutoPlayOverlay || uiState.externalPlayerOverlayVisible
-    val fullMotion = rememberFullMotionAllowed()
+    val fullMotion = FetchTheme.fullMotion
     // The Play or Resume press that opened this screen, if it was just now.
     val launchOrigin = remember { PlayLaunchOrigin.take()?.takeIf { fullMotion } }
     var rootTopLeft by remember { mutableStateOf(Offset.Zero) }

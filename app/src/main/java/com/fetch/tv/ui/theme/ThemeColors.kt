@@ -49,6 +49,8 @@ object ThemeColors {
     val Crimson = ThemeColorPalette(
         secondary = FetchPrimitives.red500,
         secondaryVariant = FetchPrimitives.red600,
+        // Neither white nor the near-black text reaches 4.5:1 on this red; pure black does.
+        onSecondary = FetchPrimitives.black,
         focusRing = FetchPrimitives.red300,
         focusBackground = Color(0xFF3D1A1A),
         backgroundCard = Color(0xFF241A1A)
@@ -57,6 +59,7 @@ object ThemeColors {
     val Ocean = ThemeColorPalette(
         secondary = FetchPrimitives.blue500,
         secondaryVariant = FetchPrimitives.blue700,
+        onSecondary = FetchPrimitives.neutral925,
         focusRing = FetchPrimitives.blue300,
         focusBackground = Color(0xFF1A2D3D),
         background = Color(0xFF0D0D0F),
@@ -77,6 +80,7 @@ object ThemeColors {
     val Emerald = ThemeColorPalette(
         secondary = FetchPrimitives.green500,
         secondaryVariant = FetchPrimitives.green700,
+        onSecondary = FetchPrimitives.neutral925,
         focusRing = FetchPrimitives.green300,
         focusBackground = Color(0xFF1A3D1E),
         backgroundCard = Color(0xFF1A241A)
@@ -85,6 +89,8 @@ object ThemeColors {
     val Amber = ThemeColorPalette(
         secondary = FetchPrimitives.amber500,
         secondaryVariant = FetchPrimitives.amber700,
+        onSecondary = FetchPrimitives.neutral925,
+        onSecondaryVariant = FetchPrimitives.neutral925,
         focusRing = FetchPrimitives.amber300,
         focusBackground = Color(0xFF3D2D1A),
         background = Color(0xFF0F0D0D),

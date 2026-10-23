@@ -86,16 +86,20 @@ fun LoadingOverlay(
             animationSpec = tween(durationMillis = FetchMotion.tokens.durations.long, delayMillis = 400, easing = LinearEasing),
             label = "loadingLogoAlpha"
         )
-        val infiniteTransition = rememberInfiniteTransition(label = "loadingLogoPulse")
-        val logoScale by infiniteTransition.animateFloat(
-            initialValue = 1f,
-            targetValue = 1.04f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 2000, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "loadingLogoScale"
-        )
+        val logoScale = if (FetchTheme.fullMotion) {
+            val infiniteTransition = rememberInfiniteTransition(label = "loadingLogoPulse")
+            infiniteTransition.animateFloat(
+                initialValue = 1f,
+                targetValue = 1.04f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 2000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "loadingLogoScale"
+            ).value
+        } else {
+            1f
+        }
         val backdropRequest = remember(context, backdropUrl) {
             backdropUrl?.takeIf { it.isNotBlank() }?.let { url ->
                 ImageRequest.Builder(context)

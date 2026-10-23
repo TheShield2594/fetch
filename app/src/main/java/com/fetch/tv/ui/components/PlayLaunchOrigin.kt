@@ -8,6 +8,9 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 
+/** A Play or Resume press: where the button was, and when ([atMs], elapsed realtime). */
+data class PlayLaunch(val bounds: Rect, val atMs: Long)
+
 /**
  * Where the last Play or Resume press happened on screen, so the Fetching panel can grow out of
  * that button on the next screen. Screens share one window, so window bounds carry over.
@@ -39,11 +42,11 @@ object PlayLaunchOrigin {
         offered?.let { launchFrom(it, nowMs) }
     }
 
-    /** The latest launch's bounds, once; null if there was none in the last [MAX_AGE_MS]. */
-    fun take(nowMs: Long = SystemClock.elapsedRealtime()): Rect? {
+    /** The latest launch, once; null if there was none in the last [MAX_AGE_MS]. */
+    fun take(nowMs: Long = SystemClock.elapsedRealtime()): PlayLaunch? {
         val bounds = launched ?: return null
         launched = null
-        return bounds.takeIf { nowMs - launchedAtMs in 0L..MAX_AGE_MS }
+        return PlayLaunch(bounds, launchedAtMs).takeIf { nowMs - launchedAtMs in 0L..MAX_AGE_MS }
     }
 }
 

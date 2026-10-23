@@ -415,7 +415,6 @@ fun StreamScreen(
     val launchProgress = remember { Animatable(if (launchOrigin != null) 0f else 1f) }
     // Read in composition only when it flips; the morph reads the value itself while it draws.
     val launchDone by remember { derivedStateOf { launchProgress.value >= 1f } }
-    val openedAtMs = remember { android.os.SystemClock.elapsedRealtime() }
 
     Box(
         modifier = Modifier
@@ -461,6 +460,16 @@ fun StreamScreen(
                 }
             )
             if (waitingForPick) {
+                // Drawn first, so the panel's content fades in over the shape rather than under it.
+                val panelBounds = fetchingPanelBounds
+                if (launchOrigin != null && panelBounds != null && !launchDone) {
+                    FetchLaunchMorph(
+                        from = launchOrigin.bounds.translate(-rootTopLeft),
+                        to = panelBounds.translate(-rootTopLeft),
+                        progress = { launchProgress.value },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 FetchingPanel(
                     sourceChips = uiState.sourceChips,
                     bestSoFar = uiState.bestSoFar,
@@ -474,19 +483,11 @@ fun StreamScreen(
                         .onGloballyPositioned { fetchingPanelBounds = it.boundsInWindow() }
                         .graphicsLayer { alpha = launchContentAlpha(launchProgress.value) }
                 )
-                val panelBounds = fetchingPanelBounds
-                if (launchOrigin != null && panelBounds != null && !launchDone) {
-                    FetchLaunchMorph(
-                        from = launchOrigin.translate(-rootTopLeft),
-                        to = panelBounds.translate(-rootTopLeft),
-                        progress = { launchProgress.value },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
                 LaunchedEffect(panelBounds != null) {
                     if (panelBounds == null || launchProgress.value >= 1f) return@LaunchedEffect
                     // A panel that shows up well after the press no longer reads as its result.
-                    if (android.os.SystemClock.elapsedRealtime() - openedAtMs > PlayLaunchOrigin.MAX_AGE_MS) {
+                    val pressedAtMs = launchOrigin?.atMs ?: 0L
+                    if (android.os.SystemClock.elapsedRealtime() - pressedAtMs > PlayLaunchOrigin.MAX_AGE_MS) {
                         launchProgress.snapTo(1f)
                     } else {
                         launchProgress.animateTo(

@@ -1381,8 +1381,6 @@
     <string name="collections_editor_backdrop">Bakgrundsbild</string>
     <string name="collections_editor_pin_above">Fäst ovanför kataloger</string>
     <string name="collections_editor_pin_above_desc">Visa denna samling ovanför alla vanliga hemkataloger. Flera fästa samlingar följer skapandeordningen.</string>
-    <string name="collections_editor_focus_glow">Fokusglöd</string>
-    <string name="collections_editor_focus_glow_desc">Använd det inbyggda TV-glödet på denna samlings anpassade katalogkort på hemskärmen</string>
     <string name="collections_editor_view_mode">Visningsläge</string>
     <string name="collections_editor_show_all_tab">Visa \"Alla\"-flik</string>
     <string name="collections_editor_show_all_tab_desc">Kombinera alla kataloger i en flik</string>

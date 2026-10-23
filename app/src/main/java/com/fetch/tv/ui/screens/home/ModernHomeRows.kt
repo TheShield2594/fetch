@@ -98,7 +98,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.Glow
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -110,7 +109,6 @@ import coil3.request.crossfade
 import coil3.request.transformations
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
 import com.fetch.tv.domain.model.PLACEHOLDER_IMAGE_URL
@@ -121,15 +119,12 @@ import com.fetch.tv.ui.components.continueWatchingImageCacheKey
 import com.fetch.tv.ui.components.continueWatchingImageModel
 import com.fetch.tv.ui.components.continueWatchingShouldBlur
 import com.fetch.tv.ui.components.continueWatchingUsesEpisodeThumbnails
-import com.fetch.tv.ui.components.LocalCardDepthStyle
 import com.fetch.tv.ui.components.MonochromePosterPlaceholder
 import com.fetch.tv.ui.components.TrailerPlayer
 import com.fetch.tv.ui.components.ReadyDot
 import com.fetch.tv.ui.components.WatchedMarker
 import com.fetch.tv.ui.components.placeholderCardShimmer
-import com.fetch.tv.ui.components.fetchCardDepth
 import com.fetch.tv.ui.components.LightweightCard
-import com.fetch.tv.ui.components.rememberArtworkBackedFocusGlow
 import com.fetch.tv.ui.components.rememberPlaceholderShimmerOffsetState
 import com.fetch.tv.LocalSidebarExpanded
 import kotlin.math.abs
@@ -1107,7 +1102,6 @@ private fun ModernCarouselCard(
     modifier: Modifier = Modifier
 ) {
     val cardShape = remember(cardCornerRadius) { RoundedCornerShape(cardCornerRadius) }
-    val cardDepthStyle = LocalCardDepthStyle.current
     val context = LocalContext.current
     val density = LocalDensity.current
     val expandedCardWidth = if (useLandscapeOverlayTreatment) {
@@ -1309,15 +1303,6 @@ private fun ModernCarouselCard(
         )
     }
     val effectiveFocusedBorder = if (isFastScrolling) transparentFocusBorder else focusedBorder
-    val cardFocusGlow = when (payload) {
-        is ModernPayload.CollectionFolder -> rememberArtworkBackedFocusGlow(
-            imageUrl = imageUrl,
-            fallbackSeed = "${item.title}:${payload.collectionTitle}",
-            enabled = payload.focusGlowEnabled
-        )
-        else -> Glow.None
-    }
-    val effectiveFocusGlow = if (isFastScrolling) Glow.None else cardFocusGlow
     val titleStyle = remember(titleMedium) {
         titleMedium.copy(fontWeight = FontWeight.Medium)
     }
@@ -1380,18 +1365,12 @@ private fun ModernCarouselCard(
                 },
             shape = cardShape,
             containerColor = backgroundCardColor,
-            focusedBorder = effectiveFocusedBorder,
-            focusedGlow = effectiveFocusGlow
+            focusedBorder = effectiveFocusedBorder
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(cardShape)
-                    .fetchCardDepth(
-                        shape = cardShape,
-                        surface = CardDepthSurface.POSTERS,
-                        style = cardDepthStyle
-                    )
             ) {
                 val mediaLayerModifier = remember(hasLandscapeLogo) {
                     if (hasLandscapeLogo) {

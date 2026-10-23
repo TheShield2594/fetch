@@ -37,7 +37,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.ContentType
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.MetaTrailer
 import com.fetch.tv.domain.model.PosterShape
@@ -219,7 +218,6 @@ fun TrailerSection(
                         focusRequester = focusRequester,
                         upFocusRequester = upFocusRequester,
                         downFocusRequester = downFocusRequester,
-                        depthSurface = CardDepthSurface.TRAILERS,
                         onFocused = {
                             onLastFocusedTrailerIdChange(item.preview.id)
                             onTrailerFocused(item.trailer)

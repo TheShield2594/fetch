@@ -3332,6 +3332,11 @@ private fun ProgressBar(
                 if (it.isFocused) onFocused?.invoke()
             }
             .focusable()
+            .playerPlayhead(
+                progress = { animatedProgress },
+                dotColor = FetchTheme.colors.Secondary,
+                ringColor = FetchTheme.colors.Background.copy(alpha = 0.6f)
+            )
             .onPreviewKeyEvent { keyEvent ->
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
                     when (keyEvent.nativeKeyEvent.keyCode) {

@@ -1,9 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.domain.model.CardDepthSurface
-import com.fetch.tv.ui.components.LocalCardDepthStyle
-import com.fetch.tv.ui.components.fetchCardDepth
 import com.fetch.tv.ui.util.contentTextDirection
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -450,7 +447,6 @@ private fun CastMemberItem(
     }
 
     var isFocused by remember { mutableStateOf(false) }
-    val cardDepthStyle = LocalCardDepthStyle.current
     val labelAreaHeight = remember(density, nameStyle, characterStyle) {
         with(density) {
             nameStyle.lineHeight.toDp() * 2 +
@@ -489,12 +485,7 @@ private fun CastMemberItem(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(CircleShape)
-                    .fetchCardDepth(
-                        shape = CircleShape,
-                        surface = CardDepthSurface.CAST,
-                        style = cardDepthStyle
-                    ),
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 val currentBgColor = if (isFocused) FetchTheme.colors.FocusBackground else FetchTheme.colors.SurfaceVariant

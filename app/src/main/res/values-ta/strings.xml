@@ -1619,8 +1619,6 @@
     <string name="collections_editor_backdrop">பின்னணி படம்</string>
     <string name="collections_editor_pin_above">கேட்டலாக்களின் மேல் நிலைநிறுத்து</string>
     <string name="collections_editor_pin_above_desc">இந்த தொகுப்பை அனைத்து வழக்கமான முகப்பு கேட்டலாக்களின் மேல் காட்டு. பல நிலைநிறுத்தப்பட்ட தொகுப்புகள் உருவாக்க வரிசையைப் பின்பற்றும்.</string>
-    <string name="collections_editor_focus_glow">கவன ஒளிர்வு</string>
-    <string name="collections_editor_focus_glow_desc">இந்த தொகுப்பின் முகப்புத்திரை தனிப்பயன் கேட்டலாக் அட்டைகளில் இயல்பான டிவி ஒளிர்வைப் பயன்படுத்து</string>
     <string name="collections_editor_view_mode">காட்சி முறை</string>
     <string name="collections_editor_show_all_tab">\"அனைத்தும்\" தாவலை காட்டு</string>
     <string name="collections_editor_show_all_tab_desc">அனைத்து கேட்டலாக்களையும் ஒரு தாவலாக இணை</string>

@@ -33,7 +33,6 @@ com/fetch/tv/ui/screens/plugin/PluginScreen.kt|COLOR|3
 com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt|COLOR|9
 com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt|DURATION|1
 com/fetch/tv/ui/screens/settings/DiagnosticsCard.kt|COLOR|1
-com/fetch/tv/ui/screens/settings/LayoutCardSettings.kt|COLOR|3
 com/fetch/tv/ui/screens/settings/LicensesAttributionsScreen.kt|COLOR|1
 com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt|DURATION|1
 com/fetch/tv/ui/screens/settings/PlaybackBufferNetworkSettings.kt|COLOR|2

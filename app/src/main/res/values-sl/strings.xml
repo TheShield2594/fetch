@@ -1533,8 +1533,6 @@
     <string name="collections_editor_backdrop">Slika v ozadju</string>
     <string name="collections_editor_pin_above">Pripni nad kataloge</string>
     <string name="collections_editor_pin_above_desc">Prikaži to zbirko nad vsemi običajnimi katalogi na začetnem zaslonu. Več pripetih zbirk sledi vrstnemu redu njihovega ustvarjanja.</string>
-    <string name="collections_editor_focus_glow">Sij ob izbiri</string>
-    <string name="collections_editor_focus_glow_desc">Uporabi izvorni TV sij na karticah katalogov po meri na začetnem zaslonu te zbirke</string>
     <string name="collections_editor_view_mode">Način prikaza</string>
     <string name="collections_editor_show_all_tab">Prikaži zavihek \"Vse\"</string>
     <string name="collections_editor_show_all_tab_desc">Združi vse kataloge v en zavihek</string>

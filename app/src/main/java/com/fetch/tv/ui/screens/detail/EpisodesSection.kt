@@ -97,9 +97,6 @@ import com.fetch.tv.ui.components.LightweightCard
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.WatchedMarker
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.domain.model.CardDepthSurface
-import com.fetch.tv.ui.components.LocalCardDepthStyle
-import com.fetch.tv.ui.components.fetchCardDepth
 import android.text.format.DateFormat
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
@@ -679,7 +676,6 @@ private fun EpisodeCard(
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
     val shape = remember(cardMetrics.cornerRadius) { RoundedCornerShape(cardMetrics.cornerRadius) }
-    val cardDepthStyle = LocalCardDepthStyle.current
     val thumbnailWidthPx = remember(cardMetrics.cardWidth, density) {
         with(density) { cardMetrics.cardWidth.roundToPx() }
     }
@@ -881,12 +877,7 @@ private fun EpisodeCard(
                 .width(cardMetrics.cardWidth)
                 .height(cardMetrics.cardHeight)
                 .clip(shape)
-                .fetchCardDepth(
-                    shape = shape,
-                    surface = CardDepthSurface.EPISODE_CARDS,
-                    style = cardDepthStyle,
-                    fallbackBorderAlpha = 0.12f
-                )
+                .border(1.dp, Color.White.copy(alpha = 0.12f), shape)
         ) {
             val bgPainter = remember(cardBgColor) { androidx.compose.ui.graphics.painter.ColorPainter(cardBgColor) }
             AsyncImage(

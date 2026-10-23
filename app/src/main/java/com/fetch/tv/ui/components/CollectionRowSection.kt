@@ -70,7 +70,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.fetch.tv.domain.model.Collection
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.PosterShape
 
@@ -261,12 +260,6 @@ private fun FolderCard(
     }
 
     val shape = RoundedCornerShape(posterCardStyle.cornerRadius)
-    val cardDepthStyle = LocalCardDepthStyle.current
-    val cardGlow = rememberArtworkBackedCardGlow(
-        imageUrl = folder.coverImageUrl,
-        fallbackSeed = "${collection.title}:${folder.title}:${folder.coverEmoji.orEmpty()}",
-        enabled = collection.focusGlowEnabled
-    )
 
     Card(
         onClick = onClick,
@@ -289,18 +282,12 @@ private fun FolderCard(
                 shape = shape
             )
         ),
-        scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale),
-        glow = cardGlow
+        scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(shape)
-                .fetchCardDepth(
-                    shape = shape,
-                    surface = CardDepthSurface.POSTERS,
-                    style = cardDepthStyle
-                )
         ) {
             val activeImageUrl = collectionFolderCardImageUrl(folder, isFocused)
             if (!activeImageUrl.isNullOrBlank()) {

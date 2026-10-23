@@ -1676,8 +1676,6 @@
     <string name="collections_editor_backdrop">Фонове зображення</string>
     <string name="collections_editor_pin_above">Закріпити вище каталогів</string>
     <string name="collections_editor_pin_above_desc">Показувати цю колекцію вище всіх звичайних каталогів на головній. Кілька закріплених колекцій сортуються в порядку їх створення.</string>
-    <string name="collections_editor_focus_glow">Сяяння при фокусі</string>
-    <string name="collections_editor_focus_glow_desc">Використовувати нативне сяяння ТВ на користувацьких картках каталогу цієї колекції</string>
     <string name="collections_editor_view_mode">Режим перегляду</string>
     <string name="collections_editor_show_all_tab">Показувати вкладку «Всі»</string>
     <string name="collections_editor_show_all_tab_desc">Об\'єднати всі каталоги в одну вкладку</string>

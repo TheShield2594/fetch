@@ -45,7 +45,6 @@ data class CollectionEditorUiState(
     val title: String = "",
     val backdropImageUrl: String = "",
     val pinToTop: Boolean = false,
-    val focusGlowEnabled: Boolean = true,
     val viewMode: FolderViewMode = FolderViewMode.TABBED_GRID,
     val showAllTab: Boolean = true,
     val folders: List<CollectionFolder> = emptyList(),
@@ -179,7 +178,6 @@ class CollectionEditorViewModel @Inject constructor(
                             title = existing.title,
                             backdropImageUrl = existing.backdropImageUrl ?: "",
                             pinToTop = existing.pinToTop,
-                            focusGlowEnabled = existing.focusGlowEnabled,
                             viewMode = existing.viewMode,
                             showAllTab = existing.showAllTab,
                             folders = existing.folders,
@@ -216,10 +214,6 @@ class CollectionEditorViewModel @Inject constructor(
 
     fun setPinToTop(pinToTop: Boolean) {
         _uiState.update { it.copy(pinToTop = pinToTop) }
-    }
-
-    fun setFocusGlowEnabled(enabled: Boolean) {
-        _uiState.update { it.copy(focusGlowEnabled = enabled) }
     }
 
     fun addFolder() {
@@ -1136,7 +1130,6 @@ class CollectionEditorViewModel @Inject constructor(
                 title = state.title.ifBlank { string(R.string.collection_editor_untitled_collection) },
                 backdropImageUrl = state.backdropImageUrl.ifBlank { null },
                 pinToTop = state.pinToTop,
-                focusGlowEnabled = state.focusGlowEnabled,
                 viewMode = state.viewMode,
                 showAllTab = state.showAllTab,
                 folders = state.folders

@@ -1674,8 +1674,6 @@
     <string name="collections_editor_backdrop">Backdrop изображение</string>
     <string name="collections_editor_pin_above">Закачи над каталозите</string>
     <string name="collections_editor_pin_above_desc">Показвай тази колекция над всички обикновени домашни каталози. Множество закачени колекции следват реда на създаване.</string>
-    <string name="collections_editor_focus_glow">Фокусно сияние</string>
-    <string name="collections_editor_focus_glow_desc">Използвай нативното TV сияние върху custom catalog картите на тази колекция в началния екран</string>
     <string name="collections_editor_view_mode">Режим на изглед</string>
     <string name="collections_editor_show_all_tab">Показвай „Всички“ раздел</string>
     <string name="collections_editor_show_all_tab_desc">Комбинирай всички каталози в един раздел</string>

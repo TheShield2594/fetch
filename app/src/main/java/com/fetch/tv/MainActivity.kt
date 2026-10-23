@@ -150,7 +150,6 @@ import com.fetch.tv.domain.model.AppFont
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
 import com.fetch.tv.domain.model.AuthState
-import com.fetch.tv.domain.model.CardDepthStyle
 import com.fetch.tv.domain.model.CosmeticEntitlement
 import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.ExperienceMode
@@ -162,7 +161,6 @@ import com.fetch.tv.domain.model.resolveCustomThemeColors
 import com.fetch.tv.domain.deeplink.AppDeepLink
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.ui.components.FetchScrollDefaults
-import com.fetch.tv.ui.components.LocalCardDepthStyle
 import com.fetch.tv.ui.components.LocalLandscapePosterMode
 import com.fetch.tv.ui.components.LocalAlwaysBackdropWithLogo
 import com.fetch.tv.ui.components.ProfileAvatarCircle
@@ -235,7 +233,6 @@ private data class MainUiPrefs(
     val smoothBringIntoViewEnabled: Boolean = true,
     val fastHorizontalNavigationEnabled: Boolean = false,
     val composeHighlighterEnabled: Boolean = false,
-    val cardDepthStyle: CardDepthStyle = CardDepthStyle(),
     val landscapePosterMode: Boolean = false,
     val alwaysBackdropWithLogo: Boolean = false,
     val trailerCropToFill: Boolean = true
@@ -567,9 +564,8 @@ open class MainActivity : ComponentActivity() {
                     themeAndExperienceFlow,
                     layoutAndFeaturesFlow,
                     extraFeaturesFlow,
-                    layoutPreferenceDataStore.cardDepthStyle,
                     landscapePrefsFlow
-                ) { themePrefs, layoutPrefs, extraPrefs, cardDepthStyle, (landscapePosterMode, alwaysBackdropWithLogo, trailerCropToFill) ->
+                ) { themePrefs, layoutPrefs, extraPrefs, (landscapePosterMode, alwaysBackdropWithLogo, trailerCropToFill) ->
                     themePrefs.copy(
                         hasChosenLayout = layoutPrefs.hasChosenLayout,
                         sidebarCollapsed = layoutPrefs.sidebarCollapsed,
@@ -578,7 +574,6 @@ open class MainActivity : ComponentActivity() {
                         smoothBringIntoViewEnabled = extraPrefs.smoothBringIntoViewEnabled,
                         fastHorizontalNavigationEnabled = extraPrefs.fastHorizontalNavigationEnabled,
                         composeHighlighterEnabled = extraPrefs.composeHighlighterEnabled,
-                        cardDepthStyle = cardDepthStyle,
                         landscapePosterMode = landscapePosterMode,
                         alwaysBackdropWithLogo = alwaysBackdropWithLogo,
                         trailerCropToFill = trailerCropToFill
@@ -697,7 +692,6 @@ open class MainActivity : ComponentActivity() {
                     LocalBringIntoViewSpec provides bringIntoViewSpec,
                     LocalFastHorizontalNavigationEnabled provides mainUiPrefs.fastHorizontalNavigationEnabled,
                     LocalRecompositionHighlighterEnabled provides highlighterEnabled,
-                    LocalCardDepthStyle provides mainUiPrefs.cardDepthStyle,
                     LocalLandscapePosterMode provides mainUiPrefs.landscapePosterMode,
                     LocalAlwaysBackdropWithLogo provides mainUiPrefs.alwaysBackdropWithLogo,
                     com.fetch.tv.ui.components.LocalTrailerCropToFill provides mainUiPrefs.trailerCropToFill,

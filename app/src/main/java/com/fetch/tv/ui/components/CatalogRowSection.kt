@@ -66,7 +66,6 @@ import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.stableKey
 import com.fetch.tv.domain.model.stableItemKeys
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.stableItemKey
 import com.fetch.tv.domain.model.stableItemKeys
@@ -456,7 +455,6 @@ fun CatalogRowSection(
 
             if (!showSeeAll && catalogRow.isLoading) {
                 item(key = "${catalogRow.type}_${catalogRow.catalogId}_loading") {
-                    val cardDepthStyle = LocalCardDepthStyle.current
                     val globalLandscape = LocalLandscapePosterMode.current
                     val loadingCardWidth = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
                     val loadingCardHeight = if (globalLandscape) posterCardStyle.height / PosterShape.LANDSCAPE.aspectRatio() else posterCardStyle.height
@@ -475,12 +473,7 @@ fun CatalogRowSection(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .clip(seeAllCardShape)
-                                .fetchCardDepth(
-                                    shape = seeAllCardShape,
-                                    surface = CardDepthSurface.POSTERS,
-                                    style = cardDepthStyle
-                                ),
+                                .clip(seeAllCardShape),
                             contentAlignment = Alignment.Center
                         ) {
                             LoadingIndicator()
@@ -490,7 +483,6 @@ fun CatalogRowSection(
             }
             if (showSeeAll) {
                 item(key = "${catalogRow.type}_${catalogRow.catalogId}_see_all") {
-                    val cardDepthStyle = LocalCardDepthStyle.current
                     val globalLandscape = LocalLandscapePosterMode.current
                     val seeAllCardWidth = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
                     val seeAllCardHeight = if (globalLandscape) posterCardStyle.height / PosterShape.LANDSCAPE.aspectRatio() else posterCardStyle.height
@@ -516,12 +508,7 @@ fun CatalogRowSection(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .clip(seeAllCardShape)
-                                .fetchCardDepth(
-                                    shape = seeAllCardShape,
-                                    surface = CardDepthSurface.POSTERS,
-                                    style = cardDepthStyle
-                                ),
+                                .clip(seeAllCardShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(

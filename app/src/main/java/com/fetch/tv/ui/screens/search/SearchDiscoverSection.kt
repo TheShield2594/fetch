@@ -78,10 +78,7 @@ import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.LoadingIndicator
-import com.fetch.tv.ui.components.LocalCardDepthStyle
 import com.fetch.tv.ui.components.PosterCardStyle
-import com.fetch.tv.ui.components.fetchCardDepth
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.ui.util.dpadVerticalFastScroll
 import com.fetch.tv.ui.util.formatAddonTypeLabel
 import com.fetch.tv.ui.util.localizedContentType
@@ -749,7 +746,6 @@ private fun DiscoverActionCard(
         DiscoverGridAction.Loading -> stringResource(R.string.discover_loading)
         DiscoverGridAction.None -> ""
     }
-    val cardDepthStyle = LocalCardDepthStyle.current
     val globalLandscape = com.fetch.tv.ui.components.LocalLandscapePosterMode.current
 
     Column(
@@ -789,12 +785,7 @@ private fun DiscoverActionCard(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(cardShape)
-                    .fetchCardDepth(
-                        shape = cardShape,
-                        surface = CardDepthSurface.POSTERS,
-                        style = cardDepthStyle
-                    ),
+                    .clip(cardShape),
                 contentAlignment = Alignment.Center
             ) {
                 if (actionType == DiscoverGridAction.Loading) {

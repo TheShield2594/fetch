@@ -53,7 +53,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
-import com.fetch.tv.domain.model.CardDepthSurface
 import androidx.compose.ui.platform.LocalContext
 import com.fetch.tv.ui.util.recompositionHighlighter
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
@@ -75,13 +74,11 @@ fun GridContentCard(
     focusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester? = null,
     downFocusRequester: FocusRequester? = null,
-    depthSurface: CardDepthSurface = CardDepthSurface.POSTERS,
     showReleaseInfo: Boolean = false,
     onLongPress: (() -> Unit)? = null,
     onFocused: () -> Unit = {}
 ) {
     val cardShape = remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
-    val cardDepthStyle = LocalCardDepthStyle.current
     val density = LocalDensity.current
     val globalLandscape = LocalLandscapePosterMode.current
     val effectivePosterShape = if (globalLandscape) PosterShape.LANDSCAPE else item.posterShape
@@ -197,11 +194,6 @@ fun GridContentCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(cardShape)
-                    .fetchCardDepth(
-                        shape = cardShape,
-                        surface = depthSurface,
-                        style = cardDepthStyle
-                    )
             ) {
                 val context = LocalContext.current
                 val bgCardColor = FetchTheme.colors.BackgroundCard

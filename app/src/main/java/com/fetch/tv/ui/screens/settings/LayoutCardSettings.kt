@@ -5,7 +5,6 @@ package com.fetch.tv.ui.screens.settings
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,9 +23,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,19 +31,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -57,19 +48,12 @@ import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.core.poster.CustomPosterScreen
-import com.fetch.tv.domain.model.CardDepthStyle
-import com.fetch.tv.domain.model.CardDepthSurface
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
-import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_EDGE_COVERAGE
-import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_EDGE_STRENGTH
-import com.fetch.tv.domain.model.DEFAULT_CARD_DEPTH_SHEEN_STRENGTH
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.ui.components.CardCwStylePreview
-import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.PosterCwStylePreview
 import com.fetch.tv.ui.components.WideCwStylePreview
-import com.fetch.tv.ui.components.cardDepthVisual
 
 @Composable
 internal fun LayoutContinueWatchingSection(
@@ -293,42 +277,6 @@ internal fun LayoutPosterCardSection(
 }
 
 @Composable
-internal fun LayoutCardDepthSection(
-    uiState: LayoutSettingsUiState,
-    onEvent: (LayoutSettingsEvent) -> Unit
-) {
-    var showFineTuneDialog by rememberSaveable { mutableStateOf(false) }
-
-    CardDepthStyleControls(
-        style = uiState.cardDepthStyle,
-        onEnabledChange = { enabled -> onEvent(LayoutSettingsEvent.SetCardDepthEnabled(enabled)) },
-        onEdgeStrengthChange = { strength -> onEvent(LayoutSettingsEvent.SetCardDepthEdgeStrength(strength)) },
-        onSheenStrengthChange = { strength -> onEvent(LayoutSettingsEvent.SetCardDepthSheenStrength(strength)) },
-        onEdgeCoverageChange = { coverage -> onEvent(LayoutSettingsEvent.SetCardDepthEdgeCoverage(coverage)) },
-        onSurfaceEnabledChange = { surface, enabled ->
-            onEvent(LayoutSettingsEvent.SetCardDepthSurfaceEnabled(surface, enabled))
-        },
-        onFineTune = { showFineTuneDialog = true },
-        onReset = { onEvent(LayoutSettingsEvent.ResetCardDepthStyle) }
-    )
-
-    if (showFineTuneDialog) {
-        CardDepthFineTuneDialog(
-            style = uiState.cardDepthStyle,
-            onEdgeStrengthChange = { strength -> onEvent(LayoutSettingsEvent.SetCardDepthEdgeStrength(strength)) },
-            onSheenStrengthChange = { strength -> onEvent(LayoutSettingsEvent.SetCardDepthSheenStrength(strength)) },
-            onEdgeCoverageChange = { coverage -> onEvent(LayoutSettingsEvent.SetCardDepthEdgeCoverage(coverage)) },
-            onReset = {
-                onEvent(LayoutSettingsEvent.SetCardDepthEdgeStrength(DEFAULT_CARD_DEPTH_EDGE_STRENGTH))
-                onEvent(LayoutSettingsEvent.SetCardDepthSheenStrength(DEFAULT_CARD_DEPTH_SHEEN_STRENGTH))
-                onEvent(LayoutSettingsEvent.SetCardDepthEdgeCoverage(DEFAULT_CARD_DEPTH_EDGE_COVERAGE))
-            },
-            onDismiss = { showFineTuneDialog = false }
-        )
-    }
-}
-
-@Composable
 internal fun LayoutCustomPosterSection(
     uiState: LayoutSettingsUiState,
     onEvent: (LayoutSettingsEvent) -> Unit,
@@ -362,7 +310,7 @@ internal fun LayoutCustomPosterSection(
             subtitle = null,
             onClick = { onEvent(LayoutSettingsEvent.ClearCustomPosterSettings) }
         )
-        SettingsSectionLabel(text = stringResource(R.string.settings_card_depth_apply_to))
+        SettingsSectionLabel(text = stringResource(R.string.layout_custom_poster_apply_to))
         listOf(
             CustomPosterScreen.HOME to R.string.layout_custom_poster_screen_home,
             CustomPosterScreen.CONTINUE_WATCHING to R.string.layout_custom_poster_screen_continue_watching,
@@ -541,231 +489,6 @@ private fun ModernTrailerPlaybackTargetRow(
             )
         }
     }
-}
-
-@Composable
-private fun CardDepthStyleControls(
-    style: CardDepthStyle,
-    onEnabledChange: (Boolean) -> Unit,
-    onEdgeStrengthChange: (Int) -> Unit,
-    onSheenStrengthChange: (Int) -> Unit,
-    onEdgeCoverageChange: (Int) -> Unit,
-    onSurfaceEnabledChange: (CardDepthSurface, Boolean) -> Unit,
-    onFineTune: () -> Unit,
-    onReset: () -> Unit
-) {
-    val edgeOptions = listOf(
-        PresetOption(stringResource(R.string.settings_card_depth_edge_subtle), 28),
-        PresetOption(stringResource(R.string.settings_card_depth_edge_balanced), 42),
-        PresetOption(stringResource(R.string.settings_card_depth_edge_bold), 56)
-    )
-    val sheenOptions = listOf(
-        PresetOption(stringResource(R.string.settings_card_depth_sheen_off), 0),
-        PresetOption(stringResource(R.string.settings_card_depth_sheen_soft), 10),
-        PresetOption(stringResource(R.string.settings_card_depth_sheen_bright), 16)
-    )
-    val coverageOptions = listOf(
-        PresetOption(stringResource(R.string.settings_card_depth_coverage_top), 0),
-        PresetOption(stringResource(R.string.settings_card_depth_coverage_half), 50),
-        PresetOption(stringResource(R.string.settings_card_depth_coverage_full), 100)
-    )
-    val surfaces = listOf(
-        stringResource(R.string.settings_card_depth_surface_posters) to CardDepthSurface.POSTERS,
-        stringResource(R.string.settings_card_depth_surface_continue_watching) to CardDepthSurface.CONTINUE_WATCHING,
-        stringResource(R.string.settings_card_depth_surface_episodes) to CardDepthSurface.EPISODE_CARDS,
-        stringResource(R.string.settings_card_depth_surface_cast) to CardDepthSurface.CAST,
-        stringResource(R.string.settings_card_depth_surface_trailers) to CardDepthSurface.TRAILERS
-    )
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-    ) {
-        SettingsToggleRow(
-            title = stringResource(R.string.settings_card_depth_enabled),
-            subtitle = stringResource(R.string.settings_card_depth_description),
-            checked = style.enabled,
-            onToggle = { onEnabledChange(!style.enabled) }
-        )
-
-        if (style.enabled) {
-            OptionRow(
-                title = stringResource(R.string.settings_card_depth_edge),
-                selectedValue = style.edgeStrength,
-                options = edgeOptions,
-                onSelected = onEdgeStrengthChange
-            )
-            OptionRow(
-                title = stringResource(R.string.settings_card_depth_sheen),
-                selectedValue = style.sheenStrength,
-                options = sheenOptions,
-                onSelected = onSheenStrengthChange
-            )
-            OptionRow(
-                title = stringResource(R.string.settings_card_depth_edge_coverage),
-                selectedValue = style.edgeCoverage,
-                options = coverageOptions,
-                onSelected = onEdgeCoverageChange
-            )
-            SettingsActionRow(
-                title = stringResource(R.string.settings_card_depth_fine_tune),
-                subtitle = stringResource(R.string.settings_card_depth_fine_tune_hint_tv),
-                onClick = onFineTune,
-                trailingIcon = Icons.Default.Tune
-            )
-            SettingsSectionLabel(text = stringResource(R.string.settings_card_depth_apply_to))
-            surfaces.forEach { (title, surface) ->
-                SettingsToggleRow(
-                    title = title,
-                    subtitle = null,
-                    checked = style.isSurfaceEnabled(surface),
-                    onToggle = {
-                        onSurfaceEnabledChange(surface, !style.isSurfaceEnabled(surface))
-                    }
-                )
-            }
-        }
-
-        SettingsResetButton(
-            text = stringResource(R.string.layout_reset_default),
-            onClick = onReset
-        )
-    }
-}
-
-@Composable
-private fun CardDepthFineTuneDialog(
-    style: CardDepthStyle,
-    onEdgeStrengthChange: (Int) -> Unit,
-    onSheenStrengthChange: (Int) -> Unit,
-    onEdgeCoverageChange: (Int) -> Unit,
-    onReset: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    val initialFocusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        initialFocusRequester.requestFocus()
-    }
-
-    FetchDialog(
-        onDismiss = onDismiss,
-        title = stringResource(R.string.settings_card_depth_fine_tune_title),
-        subtitle = stringResource(R.string.settings_card_depth_fine_tune_hint_tv),
-        width = 680.dp,
-        usePlatformDefaultWidth = false
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-        ) {
-            CardDepthPreview(
-                style = style,
-                modifier = Modifier
-                    .width(260.dp)
-                    .aspectRatio(2f / 3f)
-            )
-            Column(
-                modifier = Modifier
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-            ) {
-                SliderSettingsItem(
-                    title = stringResource(R.string.settings_card_depth_edge_value),
-                    value = style.edgeStrength.coerceAtMost(70),
-                    valueText = "${style.edgeStrength}%",
-                    minValue = 0,
-                    maxValue = 70,
-                    step = 1,
-                    onValueChange = onEdgeStrengthChange,
-                    modifier = Modifier.focusRequester(initialFocusRequester)
-                )
-                SliderSettingsItem(
-                    title = stringResource(R.string.settings_card_depth_sheen_value),
-                    value = style.sheenStrength.coerceAtMost(25),
-                    valueText = "${style.sheenStrength}%",
-                    minValue = 0,
-                    maxValue = 25,
-                    step = 1,
-                    onValueChange = onSheenStrengthChange
-                )
-                SliderSettingsItem(
-                    title = stringResource(R.string.settings_card_depth_coverage_value),
-                    value = style.edgeCoverage,
-                    valueText = "${style.edgeCoverage}%",
-                    minValue = 0,
-                    maxValue = 100,
-                    step = 1,
-                    onValueChange = onEdgeCoverageChange
-                )
-                CardDepthResetButton(
-                    onClick = onReset,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun CardDepthResetButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        shape = ButtonDefaults.shape(shape = shape),
-        colors = ButtonDefaults.colors(
-            containerColor = FetchTheme.colors.Background,
-            focusedContainerColor = FetchTheme.colors.Background
-        ),
-        border = ButtonDefaults.border(
-            border = Border(
-                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                shape = shape
-            ),
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = shape
-            )
-        )
-    ) {
-        Text(
-            text = stringResource(R.string.layout_reset_default),
-            style = MaterialTheme.typography.titleMedium,
-            color = FetchTheme.colors.TextPrimary
-        )
-    }
-}
-
-@Composable
-private fun CardDepthPreview(
-    style: CardDepthStyle,
-    modifier: Modifier = Modifier
-) {
-    val shape = RoundedCornerShape(FetchTheme.radii.lg)
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF33415C),
-                        Color(0xFF232D42),
-                        Color(0xFF141A28)
-                    )
-                )
-            )
-            .cardDepthVisual(
-                shape = shape,
-                edgeStrength = style.edgeStrength.toFloat(),
-                sheenStrength = style.sheenStrength.toFloat(),
-                edgeCoverage = style.edgeCoverage.toFloat()
-            )
-    )
 }
 
 @Composable

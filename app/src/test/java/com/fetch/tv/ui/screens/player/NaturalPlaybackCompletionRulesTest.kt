@@ -12,7 +12,8 @@ class NaturalPlaybackCompletionRulesTest {
             shouldTreatAsNaturalPlaybackCompletion(
                 hasRenderedFirstFrame = true,
                 hasFatalError = false,
-                durationMs = 2_400_000L // 40 min
+                durationMs = 2_400_000L, // 40 min
+                positionMs = 2_400_000L
             )
         )
     }
@@ -24,21 +25,24 @@ class NaturalPlaybackCompletionRulesTest {
             shouldTreatAsNaturalPlaybackCompletion(
                 hasRenderedFirstFrame = true,
                 hasFatalError = false,
-                durationMs = 5_000L
+                durationMs = 5_000L,
+                positionMs = 5_000L
             )
         )
         assertFalse(
             shouldTreatAsNaturalPlaybackCompletion(
                 hasRenderedFirstFrame = true,
                 hasFatalError = false,
-                durationMs = 30_000L
+                durationMs = 30_000L,
+                positionMs = 30_000L
             )
         )
         assertFalse(
             shouldTreatAsNaturalPlaybackCompletion(
                 hasRenderedFirstFrame = true,
                 hasFatalError = false,
-                durationMs = 120_999L
+                durationMs = 120_999L,
+                positionMs = 120_999L
             )
         )
     }
@@ -49,7 +53,8 @@ class NaturalPlaybackCompletionRulesTest {
             shouldTreatAsNaturalPlaybackCompletion(
                 hasRenderedFirstFrame = true,
                 hasFatalError = false,
-                durationMs = 121_000L
+                durationMs = 121_000L,
+                positionMs = 121_000L
             )
         )
     }
@@ -60,7 +65,8 @@ class NaturalPlaybackCompletionRulesTest {
             shouldTreatAsNaturalPlaybackCompletion(
                 hasRenderedFirstFrame = false,
                 hasFatalError = false,
-                durationMs = 2_400_000L
+                durationMs = 2_400_000L,
+                positionMs = 2_400_000L
             )
         )
     }
@@ -71,7 +77,8 @@ class NaturalPlaybackCompletionRulesTest {
             shouldTreatAsNaturalPlaybackCompletion(
                 hasRenderedFirstFrame = true,
                 hasFatalError = true,
-                durationMs = 2_400_000L
+                durationMs = 2_400_000L,
+                positionMs = 2_400_000L
             )
         )
     }
@@ -83,7 +90,41 @@ class NaturalPlaybackCompletionRulesTest {
             shouldTreatAsNaturalPlaybackCompletion(
                 hasRenderedFirstFrame = true,
                 hasFatalError = false,
-                durationMs = 0L
+                durationMs = 0L,
+                positionMs = 0L
+            )
+        )
+    }
+
+    @Test
+    fun `stream ending well before its duration is not natural completion`() {
+        // A dropped debrid connection hits EOF at 50%: this must not mark the episode watched.
+        assertFalse(
+            shouldTreatAsNaturalPlaybackCompletion(
+                hasRenderedFirstFrame = true,
+                hasFatalError = false,
+                durationMs = 2_400_000L,
+                positionMs = 1_200_000L
+            )
+        )
+        assertFalse(
+            shouldTreatAsNaturalPlaybackCompletion(
+                hasRenderedFirstFrame = true,
+                hasFatalError = false,
+                durationMs = 2_400_000L,
+                positionMs = 1_919_999L
+            )
+        )
+    }
+
+    @Test
+    fun `stream ending past Trakt's watched threshold is natural completion`() {
+        assertTrue(
+            shouldTreatAsNaturalPlaybackCompletion(
+                hasRenderedFirstFrame = true,
+                hasFatalError = false,
+                durationMs = 2_400_000L,
+                positionMs = 1_920_000L
             )
         )
     }

@@ -222,17 +222,26 @@ internal fun shouldResetPostPlayStateAfterPlaybackEnded(
  * reach STATE_ENDED. Treating those as natural completion marks the episode watched
  * and chains auto-play next through an entire season. Mirror the external-player
  * guard in [com.fetch.tv.core.player.ExternalPlaybackTracker].
+ *
+ * A stream that ends well short of its duration (a dropped or truncated debrid
+ * connection hitting EOF) is not a finish either. Counting it sent a 99.5% stop
+ * scrobble, so Trakt marked a partly watched episode watched (NuvioTV#4108).
  */
 internal fun shouldTreatAsNaturalPlaybackCompletion(
     hasRenderedFirstFrame: Boolean,
     hasFatalError: Boolean,
-    durationMs: Long
+    durationMs: Long,
+    positionMs: Long
 ): Boolean {
     if (hasFatalError) return false
     if (!hasRenderedFirstFrame) return false
     if (isShortPlaceholderDuration(durationMs)) return false
+    if (durationMs > 0L && positionMs < durationMs * NATURAL_COMPLETION_MIN_FRACTION) return false
     return true
 }
+
+/** Matches Trakt's own watched threshold, so an end below it never reports more than Trakt would. */
+private const val NATURAL_COMPLETION_MIN_FRACTION = 0.8
 
 /** Streams shorter than ~2:01 are treated as error/placeholder clips, not real episodes. */
 internal fun isShortPlaceholderDuration(duration: Long): Boolean = duration in 1..120_999L
@@ -305,7 +314,8 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     val naturalEnded = !view.isLiveStreamNow() && (nearEnd || mpvEofReached) && shouldTreatAsNaturalPlaybackCompletion(
                         hasRenderedFirstFrame = firstFrameReady,
                         hasFatalError = !_uiState.value.error.isNullOrBlank(),
-                        durationMs = effectiveDuration
+                        durationMs = effectiveDuration,
+                        positionMs = pos
                     )
                     val wasEnded = _uiState.value.playbackEnded
                     _uiState.update { state ->
@@ -711,7 +721,8 @@ internal fun PlayerRuntimeController.handleNaturalPlaybackEnded() {
     if (!shouldTreatAsNaturalPlaybackCompletion(
             hasRenderedFirstFrame = hasRenderedFirstFrame,
             hasFatalError = hasFatalError,
-            durationMs = duration
+            durationMs = duration,
+            positionMs = position
         )
     ) {
         Log.i(
@@ -813,7 +824,9 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, d
 internal fun PlayerRuntimeController.currentPlaybackProgressPercent(): Float {
     if (!hasRenderedFirstFrame) return 0f
     val position = currentPlaybackPositionMs() ?: return 0f
-    val duration = currentPlaybackDurationMs().takeIf { it > 0 } ?: lastKnownDuration
+    // Same duration the saved progress uses: a duration shorter than the position
+    // is unknown, not 100%, or a stop scrobble marks the episode watched on Trakt.
+    val duration = getEffectiveDuration(position)
     if (duration <= 0L) return 0f
     return ((position.toFloat() / duration.toFloat()) * 100f).coerceIn(0f, 100f)
 }

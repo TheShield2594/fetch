@@ -140,9 +140,13 @@ class ParallelRangeChunkLeaseTest {
         call(ParallelRangeDataSource.Companion, "releaseSessionBuffer", buffer, CHUNK, poolCap)
     }
 
-    private fun pooled(): Int =
+    // Other tests' late workers can recycle their own chunks into the shared pool, so tests ask
+    // about their allocation rather than the pool's size.
+    private fun pooled(allocation: ByteBuffer): Boolean =
         (ParallelRangeDataSource::class.java.getDeclaredField("globalBufferPool").apply { isAccessible = true }
-            .get(null) as Map<*, *>).values.sumOf { (it as Collection<*>).size }
+            .get(null) as Map<*, *>).values.any { pool ->
+            (pool as Collection<*>).any { field(it!!, "byteBuffer") === allocation }
+        }
 
     // Reads like the player: compares every byte with the file and reopens at the same position
     // after a failed read.
@@ -224,14 +228,15 @@ class ParallelRangeChunkLeaseTest {
 
     @Test
     fun `releasing a buffer nobody reads frees it once and refuses later leases`() {
-        val buffer = pooledBuffer(memory.allocate(CHUNK.toInt()))
+        val allocation = memory.allocate(CHUNK.toInt())
+        val buffer = pooledBuffer(allocation)
         releaseSessionBuffer(buffer, 0)
         releaseSessionBuffer(buffer, 0)
         releaseSessionBuffer(buffer, 4)
         assertEquals(1, memory.freed.get())
         assertEquals(0, memory.badFrees.get())
         assertFalse(call(buffer, "lease") as Boolean)
-        assertEquals(0, pooled())
+        assertFalse(pooled(allocation))
     }
 
     @Test
@@ -253,12 +258,30 @@ class ParallelRangeChunkLeaseTest {
 
     @Test
     fun `pooled memory is not reachable through the chunk that gave it back`() {
-        val buffer = pooledBuffer(memory.allocate(CHUNK.toInt()))
-        releaseSessionBuffer(buffer, 4)
-        assertEquals(1, pooled())
+        val allocation = memory.allocate(CHUNK.toInt())
+        val buffer = pooledBuffer(allocation)
+        // No cap another test's late worker could fill before this release.
+        releaseSessionBuffer(buffer, Int.MAX_VALUE)
+        assertTrue(pooled(allocation))
         assertFalse(call(buffer, "lease") as Boolean)
         drainPool()
-        assertEquals(1, memory.freed.get())
+        assertFalse("pooled chunk was freed by the drain", allocation in memory.live)
+    }
+
+    @Test
+    fun `a chunk recycled while the pool is cleared is still freed by the next drain`() {
+        val allocation = memory.allocate(CHUNK.toInt())
+        val buffer = pooledBuffer(allocation)
+        // A recycling worker that already looked up the deque, then loses the race with a close.
+        @Suppress("UNCHECKED_CAST")
+        val pools = ParallelRangeDataSource::class.java.getDeclaredField("globalBufferPool")
+            .apply { isAccessible = true }.get(null) as java.util.concurrent.ConcurrentHashMap<Long, java.util.Deque<Any>>
+        val deque = pools.computeIfAbsent(CHUNK) { java.util.concurrent.ConcurrentLinkedDeque() }
+        call(ParallelRangeDataSource.Companion, "clearGlobalPool")
+        deque.offerLast(buffer)
+        drainPool()
+        assertFalse("chunk added to a deque the clear dropped", allocation in memory.live)
+        assertEquals(0, memory.badFrees.get())
     }
 
     @Test

@@ -260,7 +260,8 @@ class ParallelRangeChunkLeaseTest {
     fun `pooled memory is not reachable through the chunk that gave it back`() {
         val allocation = memory.allocate(CHUNK.toInt())
         val buffer = pooledBuffer(allocation)
-        releaseSessionBuffer(buffer, 4)
+        // No cap another test's late worker could fill before this release.
+        releaseSessionBuffer(buffer, Int.MAX_VALUE)
         assertTrue(pooled(allocation))
         assertFalse(call(buffer, "lease") as Boolean)
         drainPool()

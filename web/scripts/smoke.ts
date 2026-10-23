@@ -1,0 +1,177 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+// `.env` is where a Compose install keeps its API_TOKEN — docker-compose.yml
+// uses the `${API_TOKEN:?}` form, so the stack refuses to start without one —
+// and nothing here was reading it. README step 3 sends people straight from
+// `docker compose up` to `pnpm smoke`, which then authenticated as the
+// "dev-token" default below and got 401s from every token-bearing check, at
+// the exact moment they were trying to confirm the install worked. Compose
+// reads the same file from the repo root.
+//
+// Six lines rather than a dotenv dependency, because this parses only what the
+// file actually contains: `KEY=value`, `#` comments, and optional quotes. A
+// variable already in the environment wins, so `API_BASE=… pnpm smoke` still
+// overrides the file.
+const loadDotEnv = (): void => {
+  let contents: string;
+  try {
+    contents = readFileSync(fileURLToPath(new URL("../.env", import.meta.url)), "utf8");
+  } catch (error) {
+    // No .env is a from-source dev run, where the defaults below are right.
+    // Anything else — a file that exists but can't be read — is worth failing
+    // on: falling back to "dev-token" would report the 401s that follow as the
+    // problem, which is the misdiagnosis this whole change exists to fix.
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    throw error;
+  }
+
+  for (const line of contents.split("\n")) {
+    const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+    if (!match) continue;
+    const [, key, rawValue] = match;
+    if (key in process.env) continue;
+
+    const value = rawValue.trim();
+    const quoted = /^(['"])([\s\S]*)\1$/.exec(value);
+    // Compose treats an unquoted `#` after whitespace as a trailing comment.
+    const parsed = quoted ? quoted[2] : value.replace(/\s+#.*$/, "");
+    // `KEY=` (the shape .env.example ships) is left unset rather than set to
+    // "", so the defaults below still apply.
+    if (parsed !== "") process.env[key] = parsed;
+  }
+};
+
+loadDotEnv();
+
+const apiBase = process.env.API_BASE ?? "http://localhost:7000";
+const addonBase = process.env.ADDON_BASE ?? "http://localhost:7001";
+const apiToken = process.env.API_TOKEN ?? "dev-token";
+
+let failed = false;
+
+const check = async (name: string, run: () => Promise<void>): Promise<void> => {
+  process.stdout.write(`• ${name}... `);
+  try {
+    await run();
+    process.stdout.write("PASS\n");
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+    process.stdout.write(`FAIL (${details})\n`);
+    failed = true;
+  }
+};
+
+const getJson = async (url: string, init?: RequestInit): Promise<{ response: Response; body: unknown }> => {
+  const response = await fetch(url, init);
+  const text = await response.text();
+  let body: unknown;
+  try {
+    body = text ? JSON.parse(text) : null;
+  } catch {
+    throw new Error(`Invalid JSON from ${url}: ${text.slice(0, 200)}`);
+  }
+  return { response, body };
+};
+
+// 1. GET /health on API — expect 200
+await check("API /health", async () => {
+  const { response, body } = await getJson(`${apiBase}/health`);
+  if (response.status !== 200) {
+    throw new Error(`Expected 200, got ${response.status}`);
+  }
+  if ((body as Record<string, unknown>)?.status !== "ok") {
+    throw new Error(`Unexpected body: ${JSON.stringify(body)}`);
+  }
+});
+
+// 2. GET /health/ready on API — expect 200, which means it reached the database
+await check("API /health/ready", async () => {
+  const { response, body } = await getJson(`${apiBase}/health/ready`);
+  if (response.status !== 200) {
+    throw new Error(`Expected 200, got ${response.status} (body: ${JSON.stringify(body)})`);
+  }
+  const ready = body as { status?: string; database?: { ok?: boolean } };
+  if (ready?.status !== "ok" || ready.database?.ok !== true) {
+    throw new Error(`Unexpected body: ${JSON.stringify(body)}`);
+  }
+});
+
+// 3. GET /manifest.json on addon — expect 200 with valid JSON containing a catalogs array
+type Manifest = { catalogs?: Array<{ type: string; id: string; name: string }> };
+let manifest: Manifest | null = null;
+
+await check("Addon /manifest.json", async () => {
+  const { response, body } = await getJson(`${addonBase}/manifest.json`);
+  if (response.status !== 200) {
+    throw new Error(`Expected 200, got ${response.status}`);
+  }
+  const m = body as Manifest;
+  if (!Array.isArray(m?.catalogs)) {
+    throw new Error(`Response missing catalogs array: ${JSON.stringify(body)}`);
+  }
+  manifest = m;
+});
+
+// 4. If TRAKT_CLIENT_ID is set, POST /trakt/import — expect 200 with { imported: { movies, episodes } }
+if (process.env.TRAKT_CLIENT_ID) {
+  await check("POST /trakt/import", async () => {
+    const { response, body } = await getJson(`${apiBase}/trakt/import`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiToken}` },
+    });
+    if (response.status !== 200) {
+      throw new Error(`Expected 200, got ${response.status}`);
+    }
+    const b = body as { imported?: { movies?: unknown; episodes?: unknown } };
+    if (!b?.imported || !("movies" in b.imported) || !("episodes" in b.imported)) {
+      throw new Error(`Expected { imported: { movies, episodes } }, got: ${JSON.stringify(body)}`);
+    }
+  });
+
+  // 5. GET /catalog/movie/{first catalog id}.json — expect { metas: [...] }
+  const firstMovieCatalog = manifest?.catalogs?.find((c) => c.type === "movie");
+  if (firstMovieCatalog) {
+    await check(`Catalog /catalog/movie/${firstMovieCatalog.id}.json`, async () => {
+      const { response, body } = await getJson(`${addonBase}/catalog/movie/${firstMovieCatalog.id}.json`);
+      if (response.status !== 200) {
+        throw new Error(`Expected 200, got ${response.status}`);
+      }
+      const b = body as { metas?: unknown[] };
+      if (!Array.isArray(b?.metas)) {
+        throw new Error(`Expected { metas: [...] }, got: ${JSON.stringify(body)}`);
+      }
+    });
+  } else {
+    process.stdout.write("• Catalog movie check... SKIP (no movie catalog in manifest)\n");
+  }
+} else {
+  process.stdout.write("• Trakt checks... SKIP (TRAKT_CLIENT_ID not set)\n");
+}
+
+// 6. If STEAM_API_KEY and STEAM_ID are set, POST /games/steam/sync — expect
+// 200 with a { total, created, updated, matched, unmatched } summary.
+if (process.env.STEAM_API_KEY && process.env.STEAM_ID) {
+  await check("POST /games/steam/sync", async () => {
+    const { response, body } = await getJson(`${apiBase}/games/steam/sync`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiToken}` },
+    });
+    if (response.status !== 200) {
+      throw new Error(`Expected 200, got ${response.status}`);
+    }
+    const b = body as { total?: unknown };
+    if (typeof b?.total !== "number") {
+      throw new Error(`Expected { total, created, updated, matched, unmatched }, got: ${JSON.stringify(body)}`);
+    }
+  });
+} else {
+  process.stdout.write("• Steam sync check... SKIP (STEAM_API_KEY/STEAM_ID not set)\n");
+}
+
+if (failed) {
+  process.stdout.write("\nSome smoke checks failed.\n");
+  process.exit(1);
+} else {
+  process.stdout.write("\nAll smoke checks passed.\n");
+}

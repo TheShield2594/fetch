@@ -1,0 +1,118 @@
+import { useRef, useState } from "react";
+import { getGradient, getInitials } from "./carousel-utils";
+import { parseSizedTmdbImage, tmdbImageAtWidth, TMDB_SRCSET_WIDTHS } from "../poster-widths";
+
+/** Default `sizes` for the poster grids, which share a layout across pages. */
+export const POSTER_GRID_SIZES = "(min-width: 640px) 220px, 45vw";
+
+/*
+ * `sizes` for the dashboard's poster cards. These have to be literal lengths —
+ * the attribute is read by the preload scanner before any stylesheet, so it
+ * can't reference --poster-card-w. Keep both in step with that token (12rem =
+ * 192px); a stale hint only costs bytes, not layout.
+ */
+/** A card in one of the carousels: the token width at every breakpoint. */
+export const POSTER_CARD_SIZES = "192px";
+/** A card in the Trending block, which is two-up and fluid below `sm`. */
+export const POSTER_CARD_FILL_SIZES = "(min-width: 640px) 192px, 45vw";
+
+/**
+ * Exported for the pages that render their own `<img>` rather than this
+ * component — their placeholder markup differs, but the bytes on the wire
+ * shouldn't. Without a srcset they pull whatever width the API stored (usually
+ * w500) into a slot around 180px wide.
+ *
+ * The ladder it offers lives in poster-widths.ts rather than here, because the
+ * service worker's poster cache has to recognise the URLs this produces as
+ * renditions of one picture — see the note there.
+ */
+export function buildTmdbSrcSet(src: string): string | undefined {
+  const image = parseSizedTmdbImage(src);
+  if (!image) return undefined;
+  return TMDB_SRCSET_WIDTHS.map((w) => `${tmdbImageAtWidth(image, w)} ${w}w`).join(", ");
+}
+
+export function Poster({
+  src,
+  alt,
+  className = "",
+  eager = false,
+  sizes = "(min-width: 640px) 220px, 45vw",
+}: {
+  src?: string | undefined;
+  alt: string | null | undefined;
+  className?: string | undefined;
+  eager?: boolean | undefined;
+  /** `sizes` attribute matching this poster's actual rendered width, so the browser picks the right srcset entry. */
+  sizes?: string | undefined;
+}) {
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  /*
+   * Reset when the src changes — during render rather than in an effect,
+   * because an effect runs *after* the ref callback below.
+   *
+   * The ref exists to mark an already-decoded image as loaded in the commit
+   * that mounts it (see its own note). A mount effect then cleared that flag
+   * on the very next tick, so the optimisation never actually applied — and
+   * for an image whose `load` had already fired before React attached
+   * `onLoad`, nothing was left to set it again and the poster stayed at
+   * opacity 0 permanently. That is every image a browser can complete
+   * synchronously on assignment: a `data:` URI, and a memory-cached one on
+   * some paths.
+   *
+   * The same shape as the key change in `useCachedState`, and for the same
+   * reason: state derived from a prop has to settle before the first paint,
+   * not one commit after it.
+   */
+  const renderedSrcRef = useRef(src);
+  if (renderedSrcRef.current !== src) {
+    renderedSrcRef.current = src;
+    setLoadFailed(false);
+    setLoaded(false);
+  }
+
+  if (!src || loadFailed) {
+    return (
+      <div className={`flex items-center justify-center bg-gradient-to-br ${getGradient(alt)} ${className}`}>
+        <span className="text-xl font-bold text-white/60 select-none">
+          {getInitials(alt)}
+        </span>
+      </div>
+    );
+  }
+
+  const srcSet = buildTmdbSrcSet(src);
+
+  // The wrapper carries the slot: a shimmer while bytes are in flight (the
+  // cards behind these images are transparent, so without it each poster pops
+  // out of nothing), settling to a plain surface once the image starts its
+  // fade so nothing animates behind an opaque picture.
+  return (
+    <div className={`${loaded ? "bg-[var(--surface-strong)]" : "skeleton"} ${className}`}>
+      <img
+        src={src}
+        srcSet={srcSet}
+        sizes={srcSet ? sizes : undefined}
+        alt={alt ?? "Poster"}
+        className={`h-full w-full object-cover transition-opacity duration-slow ${loaded ? "opacity-100" : "opacity-0"}`}
+        loading={eager ? "eager" : "lazy"}
+        decoding={eager ? "sync" : "async"}
+        // Above-fold artwork is what the page looks like — it should outrank the
+        // lazy posters further down the row that the browser would otherwise treat
+        // as equals. `low` on the rest keeps them behind the data requests.
+        fetchPriority={eager ? "high" : "low"}
+        // A memory-cached image can be `complete` in the same commit that sets
+        // `src` — marking it loaded here paints it opaque on the first frame,
+        // so re-renders and back-navigations skip the fade instead of making
+        // an already-seen poster blink.
+        ref={(el) => {
+          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+        }}
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoadFailed(true)}
+      />
+    </div>
+  );
+}

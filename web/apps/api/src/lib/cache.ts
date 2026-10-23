@@ -1,0 +1,160 @@
+import { LRUCache } from "lru-cache";
+import type { Credits, EpisodeInfo, MetadataPayload, SeasonInfo, ShowDetails, WatchProviders } from "../tmdb.js";
+import type { StremioMetaPreview } from "./types.js";
+
+export type TrendingCacheEntry = { data: StremioMetaPreview[]; reasons?: Record<string, string> };
+
+export const TRENDING_CACHE_TTL_MS = 30 * 60 * 1000;
+export const CAST_CACHE_TTL_MS = 60 * 60 * 1000;
+export const WATCH_PROVIDERS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+export const EXTERNAL_IDS_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// A title TMDB knows no IMDb id for is one Cataloggy drops from every catalog
+// and every search, so this is the entry that decides whether something is
+// findable at all — and it is the one most likely to change, because the usual
+// fix is somebody filling the field in on TMDB. A week of remembering "no" made
+// that correction take a week to arrive.
+export const EXTERNAL_IDS_MISS_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+// next_episode_to_air/status rarely change within a day; this is refetched on every
+// /calendar load and dashboard "Upcoming" widget render for every in-progress series.
+export const SHOW_DETAILS_CACHE_TTL_MS = 3 * 60 * 60 * 1000;
+// Short-lived: this only exists to collapse the burst of watched-history lookups
+// that back-to-back requests (e.g. the movie + series AI recs calls on page load)
+// trigger, not to serve as a source of truth — kept well under a minute so a
+// just-recorded watch event is reflected almost immediately.
+export const WATCHED_IMDB_IDS_CACHE_TTL_MS = 30 * 1000;
+
+export const trendingCache = new LRUCache<string, TrendingCacheEntry>({ max: 100, ttl: TRENDING_CACHE_TTL_MS });
+export const watchedImdbIdsCache = new LRUCache<string, Set<string>>({
+  max: 200,
+  ttl: WATCHED_IMDB_IDS_CACHE_TTL_MS,
+});
+export const castCache = new LRUCache<string, Credits>({ max: 500, ttl: CAST_CACHE_TTL_MS });
+export const seasonsCache = new LRUCache<string, SeasonInfo[]>({ max: 500, ttl: CAST_CACHE_TTL_MS });
+export const episodesCache = new LRUCache<string, EpisodeInfo[]>({ max: 1000, ttl: CAST_CACHE_TTL_MS });
+export const watchProvidersCache = new LRUCache<string, WatchProviders>({
+  max: 1000,
+  ttl: WATCH_PROVIDERS_CACHE_TTL_MS,
+});
+export const externalIdsCache = new LRUCache<string, { imdbId: string | null }>({
+  max: 5000,
+  ttl: EXTERNAL_IDS_CACHE_TTL_MS,
+});
+// Sized for a whole library rather than a page of one: the hourly episode
+// notification job walks every still-airing show every profile tracks, so at
+// 1000 a large library evicted its own earliest entries before the sweep ended
+// and refetched all of them on the next tick — the cache never warmed, which is
+// the one case it was there for. Entries are keyed by language and TMDB id, so
+// profiles tracking the same show share one.
+export const showDetailsCache = new LRUCache<string, { details: ShowDetails }>({
+  max: 5000,
+  ttl: SHOW_DETAILS_CACHE_TTL_MS,
+});
+
+// A search costs a list request per page plus an external-id lookup per result,
+// and it runs while someone is typing. Ten minutes is long enough to cover a
+// query being refined and returned to, and short enough that a title added to
+// TMDB today is findable today.
+export const SEARCH_CACHE_TTL_MS = 10 * 60 * 1000;
+
+// An empty result is held only long enough to absorb the burst of a query being
+// typed. Holding "nothing matched" for ten minutes would make the one answer
+// worth re-asking for the one that sticks — including right after the TMDB key
+// or the language setting that caused it has been fixed.
+export const SEARCH_MISS_CACHE_TTL_MS = 30 * 1000;
+
+export const searchCache = new LRUCache<string, MetadataPayload[]>({
+  max: 300,
+  ttl: SEARCH_CACHE_TTL_MS,
+});
+
+// Identical searches in flight together share one, rather than each starting
+// its own fan-out: a debounced search box that has already aborted its previous
+// request in the browser has not stopped the work it started here.
+export const searchLookups = new Map<string, Promise<MetadataPayload[]>>();
+
+// Every profile-scoped request resolves its profile before doing anything else, so
+// one dashboard load — around a dozen requests fired in parallel — pays a dozen
+// identical profile lookups before any real work starts. This collapses them.
+//
+// Short-lived on purpose, and cleared outright whenever a profile is created,
+// updated or deleted, so a PIN change or a removed profile takes effect on the
+// next request rather than after the TTL. Only positive lookups are cached;
+// resolving an unknown profile ID is a 404 path, not a hot one.
+export const PROFILE_CACHE_TTL_MS = 30 * 1000;
+
+export type CachedProfile = { id: string; pinHash: string | null };
+
+export const profileCache = new LRUCache<string, CachedProfile[]>({
+  max: 100,
+  ttl: PROFILE_CACHE_TTL_MS,
+});
+
+// The dashboard fires its requests in parallel, so they all reach the cache
+// before the first lookup has resolved and a plain read-through cache would let
+// every one of them issue the same query. In-flight lookups are shared here so
+// the burst really does collapse to one round trip, rather than only the
+// requests that arrive after it completes.
+export const profileLookups = new Map<string, Promise<CachedProfile[]>>();
+
+export const profileCacheClear = () => {
+  profileCache.clear();
+  profileLookups.clear();
+};
+
+// A metadata backfill that comes back empty — TMDB has no match for that IMDb ID
+// under the type the item is filed as, which happens when the two disagree on
+// whether something is a movie or a series — would otherwise be retried on every
+// single list load. Park those IDs instead of hammering TMDB for a row that is
+// not going to appear.
+export const METADATA_BACKFILL_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+
+export const metadataBackfillCooldownCache = new LRUCache<string, true>({
+  max: 5000,
+  ttl: METADATA_BACKFILL_COOLDOWN_MS,
+});
+
+export const trendingCacheGet = (key: string): TrendingCacheEntry | undefined => trendingCache.get(key);
+
+export const trendingCacheSet = (key: string, entry: TrendingCacheEntry, ttl?: number) => {
+  trendingCache.set(key, entry, ttl !== undefined ? { ttl } : undefined);
+};
+
+export const trendingCacheDelete = (key: string) => {
+  trendingCache.delete(key);
+};
+
+export const trendingCacheDeletePrefix = (prefix: string) => {
+  for (const key of [...trendingCache.keys()]) {
+    if (key.startsWith(prefix)) trendingCache.delete(key);
+  }
+};
+
+// Settings and credentials live in the same KV table and are read on paths that
+// run per request: `getTmdb()` resolves the language and the API key on every
+// call, and it is called inside every `loadCached` fetcher, so one detail-panel
+// load pays a handful of identical KV round trips before any TMDB request goes
+// out. Profiles already get this treatment (above) for the same reason; these
+// change far less often and had nothing.
+//
+// Short-lived, and invalidated per key on write (`lib/kv.ts`), so a saved
+// setting takes effect on the next request rather than after the TTL — the TTL
+// is only the backstop for a write that happened in another process.
+export const KV_CACHE_TTL_MS = 30 * 1000;
+
+// Wrapped rather than bare because a missing row is a cacheable answer: a fresh
+// install has no language or region row at all, and `undefined` already means
+// "not cached".
+export const kvCache = new LRUCache<string, { value: string | null }>({
+  max: 100,
+  ttl: KV_CACHE_TTL_MS,
+});
+
+// Same argument as `profileLookups`: the dashboard's parallel requests all
+// reach a cold key before the first read resolves, so the burst only collapses
+// if in-flight reads are shared too.
+export const kvLookups = new Map<string, Promise<string | null>>();
+
+export const kvCacheClear = () => {
+  kvCache.clear();
+  kvLookups.clear();
+};

@@ -1,0 +1,472 @@
+import { MetadataType, ScrobbleStatus, WatchEventType } from "@prisma/client";
+import type { FastifyPluginAsync, FastifyBaseLogger } from "fastify";
+import { prisma } from "../lib/prisma.js";
+import { recordWatchEvent } from "../lib/watch-event.js";
+import { pushTraktScrobble } from "../lib/trakt-client.js";
+import { resolveProfile } from "../lib/profile.js";
+import { resolveProgressPercent, savePlaybackProgress, type PlaybackPosition } from "../lib/playback.js";
+import { MAX_EPISODE, MAX_SEASON } from "../lib/import-validation.js";
+import {
+  MAX_IMDB_ID_LENGTH,
+  MAX_RUNTIME_MINUTES,
+  MAX_TITLE_LENGTH,
+  MAX_URL_LENGTH,
+  NON_BLANK,
+  nullable,
+} from "../lib/request-schema.js";
+import type { CheckInData } from "../lib/types.js";
+
+export const SCROBBLE_COMPLETE_THRESHOLD = 80;
+export const SCROBBLE_STALE_TTL_MS = 24 * 60 * 60 * 1000;
+export const SCROBBLE_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
+
+/**
+ * Below this a stop is "opened it and backed out", not a place to resume from,
+ * so it leaves no resume point behind.
+ */
+export const SCROBBLE_MIN_RESUME_PERCENT = 1;
+
+/** A whole, non-negative number of seconds, or `undefined` (not reported) for anything else. */
+const toSeconds = (value: unknown): number | undefined =>
+  typeof value === "number" && Number.isFinite(value) && value >= 0 ? Math.round(value) : undefined;
+
+/**
+ * What a player reported about where it is. `progress` is the Trakt-style
+ * percentage; `positionSeconds`/`durationSeconds` are for players that know
+ * exactly, and are what make a resume land on the right second.
+ */
+const readPosition = (body: { progress?: unknown; positionSeconds?: unknown; durationSeconds?: unknown }) => {
+  const position: PlaybackPosition = {
+    progress: typeof body.progress === "number" && Number.isFinite(body.progress) ? body.progress : null,
+    positionSeconds: toSeconds(body.positionSeconds),
+    durationSeconds: toSeconds(body.durationSeconds),
+  };
+  return { position, progress: resolveProgressPercent(position) };
+};
+
+/**
+ * Keeps the resume point in step with a paused or abandoned session. Best-effort:
+ * the scrobble already succeeded, and a resume point that failed to save is
+ * one the next pause or `PUT /playback` writes anyway.
+ */
+const saveResumePoint = async (
+  profileId: string,
+  session: { type: WatchEventType; imdbId: string; seriesImdbId: string | null; season: number | null; episode: number | null },
+  position: PlaybackPosition,
+  progress: number,
+  log: FastifyBaseLogger
+) => {
+  if (progress < SCROBBLE_MIN_RESUME_PERCENT) return;
+  // No seconds reported: keep the stored position — unless a new percentage
+  // came with the request, which makes the stored position stale. The
+  // duration is kept either way; a title's runtime does not change between
+  // pauses, and it is what lets a client turn the percentage back into seconds.
+  const positionSeconds = position.positionSeconds ?? (position.progress != null ? null : undefined);
+  try {
+    await savePlaybackProgress(profileId, session, {
+      progress,
+      positionSeconds,
+      durationSeconds: position.durationSeconds,
+    });
+  } catch (error) {
+    log.warn(error, "Failed to save playback progress from scrobble");
+  }
+};
+
+export const cleanupStaleSessions = async (logger?: FastifyBaseLogger) => {
+  const cutoff = new Date(Date.now() - SCROBBLE_STALE_TTL_MS);
+  const { count } = await prisma.scrobbleSession.updateMany({
+    where: {
+      status: { in: [ScrobbleStatus.playing, ScrobbleStatus.paused] },
+      updatedAt: { lt: cutoff },
+    },
+    data: { status: ScrobbleStatus.stopped },
+  });
+  if (count > 0) {
+    logger?.info(`Cleaned up ${count} stale scrobble sessions`);
+  }
+};
+
+const toCheckInData = (
+  row: {
+    type: WatchEventType;
+    imdbId: string;
+    seriesImdbId: string | null;
+    season: number | null;
+    episode: number | null;
+    name: string;
+    poster: string | null;
+    startedAt: Date;
+    expiresAt: Date | null;
+  },
+  background?: string | null
+): CheckInData => ({
+  type: row.type,
+  imdbId: row.imdbId,
+  seriesImdbId: row.seriesImdbId ?? undefined,
+  name: row.name,
+  poster: row.poster ?? undefined,
+  background: background ?? undefined,
+  season: row.season ?? undefined,
+  episode: row.episode ?? undefined,
+  startedAt: row.startedAt.toISOString(),
+  expiresAt: row.expiresAt?.toISOString(),
+});
+
+const getCheckInBackground = async (row: { type: WatchEventType; imdbId: string; seriesImdbId: string | null }) => {
+  const lookupId = row.type === "episode" && row.seriesImdbId ? row.seriesImdbId : row.imdbId;
+  const metaType = row.type === "movie" ? MetadataType.movie : MetadataType.series;
+  const meta = await prisma.metadata.findUnique({
+    where: { imdbId_type: { imdbId: lookupId, type: metaType } },
+    select: { background: true },
+  });
+  return meta?.background ?? null;
+};
+
+/**
+ * The one route in this file that had a TypeScript generic and no runtime check
+ * behind it, which is not a check at all: a non-string `name` or `imdbId` went
+ * to Prisma as-is and came back as an unhandled 500, a `runtime` big enough
+ * made `expiresAt` an Invalid Date, and `name`/`poster` were bounded only by
+ * `MAX_BODY_SIZE_MB` — so one request could park a multi-megabyte row per
+ * profile. Every neighbouring route validated explicitly; this one now does it
+ * declaratively.
+ *
+ * The identifiers and the title require a non-space character rather than just
+ * a length, because `minLength` counts `"   "` as three characters and the
+ * hand-written checks it replaced all trimmed before deciding. A blank title is
+ * a check-in the UI would draw as an empty row.
+ */
+const checkInBodySchema = {
+  type: "object",
+  required: ["type", "imdbId", "name"],
+  properties: {
+    type: { type: "string", enum: [WatchEventType.movie, WatchEventType.episode] },
+    imdbId: { type: "string", pattern: NON_BLANK, maxLength: MAX_IMDB_ID_LENGTH },
+    seriesImdbId: nullable({ pattern: NON_BLANK, maxLength: MAX_IMDB_ID_LENGTH }, "string"),
+    name: { type: "string", pattern: NON_BLANK, maxLength: MAX_TITLE_LENGTH },
+    poster: nullable({ maxLength: MAX_URL_LENGTH }, "string"),
+    season: nullable({ minimum: 0, maximum: MAX_SEASON }, "integer"),
+    episode: nullable({ minimum: 0, maximum: MAX_EPISODE }, "integer"),
+    // A minute is the smallest runtime that means anything: `expiresAt` is set
+    // from it, and zero would be a check-in that expired as it was made.
+    // TMDB never reports one either — it stores a runtime of 0 as absent.
+    runtime: nullable({ minimum: 1, maximum: MAX_RUNTIME_MINUTES }, "integer"),
+  },
+} as const;
+
+const scrobbleRoutes: FastifyPluginAsync = async (app) => {
+  app.addHook("preHandler", resolveProfile);
+
+  // ─── Check-in ───
+
+  app.get("/checkin", async (request) => {
+    const row = await prisma.checkIn.findUnique({ where: { profileId: request.profileId! } });
+    if (!row) return { checkin: null };
+    const background = await getCheckInBackground(row).catch(() => null);
+    return { checkin: toCheckInData(row, background) };
+  });
+
+  app.post<{
+    Body: {
+      type: "movie" | "episode";
+      imdbId: string;
+      seriesImdbId?: string | null;
+      name: string;
+      poster?: string | null;
+      season?: number | null;
+      episode?: number | null;
+      runtime?: number | null;
+    };
+  }>("/checkin", { schema: { body: checkInBodySchema } }, async (request) => {
+    const { type, imdbId, seriesImdbId, name, poster, season, episode, runtime } = request.body;
+    const startedAt = new Date();
+    const expiresAt = runtime ? new Date(Date.now() + runtime * 60 * 1000) : null;
+    const profileId = request.profileId!;
+    const data = {
+      type: type as WatchEventType,
+      imdbId,
+      seriesImdbId: seriesImdbId ?? null,
+      name,
+      poster: poster ?? null,
+      season: season ?? null,
+      episode: episode ?? null,
+      startedAt,
+      expiresAt,
+    };
+    const row = await prisma.checkIn.upsert({
+      where: { profileId },
+      create: { profileId, ...data },
+      update: data,
+    });
+    const background = await getCheckInBackground(row).catch(() => null);
+    return { checkin: toCheckInData(row, background) };
+  });
+
+  app.delete<{ Querystring: { log?: string } }>("/checkin", async (request, reply) => {
+    const profileId = request.profileId!;
+    const row = await prisma.checkIn.findUnique({ where: { profileId } });
+    if (row && request.query.log === "true") {
+      try {
+        const checkin = toCheckInData(row);
+        const seriesImdbId = checkin.seriesImdbId ?? checkin.imdbId;
+        await recordWatchEvent({
+          type: checkin.type,
+          imdbId: checkin.type === "movie" ? checkin.imdbId : seriesImdbId,
+          seriesImdbId: checkin.type === "episode" ? seriesImdbId : undefined,
+          season: checkin.type === "episode" ? (checkin.season ?? null) : undefined,
+          episode: checkin.type === "episode" ? (checkin.episode ?? null) : undefined,
+          watchedAt: new Date(),
+          source: "checkin",
+          profileId,
+          log: request.log,
+        });
+      } catch (error) {
+        request.log.warn(error, "Failed to log watch event from check-in");
+      }
+    }
+    await prisma.checkIn.deleteMany({ where: { profileId } });
+    return reply.code(204).send();
+  });
+
+  // ─── Scrobble ───
+
+  app.post<{ Body: unknown }>("/scrobble/start", async (request, reply) => {
+    if (!request.body || typeof request.body !== "object") {
+      return reply.code(400).send({ error: "type and imdbId are required" });
+    }
+
+    const body = request.body as {
+      type?: unknown;
+      imdbId?: unknown;
+      seriesImdbId?: unknown;
+      season?: unknown;
+      episode?: unknown;
+      progress?: unknown;
+      positionSeconds?: unknown;
+      durationSeconds?: unknown;
+    };
+
+    if (!Object.values(WatchEventType).includes(body.type as WatchEventType)) {
+      return reply.code(400).send({ error: "type must be one of: movie, episode" });
+    }
+
+    if (typeof body.imdbId !== "string" || !body.imdbId.trim()) {
+      return reply.code(400).send({ error: "imdbId is required" });
+    }
+
+    const type = body.type as WatchEventType;
+    const imdbId = (body.imdbId as string).trim();
+    const seriesImdbId = typeof body.seriesImdbId === "string" ? body.seriesImdbId.trim() || null : null;
+    const season = typeof body.season === "number" && Number.isInteger(body.season) ? body.season : null;
+    const episode = typeof body.episode === "number" && Number.isInteger(body.episode) ? body.episode : null;
+    const progress = readPosition(body).progress ?? 0;
+    const profileId = request.profileId!;
+
+    const { session, created, wasPlaying } = await prisma.$transaction(async (tx) => {
+      const existing = await tx.scrobbleSession.findFirst({
+        where: {
+          profileId,
+          imdbId,
+          season,
+          episode,
+          status: { in: [ScrobbleStatus.playing, ScrobbleStatus.paused] },
+        },
+      });
+
+      if (existing) {
+        const updated = await tx.scrobbleSession.update({
+          where: { id: existing.id },
+          data: { status: ScrobbleStatus.playing, progress },
+        });
+        return { session: updated, created: false, wasPlaying: existing.status === ScrobbleStatus.playing };
+      }
+
+      const newSession = await tx.scrobbleSession.create({
+        data: { type, imdbId, seriesImdbId, season, episode, status: ScrobbleStatus.playing, progress, profileId },
+      });
+      return { session: newSession, created: true, wasPlaying: false };
+    });
+
+    if (!wasPlaying) {
+      void pushTraktScrobble("start", { type, imdbId, seriesImdbId, season, episode, progress }, request.log);
+    }
+
+    return reply.code(created ? 201 : 200).send({ session });
+  });
+
+  app.post<{ Body: unknown }>("/scrobble/pause", async (request, reply) => {
+    if (!request.body || typeof request.body !== "object") {
+      return reply.code(400).send({ error: "imdbId is required" });
+    }
+
+    const body = request.body as {
+      imdbId?: unknown;
+      season?: unknown;
+      episode?: unknown;
+      progress?: unknown;
+      positionSeconds?: unknown;
+      durationSeconds?: unknown;
+    };
+    if (typeof body.imdbId !== "string" || !body.imdbId.trim()) {
+      return reply.code(400).send({ error: "imdbId is required" });
+    }
+
+    const imdbId = (body.imdbId as string).trim();
+    const season = typeof body.season === "number" ? body.season : null;
+    const episode = typeof body.episode === "number" ? body.episode : null;
+    const reported = readPosition(body);
+    const progress = reported.progress ?? undefined;
+
+    const session = await prisma.scrobbleSession.findFirst({
+      where: { profileId: request.profileId!, imdbId, season, episode, status: ScrobbleStatus.playing },
+    });
+
+    if (!session) return reply.code(404).send({ error: "No active scrobble session found" });
+
+    const updated = await prisma.scrobbleSession.update({
+      where: { id: session.id },
+      data: { status: ScrobbleStatus.paused, ...(progress !== undefined ? { progress } : {}) },
+    });
+
+    await saveResumePoint(request.profileId!, session, reported.position, updated.progress, request.log);
+
+    void pushTraktScrobble(
+      "pause",
+      {
+        type: session.type,
+        imdbId,
+        seriesImdbId: session.seriesImdbId,
+        season,
+        episode,
+        progress: updated.progress,
+      },
+      request.log
+    );
+
+    return reply.code(200).send({ session: updated });
+  });
+
+  app.post<{ Body: unknown }>("/scrobble/stop", async (request, reply) => {
+    if (!request.body || typeof request.body !== "object") {
+      return reply.code(400).send({ error: "imdbId is required" });
+    }
+
+    const body = request.body as {
+      imdbId?: unknown;
+      season?: unknown;
+      episode?: unknown;
+      progress?: unknown;
+      positionSeconds?: unknown;
+      durationSeconds?: unknown;
+    };
+    if (typeof body.imdbId !== "string" || !body.imdbId.trim()) {
+      return reply.code(400).send({ error: "imdbId is required" });
+    }
+
+    const imdbId = (body.imdbId as string).trim();
+    const season = typeof body.season === "number" ? body.season : null;
+    const episode = typeof body.episode === "number" ? body.episode : null;
+    const reported = readPosition(body);
+    const progress = reported.progress ?? undefined;
+
+    const session = await prisma.scrobbleSession.findFirst({
+      where: {
+        profileId: request.profileId!,
+        imdbId,
+        season,
+        episode,
+        status: { in: [ScrobbleStatus.playing, ScrobbleStatus.paused] },
+      },
+    });
+
+    if (!session) return reply.code(404).send({ error: "No active scrobble session found" });
+
+    const finalProgress = progress ?? session.progress;
+    const watchedAt = new Date();
+    const seriesImdbId = session.seriesImdbId;
+
+    const stoppedSession = await prisma.scrobbleSession.update({
+      where: { id: session.id },
+      data: { status: ScrobbleStatus.stopped, progress: finalProgress },
+    });
+
+    let watchEvent = null;
+    if (finalProgress >= SCROBBLE_COMPLETE_THRESHOLD) {
+      const result = await recordWatchEvent({
+        type: session.type,
+        imdbId,
+        seriesImdbId: seriesImdbId ?? undefined,
+        season: session.season,
+        episode: session.episode,
+        watchedAt,
+        source: "Scrobble",
+        profileId: request.profileId!,
+        log: request.log,
+      });
+      watchEvent = result.watchEvent;
+    } else {
+      await saveResumePoint(request.profileId!, session, reported.position, finalProgress, request.log);
+      void pushTraktScrobble(
+        "stop",
+        {
+          type: session.type,
+          imdbId,
+          seriesImdbId: session.seriesImdbId,
+          season: session.season,
+          episode: session.episode,
+          progress: finalProgress,
+        },
+        request.log
+      );
+    }
+
+    return reply.code(200).send({
+      session: { id: stoppedSession.id, status: stoppedSession.status, progress: finalProgress },
+      recorded: !!watchEvent,
+      watchEvent,
+    });
+  });
+
+  app.get("/scrobble/now-playing", async (request) => {
+    const sessions = await prisma.scrobbleSession.findMany({
+      where: {
+        profileId: request.profileId!,
+        status: { in: [ScrobbleStatus.playing, ScrobbleStatus.paused] },
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    if (sessions.length === 0) return { sessions: [] };
+
+    const imdbIds = [
+      ...new Set([
+        ...sessions.map((s) => s.imdbId),
+        ...sessions.filter((s) => s.seriesImdbId).map((s) => s.seriesImdbId!),
+      ]),
+    ];
+
+    const metadata =
+      imdbIds.length > 0
+        ? await prisma.metadata.findMany({
+            where: { imdbId: { in: imdbIds } },
+            select: { imdbId: true, name: true, poster: true },
+          })
+        : [];
+
+    const metaByImdbId = new Map(metadata.map((m) => [m.imdbId, m]));
+
+    return {
+      sessions: sessions.map((session) => {
+        const lookupId =
+          session.type === "episode" && session.seriesImdbId
+            ? session.seriesImdbId
+            : session.imdbId;
+        const meta = metaByImdbId.get(lookupId);
+        return { ...session, name: meta?.name ?? null, poster: meta?.poster ?? null };
+      }),
+    };
+  });
+};
+
+export default scrobbleRoutes;

@@ -1,0 +1,87 @@
+import { User } from "lucide-react";
+import { CarouselTrack } from "../CarouselTrack";
+import { useHorizontalScroll } from "../carousel-utils";
+import { KICKER } from "../typography";
+import { ScrollArrows } from "../ScrollArrows";
+
+export interface CastMember {
+  name: string;
+  character: string;
+  photo: string | null;
+}
+
+export function CastSection({ cast, loading }: { cast: CastMember[]; loading: boolean }) {
+  const { ref, canScrollLeft, canScrollRight, scroll } = useHorizontalScroll();
+
+  if (loading) {
+    return (
+      <div>
+        <h3 className={`mb-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>Cast</h3>
+        <div className="flex gap-3 overflow-hidden">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex-none w-24 space-y-1">
+              <div className="skeleton h-24 w-24 rounded-full" />
+              <div className="skeleton h-2.5 w-20 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (cast.length === 0) return null;
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className={`flex items-center gap-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
+          <User className="h-3.5 w-3.5" /> Cast
+        </h3>
+        <ScrollArrows
+          canScrollLeft={canScrollLeft}
+          canScrollRight={canScrollRight}
+          onScroll={scroll}
+          size="sm"
+          subject="cast"
+        />
+      </div>
+      <CarouselTrack
+        scrollRef={ref}
+        canScrollLeft={canScrollLeft}
+        canScrollRight={canScrollRight}
+        className="gap-3"
+      >
+        {/* Fewer, wider cards. At 64px the rail fitted about eight of them and
+            truncated both lines on nearly every one — `Marguerit…` over
+            `Elin Warri…`, where neither line was readable and the extra card
+            bought nothing. 96px fits most first-and-last names outright, and
+            the character line has room to be worth reading. Both keep a `title`
+            so a name that still truncates is recoverable. */}
+        {cast.map((member, i) => (
+          <div key={`${i}-${member.name}`} className="flex-none w-24 text-center">
+            {member.photo ? (
+              <img
+                src={member.photo}
+                alt={member.name}
+                className="h-24 w-24 rounded-full object-cover mx-auto"
+                style={{ boxShadow: "0 0 0 1px var(--border)" }}
+                loading="lazy"
+              />
+            ) : (
+              <div
+                className="h-24 w-24 rounded-full flex items-center justify-center mx-auto"
+                style={{ background: "var(--surface-strong)", boxShadow: "0 0 0 1px var(--border)" }}
+              >
+                <User className="h-8 w-8" style={{ color: "var(--text-mute)" }} />
+              </div>
+            )}
+            <p className="mt-2 text-2xs font-medium leading-tight truncate" style={{ color: "var(--text-dim)" }} title={member.name}>{member.name}</p>
+            {member.character && (
+              <p className="text-2xs truncate" style={{ color: "var(--text-mute)" }} title={member.character}>{member.character}</p>
+            )}
+          </div>
+        ))}
+      </CarouselTrack>
+    </div>
+  );
+}

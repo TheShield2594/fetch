@@ -1,0 +1,469 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ItemType {
+  movie
+  series
+  episode
+}
+
+enum ListKind {
+  watchlist
+  custom
+  collection
+}
+
+enum ListItemType {
+  movie
+  series
+}
+
+enum WatchEventType {
+  movie
+  episode
+}
+
+// `season` exists for ratings only — a season is something you can judge on its
+// own, and both Trakt and TMDB treat it that way. Nothing writes Metadata rows
+// of that type: TMDB metadata is fetched per title, not per season.
+enum MetadataType {
+  movie
+  series
+  season
+  episode
+}
+
+enum NotificationChannelKind {
+  ntfy
+  gotify
+  discord
+  webhook
+}
+
+enum ScrobbleStatus {
+  playing
+  paused
+  stopped
+}
+
+model Profile {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  pinHash   String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  lists             List[]
+  watchEvents       WatchEvent[]
+  seriesProgress    SeriesProgress[]
+  notifiedEpisodes  NotifiedEpisode[]
+  scrobbleSessions  ScrobbleSession[]
+  pushSubscriptions PushSubscription[]
+
+  notificationChannels NotificationChannel[]
+  ratings           Rating[]
+  tags              Tag[]
+  checkIn           CheckIn?
+  games             Game[]
+  playSignals       PlaySignal[]
+  playbackProgress  PlaybackProgress[]
+}
+
+model Item {
+  id           String   @id @default(uuid()) @db.Uuid
+  type         ItemType
+  imdbId       String
+  parentImdbId String?
+  season       Int?
+  episode      Int?
+  title        String?
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([imdbId])
+  @@unique([type, imdbId])
+}
+
+// Partial unique indexes on kind = 'watchlist' (migration 20260617120000, rescoped
+// to the profile in 20260910130000) and kind = 'collection' (migration
+// 20260626130001) enforce that each profile has at most one default watchlist and
+// one default collection. Prisma's schema DSL has no syntax for partial unique
+// indexes, so they aren't declared here — don't let `prisma migrate dev` generate a
+// migration that drops them.
+model List {
+  id        String     @id @default(uuid()) @db.Uuid
+  name      String
+  kind      ListKind
+  createdAt DateTime   @default(now()) @db.Timestamptz(6)
+  items     ListItem[]
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model ListItem {
+  listId  String       @db.Uuid
+  type    ListItemType
+  imdbId  String
+  addedAt DateTime     @default(now()) @db.Timestamptz(6)
+
+  list List @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  // These three columns are what identifies a list item, so they are the primary
+  // key rather than a unique constraint over a table that had none — a table with
+  // no primary key has no default replica identity, which puts it outside logical
+  // replication and outside several managed-Postgres tools. The compound-key
+  // argument Prisma generates (`listId_type_imdbId`) is spelled the same either
+  // way, so queries and cursors are unaffected. A separate `@@index([listId])`
+  // used to sit alongside; this index leads with `listId` and covers it.
+  @@id([listId, type, imdbId])
+}
+
+// A partial unique index, `watchevent_dedup_key` (migration 20260814120000), enforces
+// the dedup rule the code has always applied by hand: one row per profile, per title,
+// per UTC day, for every row that did not come from a Trakt history entry. It is an
+// expression index over COALESCE(...) and a date cast, and partial on
+// `traktHistoryId IS NULL` — Prisma's schema DSL can express none of those, so it isn't
+// declared here. Don't let `prisma migrate dev` generate a migration that drops it, and
+// note that `idx_watchevent_dedup` below is a different, non-unique index that exists to
+// make the lookup fast rather than correct.
+model WatchEvent {
+  id             String         @id @default(uuid()) @db.Uuid
+  type           WatchEventType
+  imdbId         String
+  seriesImdbId   String?
+  season         Int?
+  episode        Int?
+  watchedAt      DateTime       @db.Timestamptz(6)
+  dateUnknown    Boolean        @default(false)
+  plays          Int            @default(1)
+  note           String?        @db.Text
+  traktHistoryId BigInt?        @unique
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, watchedAt])
+  @@index([profileId, type, imdbId, season, episode], name: "idx_watchevent_dedup")
+  @@index([profileId, type, seriesImdbId], name: "idx_watchevent_series")
+}
+
+model SeriesProgress {
+  seriesImdbId  String
+  lastSeason    Int
+  lastEpisode   Int
+  lastWatchedAt DateTime @db.Timestamptz(6)
+  updatedAt     DateTime @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, seriesImdbId])
+  @@index([lastWatchedAt], name: "idx_seriesprogress_lastWatchedAt")
+}
+
+model KV {
+  key       String   @id
+  value     String
+  updatedAt DateTime @db.Timestamptz(6)
+}
+
+model Rating {
+  imdbId    String
+  type      MetadataType
+  season    Int          @default(0)
+  episode   Int          @default(0)
+  rating    Float
+  note      String?      @db.Text
+  ratedAt   DateTime     @db.Timestamptz(6)
+  updatedAt DateTime     @updatedAt @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  // No `@@index([profileId])`: the primary key above already leads with it, so a
+  // second btree on the same prefix only cost writes.
+  @@id([profileId, type, imdbId, season, episode])
+}
+
+// A single active check-in per profile — starting a new one replaces it,
+// mirroring the previous KV upsert-by-profile behavior.
+model CheckIn {
+  type         WatchEventType
+  imdbId       String
+  seriesImdbId String?
+  season       Int?
+  episode      Int?
+  name         String
+  poster       String?
+  startedAt    DateTime  @db.Timestamptz(6)
+  expiresAt    DateTime? @db.Timestamptz(6)
+
+  profileId String  @id @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+// An outbound notification target that isn't the browser: ntfy, Gotify, a
+// Discord webhook, or any URL that accepts a JSON POST. Web push is the only
+// channel that needs VAPID keys, https and (on iOS) an installed home-screen
+// app, none of which a plain http://192.168.x.x deployment has — these are the
+// channels a self-hoster already has running for everything else.
+//
+// Per-profile like PushSubscription, so "whose upcoming episodes" has the same
+// answer for both and a household can point each profile at its own topic.
+model NotificationChannel {
+  id   String                  @id @default(uuid()) @db.Uuid
+  kind NotificationChannelKind
+  // User-supplied label, so several channels of the same kind stay tellable
+  // apart in Settings.
+  name String
+  // What this means depends on the kind: the topic URL for ntfy, the server's
+  // base URL for Gotify, the full webhook URL for Discord and generic
+  // webhooks. Validated against the SSRF rules on save and re-resolved before
+  // every send — see lib/ssrf.ts.
+  url  String
+  // Gotify application token, or an ntfy access token for a protected topic.
+  // Never returned by the API.
+  token     String?
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model NotifiedEpisode {
+  id           String   @id @default(uuid()) @db.Uuid
+  seriesImdbId String
+  season       Int
+  episode      Int
+  notifiedAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, seriesImdbId, season, episode])
+}
+
+model TraktToken {
+  id           String   @id @default("default")
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(6)
+}
+
+// Stremio's account API issues a long-lived authKey rather than an OAuth token
+// pair, so there is nothing to refresh and no expiry to track — the key is valid
+// until the user signs out of that session on Stremio's side. The password is
+// never stored: it is exchanged for the authKey once and discarded.
+//
+// `email` is kept only so Settings can show which account is connected.
+// A title an addon-consuming client asked about in a way that means "the user
+// is about to watch this" — a `stream` or `subtitles` request against the addon.
+//
+// This is the only automatic watch signal the Stremio addon protocol exposes:
+// addons are never told what was watched, only asked for things. A signal is
+// therefore an *intent*, not a completion, and is held here until it either
+// earns promotion to a real watch (its runtime elapses, or the next episode
+// shows up) or is discarded as browsing. Nothing here is user-visible history —
+// only what survives becomes a WatchEvent.
+model PlaySignal {
+  id String @id @default(uuid()) @db.Uuid
+  // "movie:tt0111161" / "episode:tt0903747:2:7". An explicit key rather than a
+  // compound unique over the nullable season/episode columns: Postgres treats
+  // NULLs as distinct, so a compound unique would not actually stop a movie
+  // from opening two pending signals at once.
+  key      String
+  type     WatchEventType
+  imdbId   String
+  season   Int?
+  episode  Int?
+  // Which addon resource produced the signal, and the client that asked, kept
+  // so a self-hoster can see what their apps actually send before trusting it.
+  resource String
+  client   String?
+
+  firstSeenAt DateTime @default(now()) @db.Timestamptz(6)
+  lastSeenAt  DateTime @db.Timestamptz(6)
+  // When this becomes a watch if nothing contradicts it first.
+  dueAt       DateTime @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, key])
+  @@index([dueAt])
+}
+
+model StremioAuth {
+  id      String  @id @default("default")
+  authKey String
+  email   String?
+  // The profile that connected the account. The scheduled sync has no request
+  // to resolve one from, and defaulting to the oldest profile would file a
+  // second profile's viewing under someone else's name — the connect and import
+  // routes already act as the requesting profile, so the background job has to
+  // agree with them. Null on rows predating this column; those fall back to the
+  // default profile, which is what they were already doing.
+  profileId String? @db.Uuid
+
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+}
+
+model ScrobbleSession {
+  id           String          @id @default(uuid()) @db.Uuid
+  type         WatchEventType
+  imdbId       String
+  seriesImdbId String?
+  season       Int?
+  episode      Int?
+  status       ScrobbleStatus  @default(playing)
+  progress     Float           @default(0) // 0-100 percentage
+  startedAt    DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime        @updatedAt @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, imdbId, season, episode, status])
+  // What `cleanupStaleSessions` (routes/scrobble.ts) filters on, hourly. The
+  // index above leads with `profileId` and cannot serve it, so that job was a
+  // sequential scan of a table nothing bounds — stopped sessions are never
+  // deleted, so it grows with every play.
+  @@index([status, updatedAt])
+}
+
+// Where a profile stopped part-way through a film or an episode, so a player can
+// offer "resume from 42:10" — Trakt's /sync/playback. One row per title: saving
+// again moves it, and recording a watch of the title clears it. Written by
+// `PUT /playback` and by a scrobble that pauses or stops short of the
+// watched threshold (lib/playback.ts).
+model PlaybackProgress {
+  id String @id @default(uuid()) @db.Uuid
+  // "movie:tt0111161" / "episode:tt0903747:2:7" — the same explicit-key pattern
+  // as PlaySignal, for the same reason: a compound unique over the nullable
+  // season/episode columns would not stop a movie holding two resume points.
+  key  String
+  type WatchEventType
+  // The film, or the series for an episode (as WatchEvent stores it).
+  imdbId  String
+  season  Int?
+  episode Int?
+  progress        Float // 0-100 percentage
+  // Optional because Trakt-style clients only report a percentage; a player
+  // that knows the exact position should send it so the resume is precise.
+  positionSeconds Int?
+  durationSeconds Int?
+  pausedAt        DateTime @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, key])
+  @@index([profileId, pausedAt])
+}
+
+model Tag {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  items     ItemTag[]
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, name])
+  @@index([profileId])
+}
+
+model ItemTag {
+  tagId     String   @db.Uuid
+  type      ItemType
+  imdbId    String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([tagId, type, imdbId])
+  @@index([type, imdbId])
+}
+
+// Deliberately denormalized (unlike the Item/Metadata/Rating/ListItem split used for
+// movies/TV): games have no status system, watch history, or list membership, so one
+// profile-scoped row holds identity, artwork, and personal data together. Partial unique
+// indexes on (profileId, steamAppId) and (profileId, igdbId) (migration 20260715120000)
+// enforce no duplicates per profile without blocking rows missing one of the two ids —
+// not expressible in Prisma's schema DSL, so not declared here.
+model Game {
+  id              String    @id @default(uuid()) @db.Uuid
+  igdbId          Int?
+  steamAppId      Int?
+  title           String
+  coverUrl        String?
+  releaseDate     DateTime? @db.Date
+  genres          String[]  @default([])
+  playtimeMinutes Int       @default(0)
+  lastPlayedAt    DateTime? @db.Timestamptz(6)
+  rating          Float?
+  notes           String?   @db.Text
+  finished        Boolean   @default(false)
+  finishedAt      DateTime? @db.Date
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+}
+
+model Metadata {
+  imdbId        String
+  type          MetadataType
+  tmdbId        Int?
+  name          String
+  year          Int?
+  poster        String?
+  background    String?
+  description   String?      @db.Text
+  genres        String[]     @default([])
+  rating        Float?
+  voteCount     Int?
+  totalSeasons  Int?
+  totalEpisodes Int?
+  imdbRating    Float?
+  rtScore       Int?
+  mcScore       Int?
+  runtime       Int?
+  certification String?
+  status        String?
+  network       String?
+  releaseDate   String?
+  updatedAt     DateTime     @updatedAt @db.Timestamptz(6)
+
+  // A primary key rather than a unique constraint, for the reason given on
+  // ListItem: without one the table has no default replica identity. The
+  // compound-key argument (`imdbId_type`) is unchanged.
+  @@id([imdbId, type])
+}

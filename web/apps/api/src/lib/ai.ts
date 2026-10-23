@@ -1,0 +1,412 @@
+import { MetadataType } from "@prisma/client";
+import type { FastifyBaseLogger } from "fastify";
+import { prisma } from "./prisma.js";
+import { trendingCacheGet, trendingCacheSet, trendingCacheDelete, watchedImdbIdsCache } from "./cache.js";
+import { getTmdb } from "./tmdb-client.js";
+import { getRpdbApiKey, withRpdbPoster } from "./rpdb.js";
+import { upsertMetadata } from "./metadata.js";
+import { resolveAiProviderUrl } from "./ssrf.js";
+import { readSecretKv } from "./secret-store.js";
+import type { AiProviderConfig, StremioMetaPreview } from "./types.js";
+
+export const AI_CONFIG_KEY = "ai:config";
+export const AI_LAST_RECS_GENERATED_AT_KEY = "ai:lastRecsGeneratedAt";
+export const AI_RECS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Floor for a *saved* config's max_tokens. The per-request generation path
+// already computes a higher floor scaled to the requested limit, but this
+// keeps the persisted value itself from being set low enough to guarantee
+// truncation (e.g. the old UI default of 1024).
+export const MIN_AI_CONFIG_MAX_TOKENS = 2048;
+// Heuristic for the per-request token floor: a base allowance plus a
+// per-recommendation cost (title/year/type/reason text + JSON punctuation).
+const BASE_TOKENS = 400;
+const TOKENS_PER_RECOMMENDATION = 150;
+
+// The whole config is stored as one encrypted blob rather than just its
+// Authorization header: the header is the credential, but the URL of a private
+// LLM endpoint is worth no more exposure than it needs either, and one blob
+// means there is no half-encrypted row to reason about.
+export const getAiConfig = async (): Promise<AiProviderConfig | null> => {
+  const stored = await readSecretKv(AI_CONFIG_KEY);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored) as AiProviderConfig;
+  } catch {
+    return null;
+  }
+};
+
+export const isAiConfigured = async (): Promise<boolean> => {
+  const config = await getAiConfig();
+  return !!(config?.url && config?.headers && config?.payload?.model);
+};
+
+export const redactAiConfig = (config: AiProviderConfig): AiProviderConfig => ({
+  ...config,
+  headers: Object.fromEntries(
+    Object.entries(config.headers).map(([k, v]) => [
+      k,
+      k.toLowerCase() === "authorization" ? "Bearer ****" : v,
+    ])
+  ),
+  payload: {
+    ...config.payload,
+    // Configs saved before MIN_AI_CONFIG_MAX_TOKENS existed may still have a
+    // truncation-prone value on disk; reflect the effective (clamped) value
+    // here so the settings UI doesn't show a stale number.
+    max_tokens:
+      typeof config.payload.max_tokens === "number"
+        ? Math.max(config.payload.max_tokens, MIN_AI_CONFIG_MAX_TOKENS)
+        : config.payload.max_tokens,
+  },
+});
+
+export const shouldRefreshAiRecs = async (): Promise<boolean> => {
+  if (!(await isAiConfigured())) return false;
+
+  const lastGenRow = await prisma.kV.findUnique({ where: { key: AI_LAST_RECS_GENERATED_AT_KEY } });
+  if (!lastGenRow) return true;
+
+  const lastGen = new Date(lastGenRow.value);
+  if (isNaN(lastGen.getTime())) return true;
+  const daysSinceLastGen = (Date.now() - lastGen.getTime()) / (1000 * 60 * 60 * 24);
+  return daysSinceLastGen >= 7;
+};
+
+// Full watch history (not windowed like buildTasteProfile's last-50 events), used
+// to exclude already-watched titles from recommendations. Recommendation exclusion
+// needs completeness; the taste-profile signals below (genres/ratings/recency) don't.
+export const getWatchedImdbIds = async (profileId?: string): Promise<Set<string>> => {
+  const cacheKey = profileId ?? "__all__";
+  const cached = watchedImdbIdsCache.get(cacheKey);
+  if (cached) return cached;
+
+  const [movies, episodes] = await Promise.all([
+    prisma.watchEvent.findMany({
+      where: { ...(profileId ? { profileId } : undefined), type: "movie" },
+      distinct: ["imdbId"],
+      select: { imdbId: true },
+    }),
+    prisma.watchEvent.findMany({
+      where: { ...(profileId ? { profileId } : undefined), type: "episode", seriesImdbId: { not: null } },
+      distinct: ["seriesImdbId"],
+      select: { seriesImdbId: true },
+    }),
+  ]);
+  const ids = new Set([...movies.map((m) => m.imdbId), ...episodes.map((e) => e.seriesImdbId!)]);
+  watchedImdbIdsCache.set(cacheKey, ids);
+  return ids;
+};
+
+export const buildTasteProfile = async (profileId?: string) => {
+  // No profile means every profile — the taste profile behind the shared,
+  // profile-less recommendation cache. An empty filter rather than
+  // `where: undefined`: Prisma reads the two the same way, and only one of them
+  // typechecks once an optional property may not be explicitly undefined.
+  const scope = profileId ? { profileId } : {};
+
+  const recentEvents = await prisma.watchEvent.findMany({
+    where: scope,
+    orderBy: { watchedAt: "desc" },
+    take: 50,
+    distinct: ["imdbId"],
+    select: { imdbId: true, type: true, seriesImdbId: true },
+  });
+
+  const movieIds = recentEvents.filter((e) => e.type === "movie").map((e) => e.imdbId);
+  const seriesIds = recentEvents
+    .filter((e) => e.type === "episode" && e.seriesImdbId)
+    .map((e) => e.seriesImdbId!)
+    .filter(Boolean);
+  const allIds = [...new Set([...movieIds, ...seriesIds])];
+
+  const allMetadata =
+    allIds.length > 0
+      ? await prisma.metadata.findMany({
+          where: { imdbId: { in: allIds } },
+          select: { imdbId: true, name: true, genres: true },
+        })
+      : [];
+
+  const metaByImdbId = new Map(allMetadata.map((m) => [m.imdbId, m]));
+
+  const ratings = await prisma.rating.findMany({
+    where: scope,
+    orderBy: { updatedAt: "desc" },
+    take: 50,
+    select: { imdbId: true, rating: true },
+  });
+
+  const genreFreq = new Map<string, number>();
+  for (const id of allIds) {
+    const meta = metaByImdbId.get(id);
+    if (meta) {
+      for (const g of meta.genres) {
+        genreFreq.set(g, (genreFreq.get(g) ?? 0) + 1);
+      }
+    }
+  }
+  const topGenres = [...genreFreq.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([g]) => g);
+
+  const topRated = ratings
+    .filter((r) => r.rating >= 8)
+    .map((r) => {
+      const meta = metaByImdbId.get(r.imdbId);
+      return meta ? `${meta.name} (${r.rating}/10)` : null;
+    })
+    .filter((s): s is string => s !== null)
+    .slice(0, 15);
+
+  const recentTitles = recentEvents
+    .slice(0, 20)
+    .map((e) => {
+      const id = e.type === "episode" && e.seriesImdbId ? e.seriesImdbId : e.imdbId;
+      return metaByImdbId.get(id)?.name;
+    })
+    .filter((n): n is string => !!n);
+
+  const watchedImdbIds = await getWatchedImdbIds(profileId);
+
+  const avgRating =
+    ratings.length > 0
+      ? Math.round((ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length) * 10) / 10
+      : null;
+
+  return { topGenres, topRated, recentTitles, watchedImdbIds, avgRating };
+};
+
+const callAiProvider = async (
+  config: AiProviderConfig,
+  prompt: string,
+  minTokens = 0
+): Promise<string> => {
+  // Defense-in-depth: a config persisted before this validation existed (or by
+  // a future code path that skips the route check) must still not be able to
+  // drive an outbound request at a blocked SSRF target. Re-checked here rather
+  // than trusted from save time because the hostname's DNS records can change
+  // between the two.
+  if (!(await resolveAiProviderUrl(config.url))) {
+    throw new Error("AI provider URL is not an allowed outbound target");
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60_000);
+
+  const configuredMaxTokens = Math.max(
+    (config.payload.max_tokens as number | undefined) ?? 4096,
+    MIN_AI_CONFIG_MAX_TOKENS
+  );
+  const payload = {
+    ...config.payload,
+    messages: [{ role: "user", content: prompt }],
+    stream: false,
+    // Never go below what the requested recommendation count needs, even if the
+    // user's saved config specifies a smaller value — a low max_tokens silently
+    // truncates the JSON array mid-response, which surfaces as a parse failure.
+    max_tokens: Math.max(configuredMaxTokens, minTokens),
+  };
+
+  let response: Response;
+  try {
+    response = await fetch(config.url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...config.headers },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+      // Do not follow redirects: an allowed host must not be able to bounce the
+      // request (carrying any configured Authorization header) to an internal
+      // address the SSRF validator would otherwise reject.
+      redirect: "error",
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  if (!response.ok) {
+    // Deliberately do not echo the upstream response body: reflecting it would
+    // turn this into an SSRF probe that leaks internal responses to the caller.
+    throw new Error(`AI provider error (${response.status})`);
+  }
+
+  const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+  let content = data.choices?.[0]?.message?.content ?? "";
+
+  content = content.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  content = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+
+  return content;
+};
+
+type AiRecItem = { title: string; year?: number; type: "movie" | "series"; reason: string };
+
+const parseRecsFromContent = (content: string): AiRecItem[] => {
+  // Try direct parse first (ideal case: AI returned only JSON)
+  try {
+    const parsed = JSON.parse(content);
+    if (Array.isArray(parsed)) return parsed as AiRecItem[];
+  } catch { /* not valid JSON on its own — fall through to bracket-matching */ }
+
+  // Use bracket-matching to extract the first JSON array, avoiding greedy regex
+  // overshoot when the AI appends trailing text containing "]"
+  const start = content.indexOf("[");
+  if (start === -1) {
+    // An unterminated <think> block means generation was cut off by max_tokens
+    // while still reasoning, before it ever got to the JSON — the fix is more
+    // headroom, not better parsing.
+    if (/<think>/i.test(content)) {
+      throw new Error(
+        "AI response was truncated mid-reasoning before producing any output — increase max_tokens"
+      );
+    }
+    throw new Error("No JSON array in AI response");
+  }
+
+  let depth = 0;
+  let end = -1;
+  for (let i = start; i < content.length; i++) {
+    if (content[i] === "[") depth++;
+    else if (content[i] === "]") {
+      depth--;
+      if (depth === 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+
+  if (end === -1) {
+    throw new Error(
+      "AI response was truncated before the JSON array closed — increase max_tokens or lower the recommendation limit"
+    );
+  }
+
+  try {
+    return JSON.parse(content.slice(start, end + 1)) as AiRecItem[];
+  } catch (e) {
+    throw new Error(
+      `Failed to parse AI response as JSON: ${e instanceof Error ? e.message : String(e)}`,
+      { cause: e }
+    );
+  }
+};
+
+// Guards against firing a duplicate background regeneration for the same cache
+// key while one is already in flight (e.g. concurrent movie/series page-load
+// requests both finding a just-filtered-short cached list).
+const regeneratingCacheKeys = new Set<string>();
+
+export const getAiRecommendations = async (
+  type: "movie" | "series",
+  limit = 10,
+  profileId?: string,
+  logger?: FastifyBaseLogger
+): Promise<{ metas: StremioMetaPreview[]; reasons: Record<string, string> } | null> => {
+  const cacheKey = `ai-recs:${type}:${limit}${profileId ? `:${profileId}` : ""}`;
+  const cached = trendingCacheGet(cacheKey);
+  if (cached) {
+    // The cache lives up to AI_RECS_TTL_MS and isn't purged on every watch event
+    // (regeneration is rate-limited by shouldRefreshAiRecs), so titles watched
+    // since the cache was populated must be filtered out here rather than relying
+    // on the exclusion check at generation time.
+    const watchedIds = await getWatchedImdbIds(profileId);
+    const metas = cached.data.filter((m) => !watchedIds.has(m.id));
+    const reasons = Object.fromEntries(
+      Object.entries(cached.reasons ?? {}).filter(([id]) => !watchedIds.has(id))
+    );
+
+    // Filtering can leave fewer than `limit` items with nothing to top up from —
+    // regenerate in the background (an LLM round trip is too slow to do inline)
+    // so the next request gets a full list again.
+    if (metas.length < limit && metas.length < cached.data.length && !regeneratingCacheKeys.has(cacheKey)) {
+      regeneratingCacheKeys.add(cacheKey);
+      trendingCacheDelete(cacheKey);
+      void getAiRecommendations(type, limit, profileId, logger)
+        .catch((error) => logger?.debug({ error }, "Background AI recs top-up failed"))
+        .finally(() => regeneratingCacheKeys.delete(cacheKey));
+    }
+
+    return { metas, reasons };
+  }
+
+  const config = await getAiConfig();
+  if (!config) return null;
+
+  try {
+    const profile = await buildTasteProfile(profileId);
+    const avgRatingStr = profile.avgRating !== null ? `${profile.avgRating}/10` : "unrated";
+    const typeLabel = type === "movie" ? "movies" : "TV series";
+
+    const prompt = `You are a ${type} recommendation engine with deep knowledge of film and television.
+
+User taste profile:
+- Top genres: ${profile.topGenres.join(", ") || "unknown"}
+- Highly rated: ${profile.topRated.join(", ") || "none yet"}
+- Recently watched: ${profile.recentTitles.join(", ") || "nothing yet"}
+- Average rating they give: ${avgRatingStr}
+
+Recommend exactly ${limit} ${typeLabel} this user has NOT already watched. Be specific and varied.
+
+Return ONLY a JSON array, no other text, no markdown:
+[
+  {
+    "title": "exact title",
+    "year": release year as number,
+    "type": "${type}",
+    "reason": "one sentence why based on their taste"
+  }
+]`;
+
+    // Without this floor a low configured max_tokens truncates the array well
+    // before `limit` items are reached.
+    const minTokens = BASE_TOKENS + limit * TOKENS_PER_RECOMMENDATION;
+    const content = await callAiProvider(config, prompt, minTokens);
+    const recs = parseRecsFromContent(content);
+
+    const tmdb = await getTmdb();
+    const metaType = type === "movie" ? MetadataType.movie : MetadataType.series;
+    const rpdbKey = await getRpdbApiKey();
+    const metas: StremioMetaPreview[] = [];
+    const reasons: Record<string, string> = {};
+
+    for (const rec of recs) {
+      if (metas.length >= limit) break;
+      try {
+        const results = await tmdb.search(metaType, rec.title);
+        const [first] = results ?? [];
+        if (!first) continue;
+        if (profile.watchedImdbIds.has(first.imdbId)) continue;
+        await upsertMetadata(first);
+        metas.push({
+          id: first.imdbId,
+          type,
+          name: first.name,
+          poster: withRpdbPoster(first.imdbId, first.poster, rpdbKey) ?? undefined,
+          year: first.year ?? undefined,
+          description: first.description ?? undefined,
+          genres: first.genres,
+          rating: first.rating ?? undefined,
+        });
+        reasons[first.imdbId] = rec.reason;
+      } catch (error) {
+        logger?.debug({ error, title: rec.title }, "Skipped failed AI recommendation lookup");
+      }
+    }
+
+    trendingCacheSet(cacheKey, { data: metas, reasons }, AI_RECS_TTL_MS);
+
+    const now = new Date();
+    await prisma.kV.upsert({
+      where: { key: AI_LAST_RECS_GENERATED_AT_KEY },
+      create: { key: AI_LAST_RECS_GENERATED_AT_KEY, value: now.toISOString(), updatedAt: now },
+      update: { value: now.toISOString(), updatedAt: now },
+    });
+
+    return { metas, reasons };
+  } catch (err) {
+    logger?.error(err, "AI recommendations generation failed");
+    return null;
+  }
+};

@@ -1,0 +1,16 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  # The checks themselves live in verify.yml, which dockerpublish.yml calls too,
+  # so the bar a commit clears here is the same bar an image clears before it is
+  # pushed.
+  verify:
+    uses: ./.github/workflows/verify.yml
+    permissions:
+      contents: read

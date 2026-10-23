@@ -1,0 +1,38 @@
+{
+  "name": "@cataloggy/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "prisma migrate deploy && node dist/index.js",
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "typecheck": "prisma generate && tsc -p tsconfig.json --noEmit",
+    "lint": "prisma generate && eslint src",
+    "test": "prisma generate && vitest run",
+    "test:int": "prisma generate && vitest run --config vitest.int.config.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push"
+  },
+  "dependencies": {
+    "@cataloggy/shared": "workspace:*",
+    "@fastify/compress": "^9.2.0",
+    "@fastify/rate-limit": "^11.2.0",
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "fastify": "^5.12.5",
+    "lru-cache": "^11.5.2",
+    "pg": "^8.23.0",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.21.0",
+    "@types/web-push": "^3.6.4",
+    "prisma": "^7.9.1",
+    "tsx": "^4.23.12",
+    "vitest": "^4.1.10"
+  }
+}

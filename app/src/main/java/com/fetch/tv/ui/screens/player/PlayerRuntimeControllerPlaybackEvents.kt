@@ -1188,6 +1188,14 @@ fun PlayerRuntimeController.onUserInteraction() {
     }
 }
 
+// The expanded "more actions" row holds the controls open, so resuming has to fold it
+// or the controls never auto-hide (NuvioTV#3706).
+private fun PlayerRuntimeController.collapseMoreActionsOnResume() {
+    if (_uiState.value.showMoreDialog) {
+        _uiState.update { it.copy(showMoreDialog = false) }
+    }
+}
+
 fun PlayerRuntimeController.hideControls() {
     hideControlsJob?.cancel()
     _uiState.update { it.copy(showControls = false, showSeekOverlay = false, showMoreDialog = false) }
@@ -1215,6 +1223,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 } else {
                     userPausedManually = false
                     cancelPauseOverlay()
+                    collapseMoreActionsOnResume()
                     setPlaybackPaused(false)
                     startProgressUpdates()
                     startWatchProgressSaving()
@@ -1231,6 +1240,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     } else {
                         userPausedManually = false
                         cancelPauseOverlay()
+                        collapseMoreActionsOnResume()
                         player.play()
                     }
                     publishPartyPlayback(paused = !player.playWhenReady)

@@ -2336,16 +2336,23 @@ private fun PlayerView.applySubtitleStyleIfNeeded(
             androidx.media3.ui.CaptionStyleCompat.EDGE_TYPE_NONE
         }
 
+        val layerColors = subtitleLayerColors(
+            textColor = subtitleStyle.textColor,
+            backgroundColor = subtitleStyle.backgroundColor,
+            outlineColor = subtitleStyle.outlineColor,
+            outlineEnabled = subtitleStyle.outlineEnabled
+        )
         setStyle(
             androidx.media3.ui.CaptionStyleCompat(
-                subtitleStyle.textColor,
-                subtitleStyle.backgroundColor,
+                layerColors.text,
+                layerColors.background,
                 android.graphics.Color.TRANSPARENT,
                 edgeType,
-                subtitleStyle.outlineColor,
+                layerColors.outline,
                 typeface
             )
         )
+        alpha = layerColors.layerAlpha
 
         setApplyEmbeddedStyles(!isAss)
 
@@ -2392,6 +2399,9 @@ private fun PlayerView.syncLibassOverlay(
     }
 
     val assHandler = player.getAssHandlerCompat() ?: return
+    if (renderType == LibassRenderType.OVERLAY_OPEN_GL) {
+        matchOverlayToVideoFrame(overlayContainer)
+    }
     if (boundPlayer === player && hasOverlayChild) {
         return
     }
@@ -2406,6 +2416,36 @@ private fun PlayerView.syncLibassOverlay(
         )
     )
     setTag(R.id.libass_overlay_bound_player, player)
+}
+
+/**
+ * Keeps the OpenGL overlay on the video frame. libass lays the script out in the video surface's
+ * size but the GL view draws from its own top-left corner, so a full-screen overlay put 4:3
+ * subtitles left of center and letterboxed ones too high (NuvioTV#3933).
+ */
+private fun PlayerView.matchOverlayToVideoFrame(overlayContainer: android.widget.FrameLayout) {
+    if (overlayContainer.getTag(R.id.libass_overlay_frame_listener) != null) return
+    val contentFrame = findViewById<android.view.View>(androidx.media3.ui.R.id.exo_content_frame) ?: return
+    val mirrorFrame = {
+        val params = overlayContainer.layoutParams as? android.widget.FrameLayout.LayoutParams
+        val width = contentFrame.width
+        val height = contentFrame.height
+        if (params != null && width > 0 && height > 0 &&
+            (params.width != width || params.height != height || params.gravity != android.view.Gravity.CENTER)
+        ) {
+            params.width = width
+            params.height = height
+            params.gravity = android.view.Gravity.CENTER
+            overlayContainer.layoutParams = params
+        }
+    }
+    val listener = android.view.View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+        // Re-laying out the overlay from inside this pass would be ignored until the next one.
+        overlayContainer.post(mirrorFrame)
+    }
+    contentFrame.addOnLayoutChangeListener(listener)
+    overlayContainer.setTag(R.id.libass_overlay_frame_listener, listener)
+    mirrorFrame()
 }
 
 private fun LibassRenderType.usesOverlaySubtitleView(): Boolean {

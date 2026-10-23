@@ -209,6 +209,9 @@ private const val SIDEBAR_AUTO_COLLAPSE_DELAY_MS = 3_000L
 
 private const val MAX_SUPPORTED_FONT_SCALE = 1.15f
 
+private const val STATE_LAUNCH_PENDING = "fetch.launch_pending"
+private const val STATE_DEEP_LINK_PENDING = "fetch.deep_link_pending"
+
 data class DrawerItem(
     val route: String,
     val label: String,
@@ -326,6 +329,9 @@ open class MainActivity : ComponentActivity() {
     /** True until the first onResume after onCreate completes. */
     private var isFirstResumeAfterCreate = false
 
+    // Whether this activity's launch extras still wait to be navigated to.
+    private var launchExtrasPending = false
+
     @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
     override fun attachBaseContext(newBase: Context) {
         val tag = LocaleCache.localeTag.takeIf { it != LocaleCache.UNSET }
@@ -362,18 +368,30 @@ open class MainActivity : ComponentActivity() {
         }
 
         // Extract extras set by the Continue Watching launcher channel preview programs.
-        val launchContentId = intent?.getStringExtra("contentId")
-        val launchContentType = intent?.getStringExtra("contentType")
-        val launchMode = intent?.getStringExtra("launchMode")
-        val launchVideoId = intent?.getStringExtra("videoId")
-        val launchName = intent?.getStringExtra("name")
-        val launchPoster = intent?.getStringExtra("poster")
-        val launchBackdrop = intent?.getStringExtra("backdrop")
-        val launchLogo = intent?.getStringExtra("logo")
-        val launchSeason = intent?.getIntExtra("season", -1)?.takeIf { it >= 0 }
-        val launchEpisode = intent?.getIntExtra("episode", -1)?.takeIf { it >= 0 }
-        val launchEpisodeTitle = intent?.getStringExtra("episodeTitle")
-        captureDeepLinkIntent(intent)
+        // A recreated activity (e.g. after the system killed the app behind a screensaver) still
+        // carries the original launch intent. Replaying one that was already handled would
+        // navigate back to the episode the session started on instead of the restored one
+        // (NuvioTV#3502), so a recreated activity only acts on what was still pending.
+        val launchIntent = intent?.takeIf {
+            savedInstanceState == null || savedInstanceState.getBoolean(STATE_LAUNCH_PENDING)
+        }
+        val launchContentId = launchIntent?.getStringExtra("contentId")
+        val launchContentType = launchIntent?.getStringExtra("contentType")
+        val launchMode = launchIntent?.getStringExtra("launchMode")
+        val launchVideoId = launchIntent?.getStringExtra("videoId")
+        val launchName = launchIntent?.getStringExtra("name")
+        val launchPoster = launchIntent?.getStringExtra("poster")
+        val launchBackdrop = launchIntent?.getStringExtra("backdrop")
+        val launchLogo = launchIntent?.getStringExtra("logo")
+        val launchSeason = launchIntent?.getIntExtra("season", -1)?.takeIf { it >= 0 }
+        val launchEpisode = launchIntent?.getIntExtra("episode", -1)?.takeIf { it >= 0 }
+        val launchEpisodeTitle = launchIntent?.getStringExtra("episodeTitle")
+        launchExtrasPending = launchContentId != null && launchContentType != null
+        captureDeepLinkIntent(
+            intent?.takeIf {
+                savedInstanceState == null || savedInstanceState.getBoolean(STATE_DEEP_LINK_PENDING)
+            }
+        )
 
         setContent {
             var hasSelectedProfileThisSession by rememberSaveable { mutableStateOf(false) }
@@ -918,6 +936,7 @@ open class MainActivity : ComponentActivity() {
                                     )
                                 )
                             }
+                            launchExtrasPending = false
                         }
                     }
 
@@ -1293,6 +1312,12 @@ open class MainActivity : ComponentActivity() {
         val launchMode = intent.getStringExtra("launchMode") ?: return
         if (launchMode != "stream") return
         pendingLaunchIntent.value = intent
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(STATE_LAUNCH_PENDING, launchExtrasPending || pendingLaunchIntent.value != null)
+        outState.putBoolean(STATE_DEEP_LINK_PENDING, pendingDeepLinkUrl.value != null)
     }
 
     override fun onPause() {

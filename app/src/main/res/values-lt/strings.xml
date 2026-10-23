@@ -1111,4 +1111,9 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="settings_search_hint">Ieškoti nustatymų</string>
     <string name="settings_search_prompt">Įveskite dalį nustatymo pavadinimo.</string>
     <string name="settings_search_empty">Nė vienas nustatymas neatitinka \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Suderinta %1$s</string>
+    <string name="playback_details_refresh_display">Ekranas %1$s</string>
+    <string name="playback_details_audio_passthrough">Garso perdavimas</string>
+    <string name="playback_details_audio_decoded">Dekoduotas garsas</string>
+    <string name="playback_details_sources_hint">Aukštyn – šaltiniai</string>
 </resources>

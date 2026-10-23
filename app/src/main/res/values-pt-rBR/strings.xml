@@ -2831,4 +2831,9 @@
     <string name="settings_search_hint">Pesquisar configurações</string>
     <string name="settings_search_prompt">Digite parte do nome de uma configuração.</string>
     <string name="settings_search_empty">Nenhuma configuração corresponde a \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Ajustado %1$s</string>
+    <string name="playback_details_refresh_display">Tela %1$s</string>
+    <string name="playback_details_audio_passthrough">Áudio em passthrough</string>
+    <string name="playback_details_audio_decoded">Áudio decodificado</string>
+    <string name="playback_details_sources_hint">Para cima para fontes</string>
 </resources>

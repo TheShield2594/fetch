@@ -1201,4 +1201,9 @@
     <string name="settings_search_hint">Søk i innstillinger</string>
     <string name="settings_search_prompt">Skriv inn en del av navnet på en innstilling.</string>
     <string name="settings_search_empty">Ingen innstillinger samsvarer med \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Tilpasset %1$s</string>
+    <string name="playback_details_refresh_display">Skjerm %1$s</string>
+    <string name="playback_details_audio_passthrough">Lyd-passthrough</string>
+    <string name="playback_details_audio_decoded">Lyd dekodet</string>
+    <string name="playback_details_sources_hint">Opp for kilder</string>
 </resources>

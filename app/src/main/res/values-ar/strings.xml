@@ -2727,4 +2727,9 @@
     <string name="settings_search_hint">البحث في الإعدادات</string>
     <string name="settings_search_prompt">اكتب جزءًا من اسم الإعداد.</string>
     <string name="settings_search_empty">لا توجد إعدادات تطابق \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">مطابق %1$s</string>
+    <string name="playback_details_refresh_display">الشاشة %1$s</string>
+    <string name="playback_details_audio_passthrough">تمرير الصوت</string>
+    <string name="playback_details_audio_decoded">صوت مفكوك</string>
+    <string name="playback_details_sources_hint">أعلى للمصادر</string>
 </resources>

@@ -2889,4 +2889,9 @@
     <string name="settings_search_hint">搜索设置</string>
     <string name="settings_search_prompt">输入设置名称的一部分。</string>
     <string name="settings_search_empty">没有与“%1$s”匹配的设置。</string>
+    <string name="playback_details_refresh_matched">已匹配 %1$s</string>
+    <string name="playback_details_refresh_display">显示器 %1$s</string>
+    <string name="playback_details_audio_passthrough">音频直通</string>
+    <string name="playback_details_audio_decoded">音频已解码</string>
+    <string name="playback_details_sources_hint">按上键查看来源</string>
 </resources>

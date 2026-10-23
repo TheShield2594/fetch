@@ -2455,4 +2455,9 @@
     <string name="settings_search_hint">Търсене в настройките</string>
     <string name="settings_search_prompt">Въведете част от името на настройка.</string>
     <string name="settings_search_empty">Няма настройки, съвпадащи с \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Съвпадение %1$s</string>
+    <string name="playback_details_refresh_display">Екран %1$s</string>
+    <string name="playback_details_audio_passthrough">Директно предаване на звука</string>
+    <string name="playback_details_audio_decoded">Декодиран звук</string>
+    <string name="playback_details_sources_hint">Нагоре за източници</string>
 </resources>

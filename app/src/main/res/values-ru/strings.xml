@@ -2786,4 +2786,9 @@
     <string name="settings_search_hint">Поиск по настройкам</string>
     <string name="settings_search_prompt">Введите часть названия настройки.</string>
     <string name="settings_search_empty">Нет настроек, подходящих под \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Подобрано %1$s</string>
+    <string name="playback_details_refresh_display">Экран %1$s</string>
+    <string name="playback_details_audio_passthrough">Прямой вывод звука</string>
+    <string name="playback_details_audio_decoded">Звук декодируется</string>
+    <string name="playback_details_sources_hint">Вверх — источники</string>
 </resources>

@@ -83,6 +83,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -263,6 +264,9 @@ fun PlayerScreen(
     val subtitleDelaySyncLineFocusRequester = remember { FocusRequester() }
     var subtitleTimingConsumeNextConfirmKeyUp by remember { mutableStateOf(false) }
     var reportCodeVisible by remember { mutableStateOf(false) }
+    // Up with the controls hidden opens the playback details bar; each press restarts its timer.
+    var showPlaybackDetails by remember { mutableStateOf(false) }
+    var playbackDetailsPresses by remember { mutableIntStateOf(0) }
     var exitDispatched by remember { mutableStateOf(false) }
     var externalHandoffInProgress by remember { mutableStateOf(false) }
     val autoPlayEnabledForBack = playerBackTreatsSkipAsAutoPlay(
@@ -364,6 +368,10 @@ fun PlayerScreen(
         if (externalHandoffInProgress) return@handleBackPress
         if (preferNextTimeFocused) {
             dismissPreferNextTime()
+            return@handleBackPress
+        }
+        if (showPlaybackDetails) {
+            showPlaybackDetails = false
             return@handleBackPress
         }
         if (postPlayRecommendationState.canReturnToPlayer && !uiState.playbackEnded) {
@@ -930,7 +938,15 @@ fun PlayerScreen(
                         }
                         KeyEvent.KEYCODE_DPAD_UP -> {
                                 if (!uiState.showControls) {
-                                    viewModel.onEvent(PlayerEvent.OnToggleControls)
+                                    if (showPlaybackDetails) {
+                                        // The second Up goes on to the sources behind the details.
+                                        showPlaybackDetails = false
+                                        panelReturnFocus = panelButtonFocus.sources
+                                        viewModel.onEvent(PlayerEvent.OnShowSourcesPanel)
+                                    } else {
+                                        showPlaybackDetails = true
+                                        playbackDetailsPresses++
+                                    }
                                 } else {
                                     try {
                                         progressBarFocusRequester.requestFocus()
@@ -1461,6 +1477,32 @@ fun PlayerScreen(
                 viewModel.onEvent(PlayerEvent.OnParentalGuideHide)
             },
             modifier = Modifier.align(Alignment.TopStart)
+        )
+
+        LaunchedEffect(showPlaybackDetails, playbackDetailsPresses) {
+            if (showPlaybackDetails) {
+                delay(PLAYBACK_DETAILS_VISIBLE_MS)
+                showPlaybackDetails = false
+            }
+        }
+        // The controls carry the same spec line, so the bar steps aside for them and any panel.
+        LaunchedEffect(uiState.showControls, uiState.showPauseOverlay) {
+            if (uiState.showControls || uiState.showPauseOverlay) showPlaybackDetails = false
+        }
+        val detailsCachedLabel = stringResource(R.string.best_match_cached)
+        val detailsSpecLine = remember(uiState.currentSourceSpecLabels, uiState.currentSourceIsCached, detailsCachedLabel) {
+            playerSourceSpecLine(uiState.currentSourceSpecLabels, uiState.currentSourceIsCached, detailsCachedLabel)
+        }
+        PlaybackDetailsBar(
+            visible = showPlaybackDetails && !uiState.showControls && uiState.error == null &&
+                !uiState.showLoadingOverlay && !postPlayRecommendationState.isVisible,
+            specLine = detailsSpecLine,
+            displayModeInfo = uiState.displayModeInfo,
+            frameRateMatchingMode = uiState.frameRateMatchingMode,
+            snapshot = viewModel::playbackDetailsSnapshot,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .zIndex(2.8f)
         )
 
         DisplayModeOverlay(

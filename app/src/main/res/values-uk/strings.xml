@@ -2491,4 +2491,9 @@
     <string name="settings_search_hint">Пошук у налаштуваннях</string>
     <string name="settings_search_prompt">Введіть частину назви налаштування.</string>
     <string name="settings_search_empty">Немає налаштувань, що відповідають \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Підібрано %1$s</string>
+    <string name="playback_details_refresh_display">Екран %1$s</string>
+    <string name="playback_details_audio_passthrough">Прямий вивід звуку</string>
+    <string name="playback_details_audio_decoded">Звук декодується</string>
+    <string name="playback_details_sources_hint">Вгору — джерела</string>
 </resources>

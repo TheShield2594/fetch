@@ -2466,4 +2466,9 @@
     <string name="settings_search_hint">Søg i indstillinger</string>
     <string name="settings_search_prompt">Skriv en del af en indstillings navn.</string>
     <string name="settings_search_empty">Ingen indstillinger matcher \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Matchet %1$s</string>
+    <string name="playback_details_refresh_display">Skærm %1$s</string>
+    <string name="playback_details_audio_passthrough">Lyd-passthrough</string>
+    <string name="playback_details_audio_decoded">Lyd afkodet</string>
+    <string name="playback_details_sources_hint">Op for kilder</string>
 </resources>

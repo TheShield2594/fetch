@@ -2193,4 +2193,9 @@
     <string name="settings_search_hint">Iskanje po nastavitvah</string>
     <string name="settings_search_prompt">Vnesite del imena nastavitve.</string>
     <string name="settings_search_empty">Nobena nastavitev se ne ujema z \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Usklajeno %1$s</string>
+    <string name="playback_details_refresh_display">Zaslon %1$s</string>
+    <string name="playback_details_audio_passthrough">Prepuščanje zvoka</string>
+    <string name="playback_details_audio_decoded">Dekodiran zvok</string>
+    <string name="playback_details_sources_hint">Gor za vire</string>
 </resources>

@@ -2576,4 +2576,9 @@
     <string name="settings_search_hint">Kërko te cilësimet</string>
     <string name="settings_search_prompt">Shkruaj një pjesë të emrit të një cilësimi.</string>
     <string name="settings_search_empty">Asnjë cilësim nuk përputhet me \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Përputhur %1$s</string>
+    <string name="playback_details_refresh_display">Ekrani %1$s</string>
+    <string name="playback_details_audio_passthrough">Kalim i drejtpërdrejtë i audios</string>
+    <string name="playback_details_audio_decoded">Audio e dekoduar</string>
+    <string name="playback_details_sources_hint">Lart për burimet</string>
 </resources>

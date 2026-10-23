@@ -172,7 +172,7 @@ fun DisplayModeOverlay(
     }
 }
 
-private fun formatHz(rate: Float): String {
+internal fun formatHz(rate: Float): String {
     val rounded = (rate * 1000f).roundToInt() / 1000f
     val whole = rounded.roundToInt()
     val display = if (abs(rounded - whole.toFloat()) < 0.01f) {

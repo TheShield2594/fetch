@@ -2302,4 +2302,9 @@
     <string name="settings_search_hint">Cari setelan</string>
     <string name="settings_search_prompt">Ketik sebagian nama setelan.</string>
     <string name="settings_search_empty">Tidak ada setelan yang cocok dengan \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Disesuaikan %1$s</string>
+    <string name="playback_details_refresh_display">Layar %1$s</string>
+    <string name="playback_details_audio_passthrough">Audio passthrough</string>
+    <string name="playback_details_audio_decoded">Audio didekode</string>
+    <string name="playback_details_sources_hint">Atas untuk sumber</string>
 </resources>

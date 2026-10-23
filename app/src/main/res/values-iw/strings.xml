@@ -3042,4 +3042,9 @@
     <string name="settings_search_hint">חיפוש בהגדרות</string>
     <string name="settings_search_prompt">הקלידו חלק משם של הגדרה.</string>
     <string name="settings_search_empty">אין הגדרות שתואמות ל-\"%1$s\".</string>
+    <string name="playback_details_refresh_matched">הותאם %1$s</string>
+    <string name="playback_details_refresh_display">מסך %1$s</string>
+    <string name="playback_details_audio_passthrough">העברת שמע ישירה</string>
+    <string name="playback_details_audio_decoded">שמע מפוענח</string>
+    <string name="playback_details_sources_hint">למעלה למקורות</string>
 </resources>

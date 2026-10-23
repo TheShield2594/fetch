@@ -2893,4 +2893,9 @@
     <string name="settings_search_hint">Buscar ajustes</string>
     <string name="settings_search_prompt">Escribe parte del nombre de un ajuste.</string>
     <string name="settings_search_empty">Ningún ajuste coincide con \"%1$s\".</string>
+    <string name="playback_details_refresh_matched">Coincide a %1$s</string>
+    <string name="playback_details_refresh_display">Pantalla a %1$s</string>
+    <string name="playback_details_audio_passthrough">Audio sin decodificar (passthrough)</string>
+    <string name="playback_details_audio_decoded">Audio decodificado</string>
+    <string name="playback_details_sources_hint">Arriba para fuentes</string>
 </resources>

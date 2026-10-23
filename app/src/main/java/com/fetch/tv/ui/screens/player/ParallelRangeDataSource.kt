@@ -307,11 +307,13 @@ internal class ParallelRangeDataSource(
                 try { ds.close() } catch (_: Exception) {}
             }
             session.activeSources.clear()
-            val indices = session.futures.keys.toList()
-            for (index in indices) {
-                evictFuture(session, index, poolCap)
+            // Evict rather than clear: whoever removes a future from the map hands its chunk back,
+            // and clearing dropped chunks scheduled on another thread while this ran (#76).
+            while (session.futures.isNotEmpty()) {
+                for (index in session.futures.keys.toList()) {
+                    evictFuture(session, index, poolCap)
+                }
             }
-            session.futures.clear()
             session.lastTouch.clear()
             session.inFlight.clear()
         }
@@ -468,12 +470,13 @@ internal class ParallelRangeDataSource(
         }
 
         private fun clearGlobalPool() {
+            // Drain the deques but keep them mapped: a worker recycling a chunk right now may
+            // already hold one, and a deque dropped from the map strands what it adds (#76).
             globalBufferPool.values.forEach { pool ->
                 while (true) {
                     freeBuffer(pool.pollFirst() ?: break)
                 }
             }
-            globalBufferPool.clear()
             Log.d(TAG, "Cleared global buffer pool as all ParallelRangeDataSource instances are closed")
         }
     }
@@ -1166,6 +1169,11 @@ internal class ParallelRangeDataSource(
             }
             future
         }
+        // The download can finish before computeIfAbsent maps its future. A teardown in that gap
+        // misses the future, so hand the chunk back here once the session is abandoned (#76).
+        if (activeSession.abandoned.get()) {
+            evictFuture(activeSession, chunkIndex, maxPoolSize)
+        }
     }
 
     private fun downloadChunk(activeSession: ChunkSession, chunkIndex: Long, future: CompletableFuture<*>): DownloadedChunk {
@@ -1372,26 +1380,28 @@ internal class ParallelRangeDataSource(
         val buffer = acquireBuffer()
 
         val inFlight = InFlightChunk(buffer)
-        activeSession.inFlight[chunkIndex] = inFlight
-        val tempArray = readBufferLocal.get()!!
         var totalRead = 0
-        var consecutiveZeroReads = 0
-
-        if (obsAnnounced.compareAndSet(false, true)) {
-            Log.w(TAG, "OBS_ACTIVE build=hedge-3a minOpenMs=$HEDGE_MIN_OPEN_MS " +
-                "windowMs=$HEDGE_WINDOW_MS stallRateBps=$HEDGE_STALL_RATE_BPS " +
-                "maxRestarts=$HEDGE_MAX_RESTARTS")
-        }
-
-        val hedgeChunkT0 = SystemClock.elapsedRealtime()
-        var hedgeLastCheckT0 = hedgeChunkT0
-        var hedgeLastCheckBytes = 0
-
-        val hedgeIsUsenet = activeSession.resolvedUri?.path?.contains("/usenet/") == true
-        val hedgeStallRateBps = if (hedgeIsUsenet) HEDGE_STALL_RATE_USENET else HEDGE_STALL_RATE_CDN
-        val hedgeWindowsRequired = if (hedgeIsUsenet) HEDGE_WINDOWS_USENET else HEDGE_WINDOWS_CDN
-        var hedgeConsecutiveStalled = 0
+        // Everything after the buffer is acquired runs inside the try, so a failure anywhere
+        // before the chunk is handed out gives the buffer back (#76).
         try {
+            activeSession.inFlight[chunkIndex] = inFlight
+            val tempArray = readBufferLocal.get()!!
+            var consecutiveZeroReads = 0
+
+            if (obsAnnounced.compareAndSet(false, true)) {
+                Log.w(TAG, "OBS_ACTIVE build=hedge-3a minOpenMs=$HEDGE_MIN_OPEN_MS " +
+                    "windowMs=$HEDGE_WINDOW_MS stallRateBps=$HEDGE_STALL_RATE_BPS " +
+                    "maxRestarts=$HEDGE_MAX_RESTARTS")
+            }
+
+            val hedgeChunkT0 = SystemClock.elapsedRealtime()
+            var hedgeLastCheckT0 = hedgeChunkT0
+            var hedgeLastCheckBytes = 0
+
+            val hedgeIsUsenet = activeSession.resolvedUri?.path?.contains("/usenet/") == true
+            val hedgeStallRateBps = if (hedgeIsUsenet) HEDGE_STALL_RATE_USENET else HEDGE_STALL_RATE_CDN
+            val hedgeWindowsRequired = if (hedgeIsUsenet) HEDGE_WINDOWS_USENET else HEDGE_WINDOWS_CDN
+            var hedgeConsecutiveStalled = 0
             while (!activeSession.abandoned.get()) {
                 if (future.isCancelled) {
                     throw IOException("Chunk download cancelled")
@@ -1449,7 +1459,7 @@ internal class ParallelRangeDataSource(
             if (expectedBytes > 0L && totalRead < expectedBytes && !activeSession.abandoned.get()) {
                 throw IOException("Short chunk: read $totalRead of $expectedBytes bytes")
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             releaseInFlightBuffer(activeSession, chunkIndex, inFlight, buffer)
             if (activeSession.abandoned.get()) throw IOException("Session abandoned")
             throw e

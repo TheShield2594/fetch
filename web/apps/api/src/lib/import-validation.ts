@@ -13,7 +13,7 @@
  *     `null.name` and does the same.
  */
 
-/** Every id Cataloggy stores is an IMDb id; the Plex webhook already parses this shape. */
+/** Every id Fetch stores is an IMDb id; the Plex webhook already parses this shape. */
 const IMDB_ID_PATTERN = /^tt\d+$/;
 
 /** Prisma `Int` columns are 32-bit — past this the database rejects the write, not the model. */

@@ -61,7 +61,7 @@ const imdbIdOf = (ids: EmbyProviderIds | undefined): string | null => {
 };
 
 /**
- * Cataloggy keys a series by its IMDb id, so an episode has to arrive with one.
+ * Fetch keys a series by its IMDb id, so an episode has to arrive with one.
  *
  * `SeriesProviderIds` is the right answer and the one to prefer, but Emby only
  * sends it on some builds and only when the series was scraped from a source
@@ -98,7 +98,7 @@ const embyWebhookRoutes: FastifyPluginAsync = async (app) => {
 
     // Emby webhooks fire for every library type it plays, music and home videos
     // included. Jellyfin's route treats everything that is not an episode as a
-    // film; here the two kinds Cataloggy stores are named, and the rest are
+    // film; here the two kinds Fetch stores are named, and the rest are
     // turned away with a reason rather than filed as films.
     const itemType = normalizeName(item.Type);
     if (itemType !== "episode" && itemType !== "movie") {
@@ -109,7 +109,7 @@ const embyWebhookRoutes: FastifyPluginAsync = async (app) => {
     const imdbId = itemType === "episode" ? seriesImdbIdOf(item) : imdbIdOf(item.ProviderIds);
     if (!imdbId) {
       // The ids that *were* present are the diagnosis: an item Emby only holds a
-      // Tvdb id for is a scraper setting, not a Cataloggy fault, and the log line
+      // Tvdb id for is a scraper setting, not a Fetch fault, and the log line
       // is where that gets seen.
       request.log.warn(
         { providerIds: item.ProviderIds, seriesProviderIds: item.SeriesProviderIds, name: item.Name },

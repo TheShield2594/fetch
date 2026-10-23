@@ -1,6 +1,6 @@
 // The one integration that points outward.
 //
-// Every other service Cataloggy talks to answers "what have I watched" or
+// Every other service Fetch talks to answers "what have I watched" or
 // "what is this thing". This one answers the question that comes right after
 // adding something to the watchlist on a self-hosted stack: get it onto the
 // server. Jellyseerr (and Overseerr, whose API this is — the two are

@@ -1,4 +1,4 @@
-// Shared bits of the Cataloggy mark, for the two generators that rasterise it
+// Shared bits of the Fetch mark, for the two generators that rasterise it
 // (generate-icons.mjs and generate-splash.mjs).
 //
 // The mark lives in apps/web/public/logo.svg — served as-is to browsers that

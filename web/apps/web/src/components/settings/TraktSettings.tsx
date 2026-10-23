@@ -36,7 +36,7 @@ const summarizeImport = (imported: Record<string, number>): string => {
   // skipped" at the end of the list makes it sound as though it was.
   const skipped = imported.skipped ?? 0;
   return skipped > 0
-    ? `${imports} Skipped ${skipped.toLocaleString()} ${skipped === 1 ? "entry" : "entries"} Cataloggy could not match.`
+    ? `${imports} Skipped ${skipped.toLocaleString()} ${skipped === 1 ? "entry" : "entries"} Fetch could not match.`
     : imports;
 };
 
@@ -163,7 +163,7 @@ export function TraktSettings() {
 
       {status?.connected && (
         <p className="text-xs" style={{ color: "var(--text-dim)" }}>
-          A full import pulls everything Cataloggy can hold from Trakt: your entire watch history (every play,
+          A full import pulls everything Fetch can hold from Trakt: your entire watch history (every play,
           however far back, with its own date), ratings, watchlist, collection and personal lists. It can take
           several minutes on a large library; after it finishes, scheduled syncs only fetch what is new.
         </p>

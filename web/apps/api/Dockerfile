@@ -17,14 +17,14 @@ COPY apps/api ./apps/api
 COPY packages/shared ./packages/shared
 
 RUN pnpm exec prisma generate --schema=apps/api/prisma/schema.prisma
-RUN pnpm --filter @cataloggy/shared build
-RUN pnpm --filter @cataloggy/api build
+RUN pnpm --filter @fetch/shared build
+RUN pnpm --filter @fetch/api build
 
 # Two trees, because the Prisma CLI is only needed to apply migrations and is
-# far larger than everything the service itself loads. @cataloggy/migrate
+# far larger than everything the service itself loads. @fetch/migrate
 # depends on the CLI and nothing else, so this tree carries no test or build
 # tooling; the schema and migrations it works on are the API's, copied in.
-RUN pnpm deploy --filter @cataloggy/migrate --prod --legacy \
+RUN pnpm deploy --filter @fetch/migrate --prod --legacy \
       --config.confirmModulesPurge=false /migrate \
  && cp -r apps/api/prisma apps/api/prisma.config.ts /migrate/
 
@@ -32,7 +32,7 @@ RUN pnpm deploy --filter @cataloggy/migrate --prod --legacy \
 # links a fresh @prisma/client from the store, so the client generated during
 # the build has to come across separately — it lives in node_modules/.prisma,
 # which @prisma/client re-exports.
-RUN pnpm deploy --filter @cataloggy/api --prod --legacy \
+RUN pnpm deploy --filter @fetch/api --prod --legacy \
       --config.confirmModulesPurge=false /deploy \
  && cp -r node_modules/.prisma /deploy/node_modules/.prisma
 

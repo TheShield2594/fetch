@@ -34,9 +34,9 @@ function offerInstall() {
   });
 }
 
-const installButton = () => screen.queryByRole("button", { name: /install cataloggy/i });
+const installButton = () => screen.queryByRole("button", { name: /install fetch/i });
 const originNotice = () =>
-  screen.queryByRole("button", { name: /why can't cataloggy be installed/i });
+  screen.queryByRole("button", { name: /why can't fetch be installed/i });
 
 // jsdom reports an insecure context, which is the LAN-IP case. Cases about the
 // install offer itself need the secure one.

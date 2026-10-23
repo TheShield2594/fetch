@@ -1,6 +1,6 @@
 /**
  * What a profile looks like when it has no picture — which is every profile,
- * since Cataloggy has never had anywhere to upload one.
+ * since Fetch has never had anywhere to upload one.
  *
  * Two byte-identical copies of this lived in `ProfileSwitcher.tsx` and
  * `settings/ProfileSettings.tsx`, which is two places for a colour to drift and

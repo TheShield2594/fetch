@@ -103,7 +103,7 @@ function TokenStep({ onVerified }: { onVerified: () => void }) {
       if (err instanceof ApiError && err.status === 401) {
         setError("That token was rejected by the server. Double-check it and try again.");
       } else {
-        setError(err instanceof Error ? err.message : "Could not reach the Cataloggy server.");
+        setError(err instanceof Error ? err.message : "Could not reach the Fetch server.");
       }
     } finally {
       setVerifying(false);
@@ -113,7 +113,7 @@ function TokenStep({ onVerified }: { onVerified: () => void }) {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        {/* Not "Welcome to Cataloggy": the lockup above already says the name,
+        {/* Not "Welcome to Fetch": the lockup above already says the name,
             and a step's heading is better spent saying what the step wants. */}
         <h1 className={SECTION_TITLE}>Connect your server</h1>
         <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>

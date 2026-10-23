@@ -1,8 +1,8 @@
 import type { MetadataType } from "@prisma/client";
 import type { FastifyBaseLogger } from "fastify";
-import type { CataloggyMetaPreview, StremioCatalogType } from "@cataloggy/shared";
+import type { CataloggyMetaPreview, StremioCatalogType } from "@fetch/shared";
 
-// Both aliases of the api↔addon contract in @cataloggy/shared: this is the
+// Both aliases of the api↔addon contract in @fetch/shared: this is the
 // shape the addon service parses off the wire, so a change made here has to be
 // a change made there — which is the point.
 export type StremioMetaType = StremioCatalogType;
@@ -72,9 +72,9 @@ export type RecordWatchParams = {
 };
 
 // Re-exported so existing `../lib/types.js` imports keep working; the pattern
-// itself lives in @cataloggy/shared, which the addon service also validates
+// itself lives in @fetch/shared, which the addon service also validates
 // profile ids against.
-export { UUID_V4_PATTERN } from "@cataloggy/shared";
+export { UUID_V4_PATTERN } from "@fetch/shared";
 
 export const DEFAULT_STREMIO_LIMIT = 50;
 export const MAX_STREMIO_LIMIT = 200;

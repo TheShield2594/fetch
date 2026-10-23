@@ -6,7 +6,7 @@ import type { AddonRouter } from "../lib/router.js";
 import type { StremioSubtitle } from "../lib/stremio-types.js";
 
 /**
- * The "Cataloggy: Mark Watched" entry in Stremio's subtitle menu.
+ * The "Fetch: Mark Watched" entry in Stremio's subtitle menu.
  *
  * A subtitle is the only thing an addon can put in front of a viewer that they
  * can click, so marking something watched from Stremio is a subtitle whose URL
@@ -57,7 +57,7 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
       const subtitles: StremioSubtitle[] = [{
         id: `cataloggy-watch-${imdbId}`,
         url: `${addonBase}${profileSegment}/mark-watched/${type}/${imdbId}.srt?token=${token}`,
-        lang: "Cataloggy: Mark Watched",
+        lang: "Fetch: Mark Watched",
       }];
       return reply.send({ subtitles });
     }
@@ -73,7 +73,7 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
         const subtitles: StremioSubtitle[] = [{
           id: `cataloggy-watch-${imdbId}-s${season}e${episode}`,
           url: `${addonBase}${profileSegment}/mark-watched/episode/${imdbId}/${season}/${episode}.srt?token=${token}`,
-          lang: `Cataloggy: Mark S${season}E${episode} Watched`,
+          lang: `Fetch: Mark S${season}E${episode} Watched`,
         }];
         return reply.send({ subtitles });
       }

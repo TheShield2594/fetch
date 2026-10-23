@@ -97,7 +97,7 @@ describe("POST /webhooks/emby", () => {
     expect(watchEventMock.recordWatchEvent).not.toHaveBeenCalled();
   });
 
-  it("skips item types Cataloggy does not store rather than filing them as films", async () => {
+  it("skips item types Fetch does not store rather than filing them as films", async () => {
     const app = await buildApp();
 
     const response = await app.inject({

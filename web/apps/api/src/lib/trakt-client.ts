@@ -5,7 +5,7 @@ import {
   type TraktScrobblePayload,
   type TraktWatchlistMutationPayload,
 } from "../trakt.js";
-import { parseBool } from "@cataloggy/shared";
+import { parseBool } from "@fetch/shared";
 import { prisma } from "./prisma.js";
 import { upsertSeriesProgressIfNewer } from "./series-progress.js";
 import { getDefaultWatchlist } from "./watchlist.js";

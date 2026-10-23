@@ -300,7 +300,7 @@ const INVALIDATE_ACK_TIMEOUT_MS = 200;
  *
  * A worker that predates the ack handshake never replies, and the wait below is
  * on the path of every mutation the app makes: with the old one-second budget,
- * a self-hoster who had updated Cataloggy but not yet reloaded paid a full
+ * a self-hoster who had updated Fetch but not yet reloaded paid a full
  * second of spinner on every "Add to list" — after the server had already
  * answered. Once a controller has failed to reply, stop waiting on it. The
  * message is still sent, so the invalidation still happens; there is just

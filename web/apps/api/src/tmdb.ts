@@ -262,7 +262,7 @@ const SEARCH_TARGET_RESULTS = 20;
  * result whose IMDb id TMDB does not know is dropped, so a page of twenty can
  * leave six, and a title sitting at rank 21 was never a candidate at all. That
  * was the shape of the complaint this exists to fix — a title findable on
- * themoviedb.org that Cataloggy answered with nothing.
+ * themoviedb.org that Fetch answered with nothing.
  *
  * Three is a ceiling, not a cost: pages are fetched one at a time and only
  * while the target is still short, so a search whose first page resolves
@@ -340,12 +340,12 @@ export class TmdbClient {
 
   /**
    * The shape every list endpoint here shares: TMDB answers with a page of
-   * results carrying its own ids, and Cataloggy keys everything by IMDb id, so
+   * results carrying its own ids, and Fetch keys everything by IMDb id, so
    * each result needs an `/external_ids` lookup before it is usable.
    *
    * That lookup is the fan-out — one list request becomes up to 21 — so it runs
    * under a concurrency limit rather than `Promise.all`. Results whose id TMDB
-   * doesn't know an IMDb id for are dropped: an entry Cataloggy cannot key is
+   * doesn't know an IMDb id for are dropped: an entry Fetch cannot key is
    * one it cannot store, rate or mark watched.
    *
    * A lookup that *fails* is dropped the same way rather than failing the
@@ -480,7 +480,7 @@ export class TmdbClient {
 
     // A query that matched no title at all is usually a person — the search box
     // is the only one on the page, and "villeneuve" is a reasonable thing to
-    // type into it. TMDB answers that from `/search/person`; Cataloggy has
+    // type into it. TMDB answers that from `/search/person`; Fetch has
     // nowhere to put a person, so what it borrows is their known-for titles.
     if (
       found.length < SEARCH_TARGET_RESULTS &&

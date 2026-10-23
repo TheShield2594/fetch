@@ -156,7 +156,7 @@ export class StremioClient {
     try {
       response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "User-Agent": "Cataloggy/1.0" },
+        headers: { "Content-Type": "application/json", "User-Agent": "Fetch/1.0" },
         body: JSON.stringify(body),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });

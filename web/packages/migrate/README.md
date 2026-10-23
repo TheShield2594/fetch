@@ -1,10 +1,10 @@
-# @cataloggy/migrate
+# @fetch/migrate
 
 Holds nothing but a pinned `prisma` dependency. It exists so the migration
 image can be built from a dependency tree containing the Prisma CLI and
 nothing else.
 
-The schema and migrations stay with `@cataloggy/api`, which owns them —
+The schema and migrations stay with `@fetch/api`, which owns them —
 `apps/api/Dockerfile` copies `apps/api/prisma` and `apps/api/prisma.config.ts`
 into this package's deployed tree when it builds the `migrate` target. There
 is no second copy of the schema to keep in sync.

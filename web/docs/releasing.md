@@ -1,6 +1,6 @@
 # Releasing
 
-Cataloggy's operating advice is "pin the version you run, and roll back if an
+Fetch's operating advice is "pin the version you run, and roll back if an
 update breaks it". That advice needs versions to exist. This is how one is cut.
 
 - [Why tags matter here](#why-tags-matter-here)
@@ -40,8 +40,8 @@ Everything happens on `main`, after the work being released is merged.
    definitions at the bottom of the file:
 
    ```markdown
-   [Unreleased]: https://github.com/TheShield2594/cataloggy/compare/v0.2.0...HEAD
-   [0.2.0]: https://github.com/TheShield2594/cataloggy/compare/v0.1.0...v0.2.0
+   [Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.2.0...HEAD
+   [0.2.0]: https://github.com/TheShield2594/fetch/compare/web-v0.1.0...web-v0.2.0
    ```
 
 3. **Commit and push** the version bump and the changelog together, so the tag
@@ -52,12 +52,14 @@ Everything happens on `main`, after the work being released is merged.
    git push origin main
    ```
 
-4. **Tag and push the tag.** The tag name is the image tag, `v` included —
+4. **Tag and push the tag.** Website tags carry a `web-` prefix, because plain
+   `vX.Y.Z` tags in this repository are the Android app's APK releases. The
+   image tag is the git tag without that prefix, `v` included —
    `CATALOGGY_IMAGE_TAG=v0.2.0` is what a self-hoster will write.
 
    ```bash
-   git tag -a v0.2.0 -m "v0.2.0"
-   git push origin v0.2.0
+   git tag -a web-v0.2.0 -m "Fetch website v0.2.0"
+   git push origin web-v0.2.0
    ```
 
 5. **Write the GitHub release** against the tag, with the changelog section for
@@ -66,7 +68,7 @@ Everything happens on `main`, after the work being released is merged.
 
 ## What the tag push does
 
-`.github/workflows/dockerpublish.yml` triggers on `v*` tags as well as on
+`.github/workflows/web-dockerpublish.yml` triggers on `web-v*` tags as well as on
 pushes to `main`. On a tag it runs the same verification job as CI — including
 applying every Prisma migration against a real Postgres, because an image
 published past a broken migration leaves a self-hoster with an API that never
@@ -122,7 +124,7 @@ Group under Keep a Changelog's headings (`Added`, `Changed`, `Deprecated`,
 
 - A TMDB rate limit no longer empties a catalog. Outbound requests now retry
   with backoff and are capped per host, so a burst of catalog requests waits
-  rather than failing ([#470](https://github.com/TheShield2594/cataloggy/issues/470)).
+  rather than failing ([#470](https://github.com/TheShield2594/fetch/issues/470)).
 ```
 
 ## If a release turns out to be broken

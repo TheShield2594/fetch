@@ -77,7 +77,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(500).send({ error: "TRAKT_CLIENT_ID is not configured" });
     }
     // This route is behind the API token gate, so a `state` minted here proves
-    // the flow was started from Cataloggy itself — the callback below refuses
+    // the flow was started from Fetch itself — the callback below refuses
     // anything else.
     const state = await createOAuthState();
     const url = `https://trakt.tv/oauth/authorize?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
@@ -106,7 +106,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
         .type("text/html")
         .send(
           renderOAuthHtml(
-            "This authorization could not be verified — it was not started from this Cataloggy install, or it took too long to complete. Start again from Settings.",
+            "This authorization could not be verified — it was not started from this Fetch install, or it took too long to complete. Start again from Settings.",
             "Trakt Authorization Failed"
           )
         );
@@ -131,7 +131,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     try {
       tokenResponse = await fetch("https://api.trakt.tv/oauth/token", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "User-Agent": "Cataloggy/1.0" },
+        headers: { "Content-Type": "application/json", "User-Agent": "Fetch/1.0" },
         signal: tokenExchangeController.signal,
         body: JSON.stringify({
           code,
@@ -187,7 +187,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
 
     return reply
       .type("text/html")
-      .send(renderOAuthHtml("You can close this tab and return to Cataloggy.", "Trakt Connected!"));
+      .send(renderOAuthHtml("You can close this tab and return to Fetch.", "Trakt Connected!"));
   });
 
   app.post("/trakt/disconnect", async (_request, reply) => {
@@ -245,7 +245,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
 
     // Everything else the account holds: ratings, the collection, and personal
     // lists. Together with the history above this is the whole of what
-    // Cataloggy can hold from Trakt — the point being that one run is enough to
+    // Fetch can hold from Trakt — the point being that one run is enough to
     // stop depending on Trakt, rather than history arriving here and ratings
     // staying over there.
     const [ratings, collection, lists] = await Promise.all([

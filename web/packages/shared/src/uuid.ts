@@ -1,4 +1,4 @@
-// Profile and list identifiers are UUID v4 throughout Cataloggy. Shared so the
+// Profile and list identifiers are UUID v4 throughout Fetch. Shared so the
 // api and addon services validate them identically — the addon feeds a profile
 // id straight into an `x-profile-id` request header and a cache key, so a
 // looser check there would be the weak link.

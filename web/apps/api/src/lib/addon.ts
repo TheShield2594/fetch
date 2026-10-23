@@ -5,8 +5,8 @@ import {
   isDiscoveryCatalogId,
   migrateLegacyCatalogs,
   parseListCatalogId,
-} from "@cataloggy/shared";
-import type { AddonConfig } from "@cataloggy/shared";
+} from "@fetch/shared";
+import type { AddonConfig } from "@fetch/shared";
 import { prisma } from "./prisma.js";
 
 // One config row per profile, so two profiles can expose different catalogs to
@@ -17,14 +17,14 @@ export const addonConfigKey = (profileId: string) => `addon:config:${profileId}`
 
 export type { AddonConfig };
 
-// The catalog set itself lives in @cataloggy/shared, which the addon service
+// The catalog set itself lives in @fetch/shared, which the addon service
 // builds its manifest from too — one list, so a catalog can't be offered by the
 // picker and then silently dropped by whichever service serves it.
 export const ALL_ADDON_CATALOGS: readonly string[] = DISCOVERY_CATALOG_IDS;
 
 export const DEFAULT_ADDON_CATALOGS: readonly string[] = DEFAULT_DISCOVERY_CATALOG_IDS;
 
-export { LEGACY_CATALOG_MAP, migrateLegacyCatalogs } from "@cataloggy/shared";
+export { LEGACY_CATALOG_MAP, migrateLegacyCatalogs } from "@fetch/shared";
 
 const defaults = (): AddonConfig => ({ enabledCatalogs: [...DEFAULT_ADDON_CATALOGS] });
 

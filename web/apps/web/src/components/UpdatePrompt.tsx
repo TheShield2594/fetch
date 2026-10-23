@@ -64,18 +64,18 @@ export function UpdatePrompt() {
       // handler here it failed silently, taking offline caching, install and
       // push with it and leaving nothing in the console to explain why. The
       // secure-context case gets its own line because "SecurityError" alone
-      // sends people looking for a bug in Cataloggy.
+      // sends people looking for a bug in Fetch.
       onRegisterError: (error) => {
         if (!window.isSecureContext) {
           console.warn(
-            "Cataloggy: service worker not registered — this page isn't a secure context. " +
+            "Fetch: service worker not registered — this page isn't a secure context. " +
               "Offline caching, install and push notifications need https:// or localhost. " +
               "See the README's \"Install as a PWA\" section.",
             error
           );
           return;
         }
-        console.error("Cataloggy: service worker registration failed.", error);
+        console.error("Fetch: service worker registration failed.", error);
       }
     });
     setUpdateSW(() => update);
@@ -111,7 +111,7 @@ export function UpdatePrompt() {
     >
       <RefreshCw aria-hidden="true" className="h-5 w-5 flex-none text-claw-text" />
       <span className="text-sm font-medium" style={{ color: "var(--text)" }}>
-        A new version of Cataloggy is available.
+        A new version of Fetch is available.
       </span>
       <button
         type="button"

@@ -86,9 +86,9 @@ export function PushSettings() {
     // modern the browser is, because the origin isn't secure.
     return (
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-        Push needs Cataloggy on an <strong>https://</strong> address (or localhost) — browsers
+        Push needs Fetch on an <strong>https://</strong> address (or localhost) — browsers
         switch off service workers and notifications on a plain http one, so this has nothing to
-        do with your browser. Put Cataloggy behind a reverse proxy with a certificate to enable
+        do with your browser. Put Fetch behind a reverse proxy with a certificate to enable
         it, or add a notification channel below — ntfy, Gotify, Discord or a webhook all deliver
         the same alerts over plain http.
       </p>
@@ -101,9 +101,9 @@ export function PushSettings() {
     // and nothing about the browser, so it must not read as one.
     return (
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-        On iPhone and iPad, notifications need Cataloggy on your Home Screen — Safari doesn&apos;t
+        On iPhone and iPad, notifications need Fetch on your Home Screen — Safari doesn&apos;t
         offer them to a tab. Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>,
-        open Cataloggy from there and come back to this page to turn them on. (Needs iOS 16.4 or
+        open Fetch from there and come back to this page to turn them on. (Needs iOS 16.4 or
         later; on anything older, use a notification channel below instead.)
       </p>
     );
@@ -137,7 +137,7 @@ export function PushSettings() {
         <p className="flex items-start gap-2 text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
           <BellOff size={16} className="mt-0.5 flex-none" aria-hidden="true" />
           <span>
-            Your browser is blocking notifications for this site, so Cataloggy can&apos;t ask for
+            Your browser is blocking notifications for this site, so Fetch can&apos;t ask for
             them — the permission prompt never appears once it&apos;s been denied. Allow
             notifications in the site settings behind the padlock or ⓘ in the address bar (on
             Android Chrome: the ⋮ menu, then Settings &rsaquo; Site settings), then reload this

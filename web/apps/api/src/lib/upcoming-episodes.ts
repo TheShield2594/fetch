@@ -1,4 +1,4 @@
-import type { CalendarEntry } from "@cataloggy/shared";
+import type { CalendarEntry } from "@fetch/shared";
 import { prisma } from "./prisma.js";
 import { getTmdb } from "./tmdb-client.js";
 import { showDetailsCache } from "./cache.js";
@@ -23,7 +23,7 @@ async function getCachedShowDetails(
 /**
  * One upcoming episode.
  *
- * The shape itself lives in `@cataloggy/shared`, because `apps/web` validates
+ * The shape itself lives in `@fetch/shared`, because `apps/web` validates
  * this response at its own boundary and the two definitions had been
  * hand-copied duplicates. Aliased rather than renamed at the call sites: within
  * the API this is an episode that has not aired, and "calendar" is what the one

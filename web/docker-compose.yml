@@ -1,6 +1,6 @@
 # All four app images move together, so the version they run is one setting:
 # CATALOGGY_IMAGE_TAG in .env. It defaults to `latest`, which follows whatever
-# was last built from main — fine for trying Cataloggy out, but it means
+# was last built from main — fine for trying Fetch out, but it means
 # `docker compose pull` can move you onto an untested build, and there is no
 # version to roll back to. Once the stack works, pin it: every image is also
 # published as `sha-<short-sha>` and, for tagged releases, `vX.Y.Z`.
@@ -58,7 +58,7 @@ services:
   # which is around 250 MB of tooling the api service never loads — keeping the
   # CLI out of that image is what lets it stay small.
   migrate:
-    image: ghcr.io/theshield2594/cataloggy-migrate:${CATALOGGY_IMAGE_TAG:-latest}
+    image: ghcr.io/theshield2594/fetch-migrate:${CATALOGGY_IMAGE_TAG:-latest}
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}@db:5432/${POSTGRES_DB:-cataloggy}
     depends_on:
@@ -76,7 +76,7 @@ services:
       - cataloggy
 
   api:
-    image: ghcr.io/theshield2594/cataloggy-api:${CATALOGGY_IMAGE_TAG:-latest}
+    image: ghcr.io/theshield2594/fetch-api:${CATALOGGY_IMAGE_TAG:-latest}
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}@db:5432/${POSTGRES_DB:-cataloggy}
       PORT: "7000"
@@ -186,7 +186,7 @@ services:
       - cataloggy
 
   addon:
-    image: ghcr.io/theshield2594/cataloggy-addon:${CATALOGGY_IMAGE_TAG:-latest}
+    image: ghcr.io/theshield2594/fetch-addon:${CATALOGGY_IMAGE_TAG:-latest}
     environment:
       PORT: "7001"
       CATALOGGY_API_BASE: http://api:7000
@@ -233,7 +233,7 @@ services:
       - cataloggy
 
   web:
-    image: ghcr.io/theshield2594/cataloggy-web:${CATALOGGY_IMAGE_TAG:-latest}
+    image: ghcr.io/theshield2594/fetch-web:${CATALOGGY_IMAGE_TAG:-latest}
     environment:
       VITE_API_BASE: ${VITE_API_BASE:-http://192.168.1.25:7000}
       # Public URL of the dedicated addon service — the full-featured

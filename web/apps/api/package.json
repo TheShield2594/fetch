@@ -1,5 +1,5 @@
 {
-  "name": "@cataloggy/api",
+  "name": "@fetch/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -18,7 +18,7 @@
     "prisma:push": "prisma db push"
   },
   "dependencies": {
-    "@cataloggy/shared": "workspace:*",
+    "@fetch/shared": "workspace:*",
     "@fastify/compress": "^9.2.0",
     "@fastify/rate-limit": "^11.2.0",
     "@prisma/adapter-pg": "^7.9.1",

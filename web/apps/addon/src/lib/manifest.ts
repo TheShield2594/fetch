@@ -3,8 +3,8 @@ import {
   DISCOVERY_CATALOGS,
   listCatalogId,
   selectDiscoveryCatalogs,
-} from "@cataloggy/shared";
-import type { AddonManifestConfig, CataloggyList, DiscoveryCatalog } from "@cataloggy/shared";
+} from "@fetch/shared";
+import type { AddonManifestConfig, CataloggyList, DiscoveryCatalog } from "@fetch/shared";
 import { WEB_PUBLIC_BASE } from "./config.js";
 
 /** The manifest Stremio installs, and the rules about what appears in it. */
@@ -81,12 +81,12 @@ export const buildManifest = (lists: CataloggyList[], genres: string[], config: 
   return {
     id: "com.cataloggy.addon",
     version: "0.3.0",
-    name: "Cataloggy",
-    description: "Personal catalogs, tracking, and discovery powered by Cataloggy.",
+    name: "Fetch",
+    description: "Personal catalogs, tracking, and discovery powered by Fetch.",
     // Stremio fetches this itself, so it can only be offered once the web UI
     // has a public address; without one the addon keeps Stremio's generic tile.
     ...(WEB_PUBLIC_BASE ? { logo: `${WEB_PUBLIC_BASE}/icons/icon-192.png` } : {}),
-    // `stream` is declared without Cataloggy ever providing a stream: the
+    // `stream` is declared without Fetch ever providing a stream: the
     // request itself is the point. A client asks every installed addon for
     // streams the moment a user opens a title to watch it, and that request is
     // the only "about to play this" signal the protocol offers an addon that

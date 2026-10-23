@@ -17,6 +17,6 @@ export const registerConfigureRoute = (routes: AddonRouter): void => {
     if (WEB_PUBLIC_BASE) {
       return reply.redirect(`${WEB_PUBLIC_BASE}/settings`);
     }
-    return reply.code(200).send({ message: "Configure Cataloggy through the web UI." });
+    return reply.code(200).send({ message: "Configure Fetch through the web UI." });
   });
 };

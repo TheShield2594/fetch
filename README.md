@@ -60,6 +60,15 @@ Highlights:
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for the full requirements list and what is done.
 
+## The Fetch website
+
+[`web/`](web/) is Fetch's optional self-hosted server and web app, formerly
+[Cataloggy](https://github.com/TheShield2594/cataloggy). Run it with Docker Compose
+and manage profiles, lists, watch history and settings from a phone or computer.
+Lists already reach the TV through its Stremio addon. Syncing the TV app to it is in
+progress; [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) has the plan and
+[web/README.md](web/README.md) has setup.
+
 ## Build
 
 ```bash

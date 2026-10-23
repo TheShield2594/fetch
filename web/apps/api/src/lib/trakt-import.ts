@@ -11,7 +11,7 @@ import { getDefaultCollection } from "./collection.js";
  * (pollTraktHistory) because it also runs incrementally; these only ever run
  * as a one-time import, so they live together here rather than in the route.
  *
- * Everything is keyed by IMDb id, which is what the rest of Cataloggy keys on.
+ * Everything is keyed by IMDb id, which is what the rest of Fetch keys on.
  * Items Trakt knows only by its own or TMDB's id are skipped and counted, not
  * guessed at.
  */
@@ -47,7 +47,7 @@ export type TraktRatingsImportResult = {
 };
 
 /**
- * Trakt ratings, on the same 1-10 scale Cataloggy stores.
+ * Trakt ratings, on the same 1-10 scale Fetch stores.
  *
  * Season and episode ratings are keyed by the *series* IMDb id plus the season
  * (and episode) number, the convention the ratings API and every other import
@@ -214,7 +214,7 @@ export type TraktCollectionImportResult = {
   imdbIds: TouchedImdbIds;
 };
 
-/** Trakt's collection — what you own — into Cataloggy's Collection list. */
+/** Trakt's collection — what you own — into Fetch's Collection list. */
 export const importTraktCollection = async (
   client: TraktClient,
   logger: FastifyRequest["log"],
@@ -271,7 +271,7 @@ export type TraktListsImportResult = {
 };
 
 /**
- * Personal Trakt lists, each becoming a Cataloggy custom list of the same
+ * Personal Trakt lists, each becoming a Fetch custom list of the same
  * name. A list that already exists here under that name is filled rather than
  * duplicated, so re-running the import doesn't leave two of everything.
  */

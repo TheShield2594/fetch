@@ -1,4 +1,4 @@
-import { parseSeriesProgressResponse } from "@cataloggy/shared";
+import { parseSeriesProgressResponse } from "@fetch/shared";
 import { apiGet, apiHeaders, apiUrl, fetchWithTimeout } from "../lib/api-client.js";
 import {
   applyRpdbPoster,

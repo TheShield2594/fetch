@@ -7,7 +7,7 @@
  * rather than 102 times.
  */
 
-import { ApiContractError } from "@cataloggy/shared/contracts";
+import { ApiContractError } from "@fetch/shared/contracts";
 import { captureException } from "../sentry";
 import {
   currentIdentity,
@@ -47,7 +47,7 @@ export class ApiError extends Error {
  */
 export class OfflineWriteQueuedError extends Error {
   constructor() {
-    super("Saved offline — Cataloggy will send this as soon as you're back online.");
+    super("Saved offline — Fetch will send this as soon as you're back online.");
     this.name = "OfflineWriteQueuedError";
   }
 }
@@ -252,7 +252,7 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
   if (!contentType.includes("application/json") && !contentType.includes("+json")) {
     throw new Error(
       `Expected JSON from API but received "${contentType}". ` +
-      `Make sure ${runtimeConfig.getApiBase()} points to the Cataloggy API server, not the web UI.`
+      `Make sure ${runtimeConfig.getApiBase()} points to the Fetch API server, not the web UI.`
     );
   }
 
@@ -276,7 +276,7 @@ export function validated<T>(path: string, parse: (value: unknown) => T, body: u
     if (!(err instanceof ApiContractError)) throw err;
     captureException(err, { tags: { boundary: "api-contract" }, extra: { path } });
     throw new Error(
-      `The API's answer for ${path} isn't the shape this version of Cataloggy expects. ` +
+      `The API's answer for ${path} isn't the shape this version of Fetch expects. ` +
         `That usually means the web and api containers are on different image tags — ` +
         `check that CATALOGGY_IMAGE_TAG matches for both.`,
       { cause: err }

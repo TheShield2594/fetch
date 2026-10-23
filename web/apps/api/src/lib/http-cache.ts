@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { FastifyInstance } from "fastify";
-import { cacheTierForPath } from "@cataloggy/shared/api-cache-routes";
-import type { CacheTier } from "@cataloggy/shared/api-cache-routes";
+import { cacheTierForPath } from "@fetch/shared/api-cache-routes";
+import type { CacheTier } from "@fetch/shared/api-cache-routes";
 import { appendVary } from "./vary.js";
 
 // Every response this file touches is private to one profile of one install, so
@@ -26,7 +26,7 @@ const METADATA_MAX_AGE_SEC = 5 * 60;
 const METADATA_STALE_WHILE_REVALIDATE_SEC = 24 * 60 * 60;
 
 // Which routes are cacheable, and in which tier, is described once in
-// @cataloggy/shared/api-cache-routes — the service worker's runtime cache reads
+// @fetch/shared/api-cache-routes — the service worker's runtime cache reads
 // the same table. It used to be written out here and again in sw.js, and the
 // two had drifted: the worker cached the `/bundle` and personal-recommendation
 // routes this tiering deliberately keeps out of `metadata`, and cached none of

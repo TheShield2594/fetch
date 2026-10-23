@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
-import { deriveServiceToken, SERVICE_TOKEN_HEADER } from "@cataloggy/shared";
+import { deriveServiceToken, SERVICE_TOKEN_HEADER } from "@fetch/shared";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
 import { first } from "../lib/test-fixtures/present.js";
 

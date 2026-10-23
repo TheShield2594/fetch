@@ -1,6 +1,6 @@
 // Outbound notification channels that aren't web push.
 //
-// Web push is the one part of Cataloggy a plain `http://192.168.1.25` LAN
+// Web push is the one part of Fetch a plain `http://192.168.1.25` LAN
 // deployment genuinely cannot do: it needs VAPID keys, browsers refuse
 // service-worker push over plain http, and iOS only delivers to a site that was
 // added to the home screen first. Every channel here is a single HTTP POST to a
@@ -160,7 +160,7 @@ export const buildChannelRequest = (channel: ChannelTarget, event: NotificationE
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            username: "Cataloggy",
+            username: "Fetch",
             embeds: [
               {
                 title: event.title,

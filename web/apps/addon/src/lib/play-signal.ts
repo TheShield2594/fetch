@@ -8,7 +8,7 @@ import { PLAY_DETECTION } from "./config.js";
  * Addons are never told what was watched — a client only ever asks them for
  * things. But two of those asks mean the user is about to watch something:
  * `stream` (they opened a title's stream list) and `subtitles` (a player
- * loaded). Forwarding them lets Cataloggy infer watches from clients that keep
+ * loaded). Forwarding them lets Fetch infer watches from clients that keep
  * their library entirely to themselves — Vidi, Omni, Nuvio and other
  * addon-consuming apps that never sync to a Stremio account.
  *

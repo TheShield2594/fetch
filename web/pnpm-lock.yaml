@@ -53,7 +53,7 @@ importers:
 
   apps/addon:
     dependencies:
-      '@cataloggy/shared':
+      '@fetch/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@fastify/rate-limit':
@@ -72,7 +72,7 @@ importers:
 
   apps/api:
     dependencies:
-      '@cataloggy/shared':
+      '@fetch/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@fastify/compress':
@@ -118,7 +118,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@cataloggy/shared':
+      '@fetch/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@sentry/react':

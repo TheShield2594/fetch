@@ -3,7 +3,7 @@
  */
 
 import { request, validated } from "./client";
-import { parseCalendarResponse, parseSeriesProgressListResponse, parseWatchHistoryResponse } from "@cataloggy/shared/contracts";
+import { parseCalendarResponse, parseSeriesProgressListResponse, parseWatchHistoryResponse } from "@fetch/shared/contracts";
 import type {
   CheckIn,
   DetailedWatchStats,

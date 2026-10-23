@@ -1,11 +1,11 @@
 # API reference
 
-The Cataloggy API is a Fastify service on port `7000`. Everything the web UI
+The Fetch API is a Fastify service on port `7000`. Everything the web UI
 does goes through it, so anything here is fair game for a script, a shortcut, a
 Home Assistant automation, or your own client.
 
 This is a reference for the endpoints as they behave today. It is not a
-stability promise — Cataloggy is a self-hosted app with one supported client, and
+stability promise — Fetch is a self-hosted app with one supported client, and
 routes do change between versions. Pin `CATALOGGY_IMAGE_TAG` if you build
 something on top of it.
 
@@ -94,7 +94,7 @@ row genuinely is not found.
 - **Types** are `movie` and `series` almost everywhere. Watch events use `movie`
   and `episode`; tags additionally accept `episode`.
 - **IDs** are IMDb ids (`tt0111161`) for films and shows, UUIDs for
-  Cataloggy's own rows (lists, games, profiles, tags, watch events). Those are
+  Fetch's own rows (lists, games, profiles, tags, watch events). Those are
   uuid columns, so a malformed id is a `400` before any query runs rather than
   an empty result.
 - **Validation** rejects a request before it reaches the database, either way it
@@ -502,7 +502,7 @@ Those two formats are capped at 10,000 rows; the id-carrying formats allow
 
 No bearer token. Authenticated by `WEBHOOK_SECRET`, in a header where the
 sender supports one and in a query parameter where it doesn't (Plex). Prefer
-the header: Cataloggy redacts `token` from its own application logs
+the header: Fetch redacts `token` from its own application logs
 (`?token=REDACTED`), but a reverse proxy or any other hop in front of it keeps
 its own access log, and that copy still carries the query string.
 

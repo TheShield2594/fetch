@@ -203,7 +203,7 @@ describe("API response caching", () => {
     // had never been told about these four — so `collection`, the games
     // library, tags and the anime catalog were all read-only routes the API
     // tiers for caching that nonetheless did nothing offline. Both sides now
-    // read one table (@cataloggy/shared/api-cache-routes).
+    // read one table (@fetch/shared/api-cache-routes).
     await loadWorker("https://cataloggy.example/api");
     const matches = apiRoute();
 

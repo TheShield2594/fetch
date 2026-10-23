@@ -43,7 +43,7 @@ function Shell({ children, onClose }: { children: React.ReactNode; onClose?: (()
         >
           <div className="flex items-center justify-center gap-2.5">
             <BrandMark className="h-10 w-10 flex-none" />
-            <span className={`text-2xl ${BRAND_WORDMARK}`} style={{ color: "var(--text)" }}>Cataloggy</span>
+            <span className={`text-2xl ${BRAND_WORDMARK}`} style={{ color: "var(--text)" }}>Fetch</span>
           </div>
 
           <div className="glass-surface relative rounded-3xl border p-6 shadow-e3" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>

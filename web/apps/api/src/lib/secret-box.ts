@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:crypto";
 
-// Envelope encryption for the credentials Cataloggy holds on your behalf: the
+// Envelope encryption for the credentials Fetch holds on your behalf: the
 // Trakt access/refresh pair, a connected Stremio account's authKey, per-channel
 // notification tokens, and the KV rows carrying the TMDB/OMDB/RPDB keys, the AI
 // provider config (Authorization header and all) and the VAPID private key.

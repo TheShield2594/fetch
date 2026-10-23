@@ -330,7 +330,7 @@ export class TraktClient {
   }
 
   // Movies and shows only: a personal list can also hold people, seasons and
-  // episodes, none of which a Cataloggy list can hold.
+  // episodes, none of which a Fetch list can hold.
   async fetchPersonalListItems(listId: number, logger: FastifyBaseLogger): Promise<TraktListItemPayload[]> {
     return this.fetchAllPages<TraktListItemPayload>(`/users/me/lists/${listId}/items/movie,show`, logger);
   }
@@ -514,7 +514,7 @@ export class TraktClient {
       url,
       {
         method: options.method,
-        headers: { "User-Agent": "Cataloggy/1.0", ...options.headers },
+        headers: { "User-Agent": "Fetch/1.0", ...options.headers },
         // A GET carries no body, and `RequestInit.body` spells that as a
         // missing key rather than an undefined value.
         ...(options.body !== undefined ? { body: options.body } : {}),
@@ -547,7 +547,7 @@ export class TraktClient {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "Cataloggy/1.0"
+        "User-Agent": "Fetch/1.0"
       },
       body: JSON.stringify({
         refresh_token: this.refreshToken,

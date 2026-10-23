@@ -31,8 +31,8 @@ import {
   listCatalogId,
   parseListCatalogId,
   selectDiscoveryCatalogs,
-} from "@cataloggy/shared";
-import type { AddonConfigResponse, DiscoveryCatalog } from "@cataloggy/shared";
+} from "@fetch/shared";
+import type { AddonConfigResponse, DiscoveryCatalog } from "@fetch/shared";
 
 const STREMIO_ADDON_ID = "com.cataloggy.api";
 const STREMIO_ADDON_VERSION = "1.0.0";
@@ -53,7 +53,7 @@ const CORE_STREMIO_CATALOGS = [
   { id: "my_continue_series", type: "series" as const, name: "Continue Watching" },
 ];
 
-// The catalog registry lives in @cataloggy/shared — see the module comment
+// The catalog registry lives in @fetch/shared — see the module comment
 // there for why. What stays here is the half only this service can know: how a
 // catalog's rows are actually produced, and where they are cached.
 //
@@ -359,7 +359,7 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
     return {
       id: STREMIO_ADDON_ID,
       version: STREMIO_ADDON_VERSION,
-      name: "Cataloggy",
+      name: "Fetch",
       description: "Your personal media tracker – watchlists, history, and discovery catalogs.",
       // Stremio needs an absolute URL it can reach itself, so the mark can only
       // be offered once the web UI has a public address. Empty otherwise, which

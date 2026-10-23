@@ -1,5 +1,5 @@
 import type { FastifyRequest } from "fastify";
-import { deriveServiceToken, matchesServiceToken, SERVICE_TOKEN_HEADER } from "@cataloggy/shared";
+import { deriveServiceToken, matchesServiceToken, SERVICE_TOKEN_HEADER } from "@fetch/shared";
 
 // The addon authenticates with the same `API_TOKEN` the browser holds, so the
 // bearer token cannot tell the two apart. The service token can: it is derived

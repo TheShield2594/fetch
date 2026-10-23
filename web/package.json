@@ -1,5 +1,5 @@
 {
-  "name": "cataloggy",
+  "name": "fetch-web",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
-    "typecheck": "pnpm --filter @cataloggy/shared build && pnpm -r typecheck",
-    "lint": "pnpm --filter @cataloggy/shared build && eslint eslint.config.mjs scripts apps/web/scripts && pnpm -r lint",
+    "typecheck": "pnpm --filter @fetch/shared build && pnpm -r typecheck",
+    "lint": "pnpm --filter @fetch/shared build && eslint eslint.config.mjs scripts apps/web/scripts && pnpm -r lint",
     "test": "pnpm -r --if-present test",
     "test:int": "pnpm -r --if-present test:int",
     "check:env": "node scripts/check-compose-env.mjs",

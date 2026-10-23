@@ -1,4 +1,4 @@
-import { parseProxyPathPrefixes, parseTrustProxy, parseBool } from "@cataloggy/shared";
+import { parseProxyPathPrefixes, parseTrustProxy, parseBool } from "@fetch/shared";
 
 /**
  * Everything this service reads out of its environment, read once.

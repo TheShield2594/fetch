@@ -17,7 +17,7 @@ export function ApiTokenSettings() {
   return (
     <form onSubmit={save} className="space-y-4">
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-        The API token authenticates requests to your Cataloggy server. It is stored in localStorage.
+        The API token authenticates requests to your Fetch server. It is stored in localStorage.
       </p>
       <div className="relative">
         <input

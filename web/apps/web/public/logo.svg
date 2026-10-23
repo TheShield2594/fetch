@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Cataloggy">
-  <title>Cataloggy</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Fetch">
+  <title>Fetch</title>
   <!-- The ink is stated twice on purpose: the presentation attribute is what
        renderers that ignore the stylesheet (icon rasterisers, some feed
        readers) use, and the rule below overrides it where a dark UI would

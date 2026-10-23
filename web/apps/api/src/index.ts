@@ -8,7 +8,7 @@ import {
   parseTrustProxy,
   redactUrl,
   redactedRequestSerializer,
-} from "@cataloggy/shared";
+} from "@fetch/shared";
 import { attachDatabaseLogging, prisma } from "./lib/prisma.js";
 import { applyCorsHeaders } from "./lib/cors.js";
 import { registerHttpCaching } from "./lib/http-cache.js";

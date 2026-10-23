@@ -1,5 +1,5 @@
 {
-  "name": "@cataloggy/addon",
+  "name": "@fetch/addon",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@cataloggy/shared": "workspace:*",
+    "@fetch/shared": "workspace:*",
     "@fastify/rate-limit": "^11.2.0",
     "fastify": "^5.12.5"
   },

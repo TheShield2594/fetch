@@ -1,5 +1,5 @@
 /**
- * The Cataloggy mark: a cat curled into a C around a play button.
+ * The Fetch mark: a cat curled into a C around a play button.
  *
  * Inline rather than `<img src="/logo.svg">` so the cat's ink can follow the
  * current text colour — the mark sits on a near-white page in the light theme
@@ -15,7 +15,7 @@ export function BrandMark({ className, title }: { className?: string; title?: st
     <svg
       viewBox="0 0 100 100"
       className={className}
-      // Every lockup in the app pairs the mark with the word "Cataloggy", so by
+      // Every lockup in the app pairs the mark with the word "Fetch", so by
       // default it is decoration a screen reader should skip. `title` is for
       // the places that stand alone.
       role={title ? "img" : undefined}
@@ -33,7 +33,7 @@ export function BrandMark({ className, title }: { className?: string; title?: st
  * The wordmark's type, wherever it sits beside the mark.
  *
  * Heavier and tighter than anything else in the app on purpose: at the UI's own
- * `font-bold` and default tracking, "Cataloggy" is set identically to a page
+ * `font-bold` and default tracking, "Fetch" is set identically to a page
  * heading like "Games" or "Calendar", and the eye reads it as one more label
  * rather than as the product's name. 800 with tracking pulled in is the smallest
  * change that makes it a wordmark. Size stays with the caller — it ranges from
@@ -57,7 +57,7 @@ export function BrandLockup() {
     <div className="flex flex-col items-center text-center">
       <BrandMark className="h-16 w-16" />
       <span className={`mt-3 text-3xl ${BRAND_WORDMARK}`} style={{ color: "var(--text)" }}>
-        Cataloggy
+        Fetch
       </span>
       <span
         className="mt-1.5 text-2xs font-semibold uppercase tracking-[0.2em]"

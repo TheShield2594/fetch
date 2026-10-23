@@ -1,7 +1,7 @@
 import { Writable } from "node:stream";
 import Fastify from "fastify";
 import { describe, expect, it } from "vitest";
-import { redactUrl, redactedRequestSerializer } from "@cataloggy/shared";
+import { redactUrl, redactedRequestSerializer } from "@fetch/shared";
 
 describe("redactUrl", () => {
   it("leaves a URL without a query string alone", () => {

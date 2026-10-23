@@ -55,7 +55,7 @@ describe("trakt-import", () => {
   });
 
   describe("importTraktRatings", () => {
-    it("maps movie, show, season and episode ratings onto the scale and keys Cataloggy stores", async () => {
+    it("maps movie, show, season and episode ratings onto the scale and keys Fetch stores", async () => {
       const client = makeClient({
         fetchRatedMovies: vi
           .fn()

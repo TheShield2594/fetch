@@ -305,7 +305,7 @@ export function Sidebar({
             className={`whitespace-nowrap text-base transition-opacity ${BRAND_WORDMARK}`}
             style={{ opacity: expanded ? 1 : 0 }}
           >
-            Cataloggy
+            Fetch
           </span>
         </div>
 

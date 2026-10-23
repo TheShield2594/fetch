@@ -8,7 +8,7 @@ import { clientsClaim } from "workbox-core";
 import {
   API_CACHE_PATH_ALTERNATION,
   API_CACHE_PATH_RE,
-} from "@cataloggy/shared/api-cache-routes";
+} from "@fetch/shared/api-cache-routes";
 import { IMAGE_CDN_HOSTS } from "./image-cdn-hosts.mjs";
 import { parseSizedTmdbImage, tmdbImageAtWidth, TMDB_SRCSET_WIDTHS } from "./poster-widths";
 
@@ -489,7 +489,7 @@ self.addEventListener("message", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  let payload = { title: "Cataloggy", body: "", url: "/" };
+  let payload = { title: "Fetch", body: "", url: "/" };
   try {
     if (event.data) payload = { ...payload, ...event.data.json() };
   } catch {

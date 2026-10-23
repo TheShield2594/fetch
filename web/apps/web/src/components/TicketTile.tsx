@@ -28,7 +28,7 @@ export function MiniBarChart({ data, active = true }: { data: number[]; active?:
   );
 }
 
-/** A "ticket stub" shaped stat tile — Cataloggy's signature collectible-stat motif. */
+/** A "ticket stub" shaped stat tile — Fetch's signature collectible-stat motif. */
 export function TicketTile({
   icon: Icon,
   label,

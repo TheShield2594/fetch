@@ -1,6 +1,6 @@
 import Fastify, { type RawRequestDefaultExpression } from "fastify";
 import rateLimit from "@fastify/rate-limit";
-import { normalizeProxyPath, redactedRequestSerializer } from "@cataloggy/shared";
+import { normalizeProxyPath, redactedRequestSerializer } from "@fetch/shared";
 import { Sentry } from "./lib/sentry.js";
 import { LOG_LEVEL, PROXY_PATH_PREFIXES, trustProxy } from "./lib/config.js";
 import { addonRouter } from "./lib/router.js";

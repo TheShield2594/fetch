@@ -1,4 +1,4 @@
-// The catalog registry and the api↔addon contracts live in @cataloggy/shared,
+// The catalog registry and the api↔addon contracts live in @fetch/shared,
 // but this service is the one that breaks when either does — it is the only
 // consumer that reads the API over HTTP — so their tests live here, next to the
 // code whose behaviour they protect.
@@ -23,7 +23,7 @@ import {
   parseSeriesProgressResponse,
   selectDiscoveryCatalogs,
   ApiContractError,
-} from "@cataloggy/shared";
+} from "@fetch/shared";
 import { first } from "./test-fixtures/present.js";
 
 describe("catalog registry", () => {

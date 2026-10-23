@@ -268,7 +268,7 @@ async function importLetterboxd(
       }
     }
 
-    // Letterboxd uses a 0.5-5 star scale; normalize to Cataloggy's 1-10 scale.
+    // Letterboxd uses a 0.5-5 star scale; normalize to Fetch's 1-10 scale.
     const rawRating = ratingCol !== -1 ? boundedNumber(row[ratingCol], MIN_RATING, MAX_RATING / 2) : null;
     if (rawRating !== null && rawRating > 0) {
       const rating = Math.round(rawRating * 2 * 10) / 10;

@@ -246,7 +246,7 @@ const watchSignature = (item: StremioLibraryItem, watch: StremioWatch): string =
 
 const extractWatch = (item: StremioLibraryItem): StremioWatch | null => {
   const id = typeof item._id === "string" ? item._id.trim() : "";
-  // Only IMDb-keyed content maps onto Cataloggy's library. Items from addons
+  // Only IMDb-keyed content maps onto Fetch's library. Items from addons
   // with their own id namespaces (and Stremio's live-TV entries) are skipped
   // rather than guessed at.
   if (!IMDB_ID_PATTERN.test(id)) return null;

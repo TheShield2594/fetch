@@ -153,7 +153,7 @@ afterEach(async () => {
 // The API and this service used to keep separate copies of the catalog list and
 // separate ideas of what the shared config meant, so a catalog could be offered
 // in Settings, honoured by one manifest and silently dropped by the other. Both
-// now derive from the registry in @cataloggy/shared.
+// now derive from the registry in @fetch/shared.
 describe("manifest catalogs follow the profile's configuration", () => {
   type ManifestCatalog = { id: string; type: string; name: string };
 

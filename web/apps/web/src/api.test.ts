@@ -167,7 +167,7 @@ describe("request error reporting", () => {
       new Response("<!doctype html>", { status: 200, headers: { "content-type": "text/html" } })
     );
 
-    await expect(api.getLists()).rejects.toThrow(/points to the Cataloggy API server/);
+    await expect(api.getLists()).rejects.toThrow(/points to the Fetch API server/);
   });
 
   it("reports an unreachable API rather than a bare network error", async () => {

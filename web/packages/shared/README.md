@@ -1,4 +1,4 @@
-# @cataloggy/shared
+# @fetch/shared
 
 Types and utilities shared by the `api`, `addon` and `web` apps.
 
@@ -15,6 +15,6 @@ derives from it, rather than each keeping a copy that drifts.
 | `service-client.ts` | The derived service token the addon proves itself to the API with. |
 | `uuid.ts` | The UUID v4 pattern both services validate profile ids against. |
 
-The package builds to `dist/` and both apps import it as `@cataloggy/shared`,
-so `pnpm --filter @cataloggy/shared build` runs before anything typechecks
+The package builds to `dist/` and both apps import it as `@fetch/shared`,
+so `pnpm --filter @fetch/shared build` runs before anything typechecks
 against it (`pnpm typecheck` at the root does this for you).

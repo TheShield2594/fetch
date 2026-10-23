@@ -2,14 +2,14 @@
 
 ## Supported versions
 
-Cataloggy ships as tagged releases (`vX.Y.Z`), each one a set of Docker images
+Fetch ships as tagged releases (`vX.Y.Z`), each one a set of Docker images
 you can pin `CATALOGGY_IMAGE_TAG` to — see [docs/releasing.md](../docs/releasing.md).
 Fixes land on `main` and go out in the next release. Nothing is backported, and
 no tag is ever re-published: upgrading forward is the only way to get a fix.
 
 | What you're running | Fixes reach it |
 | --- | --- |
-| The newest release (`vX.Y.Z`, top of [Releases](https://github.com/TheShield2594/cataloggy/releases)) | Yes, in the next release |
+| The newest release (`vX.Y.Z`, top of [Releases](https://github.com/TheShield2594/fetch/releases)) | Yes, in the next release |
 | `main` / the `latest` image tag | Yes, first |
 | Any earlier `vX.Y.Z` or `sha-` tag | No — upgrade to the newest release |
 
@@ -21,7 +21,7 @@ for you.
 
 **Please don't open a public issue.** Use GitHub's private reporting:
 
-**→ [Report a vulnerability](https://github.com/TheShield2594/cataloggy/security/advisories/new)**
+**→ [Report a vulnerability](https://github.com/TheShield2594/fetch/security/advisories/new)**
 
 That opens a draft advisory visible only to you and the maintainer. If it isn't
 available to you, contact [the maintainer](https://github.com/TheShield2594)
@@ -56,7 +56,7 @@ you'd rather not be.
 
 ## Threat model
 
-Cataloggy is built for self-hosting on a trusted local network, **not** for
+Fetch is built for self-hosting on a trusted local network, **not** for
 direct exposure to the internet. [The README's Security
 section](../README.md#security) is the full statement — known limitations,
 what's encrypted at rest, which routes are rate-limited, and why the add-on
@@ -89,7 +89,7 @@ the port on your LAN.
   page.
 - SQL injection, path traversal, unauthenticated writes, or a bypass of the
   per-route rate limits.
-- A dependency vulnerability you can show is reachable from Cataloggy's own code
+- A dependency vulnerability you can show is reachable from Fetch's own code
   paths.
 
 ### Out of scope
@@ -105,7 +105,7 @@ report.
 - Anything that assumes the attacker can already run code as the `api`
   container or read its environment. The process holds the encryption key
   because it needs it to serve a single request.
-- Consequences of exposing Cataloggy to the internet without TLS and a reverse
+- Consequences of exposing Fetch to the internet without TLS and a reverse
   proxy in front of it.
 - `WEBHOOK_SECRET` appearing in a reverse proxy's access log when sent as
   `?token=`, which is the only form Plex can send. The header form is the
@@ -116,4 +116,4 @@ report.
 - Rate-limit budgets not being shared across multiple `api` replicas. The
   limiter is in-memory, and one `api` container is the documented deployment.
 - Scanner output with no demonstrated impact here, and `pnpm audit` findings for
-  advisories that no Cataloggy code path reaches.
+  advisories that no Fetch code path reaches.

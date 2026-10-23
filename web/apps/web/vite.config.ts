@@ -31,7 +31,7 @@ const SCREENSHOTS = [
     sizes: "1920x1080",
     type: "image/png",
     form_factor: "wide" as const,
-    label: "The Cataloggy dashboard",
+    label: "The Fetch dashboard",
   },
 ];
 
@@ -94,8 +94,8 @@ export default defineConfig({
         // icon on every home screen that already has one. Pinned to "/" so the
         // identity survives any future change to where the app opens.
         id: "/",
-        name: "Cataloggy",
-        short_name: "Cataloggy",
+        name: "Fetch",
+        short_name: "Fetch",
         description:
           "Track what you watch and play, keep your lists in sync, and browse it all from Stremio.",
         start_url: "/",

@@ -71,7 +71,7 @@ const LoadingFallback = ({ label = "Loading…" }: { label?: string }) => (
  * `index.html` ships one <title> for the whole app, which is right for the
  * document the server sends and wrong for every screen after it: a router that
  * never touches document.title leaves nine destinations all announcing
- * "Cataloggy", so the tab strip, the back-button menu and a screen reader's
+ * "Fetch", so the tab strip, the back-button menu and a screen reader's
  * page-title announcement carry no information at all.
  *
  * Kept beside the <Routes> below rather than on each page, so a new route can't
@@ -89,7 +89,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/settings": "Settings",
 };
 
-const APP_NAME = "Cataloggy";
+const APP_NAME = "Fetch";
 
 export function routeTitle(pathname: string): string {
   const name = ROUTE_TITLES[pathname];

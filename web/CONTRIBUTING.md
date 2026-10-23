@@ -1,12 +1,12 @@
-# Contributing to Cataloggy
+# Contributing to Fetch
 
-Cataloggy is a personal, self-hosted project. Contributions are welcome, but keep in mind it's built and maintained around one person's real usage — not every feature request will fit, and response time may be slow.
+Fetch is a personal, self-hosted project. Contributions are welcome, but keep in mind it's built and maintained around one person's real usage — not every feature request will fit, and response time may be slow.
 
 ## Getting set up
 
 ```bash
 pnpm install
-pnpm --filter @cataloggy/api prisma:generate
+pnpm --filter @fetch/api prisma:generate
 pnpm dev
 ```
 
@@ -22,7 +22,7 @@ files you never touched.
 ## Project structure
 
 ```text
-cataloggy/
+web/
   apps/
     api/        # Fastify API + Prisma
     addon/      # Stremio/Omni addon service
@@ -32,16 +32,16 @@ cataloggy/
     migrate/    # Prisma CLI only, for the migration image
 ```
 
-Each app is its own pnpm workspace package with its own `package.json` scripts (`dev`, `build`, `typecheck`, `lint`, `test` where applicable). Run them from the repo root with `pnpm --filter @cataloggy/<app> <script>`, or use the root-level scripts (`pnpm dev`, `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm test`) to run across every workspace at once.
+Each app is its own pnpm workspace package with its own `package.json` scripts (`dev`, `build`, `typecheck`, `lint`, `test` where applicable). Run them from the repo root with `pnpm --filter @fetch/<app> <script>`, or use the root-level scripts (`pnpm dev`, `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm test`) to run across every workspace at once.
 
 `packages/migrate` is the odd one out — no source, no build, no tests. It holds
 a pinned `prisma` dependency and nothing else, so the migration image can be
 built from a tree containing the Prisma CLI without the API's test and build
 toolchain: 226 MB against 470 MB, and it is also why the CLI is not a
 dependency of the API image. The schema and migrations still live with
-`@cataloggy/api`. See
+`@fetch/api`. See
 [packages/migrate/README.md](packages/migrate/README.md) — it is one of the
-four images `.github/workflows/dockerpublish.yml` builds, and all four have to
+four images `.github/workflows/web-dockerpublish.yml` (at the repository root) builds, and all four have to
 stay on the same `CATALOGGY_IMAGE_TAG`.
 
 ## Before opening a PR
@@ -59,7 +59,7 @@ pnpm test:int   # needs DATABASE_URL_TEST — see "Integration tests" below
 pnpm build
 ```
 
-`apps/api`, `apps/addon` and `apps/web` tests all need `@cataloggy/shared` built first if you haven't run `pnpm typecheck`/`pnpm build` yet — `pnpm --filter @cataloggy/shared build` handles that. (`pnpm lint` and `pnpm typecheck` build it themselves, and `pnpm build` and CI reach it in dependency order.)
+`apps/api`, `apps/addon` and `apps/web` tests all need `@fetch/shared` built first if you haven't run `pnpm typecheck`/`pnpm build` yet — `pnpm --filter @fetch/shared build` handles that. (`pnpm lint` and `pnpm typecheck` build it themselves, and `pnpm build` and CI reach it in dependency order.)
 
 Tests live next to the code they cover as `*.test.ts`/`*.test.tsx`. `apps/api` and `apps/addon` run in a Node environment; `apps/web` runs in jsdom with Testing Library, with shared setup (jest-dom matchers, cleanup, and stubs for the browser APIs jsdom lacks) in `apps/web/src/test/setup.ts`.
 
@@ -81,11 +81,11 @@ If your change reads a new environment variable, add it to the `environment:` bl
 
 The web client asserts its response types rather than checking them (`response.json() as Promise<T>`), which is fine for the ~87 shapes whose worst case is a blank field. Three are parsed instead — `GET /calendar`, `GET /series/progress` and `GET /watch/history` — because each is destructured without a guard on a hot path, and a self-hosted install can legitimately run a `web` image against an `api` image from another build. Those contracts live in `packages/shared/src/api-contracts.ts` alongside the api↔addon ones, in the same hand-written style (no schema library); if you change one of those three responses on either side, change the parser with it. Reach for a new contract when a missing field would throw rather than render blank — not for every endpoint.
 
-If your change touches `.github/workflows/`, every third-party action stays pinned to a 40-character commit SHA with the release in a trailing comment (`# v6.0.10`). The SHA is what GitHub enforces and the comment is the only part a reviewer reads, so `pnpm check:actions` holds them together: it fails on an unpinned or uncommented `uses:`, and on one SHA carrying two different version comments across files — which is how a Dependabot bump had already left the repo claiming one commit was both v6.0.9 and v6.0.10. CI adds `--verify-tags`, which resolves each pin against the action's own tags with `git ls-remote` and so also catches a comment that is wrong everywhere; an unreachable remote warns rather than failing the build.
+If your change touches `.github/workflows/web-*.yml`, every third-party action stays pinned to a 40-character commit SHA with the release in a trailing comment (`# v6.0.10`). The SHA is what GitHub enforces and the comment is the only part a reviewer reads, so `pnpm check:actions` holds them together: it fails on an unpinned or uncommented `uses:`, and on one SHA carrying two different version comments across files — which is how a Dependabot bump had already left the repo claiming one commit was both v6.0.9 and v6.0.10. CI adds `--verify-tags`, which resolves each pin against the action's own tags with `git ls-remote` and so also catches a comment that is wrong everywhere; an unreachable remote warns rather than failing the build.
 
-If a `pnpm audit` advisory has no fix to upgrade to, it can be waived in [.github/audit-allowlist.json](.github/audit-allowlist.json) with the GHSA id, a reason and an expiry date no more than 90 days out. Prefer an override in `pnpm-workspace.yaml` whenever one reaches the vulnerable package — the waiver is for the case where nothing upstream exists yet, so that a single new disclosure cannot freeze every merge including its own fix. `pnpm check:audit` enforces the expiry, and fails on a waiver that no longer matches anything so the file stays a description of the present.
+If a `pnpm audit` advisory has no fix to upgrade to, it can be waived in [audit-allowlist.json](audit-allowlist.json) with the GHSA id, a reason and an expiry date no more than 90 days out. Prefer an override in `pnpm-workspace.yaml` whenever one reaches the vulnerable package — the waiver is for the case where nothing upstream exists yet, so that a single new disclosure cannot freeze every merge including its own fix. `pnpm check:audit` enforces the expiry, and fails on a waiver that no longer matches anything so the file stays a description of the present.
 
-If your change adds a Prisma migration, make sure it applies cleanly against a fresh database (`pnpm --filter @cataloggy/api exec prisma migrate deploy`) — CI runs every migration against a real Postgres instance and will fail if it doesn't.
+If your change adds a Prisma migration, make sure it applies cleanly against a fresh database (`pnpm --filter @fetch/api exec prisma migrate deploy`) — CI runs every migration against a real Postgres instance and will fail if it doesn't.
 
 If your change is worth knowing about before upgrading — a feature, a
 behavioural change, a fix, anything security-related — add an entry to the
@@ -105,6 +105,6 @@ Open a GitHub issue. For bugs, include: what you expected, what happened instead
 
 ## Security issues
 
-Please don't open a public issue for a security vulnerability. **[SECURITY.md](.github/SECURITY.md)** is the policy: where to report privately, which versions get fixes, and — the part worth reading before you write anything — what's in and out of the threat model. Cataloggy is designed for trusted-LAN self-hosting rather than public internet exposure, so a few things that look like findings are documented trade-offs, and the [Security section of the README](README.md#security) says why.
+Please don't open a public issue for a security vulnerability. **[SECURITY.md](SECURITY.md)** is the policy: where to report privately, which versions get fixes, and — the part worth reading before you write anything — what's in and out of the threat model. Fetch is designed for trusted-LAN self-hosting rather than public internet exposure, so a few things that look like findings are documented trade-offs, and the [Security section of the README](README.md#security) says why.
 
-Report via [a private advisory](https://github.com/TheShield2594/cataloggy/security/advisories/new), which is visible only to you and [the maintainer](https://github.com/TheShield2594).
+Report via [a private advisory](https://github.com/TheShield2594/fetch/security/advisories/new), which is visible only to you and [the maintainer](https://github.com/TheShield2594).

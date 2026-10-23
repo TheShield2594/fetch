@@ -145,7 +145,7 @@ export function DataSettings() {
         <div>
           <p className="text-sm font-semibold" style={{ color: "var(--text-dim)" }}>Import data</p>
           <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-            Restore from a Cataloggy JSON export, or import watch history from a CSV file with columns <code>imdbId,type,season,episode,watchedAt</code>.
+            Restore from a Fetch JSON export, or import watch history from a CSV file with columns <code>imdbId,type,season,episode,watchedAt</code>.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">

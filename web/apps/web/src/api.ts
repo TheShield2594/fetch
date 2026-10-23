@@ -14,7 +14,7 @@
  */
 
 export * from "./api/types";
-export { ApiContractError } from "@cataloggy/shared/contracts";
+export { ApiContractError } from "@fetch/shared/contracts";
 export { ApiError, OfflineWriteQueuedError } from "./api/client";
 export {
   invalidatedCachePrefixes,

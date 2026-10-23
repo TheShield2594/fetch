@@ -9,13 +9,13 @@ import {
   parseMetasResponse,
   parsePreferencesResponse,
   parseRpdbConfigResponse,
-} from "@cataloggy/shared";
+} from "@fetch/shared";
 import type {
   AddonManifestConfig,
   CataloggyList,
   CataloggyListItem,
   RpdbConfigResponse,
-} from "@cataloggy/shared";
+} from "@fetch/shared";
 import { apiGet } from "./api-client.js";
 import { cacheKeyFor, cacheSet, type CacheEntry } from "./cache.js";
 import type { StremioMetaPreview } from "./stremio-types.js";
@@ -99,7 +99,7 @@ export const applyRpdbToMetas = (metas: StremioMetaPreview[], rpdbKey: string | 
 };
 
 // Which catalogs exist, what they are called and which API endpoint serves each
-// one all come from @cataloggy/shared, so this service and the API's own
+// one all come from @fetch/shared, so this service and the API's own
 // manifest can no longer disagree about the set — which is how "AI Picks" came
 // to be offered in Settings and then silently dropped here.
 const trendingPopularCache = new Map<string, CacheEntry<StremioMetaPreview[]>>();

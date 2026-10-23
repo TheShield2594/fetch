@@ -1,6 +1,6 @@
 import { MetadataType, WatchEventType } from "@prisma/client";
 import type { PlaySignal } from "@prisma/client";
-import { parseBool } from "@cataloggy/shared";
+import { parseBool } from "@fetch/shared";
 import { prisma } from "./prisma.js";
 import { recordWatchEvent } from "./watch-event.js";
 import type { FastifyBaseLogger } from "fastify";

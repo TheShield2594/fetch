@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deriveServiceToken, matchesServiceToken } from "@cataloggy/shared";
+import { deriveServiceToken, matchesServiceToken } from "@fetch/shared";
 
 const API_TOKEN = "secret-token";
 

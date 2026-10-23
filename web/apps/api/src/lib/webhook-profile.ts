@@ -19,7 +19,7 @@ export type WebhookProfileResolution =
  *    and therefore wins outright — a bad ID is an error, not a silent fallback.
  * 2. The media-server account name, matched case-insensitively against profile
  *    names. Zero configuration for the common case where the Plex user "Sam"
- *    has a Cataloggy profile called "Sam".
+ *    has a Fetch profile called "Sam".
  * 3. The default (oldest) profile — the single-profile install, which is what
  *    every webhook did implicitly before this existed.
  *

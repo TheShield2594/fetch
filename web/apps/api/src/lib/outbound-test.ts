@@ -28,7 +28,7 @@ export type OutboundFailure =
   | "failed";
 
 export const OUTBOUND_FAILURE_MESSAGE: Record<OutboundFailure, string> = {
-  blocked: "That address is not one Cataloggy will send to.",
+  blocked: "That address is not one Fetch will send to.",
   misconfigured: "The configuration is incomplete or invalid.",
   unreachable: "Could not reach that address — check the host and port. The server log has the details.",
   rejected: "Reached it, but it did not accept the request — check the path and token. The server log has the details.",

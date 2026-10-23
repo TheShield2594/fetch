@@ -1,4 +1,4 @@
-import { Sentry, initNodeSentry } from "@cataloggy/shared";
+import { Sentry, initNodeSentry } from "@fetch/shared";
 
 export const sentryEnabled = initNodeSentry("api");
 

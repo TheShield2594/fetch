@@ -8,7 +8,7 @@ export const TRENDING_CACHE_TTL_MS = 30 * 60 * 1000;
 export const CAST_CACHE_TTL_MS = 60 * 60 * 1000;
 export const WATCH_PROVIDERS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 export const EXTERNAL_IDS_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-// A title TMDB knows no IMDb id for is one Cataloggy drops from every catalog
+// A title TMDB knows no IMDb id for is one Fetch drops from every catalog
 // and every search, so this is the entry that decides whether something is
 // findable at all — and it is the one most likely to change, because the usual
 // fix is somebody filling the field in on TMDB. A week of remembering "no" made

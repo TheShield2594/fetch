@@ -1,8 +1,8 @@
 # Troubleshooting
 
-Things that go wrong when self-hosting Cataloggy, and what they actually mean.
+Things that go wrong when self-hosting Fetch, and what they actually mean.
 Most are configuration rather than bugs — if something here doesn't match what
-you're seeing, [open an issue](https://github.com/TheShield2594/cataloggy/issues).
+you're seeing, [open an issue](https://github.com/TheShield2594/fetch/issues).
 
 Two things to check before anything else:
 
@@ -137,12 +137,12 @@ Almost always one cause: **the page isn't a secure context**. Browsers only hand
 out service workers, `Notification` and `PushManager` to `https://` origins and
 to `localhost`/`127.0.0.1`. A LAN IP is neither, so on the
 `http://192.168.x.x:7002` address the README quickstart hands out, the whole PWA
-layer is switched off — not just notifications. Open the console: Cataloggy logs
+layer is switched off — not just notifications. Open the console: Fetch logs
 a warning naming this when service-worker registration fails.
 
 What that looks like:
 
-- **No install prompt, and Cataloggy's own Install button never appears** —
+- **No install prompt, and Fetch's own Install button never appears** —
   Chrome fires `beforeinstallprompt` only on an installable (secure) origin, and
   the button is bound to that event.
 - **Nothing works offline, and posters aren't cached** — there is no service
@@ -155,19 +155,19 @@ What that looks like:
   offline and no push behind it. The install worked; the capabilities it implies
   never arrived.
 
-The fix is an `https://` address: put Cataloggy behind a reverse proxy with a
+The fix is an `https://` address: put Fetch behind a reverse proxy with a
 certificate — see [Nginx Proxy Manager
 Setup](../README.md#nginx-proxy-manager-setup) — and install from there. Testing
 on the machine running Docker, `http://localhost:7002` is exempt and everything
 works, which is why this only shows up once you open it on a phone.
 
-If HTTPS isn't worth it for your setup, nothing else in Cataloggy is affected:
+If HTTPS isn't worth it for your setup, nothing else in Fetch is affected:
 the LAN URL is fully functional, and **Settings → Notifications** channels
 deliver episode alerts over plain http.
 
 ## Posters and metadata are missing
 
-Cataloggy needs a TMDB API key for essentially all metadata. Without one, search
+Fetch needs a TMDB API key for essentially all metadata. Without one, search
 returns `500` with "TMDB integration is not configured".
 
 Set it in **Settings → TMDB Metadata** (the setup wizard also asks). A key saved
@@ -182,7 +182,7 @@ saves, so a typo can't overwrite a working one.
 - **A title you can find on themoviedb.org doesn't come up in search** — first
   try pasting its IMDb id (`tt0110912`) or its themoviedb.org link into the
   search box; both resolve straight to that title. If that comes back empty
-  too, the title is one TMDB has no IMDb id for. Cataloggy keys everything —
+  too, the title is one TMDB has no IMDb id for. Fetch keys everything —
   lists, ratings, watch history, the Stremio add-on — by IMDb id, so a title
   without one is a title it cannot store, and search leaves it out rather than
   offering something that can't be added. TMDB takes corrections: adding the
@@ -196,7 +196,7 @@ saves, so a typo can't overwrite a working one.
 
 ## Watch history isn't appearing
 
-Cataloggy doesn't play anything, so history has to come from somewhere else.
+Fetch doesn't play anything, so history has to come from somewhere else.
 Check which source you expect:
 
 ### Stremio play detection
@@ -260,7 +260,7 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
 ## Trakt
 
 - **OAuth fails** — the redirect URI registered on trakt.tv has to match exactly
-  what Cataloggy builds from `CATALOGGY_API_PUBLIC`. A trailing slash counts as
+  what Fetch builds from `CATALOGGY_API_PUBLIC`. A trailing slash counts as
   a mismatch.
 - **The callback 400s** — the `state` value expired or didn't match. Start the
   flow again; it's bound to the browser session that began it.
@@ -291,7 +291,7 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
 
 - **Nothing arrives over push** — push needs VAPID keys and https (or
   localhost); browsers refuse service-worker push over plain http on a LAN IP.
-  This is a browser rule, not something Cataloggy can work around, and it takes
+  This is a browser rule, not something Fetch can work around, and it takes
   installing and offline down with it — see [Installing as an app, offline and
   push](#installing-as-an-app-offline-and-push) for the full picture. On a plain
   `http://192.168.x.x` deployment, add a notification channel instead
@@ -310,7 +310,7 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
     server rejected or, on ntfy, a topic typo.
   - *could not reach that address* — usually an address that is reachable from
     your desk but not from inside the `api` container.
-  - *not an address Cataloggy will send to* — the URL, or what its hostname
+  - *not an address Fetch will send to* — the URL, or what its hostname
     resolves to, is in the blocked cloud-metadata/link-local range.
   - *the stored token could not be decrypted* — `API_TOKEN` changed after the
     channel was saved; re-enter the token here.
@@ -333,7 +333,7 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
 - **Nothing on iOS** — the site has to be added to the home screen first. Safari
   doesn't deliver push to a tab: in one, the notification APIs aren't merely
   refused, they're absent, which is why **Settings → Notifications** used to
-  call it unsupported. Tap **Share** → **Add to Home Screen**, open Cataloggy
+  call it unsupported. Tap **Share** → **Add to Home Screen**, open Fetch
   from the icon, and enable notifications from there. Needs iOS 16.4 or later;
   on anything older, use a notification channel instead.
 - **The Enable button does nothing** — permission has already been denied for
@@ -459,6 +459,6 @@ Also worth a look: **Settings → Sync Status**, which surfaces scheduled jobs
 that are currently failing. If you've set `SENTRY_DSN`, unhandled errors are
 there too — it's off by default, and no error data leaves your server without it.
 
-When opening an issue, include the logs above, your Cataloggy version
+When opening an issue, include the logs above, your Fetch version
 (`CATALOGGY_IMAGE_TAG`), and a redacted `.env` — please strip `API_TOKEN`,
 `POSTGRES_PASSWORD`, `WEBHOOK_SECRET`, and every API key before posting.

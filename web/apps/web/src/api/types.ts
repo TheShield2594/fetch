@@ -10,11 +10,11 @@
 
 /**
  * The three response shapes this client validates rather than asserts, defined
- * once in `@cataloggy/shared` and annotated onto the API's own handlers — see
+ * once in `@fetch/shared` and annotated onto the API's own handlers — see
  * the "web client's boundary" section of `packages/shared/src/api-contracts.ts`
  * for why these three and not the other ~87.
  */
-export type { CalendarEntry, SeriesProgress, WatchEvent } from "@cataloggy/shared/contracts";
+export type { CalendarEntry, SeriesProgress, WatchEvent } from "@fetch/shared/contracts";
 
 export type MediaType = "movie" | "series";
 

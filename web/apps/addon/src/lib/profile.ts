@@ -1,5 +1,5 @@
 import type { FastifyBaseLogger, FastifyRequest } from "fastify";
-import { parseProfilesResponse, UUID_V4_PATTERN } from "@cataloggy/shared";
+import { parseProfilesResponse, UUID_V4_PATTERN } from "@fetch/shared";
 import { apiGet } from "./api-client.js";
 
 /**

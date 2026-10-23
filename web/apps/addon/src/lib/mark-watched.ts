@@ -91,7 +91,7 @@ const checkMarkWatchedToken = (
 
 export const MINIMAL_SRT = `1
 00:00:00,000 --> 00:00:03,000
-Marked as watched on Cataloggy
+Marked as watched on Fetch
 `;
 
 export const SERIES_NO_EPISODE_SRT = `1
@@ -101,22 +101,22 @@ Cannot mark a series as watched — select a specific episode first
 
 export const WATCH_FAILED_SRT = `1
 00:00:00,000 --> 00:00:05,000
-Cataloggy could not record this — check the addon logs
+Fetch could not record this — check the addon logs
 `;
 
 const REJECTED_SRT = `1
 00:00:00,000 --> 00:00:05,000
-Cataloggy rejected this request — reinstall the addon from Settings
+Fetch rejected this request — reinstall the addon from Settings
 `;
 
 export const UNKNOWN_PROFILE_SRT = `1
 00:00:00,000 --> 00:00:05,000
-Cataloggy profile not recognised — reinstall the addon from Settings
+Fetch profile not recognised — reinstall the addon from Settings
 `;
 
 const EXPIRED_SRT = `1
 00:00:00,000 --> 00:00:05,000
-This Cataloggy link has expired — reopen the title to get a fresh one
+This Fetch link has expired — reopen the title to get a fresh one
 `;
 
 /**

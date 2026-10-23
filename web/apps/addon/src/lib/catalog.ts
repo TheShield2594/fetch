@@ -1,6 +1,6 @@
 import type { FastifyBaseLogger } from "fastify";
-import { getDiscoveryCatalog } from "@cataloggy/shared";
-import type { CataloggyListItem } from "@cataloggy/shared";
+import { getDiscoveryCatalog } from "@fetch/shared";
+import type { CataloggyListItem } from "@fetch/shared";
 import {
   applyRpdbToMetas,
   fetchAddonConfig,

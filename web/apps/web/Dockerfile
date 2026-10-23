@@ -12,7 +12,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY apps/web ./apps/web
 
-RUN pnpm --filter @cataloggy/web build
+RUN pnpm --filter @fetch/web build
 
 FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS runtime
 

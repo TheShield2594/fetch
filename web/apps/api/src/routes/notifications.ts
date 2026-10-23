@@ -225,8 +225,8 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
       try {
         await sendToChannel(channel, {
           event: "test",
-          title: "Cataloggy test notification",
-          body: "If you can read this, Cataloggy can reach this channel.",
+          title: "Fetch test notification",
+          body: "If you can read this, Fetch can reach this channel.",
           path: "/settings",
         });
         return { success: true };

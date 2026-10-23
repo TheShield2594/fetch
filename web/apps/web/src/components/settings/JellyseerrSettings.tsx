@@ -8,7 +8,7 @@ const inputClass =
   "w-full rounded-xl border px-4 py-2.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15";
 const inputStyle = { borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" };
 
-// The only integration that writes to something outside Cataloggy, so the copy
+// The only integration that writes to something outside Fetch, so the copy
 // leads with what it will do rather than with what it connects to.
 export function JellyseerrSettings() {
   const urlId = useId();

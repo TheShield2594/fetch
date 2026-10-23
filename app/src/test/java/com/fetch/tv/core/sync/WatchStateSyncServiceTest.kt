@@ -144,7 +144,7 @@ class WatchStateSyncServiceTest {
         coEvery { authManager.refreshSessionIfJwtExpired(any()) } returns canRefreshJwt
         return WatchProgressSyncService(
             authManager = authManager,
-            postgrest = postgrest,
+            postgrestLazy = dagger.Lazy { postgrest },
             watchProgressPreferences = preferences,
             trackingProviderRegistry = TrackingProgressProviderRegistry(emptySet()),
             traktSettingsDataStore = mockk(relaxed = true),
@@ -163,7 +163,7 @@ class WatchStateSyncServiceTest {
         coEvery { authManager.refreshSessionIfJwtExpired(any()) } returns false
         return WatchedItemsSyncService(
             authManager = authManager,
-            postgrest = postgrest,
+            postgrestLazy = dagger.Lazy { postgrest },
             watchedItemsPreferences = preferences,
             trackingProviderRegistry = TrackingProgressProviderRegistry(emptySet()),
             traktSettingsDataStore = mockk(relaxed = true),

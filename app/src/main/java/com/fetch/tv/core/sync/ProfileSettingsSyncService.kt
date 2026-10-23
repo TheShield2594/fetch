@@ -170,7 +170,7 @@ internal fun shouldExcludePreferenceFromProfileSettingsSync(feature: String, key
 @Singleton
 class ProfileSettingsSyncService @Inject constructor(
     private val authManager: AuthManager,
-    private val postgrest: Postgrest,
+    private val postgrestLazy: dagger.Lazy<Postgrest>,
     private val profileManager: ProfileManager,
     private val profileDataStoreFactory: ProfileDataStoreFactory,
     private val syncClientIdentity: SyncClientIdentity,
@@ -180,6 +180,8 @@ class ProfileSettingsSyncService @Inject constructor(
     private val metaRepository: MetaRepository,
     private val cwEnrichmentCache: ContinueWatchingEnrichmentCache
 ) {
+    private val postgrest: Postgrest get() = postgrestLazy.get()
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val syncMutex = Mutex()
 

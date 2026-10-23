@@ -698,7 +698,7 @@ internal fun ModernRowSection(
                         )
                         val widthPx = with(density) { metrics.width.roundToPx() }
                         val heightPx = with(density) { metrics.height.roundToPx() }
-                        url to "${url}_${widthPx}x${heightPx}"
+                        url to catalogCardImageCacheKey(url, widthPx, heightPx)
                     }
                     is ModernPayload.CollectionFolder -> {
                         val url = item.imageUrl ?: return null
@@ -711,7 +711,7 @@ internal fun ModernRowSection(
                         )
                         val widthPx = with(density) { metrics.width.roundToPx() }
                         val heightPx = with(density) { metrics.height.roundToPx() }
-                        url to "${url}_${widthPx}x${heightPx}"
+                        url to catalogCardImageCacheKey(url, widthPx, heightPx)
                     }
                     is ModernPayload.ContinueWatching -> {
                         // Use the same model and cache key the card computes so the prefetch warms the entry the card actually reads.
@@ -730,8 +730,13 @@ internal fun ModernRowSection(
             fun enqueueIfNeeded(item: ModernCarouselItem, widthPx: Int, heightPx: Int) {
                 if (widthPx <= 0 || heightPx <= 0) return
                 val (url, cacheKey) = imageUrlAndKey(item) ?: return
-                if (imageLoader.memoryCache?.get(MemoryCache.Key(cacheKey)) != null) return
                 val payload = item.payload
+                val extras = if (payload is ModernPayload.ContinueWatching) {
+                    emptyMap()
+                } else {
+                    item.catalogCardImageCacheExtras(imageUrl = url, isLandscapeCustomPoster = false)
+                }
+                if (imageLoader.memoryCache?.get(MemoryCache.Key(cacheKey, extras)) != null) return
                 val blur = payload is ModernPayload.ContinueWatching &&
                     continueWatchingShouldBlur(
                         payload.item, blurUnwatchedEpisodes, continueWatchingUsesEpisodeThumbnails(continueWatchingCardStyle, useEpisodeThumbnails),
@@ -741,6 +746,7 @@ internal fun ModernRowSection(
                     ImageRequest.Builder(context)
                         .data(url)
                         .memoryCacheKey(cacheKey)
+                        .memoryCacheKeyExtras(extras)
                         .size(width = widthPx, height = heightPx)
                         .apply {
                             if (blur) transformations(com.fetch.tv.ui.util.BlurTransformation())
@@ -1203,15 +1209,15 @@ private fun ModernCarouselCard(
         is ModernPayload.CollectionFolder -> ContentScale.FillBounds
         else -> ContentScale.Crop
     }
-    // Keep decode target stable across expand/collapse to avoid recreating image requests/painters
-    // purely due to animated width changes.
+    // Decode at the target width, not the animated one, so the request isn't recreated per frame.
+    // A collapsed poster decodes at its own width; only the expanded card needs the wide image.
     val maxRequestCardWidth = if (focusedPosterBackdropExpandEnabled) {
         maxOf(cardWidth, expandedCardWidth)
     } else {
         cardWidth
     }
-    val requestWidthPx = remember(maxRequestCardWidth, density) {
-        with(density) { maxRequestCardWidth.roundToPx() }.coerceAtLeast(1)
+    val requestWidthPx = remember(targetCardWidth, density) {
+        with(density) { targetCardWidth.roundToPx() }.coerceAtLeast(1)
     }
     val requestHeightPx = remember(cardHeight, density) {
         with(density) { cardHeight.roundToPx() }.coerceAtLeast(1)
@@ -1221,24 +1227,20 @@ private fun ModernCarouselCard(
     var customPosterLoadFailed by remember(imageUrl) { mutableStateOf(false) }
     val imageModel = remember(context, imageUrl, requestWidthPx, requestHeightPx, revalidationKey) {
         imageUrl?.let {
+            val cacheExtras = item.catalogCardImageCacheExtras(
+                imageUrl = it,
+                isLandscapeCustomPoster = useLandscapeOverlayTreatment && !effectiveIgnoreLandscapePoster &&
+                    !item.metaPreview?.landscapePoster.isNullOrBlank()
+            )
             val builder = ImageRequest.Builder(context)
                 .data(it)
                 .crossfade(true)
-                .memoryCacheKey("${it}_${requestWidthPx}x${requestHeightPx}_v$revalidationKey")
+                .memoryCacheKey(catalogCardImageCacheKey(it, requestWidthPx, requestHeightPx, revalidationKey))
+                .memoryCacheKeyExtras(cacheExtras)
                 .size(width = requestWidthPx, height = requestHeightPx)
             if (revalidationKey > 0) {
-                builder.placeholderMemoryCacheKey("${it}_${requestWidthPx}x${requestHeightPx}_v${revalidationKey - 1}")
-            }
-            val isLandscapeCustomPoster = useLandscapeOverlayTreatment && !effectiveIgnoreLandscapePoster && !item.metaPreview?.landscapePoster.isNullOrBlank()
-            val fallbackUrl = if (isLandscapeCustomPoster) {
-                // Landscape custom poster -> fall back to original backdrop
-                item.metaPreview?.background ?: item.heroPreview.backdrop ?: item.metaPreview?.rawPosterUrl
-            } else {
-                item.metaPreview?.rawPosterUrl
-            }
-            if (!fallbackUrl.isNullOrBlank() && fallbackUrl != it) {
-                builder.memoryCacheKeyExtras(
-                    mapOf(com.fetch.tv.core.image.CustomPosterFallbackInterceptor.FALLBACK_URL_KEY to fallbackUrl)
+                builder.placeholderMemoryCacheKey(
+                    MemoryCache.Key(catalogCardImageCacheKey(it, requestWidthPx, requestHeightPx, revalidationKey - 1), cacheExtras)
                 )
             }
             builder.build()

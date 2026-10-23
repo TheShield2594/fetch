@@ -46,11 +46,13 @@ sealed class SetProfilePinResult {
 @Singleton
 class ProfileSyncService @Inject constructor(
     private val authManager: AuthManager,
-    private val postgrest: Postgrest,
+    private val postgrestLazy: dagger.Lazy<Postgrest>,
     private val profileDataStore: ProfileDataStore,
     private val profileManager: ProfileManager,
     private val syncClientIdentity: SyncClientIdentity
 ) {
+    private val postgrest: Postgrest get() = postgrestLazy.get()
+
     private val pullMutex = Mutex()
     private var pullFreshness = ProfilePullFreshness()
     private var lastPulledProfiles = emptyList<UserProfile>()

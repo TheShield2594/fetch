@@ -16,6 +16,8 @@ interface CatalogRepository {
         skipStep: Int = 100,
         extraArgs: Map<String, String> = emptyMap(),
         supportsSkip: Boolean = false,
-        posterScreen: com.fetch.tv.core.poster.CustomPosterScreen = com.fetch.tv.core.poster.CustomPosterScreen.HOME
+        posterScreen: com.fetch.tv.core.poster.CustomPosterScreen = com.fetch.tv.core.poster.CustomPosterScreen.HOME,
+        /** Emit the HTTP-cached copy first, however stale, then the network result. */
+        cachedFirst: Boolean = false
     ): Flow<NetworkResult<CatalogRow>>
 }

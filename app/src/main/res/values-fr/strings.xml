@@ -1318,7 +1318,6 @@
     <string name="profile_pin_overlay_set_support">Ce code PIN sera demandé avant l’ouverture de ce profil.</string>
     <string name="profile_pin_overlay_confirm_support">Saisissez de nouveau les mêmes 4 chiffres pour terminer la configuration.</string>
     <string name="profile_pin_overlay_mismatch">Les codes PIN ne correspondent pas. Saisissez de nouveau un code PIN.</string>
-    <string name="profile_pin_overlay_forgot_hint">Code PIN oublié&#160;? Réinitialisez-le depuis votre compte Fetch sur le site web de Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Appuyez sur «&#160;Retour&#160;» pour annuler</string>
 
 

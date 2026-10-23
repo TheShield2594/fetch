@@ -927,7 +927,6 @@
     <string name="profile_pin_overlay_set_support">இந்த சுயவிவரத்தை திறப்பதற்கு முன் இந்த பின் தேவைப்படும்.</string>
     <string name="profile_pin_overlay_confirm_support">அமைப்பை முடிக்க அதே 4 இலக்கங்களை மீண்டும் உள்ளிடவும்.</string>
     <string name="profile_pin_overlay_mismatch">பின்கள் பொருந்தவில்லை. புதிய பினை மீண்டும் உள்ளிடவும்.</string>
-    <string name="profile_pin_overlay_forgot_hint">பின் மறந்துவிட்டதா? Fetch இணையதளத்தில் உங்கள் Fetch கணக்கிலிருந்து மீட்டமைக்கவும்.</string>
     <string name="profile_pin_overlay_back_hint">ரத்து செய்ய பின் பொத்தானை அழுத்தவும்</string>
 
 

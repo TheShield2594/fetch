@@ -1181,7 +1181,6 @@
     <string name="profile_pin_overlay_set_support">Ovaj PIN će biti potreban pre otvaranja ovog profila.</string>
     <string name="profile_pin_overlay_confirm_support">Ponovo unesite iste 4 cifre da završite podešavanje.</string>
     <string name="profile_pin_overlay_mismatch">PIN kodovi se ne poklapaju. Unesite novi PIN ponovo.</string>
-    <string name="profile_pin_overlay_forgot_hint">Zaboravili ste PIN? Resetujte ga sa svog Fetch naloga na Fetch veb-sajtu.</string>
     <string name="profile_pin_overlay_back_hint">Pritisnite nazad za otkazivanje</string>
 
 

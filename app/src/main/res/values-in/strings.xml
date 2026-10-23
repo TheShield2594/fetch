@@ -951,7 +951,6 @@
     <string name="profile_pin_overlay_set_support">PIN ini akan diperlukan sebelum membuka profil ini.</string>
     <string name="profile_pin_overlay_confirm_support">Masukkan ulang 4 digit yang sama untuk menyelesaikan pengaturan.</string>
     <string name="profile_pin_overlay_mismatch">PIN tidak cocok. Masukkan PIN baru lagi.</string>
-    <string name="profile_pin_overlay_forgot_hint">Lupa PIN? Setel ulang dari akun Fetch Anda di situs web Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Tekan kembali untuk membatalkan</string>
 
 

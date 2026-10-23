@@ -147,6 +147,68 @@ class ProfilePinManagerTest {
     }
 
     @Test
+    fun `the main profile's PIN resets a forgotten PIN and ends the lockout`() = runTest {
+        val pins = manager()
+        pins.setPin(1, "1111")
+        pins.setPin(2, "2222")
+        repeat(PinAttemptPolicy.FREE_ATTEMPTS) { pins.verifyPin(2, "0000") }
+        assertTrue(pins.verifyPin(2, "2222").getOrThrow().retryAfterSeconds > 0)
+
+        assertEquals(ResetPinResult.Success, pins.resetPin(2, "3333", parentPin = "1111"))
+
+        assertTrue(pins.verifyPin(2, "3333").getOrThrow().unlocked)
+        assertFalse(pins.verifyPin(2, "2222").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `a reset needs the right main profile PIN`() = runTest {
+        val pins = manager()
+        pins.setPin(1, "1111")
+        pins.setPin(2, "2222")
+
+        assertEquals(ResetPinResult.ParentPinIncorrect(), pins.resetPin(2, "3333", parentPin = "9999"))
+        assertTrue(pins.verifyPin(2, "2222").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `a reset needs the main profile to have a PIN`() = runTest {
+        val pins = manager()
+        pins.setPin(2, "2222")
+
+        assertEquals(ResetPinResult.ParentPinRequired, pins.resetPin(2, "3333", parentPin = "0000"))
+        assertTrue(pins.verifyPin(2, "2222").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `the main profile's PIN can't be reset`() = runTest {
+        val pins = manager()
+        pins.setPin(1, "1111")
+
+        assertTrue(pins.resetPin(1, "3333", parentPin = "1111") is ResetPinResult.Failure)
+        assertTrue(pins.verifyPin(1, "1111").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `a reset works on the TV when the server keeps the old PIN`() = runTest {
+        val remote = object : RemoteProfilePins {
+            override val isAvailable = true
+            override suspend fun pullStates() = Result.success(mapOf(2 to true))
+            override suspend fun setPin(profileId: Int, pin: String, currentPin: String?) =
+                SetProfilePinResult.CurrentPinRequired
+            override suspend fun clearPin(profileId: Int, currentPin: String?) = Result.success(Unit)
+            override suspend fun verifyPin(profileId: Int, pin: String) =
+                Result.success(PinVerifyResult(unlocked = false))
+        }
+        val pins = manager(remote)
+        store.setLocalPinHash(1, ProfilePinHasher.hash("1111"))
+        store.replaceAll(mapOf(2 to true))
+
+        assertEquals(ResetPinResult.Success, pins.resetPin(2, "3333", parentPin = "1111"))
+
+        assertTrue(pins.verifyPin(2, "3333").getOrThrow().unlocked)
+    }
+
+    @Test
     fun `removing a profile forgets its PIN`() = runTest {
         val pins = manager()
         pins.setPin(4, "1111")

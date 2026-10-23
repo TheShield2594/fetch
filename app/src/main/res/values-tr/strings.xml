@@ -1319,7 +1319,6 @@
     <string name="profile_pin_overlay_set_support">Bu PIN, profil açılmadan önce her seferinde istenecek.</string>
     <string name="profile_pin_overlay_confirm_support">Kurulumu tamamlamak için aynı 4 rakamı tekrar girin.</string>
     <string name="profile_pin_overlay_mismatch">PINler eşleşmedi. Tekrar deneyin.</string>
-    <string name="profile_pin_overlay_forgot_hint">PIN mi unuttunuz? Fetch web sitesinden sıfırlayabilirsiniz.</string>
     <string name="profile_pin_overlay_back_hint">İptal etmek için geri tuşuna basın</string>
 
 

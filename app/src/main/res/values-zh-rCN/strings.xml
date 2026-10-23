@@ -1236,7 +1236,6 @@
     <string name="profile_pin_overlay_set_support">打开此个人资料前将需要此 PIN。</string>
     <string name="profile_pin_overlay_confirm_support">重新输入相同的 4 位数字以完成设置。</string>
     <string name="profile_pin_overlay_mismatch">PIN 码不匹配。请重新输入新的 PIN。</string>
-    <string name="profile_pin_overlay_forgot_hint">忘记 PIN？请在 Fetch 网站上从您的 Fetch 账户重置。</string>
     <string name="profile_pin_overlay_back_hint">按返回键取消</string>
 
 

@@ -9,6 +9,7 @@ import com.fetch.tv.core.sync.ProfileSyncService
 import com.fetch.tv.core.sync.SetProfilePinResult
 import com.fetch.tv.core.parental.PinVerifyResult
 import com.fetch.tv.core.parental.ProfilePinManager
+import com.fetch.tv.core.parental.ResetPinResult
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 import com.fetch.tv.data.remote.supabase.AvatarRepository
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
@@ -329,6 +330,21 @@ class ProfileSelectionViewModel @Inject constructor(
         viewModelScope.launch {
             _isPinOperationInProgress.value = true
             val result = profilePinManager.setPin(profileId, pin, currentPin)
+            _isPinOperationInProgress.value = false
+            onComplete(result)
+        }
+    }
+
+    fun resetProfilePin(
+        profileId: Int,
+        newPin: String,
+        parentPin: String,
+        onComplete: (ResetPinResult) -> Unit
+    ) {
+        if (_isPinOperationInProgress.value) return
+        viewModelScope.launch {
+            _isPinOperationInProgress.value = true
+            val result = profilePinManager.resetPin(profileId, newPin, parentPin)
             _isPinOperationInProgress.value = false
             onComplete(result)
         }

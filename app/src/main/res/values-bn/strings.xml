@@ -1235,7 +1235,6 @@
     <string name="profile_pin_overlay_set_support">এই প্রোফাইল খোলার আগে এই পিনটি প্রয়োজন হবে।</string>
     <string name="profile_pin_overlay_confirm_support">সেটআপ শেষ করতে একই ৪-ডিজিট পুনরায় লিখুন।</string>
     <string name="profile_pin_overlay_mismatch">পিন মেলেনি। আবার নতুন পিন লিখুন।</string>
-    <string name="profile_pin_overlay_forgot_hint">পিন ভুলে গেছেন? Fetch ওয়েবসাইটে আপনার Fetch অ্যাকাউন্ট থেকে এটি রিসেট করুন।</string>
     <string name="profile_pin_overlay_back_hint">বাতিল করতে back-এ চাপ দিন</string>
     <string name="essential_addon_setup_title">অ্যাডন সেটআপ করুন</string>
     <string name="essential_addon_setup_subtitle">স্ট্রিমিং শুরু করতে একটি অ্যাডন ইনস্টল করুন। আপনি পরবর্তীতে Addons থেকে আরও যোগ করতে পারবেন।</string>

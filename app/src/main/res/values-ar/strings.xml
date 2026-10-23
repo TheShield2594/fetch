@@ -1004,7 +1004,6 @@
     <string name="profile_pin_overlay_set_support">سيكون هذا الرمز مطلوباً قبل فتح هذا الملف الشخصي.</string>
     <string name="profile_pin_overlay_confirm_support">أعد إدخال نفس الـ 4 أرقام لإنهاء الإعداد.</string>
     <string name="profile_pin_overlay_mismatch">رموز PIN غير متطابقة. أدخل رمزاً جديداً مرة أخرى.</string>
-    <string name="profile_pin_overlay_forgot_hint">نسيت رمز PIN؟ أعد تعيينه من حساب Fetch الخاص بك على موقع Fetch.</string>
     <string name="profile_pin_overlay_back_hint">اضغط رجوع للإلغاء</string>
 
 

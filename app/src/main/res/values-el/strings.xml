@@ -1233,7 +1233,6 @@
   <string name="profile_pin_overlay_set_support">Αυτό το PIN θα απαιτείται πριν το άνοιγμα του προφίλ.</string>
   <string name="profile_pin_overlay_confirm_support">Εισάγετε ξανά τα ίδια 4 ψηφία για ολοκλήρωση.</string>
   <string name="profile_pin_overlay_mismatch">Τα PIN δεν ταιριάζουν. Εισάγετε νέο PIN ξανά.</string>
-  <string name="profile_pin_overlay_forgot_hint">Ξεχάσατε το PIN; Επαναφέρετέ το από τον λογαριασμό σας Fetch στον ιστότοπο του Fetch.</string>
   <string name="profile_pin_overlay_back_hint">Πατήστε πίσω για ακύρωση</string>
   <!-- Essential addon setup wizard -->
   <string name="essential_addon_setup_title">Ρύθμιση πρόσθετων</string>

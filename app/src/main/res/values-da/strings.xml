@@ -1004,7 +1004,6 @@
     <string name="profile_pin_overlay_set_support">Denne PIN vil blive krævet, inden denne profil åbnes.</string>
     <string name="profile_pin_overlay_confirm_support">Gentag de samme 4 cifre for at afslutte opsætningen.</string>
     <string name="profile_pin_overlay_mismatch">PIN-koderne stemte ikke overens. Indtast en ny PIN igen.</string>
-    <string name="profile_pin_overlay_forgot_hint">Glemt PIN? Nulstil den fra din Fetch-konto på Fetch-webstedet.</string>
     <string name="profile_pin_overlay_back_hint">Tryk tilbage for at annullere</string>
 
 

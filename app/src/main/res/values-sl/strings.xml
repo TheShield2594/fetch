@@ -896,8 +896,7 @@
 	<string name="profile_pin_overlay_delete_verify_heading">Vnesite trenutno kodo PIN za izbris profila %1$s.</string>																								   
     <string name="profile_pin_overlay_set_support">Ta koda PIN bo zahtevana pred odpiranjem tega profila.</string>
     <string name="profile_pin_overlay_mismatch">Kodi PIN se nista ujemali. Ponovno vnesite novo kodo PIN.</string>
-    <string name="profile_pin_overlay_forgot_hint">Ste pozabili kodo PIN? Ponastavite jo v svojem računu Fetch na spletni strani Fetch.</string>
-    <string name="profile_pin_overlay_back_hint">Pritisnite nazaj za preklic</string>															
+       <string name="profile_pin_overlay_back_hint">Pritisnite nazaj za preklic</string>															
 	<!-- Essential addon setup wizard -->									 
 	<string name="essential_addon_setup_title">Nastavitev dodatkov</string>
     <string name="essential_addon_setup_subtitle">Za začetek pretočnega predvajanja namestite en dodatek. Pozneje lahko dodate več v razdelku Dodatki.</string>

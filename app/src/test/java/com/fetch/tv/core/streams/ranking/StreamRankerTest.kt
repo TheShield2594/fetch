@@ -69,6 +69,47 @@ class StreamRankerTest {
     }
 
     @Test
+    fun `names the better-looking file Best match skipped and why`() {
+        val streams = listOf(
+            stream("1080p WEB-DL HEVC 6 GB"),
+            stream("2160p WEB-DL DV P5 HEVC 12 GB"),
+            stream("720p WEB-DL HEVC 2 GB")
+        )
+        val ranked = StreamRanker.rank(streams, StreamRankingRules(), fireStickLite.copy(maxResolution = StreamResolution.UHD_2160))
+        val picked = ranked.first { it.isEligible }
+
+        val skipped = StreamRanker.skippedBetterLooking(ranked, picked.stream)
+
+        assertEquals("2160p WEB-DL DV P5 HEVC 12 GB", skipped?.stream?.name)
+        assertEquals(ExclusionReason.UNSUPPORTED_DOLBY_VISION, skipped?.exclusion)
+        assertEquals(listOf("4K", "DV P5"), skipped?.descriptor?.pictureLabels())
+    }
+
+    @Test
+    fun `nothing is named when the skipped files look no better than the pick`() {
+        val streams = listOf(
+            stream("2160p WEB-DL HDR10 HEVC 14 GB"),
+            stream("1080p CAM x264"),
+            stream("720p WEB-DL x264 ITA")
+        )
+        val rules = StreamRankingRules(excludedLanguages = setOf(StreamLanguage.ITALIAN))
+        val ranked = StreamRanker.rank(streams, rules, dvTv)
+
+        assertNull(StreamRanker.skippedBetterLooking(ranked, ranked.first().stream))
+    }
+
+    @Test
+    fun `a cam copy or a results limit is never named as a skipped better file`() {
+        val streams = listOf(
+            stream("720p WEB-DL x264 2 GB"),
+            stream("2160p CAM HEVC")
+        )
+        val ranked = StreamRanker.rank(streams, StreamRankingRules(), dvTv)
+
+        assertNull(StreamRanker.skippedBetterLooking(ranked, ranked.first { it.isEligible }.stream))
+    }
+
+    @Test
     fun `dv only label is treated as likely profile 5`() {
         val caps = fireStickLite.copy(maxResolution = StreamResolution.UHD_2160)
         val ranked = StreamRanker.rank(listOf(stream("4K DV WEB-DL")), StreamRankingRules(), caps)

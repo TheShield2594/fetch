@@ -3,6 +3,7 @@ package com.fetch.tv.core.streams
 import androidx.compose.runtime.Immutable
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.player.StreamAutoPlaySelector
+import com.fetch.tv.core.streams.ranking.ExclusionReason
 import com.fetch.tv.core.streams.ranking.StreamDescriptor
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.data.local.BingeGroupCacheDataStore
@@ -32,7 +33,17 @@ data class BestMatchPreview(
     val addonName: String?,
     val sourceCount: Int,
     /** False while addons are still answering; the pick can still change. */
-    val isFinal: Boolean
+    val isFinal: Boolean,
+    /** A better-looking file Best match passed over, and why, so the pick is easier to trust. */
+    val skipped: SkippedStream? = null
+)
+
+/** A file Best match ruled out: its picture ("4K DV P5") and the rule or device limit that did it. */
+@Immutable
+data class SkippedStream(
+    val pictureLabels: List<String>,
+    val reason: ExclusionReason,
+    val descriptor: StreamDescriptor
 )
 
 /**
@@ -98,6 +109,20 @@ class BestMatchPreviewer @Inject constructor(
                 rankingRules = settings.streamRankingRules
             ) ?: return null
             val descriptor: StreamDescriptor = StreamTitleParser.parse(stream)
+            // Only once every addon has answered: the comparison costs a second ranking pass.
+            val skipped = if (isFinal) {
+                StreamAutoPlaySelector.skippedBetterLooking(
+                    streams = streams,
+                    picked = stream,
+                    source = settings.streamAutoPlaySource,
+                    installedAddonNames = installedAddonNames,
+                    selectedAddons = settings.streamAutoPlaySelectedAddons,
+                    selectedPlugins = settings.streamAutoPlaySelectedPlugins,
+                    rankingRules = settings.streamRankingRules
+                )?.let { SkippedStream(it.descriptor.pictureLabels(), it.exclusion ?: return@let null, it.descriptor) }
+            } else {
+                null
+            }
             return BestMatchPreview(
                 videoId = videoId,
                 labels = descriptor.playButtonLabels(),
@@ -105,7 +130,8 @@ class BestMatchPreviewer @Inject constructor(
                 isCached = descriptor.isDebridCached,
                 addonName = stream.addonName.takeIf { it.isNotBlank() },
                 sourceCount = streams.size,
-                isFinal = isFinal
+                isFinal = isFinal,
+                skipped = skipped
             )
         }
 

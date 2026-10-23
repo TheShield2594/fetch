@@ -142,6 +142,9 @@ class WatchedSeriesStateHolder @Inject constructor(
         return System.currentTimeMillis() < deadline
     }
 
+    /** The series' revalidation deadline (epochMs), or null if it was never validated. */
+    fun revalidationDeadline(contentId: String): Long? = revalidateAfterMap[contentId]
+
     /**
      * Returns true if the series has ever been validated (has an entry in the map).
      */

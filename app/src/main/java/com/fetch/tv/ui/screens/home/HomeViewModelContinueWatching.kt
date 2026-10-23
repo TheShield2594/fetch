@@ -819,6 +819,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                             }
                         }
                     }
+                    scheduleOlderSeedRecheck()
                     val olderSeedContentIds = allSeedContentIds - processedContentIds - cwProcessedOlderSeedContentIds
                     val uncachedOlderSeedIds = olderSeedContentIds.filter { contentId ->
                         // Skip series validated recently — no new episodes expected within TTL.
@@ -983,6 +984,8 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                 // deadlines so they're skipped on next launch.
                                 val asyncWatchedEpisodes = watchProgressRepository.getWatchedShowEpisodes()
                                 publishBadgeUpdate(asyncWatchedEpisodes)
+                                // Seeds checked above have new deadlines.
+                                scheduleOlderSeedRecheck()
 
                                 if (conclusivelyProcessedOlderContentIds.isNotEmpty()) {
                                     val itemsToInject = if (cutoffMs != null) {
@@ -1250,6 +1253,51 @@ internal fun olderSeedsDueForRecheck(
         contentId in negativeContentIds && hasBeenValidated(contentId) && !isValidationFresh(contentId)
     }
 }
+
+/**
+ * The earliest future revalidation deadline among the older seeds
+ * [olderSeedsDueForRecheck] would pick up once it passes, or null if none.
+ */
+internal fun nextOlderSeedRecheckAtMs(
+    processedOlderSeedContentIds: Set<String>,
+    negativeResolutionKeys: Set<String>,
+    deadlineOf: (String) -> Long?,
+    nowMs: Long
+): Long? {
+    val negativeContentIds = negativeResolutionKeys.mapTo(mutableSetOf()) { it.substringBefore('|') }
+    return processedOlderSeedContentIds
+        .asSequence()
+        .filter { it in negativeContentIds }
+        .mapNotNull(deadlineOf)
+        .filter { it > nowMs }
+        .minOrNull()
+}
+
+/**
+ * A passing deadline is not a pipeline input, so on an idle Home screen nothing
+ * would rerun the pipeline to recheck the series. Bump the refresh trigger then.
+ */
+private fun HomeViewModel.scheduleOlderSeedRecheck() {
+    val nowMs = System.currentTimeMillis()
+    val recheckAtMs = nextOlderSeedRecheckAtMs(
+        processedOlderSeedContentIds = cwProcessedOlderSeedContentIds.toSet(),
+        negativeResolutionKeys = synchronized(cwNextUpResolutionCache) {
+            cwNextUpResolutionCache.filterValues { it == null }.keys.toSet()
+        },
+        deadlineOf = fullyWatchedSeriesIds::revalidationDeadline,
+        nowMs = nowMs
+    )
+    cwOlderSeedRecheckJob?.cancel()
+    cwOlderSeedRecheckJob = recheckAtMs?.let { atMs ->
+        viewModelScope.launch {
+            delay(atMs - nowMs + CW_OLDER_SEED_RECHECK_SLACK_MS)
+            cwPipelineRefreshTrigger.value++
+        }
+    }
+}
+
+// Lands the rerun just after the deadline, so the series reads as stale.
+private const val CW_OLDER_SEED_RECHECK_SLACK_MS = 1_000L
 
 private fun deduplicateInProgress(items: List<WatchProgress>): List<WatchProgress> {
     val (series, nonSeries) = items.partition { isSeriesTypeCW(it.contentType) }

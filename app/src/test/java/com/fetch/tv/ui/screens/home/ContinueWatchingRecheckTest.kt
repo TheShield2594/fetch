@@ -57,6 +57,34 @@ class ContinueWatchingRecheckTest {
     }
 
     @Test
+    fun `recheck is scheduled for the earliest future deadline`() {
+        val deadlines = mapOf("tt1" to 5_000L, "tt2" to 3_000L, "tt3" to 1_000L)
+
+        val recheckAt = nextOlderSeedRecheckAtMs(
+            processedOlderSeedContentIds = setOf("tt1", "tt2", "tt3"),
+            negativeResolutionKeys = setOf("tt1|1|8", "tt2|2|10", "tt3|1|1"),
+            deadlineOf = deadlines::get,
+            nowMs = 2_000L
+        )
+
+        // tt3's deadline has already passed: this cycle's recheck handles it.
+        assertEquals(3_000L, recheckAt)
+    }
+
+    @Test
+    fun `no recheck is scheduled without a pending caught up series`() {
+        assertEquals(
+            null,
+            nextOlderSeedRecheckAtMs(
+                processedOlderSeedContentIds = setOf("has-next-up", "no-deadline"),
+                negativeResolutionKeys = setOf("no-deadline|1|2"),
+                deadlineOf = { if (it == "has-next-up") 9_000L else null },
+                nowMs = 2_000L
+            )
+        )
+    }
+
+    @Test
     fun `cached episode list expires after the ttl`() {
         val cachedAt = 1_000L
 

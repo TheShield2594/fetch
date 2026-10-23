@@ -344,6 +344,9 @@ class HomeViewModel @Inject constructor(
     internal val cwPipelineRefreshTrigger = kotlinx.coroutines.flow.MutableStateFlow(0)
     /** Tracks the active CW pipeline coroutine so it can be cancelled on profile switch. */
     internal var cwPipelineJob: Job? = null
+    /** Reruns the CW pipeline when the next caught-up series' revalidation deadline passes. */
+    @Volatile
+    internal var cwOlderSeedRecheckJob: Job? = null
     internal val fullyWatchedSeriesIds get() = watchedSeriesStateHolder
     internal var tmdbEnrichFocusJob: Job? = null
     internal var pendingTmdbEnrichItemId: String? = null

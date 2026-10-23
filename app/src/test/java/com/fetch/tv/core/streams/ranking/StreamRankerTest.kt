@@ -110,6 +110,19 @@ class StreamRankerTest {
     }
 
     @Test
+    fun `a cam copy ruled out for another reason first is still never named`() {
+        val streams = listOf(
+            stream("1080p WEB-DL x264 4 GB"),
+            stream("2160p CAM HEVC")
+        )
+        val rules = StreamRankingRules(maxResolution = StreamResolution.FHD_1080)
+        val ranked = StreamRanker.rank(streams, rules, dvTv)
+
+        assertEquals(ExclusionReason.ABOVE_MAX_RESOLUTION, ranked.last().exclusion)
+        assertNull(StreamRanker.skippedBetterLooking(ranked, ranked.first { it.isEligible }.stream))
+    }
+
+    @Test
     fun `dv only label is treated as likely profile 5`() {
         val caps = fireStickLite.copy(maxResolution = StreamResolution.UHD_2160)
         val ranked = StreamRanker.rank(listOf(stream("4K DV WEB-DL")), StreamRankingRules(), caps)

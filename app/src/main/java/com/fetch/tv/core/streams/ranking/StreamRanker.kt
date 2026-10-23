@@ -277,6 +277,8 @@ object StreamRanker {
         val pickedTier = ranked.firstOrNull { it.stream === picked }?.descriptor?.pictureTier ?: return null
         return ranked
             .filter { it.exclusion != null && it.exclusion !in reasonsNotAboutPicture }
+            // A cam copy can be ruled out for another reason first (a 4K cam over the size cap).
+            .filter { it.descriptor.source != ReleaseSource.CAM && it.descriptor.source != ReleaseSource.TELESYNC }
             .filter { it.descriptor.resolution != StreamResolution.UNKNOWN && it.descriptor.pictureTier > pickedTier }
             .maxByOrNull { it.descriptor.pictureTier }
     }

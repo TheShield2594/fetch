@@ -1304,6 +1304,28 @@ private fun MetaDetailsContent(
         meta.videos.firstOrNull { it.id == defaultVideoId && it.available != false }
     }
     val nextEpisode = remember(episodesForSeason) { episodesForSeason.firstOrNull() }
+    // A series in progress shows its next episodes right under Play, with the next one focused.
+    val upNextEpisodes = remember(meta.videos, nextToWatch, isSeries, episodeShuffle.enabled) {
+        val season = nextToWatch?.nextSeason
+        if (!isSeries || episodeShuffle.enabled || nextToWatch?.watchProgress == null || season == null) {
+            emptyList()
+        } else {
+            meta.videos.filter { it.season == season }.distinctBy { it.id }.sortedBy { it.episode }
+        }
+    }
+    val upNextEpisodeId = remember(upNextEpisodes, nextToWatch) {
+        nextToWatch?.let { ntw ->
+            (upNextEpisodes.firstOrNull { it.id == ntw.nextVideoId }
+                ?: upNextEpisodes.firstOrNull { it.episode == ntw.nextEpisode })?.id
+        }
+    }
+    val upNextFocusRequesters = remember(meta.id) { mutableMapOf<String, FocusRequester>() }
+    val upNextFocusRequester = upNextEpisodeId?.let { id -> upNextFocusRequesters.getOrPut(id) { FocusRequester() } }
+    // Up from the rows below lands on the card last focused in the up-next row, else the next episode.
+    var lastFocusedUpNextId by remember(meta.id) { mutableStateOf<String?>(null) }
+    val upNextUpTarget = upNextFocusRequester?.let { fallback ->
+        lastFocusedUpNextId?.let { upNextFocusRequesters[it] } ?: fallback
+    }
     val heroVideo = remember(meta, nextToWatch, episodesForSeason) {
         resolveHeroPlaybackVideo(
             meta = meta,
@@ -1778,7 +1800,10 @@ private fun MetaDetailsContent(
                     consumeReturnEpisodeFocusOnClear = step.consumeRequest
                     markEpisodeRestore(step.episodeId, restoreOnResume = false)
                     restoreFocusToken += 1
-                    if (seasons.isNotEmpty()) {
+                    if (upNextEpisodeId != null && upNextEpisodes.any { it.id == step.episodeId }) {
+                        // The up-next row in the hero has it; keep the hero in view.
+                        listState.scrollToItem(0)
+                    } else if (seasons.isNotEmpty()) {
                         // Ensure the episodes row is composed before requesting focus on a card.
                         listState.scrollToItem(1)
                     }
@@ -2134,23 +2159,10 @@ private fun MetaDetailsContent(
         listState.animateScrollToItem(commentsItemIndex)
     }
 
-    // A series in progress shows its next episodes right under Play, with the next one focused.
-    val upNextEpisodes = remember(meta.videos, nextToWatch, isSeries, episodeShuffle.enabled) {
-        val season = nextToWatch?.nextSeason
-        if (!isSeries || episodeShuffle.enabled || nextToWatch?.watchProgress == null || season == null) {
-            emptyList()
-        } else {
-            meta.videos.filter { it.season == season }.distinctBy { it.id }.sortedBy { it.episode }
-        }
-    }
-    val upNextEpisodeId = remember(upNextEpisodes, nextToWatch) {
-        nextToWatch?.let { ntw ->
-            (upNextEpisodes.firstOrNull { it.id == ntw.nextVideoId }
-                ?: upNextEpisodes.firstOrNull { it.episode == ntw.nextEpisode })?.id
-        }
-    }
-    val upNextFocusRequesters = remember(meta.id) { mutableMapOf<String, FocusRequester>() }
-    val upNextFocusRequester = upNextEpisodeId?.let { id -> upNextFocusRequesters.getOrPut(id) { FocusRequester() } }
+    // An episode restore goes to the up-next row when the episode is in it, otherwise to the row below.
+    val restoreInUpNext = pendingRestoreType == RestoreTarget.EPISODE &&
+        upNextEpisodeId != null &&
+        upNextEpisodes.any { it.id == pendingRestoreEpisodeId }
     val onUpNextFocused = {
         if (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0) {
             coroutineScope.launch { listState.animateScrollToItem(0) }
@@ -2600,8 +2612,14 @@ private fun MetaDetailsContent(
                                     upFocusRequester = heroPlayButtonFocusRequester,
                                     downFocusRequester = if (showSeasonTabs) selectedSeasonFocusRequester else seasonDownFocusRequester,
                                     episodeFocusRequesters = upNextFocusRequesters,
-                                    onEpisodeFocused = { onUpNextFocused() },
-                                    scrollToEpisodeId = upNextEpisodeId,
+                                    restoreEpisodeId = pendingRestoreEpisodeId.takeIf { restoreInUpNext },
+                                    restoreFocusToken = if (restoreInUpNext) restoreFocusToken else 0,
+                                    onRestoreFocusHandled = { clearPendingRestore() },
+                                    onEpisodeFocused = { episodeId ->
+                                        lastFocusedUpNextId = episodeId
+                                        onUpNextFocused()
+                                    },
+                                    scrollToEpisodeId = upNextEpisodeId.takeIf { !restoreInUpNext },
                                     windowResetKey = meta.id
                                 )
                             }
@@ -2622,7 +2640,7 @@ private fun MetaDetailsContent(
                             onSeasonSelected = onSeasonSelected,
                             onSeasonLongPress = { seasonOptionsDialogSeason = it },
                             selectedTabFocusRequester = selectedSeasonFocusRequester,
-                            upFocusRequester = heroPlayFocusRequester,
+                            upFocusRequester = upNextUpTarget ?: heroPlayFocusRequester,
                             downFocusRequester = seasonDownFocusRequester,
                             isFocusEnabled = pendingRestoreType != RestoreTarget.EPISODE
                         )
@@ -2666,11 +2684,11 @@ private fun MetaDetailsContent(
                             onOpenEpisodeComments = episodeCommentsClick,
                             showOpenEpisodeComments = shouldShowCommentsSection,
                             onMarkPreviousEpisodesWatched = onMarkPreviousEpisodesWatched,
-                            upFocusRequester = if (showSeasonTabs) selectedSeasonFocusRequester else (heroPlayFocusRequester ?: heroPlayButtonFocusRequester),
+                            upFocusRequester = if (showSeasonTabs) selectedSeasonFocusRequester else (upNextUpTarget ?: heroPlayFocusRequester ?: heroPlayButtonFocusRequester),
                             downFocusRequester = episodesDownFocusRequester,
                             episodeFocusRequesters = seasonEpisodeFocusRequesters,
                             restoreEpisodeId = visibleEpisodeRestoreId,
-                            restoreFocusToken = if (pendingRestoreType == RestoreTarget.EPISODE) restoreFocusToken else 0,
+                            restoreFocusToken = if (pendingRestoreType == RestoreTarget.EPISODE && !restoreInUpNext) restoreFocusToken else 0,
                             onRestoreFocusHandled = {
                                 val isStaleEpisodeRestore =
                                     pendingRestoreType == RestoreTarget.EPISODE &&

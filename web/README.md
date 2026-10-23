@@ -606,4 +606,6 @@ Created and maintained by [TheShield2594](https://github.com/TheShield2594).
 
 ## License
 
-Fetch is licensed under the [MIT License](LICENSE).
+Like the rest of Fetch, the website is licensed under the
+[GNU General Public License v3.0](../LICENSE). Versions published as Cataloggy
+before the move were MIT-licensed, and stay available under those terms.

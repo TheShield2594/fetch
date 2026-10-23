@@ -126,7 +126,7 @@ No analytics, no crash reporting, no account. See [PRIVACY.md](PRIVACY.md).
 
 Fetch is a fork of [NuvioTV](https://github.com/NuvioMedia/NuvioTV) by the Nuvio contributors,
 whose work makes up most of this app. Like upstream it is licensed under the
-[GNU General Public License v3.0](./LICENSE).
+[GNU General Public License v3.0](./LICENSE). That covers the website in `web/` too.
 
 Media3, mpv, libass, Coil, Haze and the other dependencies are credited in
 Settings → About → Licenses & attributions.

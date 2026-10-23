@@ -15,6 +15,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **Cataloggy is now the Fetch website.** The project moved into the [Fetch](https://github.com/TheShield2594/fetch) repository under `web/`, with its full history, and the app calls itself Fetch. Images are now published as `ghcr.io/theshield2594/fetch-{api,migrate,addon,web}`; the `cataloggy-*` images get no further updates, so pull the new `docker-compose.yml`. Releases are tagged `web-vX.Y.Z`, and the image tag stays `vX.Y.Z`. Nothing a running install depends on was renamed: `CATALOGGY_*` environment variables, the addon ID and catalog IDs, the database name and browser storage keys are unchanged, so an existing `.env`, volume and installed Stremio addon keep working.
 
+- **The website has the Fetch logo and license.** The cat mark is replaced by Fetch's dog-and-play mark across the app, PWA icons, favicon and splash screens. The code is now GPL-3.0, like the rest of Fetch; releases published as Cataloggy stay available under MIT.
+
 ### Added
 
 - **Resume points are in the backup.** `GET /export` now carries a `playback` collection, and `POST /import` restores it — so moving to a new server, or restoring after a lost database, no longer empties Continue Watching. The import only moves forward: a point is skipped when the profile already has a newer pause for that title, or has watched it since the pause (including a watch in the same file), because a resume point for something finished is worse than none. Files exported before this have no `playback` and import as before; the format version is unchanged.

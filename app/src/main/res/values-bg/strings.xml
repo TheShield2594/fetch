@@ -2450,4 +2450,11 @@
     <string name="source_rule_prefer_addon">Предпочитай %1$s</string>
     <string name="source_rule_never_group">Никога не пускай издания на %1$s</string>
     <string name="source_rule_never_saved">Най-добро съвпадение ще пропуска изданията на %1$s</string>
+    <string name="settings_group_accounts">Акаунти</string>
+    <string name="settings_group_system">Система</string>
+    <string name="settings_search_title">Търсене</string>
+    <string name="settings_search_subtitle">Намерете настройка по име и отворете страницата, на която е.</string>
+    <string name="settings_search_hint">Търсене в настройките</string>
+    <string name="settings_search_prompt">Въведете част от името на настройка.</string>
+    <string name="settings_search_empty">Няма настройки, съвпадащи с \"%1$s\".</string>
 </resources>

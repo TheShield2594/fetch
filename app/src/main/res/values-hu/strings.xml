@@ -3028,4 +3028,11 @@
     <string name="source_rule_prefer_addon">%1$s előnyben</string>
     <string name="source_rule_never_group">Soha ne játssza a(z) %1$s kiadásait</string>
     <string name="source_rule_never_saved">A Legjobb találat kihagyja a(z) %1$s kiadásait</string>
+    <string name="settings_group_accounts">Fiókok</string>
+    <string name="settings_group_system">Rendszer</string>
+    <string name="settings_search_title">Keresés</string>
+    <string name="settings_search_subtitle">Keress meg egy beállítást a neve alapján, majd nyisd meg az oldalát.</string>
+    <string name="settings_search_hint">Keresés a beállításokban</string>
+    <string name="settings_search_prompt">Írd be egy beállítás nevének egy részét.</string>
+    <string name="settings_search_empty">Egy beállítás sem egyezik ezzel: \"%1$s\".</string>
 </resources>

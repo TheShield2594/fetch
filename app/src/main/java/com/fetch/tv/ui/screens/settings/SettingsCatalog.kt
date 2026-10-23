@@ -1,22 +1,29 @@
 package com.fetch.tv.ui.screens.settings
 
+/** The six categories the rail is organised into, in rail order. Each has a heading. */
 internal enum class SettingsRailGroup {
-    YOU,
-    LOOK,
-    WATCH,
-    SERVICES,
+    PROFILES,
+    PLAYBACK,
+    SOURCES,
+    HOME,
+    ACCOUNTS,
     SYSTEM
 }
 
-internal enum class SettingsCategory(val group: SettingsRailGroup) {
-    ACCOUNT(SettingsRailGroup.YOU),
-    PROFILES(SettingsRailGroup.YOU),
-    WATCH_PARTY(SettingsRailGroup.YOU),
-    APPEARANCE(SettingsRailGroup.LOOK),
-    LAYOUT(SettingsRailGroup.LOOK),
-    CONTENT_DISCOVERY(SettingsRailGroup.WATCH),
-    PLAYBACK(SettingsRailGroup.WATCH),
-    INTEGRATION(SettingsRailGroup.SERVICES),
+/** One rail entry: a page of settings, listed under its [group]'s heading. Search has none. */
+internal enum class SettingsCategory(val group: SettingsRailGroup?) {
+    SEARCH(null),
+    PROFILES(SettingsRailGroup.PROFILES),
+    WATCH_PARTY(SettingsRailGroup.PROFILES),
+    PLAYBACK(SettingsRailGroup.PLAYBACK),
+    ANIME_SKIP(SettingsRailGroup.PLAYBACK),
+    CONTENT_DISCOVERY(SettingsRailGroup.SOURCES),
+    TMDB(SettingsRailGroup.SOURCES),
+    MDBLIST(SettingsRailGroup.SOURCES),
+    APPEARANCE(SettingsRailGroup.HOME),
+    LAYOUT(SettingsRailGroup.HOME),
+    ACCOUNT(SettingsRailGroup.ACCOUNTS),
+    TRACKING(SettingsRailGroup.ACCOUNTS),
     PHONE(SettingsRailGroup.SYSTEM),
     ADVANCED(SettingsRailGroup.SYSTEM),
     ABOUT(SettingsRailGroup.SYSTEM),
@@ -40,5 +47,8 @@ internal fun visibleSettingsCategories(
     }
 }
 
-internal fun List<SettingsCategory>.startsNewGroup(index: Int): Boolean =
-    index > 0 && this[index - 1].group != this[index].group
+/** Whether the entry at [index] is the first of its category, and so sits under its heading. */
+internal fun List<SettingsCategory>.startsNewGroup(index: Int): Boolean {
+    val group = this[index].group ?: return false
+    return index == 0 || this[index - 1].group != group
+}

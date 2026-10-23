@@ -966,4 +966,11 @@
     <string name="source_rule_prefer_addon">Preferă %1$s</string>
     <string name="source_rule_never_group">Nu reda niciodată lansările %1$s</string>
     <string name="source_rule_never_saved">Cea mai bună potrivire va sări lansările %1$s</string>
+    <string name="settings_group_accounts">Conturi</string>
+    <string name="settings_group_system">Sistem</string>
+    <string name="settings_search_title">Căutare</string>
+    <string name="settings_search_subtitle">Găsește o setare după nume, apoi deschide pagina pe care se află.</string>
+    <string name="settings_search_hint">Caută în setări</string>
+    <string name="settings_search_prompt">Scrie o parte din numele unei setări.</string>
+    <string name="settings_search_empty">Nicio setare nu se potrivește cu \"%1$s\".</string>
 </resources>

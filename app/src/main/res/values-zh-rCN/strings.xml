@@ -2910,4 +2910,11 @@
     <string name="source_rule_prefer_addon">优先 %1$s</string>
     <string name="source_rule_never_group">永不播放 %1$s 的版本</string>
     <string name="source_rule_never_saved">最佳匹配将跳过 %1$s 的版本</string>
+    <string name="settings_group_accounts">账户</string>
+    <string name="settings_group_system">系统</string>
+    <string name="settings_search_title">搜索</string>
+    <string name="settings_search_subtitle">按名称查找设置，然后打开它所在的页面。</string>
+    <string name="settings_search_hint">搜索设置</string>
+    <string name="settings_search_prompt">输入设置名称的一部分。</string>
+    <string name="settings_search_empty">没有与“%1$s”匹配的设置。</string>
 </resources>

@@ -3139,4 +3139,11 @@
     <string name="source_rule_prefer_addon">Preferuj %1$s</string>
     <string name="source_rule_never_group">Nigdy nie odtwarzaj wydań %1$s</string>
     <string name="source_rule_never_saved">Najlepsze dopasowanie pominie wydania %1$s</string>
+    <string name="settings_group_accounts">Konta</string>
+    <string name="settings_group_system">System</string>
+    <string name="settings_search_title">Szukaj</string>
+    <string name="settings_search_subtitle">Znajdź ustawienie po nazwie i otwórz stronę, na której się znajduje.</string>
+    <string name="settings_search_hint">Szukaj w ustawieniach</string>
+    <string name="settings_search_prompt">Wpisz część nazwy ustawienia.</string>
+    <string name="settings_search_empty">Brak ustawień pasujących do \"%1$s\".</string>
 </resources>

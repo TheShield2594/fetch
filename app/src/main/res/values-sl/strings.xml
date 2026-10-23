@@ -2188,4 +2188,11 @@
     <string name="source_rule_prefer_addon">Daj prednost %1$s</string>
     <string name="source_rule_never_group">Nikoli ne predvajaj izdaj %1$s</string>
     <string name="source_rule_never_saved">Najboljše ujemanje bo preskočilo izdaje %1$s</string>
+    <string name="settings_group_accounts">Računi</string>
+    <string name="settings_group_system">Sistem</string>
+    <string name="settings_search_title">Iskanje</string>
+    <string name="settings_search_subtitle">Poiščite nastavitev po imenu in odprite stran, na kateri je.</string>
+    <string name="settings_search_hint">Iskanje po nastavitvah</string>
+    <string name="settings_search_prompt">Vnesite del imena nastavitve.</string>
+    <string name="settings_search_empty">Nobena nastavitev se ne ujema z \"%1$s\".</string>
 </resources>

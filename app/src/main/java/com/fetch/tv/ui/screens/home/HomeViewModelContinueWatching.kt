@@ -2219,7 +2219,17 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
 ): NextUpResolution? {
     val startedAtMs = SystemClock.elapsedRealtime()
     val cacheKey = buildNextUpSeedCacheKey(progress, showUnairedNextUp)
+    val watchedSinceSeed = episodesWatchedSinceSeed(
+        localWatched = runCatching { watchProgressRepository.getLocalWatchedEpisodeTimes(progress.contentId) }
+            .getOrDefault(emptyMap()),
+        seedLastWatched = progress.lastWatched
+    )
     synchronized(cwNextUpResolutionCache) {
+        val cachedEpisode = cwNextUpResolutionCache[cacheKey]?.let { it.season to it.episode }
+        if (cachedEpisode != null && cachedEpisode in watchedSinceSeed) {
+            // Marked watched in Fetch after this resolution was cached; resolve again.
+            cwNextUpResolutionCache.remove(cacheKey)
+        }
         if (cwNextUpResolutionCache.containsKey(cacheKey)) {
             val cached = cwNextUpResolutionCache[cacheKey]
             if (cached != null) {
@@ -2297,7 +2307,7 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
         }
         return null
     }
-    val nextVideo = resolveNextUpVideoFromMeta(progress, meta, showUnairedNextUp)
+    val nextVideo = resolveNextUpVideoFromMeta(progress, meta, showUnairedNextUp, watchedSinceSeed)
     if (nextVideo == null) {
         debug?.recordNextUpResult(
             progress = progress,
@@ -2363,10 +2373,28 @@ private const val CW_NEXT_UP_NEW_SEASON_UNAIRED_WINDOW_DAYS = 7
 internal fun isNextUpEpisodeUnaired(releaseDate: LocalDate?, today: LocalDate): Boolean =
     releaseDate == null || releaseDate.isAfter(today)
 
+// How far a Fetch watched mark may predate the seed and still count as watched since it. A
+// season marked watched reaches Trakt a moment after Fetch stores it.
+internal const val CW_WATCHED_SINCE_SEED_SLACK_MS = 60_000L
+
+/**
+ * Episodes marked watched in Fetch at or after the seed was watched. The tracker's seed can lag
+ * behind these: when the addon numbers a season differently, marking it watched never reaches
+ * Trakt for the last episode, so Trakt's seed stops one short and the finale came up next even
+ * though Fetch shows it watched (NuvioTV#3759). Older marks don't count, so a rewatch still
+ * goes on to the next episode.
+ */
+internal fun episodesWatchedSinceSeed(
+    localWatched: Map<Pair<Int, Int>, Long>,
+    seedLastWatched: Long
+): Set<Pair<Int, Int>> =
+    localWatched.filterValues { watchedAt -> watchedAt + CW_WATCHED_SINCE_SEED_SLACK_MS >= seedLastWatched }.keys
+
 internal fun resolveNextUpVideoFromMeta(
     progress: WatchProgress,
     meta: CwMetaSummary,
-    showUnairedNextUp: Boolean
+    showUnairedNextUp: Boolean,
+    watchedSinceSeed: Set<Pair<Int, Int>> = emptySet()
 ): CwVideoSummary? {
     val episodes = meta.videos
         .filter { video ->
@@ -2417,6 +2445,7 @@ internal fun resolveNextUpVideoFromMeta(
     val watchedEpisodeSeason = episodes[watchedIndex].season
     val nextVideo = episodes.drop(watchedIndex + 1).firstOrNull { video ->
         if (video.season in progress.excludedNextUpSeasons) return@firstOrNull false
+        if ((video.season to video.episode) in watchedSinceSeed) return@firstOrNull false
         val releaseDate = parseEpisodeReleaseDate(video.released)
         val isSeasonRollover = video.season != watchedEpisodeSeason
         if (isSeasonRollover) {

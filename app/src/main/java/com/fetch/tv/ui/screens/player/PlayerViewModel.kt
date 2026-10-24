@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.exoplayer.ExoPlayer
 import com.fetch.tv.core.party.PartyMedia
-import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.core.player.StreamAutoPlayPolicy
 import com.fetch.tv.core.tracking.TrackingScrobbleCoordinator
 import com.fetch.tv.core.torrent.TorrentService
@@ -52,7 +51,6 @@ class PlayerViewModel @Inject constructor(
     private val metaRepository: MetaRepository,
     private val streamRepository: StreamRepository,
     private val addonRepository: AddonRepository,
-    private val pluginManager: PluginManager,
     private val subtitleRepository: com.fetch.tv.domain.repository.SubtitleRepository,
     private val parentalGuideRepository: ParentalGuideRepository,
     private val trackingScrobbleCoordinator: TrackingScrobbleCoordinator,
@@ -111,7 +109,6 @@ class PlayerViewModel @Inject constructor(
         metaRepository = metaRepository,
         streamRepository = streamRepository,
         addonRepository = addonRepository,
-        pluginManager = pluginManager,
         subtitleRepository = subtitleRepository,
         parentalGuideRepository = parentalGuideRepository,
         trackingScrobbleCoordinator = trackingScrobbleCoordinator,

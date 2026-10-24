@@ -2,7 +2,6 @@ package com.fetch.tv.core.player
 
 import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.data.local.StreamAutoPlayMode
-import com.fetch.tv.data.local.StreamAutoPlaySource
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.StreamBehaviorHints
@@ -13,18 +12,18 @@ import org.junit.Test
 class StreamAutoPlaySelectorTest {
 
     @Test
-    fun `orderAddonStreams follows installed addon order and leaves plugins last`() {
-        val plugin = addonStreams("Plugin")
+    fun `orderAddonStreams follows installed addon order and leaves unknown sources last`() {
+        val other = addonStreams("Other")
         val addonB = addonStreams("AddonB")
         val addonA = addonStreams("AddonA")
-        val unknown = addonStreams("UnknownPlugin")
+        val unknown = addonStreams("Unknown")
 
         val ordered = StreamAutoPlaySelector.orderAddonStreams(
-            streams = listOf(plugin, addonB, addonA, unknown),
+            streams = listOf(other, addonB, addonA, unknown),
             installedOrder = listOf("AddonA", "AddonB")
         )
 
-        assertEquals(listOf(addonA, addonB, plugin, unknown), ordered)
+        assertEquals(listOf(addonA, addonB, other, unknown), ordered)
     }
 
     @Test
@@ -46,10 +45,8 @@ class StreamAutoPlaySelectorTest {
             streams = listOf(first, preferred),
             mode = StreamAutoPlayMode.FIRST_STREAM,
             regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
             installedAddonNames = setOf("AddonA", "AddonB"),
             selectedAddons = emptySet(),
-            selectedPlugins = emptySet(),
             preferredBingeGroup = "same-group",
             preferBingeGroupInSelection = true
         )
@@ -76,10 +73,8 @@ class StreamAutoPlaySelectorTest {
             streams = listOf(first, second),
             mode = StreamAutoPlayMode.FIRST_STREAM,
             regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
             installedAddonNames = setOf("AddonA", "AddonB"),
             selectedAddons = emptySet(),
-            selectedPlugins = emptySet(),
             preferredBingeGroup = "missing-group",
             preferBingeGroupInSelection = true
         )
@@ -88,31 +83,45 @@ class StreamAutoPlaySelectorTest {
     }
 
     @Test
-    fun `bingeGroup-first ignores source and addon plugin filters`() {
+    fun `bingeGroup-first ignores the addon filter`() {
         val filteredOutAddonMatch = stream(
             addonName = "AddonFilteredOut",
             url = "https://example.com/addon-match.m3u8",
             bingeGroup = "same-group"
         )
-        val allowedPluginMatch = stream(
-            addonName = "PluginAllowed",
-            url = "https://example.com/plugin-match.m3u8",
+        val allowedAddonMatch = stream(
+            addonName = "AddonAllowed",
+            url = "https://example.com/allowed-match.m3u8",
             bingeGroup = "same-group"
         )
 
         val selected = StreamAutoPlaySelector.selectAutoPlayStream(
-            streams = listOf(filteredOutAddonMatch, allowedPluginMatch),
+            streams = listOf(filteredOutAddonMatch, allowedAddonMatch),
             mode = StreamAutoPlayMode.FIRST_STREAM,
             regexPattern = "",
-            source = StreamAutoPlaySource.ENABLED_PLUGINS_ONLY,
-            installedAddonNames = setOf("AddonFilteredOut"),
-            selectedAddons = emptySet(),
-            selectedPlugins = setOf("PluginAllowed"),
+            installedAddonNames = setOf("AddonFilteredOut", "AddonAllowed"),
+            selectedAddons = setOf("AddonAllowed"),
             preferredBingeGroup = "same-group",
             preferBingeGroupInSelection = true
         )
 
         assertEquals(filteredOutAddonMatch, selected)
+    }
+
+    @Test
+    fun `addon limit skips streams from addons that were not selected`() {
+        val skipped = stream(addonName = "AddonA", url = "https://example.com/a.m3u8")
+        val allowed = stream(addonName = "AddonB", url = "https://example.com/b.m3u8")
+
+        val selected = StreamAutoPlaySelector.selectAutoPlayStream(
+            streams = listOf(skipped, allowed),
+            mode = StreamAutoPlayMode.FIRST_STREAM,
+            regexPattern = "",
+            installedAddonNames = setOf("AddonA", "AddonB"),
+            selectedAddons = setOf("AddonB")
+        )
+
+        assertEquals(allowed, selected)
     }
 
     @Test
@@ -132,10 +141,8 @@ class StreamAutoPlaySelectorTest {
             streams = listOf(nonMatch, regexMatch),
             mode = StreamAutoPlayMode.REGEX_MATCH,
             regexPattern = "2160p|Remux",
-            source = StreamAutoPlaySource.ALL_SOURCES,
             installedAddonNames = setOf("AddonA", "AddonB"),
             selectedAddons = emptySet(),
-            selectedPlugins = emptySet(),
             preferredBingeGroup = "unmatched-group",
             preferBingeGroupInSelection = true
         )
@@ -160,10 +167,8 @@ class StreamAutoPlaySelectorTest {
             streams = listOf(first, second),
             mode = StreamAutoPlayMode.FIRST_STREAM,
             regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
             installedAddonNames = setOf("AddonA", "AddonB"),
             selectedAddons = emptySet(),
-            selectedPlugins = emptySet(),
             preferredBingeGroup = "   ",
             preferBingeGroupInSelection = true
         )
@@ -185,10 +190,8 @@ class StreamAutoPlaySelectorTest {
             streams = listOf(matched),
             mode = StreamAutoPlayMode.MANUAL,
             regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
             installedAddonNames = setOf("AddonA"),
             selectedAddons = emptySet(),
-            selectedPlugins = emptySet(),
             preferredBingeGroup = "same-group",
             preferBingeGroupInSelection = true
         )
@@ -211,10 +214,8 @@ class StreamAutoPlaySelectorTest {
             streams = listOf(youTube, watchPage),
             mode = StreamAutoPlayMode.FIRST_STREAM,
             regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
             installedAddonNames = setOf("AddonA"),
-            selectedAddons = emptySet(),
-            selectedPlugins = emptySet()
+            selectedAddons = emptySet()
         )
 
         if (AppFeaturePolicy.inAppTrailerPlaybackEnabled) {
@@ -234,10 +235,8 @@ class StreamAutoPlaySelectorTest {
             streams = listOf(blank, direct),
             mode = StreamAutoPlayMode.FIRST_STREAM,
             regexPattern = "",
-            source = StreamAutoPlaySource.ALL_SOURCES,
             installedAddonNames = setOf("AddonA"),
-            selectedAddons = emptySet(),
-            selectedPlugins = emptySet()
+            selectedAddons = emptySet()
         )
 
         assertEquals(direct, selected)
@@ -252,10 +251,8 @@ class StreamAutoPlaySelectorTest {
             streams = listOf(direct, youTube),
             mode = StreamAutoPlayMode.REGEX_MATCH,
             regexPattern = "youtube",
-            source = StreamAutoPlaySource.ALL_SOURCES,
             installedAddonNames = setOf("AddonA"),
-            selectedAddons = emptySet(),
-            selectedPlugins = emptySet()
+            selectedAddons = emptySet()
         )
 
         if (AppFeaturePolicy.inAppTrailerPlaybackEnabled) {

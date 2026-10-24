@@ -452,9 +452,8 @@
     <string name="settings_profiles">Hồ sơ</string>
     <string name="settings_layout">Bố cục</string>
     <string name="settings_content_discovery">Nội dung &amp; Khám phá</string>
-    <string name="settings_content_discovery_subtitle">Tiện ích, trình mở rộng, danh mục và nguồn khám phá</string>
+    <string name="settings_content_discovery_subtitle">Tiện ích, danh mục và nguồn khám phá</string>
     <string name="settings_content_discovery_addons_subtitle">Quản lý tiện ích, thứ tự danh mục và bộ sưu tập</string>
-    <string name="settings_content_discovery_plugins_subtitle">Quản lý kho lưu trữ và nhà cung cấp luồng phát</string>
     <string name="settings_integration">Tích hợp</string>
     <string name="settings_playback">Phát lại</string>
     <string name="settings_tracking_title">Theo dõi</string>
@@ -593,7 +592,6 @@
     <string name="settings_debug">Gỡ lỗi</string>
     <string name="settings_account_section_subtitle">Tài khoản và trạng thái đồng bộ</string>
     <string name="account_stat_addons">tiện ích</string>
-    <string name="account_stat_plugins">trình mở rộng</string>
     <string name="account_stat_library">thư viện</string>
     <string name="account_stat_progress">tiến độ</string>
     <string name="account_stat_watched">đã xem</string>
@@ -844,27 +842,18 @@
     <string name="autoplay_threshold_pct_title">Ngưỡng phần trăm</string>
     <string name="autoplay_threshold_pct_sub">Dự phòng nếu không có mốc thời gian đoạn kết.</string>
     <string name="autoplay_threshold_min_title">Ngưỡng phút</string>
-    <string name="autoplay_scope_all">Tất cả nguồn</string>
-    <string name="autoplay_scope_addons">Chỉ tiện ích đã cài đặt</string>
-    <string name="autoplay_scope_plugins">Chỉ trình mở rộng đã bật</string>
-    <string name="autoplay_scope">Phạm vi nguồn tự động phát</string>
     <string name="autoplay_timeout_title">Thời gian chờ khi chọn luồng</string>
     <string name="autoplay_timeout_sub">Thời gian chờ các tiện ích trước khi chọn luồng</string>
     <string name="autoplay_timeout_instant">Ngay lập tức</string>
     <string name="autoplay_timeout_unlimited">Không giới hạn</string>
     <string name="autoplay_allowed_addons">Tiện ích được phép</string>
     <string name="autoplay_all_addons">Tất cả tiện ích đã cài đặt</string>
-    <string name="autoplay_allowed_plugins">Trình mở rộng được phép</string>
-    <string name="autoplay_all_plugins">Tất cả trình mở rộng đã bật</string>
     <string name="autoplay_regex_placeholder">Chưa đặt mẫu. Ví dụ: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Mẫu biểu thức chính quy</string>
     <string name="autoplay_no_items">Không có mục nào</string>
     <string name="autoplay_mode_manual_desc">Luôn hiển thị danh sách nguồn để tự chọn.</string>
     <string name="autoplay_mode_first_desc">Tự động phát nguồn đầu tiên có sẵn.</string>
     <string name="autoplay_mode_regex_desc">Phát nguồn đầu tiên có văn bản khớp với mẫu biểu thức chính quy.</string>
-    <string name="autoplay_scope_all_desc">Tự động phát có thể dùng cả tiện ích đã cài đặt và trình mở rộng đã bật.</string>
-    <string name="autoplay_scope_addons_desc">Tự động phát chỉ xem xét các luồng từ tiện ích đã cài đặt.</string>
-    <string name="autoplay_scope_plugins_desc">Tự động phát chỉ xem xét các luồng từ trình mở rộng đã bật.</string>
     <string name="autoplay_threshold_pct_desc">Hiển thị theo phần trăm thời lượng phát khi không có mốc thời gian đoạn kết.</string>
     <string name="autoplay_threshold_min_desc">Hiển thị trước khi tập phim kết thúc bao nhiêu phút khi không có mốc thời gian đoạn kết.</string>
     <string name="autoplay_regex_matches">Khớp với tên/tiêu đề/mô tả/tiện ích/url luồng. Ví dụ: 4K|2160p|Remux</string>
@@ -1292,8 +1281,8 @@
     <string name="profile_copy_settings_apply">Áp dụng</string>
     <string name="profile_copy_settings_credentials_off">Mã khóa API: Không sao chép</string>
     <string name="profile_copy_settings_credentials_on">Mã khóa API: Sao chép khóa còn thiếu</string>
-    <string name="profile_copy_settings_details">Các mã khóa API hiện có được giữ lại. Giao thức ủy quyền OAuth, tiện ích, trình mở rộng, bố cục trang chủ, mã PIN, lịch sử, thư viện, tải xuống và cài đặt riêng theo thiết bị sẽ không thay đổi.</string>
-    <string name="profile_copy_settings_exclusions">Giao thức ủy quyền OAuth, tiện ích, trình mở rộng, bố cục trang chủ, mã PIN, lịch sử, thư viện, tải xuống và cài đặt riêng theo thiết bị sẽ không thay đổi.</string>
+    <string name="profile_copy_settings_details">Các mã khóa API hiện có được giữ lại. Giao thức ủy quyền OAuth, tiện ích, bố cục trang chủ, mã PIN, lịch sử, thư viện, tải xuống và cài đặt riêng theo thiết bị sẽ không thay đổi.</string>
+    <string name="profile_copy_settings_exclusions">Giao thức ủy quyền OAuth, tiện ích, bố cục trang chủ, mã PIN, lịch sử, thư viện, tải xuống và cài đặt riêng theo thiết bị sẽ không thay đổi.</string>
     <string name="profile_copy_settings_success">Đã sao chép cài đặt từ %1$s sang %2$s.</string>
     <string name="profile_copy_settings_error">Không thể sao chép cài đặt. Vui lòng kiểm tra kết nối và thử lại.</string>
     <string name="profile_copy_settings_created_success">Đã tạo hồ sơ với cài đặt từ %1$s.</string>
@@ -1736,7 +1725,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Đang tải\u2026</string>
-    <string name="account_sync_description">Đồng bộ thư viện, tiến độ xem, tiện ích và trình mở rộng trên nhiều thiết bị.</string>
+    <string name="account_sync_description">Đồng bộ thư viện, tiến độ xem và tiện ích trên nhiều thiết bị.</string>
     <string name="account_sync_restart_note">Đồng bộ không diễn ra theo thời gian thực trên các thiết bị đang hoạt động. Vui lòng khởi động lại thiết bị này sau khi đăng nhập hoặc để nhận các thay đổi được thực hiện trên thiết bị khác.</string>
     <string name="account_signin_qr_title">Đăng nhập bằng mã QR</string>
     <string name="account_signin_qr_subtitle">Quét mã QR và hoàn tất đăng nhập email trên điện thoại</string>
@@ -1747,7 +1736,7 @@
     <string name="account_loading_sync">Đang tải dữ liệu đồng bộ\u2026</string>
     <string name="account_sign_out">Đăng xuất</string>
     <string name="account_sign_out_confirm_title">Đăng xuất?</string>
-    <string name="account_sign_out_confirm_subtitle">Bạn sẽ cần đăng nhập lại để đồng bộ thư viện, tiến trình xem, tiện ích và trình mở rộng trên thiết bị này.</string>
+    <string name="account_sign_out_confirm_subtitle">Bạn sẽ cần đăng nhập lại để đồng bộ thư viện, tiến trình xem và tiện ích trên thiết bị này.</string>
     <string name="account_error_signin_required">Đăng nhập bằng tài khoản trước.</string>
     <string name="account_signin_create_title">Đăng nhập / Tạo tài khoản</string>
     <string name="account_signin_create_desc">Sử dụng email và mật khẩu để tạo hoặc đăng nhập vào tài khoản.</string>
@@ -1830,7 +1819,7 @@
 
     <string name="sync_claim_title">Liên kết thiết bị</string>
     <string name="sync_claim_subtitle">Nhập mã đồng bộ và mã PIN từ thiết bị khác của bạn để liên kết thiết bị này.</string>
-    <string name="sync_claim_success">Liên kết thiết bị thành công! Tiện ích và trình mở rộng của bạn sẽ đồng bộ ngay bây giờ.</string>
+    <string name="sync_claim_success">Liên kết thiết bị thành công! Tiện ích của bạn sẽ đồng bộ ngay bây giờ.</string>
     <string name="sync_claim_done">Xong</string>
     <string name="sync_claim_code_label">Mã đồng bộ</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1838,48 +1827,6 @@
     <string name="sync_claim_pin_placeholder">Nhập mã PIN</string>
     <string name="sync_claim_linking">Đang liên kết\u2026</string>
 
-    <string name="plugin_readonly_notice">Đang dùng trình mở rộng của hồ sơ chính và không thể thay đổi</string>
-    <string name="plugin_repositories_section">Kho lưu trữ (%1$d)</string>
-    <string name="plugin_providers_section">Nhà cung cấp (%1$d)</string>
-    <string name="plugin_title">Trình mở rộng</string>
-    <string name="plugin_enable_plugins_title">Bật nhà cung cấp trình mở rộng trên toàn hệ thống</string>
-    <string name="plugin_enable_plugins_subtitle">Dùng các nhà cung cấp trình mở rộng trong quá trình tìm kiếm luồng phát</string>
-    <string name="plugin_group_by_repository_title">Nhóm các nhà cung cấp theo kho lưu trữ</string>
-    <string name="plugin_group_by_repository_subtitle">Trong danh sách nguồn phát, hiển thị một nhà cung cấp cho mỗi kho lưu trữ thay vì từng nguồn</string>
-    <string name="plugin_add_repository">Thêm kho lưu trữ</string>
-    <string name="plugin_add_btn">Thêm</string>
-    <string name="plugin_manage_from_phone_title">Quản lý từ điện thoại</string>
-    <string name="plugin_manage_from_phone_subtitle">Quét mã QR để thêm hoặc xóa kho lưu trữ từ điện thoại</string>
-    <string name="plugin_qr_instruction">Quét bằng điện thoại để quản lý kho lưu trữ</string>
-    <string name="plugin_qr_close">Đóng</string>
-    <string name="plugin_confirm_title">Xác nhận thay đổi kho lưu trữ</string>
-    <string name="plugin_confirm_subtitle">Những thay đổi sau đây được thực hiện từ điện thoại của bạn:</string>
-    <string name="plugin_confirm_added">Đã thêm:</string>
-    <string name="plugin_confirm_removed">Đã xóa:</string>
-    <string name="plugin_confirm_no_changes">Không phát hiện thay đổi nào</string>
-    <string name="plugin_confirm_total">Tổng số kho lưu trữ: %1$d</string>
-    <string name="plugin_confirm_reject">Từ chối</string>
-    <string name="plugin_confirm_confirm">Xác nhận</string>
-    <string name="plugin_url_or_short_code_placeholder">URL hoặc mã ngắn</string>
-    <string name="plugin_diagnostics_collapse">Chẩn đoán (nhấn để thu gọn)</string>
-    <string name="plugin_diagnostics_expand">Chẩn đoán (nhấn để mở rộng)</string>
-    <string name="plugin_risky_enable_title">Bật nhà cung cấp?</string>
-    <string name="plugin_risky_enable_message">%1$s được biết là có thể gây lỗi ứng dụng khi phát một số nội dung. Bạn vẫn muốn bật?</string>
-    <string name="plugin_risky_enable_cancel">Hủy</string>
-    <string name="plugin_risky_enable_confirm">Bật</string>
-    <string name="plugin_updated_format">Cập nhật: %1$s</string>
-    <string name="plugin_test_btn">Kiểm tra</string>
-    <string name="plugin_test_results">Kết quả kiểm tra (%1$d luồng)</string>
-    <string name="plugin_and_more">... và %1$d nữa</string>
-    <string name="plugin_providers_count">%1$d nhà cung cấp</string>
-    <string name="plugin_no_repos">Chưa thêm kho lưu trữ nào.\nThêm kho lưu trữ để bắt đầu.</string>
-    <string name="plugin_error_invalid_url">Vui lòng nhập URL hợp lệ</string>
-    <string name="plugin_error_add_repo">Không thể thêm kho lưu trữ: %1$s</string>
-    <string name="plugin_error_refresh">Không thể làm mới: %1$s</string>
-    <string name="plugin_error_test">Kiểm tra thất bại: %1$s</string>
-    <string name="plugin_test_no_results">Không tìm thấy kết quả nào</string>
-    <string name="plugin_test_found_streams">Đã tìm thấy %1$d luồng</string>
-    <string name="plugin_version">Phiên bản %1$s</string>
 
     <string name="profile_selection_title">Ai đang xem?</string>
     <string name="profile_selection_subtitle">Chọn hồ sơ để tiếp tục</string>
@@ -1917,7 +1864,7 @@
     <string name="update_unknown_sources">Cho phép cài đặt từ nguồn không xác định để tiếp tục.</string>
     <!-- AccountScreen -->
     <string name="account_title">Tài khoản</string>
-    <string name="account_sign_in_description">Đăng nhập để đồng bộ thư viện, tiến trình xem, tiện ích và trình mở rộng trên các thiết bị. Tính năng đồng bộ thư viện sử dụng Đồng bộ Fetch khi chưa kết nối Trakt, còn tiến trình xem có thể sử dụng Trakt hoặc Đồng bộ Fetch.</string>
+    <string name="account_sign_in_description">Đăng nhập để đồng bộ thư viện, tiến trình xem và tiện ích trên các thiết bị. Tính năng đồng bộ thư viện sử dụng Đồng bộ Fetch khi chưa kết nối Trakt, còn tiến trình xem có thể sử dụng Trakt hoặc Đồng bộ Fetch.</string>
     <string name="account_sync_code_title">Mã đồng bộ</string>
     <string name="account_sync_code_description">Đồng bộ giữa các thiết bị mà không cần tạo tài khoản.</string>
     <string name="account_linked_devices">Thiết bị đã liên kết (%1$d)</string>
@@ -1945,8 +1892,6 @@
     <string name="discover_empty_no_content_subtitle">Thử thể loại hoặc danh mục khác</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1994,11 +1939,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">Kết nối với Wi-Fi hoặc mạng có dây để sử dụng tính năng này</string>
     <string name="error_server_ports_unavailable">Không thể khởi động máy chủ. Tất cả các cổng đều đang được sử dụng.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">Đã thêm %1$s với %2$d nhà cung cấp</string>
-    <string name="plugin_repo_removed">Kho lưu trữ đã bị xóa</string>
-    <string name="plugin_repo_refreshed">Kho lưu trữ đã làm mới</string>
 
     <!-- Trakt errors -->
 
@@ -2071,7 +2011,6 @@
     <string name="cd_refresh">Làm mới</string>
     <string name="cd_remove">Xóa</string>
     <string name="cd_preview">Xem trước</string>
-    <string name="cd_test">Kiểm tra</string>
     <string name="cd_unlink">Hủy liên kết</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>

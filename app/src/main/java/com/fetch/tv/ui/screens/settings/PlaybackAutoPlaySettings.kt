@@ -57,11 +57,9 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.data.local.PlayerSettings
 import com.fetch.tv.data.local.NextEpisodeThresholdMode
 import com.fetch.tv.data.local.StreamAutoPlayMode
-import com.fetch.tv.data.local.StreamAutoPlaySource
 import com.fetch.tv.ui.components.FetchDialog
 import kotlin.math.roundToInt
 import java.util.Locale
@@ -72,15 +70,6 @@ internal fun PlaybackStreamSelectionSection(
     onUpdate: PlaybackSettingsUpdate,
     onOpenDialog: (PlaybackDialog) -> Unit
 ) {
-    val effectiveAutoPlaySource = if (
-        !AppFeaturePolicy.pluginsEnabled &&
-        settings.streamAutoPlaySource == StreamAutoPlaySource.ENABLED_PLUGINS_ONLY
-    ) {
-        StreamAutoPlaySource.INSTALLED_ADDONS_ONLY
-    } else {
-        settings.streamAutoPlaySource
-    }
-
     SettingsActionRow(
         title = stringResource(R.string.autoplay_stream_selection),
         subtitle = null,
@@ -122,42 +111,14 @@ internal fun PlaybackStreamSelectionSection(
 
     if (settings.streamAutoPlayMode != StreamAutoPlayMode.MANUAL) {
         SettingsActionRow(
-            title = stringResource(R.string.autoplay_scope),
-            subtitle = null,
-            value = when (effectiveAutoPlaySource) {
-                StreamAutoPlaySource.ALL_SOURCES -> stringResource(R.string.autoplay_scope_all)
-                StreamAutoPlaySource.INSTALLED_ADDONS_ONLY -> stringResource(R.string.autoplay_scope_addons)
-                StreamAutoPlaySource.ENABLED_PLUGINS_ONLY -> stringResource(R.string.autoplay_scope_plugins)
-            },
-            onClick = { onOpenDialog(PlaybackDialog.STREAM_AUTO_PLAY_SOURCE) }
+            title = stringResource(R.string.autoplay_allowed_addons),
+            subtitle = stringResource(R.string.autoplay_allowed_addons_early_sub),
+            value = selectionSummary(
+                selectedCount = settings.streamAutoPlaySelectedAddons.size,
+                allLabel = stringResource(R.string.autoplay_all_addons)
+            ),
+            onClick = { onOpenDialog(PlaybackDialog.STREAM_AUTO_PLAY_ADDONS) }
         )
-
-        if (effectiveAutoPlaySource != StreamAutoPlaySource.ENABLED_PLUGINS_ONLY) {
-            SettingsActionRow(
-                title = stringResource(R.string.autoplay_allowed_addons),
-                subtitle = stringResource(R.string.autoplay_allowed_addons_early_sub),
-                value = selectionSummary(
-                    selectedCount = settings.streamAutoPlaySelectedAddons.size,
-                    allLabel = stringResource(R.string.autoplay_all_addons)
-                ),
-                onClick = { onOpenDialog(PlaybackDialog.STREAM_AUTO_PLAY_ADDONS) }
-            )
-        }
-
-        if (
-            AppFeaturePolicy.pluginsEnabled &&
-            effectiveAutoPlaySource != StreamAutoPlaySource.INSTALLED_ADDONS_ONLY
-        ) {
-            SettingsActionRow(
-                title = stringResource(R.string.autoplay_allowed_plugins),
-                subtitle = null,
-                value = selectionSummary(
-                    selectedCount = settings.streamAutoPlaySelectedPlugins.size,
-                    allLabel = stringResource(R.string.autoplay_all_plugins)
-                ),
-                onClick = { onOpenDialog(PlaybackDialog.STREAM_AUTO_PLAY_PLUGINS) }
-            )
-        }
     }
 
     val timeoutSeconds = settings.streamAutoPlayTimeoutSeconds
@@ -335,7 +296,6 @@ internal fun AutoPlaySettingsDialogs(
     dialog: PlaybackDialog?,
     settings: PlayerSettings,
     installedAddonNames: List<String>,
-    enabledPluginNames: List<String>,
     onUpdate: PlaybackSettingsUpdate,
     onDismiss: () -> Unit
 ) {
@@ -348,14 +308,6 @@ internal fun AutoPlaySettingsDialogs(
             selectedMode = settings.streamAutoPlayMode,
             onModeSelected = { mode ->
                 onUpdate { setStreamAutoPlayMode(mode) }
-                onDismiss()
-            },
-            onDismiss = onDismiss
-        )
-        PlaybackDialog.STREAM_AUTO_PLAY_SOURCE -> StreamAutoPlaySourceDialog(
-            selectedSource = settings.streamAutoPlaySource,
-            onSourceSelected = { source ->
-                onUpdate { setStreamAutoPlaySource(source) }
                 onDismiss()
             },
             onDismiss = onDismiss
@@ -382,14 +334,6 @@ internal fun AutoPlaySettingsDialogs(
             items = installedAddonNames,
             selectedItems = settings.streamAutoPlaySelectedAddons,
             onSelectionSaved = { selected -> onUpdate { setStreamAutoPlaySelectedAddons(selected) } },
-            onDismiss = onDismiss
-        )
-        PlaybackDialog.STREAM_AUTO_PLAY_PLUGINS -> StreamAutoPlayProviderSelectionDialog(
-            title = stringResource(R.string.autoplay_allowed_plugins),
-            allLabel = stringResource(R.string.autoplay_all_plugins),
-            items = enabledPluginNames,
-            selectedItems = settings.streamAutoPlaySelectedPlugins,
-            onSelectionSaved = { selected -> onUpdate { setStreamAutoPlaySelectedPlugins(selected) } },
             onDismiss = onDismiss
         )
         PlaybackDialog.REUSE_LAST_LINK_CACHE -> StreamReuseLastLinkCacheDurationDialog(
@@ -507,43 +451,6 @@ private fun StreamReuseLastLinkCacheDurationDialog(
         onOptionSelected = onDurationSelected,
         onDismiss = onDismiss,
         width = 420.dp,
-        maxHeight = 320.dp
-    )
-}
-
-@Composable
-private fun StreamAutoPlaySourceDialog(
-    selectedSource: StreamAutoPlaySource,
-    onSourceSelected: (StreamAutoPlaySource) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val options = listOf(
-        SettingsPickerOption(
-            StreamAutoPlaySource.ALL_SOURCES,
-            stringResource(R.string.autoplay_scope_all),
-            stringResource(R.string.autoplay_scope_all_desc)
-        ),
-        SettingsPickerOption(
-            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY,
-            stringResource(R.string.autoplay_scope_addons),
-            stringResource(R.string.autoplay_scope_addons_desc)
-        ),
-        SettingsPickerOption(
-            StreamAutoPlaySource.ENABLED_PLUGINS_ONLY,
-            stringResource(R.string.autoplay_scope_plugins),
-            stringResource(R.string.autoplay_scope_plugins_desc)
-        )
-    ).filter { option ->
-        AppFeaturePolicy.pluginsEnabled || option.value != StreamAutoPlaySource.ENABLED_PLUGINS_ONLY
-    }
-
-    SettingsSingleChoiceDialog(
-        title = stringResource(R.string.autoplay_scope),
-        options = options,
-        selectedValue = selectedSource,
-        onOptionSelected = onSourceSelected,
-        onDismiss = onDismiss,
-        width = 520.dp,
         maxHeight = 320.dp
     )
 }

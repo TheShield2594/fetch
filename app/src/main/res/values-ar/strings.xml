@@ -478,7 +478,6 @@
     <string name="settings_debug">معالجة الأخطاء</string>
     <string name="settings_account_section_subtitle">الحساب وحالة المزامنة</string>
     <string name="account_stat_addons">إضافات</string>
-    <string name="account_stat_plugins">ملحقات</string>
     <string name="account_stat_library">مكتبة</string>
     <string name="account_stat_progress">مستوى المشاهدة</string>
     <string name="account_stat_watched">تمت المشاهدة</string>
@@ -680,27 +679,18 @@
     <string name="autoplay_threshold_pct_title">النسبة</string>
     <string name="autoplay_threshold_pct_sub">يُستخدم كبديل عند عدم توفر توقيت نهاية الحلقة.</string>
     <string name="autoplay_threshold_min_title">حد الدقائق</string>
-    <string name="autoplay_scope_all">كل المصادر</string>
-    <string name="autoplay_scope_addons">الإضافات المثبتة فقط</string>
-    <string name="autoplay_scope_plugins">الملحقات المفعلة فقط</string>
-    <string name="autoplay_scope">نطاق التشغيل التلقائي</string>
     <string name="autoplay_timeout_title">مهلة اختيار المصدر</string>
     <string name="autoplay_timeout_sub">وقت الانتظار للإضافات قبل الاختيار.</string>
     <string name="autoplay_timeout_instant">فوري</string>
     <string name="autoplay_timeout_unlimited">غير محدود</string>
     <string name="autoplay_allowed_addons">الإضافات المسموح بها</string>
     <string name="autoplay_all_addons">كل الإضافات المثبتة</string>
-    <string name="autoplay_allowed_plugins">الملحقات المسموح بها</string>
-    <string name="autoplay_all_plugins">كل الملحقات المفعلة</string>
     <string name="autoplay_regex_placeholder">لم يتم ضبط نمط. مثال: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">نمط Regex</string>
     <string name="autoplay_no_items">لا توجد عناصر متاحة</string>
     <string name="autoplay_mode_manual_desc">عرض قائمة روابط المصادر دوماً للاختيار يدوياً.</string>
     <string name="autoplay_mode_first_desc">تشغيل أول مصدر متاح تلقائياً.</string>
     <string name="autoplay_mode_regex_desc">تشغيل أول مصدر يطابق نصه نمط Regex الخاص بك.</string>
-    <string name="autoplay_scope_all_desc">التشغيل التلقائي يمكنه استخدام الإضافات المثبتة والبرمجية معاً.</string>
-    <string name="autoplay_scope_addons_desc">التشغيل التلقائي يأخذ في الاعتبار روابط الإضافات المثبتة فقط.</string>
-    <string name="autoplay_scope_plugins_desc">التشغيل التلقائي يأخذ في الاعتبار روابط الملحقات فقط.</string>
     <string name="autoplay_threshold_pct_desc">العرض حسب نسبة التشغيل عند عدم توفر توقيت نهاية المحتوى.</string>
     <string name="autoplay_threshold_min_desc">العرض قبل نهاية الحلقة بعدد الدقائق هذا عند عدم توفر توقيت نهاية المحتوى.</string>
     <string name="autoplay_regex_matches">يطابق اسم الرابط/العنوان/الوصف/الإضافة. مثال: 4K|2160p|Remux</string>
@@ -1352,7 +1342,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">جاري التحميل\u2026</string>
-    <string name="account_sync_description">زامن مكتبتك، تقدم المشاهدة، الإضافات، والملحقات عبر أجهزتك.</string>
+    <string name="account_sync_description">زامن مكتبتك، تقدم المشاهدة، والإضافات عبر أجهزتك.</string>
     <string name="account_sync_restart_note">المزامنة ليست فورية عبر الأجهزة النشطة. أعد تشغيل هذا الجهاز بعد تسجيل الدخول أو لالتقاط التغييرات التي تمت في مكان آخر.</string>
     <string name="account_signin_qr_title">الدخول برمز QR</string>
     <string name="account_signin_qr_subtitle">امسح رمز QR وأكمل تسجيل الدخول ببريدك من هاتفك</string>
@@ -1410,50 +1400,6 @@
     <string name="sync_claim_pin_placeholder">أدخل رمز حماية</string>
     <string name="sync_claim_linking">يتم الربط\u2026</string>
 
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">يتم استخدام ملحقات الملف الأساسي ولا يمكن تغييرها</string>
-    <string name="plugin_repositories_section">المستودعات (%1$d)</string>
-    <string name="plugin_providers_section">المصادر (%1$d)</string>
-    <string name="plugin_title">الملحقات</string>
-    <string name="plugin_enable_plugins_title">تفعيل مزودي الملحقات في كامل التطبيق</string>
-    <string name="plugin_enable_plugins_subtitle">استخدام مزودي الملحقات عند البحث عن روابط بث</string>
-    <string name="plugin_group_by_repository_title">تجميع الملحقات حسب المستودع</string>
-    <string name="plugin_group_by_repository_subtitle">عند البحث، عرض مزود واحد لكل مستودع بدلاً من كل مصدر</string>
-    <string name="plugin_add_repository">إضافة مستودع</string>
-    <string name="plugin_add_btn">إضافة</string>
-    <string name="plugin_manage_from_phone_title">الإدارة من الهاتف</string>
-    <string name="plugin_manage_from_phone_subtitle">امسح رمز QR لإضافة أو إزالة المستودعات من هاتفك</string>
-    <string name="plugin_qr_instruction">امسح بهاتفك لإدارة المستودعات</string>
-    <string name="plugin_qr_close">إغلاق</string>
-    <string name="plugin_confirm_title">تأكيد تغييرات المستودعات</string>
-    <string name="plugin_confirm_subtitle">تم إجراء التغييرات التالية من هاتفك:</string>
-    <string name="plugin_confirm_added">تمت الإضافة:</string>
-    <string name="plugin_confirm_removed">تمت الإزالة:</string>
-    <string name="plugin_confirm_no_changes">لم يتم رصد تغييرات</string>
-    <string name="plugin_confirm_total">إجمالي المستودعات: %1$d</string>
-    <string name="plugin_confirm_reject">رفض</string>
-    <string name="plugin_confirm_confirm">تأكيد</string>
-    <string name="plugin_url_or_short_code_placeholder">أدخل الرابط أو الكود المختصر</string>
-    <string name="plugin_diagnostics_collapse">التشخيص (اضغط للإخفاء)</string>
-    <string name="plugin_diagnostics_expand">التشخيص (اضغط للإظهار)</string>
-    <string name="plugin_risky_enable_title">تفعيل المصدر؟</string>
-    <string name="plugin_risky_enable_message">يُعرف %1$s بتسببه في أعطال في بعض المحتوى. هل تريد تفعيله على أي حال؟</string>
-    <string name="plugin_risky_enable_cancel">إلغاء</string>
-    <string name="plugin_risky_enable_confirm">تفعيل</string>
-    <string name="plugin_updated_format">تاريخ التحديث: %1$s</string>
-    <string name="plugin_test_btn">اختبار</string>
-    <string name="plugin_test_results">نتائج الاختبار (%1$d مصدر بث)</string>
-    <string name="plugin_and_more">... و %1$d غيرها</string>
-    <string name="plugin_providers_count">%1$d مصدر</string>
-    <string name="plugin_no_repos">لم يتم إضافة مستودعات بعد.\nأضف مستودعاً للبدء.</string>
-    <string name="plugin_error_invalid_url">يرجى إدخال رابط (URL) صالح</string>
-    <string name="plugin_error_add_repo">فشل إضافة المستودع: %1$s</string>
-    <string name="plugin_error_refresh">فشل التحديث: %1$s</string>
-    <string name="plugin_error_test">فشل الاختبار: %1$s</string>
-    <string name="plugin_test_no_results">لم يتم العثور على نتائج</string>
-    <string name="plugin_test_found_streams">تم العثور على %1$d من مسارات البث</string>
-    <string name="plugin_version">الإصدار %1$s</string>
-
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">من المشاهد؟</string>
@@ -1490,7 +1436,7 @@
     <string name="update_unknown_sources">اسمح بتثبيت التطبيقات من مصادر غير معروفة للمتابعة.</string>
     <!-- AccountScreen -->
     <string name="account_title">الحساب</string>
-    <string name="account_sign_in_description">سجل دخولك لمزامنة مكتبتك، وتقدم المشاهدة، والإضافات، والملحقات عبر أجهزتك. تستخدم مزامنة المكتبة Fetch Sync عندما يكون Trakt غير متصل، ويمكن لمستوى المشاهدة استخدام Trakt أو مزامنة Fetch.</string>
+    <string name="account_sign_in_description">سجل دخولك لمزامنة مكتبتك، وتقدم المشاهدة، والإضافات عبر أجهزتك. تستخدم مزامنة المكتبة Fetch Sync عندما يكون Trakt غير متصل، ويمكن لمستوى المشاهدة استخدام Trakt أو مزامنة Fetch.</string>
     <string name="account_sync_code_title">رمز المزامنة</string>
     <string name="account_sync_code_description">المزامنة عبر الأجهزة دون إنشاء حساب.</string>
     <string name="account_linked_devices">الأجهزة المرتبطة (%1$d)</string>
@@ -1556,11 +1502,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">اتصل بشبكة انترنت لاستخدام هذه الميزة</string>
     <string name="error_server_ports_unavailable">تعذر بدء الخادم. جميع المنافذ قيد الاستخدام.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">تمت إضافة %1$s مع %2$d من المزودين</string>
-    <string name="plugin_repo_removed">تم إزالة المستودع</string>
-    <string name="plugin_repo_refreshed">تم تحديث المستودع</string>
 
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">انتهت صلاحية الرمز. ابدأ مجدداً.</string>
@@ -1630,7 +1571,6 @@
     <string name="cd_refresh">تحديث</string>
     <string name="cd_remove">إزالة</string>
     <string name="cd_preview">معاينة</string>
-    <string name="cd_test">اختبار</string>
     <string name="cd_unlink">إلغاء الارتباط</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">شعار Trakt</string>
@@ -2117,7 +2057,7 @@
     <!-- Additional Arabic translations -->
     <string name="about_update_banner_subtitle">إظهار شريط عند توفر نسخة جديدة</string>
     <string name="about_update_banner_title">شريط التحديث التلقائي</string>
-    <string name="account_sign_out_confirm_subtitle">ستحتاج إلى تسجيل الدخول مجددًا لمزامنة المكتبة وتقدم المشاهدة والإضافات والإضافات البرمجية على هذا الجهاز.</string>
+    <string name="account_sign_out_confirm_subtitle">ستحتاج إلى تسجيل الدخول مجددًا لمزامنة المكتبة وتقدم المشاهدة والإضافات على هذا الجهاز.</string>
     <string name="account_sign_out_confirm_title">تسجيل الخروج؟</string>
     <string name="account_signin_email_subtitle">أدخل البريد الإلكتروني وكلمة المرور لحسابك المستضاف ذاتيًا</string>
     <string name="account_signin_email_title">تسجيل الدخول</string>
@@ -2355,8 +2295,7 @@
     <string name="layout_custom_poster_apply_to">التطبيق على</string>
     <string name="settings_content_discovery">المحتوى والاكتشاف</string>
     <string name="settings_content_discovery_addons_subtitle">إدارة الإضافات وترتيب الفهارس والمجموعات</string>
-    <string name="settings_content_discovery_plugins_subtitle">إدارة المستودعات ومزودي البثوث</string>
-    <string name="settings_content_discovery_subtitle">الإضافات والإضافات البرمجية والفهارس ومصادر الاكتشاف</string>
+    <string name="settings_content_discovery_subtitle">الإضافات والفهارس ومصادر الاكتشاف</string>
     <string name="settings_stream_addon_logo_description">إظهار شعار الإضافة واسمها بجانب مصادر البث.</string>
     <string name="settings_stream_addon_logo_title">شعار الإضافة</string>
     <string name="settings_stream_badge_position_bottom">أسفل</string>

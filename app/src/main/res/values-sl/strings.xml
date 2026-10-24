@@ -448,7 +448,6 @@
     <string name="settings_debug">Odpravljanje napak</string>	
     <string name="settings_account_section_subtitle">Stanje računa in sinhronizacije.</string>
 	<string name="account_stat_addons">dodatki</string>
-    <string name="account_stat_plugins">vtičniki</string>
     <string name="account_stat_library">knjižnica</string>
     <string name="account_stat_progress">napredek</string>
     <string name="account_stat_watched">ogledano</string>													
@@ -611,27 +610,18 @@
     <string name="autoplay_threshold_pct_title">Odstotek praga</string>
     <string name="autoplay_threshold_pct_sub">Rezerva, ko ne obstaja časovni žig odjave.</string>
     <string name="autoplay_threshold_min_title">Minute praga</string>
-    <string name="autoplay_scope_all">Vsi viri</string>
-    <string name="autoplay_scope_addons">Samo nameščeni dodatki</string>
-    <string name="autoplay_scope_plugins">Samo omogočeni vtičniki</string>
-    <string name="autoplay_scope">Obseg samodejnega predvajanja virov</string>
 	<string name="autoplay_timeout_title">Časovna omejitev izbire vira</string>
     <string name="autoplay_timeout_sub">Čas čakanja na dodatke pred izbiro.</string>
     <string name="autoplay_timeout_instant">Takoj</string>
     <string name="autoplay_timeout_unlimited">Neomejeno</string>																	   
 	<string name="autoplay_allowed_addons">Dovoljeni dodatki</string>
     <string name="autoplay_all_addons">Vsi nameščeni dodatki</string>
-    <string name="autoplay_allowed_plugins">Dovoljeni vtičniki</string>
-    <string name="autoplay_all_plugins">Vsi omogočeni vtičniki</string>
     <string name="autoplay_regex_placeholder">Vzorec ni nastavljen. Primer: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Vzorec regularnega izraza</string>
     <string name="autoplay_no_items">Ni razpoložljivih elementov</string>
     <string name="autoplay_mode_manual_desc">Vedno prikaži seznam virov in mi dovoli izbiro.</string>
     <string name="autoplay_mode_first_desc">Samodejno predvajaj prvi razpoložljivi vir.</string>
     <string name="autoplay_mode_regex_desc">Predvajaj prvi vir, katerega besedilo se ujema z vašim regularnim izrazom.</string>
-    <string name="autoplay_scope_all_desc">Samodejno predvajanje lahko uporablja nameščene dodatke in omogočene vtičnike.</string>
-    <string name="autoplay_scope_addons_desc">Samodejno predvajanje upošteva le prenose iz nameščenih dodatkov.</string>
-    <string name="autoplay_scope_plugins_desc">Samodejno predvajanje upošteva le prenose iz omogočenih vtičnikov.</string>
     <string name="autoplay_threshold_pct_desc">Prikaži po odstotku predvajanja, ko ni na voljo časovnega žiga odjave.</string>
     <string name="autoplay_threshold_min_desc">Prikaži toliko minut pred koncem epizode, ko ni na voljo časovnega žiga odjave.</string>
     <string name="autoplay_regex_matches">Ujemanje z imenom prenosa/naslovom/opisom/dodatkom/url. Primer: 4K|2160p|Remux</string>
@@ -1197,7 +1187,7 @@
     <string name="library_empty_trakt_not_auth_subtitle">V nastavitvah povežite svoj račun Trakt za ogled svoje knjižnice Trakt</string>																			  
     <!-- AccountSettingsContent -->
     <string name="account_loading">Nalaganje\u2026</string>
-    <string name="account_sync_description">Sinhronizirajte svojo knjižnico, napredek ogledov, dodatke in vtičnike na več napravah.</string>
+    <string name="account_sync_description">Sinhronizirajte svojo knjižnico, napredek ogledov in dodatke na več napravah.</string>
 	<string name="account_sync_restart_note">Sinhronizacija med aktivnimi napravami ne poteka v realnem času. Po prijavi ali za uveljavitev sprememb, narejenih drugje, znova zaženite to napravo.</string>																																										 
     <string name="account_signin_qr_title">Prijava s QR</string>
     <string name="account_signin_qr_subtitle">Skenirajte QR kodo in dokončajte prijavo z e-pošto na telefonu</string>
@@ -1233,45 +1223,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">Poveži napravo</string>
     <string name="sync_claim_subtitle">Vnesite kodo za sinhronizacijo in PIN iz vaše druge naprave, da povežete to napravo.</string>
-    <string name="sync_claim_success">Naprava uspešno povezana! Vaši dodatki in vtičniki se bodo zdaj sinhronizirali.</string>
+    <string name="sync_claim_success">Naprava uspešno povezana! Vaši dodatki se bodo zdaj sinhronizirali.</string>
     <string name="sync_claim_done">Končano</string>
     <string name="sync_claim_code_label">Koda za sinhronizacijo</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">Vnesite PIN</string>
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Uporaba vtičnikov glavnega profila in se jih ne da spremeniti</string>
-    <string name="plugin_repositories_section">Repozitoriji (%1$d)</string>
-    <string name="plugin_providers_section">Ponudniki (%1$d)</string>
-    <string name="plugin_title">Vtičniki</string>
-	<string name="plugin_enable_plugins_title">Omogoči ponudnike vtičnikov</string>
-    <string name="plugin_enable_plugins_subtitle">Uporabi ponudnike vtičnikov med iskanjem pretokov</string>
-    <string name="plugin_group_by_repository_title">Združi ponudnike vtičnikov po repozitoriju</string>
-    <string name="plugin_group_by_repository_subtitle">V razdelku Pretoki prikaži enega ponudnika na repozitorij namesto enega na vir</string>																					
-	<string name="plugin_add_repository">Dodaj repozitorij</string>
-    <string name="plugin_add_btn">Dodaj</string>
-    <string name="plugin_manage_from_phone_title">Upravljajte s telefonom</string>
-    <string name="plugin_manage_from_phone_subtitle">Skenirajte QR kodo, da dodate ali odstranite repozitorije s telefona</string>
-    <string name="plugin_qr_instruction">Skenirajte s telefonom za upravljanje repozitorijev</string>
-    <string name="plugin_qr_close">Zapri</string>
-    <string name="plugin_confirm_title">Potrdi spremembe repozitorija</string>
-    <string name="plugin_confirm_subtitle">S telefona so bile narejene naslednje spremembe:</string>
-    <string name="plugin_confirm_added">Dodano:</string>
-    <string name="plugin_confirm_removed">Odstranjeno:</string>
-    <string name="plugin_confirm_no_changes">Ni zaznanih sprememb</string>
-    <string name="plugin_confirm_total">Skupno število repozitorijev: %1$d</string>
-    <string name="plugin_confirm_reject">Zavrni</string>
-    <string name="plugin_confirm_confirm">Potrdi</string>
-	<string name="plugin_url_or_short_code_placeholder">Naslov URL ali kratka koda</string>
-    <string name="plugin_diagnostics_collapse">Diagnostika (kliknite za strnitev)</string>
-    <string name="plugin_diagnostics_expand">Diagnostika (kliknite za razširitev)</string>
-    <string name="plugin_risky_enable_title">Želite omogočiti ponudnika?</string>
-    <string name="plugin_risky_enable_message">Znanstveno je dokazano, da %1$s povzroča sesutje aplikacije pri nekaterih vsebinah. Želite ponudnika vseeno omogočiti?</string>
-    <string name="plugin_risky_enable_cancel">Prekliči</string>
-    <string name="plugin_risky_enable_confirm">Omogoči</string>
-    <string name="plugin_updated_format">Posodobljeno: %1$s</string>
-    <string name="plugin_test_btn">Preizkusi</string>
-    <string name="plugin_test_results">Rezultati preizkusa (št. pretokov: %1$d)</string>
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Kdo gleda?</string>
     <string name="profile_selection_subtitle">Izberite profil za nadaljevanje</string>
@@ -1303,7 +1260,7 @@
 	<string name="update_unknown_sources">Dovolite namestitve iz neznanih virov za nadaljevanje.</string>
     <!-- AccountScreen -->
     <string name="account_title">Račun</string>
-    <string name="account_sign_in_description">Prijavite se za sinhronizacijo knjižnice, napredka gledanja, dodatkov in vtičnikov v vseh napravah. Knjižnica in napredek se sinhronizirata le, če Trakt ni povezan.</string>
+    <string name="account_sign_in_description">Prijavite se za sinhronizacijo knjižnice, napredka gledanja in dodatkov v vseh napravah. Knjižnica in napredek se sinhronizirata le, če Trakt ni povezan.</string>
     <string name="account_sync_code_title">Koda za sinhronizacijo</string>
     <string name="account_sync_code_description">Sinhronizirajte na več napravah brez ustvarjanja računa.</string>
     <string name="account_linked_devices">Povezane naprave (%1$d)</string>
@@ -1331,10 +1288,6 @@
     <string name="addon_confirm_total_addons">Skupno število dodatkov: %1$d</string>
     <string name="addon_confirm_total_catalogs">Skupno število katalogov: %1$d</string>
     <string name="addon_catalogs_types">Katalogi: %1$d - Vrste: %2$s</string>
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... in še %1$d</string>
-    <string name="plugin_providers_count">%1$d ponudnikov</string>
-    <string name="plugin_no_repos">Ni še dodanih repozitorijev.\nDodajte repozitorij za začetek.</string>
     <!-- ProfileSettingsContent -->
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Prehod zvoka (TrueHD, DTS, AC-3 itd.) je samodejen. Ob povezavi z združljivim AV sprejemnikom ali zvočno vrstico prek HDMI se zvok brez izgub pošlje nespremenjen, brez dekodiranja.</string>
@@ -1384,16 +1337,6 @@
 	<!-- Error messages (shared) -->								
 	<string name="error_network_required">Za uporabo te funkcije se povežite v omrežje Wi-Fi ali Ethernet</string>
     <string name="error_server_ports_unavailable">Strežnika ni bilo mogoče zagnati. Vsa vrata so v uporabi.</string>																							   
-    <!-- Plugin errors -->					  
-	<string name="plugin_error_invalid_url">Vnesite veljaven URL</string>
-    <string name="plugin_error_add_repo">Dodajanje repozitorija ni uspelo: %1$s</string>
-    <string name="plugin_error_refresh">Osveževanje ni uspelo: %1$s</string>
-    <string name="plugin_error_test">Preizkus ni uspel: %1$s</string>
-    <string name="plugin_test_no_results">Ni najdenih rezultatov</string>
-    <string name="plugin_test_found_streams">Najdenih virov: %1$d</string>																		 
-	<string name="plugin_repo_added_with_providers">Dodan %1$s z %2$d ponudniki</string>
-    <string name="plugin_repo_removed">Repozitorij odstranjen</string>
-    <string name="plugin_repo_refreshed">Repozitorij osvežen</string>											  
 	<!-- Trakt errors -->					 
 	<string name="trakt_error_code_expired">Koda naprave je potekla. Začnite znova.</string>
     <string name="trakt_error_code_used">Koda naprave je že uporabljena. Začnite znova.</string>
@@ -1433,7 +1376,6 @@
 	<string name="sub_mode_overlay_canvas_sub">Podpora za HDR z izrisovanjem na platno. Lahko blokira nit uporabniškega vmesnika.</string>
     <string name="subtitle_style_weight">Debelina</string>																										   
 	<!-- Plugin screen -->					  
-	<string name="plugin_version">Različica %1$s</string>												   
 	<!-- Stream screen -->					  
 	<string name="stream_episode_label">S%1$d E%2$d</string>														
 	<!-- Episode ratings -->						
@@ -1466,7 +1408,6 @@
     <string name="cd_refresh">Osveži</string>
     <string name="cd_remove">Odstrani</string>
     <string name="cd_preview">Predogled</string>
-    <string name="cd_test">Preizkus</string>
     <string name="cd_unlink">Odstrani povezavo</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logotip Trakt</string>

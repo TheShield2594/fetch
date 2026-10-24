@@ -933,7 +933,7 @@ fun ProfileSelectionScreen(
                             runWithProfilePin(guard) {
                                 val shared = !profile.usesPrimaryAddons
                                 viewModel.updateProfile(
-                                    profile.copy(usesPrimaryAddons = shared, usesPrimaryPlugins = shared)
+                                    profile.copy(usesPrimaryAddons = shared)
                                 ) { saved ->
                                     profileActionMessage = when {
                                         !saved -> context.getString(R.string.profile_save_error)

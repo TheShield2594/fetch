@@ -195,7 +195,6 @@
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Konto och synkroniseringsstatus</string>
     <string name="account_stat_addons">tillägg</string>
-    <string name="account_stat_plugins">plugins</string>
     <string name="account_stat_library">bibliotek</string>
     <string name="account_stat_progress">pågående</string>
     <string name="account_stat_watched">sedd</string>
@@ -315,27 +314,18 @@
     <string name="autoplay_threshold_pct_title">Tröskelvärdesprocent</string>
     <string name="autoplay_threshold_pct_sub">Reserv när ingen outro-tidsstämpel finns.</string>
     <string name="autoplay_threshold_min_title">Tröskelvärdesminuter</string>
-    <string name="autoplay_scope_all">Alla källor</string>
-    <string name="autoplay_scope_addons">Endast installerade tillägg</string>
-    <string name="autoplay_scope_plugins">Endast aktiverade plugins</string>
-    <string name="autoplay_scope">Källomfång för automatisk uppspelning</string>
     <string name="autoplay_timeout_title">Tidsgräns för strömval</string>
     <string name="autoplay_timeout_sub">Väntetid för tillägg innan val görs.</string>
     <string name="autoplay_timeout_instant">Omedelbart</string>
     <string name="autoplay_timeout_unlimited">Obegränsad</string>
     <string name="autoplay_allowed_addons">Tillåtna tillägg</string>
     <string name="autoplay_all_addons">Alla installerade tillägg</string>
-    <string name="autoplay_allowed_plugins">Tillåtna plugins</string>
-    <string name="autoplay_all_plugins">Alla aktiverade plugins</string>
     <string name="autoplay_regex_placeholder">Inget mönster inställt. Exempel: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex-mönster</string>
     <string name="autoplay_no_items">Inga objekt tillgängliga</string>
     <string name="autoplay_mode_manual_desc">Visa alltid källistan och låt mig välja.</string>
     <string name="autoplay_mode_first_desc">Spela den första tillgängliga källan automatiskt.</string>
     <string name="autoplay_mode_regex_desc">Spela första källan vars text matchar ditt regex-mönster.</string>
-    <string name="autoplay_scope_all_desc">Automatisk uppspelning kan använda både installerade tillägg och aktiverade plugins.</string>
-    <string name="autoplay_scope_addons_desc">Automatisk uppspelning använder bara strömmar från dina installerade tillägg.</string>
-    <string name="autoplay_scope_plugins_desc">Automatisk uppspelning använder bara strömmar från aktiverade plugins.</string>
     <string name="autoplay_threshold_pct_desc">Visa efter uppspelningsprocent när ingen outro-tidsstämpel finns tillgänglig.</string>
     <string name="autoplay_threshold_min_desc">Visa så här många minuter före avsnittets slut när ingen outro-tidsstämpel finns tillgänglig.</string>
     <string name="autoplay_regex_matches">Matchar mot strömnamn/titel/beskrivning/tillägg/url. Exempel: 4K|2160p|Remux</string>
@@ -755,7 +745,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Laddar\u2026</string>
-    <string name="account_sync_description">Synkronisera ditt bibliotek, tittarframsteg, tillägg och plugins mellan enheter.</string>
+    <string name="account_sync_description">Synkronisera ditt bibliotek, tittarframsteg och tillägg mellan enheter.</string>
     <string name="account_sync_restart_note">Synkronisering sker inte i realtid mellan aktiva enheter. Starta om denna enhet efter inloggning eller för att hämta ändringar gjorda på annat håll.</string>
     <string name="account_signin_qr_title">Logga in med QR</string>
     <string name="account_signin_qr_subtitle">Skanna en QR-kod och slutför e-postinloggning på din telefon</string>
@@ -795,35 +785,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">Länka enhet</string>
     <string name="sync_claim_subtitle">Ange synkkoden och PIN-koden från din andra enhet för att länka denna enhet.</string>
-    <string name="sync_claim_success">Enheten länkad! Dina tillägg och plugins synkroniseras nu.</string>
+    <string name="sync_claim_success">Enheten länkad! Dina tillägg synkroniseras nu.</string>
     <string name="sync_claim_done">Klar</string>
     <string name="sync_claim_code_label">Synkkod</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN-kod</string>
     <string name="sync_claim_pin_placeholder">Ange PIN-kod</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Använder primärprofilens plugins och kan inte ändras</string>
-    <string name="plugin_repositories_section">Arkiv (%1$d)</string>
-    <string name="plugin_providers_section">Leverantörer (%1$d)</string>
-    <string name="plugin_title">Plugins</string>
-    <string name="plugin_add_repository">Lägg till arkiv</string>
-    <string name="plugin_add_btn">Lägg till</string>
-    <string name="plugin_manage_from_phone_title">Hantera från telefon</string>
-    <string name="plugin_manage_from_phone_subtitle">Skanna en QR-kod för att lägga till eller ta bort arkiv från din telefon</string>
-    <string name="plugin_qr_instruction">Skanna med din telefon för att hantera arkiv</string>
-    <string name="plugin_qr_close">Stäng</string>
-    <string name="plugin_confirm_title">Bekräfta arkivändringar</string>
-    <string name="plugin_confirm_subtitle">Följande ändringar gjordes från din telefon:</string>
-    <string name="plugin_confirm_added">Tillagda:</string>
-    <string name="plugin_confirm_removed">Borttagna:</string>
-    <string name="plugin_confirm_no_changes">Inga ändringar upptäckta</string>
-    <string name="plugin_confirm_total">Totalt antal arkiv: %1$d</string>
-    <string name="plugin_confirm_reject">Avvisa</string>
-    <string name="plugin_confirm_confirm">Bekräfta</string>
-    <string name="plugin_updated_format">Uppdaterad: %1$s</string>
-    <string name="plugin_test_btn">Testa</string>
-    <string name="plugin_test_results">Testresultat (%1$d strömmar)</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Vem tittar?</string>
@@ -857,7 +824,7 @@
     <string name="update_unknown_sources">Tillåt installation från okända källor för att fortsätta.</string>
     <!-- AccountScreen -->
     <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Logga in för att synkronisera ditt bibliotek, tittarframsteg, tillägg och plugins mellan enheter. Bibliotekssynk använder Fetch Sync när Trakt inte är anslutet, och tittarframsteg kan använda antingen Trakt eller Fetch Sync.</string>
+    <string name="account_sign_in_description">Logga in för att synkronisera ditt bibliotek, tittarframsteg och tillägg mellan enheter. Bibliotekssynk använder Fetch Sync när Trakt inte är anslutet, och tittarframsteg kan använda antingen Trakt eller Fetch Sync.</string>
     <string name="account_sync_code_title">Synkkod</string>
     <string name="account_sync_code_description">Synkronisera mellan enheter utan att skapa ett konto.</string>
     <string name="account_linked_devices">Länkade enheter (%1$d)</string>
@@ -888,11 +855,6 @@
     <string name="addon_confirm_total_addons">Totalt antal tillägg: %1$d</string>
     <string name="addon_confirm_total_catalogs">Totalt antal kataloger: %1$d</string>
     <string name="addon_catalogs_types">Kataloger: %1$d - Typer: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... och %1$d till</string>
-    <string name="plugin_providers_count">%1$d leverantörer</string>
-    <string name="plugin_no_repos">Inga arkiv tillagda ännu.\nLägg till ett arkiv för att komma igång.</string>
 
     <!-- ProfileSettingsContent -->
 
@@ -1252,19 +1214,6 @@
     <string name="error_network_required">Anslut till Wi-Fi eller Ethernet för att använda denna funktion</string>
     <string name="error_server_ports_unavailable">Kunde inte starta servern. Alla portar är upptagna.</string>
 
-    <!-- Plugin errors -->
-    <string name="plugin_error_invalid_url">Ange en giltig URL</string>
-    <string name="plugin_error_add_repo">Misslyckades att lägga till arkiv: %1$s</string>
-    <string name="plugin_error_refresh">Misslyckades att uppdatera: %1$s</string>
-    <string name="plugin_error_test">Test misslyckades: %1$s</string>
-    <string name="plugin_test_no_results">Inga resultat hittades</string>
-    <string name="plugin_test_found_streams">Hittade %1$d strömmar</string>
-    <string name="plugin_risky_enable_title">Aktivera leverantör?</string>
-    <string name="plugin_risky_enable_message">%1$s är känt för att orsaka krascher på visst innehåll. Aktivera ändå?</string>
-    <string name="plugin_risky_enable_cancel">Avbryt</string>
-    <string name="plugin_risky_enable_confirm">Aktivera</string>
-    <string name="plugin_version">Version %1$s</string>
-
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Enhetskoden har gått ut. Börja om.</string>
     <string name="trakt_error_code_used">Enhetskoden har redan använts. Börja om.</string>
@@ -1329,7 +1278,6 @@
     <string name="cd_refresh">Uppdatera</string>
     <string name="cd_remove">Ta bort</string>
     <string name="cd_preview">Förhandsvisning</string>
-    <string name="cd_test">Testa</string>
     <string name="cd_unlink">Avlänka</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logotyp</string>

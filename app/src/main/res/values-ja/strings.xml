@@ -367,9 +367,8 @@
     <string name="settings_profiles">プロフィール</string>
     <string name="settings_layout">レイアウト</string>
     <string name="settings_content_discovery">コンテンツ &amp; ディスカバー</string>
-    <string name="settings_content_discovery_subtitle">アドオン、プラグイン、カタログ、発見ソース</string>
+    <string name="settings_content_discovery_subtitle">アドオン、カタログ、発見ソース</string>
     <string name="settings_content_discovery_addons_subtitle">アドオン、カタログ順序、コレクションを管理</string>
-    <string name="settings_content_discovery_plugins_subtitle">リポジトリとストリームプロバイダーを管理</string>
     <string name="settings_integration">連携</string>
     <string name="settings_playback">再生</string>
     <string name="settings_advanced">詳細設定</string>
@@ -470,7 +469,6 @@
     <string name="settings_debug">デバッグ</string>
     <string name="settings_account_section_subtitle">アカウントと同期の状態</string>
     <string name="account_stat_addons">アドオン</string>
-    <string name="account_stat_plugins">プラグイン</string>
     <string name="account_stat_library">ライブラリ</string>
     <string name="account_stat_progress">進行状況</string>
     <string name="account_stat_watched">視聴済み</string>
@@ -678,27 +676,18 @@
     <string name="autoplay_threshold_pct_title">しきい値のパーセンテージ</string>
     <string name="autoplay_threshold_pct_sub">アウトロのタイムスタンプがない場合のフォールバック</string>
     <string name="autoplay_threshold_min_title">しきい値の分数</string>
-    <string name="autoplay_scope_all">すべてのソース</string>
-    <string name="autoplay_scope_addons">インストール済みアドオンのみ</string>
-    <string name="autoplay_scope_plugins">有効なプラグインのみ</string>
-    <string name="autoplay_scope">自動再生ソースの範囲</string>
     <string name="autoplay_timeout_title">ストリーム選択タイムアウト</string>
     <string name="autoplay_timeout_sub">選択前のアドオン待機時間</string>
     <string name="autoplay_timeout_instant">即時</string>
     <string name="autoplay_timeout_unlimited">無制限</string>
     <string name="autoplay_allowed_addons">許可するアドオン</string>
     <string name="autoplay_all_addons">インストール済みのすべてのアドオン</string>
-    <string name="autoplay_allowed_plugins">許可するプラグイン</string>
-    <string name="autoplay_all_plugins">有効なすべてのプラグイン</string>
     <string name="autoplay_regex_placeholder">パターンが設定されていません。例: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">正規表現パターン</string>
     <string name="autoplay_no_items">利用可能なアイテムがありません</string>
     <string name="autoplay_mode_manual_desc">常にソースリストを表示して選択する</string>
     <string name="autoplay_mode_first_desc">最初に利用可能なソースを自動的に再生</string>
     <string name="autoplay_mode_regex_desc">正規表現パターンに一致する最初のソースを再生</string>
-    <string name="autoplay_scope_all_desc">自動再生はインストール済みアドオンと有効なプラグインの両方を使用できます</string>
-    <string name="autoplay_scope_addons_desc">自動再生はインストール済みアドオンのストリームのみを対象とします</string>
-    <string name="autoplay_scope_plugins_desc">自動再生は有効なプラグインのストリームのみを対象とします</string>
     <string name="autoplay_threshold_pct_desc">アウトロのタイムスタンプがない場合、再生パーセントで表示</string>
     <string name="autoplay_threshold_min_desc">アウトロのタイムスタンプがない場合、エピソード終了のこの分数前に表示</string>
     <string name="autoplay_regex_matches">ストリーム名/タイトル/説明/アドオン/URLに対してマッチング。例: 4K|2160p|Remux</string>
@@ -1338,7 +1327,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">読み込み中\u2026</string>
-    <string name="account_sync_description">デバイス間でライブラリ、視聴進行状況、アドオン、プラグインを同期</string>
+    <string name="account_sync_description">デバイス間でライブラリ、視聴進行状況、アドオンを同期</string>
     <string name="account_sync_restart_note">同期はリアルタイムではありません。サインイン後、または他のデバイスでの変更を反映するにはアプリを再起動してください</string>
     <string name="account_signin_qr_title">QRでサインイン</string>
     <string name="account_signin_qr_subtitle">QRコードをスキャンしてスマートフォンでメールログインを完了</string>
@@ -1384,7 +1373,7 @@
 
     <string name="sync_claim_title">デバイスをリンク</string>
     <string name="sync_claim_subtitle">他のデバイスの同期コードとPINを入力してこのデバイスをリンクしてください</string>
-    <string name="sync_claim_success">デバイスのリンクに成功しました！アドオンとプラグインが同期されます</string>
+    <string name="sync_claim_success">デバイスのリンクに成功しました！アドオンが同期されます</string>
     <string name="sync_claim_done">完了</string>
     <string name="sync_claim_code_label">同期コード</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1392,48 +1381,6 @@
     <string name="sync_claim_pin_placeholder">PINを入力</string>
     <string name="sync_claim_linking">リンク中\u2026</string>
 
-    <string name="plugin_readonly_notice">プライマリプロフィールのプラグインを使用しており、変更できません</string>
-    <string name="plugin_repositories_section">リポジトリ (%1$d)</string>
-    <string name="plugin_providers_section">プロバイダー (%1$d)</string>
-    <string name="plugin_title">プラグイン</string>
-    <string name="plugin_enable_plugins_title">プラグインプロバイダーをグローバルに有効にする</string>
-    <string name="plugin_enable_plugins_subtitle">ストリーム検出中にプラグインプロバイダーを使用</string>
-    <string name="plugin_group_by_repository_title">プラグインプロバイダーをリポジトリ別にグループ化</string>
-    <string name="plugin_group_by_repository_subtitle">ストリームで、ソースごとではなくリポジトリごとに1つのプロバイダーを表示</string>
-    <string name="plugin_add_repository">リポジトリを追加</string>
-    <string name="plugin_add_btn">追加</string>
-    <string name="plugin_manage_from_phone_title">スマートフォンから管理</string>
-    <string name="plugin_manage_from_phone_subtitle">QRコードをスキャンしてスマートフォンからリポジトリを追加・削除</string>
-    <string name="plugin_qr_instruction">スマートフォンでスキャンしてリポジトリを管理</string>
-    <string name="plugin_qr_close">閉じる</string>
-    <string name="plugin_confirm_title">リポジトリの変更を確認</string>
-    <string name="plugin_confirm_subtitle">スマートフォンから以下の変更が行われました:</string>
-    <string name="plugin_confirm_added">追加:</string>
-    <string name="plugin_confirm_removed">削除:</string>
-    <string name="plugin_confirm_no_changes">変更は検出されませんでした</string>
-    <string name="plugin_confirm_total">リポジトリの合計: %1$d</string>
-    <string name="plugin_confirm_reject">拒否</string>
-    <string name="plugin_confirm_confirm">確認</string>
-    <string name="plugin_url_or_short_code_placeholder">URLまたはショートコード</string>
-    <string name="plugin_diagnostics_collapse">診断（タップで折りたたむ）</string>
-    <string name="plugin_diagnostics_expand">診断（タップで展開）</string>
-    <string name="plugin_risky_enable_title">プロバイダーを有効にしますか？</string>
-    <string name="plugin_risky_enable_message">%1$sは一部のコンテンツでクラッシュを引き起こすことが知られています。それでも有効にしますか？</string>
-    <string name="plugin_risky_enable_cancel">キャンセル</string>
-    <string name="plugin_risky_enable_confirm">有効にする</string>
-    <string name="plugin_updated_format">更新: %1$s</string>
-    <string name="plugin_test_btn">テスト</string>
-    <string name="plugin_test_results">テスト結果 (%1$dストリーム)</string>
-    <string name="plugin_and_more">... あと%1$d件</string>
-    <string name="plugin_providers_count">%1$dプロバイダー</string>
-    <string name="plugin_no_repos">リポジトリはまだ追加されていません。\nリポジトリを追加して始めましょう</string>
-    <string name="plugin_error_invalid_url">有効なURLを入力してください</string>
-    <string name="plugin_error_add_repo">リポジトリの追加に失敗しました: %1$s</string>
-    <string name="plugin_error_refresh">更新に失敗しました: %1$s</string>
-    <string name="plugin_error_test">テストに失敗しました: %1$s</string>
-    <string name="plugin_test_no_results">結果が見つかりません</string>
-    <string name="plugin_test_found_streams">%1$d個のストリームが見つかりました</string>
-    <string name="plugin_version">バージョン %1$s</string>
 
     <string name="profile_selection_title">誰が視聴しますか？</string>
     <string name="profile_selection_subtitle">続けるプロフィールを選択</string>
@@ -1465,7 +1412,7 @@
     <string name="update_unknown_sources">続けるには不明なソースからのインストールを許可してください</string>
     <!-- AccountScreen -->
     <string name="account_title">アカウント</string>
-    <string name="account_sign_in_description">サインインしてデバイス間でライブラリ、視聴進行状況、アドオン、プラグインを同期。ライブラリ同期はTraktが接続されていない場合はFetch Syncを使用し、視聴進行状況はTraktまたはFetch Syncのどちらかを使用できます</string>
+    <string name="account_sign_in_description">サインインしてデバイス間でライブラリ、視聴進行状況、アドオンを同期。ライブラリ同期はTraktが接続されていない場合はFetch Syncを使用し、視聴進行状況はTraktまたはFetch Syncのどちらかを使用できます</string>
     <string name="account_sync_code_title">同期コード</string>
     <string name="account_sync_code_description">アカウントを作成せずにデバイス間で同期</string>
     <string name="account_linked_devices">リンク済みデバイス (%1$d)</string>
@@ -1493,8 +1440,6 @@
     <string name="discover_empty_no_content_subtitle">別のジャンルやカタログを試してください</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1541,11 +1486,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">この機能を使用するにはWi-Fiまたは有線LANに接続してください</string>
     <string name="error_server_ports_unavailable">サーバーを起動できませんでした。すべてのポートが使用中です。</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">%1$s を %2$d 個のプロバイダーと共に追加しました</string>
-    <string name="plugin_repo_removed">リポジトリを削除しました</string>
-    <string name="plugin_repo_refreshed">リポジトリを更新しました</string>
 
     <!-- Trakt errors -->
     
@@ -1615,7 +1555,6 @@
     <string name="cd_refresh">更新</string>
     <string name="cd_remove">削除</string>
     <string name="cd_preview">プレビュー</string>
-    <string name="cd_test">テスト</string>
     <string name="cd_unlink">リンク解除</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Traktロゴ</string>

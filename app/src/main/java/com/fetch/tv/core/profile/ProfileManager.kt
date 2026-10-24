@@ -92,7 +92,6 @@ class ProfileManager @Inject constructor(
         name: String,
         avatarColorHex: String,
         usesPrimaryAddons: Boolean = false,
-        usesPrimaryPlugins: Boolean = false,
         avatarId: String? = null
     ): UserProfile? {
         val current = profiles.value
@@ -106,7 +105,6 @@ class ProfileManager @Inject constructor(
             name = name.trim().ifEmpty { context.getString(R.string.profile_default_name, nextId) },
             avatarColorHex = avatarColorHex,
             usesPrimaryAddons = usesPrimaryAddons,
-            usesPrimaryPlugins = usesPrimaryPlugins,
             avatarId = avatarId
         )
         factory.markProfileCreated(nextId)
@@ -148,6 +146,7 @@ class ProfileManager @Inject constructor(
             }
         }
 
+        // Left behind by versions that still ran plugins.
         val pluginCodeDir = File(context.filesDir, "plugin_code_p${profileId}")
         if (pluginCodeDir.exists()) {
             pluginCodeDir.deleteRecursively()

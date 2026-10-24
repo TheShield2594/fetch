@@ -21,7 +21,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.core.party.PartyMedia
 import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.ui.screens.CatalogSeeAllScreen
@@ -36,7 +35,6 @@ import com.fetch.tv.ui.screens.player.PlayerScreen
 import com.fetch.tv.ui.screens.player.PostPlayRecommendation
 import com.fetch.tv.ui.screens.player.playerBackOpensCurrentEpisodeStreams
 import com.fetch.tv.ui.screens.party.PartyScreen
-import com.fetch.tv.ui.screens.plugin.PluginScreen
 import com.fetch.tv.ui.screens.search.DiscoverScreen
 import com.fetch.tv.ui.screens.search.SearchScreen
 import com.fetch.tv.ui.screens.settings.AboutScreen
@@ -1225,7 +1223,6 @@ private fun PlaybackNavHost(
                 SettingsScreen(
                     showBuiltInHeader = !hideBuiltInHeaders,
                     onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
-                    onNavigateToPlugins = { navController.navigate(Screen.Plugins.route) },
                     onNavigateToAuthQrSignIn = { navController.navigate(Screen.AuthQrSignIn.route) },
                     onNavigateToManageProfiles = { navController.navigate(Screen.ManageProfiles.route) },
                     onNavigateToLicensesAttributions = {
@@ -1405,16 +1402,6 @@ private fun PlaybackNavHost(
                 },
                 onBack = { navController.popBackStack() }
             )
-        }
-
-        if (AppFeaturePolicy.pluginsEnabled) {
-            composable(Screen.Plugins.route) {
-                ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                    PluginScreen(
-                        onBackPress = { navController.popBackStack() }
-                    )
-                }
-            }
         }
 
         composable(Screen.Account.route) {

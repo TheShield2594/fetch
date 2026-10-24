@@ -13,7 +13,6 @@ import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.decoder.ffmpeg.FfmpegAudioRenderer
 import com.fetch.tv.core.player.BitrateAwareLoadControl
 import com.fetch.tv.core.player.LastPlaybackDiagnostics
-import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.core.tracking.TrackingMediaReference
 import com.fetch.tv.core.tracking.TrackingScrobbleCoordinator
 import com.fetch.tv.core.torrent.TorrentService
@@ -67,7 +66,6 @@ class PlayerRuntimeController(
     internal val metaRepository: MetaRepository,
     internal val streamRepository: StreamRepository,
     internal val addonRepository: AddonRepository,
-    internal val pluginManager: PluginManager,
     internal val subtitleRepository: com.fetch.tv.domain.repository.SubtitleRepository,
     internal val parentalGuideRepository: ParentalGuideRepository,
     internal val trackingScrobbleCoordinator: TrackingScrobbleCoordinator,

@@ -79,7 +79,8 @@ class ProfileSyncService @Inject constructor(
                             put("name", profile.name)
                             put("avatar_color_hex", profile.avatarColorHex)
                             put("uses_primary_addons", profile.usesPrimaryAddons)
-                            put("uses_primary_plugins", profile.usesPrimaryPlugins)
+                            // Fetch no longer has plugins; the sync schema still carries the column.
+                            put("uses_primary_plugins", false)
                             put("avatar_id", if (profile.avatarUrl.isNullOrBlank()) profile.avatarId else null)
                             put("avatar_url", profile.avatarUrl?.takeIf { it.isNotBlank() })
                             put("profile_background_id", profile.profileBackgroundId)
@@ -122,7 +123,6 @@ class ProfileSyncService @Inject constructor(
                         name = entry.name,
                         avatarColorHex = entry.avatarColorHex,
                         usesPrimaryAddons = entry.usesPrimaryAddons,
-                        usesPrimaryPlugins = entry.usesPrimaryPlugins,
                         avatarId = entry.avatarId,
                         avatarUrl = entry.avatarUrl,
                         profileBackgroundId = entry.profileBackgroundId,

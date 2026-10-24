@@ -59,7 +59,6 @@ domain maps onto the website like this:
 | `HomeCatalogSettingsSyncService` | — | Home row order and visibility per profile |
 | `CollectionSyncService` | — | Custom home rows (could reuse custom lists) |
 | `ProviderCredentialSyncService` | Trakt, TMDB, OMDb, RPDB keys | Decide what should leave the TV at all; MDBList and Simkl stay on the device for now |
-| `PluginSyncService` | — | Out of scope for the first version |
 | Watch party | — | Not planned; stays Supabase-only or is removed (#4) |
 
 ## Auth

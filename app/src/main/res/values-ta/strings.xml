@@ -461,7 +461,6 @@
     <string name="settings_debug">பிழைத்திருத்தம்</string>
     <string name="settings_account_section_subtitle">அக்கவுண்ட் மற்றும் ஒத்திசைவு நிலை</string>
     <string name="account_stat_addons">ஆட்-ஆன்கள்</string>
-    <string name="account_stat_plugins">பிளகின்கள்</string>
     <string name="account_stat_library">நூலகம்</string>
     <string name="account_stat_progress">முன்னேற்றம்</string>
     <string name="account_stat_watched">பார்த்தவை</string>
@@ -631,27 +630,18 @@
     <string name="autoplay_threshold_pct_title">வரம்பு சதவீதம்</string>
     <string name="autoplay_threshold_pct_sub">அவுட்ரோ நேரமுத்திரை இல்லாதபோது மாற்று வழி.</string>
     <string name="autoplay_threshold_min_title">வரம்பு நிமிடங்கள்</string>
-    <string name="autoplay_scope_all">அனைத்து மூலங்களும்</string>
-    <string name="autoplay_scope_addons">நிறுவப்பட்ட ஆட்ஒன்கள் மட்டும்</string>
-    <string name="autoplay_scope_plugins">இயக்கப்பட்ட பிளகின்கள் மட்டும்</string>
-    <string name="autoplay_scope">தானியங்கு இயக்க மூல வரம்பு</string>
     <string name="autoplay_timeout_title">ஸ்ட்ரீம் தேர்வு நேரவரம்பு</string>
     <string name="autoplay_timeout_sub">தேர்வு செய்வதற்கு முன் ஆட்ஒன்களுக்காக காத்திருக்கும் நேரம்.</string>
     <string name="autoplay_timeout_instant">உடனடி</string>
     <string name="autoplay_timeout_unlimited">வரம்பற்றது</string>
     <string name="autoplay_allowed_addons">அனுமதிக்கப்பட்ட ஆட்ஒன்கள்</string>
     <string name="autoplay_all_addons">அனைத்து நிறுவப்பட்ட ஆட்ஒன்கள்</string>
-    <string name="autoplay_allowed_plugins">அனுமதிக்கப்பட்ட பிளகின்கள்</string>
-    <string name="autoplay_all_plugins">அனைத்து இயக்கப்பட்ட பிளகின்கள்</string>
     <string name="autoplay_regex_placeholder">மாதிரி அமைக்கப்படவில்லை. உதாரணம்: 4K|2160p|ரீமக்ஸ்</string>
     <string name="autoplay_regex_title">ரெஜெக்ஸ் மாதிரி</string>
     <string name="autoplay_no_items">உருப்படிகள் இல்லை</string>
     <string name="autoplay_mode_manual_desc">எப்போதும் மூல பட்டியலைக் காட்டு, நான் தேர்வு செய்கிறேன்.</string>
     <string name="autoplay_mode_first_desc">முதல் கிடைக்கும் மூலத்தை தானாக இயக்கு.</string>
     <string name="autoplay_mode_regex_desc">உங்கள் ரெஜெக்ஸ் மாதிரியுடன் பொருந்தும் முதல் மூலத்தை இயக்கு.</string>
-    <string name="autoplay_scope_all_desc">தானியங்கு இயக்கம் நிறுவப்பட்ட ஆட்ஒன்களையும் இயக்கப்பட்ட பிளகின்களையும் பயன்படுத்தலாம்.</string>
-    <string name="autoplay_scope_addons_desc">தானியங்கு இயக்கம் உங்கள் நிறுவப்பட்ட ஆட்ஒன்களிலிருந்து வரும் ஸ்ட்ரீம்களை மட்டும் கருதும்.</string>
-    <string name="autoplay_scope_plugins_desc">தானியங்கு இயக்கம் இயக்கப்பட்ட பிளகின்களிலிருந்து வரும் ஸ்ட்ரீம்களை மட்டும் கருதும்.</string>
     <string name="autoplay_threshold_pct_desc">அவுட்ரோ நேரமுத்திரை இல்லாதபோது இயக்க சதவீதத்தின் அடிப்படையில் காட்டு.</string>
     <string name="autoplay_threshold_min_desc">அவுட்ரோ நேரமுத்திரை இல்லாதபோது எபிசோடு முடிவிற்கு முன் இத்தனை நிமிடங்களில் காட்டு.</string>
     <string name="autoplay_regex_matches">ஸ்ட்ரீம் பெயர்/தலைப்பு/விளக்கம்/ஆட்ஒன்/யுஆர்எல் மீது பொருந்தும். உதாரணம்: 4K|2160p|ரீமக்ஸ்</string>
@@ -1251,7 +1241,7 @@
 
         <!-- AccountSettingsContent -->
     <string name="account_loading">ஏற்றப்படுகிறது\u2026</string>
-    <string name="account_sync_description">உங்கள் நூலகம், பார்த்த முன்னேற்றம், அடான்கள் மற்றும் பிளகின்களை சாதனங்கள் முழுவதும் ஒத்திசைக்கவும்.</string>
+    <string name="account_sync_description">உங்கள் நூலகம், பார்த்த முன்னேற்றம் மற்றும் அடான்களை சாதனங்கள் முழுவதும் ஒத்திசைக்கவும்.</string>
     <string name="account_sync_restart_note">செயலில் உள்ள சாதனங்களுக்கு இடையில் ஒத்திசைவு உடனடி அல்ல. உள்நுழைந்த பிறகு அல்லது வேறு இடத்தில் செய்யப்பட்ட மாற்றங்களை பெற இந்த சாதனத்தை மீண்டும் தொடங்கவும்.</string>
     <string name="account_signin_qr_title">க்யூஆர் மூலம் உள்நுழை</string>
     <string name="account_signin_qr_subtitle">க்யூஆர் குறியீட்டை ஸ்கேன் செய்து உங்கள் கைபேசியில் மின்னஞ்சல் உள்நுழைவை முடிக்கவும்</string>
@@ -1291,46 +1281,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">சாதனம் இணை</string>
     <string name="sync_claim_subtitle">இந்த சாதனத்தை இணைக்க, உங்கள் மற்ற சாதனத்திலிருந்து ஒத்திசைவு குறியீடும் பின்னும் உள்ளிடவும்.</string>
-    <string name="sync_claim_success">சாதனம் வெற்றிகரமாக இணைக்கப்பட்டது! உங்கள் அடான்கள் மற்றும் பிளகின்கள் இப்போது ஒத்திசையும்.</string>
+    <string name="sync_claim_success">சாதனம் வெற்றிகரமாக இணைக்கப்பட்டது! உங்கள் அடான்கள் இப்போது ஒத்திசையும்.</string>
     <string name="sync_claim_done">முடிந்தது</string>
     <string name="sync_claim_code_label">ஒத்திசைவு குறியீடு</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">பின்</string>
     <string name="sync_claim_pin_placeholder">பின் உள்ளிடவும்</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">முதன்மை சுயவிவரத்தின் பிளகின்கள் பயன்படுத்தப்படுகின்றன, மாற்ற முடியாது</string>
-    <string name="plugin_repositories_section">களஞ்சியங்கள் (%1$d)</string>
-    <string name="plugin_providers_section">வழங்கிகள் (%1$d)</string>
-    <string name="plugin_title">பிளகின்கள்</string>
-    <string name="plugin_enable_plugins_title">பிளகின் வழங்கிகளை உலகளவில் இயக்கு</string>
-    <string name="plugin_enable_plugins_subtitle">ஸ்ட்ரீம் கண்டறிதலின் போது பிளகின் வழங்கிகளை பயன்படுத்தவும்</string>
-    <string name="plugin_group_by_repository_title">பிளகின் வழங்கிகளை களஞ்சியப்படி குழுவாக்கு</string>
-    <string name="plugin_group_by_repository_subtitle">ஸ்ட்ரீம்களில், ஒவ்வொரு மூலத்திற்கும் பதிலாக ஒவ்வொரு களஞ்சியத்திற்கும் ஒரு வழங்கியை மட்டும் காட்டு</string>
-    <string name="plugin_add_repository">களஞ்சியம் சேர்</string>
-    <string name="plugin_add_btn">சேர்</string>
-    <string name="plugin_manage_from_phone_title">கைபேசியில் இருந்து நிர்வகிக்கவும்</string>
-    <string name="plugin_manage_from_phone_subtitle">உங்கள் கைபேசியில் இருந்து களஞ்சியங்களை சேர்க்க அல்லது அகற்ற க்யூஆர் குறியீட்டை ஸ்கேன் செய்யவும்</string>
-    <string name="plugin_qr_instruction">களஞ்சியங்களை நிர்வகிக்க உங்கள் கைபேசியில் ஸ்கேன் செய்யவும்</string>
-    <string name="plugin_qr_close">மூடு</string>
-    <string name="plugin_confirm_title">களஞ்சிய மாற்றங்களை உறுதிப்படுத்து</string>
-    <string name="plugin_confirm_subtitle">பின்வரும் மாற்றங்கள் உங்கள் கைபேசியில் இருந்து செய்யப்பட்டன:</string>
-    <string name="plugin_confirm_added">சேர்க்கப்பட்டது:</string>
-    <string name="plugin_confirm_removed">அகற்றப்பட்டது:</string>
-    <string name="plugin_confirm_no_changes">மாற்றங்கள் எதுவும் கண்டறியப்படவில்லை</string>
-    <string name="plugin_confirm_total">மொத்த களஞ்சியங்கள்: %1$d</string>
-    <string name="plugin_confirm_reject">நிராகரி</string>
-    <string name="plugin_confirm_confirm">உறுதிப்படுத்து</string>
-    <string name="plugin_url_or_short_code_placeholder">யுஆர்எல் அல்லது குறு குறியீடு</string>
-    <string name="plugin_diagnostics_collapse">கண்டறிதல் தகவல் (தொட்டு சுருக்கு)</string>
-    <string name="plugin_diagnostics_expand">கண்டறிதல் தகவல் (தொட்டு விரிவு)</string>
-    <string name="plugin_risky_enable_title">வழங்கியை இயக்கு?</string>
-    <string name="plugin_risky_enable_message">%1$s சில உள்ளடக்கங்களில் செயலிழப்பை ஏற்படுத்தும் என்று அறியப்படுகிறது. இருந்தும் இயக்கவா?</string>
-    <string name="plugin_risky_enable_cancel">ரத்து செய்</string>
-    <string name="plugin_risky_enable_confirm">இயக்கு</string>
-    <string name="plugin_updated_format">புதுப்பிக்கப்பட்டது: %1$s</string>
-    <string name="plugin_test_btn">சோதனை</string>
-    <string name="plugin_test_results">சோதனை முடிவுகள் (%1$d ஸ்ட்ரீம்கள்)</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">யார் பார்க்கிறார்கள்?</string>
@@ -1367,7 +1323,7 @@
     <string name="update_unknown_sources">தொடர தெரியாத மூலங்களிலிருந்து நிறுவலை அனுமதிக்கவும்.</string>
     <!-- AccountScreen -->
     <string name="account_title">கணக்கு</string>
-    <string name="account_sign_in_description">சாதனங்கள் முழுவதும் உங்கள் நூலகம், பார்வை முன்னேற்றம், அடான்கள் மற்றும் பிளகின்களை ஒத்திசைக்க உள்நுழைக. டிராக்ட் இணைக்கப்படாதபோது நூலக ஒத்திசைவு நூவியோ ஒத்திசைவை பயன்படுத்தும், மேலும் பார்வை முன்னேற்றம் டிராக்ட் அல்லது நூவியோ ஒத்திசைவு இரண்டிலும் இயங்கலாம்.</string>
+    <string name="account_sign_in_description">சாதனங்கள் முழுவதும் உங்கள் நூலகம், பார்வை முன்னேற்றம் மற்றும் அடான்களை ஒத்திசைக்க உள்நுழைக. டிராக்ட் இணைக்கப்படாதபோது நூலக ஒத்திசைவு நூவியோ ஒத்திசைவை பயன்படுத்தும், மேலும் பார்வை முன்னேற்றம் டிராக்ட் அல்லது நூவியோ ஒத்திசைவு இரண்டிலும் இயங்கலாம்.</string>
     <string name="account_sync_code_title">ஒத்திசைவு குறியீடு</string>
     <string name="account_sync_code_description">கணக்கு உருவாக்காமல் சாதனங்களுக்கு இடையில் ஒத்திசைக்கவும்.</string>
     <string name="account_linked_devices">இணைக்கப்பட்ட சாதனங்கள் (%1$d)</string>
@@ -1398,11 +1354,6 @@
     <string name="addon_confirm_total_addons">மொத்த அடான்கள்: %1$d</string>
     <string name="addon_confirm_total_catalogs">மொத்த கேட்டலாக்கள்: %1$d</string>
     <string name="addon_catalogs_types">கேட்டலாக்கள்: %1$d - வகைகள்: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... மேலும் %1$d</string>
-    <string name="plugin_providers_count">%1$d வழங்கிகள்</string>
-    <string name="plugin_no_repos">இதுவரை களஞ்சியங்கள் எதுவும் சேர்க்கப்படவில்லை.\nதொடங்க ஒரு களஞ்சியம் சேர்க்கவும்.</string>
 
     <!-- ProfileSettingsContent -->
 
@@ -1461,17 +1412,6 @@
     <string name="error_network_required">இந்த அம்சத்தை பயன்படுத்த வைஃபை அல்லது ஈதர்நெட்டுடன் இணைக்கவும்</string>
     <string name="error_server_ports_unavailable">சர்வரை தொடங்க முடியவில்லை. எல்லா போர்ட்களும் பயன்பாட்டில் உள்ளன.</string>
 
-    <!-- Plugin errors -->
-    <string name="plugin_error_invalid_url">சரியான யுஆர்எல் உள்ளிடவும்</string>
-    <string name="plugin_error_add_repo">களஞ்சியம் சேர்க்க முடியவில்லை: %1$s</string>
-    <string name="plugin_error_refresh">புதுப்பிக்க முடியவில்லை: %1$s</string>
-    <string name="plugin_error_test">சோதனை தோல்வியடைந்தது: %1$s</string>
-    <string name="plugin_test_no_results">முடிவுகள் இல்லை</string>
-    <string name="plugin_test_found_streams">%1$d ஸ்ட்ரீம்கள் கண்டுபிடிக்கப்பட்டன</string>
-    <string name="plugin_repo_added_with_providers">%1$s %2$d வழங்கிகளுடன் சேர்க்கப்பட்டது</string>
-    <string name="plugin_repo_removed">களஞ்சியம் அகற்றப்பட்டது</string>
-    <string name="plugin_repo_refreshed">களஞ்சியம் புதுப்பிக்கப்பட்டது</string>
-
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">சாதன குறியீடு காலாவதியானது. மீண்டும் தொடங்கவும்.</string>
     <string name="trakt_error_code_used">சாதன குறியீடு ஏற்கனவே பயன்படுத்தப்பட்டது. மீண்டும் தொடங்கவும்.</string>
@@ -1518,7 +1458,6 @@
     <string name="subtitle_style_weight">எடை</string>
 
     <!-- Plugin screen -->
-    <string name="plugin_version">பதிப்பு %1$s</string>
 
     <!-- Stream screen -->
     <string name="stream_episode_label">S%1$d E%2$d</string>
@@ -1554,7 +1493,6 @@
     <string name="cd_refresh">புதுப்பிப்பு</string>
     <string name="cd_remove">அகற்று</string>
     <string name="cd_preview">முன்னோட்டம்</string>
-    <string name="cd_test">சோதனை</string>
     <string name="cd_unlink">இணைப்பை நீக்கு</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">ட்ராக்ட் லோகோ</string>

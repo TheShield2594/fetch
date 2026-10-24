@@ -5,7 +5,6 @@ data class UserProfile(
     val name: String,
     val avatarColorHex: String,
     val usesPrimaryAddons: Boolean = false,
-    val usesPrimaryPlugins: Boolean = false,
     val avatarId: String? = null,
     val avatarUrl: String? = null,
     val profileBackgroundId: String? = null,

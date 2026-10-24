@@ -94,7 +94,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.R
-import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.domain.model.ExperienceMode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -178,7 +177,6 @@ private fun settingsGroupTitle(group: SettingsRailGroup): String = when (group) 
 fun SettingsScreen(
     showBuiltInHeader: Boolean = true,
     onNavigateToAddons: () -> Unit = {},
-    onNavigateToPlugins: () -> Unit = {},
     onNavigateToAuthQrSignIn: () -> Unit = {},
     onNavigateToManageProfiles: () -> Unit = {},
     onNavigateToLicensesAttributions: () -> Unit = {},
@@ -357,7 +355,7 @@ fun SettingsScreen(
     }
 
     LaunchedEffect(Unit) {
-        // Categories such as plugins and addons open a destination of their own, so Settings leaves
+        // Categories such as addons open a destination of their own, so Settings leaves
         // composition and comes back with nothing asking for the options pane: the rail is simply
         // the first thing able to take focus. Landing there loses the user's place for a trip they
         // did not take through the rail. The saved flag says the pane was where they were, so aim
@@ -593,7 +591,6 @@ fun SettingsScreen(
                     },
                     onNavigateToManageProfiles = onNavigateToManageProfiles,
                     onNavigateToAddons = onNavigateToAddons,
-                    onNavigateToPlugins = onNavigateToPlugins,
                     onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
                     onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
                     onNavigateToWatchParty = onNavigateToWatchParty,
@@ -616,7 +613,6 @@ private fun SettingsDetailPane(
     onOpenSearchResult: (SettingsCategory) -> Unit,
     onNavigateToManageProfiles: () -> Unit,
     onNavigateToAddons: () -> Unit,
-    onNavigateToPlugins: () -> Unit,
     onNavigateToAuthQrSignIn: () -> Unit,
     onNavigateToLicensesAttributions: () -> Unit,
     onNavigateToWatchParty: () -> Unit,
@@ -731,8 +727,6 @@ private fun SettingsDetailPane(
         )
         SettingsCategory.CONTENT_DISCOVERY -> ContentDiscoverySettingsContent(
             onNavigateToAddons = onNavigateToAddons,
-            onNavigateToPlugins = onNavigateToPlugins,
-            showPlugins = AppFeaturePolicy.pluginsEnabled && !isEssentialMode,
             initialFocusRequester = if (allowDetailAutofocus) {
                 contentFocusRequesters[SettingsCategory.CONTENT_DISCOVERY]
             } else {

@@ -456,9 +456,8 @@
     <string name="settings_profiles">פרופילים</string>
     <string name="settings_layout">תצוגה</string>
     <string name="settings_content_discovery">תוכן וגילוי</string>
-    <string name="settings_content_discovery_subtitle">תוספים, פלאגינים, קטלוגים ומקורות גילוי</string>
+    <string name="settings_content_discovery_subtitle">תוספים, קטלוגים ומקורות גילוי</string>
     <string name="settings_content_discovery_addons_subtitle">ניהול תוספים, סדר קטלוג ואוספים</string>
-    <string name="settings_content_discovery_plugins_subtitle">ניהול מאגרים וספקי מקורות</string>
     <string name="settings_integration">אינטגרציות</string>
     <string name="settings_playback">הפעלה</string>
     <string name="settings_tracking_title">מעקב</string>
@@ -597,7 +596,6 @@
     <string name="settings_debug">ניפוי שגיאות</string>
     <string name="settings_account_section_subtitle">חשבון וסטטוס סנכרון</string>
     <string name="account_stat_addons">תוספים</string>
-    <string name="account_stat_plugins">פלאגינים</string>
     <string name="account_stat_library">נשמרו בספרייה</string>
     <string name="account_stat_progress">התקדמות צפייה</string>
     <string name="account_stat_watched">נצפה</string>
@@ -848,27 +846,18 @@
     <string name="autoplay_threshold_pct_title">אחוז סף</string>
     <string name="autoplay_threshold_pct_sub">משמש כגיבוי כאשר אין חותמת זמן של סיום (outro).</string>
     <string name="autoplay_threshold_min_title">דקות סף</string>
-    <string name="autoplay_scope_all">כל המקורות</string>
-    <string name="autoplay_scope_addons">תוספים מותקנים בלבד</string>
-    <string name="autoplay_scope_plugins">פלאגינים מופעלים בלבד</string>
-    <string name="autoplay_scope">אילו מקורות לכלול בבחירה אוטומטית</string>
     <string name="autoplay_timeout_title">זמן קצוב לבחירת מקור</string>
     <string name="autoplay_timeout_sub">זמן המתנה לתוספים לפני הבחירה.</string>
     <string name="autoplay_timeout_instant">מיידי</string>
     <string name="autoplay_timeout_unlimited">ללא הגבלה</string>
     <string name="autoplay_allowed_addons">תוספים מורשים</string>
     <string name="autoplay_all_addons">כל התוספים המותקנים</string>
-    <string name="autoplay_allowed_plugins">פלאגינים מורשים</string>
-    <string name="autoplay_all_plugins">כל הפלאגינים המופעלים</string>
     <string name="autoplay_regex_placeholder">אין תבנית. דוגמה: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">תבנית Regex</string>
     <string name="autoplay_no_items">אין פריטים זמינים</string>
     <string name="autoplay_mode_manual_desc">תמיד תוצג רשימת המקורות, עם אפשרות לבחור ידנית.</string>
     <string name="autoplay_mode_first_desc">הפעלה אוטומטית של המקור הזמין הראשון.</string>
     <string name="autoplay_mode_regex_desc">הפעלת המקור הראשון שהטקסט שלו תואם לתבנית ה-regex שהוגדרה.</string>
-    <string name="autoplay_scope_all_desc">הבחירה האוטומטית יכולה להשתמש בתוספים מותקנים ופלאגינים מופעלים.</string>
-    <string name="autoplay_scope_addons_desc">הבחירה האוטומטית שוקלת רק מקורות מתוספים מותקנים.</string>
-    <string name="autoplay_scope_plugins_desc">הבחירה האוטומטית שוקלת רק מקורות מפלאגינים מופעלים.</string>
     <string name="autoplay_threshold_pct_desc">אם לא ידוע מתי בדיוק הפרק מסתיים, האפליקציה תציע \"פרק הבא\" לפי האחוז שהגדרת.</string>
     <string name="autoplay_threshold_min_desc">אם לא ידוע מתי בדיוק הפרק מסתיים, האפליקציה תציע \"פרק הבא\" לפי הזמן שהגדרת.</string>
     <string name="autoplay_regex_matches">מחפש התאמה בשם, בכותרת, בתיאור, בתוסף או בכתובת ה-URL של המקור. דוגמה: 4K|2160p|Remux</string>
@@ -1296,8 +1285,8 @@
     <string name="profile_copy_settings_apply">החלה</string>
     <string name="profile_copy_settings_credentials_off">מפתחות API: לא להעתיק</string>
     <string name="profile_copy_settings_credentials_on">מפתחות API: העתקת מפתחות חסרים</string>
-    <string name="profile_copy_settings_details">מפתחות API קיימים נשמרים. הרשאות OAuth, תוספים, פלאגינים, פריסת דף הבית, סיסמה, היסטוריה, ספרייה, הורדות והגדרות ספציפיות למכשיר נשארות ללא שינוי.</string>
-    <string name="profile_copy_settings_exclusions">הרשאות OAuth, תוספים, פלאגינים, פריסת דף הבית, סיסמה, היסטוריה, ספרייה, הורדות והגדרות ספציפיות למכשיר נשארות ללא שינוי.</string>
+    <string name="profile_copy_settings_details">מפתחות API קיימים נשמרים. הרשאות OAuth, תוספים, פריסת דף הבית, סיסמה, היסטוריה, ספרייה, הורדות והגדרות ספציפיות למכשיר נשארות ללא שינוי.</string>
+    <string name="profile_copy_settings_exclusions">הרשאות OAuth, תוספים, פריסת דף הבית, סיסמה, היסטוריה, ספרייה, הורדות והגדרות ספציפיות למכשיר נשארות ללא שינוי.</string>
     <string name="profile_copy_settings_success">ההגדרות הועתקו מ-%1$s אל %2$s.</string>
     <string name="profile_copy_settings_error">לא ניתן היה להעתיק את ההגדרות. יש לבדוק את החיבור ולנסות שוב.</string>
     <string name="profile_copy_settings_created_success">הפרופיל נוצר עם הגדרות מ-%1$s.</string>
@@ -1741,7 +1730,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">טוען…</string>
-    <string name="account_sync_description">סנכרון הספרייה, התקדמות הצפייה, התוספים והפלאגינים שלך בין מכשירים.</string>
+    <string name="account_sync_description">סנכרון הספרייה, התקדמות הצפייה והתוספים שלך בין מכשירים.</string>
     <string name="account_sync_restart_note">הסנכרון אינו בזמן אמת בין מכשירים פעילים. יש להפעיל מחדש את המכשיר הזה לאחר הכניסה כדי לקבל שינויים שנעשו במקום אחר.</string>
     <string name="account_signin_qr_title">התחברות עם קוד QR</string>
     <string name="account_signin_qr_subtitle">יש לסרוק קוד QR ולהשלים כניסה באמצעות אימייל וסיסמה בטלפון</string>
@@ -1752,7 +1741,7 @@
     <string name="account_loading_sync">טוען נתוני סנכרון…</string>
     <string name="account_sign_out">התנתקות</string>
     <string name="account_sign_out_confirm_title">להתנתק?</string>
-    <string name="account_sign_out_confirm_subtitle">יהיה צורך להתחבר מחדש כדי לסנכרן את הספרייה, התקדמות הצפייה, התוספים והפלאגינים במכשיר זה.</string>
+    <string name="account_sign_out_confirm_subtitle">יהיה צורך להתחבר מחדש כדי לסנכרן את הספרייה, התקדמות הצפייה והתוספים במכשיר זה.</string>
     <string name="account_error_signin_required">יש להתחבר עם חשבון תחילה.</string>
     <string name="account_signin_create_title">התחברות / יצירת חשבון</string>
     <string name="account_signin_create_desc">יש להשתמש באימייל וסיסמה כדי ליצור חשבון או להתחבר אליו.</string>
@@ -1835,7 +1824,7 @@
 
     <string name="sync_claim_title">קישור מכשיר</string>
     <string name="sync_claim_subtitle">הזנת קוד הסנכרון והסיסמה מהמכשיר האחר שלך, לקישור מכשיר זה.</string>
-    <string name="sync_claim_success">המכשיר קושר בהצלחה! התוספים והפלאגינים שלך יסונכרנו עכשיו.</string>
+    <string name="sync_claim_success">המכשיר קושר בהצלחה! התוספים שלך יסונכרנו עכשיו.</string>
     <string name="sync_claim_done">סיום</string>
     <string name="sync_claim_code_label">קוד סנכרון</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1843,48 +1832,6 @@
     <string name="sync_claim_pin_placeholder">סיסמה</string>
     <string name="sync_claim_linking">מקשר…</string>
 
-    <string name="plugin_readonly_notice">הפרופיל משתמש בפלאגינים של הפרופיל הראשי ולא ניתן לשנותם</string>
-    <string name="plugin_repositories_section">מאגרים (%1$d)</string>
-    <string name="plugin_providers_section">ספקים (%1$d)</string>
-    <string name="plugin_title">פלאגינים</string>
-    <string name="plugin_enable_plugins_title">הפעלת ספקי פלאגינים גלובלית</string>
-    <string name="plugin_enable_plugins_subtitle">שימוש בספקי פלאגינים בעת חיפוש מקורות</string>
-    <string name="plugin_group_by_repository_title">קיבוץ ספקי פלאגינים לפי מאגר</string>
-    <string name="plugin_group_by_repository_subtitle">בעמוד המקורות, הצגת ספק אחד לכל מאגר במקום אחד לכל מקור</string>
-    <string name="plugin_add_repository">הוספת מאגר</string>
-    <string name="plugin_add_btn">הוספה</string>
-    <string name="plugin_manage_from_phone_title">ניהול מהטלפון</string>
-    <string name="plugin_manage_from_phone_subtitle">יש לסרוק קוד QR להוספה או הסרה של מאגרים מהטלפון</string>
-    <string name="plugin_qr_instruction">יש לסרוק עם הטלפון לניהול מאגרים</string>
-    <string name="plugin_qr_close">סגירה</string>
-    <string name="plugin_confirm_title">אישור שינויי מאגר</string>
-    <string name="plugin_confirm_subtitle">השינויים הבאים נעשו מהטלפון שלך:</string>
-    <string name="plugin_confirm_added">התווסף:</string>
-    <string name="plugin_confirm_removed">הוסר:</string>
-    <string name="plugin_confirm_no_changes">לא זוהו שינויים</string>
-    <string name="plugin_confirm_total">סה״כ מאגרים: %1$d</string>
-    <string name="plugin_confirm_reject">דחייה</string>
-    <string name="plugin_confirm_confirm">אישור</string>
-    <string name="plugin_url_or_short_code_placeholder">כתובת URL או קוד קצר</string>
-    <string name="plugin_diagnostics_collapse">אבחון (הקשה לכיווץ)</string>
-    <string name="plugin_diagnostics_expand">אבחון (הקשה להרחבה)</string>
-    <string name="plugin_risky_enable_title">להפעיל ספק?</string>
-    <string name="plugin_risky_enable_message">ידוע כי %1$s גורם לקריסות בחלק מהתכנים. להפעיל בכל זאת?</string>
-    <string name="plugin_risky_enable_cancel">ביטול</string>
-    <string name="plugin_risky_enable_confirm">הפעלה</string>
-    <string name="plugin_updated_format">עודכן: %1$s</string>
-    <string name="plugin_test_btn">בדיקה</string>
-    <string name="plugin_test_results">תוצאות בדיקה (%1$d מקורות)</string>
-    <string name="plugin_and_more">ועוד %1$d…</string>
-    <string name="plugin_providers_count">%1$d ספקים</string>
-    <string name="plugin_no_repos">לא נוספו מאגרים עדיין.\nיש להוסיף מאגר כדי להתחיל.</string>
-    <string name="plugin_error_invalid_url">יש להזין כתובת URL תקינה</string>
-    <string name="plugin_error_add_repo">הוספת המאגר נכשלה: %1$s</string>
-    <string name="plugin_error_refresh">הרענון נכשל: %1$s</string>
-    <string name="plugin_error_test">הבדיקה נכשלה: %1$s</string>
-    <string name="plugin_test_no_results">לא נמצאו תוצאות</string>
-    <string name="plugin_test_found_streams">נמצאו %1$d מקורות</string>
-    <string name="plugin_version">גרסה %1$s</string>
 
     <string name="profile_selection_title">מי צופה?</string>
     <string name="profile_selection_subtitle">בחירת פרופיל להמשך</string>
@@ -1922,7 +1869,7 @@
     <string name="update_unknown_sources">יש לאפשר התקנות ממקורות לא ידועים כדי להמשיך.</string>
     <!-- AccountScreen -->
     <string name="account_title">חשבון</string>
-    <string name="account_sign_in_description">התחברות לסנכרון הספרייה, התקדמות הצפייה, התוספים והפלאגינים בין מכשירים. סנכרון הספרייה משתמש ב-Fetch Sync כאשר Trakt לא מחובר, והתקדמות הצפייה יכולה להשתמש ב-Trakt או ב-Fetch Sync.</string>
+    <string name="account_sign_in_description">התחברות לסנכרון הספרייה, התקדמות הצפייה והתוספים בין מכשירים. סנכרון הספרייה משתמש ב-Fetch Sync כאשר Trakt לא מחובר, והתקדמות הצפייה יכולה להשתמש ב-Trakt או ב-Fetch Sync.</string>
     <string name="account_sync_code_title">קוד סנכרון</string>
     <string name="account_sync_code_description">סנכרון בין מכשירים ללא יצירת חשבון.</string>
     <string name="account_linked_devices">מכשירים מקושרים (%1$d)</string>
@@ -1950,8 +1897,6 @@
     <string name="discover_empty_no_content_subtitle">אפשר לנסות ז׳אנר או קטלוג אחר</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1999,11 +1944,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">נדרש חיבור ל-Wi-Fi או לאינטרנט כדי להשתמש בתכונה זו</string>
     <string name="error_server_ports_unavailable">לא ניתן היה להפעיל את השרת. כל היציאות בשימוש.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">התווסף %1$s עם %2$d ספקים</string>
-    <string name="plugin_repo_removed">המאגר הוסר</string>
-    <string name="plugin_repo_refreshed">המאגר רוענן</string>
 
     <!-- Trakt errors -->
 
@@ -2076,7 +2016,6 @@
     <string name="cd_refresh">ריענון</string>
     <string name="cd_remove">הסרה</string>
     <string name="cd_preview">תצוגה מקדימה</string>
-    <string name="cd_test">בדיקה</string>
     <string name="cd_unlink">ביטול קישור</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">לוגו Trakt</string>

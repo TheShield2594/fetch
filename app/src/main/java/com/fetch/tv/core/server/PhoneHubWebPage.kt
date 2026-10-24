@@ -83,7 +83,7 @@ object PhoneHubWebPage {
                 ${card("/ranking", "Stream ranking", "Resolution, size, codecs and keywords for Best match")}
                 $extra
                 <h2>On the TV</h2>
-                <p style="color:#9aa3b2;font-size:14px">Addons, catalog order, collections and plugin repositories change what the TV loads, so each change is confirmed on the TV. Open those screens on the TV and use their own phone code.</p>
+                <p style="color:#9aa3b2;font-size:14px">Addons, catalog order and collections change what the TV loads, so each change is confirmed on the TV. Open those screens on the TV and use their own phone code.</p>
             """
         )
     }

@@ -23,7 +23,6 @@ import coil3.bitmapFactoryMaxParallelism
 
 import okio.Path.Companion.toOkioPath
 import com.fetch.tv.core.image.StaleWhileRevalidateCacheStrategy
-import com.fetch.tv.core.runtime.PluginRuntimeHooks
 import com.fetch.tv.core.sync.StartupSyncService
 import com.fetch.tv.core.sync.androidtv.AndroidTvChannelSyncService
 import com.fetch.tv.core.network.IPv4FirstDns
@@ -34,11 +33,7 @@ import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.data.mediaserver.ServerUserStateProjection
 import com.fetch.tv.data.simkl.SimklAnimeIdPreferenceHolder
 import dagger.hilt.android.HiltAndroidApp
-import okhttp3.Cookie
-import okhttp3.CookieJar
-import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -52,39 +47,8 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
     @Inject lateinit var simklAnimeIdPreferenceHolder: SimklAnimeIdPreferenceHolder
     @Inject lateinit var serverUserStateProjection: dagger.Lazy<ServerUserStateProjection>
 
-    companion object {
-        /**
-         * Shared cookie jar for CloudStream extension HTTP requests.
-         * Accessible so the player's OkHttpClient can share cookies
-         * obtained during scraping (e.g., session tokens needed for playback).
-         */
-        val extensionCookieJar: CookieJar = object : CookieJar {
-            private val store = ConcurrentHashMap<String, MutableList<Cookie>>()
-
-            override fun loadForRequest(url: HttpUrl): List<Cookie> {
-                val hostCookies = store[url.host] ?: return emptyList()
-                synchronized(hostCookies) {
-                    return hostCookies.filter { cookie ->
-                        cookie.expiresAt > System.currentTimeMillis()
-                    }
-                }
-            }
-
-            override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-                val hostCookies = store.getOrPut(url.host) { mutableListOf() }
-                synchronized(hostCookies) {
-                    cookies.forEach { newCookie ->
-                        hostCookies.removeAll { it.name == newCookie.name }
-                        hostCookies.add(newCookie)
-                    }
-                }
-            }
-        }
-    }
-
     override fun onCreate() {
         super.onCreate()
-        PluginRuntimeHooks.onApplicationCreate(this)
         // None of these are needed for the first frame: the launcher channel only matters once
         // the app is backgrounded, and server projection only reacts to later screens.
         // Building their dependency graphs (DataStores, Room, JobScheduler IPC) on the main

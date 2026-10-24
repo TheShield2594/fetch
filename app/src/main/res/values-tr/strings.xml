@@ -455,9 +455,8 @@
     <string name="settings_profiles">Profiller</string>
     <string name="settings_layout">Düzen</string>
     <string name="settings_content_discovery">İçerik ve Keşif</string>
-    <string name="settings_content_discovery_subtitle">Eklentiler, eklenti paketleri, kataloglar ve içerik bulma kaynakları</string>
+    <string name="settings_content_discovery_subtitle">Eklentiler, kataloglar ve içerik bulma kaynakları</string>
     <string name="settings_content_discovery_addons_subtitle">Eklentileri, katalog sırasını ve koleksiyonları yönetin</string>
-    <string name="settings_content_discovery_plugins_subtitle">Depoları ve yayın sağlayıcılarını yönetin</string>
     <string name="settings_integration">Entegrasyonlar</string>
     <string name="settings_playback">Oynatma</string>
     <string name="settings_tracking_title">Takip</string>
@@ -598,7 +597,6 @@
     <string name="settings_debug">Hata Ayıklama</string>
     <string name="settings_account_section_subtitle">Hesap ve senkronizasyon durumu</string>
     <string name="account_stat_addons">eklentiler</string>
-    <string name="account_stat_plugins">uzantılar</string>
     <string name="account_stat_library">kütüphane</string>
     <string name="account_stat_progress">ilerleme</string>
     <string name="account_stat_watched">izlenen</string>
@@ -855,27 +853,18 @@
     <string name="autoplay_threshold_pct_title">Eşik Yüzdesi</string>
     <string name="autoplay_threshold_pct_sub">Bitiş zaman damgası olmadığında kullanılacak alternatif oran.</string>
     <string name="autoplay_threshold_min_title">Eşik Dakikası</string>
-    <string name="autoplay_scope_all">Tüm kaynaklar</string>
-    <string name="autoplay_scope_addons">Yalnızca kurulu eklentiler</string>
-    <string name="autoplay_scope_plugins">Yalnızca etkin uzantılar</string>
-    <string name="autoplay_scope">Otomatik Oynatma Kaynak Kapsamı</string>
     <string name="autoplay_timeout_title">Kaynak Seçim Zaman Aşımı</string>
     <string name="autoplay_timeout_sub">Seçim yapılmadan önce eklentiler için beklenecek süre.</string>
     <string name="autoplay_timeout_instant">Anında</string>
     <string name="autoplay_timeout_unlimited">Sınırsız</string>
     <string name="autoplay_allowed_addons">İzin Verilen Eklentiler</string>
     <string name="autoplay_all_addons">Tüm kurulu eklentiler</string>
-    <string name="autoplay_allowed_plugins">İzin Verilen Uzantılar</string>
-    <string name="autoplay_all_plugins">Tüm etkin uzantılar</string>
     <string name="autoplay_regex_placeholder">Desen ayarlanmadı. Örnek: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex Deseni</string>
     <string name="autoplay_no_items">Öğe bulunamadı</string>
     <string name="autoplay_mode_manual_desc">Her zaman kaynak listesini göster ve benim seçmeme izin ver.</string>
     <string name="autoplay_mode_first_desc">Mevcut olan ilk kaynağı otomatik olarak oynat.</string>
     <string name="autoplay_mode_regex_desc">Metni regex deseninizle eşleşen ilk kaynağı oynat.</string>
-    <string name="autoplay_scope_all_desc">Otomatik oynatma, hem kurulu eklentileri hem de etkin uzantıları kullanabilir.</string>
-    <string name="autoplay_scope_addons_desc">Otomatik oynatma yalnızca kurulu eklentilerinizden gelen yayınları dikkate alır.</string>
-    <string name="autoplay_scope_plugins_desc">Otomatik oynatma yalnızca etkin uzantılarınızdan gelen yayınları dikkate alır.</string>
     <string name="autoplay_threshold_pct_desc">Bitiş zaman damgası mevcut olmadığında yüzdeye göre göster.</string>
     <string name="autoplay_threshold_min_desc">Bitiş zaman damgası mevcut olmadığında bölümün bitmesine bu kadar dakika kala göster.</string>
     <string name="autoplay_regex_matches">Yayın adı/başlık/açıklama/eklenti/url ile eşleşir. Örnek: 4K|2160p|Remux</string>
@@ -1293,8 +1282,8 @@
     <string name="profile_copy_settings_apply">Uygula</string>
     <string name="profile_copy_settings_credentials_off">API Anahtarları: Kopyalama</string>
     <string name="profile_copy_settings_credentials_on">API Anahtarları: Eksik Anahtarları Kopyala</string>
-    <string name="profile_copy_settings_details">Mevcut API anahtarları korunur. OAuth, eklentiler, uzantılar, ana sayfa düzeni, PIN, geçmiş, kütüphane, indirmeler ve cihaza özel ayarlar değişmez.</string>
-    <string name="profile_copy_settings_exclusions">OAuth, eklentiler, uzantılar, ana sayfa düzeni, PIN, geçmiş, kütüphane, indirmeler ve cihaza özel ayarlar değişmez.</string>
+    <string name="profile_copy_settings_details">Mevcut API anahtarları korunur. OAuth, eklentiler, ana sayfa düzeni, PIN, geçmiş, kütüphane, indirmeler ve cihaza özel ayarlar değişmez.</string>
+    <string name="profile_copy_settings_exclusions">OAuth, eklentiler, ana sayfa düzeni, PIN, geçmiş, kütüphane, indirmeler ve cihaza özel ayarlar değişmez.</string>
     <string name="profile_copy_settings_success">Ayarlar %1$s profilinden %2$s profiline kopyalandı.</string>
     <string name="profile_copy_settings_error">Ayarlar kopyalanamadı. Bağlantınızı kontrol edip tekrar deneyin.</string>
     <string name="profile_copy_settings_created_success">Profil, %1$s ayarlarıyla oluşturuldu.</string>
@@ -1736,7 +1725,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Yükleniyor\u2026</string>
-    <string name="account_sync_description">Kütüphanenizi, görüntüleme ilerlemenizi, eklentilerinizi ve uzantılarınızı cihazlar arasında eşitleyin.</string>
+    <string name="account_sync_description">Kütüphanenizi, görüntüleme ilerlemenizi ve eklentilerinizi cihazlar arasında eşitleyin.</string>
     <string name="account_sync_restart_note">Eşitleme tüm cihazlarda anında gerçekleşmez. Hesabınıza girdikten veya başka bir yerde yaptığınız değişiklikleri görebilmek için cihazı yeniden başlatın.</string>
     <string name="account_signin_qr_title">QR ile Oturum Aç</string>
     <string name="account_signin_qr_subtitle">QR kodunu taratıp e-posta ile girişinizi telefondan tamamlayın</string>
@@ -1747,7 +1736,7 @@
     <string name="account_loading_sync">Senkronizasyon verileri yükleniyor\u2026</string>
     <string name="account_sign_out">Oturumu Kapat</string>
     <string name="account_sign_out_confirm_title">Oturum kapatılsın mı?</string>
-    <string name="account_sign_out_confirm_subtitle">Bu cihazda kütüphane, izleme ilerlemesi, eklenti ve uzantıları eşitlemek için tekrar giriş yapman gerekir.</string>
+    <string name="account_sign_out_confirm_subtitle">Bu cihazda kütüphane, izleme ilerlemesi ve eklentileri eşitlemek için tekrar giriş yapman gerekir.</string>
 
     <!-- AuthSignInScreen -->
     <string name="auth_signin_title">Oturum Aç</string>
@@ -1824,46 +1813,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">Cihazı Bağla</string>
     <string name="sync_claim_subtitle">Cihazınızı eşleştirmek için diğer cihazdan aldığınız senkronizasyon kodunu ve PIN\'i girin.</string>
-    <string name="sync_claim_success">Cihaz eşleştirildi. Eklenti ve uzantılarınız arka planda kopyalanacak.</string>
+    <string name="sync_claim_success">Cihaz eşleştirildi. Eklentileriniz arka planda kopyalanacak.</string>
     <string name="sync_claim_done">Bitti</string>
     <string name="sync_claim_code_label">Senkronizasyon Kodu</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">PIN numarasını gir</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Birincil profilin uzantıları eşleştirildi. Başka değişiklik yapmanız kısıtlanmıştır</string>
-    <string name="plugin_repositories_section">Depolar (%1$d)</string>
-    <string name="plugin_providers_section">Sağlayıcılar (%1$d)</string>
-    <string name="plugin_title">Uzantılar</string>
-    <string name="plugin_add_repository">Depo ekle</string>
-    <string name="plugin_add_btn">Ekle</string>
-    <string name="plugin_manage_from_phone_title">Telefondan Yönet</string>
-    <string name="plugin_manage_from_phone_subtitle">Yeni bir uzantı deposu eklemek ya da silmek için telefondan kodu tarayın</string>
-    <string name="plugin_qr_instruction">Depoları yönetmek için bu adresi açıp kontrol edin</string>
-    <string name="plugin_qr_close">Kapat</string>
-    <string name="plugin_confirm_title">Depo Değişikliklerini Uygula</string>
-    <string name="plugin_confirm_subtitle">Telefon aracılığıyla aşağıdaki eşitleme başlatıldı:</string>
-    <string name="plugin_confirm_added">Gelenler:</string>
-    <string name="plugin_confirm_removed">Silinenler:</string>
-    <string name="plugin_confirm_no_changes">Durum: Güncel</string>
-    <string name="plugin_confirm_total">Listeye kayıtlı toplam depo: %1$d</string>
-    <string name="plugin_confirm_reject">Reddet</string>
-    <string name="plugin_confirm_confirm">Tamam, Uygula</string>
-    <string name="plugin_url_or_short_code_placeholder">URL veya kısa kod</string>
-    <string name="plugin_diagnostics_collapse">Tanılama (daraltmak için seçin)</string>
-    <string name="plugin_diagnostics_expand">Tanılama (genişletmek için seçin)</string>
-    <string name="plugin_risky_enable_title">Sağlayıcı etkinleştirilsin mi?</string>
-    <string name="plugin_risky_enable_message">%1$s bazı içeriklerde çökmeye yol açabileceği bilinmektedir. Yine de etkinleştirmek istiyor musunuz?</string>
-    <string name="plugin_risky_enable_cancel">İptal</string>
-    <string name="plugin_risky_enable_confirm">Etkinleştir</string>
-    <string name="plugin_updated_format">Güncellenme: %1$s</string>
-    <string name="plugin_test_btn">Test Et</string>
-    <string name="plugin_test_results">Deneme Sonucu (%1$d Bağlantı bulundu)</string>
-    <string name="plugin_enable_plugins_title">Uzantı sağlayıcılarını etkinleştir</string>
-    <string name="plugin_enable_plugins_subtitle">Yayın keşfinde uzantı sağlayıcılarını kullan</string>
-    <string name="plugin_group_by_repository_title">Uzantıları depoya göre gruplandır</string>
-    <string name="plugin_group_by_repository_subtitle">Yayınlarda kaynak başına değil depo başına bir sağlayıcı göster</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Kim izliyor?</string>
@@ -1906,7 +1861,7 @@
     <string name="update_unknown_sources">Fetch\'in indirdiği eklentileri yüklayabilmek adına `Bilinmeyen kaynaklar` veya `Dışarıdan yükleme` iznine ihtiyaç var.</string>
     <!-- AccountScreen -->
     <string name="account_title">Hesap</string>
-    <string name="account_sign_in_description">Kütüphanenizi, izleme ilerlemenizi, eklenti ve uzantılarınızı cihazlar arasında eşleyin. Trakt bağlı değilken Fetch Sync kullanılır.</string>
+    <string name="account_sign_in_description">Kütüphanenizi, izleme ilerlemenizi ve eklentilerinizi cihazlar arasında eşleyin. Trakt bağlı değilken Fetch Sync kullanılır.</string>
     <string name="account_sync_code_title">Eşleştirme Kodu</string>
     <string name="account_sync_code_description">Hesap oluşturmadan cihazlarınızı eşleyin.</string>
     <string name="account_linked_devices">Bağlı Cihazlar (%1$d)</string>
@@ -1937,11 +1892,6 @@
     <string name="addon_confirm_total_addons">Toplam eklenti: %1$d</string>
     <string name="addon_confirm_total_catalogs">Toplam katalog: %1$d</string>
     <string name="addon_catalogs_types">%1$d Katalog | Tür: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... ve %1$d daha</string>
-    <string name="plugin_providers_count">%1$d sağlayıcı</string>
-    <string name="plugin_no_repos">Henüz depo eklenmedi.\nBaşlamak için bir depo ekleyin.</string>
 
     <!-- ProfileSettingsContent -->
 
@@ -2143,17 +2093,6 @@
     <string name="error_network_required">Bu özelliği kullanmak için Wi-Fi veya Ethernet\'e bağlanın</string>
     <string name="error_server_ports_unavailable">Sunucu başlatılamadı. Tüm portlar kullanımda.</string>
 
-    <!-- Plugin errors -->
-    <string name="plugin_error_invalid_url">Lütfen geçerli bir URL girin</string>
-    <string name="plugin_error_add_repo">Depo eklenemedi: %1$s</string>
-    <string name="plugin_error_refresh">Yenilenemedi: %1$s</string>
-    <string name="plugin_error_test">Test başarısız: %1$s</string>
-    <string name="plugin_test_no_results">Sonuç bulunamadı</string>
-    <string name="plugin_test_found_streams">%1$d yayın bulundu</string>
-    <string name="plugin_repo_added_with_providers">%1$s, %2$d sağlayıcı ile eklendi</string>
-    <string name="plugin_repo_removed">Uzantı deposu kaldırıldı</string>
-    <string name="plugin_repo_refreshed">Uzantı deposu yenilendi</string>
-
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Cihaz kodunun süresi doldu. Yeniden başlayın.</string>
     <string name="trakt_error_code_used">Cihaz kodu zaten kullanılmış. Yeniden başlayın.</string>
@@ -2210,7 +2149,6 @@
     <string name="subtitle_style_weight">Kalınlık</string>
 
     <!-- Plugin screen -->
-    <string name="plugin_version">Sürüm %1$s</string>
 
     <!-- Stream screen -->
     <string name="stream_episode_label">S%1$d B%2$d</string>
@@ -2246,7 +2184,6 @@
     <string name="cd_refresh">Yenile</string>
     <string name="cd_remove">Kaldır</string>
     <string name="cd_preview">Önizle</string>
-    <string name="cd_test">Test et</string>
     <string name="cd_unlink">Bağlantıyı kes</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logosu</string>

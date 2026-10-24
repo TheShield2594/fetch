@@ -3,7 +3,6 @@ package com.fetch.tv.core.sync
 import android.os.SystemClock
 import android.util.Log
 import com.fetch.tv.core.auth.AuthManager
-import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.StartupSyncPreferences
 import com.fetch.tv.data.local.WatchProgressPreferences
@@ -50,7 +49,6 @@ internal data class SurfacePullFreshness(
 @Singleton
 class StartupSyncService @Inject constructor(
     private val authManager: AuthManager,
-    private val pluginSyncService: PluginSyncService,
     private val addonSyncService: AddonSyncService,
     private val collectionSyncService: CollectionSyncService,
     private val homeCatalogSettingsSyncService: HomeCatalogSettingsSyncService,
@@ -60,7 +58,6 @@ class StartupSyncService @Inject constructor(
     private val profileSettingsSyncService: ProfileSettingsSyncService,
     private val providerCredentialSyncService: ProviderCredentialSyncService,
     private val profileSyncService: ProfileSyncService,
-    private val pluginManager: PluginManager,
     private val addonRepository: AddonRepositoryImpl,
     private val watchProgressRepository: WatchProgressRepositoryImpl,
     private val libraryRepository: LibraryRepositoryImpl,
@@ -204,7 +201,6 @@ class StartupSyncService @Inject constructor(
             Log.i(TAG, "Realtime surface pull requested profile=$profileId surface=$surface")
             when (surface) {
                 "addons" -> pullRealtimeAddons(profileId)
-                "plugins" -> pullRealtimePlugins(profileId)
                 "library" -> pullFetchLibrary(profileId)
                 "watch_progress" -> {
                     syncWatchProgressDelta(
@@ -476,7 +472,6 @@ class StartupSyncService @Inject constructor(
             )
             return Result.success(Unit)
         } catch (e: Exception) {
-            pluginManager.isSyncingFromRemote = false
             addonRepository.isSyncingFromRemote = false
             watchProgressRepository.isSyncingFromRemote = false
             libraryRepository.isSyncingFromRemote = false
@@ -573,23 +568,6 @@ class StartupSyncService @Inject constructor(
                 }
             }
 
-            val pluginJob = async {
-                pluginManager.isSyncingFromRemote = true
-                try {
-                    val remotePlugins = pluginSyncService.getRemoteRepoUrls().getOrElse { throw it }
-                    pluginManager.reconcileWithRemoteRepoUrls(
-                        remotePlugins = remotePlugins,
-                        removeMissingLocal = true
-                    )
-                    Log.d(TAG, "Pulled ${remotePlugins.size} plugin repos from remote for profile $profileId")
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to pull plugins from remote, keeping local cache", e)
-                } finally {
-                    pluginManager.isSyncingFromRemote = false
-                    pluginManager.flushPendingSync()
-                }
-            }
-
             val addonJob = async {
                 addonRepository.isSyncingFromRemote = true
                 try {
@@ -634,7 +612,6 @@ class StartupSyncService @Inject constructor(
                 }
             }
 
-            pluginJob.await()
             addonJob.await()
             collectionJob.await()
             homeCatalogJob.await()
@@ -666,23 +643,6 @@ class StartupSyncService @Inject constructor(
             false
         } finally {
             libraryRepository.isSyncingFromRemote = false
-        }
-    }
-
-    private suspend fun pullRealtimePlugins(profileId: Int) {
-        pluginManager.isSyncingFromRemote = true
-        try {
-            val remotePlugins = pluginSyncService.getRemoteRepoUrls().getOrElse { throw it }
-            pluginManager.reconcileWithRemoteRepoUrls(
-                remotePlugins = remotePlugins,
-                removeMissingLocal = true
-            )
-            Log.d(TAG, "Realtime plugins pull reconciled ${remotePlugins.size} repos for profile $profileId")
-        } catch (e: Exception) {
-            Log.e(TAG, "Realtime plugins pull failed profile=$profileId", e)
-        } finally {
-            pluginManager.isSyncingFromRemote = false
-            pluginManager.flushPendingSync()
         }
     }
 

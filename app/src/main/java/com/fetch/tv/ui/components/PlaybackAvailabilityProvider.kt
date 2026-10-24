@@ -8,9 +8,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.core.streams.PlaybackAvailability
-import com.fetch.tv.data.local.PluginDataStore
 import com.fetch.tv.data.mediaserver.ServerRepository
 import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.domain.repository.AddonRepository
@@ -19,7 +17,6 @@ import com.fetch.tv.ui.screens.home.ContinueWatchingItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -28,27 +25,16 @@ internal val LocalPlaybackAvailability = compositionLocalOf { PlaybackAvailabili
 @HiltViewModel
 internal class PlaybackAvailabilityViewModel @Inject constructor(
     addonRepository: AddonRepository,
-    pluginDataStore: PluginDataStore,
     metaRepository: MetaRepository,
     serverRepository: ServerRepository,
     serverStreams: ServerStreams
 ) : ViewModel() {
-    private val enabledScrapers = if (AppFeaturePolicy.pluginsEnabled) {
-        combine(pluginDataStore.scrapers, pluginDataStore.pluginsEnabled) { scrapers, enabled ->
-            if (enabled) scrapers.filter { it.enabled } else emptyList()
-        }
-    } else {
-        flowOf(emptyList())
-    }
-
     val availability = combine(
         addonRepository.getInstalledAddons(),
-        enabledScrapers,
         serverRepository.uiState
-    ) { addons, scrapers, _ ->
+    ) { addons, _ ->
         PlaybackAvailability(
             addons,
-            scrapers,
             isLoaded = true,
             cachedMeta = metaRepository::getCachedMeta,
             serverStreams = serverStreams::canServe

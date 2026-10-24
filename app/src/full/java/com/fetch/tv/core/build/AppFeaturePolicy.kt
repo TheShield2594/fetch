@@ -1,7 +1,6 @@
 package com.fetch.tv.core.build
 
 object AppFeaturePolicy {
-    val pluginsEnabled: Boolean = true
     val inAppUpdatesEnabled: Boolean = true
     val inAppTrailerPlaybackEnabled: Boolean = true
     val externalTrailerPlaybackEnabled: Boolean = true

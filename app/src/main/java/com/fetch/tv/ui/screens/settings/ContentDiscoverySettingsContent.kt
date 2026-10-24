@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Extension
-import androidx.compose.material.icons.filled.Power
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,8 +28,6 @@ import com.fetch.tv.ui.theme.FetchTheme
 @Composable
 internal fun ContentDiscoverySettingsContent(
     onNavigateToAddons: () -> Unit,
-    onNavigateToPlugins: () -> Unit,
-    showPlugins: Boolean,
     initialFocusRequester: FocusRequester?
 ) {
     var serverPage by rememberSaveable { mutableStateOf<String?>(null) }
@@ -57,9 +54,7 @@ internal fun ContentDiscoverySettingsContent(
     when (val page = serverPage) {
         null -> ContentDiscoveryHub(
             onNavigateToAddons = onNavigateToAddons,
-            onNavigateToPlugins = onNavigateToPlugins,
             onNavigateToServers = { serverPage = SERVERS_PAGE },
-            showPlugins = showPlugins,
             initialFocusRequester = initialFocusRequester,
             serversFocusRequester = hubServersRequester
         )
@@ -79,9 +74,7 @@ internal fun ContentDiscoverySettingsContent(
 @Composable
 private fun ContentDiscoveryHub(
     onNavigateToAddons: () -> Unit,
-    onNavigateToPlugins: () -> Unit,
     onNavigateToServers: () -> Unit,
-    showPlugins: Boolean,
     initialFocusRequester: FocusRequester?,
     serversFocusRequester: FocusRequester
 ) {
@@ -112,14 +105,6 @@ private fun ContentDiscoveryHub(
                 leadingIcon = Icons.Default.Dns,
                 modifier = Modifier.focusRequester(serversFocusRequester)
             )
-            if (showPlugins) {
-                SettingsActionRow(
-                    title = stringResource(R.string.plugin_title),
-                    subtitle = stringResource(R.string.settings_content_discovery_plugins_subtitle),
-                    onClick = onNavigateToPlugins,
-                    leadingIcon = Icons.Default.Power
-                )
-            }
         }
     }
 }

@@ -205,12 +205,10 @@ class ProfileSelectionViewModel @Inject constructor(
         viewModelScope.launch {
             _isCreating.value = true
             val result = try {
-                // Addons and plugins share one switch: a profile on the main profile's addons uses its plugins too.
                 val profile = profileManager.createProfile(
                     name = name,
                     avatarColorHex = avatarColorHex,
                     usesPrimaryAddons = usesMainAddons,
-                    usesPrimaryPlugins = usesMainAddons,
                     avatarId = avatarId
                 )
                 if (profile != null) {

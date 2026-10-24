@@ -431,9 +431,8 @@
     <string name="settings_profiles">个人资料</string>
     <string name="settings_layout">布局</string>
     <string name="settings_content_discovery">内容与发现</string>
-    <string name="settings_content_discovery_subtitle">扩展、插件、目录与发现来源</string>
+    <string name="settings_content_discovery_subtitle">扩展、目录与发现来源</string>
     <string name="settings_content_discovery_addons_subtitle">管理扩展、目录顺序和收藏</string>
-    <string name="settings_content_discovery_plugins_subtitle">管理仓库和流提供者</string>
     <string name="settings_integration">集成</string>
     <string name="settings_playback">播放</string>
     <string name="settings_tracking_title">追踪</string>
@@ -570,7 +569,6 @@
     <string name="settings_debug">调试</string>
     <string name="settings_account_section_subtitle">账户与同步状态</string>
     <string name="account_stat_addons">扩展</string>
-    <string name="account_stat_plugins">插件</string>
     <string name="account_stat_library">媒体库</string>
     <string name="account_stat_progress">进度</string>
     <string name="account_stat_watched">已观看</string>
@@ -795,27 +793,18 @@
     <string name="autoplay_threshold_pct_title">触发百分比</string>
     <string name="autoplay_threshold_pct_sub">当没有片尾时间戳时的备用方案。</string>
     <string name="autoplay_threshold_min_title">触发分钟数</string>
-    <string name="autoplay_scope_all">所有来源</string>
-    <string name="autoplay_scope_addons">仅已安装的扩展</string>
-    <string name="autoplay_scope_plugins">仅已启用的插件</string>
-    <string name="autoplay_scope">自动播放来源范围</string>
     <string name="autoplay_timeout_title">流选择超时</string>
     <string name="autoplay_timeout_sub">选择前等待扩展的时间。</string>
     <string name="autoplay_timeout_instant">即时</string>
     <string name="autoplay_timeout_unlimited">无限制</string>
     <string name="autoplay_allowed_addons">允许的扩展</string>
     <string name="autoplay_all_addons">所有已安装的扩展</string>
-    <string name="autoplay_allowed_plugins">允许的插件</string>
-    <string name="autoplay_all_plugins">所有已启用的插件</string>
     <string name="autoplay_regex_placeholder">未设置模式。例如：4K|2160p|Remux</string>
     <string name="autoplay_regex_title">正则表达式模式</string>
     <string name="autoplay_no_items">没有可用的项目</string>
     <string name="autoplay_mode_manual_desc">始终显示来源列表，让我自己选择。</string>
     <string name="autoplay_mode_first_desc">自动播放第一个可用的来源。</string>
     <string name="autoplay_mode_regex_desc">播放文字符合您正则表达式模式的第一个来源。</string>
-    <string name="autoplay_scope_all_desc">自动播放可以使用已安装的扩展和已启用的插件。</string>
-    <string name="autoplay_scope_addons_desc">自动播放仅考虑来自已安装扩展的流。</string>
-    <string name="autoplay_scope_plugins_desc">自动播放仅考虑来自已启用插件的流。</string>
     <string name="autoplay_threshold_pct_desc">当没有片尾时间戳时，按播放百分比触发。</string>
     <string name="autoplay_threshold_min_desc">当没有片尾时间戳时，在剧集结束前此分钟数触发。</string>
     <string name="autoplay_regex_matches">匹配流名称/标题/描述/扩展/网址。例如：4K|2160p|Remux</string>
@@ -1210,8 +1199,8 @@
     <string name="profile_copy_settings_apply">应用</string>
     <string name="profile_copy_settings_credentials_off">API 密钥：不复制</string>
     <string name="profile_copy_settings_credentials_on">API 密钥：复制缺失的密钥</string>
-    <string name="profile_copy_settings_details">保留现有 API 密钥。OAuth、扩展、插件、首页布局、PIN、历史记录、媒体库、下载和设备特定设置保持不变。</string>
-    <string name="profile_copy_settings_exclusions">OAuth、扩展、插件、首页布局、PIN、历史记录、媒体库、下载和设备特定设置保持不变。</string>
+    <string name="profile_copy_settings_details">保留现有 API 密钥。OAuth、扩展、首页布局、PIN、历史记录、媒体库、下载和设备特定设置保持不变。</string>
+    <string name="profile_copy_settings_exclusions">OAuth、扩展、首页布局、PIN、历史记录、媒体库、下载和设备特定设置保持不变。</string>
     <string name="profile_copy_settings_success">设置已从 %1$s 复制到 %2$s。</string>
     <string name="profile_copy_settings_error">无法复制设置。请检查您的连接并重试。</string>
     <string name="profile_copy_settings_created_success">已使用来自 %1$s 的设置创建个人资料。</string>
@@ -1630,7 +1619,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">加载中…</string>
-    <string name="account_sync_description">在设备间同步您的媒体库、观看进度、扩展和插件。</string>
+    <string name="account_sync_description">在设备间同步您的媒体库、观看进度和扩展。</string>
     <string name="account_sync_restart_note">同步并非跨活动设备实时进行。登录后或要应用在其他位置进行的更改时，请重新启动此设备。</string>
     <string name="account_signin_qr_title">使用 QR 码登录</string>
     <string name="account_signin_qr_subtitle">扫描 QR 码并在手机上完成电子邮件登录</string>
@@ -1641,7 +1630,7 @@
     <string name="account_loading_sync">正在加载同步数据…</string>
     <string name="account_sign_out">登出</string>
     <string name="account_sign_out_confirm_title">登出？</string>
-    <string name="account_sign_out_confirm_subtitle">您需要重新登录才能在此设备上同步媒体库、观看进度、扩展和插件。</string>
+    <string name="account_sign_out_confirm_subtitle">您需要重新登录才能在此设备上同步媒体库、观看进度和扩展。</string>
     <string name="account_error_signin_required">请先登录账户。</string>
     <string name="account_signin_create_title">登录／创建账户</string>
     <string name="account_signin_create_desc">使用电子邮件和密码创建或登录您的账户。</string>
@@ -1724,7 +1713,7 @@
 
     <string name="sync_claim_title">链接设备</string>
     <string name="sync_claim_subtitle">输入其他设备的同步码和 PIN 以链接此设备。</string>
-    <string name="sync_claim_success">设备链接成功！您的扩展和插件现在将同步。</string>
+    <string name="sync_claim_success">设备链接成功！您的扩展现在将同步。</string>
     <string name="sync_claim_done">完成</string>
     <string name="sync_claim_code_label">同步码</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1732,48 +1721,6 @@
     <string name="sync_claim_pin_placeholder">输入 PIN</string>
     <string name="sync_claim_linking">链接中…</string>
 
-    <string name="plugin_readonly_notice">使用主要用户的插件，无法更改</string>
-    <string name="plugin_repositories_section">仓库 (%1$d)</string>
-    <string name="plugin_providers_section">提供者 (%1$d)</string>
-    <string name="plugin_title">插件</string>
-    <string name="plugin_enable_plugins_title">全局启用插件提供者</string>
-    <string name="plugin_enable_plugins_subtitle">在流发现期间使用插件提供者</string>
-    <string name="plugin_group_by_repository_title">按仓库分组插件提供者</string>
-    <string name="plugin_group_by_repository_subtitle">在流中，每个仓库显示一个提供者，而非每个来源一个</string>
-    <string name="plugin_add_repository">添加仓库</string>
-    <string name="plugin_add_btn">添加</string>
-    <string name="plugin_manage_from_phone_title">从手机管理</string>
-    <string name="plugin_manage_from_phone_subtitle">扫描 QR 码以从手机添加或移除仓库</string>
-    <string name="plugin_qr_instruction">用手机扫描以管理仓库</string>
-    <string name="plugin_qr_close">关闭</string>
-    <string name="plugin_confirm_title">确认仓库更改</string>
-    <string name="plugin_confirm_subtitle">已从您的手机进行以下更改：</string>
-    <string name="plugin_confirm_added">已添加：</string>
-    <string name="plugin_confirm_removed">已移除：</string>
-    <string name="plugin_confirm_no_changes">未检测到更改</string>
-    <string name="plugin_confirm_total">仓库总数：%1$d</string>
-    <string name="plugin_confirm_reject">拒绝</string>
-    <string name="plugin_confirm_confirm">确认</string>
-    <string name="plugin_url_or_short_code_placeholder">网址或短代码</string>
-    <string name="plugin_diagnostics_collapse">诊断 (点击折叠)</string>
-    <string name="plugin_diagnostics_expand">诊断 (点击展开)</string>
-    <string name="plugin_risky_enable_title">启用提供者？</string>
-    <string name="plugin_risky_enable_message">已知 %1$s 会在某些内容上导致崩溃。仍要启用吗？</string>
-    <string name="plugin_risky_enable_cancel">取消</string>
-    <string name="plugin_risky_enable_confirm">启用</string>
-    <string name="plugin_updated_format">更新时间：%1$s</string>
-    <string name="plugin_test_btn">测试</string>
-    <string name="plugin_test_results">测试结果 (%1$d 个流)</string>
-    <string name="plugin_and_more">... 还有 %1$d 个</string>
-    <string name="plugin_providers_count">%1$d 个提供者</string>
-    <string name="plugin_no_repos">尚未添加仓库。\n添加仓库以开始使用。</string>
-    <string name="plugin_error_invalid_url">请输入有效的网址</string>
-    <string name="plugin_error_add_repo">添加仓库失败：%1$s</string>
-    <string name="plugin_error_refresh">刷新失败：%1$s</string>
-    <string name="plugin_error_test">测试失败：%1$s</string>
-    <string name="plugin_test_no_results">找不到结果</string>
-    <string name="plugin_test_found_streams">找到 %1$d 个流</string>
-    <string name="plugin_version">版本 %1$s</string>
 
     <string name="profile_selection_title">谁在观看？</string>
     <string name="profile_selection_subtitle">选择个人资料以继续</string>
@@ -1811,7 +1758,7 @@
     <string name="update_unknown_sources">允许从未知来源安装以继续。</string>
     <!-- AccountScreen -->
     <string name="account_title">账户</string>
-    <string name="account_sign_in_description">登录以在设备间同步您的媒体库、观看进度、扩展和插件。当 Trakt 未连接时，媒体库同步使用 Fetch Sync，观看进度可使用 Trakt 或 Fetch Sync。</string>
+    <string name="account_sign_in_description">登录以在设备间同步您的媒体库、观看进度和扩展。当 Trakt 未连接时，媒体库同步使用 Fetch Sync，观看进度可使用 Trakt 或 Fetch Sync。</string>
     <string name="account_sync_code_title">同步码</string>
     <string name="account_sync_code_description">无需创建账户即可跨设备同步。</string>
     <string name="account_linked_devices">已链接的设备 (%1$d)</string>
@@ -1839,8 +1786,6 @@
     <string name="discover_empty_no_content_subtitle">请尝试其他类型或目录</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1890,9 +1835,6 @@
     <string name="error_server_ports_unavailable">无法启动服务器。所有端口均被占用。</string>
 
     <!-- 插件错误 -->
-    <string name="plugin_repo_added_with_providers">已添加 %1$s，包含 %2$d 个提供者</string>
-    <string name="plugin_repo_removed">仓库已移除</string>
-    <string name="plugin_repo_refreshed">仓库已刷新</string>
 
     <!-- Trakt 错误 -->
 
@@ -1965,7 +1907,6 @@
     <string name="cd_refresh">刷新</string>
     <string name="cd_remove">移除</string>
     <string name="cd_preview">预览</string>
-    <string name="cd_test">测试</string>
     <string name="cd_unlink">取消链接</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt 标志</string>

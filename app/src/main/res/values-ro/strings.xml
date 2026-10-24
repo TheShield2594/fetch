@@ -128,7 +128,6 @@
     <string name="settings_debug">Depanare</string>
     <string name="settings_account_section_subtitle">Statutul contului și sincronizării</string>
     <string name="account_stat_addons">add-on-uri</string>
-    <string name="account_stat_plugins">pluginuri</string>
     <string name="account_stat_library">bibliotecă</string>
     <string name="account_stat_progress">progres</string>
     <string name="account_stat_watched">vizionate</string>
@@ -240,23 +239,14 @@
     <string name="autoplay_threshold_pct_title">Procentaj prag</string>
     <string name="autoplay_threshold_pct_sub">Alternativă când nu există marcaj de final.</string>
     <string name="autoplay_threshold_min_title">Minute prag</string>
-    <string name="autoplay_scope_all">Toate sursele</string>
-    <string name="autoplay_scope_addons">Doar suplimentele instalate</string>
-    <string name="autoplay_scope_plugins">Doar pluginurile activate</string>
-    <string name="autoplay_scope">Domeniul sursei de redare automată</string>
     <string name="autoplay_allowed_addons">Suplimente permise</string>
     <string name="autoplay_all_addons">Toate suplimentele instalate</string>
-    <string name="autoplay_allowed_plugins">Pluginuri permise</string>
-    <string name="autoplay_all_plugins">Toate pluginurile activate</string>
     <string name="autoplay_regex_placeholder">Niciun model setat. Exemplu: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Model Regex</string>
     <string name="autoplay_no_items">Niciun element disponibil</string>
     <string name="autoplay_mode_manual_desc">Afișează întotdeauna lista de surse și lasă-mă să aleg.</string>
     <string name="autoplay_mode_first_desc">Redă automat prima sursă disponibilă.</string>
     <string name="autoplay_mode_regex_desc">Redă prima sursă al cărei text se potrivește cu modelul tău regex.</string>
-    <string name="autoplay_scope_all_desc">Redarea automată poate folosi atât suplimentele instalate, cât și pluginurile activate.</string>
-    <string name="autoplay_scope_addons_desc">Redarea automată ia în considerare doar fluxurile provenite din suplimentele tale instalate.</string>
-    <string name="autoplay_scope_plugins_desc">Redarea automată ia în considerare doar fluxurile provenite din pluginurile activate.</string>
     <string name="autoplay_threshold_pct_desc">Arată pe baza procentului de redare când nu este disponibil marcajul de final.</string>
     <string name="autoplay_threshold_min_desc">Arată acest număr de minute înainte de sfârșitul episodului când nu este disponibil marcajul de final.</string>
     <string name="autoplay_regex_matches">Se potrivește cu numele/titlul/descripția fluxului/suplimentului/url. Exemplu: 4K|2160p|Remux</string>
@@ -582,7 +572,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Încărcare\u2026</string>
-    <string name="account_sync_description">Sincronizați biblioteca, progresul vizionărilor, suplimentele și plugin-urile pe toate dispozitivele.</string>
+    <string name="account_sync_description">Sincronizați biblioteca, progresul vizionărilor și suplimentele pe toate dispozitivele.</string>
     <string name="account_signin_qr_title">Autentificare cu QR</string>
     <string name="account_signin_qr_subtitle">Scanați un cod QR și finalizați autentificarea prin e‑mail pe telefon</string>
     <string name="account_signed_in_label">Autentificat</string>
@@ -621,35 +611,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">Conectează dispozitivul</string>
     <string name="sync_claim_subtitle">Introdu codul de sincronizare și PIN-ul de pe celălalt dispozitiv pentru a conecta acest dispozitiv.</string>
-    <string name="sync_claim_success">Dispozitivul a fost conectat cu succes! Addon-urile și plugin-urile tale se vor sincroniza acum.</string>
+    <string name="sync_claim_success">Dispozitivul a fost conectat cu succes! Addon-urile tale se vor sincroniza acum.</string>
     <string name="sync_claim_done">Gata</string>
     <string name="sync_claim_code_label">Cod de sincronizare</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">Introdu PIN-ul</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Se folosesc plugin-urile profilului principal și nu pot fi schimbate</string>
-    <string name="plugin_repositories_section">Depozite (%1$d)</string>
-    <string name="plugin_providers_section">Furnizori (%1$d)</string>
-    <string name="plugin_title">Pluginuri</string>
-    <string name="plugin_add_repository">Adaugă depozit</string>
-    <string name="plugin_add_btn">Adaugă</string>
-    <string name="plugin_manage_from_phone_title">Gestionează de pe telefon</string>
-    <string name="plugin_manage_from_phone_subtitle">Scanează un cod QR pentru a adăuga sau elimina depozite de pe telefonul tău</string>
-    <string name="plugin_qr_instruction">Scanează cu telefonul pentru a gestiona depozitele</string>
-    <string name="plugin_qr_close">Închide</string>
-    <string name="plugin_confirm_title">Confirmă modificările depozitelor</string>
-    <string name="plugin_confirm_subtitle">Următoarele modificări au fost făcute de pe telefonul tău:</string>
-    <string name="plugin_confirm_added">Adăugate:</string>
-    <string name="plugin_confirm_removed">Eliminate:</string>
-    <string name="plugin_confirm_no_changes">Nu s-au detectat modificări</string>
-    <string name="plugin_confirm_total">Depozite totale: %1$d</string>
-    <string name="plugin_confirm_reject">Respinge</string>
-    <string name="plugin_confirm_confirm">Confirmă</string>
-    <string name="plugin_updated_format">Actualizat: %1$s</string>
-    <string name="plugin_test_btn">Testează</string>
-    <string name="plugin_test_results">Rezultate test (%1$d fluxuri)</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Cine vizionează?</string>
@@ -676,7 +643,7 @@
     <string name="update_unknown_sources">Permite instalarea din surse necunoscute pentru a continua.</string>
     <!-- AccountScreen -->
     <string name="account_title">Cont</string>
-    <string name="account_sign_in_description">Conectează-te pentru a sincroniza biblioteca, progresul de vizionare, suplimentele și plugin-urile pe toate dispozitivele. Biblioteca și progresul de vizionare se sincronizează doar când Trakt nu este conectat.</string>
+    <string name="account_sign_in_description">Conectează-te pentru a sincroniza biblioteca, progresul de vizionare și suplimentele pe toate dispozitivele. Biblioteca și progresul de vizionare se sincronizează doar când Trakt nu este conectat.</string>
     <string name="account_sync_code_title">Cod de sincronizare</string>
     <string name="account_sync_code_description">Sincronizează pe dispozitive fără a crea un cont.</string>
     <string name="account_linked_devices">Dispozitive conectate (%1$d)</string>
@@ -706,11 +673,6 @@
     <string name="addon_confirm_total_addons">Total suplimente: %1$d</string>
     <string name="addon_confirm_total_catalogs">Total cataloage: %1$d</string>
     <string name="addon_catalogs_types">Cataloage: %1$d - Tipuri: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... și %1$d în plus</string>
-    <string name="plugin_providers_count">%1$d furnizori</string>
-    <string name="plugin_no_repos">Nu au fost adăugate încă depozite.\nAdăugați un depozit pentru a începe.</string>
 
     <!-- ProfileSettingsContent -->
 

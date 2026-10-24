@@ -451,9 +451,8 @@
     <string name="settings_profiles">Profilok</string>
     <string name="settings_layout">Elrendezés</string>
     <string name="settings_content_discovery">Tartalom és felfedezés</string>
-    <string name="settings_content_discovery_subtitle">Bővítmények, beépülő modulok, katalógusok és felfedezési források</string>
+    <string name="settings_content_discovery_subtitle">Bővítmények, katalógusok és felfedezési források</string>
     <string name="settings_content_discovery_addons_subtitle">Bővítmények, katalógussorrend és gyűjtemények kezelése</string>
-    <string name="settings_content_discovery_plugins_subtitle">Tárolók és streamszolgáltatók kezelése</string>
     <string name="settings_integration">Integrációk</string>
     <string name="settings_playback">Lejátszás</string>
     <string name="settings_tracking_title">Követés</string>
@@ -592,7 +591,6 @@
     <string name="settings_debug">Hibakeresés</string>
     <string name="settings_account_section_subtitle">Fiók és szinkronizálási állapot.</string>
     <string name="account_stat_addons">bővítmény</string>
-    <string name="account_stat_plugins">beépülő modul</string>
     <string name="account_stat_library">könyvtár</string>
     <string name="account_stat_progress">megtekintési állapot</string>
     <string name="account_stat_watched">megnézve</string>
@@ -842,27 +840,18 @@
     <string name="autoplay_threshold_pct_title">Százalékos küszöb</string>
     <string name="autoplay_threshold_pct_sub">Tartalék megoldás, ha a stáblista kezdete nem ismert.</string>
     <string name="autoplay_threshold_min_title">Időalapú küszöb (perc)</string>
-    <string name="autoplay_scope_all">Összes forrás</string>
-    <string name="autoplay_scope_addons">Csak a telepített bővítmények</string>
-    <string name="autoplay_scope_plugins">Csak az engedélyezett beépülő modulok</string>
-    <string name="autoplay_scope">Automatikus lejátszáshoz használható források</string>
     <string name="autoplay_timeout_title">Forrásválasztás időkorlátja</string>
     <string name="autoplay_timeout_sub">Várakozási idő a bővítményekre a kiválasztás előtt.</string>
     <string name="autoplay_timeout_instant">Azonnal</string>
     <string name="autoplay_timeout_unlimited">Korlátlan</string>
     <string name="autoplay_allowed_addons">Engedélyezett bővítmények</string>
     <string name="autoplay_all_addons">Minden telepített bővítmény</string>
-    <string name="autoplay_allowed_plugins">Engedélyezett beépülő modulok</string>
-    <string name="autoplay_all_plugins">Minden engedélyezett beépülő modul</string>
     <string name="autoplay_regex_placeholder">Nincs minta. Példa: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex minta</string>
     <string name="autoplay_no_items">Nincsenek elérhető elemek</string>
     <string name="autoplay_mode_manual_desc">Mindig jelenítse meg a források listáját a választáshoz.</string>
     <string name="autoplay_mode_first_desc">Az első elérhető forrás automatikus lejátszása.</string>
     <string name="autoplay_mode_regex_desc">Az első olyan forrás lejátszása, amelynek szövege illeszkedik a regex mintára.</string>
-    <string name="autoplay_scope_all_desc">Az automatikus lejátszás telepített bővítményeket és beépülő modulokat is használhat.</string>
-    <string name="autoplay_scope_addons_desc">Csak a telepített bővítményekből származó streameket veszi figyelembe.</string>
-    <string name="autoplay_scope_plugins_desc">Csak az engedélyezett beépülő modulokból származó streameket veszi figyelembe.</string>
     <string name="autoplay_threshold_pct_desc">Ha a stáblista kezdete nem ismert, a lejátszott százalék alapján ajánlja fel a következő epizódot.</string>
     <string name="autoplay_threshold_min_desc">Ha a stáblista kezdete nem ismert, ennyi perccel az epizód vége előtt ajánlja fel a következőt.</string>
     <string name="autoplay_regex_matches">Illeszkedik a stream nevére/címére/leírására/bővítményére/URL-jére. Példa: 4K|2160p|Remux</string>
@@ -1284,8 +1273,8 @@
     <string name="profile_copy_settings_apply">Alkalmazás</string>
     <string name="profile_copy_settings_credentials_off">API-kulcsok: másolás nélkül</string>
     <string name="profile_copy_settings_credentials_on">API-kulcsok: a hiányzók másolása</string>
-    <string name="profile_copy_settings_details">A meglévő API-kulcsok megmaradnak. Az OAuth-kapcsolatok, bővítmények, beépülő modulok, kezdőlapelrendezés, PIN-kód, előzmények, könyvtár, letöltések és eszközspecifikus beállítások nem változnak.</string>
-    <string name="profile_copy_settings_exclusions">Az OAuth-kapcsolatok, bővítmények, beépülő modulok, kezdőlapelrendezés, PIN-kód, előzmények, könyvtár, letöltések és eszközspecifikus beállítások nem változnak.</string>
+    <string name="profile_copy_settings_details">A meglévő API-kulcsok megmaradnak. Az OAuth-kapcsolatok, bővítmények, kezdőlapelrendezés, PIN-kód, előzmények, könyvtár, letöltések és eszközspecifikus beállítások nem változnak.</string>
+    <string name="profile_copy_settings_exclusions">Az OAuth-kapcsolatok, bővítmények, kezdőlapelrendezés, PIN-kód, előzmények, könyvtár, letöltések és eszközspecifikus beállítások nem változnak.</string>
     <string name="profile_copy_settings_success">Beállítások átmásolva: %1$s → %2$s.</string>
     <string name="profile_copy_settings_error">Nem sikerült átmásolni a beállításokat. Ellenőrizd a kapcsolatot, és próbáld újra.</string>
     <string name="profile_copy_settings_created_success">A profil létrejött. A beállítások forrása: %1$s.</string>
@@ -1728,7 +1717,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Betöltés\u2026</string>
-    <string name="account_sync_description">Könyvtár, megtekintési állapot, bővítmények és beépülő modulok szinkronizálása az eszközök között.</string>
+    <string name="account_sync_description">Könyvtár, megtekintési állapot és bővítmények szinkronizálása az eszközök között.</string>
     <string name="account_sync_restart_note">A szinkronizálás nem valós idejű az aktív eszközök között. Indítsd újra ezt az eszközt bejelentkezés után, vagy ha máshol végzett módosításokat szeretnél érvényesíteni.</string>
     <string name="account_signin_qr_title">Bejelentkezés QR-kóddal</string>
     <string name="account_signin_qr_subtitle">Olvasd be a QR-kódot, és jelentkezz be az e-mail címeddel a telefonodon</string>
@@ -1739,7 +1728,7 @@
     <string name="account_loading_sync">Szinkronizálási adatok betöltése\u2026</string>
     <string name="account_sign_out">Kijelentkezés</string>
     <string name="account_sign_out_confirm_title">Kijelentkezel?</string>
-    <string name="account_sign_out_confirm_subtitle">Újra be kell majd jelentkezned, hogy a könyvtár, a megtekintési állapot, a bővítmények és a beépülő modulok szinkronizálódjanak ezen az eszközön.</string>
+    <string name="account_sign_out_confirm_subtitle">Újra be kell majd jelentkezned, hogy a könyvtár, a megtekintési állapot és a bővítmények szinkronizálódjanak ezen az eszközön.</string>
     <string name="account_error_signin_required">Előbb jelentkezz be egy fiókkal.</string>
     <string name="account_signin_create_title">Bejelentkezés / Fiók létrehozása</string>
     <string name="account_signin_create_desc">Használd az e-mail címed és jelszavad a bejelentkezéshez vagy új fiók létrehozásához.</string>
@@ -1822,7 +1811,7 @@
 
     <string name="sync_claim_title">Eszköz összekapcsolása</string>
     <string name="sync_claim_subtitle">Add meg a másik eszközről származó szinkronizációs kódot és PIN-t az összekapcsoláshoz.</string>
-    <string name="sync_claim_success">Eszköz összekapcsolva! A bővítmények és beépülő modulok mostantól szinkronizálva lesznek.</string>
+    <string name="sync_claim_success">Eszköz összekapcsolva! A bővítmények mostantól szinkronizálva lesznek.</string>
     <string name="sync_claim_done">Kész</string>
     <string name="sync_claim_code_label">Szinkronizációs kód</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1830,48 +1819,6 @@
     <string name="sync_claim_pin_placeholder">PIN megadása</string>
     <string name="sync_claim_linking">Összekapcsolás\u2026</string>
 
-    <string name="plugin_readonly_notice">Az elsődleges profil beépülő moduljait használod – ezek nem módosíthatók</string>
-    <string name="plugin_repositories_section">Tárolók (%1$d)</string>
-    <string name="plugin_providers_section">Szolgáltatók (%1$d)</string>
-    <string name="plugin_title">Beépülő modulok</string>
-    <string name="plugin_enable_plugins_title">Beépülő szolgáltatók globális engedélyezése</string>
-    <string name="plugin_enable_plugins_subtitle">Beépülő szolgáltatók használata a streamek felfedezése során</string>
-    <string name="plugin_group_by_repository_title">Beépülő szolgáltatók csoportosítása tároló szerint</string>
-    <string name="plugin_group_by_repository_subtitle">A Streamekben tárolónként egy szolgáltató megjelenítése forrásonként egy helyett</string>
-    <string name="plugin_add_repository">Tároló hozzáadása</string>
-    <string name="plugin_add_btn">Hozzáadás</string>
-    <string name="plugin_manage_from_phone_title">Kezelés telefonról</string>
-    <string name="plugin_manage_from_phone_subtitle">Olvasd be a QR-kódot tárolók telefonos hozzáadásához vagy eltávolításához</string>
-    <string name="plugin_qr_instruction">Olvasd be a telefonoddal a tárolók kezeléséhez</string>
-    <string name="plugin_qr_close">Bezárás</string>
-    <string name="plugin_confirm_title">Tárolómódosítások megerősítése</string>
-    <string name="plugin_confirm_subtitle">A következő módosítások történtek a telefonról:</string>
-    <string name="plugin_confirm_added">Hozzáadva:</string>
-    <string name="plugin_confirm_removed">Eltávolítva:</string>
-    <string name="plugin_confirm_no_changes">Nem történt változás</string>
-    <string name="plugin_confirm_total">Összes tároló: %1$d</string>
-    <string name="plugin_confirm_reject">Elvetés</string>
-    <string name="plugin_confirm_confirm">Megerősítés</string>
-    <string name="plugin_url_or_short_code_placeholder">URL vagy rövid kód</string>
-    <string name="plugin_diagnostics_collapse">Diagnosztika (kattints az összecsukáshoz)</string>
-    <string name="plugin_diagnostics_expand">Diagnosztika (kattints a kibontáshoz)</string>
-    <string name="plugin_risky_enable_title">Engedélyezed a szolgáltatót?</string>
-    <string name="plugin_risky_enable_message">Ez a szolgáltató (%1$s) egyes tartalmaknál ismerten összeomlást okozhat. Mégis engedélyezed?</string>
-    <string name="plugin_risky_enable_cancel">Mégse</string>
-    <string name="plugin_risky_enable_confirm">Engedélyezés</string>
-    <string name="plugin_updated_format">Frissítve: %1$s</string>
-    <string name="plugin_test_btn">Tesztelés</string>
-    <string name="plugin_test_results">Teszteredmények (%1$d forrás)</string>
-    <string name="plugin_and_more">\u2026 és még %1$d</string>
-    <string name="plugin_providers_count">%1$d szolgáltató</string>
-    <string name="plugin_no_repos">Még nincsenek hozzáadott tárolók.\nA kezdéshez adj hozzá egyet.</string>
-    <string name="plugin_error_invalid_url">Kérlek, adj meg egy érvényes URL-t</string>
-    <string name="plugin_error_add_repo">Nem sikerült hozzáadni a tárolót: %1$s</string>
-    <string name="plugin_error_refresh">Nem sikerült a frissítés: %1$s</string>
-    <string name="plugin_error_test">A teszt sikertelen: %1$s</string>
-    <string name="plugin_test_no_results">Nincs találat</string>
-    <string name="plugin_test_found_streams">Találat: %1$d forrás</string>
-    <string name="plugin_version">Verzió: %1$s</string>
 
     <string name="profile_selection_title">Ki nézi?</string>
     <string name="profile_selection_subtitle">Válassz egy profilt a folytatáshoz</string>
@@ -1909,7 +1856,7 @@
     <string name="update_unknown_sources">A folytatáshoz engedélyezd a telepítést ismeretlen forrásokból.</string>
     <!-- AccountScreen -->
     <string name="account_title">Fiók</string>
-    <string name="account_sign_in_description">Jelentkezz be a könyvtár, a megtekintési állapot, a bővítmények és a beépülő modulok eszközök közötti szinkronizálásához. Ha a Trakt nincs csatlakoztatva, a könyvtár szinkronizálásához a Fetch Sync használható. A megtekintési állapothoz a Traktot és a Fetch Syncet is választhatod.</string>
+    <string name="account_sign_in_description">Jelentkezz be a könyvtár, a megtekintési állapot és a bővítmények eszközök közötti szinkronizálásához. Ha a Trakt nincs csatlakoztatva, a könyvtár szinkronizálásához a Fetch Sync használható. A megtekintési állapothoz a Traktot és a Fetch Syncet is választhatod.</string>
     <string name="account_sync_code_title">Szinkronizációs kód</string>
     <string name="account_sync_code_description">Szinkronizálás az eszközök között fiók létrehozása nélkül.</string>
     <string name="account_linked_devices">Összekapcsolt eszközök (%1$d)</string>
@@ -1937,8 +1884,6 @@
     <string name="discover_empty_no_content_subtitle">Próbálkozz másik műfajjal vagy katalógussal</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1986,11 +1931,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">A funkció használatához Wi-Fi vagy Ethernet kapcsolat szükséges</string>
     <string name="error_server_ports_unavailable">Nem sikerült elindítani a szervert. Minden port foglalt.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">Hozzáadva: %1$s, %2$d szolgáltatóval</string>
-    <string name="plugin_repo_removed">Tároló eltávolítva</string>
-    <string name="plugin_repo_refreshed">Tároló frissítve</string>
 
     <!-- Trakt errors -->
 
@@ -2063,7 +2003,6 @@
     <string name="cd_refresh">Frissítés</string>
     <string name="cd_remove">Eltávolítás</string>
     <string name="cd_preview">Előnézet</string>
-    <string name="cd_test">Tesztelés</string>
     <string name="cd_unlink">Leválasztás</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logó</string>

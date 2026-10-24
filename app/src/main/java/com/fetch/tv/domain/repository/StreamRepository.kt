@@ -7,15 +7,12 @@ import com.fetch.tv.domain.model.Stream
 import kotlinx.coroutines.flow.Flow
 
 interface StreamRepository {
-    /** Suspends local plugin work while playback owns the device, then resumes the same search. */
-    fun setLocalPluginSearchPaused(paused: Boolean)
-
     /**
      * Fetches streams from all installed addons for a given video ID
      * @param type The content type (movie, series, etc.)
      * @param videoId The video ID (for movies: IMDB ID, for series: IMDB_ID:season:episode)
-     * @param season Optional season number for TV shows (used by local plugins)
-     * @param episode Optional episode number for TV shows (used by local plugins)
+     * @param season Optional season number for TV shows (used by media servers)
+     * @param episode Optional episode number for TV shows (used by media servers)
      * @return Flow of AddonStreams grouped by addon
      */
     fun getStreamsFromAllAddons(

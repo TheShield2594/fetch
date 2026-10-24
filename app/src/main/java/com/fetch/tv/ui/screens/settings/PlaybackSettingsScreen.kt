@@ -74,7 +74,6 @@ fun PlaybackSettingsContent(
         cacheClearEnabled = torrentCacheClearAvailable
     )
     val installedAddonNames by viewModel.installedAddonNames.collectAsStateWithLifecycle(initialValue = emptyList())
-    val enabledPluginNames by viewModel.enabledPluginNames.collectAsStateWithLifecycle(initialValue = emptyList())
     val coroutineScope = rememberCoroutineScope()
     var openDialog by remember { mutableStateOf<PlaybackDialog?>(null) }
     var memoryUsageTrigger by remember { mutableIntStateOf(0) }
@@ -142,7 +141,6 @@ fun PlaybackSettingsContent(
         settings = playerSettings,
         p2p = p2p,
         installedAddonNames = installedAddonNames,
-        enabledPluginNames = enabledPluginNames,
         onUpdate = onUpdate,
         onDismiss = { openDialog = null }
     )

@@ -288,9 +288,8 @@
     <string name="settings_profiles">Профили</string>
     <string name="settings_layout">Интерфейс</string>
     <string name="settings_content_discovery">Контент и поиск</string>
-    <string name="settings_content_discovery_subtitle">Аддоны, плагины, каталоги и источники поиска контента</string>
+    <string name="settings_content_discovery_subtitle">Аддоны, каталоги и источники поиска контента</string>
     <string name="settings_content_discovery_addons_subtitle">Управление аддонами, порядком каталогов и коллекциями</string>
-    <string name="settings_content_discovery_plugins_subtitle">Управление репозиториями и провайдерами потоков</string>
     <string name="settings_integration">Интеграции</string>
     <string name="settings_playback">Воспроизведение</string>
     <string name="settings_tracking_title">Отслеживание</string>
@@ -337,7 +336,6 @@
     <string name="settings_debug">Отладка</string>
     <string name="settings_account_section_subtitle">Аккаунт и статус синхронизации</string>
     <string name="account_stat_addons">аддоны</string>
-    <string name="account_stat_plugins">плагины</string>
     <string name="account_stat_library">библиотека</string>
     <string name="account_stat_progress">прогресс</string>
     <string name="account_stat_watched">просмотрено</string>
@@ -489,27 +487,18 @@
     <string name="autoplay_threshold_pct_title">Пороговый процент</string>
     <string name="autoplay_threshold_pct_sub">Резервный вариант, когда нет таймкода окончания (outro).</string>
     <string name="autoplay_threshold_min_title">Пороговые минуты</string>
-    <string name="autoplay_scope_all">Все источники</string>
-    <string name="autoplay_scope_addons">Только установленные аддоны</string>
-    <string name="autoplay_scope_plugins">Только включенные плагины</string>
-    <string name="autoplay_scope">Область поиска автовоспроизведения</string>
     <string name="autoplay_timeout_title">Таймаут выбора потока</string>
     <string name="autoplay_timeout_sub">Время ожидания аддонов перед выбором.</string>
     <string name="autoplay_timeout_instant">Мгновенно</string>
     <string name="autoplay_timeout_unlimited">Неограниченно</string>
     <string name="autoplay_allowed_addons">Разрешенные аддоны</string>
     <string name="autoplay_all_addons">Все установленные аддоны</string>
-    <string name="autoplay_allowed_plugins">Разрешенные плагины</string>
-    <string name="autoplay_all_plugins">Все включенные плагины</string>
     <string name="autoplay_regex_placeholder">Паттерн не задан. Пример: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex паттерн</string>
     <string name="autoplay_no_items">Нет доступных элементов</string>
     <string name="autoplay_mode_manual_desc">Всегда показывать список источников для выбора.</string>
     <string name="autoplay_mode_first_desc">Автоматически воспроизводить первый доступный источник.</string>
     <string name="autoplay_mode_regex_desc">Воспроизводить первый источник, текст которого совпадает с вашим паттерном Regex.</string>
-    <string name="autoplay_scope_all_desc">Автовоспроизведение может использовать как установленные аддоны, так и включенные плагины.</string>
-    <string name="autoplay_scope_addons_desc">Автовоспроизведение учитывает только потоки из ваших установленных аддонов.</string>
-    <string name="autoplay_scope_plugins_desc">Автовоспроизведение учитывает только потоки из включенных плагинов.</string>
     <string name="autoplay_threshold_pct_desc">Показывать по проценту воспроизведения, когда нет таймкода окончания.</string>
     <string name="autoplay_threshold_min_desc">Показывать за столько минут до конца эпизода, когда нет таймкода окончания.</string>
     <string name="autoplay_regex_matches">Сопоставляется с названием потока/описанием/аддоном/url. Пример: 4K|2160p|Remux</string>
@@ -774,8 +763,8 @@
     <string name="profile_copy_settings_apply">Применить</string>
     <string name="profile_copy_settings_credentials_off">API-ключи: не копировать</string>
     <string name="profile_copy_settings_credentials_on">API-ключи: копировать отсутствующие ключи</string>
-    <string name="profile_copy_settings_details">Существующие API-ключи сохраняются. OAuth, аддоны, плагины, макет главного экрана, PIN-код, история, библиотека, загрузки и настройки, специфичные для устройства, остаются без изменений.</string>
-    <string name="profile_copy_settings_exclusions">OAuth, аддоны, плагины, макет главного экрана, PIN-код, история, библиотека, загрузки и настройки, специфичные для устройства, остаются без изменений.</string>
+    <string name="profile_copy_settings_details">Существующие API-ключи сохраняются. OAuth, аддоны, макет главного экрана, PIN-код, история, библиотека, загрузки и настройки, специфичные для устройства, остаются без изменений.</string>
+    <string name="profile_copy_settings_exclusions">OAuth, аддоны, макет главного экрана, PIN-код, история, библиотека, загрузки и настройки, специфичные для устройства, остаются без изменений.</string>
     <string name="profile_copy_settings_success">Настройки скопированы из %1$s в %2$s.</string>
     <string name="profile_copy_settings_error">Не удалось скопировать настройки. Проверьте подключение и попробуйте ещё раз.</string>
     <string name="profile_copy_settings_created_success">Профиль создан с настройками из %1$s.</string>
@@ -1101,7 +1090,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Загрузка\u2026</string>
-    <string name="account_sync_description">Синхронизируйте вашу библиотеку, прогресс просмотра, аддоны и плагины между устройствами.</string>
+    <string name="account_sync_description">Синхронизируйте вашу библиотеку, прогресс просмотра и аддоны между устройствами.</string>
     <string name="account_sync_restart_note">Синхронизация не происходит в реальном времени на активных устройствах. Перезагрузите это устройство после входа в систему или чтобы получить изменения, сделанные в другом месте.</string>
     <string name="account_signin_qr_title">Вход по QR</string>
     <string name="account_signin_qr_subtitle">Отсканируйте QR-код и завершите вход через email на вашем телефоне</string>
@@ -1112,7 +1101,7 @@
     <string name="account_loading_sync">Загрузка данных синхронизации\u2026</string>
     <string name="account_sign_out">Выйти</string>
     <string name="account_sign_out_confirm_title">Выйти из аккаунта?</string>
-    <string name="account_sign_out_confirm_subtitle">Вам потребуется снова войти в аккаунт, чтобы синхронизировать библиотеку, прогресс просмотра, аддоны и плагины на этом устройстве.</string>
+    <string name="account_sign_out_confirm_subtitle">Вам потребуется снова войти в аккаунт, чтобы синхронизировать библиотеку, прогресс просмотра и аддоны на этом устройстве.</string>
 
     <!-- AuthSignInScreen -->
     <string name="auth_signin_title">Войти</string>
@@ -1189,39 +1178,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">Связать устройство</string>
     <string name="sync_claim_subtitle">Введите код синхронизации и PIN-код с другого устройства, чтобы привязать это устройство.</string>
-    <string name="sync_claim_success">Устройство успешно связано! Ваши аддоны и плагины теперь будут синхронизироваться.</string>
+    <string name="sync_claim_success">Устройство успешно связано! Ваши аддоны теперь будут синхронизироваться.</string>
     <string name="sync_claim_done">Готово</string>
     <string name="sync_claim_code_label">Код синхронизации</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">Введите PIN</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Используются плагины основного профиля, их нельзя изменить</string>
-    <string name="plugin_repositories_section">Репозитории (%1$d)</string>
-    <string name="plugin_providers_section">Провайдеры (%1$d)</string>
-    <string name="plugin_title">Плагины</string>
-    <string name="plugin_add_repository">Добавить репозиторий</string>
-    <string name="plugin_add_btn">Добавить</string>
-    <string name="plugin_manage_from_phone_title">Управлять с телефона</string>
-    <string name="plugin_manage_from_phone_subtitle">Отсканируйте QR-код для добавления или удаления репозиториев с вашего телефона</string>
-    <string name="plugin_qr_instruction">Отсканируйте с помощью телефона для управления репозиториями</string>
-    <string name="plugin_qr_close">Закрыть</string>
-    <string name="plugin_confirm_title">Подтвердить изменения репозиториев</string>
-    <string name="plugin_confirm_subtitle">С вашего телефона были сделаны следующие изменения:</string>
-    <string name="plugin_confirm_added">Добавлено:</string>
-    <string name="plugin_confirm_removed">Удалено:</string>
-    <string name="plugin_confirm_no_changes">Изменений не обнаружено</string>
-    <string name="plugin_confirm_total">Всего репозиториев: %1$d</string>
-    <string name="plugin_confirm_reject">Отклонить</string>
-    <string name="plugin_confirm_confirm">Подтвердить</string>
-    <string name="plugin_risky_enable_title">Включить провайдер?</string>
-    <string name="plugin_risky_enable_message">%1$s известен тем, что вызывает сбои на некотором контенте. Все равно включить?</string>
-    <string name="plugin_risky_enable_cancel">Отмена</string>
-    <string name="plugin_risky_enable_confirm">Включить</string>
-    <string name="plugin_updated_format">Обновлено: %1$s</string>
-    <string name="plugin_test_btn">Тест</string>
-    <string name="plugin_test_results">Результаты теста (%1$d потоков)</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Кто смотрит?</string>
@@ -1264,7 +1226,7 @@
     <string name="update_unknown_sources">Разрешите установку из неизвестных источников для продолжения.</string>
     <!-- AccountScreen -->
     <string name="account_title">Аккаунт</string>
-    <string name="account_sign_in_description">Войдите, чтобы синхронизировать вашу библиотеку, прогресс, аддоны и плагины между устройствами. Синхронизация библиотеки использует Fetch Sync, когда Trakt не подключен, а для прогресса просмотра можно использовать Trakt или Fetch Sync.</string>
+    <string name="account_sign_in_description">Войдите, чтобы синхронизировать вашу библиотеку, прогресс и аддоны между устройствами. Синхронизация библиотеки использует Fetch Sync, когда Trakt не подключен, а для прогресса просмотра можно использовать Trakt или Fetch Sync.</string>
     <string name="account_sync_code_title">Код синхронизации</string>
     <string name="account_sync_code_description">Синхронизируйтесь между устройствами без создания аккаунта.</string>
     <string name="account_linked_devices">Связанные устройства (%1$d)</string>
@@ -1295,11 +1257,6 @@
     <string name="addon_confirm_total_addons">Всего аддонов: %1$d</string>
     <string name="addon_confirm_total_catalogs">Всего каталогов: %1$d</string>
     <string name="addon_catalogs_types">Каталоги: %1$d - Типы: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... и еще %1$d</string>
-    <string name="plugin_providers_count">%1$d провайдеров</string>
-    <string name="plugin_no_repos">Репозитории еще не добавлены.\nДобавьте репозиторий для начала работы.</string>
 
     <!-- ProfileSettingsContent -->
 
@@ -1357,14 +1314,6 @@
     <string name="error_network_required">Подключитесь к Wi-Fi или Ethernet, чтобы использовать эту функцию</string>
     <string name="error_server_ports_unavailable">Не удалось запустить сервер. Все порты заняты.</string>
 
-    <!-- Plugin errors -->
-    <string name="plugin_error_invalid_url">Пожалуйста, введите действительный URL</string>
-    <string name="plugin_error_add_repo">Не удалось добавить репозиторий: %1$s</string>
-    <string name="plugin_error_refresh">Не удалось обновить: %1$s</string>
-    <string name="plugin_error_test">Тест не пройден: %1$s</string>
-    <string name="plugin_test_no_results">Нет результатов</string>
-    <string name="plugin_test_found_streams">Найдено %1$d потоков</string>
-
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Код устройства устарел. Начните заново.</string>
     <string name="trakt_error_code_used">Код устройства уже использован. Начните заново.</string>
@@ -1387,7 +1336,6 @@
     <string name="subtitle_style_weight">Вес</string>
 
     <!-- Plugin screen -->
-    <string name="plugin_version">Версия %1$s</string>
 
     <!-- Stream screen -->
     <string name="stream_episode_label">С%1$d Э%2$d</string>
@@ -1423,7 +1371,6 @@
     <string name="cd_refresh">Обновить</string>
     <string name="cd_remove">Удалить</string>
     <string name="cd_preview">Предпросмотр</string>
-    <string name="cd_test">Тест</string>
     <string name="cd_unlink">Отвязать</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Логотип Trakt</string>
@@ -1968,21 +1915,11 @@
     <string name="library_empty_simkl_not_auth_title">Simkl не подключён</string>
     <string name="library_empty_simkl_not_auth_subtitle">Подключите аккаунт Simkl в настройках, чтобы увидеть библиотеку Simkl</string>
     <!-- Batch 8: plugin, nav, update errors, trakt errors, general errors, collections -->
-    <string name="plugin_enable_plugins_title">Включить плагины глобально</string>
-    <string name="plugin_enable_plugins_subtitle">Использовать плагины при поиске потоков</string>
-    <string name="plugin_group_by_repository_title">Группировать плагины по репозиторию</string>
-    <string name="plugin_group_by_repository_subtitle">В Потоках показывать одного провайдера на репозиторий, а не на источник</string>
-    <string name="plugin_url_or_short_code_placeholder">URL или короткий код</string>
-    <string name="plugin_diagnostics_collapse">Диагностика (нажмите для сворачивания)</string>
-    <string name="plugin_diagnostics_expand">Диагностика (нажмите для разворачивания)</string>
     <string name="action_select">Выбрать</string>
     <string name="update_error_check_failed">Проверка обновлений не удалась</string>
     <string name="update_error_download_failed">Загрузка не удалась</string>
     <string name="update_error_apk_missing">Загруженный файл отсутствует</string>
     <string name="profile_pin_current_required">У этого профиля уже есть PIN. Введите текущий PIN для изменения.</string>
-    <string name="plugin_repo_added_with_providers">Добавлен %1$s с %2$d провайдерами</string>
-    <string name="plugin_repo_removed">Репозиторий удалён</string>
-    <string name="plugin_repo_refreshed">Репозиторий обновлён</string>
     <string name="trakt_error_missing_credentials">Отсутствуют учётные данные Trakt</string>
     <string name="trakt_error_network_retry">Ошибка сети, попробуйте ещё раз</string>
     <string name="trakt_error_network_will_retry">Ошибка сети, повтор...</string>

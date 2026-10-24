@@ -19,7 +19,7 @@ import java.io.IOException
  * Reuses Fetch's existing OkHttp client and connection pool, but uses OkHttp's
  * asynchronous API so cancelling an AutoSync coroutine immediately cancels the
  * underlying network call. This deliberately does not modify Fetch's shared
- * httpRequestRaw() behavior used by plugins and other features.
+ * httpRequestRaw() behavior used by other features.
  */
 internal object AutoSyncSubtitleHttp {
     private const val READ_BUFFER_BYTES = 32 * 1024

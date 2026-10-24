@@ -2,7 +2,6 @@ package com.fetch.tv.core.streams
 
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.Meta
-import com.fetch.tv.domain.model.ScraperInfo
 import com.fetch.tv.domain.model.Video
 
 internal fun Addon.supportsStreamResource(type: String, videoId: String): Boolean =
@@ -21,7 +20,6 @@ internal fun Addon.supportsResource(name: String, type: String, id: String): Boo
 
 internal data class PlaybackAvailability(
     val addons: List<Addon> = emptyList(),
-    val scrapers: List<ScraperInfo> = emptyList(),
     val isLoaded: Boolean = false,
     private val cachedMeta: (String, String) -> Meta? = { _, _ -> null },
     private val serverStreams: (String, String) -> Boolean = { _, _ -> false }
@@ -34,7 +32,6 @@ internal data class PlaybackAvailability(
     ): Boolean = video?.takeIf { it.id == videoId }?.streams?.isNotEmpty() == true ||
         cachedMeta(type, contentId)?.videos?.any { it.id == videoId && it.streams.isNotEmpty() } == true ||
         addons.any { it.enabled && it.supportsStreamResource(type, videoId) } ||
-        scrapers.any { it.enabled && it.supportsType(type) } ||
         serverStreams(type, videoId) ||
         canFetchEmbeddedStreams(type, videoId, contentId)
 

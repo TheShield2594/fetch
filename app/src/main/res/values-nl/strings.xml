@@ -420,9 +420,8 @@
     <string name="settings_profiles">Profielen</string>
     <string name="settings_layout">Indeling</string>
     <string name="settings_content_discovery">Inhoud &amp; ontdekken</string>
-    <string name="settings_content_discovery_subtitle">Add-ons, plug-ins, catalogi en ontdekkingsbronnen</string>
+    <string name="settings_content_discovery_subtitle">Add-ons, catalogi en ontdekkingsbronnen</string>
     <string name="settings_content_discovery_addons_subtitle">Beheer add-ons, catalogusvolgorde en collecties</string>
-    <string name="settings_content_discovery_plugins_subtitle">Beheer repositories en streamproviders</string>
     <string name="settings_integration">Integraties</string>
     <string name="settings_playback">Afspelen</string>
     <string name="settings_tracking_title">Tracking</string>
@@ -557,7 +556,6 @@
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Account- en synchronisatiestatus</string>
     <string name="account_stat_addons">add-ons</string>
-    <string name="account_stat_plugins">plug-ins</string>
     <string name="account_stat_library">bibliotheek</string>
     <string name="account_stat_progress">voortgang</string>
     <string name="account_stat_watched">bekeken</string>
@@ -764,27 +762,18 @@
     <string name="autoplay_threshold_pct_title">Drempelpercentage</string>
     <string name="autoplay_threshold_pct_sub">Terugval wanneer geen outro-tijdstempel beschikbaar is.</string>
     <string name="autoplay_threshold_min_title">Drempel in minuten</string>
-    <string name="autoplay_scope_all">Alle bronnen</string>
-    <string name="autoplay_scope_addons">Alleen geïnstalleerde add-ons</string>
-    <string name="autoplay_scope_plugins">Alleen ingeschakelde plug-ins</string>
-    <string name="autoplay_scope">Bereik automatische bronselectie</string>
     <string name="autoplay_timeout_title">Time-out voor streamselectie</string>
     <string name="autoplay_timeout_sub">Wachttijd voor add-ons voordat er wordt geselecteerd.</string>
     <string name="autoplay_timeout_instant">Direct</string>
     <string name="autoplay_timeout_unlimited">Onbeperkt</string>
     <string name="autoplay_allowed_addons">Toegestane add-ons</string>
     <string name="autoplay_all_addons">Alle geïnstalleerde add-ons</string>
-    <string name="autoplay_allowed_plugins">Toegestane plug-ins</string>
-    <string name="autoplay_all_plugins">Alle ingeschakelde plug-ins</string>
     <string name="autoplay_regex_placeholder">Geen patroon ingesteld. Voorbeeld: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex-patroon</string>
     <string name="autoplay_no_items">Geen items beschikbaar</string>
     <string name="autoplay_mode_manual_desc">Toon altijd de bronnenlijst en laat mij kiezen.</string>
     <string name="autoplay_mode_first_desc">Speel automatisch de eerste beschikbare bron af.</string>
     <string name="autoplay_mode_regex_desc">Speel de eerste bron af waarvan de tekst overeenkomt met je regex-patroon.</string>
-    <string name="autoplay_scope_all_desc">Automatisch afspelen kan zowel geïnstalleerde add-ons als ingeschakelde plug-ins gebruiken.</string>
-    <string name="autoplay_scope_addons_desc">Automatisch afspelen gebruikt alleen streams van geïnstalleerde add-ons.</string>
-    <string name="autoplay_scope_plugins_desc">Automatisch afspelen gebruikt alleen streams van ingeschakelde plug-ins.</string>
     <string name="autoplay_threshold_pct_desc">Toon op basis van afspeelpercentage wanneer geen outro-tijdstempel beschikbaar is.</string>
     <string name="autoplay_threshold_min_desc">Toon dit aantal minuten vóór het einde wanneer geen outro-tijdstempel beschikbaar is.</string>
     <string name="autoplay_regex_matches">Matcht op streamnaam/titel/beschrijving/add-on/url. Voorbeeld: 4K|2160p|Remux</string>
@@ -1130,8 +1119,8 @@
     <string name="profile_copy_settings_apply">Toepassen</string>
     <string name="profile_copy_settings_credentials_off">API-sleutels: niet kopiëren</string>
     <string name="profile_copy_settings_credentials_on">API-sleutels: ontbrekende sleutels kopiëren</string>
-    <string name="profile_copy_settings_details">Bestaande API-sleutels blijven behouden. OAuth, add-ons, plug-ins, startindeling, pincode, geschiedenis, bibliotheek, downloads en apparaatspecifieke instellingen blijven ongewijzigd.</string>
-    <string name="profile_copy_settings_exclusions">OAuth, add-ons, plug-ins, startindeling, pincode, geschiedenis, bibliotheek, downloads en apparaatspecifieke instellingen blijven ongewijzigd.</string>
+    <string name="profile_copy_settings_details">Bestaande API-sleutels blijven behouden. OAuth, add-ons, startindeling, pincode, geschiedenis, bibliotheek, downloads en apparaatspecifieke instellingen blijven ongewijzigd.</string>
+    <string name="profile_copy_settings_exclusions">OAuth, add-ons, startindeling, pincode, geschiedenis, bibliotheek, downloads en apparaatspecifieke instellingen blijven ongewijzigd.</string>
     <string name="profile_copy_settings_success">Instellingen gekopieerd van %1$s naar %2$s.</string>
     <string name="profile_copy_settings_error">Kon de instellingen niet kopiëren. Controleer je verbinding en probeer het opnieuw.</string>
     <string name="profile_copy_settings_created_success">Profiel gemaakt met instellingen van %1$s.</string>
@@ -1548,7 +1537,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Laden\u2026</string>
-    <string name="account_sync_description">Synchroniseer je bibliotheek, kijkvoortgang, add-ons en plug-ins op al je apparaten.</string>
+    <string name="account_sync_description">Synchroniseer je bibliotheek, kijkvoortgang en add-ons op al je apparaten.</string>
     <string name="account_sync_restart_note">Synchronisatie verloopt niet in realtime tussen actieve apparaten. Start dit apparaat opnieuw op na het aanmelden of om wijzigingen van elders over te nemen.</string>
     <string name="account_signin_qr_title">Aanmelden met QR</string>
     <string name="account_signin_qr_subtitle">Scan een QR-code en voltooi het aanmelden met je e-mailadres op je telefoon</string>
@@ -1559,7 +1548,7 @@
     <string name="account_loading_sync">Synchronisatiegegevens laden\u2026</string>
     <string name="account_sign_out">Afmelden</string>
     <string name="account_sign_out_confirm_title">Afmelden?</string>
-    <string name="account_sign_out_confirm_subtitle">Je moet je opnieuw aanmelden om je bibliotheek, kijkvoortgang, add-ons en plug-ins op dit apparaat te synchroniseren.</string>
+    <string name="account_sign_out_confirm_subtitle">Je moet je opnieuw aanmelden om je bibliotheek, kijkvoortgang en add-ons op dit apparaat te synchroniseren.</string>
     <string name="account_error_signin_required">Meld je eerst aan met een account.</string>
     <string name="account_signin_create_title">Aanmelden / account maken</string>
     <string name="account_signin_create_desc">Gebruik e-mailadres en wachtwoord om een account te maken of je aan te melden.</string>
@@ -1642,7 +1631,7 @@
 
     <string name="sync_claim_title">Apparaat koppelen</string>
     <string name="sync_claim_subtitle">Voer de synchronisatiecode en pincode van je andere apparaat in om dit apparaat te koppelen.</string>
-    <string name="sync_claim_success">Apparaat succesvol gekoppeld! Je add-ons en plug-ins worden nu gesynchroniseerd.</string>
+    <string name="sync_claim_success">Apparaat succesvol gekoppeld! Je add-ons worden nu gesynchroniseerd.</string>
     <string name="sync_claim_done">Klaar</string>
     <string name="sync_claim_code_label">Synchronisatiecode</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1650,48 +1639,6 @@
     <string name="sync_claim_pin_placeholder">Voer pincode in</string>
     <string name="sync_claim_linking">Koppelen\u2026</string>
 
-    <string name="plugin_readonly_notice">Gebruikt plug-ins van het primaire profiel en kan niet worden gewijzigd</string>
-    <string name="plugin_repositories_section">Repositories (%1$d)</string>
-    <string name="plugin_providers_section">Providers (%1$d)</string>
-    <string name="plugin_title">Plug-ins</string>
-    <string name="plugin_enable_plugins_title">Plug-inproviders overal inschakelen</string>
-    <string name="plugin_enable_plugins_subtitle">Gebruik plug-inproviders tijdens het zoeken naar streams</string>
-    <string name="plugin_group_by_repository_title">Plug-inproviders groeperen per repository</string>
-    <string name="plugin_group_by_repository_subtitle">Toon bij Streams één provider per repository in plaats van één per bron</string>
-    <string name="plugin_add_repository">Repository toevoegen</string>
-    <string name="plugin_add_btn">Toevoegen</string>
-    <string name="plugin_manage_from_phone_title">Beheren via telefoon</string>
-    <string name="plugin_manage_from_phone_subtitle">Scan een QR-code om repositories vanaf je telefoon toe te voegen of te verwijderen</string>
-    <string name="plugin_qr_instruction">Scan met je telefoon om repositories te beheren</string>
-    <string name="plugin_qr_close">Sluiten</string>
-    <string name="plugin_confirm_title">Wijzigingen in repositories bevestigen</string>
-    <string name="plugin_confirm_subtitle">De volgende wijzigingen zijn via je telefoon aangebracht:</string>
-    <string name="plugin_confirm_added">Toegevoegd:</string>
-    <string name="plugin_confirm_removed">Verwijderd:</string>
-    <string name="plugin_confirm_no_changes">Geen wijzigingen gedetecteerd</string>
-    <string name="plugin_confirm_total">Totaal repositories: %1$d</string>
-    <string name="plugin_confirm_reject">Weigeren</string>
-    <string name="plugin_confirm_confirm">Bevestigen</string>
-    <string name="plugin_url_or_short_code_placeholder">URL of korte code</string>
-    <string name="plugin_diagnostics_collapse">Diagnostiek (tik om samen te vouwen)</string>
-    <string name="plugin_diagnostics_expand">Diagnostiek (tik om uit te vouwen)</string>
-    <string name="plugin_risky_enable_title">Provider inschakelen?</string>
-    <string name="plugin_risky_enable_message">Het is bekend dat %1$s bij bepaalde inhoud crashes veroorzaakt. Toch inschakelen?</string>
-    <string name="plugin_risky_enable_cancel">Annuleren</string>
-    <string name="plugin_risky_enable_confirm">Inschakelen</string>
-    <string name="plugin_updated_format">Bijgewerkt: %1$s</string>
-    <string name="plugin_test_btn">Test</string>
-    <string name="plugin_test_results">Testresultaten (%1$d streams)</string>
-    <string name="plugin_and_more">... en %1$d meer</string>
-    <string name="plugin_providers_count">%1$d providers</string>
-    <string name="plugin_no_repos">Nog geen repositories toegevoegd.\nVoeg een repository toe om te beginnen.</string>
-    <string name="plugin_error_invalid_url">Voer een geldige URL in</string>
-    <string name="plugin_error_add_repo">Kon de repository niet toevoegen: %1$s</string>
-    <string name="plugin_error_refresh">Vernieuwen mislukt: %1$s</string>
-    <string name="plugin_error_test">Test mislukt: %1$s</string>
-    <string name="plugin_test_no_results">Geen resultaten gevonden</string>
-    <string name="plugin_test_found_streams">%1$d streams gevonden</string>
-    <string name="plugin_version">Versie %1$s</string>
 
     <string name="profile_selection_title">Wie kijkt er?</string>
     <string name="profile_selection_subtitle">Selecteer een profiel om verder te gaan</string>
@@ -1729,7 +1676,7 @@
     <string name="update_unknown_sources">Sta installaties van onbekende bronnen toe om door te gaan.</string>
     <!-- AccountScreen -->
     <string name="account_title">Account</string>
-    <string name="account_sign_in_description">Meld je aan om je bibliotheek, kijkvoortgang, add-ons en plug-ins op al je apparaten te synchroniseren. Bibliotheeksynchronisatie gebruikt Fetch Sync wanneer Trakt niet is verbonden. Voor kijkvoortgang kan Trakt of Fetch Sync worden gebruikt.</string>
+    <string name="account_sign_in_description">Meld je aan om je bibliotheek, kijkvoortgang en add-ons op al je apparaten te synchroniseren. Bibliotheeksynchronisatie gebruikt Fetch Sync wanneer Trakt niet is verbonden. Voor kijkvoortgang kan Trakt of Fetch Sync worden gebruikt.</string>
     <string name="account_sync_code_title">Synchronisatiecode</string>
     <string name="account_sync_code_description">Synchroniseer apparaten zonder account aan te maken.</string>
     <string name="account_linked_devices">Verbonden apparaten (%1$d)</string>
@@ -1757,8 +1704,6 @@
     <string name="discover_empty_no_content_subtitle">Probeer een ander genre of catalogus</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1806,11 +1751,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">Maak verbinding met Wi-Fi of ethernet om deze functie te gebruiken</string>
     <string name="error_server_ports_unavailable">Kon de server niet starten. Alle poorten zijn in gebruik.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">%1$s toegevoegd met %2$d providers</string>
-    <string name="plugin_repo_removed">Repository verwijderd</string>
-    <string name="plugin_repo_refreshed">Repository vernieuwd</string>
 
     <!-- Trakt errors -->
 
@@ -1883,7 +1823,6 @@
     <string name="cd_refresh">Vernieuwen</string>
     <string name="cd_remove">Verwijderen</string>
     <string name="cd_preview">Voorbeeld</string>
-    <string name="cd_test">Testen</string>
     <string name="cd_unlink">Ontkoppelen</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logo</string>

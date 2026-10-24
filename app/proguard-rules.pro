@@ -97,8 +97,8 @@
 
 # ── Broad keeps ───────────────────────────────────────────────────────────────
 # Added for CloudStream extensions, which were loaded at runtime and resolved
-# host classes by name. Extensions are gone; these stay until a minified build
-# is checked without them.
+# host classes by name. Extensions are gone; these stay until a release build
+# is tested without them (#124 kotlin, #125 okhttp/okio, #126 fragment).
 -keep class kotlin.** { *; }
 -keep class kotlinx.coroutines.** { *; }
 

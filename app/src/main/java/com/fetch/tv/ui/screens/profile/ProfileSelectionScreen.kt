@@ -345,7 +345,7 @@ fun ProfileSelectionScreen(
         pin: String,
         moveTo: (ProfilePinOverlayState) -> Unit,
         setError: (String?) -> Unit,
-        onReset: (UserProfile) -> Unit
+        onReset: (profile: UserProfile, message: String) -> Unit
     ) {
         when {
             state is ProfilePinOverlayState.ResetVerifyParent ->
@@ -363,11 +363,16 @@ fun ProfileSelectionScreen(
                 }
             state is ProfilePinOverlayState.Set && state.parentPin != null ->
                 viewModel.resetProfilePin(state.profile.id, pin, state.parentPin) { result ->
-                    if (result is ResetPinResult.Success) {
-                        setError(null)
-                        onReset(state.profile)
-                    } else {
-                        setError(context.getString(R.string.profile_pin_save_error))
+                    when (result) {
+                        ResetPinResult.Success -> {
+                            setError(null)
+                            onReset(state.profile, context.getString(R.string.profile_pin_reset_for_profile, state.profile.name))
+                        }
+                        ResetPinResult.LocalOnly -> {
+                            setError(null)
+                            onReset(state.profile, context.getString(R.string.profile_pin_reset_local_only, state.profile.name))
+                        }
+                        else -> setError(context.getString(R.string.profile_pin_save_error))
                     }
                 }
         }
@@ -550,9 +555,9 @@ fun ProfileSelectionScreen(
                     onAddProfileClick = { showCreateProfile = true }
                 )
             } else {
-                val pinResetFinished: (UserProfile) -> Unit = { profile ->
+                val pinResetFinished: (UserProfile, String) -> Unit = { _, message ->
                     pinOverlayState = null
-                    profileActionMessage = context.getString(R.string.profile_pin_reset_for_profile, profile.name)
+                    profileActionMessage = message
                 }
                 ProfilePinOverlay(
                     state = activePinOverlay,
@@ -1165,12 +1170,9 @@ fun ProfileSelectionScreen(
                                     pin,
                                     moveTo = moveCheckTo,
                                     setError = { pinCheckError = it },
-                                    onReset = { profile ->
+                                    onReset = { _, message ->
                                         dismissPinCheck()
-                                        profileActionMessage = context.getString(
-                                            R.string.profile_pin_reset_for_profile,
-                                            profile.name
-                                        )
+                                        profileActionMessage = message
                                         check.onVerified()
                                     }
                                 )

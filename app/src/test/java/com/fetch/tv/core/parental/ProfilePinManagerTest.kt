@@ -203,8 +203,21 @@ class ProfilePinManagerTest {
         store.setLocalPinHash(1, ProfilePinHasher.hash("1111"))
         store.replaceAll(mapOf(2 to true))
 
+        assertEquals(ResetPinResult.LocalOnly, pins.resetPin(2, "3333", parentPin = "1111"))
+
+        assertTrue(pins.verifyPin(2, "3333").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `a reset the sync server accepts is a full success`() = runTest {
+        val remote = FakeRemote(isAvailable = true)
+        val pins = manager(remote)
+        store.setLocalPinHash(1, ProfilePinHasher.hash("1111"))
+        store.setLocalPinHash(2, ProfilePinHasher.hash("2222"))
+
         assertEquals(ResetPinResult.Success, pins.resetPin(2, "3333", parentPin = "1111"))
 
+        assertEquals("3333", remote.remotePins[2])
         assertTrue(pins.verifyPin(2, "3333").getOrThrow().unlocked)
     }
 

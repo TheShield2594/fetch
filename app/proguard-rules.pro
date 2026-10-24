@@ -59,20 +59,40 @@
 -keep class com.fetch.tv.core.torrent.** { *; }
 
 # ── ExoPlayer / Media3 ────────────────────────────────────────────────────────
+# Media3 ships consumer rules for its own reflection (extension renderers, media source
+# and downloader factories). These cover what Fetch and the bundled decoders reach by name.
 -dontwarn androidx.media3.**
--keep class androidx.media3.** { *; }
--keep interface androidx.media3.** { *; }
--keep class androidx.media.** { *; }
--keep class androidx.media3.decoder.** { *; }
--keep class androidx.media3.exoplayer.** { *; }
--keep class androidx.media3.ui.** { *; }
--keep class com.google.android.exoplayer2.** { *; }
--keep interface com.google.android.exoplayer2.** { *; }
--keep class com.google.android.exoplayer2.ext.** { *; }
+
+# FFmpeg decoder (local module or AAR, neither ships rules): JNI_OnLoad finds
+# FfmpegAudioDecoder.growOutputBuffer by name, and the native code fills
+# SimpleDecoderOutputBuffer. The AV1, IAMF and MPEG-H AARs bring their own rules.
+-keep class androidx.media3.decoder.SimpleDecoderOutputBuffer { *; }
+-keepnames class androidx.media3.decoder.ffmpeg.FfmpegAudioDecoder
+-keepclassmembers class androidx.media3.decoder.ffmpeg.FfmpegAudioDecoder {
+    java.nio.ByteBuffer growOutputBuffer(androidx.media3.decoder.SimpleDecoderOutputBuffer, int);
+}
+
+# Private fields read by reflection (FetchAssMatroskaExtractor and ass-media).
+-keepclassmembers class androidx.media3.extractor.mkv.MatroskaExtractor {
+    androidx.media3.extractor.ExtractorOutput extractorOutput;
+    *** subtitleSample;
+}
+
+# DolbyVisionExtractorsFactory tells extractors apart by class name.
+-keepnames class * implements androidx.media3.extractor.Extractor
+
+# Called by reflection when the running Media3 has it (PlayerScreen).
+-keepclassmembers class androidx.media3.ui.PlayerView {
+    public void setEnableComposeSurfaceSyncWorkaround(boolean);
+}
+
+# Playback diagnostics and issue reports name the exception class.
+-keepnames class androidx.media3.** extends java.lang.Throwable
 
 # ── Supabase / Ktor / Kotlinx Serialization ───────────────────────────────────
--keep class io.github.jan.supabase.** { *; }
--keep class io.ktor.** { *; }
+# Ktor ships rules for its ServiceLoader engines and AtomicFU fields; Supabase talks to
+# its API through kotlinx.serialization, whose generated serializers are kept by the
+# library's own rules and the rule below.
 -dontwarn io.ktor.**
 -keep class com.fetch.tv.data.remote.supabase.** { *; }
 # Keep @Serializable classes and their generated serializers

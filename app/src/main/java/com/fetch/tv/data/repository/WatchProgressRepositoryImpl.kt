@@ -709,6 +709,9 @@ class WatchProgressRepositoryImpl @Inject constructor(
         return trackingProgressProviders.provider(providerId)?.isWatchedByVideoId(videoId, episode)
     }
 
+    override suspend fun getLocalWatchedEpisodeTimes(contentId: String): Map<Pair<Int, Int>, Long> =
+        watchedItemsPreferences.getWatchedEpisodesWithTimestamps(contentId).first()
+
     override fun isWatched(contentId: String, videoId: String?, season: Int?, episode: Int?): Flow<Boolean> {
         return activeProgressProviderFlow()
             .flatMapLatest { provider ->

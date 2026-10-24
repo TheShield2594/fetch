@@ -217,7 +217,9 @@ internal data class NextUpResolution(
     val released: String?,
     val hasAired: Boolean,
     val airDateLabel: String?,
-    val lastWatched: Long
+    val lastWatched: Long,
+    /** The Fetch watched marks this was resolved against; a change makes it stale. */
+    val watchedSinceSeed: Set<Pair<Int, Int>> = emptySet()
 )
 
 private data class NextUpReleaseState(
@@ -2074,7 +2076,10 @@ private suspend fun HomeViewModel.enrichInProgressItem(
                 item.progress.videoId
             },
             name = if (settings.useBasicInfo) tmdbData?.name ?: meta.name else meta.name,
-            poster = item.progress.poster ?: meta.poster.normalizeImageUrl() ?: if (settings.useArtwork) tmdbData?.poster.normalizeImageUrl() else null,
+            // TMDB artwork comes first, as for the backdrop and logo, so a poster in the
+            // TMDB language replaces the addon's English one (NuvioTV#3890).
+            poster = (if (settings.useArtwork) tmdbData?.poster.normalizeImageUrl() else null)
+                ?: item.progress.poster ?: meta.poster.normalizeImageUrl(),
             backdrop = if (settings.useArtwork) tmdbData?.backdrop.normalizeImageUrl() ?: meta.backdropUrl.normalizeImageUrl() ?: item.progress.backdrop else meta.backdropUrl.normalizeImageUrl() ?: item.progress.backdrop,
             logo = if (settings.useArtwork) tmdbData?.logo.normalizeImageUrl() ?: meta.logo.normalizeImageUrl() ?: item.progress.logo else meta.logo.normalizeImageUrl() ?: item.progress.logo,
             episodeTitle = if (settings.useEpisodes) tmdbData?.episodeTitle
@@ -2118,7 +2123,12 @@ private suspend fun HomeViewModel.enrichNextUpItem(
     } else null
 
     val meta = resolveMetaForProgress(progressSeed, metaCache, debug) ?: return@coroutineScope item
-    val video = resolveNextUpVideoFromMeta(progressSeed, meta)
+    val video = resolveNextUpVideoFromMeta(
+        progressSeed,
+        meta,
+        showUnairedNextUp = true,
+        watchedSinceSeed = localEpisodesWatchedSinceSeed(progressSeed)
+    )
 
     val tmdbData = if (shouldEnrichTmdb) {
         val earlyTmdbId = tmdbIdDeferred?.await()
@@ -2172,7 +2182,8 @@ private suspend fun HomeViewModel.enrichNextUpItem(
     val settings = currentTmdbSettings
     val enrichedInfo = item.info.copy(
         name = if (settings.useBasicInfo) tmdbData?.name ?: meta.name else meta.name,
-        poster = item.info.poster ?: meta.poster.normalizeImageUrl() ?: if (settings.useArtwork) tmdbData?.poster else null,
+        poster = (if (settings.useArtwork) tmdbData?.poster else null)
+            ?: item.info.poster ?: meta.poster.normalizeImageUrl(),
         backdrop = if (settings.useArtwork) tmdbData?.backdrop ?: meta.backdropUrl.normalizeImageUrl() ?: item.info.backdrop else meta.backdropUrl.normalizeImageUrl() ?: item.info.backdrop,
         logo = if (settings.useArtwork) tmdbData?.logo ?: meta.logo.normalizeImageUrl() ?: item.info.logo else meta.logo.normalizeImageUrl() ?: item.info.logo,
         season = video?.season ?: item.info.season,
@@ -2219,7 +2230,13 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
 ): NextUpResolution? {
     val startedAtMs = SystemClock.elapsedRealtime()
     val cacheKey = buildNextUpSeedCacheKey(progress, showUnairedNextUp)
+    val watchedSinceSeed = localEpisodesWatchedSinceSeed(progress)
     synchronized(cwNextUpResolutionCache) {
+        val cached = cwNextUpResolutionCache[cacheKey]
+        if (cached != null && cached.watchedSinceSeed != watchedSinceSeed) {
+            // An episode was marked or unmarked watched in Fetch since this was resolved.
+            cwNextUpResolutionCache.remove(cacheKey)
+        }
         if (cwNextUpResolutionCache.containsKey(cacheKey)) {
             val cached = cwNextUpResolutionCache[cacheKey]
             if (cached != null) {
@@ -2297,7 +2314,7 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
         }
         return null
     }
-    val nextVideo = resolveNextUpVideoFromMeta(progress, meta, showUnairedNextUp)
+    val nextVideo = resolveNextUpVideoFromMeta(progress, meta, showUnairedNextUp, watchedSinceSeed)
     if (nextVideo == null) {
         debug?.recordNextUpResult(
             progress = progress,
@@ -2338,7 +2355,8 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
             if (computedHasAired) null
             else formatEpisodeAirDateLabel(releaseDate)
         },
-        lastWatched = progress.lastWatched
+        lastWatched = progress.lastWatched,
+        watchedSinceSeed = watchedSinceSeed
     )
     debug?.recordNextUpResult(
         progress = progress,
@@ -2363,10 +2381,35 @@ private const val CW_NEXT_UP_NEW_SEASON_UNAIRED_WINDOW_DAYS = 7
 internal fun isNextUpEpisodeUnaired(releaseDate: LocalDate?, today: LocalDate): Boolean =
     releaseDate == null || releaseDate.isAfter(today)
 
+// How far a Fetch watched mark may predate the seed and still count as watched since it. A
+// season marked watched reaches Trakt a moment after Fetch stores it.
+internal const val CW_WATCHED_SINCE_SEED_SLACK_MS = 60_000L
+
+/**
+ * Episodes marked watched in Fetch at or after the seed was watched. The tracker's seed can lag
+ * behind these: when the addon numbers a season differently, marking it watched never reaches
+ * Trakt for the last episode, so Trakt's seed stops one short and the finale came up next even
+ * though Fetch shows it watched (NuvioTV#3759). Older marks don't count, so a rewatch still
+ * goes on to the next episode.
+ */
+internal fun episodesWatchedSinceSeed(
+    localWatched: Map<Pair<Int, Int>, Long>,
+    seedLastWatched: Long
+): Set<Pair<Int, Int>> =
+    localWatched.filterValues { watchedAt -> watchedAt + CW_WATCHED_SINCE_SEED_SLACK_MS >= seedLastWatched }.keys
+
+private suspend fun HomeViewModel.localEpisodesWatchedSinceSeed(progress: WatchProgress): Set<Pair<Int, Int>> =
+    episodesWatchedSinceSeed(
+        localWatched = runCatching { watchProgressRepository.getLocalWatchedEpisodeTimes(progress.contentId) }
+            .getOrDefault(emptyMap()),
+        seedLastWatched = progress.lastWatched
+    )
+
 internal fun resolveNextUpVideoFromMeta(
     progress: WatchProgress,
     meta: CwMetaSummary,
-    showUnairedNextUp: Boolean
+    showUnairedNextUp: Boolean,
+    watchedSinceSeed: Set<Pair<Int, Int>> = emptySet()
 ): CwVideoSummary? {
     val episodes = meta.videos
         .filter { video ->
@@ -2417,6 +2460,7 @@ internal fun resolveNextUpVideoFromMeta(
     val watchedEpisodeSeason = episodes[watchedIndex].season
     val nextVideo = episodes.drop(watchedIndex + 1).firstOrNull { video ->
         if (video.season in progress.excludedNextUpSeasons) return@firstOrNull false
+        if ((video.season to video.episode) in watchedSinceSeed) return@firstOrNull false
         val releaseDate = parseEpisodeReleaseDate(video.released)
         val isSeasonRollover = video.season != watchedEpisodeSeason
         if (isSeasonRollover) {

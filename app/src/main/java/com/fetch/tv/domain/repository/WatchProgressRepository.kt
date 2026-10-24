@@ -113,6 +113,12 @@ interface WatchProgressRepository {
     fun isWatchedByVideoId(videoId: String, episode: Int): Boolean? = null
 
     /**
+     * Episodes this profile marked watched in Fetch, with when, whatever the active tracking
+     * source. Empty map when there are none.
+     */
+    suspend fun getLocalWatchedEpisodeTimes(contentId: String): Map<Pair<Int, Int>, Long> = emptyMap()
+
+    /**
      * Save or update watch progress
      */
     suspend fun saveProgress(progress: WatchProgress, syncRemote: Boolean = true)

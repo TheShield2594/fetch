@@ -3477,7 +3477,9 @@ private fun ProgressBar(
                 .playerProgressFill(
                     progress = { animatedProgress },
                     bufferedProgress = { animatedBufferedProgress },
-                    bufferedColor = FetchTheme.colors.Secondary,
+                    // Neutral, so the buffered run never reads as part of the themed played
+                    // line (a gradient theme's accent differs from its last stop).
+                    bufferedColor = Color.White,
                     playedBrush = accentBrush
                 )
         )

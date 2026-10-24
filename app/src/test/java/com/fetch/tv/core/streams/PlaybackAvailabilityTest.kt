@@ -3,8 +3,6 @@ package com.fetch.tv.core.streams
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonResource
 import com.fetch.tv.domain.model.Meta
-import com.fetch.tv.domain.model.RepositoryType
-import com.fetch.tv.domain.model.ScraperInfo
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.Video
 import io.mockk.every
@@ -46,18 +44,6 @@ class PlaybackAvailabilityTest {
     fun `unrestricted stream resources support custom content types`() {
         val unrestricted = addon().copy(resources = listOf(AddonResource("stream", emptyList(), null)))
         assertTrue(PlaybackAvailability(addons = listOf(unrestricted)).canStream("channel", "channel:1"))
-    }
-
-    @Test
-    fun `plugins honor enabled state and existing type aliases for both runtimes`() {
-        for (runtime in RepositoryType.entries) {
-            val scraper = scraper().copy(type = runtime, supportedTypes = listOf("tv"))
-            val available = PlaybackAvailability(scrapers = listOf(scraper))
-            assertTrue(available.canStream("series", "tt123:1:1"))
-            assertTrue(available.canStream("other", "channel:1"))
-            assertFalse(available.canStream("movie", "tt123"))
-            assertFalse(available.copy(scrapers = listOf(scraper.copy(enabled = false))).canStream("series", "tt123:1:1"))
-        }
     }
 
     @Test
@@ -104,12 +90,6 @@ class PlaybackAvailabilityTest {
         id = "addon", name = "Addon", version = "1", description = null, logo = null,
         baseUrl = "https://example.com", catalogs = emptyList(), types = emptyList(),
         resources = listOf(AddonResource("stream", listOf("movie"), listOf("tt")))
-    )
-
-    private fun scraper() = ScraperInfo(
-        id = "scraper", name = "Scraper", description = "", version = "1", filename = "scraper.js",
-        supportedTypes = listOf("movie"), enabled = true, manifestEnabled = true, logo = null,
-        contentLanguage = emptyList(), repositoryId = "repo", formats = null
     )
 
     private fun video() = Video(

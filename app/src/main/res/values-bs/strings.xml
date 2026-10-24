@@ -284,7 +284,6 @@
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Račun i status sinhronizacije</string>
     <string name="account_stat_addons">addoni</string>
-    <string name="account_stat_plugins">plugini</string>
     <string name="account_stat_library">biblioteka</string>
     <string name="account_stat_progress">napredak</string>
     <string name="account_stat_watched">odgledano</string>
@@ -425,27 +424,18 @@
     <string name="autoplay_threshold_pct_title">Threshold Postotak</string>
     <string name="autoplay_threshold_pct_sub">Fallback kada ne postoji outro timestamp.</string>
     <string name="autoplay_threshold_min_title">Threshold Minute</string>
-    <string name="autoplay_scope_all">Svi izvori</string>
-    <string name="autoplay_scope_addons">Samo instalirani addoni</string>
-    <string name="autoplay_scope_plugins">Samo omogućeni plugini</string>
-    <string name="autoplay_scope">Opseg Izvora za Auto-play</string>
     <string name="autoplay_timeout_title">Timeout za Odabir Streama</string>
     <string name="autoplay_timeout_sub">Vrijeme čekanja na addone prije odabira.</string>
     <string name="autoplay_timeout_instant">Odmah</string>
     <string name="autoplay_timeout_unlimited">Neograničeno</string>
     <string name="autoplay_allowed_addons">Dozvoljeni Addoni</string>
     <string name="autoplay_all_addons">Svi instalirani addoni</string>
-    <string name="autoplay_allowed_plugins">Dozvoljeni Plugini</string>
-    <string name="autoplay_all_plugins">Svi omogućeni plugini</string>
     <string name="autoplay_regex_placeholder">Nema postavljenog patterna. Primjer: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex Pattern</string>
     <string name="autoplay_no_items">Nema dostupnih stavki</string>
     <string name="autoplay_mode_manual_desc">Uvijek prikaži listu izvora i pusti mene da odaberem.</string>
     <string name="autoplay_mode_first_desc">Automatski pusti prvi dostupni izvor.</string>
     <string name="autoplay_mode_regex_desc">Pusti prvi izvor čiji tekst odgovara tvom regex patternu.</string>
-    <string name="autoplay_scope_all_desc">Auto-play može koristiti i instalirane addone i omogućene plugine.</string>
-    <string name="autoplay_scope_addons_desc">Auto-play uzima u obzir samo streamove iz instaliranih addona.</string>
-    <string name="autoplay_scope_plugins_desc">Auto-play uzima u obzir samo streamove iz omogućenih plugina.</string>
     <string name="autoplay_threshold_pct_desc">Prikaži prema procentu reprodukcije kada outro timestamp nije dostupan.</string>
     <string name="autoplay_threshold_min_desc">Prikaži ovoliko minuta prije kraja epizode kada outro timestamp nije dostupan.</string>
     <string name="autoplay_regex_matches">Podudara se sa nazivom/naslovom/opisom/addonom/url-om streama. Primjer: 4K|2160p|Remux</string>
@@ -956,7 +946,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Učitavanje…</string>
-    <string name="account_sync_description">Sinhronizuj svoju biblioteku, napredak gledanja, addone i plugine na svim uređajima.</string>
+    <string name="account_sync_description">Sinhronizuj svoju biblioteku, napredak gledanja i addone na svim uređajima.</string>
     <string name="account_sync_restart_note">Sinhronizacija nije u stvarnom vremenu između aktivnih uređaja. Ponovo pokreni ovaj uređaj nakon prijave ili da preuzmeš promjene napravljene negdje drugo.</string>
     <string name="account_signin_qr_title">Prijava sa QR</string>
     <string name="account_signin_qr_subtitle">Skeniraj QR kod i završi prijavu emailom na telefonu</string>
@@ -996,39 +986,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">Poveži Uređaj</string>
     <string name="sync_claim_subtitle">Unesi sync kod i PIN sa svog drugog uređaja da povežeš ovaj uređaj.</string>
-    <string name="sync_claim_success">Uređaj uspješno povezan! Tvoji addoni i plugini će se sada sinhronizovati.</string>
+    <string name="sync_claim_success">Uređaj uspješno povezan! Tvoji addoni će se sada sinhronizovati.</string>
     <string name="sync_claim_done">Gotovo</string>
     <string name="sync_claim_code_label">Sync Kod</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">Unesi PIN</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Koriste se plugini primarnog profila i ne mogu se mijenjati</string>
-    <string name="plugin_repositories_section">Repozitoriji (%1$d)</string>
-    <string name="plugin_providers_section">Provajderi (%1$d)</string>
-    <string name="plugin_title">Plugini</string>
-    <string name="plugin_add_repository">Dodaj repozitorij</string>
-    <string name="plugin_add_btn">Dodaj</string>
-    <string name="plugin_manage_from_phone_title">Upravljaj preko telefona</string>
-    <string name="plugin_manage_from_phone_subtitle">Skeniraj QR kod da dodaš ili ukloniš repozitorije sa svog telefona</string>
-    <string name="plugin_qr_instruction">Skeniraj sa svojim telefonom da upravljaš repozitorijima</string>
-    <string name="plugin_qr_close">Zatvori</string>
-    <string name="plugin_confirm_title">Potvrdi promjene repozitorija</string>
-    <string name="plugin_confirm_subtitle">Sljedeće promjene su napravljene sa tvog telefona:</string>
-    <string name="plugin_confirm_added">Dodano:</string>
-    <string name="plugin_confirm_removed">Uklonjeno:</string>
-    <string name="plugin_confirm_no_changes">Promjene nisu detektovane</string>
-    <string name="plugin_confirm_total">Ukupno repozitorija: %1$d</string>
-    <string name="plugin_confirm_reject">Odbij</string>
-    <string name="plugin_confirm_confirm">Potvrdi</string>
-    <string name="plugin_risky_enable_title">Omogući provajdera?</string>
-    <string name="plugin_risky_enable_message">%1$s je poznat po tome da uzrokuje padove aplikacije na nekom sadržaju. Ipak omogućiti?</string>
-    <string name="plugin_risky_enable_cancel">Otkaži</string>
-    <string name="plugin_risky_enable_confirm">Omogući</string>
-    <string name="plugin_updated_format">Ažurirano: %1$s</string>
-    <string name="plugin_test_btn">Testiraj</string>
-    <string name="plugin_test_results">Rezultati Testa (%1$d streamova)</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Ko gleda?</string>
@@ -1066,7 +1029,7 @@
 
     <!-- AccountScreen -->
     <string name="account_title">Račun</string>
-    <string name="account_sign_in_description">Prijavi se za sinhronizaciju biblioteke, napretka gledanja, addona i plugina na svim uređajima. Sinhronizacija biblioteke koristi Fetch Sync kada Trakt nije povezan, a napredak gledanja može koristiti i Trakt i Fetch Sync.</string>
+    <string name="account_sign_in_description">Prijavi se za sinhronizaciju biblioteke, napretka gledanja i addona na svim uređajima. Sinhronizacija biblioteke koristi Fetch Sync kada Trakt nije povezan, a napredak gledanja može koristiti i Trakt i Fetch Sync.</string>
     <string name="account_sync_code_title">Sync Kod</string>
     <string name="account_sync_code_description">Sinhronizuj uređaje bez kreiranja računa.</string>
     <string name="account_linked_devices">Povezani Uređaji (%1$d)</string>
@@ -1097,11 +1060,6 @@
     <string name="addon_confirm_total_addons">Ukupno addona: %1$d</string>
     <string name="addon_confirm_total_catalogs">Ukupno kataloga: %1$d</string>
     <string name="addon_catalogs_types">Katalozi: %1$d - Tipovi: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... i još %1$d</string>
-    <string name="plugin_providers_count">%1$d provajdera</string>
-    <string name="plugin_no_repos">Još nema dodanih repozitorija.\nDodaj repozitorij za početak.</string>
 
     <!-- ProfileSettingsContent -->
 
@@ -1158,14 +1116,6 @@
     <string name="error_network_required">Poveži se na Wi-Fi ili LAN za korištenje ove funkcije</string>
     <string name="error_server_ports_unavailable">Nije moguće pokrenuti server. Svi portovi su u upotrebi.</string>
 
-    <!-- Plugin errors -->
-    <string name="plugin_error_invalid_url">Molimo unesi ispravan URL</string>
-    <string name="plugin_error_add_repo">Nije uspjelo dodavanje repozitorija: %1$s</string>
-    <string name="plugin_error_refresh">Nije uspjelo osvježavanje: %1$s</string>
-    <string name="plugin_error_test">Test nije uspio: %1$s</string>
-    <string name="plugin_test_no_results">Nema pronađenih rezultata</string>
-    <string name="plugin_test_found_streams">Pronađeno %1$d streamova</string>
-
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Kod uređaja je istekao. Pokreni ponovo.</string>
     <string name="trakt_error_code_used">Kod uređaja je već iskorišten. Pokreni ponovo.</string>
@@ -1188,7 +1138,6 @@
     <string name="subtitle_style_weight">Debljina</string>
 
     <!-- Plugin screen -->
-    <string name="plugin_version">Verzija %1$s</string>
 
     <!-- Stream screen -->
     <string name="stream_episode_label">S%1$d E%2$d</string>
@@ -1224,7 +1173,6 @@
     <string name="cd_refresh">Osvježi</string>
     <string name="cd_remove">Ukloni</string>
     <string name="cd_preview">Pregled</string>
-    <string name="cd_test">Testiraj</string>
     <string name="cd_unlink">Odspoji</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>

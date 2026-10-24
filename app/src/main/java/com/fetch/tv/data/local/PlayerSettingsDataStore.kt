@@ -307,9 +307,7 @@ data class PlayerSettings(
     // Stream selection settings
     val streamAutoPlayMode: StreamAutoPlayMode = StreamAutoPlayMode.BEST_MATCH,
     val streamRankingRules: StreamRankingRules = StreamRankingRules(),
-    val streamAutoPlaySource: StreamAutoPlaySource = StreamAutoPlaySource.ALL_SOURCES,
     val streamAutoPlaySelectedAddons: Set<String> = emptySet(),
-    val streamAutoPlaySelectedPlugins: Set<String> = emptySet(),
     val streamAutoPlayRegex: String = "",
     val postPlayRecommendationsEnabled: Boolean = true,
     val postPlayMovieThresholdPercent: Int = DEFAULT_POST_PLAY_MOVIE_THRESHOLD_PERCENT,
@@ -423,10 +421,6 @@ enum class StreamAutoPlayMode {
     MANUAL, FIRST_STREAM, REGEX_MATCH,
     /** Parse every result, rank it against [StreamRankingRules] and the device, play the winner. */
     BEST_MATCH
-}
-
-enum class StreamAutoPlaySource {
-    ALL_SOURCES, INSTALLED_ADDONS_ONLY, ENABLED_PLUGINS_ONLY
 }
 
 enum class VodCacheSizeMode {
@@ -585,9 +579,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val streamAutoPlayModeKey = stringPreferencesKey("stream_auto_play_mode")
     private val streamRankingRulesKey = stringPreferencesKey("stream_ranking_rules")
     private val rankingRulesJson = Json { ignoreUnknownKeys = true; encodeDefaults = false }
-    private val streamAutoPlaySourceKey = stringPreferencesKey("stream_auto_play_source")
     private val streamAutoPlaySelectedAddonsKey = stringSetPreferencesKey("stream_auto_play_selected_addons")
-    private val streamAutoPlaySelectedPluginsKey = stringSetPreferencesKey("stream_auto_play_selected_plugins")
     private val streamAutoPlayRegexKey = stringPreferencesKey("stream_auto_play_regex")
     private val postPlayRecommendationsEnabledKey = booleanPreferencesKey("post_play_recommendations_enabled")
     private val postPlayMovieThresholdPercentKey = intPreferencesKey("post_play_movie_threshold_percent")
@@ -983,11 +975,7 @@ class PlayerSettingsDataStore @Inject constructor(
                 streamRankingRules = prefs[streamRankingRulesKey]?.let { raw ->
                     runCatching { rankingRulesJson.decodeFromString<StreamRankingRules>(raw) }.getOrNull()
                 } ?: StreamRankingRules(),
-                streamAutoPlaySource = prefs[streamAutoPlaySourceKey]?.let {
-                    runCatching { StreamAutoPlaySource.valueOf(it) }.getOrDefault(StreamAutoPlaySource.ALL_SOURCES)
-                } ?: StreamAutoPlaySource.ALL_SOURCES,
                 streamAutoPlaySelectedAddons = prefs[streamAutoPlaySelectedAddonsKey] ?: emptySet(),
-                streamAutoPlaySelectedPlugins = prefs[streamAutoPlaySelectedPluginsKey] ?: emptySet(),
                 streamAutoPlayRegex = prefs[streamAutoPlayRegexKey] ?: "",
                 postPlayRecommendationsEnabled = prefs[postPlayRecommendationsEnabledKey] ?: true,
                 postPlayMovieThresholdPercent = (prefs[postPlayMovieThresholdPercentKey]
@@ -1346,21 +1334,9 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setStreamAutoPlaySource(source: StreamAutoPlaySource) {
-        store().edit { prefs ->
-            prefs[streamAutoPlaySourceKey] = source.name
-        }
-    }
-
     suspend fun setStreamAutoPlaySelectedAddons(addons: Set<String>) {
         store().edit { prefs ->
             prefs[streamAutoPlaySelectedAddonsKey] = addons
-        }
-    }
-
-    suspend fun setStreamAutoPlaySelectedPlugins(plugins: Set<String>) {
-        store().edit { prefs ->
-            prefs[streamAutoPlaySelectedPluginsKey] = plugins
         }
     }
 

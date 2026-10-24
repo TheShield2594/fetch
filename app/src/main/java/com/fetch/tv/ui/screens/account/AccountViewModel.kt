@@ -13,12 +13,10 @@ import com.fetch.tv.core.logging.bodySnippetForLog
 import com.fetch.tv.core.logging.diagnosticSummary
 import com.fetch.tv.core.logging.rawForLog
 import com.fetch.tv.core.logging.urlForLog
-import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.qr.QrCodeGenerator
 import com.fetch.tv.core.sync.AddonSyncService
 import com.fetch.tv.core.sync.LibrarySyncService
-import com.fetch.tv.core.sync.PluginSyncService
 import com.fetch.tv.core.sync.WatchProgressSyncService
 import com.fetch.tv.core.sync.WatchedItemsSyncService
 import com.fetch.tv.core.sync.ProfileSettingsSyncService
@@ -35,8 +33,10 @@ import com.fetch.tv.domain.model.AuthState
 import com.fetch.tv.domain.model.ServerConfiguration
 import com.fetch.tv.domain.repository.SyncRepository
 import io.github.jan.supabase.postgrest.Postgrest
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -63,14 +63,12 @@ private val qrLoginTraceCounter = AtomicLong(0L)
 class AccountViewModel @Inject constructor(
     private val authManager: AuthManager,
     private val syncRepository: SyncRepository,
-    private val pluginSyncService: PluginSyncService,
     private val addonSyncService: AddonSyncService,
     private val watchProgressSyncService: WatchProgressSyncService,
     private val librarySyncService: LibrarySyncService,
     private val watchedItemsSyncService: WatchedItemsSyncService,
     private val profileSettingsSyncService: ProfileSettingsSyncService,
     private val providerCredentialSyncService: ProviderCredentialSyncService,
-    private val pluginManager: PluginManager,
     private val addonRepository: AddonRepositoryImpl,
     private val watchProgressRepository: WatchProgressRepositoryImpl,
     private val libraryRepository: LibraryRepositoryImpl,
@@ -486,12 +484,10 @@ class AccountViewModel @Inject constructor(
 
             val stats = runCatching {
                 val addonsCount = addonRepository.getInstalledAddons().first().size
-                val pluginsCount = pluginManager.repositories.first().size
                 val libraryCount = libraryPreferences.getAllItems().size
                 val watchProgressCount = watchProgressRepository.allProgress.first().size
                 AccountConnectedStats(
                     addons = addonsCount,
-                    plugins = pluginsCount,
                     library = libraryCount,
                     watchProgress = watchProgressCount
                 )
@@ -506,10 +502,12 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    // The sync schema still reports plugin counts; Fetch has no plugins, so they are ignored.
+    @OptIn(ExperimentalSerializationApi::class)
+    @JsonIgnoreUnknownKeys
     @Serializable
     private data class SyncOverviewResponse(
         val addons: Map<String, Int> = emptyMap(),
-        val plugins: Map<String, Int> = emptyMap(),
         @SerialName("library_items") val libraryItems: Map<String, Int> = emptyMap(),
         @SerialName("watch_progress") val watchProgress: Map<String, Int> = emptyMap(),
         @SerialName("watched_items") val watchedItems: Map<String, Int> = emptyMap(),
@@ -530,7 +528,7 @@ class AccountViewModel @Inject constructor(
                 val response = postgrest.rpc("get_sync_overview")
                     .decodeAs<SyncOverviewResponse>()
 
-                val allProfileIds = (response.addons.keys + response.plugins.keys +
+                val allProfileIds = (response.addons.keys +
                     response.libraryItems.keys + response.watchProgress.keys +
                     response.watchedItems.keys + response.profiles.keys)
                     .mapNotNull { it.toIntOrNull() }
@@ -548,7 +546,6 @@ class AccountViewModel @Inject constructor(
                             ?: context.getString(com.fetch.tv.R.string.profile_default_name, pid),
                         avatarColorHex = local?.avatarColorHex ?: remote?.color ?: "#1E88E5",
                         addons = response.addons[pidStr] ?: 0,
-                        plugins = response.plugins[pidStr] ?: 0,
                         library = response.libraryItems[pidStr] ?: 0,
                         watchProgress = response.watchProgress[pidStr] ?: 0,
                         watchedItems = response.watchedItems[pidStr] ?: 0
@@ -558,7 +555,6 @@ class AccountViewModel @Inject constructor(
                 SyncOverview(
                     profileCount = response.profiles.size,
                     totalAddons = response.addons.values.sum(),
-                    totalPlugins = response.plugins.values.sum(),
                     totalLibrary = response.libraryItems.values.sum(),
                     totalWatchProgress = response.watchProgress.values.sum(),
                     totalWatchedItems = response.watchedItems.values.sum(),
@@ -718,7 +714,6 @@ class AccountViewModel @Inject constructor(
         val profileId = profileManager.activeProfileId.value
         profileSettingsSyncService.pushCurrentProfileToRemote()
         providerCredentialSyncService.syncFromRemote(profileId)
-        pluginSyncService.pushToRemote()
         addonSyncService.pushToRemote()
         watchProgressSyncService.pushToRemote(profileId)
         librarySyncService.pushToRemote(profileId)
@@ -732,15 +727,6 @@ class AccountViewModel @Inject constructor(
             val profileId = profileManager.activeProfileId.value
             profileSettingsSyncService.pullCurrentProfileFromRemote()
             providerCredentialSyncService.syncFromRemote(profileId).getOrElse { throw it }
-            pluginManager.isSyncingFromRemote = true
-            val remotePlugins = pluginSyncService.getRemoteRepoUrls().getOrElse { throw it }
-            pluginManager.reconcileWithRemoteRepoUrls(
-                remotePlugins = remotePlugins,
-                removeMissingLocal = true
-            )
-            pluginManager.isSyncingFromRemote = false
-            pluginManager.flushPendingSync()
-
             addonRepository.isSyncingFromRemote = true
             val remoteAddonUrls = addonSyncService.getRemoteAddonUrls().getOrElse { throw it }
             addonRepository.reconcileWithRemoteAddonUrls(
@@ -806,7 +792,6 @@ class AccountViewModel @Inject constructor(
             }
             return Result.success(Unit)
         } catch (e: Exception) {
-            pluginManager.isSyncingFromRemote = false
             addonRepository.isSyncingFromRemote = false
             watchProgressRepository.isSyncingFromRemote = false
             libraryRepository.isSyncingFromRemote = false

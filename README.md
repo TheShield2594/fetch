@@ -97,7 +97,7 @@ Put them in `local.properties` for local builds, or export them as environment v
 (these take precedence). The Release workflow reads repository secrets with the same names
 (Settings → Secrets and variables → Actions) and warns in its log for each one that is unset.
 
-Two flavors exist: `full` (plugins, in-app updates from this repo's GitHub releases) and
+Two flavors exist: `full` (in-app updates from this repo's GitHub releases, in-app trailers) and
 `playstore` (store-safe feature set).
 
 ### Optional native pieces

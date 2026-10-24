@@ -629,7 +629,6 @@ private fun PlayerRuntimeController.buildPlaybackIssuePlaybackSettingsInput(): P
         enableHttp2 = false,
         fetchPerformanceModeEnabled = settings.fetchPerformanceModeEnabled,
         streamAutoPlayMode = settings.streamAutoPlayMode.name,
-        streamAutoPlaySource = settings.streamAutoPlaySource.name,
         streamAutoPlayNextEpisodeEnabled = settings.streamAutoPlayNextEpisodeEnabled,
         streamAutoPlayPreferBingeGroupForNextEpisode = settings.streamAutoPlayPreferBingeGroupForNextEpisode,
         streamAutoPlayReuseBingeGroup = settings.streamAutoPlayReuseBingeGroup,

@@ -3,7 +3,6 @@ package com.fetch.tv.ui.screens.settings
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import androidx.lifecycle.ViewModel
 import androidx.media3.common.util.UnstableApi
-import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.data.local.DeviceLocalPlayerPreferences
 import com.fetch.tv.data.local.LibassRenderType
 import com.fetch.tv.data.local.InternalPlayerEngine
@@ -15,7 +14,6 @@ import com.fetch.tv.core.player.LastPlaybackDiagnostics
 import com.fetch.tv.data.local.FrameRateMatchingMode
 import com.fetch.tv.data.local.NextEpisodeThresholdMode
 import com.fetch.tv.data.local.StreamAutoPlayMode
-import com.fetch.tv.data.local.StreamAutoPlaySource
 import com.fetch.tv.data.local.AudioOutputChannels
 import com.fetch.tv.data.local.AutoSkipSegmentType
 import com.fetch.tv.data.local.MpvHardwareDecodeMode
@@ -36,7 +34,6 @@ import com.fetch.tv.domain.repository.AddonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -47,7 +44,6 @@ class PlaybackSettingsViewModel @Inject constructor(
     private val deviceLocalPlayerPreferences: DeviceLocalPlayerPreferences,
     private val trailerSettingsDataStore: TrailerSettingsDataStore,
     private val addonRepository: AddonRepository,
-    private val pluginManager: PluginManager,
     private val torrentSettings: TorrentSettings,
     private val torrentService: TorrentService
 ) : ViewModel() {
@@ -78,17 +74,6 @@ class PlaybackSettingsViewModel @Inject constructor(
             .distinct()
             .sorted()
     }
-    val enabledPluginNames: Flow<List<String>> = combine(
-        pluginManager.pluginsEnabled,
-        pluginManager.scrapers
-    ) { pluginsEnabled, scrapers ->
-        if (!pluginsEnabled) {
-            emptyList()
-        } else {
-            scrapers.filter { it.enabled }.map { it.name }.distinct().sorted()
-        }
-    }
-
     suspend fun setPlayerPreference(preference: PlayerPreference) {
         playerSettingsDataStore.setPlayerPreference(preference)
     }
@@ -481,16 +466,8 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setStreamRankingRules(rules)
     }
 
-    suspend fun setStreamAutoPlaySource(source: StreamAutoPlaySource) {
-        playerSettingsDataStore.setStreamAutoPlaySource(source)
-    }
-
     suspend fun setStreamAutoPlaySelectedAddons(addons: Set<String>) {
         playerSettingsDataStore.setStreamAutoPlaySelectedAddons(addons)
-    }
-
-    suspend fun setStreamAutoPlaySelectedPlugins(plugins: Set<String>) {
-        playerSettingsDataStore.setStreamAutoPlaySelectedPlugins(plugins)
     }
 
     suspend fun setStreamAutoPlayRegex(regex: String) {

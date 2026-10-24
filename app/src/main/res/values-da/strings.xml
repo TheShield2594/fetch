@@ -367,9 +367,8 @@
     <string name="settings_profiles">Profiler</string>
     <string name="settings_layout">Layout</string>
     <string name="settings_content_discovery">Indhold &amp; Opdagelse</string>
-    <string name="settings_content_discovery_subtitle">Add-ons, plugins, kataloger og opdagelseskilder</string>
+    <string name="settings_content_discovery_subtitle">Add-ons, kataloger og opdagelseskilder</string>
     <string name="settings_content_discovery_addons_subtitle">Administrer add-ons, katalogrækkefølge og samlinger</string>
-    <string name="settings_content_discovery_plugins_subtitle">Administrer repositories og stream-udbydere</string>
     <string name="settings_integration">Integrationer</string>
     <string name="settings_playback">Afspilning</string>
     <string name="settings_advanced">Avanceret</string>
@@ -470,7 +469,6 @@
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Konto- og synkroniseringsstatus</string>
     <string name="account_stat_addons">addons</string>
-    <string name="account_stat_plugins">plugins</string>
     <string name="account_stat_library">bibliotek</string>
     <string name="account_stat_progress">fremskridt</string>
     <string name="account_stat_watched">set</string>
@@ -677,27 +675,18 @@
     <string name="autoplay_threshold_pct_title">Tærskelprocent</string>
     <string name="autoplay_threshold_pct_sub">Fallback når der ikke findes noget outro-tidsstempel.</string>
     <string name="autoplay_threshold_min_title">Tærskeminutter</string>
-    <string name="autoplay_scope_all">Alle kilder</string>
-    <string name="autoplay_scope_addons">Kun installerede addons</string>
-    <string name="autoplay_scope_plugins">Kun aktiverede plugins</string>
-    <string name="autoplay_scope">Omfang for autoplay-kilder</string>
     <string name="autoplay_timeout_title">Timeout for streamvalg</string>
     <string name="autoplay_timeout_sub">Ventetid for addons før valg.</string>
     <string name="autoplay_timeout_instant">Øjeblikkelig</string>
     <string name="autoplay_timeout_unlimited">Ubegrænset</string>
     <string name="autoplay_allowed_addons">Tilladte addons</string>
     <string name="autoplay_all_addons">Alle installerede addons</string>
-    <string name="autoplay_allowed_plugins">Tilladte plugins</string>
-    <string name="autoplay_all_plugins">Alle aktiverede plugins</string>
     <string name="autoplay_regex_placeholder">Intet mønster angivet. Eksempel: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex-mønster</string>
     <string name="autoplay_no_items">Ingen elementer tilgængelige</string>
     <string name="autoplay_mode_manual_desc">Vis altid kildelisten og lad mig vælge.</string>
     <string name="autoplay_mode_first_desc">Afspil den første tilgængelige kilde automatisk.</string>
     <string name="autoplay_mode_regex_desc">Afspil første kilde hvis tekst matcher dit regex-mønster.</string>
-    <string name="autoplay_scope_all_desc">Automatisk afspilning kan bruge både installerede addons og aktiverede plugins.</string>
-    <string name="autoplay_scope_addons_desc">Automatisk afspilning tager kun streams fra dine installerede addons i betragtning.</string>
-    <string name="autoplay_scope_plugins_desc">Automatisk afspilning tager kun streams fra aktiverede plugins i betragtning.</string>
     <string name="autoplay_threshold_pct_desc">Vis efter afspilningsprocent når intet outro-tidsstempel er tilgængeligt.</string>
     <string name="autoplay_threshold_min_desc">Vis dette antal minutter før episodens afslutning når intet outro-tidsstempel er tilgængeligt.</string>
     <string name="autoplay_regex_matches">Matcher mod stream-navn/titel/beskrivelse/addon/url. Eksempel: 4K|2160p|Remux</string>
@@ -1340,7 +1329,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Indlæser\u2026</string>
-    <string name="account_sync_description">Synkroniser dit bibliotek, seerfremskridt, addons og plugins på tværs af enheder.</string>
+    <string name="account_sync_description">Synkroniser dit bibliotek, seerfremskridt og addons på tværs af enheder.</string>
     <string name="account_sync_restart_note">Synkronisering sker ikke i realtid på tværs af aktive enheder. Genstart denne enhed efter login, eller for at hente ændringer foretaget andetsteds.</string>
     <string name="account_signin_qr_title">Log ind med QR</string>
     <string name="account_signin_qr_subtitle">Scan en QR-kode og gennemfør e-mail-login på din telefon</string>
@@ -1386,7 +1375,7 @@
 
     <string name="sync_claim_title">Tilknyt enhed</string>
     <string name="sync_claim_subtitle">Indtast synkroniseringskoden og PIN-koden fra din anden enhed for at tilknytte denne enhed.</string>
-    <string name="sync_claim_success">Enhed tilknyttet! Dine addons og plugins synkroniseres nu.</string>
+    <string name="sync_claim_success">Enhed tilknyttet! Dine addons synkroniseres nu.</string>
     <string name="sync_claim_done">Udført</string>
     <string name="sync_claim_code_label">Synkroniseringskode</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1394,48 +1383,6 @@
     <string name="sync_claim_pin_placeholder">Indtast PIN-kode</string>
     <string name="sync_claim_linking">Tilknytter\u2026</string>
 
-    <string name="plugin_readonly_notice">Bruger primær profils plugins og kan ikke ændres</string>
-    <string name="plugin_repositories_section">Repositories (%1$d)</string>
-    <string name="plugin_providers_section">Udbydere (%1$d)</string>
-    <string name="plugin_title">Plugins</string>
-    <string name="plugin_enable_plugins_title">Aktivér plugin-udbydere globalt</string>
-    <string name="plugin_enable_plugins_subtitle">Brug plugin-udbydere i streamsøgning</string>
-    <string name="plugin_group_by_repository_title">Gruppér plugin-udbydere efter repository</string>
-    <string name="plugin_group_by_repository_subtitle">I streams, vis én udbyder pr. repository i stedet for én pr. kilde</string>
-    <string name="plugin_add_repository">Tilføj repository</string>
-    <string name="plugin_add_btn">Tilføj</string>
-    <string name="plugin_manage_from_phone_title">Administrer fra telefon</string>
-    <string name="plugin_manage_from_phone_subtitle">Scan en QR-kode for at tilføje eller fjerne repositories fra din telefon</string>
-    <string name="plugin_qr_instruction">Scan med din telefon for at administrere repositories</string>
-    <string name="plugin_qr_close">Luk</string>
-    <string name="plugin_confirm_title">Bekræft ændringer i repository</string>
-    <string name="plugin_confirm_subtitle">Følgende ændringer blev foretaget fra din telefon:</string>
-    <string name="plugin_confirm_added">Tilføjet:</string>
-    <string name="plugin_confirm_removed">Fjernet:</string>
-    <string name="plugin_confirm_no_changes">Ingen ændringer registreret</string>
-    <string name="plugin_confirm_total">Antal repositories: %1$d</string>
-    <string name="plugin_confirm_reject">Afvis</string>
-    <string name="plugin_confirm_confirm">Bekræft</string>
-    <string name="plugin_url_or_short_code_placeholder">URL eller kortkode</string>
-    <string name="plugin_diagnostics_collapse">Diagnostik (tryk for at skjule)</string>
-    <string name="plugin_diagnostics_expand">Diagnostik (tryk for at udvide)</string>
-    <string name="plugin_risky_enable_title">Aktivér denne udbyder?</string>
-    <string name="plugin_risky_enable_message">%1$s er kendt for at forårsage nedbrud på noget indhold. Aktivér alligevel?</string>
-    <string name="plugin_risky_enable_cancel">Annuller</string>
-    <string name="plugin_risky_enable_confirm">Aktivér</string>
-    <string name="plugin_updated_format">Opdateret: %1$s</string>
-    <string name="plugin_test_btn">Test</string>
-    <string name="plugin_test_results">Testresultater (%1$d streams)</string>
-    <string name="plugin_and_more">... og %1$d mere</string>
-    <string name="plugin_providers_count">%1$d udbydere</string>
-    <string name="plugin_no_repos">Ingen repositories tilføjet endnu.\nTilføj et repository for at komme i gang.</string>
-    <string name="plugin_error_invalid_url">Indtast venligst en gyldig URL</string>
-    <string name="plugin_error_add_repo">Kunne ikke tilføje repository: %1$s</string>
-    <string name="plugin_error_refresh">Opdatering mislykkedes: %1$s</string>
-    <string name="plugin_error_test">Test mislykkedes: %1$s</string>
-    <string name="plugin_test_no_results">Ingen resultater fundet</string>
-    <string name="plugin_test_found_streams">Fandt %1$d streams</string>
-    <string name="plugin_version">Version %1$s</string>
 
     <string name="profile_selection_title">Hvem ser med?</string>
     <string name="profile_selection_subtitle">Vælg en profil for at fortsætte</string>
@@ -1467,7 +1414,7 @@
     <string name="update_unknown_sources">Tillad installationer fra ukendte kilder for at fortsætte.</string>
     <!-- AccountScreen -->
     <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Log ind for at synkronisere dit bibliotek, se-fremskridt, addons og plugins på tværs af enheder. Bibliotekssynkronisering bruger Fetch Sync, når Trakt ikke er tilsluttet, og se-fremskridt kan bruge enten Trakt eller Fetch Sync.</string>
+    <string name="account_sign_in_description">Log ind for at synkronisere dit bibliotek, se-fremskridt og addons på tværs af enheder. Bibliotekssynkronisering bruger Fetch Sync, når Trakt ikke er tilsluttet, og se-fremskridt kan bruge enten Trakt eller Fetch Sync.</string>
     <string name="account_sync_code_title">Synkroniseringskode</string>
     <string name="account_sync_code_description">Synkroniser på tværs af enheder uden at oprette en konto.</string>
     <string name="account_linked_devices">Tilknyttede enheder (%1$d)</string>
@@ -1495,8 +1442,6 @@
     <string name="discover_empty_no_content_subtitle">Prøv en anden genre eller et andet katalog</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1543,11 +1488,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">Opret forbindelse til Wi-Fi eller Ethernet for at bruge denne funktion</string>
     <string name="error_server_ports_unavailable">Kunne ikke starte server. Alle porte er i brug.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">Tilføjede %1$s med %2$d udbydere</string>
-    <string name="plugin_repo_removed">Repository fjernet</string>
-    <string name="plugin_repo_refreshed">Repository opdateret</string>
 
     <!-- Trakt errors -->
 
@@ -1620,7 +1560,6 @@
     <string name="cd_refresh">Opdater</string>
     <string name="cd_remove">Fjern</string>
     <string name="cd_preview">Forhåndsvisning</string>
-    <string name="cd_test">Test</string>
     <string name="cd_unlink">Fjern tilknytning</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logo</string>

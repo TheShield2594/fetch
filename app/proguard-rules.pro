@@ -26,7 +26,7 @@
 -keep,allowobfuscation,allowshrinking interface retrofit2.Call
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
 # NOTE: allowobfuscation here is fine for Retrofit, but superseded by the
-# broader kotlin.** keep rule below for DexClassLoader extension compatibility.
+# broader kotlin.** keep rule below.
 -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
 # Keep all project API interfaces
 -keep class com.fetch.tv.data.remote.api.** { *; }
@@ -58,14 +58,6 @@
 # ── Torrent streaming (Fetch Engine) ───────────────────────────────────────────
 -keep class com.fetch.tv.core.torrent.** { *; }
 
-#── QuickJS ────────────────────────────────────────────────────────────────────
-# Keep quickjs-kt library classes for proper type conversion
--keep class com.dokar.quickjs.** { *; }
--keepclassmembers class com.dokar.quickjs.** { *; }
-# Keep PluginRuntime and related classes for JS bindings
--keep class com.fetch.tv.core.plugin.** { *; }
--keepclassmembers class com.fetch.tv.core.plugin.** { *; }
-
 # ── ExoPlayer / Media3 ────────────────────────────────────────────────────────
 -dontwarn androidx.media3.**
 -keep class androidx.media3.** { *; }
@@ -88,14 +80,6 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
-# ── External extension compatibility stubs (loaded via DexClassLoader) ────────
--keep class com.lagradost.cloudstream3.** { *; }
--keepclassmembers class com.lagradost.cloudstream3.** { *; }
--keep class com.lagradost.nicehttp.** { *; }
--keepclassmembers class com.lagradost.nicehttp.** { *; }
--keep class com.lagradost.api.** { *; }
--keepclassmembers class com.lagradost.api.** { *; }
-
 # ── General ────────────────────────────────────────────────────────────────────
 # Keep line numbers for crash reports
 -keepattributes SourceFile,LineNumberTable
@@ -106,17 +90,15 @@
 # so keep the whole package to avoid JNI lookup crashes after R8.
 -keep class is.xyz.mpv.** { *; }
 
-# ── Missing class stubs (referenced by cloudstream3 / jsoup / newpipe) ────────
--dontwarn org.mozilla.javascript.**
+# ── Missing class stubs ───────────────────────────────────────────────────────
 -dontwarn com.google.re2j.**
 -dontwarn javax.script.**
 -dontwarn okhttp3.internal.sse.**
--dontwarn org.jsoup.helper.Re2jRegex
 
-# ── DexClassLoader runtime deps (CloudStream extensions) ─────────────────────
-# Extensions are DEX files loaded at runtime via DexClassLoader. They resolve
-# dependencies by fully-qualified name from the host classloader. R8 must not
-# rename or remove any class that extensions may reference.
+# ── Broad keeps ───────────────────────────────────────────────────────────────
+# Added for CloudStream extensions, which were loaded at runtime and resolved
+# host classes by name. Extensions are gone; these stay until a minified build
+# is checked without them.
 -keep class kotlin.** { *; }
 -keep class kotlinx.coroutines.** { *; }
 
@@ -124,12 +106,7 @@
 -keepclassmembers class okhttp3.** { *; }
 -keep class okio.** { *; }
 -keepclassmembers class okio.** { *; }
--keep class org.jsoup.** { *; }
--keepclassmembers class org.jsoup.** { *; }
--keep class com.fasterxml.jackson.** { *; }
--keepclassmembers class com.fasterxml.jackson.** { *; }
 
-# AndroidX components referenced by extensions
 -keep class androidx.fragment.app.** { *; }
 -keep interface androidx.fragment.app.** { *; }
 

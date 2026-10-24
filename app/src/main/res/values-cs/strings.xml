@@ -373,9 +373,8 @@
     <string name="settings_profiles">Profily</string>
     <string name="settings_layout">Rozvržení</string>
     <string name="settings_content_discovery">Obsah a objevování</string>
-    <string name="settings_content_discovery_subtitle">Doplňky, pluginy, katalogy a zdroje objevování</string>
+    <string name="settings_content_discovery_subtitle">Doplňky, katalogy a zdroje objevování</string>
     <string name="settings_content_discovery_addons_subtitle">Spravovat doplňky, pořadí katalogů a kolekce</string>
-    <string name="settings_content_discovery_plugins_subtitle">Spravovat repozitáře a poskytovatele streamů</string>
     <string name="settings_integration">Integrace</string>
     <string name="settings_playback">Přehrávání</string>
     <string name="settings_advanced">Pokročilé</string>
@@ -478,7 +477,6 @@
     <string name="settings_debug">Ladění</string>
     <string name="settings_account_section_subtitle">Stav účtu a synchronizace</string>
     <string name="account_stat_addons">doplňky</string>
-    <string name="account_stat_plugins">pluginy</string>
     <string name="account_stat_library">knihovna</string>
     <string name="account_stat_progress">postup</string>
     <string name="account_stat_watched">zhlédnuto</string>
@@ -687,27 +685,18 @@
     <string name="autoplay_threshold_pct_title">Procento prahu</string>
     <string name="autoplay_threshold_pct_sub">Náhradní řešení, když není k dispozici časová značka outra.</string>
     <string name="autoplay_threshold_min_title">Minut prahu</string>
-    <string name="autoplay_scope_all">Všechny zdroje</string>
-    <string name="autoplay_scope_addons">Pouze nainstalované doplňky</string>
-    <string name="autoplay_scope_plugins">Pouze povolené pluginy</string>
-    <string name="autoplay_scope">Rozsah zdrojů pro automatické přehrávání</string>
     <string name="autoplay_timeout_title">Časový limit výběru streamu</string>
     <string name="autoplay_timeout_sub">Doba čekání na doplňky před výběrem.</string>
     <string name="autoplay_timeout_instant">Okamžitě</string>
     <string name="autoplay_timeout_unlimited">Neomezeně</string>
     <string name="autoplay_allowed_addons">Povolené doplňky</string>
     <string name="autoplay_all_addons">Všechny nainstalované doplňky</string>
-    <string name="autoplay_allowed_plugins">Povolené pluginy</string>
-    <string name="autoplay_all_plugins">Všechny povolené pluginy</string>
     <string name="autoplay_regex_placeholder">Není nastaven žádný vzor. Příklad: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Vzor regex</string>
     <string name="autoplay_no_items">Žádné položky nejsou k dispozici</string>
     <string name="autoplay_mode_manual_desc">Vždy zobrazit seznam zdrojů a nechat mě vybrat.</string>
     <string name="autoplay_mode_first_desc">Automaticky přehrát první dostupný zdroj.</string>
     <string name="autoplay_mode_regex_desc">Přehrát první zdroj, jehož text odpovídá vašemu vzoru regex.</string>
-    <string name="autoplay_scope_all_desc">Automatické přehrávání může používat jak nainstalované doplňky, tak povolené pluginy.</string>
-    <string name="autoplay_scope_addons_desc">Automatické přehrávání bere v úvahu pouze streamy pocházející z vašich nainstalovaných doplňků.</string>
-    <string name="autoplay_scope_plugins_desc">Automatické přehrávání bere v úvahu pouze streamy pocházející z povolených pluginů.</string>
     <string name="autoplay_threshold_pct_desc">Zobrazit podle procenta přehrávání, když není k dispozici časová značka outra.</string>
     <string name="autoplay_threshold_min_desc">Zobrazit tolik minut před koncem epizody, když není k dispozici časová značka outra.</string>
     <string name="autoplay_regex_matches">Porovnává se s názvem streamu/titulkem/popisem/doplňkem/url. Příklad: 4K|2160p|Remux</string>
@@ -1371,7 +1360,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Načítání…</string>
-    <string name="account_sync_description">Synchronizujte svou knihovnu, postup sledování, doplňky a pluginy napříč zařízeními.</string>
+    <string name="account_sync_description">Synchronizujte svou knihovnu, postup sledování a doplňky napříč zařízeními.</string>
     <string name="account_sync_restart_note">Synchronizace není v reálném čase napříč aktivními zařízeními. Po přihlášení restartujte toto zařízení nebo pro načtení změn provedených jinde.</string>
     <string name="account_signin_qr_title">Přihlásit se pomocí QR</string>
     <string name="account_signin_qr_subtitle">Naskenujte QR kód a dokončete přihlášení e-mailem na telefonu</string>
@@ -1382,7 +1371,7 @@
     <string name="account_loading_sync">Načítání synchronizačních dat…</string>
     <string name="account_sign_out">Odhlásit se</string>
     <string name="account_sign_out_confirm_title">Odhlásit se?</string>
-    <string name="account_sign_out_confirm_subtitle">Pro synchronizaci knihovny, průběhu sledování, doplňků a pluginů na tomto zařízení se budete muset znovu přihlásit.</string>
+    <string name="account_sign_out_confirm_subtitle">Pro synchronizaci knihovny, průběhu sledování a doplňků na tomto zařízení se budete muset znovu přihlásit.</string>
     <string name="account_error_signin_required">Nejprve se přihlaste pomocí účtu.</string>
     <string name="account_signin_create_title">Přihlásit se / Vytvořit účet</string>
     <string name="account_signin_create_desc">Použijte e-mail a heslo k vytvoření nebo přihlášení k účtu.</string>
@@ -1430,7 +1419,7 @@
 
     <string name="sync_claim_title">Propojit zařízení</string>
     <string name="sync_claim_subtitle">Zadejte synchronizační kód a PIN z vašeho druhého zařízení pro propojení tohoto zařízení.</string>
-    <string name="sync_claim_success">Zařízení úspěšně propojeno! Vaše doplňky a pluginy se nyní budou synchronizovat.</string>
+    <string name="sync_claim_success">Zařízení úspěšně propojeno! Vaše doplňky se nyní budou synchronizovat.</string>
     <string name="sync_claim_done">Hotovo</string>
     <string name="sync_claim_code_label">Synchronizační kód</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1438,48 +1427,6 @@
     <string name="sync_claim_pin_placeholder">Zadejte PIN</string>
     <string name="sync_claim_linking">Propojování…</string>
 
-    <string name="plugin_readonly_notice">Používá pluginy primárního profilu a nelze je změnit</string>
-    <string name="plugin_repositories_section">Repozitáře (%1$d)</string>
-    <string name="plugin_providers_section">Poskytovatelé (%1$d)</string>
-    <string name="plugin_title">Pluginy</string>
-    <string name="plugin_enable_plugins_title">Globálně zapnout poskytovatele pluginů</string>
-    <string name="plugin_enable_plugins_subtitle">Používat poskytovatele pluginů při vyhledávání streamů</string>
-    <string name="plugin_group_by_repository_title">Seskupit poskytovatele pluginů podle repozitáře</string>
-    <string name="plugin_group_by_repository_subtitle">Ve Streamech zobrazit jednoho poskytovatele na repozitář místo jednoho na zdroj</string>
-    <string name="plugin_add_repository">Přidat repozitář</string>
-    <string name="plugin_add_btn">Přidat</string>
-    <string name="plugin_manage_from_phone_title">Spravovat z telefonu</string>
-    <string name="plugin_manage_from_phone_subtitle">Naskenujte QR kód pro přidání nebo odebrání repozitářů z telefonu</string>
-    <string name="plugin_qr_instruction">Naskenujte telefonem pro správu repozitářů</string>
-    <string name="plugin_qr_close">Zavřít</string>
-    <string name="plugin_confirm_title">Potvrdit změny repozitáře</string>
-    <string name="plugin_confirm_subtitle">Následující změny byly provedeny z vašeho telefonu:</string>
-    <string name="plugin_confirm_added">Přidáno:</string>
-    <string name="plugin_confirm_removed">Odebráno:</string>
-    <string name="plugin_confirm_no_changes">Nebyly zjištěny žádné změny</string>
-    <string name="plugin_confirm_total">Celkem repozitářů: %1$d</string>
-    <string name="plugin_confirm_reject">Odmítnout</string>
-    <string name="plugin_confirm_confirm">Potvrdit</string>
-    <string name="plugin_url_or_short_code_placeholder">URL nebo krátký kód</string>
-    <string name="plugin_diagnostics_collapse">Diagnostika (klepnutím sbalit)</string>
-    <string name="plugin_diagnostics_expand">Diagnostika (klepnutím rozbalit)</string>
-    <string name="plugin_risky_enable_title">Povolit poskytovatele?</string>
-    <string name="plugin_risky_enable_message">%1$s je známo, že způsobuje pády u některého obsahu. Přesto povolit?</string>
-    <string name="plugin_risky_enable_cancel">Zrušit</string>
-    <string name="plugin_risky_enable_confirm">Povolit</string>
-    <string name="plugin_updated_format">Aktualizováno: %1$s</string>
-    <string name="plugin_test_btn">Test</string>
-    <string name="plugin_test_results">Výsledky testu (%1$d streamů)</string>
-    <string name="plugin_and_more">... a %1$d dalších</string>
-    <string name="plugin_providers_count">%1$d poskytovatelů</string>
-    <string name="plugin_no_repos">Zatím nebyly přidány žádné repozitáře.\nPro začátek přidejte repozitář.</string>
-    <string name="plugin_error_invalid_url">Zadejte prosím platnou URL</string>
-    <string name="plugin_error_add_repo">Nepodařilo se přidat repozitář: %1$s</string>
-    <string name="plugin_error_refresh">Nepodařilo se obnovit: %1$s</string>
-    <string name="plugin_error_test">Test selhal: %1$s</string>
-    <string name="plugin_test_no_results">Nebyly nalezeny žádné výsledky</string>
-    <string name="plugin_test_found_streams">Nalezeno %1$d streamů</string>
-    <string name="plugin_version">Verze %1$s</string>
 
     <string name="profile_selection_title">Kdo se dívá?</string>
     <string name="profile_selection_subtitle">Vyberte profil pro pokračování</string>
@@ -1511,7 +1458,7 @@
     <string name="update_unknown_sources">Pro pokračování povolte instalace z neznámých zdrojů.</string>
     <!-- AccountScreen -->
     <string name="account_title">Účet</string>
-    <string name="account_sign_in_description">Přihlaste se k synchronizaci knihovny, postupu sledování, doplňků a pluginů napříč zařízeními. Synchronizace knihovny používá Fetch Sync, když Trakt není připojen, a postup sledování může používat buď Trakt, nebo Fetch Sync.</string>
+    <string name="account_sign_in_description">Přihlaste se k synchronizaci knihovny, postupu sledování a doplňků napříč zařízeními. Synchronizace knihovny používá Fetch Sync, když Trakt není připojen, a postup sledování může používat buď Trakt, nebo Fetch Sync.</string>
     <string name="account_sync_code_title">Synchronizační kód</string>
     <string name="account_sync_code_description">Synchronizovat napříč zařízeními bez vytvoření účtu.</string>
     <string name="account_linked_devices">Propojená zařízení (%1$d)</string>
@@ -1539,8 +1486,6 @@
     <string name="discover_empty_no_content_subtitle">Zkuste jiný žánr nebo katalog</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1587,11 +1532,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">Pro použití této funkce se připojte k Wi-Fi nebo Ethernetu</string>
     <string name="error_server_ports_unavailable">Nepodařilo se spustit server. Všechny porty jsou obsazeny.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">Přidáno %1$s s %2$d poskytovateli</string>
-    <string name="plugin_repo_removed">Repozitář odebrán</string>
-    <string name="plugin_repo_refreshed">Repozitář obnoven</string>
 
     <!-- Trakt errors -->
 
@@ -1664,7 +1604,6 @@
     <string name="cd_refresh">Obnovit</string>
     <string name="cd_remove">Odebrat</string>
     <string name="cd_preview">Náhled</string>
-    <string name="cd_test">Test</string>
     <string name="cd_unlink">Odpojit</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>

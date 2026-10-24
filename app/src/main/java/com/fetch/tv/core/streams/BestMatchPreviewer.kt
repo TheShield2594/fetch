@@ -102,10 +102,8 @@ class BestMatchPreviewer @Inject constructor(
                 streams = streams,
                 mode = settings.streamAutoPlayMode,
                 regexPattern = settings.streamAutoPlayRegex,
-                source = settings.streamAutoPlaySource,
                 installedAddonNames = installedAddonNames,
                 selectedAddons = settings.streamAutoPlaySelectedAddons,
-                selectedPlugins = settings.streamAutoPlaySelectedPlugins,
                 rankingRules = settings.streamRankingRules
             ) ?: return null
             val descriptor: StreamDescriptor = StreamTitleParser.parse(stream)
@@ -114,10 +112,8 @@ class BestMatchPreviewer @Inject constructor(
                 StreamAutoPlaySelector.skippedBetterLooking(
                     streams = streams,
                     picked = stream,
-                    source = settings.streamAutoPlaySource,
                     installedAddonNames = installedAddonNames,
                     selectedAddons = settings.streamAutoPlaySelectedAddons,
-                    selectedPlugins = settings.streamAutoPlaySelectedPlugins,
                     rankingRules = settings.streamRankingRules
                 )?.let { SkippedStream(it.descriptor.pictureLabels(), it.exclusion ?: return@let null, it.descriptor) }
             } else {

@@ -37,7 +37,6 @@ class ProfileSettingsViewModel @Inject constructor(
         name: String,
         avatarColorHex: String,
         usesPrimaryAddons: Boolean,
-        usesPrimaryPlugins: Boolean,
         avatarId: String? = null
     ) {
         if (_isCreating.value) return
@@ -49,13 +48,8 @@ class ProfileSettingsViewModel @Inject constructor(
                 avatarId = avatarId
             )
             if (newProfile != null) {
-                if (usesPrimaryAddons || usesPrimaryPlugins) {
-                    profileManager.updateProfile(
-                        newProfile.copy(
-                            usesPrimaryAddons = usesPrimaryAddons,
-                            usesPrimaryPlugins = usesPrimaryPlugins
-                        )
-                    )
+                if (usesPrimaryAddons) {
+                    profileManager.updateProfile(newProfile.copy(usesPrimaryAddons = true))
                 }
                 profileSyncService.pushToRemote()
             }

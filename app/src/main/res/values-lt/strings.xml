@@ -184,7 +184,6 @@
     <string name="settings_debug">Derinimas (Debug)</string>
     <string name="settings_account_section_subtitle">Paskyros ir sinchronizavimo būsena</string>
     <string name="account_stat_addons">priedai</string>
-    <string name="account_stat_plugins">įskiepiai</string>
     <string name="account_stat_library">biblioteka</string>
     <string name="account_stat_progress">pažanga</string>
     <string name="account_stat_watched">žiūrėta</string>
@@ -304,27 +303,18 @@
     <string name="autoplay_threshold_pct_title">Threshold Percentage</string>
     <string name="autoplay_threshold_pct_sub">Naudojama pasibaigus serijai, jei nėra pabaigos kadrų (outro) žymų.</string>
     <string name="autoplay_threshold_min_title">Threshold Minutes</string>
-    <string name="autoplay_scope_all">Visi šaltiniai</string>
-    <string name="autoplay_scope_addons">Tik įdiegti priedai</string>
-    <string name="autoplay_scope_plugins">Tik įjungti įskiepiai</string>
-    <string name="autoplay_scope">Automatinio paleidimo šaltinių apimtis</string>
     <string name="autoplay_timeout_title">Srauto pasirinkimo laikas</string>
     <string name="autoplay_timeout_sub">Laukimo laikas priedams prieš pasirenkant.</string>
     <string name="autoplay_timeout_instant">Momentinis</string>
     <string name="autoplay_timeout_unlimited">Neribotas</string>
     <string name="autoplay_allowed_addons">Leidžiami priedai</string>
     <string name="autoplay_all_addons">Visi įdiegti priedai</string>
-    <string name="autoplay_allowed_plugins">Leidžiami įskiepiai</string>
-    <string name="autoplay_all_plugins">Visi įjungti įskiepiai</string>
     <string name="autoplay_regex_placeholder">Šablonas nenustatytas. Pavyzdys: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex šablonas</string>
     <string name="autoplay_no_items">Elementų nėra</string>
     <string name="autoplay_mode_manual_desc">Visada rodyti šaltinių sąrašą ir leisti pasirinkti.</string>
     <string name="autoplay_mode_first_desc">Automatiškai paleisti pirmą prieinamą šaltinį.</string>
     <string name="autoplay_mode_regex_desc">Paleisti pirmą šaltinį, kurio tekstas atitinka jūsų „Regex“ šabloną.</string>
-    <string name="autoplay_scope_all_desc">Automatinis paleidimas gali naudoti tiek įdiegtus priedus, tiek įjungtus įskiepius.</string>
-    <string name="autoplay_scope_addons_desc">Automatinis paleidimas atsižvelgia tik į srautus iš jūsų įdiegtų priedų.</string>
-    <string name="autoplay_scope_plugins_desc">Automatinis paleidimas atsižvelgia tik į srautus iš jūsų įjungtų įskiepių.</string>
     <string name="autoplay_threshold_pct_desc">Rodyti pagal atkūrimo procentą, kai pabaigos kadrų žymų nėra.</string>
     <string name="autoplay_threshold_min_desc">Rodyti likus tam tikram skaičiui minučių iki serijos pabaigos, kai pabaigos kadrų žymų nėra.</string>
     <string name="autoplay_regex_matches">Tikrinama pagal srauto pavadinimą/antraštę/aprašymą/priedą/URL. Pavyzdys: 4K|2160p|Remux</string>
@@ -754,29 +744,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">PIN</string>
 
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Naudojami pagrindinio profilio įskiepiai</string>
-    <string name="plugin_repositories_section">Repozitorijos (%1$d)</string>
-    <string name="plugin_providers_section">Teikėjai (%1$d)</string>
-    <string name="plugin_title">Įskiepiai</string>
-    <string name="plugin_add_repository">Pridėti repozitoriją</string>
-    <string name="plugin_add_btn">Pridėti</string>
-    <string name="plugin_manage_from_phone_title">Valdyti iš telefono</string>
-    <string name="plugin_manage_from_phone_subtitle">Keisti įskiepių nustatymus per telefoną</string>
-    <string name="plugin_qr_instruction">Skenuokite QR kodą</string>
-    <string name="plugin_qr_close">Uždaryti</string>
-    <string name="plugin_confirm_title">Patvirtinti įskiepių pakeitimus</string>
-    <string name="plugin_confirm_subtitle">Padaryti šie pakeitimai:</string>
-    <string name="plugin_confirm_added">Pridėta:</string>
-    <string name="plugin_confirm_removed">Pašalinta:</string>
-    <string name="plugin_confirm_no_changes">Pakeitimų neaptikta</string>
-    <string name="plugin_confirm_total">Iš viso repozitorijų: %1$d</string>
-    <string name="plugin_confirm_reject">Atmesti</string>
-    <string name="plugin_confirm_confirm">Patvirtinti</string>
-    <string name="plugin_updated_format">Atnaujinta: %1$s</string>
-    <string name="plugin_test_btn">Testuoti</string>
-    <string name="plugin_test_results">Testo rezultatai (%1$d)</string>
-
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Kas žiūri?</string>
     <string name="profile_selection_subtitle">Pasirinkite savo profilį</string>
@@ -840,11 +807,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_confirm_total_addons">Iš viso priedų: %1$d</string>
     <string name="addon_confirm_total_catalogs">Iš viso katalogų: %1$d</string>
     <string name="addon_catalogs_types">Katalogai: %1$d - Tipai: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">ir dar %1$d</string>
-    <string name="plugin_providers_count">%1$d teikėjai</string>
-    <string name="plugin_no_repos">Repozitorijų nerasta</string>
 
     <!-- ProfileSettingsContent -->
 

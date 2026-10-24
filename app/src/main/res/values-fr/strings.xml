@@ -452,9 +452,8 @@
     <string name="settings_profiles">Profils</string>
     <string name="settings_layout">Disposition</string>
     <string name="settings_content_discovery">Contenu et découverte</string>
-    <string name="settings_content_discovery_subtitle">Addons, plugins, catalogues et sources de découverte</string>
+    <string name="settings_content_discovery_subtitle">Addons, catalogues et sources de découverte</string>
     <string name="settings_content_discovery_addons_subtitle">Gérer les addons, l’ordre des catalogues et les collections</string>
-    <string name="settings_content_discovery_plugins_subtitle">Gérer les dépôts et les fournisseurs de flux</string>
     <string name="settings_integration">Intégrations</string>
     <string name="settings_playback">Lecture</string>
     <string name="settings_tracking_title">Suivi</string>
@@ -593,7 +592,6 @@
     <string name="settings_debug">Débogage</string>
     <string name="settings_account_section_subtitle">Compte et état de la synchronisation</string>
     <string name="account_stat_addons">addons</string>
-    <string name="account_stat_plugins">plugins</string>
     <string name="account_stat_library">bibliothèque</string>
     <string name="account_stat_progress">progression</string>
     <string name="account_stat_watched">vus</string>
@@ -844,27 +842,18 @@
     <string name="autoplay_threshold_pct_title">Pourcentage du seuil</string>
     <string name="autoplay_threshold_pct_sub">Valeur de repli en l’absence de repère d’outro.</string>
     <string name="autoplay_threshold_min_title">Minutes du seuil</string>
-    <string name="autoplay_scope_all">Toutes les sources</string>
-    <string name="autoplay_scope_addons">Addons installés uniquement</string>
-    <string name="autoplay_scope_plugins">Plugins activés uniquement</string>
-    <string name="autoplay_scope">Portée des sources de la lecture automatique</string>
     <string name="autoplay_timeout_title">Délai de sélection du flux</string>
     <string name="autoplay_timeout_sub">Temps d’attente des addons avant la sélection.</string>
     <string name="autoplay_timeout_instant">Instantané</string>
     <string name="autoplay_timeout_unlimited">Illimité</string>
     <string name="autoplay_allowed_addons">Addons autorisés</string>
     <string name="autoplay_all_addons">Tous les addons installés</string>
-    <string name="autoplay_allowed_plugins">Plugins autorisés</string>
-    <string name="autoplay_all_plugins">Tous les plugins activés</string>
     <string name="autoplay_regex_placeholder">Aucun motif défini. Exemple&#160;: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Motif regex</string>
     <string name="autoplay_no_items">Aucun élément disponible</string>
     <string name="autoplay_mode_manual_desc">Toujours afficher la liste des sources et me laisser choisir.</string>
     <string name="autoplay_mode_first_desc">Lire automatiquement la première source disponible.</string>
     <string name="autoplay_mode_regex_desc">Lire la première source dont le texte correspond à votre motif regex.</string>
-    <string name="autoplay_scope_all_desc">La lecture automatique peut utiliser à la fois les addons installés et les plugins activés.</string>
-    <string name="autoplay_scope_addons_desc">La lecture automatique ne prend en compte que les flux provenant de vos addons installés.</string>
-    <string name="autoplay_scope_plugins_desc">La lecture automatique ne prend en compte que les flux provenant des plugins activés.</string>
     <string name="autoplay_threshold_pct_desc">Afficher selon le pourcentage de lecture en l’absence de repère d’outro.</string>
     <string name="autoplay_threshold_min_desc">Afficher ce nombre de minutes avant la fin de l’épisode en l’absence de repère d’outro.</string>
     <string name="autoplay_regex_matches">Compare le nom, le titre, la description, l’addon et l’URL du flux. Exemple&#160;: 4K|2160p|Remux</string>
@@ -1294,8 +1283,8 @@
     <string name="profile_copy_settings_apply">Appliquer</string>
     <string name="profile_copy_settings_credentials_off">Clés API&#160;: ne pas copier</string>
     <string name="profile_copy_settings_credentials_on">Clés API&#160;: copier les clés manquantes</string>
-    <string name="profile_copy_settings_details">Les clés API existantes sont conservées. Les connexions OAuth, les addons, les plugins, la disposition de l’accueil, le code PIN, l’historique, la bibliothèque, les téléchargements et les paramètres propres à l’appareil restent inchangés.</string>
-    <string name="profile_copy_settings_exclusions">Les connexions OAuth, les addons, les plugins, la disposition de l’accueil, le code PIN, l’historique, la bibliothèque, les téléchargements et les paramètres propres à l’appareil restent inchangés.</string>
+    <string name="profile_copy_settings_details">Les clés API existantes sont conservées. Les connexions OAuth, les addons, la disposition de l’accueil, le code PIN, l’historique, la bibliothèque, les téléchargements et les paramètres propres à l’appareil restent inchangés.</string>
+    <string name="profile_copy_settings_exclusions">Les connexions OAuth, les addons, la disposition de l’accueil, le code PIN, l’historique, la bibliothèque, les téléchargements et les paramètres propres à l’appareil restent inchangés.</string>
     <string name="profile_copy_settings_success">Paramètres copiés de %1$s vers %2$s.</string>
     <string name="profile_copy_settings_error">Impossible de copier les paramètres. Vérifiez votre connexion et réessayez.</string>
     <string name="profile_copy_settings_created_success">Profil créé avec les paramètres de %1$s.</string>
@@ -1739,7 +1728,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Chargement…</string>
-    <string name="account_sync_description">Synchronisez votre bibliothèque, votre progression de visionnage, vos addons et vos plugins entre vos appareils.</string>
+    <string name="account_sync_description">Synchronisez votre bibliothèque, votre progression de visionnage et vos addons entre vos appareils.</string>
     <string name="account_sync_restart_note">La synchronisation n’est pas en temps réel entre les appareils actifs. Redémarrez cet appareil après vous être connecté, ou pour récupérer les modifications effectuées ailleurs.</string>
     <string name="account_signin_qr_title">Se connecter par code QR</string>
     <string name="account_signin_qr_subtitle">Scannez un code QR et terminez la connexion par e-mail sur votre téléphone</string>
@@ -1750,7 +1739,7 @@
     <string name="account_loading_sync">Chargement des données de synchronisation…</string>
     <string name="account_sign_out">Se déconnecter</string>
     <string name="account_sign_out_confirm_title">Se déconnecter&#160;?</string>
-    <string name="account_sign_out_confirm_subtitle">Vous devrez vous reconnecter pour synchroniser la bibliothèque, la progression de visionnage, les addons et les plugins sur cet appareil.</string>
+    <string name="account_sign_out_confirm_subtitle">Vous devrez vous reconnecter pour synchroniser la bibliothèque, la progression de visionnage et les addons sur cet appareil.</string>
     <string name="account_error_signin_required">Connectez-vous d’abord avec un compte.</string>
     <string name="account_signin_create_title">Se connecter / Créer un compte</string>
     <string name="account_signin_create_desc">Utilisez votre adresse e-mail et votre mot de passe pour créer un compte ou vous y connecter.</string>
@@ -1833,7 +1822,7 @@
 
     <string name="sync_claim_title">Associer un appareil</string>
     <string name="sync_claim_subtitle">Saisissez le code de synchronisation et le code PIN de votre autre appareil pour y associer celui-ci.</string>
-    <string name="sync_claim_success">Appareil associé avec succès&#160;! Vos addons et vos plugins seront désormais synchronisés.</string>
+    <string name="sync_claim_success">Appareil associé avec succès&#160;! Vos addons seront désormais synchronisés.</string>
     <string name="sync_claim_done">Terminé</string>
     <string name="sync_claim_code_label">Code de synchronisation</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1841,48 +1830,6 @@
     <string name="sync_claim_pin_placeholder">Saisir le code PIN</string>
     <string name="sync_claim_linking">Association en cours…</string>
 
-    <string name="plugin_readonly_notice">Utilise les plugins du profil principal et ne peut pas être modifié</string>
-    <string name="plugin_repositories_section">Dépôts (%1$d)</string>
-    <string name="plugin_providers_section">Fournisseurs (%1$d)</string>
-    <string name="plugin_title">Plugins</string>
-    <string name="plugin_enable_plugins_title">Activer globalement les fournisseurs de plugins</string>
-    <string name="plugin_enable_plugins_subtitle">Utiliser les fournisseurs de plugins lors de la recherche de flux</string>
-    <string name="plugin_group_by_repository_title">Regrouper les fournisseurs de plugins par dépôt</string>
-    <string name="plugin_group_by_repository_subtitle">Dans Flux, afficher un fournisseur par dépôt plutôt qu’un par source</string>
-    <string name="plugin_add_repository">Ajouter un dépôt</string>
-    <string name="plugin_add_btn">Ajouter</string>
-    <string name="plugin_manage_from_phone_title">Gérer depuis le téléphone</string>
-    <string name="plugin_manage_from_phone_subtitle">Scannez un code QR pour ajouter ou supprimer des dépôts depuis votre téléphone</string>
-    <string name="plugin_qr_instruction">Scannez avec votre téléphone pour gérer les dépôts</string>
-    <string name="plugin_qr_close">Fermer</string>
-    <string name="plugin_confirm_title">Confirmer les modifications des dépôts</string>
-    <string name="plugin_confirm_subtitle">Les modifications suivantes ont été effectuées depuis votre téléphone&#160;:</string>
-    <string name="plugin_confirm_added">Ajoutés&#160;:</string>
-    <string name="plugin_confirm_removed">Supprimés&#160;:</string>
-    <string name="plugin_confirm_no_changes">Aucune modification détectée</string>
-    <string name="plugin_confirm_total">Total des dépôts&#160;: %1$d</string>
-    <string name="plugin_confirm_reject">Refuser</string>
-    <string name="plugin_confirm_confirm">Confirmer</string>
-    <string name="plugin_url_or_short_code_placeholder">URL ou code court</string>
-    <string name="plugin_diagnostics_collapse">Diagnostics (appuyez pour réduire)</string>
-    <string name="plugin_diagnostics_expand">Diagnostics (appuyez pour développer)</string>
-    <string name="plugin_risky_enable_title">Activer le fournisseur&#160;?</string>
-    <string name="plugin_risky_enable_message">%1$s est connu pour provoquer des plantages avec certains contenus. L’activer quand même&#160;?</string>
-    <string name="plugin_risky_enable_cancel">Annuler</string>
-    <string name="plugin_risky_enable_confirm">Activer</string>
-    <string name="plugin_updated_format">Mis à jour&#160;: %1$s</string>
-    <string name="plugin_test_btn">Tester</string>
-    <string name="plugin_test_results">Résultats du test (%1$d flux)</string>
-    <string name="plugin_and_more">… et %1$d autres</string>
-    <string name="plugin_providers_count">%1$d fournisseurs</string>
-    <string name="plugin_no_repos">Aucun dépôt ajouté pour le moment.\nAjoutez un dépôt pour commencer.</string>
-    <string name="plugin_error_invalid_url">Veuillez saisir une URL valide</string>
-    <string name="plugin_error_add_repo">Échec de l’ajout du dépôt&#160;: %1$s</string>
-    <string name="plugin_error_refresh">Échec de l’actualisation&#160;: %1$s</string>
-    <string name="plugin_error_test">Échec du test&#160;: %1$s</string>
-    <string name="plugin_test_no_results">Aucun résultat trouvé</string>
-    <string name="plugin_test_found_streams">%1$d flux trouvés</string>
-    <string name="plugin_version">Version %1$s</string>
 
     <string name="profile_selection_title">Qui regarde&#160;?</string>
     <string name="profile_selection_subtitle">Sélectionnez un profil pour continuer</string>
@@ -1920,7 +1867,7 @@
     <string name="update_unknown_sources">Autorisez les installations depuis des sources inconnues pour continuer.</string>
     <!-- AccountScreen -->
     <string name="account_title">Compte</string>
-    <string name="account_sign_in_description">Connectez-vous pour synchroniser votre bibliothèque, votre progression de visionnage, vos addons et vos plugins entre vos appareils. La bibliothèque est synchronisée via Fetch Sync lorsque Trakt n’est pas connecté, et la progression de visionnage peut utiliser Trakt ou Fetch Sync.</string>
+    <string name="account_sign_in_description">Connectez-vous pour synchroniser votre bibliothèque, votre progression de visionnage et vos addons entre vos appareils. La bibliothèque est synchronisée via Fetch Sync lorsque Trakt n’est pas connecté, et la progression de visionnage peut utiliser Trakt ou Fetch Sync.</string>
     <string name="account_sync_code_title">Code de synchronisation</string>
     <string name="account_sync_code_description">Synchronisez vos appareils sans créer de compte.</string>
     <string name="account_linked_devices">Appareils associés (%1$d)</string>
@@ -1948,8 +1895,6 @@
     <string name="discover_empty_no_content_subtitle">Essayez un autre genre ou un autre catalogue</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1997,11 +1942,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">Connectez-vous au Wi-Fi ou à Ethernet pour utiliser cette fonctionnalité</string>
     <string name="error_server_ports_unavailable">Impossible de démarrer le serveur. Tous les ports sont utilisés.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">%1$s ajouté avec %2$d fournisseurs</string>
-    <string name="plugin_repo_removed">Dépôt supprimé</string>
-    <string name="plugin_repo_refreshed">Dépôt actualisé</string>
 
     <!-- Trakt errors -->
 
@@ -2074,7 +2014,6 @@
     <string name="cd_refresh">Actualiser</string>
     <string name="cd_remove">Retirer</string>
     <string name="cd_preview">Aperçu</string>
-    <string name="cd_test">Tester</string>
     <string name="cd_unlink">Dissocier</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>

@@ -193,7 +193,6 @@
     <string name="settings_debug">डीबग</string>
     <string name="settings_account_section_subtitle">अकाउंट और सिंक स्थिति।</string>
     <string name="account_stat_addons">ऐडऑन</string>
-    <string name="account_stat_plugins">प्लगइन्स</string>
     <string name="account_stat_library">लाइब्रेरी</string>
     <string name="account_stat_progress">प्रोग्रेस</string>
     <string name="account_stat_watched">देखा गया</string>
@@ -313,27 +312,18 @@
     <string name="autoplay_threshold_pct_title">थ्रेशोल्ड प्रतिशत</string>
     <string name="autoplay_threshold_pct_sub">जब outro टाइमस्टैम्प उपलब्ध न हो तो फ़ॉलबैक।</string>
     <string name="autoplay_threshold_min_title">थ्रेशोल्ड मिनट</string>
-    <string name="autoplay_scope_all">सभी सोर्स</string>
-    <string name="autoplay_scope_addons">केवल इंस्टॉल किए गए ऐडऑन</string>
-    <string name="autoplay_scope_plugins">केवल सक्षम प्लगइन</string>
-    <string name="autoplay_scope">ऑटो-प्ले सोर्स स्कोप</string>
     <string name="autoplay_timeout_title">स्ट्रीम चयन टाइमआउट</string>
     <string name="autoplay_timeout_sub">चयन से पहले ऐडऑन के लिए प्रतीक्षा समय</string>
     <string name="autoplay_timeout_instant">तुरंत</string>
     <string name="autoplay_timeout_unlimited">असीमित</string>
     <string name="autoplay_allowed_addons">अनुमत ऐडऑन</string>
     <string name="autoplay_all_addons">सभी इंस्टॉल किए गए ऐडऑन</string>
-    <string name="autoplay_allowed_plugins">अनुमत प्लगइन</string>
-    <string name="autoplay_all_plugins">सभी सक्षम प्लगइन</string>
     <string name="autoplay_regex_placeholder">कोई पैटर्न सेट नहीं। उदाहरण: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex पैटर्न</string>
     <string name="autoplay_no_items">कोई आइटम उपलब्ध नहीं</string>
     <string name="autoplay_mode_manual_desc">हमेशा सोर्स सूची दिखाएँ और मुझे चुनने दें।</string>
     <string name="autoplay_mode_first_desc">पहला उपलब्ध सोर्स अपने आप चलाएँ।</string>
     <string name="autoplay_mode_regex_desc">पहला ऐसा सोर्स चलाएँ जिसका टेक्स्ट आपके regex पैटर्न से मेल खाता हो।</string>
-    <string name="autoplay_scope_all_desc">ऑटो-प्ले इंस्टॉल किए गए ऐडऑन और सक्षम प्लगइन दोनों का उपयोग कर सकता है।</string>
-    <string name="autoplay_scope_addons_desc">ऑटो-प्ले केवल आपके इंस्टॉल किए गए ऐडऑन से आने वाली स्ट्रीम पर विचार करेगा।</string>
-    <string name="autoplay_scope_plugins_desc">ऑटो-प्ले केवल सक्षम प्लगइन से आने वाली स्ट्रीम पर विचार करेगा।</string>
     <string name="autoplay_threshold_pct_desc">जब outro टाइमस्टैम्प उपलब्ध न हो तो प्लेबैक प्रतिशत के आधार पर दिखाएँ।</string>
     <string name="autoplay_threshold_min_desc">जब outro टाइमस्टैम्प उपलब्ध न हो तो एपिसोड समाप्ति से इतने मिनट पहले दिखाएँ।</string>
     <string name="autoplay_regex_matches">स्ट्रीम नाम/टाइटल/डिस्क्रिप्शन/ऐडऑन/url से मैच करता है। उदाहरण: 4K|2160p|Remux</string>
@@ -710,7 +700,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">लोड हो रहा है\u2026</string>
-    <string name="account_sync_description">अपनी लाइब्रेरी, वॉच प्रोग्रेस, ऐडऑन और प्लगइन को डिवाइसों के बीच सिंक करें।</string>
+    <string name="account_sync_description">अपनी लाइब्रेरी, वॉच प्रोग्रेस और ऐडऑन को डिवाइसों के बीच सिंक करें।</string>
     <string name="account_sync_restart_note">सिंक सक्रिय डिवाइसों के बीच रियल-टाइम नहीं है। साइन इन करने के बाद या अन्य जगह किए बदलाव लाने के लिए इस डिवाइस को रीस्टार्ट करें।</string>
     <string name="account_signin_qr_title">QR से साइन इन</string>
     <string name="account_signin_qr_subtitle">QR कोड स्कैन करें और अपने फोन पर ईमेल लॉगिन पूरा करें</string>
@@ -750,35 +740,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">डिवाइस लिंक करें</string>
     <string name="sync_claim_subtitle">इस डिवाइस को लिंक करने के लिए दूसरे डिवाइस का सिंक कोड और PIN दर्ज करें।</string>
-    <string name="sync_claim_success">डिवाइस सफलतापूर्वक लिंक हो गया! आपके ऐडऑन और प्लगइन अब सिंक होंगे।</string>
+    <string name="sync_claim_success">डिवाइस सफलतापूर्वक लिंक हो गया! आपके ऐडऑन अब सिंक होंगे।</string>
     <string name="sync_claim_done">पूरा</string>
     <string name="sync_claim_code_label">सिंक कोड</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">PIN दर्ज करें</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">प्राइमरी प्रोफाइल के प्लगइन उपयोग हो रहे हैं और इन्हें बदला नहीं जा सकता</string>
-    <string name="plugin_repositories_section">रिपॉजिटरी (%1$d)</string>
-    <string name="plugin_providers_section">प्रोवाइडर (%1$d)</string>
-    <string name="plugin_title">प्लगइन</string>
-    <string name="plugin_add_repository">रिपॉजिटरी जोड़ें</string>
-    <string name="plugin_add_btn">जोड़ें</string>
-    <string name="plugin_manage_from_phone_title">फोन से मैनेज करें</string>
-    <string name="plugin_manage_from_phone_subtitle">अपने फोन से रिपॉजिटरी जोड़ने या हटाने के लिए QR कोड स्कैन करें</string>
-    <string name="plugin_qr_instruction">रिपॉजिटरी मैनेज करने के लिए फोन से स्कैन करें</string>
-    <string name="plugin_qr_close">बंद करें</string>
-    <string name="plugin_confirm_title">रिपॉजिटरी बदलाव की पुष्टि करें</string>
-    <string name="plugin_confirm_subtitle">निम्नलिखित बदलाव आपके फोन से किए गए:</string>
-    <string name="plugin_confirm_added">जोड़े गए:</string>
-    <string name="plugin_confirm_removed">हटाए गए:</string>
-    <string name="plugin_confirm_no_changes">कोई बदलाव नहीं मिला</string>
-    <string name="plugin_confirm_total">कुल रिपॉजिटरी: %1$d</string>
-    <string name="plugin_confirm_reject">अस्वीकार करें</string>
-    <string name="plugin_confirm_confirm">पुष्टि करें</string>
-    <string name="plugin_updated_format">अपडेट किया गया: %1$s</string>
-    <string name="plugin_test_btn">टेस्ट</string>
-    <string name="plugin_test_results">टेस्ट परिणाम (%1$d स्ट्रीम)</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">कौन देख रहा है?</string>
@@ -812,7 +779,7 @@
     <string name="update_unknown_sources">जारी रखने के लिए अज्ञात स्रोत से इंस्टॉल की अनुमति दें।</string>
     <!-- AccountScreen -->
     <string name="account_title">अकाउंट</string>
-    <string name="account_sign_in_description">डिवाइसों के बीच अपनी लाइब्रेरी, वॉच प्रोग्रेस, ऐडऑन और प्लगइन सिंक करने के लिए साइन इन करें। लाइब्रेरी और वॉच प्रोग्रेस केवल तब सिंक होते हैं जब Trakt कनेक्ट नहीं होता।</string>
+    <string name="account_sign_in_description">डिवाइसों के बीच अपनी लाइब्रेरी, वॉच प्रोग्रेस और ऐडऑन सिंक करने के लिए साइन इन करें। लाइब्रेरी और वॉच प्रोग्रेस केवल तब सिंक होते हैं जब Trakt कनेक्ट नहीं होता।</string>
     <string name="account_sync_code_title">सिंक कोड</string>
     <string name="account_sync_code_description">अकाउंट बनाए बिना डिवाइसों के बीच सिंक करें।</string>
     <string name="account_linked_devices">लिंक किए गए डिवाइस (%1$d)</string>
@@ -843,11 +810,6 @@
     <string name="addon_confirm_total_addons">कुल ऐडऑन: %1$d</string>
     <string name="addon_confirm_total_catalogs">कुल कैटलॉग: %1$d</string>
     <string name="addon_catalogs_types">कैटलॉग: %1$d - प्रकार: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... और %1$d</string>
-    <string name="plugin_providers_count">%1$d प्रोवाइडर</string>
-    <string name="plugin_no_repos">अभी तक कोई रिपॉजिटरी नहीं जोड़ी गई।\nशुरू करने के लिए एक रिपॉजिटरी जोड़ें।</string>
 
     <!-- ProfileSettingsContent -->
 

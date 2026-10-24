@@ -431,9 +431,8 @@
     <string name="settings_profiles">個人資料</string>
     <string name="settings_layout">佈局</string>
     <string name="settings_content_discovery">內容與探索</string>
-    <string name="settings_content_discovery_subtitle">擴充套件、外掛、目錄與探索來源</string>
+    <string name="settings_content_discovery_subtitle">擴充套件、目錄與探索來源</string>
     <string name="settings_content_discovery_addons_subtitle">管理擴充套件、目錄順序和收藏</string>
-    <string name="settings_content_discovery_plugins_subtitle">管理倉庫和串流提供者</string>
     <string name="settings_integration">整合</string>
     <string name="settings_playback">播放</string>
     <string name="settings_tracking_title">追蹤</string>
@@ -570,7 +569,6 @@
     <string name="settings_debug">除錯</string>
     <string name="settings_account_section_subtitle">帳戶與同步狀態</string>
     <string name="account_stat_addons">擴充套件</string>
-    <string name="account_stat_plugins">外掛</string>
     <string name="account_stat_library">媒體庫</string>
     <string name="account_stat_progress">進度</string>
     <string name="account_stat_watched">已觀看</string>
@@ -795,27 +793,18 @@
     <string name="autoplay_threshold_pct_title">觸發百分比</string>
     <string name="autoplay_threshold_pct_sub">當沒有片尾時間戳時的備用方案。</string>
     <string name="autoplay_threshold_min_title">觸發分鐘數</string>
-    <string name="autoplay_scope_all">所有來源</string>
-    <string name="autoplay_scope_addons">僅已安裝的擴充套件</string>
-    <string name="autoplay_scope_plugins">僅已啟用的外掛</string>
-    <string name="autoplay_scope">自動播放來源範圍</string>
     <string name="autoplay_timeout_title">串流選擇逾時</string>
     <string name="autoplay_timeout_sub">選擇前等待擴充套件的時間。</string>
     <string name="autoplay_timeout_instant">即時</string>
     <string name="autoplay_timeout_unlimited">無限制</string>
     <string name="autoplay_allowed_addons">允許的擴充套件</string>
     <string name="autoplay_all_addons">所有已安裝的擴充套件</string>
-    <string name="autoplay_allowed_plugins">允許的外掛</string>
-    <string name="autoplay_all_plugins">所有已啟用的外掛</string>
     <string name="autoplay_regex_placeholder">未設定模式。例如：4K|2160p|Remux</string>
     <string name="autoplay_regex_title">正規表示式模式</string>
     <string name="autoplay_no_items">沒有可用的項目</string>
     <string name="autoplay_mode_manual_desc">始終顯示來源清單，讓我自己選擇。</string>
     <string name="autoplay_mode_first_desc">自動播放第一個可用的來源。</string>
     <string name="autoplay_mode_regex_desc">播放文字符合您正規表示式模式的第一個來源。</string>
-    <string name="autoplay_scope_all_desc">自動播放可以使用已安裝的擴充套件和已啟用的外掛。</string>
-    <string name="autoplay_scope_addons_desc">自動播放僅考慮來自已安裝擴充套件的串流。</string>
-    <string name="autoplay_scope_plugins_desc">自動播放僅考慮來自已啟用外掛的串流。</string>
     <string name="autoplay_threshold_pct_desc">當沒有片尾時間戳時，依播放百分比觸發。</string>
     <string name="autoplay_threshold_min_desc">當沒有片尾時間戳時，在集數結束前此分鐘數觸發。</string>
     <string name="autoplay_regex_matches">匹配串流名稱/標題/描述/擴充套件/網址。例如：4K|2160p|Remux</string>
@@ -1212,8 +1201,8 @@
     <string name="profile_copy_settings_apply">套用</string>
     <string name="profile_copy_settings_credentials_off">API 金鑰：不複製</string>
     <string name="profile_copy_settings_credentials_on">API 金鑰：複製缺少的金鑰</string>
-    <string name="profile_copy_settings_details">保留現有 API 金鑰。OAuth、擴充套件、外掛、首頁佈局、PIN、歷史記錄、媒體庫、下載和裝置特定設定保持不變。</string>
-    <string name="profile_copy_settings_exclusions">OAuth、擴充套件、外掛、首頁佈局、PIN、歷史記錄、媒體庫、下載和裝置特定設定保持不變。</string>
+    <string name="profile_copy_settings_details">保留現有 API 金鑰。OAuth、擴充套件、首頁佈局、PIN、歷史記錄、媒體庫、下載和裝置特定設定保持不變。</string>
+    <string name="profile_copy_settings_exclusions">OAuth、擴充套件、首頁佈局、PIN、歷史記錄、媒體庫、下載和裝置特定設定保持不變。</string>
     <string name="profile_copy_settings_success">設定已從 %1$s 複製到 %2$s。</string>
     <string name="profile_copy_settings_error">無法複製設定。請檢查您的連線並重試。</string>
     <string name="profile_copy_settings_created_success">已使用來自 %1$s 的設定建立個人資料。</string>
@@ -1633,7 +1622,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">載入中…</string>
-    <string name="account_sync_description">在裝置間同步您的媒體庫、觀看進度、擴充套件和外掛。</string>
+    <string name="account_sync_description">在裝置間同步您的媒體庫、觀看進度和擴充套件。</string>
     <string name="account_sync_restart_note">同步並非跨作用中裝置即時進行。登入後或要套用在其他位置進行的變更時，請重新啟動此裝置。</string>
     <string name="account_signin_qr_title">使用 QR 碼登入</string>
     <string name="account_signin_qr_subtitle">掃描 QR 碼並在手機上完成電子郵件登入</string>
@@ -1644,7 +1633,7 @@
     <string name="account_loading_sync">正在載入同步資料…</string>
     <string name="account_sign_out">登出</string>
     <string name="account_sign_out_confirm_title">登出？</string>
-    <string name="account_sign_out_confirm_subtitle">您需要重新登入才能在此裝置上同步媒體庫、觀看進度、擴充套件和外掛。</string>
+    <string name="account_sign_out_confirm_subtitle">您需要重新登入才能在此裝置上同步媒體庫、觀看進度和擴充套件。</string>
     <string name="account_error_signin_required">請先登入帳戶。</string>
     <string name="account_signin_create_title">登入／建立帳戶</string>
     <string name="account_signin_create_desc">使用電子郵件和密碼建立或登入您的帳戶。</string>
@@ -1727,7 +1716,7 @@
 
     <string name="sync_claim_title">連結裝置</string>
     <string name="sync_claim_subtitle">輸入其他裝置的同步碼和 PIN 以連結此裝置。</string>
-    <string name="sync_claim_success">裝置連結成功！您的擴充套件和外掛現在將同步。</string>
+    <string name="sync_claim_success">裝置連結成功！您的擴充套件現在將同步。</string>
     <string name="sync_claim_done">完成</string>
     <string name="sync_claim_code_label">同步碼</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1735,48 +1724,6 @@
     <string name="sync_claim_pin_placeholder">輸入 PIN</string>
     <string name="sync_claim_linking">連結中…</string>
 
-    <string name="plugin_readonly_notice">使用主要使用者的外掛，無法變更</string>
-    <string name="plugin_repositories_section">倉庫 (%1$d)</string>
-    <string name="plugin_providers_section">提供者 (%1$d)</string>
-    <string name="plugin_title">外掛</string>
-    <string name="plugin_enable_plugins_title">全域啟用外掛提供者</string>
-    <string name="plugin_enable_plugins_subtitle">在串流探索期間使用外掛提供者</string>
-    <string name="plugin_group_by_repository_title">依倉庫分組外掛提供者</string>
-    <string name="plugin_group_by_repository_subtitle">在串流中，每個倉庫顯示一個提供者，而非每個來源一個</string>
-    <string name="plugin_add_repository">新增倉庫</string>
-    <string name="plugin_add_btn">新增</string>
-    <string name="plugin_manage_from_phone_title">從手機管理</string>
-    <string name="plugin_manage_from_phone_subtitle">掃描 QR 碼以從手機新增或移除倉庫</string>
-    <string name="plugin_qr_instruction">用手機掃描以管理倉庫</string>
-    <string name="plugin_qr_close">關閉</string>
-    <string name="plugin_confirm_title">確認倉庫變更</string>
-    <string name="plugin_confirm_subtitle">已從您的手機進行以下變更：</string>
-    <string name="plugin_confirm_added">已新增：</string>
-    <string name="plugin_confirm_removed">已移除：</string>
-    <string name="plugin_confirm_no_changes">未偵測到變更</string>
-    <string name="plugin_confirm_total">倉庫總數：%1$d</string>
-    <string name="plugin_confirm_reject">拒絕</string>
-    <string name="plugin_confirm_confirm">確認</string>
-    <string name="plugin_url_or_short_code_placeholder">網址或短代碼</string>
-    <string name="plugin_diagnostics_collapse">診斷 (點擊摺疊)</string>
-    <string name="plugin_diagnostics_expand">診斷 (點擊展開)</string>
-    <string name="plugin_risky_enable_title">啟用提供者？</string>
-    <string name="plugin_risky_enable_message">已知 %1$s 會在某些內容上導致當機。仍要啟用嗎？</string>
-    <string name="plugin_risky_enable_cancel">取消</string>
-    <string name="plugin_risky_enable_confirm">啟用</string>
-    <string name="plugin_updated_format">更新時間：%1$s</string>
-    <string name="plugin_test_btn">測試</string>
-    <string name="plugin_test_results">測試結果 (%1$d 個串流)</string>
-    <string name="plugin_and_more">... 還有 %1$d 個</string>
-    <string name="plugin_providers_count">%1$d 個提供者</string>
-    <string name="plugin_no_repos">尚未新增倉庫。\n新增倉庫以開始使用。</string>
-    <string name="plugin_error_invalid_url">請輸入有效的網址</string>
-    <string name="plugin_error_add_repo">新增倉庫失敗：%1$s</string>
-    <string name="plugin_error_refresh">重新整理失敗：%1$s</string>
-    <string name="plugin_error_test">測試失敗：%1$s</string>
-    <string name="plugin_test_no_results">找不到結果</string>
-    <string name="plugin_test_found_streams">找到 %1$d 個串流</string>
-    <string name="plugin_version">版本 %1$s</string>
 
     <string name="profile_selection_title">誰在觀看？</string>
     <string name="profile_selection_subtitle">選擇個人資料以繼續</string>
@@ -1814,7 +1761,7 @@
     <string name="update_unknown_sources">允許從未知來源安裝以繼續。</string>
     <!-- AccountScreen -->
     <string name="account_title">帳戶</string>
-    <string name="account_sign_in_description">登入以在裝置間同步您的媒體庫、觀看進度、擴充套件和外掛。當 Trakt 未連線時，媒體庫同步使用 Fetch Sync，觀看進度可使用 Trakt 或 Fetch Sync。</string>
+    <string name="account_sign_in_description">登入以在裝置間同步您的媒體庫、觀看進度和擴充套件。當 Trakt 未連線時，媒體庫同步使用 Fetch Sync，觀看進度可使用 Trakt 或 Fetch Sync。</string>
     <string name="account_sync_code_title">同步碼</string>
     <string name="account_sync_code_description">無需建立帳戶即可跨裝置同步。</string>
     <string name="account_linked_devices">已連結的裝置 (%1$d)</string>
@@ -1842,8 +1789,6 @@
     <string name="discover_empty_no_content_subtitle">請嘗試其他類型或目錄</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1893,9 +1838,6 @@
     <string name="error_server_ports_unavailable">無法啟動伺服器。所有連接埠皆被佔用。</string>
 
     <!-- 外掛錯誤 -->
-    <string name="plugin_repo_added_with_providers">已新增 %1$s，包含 %2$d 個提供者</string>
-    <string name="plugin_repo_removed">倉庫已移除</string>
-    <string name="plugin_repo_refreshed">倉庫已重新整理</string>
 
     <!-- Trakt 錯誤 -->
 
@@ -1968,7 +1910,6 @@
     <string name="cd_refresh">重新整理</string>
     <string name="cd_remove">移除</string>
     <string name="cd_preview">預覽</string>
-    <string name="cd_test">測試</string>
     <string name="cd_unlink">取消連結</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt 標誌</string>

@@ -112,7 +112,6 @@ internal fun PlaybackSettingsDialogs(
     settings: PlayerSettings,
     p2p: P2pSettingsUi,
     installedAddonNames: List<String>,
-    enabledPluginNames: List<String>,
     onUpdate: PlaybackSettingsUpdate,
     onDismiss: () -> Unit
 ) {
@@ -142,7 +141,7 @@ internal fun PlaybackSettingsDialogs(
             onDismiss = onDismiss
         )
         else -> {
-            AutoPlaySettingsDialogs(dialog, settings, installedAddonNames, enabledPluginNames, onUpdate, onDismiss)
+            AutoPlaySettingsDialogs(dialog, settings, installedAddonNames, onUpdate, onDismiss)
             AudioSettingsDialogs(dialog, settings, onUpdate, onDismiss)
             SubtitleSettingsDialogs(dialog, settings, onUpdate, onDismiss)
             VideoSettingsDialogs(dialog, settings, onUpdate, onDismiss)

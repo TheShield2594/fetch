@@ -444,24 +444,9 @@ dependencies {
 
     implementation(libs.gson)
 
-    add("fullImplementation", libs.quickjs.kt)
-    add("fullImplementation", libs.jsoup)
-    add("fullImplementation", "com.fasterxml.jackson.core:jackson-databind:2.17.0")
-    add("fullImplementation", "com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
-    add("fullImplementation", libs.nicehttp)
-    add("fullImplementation", libs.conscrypt.android)
-    add("fullImplementation", "com.github.recloudstream.cloudstream:library:${libs.versions.cloudstream.get()}") {
-        exclude(group = "org.mozilla", module = "rhino")
-        exclude(group = "com.github.AmarullisVFX", module = "newpipeextractor")
-        exclude(group = "com.github.AmaryllisVFX", module = "newpipeextractor")
-        exclude(group = "com.github.AmaryllisVFX.newpipeextractor")
-        exclude(group = "info.debatty", module = "java-string-similarity")
-    }
-
     // Markdown rendering
     implementation(libs.markdown.renderer.m3)
 
-    add("fullImplementation", libs.crypto.js)
     // QR code + local server for addon management
     implementation(libs.nanohttpd)
     implementation(libs.zxing.core)
@@ -482,13 +467,13 @@ dependencies {
     implementation("androidx.metrics:metrics-performance:1.0.0-rc01")  // JankStats
     debugImplementation("androidx.compose.runtime:runtime-tracing")
 
-    add("fullImplementation", "org.webjars.npm:crypto-js:4.2.0")
-
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
     testImplementation("junit:junit:4.13.2")
+    // Real org.json for JVM tests; android.jar only ships stubs.
+    testImplementation("org.json:json:20240303")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")

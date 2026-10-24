@@ -233,7 +233,6 @@
     <string name="settings_debug">Feilsøking</string>
     <string name="settings_account_section_subtitle">Kontostatus og synkroniseringsstatus</string>
     <string name="account_stat_addons">tillegg</string>
-    <string name="account_stat_plugins">programtillegg</string>
     <string name="account_stat_library">bibliotek</string>
     <string name="account_stat_progress">progresjon</string>
     <string name="account_stat_watched">sett</string>
@@ -353,27 +352,18 @@
     <string name="autoplay_threshold_pct_title">Terskelprosentsats</string>
     <string name="autoplay_threshold_pct_sub">Fall tilbake når ingen outrotidsmerke eksisterer.</string>
     <string name="autoplay_threshold_min_title">Terskelminutter</string>
-    <string name="autoplay_scope_all">Alle kilder</string>
-    <string name="autoplay_scope_addons">Bare installerte tillegg</string>
-    <string name="autoplay_scope_plugins">Bare aktiverte programtillegg</string>
-    <string name="autoplay_scope">Autoavspill kildeomfang</string>
     <string name="autoplay_timeout_title">Strømvalgtidsavbrudd</string>
     <string name="autoplay_timeout_sub">Ventetid for tillegg før valg.</string>
     <string name="autoplay_timeout_instant">Med en gang</string>
     <string name="autoplay_timeout_unlimited">Ubegrenset</string>
     <string name="autoplay_allowed_addons">Tillatte tillegg</string>
     <string name="autoplay_all_addons">Alle installerte tillegg</string>
-    <string name="autoplay_allowed_plugins">Tillatte programtillegg</string>
-    <string name="autoplay_all_plugins">Alle aktiverte programtillegg</string>
     <string name="autoplay_regex_placeholder">Ingen mønster angitt. Eksempel: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex-mønster</string>
     <string name="autoplay_no_items">Ingen elementer tilgjengelig</string>
     <string name="autoplay_mode_manual_desc">Vis alltid kildelisten og la meg velge.</string>
     <string name="autoplay_mode_first_desc">Spill den første tilgjengelige kilden automatisk.</string>
     <string name="autoplay_mode_regex_desc">Spill første kilde hvis tekst samsvarer med ditt regex-mønster.</string>
-    <string name="autoplay_scope_all_desc">Autoavspill kan bruke både installerte tillegg og aktiverte programtillegg.</string>
-    <string name="autoplay_scope_addons_desc">Autoavspill vurderer bare strømmer som kommer fra installerte tillegg.</string>
-    <string name="autoplay_scope_plugins_desc">Autoavspill vurderer bare strømmer som kommer fra aktiverte programtillegg.</string>
     <string name="autoplay_threshold_pct_desc">Vis etter avspillingsprosent når ingen outro-tidsstempel er tilgjengelig.</string>
     <string name="autoplay_threshold_min_desc">Vis dette mange minutter før episodens slutt når ingen outro-tidsstempel er tilgjengelig.</string>
     <string name="autoplay_regex_matches">Matches mot strømnavn/tittel/beskrivelse/tillegg/url. Eksempel: 4K|2160p|Remux</string>
@@ -799,7 +789,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Laster\u2026</string>
-    <string name="account_sync_description">Synkroniser biblioteket, seeframgang, tillegg og programtillegg på tvers av enheter.</string>
+    <string name="account_sync_description">Synkroniser biblioteket, seeframgang og tillegg på tvers av enheter.</string>
     <string name="account_sync_restart_note">Sync er ikke sanntid på tvers av aktive enheter. Start denne enheten på nytt etter pålogging eller for å hente endringer gjort andre steder.</string>
     <string name="account_signin_qr_title">Logg inn med QR</string>
     <string name="account_signin_qr_subtitle">Skann en QR-kode og fullfør e-postlogging på telefonen din</string>
@@ -839,35 +829,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">Kobling av enhet</string>
     <string name="sync_claim_subtitle">Skriv inn synkkoden og PIN-en fra den andre enheten din for å koble denne enheten.</string>
-    <string name="sync_claim_success">Enhet koblet sammen! Tillegg og programtillegg vil nå synkroniseres.</string>
+    <string name="sync_claim_success">Enhet koblet sammen! Tillegg vil nå synkroniseres.</string>
     <string name="sync_claim_done">Ferdig</string>
     <string name="sync_claim_code_label">Synkkode</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">Skriv inn PIN</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Bruker primær profilens programtillegg og kan ikke endres</string>
-    <string name="plugin_repositories_section">Depoter (%1$d)</string>
-    <string name="plugin_providers_section">Leverandører (%1$d)</string>
-    <string name="plugin_title">Programtillegg</string>
-    <string name="plugin_add_repository">Legg til depot</string>
-    <string name="plugin_add_btn">Legg til</string>
-    <string name="plugin_manage_from_phone_title">Administrer fra telefon</string>
-    <string name="plugin_manage_from_phone_subtitle">Skann en QR-kode for å legge til eller fjerne depoter fra telefonen din</string>
-    <string name="plugin_qr_instruction">Skann med telefonen din for å administrere depoter</string>
-    <string name="plugin_qr_close">Lukk</string>
-    <string name="plugin_confirm_title">Bekreft depotendringer</string>
-    <string name="plugin_confirm_subtitle">Følgende endringer ble gjort fra telefonen din:</string>
-    <string name="plugin_confirm_added">Lagt til:</string>
-    <string name="plugin_confirm_removed">Fjernet:</string>
-    <string name="plugin_confirm_no_changes">Ingen endringer oppdaget</string>
-    <string name="plugin_confirm_total">Totalt depoter: %1$d</string>
-    <string name="plugin_confirm_reject">Avvis</string>
-    <string name="plugin_confirm_confirm">Bekreft</string>
-    <string name="plugin_updated_format">Oppdatert: %1$s</string>
-    <string name="plugin_test_btn">Test</string>
-    <string name="plugin_test_results">Testresultater (%1$d strømmer)</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Hvem er det som ser?</string>
@@ -904,7 +871,7 @@
     <string name="update_unknown_sources">Tillat installasjon fra ukjente kilder for å fortsette.</string>
     <!-- AccountScreen -->
     <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Logg inn for å synkronisere biblioteket, seeframgang, tillegg og programtillegg på tvers av enheter. Biblioteksynk bruker Fetch Sync når Trakt ikke er tilkoblet, og seeframgang kan bruke enten Trakt eller Fetch Sync.</string>
+    <string name="account_sign_in_description">Logg inn for å synkronisere biblioteket, seeframgang og tillegg på tvers av enheter. Biblioteksynk bruker Fetch Sync når Trakt ikke er tilkoblet, og seeframgang kan bruke enten Trakt eller Fetch Sync.</string>
     <string name="account_sync_code_title">Synkkode</string>
     <string name="account_sync_code_description">Synkroniser på tvers av enheter uten å opprette en konto.</string>
     <string name="account_linked_devices">Koblede enheter (%1$d)</string>
@@ -935,11 +902,6 @@
     <string name="addon_confirm_total_addons">Totalt tillegg: %1$d</string>
     <string name="addon_confirm_total_catalogs">Totalt kataloger: %1$d</string>
     <string name="addon_catalogs_types">Kataloger: %1$d - Typer: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... og %1$d mer</string>
-    <string name="plugin_providers_count">%1$d leverandører</string>
-    <string name="plugin_no_repos">Ingen depoter lagt til ennå.\nLegg til et depot for å komme i gang.</string>
 
     <!-- ProfileSettingsContent -->
 

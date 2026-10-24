@@ -104,7 +104,6 @@ import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.StartupDestination
 import com.fetch.tv.ui.components.shouldShowStartupSplash
 import com.fetch.tv.ui.components.startupDestinationForRoute
-import com.fetch.tv.core.runtime.PluginRuntimeHooks
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -356,8 +355,6 @@ open class MainActivity : ComponentActivity() {
 
         // Wire the Activity-level launcher to the tracker
         externalPlaybackTracker.activityLauncher = externalPlayerLauncher
-
-        PluginRuntimeHooks.onActivityCreate(this)
 
         window?.decorView?.post {
             val snapshot = com.fetch.tv.core.player.DisplayCapabilities.detect(this)
@@ -1387,11 +1384,6 @@ open class MainActivity : ComponentActivity() {
         // App going to background (e.g. user returning to the launcher): reconcile the
         // Continue Watching channel once so Projectivy repaints it with fresh progress.
         androidTvChannelSyncService.onForegroundChanged(false)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        PluginRuntimeHooks.onActivityDestroy()
     }
 }
 

@@ -471,7 +471,6 @@
     <string name="settings_debug">Налагодження</string>
     <string name="settings_account_section_subtitle">Акаунт та статус синхронізації</string>
     <string name="account_stat_addons">адони</string>
-    <string name="account_stat_plugins">плагіни</string>
     <string name="account_stat_library">бібліотека</string>
     <string name="account_stat_progress">прогрес</string>
     <string name="account_stat_watched">переглянуто</string>
@@ -674,27 +673,18 @@
     <string name="autoplay_threshold_pct_title">Пороговий відсоток</string>
     <string name="autoplay_threshold_pct_sub">Резервний варіант, коли немає таймкоду закінчення (outro).</string>
     <string name="autoplay_threshold_min_title">Порогові хвилини</string>
-    <string name="autoplay_scope_all">Всі джерела</string>
-    <string name="autoplay_scope_addons">Тільки встановлені адони</string>
-    <string name="autoplay_scope_plugins">Тільки увімкнені плагіни</string>
-    <string name="autoplay_scope">Область пошуку автовідтворення</string>
     <string name="autoplay_timeout_title">Таймаут вибору потоку</string>
     <string name="autoplay_timeout_sub">Час очікування адонів перед вибором.</string>
     <string name="autoplay_timeout_instant">Миттєво</string>
     <string name="autoplay_timeout_unlimited">Необмежено</string>
     <string name="autoplay_allowed_addons">Дозволені адони</string>
     <string name="autoplay_all_addons">Всі встановлені адони</string>
-    <string name="autoplay_allowed_plugins">Дозволені плагіни</string>
-    <string name="autoplay_all_plugins">Всі увімкнені плагіни</string>
     <string name="autoplay_regex_placeholder">Шаблон не задано. Приклад: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex шаблон</string>
     <string name="autoplay_no_items">Немає доступних елементів</string>
     <string name="autoplay_mode_manual_desc">Завжди показувати список джерел для вибору.</string>
     <string name="autoplay_mode_first_desc">Автоматично відтворювати перше доступне джерело.</string>
     <string name="autoplay_mode_regex_desc">Відтворювати перше джерело, текст якого збігається з вашим шаблоном Regex.</string>
-    <string name="autoplay_scope_all_desc">Автовідтворення може використовувати як встановлені адони, так і увімкнені плагіни.</string>
-    <string name="autoplay_scope_addons_desc">Автовідтворення враховує тільки потоки з ваших встановлених адонів.</string>
-    <string name="autoplay_scope_plugins_desc">Автовідтворення враховує тільки потоки з увімкнених плагінів.</string>
     <string name="autoplay_threshold_pct_desc">Показувати за відсотком відтворення, коли немає таймкоду закінчення.</string>
     <string name="autoplay_threshold_min_desc">Показувати за стільки хвилин до кінця епізоду, коли немає таймкоду закінчення.</string>
     <string name="autoplay_regex_matches">Співставляється з назвою потоку/описом/адоном/url. Приклад: 4K|2160p|Remux</string>
@@ -1334,7 +1324,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Завантаження\u2026</string>
-    <string name="account_sync_description">Синхронізуйте вашу бібліотеку, прогрес перегляду, адони та плагіни між пристроями.</string>
+    <string name="account_sync_description">Синхронізуйте вашу бібліотеку, прогрес перегляду та адони між пристроями.</string>
     <string name="account_sync_restart_note">Синхронізація не відбувається в реальному часі на активних пристроях. Перезавантажте цей пристрій після входу або щоб отримати зміни, зроблені в іншому місці.</string>
     <string name="account_signin_qr_title">Вхід за QR</string>
     <string name="account_signin_qr_subtitle">Відскануйте QR-код та завершіть вхід через email на вашому телефоні</string>
@@ -1380,7 +1370,7 @@
 
     <string name="sync_claim_title">Зв\'язати пристрій</string>
     <string name="sync_claim_subtitle">Введіть код синхронізації та PIN-код з іншого пристрою, щоб прив\'язати цей пристрій.</string>
-    <string name="sync_claim_success">Пристрій успішно зв\'язано! Ваші адони та плагіни тепер синхронізуватимуться.</string>
+    <string name="sync_claim_success">Пристрій успішно зв\'язано! Ваші адони тепер синхронізуватимуться.</string>
     <string name="sync_claim_done">Готово</string>
     <string name="sync_claim_code_label">Код синхронізації</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1388,48 +1378,6 @@
     <string name="sync_claim_pin_placeholder">Введіть PIN</string>
     <string name="sync_claim_linking">Зв\'язування\u2026</string>
 
-    <string name="plugin_readonly_notice">Використовуються плагіни основного профілю, їх не можна змінити</string>
-    <string name="plugin_repositories_section">Репозиторії (%1$d)</string>
-    <string name="plugin_providers_section">Провайдери (%1$d)</string>
-    <string name="plugin_title">Плагіни</string>
-    <string name="plugin_enable_plugins_title">Увімкнути плагіни глобально</string>
-    <string name="plugin_enable_plugins_subtitle">Використовувати плагіни при пошуку потоків</string>
-    <string name="plugin_group_by_repository_title">Групувати плагіни за репозиторієм</string>
-    <string name="plugin_group_by_repository_subtitle">У Потоках показувати одного провайдера на репозиторій, а не на джерело</string>
-    <string name="plugin_add_repository">Додати репозиторій</string>
-    <string name="plugin_add_btn">Додати</string>
-    <string name="plugin_manage_from_phone_title">Керувати з телефону</string>
-    <string name="plugin_manage_from_phone_subtitle">Відскануйте QR-код для додавання або видалення репозиторіїв з вашого телефону</string>
-    <string name="plugin_qr_instruction">Відскануйте з телефону для керування репозиторіями</string>
-    <string name="plugin_qr_close">Закрити</string>
-    <string name="plugin_confirm_title">Підтвердити зміни репозиторіїв</string>
-    <string name="plugin_confirm_subtitle">З вашого телефону було зроблено такі зміни:</string>
-    <string name="plugin_confirm_added">Додано:</string>
-    <string name="plugin_confirm_removed">Видалено:</string>
-    <string name="plugin_confirm_no_changes">Змін не виявлено</string>
-    <string name="plugin_confirm_total">Всього репозиторіїв: %1$d</string>
-    <string name="plugin_confirm_reject">Відхилити</string>
-    <string name="plugin_confirm_confirm">Підтвердити</string>
-    <string name="plugin_url_or_short_code_placeholder">URL або короткий код</string>
-    <string name="plugin_diagnostics_collapse">Діагностика (натисніть для згортання)</string>
-    <string name="plugin_diagnostics_expand">Діагностика (натисніть для розгортання)</string>
-    <string name="plugin_risky_enable_title">Увімкнути провайдер?</string>
-    <string name="plugin_risky_enable_message">%1$s відомий тим, що спричиняє збої на деякому контенті. Все одно увімкнути?</string>
-    <string name="plugin_risky_enable_cancel">Скасувати</string>
-    <string name="plugin_risky_enable_confirm">Увімкнути</string>
-    <string name="plugin_updated_format">Оновлено: %1$s</string>
-    <string name="plugin_test_btn">Тест</string>
-    <string name="plugin_test_results">Результати тесту (%1$d потоків)</string>
-    <string name="plugin_and_more">... і ще %1$d</string>
-    <string name="plugin_providers_count">%1$d провайдерів</string>
-    <string name="plugin_no_repos">Репозиторії ще не додано.\nДодайте репозиторій для початку роботи.</string>
-    <string name="plugin_error_invalid_url">Будь ласка, введіть дійсний URL</string>
-    <string name="plugin_error_add_repo">Не вдалося додати репозиторій: %1$s</string>
-    <string name="plugin_error_refresh">Не вдалося оновити: %1$s</string>
-    <string name="plugin_error_test">Тест не пройдено: %1$s</string>
-    <string name="plugin_test_no_results">Немає результатів</string>
-    <string name="plugin_test_found_streams">Знайдено %1$d потоків</string>
-    <string name="plugin_version">Версія %1$s</string>
 
     <string name="profile_selection_title">Хто дивиться?</string>
     <string name="profile_selection_subtitle">Оберіть профіль для продовження</string>
@@ -1461,7 +1409,7 @@
     <string name="update_unknown_sources">Дозвольте встановлення з невідомих джерел для продовження.</string>
     <!-- AccountScreen -->
     <string name="account_title">Акаунт</string>
-    <string name="account_sign_in_description">Увійдіть, щоб синхронізувати вашу бібліотеку, прогрес, адони та плагіни між пристроями. Синхронізація бібліотеки використовує Fetch Sync, коли Trakt не підключено, а для прогресу перегляду можна використовувати Trakt або Fetch Sync.</string>
+    <string name="account_sign_in_description">Увійдіть, щоб синхронізувати вашу бібліотеку, прогрес та адони між пристроями. Синхронізація бібліотеки використовує Fetch Sync, коли Trakt не підключено, а для прогресу перегляду можна використовувати Trakt або Fetch Sync.</string>
     <string name="account_sync_code_title">Код синхронізації</string>
     <string name="account_sync_code_description">Синхронізуйтеся між пристроями без створення акаунту.</string>
     <string name="account_linked_devices">Зв\'язані пристрої (%1$d)</string>
@@ -1489,8 +1437,6 @@
     <string name="discover_empty_no_content_subtitle">Спробуйте інший жанр або каталог</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1537,11 +1483,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">Підключіться до Wi-Fi або Ethernet, щоб використовувати цю функцію</string>
     <string name="error_server_ports_unavailable">Не вдалося запустити сервер. Всі порти зайняті.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">Додано %1$s з %2$d провайдерами</string>
-    <string name="plugin_repo_removed">Репозиторій видалено</string>
-    <string name="plugin_repo_refreshed">Репозиторій оновлено</string>
 
     <!-- Trakt errors -->
 
@@ -1614,7 +1555,6 @@
     <string name="cd_refresh">Оновити</string>
     <string name="cd_remove">Видалити</string>
     <string name="cd_preview">Попередній перегляд</string>
-    <string name="cd_test">Тест</string>
     <string name="cd_unlink">Від\'єднати</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Логотип Trakt</string>
@@ -2162,9 +2102,8 @@
     <string name="playback_net_chunk_size_sub">Розмір кожного чанку завантаження на з\'єднання. Більші чанки зменшують накладні витрати, але використовують більше пам\'яті.</string>
 
     <string name="settings_content_discovery">Контент і пошук</string>
-    <string name="settings_content_discovery_subtitle">Адони, плагіни, каталоги та джерела пошуку</string>
+    <string name="settings_content_discovery_subtitle">Адони, каталоги та джерела пошуку</string>
     <string name="settings_content_discovery_addons_subtitle">Керуйте адонами, порядком каталогів і колекціями</string>
-    <string name="settings_content_discovery_plugins_subtitle">Керуйте репозиторіями та постачальниками потоків</string>
     <string name="advanced_playback_issue_reports">Звіти про проблеми відтворення</string>
     <string name="advanced_playback_issue_reports_subtitle">Показувати кнопки звіту під час відтворення, тривалого завантаження та помилок відтворення</string>
     <string name="audio_force_optical_passthrough">Примусове транскодування AC-3 (Optical/SPDIF)</string>

@@ -477,7 +477,6 @@
     <string name="settings_debug">Debugging</string>
     <string name="settings_account_section_subtitle">Konto und Synchronisierungsstatus</string>
     <string name="account_stat_addons">Add-ons</string>
-    <string name="account_stat_plugins">Plugins</string>
     <string name="account_stat_library">Bibliothek</string>
     <string name="account_stat_progress">Fortschritt</string>
     <string name="account_stat_watched">angesehen</string>
@@ -647,27 +646,18 @@
     <string name="autoplay_threshold_pct_title">Schwellenwert in Prozent</string>
     <string name="autoplay_threshold_pct_sub">Fallback, wenn kein Outro-Zeitstempel vorhanden ist.</string>
     <string name="autoplay_threshold_min_title">Schwellenwert Minuten</string>
-    <string name="autoplay_scope_all">Alle Quellen</string>
-    <string name="autoplay_scope_addons">Nur installierte Add-ons</string>
-    <string name="autoplay_scope_plugins">Nur aktivierte Plugins</string>
-    <string name="autoplay_scope">Bereich für automatische Wiedergabe</string>
     <string name="autoplay_timeout_title">Zeitlimit für die Stream-Auswahl</string>
     <string name="autoplay_timeout_sub">Wartezeit für Add-ons vor der Auswahl.</string>
     <string name="autoplay_timeout_instant">Sofort</string>
     <string name="autoplay_timeout_unlimited">Unbegrenzt</string>
     <string name="autoplay_allowed_addons">Zulässige Add-ons</string>
     <string name="autoplay_all_addons">Alle installierten Add-ons</string>
-    <string name="autoplay_allowed_plugins">Zulässige Plugins</string>
-    <string name="autoplay_all_plugins">Alle aktivierten Plugins</string>
     <string name="autoplay_regex_placeholder">Kein Muster festgelegt. Beispiel: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex-Muster</string>
     <string name="autoplay_no_items">Keine Elemente verfügbar</string>
     <string name="autoplay_mode_manual_desc">Immer die Quellenliste anzeigen und mich auswählen lassen.</string>
     <string name="autoplay_mode_first_desc">Die erste verfügbare Quelle automatisch abspielen.</string>
     <string name="autoplay_mode_regex_desc">Die erste Quelle abspielen, deren Text mit Ihrem Regex-Muster übereinstimmt.</string>
-    <string name="autoplay_scope_all_desc">Die automatische Wiedergabe kann sowohl installierte Add-ons als auch aktivierte Plugins verwenden.</string>
-    <string name="autoplay_scope_addons_desc">Die automatische Wiedergabe berücksichtigt nur Streams, die von Ihren installierten Add-ons stammen.</string>
-    <string name="autoplay_scope_plugins_desc">Die automatische Wiedergabe berücksichtigt nur Streams, die von aktivierten Plugins stammen.</string>
     <string name="autoplay_threshold_pct_desc">Anzeige nach Wiedergabeanteil, wenn kein Outro-Zeitstempel verfügbar ist.</string>
     <string name="autoplay_threshold_min_desc">Zeige diese Anzahl Minuten vor Ende der Episode an, wenn kein Outro-Zeitstempel verfügbar ist.</string>
     <string name="autoplay_regex_matches">Übereinstimmungen mit Stream-Name/Titel/Beschreibung/Add-on/URL. Beispiel: 4K|2160p|Remux</string>
@@ -1269,7 +1259,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Wird geladen\u2026</string>
-    <string name="account_sync_description">Synchronisieren Sie Ihre Bibliothek, den Fortschritt, Add-ons und Plugins auf allen Geräten.</string>
+    <string name="account_sync_description">Synchronisieren Sie Ihre Bibliothek, den Fortschritt und Add-ons auf allen Geräten.</string>
     <string name="account_sync_restart_note">Die Synchronisierung erfolgt nicht in Echtzeit auf allen aktiven Geräten. Starten Sie dieses Gerät nach der Anmeldung neu, um Änderungen zu übernehmen, die an anderer Stelle vorgenommen wurden.</string>
     <string name="account_signin_qr_title">Mit QR anmelden</string>
     <string name="account_signin_qr_subtitle">Scannen Sie einen QR-Code und schließen Sie die E-Mail-Anmeldung auf Ihrem Smartphone ab</string>
@@ -1309,46 +1299,12 @@
     <!-- SyncCodeClaimScreen -->
     <string name="sync_claim_title">Gerät verbinden</string>
     <string name="sync_claim_subtitle">Geben Sie den Synchronisierungscode und die PIN Ihres anderen Geräts ein, um dieses Gerät zu verbinden.</string>
-    <string name="sync_claim_success">Gerät erfolgreich verbunden! Ihre Add-ons und Plugins werden nun synchronisiert.</string>
+    <string name="sync_claim_success">Gerät erfolgreich verbunden! Ihre Add-ons werden nun synchronisiert.</string>
     <string name="sync_claim_done">Fertig</string>
     <string name="sync_claim_code_label">Synchronisierungscode</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">PIN eingeben</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_readonly_notice">Verwendet Plugins des primären Profils und kann nicht geändert werden</string>
-    <string name="plugin_repositories_section">Repositorys (%1$d)</string>
-    <string name="plugin_providers_section">Anbieter (%1$d)</string>
-    <string name="plugin_title">Plugins</string>
-    <string name="plugin_enable_plugins_title">Enable plugin providers globally</string>
-    <string name="plugin_enable_plugins_subtitle">Use plugin providers during stream discovery</string>
-    <string name="plugin_group_by_repository_title">Group plugin providers by repository</string>
-    <string name="plugin_group_by_repository_subtitle">In Streams, show one provider per repository instead of one per source</string>
-    <string name="plugin_add_repository">Repository hinzufügen</string>
-    <string name="plugin_add_btn">Hinzufügen</string>
-    <string name="plugin_manage_from_phone_title">Über das Smartphone verwalten</string>
-    <string name="plugin_manage_from_phone_subtitle">QR-Code scannen, um Repositorys über Ihr Smartphone hinzuzufügen oder zu entfernen</string>
-    <string name="plugin_qr_instruction">Mit Ihrem Smartphone scannen, um Repositorys zu verwalten</string>
-    <string name="plugin_qr_close">Schließen</string>
-    <string name="plugin_confirm_title">Änderungen am Repository bestätigen</string>
-    <string name="plugin_confirm_subtitle">Die folgenden Änderungen wurden von Ihrem Smartphone aus vorgenommen:</string>
-    <string name="plugin_confirm_added">Hinzugefügt:</string>
-    <string name="plugin_confirm_removed">Entfernt:</string>
-    <string name="plugin_confirm_no_changes">Keine Änderungen festgestellt</string>
-    <string name="plugin_confirm_total">Gesamtzahl der Repositorys: %1$d</string>
-    <string name="plugin_confirm_reject">Ablehnen</string>
-    <string name="plugin_confirm_confirm">Bestätigen</string>
-    <string name="plugin_url_or_short_code_placeholder">URL or short code</string>
-    <string name="plugin_diagnostics_collapse">Diagnostics (tap to collapse)</string>
-    <string name="plugin_diagnostics_expand">Diagnostics (tap to expand)</string>
-    <string name="plugin_risky_enable_title">Enable provider?</string>
-    <string name="plugin_risky_enable_message">%1$s is known to cause crashes on some content. Enable anyway?</string>
-    <string name="plugin_risky_enable_cancel">Abbrechen</string>
-    <string name="plugin_risky_enable_confirm">Aktivieren</string>
-    <string name="plugin_updated_format">Aktualisiert: %1$s</string>
-    <string name="plugin_test_btn">Test</string>
-    <string name="plugin_test_results">Testergebnisse (%1$d Streams)</string>
 
     <!-- ProfileSelectionScreen -->
     <string name="profile_selection_title">Wer schaut?</string>
@@ -1385,7 +1341,7 @@
     <string name="update_unknown_sources">Installationen aus unbekannten Quellen zulassen, um fortzufahren.</string>
     <!-- AccountScreen -->
     <string name="account_title">Konto</string>
-    <string name="account_sign_in_description">Melden Sie sich an, um Ihre Bibliothek, Ihren Fortschritt, Add-ons und Plugins auf allen Geräten zu synchronisieren. Die Bibliothekssynchronisierung verwendet Fetch Sync, wenn Trakt nicht verbunden ist, und der Fortschritt kann entweder mit Trakt oder Fetch Sync angezeigt werden.</string>
+    <string name="account_sign_in_description">Melden Sie sich an, um Ihre Bibliothek, Ihren Fortschritt und Add-ons auf allen Geräten zu synchronisieren. Die Bibliothekssynchronisierung verwendet Fetch Sync, wenn Trakt nicht verbunden ist, und der Fortschritt kann entweder mit Trakt oder Fetch Sync angezeigt werden.</string>
     <string name="account_sync_code_title">Synchronisierungscode</string>
     <string name="account_sync_code_description">Synchronisieren Sie Geräte, ohne ein Konto zu erstellen.</string>
     <string name="account_linked_devices">Verbundene Geräte (%1$d)</string>
@@ -1416,11 +1372,6 @@
     <string name="addon_confirm_total_addons">Gesamtzahl der Add-ons: %1$d</string>
     <string name="addon_confirm_total_catalogs">Gesamtzahl der Kataloge: %1$d</string>
     <string name="addon_catalogs_types">Kataloge: %1$d – Typen: %2$s</string>
-
-    <!-- PluginScreen -->
-    <string name="plugin_and_more">... und %1$d weitere</string>
-    <string name="plugin_providers_count">%1$d Anbieter</string>
-    <string name="plugin_no_repos">Es wurden noch keine Repositorys hinzugefügt.\nFügen Sie ein Repository hinzu, um zu beginnen.</string>
 
     <!-- ProfileSettingsContent -->
 
@@ -1479,17 +1430,6 @@
     <string name="error_network_required">Mit Wi-Fi oder Ethernet verbinden um diese Funktion nutzen zu können</string>
     <string name="error_server_ports_unavailable">Server konnte nicht gestartet werden. Alle Ports sind in Benutzung.</string>
 
-    <!-- Plugin errors -->
-    <string name="plugin_error_invalid_url">Bitte eine gültige URL eingeben</string>
-    <string name="plugin_error_add_repo">Failed to add repository: %1$s</string>
-    <string name="plugin_error_refresh">Failed to refresh: %1$s</string>
-    <string name="plugin_error_test">Test failed: %1$s</string>
-    <string name="plugin_test_no_results">No results found</string>
-    <string name="plugin_test_found_streams">Found %1$d streams</string>
-    <string name="plugin_repo_added_with_providers">Added %1$s with %2$d providers</string>
-    <string name="plugin_repo_removed">Repository removed</string>
-    <string name="plugin_repo_refreshed">Repository refreshed</string>
-
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Geräte-Code abgelaufen. Neustarten.</string>
     <string name="trakt_error_code_used">Geräte-Code wurde bereits verwendet. Neustarten.</string>
@@ -1536,7 +1476,6 @@
     <string name="subtitle_style_weight">Weight</string>
 
     <!-- Plugin screen -->
-    <string name="plugin_version">Version %1$s</string>
 
     <!-- Stream screen -->
     <string name="stream_episode_label">S%1$d E%2$d</string>
@@ -1572,7 +1511,6 @@
     <string name="cd_refresh">Neuladen</string>
     <string name="cd_remove">Entfernen</string>
     <string name="cd_preview">Vorschau</string>
-    <string name="cd_test">Prüfen</string>
     <string name="cd_unlink">Link aufheben</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>

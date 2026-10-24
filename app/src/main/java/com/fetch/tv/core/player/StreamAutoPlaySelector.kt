@@ -6,7 +6,6 @@ import com.fetch.tv.core.streams.ranking.RankedStream
 import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.data.local.StreamAutoPlayMode
-import com.fetch.tv.data.local.StreamAutoPlaySource
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
 
@@ -15,28 +14,16 @@ object StreamAutoPlaySelector {
      * The sources auto-play has to hear from before it can pick, when the user limited it to
      * certain addons. Once all of them have answered nothing slower can change the pick, so
      * there is no reason to wait for the rest. Null means any source could still win (no addon
-     * limit, plug-ins in play, or plug-ins only), so the caller keeps waiting as before.
+     * limit), so the caller keeps waiting as before.
      *
      * Media server sources always count: they are never filtered out and they outrank addons.
      */
     fun sourcesNeededForPick(
-        source: StreamAutoPlaySource,
         selectedAddons: Set<String>,
         streamAddonNames: Collection<String>,
-        serverSourceNames: Collection<String>,
-        pluginSourceNames: Collection<String>
+        serverSourceNames: Collection<String>
     ): Set<String>? {
         if (selectedAddons.isEmpty()) return null
-        val effectiveSource = if (!AppFeaturePolicy.pluginsEnabled && source == StreamAutoPlaySource.ENABLED_PLUGINS_ONLY) {
-            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY
-        } else {
-            source
-        }
-        when (effectiveSource) {
-            StreamAutoPlaySource.ENABLED_PLUGINS_ONLY -> return null
-            StreamAutoPlaySource.ALL_SOURCES -> if (pluginSourceNames.isNotEmpty()) return null
-            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY -> Unit
-        }
         val addons = streamAddonNames.filter { it in selectedAddons }
         if (addons.isEmpty()) return null
         return (addons + serverSourceNames).toSet()
@@ -61,9 +48,9 @@ object StreamAutoPlaySelector {
         }
 
         if (installedOrder.isEmpty()) return streams
-        val (addonEntries, pluginEntries) = streams.partition { it.addonName in addonRankByName }
+        val (addonEntries, otherEntries) = streams.partition { it.addonName in addonRankByName }
         val orderedAddons = addonEntries.sortedBy { addonRankByName.getValue(it.addonName) }
-        return orderedAddons + pluginEntries
+        return orderedAddons + otherEntries
     }
 
     private fun isPlayable(stream: Stream): Boolean {
@@ -77,36 +64,17 @@ object StreamAutoPlaySelector {
             (AppFeaturePolicy.inAppTrailerPlaybackEnabled && stream.youTubeIdToResolve() != null)
     }
 
-
-
-    /** The streams auto-play may choose from once the source and addon limits apply. */
+    /** The streams auto-play may choose from once the addon limit applies. */
     private fun candidates(
         streams: List<Stream>,
-        source: StreamAutoPlaySource,
         installedAddonNames: Set<String>,
-        selectedAddons: Set<String>,
-        selectedPlugins: Set<String>
+        selectedAddons: Set<String>
     ): List<Stream> {
-        val effectiveSource = if (!AppFeaturePolicy.pluginsEnabled && source == StreamAutoPlaySource.ENABLED_PLUGINS_ONLY) {
-            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY
-        } else {
-            source
-        }
-
-        val sourceScopedStreams = when (effectiveSource) {
-            StreamAutoPlaySource.ALL_SOURCES -> streams
-            StreamAutoPlaySource.INSTALLED_ADDONS_ONLY -> streams.filter { it.serverTarget != null || it.addonName in installedAddonNames }
-            StreamAutoPlaySource.ENABLED_PLUGINS_ONLY -> streams.filter { it.addonName !in installedAddonNames }
-        }
-        return sourceScopedStreams.filter { stream ->
-            val isAddonStream = stream.addonName in installedAddonNames
-            if (stream.serverTarget != null) {
-                true
-            } else if (isAddonStream) {
-                selectedAddons.isEmpty() || stream.addonName in selectedAddons
-            } else {
-                selectedPlugins.isEmpty() || stream.addonName in selectedPlugins
-            }
+        if (selectedAddons.isEmpty()) return streams
+        return streams.filter { stream ->
+            stream.serverTarget != null ||
+                stream.addonName !in installedAddonNames ||
+                stream.addonName in selectedAddons
         }
     }
 
@@ -117,14 +85,12 @@ object StreamAutoPlaySelector {
     fun skippedBetterLooking(
         streams: List<Stream>,
         picked: Stream,
-        source: StreamAutoPlaySource,
         installedAddonNames: Set<String>,
         selectedAddons: Set<String>,
-        selectedPlugins: Set<String>,
         rankingRules: StreamRankingRules = StreamRankingRules(),
         device: DeviceDecodeCapabilities = DeviceDecodeCapabilities.current
     ): RankedStream? {
-        val candidateStreams = candidates(streams, source, installedAddonNames, selectedAddons, selectedPlugins)
+        val candidateStreams = candidates(streams, installedAddonNames, selectedAddons)
         val ranked = StreamRanker.rank(candidateStreams, rankingRules, device, ::isPlayable)
         return StreamRanker.skippedBetterLooking(ranked, picked)
     }
@@ -133,10 +99,8 @@ object StreamAutoPlaySelector {
         streams: List<Stream>,
         mode: StreamAutoPlayMode,
         regexPattern: String,
-        source: StreamAutoPlaySource,
         installedAddonNames: Set<String>,
         selectedAddons: Set<String>,
-        selectedPlugins: Set<String>,
         preferredBingeGroup: String? = null,
         preferBingeGroupInSelection: Boolean = false,
         bingeGroupOnly: Boolean = false,
@@ -145,7 +109,7 @@ object StreamAutoPlaySelector {
     ): Stream? {
         if (streams.isEmpty()) return null
 
-        val candidateStreams = candidates(streams, source, installedAddonNames, selectedAddons, selectedPlugins)
+        val candidateStreams = candidates(streams, installedAddonNames, selectedAddons)
         if (candidateStreams.isEmpty()) return null
 
         // Binge group matching takes priority over mode and source filters — even in MANUAL mode,

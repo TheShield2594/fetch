@@ -54,6 +54,7 @@ class AccountLocalDataResetService @Inject constructor(
     }
 
     private fun isAccountFile(file: File): Boolean {
+        // plugin_code* is left behind by versions that still ran plugins.
         return file.name == "cw_enrichment" ||
             file.name == "plugin_code" ||
             file.name.startsWith("plugin_code_p")

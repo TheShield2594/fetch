@@ -16,7 +16,7 @@ Target devices:
 - Image disk cache sized to free storage: 5 % of free space plus the current footprint,
   32–200 MB (#44).
 - Startup deferral (#44): TV channel sync, server projection and the matcher start from a
-  main-looper idle handler, after the first frame. The plugin runtime is lazy.
+  main-looper idle handler, after the first frame.
   `StartupSyncService` stays eager because `MainActivity` injects it.
 - Posters are requested at their displayed size. The ambient slideshow logo is capped at
   460×150 dp (#44).

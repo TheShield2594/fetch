@@ -3,7 +3,6 @@ package com.fetch.tv.data.mediaserver
 import com.fetch.tv.core.player.StreamAutoPlaySelector
 import com.fetch.tv.core.tmdb.TmdbService
 import com.fetch.tv.data.local.StreamAutoPlayMode
-import com.fetch.tv.data.local.StreamAutoPlaySource
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.repository.MetaRepository
 import io.mockk.every
@@ -101,10 +100,8 @@ class ServerPlaybackTest {
             streams = listOf(stream),
             mode = StreamAutoPlayMode.FIRST_STREAM,
             regexPattern = "",
-            source = StreamAutoPlaySource.INSTALLED_ADDONS_ONLY,
-            installedAddonNames = emptySet(),
-            selectedAddons = emptySet(),
-            selectedPlugins = setOf("Some plugin")
+            installedAddonNames = setOf("Torrentio"),
+            selectedAddons = setOf("Torrentio")
         )
         assertEquals(stream, selected)
     }

@@ -15,7 +15,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
-import com.fetch.tv.core.plugin.PluginManager
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.torrent.TorrentSettings
 import com.fetch.tv.core.torrent.TorrentService
@@ -89,7 +88,6 @@ class StreamScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val streamRepository: StreamRepository,
     private val addonRepository: AddonRepository,
-    private val pluginManager: PluginManager,
     private val metaRepository: MetaRepository,
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val streamLinkCacheDataStore: StreamLinkCacheDataStore,
@@ -379,9 +377,6 @@ class StreamScreenViewModel @Inject constructor(
             StreamScreenEvent.OnBackPress -> { /* Handle in screen */ }
             StreamScreenEvent.OnResume -> {
                 hostInForeground.value = true
-                if (!externalPlaybackTracker.isTracking) {
-                    streamRepository.setLocalPluginSearchPaused(false)
-                }
                 // Reattach to the repository-owned session if playback stopped
                 // this screen's collector before every source finished.
                 if (!streamLoadCompleted && streamLoadJob == null) {
@@ -420,7 +415,6 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     private fun loadStreams(forceRefresh: Boolean = false) {
-        streamRepository.setLocalPluginSearchPaused(false)
         streamLoadScope?.cancel()
         streamLoadScope = null
         streamLoadJob = null
@@ -629,10 +623,8 @@ class StreamScreenViewModel @Inject constructor(
                         streams = allStreams,
                         mode = playerSettings.streamAutoPlayMode,
                         regexPattern = playerSettings.streamAutoPlayRegex,
-                        source = playerSettings.streamAutoPlaySource,
                         installedAddonNames = installedAddonOrder.toSet(),
                         selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
-                        selectedPlugins = playerSettings.streamAutoPlaySelectedPlugins,
                         rankingRules = playerSettings.streamRankingRules
                     )
                 } else {
@@ -692,10 +684,8 @@ class StreamScreenViewModel @Inject constructor(
                         streams = allStreams,
                         mode = playerSettings.streamAutoPlayMode,
                         regexPattern = playerSettings.streamAutoPlayRegex,
-                        source = playerSettings.streamAutoPlaySource,
                         installedAddonNames = installedAddonOrder.toSet(),
                         selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
-                        selectedPlugins = playerSettings.streamAutoPlaySelectedPlugins,
                         preferredBingeGroup = persistedBingeGroup,
                         preferBingeGroupInSelection = true,
                         bingeGroupOnly = true
@@ -716,10 +706,8 @@ class StreamScreenViewModel @Inject constructor(
                         streams = allStreams,
                         mode = playerSettings.streamAutoPlayMode,
                         regexPattern = playerSettings.streamAutoPlayRegex,
-                        source = playerSettings.streamAutoPlaySource,
                         installedAddonNames = installedAddonOrder.toSet(),
                         selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
-                        selectedPlugins = playerSettings.streamAutoPlaySelectedPlugins,
                         preferredBingeGroup = persistedBingeGroup,
                         preferBingeGroupInSelection = persistedBingeGroup != null,
                         rankingRules = playerSettings.streamRankingRules
@@ -805,20 +793,16 @@ class StreamScreenViewModel @Inject constructor(
             updateSourceChipsForFetchStart(
                 installedAddons = installedAddons,
                 serverSourceNames = serverSourceNames,
-                includePlugins = !isNativeServerRequest,
                 alreadySucceededNames = alreadySucceededNames
             )
             if (playerSettings.streamAutoPlayMode != StreamAutoPlayMode.MANUAL) {
                 val streamAddonNames = installedAddons
                     .filter { it.supportsStreamResource(contentType, videoId) }
                     .map { it.displayName }
-                val knownNames = (streamAddonNames + serverSourceNames).toSet()
                 sourcesNeededForPick = StreamAutoPlaySelector.sourcesNeededForPick(
-                    source = playerSettings.streamAutoPlaySource,
                     selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
                     streamAddonNames = streamAddonNames,
-                    serverSourceNames = serverSourceNames,
-                    pluginSourceNames = _uiState.value.sourceChips.map { it.name }.filterNot { it in knownNames }
+                    serverSourceNames = serverSourceNames
                 )
             }
 
@@ -879,10 +863,8 @@ class StreamScreenViewModel @Inject constructor(
                                     streams = allStreams,
                                     mode = playerSettings.streamAutoPlayMode,
                                     regexPattern = playerSettings.streamAutoPlayRegex,
-                                    source = playerSettings.streamAutoPlaySource,
                                     installedAddonNames = installedAddonOrder.toSet(),
                                     selectedAddons = playerSettings.streamAutoPlaySelectedAddons,
-                                    selectedPlugins = playerSettings.streamAutoPlaySelectedPlugins,
                                     preferredBingeGroup = persistedBingeGroup,
                                     preferBingeGroupInSelection = true,
                                     bingeGroupOnly = true
@@ -993,7 +975,7 @@ class StreamScreenViewModel @Inject constructor(
             }
 
             // Hard wall-clock fallback: if the upstream stream flow never terminates
-            // (e.g. a scraper hangs and keeps the plugin channelFlow open), the direct
+            // (e.g. an addon request hangs), the direct
             // autoplay overlay would otherwise stay visible indefinitely. Force a
             // teardown so the user lands in the manual stream list with whatever
             // results have already arrived.
@@ -1074,38 +1056,13 @@ class StreamScreenViewModel @Inject constructor(
     private suspend fun updateSourceChipsForFetchStart(
         installedAddons: List<com.fetch.tv.domain.model.Addon>,
         serverSourceNames: List<String>,
-        includePlugins: Boolean,
         alreadySucceededNames: Set<String> = emptySet()
     ) {
         val addonNames = installedAddons
             .filter { it.supportsStreamResourceForChip(contentType) }
             .map { it.displayName }
 
-        val pluginNames = try {
-            if (includePlugins && pluginManager.pluginsEnabled.first()) {
-                val groupByRepository = pluginManager.groupStreamsByRepository.first()
-                val scrapers = pluginManager.enabledScrapers.first()
-                    .filter { it.supportsType(contentType) }
-                if (groupByRepository) {
-                    val repositoriesById = pluginManager.repositories.first().associateBy { it.id }
-                    scrapers
-                        .map { scraper ->
-                            repositoriesById[scraper.repositoryId]?.name?.takeIf { it.isNotBlank() } ?: scraper.name
-                        }
-                        .distinct()
-                } else {
-                    scrapers
-                        .map { it.name }
-                        .distinct()
-                }
-            } else {
-                emptyList()
-            }
-        } catch (_: Exception) {
-            emptyList()
-        }
-
-        val orderedNames = (serverSourceNames + addonNames + pluginNames).distinct()
+        val orderedNames = (serverSourceNames + addonNames).distinct()
         if (orderedNames.isEmpty()) {
             updateUiStateIfChanged { it.copy(sourceChips = emptyList()) }
             return
@@ -1461,7 +1418,6 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     fun onInternalPlayerLaunching() {
-        streamRepository.setLocalPluginSearchPaused(true)
         updateUiStateIfChanged {
             it.copy(showDirectAutoPlayOverlay = false, directAutoPlayMessage = null)
         }
@@ -1518,7 +1474,6 @@ class StreamScreenViewModel @Inject constructor(
         } else {
             externalPlaybackTracker.stopTracking()
         }
-        streamRepository.setLocalPluginSearchPaused(false)
         updateUiStateIfChanged {
             it.copy(
                 showDirectAutoPlayOverlay = false,
@@ -1684,7 +1639,6 @@ class StreamScreenViewModel @Inject constructor(
         autoLaunch: Boolean = false,
         context: android.content.Context
     ) {
-        streamRepository.setLocalPluginSearchPaused(true)
         externalOverlayHideJob?.cancel()
         // Preserve the current message; blanking it made the card's Crossfade flash
         // empty before the subtitle/skip fetch set the next one.
@@ -1824,7 +1778,6 @@ class StreamScreenViewModel @Inject constructor(
                     )
                 }
                 externalPlaybackTracker.releaseAutoNextOverlay(forceRelease = true)
-                streamRepository.setLocalPluginSearchPaused(false)
                 return
             } finally {
                 call?.cancel()
@@ -1896,7 +1849,6 @@ class StreamScreenViewModel @Inject constructor(
             context = context
         )
         if (!launched) {
-            streamRepository.setLocalPluginSearchPaused(false)
             externalPlayerLaunched = false
             externalPlayerLaunchTimeMs = 0L
             updateUiStateIfChanged {

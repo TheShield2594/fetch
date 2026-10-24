@@ -367,9 +367,8 @@
     <string name="settings_profiles">Profilet</string>
     <string name="settings_layout">Paraqitja</string>
     <string name="settings_content_discovery">Përmbajtja dhe zbulimi</string>
-    <string name="settings_content_discovery_subtitle">Shtesa, shtojca, katalogë dhe burime zbulimi</string>
+    <string name="settings_content_discovery_subtitle">Shtesa, katalogë dhe burime zbulimi</string>
     <string name="settings_content_discovery_addons_subtitle">Menaxho shtesat, renditjen e katalogëve dhe koleksionet</string>
-    <string name="settings_content_discovery_plugins_subtitle">Menaxho depot dhe ofruesit e transmetimeve</string>
     <string name="settings_integration">Integrimet</string>
     <string name="settings_playback">Riprodhimi</string>
     <string name="settings_tracking_title">Gjurmimi</string>
@@ -498,7 +497,6 @@
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Llogaria dhe statusi i sinkronizimit</string>
     <string name="account_stat_addons">shtesa</string>
-    <string name="account_stat_plugins">shtojca</string>
     <string name="account_stat_library">biblioteka</string>
     <string name="account_stat_progress">progresi</string>
     <string name="account_stat_watched">shikuar</string>
@@ -707,27 +705,18 @@
     <string name="autoplay_threshold_pct_title">Përqindja e pragut</string>
     <string name="autoplay_threshold_pct_sub">Rezervë kur nuk ekziston kohëshënues i daljes.</string>
     <string name="autoplay_threshold_min_title">Minutat e pragut</string>
-    <string name="autoplay_scope_all">Të gjitha burimet</string>
-    <string name="autoplay_scope_addons">Vetëm shtesat e instaluara</string>
-    <string name="autoplay_scope_plugins">Vetëm shtojcat e aktivizuara</string>
-    <string name="autoplay_scope">Fusha e burimeve për luajtjen automatike</string>
     <string name="autoplay_timeout_title">Koha e pritjes për zgjedhjen e transmetimit</string>
     <string name="autoplay_timeout_sub">Koha e pritjes për shtesat para zgjedhjes.</string>
     <string name="autoplay_timeout_instant">Menjëherë</string>
     <string name="autoplay_timeout_unlimited">Pa kufi</string>
     <string name="autoplay_allowed_addons">Shtesat e lejuara</string>
     <string name="autoplay_all_addons">Të gjitha shtesat e instaluara</string>
-    <string name="autoplay_allowed_plugins">Shtojcat e lejuara</string>
-    <string name="autoplay_all_plugins">Të gjitha shtojcat e aktivizuara</string>
     <string name="autoplay_regex_placeholder">Nuk është caktuar model. Shembull: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Modeli Regex</string>
     <string name="autoplay_no_items">Nuk ka artikuj të disponueshëm</string>
     <string name="autoplay_mode_manual_desc">Shfaq gjithmonë listën e burimeve dhe më lejo të zgjedh.</string>
     <string name="autoplay_mode_first_desc">Luaj automatikisht burimin e parë të disponueshëm.</string>
     <string name="autoplay_mode_regex_desc">Luaj burimin e parë teksti i të cilit përputhet me modelin tënd regex.</string>
-    <string name="autoplay_scope_all_desc">Luajtja automatike mund të përdorë si shtesat e instaluara, ashtu edhe shtojcat e aktivizuara.</string>
-    <string name="autoplay_scope_addons_desc">Luajtja automatike merr parasysh vetëm transmetimet nga shtesat e instaluara.</string>
-    <string name="autoplay_scope_plugins_desc">Luajtja automatike merr parasysh vetëm transmetimet nga shtojcat e aktivizuara.</string>
     <string name="autoplay_threshold_pct_desc">Shfaq sipas përqindjes së riprodhimit kur nuk ka kohëshënues daljeje.</string>
     <string name="autoplay_threshold_min_desc">Shfaq kaq minuta para fundit të episodit kur nuk ka kohëshënues daljeje.</string>
     <string name="autoplay_regex_matches">Përputhet me emrin/titullin/përshkrimin/shtesën/URL-në e transmetimit. Shembull: 4K|2160p|Remux</string>
@@ -1404,7 +1393,7 @@
     <string name="library_syncing_btn">Duke sinkronizuar\u2026</string>
     <!-- AccountSettingsContent -->
     <string name="account_loading">Duke ngarkuar\u2026</string>
-    <string name="account_sync_description">Sinkronizo bibliotekën, progresin e shikimit, shtesat dhe shtojcat në të gjitha pajisjet.</string>
+    <string name="account_sync_description">Sinkronizo bibliotekën, progresin e shikimit dhe shtesat në të gjitha pajisjet.</string>
     <string name="account_sync_restart_note">Sinkronizimi nuk është në kohë reale ndërmjet pajisjeve aktive. Rinis këtë pajisje pas hyrjes ose për të marrë ndryshimet e bëra diku tjetër.</string>
     <string name="account_signin_qr_title">Hyr me QR</string>
     <string name="account_signin_qr_subtitle">Skano një kod QR dhe përfundo hyrjen me email në telefon</string>
@@ -1415,7 +1404,7 @@
     <string name="account_loading_sync">Duke ngarkuar të dhënat e sinkronizimit\u2026</string>
     <string name="account_sign_out">Dil nga llogaria</string>
     <string name="account_sign_out_confirm_title">Të dalësh nga llogaria?</string>
-    <string name="account_sign_out_confirm_subtitle">Do të duhet të hysh përsëri për të sinkronizuar bibliotekën, progresin e shikimit, shtesat dhe shtojcat në këtë pajisje.</string>
+    <string name="account_sign_out_confirm_subtitle">Do të duhet të hysh përsëri për të sinkronizuar bibliotekën, progresin e shikimit dhe shtesat në këtë pajisje.</string>
     <string name="account_error_signin_required">Hyr fillimisht me një llogari.</string>
     <string name="account_signin_create_title">Hyr / Krijo llogari</string>
     <string name="account_signin_create_desc">Përdor emailin dhe fjalëkalimin për të krijuar ose për t’u kyçur në llogari.</string>
@@ -1493,55 +1482,13 @@
     <string name="sync_generate_code_btn">Gjenero kodin</string>
     <string name="sync_claim_title">Lidh pajisjen</string>
     <string name="sync_claim_subtitle">Shkruaj kodin e sinkronizimit dhe PIN-in nga pajisja tjetër për ta lidhur këtë pajisje.</string>
-    <string name="sync_claim_success">Pajisja u lidh me sukses! Shtesat dhe shtojcat tani do të sinkronizohen.</string>
+    <string name="sync_claim_success">Pajisja u lidh me sukses! Shtesat tani do të sinkronizohen.</string>
     <string name="sync_claim_done">U krye</string>
     <string name="sync_claim_code_label">Kodi i sinkronizimit</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
     <string name="sync_claim_pin_label">PIN</string>
     <string name="sync_claim_pin_placeholder">Shkruaj PIN-in</string>
     <string name="sync_claim_linking">Duke lidhur\u2026</string>
-    <string name="plugin_readonly_notice">Përdor shtojcat e profilit kryesor dhe nuk mund të ndryshohet</string>
-    <string name="plugin_repositories_section">Depot (%1$d)</string>
-    <string name="plugin_providers_section">Ofruesit (%1$d)</string>
-    <string name="plugin_title">Shtojcat</string>
-    <string name="plugin_enable_plugins_title">Aktivizo globalisht ofruesit e shtojcave</string>
-    <string name="plugin_enable_plugins_subtitle">Përdor ofruesit e shtojcave gjatë zbulimit të transmetimeve</string>
-    <string name="plugin_group_by_repository_title">Grupo ofruesit e shtojcave sipas depos</string>
-    <string name="plugin_group_by_repository_subtitle">Te Transmetimet, shfaq një ofrues për depo në vend të një për burim</string>
-    <string name="plugin_add_repository">Shto depo</string>
-    <string name="plugin_add_btn">Shto</string>
-    <string name="plugin_manage_from_phone_title">Menaxho nga telefoni</string>
-    <string name="plugin_manage_from_phone_subtitle">Skano një kod QR për të shtuar ose hequr depo nga telefoni</string>
-    <string name="plugin_qr_instruction">Skano me telefonin për të menaxhuar depot</string>
-    <string name="plugin_qr_close">Mbyll</string>
-    <string name="plugin_confirm_title">Konfirmo ndryshimet e depove</string>
-    <string name="plugin_confirm_subtitle">Ndryshimet e mëposhtme u bënë nga telefoni juaj:</string>
-    <string name="plugin_confirm_added">U shtuan:</string>
-    <string name="plugin_confirm_removed">U hoqën:</string>
-    <string name="plugin_confirm_no_changes">Nuk u zbuluan ndryshime</string>
-    <string name="plugin_confirm_total">Depo gjithsej: %1$d</string>
-    <string name="plugin_confirm_reject">Refuzo</string>
-    <string name="plugin_confirm_confirm">Konfirmo</string>
-    <string name="plugin_url_or_short_code_placeholder">URL ose kod i shkurtër</string>
-    <string name="plugin_diagnostics_collapse">Diagnostikimi (prek për ta palosur)</string>
-    <string name="plugin_diagnostics_expand">Diagnostikimi (prek për ta zgjeruar)</string>
-    <string name="plugin_risky_enable_title">Të aktivizohet ofruesi?</string>
-    <string name="plugin_risky_enable_message">%1$s dihet se shkakton dështime në disa përmbajtje. Të aktivizohet gjithsesi?</string>
-    <string name="plugin_risky_enable_cancel">Anulo</string>
-    <string name="plugin_risky_enable_confirm">Aktivizo</string>
-    <string name="plugin_updated_format">Përditësuar: %1$s</string>
-    <string name="plugin_test_btn">Testo</string>
-    <string name="plugin_test_results">Rezultatet e testit (%1$d transmetime)</string>
-    <string name="plugin_and_more">... dhe %1$d të tjera</string>
-    <string name="plugin_providers_count">%1$d ofrues</string>
-    <string name="plugin_no_repos">Ende nuk janë shtuar depo.\nShto një depo për të filluar.</string>
-    <string name="plugin_error_invalid_url">Ju lutemi shkruani një URL të vlefshme</string>
-    <string name="plugin_error_add_repo">Shtimi i depos dështoi: %1$s</string>
-    <string name="plugin_error_refresh">Rifreskimi dështoi: %1$s</string>
-    <string name="plugin_error_test">Testi dështoi: %1$s</string>
-    <string name="plugin_test_no_results">Nuk u gjetën rezultate</string>
-    <string name="plugin_test_found_streams">U gjetën %1$d transmetime</string>
-    <string name="plugin_version">Versioni %1$s</string>
     <string name="profile_selection_title">Kush po shikon?</string>
     <string name="profile_selection_subtitle">Zgjidh një profil për të vazhduar</string>
     <string name="profile_selection_hint">Mbaj shtypur për të menaxhuar profilin</string>
@@ -1574,7 +1521,7 @@
     <string name="update_unknown_sources">Lejo instalimet nga burime të panjohura për të vazhduar.</string>
     <!-- AccountScreen -->
     <string name="account_title">Llogaria</string>
-    <string name="account_sign_in_description">Hyr për të sinkronizuar bibliotekën, progresin e shikimit, shtesat dhe shtojcat në të gjitha pajisjet. Sinkronizimi i bibliotekës përdor Fetch Sync kur Trakt nuk është i lidhur, ndërsa progresi i shikimit mund të përdorë Trakt ose Fetch Sync.</string>
+    <string name="account_sign_in_description">Hyr për të sinkronizuar bibliotekën, progresin e shikimit dhe shtesat në të gjitha pajisjet. Sinkronizimi i bibliotekës përdor Fetch Sync kur Trakt nuk është i lidhur, ndërsa progresi i shikimit mund të përdorë Trakt ose Fetch Sync.</string>
     <string name="account_sync_code_title">Kodi i sinkronizimit</string>
     <string name="account_sync_code_description">Sinkronizo ndërmjet pajisjeve pa krijuar llogari.</string>
     <string name="account_linked_devices">Pajisjet e lidhura (%1$d)</string>
@@ -1599,7 +1546,6 @@
     <string name="discover_empty_no_content_title">Nuk u gjet përmbajtje</string>
     <string name="discover_empty_no_content_subtitle">Provo një zhanër ose katalog tjetër</string>
     <!-- AddonManagerScreen -->
-    <!-- PluginScreen -->
     <!-- ProfileSettingsContent -->
     <!-- PlaybackAudioSettings -->
     <string name="audio_passthrough_info">Passthrough i audios (TrueHD, DTS, AC-3, etj.) është automatik. Kur lidhet me një marrës AV ose soundbar të përputhshëm përmes HDMI, audio pa humbje dërgohet siç është pa dekodim.</string>
@@ -1635,10 +1581,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">Lidhu me Wi-Fi ose Ethernet për ta përdorur këtë veçori</string>
     <string name="error_server_ports_unavailable">Nuk mund të nisej serveri. Të gjitha portet janë në përdorim.</string>
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">U shtua %1$s me %2$d ofrues</string>
-    <string name="plugin_repo_removed">Depoja u hoq</string>
-    <string name="plugin_repo_refreshed">Depoja u rifreskua</string>
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Kodi i pajisjes ka skaduar. Fillo përsëri.</string>
     <string name="trakt_error_code_used">Kodi i pajisjes është përdorur tashmë. Fillo përsëri.</string>
@@ -1701,7 +1643,6 @@
     <string name="cd_refresh">Rifresko</string>
     <string name="cd_remove">Hiq</string>
     <string name="cd_preview">Pamje paraprake</string>
-    <string name="cd_test">Testo</string>
     <string name="cd_unlink">Shkëput</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logoja e Trakt</string>

@@ -11,7 +11,6 @@ import com.fetch.tv.core.streams.ranking.RankedStreamList
 import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.data.local.PlayerSettings
 import com.fetch.tv.data.local.StreamAutoPlayMode
-import com.fetch.tv.data.local.StreamAutoPlaySource
 import com.fetch.tv.data.local.toTrackPreference
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
@@ -177,7 +176,6 @@ private fun PlayerRuntimeController.currentSourceStreamsRequest(): SourceStreams
     }
 
 internal fun PlayerRuntimeController.loadSourceStreams(forceRefresh: Boolean) {
-    streamRepository.setLocalPluginSearchPaused(false)
     val request = currentSourceStreamsRequest() ?: return
     val type = request.type
     val vid = request.videoId
@@ -329,7 +327,6 @@ internal fun PlayerRuntimeController.dismissSourcesPanel() {
     sourceStreamsScope = null
     sourceStreamsJob = null
     sourceChipErrorDismissJob?.cancel()
-    streamRepository.setLocalPluginSearchPaused(true)
     _uiState.update {
         it.copy(
             showSourcesPanel = false,
@@ -378,35 +375,7 @@ private suspend fun PlayerRuntimeController.updateSourceChipsForFetchStart(
         .filter { it.supportsStreamResourceForChip(type, videoId) }
         .map { it.displayName }
 
-    val pluginNames = try {
-        if (!serverStreams.isNativeRequest(videoId) && pluginManager.pluginsEnabled.first()) {
-            val mediaType = when (type.lowercase()) {
-                "series", "tv", "show" -> "tv"
-                else -> type.lowercase()
-            }
-            val groupByRepository = pluginManager.groupStreamsByRepository.first()
-            val scrapers = pluginManager.enabledScrapers.first()
-                .filter { it.supportsType(mediaType) }
-            if (groupByRepository) {
-                val repositoriesById = pluginManager.repositories.first().associateBy { it.id }
-                scrapers
-                    .map { scraper ->
-                        repositoriesById[scraper.repositoryId]?.name?.takeIf { it.isNotBlank() } ?: scraper.name
-                    }
-                    .distinct()
-            } else {
-                scrapers
-                    .map { it.name }
-                    .distinct()
-            }
-        } else {
-            emptyList()
-        }
-    } catch (_: Exception) {
-        emptyList()
-    }
-
-    val ordered = (serverSourceNames(type, videoId) + addonNames + pluginNames).distinct()
+    val ordered = (serverSourceNames(type, videoId) + addonNames).distinct()
     _uiState.update {
         it.copy(
             sourceChips = ordered.map { name -> SourceChipItem(name, SourceChipStatus.LOADING) }
@@ -472,35 +441,7 @@ private suspend fun PlayerRuntimeController.updateEpisodeSourceChipsForFetchStar
         .filter { it.supportsStreamResourceForChip(type, videoId) }
         .map { it.displayName }
 
-    val pluginNames = try {
-        if (!serverStreams.isNativeRequest(videoId) && pluginManager.pluginsEnabled.first()) {
-            val mediaType = when (type.lowercase()) {
-                "series", "tv", "show" -> "tv"
-                else -> type.lowercase()
-            }
-            val groupByRepository = pluginManager.groupStreamsByRepository.first()
-            val scrapers = pluginManager.enabledScrapers.first()
-                .filter { it.supportsType(mediaType) }
-            if (groupByRepository) {
-                val repositoriesById = pluginManager.repositories.first().associateBy { it.id }
-                scrapers
-                    .map { scraper ->
-                        repositoriesById[scraper.repositoryId]?.name?.takeIf { it.isNotBlank() } ?: scraper.name
-                    }
-                    .distinct()
-            } else {
-                scrapers
-                    .map { it.name }
-                    .distinct()
-            }
-        } else {
-            emptyList()
-        }
-    } catch (_: Exception) {
-        emptyList()
-    }
-
-    val ordered = (serverSourceNames(type, videoId) + addonNames + pluginNames).distinct()
+    val ordered = (serverSourceNames(type, videoId) + addonNames).distinct()
     _uiState.update {
         it.copy(
             episodeSourceChips = ordered.map { name -> SourceChipItem(name, SourceChipStatus.LOADING) }
@@ -783,7 +724,6 @@ internal fun PlayerRuntimeController.switchToSourceStream(
     sourceStreamsScope?.cancel()
     sourceStreamsScope = null
     sourceStreamsJob = null
-    streamRepository.setLocalPluginSearchPaused(true)
     if (openExternalStreamInBrowser(stream = stream, fromEpisodePanel = false)) {
         return
     }
@@ -934,7 +874,6 @@ internal fun PlayerRuntimeController.dismissEpisodesPanel() {
     episodeStreamsScope?.cancel()
     episodeStreamsScope = null
     episodeStreamsJob = null
-    streamRepository.setLocalPluginSearchPaused(true)
     _uiState.update {
         it.copy(
             showEpisodesPanel = false,
@@ -1098,7 +1037,6 @@ internal fun PlayerRuntimeController.buildEpisodeRequestKey(type: String, video:
 }
 
 internal fun PlayerRuntimeController.loadStreamsForEpisode(video: Video, forceRefresh: Boolean) {
-    streamRepository.setLocalPluginSearchPaused(false)
     val type = contentType
     if (type.isNullOrBlank()) {
         _uiState.update { it.copy(episodeStreamsError = context.getString(com.fetch.tv.R.string.player_stream_error_missing_content_type)) }
@@ -1482,7 +1420,6 @@ private fun PlayerRuntimeController.switchToEpisodeStreamCommon(
     nextEpisodeAutoPlayJob = null
     stillWatchingPromptJob?.cancel()
     stillWatchingPromptJob = null
-    streamRepository.setLocalPluginSearchPaused(true)
     flushPlaybackSnapshotForSwitchOrExit()
 
     val targetVideo = forcedTargetVideo
@@ -1666,7 +1603,6 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
     nextEpisodeAutoPlayJob?.cancel()
     nextEpisodeAutoPlayJob = scope.launch {
         try {
-            streamRepository.setLocalPluginSearchPaused(false)
             val playerSettings = playerSettingsDataStore.playerSettings.first()
             val shouldAutoSelectInManualMode =
                 playerSettings.streamAutoPlayMode == StreamAutoPlayMode.MANUAL &&
@@ -1698,20 +1634,10 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
             } else {
                 playerSettings.streamAutoPlayMode
             }
-            val effectiveSource = if (shouldAutoSelectInManualMode) {
-                StreamAutoPlaySource.ALL_SOURCES
-            } else {
-                playerSettings.streamAutoPlaySource
-            }
             val effectiveSelectedAddons = if (shouldAutoSelectInManualMode) {
                 emptySet()
             } else {
                 playerSettings.streamAutoPlaySelectedAddons
-            }
-            val effectiveSelectedPlugins = if (shouldAutoSelectInManualMode) {
-                emptySet()
-            } else {
-                playerSettings.streamAutoPlaySelectedPlugins
             }
             val effectiveRegex = if (shouldAutoSelectInManualMode) {
                 ""
@@ -1734,10 +1660,8 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                     streams = allStreams,
                     mode = effectiveMode,
                     regexPattern = effectiveRegex,
-                    source = effectiveSource,
                     installedAddonNames = installedAddonOrder.toSet(),
                     selectedAddons = effectiveSelectedAddons,
-                    selectedPlugins = effectiveSelectedPlugins,
                     preferredBingeGroup = if (playerSettings.streamAutoPlayPreferBingeGroupForNextEpisode) {
                         currentStreamBingeGroup
                     } else {
@@ -1776,10 +1700,8 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                     streams = allStreams,
                     mode = effectiveMode,
                     regexPattern = effectiveRegex,
-                    source = effectiveSource,
                     installedAddonNames = installedAddonOrder.toSet(),
                     selectedAddons = effectiveSelectedAddons,
-                    selectedPlugins = effectiveSelectedPlugins,
                     preferredBingeGroup = currentStreamBingeGroup,
                     preferBingeGroupInSelection = true,
                     bingeGroupOnly = true

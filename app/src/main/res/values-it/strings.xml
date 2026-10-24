@@ -403,9 +403,8 @@
 <string name="settings_profiles">Profili</string>
 <string name="settings_layout">Aspetto</string>
 <string name="settings_content_discovery">Contenuti e scoperta</string>
-<string name="settings_content_discovery_subtitle">Add-on, plugin, cataloghi e sorgenti di scoperta</string>
+<string name="settings_content_discovery_subtitle">Add-on, cataloghi e sorgenti di scoperta</string>
 <string name="settings_content_discovery_addons_subtitle">Gestisci add-on, ordine dei cataloghi e collezioni</string>
-<string name="settings_content_discovery_plugins_subtitle">Gestisci repository e provider di stream</string>
 <string name="settings_integration">Integrazioni</string>
 <string name="settings_playback">Riproduzione</string>
 <string name="settings_tracking_title">Tracciamento</string>
@@ -541,7 +540,6 @@
 <string name="settings_debug">Debug</string>
 <string name="settings_account_section_subtitle">Stato dell\'account e della sincronizzazione</string>
 <string name="account_stat_addons">addon</string>
-<string name="account_stat_plugins">plugin</string>
 <string name="account_stat_library">libreria</string>
 <string name="account_stat_progress">progresso</string>
 <string name="account_stat_watched">guardato</string>
@@ -760,27 +758,18 @@
 <string name="autoplay_threshold_pct_title">Percentuale di soglia</string>
 <string name="autoplay_threshold_pct_sub">Fallback quando non esiste un timestamp di fine (outro).</string>
 <string name="autoplay_threshold_min_title">Minuti di soglia</string>
-<string name="autoplay_scope_all">Tutte le sorgenti</string>
-<string name="autoplay_scope_addons">Solo addon installati</string>
-<string name="autoplay_scope_plugins">Solo plugin abilitati</string>
-<string name="autoplay_scope">Ambito sorgenti riproduzione automatica</string>
 <string name="autoplay_timeout_title">Timeout selezione stream</string>
 <string name="autoplay_timeout_sub">Tempo di attesa degli addon prima della selezione.</string>
 <string name="autoplay_timeout_instant">Immediato</string>
 <string name="autoplay_timeout_unlimited">Illimitato</string>
 <string name="autoplay_allowed_addons">Addon consentiti</string>
 <string name="autoplay_all_addons">Tutti gli addon installati</string>
-<string name="autoplay_allowed_plugins">Plugin consentiti</string>
-<string name="autoplay_all_plugins">Tutti i plugin abilitati</string>
 <string name="autoplay_regex_placeholder">Nessun pattern impostato. Esempio: 4K|2160p|Remux</string>
 <string name="autoplay_regex_title">Pattern Regex</string>
 <string name="autoplay_no_items">Nessun elemento disponibile</string>
 <string name="autoplay_mode_manual_desc">Mostra sempre la lista delle sorgenti e lasciami scegliere.</string>
 <string name="autoplay_mode_first_desc">Riproduci automaticamente la prima sorgente disponibile.</string>
 <string name="autoplay_mode_regex_desc">Riproduci la prima sorgente il cui testo corrisponde al tuo pattern regex.</string>
-<string name="autoplay_scope_all_desc">La riproduzione automatica può usare sia gli addon installati che i plugin abilitati.</string>
-<string name="autoplay_scope_addons_desc">La riproduzione automatica considera solo gli stream provenienti dai tuoi addon installati.</string>
-<string name="autoplay_scope_plugins_desc">La riproduzione automatica considera solo gli stream provenienti dai plugin abilitati.</string>
 <string name="autoplay_threshold_pct_desc">Mostra in base alla percentuale di riproduzione quando non è disponibile un timestamp di fine.</string>
 <string name="autoplay_threshold_min_desc">Mostra questi minuti prima della fine dell\'episodio quando non è disponibile un timestamp di fine.</string>
 <string name="autoplay_regex_matches">Verifica corrispondenze con nome/titolo/descrizione/addon/url dello stream. Esempio: 4K|2160p|Remux</string>
@@ -1128,8 +1117,8 @@
 <string name="profile_copy_settings_apply">Applica</string>
 <string name="profile_copy_settings_credentials_off">Chiavi API: non copiare</string>
 <string name="profile_copy_settings_credentials_on">Chiavi API: copia quelle mancanti</string>
-<string name="profile_copy_settings_details">Le chiavi API esistenti vengono mantenute. OAuth, addon, plugin, layout home, PIN, cronologia, libreria, download e impostazioni specifiche del dispositivo restano invariati.</string>
-<string name="profile_copy_settings_exclusions">OAuth, addon, plugin, layout home, PIN, cronologia, libreria, download e impostazioni specifiche del dispositivo restano invariati.</string>
+<string name="profile_copy_settings_details">Le chiavi API esistenti vengono mantenute. OAuth, addon, layout home, PIN, cronologia, libreria, download e impostazioni specifiche del dispositivo restano invariati.</string>
+<string name="profile_copy_settings_exclusions">OAuth, addon, layout home, PIN, cronologia, libreria, download e impostazioni specifiche del dispositivo restano invariati.</string>
 <string name="profile_copy_settings_success">Impostazioni copiate da %1$s a %2$s.</string>
 <string name="profile_copy_settings_error">Impossibile copiare le impostazioni. Controlla la connessione e riprova.</string>
 <string name="profile_copy_settings_created_success">Profilo creato con le impostazioni di %1$s.</string>
@@ -1546,7 +1535,7 @@
 
     <!-- AccountSettingsContent -->
 <string name="account_loading">Caricamento\u2026</string>
-<string name="account_sync_description">Sincronizza la tua libreria, l\'avanzamento della visione, gli addon e i plugin su tutti i tuoi dispositivi.</string>
+<string name="account_sync_description">Sincronizza la tua libreria, l\'avanzamento della visione e gli addon su tutti i tuoi dispositivi.</string>
 <string name="account_sync_restart_note">La sincronizzazione non è in tempo reale tra dispositivi attivi. Riavvia questo dispositivo dopo l\'accesso o per ricevere modifiche fatte altrove.</string>
 <string name="account_signin_qr_title">Accedi con QR</string>
 <string name="account_signin_qr_subtitle">Scansiona un codice QR e completa l\'accesso via email sul tuo telefono</string>
@@ -1557,7 +1546,7 @@
 <string name="account_loading_sync">Caricamento dati di sincronizzazione\u2026</string>
 <string name="account_sign_out">Esci</string>
 <string name="account_sign_out_confirm_title">Disconnettersi?</string>
-<string name="account_sign_out_confirm_subtitle">Dovrai accedere di nuovo per sincronizzare libreria, progressi di visione, addon e plugin su questo dispositivo.</string>
+<string name="account_sign_out_confirm_subtitle">Dovrai accedere di nuovo per sincronizzare libreria, progressi di visione e addon su questo dispositivo.</string>
 <string name="account_error_signin_required">Accedi prima con un account.</string>
 <string name="account_signin_create_title">Accedi / Crea account</string>
 <string name="account_signin_create_desc">Usa email e password per creare o accedere al tuo account.</string>
@@ -1640,7 +1629,7 @@
 
 <string name="sync_claim_title">Collega dispositivo</string>
 <string name="sync_claim_subtitle">Inserisci il codice di sincronizzazione e il PIN dell\'altro dispositivo per collegare questo dispositivo.</string>
-<string name="sync_claim_success">Dispositivo collegato con successo! I tuoi addon e plugin verranno ora sincronizzati.</string>
+<string name="sync_claim_success">Dispositivo collegato con successo! I tuoi addon verranno ora sincronizzati.</string>
 <string name="sync_claim_done">Fatto</string>
 <string name="sync_claim_code_label">Codice di sincronizzazione</string>
 <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1648,48 +1637,6 @@
 <string name="sync_claim_pin_placeholder">Inserisci PIN</string>
 <string name="sync_claim_linking">Collegamento in corso\u2026</string>
 
-<string name="plugin_readonly_notice">Stai usando i plugin del profilo principale, non possono essere modificati</string>
-<string name="plugin_repositories_section">Repository (%1$d)</string>
-<string name="plugin_providers_section">Provider (%1$d)</string>
-<string name="plugin_title">Plugin</string>
-<string name="plugin_enable_plugins_title">Abilita i fornitori di plugin a livello globale</string>
-<string name="plugin_enable_plugins_subtitle">Usa i fornitori di plugin durante la ricerca dei flussi</string>
-<string name="plugin_group_by_repository_title">Raggruppa i fornitori di plugin per repository</string>
-<string name="plugin_group_by_repository_subtitle">Nei flussi streaming, mostra un fornitore per repository invece di uno per sorgente</string>
-<string name="plugin_add_repository">Aggiungi repository</string>
-<string name="plugin_add_btn">Aggiungi</string>
-<string name="plugin_manage_from_phone_title">Gestisci dal telefono</string>
-<string name="plugin_manage_from_phone_subtitle">Scansiona un codice QR per aggiungere o rimuovere repository dal tuo telefono</string>
-<string name="plugin_qr_instruction">Scansiona con il tuo telefono per gestire le repository</string>
-<string name="plugin_qr_close">Chiudi</string>
-<string name="plugin_confirm_title">Conferma modifiche repository</string>
-<string name="plugin_confirm_subtitle">Le seguenti modifiche sono state apportate dal tuo telefono:</string>
-<string name="plugin_confirm_added">Aggiunte:</string>
-<string name="plugin_confirm_removed">Rimosse:</string>
-<string name="plugin_confirm_no_changes">Nessuna modifica rilevata</string>
-<string name="plugin_confirm_total">Totale repository: %1$d</string>
-<string name="plugin_confirm_reject">Rifiuta</string>
-<string name="plugin_confirm_confirm">Conferma</string>
-<string name="plugin_url_or_short_code_placeholder">URL o codice breve</string>
-<string name="plugin_diagnostics_collapse">Diagnostica (tocca per comprimere)</string>
-<string name="plugin_diagnostics_expand">Diagnostica (tocca per espandere)</string>
-<string name="plugin_risky_enable_title">Abilitare il provider?</string>
-<string name="plugin_risky_enable_message">%1$s è noto per causare crash con alcuni contenuti. Abilitare comunque?</string>
-<string name="plugin_risky_enable_cancel">Annulla</string>
-<string name="plugin_risky_enable_confirm">Abilita</string>
-<string name="plugin_updated_format">Aggiornato: %1$s</string>
-<string name="plugin_test_btn">Test</string>
-<string name="plugin_test_results">Risultati del test (%1$d stream)</string>
-<string name="plugin_and_more">\u2026 e altri %1$d</string>
-<string name="plugin_providers_count">%1$d provider</string>
-<string name="plugin_no_repos">Nessuna repository ancora aggiunta.\nAggiungi una repository per iniziare.</string>
-<string name="plugin_error_invalid_url">Inserisci un URL valido</string>
-<string name="plugin_error_add_repo">Impossibile aggiungere il repository: %1$s</string>
-<string name="plugin_error_refresh">Aggiornamento fallito: %1$s</string>
-<string name="plugin_error_test">Test fallito: %1$s</string>
-<string name="plugin_test_no_results">Nessun risultato trovato</string>
-<string name="plugin_test_found_streams">Trovati %1$d stream</string>
-<string name="plugin_version">Versione %1$s</string>
 
 <string name="profile_selection_title">Chi sta guardando?</string>
 <string name="profile_selection_subtitle">Seleziona un profilo per continuare</string>
@@ -1727,7 +1674,7 @@
 <string name="update_unknown_sources">Consenti l\'installazione da sorgenti sconosciute per continuare.</string>
     <!-- AccountScreen -->
 <string name="account_title">Account</string>
-<string name="account_sign_in_description">Accedi per sincronizzare libreria, avanzamento visione, addon e plugin tra i dispositivi. La libreria usa Fetch Sync quando Trakt non è collegato; l\'avanzamento visione può usare Trakt o Fetch Sync.</string>
+<string name="account_sign_in_description">Accedi per sincronizzare libreria, avanzamento visione e addon tra i dispositivi. La libreria usa Fetch Sync quando Trakt non è collegato; l\'avanzamento visione può usare Trakt o Fetch Sync.</string>
 <string name="account_sync_code_title">Codice di sincronizzazione</string>
 <string name="account_sync_code_description">Sincronizza su tutti i dispositivi senza creare un account.</string>
 <string name="account_linked_devices">Dispositivi collegati (%1$d)</string>
@@ -1755,8 +1702,6 @@
 <string name="discover_empty_no_content_subtitle">Prova un genere o un catalogo differente</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1804,11 +1749,6 @@
     <!-- Error messages (shared) -->
 <string name="error_network_required">Connettiti al Wi-Fi o Ethernet per usare questa funzione</string>
 <string name="error_server_ports_unavailable">Impossibile avviare il server. Tutte le porte sono in uso.</string>
-
-    <!-- Plugin errors -->
-<string name="plugin_repo_added_with_providers">Aggiunto %1$s con %2$d provider</string>
-<string name="plugin_repo_removed">Repository rimosso</string>
-<string name="plugin_repo_refreshed">Repository aggiornato</string>
 
     <!-- Trakt errors -->
 
@@ -1881,7 +1821,6 @@
 <string name="cd_refresh">Aggiorna</string>
 <string name="cd_remove">Rimuovi</string>
 <string name="cd_preview">Anteprima</string>
-<string name="cd_test">Test</string>
 <string name="cd_unlink">Scollega</string>
 <string name="cd_fetch_logo">Fetch</string>
 <string name="cd_trakt_logo">Logo Trakt</string>

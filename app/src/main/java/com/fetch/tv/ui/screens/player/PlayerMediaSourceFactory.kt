@@ -27,7 +27,6 @@ import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import androidx.media3.extractor.DefaultExtractorsFactory
 import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.text.SubtitleParser
-import com.fetch.tv.FetchApplication
 import com.fetch.tv.R
 import com.fetch.tv.core.util.findCause
 import kotlinx.coroutines.CoroutineScope
@@ -129,7 +128,6 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     private val playbackHttpClient by lazy {
         PlayerPlaybackNetworking.playbackHttpClient.newBuilder()
             .socketFactory(NoDelaySocketFactory)
-            .cookieJar(FetchApplication.extensionCookieJar)
             .let { FetchExoPlayerPerformanceHelper.applyNetworkOptimizations(it) }
             .build()
     }

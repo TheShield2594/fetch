@@ -229,7 +229,6 @@ data class PlaybackIssuePlaybackSettingsDto(
     @Json(name = "enableHttp2") val enableHttp2: Boolean,
     @Json(name = "fetchPerformanceModeEnabled") val fetchPerformanceModeEnabled: Boolean,
     @Json(name = "streamAutoPlayMode") val streamAutoPlayMode: String,
-    @Json(name = "streamAutoPlaySource") val streamAutoPlaySource: String,
     @Json(name = "streamAutoPlayNextEpisodeEnabled") val streamAutoPlayNextEpisodeEnabled: Boolean,
     @Json(name = "streamAutoPlayPreferBingeGroupForNextEpisode") val streamAutoPlayPreferBingeGroupForNextEpisode: Boolean,
     @Json(name = "streamAutoPlayReuseBingeGroup") val streamAutoPlayReuseBingeGroup: Boolean,

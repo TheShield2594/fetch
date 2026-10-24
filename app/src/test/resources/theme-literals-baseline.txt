@@ -27,7 +27,6 @@ com/fetch/tv/ui/screens/player/PostPlayOverlay.kt|COLOR|2
 com/fetch/tv/ui/screens/player/SubtitleColorPresets.kt|COLOR|7
 com/fetch/tv/ui/screens/player/SubtitleStyleSidePanel.kt|COLOR|1
 com/fetch/tv/ui/screens/player/SubtitleTimingDialog.kt|COLOR|5
-com/fetch/tv/ui/screens/plugin/PluginScreen.kt|COLOR|3
 com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt|COLOR|9
 com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt|DURATION|1
 com/fetch/tv/ui/screens/settings/LicensesAttributionsScreen.kt|COLOR|1

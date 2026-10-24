@@ -214,7 +214,7 @@ class TmdbService @Inject constructor(
             .removePrefix("series:")
 
         // Stremio-style series ids can look like: tt1234567:season:episode
-        // Plugins/TMDB lookup need the base external id only.
+        // TMDB lookup needs the base external id only.
         val idPart = cleanId
             .substringBefore(':')
             .substringBefore('/')

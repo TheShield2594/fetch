@@ -466,7 +466,6 @@
     <string name="settings_debug">Дебъг</string>
     <string name="settings_account_section_subtitle">Състояние на акаунта и синхронизация</string>
     <string name="account_stat_addons">добавки</string>
-    <string name="account_stat_plugins">плъгини</string>
     <string name="account_stat_library">библиотека</string>
     <string name="account_stat_progress">прогрес</string>
     <string name="account_stat_watched">гледани</string>
@@ -669,27 +668,18 @@
     <string name="autoplay_threshold_pct_title">Праг в процент</string>
     <string name="autoplay_threshold_pct_sub">Fallback, когато няма outro времеви маркер.</string>
     <string name="autoplay_threshold_min_title">Праг в минути</string>
-    <string name="autoplay_scope_all">Всички източници</string>
-    <string name="autoplay_scope_addons">Само инсталирани добавки</string>
-    <string name="autoplay_scope_plugins">Само активирани плъгини</string>
-    <string name="autoplay_scope">Обхват на източници за автоматично възпроизвеждане</string>
     <string name="autoplay_timeout_title">Таймаут за избор на поток</string>
     <string name="autoplay_timeout_sub">Време за изчакване на добавките преди избор.</string>
     <string name="autoplay_timeout_instant">Моментално</string>
     <string name="autoplay_timeout_unlimited">Неограничено</string>
     <string name="autoplay_allowed_addons">Разрешени добавки</string>
     <string name="autoplay_all_addons">Всички инсталирани добавки</string>
-    <string name="autoplay_allowed_plugins">Разрешени плъгини</string>
-    <string name="autoplay_all_plugins">Всички активирани плъгини</string>
     <string name="autoplay_regex_placeholder">Няма зададен шаблон. Пример: 4K|2160p|Remux</string>
     <string name="autoplay_regex_title">Regex шаблон</string>
     <string name="autoplay_no_items">Няма налични елементи</string>
     <string name="autoplay_mode_manual_desc">Винаги показвай списъка с източници и ми позволи да избера.</string>
     <string name="autoplay_mode_first_desc">Автоматично пусни първия наличен източник.</string>
     <string name="autoplay_mode_regex_desc">Пусни първия източник, чието име/заглавие съвпада с regex шаблона.</string>
-    <string name="autoplay_scope_all_desc">Автоматичното възпроизвеждане може да използва както инсталирани добавки, така и активирани плъгини.</string>
-    <string name="autoplay_scope_addons_desc">Автоматичното възпроизвеждане разглежда само потоци от инсталираните добавки.</string>
-    <string name="autoplay_scope_plugins_desc">Автоматичното възпроизвеждане разглежда само потоци от активираните плъгини.</string>
     <string name="autoplay_threshold_pct_desc">Показвай според процента на възпроизвеждане, когато няма outro времеви маркер.</string>
     <string name="autoplay_threshold_min_desc">Показвай толкова минути преди края на епизода, когато няма outro времеви маркер.</string>
     <string name="autoplay_regex_matches">Съвпадение спрямо име/заглавие/описание/добавка/url на потока. Пример: 4K|2160p|Remux</string>
@@ -1332,7 +1322,7 @@
 
     <!-- AccountSettingsContent -->
     <string name="account_loading">Зареждане…</string>
-    <string name="account_sync_description">Синхронизирай библиотеката, прогреса на гледане, добавките и плъгините между устройства.</string>
+    <string name="account_sync_description">Синхронизирай библиотеката, прогреса на гледане и добавките между устройства.</string>
     <string name="account_sync_restart_note">Синхронизацията не е в реално време между активни устройства. Рестартирай това устройство след вписване или за да вземеш промените, направени другаде.</string>
     <string name="account_signin_qr_title">Впиши се с QR</string>
     <string name="account_signin_qr_subtitle">Сканирай QR код и завърши имейл вписването на телефона си</string>
@@ -1378,7 +1368,7 @@
 
     <string name="sync_claim_title">Свържи устройство</string>
     <string name="sync_claim_subtitle">Въведи sync кода и PIN от другото си устройство, за да свържеш това.</string>
-    <string name="sync_claim_success">Устройството е успешно свързано! Добавките и плъгините ти сега ще се синхронизират.</string>
+    <string name="sync_claim_success">Устройството е успешно свързано! Добавките ти сега ще се синхронизират.</string>
     <string name="sync_claim_done">Готово</string>
     <string name="sync_claim_code_label">Sync код</string>
     <string name="sync_claim_code_placeholder">XXXX-XXXX-XXXX-XXXX-XXXX</string>
@@ -1386,48 +1376,6 @@
     <string name="sync_claim_pin_placeholder">Въведи PIN</string>
     <string name="sync_claim_linking">Свързване…</string>
 
-    <string name="plugin_readonly_notice">Използва плъгините на primary профила и не може да се променя</string>
-    <string name="plugin_repositories_section">Хранилища (%1$d)</string>
-    <string name="plugin_providers_section">Доставчици (%1$d)</string>
-    <string name="plugin_title">Плъгини</string>
-    <string name="plugin_enable_plugins_title">Включи плъгин доставчиците глобално</string>
-    <string name="plugin_enable_plugins_subtitle">Използвай плъгин доставчици при откриване на потоци</string>
-    <string name="plugin_group_by_repository_title">Групирай плъгин доставчиците по хранилище</string>
-    <string name="plugin_group_by_repository_subtitle">В Потоци, показвай по един доставчик на хранилище вместо по един на източник</string>
-    <string name="plugin_add_repository">Добави хранилище</string>
-    <string name="plugin_add_btn">Добави</string>
-    <string name="plugin_manage_from_phone_title">Управлявай от телефона</string>
-    <string name="plugin_manage_from_phone_subtitle">Сканирай QR код, за да добавяш или премахваш хранилища от телефона си</string>
-    <string name="plugin_qr_instruction">Сканирай с телефона си, за да управляваш хранилища</string>
-    <string name="plugin_qr_close">Затвори</string>
-    <string name="plugin_confirm_title">Потвърди промените по хранилищата</string>
-    <string name="plugin_confirm_subtitle">Следните промени са направени от телефона ти:</string>
-    <string name="plugin_confirm_added">Добавени:</string>
-    <string name="plugin_confirm_removed">Премахнати:</string>
-    <string name="plugin_confirm_no_changes">Не са открити промени</string>
-    <string name="plugin_confirm_total">Общо хранилища: %1$d</string>
-    <string name="plugin_confirm_reject">Отхвърли</string>
-    <string name="plugin_confirm_confirm">Потвърди</string>
-    <string name="plugin_url_or_short_code_placeholder">URL или кратък код</string>
-    <string name="plugin_diagnostics_collapse">Диагностика (натисни за свиване)</string>
-    <string name="plugin_diagnostics_expand">Диагностика (натисни за разширяване)</string>
-    <string name="plugin_risky_enable_title">Включи доставчика?</string>
-    <string name="plugin_risky_enable_message">%1$s е известен, че причинява сривове при някои съдържания. Включи въпреки това?</string>
-    <string name="plugin_risky_enable_cancel">Отказ</string>
-    <string name="plugin_risky_enable_confirm">Включи</string>
-    <string name="plugin_updated_format">Обновен: %1$s</string>
-    <string name="plugin_test_btn">Тествай</string>
-    <string name="plugin_test_results">Резултати от теста (%1$d потока)</string>
-    <string name="plugin_and_more">... и още %1$d</string>
-    <string name="plugin_providers_count">%1$d доставчика</string>
-    <string name="plugin_no_repos">Все още няма добавени хранилища.\nДобави хранилище, за да започнеш.</string>
-    <string name="plugin_error_invalid_url">Моля, въведи валиден URL</string>
-    <string name="plugin_error_add_repo">Неуспешно добавяне на хранилище: %1$s</string>
-    <string name="plugin_error_refresh">Неуспешно обновяване: %1$s</string>
-    <string name="plugin_error_test">Тестът се провали: %1$s</string>
-    <string name="plugin_test_no_results">Не са намерени резултати</string>
-    <string name="plugin_test_found_streams">Намерени %1$d потока</string>
-    <string name="plugin_version">Версия %1$s</string>
 
     <string name="profile_selection_title">Кой гледа?</string>
     <string name="profile_selection_subtitle">Избери профил, за да продължиш</string>
@@ -1459,7 +1407,7 @@
     <string name="update_unknown_sources">Разреши инсталации от неизвестни източници, за да продължиш.</string>
     <!-- AccountScreen -->
     <string name="account_title">Акаунт</string>
-    <string name="account_sign_in_description">Впиши се, за да синхронизираш библиотеката, прогреса на гледане, добавките и плъгините между устройства. Синхронизацията на библиотеката използва Fetch Sync, когато Trakt не е свързан, а прогресът на гледане може да използва Trakt или Fetch Sync.</string>
+    <string name="account_sign_in_description">Впиши се, за да синхронизираш библиотеката, прогреса на гледане и добавките между устройства. Синхронизацията на библиотеката използва Fetch Sync, когато Trakt не е свързан, а прогресът на гледане може да използва Trakt или Fetch Sync.</string>
     <string name="account_sync_code_title">Sync код</string>
     <string name="account_sync_code_description">Синхронизирай между устройства без създаване на акаунт.</string>
     <string name="account_linked_devices">Свързани устройства (%1$d)</string>
@@ -1487,8 +1435,6 @@
     <string name="discover_empty_no_content_subtitle">Опитай с различен жанр или каталог</string>
 
     <!-- AddonManagerScreen -->
-
-    <!-- PluginScreen -->
 
     <!-- ProfileSettingsContent -->
 
@@ -1535,11 +1481,6 @@
     <!-- Error messages (shared) -->
     <string name="error_network_required">Свържи се с Wi-Fi или Ethernet, за да използваш тази функция</string>
     <string name="error_server_ports_unavailable">Не можахме да стартираме сървъра. Всички портове са заети.</string>
-
-    <!-- Plugin errors -->
-    <string name="plugin_repo_added_with_providers">Добавено %1$s с %2$d доставчика</string>
-    <string name="plugin_repo_removed">Хранилището е премахнато</string>
-    <string name="plugin_repo_refreshed">Хранилището е обновено</string>
 
     <!-- Trakt errors -->
 
@@ -1612,7 +1553,6 @@
     <string name="cd_refresh">Обнови</string>
     <string name="cd_remove">Премахни</string>
     <string name="cd_preview">Преглед</string>
-    <string name="cd_test">Тествай</string>
     <string name="cd_unlink">Прекъсни връзката</string>
     <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt лого</string>

@@ -1,14 +1,11 @@
 package com.fetch.tv.ui.components
 
 import androidx.lifecycle.ViewModelStore
-import com.fetch.tv.core.build.AppFeaturePolicy
-import com.fetch.tv.data.local.PluginDataStore
 import com.fetch.tv.data.mediaserver.ServerRepository
 import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.data.mediaserver.ServersUiState
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.AddonResource
-import com.fetch.tv.domain.model.ScraperInfo
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.domain.repository.MetaRepository
 import io.mockk.coVerify
@@ -37,14 +34,9 @@ class PlaybackAvailabilityViewModelTest {
         val viewModelStore = ViewModelStore()
         try {
             val addons = MutableStateFlow<List<Addon>>(emptyList())
-            val scrapers = MutableStateFlow<List<ScraperInfo>>(emptyList())
-            val pluginsEnabled = MutableStateFlow(true)
             val addonRepository = mockk<AddonRepository>()
-            val pluginDataStore = mockk<PluginDataStore>()
             val metaRepository = mockk<MetaRepository>()
             every { addonRepository.getInstalledAddons() } returns addons
-            every { pluginDataStore.scrapers } returns scrapers
-            every { pluginDataStore.pluginsEnabled } returns pluginsEnabled
             every { metaRepository.getCachedMeta(any(), any()) } returns null
             val serverRepository = mockk<ServerRepository> {
                 every { uiState } returns MutableStateFlow(ServersUiState())
@@ -54,7 +46,6 @@ class PlaybackAvailabilityViewModelTest {
             }
             val viewModel = PlaybackAvailabilityViewModel(
                 addonRepository,
-                pluginDataStore,
                 metaRepository,
                 serverRepository,
                 serverStreams
@@ -79,20 +70,6 @@ class PlaybackAvailabilityViewModelTest {
             runCurrent()
             assertFalse(viewModel.availability.value.canStream("movie", "tt123"))
 
-            scrapers.value = listOf(ScraperInfo(
-                id = "scraper", name = "Scraper", description = "", version = "1", filename = "scraper.js",
-                supportedTypes = listOf("movie"), enabled = true, manifestEnabled = true, logo = null,
-                contentLanguage = emptyList(), repositoryId = "repo", formats = null
-            ))
-            runCurrent()
-            assertTrue(viewModel.availability.value.canStream("movie", "tt123") == AppFeaturePolicy.pluginsEnabled)
-            pluginsEnabled.value = false
-            runCurrent()
-            assertFalse(viewModel.availability.value.canStream("movie", "tt123"))
-            addons.value = emptyList()
-            scrapers.value = emptyList()
-            runCurrent()
-            assertFalse(viewModel.availability.value.canStream("movie", "tt123"))
 
             coVerify(exactly = 0) { addonRepository.fetchAddon(any()) }
             verify(exactly = 0) { metaRepository.getMetaFromAllAddons(any(), any(), any()) }

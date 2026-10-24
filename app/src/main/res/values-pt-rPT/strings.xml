@@ -946,7 +946,6 @@
     <string name="profile_create_btn">Criar</string>
     <string name="profile_delete">Eliminar</string>
     <string name="profile_choose_avatar">Escolher avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Os URLs de avatares personalizados podem ser configurados a partir do painel web do Fetch.</string>
     <string name="profile_avatar_focus_hint">Foca num avatar para ver o teu nome</string>
     <string name="profile_avatar_category_all">Tudo</string>
     <string name="profile_avatar_category_anime">Anime</string>

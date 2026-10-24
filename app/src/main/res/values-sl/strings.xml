@@ -870,7 +870,6 @@
     <string name="profile_create_btn">Ustvari</string>
     <string name="profile_delete">Izbriši</string>
 	<string name="profile_choose_avatar">Izberite avatar</string>
-	<string name="profile_custom_avatar_web_panel_note">Naslove URL za avatarje po meri lahko konfigurirate v spletni nadzorni plošči Fetch.</string>																														   
        <string name="profile_avatar_focus_hint">Označite avatar za prikaz imena</string>
     <string name="profile_avatar_category_all">Vse</string>
     <string name="profile_avatar_category_anime">Anime</string>

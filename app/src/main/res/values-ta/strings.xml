@@ -899,7 +899,6 @@
     <string name="profile_create_btn">உருவாக்கு</string>
     <string name="profile_delete">நீக்கு</string>
     <string name="profile_choose_avatar">அவதாரை தேர்ந்தெடுக்கவும்</string>
-    <string name="profile_custom_avatar_web_panel_note">தனிப்பயன் அவதார் யூஆர்எல்கள் Fetch வலைப் பலகையில் அமைக்கப்படலாம்.</string>
     <string name="profile_avatar_focus_hint">அதன் பெயரை காண ஒரு அவதாரில் கவனம் செலுத்தவும்</string>
     <string name="profile_avatar_category_all">அனைத்தும்</string>
     <string name="profile_avatar_category_anime">அனிமே</string>

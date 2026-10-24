@@ -1022,11 +1022,9 @@
     <string name="profile_create_btn">Krijo</string>
     <string name="profile_delete">Fshi</string>
     <string name="profile_choose_avatar">Zgjidh avatarin</string>
-    <string name="profile_custom_avatar_web_panel_note">URL-të e personalizuara të avatarëve mund të konfigurohen nga paneli web i Fetch.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Sfondi</string>
     <string name="profile_choose_background">Zgjidh sfondin e profilit</string>
-    <string name="profile_background_member_note">URL-të e personalizuara të sfondit mund të konfigurohen nga paneli web i Fetch.</string>
     <string name="profile_background_normal">Normal</string>
     <string name="profile_background_custom">I personalizuar</string>
     <string name="profile_avatar_focus_hint">Fokuso një avatar për të parë emrin e tij</string>

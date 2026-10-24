@@ -1261,11 +1261,9 @@
     <string name="profile_create_btn">Créer</string>
     <string name="profile_delete">Supprimer</string>
     <string name="profile_choose_avatar">Choisir un avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Les URL d’avatar personnalisé peuvent être configurées depuis le panneau web de Fetch.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Arrière-plan</string>
     <string name="profile_choose_background">Choisir l’arrière-plan du profil</string>
-    <string name="profile_background_member_note">Les URL d’arrière-plan personnalisé peuvent être configurées depuis le panneau web de Fetch.</string>
     <string name="profile_background_normal">Normal</string>
     <string name="profile_background_custom">Personnalisé</string>
     <string name="profile_avatar_focus_hint">Sélectionnez un avatar pour voir son nom</string>

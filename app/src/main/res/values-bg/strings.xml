@@ -968,7 +968,6 @@
     <string name="profile_create_btn">Създай</string>
     <string name="profile_delete">Изтрий</string>
     <string name="profile_choose_avatar">Избери аватар</string>
-    <string name="profile_custom_avatar_web_panel_note">Персонализирани URL адреси за аватар могат да се конфигурират от Fetch уеб панела.</string>
     <string name="profile_avatar_focus_hint">Фокусирай аватар, за да видиш името му</string>
     <string name="profile_avatar_category_all">Всички</string>
     <string name="profile_avatar_category_anime">Аниме</string>

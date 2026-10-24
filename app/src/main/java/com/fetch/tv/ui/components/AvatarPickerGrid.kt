@@ -69,7 +69,8 @@ import coil3.request.crossfade
 import com.fetch.tv.R
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 
-private val PinnedAvatarCategories = listOf("anime", "animation", "tv", "movie", "gaming")
+// Bundled categories first, then the ones a sync server's catalog commonly uses.
+private val PinnedAvatarCategories = listOf("animals", "characters", "fun", "anime", "animation", "tv", "movie", "gaming")
 
 @Composable
 fun AvatarPickerGrid(
@@ -345,10 +346,16 @@ private fun AvatarGridItem(
             },
         contentAlignment = Alignment.Center
     ) {
+        // Bundled avatars are transparent, so they sit on the colour the profile will get.
+        val avatarBackground = remember(avatar.bgColor) {
+            avatar.bgColor?.let { hex -> runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrNull() }
+                ?: Color.Transparent
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(CircleShape)
+                .background(avatarBackground)
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -373,6 +380,9 @@ private fun categoryLabel(category: String): String {
         "movie" -> stringResource(R.string.profile_avatar_category_movie)
         "tv" -> stringResource(R.string.profile_avatar_category_tv)
         "gaming" -> stringResource(R.string.profile_avatar_category_gaming)
+        "animals" -> stringResource(R.string.profile_avatar_category_animals)
+        "characters" -> stringResource(R.string.profile_avatar_category_characters)
+        "fun" -> stringResource(R.string.profile_avatar_category_fun)
         else -> category.replaceFirstChar { it.uppercase() }
     }
 }

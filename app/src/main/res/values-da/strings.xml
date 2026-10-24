@@ -976,7 +976,6 @@
     <string name="profile_create_btn">Opret</string>
     <string name="profile_delete">Slet</string>
     <string name="profile_choose_avatar">Vælg avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Brugerdefinerede avatar-URL\'er kan konfigureres fra Fetch-webpanelet.</string>
     <string name="profile_avatar_focus_hint">Fokusér på en avatar for at se dens navn</string>
     <string name="profile_avatar_category_all">Alle</string>
     <string name="profile_avatar_category_anime">Anime</string>

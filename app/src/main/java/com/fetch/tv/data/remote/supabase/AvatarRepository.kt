@@ -3,6 +3,7 @@ package com.fetch.tv.data.remote.supabase
 import android.content.Context
 import android.os.SystemClock
 import android.util.Log
+import com.fetch.tv.data.local.BundledAvatars
 import com.fetch.tv.data.local.MemberCatalogStorage
 import com.fetch.tv.domain.model.ServerConfiguration
 import com.fetch.tv.domain.model.UserProfile
@@ -89,7 +90,25 @@ class AvatarRepository @Inject constructor(
     private var lastStandardRefreshAtMs = 0L
     private var lastMemberRefreshAtMs = 0L
 
+    /**
+     * The avatars a profile can pick: the ones bundled in the APK, then the sync server's
+     * catalog when a server is set up and reachable.
+     */
     suspend fun getAvatarCatalog(hasMemberAccess: Boolean = false): List<AvatarCatalogItem> {
+        val bundled = BundledAvatars.catalog(context)
+        if (!serverConfiguration.isConfigured) return bundled
+        val server = try {
+            getServerAvatarCatalog(hasMemberAccess)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Log.w(MemberAvatarTag, "Unable to load the server avatar catalog", error)
+            emptyList()
+        }
+        return bundled + server
+    }
+
+    private suspend fun getServerAvatarCatalog(hasMemberAccess: Boolean): List<AvatarCatalogItem> {
         val hadStandardCache = cachedStandardCatalog != null
         val standardCatalog = getStandardAvatarCatalog()
         if (hadStandardCache) refreshStandardCatalogInBackground()
@@ -173,6 +192,7 @@ class AvatarRepository @Inject constructor(
     }
 
     fun getAvatarImageUrl(avatarId: String, catalog: List<AvatarCatalogItem>): String? {
+        BundledAvatars.imageUrl(avatarId)?.let { return it }
         return catalog.find { it.id == avatarId }?.imageUrl
             ?: latestCachedMemberAvatar(avatarId)?.toURI()?.toString()
     }

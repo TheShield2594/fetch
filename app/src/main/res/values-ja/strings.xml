@@ -976,7 +976,6 @@
     <string name="profile_create_btn">作成</string>
     <string name="profile_delete">削除</string>
     <string name="profile_choose_avatar">アバターを選択</string>
-    <string name="profile_custom_avatar_web_panel_note">カスタムアバターURLはFetchウェブパネルから設定できます。</string>
     <string name="profile_avatar_focus_hint">アバターを選択して名前を確認</string>
     <string name="profile_avatar_category_all">すべて</string>
     <string name="profile_avatar_category_anime">アニメ</string>

@@ -197,18 +197,26 @@ class ProfileSelectionViewModel @Inject constructor(
         avatarId: String? = null,
         copyFromProfileId: Int? = null,
         copyProviderCredentials: Boolean = false,
+        isKidsProfile: Boolean = false,
+        usesMainAddons: Boolean = false,
         onComplete: (CreateProfileResult) -> Unit = {}
     ) {
         if (_isCreating.value) return
         viewModelScope.launch {
             _isCreating.value = true
             val result = try {
+                // Addons and plugins share one switch: a profile on the main profile's addons uses its plugins too.
                 val profile = profileManager.createProfile(
                     name = name,
                     avatarColorHex = avatarColorHex,
+                    usesPrimaryAddons = usesMainAddons,
+                    usesPrimaryPlugins = usesMainAddons,
                     avatarId = avatarId
                 )
                 if (profile != null) {
+                    if (isKidsProfile) {
+                        parentalControls.setRestrictions(profile.id, com.fetch.tv.data.local.ProfileRestrictions.KidsPreset)
+                    }
                     profileSyncService.pushToRemote()
                     val copyResult = copyFromProfileId?.let { sourceProfileId ->
                         profileSettingsSyncService.copyProfileSetup(

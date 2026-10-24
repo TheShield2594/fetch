@@ -218,6 +218,17 @@ internal sealed interface ProfilePinOverlayState {
     ) : ProfilePinOverlayState
 }
 
+/** Everything the create panel collects for a new profile. */
+private data class NewProfileSetup(
+    val name: String,
+    val colorHex: String,
+    val avatarId: String?,
+    val copyFromProfileId: Int?,
+    val copyProviderCredentials: Boolean,
+    val isKidsProfile: Boolean,
+    val usesMainAddons: Boolean
+)
+
 /** An action on [profile] that runs once its PIN has been entered. */
 private data class ProfilePinCheck(
     val profile: UserProfile,
@@ -290,6 +301,7 @@ fun ProfileSelectionScreen(
     var pinOverlayError by remember { mutableStateOf<String?>(null) }
     var profileActionMessage by remember { mutableStateOf<String?>(null) }
     var pinCheck by remember { mutableStateOf<ProfilePinCheck?>(null) }
+    var parentPinNudgeFor by remember { mutableStateOf<UserProfile?>(null) }
     var pinCheckError by remember { mutableStateOf<String?>(null) }
     // Editing a locked profile, or copying settings (and API keys) to or from it, needs its PIN.
     // The profile already open behind Manage Profiles was unlocked to get there; the startup
@@ -728,18 +740,21 @@ fun ProfileSelectionScreen(
                 isCreating = isCreating,
                 onRequestProfilePin = runWithProfilePin,
                 onDismiss = { if (!isCreating) showCreateProfile = false },
-                onCreateProfile = { name, colorHex, avatarId, copyFromProfileId, copyProviderCredentials ->
+                onCreateProfile = { setup ->
                     viewModel.createProfile(
-                        name = name,
-                        avatarColorHex = colorHex,
-                        avatarId = avatarId,
-                        copyFromProfileId = copyFromProfileId,
-                        copyProviderCredentials = copyProviderCredentials
+                        name = setup.name,
+                        avatarColorHex = setup.colorHex,
+                        avatarId = setup.avatarId,
+                        copyFromProfileId = setup.copyFromProfileId,
+                        copyProviderCredentials = setup.copyProviderCredentials,
+                        isKidsProfile = setup.isKidsProfile,
+                        usesMainAddons = setup.usesMainAddons
                     ) { result ->
                         when (result) {
                             is CreateProfileResult.Created -> {
                                 showCreateProfile = false
-                                val sourceName = profiles.firstOrNull { it.id == copyFromProfileId }?.name
+                                if (setup.isKidsProfile && !parentHasPin) parentPinNudgeFor = result.profile
+                                val sourceName = profiles.firstOrNull { it.id == setup.copyFromProfileId }?.name
                                 if (result.settingsCopyResult?.isSuccess == true && sourceName != null) {
                                     profileActionMessage = context.getString(
                                         R.string.profile_copy_settings_created_success,
@@ -908,6 +923,40 @@ fun ProfileSelectionScreen(
                     }
                 }
 
+                if (!profile.isPrimary && parentProfile != null) {
+                    Button(
+                        onClick = {
+                            longPressedProfile = null
+                            // A restricted profile's addons are the parent's call, like its limits.
+                            val restricted = profileRestrictions[profile.id]?.isRestricted == true
+                            val guard = if (restricted && parentHasPin) parentProfile else profile
+                            runWithProfilePin(guard) {
+                                val shared = !profile.usesPrimaryAddons
+                                viewModel.updateProfile(
+                                    profile.copy(usesPrimaryAddons = shared, usesPrimaryPlugins = shared)
+                                ) { saved ->
+                                    profileActionMessage = when {
+                                        !saved -> context.getString(R.string.profile_save_error)
+                                        shared -> context.getString(
+                                            R.string.profile_addons_shared_saved,
+                                            profile.name,
+                                            parentProfile.name
+                                        )
+                                        else -> context.getString(R.string.profile_addons_own_saved, profile.name)
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.colors(
+                            containerColor = FetchTheme.colors.BackgroundCard,
+                            contentColor = FetchTheme.colors.TextPrimary
+                        )
+                    ) {
+                        Text(profileAddonsLabel(profile.usesPrimaryAddons, parentProfile.name))
+                    }
+                }
+
                 if (!profile.isPrimary) {
                     Button(
                         onClick = {
@@ -965,6 +1014,7 @@ fun ProfileSelectionScreen(
                     viewModel.setProfileRestrictions(targetProfile.id, restrictions)
                     limitsTarget = null
                     profileActionMessage = context.getString(R.string.parental_limits_saved, targetProfile.name)
+                    if (restrictions.isRestricted && !primaryHasPin) parentPinNudgeFor = targetProfile
                 }
             )
         }
@@ -1051,6 +1101,22 @@ fun ProfileSelectionScreen(
                     Text(stringResource(R.string.profile_delete_btn))
                 }
             }
+        }
+
+        // Skipped once the main profile has a PIN, however it got one.
+        val nudgeParent = parentProfile?.takeIf { !parentHasPin }
+        val nudgeFor = parentPinNudgeFor
+        if (nudgeFor != null && nudgeParent != null) {
+            ParentPinNudgeDialog(
+                restrictedProfile = nudgeFor,
+                mainProfile = nudgeParent,
+                onSetPin = {
+                    parentPinNudgeFor = null
+                    pinOverlayError = null
+                    pinOverlayState = ProfilePinOverlayState.Set(nudgeParent)
+                },
+                onDismiss = { parentPinNudgeFor = null }
+            )
         }
 
         // Drawn in its own window so it sits above the editors and dialogs that asked for it.
@@ -1761,13 +1827,7 @@ private fun CreateProfileOverlay(
     isCreating: Boolean,
     onRequestProfilePin: (UserProfile, () -> Unit) -> Unit,
     onDismiss: () -> Unit,
-    onCreateProfile: (
-        name: String,
-        colorHex: String,
-        avatarId: String?,
-        copyFromProfileId: Int?,
-        copyProviderCredentials: Boolean
-    ) -> Unit
+    onCreateProfile: (NewProfileSetup) -> Unit
 ) {
     BackHandler(onBack = onDismiss)
 
@@ -1779,6 +1839,10 @@ private fun CreateProfileOverlay(
     var selectedCopySourceId by remember { mutableStateOf<Int?>(null) }
     var copyProviderCredentials by remember { mutableStateOf(false) }
     var showSettingsSourceDialog by remember { mutableStateOf(false) }
+    var showSetupDialog by remember { mutableStateOf(false) }
+    var isKidsProfile by remember { mutableStateOf(false) }
+    var usesMainAddons by remember { mutableStateOf(false) }
+    val mainProfileName = profiles.firstOrNull { it.isPrimary }?.name.orEmpty()
     val selectedAvatar = remember(avatarCatalog, selectedAvatarId) {
         avatarCatalog.find { it.id == selectedAvatarId }
     }
@@ -1854,11 +1918,15 @@ private fun CreateProfileOverlay(
                         enabled = profileName.isNotBlank() && !isCreating,
                         onClick = {
                             onCreateProfile(
-                                profileName,
-                                selectedColorHex,
-                                selectedAvatarId,
-                                selectedCopySourceId,
-                                copyProviderCredentials
+                                NewProfileSetup(
+                                    name = profileName,
+                                    colorHex = selectedColorHex,
+                                    avatarId = selectedAvatarId,
+                                    copyFromProfileId = selectedCopySourceId,
+                                    copyProviderCredentials = copyProviderCredentials,
+                                    isKidsProfile = isKidsProfile,
+                                    usesMainAddons = usesMainAddons
+                                )
                             )
                         }
                     )
@@ -1917,19 +1985,21 @@ private fun CreateProfileOverlay(
                     )
 
                     val selectedCopySource = profiles.firstOrNull { it.id == selectedCopySourceId }
+                    val setupParts = listOfNotNull(
+                        stringResource(R.string.profile_setup_part_kids).takeIf { isKidsProfile },
+                        stringResource(R.string.profile_setup_part_addons, mainProfileName).takeIf { usesMainAddons },
+                        selectedCopySource?.let { stringResource(R.string.profile_setup_part_settings, it.name) }
+                    )
                     OverlayButton(
-                        text = if (selectedCopySource == null) {
-                            stringResource(R.string.profile_copy_settings_create_fresh)
+                        text = if (setupParts.isEmpty()) {
+                            stringResource(R.string.profile_setup_button)
                         } else {
-                            stringResource(
-                                R.string.profile_copy_settings_create_source,
-                                selectedCopySource.name
-                            )
+                            stringResource(R.string.profile_setup_summary, setupParts.joinToString(" · "))
                         },
                         isPrimary = false,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !isCreating,
-                        onClick = { showSettingsSourceDialog = true }
+                        onClick = { showSetupDialog = true }
                     )
 
                 }
@@ -2001,6 +2071,24 @@ private fun CreateProfileOverlay(
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
         }
+    }
+
+    if (showSetupDialog) {
+        val selectedCopySource = profiles.firstOrNull { it.id == selectedCopySourceId }
+        ProfileSetupDialog(
+            mainProfileName = mainProfileName,
+            isKidsProfile = isKidsProfile,
+            usesMainAddons = usesMainAddons,
+            settingsSourceLabel = if (selectedCopySource == null) {
+                stringResource(R.string.profile_copy_settings_create_fresh)
+            } else {
+                stringResource(R.string.profile_copy_settings_create_source, selectedCopySource.name)
+            },
+            onKidsProfileChange = { isKidsProfile = it },
+            onUsesMainAddonsChange = { usesMainAddons = it },
+            onChooseSettingsSource = { showSettingsSourceDialog = true },
+            onDismiss = { showSetupDialog = false }
+        )
     }
 
     if (showSettingsSourceDialog) {

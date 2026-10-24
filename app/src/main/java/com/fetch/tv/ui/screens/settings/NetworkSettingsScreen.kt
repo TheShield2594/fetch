@@ -66,6 +66,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
+import com.fetch.tv.data.local.AddonTimeoutPreferences
 import com.fetch.tv.data.local.Dv7HandlingMode
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.domain.model.ExperienceMode
@@ -388,6 +389,7 @@ fun AdvancedSettingsContent(
 
     val networkListState = rememberLazyListState()
     var showExperienceModeConfirmation by remember { mutableStateOf(false) }
+    var showAddonTimeoutDialog by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxSize()) {
     LazyColumn(
         state = networkListState,
@@ -474,6 +476,33 @@ fun AdvancedSettingsContent(
                             )
                         )
                     }
+                )
+            }
+        }
+
+        item(key = "addon_request_settings") {
+            SettingsGroupCard(
+                modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.advanced_section_addons)
+            ) {
+                val fastSeconds = AddonTimeoutPreferences.FAST_TIMEOUT_SECONDS
+                SettingsToggleRow(
+                    title = stringResource(R.string.advanced_skip_slow_addons),
+                    subtitle = stringResource(R.string.advanced_skip_slow_addons_subtitle, fastSeconds),
+                    checked = uiState.skipSlowAddons,
+                    onToggle = {
+                        viewModel.onEvent(AdvancedSettingsEvent.SetSkipSlowAddons(!uiState.skipSlowAddons))
+                    }
+                )
+                SettingsActionRow(
+                    title = stringResource(R.string.advanced_addon_timeout),
+                    subtitle = stringResource(R.string.advanced_addon_timeout_subtitle),
+                    value = stringResource(
+                        R.string.advanced_addon_timeout_value,
+                        if (uiState.skipSlowAddons) fastSeconds else uiState.addonTimeoutSeconds
+                    ),
+                    enabled = !uiState.skipSlowAddons,
+                    onClick = { showAddonTimeoutDialog = true }
                 )
             }
         }
@@ -825,6 +854,30 @@ fun AdvancedSettingsContent(
             targetMode = ExperienceMode.ESSENTIAL,
             onConfirm = { experienceModeViewModel.setMode(ExperienceMode.ESSENTIAL) },
             onDismiss = { showExperienceModeConfirmation = false }
+        )
+    }
+
+    if (showAddonTimeoutDialog) {
+        val defaultSeconds = AddonTimeoutPreferences.DEFAULT_TIMEOUT_SECONDS
+        SettingsSingleChoiceDialog(
+            title = stringResource(R.string.advanced_addon_timeout),
+            subtitle = stringResource(R.string.advanced_addon_timeout_subtitle),
+            options = AddonTimeoutPreferences.TIMEOUT_OPTIONS_SECONDS.map { seconds ->
+                SettingsPickerOption(
+                    value = seconds,
+                    title = if (seconds == defaultSeconds) {
+                        stringResource(R.string.advanced_addon_timeout_default, seconds)
+                    } else {
+                        stringResource(R.string.advanced_addon_timeout_value, seconds)
+                    }
+                )
+            },
+            selectedValue = uiState.addonTimeoutSeconds,
+            onOptionSelected = { seconds ->
+                viewModel.onEvent(AdvancedSettingsEvent.SetAddonTimeoutSeconds(seconds))
+                showAddonTimeoutDialog = false
+            },
+            onDismiss = { showAddonTimeoutDialog = false }
         )
     }
 

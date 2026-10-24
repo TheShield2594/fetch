@@ -108,6 +108,7 @@ class StreamScreenViewModel @Inject constructor(
     party: com.fetch.tv.core.party.PartyRepository,
     profileManager: com.fetch.tv.core.profile.ProfileManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
+    private val addonHealthTracker: com.fetch.tv.core.streams.AddonHealthTracker,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private var autoPlayHandledForSession = false
@@ -790,6 +791,7 @@ class StreamScreenViewModel @Inject constructor(
             } else {
                 _uiState.value.addonStreams.mapTo(linkedSetOf()) { it.addonName }
             }
+            val fetchStartedAtMs = System.currentTimeMillis()
             updateSourceChipsForFetchStart(
                 installedAddons = installedAddons,
                 serverSourceNames = serverSourceNames,
@@ -812,6 +814,7 @@ class StreamScreenViewModel @Inject constructor(
             val isUnlimitedTimeout = playerSettings.streamAutoPlayTimeoutSeconds == PlayerSettings.STREAM_AUTOPLAY_TIMEOUT_UNLIMITED
 
             val streamLoadInner = launch {
+                val chipOutcomeWatcher = launch { watchSourceChipOutcomes(since = fetchStartedAtMs) }
                 streamRepository.getStreamsFromAllAddons(
                     type = contentType,
                     videoId = videoId,
@@ -909,6 +912,7 @@ class StreamScreenViewModel @Inject constructor(
                         }
                     }
                 }
+                chipOutcomeWatcher.cancel()
                 // All addons finished — run auto-select if not yet triggered
                 if (!autoSelectTriggered) {
                     autoSelectTriggered = true
@@ -1119,9 +1123,40 @@ class StreamScreenViewModel @Inject constructor(
         return updated
     }
 
+    /**
+     * Turns an addon's chip red as soon as its request fails or times out, instead of leaving it
+     * "loading" until every other addon has answered.
+     */
+    private suspend fun watchSourceChipOutcomes(since: Long) {
+        addonHealthTracker.events.collect { event ->
+            if (event.kind != com.fetch.tv.core.streams.AddonRequestKind.STREAM || event.atMs < since) return@collect
+            val failedStatus = when (event.outcome) {
+                com.fetch.tv.core.streams.AddonRequestOutcome.TIMEOUT -> SourceChipStatus.TIMED_OUT
+                com.fetch.tv.core.streams.AddonRequestOutcome.ERROR -> SourceChipStatus.ERROR
+                // An empty answer may still be rescued by the meta's inline streams.
+                else -> return@collect
+            }
+            updateUiStateIfChanged { state ->
+                if (state.sourceChips.none { it.name == event.addonName && it.status == SourceChipStatus.LOADING }) {
+                    return@updateUiStateIfChanged state
+                }
+                state.copy(
+                    sourceChips = state.sourceChips.map { chip ->
+                        if (chip.name == event.addonName && chip.status == SourceChipStatus.LOADING) {
+                            chip.copy(status = failedStatus)
+                        } else {
+                            chip
+                        }
+                    }
+                )
+            }
+        }
+    }
+
     private fun markRemainingSourceChipsAsError() {
         var markedAnyError = false
         updateUiStateIfChanged { state ->
+            markedAnyError = state.sourceChips.any { it.status.isFailed }
             val hasPending = state.sourceChips.any { it.status == SourceChipStatus.LOADING }
             if (!hasPending) return@updateUiStateIfChanged state
             markedAnyError = true
@@ -1145,7 +1180,7 @@ class StreamScreenViewModel @Inject constructor(
         sourceChipErrorDismissJob = viewModelScope.launch {
             delay(1600L)
             updateUiStateIfChanged { state ->
-                val remaining = state.sourceChips.filterNot { it.status == SourceChipStatus.ERROR }
+                val remaining = state.sourceChips.filterNot { it.status.isFailed }
                 if (remaining.size == state.sourceChips.size) state else state.copy(sourceChips = remaining)
             }
         }

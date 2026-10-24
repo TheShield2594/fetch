@@ -3,6 +3,11 @@ package com.fetch.tv.data.repository
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.core.network.NetworkResult
+import com.fetch.tv.core.streams.AddonCallResult
+import com.fetch.tv.core.streams.AddonRequestGuard
+import com.fetch.tv.core.streams.AddonRequestKind
+import com.fetch.tv.core.streams.AddonRequestOutcome
+import com.fetch.tv.data.remote.dto.MetaResponseDto
 import com.fetch.tv.data.mapper.toDomain
 import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.data.mediaserver.ServerItemRef
@@ -40,7 +45,8 @@ class MetaRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val api: AddonApi,
     private val addonRepository: AddonRepository,
-    private val serverCatalog: ServerCatalog
+    private val serverCatalog: ServerCatalog,
+    private val addonRequestGuard: AddonRequestGuard = AddonRequestGuard.Unguarded
 ) : MetaRepository {
     companion object {
         private const val TAG = "MetaRepository"
@@ -67,6 +73,37 @@ class MetaRepositoryImpl @Inject constructor(
          * [getMeta] checks its cache first, so a hit never waits.
          */
         private const val INSTALLED_ADDONS_WAIT_MS = 750L
+    }
+
+    /** An addon that didn't answer within the addon timeout. */
+    private class AddonTimeoutException(message: String) : Exception(message)
+
+    /**
+     * Requests meta within the addon timeout and records the outcome in the addon's health.
+     * Throws [AddonTimeoutException] on a timeout so callers report it like any failed request.
+     */
+    private suspend fun fetchMeta(addonName: String, url: String): retrofit2.Response<MetaResponseDto> {
+        val call = addonRequestGuard.run(
+            addonName = addonName,
+            kind = AddonRequestKind.META,
+            classify = { response ->
+                when {
+                    response.isSuccessful && response.body()?.meta != null -> AddonRequestOutcome.SUCCESS
+                    // Addons answer 404 for titles they don't have; that says nothing about their health.
+                    response.isSuccessful || response.code() == 404 -> AddonRequestOutcome.EMPTY
+                    else -> AddonRequestOutcome.ERROR
+                }
+            },
+            errorOf = { response -> "HTTP ${response.code()}" }
+        ) {
+            api.getMeta(url)
+        }
+        return when (call) {
+            is AddonCallResult.Completed -> call.value
+            AddonCallResult.TimedOut -> throw AddonTimeoutException(
+                context.getString(R.string.addon_request_timed_out, addonName)
+            )
+        }
     }
 
     /**
@@ -204,7 +241,7 @@ class MetaRepositoryImpl @Inject constructor(
         val deferred = inFlightMeta.getOrPut(cacheKey) {
             repositoryScope.async {
                 try {
-                    val response = api.getMeta(url)
+                    val response = fetchMeta(addon?.displayName ?: addonBaseUrl, url)
                     if (response.isSuccessful) {
                         val metaDto = response.body()?.meta ?: return@async null
                         val meta = metaDto.toDomain(context.getString(R.string.episodes_episode))
@@ -330,7 +367,7 @@ class MetaRepositoryImpl @Inject constructor(
                 attemptedAddonNames += addon.displayName
                 val url = buildMetaUrl(addon.baseUrl, requestedType, id)
                 try {
-                    val response = api.getMeta(url)
+                    val response = fetchMeta(addon.displayName, url)
                     if (response.isSuccessful) {
                         val metaDto = response.body()?.meta
                         if (metaDto != null) {
@@ -418,7 +455,7 @@ class MetaRepositoryImpl @Inject constructor(
                         loopAddonNames += addon.displayName
                         attempted++
                         try {
-                            val response = api.getMeta(url)
+                            val response = fetchMeta(addon.displayName, url)
                             if (response.isSuccessful) {
                                 val metaDto = response.body()?.meta
                                 if (metaDto != null) {
@@ -540,7 +577,7 @@ class MetaRepositoryImpl @Inject constructor(
         val deferred = inFlightPrimaryMeta.getOrPut(cacheKey) {
             repositoryScope.async {
                 try {
-                    val response = api.getMeta(url)
+                    val response = fetchMeta(addon.displayName, url)
                     if (response.isSuccessful) {
                         val metaDto = response.body()?.meta ?: return@async null
                         val meta = metaDto.toDomain(context.getString(R.string.episodes_episode))

@@ -209,7 +209,7 @@ private fun AddonStatus(chip: SourceChipItem) {
         targetValue = when (chip.status) {
             SourceChipStatus.SUCCESS -> FetchTheme.colors.Secondary
             SourceChipStatus.LOADING -> FetchTheme.colors.TextSecondary
-            SourceChipStatus.ERROR -> FetchTheme.colors.Error
+            SourceChipStatus.ERROR, SourceChipStatus.TIMED_OUT -> FetchTheme.colors.Error
         },
         animationSpec = FetchMotion.focusTween(),
         label = "addonDot"
@@ -224,7 +224,11 @@ private fun AddonStatus(chip: SourceChipItem) {
                 .background(dotColor, CircleShape)
         )
         Text(
-            text = chip.name,
+            text = if (chip.status == SourceChipStatus.TIMED_OUT) {
+                "${chip.name} · ${stringResource(R.string.source_chip_timed_out)}"
+            } else {
+                chip.name
+            },
             style = MaterialTheme.typography.bodySmall,
             color = if (chip.status == SourceChipStatus.LOADING) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextPrimary
         )

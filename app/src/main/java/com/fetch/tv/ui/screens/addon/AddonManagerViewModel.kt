@@ -82,11 +82,15 @@ class AddonManagerViewModel @Inject constructor(
     private val tmdbCollectionSourceResolver: TmdbCollectionSourceResolver,
     private val traktPublicListSourceResolver: TraktPublicListSourceResolver,
     @ApplicationContext private val context: Context,
-    addonHealthTracker: AddonHealthTracker
+    private val addonHealthTracker: AddonHealthTracker
 ) : ViewModel() {
 
-    /** Latency and failure history per addon name, for the health line on each card. */
+    /** Latency and failure history per addon name, for the health line on each card and the health panel. */
     val addonHealth: StateFlow<Map<String, AddonHealth>> = addonHealthTracker.health
+
+    fun clearAddonHealth() {
+        addonHealthTracker.clear()
+    }
 
     private val _uiState = MutableStateFlow(AddonManagerUiState())
     val uiState: StateFlow<AddonManagerUiState> = _uiState.asStateFlow()

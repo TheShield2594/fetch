@@ -5,6 +5,10 @@ import android.util.Log
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.network.safeApiCall
 import com.fetch.tv.core.poster.withCustomPosterUrls
+import com.fetch.tv.core.streams.AddonCallResult
+import com.fetch.tv.core.streams.AddonRequestGuard
+import com.fetch.tv.core.streams.AddonRequestKind
+import com.fetch.tv.core.streams.AddonRequestOutcome
 import com.fetch.tv.data.mapper.toDomainOrNull
 import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.data.mediaserver.messageRes
@@ -33,7 +37,8 @@ class CatalogRepositoryImpl @Inject constructor(
     private val api: AddonApi,
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val serverCatalog: ServerCatalog,
-    private val filterRowsDataStore: FilterRowsDataStore
+    private val filterRowsDataStore: FilterRowsDataStore,
+    private val addonRequestGuard: AddonRequestGuard = AddonRequestGuard.Unguarded
 ) : CatalogRepository {
     companion object {
         private const val TAG = "CatalogRepository"
@@ -134,7 +139,31 @@ class CatalogRepositoryImpl @Inject constructor(
             null
         }
 
-        when (val result = safeApiCall(context) { api.getCatalog(url) }) {
+        val call = addonRequestGuard.run(
+            addonName = addonName,
+            kind = AddonRequestKind.CATALOG,
+            classify = { result ->
+                when (result) {
+                    is NetworkResult.Error -> AddonRequestOutcome.ERROR
+                    is NetworkResult.Success -> if (result.data.metas.isEmpty()) {
+                        AddonRequestOutcome.EMPTY
+                    } else {
+                        AddonRequestOutcome.SUCCESS
+                    }
+                    NetworkResult.Loading -> AddonRequestOutcome.SUCCESS
+                }
+            },
+            errorOf = { (it as? NetworkResult.Error)?.message }
+        ) {
+            safeApiCall(context) { api.getCatalog(url) }
+        }
+        val result = when (call) {
+            is AddonCallResult.Completed -> call.value
+            AddonCallResult.TimedOut -> NetworkResult.Error(
+                context.getString(R.string.addon_request_timed_out, addonName)
+            )
+        }
+        when (result) {
             is NetworkResult.Success -> {
                 val catalogRow = toCatalogRow(result.data)
                 Log.d(

@@ -30,7 +30,10 @@ import androidx.tv.material3.Text
 enum class SourceChipStatus {
     LOADING,
     SUCCESS,
-    ERROR
+    ERROR,
+    TIMED_OUT;
+
+    val isFailed: Boolean get() = this == ERROR || this == TIMED_OUT
 }
 
 data class SourceChipItem(
@@ -50,7 +53,7 @@ fun SourceStatusFilterChip(
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val isError = status == SourceChipStatus.ERROR
+    val isError = status.isFailed
     val isLoading = status == SourceChipStatus.LOADING
     val shouldUseNormalColors = !isError
     val shakeOffsetPx = remember { Animatable(0f) }

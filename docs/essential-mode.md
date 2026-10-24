@@ -4,7 +4,7 @@
 
 Essential mode is a streamlined Fetch experience for users who want to install add-ons, find something, and play it without navigating the full customization surface.
 
-Advanced mode remains the existing power-user experience. It keeps the complete settings rail, layout controls, integrations, plug-ins, diagnostics, and detailed playback tuning.
+Advanced mode remains the existing power-user experience. It keeps the complete settings rail, layout controls, integrations, diagnostics, and detailed playback tuning.
 
 The goal is not to remove capabilities from the app. The goal is to put the minimum playback path first, keep the UI calm for new or casual users, and keep every advanced feature reachable through an intentional mode switch.
 
@@ -17,7 +17,6 @@ This spec is based on the current app structure in:
 - `app/src/main/java/com/fetch/tv/ui/navigation/FetchNavHost.kt`
 - `app/src/main/java/com/fetch/tv/ui/screens/settings/SettingsScreen.kt`
 - `app/src/main/java/com/fetch/tv/ui/screens/addon/AddonManagerScreen.kt`
-- `app/src/main/java/com/fetch/tv/ui/screens/plugin/PluginScreen.kt`
 - `app/src/main/java/com/fetch/tv/ui/screens/settings/LayoutSettingsScreen.kt`
 - `app/src/main/java/com/fetch/tv/ui/screens/settings/PlaybackSettingsScreen.kt`
 - `app/src/main/java/com/fetch/tv/ui/screens/settings/ThemeSettingsScreen.kt`
@@ -45,7 +44,6 @@ Current settings rail:
 - Profiles
 - Appearance
 - Layout
-- Plugins
 - Integration
 - Playback
 - Trakt
@@ -80,7 +78,6 @@ Essential mode hides:
 
 - Layout customization beyond one or two safe choices.
 - Catalog ordering and collection editing.
-- Plug-in repository management.
 - Integration tuning for TMDB, MDBList, Anime-Skip, and Trakt advanced options.
 - Detailed playback tuning, decoder settings, frame-rate switching, subtitle renderer controls, P2P stats, cache tools, and debug tools.
 
@@ -92,7 +89,6 @@ Advanced mode is for users who want:
 
 - Full layout and home customization.
 - Catalog order and collection management.
-- Plug-in repositories and scraper management.
 - Trakt, TMDB, MDBList, and Anime-Skip configuration.
 - Playback engine selection, frame-rate matching, subtitle rendering, P2P settings, and diagnostics.
 
@@ -294,7 +290,6 @@ Advanced settings should continue to use the existing `SettingsScreen` rail.
 | Add-on reorder | Hide | Show | Advanced organization feature. |
 | Catalog Order | Hide | Show | Advanced home tuning. |
 | Collections | Hide by default | Show | Essential may show existing collections but should not surface the editor. |
-| Plug-ins | Hide | Show when build supports it | Plug-ins are advanced source providers. |
 | Account QR sign-in | Show | Show | Optional sync and profiles. |
 | Profile selection | Show when required | Show | Required if multiple profiles or PIN. |
 | Profile management | Limited | Full | Essential can manage profiles from primary profile only. |
@@ -312,7 +307,7 @@ Advanced settings should continue to use the existing `SettingsScreen` rail.
 | Skip intro setting | Hide | Show | Keep default enabled. |
 | Frame-rate and resolution matching | Hide | Show | Device-specific advanced setting. |
 | Stream auto-play mode | Show simplified | Show full | Essential uses simple Manual/Auto toggle. |
-| Auto-play source scope, regex, add-on/plugin allowlists | Hide | Show | Advanced stream selection. |
+| Auto-play regex, add-on allowlist | Hide | Show | Advanced stream selection. |
 | Next episode auto-play | Show | Show | Common playback behavior. |
 | Reuse last link cache | Hide | Show | Advanced stream behavior. |
 | Audio preferred language | Show | Show | Useful basic setup. |
@@ -372,7 +367,6 @@ Recommended defaults for a new Essential user:
 | OSD clock | enabled | Current default. |
 | Trailer autoplay | current default | Hide setting unless Advanced. |
 | P2P | disabled until user consents | Current default and safer. |
-| Plug-ins | no repositories installed | Hide management in Essential. |
 
 ## Detailed Essential Settings Design
 
@@ -441,8 +435,7 @@ Hide in Essential:
 - Auto-switch internal engine.
 - Loading status toggle.
 - Reuse last link.
-- Source scope.
-- Add-on and plug-in allowlists.
+- Add-on allowlist.
 - Regex pattern.
 - Threshold mode and threshold sliders.
 - Stream auto-play timeout.
@@ -508,7 +501,6 @@ Rows:
 Keep current restrictions:
 
 - Secondary profiles using primary add-ons should remain read-only in add-on management.
-- Secondary profiles using primary plug-ins should not get plug-in management in Essential.
 
 ### About Section
 
@@ -526,7 +518,6 @@ Advanced mode should keep the existing settings rail and current behavior:
 - Profiles
 - Appearance
 - Layout
-- Plugins
 - Integration
 - Playback
 - Trakt
@@ -588,7 +579,6 @@ Suggested file:
 Policy should answer questions like:
 
 - Is full settings rail visible?
-- Are plug-ins visible?
 - Is catalog ordering visible?
 - Are collections management controls visible?
 - Which playback settings sections are visible?
@@ -599,7 +589,6 @@ Example shape:
 ```kotlin
 data class ExperienceVisibility(
     val showFullSettings: Boolean,
-    val showPluginManagement: Boolean,
     val showCatalogOrder: Boolean,
     val showCollectionEditor: Boolean,
     val showAdvancedPlaybackSettings: Boolean,
@@ -687,16 +676,7 @@ Use ADDONS_ONLY when:
 
 - mode is Essential and profile is not read-only.
 
-### 8. Filter Plug-ins
-
-Essential should hide plug-in management from Settings and any direct plug-in route entry.
-
-Important existing-user rule:
-
-- Do not disable existing plug-in repositories or scrapers when switching to Essential.
-- If plug-ins are enabled and have active scrapers, show a small "Advanced providers active" note in Essential Add-ons or Playback basics with a "Switch to Advanced" action.
-
-### 9. Filter Playback Settings
+### 8. Filter Playback Settings
 
 Current playback settings are split across:
 
@@ -722,7 +702,7 @@ Essential rows:
 - Preferred subtitle language.
 - Subtitle size.
 
-### 10. Filter Player Controls
+### 9. Filter Player Controls
 
 Current player controls include:
 
@@ -755,7 +735,7 @@ Essential should hide:
 
 Keep keyboard shortcuts and back behavior stable.
 
-### 11. Keep Detail and Stream Screens Mostly Intact
+### 10. Keep Detail and Stream Screens Mostly Intact
 
 Detail and Stream are part of finding and playing content, not customization.
 
@@ -783,7 +763,7 @@ Mode selection:
   - "Simple setup for watching. Install add-ons, search, and play."
 
 - Advanced
-  - "Full control over layout, integrations, playback, plug-ins, and diagnostics."
+  - "Full control over layout, integrations, playback, and diagnostics."
 
 Essential Settings mode row:
 
@@ -798,17 +778,11 @@ No add-ons empty state:
 - Primary action: "Manage from phone"
 - Secondary action: "Enter URL"
 
-Advanced provider notice:
-
-- Title: "Advanced providers are active"
-- Subtitle: "Some plug-in sources are still enabled. Switch to Advanced to manage them."
-
 ## Data Safety Rules
 
 Switching modes must never:
 
 - Delete add-ons.
-- Delete plug-in repositories.
 - Delete library items.
 - Clear watch progress.
 - Reset theme, layout, playback, subtitle, or account settings.
@@ -823,13 +797,11 @@ The only exception is first-run setup, which marks Home as set up because no pri
 
 Full flavor:
 
-- Advanced can show plug-ins.
 - Advanced can show in-app updates.
 - Advanced can show in-app trailer playback settings.
 
 Play Store flavor:
 
-- Plug-ins stay hidden because `AppFeaturePolicy.pluginsEnabled` is false.
 - In-app updates stay hidden because `AppFeaturePolicy.inAppUpdatesEnabled` is false.
 - In-app trailer playback settings follow `AppFeaturePolicy.inAppTrailerPlaybackEnabled`.
 
@@ -854,7 +826,7 @@ Fresh install, Advanced:
 - User can choose Advanced.
 - No layout step appears.
 - Full settings rail appears.
-- Add-ons, plug-ins, catalog order, collections, integrations, playback tuning, advanced, and debug behave as before.
+- Add-ons, catalog order, collections, integrations, playback tuning, advanced, and debug behave as before.
 
 Existing install:
 
@@ -867,7 +839,6 @@ Profiles:
 
 - Primary profile can manage add-ons and profiles.
 - Secondary profile using primary add-ons sees read-only add-on notice.
-- Secondary profile using primary plug-ins does not see plug-in management in Essential.
 - PIN profile selection still works before the main shell.
 
 Playback:
@@ -879,8 +850,6 @@ Playback:
 
 Build variants:
 
-- Play Store build does not show plug-ins in Essential or Advanced.
-- Full build shows plug-ins only in Advanced.
 - In-app trailer settings follow feature policy.
 
 ## Suggested Implementation Order
@@ -891,11 +860,10 @@ Build variants:
 4. Add central visibility policy.
 5. Add Essential settings content.
 6. Gate Add-on Manager advanced controls.
-7. Gate plug-in visibility.
-8. Add Essential playback settings content.
-9. Gate advanced player controls.
-10. Add tests for mode defaults and visibility.
-11. Do manual TV/D-pad QA.
+7. Add Essential playback settings content.
+8. Gate advanced player controls.
+9. Add tests for mode defaults and visibility.
+10. Do manual TV/D-pad QA.
 
 ## Test Targets To Add
 

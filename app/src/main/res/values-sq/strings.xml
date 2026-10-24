@@ -1057,7 +1057,6 @@
     <string name="profile_pin_overlay_set_support">Ky PIN do të kërkohet para hapjes së këtij profili.</string>
     <string name="profile_pin_overlay_confirm_support">Shkruaj përsëri të njëjtat 4 shifra për të përfunduar konfigurimin.</string>
     <string name="profile_pin_overlay_mismatch">PIN-et nuk përputhen. Shkruaj përsëri një PIN të ri.</string>
-    <string name="profile_pin_overlay_forgot_hint">Harrove PIN-in? Rivendose nga llogaria jote Fetch në faqen e internetit të Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Shtyp Kthehu për të anuluar</string>
     <!-- Essential addon setup wizard -->
     <string name="essential_addon_setup_title">Konfiguro shtesat</string>

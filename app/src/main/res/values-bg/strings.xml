@@ -996,7 +996,6 @@
     <string name="profile_pin_overlay_set_support">Този PIN ще се изисква преди отваряне на профила.</string>
     <string name="profile_pin_overlay_confirm_support">Въведи същите 4 цифри отново, за да завършиш настройката.</string>
     <string name="profile_pin_overlay_mismatch">PIN-овете не съвпаднаха. Въведи нов PIN отново.</string>
-    <string name="profile_pin_overlay_forgot_hint">Забрави ли PIN? Нулирай го от Fetch акаунта си на уебсайта на Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Натисни назад за отказ</string>
 
 

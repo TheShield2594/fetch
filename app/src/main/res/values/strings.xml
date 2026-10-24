@@ -1390,8 +1390,17 @@
     <string name="profile_pin_overlay_set_support">This PIN will be required before opening this profile.</string>
     <string name="profile_pin_overlay_confirm_support">Re-enter the same 4 digits to finish setup.</string>
     <string name="profile_pin_overlay_mismatch">PINs did not match. Enter a new PIN again.</string>
-    <string name="profile_pin_overlay_forgot_hint">Forgot PIN? Reset it from your Fetch account on fetch website.</string>
     <string name="profile_pin_overlay_back_hint">Press back to cancel</string>
+    <string name="profile_pin_overlay_access_heading">Enter the PIN for %1$s.</string>
+    <string name="profile_pin_overlay_access_support">This profile is locked. Enter its 4-digit PIN to continue.</string>
+    <string name="profile_pin_overlay_reset_heading">Enter %1$s\'s PIN to reset this PIN.</string>
+    <string name="profile_pin_overlay_reset_support">Then choose a new PIN for %1$s.</string>
+    <string name="profile_pin_forgot_reset">Forgot PIN? Reset it with %1$s\'s PIN</string>
+    <string name="profile_pin_forgot_needs_main">Forgot PIN? Set a PIN on %1$s first, then use it to reset this one.</string>
+    <string name="profile_pin_forgot_main">The main profile\'s PIN can\'t be reset, so keep it somewhere safe.</string>
+    <string name="profile_pin_reset_for_profile">PIN reset for %1$s.</string>
+    <string name="profile_pin_reset_local_only">PIN reset for %1$s on this TV. Your other devices still use the old PIN.</string>
+    <string name="profile_pin_incorrect_for_profile">Incorrect PIN for %1$s.</string>
 
 
     <!-- Essential addon setup wizard -->
@@ -2043,6 +2052,8 @@
     <string name="profile_delete_confirm_subtitle">This will permanently delete this profile and all its data including library, watch history, and addon settings. This cannot be undone.</string>
     <string name="profile_delete_btn">Delete Profile</string>
     <string name="profile_saving">Saving\u2026</string>
+    <string name="profile_save_error">Could not save profile. Try again.</string>
+    <string name="profile_delete_error">Could not delete profile. Try again.</string>
 
     <string name="cast_detail_error">Something went wrong</string>
     <string name="cast_detail_retry">Retry</string>

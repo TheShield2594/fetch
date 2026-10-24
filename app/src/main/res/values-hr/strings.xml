@@ -1273,7 +1273,6 @@
     <string name="profile_pin_overlay_set_support">Ovaj PIN bit će potreban prije otvaranja ovog profila.</string>
     <string name="profile_pin_overlay_confirm_support">Ponovno unesi iste 4 znamenke za dovršetak postavljanja.</string>
     <string name="profile_pin_overlay_mismatch">PIN-ovi se nisu podudarali. Ponovno unesi novi PIN.</string>
-    <string name="profile_pin_overlay_forgot_hint">Zaboravljen PIN? Poništi ga putem svog Fetch računa na Fetch web stranici.</string>
     <string name="profile_pin_overlay_back_hint">Pritisni natrag za odustajanje</string>
 
 

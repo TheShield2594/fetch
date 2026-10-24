@@ -1152,7 +1152,6 @@
 <string name="profile_pin_overlay_set_support">Questo PIN sarà richiesto prima di aprire questo profilo.</string>
 <string name="profile_pin_overlay_confirm_support">Reinserisci le stesse 4 cifre per completare l\'impostazione.</string>
 <string name="profile_pin_overlay_mismatch">I PIN non coincidono. Inserisci di nuovo un nuovo PIN.</string>
-<string name="profile_pin_overlay_forgot_hint">PIN dimenticato? Reimpostalo dall\'account Fetch sul sito.</string>
 <string name="profile_pin_overlay_back_hint">Premi indietro per annullare</string>
 
 

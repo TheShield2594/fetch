@@ -1310,7 +1310,6 @@
     <string name="profile_pin_overlay_set_support">Ez a PIN szükséges lesz a profil megnyitása előtt.</string>
     <string name="profile_pin_overlay_confirm_support">Írd be újra ugyanazt a 4 számjegyet a beállítás befejezéséhez.</string>
     <string name="profile_pin_overlay_mismatch">A PIN-kódok nem egyeznek. Add meg újra az új PIN-t.</string>
-    <string name="profile_pin_overlay_forgot_hint">Elfelejtetted a PIN-t? Állítsd alaphelyzetbe a Fetch-fiókodból a Fetch weboldalán.</string>
     <string name="profile_pin_overlay_back_hint">A megszakításhoz nyomd meg a Vissza gombot</string>
 
 

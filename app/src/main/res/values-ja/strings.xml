@@ -1004,7 +1004,6 @@
     <string name="profile_pin_overlay_set_support">このプロフィールを開く前にPINの入力が必要になります</string>
     <string name="profile_pin_overlay_confirm_support">設定を完了するには同じ4桁を再入力してください</string>
     <string name="profile_pin_overlay_mismatch">PINが一致しませんでした。もう一度新しいPINを入力してください</string>
-    <string name="profile_pin_overlay_forgot_hint">PINを忘れた場合はFetchウェブサイトのアカウントページからリセットできます</string>
     <string name="profile_pin_overlay_back_hint">戻るボタンでキャンセル</string>
 
     

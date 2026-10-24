@@ -9,6 +9,7 @@ import com.fetch.tv.core.sync.ProfileSyncService
 import com.fetch.tv.core.sync.SetProfilePinResult
 import com.fetch.tv.core.parental.PinVerifyResult
 import com.fetch.tv.core.parental.ProfilePinManager
+import com.fetch.tv.core.parental.ResetPinResult
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 import com.fetch.tv.data.remote.supabase.AvatarRepository
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
@@ -255,23 +256,46 @@ class ProfileSelectionViewModel @Inject constructor(
         }
     }
 
-    fun updateProfile(profile: UserProfile) {
+    /** Saves [profile] on the device; [onComplete] gets false when it could not be saved. */
+    fun updateProfile(profile: UserProfile, onComplete: (Boolean) -> Unit = {}) {
         if (_isSaving.value) return
         viewModelScope.launch {
             _isSaving.value = true
-            profileManager.updateProfile(profile)
-            profileSyncService.pushToRemote()
-            refreshProfilePinStates()
-            _isSaving.value = false
+            val saved = try {
+                profileManager.updateProfile(profile)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Log.e("ProfileSelectionVM", "Failed to update profile", error)
+                false
+            } finally {
+                _isSaving.value = false
+            }
+            onComplete(saved)
+            if (saved) {
+                profileSyncService.pushToRemote()
+                refreshProfilePinStates()
+            }
         }
     }
 
-    fun deleteProfile(id: Int) {
+    /** Deletes the profile on the device; [onComplete] gets false when it could not be deleted. */
+    fun deleteProfile(id: Int, onComplete: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
-            profileManager.deleteProfile(id)
-            profileSyncService.deleteProfileData(id)
-            profileSyncService.pushToRemote()
-            refreshProfilePinStates()
+            val deleted = try {
+                profileManager.deleteProfile(id)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Log.e("ProfileSelectionVM", "Failed to delete profile", error)
+                false
+            }
+            onComplete(deleted)
+            if (deleted) {
+                profileSyncService.deleteProfileData(id)
+                profileSyncService.pushToRemote()
+                refreshProfilePinStates()
+            }
         }
     }
 
@@ -306,6 +330,21 @@ class ProfileSelectionViewModel @Inject constructor(
         viewModelScope.launch {
             _isPinOperationInProgress.value = true
             val result = profilePinManager.setPin(profileId, pin, currentPin)
+            _isPinOperationInProgress.value = false
+            onComplete(result)
+        }
+    }
+
+    fun resetProfilePin(
+        profileId: Int,
+        newPin: String,
+        parentPin: String,
+        onComplete: (ResetPinResult) -> Unit
+    ) {
+        if (_isPinOperationInProgress.value) return
+        viewModelScope.launch {
+            _isPinOperationInProgress.value = true
+            val result = profilePinManager.resetPin(profileId, newPin, parentPin)
             _isPinOperationInProgress.value = false
             onComplete(result)
         }

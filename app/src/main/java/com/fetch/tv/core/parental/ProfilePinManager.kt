@@ -24,6 +24,19 @@ data class PinVerifyResult(
     val retryAfterSeconds: Int = 0
 )
 
+/** Profile whose PIN can reset every other profile's PIN. */
+const val PARENT_PROFILE_ID = 1
+
+sealed interface ResetPinResult {
+    data object Success : ResetPinResult
+    /** Reset on this TV, but the sync server kept the old PIN, so other devices still use it. */
+    data object LocalOnly : ResetPinResult
+    /** The main profile has no PIN, so nothing proves who is asking. */
+    data object ParentPinRequired : ResetPinResult
+    data class ParentPinIncorrect(val retryAfterSeconds: Int = 0) : ResetPinResult
+    data class Failure(val throwable: Throwable) : ResetPinResult
+}
+
 /**
  * The sync server's copy of profile PINs. Only used when sync is configured and signed in;
  * the local PIN never depends on it.
@@ -101,6 +114,37 @@ class ProfilePinManager internal constructor(
             }
         }
         return SetProfilePinResult.Success
+    }
+
+    /**
+     * Replaces a forgotten PIN on [profileId] with [newPin], proven by the main profile's PIN.
+     * Also ends any lockout. The main profile's own PIN can't be reset this way.
+     */
+    suspend fun resetPin(profileId: Int, newPin: String, parentPin: String): ResetPinResult {
+        if (profileId == PARENT_PROFILE_ID) {
+            return ResetPinResult.Failure(IllegalArgumentException("The main profile's PIN can't be reset"))
+        }
+        if (!ProfilePinHasher.isValidPin(newPin)) {
+            return ResetPinResult.Failure(IllegalArgumentException("PIN must be 4 to 8 digits"))
+        }
+        // Without a main PIN verifyPin would accept anything.
+        if (!hasPin(PARENT_PROFILE_ID)) return ResetPinResult.ParentPinRequired
+        val verified = verifyPin(PARENT_PROFILE_ID, parentPin).getOrElse { return ResetPinResult.Failure(it) }
+        if (!verified.unlocked) return ResetPinResult.ParentPinIncorrect(verified.retryAfterSeconds)
+        val hash = withContext(Dispatchers.Default) { ProfilePinHasher.hash(newPin) }
+        mutex.withLock {
+            store.setLocalPinHash(profileId, hash)
+            store.setAttemptState(profileId, PinAttemptState())
+        }
+        // The local hash is checked first, so the new PIN works here even if the server keeps the old one.
+        if (!remote.isAvailable) return ResetPinResult.Success
+        val remoteResult = runCatchingNonCancel { remote.setPin(profileId, newPin, null) }
+        if (remoteResult.getOrNull() is SetProfilePinResult.Success) {
+            store.setPinEnabled(profileId, true)
+            return ResetPinResult.Success
+        }
+        Log.w(TAG, "Sync server kept the old PIN after a reset: ${remoteResult.getOrNull() ?: remoteResult.exceptionOrNull()}")
+        return ResetPinResult.LocalOnly
     }
 
     suspend fun clearPin(profileId: Int, currentPin: String?): Result<PinVerifyResult> {

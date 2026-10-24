@@ -974,7 +974,6 @@
     <string name="profile_pin_overlay_set_support">Este PIN será obrigatório antes de abrir este perfil.</string>
     <string name="profile_pin_overlay_confirm_support">Reintroduz os mesmos 4 dígitos para concluir a configuração.</string>
     <string name="profile_pin_overlay_mismatch">Os PINs não coincidem. Introduz um novo PIN novamente.</string>
-    <string name="profile_pin_overlay_forgot_hint">Esqueceste-te do PIN? Repõe-no a partir da tua conta Fetch no site do Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Carrega em Voltar para cancelar.</string>
     <!-- Essential addon setup wizard -->
     <string name="essential_addon_setup_title">Configurar addons</string>

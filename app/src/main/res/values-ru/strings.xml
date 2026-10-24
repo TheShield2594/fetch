@@ -796,7 +796,6 @@
     <string name="profile_pin_overlay_set_support">Этот PIN-код будет запрашиваться перед открытием этого профиля.</string>
     <string name="profile_pin_overlay_confirm_support">Введите те же 4 цифры еще раз для завершения настройки.</string>
     <string name="profile_pin_overlay_mismatch">PIN-коды не совпали. Введите новый PIN-код еще раз.</string>
-    <string name="profile_pin_overlay_forgot_hint">Забыли PIN? Сбросьте его в вашем аккаунте Fetch на веб-сайте Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Нажмите \"Назад\" для отмены</string>
 
 

@@ -1183,7 +1183,6 @@
     <string name="profile_pin_overlay_set_support">Este PIN será solicitado sempre que abrir este perfil.</string>
     <string name="profile_pin_overlay_confirm_support">Digite os mesmos 4 dígitos novamente para finalizar.</string>
     <string name="profile_pin_overlay_mismatch">Os PINs não coincidem. Tente novamente.</string>
-    <string name="profile_pin_overlay_forgot_hint">Esqueceu o PIN? Redefina-o pelo site do Fetch na sua conta.</string>
     <string name="profile_pin_overlay_back_hint">Pressione \"Voltar\" para cancelar.</string>
 
    

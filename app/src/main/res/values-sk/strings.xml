@@ -957,7 +957,6 @@
     <string name="profile_pin_overlay_set_support">Tento PIN bude vyžadovaný pred otvorením tohto profilu.</string>
     <string name="profile_pin_overlay_confirm_support">Znovu zadajte rovnaké 4 číslice pre dokončenie nastavenia.</string>
     <string name="profile_pin_overlay_mismatch">PINy sa nezhodovali. Zadajte nový PIN znova.</string>
-    <string name="profile_pin_overlay_forgot_hint">Zabudli ste PIN? Resetujte ho zo svojho účtu Fetch na webovej stránke Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Stlačte späť pre zrušenie</string>
 
     

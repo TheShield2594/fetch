@@ -1322,7 +1322,6 @@
     <string name="profile_pin_overlay_set_support">סיסמה זו תידרש לפני פתיחת פרופיל זה.</string>
     <string name="profile_pin_overlay_confirm_support">יש להזין שוב את אותן 4 ספרות כדי לסיים את ההגדרה.</string>
     <string name="profile_pin_overlay_mismatch">הסיסמות אינן תואמות. יש להזין סיסמה חדשה שוב.</string>
-    <string name="profile_pin_overlay_forgot_hint">שכחת את הסיסמה? אפשר לאפס אותה באתר של Fetch.</string>
     <string name="profile_pin_overlay_back_hint">יש ללחוץ חזרה כדי לבטל</string>
 
 

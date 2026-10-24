@@ -943,7 +943,6 @@
     <string name="profile_pin_overlay_set_support">Diese PIN wird benötigt, bevor dieses Profil geöffnet werden kann.</string>
     <string name="profile_pin_overlay_confirm_support">Gib dieselben 4 Ziffern erneut ein, um die Einrichtung abzuschließen.</string>
     <string name="profile_pin_overlay_mismatch">Die PINs stimmen nicht überein. Gib erneut eine neue PIN ein.</string>
-    <string name="profile_pin_overlay_forgot_hint">PIN vergessen? Setze sie über dein Fetch-Konto auf der Fetch-Website zurück.</string>
     <string name="profile_pin_overlay_back_hint">Zurück drücken, um abzubrechen</string>	
 
 

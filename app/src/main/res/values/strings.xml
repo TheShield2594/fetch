@@ -1399,6 +1399,7 @@
     <string name="profile_pin_forgot_needs_main">Forgot PIN? Set a PIN on %1$s first, then use it to reset this one.</string>
     <string name="profile_pin_forgot_main">The main profile\'s PIN can\'t be reset, so keep it somewhere safe.</string>
     <string name="profile_pin_reset_for_profile">PIN reset for %1$s.</string>
+    <string name="profile_pin_reset_local_only">PIN reset for %1$s on this TV. Your other devices still use the old PIN.</string>
     <string name="profile_pin_incorrect_for_profile">Incorrect PIN for %1$s.</string>
 
 

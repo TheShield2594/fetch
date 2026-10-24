@@ -217,7 +217,9 @@ internal data class NextUpResolution(
     val released: String?,
     val hasAired: Boolean,
     val airDateLabel: String?,
-    val lastWatched: Long
+    val lastWatched: Long,
+    /** The Fetch watched marks this was resolved against; a change makes it stale. */
+    val watchedSinceSeed: Set<Pair<Int, Int>> = emptySet()
 )
 
 private data class NextUpReleaseState(
@@ -2121,7 +2123,12 @@ private suspend fun HomeViewModel.enrichNextUpItem(
     } else null
 
     val meta = resolveMetaForProgress(progressSeed, metaCache, debug) ?: return@coroutineScope item
-    val video = resolveNextUpVideoFromMeta(progressSeed, meta)
+    val video = resolveNextUpVideoFromMeta(
+        progressSeed,
+        meta,
+        showUnairedNextUp = true,
+        watchedSinceSeed = localEpisodesWatchedSinceSeed(progressSeed)
+    )
 
     val tmdbData = if (shouldEnrichTmdb) {
         val earlyTmdbId = tmdbIdDeferred?.await()
@@ -2223,15 +2230,11 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
 ): NextUpResolution? {
     val startedAtMs = SystemClock.elapsedRealtime()
     val cacheKey = buildNextUpSeedCacheKey(progress, showUnairedNextUp)
-    val watchedSinceSeed = episodesWatchedSinceSeed(
-        localWatched = runCatching { watchProgressRepository.getLocalWatchedEpisodeTimes(progress.contentId) }
-            .getOrDefault(emptyMap()),
-        seedLastWatched = progress.lastWatched
-    )
+    val watchedSinceSeed = localEpisodesWatchedSinceSeed(progress)
     synchronized(cwNextUpResolutionCache) {
-        val cachedEpisode = cwNextUpResolutionCache[cacheKey]?.let { it.season to it.episode }
-        if (cachedEpisode != null && cachedEpisode in watchedSinceSeed) {
-            // Marked watched in Fetch after this resolution was cached; resolve again.
+        val cached = cwNextUpResolutionCache[cacheKey]
+        if (cached != null && cached.watchedSinceSeed != watchedSinceSeed) {
+            // An episode was marked or unmarked watched in Fetch since this was resolved.
             cwNextUpResolutionCache.remove(cacheKey)
         }
         if (cwNextUpResolutionCache.containsKey(cacheKey)) {
@@ -2352,7 +2355,8 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
             if (computedHasAired) null
             else formatEpisodeAirDateLabel(releaseDate)
         },
-        lastWatched = progress.lastWatched
+        lastWatched = progress.lastWatched,
+        watchedSinceSeed = watchedSinceSeed
     )
     debug?.recordNextUpResult(
         progress = progress,
@@ -2393,6 +2397,13 @@ internal fun episodesWatchedSinceSeed(
     seedLastWatched: Long
 ): Set<Pair<Int, Int>> =
     localWatched.filterValues { watchedAt -> watchedAt + CW_WATCHED_SINCE_SEED_SLACK_MS >= seedLastWatched }.keys
+
+private suspend fun HomeViewModel.localEpisodesWatchedSinceSeed(progress: WatchProgress): Set<Pair<Int, Int>> =
+    episodesWatchedSinceSeed(
+        localWatched = runCatching { watchProgressRepository.getLocalWatchedEpisodeTimes(progress.contentId) }
+            .getOrDefault(emptyMap()),
+        seedLastWatched = progress.lastWatched
+    )
 
 internal fun resolveNextUpVideoFromMeta(
     progress: WatchProgress,

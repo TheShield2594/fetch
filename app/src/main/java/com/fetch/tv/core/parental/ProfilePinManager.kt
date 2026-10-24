@@ -29,6 +29,8 @@ const val PARENT_PROFILE_ID = 1
 
 sealed interface ResetPinResult {
     data object Success : ResetPinResult
+    /** Reset on this TV, but the sync server kept the old PIN, so other devices still use it. */
+    data object LocalOnly : ResetPinResult
     /** The main profile has no PIN, so nothing proves who is asking. */
     data object ParentPinRequired : ResetPinResult
     data class ParentPinIncorrect(val retryAfterSeconds: Int = 0) : ResetPinResult
@@ -135,12 +137,14 @@ class ProfilePinManager internal constructor(
             store.setAttemptState(profileId, PinAttemptState())
         }
         // The local hash is checked first, so the new PIN works here even if the server keeps the old one.
-        mirror("reset") {
-            if (remote.setPin(profileId, newPin, null) is SetProfilePinResult.Success) {
-                store.setPinEnabled(profileId, true)
-            }
+        if (!remote.isAvailable) return ResetPinResult.Success
+        val remoteResult = runCatchingNonCancel { remote.setPin(profileId, newPin, null) }
+        if (remoteResult.getOrNull() is SetProfilePinResult.Success) {
+            store.setPinEnabled(profileId, true)
+            return ResetPinResult.Success
         }
-        return ResetPinResult.Success
+        Log.w(TAG, "Sync server kept the old PIN after a reset: ${remoteResult.getOrNull() ?: remoteResult.exceptionOrNull()}")
+        return ResetPinResult.LocalOnly
     }
 
     suspend fun clearPin(profileId: Int, currentPin: String?): Result<PinVerifyResult> {

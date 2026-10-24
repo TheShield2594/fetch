@@ -24,6 +24,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -99,18 +100,27 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
+import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.core.sync.SetProfilePinResult
+import com.fetch.tv.core.parental.PinVerifyResult
+import com.fetch.tv.core.parental.ResetPinResult
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
 import com.fetch.tv.data.local.ProfileRestrictions
+import com.fetch.tv.domain.model.PROFILE_AVATAR_COLORS
 import com.fetch.tv.domain.model.UserProfile
 import com.fetch.tv.ui.components.AvatarPickerGrid
 import com.fetch.tv.ui.components.CustomProfileBackgroundImage
@@ -182,10 +192,22 @@ internal sealed interface ProfilePinOverlayState {
     val profile: UserProfile
 
     data class Unlock(override val profile: UserProfile) : ProfilePinOverlayState
-    data class Set(override val profile: UserProfile, val currentPin: String? = null) : ProfilePinOverlayState
+    /** A new PIN for [profile]. [parentPin] is set when it replaces a forgotten PIN. */
+    data class Set(
+        override val profile: UserProfile,
+        val currentPin: String? = null,
+        val parentPin: String? = null
+    ) : ProfilePinOverlayState
     data class VerifyCurrentForChange(override val profile: UserProfile) : ProfilePinOverlayState
     data class VerifyCurrentForRemove(override val profile: UserProfile) : ProfilePinOverlayState
     data class VerifyCurrentForDelete(override val profile: UserProfile) : ProfilePinOverlayState
+    /** The profile's own PIN, asked for before it is edited or its settings are copied to or from it. */
+    data class VerifyAccess(override val profile: UserProfile) : ProfilePinOverlayState
+    /** The main profile's PIN ([profile]), asked for before [target]'s forgotten PIN is replaced. */
+    data class ResetVerifyParent(
+        override val profile: UserProfile,
+        val target: UserProfile
+    ) : ProfilePinOverlayState
     /**
      * Parent PIN, asked for before a restricted profile opens settings or leaves the profile,
      * or before [targetProfile]'s parental limits are edited.
@@ -195,6 +217,30 @@ internal sealed interface ProfilePinOverlayState {
         val targetProfile: UserProfile? = null
     ) : ProfilePinOverlayState
 }
+
+/** Everything the create panel collects for a new profile. */
+private data class NewProfileSetup(
+    val name: String,
+    val colorHex: String,
+    val avatarId: String?,
+    val copyFromProfileId: Int?,
+    val copyProviderCredentials: Boolean,
+    val isKidsProfile: Boolean,
+    val usesMainAddons: Boolean
+)
+
+/** An action on [profile] that runs once its PIN has been entered. */
+private data class ProfilePinCheck(
+    val profile: UserProfile,
+    val onVerified: () -> Unit,
+    val stage: ProfilePinOverlayState = ProfilePinOverlayState.VerifyAccess(profile)
+)
+
+/** What a PIN prompt offers for a forgotten PIN: a reset when [onReset] is set, otherwise a note. */
+internal data class ForgotPinOption(
+    val label: String,
+    val onReset: (() -> Unit)? = null
+)
 
 private enum class ProfilePinEntryStage {
     Create,
@@ -254,6 +300,83 @@ fun ProfileSelectionScreen(
     var pinOverlayState by remember { mutableStateOf<ProfilePinOverlayState?>(null) }
     var pinOverlayError by remember { mutableStateOf<String?>(null) }
     var profileActionMessage by remember { mutableStateOf<String?>(null) }
+    var pinCheck by remember { mutableStateOf<ProfilePinCheck?>(null) }
+    var parentPinNudgeFor by remember { mutableStateOf<UserProfile?>(null) }
+    var pinCheckError by remember { mutableStateOf<String?>(null) }
+    // Editing a locked profile, or copying settings (and API keys) to or from it, needs its PIN.
+    // The profile already open behind Manage Profiles was unlocked to get there; the startup
+    // picker's active profile was not.
+    val runWithProfilePin: (UserProfile, () -> Unit) -> Unit = { profile, action ->
+        val alreadyUnlocked = screenMode == ProfileSelectionMode.Management && profile.id == activeProfileId
+        if (profilePinEnabled[profile.id] == true && !alreadyUnlocked) {
+            pinCheckError = null
+            pinCheck = ProfilePinCheck(profile, action)
+        } else {
+            action()
+        }
+    }
+    val parentProfile = profiles.firstOrNull { it.isPrimary }
+    val parentHasPin = parentProfile != null && profilePinEnabled[parentProfile.id] == true
+    fun pinRejectedMessage(verify: PinVerifyResult): String = if (verify.retryAfterSeconds > 0) {
+        context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
+    } else {
+        context.getString(R.string.profile_pin_incorrect)
+    }
+    // A forgotten PIN is replaced with the main profile's PIN; the main PIN itself can't be.
+    fun forgotPinOption(
+        state: ProfilePinOverlayState,
+        moveTo: (ProfilePinOverlayState) -> Unit
+    ): ForgotPinOption? {
+        if (state is ProfilePinOverlayState.Set) return null
+        val target = state.profile
+        return when {
+            target.isPrimary -> ForgotPinOption(context.getString(R.string.profile_pin_forgot_main))
+            parentProfile == null || !parentHasPin -> ForgotPinOption(
+                context.getString(R.string.profile_pin_forgot_needs_main, parentProfile?.name.orEmpty())
+            )
+            else -> ForgotPinOption(context.getString(R.string.profile_pin_forgot_reset, parentProfile.name)) {
+                moveTo(ProfilePinOverlayState.ResetVerifyParent(parentProfile, target))
+            }
+        }
+    }
+    // Runs one step of a PIN reset: the main PIN, then the new PIN. [onReset] gets the profile.
+    fun submitPinResetStep(
+        state: ProfilePinOverlayState,
+        pin: String,
+        moveTo: (ProfilePinOverlayState) -> Unit,
+        setError: (String?) -> Unit,
+        onReset: (profile: UserProfile, message: String) -> Unit
+    ) {
+        when {
+            state is ProfilePinOverlayState.ResetVerifyParent ->
+                viewModel.verifyProfilePin(state.profile.id, pin) { result ->
+                    result.onSuccess { verify ->
+                        if (verify.unlocked) {
+                            setError(null)
+                            moveTo(ProfilePinOverlayState.Set(state.target, parentPin = pin))
+                        } else {
+                            setError(pinRejectedMessage(verify))
+                        }
+                    }.onFailure {
+                        setError(context.getString(R.string.profile_pin_verify_error))
+                    }
+                }
+            state is ProfilePinOverlayState.Set && state.parentPin != null ->
+                viewModel.resetProfilePin(state.profile.id, pin, state.parentPin) { result ->
+                    when (result) {
+                        ResetPinResult.Success -> {
+                            setError(null)
+                            onReset(state.profile, context.getString(R.string.profile_pin_reset_for_profile, state.profile.name))
+                        }
+                        ResetPinResult.LocalOnly -> {
+                            setError(null)
+                            onReset(state.profile, context.getString(R.string.profile_pin_reset_local_only, state.profile.name))
+                        }
+                        else -> setError(context.getString(R.string.profile_pin_save_error))
+                    }
+                }
+        }
+    }
     val onProfileFocusedChange = remember(onProfileFocusChanged, onProfileThemeFocused) {
         { profile: UserProfile? ->
             focusedProfileId = profile?.id
@@ -281,7 +404,10 @@ fun ProfileSelectionScreen(
             )
         }
     }
-    val isManagementMode = screenMode == ProfileSelectionMode.Management
+    // The startup picker can switch into managing in place; Manage Profiles opens already in it.
+    val canToggleManagement = screenMode == ProfileSelectionMode.Selection
+    var isManagingInPlace by rememberSaveable { mutableStateOf(false) }
+    val isManagementMode = screenMode == ProfileSelectionMode.Management || isManagingInPlace
     val screenTitle = if (isManagementMode) {
         stringResource(R.string.profile_manage_title)
     } else {
@@ -315,13 +441,6 @@ fun ProfileSelectionScreen(
     LaunchedEffect(profileToEdit, hasProfileBackgroundAccess) {
         if (profileToEdit != null && hasProfileBackgroundAccess) {
             viewModel.preloadProfileBackgrounds()
-        }
-    }
-
-    // Close overlay when profile creation succeeds
-    LaunchedEffect(isCreating) {
-        if (!isCreating && showCreateProfile) {
-            // Check if a new profile was just added
         }
     }
 
@@ -402,10 +521,16 @@ fun ProfileSelectionScreen(
                     screenSubtitle = screenSubtitle,
                     screenHint = screenHint,
                     isManagementMode = isManagementMode,
+                    onToggleManagement = if (canToggleManagement) {
+                        { isManagingInPlace = !isManagingInPlace }
+                    } else {
+                        null
+                    },
                     profiles = profiles,
                     activeProfileId = activeProfileId,
                     canAddProfile = viewModel.canAddProfile,
                     profilePinEnabled = profilePinEnabled,
+                    profileRestrictions = profileRestrictions,
                     avatarImageUrlsById = avatarImageUrlsById,
                     brandWordmarkRes = focusedBrandWordmarkRes,
                     profileThemes = profileThemes,
@@ -430,10 +555,18 @@ fun ProfileSelectionScreen(
                     onAddProfileClick = { showCreateProfile = true }
                 )
             } else {
+                val pinResetFinished: (UserProfile, String) -> Unit = { _, message ->
+                    pinOverlayState = null
+                    profileActionMessage = message
+                }
                 ProfilePinOverlay(
                     state = activePinOverlay,
                     isWorking = isPinOperationInProgress,
                     errorMessage = pinOverlayError,
+                    forgotPin = forgotPinOption(activePinOverlay) { next ->
+                        pinOverlayError = null
+                        pinOverlayState = next
+                    },
                     onClearError = { pinOverlayError = null },
                     onDismiss = {
                         pinOverlayState = null
@@ -441,7 +574,23 @@ fun ProfileSelectionScreen(
                     },
                     onSubmit = { pin ->
                         when (activePinOverlay) {
-                            is ProfilePinOverlayState.Set -> {
+                            is ProfilePinOverlayState.ResetVerifyParent -> submitPinResetStep(
+                                activePinOverlay,
+                                pin,
+                                moveTo = { pinOverlayState = it },
+                                setError = { pinOverlayError = it },
+                                onReset = pinResetFinished
+                            )
+
+                            is ProfilePinOverlayState.Set -> if (activePinOverlay.parentPin != null) {
+                                submitPinResetStep(
+                                    activePinOverlay,
+                                    pin,
+                                    moveTo = { pinOverlayState = it },
+                                    setError = { pinOverlayError = it },
+                                    onReset = pinResetFinished
+                                )
+                            } else {
                                 viewModel.setProfilePin(
                                     activePinOverlay.profile.id,
                                     pin,
@@ -551,6 +700,9 @@ fun ProfileSelectionScreen(
                                 }
                             }
 
+                            // Shown in its own dialog by the pin check below, never here.
+                            is ProfilePinOverlayState.VerifyAccess -> Unit
+
                             is ProfilePinOverlayState.VerifyCurrentForDelete -> {
                                 viewModel.verifyProfilePin(activePinOverlay.profile.id, pin) { result ->
                                     result.onSuccess { verify ->
@@ -586,19 +738,23 @@ fun ProfileSelectionScreen(
                 profiles = profiles,
                 avatarCatalog = avatarCatalog,
                 isCreating = isCreating,
+                onRequestProfilePin = runWithProfilePin,
                 onDismiss = { if (!isCreating) showCreateProfile = false },
-                onCreateProfile = { name, colorHex, avatarId, copyFromProfileId, copyProviderCredentials ->
+                onCreateProfile = { setup ->
                     viewModel.createProfile(
-                        name = name,
-                        avatarColorHex = colorHex,
-                        avatarId = avatarId,
-                        copyFromProfileId = copyFromProfileId,
-                        copyProviderCredentials = copyProviderCredentials
+                        name = setup.name,
+                        avatarColorHex = setup.colorHex,
+                        avatarId = setup.avatarId,
+                        copyFromProfileId = setup.copyFromProfileId,
+                        copyProviderCredentials = setup.copyProviderCredentials,
+                        isKidsProfile = setup.isKidsProfile,
+                        usesMainAddons = setup.usesMainAddons
                     ) { result ->
                         when (result) {
                             is CreateProfileResult.Created -> {
                                 showCreateProfile = false
-                                val sourceName = profiles.firstOrNull { it.id == copyFromProfileId }?.name
+                                if (setup.isKidsProfile && !parentHasPin) parentPinNudgeFor = result.profile
+                                val sourceName = profiles.firstOrNull { it.id == setup.copyFromProfileId }?.name
                                 if (result.settingsCopyResult?.isSuccess == true && sourceName != null) {
                                     profileActionMessage = context.getString(
                                         R.string.profile_copy_settings_created_success,
@@ -630,8 +786,13 @@ fun ProfileSelectionScreen(
                 avatarUrlResolver = { avatarId -> viewModel.getAvatarImageUrl(avatarId) },
                 onDismiss = { profileToEdit = null },
                 onSaveProfile = { updated ->
-                    viewModel.updateProfile(updated)
-                    profileToEdit = null
+                    viewModel.updateProfile(updated) { saved ->
+                        if (saved) {
+                            profileToEdit = null
+                        } else {
+                            profileActionMessage = context.getString(R.string.profile_save_error)
+                        }
+                    }
                 }
             )
         }
@@ -688,7 +849,7 @@ fun ProfileSelectionScreen(
                 Button(
                     onClick = {
                         longPressedProfile = null
-                        profileToEdit = profile
+                        runWithProfilePin(profile) { profileToEdit = profile }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -705,8 +866,10 @@ fun ProfileSelectionScreen(
                     Button(
                         onClick = {
                             longPressedProfile = null
-                            settingsCopyError = null
-                            settingsCopyTarget = profile
+                            runWithProfilePin(profile) {
+                                settingsCopyError = null
+                                settingsCopyTarget = profile
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.colors(
@@ -757,6 +920,40 @@ fun ProfileSelectionScreen(
                         )
                     ) {
                         Text(stringResource(R.string.profile_pin_remove))
+                    }
+                }
+
+                if (!profile.isPrimary && parentProfile != null) {
+                    Button(
+                        onClick = {
+                            longPressedProfile = null
+                            // A restricted profile's addons are the parent's call, like its limits.
+                            val restricted = profileRestrictions[profile.id]?.isRestricted == true
+                            val guard = if (restricted && parentHasPin) parentProfile else profile
+                            runWithProfilePin(guard) {
+                                val shared = !profile.usesPrimaryAddons
+                                viewModel.updateProfile(
+                                    profile.copy(usesPrimaryAddons = shared)
+                                ) { saved ->
+                                    profileActionMessage = when {
+                                        !saved -> context.getString(R.string.profile_save_error)
+                                        shared -> context.getString(
+                                            R.string.profile_addons_shared_saved,
+                                            profile.name,
+                                            parentProfile.name
+                                        )
+                                        else -> context.getString(R.string.profile_addons_own_saved, profile.name)
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.colors(
+                            containerColor = FetchTheme.colors.BackgroundCard,
+                            contentColor = FetchTheme.colors.TextPrimary
+                        )
+                    ) {
+                        Text(profileAddonsLabel(profile.usesPrimaryAddons, parentProfile.name))
                     }
                 }
 
@@ -817,6 +1014,7 @@ fun ProfileSelectionScreen(
                     viewModel.setProfileRestrictions(targetProfile.id, restrictions)
                     limitsTarget = null
                     profileActionMessage = context.getString(R.string.parental_limits_saved, targetProfile.name)
+                    if (restrictions.isRestricted && !primaryHasPin) parentPinNudgeFor = targetProfile
                 }
             )
         }
@@ -833,23 +1031,27 @@ fun ProfileSelectionScreen(
                 },
                 onCopy = { sourceProfileId, copyProviderCredentials ->
                     settingsCopyError = null
-                    val sourceName = profiles.firstOrNull { it.id == sourceProfileId }?.name.orEmpty()
-                    viewModel.copyProfileSettings(
-                        sourceProfileId = sourceProfileId,
-                        targetProfileId = targetProfile.id,
-                        copyProviderCredentials = copyProviderCredentials
-                    ) { result ->
-                        if (result.isSuccess) {
-                            settingsCopyTarget = null
-                            profileActionMessage = context.getString(
-                                R.string.profile_copy_settings_success,
-                                sourceName,
-                                targetProfile.name
-                            )
-                        } else {
-                            settingsCopyError = context.getString(R.string.profile_copy_settings_error)
+                    val sourceProfile = profiles.firstOrNull { it.id == sourceProfileId }
+                    val sourceName = sourceProfile?.name.orEmpty()
+                    val copy = {
+                        viewModel.copyProfileSettings(
+                            sourceProfileId = sourceProfileId,
+                            targetProfileId = targetProfile.id,
+                            copyProviderCredentials = copyProviderCredentials
+                        ) { result ->
+                            if (result.isSuccess) {
+                                settingsCopyTarget = null
+                                profileActionMessage = context.getString(
+                                    R.string.profile_copy_settings_success,
+                                    sourceName,
+                                    targetProfile.name
+                                )
+                            } else {
+                                settingsCopyError = context.getString(R.string.profile_copy_settings_error)
+                            }
                         }
                     }
+                    if (sourceProfile != null) runWithProfilePin(sourceProfile, copy) else copy()
                 }
             )
         }
@@ -868,20 +1070,115 @@ fun ProfileSelectionScreen(
                 width = 420.dp,
                 suppressFirstKeyUp = false
             ) {
+                // Focus starts on Cancel so one extra OK press can't delete the profile.
                 Button(
-                    onClick = {
-                        viewModel.deleteProfile(profile.id)
-                        profileToDelete = null
-                    },
+                    onClick = { profileToDelete = null },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(primaryDialogFocusRequester),
+                    colors = ButtonDefaults.colors(
+                        containerColor = FetchTheme.colors.BackgroundCard,
+                        contentColor = FetchTheme.colors.TextPrimary
+                    )
+                ) {
+                    Text(stringResource(R.string.profile_cancel))
+                }
+                Button(
+                    onClick = {
+                        viewModel.deleteProfile(profile.id) { deleted ->
+                            if (!deleted) {
+                                profileActionMessage = context.getString(R.string.profile_delete_error)
+                            }
+                        }
+                        profileToDelete = null
+                    },
+                    modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.colors(
                         containerColor = Color(0xFF4A2323),
                         contentColor = FetchTheme.colors.TextPrimary
                     )
                 ) {
                     Text(stringResource(R.string.profile_delete_btn))
+                }
+            }
+        }
+
+        // Skipped once the main profile has a PIN, however it got one.
+        val nudgeParent = parentProfile?.takeIf { !parentHasPin }
+        val nudgeFor = parentPinNudgeFor
+        if (nudgeFor != null && nudgeParent != null) {
+            ParentPinNudgeDialog(
+                restrictedProfile = nudgeFor,
+                mainProfile = nudgeParent,
+                onSetPin = {
+                    parentPinNudgeFor = null
+                    pinOverlayError = null
+                    pinOverlayState = ProfilePinOverlayState.Set(nudgeParent)
+                },
+                onDismiss = { parentPinNudgeFor = null }
+            )
+        }
+
+        // Drawn in its own window so it sits above the editors and dialogs that asked for it.
+        pinCheck?.let { check ->
+            val dismissPinCheck = {
+                pinCheck = null
+                pinCheckError = null
+            }
+            val moveCheckTo: (ProfilePinOverlayState) -> Unit = { next -> pinCheck = check.copy(stage = next) }
+            Dialog(
+                onDismissRequest = dismissPinCheck,
+                properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(FetchTheme.colors.Background)
+                ) {
+                    ProfilePinOverlay(
+                        state = check.stage,
+                        isWorking = isPinOperationInProgress,
+                        errorMessage = pinCheckError,
+                        forgotPin = forgotPinOption(check.stage) { next ->
+                            pinCheckError = null
+                            moveCheckTo(next)
+                        },
+                        onClearError = { pinCheckError = null },
+                        onDismiss = dismissPinCheck,
+                        onSubmit = { pin ->
+                            if (check.stage is ProfilePinOverlayState.VerifyAccess) {
+                                viewModel.verifyProfilePin(check.profile.id, pin) { result ->
+                                    result.onSuccess { verify ->
+                                        if (verify.unlocked) {
+                                            dismissPinCheck()
+                                            check.onVerified()
+                                        } else {
+                                            pinCheckError = if (verify.retryAfterSeconds > 0) {
+                                                context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
+                                            } else {
+                                                context.getString(R.string.profile_pin_incorrect_for_profile, check.profile.name)
+                                            }
+                                        }
+                                    }.onFailure {
+                                        pinCheckError = context.getString(R.string.profile_pin_verify_error)
+                                    }
+                                }
+                            } else {
+                                // A reset proves the main profile's PIN, so the action goes ahead after it.
+                                submitPinResetStep(
+                                    check.stage,
+                                    pin,
+                                    moveTo = moveCheckTo,
+                                    setError = { pinCheckError = it },
+                                    onReset = { _, message ->
+                                        dismissPinCheck()
+                                        profileActionMessage = message
+                                        check.onVerified()
+                                    }
+                                )
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -969,10 +1266,12 @@ private fun ProfileSelectionMainContent(
     screenSubtitle: String,
     screenHint: String,
     isManagementMode: Boolean,
+    onToggleManagement: (() -> Unit)?,
     profiles: List<UserProfile>,
     activeProfileId: Int,
     canAddProfile: Boolean,
     profilePinEnabled: Map<Int, Boolean>,
+    profileRestrictions: Map<Int, ProfileRestrictions>,
     avatarImageUrlsById: Map<String, String>,
     brandWordmarkRes: Int? = null,
     profileThemes: Map<Int, com.fetch.tv.domain.model.AppTheme> = emptyMap(),
@@ -1023,6 +1322,7 @@ private fun ProfileSelectionMainContent(
             isManagementMode = isManagementMode,
             canAddProfile = canAddProfile,
             profilePinEnabled = profilePinEnabled,
+            profileRestrictions = profileRestrictions,
             avatarImageUrlsById = avatarImageUrlsById,
             profileThemes = profileThemes,
             onProfileFocused = onProfileFocused,
@@ -1032,6 +1332,17 @@ private fun ProfileSelectionMainContent(
         )
 
         Spacer(modifier = Modifier.weight(1f, fill = true))
+
+        if (onToggleManagement != null) {
+            OverlayButton(
+                text = stringResource(
+                    if (isManagementMode) R.string.profile_manage_done else R.string.profile_manage_button
+                ),
+                isPrimary = false,
+                onClick = onToggleManagement
+            )
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+        }
 
         Text(
             text = screenHint,
@@ -1049,6 +1360,7 @@ private fun ProfileGrid(
     isManagementMode: Boolean,
     canAddProfile: Boolean,
     profilePinEnabled: Map<Int, Boolean>,
+    profileRestrictions: Map<Int, ProfileRestrictions>,
     avatarImageUrlsById: Map<String, String>,
     profileThemes: Map<Int, com.fetch.tv.domain.model.AppTheme> = emptyMap(),
     onProfileFocused: (UserProfile?) -> Unit,
@@ -1113,6 +1425,8 @@ private fun ProfileGrid(
                             ?: profile.avatarId?.let(avatarImageUrlsById::get),
                         focusRequester = focusRequesters[index],
                         compact = useCompactCards,
+                        isLocked = profilePinEnabled[profile.id] == true,
+                        isKids = profileRestrictions[profile.id]?.isKidsProfile == true,
                         profileTheme = profileThemes[profile.id],
                         onFocused = { onProfileFocused(profile) },
                         onClick = { onProfileSelected(profile) },
@@ -1148,6 +1462,8 @@ private fun ProfileCard(
     avatarImageUrl: String?,
     focusRequester: FocusRequester,
     compact: Boolean,
+    isLocked: Boolean,
+    isKids: Boolean,
     profileTheme: com.fetch.tv.domain.model.AppTheme? = null,
     onFocused: () -> Unit,
     onClick: () -> Unit,
@@ -1271,6 +1587,30 @@ private fun ProfileCard(
                 )
             }
 
+            if (isLocked) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = FetchTheme.spacing.xxs, y = -FetchTheme.spacing.hairline)
+                        .size(if (compact) 22.dp else 26.dp)
+                        .clip(CircleShape)
+                        .background(FetchTheme.colors.SurfaceVariant, CircleShape)
+                        .border(
+                            width = FetchTheme.spacing.xxs,
+                            color = FetchTheme.colors.Background,
+                            shape = CircleShape
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Lock,
+                        contentDescription = stringResource(R.string.cd_profile_locked),
+                        tint = Color.White,
+                        modifier = Modifier.size(if (compact) 12.dp else 14.dp)
+                    )
+                }
+            }
+
             if (profile.isPrimary) {
                 Box(
                     modifier = Modifier
@@ -1327,6 +1667,14 @@ private fun ProfileCard(
                 Text(
                     text = stringResource(R.string.profile_selection_primary_badge),
                     color = Color(0xFFFFB300),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.8.sp
+                )
+            } else if (isKids) {
+                Text(
+                    text = stringResource(R.string.profile_selection_kids_badge),
+                    color = FetchTheme.colors.Info,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.8.sp
@@ -1477,24 +1825,24 @@ private fun CreateProfileOverlay(
     profiles: List<UserProfile>,
     avatarCatalog: List<AvatarCatalogItem>,
     isCreating: Boolean,
+    onRequestProfilePin: (UserProfile, () -> Unit) -> Unit,
     onDismiss: () -> Unit,
-    onCreateProfile: (
-        name: String,
-        colorHex: String,
-        avatarId: String?,
-        copyFromProfileId: Int?,
-        copyProviderCredentials: Boolean
-    ) -> Unit
+    onCreateProfile: (NewProfileSetup) -> Unit
 ) {
     BackHandler(onBack = onDismiss)
 
     var profileName by remember { mutableStateOf("") }
-    var selectedColorHex by remember { mutableStateOf("#1E88E5") }
+    val defaultColorHex = remember { nextProfileColor(profiles) }
+    var selectedColorHex by remember { mutableStateOf(defaultColorHex) }
     var selectedAvatarId by remember { mutableStateOf<String?>(null) }
     var focusedAvatarName by remember { mutableStateOf<String?>(null) }
     var selectedCopySourceId by remember { mutableStateOf<Int?>(null) }
     var copyProviderCredentials by remember { mutableStateOf(false) }
     var showSettingsSourceDialog by remember { mutableStateOf(false) }
+    var showSetupDialog by remember { mutableStateOf(false) }
+    var isKidsProfile by remember { mutableStateOf(false) }
+    var usesMainAddons by remember { mutableStateOf(false) }
+    val mainProfileName = profiles.firstOrNull { it.isPrimary }?.name.orEmpty()
     val selectedAvatar = remember(avatarCatalog, selectedAvatarId) {
         avatarCatalog.find { it.id == selectedAvatarId }
     }
@@ -1570,11 +1918,15 @@ private fun CreateProfileOverlay(
                         enabled = profileName.isNotBlank() && !isCreating,
                         onClick = {
                             onCreateProfile(
-                                profileName,
-                                selectedColorHex,
-                                selectedAvatarId,
-                                selectedCopySourceId,
-                                copyProviderCredentials
+                                NewProfileSetup(
+                                    name = profileName,
+                                    colorHex = selectedColorHex,
+                                    avatarId = selectedAvatarId,
+                                    copyFromProfileId = selectedCopySourceId,
+                                    copyProviderCredentials = copyProviderCredentials,
+                                    isKidsProfile = isKidsProfile,
+                                    usesMainAddons = usesMainAddons
+                                )
                             )
                         }
                     )
@@ -1627,20 +1979,27 @@ private fun CreateProfileOverlay(
                         focusRequester = nameFocusRequester
                     )
 
+                    ProfileColorPicker(
+                        selectedColorHex = selectedColorHex,
+                        onColorSelected = { selectedColorHex = it }
+                    )
+
                     val selectedCopySource = profiles.firstOrNull { it.id == selectedCopySourceId }
+                    val setupParts = listOfNotNull(
+                        stringResource(R.string.profile_setup_part_kids).takeIf { isKidsProfile },
+                        stringResource(R.string.profile_setup_part_addons, mainProfileName).takeIf { usesMainAddons },
+                        selectedCopySource?.let { stringResource(R.string.profile_setup_part_settings, it.name) }
+                    )
                     OverlayButton(
-                        text = if (selectedCopySource == null) {
-                            stringResource(R.string.profile_copy_settings_create_fresh)
+                        text = if (setupParts.isEmpty()) {
+                            stringResource(R.string.profile_setup_button)
                         } else {
-                            stringResource(
-                                R.string.profile_copy_settings_create_source,
-                                selectedCopySource.name
-                            )
+                            stringResource(R.string.profile_setup_summary, setupParts.joinToString(" · "))
                         },
                         isPrimary = false,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !isCreating,
-                        onClick = { showSettingsSourceDialog = true }
+                        onClick = { showSetupDialog = true }
                     )
 
                 }
@@ -1662,14 +2021,6 @@ private fun CreateProfileOverlay(
                         textAlign = TextAlign.Center
                     )
 
-                    Text(
-                        text = stringResource(R.string.profile_custom_avatar_web_panel_note),
-                        modifier = Modifier.fillMaxWidth(),
-                        color = FetchTheme.colors.TextTertiary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
 
                     if (avatarCatalog.isNotEmpty()) {
                         AvatarPickerGrid(
@@ -1678,7 +2029,7 @@ private fun CreateProfileOverlay(
                             onAvatarSelected = { avatar ->
                                 if (selectedAvatarId == avatar.id) {
                                     selectedAvatarId = null
-                                    selectedColorHex = "#1E88E5"
+                                    selectedColorHex = defaultColorHex
                                 } else {
                                     selectedAvatarId = avatar.id
                                     avatar.bgColor?.let { selectedColorHex = it }
@@ -1722,6 +2073,24 @@ private fun CreateProfileOverlay(
         }
     }
 
+    if (showSetupDialog) {
+        val selectedCopySource = profiles.firstOrNull { it.id == selectedCopySourceId }
+        ProfileSetupDialog(
+            mainProfileName = mainProfileName,
+            isKidsProfile = isKidsProfile,
+            usesMainAddons = usesMainAddons,
+            settingsSourceLabel = if (selectedCopySource == null) {
+                stringResource(R.string.profile_copy_settings_create_fresh)
+            } else {
+                stringResource(R.string.profile_copy_settings_create_source, selectedCopySource.name)
+            },
+            onKidsProfileChange = { isKidsProfile = it },
+            onUsesMainAddonsChange = { usesMainAddons = it },
+            onChooseSettingsSource = { showSettingsSourceDialog = true },
+            onDismiss = { showSetupDialog = false }
+        )
+    }
+
     if (showSettingsSourceDialog) {
         ProfileSettingsSourceDialog(
             profiles = profiles,
@@ -1729,9 +2098,17 @@ private fun CreateProfileOverlay(
             copyProviderCredentials = copyProviderCredentials,
             onDismiss = { showSettingsSourceDialog = false },
             onConfirm = { sourceProfileId, shouldCopyProviderCredentials ->
-                selectedCopySourceId = sourceProfileId
-                copyProviderCredentials = shouldCopyProviderCredentials
-                showSettingsSourceDialog = false
+                val applySource = {
+                    selectedCopySourceId = sourceProfileId
+                    copyProviderCredentials = shouldCopyProviderCredentials
+                    showSettingsSourceDialog = false
+                }
+                val sourceProfile = profiles.firstOrNull { it.id == sourceProfileId }
+                if (sourceProfile != null && sourceProfileId != selectedCopySourceId) {
+                    onRequestProfilePin(sourceProfile, applySource)
+                } else {
+                    applySource()
+                }
             }
         )
     }
@@ -1849,8 +2226,11 @@ private fun EditProfileOverlay(
         runCatching { nameFocusRequester.requestFocus() }
     }
 
-    LaunchedEffect(hasProfileBackgroundAccess) {
-        if (!hasProfileBackgroundAccess) selectedEditorTab = ProfileEditorTab.Avatar
+    // Backgrounds come from a sync server's catalog or a custom URL; without either there's only "Normal".
+    val showBackgroundTab = hasProfileBackgroundAccess &&
+        (profileBackgroundCatalog.isNotEmpty() || !profile.profileBackgroundUrl.isNullOrBlank())
+    LaunchedEffect(showBackgroundTab) {
+        if (!showBackgroundTab) selectedEditorTab = ProfileEditorTab.Avatar
     }
 
     Box(
@@ -1946,8 +2326,8 @@ private fun EditProfileOverlay(
                 Column(
                     modifier = Modifier
                         .width(ProfileSelectionSpacing.EditorPreviewWidth)
-                        .padding(start = FetchTheme.spacing.xl, top = FetchTheme.spacing.xl + ProfileSelectionSpacing.EditorPreviewTopOffset, end = FetchTheme.spacing.xl, bottom = FetchTheme.spacing.xl),
-                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                        .padding(start = FetchTheme.spacing.xl, top = FetchTheme.spacing.xl, end = FetchTheme.spacing.xl, bottom = FetchTheme.spacing.xl),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     ProfileAvatarCircle(
@@ -1976,9 +2356,14 @@ private fun EditProfileOverlay(
                         focusRequester = nameFocusRequester
                     )
 
+                    ProfileColorPicker(
+                        selectedColorHex = selectedColorHex,
+                        onColorSelected = { selectedColorHex = it }
+                    )
+
                     OverlayButton(
                         text = stringResource(R.string.profile_cancel),
-                        isPrimary = true,
+                        isPrimary = false,
                         modifier = Modifier.fillMaxWidth(),
                         onClick = onDismiss
                     )
@@ -1992,12 +2377,14 @@ private fun EditProfileOverlay(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
-                    ProfileEditorTabs(
-                        selectedTab = selectedEditorTab,
-                        showBackgroundTab = hasProfileBackgroundAccess,
-                        onTabSelected = { selectedEditorTab = it },
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                    if (showBackgroundTab) {
+                        ProfileEditorTabs(
+                            selectedTab = selectedEditorTab,
+                            showBackgroundTab = true,
+                            onTabSelected = { selectedEditorTab = it },
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
 
                     when (selectedEditorTab) {
                         ProfileEditorTab.Avatar -> {
@@ -2010,14 +2397,6 @@ private fun EditProfileOverlay(
                                 textAlign = TextAlign.Center
                             )
 
-                            Text(
-                                text = stringResource(R.string.profile_custom_avatar_web_panel_note),
-                                modifier = Modifier.fillMaxWidth(),
-                                color = FetchTheme.colors.TextTertiary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
-                            )
 
                             if (avatarCatalog.isNotEmpty()) {
                                 AvatarPickerGrid(
@@ -2079,14 +2458,6 @@ private fun EditProfileOverlay(
                                 textAlign = TextAlign.Center
                             )
 
-                            Text(
-                                text = stringResource(R.string.profile_background_member_note),
-                                modifier = Modifier.fillMaxWidth(),
-                                color = FetchTheme.colors.TextTertiary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
-                            )
 
                             ProfileBackgroundPicker(
                                 backgrounds = profileBackgroundCatalog,
@@ -2138,6 +2509,7 @@ internal fun ProfilePinOverlay(
     state: ProfilePinOverlayState,
     isWorking: Boolean,
     errorMessage: String?,
+    forgotPin: ForgotPinOption? = null,
     onClearError: () -> Unit,
     onDismiss: () -> Unit,
     onSubmit: (String) -> Unit
@@ -2146,6 +2518,8 @@ internal fun ProfilePinOverlay(
     val keyboardState = rememberKeyboardVisibilityState()
     val focusManager = LocalFocusManager.current
     val focusRequester = remember(state) { FocusRequester() }
+    val forgotPinFocusRequester = remember(state) { FocusRequester() }
+    val canFocusForgotPin = forgotPin?.onReset != null
     val isSingleEntryMode = state !is ProfilePinOverlayState.Set
     var pin by remember(state) { mutableStateOf("") }
     var draftPin by remember(state) { mutableStateOf<String?>(null) }
@@ -2303,6 +2677,25 @@ internal fun ProfilePinOverlay(
                         true
                     }
 
+                    // The PIN field is invisible, so move between it and "Forgot PIN?" directly.
+                    AndroidKeyEvent.KEYCODE_DPAD_DOWN -> {
+                        if (canFocusForgotPin && isInputFocused) {
+                            runCatching { forgotPinFocusRequester.requestFocus() }
+                            true
+                        } else {
+                            false
+                        }
+                    }
+
+                    AndroidKeyEvent.KEYCODE_DPAD_UP -> {
+                        if (canFocusForgotPin && !isInputFocused) {
+                            runCatching { focusRequester.requestFocus() }
+                            true
+                        } else {
+                            false
+                        }
+                    }
+
                     AndroidKeyEvent.KEYCODE_DEL,
                     AndroidKeyEvent.KEYCODE_CLEAR -> {
                         if (!isWorking && pin.isNotEmpty()) {
@@ -2333,6 +2726,8 @@ internal fun ProfilePinOverlay(
             state is ProfilePinOverlayState.VerifyCurrentForChange -> stringResource(R.string.profile_pin_overlay_change_verify_heading, state.profile.name)
             state is ProfilePinOverlayState.VerifyCurrentForRemove -> stringResource(R.string.profile_pin_overlay_remove_verify_heading, state.profile.name)
             state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(R.string.profile_pin_overlay_delete_verify_heading, state.profile.name)
+            state is ProfilePinOverlayState.VerifyAccess -> stringResource(R.string.profile_pin_overlay_access_heading, state.profile.name)
+            state is ProfilePinOverlayState.ResetVerifyParent -> stringResource(R.string.profile_pin_overlay_reset_heading, state.profile.name)
             state is ProfilePinOverlayState.ParentGate -> stringResource(R.string.parental_gate_heading, state.profile.name)
             entryStage == ProfilePinEntryStage.Confirm -> stringResource(R.string.profile_pin_overlay_confirm_heading)
             else -> stringResource(R.string.profile_pin_overlay_set_heading, state.profile.name)
@@ -2345,6 +2740,8 @@ internal fun ProfilePinOverlay(
             state is ProfilePinOverlayState.VerifyCurrentForChange -> stringResource(R.string.profile_pin_overlay_change_verify_support)
             state is ProfilePinOverlayState.VerifyCurrentForRemove -> stringResource(R.string.profile_pin_overlay_remove_verify_support)
             state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(R.string.profile_pin_overlay_delete_verify_support)
+            state is ProfilePinOverlayState.VerifyAccess -> stringResource(R.string.profile_pin_overlay_access_support)
+            state is ProfilePinOverlayState.ResetVerifyParent -> stringResource(R.string.profile_pin_overlay_reset_support, state.target.name)
             state is ProfilePinOverlayState.ParentGate -> stringResource(R.string.parental_gate_support)
             entryStage == ProfilePinEntryStage.Confirm -> stringResource(R.string.profile_pin_overlay_confirm_support)
             else -> stringResource(R.string.profile_pin_overlay_set_support)
@@ -2401,22 +2798,28 @@ internal fun ProfilePinOverlay(
                 lineHeight = 24.sp
             )
 
-            if (state is ProfilePinOverlayState.Unlock ||
-                state is ProfilePinOverlayState.VerifyCurrentForChange ||
-                state is ProfilePinOverlayState.VerifyCurrentForRemove ||
-                state is ProfilePinOverlayState.VerifyCurrentForDelete ||
-                state is ProfilePinOverlayState.ParentGate
-            ) {
+            if (forgotPin != null) {
                 Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = stringResource(R.string.profile_pin_overlay_forgot_hint),
-                    modifier = Modifier.widthIn(max = ProfileSelectionSpacing.PinSupportMaxWidth),
-                    color = FetchTheme.colors.TextTertiary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
-                )
+                val onReset = forgotPin.onReset
+                if (onReset != null) {
+                    OverlayButton(
+                        text = forgotPin.label,
+                        isPrimary = false,
+                        enabled = !isWorking,
+                        modifier = Modifier.focusRequester(forgotPinFocusRequester),
+                        onClick = onReset
+                    )
+                } else {
+                    Text(
+                        text = forgotPin.label,
+                        modifier = Modifier.widthIn(max = ProfileSelectionSpacing.PinSupportMaxWidth),
+                        color = FetchTheme.colors.TextTertiary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 20.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(backHintGap))
@@ -2732,5 +3135,82 @@ private fun OverlayButton(
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+/** First palette colour no profile uses yet, so new profiles don't all look alike. */
+internal fun nextProfileColor(profiles: List<UserProfile>): String {
+    val used = profiles.map { it.avatarColorHex.uppercase() }.toSet()
+    return PROFILE_AVATAR_COLORS.firstOrNull { it.uppercase() !in used }
+        ?: PROFILE_AVATAR_COLORS[profiles.size % PROFILE_AVATAR_COLORS.size]
+}
+
+// One row so it fits the editor's left column on a 960x540dp screen.
+@Composable
+private fun ProfileColorPicker(
+    selectedColorHex: String,
+    onColorSelected: (String) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        PROFILE_AVATAR_COLORS.forEach { colorHex ->
+            ProfileColorSwatch(
+                colorHex = colorHex,
+                isSelected = colorHex.equals(selectedColorHex, ignoreCase = true),
+                onClick = { onColorSelected(colorHex) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfileColorSwatch(
+    colorHex: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val scale by animateFloatAsState(
+        targetValue = if (isFocused) 1.25f else 1f,
+        animationSpec = tween(FetchMotion.tokens.durations.quick),
+        label = "swatchScale"
+    )
+    Box(
+        modifier = Modifier
+            .size(22.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .onFocusChanged { isFocused = it.isFocused }
+            .clip(CircleShape)
+            .background(parseProfileColor(colorHex), CircleShape)
+            .border(
+                border = when {
+                    isFocused -> FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                    isSelected -> BorderStroke(FetchTheme.spacing.xxs, Color.White)
+                    else -> BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.2f))
+                },
+                shape = CircleShape
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .semantics {
+                role = Role.RadioButton
+                selected = isSelected
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+            )
+        }
     }
 }

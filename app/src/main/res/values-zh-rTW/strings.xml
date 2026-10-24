@@ -1168,11 +1168,9 @@
     <string name="profile_create_btn">建立</string>
     <string name="profile_delete">刪除</string>
     <string name="profile_choose_avatar">選擇頭像</string>
-    <string name="profile_custom_avatar_web_panel_note">自訂頭像網址可從 Fetch 網頁面板配置。</string>
     <string name="profile_editor_tab_avatar">頭像</string>
     <string name="profile_editor_tab_background">背景</string>
     <string name="profile_choose_background">選擇個人資料背景</string>
-    <string name="profile_background_member_note">自訂背景網址可從 Fetch 網頁面板配置。</string>
     <string name="profile_background_normal">一般</string>
     <string name="profile_background_custom">自訂</string>
     <string name="profile_avatar_focus_hint">聚焦頭像以檢視其名稱</string>
@@ -1225,7 +1223,6 @@
     <string name="profile_pin_overlay_set_support">開啟此個人資料前將需要此 PIN。</string>
     <string name="profile_pin_overlay_confirm_support">重新輸入相同的 4 位數字以完成設定。</string>
     <string name="profile_pin_overlay_mismatch">PIN 碼不相符。請重新輸入新的 PIN。</string>
-    <string name="profile_pin_overlay_forgot_hint">忘記 PIN？請在 Fetch 網站上從您的 Fetch 帳戶重設。</string>
     <string name="profile_pin_overlay_back_hint">按返回鍵取消</string>
 
 

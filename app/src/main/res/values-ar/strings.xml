@@ -966,7 +966,6 @@
     <string name="profile_create_btn">إنشاء</string>
     <string name="profile_delete">حذف</string>
     <string name="profile_choose_avatar">اختيار الصورة الرمزية</string>
-    <string name="profile_custom_avatar_web_panel_note">يمكنك ضبط وتغيير روابط الصور الرمزية المخصصة عبر لوحة ويب Fetch.</string>
     <string name="profile_avatar_focus_hint">قف على الصورة الرمزية لعرض الاسم</string>
     <string name="profile_avatar_category_all">الكل</string>
     <string name="profile_avatar_category_anime">أنمي</string>
@@ -994,7 +993,6 @@
     <string name="profile_pin_overlay_set_support">سيكون هذا الرمز مطلوباً قبل فتح هذا الملف الشخصي.</string>
     <string name="profile_pin_overlay_confirm_support">أعد إدخال نفس الـ 4 أرقام لإنهاء الإعداد.</string>
     <string name="profile_pin_overlay_mismatch">رموز PIN غير متطابقة. أدخل رمزاً جديداً مرة أخرى.</string>
-    <string name="profile_pin_overlay_forgot_hint">نسيت رمز PIN؟ أعد تعيينه من حساب Fetch الخاص بك على موقع Fetch.</string>
     <string name="profile_pin_overlay_back_hint">اضغط رجوع للإلغاء</string>
 
 
@@ -2286,7 +2284,6 @@
     <string name="player_report_loading_issue">الإبلاغ عن مشكلة تحميل</string>
     <string name="profile_avatar_category_supporter">داعم</string>
     <string name="profile_background_custom">مخصص</string>
-    <string name="profile_background_member_note">يمكن ضبط روابط الخلفية المخصصة من لوحة Fetch على الويب.</string>
     <string name="profile_background_normal">عادي</string>
     <string name="profile_choose_background">اختر خلفية الملف الشخصي</string>
     <string name="profile_default_name">الملف الشخصي %1$d</string>

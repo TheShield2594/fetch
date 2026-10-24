@@ -785,7 +785,6 @@
     <string name="profile_pin_overlay_set_support">Этот PIN-код будет запрашиваться перед открытием этого профиля.</string>
     <string name="profile_pin_overlay_confirm_support">Введите те же 4 цифры еще раз для завершения настройки.</string>
     <string name="profile_pin_overlay_mismatch">PIN-коды не совпали. Введите новый PIN-код еще раз.</string>
-    <string name="profile_pin_overlay_forgot_hint">Забыли PIN? Сбросьте его в вашем аккаунте Fetch на веб-сайте Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Нажмите \"Назад\" для отмены</string>
 
 
@@ -1823,11 +1822,9 @@
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
     <string name="debug_buffer_logs_title">Включить журналы BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Периодически выводить диагностику буфера плеера в logcat (по умолчанию отключено)</string>
-    <string name="profile_custom_avatar_web_panel_note">Пользовательские URL аватаров можно настроить в веб-панели Fetch.</string>
     <string name="profile_editor_tab_avatar">Аватар</string>
     <string name="profile_editor_tab_background">Фон</string>
     <string name="profile_choose_background">Выберите фон профиля</string>
-    <string name="profile_background_member_note">Пользовательские URL-адреса фона можно настроить в веб-панели Fetch.</string>
     <string name="profile_background_normal">Обычный</string>
     <string name="profile_background_custom">Свой</string>
     <string name="profile_pin_overlay_delete_verify_heading">Введите PIN для удаления %1$s.</string>

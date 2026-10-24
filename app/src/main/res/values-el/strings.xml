@@ -1166,11 +1166,9 @@
   <string name="profile_create_btn">Δημιουργία</string>
   <string name="profile_delete">Διαγραφή</string>
   <string name="profile_choose_avatar">Επιλογή avatar</string>
-  <string name="profile_custom_avatar_web_panel_note">Οι URL προσαρμοσμένων avatar μπορούν να ρυθμιστούν από το web panel του Fetch.</string>
   <string name="profile_editor_tab_avatar">Avatar</string>
   <string name="profile_editor_tab_background">Φόντο</string>
   <string name="profile_choose_background">Επιλογή φόντου προφίλ</string>
-  <string name="profile_background_member_note">Οι URL προσαρμοσμένων φόντων μπορούν να ρυθμιστούν από το web panel του Fetch.</string>
   <string name="profile_background_normal">Κανονικό</string>
   <string name="profile_background_custom">Προσαρμοσμένο</string>
   <string name="profile_avatar_focus_hint">Εστιάστε σε ένα avatar για να δείτε το όνομά του</string>
@@ -1223,7 +1221,6 @@
   <string name="profile_pin_overlay_set_support">Αυτό το PIN θα απαιτείται πριν το άνοιγμα του προφίλ.</string>
   <string name="profile_pin_overlay_confirm_support">Εισάγετε ξανά τα ίδια 4 ψηφία για ολοκλήρωση.</string>
   <string name="profile_pin_overlay_mismatch">Τα PIN δεν ταιριάζουν. Εισάγετε νέο PIN ξανά.</string>
-  <string name="profile_pin_overlay_forgot_hint">Ξεχάσατε το PIN; Επαναφέρετέ το από τον λογαριασμό σας Fetch στον ιστότοπο του Fetch.</string>
   <string name="profile_pin_overlay_back_hint">Πατήστε πίσω για ακύρωση</string>
   <!-- Essential addon setup wizard -->
   <string name="essential_addon_setup_title">Ρύθμιση πρόσθετων</string>

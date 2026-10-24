@@ -595,7 +595,6 @@
     <string name="profile_pin_overlay_set_support">Denne PIN-en blir nødvendig før åpning av denne profilen.</string>
     <string name="profile_pin_overlay_confirm_support">Angi samme 4 siffer på nytt for å avslutte oppsettet.</string>
     <string name="profile_pin_overlay_mismatch">PIN-ene matchet ikke. Skriv inn en ny PIN på nytt.</string>
-    <string name="profile_pin_overlay_forgot_hint">Glemt PIN? Tilbakestill det fra Fetch-kontoen din på Fetch-nettstedet.</string>
     <string name="profile_pin_overlay_back_hint">Trykk tilbake for å avbryte</string>
 
 

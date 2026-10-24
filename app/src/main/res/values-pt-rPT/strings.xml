@@ -935,7 +935,6 @@
     <string name="profile_create_btn">Criar</string>
     <string name="profile_delete">Eliminar</string>
     <string name="profile_choose_avatar">Escolher avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Os URLs de avatares personalizados podem ser configurados a partir do painel web do Fetch.</string>
     <string name="profile_avatar_focus_hint">Foca num avatar para ver o teu nome</string>
     <string name="profile_avatar_category_all">Tudo</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -963,7 +962,6 @@
     <string name="profile_pin_overlay_set_support">Este PIN será obrigatório antes de abrir este perfil.</string>
     <string name="profile_pin_overlay_confirm_support">Reintroduz os mesmos 4 dígitos para concluir a configuração.</string>
     <string name="profile_pin_overlay_mismatch">Os PINs não coincidem. Introduz um novo PIN novamente.</string>
-    <string name="profile_pin_overlay_forgot_hint">Esqueceste-te do PIN? Repõe-no a partir da tua conta Fetch no site do Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Carrega em Voltar para cancelar.</string>
     <!-- Essential addon setup wizard -->
     <string name="essential_addon_setup_title">Configurar addons</string>

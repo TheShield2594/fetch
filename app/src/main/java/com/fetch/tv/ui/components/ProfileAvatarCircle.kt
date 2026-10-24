@@ -35,7 +35,7 @@ fun ProfileAvatarCircle(
 ) {
     val avatarColor = runCatching { Color(android.graphics.Color.parseColor(colorHex)) }
         .getOrDefault(FetchPrimitives.blue500)
-    val initial = name.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+    val initial = remember(name) { profileInitial(name) }
     val fontSize = (size.value * 0.4f).sp
     val context = LocalContext.current
     val imageRequest = remember(context, avatarImageUrl, imageCrossfade) {
@@ -79,4 +79,12 @@ fun ProfileAvatarCircle(
             )
         }
     }
+}
+
+/** The first character a person sees in [name], kept whole for emoji and other multi-char symbols. */
+internal fun profileInitial(name: String): String {
+    val trimmed = name.trim()
+    if (trimmed.isEmpty()) return "?"
+    val iterator = java.text.BreakIterator.getCharacterInstance().apply { setText(trimmed) }
+    return trimmed.substring(0, iterator.next()).uppercase()
 }

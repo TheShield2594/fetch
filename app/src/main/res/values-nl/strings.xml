@@ -1088,11 +1088,9 @@
     <string name="profile_create_btn">Maken</string>
     <string name="profile_delete">Verwijderen</string>
     <string name="profile_choose_avatar">Avatar kiezen</string>
-    <string name="profile_custom_avatar_web_panel_note">Eigen avatar-URL\'s kunnen worden ingesteld via het Fetch-webpaneel.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Achtergrond</string>
     <string name="profile_choose_background">Profielachtergrond kiezen</string>
-    <string name="profile_background_member_note">Eigen achtergrond-URL\'s kunnen worden ingesteld via het Fetch-webpaneel.</string>
     <string name="profile_background_normal">Normaal</string>
     <string name="profile_background_custom">Aangepast</string>
     <string name="profile_avatar_focus_hint">Zet de focus op een avatar om de naam te zien</string>
@@ -1145,7 +1143,6 @@
     <string name="profile_pin_overlay_set_support">Deze pincode is vereist voordat dit profiel wordt geopend.</string>
     <string name="profile_pin_overlay_confirm_support">Voer dezelfde 4 cijfers nogmaals in om het instellen te voltooien.</string>
     <string name="profile_pin_overlay_mismatch">De pincodes kwamen niet overeen. Voer opnieuw een nieuwe pincode in.</string>
-    <string name="profile_pin_overlay_forgot_hint">Pincode vergeten? Stel deze opnieuw in via je Fetch-account op de Fetch-website.</string>
     <string name="profile_pin_overlay_back_hint">Druk op terug om te annuleren</string>
 
 

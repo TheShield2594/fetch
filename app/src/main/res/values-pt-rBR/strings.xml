@@ -1115,11 +1115,9 @@
     <string name="profile_create_btn">Criar</string>
     <string name="profile_delete">Excluir</string>
     <string name="profile_choose_avatar">Escolher Avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">URLs de avatar personalizados podem ser configurados pelo painel web do Fetch.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Plano de fundo</string>
     <string name="profile_choose_background">Escolher plano de fundo do perfil</string>
-    <string name="profile_background_member_note">URLs de plano de fundo personalizados podem ser configurados pelo painel web do Fetch.</string>
     <string name="profile_background_normal">Normal</string>
     <string name="profile_background_custom">Personalizado</string>
     <string name="profile_avatar_focus_hint">Selecione um avatar para ver o nome.</string>
@@ -1172,7 +1170,6 @@
     <string name="profile_pin_overlay_set_support">Este PIN será solicitado sempre que abrir este perfil.</string>
     <string name="profile_pin_overlay_confirm_support">Digite os mesmos 4 dígitos novamente para finalizar.</string>
     <string name="profile_pin_overlay_mismatch">Os PINs não coincidem. Tente novamente.</string>
-    <string name="profile_pin_overlay_forgot_hint">Esqueceu o PIN? Redefina-o pelo site do Fetch na sua conta.</string>
     <string name="profile_pin_overlay_back_hint">Pressione \"Voltar\" para cancelar.</string>
 
    

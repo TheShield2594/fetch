@@ -1138,7 +1138,6 @@
     <string name="profile_pin_overlay_set_support">Ten PIN będzie wymagany przed otwarciem tego profilu.</string>
     <string name="profile_pin_overlay_confirm_support">Wprowadź ponownie te same 4 cyfry, aby zakończyć konfigurację.</string>
     <string name="profile_pin_overlay_mismatch">PINy nie są zgodne. Wprowadź nowy PIN ponownie.</string>
-    <string name="profile_pin_overlay_forgot_hint">Zapomniałeś PIN? Zresetuj go ze swojego konta Fetch na stronie Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Naciśnij wstecz, aby anulować</string>
 
     <string name="debug_section_library">Biblioteka</string>
@@ -1897,7 +1896,6 @@
     <string name="web_title_show">Pokaż</string>
 
     <string name="tv_channel_continue_watching">Kontynuuj oglądanie</string>
-    <string name="profile_custom_avatar_web_panel_note">Niestandardowe adresy URL awatarów można skonfigurować z panelu webowego Fetch.</string>
     <string name="collections_editor_tmdb_mode_person">Osoba</string>
     <string name="collections_editor_tmdb_mode_director">Reżyser</string>
     <string name="collections_editor_tmdb_help_person">Wpisz ID osoby z TMDB lub URL, aby zbudować wiersz z obsady.</string>
@@ -2642,7 +2640,6 @@
     <string name="profile_editor_tab_avatar">Awatar</string>
     <string name="profile_editor_tab_background">Tło</string>
     <string name="profile_choose_background">Wybierz tło profilu</string>
-    <string name="profile_background_member_note">Niestandardowe adresy URL tła można skonfigurować z panelu Fetch.</string>
     <string name="profile_background_normal">Normalne</string>
     <string name="profile_background_custom">Niestandardowe</string>
     <string name="profile_avatar_category_supporter">Supporter</string>

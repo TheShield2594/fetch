@@ -1242,11 +1242,9 @@
     <string name="profile_create_btn">Létrehozás</string>
     <string name="profile_delete">Törlés</string>
     <string name="profile_choose_avatar">Avatar választása</string>
-    <string name="profile_custom_avatar_web_panel_note">Az egyedi avatar URL-ek a Fetch webes felületén konfigurálhatók.</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Háttér</string>
     <string name="profile_choose_background">Profil hátterének választása</string>
-    <string name="profile_background_member_note">Az egyedi háttér URL-ek a Fetch webes felületén konfigurálhatók.</string>
     <string name="profile_background_normal">Normál</string>
     <string name="profile_background_custom">Egyedi</string>
     <string name="profile_avatar_focus_hint">Jelölj ki egy avatart a név megjelenítéséhez</string>
@@ -1299,7 +1297,6 @@
     <string name="profile_pin_overlay_set_support">Ez a PIN szükséges lesz a profil megnyitása előtt.</string>
     <string name="profile_pin_overlay_confirm_support">Írd be újra ugyanazt a 4 számjegyet a beállítás befejezéséhez.</string>
     <string name="profile_pin_overlay_mismatch">A PIN-kódok nem egyeznek. Add meg újra az új PIN-t.</string>
-    <string name="profile_pin_overlay_forgot_hint">Elfelejtetted a PIN-t? Állítsd alaphelyzetbe a Fetch-fiókodból a Fetch weboldalán.</string>
     <string name="profile_pin_overlay_back_hint">A megszakításhoz nyomd meg a Vissza gombot</string>
 
 

@@ -919,7 +919,6 @@
     <string name="profile_create_btn">Vytvoriť</string>
     <string name="profile_delete">Odstrániť</string>
     <string name="profile_choose_avatar">Vybrať avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Vlastné URL avatara je možné nakonfigurovať z webového panela Fetch.</string>
     <string name="profile_avatar_focus_hint">Zamerajte avatar pre zobrazenie jeho názvu</string>
     <string name="profile_avatar_category_all">Všetky</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -947,7 +946,6 @@
     <string name="profile_pin_overlay_set_support">Tento PIN bude vyžadovaný pred otvorením tohto profilu.</string>
     <string name="profile_pin_overlay_confirm_support">Znovu zadajte rovnaké 4 číslice pre dokončenie nastavenia.</string>
     <string name="profile_pin_overlay_mismatch">PINy sa nezhodovali. Zadajte nový PIN znova.</string>
-    <string name="profile_pin_overlay_forgot_hint">Zabudli ste PIN? Resetujte ho zo svojho účtu Fetch na webovej stránke Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Stlačte späť pre zrušenie</string>
 
     
@@ -2378,7 +2376,6 @@
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Pozadie</string>
     <string name="profile_choose_background">Vybrať pozadie profilu</string>
-    <string name="profile_background_member_note">Vlastné URL adresy pozadia je možné nastaviť vo webovom paneli Fetch.</string>
     <string name="profile_background_normal">Normálne</string>
     <string name="profile_background_custom">Vlastné</string>
     <string name="profile_avatar_category_supporter">Podporovateľ</string>

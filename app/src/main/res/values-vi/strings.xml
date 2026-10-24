@@ -1250,11 +1250,9 @@
     <string name="profile_create_btn">Tạo</string>
     <string name="profile_delete">Xóa</string>
     <string name="profile_choose_avatar">Chọn Ảnh đại diện</string>
-    <string name="profile_custom_avatar_web_panel_note">URL ảnh đại diện tùy chỉnh có thể được cấu hình tại bảng điều khiển web Fetch.</string>
     <string name="profile_editor_tab_avatar">Ảnh đại diện</string>
     <string name="profile_editor_tab_background">Hình nền</string>
     <string name="profile_choose_background">Chọn hình nền hồ sơ</string>
-    <string name="profile_background_member_note">URL hình nền tùy chỉnh có thể được cấu hình từ bảng điều khiển web Fetch.</string>
     <string name="profile_background_normal">Mặc định</string>
     <string name="profile_background_custom">Tùy chỉnh</string>
     <string name="profile_avatar_focus_hint">Chọn ảnh đại diện để xem tên</string>
@@ -1307,7 +1305,6 @@
     <string name="profile_pin_overlay_set_support">Mã PIN này sẽ được yêu cầu trước khi mở hồ sơ này.</string>
     <string name="profile_pin_overlay_confirm_support">Nhập lại 4 chữ số để hoàn tất thiết lập.</string>
     <string name="profile_pin_overlay_mismatch">Mã PIN không khớp. Nhập lại mã PIN mới.</string>
-    <string name="profile_pin_overlay_forgot_hint">Quên mã PIN? Vui lòng đặt lại mã PIN từ tài khoản Fetch trên trang web Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Nhấn quay lại để hủy</string>
 
 

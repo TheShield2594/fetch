@@ -1254,11 +1254,9 @@
     <string name="profile_create_btn">יצירה</string>
     <string name="profile_delete">מחיקה</string>
     <string name="profile_choose_avatar">בחירת אווטאר</string>
-    <string name="profile_custom_avatar_web_panel_note">ניתן להגדיר כתובות אווטאר מותאמות אישית מלוח הבקרה המקוון של Fetch.</string>
     <string name="profile_editor_tab_avatar">אווטאר</string>
     <string name="profile_editor_tab_background">רקע</string>
     <string name="profile_choose_background">בחירת רקע פרופיל</string>
-    <string name="profile_background_member_note">ניתן להגדיר כתובות רקע מותאמות אישית מלוח הבקרה המקוון של Fetch.</string>
     <string name="profile_background_normal">רגיל</string>
     <string name="profile_background_custom">מותאם אישית</string>
     <string name="profile_avatar_focus_hint">התמקדות באווטאר מציגה את שמו.</string>
@@ -1311,7 +1309,6 @@
     <string name="profile_pin_overlay_set_support">סיסמה זו תידרש לפני פתיחת פרופיל זה.</string>
     <string name="profile_pin_overlay_confirm_support">יש להזין שוב את אותן 4 ספרות כדי לסיים את ההגדרה.</string>
     <string name="profile_pin_overlay_mismatch">הסיסמות אינן תואמות. יש להזין סיסמה חדשה שוב.</string>
-    <string name="profile_pin_overlay_forgot_hint">שכחת את הסיסמה? אפשר לאפס אותה באתר של Fetch.</string>
     <string name="profile_pin_overlay_back_hint">יש ללחוץ חזרה כדי לבטל</string>
 
 

@@ -1167,11 +1167,9 @@
     <string name="profile_create_btn">তৈরি করুন</string>
     <string name="profile_delete">মুছুন</string>
     <string name="profile_choose_avatar">একটি অবতার বাছুন</string>
-    <string name="profile_custom_avatar_web_panel_note">Fetch ওয়েব প্যানেল থেকে কাস্টম অ্যাভাটার ইউআরএল কনফিগার করা যাবে।</string>
     <string name="profile_editor_tab_avatar">অ্যাভাটার</string>
     <string name="profile_editor_tab_background">ব্যাকগ্রাউন্ড</string>
     <string name="profile_choose_background">প্রোফাইল ব্যাকগ্রাউন্ড বাছুন</string>
-    <string name="profile_background_member_note">কাস্টম ব্যাকগ্রাউন্ড ইউআরএল Fetch ওয়েব প্যানেল থেকে কনফিগার করা যেতে পারে।</string>
     <string name="profile_background_normal">স্বাভাবিক</string>
     <string name="profile_background_custom">কাস্টম</string>
     <string name="profile_avatar_focus_hint">নাম দেখতে একটি অ্যাভাটারের উপর ফোকাস করুন</string>
@@ -1224,7 +1222,6 @@
     <string name="profile_pin_overlay_set_support">এই প্রোফাইল খোলার আগে এই পিনটি প্রয়োজন হবে।</string>
     <string name="profile_pin_overlay_confirm_support">সেটআপ শেষ করতে একই ৪-ডিজিট পুনরায় লিখুন।</string>
     <string name="profile_pin_overlay_mismatch">পিন মেলেনি। আবার নতুন পিন লিখুন।</string>
-    <string name="profile_pin_overlay_forgot_hint">পিন ভুলে গেছেন? Fetch ওয়েবসাইটে আপনার Fetch অ্যাকাউন্ট থেকে এটি রিসেট করুন।</string>
     <string name="profile_pin_overlay_back_hint">বাতিল করতে back-এ চাপ দিন</string>
     <string name="essential_addon_setup_title">অ্যাডন সেটআপ করুন</string>
     <string name="essential_addon_setup_subtitle">স্ট্রিমিং শুরু করতে একটি অ্যাডন ইনস্টল করুন। আপনি পরবর্তীতে Addons থেকে আরও যোগ করতে পারবেন।</string>

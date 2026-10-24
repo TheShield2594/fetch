@@ -905,7 +905,6 @@
     <string name="profile_create_btn">Erstellen</string>
     <string name="profile_delete">Löschen</string>
     <string name="profile_choose_avatar">Avatar auswählen</string>
-    <string name="profile_custom_avatar_web_panel_note">Eigene Avatar-URLs können in der Fetch-Weboberfläche konfiguriert werden.</string>
     <string name="profile_avatar_focus_hint">Avatar fokussieren, um seinen Namen anzuzeigen</string>
     <string name="profile_avatar_category_all">Alle</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -933,7 +932,6 @@
     <string name="profile_pin_overlay_set_support">Diese PIN wird benötigt, bevor dieses Profil geöffnet werden kann.</string>
     <string name="profile_pin_overlay_confirm_support">Gib dieselben 4 Ziffern erneut ein, um die Einrichtung abzuschließen.</string>
     <string name="profile_pin_overlay_mismatch">Die PINs stimmen nicht überein. Gib erneut eine neue PIN ein.</string>
-    <string name="profile_pin_overlay_forgot_hint">PIN vergessen? Setze sie über dein Fetch-Konto auf der Fetch-Website zurück.</string>
     <string name="profile_pin_overlay_back_hint">Zurück drücken, um abzubrechen</string>	
 
 

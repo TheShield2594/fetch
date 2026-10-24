@@ -965,7 +965,6 @@
     <string name="profile_create_btn">作成</string>
     <string name="profile_delete">削除</string>
     <string name="profile_choose_avatar">アバターを選択</string>
-    <string name="profile_custom_avatar_web_panel_note">カスタムアバターURLはFetchウェブパネルから設定できます。</string>
     <string name="profile_avatar_focus_hint">アバターを選択して名前を確認</string>
     <string name="profile_avatar_category_all">すべて</string>
     <string name="profile_avatar_category_anime">アニメ</string>
@@ -993,7 +992,6 @@
     <string name="profile_pin_overlay_set_support">このプロフィールを開く前にPINの入力が必要になります</string>
     <string name="profile_pin_overlay_confirm_support">設定を完了するには同じ4桁を再入力してください</string>
     <string name="profile_pin_overlay_mismatch">PINが一致しませんでした。もう一度新しいPINを入力してください</string>
-    <string name="profile_pin_overlay_forgot_hint">PINを忘れた場合はFetchウェブサイトのアカウントページからリセットできます</string>
     <string name="profile_pin_overlay_back_hint">戻るボタンでキャンセル</string>
 
     

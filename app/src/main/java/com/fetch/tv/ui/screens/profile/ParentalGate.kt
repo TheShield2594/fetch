@@ -166,6 +166,8 @@ fun ParentalGateHost(
                     is ParentalGateViewModel.GateError.Locked ->
                         context.getString(R.string.profile_pin_locked, gateError.retryAfterSeconds)
                 },
+                // The gate asks for the main profile's PIN, which has no reset.
+                forgotPin = ForgotPinOption(context.getString(R.string.profile_pin_forgot_main)),
                 onClearError = viewModel::clearError,
                 onDismiss = viewModel::cancel,
                 onSubmit = viewModel::submit

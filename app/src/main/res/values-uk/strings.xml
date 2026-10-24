@@ -960,7 +960,6 @@
     <string name="profile_create_btn">Створити</string>
     <string name="profile_delete">Видалити</string>
     <string name="profile_choose_avatar">Обрати аватар</string>
-    <string name="profile_custom_avatar_web_panel_note">Користувацькі URL аватарів можна налаштувати у веб-панелі Fetch.</string>
     <string name="profile_avatar_focus_hint">Сфокусуйтесь на аватарі, щоб побачити його назву</string>
     <string name="profile_avatar_category_all">Всі</string>
     <string name="profile_avatar_category_anime">Аніме</string>
@@ -988,7 +987,6 @@
     <string name="profile_pin_overlay_set_support">Цей PIN-код запитуватиметься перед відкриттям цього профілю.</string>
     <string name="profile_pin_overlay_confirm_support">Введіть ті самі 4 цифри ще раз для завершення налаштування.</string>
     <string name="profile_pin_overlay_mismatch">PIN-коди не збіглися. Введіть новий PIN-код ще раз.</string>
-    <string name="profile_pin_overlay_forgot_hint">Забули PIN? Скиньте його у вашому акаунті Fetch на веб-сайті Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Натисніть «Назад» для скасування</string>
 
 

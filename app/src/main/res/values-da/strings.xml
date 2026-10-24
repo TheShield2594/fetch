@@ -965,7 +965,6 @@
     <string name="profile_create_btn">Opret</string>
     <string name="profile_delete">Slet</string>
     <string name="profile_choose_avatar">Vælg avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Brugerdefinerede avatar-URL\'er kan konfigureres fra Fetch-webpanelet.</string>
     <string name="profile_avatar_focus_hint">Fokusér på en avatar for at se dens navn</string>
     <string name="profile_avatar_category_all">Alle</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -993,7 +992,6 @@
     <string name="profile_pin_overlay_set_support">Denne PIN vil blive krævet, inden denne profil åbnes.</string>
     <string name="profile_pin_overlay_confirm_support">Gentag de samme 4 cifre for at afslutte opsætningen.</string>
     <string name="profile_pin_overlay_mismatch">PIN-koderne stemte ikke overens. Indtast en ny PIN igen.</string>
-    <string name="profile_pin_overlay_forgot_hint">Glemt PIN? Nulstil den fra din Fetch-konto på Fetch-webstedet.</string>
     <string name="profile_pin_overlay_back_hint">Tryk tilbage for at annullere</string>
 
 

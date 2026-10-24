@@ -982,7 +982,6 @@
     <string name="profile_create_btn">Vytvořit</string>
     <string name="profile_delete">Smazat</string>
     <string name="profile_choose_avatar">Vybrat avatar</string>
-    <string name="profile_custom_avatar_web_panel_note">Vlastní URL avatarů lze konfigurovat z webového panelu Fetch.</string>
     <string name="profile_avatar_focus_hint">Zaměřte avatara pro zobrazení jeho jména</string>
     <string name="profile_avatar_category_all">Vše</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -1010,7 +1009,6 @@
     <string name="profile_pin_overlay_set_support">Tento PIN bude vyžadován před otevřením tohoto profilu.</string>
     <string name="profile_pin_overlay_confirm_support">Zadejte znovu stejné 4 číslice pro dokončení nastavení.</string>
     <string name="profile_pin_overlay_mismatch">PINy se neshodovaly. Zadejte nový PIN znovu.</string>
-    <string name="profile_pin_overlay_forgot_hint">Zapomněli jste PIN? Resetujte jej ze svého účtu Fetch na webu Fetch.</string>
     <string name="profile_pin_overlay_back_hint">Stiskněte zpět pro zrušení</string>
 
 

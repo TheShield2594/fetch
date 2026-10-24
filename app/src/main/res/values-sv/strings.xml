@@ -979,7 +979,6 @@
     <string name="profile_pin_overlay_set_support">Denna PIN krävs innan denna profil öppnas.</string>
     <string name="profile_pin_overlay_confirm_support">Ange samma 4 siffror igen för att slutföra.</string>
     <string name="profile_pin_overlay_mismatch">PIN-koderna matchade inte. Ange en ny PIN igen.</string>
-    <string name="profile_pin_overlay_forgot_hint">Glömt PIN? Återställ den från ditt Fetch-konto på Fetchs webbplats.</string>
     <string name="profile_pin_overlay_back_hint">Tryck tillbaka för att avbryta</string>
 
     <!-- Missing: Debug library -->

@@ -27,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
@@ -145,3 +147,14 @@ internal fun FloatingSidebarButton(
         }
     }
 }
+
+/**
+ * Makes focus that enters the sidebar land on [currentPage], the current page's item.
+ *
+ * The TV drawer pulls focus into itself whenever it opens, and left alone that lands on the first
+ * item. Home then flashed for a couple of frames on every other page before focus moved on to the
+ * current page's item.
+ */
+internal fun Modifier.sidebarFocusEntry(currentPage: FocusRequester?): Modifier =
+    focusProperties { onEnter = { currentPage?.requestFocus() } }
+        .focusGroup()

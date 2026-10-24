@@ -100,6 +100,7 @@ import com.fetch.tv.ui.components.LocalStartupLoadingState
 import com.fetch.tv.ui.components.LocalStartupSplashEnabled
 import com.fetch.tv.ui.components.StartupLoadingState
 import com.fetch.tv.ui.components.FloatingSidebarButton
+import com.fetch.tv.ui.components.sidebarFocusEntry
 import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.StartupDestination
 import com.fetch.tv.ui.components.shouldShowStartupSplash
@@ -1518,6 +1519,7 @@ private fun FetchSidebarScaffold(
                             )
                         )
                         .selectableGroup()
+                        .sidebarFocusEntry(selectedDrawerRoute?.let(drawerItemFocusRequesters::get))
                         .onPreviewKeyEvent { keyEvent ->
                             if (keyEvent.type == KeyEventType.KeyDown) {
                                 legacyDrawerInteractionVersion++

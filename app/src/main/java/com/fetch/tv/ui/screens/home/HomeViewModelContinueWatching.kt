@@ -2074,7 +2074,10 @@ private suspend fun HomeViewModel.enrichInProgressItem(
                 item.progress.videoId
             },
             name = if (settings.useBasicInfo) tmdbData?.name ?: meta.name else meta.name,
-            poster = item.progress.poster ?: meta.poster.normalizeImageUrl() ?: if (settings.useArtwork) tmdbData?.poster.normalizeImageUrl() else null,
+            // TMDB artwork comes first, as for the backdrop and logo, so a poster in the
+            // TMDB language replaces the addon's English one (NuvioTV#3890).
+            poster = (if (settings.useArtwork) tmdbData?.poster.normalizeImageUrl() else null)
+                ?: item.progress.poster ?: meta.poster.normalizeImageUrl(),
             backdrop = if (settings.useArtwork) tmdbData?.backdrop.normalizeImageUrl() ?: meta.backdropUrl.normalizeImageUrl() ?: item.progress.backdrop else meta.backdropUrl.normalizeImageUrl() ?: item.progress.backdrop,
             logo = if (settings.useArtwork) tmdbData?.logo.normalizeImageUrl() ?: meta.logo.normalizeImageUrl() ?: item.progress.logo else meta.logo.normalizeImageUrl() ?: item.progress.logo,
             episodeTitle = if (settings.useEpisodes) tmdbData?.episodeTitle
@@ -2172,7 +2175,8 @@ private suspend fun HomeViewModel.enrichNextUpItem(
     val settings = currentTmdbSettings
     val enrichedInfo = item.info.copy(
         name = if (settings.useBasicInfo) tmdbData?.name ?: meta.name else meta.name,
-        poster = item.info.poster ?: meta.poster.normalizeImageUrl() ?: if (settings.useArtwork) tmdbData?.poster else null,
+        poster = (if (settings.useArtwork) tmdbData?.poster else null)
+            ?: item.info.poster ?: meta.poster.normalizeImageUrl(),
         backdrop = if (settings.useArtwork) tmdbData?.backdrop ?: meta.backdropUrl.normalizeImageUrl() ?: item.info.backdrop else meta.backdropUrl.normalizeImageUrl() ?: item.info.backdrop,
         logo = if (settings.useArtwork) tmdbData?.logo ?: meta.logo.normalizeImageUrl() ?: item.info.logo else meta.logo.normalizeImageUrl() ?: item.info.logo,
         season = video?.season ?: item.info.season,

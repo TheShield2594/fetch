@@ -81,11 +81,23 @@ private fun remapEpisodeBetweenLists(
         }
     }
 
+    // Both sides number the same seasons, so an episode keeps its season. Counting across the
+    // whole show let small count differences in earlier seasons add up: Trakt's S28E1 became
+    // the addon's S28E6 (NuvioTV#3439).
+    if (seasonNumbers(orderedSourceEpisodes) == seasonNumbers(orderedTargetEpisodes)) {
+        val sourceSeason = orderedSourceEpisodes.filter { it.season == currentSourceEpisode.season }
+        val targetSeason = orderedTargetEpisodes.filter { it.season == currentSourceEpisode.season }
+        return targetSeason.getOrNull(sourceSeason.indexOf(currentSourceEpisode))
+    }
+
     val sourceIndex = orderedSourceEpisodes.indexOf(currentSourceEpisode)
     if (sourceIndex !in orderedTargetEpisodes.indices) return null
 
     return orderedTargetEpisodes[sourceIndex]
 }
+
+private fun seasonNumbers(episodes: List<EpisodeMappingEntry>): Set<Int> =
+    episodes.mapTo(mutableSetOf(), EpisodeMappingEntry::season)
 
 private val NON_ALPHANUMERIC = Regex("[^a-z0-9]+")
 private val COLLAPSED_SPACES = Regex("\\s+")

@@ -1218,6 +1218,12 @@ private fun PlaybackNavHost(
             )
         }
 
+        composable(Screen.YouTube.route) {
+            com.fetch.tv.ui.screens.youtube.YouTubeScreen(
+                onOpenSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+            )
+        }
+
         composable(Screen.Settings.route) {
             ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
                 SettingsScreen(

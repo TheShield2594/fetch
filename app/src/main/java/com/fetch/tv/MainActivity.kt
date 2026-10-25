@@ -248,6 +248,9 @@ open class MainActivity : ComponentActivity() {
     lateinit var layoutPreferenceDataStore: LayoutPreferenceDataStore
 
     @Inject
+    lateinit var youTubeAuthDataStore: com.fetch.tv.data.local.YouTubeAuthDataStore
+
+    @Inject
     lateinit var experienceModeDataStore: ExperienceModeDataStore
 
     @Inject
@@ -1032,6 +1035,25 @@ open class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    // YouTube is in the sidebar only while this profile is signed in to it. Null until
+                    // the sign-in has been read, so a restored YouTube screen isn't closed early.
+                    val youTubeSignedIn by remember(youTubeAuthDataStore) {
+                        youTubeAuthDataStore.isSignedIn
+                    }.collectAsState(initial = null)
+                    val parentalRestrictions by parentalControls.activeRestrictions.collectAsState()
+                    val youTubeInSidebar = com.fetch.tv.core.build.AppFeaturePolicy.youTubeSectionEnabled &&
+                        youTubeSignedIn == true &&
+                        !parentalRestrictions.isRestricted
+                    LaunchedEffect(youTubeSignedIn, youTubeInSidebar, currentRoute) {
+                        if (youTubeSignedIn == null || youTubeInSidebar) return@LaunchedEffect
+                        if (currentRoute == Screen.YouTube.route) {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = false }
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+
                     LaunchedEffect(discoverLocation, currentRoute) {
                         if (discoverLocation == null) return@LaunchedEffect
                         val onDiscoverRoute = currentRoute == Screen.Discover.route ||
@@ -1044,7 +1066,7 @@ open class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    val rootRoutes = remember(discoverLocation) {
+                    val rootRoutes = remember(discoverLocation, youTubeInSidebar) {
                         buildSet {
                             add(Screen.Home.route)
                             add(Screen.Search.route)
@@ -1052,6 +1074,9 @@ open class MainActivity : ComponentActivity() {
                             add(Screen.Settings.route)
                             if (discoverLocation == DiscoverLocation.IN_SIDEBAR) {
                                 add(Screen.Discover.route)
+                            }
+                            if (youTubeInSidebar) {
+                                add(Screen.YouTube.route)
                             }
                         }
                     }
@@ -1061,13 +1086,16 @@ open class MainActivity : ComponentActivity() {
                     val strNavSearch = stringResource(R.string.nav_search)
                     val strNavLibrary = stringResource(R.string.nav_library)
                     val strNavSettings = stringResource(R.string.nav_settings)
+                    val strNavYouTube = stringResource(R.string.nav_youtube)
                     val drawerItems = remember(
                         strNavHome,
                         strNavDiscover,
                         strNavSearch,
                         strNavLibrary,
                         strNavSettings,
-                        discoverLocation
+                        strNavYouTube,
+                        discoverLocation,
+                        youTubeInSidebar
                     ) {
                         buildList {
                             add(
@@ -1100,6 +1128,15 @@ open class MainActivity : ComponentActivity() {
                                     iconRes = R.raw.sidebar_library
                                 )
                             )
+                            if (youTubeInSidebar) {
+                                add(
+                                    DrawerItem(
+                                        route = Screen.YouTube.route,
+                                        label = strNavYouTube,
+                                        iconRes = R.raw.sidebar_youtube
+                                    )
+                                )
+                            }
                             add(
                                 DrawerItem(
                                     route = Screen.Settings.route,

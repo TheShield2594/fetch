@@ -24,6 +24,7 @@ internal enum class SettingsCategory(val group: SettingsRailGroup?) {
     LAYOUT(SettingsRailGroup.HOME),
     ACCOUNT(SettingsRailGroup.ACCOUNTS),
     TRACKING(SettingsRailGroup.ACCOUNTS),
+    YOUTUBE(SettingsRailGroup.ACCOUNTS),
     PHONE(SettingsRailGroup.SYSTEM),
     ADVANCED(SettingsRailGroup.SYSTEM),
     ABOUT(SettingsRailGroup.SYSTEM),
@@ -35,12 +36,14 @@ internal fun visibleSettingsCategories(
     isPrimaryProfile: Boolean,
     isEssentialMode: Boolean,
     isDebugBuild: Boolean,
-    isWatchPartyAvailable: Boolean = false
+    isWatchPartyAvailable: Boolean = false,
+    isYouTubeAvailable: Boolean = false
 ): List<SettingsCategory> = SettingsCategory.entries.filter { category ->
     when (category) {
         SettingsCategory.ACCOUNT,
         SettingsCategory.PROFILES -> isPrimaryProfile
         SettingsCategory.WATCH_PARTY -> isWatchPartyAvailable
+        SettingsCategory.YOUTUBE -> isYouTubeAvailable
         SettingsCategory.DEBUG -> isDebugBuild && !isEssentialMode
         SettingsCategory.EXPERIENCE -> false
         else -> true

@@ -55,6 +55,7 @@ class SettingsSearchIndexTest {
         ),
         SettingsCategory.ACCOUNT to listOf("account/AccountSettingsContent.kt"),
         SettingsCategory.TRACKING to listOf("settings/TrackingSettingsScreen.kt"),
+        SettingsCategory.YOUTUBE to listOf("settings/YouTubeSettingsScreen.kt"),
         SettingsCategory.PHONE to listOf("phone/PhoneHubSettingsContent.kt"),
         SettingsCategory.ADVANCED to listOf("settings/NetworkSettingsScreen.kt", "settings/SkipMarkerSettings.kt"),
         SettingsCategory.ABOUT to listOf("settings/AboutScreen.kt", "settings/UpdateChannelSettings.kt")

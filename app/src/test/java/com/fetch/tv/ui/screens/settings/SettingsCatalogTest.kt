@@ -153,6 +153,16 @@ class SettingsCatalogTest {
         )
     }
 
+    @Test
+    fun `youtube sits after tracking only in builds that have it`() {
+        val withYouTube = visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false, isYouTubeAvailable = true)
+        val withoutYouTube = visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false, isYouTubeAvailable = false)
+
+        assertEquals(withYouTube.indexOf(SettingsCategory.TRACKING) + 1, withYouTube.indexOf(SettingsCategory.YOUTUBE))
+        assertFalse(withYouTube.startsNewGroup(withYouTube.indexOf(SettingsCategory.YOUTUBE)))
+        assertFalse(SettingsCategory.YOUTUBE in withoutYouTube)
+    }
+
     private fun allCombinations(): List<List<SettingsCategory>> =
         listOf(true, false).flatMap { primary ->
             listOf(true, false).flatMap { essential ->

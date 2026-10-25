@@ -270,6 +270,12 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.account_signin_email_title,
         R.string.account_signin_qr_title
     ),
+    SettingsCategory.YOUTUBE to listOf(
+        R.string.youtube_name,
+        R.string.youtube_sign_in_title,
+        R.string.youtube_account_title,
+        R.string.youtube_sign_out_title
+    ),
     SettingsCategory.TRACKING to listOf(
         R.string.settings_tracking_title,
         R.string.trakt_disconnect_title,

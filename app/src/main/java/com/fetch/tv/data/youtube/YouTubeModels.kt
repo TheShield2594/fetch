@@ -20,6 +20,23 @@ data class YouTubeVideo(
         get() = "https://www.youtube.com/watch?v=$videoId"
 }
 
+/** A tile that opens a page instead of playing: a channel, a playlist, or one of a channel's tabs. */
+data class YouTubeLink(
+    val target: YouTubeBrowseTarget,
+    val kind: YouTubeLinkKind,
+    /** Null for the library shortcuts, which the screen names. */
+    val title: String?,
+    val subtitle: String? = null,
+    val thumbnailUrl: String? = null
+)
+
+enum class YouTubeLinkKind {
+    CHANNEL,
+    PLAYLIST,
+    WATCH_LATER,
+    LIKED
+}
+
 /** A titled row of videos. Videos YouTube sends outside any shelf go in one with no title. */
 data class YouTubeShelf(
     val title: String?,
@@ -29,8 +46,12 @@ data class YouTubeShelf(
     /** A row of Shorts, shown with portrait cards. */
     val isShorts: Boolean = false,
     /** The page with all of this row, when YouTube links its header to one. */
-    val viewAll: YouTubeBrowseTarget? = null
-)
+    val viewAll: YouTubeBrowseTarget? = null,
+    /** Channels and playlists in the row, after its videos. */
+    val links: List<YouTubeLink> = emptyList()
+) {
+    fun isEmpty() = videos.isEmpty() && links.isEmpty()
+}
 
 /** A YouTube page Fetch can open on its own: a channel, a playlist, or all of a row. */
 data class YouTubeBrowseTarget(
@@ -92,6 +113,7 @@ enum class YouTubeFeed {
     HOME,
     SUBSCRIPTIONS,
     HISTORY,
+    LIBRARY,
     SEARCH
 }
 

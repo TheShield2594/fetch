@@ -84,6 +84,10 @@ class YouTubeService @Inject constructor(
         val HOME_BROWSE_IDS = listOf("default", "FEwhat_to_watch")
         const val SUBSCRIPTIONS_BROWSE_ID = "FEsubscriptions"
         const val HISTORY_BROWSE_ID = "FEhistory"
+        /** The account's playlists, as SmartTube reads them for its library. */
+        const val PLAYLISTS_BROWSE_ID = "FEplaylist_aggregation"
+        const val WATCH_LATER_BROWSE_ID = "VLWL"
+        const val LIKED_BROWSE_ID = "VLLL"
 
         const val HISTORY_START_THRESHOLD_SEC = 180f
 
@@ -197,6 +201,7 @@ class YouTubeService @Inject constructor(
             YouTubeFeed.HOME -> loadHome()
             YouTubeFeed.SUBSCRIPTIONS -> browse(SUBSCRIPTIONS_BROWSE_ID)
             YouTubeFeed.HISTORY -> browse(HISTORY_BROWSE_ID)
+            YouTubeFeed.LIBRARY -> loadLibrary()
             YouTubeFeed.SEARCH -> {
                 val trimmed = query?.trim().orEmpty()
                 if (trimmed.isEmpty()) {
@@ -367,6 +372,36 @@ class YouTubeService @Inject constructor(
         runCatching { fetchAccount(validAccessToken(), pageId) }
             .getOrNull()
             ?.let { authDataStore.saveAccount(it) }
+    }
+
+    /**
+     * Watch Later and Liked videos, then the account's playlists. The two lead even when the
+     * playlists can't be read, and aren't repeated when YouTube lists them among the playlists.
+     */
+    private suspend fun loadLibrary(): YouTubePage {
+        val playlists = try {
+            browse(PLAYLISTS_BROWSE_ID)
+        } catch (e: YouTubeSignedOutException) {
+            throw e
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Couldn't load the library's playlists", e)
+            YouTubePage(emptyList(), null)
+        }
+        val listed = playlists.shelves.flatMap { shelf -> shelf.links.map { it.target.browseId } }.toSet()
+        val shortcuts = listOf(
+            YouTubeLink(YouTubeBrowseTarget(WATCH_LATER_BROWSE_ID), YouTubeLinkKind.WATCH_LATER, title = null),
+            YouTubeLink(YouTubeBrowseTarget(LIKED_BROWSE_ID), YouTubeLinkKind.LIKED, title = null)
+        ).filter { it.target.browseId !in listed }
+        // They join the first row of playlists, so a library of one row still shows as one grid.
+        val first = playlists.shelves.firstOrNull { it.videos.isEmpty() }
+        val shelves = if (first == null) {
+            listOf(YouTubeShelf(title = null, videos = emptyList(), links = shortcuts)) + playlists.shelves
+        } else {
+            playlists.shelves.map { if (it === first) it.copy(links = shortcuts + it.links) else it }
+        }
+        return playlists.copy(shelves = shelves)
     }
 
     /** Tries each home browse id in turn, so a renamed one falls back to the next. */

@@ -14,6 +14,7 @@ import com.fetch.tv.data.trailer.InAppYouTubeExtractor
 import com.fetch.tv.data.youtube.SponsorBlockService
 import com.fetch.tv.data.youtube.YouTubeBrowseTarget
 import com.fetch.tv.data.youtube.YouTubeFeed
+import com.fetch.tv.data.youtube.YouTubeLinkKind
 import com.fetch.tv.data.youtube.YouTubePage
 import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeShelf
@@ -262,6 +263,7 @@ class YouTubeViewModel @Inject constructor(
                 if (page != null && shelf != null) {
                     shelves[shelfIndex] = shelf.copy(
                         videos = (shelf.videos + page.shelves.flatMap { it.videos }).distinctBy { it.videoId },
+                        links = (shelf.links + page.shelves.flatMap { it.links }).distinctBy { it.target },
                         continuation = page.continuation ?: page.shelves.firstNotNullOfOrNull { it.continuation }
                     )
                 }
@@ -464,14 +466,20 @@ class YouTubeViewModel @Inject constructor(
 
     /**
      * [page] through the feed filter. An opened page also drops "View all" links back to itself:
-     * the TV client answers a channel's Videos link with the channel page it's on.
+     * the TV client answers a channel's Videos link with the channel page it's on. A channel's
+     * row of its own tabs (Videos, Shorts, Playlists), which YouTube sends last, goes first.
      */
     private fun shown(key: FeedKey, page: YouTubePage): YouTubePage {
         val filtered = feedFilter.apply(page, key.feed)
         if (key !is FeedKey.Browse) return filtered
-        return filtered.copy(shelves = filtered.shelves.map { shelf ->
+        val shelves = filtered.shelves.map { shelf ->
             if (shelf.viewAll?.browseId == key.target.browseId) shelf.copy(viewAll = null) else shelf
-        })
+        }
+        val (tabs, rest) = shelves.partition { shelf ->
+            shelf.videos.isEmpty() && shelf.links.isNotEmpty() &&
+                shelf.links.all { it.kind == YouTubeLinkKind.CHANNEL && it.target.browseId == key.target.browseId }
+        }
+        return filtered.copy(shelves = tabs + rest)
     }
 
     private fun currentKey(): FeedKey {
@@ -560,7 +568,10 @@ internal fun appendPage(shelves: List<YouTubeShelf>, page: YouTubePage): List<Yo
         }
         if (target != null) {
             val existing = result[target]
-            result[target] = existing.copy(videos = (existing.videos + shelf.videos).distinctBy { it.videoId })
+            result[target] = existing.copy(
+                videos = (existing.videos + shelf.videos).distinctBy { it.videoId },
+                links = (existing.links + shelf.links).distinctBy { it.target }
+            )
         } else {
             result += shelf
         }

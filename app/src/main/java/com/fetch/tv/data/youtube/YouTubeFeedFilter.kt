@@ -18,7 +18,7 @@ data class YouTubeFeedFilter(
     fun apply(page: YouTubePage, feed: YouTubeFeed): YouTubePage = page.copy(
         shelves = page.shelves.mapNotNull { shelf ->
             if (!showShorts && shelf.isShorts) return@mapNotNull null
-            shelf.copy(videos = shelf.videos.filter { allows(it, feed) }).takeIf { it.videos.isNotEmpty() }
+            shelf.copy(videos = shelf.videos.filter { allows(it, feed) }).takeIf { !it.isEmpty() }
         }
     )
 

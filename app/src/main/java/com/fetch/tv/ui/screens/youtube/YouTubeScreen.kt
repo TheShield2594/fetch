@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -28,7 +29,11 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.runtime.Composable
@@ -68,6 +73,9 @@ import coil3.compose.AsyncImage
 import com.fetch.tv.R
 import com.fetch.tv.data.youtube.YouTubeBrowseTarget
 import com.fetch.tv.data.youtube.YouTubeFeed
+import com.fetch.tv.data.youtube.YouTubeLink
+import com.fetch.tv.data.youtube.YouTubeLinkKind
+import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
@@ -173,13 +181,14 @@ fun YouTubeScreen(
                         ),
                         icon = if (openPage == null && state.selectedFeed == YouTubeFeed.SEARCH) Icons.Default.Search else Icons.Default.VideoLibrary
                     )
-                    // Subscriptions, history and search are one long list: a grid reads better than one row.
-                    feed.shelves.size == 1 && !feed.shelves[0].isShorts -> YouTubeVideoGrid(
-                        videos = feed.shelves[0].videos,
+                    // Subscriptions, history, search and the library are one long list: a grid reads better than one row.
+                    feed.shelves.size == 1 -> YouTubeVideoGrid(
+                        shelf = feed.shelves[0],
                         isLoadingMore = feed.isLoadingMore || 0 in feed.loadingShelves,
                         onNearEnd = viewModel::loadMore,
                         onPlay = viewModel::play,
-                        onMenu = { menuVideo = it }
+                        onMenu = { menuVideo = it },
+                        onOpen = viewModel::openBrowse
                     )
                     else -> YouTubeShelves(
                         feed = feed,
@@ -224,28 +233,32 @@ fun YouTubeScreen(
 /** How close to the end, in items, focus or scrolling gets before the next page loads. */
 private const val LOAD_MORE_THRESHOLD = 6
 private const val GRID_COLUMNS = 4
+private const val SHORTS_GRID_COLUMNS = 7
 
 @Composable
 private fun YouTubeVideoGrid(
-    videos: List<YouTubeVideo>,
+    shelf: YouTubeShelf,
     isLoadingMore: Boolean,
     onNearEnd: () -> Unit,
     onPlay: (YouTubeVideo) -> Unit,
-    onMenu: (YouTubeVideo) -> Unit
+    onMenu: (YouTubeVideo) -> Unit,
+    onOpen: (YouTubeBrowseTarget) -> Unit
 ) {
+    val videos = shelf.videos
+    val count = videos.size + shelf.links.size
     val gridState = rememberLazyGridState()
-    val nearEnd by remember(videos.size) {
+    val nearEnd by remember(count) {
         derivedStateOf {
             val last = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            videos.isNotEmpty() && last >= videos.size - LOAD_MORE_THRESHOLD
+            count > 0 && last >= count - LOAD_MORE_THRESHOLD
         }
     }
-    LaunchedEffect(nearEnd, videos.size) {
+    LaunchedEffect(nearEnd, count) {
         if (nearEnd) onNearEnd()
     }
     LazyVerticalGrid(
         state = gridState,
-        columns = GridCells.Fixed(GRID_COLUMNS),
+        columns = GridCells.Fixed(if (shelf.isShorts) SHORTS_GRID_COLUMNS else GRID_COLUMNS),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = FetchTheme.spacing.screen.horizontal,
@@ -261,8 +274,12 @@ private fun YouTubeVideoGrid(
                 video = video,
                 onClick = { onPlay(video) },
                 onLongClick = { onMenu(video) },
+                portrait = shelf.isShorts,
                 modifier = Modifier.fillMaxWidth()
             )
+        }
+        items(shelf.links, key = { "link_${it.target}" }) { link ->
+            YouTubeLinkCard(link = link, onOpen = onOpen, modifier = Modifier.fillMaxWidth())
         }
         if (isLoadingMore) {
             item(span = { GridItemSpan(maxLineSpan) }, key = "loading_more") {
@@ -325,6 +342,9 @@ private fun YouTubeShelves(
                             portrait = shelf.isShorts,
                             modifier = Modifier.width(if (shelf.isShorts) ShortCardWidth else VideoCardWidth)
                         )
+                    }
+                    items(shelf.links, key = { "link_${it.target}" }) { link ->
+                        YouTubeLinkCard(link = link, onOpen = onViewAll, modifier = Modifier.width(VideoCardWidth))
                     }
                     shelf.viewAll?.let { target ->
                         item(key = "view_all") {
@@ -416,6 +436,91 @@ internal fun YouTubeVideoCard(
             overflow = TextOverflow.Ellipsis
         )
         listOfNotNull(video.channelName, video.detail).joinToString(" • ").takeIf { it.isNotBlank() }?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.TextSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+/** A channel, playlist or library shortcut. It opens its page, titled as the card is. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun YouTubeLinkCard(
+    link: YouTubeLink,
+    onOpen: (YouTubeBrowseTarget) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val shape = RoundedCornerShape(FetchRadii.tokens.md)
+    val title = link.title ?: stringResource(
+        if (link.kind == YouTubeLinkKind.LIKED) R.string.youtube_liked_videos else R.string.youtube_watch_later
+    )
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+    ) {
+        Card(
+            onClick = { onOpen(link.target.copy(title = title)) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f),
+            shape = CardDefaults.shape(shape),
+            colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
+            border = CardDefaults.border(
+                focusedBorder = Border(
+                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    shape = shape
+                )
+            ),
+            scale = CardDefaults.scale(focusedScale = 1.05f)
+        ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                if (link.thumbnailUrl != null) {
+                    AsyncImage(
+                        model = link.thumbnailUrl,
+                        contentDescription = null,
+                        // A channel's picture is a square avatar; it isn't cropped to the card.
+                        contentScale = if (link.kind == YouTubeLinkKind.CHANNEL) ContentScale.Fit else ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Icon(
+                        imageVector = when (link.kind) {
+                            YouTubeLinkKind.CHANNEL -> Icons.Default.Person
+                            YouTubeLinkKind.PLAYLIST -> Icons.AutoMirrored.Filled.PlaylistPlay
+                            YouTubeLinkKind.WATCH_LATER -> Icons.Default.Schedule
+                            YouTubeLinkKind.LIKED -> Icons.Default.ThumbUp
+                        },
+                        contentDescription = null,
+                        tint = FetchTheme.colors.TextPrimary
+                    )
+                }
+                if (link.kind == YouTubeLinkKind.PLAYLIST && link.thumbnailUrl != null) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.PlaylistPlay,
+                        contentDescription = null,
+                        tint = FetchTheme.colors.TextPrimary,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(FetchTheme.spacing.xs)
+                            .clip(RoundedCornerShape(FetchRadii.tokens.xs))
+                            .background(FetchTheme.colors.Background.copy(alpha = 0.8f))
+                    )
+                }
+            }
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = FetchTheme.colors.TextPrimary,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        link.subtitle?.let {
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
@@ -579,5 +684,6 @@ private fun YouTubeFeed.labelRes(): Int = when (this) {
     YouTubeFeed.HOME -> R.string.youtube_tab_home
     YouTubeFeed.SUBSCRIPTIONS -> R.string.youtube_tab_subscriptions
     YouTubeFeed.HISTORY -> R.string.youtube_tab_history
+    YouTubeFeed.LIBRARY -> R.string.youtube_tab_library
     YouTubeFeed.SEARCH -> R.string.youtube_tab_search
 }

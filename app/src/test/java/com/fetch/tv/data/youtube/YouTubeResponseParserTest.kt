@@ -410,4 +410,64 @@ class YouTubeResponseParserTest {
         assertEquals(YouTubeBrowseTarget(browseId = "UCchannel", params = "videos-tab", title = "Videos"), shelf.viewAll)
         assertEquals(listOf("UCchannel", "UCother", null), shelf.videos.map { it.channelId })
     }
+
+    @Test
+    fun `playlist and channel tiles become links`() {
+        val shelves = parse(
+            """
+            {"contents": [
+              {"shelfRenderer": {
+                "headerRenderer": {"shelfHeaderRenderer": {"title": {"simpleText": "Playlists"}}},
+                "content": {"horizontalListRenderer": {"items": [
+                  {"tileRenderer": {
+                    "contentType": "TILE_CONTENT_TYPE_PLAYLIST",
+                    "onSelectCommand": {"browseEndpoint": {"browseId": "VLPLone"}},
+                    "header": {"tileHeaderRenderer": {"thumbnail": {"thumbnails": [{"url": "https://i.ytimg.com/pl.jpg", "width": 480}]}}},
+                    "metadata": {"tileMetadataRenderer": {
+                      "title": {"simpleText": "A playlist"},
+                      "lines": [{"lineRenderer": {"items": [{"lineItemRenderer": {"text": {"simpleText": "Some Channel"}}}]}}]
+                    }}
+                  }}
+                ]}}
+              }},
+              {"shelfRenderer": {
+                "hideHeader": true,
+                "content": {"horizontalListRenderer": {"items": [
+                  {"tileRenderer": {
+                    "contentType": "TILE_CONTENT_TYPE_CHANNEL",
+                    "onSelectCommand": {"browseEndpoint": {"browseId": "UCchannel", "params": "shorts-tab"}},
+                    "header": {"tileHeaderRenderer": {"thumbnailOverlays": [
+                      {"tileMetadataRenderer": {"title": {"simpleText": "Shorts"}}}
+                    ]}}
+                  }}
+                ]}}
+              }},
+              {"lockupViewModel": {
+                "contentType": "LOCKUP_CONTENT_TYPE_CHANNEL",
+                "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {"browseEndpoint": {"browseId": "UCnews"}}}}},
+                "contentImage": {"thumbnailViewModel": {"image": {"sources": [{"url": "//yt3.ggpht.com/a.jpg", "width": 176}]}}},
+                "metadata": {"lockupMetadataViewModel": {
+                  "title": {"content": "News"},
+                  "metadata": {"contentMetadataViewModel": {"metadataRows": [{"metadataParts": [{"text": {"content": "@news"}}]}]}}
+                }}
+              }}
+            ]}
+            """
+        )
+
+        assertEquals(listOf(null, "Playlists", null), shelves.map { it.title })
+        assertTrue(shelves.all { it.videos.isEmpty() })
+        assertEquals(
+            YouTubeLink(YouTubeBrowseTarget("UCnews", title = "News"), YouTubeLinkKind.CHANNEL, "News", "@news", "https://yt3.ggpht.com/a.jpg"),
+            shelves[0].links.single()
+        )
+        assertEquals(
+            YouTubeLink(YouTubeBrowseTarget("VLPLone", title = "A playlist"), YouTubeLinkKind.PLAYLIST, "A playlist", "Some Channel", "https://i.ytimg.com/pl.jpg"),
+            shelves[1].links.single()
+        )
+        assertEquals(
+            YouTubeLink(YouTubeBrowseTarget("UCchannel", "shorts-tab", "Shorts"), YouTubeLinkKind.CHANNEL, "Shorts"),
+            shelves[2].links.single()
+        )
+    }
 }

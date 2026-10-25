@@ -4,7 +4,10 @@ import android.util.Log
 import com.fetch.tv.core.network.IPv4FirstDns
 import com.fetch.tv.core.network.NoDelaySocketFactory
 import com.fetch.tv.data.local.YouTubeAuthDataStore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -83,18 +86,26 @@ class YouTubeService @Inject constructor(
         const val HISTORY_BROWSE_ID = "FEhistory"
 
         const val HISTORY_START_THRESHOLD_SEC = 180f
+
+        /** How long a failed youtube.com/tv read falls back to the known client, as the extractor does. */
+        const val FALLBACK_CONFIG_TTL_MS = 10 * 60 * 1000L
     }
 
     private val json = Json { ignoreUnknownKeys = true }
     private val jsonMediaType = "application/json".toMediaType()
     private val refreshMutex = Mutex()
     private val tvAppMutex = Mutex()
+    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /** What youtube.com/tv tells the TV app at start-up. Read once per run. */
     internal data class TvAppConfig(val clientId: String, val clientSecret: String, val visitorData: String?)
 
     @Volatile
     private var tvAppConfig: TvAppConfig? = null
+
+    /** When a failed read's fallback stops being used and youtube.com/tv is tried again. */
+    @Volatile
+    private var fallbackConfigUntilMs = 0L
 
     private val httpClient by lazy {
         OkHttpClient.Builder()
@@ -281,6 +292,11 @@ class YouTubeService @Inject constructor(
                 session.lastPositionSec = to
             }.onFailure { Log.w(TAG, "Could not update YouTube history: ${it.message}") }
         }
+
+    /** [reportWatchTime] in this service's own scope, so it outlives the screen that asked. */
+    fun reportWatchTimeInBackground(session: YouTubeWatchSession, positionSec: Float, lengthSec: Float) {
+        backgroundScope.launch { reportWatchTime(session, positionSec, lengthSec) }
+    }
 
     internal fun watchTrackingUrl(
         baseUrl: String,
@@ -485,12 +501,20 @@ class YouTubeService @Inject constructor(
      */
     private suspend fun tvAppConfig(): TvAppConfig {
         tvAppConfig?.let { return it }
+        val fallback = TvAppConfig(CLIENT_ID, CLIENT_SECRET, null)
+        if (System.currentTimeMillis() < fallbackConfigUntilMs) return fallback
         return tvAppMutex.withLock {
-            tvAppConfig ?: runCatching { fetchTvAppConfig() }
-                .onFailure { Log.w(TAG, "Could not read youtube.com/tv: ${it.message}") }
-                .getOrNull()
-                .let { it ?: TvAppConfig(CLIENT_ID, CLIENT_SECRET, null) }
-                .also { tvAppConfig = it }
+            tvAppConfig?.let { return@withLock it }
+            if (System.currentTimeMillis() < fallbackConfigUntilMs) return@withLock fallback
+            // Only a config read from the page is kept for the run. After a failure (often the
+            // network not being up yet) the fallback is used briefly, then the page is read again.
+            runCatching { fetchTvAppConfig() }
+                .onSuccess { tvAppConfig = it }
+                .onFailure {
+                    Log.w(TAG, "Could not read youtube.com/tv: ${it.message}")
+                    fallbackConfigUntilMs = System.currentTimeMillis() + FALLBACK_CONFIG_TTL_MS
+                }
+                .getOrDefault(fallback)
         }
     }
 

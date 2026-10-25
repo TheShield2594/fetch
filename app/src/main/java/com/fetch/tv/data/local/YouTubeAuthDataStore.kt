@@ -8,12 +8,14 @@ import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.youtube.YouTubeAccount
 import com.fetch.tv.data.youtube.YouTubeDeviceCode
 import com.fetch.tv.data.youtube.YouTubeToken
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,20 +40,23 @@ data class YouTubeAuthState(
         get() = !refreshToken.isNullOrBlank()
 }
 
-/** The YouTube sign-in of each profile, so each profile signs in to its own Google account. */
+/**
+ * The YouTube sign-in of each profile, so each profile signs in to its own Google account. The
+ * tokens live encrypted in [YouTubeCredentialStore]; this DataStore keeps the rest, plus a revision
+ * that changes with every token write so [state] follows the tokens too.
+ */
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
 class YouTubeAuthDataStore @Inject constructor(
     private val factory: ProfileDataStoreFactory,
-    private val profileManager: ProfileManager
+    private val profileManager: ProfileManager,
+    private val credentials: YouTubeCredentialStore
 ) {
     companion object {
         private const val FEATURE = "youtube_auth_store"
     }
 
-    private val accessTokenKey = stringPreferencesKey("access_token")
-    private val refreshTokenKey = stringPreferencesKey("refresh_token")
-    private val accessTokenExpiresAtKey = longPreferencesKey("access_token_expires_at")
+    private val tokenRevisionKey = longPreferencesKey("token_revision")
     private val accountNameKey = stringPreferencesKey("account_name")
     private val accountHandleKey = stringPreferencesKey("account_handle")
     private val accountPhotoUrlKey = stringPreferencesKey("account_photo_url")
@@ -72,10 +77,11 @@ class YouTubeAuthDataStore @Inject constructor(
 
     val state: Flow<YouTubeAuthState> = profileManager.activeProfileId.flatMapLatest { profileId ->
         store(profileId).data.map { preferences ->
+            val tokens = withContext(Dispatchers.IO) { credentials.read(profileId) }
             YouTubeAuthState(
-                accessToken = preferences[accessTokenKey],
-                refreshToken = preferences[refreshTokenKey],
-                accessTokenExpiresAt = preferences[accessTokenExpiresAtKey],
+                accessToken = tokens.accessToken,
+                refreshToken = tokens.refreshToken,
+                accessTokenExpiresAt = tokens.accessTokenExpiresAt,
                 accountName = preferences[accountNameKey],
                 accountHandle = preferences[accountHandleKey],
                 accountPhotoUrl = preferences[accountPhotoUrlKey],
@@ -97,17 +103,25 @@ class YouTubeAuthDataStore @Inject constructor(
     suspend fun getCurrentState(): YouTubeAuthState = state.first()
 
     suspend fun saveToken(token: YouTubeToken, nowMillis: Long = System.currentTimeMillis()) {
-        store().edit { preferences ->
-            preferences[accessTokenKey] = token.accessToken
-            // A refresh response leaves the refresh token out; keep the one already saved.
-            token.refreshToken?.takeIf { it.isNotBlank() }?.let { preferences[refreshTokenKey] = it }
-            preferences[accessTokenExpiresAtKey] = nowMillis + token.expiresInSeconds * 1000L
+        updateTokens { current ->
+            YouTubeTokens(
+                accessToken = token.accessToken,
+                // A refresh response leaves the refresh token out; keep the one already saved.
+                refreshToken = token.refreshToken?.takeIf { it.isNotBlank() } ?: current.refreshToken,
+                accessTokenExpiresAt = nowMillis + token.expiresInSeconds * 1000L
+            )
         }
     }
 
     /** Marks the access token as spent, so the next request refreshes it first. */
     suspend fun expireAccessToken() {
-        store().edit { preferences -> preferences.remove(accessTokenExpiresAtKey) }
+        updateTokens { it.copy(accessTokenExpiresAt = null) }
+    }
+
+    private suspend fun updateTokens(transform: (YouTubeTokens) -> YouTubeTokens) {
+        val profileId = profileManager.activeProfileId.value
+        withContext(Dispatchers.IO) { credentials.write(profileId, transform(credentials.read(profileId))) }
+        store(profileId).edit { preferences -> preferences[tokenRevisionKey] = (preferences[tokenRevisionKey] ?: 0L) + 1 }
     }
 
     suspend fun saveAccount(account: YouTubeAccount) {
@@ -151,6 +165,8 @@ class YouTubeAuthDataStore @Inject constructor(
     }
 
     suspend fun clearAuth() {
-        store().edit { preferences -> preferences.clear() }
+        val profileId = profileManager.activeProfileId.value
+        withContext(Dispatchers.IO) { credentials.write(profileId, null) }
+        store(profileId).edit { preferences -> preferences.clear() }
     }
 }

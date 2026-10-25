@@ -3106,6 +3106,7 @@
     <string name="youtube_search_placeholder">Search YouTube</string>
     <string name="youtube_feed_empty">Nothing to show here yet</string>
     <string name="youtube_search_empty">Search for a video, then press Enter</string>
+    <string name="youtube_search_no_results">No videos match your search</string>
     <string name="youtube_feed_error">Couldn\'t load YouTube. Check your connection and try again.</string>
     <string name="youtube_signed_out_title">You\'re signed out of YouTube</string>
     <string name="youtube_signed_out_subtitle">Sign in again in Settings to see your feeds.</string>

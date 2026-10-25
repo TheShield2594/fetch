@@ -14,6 +14,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
@@ -1219,9 +1220,21 @@ private fun PlaybackNavHost(
         }
 
         composable(Screen.YouTube.route) {
-            com.fetch.tv.ui.screens.youtube.YouTubeScreen(
-                onOpenSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
-            )
+            // Checked here too, so a restored YouTube route loads nothing before MainActivity's redirect.
+            if (!com.fetch.tv.core.build.AppFeaturePolicy.youTubeSectionEnabled) {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = false }
+                        launchSingleTop = true
+                    }
+                }
+                return@composable
+            }
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                com.fetch.tv.ui.screens.youtube.YouTubeScreen(
+                    onOpenSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                )
+            }
         }
 
         composable(Screen.Settings.route) {

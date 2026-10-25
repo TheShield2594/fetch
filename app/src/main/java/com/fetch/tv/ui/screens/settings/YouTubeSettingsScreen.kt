@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.Alignment
 import com.fetch.tv.data.youtube.YouTubeAccount
 import com.fetch.tv.ui.components.LoadingIndicator
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -216,7 +217,8 @@ private fun YouTubeChannelPickerDialog(
                         )
                     }
                 }
-                LaunchedEffect(Unit) { runCatching { firstFocus.requestFocus() } }
+                // The list lays its rows out after this runs, so retry over a few frames.
+                LaunchedEffect(Unit) { firstFocus.requestFocusAfterFrames() }
             }
         }
     }

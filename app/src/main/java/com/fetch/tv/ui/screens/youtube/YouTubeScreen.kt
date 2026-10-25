@@ -67,6 +67,7 @@ import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.StateAction
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.settings.SettingsChoiceChip
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
@@ -86,7 +87,7 @@ fun YouTubeScreen(
     val firstTabFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        runCatching { firstTabFocusRequester.requestFocus() }
+        firstTabFocusRequester.requestFocusAfterFrames()
     }
 
     Column(
@@ -136,9 +137,14 @@ fun YouTubeScreen(
                     message = stringResource(R.string.youtube_feed_error),
                     onRetry = viewModel::refresh
                 )
+                // Before a search, Search asks for one; after it, an empty result says so.
                 feed.shelves.isEmpty() -> EmptyScreenState(
                     title = stringResource(
-                        if (state.selectedFeed == YouTubeFeed.SEARCH) R.string.youtube_search_empty else R.string.youtube_feed_empty
+                        when {
+                            state.selectedFeed != YouTubeFeed.SEARCH -> R.string.youtube_feed_empty
+                            feed.loaded -> R.string.youtube_search_no_results
+                            else -> R.string.youtube_search_empty
+                        }
                     ),
                     icon = if (state.selectedFeed == YouTubeFeed.SEARCH) Icons.Default.Search else Icons.Default.VideoLibrary
                 )

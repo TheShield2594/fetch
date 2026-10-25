@@ -67,6 +67,7 @@ import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.TrailerPlayer
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
 import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayHost
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayState
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchRadii
@@ -210,7 +211,7 @@ fun YouTubePlayerOverlay(
                     }
                 }
         ) {
-            LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
+            LaunchedEffect(Unit) { focusRequester.requestFocusAfterFrames() }
 
             if (!playback.videoUrl.isNullOrBlank() && !playback.failed && !ended) {
                 TrailerPlayer(
@@ -384,7 +385,7 @@ private fun UpNextCard(
         }
         currentOnPlay(next)
     }
-    LaunchedEffect(Unit) { runCatching { nextFocus.requestFocus() } }
+    LaunchedEffect(Unit) { nextFocus.requestFocusAfterFrames() }
 
     Column(
         modifier = Modifier
@@ -418,7 +419,10 @@ private fun UpNextCard(
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White
                     )
-                    Button(onClick = onClose) { Text(text = stringResource(R.string.youtube_up_next_close)) }
+                    Button(
+                        onClick = onClose,
+                        modifier = Modifier.onFocusChanged { if (it.isFocused) countdownStopped = true }
+                    ) { Text(text = stringResource(R.string.youtube_up_next_close)) }
                 }
             }
         }
@@ -540,7 +544,7 @@ private fun CaptionMenu(
             }
         }
     }
-    LaunchedEffect(Unit) { runCatching { selectedFocus.requestFocus() } }
+    LaunchedEffect(Unit) { selectedFocus.requestFocusAfterFrames() }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

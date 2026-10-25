@@ -167,8 +167,10 @@ class SettingsCatalogTest {
         listOf(true, false).flatMap { primary ->
             listOf(true, false).flatMap { essential ->
                 listOf(true, false).flatMap { debug ->
-                    listOf(true, false).map { watchParty ->
-                        visibleSettingsCategories(primary, essential, debug, watchParty)
+                    listOf(true, false).flatMap { watchParty ->
+                        listOf(true, false).map { youTube ->
+                            visibleSettingsCategories(primary, essential, debug, watchParty, youTube)
+                        }
                     }
                 }
             }

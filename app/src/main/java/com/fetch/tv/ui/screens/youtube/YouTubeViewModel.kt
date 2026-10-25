@@ -23,7 +23,6 @@ import com.fetch.tv.data.youtube.YouTubeWatchSession
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +30,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import javax.inject.Inject
@@ -100,6 +98,7 @@ class YouTubeViewModel @Inject constructor(
     val uiState: StateFlow<YouTubeUiState> = _uiState.asStateFlow()
 
     private val loadJobs = mutableMapOf<YouTubeFeed, Job>()
+    private val loadMoreJobs = mutableListOf<Job>()
     private var playbackJob: Job? = null
     private var captionJob: Job? = null
     private var watchSession: YouTubeWatchSession? = null
@@ -116,8 +115,14 @@ class YouTubeViewModel @Inject constructor(
                 val identity = auth.refreshToken to auth.pageId
                 if (identity == lastIdentity && _uiState.value.signedOut == !signedIn) return@collect
                 lastIdentity = identity
-                _uiState.update { it.copy(signedOut = !signedIn, feeds = emptyMap()) }
-                if (signedIn) load(_uiState.value.selectedFeed)
+                // Nothing the old account asked for may land in the new one's feeds.
+                loadJobs.values.forEach { it.cancel() }
+                loadJobs.clear()
+                loadMoreJobs.forEach { it.cancel() }
+                loadMoreJobs.clear()
+                _uiState.update { it.copy(signedOut = !signedIn, feeds = emptyMap(), searchQuery = "") }
+                val selected = _uiState.value.selectedFeed
+                if (signedIn && selected != YouTubeFeed.SEARCH) load(selected)
             }
         }
     }
@@ -146,17 +151,21 @@ class YouTubeViewModel @Inject constructor(
         val token = state.continuation ?: return
         if (state.isLoading || state.isLoadingMore) return
         updateFeed(feed) { it.copy(isLoadingMore = true) }
-        viewModelScope.launch {
+        trackLoadMore(viewModelScope.launch {
             val page = fetchMore(feed, token)
-            updateFeed(feed) { current ->
-                if (page == null) current.copy(isLoadingMore = false)
-                else current.copy(
-                    shelves = appendPage(current.shelves, page),
-                    continuation = page.continuation,
-                    isLoadingMore = false
-                )
+            updateExistingFeed(feed) { current ->
+                when {
+                    // The feed was reloaded (a new search, a refresh) while this page loaded; it isn't theirs.
+                    current.continuation != token -> current
+                    page == null -> current.copy(isLoadingMore = false)
+                    else -> current.copy(
+                        shelves = appendPage(current.shelves, page),
+                        continuation = page.continuation,
+                        isLoadingMore = false
+                    )
+                }
             }
-        }
+        })
     }
 
     /** Loads more of one row, when focus nears its last video. */
@@ -166,11 +175,12 @@ class YouTubeViewModel @Inject constructor(
         val token = state.shelves.getOrNull(shelfIndex)?.continuation ?: return
         if (shelfIndex in state.loadingShelves) return
         updateFeed(feed) { it.copy(loadingShelves = it.loadingShelves + shelfIndex) }
-        viewModelScope.launch {
+        trackLoadMore(viewModelScope.launch {
             val page = fetchMore(feed, token)
-            updateFeed(feed) { current ->
+            updateExistingFeed(feed) { current ->
                 val shelves = current.shelves.toMutableList()
-                val shelf = shelves.getOrNull(shelfIndex)
+                // After a reload the index may name another row; only the row that asked takes the page.
+                val shelf = shelves.getOrNull(shelfIndex)?.takeIf { it.continuation == token }
                 if (page != null && shelf != null) {
                     shelves[shelfIndex] = shelf.copy(
                         videos = (shelf.videos + page.shelves.flatMap { it.videos }).distinctBy { it.videoId },
@@ -179,7 +189,12 @@ class YouTubeViewModel @Inject constructor(
                 }
                 current.copy(shelves = shelves, loadingShelves = current.loadingShelves - shelfIndex)
             }
-        }
+        })
+    }
+
+    private fun trackLoadMore(job: Job) {
+        loadMoreJobs.removeAll { !it.isActive }
+        loadMoreJobs += job
     }
 
     fun play(video: YouTubeVideo) {
@@ -189,11 +204,11 @@ class YouTubeViewModel @Inject constructor(
         _uiState.update { it.copy(playback = YouTubePlaybackState(video)) }
         playbackJob = viewModelScope.launch {
             val segments = async {
-                if (settings.isSponsorBlockEnabled()) sponsorBlock.segments(video.videoId) else emptyList()
+                if (setting(true) { settings.isSponsorBlockEnabled() }) sponsorBlock.segments(video.videoId) else emptyList()
             }
             val playerInfo = async { youTubeService.loadPlayerInfo(video.videoId) }
-            val watchNext = async { runCatching { youTubeService.loadWatchNext(video.videoId) }.getOrNull() }
-            val autoplay = async { settings.autoplayEnabled.first() }
+            val watchNext = async { orNull { youTubeService.loadWatchNext(video.videoId) } }
+            val autoplay = async { setting(YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED) { settings.autoplayEnabled.first() } }
             val source = try {
                 extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = MAX_VIDEO_HEIGHT)
             } catch (e: CancellationException) {
@@ -209,10 +224,11 @@ class YouTubeViewModel @Inject constructor(
                 }
             }
             val info = playerInfo.await()
-            if (settings.isWatchHistoryEnabled()) {
+            if (setting(true) { settings.isWatchHistoryEnabled() }) {
                 watchSession = youTubeService.newWatchSession(video.videoId, info, startPositionSec = 0f)
             }
-            if (source != null) setUpCaptions(video, source.captionsJson, info?.captions)
+            // Captions are extra: if setting them up fails, the video plays without them.
+            if (source != null) orNull { setUpCaptions(video, source.captionsJson, info?.captions) }
             val skipSegments = segments.await()
             updatePlayback(video) { it.copy(skipSegments = skipSegments) }
             val next = watchNext.await()
@@ -227,7 +243,7 @@ class YouTubeViewModel @Inject constructor(
     fun selectCaption(track: YouTubeCaptionTrack?) {
         val video = _uiState.value.playback?.video ?: return
         captionJob?.cancel()
-        viewModelScope.launch { settings.setCaptionPreference(track != null, track?.languageCode) }
+        viewModelScope.launch { orNull { settings.setCaptionPreference(track != null, track?.languageCode) } }
         updatePlayback(video) {
             it.copy(selectedCaption = track, captionCues = emptyList(), captionsFailed = false, captionsLoading = track != null)
         }
@@ -320,10 +336,20 @@ class YouTubeViewModel @Inject constructor(
         val session = watchSession ?: return
         val positionSec = lastPositionMs / 1000f
         val lengthSec = lastDurationMs / 1000f
-        // Runs past a closed player or screen, so the last position still reaches YouTube.
-        viewModelScope.launch {
-            withContext(NonCancellable) { youTubeService.reportWatchTime(session, positionSec, lengthSec) }
-        }
+        // In the service's scope, so the last position still reaches YouTube after this screen is gone.
+        youTubeService.reportWatchTimeInBackground(session, positionSec, lengthSec)
+    }
+
+    /** A setting's value, or [default] if it can't be read; playback goes on either way. */
+    private suspend fun <T> setting(default: T, read: suspend () -> T): T = orNull { read() } ?: default
+
+    /** [block]'s result, or null if it fails for any reason but cancellation. */
+    private suspend fun <T> orNull(block: suspend () -> T): T? = try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        null
     }
 
     private suspend fun fetchMore(feed: YouTubeFeed, token: String): YouTubePage? = try {
@@ -362,6 +388,14 @@ class YouTubeViewModel @Inject constructor(
         _uiState.update { state ->
             val playback = state.playback?.takeIf { it.video.videoId == video.videoId } ?: return@update state
             state.copy(playback = transform(playback))
+        }
+    }
+
+    /** Like [updateFeed], but leaves a feed that's gone (reset since) gone, so it loads afresh when opened. */
+    private fun updateExistingFeed(feed: YouTubeFeed, transform: (YouTubeFeedState) -> YouTubeFeedState) {
+        _uiState.update { state ->
+            val current = state.feeds[feed] ?: return@update state
+            state.copy(feeds = state.feeds + (feed to transform(current)))
         }
     }
 

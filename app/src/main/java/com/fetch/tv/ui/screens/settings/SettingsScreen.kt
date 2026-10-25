@@ -146,6 +146,10 @@ private const val SETTINGS_DETAIL_FOCUS_RETRY_WINDOW_MS = SETTINGS_DETAIL_ANIM_I
 // Longer than the window above, since a page that lists rows lazily has to be paged through first.
 private const val SETTINGS_ROW_TARGET_WINDOW_MS = 1_000L
 
+// Frames a page gets to compose and register the row before, with no lazy page searching for it,
+// the row is taken to be missing.
+private const val SETTINGS_ROW_TARGET_SETTLE_FRAMES = 3
+
 private sealed interface ExperienceModeLoadState {
     data object Loading : ExperienceModeLoadState
     data class Loaded(val mode: ExperienceMode?) : ExperienceModeLoadState
@@ -419,8 +423,22 @@ fun SettingsScreen(
         // A search result goes to its row first. The page's first option is the fallback, for a
         // row the page does not show right now, such as one that only appears for another engine.
         val target = rowTarget?.takeIf { it.category == category }
-        var requested = target != null &&
-            requestWithin(SETTINGS_ROW_TARGET_WINDOW_MS) { target.requester }
+        var requested = false
+        if (target != null) {
+            // Ends early once the page says it has no such row. A page that composes all its rows
+            // at once has registered the row within a frame or two, and only a lazy page that is
+            // still paging through says it is searching, so the full window is only spent there.
+            val deadline = System.nanoTime() + SETTINGS_ROW_TARGET_WINDOW_MS * 1_000_000L
+            var frames = 0
+            while (!requested && !target.noRow && System.nanoTime() < deadline) {
+                requested = target.requester
+                    ?.let { runCatching { it.requestFocus() }.getOrDefault(false) } ?: false
+                if (requested) break
+                if (frames >= SETTINGS_ROW_TARGET_SETTLE_FRAMES && !target.searching) break
+                withFrameNanos { }
+                frames++
+            }
+        }
         if (target != null && rowTarget === target) rowTarget = null
         if (!requested) {
             requested = requestWithin(SETTINGS_DETAIL_FOCUS_RETRY_WINDOW_MS.toLong()) { contentFocusRequesters[category] }

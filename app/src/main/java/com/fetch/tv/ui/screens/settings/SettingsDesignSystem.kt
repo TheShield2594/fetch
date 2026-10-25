@@ -431,6 +431,7 @@ internal fun SettingsDetailHeader(
     subtitle: String,
     modifier: Modifier = Modifier
 ) {
+    SettingsPageTitleTarget(title)
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp)

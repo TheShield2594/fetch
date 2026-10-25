@@ -60,6 +60,16 @@ class YouTubeServiceParsingTest {
     }
 
     @Test
+    fun `the tv client is read from the first match in the tv script`() {
+        // The script wraps lines, so the secret can follow a newline.
+        val script = "var a={clientId:\"111-tv.apps.googleusercontent.com\",\nzx:\"tvSecret\"};" +
+            """var b={clientId:"222-other.apps.googleusercontent.com",q:"otherSecret"};"""
+
+        assertEquals("111-tv.apps.googleusercontent.com" to "tvSecret", service.parseClientCredentials(script))
+        assertNull(service.parseClientCredentials("no client here"))
+    }
+
+    @Test
     fun `a refresh response may leave the refresh token out`() {
         val token = service.parseToken(json("""{"access_token": "new", "expires_in": 3600}"""))
 

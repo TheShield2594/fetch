@@ -31,6 +31,15 @@ import javax.inject.Singleton
 
 private const val TAG = "YouTubeService"
 
+private val VISITOR_DATA_REGEX = Regex(""""visitorData":"(.*?)"""")
+private val BASE_JS_REGEXES = listOf(
+    Regex("""id="base-js" src="(.*?)""""),
+    Regex("""\.src = '(.*?m=base)'"""),
+    Regex("""\.src = '(.*?)'; .\.id = 'base-js'""")
+)
+private val CLIENT_REGEX =
+    Regex("""clientId:"([-\w]+\.apps\.googleusercontent\.com)",\n?[$\w]+:"(\w+)"""")
+
 /**
  * Signs in to YouTube the way YouTube's own TV app does, and reads the signed-in feeds.
  *
@@ -44,7 +53,8 @@ class YouTubeService @Inject constructor(
     private val authDataStore: YouTubeAuthDataStore
 ) {
     internal companion object {
-        // YouTube's TV app. These are public: every TV and many open-source apps ship them.
+        // YouTube's TV app. Read from youtube.com/tv on each run, like SmartTube does, so a rotated
+        // client still signs in; these are the fallback when that page can't be read.
         const val CLIENT_ID = "861556708454-d6dlm3lh05idd8npek18k6be8ba3oc68.apps.googleusercontent.com"
         const val CLIENT_SECRET = "SboVhoG9s0rNafixCSGGKXAT"
         const val SCOPE = "http://gdata.youtube.com https://www.googleapis.com/auth/youtube-paid-content"
@@ -57,7 +67,9 @@ class YouTubeService @Inject constructor(
         const val INNERTUBE_URL = "https://www.youtube.com/youtubei/v1"
         const val TV_CLIENT_NAME = "TVHTML5"
         const val TV_CLIENT_NAME_ID = "7"
-        const val TV_CLIENT_VERSION = "7.20250219.14.00"
+        // Kept in step with SmartTube's MediaServiceCore (innertube/utils/Constants.kt).
+        const val TV_CLIENT_VERSION = "7.20260901.15.00"
+        const val TV_URL = "https://www.youtube.com/tv"
         const val TV_USER_AGENT =
             "Mozilla/5.0 (ChromiumStylePlatform) Cobalt/25.lts.30.1034943-gold (unlike Gecko), Unknown_TV_Unknown_0/Unknown (Unknown, Unknown)"
 
@@ -73,6 +85,13 @@ class YouTubeService @Inject constructor(
     private val json = Json { ignoreUnknownKeys = true }
     private val jsonMediaType = "application/json".toMediaType()
     private val refreshMutex = Mutex()
+    private val tvAppMutex = Mutex()
+
+    /** What youtube.com/tv tells the TV app at start-up. Read once per run. */
+    internal data class TvAppConfig(val clientId: String, val clientSecret: String, val visitorData: String?)
+
+    @Volatile
+    private var tvAppConfig: TvAppConfig? = null
 
     private val httpClient by lazy {
         OkHttpClient.Builder()
@@ -88,30 +107,31 @@ class YouTubeService @Inject constructor(
 
     suspend fun startDeviceAuth(): Result<YouTubeDeviceCode> = withContext(Dispatchers.IO) {
         runCatching {
+            val config = tvAppConfig()
             val body = buildJsonObject {
-                put("client_id", CLIENT_ID)
-                put("scope", SCOPE)
+                put("client_id", config.clientId)
                 put("device_id", UUID.randomUUID().toString().replace("-", ""))
-                put("device_model", "ytlr::")
+                put("model_name", "ytlr::")
+                put("scope", SCOPE)
             }
             val (status, response) = post(DEVICE_CODE_URL, body)
             val code = parseDeviceCode(response)
                 ?: error(errorText(response) ?: "YouTube sign-in failed ($status)")
-            authDataStore.saveDeviceFlow(code)
+            authDataStore.saveDeviceFlow(code, config.clientId, config.clientSecret)
             code
         }.onFailure { Log.w(TAG, "Could not start YouTube sign-in: ${it.message}") }
     }
 
     suspend fun pollDeviceToken(): YouTubeTokenPollResult = withContext(Dispatchers.IO) {
-        val deviceCode = authDataStore.getCurrentState().deviceCode
-            ?: return@withContext YouTubeTokenPollResult.Expired
+        val state = authDataStore.getCurrentState()
+        val deviceCode = state.deviceCode ?: return@withContext YouTubeTokenPollResult.Expired
         val result = runCatching {
             val (_, response) = post(
                 TOKEN_URL,
                 buildJsonObject {
-                    put("client_id", CLIENT_ID)
-                    put("client_secret", CLIENT_SECRET)
                     put("code", deviceCode)
+                    put("client_id", state.clientId ?: CLIENT_ID)
+                    put("client_secret", state.clientSecret ?: CLIENT_SECRET)
                     put("grant_type", DEVICE_GRANT_TYPE)
                 }
             )
@@ -208,15 +228,34 @@ class YouTubeService @Inject constructor(
         accessToken: String,
         params: JsonObjectBuilder.() -> Unit
     ): JsonElement {
+        val visitorData = runCatching { tvAppConfig().visitorData }.getOrNull()
+        // The context SmartTube sends for TV browse requests (common/helpers/AppClient.kt).
         val body = buildJsonObject {
             putJsonObject("context") {
                 putJsonObject("client") {
                     put("clientName", TV_CLIENT_NAME)
                     put("clientVersion", TV_CLIENT_VERSION)
+                    put("clientScreen", "WATCH")
+                    put("userAgent", TV_USER_AGENT)
+                    putJsonObject("tvAppInfo") {
+                        // Keeps Shorts out of the subscriptions feed.
+                        put("appQuality", "TV_APP_QUALITY_FULL_ANIMATION")
+                        put("zylonLeftNav", true)
+                    }
+                    put("webpSupport", false)
+                    put("animatedWebpSupport", true)
                     put("hl", Locale.getDefault().language.ifBlank { "en" })
                     Locale.getDefault().country.takeIf { it.isNotBlank() }?.let { put("gl", it) }
+                    put("utcOffsetMinutes", java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60_000)
+                    visitorData?.let { put("visitorData", it) }
+                }
+                putJsonObject("user") {
+                    put("enableSafetyMode", false)
+                    put("lockedSafetyMode", false)
                 }
             }
+            put("racyCheckOk", true)
+            put("contentCheckOk", true)
             params()
         }
         val request = Request.Builder()
@@ -226,6 +265,8 @@ class YouTubeService @Inject constructor(
             .header("X-YouTube-Client-Name", TV_CLIENT_NAME_ID)
             .header("X-YouTube-Client-Version", TV_CLIENT_VERSION)
             .header("Origin", "https://www.youtube.com")
+            .header("Referer", TV_URL)
+            .apply { visitorData?.let { header("X-Goog-Visitor-Id", it) } }
             .post(body.toString().toRequestBody(jsonMediaType))
             .build()
         val (code, text) = httpClient.newCall(request).execute().use { response ->
@@ -241,7 +282,15 @@ class YouTubeService @Inject constructor(
     }
 
     private suspend fun fetchAccount(accessToken: String): YouTubeAccount? =
-        YouTubeResponseParser.parseAccount(innertube("account/accounts_list", accessToken) {})
+        YouTubeResponseParser.parseAccount(
+            innertube("account/accounts_list", accessToken) {
+                putJsonObject("accountReadMask") {
+                    put("returnOwner", true)
+                    put("returnBrandAccounts", true)
+                    put("returnPersonaAccounts", false)
+                }
+            }
+        )
 
     /** A current access token, refreshed first when it's about to expire. */
     private suspend fun validAccessToken(): String = refreshMutex.withLock { refreshIfNeeded() }
@@ -257,9 +306,9 @@ class YouTubeService @Inject constructor(
         val (status, response) = post(
             TOKEN_URL,
             buildJsonObject {
-                put("client_id", CLIENT_ID)
-                put("client_secret", CLIENT_SECRET)
                 put("refresh_token", refreshToken)
+                put("client_id", state.clientId ?: CLIENT_ID)
+                put("client_secret", state.clientSecret ?: CLIENT_SECRET)
                 put("grant_type", "refresh_token")
             }
         )
@@ -274,6 +323,54 @@ class YouTubeService @Inject constructor(
         }
         authDataStore.saveToken(token)
         return token.accessToken
+    }
+
+    /**
+     * Reads the TV app's client id and secret from its script, the way SmartTube does
+     * (app/models/AppInfo.java and ClientData.java), and its visitor id. Falls back to the
+     * known client when YouTube can't be reached or the page has changed shape.
+     */
+    private suspend fun tvAppConfig(): TvAppConfig {
+        tvAppConfig?.let { return it }
+        return tvAppMutex.withLock {
+            tvAppConfig ?: runCatching { fetchTvAppConfig() }
+                .onFailure { Log.w(TAG, "Could not read youtube.com/tv: ${it.message}") }
+                .getOrNull()
+                .let { it ?: TvAppConfig(CLIENT_ID, CLIENT_SECRET, null) }
+                .also { tvAppConfig = it }
+        }
+    }
+
+    private fun fetchTvAppConfig(): TvAppConfig {
+        val page = get(TV_URL)
+        val visitorData = VISITOR_DATA_REGEX.find(page)?.groupValues?.get(1)
+        val scriptUrl = BASE_JS_REGEXES.firstNotNullOfOrNull { it.find(page)?.groupValues?.get(1) }
+            ?.replace("\\/", "/")
+            ?.let { if (it.startsWith("http")) it else "https://www.youtube.com$it" }
+        val credentials = scriptUrl?.let { url ->
+            runCatching { parseClientCredentials(get(url)) }.getOrNull()
+                // An older script layout keeps the client in m=main.
+                ?: runCatching {
+                    parseClientCredentials(get(url.replace("/dg=0/", "/exm=base/ed=1/").replace("/m=base", "/m=main")))
+                }.getOrNull()
+        }
+        return TvAppConfig(
+            clientId = credentials?.first ?: CLIENT_ID,
+            clientSecret = credentials?.second ?: CLIENT_SECRET,
+            visitorData = visitorData
+        )
+    }
+
+    /** The first client in the script is the TV's; later ones are refused (SmartTube's ClientData note). */
+    internal fun parseClientCredentials(script: String): Pair<String, String>? =
+        CLIENT_REGEX.find(script)?.let { it.groupValues[1] to it.groupValues[2] }
+
+    private fun get(url: String): String {
+        val request = Request.Builder().url(url).header("User-Agent", TV_USER_AGENT).get().build()
+        httpClient.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) throw IllegalStateException("GET $url failed (${response.code})")
+            return response.body?.string().orEmpty()
+        }
     }
 
     private fun post(url: String, body: JsonObject): Pair<Int, JsonElement?> {

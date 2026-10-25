@@ -90,7 +90,46 @@ internal object YouTubeResponseParser {
         "tileRenderer" -> parseTile(renderer)
         "videoRenderer", "gridVideoRenderer", "compactVideoRenderer", "playlistVideoRenderer" ->
             parseWebVideo(renderer)
+        "lockupViewModel" -> parseLockup(renderer)
         else -> null
+    }
+
+    /**
+     * YouTube's newer item layout, which it has been moving feeds to (SmartTube's LockupItem in
+     * common/models/gen/CommonItems.kt). Playlists and channels are lockups too; they carry no video id.
+     */
+    private fun parseLockup(lockup: JsonObject): YouTubeVideo? {
+        val contentType = lockup["contentType"].stringOrNull()
+        if (contentType != null && contentType != "LOCKUP_CONTENT_TYPE_VIDEO") return null
+        val command = lockup.path("rendererContext", "commandContext", "onTap", "innertubeCommand")
+        val videoId = command.path("watchEndpoint", "videoId").stringOrNull() ?: return null
+        val metadata = lockup.path("metadata", "lockupMetadataViewModel") as? JsonObject
+        val title = text(metadata?.get("title")) ?: return null
+        val rows = (metadata.path("metadata", "contentMetadataViewModel", "metadataRows") as? JsonArray).orEmpty()
+            .mapNotNull { row ->
+                (row.path("metadataParts") as? JsonArray)?.mapNotNull { text(it.path("text")) }
+                    ?.joinToString(" • ")
+                    ?.takeIf { it.isNotBlank() }
+            }
+        val thumbnail = lockup.path("contentImage", "thumbnailViewModel")
+            ?: lockup.path("contentImage", "collectionThumbnailViewModel", "primaryThumbnail", "thumbnailViewModel")
+        val overlays = (thumbnail.path("overlays") as? JsonArray).orEmpty()
+        val badges = overlays.flatMap { overlay ->
+            ((overlay.path("thumbnailOverlayBadgeViewModel", "thumbnailBadges") as? JsonArray).orEmpty() +
+                (overlay.path("thumbnailBottomOverlayViewModel", "badges") as? JsonArray).orEmpty())
+        }
+        return YouTubeVideo(
+            videoId = videoId,
+            title = title,
+            channelName = rows.getOrNull(0),
+            detail = rows.getOrNull(1),
+            thumbnailUrl = bestThumbnail(thumbnail.path("image")) ?: defaultThumbnail(videoId),
+            duration = badges.firstNotNullOfOrNull { text(it.path("thumbnailBadgeViewModel", "text")) },
+            watchedPercent = overlays.firstNotNullOfOrNull {
+                it.path("thumbnailBottomOverlayViewModel", "progressBar", "thumbnailOverlayProgressBarViewModel", "startPercent")
+                    .intOrNull()
+            }
+        )
     }
 
     /** The TV client's tile. Channels and playlists are tiles too; only videos are kept. */
@@ -178,7 +217,8 @@ internal object YouTubeResponseParser {
     }
 
     private fun bestThumbnail(element: JsonElement?): String? {
-        val thumbnails = element.path("thumbnails") as? JsonArray ?: return null
+        // Older renderers list "thumbnails"; view models list "sources".
+        val thumbnails = (element.path("thumbnails") ?: element.path("sources")) as? JsonArray ?: return null
         val best = thumbnails.mapNotNull { it as? JsonObject }
             .maxByOrNull { it["width"].intOrNull() ?: 0 }
             ?: return null

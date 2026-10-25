@@ -113,6 +113,50 @@ class YouTubeResponseParserTest {
     }
 
     @Test
+    fun `lockup view models are read, and non-video lockups skipped`() {
+        val shelves = parse(
+            """
+            {"items": [
+              {"lockupViewModel": {
+                "contentId": "lock1",
+                "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+                "contentImage": {"thumbnailViewModel": {
+                  "image": {"sources": [{"url": "https://i.ytimg.com/vi/lock1/hq.jpg", "width": "480"}]},
+                  "overlays": [{"thumbnailBottomOverlayViewModel": {
+                    "progressBar": {"thumbnailOverlayProgressBarViewModel": {"startPercent": 75}},
+                    "badges": [{"thumbnailBadgeViewModel": {"text": "8:01"}}]
+                  }}]
+                }},
+                "metadata": {"lockupMetadataViewModel": {
+                  "title": {"content": "A lockup video"},
+                  "metadata": {"contentMetadataViewModel": {"metadataRows": [
+                    {"metadataParts": [{"text": {"content": "Lockup Channel"}}]},
+                    {"metadataParts": [{"text": {"content": "5K views"}}, {"text": {"content": "1 week ago"}}]}
+                  ]}}
+                }},
+                "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {"watchEndpoint": {"videoId": "lock1"}}}}}
+              }},
+              {"lockupViewModel": {
+                "contentId": "PL123",
+                "contentType": "LOCKUP_CONTENT_TYPE_PLAYLIST",
+                "metadata": {"lockupMetadataViewModel": {"title": {"content": "A playlist"}}},
+                "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {"watchEndpoint": {"videoId": "first", "playlistId": "PL123"}}}}}
+              }}
+            ]}
+            """
+        )
+
+        val video = shelves.single().videos.single()
+        assertEquals("lock1", video.videoId)
+        assertEquals("A lockup video", video.title)
+        assertEquals("Lockup Channel", video.channelName)
+        assertEquals("5K views • 1 week ago", video.detail)
+        assertEquals("https://i.ytimg.com/vi/lock1/hq.jpg", video.thumbnailUrl)
+        assertEquals("8:01", video.duration)
+        assertEquals(75, video.watchedPercent)
+    }
+
+    @Test
     fun `a tile without a thumbnail falls back to YouTube's default image`() {
         val shelves = parse(
             """{"tileRenderer": {"onSelectCommand": {"watchEndpoint": {"videoId": "xyz"}},

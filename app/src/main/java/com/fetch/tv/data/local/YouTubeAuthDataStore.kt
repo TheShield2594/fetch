@@ -28,7 +28,9 @@ data class YouTubeAuthState(
     val userCode: String? = null,
     val verificationUrl: String? = null,
     val deviceCodeExpiresAt: Long? = null,
-    val pollInterval: Int? = null
+    val pollInterval: Int? = null,
+    val clientId: String? = null,
+    val clientSecret: String? = null
 ) {
     val isSignedIn: Boolean
         get() = !refreshToken.isNullOrBlank()
@@ -58,6 +60,10 @@ class YouTubeAuthDataStore @Inject constructor(
     private val deviceCodeExpiresAtKey = longPreferencesKey("device_code_expires_at")
     private val pollIntervalKey = intPreferencesKey("poll_interval")
 
+    // The TV client the sign-in was made with. A refresh token only works with the client it was issued to.
+    private val clientIdKey = stringPreferencesKey("client_id")
+    private val clientSecretKey = stringPreferencesKey("client_secret")
+
     private fun store(profileId: Int = profileManager.activeProfileId.value) =
         factory.get(profileId, FEATURE)
 
@@ -74,7 +80,9 @@ class YouTubeAuthDataStore @Inject constructor(
                 userCode = preferences[userCodeKey],
                 verificationUrl = preferences[verificationUrlKey],
                 deviceCodeExpiresAt = preferences[deviceCodeExpiresAtKey],
-                pollInterval = preferences[pollIntervalKey]
+                pollInterval = preferences[pollIntervalKey],
+                clientId = preferences[clientIdKey],
+                clientSecret = preferences[clientSecretKey]
             )
         }
     }
@@ -106,8 +114,15 @@ class YouTubeAuthDataStore @Inject constructor(
         }
     }
 
-    suspend fun saveDeviceFlow(code: YouTubeDeviceCode, nowMillis: Long = System.currentTimeMillis()) {
+    suspend fun saveDeviceFlow(
+        code: YouTubeDeviceCode,
+        clientId: String,
+        clientSecret: String,
+        nowMillis: Long = System.currentTimeMillis()
+    ) {
         store().edit { preferences ->
+            preferences[clientIdKey] = clientId
+            preferences[clientSecretKey] = clientSecret
             preferences[deviceCodeKey] = code.deviceCode
             preferences[userCodeKey] = code.userCode
             preferences[verificationUrlKey] = code.verificationUrl

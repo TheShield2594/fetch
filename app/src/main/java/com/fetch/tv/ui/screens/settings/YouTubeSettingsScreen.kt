@@ -123,6 +123,30 @@ fun YouTubeSettingsContent(
                                 onToggle = viewModel::onWatchHistoryToggle
                             )
                         }
+                        item(key = "youtube_show_shorts") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_show_shorts_title),
+                                subtitle = stringResource(R.string.youtube_show_shorts_subtitle),
+                                checked = state.feedFilter.showShorts,
+                                onToggle = viewModel::onShowShortsToggle
+                            )
+                        }
+                        item(key = "youtube_show_live") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_show_live_title),
+                                subtitle = stringResource(R.string.youtube_show_live_subtitle),
+                                checked = state.feedFilter.showLive,
+                                onToggle = viewModel::onShowLiveToggle
+                            )
+                        }
+                        item(key = "youtube_hide_watched") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_hide_watched_title),
+                                subtitle = stringResource(R.string.youtube_hide_watched_subtitle),
+                                checked = state.feedFilter.hideWatched,
+                                onToggle = viewModel::onHideWatchedToggle
+                            )
+                        }
                         item(key = "youtube_sign_out") {
                             SettingsActionRow(
                                 title = stringResource(R.string.youtube_sign_out_title),

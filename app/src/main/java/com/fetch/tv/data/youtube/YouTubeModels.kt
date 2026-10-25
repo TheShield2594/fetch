@@ -8,10 +8,33 @@ data class YouTubeVideo(
     val detail: String? = null,
     val thumbnailUrl: String,
     val duration: String? = null,
-    val watchedPercent: Int? = null
+    val watchedPercent: Int? = null,
+    /** A Short; its thumbnail is portrait when it comes from a Shorts shelf. */
+    val isShort: Boolean = false,
+    /** Streaming now; [duration] then holds YouTube's "LIVE" label. */
+    val isLive: Boolean = false,
+    /** The uploader's channel (a UC… browse id), when the tile links to it. */
+    val channelId: String? = null
 ) {
     val watchUrl: String
         get() = "https://www.youtube.com/watch?v=$videoId"
+}
+
+/** A tile that opens a page instead of playing: a channel, a playlist, or one of a channel's tabs. */
+data class YouTubeLink(
+    val target: YouTubeBrowseTarget,
+    val kind: YouTubeLinkKind,
+    /** Null for the library shortcuts, which the screen names. */
+    val title: String?,
+    val subtitle: String? = null,
+    val thumbnailUrl: String? = null
+)
+
+enum class YouTubeLinkKind {
+    CHANNEL,
+    PLAYLIST,
+    WATCH_LATER,
+    LIKED
 }
 
 /** A titled row of videos. Videos YouTube sends outside any shelf go in one with no title. */
@@ -19,7 +42,22 @@ data class YouTubeShelf(
     val title: String?,
     val videos: List<YouTubeVideo>,
     /** Loads more of this row, when YouTube pages it on its own. */
-    val continuation: String? = null
+    val continuation: String? = null,
+    /** A row of Shorts, shown with portrait cards. */
+    val isShorts: Boolean = false,
+    /** The page with all of this row, when YouTube links its header to one. */
+    val viewAll: YouTubeBrowseTarget? = null,
+    /** Channels and playlists in the row, after its videos. */
+    val links: List<YouTubeLink> = emptyList()
+) {
+    fun isEmpty() = videos.isEmpty() && links.isEmpty()
+}
+
+/** A YouTube page Fetch can open on its own: a channel, a playlist, or all of a row. */
+data class YouTubeBrowseTarget(
+    val browseId: String,
+    val params: String? = null,
+    val title: String? = null
 )
 
 /** One page of a feed. [continuation] loads the next page; null on the last one. */
@@ -49,8 +87,28 @@ data class YouTubeSkipSegment(
 /** YouTube's Up Next for a video. [next] falls back to the first related video. */
 data class YouTubeWatchNext(
     val next: YouTubeVideo?,
-    val related: List<YouTubeVideo>
+    val related: List<YouTubeVideo>,
+    val actions: YouTubeVideoActions? = null
 )
+
+/** Where the signed-in channel stands with a video and its uploader, from the TV watch page. */
+data class YouTubeVideoActions(
+    /** Null when YouTube offers no like button, as for a video with ratings turned off. */
+    val likeStatus: YouTubeLikeStatus?,
+    val channelId: String?,
+    val channelName: String?,
+    /** Null when there's no subscribe button, as on the account's own videos. */
+    val subscribed: Boolean?,
+    /** What the subscribe button's own requests send along, as YouTube's TV app does. */
+    val subscribeParams: String? = null,
+    val unsubscribeParams: String? = null
+)
+
+enum class YouTubeLikeStatus {
+    LIKE,
+    DISLIKE,
+    INDIFFERENT
+}
 
 /** What the signed-in TV player says about a video, beyond the streams Fetch gets elsewhere. */
 data class YouTubePlayerInfo(
@@ -75,6 +133,7 @@ enum class YouTubeFeed {
     HOME,
     SUBSCRIPTIONS,
     HISTORY,
+    LIBRARY,
     SEARCH
 }
 

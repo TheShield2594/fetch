@@ -17,10 +17,12 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
@@ -84,6 +86,10 @@ class YouTubeService @Inject constructor(
         val HOME_BROWSE_IDS = listOf("default", "FEwhat_to_watch")
         const val SUBSCRIPTIONS_BROWSE_ID = "FEsubscriptions"
         const val HISTORY_BROWSE_ID = "FEhistory"
+        /** The account's playlists, as SmartTube reads them for its library. */
+        const val PLAYLISTS_BROWSE_ID = "FEplaylist_aggregation"
+        const val WATCH_LATER_BROWSE_ID = "VLWL"
+        const val LIKED_BROWSE_ID = "VLLL"
 
         const val HISTORY_START_THRESHOLD_SEC = 180f
 
@@ -197,6 +203,7 @@ class YouTubeService @Inject constructor(
             YouTubeFeed.HOME -> loadHome()
             YouTubeFeed.SUBSCRIPTIONS -> browse(SUBSCRIPTIONS_BROWSE_ID)
             YouTubeFeed.HISTORY -> browse(HISTORY_BROWSE_ID)
+            YouTubeFeed.LIBRARY -> loadLibrary()
             YouTubeFeed.SEARCH -> {
                 val trimmed = query?.trim().orEmpty()
                 if (trimmed.isEmpty()) {
@@ -206,6 +213,16 @@ class YouTubeService @Inject constructor(
                 }
             }
         }
+    }
+
+    /** A page opened from a feed: a channel, a playlist, or all of a row. */
+    suspend fun loadBrowse(target: YouTubeBrowseTarget): YouTubePage = withContext(Dispatchers.IO) {
+        YouTubeResponseParser.parsePage(
+            innertube("browse", validAccessToken()) {
+                put("browseId", target.browseId)
+                target.params?.let { put("params", it) }
+            }
+        )
     }
 
     /**
@@ -250,6 +267,30 @@ class YouTubeService @Inject constructor(
      */
     suspend fun loadWatchNext(videoId: String): YouTubeWatchNext = withContext(Dispatchers.IO) {
         YouTubeResponseParser.parseWatchNext(innertube("next", validAccessToken()) { put("videoId", videoId) }, videoId)
+    }
+
+    /** Likes, dislikes, or clears the rating of a video, as the selected channel. Throws if YouTube refuses. */
+    suspend fun setLikeStatus(videoId: String, status: YouTubeLikeStatus) = withContext(Dispatchers.IO) {
+        val endpoint = when (status) {
+            YouTubeLikeStatus.LIKE -> "like/like"
+            YouTubeLikeStatus.DISLIKE -> "like/dislike"
+            YouTubeLikeStatus.INDIFFERENT -> "like/removelike"
+        }
+        innertube(endpoint, validAccessToken()) { putJsonObject("target") { put("videoId", videoId) } }
+        Unit
+    }
+
+    /**
+     * Subscribes the selected channel to [channelId], or unsubscribes it, with the params the
+     * watch page's button gave. Throws if YouTube refuses.
+     */
+    suspend fun setSubscribed(channelId: String, subscribed: Boolean, params: String?) = withContext(Dispatchers.IO) {
+        val endpoint = if (subscribed) "subscription/subscribe" else "subscription/unsubscribe"
+        innertube(endpoint, validAccessToken()) {
+            putJsonArray("channelIds") { add(channelId) }
+            params?.let { put("params", it) }
+        }
+        Unit
     }
 
     /** A history session for [videoId] from its tracking links, or null when YouTube gave none. */
@@ -357,6 +398,36 @@ class YouTubeService @Inject constructor(
         runCatching { fetchAccount(validAccessToken(), pageId) }
             .getOrNull()
             ?.let { authDataStore.saveAccount(it) }
+    }
+
+    /**
+     * Watch Later and Liked videos, then the account's playlists. The two lead even when the
+     * playlists can't be read, and aren't repeated when YouTube lists them among the playlists.
+     */
+    private suspend fun loadLibrary(): YouTubePage {
+        val playlists = try {
+            browse(PLAYLISTS_BROWSE_ID)
+        } catch (e: YouTubeSignedOutException) {
+            throw e
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Couldn't load the library's playlists", e)
+            YouTubePage(emptyList(), null)
+        }
+        val listed = playlists.shelves.flatMap { shelf -> shelf.links.map { it.target.browseId } }.toSet()
+        val shortcuts = listOf(
+            YouTubeLink(YouTubeBrowseTarget(WATCH_LATER_BROWSE_ID), YouTubeLinkKind.WATCH_LATER, title = null),
+            YouTubeLink(YouTubeBrowseTarget(LIKED_BROWSE_ID), YouTubeLinkKind.LIKED, title = null)
+        ).filter { it.target.browseId !in listed }
+        // They join the first row of playlists, so a library of one row still shows as one grid.
+        val first = playlists.shelves.firstOrNull { it.videos.isEmpty() }
+        val shelves = if (first == null) {
+            listOf(YouTubeShelf(title = null, videos = emptyList(), links = shortcuts)) + playlists.shelves
+        } else {
+            playlists.shelves.map { if (it === first) it.copy(links = shortcuts + it.links) else it }
+        }
+        return playlists.copy(shelves = shelves)
     }
 
     /** Tries each home browse id in turn, so a renamed one falls back to the next. */

@@ -60,8 +60,10 @@ import com.fetch.tv.R
 import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.data.youtube.YouTubeCaptionCue
 import com.fetch.tv.data.youtube.YouTubeCaptionTrack
+import com.fetch.tv.data.youtube.YouTubeLikeStatus
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
 import com.fetch.tv.data.youtube.YouTubeVideo
+import com.fetch.tv.data.youtube.YouTubeVideoActions
 import com.fetch.tv.data.youtube.cueAt
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.TrailerPlayer
@@ -86,7 +88,10 @@ fun YouTubePlayerOverlay(
     onSelectCaption: (YouTubeCaptionTrack?) -> Unit,
     onPlayNext: (YouTubeVideo) -> Unit,
     onDismiss: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onRate: (YouTubeLikeStatus) -> Unit,
+    onToggleSubscription: () -> Unit,
+    onOpenChannel: () -> Unit
 ) {
     val video = playback.video
     var isPaused by remember(video.videoId) { mutableStateOf(false) }
@@ -101,11 +106,16 @@ fun YouTubePlayerOverlay(
     val currentOnProgress by rememberUpdatedState(onProgress)
     val currentSegments by rememberUpdatedState(playback.skipSegments)
     var captionMenuOpen by remember(video.videoId) { mutableStateOf(false) }
+    var actionsMenuOpen by remember(video.videoId) { mutableStateOf(false) }
     var positionMs by remember(video.videoId) { mutableLongStateOf(0L) }
     var ended by remember(video.videoId) { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
     val canControl = !playback.videoUrl.isNullOrBlank() && !playback.isLoading && !playback.failed
+    // Without the watch page (it failed, or hasn't loaded), the menu still offers the tile's channel.
+    val menuActions = playback.actions ?: video.channelId?.let {
+        YouTubeVideoActions(likeStatus = null, channelId = it, channelName = video.channelName, subscribed = null)
+    }
 
     fun seekBy(deltaMs: Long) {
         seekDeltaMs = deltaMs
@@ -148,10 +158,11 @@ fun YouTubePlayerOverlay(
                         }
                         return@onPreviewKeyEvent false
                     }
-                    if (captionMenuOpen) {
+                    if (captionMenuOpen || actionsMenuOpen) {
                         // The menu takes the remote; Back closes it and returns to the video.
                         if (native.keyCode == KeyEvent.KEYCODE_BACK || native.keyCode == KeyEvent.KEYCODE_ESCAPE) {
                             captionMenuOpen = false
+                            actionsMenuOpen = false
                             runCatching { focusRequester.requestFocus() }
                             return@onPreviewKeyEvent true
                         }
@@ -194,7 +205,13 @@ fun YouTubePlayerOverlay(
                         }
                         KeyEvent.KEYCODE_DPAD_UP -> {
                             if (!canControl) return@onPreviewKeyEvent false
-                            controlsVisible = true
+                            // Up opens like, subscribe and the channel once the watch page says what they are.
+                            if (menuActions != null) {
+                                actionsMenuOpen = true
+                                controlsVisible = false
+                            } else {
+                                controlsVisible = true
+                            }
                             true
                         }
                         KeyEvent.KEYCODE_DPAD_DOWN -> {
@@ -242,6 +259,7 @@ fun YouTubePlayerOverlay(
                         if (playback.upNext != null || playback.related.isNotEmpty()) {
                             ended = true
                             captionMenuOpen = false
+                            actionsMenuOpen = false
                         } else {
                             onDismiss()
                         }
@@ -263,6 +281,13 @@ fun YouTubePlayerOverlay(
                     Text(text = video.title, style = MaterialTheme.typography.titleLarge, color = Color.White)
                     video.channelName?.let {
                         Text(text = it, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.82f))
+                    }
+                    if (canControl && menuActions != null) {
+                        Text(
+                            text = stringResource(R.string.youtube_actions_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.82f)
+                        )
                     }
                 }
             }
@@ -343,6 +368,17 @@ fun YouTubePlayerOverlay(
                 )
             }
 
+            if (actionsMenuOpen && menuActions != null && !ended) {
+                VideoActionsMenu(
+                    actions = menuActions,
+                    failed = playback.actionFailed,
+                    onRate = onRate,
+                    onToggleSubscription = onToggleSubscription,
+                    onOpenChannel = onOpenChannel,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
+
             if (captionMenuOpen) {
                 CaptionMenu(
                     playback = playback,
@@ -356,6 +392,89 @@ fun YouTubePlayerOverlay(
             }
         }
     }
+}
+
+private enum class ActionRow { LIKE, SUBSCRIBE, CHANNEL }
+
+/**
+ * Like, dislike, subscribe and go to channel, for the playing video. It stays open after a choice
+ * so the tick shows; Back closes it.
+ */
+@Composable
+private fun VideoActionsMenu(
+    actions: YouTubeVideoActions,
+    failed: Boolean,
+    onRate: (YouTubeLikeStatus) -> Unit,
+    onToggleSubscription: () -> Unit,
+    onOpenChannel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val firstFocus = remember { FocusRequester() }
+    Column(
+        modifier = modifier
+            .padding(FetchTheme.spacing.xl)
+            .width(CAPTION_MENU_WIDTH)
+            .clip(RoundedCornerShape(FetchRadii.tokens.md))
+            .background(Color.Black.copy(alpha = 0.85f))
+            .padding(FetchTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
+    ) {
+        actions.channelName?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+                maxLines = 1,
+                modifier = Modifier.padding(bottom = FetchTheme.spacing.xs)
+            )
+        }
+        if (failed) {
+            Text(
+                text = stringResource(R.string.youtube_action_failed),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.Error
+            )
+        }
+        val status = actions.likeStatus
+        val subscribed = actions.subscribed?.takeIf { actions.channelId != null }
+        // Focus starts on the top row, whichever rows YouTube offered.
+        val first = when {
+            status != null -> ActionRow.LIKE
+            subscribed != null -> ActionRow.SUBSCRIBE
+            else -> ActionRow.CHANNEL
+        }
+        fun focusIf(row: ActionRow) = if (row == first) Modifier.focusRequester(firstFocus) else Modifier
+        if (status != null) {
+            CaptionMenuRow(
+                label = stringResource(R.string.youtube_action_like),
+                selected = status == YouTubeLikeStatus.LIKE,
+                onClick = { onRate(if (status == YouTubeLikeStatus.LIKE) YouTubeLikeStatus.INDIFFERENT else YouTubeLikeStatus.LIKE) },
+                modifier = focusIf(ActionRow.LIKE)
+            )
+            CaptionMenuRow(
+                label = stringResource(R.string.youtube_action_dislike),
+                selected = status == YouTubeLikeStatus.DISLIKE,
+                onClick = { onRate(if (status == YouTubeLikeStatus.DISLIKE) YouTubeLikeStatus.INDIFFERENT else YouTubeLikeStatus.DISLIKE) }
+            )
+        }
+        if (subscribed != null) {
+            CaptionMenuRow(
+                label = stringResource(if (subscribed) R.string.youtube_action_subscribed else R.string.youtube_action_subscribe),
+                selected = subscribed,
+                onClick = onToggleSubscription,
+                modifier = focusIf(ActionRow.SUBSCRIBE)
+            )
+        }
+        if (actions.channelId != null) {
+            CaptionMenuRow(
+                label = stringResource(R.string.youtube_menu_go_to_channel),
+                selected = false,
+                onClick = onOpenChannel,
+                modifier = focusIf(ActionRow.CHANNEL)
+            )
+        }
+    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusAfterFrames() }
 }
 
 /**

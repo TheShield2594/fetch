@@ -8,6 +8,7 @@ import com.fetch.tv.data.local.YouTubeAuthDataStore
 import com.fetch.tv.data.local.YouTubeAuthState
 import com.fetch.tv.data.local.YouTubeSettingsDataStore
 import com.fetch.tv.data.youtube.YouTubeAccount
+import com.fetch.tv.data.youtube.YouTubeFeedFilter
 import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeTokenPollResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +47,8 @@ data class YouTubeSettingsUiState(
     val selectedPageId: String? = null,
     val sponsorBlockEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_ENABLED,
     val watchHistoryEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_WATCH_HISTORY_ENABLED,
-    val autoplayEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED
+    val autoplayEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED,
+    val feedFilter: YouTubeFeedFilter = YouTubeSettingsDataStore.DEFAULT_FEED_FILTER
 )
 
 @HiltViewModel
@@ -82,6 +84,21 @@ class YouTubeSettingsViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            settingsDataStore.feedFilter.collectLatest { filter -> _uiState.update { it.copy(feedFilter = filter) } }
+        }
+    }
+
+    fun onShowShortsToggle() {
+        viewModelScope.launch { settingsDataStore.setShowShorts(!_uiState.value.feedFilter.showShorts) }
+    }
+
+    fun onShowLiveToggle() {
+        viewModelScope.launch { settingsDataStore.setShowLive(!_uiState.value.feedFilter.showLive) }
+    }
+
+    fun onHideWatchedToggle() {
+        viewModelScope.launch { settingsDataStore.setHideWatched(!_uiState.value.feedFilter.hideWatched) }
     }
 
     fun onSponsorBlockToggle() {

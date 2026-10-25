@@ -99,7 +99,7 @@ internal object YouTubeResponseParser {
         if (contentType != null && contentType != "TILE_CONTENT_TYPE_VIDEO") return null
         val videoId = tile.path("onSelectCommand", "watchEndpoint", "videoId").stringOrNull()
             ?: return null
-        val metadata = tile.path("metadata", "tileMetadataRenderer")
+        val metadata = tile.path("metadata", "tileMetadataRenderer") as? JsonObject
         val title = text(metadata?.get("title")) ?: return null
         val lines = (metadata?.get("lines") as? JsonArray).orEmpty().mapNotNull { line ->
             val items = line.path("lineRenderer", "items") as? JsonArray
@@ -108,7 +108,7 @@ internal object YouTubeResponseParser {
                 ?.joinToString(" • ")
                 ?.takeIf { it.isNotBlank() }
         }
-        val header = tile.path("header", "tileHeaderRenderer")
+        val header = tile.path("header", "tileHeaderRenderer") as? JsonObject
         val overlays = (header?.get("thumbnailOverlays") as? JsonArray).orEmpty()
         return YouTubeVideo(
             videoId = videoId,

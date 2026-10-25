@@ -24,7 +24,7 @@ data class YouTubeFeedFilter(
 
     fun apply(watchNext: YouTubeWatchNext): YouTubeWatchNext {
         val related = watchNext.related.filter { allows(it) }
-        return YouTubeWatchNext(next = watchNext.next?.takeIf { allows(it) } ?: related.firstOrNull(), related = related)
+        return watchNext.copy(next = watchNext.next?.takeIf { allows(it) } ?: related.firstOrNull(), related = related)
     }
 
     companion object {

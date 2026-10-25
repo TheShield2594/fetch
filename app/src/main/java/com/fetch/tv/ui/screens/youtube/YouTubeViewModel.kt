@@ -14,12 +14,14 @@ import com.fetch.tv.data.trailer.InAppYouTubeExtractor
 import com.fetch.tv.data.youtube.SponsorBlockService
 import com.fetch.tv.data.youtube.YouTubeBrowseTarget
 import com.fetch.tv.data.youtube.YouTubeFeed
+import com.fetch.tv.data.youtube.YouTubeLikeStatus
 import com.fetch.tv.data.youtube.YouTubeLinkKind
 import com.fetch.tv.data.youtube.YouTubePage
 import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeSignedOutException
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
+import com.fetch.tv.data.youtube.YouTubeVideoActions
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.data.youtube.YouTubeWatchSession
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -64,7 +66,11 @@ data class YouTubePlaybackState(
     /** YouTube's pick to play next; the end card counts down to it when autoplay is on. */
     val upNext: YouTubeVideo? = null,
     val related: List<YouTubeVideo> = emptyList(),
-    val autoplay: Boolean = YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED
+    val autoplay: Boolean = YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED,
+    /** The like and subscribe state, once the watch page has loaded. */
+    val actions: YouTubeVideoActions? = null,
+    /** YouTube refused the last like or subscribe; the change was undone. */
+    val actionFailed: Boolean = false
 )
 
 /** A page opened over the tabs: a channel, a playlist, or all of a row. Back closes it. */
@@ -314,7 +320,7 @@ class YouTubeViewModel @Inject constructor(
             val next = watchNext.await()?.let { feedFilter.apply(it) }
             val autoplayEnabled = autoplay.await()
             updatePlayback(video) {
-                it.copy(upNext = next?.next, related = next?.related.orEmpty(), autoplay = autoplayEnabled)
+                it.copy(upNext = next?.next, related = next?.related.orEmpty(), autoplay = autoplayEnabled, actions = next?.actions)
             }
         }
     }
@@ -376,6 +382,55 @@ class YouTubeViewModel @Inject constructor(
     }
 
     /** Plays [next] from the end card, keeping the finished video's progress on its card. */
+    /** Rates the playing video. Shown at once, and undone if YouTube refuses. */
+    fun rate(status: YouTubeLikeStatus) {
+        val playback = _uiState.value.playback ?: return
+        val actions = playback.actions?.takeIf { it.likeStatus != null } ?: return
+        changeActions(playback.video, actions, actions.copy(likeStatus = status)) {
+            youTubeService.setLikeStatus(playback.video.videoId, status)
+        }
+    }
+
+    /** Subscribes to the playing video's channel, or unsubscribes. Shown at once, and undone if YouTube refuses. */
+    fun toggleSubscription() {
+        val playback = _uiState.value.playback ?: return
+        val actions = playback.actions ?: return
+        val channelId = actions.channelId ?: return
+        val subscribed = actions.subscribed ?: return
+        changeActions(playback.video, actions, actions.copy(subscribed = !subscribed)) {
+            youTubeService.setSubscribed(
+                channelId,
+                subscribed = !subscribed,
+                params = if (subscribed) actions.unsubscribeParams else actions.subscribeParams
+            )
+        }
+    }
+
+    /** Leaves the player for the playing video's channel. */
+    fun openPlayingChannel() {
+        val playback = _uiState.value.playback ?: return
+        val channelId = playback.actions?.channelId ?: playback.video.channelId ?: return
+        val name = playback.actions?.channelName ?: playback.video.channelName
+        closePlayback()
+        openBrowse(YouTubeBrowseTarget(browseId = channelId, title = name))
+    }
+
+    private fun changeActions(
+        video: YouTubeVideo,
+        before: YouTubeVideoActions,
+        after: YouTubeVideoActions,
+        request: suspend () -> Unit
+    ) {
+        updatePlayback(video) { it.copy(actions = after, actionFailed = false) }
+        viewModelScope.launch {
+            val done = orNull { request() } != null
+            if (!done) updatePlayback(video) { playback ->
+                // Only undone if nothing changed it since.
+                if (playback.actions == after) playback.copy(actions = before, actionFailed = true) else playback
+            }
+        }
+    }
+
     fun playNext(next: YouTubeVideo) {
         markProgressOnCard()
         play(next)

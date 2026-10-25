@@ -65,5 +65,7 @@ class YouTubeFeedFilterTest {
         assertEquals("plain", result.next?.videoId)
         assertEquals(listOf("plain"), result.related.map { it.videoId })
         assertNull(YouTubeFeedFilter(showShorts = false).apply(YouTubeWatchNext(video("s", short = true), emptyList())).next)
+        val actions = YouTubeVideoActions(YouTubeLikeStatus.LIKE, "UCchannel", "Channel", subscribed = false)
+        assertEquals(actions, YouTubeFeedFilter(showShorts = false).apply(watchNext.copy(actions = actions)).actions)
     }
 }

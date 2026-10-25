@@ -470,4 +470,43 @@ class YouTubeResponseParserTest {
             shelves[2].links.single()
         )
     }
+
+    @Test
+    fun `the watch page gives the like and subscribe state, and the channel`() {
+        val root = Json.parseToJsonElement(
+            """
+            {"contents": {"singleColumnWatchNextResults": {"results": {"results": {"contents": [
+              {"itemSectionRenderer": {"contents": [{"videoMetadataRenderer": {"owner": {"videoOwnerRenderer": {
+                "title": {"runs": [{"text": "Some Channel"}]},
+                "navigationEndpoint": {"browseEndpoint": {"browseId": "UCchannel"}}
+              }}}}]}}
+            ]}}}},
+            "transportControls": {"transportControlsRenderer": {"buttons": [
+              {"button": {"subscribeButtonRenderer": {
+                "subscribed": true,
+                "channelId": "UCchannel",
+                "serviceEndpoints": [
+                  {"subscribeEndpoint": {"channelIds": ["UCchannel"], "params": "SUB"}},
+                  {"signalServiceEndpoint": {"actions": [{"openPopupAction": {"popup": {"confirmDialogRenderer": {
+                    "confirmButton": {"buttonRenderer": {"serviceEndpoint": {"unsubscribeEndpoint": {"channelIds": ["UCchannel"], "params": "UNSUB"}}}}
+                  }}}}]}}
+                ]
+              }}},
+              {"button": {"likeButtonRenderer": {"target": {"videoId": "aaa"}, "likeStatus": "LIKE"}}}
+            ]}}}
+            """
+        )
+
+        assertEquals(
+            YouTubeVideoActions(
+                likeStatus = YouTubeLikeStatus.LIKE,
+                channelId = "UCchannel",
+                channelName = "Some Channel",
+                subscribed = true,
+                subscribeParams = "SUB",
+                unsubscribeParams = "UNSUB"
+            ),
+            YouTubeResponseParser.parseWatchNext(root, "aaa").actions
+        )
+    }
 }

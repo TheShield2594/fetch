@@ -17,10 +17,12 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
@@ -265,6 +267,30 @@ class YouTubeService @Inject constructor(
      */
     suspend fun loadWatchNext(videoId: String): YouTubeWatchNext = withContext(Dispatchers.IO) {
         YouTubeResponseParser.parseWatchNext(innertube("next", validAccessToken()) { put("videoId", videoId) }, videoId)
+    }
+
+    /** Likes, dislikes, or clears the rating of a video, as the selected channel. Throws if YouTube refuses. */
+    suspend fun setLikeStatus(videoId: String, status: YouTubeLikeStatus) = withContext(Dispatchers.IO) {
+        val endpoint = when (status) {
+            YouTubeLikeStatus.LIKE -> "like/like"
+            YouTubeLikeStatus.DISLIKE -> "like/dislike"
+            YouTubeLikeStatus.INDIFFERENT -> "like/removelike"
+        }
+        innertube(endpoint, validAccessToken()) { putJsonObject("target") { put("videoId", videoId) } }
+        Unit
+    }
+
+    /**
+     * Subscribes the selected channel to [channelId], or unsubscribes it, with the params the
+     * watch page's button gave. Throws if YouTube refuses.
+     */
+    suspend fun setSubscribed(channelId: String, subscribed: Boolean, params: String?) = withContext(Dispatchers.IO) {
+        val endpoint = if (subscribed) "subscription/subscribe" else "subscription/unsubscribe"
+        innertube(endpoint, validAccessToken()) {
+            putJsonArray("channelIds") { add(channelId) }
+            params?.let { put("params", it) }
+        }
+        Unit
     }
 
     /** A history session for [videoId] from its tracking links, or null when YouTube gave none. */

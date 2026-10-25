@@ -3117,6 +3117,12 @@
     <string name="youtube_liked_videos">Liked videos</string>
     <string name="youtube_menu_play">Play</string>
     <string name="youtube_menu_go_to_channel">Go to channel</string>
+    <string name="youtube_actions_hint">Press up to like, subscribe or go to the channel</string>
+    <string name="youtube_action_like">Like</string>
+    <string name="youtube_action_dislike">Dislike</string>
+    <string name="youtube_action_subscribe">Subscribe</string>
+    <string name="youtube_action_subscribed">Subscribed</string>
+    <string name="youtube_action_failed">YouTube didn\'t accept that. Try again.</string>
     <string name="youtube_play_failed">This video can\'t be played</string>
     <string name="youtube_switch_channel_hint">Select to switch channel</string>
     <string name="youtube_channel_picker_title">Choose a channel</string>

@@ -225,7 +225,10 @@ fun YouTubeScreen(
             onSelectCaption = viewModel::selectCaption,
             onPlayNext = viewModel::playNext,
             onDismiss = viewModel::closePlayback,
-            onRetry = viewModel::retryPlayback
+            onRetry = viewModel::retryPlayback,
+            onRate = viewModel::rate,
+            onToggleSubscription = viewModel::toggleSubscription,
+            onOpenChannel = viewModel::openPlayingChannel
         )
     }
 }

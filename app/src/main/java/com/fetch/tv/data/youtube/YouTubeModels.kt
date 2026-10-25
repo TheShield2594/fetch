@@ -87,8 +87,28 @@ data class YouTubeSkipSegment(
 /** YouTube's Up Next for a video. [next] falls back to the first related video. */
 data class YouTubeWatchNext(
     val next: YouTubeVideo?,
-    val related: List<YouTubeVideo>
+    val related: List<YouTubeVideo>,
+    val actions: YouTubeVideoActions? = null
 )
+
+/** Where the signed-in channel stands with a video and its uploader, from the TV watch page. */
+data class YouTubeVideoActions(
+    /** Null when YouTube offers no like button, as for a video with ratings turned off. */
+    val likeStatus: YouTubeLikeStatus?,
+    val channelId: String?,
+    val channelName: String?,
+    /** Null when there's no subscribe button, as on the account's own videos. */
+    val subscribed: Boolean?,
+    /** What the subscribe button's own requests send along, as YouTube's TV app does. */
+    val subscribeParams: String? = null,
+    val unsubscribeParams: String? = null
+)
+
+enum class YouTubeLikeStatus {
+    LIKE,
+    DISLIKE,
+    INDIFFERENT
+}
 
 /** What the signed-in TV player says about a video, beyond the streams Fetch gets elsewhere. */
 data class YouTubePlayerInfo(

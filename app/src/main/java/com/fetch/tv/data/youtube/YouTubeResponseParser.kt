@@ -62,7 +62,38 @@ internal object YouTubeResponseParser {
         // The related tile has the duration and channel the autoplay button leaves out.
         val next = autoplay?.let { pick -> related.firstOrNull { it.videoId == pick.videoId } ?: pick }
             ?: related.firstOrNull()
-        return YouTubeWatchNext(next = next, related = related)
+        return YouTubeWatchNext(next = next, related = related, actions = parseVideoActions(root))
+    }
+
+    /** The like and subscribe buttons of the TV player's controls, and the channel they're for. */
+    private fun parseVideoActions(root: JsonElement): YouTubeVideoActions? {
+        fun first(key: String): JsonObject? {
+            val found = mutableListOf<JsonObject>()
+            findObjectsWithKey(root, key, found, depth = 0)
+            return found.firstOrNull()?.get(key) as? JsonObject
+        }
+        val like = first("likeButtonRenderer")
+        val subscribe = first("subscribeButtonRenderer")
+        val owner = first("videoOwnerRenderer")
+        val likeStatus = like?.get("likeStatus").stringOrNull()?.let { status ->
+            YouTubeLikeStatus.entries.firstOrNull { it.name == status }
+        }
+        val channelId = subscribe?.get("channelId").stringOrNull()
+            ?: owner.path("navigationEndpoint", "browseEndpoint", "browseId").stringOrNull()
+        if (likeStatus == null && channelId == null) return null
+        fun params(endpoint: String): String? {
+            val found = mutableListOf<JsonObject>()
+            findObjectsWithKey(subscribe, endpoint, found, depth = 0)
+            return found.firstNotNullOfOrNull { it[endpoint].path("params").stringOrNull() }
+        }
+        return YouTubeVideoActions(
+            likeStatus = likeStatus,
+            channelId = channelId,
+            channelName = text(owner?.get("title")),
+            subscribed = subscribe?.get("subscribed").booleanOrNull(),
+            subscribeParams = params("subscribeEndpoint"),
+            unsubscribeParams = params("unsubscribeEndpoint")
+        )
     }
 
     private fun parseAutoplayItem(item: JsonElement?): YouTubeVideo? {

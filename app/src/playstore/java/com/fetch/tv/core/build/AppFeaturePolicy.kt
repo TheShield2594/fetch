@@ -6,4 +6,5 @@ object AppFeaturePolicy {
     val externalTrailerPlaybackEnabled: Boolean = true
     val trailerPlaybackMode: TrailerPlaybackMode = TrailerPlaybackMode.EXTERNAL
     val imdbRatingLogoEnabled: Boolean = false
+    val youTubeSectionEnabled: Boolean = false
 }

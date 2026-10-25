@@ -93,6 +93,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.fetch.tv.BuildConfig
+import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.ExperienceMode
 import kotlinx.coroutines.Job
@@ -154,6 +155,7 @@ private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec
     SettingsCategory.CONTENT_DISCOVERY -> SettingsSectionSpec(category, stringResource(R.string.settings_content_discovery), Icons.Default.Explore, destination = SettingsSectionDestination.Inline)
     SettingsCategory.PLAYBACK -> SettingsSectionSpec(category, stringResource(R.string.settings_playback), Icons.Rounded.PlayArrow, destination = SettingsSectionDestination.Inline)
     SettingsCategory.TRACKING -> SettingsSectionSpec(category, stringResource(R.string.settings_tracking_title), Icons.Default.Sync, destination = SettingsSectionDestination.Inline)
+    SettingsCategory.YOUTUBE -> SettingsSectionSpec(category, stringResource(R.string.youtube_name), rawIconRes = R.raw.youtube_logo, destination = SettingsSectionDestination.Inline)
     SettingsCategory.TMDB -> SettingsSectionSpec(category, "TMDB", rawIconRes = R.raw.mdblist_tmdb, destination = SettingsSectionDestination.Inline)
     SettingsCategory.MDBLIST -> SettingsSectionSpec(category, stringResource(R.string.mdblist_title), rawIconRes = R.raw.mdblist_logo, destination = SettingsSectionDestination.Inline)
     SettingsCategory.ANIME_SKIP -> SettingsSectionSpec(category, "Anime-Skip", Icons.Default.FastForward, destination = SettingsSectionDestination.Inline)
@@ -212,7 +214,8 @@ fun SettingsScreen(
             isPrimaryProfile = isPrimaryProfileActive,
             isEssentialMode = isEssentialMode,
             isDebugBuild = BuildConfig.IS_DEBUG_BUILD,
-            isWatchPartyAvailable = isWatchPartyAvailable
+            isWatchPartyAvailable = isWatchPartyAvailable,
+            isYouTubeAvailable = AppFeaturePolicy.youTubeSectionEnabled
         )
     }
     val visibleSections = visibleCategories.map { category -> settingsSectionSpec(category) }
@@ -714,6 +717,7 @@ private fun SettingsDetailPane(
             initialFocusRequester = focusFor(SettingsCategory.SEARCH)
         )
         SettingsCategory.TRACKING -> TrackingSettingsContent(initialFocusRequester = focusFor(SettingsCategory.TRACKING))
+        SettingsCategory.YOUTUBE -> YouTubeSettingsContent(initialFocusRequester = focusFor(SettingsCategory.YOUTUBE))
         SettingsCategory.TMDB -> TmdbSettingsContent(initialFocusRequester = focusFor(SettingsCategory.TMDB))
         SettingsCategory.MDBLIST -> MDBListSettingsContent(initialFocusRequester = focusFor(SettingsCategory.MDBLIST))
         SettingsCategory.ANIME_SKIP -> AnimeSkipSettingsContent(initialFocusRequester = focusFor(SettingsCategory.ANIME_SKIP))

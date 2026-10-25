@@ -1,5 +1,6 @@
 package com.fetch.tv.baselineprofile
 
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
@@ -7,88 +8,114 @@ import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import java.util.regex.Pattern
+import org.junit.FixMethodOrder
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.MethodSorters
 
+private const val TARGET_PACKAGE = "com.fetch.tv"
 private const val ONBOARDING_FIRST_LABEL = "Continue without account"
+private const val ONBOARDING_MODE_LABEL = "Advanced"
 
+/**
+ * Records two profiles. The startup profile covers launch to the first Home frame only, so R8 can
+ * put that code first in the dex; recording the whole journey with includeInStartupProfile made it
+ * a copy of the baseline profile. The journey adds Home scrolling and a detail page to the
+ * baseline profile alone.
+ *
+ * The journey runs first (methods run in name order) so that the first-run onboarding, which only
+ * a fresh install shows, is completed there and stays out of the startup profile.
+ */
 @RunWith(AndroidJUnit4::class)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class BaselineProfileGenerator {
 
     @get:Rule
     val rule = BaselineProfileRule()
 
     @Test
-    fun generate() {
-        val targetPackage = "com.fetch.tv"
-        rule.collect(
-            packageName = targetPackage,
-            includeInStartupProfile = true
-        ) {
-            // Force English locale so onboarding labels are predictable regardless of device language.
-            val originalLocale = device.executeShellCommand("getprop persist.sys.locale").trim()
-            device.executeShellCommand("setprop persist.sys.locale en-US")
-            device.executeShellCommand("settings put system system_locales en-US")
+    fun generateAppJourney() {
+        rule.collect(packageName = TARGET_PACKAGE, includeInStartupProfile = false) {
+            inEnglish {
+                launchToHome()
 
-            try {
-            pressHome()
-            startActivityAndWait()
-            device.wait(Until.hasObject(By.pkg(targetPackage)), 5_000)
-            device.waitForIdle()
-
-            // Step through the first-run onboarding with D-pad focus, skipping it entirely on later iterations where the app already opens on home.
-            if (device.wait(Until.hasObject(By.text(ONBOARDING_FIRST_LABEL)), 8_000) != null) {
-                device.focusAndSelect(ONBOARDING_FIRST_LABEL)
-                device.focusAndSelect("Advanced")
-                device.focusAndSelect("Continue")
-            }
-            device.waitForIdle()
-            Thread.sleep(3_000)
-
-            // Move focus off the sidebar into the content grid.
-            device.pressDPadRight()
-            device.waitForIdle()
-
-            // Scroll across the focused row to compile the row and card rendering paths.
-            repeat(6) {
+                // Move focus off the sidebar into the content grid.
                 device.pressDPadRight()
                 device.waitForIdle()
-                Thread.sleep(120)
-            }
 
-            // Scroll down through the rows to compile the vertical list and prefetch paths.
-            repeat(6) {
-                device.pressDPadDown()
-                device.waitForIdle()
-                Thread.sleep(150)
-            }
-
-            // Move back up toward a focused title.
-            repeat(2) {
-                device.pressDPadUp()
-                device.waitForIdle()
-                Thread.sleep(120)
-            }
-
-            // Open a title to compile the detail screen render path.
-            device.pressDPadCenter()
-            device.waitForIdle()
-            Thread.sleep(2_500)
-
-            // Return to the home screen.
-            device.pressBack()
-            device.waitForIdle()
-            Thread.sleep(800)
-            } finally {
-                // Restore original locale.
-                if (originalLocale.isNotBlank()) {
-                    device.executeShellCommand("setprop persist.sys.locale $originalLocale")
-                    device.executeShellCommand("settings put system system_locales $originalLocale")
+                // Scroll across the focused row to compile the row and card rendering paths.
+                repeat(6) {
+                    device.pressDPadRight()
+                    device.waitForIdle()
+                    Thread.sleep(120)
                 }
+
+                // Scroll down through the rows to compile the vertical list and prefetch paths.
+                repeat(6) {
+                    device.pressDPadDown()
+                    device.waitForIdle()
+                    Thread.sleep(150)
+                }
+
+                // Move back up toward a focused title.
+                repeat(2) {
+                    device.pressDPadUp()
+                    device.waitForIdle()
+                    Thread.sleep(120)
+                }
+
+                // Open a title to compile the detail screen render path.
+                device.pressDPadCenter()
+                device.waitForIdle()
+                Thread.sleep(2_500)
+
+                // Return to the home screen.
+                device.pressBack()
+                device.waitForIdle()
+                Thread.sleep(800)
             }
         }
     }
+
+    @Test
+    fun generateStartup() {
+        rule.collect(packageName = TARGET_PACKAGE, includeInStartupProfile = true) {
+            inEnglish { launchToHome() }
+        }
+    }
+}
+
+// Forces an English locale so onboarding labels are predictable regardless of device language,
+// and restores the device's own afterwards.
+private inline fun MacrobenchmarkScope.inEnglish(block: () -> Unit) {
+    val originalLocale = device.executeShellCommand("getprop persist.sys.locale").trim()
+    device.executeShellCommand("setprop persist.sys.locale en-US")
+    device.executeShellCommand("settings put system system_locales en-US")
+    try {
+        block()
+    } finally {
+        if (originalLocale.isNotBlank()) {
+            device.executeShellCommand("setprop persist.sys.locale $originalLocale")
+            device.executeShellCommand("settings put system system_locales $originalLocale")
+        }
+    }
+}
+
+// Cold launches the app and waits for Home, stepping through first-run onboarding (sign-in, then
+// the Essential / Advanced choice, which opens Home) when a fresh install shows it.
+private fun MacrobenchmarkScope.launchToHome() {
+    pressHome()
+    startActivityAndWait()
+    device.wait(Until.hasObject(By.pkg(TARGET_PACKAGE)), 5_000)
+    device.waitForIdle()
+
+    if (device.wait(Until.hasObject(By.text(ONBOARDING_FIRST_LABEL)), 8_000) != null) {
+        device.focusAndSelect(ONBOARDING_FIRST_LABEL)
+        device.focusAndSelect(ONBOARDING_MODE_LABEL)
+    }
+    device.waitForIdle()
+    Thread.sleep(3_000)
 }
 
 // Moves D-pad focus until the control carrying the given label is focused and then selects it, since TV devices have no touch input.

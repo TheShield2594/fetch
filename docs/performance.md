@@ -77,9 +77,13 @@ scripts/perf_baseline.sh generate-profile   # runs :app:generateBaselineProfile
 git add app/src/main/generated/baselineProfiles/
 ```
 
-The generator (`BaselineProfileGenerator.kt`) runs in English, goes through first-run
-onboarding with the D-pad ("Continue without account" → "Advanced" → "Continue"), scrolls
-Home and opens a title. If onboarding labels change, update the generator. After
+The generator (`BaselineProfileGenerator.kt`) runs in English and records two profiles. The
+app journey goes through first-run onboarding with the D-pad ("Continue without account" →
+"Advanced", which opens Home), scrolls Home and opens a title; it feeds the baseline profile
+only. Startup then records a cold launch to Home on its own, which is all the startup profile
+should hold, so `startup-prof.txt` comes out much smaller than `baseline-prof.txt`. If the two
+files are identical, the startup run is recording more than launch. If onboarding labels
+change, update the generator. After
 regenerating, run `scripts/perf_baseline.sh benchmark` and check that the "profile" column
 beats "no profile".
 

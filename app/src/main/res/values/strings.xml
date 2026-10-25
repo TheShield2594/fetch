@@ -3127,4 +3127,13 @@
     <string name="youtube_captions_auto">%1$s (auto-generated)</string>
     <string name="youtube_captions_translated">%1$s (auto-translated)</string>
     <string name="youtube_captions_failed">These captions couldn\'t be loaded. Try another track.</string>
+    <string name="youtube_up_next">Up next</string>
+    <string name="youtube_up_next_select">Select a video to play</string>
+    <string name="youtube_up_next_close">Close</string>
+    <plurals name="youtube_up_next_countdown">
+        <item quantity="one">Playing in %1$d second</item>
+        <item quantity="other">Playing in %1$d seconds</item>
+    </plurals>
+    <string name="youtube_autoplay_title">Autoplay next video</string>
+    <string name="youtube_autoplay_subtitle">When a video ends, play YouTube\'s Up Next pick after a 10-second countdown</string>
 </resources>

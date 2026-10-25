@@ -105,6 +105,14 @@ fun YouTubeSettingsContent(
                                 onToggle = viewModel::onSponsorBlockToggle
                             )
                         }
+                        item(key = "youtube_autoplay") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_autoplay_title),
+                                subtitle = stringResource(R.string.youtube_autoplay_subtitle),
+                                checked = state.autoplayEnabled,
+                                onToggle = viewModel::onAutoplayToggle
+                            )
+                        }
                         item(key = "youtube_watch_history") {
                             SettingsToggleRow(
                                 title = stringResource(R.string.youtube_watch_history_title),

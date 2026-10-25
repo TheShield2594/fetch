@@ -60,7 +60,11 @@ data class YouTubePlaybackState(
     val captionsLoading: Boolean = false,
     /** The selected track gave no captions from any of its links. */
     val captionsFailed: Boolean = false,
-    val captionStyle: SubtitleStyleSettings = SubtitleStyleSettings()
+    val captionStyle: SubtitleStyleSettings = SubtitleStyleSettings(),
+    /** YouTube's pick to play next; the end card counts down to it when autoplay is on. */
+    val upNext: YouTubeVideo? = null,
+    val related: List<YouTubeVideo> = emptyList(),
+    val autoplay: Boolean = YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED
 )
 
 data class YouTubeUiState(
@@ -180,6 +184,7 @@ class YouTubeViewModel @Inject constructor(
 
     fun play(video: YouTubeVideo) {
         playbackJob?.cancel()
+        captionJob?.cancel()
         finishWatchSession()
         _uiState.update { it.copy(playback = YouTubePlaybackState(video)) }
         playbackJob = viewModelScope.launch {
@@ -187,6 +192,8 @@ class YouTubeViewModel @Inject constructor(
                 if (settings.isSponsorBlockEnabled()) sponsorBlock.segments(video.videoId) else emptyList()
             }
             val playerInfo = async { youTubeService.loadPlayerInfo(video.videoId) }
+            val watchNext = async { runCatching { youTubeService.loadWatchNext(video.videoId) }.getOrNull() }
+            val autoplay = async { settings.autoplayEnabled.first() }
             val source = try {
                 extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = MAX_VIDEO_HEIGHT)
             } catch (e: CancellationException) {
@@ -208,6 +215,11 @@ class YouTubeViewModel @Inject constructor(
             if (source != null) setUpCaptions(video, source.captionsJson, info?.captions)
             val skipSegments = segments.await()
             updatePlayback(video) { it.copy(skipSegments = skipSegments) }
+            val next = watchNext.await()
+            val autoplayEnabled = autoplay.await()
+            updatePlayback(video) {
+                it.copy(upNext = next?.next, related = next?.related.orEmpty(), autoplay = autoplayEnabled)
+            }
         }
     }
 
@@ -260,13 +272,24 @@ class YouTubeViewModel @Inject constructor(
     }
 
     fun closePlayback() {
-        val video = _uiState.value.playback?.video
         playbackJob?.cancel()
         captionJob?.cancel()
         playbackJob = null
+        markProgressOnCard()
+        _uiState.update { it.copy(playback = null) }
+    }
+
+    /** Plays [next] from the end card, keeping the finished video's progress on its card. */
+    fun playNext(next: YouTubeVideo) {
+        markProgressOnCard()
+        play(next)
+    }
+
+    /** Sends the last position to history and shows it on the video's card, without reloading the feed. */
+    private fun markProgressOnCard() {
+        val video = _uiState.value.playback?.video
         finishWatchSession()
         if (video != null && lastDurationMs > 0L) {
-            // Show the new progress on the card without reloading the feed.
             val percent = (lastPositionMs * 100 / lastDurationMs).toInt().coerceIn(0, 100)
             _uiState.update { state ->
                 state.copy(feeds = state.feeds.mapValues { (_, feed) ->
@@ -280,7 +303,6 @@ class YouTubeViewModel @Inject constructor(
         }
         lastPositionMs = 0L
         lastDurationMs = 0L
-        _uiState.update { it.copy(playback = null) }
     }
 
     override fun onCleared() {

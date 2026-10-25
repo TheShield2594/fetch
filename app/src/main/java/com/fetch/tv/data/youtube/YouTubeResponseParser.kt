@@ -34,6 +34,41 @@ internal object YouTubeResponseParser {
         )
     }
 
+    /**
+     * Reads the TV `next` response: the autoplay pick from `autoplay.autoplay.sets[0]` (as
+     * SmartTube's WatchNextHelper does) and the related videos in its suggestion shelves.
+     */
+    fun parseWatchNext(root: JsonElement, currentVideoId: String): YouTubeWatchNext {
+        val results = root.path("contents", "singleColumnWatchNextResults")
+        val related = parsePage(results.path("pivot") ?: results ?: root).shelves
+            .flatMap { it.videos }
+            .filter { it.videoId != currentVideoId }
+            .distinctBy { it.videoId }
+        val set = (results.path("autoplay", "autoplay", "sets") as? JsonArray)?.firstOrNull()
+        val autoplay = listOf("autoplayVideoRenderer", "nextVideoRenderer").firstNotNullOfOrNull { key ->
+            val renderer = set.path(key) ?: return@firstNotNullOfOrNull null
+            val item = renderer.path("maybeHistoryEndpointRenderer")
+                ?: renderer.path("autoplayEndpointRenderer")
+                ?: renderer.path("autoplayVideoWrapperRenderer", "primaryEndpointRenderer", "autoplayEndpointRenderer")
+            parseAutoplayItem(item)?.takeIf { it.videoId != currentVideoId }
+        }
+        // The related tile has the duration and channel the autoplay button leaves out.
+        val next = autoplay?.let { pick -> related.firstOrNull { it.videoId == pick.videoId } ?: pick }
+            ?: related.firstOrNull()
+        return YouTubeWatchNext(next = next, related = related)
+    }
+
+    private fun parseAutoplayItem(item: JsonElement?): YouTubeVideo? {
+        val videoId = item.path("endpoint", "watchEndpoint", "videoId").stringOrNull() ?: return null
+        val preview = item.path("item", "previewButtonRenderer")
+        return YouTubeVideo(
+            videoId = videoId,
+            title = text(preview.path("title")) ?: return null,
+            channelName = text(preview.path("byline")),
+            thumbnailUrl = bestThumbnail(preview.path("thumbnail")) ?: defaultThumbnail(videoId)
+        )
+    }
+
     /** Every channel the signed-in Google account can act as: the account itself and its brand accounts. */
     fun parseAccounts(root: JsonElement): List<YouTubeAccount> {
         val accounts = mutableListOf<JsonObject>()

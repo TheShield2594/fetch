@@ -45,7 +45,8 @@ data class YouTubeSettingsUiState(
     val isLoadingAccounts: Boolean = false,
     val selectedPageId: String? = null,
     val sponsorBlockEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_ENABLED,
-    val watchHistoryEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_WATCH_HISTORY_ENABLED
+    val watchHistoryEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_WATCH_HISTORY_ENABLED,
+    val autoplayEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED
 )
 
 @HiltViewModel
@@ -70,15 +71,25 @@ class YouTubeSettingsViewModel @Inject constructor(
             authDataStore.state.collectLatest(::applyAuthState)
         }
         viewModelScope.launch {
-            combine(settingsDataStore.sponsorBlockEnabled, settingsDataStore.watchHistoryEnabled, ::Pair)
-                .collectLatest { (sponsorBlock, history) ->
-                    _uiState.update { it.copy(sponsorBlockEnabled = sponsorBlock, watchHistoryEnabled = history) }
+            combine(
+                settingsDataStore.sponsorBlockEnabled,
+                settingsDataStore.watchHistoryEnabled,
+                settingsDataStore.autoplayEnabled,
+                ::Triple
+            ).collectLatest { (sponsorBlock, history, autoplay) ->
+                _uiState.update {
+                    it.copy(sponsorBlockEnabled = sponsorBlock, watchHistoryEnabled = history, autoplayEnabled = autoplay)
                 }
+            }
         }
     }
 
     fun onSponsorBlockToggle() {
         viewModelScope.launch { settingsDataStore.setSponsorBlockEnabled(!_uiState.value.sponsorBlockEnabled) }
+    }
+
+    fun onAutoplayToggle() {
+        viewModelScope.launch { settingsDataStore.setAutoplayEnabled(!_uiState.value.autoplayEnabled) }
     }
 
     fun onWatchHistoryToggle() {

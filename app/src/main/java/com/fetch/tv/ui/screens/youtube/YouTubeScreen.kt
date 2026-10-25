@@ -164,6 +164,7 @@ fun YouTubeScreen(
             playback = playback,
             onProgress = viewModel::onPlaybackProgress,
             onSelectCaption = viewModel::selectCaption,
+            onPlayNext = viewModel::playNext,
             onDismiss = viewModel::closePlayback,
             onRetry = viewModel::retryPlayback
         )
@@ -273,7 +274,7 @@ private fun YouTubeShelves(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun YouTubeVideoCard(
+internal fun YouTubeVideoCard(
     video: YouTubeVideo,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

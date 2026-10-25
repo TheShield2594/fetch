@@ -233,6 +233,14 @@ class YouTubeService @Inject constructor(
         }.onFailure { Log.w(TAG, "No signed-in player info for $videoId: ${it.message}") }.getOrNull()
     }
 
+    /**
+     * What plays after [videoId]: YouTube's autoplay pick, and the related videos beside it.
+     * Signed in, so they follow the account's taste the way YouTube's own Up Next does.
+     */
+    suspend fun loadWatchNext(videoId: String): YouTubeWatchNext = withContext(Dispatchers.IO) {
+        YouTubeResponseParser.parseWatchNext(innertube("next", validAccessToken()) { put("videoId", videoId) }, videoId)
+    }
+
     /** A history session for [videoId] from its tracking links, or null when YouTube gave none. */
     fun newWatchSession(videoId: String, info: YouTubePlayerInfo?, startPositionSec: Float): YouTubeWatchSession? {
         val (playbackUrl, watchtimeUrl) = info?.trackingLinks ?: return null

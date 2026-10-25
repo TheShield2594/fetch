@@ -23,10 +23,12 @@ class YouTubeSettingsDataStore @Inject constructor(
         private const val FEATURE = "youtube_settings"
         const val DEFAULT_SPONSOR_BLOCK_ENABLED = true
         const val DEFAULT_WATCH_HISTORY_ENABLED = true
+        const val DEFAULT_AUTOPLAY_ENABLED = true
     }
 
     private val sponsorBlockKey = booleanPreferencesKey("sponsor_block_enabled")
     private val watchHistoryKey = booleanPreferencesKey("watch_history_enabled")
+    private val autoplayKey = booleanPreferencesKey("autoplay_enabled")
     private val captionsEnabledKey = booleanPreferencesKey("captions_enabled")
     private val captionLanguageKey = stringPreferencesKey("caption_language")
 
@@ -57,6 +59,15 @@ class YouTubeSettingsDataStore @Inject constructor(
             prefs[captionsEnabledKey] = enabled
             languageCode?.let { prefs[captionLanguageKey] = it }
         }
+    }
+
+    /** When a video ends, count down and play YouTube's Up Next pick. */
+    val autoplayEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.map { it[autoplayKey] ?: DEFAULT_AUTOPLAY_ENABLED }
+    }
+
+    suspend fun setAutoplayEnabled(enabled: Boolean) {
+        store().edit { it[autoplayKey] = enabled }
     }
 
     suspend fun isSponsorBlockEnabled(): Boolean = sponsorBlockEnabled.first()

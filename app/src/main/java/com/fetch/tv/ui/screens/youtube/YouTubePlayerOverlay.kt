@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -58,6 +61,7 @@ import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.data.youtube.YouTubeCaptionCue
 import com.fetch.tv.data.youtube.YouTubeCaptionTrack
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
+import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.data.youtube.cueAt
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.TrailerPlayer
@@ -79,6 +83,7 @@ fun YouTubePlayerOverlay(
     playback: YouTubePlaybackState,
     onProgress: (positionMs: Long, durationMs: Long) -> Unit,
     onSelectCaption: (YouTubeCaptionTrack?) -> Unit,
+    onPlayNext: (YouTubeVideo) -> Unit,
     onDismiss: () -> Unit,
     onRetry: () -> Unit
 ) {
@@ -96,6 +101,7 @@ fun YouTubePlayerOverlay(
     val currentSegments by rememberUpdatedState(playback.skipSegments)
     var captionMenuOpen by remember(video.videoId) { mutableStateOf(false) }
     var positionMs by remember(video.videoId) { mutableLongStateOf(0L) }
+    var ended by remember(video.videoId) { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
     val canControl = !playback.videoUrl.isNullOrBlank() && !playback.isLoading && !playback.failed
@@ -133,6 +139,14 @@ fun YouTubePlayerOverlay(
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
                     if (native.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
+                    if (ended) {
+                        // The end card's buttons take the remote; Back leaves the player.
+                        if (native.keyCode == KeyEvent.KEYCODE_BACK || native.keyCode == KeyEvent.KEYCODE_ESCAPE) {
+                            onDismiss()
+                            return@onPreviewKeyEvent true
+                        }
+                        return@onPreviewKeyEvent false
+                    }
                     if (captionMenuOpen) {
                         // The menu takes the remote; Back closes it and returns to the video.
                         if (native.keyCode == KeyEvent.KEYCODE_BACK || native.keyCode == KeyEvent.KEYCODE_ESCAPE) {
@@ -198,7 +212,7 @@ fun YouTubePlayerOverlay(
         ) {
             LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
 
-            if (!playback.videoUrl.isNullOrBlank() && !playback.failed) {
+            if (!playback.videoUrl.isNullOrBlank() && !playback.failed && !ended) {
                 TrailerPlayer(
                     trailerUrl = playback.videoUrl,
                     trailerAudioUrl = playback.audioUrl,
@@ -223,7 +237,14 @@ fun YouTubePlayerOverlay(
                         }
                         currentOnProgress(position, duration)
                     },
-                    onEnded = onDismiss,
+                    onEnded = {
+                        if (playback.upNext != null || playback.related.isNotEmpty()) {
+                            ended = true
+                            captionMenuOpen = false
+                        } else {
+                            onDismiss()
+                        }
+                    },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -313,6 +334,14 @@ fun YouTubePlayerOverlay(
                 )
             }
 
+            if (ended) {
+                UpNextCard(
+                    playback = playback,
+                    onPlay = onPlayNext,
+                    onClose = onDismiss
+                )
+            }
+
             if (captionMenuOpen) {
                 CaptionMenu(
                     playback = playback,
@@ -327,6 +356,93 @@ fun YouTubePlayerOverlay(
         }
     }
 }
+
+/**
+ * Shown when a video ends: YouTube's pick, counting down to play it when autoplay is on, and
+ * the related videos. Moving to anything else stops the countdown, as on YouTube.
+ */
+@Composable
+private fun UpNextCard(
+    playback: YouTubePlaybackState,
+    onPlay: (YouTubeVideo) -> Unit,
+    onClose: () -> Unit
+) {
+    val next = playback.upNext
+    val nextFocus = remember { FocusRequester() }
+    var secondsLeft by remember(next?.videoId) { mutableIntStateOf(UP_NEXT_COUNTDOWN_SECONDS) }
+    var countdownStopped by remember(next?.videoId) { mutableStateOf(!playback.autoplay || next == null) }
+    val currentOnPlay by rememberUpdatedState(onPlay)
+    val others = remember(playback.related, next) {
+        playback.related.filter { it.videoId != next?.videoId }.take(UP_NEXT_RELATED_COUNT)
+    }
+
+    LaunchedEffect(next?.videoId, countdownStopped) {
+        if (countdownStopped || next == null) return@LaunchedEffect
+        while (secondsLeft > 0) {
+            delay(1_000L)
+            secondsLeft -= 1
+        }
+        currentOnPlay(next)
+    }
+    LaunchedEffect(Unit) { runCatching { nextFocus.requestFocus() } }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.xxl),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
+    ) {
+        Text(
+            text = stringResource(R.string.youtube_up_next),
+            style = MaterialTheme.typography.headlineSmall,
+            color = Color.White
+        )
+        if (next != null) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                YouTubeVideoCard(
+                    video = next,
+                    onClick = { onPlay(next) },
+                    modifier = Modifier.width(UP_NEXT_CARD_WIDTH).focusRequester(nextFocus)
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
+                    Text(
+                        text = if (countdownStopped) {
+                            stringResource(R.string.youtube_up_next_select)
+                        } else {
+                            pluralStringResource(R.plurals.youtube_up_next_countdown, secondsLeft, secondsLeft)
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White
+                    )
+                    Button(onClick = onClose) { Text(text = stringResource(R.string.youtube_up_next_close)) }
+                }
+            }
+        }
+        if (others.isNotEmpty()) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
+                modifier = Modifier.onFocusChanged { if (it.hasFocus) countdownStopped = true }
+            ) {
+                items(others, key = { it.videoId }) { video ->
+                    YouTubeVideoCard(
+                        video = video,
+                        onClick = { onPlay(video) },
+                        modifier = Modifier.width(UP_NEXT_RELATED_WIDTH)
+                    )
+                }
+            }
+        }
+    }
+}
+
+private const val UP_NEXT_COUNTDOWN_SECONDS = 10
+private const val UP_NEXT_RELATED_COUNT = 8
+private val UP_NEXT_CARD_WIDTH = 480.dp
+private val UP_NEXT_RELATED_WIDTH = 280.dp
 
 /** One cue in the viewer's subtitle style from Fetch's playback settings. */
 @Composable

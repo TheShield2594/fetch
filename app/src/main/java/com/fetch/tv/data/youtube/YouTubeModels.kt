@@ -46,6 +46,12 @@ data class YouTubeSkipSegment(
     val category: String
 )
 
+/** YouTube's Up Next for a video. [next] falls back to the first related video. */
+data class YouTubeWatchNext(
+    val next: YouTubeVideo?,
+    val related: List<YouTubeVideo>
+)
+
 /** What the signed-in TV player says about a video, beyond the streams Fetch gets elsewhere. */
 data class YouTubePlayerInfo(
     val trackingLinks: Pair<String, String>?,

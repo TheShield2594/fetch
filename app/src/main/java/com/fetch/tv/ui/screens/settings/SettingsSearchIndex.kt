@@ -275,6 +275,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.youtube_sign_in_title,
         R.string.youtube_account_title,
         R.string.youtube_sponsor_block_title,
+        R.string.youtube_autoplay_title,
         R.string.youtube_watch_history_title,
         R.string.youtube_sign_out_title,
         R.string.youtube_channel_picker_title

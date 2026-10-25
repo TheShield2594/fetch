@@ -54,8 +54,10 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,6 +101,8 @@ import com.fetch.tv.domain.model.ExperienceMode
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.fetch.tv.data.local.PlayerSettings
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
 
@@ -138,36 +142,52 @@ private const val SETTINGS_DETAIL_ANIM_OUT_DURATION_MS = 180
 // this window, not this window alone.
 private const val SETTINGS_DETAIL_FOCUS_RETRY_WINDOW_MS = SETTINGS_DETAIL_ANIM_IN_DURATION_MS
 
+// How long a search result keeps looking for its row before settling for the page's first option.
+// Longer than the window above, since a page that lists rows lazily has to be paged through first.
+private const val SETTINGS_ROW_TARGET_WINDOW_MS = 1_000L
+
+// Frames a page gets to compose and register the row before, with no lazy page searching for it,
+// the row is taken to be missing.
+private const val SETTINGS_ROW_TARGET_SETTLE_FRAMES = 3
+
 private sealed interface ExperienceModeLoadState {
     data object Loading : ExperienceModeLoadState
     data class Loaded(val mode: ExperienceMode?) : ExperienceModeLoadState
 }
 
 @Composable
-private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec = when (category) {
-    SettingsCategory.SEARCH -> SettingsSectionSpec(category, stringResource(R.string.settings_search_title), Icons.Default.Search, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.ACCOUNT -> SettingsSectionSpec(category, stringResource(R.string.settings_account), Icons.Default.Person, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.PROFILES -> SettingsSectionSpec(category, stringResource(R.string.settings_profiles), Icons.Default.People, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.WATCH_PARTY -> SettingsSectionSpec(category, stringResource(R.string.party_title), Icons.Rounded.Groups, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.PHONE -> SettingsSectionSpec(category, stringResource(R.string.phone_hub_title), Icons.Rounded.PhoneAndroid, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.APPEARANCE -> SettingsSectionSpec(category, stringResource(R.string.appearance_title), Icons.Default.Palette, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.LAYOUT -> SettingsSectionSpec(category, stringResource(R.string.settings_layout), Icons.Default.GridView, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.CONTENT_DISCOVERY -> SettingsSectionSpec(category, stringResource(R.string.settings_content_discovery), Icons.Default.Explore, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.PLAYBACK -> SettingsSectionSpec(category, stringResource(R.string.settings_playback), Icons.Rounded.PlayArrow, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.TRACKING -> SettingsSectionSpec(category, stringResource(R.string.settings_tracking_title), Icons.Default.Sync, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.YOUTUBE -> SettingsSectionSpec(category, stringResource(R.string.youtube_name), rawIconRes = R.raw.youtube_logo, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.TMDB -> SettingsSectionSpec(category, "TMDB", rawIconRes = R.raw.mdblist_tmdb, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.MDBLIST -> SettingsSectionSpec(category, stringResource(R.string.mdblist_title), rawIconRes = R.raw.mdblist_logo, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.ANIME_SKIP -> SettingsSectionSpec(category, "Anime-Skip", Icons.Default.FastForward, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.ADVANCED -> SettingsSectionSpec(category, stringResource(R.string.settings_advanced), Icons.Default.Build, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.ABOUT -> SettingsSectionSpec(category, stringResource(R.string.about_title), Icons.Default.Info, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.DEBUG -> SettingsSectionSpec(category, stringResource(R.string.settings_debug), Icons.Default.BugReport, destination = SettingsSectionDestination.Inline)
-    SettingsCategory.EXPERIENCE -> SettingsSectionSpec(category, stringResource(R.string.settings_experience), Icons.Default.Tune, destination = SettingsSectionDestination.Inline)
+private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec {
+    category.playbackSection?.let { section ->
+        return SettingsSectionSpec(category, stringResource(section.title), section.icon, destination = SettingsSectionDestination.Inline)
+    }
+    return when (category) {
+        SettingsCategory.SEARCH -> SettingsSectionSpec(category, stringResource(R.string.settings_search_title), Icons.Default.Search, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.ACCOUNT -> SettingsSectionSpec(category, stringResource(R.string.settings_account), Icons.Default.Person, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.PROFILES -> SettingsSectionSpec(category, stringResource(R.string.settings_profiles), Icons.Default.People, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.WATCH_PARTY -> SettingsSectionSpec(category, stringResource(R.string.party_title), Icons.Rounded.Groups, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.PHONE -> SettingsSectionSpec(category, stringResource(R.string.phone_hub_title), Icons.Rounded.PhoneAndroid, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.APPEARANCE -> SettingsSectionSpec(category, stringResource(R.string.appearance_title), Icons.Default.Palette, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.LAYOUT -> SettingsSectionSpec(category, stringResource(R.string.settings_layout), Icons.Default.GridView, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.CONTENT_DISCOVERY -> SettingsSectionSpec(category, stringResource(R.string.settings_content_discovery), Icons.Default.Explore, destination = SettingsSectionDestination.Inline)
+        // Essential mode's only playback page, so named for what it holds rather than after its heading.
+        SettingsCategory.PLAYBACK -> SettingsSectionSpec(category, stringResource(R.string.essential_playback_basics), Icons.Rounded.PlayArrow, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.TRACKING -> SettingsSectionSpec(category, stringResource(R.string.settings_tracking_title), Icons.Default.Sync, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.YOUTUBE -> SettingsSectionSpec(category, stringResource(R.string.youtube_name), rawIconRes = R.raw.youtube_logo, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.TMDB -> SettingsSectionSpec(category, "TMDB", rawIconRes = R.raw.mdblist_tmdb, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.MDBLIST -> SettingsSectionSpec(category, stringResource(R.string.mdblist_title), rawIconRes = R.raw.mdblist_logo, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.ANIME_SKIP -> SettingsSectionSpec(category, "Anime-Skip", Icons.Default.FastForward, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.ADVANCED -> SettingsSectionSpec(category, stringResource(R.string.settings_advanced), Icons.Default.Build, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.ABOUT -> SettingsSectionSpec(category, stringResource(R.string.about_title), Icons.Default.Info, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.DEBUG -> SettingsSectionSpec(category, stringResource(R.string.settings_debug), Icons.Default.BugReport, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.EXPERIENCE -> SettingsSectionSpec(category, stringResource(R.string.settings_experience), Icons.Default.Tune, destination = SettingsSectionDestination.Inline)
+        // Each of these is a playback section, covered above.
+        else -> error("No rail entry for $category")
+    }
 }
 
 @Composable
 private fun settingsGroupTitle(group: SettingsRailGroup): String = when (group) {
-    SettingsRailGroup.PROFILES -> stringResource(R.string.settings_profiles)
+    SettingsRailGroup.PROFILES -> stringResource(R.string.settings_group_people)
     SettingsRailGroup.PLAYBACK -> stringResource(R.string.settings_playback)
     SettingsRailGroup.SOURCES -> stringResource(R.string.sources_title)
     SettingsRailGroup.HOME -> stringResource(R.string.nav_home)
@@ -186,7 +206,8 @@ fun SettingsScreen(
     onNavigateToPhoneHub: () -> Unit = {},
     profileViewModel: ProfileSettingsViewModel = hiltViewModel(),
     experienceModeViewModel: ExperienceModeSettingsViewModel = hiltViewModel(),
-    partyViewModel: PartyViewModel = hiltViewModel()
+    partyViewModel: PartyViewModel = hiltViewModel(),
+    playbackViewModel: PlaybackSettingsViewModel = hiltViewModel()
 ) {
     val isPrimaryProfileActive by profileViewModel.isPrimaryProfileActive.collectAsStateWithLifecycle()
     val isWatchPartyAvailable by partyViewModel.party.available.collectAsStateWithLifecycle()
@@ -197,8 +218,16 @@ fun SettingsScreen(
     }.collectAsStateWithLifecycle(initialValue = ExperienceModeLoadState.Loading)
     val loadedExperienceMode = (experienceModeState as? ExperienceModeLoadState.Loaded)?.mode
     val experienceModeLoaded = experienceModeState is ExperienceModeLoadState.Loaded
+    // Which playback sections the rail lists depends on the player engine, so it waits for the
+    // player settings too rather than showing the defaults' sections and then changing under the user.
+    val playbackSections by remember(playbackViewModel) {
+        playbackViewModel.playerSettings
+            .map<PlayerSettings, List<PlaybackSection>?> { visiblePlaybackSections(it) }
+            .distinctUntilChanged()
+    }.collectAsStateWithLifecycle(initialValue = null)
+    val loadedPlaybackSections = playbackSections
 
-    if (!experienceModeLoaded) {
+    if (!experienceModeLoaded || loadedPlaybackSections == null) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -209,13 +238,14 @@ fun SettingsScreen(
 
     val isEssentialMode = loadedExperienceMode == ExperienceMode.ESSENTIAL
 
-    val visibleCategories = remember(isPrimaryProfileActive, isEssentialMode, isWatchPartyAvailable) {
+    val visibleCategories = remember(isPrimaryProfileActive, isEssentialMode, isWatchPartyAvailable, loadedPlaybackSections) {
         visibleSettingsCategories(
             isPrimaryProfile = isPrimaryProfileActive,
             isEssentialMode = isEssentialMode,
             isDebugBuild = BuildConfig.IS_DEBUG_BUILD,
             isWatchPartyAvailable = isWatchPartyAvailable,
-            isYouTubeAvailable = AppFeaturePolicy.youTubeSectionEnabled
+            isYouTubeAvailable = AppFeaturePolicy.youTubeSectionEnabled,
+            playbackSections = loadedPlaybackSections
         )
     }
     val visibleSections = visibleCategories.map { category -> settingsSectionSpec(category) }
@@ -234,6 +264,8 @@ fun SettingsScreen(
     }
     val railContainerFocusRequester = remember { FocusRequester() }
     var pendingContentFocusCategory by remember { mutableStateOf<SettingsCategory?>(null) }
+    // The row a search result is opening its page on, until focus has gone to it or given up.
+    var rowTarget by remember { mutableStateOf<SettingsRowTarget?>(null) }
     var pendingContentFocusRequestId by remember { mutableLongStateOf(0L) }
     // Saveable so it survives a trip out to one of the screens a category opens. The pane bounces
     // focus back to the rail whenever it gains focus while this is false, so a plain remember made
@@ -378,12 +410,38 @@ fun SettingsScreen(
         // betting on one fixed delay. The pane is not always laid out when the delay expires,
         // and the fallback below moves by direction, which lands wherever is nearest the rail
         // row the user came from, usually the middle of the options.
+        suspend fun requestWithin(windowMs: Long, requester: () -> FocusRequester?): Boolean {
+            val deadline = System.nanoTime() + windowMs * 1_000_000L
+            while (System.nanoTime() < deadline) {
+                val requested = requester()
+                    ?.let { runCatching { it.requestFocus() }.getOrDefault(false) } ?: false
+                if (requested) return true
+                withFrameNanos { }
+            }
+            return false
+        }
+        // A search result goes to its row first. The page's first option is the fallback, for a
+        // row the page does not show right now, such as one that only appears for another engine.
+        val target = rowTarget?.takeIf { it.category == category }
         var requested = false
-        val deadline = System.nanoTime() + SETTINGS_DETAIL_FOCUS_RETRY_WINDOW_MS * 1_000_000L
-        while (!requested && System.nanoTime() < deadline) {
-            requested = contentFocusRequesters[category]
-                ?.let { runCatching { it.requestFocus() }.getOrDefault(false) } ?: false
-            if (!requested) withFrameNanos { }
+        if (target != null) {
+            // Ends early once the page says it has no such row. A page that composes all its rows
+            // at once has registered the row within a frame or two, and only a lazy page that is
+            // still paging through says it is searching, so the full window is only spent there.
+            val deadline = System.nanoTime() + SETTINGS_ROW_TARGET_WINDOW_MS * 1_000_000L
+            var frames = 0
+            while (!requested && !target.noRow && System.nanoTime() < deadline) {
+                requested = target.requester
+                    ?.let { runCatching { it.requestFocus() }.getOrDefault(false) } ?: false
+                if (requested) break
+                if (frames >= SETTINGS_ROW_TARGET_SETTLE_FRAMES && !target.searching) break
+                withFrameNanos { }
+                frames++
+            }
+        }
+        if (target != null && rowTarget === target) rowTarget = null
+        if (!requested) {
+            requested = requestWithin(SETTINGS_DETAIL_FOCUS_RETRY_WINDOW_MS.toLong()) { contentFocusRequesters[category] }
         }
         if (!requested) {
             focusManager.moveFocus(FocusDirection.Right)
@@ -431,6 +489,7 @@ fun SettingsScreen(
             val selectFocusedTab: (SettingsCategory) -> Unit = { category ->
                 if (selectedCategory != category) {
                     allowDetailAutofocus = false
+                    rowTarget = null
                     selectedCategory = category
                 }
             }
@@ -500,6 +559,7 @@ fun SettingsScreen(
                                     ?.takeIf { it != selectedCategory || !allowDetailAutofocus }
                                     ?.let { category -> visibleSections.firstOrNull { it.category == category } }
                                 if (pendingSection != null) {
+                                    rowTarget = null
                                     onSectionClick(pendingSection)
                                     true
                                 } else {
@@ -547,7 +607,10 @@ fun SettingsScreen(
                                 rawIconRes = section.rawIconRes,
                                 isSelected = selectedCategory == section.category,
                                 focusRequester = railFocusRequesters[section.category],
-                                onClick = { onSectionClick(section) },
+                                onClick = {
+                                    rowTarget = null
+                                    onSectionClick(section)
+                                },
                                 suppressSelectedVisual = railHadFocus
                                     && focusedTabCategory != null
                                     && focusedTabCategory != section.category
@@ -582,23 +645,30 @@ fun SettingsScreen(
                         }
                     }
             ) {
-                SettingsDetailPane(
-                    selectedCategory = selectedCategory,
-                    isEssentialMode = isEssentialMode,
-                    allowDetailAutofocus = allowDetailAutofocus,
-                    contentFocusRequesters = contentFocusRequesters,
-                    experienceModeViewModel = experienceModeViewModel,
-                    visibleCategories = visibleCategories,
-                    onOpenSearchResult = { category ->
-                        visibleSections.firstOrNull { it.category == category }?.let(onSectionClick)
-                    },
-                    onNavigateToManageProfiles = onNavigateToManageProfiles,
-                    onNavigateToAddons = onNavigateToAddons,
-                    onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
-                    onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
-                    onNavigateToWatchParty = onNavigateToWatchParty,
-                    onNavigateToPhoneHub = onNavigateToPhoneHub
-                )
+                CompositionLocalProvider(
+                    LocalSettingsRowTarget provides rowTarget?.takeIf { it.category == selectedCategory }
+                ) {
+                    SettingsDetailPane(
+                        selectedCategory = selectedCategory,
+                        isEssentialMode = isEssentialMode,
+                        allowDetailAutofocus = allowDetailAutofocus,
+                        contentFocusRequesters = contentFocusRequesters,
+                        experienceModeViewModel = experienceModeViewModel,
+                        visibleCategories = visibleCategories,
+                        onOpenSearchResult = { result ->
+                            visibleSections.firstOrNull { it.category == result.category }?.let { section ->
+                                rowTarget = SettingsRowTarget(result.category, result.title)
+                                onSectionClick(section)
+                            }
+                        },
+                        onNavigateToManageProfiles = onNavigateToManageProfiles,
+                        onNavigateToAddons = onNavigateToAddons,
+                        onNavigateToAuthQrSignIn = onNavigateToAuthQrSignIn,
+                        onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
+                        onNavigateToWatchParty = onNavigateToWatchParty,
+                        onNavigateToPhoneHub = onNavigateToPhoneHub
+                    )
+                }
             }
             }
         }
@@ -613,7 +683,7 @@ private fun SettingsDetailPane(
     contentFocusRequesters: Map<SettingsCategory, FocusRequester>,
     experienceModeViewModel: ExperienceModeSettingsViewModel,
     visibleCategories: List<SettingsCategory>,
-    onOpenSearchResult: (SettingsCategory) -> Unit,
+    onOpenSearchResult: (SettingsSearchEntry) -> Unit,
     onNavigateToManageProfiles: () -> Unit,
     onNavigateToAddons: () -> Unit,
     onNavigateToAuthQrSignIn: () -> Unit,
@@ -624,6 +694,17 @@ private fun SettingsDetailPane(
     // Only when the pane was entered on purpose; otherwise moving along the rail would pull focus in.
     val focusFor: (SettingsCategory) -> FocusRequester? = { category ->
         if (allowDetailAutofocus) contentFocusRequesters[category] else null
+    }
+    val playbackSection = selectedCategory.playbackSection
+    if (playbackSection != null) {
+        // Keyed so each section starts at its top rather than at the last one's scroll position.
+        key(playbackSection) {
+            PlaybackSettingsContent(
+                initialFocusRequester = focusFor(selectedCategory),
+                section = playbackSection
+            )
+        }
+        return
     }
     when (selectedCategory) {
         SettingsCategory.EXPERIENCE -> EssentialAdvancedSettingsContent(
@@ -746,6 +827,7 @@ private fun SettingsDetailPane(
             }
         )
         SettingsCategory.DEBUG -> DebugSettingsContent()
+        else -> Unit
     }
 }
 

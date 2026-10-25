@@ -7,9 +7,9 @@ import org.junit.Test
 import java.io.File
 
 /**
- * Keeps settings search complete: every `title = stringResource(...)` on a page's files, and every
- * section title in the Playback and Layout models, must be in [settingsSearchIndex] under that
- * page, and the index must hold nothing else.
+ * Keeps settings search complete: every `title = stringResource(...)` on a page's files, every
+ * section title in the Layout model, and each playback section's own title must be in
+ * [settingsSearchIndex] under that page, and the index must hold nothing else.
  */
 class SettingsSearchIndexTest {
 
@@ -18,20 +18,31 @@ class SettingsSearchIndexTest {
     private val pageFiles: Map<SettingsCategory, List<String>> = mapOf(
         SettingsCategory.PROFILES to listOf("settings/ProfileSettingsContent.kt"),
         SettingsCategory.WATCH_PARTY to listOf("party/PartySettingsContent.kt"),
-        SettingsCategory.PLAYBACK to listOf(
-            "settings/PlaybackSettingsScreen.kt",
-            "settings/PlaybackSettingsSections.kt",
-            "settings/PlaybackAudioSettings.kt",
-            "settings/PlaybackAutoPlaySettings.kt",
-            "settings/PlaybackBufferNetworkSettings.kt",
-            "settings/PlaybackP2pSettings.kt",
-            "settings/PlaybackPlayerSettings.kt",
-            "settings/PlaybackStreamRankingSettings.kt",
-            "settings/PlaybackSubtitleSettings.kt",
-            "settings/PlaybackVideoSettings.kt",
-            "settings/EssentialPlaybackSettingsContent.kt",
-            "settings/PlaybackSettingsModel.kt"
+        SettingsCategory.PLAYBACK to listOf("settings/EssentialPlaybackSettingsContent.kt"),
+        // Several sections share a file, so each lists the composables that draw it.
+        SettingsCategory.PLAYBACK_PLAYER to listOf(
+            "settings/PlaybackPlayerSettings.kt#PlaybackPlayerSection,PlayerPreferenceDialog,InternalPlayerEngineDialog"
         ),
+        SettingsCategory.PLAYBACK_STREAM_SELECTION to listOf(
+            "settings/PlaybackAutoPlaySettings.kt#PlaybackStreamSelectionSection,AutoPlaySettingsDialogs," +
+                "StreamAutoPlayModeDialog,StreamReuseLastLinkCacheDurationDialog,StreamAutoPlayProviderSelectionDialog," +
+                "StreamRegexDialog",
+            "settings/PlaybackStreamRankingSettings.kt"
+        ),
+        SettingsCategory.PLAYBACK_UP_NEXT to listOf(
+            "settings/PlaybackAutoPlaySettings.kt#PlaybackUpNextSection,NextEpisodeThresholdModeDialog"
+        ),
+        SettingsCategory.PLAYBACK_SKIP_SEGMENTS to listOf(
+            "settings/PlaybackPlayerSettings.kt#PlaybackSkipSegmentsSection,AutoSkipToggle"
+        ),
+        SettingsCategory.PLAYBACK_PLAYER_INTERFACE to listOf(
+            "settings/PlaybackPlayerSettings.kt#PlaybackPlayerInterfaceSection"
+        ),
+        SettingsCategory.PLAYBACK_AUDIO to listOf("settings/PlaybackAudioSettings.kt"),
+        SettingsCategory.PLAYBACK_SUBTITLES to listOf("settings/PlaybackSubtitleSettings.kt"),
+        SettingsCategory.PLAYBACK_VIDEO to listOf("settings/PlaybackVideoSettings.kt"),
+        SettingsCategory.PLAYBACK_BUFFER_NETWORK to listOf("settings/PlaybackBufferNetworkSettings.kt"),
+        SettingsCategory.PLAYBACK_P2P to listOf("settings/PlaybackP2pSettings.kt"),
         SettingsCategory.ANIME_SKIP to listOf("settings/AnimeSkipSettingsScreen.kt"),
         SettingsCategory.CONTENT_DISCOVERY to listOf(
             "settings/ContentDiscoverySettingsContent.kt",
@@ -66,7 +77,9 @@ class SettingsSearchIndexTest {
         val problems = mutableListOf<String>()
         val stringIds = R.string::class.java.fields.associate { it.getInt(null) to it.name }
         pageFiles.forEach { (category, files) ->
-            val expected = files.flatMap { titleIds(File(screens, it).readText()) }.toSet()
+            // A playback section's page is headed by the section's title.
+            val sectionTitle = category.playbackSection?.let { stringIds.getValue(it.title) }
+            val expected = files.flatMap { titleIds(source(it)) }.toSet() + listOfNotNull(sectionTitle)
             val indexed = settingsSearchIndex[category].orEmpty().mapNotNull { stringIds[it] }.toSet()
             (expected - indexed).forEach { problems += "$category is missing R.string.$it" }
             (indexed - expected).forEach { problems += "$category lists R.string.$it, which none of its files show" }
@@ -82,6 +95,23 @@ class SettingsSearchIndexTest {
             setOf(SettingsCategory.SEARCH, SettingsCategory.DEBUG, SettingsCategory.EXPERIENCE)
         assertEquals(searchable, settingsSearchIndex.keys)
         assertEquals(searchable, pageFiles.keys)
+    }
+
+    /**
+     * The text of [path], or with `file#A,B` only that of the top-level functions A and B in it: from
+     * each one's declaration up to the next top-level declaration.
+     */
+    private fun source(path: String): String {
+        val file = path.substringBefore('#')
+        val text = File(screens, file).readText()
+        val functions = path.substringAfter('#', "").split(',').filter { it.isNotEmpty() }
+        if (functions.isEmpty()) return text
+        val declarations = TOP_LEVEL.findAll(text).map { it.range.first }.toList() + text.length
+        return functions.joinToString("\n") { name ->
+            val start = Regex("""(?m)^(?:internal |private )?fun $name\(""").find(text)?.range?.first
+                ?: error("$file has no top-level fun $name")
+            text.substring(start, declarations.first { it > start })
+        }
     }
 
     /** The string ids in each `title = stringResource(...)` call, and the first id of each enum entry. */
@@ -106,5 +136,6 @@ class SettingsSearchIndexTest {
     private companion object {
         val STRING_ID = Regex("""R\.string\.([A-Za-z0-9_]+)""")
         val ENUM_TITLE = Regex("""(?m)^\s*[A-Z_]+\(\s*R\.string\.([A-Za-z0-9_]+)""")
+        val TOP_LEVEL = Regex("""(?m)^(?:@Composable\n)?(?:internal |private )?(?:fun|val|object|class|enum) """)
     }
 }

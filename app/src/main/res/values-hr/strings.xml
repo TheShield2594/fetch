@@ -2897,6 +2897,7 @@
     <string name="source_rule_never_group">Nikad ne reproduciraj izdanja %1$s</string>
     <string name="source_rule_never_saved">Najbolje podudaranje preskočit će izdanja %1$s</string>
     <string name="settings_group_accounts">Računi</string>
+    <string name="settings_group_people">Osobe</string>
     <string name="settings_group_system">Sustav</string>
     <string name="settings_search_title">Pretraživanje</string>
     <string name="settings_search_subtitle">Pronađite postavku po nazivu, a zatim otvorite stranicu na kojoj se nalazi.</string>

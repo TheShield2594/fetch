@@ -2387,6 +2387,7 @@
     <string name="source_rule_never_group">Никога не пускай издания на %1$s</string>
     <string name="source_rule_never_saved">Най-добро съвпадение ще пропуска изданията на %1$s</string>
     <string name="settings_group_accounts">Акаунти</string>
+    <string name="settings_group_people">Хора</string>
     <string name="settings_group_system">Система</string>
     <string name="settings_search_title">Търсене</string>
     <string name="settings_search_subtitle">Намерете настройка по име и отворете страницата, на която е.</string>

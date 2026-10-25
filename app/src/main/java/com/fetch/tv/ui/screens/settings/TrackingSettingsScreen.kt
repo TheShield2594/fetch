@@ -494,6 +494,7 @@ internal fun TrackingSettingsOverview(
     onMdbListLibraryListsClick: () -> Unit = {}
 ) {
     val listState = rememberLazyListState()
+    SettingsRowTargetScroller(listState)
     val traktPresentation = traktConnectionPresentation(traktState)
     val simklPresentation = simklConnectionPresentation(simklState)
     val mdbListPresentation = mdbListConnectionPresentation(mdbListState)

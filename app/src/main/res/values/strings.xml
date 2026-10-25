@@ -504,6 +504,7 @@
     <string name="settings_playback">Playback</string>
     <string name="settings_tracking_title">Tracking</string>
     <string name="settings_group_accounts">Accounts</string>
+    <string name="settings_group_people">People</string>
     <string name="settings_group_system">System</string>
     <string name="settings_search_title">Search</string>
     <string name="settings_search_subtitle">Find a setting by name, then open the page that has it.</string>

@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -93,6 +94,8 @@ fun LayoutSettingsContent(
                 .weight(1f)
         ) {
             val listState = rememberLazyListState()
+            val targetPending = settingsRowTargetPending()
+            SettingsRowTargetScroller(listState)
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     state = listState,
@@ -101,7 +104,9 @@ fun LayoutSettingsContent(
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
                     items(items = sections, key = { it.name }) { section ->
-                        val expanded = section.name in expandedSections
+                        // While a search result's row is being looked for, every section is open,
+                        // and the one it turns up in stays open afterwards.
+                        val expanded = section.name in expandedSections || targetPending
                         SettingsCollapsibleSection(
                             title = stringResource(section.title),
                             description = stringResource(section.description),
@@ -117,12 +122,18 @@ fun LayoutSettingsContent(
                             focusRequester = if (section == sections.first()) initialFocusRequester else null,
                             modifier = Modifier.testTag(LayoutSettingsTestTags.section(section))
                         ) {
-                            LayoutSectionContent(
-                                section = section,
-                                uiState = uiState,
-                                streamBadgeUiState = streamBadgeUiState,
-                                viewModel = viewModel
-                            )
+                            CompositionLocalProvider(
+                                LocalSettingsTargetFound provides {
+                                    if (section.name !in expandedSections) expandedSections = expandedSections + section.name
+                                }
+                            ) {
+                                LayoutSectionContent(
+                                    section = section,
+                                    uiState = uiState,
+                                    streamBadgeUiState = streamBadgeUiState,
+                                    viewModel = viewModel
+                                )
+                            }
                         }
                     }
                 }

@@ -2717,6 +2717,7 @@
     <string name="source_rule_never_group">%1$s রিলিজ কখনও চালাবেন না</string>
     <string name="source_rule_never_saved">সেরা মিল %1$s রিলিজ এড়িয়ে যাবে</string>
     <string name="settings_group_accounts">অ্যাকাউন্ট</string>
+    <string name="settings_group_people">ব্যক্তি</string>
     <string name="settings_group_system">সিস্টেম</string>
     <string name="settings_search_title">খুঁজুন</string>
     <string name="settings_search_subtitle">নাম দিয়ে একটি সেটিং খুঁজুন, তারপর সেটি যে পৃষ্ঠায় আছে তা খুলুন।</string>

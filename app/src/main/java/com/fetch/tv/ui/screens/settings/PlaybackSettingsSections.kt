@@ -82,7 +82,7 @@ internal fun PlaybackSettingsSections(
 }
 
 @Composable
-private fun PlaybackSectionContent(
+internal fun PlaybackSectionContent(
     section: PlaybackSection,
     playerSettings: PlayerSettings,
     p2p: P2pSettingsUi,

@@ -388,6 +388,7 @@ fun AdvancedSettingsContent(
     }
 
     val networkListState = rememberLazyListState()
+    SettingsRowTargetScroller(networkListState)
     var showExperienceModeConfirmation by remember { mutableStateOf(false) }
     var showAddonTimeoutDialog by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxSize()) {

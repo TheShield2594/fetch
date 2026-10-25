@@ -2877,6 +2877,7 @@
     <string name="source_rule_never_group">Ποτέ εκδόσεις %1$s</string>
     <string name="source_rule_never_saved">Η Καλύτερη αντιστοίχιση θα παραλείπει τις εκδόσεις %1$s</string>
     <string name="settings_group_accounts">Λογαριασμοί</string>
+    <string name="settings_group_people">Άτομα</string>
     <string name="settings_group_system">Σύστημα</string>
     <string name="settings_search_title">Αναζήτηση</string>
     <string name="settings_search_subtitle">Βρείτε μια ρύθμιση με το όνομά της και ανοίξτε τη σελίδα όπου βρίσκεται.</string>

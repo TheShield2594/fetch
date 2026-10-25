@@ -1612,6 +1612,7 @@
     <string name="source_rule_never_group">Spela aldrig utgåvor från %1$s</string>
     <string name="source_rule_never_saved">Bästa matchning hoppar över utgåvor från %1$s</string>
     <string name="settings_group_accounts">Konton</string>
+    <string name="settings_group_people">Personer</string>
     <string name="settings_group_system">System</string>
     <string name="settings_search_title">Sök</string>
     <string name="settings_search_subtitle">Hitta en inställning efter namn och öppna sidan där den finns.</string>

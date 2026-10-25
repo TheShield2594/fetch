@@ -1067,6 +1067,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="source_rule_never_group">Niekada neleisti %1$s leidimų</string>
     <string name="source_rule_never_saved">Geriausias atitikmuo praleis %1$s leidimus</string>
     <string name="settings_group_accounts">Paskyros</string>
+    <string name="settings_group_people">Žmonės</string>
     <string name="settings_group_system">Sistema</string>
     <string name="settings_search_title">Paieška</string>
     <string name="settings_search_subtitle">Raskite nustatymą pagal pavadinimą ir atidarykite puslapį, kuriame jis yra.</string>

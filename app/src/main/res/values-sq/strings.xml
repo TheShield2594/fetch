@@ -2508,6 +2508,7 @@
     <string name="source_rule_never_group">Mos luaj kurrë publikime të %1$s</string>
     <string name="source_rule_never_saved">Përputhja më e mirë do të anashkalojë publikimet e %1$s</string>
     <string name="settings_group_accounts">Llogaritë</string>
+    <string name="settings_group_people">Njerëzit</string>
     <string name="settings_group_system">Sistemi</string>
     <string name="settings_search_title">Kërko</string>
     <string name="settings_search_subtitle">Gjej një cilësim sipas emrit, pastaj hap faqen ku ndodhet.</string>

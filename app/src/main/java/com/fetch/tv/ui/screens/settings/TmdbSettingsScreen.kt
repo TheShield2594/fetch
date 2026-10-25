@@ -70,6 +70,7 @@ fun TmdbSettingsContent(
                 .weight(1f)
         ) {
             val tmdbListState = rememberLazyListState()
+            SettingsRowTargetScroller(tmdbListState)
             Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 state = tmdbListState,

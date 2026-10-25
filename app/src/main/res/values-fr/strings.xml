@@ -2967,6 +2967,7 @@
     <string name="source_rule_never_group">Ne jamais lire les sorties %1$s</string>
     <string name="source_rule_never_saved">Meilleure correspondance ignorera les sorties %1$s</string>
     <string name="settings_group_accounts">Comptes</string>
+    <string name="settings_group_people">Personnes</string>
     <string name="settings_group_system">Système</string>
     <string name="settings_search_title">Rechercher</string>
     <string name="settings_search_subtitle">Trouvez un réglage par son nom, puis ouvrez la page qui le contient.</string>

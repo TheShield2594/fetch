@@ -2714,6 +2714,7 @@
     <string name="source_rule_never_group">Никогда не включать релизы %1$s</string>
     <string name="source_rule_never_saved">«Лучшее совпадение» будет пропускать релизы %1$s</string>
     <string name="settings_group_accounts">Аккаунты</string>
+    <string name="settings_group_people">Люди</string>
     <string name="settings_group_system">Система</string>
     <string name="settings_search_title">Поиск</string>
     <string name="settings_search_subtitle">Найдите настройку по названию и откройте страницу, на которой она находится.</string>

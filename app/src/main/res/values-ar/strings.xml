@@ -2657,6 +2657,7 @@
     <string name="source_rule_never_group">عدم تشغيل إصدارات %1$s أبدًا</string>
     <string name="source_rule_never_saved">سيتخطى أفضل تطابق إصدارات %1$s</string>
     <string name="settings_group_accounts">الحسابات</string>
+    <string name="settings_group_people">الأشخاص</string>
     <string name="settings_group_system">النظام</string>
     <string name="settings_search_title">بحث</string>
     <string name="settings_search_subtitle">ابحث عن إعداد باسمه، ثم افتح الصفحة التي تحتوي عليه.</string>

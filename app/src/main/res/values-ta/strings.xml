@@ -2203,6 +2203,7 @@
     <string name="source_rule_never_group">%1$s வெளியீடுகளை ஒருபோதும் இயக்காதே</string>
     <string name="source_rule_never_saved">சிறந்த பொருத்தம் %1$s வெளியீடுகளைத் தவிர்க்கும்</string>
     <string name="settings_group_accounts">கணக்குகள்</string>
+    <string name="settings_group_people">நபர்கள்</string>
     <string name="settings_group_system">அமைப்பு</string>
     <string name="settings_search_title">தேடு</string>
     <string name="settings_search_subtitle">ஒரு அமைப்பை அதன் பெயரால் கண்டறிந்து, அது உள்ள பக்கத்தைத் திறக்கவும்.</string>

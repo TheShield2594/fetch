@@ -2217,6 +2217,7 @@
     <string name="source_rule_never_group">Releases von %1$s nie abspielen</string>
     <string name="source_rule_never_saved">Beste Übereinstimmung überspringt Releases von %1$s</string>
     <string name="settings_group_accounts">Konten</string>
+    <string name="settings_group_people">Personen</string>
     <string name="settings_group_system">System</string>
     <string name="settings_search_title">Suche</string>
     <string name="settings_search_subtitle">Finde eine Einstellung über ihren Namen und öffne die Seite, auf der sie steht.</string>

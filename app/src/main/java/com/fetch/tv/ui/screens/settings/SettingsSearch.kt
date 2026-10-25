@@ -32,7 +32,7 @@ import java.util.Locale
 /** At most this many results are listed; a query that matches more is too short to help. */
 private const val MAX_RESULTS = 60
 
-/** One setting that can be searched for: its title and the page that has it. */
+/** One setting that can be searched for: its title, which is also its row's key, and the page that has it. */
 internal data class SettingsSearchEntry(val category: SettingsCategory, val title: String)
 
 /**
@@ -72,14 +72,14 @@ private fun foldForSearch(text: String): String =
 
 /**
  * Settings search: type part of a setting's name, then pick a result to open the page that has
- * it. Only pages the rail shows are searched.
+ * it, focused on that setting. Only pages the rail shows are searched.
  */
 @Composable
 internal fun SettingsSearchContent(
     visibleCategories: List<SettingsCategory>,
     pageTitle: @Composable (SettingsCategory) -> String,
     groupTitle: @Composable (SettingsRailGroup) -> String,
-    onOpen: (SettingsCategory) -> Unit,
+    onOpen: (SettingsSearchEntry) -> Unit,
     initialFocusRequester: FocusRequester?
 ) {
     val context = LocalContext.current
@@ -133,7 +133,7 @@ internal fun SettingsSearchContent(
                                 SettingsActionRow(
                                     title = result.title,
                                     subtitle = paths[result.category],
-                                    onClick = { onOpen(result.category) }
+                                    onClick = { onOpen(result) }
                                 )
                             }
                         }

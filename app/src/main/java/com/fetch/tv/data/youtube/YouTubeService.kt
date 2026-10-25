@@ -160,9 +160,7 @@ class YouTubeService @Inject constructor(
 
     suspend fun loadFeed(feed: YouTubeFeed, query: String? = null): List<YouTubeShelf> = withContext(Dispatchers.IO) {
         when (feed) {
-            YouTubeFeed.HOME -> HOME_BROWSE_IDS.firstNotNullOfOrNull { browseId ->
-                browse(browseId).takeIf { shelves -> shelves.isNotEmpty() }
-            }.orEmpty()
+            YouTubeFeed.HOME -> loadHome()
             YouTubeFeed.SUBSCRIPTIONS -> browse(SUBSCRIPTIONS_BROWSE_ID)
             YouTubeFeed.HISTORY -> browse(HISTORY_BROWSE_ID)
             YouTubeFeed.SEARCH -> {
@@ -181,6 +179,25 @@ class YouTubeService @Inject constructor(
         runCatching { fetchAccount(validAccessToken()) }
             .getOrNull()
             ?.let { authDataStore.saveAccount(it) }
+    }
+
+    /** Tries each home browse id in turn, so a renamed one falls back to the next. */
+    private suspend fun loadHome(): List<YouTubeShelf> {
+        var lastError: Exception? = null
+        for (browseId in HOME_BROWSE_IDS) {
+            try {
+                val shelves = browse(browseId)
+                if (shelves.isNotEmpty()) return shelves
+            } catch (e: YouTubeSignedOutException) {
+                throw e
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                lastError = e
+            }
+        }
+        lastError?.let { throw it }
+        return emptyList()
     }
 
     private suspend fun browse(browseId: String): List<YouTubeShelf> =
@@ -227,7 +244,9 @@ class YouTubeService @Inject constructor(
         YouTubeResponseParser.parseAccount(innertube("account/accounts_list", accessToken) {})
 
     /** A current access token, refreshed first when it's about to expire. */
-    private suspend fun validAccessToken(): String = refreshMutex.withLock {
+    private suspend fun validAccessToken(): String = refreshMutex.withLock { refreshIfNeeded() }
+
+    private suspend fun refreshIfNeeded(): String {
         val state = authDataStore.state.first()
         val refreshToken = state.refreshToken ?: throw YouTubeSignedOutException()
         val expiresAt = state.accessTokenExpiresAt ?: 0L
@@ -254,7 +273,7 @@ class YouTubeService @Inject constructor(
             throw IllegalStateException(errorText(response) ?: "Could not refresh YouTube sign-in ($status)")
         }
         authDataStore.saveToken(token)
-        token.accessToken
+        return token.accessToken
     }
 
     private fun post(url: String, body: JsonObject): Pair<Int, JsonElement?> {

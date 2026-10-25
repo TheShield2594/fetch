@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.youtube
 
 import android.view.KeyEvent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,11 +29,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +56,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
+import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -61,10 +66,12 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.fetch.tv.R
+import com.fetch.tv.data.youtube.YouTubeBrowseTarget
 import com.fetch.tv.data.youtube.YouTubeFeed
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
+import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
@@ -86,8 +93,14 @@ fun YouTubeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val firstTabFocusRequester = remember { FocusRequester() }
+    // The video whose long-press menu is open.
+    var menuVideo by remember { mutableStateOf<YouTubeVideo?>(null) }
+    val openPage = state.browse.lastOrNull()
 
-    LaunchedEffect(Unit) {
+    BackHandler(enabled = openPage != null, onBack = viewModel::closeBrowse)
+
+    // Opening or closing a page removes the focused card, so focus goes back to the tabs.
+    LaunchedEffect(state.browse.size) {
         firstTabFocusRequester.requestFocusAfterFrames()
     }
 
@@ -113,7 +126,16 @@ fun YouTubeScreen(
             }
         }
 
-        if (state.selectedFeed == YouTubeFeed.SEARCH) {
+        if (openPage != null) {
+            Text(
+                text = openPage.target.title.orEmpty(),
+                style = MaterialTheme.typography.headlineSmall,
+                color = FetchTheme.colors.TextPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
+            )
+        } else if (state.selectedFeed == YouTubeFeed.SEARCH) {
             YouTubeSearchField(
                 query = state.searchQuery,
                 onQueryChange = viewModel::onSearchQueryChange,
@@ -122,48 +144,69 @@ fun YouTubeScreen(
             )
         }
 
+        // Each opened page starts at its top rather than where the page under it was scrolled.
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            val feed = state.currentFeed
-            when {
-                state.signedOut -> EmptyScreenState(
-                    title = stringResource(R.string.youtube_signed_out_title),
-                    subtitle = stringResource(R.string.youtube_signed_out_subtitle),
-                    icon = Icons.Default.VideoLibrary,
-                    action = StateAction(stringResource(R.string.nav_settings), onOpenSettings)
-                )
-                feed.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    LoadingIndicator()
+            key(state.browse.size) {
+                val feed = state.currentFeed
+                when {
+                    state.signedOut -> EmptyScreenState(
+                        title = stringResource(R.string.youtube_signed_out_title),
+                        subtitle = stringResource(R.string.youtube_signed_out_subtitle),
+                        icon = Icons.Default.VideoLibrary,
+                        action = StateAction(stringResource(R.string.nav_settings), onOpenSettings)
+                    )
+                    feed.isLoading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        LoadingIndicator()
+                    }
+                    feed.failed -> ErrorState(
+                        message = stringResource(R.string.youtube_feed_error),
+                        onRetry = viewModel::refresh
+                    )
+                    // Before a search, Search asks for one; after it, an empty result says so.
+                    feed.shelves.isEmpty() -> EmptyScreenState(
+                        title = stringResource(
+                            when {
+                                openPage != null || state.selectedFeed != YouTubeFeed.SEARCH -> R.string.youtube_feed_empty
+                                feed.loaded -> R.string.youtube_search_no_results
+                                else -> R.string.youtube_search_empty
+                            }
+                        ),
+                        icon = if (openPage == null && state.selectedFeed == YouTubeFeed.SEARCH) Icons.Default.Search else Icons.Default.VideoLibrary
+                    )
+                    // Subscriptions, history and search are one long list: a grid reads better than one row.
+                    feed.shelves.size == 1 && !feed.shelves[0].isShorts -> YouTubeVideoGrid(
+                        videos = feed.shelves[0].videos,
+                        isLoadingMore = feed.isLoadingMore || 0 in feed.loadingShelves,
+                        onNearEnd = viewModel::loadMore,
+                        onPlay = viewModel::play,
+                        onMenu = { menuVideo = it }
+                    )
+                    else -> YouTubeShelves(
+                        feed = feed,
+                        onNearFeedEnd = viewModel::loadMore,
+                        onNearShelfEnd = viewModel::loadMoreInShelf,
+                        onPlay = viewModel::play,
+                        onMenu = { menuVideo = it },
+                        onViewAll = viewModel::openBrowse
+                    )
                 }
-                feed.failed -> ErrorState(
-                    message = stringResource(R.string.youtube_feed_error),
-                    onRetry = viewModel::refresh
-                )
-                // Before a search, Search asks for one; after it, an empty result says so.
-                feed.shelves.isEmpty() -> EmptyScreenState(
-                    title = stringResource(
-                        when {
-                            state.selectedFeed != YouTubeFeed.SEARCH -> R.string.youtube_feed_empty
-                            feed.loaded -> R.string.youtube_search_no_results
-                            else -> R.string.youtube_search_empty
-                        }
-                    ),
-                    icon = if (state.selectedFeed == YouTubeFeed.SEARCH) Icons.Default.Search else Icons.Default.VideoLibrary
-                )
-                // Subscriptions, history and search are one long list: a grid reads better than one row.
-                feed.shelves.size == 1 && !feed.shelves[0].isShorts -> YouTubeVideoGrid(
-                    videos = feed.shelves[0].videos,
-                    isLoadingMore = feed.isLoadingMore || 0 in feed.loadingShelves,
-                    onNearEnd = viewModel::loadMore,
-                    onPlay = viewModel::play
-                )
-                else -> YouTubeShelves(
-                    feed = feed,
-                    onNearFeedEnd = viewModel::loadMore,
-                    onNearShelfEnd = viewModel::loadMoreInShelf,
-                    onPlay = viewModel::play
-                )
             }
         }
+    }
+
+    menuVideo?.let { video ->
+        YouTubeVideoMenu(
+            video = video,
+            onDismiss = { menuVideo = null },
+            onPlay = {
+                menuVideo = null
+                viewModel.play(video)
+            },
+            onOpenChannel = {
+                menuVideo = null
+                viewModel.openChannel(video)
+            }
+        )
     }
 
     state.playback?.let { playback ->
@@ -187,7 +230,8 @@ private fun YouTubeVideoGrid(
     videos: List<YouTubeVideo>,
     isLoadingMore: Boolean,
     onNearEnd: () -> Unit,
-    onPlay: (YouTubeVideo) -> Unit
+    onPlay: (YouTubeVideo) -> Unit,
+    onMenu: (YouTubeVideo) -> Unit
 ) {
     val gridState = rememberLazyGridState()
     val nearEnd by remember(videos.size) {
@@ -213,7 +257,12 @@ private fun YouTubeVideoGrid(
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
     ) {
         items(videos, key = { it.videoId }) { video ->
-            YouTubeVideoCard(video = video, onClick = { onPlay(video) }, modifier = Modifier.fillMaxWidth())
+            YouTubeVideoCard(
+                video = video,
+                onClick = { onPlay(video) },
+                onLongClick = { onMenu(video) },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
         if (isLoadingMore) {
             item(span = { GridItemSpan(maxLineSpan) }, key = "loading_more") {
@@ -228,7 +277,9 @@ private fun YouTubeShelves(
     feed: YouTubeFeedState,
     onNearFeedEnd: () -> Unit,
     onNearShelfEnd: (Int) -> Unit,
-    onPlay: (YouTubeVideo) -> Unit
+    onPlay: (YouTubeVideo) -> Unit,
+    onMenu: (YouTubeVideo) -> Unit,
+    onViewAll: (YouTubeBrowseTarget) -> Unit
 ) {
     val shelves = feed.shelves
     val listState = rememberLazyListState()
@@ -270,9 +321,19 @@ private fun YouTubeShelves(
                             onFocused = {
                                 if (videoIndex >= shelf.videos.size - LOAD_MORE_THRESHOLD) onNearShelfEnd(index)
                             },
+                            onLongClick = { onMenu(video) },
                             portrait = shelf.isShorts,
                             modifier = Modifier.width(if (shelf.isShorts) ShortCardWidth else VideoCardWidth)
                         )
+                    }
+                    shelf.viewAll?.let { target ->
+                        item(key = "view_all") {
+                            YouTubeViewAllCard(
+                                onClick = { onViewAll(target) },
+                                portrait = shelf.isShorts,
+                                modifier = Modifier.width(if (shelf.isShorts) ShortCardWidth else VideoCardWidth)
+                            )
+                        }
                     }
                 }
             }
@@ -287,6 +348,7 @@ internal fun YouTubeVideoCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onFocused: () -> Unit = {},
+    onLongClick: (() -> Unit)? = null,
     /** Shorts rows: a 9:16 card for their portrait thumbnails. */
     portrait: Boolean = false
 ) {
@@ -297,6 +359,7 @@ internal fun YouTubeVideoCard(
     ) {
         Card(
             onClick = onClick,
+            onLongClick = onLongClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(if (portrait) 9f / 16f else 16f / 9f)
@@ -360,6 +423,76 @@ internal fun YouTubeVideoCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+        }
+    }
+}
+
+/** The card at the end of a row that opens all of it. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun YouTubeViewAllCard(
+    onClick: () -> Unit,
+    portrait: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val shape = RoundedCornerShape(FetchRadii.tokens.md)
+    Card(
+        onClick = onClick,
+        modifier = modifier.aspectRatio(if (portrait) 9f / 16f else 16f / 9f),
+        shape = CardDefaults.shape(shape),
+        colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
+        border = CardDefaults.border(
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                shape = shape
+            )
+        ),
+        scale = CardDefaults.scale(focusedScale = 1.05f)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(imageVector = Icons.AutoMirrored.Filled.ViewList, contentDescription = null, tint = FetchTheme.colors.TextPrimary)
+            Text(
+                text = stringResource(R.string.youtube_view_all),
+                style = MaterialTheme.typography.titleMedium,
+                color = FetchTheme.colors.TextPrimary
+            )
+        }
+    }
+}
+
+/** A video's long-press menu: play it, or open its channel. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun YouTubeVideoMenu(
+    video: YouTubeVideo,
+    onDismiss: () -> Unit,
+    onPlay: () -> Unit,
+    onOpenChannel: () -> Unit
+) {
+    val playFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) { playFocusRequester.requestFocus() }
+    val buttonColors = ButtonDefaults.colors(
+        containerColor = FetchTheme.colors.BackgroundCard,
+        contentColor = FetchTheme.colors.TextPrimary
+    )
+    FetchDialog(onDismiss = onDismiss, title = video.title, subtitle = video.channelName) {
+        Button(
+            onClick = onPlay,
+            colors = buttonColors,
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(playFocusRequester)
+        ) {
+            Text(stringResource(R.string.youtube_menu_play))
+        }
+        if (video.channelId != null) {
+            Button(onClick = onOpenChannel, colors = buttonColors, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.youtube_menu_go_to_channel))
+            }
         }
     }
 }

@@ -366,4 +366,48 @@ class YouTubeResponseParserTest {
         assertTrue(live.isLive)
         assertEquals("LIVE", live.duration)
     }
+
+    @Test
+    fun `rows keep their view all page, and videos their channel`() {
+        val shelves = parse(
+            """
+            {"shelfRenderer": {
+              "endpoint": {"browseEndpoint": {"browseId": "UCchannel", "params": "videos-tab"}},
+              "headerRenderer": {"shelfHeaderRenderer": {"avatarLockup": {"avatarLockupRenderer": {
+                "title": {"runs": [{"text": "Videos"}]}
+              }}}},
+              "content": {"horizontalListRenderer": {"items": [
+                {"tileRenderer": {
+                  "contentType": "TILE_CONTENT_TYPE_VIDEO",
+                  "onSelectCommand": {"watchEndpoint": {"videoId": "aaa"}},
+                  "metadata": {"tileMetadataRenderer": {
+                    "title": {"simpleText": "First"},
+                    "lines": [{"lineRenderer": {"items": [{"lineItemRenderer": {"text": {"runs": [
+                      {"text": "Some Channel", "navigationEndpoint": {"browseEndpoint": {"browseId": "UCchannel"}}}
+                    ]}}}]}}]
+                  }}
+                }},
+                {"lockupViewModel": {
+                  "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+                  "rendererContext": {
+                    "commandContext": {
+                      "onTap": {"innertubeCommand": {"watchEndpoint": {"videoId": "bbb"}}},
+                      "onLongPress": {"innertubeCommand": {"showMenuCommand": {"menu": {"menuRenderer": {"items": [
+                        {"menuNavigationItemRenderer": {"navigationEndpoint": {"browseEndpoint": {"browseId": "VLPLplaylist"}}}},
+                        {"menuNavigationItemRenderer": {"navigationEndpoint": {"browseEndpoint": {"browseId": "UCother"}}}}
+                      ]}}}}}
+                    }
+                  },
+                  "metadata": {"lockupMetadataViewModel": {"title": {"content": "Second"}}}
+                }},
+                ${tile("ccc", "Third")}
+              ]}}
+            }}
+            """
+        )
+
+        val shelf = shelves.single()
+        assertEquals(YouTubeBrowseTarget(browseId = "UCchannel", params = "videos-tab", title = "Videos"), shelf.viewAll)
+        assertEquals(listOf("UCchannel", "UCother", null), shelf.videos.map { it.channelId })
+    }
 }

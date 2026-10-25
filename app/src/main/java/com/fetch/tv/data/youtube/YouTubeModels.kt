@@ -12,7 +12,9 @@ data class YouTubeVideo(
     /** A Short; its thumbnail is portrait when it comes from a Shorts shelf. */
     val isShort: Boolean = false,
     /** Streaming now; [duration] then holds YouTube's "LIVE" label. */
-    val isLive: Boolean = false
+    val isLive: Boolean = false,
+    /** The uploader's channel (a UC… browse id), when the tile links to it. */
+    val channelId: String? = null
 ) {
     val watchUrl: String
         get() = "https://www.youtube.com/watch?v=$videoId"
@@ -25,7 +27,16 @@ data class YouTubeShelf(
     /** Loads more of this row, when YouTube pages it on its own. */
     val continuation: String? = null,
     /** A row of Shorts, shown with portrait cards. */
-    val isShorts: Boolean = false
+    val isShorts: Boolean = false,
+    /** The page with all of this row, when YouTube links its header to one. */
+    val viewAll: YouTubeBrowseTarget? = null
+)
+
+/** A YouTube page Fetch can open on its own: a channel, a playlist, or all of a row. */
+data class YouTubeBrowseTarget(
+    val browseId: String,
+    val params: String? = null,
+    val title: String? = null
 )
 
 /** One page of a feed. [continuation] loads the next page; null on the last one. */

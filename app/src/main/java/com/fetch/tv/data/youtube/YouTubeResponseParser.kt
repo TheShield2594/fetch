@@ -120,13 +120,15 @@ internal object YouTubeResponseParser {
                             val bucket = Bucket()
                             collectVideos(value, bucket, depth + 1)
                             if (bucket.videos.isNotEmpty()) {
+                                // Some rows, like the TV home's "wormholes", ask to be shown untitled.
+                                val title = if (value["hideHeader"].booleanOrNull() == true) null else shelfTitle(value)
                                 shelves += YouTubeShelf(
-                                    // Some rows, like the TV home's "wormholes", ask to be shown untitled.
-                                    title = if (value["hideHeader"].booleanOrNull() == true) null else shelfTitle(value),
+                                    title = title,
                                     videos = bucket.videos.distinctBy { it.videoId },
                                     continuation = bucket.token,
                                     isShorts = key == "reelShelfRenderer" ||
-                                        value["tvhtml5ShelfRendererType"].stringOrNull() == "TVHTML5_SHELF_RENDERER_TYPE_SHORTS"
+                                        value["tvhtml5ShelfRendererType"].stringOrNull() == "TVHTML5_SHELF_RENDERER_TYPE_SHORTS",
+                                    viewAll = browseTarget(value.path("endpoint"), title)
                                 )
                             }
                         }
@@ -222,7 +224,9 @@ internal object YouTubeResponseParser {
             isShort = isShort,
             isLive = badges.any {
                 it.path("thumbnailBadgeViewModel", "badgeStyle").stringOrNull() == "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE"
-            }
+            },
+            // In the long-press menu's "Go to channel".
+            channelId = channelId(lockup["rendererContext"], depth = 0)
         )
     }
 
@@ -230,7 +234,7 @@ internal object YouTubeResponseParser {
     private fun parseTile(tile: JsonObject): YouTubeVideo? {
         val contentType = tile["contentType"].stringOrNull()
         val isShort = tile["style"].stringOrNull() == "TILE_STYLE_YTLR_SHORTS" ||
-            contentType == "TILE_CONTENT_TYPE_SHORT"
+            contentType == "TILE_CONTENT_TYPE_SHORTS"
         if (contentType != null && contentType != "TILE_CONTENT_TYPE_VIDEO" && !isShort) return null
         val videoId = watchVideoId(tile.path("onSelectCommand")) ?: return null
         val metadata = tile.path("metadata", "tileMetadataRenderer") as? JsonObject
@@ -259,7 +263,9 @@ internal object YouTubeResponseParser {
                 it.path("thumbnailOverlayResumePlaybackRenderer", "percentDurationWatched").intOrNull()
             },
             isShort = isShort,
-            isLive = timeStatus.path("style").stringOrNull() == "LIVE"
+            isLive = timeStatus.path("style").stringOrNull() == "LIVE",
+            // On the channel name's line.
+            channelId = channelId(metadata, depth = 0)
         )
     }
 
@@ -289,8 +295,26 @@ internal object YouTubeResponseParser {
             },
             watchedPercent = overlays.firstNotNullOfOrNull {
                 it.path("thumbnailOverlayResumePlaybackRenderer", "percentDurationWatched").intOrNull()
-            }
+            },
+            channelId = channelId(renderer["ownerText"] ?: renderer["shortBylineText"] ?: renderer["longBylineText"], depth = 0)
         )
+    }
+
+    private fun browseTarget(endpoint: JsonElement?, title: String?): YouTubeBrowseTarget? {
+        val browse = endpoint.path("browseEndpoint") ?: return null
+        val browseId = browse.path("browseId").stringOrNull() ?: return null
+        return YouTubeBrowseTarget(browseId = browseId, params = browse.path("params").stringOrNull(), title = title)
+    }
+
+    /** The first channel (a UC… browse id) linked anywhere under [element]. */
+    private fun channelId(element: JsonElement?, depth: Int): String? {
+        if (element == null || depth > MAX_DEPTH) return null
+        return when (element) {
+            is JsonArray -> element.firstNotNullOfOrNull { channelId(it, depth + 1) }
+            is JsonObject -> element.path("browseEndpoint", "browseId").stringOrNull()?.takeIf { it.startsWith("UC") }
+                ?: element.values.firstNotNullOfOrNull { channelId(it, depth + 1) }
+            else -> null
+        }
     }
 
     private fun shelfTitle(shelf: JsonObject): String? =

@@ -208,6 +208,16 @@ class YouTubeService @Inject constructor(
         }
     }
 
+    /** A page opened from a feed: a channel, a playlist, or all of a row. */
+    suspend fun loadBrowse(target: YouTubeBrowseTarget): YouTubePage = withContext(Dispatchers.IO) {
+        YouTubeResponseParser.parsePage(
+            innertube("browse", validAccessToken()) {
+                put("browseId", target.browseId)
+                target.params?.let { put("params", it) }
+            }
+        )
+    }
+
     /**
      * The page after [token], from a feed's or a row's continuation. Search pages through the
      * search endpoint; every other feed through browse.

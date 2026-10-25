@@ -73,6 +73,7 @@ import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 private val VideoCardWidth = 300.dp
+private val ShortCardWidth = 180.dp
 
 /**
  * The YouTube section: the signed-in account's home feed, subscriptions and history, and search.
@@ -149,9 +150,9 @@ fun YouTubeScreen(
                     icon = if (state.selectedFeed == YouTubeFeed.SEARCH) Icons.Default.Search else Icons.Default.VideoLibrary
                 )
                 // Subscriptions, history and search are one long list: a grid reads better than one row.
-                feed.shelves.size == 1 && feed.shelves[0].title == null -> YouTubeVideoGrid(
+                feed.shelves.size == 1 && !feed.shelves[0].isShorts -> YouTubeVideoGrid(
                     videos = feed.shelves[0].videos,
-                    isLoadingMore = feed.isLoadingMore,
+                    isLoadingMore = feed.isLoadingMore || 0 in feed.loadingShelves,
                     onNearEnd = viewModel::loadMore,
                     onPlay = viewModel::play
                 )
@@ -230,7 +231,6 @@ private fun YouTubeShelves(
     onPlay: (YouTubeVideo) -> Unit
 ) {
     val shelves = feed.shelves
-    val fallbackTitle = stringResource(R.string.youtube_more_videos)
     val listState = rememberLazyListState()
     val nearEnd by remember(shelves.size) {
         derivedStateOf {
@@ -250,9 +250,10 @@ private fun YouTubeShelves(
         items(shelves.size, key = { index -> "shelf_$index" }) { index ->
             val shelf = shelves[index]
             Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
-                if (shelves.size > 1 || shelf.title != null) {
+                // Rows YouTube leaves untitled (its top picks, "wormholes") stay untitled, as in its TV app.
+                shelf.title?.let { title ->
                     Text(
-                        text = shelf.title ?: fallbackTitle,
+                        text = title,
                         style = MaterialTheme.typography.titleLarge,
                         color = FetchTheme.colors.TextPrimary,
                         modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
@@ -269,7 +270,8 @@ private fun YouTubeShelves(
                             onFocused = {
                                 if (videoIndex >= shelf.videos.size - LOAD_MORE_THRESHOLD) onNearShelfEnd(index)
                             },
-                            modifier = Modifier.width(VideoCardWidth)
+                            portrait = shelf.isShorts,
+                            modifier = Modifier.width(if (shelf.isShorts) ShortCardWidth else VideoCardWidth)
                         )
                     }
                 }
@@ -284,7 +286,9 @@ internal fun YouTubeVideoCard(
     video: YouTubeVideo,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onFocused: () -> Unit = {}
+    onFocused: () -> Unit = {},
+    /** Shorts rows: a 9:16 card for their portrait thumbnails. */
+    portrait: Boolean = false
 ) {
     val shape = RoundedCornerShape(FetchRadii.tokens.md)
     Column(
@@ -295,7 +299,7 @@ internal fun YouTubeVideoCard(
             onClick = onClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f / 9f)
+                .aspectRatio(if (portrait) 9f / 16f else 16f / 9f)
                 .onFocusChanged { if (it.isFocused) onFocused() },
             shape = CardDefaults.shape(shape),
             colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
@@ -314,7 +318,7 @@ internal fun YouTubeVideoCard(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-                video.duration?.let { duration ->
+                (video.duration ?: if (video.isLive) stringResource(R.string.youtube_live) else null)?.let { duration ->
                     Text(
                         text = duration,
                         style = MaterialTheme.typography.labelMedium,
@@ -323,7 +327,10 @@ internal fun YouTubeVideoCard(
                             .align(Alignment.BottomEnd)
                             .padding(FetchTheme.spacing.xs)
                             .clip(RoundedCornerShape(FetchRadii.tokens.xs))
-                            .background(FetchTheme.colors.Background.copy(alpha = 0.8f))
+                            .background(
+                                if (video.isLive) FetchTheme.colors.Error
+                                else FetchTheme.colors.Background.copy(alpha = 0.8f)
+                            )
                             .padding(horizontal = FetchTheme.spacing.xs)
                     )
                 }

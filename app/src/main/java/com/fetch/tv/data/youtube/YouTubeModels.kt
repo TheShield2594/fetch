@@ -8,7 +8,11 @@ data class YouTubeVideo(
     val detail: String? = null,
     val thumbnailUrl: String,
     val duration: String? = null,
-    val watchedPercent: Int? = null
+    val watchedPercent: Int? = null,
+    /** A Short; its thumbnail is portrait when it comes from a Shorts shelf. */
+    val isShort: Boolean = false,
+    /** Streaming now; [duration] then holds YouTube's "LIVE" label. */
+    val isLive: Boolean = false
 ) {
     val watchUrl: String
         get() = "https://www.youtube.com/watch?v=$videoId"
@@ -19,7 +23,9 @@ data class YouTubeShelf(
     val title: String?,
     val videos: List<YouTubeVideo>,
     /** Loads more of this row, when YouTube pages it on its own. */
-    val continuation: String? = null
+    val continuation: String? = null,
+    /** A row of Shorts, shown with portrait cards. */
+    val isShorts: Boolean = false
 )
 
 /** One page of a feed. [continuation] loads the next page; null on the last one. */

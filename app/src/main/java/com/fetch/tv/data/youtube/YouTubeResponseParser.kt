@@ -121,9 +121,12 @@ internal object YouTubeResponseParser {
                             collectVideos(value, bucket, depth + 1)
                             if (bucket.videos.isNotEmpty()) {
                                 shelves += YouTubeShelf(
-                                    title = shelfTitle(value),
+                                    // Some rows, like the TV home's "wormholes", ask to be shown untitled.
+                                    title = if (value["hideHeader"].booleanOrNull() == true) null else shelfTitle(value),
                                     videos = bucket.videos.distinctBy { it.videoId },
-                                    continuation = bucket.token
+                                    continuation = bucket.token,
+                                    isShorts = key == "reelShelfRenderer" ||
+                                        value["tvhtml5ShelfRendererType"].stringOrNull() == "TVHTML5_SHELF_RENDERER_TYPE_SHORTS"
                                 )
                             }
                         }
@@ -186,9 +189,10 @@ internal object YouTubeResponseParser {
      */
     private fun parseLockup(lockup: JsonObject): YouTubeVideo? {
         val contentType = lockup["contentType"].stringOrNull()
-        if (contentType != null && contentType != "LOCKUP_CONTENT_TYPE_VIDEO") return null
+        val isShort = contentType == "LOCKUP_CONTENT_TYPE_SHORT"
+        if (contentType != null && contentType != "LOCKUP_CONTENT_TYPE_VIDEO" && !isShort) return null
         val command = lockup.path("rendererContext", "commandContext", "onTap", "innertubeCommand")
-        val videoId = command.path("watchEndpoint", "videoId").stringOrNull() ?: return null
+        val videoId = watchVideoId(command) ?: return null
         val metadata = lockup.path("metadata", "lockupMetadataViewModel") as? JsonObject
         val title = text(metadata?.get("title")) ?: return null
         val rows = (metadata.path("metadata", "contentMetadataViewModel", "metadataRows") as? JsonArray).orEmpty()
@@ -214,18 +218,28 @@ internal object YouTubeResponseParser {
             watchedPercent = overlays.firstNotNullOfOrNull {
                 it.path("thumbnailBottomOverlayViewModel", "progressBar", "thumbnailOverlayProgressBarViewModel", "startPercent")
                     .intOrNull()
+            },
+            isShort = isShort,
+            isLive = badges.any {
+                it.path("thumbnailBadgeViewModel", "badgeStyle").stringOrNull() == "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE"
             }
         )
     }
 
-    /** The TV client's tile. Channels and playlists are tiles too; only videos are kept. */
+    /** The TV client's tile. Channels and playlists are tiles too; only videos and Shorts are kept. */
     private fun parseTile(tile: JsonObject): YouTubeVideo? {
         val contentType = tile["contentType"].stringOrNull()
-        if (contentType != null && contentType != "TILE_CONTENT_TYPE_VIDEO") return null
-        val videoId = tile.path("onSelectCommand", "watchEndpoint", "videoId").stringOrNull()
-            ?: return null
+        val isShort = tile["style"].stringOrNull() == "TILE_STYLE_YTLR_SHORTS" ||
+            contentType == "TILE_CONTENT_TYPE_SHORT"
+        if (contentType != null && contentType != "TILE_CONTENT_TYPE_VIDEO" && !isShort) return null
+        val videoId = watchVideoId(tile.path("onSelectCommand")) ?: return null
         val metadata = tile.path("metadata", "tileMetadataRenderer") as? JsonObject
-        val title = text(metadata?.get("title")) ?: return null
+        val header = tile.path("header", "tileHeaderRenderer") as? JsonObject
+        val overlays = (header?.get("thumbnailOverlays") as? JsonArray).orEmpty()
+        // A Short's tile has no metadata; its title is overlaid on the thumbnail.
+        val title = text(metadata?.get("title"))
+            ?: overlays.firstNotNullOfOrNull { text(it.path("tileMetadataRenderer", "title")) }
+            ?: return null
         val lines = (metadata?.get("lines") as? JsonArray).orEmpty().mapNotNull { line ->
             val items = line.path("lineRenderer", "items") as? JsonArray
             items?.mapNotNull { text(it.path("lineItemRenderer", "text")) }
@@ -233,22 +247,26 @@ internal object YouTubeResponseParser {
                 ?.joinToString(" • ")
                 ?.takeIf { it.isNotBlank() }
         }
-        val header = tile.path("header", "tileHeaderRenderer") as? JsonObject
-        val overlays = (header?.get("thumbnailOverlays") as? JsonArray).orEmpty()
+        val timeStatus = overlays.firstNotNullOfOrNull { it.path("thumbnailOverlayTimeStatusRenderer") }
         return YouTubeVideo(
             videoId = videoId,
             title = title,
             channelName = lines.getOrNull(0),
             detail = lines.getOrNull(1),
             thumbnailUrl = bestThumbnail(header?.get("thumbnail")) ?: defaultThumbnail(videoId),
-            duration = overlays.firstNotNullOfOrNull {
-                text(it.path("thumbnailOverlayTimeStatusRenderer", "text"))
-            },
+            duration = text(timeStatus.path("text")),
             watchedPercent = overlays.firstNotNullOfOrNull {
                 it.path("thumbnailOverlayResumePlaybackRenderer", "percentDurationWatched").intOrNull()
-            }
+            },
+            isShort = isShort,
+            isLive = timeStatus.path("style").stringOrNull() == "LIVE"
         )
     }
+
+    /** A video's id from a regular watch command, or a Short's reel one. */
+    private fun watchVideoId(command: JsonElement?): String? =
+        command.path("watchEndpoint", "videoId").stringOrNull()
+            ?: command.path("reelWatchEndpoint", "videoId").stringOrNull()
 
     /** The web clients' video renderers, which some TV pages still embed. */
     private fun parseWebVideo(renderer: JsonObject): YouTubeVideo? {

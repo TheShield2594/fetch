@@ -148,6 +148,8 @@ class YouTubeViewModel @Inject constructor(
     fun loadMore() {
         val feed = _uiState.value.selectedFeed
         val state = _uiState.value.feeds[feed] ?: return
+        // Search sends its results as one row that pages on its own, rather than the page.
+        if (state.continuation == null && state.shelves.singleOrNull()?.continuation != null) return loadMoreInShelf(0)
         val token = state.continuation ?: return
         if (state.isLoading || state.isLoadingMore) return
         updateFeed(feed) { it.copy(isLoadingMore = true) }
@@ -414,7 +416,7 @@ internal fun appendPage(shelves: List<YouTubeShelf>, page: YouTubePage): List<Yo
     val result = shelves.toMutableList()
     page.shelves.forEach { shelf ->
         val target = if (shelf.title == null) {
-            result.indexOfFirst { it.title == null }.takeIf { it >= 0 }
+            result.indexOfFirst { it.title == null && it.isShorts == shelf.isShorts }.takeIf { it >= 0 }
                 ?: result.singleOrNull()?.let { 0 }
         } else {
             null

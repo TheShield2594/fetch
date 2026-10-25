@@ -3110,7 +3110,7 @@
     <string name="youtube_feed_error">Couldn\'t load YouTube. Check your connection and try again.</string>
     <string name="youtube_signed_out_title">You\'re signed out of YouTube</string>
     <string name="youtube_signed_out_subtitle">Sign in again in Settings to see your feeds.</string>
-    <string name="youtube_more_videos">More videos</string>
+    <string name="youtube_live">LIVE</string>
     <string name="youtube_play_failed">This video can\'t be played</string>
     <string name="youtube_switch_channel_hint">Select to switch channel</string>
     <string name="youtube_channel_picker_title">Choose a channel</string>

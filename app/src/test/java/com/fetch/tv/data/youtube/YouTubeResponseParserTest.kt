@@ -282,4 +282,88 @@ class YouTubeResponseParserTest {
         assertEquals("NEXT", page.continuation)
         assertEquals(listOf("aaa"), page.shelves.single().videos.map { it.videoId })
     }
+
+    @Test
+    fun `a shorts shelf keeps its shorts, which play through the reel endpoint`() {
+        val shelves = parse(
+            """
+            {"shelfRenderer": {
+              "headerRenderer": {"shelfHeaderRenderer": {"avatarLockup": {"avatarLockupRenderer": {
+                "title": {"runs": [{"text": "Shorts"}]}
+              }}}},
+              "tvhtml5ShelfRendererType": "TVHTML5_SHELF_RENDERER_TYPE_SHORTS",
+              "content": {"horizontalListRenderer": {"items": [
+                {"tileRenderer": {
+                  "style": "TILE_STYLE_YTLR_SHORTS",
+                  "onSelectCommand": {"reelWatchEndpoint": {"videoId": "sss"}},
+                  "header": {"tileHeaderRenderer": {
+                    "thumbnail": {"thumbnails": [
+                      {"url": "https://i.ytimg.com/vi/sss/oardefault.jpg", "width": 405, "height": 720}
+                    ]},
+                    "thumbnailOverlays": [{"tileMetadataRenderer": {"title": {"simpleText": "A short"}}}]
+                  }}
+                }}
+              ]}}
+            }}
+            """
+        )
+
+        val shelf = shelves.single()
+        assertEquals("Shorts", shelf.title)
+        assertTrue(shelf.isShorts)
+        val short = shelf.videos.single()
+        assertEquals("sss", short.videoId)
+        assertEquals("A short", short.title)
+        assertTrue(short.isShort)
+        assertEquals("https://i.ytimg.com/vi/sss/oardefault.jpg", short.thumbnailUrl)
+    }
+
+    @Test
+    fun `a row that hides its header stays untitled`() {
+        val shelves = parse(
+            """
+            {"shelfRenderer": {
+              "hideHeader": true,
+              "headerRenderer": {"shelfHeaderRenderer": {"title": {"simpleText": "Hidden"}}},
+              "content": {"horizontalListRenderer": {"items": [${tile("aaa", "First")}]}}
+            }}
+            """
+        )
+
+        assertNull(shelves.single().title)
+    }
+
+    @Test
+    fun `search lockups keep shorts and mark live videos`() {
+        val shelves = parse(
+            """
+            {"items": [
+              {"lockupViewModel": {
+                "contentType": "LOCKUP_CONTENT_TYPE_SHORT",
+                "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {
+                  "reelWatchEndpoint": {"videoId": "sss"}
+                }}}},
+                "metadata": {"lockupMetadataViewModel": {"title": {"content": "A short"}}}
+              }},
+              {"lockupViewModel": {
+                "contentType": "LOCKUP_CONTENT_TYPE_VIDEO",
+                "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {
+                  "watchEndpoint": {"videoId": "lll"}
+                }}}},
+                "contentImage": {"thumbnailViewModel": {"overlays": [{"thumbnailBottomOverlayViewModel": {"badges": [
+                  {"thumbnailBadgeViewModel": {"text": "LIVE", "badgeStyle": "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE"}}
+                ]}}]}},
+                "metadata": {"lockupMetadataViewModel": {"title": {"content": "A stream"}}}
+              }}
+            ]}
+            """
+        )
+
+        val (short, live) = shelves.single().videos
+        assertEquals("sss", short.videoId)
+        assertTrue(short.isShort)
+        assertEquals("lll", live.videoId)
+        assertTrue(live.isLive)
+        assertEquals("LIVE", live.duration)
+    }
 }

@@ -2,14 +2,17 @@ package com.fetch.tv.data.local
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.youtube.YouTubeFeedFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,7 +55,10 @@ class YouTubeSettingsDataStore @Inject constructor(
 
     /** Which Shorts, live streams and watched videos the feeds, search and Up Next leave out. */
     val feedFilter: Flow<YouTubeFeedFilter> = profileManager.activeProfileId.flatMapLatest { id ->
-        store(id).data.map { prefs ->
+        // The YouTube screen collects this for as long as it's open; an unreadable file means the defaults.
+        store(id).data.catch { error ->
+            if (error is IOException) emit(emptyPreferences()) else throw error
+        }.map { prefs ->
             YouTubeFeedFilter(
                 showShorts = prefs[showShortsKey] ?: DEFAULT_FEED_FILTER.showShorts,
                 showLive = prefs[showLiveKey] ?: DEFAULT_FEED_FILTER.showLive,

@@ -284,6 +284,11 @@ private fun YouTubeVideoGrid(
         items(shelf.links, key = { "link_${it.target}" }) { link ->
             YouTubeLinkCard(link = link, onOpen = onOpen, modifier = Modifier.fillMaxWidth())
         }
+        shelf.viewAll?.let { target ->
+            item(key = "view_all") {
+                YouTubeViewAllCard(onClick = { onOpen(target) }, portrait = shelf.isShorts, modifier = Modifier.fillMaxWidth())
+            }
+        }
         if (isLoadingMore) {
             item(span = { GridItemSpan(maxLineSpan) }, key = "loading_more") {
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { LoadingIndicator() }
@@ -582,7 +587,8 @@ private fun YouTubeVideoMenu(
     onOpenChannel: () -> Unit
 ) {
     val playFocusRequester = remember { FocusRequester() }
-    LaunchedEffect(Unit) { playFocusRequester.requestFocus() }
+    // The dialog's content attaches after this effect starts.
+    LaunchedEffect(Unit) { playFocusRequester.requestFocusAfterFrames() }
     val buttonColors = ButtonDefaults.colors(
         containerColor = FetchTheme.colors.BackgroundCard,
         contentColor = FetchTheme.colors.TextPrimary

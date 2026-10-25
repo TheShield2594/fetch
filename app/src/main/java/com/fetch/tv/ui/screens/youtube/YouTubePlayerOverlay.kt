@@ -112,6 +112,10 @@ fun YouTubePlayerOverlay(
 
     val focusRequester = remember { FocusRequester() }
     val canControl = !playback.videoUrl.isNullOrBlank() && !playback.isLoading && !playback.failed
+    // Without the watch page (it failed, or hasn't loaded), the menu still offers the tile's channel.
+    val menuActions = playback.actions ?: video.channelId?.let {
+        YouTubeVideoActions(likeStatus = null, channelId = it, channelName = video.channelName, subscribed = null)
+    }
 
     fun seekBy(deltaMs: Long) {
         seekDeltaMs = deltaMs
@@ -202,7 +206,7 @@ fun YouTubePlayerOverlay(
                         KeyEvent.KEYCODE_DPAD_UP -> {
                             if (!canControl) return@onPreviewKeyEvent false
                             // Up opens like, subscribe and the channel once the watch page says what they are.
-                            if (playback.actions != null) {
+                            if (menuActions != null) {
                                 actionsMenuOpen = true
                                 controlsVisible = false
                             } else {
@@ -255,6 +259,7 @@ fun YouTubePlayerOverlay(
                         if (playback.upNext != null || playback.related.isNotEmpty()) {
                             ended = true
                             captionMenuOpen = false
+                            actionsMenuOpen = false
                         } else {
                             onDismiss()
                         }
@@ -277,7 +282,7 @@ fun YouTubePlayerOverlay(
                     video.channelName?.let {
                         Text(text = it, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.82f))
                     }
-                    if (canControl && playback.actions != null) {
+                    if (canControl && menuActions != null) {
                         Text(
                             text = stringResource(R.string.youtube_actions_hint),
                             style = MaterialTheme.typography.bodySmall,
@@ -363,10 +368,9 @@ fun YouTubePlayerOverlay(
                 )
             }
 
-            val actions = playback.actions
-            if (actionsMenuOpen && actions != null) {
+            if (actionsMenuOpen && menuActions != null && !ended) {
                 VideoActionsMenu(
-                    actions = actions,
+                    actions = menuActions,
                     failed = playback.actionFailed,
                     onRate = onRate,
                     onToggleSubscription = onToggleSubscription,

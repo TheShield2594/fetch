@@ -208,7 +208,7 @@ class YouTubeService @Inject constructor(
 
     /** The channels this Google account can act as: its own and any brand accounts. */
     suspend fun listAccounts(): List<YouTubeAccount> = withContext(Dispatchers.IO) {
-        YouTubeResponseParser.parseAccounts(accountsList(validAccessToken(), pageId = null))
+        YouTubeResponseParser.parseAccounts(accountsList(validAccessToken()))
     }
 
     /** Acts as [account] from now on: feeds, history and search all come from that channel. */
@@ -353,9 +353,10 @@ class YouTubeService @Inject constructor(
     private suspend fun innertube(
         endpoint: String,
         accessToken: String,
-        pageId: String? = authDataStore.getCurrentState().pageId,
+        actAsSelectedChannel: Boolean = true,
         params: JsonObjectBuilder.() -> Unit
     ): JsonElement {
+        val pageId = if (actAsSelectedChannel) authDataStore.getCurrentState().pageId else null
         val visitorData = runCatching { tvAppConfig().visitorData }.getOrNull()
         // The context SmartTube sends for TV browse requests (common/helpers/AppClient.kt).
         val body = buildJsonObject {
@@ -412,15 +413,16 @@ class YouTubeService @Inject constructor(
     }
 
     private suspend fun fetchAccount(accessToken: String, pageId: String? = null): YouTubeAccount? {
-        val accounts = YouTubeResponseParser.parseAccounts(accountsList(accessToken, pageId = null))
+        val accounts = YouTubeResponseParser.parseAccounts(accountsList(accessToken))
         return accounts.firstOrNull { pageId != null && it.pageId == pageId }
             ?: accounts.firstOrNull { it.pageId == null && pageId == null && it.isSelected }
             ?: accounts.firstOrNull { it.pageId == null }
             ?: accounts.firstOrNull()
     }
 
-    private suspend fun accountsList(accessToken: String, pageId: String?): JsonElement =
-        innertube("account/accounts_list", accessToken, pageId) {
+    /** Asked as the Google account itself, so every channel it owns is listed. */
+    private suspend fun accountsList(accessToken: String): JsonElement =
+        innertube("account/accounts_list", accessToken, actAsSelectedChannel = false) {
             putJsonObject("accountReadMask") {
                 put("returnOwner", true)
                 put("returnBrandAccounts", true)

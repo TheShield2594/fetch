@@ -38,18 +38,16 @@ Current root navigation:
 - Add-ons
 - Settings
 
-Current settings rail:
+Current settings rail, after Search, by heading:
 
-- Account
-- Profiles
-- Appearance
-- Layout
-- Integration
-- Playback
-- Trakt
-- About
-- Advanced
-- Debug in debug builds
+- People: Profiles, Watch party
+- Playback: in advanced mode one entry per section (Player, Stream selection, Up next, Skip segments, Player interface, Audio, Subtitles, Video, Buffer & network when the engine uses ExoPlayer, P2P streaming when the torrent engine is built in); in essential mode the single Playback basics page. Anime-Skip follows either way.
+- Sources: Content & discovery, TMDB, MDBList
+- Home: Appearance, Layout
+- Accounts: Account, Tracking, YouTube
+- System: Configure from phone, Advanced, About, Debug in debug builds
+
+Search results open their page focused on the setting.
 
 Current playback path:
 

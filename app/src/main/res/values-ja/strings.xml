@@ -2392,6 +2392,7 @@
     <string name="source_rule_never_group">%1$s のリリースは再生しない</string>
     <string name="source_rule_never_saved">ベストマッチは %1$s のリリースをスキップします</string>
     <string name="settings_group_accounts">アカウント</string>
+    <string name="settings_group_people">ユーザー</string>
     <string name="settings_group_system">システム</string>
     <string name="settings_search_title">検索</string>
     <string name="settings_search_subtitle">名前で設定を探し、その設定があるページを開きます。</string>

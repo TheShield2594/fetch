@@ -5,9 +5,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,10 +49,15 @@ fun PlaybackSettingsScreen(
     }
 }
 
+/**
+ * The playback settings. With a [section], that section's page as the settings rail opens it;
+ * without one, every section as a collapsible list, for the standalone screen.
+ */
 @Composable
-fun PlaybackSettingsContent(
+internal fun PlaybackSettingsContent(
     viewModel: PlaybackSettingsViewModel = hiltViewModel(),
-    initialFocusRequester: FocusRequester? = null
+    initialFocusRequester: FocusRequester? = null,
+    section: PlaybackSection? = null
 ) {
     val playerSettings by viewModel.playerSettings.collectAsStateWithLifecycle(initialValue = PlayerSettings())
     val transparentLetterbox by viewModel.transparentLetterbox.collectAsStateWithLifecycle(initialValue = false)
@@ -94,8 +103,8 @@ fun PlaybackSettingsContent(
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         SettingsDetailHeader(
-            title = stringResource(R.string.playback_title),
-            subtitle = stringResource(R.string.playback_subtitle)
+            title = stringResource(section?.title ?: R.string.playback_title),
+            subtitle = stringResource(section?.description ?: R.string.playback_subtitle)
         )
 
         SettingsGroupCard(
@@ -103,24 +112,53 @@ fun PlaybackSettingsContent(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            PlaybackSettingsSections(
-                playerSettings = playerSettings,
-                p2p = p2p,
-                transparentLetterbox = transparentLetterbox,
-                onUpdate = onUpdate,
-                onOpenDialog = { openDialog = it },
-                onMemorySettingChanged = { memoryUsageTrigger++ },
-                onClearTorrentCache = {
-                    torrentCacheClearResult = null
-                    torrentCacheClearFailed = false
-                    coroutineScope.launch {
-                        runCatching { viewModel.clearTorrentCache() }
-                            .onSuccess { torrentCacheClearResult = it }
-                            .onFailure { torrentCacheClearFailed = true }
+            val onOpenDialog: (PlaybackDialog) -> Unit = { openDialog = it }
+            val onMemorySettingChanged: () -> Unit = { memoryUsageTrigger++ }
+            val onClearTorrentCache: () -> Unit = {
+                torrentCacheClearResult = null
+                torrentCacheClearFailed = false
+                coroutineScope.launch {
+                    runCatching { viewModel.clearTorrentCache() }
+                        .onSuccess { torrentCacheClearResult = it }
+                        .onFailure { torrentCacheClearFailed = true }
+                }
+            }
+            if (section == null) {
+                PlaybackSettingsSections(
+                    playerSettings = playerSettings,
+                    p2p = p2p,
+                    transparentLetterbox = transparentLetterbox,
+                    onUpdate = onUpdate,
+                    onOpenDialog = onOpenDialog,
+                    onMemorySettingChanged = onMemorySettingChanged,
+                    onClearTorrentCache = onClearTorrentCache,
+                    initialFocusRequester = initialFocusRequester
+                )
+            } else {
+                val scrollState = rememberScrollState()
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            // Not a focus target itself: asking it for focus lands on its first row.
+                            .then(if (initialFocusRequester != null) Modifier.focusRequester(initialFocusRequester) else Modifier)
+                            .verticalScroll(scrollState),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        PlaybackSectionContent(
+                            section = section,
+                            playerSettings = playerSettings,
+                            p2p = p2p,
+                            transparentLetterbox = transparentLetterbox,
+                            onUpdate = onUpdate,
+                            onOpenDialog = onOpenDialog,
+                            onMemorySettingChanged = onMemorySettingChanged,
+                            onClearTorrentCache = onClearTorrentCache
+                        )
                     }
-                },
-                initialFocusRequester = initialFocusRequester
-            )
+                    SettingsVerticalScrollIndicators(state = scrollState)
+                }
+            }
         }
 
         AnimatedVisibility(

@@ -3047,6 +3047,7 @@
     <string name="source_rule_never_group">Nigdy nie odtwarzaj wydań %1$s</string>
     <string name="source_rule_never_saved">Najlepsze dopasowanie pominie wydania %1$s</string>
     <string name="settings_group_accounts">Konta</string>
+    <string name="settings_group_people">Osoby</string>
     <string name="settings_group_system">System</string>
     <string name="settings_search_title">Szukaj</string>
     <string name="settings_search_subtitle">Znajdź ustawienie po nazwie i otwórz stronę, na której się znajduje.</string>

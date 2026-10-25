@@ -2422,6 +2422,7 @@
     <string name="source_rule_never_group">Ніколи не вмикати релізи %1$s</string>
     <string name="source_rule_never_saved">«Найкращий збіг» пропускатиме релізи %1$s</string>
     <string name="settings_group_accounts">Облікові записи</string>
+    <string name="settings_group_people">Люди</string>
     <string name="settings_group_system">Система</string>
     <string name="settings_search_title">Пошук</string>
     <string name="settings_search_subtitle">Знайдіть налаштування за назвою й відкрийте сторінку, де воно є.</string>

@@ -19,7 +19,16 @@ class SettingsCatalogTest {
             listOf(
                 SettingsCategory.SEARCH,
                 SettingsCategory.PROFILES,
-                SettingsCategory.PLAYBACK,
+                SettingsCategory.PLAYBACK_PLAYER,
+                SettingsCategory.PLAYBACK_STREAM_SELECTION,
+                SettingsCategory.PLAYBACK_UP_NEXT,
+                SettingsCategory.PLAYBACK_SKIP_SEGMENTS,
+                SettingsCategory.PLAYBACK_PLAYER_INTERFACE,
+                SettingsCategory.PLAYBACK_AUDIO,
+                SettingsCategory.PLAYBACK_SUBTITLES,
+                SettingsCategory.PLAYBACK_VIDEO,
+                SettingsCategory.PLAYBACK_BUFFER_NETWORK,
+                SettingsCategory.PLAYBACK_P2P,
                 SettingsCategory.ANIME_SKIP,
                 SettingsCategory.CONTENT_DISCOVERY,
                 SettingsCategory.TMDB,
@@ -47,7 +56,7 @@ class SettingsCatalogTest {
 
         assertFalse(SettingsCategory.ACCOUNT in categories)
         assertFalse(SettingsCategory.PROFILES in categories)
-        assertEquals(listOf(SettingsCategory.SEARCH, SettingsCategory.PLAYBACK), categories.take(2))
+        assertEquals(listOf(SettingsCategory.SEARCH, SettingsCategory.PLAYBACK_PLAYER), categories.take(2))
     }
 
     @Test
@@ -116,7 +125,7 @@ class SettingsCatalogTest {
         assertEquals(
             listOf(
                 SettingsCategory.PROFILES,
-                SettingsCategory.PLAYBACK,
+                SettingsCategory.PLAYBACK_PLAYER,
                 SettingsCategory.CONTENT_DISCOVERY,
                 SettingsCategory.APPEARANCE,
                 SettingsCategory.ACCOUNT,
@@ -161,6 +170,43 @@ class SettingsCatalogTest {
         assertEquals(withYouTube.indexOf(SettingsCategory.TRACKING) + 1, withYouTube.indexOf(SettingsCategory.YOUTUBE))
         assertFalse(withYouTube.startsNewGroup(withYouTube.indexOf(SettingsCategory.YOUTUBE)))
         assertFalse(SettingsCategory.YOUTUBE in withoutYouTube)
+    }
+
+    @Test
+    fun `advanced mode lists each playback section in the rail, essential mode one playback page`() {
+        val advanced = visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false)
+        val essential = visibleSettingsCategories(true, isEssentialMode = true, isDebugBuild = false)
+
+        assertEquals(
+            PlaybackSection.entries,
+            advanced.filter { it.group == SettingsRailGroup.PLAYBACK }.mapNotNull { it.playbackSection }
+        )
+        assertFalse(SettingsCategory.PLAYBACK in advanced)
+        assertEquals(
+            listOf(SettingsCategory.PLAYBACK, SettingsCategory.ANIME_SKIP),
+            essential.filter { it.group == SettingsRailGroup.PLAYBACK }
+        )
+    }
+
+    @Test
+    fun `the rail only lists the playback sections the player settings show`() {
+        val sections = PlaybackSection.entries - PlaybackSection.BUFFER_NETWORK - PlaybackSection.P2P
+        val categories = visibleSettingsCategories(
+            isPrimaryProfile = true,
+            isEssentialMode = false,
+            isDebugBuild = false,
+            playbackSections = sections
+        )
+
+        assertEquals(sections, categories.mapNotNull { it.playbackSection })
+    }
+
+    @Test
+    fun `every playback section has exactly one rail entry`() {
+        assertEquals(
+            PlaybackSection.entries,
+            SettingsCategory.entries.mapNotNull { it.playbackSection }
+        )
     }
 
     private fun allCombinations(): List<List<SettingsCategory>> =

@@ -929,6 +929,7 @@
     <string name="source_rule_never_group">Nu reda niciodată lansările %1$s</string>
     <string name="source_rule_never_saved">Cea mai bună potrivire va sări lansările %1$s</string>
     <string name="settings_group_accounts">Conturi</string>
+    <string name="settings_group_people">Persoane</string>
     <string name="settings_group_system">Sistem</string>
     <string name="settings_search_title">Căutare</string>
     <string name="settings_search_subtitle">Găsește o setare după nume, apoi deschide pagina pe care se află.</string>

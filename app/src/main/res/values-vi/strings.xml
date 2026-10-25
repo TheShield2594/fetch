@@ -2961,6 +2961,7 @@
     <string name="source_rule_never_group">Không bao giờ phát bản phát hành của %1$s</string>
     <string name="source_rule_never_saved">Khớp nhất sẽ bỏ qua bản phát hành của %1$s</string>
     <string name="settings_group_accounts">Tài khoản</string>
+    <string name="settings_group_people">Mọi người</string>
     <string name="settings_group_system">Hệ thống</string>
     <string name="settings_search_title">Tìm kiếm</string>
     <string name="settings_search_subtitle">Tìm một cài đặt theo tên, rồi mở trang chứa cài đặt đó.</string>

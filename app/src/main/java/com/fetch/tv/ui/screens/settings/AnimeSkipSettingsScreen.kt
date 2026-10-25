@@ -72,6 +72,7 @@ fun AnimeSkipSettingsContent(
             modifier = Modifier.fillMaxWidth().weight(1f)
         ) {
             val animeSkipListState = rememberLazyListState()
+            SettingsRowTargetScroller(animeSkipListState)
             Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 state = animeSkipListState,

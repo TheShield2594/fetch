@@ -2972,6 +2972,7 @@
     <string name="source_rule_never_group">לעולם לא לנגן גרסאות של %1$s</string>
     <string name="source_rule_never_saved">ההתאמה הטובה ביותר תדלג על גרסאות של %1$s</string>
     <string name="settings_group_accounts">חשבונות</string>
+    <string name="settings_group_people">אנשים</string>
     <string name="settings_group_system">מערכת</string>
     <string name="settings_search_title">חיפוש</string>
     <string name="settings_search_subtitle">מצאו הגדרה לפי השם שלה ופתחו את הדף שבו היא נמצאת.</string>

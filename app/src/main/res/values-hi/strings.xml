@@ -1064,6 +1064,7 @@
     <string name="source_rule_never_group">%1$s रिलीज़ कभी न चलाएं</string>
     <string name="source_rule_never_saved">बेस्ट मैच %1$s रिलीज़ छोड़ देगा</string>
     <string name="settings_group_accounts">खाते</string>
+    <string name="settings_group_people">लोग</string>
     <string name="settings_group_system">सिस्टम</string>
     <string name="settings_search_title">खोजें</string>
     <string name="settings_search_subtitle">किसी सेटिंग को नाम से खोजें, फिर वह पेज खोलें जिसमें वह है।</string>

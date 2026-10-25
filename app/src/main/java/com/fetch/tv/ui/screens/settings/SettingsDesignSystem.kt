@@ -457,6 +457,8 @@ internal fun SettingsGroupCard(
 ) {
     Column(
         modifier = modifier
+            // A title names the card's rows as a whole, so landing on it lands on its first row.
+            .settingsRowTarget(title)
             .fillMaxWidth()
             .clip(RoundedCornerShape(SettingsSecondaryCardRadius))
             .background(FetchTheme.colors.BackgroundCard)
@@ -507,6 +509,7 @@ internal fun SettingsToggleRow(
             if (enabled) onToggle()
         },
         modifier = modifier
+            .settingsRowTarget(title)
             .fillMaxWidth()
             .heightIn(min = 62.dp)
             .focusProperties { canFocus = enabled }
@@ -597,6 +600,7 @@ internal fun SettingsActionRow(
     Card(
         onClick = { if (enabled) onClick() },
         modifier = modifier
+            .settingsRowTarget(title)
             .padding(top = FetchTheme.spacing.xxs, bottom = FetchTheme.spacing.xxs)
             .fillMaxWidth()
             .focusProperties { canFocus = enabled }

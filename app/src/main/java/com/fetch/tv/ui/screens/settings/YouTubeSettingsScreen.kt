@@ -69,6 +69,7 @@ fun YouTubeSettingsContent(
 
         SettingsGroupCard(modifier = Modifier.fillMaxWidth().weight(1f)) {
             val listState = rememberLazyListState()
+            SettingsRowTargetScroller(listState)
             val focusModifier = if (initialFocusRequester != null) {
                 Modifier.focusRequester(initialFocusRequester)
             } else {

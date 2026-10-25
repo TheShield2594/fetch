@@ -2762,6 +2762,7 @@
     <string name="source_rule_never_group">Nikad ne puštaj izdanja %1$s</string>
     <string name="source_rule_never_saved">Najbolje podudaranje će preskakati izdanja %1$s</string>
     <string name="settings_group_accounts">Nalozi</string>
+    <string name="settings_group_people">Osobe</string>
     <string name="settings_group_system">Sistem</string>
     <string name="settings_search_title">Pretraga</string>
     <string name="settings_search_subtitle">Pronađite podešavanje po imenu, pa otvorite stranicu na kojoj se nalazi.</string>

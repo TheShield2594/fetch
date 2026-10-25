@@ -2977,6 +2977,7 @@
     <string name="source_rule_never_group">%1$s sürümlerini asla oynatma</string>
     <string name="source_rule_never_saved">En iyi eşleşme %1$s sürümlerini atlayacak</string>
     <string name="settings_group_accounts">Hesaplar</string>
+    <string name="settings_group_people">Kişiler</string>
     <string name="settings_group_system">Sistem</string>
     <string name="settings_search_title">Ara</string>
     <string name="settings_search_subtitle">Bir ayarı adıyla bulun, sonra bulunduğu sayfayı açın.</string>

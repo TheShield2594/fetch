@@ -508,7 +508,9 @@ private fun OptionRow(
 
     val firstOptionFocusRequester = remember { FocusRequester() }
     LazyRow(
-        modifier = Modifier.settingsOptionRow(firstOptionFocusRequester),
+        modifier = Modifier
+            .settingsRowTarget(title)
+            .settingsOptionRow(firstOptionFocusRequester),
         contentPadding = PaddingValues(end = FetchTheme.spacing.sm),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
     ) {

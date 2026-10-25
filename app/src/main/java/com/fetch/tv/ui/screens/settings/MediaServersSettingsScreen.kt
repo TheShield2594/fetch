@@ -58,6 +58,7 @@ internal fun MediaServersSettingsContent(
                 .weight(1f)
         ) {
             val listState = rememberLazyListState()
+            SettingsRowTargetScroller(listState)
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     state = listState,

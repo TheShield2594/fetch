@@ -16,33 +16,59 @@ internal object YouTubeResponseParser {
 
     private const val MAX_DEPTH = 64
 
-    fun parseShelves(root: JsonElement): List<YouTubeShelf> {
+    fun parseShelves(root: JsonElement): List<YouTubeShelf> = parsePage(root).shelves
+
+    /**
+     * The shelves of one page, and the token for the page after it. A shelf carries its own token
+     * when YouTube pages its row separately (the TV home does), and videos outside any shelf go
+     * in one untitled shelf that takes the page's token (subscriptions and history do this).
+     */
+    fun parsePage(root: JsonElement): YouTubePage {
         val shelves = mutableListOf<YouTubeShelf>()
-        val loose = mutableListOf<YouTubeVideo>()
+        val loose = Bucket()
         collect(root, shelves, loose, depth = 0)
-        val result = buildList {
-            if (loose.isNotEmpty()) add(YouTubeShelf(title = null, videos = loose.distinctBy { it.videoId }))
-            addAll(shelves)
-        }
-        return result.filter { it.videos.isNotEmpty() }
+        val looseShelf = YouTubeShelf(title = null, videos = loose.videos.distinctBy { it.videoId })
+        return YouTubePage(
+            shelves = (listOf(looseShelf) + shelves).filter { it.videos.isNotEmpty() },
+            continuation = loose.token
+        )
+    }
+
+    /** Every channel the signed-in Google account can act as: the account itself and its brand accounts. */
+    fun parseAccounts(root: JsonElement): List<YouTubeAccount> {
+        val accounts = mutableListOf<JsonObject>()
+        findObjectsWithKey(root, "accountName", accounts, depth = 0)
+        return accounts
+            .filter { it["isDisabled"].booleanOrNull() != true }
+            .map { account ->
+                val tokens = account.path("serviceEndpoint", "selectActiveIdentityEndpoint", "supportedTokens") as? JsonArray
+                YouTubeAccount(
+                    name = text(account["accountName"]),
+                    handle = text(account["channelHandle"]),
+                    photoUrl = bestThumbnail(account["accountPhoto"]),
+                    email = text(account["accountByline"]),
+                    pageId = tokens.orEmpty().firstNotNullOfOrNull { it.path("pageIdToken", "pageId").stringOrNull() },
+                    isSelected = account["isSelected"].booleanOrNull() == true
+                )
+            }
+            .distinctBy { it.pageId to it.name }
     }
 
     fun parseAccount(root: JsonElement): YouTubeAccount? {
-        val accounts = mutableListOf<JsonObject>()
-        findObjectsWithKey(root, "accountName", accounts, depth = 0)
-        val account = accounts.firstOrNull { it["isSelected"].booleanOrNull() == true } ?: accounts.firstOrNull()
-            ?: return null
-        return YouTubeAccount(
-            name = text(account["accountName"]),
-            handle = text(account["channelHandle"]),
-            photoUrl = bestThumbnail(account["accountPhoto"])
-        )
+        val accounts = parseAccounts(root)
+        return accounts.firstOrNull { it.isSelected } ?: accounts.firstOrNull()
+    }
+
+    /** Where videos are being gathered, with the first page token met along the way. */
+    private class Bucket {
+        val videos = mutableListOf<YouTubeVideo>()
+        var token: String? = null
     }
 
     private fun collect(
         element: JsonElement?,
         shelves: MutableList<YouTubeShelf>,
-        loose: MutableList<YouTubeVideo>,
+        loose: Bucket,
         depth: Int
     ) {
         if (element == null || depth > MAX_DEPTH) return
@@ -56,17 +82,25 @@ internal object YouTubeResponseParser {
                     }
                     when (key) {
                         "shelfRenderer", "richShelfRenderer", "reelShelfRenderer" -> {
-                            val videos = mutableListOf<YouTubeVideo>()
-                            collectVideos(value, videos, depth + 1)
-                            if (videos.isNotEmpty()) {
+                            val bucket = Bucket()
+                            collectVideos(value, bucket, depth + 1)
+                            if (bucket.videos.isNotEmpty()) {
                                 shelves += YouTubeShelf(
                                     title = shelfTitle(value),
-                                    videos = videos.distinctBy { it.videoId }
+                                    videos = bucket.videos.distinctBy { it.videoId },
+                                    continuation = bucket.token
                                 )
                             }
                         }
-                        else -> parseVideo(key, value)?.let { loose += it }
-                            ?: collect(value, shelves, loose, depth + 1)
+                        else -> {
+                            val token = continuationToken(key, value)
+                            val video = if (token == null) parseVideo(key, value) else null
+                            when {
+                                token != null -> if (loose.token == null) loose.token = token
+                                video != null -> loose.videos += video
+                                else -> collect(value, shelves, loose, depth + 1)
+                            }
+                        }
                     }
                 }
             }
@@ -74,16 +108,33 @@ internal object YouTubeResponseParser {
         }
     }
 
-    private fun collectVideos(element: JsonElement?, out: MutableList<YouTubeVideo>, depth: Int) {
+    private fun collectVideos(element: JsonElement?, out: Bucket, depth: Int) {
         if (element == null || depth > MAX_DEPTH) return
         when (element) {
             is JsonArray -> element.forEach { collectVideos(it, out, depth + 1) }
             is JsonObject -> for ((key, value) in element) {
-                val video = if (value is JsonObject) parseVideo(key, value) else null
-                if (video != null) out += video else collectVideos(value, out, depth + 1)
+                val token = if (value is JsonObject) continuationToken(key, value) else null
+                val video = if (value is JsonObject && token == null) parseVideo(key, value) else null
+                when {
+                    token != null -> if (out.token == null) out.token = token
+                    video != null -> out.videos += video
+                    else -> collectVideos(value, out, depth + 1)
+                }
             }
             else -> Unit
         }
+    }
+
+    /** The TV client's `nextContinuationData`, or the newer `continuationItemRenderer`. */
+    private fun continuationToken(key: String, value: JsonObject): String? = when (key) {
+        "nextContinuationData" -> value["continuation"].stringOrNull()
+        "continuationItemRenderer" -> {
+            val endpoint = value["continuationEndpoint"]
+            endpoint.path("continuationCommand", "token").stringOrNull()
+                ?: (endpoint.path("commandExecutorCommand", "commands") as? JsonArray).orEmpty()
+                    .firstNotNullOfOrNull { it.path("continuationCommand", "token").stringOrNull() }
+        }
+        else -> null
     }
 
     private fun parseVideo(key: String, renderer: JsonObject): YouTubeVideo? = when (key) {

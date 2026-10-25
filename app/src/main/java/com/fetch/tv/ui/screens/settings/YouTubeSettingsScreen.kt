@@ -10,7 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.Alignment
+import com.fetch.tv.data.youtube.YouTubeAccount
+import com.fetch.tv.ui.components.LoadingIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,6 +48,7 @@ fun YouTubeSettingsContent(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val signedInCount by viewModel.signedIn.collectAsStateWithLifecycle()
     var showSignInDialog by remember { mutableStateOf(false) }
+    var showChannelPicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val signedInToast = stringResource(R.string.youtube_signed_in_toast)
     val signedIn = state.mode == YouTubeConnectionMode.SIGNED_IN
@@ -78,11 +87,30 @@ fun YouTubeSettingsContent(
                                 subtitle = stringResource(
                                     R.string.youtube_signed_in_as,
                                     state.accountName ?: stringResource(R.string.youtube_account_fallback)
-                                ),
+                                ) + "\n" + stringResource(R.string.youtube_switch_channel_hint),
                                 value = state.accountHandle,
-                                onClick = {},
+                                onClick = {
+                                    showChannelPicker = true
+                                    viewModel.loadAccounts()
+                                },
                                 leadingRawIconRes = R.raw.youtube_logo,
                                 modifier = focusModifier
+                            )
+                        }
+                        item(key = "youtube_sponsor_block") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_sponsor_block_title),
+                                subtitle = stringResource(R.string.youtube_sponsor_block_subtitle),
+                                checked = state.sponsorBlockEnabled,
+                                onToggle = viewModel::onSponsorBlockToggle
+                            )
+                        }
+                        item(key = "youtube_watch_history") {
+                            SettingsToggleRow(
+                                title = stringResource(R.string.youtube_watch_history_title),
+                                subtitle = stringResource(R.string.youtube_watch_history_subtitle),
+                                checked = state.watchHistoryEnabled,
+                                onToggle = viewModel::onWatchHistoryToggle
                             )
                         }
                         item(key = "youtube_sign_out") {
@@ -120,6 +148,17 @@ fun YouTubeSettingsContent(
         }
     }
 
+    if (showChannelPicker && signedIn) {
+        YouTubeChannelPickerDialog(
+            state = state,
+            onSelect = { account ->
+                viewModel.onAccountSelected(account)
+                showChannelPicker = false
+            },
+            onDismiss = { showChannelPicker = false }
+        )
+    }
+
     if (showSignInDialog && !signedIn) {
         YouTubeSignInDialog(
             state = state,
@@ -130,6 +169,48 @@ fun YouTubeSettingsContent(
                 viewModel.onCancelSignIn()
             }
         )
+    }
+}
+
+/** Picks which of the Google account's channels Fetch acts as, like SmartTube's account list. */
+@Composable
+private fun YouTubeChannelPickerDialog(
+    state: YouTubeSettingsUiState,
+    onSelect: (YouTubeAccount) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val firstFocus = remember { FocusRequester() }
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = stringResource(R.string.youtube_channel_picker_title),
+        subtitle = stringResource(R.string.youtube_channel_picker_subtitle),
+        width = 640.dp
+    ) {
+        when {
+            state.isLoadingAccounts -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                LoadingIndicator(modifier = Modifier.size(28.dp))
+            }
+            state.accounts.isEmpty() -> SettingsNote(text = stringResource(R.string.youtube_channel_picker_failed))
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 420.dp),
+                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+                ) {
+                    itemsIndexed(state.accounts, key = { index, account -> "${account.pageId}_$index" }) { index, account ->
+                        val selected = account.pageId == state.selectedPageId
+                        SettingsActionRow(
+                            title = account.name ?: stringResource(R.string.youtube_account_fallback),
+                            subtitle = account.handle ?: account.email,
+                            value = if (selected) stringResource(R.string.youtube_channel_current) else null,
+                            onClick = { onSelect(account) },
+                            trailingIcon = if (selected) Icons.Default.Check else Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            modifier = if (index == 0) Modifier.focusRequester(firstFocus) else Modifier
+                        )
+                    }
+                }
+                LaunchedEffect(Unit) { runCatching { firstFocus.requestFocus() } }
+            }
+        }
     }
 }
 

@@ -3111,4 +3111,14 @@
     <string name="youtube_signed_out_subtitle">Sign in again in Settings to see your feeds.</string>
     <string name="youtube_more_videos">More videos</string>
     <string name="youtube_play_failed">This video can\'t be played</string>
+    <string name="youtube_switch_channel_hint">Select to switch channel</string>
+    <string name="youtube_channel_picker_title">Choose a channel</string>
+    <string name="youtube_channel_picker_subtitle">Your feeds, history and searches come from the channel you pick.</string>
+    <string name="youtube_channel_picker_failed">Couldn\'t load your channels. Check your connection and try again.</string>
+    <string name="youtube_channel_current">Current</string>
+    <string name="youtube_sponsor_block_title">Skip sponsors</string>
+    <string name="youtube_sponsor_block_subtitle">Skips sponsor spots, self-promotion and subscribe reminders that SponsorBlock users have marked</string>
+    <string name="youtube_watch_history_title">Add to YouTube history</string>
+    <string name="youtube_watch_history_subtitle">Videos you watch here show up in your YouTube history, and pick up where you left off on other devices</string>
+    <string name="youtube_sponsor_skipped">Skipped sponsor</string>
 </resources>

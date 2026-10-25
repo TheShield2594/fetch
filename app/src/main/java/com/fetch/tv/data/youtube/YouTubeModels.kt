@@ -17,15 +17,46 @@ data class YouTubeVideo(
 /** A titled row of videos. Videos YouTube sends outside any shelf go in one with no title. */
 data class YouTubeShelf(
     val title: String?,
-    val videos: List<YouTubeVideo>
+    val videos: List<YouTubeVideo>,
+    /** Loads more of this row, when YouTube pages it on its own. */
+    val continuation: String? = null
+)
+
+/** One page of a feed. [continuation] loads the next page; null on the last one. */
+data class YouTubePage(
+    val shelves: List<YouTubeShelf>,
+    val continuation: String?
 )
 
 /** The signed-in Google account, as YouTube names it. */
 data class YouTubeAccount(
     val name: String?,
     val handle: String?,
-    val photoUrl: String?
+    val photoUrl: String?,
+    val email: String? = null,
+    /** Set for a brand account; sent as X-Goog-Pageid so requests act as that channel. */
+    val pageId: String? = null,
+    val isSelected: Boolean = false
 )
+
+/** A part of a video SponsorBlock users marked, which playback skips. */
+data class YouTubeSkipSegment(
+    val startMs: Long,
+    val endMs: Long,
+    val category: String
+)
+
+/** One playback that YouTube is told about, so it shows in the account's history. */
+class YouTubeWatchSession internal constructor(
+    val videoId: String,
+    internal val playbackUrl: String,
+    internal val watchtimeUrl: String,
+    internal val clientPlaybackNonce: String,
+    @Volatile internal var lastPositionSec: Float
+) {
+    @Volatile
+    internal var recorded: Boolean = false
+}
 
 /** The sections of the YouTube screen, in tab order. */
 enum class YouTubeFeed {

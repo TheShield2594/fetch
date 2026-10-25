@@ -30,7 +30,9 @@ data class YouTubeAuthState(
     val deviceCodeExpiresAt: Long? = null,
     val pollInterval: Int? = null,
     val clientId: String? = null,
-    val clientSecret: String? = null
+    val clientSecret: String? = null,
+    /** The brand account requests act as; null for the Google account's own channel. */
+    val pageId: String? = null
 ) {
     val isSignedIn: Boolean
         get() = !refreshToken.isNullOrBlank()
@@ -63,6 +65,7 @@ class YouTubeAuthDataStore @Inject constructor(
     // The TV client the sign-in was made with. A refresh token only works with the client it was issued to.
     private val clientIdKey = stringPreferencesKey("client_id")
     private val clientSecretKey = stringPreferencesKey("client_secret")
+    private val pageIdKey = stringPreferencesKey("page_id")
 
     private fun store(profileId: Int = profileManager.activeProfileId.value) =
         factory.get(profileId, FEATURE)
@@ -82,7 +85,8 @@ class YouTubeAuthDataStore @Inject constructor(
                 deviceCodeExpiresAt = preferences[deviceCodeExpiresAtKey],
                 pollInterval = preferences[pollIntervalKey],
                 clientId = preferences[clientIdKey],
-                clientSecret = preferences[clientSecretKey]
+                clientSecret = preferences[clientSecretKey],
+                pageId = preferences[pageIdKey]
             )
         }
     }
@@ -108,6 +112,7 @@ class YouTubeAuthDataStore @Inject constructor(
 
     suspend fun saveAccount(account: YouTubeAccount) {
         store().edit { preferences ->
+            account.pageId?.let { preferences[pageIdKey] = it } ?: preferences.remove(pageIdKey)
             account.name?.let { preferences[accountNameKey] = it } ?: preferences.remove(accountNameKey)
             account.handle?.let { preferences[accountHandleKey] = it } ?: preferences.remove(accountHandleKey)
             account.photoUrl?.let { preferences[accountPhotoUrlKey] = it } ?: preferences.remove(accountPhotoUrlKey)

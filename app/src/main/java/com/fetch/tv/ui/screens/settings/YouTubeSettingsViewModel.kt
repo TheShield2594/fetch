@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
 import com.fetch.tv.data.local.YouTubeAuthDataStore
 import com.fetch.tv.data.local.YouTubeAuthState
+import com.fetch.tv.data.local.YouTubeSettingsDataStore
+import com.fetch.tv.data.youtube.YouTubeAccount
 import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeTokenPollResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,13 +40,19 @@ data class YouTubeSettingsUiState(
     val isLoading: Boolean = false,
     val isPolling: Boolean = false,
     val statusMessage: String? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val accounts: List<YouTubeAccount> = emptyList(),
+    val isLoadingAccounts: Boolean = false,
+    val selectedPageId: String? = null,
+    val sponsorBlockEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_ENABLED,
+    val watchHistoryEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_WATCH_HISTORY_ENABLED
 )
 
 @HiltViewModel
 class YouTubeSettingsViewModel @Inject constructor(
     private val youTubeService: YouTubeService,
     private val authDataStore: YouTubeAuthDataStore,
+    private val settingsDataStore: YouTubeSettingsDataStore,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(YouTubeSettingsUiState())
@@ -60,6 +69,34 @@ class YouTubeSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             authDataStore.state.collectLatest(::applyAuthState)
         }
+        viewModelScope.launch {
+            combine(settingsDataStore.sponsorBlockEnabled, settingsDataStore.watchHistoryEnabled, ::Pair)
+                .collectLatest { (sponsorBlock, history) ->
+                    _uiState.update { it.copy(sponsorBlockEnabled = sponsorBlock, watchHistoryEnabled = history) }
+                }
+        }
+    }
+
+    fun onSponsorBlockToggle() {
+        viewModelScope.launch { settingsDataStore.setSponsorBlockEnabled(!_uiState.value.sponsorBlockEnabled) }
+    }
+
+    fun onWatchHistoryToggle() {
+        viewModelScope.launch { settingsDataStore.setWatchHistoryEnabled(!_uiState.value.watchHistoryEnabled) }
+    }
+
+    /** Lists the account's channels for the picker. */
+    fun loadAccounts() {
+        if (_uiState.value.isLoadingAccounts) return
+        _uiState.update { it.copy(isLoadingAccounts = true) }
+        viewModelScope.launch {
+            val accounts = runCatching { youTubeService.listAccounts() }.getOrDefault(emptyList())
+            _uiState.update { it.copy(accounts = accounts, isLoadingAccounts = false) }
+        }
+    }
+
+    fun onAccountSelected(account: YouTubeAccount) {
+        viewModelScope.launch { youTubeService.selectAccount(account) }
     }
 
     fun onSignInClick() {
@@ -121,6 +158,7 @@ class YouTubeSettingsViewModel @Inject constructor(
                 mode = mode,
                 accountName = state.accountName,
                 accountHandle = state.accountHandle,
+                selectedPageId = state.pageId,
                 userCode = state.userCode,
                 verificationUrl = state.verificationUrl,
                 codeExpiresAtMillis = state.deviceCodeExpiresAt,

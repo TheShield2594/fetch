@@ -1,0 +1,271 @@
+package com.fetch.tv.ui.screens.youtube
+
+import android.view.KeyEvent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.tv.material3.Button
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
+import com.fetch.tv.R
+import com.fetch.tv.data.youtube.YouTubeSkipSegment
+import com.fetch.tv.ui.components.LoadingIndicator
+import com.fetch.tv.ui.components.TrailerPlayer
+import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
+import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayHost
+import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayState
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchRadii
+import com.fetch.tv.ui.theme.FetchTheme
+import kotlinx.coroutines.delay
+
+/**
+ * Full-screen playback for a YouTube video. Built on the trailer player, with what a long video
+ * needs: seeking that scales with the press, resuming where YouTube says you stopped, skipping
+ * SponsorBlock segments, and reporting progress for YouTube history.
+ */
+@Composable
+fun YouTubePlayerOverlay(
+    playback: YouTubePlaybackState,
+    onProgress: (positionMs: Long, durationMs: Long) -> Unit,
+    onDismiss: () -> Unit,
+    onRetry: () -> Unit
+) {
+    val video = playback.video
+    var isPaused by remember(video.videoId) { mutableStateOf(false) }
+    var controlsVisible by remember(video.videoId) { mutableStateOf(false) }
+    val seekState = remember(video.videoId) { TrailerSeekOverlayState() }
+    var seekToken by remember(video.videoId) { mutableIntStateOf(0) }
+    var seekDeltaMs by remember(video.videoId) { mutableLongStateOf(0L) }
+    var resumed by remember(video.videoId) { mutableStateOf(false) }
+    var skipped by remember(video.videoId) { mutableStateOf(emptySet<YouTubeSkipSegment>()) }
+    var skipNoticeToken by remember(video.videoId) { mutableIntStateOf(0) }
+    var skipNoticeVisible by remember(video.videoId) { mutableStateOf(false) }
+    val currentOnProgress by rememberUpdatedState(onProgress)
+    val currentSegments by rememberUpdatedState(playback.skipSegments)
+
+    val focusRequester = remember { FocusRequester() }
+    val canControl = !playback.videoUrl.isNullOrBlank() && !playback.isLoading && !playback.failed
+
+    fun seekBy(deltaMs: Long) {
+        seekDeltaMs = deltaMs
+        seekToken += 1
+    }
+
+    LaunchedEffect(controlsVisible, seekToken, isPaused) {
+        // Paused, the controls stay up so the position is always visible.
+        if (controlsVisible && !isPaused) {
+            delay(CONTROLS_HIDE_DELAY_MS)
+            controlsVisible = false
+        }
+    }
+    LaunchedEffect(skipNoticeToken) {
+        if (skipNoticeToken == 0) return@LaunchedEffect
+        skipNoticeVisible = true
+        delay(SKIP_NOTICE_MS)
+        skipNoticeVisible = false
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+    ) {
+        AmbientDialogEffect(onDismiss)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .focusRequester(focusRequester)
+                .focusable()
+                .onPreviewKeyEvent { event ->
+                    val native = event.nativeKeyEvent
+                    if (native.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
+                    when (native.keyCode) {
+                        KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_ESCAPE -> {
+                            if (controlsVisible && !isPaused) controlsVisible = false else onDismiss()
+                            true
+                        }
+                        KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER,
+                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
+                            if (!canControl) return@onPreviewKeyEvent false
+                            isPaused = !isPaused
+                            controlsVisible = true
+                            true
+                        }
+                        KeyEvent.KEYCODE_MEDIA_PAUSE -> canControl.also { if (it) { isPaused = true; controlsVisible = true } }
+                        KeyEvent.KEYCODE_MEDIA_PLAY -> canControl.also { if (it) isPaused = false }
+                        KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_MEDIA_REWIND -> {
+                            if (!canControl) return@onPreviewKeyEvent false
+                            seekBy(-seekStepMs(native.repeatCount))
+                            controlsVisible = true
+                            true
+                        }
+                        KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
+                            if (!canControl) return@onPreviewKeyEvent false
+                            seekBy(seekStepMs(native.repeatCount))
+                            controlsVisible = true
+                            true
+                        }
+                        KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
+                            if (!canControl) return@onPreviewKeyEvent false
+                            controlsVisible = native.keyCode == KeyEvent.KEYCODE_DPAD_UP || isPaused
+                            true
+                        }
+                        else -> false
+                    }
+                }
+        ) {
+            LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
+
+            if (!playback.videoUrl.isNullOrBlank() && !playback.failed) {
+                TrailerPlayer(
+                    trailerUrl = playback.videoUrl,
+                    trailerAudioUrl = playback.audioUrl,
+                    isPlaying = true,
+                    isPaused = isPaused,
+                    seekRequestToken = seekToken,
+                    seekDeltaMs = seekDeltaMs,
+                    onProgressChanged = progress@{ position, duration ->
+                        seekState.positionMs = position
+                        seekState.durationMs = duration
+                        if (duration <= 0L) return@progress
+                        if (!resumed) {
+                            resumed = true
+                            resumePositionMs(video.watchedPercent, duration)?.let { seekBy(it - position) }
+                            return@progress
+                        }
+                        segmentToSkip(currentSegments, position, skipped)?.let { segment ->
+                            skipped = skipped + segment
+                            seekBy(segment.endMs - position)
+                            skipNoticeToken += 1
+                        }
+                        currentOnProgress(position, duration)
+                    },
+                    onEnded = onDismiss,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            AnimatedVisibility(
+                visible = controlsVisible || !canControl,
+                enter = fadeIn(tween(FetchMotion.tokens.durations.quick)),
+                exit = fadeOut(tween(FetchMotion.tokens.durations.quick)),
+                modifier = Modifier.align(Alignment.TopStart)
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxl, vertical = FetchTheme.spacing.xl),
+                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+                ) {
+                    Text(text = video.title, style = MaterialTheme.typography.titleLarge, color = Color.White)
+                    video.channelName?.let {
+                        Text(text = it, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.82f))
+                    }
+                }
+            }
+
+            if (playback.isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() }
+            }
+
+            if (playback.failed) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center).padding(horizontal = FetchTheme.spacing.xxl),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+                ) {
+                    Text(
+                        text = stringResource(R.string.youtube_play_failed),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                    Button(onClick = onRetry) { Text(text = stringResource(R.string.action_retry)) }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = skipNoticeVisible,
+                enter = fadeIn(tween(FetchMotion.tokens.durations.quick)),
+                exit = fadeOut(tween(FetchMotion.tokens.durations.medium)),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(horizontal = FetchTheme.spacing.xxl, vertical = FetchTheme.spacing.xl)
+            ) {
+                Text(
+                    text = stringResource(R.string.youtube_sponsor_skipped),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(FetchRadii.tokens.sm))
+                        .background(Color.Black.copy(alpha = 0.7f))
+                        .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
+                )
+            }
+
+            TrailerSeekOverlayHost(
+                visible = canControl && controlsVisible,
+                overlayState = seekState,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+    }
+}
+
+private const val CONTROLS_HIDE_DELAY_MS = 3_000L
+private const val SKIP_NOTICE_MS = 2_500L
+
+/** 10 seconds a press; holding the button speeds up to 30 seconds, then a minute. */
+internal fun seekStepMs(repeatCount: Int): Long = when {
+    repeatCount >= 20 -> 60_000L
+    repeatCount >= 8 -> 30_000L
+    else -> 10_000L
+}
+
+/**
+ * Where to start from YouTube's watched percentage: nowhere when barely started or nearly
+ * finished, since those start over, like YouTube's own apps.
+ */
+internal fun resumePositionMs(watchedPercent: Int?, durationMs: Long): Long? {
+    val percent = watchedPercent ?: return null
+    if (percent < 3 || percent > 95 || durationMs <= 0L) return null
+    return durationMs * percent / 100
+}
+
+/** The segment playback is inside and hasn't skipped yet, if any. Seeking back into one plays it. */
+internal fun segmentToSkip(
+    segments: List<YouTubeSkipSegment>,
+    positionMs: Long,
+    alreadySkipped: Set<YouTubeSkipSegment>
+): YouTubeSkipSegment? = segments.firstOrNull { segment ->
+    segment !in alreadySkipped &&
+        positionMs >= segment.startMs &&
+        // Within the last half second the skip would land about where playback is anyway.
+        positionMs < segment.endMs - 500
+}

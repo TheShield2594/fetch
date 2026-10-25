@@ -1,6 +1,7 @@
 package com.fetch.tv.data.youtube
 
 import io.mockk.mockk
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -67,6 +68,40 @@ class YouTubeServiceParsingTest {
 
         assertEquals("111-tv.apps.googleusercontent.com" to "tvSecret", service.parseClientCredentials(script))
         assertNull(service.parseClientCredentials("no client here"))
+    }
+
+    @Test
+    fun `tracking links are read from a player response`() {
+        val links = service.parseWatchTracking(
+            json(
+                """{"playbackTracking": {
+                    "videostatsPlaybackUrl": {"baseUrl": "https://s.youtube.com/api/stats/playback?docid=v&ei=E&of=O&vm=V"},
+                    "videostatsWatchtimeUrl": {"baseUrl": "https://s.youtube.com/api/stats/watchtime?docid=v&ei=E&of=O&vm=V"}
+                }}"""
+            )
+        )
+
+        assertEquals("https://s.youtube.com/api/stats/playback?docid=v&ei=E&of=O&vm=V", links?.first)
+        assertNull(service.parseWatchTracking(json("""{"playabilityStatus": {"status": "OK"}}""")))
+    }
+
+    @Test
+    fun `a watch time report keeps the tracking params and adds the position`() {
+        val session = YouTubeWatchSession("vid", "p", "w", clientPlaybackNonce = "NONCE", lastPositionSec = 0f)
+        val base = "https://s.youtube.com/api/stats/watchtime?ei=E&of=O&len=1"
+
+        val parsed = service.watchTrackingUrl(base, session, lengthSec = 600f, cmt = 120f, from = 60f, to = 120f)
+            .toHttpUrl()
+
+        assertEquals("E", parsed.queryParameter("ei"))
+        assertEquals("O", parsed.queryParameter("of"))
+        assertEquals("600.000", parsed.queryParameter("len"))
+        assertEquals("120.000", parsed.queryParameter("cmt"))
+        assertEquals("60.000", parsed.queryParameter("st"))
+        assertEquals("120.000", parsed.queryParameter("et"))
+        assertEquals("NONCE", parsed.queryParameter("cpn"))
+        assertEquals("vid", parsed.queryParameter("docid"))
+        assertNull(parsed.queryParameter("final"))
     }
 
     @Test

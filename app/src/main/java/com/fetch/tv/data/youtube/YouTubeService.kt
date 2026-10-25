@@ -19,6 +19,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -80,6 +81,8 @@ class YouTubeService @Inject constructor(
         val HOME_BROWSE_IDS = listOf("default", "FEwhat_to_watch")
         const val SUBSCRIPTIONS_BROWSE_ID = "FEsubscriptions"
         const val HISTORY_BROWSE_ID = "FEhistory"
+
+        const val HISTORY_START_THRESHOLD_SEC = 180f
     }
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -178,7 +181,7 @@ class YouTubeService @Inject constructor(
 
     // --- Feeds ---
 
-    suspend fun loadFeed(feed: YouTubeFeed, query: String? = null): List<YouTubeShelf> = withContext(Dispatchers.IO) {
+    suspend fun loadFeed(feed: YouTubeFeed, query: String? = null): YouTubePage = withContext(Dispatchers.IO) {
         when (feed) {
             YouTubeFeed.HOME -> loadHome()
             YouTubeFeed.SUBSCRIPTIONS -> browse(SUBSCRIPTIONS_BROWSE_ID)
@@ -186,28 +189,152 @@ class YouTubeService @Inject constructor(
             YouTubeFeed.SEARCH -> {
                 val trimmed = query?.trim().orEmpty()
                 if (trimmed.isEmpty()) {
-                    emptyList()
+                    YouTubePage(emptyList(), null)
                 } else {
-                    YouTubeResponseParser.parseShelves(innertube("search", validAccessToken()) { put("query", trimmed) })
+                    YouTubeResponseParser.parsePage(innertube("search", validAccessToken()) { put("query", trimmed) })
                 }
             }
         }
     }
 
+    /**
+     * The page after [token], from a feed's or a row's continuation. Search pages through the
+     * search endpoint; every other feed through browse.
+     */
+    suspend fun loadMore(feed: YouTubeFeed, token: String): YouTubePage = withContext(Dispatchers.IO) {
+        val endpoint = if (feed == YouTubeFeed.SEARCH) "search" else "browse"
+        YouTubeResponseParser.parsePage(innertube(endpoint, validAccessToken()) { put("continuation", token) })
+    }
+
+    /** The channels this Google account can act as: its own and any brand accounts. */
+    suspend fun listAccounts(): List<YouTubeAccount> = withContext(Dispatchers.IO) {
+        YouTubeResponseParser.parseAccounts(accountsList(validAccessToken(), pageId = null))
+    }
+
+    /** Acts as [account] from now on: feeds, history and search all come from that channel. */
+    suspend fun selectAccount(account: YouTubeAccount) {
+        authDataStore.saveAccount(account.copy(isSelected = true))
+    }
+
+    // --- Watch history ---
+
+    /**
+     * Asks YouTube, signed in, for the video's tracking links, so watching it in Fetch can be
+     * added to the account's history. Null when YouTube gives none (the video still plays).
+     */
+    suspend fun startWatchSession(videoId: String, startPositionSec: Float): YouTubeWatchSession? =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val response = innertube("player", validAccessToken()) { put("videoId", videoId) }
+                parseWatchTracking(response)?.let { (playbackUrl, watchtimeUrl) ->
+                    YouTubeWatchSession(
+                        videoId = videoId,
+                        playbackUrl = playbackUrl,
+                        watchtimeUrl = watchtimeUrl,
+                        clientPlaybackNonce = newClientPlaybackNonce(),
+                        // Like SmartTube, a start in the first three minutes counts from the beginning.
+                        lastPositionSec = if (startPositionSec < HISTORY_START_THRESHOLD_SEC) 0f else startPositionSec
+                    )
+                }
+            }.onFailure { Log.w(TAG, "No YouTube history for $videoId: ${it.message}") }.getOrNull()
+        }
+
+    /**
+     * Tells YouTube how far the video got. The first report creates the history entry; later ones
+     * move its position. Within the last 5% the video is marked watched, as SmartTube does
+     * (track/TrackingService.java).
+     */
+    suspend fun reportWatchTime(session: YouTubeWatchSession, positionSec: Float, lengthSec: Float) =
+        withContext(Dispatchers.IO) {
+            if (lengthSec <= 0f) return@withContext
+            runCatching {
+                val accessToken = validAccessToken()
+                val almostWatched = lengthSec - positionSec < lengthSec * 0.05f
+                val from = if (almostWatched) lengthSec else session.lastPositionSec
+                val to = if (almostWatched) lengthSec else positionSec
+                if (!session.recorded || almostWatched) {
+                    ping(
+                        watchTrackingUrl(session.playbackUrl, session, lengthSec, cmt = from, final = almostWatched),
+                        accessToken
+                    )
+                    session.recorded = true
+                }
+                ping(
+                    watchTrackingUrl(session.watchtimeUrl, session, lengthSec, cmt = to, from = from, to = to, final = almostWatched),
+                    accessToken
+                )
+                session.lastPositionSec = to
+            }.onFailure { Log.w(TAG, "Could not update YouTube history: ${it.message}") }
+        }
+
+    internal fun watchTrackingUrl(
+        baseUrl: String,
+        session: YouTubeWatchSession,
+        lengthSec: Float,
+        cmt: Float,
+        from: Float? = null,
+        to: Float? = null,
+        final: Boolean = false
+    ): String {
+        val url = baseUrl.toHttpUrlOrNull() ?: throw IllegalArgumentException("Bad tracking url")
+        return url.newBuilder()
+            .setQueryParameter("ns", "yt")
+            .setQueryParameter("ver", "2")
+            .setQueryParameter("docid", session.videoId)
+            .setQueryParameter("cpn", session.clientPlaybackNonce)
+            .setQueryParameter("len", formatSeconds(lengthSec))
+            .setQueryParameter("cmt", formatSeconds(cmt))
+            .apply {
+                from?.let { setQueryParameter("st", formatSeconds(it)) }
+                to?.let { setQueryParameter("et", formatSeconds(it)) }
+                if (final) setQueryParameter("final", "1")
+            }
+            .build()
+            .toString()
+    }
+
+    internal fun parseWatchTracking(response: JsonElement?): Pair<String, String>? {
+        val tracking = (response as? JsonObject)?.get("playbackTracking") as? JsonObject ?: return null
+        fun baseUrl(key: String) = ((tracking[key] as? JsonObject)?.get("baseUrl") as? JsonPrimitive)?.contentOrNull
+        val playback = baseUrl("videostatsPlaybackUrl") ?: return null
+        val watchtime = baseUrl("videostatsWatchtimeUrl") ?: return null
+        return playback to watchtime
+    }
+
+    private fun ping(url: String, accessToken: String) {
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", "Bearer $accessToken")
+            .header("User-Agent", TV_USER_AGENT)
+            .get()
+            .build()
+        httpClient.newCall(request).execute().close()
+    }
+
+    private fun formatSeconds(seconds: Float) = String.format(Locale.US, "%.3f", seconds)
+
+    /** YouTube's client playback nonce: 16 random url-safe characters per playback. */
+    private fun newClientPlaybackNonce(): String {
+        val alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+        val random = java.security.SecureRandom()
+        return String(CharArray(16) { alphabet[random.nextInt(alphabet.length)] })
+    }
+
     /** Fetches the account name again, for profiles that signed in while it couldn't be read. */
     suspend fun refreshAccount() = withContext(Dispatchers.IO) {
-        runCatching { fetchAccount(validAccessToken()) }
+        val pageId = authDataStore.getCurrentState().pageId
+        runCatching { fetchAccount(validAccessToken(), pageId) }
             .getOrNull()
             ?.let { authDataStore.saveAccount(it) }
     }
 
     /** Tries each home browse id in turn, so a renamed one falls back to the next. */
-    private suspend fun loadHome(): List<YouTubeShelf> {
+    private suspend fun loadHome(): YouTubePage {
         var lastError: Exception? = null
         for (browseId in HOME_BROWSE_IDS) {
             try {
-                val shelves = browse(browseId)
-                if (shelves.isNotEmpty()) return shelves
+                val page = browse(browseId)
+                if (page.shelves.isNotEmpty()) return page
             } catch (e: YouTubeSignedOutException) {
                 throw e
             } catch (e: kotlinx.coroutines.CancellationException) {
@@ -217,15 +344,16 @@ class YouTubeService @Inject constructor(
             }
         }
         lastError?.let { throw it }
-        return emptyList()
+        return YouTubePage(emptyList(), null)
     }
 
-    private suspend fun browse(browseId: String): List<YouTubeShelf> =
-        YouTubeResponseParser.parseShelves(innertube("browse", validAccessToken()) { put("browseId", browseId) })
+    private suspend fun browse(browseId: String): YouTubePage =
+        YouTubeResponseParser.parsePage(innertube("browse", validAccessToken()) { put("browseId", browseId) })
 
     private suspend fun innertube(
         endpoint: String,
         accessToken: String,
+        pageId: String? = authDataStore.getCurrentState().pageId,
         params: JsonObjectBuilder.() -> Unit
     ): JsonElement {
         val visitorData = runCatching { tvAppConfig().visitorData }.getOrNull()
@@ -267,6 +395,8 @@ class YouTubeService @Inject constructor(
             .header("Origin", "https://www.youtube.com")
             .header("Referer", TV_URL)
             .apply { visitorData?.let { header("X-Goog-Visitor-Id", it) } }
+            // Acts as the chosen brand account, as SmartTube's YouTubeSignInService does.
+            .apply { pageId?.let { header("X-Goog-Pageid", it) } }
             .post(body.toString().toRequestBody(jsonMediaType))
             .build()
         val (code, text) = httpClient.newCall(request).execute().use { response ->
@@ -281,16 +411,22 @@ class YouTubeService @Inject constructor(
         return json.parseToJsonElement(text)
     }
 
-    private suspend fun fetchAccount(accessToken: String): YouTubeAccount? =
-        YouTubeResponseParser.parseAccount(
-            innertube("account/accounts_list", accessToken) {
-                putJsonObject("accountReadMask") {
-                    put("returnOwner", true)
-                    put("returnBrandAccounts", true)
-                    put("returnPersonaAccounts", false)
-                }
+    private suspend fun fetchAccount(accessToken: String, pageId: String? = null): YouTubeAccount? {
+        val accounts = YouTubeResponseParser.parseAccounts(accountsList(accessToken, pageId = null))
+        return accounts.firstOrNull { pageId != null && it.pageId == pageId }
+            ?: accounts.firstOrNull { it.pageId == null && pageId == null && it.isSelected }
+            ?: accounts.firstOrNull { it.pageId == null }
+            ?: accounts.firstOrNull()
+    }
+
+    private suspend fun accountsList(accessToken: String, pageId: String?): JsonElement =
+        innertube("account/accounts_list", accessToken, pageId) {
+            putJsonObject("accountReadMask") {
+                put("returnOwner", true)
+                put("returnBrandAccounts", true)
+                put("returnPersonaAccounts", false)
             }
-        )
+        }
 
     /** A current access token, refreshed first when it's about to expire. */
     private suspend fun validAccessToken(): String = refreshMutex.withLock { refreshIfNeeded() }

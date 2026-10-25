@@ -189,6 +189,73 @@ class YouTubeResponseParserTest {
             )
         )
 
-        assertEquals(YouTubeAccount("Main Account", "@main", "https://yt3.ggpht.com/photo"), account)
+        assertEquals(
+            YouTubeAccount("Main Account", "@main", "https://yt3.ggpht.com/photo", isSelected = true),
+            account
+        )
+    }
+
+    @Test
+    fun `brand accounts carry their page id, and disabled ones are left out`() {
+        val accounts = YouTubeResponseParser.parseAccounts(
+            Json.parseToJsonElement(
+                """
+                {"contents": [
+                  {"accountItem": {"accountName": {"simpleText": "Me"}, "accountByline": {"simpleText": "me@example.com"}, "isSelected": true}},
+                  {"accountItem": {"accountName": {"simpleText": "My Brand"}, "channelHandle": {"simpleText": "@brand"},
+                    "serviceEndpoint": {"selectActiveIdentityEndpoint": {"supportedTokens": [
+                      {"accountStateToken": {"hasChannel": true}},
+                      {"pageIdToken": {"pageId": "112233"}}
+                    ]}}}},
+                  {"accountItem": {"accountName": {"simpleText": "Gone"}, "isDisabled": true}}
+                ]}
+                """
+            )
+        )
+
+        assertEquals(listOf("Me", "My Brand"), accounts.map { it.name })
+        assertEquals("me@example.com", accounts[0].email)
+        assertNull(accounts[0].pageId)
+        assertEquals("112233", accounts[1].pageId)
+    }
+
+    @Test
+    fun `the tv home keeps its page token and each row's own token`() {
+        val page = YouTubeResponseParser.parsePage(
+            Json.parseToJsonElement(
+                """
+                {"sectionListRenderer": {
+                  "contents": [{"shelfRenderer": {
+                    "headerRenderer": {"shelfHeaderRenderer": {"title": {"simpleText": "Row"}}},
+                    "content": {"horizontalListRenderer": {
+                      "items": [${tile("aaa", "First")}],
+                      "continuations": [{"nextContinuationData": {"continuation": "ROW_TOKEN"}}]
+                    }}
+                  }}],
+                  "continuations": [{"nextContinuationData": {"continuation": "PAGE_TOKEN"}}]
+                }}
+                """
+            )
+        )
+
+        assertEquals("PAGE_TOKEN", page.continuation)
+        assertEquals("ROW_TOKEN", page.shelves.single().continuation)
+    }
+
+    @Test
+    fun `a continuation item renderer gives the page token`() {
+        val page = YouTubeResponseParser.parsePage(
+            Json.parseToJsonElement(
+                """
+                {"gridRenderer": {"items": [
+                  ${tile("aaa", "First")},
+                  {"continuationItemRenderer": {"continuationEndpoint": {"continuationCommand": {"token": "NEXT"}}}}
+                ]}}
+                """
+            )
+        )
+
+        assertEquals("NEXT", page.continuation)
+        assertEquals(listOf("aaa"), page.shelves.single().videos.map { it.videoId })
     }
 }

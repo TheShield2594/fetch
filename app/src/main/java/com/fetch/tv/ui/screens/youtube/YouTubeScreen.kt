@@ -15,7 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -25,6 +31,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,13 +62,11 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.fetch.tv.R
 import com.fetch.tv.data.youtube.YouTubeFeed
-import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.StateAction
-import com.fetch.tv.ui.screens.detail.SharedTrailerOverlay
 import com.fetch.tv.ui.screens.settings.SettingsChoiceChip
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
@@ -137,31 +142,99 @@ fun YouTubeScreen(
                     ),
                     icon = if (state.selectedFeed == YouTubeFeed.SEARCH) Icons.Default.Search else Icons.Default.VideoLibrary
                 )
-                else -> YouTubeShelves(shelves = feed.shelves, onPlay = viewModel::play)
+                // Subscriptions, history and search are one long list: a grid reads better than one row.
+                feed.shelves.size == 1 && feed.shelves[0].title == null -> YouTubeVideoGrid(
+                    videos = feed.shelves[0].videos,
+                    isLoadingMore = feed.isLoadingMore,
+                    onNearEnd = viewModel::loadMore,
+                    onPlay = viewModel::play
+                )
+                else -> YouTubeShelves(
+                    feed = feed,
+                    onNearFeedEnd = viewModel::loadMore,
+                    onNearShelfEnd = viewModel::loadMoreInShelf,
+                    onPlay = viewModel::play
+                )
             }
         }
     }
 
     state.playback?.let { playback ->
-        SharedTrailerOverlay(
-            title = playback.video.title,
-            trailerUrl = playback.videoUrl,
-            trailerAudioUrl = playback.audioUrl,
-            isLoading = playback.isLoading,
-            errorMessage = if (playback.failed) stringResource(R.string.youtube_play_failed) else null,
+        YouTubePlayerOverlay(
+            playback = playback,
+            onProgress = viewModel::onPlaybackProgress,
             onDismiss = viewModel::closePlayback,
             onRetry = viewModel::retryPlayback
         )
     }
 }
 
+/** How close to the end, in items, focus or scrolling gets before the next page loads. */
+private const val LOAD_MORE_THRESHOLD = 6
+private const val GRID_COLUMNS = 4
+
 @Composable
-private fun YouTubeShelves(
-    shelves: List<YouTubeShelf>,
+private fun YouTubeVideoGrid(
+    videos: List<YouTubeVideo>,
+    isLoadingMore: Boolean,
+    onNearEnd: () -> Unit,
     onPlay: (YouTubeVideo) -> Unit
 ) {
+    val gridState = rememberLazyGridState()
+    val nearEnd by remember(videos.size) {
+        derivedStateOf {
+            val last = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            videos.isNotEmpty() && last >= videos.size - LOAD_MORE_THRESHOLD
+        }
+    }
+    LaunchedEffect(nearEnd, videos.size) {
+        if (nearEnd) onNearEnd()
+    }
+    LazyVerticalGrid(
+        state = gridState,
+        columns = GridCells.Fixed(GRID_COLUMNS),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = FetchTheme.spacing.screen.horizontal,
+            end = FetchTheme.spacing.screen.horizontal,
+            top = FetchTheme.spacing.xs,
+            bottom = FetchTheme.spacing.xxl
+        ),
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
+    ) {
+        items(videos, key = { it.videoId }) { video ->
+            YouTubeVideoCard(video = video, onClick = { onPlay(video) }, modifier = Modifier.fillMaxWidth())
+        }
+        if (isLoadingMore) {
+            item(span = { GridItemSpan(maxLineSpan) }, key = "loading_more") {
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { LoadingIndicator() }
+            }
+        }
+    }
+}
+
+@Composable
+private fun YouTubeShelves(
+    feed: YouTubeFeedState,
+    onNearFeedEnd: () -> Unit,
+    onNearShelfEnd: (Int) -> Unit,
+    onPlay: (YouTubeVideo) -> Unit
+) {
+    val shelves = feed.shelves
     val fallbackTitle = stringResource(R.string.youtube_more_videos)
+    val listState = rememberLazyListState()
+    val nearEnd by remember(shelves.size) {
+        derivedStateOf {
+            val last = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            shelves.isNotEmpty() && last >= shelves.size - 2
+        }
+    }
+    LaunchedEffect(nearEnd, shelves.size) {
+        if (nearEnd) onNearFeedEnd()
+    }
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = FetchTheme.spacing.xxl),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
@@ -181,8 +254,15 @@ private fun YouTubeShelves(
                     contentPadding = PaddingValues(horizontal = FetchTheme.spacing.screen.horizontal),
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
                 ) {
-                    items(shelf.videos, key = { it.videoId }) { video ->
-                        YouTubeVideoCard(video = video, onClick = { onPlay(video) })
+                    itemsIndexed(shelf.videos, key = { _, video -> video.videoId }) { videoIndex, video ->
+                        YouTubeVideoCard(
+                            video = video,
+                            onClick = { onPlay(video) },
+                            onFocused = {
+                                if (videoIndex >= shelf.videos.size - LOAD_MORE_THRESHOLD) onNearShelfEnd(index)
+                            },
+                            modifier = Modifier.width(VideoCardWidth)
+                        )
                     }
                 }
             }
@@ -194,16 +274,21 @@ private fun YouTubeShelves(
 @Composable
 private fun YouTubeVideoCard(
     video: YouTubeVideo,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onFocused: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(FetchRadii.tokens.md)
     Column(
-        modifier = Modifier.width(VideoCardWidth),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
     ) {
         Card(
             onClick = onClick,
-            modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .onFocusChanged { if (it.isFocused) onFocused() },
             shape = CardDefaults.shape(shape),
             colors = CardDefaults.colors(containerColor = FetchTheme.colors.BackgroundCard),
             border = CardDefaults.border(

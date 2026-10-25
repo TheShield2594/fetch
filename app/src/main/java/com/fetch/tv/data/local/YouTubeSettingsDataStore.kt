@@ -1,0 +1,54 @@
+package com.fetch.tv.data.local
+
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import com.fetch.tv.core.profile.ProfileManager
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/** Each profile's YouTube playback choices. Kept apart from the sign-in so signing out keeps them. */
+@Singleton
+@OptIn(ExperimentalCoroutinesApi::class)
+class YouTubeSettingsDataStore @Inject constructor(
+    private val factory: ProfileDataStoreFactory,
+    private val profileManager: ProfileManager
+) {
+    companion object {
+        private const val FEATURE = "youtube_settings"
+        const val DEFAULT_SPONSOR_BLOCK_ENABLED = true
+        const val DEFAULT_WATCH_HISTORY_ENABLED = true
+    }
+
+    private val sponsorBlockKey = booleanPreferencesKey("sponsor_block_enabled")
+    private val watchHistoryKey = booleanPreferencesKey("watch_history_enabled")
+
+    private fun store(profileId: Int = profileManager.activeProfileId.value) =
+        factory.get(profileId, FEATURE)
+
+    /** Skip the sponsor, self-promotion and subscribe-reminder parts SponsorBlock users marked. */
+    val sponsorBlockEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.map { it[sponsorBlockKey] ?: DEFAULT_SPONSOR_BLOCK_ENABLED }
+    }
+
+    /** Add the videos watched in Fetch to the account's YouTube history, with where they stopped. */
+    val watchHistoryEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.map { it[watchHistoryKey] ?: DEFAULT_WATCH_HISTORY_ENABLED }
+    }
+
+    suspend fun isSponsorBlockEnabled(): Boolean = sponsorBlockEnabled.first()
+
+    suspend fun isWatchHistoryEnabled(): Boolean = watchHistoryEnabled.first()
+
+    suspend fun setSponsorBlockEnabled(enabled: Boolean) {
+        store().edit { it[sponsorBlockKey] = enabled }
+    }
+
+    suspend fun setWatchHistoryEnabled(enabled: Boolean) {
+        store().edit { it[watchHistoryKey] = enabled }
+    }
+}

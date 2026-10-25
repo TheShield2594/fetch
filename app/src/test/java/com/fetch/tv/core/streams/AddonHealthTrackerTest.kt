@@ -28,12 +28,16 @@ class AddonHealthTrackerTest {
         }
     }
 
+    private companion object {
+        const val MINUTE = 60_000L
+    }
+
     private fun TestScope.tracker(store: FakeStore) =
         AddonHealthTracker(store, backgroundScope, saveDebounceMs = 1_000L).also { runCurrent() }
 
     private fun health(vararg samples: Pair<AddonRequestOutcome, Long>): AddonHealth =
         samples.foldIndexed(AddonHealth("A")) { index, acc, (outcome, latency) ->
-            acc.plus(AddonHealthSample(outcome, latency, atMs = index.toLong()), error = "boom $index")
+            acc.plus(AddonHealthSample(outcome, latency, atMs = index * MINUTE), error = "boom $index")
         }
 
     @Test
@@ -60,11 +64,27 @@ class AddonHealthTrackerTest {
         assertNull(failing.lastSuccessAtMs)
         assertNull(failing.p50LatencyMs)
 
-        val recovered = failing.plus(AddonHealthSample(AddonRequestOutcome.EMPTY, 120L, atMs = 99L), error = null)
+        val recovered = failing.plus(AddonHealthSample(AddonRequestOutcome.EMPTY, 120L, atMs = 99 * MINUTE), error = null)
         assertEquals(0, recovered.consecutiveFailures)
         assertFalse(recovered.shouldSuggestDisabling)
-        assertEquals(99L, recovered.lastSuccessAtMs)
+        assertEquals(99 * MINUTE, recovered.lastSuccessAtMs)
         assertEquals("boom 4", recovered.lastError)
+    }
+
+    @Test
+    fun `failures in one burst count once`() {
+        val burst = (0 until 8).fold(AddonHealth("A")) { acc, i ->
+            acc.plus(AddonHealthSample(AddonRequestOutcome.ERROR, 50L, atMs = 1_000L + i * 200L), error = "offline")
+        }
+        assertEquals(8, burst.failures)
+        assertEquals(1, burst.consecutiveFailures)
+        assertFalse(burst.shouldSuggestDisabling)
+
+        val later = burst.plus(
+            AddonHealthSample(AddonRequestOutcome.TIMEOUT, 25_000L, atMs = 1_000L + AddonHealth.FAILURE_BURST_MS * 2),
+            error = null
+        )
+        assertEquals(2, later.consecutiveFailures)
     }
 
     @Test
@@ -93,7 +113,7 @@ class AddonHealthTrackerTest {
         val tracker = tracker(store)
         assertEquals(1, tracker.health.value["A"]?.requests)
 
-        tracker.record("A", AddonRequestOutcome.ERROR, 20L, error = "down", nowMs = 50L)
+        tracker.record("A", AddonRequestOutcome.ERROR, 20L, error = "down", nowMs = 5 * MINUTE)
         val a = tracker.health.value.getValue("A")
         assertEquals(2, a.requests)
         assertEquals(2, a.consecutiveFailures)

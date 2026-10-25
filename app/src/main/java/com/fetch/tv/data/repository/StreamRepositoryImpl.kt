@@ -178,6 +178,8 @@ class StreamRepositoryImpl @Inject constructor(
                                 kind = AddonRequestKind.STREAM,
                                 classify = { result ->
                                     when {
+                                        // A 404 means the addon has nothing for this title, not that it's down.
+                                        result is NetworkResult.Error && result.code == 404 -> AddonRequestOutcome.EMPTY
                                         result is NetworkResult.Error -> AddonRequestOutcome.ERROR
                                         result is NetworkResult.Success && result.data.isEmpty() ->
                                             AddonRequestOutcome.EMPTY

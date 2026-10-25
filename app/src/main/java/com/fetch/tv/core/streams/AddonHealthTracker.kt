@@ -43,7 +43,11 @@ data class AddonHealth(
     val lastError: String? = null,
     val lastErrorAtMs: Long? = null,
     val lastSuccessAtMs: Long? = null,
-    /** Errors and timeouts since the last answer, across restarts. */
+    /**
+     * Errors and timeouts since the last answer, across restarts. Failures within
+     * [FAILURE_BURST_MS] of the previous one count once, so a dropped connection during a
+     * Home load (many catalog requests at once) doesn't look like a dead addon.
+     */
     val consecutiveFailures: Int = 0
 ) {
     val requests: Int get() = samples.size
@@ -84,13 +88,19 @@ data class AddonHealth(
         lastError = if (sample.outcome.isFailure) error?.take(200) ?: lastError else lastError,
         lastErrorAtMs = if (sample.outcome.isFailure) sample.atMs else lastErrorAtMs,
         lastSuccessAtMs = if (sample.outcome.isFailure) lastSuccessAtMs else sample.atMs,
-        consecutiveFailures = if (sample.outcome.isFailure) consecutiveFailures + 1 else 0
+        consecutiveFailures = when {
+            !sample.outcome.isFailure -> 0
+            lastErrorAtMs != null && sample.atMs - lastErrorAtMs < FAILURE_BURST_MS ->
+                consecutiveFailures.coerceAtLeast(1)
+            else -> consecutiveFailures + 1
+        }
     )
 
     companion object {
         const val SLOW_THRESHOLD_MS = 5_000L
         const val WINDOW_SIZE = 50
         const val SUGGEST_DISABLE_AFTER_FAILURES = 5
+        const val FAILURE_BURST_MS = 10_000L
     }
 }
 

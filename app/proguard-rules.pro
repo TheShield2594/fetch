@@ -72,7 +72,12 @@
     java.nio.ByteBuffer growOutputBuffer(androidx.media3.decoder.SimpleDecoderOutputBuffer, int);
 }
 
-# Private fields read by reflection (FetchAssMatroskaExtractor and ass-media).
+# Private fields read by reflection: FetchAssMatroskaExtractor reads them on the vendored
+# extractor, ass-media on Media3's.
+-keepclassmembers class com.fetch.tv.core.player.dvmkv.MatroskaExtractor {
+    androidx.media3.extractor.ExtractorOutput extractorOutput;
+    *** subtitleSample;
+}
 -keepclassmembers class androidx.media3.extractor.mkv.MatroskaExtractor {
     androidx.media3.extractor.ExtractorOutput extractorOutput;
     *** subtitleSample;

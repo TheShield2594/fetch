@@ -144,7 +144,8 @@ class CatalogRepositoryImpl @Inject constructor(
             kind = AddonRequestKind.CATALOG,
             classify = { result ->
                 when (result) {
-                    is NetworkResult.Error -> AddonRequestOutcome.ERROR
+                    // A 404 is a missing catalog or page, not a sign the addon is down.
+                    is NetworkResult.Error -> if (result.code == 404) AddonRequestOutcome.EMPTY else AddonRequestOutcome.ERROR
                     is NetworkResult.Success -> if (result.data.metas.isEmpty()) {
                         AddonRequestOutcome.EMPTY
                     } else {

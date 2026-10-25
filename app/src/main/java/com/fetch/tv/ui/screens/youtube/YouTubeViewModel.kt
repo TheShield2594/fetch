@@ -92,6 +92,9 @@ class YouTubeViewModel @Inject constructor(
 
         /** How often a playing video's position is sent to YouTube history. */
         const val HISTORY_REPORT_INTERVAL_MS = 30_000L
+
+        /** How many pages in a row the feed filter may hide entirely before loading stops for now. */
+        const val MAX_HIDDEN_PAGES = 3
     }
 
     private val _uiState = MutableStateFlow(YouTubeUiState())
@@ -106,6 +109,7 @@ class YouTubeViewModel @Inject constructor(
     private var lastDurationMs = 0L
     private var lastReportAtMs = 0L
     private var lastIdentity: Pair<String?, String?>? = null
+    private var feedFilter = YouTubeSettingsDataStore.DEFAULT_FEED_FILTER
 
     init {
         viewModelScope.launch {
@@ -116,15 +120,32 @@ class YouTubeViewModel @Inject constructor(
                 if (identity == lastIdentity && _uiState.value.signedOut == !signedIn) return@collect
                 lastIdentity = identity
                 // Nothing the old account asked for may land in the new one's feeds.
-                loadJobs.values.forEach { it.cancel() }
-                loadJobs.clear()
-                loadMoreJobs.forEach { it.cancel() }
-                loadMoreJobs.clear()
+                cancelFeedLoads()
                 _uiState.update { it.copy(signedOut = !signedIn, feeds = emptyMap(), searchQuery = "") }
                 val selected = _uiState.value.selectedFeed
                 if (signedIn && selected != YouTubeFeed.SEARCH) load(selected)
             }
         }
+        viewModelScope.launch {
+            // Turning Shorts, live streams or watched videos on or off loads the feeds again with the new choice.
+            settings.feedFilter.collect { filter ->
+                if (filter == feedFilter) return@collect
+                feedFilter = filter
+                cancelFeedLoads()
+                val state = _uiState.value
+                val selected = state.selectedFeed
+                val reload = state.feeds[selected] != null && (selected != YouTubeFeed.SEARCH || state.searchQuery.isNotBlank())
+                _uiState.update { it.copy(feeds = emptyMap()) }
+                if (!state.signedOut && reload) load(selected)
+            }
+        }
+    }
+
+    private fun cancelFeedLoads() {
+        loadJobs.values.forEach { it.cancel() }
+        loadJobs.clear()
+        loadMoreJobs.forEach { it.cancel() }
+        loadMoreJobs.clear()
     }
 
     fun selectFeed(feed: YouTubeFeed) {
@@ -154,7 +175,7 @@ class YouTubeViewModel @Inject constructor(
         if (state.isLoading || state.isLoadingMore) return
         updateFeed(feed) { it.copy(isLoadingMore = true) }
         trackLoadMore(viewModelScope.launch {
-            val page = fetchMore(feed, token)
+            val page = fetchMore(feed, token)?.let { visiblePage(feed, it) { next -> next.continuation } }
             updateExistingFeed(feed) { current ->
                 when {
                     // The feed was reloaded (a new search, a refresh) while this page loaded; it isn't theirs.
@@ -178,7 +199,9 @@ class YouTubeViewModel @Inject constructor(
         if (shelfIndex in state.loadingShelves) return
         updateFeed(feed) { it.copy(loadingShelves = it.loadingShelves + shelfIndex) }
         trackLoadMore(viewModelScope.launch {
-            val page = fetchMore(feed, token)
+            val page = fetchMore(feed, token)?.let { first ->
+                visiblePage(feed, first) { next -> next.continuation ?: next.shelves.firstNotNullOfOrNull { it.continuation } }
+            }
             updateExistingFeed(feed) { current ->
                 val shelves = current.shelves.toMutableList()
                 // After a reload the index may name another row; only the row that asked takes the page.
@@ -233,7 +256,7 @@ class YouTubeViewModel @Inject constructor(
             if (source != null) orNull { setUpCaptions(video, source.captionsJson, info?.captions) }
             val skipSegments = segments.await()
             updatePlayback(video) { it.copy(skipSegments = skipSegments) }
-            val next = watchNext.await()
+            val next = watchNext.await()?.let { feedFilter.apply(it) }
             val autoplayEnabled = autoplay.await()
             updatePlayback(video) {
                 it.copy(upNext = next?.next, related = next?.related.orEmpty(), autoplay = autoplayEnabled)
@@ -365,13 +388,32 @@ class YouTubeViewModel @Inject constructor(
         null
     }
 
+    /**
+     * [page] as the feed filter shows it, with the token after it from [nextToken]. When the filter
+     * hides all of a page, the pages after it are read in its place, up to [MAX_HIDDEN_PAGES].
+     */
+    private suspend fun visiblePage(
+        feed: YouTubeFeed,
+        page: YouTubePage,
+        nextToken: (YouTubePage) -> String?
+    ): YouTubePage {
+        var current = page
+        repeat(MAX_HIDDEN_PAGES) {
+            val shown = feedFilter.apply(current, feed)
+            val token = nextToken(current)
+            if (shown.shelves.isNotEmpty() || token == null) return shown.copy(continuation = token)
+            current = fetchMore(feed, token) ?: return shown.copy(continuation = token)
+        }
+        return feedFilter.apply(current, feed).copy(continuation = nextToken(current))
+    }
+
     private fun load(feed: YouTubeFeed) {
         loadJobs[feed]?.cancel()
         val query = _uiState.value.searchQuery
         updateFeed(feed) { it.copy(isLoading = true, failed = false) }
         loadJobs[feed] = viewModelScope.launch {
             try {
-                val page = youTubeService.loadFeed(feed, query)
+                val page = visiblePage(feed, youTubeService.loadFeed(feed, query)) { it.continuation }
                 updateFeed(feed) {
                     YouTubeFeedState(shelves = page.shelves, continuation = page.continuation, loaded = true)
                 }

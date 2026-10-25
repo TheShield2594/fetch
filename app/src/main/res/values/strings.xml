@@ -3137,4 +3137,10 @@
     </plurals>
     <string name="youtube_autoplay_title">Autoplay next video</string>
     <string name="youtube_autoplay_subtitle">When a video ends, play YouTube\'s Up Next pick after a 10-second countdown</string>
+    <string name="youtube_show_shorts_title">Show Shorts</string>
+    <string name="youtube_show_shorts_subtitle">Include Shorts in your feeds, search results and Up Next</string>
+    <string name="youtube_show_live_title">Show live streams</string>
+    <string name="youtube_show_live_subtitle">Include streams that are live now in your feeds, search results and Up Next</string>
+    <string name="youtube_hide_watched_title">Hide watched videos</string>
+    <string name="youtube_hide_watched_subtitle">Leave out videos you\'ve watched to the end. History still lists them</string>
 </resources>

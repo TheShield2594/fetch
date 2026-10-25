@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.data.youtube.YouTubeFeedFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -24,11 +25,15 @@ class YouTubeSettingsDataStore @Inject constructor(
         const val DEFAULT_SPONSOR_BLOCK_ENABLED = true
         const val DEFAULT_WATCH_HISTORY_ENABLED = true
         const val DEFAULT_AUTOPLAY_ENABLED = true
+        val DEFAULT_FEED_FILTER = YouTubeFeedFilter()
     }
 
     private val sponsorBlockKey = booleanPreferencesKey("sponsor_block_enabled")
     private val watchHistoryKey = booleanPreferencesKey("watch_history_enabled")
     private val autoplayKey = booleanPreferencesKey("autoplay_enabled")
+    private val showShortsKey = booleanPreferencesKey("show_shorts")
+    private val showLiveKey = booleanPreferencesKey("show_live")
+    private val hideWatchedKey = booleanPreferencesKey("hide_watched")
     private val captionsEnabledKey = booleanPreferencesKey("captions_enabled")
     private val captionLanguageKey = stringPreferencesKey("caption_language")
 
@@ -43,6 +48,29 @@ class YouTubeSettingsDataStore @Inject constructor(
     /** Add the videos watched in Fetch to the account's YouTube history, with where they stopped. */
     val watchHistoryEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
         store(id).data.map { it[watchHistoryKey] ?: DEFAULT_WATCH_HISTORY_ENABLED }
+    }
+
+    /** Which Shorts, live streams and watched videos the feeds, search and Up Next leave out. */
+    val feedFilter: Flow<YouTubeFeedFilter> = profileManager.activeProfileId.flatMapLatest { id ->
+        store(id).data.map { prefs ->
+            YouTubeFeedFilter(
+                showShorts = prefs[showShortsKey] ?: DEFAULT_FEED_FILTER.showShorts,
+                showLive = prefs[showLiveKey] ?: DEFAULT_FEED_FILTER.showLive,
+                hideWatched = prefs[hideWatchedKey] ?: DEFAULT_FEED_FILTER.hideWatched
+            )
+        }
+    }
+
+    suspend fun setShowShorts(show: Boolean) {
+        store().edit { it[showShortsKey] = show }
+    }
+
+    suspend fun setShowLive(show: Boolean) {
+        store().edit { it[showLiveKey] = show }
+    }
+
+    suspend fun setHideWatched(hide: Boolean) {
+        store().edit { it[hideWatchedKey] = hide }
     }
 
     /**

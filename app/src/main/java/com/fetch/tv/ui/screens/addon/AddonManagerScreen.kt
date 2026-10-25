@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -175,6 +176,7 @@ fun AddonManagerScreen(
     val deleteDialogFocusRequester = remember { FocusRequester() }
     var isEditing by remember { mutableStateOf(false) }
     var addonUrlPendingDeletion by remember { mutableStateOf<String?>(null) }
+    var showHealthPanel by remember { mutableStateOf(false) }
     val hasHomeVisibleCatalogs = remember(uiState.installedAddons) {
         uiState.installedAddons.any { addon ->
             addon.enabled && addon.catalogs.any { catalog -> !catalog.isSearchOnlyCatalog() }
@@ -448,6 +450,17 @@ fun AddonManagerScreen(
                 }
             }
 
+            if (!isEssential) {
+                item {
+                    NavigationEntryCard(
+                        icon = Icons.Default.MonitorHeart,
+                        title = stringResource(R.string.addon_health_entry_title),
+                        subtitle = stringResource(R.string.addon_health_entry_subtitle),
+                        onClick = { showHealthPanel = true }
+                    )
+                }
+            }
+
             item {
                 RefreshAddonsEntryCard(
                     subtitle = refreshAddonsSubtitle,
@@ -562,6 +575,17 @@ fun AddonManagerScreen(
                     )
                 }
             }
+        }
+
+        if (showHealthPanel) {
+            AddonHealthPanel(
+                addons = uiState.installedAddons,
+                health = addonHealth,
+                canDisable = !viewModel.isReadOnly,
+                onDisable = { addon -> viewModel.setAddonEnabled(addon.baseUrl, false) },
+                onClearHistory = viewModel::clearAddonHealth,
+                onDismiss = { showHealthPanel = false }
+            )
         }
 
         addonUrlPendingDeletion?.let { addonUrl ->
@@ -1454,7 +1478,13 @@ private fun AddonCardContent(
                             color = FetchTheme.colors.Error
                         )
                     }
-                    if (health != null && health.status != AddonHealthStatus.UNKNOWN) {
+                    if (health != null && addon.enabled && health.shouldSuggestDisabling) {
+                        Text(
+                            text = "\u25CF " + stringResource(R.string.addon_health_failed_in_a_row, health.consecutiveFailures),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = FetchTheme.colors.Error
+                        )
+                    } else if (health != null && health.status != AddonHealthStatus.UNKNOWN) {
                         AddonHealthLabel(health)
                     }
                 }
@@ -1593,7 +1623,7 @@ private fun AddonCardContent(
 /** "● Slow · 7.4 s" — so a dead or sluggish addon is obvious instead of silently slowing searches. */
 @Composable
 private fun AddonHealthLabel(health: AddonHealth) {
-    val seconds = (health.averageLatencyMs ?: health.lastLatencyMs ?: 0L) / 1000.0
+    val seconds = (health.p50LatencyMs ?: health.lastLatencyMs ?: 0L) / 1000.0
     val latency = stringResource(R.string.addon_health_latency, seconds)
     val (color, text) = when (health.status) {
         AddonHealthStatus.FAILING -> FetchTheme.colors.Error to if (health.lastOutcome == AddonRequestOutcome.TIMEOUT) {

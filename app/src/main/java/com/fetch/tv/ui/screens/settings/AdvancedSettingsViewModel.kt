@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.runtime.AppRestarter
+import com.fetch.tv.data.local.AddonTimeoutPreferences
 import com.fetch.tv.data.local.DeviceLocalPlayerPreferences
 import com.fetch.tv.data.local.ImagePerformancePreferences
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
@@ -22,7 +23,9 @@ data class AdvancedSettingsUiState(
     val composeHighlighterEnabled: Boolean = false,
     val playbackIssueReportsEnabled: Boolean = false,
     val playerStatsHudEnabled: Boolean = false,
-    val rgb565Enabled: Boolean = true
+    val rgb565Enabled: Boolean = true,
+    val addonTimeoutSeconds: Int = AddonTimeoutPreferences.DEFAULT_TIMEOUT_SECONDS,
+    val skipSlowAddons: Boolean = false
 )
 
 sealed class AdvancedSettingsEvent {
@@ -32,6 +35,8 @@ sealed class AdvancedSettingsEvent {
     data class SetPlaybackIssueReportsEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetPlayerStatsHudEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetRgb565Enabled(val enabled: Boolean) : AdvancedSettingsEvent()
+    data class SetAddonTimeoutSeconds(val seconds: Int) : AdvancedSettingsEvent()
+    data class SetSkipSlowAddons(val enabled: Boolean) : AdvancedSettingsEvent()
 }
 
 @HiltViewModel
@@ -40,6 +45,7 @@ class AdvancedSettingsViewModel @Inject constructor(
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val deviceLocalPlayerPreferences: DeviceLocalPlayerPreferences,
     private val imagePerformancePreferences: ImagePerformancePreferences,
+    private val addonTimeoutPreferences: AddonTimeoutPreferences,
     private val appRestarter: AppRestarter
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AdvancedSettingsUiState())
@@ -70,6 +76,16 @@ class AdvancedSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             deviceLocalPlayerPreferences.playerStatsHudEnabled.collectLatest { enabled ->
                 _uiState.update { it.copy(playerStatsHudEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            addonTimeoutPreferences.timeoutSeconds.collectLatest { seconds ->
+                _uiState.update { it.copy(addonTimeoutSeconds = seconds) }
+            }
+        }
+        viewModelScope.launch {
+            addonTimeoutPreferences.skipSlowAddons.collectLatest { enabled ->
+                _uiState.update { it.copy(skipSlowAddons = enabled) }
             }
         }
     }
@@ -106,6 +122,12 @@ class AdvancedSettingsViewModel @Inject constructor(
                     _uiState.update { it.copy(rgb565Enabled = event.enabled) }
                     appRestarter.restart()
                 }
+            }
+            is AdvancedSettingsEvent.SetAddonTimeoutSeconds -> {
+                addonTimeoutPreferences.setTimeoutSeconds(event.seconds)
+            }
+            is AdvancedSettingsEvent.SetSkipSlowAddons -> {
+                addonTimeoutPreferences.setSkipSlowAddons(event.enabled)
             }
         }
     }

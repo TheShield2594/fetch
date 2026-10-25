@@ -1,9 +1,9 @@
 package com.fetch.tv.data.repository
 
-import android.os.SystemClock
-import com.fetch.tv.core.streams.AddonHealthTracker
+import com.fetch.tv.core.streams.AddonCallResult
+import com.fetch.tv.core.streams.AddonRequestGuard
+import com.fetch.tv.core.streams.AddonRequestKind
 import com.fetch.tv.core.streams.AddonRequestOutcome
-import kotlinx.coroutines.withTimeoutOrNull
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.R
@@ -38,8 +38,6 @@ import java.security.MessageDigest
 import javax.inject.Inject
 
 private const val TAG = "StreamRepositoryImpl"
-/** Per-addon budget for a stream request; slower addons are reported as timed out. */
-private const val PER_ADDON_STREAM_TIMEOUT_MS = 25_000L
 
 class StreamRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -47,7 +45,7 @@ class StreamRepositoryImpl @Inject constructor(
     private val addonRepository: AddonRepository,
     private val profileManager: ProfileManager,
     private val serverStreams: ServerStreams,
-    private val addonHealthTracker: AddonHealthTracker
+    private val addonRequestGuard: AddonRequestGuard
 ) : StreamRepository {
     private val streamSearchSessions = StreamSearchSessionCache()
     private enum class StreamFailureKind {
@@ -172,34 +170,37 @@ class StreamRepositoryImpl @Inject constructor(
                 // Launch addon jobs
                 streamAddons.forEach { addon ->
                     launch {
-                        val startedAt = SystemClock.elapsedRealtime()
-                        fun elapsed() = SystemClock.elapsedRealtime() - startedAt
                         try {
                             // A dead addon must not hold the whole search hostage: give each one
                             // its own budget and report it as timed out instead of waiting on OkHttp.
-                            val streamsResult = withTimeoutOrNull(PER_ADDON_STREAM_TIMEOUT_MS) {
+                            val call = addonRequestGuard.run(
+                                addonName = addon.displayName,
+                                kind = AddonRequestKind.STREAM,
+                                classify = { result ->
+                                    when {
+                                        // A 404 means the addon has nothing for this title, not that it's down.
+                                        result is NetworkResult.Error && result.code == 404 -> AddonRequestOutcome.EMPTY
+                                        result is NetworkResult.Error -> AddonRequestOutcome.ERROR
+                                        result is NetworkResult.Success && result.data.isEmpty() ->
+                                            AddonRequestOutcome.EMPTY
+                                        else -> AddonRequestOutcome.SUCCESS
+                                    }
+                                },
+                                errorOf = { (it as? NetworkResult.Error)?.message }
+                            ) {
                                 getStreamsFromAddon(addon, type, videoId)
                             }
-                            if (streamsResult == null) {
-                                addonHealthTracker.record(addon.displayName, AddonRequestOutcome.TIMEOUT, elapsed())
-                                attemptedFailures += StreamAttemptFailure(
-                                    addonName = addon.displayName,
-                                    kind = StreamFailureKind.REQUEST_FAILED,
-                                    detail = context.getString(com.fetch.tv.R.string.stream_error_detail_addon_timeout)
-                                )
-                                return@launch
+                            val streamsResult = when (call) {
+                                is AddonCallResult.Completed -> call.value
+                                AddonCallResult.TimedOut -> {
+                                    attemptedFailures += StreamAttemptFailure(
+                                        addonName = addon.displayName,
+                                        kind = StreamFailureKind.REQUEST_FAILED,
+                                        detail = context.getString(com.fetch.tv.R.string.stream_error_detail_addon_timeout)
+                                    )
+                                    return@launch
+                                }
                             }
-                            addonHealthTracker.record(
-                                addonName = addon.displayName,
-                                outcome = when {
-                                    streamsResult is NetworkResult.Error -> AddonRequestOutcome.ERROR
-                                    streamsResult is NetworkResult.Success && streamsResult.data.isEmpty() ->
-                                        AddonRequestOutcome.EMPTY
-                                    else -> AddonRequestOutcome.SUCCESS
-                                },
-                                latencyMs = elapsed(),
-                                error = (streamsResult as? NetworkResult.Error)?.message
-                            )
                             when (streamsResult) {
                                 is NetworkResult.Success -> {
                                     if (streamsResult.data.isNotEmpty()) {
@@ -240,7 +241,6 @@ class StreamRepositoryImpl @Inject constructor(
                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
                             Log.e(TAG, "Addon ${addon.name} failed: ${e.message}")
-                            addonHealthTracker.record(addon.displayName, AddonRequestOutcome.ERROR, elapsed(), e.message)
                             attemptedFailures += StreamAttemptFailure(
                                 addonName = addon.displayName,
                                 kind = StreamFailureKind.REQUEST_FAILED,

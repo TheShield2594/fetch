@@ -276,7 +276,9 @@ internal object YouTubeResponseParser {
     }
 
     private fun shelfTitle(shelf: JsonObject): String? =
-        text(shelf.path("headerRenderer", "shelfHeaderRenderer", "title"))
+        // The TV client now puts the title in the header's avatar lockup.
+        text(shelf.path("headerRenderer", "shelfHeaderRenderer", "avatarLockup", "avatarLockupRenderer", "title"))
+            ?: text(shelf.path("headerRenderer", "shelfHeaderRenderer", "title"))
             ?: text(shelf["title"])
             ?: text(shelf.path("header", "shelfHeaderRenderer", "title"))
 

@@ -70,6 +70,30 @@ class YouTubeResponseParserTest {
     }
 
     @Test
+    fun `shelf titles in the header's avatar lockup are read`() {
+        val shelves = parse(
+            """
+            {"sectionListRenderer": {"contents": [
+              {"shelfRenderer": {
+                "headerRenderer": {"shelfHeaderRenderer": {"avatarLockup": {"avatarLockupRenderer": {
+                  "title": {"runs": [{"text": "Videos"}]}, "size": "AVATAR_LOCKUP_SIZE_SMALL"
+                }}}},
+                "content": {"horizontalListRenderer": {"items": [${tile("aaa", "First")}]}}
+              }},
+              {"shelfRenderer": {
+                "headerRenderer": {"shelfHeaderRenderer": {"avatarLockup": {"avatarLockupRenderer": {
+                  "title": {"simpleText": "Collaborations"}
+                }}}},
+                "content": {"horizontalListRenderer": {"items": [${tile("bbb", "Second")}]}}
+              }}
+            ]}}
+            """
+        )
+
+        assertEquals(listOf("Videos", "Collaborations"), shelves.map { it.title })
+    }
+
+    @Test
     fun `tiles outside any shelf form one untitled row, without duplicates`() {
         val shelves = parse(
             """{"gridRenderer": {"items": [${tile("aaa", "First")}, ${tile("aaa", "First")}, ${tile("bbb", "Second")}]}}"""

@@ -9,6 +9,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.Card
+import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.Icon
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -36,7 +54,11 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
+import com.fetch.tv.data.local.SubtitleStyleSettings
+import com.fetch.tv.data.youtube.YouTubeCaptionCue
+import com.fetch.tv.data.youtube.YouTubeCaptionTrack
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
+import com.fetch.tv.data.youtube.cueAt
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.TrailerPlayer
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
@@ -56,6 +78,7 @@ import kotlinx.coroutines.delay
 fun YouTubePlayerOverlay(
     playback: YouTubePlaybackState,
     onProgress: (positionMs: Long, durationMs: Long) -> Unit,
+    onSelectCaption: (YouTubeCaptionTrack?) -> Unit,
     onDismiss: () -> Unit,
     onRetry: () -> Unit
 ) {
@@ -71,6 +94,8 @@ fun YouTubePlayerOverlay(
     var skipNoticeVisible by remember(video.videoId) { mutableStateOf(false) }
     val currentOnProgress by rememberUpdatedState(onProgress)
     val currentSegments by rememberUpdatedState(playback.skipSegments)
+    var captionMenuOpen by remember(video.videoId) { mutableStateOf(false) }
+    var positionMs by remember(video.videoId) { mutableLongStateOf(0L) }
 
     val focusRequester = remember { FocusRequester() }
     val canControl = !playback.videoUrl.isNullOrBlank() && !playback.isLoading && !playback.failed
@@ -108,7 +133,25 @@ fun YouTubePlayerOverlay(
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
                     if (native.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
+                    if (captionMenuOpen) {
+                        // The menu takes the remote; Back closes it and returns to the video.
+                        if (native.keyCode == KeyEvent.KEYCODE_BACK || native.keyCode == KeyEvent.KEYCODE_ESCAPE) {
+                            captionMenuOpen = false
+                            runCatching { focusRequester.requestFocus() }
+                            return@onPreviewKeyEvent true
+                        }
+                        return@onPreviewKeyEvent false
+                    }
                     when (native.keyCode) {
+                        KeyEvent.KEYCODE_CAPTIONS -> {
+                            if (!canControl || playback.captionTracks.isEmpty()) return@onPreviewKeyEvent false
+                            // The remote's CC button turns captions on or off without the menu.
+                            onSelectCaption(
+                                if (playback.selectedCaption != null) null
+                                else playback.captionTracks.first()
+                            )
+                            true
+                        }
                         KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_ESCAPE -> {
                             if (controlsVisible && !isPaused) controlsVisible = false else onDismiss()
                             true
@@ -134,9 +177,19 @@ fun YouTubePlayerOverlay(
                             controlsVisible = true
                             true
                         }
-                        KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
+                        KeyEvent.KEYCODE_DPAD_UP -> {
                             if (!canControl) return@onPreviewKeyEvent false
-                            controlsVisible = native.keyCode == KeyEvent.KEYCODE_DPAD_UP || isPaused
+                            controlsVisible = true
+                            true
+                        }
+                        KeyEvent.KEYCODE_DPAD_DOWN -> {
+                            if (!canControl) return@onPreviewKeyEvent false
+                            if (playback.captionTracks.isNotEmpty()) {
+                                captionMenuOpen = true
+                                controlsVisible = false
+                            } else {
+                                controlsVisible = isPaused
+                            }
                             true
                         }
                         else -> false
@@ -154,6 +207,7 @@ fun YouTubePlayerOverlay(
                     seekRequestToken = seekToken,
                     seekDeltaMs = seekDeltaMs,
                     onProgressChanged = progress@{ position, duration ->
+                        positionMs = position
                         seekState.positionMs = position
                         seekState.durationMs = duration
                         if (duration <= 0L) return@progress
@@ -229,14 +283,197 @@ fun YouTubePlayerOverlay(
                 )
             }
 
+            if (playback.selectedCaption != null) {
+                CaptionText(
+                    cue = cueAt(playback.captionCues, positionMs),
+                    style = playback.captionStyle,
+                    // Rises above the seek bar while it shows, so neither covers the other.
+                    liftForControls = canControl && controlsVisible,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
+
             TrailerSeekOverlayHost(
                 visible = canControl && controlsVisible,
                 overlayState = seekState,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
+
+            if (canControl && controlsVisible && playback.captionTracks.isNotEmpty()) {
+                Text(
+                    text = stringResource(
+                        R.string.youtube_captions_hint,
+                        playback.selectedCaption?.let { captionLabel(it) } ?: stringResource(R.string.youtube_captions_off)
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.82f),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(horizontal = FetchTheme.spacing.xxl, vertical = FetchTheme.spacing.xl)
+                )
+            }
+
+            if (captionMenuOpen) {
+                CaptionMenu(
+                    playback = playback,
+                    onSelect = { track ->
+                        onSelectCaption(track)
+                        captionMenuOpen = false
+                        runCatching { focusRequester.requestFocus() }
+                    },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
         }
     }
 }
+
+/** One cue in the viewer's subtitle style from Fetch's playback settings. */
+@Composable
+private fun CaptionText(
+    cue: YouTubeCaptionCue?,
+    style: SubtitleStyleSettings,
+    liftForControls: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val text = cue?.text ?: return
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val offset = maxHeight * (style.verticalOffset.coerceIn(0, 50) / 100f)
+        val bottom = offset + if (liftForControls) CAPTION_CONTROLS_LIFT else FetchTheme.spacing.none
+        val base = MaterialTheme.typography.headlineSmall
+        val textStyle = base.copy(
+            fontSize = base.fontSize * (style.size.coerceIn(50, 200) / 100f),
+            fontWeight = if (style.bold) FontWeight.Bold else base.fontWeight,
+            textAlign = TextAlign.Center
+        )
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(start = FetchTheme.spacing.xxl, end = FetchTheme.spacing.xxl, bottom = bottom)
+                .background(Color(style.backgroundColor), RoundedCornerShape(FetchRadii.tokens.xs))
+                .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
+        ) {
+            if (style.outlineEnabled) {
+                Text(
+                    text = text,
+                    style = textStyle.copy(
+                        drawStyle = Stroke(width = style.outlineWidth.coerceIn(1, 5) * CAPTION_OUTLINE_SCALE),
+                        color = Color(style.outlineColor)
+                    )
+                )
+            }
+            Text(text = text, style = textStyle.copy(color = Color(style.textColor)))
+        }
+    }
+}
+
+/** Off, then the video's tracks: its own first, then YouTube's automatic and translated ones. */
+@Composable
+private fun CaptionMenu(
+    playback: YouTubePlaybackState,
+    onSelect: (YouTubeCaptionTrack?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val selectedFocus = remember { FocusRequester() }
+    val tracks = remember(playback.captionTracks) {
+        playback.captionTracks.sortedWith(compareBy({ it.isTranslated }, { it.isAutoGenerated }, { it.name }))
+    }
+    Column(
+        modifier = modifier
+            .padding(FetchTheme.spacing.xl)
+            .width(CAPTION_MENU_WIDTH)
+            .clip(RoundedCornerShape(FetchRadii.tokens.md))
+            .background(Color.Black.copy(alpha = 0.85f))
+            .padding(FetchTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+    ) {
+        Text(
+            text = stringResource(R.string.youtube_captions_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White,
+            modifier = Modifier.padding(bottom = FetchTheme.spacing.xs)
+        )
+        if (playback.captionsFailed) {
+            Text(
+                text = stringResource(R.string.youtube_captions_failed),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.Error
+            )
+        }
+        LazyColumn(
+            modifier = Modifier.heightIn(max = CAPTION_MENU_MAX_HEIGHT),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
+        ) {
+            item(key = "off") {
+                CaptionMenuRow(
+                    label = stringResource(R.string.youtube_captions_off),
+                    selected = playback.selectedCaption == null,
+                    onClick = { onSelect(null) },
+                    modifier = if (playback.selectedCaption == null) Modifier.focusRequester(selectedFocus) else Modifier
+                )
+            }
+            items(tracks, key = { it.id }) { track ->
+                val selected = playback.selectedCaption?.id == track.id
+                CaptionMenuRow(
+                    label = captionLabel(track),
+                    selected = selected,
+                    loading = selected && playback.captionsLoading,
+                    onClick = { onSelect(track) },
+                    modifier = if (selected) Modifier.focusRequester(selectedFocus) else Modifier
+                )
+            }
+        }
+    }
+    LaunchedEffect(Unit) { runCatching { selectedFocus.requestFocus() } }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun CaptionMenuRow(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    loading: Boolean = false
+) {
+    val shape = RoundedCornerShape(FetchRadii.tokens.sm)
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = CardDefaults.shape(shape),
+        colors = CardDefaults.colors(
+            containerColor = Color.Transparent,
+            focusedContainerColor = Color.White.copy(alpha = 0.18f)
+        ),
+        scale = CardDefaults.scale(focusedScale = 1f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+        ) {
+            Box(modifier = Modifier.size(FetchTheme.spacing.lg), contentAlignment = Alignment.Center) {
+                when {
+                    loading -> LoadingIndicator(modifier = Modifier.size(FetchTheme.spacing.lg))
+                    selected -> Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
+                }
+            }
+            Text(text = label, style = MaterialTheme.typography.bodyMedium, color = Color.White, maxLines = 1)
+        }
+    }
+}
+
+@Composable
+private fun captionLabel(track: YouTubeCaptionTrack): String = when {
+    track.isTranslated -> stringResource(R.string.youtube_captions_translated, track.name)
+    track.isAutoGenerated -> stringResource(R.string.youtube_captions_auto, track.name)
+    else -> track.name
+}
+
+private val CAPTION_MENU_WIDTH = 360.dp
+private val CAPTION_MENU_MAX_HEIGHT = 420.dp
+private val CAPTION_CONTROLS_LIFT = 96.dp
+private const val CAPTION_OUTLINE_SCALE = 2f
 
 private const val CONTROLS_HIDE_DELAY_MS = 3_000L
 private const val SKIP_NOTICE_MS = 2_500L

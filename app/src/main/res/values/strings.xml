@@ -3121,4 +3121,10 @@
     <string name="youtube_watch_history_title">Add to YouTube history</string>
     <string name="youtube_watch_history_subtitle">Videos you watch here show up in your YouTube history, and pick up where you left off on other devices</string>
     <string name="youtube_sponsor_skipped">Skipped sponsor</string>
+    <string name="youtube_captions_title">Captions</string>
+    <string name="youtube_captions_off">Off</string>
+    <string name="youtube_captions_hint">Press down for captions: %1$s</string>
+    <string name="youtube_captions_auto">%1$s (auto-generated)</string>
+    <string name="youtube_captions_translated">%1$s (auto-translated)</string>
+    <string name="youtube_captions_failed">These captions couldn\'t be loaded. Try another track.</string>
 </resources>

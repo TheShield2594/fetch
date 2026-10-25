@@ -112,6 +112,9 @@ private class ClientStreams {
     val adaptiveAudio = mutableListOf<StreamCandidate>()
     val manifestUrls = mutableListOf<Triple<String, Int, String>>()
 
+    /** The first client's caption tracks; every client lists the same ones. */
+    var captionsJson: String? = null
+
     fun isEmpty(): Boolean =
         manifestUrls.isEmpty() && progressive.isEmpty() && adaptiveVideo.isEmpty() && adaptiveAudio.isEmpty()
 
@@ -443,6 +446,9 @@ class InAppYouTubeExtractor internal constructor(
                 }
                 if (status != null && status != "OK") return
 
+                if (streams.captionsJson == null) {
+                    playerResponse.mapValue("captions")?.let { streams.captionsJson = gson.toJson(it) }
+                }
                 val streamingData = playerResponse.mapValue("streamingData") ?: return
                 addClientStreams(client, streamingData, streams)
             } catch (e: RateLimitedException) {
@@ -474,14 +480,14 @@ class InAppYouTubeExtractor internal constructor(
             return null
         }
 
-        pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.let { return it }
+        pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.let { return it.copy(captionsJson = streams.captionsJson) }
         if (!pendingClients.hasNext()) return null
 
         Log.d(TAG, "No playable source from the first clients, asking the rest")
         while (pendingClients.hasNext()) {
             queryNextClient()
         }
-        return pickPlaybackSource(streams, singleUrl, maxVideoHeight)
+        return pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.copy(captionsJson = streams.captionsJson)
     }
 
     private fun addClientStreams(client: YouTubeClient, streamingData: Map<*, *>, streams: ClientStreams) {

@@ -2,6 +2,7 @@ package com.fetch.tv.data.local
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fetch.tv.core.profile.ProfileManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,8 @@ class YouTubeSettingsDataStore @Inject constructor(
 
     private val sponsorBlockKey = booleanPreferencesKey("sponsor_block_enabled")
     private val watchHistoryKey = booleanPreferencesKey("watch_history_enabled")
+    private val captionsEnabledKey = booleanPreferencesKey("captions_enabled")
+    private val captionLanguageKey = stringPreferencesKey("caption_language")
 
     private fun store(profileId: Int = profileManager.activeProfileId.value) =
         factory.get(profileId, FEATURE)
@@ -38,6 +41,22 @@ class YouTubeSettingsDataStore @Inject constructor(
     /** Add the videos watched in Fetch to the account's YouTube history, with where they stopped. */
     val watchHistoryEnabled: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { id ->
         store(id).data.map { it[watchHistoryKey] ?: DEFAULT_WATCH_HISTORY_ENABLED }
+    }
+
+    /**
+     * Captions stay on or off between videos, as on YouTube, and keep the last language picked.
+     * Null language means the subtitle language set in Fetch's playback settings.
+     */
+    suspend fun captionPreference(): Pair<Boolean, String?> {
+        val prefs = store().data.first()
+        return (prefs[captionsEnabledKey] ?: false) to prefs[captionLanguageKey]
+    }
+
+    suspend fun setCaptionPreference(enabled: Boolean, languageCode: String?) {
+        store().edit { prefs ->
+            prefs[captionsEnabledKey] = enabled
+            languageCode?.let { prefs[captionLanguageKey] = it }
+        }
     }
 
     suspend fun isSponsorBlockEnabled(): Boolean = sponsorBlockEnabled.first()

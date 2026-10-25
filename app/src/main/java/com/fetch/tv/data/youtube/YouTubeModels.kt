@@ -46,6 +46,12 @@ data class YouTubeSkipSegment(
     val category: String
 )
 
+/** What the signed-in TV player says about a video, beyond the streams Fetch gets elsewhere. */
+data class YouTubePlayerInfo(
+    val trackingLinks: Pair<String, String>?,
+    val captions: kotlinx.serialization.json.JsonElement?
+)
+
 /** One playback that YouTube is told about, so it shows in the account's history. */
 class YouTubeWatchSession internal constructor(
     val videoId: String,

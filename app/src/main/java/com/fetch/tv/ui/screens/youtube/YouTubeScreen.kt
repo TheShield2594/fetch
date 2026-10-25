@@ -163,6 +163,7 @@ fun YouTubeScreen(
         YouTubePlayerOverlay(
             playback = playback,
             onProgress = viewModel::onPlaybackProgress,
+            onSelectCaption = viewModel::selectCaption,
             onDismiss = viewModel::closePlayback,
             onRetry = viewModel::retryPlayback
         )

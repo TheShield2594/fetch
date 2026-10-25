@@ -3,7 +3,13 @@ package com.fetch.tv.ui.screens.youtube
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.data.local.YouTubeAuthDataStore
+import com.fetch.tv.data.local.PlayerSettingsDataStore
+import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.data.local.YouTubeSettingsDataStore
+import com.fetch.tv.data.youtube.YouTubeCaptionCue
+import com.fetch.tv.data.youtube.YouTubeCaptionService
+import com.fetch.tv.data.youtube.YouTubeCaptionTrack
+import com.fetch.tv.data.youtube.pickDefaultCaptionTrack
 import com.fetch.tv.data.trailer.InAppYouTubeExtractor
 import com.fetch.tv.data.youtube.SponsorBlockService
 import com.fetch.tv.data.youtube.YouTubeFeed
@@ -22,9 +28,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import javax.inject.Inject
 
 data class YouTubeFeedState(
@@ -43,7 +52,15 @@ data class YouTubePlaybackState(
     val audioUrl: String? = null,
     val isLoading: Boolean = true,
     val failed: Boolean = false,
-    val skipSegments: List<YouTubeSkipSegment> = emptyList()
+    val skipSegments: List<YouTubeSkipSegment> = emptyList(),
+    val captionTracks: List<YouTubeCaptionTrack> = emptyList(),
+    /** The track showing; null while captions are off. */
+    val selectedCaption: YouTubeCaptionTrack? = null,
+    val captionCues: List<YouTubeCaptionCue> = emptyList(),
+    val captionsLoading: Boolean = false,
+    /** The selected track gave no captions from any of its links. */
+    val captionsFailed: Boolean = false,
+    val captionStyle: SubtitleStyleSettings = SubtitleStyleSettings()
 )
 
 data class YouTubeUiState(
@@ -63,6 +80,8 @@ class YouTubeViewModel @Inject constructor(
     private val extractor: InAppYouTubeExtractor,
     private val sponsorBlock: SponsorBlockService,
     private val settings: YouTubeSettingsDataStore,
+    private val captionService: YouTubeCaptionService,
+    private val playerSettings: PlayerSettingsDataStore,
     authDataStore: YouTubeAuthDataStore
 ) : ViewModel() {
     private companion object {
@@ -78,6 +97,7 @@ class YouTubeViewModel @Inject constructor(
 
     private val loadJobs = mutableMapOf<YouTubeFeed, Job>()
     private var playbackJob: Job? = null
+    private var captionJob: Job? = null
     private var watchSession: YouTubeWatchSession? = null
     private var lastPositionMs = 0L
     private var lastDurationMs = 0L
@@ -166,13 +186,7 @@ class YouTubeViewModel @Inject constructor(
             val segments = async {
                 if (settings.isSponsorBlockEnabled()) sponsorBlock.segments(video.videoId) else emptyList()
             }
-            val session = async {
-                if (settings.isWatchHistoryEnabled()) {
-                    youTubeService.startWatchSession(video.videoId, startPositionSec = 0f)
-                } else {
-                    null
-                }
-            }
+            val playerInfo = async { youTubeService.loadPlayerInfo(video.videoId) }
             val source = try {
                 extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = MAX_VIDEO_HEIGHT)
             } catch (e: CancellationException) {
@@ -187,10 +201,46 @@ class YouTubeViewModel @Inject constructor(
                     playback.copy(videoUrl = source.videoUrl, audioUrl = source.audioUrl, isLoading = false)
                 }
             }
+            val info = playerInfo.await()
+            if (settings.isWatchHistoryEnabled()) {
+                watchSession = youTubeService.newWatchSession(video.videoId, info, startPositionSec = 0f)
+            }
+            if (source != null) setUpCaptions(video, source.captionsJson, info?.captions)
             val skipSegments = segments.await()
             updatePlayback(video) { it.copy(skipSegments = skipSegments) }
-            watchSession = session.await()
         }
+    }
+
+    /** Shows [track], or turns captions off with null. Remembered for the next video. */
+    fun selectCaption(track: YouTubeCaptionTrack?) {
+        val video = _uiState.value.playback?.video ?: return
+        captionJob?.cancel()
+        viewModelScope.launch { settings.setCaptionPreference(track != null, track?.languageCode) }
+        updatePlayback(video) {
+            it.copy(selectedCaption = track, captionCues = emptyList(), captionsFailed = false, captionsLoading = track != null)
+        }
+        if (track == null) return
+        captionJob = viewModelScope.launch {
+            val cues = captionService.cues(track)
+            updatePlayback(video) { playback ->
+                if (playback.selectedCaption?.id != track.id) return@updatePlayback playback
+                playback.copy(captionCues = cues, captionsLoading = false, captionsFailed = cues.isEmpty())
+            }
+        }
+    }
+
+    private suspend fun setUpCaptions(video: YouTubeVideo, extractorCaptions: String?, signedInCaptions: JsonElement?) {
+        val style = playerSettings.playerSettings.first().subtitleStyle
+        val (enabled, savedLanguage) = settings.captionPreference()
+        // The last language picked here, then the subtitle languages from Fetch's playback settings.
+        val languages = listOfNotNull(savedLanguage, style.preferredLanguage, style.secondaryPreferredLanguage)
+        val blocks = listOf(
+            extractorCaptions?.let { runCatching { Json.parseToJsonElement(it) }.getOrNull() },
+            signedInCaptions
+        )
+        val tracks = captionService.tracks(blocks, translateInto = languages)
+        updatePlayback(video) { it.copy(captionTracks = tracks, captionStyle = style) }
+        if (enabled) pickDefaultCaptionTrack(tracks, languages)?.let(::selectCaption)
     }
 
     /** Called about every quarter second while a video plays. */
@@ -212,6 +262,7 @@ class YouTubeViewModel @Inject constructor(
     fun closePlayback() {
         val video = _uiState.value.playback?.video
         playbackJob?.cancel()
+        captionJob?.cancel()
         playbackJob = null
         finishWatchSession()
         if (video != null && lastDurationMs > 0L) {

@@ -219,25 +219,32 @@ class YouTubeService @Inject constructor(
     // --- Watch history ---
 
     /**
-     * Asks YouTube, signed in, for the video's tracking links, so watching it in Fetch can be
-     * added to the account's history. Null when YouTube gives none (the video still plays).
+     * Asks YouTube, signed in, about the video: its tracking links, so watching it in Fetch can
+     * be added to the account's history, and its caption tracks. Null when the request fails;
+     * the video still plays, since playback comes from the extractor.
      */
-    suspend fun startWatchSession(videoId: String, startPositionSec: Float): YouTubeWatchSession? =
-        withContext(Dispatchers.IO) {
-            runCatching {
-                val response = innertube("player", validAccessToken()) { put("videoId", videoId) }
-                parseWatchTracking(response)?.let { (playbackUrl, watchtimeUrl) ->
-                    YouTubeWatchSession(
-                        videoId = videoId,
-                        playbackUrl = playbackUrl,
-                        watchtimeUrl = watchtimeUrl,
-                        clientPlaybackNonce = newClientPlaybackNonce(),
-                        // Like SmartTube, a start in the first three minutes counts from the beginning.
-                        lastPositionSec = if (startPositionSec < HISTORY_START_THRESHOLD_SEC) 0f else startPositionSec
-                    )
-                }
-            }.onFailure { Log.w(TAG, "No YouTube history for $videoId: ${it.message}") }.getOrNull()
-        }
+    suspend fun loadPlayerInfo(videoId: String): YouTubePlayerInfo? = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = innertube("player", validAccessToken()) { put("videoId", videoId) }
+            YouTubePlayerInfo(
+                trackingLinks = parseWatchTracking(response),
+                captions = (response as? JsonObject)?.get("captions")
+            )
+        }.onFailure { Log.w(TAG, "No signed-in player info for $videoId: ${it.message}") }.getOrNull()
+    }
+
+    /** A history session for [videoId] from its tracking links, or null when YouTube gave none. */
+    fun newWatchSession(videoId: String, info: YouTubePlayerInfo?, startPositionSec: Float): YouTubeWatchSession? {
+        val (playbackUrl, watchtimeUrl) = info?.trackingLinks ?: return null
+        return YouTubeWatchSession(
+            videoId = videoId,
+            playbackUrl = playbackUrl,
+            watchtimeUrl = watchtimeUrl,
+            clientPlaybackNonce = newClientPlaybackNonce(),
+            // Like SmartTube, a start in the first three minutes counts from the beginning.
+            lastPositionSec = if (startPositionSec < HISTORY_START_THRESHOLD_SEC) 0f else startPositionSec
+        )
+    }
 
     /**
      * Tells YouTube how far the video got. The first report creates the history entry; later ones

@@ -31,17 +31,10 @@ vi.mock("./watchlist.js", () => watchlistMock);
 const seriesProgressMock = { upsertSeriesProgressIfNewer: vi.fn() };
 vi.mock("./series-progress.js", () => seriesProgressMock);
 
-// Every profile is in the account "owner-1" unless a test says otherwise.
-const ownerMock = { ownerForProfile: vi.fn<(profileId: string) => Promise<string | null>>(async () => "owner-1") };
-vi.mock("./integration-owner.js", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./integration-owner.js")>()),
-  ownerForProfile: (profileId: string) => ownerMock.ownerForProfile(profileId),
-}));
 
 const resetMocks = () => {
   vi.resetModules();
   vi.clearAllMocks();
-  ownerMock.ownerForProfile.mockResolvedValue("owner-1");
 };
 
 describe("trakt-client", () => {
@@ -63,20 +56,20 @@ describe("trakt-client", () => {
       delete process.env.TRAKT_CLIENT_ID;
       vi.resetModules();
       const { isTraktConnected } = await import("./trakt-client.js");
-      expect(await isTraktConnected("owner-1")).toBe(false);
+      expect(await isTraktConnected("p1")).toBe(false);
       expect(prismaMock.traktToken.findUnique).not.toHaveBeenCalled();
     });
 
     it("returns false when no token row exists", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue(null);
       const { isTraktConnected } = await import("./trakt-client.js");
-      expect(await isTraktConnected("owner-1")).toBe(false);
+      expect(await isTraktConnected("p1")).toBe(false);
     });
 
     it("returns true when a token row exists", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue({ id: "default" });
       const { isTraktConnected } = await import("./trakt-client.js");
-      expect(await isTraktConnected("owner-1")).toBe(true);
+      expect(await isTraktConnected("p1")).toBe(true);
     });
   });
 
@@ -92,12 +85,11 @@ describe("trakt-client", () => {
       expect(prismaMock.traktToken.findUnique).not.toHaveBeenCalled();
     });
 
-    it("leaves Trakt alone for a profile whose account hasn't connected it", async () => {
-      // Only owner-1 has a token row; the profile is in owner-2.
+    it("leaves Trakt alone for a profile that hasn't connected its own", async () => {
+      // Only p1 has a token row.
       prismaMock.traktToken.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) =>
-        where.id === "owner-1" ? { accessToken: "at", refreshToken: "rt" } : null
+        where.id === "p1" ? { accessToken: "at", refreshToken: "rt" } : null
       );
-      ownerMock.ownerForProfile.mockResolvedValue("owner-2");
       const fetchMock = vi.fn();
       vi.stubGlobal("fetch", fetchMock);
       const { pushTraktScrobble } = await import("./trakt-client.js");
@@ -109,8 +101,7 @@ describe("trakt-client", () => {
       );
 
       expect(result).toBeNull();
-      expect(ownerMock.ownerForProfile).toHaveBeenCalledWith("friend-profile");
-      expect(prismaMock.traktToken.findUnique).toHaveBeenCalledWith({ where: { id: "owner-2" } });
+      expect(prismaMock.traktToken.findUnique).toHaveBeenCalledWith({ where: { id: "friend-profile" } });
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
@@ -188,10 +179,10 @@ describe("trakt-client", () => {
       const result = await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100, profileId: "p1" }, makeLogger());
 
       expect(result).toBe(1n);
-      // Into the owning account's row, and only if it still exists.
+      // Into the profile's own row, and only if it still exists.
       expect(prismaMock.traktToken.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: "owner-1" },
+          where: { id: "p1" },
           data: expect.objectContaining({ accessToken: "fresh-token", refreshToken: "fresh-refresh" }),
         })
       );
@@ -287,7 +278,7 @@ describe("trakt-client", () => {
 
       const { getTraktClient } = await import("./trakt-client.js");
 
-      await expect(getTraktClient("owner-1")).rejects.toThrow(/could not be decrypted/);
+      await expect(getTraktClient("p1")).rejects.toThrow(/could not be decrypted/);
       // Never sends the ciphertext to Trakt as if it were a bearer token.
       expect(fetchMock).not.toHaveBeenCalled();
     });
@@ -309,7 +300,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { getTraktClient } = await import("./trakt-client.js");
-      const client = await getTraktClient("owner-1");
+      const client = await getTraktClient("p1");
       const result = await client.fetchWatchlistMovies(makeLogger());
 
       expect(result).toHaveLength(2);
@@ -330,7 +321,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { getTraktClient } = await import("./trakt-client.js");
-      const client = await getTraktClient("owner-1");
+      const client = await getTraktClient("p1");
       const logger = makeLogger();
       const result = await client.fetchMovieHistory(logger, "2020-01-01T00:00:00Z");
 
@@ -353,7 +344,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { getTraktClient } = await import("./trakt-client.js");
-      const client = await getTraktClient("owner-1");
+      const client = await getTraktClient("p1");
       const result = await client.fetchWatchlistMovies(makeLogger());
 
       expect(result).toHaveLength(101);
@@ -656,10 +647,10 @@ describe("trakt-client", () => {
     // returns one value for every key can't tell them apart.
     const stubKv = (rows: { lastPolledAt?: string; backfilledAt?: string }) => {
       prismaMock.kV.findUnique.mockImplementation(async ({ where }: { where: { key: string } }) => {
-        if (where.key === "trakt:lastPolledAt:owner-1") {
+        if (where.key === "trakt:lastPolledAt:profile-1") {
           return rows.lastPolledAt ? { value: rows.lastPolledAt } : null;
         }
-        if (where.key === "trakt:historyBackfilledAt:owner-1") {
+        if (where.key === "trakt:historyBackfilledAt:profile-1") {
           return rows.backfilledAt ? { value: rows.backfilledAt } : null;
         }
         return null;
@@ -729,7 +720,7 @@ describe("trakt-client", () => {
       for (const href of historyUrls(fetchMock)) expect(href).not.toContain("start_at");
       expect(result.fullBackfill).toBe(true);
       expect(prismaMock.kV.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { key: "trakt:historyBackfilledAt:owner-1" } })
+        expect.objectContaining({ where: { key: "trakt:historyBackfilledAt:profile-1" } })
       );
     });
 
@@ -743,7 +734,7 @@ describe("trakt-client", () => {
 
       expect(prismaMock.kV.upsert).toHaveBeenCalledTimes(1);
       expect(prismaMock.kV.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { key: "trakt:lastPolledAt:owner-1" } })
+        expect.objectContaining({ where: { key: "trakt:lastPolledAt:profile-1" } })
       );
     });
 

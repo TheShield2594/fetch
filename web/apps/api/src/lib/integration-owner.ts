@@ -12,10 +12,6 @@ import {
   type IntegrationOwner,
   LEGACY_OWNER,
   ownerKvKey,
-  STREMIO_WATERMARK_KEY,
-  TRAKT_HISTORY_BACKFILLED_AT_KEY,
-  TRAKT_LAST_POLLED_AT_KEY,
-  TRAKT_WATCHLIST_SNAPSHOT_KEY,
 } from "./owner-keys.js";
 
 // The database half of lib/owner-keys.ts: who owns what, and moving and
@@ -23,16 +19,16 @@ import {
 // module.
 export * from "./owner-keys.js";
 
-/** Whose connection a profile's activity goes to: the account the profile is in. */
-export const ownerForProfile = async (profileId: string): Promise<IntegrationOwner | null> => {
+/** Whose account-level settings apply to a profile: the account it is in. */
+export const accountOwnerForProfile = async (profileId: string): Promise<IntegrationOwner | null> => {
   const profile = await prisma.profile.findUnique({ where: { id: profileId }, select: { accountId: true } });
   if (!profile) return null;
   return profile.accountId ?? LEGACY_OWNER;
 };
 
 /**
- * Whose connection a request manages: the signed-in account's. `API_TOKEN`,
- * which has no account, acts as the admin, as it does for webhooks.
+ * Whose account-level settings a request manages: the signed-in account's.
+ * `API_TOKEN`, which has no account, acts as the admin, as it does for webhooks.
  */
 export const ownerForRequest = async (request: FastifyRequest): Promise<IntegrationOwner> =>
   accountScope(request) ?? (await findAdminAccountId()) ?? LEGACY_OWNER;
@@ -51,20 +47,14 @@ export const outboundScopeForOwner = async (owner: IntegrationOwner): Promise<Ou
 
 /** The outbound scope for a profile's integrations: its account's. */
 export const outboundScopeForProfile = async (profileId: string): Promise<OutboundScope> => {
-  const owner = await ownerForProfile(profileId);
+  const owner = await accountOwnerForProfile(profileId);
   return owner ? outboundScopeForOwner(owner) : PUBLIC_ONLY;
 };
 
 // Plain values, moved to the admin's key as they are. The AI config is a
 // credential, encrypted under its own key's name, so it is re-encrypted rather
 // than renamed (`adoptLegacyAiConfig`).
-const CLAIMABLE_KV_KEYS = [
-  TRAKT_WATCHLIST_SNAPSHOT_KEY,
-  TRAKT_LAST_POLLED_AT_KEY,
-  TRAKT_HISTORY_BACKFILLED_AT_KEY,
-  STREMIO_WATERMARK_KEY,
-  AI_LAST_RECS_GENERATED_AT_KEY,
-];
+const CLAIMABLE_KV_KEYS = [AI_LAST_RECS_GENERATED_AT_KEY];
 
 // Region and spoiler protection, per account (lib/settings.ts). Not claimed:
 // the unsuffixed values stay as the default every account starts from.
@@ -72,15 +62,14 @@ const ACCOUNT_PREFERENCE_KV_KEYS = ["settings:region", "settings:spoilerProtecti
 
 const OWNER_KV_KEYS = [...CLAIMABLE_KV_KEYS, AI_CONFIG_KEY, ...ACCOUNT_PREFERENCE_KV_KEYS];
 
-type Tx = Pick<typeof prisma, "traktToken" | "stremioAuth" | "kV">;
+type Tx = Pick<typeof prisma, "kV">;
 
 /**
- * Hands the pre-accounts Trakt and Stremio connections, and their sync state,
- * to the admin account. Run when the admin is created, inside that transaction.
+ * Hands the pre-accounts AI recommendation state to the admin account. Run
+ * when the admin is created, inside that transaction. (Trakt and Stremio are
+ * per profile, and the profiles themselves go to the admin.)
  */
 export const claimLegacyIntegrations = async (tx: Tx, adminAccountId: string): Promise<void> => {
-  await tx.traktToken.updateMany({ where: { id: LEGACY_OWNER }, data: { id: adminAccountId } });
-  await tx.stremioAuth.updateMany({ where: { id: LEGACY_OWNER }, data: { id: adminAccountId } });
   for (const key of CLAIMABLE_KV_KEYS) {
     await tx.kV.updateMany({ where: { key }, data: { key: ownerKvKey(key, adminAccountId) } });
   }
@@ -102,10 +91,8 @@ export const adoptLegacyAiConfig = async (): Promise<void> => {
   await deleteSecretKv(AI_CONFIG_KEY);
 };
 
-/** Removes an account's connections and their sync state, when the account goes. */
+/** Removes an account's own settings (AI provider, preferences), when the account goes. */
 export const deleteOwnerIntegrations = async (tx: Tx, accountId: string): Promise<void> => {
-  await tx.traktToken.deleteMany({ where: { id: accountId } });
-  await tx.stremioAuth.deleteMany({ where: { id: accountId } });
   await tx.kV.deleteMany({
     where: { key: { in: OWNER_KV_KEYS.map((key) => ownerKvKey(key, accountId)) } },
   });

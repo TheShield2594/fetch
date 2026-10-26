@@ -5,7 +5,6 @@ import { resolveProfile } from "../lib/profile.js";
 import { validateCollections, validateSource } from "../lib/collections.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { getTraktClient, isTraktConnected } from "../lib/trakt-client.js";
-import { ownerForProfile } from "../lib/integration-owner.js";
 import { buildMetasFromIds, getCustomListMetas } from "../lib/stremio-helpers.js";
 import type { TmdbCollectionSourceQuery } from "../tmdb.js";
 import type { StremioMetaPreview } from "../lib/types.js";
@@ -115,9 +114,9 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
       }
 
       if (provider === "trakt") {
-        // The profile's own account's Trakt: a list preview reads from it.
-        const traktOwner = await ownerForProfile(request.profileId!);
-        if (!traktOwner || !(await isTraktConnected(traktOwner))) {
+        // The profile's own Trakt: a list preview reads from it.
+        const traktOwner = request.profileId!;
+        if (!(await isTraktConnected(traktOwner))) {
           return reply.code(409).send({ error: "Connect Trakt in Settings to preview Trakt lists.", code: "trakt_not_connected" });
         }
         const type = stremioTypeOf(source.mediaType);

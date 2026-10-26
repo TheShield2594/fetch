@@ -147,6 +147,8 @@ model Profile {
   deviceSlots       DeviceProfileSlot[]
   addons            ProfileAddon[]
   documents         ProfileDocument[]
+  traktToken        TraktToken?
+  stremioAuth       StremioAuth?
 
   @@index([accountId])
 }
@@ -343,8 +345,12 @@ model NotifiedEpisode {
   @@unique([profileId, seriesImdbId, season, episode])
 }
 
+// One per profile: `id` and `profileId` are both the profile's id (`id` is
+// the older text key the code reads by; `profileId` is what cascades).
 model TraktToken {
-  id           String   @id @default("default")
+  id           String   @id
+  profileId    String?  @unique @db.Uuid
+  profile      Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
   accessToken  String
   refreshToken String
   expiresAt    DateTime @db.Timestamptz(6)
@@ -394,8 +400,9 @@ model PlaySignal {
   @@index([dueAt])
 }
 
+// One per profile, keyed by the profile's id like TraktToken.
 model StremioAuth {
-  id      String  @id @default("default")
+  id      String  @id
   authKey String
   email   String?
   // The profile that connected the account. The scheduled sync has no request
@@ -404,7 +411,8 @@ model StremioAuth {
   // routes already act as the requesting profile, so the background job has to
   // agree with them. Null on rows predating this column; those fall back to the
   // default profile, which is what they were already doing.
-  profileId String? @db.Uuid
+  profileId String?  @unique @db.Uuid
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 }

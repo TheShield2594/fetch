@@ -5,7 +5,7 @@ import { accountScope } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { getRegionSetting } from "../lib/settings.js";
-import { ownerForProfile } from "../lib/integration-owner.js";
+import { accountOwnerForProfile } from "../lib/integration-owner.js";
 import { isAiConfiguredForProfile, getAiRecommendations } from "../lib/ai.js";
 import { getAddonConfig, ALL_ADDON_CATALOGS, addonConfigKey } from "../lib/addon.js";
 import { trendingCacheGet, trendingCacheSet } from "../lib/cache.js";
@@ -455,7 +455,7 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
     // Only the streaming catalogs vary by region, and the setting is a DB read.
     // The region of the account whose addon URL this is.
     const region =
-      discovery.source.kind === "streaming" ? await getRegionSetting((await ownerForProfile(profileId)) ?? undefined) : "";
+      discovery.source.kind === "streaming" ? await getRegionSetting((await accountOwnerForProfile(profileId)) ?? undefined) : "";
     const cacheKey = discoveryCacheKey(discovery, profileId, region);
     const cached = trendingCacheGet(cacheKey);
     if (cached) return { metas: cached.data };

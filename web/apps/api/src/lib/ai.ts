@@ -13,7 +13,7 @@ import {
   type IntegrationOwner,
   LEGACY_OWNER,
   outboundScopeForOwner,
-  ownerForProfile,
+  accountOwnerForProfile,
   ownerKvKey,
 } from "./integration-owner.js";
 import type { OutboundScope } from "./ssrf.js";
@@ -54,7 +54,7 @@ export const isAiConfigured = async (owner: IntegrationOwner): Promise<boolean> 
 
 /** Whether the account a profile is in has an AI provider set up. */
 export const isAiConfiguredForProfile = async (profileId: string): Promise<boolean> => {
-  const owner = await ownerForProfile(profileId);
+  const owner = await accountOwnerForProfile(profileId);
   return owner ? isAiConfigured(owner) : false;
 };
 
@@ -101,7 +101,7 @@ export const shouldRefreshAiRecs = async (owner: IntegrationOwner): Promise<bool
 
 /** `shouldRefreshAiRecs` for the account a profile is in. */
 export const shouldRefreshAiRecsForProfile = async (profileId: string): Promise<boolean> => {
-  const owner = await ownerForProfile(profileId);
+  const owner = await accountOwnerForProfile(profileId);
   return owner ? shouldRefreshAiRecs(owner) : false;
 };
 
@@ -366,7 +366,7 @@ export const getAiRecommendations = async (
 
   // The provider the profile's own account set up: one account's taste
   // profile is never sent to another's provider, nor billed to its key.
-  const owner = await ownerForProfile(profileId);
+  const owner = await accountOwnerForProfile(profileId);
   if (!owner) return null;
   const config = await getAiConfig(owner);
   if (!config) return null;

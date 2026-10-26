@@ -34,7 +34,7 @@ const cutoff = () => new Date(Date.now() - OAUTH_STATE_TTL_MS);
 export const createOAuthState = async (owner: string): Promise<string> => {
   const state = randomBytes(32).toString("hex");
   // The value is whose connection this is: the callback arrives with no
-  // session, so the state is what says which account the tokens belong to.
+  // session, so the state is what says which profile the tokens belong to.
   await prisma.kV.create({
     data: { key: stateKey(state), value: owner, updatedAt: new Date() },
   });
@@ -62,7 +62,7 @@ export const consumeOAuthState = async (candidate: unknown): Promise<string | nu
   if (!row) return null;
   const { count } = await prisma.kV.deleteMany({ where });
   if (count === 0) return null;
-  // A state minted before states carried an owner has an empty value; it can
-  // only have come from the pre-accounts install.
-  return row.value || "default";
+  // The profile that started the flow. A state minted before states carried
+  // one has an empty value and names nobody, so it is refused.
+  return row.value || null;
 };

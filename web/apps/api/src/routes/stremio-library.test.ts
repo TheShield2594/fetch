@@ -49,12 +49,6 @@ vi.mock("../lib/profile.js", () => ({
   },
 }));
 
-// Every profile here is in the account "owner-1", which these API_TOKEN
-// calls also act as.
-vi.mock("../lib/integration-owner.js", () => ({
-  ownerForProfile: async () => "owner-1",
-  ownerForRequest: async () => "owner-1",
-}));
 
 const buildApp = (): Promise<FastifyInstance> =>
   buildRouteApp(() => import("./stremio-library.js"));
@@ -140,7 +134,7 @@ describe("Stremio library routes", () => {
       });
 
       expect(res.statusCode).toBe(502);
-      expect(disconnectStremio).toHaveBeenCalledWith("owner-1");
+      expect(disconnectStremio).toHaveBeenCalledWith(PROFILE_ID);
       expect(resetStremioClient).toHaveBeenCalled();
       expect(res.json().error).toMatch(/Nothing was saved/);
     });
@@ -206,7 +200,7 @@ describe("Stremio library routes", () => {
 
       expect(res.statusCode).toBe(200);
       expect(res.json()).toEqual({ connected: false });
-      expect(disconnectStremio).toHaveBeenCalledWith("owner-1");
+      expect(disconnectStremio).toHaveBeenCalledWith(PROFILE_ID);
       expect(resetStremioClient).toHaveBeenCalled();
     });
   });

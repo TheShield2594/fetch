@@ -3,13 +3,13 @@ import type { FastifyInstance } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
 import { first } from "../lib/test-fixtures/present.js";
 
-const ADMIN_ID = "22222222-2222-4222-8222-222222222222";
+// The profile these requests act as, whose Trakt connection they manage.
+const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 
 const prismaMock = {
   kV: { create: vi.fn(), deleteMany: vi.fn(), findFirst: vi.fn() },
   traktToken: { findUnique: vi.fn(), upsert: vi.fn(), deleteMany: vi.fn() },
-  // API_TOKEN, which these tests call with, acts as the admin account.
-  account: { findFirst: vi.fn(), findUnique: vi.fn() },
+  profile: { findUnique: vi.fn() },
 };
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
@@ -27,8 +27,9 @@ vi.mock("../lib/metadata.js", () => ({ upsertMetadata: vi.fn() }));
 vi.mock("../lib/series-progress.js", () => ({ upsertSeriesProgressIfNewer: vi.fn() }));
 vi.mock("../lib/watchlist.js", () => ({ getDefaultWatchlist: vi.fn() }));
 vi.mock("../lib/profile.js", () => ({
-  getDefaultProfileId: async () => "11111111-1111-4111-8111-111111111111",
-  resolveProfile: async () => {},
+  resolveProfile: async (request: { profileId?: string }) => {
+    request.profileId = PROFILE_ID;
+  },
 }));
 
 const buildApp = (): Promise<FastifyInstance> =>
@@ -45,9 +46,8 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     prismaMock.kV.create.mockResolvedValue({});
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.traktToken.upsert.mockResolvedValue({});
-    prismaMock.kV.findFirst.mockResolvedValue({ value: ADMIN_ID });
-    prismaMock.account.findFirst.mockResolvedValue({ id: ADMIN_ID });
-    prismaMock.account.findUnique.mockResolvedValue({ id: ADMIN_ID });
+    prismaMock.kV.findFirst.mockResolvedValue({ value: PROFILE_ID });
+    prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID });
     vi.spyOn(globalThis, "fetch");
   });
 
@@ -64,7 +64,7 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     const state = new URL(response.json().url).searchParams.get("state");
     expect(state).toMatch(/^[0-9a-f]{64}$/);
     expect(prismaMock.kV.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ key: `trakt:oauth:state:${state}`, value: ADMIN_ID }) })
+      expect.objectContaining({ data: expect.objectContaining({ key: `trakt:oauth:state:${state}`, value: PROFILE_ID }) })
     );
   });
 
@@ -110,15 +110,15 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
 
     expect(response.statusCode).toBe(200);
     expect(globalThis.fetch).toHaveBeenCalledWith("https://api.trakt.tv/oauth/token", expect.anything());
-    // Under the account that started the flow, named by its state.
+    // Under the profile that started the flow, named by its state.
     expect(prismaMock.traktToken.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: ADMIN_ID }, update: expect.objectContaining({ accessToken: "access" }) })
+      expect.objectContaining({ where: { id: PROFILE_ID }, update: expect.objectContaining({ accessToken: "access" }) })
     );
   });
 
-  it("drops the tokens of an account removed while it was on trakt.tv", async () => {
+  it("drops the tokens of a profile deleted while it was on trakt.tv", async () => {
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
-    prismaMock.account.findUnique.mockResolvedValue(null);
+    prismaMock.profile.findUnique.mockResolvedValue(null);
     const app = await buildApp();
 
     const response = await app.inject({ method: "GET", url: `/trakt/oauth/callback?code=real-code&state=${STATE}` });

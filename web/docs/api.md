@@ -85,9 +85,10 @@ These paths are exempt, because they cannot carry a bearer token by construction
 
 Accounts are invite-only. The first account is created with `API_TOKEN` and is
 the **admin**; everyone else redeems an invite link the admin made. Each account
-owns its profiles, and through them its lists, history, ratings and games, and
-has its own Trakt and Stremio connections, media-server webhook key, AI
-provider, streaming region and spoiler protection.
+owns its profiles, and through them its lists, history, ratings, games and
+Trakt and Stremio connections (one per profile, as on the TV), and has its own
+media-server webhook key, AI provider, streaming region and spoiler
+protection.
 
 Settings that belong to the whole install are shared by every account and can
 only be changed by the admin; anyone else gets `403` with
@@ -566,11 +567,10 @@ before each outbound request — records can change after a config is saved.
 
 ### Trakt
 
-Each account has its own Trakt connection; these routes act on the caller's
-(`API_TOKEN` acts as the admin account). The OAuth `state` records which
-account started the flow, so the callback, which has no session, stores the
-tokens under that account. `/trakt/import` uses the Trakt account of the
-profile it imports into.
+Each profile has its own Trakt connection; these routes act on the requesting
+profile's (`x-profile-id`). The OAuth `state` records which profile started the
+flow, so the callback, which has no session, stores the tokens under that
+profile, and refuses them if the profile was deleted in the meantime.
 
 | Method | Path | Notes |
 | --- | --- | --- |
@@ -583,9 +583,8 @@ profile it imports into.
 
 ### Stremio library
 
-Each account has its own Stremio connection, which syncs into the profile that
-connected it. `status` and `disconnect` act on the caller's account; the
-profile-scoped routes act on the account of the profile they run as.
+Each profile has its own Stremio connection, which syncs into that profile.
+Every route here acts on the requesting profile's (`x-profile-id`).
 
 | Method | Path | Notes |
 | --- | --- | --- |

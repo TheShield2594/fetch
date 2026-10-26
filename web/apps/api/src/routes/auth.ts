@@ -6,6 +6,7 @@ import { invalidateDeviceCache } from "../lib/device-token.js";
 import { invalidateProfileCache } from "../lib/profile.js";
 import { adoptLegacyAiConfig, claimLegacyIntegrations, deleteOwnerIntegrations } from "../lib/integration-owner.js";
 import { resetTraktClient } from "../lib/trakt-client.js";
+import { deleteProfileConnectionState } from "../lib/profile-connections.js";
 import { hashSecret, isAdminRequest, requireAdmin } from "../lib/request-auth.js";
 import { createSession, findAdminAccountId, mintInviteCode } from "../lib/sessions.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
@@ -284,12 +285,16 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     if (!account) return reply.code(404).send({ error: "Account not found" });
     if (account.isAdmin) return reply.code(400).send({ error: "The admin account can't be deleted" });
 
+    const profileIds = (await prisma.profile.findMany({ where: { accountId: account.id }, select: { id: true } })).map(
+      (profile) => profile.id
+    );
     await prisma.$transaction(async (tx) => {
-      // Keyed by the account's id rather than tied to it by a foreign key.
+      // Kept in KV, keyed by id rather than tied to the rows by a foreign key.
       await deleteOwnerIntegrations(tx, account.id);
+      await deleteProfileConnectionState(tx, profileIds);
       await tx.account.delete({ where: { id: account.id } });
     });
-    resetTraktClient(account.id);
+    for (const profileId of profileIds) resetTraktClient(profileId);
     invalidateProfileCache();
     // Its TVs went with it; their tokens must stop working now, not when the
     // lookup cache next expires.

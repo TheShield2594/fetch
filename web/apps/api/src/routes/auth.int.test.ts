@@ -480,59 +480,73 @@ describe("media-server webhooks", () => {
   });
 });
 
-const seedTrakt = (id: string) =>
-  prisma.traktToken.create({ data: { id, accessToken: "a", refreshToken: "r", expiresAt: new Date(Date.now() + 86_400_000) } });
+const seedTrakt = (profileId: string) =>
+  prisma.traktToken.create({
+    data: { id: profileId, profileId, accessToken: "a", refreshToken: "r", expiresAt: new Date(Date.now() + 86_400_000) },
+  });
 
 describe("Trakt and Stremio connections", () => {
-  it("are each account's own", async () => {
+  it("are each profile's own, even within one account", async () => {
     process.env.TRAKT_CLIENT_ID = "id";
     process.env.TRAKT_CLIENT_SECRET = "secret";
     const admin = await bootstrapAdmin();
+    const first = (await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Me" } })).json().profile as { id: string };
+    const second = (await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Kid" } })).json().profile as { id: string };
     const friend = await inviteFriend(admin.token);
-    await seedTrakt(admin.account.id);
+    await seedTrakt(first.id);
 
-    const status = async (token: string) =>
-      (await call(token, { method: "GET", url: "/trakt/status" })).json() as { connected: boolean };
-    expect(await status(admin.token)).toMatchObject({ connected: true });
+    const status = async (token: string, profileId?: string) =>
+      (
+        await call(token, {
+          method: "GET",
+          url: "/trakt/status",
+          ...(profileId ? { headers: { "x-profile-id": profileId } } : {}),
+        })
+      ).json() as { connected: boolean };
+    expect(await status(admin.token, first.id)).toMatchObject({ connected: true });
+    expect(await status(admin.token, second.id)).toMatchObject({ connected: false });
     expect(await status(friend.token)).toMatchObject({ connected: false });
 
-    // The friend disconnecting their (absent) Trakt leaves the admin's alone.
-    expect((await call(friend.token, { method: "POST", url: "/trakt/disconnect" })).statusCode).toBe(200);
-    expect(await prisma.traktToken.count({ where: { id: admin.account.id } })).toBe(1);
+    // The other profile disconnecting its (absent) Trakt leaves this one's alone.
+    const disconnect = await call(admin.token, { method: "POST", url: "/trakt/disconnect", headers: { "x-profile-id": second.id } });
+    expect(disconnect.statusCode).toBe(200);
+    expect(await prisma.traktToken.count({ where: { id: first.id } })).toBe(1);
 
     const stremioStatus = (await call(friend.token, { method: "GET", url: "/stremio/library/status" })).json();
     expect(stremioStatus).toMatchObject({ connected: false });
-
-    // A profile's plays and syncs go to its own account's connection.
-    const { ownerForProfile } = await import("../lib/integration-owner.js");
-    const [friendProfile] = await profilesOf(friend.token);
-    expect(await ownerForProfile(friendProfile!.id)).toBe(friend.account.id);
   });
 
-  it("are claimed by the admin from an install that had them before accounts", async () => {
-    await seedTrakt("default");
-    await prisma.stremioAuth.create({ data: { id: "default", authKey: "k" } });
-    await prisma.kV.create({ data: { key: "trakt:lastPolledAt", value: "2026-01-01T00:00:00.000Z", updatedAt: new Date() } });
+  it("go with their profile when it is deleted", async () => {
+    const admin = await bootstrapAdmin();
+    const keep = (await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Keep" } })).json().profile as { id: string };
+    const gone = (await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Gone" } })).json().profile as { id: string };
+    await seedTrakt(keep.id);
+    await seedTrakt(gone.id);
+    await prisma.stremioAuth.create({ data: { id: gone.id, profileId: gone.id, authKey: "k" } });
+    await prisma.kV.create({ data: { key: `trakt:lastPolledAt:${gone.id}`, value: "x", updatedAt: new Date() } });
 
-    const { account } = await bootstrapAdmin();
+    const deleted = await call(admin.token, { method: "DELETE", url: `/profiles/${gone.id}`, headers: { "x-profile-id": keep.id } });
+    expect(deleted.statusCode).toBe(204);
 
-    expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([account.id]);
-    expect((await prisma.stremioAuth.findMany()).map((row) => row.id)).toEqual([account.id]);
-    expect(await prisma.kV.findUnique({ where: { key: `trakt:lastPolledAt:${account.id}` } })).not.toBeNull();
-    expect(await prisma.kV.findUnique({ where: { key: "trakt:lastPolledAt" } })).toBeNull();
+    expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([keep.id]);
+    expect(await prisma.stremioAuth.count()).toBe(0);
+    expect(await prisma.kV.count({ where: { key: { endsWith: gone.id } } })).toBe(0);
   });
 
   it("go with an account when it is removed", async () => {
     const admin = await bootstrapAdmin();
+    await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Owner" } });
+    const [adminProfile] = await profilesOf(admin.token);
     const friend = await inviteFriend(admin.token);
-    await seedTrakt(admin.account.id);
-    await seedTrakt(friend.account.id);
-    await prisma.kV.create({ data: { key: `trakt:lastPolledAt:${friend.account.id}`, value: "x", updatedAt: new Date() } });
+    const [friendProfile] = await profilesOf(friend.token);
+    await seedTrakt(adminProfile!.id);
+    await seedTrakt(friendProfile!.id);
+    await prisma.kV.create({ data: { key: `trakt:lastPolledAt:${friendProfile!.id}`, value: "x", updatedAt: new Date() } });
 
     expect((await call(admin.token, { method: "DELETE", url: `/auth/accounts/${friend.account.id}` })).statusCode).toBe(204);
 
-    expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([admin.account.id]);
-    expect(await prisma.kV.count({ where: { key: { endsWith: friend.account.id } } })).toBe(0);
+    expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([adminProfile!.id]);
+    expect(await prisma.kV.count({ where: { key: { endsWith: friendProfile!.id } } })).toBe(0);
   });
 });
 

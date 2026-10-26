@@ -10,64 +10,60 @@ import { prisma } from "./prisma.js";
 import { upsertSeriesProgressIfNewer } from "./series-progress.js";
 import { getDefaultWatchlist } from "./watchlist.js";
 import {
-  type IntegrationOwner,
-  ownerForProfile,
-  ownerKvKey,
   TRAKT_HISTORY_BACKFILLED_AT_KEY,
   TRAKT_LAST_POLLED_AT_KEY,
   TRAKT_WATCHLIST_SNAPSHOT_KEY,
-} from "./integration-owner.js";
+} from "./owner-keys.js";
+import { connectionKvKey } from "./profile-connections.js";
 import { watchEventDedupWhere, type WatchEventDedupKey } from "./watch-event-dedup.js";
 import type { SeriesProgressCandidate } from "./types.js";
 import type { FastifyRequest } from "fastify";
 
 export { computeTokenExpiresAt };
 
-// One client per connected account: each holds that account's tokens, and
-// refreshes them into that account's row.
-const traktClients = new Map<IntegrationOwner, TraktClient>();
+// Each profile connects its own Trakt account, as in the TV app. One client
+// per connected profile: each holds that profile's tokens, and refreshes them
+// into that profile's row.
+const traktClients = new Map<string, TraktClient>();
 
-export const getTraktClient = async (owner: IntegrationOwner): Promise<TraktClient> => {
-  let client = traktClients.get(owner);
+export const getTraktClient = async (profileId: string): Promise<TraktClient> => {
+  let client = traktClients.get(profileId);
   if (!client) {
-    client = await TraktClient.create(prisma, owner);
-    traktClients.set(owner, client);
+    client = await TraktClient.create(prisma, profileId);
+    traktClients.set(profileId, client);
   }
   return client;
 };
 
-/** Drops a cached client, after its account reconnects or disconnects. No owner drops them all. */
-export const resetTraktClient = (owner?: IntegrationOwner) => {
-  if (owner === undefined) traktClients.clear();
-  else traktClients.delete(owner);
+/** Drops a cached client, after its profile reconnects or disconnects. No profile drops them all. */
+export const resetTraktClient = (profileId?: string) => {
+  if (profileId === undefined) traktClients.clear();
+  else traktClients.delete(profileId);
 };
 
 export const isTraktConfigured = (): boolean =>
   !!process.env.TRAKT_CLIENT_ID?.trim() && !!process.env.TRAKT_CLIENT_SECRET?.trim();
 
-export const isTraktConnected = async (owner: IntegrationOwner): Promise<boolean> => {
+export const isTraktConnected = async (profileId: string): Promise<boolean> => {
   if (!isTraktConfigured()) return false;
-  const token = await prisma.traktToken.findUnique({ where: { id: owner } });
+  const token = await prisma.traktToken.findUnique({ where: { id: profileId } });
   return !!token;
 };
 
-/** Every account with Trakt connected, for the scheduled poll. */
-export const listTraktOwners = async (): Promise<IntegrationOwner[]> => {
+/** Every profile with Trakt connected, for the scheduled poll. */
+export const listTraktProfiles = async (): Promise<string[]> => {
   if (!isTraktConfigured()) return [];
   const rows = await prisma.traktToken.findMany({ select: { id: true }, orderBy: { updatedAt: "asc" } });
   return rows.map((row) => row.id);
 };
 
 /**
- * The connected Trakt account a profile's activity goes to: its own account's,
- * if that account has connected one. Null otherwise, so one account's watching
- * never reaches another's Trakt.
+ * The profile whose Trakt connection its activity goes to: its own, if it has
+ * connected one. Null otherwise, so one profile's watching never reaches
+ * another's Trakt.
  */
-const traktOwnerForProfile = async (profileId: string): Promise<IntegrationOwner | null> => {
-  const owner = await ownerForProfile(profileId);
-  if (!owner || !(await isTraktConnected(owner))) return null;
-  return owner;
-};
+const traktOwnerForProfile = async (profileId: string): Promise<string | null> =>
+  (await isTraktConnected(profileId)) ? profileId : null;
 
 export type TraktScrobbleAction = "start" | "pause" | "stop";
 
@@ -81,7 +77,7 @@ export type TraktScrobbleParams = {
   season?: number | null | undefined;
   episode?: number | null | undefined;
   progress: number;
-  /** Whose play this is. It goes to that profile's account's Trakt, if any. */
+  /** Whose play this is. It goes to that profile's own Trakt, if connected. */
   profileId: string;
 };
 
@@ -206,8 +202,8 @@ const TRAKT_WATCHLIST_MIRROR_DELETES = parseBool(process.env.TRAKT_WATCHLIST_MIR
 
 const watchlistSnapshotKey = (item: WatchlistItemRef) => `${item.type}:${item.imdbId}`;
 
-const readWatchlistSnapshot = async (owner: IntegrationOwner): Promise<Set<string> | null> => {
-  const row = await prisma.kV.findUnique({ where: { key: ownerKvKey(TRAKT_WATCHLIST_SNAPSHOT_KEY, owner) } });
+const readWatchlistSnapshot = async (owner: string): Promise<Set<string> | null> => {
+  const row = await prisma.kV.findUnique({ where: { key: connectionKvKey(TRAKT_WATCHLIST_SNAPSHOT_KEY, owner) } });
   if (!row) return null;
   try {
     return new Set(JSON.parse(row.value) as string[]);
@@ -216,9 +212,9 @@ const readWatchlistSnapshot = async (owner: IntegrationOwner): Promise<Set<strin
   }
 };
 
-const writeWatchlistSnapshot = async (owner: IntegrationOwner, keys: Set<string>): Promise<void> => {
+const writeWatchlistSnapshot = async (owner: string, keys: Set<string>): Promise<void> => {
   const value = JSON.stringify([...keys]);
-  const key = ownerKvKey(TRAKT_WATCHLIST_SNAPSHOT_KEY, owner);
+  const key = connectionKvKey(TRAKT_WATCHLIST_SNAPSHOT_KEY, owner);
   await prisma.kV.upsert({
     where: { key },
     create: { key, value, updatedAt: new Date() },
@@ -379,8 +375,8 @@ export const syncTraktWatchlist = async (
  * week it was connected". Absent marker means the history was never imported
  * in full, whatever the watermark says, and the next poll fixes that.
  */
-const hasCompletedBackfill = async (owner: IntegrationOwner): Promise<boolean> =>
-  !!(await prisma.kV.findUnique({ where: { key: ownerKvKey(TRAKT_HISTORY_BACKFILLED_AT_KEY, owner) } }));
+const hasCompletedBackfill = async (owner: string): Promise<boolean> =>
+  !!(await prisma.kV.findUnique({ where: { key: connectionKvKey(TRAKT_HISTORY_BACKFILLED_AT_KEY, owner) } }));
 
 /**
  * Where the next history poll starts, or `null` for "no lower bound — import
@@ -393,8 +389,8 @@ const hasCompletedBackfill = async (owner: IntegrationOwner): Promise<boolean> =
  * no later run ever went back for it — leaving a library that looks like it
  * only ever contained the last month.
  */
-const getTraktPollStartAt = async (owner: IntegrationOwner): Promise<Date | null> => {
-  const kvValue = await prisma.kV.findUnique({ where: { key: ownerKvKey(TRAKT_LAST_POLLED_AT_KEY, owner) } });
+const getTraktPollStartAt = async (owner: string): Promise<Date | null> => {
+  const kvValue = await prisma.kV.findUnique({ where: { key: connectionKvKey(TRAKT_LAST_POLLED_AT_KEY, owner) } });
 
   if (!kvValue) return null;
 
@@ -437,8 +433,8 @@ export const pollTraktHistory = async (
   const client = await getTraktClient(owner);
   const pollStartAt =
     options.full || !(await hasCompletedBackfill(owner)) ? null : await getTraktPollStartAt(owner);
-  const lastPolledKey = ownerKvKey(TRAKT_LAST_POLLED_AT_KEY, owner);
-  const backfilledKey = ownerKvKey(TRAKT_HISTORY_BACKFILLED_AT_KEY, owner);
+  const lastPolledKey = connectionKvKey(TRAKT_LAST_POLLED_AT_KEY, owner);
+  const backfilledKey = connectionKvKey(TRAKT_HISTORY_BACKFILLED_AT_KEY, owner);
   const pollCompletedAt = new Date();
   const pollStartAtIso = pollStartAt?.toISOString();
   const isBackfill = pollStartAtIso === undefined;

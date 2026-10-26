@@ -13,7 +13,7 @@ export const MOCK_OWNER = "owner-1";
 export const integrationOwnerMock = {
   ...ownerKeys,
   ownerForRequest: async () => MOCK_OWNER,
-  ownerForProfile: async () => MOCK_OWNER,
+  accountOwnerForProfile: async () => MOCK_OWNER,
   outboundScopeForOwner: async () => ({ allowPrivateNetwork: true }),
   outboundScopeForProfile: async () => ({ allowPrivateNetwork: true }),
 };

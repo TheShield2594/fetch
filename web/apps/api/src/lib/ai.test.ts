@@ -27,11 +27,11 @@ vi.mock("./ssrf.js", async (importOriginal) => ({
 }));
 
 // Every profile is in the account "owner-1", whose provider is the one stored.
-const ownerForProfile = vi.fn<(profileId: string) => Promise<string | null>>();
+const accountOwnerForProfile = vi.fn<(profileId: string) => Promise<string | null>>();
 const outboundScopeForOwner = vi.fn();
 vi.mock("./integration-owner.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./integration-owner.js")>()),
-  ownerForProfile: (profileId: string) => ownerForProfile(profileId),
+  accountOwnerForProfile: (profileId: string) => accountOwnerForProfile(profileId),
   outboundScopeForOwner: (owner: string) => outboundScopeForOwner(owner),
 }));
 
@@ -82,7 +82,7 @@ beforeEach(() => {
 
   readSecretKv.mockResolvedValue(JSON.stringify(CONFIG));
   resolveAiProviderUrl.mockResolvedValue(true);
-  ownerForProfile.mockResolvedValue("owner-1");
+  accountOwnerForProfile.mockResolvedValue("owner-1");
   outboundScopeForOwner.mockResolvedValue({ allowPrivateNetwork: true });
 
   prismaMock.watchEvent.findMany.mockResolvedValue([]);
@@ -213,7 +213,7 @@ describe("the outbound request", () => {
   });
 
   it("uses nobody's provider for a profile that no longer exists", async () => {
-    ownerForProfile.mockResolvedValue(null);
+    accountOwnerForProfile.mockResolvedValue(null);
 
     expect(await getAiRecommendations("movie", 1, "gone", logger)).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();

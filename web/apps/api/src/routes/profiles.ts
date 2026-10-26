@@ -8,6 +8,8 @@ import { hasValidProfileToken, invalidateProfileCache, isActingAsProfile, ownsPr
 import { hashPin, isValidPinFormat, needsRehash, pinLengthError, pinMatches } from "../lib/pin-hash.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
+import { deleteProfileConnectionState } from "../lib/profile-connections.js";
+import { resetTraktClient } from "../lib/trakt-client.js";
 
 const pinAttemptKey = (profileId: string) => `pinattempts:${profileId}`;
 const getPinLockout = (profileId: string) => getLockout(pinAttemptKey(profileId));
@@ -280,7 +282,12 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       }
     }
 
-    await prisma.profile.delete({ where: { id: profile.id } });
+    // Its connections cascade; their sync state in KV is removed beside it.
+    await prisma.$transaction(async (tx) => {
+      await deleteProfileConnectionState(tx, [profile.id]);
+      await tx.profile.delete({ where: { id: profile.id } });
+    });
+    resetTraktClient(profile.id);
     invalidateProfileCache();
 
     // Clean up any PIN attempt records for the deleted profile

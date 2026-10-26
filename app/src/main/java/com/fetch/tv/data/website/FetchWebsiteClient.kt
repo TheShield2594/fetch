@@ -228,9 +228,11 @@ class FetchWebsiteClient internal constructor(
          * dropped. Null when it can't be a URL at all.
          */
         fun normalizeServerUrl(raw: String): String? {
-            val trimmed = raw.trim().trimEnd('/')
+            val trimmed = raw.trim()
             if (trimmed.isEmpty()) return null
             val withScheme = if (trimmed.contains("://")) trimmed else "http://$trimmed"
+            // Parsed before the trailing slashes go: trimmed first, "http://" became
+            // "http:", which then parsed as a host named "http".
             val url = withScheme.toHttpUrlOrNull() ?: return null
             return url.toString().trimEnd('/')
         }

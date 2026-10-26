@@ -41,7 +41,7 @@ vi.mock("./utils/routePrefetch", async (importOriginal) => {
 beforeEach(() => {
   // Past the setup wizard and the profile picker, which otherwise render
   // instead of the shell.
-  window.localStorage.setItem(runtimeConfig.tokenKey, "test-token");
+  window.localStorage.setItem(runtimeConfig.tokenKey, "fs1_test-token");
   window.localStorage.setItem(runtimeConfig.profileIdKey, "profile-1");
 });
 

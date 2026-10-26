@@ -14,6 +14,7 @@
  */
 
 export * from "./api/types";
+export { inviteCodeFromPath, type Account, type AccountSummary, type Invite } from "./api/auth";
 export { ApiContractError } from "@fetch/shared/contracts";
 export { ApiError, OfflineWriteQueuedError } from "./api/client";
 export {
@@ -29,6 +30,7 @@ export {
 } from "./api/runtime";
 
 import { aiApi } from "./api/ai";
+import { authApi } from "./api/auth";
 import { dataApi } from "./api/data";
 import { discoverApi } from "./api/discover";
 import { gamesApi } from "./api/games";
@@ -49,6 +51,7 @@ import { watchApi } from "./api/watch";
  */
 export const api = {
   ...aiApi,
+  ...authApi,
   ...dataApi,
   ...discoverApi,
   ...gamesApi,

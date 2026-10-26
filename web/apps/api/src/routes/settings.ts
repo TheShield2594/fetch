@@ -1,5 +1,6 @@
 import { STREAMING_PROVIDERS } from "../tmdb.js";
 import type { FastifyPluginAsync } from "fastify";
+import { requireAdmin } from "../lib/request-auth.js";
 import {
   getLanguageSetting,
   getRegionSetting,
@@ -46,7 +47,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
-  app.post<{ Body: unknown }>("/settings/preferences", async (request, reply) => {
+  app.post<{ Body: unknown }>("/settings/preferences", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as {
       language?: unknown;
       region?: unknown;
@@ -104,7 +105,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: !!apiKey, source };
   });
 
-  app.post<{ Body: unknown }>("/tmdb/key", async (request, reply) => {
+  app.post<{ Body: unknown }>("/tmdb/key", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as { apiKey?: unknown } | null;
     if (!body || typeof body.apiKey !== "string") {
       return reply.code(400).send({ error: "apiKey must be a string" });
@@ -138,7 +139,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
 
   // Removing the saved key falls back to TMDB_API_KEY when the deployment
   // sets one, so the response says what is left rather than assuming nothing.
-  app.delete("/tmdb/key", async () => {
+  app.delete("/tmdb/key", { preHandler: requireAdmin }, async () => {
     await deleteSecretKv(TMDB_API_KEY_KV);
     const { apiKey, source } = await getTmdbApiKey();
     return { configured: !!apiKey, source };
@@ -151,7 +152,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: !!apiKey };
   });
 
-  app.post<{ Body: unknown }>("/omdb/key", async (request, reply) => {
+  app.post<{ Body: unknown }>("/omdb/key", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as { apiKey?: unknown } | null;
     const apiKey = typeof body?.apiKey === "string" ? body.apiKey.trim() : "";
     if (!apiKey) {
@@ -174,7 +175,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: true };
   });
 
-  app.delete("/omdb/key", async () => {
+  app.delete("/omdb/key", { preHandler: requireAdmin }, async () => {
     await deleteSecretKv(OMDB_API_KEY_KV);
     return { configured: false };
   });
@@ -186,7 +187,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: !!apiKey, hasKey: !!apiKey };
   });
 
-  app.post<{ Body: unknown }>("/rpdb/key", async (request, reply) => {
+  app.post<{ Body: unknown }>("/rpdb/key", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as { apiKey?: unknown } | null;
     if (!body || typeof body.apiKey !== "string") {
       return reply.code(400).send({ error: "apiKey must be a string" });
@@ -202,7 +203,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: true };
   });
 
-  app.delete("/rpdb/key", async () => {
+  app.delete("/rpdb/key", { preHandler: requireAdmin }, async () => {
     await deleteSecretKv(RPDB_API_KEY_KV);
     return { configured: false };
   });
@@ -229,12 +230,12 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
   // The one outbound integration: a watchlist add can become a request on the
   // server that actually fetches things. See lib/jellyseerr.ts.
 
-  app.get("/settings/jellyseerr", async () => {
+  app.get("/settings/jellyseerr", { preHandler: requireAdmin }, async () => {
     const config = await getJellyseerrConfig();
     return { configured: !!config, config: config ? publicJellyseerrConfig(config) : null };
   });
 
-  app.post<{ Body: unknown }>("/settings/jellyseerr", async (request, reply) => {
+  app.post<{ Body: unknown }>("/settings/jellyseerr", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as {
       url?: unknown;
       apiKey?: unknown;
@@ -283,7 +284,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: true, config: publicJellyseerrConfig(config) };
   });
 
-  app.delete("/settings/jellyseerr", async () => {
+  app.delete("/settings/jellyseerr", { preHandler: requireAdmin }, async () => {
     await clearJellyseerrConfig();
     return { configured: false, config: null };
   });
@@ -291,7 +292,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
   // Same argument as the notification-channel test: the failures people hit
   // here are a moved container, a revoked key or a URL that never reached the
   // right service, and none of those are visible from the stored config.
-  app.post("/settings/jellyseerr/test", async (request, reply) => {
+  app.post("/settings/jellyseerr/test", { preHandler: requireAdmin }, async (request, reply) => {
     const config = await getJellyseerrConfig();
     if (!config) return reply.code(404).send({ error: "Jellyseerr is not configured" });
 
@@ -317,7 +318,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
   // took: a job that outlasts its own interval has its next tick dropped by the
   // scheduler, which is invisible from a list of failures because nothing
   // failed.
-  app.get("/settings/job-status", async () => {
+  app.get("/settings/job-status", { preHandler: requireAdmin }, async () => {
     const runs = await getJobRuns();
     return { failures: failuresFrom(runs), runs };
   });

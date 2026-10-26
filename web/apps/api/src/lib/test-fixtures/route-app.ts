@@ -4,6 +4,7 @@ import Fastify, {
   type FastifyPluginAsync,
   type FastifyServerOptions,
 } from "fastify";
+import type { AuthPrincipal } from "../request-auth.js";
 import {
   isSchemaValidationError,
   registerRequestSchemas,
@@ -33,7 +34,10 @@ afterEach(async () => {
 export const buildRouteApp = async (
   loadPlugin: () => Promise<{ default: FastifyPluginAsync }>,
   // A couple of suites need a non-default `bodyLimit` to exercise the 413 path.
-  options: FastifyServerOptions = {}
+  options: FastifyServerOptions = {},
+  // Who requests act as, in place of the auth gate, which these apps don't
+  // register. `API_TOKEN` by default, as every suite assumed before accounts.
+  auth: AuthPrincipal = { kind: "token" }
 ): Promise<FastifyInstance> => {
   vi.resetModules();
   const { default: routes } = await loadPlugin();
@@ -41,6 +45,9 @@ export const buildRouteApp = async (
   // The same two lines index.ts wires, so a schema-validated route answers a
   // test the way it answers a real caller.
   registerRequestSchemas(app);
+  app.addHook("onRequest", async (request) => {
+    request.auth = auth;
+  });
   app.setErrorHandler((error, _request, reply) =>
     isSchemaValidationError(error) ? reply.code(400).send({ error: error.message }) : reply.send(error)
   );

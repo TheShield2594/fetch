@@ -4,6 +4,8 @@ import { P2002 } from "./test-fixtures/prisma-errors.js";
 const prismaMock = {
   list: { findFirst: vi.fn(), create: vi.fn() },
   profile: { findFirst: vi.fn(), create: vi.fn() },
+  // getDefaultProfileId asks for the admin account first; none exists here.
+  account: { findFirst: vi.fn() },
 };
 
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));

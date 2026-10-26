@@ -1,6 +1,7 @@
 import { ListKind, MetadataType } from "@prisma/client";
 import { STREAMING_PROVIDERS } from "../tmdb.js";
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
+import { accountScope } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { getRegionSetting } from "../lib/settings.js";
@@ -17,6 +18,7 @@ import { upsertMetadata } from "../lib/metadata.js";
 import { deriveStremioSecret, resolveProfileFromStremioSecret } from "../lib/stremio-secret.js";
 import {
   getDefaultProfileId,
+  ownsProfile,
   isProfileLocked,
   PROFILE_LOCKED_RESPONSE,
   resolveProfile,
@@ -106,9 +108,9 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
     let profileId: string | null = null;
     if (typeof queryProfileId === "string" && UUID_V4_PATTERN.test(queryProfileId)) {
       const profile = await prisma.profile.findUnique({ where: { id: queryProfileId } });
-      if (profile) profileId = profile.id;
+      if (profile && ownsProfile(request, profile)) profileId = profile.id;
     }
-    profileId ??= await getDefaultProfileId();
+    profileId ??= await getDefaultProfileId(accountScope(request));
     return (await isProfileLocked(request, profileId)) ? null : profileId;
   };
 

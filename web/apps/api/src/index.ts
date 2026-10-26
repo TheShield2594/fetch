@@ -37,6 +37,7 @@ import {
 
 // Route modules
 import healthRoutes from "./routes/health.js";
+import authRoutes from "./routes/auth.js";
 import metricsRoutes from "./routes/metrics.js";
 import profilesRoutes from "./routes/profiles.js";
 import searchRoutes from "./routes/search.js";
@@ -247,6 +248,7 @@ Sentry.setupFastifyErrorHandler(app);
 // ─── Route registration ───
 
 app.register(healthRoutes);
+app.register(authRoutes);
 app.register(metricsRoutes);
 app.register(profilesRoutes);
 app.register(searchRoutes);

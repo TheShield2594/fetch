@@ -40,15 +40,24 @@ something on top of it.
 
 ## Authentication
 
-Every endpoint needs `API_TOKEN`, or a paired device's own token (see
-[Devices](#devices)), as a bearer token:
+Every endpoint needs a bearer token, which is one of three things:
+
+- **A session token**, from signing in (`POST /auth/login`, `/auth/register`
+  or `/auth/bootstrap`). This is what the web app uses. A session only ever
+  sees its own account's profiles. Session tokens start with `fs1_` and last
+  30 days, renewed as they are used.
+- **A paired device's token** (see [Devices](#devices)), which a TV gets by
+  pairing instead of being given `API_TOKEN`.
+- **`API_TOKEN`**, the server's own token. This is the operator: the add-on
+  service, scripts, and creating the first account. It sees every account's
+  profiles.
 
 ```bash
 curl -H "Authorization: Bearer $API_TOKEN" http://192.168.1.25:7000/watch/stats
 ```
 
-A missing or wrong token gets `401` with a `WWW-Authenticate: Bearer` header.
-That header is how the web client tells "your API token is wrong" apart from
+A missing, wrong or expired token gets `401` with a `WWW-Authenticate: Bearer`
+header. That header is how the web client tells "you are signed out" apart from
 other 401s (an incorrect profile PIN, for instance), so keep it in mind if you
 write your own client.
 
@@ -57,18 +66,31 @@ pair and revoke devices (`403 owner_token_required`). Once a device is revoked
 its token gets the same `401` with `WWW-Authenticate: Bearer`, which is how a TV
 knows it was signed out.
 
-Eight paths are exempt, because they cannot carry a bearer token by construction:
+These paths are exempt, because they cannot carry a bearer token by construction:
 
 | Path | Why it is exempt | What guards it instead |
 | --- | --- | --- |
+| `GET /auth/status`, `POST /auth/login`, `POST /auth/register` | They are how a browser gets a token | A password, or a single-use invite code; 10/minute |
 | `GET /health` | Liveness probe | Nothing — it reports no data |
 | `GET /health/ready` | Readiness probe (the container healthcheck) | Nothing — it reports only whether the database answered, never why |
-| `/addon/stremio/*` | Stremio sends no credentials | An unguessable per-profile secret in the path |
-| `GET /addon` | Add-on discovery | As above |
+| `/addon/stremio/<secret>/*` | Stremio sends no credentials | The unguessable per-profile secret in the path. The same routes without a secret need a token. |
 | `/trakt/oauth/callback` | Browser redirect from trakt.tv | The `state` value that started the flow |
-| `/webhooks/*` | Plex and Jellyfin post directly | `WEBHOOK_SECRET`, plus optional `WEBHOOK_ALLOWED_IPS` |
+| `/webhooks/*` | Plex, Jellyfin and Emby post directly | `WEBHOOK_SECRET`, plus optional `WEBHOOK_ALLOWED_IPS` |
 | `POST /devices/pair/start` | A TV has no credential yet | A code someone signed in must confirm; rate-limited, and capped at 20 pending |
 | `GET /devices/pair/poll` | As above | The poll secret `start` returned, in `x-pairing-secret` |
+
+### Accounts
+
+Accounts are invite-only. The first account is created with `API_TOKEN` and is
+the **admin**; everyone else redeems an invite link the admin made. Each account
+owns its profiles, and through them its lists, history, ratings and games.
+
+Settings that belong to the whole install are shared by every account and can
+only be changed by the admin; anyone else gets `403` with
+`code: "admin_required"`. That covers the TMDB, OMDb and RPDB keys, preferences
+(writes), the Trakt and Stremio connections, the AI provider, Jellyseerr, the
+Steam sync, the metadata refresh, `/settings/job-status` and `/metrics`.
+`API_TOKEN` counts as the admin.
 
 ## Profiles
 
@@ -76,21 +98,22 @@ Most endpoints act on one profile's data. The profile comes from the
 `x-profile-id` header:
 
 ```bash
-curl -H "Authorization: Bearer $API_TOKEN" \
+curl -H "Authorization: Bearer $TOKEN" \
      -H "x-profile-id: 3f1c…" \
      http://192.168.1.25:7000/lists
 ```
 
-Omit it and the default profile is used. A malformed value is a `400`, not a
-silent fallback — a typo'd profile id should not quietly write to someone else's
-history.
+Omit it and the only profile is used, when there is exactly one (in the
+caller's account, for a session); with two or more it is a `400`. A malformed
+value is a `400`, not a silent fallback — a typo'd profile id should not
+quietly write to someone else's history.
 
 Profiles protected by a PIN also need `x-profile-token`, which
 `POST /profiles/:id/verify` returns.
 
 Anything scoped to a profile only ever sees that profile's rows. Asking for
 another profile's list returns `404`, not `403` — the lookup is scoped, so the
-row genuinely is not found.
+row genuinely is not found. Another account's profile is a `404` the same way.
 
 ## Conventions
 
@@ -99,7 +122,8 @@ row genuinely is not found.
   a specific config change.
 - **Rate limits** are 200 requests/minute per IP, and 1000/minute for the add-on
   service, which authenticates with a derived service token. Credential-taking
-  routes (profile PIN verification, Stremio connect, the Trakt OAuth pair) are
+  routes (sign-in, sign-up, password changes, profile PIN verification, Stremio
+  connect, the Trakt OAuth pair) are
   limited to 10/minute on top of that.
 - **Types** are `movie` and `series` almost everywhere. Watch events use `movie`
   and `episode`; tags additionally accept `episode`.
@@ -475,6 +499,30 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/sync/overview` | `devices`: every paired TV with `lastSeenAt` and what it last reported — `appVersion`, `flavor`, `lastSyncAt`, `lastSyncOk`, `lastSyncError` (all `null` until its first report); left out when a device asks. Every profile with counts of `addons`, `enabledAddons`, `lists`, `resumePoints` and `watchedItems`, and when its TV settings and Home layout last changed; plus `server.database` (the `/health/ready` probe) and `server.jobs` (the last run of each scheduled job). Counts only, so locked profiles are included, as `GET /profiles` lists their names. |
+
+### Sign-in and accounts
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/auth/status` | Public. `{ setupRequired }`: true until the admin account exists. |
+| `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password }` → `{ token, account }`. Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
+| `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account }`. `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
+| `POST` | `/auth/logout` | Ends this session. `204`. |
+| `GET` | `/auth/me` | `{ account: { id, username, isAdmin } \| null, isAdmin }`. `account` is null for `API_TOKEN`. |
+| `POST` | `/auth/password` | `{ currentPassword, newPassword }`. Signs out every other session. `204`. |
+| `POST` | `/auth/invites` | Admin. `{ expiresInDays? }` (1–30, default 7) → `{ invite: { id, code, expiresAt }, url }`. The code is shown only here; only its hash is stored. `url` is built from `CATALOGGY_WEB_PUBLIC`, or null when that is unset. |
+| `GET` | `/auth/invites` | Admin. `{ invites: [{ id, createdAt, expiresAt, usedAt, usedBy }] }`. |
+| `DELETE` | `/auth/invites/:id` | Admin. Revokes an invite. |
+| `POST` | `/auth/register` | Public. `{ inviteCode, username, password }` → `{ token, account }`. Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name, which leaves the invite usable. |
+| `GET` | `/auth/accounts` | Admin. `{ accounts: [{ id, username, isAdmin, createdAt, profileCount }] }`. |
+| `DELETE` | `/auth/accounts/:id` | Admin. Deletes the account and everything its profiles own. The admin account can't be deleted. |
+
+Usernames are 3–32 characters of letters, numbers, `.`, `-` and `_`, and are
+case-insensitive. Passwords are 8–256 characters, hashed with scrypt.
+
+`GET /profiles` lists the caller's own profiles (every profile, for
+`API_TOKEN`), and a new profile belongs to the caller's account. An account
+can't delete its last profile.
 
 ### Settings and API keys
 

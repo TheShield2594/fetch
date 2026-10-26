@@ -3,7 +3,6 @@ package com.fetch.tv.data.remote.dto.mdblist
 import com.fetch.tv.domain.model.MDBListRatings
 import com.fetch.tv.domain.model.RottenTomatoesStatus
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -12,7 +11,6 @@ import org.junit.Test
 
 class MDBListMediaResponseDtoTest {
     private val adapter = Moshi.Builder()
-        .add(KotlinJsonAdapterFactory())
         .build()
         .adapter(MDBListMediaResponseDto::class.java)
 

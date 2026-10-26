@@ -2,6 +2,7 @@ package com.fetch.tv.data.trailer
 
 import android.net.Uri
 import android.util.Log
+import com.fetch.tv.core.network.SharedHttpClient
 import com.google.gson.Gson
 import com.fetch.tv.BuildConfig
 import kotlinx.coroutines.CompletableDeferred
@@ -15,7 +16,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.withTimeout
 import okhttp3.Headers
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.URL
@@ -199,7 +199,7 @@ class InAppYouTubeExtractor internal constructor(
     private val gson = Gson()
 
     private val httpClient by lazy {
-        OkHttpClient.Builder()
+        SharedHttpClient.root.newBuilder()
             .dns(com.fetch.tv.core.network.IPv4FirstDns())
             .socketFactory(com.fetch.tv.core.network.NoDelaySocketFactory)
             .connectTimeout(20, TimeUnit.SECONDS)
@@ -981,7 +981,7 @@ class InAppYouTubeExtractor internal constructor(
     }
 
     private val probeClient by lazy {
-        OkHttpClient.Builder()
+        SharedHttpClient.root.newBuilder()
             .dns(com.fetch.tv.core.network.IPv4FirstDns())
             .socketFactory(com.fetch.tv.core.network.NoDelaySocketFactory)
             .connectTimeout(2, TimeUnit.SECONDS)

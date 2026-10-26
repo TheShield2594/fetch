@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.network.NoDelaySocketFactory
+import com.fetch.tv.core.network.SharedHttpClient
 import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.data.remote.api.AniSkipApi
 import com.fetch.tv.data.remote.api.AnimeSkipApi
@@ -26,7 +27,6 @@ import com.fetch.tv.data.simkl.SimklAuthStorage
 import com.fetch.tv.data.simkl.defaultSimklApiConfiguration
 import com.fetch.tv.LocaleCache
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -88,15 +88,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideMoshi(): Moshi = Moshi.Builder()
-        .add(KotlinJsonAdapterFactory())
-        .build()
+    fun provideMoshi(): Moshi = Moshi.Builder().build()
 
     /** Validating client for fixed first-party endpoints. Addon URLs use `addonPermissive`. */
     @Provides
     @Singleton
     fun provideOkHttpClient(@ApplicationContext context: Context): OkHttpClient {
-        return OkHttpClient.Builder()
+        return SharedHttpClient.root.newBuilder()
             .dns(IPv4FirstDns())
             .socketFactory(NoDelaySocketFactory)
             // Keep separate from the old trust-all cache. Cached responses bypass a new TLS handshake.
@@ -160,7 +158,7 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("customServerAuth")
-    fun provideCustomServerAuthHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    fun provideCustomServerAuthHttpClient(): OkHttpClient = SharedHttpClient.root.newBuilder()
         .dns(IPv4FirstDns())
         .socketFactory(NoDelaySocketFactory)
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -182,7 +180,7 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("simkl")
-    fun provideSimklOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    fun provideSimklOkHttpClient(): OkHttpClient = SharedHttpClient.root.newBuilder()
         .dns(IPv4FirstDns())
         .socketFactory(NoDelaySocketFactory)
         .connectTimeout(30, TimeUnit.SECONDS)

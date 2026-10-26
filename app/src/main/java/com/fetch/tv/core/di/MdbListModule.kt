@@ -2,6 +2,7 @@ package com.fetch.tv.core.di
 
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.network.NoDelaySocketFactory
+import com.fetch.tv.core.network.SharedHttpClient
 import com.fetch.tv.core.profile.ProfileScopedCredentialStore
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.ProfileDataStore
@@ -25,7 +26,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -52,7 +52,7 @@ object MdbListModule {
     @Singleton
     fun http(configuration: MdbListConfiguration): MdbListHttpClient = MdbListHttpClient(
         OkHttpMdbListEngine(
-            OkHttpClient.Builder()
+            SharedHttpClient.root.newBuilder()
                 .socketFactory(NoDelaySocketFactory)
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)

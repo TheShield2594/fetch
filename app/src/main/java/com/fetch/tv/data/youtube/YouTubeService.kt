@@ -3,6 +3,7 @@ package com.fetch.tv.data.youtube
 import android.util.Log
 import com.fetch.tv.core.network.IPv4FirstDns
 import com.fetch.tv.core.network.NoDelaySocketFactory
+import com.fetch.tv.core.network.SharedHttpClient
 import com.fetch.tv.data.local.YouTubeAuthDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,6 @@ import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Locale
@@ -114,7 +114,7 @@ class YouTubeService @Inject constructor(
     private var fallbackConfigUntilMs = 0L
 
     private val httpClient by lazy {
-        OkHttpClient.Builder()
+        SharedHttpClient.root.newBuilder()
             .dns(IPv4FirstDns())
             .socketFactory(NoDelaySocketFactory)
             .connectTimeout(20, TimeUnit.SECONDS)

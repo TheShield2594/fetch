@@ -3,7 +3,6 @@ package com.fetch.tv.data.mdblist
 import com.fetch.tv.data.remote.api.MDBListApi
 import com.fetch.tv.data.remote.dto.mdblist.MDBListMediaRequestDto
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -19,7 +18,7 @@ class MdbListRatingsClientTest {
     private val harness = MdbListTestHarness()
     private val keyApi = mockk<MDBListApi>()
     private val client = MdbListRatingsClient(
-        keyApi, harness.api, harness.store, Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+        keyApi, harness.api, harness.store, Moshi.Builder().build()
     )
     private val ids = listOf("tt1234567", "tt7654321")
     private val body = MDBListMediaRequestDto(ids)

@@ -3,6 +3,7 @@ package com.fetch.tv.core.di
 import android.os.Build
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.network.NoDelaySocketFactory
+import com.fetch.tv.core.network.SharedHttpClient
 import com.fetch.tv.core.profile.ProfileScopedCredentialStore
 import com.fetch.tv.core.sync.SyncClientIdentity
 import com.fetch.tv.data.local.ProfileDataStore
@@ -23,7 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -35,7 +35,7 @@ object MediaServerModule {
         identity: SyncClientIdentity,
         profileDataStore: ProfileDataStore
     ): ServerRepository {
-        val http = OkHttpClient.Builder()
+        val http = SharedHttpClient.root.newBuilder()
             .socketFactory(NoDelaySocketFactory)
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)

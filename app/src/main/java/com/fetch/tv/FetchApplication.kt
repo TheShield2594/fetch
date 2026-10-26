@@ -27,13 +27,13 @@ import com.fetch.tv.core.sync.StartupSyncService
 import com.fetch.tv.core.sync.androidtv.AndroidTvChannelSyncService
 import com.fetch.tv.core.network.IPv4FirstDns
 import com.fetch.tv.core.network.NoDelaySocketFactory
+import com.fetch.tv.core.network.SharedHttpClient
 import com.fetch.tv.data.local.ImagePerformancePreferences
 import com.fetch.tv.core.streams.ranking.AndroidDeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.data.mediaserver.ServerUserStateProjection
 import com.fetch.tv.data.simkl.SimklAnimeIdPreferenceHolder
 import dagger.hilt.android.HiltAndroidApp
-import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -77,7 +77,7 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
                 maxRequests = 32
                 maxRequestsPerHost = 16
             }
-            OkHttpClient.Builder()
+            SharedHttpClient.root.newBuilder()
                 .dispatcher(imageDispatcher)
                 .dns(IPv4FirstDns())
                 .socketFactory(NoDelaySocketFactory)

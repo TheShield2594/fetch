@@ -2,6 +2,7 @@ package com.fetch.tv.data.remote
 
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.network.NoDelaySocketFactory
+import com.fetch.tv.core.network.SharedHttpClient
 import com.fetch.tv.domain.model.ServerCapabilities
 import com.fetch.tv.domain.model.ServerConfiguration
 import java.io.ByteArrayOutputStream
@@ -16,7 +17,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 
 enum class ServerDiscoveryFailure {
@@ -139,7 +139,7 @@ internal object ServerDiscoveryPolicy {
 
 @Singleton
 class ServerDiscoveryService @Inject constructor() {
-    private val client = OkHttpClient.Builder()
+    private val client = SharedHttpClient.root.newBuilder()
         .socketFactory(NoDelaySocketFactory)
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)

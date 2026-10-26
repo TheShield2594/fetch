@@ -9,6 +9,7 @@ import androidx.media3.extractor.GaplessInfoHolder
 import androidx.media3.extractor.mp4.BoxParser
 import androidx.media3.extractor.mp4.TrackSampleTable
 import com.fetch.tv.core.network.NoDelaySocketFactory
+import com.fetch.tv.core.network.SharedHttpClient
 import com.fetch.tv.ui.screens.player.SubtitleSyncCue
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -23,7 +24,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.util.ArrayDeque
@@ -107,7 +107,7 @@ internal object EmbeddedSubtitleTimelineLoader {
     private const val ID_CUE_TRACK = 0xF7L
     private const val ID_CUE_DURATION = 0xB2L
 
-    private val httpClient = OkHttpClient.Builder()
+    private val httpClient = SharedHttpClient.root.newBuilder()
         .socketFactory(NoDelaySocketFactory)
         .connectTimeout(3, TimeUnit.SECONDS)
         .readTimeout(4, TimeUnit.SECONDS)

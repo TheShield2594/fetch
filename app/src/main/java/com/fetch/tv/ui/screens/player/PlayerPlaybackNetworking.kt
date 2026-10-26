@@ -39,10 +39,10 @@ internal object PlayerPlaybackNetworking {
     }
 
     /**
-     * Fallback OkHttpClient equipped with trust-all SSL configuration for self-signed
-     * or untrusted local media servers (e.g. self-signed WebDAV / Plex / Jellyfin).
+     * Settings both playback clients share, including one connection pool and dispatcher
+     * kept apart from the rest of the app (see SharedHttpClient).
      */
-    internal val trustAllPlaybackHttpClient: OkHttpClient by lazy {
+    private val playbackBaseClient: OkHttpClient by lazy {
         val dispatcher = okhttp3.Dispatcher().apply {
             maxRequests = 64
             maxRequestsPerHost = 32
@@ -52,8 +52,6 @@ internal object PlayerPlaybackNetworking {
             .dns(IPv4FirstDns())
             .socketFactory(PlaybackSocketFactory)
             .eventListenerFactory(PlaybackConnectionEvents)
-            .sslSocketFactory(sslContext.socketFactory, trustAllManager)
-            .hostnameVerifier(playbackHostnameVerifier)
             .protocols(listOf(okhttp3.Protocol.HTTP_1_1))
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
@@ -65,27 +63,23 @@ internal object PlayerPlaybackNetworking {
     }
 
     /**
+     * Fallback OkHttpClient equipped with trust-all SSL configuration for self-signed
+     * or untrusted local media servers (e.g. self-signed WebDAV / Plex / Jellyfin).
+     */
+    internal val trustAllPlaybackHttpClient: OkHttpClient by lazy {
+        playbackBaseClient.newBuilder()
+            .sslSocketFactory(sslContext.socketFactory, trustAllManager)
+            .hostnameVerifier(playbackHostnameVerifier)
+            .build()
+    }
+
+    /**
      * Primary OkHttpClient using standard system SSL certificates and full SNI support.
      * Includes an automatic fallback to [trustAllPlaybackHttpClient] if an [SSLException]
      * occurs on self-signed local media servers.
      */
     internal val playbackHttpClient: OkHttpClient by lazy {
-        val dispatcher = okhttp3.Dispatcher().apply {
-            maxRequests = 64
-            maxRequestsPerHost = 32
-        }
-        OkHttpClient.Builder()
-            .dispatcher(dispatcher)
-            .dns(IPv4FirstDns())
-            .socketFactory(PlaybackSocketFactory)
-            .eventListenerFactory(PlaybackConnectionEvents)
-            .protocols(listOf(okhttp3.Protocol.HTTP_1_1))
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
-            .followRedirects(true)
-            .followSslRedirects(true)
-            .retryOnConnectionFailure(true)
+        playbackBaseClient.newBuilder()
             .addInterceptor { chain ->
                 val request = chain.request()
                 try {

@@ -12,7 +12,6 @@ import com.fetch.tv.domain.model.MDBListSettings
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.RottenTomatoesStatus
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -265,7 +264,7 @@ class MDBListRepositoryTest {
         preferences.value = initialSettings
         every { store.settings } returns preferences
         val client = MdbListRatingsClient(
-            api, account.api, account.store, Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            api, account.api, account.store, Moshi.Builder().build()
         )
         return MDBListRepository(client, store, mockk<TmdbService>(), MdbListRatingsLoader(client, scope = backgroundScope))
     }

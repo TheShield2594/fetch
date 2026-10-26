@@ -3,6 +3,7 @@ package com.fetch.tv.data.youtube
 import android.util.Log
 import com.fetch.tv.core.network.IPv4FirstDns
 import com.fetch.tv.core.network.NoDelaySocketFactory
+import com.fetch.tv.core.network.SharedHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -12,7 +13,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.net.URLEncoder
 import java.security.MessageDigest
@@ -40,7 +40,7 @@ class SponsorBlockService @Inject constructor() {
     private val json = Json { ignoreUnknownKeys = true }
 
     private val httpClient by lazy {
-        OkHttpClient.Builder()
+        SharedHttpClient.root.newBuilder()
             .dns(IPv4FirstDns())
             .socketFactory(NoDelaySocketFactory)
             .connectTimeout(10, TimeUnit.SECONDS)

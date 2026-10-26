@@ -8,7 +8,6 @@ import com.fetch.tv.data.remote.dto.CatalogResponseDto
 import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.ContentType
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -23,7 +22,7 @@ import retrofit2.Response
 class CatalogRepositoryTypeTest {
     @Test
     fun `initial and paginated requests retain advertised Series type`() = runTest {
-        val response = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+        val response = Moshi.Builder().build()
             .adapter(CatalogResponseDto::class.java)
             .fromJson("""{"metas":[{"id":"tt1","type":"series","name":"A show"}]}""")!!
         val requestedUrls = mutableListOf<String>()

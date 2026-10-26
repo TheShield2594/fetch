@@ -5,7 +5,6 @@ import com.fetch.tv.data.remote.dto.mdblist.MDBListMediaRatingDto
 import com.fetch.tv.data.remote.dto.mdblist.MDBListMediaRequestDto
 import com.fetch.tv.data.remote.dto.mdblist.MDBListMediaResponseDto
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -29,7 +28,7 @@ class MdbListRatingsLoaderTest {
     private val harness = MdbListTestHarness()
     private val api = mockk<MDBListApi>()
     private val client = MdbListRatingsClient(
-        api, harness.api, harness.store, Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+        api, harness.api, harness.store, Moshi.Builder().build()
     )
     private val credential = MdbListRatingsCredential.ApiKey("test-key")
     private val batches = mutableListOf<MDBListMediaRequestDto>()

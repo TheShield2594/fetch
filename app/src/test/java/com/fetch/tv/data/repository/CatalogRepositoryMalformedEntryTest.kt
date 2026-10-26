@@ -6,7 +6,6 @@ import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.remote.api.AddonApi
 import com.fetch.tv.data.remote.dto.CatalogResponseDto
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -33,7 +32,6 @@ class CatalogRepositoryMalformedEntryTest {
             }
             """.trimIndent()
         val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
             .build()
         val response = moshi.adapter(CatalogResponseDto::class.java).fromJson(payload)!!
         val api = mockk<AddonApi>()

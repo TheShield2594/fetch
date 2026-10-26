@@ -25,8 +25,8 @@
 # Keep Retrofit service interfaces (must preserve generic return types)
 -keep,allowobfuscation,allowshrinking interface retrofit2.Call
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
-# NOTE: allowobfuscation here is fine for Retrofit, but superseded by the
-# broader kotlin.** keep rule below.
+# Suspend service methods: Retrofit reads the result type from the Continuation's
+# generic signature.
 -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
 # Keep all project API interfaces
 -keep class com.fetch.tv.data.remote.api.** { *; }
@@ -123,10 +123,7 @@
 # ── Broad keeps ───────────────────────────────────────────────────────────────
 # Added for CloudStream extensions, which were loaded at runtime and resolved
 # host classes by name. Extensions are gone; these stay until a release build
-# is tested without them (#124 kotlin, #125 okhttp/okio, #126 fragment).
--keep class kotlin.** { *; }
--keep class kotlinx.coroutines.** { *; }
-
+# is tested without them (#125 okhttp/okio, #126 fragment).
 -keep class okhttp3.** { *; }
 -keepclassmembers class okhttp3.** { *; }
 -keep class okio.** { *; }

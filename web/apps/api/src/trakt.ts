@@ -335,6 +335,26 @@ export class TraktClient {
     return this.fetchAllPages<TraktListItemPayload>(`/users/me/lists/${listId}/items/movie,show`, logger);
   }
 
+  // Any list by its Trakt id — the TV's collection sources name lists this way,
+  // public ones included, so `/users/me/lists` alone would not cover them. One
+  // page is enough for a preview.
+  async fetchListItemsPage(listId: number, mediaType: "movie" | "show", logger: FastifyBaseLogger): Promise<TraktListItemPayload[]> {
+    const response = await this.request(`/lists/${listId}/items/${mediaType}?limit=20`, {
+      method: "GET",
+      headers: {
+        "trakt-api-version": "2",
+        "trakt-api-key": this.clientId,
+        Authorization: `Bearer ${this.accessToken}`
+      },
+      logger
+    });
+    try {
+      return (await response.json()) as TraktListItemPayload[];
+    } catch {
+      throw new Error(`Trakt API returned non-JSON response for /lists/${listId}/items (status ${response.status})`);
+    }
+  }
+
   // No `startAt` means "everything Trakt has", not "the recent window with no
   // lower bound": the request goes out without `start_at` and under the much
   // larger backfill page cap, so a first sync brings in years of history rather

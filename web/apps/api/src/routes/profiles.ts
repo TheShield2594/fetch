@@ -4,6 +4,7 @@ import { mintProfileToken } from "../lib/profile-token.js";
 import { hasValidProfileToken, invalidateProfileCache, isActingAsProfile } from "../lib/profile.js";
 import { hashPin, isValidPinFormat, needsRehash, pinLengthError, pinMatches } from "../lib/pin-hash.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
+import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
 
 const MAX_PIN_ATTEMPTS = 5;
 const PIN_LOCKOUT_MS = 5 * 60 * 1000;
@@ -124,12 +125,10 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
   app.get("/profiles", async () => {
     const profiles = await prisma.profile.findMany({
       orderBy: { createdAt: "asc" },
-      select: { id: true, name: true, pinHash: true },
+      select: PROFILE_VIEW_SELECT,
     });
 
-    return {
-      profiles: profiles.map((p) => ({ id: p.id, name: p.name, hasPin: p.pinHash != null })),
-    };
+    return { profiles: profiles.map(toProfileView) };
   });
 
   app.post<{ Body: unknown }>("/profiles", async (request, reply) => {
@@ -151,12 +150,17 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     if (pin !== undefined && !isValidPinFormat(pin)) {
       return reply.code(400).send({ error: pinLengthError });
     }
+    const attributes = parseProfileAttributes(body);
+    if (!attributes.ok) return reply.code(400).send({ error: attributes.error });
     const pinHash = pin ? await hashPin(pin) : null;
 
-    const profile = await prisma.profile.create({ data: { name, pinHash } });
+    const profile = await prisma.profile.create({
+      data: { name, pinHash, ...attributes.data },
+      select: PROFILE_VIEW_SELECT,
+    });
     invalidateProfileCache();
 
-    return reply.code(201).send({ profile: { id: profile.id, name: profile.name, hasPin: pinHash != null } });
+    return reply.code(201).send({ profile: toProfileView(profile) });
   });
 
   app.post<{ Params: { id: string }; Body: unknown }>(
@@ -207,7 +211,9 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
 
     const body = (request.body ?? {}) as { name?: unknown; pin?: unknown; currentPin?: unknown };
-    const data: { name?: string; pinHash?: string | null } = {};
+    const attributes = parseProfileAttributes(body);
+    if (!attributes.ok) return reply.code(400).send({ error: attributes.error });
+    const data: { name?: string; pinHash?: string | null } & typeof attributes.data = { ...attributes.data };
 
     if (body.name !== undefined) {
       if (typeof body.name !== "string" || !body.name.trim()) {
@@ -264,10 +270,10 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     }
 
     if (Object.keys(data).length === 0) {
-      return reply.code(400).send({ error: "name or pin must be provided" });
+      return reply.code(400).send({ error: "Nothing to update" });
     }
 
-    const updated = await prisma.profile.update({ where: { id: profile.id }, data });
+    const updated = await prisma.profile.update({ where: { id: profile.id }, data, select: PROFILE_VIEW_SELECT });
     invalidateProfileCache();
 
     // The PIN just changed (or was removed) — any outstanding lockout/attempt
@@ -276,7 +282,36 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       await clearPinAttempts(profile.id);
     }
 
-    return { profile: { id: updated.id, name: updated.name, hasPin: updated.pinHash != null } };
+    return { profile: toProfileView(updated) };
+  });
+
+  // What deleting a profile takes with it, so the confirmation can say so in
+  // numbers rather than "all of its data".
+  app.get<{ Params: { id: string } }>("/profiles/:id/summary", async (request, reply) => {
+    if (!UUID_V4_PATTERN.test(request.params.id)) {
+      return reply.code(400).send({ error: "id must be a valid UUID" });
+    }
+    const profileId = request.params.id;
+    const profile = await prisma.profile.findUnique({ where: { id: profileId }, select: { id: true } });
+    if (!profile) return reply.code(404).send({ error: "Profile not found" });
+
+    const [watchEvents, lists, listItems, playbackProgress, ratings, collections] = await Promise.all([
+      prisma.watchEvent.count({ where: { profileId } }),
+      prisma.list.count({ where: { profileId } }),
+      prisma.listItem.count({ where: { list: { profileId } } }),
+      prisma.playbackProgress.count({ where: { profileId } }),
+      prisma.rating.count({ where: { profileId } }),
+      prisma.profileCollections.findUnique({ where: { profileId }, select: { collections: true } }),
+    ]);
+
+    return {
+      watchEvents,
+      lists,
+      listItems,
+      playbackProgress,
+      ratings,
+      collections: Array.isArray(collections?.collections) ? collections.collections.length : 0,
+    };
   });
 
   app.delete<{ Params: { id: string }; Body: unknown }>("/profiles/:id", async (request, reply) => {

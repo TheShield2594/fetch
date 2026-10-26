@@ -183,6 +183,67 @@ export type ShowDetails = {
   status: string | null;
 };
 
+/** The TV's `TmdbCollectionFilters`, as the collection JSON carries them. */
+export type TmdbCollectionFilters = {
+  withGenres?: string | null;
+  withoutGenres?: string | null;
+  releaseDateGte?: string | null;
+  releaseDateLte?: string | null;
+  voteAverageGte?: number | null;
+  voteAverageLte?: number | null;
+  voteCountGte?: number | null;
+  withOriginalLanguage?: string | null;
+  withOriginCountry?: string | null;
+  withKeywords?: string | null;
+  withoutKeywords?: string | null;
+  withCompanies?: string | null;
+  withoutCompanies?: string | null;
+  withNetworks?: string | null;
+  year?: number | null;
+  watchRegion?: string | null;
+  withWatchProviders?: string | null;
+  withoutWatchProviders?: string | null;
+};
+
+export type TmdbCollectionSourceQuery = {
+  sourceType: "LIST" | "COLLECTION" | "COMPANY" | "NETWORK" | "DISCOVER" | "PERSON" | "DIRECTOR";
+  tmdbId?: number | null;
+  mediaType?: "MOVIE" | "TV" | null;
+  sortBy?: string | null;
+  filters?: TmdbCollectionFilters | null;
+};
+
+/** TMDB's `/discover` parameters for a collection's filters; movies and TV name the dates differently. */
+export const discoverParams = (mediaType: "movie" | "tv", filters: TmdbCollectionFilters): Record<string, string> => {
+  const dateKey = mediaType === "movie" ? "primary_release_date" : "first_air_date";
+  const pairs: [string, string | number | null | undefined][] = [
+    ["with_genres", filters.withGenres],
+    ["without_genres", filters.withoutGenres],
+    [`${dateKey}.gte`, filters.releaseDateGte],
+    [`${dateKey}.lte`, filters.releaseDateLte],
+    ["vote_average.gte", filters.voteAverageGte],
+    ["vote_average.lte", filters.voteAverageLte],
+    ["vote_count.gte", filters.voteCountGte],
+    ["with_original_language", filters.withOriginalLanguage],
+    ["with_origin_country", filters.withOriginCountry],
+    ["with_keywords", filters.withKeywords],
+    ["without_keywords", filters.withoutKeywords],
+    ["with_companies", filters.withCompanies],
+    ["without_companies", filters.withoutCompanies],
+    ["with_networks", filters.withNetworks],
+    [mediaType === "movie" ? "primary_release_year" : "first_air_date_year", filters.year],
+    ["watch_region", filters.watchRegion],
+    ["with_watch_providers", filters.withWatchProviders],
+    ["without_watch_providers", filters.withoutWatchProviders],
+  ];
+  const params: Record<string, string> = {};
+  for (const [key, value] of pairs) {
+    if (value === null || value === undefined || value === "") continue;
+    params[key] = String(value);
+  }
+  return params;
+};
+
 export type MetadataPayload = {
   imdbId: string;
   type: MetadataType;
@@ -668,6 +729,65 @@ export class TmdbClient {
 
     const response = await this.request<TmdbSearchResponse>(`/discover/${mediaType}`, params);
     return this.withImdbIds(response.results ?? [], this.asType(type));
+  }
+
+  /**
+   * The first page of a TV collection's TMDB source, for the website's
+   * collection builder to preview. Mirrors how the TV reads the same source
+   * (`TmdbCollectionSource`), so the preview shows the titles the row will.
+   */
+  async collectionSourcePage(source: TmdbCollectionSourceQuery): Promise<MetadataPayload[]> {
+    const mediaType: TmdbMediaType = source.mediaType === "TV" ? "tv" : "movie";
+    const type = mediaType === "movie" ? MetadataType.movie : MetadataType.series;
+    const fixed = () => ({ mediaType, type });
+    const mixed = (result: TmdbSearchResult): { mediaType: TmdbMediaType; type: MetadataType } | null => {
+      const kind = result.media_type ?? mediaType;
+      if (kind !== "movie" && kind !== "tv") return null;
+      return { mediaType: kind, type: kind === "movie" ? MetadataType.movie : MetadataType.series };
+    };
+    const sortBy = source.sortBy && source.sortBy !== "original" ? source.sortBy : undefined;
+    const id = source.tmdbId ? String(source.tmdbId) : undefined;
+
+    switch (source.sourceType) {
+      case "LIST": {
+        if (!id) return [];
+        const response = await this.request<{ items?: TmdbSearchResult[] }>(`/list/${id}`);
+        return this.withImdbIds(response.items ?? [], mixed);
+      }
+      case "COLLECTION": {
+        if (!id) return [];
+        const response = await this.request<{ parts?: TmdbSearchResult[] }>(`/collection/${id}`);
+        return this.withImdbIds(response.parts ?? [], () => ({ mediaType: "movie", type: MetadataType.movie }));
+      }
+      case "PERSON":
+      case "DIRECTOR": {
+        if (!id) return [];
+        if (mediaType === "movie") {
+          const key = source.sourceType === "DIRECTOR" ? "with_crew" : "with_cast";
+          const response = await this.request<TmdbSearchResponse>("/discover/movie", {
+            [key]: id,
+            sort_by: sortBy ?? "popularity.desc",
+          });
+          return this.withImdbIds(response.results ?? [], fixed);
+        }
+        const credits = await this.request<{ cast?: TmdbSearchResult[]; crew?: (TmdbSearchResult & { job?: string })[] }>(
+          `/person/${id}/tv_credits`
+        );
+        const results =
+          source.sourceType === "DIRECTOR" ? (credits.crew ?? []).filter((c) => c.job === "Director") : credits.cast ?? [];
+        return this.withImdbIds(results, fixed);
+      }
+      case "COMPANY":
+      case "NETWORK":
+      case "DISCOVER": {
+        const params = discoverParams(mediaType, source.filters ?? {});
+        if (source.sourceType === "COMPANY" && id) params.with_companies = id;
+        if (source.sourceType === "NETWORK" && id) params.with_networks = id;
+        params.sort_by = sortBy ?? "popularity.desc";
+        const response = await this.request<TmdbSearchResponse>(`/discover/${mediaType}`, params);
+        return this.withImdbIds(response.results ?? [], fixed);
+      }
+    }
   }
 
   async getShowDetails(tmdbId: number): Promise<ShowDetails | null> {

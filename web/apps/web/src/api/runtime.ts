@@ -78,6 +78,14 @@ export const runtimeConfig = {
   getToken() {
     return window.localStorage.getItem(TOKEN_KEY) ?? "";
   },
+  /**
+   * Whether the stored token is a signed-in session, as opposed to nothing or
+   * the server's API token (what browsers stored before accounts existed). The
+   * prefix is the API's SESSION_TOKEN_PREFIX.
+   */
+  hasSession() {
+    return runtimeConfig.getToken().startsWith("fs1_");
+  },
   setToken(value: string) {
     const trimmed = value.trim();
     // Cached GET responses are partitioned by a digest of the token, so a new

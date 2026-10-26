@@ -74,5 +74,18 @@ describe("cors", () => {
 
       expect(isAllowedOrigin("https://app.example.com")).toBe(false);
     });
+
+    it("allows every method the API routes use, so a preflight never blocks one", async () => {
+      process.env.NODE_ENV = "production";
+      process.env.CATALOGGY_ALLOWED_ORIGINS = "https://app.example.com";
+      vi.resetModules();
+      const { applyCorsHeaders } = await loadCors();
+      const reply = new FakeReply();
+
+      applyCorsHeaders(makeRequest("https://app.example.com", "OPTIONS"), reply as unknown as FastifyReply);
+      // PUT /playback is what the web app saves resume points with.
+      const allowed = (reply.headers["Access-Control-Allow-Methods"] ?? "").split(",");
+      expect(allowed).toEqual(expect.arrayContaining(["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]));
+    });
   });
 });

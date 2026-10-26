@@ -702,13 +702,14 @@ These exist today, independent of Cloudflare. The first two were confirmed by re
 code; none were confirmed at runtime. They are listed so Phase 1 doesn't faithfully port
 them, and so they can be fixed separately.
 
-1. **CORS omits `PUT`.**
+1. **CORS omits `PUT`.** *Fixed: `PUT` added, with a regression test.*
    - **Where:** `web/apps/api/src/lib/cors.ts:10` sends
      `Access-Control-Allow-Methods: GET,POST,DELETE,PATCH,OPTIONS`. The PWA calls
      `PUT /playback` (`web/apps/web/src/api/watch.ts:128`).
    - **Effect:** in the default cross-origin deployment the browser should block saving a
      resume point outside development.
-2. **The CI migration steps do nothing.**
+2. **The CI migration steps do nothing.** *Fixed: the filter now targets `@fetch/api`.
+   All 38 migrations were checked against a clean Postgres 16 with the corrected command.*
    - **Where:** `.github/workflows/web-verify.yml:86,93` filter on `@cataloggy/api`, but
      the package is `@fetch/api`.
    - **Effect:** "Generate Prisma client" and "Run database migrations" match no project.

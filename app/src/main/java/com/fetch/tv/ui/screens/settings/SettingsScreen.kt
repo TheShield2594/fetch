@@ -207,7 +207,8 @@ fun SettingsScreen(
     profileViewModel: ProfileSettingsViewModel = hiltViewModel(),
     experienceModeViewModel: ExperienceModeSettingsViewModel = hiltViewModel(),
     partyViewModel: PartyViewModel = hiltViewModel(),
-    playbackViewModel: PlaybackSettingsViewModel = hiltViewModel()
+    playbackViewModel: PlaybackSettingsViewModel = hiltViewModel(),
+    searchViewModel: SettingsSearchViewModel = hiltViewModel()
 ) {
     val isPrimaryProfileActive by profileViewModel.isPrimaryProfileActive.collectAsStateWithLifecycle()
     val isWatchPartyAvailable by partyViewModel.party.available.collectAsStateWithLifecycle()
@@ -255,6 +256,15 @@ fun SettingsScreen(
         mutableStateOf(
             visibleSections.firstOrNull()?.category ?: SettingsCategory.APPEARANCE
         )
+    }
+    // Hoisted so a query typed on the phone hub can be put in the search field.
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val phoneSearchQuery by searchViewModel.pendingPhoneQuery.collectAsStateWithLifecycle()
+    LaunchedEffect(phoneSearchQuery) {
+        if (phoneSearchQuery == null) return@LaunchedEffect
+        val query = searchViewModel.consumePhoneQuery() ?: return@LaunchedEffect
+        searchQuery = query
+        selectedCategory = SettingsCategory.SEARCH
     }
     val railFocusRequesters = remember(visibleSections) {
         visibleSections.associate { it.category to FocusRequester() }
@@ -655,6 +665,8 @@ fun SettingsScreen(
                         contentFocusRequesters = contentFocusRequesters,
                         experienceModeViewModel = experienceModeViewModel,
                         visibleCategories = visibleCategories,
+                        searchQuery = searchQuery,
+                        onSearchQueryChange = { searchQuery = it },
                         onOpenSearchResult = { result ->
                             visibleSections.firstOrNull { it.category == result.category }?.let { section ->
                                 rowTarget = SettingsRowTarget(result.category, result.title)
@@ -683,6 +695,8 @@ private fun SettingsDetailPane(
     contentFocusRequesters: Map<SettingsCategory, FocusRequester>,
     experienceModeViewModel: ExperienceModeSettingsViewModel,
     visibleCategories: List<SettingsCategory>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     onOpenSearchResult: (SettingsSearchEntry) -> Unit,
     onNavigateToManageProfiles: () -> Unit,
     onNavigateToAddons: () -> Unit,
@@ -792,6 +806,8 @@ private fun SettingsDetailPane(
         }
         SettingsCategory.SEARCH -> SettingsSearchContent(
             visibleCategories = visibleCategories,
+            query = searchQuery,
+            onQueryChange = onSearchQueryChange,
             pageTitle = { settingsSectionSpec(it).title },
             groupTitle = { settingsGroupTitle(it) },
             onOpen = onOpenSearchResult,

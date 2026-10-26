@@ -9,11 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -77,6 +73,8 @@ private fun foldForSearch(text: String): String =
 @Composable
 internal fun SettingsSearchContent(
     visibleCategories: List<SettingsCategory>,
+    query: String,
+    onQueryChange: (String) -> Unit,
     pageTitle: @Composable (SettingsCategory) -> String,
     groupTitle: @Composable (SettingsRailGroup) -> String,
     onOpen: (SettingsSearchEntry) -> Unit,
@@ -84,7 +82,6 @@ internal fun SettingsSearchContent(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    var query by rememberSaveable { mutableStateOf("") }
     val entries = remember(visibleCategories, context) {
         visibleCategories.flatMap { category ->
             settingsSearchIndex[category].orEmpty().map { SettingsSearchEntry(category, context.getString(it)) }
@@ -107,7 +104,7 @@ internal fun SettingsSearchContent(
         )
         InputField(
             value = query,
-            onValueChange = { query = it },
+            onValueChange = onQueryChange,
             placeholder = stringResource(R.string.settings_search_hint),
             onImeAction = { if (results.isNotEmpty()) focusManager.moveFocus(FocusDirection.Down) },
             modifier = Modifier

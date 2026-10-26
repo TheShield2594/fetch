@@ -73,6 +73,7 @@ import coil3.compose.AsyncImage
 import com.fetch.tv.domain.model.AddonCatalogCollectionSource
 import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.CollectionSource
+import com.fetch.tv.domain.model.FetchListCollectionSource
 import com.fetch.tv.domain.model.FolderViewMode
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.TmdbCollectionFilters
@@ -204,6 +205,7 @@ fun collectionSourceKey(source: CollectionSource): String {
         is AddonCatalogCollectionSource -> "addon_${source.addonId}_${source.type}_${source.catalogId}_${source.genre.orEmpty()}"
         is TmdbCollectionSource -> "tmdb_${source.sourceType}_${source.tmdbId}_${source.mediaType}_${source.sortBy}_${source.filters.hashCode()}"
         is TraktCollectionSource -> "trakt_${source.traktListId}_${source.mediaType}_${source.sortBy}_${source.sortHow}"
+        is FetchListCollectionSource -> "fetch_${source.listId}_${source.mediaType}"
     }
 }
 

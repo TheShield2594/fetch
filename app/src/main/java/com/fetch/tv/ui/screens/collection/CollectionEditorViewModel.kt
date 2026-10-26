@@ -93,7 +93,8 @@ data class AvailableCatalog(
     val catalogId: String,
     val catalogName: String,
     val genreOptions: List<String> = emptyList(),
-    val genreRequired: Boolean = false
+    val genreRequired: Boolean = false,
+    val addonBaseUrl: String? = null
 )
 
 data class AddonCatalogInfo(
@@ -156,7 +157,8 @@ class CollectionEditorViewModel @Inject constructor(
                             catalogId = catalog.id,
                             catalogName = catalog.name,
                             genreOptions = genreExtra?.options.orEmpty(),
-                            genreRequired = genreExtra?.isRequired == true
+                            genreRequired = genreExtra?.isRequired == true,
+                            addonBaseUrl = addon.baseUrl
                         )
                     }
             }
@@ -368,7 +370,8 @@ class CollectionEditorViewModel @Inject constructor(
                 addonId = catalog.addonId,
                 type = catalog.type,
                 catalogId = catalog.catalogId,
-                genre = defaultGenre
+                genre = defaultGenre,
+                addonUrl = catalog.addonBaseUrl
             )
             if (folder.sources.any { it is AddonCatalogCollectionSource && it.addonId == source.addonId && catalogTypesMatch(it.type, source.type) && it.catalogId == source.catalogId }) {
                 return@update state
@@ -429,7 +432,8 @@ class CollectionEditorViewModel @Inject constructor(
                     addonId = catalog.addonId,
                     type = catalog.type,
                     catalogId = catalog.catalogId,
-                    genre = defaultGenre
+                    genre = defaultGenre,
+                    addonUrl = catalog.addonBaseUrl
                 )
             }
             state.copy(

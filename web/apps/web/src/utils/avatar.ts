@@ -1,6 +1,6 @@
 /**
- * What a profile looks like when it has no picture — which is every profile,
- * since Fetch has never had anywhere to upload one.
+ * What a profile looks like when it has chosen neither a colour nor a picture
+ * (see `ProfileAvatar`, which prefers those).
  *
  * Two byte-identical copies of this lived in `ProfileSwitcher.tsx` and
  * `settings/ProfileSettings.tsx`, which is two places for a colour to drift and
@@ -19,9 +19,9 @@ const AVATAR_COLORS: [string, ...string[]] = [
 /**
  * A stable colour for `name`, picked from a small palette.
  *
- * Derived rather than stored: a profile is a name and nothing else, so there is
- * no field to keep a choice in, and hashing the name means the same profile is
- * the same colour on every device without anything being synced.
+ * Derived rather than stored, for the profiles that predate `avatarColorHex`:
+ * hashing the name means the same profile is the same colour on every device
+ * without anything being synced.
  */
 export function avatarColor(name: string): string {
   let hash = 0;

@@ -13,12 +13,18 @@ data class CollectionCatalogSource(
 @Immutable
 sealed interface CollectionSource
 
+/**
+ * A catalog from an addon. [addonUrl] is the addon's address when known: it lets the row
+ * load on a TV that doesn't have the addon installed (a collection made on the website, or
+ * synced from another TV), and lets the website preview the catalog.
+ */
 @Immutable
 data class AddonCatalogCollectionSource(
     val addonId: String,
     val type: String,
     val catalogId: String,
-    val genre: String? = null
+    val genre: String? = null,
+    val addonUrl: String? = null
 ) : CollectionSource
 
 @Immutable
@@ -38,6 +44,17 @@ data class TraktCollectionSource(
     val mediaType: TmdbCollectionMediaType = TmdbCollectionMediaType.MOVIE,
     val sortBy: String = TraktListSort.RANK.value,
     val sortHow: String = TraktSortHow.ASC.value
+) : CollectionSource
+
+/**
+ * One of the lists on the Fetch website this TV is signed in to. [mediaType] null means
+ * movies and series together.
+ */
+@Immutable
+data class FetchListCollectionSource(
+    val listId: String,
+    val title: String,
+    val mediaType: TmdbCollectionMediaType? = null
 ) : CollectionSource
 
 enum class TmdbCollectionSourceType {

@@ -10,6 +10,7 @@ import { at, present } from "../test/present";
 // shows, which is decided entirely by the section list and the search box.
 vi.mock("../components/settings/PreferencesSettings", () => ({ PreferencesSettings: () => <p>preferences body</p> }));
 vi.mock("../components/settings/ProfileSettings", () => ({ ProfileSettings: () => <p>profile body</p> }));
+vi.mock("../components/settings/DevicesSettings", () => ({ DevicesSettings: () => <p>devices body</p> }));
 vi.mock("../components/settings/PushSettings", () => ({ PushSettings: () => <p>notifications body</p> }));
 vi.mock("../components/settings/JobStatusSettings", () => ({ JobStatusSettings: () => <p>sync status body</p> }));
 vi.mock("../components/settings/ApiTokenSettings", () => ({ ApiTokenSettings: () => <p>api token body</p> }));

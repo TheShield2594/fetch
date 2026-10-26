@@ -7,7 +7,7 @@ import { useExitAnimation } from "../hooks/useExitAnimation";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { SECTION_TITLE } from "../components/typography";
-import { avatarColor, initials } from "../utils/avatar";
+import { ProfileAvatar } from "../components/ProfileAvatar";
 
 // Standing in for the switcher's own title. As a full page (first run) it is the
 // document's h1; opened as a modal over the app, the page behind already owns the
@@ -266,12 +266,7 @@ function ProfilePicker({
             className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors hover:border-claw-500/60 hover:bg-[var(--surface)]"
             style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
           >
-            <span
-              className="flex h-9 w-9 flex-none items-center justify-center rounded-full text-xs font-bold text-white"
-              style={{ backgroundColor: avatarColor(profile.name) }}
-            >
-              {initials(profile.name)}
-            </span>
+            <ProfileAvatar profile={profile} />
             <span className="flex-1">{profile.name}</span>
             {profile.hasPin && <Lock className="h-4 w-4" style={{ color: "var(--text-mute)" }} />}
           </button>

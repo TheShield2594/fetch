@@ -161,7 +161,7 @@ describe("Sidebar", () => {
     const nav = screen.getByRole("navigation", { name: "Primary" });
     const all = await within(nav).findByRole("link", { name: "All Lists" });
     expect(all).toHaveAttribute("href", "/lists");
-    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Games", "History"]);
+    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Collections", "Games", "History", "Profiles"]);
   });
 
   /*

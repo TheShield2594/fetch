@@ -26,6 +26,8 @@ something on top of it.
   - [Calendar](#calendar)
   - [Games](#games)
   - [Profiles API](#profiles-api)
+  - [Devices](#devices)
+  - [Collections](#collections)
   - [Settings and API keys](#settings-and-api-keys)
   - [AI recommendations](#ai-recommendations)
   - [Trakt](#trakt)
@@ -38,7 +40,8 @@ something on top of it.
 
 ## Authentication
 
-Every endpoint needs `API_TOKEN` as a bearer token:
+Every endpoint needs `API_TOKEN`, or a paired device's own token (see
+[Devices](#devices)), as a bearer token:
 
 ```bash
 curl -H "Authorization: Bearer $API_TOKEN" http://192.168.1.25:7000/watch/stats
@@ -49,7 +52,12 @@ That header is how the web client tells "your API token is wrong" apart from
 other 401s (an incorrect profile PIN, for instance), so keep it in mind if you
 write your own client.
 
-Six paths are exempt, because they cannot carry a bearer token by construction:
+A device token is accepted everywhere `API_TOKEN` is, except the routes that
+pair and revoke devices (`403 owner_token_required`). Once a device is revoked
+its token gets the same `401` with `WWW-Authenticate: Bearer`, which is how a TV
+knows it was signed out.
+
+Eight paths are exempt, because they cannot carry a bearer token by construction:
 
 | Path | Why it is exempt | What guards it instead |
 | --- | --- | --- |
@@ -59,6 +67,8 @@ Six paths are exempt, because they cannot carry a bearer token by construction:
 | `GET /addon` | Add-on discovery | As above |
 | `/trakt/oauth/callback` | Browser redirect from trakt.tv | The `state` value that started the flow |
 | `/webhooks/*` | Plex and Jellyfin post directly | `WEBHOOK_SECRET`, plus optional `WEBHOOK_ALLOWED_IPS` |
+| `POST /devices/pair/start` | A TV has no credential yet | A code someone signed in must confirm; rate-limited, and capped at 20 pending |
+| `GET /devices/pair/poll` | As above | The poll secret `start` returned, in `x-pairing-secret` |
 
 ## Profiles
 
@@ -342,11 +352,83 @@ Needs `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` for search, and
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/profiles` | |
-| `POST` | `/profiles` | `{ name, pin? }`. A PIN is 4–128 characters. |
-| `PATCH` | `/profiles/:id` | `{ name?, pin? }`. Changing or clearing an existing PIN also needs `currentPin`; `pin: null` removes it. A *first* PIN has nothing to prove, so it is instead only accepted for the profile the caller is acting as (`x-profile-id`, or the only profile on a single-profile install) — `403 profile_not_active` otherwise. Without that, one PIN could lock a household member out of their own profile. |
-| `DELETE` | `/profiles/:id` | |
+| `GET` | `/profiles` | Every profile with its appearance, sharing and parental settings (see below). |
+| `POST` | `/profiles` | `{ name, pin?, …settings }`. A PIN is 4–128 characters. |
+| `PATCH` | `/profiles/:id` | `{ name?, pin?, …settings }`. Changing or clearing an existing PIN also needs `currentPin`; `pin: null` removes it. A *first* PIN has nothing to prove, so it is instead only accepted for the profile the caller is acting as (`x-profile-id`, or the only profile on a single-profile install) — `403 profile_not_active` otherwise. Without that, one PIN could lock a household member out of their own profile. |
+| `GET` | `/profiles/:id/summary` | Counts of what deleting the profile takes with it: `watchEvents`, `lists`, `listItems`, `playbackProgress`, `ratings`, `collections`. |
+| `DELETE` | `/profiles/:id` | Deletes the profile and everything it owns — history, lists, resume points, ratings, collections — and its slot on every paired TV. A PIN-protected profile needs `currentPin` unless the caller's profile token is for it. |
 | `POST` | `/profiles/:id/verify` | `{ pin }` → a profile token for `x-profile-token`. `401` on a wrong PIN, `429` once the profile is locked out after repeated failures — separate from the global rate limit. |
+
+The settings mirror what the TV keeps per profile, so a profile edited here reads
+the same on every paired TV. All are optional on write; `null` clears the
+nullable ones.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `avatarColorHex` | string \| null | `#RRGGBB` or `#RRGGBBAA`. |
+| `avatarId` | string \| null | A built-in avatar is `fetch:<name>` (`fetch:fox`, `fetch:robot`, …), the same ids the TV ships. |
+| `profileBackgroundId` | string \| null | |
+| `usesPrimaryAddons` | boolean | Use the primary profile's addons instead of its own. |
+| `usesPrimaryPlugins` | boolean | Kept for the TV's sync schema. |
+| `parental.isKidsProfile` | boolean | Switching it on without a `maxRating` applies the kids preset: `PARENTAL_GUIDANCE`, unrated hidden. |
+| `parental.maxRating` | string \| null | One of `ALL_AGES`, `OLDER_KIDS`, `PARENTAL_GUIDANCE`, `TEENS`, `MATURE`, `ADULTS_ONLY`; `null` is unrestricted. Movie and TV ratings share the ladder. |
+| `parental.allowUnrated` | boolean | Whether titles with no rating pass a limit. |
+
+Responses also carry `hasPin`, `createdAt` and `updatedAt`. The parental fields
+are accepted flat as well as under `parental`.
+
+### Devices
+
+A TV signs in by pairing rather than by being given `API_TOKEN`, so each one has
+its own token that can be revoked on its own.
+
+1. The TV calls `POST /devices/pair/start` with `{ name? }` and gets
+   `{ code, pollSecret, expiresAt, intervalSec, confirmUrl }`. `code` looks like
+   `ABCD-EFGH` and lives for five minutes. `confirmUrl` is the website's
+   `/pair?code=…` page for a QR code, built from `CATALOGGY_WEB_PUBLIC`, and
+   `null` when that isn't set.
+2. Someone signed in to the website confirms it: `POST /devices/pair/confirm`
+   with `{ code, name? }`. Case, spaces and the dash don't matter. A wrong or
+   expired code is `404`, one already confirmed `409`.
+3. Meanwhile the TV polls `GET /devices/pair/poll` with `x-pairing-secret:
+   <pollSecret>` every `intervalSec`: `202 { status: "pending" }` until then,
+   `200 { status: "approved", token, device }` once, and `404 { status:
+   "expired" }` after. The token is shown that one time and stored only as a hash.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/devices` | Paired devices: `id`, `name`, `createdAt`, `lastSeenAt`. `API_TOKEN` only. |
+| `PATCH` | `/devices/:id` | `{ name }`. `API_TOKEN` only. |
+| `DELETE` | `/devices/:id` | Revokes the device; its next request is `401`. `API_TOKEN` only. |
+| `GET` | `/devices/me` | The calling device. Device token only. |
+| `GET` | `/devices/me/profiles` | Every profile with the `slot` (1–6) it occupies on this device, plus `isPrimary` for slot 1. Slots are assigned on first sight and kept; when slot 1 is empty the oldest profile moves into it. Device token only. |
+| `PUT` | `/devices/me/profiles/:slot` | `{ name?, …settings }`. Updates the profile in that slot, or creates one there (`201`, `name` required). Never takes a PIN: PINs are set on the website and checked with `POST /profiles/:id/verify`. Device token only. |
+
+### Collections
+
+A profile's collections — custom Home rows and the folders inside them — stored
+as the TV writes them, so one made on the TV comes back unchanged. Profile-scoped
+like every other per-profile route.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/collections` | `{ collections, updatedAt }`. An empty list and `null` when there are none yet. |
+| `PUT` | `/collections` | `{ collections, baseUpdatedAt? }` replaces the whole list. With `baseUpdatedAt` (the value last read), a list changed elsewhere in the meantime is `409 collections_conflict` carrying the current one. |
+| `POST` | `/collections/preview` | `{ source }` → `{ metas }`, the first 20 titles a source yields. TMDB needs a key (`409 tmdb_not_configured`), Trakt a connection (`409 trakt_not_connected`). Addon catalogs are `422 preview_in_browser`: the website fetches those from the addon directly, at the source's `addonUrl`. |
+
+Each collection is `{ id, title, backdropImageUrl?, pinToTop?, viewMode?, showAllTab?, folders }`,
+`viewMode` one of `TABBED_GRID`, `ROWS`, `FOLLOW_LAYOUT`. Each folder is `{ id,
+title, coverImageUrl?, coverEmoji?, tileShape?, hideTitle?, sources }`. A source
+is tagged by `provider`:
+
+| `provider` | Fields |
+| --- | --- |
+| `addon` | `addonId`, `type`, `catalogId`, `genre?`, `addonUrl?`. The TV uses its installed addon with that id, and loads the catalog from `addonUrl` (http(s) only) when it has none. |
+| `tmdb` | `tmdbSourceType` (`LIST`, `COLLECTION`, `COMPANY`, `NETWORK`, `DISCOVER`, `PERSON`, `DIRECTOR`), `tmdbId` (all but `DISCOVER`), `title`, `mediaType` (`MOVIE`/`TV`), `sortBy`, `filters` (the TV's `TmdbCollectionFilters`: `withGenres`, `releaseDateGte`, `voteAverageGte`, `year`, …). |
+| `trakt` | `traktListId`, `title`, `mediaType`, `sortBy`, `sortHow`. |
+| `fetch` | `listId` — one of this profile's lists on the website — `title`, `mediaType?`. Lets a list made here become a row on the TV without Trakt. |
+
+Fields the API doesn't know are kept as sent.
 
 ### Settings and API keys
 
@@ -487,8 +569,8 @@ only ever deletes a request still in Jellyseerr's pending state.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/export` | The profile's data as JSON: lists and their items, watch events, series progress, ratings, and resume points (`playback`). Carries a `version` field. |
-| `POST` | `/import` | Restores an `/export` payload. The body's `version` must be exactly `1`; anything else is a `400` rather than a partial restore. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. |
+| `GET` | `/export` | The profile's data as JSON: lists and their items, watch events, series progress, ratings, resume points (`playback`), collections, and the profile's appearance and parental settings (`profile.settings`). Carries a `version` field. Paired devices are not included: they belong to the install, not a profile, and a restored server pairs its TVs again. |
+| `POST` | `/import` | Restores an `/export` payload. The body's `version` must be exactly `1`; anything else is a `400` rather than a partial restore. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. Profile settings are restored as exported. Collections are added when the profile doesn't already have one with the same id, and a website-list source is pointed at the list it was restored into. |
 | `POST` | `/import/csv` | Header must include `imdbId,type,watchedAt`; `season,episode` optional. |
 | `POST` | `/import/external` | `{ format, csv }` where format is `letterboxd-diary`, `letterboxd-ratings`, `imdb-ratings` or `simkl`. |
 

@@ -13,6 +13,8 @@ vi.mock("../../api", async (importOriginal) => {
       getProfiles: vi.fn(),
       updateProfile: vi.fn(),
       deleteProfile: vi.fn(),
+      getProfileSummary: vi.fn(),
+      createProfile: vi.fn(),
     },
   };
 });
@@ -29,6 +31,16 @@ const { api, ApiError } = await import("../../api");
 const getProfiles = vi.mocked(api.getProfiles);
 const updateProfile = vi.mocked(api.updateProfile);
 const deleteProfile = vi.mocked(api.deleteProfile);
+const getProfileSummary = vi.mocked(api.getProfileSummary);
+const createProfile = vi.mocked(api.createProfile);
+
+const KID_SUMMARY = { watchEvents: 312, lists: 2, listItems: 41, playbackProgress: 6, ratings: 0, collections: 1 };
+
+/** Opens the confirmation for `name` and waits for it to say what goes. */
+const startDelete = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+  await user.click(screen.getByRole("button", { name: `Delete ${name}` }));
+  return screen.findByRole("alertdialog", { name: `Delete ${name}?` });
+};
 
 const ALEX: Profile = { id: "p-alex", name: "Alex", hasPin: false };
 const KID: Profile = { id: "p-kid", name: "Kid", hasPin: true };
@@ -57,7 +69,7 @@ beforeEach(() => {
   getProfiles.mockResolvedValue({ profiles: [ALEX, KID] });
   updateProfile.mockResolvedValue({ profile: ALEX });
   deleteProfile.mockResolvedValue(undefined as never);
-  vi.spyOn(window, "confirm").mockReturnValue(true);
+  getProfileSummary.mockResolvedValue(KID_SUMMARY);
 });
 
 describe("ProfileSettings", () => {
@@ -204,25 +216,35 @@ describe("ProfileSettings PINs", () => {
 });
 
 describe("ProfileSettings deletion", () => {
-  it("confirms first, and deletes without a PIN when the server doesn't ask", async () => {
+  it("names what goes with the profile before deleting it", async () => {
     const user = userEvent.setup();
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Delete Kid" }));
+    const dialog = await startDelete(user, "Kid");
 
-    expect(window.confirm).toHaveBeenCalled();
+    await waitFor(() =>
+      expect(dialog).toHaveTextContent(
+        "Its 312 watched entries, 2 lists (41 titles), 6 resume points and 1 collection will be deleted with it"
+      )
+    );
+    expect(getProfileSummary).toHaveBeenCalledWith(KID.id);
+    expect(deleteProfile).not.toHaveBeenCalled();
+
+    await user.click(within(dialog).getByRole("button", { name: "Delete permanently" }));
+
     await waitFor(() => expect(deleteProfile).toHaveBeenCalledWith(KID.id));
     await waitFor(() => expect(screen.queryByText("Kid")).not.toBeInTheDocument());
   });
 
-  it("does nothing at all if the confirm is dismissed", async () => {
+  it("does nothing at all if the confirmation is cancelled", async () => {
     const user = userEvent.setup();
-    vi.mocked(window.confirm).mockReturnValue(false);
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Delete Kid" }));
+    const dialog = await startDelete(user, "Kid");
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
 
     expect(deleteProfile).not.toHaveBeenCalled();
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     expect(screen.getByText("Kid")).toBeInTheDocument();
   });
 
@@ -233,7 +255,8 @@ describe("ProfileSettings deletion", () => {
     deleteProfile.mockRejectedValueOnce(new ApiError("PIN required", 401));
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Delete Kid" }));
+    const dialog = await startDelete(user, "Kid");
+    await user.click(await within(dialog).findByRole("button", { name: "Delete permanently" }));
 
     const pinField = await screen.findByLabelText("PIN for Kid, to confirm deletion");
     await user.type(pinField, "1111");
@@ -248,7 +271,8 @@ describe("ProfileSettings deletion", () => {
     activeProfile = KID;
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Delete Kid" }));
+    const dialog = await startDelete(user, "Kid");
+    await user.click(await within(dialog).findByRole("button", { name: "Delete permanently" }));
 
     // Every request from here is scoped to a profile that no longer exists, so
     // the app has to ask which one you are now.
@@ -260,9 +284,66 @@ describe("ProfileSettings deletion", () => {
     deleteProfile.mockRejectedValue(new ApiError("Profile is in use", 409));
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Delete Kid" }));
+    const dialog = await startDelete(user, "Kid");
+    await user.click(await within(dialog).findByRole("button", { name: "Delete permanently" }));
 
     expect(await screen.findByText("Profile is in use")).toBeInTheDocument();
-    expect(screen.getByText("Kid")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete Kid" })).toBeInTheDocument();
+  });
+
+  describe("appearance and parental controls", () => {
+    it("saves colour, picture and a rating limit together", async () => {
+      const user = userEvent.setup();
+      updateProfile.mockResolvedValue({ profile: { ...KID, avatarColorHex: "#43A047", avatarId: "fetch:fox" } });
+      await renderSettings();
+
+      await user.click(screen.getByRole("button", { name: "Appearance and parental controls for Kid" }));
+      await user.click(screen.getByRole("button", { name: "Emerald" }));
+      await user.click(screen.getByRole("button", { name: "Fox" }));
+      await user.selectOptions(screen.getByLabelText("Highest rating allowed"), "TEENS");
+      await user.click(screen.getByRole("button", { name: "Save" }));
+
+      await waitFor(() =>
+        expect(updateProfile).toHaveBeenCalledWith(KID.id, {
+          avatarColorHex: "#43A047",
+          avatarId: "fetch:fox",
+          usesPrimaryAddons: false,
+          parental: { isKidsProfile: false, maxRating: "TEENS", allowUnrated: true },
+        })
+      );
+    });
+
+    it("applies the TV's kids preset when kids mode is switched on", async () => {
+      const user = userEvent.setup();
+      await renderSettings();
+
+      await user.click(screen.getByRole("button", { name: "Appearance and parental controls for Kid" }));
+      await user.click(screen.getByRole("checkbox", { name: /Kids profile/ }));
+
+      expect(screen.getByLabelText("Highest rating allowed")).toHaveValue("PARENTAL_GUIDANCE");
+      expect(screen.getByRole("checkbox", { name: "Show titles with no rating" })).not.toBeChecked();
+    });
+
+    it("doesn't offer addon sharing on the primary profile", async () => {
+      const user = userEvent.setup();
+      await renderSettings();
+
+      await user.click(screen.getByRole("button", { name: "Appearance and parental controls for Alex" }));
+
+      expect(screen.queryByRole("checkbox", { name: /primary profile's addons/ })).not.toBeInTheDocument();
+    });
+  });
+
+  it("adds a profile", async () => {
+    const user = userEvent.setup();
+    createProfile.mockResolvedValue({ profile: { id: "p-sam", name: "Sam", hasPin: false } });
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Add Profile" }));
+    await user.type(screen.getByLabelText("New profile name"), "Sam");
+    await user.click(screen.getByRole("button", { name: "Add" }));
+
+    await waitFor(() => expect(createProfile).toHaveBeenCalledWith({ name: "Sam" }));
+    expect(await screen.findByText("Sam")).toBeInTheDocument();
   });
 });

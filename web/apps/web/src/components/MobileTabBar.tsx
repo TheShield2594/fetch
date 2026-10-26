@@ -6,11 +6,13 @@ import {
   Compass,
   Gamepad2,
   History,
+  LayoutGrid,
   Library,
   List,
   MoreHorizontal,
   Search,
   Settings,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { prefetchRoute } from "../utils/routePrefetch";
@@ -52,8 +54,10 @@ export const SEARCH_ITEM: NavItem = { to: "/search", label: "Search", icon: Sear
 
 export const MORE_NAV_ITEMS: NavItem[] = [
   { to: "/lists", label: "Lists", icon: List },
+  { to: "/collections", label: "Collections", icon: LayoutGrid },
   { to: "/games", label: "Games", icon: Gamepad2 },
   { to: "/history", label: "History", icon: History },
+  { to: "/profiles", label: "Profiles", icon: Users },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

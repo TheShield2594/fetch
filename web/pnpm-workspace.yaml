@@ -31,6 +31,9 @@ overrides:
   # exercises, but they fail `pnpm audit --audit-level=high` in CI.
   mysql2: "^3.22.0"
   deepmerge-ts: "^8.0.0"
+  # GHSA-mrhx-c7xc-m3w5 (zod). Reached only through eslint-plugin-react-hooks,
+  # a lint-time dependency, but it fails `pnpm audit --audit-level=high` in CI.
+  zod: "^4.6.6"
 
 # pnpm does not run a dependency's install scripts unless it is approved here.
 # Prisma downloads its query engine that way, esbuild its platform binary.

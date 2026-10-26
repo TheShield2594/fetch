@@ -128,6 +128,7 @@ fun AccountSettingsContent(
             is AuthState.FullAccount -> Unit
 
         }
+        item(key = "account_fetch_website") { FetchWebsiteSection() }
     }
 }
 
@@ -166,6 +167,7 @@ private fun SignedInAccountSettingsContent(
             } else if (uiState.isSyncOverviewLoading) {
                 item(key = "account_sync_overview_loading") { SyncOverviewLoadingCard() }
             }
+            item(key = "account_fetch_website") { FetchWebsiteSection() }
         }
 
         SignOutSettingsButton(

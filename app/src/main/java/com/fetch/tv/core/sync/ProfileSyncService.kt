@@ -5,6 +5,7 @@ import android.util.Log
 import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.ProfileDataStore
+import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.data.remote.supabase.SupabaseProfileLockState
 import com.fetch.tv.data.remote.supabase.SupabaseProfile
 import com.fetch.tv.data.remote.supabase.SupabaseProfilePinVerifyResult
@@ -49,7 +50,8 @@ class ProfileSyncService @Inject constructor(
     private val postgrestLazy: dagger.Lazy<Postgrest>,
     private val profileDataStore: ProfileDataStore,
     private val profileManager: ProfileManager,
-    private val syncClientIdentity: SyncClientIdentity
+    private val syncClientIdentity: SyncClientIdentity,
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
 ) {
     private val postgrest: Postgrest get() = postgrestLazy.get()
 
@@ -67,6 +69,8 @@ class ProfileSyncService @Inject constructor(
     }
 
     suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
+        // A TV signed in to a Fetch website keeps its profiles there instead.
+        if (websiteSync.get().isPaired) return@withContext websiteSync.get().pushProfiles()
         try {
             val profiles = profileManager.profiles.value
 
@@ -103,6 +107,9 @@ class ProfileSyncService @Inject constructor(
     }
 
     suspend fun pullFromRemote(force: Boolean = false): Result<List<UserProfile>> = withContext(Dispatchers.IO) {
+        if (websiteSync.get().isPaired) {
+            return@withContext runCatching { websiteSync.get().pullProfiles() }.map { profileManager.profiles.value }
+        }
         pullMutex.withLock {
             val userId = (authManager.authState.value as? AuthState.FullAccount)?.userId
             val now = SystemClock.elapsedRealtime()
@@ -152,6 +159,7 @@ class ProfileSyncService @Inject constructor(
     }
 
     suspend fun deleteProfileData(profileId: Int): Result<Unit> = withContext(Dispatchers.IO) {
+        if (websiteSync.get().isPaired) return@withContext websiteSync.get().deleteProfile(profileId)
         try {
             val params = buildJsonObject {
                 put("p_profile_id", profileId)

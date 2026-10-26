@@ -8,15 +8,20 @@ import { isStremioSecretPath } from "./stremio-secret.js";
  * per-profile secret in the path stands in, verified by the route handler), the
  * Trakt OAuth callback (a browser redirect from trakt.tv, bound to the flow that
  * started it by its `state`), and the Plex/Jellyfin webhooks (their own shared
- * secret). Everything else needs `API_TOKEN`.
+ * secret), and the two halves of device pairing a TV calls before it has any
+ * credential (starting a pairing, and polling it with the secret that start
+ * returned). Everything else needs `API_TOKEN` or a paired device's token.
  */
+const PUBLIC_PAIRING_PATHS = new Set(["/devices/pair/start", "/devices/pair/poll"]);
+
 export const isPublicPath = (url: string): boolean =>
   url === "/health" ||
   url === "/health/ready" ||
   isStremioSecretPath(url) ||
   url === "/addon" ||
   url.startsWith("/trakt/oauth/callback") ||
-  url.startsWith("/webhooks/");
+  url.startsWith("/webhooks/") ||
+  PUBLIC_PAIRING_PATHS.has(url.split("?", 1)[0] ?? url);
 
 /**
  * Gates every non-public route on `API_TOKEN`.

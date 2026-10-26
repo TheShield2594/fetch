@@ -17,6 +17,21 @@ const hashPin = (pin: string) => createHash("sha256").update(pin).digest("hex");
 /** What a PIN written today looks like: `scrypt$N$r$p$salt$key`. */
 const SCRYPT_HASH = expect.stringMatching(/^scrypt\$\d+\$\d+\$\d+\$[0-9a-f]+\$[0-9a-f]+$/);
 
+/** A row as the routes select it: the columns a fixture doesn't care about at their defaults. */
+const profileRow = (overrides: { id: string; name: string; pinHash: string | null }) => ({
+  avatarColorHex: null,
+  avatarId: null,
+  profileBackgroundId: null,
+  usesPrimaryAddons: false,
+  usesPrimaryPlugins: false,
+  isKidsProfile: false,
+  maxRating: null,
+  allowUnrated: true,
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
+  updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+  ...overrides,
+});
+
 const prismaMock = {
   profile: { findMany: vi.fn(), create: vi.fn(), findUnique: vi.fn(), count: vi.fn(), delete: vi.fn(), update: vi.fn() },
   kV: { findUnique: vi.fn(), upsert: vi.fn(), deleteMany: vi.fn() },
@@ -47,15 +62,15 @@ describe("profiles routes", () => {
   describe("profile resolution / listing", () => {
     it("reports hasPin true/false based on pinHash presence", async () => {
       prismaMock.profile.findMany.mockResolvedValue([
-        { id: "p1", name: "Alice", pinHash: "abc" },
-        { id: "p2", name: "Bob", pinHash: null },
+        profileRow({ id: "p1", name: "Alice", pinHash: "abc" }),
+        profileRow({ id: "p2", name: "Bob", pinHash: null }),
       ]);
       const app = await buildApp();
 
       const response = await app.inject({ method: "GET", url: "/profiles" });
 
       expect(response.statusCode).toBe(200);
-      expect(response.json().profiles).toEqual([
+      expect(response.json().profiles).toMatchObject([
         { id: "p1", name: "Alice", hasPin: true },
         { id: "p2", name: "Bob", hasPin: false },
       ]);
@@ -76,13 +91,13 @@ describe("profiles routes", () => {
     });
 
     it("creates a profile without a pin", async () => {
-      prismaMock.profile.create.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: null });
+      prismaMock.profile.create.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: null }));
       const app = await buildApp();
 
       const response = await app.inject({ method: "POST", url: "/profiles", payload: { name: "Alice" } });
 
       expect(response.statusCode).toBe(201);
-      expect(response.json().profile).toEqual({ id: PROFILE_ID, name: "Alice", hasPin: false });
+      expect(response.json().profile).toMatchObject({ id: PROFILE_ID, name: "Alice", hasPin: false });
     });
 
     it("rejects a PIN shorter than the minimum length", async () => {
@@ -95,7 +110,7 @@ describe("profiles routes", () => {
     });
 
     it("creates a profile with a hashed pin", async () => {
-      prismaMock.profile.create.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("1234") });
+      prismaMock.profile.create.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("1234") }));
       const app = await buildApp();
 
       await app.inject({ method: "POST", url: "/profiles", payload: { name: "Alice", pin: "1234" } });
@@ -157,7 +172,7 @@ describe("profiles routes", () => {
 
     it("verifies a PIN stored under the pre-scrypt hash and rewrites it in the new format", async () => {
       prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("4321") });
-      prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: "scrypt$..." });
+      prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: "scrypt$..." }));
       const app = await buildApp();
 
       const response = await app.inject({
@@ -167,10 +182,12 @@ describe("profiles routes", () => {
       });
 
       expect(response.statusCode).toBe(200);
-      expect(prismaMock.profile.update).toHaveBeenCalledWith({
-        where: { id: PROFILE_ID },
-        data: { pinHash: SCRYPT_HASH },
-      });
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: PROFILE_ID },
+          data: { pinHash: SCRYPT_HASH },
+        })
+      );
     });
 
     it("still verifies when rewriting the legacy hash fails", async () => {
@@ -323,22 +340,24 @@ describe("profiles routes", () => {
 
     it("renames a profile", async () => {
       prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: null });
-      prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alicia", pinHash: null });
+      prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alicia", pinHash: null }));
       const app = await buildApp();
 
       const response = await app.inject({ method: "PATCH", url: `/profiles/${PROFILE_ID}`, payload: { name: "Alicia" } });
 
       expect(response.statusCode).toBe(200);
-      expect(response.json().profile).toEqual({ id: PROFILE_ID, name: "Alicia", hasPin: false });
-      expect(prismaMock.profile.update).toHaveBeenCalledWith({
-        where: { id: PROFILE_ID },
-        data: { name: "Alicia" },
-      });
+      expect(response.json().profile).toMatchObject({ id: PROFILE_ID, name: "Alicia", hasPin: false });
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: PROFILE_ID },
+          data: { name: "Alicia" },
+        })
+      );
     });
 
     it("sets a PIN and clears any prior lockout attempts", async () => {
       prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: null });
-      prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") });
+      prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") }));
       const app = await buildApp();
 
       const response = await app.inject({
@@ -350,16 +369,18 @@ describe("profiles routes", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json().profile.hasPin).toBe(true);
-      expect(prismaMock.profile.update).toHaveBeenCalledWith({
-        where: { id: PROFILE_ID },
-        data: { pinHash: SCRYPT_HASH },
-      });
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: PROFILE_ID },
+          data: { pinHash: SCRYPT_HASH },
+        })
+      );
       expect(prismaMock.kV.deleteMany).toHaveBeenCalled();
     });
 
     it("removes a PIN when pin is explicitly null and the correct currentPin is given", async () => {
       prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("1234") });
-      prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: null });
+      prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: null }));
       const app = await buildApp();
 
       const response = await app.inject({
@@ -370,10 +391,12 @@ describe("profiles routes", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.json().profile.hasPin).toBe(false);
-      expect(prismaMock.profile.update).toHaveBeenCalledWith({
-        where: { id: PROFILE_ID },
-        data: { pinHash: null },
-      });
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: PROFILE_ID },
+          data: { pinHash: null },
+        })
+      );
       expect(prismaMock.kV.deleteMany).toHaveBeenCalled();
     });
 
@@ -448,7 +471,7 @@ describe("profiles routes", () => {
 
       it("changes the PIN when the correct currentPin is given", async () => {
         prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("1234") });
-        prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") });
+        prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") }));
         const app = await buildApp();
 
         const response = await app.inject({
@@ -458,15 +481,17 @@ describe("profiles routes", () => {
         });
 
         expect(response.statusCode).toBe(200);
-        expect(prismaMock.profile.update).toHaveBeenCalledWith({
-          where: { id: PROFILE_ID },
-          data: { pinHash: SCRYPT_HASH },
-        });
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { id: PROFILE_ID },
+            data: { pinHash: SCRYPT_HASH },
+          })
+        );
       });
 
       it("does not require currentPin when setting a PIN for the first time", async () => {
         prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: null });
-        prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") });
+        prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") }));
         const app = await buildApp();
 
         const response = await app.inject({
@@ -507,7 +532,7 @@ describe("profiles routes", () => {
       it("allows a first PIN with no header when only one profile exists", async () => {
         prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: null });
         prismaMock.profile.findMany.mockResolvedValue([{ id: PROFILE_ID, pinHash: null }]);
-        prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") });
+        prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") }));
         const app = await buildApp();
 
         const response = await app.inject({ method: "PATCH", url: `/profiles/${PROFILE_ID}`, payload: { pin: "9999" } });
@@ -533,7 +558,7 @@ describe("profiles routes", () => {
       // — including the household's shared "manage profiles" screen.
       it("still lets another profile change an existing PIN with the current one", async () => {
         prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("1234") });
-        prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") });
+        prismaMock.profile.update.mockResolvedValue(profileRow({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("9999") }));
         const app = await buildApp();
 
         const response = await app.inject({

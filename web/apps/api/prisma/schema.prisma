@@ -66,6 +66,8 @@ model Account {
 
   profiles        Profile[]
   sessions        Session[]
+  devices         Device[]
+  devicePairings  DevicePairing[]
   invitesCreated  Invite[]  @relation("InviteCreatedBy")
   inviteRedeemed  Invite?   @relation("InviteUsedBy")
 }
@@ -559,7 +561,14 @@ model Device {
   lastSyncOk    Boolean?
   lastSyncError String?
 
+  // The account that paired it, whose profiles it sees. Null only for a device
+  // paired before accounts existed; the admin account claims those.
+  accountId String?  @db.Uuid
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
   profileSlots DeviceProfileSlot[]
+
+  @@index([accountId])
 }
 
 // A pairing in progress: the code the TV shows, and a hash of the secret it
@@ -573,6 +582,10 @@ model DevicePairing {
   expiresAt      DateTime  @db.Timestamptz(6)
   confirmedAt    DateTime? @db.Timestamptz(6)
   createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+
+  // Who confirmed the code, so the device it becomes belongs to them.
+  accountId String?  @db.Uuid
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
 
 // The TV numbers its profiles 1..6 and treats 1 as the primary; the website

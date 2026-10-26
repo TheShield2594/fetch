@@ -2,6 +2,7 @@ import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { hashPin, pinMatches } from "../lib/pin-hash.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
+import { invalidateDeviceCache } from "../lib/device-token.js";
 import { invalidateProfileCache } from "../lib/profile.js";
 import { hashSecret, isAdminRequest, requireAdmin } from "../lib/request-auth.js";
 import { createSession, findAdminAccountId, mintInviteCode } from "../lib/sessions.js";
@@ -80,6 +81,9 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       if ((await tx.account.count()) > 0) return null;
       const created = await tx.account.create({ data: { username, passwordHash, isAdmin: true } });
       await tx.profile.updateMany({ where: { accountId: null }, data: { accountId: created.id } });
+      // TVs paired before accounts existed see the profiles they always did.
+      await tx.device.updateMany({ where: { accountId: null }, data: { accountId: created.id } });
+      await tx.devicePairing.updateMany({ where: { accountId: null }, data: { accountId: created.id } });
       return created;
     });
     if (!account) return reply.code(409).send({ error: "An admin account already exists. Sign in instead." });
@@ -276,6 +280,9 @@ const authRoutes: FastifyPluginAsync = async (app) => {
 
     await prisma.account.delete({ where: { id: account.id } });
     invalidateProfileCache();
+    // Its TVs went with it; their tokens must stop working now, not when the
+    // lookup cache next expires.
+    invalidateDeviceCache();
     return reply.code(204).send();
   });
 };

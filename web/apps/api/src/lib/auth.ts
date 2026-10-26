@@ -59,7 +59,7 @@ export const verifyToken = async (request: FastifyRequest, reply: FastifyReply) 
     const device = await findDeviceByToken(token);
     if (!device) return unauthorized(reply);
     request.deviceId = device.id;
-    request.auth = { kind: "device", deviceId: device.id };
+    request.auth = { kind: "device", deviceId: device.id, accountId: device.accountId };
     return;
   }
 

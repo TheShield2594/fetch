@@ -2,6 +2,8 @@ import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { requireOwnerToken } from "../lib/auth.js";
+import { accountScope } from "../lib/request-auth.js";
+import { findAdminAccountId } from "../lib/sessions.js";
 import {
   formatPairingCode,
   generateDeviceToken,
@@ -144,9 +146,12 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
       }
 
       const deviceName = deviceNameFrom(body.name, pairing.deviceName);
+      // The TV becomes part of whoever confirmed it, and sees their profiles.
+      // Confirmed with API_TOKEN, it is the admin's.
+      const accountId = accountScope(request) ?? (await findAdminAccountId());
       await prisma.devicePairing.update({
         where: { id: pairing.id },
-        data: { confirmedAt: new Date(), deviceName },
+        data: { confirmedAt: new Date(), deviceName, accountId },
       });
       return { deviceName };
     }
@@ -176,7 +181,12 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
         const claimed = await tx.devicePairing.deleteMany({ where: { id: pairing.id, confirmedAt: { not: null } } });
         if (claimed.count === 0) return null;
         return tx.device.create({
-          data: { name: pairing.deviceName, tokenHash: hashSecret(token), lastSeenAt: new Date() },
+          data: {
+            name: pairing.deviceName,
+            tokenHash: hashSecret(token),
+            lastSeenAt: new Date(),
+            accountId: pairing.accountId,
+          },
         });
       });
       if (!device) return reply.code(404).send({ status: "expired", error: "This pairing code has expired." });
@@ -187,8 +197,14 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
 
   // ─── Managing devices (website) ───
 
-  app.get("/devices", { preHandler: requireOwnerToken }, async () => {
-    const devices = await prisma.device.findMany({ orderBy: { createdAt: "asc" } });
+  // Each account sees and manages only the TVs it paired; API_TOKEN sees every one.
+  const ownedDeviceWhere = (request: FastifyRequest, id?: string) => {
+    const scope = accountScope(request);
+    return { ...(id ? { id } : {}), ...(scope ? { accountId: scope } : {}) };
+  };
+
+  app.get("/devices", { preHandler: requireOwnerToken }, async (request) => {
+    const devices = await prisma.device.findMany({ where: ownedDeviceWhere(request), orderBy: { createdAt: "asc" } });
     return { devices: devices.map(toDeviceView) };
   });
 
@@ -201,7 +217,7 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
       if (typeof body.name !== "string" || !body.name.trim()) {
         return reply.code(400).send({ error: "name is required" });
       }
-      const existing = await prisma.device.findUnique({ where: { id: request.params.id } });
+      const existing = await prisma.device.findFirst({ where: ownedDeviceWhere(request, request.params.id) });
       if (!existing) return reply.code(404).send({ error: "Device not found" });
       const device = await prisma.device.update({
         where: { id: existing.id },
@@ -217,7 +233,7 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: requireOwnerToken },
     async (request, reply) => {
       if (!UUID_V4_PATTERN.test(request.params.id)) return reply.code(400).send({ error: "id must be a valid UUID" });
-      const { count } = await prisma.device.deleteMany({ where: { id: request.params.id } });
+      const { count } = await prisma.device.deleteMany({ where: ownedDeviceWhere(request, request.params.id) });
       // Cleared whether or not a row went, so the device's next request is
       // looked up again and answered 401 rather than served from the cache.
       invalidateDeviceCache();
@@ -235,7 +251,7 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.get("/devices/me/profiles", { preHandler: requireDevice }, async (request) => {
-    const profiles = await listDeviceProfiles(request.deviceId!);
+    const profiles = await listDeviceProfiles(request.deviceId!, accountScope(request));
     return { profiles: profiles.map(toSlottedView), maxProfiles: MAX_DEVICE_PROFILE_SLOTS };
   });
 
@@ -259,7 +275,14 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
       const name = typeof body.name === "string" ? body.name.trim() : undefined;
 
       const deviceId = request.deviceId!;
-      const profileId = await findSlotProfileId(deviceId, slot);
+      const accountId = accountScope(request);
+      const slotted = await findSlotProfileId(deviceId, slot);
+      // A slot only ever points at this device's own account's profiles; this
+      // is the guard for a row that somehow doesn't.
+      const profileId =
+        slotted && (await prisma.profile.count({ where: { id: slotted, ...(accountId ? { accountId } : {}) } }))
+          ? slotted
+          : null;
       if (profileId) {
         const profile = await prisma.profile.update({
           where: { id: profileId },
@@ -273,7 +296,7 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
       if (!name) return reply.code(400).send({ error: "name is required to create a profile" });
       const profile = await prisma.$transaction(async (tx) => {
         const created = await tx.profile.create({
-          data: { name, ...attributes.data },
+          data: { name, accountId, ...attributes.data },
           select: PROFILE_VIEW_SELECT,
         });
         await tx.deviceProfileSlot.create({ data: { deviceId, slot, profileId: created.id } });

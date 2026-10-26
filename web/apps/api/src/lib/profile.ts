@@ -229,7 +229,7 @@ export const resolveProfileParam = async (request: FastifyRequest, reply: Fastif
   if (!id || !UUID_V4_PATTERN.test(id)) {
     return reply.code(400).send({ error: "id must be a valid UUID" });
   }
-  const profile = await findProfileById(id);
+  const profile = await findOwnedProfile(request, id);
   if (!profile) {
     return reply.code(404).send({ error: "Profile not found" });
   }

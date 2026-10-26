@@ -13,19 +13,26 @@ process.env.API_TOKEN = API_TOKEN;
 let app: FastifyInstance;
 
 beforeAll(async () => {
-  const [{ registerAuthGate }, auth, profiles, lists, settings] = await Promise.all([
-    import("../lib/auth-gate.js"),
-    import("./auth.js"),
-    import("./profiles.js"),
-    import("./lists.js"),
-    import("./settings.js"),
-  ]);
+  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons] =
+    await Promise.all([
+      import("../lib/auth-gate.js"),
+      import("./auth.js"),
+      import("./profiles.js"),
+      import("./lists.js"),
+      import("./settings.js"),
+      import("./devices.js"),
+      import("./sync-overview.js"),
+      import("./profile-addons.js"),
+    ]);
   app = await buildIntApp(async (instance) => {
     registerAuthGate(instance);
     await instance.register(auth.default);
     await instance.register(profiles.default);
     await instance.register(lists.default);
     await instance.register(settings.default);
+    await instance.register(devices.default);
+    await instance.register(syncOverview.default);
+    await instance.register(profileAddons.default);
   });
 });
 
@@ -306,5 +313,89 @@ describe("removing an account", () => {
     expect(removed.statusCode).toBe(204);
     expect(await prisma.profile.count({ where: { accountId: friend.account.id } })).toBe(0);
     expect((await call(friend.token, { method: "GET", url: "/auth/me" })).statusCode).toBe(401);
+  });
+});
+
+/** Pairs a TV the way the TV and the website do, confirmed by `confirmer`. */
+const pairTv = async (confirmer: string, name = "Living room") => {
+  const started = await call(null, { method: "POST", url: "/devices/pair/start", payload: { name } });
+  expect(started.statusCode).toBe(201);
+  const { code, pollSecret } = started.json() as { code: string; pollSecret: string };
+  expect((await call(confirmer, { method: "POST", url: "/devices/pair/confirm", payload: { code } })).statusCode).toBe(200);
+  const polled = await call(null, {
+    method: "GET",
+    url: "/devices/pair/poll",
+    headers: { "x-pairing-secret": pollSecret },
+  });
+  expect(polled.statusCode).toBe(200);
+  return polled.json() as { token: string; device: { id: string } };
+};
+
+describe("a paired TV belongs to the account that paired it", () => {
+  it("sees that account's profiles and nobody else's", async () => {
+    const admin = await bootstrapAdmin();
+    const ownerProfile = (
+      await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Owner's profile" } })
+    ).json().profile as { id: string };
+    const friend = await inviteFriend(admin.token);
+    const tv = await pairTv(friend.token);
+
+    expect((await profilesOf(tv.token)).map((p) => p.name)).toEqual(["friend"]);
+    const slotted = (await call(tv.token, { method: "GET", url: "/devices/me/profiles" })).json().profiles as {
+      name: string;
+    }[];
+    expect(slotted.map((p) => p.name)).toEqual(["friend"]);
+
+    const ownerAddons = await call(tv.token, { method: "GET", url: `/profiles/${ownerProfile.id}/addons` });
+    expect(ownerAddons.statusCode).toBe(404);
+  });
+
+  it("is listed and managed only by its own account", async () => {
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+    const friendsTv = await pairTv(friend.token, "Friend's TV");
+    await pairTv(admin.token, "Owner's TV");
+
+    const namesFor = async (token: string) =>
+      ((await call(token, { method: "GET", url: "/devices" })).json().devices as { name: string }[]).map((d) => d.name);
+    expect(await namesFor(admin.token)).toEqual(["Owner's TV"]);
+    expect(await namesFor(friend.token)).toEqual(["Friend's TV"]);
+
+    const revoke = await call(admin.token, { method: "DELETE", url: `/devices/${friendsTv.device.id}` });
+    expect(revoke.statusCode).toBe(404);
+    expect((await call(friendsTv.token, { method: "GET", url: "/devices/me" })).statusCode).toBe(200);
+  });
+
+  it("goes to the admin when it was paired before accounts existed", async () => {
+    const legacy = await prisma.device.create({ data: { name: "Old TV", tokenHash: "legacy-hash" } });
+    const { account } = await bootstrapAdmin();
+
+    expect((await prisma.device.findUniqueOrThrow({ where: { id: legacy.id } })).accountId).toBe(account.id);
+  });
+
+  it("can't change the server's settings", async () => {
+    const admin = await bootstrapAdmin();
+    const tv = await pairTv(admin.token);
+
+    const write = await call(tv.token, { method: "POST", url: "/settings/preferences", payload: { language: "fr-FR" } });
+    expect(write.statusCode).toBe(403);
+  });
+});
+
+describe("the sync overview", () => {
+  it("shows an account its own profiles and TVs, and the install's jobs only to the admin", async () => {
+    const admin = await bootstrapAdmin();
+    await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Owner's profile" } });
+    await pairTv(admin.token, "Owner's TV");
+    const friend = await inviteFriend(admin.token);
+
+    const overview = (await call(friend.token, { method: "GET", url: "/sync/overview" })).json() as {
+      profiles: { name: string }[];
+      devices: unknown[];
+      server: { jobs: unknown[] };
+    };
+    expect(overview.profiles.map((p) => p.name)).toEqual(["friend"]);
+    expect(overview.devices).toEqual([]);
+    expect(overview.server.jobs).toEqual([]);
   });
 });

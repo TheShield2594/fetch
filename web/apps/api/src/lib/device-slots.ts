@@ -17,11 +17,18 @@ export type SlottedProfile = { slot: number; profile: ProfileRow };
  * while profiles are added and removed elsewhere. A new profile takes the
  * lowest free slot. When slot 1 is empty (its profile was deleted) the oldest
  * profile moves into it, because the TV requires a primary.
+ *
+ * Only the profiles of the device's own account (`accountId`), or every
+ * profile for a device paired before accounts existed.
  */
-export const listDeviceProfiles = async (deviceId: string): Promise<SlottedProfile[]> =>
+export const listDeviceProfiles = async (deviceId: string, accountId: string | null): Promise<SlottedProfile[]> =>
   prisma.$transaction(async (tx) => {
     const [profiles, slots] = await Promise.all([
-      tx.profile.findMany({ orderBy: { createdAt: "asc" }, select: PROFILE_VIEW_SELECT }),
+      tx.profile.findMany({
+        where: accountId ? { accountId } : {},
+        orderBy: { createdAt: "asc" },
+        select: PROFILE_VIEW_SELECT,
+      }),
       tx.deviceProfileSlot.findMany({ where: { deviceId } }),
     ]);
 

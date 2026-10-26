@@ -61,10 +61,12 @@ header. That header is how the web client tells "you are signed out" apart from
 other 401s (an incorrect profile PIN, for instance), so keep it in mind if you
 write your own client.
 
-A device token is accepted everywhere `API_TOKEN` is, except the routes that
-pair and revoke devices (`403 owner_token_required`). Once a device is revoked
-its token gets the same `401` with `WWW-Authenticate: Bearer`, which is how a TV
-knows it was signed out.
+A device belongs to the account that confirmed its pairing code (the admin's,
+when confirmed with `API_TOKEN`), and its token sees only that account's
+profiles, the same way a signed-in session does. It is never the admin, and it
+can't pair or revoke devices (`403 owner_token_required`). Once a device is
+revoked, or its account deleted, its token gets the same `401` with
+`WWW-Authenticate: Bearer`, which is how a TV knows it was signed out.
 
 These paths are exempt, because they cannot carry a bearer token by construction:
 
@@ -421,11 +423,11 @@ its own token that can be revoked on its own.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/devices` | Paired devices: `id`, `name`, `createdAt`, `lastSeenAt`. `API_TOKEN` only. |
-| `PATCH` | `/devices/:id` | `{ name }`. `API_TOKEN` only. |
-| `DELETE` | `/devices/:id` | Revokes the device; its next request is `401`. `API_TOKEN` only. |
+| `GET` | `/devices` | The caller's account's paired devices (every one, for `API_TOKEN`): `id`, `name`, `createdAt`, `lastSeenAt`. Not with a device token. |
+| `PATCH` | `/devices/:id` | `{ name }`. Only your own account's devices (`404` otherwise). Not with a device token. |
+| `DELETE` | `/devices/:id` | Revokes the device; its next request is `401`. Only your own account's devices. Not with a device token. |
 | `GET` | `/devices/me` | The calling device. Device token only. |
-| `GET` | `/devices/me/profiles` | Every profile with the `slot` (1–6) it occupies on this device, plus `isPrimary` for slot 1. Slots are assigned on first sight and kept; when slot 1 is empty the oldest profile moves into it. Device token only. |
+| `GET` | `/devices/me/profiles` | Every profile of the device's account with the `slot` (1–6) it occupies on this device, plus `isPrimary` for slot 1. Slots are assigned on first sight and kept; when slot 1 is empty the oldest profile moves into it. Device token only. |
 | `PUT` | `/devices/me/profiles/:slot` | `{ name?, …settings }`. Updates the profile in that slot, or creates one there (`201`, `name` required). Never takes a PIN: PINs are set on the website and checked with `POST /profiles/:id/verify`. Device token only. |
 | `PUT` | `/devices/me/report` | `{ ok, appVersion?, flavor?, error? }`, sent by the TV after every sync: its build, and whether the sync worked. `GET /sync/overview` shows it. An `error` is kept to 500 characters and cleared by the next `ok: true`. Device token only. |
 

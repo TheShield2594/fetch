@@ -219,7 +219,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ error: "id must be a valid UUID" });
     }
     const profileId = request.params.id;
-    const profile = await prisma.profile.findUnique({ where: { id: profileId }, select: { id: true } });
+    const profile = await findOwnedProfileRow(request, profileId);
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
 
     const [watchEvents, lists, listItems, playbackProgress, ratings, collections] = await Promise.all([

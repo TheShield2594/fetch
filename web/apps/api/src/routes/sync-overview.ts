@@ -3,6 +3,7 @@ import { NON_BLANK } from "../lib/request-schema.js";
 import { prisma } from "../lib/prisma.js";
 import { checkDatabase } from "../lib/db-health.js";
 import { getJobRuns } from "../lib/job-status.js";
+import { accountScope, isAdminRequest } from "../lib/request-auth.js";
 
 /**
  * The read-only account dashboard: what each profile has that a TV syncs, and
@@ -56,9 +57,13 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
       };
     }
 
+    // The caller's own account. Counts below are grouped over every profile,
+    // and only the rows for these ones are read back out.
+    const scope = accountScope(request);
     const [profiles, addons, enabledAddons, lists, resumePoints, watched, documents, jobs] =
       await Promise.all([
         prisma.profile.findMany({
+          where: scope ? { accountId: scope } : {},
           orderBy: { createdAt: "asc" },
           select: { id: true, name: true, usesPrimaryAddons: true },
         }),
@@ -68,11 +73,13 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
         prisma.playbackProgress.groupBy({ by: ["profileId"], _count: { _all: true } }),
         prisma.watchEvent.groupBy({ by: ["profileId"], _count: { _all: true } }),
         prisma.profileDocument.findMany({ select: { profileId: true, kind: true, updatedAt: true } }),
-        getJobRuns(),
+        // The scheduled jobs are the install's, and their errors are the admin's to see.
+        isAdminRequest(request) ? getJobRuns() : Promise.resolve([]),
       ]);
     const devices = request.deviceId
       ? null
       : await prisma.device.findMany({
+          where: scope ? { accountId: scope } : {},
           orderBy: { createdAt: "asc" },
           select: {
             id: true,

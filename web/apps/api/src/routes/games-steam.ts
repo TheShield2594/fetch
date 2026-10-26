@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { requireAdmin } from "../lib/request-auth.js";
 import { getSteam } from "../lib/steam-client.js";
 import { isSteamSyncConfigured, syncSteamLibrary } from "../lib/steam-sync.js";
 import { resolveProfile } from "../lib/profile.js";
@@ -8,7 +9,7 @@ import { resolveProfile } from "../lib/profile.js";
 // resolves the caller's profile. The scheduled sync in index.ts has no request
 // to resolve and still falls back to the default profile.
 const gamesSteamRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/games/steam/status", async (_request, reply) => {
+  app.get("/games/steam/status", { preHandler: requireAdmin }, async (_request, reply) => {
     const configured = isSteamSyncConfigured();
     if (!configured) {
       return reply.send({ configured: false, player: null });
@@ -27,7 +28,7 @@ const gamesSteamRoutes: FastifyPluginAsync = async (app) => {
     return reply.send({ configured: true, player });
   });
 
-  app.post("/games/steam/sync", { preHandler: resolveProfile }, async (request, reply) => {
+  app.post("/games/steam/sync", { preHandler: [requireAdmin, resolveProfile] }, async (request, reply) => {
     // Unconfigured, not broken — the same distinction `/games/search` draws for
     // IGDB. `STEAM_API_KEY`/`STEAM_ID` are optional, so an instance without
     // them is working as installed, and 500 filed that as a server fault every

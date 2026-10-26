@@ -34,6 +34,8 @@ const profileRow = (overrides: { id: string; name: string; pinHash: string | nul
 
 const prismaMock = {
   profile: { findMany: vi.fn(), create: vi.fn(), findUnique: vi.fn(), count: vi.fn(), delete: vi.fn(), update: vi.fn() },
+  // A profile created with API_TOKEN goes to the admin account; none exists here.
+  account: { findFirst: vi.fn() },
   kV: { findUnique: vi.fn(), upsert: vi.fn(), deleteMany: vi.fn() },
   $transaction: vi.fn(),
   $executeRaw: vi.fn(),

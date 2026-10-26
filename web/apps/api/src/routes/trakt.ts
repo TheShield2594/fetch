@@ -1,5 +1,6 @@
 import { ItemType, ListItemType, MetadataType, Prisma } from "@prisma/client";
 import type { FastifyPluginAsync, RouteHandlerMethod } from "fastify";
+import { requireAdmin } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { isUniqueConstraintError } from "../lib/prisma-tolerant.js";
 import { getTmdb } from "../lib/tmdb-client.js";
@@ -58,7 +59,7 @@ const withImportLock =
   };
 
 const traktRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/trakt/status", async (_request, reply) => {
+  app.get("/trakt/status", { preHandler: requireAdmin }, async (_request, reply) => {
     const token = await prisma.traktToken.findUnique({ where: { id: "default" } });
     const configured = !!(process.env.TRAKT_CLIENT_ID && process.env.TRAKT_CLIENT_SECRET);
     const redirectUri = traktRedirectUri();
@@ -70,7 +71,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     });
   });
 
-  app.get("/trakt/oauth/authorize", OAUTH_RATE_LIMIT, async (_request, reply) => {
+  app.get("/trakt/oauth/authorize", { ...OAUTH_RATE_LIMIT, preHandler: requireAdmin }, async (_request, reply) => {
     const clientId = process.env.TRAKT_CLIENT_ID;
     const redirectUri = traktRedirectUri();
     if (!clientId) {
@@ -190,7 +191,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
       .send(renderOAuthHtml("You can close this tab and return to Fetch.", "Trakt Connected!"));
   });
 
-  app.post("/trakt/disconnect", async (_request, reply) => {
+  app.post("/trakt/disconnect", { preHandler: requireAdmin }, async (_request, reply) => {
     await prisma.traktToken.deleteMany();
     resetTraktClient();
     return reply.send({ disconnected: true });
@@ -200,7 +201,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
   // OAuth dance and the request-less /trakt/poll below — resolves the caller.
   app.post(
     "/trakt/import",
-    { preHandler: resolveProfile },
+    { preHandler: [requireAdmin, resolveProfile] },
     withImportLock(async (request, reply) => {
     let client: Awaited<ReturnType<typeof getTraktClient>>;
     try {
@@ -462,7 +463,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
   // `{ "full": true }` forces a complete history backfill instead of resuming
   // from the last poll — the way to recover history an earlier windowed sync
   // never imported, without disconnecting and reconnecting the account.
-  app.post("/trakt/poll", async (request, reply) => {
+  app.post("/trakt/poll", { preHandler: requireAdmin }, async (request, reply) => {
     try {
       const { full } = (request.body ?? {}) as { full?: boolean };
       const profileId = await getDefaultProfileId();

@@ -1,5 +1,6 @@
 import { WatchEventType } from "@prisma/client";
 import type { FastifyPluginAsync } from "fastify";
+import { requireAdmin } from "../lib/request-auth.js";
 import {
   connectStremio,
   disconnectStremio,
@@ -29,7 +30,7 @@ const CONNECT_RATE_LIMIT = { config: { rateLimit: { max: 10, timeWindow: "1 minu
 const MAX_CLIENT_LENGTH = 200;
 
 const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/stremio/library/status", async (_request, reply) => {
+  app.get("/stremio/library/status", { preHandler: requireAdmin }, async (_request, reply) => {
     return reply.send(await getStremioStatus());
   });
 
@@ -39,7 +40,7 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
   // which has no request to resolve, falls back to `getDefaultProfileId`.
   app.post<{ Body: unknown }>(
     "/stremio/library/connect",
-    { ...CONNECT_RATE_LIMIT, preHandler: resolveProfile },
+    { ...CONNECT_RATE_LIMIT, preHandler: [requireAdmin, resolveProfile] },
     async (request, reply) => {
       const body = request.body as { email?: unknown; password?: unknown } | null;
       const email = typeof body?.email === "string" ? body.email.trim() : "";
@@ -85,7 +86,7 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
-  app.post("/stremio/library/disconnect", async (_request, reply) => {
+  app.post("/stremio/library/disconnect", { preHandler: requireAdmin }, async (_request, reply) => {
     await disconnectStremio();
     resetStremioClient();
     return reply.code(200).send({ connected: false });
@@ -93,7 +94,7 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
 
   // One-time backfill of everything the Stremio account already has marked as
   // watched, dated from Stremio's own `lastWatched` rather than from now.
-  app.post("/stremio/library/import", { preHandler: resolveProfile }, async (request, reply) => {
+  app.post("/stremio/library/import", { preHandler: [requireAdmin, resolveProfile] }, async (request, reply) => {
     if (!(await isStremioConnected())) {
       return reply.code(400).send({ error: "No Stremio account is connected" });
     }
@@ -107,7 +108,7 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // Manual trigger for the same pass the scheduler runs.
-  app.post("/stremio/library/sync", { preHandler: resolveProfile }, async (request, reply) => {
+  app.post("/stremio/library/sync", { preHandler: [requireAdmin, resolveProfile] }, async (request, reply) => {
     if (!(await isStremioConnected())) {
       return reply.code(400).send({ error: "No Stremio account is connected" });
     }

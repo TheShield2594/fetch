@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { requireAdmin } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { upsertMetadata, syncMetadata } from "../lib/metadata.js";
@@ -171,7 +172,7 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
     }
   });
 
-  app.post<{ Querystring: { limit?: string } }>("/metadata/refresh-all", async (request, reply) => {
+  app.post<{ Querystring: { limit?: string } }>("/metadata/refresh-all", { preHandler: requireAdmin }, async (request, reply) => {
     const rawLimit = parseInt(request.query.limit ?? "50", 10);
     const limit = isNaN(rawLimit) || rawLimit < 1 ? 50 : Math.min(rawLimit, 500);
     const allMetadata = await prisma.metadata.findMany({

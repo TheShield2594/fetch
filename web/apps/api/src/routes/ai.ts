@@ -16,6 +16,7 @@ import {
   getAiRecommendations,
 } from "../lib/ai.js";
 import { resolveProfile } from "../lib/profile.js";
+import { requireAdmin } from "../lib/request-auth.js";
 import { writeSecretKv } from "../lib/secret-store.js";
 import { loadRecommendations } from "../lib/recommendations.js";
 import { resolveAiProviderUrl, validateAiProviderUrl } from "../lib/ssrf.js";
@@ -334,7 +335,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
 
   // ─── AI Config ───
 
-  app.get("/ai/config", async () => {
+  app.get("/ai/config", { preHandler: requireAdmin }, async () => {
     const config = await getAiConfig();
     const configured = !!(config?.url && config?.headers && config?.payload?.model);
     const lastGenRow = await prisma.kV.findUnique({
@@ -347,7 +348,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
-  app.post<{ Body: unknown }>("/ai/config", async (request, reply) => {
+  app.post<{ Body: unknown }>("/ai/config", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as { config?: unknown } | null;
     const cfg = body?.config as Record<string, unknown> | undefined;
 
@@ -399,7 +400,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
     return { configured: true };
   });
 
-  app.delete("/ai/config", async () => {
+  app.delete("/ai/config", { preHandler: requireAdmin }, async () => {
     await prisma.kV.deleteMany({ where: { key: { in: [AI_CONFIG_KEY, AI_LAST_RECS_GENERATED_AT_KEY] } } });
     // AI_CONFIG_KEY is read through the KV cache; the watermark beside it is not.
     invalidateKv(AI_CONFIG_KEY);
@@ -411,7 +412,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
   // socket error are as much of an internal port scan as the response body
   // would be, since the endpoint is allowed to point at the LAN. See
   // lib/outbound-test.ts.
-  app.post<{ Body: unknown }>("/ai/test", async (request) => {
+  app.post<{ Body: unknown }>("/ai/test", { preHandler: requireAdmin }, async (request) => {
     const body = request.body as { config?: unknown } | null;
     const cfg = body?.config as Record<string, unknown> | undefined;
 

@@ -1,7 +1,9 @@
-import { ListItemType, ListKind, MetadataType, WatchEventType } from "@prisma/client";
+import { ListItemType, ListKind, MetadataType, Prisma, WatchEventType } from "@prisma/client";
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
-import { resolveProfile } from "../lib/profile.js";
+import { invalidateProfileCache, resolveProfile } from "../lib/profile.js";
+import { parseProfileAttributes, PROFILE_VIEW_SELECT, type ProfileAttributeUpdate } from "../lib/profile-view.js";
+import { type CollectionJson, validateCollections } from "../lib/collections.js";
 import { batchUpsertSeriesProgressIfNewer } from "../lib/series-progress.js";
 import type { SeriesProgressCandidate } from "../lib/types.js";
 import { getDefaultWatchlist } from "../lib/watchlist.js";
@@ -31,6 +33,8 @@ interface ExportListItem {
 }
 
 interface ExportList {
+  /** The list's id here, so a collection's website-list source can be pointed at the restored list. */
+  id?: string | undefined;
   name: string;
   kind: ListKind;
   items: ExportListItem[];
@@ -80,10 +84,18 @@ interface ExportPlayback {
   pausedAt: string;
 }
 
+/**
+ * The profile's appearance, sharing and parental settings, and its collections.
+ * Added without bumping `EXPORT_VERSION`, like `playback`: an older file has
+ * neither and imports without them.
+ */
+type ExportProfile = { name: string; settings?: ProfileAttributeUpdate | undefined };
+
 interface ExportPayload {
   version: number;
   exportedAt: string;
-  profile: { name: string };
+  profile: ExportProfile;
+  collections?: unknown[] | undefined;
   lists: ExportList[];
   watchEvents: ExportWatchEvent[];
   seriesProgress: ExportSeriesProgress[];
@@ -99,14 +111,67 @@ const parseDate = (v: unknown): Date | null => {
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
+/**
+ * Adds the exported collections the profile doesn't already have (by id),
+ * pointing website-list sources at the lists they were restored into. A file
+ * whose collections don't validate is skipped rather than failing the import:
+ * collections are the least of what a backup carries.
+ */
+const importCollections = async (
+  profileId: string,
+  raw: unknown,
+  restoredListIds: Map<string, string>
+): Promise<number> => {
+  if (!Array.isArray(raw) || raw.length === 0) return 0;
+  const remapped = raw.map((collection) => remapListSources(collection, restoredListIds));
+  const incoming = validateCollections(remapped);
+  if (!incoming.ok) return 0;
+
+  const current = await prisma.profileCollections.findUnique({ where: { profileId } });
+  const existing = Array.isArray(current?.collections) ? (current.collections as unknown as CollectionJson[]) : [];
+  const existingIds = new Set(existing.map((collection) => collection.id));
+  const added = incoming.value.filter((collection) => !existingIds.has(collection.id));
+  if (added.length === 0) return 0;
+
+  const merged = [...existing, ...added];
+  const checked = validateCollections(merged);
+  if (!checked.ok) return 0;
+  const collections = checked.value as unknown as Prisma.InputJsonValue;
+  const updatedAt = new Date();
+  await prisma.profileCollections.upsert({
+    where: { profileId },
+    create: { profileId, collections, updatedAt },
+    update: { collections, updatedAt },
+  });
+  return added.length;
+};
+
+const remapListSources = (collection: unknown, restoredListIds: Map<string, string>): unknown => {
+  if (!isRecord(collection) || !Array.isArray(collection.folders)) return collection;
+  return {
+    ...collection,
+    folders: collection.folders.map((folder: unknown) => {
+      if (!isRecord(folder) || !Array.isArray(folder.sources)) return folder;
+      return {
+        ...folder,
+        sources: folder.sources.map((source: unknown) => {
+          if (!isRecord(source) || source.provider !== "fetch" || typeof source.listId !== "string") return source;
+          const restored = restoredListIds.get(source.listId);
+          return restored ? { ...source, listId: restored } : source;
+        }),
+      };
+    }),
+  };
+};
+
 const exportRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", resolveProfile);
 
   app.get("/export", async (request) => {
     const profileId = request.profileId!;
 
-    const [profile, lists, watchEvents, seriesProgress, ratingRows, playbackRows] = await Promise.all([
-      prisma.profile.findUnique({ where: { id: profileId }, select: { name: true } }),
+    const [profile, lists, watchEvents, seriesProgress, ratingRows, playbackRows, collectionsRow] = await Promise.all([
+      prisma.profile.findUnique({ where: { id: profileId }, select: PROFILE_VIEW_SELECT }),
       prisma.list.findMany({
         where: { profileId },
         include: { items: true },
@@ -116,6 +181,7 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       prisma.seriesProgress.findMany({ where: { profileId } }),
       prisma.rating.findMany({ where: { profileId } }),
       prisma.playbackProgress.findMany({ where: { profileId }, orderBy: { pausedAt: "asc" } }),
+      prisma.profileCollections.findUnique({ where: { profileId } }),
     ]);
 
     const ratings: ExportRating[] = ratingRows.map((row) => ({
@@ -131,8 +197,26 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
     const payload: ExportPayload = {
       version: EXPORT_VERSION,
       exportedAt: new Date().toISOString(),
-      profile: { name: profile?.name ?? "Default" },
+      profile: {
+        name: profile?.name ?? "Default",
+        ...(profile
+          ? {
+              settings: {
+                avatarColorHex: profile.avatarColorHex,
+                avatarId: profile.avatarId,
+                profileBackgroundId: profile.profileBackgroundId,
+                usesPrimaryAddons: profile.usesPrimaryAddons,
+                usesPrimaryPlugins: profile.usesPrimaryPlugins,
+                isKidsProfile: profile.isKidsProfile,
+                maxRating: profile.maxRating,
+                allowUnrated: profile.allowUnrated,
+              },
+            }
+          : {}),
+      },
+      collections: Array.isArray(collectionsRow?.collections) ? collectionsRow.collections : [],
       lists: lists.map((list) => ({
+        id: list.id,
         name: list.name,
         kind: list.kind,
         items: (list.items as { type: ListItemType; imdbId: string; addedAt: Date }[]).map((item) => ({
@@ -212,7 +296,18 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(413).send({ error: tooManyRowsMessage("list items"), code: "too_many_rows" });
     }
 
-    const summary = { lists: 0, listItems: 0, watchEvents: 0, seriesProgress: 0, ratings: 0, playback: 0 };
+    const summary = {
+      lists: 0,
+      listItems: 0,
+      watchEvents: 0,
+      seriesProgress: 0,
+      ratings: 0,
+      playback: 0,
+      collections: 0,
+      profileSettings: false,
+    };
+    // Exported list id → the list it was restored into, for collections below.
+    const restoredListIds = new Map<string, string>();
 
     for (const list of collections.lists) {
       if (!isRecord(list) || !isString(list.name) || !Object.values(ListKind).includes(list.kind)) continue;
@@ -230,6 +325,8 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
                 data: { profileId, kind: ListKind.custom, name: list.name.trim() },
               });
             })();
+
+      if (isString(list.id)) restoredListIds.set(list.id, targetList.id);
 
       const validItems = (Array.isArray(list.items) ? list.items : []).flatMap((item) => {
         if (!isRecord(item) || !Object.values(ListItemType).includes(item.type)) return [];
@@ -375,6 +472,17 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       });
     }
     summary.playback = await importPlaybackProgress(profileId, playbackInputs);
+
+    // Profile settings are restored as they were: an import is the profile
+    // coming back, appearance and parental limit included.
+    const settings = parseProfileAttributes(isRecord(body.profile) ? body.profile.settings : undefined);
+    if (settings.ok && Object.keys(settings.data).length > 0) {
+      await prisma.profile.update({ where: { id: profileId }, data: settings.data });
+      invalidateProfileCache();
+      summary.profileSettings = true;
+    }
+
+    summary.collections = await importCollections(profileId, body.collections, restoredListIds);
 
     return reply.code(200).send({ status: "imported", summary });
   });

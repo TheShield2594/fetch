@@ -75,6 +75,7 @@ data class CatalogSourceInfo(
 data class CollectionSourceInfo(
     val provider: String = "addon",
     val addonId: String? = null,
+    val addonUrl: String? = null,
     val type: String? = null,
     val catalogId: String? = null,
     val genre: String? = null,

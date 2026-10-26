@@ -3,6 +3,7 @@ package com.fetch.tv.core.parental
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
+import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.MetaPreview
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +29,8 @@ class ParentalControls @Inject constructor(
     private val profileManager: ProfileManager,
     private val restrictionsDataStore: ProfileRestrictionsDataStore,
     private val pinManager: ProfilePinManager,
-    private val resolver: CertificationResolver
+    private val resolver: CertificationResolver,
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -63,6 +65,9 @@ class ParentalControls @Inject constructor(
     suspend fun setRestrictions(profileId: Int, restrictions: ProfileRestrictions): Boolean {
         if (profileId == 1) return false
         restrictionsDataStore.setRestrictions(profileId, restrictions)
+        // A TV signed in to a Fetch website shares the limit with it straight away, so the
+        // website shows it and the next pull doesn't put the old one back.
+        websiteSync.get().triggerProfilesPush()
         return true
     }
 

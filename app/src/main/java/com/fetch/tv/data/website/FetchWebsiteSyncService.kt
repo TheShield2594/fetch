@@ -58,6 +58,7 @@ class FetchWebsiteSyncService @Inject constructor(
 
     private var watchJob: Job? = null
     private var collectionsPushJob: Job? = null
+    private var profilesPushJob: Job? = null
 
     val isPaired: Boolean get() = store.isPaired
 
@@ -71,13 +72,18 @@ class FetchWebsiteSyncService @Inject constructor(
         scope.launch { syncNow() }
     }
 
-    suspend fun syncNow(): Result<Unit> = syncMutex.withLock {
+    suspend fun syncNow(): Result<Unit> {
+        // A change made here and not yet sent goes first, or the pull would undo it.
+        profilesPushJob?.join()
+        return syncMutex.withLock { syncLocked() }
+    }
+
+    private suspend fun syncLocked(): Result<Unit> =
         runCatchingNonCancel {
             if (!client.checkSession()) return@runCatchingNonCancel
             pullProfiles()
             pullCollections()
         }.onFailure { Log.w(TAG, "Website sync failed", it) }
-    }
 
     // ─── Profiles ───
 
@@ -95,8 +101,10 @@ class FetchWebsiteSyncService @Inject constructor(
             restrictionsDataStore.removeProfile(it)
         }
 
-        // Which profiles are locked. The PIN itself is only ever checked by the website.
+        // Which profiles are locked. The PIN itself is only ever checked by the website; the
+        // copy kept for offline unlocks goes when the website says a profile has no PIN.
         lockStateDataStore.replaceAll(remote.associate { it.slot to it.hasPin })
+        remote.filter { !it.hasPin }.forEach { lockStateDataStore.setLocalPinHash(it.slot, null) }
         Log.d(TAG, "Pulled ${remote.size} profiles from the website")
     }
 
@@ -111,6 +119,20 @@ class FetchWebsiteSyncService @Inject constructor(
         }
         remoteProfiles = (remoteProfiles.filter { r -> updated.none { it.slot == r.slot } } + updated).sortedBy { it.slot }
     }.onFailure { Log.w(TAG, "Failed to push profiles to the website", it) }
+
+    /**
+     * After a change made only on this TV (a parental limit, say): sends the profiles shortly
+     * after, so several quick changes go as one. Pulls wait for it, so a pull can't put back
+     * what the push is about to replace.
+     */
+    fun triggerProfilesPush() {
+        if (!store.isPaired) return
+        profilesPushJob?.cancel()
+        profilesPushJob = scope.launch {
+            delay(500)
+            syncMutex.withLock { pushProfiles() }
+        }
+    }
 
     /** Deletes the website profile in [slot], with everything it holds there. */
     suspend fun deleteProfile(slot: Int): Result<Unit> = runCatchingNonCancel {

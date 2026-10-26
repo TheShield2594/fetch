@@ -34,7 +34,7 @@ beforeAll(async () => {
 type ExportPayload = {
   version: number;
   profile: { name: string };
-  lists: { name: string; kind: string; items: { type: string; imdbId: string; addedAt: string }[] }[];
+  lists: { id?: string; name: string; kind: string; items: { type: string; imdbId: string; addedAt: string }[] }[];
   watchEvents: {
     type: string;
     imdbId: string;
@@ -183,11 +183,18 @@ const seedLibrary = async (name: string) => {
   return profile;
 };
 
-/** Compares two exports on everything but the moment they were taken. */
+/**
+ * Compares two exports on everything but the moment they were taken and the
+ * lists' ids, which a restore mints afresh.
+ */
 const comparable = (payload: ExportPayload) => ({
   version: payload.version,
   lists: [...payload.lists]
-    .map((list) => ({ ...list, items: [...list.items].sort((a, b) => a.imdbId.localeCompare(b.imdbId)) }))
+    .map((list) => ({
+      name: list.name,
+      kind: list.kind,
+      items: [...list.items].sort((a, b) => a.imdbId.localeCompare(b.imdbId)),
+    }))
     .sort((a, b) => a.name.localeCompare(b.name)),
   watchEvents: [...payload.watchEvents].sort((a, b) => a.watchedAt.localeCompare(b.watchedAt)),
   seriesProgress: [...payload.seriesProgress].sort((a, b) => a.seriesImdbId.localeCompare(b.seriesImdbId)),
@@ -365,5 +372,41 @@ describe("GET /export then POST /import", () => {
 
     const rating = await prisma.rating.findFirst({ where: { profileId: restored.id } });
     expect(rating).toMatchObject({ type: "season", season: 3, episode: 0, rating: 9 });
+  });
+});
+
+describe("collections and profile settings in a backup", () => {
+  it("come back on another profile, with website-list sources pointing at the restored list", async () => {
+    const source = await createProfile();
+    const target = await createProfile();
+    await prisma.profile.update({
+      where: { id: source.id },
+      data: { avatarId: "fetch:fox", isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false },
+    });
+    const list = await prisma.list.create({ data: { profileId: source.id, kind: "custom", name: "Family night" } });
+    await prisma.profileCollections.create({
+      data: {
+        profileId: source.id,
+        updatedAt: new Date(),
+        collections: [
+          {
+            id: "c1",
+            title: "Family",
+            folders: [{ id: "f1", title: "Films", sources: [{ provider: "fetch", listId: list.id, title: "Family night" }] }],
+          },
+        ],
+      },
+    });
+
+    const response = await importInto(target.id, await exportFor(source.id));
+    expect(response.summary).toMatchObject({ collections: 1, profileSettings: true });
+
+    const restoredList = await prisma.list.findFirstOrThrow({ where: { profileId: target.id, name: "Family night" } });
+    const restored = await prisma.profileCollections.findUniqueOrThrow({ where: { profileId: target.id } });
+    const sources = (restored.collections as { folders: { sources: { listId: string }[] }[] }[])[0]!.folders[0]!.sources;
+    expect(sources[0]!.listId).toBe(restoredList.id);
+
+    const profile = await prisma.profile.findUniqueOrThrow({ where: { id: target.id } });
+    expect(profile).toMatchObject({ avatarId: "fetch:fox", isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false });
   });
 });

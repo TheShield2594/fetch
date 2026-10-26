@@ -20,7 +20,7 @@ const tvCollection = {
       hideTitle: false,
       focusGifEnabled: true,
       sources: [
-        { provider: "addon", addonId: "com.example", type: "movie", catalogId: "top" },
+        { provider: "addon", addonId: "com.example", type: "movie", catalogId: "top", addonUrl: "https://addon.example" },
         { provider: "tmdb", tmdbSourceType: "DISCOVER", title: "Eighties", mediaType: "MOVIE", sortBy: "popularity.desc", filters: { year: 1985 } },
         { provider: "trakt", title: "Mine", traktListId: 42, mediaType: "TV", sortBy: "rank", sortHow: "asc" },
         { provider: "fetch", title: "Family night", listId: LIST_ID, mediaType: "MOVIE" },
@@ -51,6 +51,11 @@ describe("validateCollections", () => {
       "an addon source with no catalog",
       [{ id: "c", title: "A", folders: [{ id: "f", title: "F", sources: [{ provider: "addon", addonId: "x", type: "movie" }] }] }],
       /addonId, type and catalogId/,
+    ],
+    [
+      "an addon address that isn't a web one",
+      [{ id: "c", title: "A", folders: [{ id: "f", title: "F", sources: [{ provider: "addon", addonId: "x", type: "movie", catalogId: "t", addonUrl: "file:///etc/passwd" }] }] }],
+      /addonUrl must be an http\(s\) address/,
     ],
     [
       "a TMDB list source with no id",

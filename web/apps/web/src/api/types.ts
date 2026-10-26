@@ -359,6 +359,8 @@ export type CollectionSource = {
   title?: string | null | undefined;
   // addon
   addonId?: string | undefined;
+  /** The addon's address, so a TV without it installed can still load the row. */
+  addonUrl?: string | undefined;
   type?: string | undefined;
   catalogId?: string | undefined;
   genre?: string | null | undefined;

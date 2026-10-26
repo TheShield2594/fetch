@@ -84,21 +84,24 @@ function SourcePreview({ source, onClose }: { source: CollectionSource; onClose:
   const [addonUrl, setAddonUrl] = useState(() => rememberedAddonUrl(source.addonId) ?? "");
   const [attempt, setAttempt] = useState(0);
 
-  const needsAddonUrl = source.provider === "addon" && !rememberedAddonUrl(source.addonId);
+  // A source made by a current TV or this page carries its addon's address; an older one
+  // only has the id, and needs the address typed once.
+  const knownAddonUrl = source.addonUrl ?? rememberedAddonUrl(source.addonId);
+  const needsAddonUrl = source.provider === "addon" && !knownAddonUrl;
 
   useEffect(() => {
     if (needsAddonUrl) return;
     let cancelled = false;
     const load =
       source.provider === "addon"
-        ? fetchAddonCatalogPage(rememberedAddonUrl(source.addonId)!, source)
+        ? fetchAddonCatalogPage(knownAddonUrl!, source)
         : api.previewCollectionSource(source).then((result) => result.metas);
     load.then(
       (result) => { if (!cancelled) setMetas(result); },
       (err: unknown) => { if (!cancelled) setError(err instanceof Error ? err.message : "Could not load a preview."); }
     );
     return () => { cancelled = true; };
-  }, [source, needsAddonUrl, attempt]);
+  }, [source, needsAddonUrl, knownAddonUrl, attempt]);
 
   return (
     <section className={CARD} style={CARD_STYLE} aria-label="Preview">
@@ -247,7 +250,14 @@ function SourceBuilder({
       case "addon": {
         const catalog = manifest?.catalogs.find((c) => `${c.type}/${c.id}` === catalogKey);
         if (!manifest || !catalog) return null;
-        return { provider: "addon", addonId: manifest.id, type: catalog.type, catalogId: catalog.id, title: catalog.name };
+        return {
+          provider: "addon",
+          addonId: manifest.id,
+          addonUrl: manifest.transportUrl,
+          type: catalog.type,
+          catalogId: catalog.id,
+          title: catalog.name,
+        };
       }
     }
   }, [provider, lists, listId, listMedia, tmdbType, tmdbId, tmdbTitle, genres, year, minRating, sortBy, mediaType, traktId, traktTitle, manifest, catalogKey]);
@@ -403,7 +413,8 @@ function SourceBuilder({
       {provider === "addon" && (
         <div className="space-y-3">
           <p className="text-xs" style={{ color: "var(--text-mute)" }}>
-            The addon has to be installed on the TV too; the row is matched to it by the addon&apos;s id.
+            The row uses the addon installed on the TV when there is one, and loads straight from this address
+            when there isn&apos;t.
           </p>
           <div className="flex gap-2">
             <input

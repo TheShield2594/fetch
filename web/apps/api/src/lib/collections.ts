@@ -8,7 +8,8 @@
  * still comes back unchanged.
  *
  * Sources are tagged by `provider`:
- *   - `addon`  — an addon catalog: `addonId`, `type`, `catalogId`, optional `genre`
+ *   - `addon`  — an addon catalog: `addonId`, `type`, `catalogId`, optional `genre`, and
+ *                optional `addonUrl`, the addon's address, for a TV that doesn't have it installed
  *   - `tmdb`   — `tmdbSourceType`, and `tmdbId` or `filters` depending on it
  *   - `trakt`  — `traktListId`
  *   - `fetch`  — one of this website's own lists: `listId`
@@ -49,6 +50,14 @@ export const validateSource = (source: unknown, where: string): string | null =>
     case "addon":
       if (!nonBlank(source.addonId) || !nonBlank(source.type) || !nonBlank(source.catalogId)) {
         return `${where}: an addon source needs addonId, type and catalogId`;
+      }
+      // A TV fetches from this address, so it can only be a web one.
+      if (
+        source.addonUrl !== undefined &&
+        source.addonUrl !== null &&
+        !(typeof source.addonUrl === "string" && source.addonUrl.length <= 2048 && /^https?:\/\/\S+$/i.test(source.addonUrl))
+      ) {
+        return `${where}: addonUrl must be an http(s) address`;
       }
       return null;
     case "tmdb": {

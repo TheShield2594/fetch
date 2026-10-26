@@ -875,6 +875,7 @@ class AddonManagerViewModel @Inject constructor(
                                 is AddonCatalogCollectionSource -> CollectionSourceInfo(
                                     provider = "addon",
                                     addonId = source.addonId,
+                                    addonUrl = source.addonUrl,
                                     type = source.type,
                                     catalogId = source.catalogId,
                                     genre = source.genre

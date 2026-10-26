@@ -414,7 +414,7 @@ like every other per-profile route.
 | --- | --- | --- |
 | `GET` | `/collections` | `{ collections, updatedAt }`. An empty list and `null` when there are none yet. |
 | `PUT` | `/collections` | `{ collections, baseUpdatedAt? }` replaces the whole list. With `baseUpdatedAt` (the value last read), a list changed elsewhere in the meantime is `409 collections_conflict` carrying the current one. |
-| `POST` | `/collections/preview` | `{ source }` → `{ metas }`, the first 20 titles a source yields. TMDB needs a key (`409 tmdb_not_configured`), Trakt a connection (`409 trakt_not_connected`). Addon catalogs are `422 preview_in_browser`: the website fetches those from the addon directly. |
+| `POST` | `/collections/preview` | `{ source }` → `{ metas }`, the first 20 titles a source yields. TMDB needs a key (`409 tmdb_not_configured`), Trakt a connection (`409 trakt_not_connected`). Addon catalogs are `422 preview_in_browser`: the website fetches those from the addon directly, at the source's `addonUrl`. |
 
 Each collection is `{ id, title, backdropImageUrl?, pinToTop?, viewMode?, showAllTab?, folders }`,
 `viewMode` one of `TABBED_GRID`, `ROWS`, `FOLLOW_LAYOUT`. Each folder is `{ id,
@@ -423,7 +423,7 @@ is tagged by `provider`:
 
 | `provider` | Fields |
 | --- | --- |
-| `addon` | `addonId`, `type`, `catalogId`, `genre?` — matched against the addons installed on the TV. |
+| `addon` | `addonId`, `type`, `catalogId`, `genre?`, `addonUrl?`. The TV uses its installed addon with that id, and loads the catalog from `addonUrl` (http(s) only) when it has none. |
 | `tmdb` | `tmdbSourceType` (`LIST`, `COLLECTION`, `COMPANY`, `NETWORK`, `DISCOVER`, `PERSON`, `DIRECTOR`), `tmdbId` (all but `DISCOVER`), `title`, `mediaType` (`MOVIE`/`TV`), `sortBy`, `filters` (the TV's `TmdbCollectionFilters`: `withGenres`, `releaseDateGte`, `voteAverageGte`, `year`, …). |
 | `trakt` | `traktListId`, `title`, `mediaType`, `sortBy`, `sortHow`. |
 | `fetch` | `listId` — one of this profile's lists on the website — `title`, `mediaType?`. Lets a list made here become a row on the TV without Trakt. |
@@ -569,8 +569,8 @@ only ever deletes a request still in Jellyseerr's pending state.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/export` | The profile's data as JSON: lists and their items, watch events, series progress, ratings, and resume points (`playback`). Carries a `version` field. |
-| `POST` | `/import` | Restores an `/export` payload. The body's `version` must be exactly `1`; anything else is a `400` rather than a partial restore. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. |
+| `GET` | `/export` | The profile's data as JSON: lists and their items, watch events, series progress, ratings, resume points (`playback`), collections, and the profile's appearance and parental settings (`profile.settings`). Carries a `version` field. Paired devices are not included: they belong to the install, not a profile, and a restored server pairs its TVs again. |
+| `POST` | `/import` | Restores an `/export` payload. The body's `version` must be exactly `1`; anything else is a `400` rather than a partial restore. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. Profile settings are restored as exported. Collections are added when the profile doesn't already have one with the same id, and a website-list source is pointed at the list it was restored into. |
 | `POST` | `/import/csv` | Header must include `imdbId,type,watchedAt`; `season,episode` optional. |
 | `POST` | `/import/external` | `{ format, csv }` where format is `letterboxd-diary`, `letterboxd-ratings`, `imdb-ratings` or `simkl`. |
 

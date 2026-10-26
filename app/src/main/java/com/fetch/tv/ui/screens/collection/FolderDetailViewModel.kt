@@ -709,6 +709,13 @@ class FolderDetailViewModel @Inject constructor(
             val addon = addons.find { it.id == source.addonId }
 
             if (addon == null) {
+                // Not installed here, but the source says where the addon is (a collection
+                // made on the website, or on another TV): read the catalog from there.
+                val addonUrl = source.addonUrl
+                if (addonUrl != null) {
+                    loadUninstalledAddonCatalog(tabIndex, source, addonUrl)
+                    return@launch
+                }
                 _uiState.update { state ->
                     val tabs = state.tabs.toMutableList()
                     if (tabIndex < tabs.size) {
@@ -786,6 +793,58 @@ class FolderDetailViewModel @Inject constructor(
                     }
                     NetworkResult.Loading -> {}
                 }
+            }
+        }
+    }
+
+    private suspend fun loadUninstalledAddonCatalog(
+        tabIndex: Int,
+        source: AddonCatalogCollectionSource,
+        addonUrl: String
+    ) {
+        val catalogName = _uiState.value.tabs.getOrNull(tabIndex)?.label?.takeIf { it.isNotBlank() } ?: source.catalogId
+        catalogRepository.getCatalog(
+            addonBaseUrl = addonUrl,
+            addonId = source.addonId,
+            addonName = source.addonId,
+            catalogId = source.catalogId,
+            catalogName = catalogName,
+            type = source.type,
+            skip = 0,
+            skipStep = 100,
+            extraArgs = buildCatalogExtraArgs(source),
+            // Without the manifest there's no telling whether the addon pages, so the row
+            // shows the first page only.
+            supportsSkip = false,
+            posterScreen = com.fetch.tv.core.poster.CustomPosterScreen.COLLECTIONS
+        ).collect { result ->
+            when (result) {
+                is NetworkResult.Success -> {
+                    _uiState.update { state ->
+                        val tabs = state.tabs.toMutableList()
+                        if (tabIndex < tabs.size) {
+                            tabs[tabIndex] = tabs[tabIndex].copy(
+                                catalogRow = result.data.filteredForRelease(state.hideUnreleasedContent),
+                                isLoading = false
+                            )
+                        }
+                        state.copy(tabs = tabs)
+                    }
+                    rebuildAllTab()
+                    rebuildFollowLayoutState()
+                }
+                is NetworkResult.Error -> {
+                    _uiState.update { state ->
+                        val tabs = state.tabs.toMutableList()
+                        if (tabIndex < tabs.size) {
+                            tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = result.message)
+                        }
+                        state.copy(tabs = tabs)
+                    }
+                    rebuildAllTab()
+                    rebuildFollowLayoutState()
+                }
+                NetworkResult.Loading -> {}
             }
         }
     }

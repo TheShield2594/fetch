@@ -252,4 +252,55 @@ class ProfilePinManagerTest {
 
         assertEquals(listOf(2 to "2222"), unlocked)
     }
+
+    private class WebsiteRemote(var pins: Map<Int, String>, var reachable: Boolean = true) : RemoteProfilePins {
+        override val isAvailable = true
+        override val isAuthoritative = true
+        override suspend fun pullStates() = Result.success(pins.keys.associateWith { true })
+        override suspend fun setPin(profileId: Int, pin: String, currentPin: String?) = SetProfilePinResult.Success
+        override suspend fun clearPin(profileId: Int, currentPin: String?) = Result.success(Unit)
+        override suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult> =
+            if (!reachable) Result.failure(java.io.IOException("unreachable"))
+            else Result.success(PinVerifyResult(unlocked = pins[profileId] == pin))
+    }
+
+    @Test
+    fun `a PIN changed on the website replaces the one this TV remembered`() = runTest {
+        val remote = WebsiteRemote(pins = mapOf(2 to "5555"))
+        val pins = manager(remote)
+        store.setLocalPinHash(2, ProfilePinHasher.hash("2222"))
+
+        assertFalse(pins.verifyPin(2, "2222").getOrThrow().unlocked)
+        assertTrue(pins.verifyPin(2, "5555").getOrThrow().unlocked)
+
+        // And the new one is what works offline from now on.
+        remote.reachable = false
+        assertTrue(pins.verifyPin(2, "5555").getOrThrow().unlocked)
+        assertFalse(pins.verifyPin(2, "2222").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `the remembered PIN still unlocks when the website can't be reached`() = runTest {
+        val pins = manager(WebsiteRemote(pins = mapOf(2 to "5555"), reachable = false))
+        store.setLocalPinHash(2, ProfilePinHasher.hash("2222"))
+
+        assertTrue(pins.verifyPin(2, "2222").getOrThrow().unlocked)
+    }
+
+    @Test
+    fun `a website lockout is passed on rather than tried against the remembered PIN`() = runTest {
+        val remote = object : RemoteProfilePins {
+            override val isAvailable = true
+            override val isAuthoritative = true
+            override suspend fun pullStates() = Result.success(emptyMap<Int, Boolean>())
+            override suspend fun setPin(profileId: Int, pin: String, currentPin: String?) = SetProfilePinResult.Success
+            override suspend fun clearPin(profileId: Int, currentPin: String?) = Result.success(Unit)
+            override suspend fun verifyPin(profileId: Int, pin: String) =
+                Result.success(PinVerifyResult(unlocked = false, retryAfterSeconds = 300))
+        }
+        val pins = manager(remote)
+        store.setLocalPinHash(2, ProfilePinHasher.hash("2222"))
+
+        assertEquals(PinVerifyResult(unlocked = false, retryAfterSeconds = 300), pins.verifyPin(2, "2222").getOrThrow())
+    }
 }

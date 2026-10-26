@@ -229,6 +229,7 @@ class CollectionsDataStore @Inject constructor(
     private data class SerializableSource(
         val provider: String = "addon",
         val addonId: String? = null,
+        val addonUrl: String? = null,
         val type: String? = null,
         val catalogId: String? = null,
         val genre: String? = null,
@@ -311,6 +312,7 @@ class CollectionsDataStore @Inject constructor(
             is AddonCatalogCollectionSource -> SerializableSource(
                 provider = "addon",
                 addonId = addonId,
+                addonUrl = addonUrl,
                 type = type,
                 catalogId = catalogId,
                 genre = genre
@@ -452,7 +454,11 @@ class CollectionsDataStore @Inject constructor(
                     addonId = sourceAddonId,
                     type = sourceType,
                     catalogId = sourceCatalogId,
-                    genre = genre
+                    genre = genre,
+                    // Only a web address: this one is fetched from, and it can arrive by sync.
+                    addonUrl = addonUrl?.trim()?.trimEnd('/')?.takeIf {
+                        it.startsWith("https://", ignoreCase = true) || it.startsWith("http://", ignoreCase = true)
+                    }
                 )
             }
         }

@@ -25,6 +25,9 @@ class FetchWebsiteProfilePins @Inject constructor(
 
     override val isAvailable: Boolean get() = store.isPaired
 
+    // PINs are set and changed on the website, so its answer is the one that counts.
+    override val isAuthoritative: Boolean get() = true
+
     override suspend fun pullStates(): Result<Map<Int, Boolean>> = runCatching {
         client.profiles().associate { it.slot to it.hasPin }
     }
@@ -48,7 +51,14 @@ class FetchWebsiteProfilePins @Inject constructor(
 
     override suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult> = runCatching {
         val remote = sync.remoteFor(profileId) ?: error("No such profile on the website")
-        val token = client.verifyPin(remote.id, pin)
+        val token = try {
+            client.verifyPin(remote.id, pin)
+        } catch (error: FetchWebsiteException) {
+            // Locked out after too many wrong PINs: that is an answer, not an outage, so it
+            // must not fall through to the copy on the device.
+            if (error.status == 429) return@runCatching PinVerifyResult(unlocked = false, retryAfterSeconds = error.retryAfterSec ?: 60)
+            throw error
+        }
         if (token != null) sync.rememberProfileToken(remote.id, token)
         PinVerifyResult(unlocked = token != null)
     }

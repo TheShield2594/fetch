@@ -20,7 +20,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /** The website answered with an error; [code] is its machine-readable reason when it gave one. */
-class FetchWebsiteException(message: String, val status: Int, val code: String? = null) : Exception(message)
+class FetchWebsiteException(
+    message: String,
+    val status: Int,
+    val code: String? = null,
+    /** For a lockout (429): how long until the website takes another attempt. */
+    val retryAfterSec: Int? = null
+) : Exception(message)
 
 /** The website no longer accepts this TV's token: it was revoked. */
 class FetchWebsiteSignedOutException : Exception("This TV was signed out from the Fetch website")
@@ -207,7 +213,8 @@ class FetchWebsiteClient internal constructor(
         throw FetchWebsiteException(
             parsed?.error ?: "The Fetch website answered ${response.code}",
             response.code,
-            parsed?.code
+            parsed?.code,
+            parsed?.retryAfterSec
         )
     }
 

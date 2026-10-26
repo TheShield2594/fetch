@@ -85,5 +85,6 @@ internal data class WebsiteMetasBody(val metas: List<WebsiteMeta> = emptyList())
 @Serializable
 internal data class WebsiteErrorBody(
     val error: String? = null,
-    @SerialName("code") val code: String? = null
+    @SerialName("code") val code: String? = null,
+    val retryAfterSec: Int? = null
 )

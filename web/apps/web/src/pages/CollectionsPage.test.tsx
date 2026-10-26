@@ -114,4 +114,37 @@ describe("CollectionsPage", () => {
     expect(screen.getByLabelText("Collection title")).toHaveValue("New collection");
     expect(screen.getByLabelText("Folder title")).toHaveValue("New folder");
   });
+
+  it("previews an addon source straight from the address it carries", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ metas: [{ id: "tt9", type: "movie", name: "Alien" }] }), { status: 200 })
+    );
+    getCollections.mockResolvedValue({
+      collections: [
+        {
+          ...FROM_TV,
+          folders: [
+            {
+              id: "f1",
+              title: "Picks",
+              sources: [
+                { provider: "addon", addonId: "org.example", addonUrl: "https://addon.example", type: "movie", catalogId: "top", title: "Top" },
+              ],
+            },
+          ],
+        },
+      ],
+      updatedAt: "2026-10-26T10:00:00.000Z",
+    });
+    await renderPage();
+
+    await user.click(screen.getByRole("button", { name: /^Preview Top/ }));
+
+    const preview = await screen.findByRole("region", { name: "Preview" });
+    expect(await within(preview).findByText("Alien")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith("https://addon.example/catalog/movie/top.json");
+    expect(screen.queryByLabelText("Addon manifest URL")).not.toBeInTheDocument();
+    fetchMock.mockRestore();
+  });
 });

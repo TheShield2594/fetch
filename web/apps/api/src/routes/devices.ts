@@ -35,6 +35,16 @@ const MAX_PENDING_PAIRINGS = 20;
 const MAX_DEVICE_NAME_LENGTH = 80;
 const PAIRING_SECRET_HEADER = "x-pairing-secret";
 
+/**
+ * Where the website is, so the TV's QR code can open its confirm page with the
+ * code filled in. The TV talks to the API, which is usually on another port, so
+ * it can't work this out itself. Unset means the TV shows the code alone.
+ */
+const WEB_PUBLIC = (process.env.CATALOGGY_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.trim().replace(/\/+$/, "");
+
+export const pairingConfirmUrl = (code: string): string | null =>
+  WEB_PUBLIC ? `${WEB_PUBLIC}/pair?code=${encodeURIComponent(code)}` : null;
+
 const deviceNameFrom = (raw: unknown, fallback: string): string => {
   if (typeof raw !== "string") return fallback;
   const trimmed = raw.trim().slice(0, MAX_DEVICE_NAME_LENGTH);
@@ -99,6 +109,7 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
           });
           return reply.code(201).send({
             code: formatPairingCode(code),
+            confirmUrl: pairingConfirmUrl(formatPairingCode(code)),
             pollSecret,
             expiresAt: expiresAt.toISOString(),
             intervalSec: POLL_INTERVAL_SEC,

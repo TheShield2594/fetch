@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import { Key, Link, Database, Download, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, X } from "lucide-react";
+import { Key, Link, Database, Download, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X } from "lucide-react";
 import { Section } from "../components/settings/Section";
 import { healthSummary } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
@@ -19,6 +19,7 @@ import { PreferencesSettings } from "../components/settings/PreferencesSettings"
 import { PushSettings } from "../components/settings/PushSettings";
 import { NotificationChannelsSettings } from "../components/settings/NotificationChannelsSettings";
 import { ProfileSettings } from "../components/settings/ProfileSettings";
+import { DevicesSettings } from "../components/settings/DevicesSettings";
 import { JobStatusSettings } from "../components/settings/JobStatusSettings";
 import { PAGE_TITLE } from "../components/typography";
 
@@ -72,6 +73,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Users size={20} />,
     keywords: "profiles users household switch rename pin lock delete",
     content: <ProfileSettings />,
+  },
+  {
+    id: "devices",
+    tab: "preferences",
+    title: "TVs & Devices",
+    icon: <Tv size={20} />,
+    keywords: "tv android pair pairing code qr sign in sign out revoke device token",
+    content: <DevicesSettings />,
   },
   {
     id: "notifications",

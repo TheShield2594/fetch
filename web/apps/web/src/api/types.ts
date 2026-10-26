@@ -296,11 +296,124 @@ export type ItemListMembership = {
   addedAt: string;
 };
 
+/** The TV's age ladder, strictest first. Movie and TV ratings share it. */
+export const RATING_LEVELS = ["ALL_AGES", "OLDER_KIDS", "PARENTAL_GUIDANCE", "TEENS", "MATURE", "ADULTS_ONLY"] as const;
+export type RatingLevel = (typeof RATING_LEVELS)[number];
+
+export type ProfileParental = {
+  isKidsProfile: boolean;
+  /** Null is unrestricted. */
+  maxRating: RatingLevel | null;
+  allowUnrated: boolean;
+};
+
+/**
+ * A profile. Everything past `hasPin` mirrors what the TV keeps per profile;
+ * optional because an older API answers without it.
+ */
 export type Profile = {
   id: string;
   name: string;
   hasPin: boolean;
+  avatarColorHex?: string | null | undefined;
+  avatarId?: string | null | undefined;
+  profileBackgroundId?: string | null | undefined;
+  usesPrimaryAddons?: boolean | undefined;
+  usesPrimaryPlugins?: boolean | undefined;
+  parental?: ProfileParental | undefined;
 };
+
+/** The appearance, sharing and parental fields a create or update can carry. */
+export type ProfileSettingsUpdate = {
+  avatarColorHex?: string | null | undefined;
+  avatarId?: string | null | undefined;
+  usesPrimaryAddons?: boolean | undefined;
+  parental?: Partial<ProfileParental> | undefined;
+};
+
+/** What deleting a profile takes with it. */
+export type ProfileSummary = {
+  watchEvents: number;
+  lists: number;
+  listItems: number;
+  playbackProgress: number;
+  ratings: number;
+  collections: number;
+};
+
+/** A TV (or other client) signed in through pairing. */
+export type Device = {
+  id: string;
+  name: string;
+  createdAt: string;
+  lastSeenAt: string | null;
+};
+
+/**
+ * A collection's source, tagged by `provider`, in the TV's own serialized form
+ * (`CollectionsDataStore`). Kept loose — fields this version doesn't know are
+ * carried through untouched so a collection made on the TV round-trips.
+ */
+export type CollectionSource = {
+  provider: "addon" | "tmdb" | "trakt" | "fetch";
+  title?: string | null | undefined;
+  // addon
+  addonId?: string | undefined;
+  type?: string | undefined;
+  catalogId?: string | undefined;
+  genre?: string | null | undefined;
+  // tmdb
+  tmdbSourceType?: TmdbSourceType | undefined;
+  tmdbId?: number | null | undefined;
+  mediaType?: "MOVIE" | "TV" | undefined;
+  sortBy?: string | undefined;
+  filters?: TmdbCollectionFilters | null | undefined;
+  // trakt
+  traktListId?: number | undefined;
+  sortHow?: string | undefined;
+  // fetch
+  listId?: string | undefined;
+  [key: string]: unknown;
+};
+
+export type TmdbSourceType = "LIST" | "COLLECTION" | "COMPANY" | "NETWORK" | "DISCOVER" | "PERSON" | "DIRECTOR";
+
+export type TmdbCollectionFilters = {
+  withGenres?: string | null | undefined;
+  releaseDateGte?: string | null | undefined;
+  releaseDateLte?: string | null | undefined;
+  voteAverageGte?: number | null | undefined;
+  voteCountGte?: number | null | undefined;
+  withOriginalLanguage?: string | null | undefined;
+  year?: number | null | undefined;
+  [key: string]: unknown;
+};
+
+export type CollectionFolder = {
+  id: string;
+  title: string;
+  coverImageUrl?: string | null | undefined;
+  coverEmoji?: string | null | undefined;
+  tileShape?: "POSTER" | "LANDSCAPE" | "SQUARE" | undefined;
+  hideTitle?: boolean | undefined;
+  sources?: CollectionSource[] | undefined;
+  [key: string]: unknown;
+};
+
+export type CollectionViewMode = "TABBED_GRID" | "ROWS" | "FOLLOW_LAYOUT";
+
+export type Collection = {
+  id: string;
+  title: string;
+  backdropImageUrl?: string | null | undefined;
+  pinToTop?: boolean | undefined;
+  viewMode?: CollectionViewMode | undefined;
+  showAllTab?: boolean | undefined;
+  folders: CollectionFolder[];
+  [key: string]: unknown;
+};
+
+export type CollectionsDocument = { collections: Collection[]; updatedAt: string | null };
 
 export type ScrobbleSession = {
   id: string;

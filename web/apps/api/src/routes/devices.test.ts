@@ -63,6 +63,7 @@ const asDevice = { "x-test-device": DEVICE_ID };
 describe("device routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("CATALOGGY_WEB_PUBLIC", "https://fetch.example/");
     prismaMock.devicePairing.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.devicePairing.count.mockResolvedValue(0);
     prismaMock.$transaction.mockImplementation(async (callback: (tx: typeof prismaMock) => unknown) => callback(prismaMock));
@@ -79,6 +80,7 @@ describe("device routes", () => {
       const body = response.json();
       expect(body.code).toMatch(/^[A-Z2-9]{4}-[A-Z2-9]{4}$/);
       expect(body.pollSecret).toEqual(expect.any(String));
+      expect(body.confirmUrl).toBe(`https://fetch.example/pair?code=${body.code}`);
       const stored = prismaMock.devicePairing.create.mock.calls[0]![0].data;
       expect(stored.pollSecretHash).toBe(hashSecret(body.pollSecret));
       expect(stored.code).toBe(body.code.replace("-", ""));

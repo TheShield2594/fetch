@@ -31,6 +31,9 @@ export const loadCalendarPage = () => import("../pages/CalendarPage");
 export const loadHistoryPage = () => import("../pages/HistoryPage");
 export const loadStatsPage = () => import("../pages/StatsPage");
 export const loadSettingsPage = () => import("../pages/SettingsPage");
+export const loadCollectionsPage = () => import("../pages/CollectionsPage");
+export const loadProfilesPage = () => import("../pages/ProfilesPage");
+export const loadPairPage = () => import("../pages/PairPage");
 export const loadNotFoundPage = () => import("../pages/NotFoundPage");
 export const loadProfileSwitcher = () => import("../pages/ProfileSwitcher");
 export const loadSetupWizard = () => import("../pages/SetupWizard");
@@ -107,7 +110,9 @@ const ROUTE_LOADERS: Record<string, Loader> = {
   "/calendar": loadCalendarPage,
   "/history": loadHistoryPage,
   "/stats": loadStatsPage,
-  "/settings": loadSettingsPage
+  "/settings": loadSettingsPage,
+  "/collections": loadCollectionsPage,
+  "/profiles": loadProfilesPage
 };
 
 const started = new Set<Loader>();

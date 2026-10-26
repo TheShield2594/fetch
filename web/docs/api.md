@@ -383,8 +383,10 @@ A TV signs in by pairing rather than by being given `API_TOKEN`, so each one has
 its own token that can be revoked on its own.
 
 1. The TV calls `POST /devices/pair/start` with `{ name? }` and gets
-   `{ code, pollSecret, expiresAt, intervalSec }`. `code` looks like `ABCD-EFGH`
-   and lives for five minutes.
+   `{ code, pollSecret, expiresAt, intervalSec, confirmUrl }`. `code` looks like
+   `ABCD-EFGH` and lives for five minutes. `confirmUrl` is the website's
+   `/pair?code=…` page for a QR code, built from `CATALOGGY_WEB_PUBLIC`, and
+   `null` when that isn't set.
 2. Someone signed in to the website confirms it: `POST /devices/pair/confirm`
    with `{ code, name? }`. Case, spaces and the dash don't matter. A wrong or
    expired code is `404`, one already confirmed `409`.

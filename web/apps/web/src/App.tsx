@@ -30,6 +30,9 @@ import {
   loadSetupWizard,
   loadStatsPage,
   loadCommandPalette,
+  loadCollectionsPage,
+  loadPairPage,
+  loadProfilesPage,
   schedulePrefetchOnIdle,
 } from "./utils/routePrefetch";
 
@@ -60,6 +63,9 @@ const NotFoundPage = lazy(() => loadNotFoundPage().then((m) => ({ default: m.Not
 const SearchPage = lazy(() => loadSearchPage().then((m) => ({ default: m.SearchPage })));
 const SettingsPage = lazy(() => loadSettingsPage().then((m) => ({ default: m.SettingsPage })));
 const StatsPage = lazy(() => loadStatsPage().then((m) => ({ default: m.StatsPage })));
+const CollectionsPage = lazy(() => loadCollectionsPage().then((m) => ({ default: m.CollectionsPage })));
+const ProfilesPage = lazy(() => loadProfilesPage().then((m) => ({ default: m.ProfilesPage })));
+const PairPage = lazy(() => loadPairPage().then((m) => ({ default: m.PairPage })));
 
 const LoadingFallback = ({ label = "Loading…" }: { label?: string }) => (
   <GhostLoader label={label} className="items-center py-24" />
@@ -87,6 +93,9 @@ const ROUTE_TITLES: Record<string, string> = {
   "/history": "Watch History",
   "/stats": "Watch Statistics",
   "/settings": "Settings",
+  "/collections": "Collections",
+  "/profiles": "Profiles",
+  "/pair": "Sign in a TV",
 };
 
 const APP_NAME = "Fetch";
@@ -452,6 +461,9 @@ function AppShell({
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/stats" element={<StatsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/collections" element={<CollectionsPage />} />
+                <Route path="/profiles" element={<ProfilesPage />} />
+                <Route path="/pair" element={<PairPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>

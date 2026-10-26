@@ -800,6 +800,12 @@ class WatchProgressPreferences @Inject constructor(
         )
     }
 
+    /** [entries] in the form this store writes them; [decodeEntries] reads them back. */
+    fun encodeEntries(entries: Map<String, WatchProgress>): String = gson.toJson(entries)
+
+    /** Entries [encodeEntries] wrote, skipping any that are malformed. */
+    fun decodeEntries(json: String): Map<String, WatchProgress> = parseProgressMap(json)
+
     private fun parseProgressMap(json: String): Map<String, WatchProgress> {
         return try {
             // Parse entry-by-entry so one malformed value doesn't wipe the entire map.

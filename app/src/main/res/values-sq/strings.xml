@@ -492,8 +492,8 @@
     <string name="advanced_clear_cw_cache">Pastro cache-in e Vazhdo shikimin</string>
     <string name="advanced_clear_cw_cache_subtitle">Hiq miniaturat, titujt dhe të dhënat e pasurimit të ruajtura në cache për Vazhdo shikimin</string>
     <string name="advanced_clear_cw_cache_done">Cache-i u pastrua</string>
-    <string name="advanced_remember_last_profile">Mbaj mend profilin e fundit</string>
-    <string name="advanced_remember_last_profile_subtitle">Mbaj mend profilin e fundit të zgjedhur gjatë nisjes</string>
+    <string name="profile_remember_last_profile">Mbaj mend profilin e fundit</string>
+    <string name="profile_remember_last_profile_subtitle">Mbaj mend profilin e fundit të zgjedhur gjatë nisjes</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Llogaria dhe statusi i sinkronizimit</string>
     <string name="account_stat_addons">shtesa</string>

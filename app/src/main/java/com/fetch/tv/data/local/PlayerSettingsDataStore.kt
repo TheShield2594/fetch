@@ -894,8 +894,13 @@ class PlayerSettingsDataStore @Inject constructor(
      * Flow of current player settings
      */
     val playerSettings: Flow<PlayerSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
-        factory.get(pid, FEATURE).data.onStart { migrateProfile(pid) }
-    }.map { prefs -> readPlayerSettings(prefs) }
+        playerSettingsFor(pid)
+    }
+
+    /** One profile's player settings, whichever profile is active; the profile editor reads these. */
+    fun playerSettingsFor(profileId: Int): Flow<PlayerSettings> =
+        factory.get(profileId, FEATURE).data.onStart { migrateProfile(profileId) }
+            .map { prefs -> readPlayerSettings(prefs) }
 
     /** What a profile gets before it changes anything: the mapping below read from empty preferences. */
     val defaultPlayerSettings: PlayerSettings by lazy { readPlayerSettings(emptyPreferences()) }
@@ -1238,8 +1243,11 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setPreferredAudioLanguage(language: String) {
-        store().edit { it[preferredAudioLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { AudioLanguageOption.DEVICE }) }
+    suspend fun setPreferredAudioLanguage(
+        language: String,
+        profileId: Int = profileManager.activeProfileId.value
+    ) {
+        store(profileId).edit { it[preferredAudioLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { AudioLanguageOption.DEVICE }) }
     }
 
     suspend fun setSecondaryPreferredAudioLanguage(language: String?) {
@@ -1367,8 +1375,11 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setStreamAutoPlayNextEpisodeEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+    suspend fun setStreamAutoPlayNextEpisodeEnabled(
+        enabled: Boolean,
+        profileId: Int = profileManager.activeProfileId.value
+    ) {
+        store(profileId).edit { prefs ->
             prefs[streamAutoPlayNextEpisodeEnabledKey] = enabled
         }
     }
@@ -1622,7 +1633,10 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setStripHdr10PlusSei(enabled: Boolean) { store().edit { it[stripHdr10PlusSeiKey] = enabled } }
 
     // Subtitle styles
-    suspend fun setSubtitlePreferredLanguage(language: String) { store().edit { it[subtitlePreferredLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { SubtitleLanguageOption.DEVICE }) } }
+    suspend fun setSubtitlePreferredLanguage(
+        language: String,
+        profileId: Int = profileManager.activeProfileId.value
+    ) { store(profileId).edit { it[subtitlePreferredLanguageKey] = normalizeSelectableLanguageCode(language.ifBlank { SubtitleLanguageOption.DEVICE }) } }
     suspend fun setSubtitleSecondaryLanguage(language: String?) {
         store().edit { prefs ->
             val normalizedLanguage = language?.takeIf { it.isNotBlank() }?.let(::normalizeSelectableLanguageCode)

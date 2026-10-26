@@ -584,8 +584,8 @@
     <string name="advanced_clear_cw_cache">Vider le cache de Continuer à regarder</string>
     <string name="advanced_clear_cw_cache_subtitle">Supprimer les miniatures, les titres et les données d’enrichissement en cache de Continuer à regarder</string>
     <string name="advanced_clear_cw_cache_done">Cache vidé</string>
-    <string name="advanced_remember_last_profile">Mémoriser le dernier profil</string>
-    <string name="advanced_remember_last_profile_subtitle">Mémoriser le dernier profil sélectionné au démarrage</string>
+    <string name="profile_remember_last_profile">Mémoriser le dernier profil</string>
+    <string name="profile_remember_last_profile_subtitle">Mémoriser le dernier profil sélectionné au démarrage</string>
     <string name="advanced_confirm_exit">Fermeture complète à la sortie</string>
     <string name="advanced_confirm_exit_subtitle">Terminer complètement l’application et libérer la mémoire à la sortie. Nécessite d’appuyer deux fois sur «&#160;Retour&#160;» pour confirmer.</string>
     <string name="confirm_exit_toast">Appuyez de nouveau sur «&#160;Retour&#160;» pour quitter</string>

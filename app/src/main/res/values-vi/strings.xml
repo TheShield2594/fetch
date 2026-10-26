@@ -584,8 +584,8 @@
     <string name="advanced_clear_cw_cache">Xóa bộ nhớ đệm Tiếp tục xem</string>
     <string name="advanced_clear_cw_cache_subtitle">Xóa ảnh thu nhỏ, tiêu đề và dữ liệu bổ sung đã lưu trong bộ nhớ đệm của mục Tiếp tục xem.</string>
     <string name="advanced_clear_cw_cache_done">Đã xóa bộ nhớ đệm</string>
-    <string name="advanced_remember_last_profile">Nhớ hồ sơ gần nhất</string>
-    <string name="advanced_remember_last_profile_subtitle">Nhớ hồ sơ được chọn lần cuối khi khởi động</string>
+    <string name="profile_remember_last_profile">Nhớ hồ sơ gần nhất</string>
+    <string name="profile_remember_last_profile_subtitle">Nhớ hồ sơ được chọn lần cuối khi khởi động</string>
     <string name="advanced_confirm_exit">Thoát hoàn toàn khi đóng</string>
     <string name="advanced_confirm_exit_subtitle">Đóng ứng dụng hoàn toàn và giải phóng bộ nhớ khi thoát. Cần nhấn quay lại hai lần để xác nhận.</string>
     <string name="confirm_exit_toast">Nhấn quay lại lần nữa để thoát</string>

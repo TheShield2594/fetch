@@ -584,8 +584,8 @@
     <string name="advanced_clear_cw_cache">Limpiar caché de Seguir viendo</string>
     <string name="advanced_clear_cw_cache_subtitle">Elimina miniaturas, títulos y datos enriquecidos almacenados en caché para Seguir viendo</string>
     <string name="advanced_clear_cw_cache_done">Caché limpiada</string>
-    <string name="advanced_remember_last_profile">Recordar último perfil</string>
-    <string name="advanced_remember_last_profile_subtitle">Recordar el último perfil seleccionado al iniciar</string>
+    <string name="profile_remember_last_profile">Recordar último perfil</string>
+    <string name="profile_remember_last_profile_subtitle">Recordar el último perfil seleccionado al iniciar</string>
     <string name="advanced_confirm_exit">Salida completa al cerrar</string>
     <string name="advanced_confirm_exit_subtitle">Cierra completamente la aplicación y libera memoria al salir. Requiere presionar Atrás dos veces para confirmar.</string>
     <string name="confirm_exit_toast">Presiona Atrás nuevamente para salir</string>

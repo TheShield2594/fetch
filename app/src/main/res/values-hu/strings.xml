@@ -583,8 +583,8 @@
     <string name="advanced_clear_cw_cache">Megtekintés folytatása gyorsítótárának törlése</string>
     <string name="advanced_clear_cw_cache_subtitle">Törli a Megtekintés folytatása sor gyorsítótárazott előnézeti képeit, címeit és kiegészítő adatait</string>
     <string name="advanced_clear_cw_cache_done">Gyorsítótár törölve</string>
-    <string name="advanced_remember_last_profile">Utolsó profil megjegyzése</string>
-    <string name="advanced_remember_last_profile_subtitle">Indításkor az utoljára használt profil automatikus kiválasztása</string>
+    <string name="profile_remember_last_profile">Utolsó profil megjegyzése</string>
+    <string name="profile_remember_last_profile_subtitle">Indításkor az utoljára használt profil automatikus kiválasztása</string>
     <string name="advanced_confirm_exit">Teljes kilépés bezáráskor</string>
     <string name="advanced_confirm_exit_subtitle">Kilépéskor az alkalmazás teljes leállítása és a memória felszabadítása. A megerősítéshez kétszer kell megnyomni a Vissza gombot.</string>
     <string name="confirm_exit_toast">A kilépéshez nyomd meg újra a Vissza gombot</string>

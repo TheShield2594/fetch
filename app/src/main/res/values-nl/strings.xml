@@ -548,8 +548,8 @@
     <string name="advanced_clear_cw_cache">Cache van Verder kijken wissen</string>
     <string name="advanced_clear_cw_cache_subtitle">Verwijder opgeslagen miniaturen, titels en verrijkingsgegevens voor Verder kijken</string>
     <string name="advanced_clear_cw_cache_done">Cache gewist</string>
-    <string name="advanced_remember_last_profile">Laatste profiel onthouden</string>
-    <string name="advanced_remember_last_profile_subtitle">Onthoud bij het opstarten het laatst gekozen profiel</string>
+    <string name="profile_remember_last_profile">Laatste profiel onthouden</string>
+    <string name="profile_remember_last_profile_subtitle">Onthoud bij het opstarten het laatst gekozen profiel</string>
     <string name="advanced_confirm_exit">Volledig afsluiten bij sluiten</string>
     <string name="advanced_confirm_exit_subtitle">Sluit de app volledig af en maak geheugen vrij bij het afsluiten. Vereist tweemaal op terug drukken ter bevestiging.</string>
     <string name="confirm_exit_toast">Druk nogmaals op terug om af te sluiten</string>

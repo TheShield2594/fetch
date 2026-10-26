@@ -556,11 +556,11 @@
     <string name="advanced_clear_cw_cache">Limpar cache de \"Continuar Assistindo\"</string>
     <string name="advanced_clear_cw_cache_subtitle">Apaga dados do \"Continuar Assistindo\"</string>
     <string name="advanced_clear_cw_cache_done">Cache limpo com sucesso</string>
-    <string name="advanced_remember_last_profile">Lembrar último perfil selecionado</string>
+    <string name="profile_remember_last_profile">Lembrar último perfil selecionado</string>
     <string name="advanced_confirm_exit">Sair completamente ao fechar</string>
     <string name="advanced_confirm_exit_subtitle">Encerra totalmente o app e libera memória ao sair. É preciso apertar “voltar” duas vezes para confirmar.</string>
     <string name="confirm_exit_toast">Aperte “voltar” de novo para sair</string>
-    <string name="advanced_remember_last_profile_subtitle">Abre com o último perfil usado ao iniciar o app</string>
+    <string name="profile_remember_last_profile_subtitle">Abre com o último perfil usado ao iniciar o app</string>
     <string name="settings_debug">Depuração</string>
     <string name="settings_account_section_subtitle">Conta e Status de Sincronização</string>
     <string name="account_stat_addons">addons</string>

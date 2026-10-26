@@ -461,8 +461,8 @@
     <string name="advanced_clear_cw_cache">Изчисти кеша на Продължи гледането</string>
     <string name="advanced_clear_cw_cache_subtitle">Премахни кешираните миниатюри, заглавия и обогатени данни за Продължи гледането</string>
     <string name="advanced_clear_cw_cache_done">Кешът е изчистен</string>
-    <string name="advanced_remember_last_profile">Запомни последния профил</string>
-    <string name="advanced_remember_last_profile_subtitle">Запомни последно избрания профил при стартиране</string>
+    <string name="profile_remember_last_profile">Запомни последния профил</string>
+    <string name="profile_remember_last_profile_subtitle">Запомни последно избрания профил при стартиране</string>
     <string name="settings_debug">Дебъг</string>
     <string name="settings_account_section_subtitle">Състояние на акаунта и синхронизация</string>
     <string name="account_stat_addons">добавки</string>

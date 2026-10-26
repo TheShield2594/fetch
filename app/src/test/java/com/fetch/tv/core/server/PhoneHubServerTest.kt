@@ -5,6 +5,10 @@ import com.fetch.tv.core.remote.RemoteKey
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.core.streams.ranking.StreamResolution
 import fi.iki.elonen.NanoHTTPD
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -15,6 +19,7 @@ class PhoneHubServerTest {
     private class FakeActions : PhoneHubActions {
         val commands = mutableListOf<RemoteCommand>()
         var savedRules: StreamRankingRules? = null
+        var importedProfile: JsonObject? = null
 
         override fun sendRemote(command: RemoteCommand): Boolean {
             commands += command
@@ -42,6 +47,20 @@ class PhoneHubServerTest {
         override suspend fun saveRankingRules(rules: StreamRankingRules) {
             savedRules = rules
         }
+
+        override suspend fun transferableProfiles() = listOf(1 to "Sam", 3 to "Kids")
+
+        override suspend fun exportProfile(profileId: Int): Result<JsonObject> =
+            if (profileId == 3) {
+                Result.success(buildJsonObject { put("format", "fetch-profile") })
+            } else {
+                Result.failure(IllegalArgumentException("That profile can't be exported."))
+            }
+
+        override suspend fun importProfile(document: JsonObject): PhoneHubResult {
+            importedProfile = document
+            return PhoneHubResult(true, "Added Kids.")
+        }
     }
 
     private val actions = FakeActions()
@@ -67,6 +86,7 @@ class PhoneHubServerTest {
         assertTrue(page.contains("href=\"/remote\""))
         assertTrue(page.contains("href=\"/accounts\""))
         assertTrue(page.contains("href=\"/ranking\""))
+        assertTrue(page.contains("href=\"/profiles\""))
         assertTrue(page.contains("href=\"/posters/\""))
         assertFalse(page.contains("href=\"/badges/\""))
     }
@@ -141,6 +161,29 @@ class PhoneHubServerTest {
         val api = server.serve(FakeHttpSession("/posters/api/pattern"))
         assertEquals(NanoHTTPD.Response.Status.OK, api.status)
         assertTrue(body(api).contains("{imdb}"))
+    }
+
+    @Test
+    fun `profiles are listed, exported as a file, and imported`() {
+        val list = body(server.serve(FakeHttpSession("/api/profiles")))
+        assertTrue(list.contains("\"name\":\"Kids\""))
+
+        val export = server.serve(
+            FakeHttpSession("/api/profiles/export", parameters = mapOf("id" to listOf("3")))
+        )
+        assertEquals(NanoHTTPD.Response.Status.OK, export.status)
+        assertTrue(export.getHeader("Content-Disposition").orEmpty().startsWith("attachment"))
+        assertTrue(body(export).contains("fetch-profile"))
+
+        val refused = server.serve(
+            FakeHttpSession("/api/profiles/export", parameters = mapOf("id" to listOf("1")))
+        )
+        assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, refused.status)
+        assertTrue(body(refused).contains("can't be exported"))
+
+        val imported = post("/api/profiles/import", """{"format":"fetch-profile","version":1}""")
+        assertEquals(NanoHTTPD.Response.Status.OK, imported.status)
+        assertEquals(JsonPrimitive("fetch-profile"), actions.importedProfile?.get("format"))
     }
 
     @Test

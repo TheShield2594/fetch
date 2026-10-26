@@ -559,8 +559,8 @@
     <string name="advanced_clear_cw_cache">Očisti keš Nastavka gledanja</string>
     <string name="advanced_clear_cw_cache_subtitle">Ukloni keširane sličice, naslove i obogaćene podatke za Nastavak gledanja</string>
     <string name="advanced_clear_cw_cache_done">Keš očišćen</string>
-    <string name="advanced_remember_last_profile">Zapamti poslednji profil</string>
-    <string name="advanced_remember_last_profile_subtitle">Zapamti poslednji izabrani profil pri pokretanju</string>
+    <string name="profile_remember_last_profile">Zapamti poslednji profil</string>
+    <string name="profile_remember_last_profile_subtitle">Zapamti poslednji izabrani profil pri pokretanju</string>
     <string name="advanced_confirm_exit">Potpuni izlaz pri zatvaranju</string>
     <string name="advanced_confirm_exit_subtitle">Potpuno ugasi aplikaciju i oslobodi memoriju pri izlasku. Zahteva dvostruki pritisak na dugme nazad radi potvrde.</string>
     <string name="confirm_exit_toast">Pritisnite nazad ponovo za izlaz</string>

@@ -205,7 +205,7 @@ class SettingsChangedViewModel @Inject constructor(
         add(animeSkip.enabled.changedRow(SettingsSearchKey(SettingsCategory.ANIME_SKIP, R.string.animeskip_enable_title), false))
 
         add(profiles.startupSplashEnabled.changedRow(SettingsSearchKey(advanced, R.string.appearance_startup_splash), true))
-        add(profiles.rememberLastProfileEnabled.changedRow(SettingsSearchKey(advanced, R.string.advanced_remember_last_profile), false))
+        add(profiles.rememberLastProfileEnabled.changedRow(SettingsSearchKey(SettingsCategory.PROFILES, R.string.profile_remember_last_profile), false))
         add(profiles.confirmExitEnabled.changedRow(SettingsSearchKey(advanced, R.string.advanced_confirm_exit), false))
         add(addonTimeouts.skipSlowAddons.changedRow(SettingsSearchKey(advanced, R.string.advanced_skip_slow_addons), false))
         add(addonTimeouts.timeoutSeconds.changedRow(SettingsSearchKey(advanced, R.string.advanced_addon_timeout), AddonTimeoutPreferences.DEFAULT_TIMEOUT_SECONDS))

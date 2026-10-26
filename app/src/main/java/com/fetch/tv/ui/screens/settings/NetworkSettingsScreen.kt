@@ -554,17 +554,6 @@ fun AdvancedSettingsContent(
                         }
                     }
                 )
-                val rememberLastProfileEnabled by profileManager.rememberLastProfileEnabled.collectAsState()
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_remember_last_profile),
-                    subtitle = stringResource(R.string.advanced_remember_last_profile_subtitle),
-                    checked = rememberLastProfileEnabled,
-                    onToggle = {
-                        scope.launch {
-                            profileManager.setRememberLastProfileEnabled(!rememberLastProfileEnabled)
-                        }
-                    }
-                )
 
                 ConfirmExitToggleRow()
             }

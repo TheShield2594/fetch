@@ -450,8 +450,8 @@
     <string name="advanced_clear_cw_cache">Limpar cache do Continuar a Ver</string>
     <string name="advanced_clear_cw_cache_subtitle">Remove miniaturas, títulos e dados de enriquecimento em cache do Continuar a Ver</string>
     <string name="advanced_clear_cw_cache_done">Cache limpa</string>
-    <string name="advanced_remember_last_profile">Lembrar o último perfil</string>
-    <string name="advanced_remember_last_profile_subtitle">Lembra o último perfil selecionado ao iniciar</string>
+    <string name="profile_remember_last_profile">Lembrar o último perfil</string>
+    <string name="profile_remember_last_profile_subtitle">Lembra o último perfil selecionado ao iniciar</string>
     <string name="settings_debug">Depurar</string>
     <string name="settings_account_section_subtitle">Estado da conta e sincronização</string>
     <string name="account_stat_addons">addons</string>

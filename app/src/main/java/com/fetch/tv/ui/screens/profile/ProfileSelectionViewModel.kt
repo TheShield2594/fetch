@@ -10,6 +10,10 @@ import com.fetch.tv.core.sync.SetProfilePinResult
 import com.fetch.tv.core.parental.PinVerifyResult
 import com.fetch.tv.core.parental.ProfilePinManager
 import com.fetch.tv.core.parental.ResetPinResult
+import com.fetch.tv.data.local.LayoutPreferenceDataStore
+import com.fetch.tv.data.local.PlayerSettingsDataStore
+import com.fetch.tv.data.local.WatchProgressPreferences
+import com.fetch.tv.data.local.WatchedItemsPreferences
 import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 import com.fetch.tv.data.remote.supabase.AvatarRepository
 import com.fetch.tv.data.remote.supabase.ProfileBackgroundCatalogItem
@@ -19,7 +23,9 @@ import com.fetch.tv.domain.model.CosmeticEntitlement
 import com.fetch.tv.domain.model.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +34,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -53,7 +60,11 @@ class ProfileSelectionViewModel @Inject constructor(
     memberAccessRepository: MemberAccessRepository,
     private val profilePinManager: ProfilePinManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
-    private val themeDataStore: com.fetch.tv.data.local.ThemeDataStore
+    private val themeDataStore: com.fetch.tv.data.local.ThemeDataStore,
+    private val playerSettingsDataStore: PlayerSettingsDataStore,
+    private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
+    private val watchedItemsPreferences: WatchedItemsPreferences,
+    private val watchProgressPreferences: WatchProgressPreferences
 ) : ViewModel() {
     val activeProfileId: StateFlow<Int> = profileManager.activeProfileId
     val profiles: StateFlow<List<UserProfile>> = profileManager.profiles
@@ -263,12 +274,39 @@ class ProfileSelectionViewModel @Inject constructor(
     }
 
     /** Saves [profile] on the device; [onComplete] gets false when it could not be saved. */
-    fun updateProfile(profile: UserProfile, onComplete: (Boolean) -> Unit = {}) {
+    /** What [profileId] watched, newest first, read on the device whichever profile is active. */
+    fun observeViewingActivity(profileId: Int): Flow<List<ViewingActivityEntry>> = combine(
+        watchedItemsPreferences.observeAllItems(profileId),
+        watchProgressPreferences.observeAllRawProgress(profileId)
+    ) { watched, progress -> viewingActivity(watched, progress) }
+        .flowOn(Dispatchers.Default)
+
+    /** [profileId]'s own preferences, read from its stores whichever profile is active. */
+    fun editorPreferences(profileId: Int): Flow<ProfileEditorPreferences> = combine(
+        playerSettingsDataStore.playerSettingsFor(profileId),
+        layoutPreferenceDataStore.focusedPosterBackdropTrailerEnabledForProfile(profileId)
+    ) { player, homeTrailers -> ProfileEditorPreferences.from(player, homeTrailers) }
+
+    /**
+     * Saves [profile], then the preferences in [preferences] that differ from [previousPreferences]
+     * into that profile's stores. Only changed ones are written, so a value the profile never set
+     * keeps following its default.
+     */
+    fun updateProfile(
+        profile: UserProfile,
+        preferences: ProfileEditorPreferences? = null,
+        previousPreferences: ProfileEditorPreferences? = null,
+        onComplete: (Boolean) -> Unit = {}
+    ) {
         if (_isSaving.value) return
         viewModelScope.launch {
             _isSaving.value = true
             val saved = try {
-                profileManager.updateProfile(profile)
+                profileManager.updateProfile(profile).also { updated ->
+                    if (updated && preferences != null && preferences != previousPreferences) {
+                        savePreferences(profile.id, preferences, previousPreferences)
+                    }
+                }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -282,6 +320,25 @@ class ProfileSelectionViewModel @Inject constructor(
                 profileSyncService.pushToRemote()
                 refreshProfilePinStates()
             }
+        }
+    }
+
+    private suspend fun savePreferences(
+        profileId: Int,
+        preferences: ProfileEditorPreferences,
+        previous: ProfileEditorPreferences?
+    ) {
+        if (preferences.audioLanguage != previous?.audioLanguage) {
+            playerSettingsDataStore.setPreferredAudioLanguage(preferences.audioLanguage, profileId)
+        }
+        if (preferences.subtitleLanguage != previous?.subtitleLanguage) {
+            playerSettingsDataStore.setSubtitlePreferredLanguage(preferences.subtitleLanguage, profileId)
+        }
+        if (preferences.autoplayNextEpisode != previous?.autoplayNextEpisode) {
+            playerSettingsDataStore.setStreamAutoPlayNextEpisodeEnabled(preferences.autoplayNextEpisode, profileId)
+        }
+        if (preferences.autoplayHomeTrailers != previous?.autoplayHomeTrailers) {
+            layoutPreferenceDataStore.setFocusedPosterBackdropTrailerEnabled(preferences.autoplayHomeTrailers, profileId)
         }
     }
 

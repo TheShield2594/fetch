@@ -11,6 +11,7 @@ export type JobName =
   | "trakt-watchlist-sync"
   | "simkl-sync"
   | "mdblist-sync"
+  | "media-server-sync"
   | "stremio-library-sync"
   | "stremio-play-signals"
   | "scrobble-cleanup"

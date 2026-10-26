@@ -28,6 +28,7 @@ export const SIMKL_PIN_KEY = "simkl:pin";
 export const SIMKL_LAST_SYNCED_AT_KEY = "simkl:lastSyncedAt";
 export const MDBLIST_DEVICE_KEY = "mdblist:device";
 export const MDBLIST_ACTIVITIES_KEY = "mdblist:lastActivities";
+export const PLEX_PIN_KEY = "plex:pin";
 
 // Per-account settings (above).
 export const AI_CONFIG_KEY = "ai:config";

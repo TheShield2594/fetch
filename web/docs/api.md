@@ -611,6 +611,23 @@ The same shape as Simkl, with MDBList's OAuth device flow (write scope). 409
 | `POST` | `/mdblist/sync` | `{ full? }`. Reads watched history and the watchlist into the profile, unless MDBList's last activities show no change (`unchanged: true`). 401 when MDBList revoked the sign-in. |
 | `POST` | `/mdblist/disconnect` | Revokes the token with MDBList, then forgets it. |
 
+### Media servers
+
+A profile's Plex, Jellyfin and Emby sign-ins; every route acts on the
+requesting profile's. Addresses are checked like an AI provider's, under the
+account's scope: only the admin's profiles may reach a private-network server
+(`422 server_blocked` otherwise).
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/media-servers` | `{ providers, servers: [{ id, provider, serverName, address, userName, importWatchState, lastSyncedAt, connectedAt }], plexLink }`. |
+| `POST` | `/media-servers/plex/link` | Starts a Plex sign-in: `{ code, linkUrl, expiresAt, interval }`; the code is entered at plex.tv/link. |
+| `POST` | `/media-servers/plex/link/poll` | `{ result: "pending" \| "connected" \| "expired" \| "none", servers }`. On `connected`, each server on the account (Plex Media Server 1.30+) that answers at an allowed address is saved. |
+| `POST` | `/media-servers/:provider/sign-in` | `jellyfin` or `emby`: `{ address, username, password }` (Jellyfin 10.9+, Emby 4.7+). 201 `{ serverName, userName }`; 401 `server_auth` on a wrong password. |
+| `PATCH` | `/media-servers/:id` | `{ importWatchState }`. |
+| `POST` | `/media-servers/:id/sync` | Reads the server now: `{ movies, episodes, resumePoints, skipped }`. |
+| `DELETE` | `/media-servers/:id` | Signs out (Jellyfin and Emby) and forgets the sign-in. |
+
 ### Stremio library
 
 Each profile has its own Stremio connection, which syncs into that profile.

@@ -32,7 +32,60 @@ export type MdbListStatus = Omit<SimklStatus, "pending"> & { pending: MdbListPen
 
 export type TrackerSyncSummary = { movies: number; episodes: number; watchlist: number; skipped: number; full: boolean };
 
+export type MediaServer = {
+  id: string;
+  provider: "plex" | "jellyfin" | "emby";
+  serverName: string;
+  address: string;
+  userName: string;
+  importWatchState: boolean;
+  lastSyncedAt: string | null;
+  connectedAt: string;
+};
+
+export type PlexLink = { code: string; linkUrl: string; expiresAt: string; interval: number };
+
+export type MediaServerSyncSummary = { movies: number; episodes: number; resumePoints: number; skipped: number };
+
 export const integrationsApi = {
+  getMediaServers() {
+    return request<{
+      providers: { id: MediaServer["provider"]; name: string; signIn: "link" | "password" }[];
+      servers: MediaServer[];
+      plexLink: PlexLink | null;
+    }>("/media-servers");
+  },
+  startPlexLink() {
+    return request<PlexLink>("/media-servers/plex/link", { method: "POST" });
+  },
+  pollPlexLink() {
+    return request<{ result: "pending" | "connected" | "expired" | "none"; servers: MediaServer[] }>(
+      "/media-servers/plex/link/poll",
+      { method: "POST", timeoutMs: 60000 }
+    );
+  },
+  signInMediaServer(provider: "jellyfin" | "emby", address: string, username: string, password: string) {
+    return request<{ serverName: string; userName: string }>(`/media-servers/${provider}/sign-in`, {
+      method: "POST",
+      body: JSON.stringify({ address, username, password }),
+      timeoutMs: 60000,
+    });
+  },
+  setMediaServerImport(id: string, importWatchState: boolean) {
+    return request<MediaServer>(`/media-servers/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ importWatchState }),
+    });
+  },
+  syncMediaServer(id: string) {
+    return request<MediaServerSyncSummary>(`/media-servers/${encodeURIComponent(id)}/sync`, {
+      method: "POST",
+      timeoutMs: 600000,
+    });
+  },
+  removeMediaServer(id: string) {
+    return request<void>(`/media-servers/${encodeURIComponent(id)}`, { method: "DELETE" });
+  },
   getSimklStatus() {
     return request<SimklStatus>("/simkl/status");
   },

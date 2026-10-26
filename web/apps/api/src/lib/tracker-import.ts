@@ -15,8 +15,14 @@ import type { SeriesProgressCandidate } from "./types.js";
 // reason the Trakt import is: recording would push each one straight back out
 // to every connected tracker, including the one it came from.
 
+/**
+ * `undated` marks a play the source knows happened but not when (a media
+ * server item marked played by hand). It is dated to the sync, so it is only
+ * added when the profile has no play of that title (or episode) at all —
+ * otherwise every later sync, on a later day, would add it again.
+ */
 export type ImportedWatch =
-  | { type: "movie"; imdbId: string; watchedAt: Date; title?: string | null | undefined }
+  | { type: "movie"; imdbId: string; watchedAt: Date; title?: string | null | undefined; undated?: boolean }
   | {
       type: "episode";
       seriesImdbId: string;
@@ -24,6 +30,7 @@ export type ImportedWatch =
       episode: number;
       watchedAt: Date;
       title?: string | null | undefined;
+      undated?: boolean;
     };
 
 export type ImportedWatchlistItem = { type: "movie" | "series"; imdbId: string; title?: string | null | undefined };
@@ -74,8 +81,11 @@ export const importTrackerItems = async (
     }
     await ensureItem(watch.type === "movie" ? ItemType.movie : ItemType.series, imdbId, watch.title);
 
-    const where =
-      watch.type === "movie"
+    const where = watch.undated
+      ? watch.type === "movie"
+        ? { profileId, type: WatchEventType.movie, imdbId }
+        : { profileId, type: WatchEventType.episode, seriesImdbId: imdbId, season: watch.season, episode: watch.episode }
+      : watch.type === "movie"
         ? watchEventDedupWhere({ profileId, type: WatchEventType.movie, imdbId, watchedAt: watch.watchedAt })
         : watchEventDedupWhere({
             profileId,

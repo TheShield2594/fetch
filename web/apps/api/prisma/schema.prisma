@@ -695,6 +695,9 @@ model ProfileConnection {
   externalKey String   @default("")
   credentials String
   details     Json     @default("{}")
+  // What a sync keeps between runs, such as a media server's IMDb-to-item
+  // index. Not shown in Settings.
+  state       Json     @default("{}")
   createdAt   DateTime @default(now()) @db.Timestamptz(6)
   updatedAt   DateTime @updatedAt @db.Timestamptz(6)
 

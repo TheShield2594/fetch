@@ -23,6 +23,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **Plex, Jellyfin and Emby sign-ins, as on the TV.** Settings → Media Servers signs a profile in to Plex with a plex.tv/link code, or to Jellyfin and Emby with the server's address, user name and password. With Import watch progress on, each server's watched state comes in as plays and where you stopped as resume points, hourly and on demand, and plays recorded in Fetch are marked played on the servers. Only the admin's profiles may use a server on the home network.
+
 - **MDBList, as on the TV.** Settings → MDBList connects a profile's own MDBList account with the TV's device sign-in. Its watched history and watchlist come in on a schedule (skipped when MDBList reports no change), and plays, watchlist adds and scrobbles go out to it. Needs `MDBLIST_CLIENT_ID`.
 
 - **Simkl, as on the TV.** Settings → Simkl connects a profile's own Simkl account with the code-at-simkl.com/pin sign-in the TV uses. Its library comes in on a schedule (completed films and watched episodes as plays, plan-to-watch as the watchlist, only what changed after the first run), and plays, watchlist adds and scrobbles recorded in Fetch go out to it. Needs `SIMKL_CLIENT_ID`.

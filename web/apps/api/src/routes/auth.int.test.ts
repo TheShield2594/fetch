@@ -523,6 +523,9 @@ describe("Trakt and Stremio connections", () => {
     await seedTrakt(keep.id);
     await seedTrakt(gone.id);
     await prisma.stremioAuth.create({ data: { id: gone.id, profileId: gone.id, authKey: "k" } });
+    const { saveConnection } = await import("../lib/connections.js");
+    await saveConnection({ profileId: gone.id, provider: "simkl", credentials: { accessToken: "t" }, details: {} });
+    await saveConnection({ profileId: keep.id, provider: "plex", externalKey: "srv|1", credentials: { token: "t" }, details: {} });
     await prisma.kV.create({ data: { key: `trakt:lastPolledAt:${gone.id}`, value: "x", updatedAt: new Date() } });
 
     const deleted = await call(admin.token, { method: "DELETE", url: `/profiles/${gone.id}`, headers: { "x-profile-id": keep.id } });
@@ -530,6 +533,7 @@ describe("Trakt and Stremio connections", () => {
 
     expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([keep.id]);
     expect(await prisma.stremioAuth.count()).toBe(0);
+    expect((await prisma.profileConnection.findMany()).map((row) => row.profileId)).toEqual([keep.id]);
     expect(await prisma.kV.count({ where: { key: { endsWith: gone.id } } })).toBe(0);
   });
 

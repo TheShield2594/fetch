@@ -269,9 +269,17 @@ Rather than assembling either by hand, use **Settings → Stremio Addon** — it
 
 Older URL forms keep working unless you turn them off: `/p/PROFILE-ID/manifest.json` names a profile without a key, and the prefix-less `/manifest.json` resolves to your oldest profile. Neither proves the caller may see that profile, so once the add-on is reachable from outside your home, or anyone else has an account, set `ADDON_REQUIRE_SIGNED_URLS=true` in `.env`. The add-on then answers only the signed `/u/` URLs, and each person reinstalls from **Settings → Stremio Addon**. Rotating `API_TOKEN` changes every key, so reinstall after that too.
 
+### Signing in to Plex, Jellyfin and Emby
+
+Besides webhooks, a profile can sign in to its media servers under **Settings → Media Servers**, as on the TV: **Sign in to Plex** shows a code to enter at [plex.tv/link](https://plex.tv/link) and adds every server on that Plex account the website can reach; Jellyfin and Emby take the server's address and a user name and password (the password is sent to the server once and not kept).
+
+- **Import watch progress** (on by default, per server, as on the TV): what you watched on the server comes in as plays, dated as the server recorded them, and where you stopped comes in as resume points, which only ever move forward. A sync runs every `MEDIA_SERVER_SYNC_INTERVAL_SEC` (hourly by default) and from the server's row in Settings.
+- **Out to the server:** a play recorded in Fetch is marked played on each of the profile's servers that has the title.
+- **Reachability:** the website connects to the server itself. The admin account's profiles may use a server on your home network; anyone else's must be reachable at a public address (for Plex, turn on Remote Access).
+
 ### Profiles and the media-server webhooks
 
-Each account has its own webhook link. Under **Settings → Plex, Jellyfin & Emby**, **Make a webhook link** shows a URL for each server, with that account's key in place of `WEBHOOK_SECRET`:
+Each account has its own webhook link. Under **Settings → Plex, Jellyfin & Emby Webhooks**, **Make a webhook link** shows a URL for each server, with that account's key in place of `WEBHOOK_SECRET`:
 
 ```text
 https://fetch.example.com/api/webhooks/plex?token=fwh_…

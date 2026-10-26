@@ -153,6 +153,9 @@ services:
       # own MDBList account from Settings.
       MDBLIST_CLIENT_ID: ${MDBLIST_CLIENT_ID}
       MDBLIST_POLL_INTERVAL_SEC: ${MDBLIST_POLL_INTERVAL_SEC:-1800}
+      # How often each profile's signed-in Plex, Jellyfin and Emby servers are
+      # read for watched state and resume points.
+      MEDIA_SERVER_SYNC_INTERVAL_SEC: ${MEDIA_SERVER_SYNC_INTERVAL_SEC:-3600}
       STREMIO_POLL_INTERVAL_SEC: ${STREMIO_POLL_INTERVAL_SEC:-0}
       STREMIO_API_BASE: ${STREMIO_API_BASE:-https://api.strem.io}
       STREMIO_PLAY_DETECTION: ${STREMIO_PLAY_DETECTION:-false}

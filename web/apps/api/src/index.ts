@@ -18,6 +18,7 @@ import { trendingCacheDeletePrefix } from "./lib/cache.js";
 import { listTraktProfiles, pollTraktHistory, syncTraktWatchlist } from "./lib/trakt-client.js";
 import { listSimklProfiles, syncSimkl } from "./lib/simkl.js";
 import { listMdbListProfiles, syncMdbList } from "./lib/mdblist.js";
+import { listAllMediaServerConnections, syncMediaServer } from "./lib/media-servers.js";
 import { listStremioProfiles, syncStremioLibrary } from "./lib/stremio-library.js";
 import { accountOfOwner, adoptLegacyAiConfig } from "./lib/integration-owner.js";
 import { isPlayDetectionEnabled, settleDuePlaySignals } from "./lib/play-signal.js";
@@ -62,6 +63,7 @@ import stremioLibraryRoutes from "./routes/stremio-library.js";
 import traktRoutes from "./routes/trakt.js";
 import simklRoutes from "./routes/simkl.js";
 import mdbListRoutes from "./routes/mdblist.js";
+import mediaServerRoutes from "./routes/media-servers.js";
 import scrobbleRoutes from "./routes/scrobble.js";
 import playbackRoutes from "./routes/playback.js";
 import pushRoutes from "./routes/push.js";
@@ -87,6 +89,13 @@ const TRAKT_POLL_INTERVAL_SEC = parseIntervalSec("TRAKT_POLL_INTERVAL_SEC", proc
 const SIMKL_POLL_INTERVAL_SEC = parseIntervalSec("SIMKL_POLL_INTERVAL_SEC", process.env.SIMKL_POLL_INTERVAL_SEC, 900);
 // A pass with nothing new on MDBList costs one last-activities request.
 const MDBLIST_POLL_INTERVAL_SEC = parseIntervalSec("MDBLIST_POLL_INTERVAL_SEC", process.env.MDBLIST_POLL_INTERVAL_SEC, 1800);
+// A pass reads each signed-in server's whole movie and show libraries, so it
+// runs hourly by default; the webhooks cover plays as they happen.
+const MEDIA_SERVER_SYNC_INTERVAL_SEC = parseIntervalSec(
+  "MEDIA_SERVER_SYNC_INTERVAL_SEC",
+  process.env.MEDIA_SERVER_SYNC_INTERVAL_SEC,
+  3600
+);
 
 // Shorter than the Trakt poll because it costs far less: when nothing has been
 // watched, a sync is a single small `datastoreMeta` call that fetches no items
@@ -285,6 +294,7 @@ app.register(stremioLibraryRoutes);
 app.register(traktRoutes);
 app.register(simklRoutes);
 app.register(mdbListRoutes);
+app.register(mediaServerRoutes);
 app.register(scrobbleRoutes);
 app.register(playbackRoutes);
 app.register(pushRoutes);
@@ -398,6 +408,22 @@ const start = async () => {
     });
   } else {
     app.log.info("Scheduled MDBList sync disabled because MDBLIST_POLL_INTERVAL_SEC is set to 0");
+  }
+
+  if (MEDIA_SERVER_SYNC_INTERVAL_SEC > 0) {
+    everyInterval({
+      ...scheduler,
+      label: "Media server sync",
+      intervalMs: MEDIA_SERVER_SYNC_INTERVAL_SEC * 1000,
+      startAfterMs: DEFERRED_FIRST_RUN_MS,
+      tick: async ({ runJob }) => {
+        for (const connection of await listAllMediaServerConnections()) {
+          await runJob("media-server-sync", () => syncMediaServer(connection, app.log));
+        }
+      },
+    });
+  } else {
+    app.log.info("Scheduled media server sync disabled because MEDIA_SERVER_SYNC_INTERVAL_SEC is set to 0");
   }
 
   if (STREMIO_POLL_INTERVAL_SEC > 0) {

@@ -212,3 +212,11 @@ export const resolvePushEndpoint = async (
   if (!url) return null;
   return (await hostnameResolvesSafely(url.hostname, isBlockedPushHostname, resolveHost)) ? url : null;
 };
+
+/**
+ * The address check for a server a profile signs in to (Plex, Jellyfin,
+ * Emby): the AI-provider policy, under the account's scope, so only the admin
+ * may reach a server on this network.
+ */
+export const resolveServerUrl = (raw: string, scope: OutboundScope, resolveHost: HostResolver = dnsResolver) =>
+  resolveAiProviderUrl(raw, resolveHost, scope);

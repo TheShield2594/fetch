@@ -329,12 +329,15 @@ describe("SettingsPage for an account that isn't the admin", () => {
     expect(screen.queryByRole("button", { name: /^Sync Status/ })).not.toBeInTheDocument();
   });
 
-  it("leaves only their data on the integrations tab", () => {
+  it("leaves only their own data and connections on the integrations tab", () => {
     signedIn.isAdmin = false;
     renderPage("integrations");
 
-    expect(screen.getByRole("button", { name: /^Data/ })).toBeInTheDocument();
-    for (const title of ["Trakt Integration", "TMDB Metadata", "Invites & Accounts", "AI Recommendations"]) {
+    // Each account connects its own Trakt and Stremio, and has its own webhook link.
+    for (const title of ["Data", "Trakt Integration", "Stremio Watched Sync", "Plex, Jellyfin & Emby"]) {
+      expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
+    }
+    for (const title of ["TMDB Metadata", "Invites & Accounts", "AI Recommendations", "Play Detection"]) {
       expect(screen.queryByRole("button", { name: new RegExp(`^${title}`) })).not.toBeInTheDocument();
     }
   });

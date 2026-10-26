@@ -26,7 +26,6 @@ const BACKFILL_MAX_PAGES = parseMaxPages(
   DEFAULT_BACKFILL_MAX_PAGES,
   MAX_BACKFILL_PAGES
 );
-const DEFAULT_TOKEN_ROW_ID = "default";
 const DEFAULT_TOKEN_EXPIRY_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
 
 export function computeTokenExpiresAt(expiresIn: number | undefined): Date {
@@ -211,6 +210,8 @@ export class TraktClient {
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly prisma: PrismaClient;
+  /** The TraktToken row these tokens live in: the owning account's id. */
+  private readonly tokenRowId: string;
   private accessToken: string;
   private refreshToken: string;
 
@@ -220,15 +221,18 @@ export class TraktClient {
     accessToken: string;
     refreshToken: string;
     prisma: PrismaClient;
+    tokenRowId: string;
   }) {
     this.clientId = options.clientId;
     this.clientSecret = options.clientSecret;
     this.accessToken = options.accessToken;
     this.refreshToken = options.refreshToken;
     this.prisma = options.prisma;
+    this.tokenRowId = options.tokenRowId;
   }
 
-  static async create(prisma: PrismaClient): Promise<TraktClient> {
+  /** A client for the Trakt account connected by `tokenRowId` (see lib/integration-owner.ts). */
+  static async create(prisma: PrismaClient, tokenRowId: string): Promise<TraktClient> {
     const clientId = process.env.TRAKT_CLIENT_ID;
     const clientSecret = process.env.TRAKT_CLIENT_SECRET;
 
@@ -236,7 +240,7 @@ export class TraktClient {
       throw new Error("Trakt credentials are incomplete. Set TRAKT_CLIENT_ID and TRAKT_CLIENT_SECRET.");
     }
 
-    const persistedToken = await prisma.traktToken.findUnique({ where: { id: DEFAULT_TOKEN_ROW_ID } });
+    const persistedToken = await prisma.traktToken.findUnique({ where: { id: tokenRowId } });
 
     if (!persistedToken) {
       throw new Error(
@@ -257,7 +261,8 @@ export class TraktClient {
       clientSecret,
       accessToken,
       refreshToken,
-      prisma
+      prisma,
+      tokenRowId
     });
   }
 
@@ -592,10 +597,11 @@ export class TraktClient {
     const accessToken = encryptSecret(SECRET_CONTEXT.traktAccessToken, this.accessToken);
     const refreshToken = encryptSecret(SECRET_CONTEXT.traktRefreshToken, this.refreshToken);
 
-    await this.prisma.traktToken.upsert({
-      where: { id: DEFAULT_TOKEN_ROW_ID },
-      update: { accessToken, refreshToken, expiresAt },
-      create: { id: DEFAULT_TOKEN_ROW_ID, accessToken, refreshToken, expiresAt }
+    // An update, not an upsert: if the account disconnected Trakt (or was
+    // removed) while this refresh was in flight, the tokens stay gone.
+    await this.prisma.traktToken.updateMany({
+      where: { id: this.tokenRowId },
+      data: { accessToken, refreshToken, expiresAt }
     });
 
     logger.info("Trakt tokens refreshed and persisted");

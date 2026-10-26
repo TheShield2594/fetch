@@ -85,12 +85,13 @@ These paths are exempt, because they cannot carry a bearer token by construction
 
 Accounts are invite-only. The first account is created with `API_TOKEN` and is
 the **admin**; everyone else redeems an invite link the admin made. Each account
-owns its profiles, and through them its lists, history, ratings and games.
+owns its profiles, and through them its lists, history, ratings and games, and
+has its own Trakt and Stremio connections and media-server webhook key.
 
 Settings that belong to the whole install are shared by every account and can
 only be changed by the admin; anyone else gets `403` with
 `code: "admin_required"`. That covers the TMDB, OMDb and RPDB keys, preferences
-(writes), the Trakt and Stremio connections, the AI provider, Jellyseerr, the
+(writes), the AI provider, Jellyseerr, the
 Steam sync, the metadata refresh, `/settings/job-status` and `/metrics`.
 `API_TOKEN` counts as the admin.
 
@@ -565,6 +566,12 @@ before each outbound request — records can change after a config is saved.
 
 ### Trakt
 
+Each account has its own Trakt connection; these routes act on the caller's
+(`API_TOKEN` acts as the admin account). The OAuth `state` records which
+account started the flow, so the callback, which has no session, stores the
+tokens under that account. `/trakt/import` uses the Trakt account of the
+profile it imports into.
+
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/trakt/status` | |
@@ -575,6 +582,10 @@ before each outbound request — records can change after a config is saved.
 | `POST` | `/trakt/disconnect` | |
 
 ### Stremio library
+
+Each account has its own Stremio connection, which syncs into the profile that
+connected it. `status` and `disconnect` act on the caller's account; the
+profile-scoped routes act on the account of the profile they run as.
 
 | Method | Path | Notes |
 | --- | --- | --- |

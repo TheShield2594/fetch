@@ -4,6 +4,8 @@ import { hashPin, pinMatches } from "../lib/pin-hash.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
 import { invalidateDeviceCache } from "../lib/device-token.js";
 import { invalidateProfileCache } from "../lib/profile.js";
+import { claimLegacyIntegrations, deleteOwnerIntegrations } from "../lib/integration-owner.js";
+import { resetTraktClient } from "../lib/trakt-client.js";
 import { hashSecret, isAdminRequest, requireAdmin } from "../lib/request-auth.js";
 import { createSession, findAdminAccountId, mintInviteCode } from "../lib/sessions.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
@@ -84,11 +86,14 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       // TVs paired before accounts existed see the profiles they always did.
       await tx.device.updateMany({ where: { accountId: null }, data: { accountId: created.id } });
       await tx.devicePairing.updateMany({ where: { accountId: null }, data: { accountId: created.id } });
+      // So do the Trakt and Stremio accounts the install had connected.
+      await claimLegacyIntegrations(tx, created.id);
       return created;
     });
     if (!account) return reply.code(409).send({ error: "An admin account already exists. Sign in instead." });
 
     invalidateProfileCache();
+    resetTraktClient();
     const token = await createSession(account.id);
     return reply.code(201).send({ token, account: publicAccount(account) });
   });
@@ -278,7 +283,12 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     if (!account) return reply.code(404).send({ error: "Account not found" });
     if (account.isAdmin) return reply.code(400).send({ error: "The admin account can't be deleted" });
 
-    await prisma.account.delete({ where: { id: account.id } });
+    await prisma.$transaction(async (tx) => {
+      // Keyed by the account's id rather than tied to it by a foreign key.
+      await deleteOwnerIntegrations(tx, account.id);
+      await tx.account.delete({ where: { id: account.id } });
+    });
+    resetTraktClient(account.id);
     invalidateProfileCache();
     // Its TVs went with it; their tokens must stop working now, not when the
     // lookup cache next expires.

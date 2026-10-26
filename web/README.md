@@ -337,7 +337,7 @@ Nothing pending is user-visible history; only what survives becomes a watch even
 
 Stremio's add-on protocol is read-only: an add-on serves catalogs and metadata, and is never told what you watched. But every Stremio client signed in to a **Stremio account** syncs its library — including watched state — to Stremio's servers, and Fetch can read that directly.
 
-Connect the account under **Settings → Stremio Watched Sync**. One connection covers every client on that account: desktop, mobile, Android TV, the web app, and third-party clients that sign in with a Stremio account. There's nothing to install per device.
+Connect the account under **Settings → Stremio Watched Sync**. Each Fetch account connects its own, and it syncs into the profile that connected it. One connection covers every client on that account: desktop, mobile, Android TV, the web app, and third-party clients that sign in with a Stremio account. There's nothing to install per device.
 
 - Your password is exchanged for an access key once and **never stored** — only the key is.
 - Connecting starts tracking from that moment. Use **Import watch history** once to pull in what the account already has marked as watched, dated from Stremio's own watch history rather than from today. Play detection can't do this — it only ever sees things going forward — so this import is the way to bring existing history across without routing through Trakt.
@@ -348,7 +348,7 @@ Connect the account under **Settings → Stremio Watched Sync**. One connection 
 
 ### Trakt is optional
 
-Trakt is supported but is not a system of record, and nothing depends on it:
+Trakt is supported but is not a system of record, and nothing depends on it. Each Fetch account connects its own Trakt account; a play is sent to the Trakt account of whoever's profile it is in, and the scheduled poll runs once per connected account, into that account's first profile.
 
 - **Metadata** comes from TMDB, never Trakt.
 - **Importing** from Trakt is a one-time action (**Settings → Trakt Integration → Run Full Import**) and keeps working whether or not you leave the ongoing poll on. One run pulls everything Fetch can hold from a Trakt account, so it's enough to stop depending on Trakt afterwards:
@@ -445,7 +445,8 @@ Fetch is invite-only. There is no public sign-up page: the first account (create
 - **Inviting someone:** **Settings → Invites & Accounts → Create invite link**. Send them the link. It works once and expires after 7 days, and it is shown only when it is made. Lost it? Revoke it and make another. Links are built from `CATALOGGY_WEB_PUBLIC`, so set that to the address people actually open (your domain).
 - **What they get:** their own account and profile, with their own lists, watch history, ratings and games. They can make more profiles inside their account. Nobody else's profiles are visible to them, and theirs aren't visible to you in the app either.
 - **What stays shared:** the server's own setup is the admin's to change and applies to everyone: the TMDB, OMDb and RPDB keys, metadata language and region, the AI provider, Jellyseerr and the Steam library. Other accounts don't see those sections in Settings.
-- **Not per-account yet:** the Trakt and Stremio connections and the Plex/Jellyfin/Emby webhooks still belong to the whole install and record into the admin's profile. Per-account connections are the next step.
+- **Their own connections:** each account connects its own Trakt and Stremio accounts under **Settings → Integrations & Data**, and makes its own Plex/Jellyfin/Emby webhook link. What those bring in lands in that account's profiles, and what they watch goes to their own Trakt, never yours. The Trakt app itself (`TRAKT_CLIENT_ID`, `TRAKT_CLIENT_SECRET`) is the server's and is shared; each person signs in to their own Trakt account through it. A Trakt or Stremio connection made before accounts existed becomes the admin's.
+- **Jellyseerr is the admin's:** only the admin account's watchlist files requests on it.
 - **Signing out, passwords:** **Settings → Account**. Changing your password signs out your other devices. A sign-in lasts 30 days from when it was last used. Five wrong passwords lock the account for a few minutes, longer each time.
 - **Removing someone:** **Settings → Invites & Accounts** deletes their account and everything in it.
 - **Locked out of the admin account:** `API_TOKEN` still works against the API directly (see [docs/api.md](docs/api.md)), for example to make an invite for a new account.

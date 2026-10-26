@@ -15,8 +15,9 @@ import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
 import { getAiRecommendations, isAiConfigured } from "./lib/ai.js";
 import { trendingCacheDeletePrefix } from "./lib/cache.js";
-import { pollTraktHistory, syncTraktWatchlist } from "./lib/trakt-client.js";
-import { isStremioConnected, getStremioProfileId, syncStremioLibrary } from "./lib/stremio-library.js";
+import { listTraktOwners, pollTraktHistory, syncTraktWatchlist } from "./lib/trakt-client.js";
+import { listStremioConnections, syncStremioLibrary } from "./lib/stremio-library.js";
+import { accountOfOwner } from "./lib/integration-owner.js";
 import { isPlayDetectionEnabled, settleDuePlaySignals } from "./lib/play-signal.js";
 import { ensureDefaultWatchlist } from "./lib/watchlist.js";
 import { ensureDefaultCollection } from "./lib/collection.js";
@@ -342,10 +343,15 @@ const start = async () => {
       ...scheduler,
       label: "Trakt poll",
       intervalMs: TRAKT_POLL_INTERVAL_SEC * 1000,
+      // Every account that connected Trakt, into that account's first profile.
+      // runJob contains each failure, so one account's expired token doesn't
+      // stop the others syncing.
       tick: async ({ runJob }) => {
-        const profileId = await getDefaultProfileId();
-        await runJob("trakt-history-poll", () => pollTraktHistory(app.log, profileId));
-        await runJob("trakt-watchlist-sync", () => syncTraktWatchlist(app.log, profileId));
+        for (const owner of await listTraktOwners()) {
+          const profileId = await getDefaultProfileId(accountOfOwner(owner));
+          await runJob("trakt-history-poll", () => pollTraktHistory(app.log, profileId));
+          await runJob("trakt-watchlist-sync", () => syncTraktWatchlist(app.log, profileId));
+        }
       },
     });
   } else {
@@ -358,14 +364,15 @@ const start = async () => {
       label: "Stremio library sync",
       intervalMs: STREMIO_POLL_INTERVAL_SEC * 1000,
       tick: async ({ runJob }) => {
-        // Checked every tick rather than at boot, so connecting an account from
-        // Settings starts syncing without a restart.
-        if (!(await isStremioConnected())) return;
-        // The profile that connected the account, so scheduled watches land
-        // where the connect and import routes put theirs. Rows predating that
-        // column report null and keep the old default-profile behaviour.
-        const profileId = (await getStremioProfileId()) ?? (await getDefaultProfileId());
-        await runJob("stremio-library-sync", () => syncStremioLibrary(app.log, profileId, "incremental"));
+        // Read every tick rather than at boot, so connecting an account from
+        // Settings starts syncing without a restart. One pass per account.
+        for (const { owner, profileId: connectedProfileId } of await listStremioConnections()) {
+          // The profile that connected the account, so scheduled watches land
+          // where the connect and import routes put theirs. Rows predating that
+          // column report null and use the account's first profile.
+          const profileId = connectedProfileId ?? (await getDefaultProfileId(accountOfOwner(owner)));
+          await runJob("stremio-library-sync", () => syncStremioLibrary(app.log, profileId, "incremental"));
+        }
       },
     });
   } else {

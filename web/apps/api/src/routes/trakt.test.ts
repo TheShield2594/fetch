@@ -3,9 +3,13 @@ import type { FastifyInstance } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
 import { first } from "../lib/test-fixtures/present.js";
 
+const ADMIN_ID = "22222222-2222-4222-8222-222222222222";
+
 const prismaMock = {
-  kV: { create: vi.fn(), deleteMany: vi.fn() },
+  kV: { create: vi.fn(), deleteMany: vi.fn(), findFirst: vi.fn() },
   traktToken: { findUnique: vi.fn(), upsert: vi.fn(), deleteMany: vi.fn() },
+  // API_TOKEN, which these tests call with, acts as the admin account.
+  account: { findFirst: vi.fn(), findUnique: vi.fn() },
 };
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
@@ -41,6 +45,9 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     prismaMock.kV.create.mockResolvedValue({});
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.traktToken.upsert.mockResolvedValue({});
+    prismaMock.kV.findFirst.mockResolvedValue({ value: ADMIN_ID });
+    prismaMock.account.findFirst.mockResolvedValue({ id: ADMIN_ID });
+    prismaMock.account.findUnique.mockResolvedValue({ id: ADMIN_ID });
     vi.spyOn(globalThis, "fetch");
   });
 
@@ -57,7 +64,7 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
     const state = new URL(response.json().url).searchParams.get("state");
     expect(state).toMatch(/^[0-9a-f]{64}$/);
     expect(prismaMock.kV.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ key: `trakt:oauth:state:${state}` }) })
+      expect.objectContaining({ data: expect.objectContaining({ key: `trakt:oauth:state:${state}`, value: ADMIN_ID }) })
     );
   });
 
@@ -72,6 +79,7 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
   });
 
   it("rejects a callback whose state this install never issued (or already used)", async () => {
+    prismaMock.kV.findFirst.mockResolvedValue(null);
     prismaMock.kV.deleteMany.mockResolvedValue({ count: 0 });
     const app = await buildApp();
 
@@ -102,9 +110,22 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
 
     expect(response.statusCode).toBe(200);
     expect(globalThis.fetch).toHaveBeenCalledWith("https://api.trakt.tv/oauth/token", expect.anything());
+    // Under the account that started the flow, named by its state.
     expect(prismaMock.traktToken.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ update: expect.objectContaining({ accessToken: "access" }) })
+      expect.objectContaining({ where: { id: ADMIN_ID }, update: expect.objectContaining({ accessToken: "access" }) })
     );
+  });
+
+  it("drops the tokens of an account removed while it was on trakt.tv", async () => {
+    prismaMock.kV.deleteMany.mockResolvedValue({ count: 1 });
+    prismaMock.account.findUnique.mockResolvedValue(null);
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: `/trakt/oauth/callback?code=real-code&state=${STATE}` });
+
+    expect(response.statusCode).toBe(403);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    expect(prismaMock.traktToken.upsert).not.toHaveBeenCalled();
   });
 
   it("stores both tokens encrypted when API_TOKEN is set", async () => {

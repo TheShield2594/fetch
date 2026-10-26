@@ -4,8 +4,13 @@ import { SECRET_CONTEXT, decryptSecret, encryptSecret } from "./secret-box.js";
 import { StremioClient, StremioApiError, isAuthError, getStremioApiBase } from "../stremio-api.js";
 import type { StremioLibraryItem } from "../stremio-api.js";
 import type { FastifyBaseLogger } from "fastify";
+import {
+  type IntegrationOwner,
+  ownerForProfile,
+  ownerKvKey,
+  STREMIO_WATERMARK_KEY,
+} from "./integration-owner.js";
 
-const AUTH_ROW_ID = "default";
 const LIBRARY_COLLECTION = "libraryItem";
 
 /**
@@ -17,7 +22,7 @@ const LIBRARY_COLLECTION = "libraryItem";
  * progress. Without that split, every progress tick during playback would look
  * like a fresh watch and inflate the play count on a 2-minute timer.
  */
-const WATERMARK_KEY = "stremio:libraryWatermark";
+// Kept per account, like the connection: `ownerKvKey(STREMIO_WATERMARK_KEY, owner)`.
 
 const IMDB_ID_PATTERN = /^tt\d+$/;
 const DATASTORE_GET_CHUNK = 200;
@@ -54,16 +59,26 @@ export const resetStremioClient = () => {
   client = null;
 };
 
-export const isStremioConnected = async (): Promise<boolean> =>
-  !!(await prisma.stremioAuth.findUnique({ where: { id: AUTH_ROW_ID } }));
+// Each account connects its own Stremio account. The row is keyed by the
+// account's id (see lib/integration-owner.ts), and syncs into the profile that
+// connected it.
 
-export const getStremioStatus = async (): Promise<{
+export const isStremioConnected = async (owner: IntegrationOwner): Promise<boolean> =>
+  !!(await prisma.stremioAuth.findUnique({ where: { id: owner } }));
+
+/** Every connected Stremio account and the profile it syncs into, for the scheduled sync. */
+export const listStremioConnections = async (): Promise<{ owner: IntegrationOwner; profileId: string | null }[]> => {
+  const rows = await prisma.stremioAuth.findMany({ select: { id: true, profileId: true }, orderBy: { updatedAt: "asc" } });
+  return rows.map((row) => ({ owner: row.id, profileId: row.profileId }));
+};
+
+export const getStremioStatus = async (owner: IntegrationOwner): Promise<{
   connected: boolean;
   email: string | null;
   apiBase: string | null;
   connectedAt: string | null;
 }> => {
-  const row = await prisma.stremioAuth.findUnique({ where: { id: AUTH_ROW_ID } });
+  const row = await prisma.stremioAuth.findUnique({ where: { id: owner } });
   // A rejected base (non-HTTPS, unparseable) must not take the status route
   // down with it — reporting it as absent is what lets Settings stay usable
   // long enough to see something is wrong.
@@ -95,13 +110,15 @@ export const connectStremio = async (
   profileId: string,
   logger: FastifyBaseLogger
 ): Promise<void> => {
+  const owner = await ownerForProfile(profileId);
+  if (!owner) throw new Error("Profile not found");
   const authKey = encryptSecret(
     SECRET_CONTEXT.stremioAuthKey,
     await getStremioClient().login(email, password, logger)
   );
   await prisma.stremioAuth.upsert({
-    where: { id: AUTH_ROW_ID },
-    create: { id: AUTH_ROW_ID, authKey, email, profileId },
+    where: { id: owner },
+    create: { id: owner, authKey, email, profileId },
     update: { authKey, email, profileId },
   });
   logger.info({ email, profileId }, "Stremio account connected");
@@ -113,18 +130,18 @@ export const connectStremio = async (
  * the column — the scheduler then falls back to the default profile, which is
  * what it did before.
  */
-export const getStremioProfileId = async (): Promise<string | null> => {
-  const row = await prisma.stremioAuth.findUnique({ where: { id: AUTH_ROW_ID } });
+export const getStremioProfileId = async (owner: IntegrationOwner): Promise<string | null> => {
+  const row = await prisma.stremioAuth.findUnique({ where: { id: owner } });
   return row?.profileId ?? null;
 };
 
-export const disconnectStremio = async (): Promise<void> => {
-  await prisma.stremioAuth.deleteMany({ where: { id: AUTH_ROW_ID } });
-  await prisma.kV.deleteMany({ where: { key: WATERMARK_KEY } });
+export const disconnectStremio = async (owner: IntegrationOwner): Promise<void> => {
+  await prisma.stremioAuth.deleteMany({ where: { id: owner } });
+  await prisma.kV.deleteMany({ where: { key: ownerKvKey(STREMIO_WATERMARK_KEY, owner) } });
 };
 
-const readWatermark = async (): Promise<Watermark | null> => {
-  const row = await prisma.kV.findUnique({ where: { key: WATERMARK_KEY } });
+const readWatermark = async (owner: IntegrationOwner): Promise<Watermark | null> => {
+  const row = await prisma.kV.findUnique({ where: { key: ownerKvKey(STREMIO_WATERMARK_KEY, owner) } });
   if (!row) return null;
   try {
     const parsed = JSON.parse(row.value) as unknown;
@@ -156,12 +173,13 @@ const withSyncLock = <T>(run: () => Promise<T>): Promise<T> => {
   return next;
 };
 
-const writeWatermark = async (watermark: Watermark): Promise<void> => {
+const writeWatermark = async (owner: IntegrationOwner, watermark: Watermark): Promise<void> => {
   const value = JSON.stringify(watermark);
   const now = new Date();
+  const key = ownerKvKey(STREMIO_WATERMARK_KEY, owner);
   await prisma.kV.upsert({
-    where: { key: WATERMARK_KEY },
-    create: { key: WATERMARK_KEY, value, updatedAt: now },
+    where: { key },
+    create: { key, value, updatedAt: now },
     update: { value, updatedAt: now },
   });
 };
@@ -300,7 +318,11 @@ const runSync = async (
 ): Promise<StremioSyncSummary> => {
   const summary: StremioSyncSummary = { scanned: 0, fetched: 0, recorded: 0, skipped: 0 };
 
-  const auth = await prisma.stremioAuth.findUnique({ where: { id: AUTH_ROW_ID } });
+  // The connection of the account the profile is in: a profile only ever
+  // syncs from its own account's Stremio library.
+  const owner = await ownerForProfile(profileId);
+  if (!owner) return summary;
+  const auth = await prisma.stremioAuth.findUnique({ where: { id: owner } });
   if (!auth) return summary;
 
   const authKey = decryptSecret(SECRET_CONTEXT.stremioAuthKey, auth.authKey);
@@ -314,7 +336,7 @@ const runSync = async (
   }
 
   const stremio = getStremioClient();
-  const previous = (await readWatermark()) ?? {};
+  const previous = (await readWatermark(owner)) ?? {};
   const isFullPass = mode === "import" || mode === "baseline";
 
   let items: StremioLibraryItem[];
@@ -352,7 +374,7 @@ const runSync = async (
       }
 
       if (changedIds.length === 0) {
-        await writeWatermark(watermark);
+        await writeWatermark(owner, watermark);
         return summary;
       }
 
@@ -430,7 +452,7 @@ const runSync = async (
     }
   }
 
-  await writeWatermark(watermark);
+  await writeWatermark(owner, watermark);
   logger.info(summary, `Stremio library sync (${mode}) complete`);
   return summary;
 };

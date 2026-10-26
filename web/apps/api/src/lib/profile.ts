@@ -48,11 +48,10 @@ export const getDefaultProfileId = async (accountId?: string | null): Promise<st
 
 /**
  * Whether a profile's activity reaches the integrations set up once for the
- * whole install: the Trakt connection and Jellyseerr. The admin set those up
- * with their own accounts, so only the admin account's profiles (and profiles
- * from before accounts) use them. A friend's plays don't land in the admin's
- * Trakt history, and their watchlist doesn't file requests on the admin's
- * Jellyseerr.
+ * whole install, by the admin: today, Jellyseerr. Only the admin account's
+ * profiles (and profiles from before accounts) use them, so a friend's
+ * watchlist doesn't file requests on the admin's Jellyseerr. Trakt and Stremio
+ * are per account instead (lib/integration-owner.ts).
  */
 export const usesInstallIntegrations = async (profileId: string): Promise<boolean> => {
   const profile = await prisma.profile.findUnique({

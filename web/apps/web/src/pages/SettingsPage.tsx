@@ -140,7 +140,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   // these are the ones that can quietly stop working.
   {
     id: "trakt",
-    adminOnly: true,
     tab: "integrations",
     group: "Where history comes from",
     title: "Trakt Integration",
@@ -150,7 +149,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "stremio-sync",
-    adminOnly: true,
     tab: "integrations",
     group: "Where history comes from",
     title: "Stremio Watched Sync",

@@ -24,6 +24,13 @@ vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
 const watchEventMock = { recordWatchEvent: vi.fn() };
 vi.mock("./watch-event.js", () => watchEventMock);
 
+// The profile is in the account "owner-1", whose connection the sync reads.
+const ownerMock = { ownerForProfile: vi.fn<(profileId: string) => Promise<string | null>>() };
+vi.mock("./integration-owner.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./integration-owner.js")>()),
+  ownerForProfile: (profileId: string) => ownerMock.ownerForProfile(profileId),
+}));
+
 const PROFILE = "profile-1";
 
 /**
@@ -67,7 +74,10 @@ describe("stremio-library", () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
-    prismaMock.stremioAuth.findUnique.mockResolvedValue({ id: "default", authKey: "key" });
+    ownerMock.ownerForProfile.mockResolvedValue("owner-1");
+    prismaMock.stremioAuth.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) =>
+      where.id === "owner-1" ? { id: "owner-1", authKey: "key" } : null
+    );
     prismaMock.kV.findUnique.mockResolvedValue(null);
     watchEventMock.recordWatchEvent.mockResolvedValue({ status: "recorded" });
   });
@@ -85,6 +95,29 @@ describe("stremio-library", () => {
 
     expect(summary).toEqual({ scanned: 0, fetched: 0, recorded: 0, skipped: 0 });
     expect(watchEventMock.recordWatchEvent).not.toHaveBeenCalled();
+  });
+
+  it("syncs nothing into a profile whose own account has no Stremio connected", async () => {
+    // owner-1 is connected; this profile belongs to owner-2.
+    ownerMock.ownerForProfile.mockResolvedValue("owner-2");
+    const fetchMock = stubStremio({ meta: [["tt0111161", MTIME]], items: [libraryItem()] });
+    const { syncStremioLibrary } = await import("./stremio-library.js");
+
+    const summary = await syncStremioLibrary(makeLogger(), PROFILE, "incremental");
+
+    expect(summary).toEqual({ scanned: 0, fetched: 0, recorded: 0, skipped: 0 });
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(watchEventMock.recordWatchEvent).not.toHaveBeenCalled();
+  });
+
+  it("keeps the watermark under the account's own key", async () => {
+    stubStremio({ meta: [["tt0111161", MTIME]], items: [libraryItem()] });
+    const { syncStremioLibrary } = await import("./stremio-library.js");
+
+    await syncStremioLibrary(makeLogger(), PROFILE, "incremental");
+
+    expect(prismaMock.kV.findUnique).toHaveBeenCalledWith({ where: { key: "stremio:libraryWatermark:owner-1" } });
+    expect(prismaMock.kV.upsert.mock.calls.at(-1)?.[0].where).toEqual({ key: "stremio:libraryWatermark:owner-1" });
   });
 
   it("records a watched movie with Stremio's own watch date", async () => {
@@ -411,8 +444,10 @@ describe("stremio-library", () => {
     await connectStremio("me@example.com", "hunter2", PROFILE, makeLogger());
 
     const upsert = first(prismaMock.stremioAuth.upsert.mock.calls, "prismaMock.stremioAuth.upsert call")[0];
+    // Under the connecting profile's account.
+    expect(upsert.where).toEqual({ id: "owner-1" });
     expect(upsert.create).toEqual({
-      id: "default",
+      id: "owner-1",
       authKey: "secret-key",
       email: "me@example.com",
       profileId: PROFILE,

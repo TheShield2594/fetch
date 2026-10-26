@@ -1,6 +1,6 @@
 import { WatchEventType } from "@prisma/client";
 import type { FastifyPluginAsync } from "fastify";
-import { requireAdmin } from "../lib/request-auth.js";
+import { ownerForProfile, ownerForRequest } from "../lib/integration-owner.js";
 import {
   connectStremio,
   disconnectStremio,
@@ -29,9 +29,13 @@ const CONNECT_RATE_LIMIT = { config: { rateLimit: { max: 10, timeWindow: "1 minu
 // Client identifiers are attacker-controlled strings kept only for display.
 const MAX_CLIENT_LENGTH = 200;
 
+// The Stremio account a profile's library syncs from: the one its own account
+// connected. Each account connects its own.
+const profileOwner = async (profileId: string) => (await ownerForProfile(profileId)) ?? "";
+
 const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/stremio/library/status", { preHandler: requireAdmin }, async (_request, reply) => {
-    return reply.send(await getStremioStatus());
+  app.get("/stremio/library/status", async (request, reply) => {
+    return reply.send(await getStremioStatus(await ownerForRequest(request)));
   });
 
   // Every route below acts on a profile's library, so it takes the profile from
@@ -40,7 +44,7 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
   // which has no request to resolve, falls back to `getDefaultProfileId`.
   app.post<{ Body: unknown }>(
     "/stremio/library/connect",
-    { ...CONNECT_RATE_LIMIT, preHandler: [requireAdmin, resolveProfile] },
+    { ...CONNECT_RATE_LIMIT, preHandler: resolveProfile },
     async (request, reply) => {
       const body = request.body as { email?: unknown; password?: unknown } | null;
       const email = typeof body?.email === "string" ? body.email.trim() : "";
@@ -75,27 +79,27 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
         await syncStremioLibrary(request.log, request.profileId as string, "baseline");
       } catch (error) {
         request.log.error(error, "Stremio baseline sync failed after connecting — undoing the connection");
-        await disconnectStremio();
+        await disconnectStremio(await profileOwner(request.profileId as string));
         resetStremioClient();
         return reply
           .code(502)
           .send({ error: "Connected to Stremio, but could not read the library. Nothing was saved." });
       }
 
-      return reply.code(200).send(await getStremioStatus());
+      return reply.code(200).send(await getStremioStatus(await profileOwner(request.profileId as string)));
     }
   );
 
-  app.post("/stremio/library/disconnect", { preHandler: requireAdmin }, async (_request, reply) => {
-    await disconnectStremio();
+  app.post("/stremio/library/disconnect", async (request, reply) => {
+    await disconnectStremio(await ownerForRequest(request));
     resetStremioClient();
     return reply.code(200).send({ connected: false });
   });
 
   // One-time backfill of everything the Stremio account already has marked as
   // watched, dated from Stremio's own `lastWatched` rather than from now.
-  app.post("/stremio/library/import", { preHandler: [requireAdmin, resolveProfile] }, async (request, reply) => {
-    if (!(await isStremioConnected())) {
+  app.post("/stremio/library/import", { preHandler: resolveProfile }, async (request, reply) => {
+    if (!(await isStremioConnected(await profileOwner(request.profileId as string)))) {
       return reply.code(400).send({ error: "No Stremio account is connected" });
     }
     try {
@@ -108,8 +112,8 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // Manual trigger for the same pass the scheduler runs.
-  app.post("/stremio/library/sync", { preHandler: [requireAdmin, resolveProfile] }, async (request, reply) => {
-    if (!(await isStremioConnected())) {
+  app.post("/stremio/library/sync", { preHandler: resolveProfile }, async (request, reply) => {
+    if (!(await isStremioConnected(await profileOwner(request.profileId as string)))) {
       return reply.code(400).send({ error: "No Stremio account is connected" });
     }
     try {

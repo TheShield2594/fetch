@@ -13,7 +13,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Changed
 
-- **Only the admin's profiles reach the install's Trakt and Jellyseerr.** Both are connected once, by the admin, so another account's plays, scrobbles and watchlist changes no longer go to the admin's Trakt history or file requests on the admin's Jellyseerr.
+- **Another account's watchlist no longer files requests on the admin's Jellyseerr.** Jellyseerr is set up once, by the admin, so only the admin account's watchlist uses it.
 
 - **The browser no longer holds `API_TOKEN`.** The web app signs in and keeps a 30-day session instead, and the API Token section in Settings is replaced by Account (sign out, change password). The first visit after upgrading asks you to create the admin account, with the token the browser already had filled in. `API_TOKEN` keeps working for the add-on service, scripts and the API directly.
 
@@ -24,6 +24,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 - CORS now allows `PUT` and `If-Match`, which a web app on another origin needs to save the TV settings and Home layout (see Settings → TV below).
 
 ### Added
+
+- **Each account connects its own Trakt and Stremio.** Settings → Trakt Integration and Stremio Watched Sync are now every account's, not just the admin's, and the scheduled Trakt poll and Stremio sync run once per connected account into that account's profiles. A play goes to the Trakt account of whoever's profile it is in. The install's existing connections become the admin's.
 
 - **A webhook link for each account.** Settings → Plex, Jellyfin & Emby makes a Plex, Jellyfin or Emby webhook URL with the account's own key, so a friend's media server records plays in their profiles and nowhere else. `WEBHOOK_SECRET` keeps working and now acts for the admin account only: its `profile=` and name matching no longer reach another account's profiles.
 

@@ -15,7 +15,7 @@ process.env.WEBHOOK_SECRET = WEBHOOK_SECRET;
 let app: FastifyInstance;
 
 beforeAll(async () => {
-  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons, webhookKey, jellyfin] =
+  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons, webhookKey, jellyfin, trakt, stremio] =
     await Promise.all([
       import("../lib/auth-gate.js"),
       import("./auth.js"),
@@ -27,6 +27,8 @@ beforeAll(async () => {
       import("./profile-addons.js"),
       import("./webhook-key.js"),
       import("./webhooks/jellyfin.js"),
+      import("./trakt.js"),
+      import("./stremio-library.js"),
     ]);
   app = await buildIntApp(async (instance) => {
     registerAuthGate(instance);
@@ -39,6 +41,8 @@ beforeAll(async () => {
     await instance.register(profileAddons.default);
     await instance.register(webhookKey.default);
     await instance.register(jellyfin.default);
+    await instance.register(trakt.default);
+    await instance.register(stremio.default);
   });
 });
 
@@ -472,7 +476,7 @@ describe("media-server webhooks", () => {
   });
 });
 
-describe("the install's own Trakt and Jellyseerr", () => {
+describe("the install's own Jellyseerr", () => {
   it("act only for the admin account's profiles", async () => {
     const { usesInstallIntegrations } = await import("../lib/profile.js");
     const legacy = await createProfile("From before accounts");
@@ -482,5 +486,61 @@ describe("the install's own Trakt and Jellyseerr", () => {
 
     expect(await usesInstallIntegrations(legacy.id)).toBe(true);
     expect(await usesInstallIntegrations(friendProfile!.id)).toBe(false);
+  });
+});
+
+const seedTrakt = (id: string) =>
+  prisma.traktToken.create({ data: { id, accessToken: "a", refreshToken: "r", expiresAt: new Date(Date.now() + 86_400_000) } });
+
+describe("Trakt and Stremio connections", () => {
+  it("are each account's own", async () => {
+    process.env.TRAKT_CLIENT_ID = "id";
+    process.env.TRAKT_CLIENT_SECRET = "secret";
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+    await seedTrakt(admin.account.id);
+
+    const status = async (token: string) =>
+      (await call(token, { method: "GET", url: "/trakt/status" })).json() as { connected: boolean };
+    expect(await status(admin.token)).toMatchObject({ connected: true });
+    expect(await status(friend.token)).toMatchObject({ connected: false });
+
+    // The friend disconnecting their (absent) Trakt leaves the admin's alone.
+    expect((await call(friend.token, { method: "POST", url: "/trakt/disconnect" })).statusCode).toBe(200);
+    expect(await prisma.traktToken.count({ where: { id: admin.account.id } })).toBe(1);
+
+    const stremioStatus = (await call(friend.token, { method: "GET", url: "/stremio/library/status" })).json();
+    expect(stremioStatus).toMatchObject({ connected: false });
+
+    // A profile's plays and syncs go to its own account's connection.
+    const { ownerForProfile } = await import("../lib/integration-owner.js");
+    const [friendProfile] = await profilesOf(friend.token);
+    expect(await ownerForProfile(friendProfile!.id)).toBe(friend.account.id);
+  });
+
+  it("are claimed by the admin from an install that had them before accounts", async () => {
+    await seedTrakt("default");
+    await prisma.stremioAuth.create({ data: { id: "default", authKey: "k" } });
+    await prisma.kV.create({ data: { key: "trakt:lastPolledAt", value: "2026-01-01T00:00:00.000Z", updatedAt: new Date() } });
+
+    const { account } = await bootstrapAdmin();
+
+    expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([account.id]);
+    expect((await prisma.stremioAuth.findMany()).map((row) => row.id)).toEqual([account.id]);
+    expect(await prisma.kV.findUnique({ where: { key: `trakt:lastPolledAt:${account.id}` } })).not.toBeNull();
+    expect(await prisma.kV.findUnique({ where: { key: "trakt:lastPolledAt" } })).toBeNull();
+  });
+
+  it("go with an account when it is removed", async () => {
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+    await seedTrakt(admin.account.id);
+    await seedTrakt(friend.account.id);
+    await prisma.kV.create({ data: { key: `trakt:lastPolledAt:${friend.account.id}`, value: "x", updatedAt: new Date() } });
+
+    expect((await call(admin.token, { method: "DELETE", url: `/auth/accounts/${friend.account.id}` })).statusCode).toBe(204);
+
+    expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([admin.account.id]);
+    expect(await prisma.kV.count({ where: { key: { endsWith: friend.account.id } } })).toBe(0);
   });
 });

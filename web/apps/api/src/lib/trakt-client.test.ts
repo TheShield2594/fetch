@@ -15,7 +15,7 @@ const makeLogger = (): FastifyBaseLogger =>
   }) as unknown as FastifyBaseLogger;
 
 const prismaMock = {
-  traktToken: { findUnique: vi.fn(), upsert: vi.fn() },
+  traktToken: { findUnique: vi.fn(), upsert: vi.fn(), updateMany: vi.fn() },
   kV: { findUnique: vi.fn(), upsert: vi.fn() },
   item: { upsert: vi.fn() },
   listItem: { findMany: vi.fn(), create: vi.fn(), delete: vi.fn() },
@@ -31,13 +31,17 @@ vi.mock("./watchlist.js", () => watchlistMock);
 const seriesProgressMock = { upsertSeriesProgressIfNewer: vi.fn() };
 vi.mock("./series-progress.js", () => seriesProgressMock);
 
-const profileMock = { usesInstallIntegrations: vi.fn<(profileId: string) => Promise<boolean>>(async () => true) };
-vi.mock("./profile.js", () => profileMock);
+// Every profile is in the account "owner-1" unless a test says otherwise.
+const ownerMock = { ownerForProfile: vi.fn<(profileId: string) => Promise<string | null>>(async () => "owner-1") };
+vi.mock("./integration-owner.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./integration-owner.js")>()),
+  ownerForProfile: (profileId: string) => ownerMock.ownerForProfile(profileId),
+}));
 
 const resetMocks = () => {
   vi.resetModules();
   vi.clearAllMocks();
-  profileMock.usesInstallIntegrations.mockResolvedValue(true);
+  ownerMock.ownerForProfile.mockResolvedValue("owner-1");
 };
 
 describe("trakt-client", () => {
@@ -59,20 +63,20 @@ describe("trakt-client", () => {
       delete process.env.TRAKT_CLIENT_ID;
       vi.resetModules();
       const { isTraktConnected } = await import("./trakt-client.js");
-      expect(await isTraktConnected()).toBe(false);
+      expect(await isTraktConnected("owner-1")).toBe(false);
       expect(prismaMock.traktToken.findUnique).not.toHaveBeenCalled();
     });
 
     it("returns false when no token row exists", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue(null);
       const { isTraktConnected } = await import("./trakt-client.js");
-      expect(await isTraktConnected()).toBe(false);
+      expect(await isTraktConnected("owner-1")).toBe(false);
     });
 
     it("returns true when a token row exists", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue({ id: "default" });
       const { isTraktConnected } = await import("./trakt-client.js");
-      expect(await isTraktConnected()).toBe(true);
+      expect(await isTraktConnected("owner-1")).toBe(true);
     });
   });
 
@@ -88,9 +92,12 @@ describe("trakt-client", () => {
       expect(prismaMock.traktToken.findUnique).not.toHaveBeenCalled();
     });
 
-    it("leaves Trakt alone for another account's profile", async () => {
-      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
-      profileMock.usesInstallIntegrations.mockResolvedValue(false);
+    it("leaves Trakt alone for a profile whose account hasn't connected it", async () => {
+      // Only owner-1 has a token row; the profile is in owner-2.
+      prismaMock.traktToken.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) =>
+        where.id === "owner-1" ? { accessToken: "at", refreshToken: "rt" } : null
+      );
+      ownerMock.ownerForProfile.mockResolvedValue("owner-2");
       const fetchMock = vi.fn();
       vi.stubGlobal("fetch", fetchMock);
       const { pushTraktScrobble } = await import("./trakt-client.js");
@@ -102,7 +109,8 @@ describe("trakt-client", () => {
       );
 
       expect(result).toBeNull();
-      expect(profileMock.usesInstallIntegrations).toHaveBeenCalledWith("friend-profile");
+      expect(ownerMock.ownerForProfile).toHaveBeenCalledWith("friend-profile");
+      expect(prismaMock.traktToken.findUnique).toHaveBeenCalledWith({ where: { id: "owner-2" } });
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
@@ -155,7 +163,7 @@ describe("trakt-client", () => {
         accessToken: "stale-token",
         refreshToken: "refresh-token",
       });
-      prismaMock.traktToken.upsert.mockResolvedValue({});
+      prismaMock.traktToken.updateMany.mockResolvedValue({ count: 1 });
 
       let callCount = 0;
       const fetchMock = vi.fn().mockImplementation(async (url: URL | string) => {
@@ -180,11 +188,14 @@ describe("trakt-client", () => {
       const result = await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100, profileId: "p1" }, makeLogger());
 
       expect(result).toBe(1n);
-      expect(prismaMock.traktToken.upsert).toHaveBeenCalledWith(
+      // Into the owning account's row, and only if it still exists.
+      expect(prismaMock.traktToken.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          update: expect.objectContaining({ accessToken: "fresh-token", refreshToken: "fresh-refresh" }),
+          where: { id: "owner-1" },
+          data: expect.objectContaining({ accessToken: "fresh-token", refreshToken: "fresh-refresh" }),
         })
       );
+      expect(prismaMock.traktToken.upsert).not.toHaveBeenCalled();
       // oauth/token + original (401) + retried original = 3 fetch calls
       expect(fetchMock).toHaveBeenCalledTimes(3);
     });
@@ -194,7 +205,7 @@ describe("trakt-client", () => {
         accessToken: "stale-token",
         refreshToken: "refresh-token",
       });
-      prismaMock.traktToken.upsert.mockResolvedValue({});
+      prismaMock.traktToken.updateMany.mockResolvedValue({ count: 1 });
 
       const fetchMock = vi.fn().mockImplementation(async (url: URL | string) => {
         const href = url.toString();
@@ -234,7 +245,7 @@ describe("trakt-client", () => {
     it("sends Trakt the decrypted access token, and re-encrypts a refreshed pair", async () => {
       const { SECRET_CONTEXT, decryptSecret, accessToken, refreshToken } = await encrypted();
       prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken, refreshToken });
-      prismaMock.traktToken.upsert.mockResolvedValue({});
+      prismaMock.traktToken.updateMany.mockResolvedValue({ count: 1 });
 
       let seenAuth: string | undefined;
       let scrobbled = false;
@@ -261,7 +272,7 @@ describe("trakt-client", () => {
       await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100, profileId: "p1" }, makeLogger());
 
       expect(seenAuth).toBe("Bearer fresh-at");
-      const stored = first(prismaMock.traktToken.upsert.mock.calls, "prismaMock.traktToken.upsert call")[0].update;
+      const stored = first(prismaMock.traktToken.updateMany.mock.calls, "prismaMock.traktToken.updateMany call")[0].data;
       expect(stored.accessToken).not.toBe("fresh-at");
       expect(decryptSecret(SECRET_CONTEXT.traktAccessToken, stored.accessToken)).toBe("fresh-at");
       expect(decryptSecret(SECRET_CONTEXT.traktRefreshToken, stored.refreshToken)).toBe("fresh-rt");
@@ -276,7 +287,7 @@ describe("trakt-client", () => {
 
       const { getTraktClient } = await import("./trakt-client.js");
 
-      await expect(getTraktClient()).rejects.toThrow(/could not be decrypted/);
+      await expect(getTraktClient("owner-1")).rejects.toThrow(/could not be decrypted/);
       // Never sends the ciphertext to Trakt as if it were a bearer token.
       expect(fetchMock).not.toHaveBeenCalled();
     });
@@ -298,7 +309,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { getTraktClient } = await import("./trakt-client.js");
-      const client = await getTraktClient();
+      const client = await getTraktClient("owner-1");
       const result = await client.fetchWatchlistMovies(makeLogger());
 
       expect(result).toHaveLength(2);
@@ -319,7 +330,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { getTraktClient } = await import("./trakt-client.js");
-      const client = await getTraktClient();
+      const client = await getTraktClient("owner-1");
       const logger = makeLogger();
       const result = await client.fetchMovieHistory(logger, "2020-01-01T00:00:00Z");
 
@@ -342,7 +353,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { getTraktClient } = await import("./trakt-client.js");
-      const client = await getTraktClient();
+      const client = await getTraktClient("owner-1");
       const result = await client.fetchWatchlistMovies(makeLogger());
 
       expect(result).toHaveLength(101);
@@ -645,10 +656,10 @@ describe("trakt-client", () => {
     // returns one value for every key can't tell them apart.
     const stubKv = (rows: { lastPolledAt?: string; backfilledAt?: string }) => {
       prismaMock.kV.findUnique.mockImplementation(async ({ where }: { where: { key: string } }) => {
-        if (where.key === "trakt:lastPolledAt") {
+        if (where.key === "trakt:lastPolledAt:owner-1") {
           return rows.lastPolledAt ? { value: rows.lastPolledAt } : null;
         }
-        if (where.key === "trakt:historyBackfilledAt") {
+        if (where.key === "trakt:historyBackfilledAt:owner-1") {
           return rows.backfilledAt ? { value: rows.backfilledAt } : null;
         }
         return null;
@@ -718,7 +729,7 @@ describe("trakt-client", () => {
       for (const href of historyUrls(fetchMock)) expect(href).not.toContain("start_at");
       expect(result.fullBackfill).toBe(true);
       expect(prismaMock.kV.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { key: "trakt:historyBackfilledAt" } })
+        expect.objectContaining({ where: { key: "trakt:historyBackfilledAt:owner-1" } })
       );
     });
 
@@ -732,7 +743,7 @@ describe("trakt-client", () => {
 
       expect(prismaMock.kV.upsert).toHaveBeenCalledTimes(1);
       expect(prismaMock.kV.upsert).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { key: "trakt:lastPolledAt" } })
+        expect.objectContaining({ where: { key: "trakt:lastPolledAt:owner-1" } })
       );
     });
 

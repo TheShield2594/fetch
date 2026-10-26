@@ -46,6 +46,11 @@ interface PhoneHubActions {
     suspend fun startTrackerSignIn(tracker: String): Result<PhoneHubDeviceCode>
     suspend fun rankingRules(): StreamRankingRules
     suspend fun saveRankingRules(rules: StreamRankingRules)
+    /** Profiles that can be moved to another TV, as id to name. */
+    suspend fun transferableProfiles(): List<Pair<Int, String>>
+    /** The profile as a file for [importProfile] on another TV; fails with a message to show. */
+    suspend fun exportProfile(profileId: Int): Result<JsonObject>
+    suspend fun importProfile(document: JsonObject): PhoneHubResult
 }
 
 /**
@@ -90,6 +95,7 @@ class PhoneHubServer(
         session.method == Method.GET && uri == "/remote" -> html(PhoneHubWebPage.remote())
         session.method == Method.GET && uri == "/accounts" -> html(PhoneHubWebPage.accounts())
         session.method == Method.GET && uri == "/ranking" -> html(PhoneHubWebPage.ranking())
+        session.method == Method.GET && uri == "/profiles" -> html(PhoneHubWebPage.profiles())
         session.method == Method.POST && uri == "/api/remote" -> handleRemote(readJson(session))
         session.method == Method.GET && uri == "/api/accounts" -> jsonResponse(accountsJson())
         session.method == Method.POST && uri == "/api/accounts/mdblist" -> handleMdbList(readJson(session))
@@ -97,6 +103,10 @@ class PhoneHubServer(
         session.method == Method.POST && uri == "/api/accounts/tracker" -> handleTracker(readJson(session))
         session.method == Method.GET && uri == "/api/ranking" -> jsonResponse(rankingJson())
         session.method == Method.POST && uri == "/api/ranking" -> handleRanking(session)
+        session.method == Method.GET && uri == "/api/profiles" -> jsonResponse(profilesJson())
+        session.method == Method.GET && uri == "/api/profiles/export" -> handleProfileExport(session)
+        session.method == Method.POST && uri == "/api/profiles/import" ->
+            result(runBlocking { actions.importProfile(readJson(session, MAX_PROFILE_BYTES)) })
         else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
     }
 
@@ -153,6 +163,34 @@ class PhoneHubServer(
         return ok()
     }
 
+    private fun profilesJson(): JsonElement = buildJsonObject {
+        put("profiles", buildJsonArray {
+            runBlocking { actions.transferableProfiles() }.forEach { (id, name) ->
+                add(buildJsonObject {
+                    put("id", id)
+                    put("name", name)
+                })
+            }
+        })
+    }
+
+    private fun handleProfileExport(session: IHTTPSession): Response {
+        val id = session.parameters["id"]?.firstOrNull()?.toIntOrNull()
+            ?: throw IllegalArgumentException("Missing profile.")
+        val document = runBlocking { actions.exportProfile(id) }
+            .getOrElse { return errorResponse(it.message ?: "Couldn't export the profile.") }
+        val bytes = document.toString().toByteArray(StandardCharsets.UTF_8)
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "application/json; charset=utf-8",
+            ByteArrayInputStream(bytes),
+            bytes.size.toLong()
+        ).apply {
+            addHeader("Cache-Control", "no-store")
+            addHeader("Content-Disposition", "attachment; filename=\"fetch-profile-$id.json\"")
+        }
+    }
+
     private fun accountsJson(): JsonElement {
         val status = runBlocking { actions.accountStatus() }
         fun tracker(value: PhoneHubTrackerStatus) = buildJsonObject {
@@ -203,10 +241,10 @@ class PhoneHubServer(
         override fun getUri(): String = innerUri
     }
 
-    private fun readJson(session: IHTTPSession): JsonObject {
+    private fun readJson(session: IHTTPSession, maxBytes: Int = MAX_BODY_BYTES): JsonObject {
         val length = session.headers["content-length"]?.toIntOrNull() ?: 0
         if (length <= 0) return JsonObject(emptyMap())
-        require(length <= MAX_BODY_BYTES) { "Request too large." }
+        require(length <= maxBytes) { "Request too large." }
         val buffer = ByteArray(length)
         var offset = 0
         while (offset < length) {
@@ -259,6 +297,8 @@ class PhoneHubServer(
         const val SECTION_BADGES = "badges"
         const val SECTION_POSTERS = "posters"
         private const val MAX_BODY_BYTES = 256 * 1024
+        // A profile file carries the whole watch history.
+        private const val MAX_PROFILE_BYTES = 16 * 1024 * 1024
 
         internal fun rewriteSectionPage(page: String, prefix: String): String =
             page

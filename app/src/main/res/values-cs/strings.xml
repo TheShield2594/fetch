@@ -472,8 +472,8 @@
     <string name="advanced_clear_cw_cache">Vymazat mezipaměť Pokračovat ve sledování</string>
     <string name="advanced_clear_cw_cache_subtitle">Odebrat miniatury, názvy a obohacená data z mezipaměti pro Pokračovat ve sledování</string>
     <string name="advanced_clear_cw_cache_done">Mezipaměť vymazána</string>
-    <string name="advanced_remember_last_profile">Pamatovat si poslední profil</string>
-    <string name="advanced_remember_last_profile_subtitle">Pamatovat si poslední vybraný profil při spuštění</string>
+    <string name="profile_remember_last_profile">Pamatovat si poslední profil</string>
+    <string name="profile_remember_last_profile_subtitle">Pamatovat si poslední vybraný profil při spuštění</string>
     <string name="settings_debug">Ladění</string>
     <string name="settings_account_section_subtitle">Stav účtu a synchronizace</string>
     <string name="account_stat_addons">doplňky</string>

@@ -523,8 +523,8 @@
   <string name="advanced_clear_cw_cache">Καθαρισμός προσωρινής μνήμης Συνέχεια παρακολούθησης</string>
   <string name="advanced_clear_cw_cache_subtitle">Αφαίρεση αποθηκευμένων μικρογραφιών, τίτλων και δεδομένων εμπλουτισμού για τη Συνέχεια παρακολούθησης</string>
   <string name="advanced_clear_cw_cache_done">Η προσωρινή μνήμη καθαρίστηκε</string>
-  <string name="advanced_remember_last_profile">Απομνημόνευση τελευταίου προφίλ</string>
-  <string name="advanced_remember_last_profile_subtitle">Απομνημόνευση του τελευταίου επιλεγμένου προφίλ κατά την εκκίνηση</string>
+  <string name="profile_remember_last_profile">Απομνημόνευση τελευταίου προφίλ</string>
+  <string name="profile_remember_last_profile_subtitle">Απομνημόνευση του τελευταίου επιλεγμένου προφίλ κατά την εκκίνηση</string>
   <string name="advanced_confirm_exit">Πλήρης έξοδος κατά το κλείσιμο</string>
   <string name="advanced_confirm_exit_subtitle">Πλήρης τερματισμός της εφαρμογής και απελευθέρωση μνήμης κατά την έξοδο. Απαιτείται διπλό πάτημα του πλήκτρου πίσω για επιβεβαίωση.</string>
   <string name="confirm_exit_toast">Πατήστε ξανά πίσω για έξοδο</string>

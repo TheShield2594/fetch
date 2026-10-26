@@ -472,8 +472,8 @@
     <string name="advanced_clear_cw_cache">Hapus Cache Lanjutkan Menonton</string>
     <string name="advanced_clear_cw_cache_subtitle">Hapus thumbnail, judul, dan data pengayaan yang tersimpan untuk Lanjutkan Menonton</string>
     <string name="advanced_clear_cw_cache_done">Cache dihapus</string>
-    <string name="advanced_remember_last_profile">Ingat Profil Terakhir</string>
-    <string name="advanced_remember_last_profile_subtitle">Ingat profil terakhir yang dipilih saat startup</string>
+    <string name="profile_remember_last_profile">Ingat Profil Terakhir</string>
+    <string name="profile_remember_last_profile_subtitle">Ingat profil terakhir yang dipilih saat startup</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Status akun dan sinkronisasi</string>
     <string name="account_stat_addons">addon</string>

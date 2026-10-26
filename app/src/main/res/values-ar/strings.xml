@@ -473,8 +473,8 @@
     <string name="advanced_clear_cw_cache">مسح ذاكرة التخزين المؤقت لقائمة المتابعة</string>
     <string name="advanced_clear_cw_cache_subtitle">إزالة الصور المصغرة والعناوين وبيانات الإثراء المخزنة مؤقتاً لقائمة متابعة المشاهدة</string>
     <string name="advanced_clear_cw_cache_done">تم مسح الذاكرة المؤقتة</string>
-    <string name="advanced_remember_last_profile">تذكر آخر مستخدم</string>
-    <string name="advanced_remember_last_profile_subtitle">تذكر آخر ملف مستخدم تم اختياره عند بدء التشغيل</string>
+    <string name="profile_remember_last_profile">تذكر آخر مستخدم</string>
+    <string name="profile_remember_last_profile_subtitle">تذكر آخر ملف مستخدم تم اختياره عند بدء التشغيل</string>
     <string name="settings_debug">معالجة الأخطاء</string>
     <string name="settings_account_section_subtitle">الحساب وحالة المزامنة</string>
     <string name="account_stat_addons">إضافات</string>

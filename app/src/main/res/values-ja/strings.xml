@@ -464,8 +464,8 @@
     <string name="advanced_clear_cw_cache">視聴を続けるキャッシュをクリア</string>
     <string name="advanced_clear_cw_cache_subtitle">視聴を続けるのサムネイル、タイトル、補完データのキャッシュを削除</string>
     <string name="advanced_clear_cw_cache_done">キャッシュをクリアしました</string>
-    <string name="advanced_remember_last_profile">最後のプロフィールを記憶</string>
-    <string name="advanced_remember_last_profile_subtitle">起動時に最後に選択したプロフィールを記憶</string>
+    <string name="profile_remember_last_profile">最後のプロフィールを記憶</string>
+    <string name="profile_remember_last_profile_subtitle">起動時に最後に選択したプロフィールを記憶</string>
     <string name="settings_debug">デバッグ</string>
     <string name="settings_account_section_subtitle">アカウントと同期の状態</string>
     <string name="account_stat_addons">アドオン</string>

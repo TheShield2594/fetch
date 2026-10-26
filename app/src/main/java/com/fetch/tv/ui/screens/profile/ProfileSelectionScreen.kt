@@ -214,7 +214,9 @@ internal sealed interface ProfilePinOverlayState {
      */
     data class ParentGate(
         override val profile: UserProfile,
-        val targetProfile: UserProfile? = null
+        val targetProfile: UserProfile? = null,
+        /** Set instead of [targetProfile] when the PIN opens this profile's viewing activity. */
+        val activityProfile: UserProfile? = null
     ) : ProfilePinOverlayState
 }
 
@@ -296,6 +298,7 @@ fun ProfileSelectionScreen(
     var profileToEdit by remember { mutableStateOf<UserProfile?>(null) }
     var settingsCopyTarget by remember { mutableStateOf<UserProfile?>(null) }
     var limitsTarget by remember { mutableStateOf<UserProfile?>(null) }
+    var activityTarget by remember { mutableStateOf<UserProfile?>(null) }
     var settingsCopyError by remember { mutableStateOf<String?>(null) }
     var pinOverlayState by remember { mutableStateOf<ProfilePinOverlayState?>(null) }
     var pinOverlayError by remember { mutableStateOf<String?>(null) }
@@ -687,6 +690,7 @@ fun ProfileSelectionScreen(
                                             pinOverlayError = null
                                             pinOverlayState = null
                                             limitsTarget = activePinOverlay.targetProfile
+                                            activityTarget = activePinOverlay.activityProfile
                                         } else {
                                             pinOverlayError = if (verify.retryAfterSeconds > 0) {
                                                 context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
@@ -777,16 +781,20 @@ fun ProfileSelectionScreen(
 
         // Edit Profile Overlay
         profileToEdit?.let { profile ->
+            val editorPreferences by remember(profile.id) {
+                viewModel.editorPreferences(profile.id)
+            }.collectAsState(initial = null)
             EditProfileOverlay(
                 profile = profile,
                 avatarCatalog = avatarCatalog,
                 profileBackgroundCatalog = profileBackgroundCatalog,
                 hasProfileBackgroundAccess = hasProfileBackgroundAccess,
+                preferences = editorPreferences,
                 isSaving = isSaving,
                 avatarUrlResolver = { avatarId -> viewModel.getAvatarImageUrl(avatarId) },
                 onDismiss = { profileToEdit = null },
-                onSaveProfile = { updated ->
-                    viewModel.updateProfile(updated) { saved ->
+                onSaveProfile = { updated, preferences ->
+                    viewModel.updateProfile(updated, preferences, editorPreferences) { saved ->
                         if (saved) {
                             profileToEdit = null
                         } else {
@@ -980,6 +988,28 @@ fun ProfileSelectionScreen(
                     }
                 }
 
+                Button(
+                    onClick = {
+                        longPressedProfile = null
+                        // Viewing activity is the main profile's to read, so another profile's
+                        // sits behind the main PIN when there is one.
+                        val ownActivity = screenMode == ProfileSelectionMode.Management && profile.id == activeProfileId
+                        if (!ownActivity && parentProfile != null && parentHasPin) {
+                            pinOverlayError = null
+                            pinOverlayState = ProfilePinOverlayState.ParentGate(parentProfile, activityProfile = profile)
+                        } else {
+                            runWithProfilePin(profile) { activityTarget = profile }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.colors(
+                        containerColor = FetchTheme.colors.BackgroundCard,
+                        contentColor = FetchTheme.colors.TextPrimary
+                    )
+                ) {
+                    Text(stringResource(R.string.profile_viewing_activity_label))
+                }
+
                 if (!profile.isPrimary) {
                     Button(
                         onClick = {
@@ -1001,6 +1031,17 @@ fun ProfileSelectionScreen(
                     }
                 }
             }
+        }
+
+        activityTarget?.let { targetProfile ->
+            val entries by remember(targetProfile.id) {
+                viewModel.observeViewingActivity(targetProfile.id)
+            }.collectAsState(initial = null)
+            ViewingActivityDialog(
+                profile = targetProfile,
+                entries = entries,
+                onDismiss = { activityTarget = null }
+            )
         }
 
         limitsTarget?.let { targetProfile ->
@@ -2189,10 +2230,11 @@ private fun EditProfileOverlay(
     avatarCatalog: List<AvatarCatalogItem>,
     profileBackgroundCatalog: List<ProfileBackgroundCatalogItem>,
     hasProfileBackgroundAccess: Boolean,
+    preferences: ProfileEditorPreferences?,
     isSaving: Boolean,
     avatarUrlResolver: (String?) -> String?,
     onDismiss: () -> Unit,
-    onSaveProfile: (UserProfile) -> Unit
+    onSaveProfile: (UserProfile, ProfileEditorPreferences?) -> Unit
 ) {
     BackHandler(onBack = onDismiss)
 
@@ -2208,6 +2250,8 @@ private fun EditProfileOverlay(
         mutableStateOf(profile.profileBackgroundUrl?.takeIf { it.isNotBlank() })
     }
     var selectedEditorTab by remember(profile.id) { mutableStateOf(ProfileEditorTab.Avatar) }
+    // Changes stay here until Save, like the rest of the editor; null while untouched.
+    var editedPreferences by remember(profile.id) { mutableStateOf<ProfileEditorPreferences?>(null) }
     var focusedAvatarName by remember { mutableStateOf<String?>(null) }
     val selectedAvatar = remember(avatarCatalog, selectedAvatarId) {
         avatarCatalog.find { it.id == selectedAvatarId }
@@ -2230,7 +2274,9 @@ private fun EditProfileOverlay(
     val showBackgroundTab = hasProfileBackgroundAccess &&
         (profileBackgroundCatalog.isNotEmpty() || !profile.profileBackgroundUrl.isNullOrBlank())
     LaunchedEffect(showBackgroundTab) {
-        if (!showBackgroundTab) selectedEditorTab = ProfileEditorTab.Avatar
+        if (!showBackgroundTab && selectedEditorTab == ProfileEditorTab.Background) {
+            selectedEditorTab = ProfileEditorTab.Avatar
+        }
     }
 
     Box(
@@ -2309,7 +2355,8 @@ private fun EditProfileOverlay(
                                 avatarUrl = if (hasChangedAvatarSelection) null else profile.avatarUrl,
                                 profileBackgroundId = selectedBackgroundId,
                                 profileBackgroundUrl = selectedBackgroundUrl
-                            )
+                            ),
+                            editedPreferences
                         )
                     }
                 )
@@ -2377,14 +2424,12 @@ private fun EditProfileOverlay(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
-                    if (showBackgroundTab) {
-                        ProfileEditorTabs(
-                            selectedTab = selectedEditorTab,
-                            showBackgroundTab = true,
-                            onTabSelected = { selectedEditorTab = it },
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                    }
+                    ProfileEditorTabs(
+                        selectedTab = selectedEditorTab,
+                        showBackgroundTab = showBackgroundTab,
+                        onTabSelected = { selectedEditorTab = it },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
 
                     when (selectedEditorTab) {
                         ProfileEditorTab.Avatar -> {
@@ -2493,6 +2538,21 @@ private fun EditProfileOverlay(
                                         selectedBackgroundUrl = customUrl
                                     }
                                 }
+                            )
+                        }
+
+                        ProfileEditorTab.Preferences -> {
+                            Text(
+                                text = stringResource(R.string.profile_preferences_hint),
+                                modifier = Modifier.fillMaxWidth(),
+                                color = FetchTheme.colors.TextSecondary,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
+                            )
+                            ProfileEditorPreferencesPanel(
+                                preferences = editedPreferences ?: preferences,
+                                onPreferencesChange = { editedPreferences = it }
                             )
                         }
                     }

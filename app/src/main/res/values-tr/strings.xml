@@ -589,8 +589,8 @@
     <string name="advanced_clear_cw_cache">İzlemeye Devam Et Önbelleğini Temizle</string>
     <string name="advanced_clear_cw_cache_subtitle">Sorunları çözmek için yerel izlemeye devam et verilerini sıfırlar</string>
     <string name="advanced_clear_cw_cache_done">İzlemeye devam et önbelleği temizlendi</string>
-    <string name="advanced_remember_last_profile">Son Profili Hatırla</string>
-    <string name="advanced_remember_last_profile_subtitle">Uygulama açılışında profil seçme ekranını atlar</string>
+    <string name="profile_remember_last_profile">Son Profili Hatırla</string>
+    <string name="profile_remember_last_profile_subtitle">Uygulama açılışında profil seçme ekranını atlar</string>
     <string name="advanced_confirm_exit">Kapatırken Tam Çıkış</string>
     <string name="advanced_confirm_exit_subtitle">Çıkışta uygulamayı tamamen sonlandırır ve belleği boşaltır. Onaylamak için geri tuşuna iki kez basmanız gerekir.</string>
     <string name="confirm_exit_toast">Çıkmak için tekrar geri tuşuna basın</string>

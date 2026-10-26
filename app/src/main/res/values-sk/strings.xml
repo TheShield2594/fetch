@@ -477,8 +477,8 @@
     <string name="advanced_clear_cw_cache">Vymazať cache Pokračovať v sledovaní</string>
     <string name="advanced_clear_cw_cache_subtitle">Odstrániť uložené miniatúry, názvy a obohatené dáta pre Pokračovať v sledovaní</string>
     <string name="advanced_clear_cw_cache_done">Cache vymazaná</string>
-    <string name="advanced_remember_last_profile">Zapamätať posledný profil</string>
-    <string name="advanced_remember_last_profile_subtitle">Zapamätať posledný vybraný profil pri spustení</string>
+    <string name="profile_remember_last_profile">Zapamätať posledný profil</string>
+    <string name="profile_remember_last_profile_subtitle">Zapamätať posledný vybraný profil pri spustení</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Účet a stav synchronizácie</string>
     <string name="account_stat_addons">doplnky</string>

@@ -466,8 +466,8 @@
     <string name="advanced_clear_cw_cache">Очистити кеш «Продовжити перегляд»</string>
     <string name="advanced_clear_cw_cache_subtitle">Видалити кешовані мініатюри, назви та дані збагачення для «Продовжити перегляд»</string>
     <string name="advanced_clear_cw_cache_done">Кеш очищено</string>
-    <string name="advanced_remember_last_profile">Запам\'ятати останній профіль</string>
-    <string name="advanced_remember_last_profile_subtitle">Запам\'ятовувати останній обраний профіль при запуску</string>
+    <string name="profile_remember_last_profile">Запам\'ятати останній профіль</string>
+    <string name="profile_remember_last_profile_subtitle">Запам\'ятовувати останній обраний профіль при запуску</string>
     <string name="settings_debug">Налагодження</string>
     <string name="settings_account_section_subtitle">Акаунт та статус синхронізації</string>
     <string name="account_stat_addons">адони</string>

@@ -588,8 +588,8 @@
     <string name="advanced_clear_cw_cache">ניקוי מטמון \"המשך צפייה\"</string>
     <string name="advanced_clear_cw_cache_subtitle">הסרת Thumbnails, כותרות ונתוני העשרה שמורים עבור \"המשך צפייה\"</string>
     <string name="advanced_clear_cw_cache_done">המטמון נוקה</string>
-    <string name="advanced_remember_last_profile">זכירת הפרופיל האחרון</string>
-    <string name="advanced_remember_last_profile_subtitle">זכירת הפרופיל האחרון שנבחר</string>
+    <string name="profile_remember_last_profile">זכירת הפרופיל האחרון</string>
+    <string name="profile_remember_last_profile_subtitle">זכירת הפרופיל האחרון שנבחר</string>
     <string name="advanced_confirm_exit">יציאה מלאה בסגירה</string>
     <string name="advanced_confirm_exit_subtitle">יציאה מהאפליקציה לחלוטין ושחרור זיכרון ביציאה. דורש לחיצה כפולה על חזרה כדי לאשר.</string>
     <string name="confirm_exit_toast">יש ללחוץ שוב על חזרה כדי לצאת</string>

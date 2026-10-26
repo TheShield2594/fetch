@@ -532,8 +532,8 @@
 <string name="advanced_clear_cw_cache">Svuota Cache \"Continua a Guardare\"</string>
 <string name="advanced_clear_cw_cache_subtitle">Rimuovi miniature, titoli e dati arricchiti in cache per la sezione Continua a Guardare</string>
 <string name="advanced_clear_cw_cache_done">Cache svuotata</string>
-<string name="advanced_remember_last_profile">Ricorda l\'ultimo profilo</string>
-<string name="advanced_remember_last_profile_subtitle">Ricorda l\'ultimo profilo selezionato all\'avvio</string>
+<string name="profile_remember_last_profile">Ricorda l\'ultimo profilo</string>
+<string name="profile_remember_last_profile_subtitle">Ricorda l\'ultimo profilo selezionato all\'avvio</string>
 <string name="advanced_confirm_exit">Uscita completa alla chiusura</string>
 <string name="advanced_confirm_exit_subtitle">Termina completamente l\'app e libera la memoria all\'uscita. Richiede di premere indietro due volte per confermare.</string>
 <string name="confirm_exit_toast">Premi di nuovo indietro per uscire</string>

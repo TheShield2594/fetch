@@ -36,7 +36,8 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 enum class ProfileEditorTab {
     Avatar,
-    Background
+    Background,
+    Preferences
 }
 
 @Composable
@@ -62,6 +63,11 @@ fun ProfileEditorTabs(
                 onClick = { onTabSelected(ProfileEditorTab.Background) }
             )
         }
+        ProfileEditorTabItem(
+            label = stringResource(R.string.profile_editor_tab_preferences),
+            isSelected = selectedTab == ProfileEditorTab.Preferences,
+            onClick = { onTabSelected(ProfileEditorTab.Preferences) }
+        )
     }
 }
 

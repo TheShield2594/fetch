@@ -464,8 +464,8 @@
     <string name="advanced_clear_cw_cache">Ryd cache for fortsæt med at se</string>
     <string name="advanced_clear_cw_cache_subtitle">Fjern cachelagrede miniaturer, titler og berigelsesdata for fortsæt med at se</string>
     <string name="advanced_clear_cw_cache_done">Cache ryddet</string>
-    <string name="advanced_remember_last_profile">Husk seneste profil</string>
-    <string name="advanced_remember_last_profile_subtitle">Husk senest valgte profil ved opstart</string>
+    <string name="profile_remember_last_profile">Husk seneste profil</string>
+    <string name="profile_remember_last_profile_subtitle">Husk senest valgte profil ved opstart</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Konto- og synkroniseringsstatus</string>
     <string name="account_stat_addons">addons</string>

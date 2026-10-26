@@ -281,6 +281,9 @@ class LayoutPreferenceDataStore @Inject constructor(
         prefs[focusedPosterBackdropTrailerEnabledKey] ?: false
     }
 
+    fun focusedPosterBackdropTrailerEnabledForProfile(profileId: Int): Flow<Boolean> =
+        factory.get(profileId, FEATURE).data.map { it[focusedPosterBackdropTrailerEnabledKey] ?: false }
+
     val focusedPosterBackdropTrailerMuted: Flow<Boolean> = profileFlow { prefs ->
         prefs[focusedPosterBackdropTrailerMutedKey] ?: true
     }
@@ -629,8 +632,11 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    suspend fun setFocusedPosterBackdropTrailerEnabled(enabled: Boolean) {
-        store().edit { prefs ->
+    suspend fun setFocusedPosterBackdropTrailerEnabled(
+        enabled: Boolean,
+        profileId: Int = profileManager.activeProfileId.value
+    ) {
+        store(profileId).edit { prefs ->
             prefs[focusedPosterBackdropTrailerEnabledKey] = enabled
             if (!enabled) {
                 prefs[focusedPosterBackdropTrailerMutedKey] = true

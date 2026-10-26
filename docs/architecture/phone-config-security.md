@@ -18,6 +18,10 @@ scanning a QR code. This note covers what those pages can do and how they are pr
 - **Stream ranking**: the `StreamRankingRules` used by Best match.
 - **Stream badges and custom posters**: the existing pages, served under `/badges/` and
   `/posters/`.
+- **Move a profile**: saves a profile as a JSON file (name and avatar, synced settings, library,
+  watched items and progress) and adds such a file from another TV as a new profile
+  (`core/profile/ProfileTransfer.kt`). Credentials, PINs and parental limits are never in the
+  file, and device-only settings stay behind.
 
 Addons, catalog order, collections and plugin repositories keep their own QR code on their TV
 screen. Those changes decide what the TV loads, so each one is confirmed on the TV before it
@@ -49,10 +53,12 @@ installed only after it is confirmed there; it replaces the addon being configur
   running after its screen closes only when a phone has paired, so the remote keeps working,
   and it stops after 10 minutes without requests.
 - *Secrets leaking back out.* Account status only reports whether a key or sign-in exists;
-  saved keys, tokens and passwords are never returned to the phone.
+  saved keys, tokens and passwords are never returned to the phone. A profile file leaves out
+  the same keys the settings sync leaves out, and a profile with a PIN can't be saved from the
+  phone until its PIN is removed on the TV.
 - *Children changing restricted profiles.* On a profile with parental limits, the hub screen
-  needs the parent PIN, and account and ranking changes from the phone are refused unless the
-  TV was unlocked in the last few minutes.
+  needs the parent PIN, and account, ranking and profile file changes from the phone are refused
+  unless the TV was unlocked in the last few minutes.
 
 **Not protected against**
 

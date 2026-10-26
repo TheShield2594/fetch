@@ -443,8 +443,8 @@
     <string name="advanced_clear_cw_cache">Počisti predpomnilnik za Nadaljuj z ogledom</string>
     <string name="advanced_clear_cw_cache_subtitle">Odstranite predpomnjene sličice, naslove in dodatne podatke za Nadaljuj z ogledom</string>
     <string name="advanced_clear_cw_cache_done">Predpomnilnik je počiščen</string>
-    <string name="advanced_remember_last_profile">Zapomni si zadnji profil</string>
-    <string name="advanced_remember_last_profile_subtitle">Zapomni si nazadnje izbrani profil ob zagonu</string>
+    <string name="profile_remember_last_profile">Zapomni si zadnji profil</string>
+    <string name="profile_remember_last_profile_subtitle">Zapomni si nazadnje izbrani profil ob zagonu</string>
     <string name="settings_debug">Odpravljanje napak</string>	
     <string name="settings_account_section_subtitle">Stanje računa in sinhronizacije.</string>
 	<string name="account_stat_addons">dodatki</string>

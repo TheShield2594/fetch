@@ -561,8 +561,8 @@
     <string name="advanced_clear_cw_cache">清除继续观看缓存</string>
     <string name="advanced_clear_cw_cache_subtitle">移除继续观看中缓存的缩略图、标题和增强数据</string>
     <string name="advanced_clear_cw_cache_done">缓存已清除</string>
-    <string name="advanced_remember_last_profile">记住上次使用的个人资料</string>
-    <string name="advanced_remember_last_profile_subtitle">在启动时记住上次选择的个人资料</string>
+    <string name="profile_remember_last_profile">记住上次使用的个人资料</string>
+    <string name="profile_remember_last_profile_subtitle">在启动时记住上次选择的个人资料</string>
     <string name="advanced_confirm_exit">关闭时完全退出</string>
     <string name="advanced_confirm_exit_subtitle">退出时完全终止应用并释放内存。需要按两次返回键以确认。</string>
     <string name="confirm_exit_toast">再按一次返回键退出</string>

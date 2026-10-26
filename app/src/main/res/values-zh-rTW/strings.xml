@@ -561,8 +561,8 @@
     <string name="advanced_clear_cw_cache">清除繼續觀看快取</string>
     <string name="advanced_clear_cw_cache_subtitle">移除繼續觀看中快取的縮圖、標題和增強資料</string>
     <string name="advanced_clear_cw_cache_done">快取已清除</string>
-    <string name="advanced_remember_last_profile">記住上次使用的個人資料</string>
-    <string name="advanced_remember_last_profile_subtitle">在啟動時記住上次選擇的個人資料</string>
+    <string name="profile_remember_last_profile">記住上次使用的個人資料</string>
+    <string name="profile_remember_last_profile_subtitle">在啟動時記住上次選擇的個人資料</string>
     <string name="advanced_confirm_exit">關閉時完全退出</string>
     <string name="advanced_confirm_exit_subtitle">退出時完全終止應用程式並釋放記憶體。需要按兩次返回鍵以確認。</string>
     <string name="confirm_exit_toast">再按一次返回鍵退出</string>

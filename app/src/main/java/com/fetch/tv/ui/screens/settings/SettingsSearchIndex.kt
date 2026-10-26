@@ -12,7 +12,9 @@ import com.fetch.tv.R
 internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
     SettingsCategory.PROFILES to listOf(
         R.string.profile_title,
-        R.string.profile_manage_button
+        R.string.profile_manage_button,
+        R.string.profile_section_startup,
+        R.string.profile_remember_last_profile
     ),
     SettingsCategory.WATCH_PARTY to listOf(
         R.string.party_title,
@@ -352,7 +354,6 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.advanced_addon_timeout,
         R.string.advanced_section_startup,
         R.string.appearance_startup_splash,
-        R.string.advanced_remember_last_profile,
         R.string.advanced_confirm_exit,
         R.string.advanced_section_diagnostics,
         R.string.advanced_playback_issue_reports,

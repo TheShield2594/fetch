@@ -359,6 +359,36 @@ class ProfileSettingsSyncService @Inject constructor(
             }
         }
 
+    /**
+     * [profileId]'s synced settings as the device has them, without credentials or values that
+     * only fit this device. Used to move a profile to another TV.
+     */
+    suspend fun exportLocalSettings(profileId: Int): JsonObject = withContext(Dispatchers.IO) {
+        syncMutex.withLock {
+            exportSettingsBlob(profileId)["features"]?.jsonObject ?: JsonObject(emptyMap())
+        }
+    }
+
+    /**
+     * Replaces [profileId]'s synced settings with [features], as [exportLocalSettings] gave them on
+     * another TV, keeping this device's own values. When signed in they are pushed too, so an older
+     * copy on the sync server doesn't replace them on the next pull.
+     */
+    suspend fun importLocalSettings(profileId: Int, features: JsonObject) = withContext(Dispatchers.IO) {
+        syncMutex.withLock {
+            importSettingsBlob(profileId, features)
+            if (authManager.isAuthenticated) {
+                try {
+                    pushProfileToRemote(profileId)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "Imported settings for profile $profileId weren't pushed", e)
+                }
+            }
+        }
+    }
+
     fun requestForegroundPull(force: Boolean = false) {
         providerCredentialSyncService.requestForegroundPull(force)
         mediaServerSyncService.requestForegroundPull(force)

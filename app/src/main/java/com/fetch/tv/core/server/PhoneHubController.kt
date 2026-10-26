@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.fetch.tv.R
 import com.fetch.tv.core.parental.ParentalControls
+import com.fetch.tv.core.profile.ProfileTransfer
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.JsonObject
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -71,7 +73,8 @@ class PhoneHubController @Inject constructor(
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val streamBadgeSettingsDataStore: StreamBadgeSettingsDataStore,
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
-    private val parentalControls: ParentalControls
+    private val parentalControls: ParentalControls,
+    private val profileTransfer: ProfileTransfer
 ) : PhoneHubActions {
     private val scope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, error ->
@@ -297,5 +300,38 @@ class PhoneHubController @Inject constructor(
     override suspend fun saveRankingRules(rules: StreamRankingRules) {
         if (parentalControls.needsGate()) throw IllegalArgumentException(context.getString(R.string.phone_hub_parental_blocked))
         playerSettingsDataStore.setStreamRankingRules(rules)
+    }
+
+    // A profile file holds another profile's history, so it's behind the same lock as settings.
+    override suspend fun transferableProfiles(): List<Pair<Int, String>> =
+        if (parentalControls.needsGate()) emptyList() else profileTransfer.exportableProfiles().map { it.id to it.name }
+
+    override suspend fun exportProfile(profileId: Int): Result<JsonObject> {
+        settingsBlocked()?.let { return Result.failure(IllegalStateException(it.message)) }
+        return try {
+            Result.success(profileTransfer.export(profileId))
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: IllegalArgumentException) {
+            Result.failure(error)
+        } catch (error: Exception) {
+            Log.w(TAG, "Profile export from phone failed", error)
+            Result.failure(IllegalStateException("Couldn't export the profile."))
+        }
+    }
+
+    override suspend fun importProfile(document: JsonObject): PhoneHubResult {
+        settingsBlocked()?.let { return it }
+        return try {
+            val profile = profileTransfer.import(document)
+            PhoneHubResult(true, "Added ${profile.name}. Choose it on the TV from the profile picker.")
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: IllegalArgumentException) {
+            PhoneHubResult(false, error.message)
+        } catch (error: Exception) {
+            Log.w(TAG, "Profile import from phone failed", error)
+            PhoneHubResult(false, "Couldn't add the profile.")
+        }
     }
 }

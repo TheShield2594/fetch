@@ -1526,8 +1526,8 @@
     <string name="trakt_library_source_title">Źródło biblioteki</string>
 
     <!-- Missing translations -->
-    <string name="advanced_remember_last_profile">Zapamiętaj ostatni profil</string>
-    <string name="advanced_remember_last_profile_subtitle">Zapamiętaj ostatnio wybrany profil przy uruchomieniu</string>
+    <string name="profile_remember_last_profile">Zapamiętaj ostatni profil</string>
+    <string name="profile_remember_last_profile_subtitle">Zapamiętaj ostatnio wybrany profil przy uruchomieniu</string>
     <string name="advanced_confirm_exit">Pełne zamknięcie aplikacji</string>
     <string name="advanced_confirm_exit_subtitle">Całkowicie zamyka aplikację i zwalnia pamięć przy wyjściu. Wymaga dwukrotnego naciśnięcia wstecz w celu potwierdzenia.</string>
     <string name="confirm_exit_toast">Naciśnij wstecz ponownie, aby wyjść</string>

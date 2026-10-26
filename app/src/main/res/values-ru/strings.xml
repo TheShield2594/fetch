@@ -1680,8 +1680,8 @@
     <string name="advanced_clear_cw_cache">Очистить кэш «Продолжить просмотр»</string>
     <string name="advanced_clear_cw_cache_subtitle">Удалить кэшированные миниатюры, названия и данные обогащения для «Продолжить просмотр»</string>
     <string name="advanced_clear_cw_cache_done">Кэш очищен</string>
-    <string name="advanced_remember_last_profile">Запомнить последний профиль</string>
-    <string name="advanced_remember_last_profile_subtitle">Запоминать последний выбранный профиль при запуске</string>
+    <string name="profile_remember_last_profile">Запомнить последний профиль</string>
+    <string name="profile_remember_last_profile_subtitle">Запоминать последний выбранный профиль при запуске</string>
     <string name="advanced_confirm_exit">Полный выход при закрытии</string>
     <string name="advanced_confirm_exit_subtitle">Полностью завершать работу приложения и освобождать память при выходе. Для подтверждения потребуется дважды нажать «Назад».</string>
     <string name="confirm_exit_toast">Нажмите «Назад» ещё раз для выхода</string>

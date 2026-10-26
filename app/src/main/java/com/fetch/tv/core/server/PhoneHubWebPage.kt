@@ -81,6 +81,7 @@ object PhoneHubWebPage {
                 ${card("/remote", "Remote and keyboard", "D-pad, OK, Back, play/pause, and typing into the TV")}
                 ${card("/accounts", "Accounts", "MDBList, Trakt, Simkl and media servers")}
                 ${card("/ranking", "Stream ranking", "Resolution, size, codecs and keywords for Best match")}
+                ${card("/profiles", "Move a profile", "Save a profile to a file, or add one from another TV")}
                 $extra
                 <h2>On the TV</h2>
                 <p style="color:#9aa3b2;font-size:14px">Addons, catalog order and collections change what the TV loads, so each change is confirmed on the TV. Open those screens on the TV and use their own phone code.</p>
@@ -332,6 +333,48 @@ object PhoneHubWebPage {
               post('/api/ranking', { rules: rules }).then(function () { current = rules; show('status', 'Saved'); })
                 .catch(function (e) { show('status', e.message, true); });
             });
+        """
+    )
+
+    fun profiles(): String = page(
+        title = "Move a profile",
+        body = """
+            <p style="color:#9aa3b2;font-size:14px">A profile file holds the profile's name and avatar, its settings, its library, and what it has watched. Sign-ins, API keys, PINs and parental limits stay on this TV.</p>
+            <h2>Save from this TV</h2>
+            <div id="profiles"></div>
+            <div id="exportStatus" class="status"></div>
+            <h2>Add to this TV</h2>
+            <label for="file">A profile file saved from another TV</label>
+            <input id="file" type="file" accept=".json,application/json">
+            <div class="row"><button id="import">Add profile</button></div>
+            <div id="importStatus" class="status"></div>
+        """,
+        script = """
+            function escapeHtml(value) {
+              return String(value).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
+            }
+            function refresh() {
+              fetch('/api/profiles').then(function (r) { return r.json(); }).then(function (d) {
+                const box = document.getElementById('profiles');
+                box.innerHTML = d.profiles.map(function (p) {
+                  return '<a class="card" download href="/api/profiles/export?id=' + encodeURIComponent(p.id) + '">' +
+                    escapeHtml(p.name) + '<span>Save as a file</span></a>';
+                }).join('');
+                show('exportStatus', d.profiles.length ? '' : 'No profile can be saved. A profile with a PIN has to have it removed on the TV first.');
+              });
+            }
+            document.getElementById('import').addEventListener('click', function () {
+              const file = document.getElementById('file').files[0];
+              if (!file) { show('importStatus', 'Choose a profile file first.', true); return; }
+              show('importStatus', 'Adding...');
+              file.text().then(function (text) {
+                let document_;
+                try { document_ = JSON.parse(text); } catch (e) { throw new Error("That file isn't a Fetch profile."); }
+                return post('/api/profiles/import', document_);
+              }).then(function (d) { show('importStatus', d.message || 'Added'); refresh(); })
+                .catch(function (e) { show('importStatus', e.message, true); });
+            });
+            refresh();
         """
     )
 

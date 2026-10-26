@@ -572,8 +572,8 @@
     <string name="advanced_clear_cw_cache">Očisti predmemoriju Nastavi gledati</string>
     <string name="advanced_clear_cw_cache_subtitle">Ukloni spremljene sličice, naslove i obogaćene podatke za Nastavi gledati</string>
     <string name="advanced_clear_cw_cache_done">Predmemorija očišćena</string>
-    <string name="advanced_remember_last_profile">Zapamti zadnji profil</string>
-    <string name="advanced_remember_last_profile_subtitle">Zapamti zadnji odabrani profil pri pokretanju</string>
+    <string name="profile_remember_last_profile">Zapamti zadnji profil</string>
+    <string name="profile_remember_last_profile_subtitle">Zapamti zadnji odabrani profil pri pokretanju</string>
     <string name="advanced_confirm_exit">Potpuni izlaz pri zatvaranju</string>
     <string name="advanced_confirm_exit_subtitle">Potpuno zatvori aplikaciju i oslobodi memoriju pri izlasku. Za potvrdu je potrebno dvaput pritisnuti natrag.</string>
     <string name="confirm_exit_toast">Ponovno pritisni natrag za izlaz</string>

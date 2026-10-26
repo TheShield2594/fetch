@@ -544,8 +544,8 @@
     <string name="advanced_clear_cw_cache">কন্টিনিউ ওয়াচিং ক্যাশে সাফ করুন</string>
     <string name="advanced_clear_cw_cache_subtitle">Continue Watching-এর জন্য ক্যাশে করা থাম্বনেইল, টাইটেল এবং এনরিচমেন্ট ডেটা রিমুভ করুন</string>
     <string name="advanced_clear_cw_cache_done">ক্যাশে সাফ করা হয়েছে</string>
-    <string name="advanced_remember_last_profile">শেষ প্রোফাইল মনে রাখুন</string>
-    <string name="advanced_remember_last_profile_subtitle">স্টার্টআপে সর্বশেষ নির্বাচিত প্রোফাইল মনে রাখবেন</string>
+    <string name="profile_remember_last_profile">শেষ প্রোফাইল মনে রাখুন</string>
+    <string name="profile_remember_last_profile_subtitle">স্টার্টআপে সর্বশেষ নির্বাচিত প্রোফাইল মনে রাখবেন</string>
     <string name="advanced_confirm_exit">ক্লোজ করার সময় সম্পূর্ণ এক্সিট</string>
     <string name="advanced_confirm_exit_subtitle">এক্সিট করার সময় অ্যাপটি পুরোপুরি বন্ধ করুন এবং মেমোরি ফ্রি করুন। কনফার্ম করতে দুইবার back চাপতে হবে।</string>
     <string name="confirm_exit_toast">বেরিয়ে যেতে আবার ব্যাক চাপুন</string>

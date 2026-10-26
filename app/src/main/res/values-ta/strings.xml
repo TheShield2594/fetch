@@ -456,8 +456,8 @@
     <string name="advanced_clear_cw_cache">தொடர்ந்து பார்ப்பது கேச் அழி</string>
     <string name="advanced_clear_cw_cache_subtitle">தொடர்ந்து பார்ப்பதற்கான சேமித்த சிறுபடங்கள், தலைப்புகள் மற்றும் தரவை அகற்று</string>
     <string name="advanced_clear_cw_cache_done">கேச் அழிக்கப்பட்டது</string>
-    <string name="advanced_remember_last_profile">கடைசி புரொஃபைலை நினைவில் வை</string>
-    <string name="advanced_remember_last_profile_subtitle">தொடக்கத்தில் கடைசியாக தேர்ந்தெடுத்த புரொஃபைலை நினைவில் வைத்திரு</string>
+    <string name="profile_remember_last_profile">கடைசி புரொஃபைலை நினைவில் வை</string>
+    <string name="profile_remember_last_profile_subtitle">தொடக்கத்தில் கடைசியாக தேர்ந்தெடுத்த புரொஃபைலை நினைவில் வைத்திரு</string>
     <string name="settings_debug">பிழைத்திருத்தம்</string>
     <string name="settings_account_section_subtitle">அக்கவுண்ட் மற்றும் ஒத்திசைவு நிலை</string>
     <string name="account_stat_addons">ஆட்-ஆன்கள்</string>

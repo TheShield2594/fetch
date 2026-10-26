@@ -14,11 +14,17 @@ data class YouTubeFeedFilter(
         else -> true
     }
 
-    /** [page] without the videos left out, and without the rows that leaves empty. */
+    /** Whether [link] shows: a channel's Shorts tab only opens Shorts, so it goes with them. */
+    fun allows(link: YouTubeLink): Boolean = showShorts || link.tab != YouTubeChannelTab.SHORTS
+
+    /** [page] without the videos and links left out, and without the rows that leaves empty. */
     fun apply(page: YouTubePage, feed: YouTubeFeed): YouTubePage = page.copy(
         shelves = page.shelves.mapNotNull { shelf ->
             if (!showShorts && shelf.isShorts) return@mapNotNull null
-            shelf.copy(videos = shelf.videos.filter { allows(it, feed) }).takeIf { !it.isEmpty() }
+            shelf.copy(
+                videos = shelf.videos.filter { allows(it, feed) },
+                links = shelf.links.filter { allows(it) }
+            ).takeIf { !it.isEmpty() }
         }
     )
 

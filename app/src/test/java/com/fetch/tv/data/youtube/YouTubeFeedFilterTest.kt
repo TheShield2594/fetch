@@ -68,4 +68,18 @@ class YouTubeFeedFilterTest {
         val actions = YouTubeVideoActions(YouTubeLikeStatus.LIKE, "UCchannel", "Channel", subscribed = false)
         assertEquals(actions, YouTubeFeedFilter(showShorts = false).apply(watchNext.copy(actions = actions)).actions)
     }
+
+    @Test
+    fun `hiding shorts hides a channel's shorts tab`() {
+        fun tab(tab: YouTubeChannelTab?) =
+            YouTubeLink(YouTubeBrowseTarget("UCchannel", tab?.name), YouTubeLinkKind.CHANNEL, tab?.name ?: "Channel", tab = tab)
+        val page = YouTubePage(
+            listOf(YouTubeShelf(null, emptyList(), links = listOf(tab(YouTubeChannelTab.VIDEOS), tab(YouTubeChannelTab.SHORTS), tab(null)))),
+            null
+        )
+
+        val links = YouTubeFeedFilter(showShorts = false).apply(page, YouTubeFeed.HOME).shelves.single().links
+        assertEquals(listOf(YouTubeChannelTab.VIDEOS, null), links.map { it.tab })
+        assertEquals(3, YouTubeFeedFilter().apply(page, YouTubeFeed.HOME).shelves.single().links.size)
+    }
 }

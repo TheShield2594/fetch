@@ -509,4 +509,101 @@ class YouTubeResponseParserTest {
             YouTubeResponseParser.parseWatchNext(root, "aaa").actions
         )
     }
+
+    @Test
+    fun `a channel's tab shortcuts say which tab they open`() {
+        val shelves = parse(
+            """
+            {"shelfRenderer": {
+              "hideHeader": true,
+              "content": {"horizontalListRenderer": {"items": [
+                {"tileRenderer": {
+                  "contentType": "TILE_CONTENT_TYPE_CHANNEL",
+                  "onSelectCommand": {"browseEndpoint": {"browseId": "UCchannel", "params": "EgZzaG9ydHPyBgUKA5oBAA%3D%3D"}},
+                  "header": {"tileHeaderRenderer": {"thumbnailOverlays": [
+                    {"tileMetadataRenderer": {"title": {"simpleText": "Shorts"}}}
+                  ]}}
+                }},
+                {"tileRenderer": {
+                  "contentType": "TILE_CONTENT_TYPE_CHANNEL",
+                  "onSelectCommand": {"browseEndpoint": {"browseId": "UCchannel", "params": "opaque"}},
+                  "header": {"tileHeaderRenderer": {"thumbnailOverlays": [
+                    {"tileMetadataRenderer": {
+                      "title": {"simpleText": "Videos"},
+                      "lines": [{"lineRenderer": {"items": [{"lineItemRenderer": {"icon": {"iconType": "MY_VIDEOS"}}}]}}]
+                    }}
+                  ]}}
+                }},
+                {"tileRenderer": {
+                  "contentType": "TILE_CONTENT_TYPE_CHANNEL",
+                  "onSelectCommand": {"browseEndpoint": {"browseId": "UCchannel", "params": "EghyZWxlYXNlc_IGBQoDsgEA"}},
+                  "header": {"tileHeaderRenderer": {"thumbnailOverlays": [
+                    {"tileMetadataRenderer": {"title": {"simpleText": "Releases"}}}
+                  ]}}
+                }},
+                {"tileRenderer": {
+                  "contentType": "TILE_CONTENT_TYPE_CHANNEL",
+                  "onSelectCommand": {"browseEndpoint": {"browseId": "UCother"}},
+                  "metadata": {"tileMetadataRenderer": {"title": {"simpleText": "Another channel"}}}
+                }}
+              ]}}
+            }}
+            """
+        )
+
+        assertEquals(
+            listOf(YouTubeChannelTab.SHORTS, YouTubeChannelTab.VIDEOS, YouTubeChannelTab.RELEASES, null),
+            shelves.single().links.map { it.tab }
+        )
+    }
+
+    @Test
+    fun `browse params name the channel tab`() {
+        assertEquals("videos", YouTubeResponseParser.paramsTabName("EgZ2aWRlb3PyBgQKAjoA"))
+        assertEquals("streams", YouTubeResponseParser.paramsTabName("EgdzdHJlYW1z8gYECgJ6AA%3D%3D"))
+        assertNull(YouTubeResponseParser.paramsTabName("not base64!"))
+        assertNull(YouTubeResponseParser.paramsTabName("CgA="))
+    }
+
+    @Test
+    fun `a collaboration lists each of its channels`() {
+        val shelves = parse(
+            """
+            {"items": [{"tileRenderer": {
+              "contentType": "TILE_CONTENT_TYPE_VIDEO",
+              "onSelectCommand": {"watchEndpoint": {"videoId": "collab"}},
+              "metadata": {"tileMetadataRenderer": {
+                "title": {"simpleText": "A collaboration"},
+                "lines": [{"lineRenderer": {"items": [{"lineItemRenderer": {"text": {"runs": [{
+                  "text": "YouTube and 2 more",
+                  "navigationEndpoint": {"showDialogCommand": {"panelLoadingStrategy": {"inlineContent": {"dialogViewModel": {
+                    "customContent": {"listViewModel": {"listItems": [
+                      {"listItemViewModel": {
+                        "title": {"content": "YouTube"},
+                        "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {"browseEndpoint": {"browseId": "UCyoutube"}}}}}
+                      }},
+                      {"listItemViewModel": {
+                        "title": {"content": "Creator"},
+                        "rendererContext": {"commandContext": {"onTap": {"innertubeCommand": {"browseEndpoint": {"browseId": "UCcreator"}}}}}
+                      }}
+                    ]}}
+                  }}}}}
+                }]}}}]}}]
+              }},
+              "onLongPressCommand": {"showMenuCommand": {"menu": {"menuRenderer": {"items": [
+                {"menuNavigationItemRenderer": {
+                  "text": {"runs": [{"text": "Go to channel"}]},
+                  "navigationEndpoint": {"browseEndpoint": {"browseId": "UCthird"}}
+                }}
+              ]}}}}
+            }}]}
+            """
+        )
+
+        val video = shelves.single().videos.single()
+        assertEquals(
+            listOf(YouTubeChannelRef("UCyoutube", "YouTube"), YouTubeChannelRef("UCcreator", "Creator"), YouTubeChannelRef("UCthird")),
+            video.channels
+        )
+    }
 }

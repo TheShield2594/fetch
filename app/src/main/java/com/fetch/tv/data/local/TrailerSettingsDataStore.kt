@@ -1,5 +1,7 @@
 package com.fetch.tv.data.local
 
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.Preferences
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -35,16 +37,20 @@ class TrailerSettingsDataStore @Inject constructor(
     private val allow4kKey = booleanPreferencesKey("trailer_allow_4k")
 
     val settings: Flow<TrailerSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
-        factory.get(pid, FEATURE).data.map { prefs ->
-            TrailerSettings(
-                enabled = prefs[enabledKey] ?: true,
-                delaySeconds = prefs[delaySecondsKey] ?: 7,
-                playInBackground = prefs[playInBackgroundKey] ?: false,
-                pauseOnScroll = prefs[pauseOnScrollKey] ?: true,
-                allow4k = prefs[allow4kKey] ?: default4kTrailers
-            )
-        }
+        factory.get(pid, FEATURE).data.map(::readSettings)
     }
+
+    /** What the settings are before the profile changes any: [readSettings] on empty preferences. */
+    val defaultSettings: TrailerSettings by lazy { readSettings(emptyPreferences()) }
+
+    private fun readSettings(prefs: Preferences): TrailerSettings =
+        TrailerSettings(
+            enabled = prefs[enabledKey] ?: true,
+            delaySeconds = prefs[delaySecondsKey] ?: 7,
+            playInBackground = prefs[playInBackgroundKey] ?: false,
+            pauseOnScroll = prefs[pauseOnScrollKey] ?: true,
+            allow4k = prefs[allow4kKey] ?: default4kTrailers
+        )
 
     suspend fun setEnabled(enabled: Boolean) {
         store().edit { it[enabledKey] = enabled }

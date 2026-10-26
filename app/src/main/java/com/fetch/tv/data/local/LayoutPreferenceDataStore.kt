@@ -3,6 +3,7 @@ package com.fetch.tv.data.local
 import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -116,10 +117,21 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val customPosterUrlPatternKey = stringPreferencesKey("custom_poster_url_pattern")
     private val customPosterEnabledScreensKey = stringPreferencesKey("custom_poster_enabled_screens")
 
+    // Each profileFlow's value for a profile that hasn't changed it, keyed by the flow itself.
+    // Declared before the flows so it exists while they are created.
+    private val profileFlowDefaults = java.util.IdentityHashMap<Flow<*>, Any?>()
+
     private fun <T> profileFlow(extract: (prefs: androidx.datastore.preferences.core.Preferences) -> T): Flow<T> =
         profileManager.activeProfileId.flatMapLatest { pid ->
             factory.get(pid, FEATURE).data.map { prefs -> extract(prefs) }
-        }
+        }.also { flow -> profileFlowDefaults[flow] = extract(emptyPreferences()) }
+
+    /** The value [flow] has before the profile changes it. Only flows built with profileFlow have one. */
+    @Suppress("UNCHECKED_CAST")
+    fun <T> defaultOf(flow: Flow<T>): T {
+        require(profileFlowDefaults.containsKey(flow)) { "No default recorded for this flow" }
+        return profileFlowDefaults[flow] as T
+    }
 
     private fun Preferences.getStringOrMigrateSet(key: Preferences.Key<String>): String? {
         return try {

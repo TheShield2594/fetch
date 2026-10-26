@@ -4,8 +4,10 @@ import com.fetch.tv.BuildConfig
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -893,7 +895,12 @@ class PlayerSettingsDataStore @Inject constructor(
      */
     val playerSettings: Flow<PlayerSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.onStart { migrateProfile(pid) }
-    }.map { prefs ->
+    }.map { prefs -> readPlayerSettings(prefs) }
+
+    /** What a profile gets before it changes anything: the mapping below read from empty preferences. */
+    val defaultPlayerSettings: PlayerSettings by lazy { readPlayerSettings(emptyPreferences()) }
+
+    private fun readPlayerSettings(prefs: Preferences): PlayerSettings =
         try {
             PlayerSettings(
                 playerPreference = prefs[playerPreferenceKey]?.let {
@@ -1096,7 +1103,6 @@ class PlayerSettingsDataStore @Inject constructor(
         } catch (e: ClassCastException) {
             Log.w("PlayerSettingsDataStore", "Corrupt preference value, using defaults", e)
             PlayerSettings()
-        }
         }
 
     val useLibass: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->

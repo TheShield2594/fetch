@@ -1,5 +1,7 @@
 package com.fetch.tv.data.local
 
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -54,14 +56,18 @@ class StreamBadgeSettingsDataStore @Inject constructor(
 
     val settings: Flow<StreamBadgeSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.onStart { migrateProfile(pid) }
-    }.map { prefs ->
+    }.map(::readSettings)
+
+    /** What the settings are before the profile changes any: [readSettings] on empty preferences. */
+    val defaultSettings: StreamBadgeSettings by lazy { readSettings(emptyPreferences()) }
+
+    private fun readSettings(prefs: Preferences): StreamBadgeSettings =
         StreamBadgeSettings(
             rules = parseStreamBadgeRules(prefs[streamBadgeRulesKey]) ?: StreamBadgeRules(),
             showFileSizeBadges = prefs[showFileSizeBadgesKey] ?: true,
             showAddonLogo = prefs[showAddonLogoKey] ?: true,
             badgePlacement = prefs[streamBadgePlacementKey].toStreamBadgePlacement()
         )
-    }
 
     suspend fun setStreamBadgeRules(rules: StreamBadgeRules) {
         store().edit {

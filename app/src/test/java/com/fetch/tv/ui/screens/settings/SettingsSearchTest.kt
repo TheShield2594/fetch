@@ -41,4 +41,23 @@ class SettingsSearchTest {
         assertTrue(searchSettings("  ", entries).isEmpty())
         assertTrue(searchSettings("bitrate", entries).isEmpty())
     }
+
+    @Test
+    fun `changed only lists every changed entry for a blank query, in page order`() {
+        val changed = setOf(entries[2], entries[0])
+
+        assertEquals(listOf(entries[0], entries[2]), settingsSearchResults("", entries, changedOnly = true, changed = changed))
+        assertEquals(emptyList<SettingsSearchEntry>(), settingsSearchResults("", entries, changedOnly = false, changed = changed))
+    }
+
+    @Test
+    fun `changed only narrows a query to the changed entries`() {
+        val changed = setOf(entries[0])
+
+        assertEquals(listOf(entries[0]), settingsSearchResults("lang", entries, changedOnly = true, changed = changed))
+        assertEquals(
+            searchSettings("lang", entries),
+            settingsSearchResults("lang", entries, changedOnly = false, changed = changed)
+        )
+    }
 }

@@ -1,8 +1,10 @@
 package com.fetch.tv.core.torrent
 
 import android.content.Context
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -55,7 +57,12 @@ class TorrentSettings @Inject constructor(
         val CACHE_SIZE = stringPreferencesKey("cache_size")
     }
 
-    val settings: Flow<TorrentSettingsData> = context.torrentDataStore.data.map { prefs ->
+    val settings: Flow<TorrentSettingsData> = context.torrentDataStore.data.map(::readSettings)
+
+    /** What the settings are before anything is changed: [readSettings] on empty preferences. */
+    val defaultSettings: TorrentSettingsData by lazy { readSettings(emptyPreferences()) }
+
+    private fun readSettings(prefs: Preferences): TorrentSettingsData =
         TorrentSettingsData(
             p2pEnabled = prefs[Keys.P2P_ENABLED] ?: false,
             enableUpload = prefs[Keys.ENABLE_UPLOAD] ?: true,
@@ -67,7 +74,6 @@ class TorrentSettings @Inject constructor(
                 ?.let { stored -> TorrentCacheSize.entries.firstOrNull { it.name == stored } }
                 ?: TorrentCacheSize.GB_2
         )
-    }
 
     fun setP2pEnabled(enabled: Boolean) {
         scope.launch {

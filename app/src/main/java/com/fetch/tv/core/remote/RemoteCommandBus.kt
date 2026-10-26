@@ -37,6 +37,9 @@ sealed interface RemoteCommand {
 
     /** Opens search on the TV and runs [query]. */
     data class Search(val query: String) : RemoteCommand
+
+    /** Opens settings search on the TV with [query] typed in. */
+    data class SettingsSearch(val query: String) : RemoteCommand
 }
 
 /**
@@ -53,14 +56,26 @@ class RemoteCommandBus @Inject constructor() {
     /** Search query from the phone, waiting for the search screen to pick it up. */
     val pendingSearch: StateFlow<String?> = _pendingSearch.asStateFlow()
 
+    private val _pendingSettingsSearch = MutableStateFlow<String?>(null)
+
+    /** Settings search query from the phone, waiting for the settings screen to pick it up. */
+    val pendingSettingsSearch: StateFlow<String?> = _pendingSettingsSearch.asStateFlow()
+
     fun send(command: RemoteCommand): Boolean {
         if (command is RemoteCommand.Search) _pendingSearch.value = command.query
+        if (command is RemoteCommand.SettingsSearch) _pendingSettingsSearch.value = command.query
         return _commands.tryEmit(command)
     }
 
     fun consumePendingSearch(): String? {
         val query = _pendingSearch.value
         _pendingSearch.value = null
+        return query
+    }
+
+    fun consumePendingSettingsSearch(): String? {
+        val query = _pendingSettingsSearch.value
+        _pendingSettingsSearch.value = null
         return query
     }
 

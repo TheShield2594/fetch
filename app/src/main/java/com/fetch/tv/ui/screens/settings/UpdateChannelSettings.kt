@@ -23,7 +23,9 @@ import com.fetch.tv.updater.UpdateViewModel
 @Composable
 internal fun UpdateChannelSettings(
     initialFocusRequester: FocusRequester?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // Essential mode keeps "Check for updates" and leaves the channel and banner to Advanced.
+    essentialMode: Boolean = false
 ) {
     val context = LocalContext.current
     val viewModel: UpdateViewModel = hiltViewModel(context as ComponentActivity)
@@ -34,15 +36,18 @@ internal fun UpdateChannelSettings(
         UpdateChannel.BETA -> stringResource(R.string.update_channel_beta)
     }
 
+    val firstRowModifier = modifier.then(
+        if (initialFocusRequester != null) Modifier.focusRequester(initialFocusRequester)
+        else Modifier
+    )
+
+    if (!essentialMode) {
     SettingsActionRow(
         title = stringResource(R.string.about_update_channel_title),
         subtitle = stringResource(R.string.about_update_channel_subtitle),
         value = channelName,
         onClick = { showChannelDialog = true },
-        modifier = modifier.then(
-            if (initialFocusRequester != null) Modifier.focusRequester(initialFocusRequester)
-            else Modifier
-        )
+        modifier = firstRowModifier
     )
 
     SettingsToggleRow(
@@ -53,11 +58,13 @@ internal fun UpdateChannelSettings(
             viewModel.setUpdateBannerEnabled(!state.updateBannerEnabled)
         }
     )
+    }
 
     SettingsActionRow(
         title = stringResource(R.string.about_check_updates),
         subtitle = stringResource(R.string.about_check_updates_subtitle),
         trailingIcon = Icons.AutoMirrored.Filled.OpenInNew,
+        modifier = if (essentialMode) firstRowModifier else Modifier,
         onClick = {
             viewModel.checkForUpdates(force = true, showNoUpdateFeedback = true)
         }

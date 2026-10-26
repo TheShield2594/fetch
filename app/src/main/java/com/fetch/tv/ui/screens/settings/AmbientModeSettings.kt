@@ -17,7 +17,9 @@ import com.fetch.tv.domain.model.AmbientModeSettings
 
 @Composable
 internal fun AmbientModeSettingsCard(
-    viewModel: AmbientModeSettingsViewModel = hiltViewModel()
+    viewModel: AmbientModeSettingsViewModel = hiltViewModel(),
+    // Essential mode offers only the on/off switch.
+    essentialMode: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val settings = uiState.settings
@@ -36,7 +38,7 @@ internal fun AmbientModeSettingsCard(
             checked = settings.enabled,
             onToggle = { viewModel.setEnabled(!settings.enabled) }
         )
-        if (settings.enabled) {
+        if (settings.enabled && !essentialMode) {
             SettingsActionRow(
                 title = stringResource(R.string.ambient_mode_timeout),
                 subtitle = stringResource(R.string.ambient_mode_timeout_subtitle),

@@ -84,6 +84,16 @@ class PhoneHubServerTest {
     }
 
     @Test
+    fun `settings search reaches the TV`() {
+        assertEquals(
+            NanoHTTPD.Response.Status.OK,
+            post("/api/remote", """{"type":"settings_search","query":"subtitles"}""").status
+        )
+
+        assertEquals(listOf(RemoteCommand.SettingsSearch("subtitles")), actions.commands)
+    }
+
+    @Test
     fun `bad remote input is rejected`() {
         assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, post("/api/remote", """{"type":"key","key":"POWER"}""").status)
         assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, post("/api/remote", """{"type":"text","text":""}""").status)

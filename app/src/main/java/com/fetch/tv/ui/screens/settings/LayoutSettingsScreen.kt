@@ -68,9 +68,7 @@ fun LayoutSettingsContent(
         essentialMode = essentialMode,
         focusedPosterHasOptions = uiState.focusedPosterHasOptions()
     )
-    var expandedSections by rememberSaveable(essentialMode) {
-        mutableStateOf(if (essentialMode) listOf(LayoutSection.HOME_LAYOUT.name) else emptyList())
-    }
+    var expandedSections by rememberSaveable { mutableStateOf(emptyList<String>()) }
 
     LaunchedEffect(streamBadgeUiState.serverError) {
         val error = streamBadgeUiState.serverError ?: return@LaunchedEffect
@@ -103,6 +101,17 @@ fun LayoutSettingsContent(
                     contentPadding = PaddingValues(bottom = 18.dp),
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
+                    if (essentialMode) {
+                        item(key = "essential") {
+                            Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+                                LayoutEssentialSection(
+                                    uiState = uiState,
+                                    onEvent = viewModel::onEvent,
+                                    firstRowFocusRequester = initialFocusRequester
+                                )
+                            }
+                        }
+                    }
                     items(items = sections, key = { it.name }) { section ->
                         // While a search result's row is being looked for, every section is open,
                         // and the one it turns up in stays open afterwards.

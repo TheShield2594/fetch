@@ -61,9 +61,9 @@ class SettingsStructureTest {
     }
 
     @Test
-    fun `essential layout only offers the home layout`() {
+    fun `essential layout has no sections, only its flat list`() {
         assertEquals(
-            listOf(LayoutSection.HOME_LAYOUT),
+            emptyList<LayoutSection>(),
             visibleLayoutSections(essentialMode = true, focusedPosterHasOptions = true)
         )
     }

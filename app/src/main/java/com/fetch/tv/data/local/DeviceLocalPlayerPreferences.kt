@@ -57,7 +57,7 @@ class DeviceLocalPlayerPreferences @Inject constructor(
     }
 
     val transparentLetterbox: Flow<Boolean> = store.data.map { prefs ->
-        prefs[transparentLetterboxKey] ?: false
+        prefs[transparentLetterboxKey] ?: TRANSPARENT_LETTERBOX_DEFAULT
     }
 
     suspend fun setTransparentLetterbox(enabled: Boolean) {
@@ -110,5 +110,9 @@ class DeviceLocalPlayerPreferences @Inject constructor(
         store.edit { prefs ->
             prefs[playerStatsHudActiveKey] = active
         }
+    }
+
+    companion object {
+        const val TRANSPARENT_LETTERBOX_DEFAULT = false
     }
 }

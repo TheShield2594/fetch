@@ -981,6 +981,9 @@ open class MainActivity : ComponentActivity() {
                                 is RemoteCommand.Search -> navController.navigate(Screen.Search.route) {
                                     launchSingleTop = true
                                 }
+                                is RemoteCommand.SettingsSearch -> navController.navigate(Screen.Settings.route) {
+                                    launchSingleTop = true
+                                }
                             }
                         }
                     }

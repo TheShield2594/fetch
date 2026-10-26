@@ -98,7 +98,8 @@ fun ThemeSettingsScreen(
 @Composable
 fun ThemeSettingsContent(
     viewModel: ThemeSettingsViewModel = hiltViewModel(),
-    initialFocusRequester: FocusRequester? = null
+    initialFocusRequester: FocusRequester? = null,
+    essentialMode: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val appIconState by viewModel.appIconState.collectAsStateWithLifecycle()
@@ -232,7 +233,8 @@ fun ThemeSettingsContent(
                     }
                     SettingsHorizontalScrollIndicators(state = themeRowState)
                 }
-                SettingsToggleRow(
+                // Essential mode keeps the theme, font, language and ambient mode; the rest is Advanced.
+                if (!essentialMode) SettingsToggleRow(
                     title = stringResource(R.string.appearance_amoled_mode),
                     subtitle = stringResource(R.string.appearance_amoled_mode_subtitle),
                     checked = uiState.amoledMode,
@@ -240,7 +242,7 @@ fun ThemeSettingsContent(
                         viewModel.onEvent(ThemeSettingsEvent.ToggleAmoledMode(!uiState.amoledMode))
                     }
                 )
-                if (uiState.amoledMode) {
+                if (uiState.amoledMode && !essentialMode) {
                     SettingsToggleRow(
                         title = stringResource(R.string.appearance_amoled_surfaces_mode),
                         subtitle = stringResource(R.string.appearance_amoled_surfaces_mode_subtitle),
@@ -254,7 +256,7 @@ fun ThemeSettingsContent(
                 }
             }
 
-            SettingsGroupCard(
+            if (!essentialMode) SettingsGroupCard(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(R.string.appearance_launcher_artwork),
                 subtitle = stringResource(R.string.appearance_launcher_artwork_subtitle)
@@ -271,7 +273,7 @@ fun ThemeSettingsContent(
                 )
             }
 
-            AmbientModeSettingsCard()
+            AmbientModeSettingsCard(essentialMode = essentialMode)
 
             SettingsGroupCard(
                 modifier = Modifier.fillMaxWidth(),

@@ -1,5 +1,7 @@
 package com.fetch.tv.data.local
 
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -32,14 +34,18 @@ class AmbientModeDataStore @Inject constructor(
     private val catalogKeysKey = stringPreferencesKey("ambient_catalog_keys")
 
     val settings: Flow<AmbientModeSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
-        factory.get(pid, FEATURE).data.map { prefs ->
-            AmbientModeSettings(
-                enabled = prefs[enabledKey] ?: true,
-                timeoutMinutes = prefs[timeoutMinutesKey] ?: AmbientModeSettings.DEFAULT_TIMEOUT_MINUTES,
-                catalogKeys = decodeKeys(prefs[catalogKeysKey])
-            )
-        }
+        factory.get(pid, FEATURE).data.map(::readSettings)
     }.distinctUntilChanged()
+
+    /** What the settings are before the profile changes any: [readSettings] on empty preferences. */
+    val defaultSettings: AmbientModeSettings by lazy { readSettings(emptyPreferences()) }
+
+    private fun readSettings(prefs: Preferences): AmbientModeSettings =
+        AmbientModeSettings(
+            enabled = prefs[enabledKey] ?: true,
+            timeoutMinutes = prefs[timeoutMinutesKey] ?: AmbientModeSettings.DEFAULT_TIMEOUT_MINUTES,
+            catalogKeys = decodeKeys(prefs[catalogKeysKey])
+        )
 
     suspend fun setEnabled(enabled: Boolean) {
         store().edit { it[enabledKey] = enabled }

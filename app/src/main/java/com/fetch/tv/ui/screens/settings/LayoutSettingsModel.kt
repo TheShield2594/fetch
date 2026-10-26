@@ -34,8 +34,9 @@ internal fun visibleLayoutSections(
     essentialMode: Boolean,
     focusedPosterHasOptions: Boolean
 ): List<LayoutSection> =
+    // Essential mode has no sections: its page is the flat LayoutEssentialSection.
     if (essentialMode) {
-        listOf(LayoutSection.HOME_LAYOUT)
+        emptyList()
     } else {
         LayoutSection.entries.filter { section ->
             section != LayoutSection.FOCUSED_POSTER || focusedPosterHasOptions

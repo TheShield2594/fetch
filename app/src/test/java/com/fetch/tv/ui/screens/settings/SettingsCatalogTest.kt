@@ -183,7 +183,7 @@ class SettingsCatalogTest {
         )
         assertFalse(SettingsCategory.PLAYBACK in advanced)
         assertEquals(
-            listOf(SettingsCategory.PLAYBACK, SettingsCategory.ANIME_SKIP),
+            listOf(SettingsCategory.PLAYBACK),
             essential.filter { it.group == SettingsRailGroup.PLAYBACK }
         )
     }
@@ -221,4 +221,15 @@ class SettingsCatalogTest {
                 }
             }
         }
+
+    @Test
+    fun `essential mode leaves YouTube and Anime-Skip to advanced mode`() {
+        val essential = visibleSettingsCategories(true, isEssentialMode = true, isDebugBuild = false, isYouTubeAvailable = true)
+        val advanced = visibleSettingsCategories(true, isEssentialMode = false, isDebugBuild = false, isYouTubeAvailable = true)
+
+        assertFalse(SettingsCategory.YOUTUBE in essential)
+        assertFalse(SettingsCategory.ANIME_SKIP in essential)
+        assertTrue(SettingsCategory.YOUTUBE in advanced)
+        assertTrue(SettingsCategory.ANIME_SKIP in advanced)
+    }
 }

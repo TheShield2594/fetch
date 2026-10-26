@@ -107,6 +107,7 @@ class PhoneHubServer(
             )
             "text" -> RemoteCommand.Text(body.requiredText("text"))
             "search" -> RemoteCommand.Search(body.requiredText("query"))
+            "settings_search" -> RemoteCommand.SettingsSearch(body.requiredText("query"))
             else -> throw IllegalArgumentException("Unknown command.")
         }
         return if (actions.sendRemote(command)) ok() else errorResponse("The TV is busy. Try again.")

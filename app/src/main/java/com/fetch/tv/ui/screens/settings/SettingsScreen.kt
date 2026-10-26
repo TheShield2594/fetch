@@ -207,7 +207,9 @@ fun SettingsScreen(
     profileViewModel: ProfileSettingsViewModel = hiltViewModel(),
     experienceModeViewModel: ExperienceModeSettingsViewModel = hiltViewModel(),
     partyViewModel: PartyViewModel = hiltViewModel(),
-    playbackViewModel: PlaybackSettingsViewModel = hiltViewModel()
+    playbackViewModel: PlaybackSettingsViewModel = hiltViewModel(),
+    searchViewModel: SettingsSearchViewModel = hiltViewModel(),
+    changedViewModel: SettingsChangedViewModel = hiltViewModel()
 ) {
     val isPrimaryProfileActive by profileViewModel.isPrimaryProfileActive.collectAsStateWithLifecycle()
     val isWatchPartyAvailable by partyViewModel.party.available.collectAsStateWithLifecycle()
@@ -255,6 +257,17 @@ fun SettingsScreen(
         mutableStateOf(
             visibleSections.firstOrNull()?.category ?: SettingsCategory.APPEARANCE
         )
+    }
+    // Hoisted so a query typed on the phone hub can be put in the search field.
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var searchChangedOnly by rememberSaveable { mutableStateOf(false) }
+    val changedSettings by changedViewModel.changedSettings.collectAsStateWithLifecycle()
+    val phoneSearchQuery by searchViewModel.pendingPhoneQuery.collectAsStateWithLifecycle()
+    LaunchedEffect(phoneSearchQuery) {
+        if (phoneSearchQuery == null) return@LaunchedEffect
+        val query = searchViewModel.consumePhoneQuery() ?: return@LaunchedEffect
+        searchQuery = query
+        selectedCategory = SettingsCategory.SEARCH
     }
     val railFocusRequesters = remember(visibleSections) {
         visibleSections.associate { it.category to FocusRequester() }
@@ -655,6 +668,11 @@ fun SettingsScreen(
                         contentFocusRequesters = contentFocusRequesters,
                         experienceModeViewModel = experienceModeViewModel,
                         visibleCategories = visibleCategories,
+                        searchQuery = searchQuery,
+                        onSearchQueryChange = { searchQuery = it },
+                        searchChangedOnly = searchChangedOnly,
+                        onSearchChangedOnlyChange = { searchChangedOnly = it },
+                        changedSettings = changedSettings,
                         onOpenSearchResult = { result ->
                             visibleSections.firstOrNull { it.category == result.category }?.let { section ->
                                 rowTarget = SettingsRowTarget(result.category, result.title)
@@ -683,6 +701,11 @@ private fun SettingsDetailPane(
     contentFocusRequesters: Map<SettingsCategory, FocusRequester>,
     experienceModeViewModel: ExperienceModeSettingsViewModel,
     visibleCategories: List<SettingsCategory>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    searchChangedOnly: Boolean,
+    onSearchChangedOnlyChange: (Boolean) -> Unit,
+    changedSettings: Set<SettingsSearchKey>,
     onOpenSearchResult: (SettingsSearchEntry) -> Unit,
     onNavigateToManageProfiles: () -> Unit,
     onNavigateToAddons: () -> Unit,
@@ -744,7 +767,8 @@ private fun SettingsDetailPane(
                 contentFocusRequesters[SettingsCategory.APPEARANCE]
             } else {
                 null
-            }
+            },
+            essentialMode = isEssentialMode
         )
         SettingsCategory.LAYOUT -> LayoutSettingsContent(
             initialFocusRequester = if (allowDetailAutofocus) {
@@ -792,15 +816,30 @@ private fun SettingsDetailPane(
         }
         SettingsCategory.SEARCH -> SettingsSearchContent(
             visibleCategories = visibleCategories,
+            index = if (isEssentialMode) essentialSettingsSearchIndex else settingsSearchIndex,
+            query = searchQuery,
+            onQueryChange = onSearchQueryChange,
+            changedOnly = searchChangedOnly,
+            onChangedOnlyChange = onSearchChangedOnlyChange,
+            changedSettings = changedSettings,
             pageTitle = { settingsSectionSpec(it).title },
             groupTitle = { settingsGroupTitle(it) },
             onOpen = onOpenSearchResult,
             initialFocusRequester = focusFor(SettingsCategory.SEARCH)
         )
-        SettingsCategory.TRACKING -> TrackingSettingsContent(initialFocusRequester = focusFor(SettingsCategory.TRACKING))
+        SettingsCategory.TRACKING -> TrackingSettingsContent(
+            initialFocusRequester = focusFor(SettingsCategory.TRACKING),
+            essentialMode = isEssentialMode
+        )
         SettingsCategory.YOUTUBE -> YouTubeSettingsContent(initialFocusRequester = focusFor(SettingsCategory.YOUTUBE))
-        SettingsCategory.TMDB -> TmdbSettingsContent(initialFocusRequester = focusFor(SettingsCategory.TMDB))
-        SettingsCategory.MDBLIST -> MDBListSettingsContent(initialFocusRequester = focusFor(SettingsCategory.MDBLIST))
+        SettingsCategory.TMDB -> TmdbSettingsContent(
+            initialFocusRequester = focusFor(SettingsCategory.TMDB),
+            essentialMode = isEssentialMode
+        )
+        SettingsCategory.MDBLIST -> MDBListSettingsContent(
+            initialFocusRequester = focusFor(SettingsCategory.MDBLIST),
+            essentialMode = isEssentialMode
+        )
         SettingsCategory.ANIME_SKIP -> AnimeSkipSettingsContent(initialFocusRequester = focusFor(SettingsCategory.ANIME_SKIP))
         SettingsCategory.ABOUT -> AboutSettingsContent(
             onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
@@ -808,7 +847,8 @@ private fun SettingsDetailPane(
                 contentFocusRequesters[SettingsCategory.ABOUT]
             } else {
                 null
-            }
+            },
+            essentialMode = isEssentialMode
         )
         SettingsCategory.CONTENT_DISCOVERY -> ContentDiscoverySettingsContent(
             onNavigateToAddons = onNavigateToAddons,
@@ -858,6 +898,9 @@ private fun EssentialAdvancedSettingsContent(
                     Modifier
                 }
             )
+        }
+        SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
+            ConfirmExitToggleRow()
         }
     }
 

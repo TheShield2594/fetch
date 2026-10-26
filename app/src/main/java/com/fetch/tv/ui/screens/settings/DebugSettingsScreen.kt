@@ -39,8 +39,6 @@ import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Switch
-import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.FetchDialog
@@ -122,20 +120,20 @@ fun DebugSettingsContent(
             }
 
             item(key = "debug_toggle_account_tab") {
-                DebugToggleCard(
+                SettingsToggleRow(
                     title = stringResource(R.string.debug_account_tab_title),
                     subtitle = stringResource(R.string.debug_account_tab_subtitle),
                     checked = uiState.accountTabEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleAccountTab(it)) }
+                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleAccountTab(!uiState.accountTabEnabled)) }
                 )
             }
 
             item(key = "debug_toggle_sync_code") {
-                DebugToggleCard(
+                SettingsToggleRow(
                     title = stringResource(R.string.debug_sync_code_title),
                     subtitle = stringResource(R.string.debug_sync_code_subtitle),
                     checked = uiState.syncCodeFeaturesEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleSyncCodeFeatures(it)) }
+                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleSyncCodeFeatures(!uiState.syncCodeFeaturesEnabled)) }
                 )
             }
 
@@ -147,20 +145,20 @@ fun DebugSettingsContent(
             }
 
             item(key = "debug_toggle_compose_highlighter") {
-                DebugToggleCard(
+                SettingsToggleRow(
                     title = stringResource(R.string.advanced_compose_highlighter),
                     subtitle = stringResource(R.string.advanced_compose_highlighter_subtitle),
                     checked = uiState.composeHighlighterEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleComposeHighlighter(it)) }
+                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleComposeHighlighter(!uiState.composeHighlighterEnabled)) }
                 )
             }
 
             item(key = "debug_toggle_buffer_logs") {
-                DebugToggleCard(
+                SettingsToggleRow(
                     title = stringResource(R.string.debug_buffer_logs_title),
                     subtitle = stringResource(R.string.debug_buffer_logs_subtitle),
                     checked = uiState.bufferLogsEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleBufferLogs(it)) }
+                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleBufferLogs(!uiState.bufferLogsEnabled)) }
                 )
             }
 
@@ -286,67 +284,6 @@ private fun DebugProgressIndicatorPreview(
             style = MaterialTheme.typography.labelMedium,
             color = FetchTheme.colors.TextSecondary
         )
-    }
-}
-
-@Composable
-private fun DebugToggleCard(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onToggle: (Boolean) -> Unit
-) {
-    Card(
-        onClick = { onToggle(!checked) },
-        modifier = Modifier
-            .fillMaxWidth(),
-        colors = CardDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.FocusBackground
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(FetchTheme.radii.md)
-            )
-        ),
-        shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-        scale = CardDefaults.scale(focusedScale = 1.02f)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = FetchTheme.colors.TextPrimary
-                )
-                Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = FetchTheme.colors.TextSecondary
-                )
-            }
-
-            Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
-
-            Switch(
-                checked = checked,
-                onCheckedChange = null,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = FetchTheme.colors.Secondary,
-                    checkedTrackColor = FetchTheme.colors.Secondary.copy(alpha = 0.3f),
-                    uncheckedThumbColor = FetchTheme.colors.TextSecondary,
-                    uncheckedTrackColor = FetchTheme.colors.BackgroundCard
-                )
-            )
-        }
     }
 }
 

@@ -29,7 +29,8 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.essential_subtitle_language,
         R.string.sub_use_forced_subtitles,
         R.string.essential_audio_language,
-        R.string.audio_decoder_priority
+        R.string.audio_decoder_priority,
+        R.string.playback_afr_mode
     ),
     SettingsCategory.PLAYBACK_PLAYER to listOf(
         R.string.playback_section_player_title,

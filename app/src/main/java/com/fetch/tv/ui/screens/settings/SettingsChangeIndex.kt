@@ -45,6 +45,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(essential, R.string.sub_use_forced_subtitles) { it.subtitleStyle.useForcedSubtitles })
     add(rule(essential, R.string.essential_audio_language) { it.preferredAudioLanguage })
     add(rule(essential, R.string.audio_decoder_priority) { it.decoderPriority })
+    add(rule(essential, R.string.playback_afr_mode) { it.frameRateMatchingMode })
 
     val player = SettingsCategory.PLAYBACK_PLAYER
     add(rule(player, R.string.playback_default_player) { it.playerPreference })

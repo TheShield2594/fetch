@@ -8,10 +8,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.fetch.tv.R
+import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.HomeImdbRatingsVisibility
 
@@ -27,6 +31,55 @@ internal fun LayoutHomeLayoutSection(
         onToggle = {
             onEvent(LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled(!uiState.modernHeroFullScreenBackdropEnabled))
         }
+    )
+}
+
+/**
+ * Essential mode's whole Layout page: the few Home settings most people change, taken from the
+ * sections Advanced mode spreads them across.
+ */
+@Composable
+internal fun LayoutEssentialSection(
+    uiState: LayoutSettingsUiState,
+    onEvent: (LayoutSettingsEvent) -> Unit,
+    firstRowFocusRequester: FocusRequester? = null
+) {
+    SettingsToggleRow(
+        title = stringResource(R.string.layout_cw_enabled),
+        subtitle = stringResource(R.string.layout_cw_enabled_sub),
+        checked = uiState.continueWatchingEnabled,
+        onToggle = { onEvent(LayoutSettingsEvent.SetContinueWatchingEnabled(!uiState.continueWatchingEnabled)) },
+        modifier = if (firstRowFocusRequester != null) Modifier.focusRequester(firstRowFocusRequester) else Modifier
+    )
+    if (uiState.continueWatchingEnabled) ContinueWatchingSortModeRow(uiState, onEvent)
+    SettingsToggleRow(
+        title = stringResource(R.string.layout_landscape_posters),
+        subtitle = stringResource(R.string.layout_landscape_posters_sub),
+        checked = uiState.modernLandscapePostersEnabled,
+        onToggle = {
+            onEvent(LayoutSettingsEvent.SetModernLandscapePostersEnabled(!uiState.modernLandscapePostersEnabled))
+        }
+    )
+    if (AppFeaturePolicy.inAppTrailerPlaybackEnabled) {
+        SettingsToggleRow(
+            title = stringResource(R.string.audio_autoplay_trailers),
+            subtitle = stringResource(R.string.audio_autoplay_trailers_sub),
+            checked = uiState.detailPageTrailerAutoplayEnabled,
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetDetailPageTrailerAutoplayEnabled(!uiState.detailPageTrailerAutoplayEnabled))
+            }
+        )
+    }
+    SettingsToggleRow(
+        title = stringResource(R.string.layout_hide_unreleased),
+        subtitle = stringResource(R.string.layout_hide_unreleased_sub),
+        checked = uiState.hideUnreleasedContent,
+        onToggle = { onEvent(LayoutSettingsEvent.SetHideUnreleasedContent(!uiState.hideUnreleasedContent)) }
+    )
+    DiscoverLocationRow(
+        selectedLocation = uiState.discoverLocation,
+        rememberedLocation = uiState.lastNonOffDiscoverLocation,
+        onLocationSelected = { location -> onEvent(LayoutSettingsEvent.SetDiscoverLocation(location)) }
     )
 }
 
@@ -100,7 +153,7 @@ internal fun LayoutSidebarSection(
 }
 
 @Composable
-private fun DiscoverLocationRow(
+internal fun DiscoverLocationRow(
     selectedLocation: DiscoverLocation,
     rememberedLocation: DiscoverLocation,
     onLocationSelected: (DiscoverLocation) -> Unit

@@ -512,6 +512,7 @@
     <string name="settings_search_prompt">Type part of a setting\'s name.</string>
     <string name="settings_search_empty">No settings match \"%1$s\".</string>
     <string name="settings_search_path" translatable="false">%1$s › %2$s</string>
+    <string name="essential_frame_rate_matching_subtitle">Switch the TV to the video\'s frame rate.</string>
     <string name="settings_search_changed_only">Changed from default</string>
     <string name="settings_search_changed_only_sub">Only list the settings this profile has changed.</string>
     <string name="settings_search_changed_empty">This profile is using the default for every setting here.</string>

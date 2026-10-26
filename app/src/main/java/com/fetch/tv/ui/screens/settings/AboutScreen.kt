@@ -65,7 +65,8 @@ fun AboutScreen(
 @Composable
 fun AboutSettingsContent(
     onNavigateToLicensesAttributions: () -> Unit = {},
-    initialFocusRequester: FocusRequester? = null
+    initialFocusRequester: FocusRequester? = null,
+    essentialMode: Boolean = false
 ) {
     val context = LocalContext.current
     val aboutScrollState = rememberScrollState()
@@ -129,7 +130,7 @@ fun AboutSettingsContent(
                             Spacer(modifier = Modifier.height(FetchTheme.spacing.xxs))
 
                             if (AppFeaturePolicy.inAppUpdatesEnabled) {
-                                UpdateChannelSettings(initialFocusRequester, modifier = firstRowModifier)
+                                UpdateChannelSettings(initialFocusRequester, modifier = firstRowModifier, essentialMode = essentialMode)
                             }
 
                             SettingsActionRow(

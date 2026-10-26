@@ -39,6 +39,7 @@ fun EssentialPlaybackSettingsContent(
     var showSubtitleLanguageDialog by remember { mutableStateOf(false) }
     var showAudioLanguageDialog by remember { mutableStateOf(false) }
     var showDecoderPriorityDialog by remember { mutableStateOf(false) }
+    var showFrameRateDialog by remember { mutableStateOf(false) }
     var showP2pConsentDialog by remember { mutableStateOf(false) }
     val settings = playerSettings
 
@@ -107,6 +108,13 @@ fun EssentialPlaybackSettingsContent(
                                 viewModel.setPostPlayRecommendationsEnabled(!current.postPlayRecommendationsEnabled)
                             }
                         },
+                        enabled = settings != null
+                    )
+                    SettingsActionRow(
+                        title = stringResource(R.string.playback_afr_mode),
+                        subtitle = stringResource(R.string.essential_frame_rate_matching_subtitle),
+                        value = settings?.let { frameRateMatchingLabel(it.frameRateMatchingMode) },
+                        onClick = { showFrameRateDialog = true },
                         enabled = settings != null
                     )
                     if (TorrentService.ENGINE_AVAILABLE) SettingsToggleRow(
@@ -208,6 +216,16 @@ fun EssentialPlaybackSettingsContent(
                 showDecoderPriorityDialog = false
             },
             onDismiss = { showDecoderPriorityDialog = false }
+        )
+    }
+    if (showFrameRateDialog && settings != null) {
+        FrameRateMatchingDialog(
+            selectedMode = settings.frameRateMatchingMode,
+            onModeSelected = { mode ->
+                coroutineScope.launch { viewModel.setFrameRateMatchingMode(mode) }
+                showFrameRateDialog = false
+            },
+            onDismiss = { showFrameRateDialog = false }
         )
     }
     if (showP2pConsentDialog) {

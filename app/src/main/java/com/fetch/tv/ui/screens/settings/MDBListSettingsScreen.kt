@@ -58,7 +58,8 @@ import com.fetch.tv.ui.components.FetchDialog
 @Composable
 fun MDBListSettingsContent(
     viewModel: MDBListSettingsViewModel = hiltViewModel(),
-    initialFocusRequester: FocusRequester? = null
+    initialFocusRequester: FocusRequester? = null,
+    essentialMode: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showApiKeyDialog by remember { mutableStateOf(false) }
@@ -115,6 +116,8 @@ fun MDBListSettingsContent(
                     )
                 }
 
+                // Essential mode offers the switch and the key it needs; the rest stays in Advanced.
+                if (!essentialMode) {
                 item(key = "mdblist_show_on_hero") {
                     SettingsToggleRow(
                         title = stringResource(R.string.mdblist_show_on_hero_title),
@@ -155,6 +158,7 @@ fun MDBListSettingsContent(
                             { viewModel.onEvent(MDBListSettingsEvent.MoveRatingDown(provider)) }
                         } else null
                     )
+                }
                 }
             }
             SettingsVerticalScrollIndicators(state = mdbListState)

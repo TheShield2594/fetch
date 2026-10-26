@@ -65,7 +65,8 @@ internal fun visibleSettingsCategories(
         SettingsCategory.ACCOUNT,
         SettingsCategory.PROFILES -> isPrimaryProfile
         SettingsCategory.WATCH_PARTY -> isWatchPartyAvailable
-        SettingsCategory.YOUTUBE -> isYouTubeAvailable
+        SettingsCategory.YOUTUBE -> isYouTubeAvailable && !isEssentialMode
+        SettingsCategory.ANIME_SKIP -> !isEssentialMode
         SettingsCategory.DEBUG -> isDebugBuild && !isEssentialMode
         SettingsCategory.EXPERIENCE -> false
         else -> true

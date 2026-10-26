@@ -767,7 +767,8 @@ private fun SettingsDetailPane(
                 contentFocusRequesters[SettingsCategory.APPEARANCE]
             } else {
                 null
-            }
+            },
+            essentialMode = isEssentialMode
         )
         SettingsCategory.LAYOUT -> LayoutSettingsContent(
             initialFocusRequester = if (allowDetailAutofocus) {
@@ -815,6 +816,7 @@ private fun SettingsDetailPane(
         }
         SettingsCategory.SEARCH -> SettingsSearchContent(
             visibleCategories = visibleCategories,
+            index = if (isEssentialMode) essentialSettingsSearchIndex else settingsSearchIndex,
             query = searchQuery,
             onQueryChange = onSearchQueryChange,
             changedOnly = searchChangedOnly,
@@ -825,10 +827,19 @@ private fun SettingsDetailPane(
             onOpen = onOpenSearchResult,
             initialFocusRequester = focusFor(SettingsCategory.SEARCH)
         )
-        SettingsCategory.TRACKING -> TrackingSettingsContent(initialFocusRequester = focusFor(SettingsCategory.TRACKING))
+        SettingsCategory.TRACKING -> TrackingSettingsContent(
+            initialFocusRequester = focusFor(SettingsCategory.TRACKING),
+            essentialMode = isEssentialMode
+        )
         SettingsCategory.YOUTUBE -> YouTubeSettingsContent(initialFocusRequester = focusFor(SettingsCategory.YOUTUBE))
-        SettingsCategory.TMDB -> TmdbSettingsContent(initialFocusRequester = focusFor(SettingsCategory.TMDB))
-        SettingsCategory.MDBLIST -> MDBListSettingsContent(initialFocusRequester = focusFor(SettingsCategory.MDBLIST))
+        SettingsCategory.TMDB -> TmdbSettingsContent(
+            initialFocusRequester = focusFor(SettingsCategory.TMDB),
+            essentialMode = isEssentialMode
+        )
+        SettingsCategory.MDBLIST -> MDBListSettingsContent(
+            initialFocusRequester = focusFor(SettingsCategory.MDBLIST),
+            essentialMode = isEssentialMode
+        )
         SettingsCategory.ANIME_SKIP -> AnimeSkipSettingsContent(initialFocusRequester = focusFor(SettingsCategory.ANIME_SKIP))
         SettingsCategory.ABOUT -> AboutSettingsContent(
             onNavigateToLicensesAttributions = onNavigateToLicensesAttributions,
@@ -836,7 +847,8 @@ private fun SettingsDetailPane(
                 contentFocusRequesters[SettingsCategory.ABOUT]
             } else {
                 null
-            }
+            },
+            essentialMode = isEssentialMode
         )
         SettingsCategory.CONTENT_DISCOVERY -> ContentDiscoverySettingsContent(
             onNavigateToAddons = onNavigateToAddons,
@@ -886,6 +898,9 @@ private fun EssentialAdvancedSettingsContent(
                     Modifier
                 }
             )
+        }
+        SettingsGroupCard(modifier = Modifier.fillMaxWidth()) {
+            ConfirmExitToggleRow()
         }
     }
 

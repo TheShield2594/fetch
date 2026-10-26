@@ -92,6 +92,30 @@ private interface ProfileManagerEntryPoint {
     fun profileManager(): com.fetch.tv.core.profile.ProfileManager
 }
 
+/** "Confirm before exiting", shared by the Advanced page in both experience modes. */
+@Composable
+internal fun ConfirmExitToggleRow() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val profileManager = remember {
+        dagger.hilt.android.EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ProfileManagerEntryPoint::class.java
+        ).profileManager()
+    }
+    val confirmExitEnabled by profileManager.confirmExitEnabled.collectAsState()
+    SettingsToggleRow(
+        title = stringResource(R.string.advanced_confirm_exit),
+        subtitle = stringResource(R.string.advanced_confirm_exit_subtitle),
+        checked = confirmExitEnabled,
+        onToggle = {
+            scope.launch {
+                profileManager.setConfirmExitEnabled(!confirmExitEnabled)
+            }
+        }
+    )
+}
+
 private enum class NetworkTestState { Idle, TestingLatency, TestingDownload, Done, Error }
 
 private enum class ConnectionType { WiFi, Ethernet, Offline }
@@ -542,17 +566,7 @@ fun AdvancedSettingsContent(
                     }
                 )
 
-                val confirmExitEnabled by profileManager.confirmExitEnabled.collectAsState()
-                SettingsToggleRow(
-                    title = stringResource(R.string.advanced_confirm_exit),
-                    subtitle = stringResource(R.string.advanced_confirm_exit_subtitle),
-                    checked = confirmExitEnabled,
-                    onToggle = {
-                        scope.launch {
-                            profileManager.setConfirmExitEnabled(!confirmExitEnabled)
-                        }
-                    }
-                )
+                ConfirmExitToggleRow()
             }
         }
 

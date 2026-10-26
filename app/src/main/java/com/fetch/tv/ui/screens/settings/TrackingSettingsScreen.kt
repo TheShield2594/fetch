@@ -68,7 +68,8 @@ fun TrackingSettingsContent(
     simklViewModel: SimklSettingsViewModel = hiltViewModel(),
     mdbListViewModel: MdbListTrackerViewModel = hiltViewModel(),
     trackingViewModel: TrackingSettingsViewModel = hiltViewModel(),
-    initialFocusRequester: FocusRequester? = null
+    initialFocusRequester: FocusRequester? = null,
+    essentialMode: Boolean = false
 ) {
     val traktState by traktViewModel.uiState.collectAsStateWithLifecycle()
     val simklState by simklViewModel.uiState.collectAsStateWithLifecycle()
@@ -161,7 +162,7 @@ fun TrackingSettingsContent(
                 }
             }
             TrackingProviderId.SIMKL -> {
-                if (simklState.mode == SimklConnectionMode.CONNECTED) {
+                if (simklState.mode == SimklConnectionMode.CONNECTED && !essentialMode) {
                     dismissOnConnected = null
                 } else {
                     dismissOnConnected = provider
@@ -183,6 +184,7 @@ fun TrackingSettingsContent(
     }
 
     TrackingSettingsOverview(
+        essentialMode = essentialMode,
         traktState = traktState,
         simklState = simklState,
         mdbListState = mdbListState,
@@ -491,7 +493,9 @@ internal fun TrackingSettingsOverview(
     onMoreLikeThisClick: () -> Unit,
     onAnimeIdClick: () -> Unit,
     mdbListLibraryLists: MdbListLibraryListsUiState = MdbListLibraryListsUiState(),
-    onMdbListLibraryListsClick: () -> Unit = {}
+    onMdbListLibraryListsClick: () -> Unit = {},
+    // Essential mode keeps only the account connections; sources and features stay in Advanced.
+    essentialMode: Boolean = false
 ) {
     val listState = rememberLazyListState()
     SettingsRowTargetScroller(listState)
@@ -561,7 +565,7 @@ internal fun TrackingSettingsOverview(
                         )
                     }
                 }
-                item(key = "tracking_sources") {
+                if (!essentialMode) item(key = "tracking_sources") {
                     SettingsGroupCard(
                         title = stringResource(R.string.tracking_sources_title),
                         subtitle = stringResource(R.string.tracking_sources_subtitle)
@@ -600,7 +604,7 @@ internal fun TrackingSettingsOverview(
                         }
                     }
                 }
-                if (traktConnected) {
+                if (traktConnected && !essentialMode) {
                     item(key = "tracking_trakt_features") {
                         SettingsGroupCard(
                             title = stringResource(R.string.tracking_trakt_features_title),
@@ -633,7 +637,7 @@ internal fun TrackingSettingsOverview(
                         }
                     }
                 }
-                if (simklState.mode == SimklConnectionMode.CONNECTED) {
+                if (simklState.mode == SimklConnectionMode.CONNECTED && !essentialMode) {
                     item(key = "tracking_simkl_features") {
                         SettingsGroupCard(
                             title = stringResource(R.string.tracking_simkl_features_title),
@@ -649,7 +653,7 @@ internal fun TrackingSettingsOverview(
                         }
                     }
                 }
-                if (mdbListState.isConnected) {
+                if (mdbListState.isConnected && !essentialMode) {
                     item(key = "tracking_mdblist_features") {
                         SettingsGroupCard(
                             title = stringResource(R.string.tracking_mdblist_features_title),

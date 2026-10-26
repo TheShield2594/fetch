@@ -50,7 +50,8 @@ fun TmdbSettingsScreen(
 @Composable
 fun TmdbSettingsContent(
     viewModel: TmdbSettingsViewModel = hiltViewModel(),
-    initialFocusRequester: FocusRequester? = null
+    initialFocusRequester: FocusRequester? = null,
+    essentialMode: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -95,6 +96,8 @@ fun TmdbSettingsContent(
                     )
                 }
 
+                // Essential mode offers only the switch; what TMDB fills in stays in Advanced.
+                if (!essentialMode) {
                 item(key = "tmdb_modern_home_enabled") {
                     SettingsToggleRow(
                         title = stringResource(R.string.tmdb_modern_home_title),
@@ -249,6 +252,7 @@ fun TmdbSettingsContent(
                             )
                         }
                     )
+                }
                 }
 
             }

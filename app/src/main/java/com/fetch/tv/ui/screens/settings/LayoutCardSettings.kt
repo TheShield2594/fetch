@@ -60,8 +60,6 @@ internal fun LayoutContinueWatchingSection(
     uiState: LayoutSettingsUiState,
     onEvent: (LayoutSettingsEvent) -> Unit
 ) {
-    var showSortModeDialog by rememberSaveable { mutableStateOf(false) }
-
     SettingsToggleRow(
         title = stringResource(R.string.layout_cw_enabled),
         subtitle = stringResource(R.string.layout_cw_enabled_sub),
@@ -122,17 +120,27 @@ internal fun LayoutContinueWatchingSection(
             checked = uiState.showUnairedNextUp,
             onToggle = { onEvent(LayoutSettingsEvent.SetShowUnairedNextUp(!uiState.showUnairedNextUp)) }
         )
-        SettingsActionRow(
-            title = stringResource(R.string.layout_cw_sort_mode),
-            subtitle = stringResource(R.string.layout_cw_sort_mode_sub),
-            value = when (uiState.continueWatchingSortMode) {
-                ContinueWatchingSortMode.DEFAULT -> stringResource(R.string.layout_cw_sort_default)
-                ContinueWatchingSortMode.STREAMING_STYLE -> stringResource(R.string.layout_cw_sort_streaming)
-                ContinueWatchingSortMode.SPLIT_UPCOMING -> stringResource(R.string.layout_cw_sort_split_upcoming)
-            },
-            onClick = { showSortModeDialog = true }
-        )
+        ContinueWatchingSortModeRow(uiState, onEvent)
     }
+}
+
+@Composable
+internal fun ContinueWatchingSortModeRow(
+    uiState: LayoutSettingsUiState,
+    onEvent: (LayoutSettingsEvent) -> Unit
+) {
+    var showSortModeDialog by rememberSaveable { mutableStateOf(false) }
+
+    SettingsActionRow(
+        title = stringResource(R.string.layout_cw_sort_mode),
+        subtitle = stringResource(R.string.layout_cw_sort_mode_sub),
+        value = when (uiState.continueWatchingSortMode) {
+            ContinueWatchingSortMode.DEFAULT -> stringResource(R.string.layout_cw_sort_default)
+            ContinueWatchingSortMode.STREAMING_STYLE -> stringResource(R.string.layout_cw_sort_streaming)
+            ContinueWatchingSortMode.SPLIT_UPCOMING -> stringResource(R.string.layout_cw_sort_split_upcoming)
+        },
+        onClick = { showSortModeDialog = true }
+    )
 
     if (showSortModeDialog) {
         ContinueWatchingSortModeDialog(
@@ -414,7 +422,7 @@ private fun CwStyleCard(
 }
 
 @Composable
-private fun ContinueWatchingSortModeDialog(
+internal fun ContinueWatchingSortModeDialog(
     currentMode: ContinueWatchingSortMode,
     onModeSelected: (ContinueWatchingSortMode) -> Unit,
     onDismiss: () -> Unit

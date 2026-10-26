@@ -88,6 +88,7 @@ private fun foldForSearch(text: String): String =
 @Composable
 internal fun SettingsSearchContent(
     visibleCategories: List<SettingsCategory>,
+    index: Map<SettingsCategory, List<Int>>,
     query: String,
     onQueryChange: (String) -> Unit,
     changedOnly: Boolean,
@@ -100,9 +101,9 @@ internal fun SettingsSearchContent(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val entries = remember(visibleCategories, context) {
+    val entries = remember(visibleCategories, index, context) {
         visibleCategories.flatMap { category ->
-            settingsSearchIndex[category].orEmpty().map { SettingsSearchEntry(category, context.getString(it)) }
+            index[category].orEmpty().map { SettingsSearchEntry(category, context.getString(it)) }
         }
     }
     val changedEntries = remember(changedSettings, context) {

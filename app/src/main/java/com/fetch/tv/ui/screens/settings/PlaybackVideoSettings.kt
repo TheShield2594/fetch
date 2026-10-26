@@ -182,7 +182,7 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
 }
 
 @Composable
-private fun frameRateMatchingLabel(mode: FrameRateMatchingMode): String = when (mode) {
+internal fun frameRateMatchingLabel(mode: FrameRateMatchingMode): String = when (mode) {
     FrameRateMatchingMode.OFF -> stringResource(R.string.playback_afr_off)
     FrameRateMatchingMode.START -> stringResource(R.string.playback_afr_on_start)
     FrameRateMatchingMode.START_STOP -> stringResource(R.string.playback_afr_on_start_stop)
@@ -322,7 +322,7 @@ internal fun VideoSettingsDialogs(
 }
 
 @Composable
-private fun FrameRateMatchingDialog(
+internal fun FrameRateMatchingDialog(
     selectedMode: FrameRateMatchingMode,
     onModeSelected: (FrameRateMatchingMode) -> Unit,
     onDismiss: () -> Unit

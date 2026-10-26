@@ -742,7 +742,7 @@ private fun EpisodeCommentPickerDialog(
                         )
                     ) {
                         Text(
-                            text = "${selectedEpisodeLabel(episode)}  ${episode.title.localizeEpisodeTitle(androidx.compose.ui.platform.LocalContext.current)}",
+                            text = "${selectedEpisodeLabel(episode)} · ${episode.title.localizeEpisodeTitle(androidx.compose.ui.platform.LocalContext.current)}",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -1095,7 +1095,7 @@ private fun commentMaxLines(length: Int): Int = when {
 private fun selectedEpisodeLabel(video: Video): String {
     val season = video.season ?: 0
     val episode = video.episode ?: 0
-    return "S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')}"
+    return "S$season E$episode"
 }
 
 @Composable

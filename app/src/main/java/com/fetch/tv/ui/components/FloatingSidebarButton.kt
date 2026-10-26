@@ -48,12 +48,13 @@ import com.fetch.tv.ui.theme.FetchTheme
 /**
  * The full-screen fade behind the open sidebar: a soft fade from the left edge instead of a
  * panel, so the icons and labels stay readable over artwork while the page runs edge to edge.
- * It stays near-opaque across the open sidebar's width (about a third of a 960dp TV screen) so
- * page text, such as the Home hero's meta lines, doesn't show through beside the focused label.
+ * It is fully opaque across the open sidebar's width (300dp, about a third of a 960dp TV screen):
+ * at anything less, bright page content such as the Home hero's white Resume button still showed
+ * through, and the focused label's pill cut it into a stray fragment ("sume S2 E5").
  */
 internal fun sidebarScrimBrush(background: Color): Brush = Brush.horizontalGradient(
-    0f to background.copy(alpha = 0.96f),
-    0.32f to background.copy(alpha = 0.9f),
+    0f to background,
+    0.32f to background,
     0.55f to background.copy(alpha = 0.4f),
     1f to Color.Transparent
 )

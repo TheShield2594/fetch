@@ -241,7 +241,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Bereitgestellt von Trakt</string>
     <string name="detail_comments_title">Kommentare</string>
     <string name="detail_comments_subtitle">Bewertungen von Trakt</string>
-    <string name="detail_comments_subtitle_episode">Trakt-Bewertungen für S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Trakt-Bewertungen für S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Serie</string>
     <string name="detail_comments_mode_episode">Folge</string>
     <string name="detail_comments_mode_episode_change">Folge wechseln (%1$s)</string>

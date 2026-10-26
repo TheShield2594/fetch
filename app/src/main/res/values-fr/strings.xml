@@ -243,7 +243,7 @@
     <string name="because_you_watched_reason_cast">Avec également %1$s</string>
     <string name="detail_comments_title">Commentaires</string>
     <string name="detail_comments_subtitle">Critiques de Trakt</string>
-    <string name="detail_comments_subtitle_episode">Critiques de Trakt pour S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Critiques de Trakt pour S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Série</string>
     <string name="detail_comments_mode_episode">Épisode</string>
     <string name="detail_comments_mode_episode_change">Changer d’épisode (%1$s)</string>

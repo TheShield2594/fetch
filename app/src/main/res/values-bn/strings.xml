@@ -226,7 +226,7 @@
     <string name="because_you_watched_reason_cast">এতেও আছেন %1$s</string>
     <string name="detail_comments_title">মন্তব্য</string>
     <string name="detail_comments_subtitle">Trakt থেকে রিভিউ</string>
-    <string name="detail_comments_subtitle_episode">S%1$dE%2$d-এর জন্য Trakt থেকে রিভিউ</string>
+    <string name="detail_comments_subtitle_episode">S%1$d E%2$d-এর জন্য Trakt থেকে রিভিউ</string>
     <string name="detail_comments_mode_show">দেখান</string>
     <string name="detail_comments_mode_episode">পর্ব</string>
     <string name="detail_comments_mode_episode_change">এপিসোড পরিবর্তন করুন (%1$s)</string>

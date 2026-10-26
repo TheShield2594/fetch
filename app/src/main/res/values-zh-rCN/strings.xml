@@ -236,7 +236,7 @@
     <string name="detail_more_like_this_powered_by_trakt">由 Trakt 提供</string>
     <string name="detail_comments_title">评论</string>
     <string name="detail_comments_subtitle">来自 Trakt 的评论</string>
-    <string name="detail_comments_subtitle_episode">来自 Trakt 对 S%1$dE%2$d 的评论</string>
+    <string name="detail_comments_subtitle_episode">来自 Trakt 对 S%1$d E%2$d 的评论</string>
     <string name="detail_comments_mode_show">显示</string>
     <string name="detail_comments_mode_episode">剧集</string>
     <string name="detail_comments_mode_episode_change">切换剧集 (%1$s)</string>

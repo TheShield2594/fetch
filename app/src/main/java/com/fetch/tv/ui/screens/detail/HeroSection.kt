@@ -499,12 +499,12 @@ internal fun PlayButton(
             focusedContentColor = FetchTheme.colors.OnSecondary
         ),
         shape = ButtonDefaults.shape(
-            shape = RoundedCornerShape(FetchTheme.radii.sm)
+            shape = FetchTheme.shapes.button
         ),
         border = ButtonDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(FetchTheme.strokes.focus, FetchTheme.colors.TextPrimary),
-                shape = RoundedCornerShape(FetchTheme.radii.sm)
+                shape = FetchTheme.shapes.button
             )
         ),
         contentPadding = PaddingValues(horizontal = FetchTheme.spacing.xl, vertical = 14.dp)
@@ -744,10 +744,10 @@ private fun MetaInfoRow(
     tmdbRating: Float? = null
 ) {
     val context = LocalContext.current
-    val genresText = remember(meta.genres) {
+    val genreLabels = remember(meta.genres) {
         meta.genres
             .take(MAX_VISIBLE_HERO_GENRES)
-            .joinToString(" • ") { localizedGenreLabel(context, it) }
+            .map { localizedGenreLabel(context, it) }
     }
     val runtimeText = remember(meta.runtime) { meta.runtime?.let { formatRuntime(it) } }
     val yearText = remember(meta.releaseInfo, meta.released, meta.type, showFullReleaseDate) {
@@ -812,15 +812,21 @@ private fun MetaInfoRow(
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (meta.genres.isNotEmpty()) {
-                Text(
-                    text = genresText,
-                    modifier = Modifier.weight(1f, fill = false),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = FetchTheme.extendedColors.textSecondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            if (genreLabels.isNotEmpty()) {
+                // One Text per genre with the shared divider, so every gap in the row matches.
+                genreLabels.forEachIndexed { index, genre ->
+                    if (index > 0) {
+                        MetaInfoDivider()
+                    }
+                    Text(
+                        text = genre,
+                        modifier = if (index == genreLabels.lastIndex) Modifier.weight(1f, fill = false) else Modifier,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = FetchTheme.extendedColors.textSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 if (yearText != null || shouldShowImdbRating || shouldShowTmdbRating) {
                     MetaInfoDivider()
                 }
@@ -907,8 +913,8 @@ private fun MetaInfoRow(
                 secondaryItems.forEachIndexed { index, value ->
                     Text(
                         text = value,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = FetchTheme.colors.TextPrimary
+                        style = MaterialTheme.typography.labelLarge,
+                        color = FetchTheme.extendedColors.textSecondary
                     )
                     if (index < secondaryItems.lastIndex) {
                         MetaInfoDivider()

@@ -246,7 +246,7 @@ class ReadmeScreenshots {
                         nextVideoId = "sample-long-field:2:6",
                         nextSeason = 2,
                         nextEpisode = 6,
-                        displayText = "Play S2E6"
+                        displayText = "Play S2 E6"
                     ),
                     bestMatch = BestMatchPreview(
                         videoId = "sample-long-field:2:6",

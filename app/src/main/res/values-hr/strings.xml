@@ -246,7 +246,7 @@
     <string name="because_you_watched_reason_cast">Također glumi %1$s</string>
     <string name="detail_comments_title">Komentari</string>
     <string name="detail_comments_subtitle">Recenzije s Trakta</string>
-    <string name="detail_comments_subtitle_episode">Recenzije s Trakta za S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Recenzije s Trakta za S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Serija</string>
     <string name="detail_comments_mode_episode">Epizoda</string>
     <string name="detail_comments_mode_episode_change">Promijeni epizodu (%1$s)</string>

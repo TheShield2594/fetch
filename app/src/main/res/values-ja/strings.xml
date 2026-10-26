@@ -232,7 +232,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Powered by Trakt</string>
     <string name="detail_comments_title">コメント</string>
     <string name="detail_comments_subtitle">Traktのレビュー</string>
-    <string name="detail_comments_subtitle_episode">S%1$dE%2$d のTraktレビュー</string>
+    <string name="detail_comments_subtitle_episode">S%1$d E%2$d のTraktレビュー</string>
     <string name="detail_comments_mode_show">表示</string>
     <string name="detail_comments_mode_episode">エピソード</string>
     <string name="detail_comments_mode_episode_change">エピソードを変更 (%1$s)</string>

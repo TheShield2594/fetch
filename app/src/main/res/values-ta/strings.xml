@@ -225,7 +225,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Trakt வழங்கியது</string>
     <string name="detail_comments_title">கருத்துகள்</string>
     <string name="detail_comments_subtitle">Trakt விமர்சனங்கள்</string>
-    <string name="detail_comments_subtitle_episode">S%1$dE%2$d க்கான Trakt விமர்சனங்கள்</string>
+    <string name="detail_comments_subtitle_episode">S%1$d E%2$d க்கான Trakt விமர்சனங்கள்</string>
     <string name="detail_comments_mode_show">காட்டு</string>
     <string name="detail_comments_mode_episode">அத்தியாயம்</string>
     <string name="detail_comments_mode_episode_change">அத்தியாயம் மாற்று (%1$s)</string>

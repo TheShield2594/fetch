@@ -225,7 +225,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Mundësuar nga Trakt</string>
     <string name="detail_comments_title">Komentet</string>
     <string name="detail_comments_subtitle">Vlerësime nga Trakt</string>
-    <string name="detail_comments_subtitle_episode">Vlerësime nga Trakt për S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Vlerësime nga Trakt për S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Seriali</string>
     <string name="detail_comments_mode_episode">Episod</string>
     <string name="detail_comments_mode_episode_change">Ndrysho episodin (%1$s)</string>

@@ -108,5 +108,5 @@ data class NextToWatch(
     val nextVideoId: String?,           // Video ID to play next
     val nextSeason: Int?,               // Next season number
     val nextEpisode: Int?,              // Next episode number
-    val displayText: String             // Text to show on button (e.g., "Resume S1E2", "Play S1E3")
+    val displayText: String             // Text to show on button (e.g., "Resume S1 E2", "Play S1 E3")
 )

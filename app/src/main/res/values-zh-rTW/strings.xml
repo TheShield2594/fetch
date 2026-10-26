@@ -236,7 +236,7 @@
     <string name="detail_more_like_this_powered_by_trakt">由 Trakt 提供</string>
     <string name="detail_comments_title">評論</string>
     <string name="detail_comments_subtitle">來自 Trakt 的評論</string>
-    <string name="detail_comments_subtitle_episode">來自 Trakt 對 S%1$dE%2$d 的評論</string>
+    <string name="detail_comments_subtitle_episode">來自 Trakt 對 S%1$d E%2$d 的評論</string>
     <string name="detail_comments_mode_show">顯示</string>
     <string name="detail_comments_mode_episode">集數</string>
     <string name="detail_comments_mode_episode_change">切換集數 (%1$s)</string>

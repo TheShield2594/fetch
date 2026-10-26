@@ -79,6 +79,7 @@ import kotlin.math.roundToInt
 import java.util.concurrent.TimeUnit
 import com.fetch.tv.ui.util.recompositionHighlighter
 import com.fetch.tv.ui.util.localizeEpisodeTitle
+import com.fetch.tv.ui.util.isPlaceholderEpisodeTitle
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.ui.util.computeAirDateBadgeText
 import com.fetch.tv.ui.util.computeAirDateBadgeTextShort
@@ -542,11 +543,14 @@ fun ContinueWatchingCard(
     val titleText = remember(progress, nextUp) { progress?.name ?: nextUp?.name.orEmpty() }
     val context = LocalContext.current
     val strAirsDateForEpisode = computeAirDateBadgeText(context, nextUp?.released, nextUp?.airDateLabel)
+    // "Episode 5" only repeats the S2 E5 line above the title, so placeholder titles are dropped.
     val episodeTitle = remember(progress, nextUp, context, strAirsDateForEpisode) {
+        fun String?.realTitle() = this?.takeIf { it.isNotBlank() && !it.isPlaceholderEpisodeTitle() }
+            ?.localizeEpisodeTitle(context)
         when {
-            progress != null -> progress.episodeTitle?.localizeEpisodeTitle(context)
-            nextUp != null && !nextUp.hasAired -> nextUp.episodeTitle?.localizeEpisodeTitle(context) ?: strAirsDateForEpisode
-            else -> nextUp?.episodeTitle?.localizeEpisodeTitle(context)
+            progress != null -> progress.episodeTitle.realTitle()
+            nextUp != null && !nextUp.hasAired -> nextUp.episodeTitle.realTitle() ?: strAirsDateForEpisode
+            else -> nextUp?.episodeTitle.realTitle()
         }
     }
     val density = LocalDensity.current

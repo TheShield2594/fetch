@@ -234,7 +234,7 @@
 <string name="detail_more_like_this_powered_by_trakt">Fornito da Trakt</string>
 <string name="detail_comments_title">Commenti</string>
 <string name="detail_comments_subtitle">Recensioni da Trakt</string>
-<string name="detail_comments_subtitle_episode">Recensioni da Trakt per S%1$dE%2$d</string>
+<string name="detail_comments_subtitle_episode">Recensioni da Trakt per S%1$d E%2$d</string>
 <string name="detail_comments_mode_show">Serie</string>
 <string name="detail_comments_mode_episode">Episodio</string>
 <string name="detail_comments_mode_episode_change">Cambia episodio (%1$s)</string>

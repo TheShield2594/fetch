@@ -225,9 +225,9 @@
     <string name="playback_unavailable_message">ההפעלה לא זמינה לכותרת הזו בהגדרות הנוכחיות.</string>
     <string name="detail_btn_play">הפעלה</string>
     <string name="detail_btn_resume">המשך</string>
-    <string name="detail_btn_play_episode">הפעלת S%1$dE%2$d</string>
-    <string name="detail_btn_resume_episode">המשך S%1$dE%2$d</string>
-    <string name="detail_btn_next_episode">הבא S%1$dE%2$d</string>
+    <string name="detail_btn_play_episode">הפעלת S%1$d E%2$d</string>
+    <string name="detail_btn_resume_episode">המשך S%1$d E%2$d</string>
+    <string name="detail_btn_next_episode">הבא S%1$d E%2$d</string>
     <string name="detail_tab_cast">יוצרים ושחקנים</string>
     <string name="cast_role_creator">יוצר</string>
     <string name="cast_role_director">בימוי</string>
@@ -246,7 +246,7 @@
     <string name="because_you_watched_reason_cast">גם בכיכוב %1$s</string>
     <string name="detail_comments_title">תגובות</string>
     <string name="detail_comments_subtitle">ביקורות מ-Trakt</string>
-    <string name="detail_comments_subtitle_episode">ביקורות מ-Trakt עבור S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">ביקורות מ-Trakt עבור S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">סדרה</string>
     <string name="detail_comments_mode_episode">פרק</string>
     <string name="detail_comments_mode_episode_change">החלפת פרק (%1$s)</string>

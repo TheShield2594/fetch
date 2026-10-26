@@ -61,7 +61,7 @@ object FetchShapes {
         posterCard = RoundedCornerShape(FetchRadii.tokens.md),
         backdropCard = RoundedCornerShape(FetchRadii.tokens.xl),
         collectionCard = RoundedCornerShape(FetchRadii.tokens.xl),
-        button = RoundedCornerShape(FetchRadii.tokens.md),
+        button = RoundedCornerShape(FetchRadii.tokens.sm),
         iconButton = RoundedCornerShape(FetchRadii.tokens.md),
         chip = RoundedCornerShape(FetchRadii.tokens.full),
         badge = RoundedCornerShape(FetchRadii.tokens.xs),

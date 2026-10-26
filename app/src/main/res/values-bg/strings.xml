@@ -232,7 +232,7 @@
     <string name="detail_more_like_this_powered_by_trakt">С подкрепата на Trakt</string>
     <string name="detail_comments_title">Коментари</string>
     <string name="detail_comments_subtitle">Отзиви от Trakt</string>
-    <string name="detail_comments_subtitle_episode">Отзиви от Trakt за S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Отзиви от Trakt за S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Сериал</string>
     <string name="detail_comments_mode_episode">Епизод</string>
     <string name="detail_comments_mode_episode_change">Смяна на епизод (%1$s)</string>

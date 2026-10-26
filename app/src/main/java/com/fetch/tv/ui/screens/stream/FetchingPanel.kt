@@ -243,7 +243,7 @@ private fun PanelButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(FetchTheme.radii.sm)
+    val shape = FetchTheme.shapes.button
     Button(
         onClick = onClick,
         modifier = modifier,

@@ -493,15 +493,17 @@ private fun HeroTitleContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(metaSpacing)
         ) {
-            val leadingMetaText = remember(preview.contentTypeText, preview.genres, context) {
+            // Separate texts with the same dot divider as the trailing meta, so every gap in the
+            // line matches (a joined " • " drew a tighter, darker bullet than its neighbours).
+            val leadingMeta = remember(preview.contentTypeText, preview.genres, context) {
                 buildList {
                     preview.contentTypeText?.takeIf { it.isNotBlank() }?.let(::add)
                     preview.genres.firstOrNull()?.takeIf { it.isNotBlank() }?.let { genre ->
                         add(com.fetch.tv.ui.util.localizedGenreLabel(context, genre))
                     }
-                }.joinToString(separator = " • ")
+                }
             }
-            val hasLeadingMeta = leadingMetaText.isNotBlank()
+            val hasLeadingMeta = leadingMeta.isNotEmpty()
 
             val runtimeText = preview.runtimeText
             val yearText = preview.yearText
@@ -509,14 +511,17 @@ private fun HeroTitleContent(
                 !yearText.isNullOrBlank() ||
                 reserveImdbInPrimaryWithHighlight
 
-            if (hasLeadingMeta) {
+            leadingMeta.forEachIndexed { index, text ->
+                if (index > 0) {
+                    HeroMetaDivider(metaScale)
+                }
                 Text(
-                    text = leadingMetaText,
+                    text = text,
                     style = labelMedium,
                     color = FetchTheme.colors.TextSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = if (hasTrailingMeta) {
+                    modifier = if (hasTrailingMeta && index == leadingMeta.lastIndex) {
                         Modifier.weight(1f, fill = false)
                     } else {
                         Modifier
@@ -722,7 +727,7 @@ private fun HeroResumeRow(
         Row(
             modifier = Modifier
                 .offersPlayLaunchOrigin()
-                .background(FetchTheme.colors.TextPrimary, RoundedCornerShape(50))
+                .background(FetchTheme.colors.TextPrimary, FetchTheme.shapes.button)
                 .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)

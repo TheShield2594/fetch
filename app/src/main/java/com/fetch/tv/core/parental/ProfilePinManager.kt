@@ -6,6 +6,7 @@ import com.fetch.tv.core.sync.ProfileSyncService
 import com.fetch.tv.core.sync.SetProfilePinResult
 import com.fetch.tv.data.local.PinAttemptState
 import com.fetch.tv.data.local.ProfileLockStateDataStore
+import com.fetch.tv.data.website.FetchWebsiteProfilePins
 import com.fetch.tv.domain.model.AuthState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +48,9 @@ interface RemoteProfilePins {
     suspend fun setPin(profileId: Int, pin: String, currentPin: String?): SetProfilePinResult
     suspend fun clearPin(profileId: Int, currentPin: String?): Result<Unit>
     suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult>
+
+    /** Told about a PIN that was just accepted on this device, so a server can be told too. */
+    suspend fun onVerifiedLocally(profileId: Int, pin: String) {}
 }
 
 class SyncServerProfilePins @Inject constructor(
@@ -71,6 +75,25 @@ class SyncServerProfilePins @Inject constructor(
 }
 
 /**
+ * The remote side PINs are checked against: the Fetch website while this TV is signed in to
+ * one, the sync server otherwise.
+ */
+class ActiveRemoteProfilePins @Inject constructor(
+    private val syncServer: SyncServerProfilePins,
+    private val website: FetchWebsiteProfilePins
+) : RemoteProfilePins {
+    private val active: RemoteProfilePins get() = if (website.isAvailable) website else syncServer
+
+    override val isAvailable: Boolean get() = active.isAvailable
+    override suspend fun pullStates(): Result<Map<Int, Boolean>> = active.pullStates()
+    override suspend fun setPin(profileId: Int, pin: String, currentPin: String?): SetProfilePinResult =
+        active.setPin(profileId, pin, currentPin)
+    override suspend fun clearPin(profileId: Int, currentPin: String?): Result<Unit> = active.clearPin(profileId, currentPin)
+    override suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult> = active.verifyPin(profileId, pin)
+    override suspend fun onVerifiedLocally(profileId: Int, pin: String) = active.onVerifiedLocally(profileId, pin)
+}
+
+/**
  * Profile PINs that work offline. The PIN is checked against a salted hash stored on the
  * device; when sync is signed in, changes are mirrored to the sync server, and a PIN that so
  * far only exists on the server is adopted locally the first time it is entered correctly.
@@ -84,7 +107,7 @@ class ProfilePinManager internal constructor(
     @Inject
     constructor(
         store: ProfileLockStateDataStore,
-        remote: SyncServerProfilePins
+        remote: ActiveRemoteProfilePins
     ) : this(store, remote, System::currentTimeMillis)
 
     private val mutex = Mutex()
@@ -189,6 +212,7 @@ class ProfilePinManager internal constructor(
             val matches = withContext(Dispatchers.Default) { ProfilePinHasher.verify(pin, localHash) }
             if (matches) {
                 store.setAttemptState(profileId, PinAttemptState())
+                mirror("unlock") { remote.onVerifiedLocally(profileId, pin) }
                 Result.success(PinVerifyResult(unlocked = true))
             } else {
                 val failures = attempts.failures + 1

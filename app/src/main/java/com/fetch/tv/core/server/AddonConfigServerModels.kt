@@ -82,6 +82,7 @@ data class CollectionSourceInfo(
     val title: String? = null,
     val tmdbId: Int? = null,
     val traktListId: Long? = null,
+    val listId: String? = null,
     val mediaType: String? = null,
     val sortBy: String? = null,
     val sortHow: String? = null,

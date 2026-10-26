@@ -12,6 +12,7 @@ import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.CollectionCatalogSource
 import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.CollectionSource
+import com.fetch.tv.domain.model.FetchListCollectionSource
 import com.fetch.tv.domain.model.FolderViewMode
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.TmdbCollectionFilters
@@ -235,6 +236,7 @@ class CollectionsDataStore @Inject constructor(
         val title: String? = null,
         val tmdbId: Int? = null,
         val traktListId: Long? = null,
+        val listId: String? = null,
         val mediaType: String? = null,
         val sortBy: String? = null,
         val sortHow: String? = null,
@@ -330,6 +332,12 @@ class CollectionsDataStore @Inject constructor(
                 sortBy = sortBy,
                 sortHow = sortHow
             )
+            is FetchListCollectionSource -> SerializableSource(
+                provider = "fetch",
+                title = title,
+                listId = listId,
+                mediaType = mediaType?.name
+            )
         }
     }
 
@@ -424,6 +432,16 @@ class CollectionsDataStore @Inject constructor(
                     } ?: TmdbCollectionMediaType.MOVIE,
                     sortBy = TraktListSort.normalize(sortBy),
                     sortHow = TraktSortHow.normalize(sortHow)
+                )
+            }
+            "fetch" -> {
+                val id = listId?.takeIf { it.isNotBlank() } ?: return null
+                FetchListCollectionSource(
+                    listId = id,
+                    title = title?.takeIf { it.isNotBlank() } ?: string(R.string.website_list_source_default_title),
+                    mediaType = mediaType?.let { raw ->
+                        runCatching { TmdbCollectionMediaType.valueOf(raw.uppercase()) }.getOrNull()
+                    }
                 )
             }
             else -> {

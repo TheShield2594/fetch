@@ -266,6 +266,9 @@ open class MainActivity : ComponentActivity() {
     lateinit var startupSyncService: StartupSyncService
 
     @Inject
+    lateinit var fetchWebsiteSyncService: com.fetch.tv.data.website.FetchWebsiteSyncService
+
+    @Inject
     lateinit var androidTvChannelSyncService: com.fetch.tv.core.sync.androidtv.AndroidTvChannelSyncService
 
     @Inject
@@ -1315,6 +1318,7 @@ open class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             deviceSessionRegistration.requestForegroundRegistration()
             startupSyncService.requestForegroundSync()
+            fetchWebsiteSyncService.requestSync()
         }
         lifecycleScope.launch {
             val refreshIntent = if (isFirstResumeAfterCreate) {

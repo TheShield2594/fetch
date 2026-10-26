@@ -17,6 +17,7 @@ import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.domain.model.AddonCatalogCollectionSource
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.CollectionSource
+import com.fetch.tv.domain.model.FetchListCollectionSource
 import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.FolderViewMode
@@ -126,6 +127,7 @@ class FolderDetailViewModel @Inject constructor(
     private val trailerService: TrailerService,
     private val tmdbCollectionSourceResolver: TmdbCollectionSourceResolver,
     private val traktPublicListSourceResolver: TraktPublicListSourceResolver,
+    private val fetchListSourceResolver: com.fetch.tv.data.website.FetchListSourceResolver,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController
 ) : ViewModel() {
 
@@ -279,6 +281,11 @@ class FolderDetailViewModel @Inject constructor(
                     }
                     is TmdbCollectionSource -> Triple(source.title, buildTmdbTypeLabel(source), source.mediaType.value.toCollectionRawType())
                     is TraktCollectionSource -> Triple(source.title, buildTraktTypeLabel(source), source.mediaType.value.toCollectionRawType())
+                    is FetchListCollectionSource -> Triple(
+                        source.title,
+                        appContext.getString(R.string.website_list_source_label),
+                        (source.mediaType?.value ?: "movie").toCollectionRawType()
+                    )
                 }
                 // Generate placeholder CatalogRow with shimmer items for Modern/Classic follow-layout
                 val placeholderRow = if (useShimmerPlaceholders) {
@@ -289,6 +296,7 @@ class FolderDetailViewModel @Inject constructor(
                         }
                         is TmdbCollectionSource -> Triple("tmdb", buildTmdbSourceKey(source), "")
                         is TraktCollectionSource -> Triple("trakt", buildTraktSourceKey(source), "")
+                        is FetchListCollectionSource -> Triple("fetch", "fetch_${source.listId}", "")
                     }
                     val apiType = rawType.ifBlank { "movie" }
                     val fakeItems = (0 until 8).map { i ->
@@ -445,6 +453,7 @@ class FolderDetailViewModel @Inject constructor(
                         is AddonCatalogCollectionSource -> Triple(src.addonId, src.catalogId, "")
                         is TmdbCollectionSource -> Triple("tmdb", buildTmdbSourceKey(src), "")
                         is TraktCollectionSource -> Triple("trakt", buildTraktSourceKey(src), "")
+                        is FetchListCollectionSource -> Triple("fetch", "fetch_${src.listId}", "")
                         else -> Triple("placeholder", tab.label, "")
                     }
                     val apiType = tab.rawType.ifBlank { "movie" }
@@ -655,6 +664,42 @@ class FolderDetailViewModel @Inject constructor(
             is AddonCatalogCollectionSource -> loadAddonCatalogForTab(tabIndex, source)
             is TmdbCollectionSource -> loadTmdbSourceForTab(tabIndex, source, page = 1, append = false)
             is TraktCollectionSource -> loadTraktSourceForTab(tabIndex, source, page = 1, append = false)
+            is FetchListCollectionSource -> loadFetchListSourceForTab(tabIndex, source)
+        }
+    }
+
+    private fun loadFetchListSourceForTab(tabIndex: Int, source: FetchListCollectionSource) {
+        viewModelScope.launch {
+            fetchListSourceResolver.resolve(source).collect { result ->
+                when (result) {
+                    is NetworkResult.Success -> {
+                        _uiState.update { s ->
+                            val tabs = s.tabs.toMutableList()
+                            if (tabIndex < tabs.size) {
+                                tabs[tabIndex] = tabs[tabIndex].copy(
+                                    catalogRow = result.data.filteredForRelease(s.hideUnreleasedContent),
+                                    isLoading = false
+                                )
+                            }
+                            s.copy(tabs = tabs)
+                        }
+                        rebuildAllTab()
+                        rebuildFollowLayoutState()
+                    }
+                    is NetworkResult.Error -> {
+                        _uiState.update { s ->
+                            val tabs = s.tabs.toMutableList()
+                            if (tabIndex < tabs.size) {
+                                tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = result.message)
+                            }
+                            s.copy(tabs = tabs)
+                        }
+                        rebuildAllTab()
+                        rebuildFollowLayoutState()
+                    }
+                    NetworkResult.Loading -> {}
+                }
+            }
         }
     }
 

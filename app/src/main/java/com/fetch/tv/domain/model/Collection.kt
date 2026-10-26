@@ -40,6 +40,17 @@ data class TraktCollectionSource(
     val sortHow: String = TraktSortHow.ASC.value
 ) : CollectionSource
 
+/**
+ * One of the lists on the Fetch website this TV is signed in to. [mediaType] null means
+ * movies and series together.
+ */
+@Immutable
+data class FetchListCollectionSource(
+    val listId: String,
+    val title: String,
+    val mediaType: TmdbCollectionMediaType? = null
+) : CollectionSource
+
 enum class TmdbCollectionSourceType {
     LIST,
     COLLECTION,

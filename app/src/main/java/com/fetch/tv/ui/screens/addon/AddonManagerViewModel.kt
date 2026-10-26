@@ -48,6 +48,7 @@ import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.AddonCatalogCollectionSource
+import com.fetch.tv.domain.model.FetchListCollectionSource
 import com.fetch.tv.domain.model.ExperienceMode
 import com.fetch.tv.domain.model.TmdbCollectionSource
 import com.fetch.tv.domain.model.TmdbCollectionSourceType
@@ -909,6 +910,12 @@ class AddonManagerViewModel @Inject constructor(
                                     mediaType = source.mediaType.name,
                                     sortBy = source.sortBy,
                                     sortHow = source.sortHow
+                                )
+                                is FetchListCollectionSource -> CollectionSourceInfo(
+                                    provider = "fetch",
+                                    title = source.title,
+                                    listId = source.listId,
+                                    mediaType = source.mediaType?.name
                                 )
                             }
                         }

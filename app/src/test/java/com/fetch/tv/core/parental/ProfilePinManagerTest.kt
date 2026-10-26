@@ -230,4 +230,26 @@ class ProfilePinManagerTest {
 
         assertFalse(pins.hasPin(4))
     }
+
+    @Test
+    fun `a PIN accepted on the TV is passed on, so the website can issue its profile token`() = runTest {
+        val unlocked = mutableListOf<Pair<Int, String>>()
+        val remote = object : RemoteProfilePins {
+            override val isAvailable = true
+            override suspend fun pullStates() = Result.success(emptyMap<Int, Boolean>())
+            override suspend fun setPin(profileId: Int, pin: String, currentPin: String?) = SetProfilePinResult.Success
+            override suspend fun clearPin(profileId: Int, currentPin: String?) = Result.success(Unit)
+            override suspend fun verifyPin(profileId: Int, pin: String) = Result.success(PinVerifyResult(unlocked = true))
+            override suspend fun onVerifiedLocally(profileId: Int, pin: String) {
+                unlocked += profileId to pin
+            }
+        }
+        val pins = manager(remote)
+        store.setLocalPinHash(2, ProfilePinHasher.hash("2222"))
+
+        pins.verifyPin(2, "9999")
+        pins.verifyPin(2, "2222")
+
+        assertEquals(listOf(2 to "2222"), unlocked)
+    }
 }

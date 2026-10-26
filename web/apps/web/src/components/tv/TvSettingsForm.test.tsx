@@ -70,4 +70,28 @@ describe("TvSettingsForm", () => {
     expect(screen.getByText(/Nothing has been synced from a TV yet/)).toBeInTheDocument();
     expect(screen.getByLabelText("When you pick a title")).toHaveValue("BEST_MATCH");
   });
+
+  it("lets a number be typed digit by digit and applies it on blur", async () => {
+    await renderForm();
+    const size = screen.getByLabelText("Size (%)");
+    await userEvent.clear(size);
+    await userEvent.type(size, "120");
+    expect(size).toHaveValue(120);
+    await userEvent.tab();
+    await userEvent.click(screen.getByRole("button", { name: /Save settings/ }));
+    const player = saveTvSettings.mock.calls[0]![1].features?.player_settings as Record<string, { value: unknown }>;
+    expect(player.subtitle_size).toEqual({ type: "int", value: 120 });
+  });
+
+  it("takes a file-size limit below 1 GB, and empty as no limit", async () => {
+    await renderForm();
+    const limit = screen.getByLabelText("Largest file (GB, empty for no limit)");
+    await userEvent.type(limit, "0.5");
+    expect(limit).toHaveValue(0.5);
+    await userEvent.tab();
+    await userEvent.click(screen.getByRole("button", { name: /Save settings/ }));
+    const rules = (saveTvSettings.mock.calls[0]![1].features?.player_settings as Record<string, { value: string }>)
+      .stream_ranking_rules!;
+    expect(JSON.parse(rules.value).maxSizeGb).toBe(0.5);
+  });
 });

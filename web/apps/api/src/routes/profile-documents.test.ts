@@ -58,6 +58,29 @@ describe("profile document routes", () => {
       expect(response.json()).toEqual({ settings: {}, version: 0, updatedAt: null });
     });
 
+    it("stores settings it doesn't know, nested ones included, exactly as sent", async () => {
+      const withUnknown = {
+        ...SETTINGS,
+        features: { ...SETTINGS.features, from_a_newer_tv: { nested: { deeper: { type: "string", value: "kept" } } } },
+        topLevelExtra: [1, 2, 3],
+      };
+      prismaMock.profileDocument.create.mockImplementation(async ({ data }: { data: { document: unknown } }) => ({
+        document: data.document,
+        version: 1,
+        updatedAt: UPDATED_AT,
+      }));
+      const app = await buildApp();
+      const response = await app.inject({
+        method: "PUT",
+        url: `/profiles/${PROFILE_ID}/settings/tv`,
+        headers: { "if-match": '"0"' },
+        payload: { settings: withUnknown },
+      });
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.profileDocument.create.mock.calls[0]![0].data.document).toEqual(withUnknown);
+      expect(response.json().settings).toEqual(withUnknown);
+    });
+
     it("requires If-Match", async () => {
       const app = await buildApp();
       const response = await app.inject({

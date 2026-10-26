@@ -7,6 +7,7 @@ import com.fetch.tv.core.sync.AddonSyncService
 import com.fetch.tv.core.sync.HomeCatalogSettingsSyncService
 import com.fetch.tv.core.sync.ProfileSettingsSyncService
 import com.fetch.tv.core.sync.SyncHomeCatalogPayload
+import com.fetch.tv.core.sync.shouldExcludePreferenceFromProfileSettingsSync
 import com.fetch.tv.data.local.AddonPreferences
 import com.fetch.tv.data.local.CollectionsDataStore
 import com.fetch.tv.data.local.ProfileDataStore
@@ -355,13 +356,18 @@ class FetchWebsiteSyncService @Inject constructor(
         repeat(2) { attempt ->
             val current = client.homeLayout(remote.id, token)
             try {
-                client.putHomeLayout(remote.id, token, FetchWebsiteTvMappings.toWebsiteRows(payload, current.rows), current.version)
+                val rows = FetchWebsiteTvMappings.toWebsiteRows(payload, current.rows, installedAddonIds())
+                client.putHomeLayout(remote.id, token, rows, current.version)
                 return
             } catch (error: FetchWebsiteException) {
                 if (error.status != 412 || attempt == 1) throw error
             }
         }
     }
+
+    /** Every installed addon's manifest id, enabled or not. */
+    private suspend fun installedAddonIds(): Set<String> =
+        addonRepository.get().getInstalledAddons().first().mapTo(HashSet()) { it.id }
 
     // ─── Settings ───
 
@@ -385,7 +391,8 @@ class FetchWebsiteSyncService @Inject constructor(
             val merged = FetchWebsiteTvMappings.mergeSettings(
                 base = if (current.version == 0) null else base,
                 local = local,
-                remote = current.settings
+                remote = current.settings,
+                isNotSynced = ::shouldExcludePreferenceFromProfileSettingsSync
             )
             if (merged == current.settings) {
                 store.saveSettingsBase(remote.id, merged.toString())

@@ -42,16 +42,32 @@ const countsByProfile = (rows: CountRow[]): Map<string, number> =>
 
 const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
   app.get("/sync/overview", async (request, reply) => {
-    const [profiles, addons, enabledAddons, lists, resumePoints, watched, documents, database, jobs] =
+    reply.header("Cache-Control", "no-store");
+
+    // Asked first and on its own: with the database down every count below
+    // would fail, and the one thing the dashboard can still say — that the
+    // database is the problem — would be lost in a 500.
+    const database = await checkDatabase();
+    if (!database.ok) {
+      return {
+        profiles: [],
+        ...(request.deviceId ? {} : { devices: [] }),
+        server: { database: { ok: false, latencyMs: database.latencyMs }, jobs: [] },
+      };
+    }
+
+    const [profiles, addons, enabledAddons, lists, resumePoints, watched, documents, jobs] =
       await Promise.all([
-        prisma.profile.findMany({ orderBy: { createdAt: "asc" }, select: { id: true, name: true } }),
+        prisma.profile.findMany({
+          orderBy: { createdAt: "asc" },
+          select: { id: true, name: true, usesPrimaryAddons: true },
+        }),
         prisma.profileAddon.groupBy({ by: ["profileId"], _count: { _all: true } }),
         prisma.profileAddon.groupBy({ by: ["profileId"], where: { enabled: true }, _count: { _all: true } }),
         prisma.list.groupBy({ by: ["profileId"], _count: { _all: true } }),
         prisma.playbackProgress.groupBy({ by: ["profileId"], _count: { _all: true } }),
         prisma.watchEvent.groupBy({ by: ["profileId"], _count: { _all: true } }),
         prisma.profileDocument.findMany({ select: { profileId: true, kind: true, updatedAt: true } }),
-        checkDatabase(),
         getJobRuns(),
       ]);
     const devices = request.deviceId
@@ -78,14 +94,21 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
     const documentUpdatedAt = (profileId: string, kind: string): string | null =>
       documents.find((doc) => doc.profileId === profileId && doc.kind === kind)?.updatedAt.toISOString() ?? null;
 
-    reply.header("Cache-Control", "no-store");
+    // The primary profile is the oldest, as it is slot 1 on a TV. A profile set
+    // to use its addons runs the primary's list on the TV, so that is the count
+    // that describes it.
+    const primaryId = profiles[0]?.id;
+    const addonSourceFor = (profile: { id: string; usesPrimaryAddons: boolean }): string =>
+      profile.usesPrimaryAddons && primaryId ? primaryId : profile.id;
+
     return {
       profiles: profiles.map((profile) => ({
         id: profile.id,
         name: profile.name,
+        addonsFromPrimary: profile.usesPrimaryAddons && profile.id !== primaryId,
         counts: {
-          addons: addonCounts.get(profile.id) ?? 0,
-          enabledAddons: enabledAddonCounts.get(profile.id) ?? 0,
+          addons: addonCounts.get(addonSourceFor(profile)) ?? 0,
+          enabledAddons: enabledAddonCounts.get(addonSourceFor(profile)) ?? 0,
           lists: listCounts.get(profile.id) ?? 0,
           resumePoints: resumeCounts.get(profile.id) ?? 0,
           watchedItems: watchedCounts.get(profile.id) ?? 0,

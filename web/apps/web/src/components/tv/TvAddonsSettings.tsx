@@ -56,6 +56,9 @@ export function TvAddonsSettings() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  // One order save at a time: two in flight could land out of order, and the
+  // older answer would put back the order the newer move replaced.
+  const [reordering, setReordering] = useState(false);
 
   const [manifestUrl, setManifestUrl] = useState("");
   const [adding, setAdding] = useState(false);
@@ -66,17 +69,24 @@ export function TvAddonsSettings() {
   // `loading` starts true for the same reason.
   useEffect(() => {
     if (!profileId) return;
+    // A newer load (another profile, or a reload) supersedes this one.
+    let cancelled = false;
     void (async () => {
       try {
         const { addons: loaded } = await api.getTvAddons(profileId);
+        if (cancelled) return;
         setAddons(loaded);
         setLoadError(null);
       } catch (err) {
+        if (cancelled) return;
         setLoadError(errorMessage(err, "Couldn't load this profile's addons."));
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [profileId]);
 
   const install = async (url: string, withBrowserFallback: boolean) => {
@@ -143,20 +153,24 @@ export function TvAddonsSettings() {
     );
 
   const move = (from: number, to: number) => {
-    if (!profileId) return;
+    if (!profileId || reordering) return;
     const previous = addons;
     const next = moveItem(addons, from, to);
     if (next.every((addon, index) => addon.id === previous[index]?.id)) return;
     // Shown at once and put back if the save fails, so dragging feels direct.
     setAddons(next);
     setActionError(null);
-    api.reorderTvAddons(profileId, next.map((addon) => addon.id)).then(
-      ({ addons: saved }) => setAddons(saved),
-      (err: unknown) => {
-        setAddons(previous);
-        setActionError(errorMessage(err, "Couldn't save the new order."));
-      }
-    );
+    setReordering(true);
+    api
+      .reorderTvAddons(profileId, next.map((addon) => addon.id))
+      .then(
+        ({ addons: saved }) => setAddons(saved),
+        (err: unknown) => {
+          setAddons(previous);
+          setActionError(errorMessage(err, "Couldn't save the new order."));
+        }
+      )
+      .finally(() => setReordering(false));
   };
 
   const { rowProps, dragOverIndex } = useDragReorder(move);
@@ -209,7 +223,7 @@ export function TvAddonsSettings() {
                   index={index}
                   count={addons.length}
                   label={addon.name}
-                  disabled={busyId !== null}
+                  disabled={busyId !== null || reordering}
                   onMove={move}
                 />
                 {addon.logo ? (

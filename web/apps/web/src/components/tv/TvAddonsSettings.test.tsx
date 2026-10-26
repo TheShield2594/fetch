@@ -101,6 +101,23 @@ describe("TvAddonsSettings", () => {
     expect(names[0]).toContain("Cinemeta");
   });
 
+  it("holds further moves until the order being saved lands", async () => {
+    getTvAddons.mockResolvedValue({
+      addons: [addon({ id: "a1", name: "Torrentio" }), addon({ id: "a2", name: "Cinemeta" }), addon({ id: "a3", name: "Comet" })],
+      updatedAt: null,
+    });
+    let finish: (value: { addons: TvAddon[] }) => void = () => {};
+    reorderTvAddons.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    await renderAddons();
+
+    await userEvent.click(screen.getByRole("button", { name: "Move Comet up" }));
+    expect(screen.getByRole("button", { name: "Move Torrentio down" })).toBeDisabled();
+    expect(reorderTvAddons).toHaveBeenCalledTimes(1);
+
+    finish({ addons: [] });
+    await waitFor(() => expect(screen.queryAllByRole("button", { name: /^Move/ }).length).toBe(0));
+  });
+
   it("puts the order back when saving it fails", async () => {
     getTvAddons.mockResolvedValue({ addons: [addon({ id: "a1", name: "Torrentio" }), addon({ id: "a2", name: "Cinemeta" })], updatedAt: null });
     reorderTvAddons.mockRejectedValue(new Error("offline"));

@@ -18,7 +18,10 @@ const prismaMock = {
 };
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
-vi.mock("../lib/db-health.js", () => ({ checkDatabase: async () => ({ ok: true, latencyMs: 3, error: null }) }));
+const database = vi.hoisted(() => ({ ok: true }));
+vi.mock("../lib/db-health.js", () => ({
+  checkDatabase: async () => ({ ok: database.ok, latencyMs: 3, error: database.ok ? null : "down" }),
+}));
 vi.mock("../lib/job-status.js", () => ({
   getJobRuns: async () => [
     { job: "trakt-history-poll", status: "failed", message: "boom", durationMs: 10, overran: false, at: "2026-10-26T12:00:00.000Z" },
@@ -49,9 +52,10 @@ const asDevice = { "x-test-device": DEVICE_ID };
 describe("GET /sync/overview", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    database.ok = true;
     prismaMock.profile.findMany.mockResolvedValue([
-      { id: PROFILE_ID, name: "Default" },
-      { id: OTHER_ID, name: "Kids" },
+      { id: PROFILE_ID, name: "Default", usesPrimaryAddons: false },
+      { id: OTHER_ID, name: "Kids", usesPrimaryAddons: false },
     ]);
     prismaMock.profileAddon.groupBy
       .mockResolvedValueOnce([count(PROFILE_ID, 3)])
@@ -85,6 +89,7 @@ describe("GET /sync/overview", () => {
         {
           id: PROFILE_ID,
           name: "Default",
+          addonsFromPrimary: false,
           counts: { addons: 3, enabledAddons: 2, lists: 4, resumePoints: 0, watchedItems: 120 },
           tvSettingsUpdatedAt: "2026-10-25T10:00:00.000Z",
           homeLayoutUpdatedAt: null,
@@ -92,6 +97,7 @@ describe("GET /sync/overview", () => {
         {
           id: OTHER_ID,
           name: "Kids",
+          addonsFromPrimary: false,
           counts: { addons: 0, enabledAddons: 0, lists: 1, resumePoints: 7, watchedItems: 0 },
           tvSettingsUpdatedAt: null,
           homeLayoutUpdatedAt: null,
@@ -114,6 +120,29 @@ describe("GET /sync/overview", () => {
         jobs: [{ job: "trakt-history-poll", status: "failed", message: "boom", at: "2026-10-26T12:00:00.000Z" }],
       },
     });
+  });
+
+  it("counts the primary profile's addons for a profile that uses them", async () => {
+    prismaMock.profile.findMany.mockResolvedValue([
+      { id: PROFILE_ID, name: "Default", usesPrimaryAddons: false },
+      { id: OTHER_ID, name: "Kids", usesPrimaryAddons: true },
+    ]);
+    const app = await buildApp();
+    const kids = (await app.inject({ method: "GET", url: "/sync/overview" })).json().profiles[1];
+    expect(kids).toMatchObject({ addonsFromPrimary: true, counts: { addons: 3, enabledAddons: 2 } });
+  });
+
+  it("still says the database is down when it can't count anything", async () => {
+    database.ok = false;
+    const app = await buildApp();
+    const response = await app.inject({ method: "GET", url: "/sync/overview" });
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      profiles: [],
+      devices: [],
+      server: { database: { ok: false, latencyMs: 3 }, jobs: [] },
+    });
+    expect(prismaMock.profile.findMany).not.toHaveBeenCalled();
   });
 
   it("leaves the device list out for a device caller", async () => {

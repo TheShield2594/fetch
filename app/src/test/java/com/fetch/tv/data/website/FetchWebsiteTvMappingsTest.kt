@@ -63,7 +63,7 @@ class FetchWebsiteTvMappingsTest {
             WebsiteHomeRow(key = "list:l1", hidden = true, title = "Watchlist", source = "list")
         )
 
-        val rows = FetchWebsiteTvMappings.toWebsiteRows(payload, remote)
+        val rows = FetchWebsiteTvMappings.toWebsiteRows(payload, remote, installedAddonIds = setOf("com.cinemeta"))
 
         assertEquals(
             listOf(
@@ -78,6 +78,23 @@ class FetchWebsiteTvMappingsTest {
         assertEquals("Films", rows.first { it.key == "addon:com.cinemeta:movie:top" }.title)
         // What the website calls a row's source is never sent back.
         assertEquals(listOf<String?>(null), rows.map { it.source }.distinct())
+    }
+
+    @Test
+    fun `rows of an addon the TV left out stay while it is installed, and go once it is removed`() {
+        val payload = SyncHomeCatalogPayload(items = listOf(catalog("com.cinemeta", "movie", "top")))
+        val remote = listOf(
+            WebsiteHomeRow(key = "addon:com.torrentio:movie:popular", hidden = true),
+            WebsiteHomeRow(key = "addon:com.cinemeta:movie:top"),
+            WebsiteHomeRow(key = "addon:com.removed:series:new")
+        )
+
+        val rows = FetchWebsiteTvMappings.toWebsiteRows(payload, remote, installedAddonIds = setOf("com.cinemeta", "com.torrentio"))
+
+        assertEquals(
+            listOf("addon:com.torrentio:movie:popular" to true, "addon:com.cinemeta:movie:top" to false),
+            rows.map { it.key to it.hidden }
+        )
     }
 
     @Test
@@ -150,5 +167,18 @@ class FetchWebsiteTvMappingsTest {
         assertEquals("2", value(merged, "player_settings", "a"))
         assertEquals("true", merged["extra"].toString())
         assertEquals("2", merged["version"].toString())
+    }
+
+    @Test
+    fun `a key this TV never syncs keeps the website's value instead of reading as removed`() {
+        val base = blob("""{"features":{"mdblist_settings":{"mdblist_api_key":{"type":"string","value":"k"},"enabled":{"type":"boolean","value":true}}}}""")
+        val local = blob("""{"features":{"mdblist_settings":{"enabled":{"type":"boolean","value":true}}}}""")
+        val remote = base
+
+        val merged = FetchWebsiteTvMappings.mergeSettings(base, local, remote) { feature, key ->
+            feature == "mdblist_settings" && key == "mdblist_api_key"
+        }
+
+        assertEquals("\"k\"", value(merged, "mdblist_settings", "mdblist_api_key"))
     }
 }

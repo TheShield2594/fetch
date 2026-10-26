@@ -177,6 +177,11 @@ export function TvOverview() {
                     {column.key === "addons" && profile.counts.addons !== profile.counts.enabledAddons
                       ? `${profile.counts.enabledAddons}/${profile.counts.addons}`
                       : profile.counts[column.key]}
+                    {column.key === "addons" && profile.addonsFromPrimary && (
+                      <span className="block font-sans text-2xs" style={{ color: "var(--text-mute)" }}>
+                        primary's
+                      </span>
+                    )}
                   </td>
                 ))}
                 <td className="py-2 pr-4 text-xs" style={{ color: "var(--text-mute)" }}>

@@ -73,8 +73,16 @@ internal object FetchWebsiteTvMappings {
      * The layout to send: the TV's rows in the TV's order, with the rows only the website knows
      * (its lists, Continue Watching) kept where they were, so a push from the TV doesn't drop
      * what was placed on the website.
+     *
+     * The TV's payload only carries catalogs of enabled addons whose catalogs have loaded, so an
+     * addon row it leaves out is kept too while that addon is still in [installedAddonIds]:
+     * turning an addon off must not throw away where its rows sat or whether they were hidden.
      */
-    fun toWebsiteRows(payload: SyncHomeCatalogPayload, remote: List<WebsiteHomeRow>): List<WebsiteHomeRow> {
+    fun toWebsiteRows(
+        payload: SyncHomeCatalogPayload,
+        remote: List<WebsiteHomeRow>,
+        installedAddonIds: Set<String>
+    ): List<WebsiteHomeRow> {
         val tvRows = payload.items.sortedBy { it.order }.map { item ->
             WebsiteHomeRow(
                 key = rowKey(item),
@@ -82,11 +90,21 @@ internal object FetchWebsiteTvMappings {
                 title = item.customTitle.takeIf { it.isNotBlank() }
             )
         }
+        val sentKeys = tvRows.mapTo(HashSet()) { it.key }
         val result = tvRows.toMutableList()
         remote.forEachIndexed { index, row ->
-            if (!isTvRow(row.key)) result.add(index.coerceAtMost(result.size), row.copy(source = null))
+            val keep = !isTvRow(row.key) ||
+                (row.key !in sentKeys && addonIdOf(row.key)?.let { it in installedAddonIds } == true)
+            if (keep) result.add(index.coerceAtMost(result.size), row.copy(source = null))
         }
         return result
+    }
+
+    /** The addon id an `addon:` row key names, decoded; null for any other row. */
+    private fun addonIdOf(key: String): String? {
+        if (!key.startsWith(ADDON_PREFIX)) return null
+        val parts = key.removePrefix(ADDON_PREFIX).split(":")
+        return if (parts.size == 3) decode(parts[0]) else null
     }
 
     /**
@@ -133,8 +151,17 @@ internal object FetchWebsiteTvMappings {
      *   older one.
      *
      * With no [base] (the first sync after pairing) every key the TV has wins.
+     *
+     * [isNotSynced] names the keys this TV leaves out of its blob on purpose (device-only and
+     * credential settings): their absence from [local] says nothing, so the website's value
+     * stands rather than reading as a removal.
      */
-    fun mergeSettings(base: JsonObject?, local: JsonObject, remote: JsonObject): JsonObject {
+    fun mergeSettings(
+        base: JsonObject?,
+        local: JsonObject,
+        remote: JsonObject,
+        isNotSynced: (feature: String, key: String) -> Boolean = { _, _ -> false }
+    ): JsonObject {
         val baseFeatures = base?.get(FEATURES) as? JsonObject
         val localFeatures = local[FEATURES] as? JsonObject ?: JsonObject(emptyMap())
         val remoteFeatures = remote[FEATURES] as? JsonObject ?: JsonObject(emptyMap())
@@ -148,7 +175,10 @@ internal object FetchWebsiteTvMappings {
                     return@forEach
                 }
                 val baseFeature = baseFeatures?.get(feature) as? JsonObject
-                put(feature, mergeFeature(baseFeature, localFeature, remoteFeature, hasBase = base != null))
+                put(
+                    feature,
+                    mergeFeature(baseFeature, localFeature, remoteFeature, hasBase = base != null) { key -> isNotSynced(feature, key) }
+                )
             }
         }
 
@@ -159,11 +189,19 @@ internal object FetchWebsiteTvMappings {
         }
     }
 
-    private fun mergeFeature(base: JsonObject?, local: JsonObject, remote: JsonObject, hasBase: Boolean): JsonObject =
+    private fun mergeFeature(
+        base: JsonObject?,
+        local: JsonObject,
+        remote: JsonObject,
+        hasBase: Boolean,
+        isNotSynced: (String) -> Boolean
+    ): JsonObject =
         buildJsonObject {
             (remote.keys + local.keys + base?.keys.orEmpty()).distinct().forEach { key ->
                 val localValue: JsonElement? = local[key]
-                val chosen = if (!hasBase) {
+                val chosen = if (isNotSynced(key)) {
+                    remote[key]
+                } else if (!hasBase) {
                     localValue ?: remote[key]
                 } else if (localValue != base?.get(key)) {
                     localValue

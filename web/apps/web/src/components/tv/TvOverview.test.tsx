@@ -16,6 +16,7 @@ const OVERVIEW: SyncOverview = {
     {
       id: "p1",
       name: "Alex",
+      addonsFromPrimary: false,
       counts: { addons: 3, enabledAddons: 2, lists: 4, resumePoints: 1, watchedItems: 120 },
       tvSettingsUpdatedAt: null,
       homeLayoutUpdatedAt: null,

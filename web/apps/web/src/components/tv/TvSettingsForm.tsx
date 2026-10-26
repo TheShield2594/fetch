@@ -25,6 +25,69 @@ const groupHeading = "text-xs font-semibold uppercase tracking-wide";
 const switchRow =
   "flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 cursor-pointer";
 
+/**
+ * A number field that keeps what is being typed and only applies it on blur or
+ * Enter. Applying every keystroke clamped "1" (on the way to "120") up to the
+ * minimum and made a value below 1 impossible to type at all.
+ */
+function DraftNumberInput({
+  id,
+  value,
+  min,
+  max,
+  step,
+  integer = false,
+  allowEmpty = false,
+  onCommit,
+}: {
+  id: string;
+  value: number | null;
+  min?: number;
+  max?: number;
+  step: number;
+  integer?: boolean;
+  /** Empty means "no value" (null) rather than "put the old one back". */
+  allowEmpty?: boolean;
+  onCommit: (value: number | null) => void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+
+  const commit = () => {
+    if (draft === null) return;
+    setDraft(null);
+    const trimmed = draft.trim();
+    if (trimmed === "") {
+      if (allowEmpty) onCommit(null);
+      return;
+    }
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed)) return;
+    let next = integer ? Math.round(parsed) : parsed;
+    if (min !== undefined) next = Math.max(min, next);
+    if (max !== undefined) next = Math.min(max, next);
+    onCommit(next);
+  };
+
+  return (
+    <input
+      id={id}
+      type="number"
+      inputMode={integer ? "numeric" : "decimal"}
+      min={min}
+      max={max}
+      step={step}
+      value={draft ?? (value === null ? "" : String(value))}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") commit();
+      }}
+      className={inputClass}
+      style={inputStyle}
+    />
+  );
+}
+
 function FieldControl({
   field,
   document,
@@ -90,21 +153,16 @@ function FieldControl({
             {field.label}
             {field.unit ? ` (${field.unit})` : ""}
           </label>
-          <input
+          <DraftNumberInput
             id={id}
-            type="number"
+            value={value as number}
             min={field.min}
             max={field.max}
             step={field.step}
-            value={value as number}
-            onChange={(e) => {
-              const parsed = Number(e.target.value);
-              if (e.target.value !== "" && Number.isFinite(parsed)) {
-                onChange(Math.min(field.max, Math.max(field.min, Math.round(parsed))));
-              }
+            integer
+            onCommit={(next) => {
+              if (next !== null) onChange(next);
             }}
-            className={inputClass}
-            style={inputStyle}
           />
         </div>
       );
@@ -211,18 +269,13 @@ function RankingRulesFields({ rules, onChange }: { rules: RankingRules; onChange
         <label htmlFor={`${id}-size`} className={labelClass} style={labelStyle}>
           Largest file (GB, empty for no limit)
         </label>
-        <input
+        <DraftNumberInput
           id={`${id}-size`}
-          type="number"
+          value={rules.maxSizeGb}
           min={0.1}
           step={0.5}
-          value={rules.maxSizeGb ?? ""}
-          onChange={(e) => {
-            const parsed = Number(e.target.value);
-            set("maxSizeGb", e.target.value === "" || !(parsed > 0) ? null : parsed);
-          }}
-          className={inputClass}
-          style={inputStyle}
+          allowEmpty
+          onCommit={(next) => set("maxSizeGb", next)}
         />
       </div>
 
@@ -354,9 +407,12 @@ export function TvSettingsForm() {
   const [reloadToken, setReloadToken] = useState(0);
   useEffect(() => {
     if (!profileId) return;
+    // A newer load (another profile, or a reload) supersedes this one.
+    let cancelled = false;
     void (async () => {
       try {
         const result = await api.getTvSettings(profileId);
+        if (cancelled) return;
         setDocument(result.settings);
         setVersion(result.version);
         setDirty(false);
@@ -364,11 +420,15 @@ export function TvSettingsForm() {
         setLoadedAt((n) => n + 1);
         setLoadError(null);
       } catch (err) {
+        if (cancelled) return;
         setLoadError(errorMessage(err, "Couldn't load the TV's settings."));
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [profileId, reloadToken]);
 
   /** Back to what is saved: after a conflict, or to throw away unsaved changes. */

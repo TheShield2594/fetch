@@ -55,6 +55,8 @@ export type TvSettings = { settings: TvSettingsDocument; version: number; update
 export type SyncOverviewProfile = {
   id: string;
   name: string;
+  /** The profile uses the primary profile's addons, and its addon counts are the primary's. */
+  addonsFromPrimary: boolean;
   counts: { addons: number; enabledAddons: number; lists: number; resumePoints: number; watchedItems: number };
   tvSettingsUpdatedAt: string | null;
   homeLayoutUpdatedAt: string | null;

@@ -51,19 +51,26 @@ export function HomeLayoutSettings() {
   const [reloadToken, setReloadToken] = useState(0);
   useEffect(() => {
     if (!profileId) return;
+    // A newer load (another profile, or a reload) supersedes this one.
+    let cancelled = false;
     void (async () => {
       try {
         const layout = await api.getHomeLayout(profileId);
+        if (cancelled) return;
         setRows(layout.rows);
         setVersion(layout.version);
         setDirty(false);
         setLoadError(null);
       } catch (err) {
+        if (cancelled) return;
         setLoadError(errorMessage(err, "Couldn't load the Home layout."));
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
+    return () => {
+      cancelled = true;
+    };
   }, [profileId, reloadToken]);
 
   /** Back to what is saved: after a conflict, or to throw away unsaved changes. */

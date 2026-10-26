@@ -107,7 +107,10 @@ internal object EmbeddedSubtitleTimelineLoader {
     private const val ID_CUE_TRACK = 0xF7L
     private const val ID_CUE_DURATION = 0xB2L
 
+    // Own dispatcher: the shared one allows five calls per host, and a queued range read
+    // would use up the load deadline behind media-server browsing to the same host.
     private val httpClient = SharedHttpClient.root.newBuilder()
+        .dispatcher(okhttp3.Dispatcher())
         .socketFactory(NoDelaySocketFactory)
         .connectTimeout(3, TimeUnit.SECONDS)
         .readTimeout(4, TimeUnit.SECONDS)

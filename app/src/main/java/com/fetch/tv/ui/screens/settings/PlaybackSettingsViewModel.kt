@@ -538,6 +538,10 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setReadyCheckEnabled(enabled)
     }
 
+    suspend fun setStreamAutoPlayStartEarly(enabled: Boolean) {
+        playerSettingsDataStore.setStreamAutoPlayStartEarly(enabled)
+    }
+
     suspend fun setStreamReuseLastLinkCacheHours(hours: Int) {
         playerSettingsDataStore.setStreamReuseLastLinkCacheHours(hours)
     }

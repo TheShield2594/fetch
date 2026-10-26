@@ -45,6 +45,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
     SettingsCategory.PLAYBACK_STREAM_SELECTION to listOf(
         R.string.playback_section_stream_selection,
         R.string.autoplay_stream_selection,
+        R.string.autoplay_start_early_title,
         R.string.best_match_preview_title,
         R.string.ready_check_title,
         R.string.autoplay_regex_title,

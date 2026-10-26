@@ -56,6 +56,7 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
 
     val streams = SettingsCategory.PLAYBACK_STREAM_SELECTION
     add(rule(streams, R.string.autoplay_stream_selection) { it.streamAutoPlayMode })
+    add(rule(streams, R.string.autoplay_start_early_title) { it.streamAutoPlayStartEarly })
     add(rule(streams, R.string.best_match_preview_title) { it.bestMatchPreviewEnabled })
     add(rule(streams, R.string.ready_check_title) { it.readyCheckEnabled })
     add(rule(streams, R.string.autoplay_regex_title) { it.streamAutoPlayRegex })

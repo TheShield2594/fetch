@@ -3080,6 +3080,8 @@
     <string name="ready_to_play">Ready to play</string>
     <string name="home_row_ready_tonight">Ready tonight</string>
     <string name="ready_check_title">Check what\'s ready in the background</string>
+    <string name="autoplay_start_early_title">Start without waiting for every addon</string>
+    <string name="autoplay_start_early_sub">Plays the best stream so far as soon as it reaches your preferred quality, and is cached when you prefer cached streams. A slower addon may have had a better one. Peer-to-peer torrents never start early.</string>
     <string name="ready_check_sub">On Wi-Fi or Ethernet, asks your addons about up to 6 titles from Continue Watching and your Watchlist, each at most every 12 hours, so Home can mark the ones that start instantly.</string>
     <string name="empty_state_add_addon">Add an addon</string>
     <string name="source_group_other">Other quality</string>

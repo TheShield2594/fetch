@@ -614,7 +614,6 @@ class StreamScreenViewModel @Inject constructor(
                 // those have answered: the addons still loading cannot change the result.
                 val answeredNames = mergedAddonStreams.mapTo(hashSetOf()) { it.addonName }
                 val pickSourcesAnswered = sourcesNeededForPick?.all { it in answeredNames } == true
-                val readyToPick = isAllLoaded || pickSourcesAnswered
                 val bestSoFarStream = if (
                     directFlowActive &&
                     !autoPlayHandledForSession &&
@@ -631,6 +630,12 @@ class StreamScreenViewModel @Inject constructor(
                 } else {
                     null
                 }
+                // "Start without waiting": a best-so-far stream that already meets the user's
+                // quality (and cached) rules is played without waiting for slower addons.
+                val bestSoFarGoodEnough = playerSettings.streamAutoPlayStartEarly &&
+                    bestSoFarStream != null &&
+                    StreamAutoPlaySelector.isGoodEnoughToStartEarly(bestSoFarStream, playerSettings.streamRankingRules)
+                val readyToPick = isAllLoaded || pickSourcesAnswered || bestSoFarGoodEnough
                 val bestSoFar = bestSoFarStream?.let { stream ->
                     val descriptor = StreamTitleParser.parse(stream)
                     com.fetch.tv.core.streams.BestMatchPreview(
@@ -694,9 +699,10 @@ class StreamScreenViewModel @Inject constructor(
                 } else null
 
                 // Auto-select only after all addons have responded or the
-                // configured timeout has elapsed. This gives slower addons a
-                // chance to return higher-quality streams before the selector
-                // picks from whatever is available.
+                // configured timeout has elapsed (or, with "Start without
+                // waiting", once the best so far is good enough). This gives
+                // slower addons a chance to return higher-quality streams
+                // before the selector picks from whatever is available.
                 val shouldAutoSelect = !autoPlayHandledForSession && !resolvedAutoPlayTarget && readyToPick
                 val selectedAutoPlayStream = if (earlyBingeGroupMatch != null) {
                     earlyBingeGroupMatch

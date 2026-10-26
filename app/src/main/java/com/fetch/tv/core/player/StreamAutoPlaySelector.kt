@@ -5,6 +5,7 @@ import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.RankedStream
 import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
+import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
@@ -27,6 +28,22 @@ object StreamAutoPlaySelector {
         val addons = streamAddonNames.filter { it in selectedAddons }
         if (addons.isEmpty()) return null
         return (addons + serverSourceNames).toSet()
+    }
+
+    /**
+     * For Best match with "Start without waiting" on: whether the best stream found so far is
+     * good enough to play without waiting for slower sources. It has to reach the preferred
+     * quality (never above the maximum) and, when cached debrid streams are preferred, be cached.
+     * Your own media servers don't need to be cached. Peer-to-peer torrents never qualify: they
+     * can take a long time to start.
+     */
+    fun isGoodEnoughToStartEarly(stream: Stream, rankingRules: StreamRankingRules): Boolean {
+        if (stream.isTorrent()) return false
+        val descriptor = StreamTitleParser.parse(stream)
+        val target = minOf(rankingRules.preferredResolution.height, rankingRules.maxResolution.height)
+        if (descriptor.resolution.height == 0 || descriptor.resolution.height < target) return false
+        if (stream.serverTarget != null) return true
+        return !rankingRules.preferCachedDebrid || descriptor.isDebridCached
     }
 
     fun orderAddonStreams(

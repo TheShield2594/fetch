@@ -346,6 +346,16 @@ baselineProfile {
 }
 
 
+// kotlin-reflect only backs postgrest's column-name lookup from a property reference
+// (getColumnName(KProperty)). The app names columns with strings, so it's left out of the
+// APK. Tests keep it: MockK needs it. An exclude on the postgrest dependency itself doesn't
+// reach postgrest-kt-android, which Gradle module metadata redirects to.
+configurations.configureEach {
+    if (name.endsWith("RuntimeClasspath") && !name.contains("UnitTest") && !name.contains("AndroidTest")) {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-reflect")
+    }
+}
+
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     val composeBom = platform("androidx.compose:compose-bom:2026.05.01")

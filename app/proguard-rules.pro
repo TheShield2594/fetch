@@ -120,17 +120,5 @@
 -dontwarn javax.script.**
 -dontwarn okhttp3.internal.sse.**
 
-# ── Broad keeps ───────────────────────────────────────────────────────────────
-# Added for CloudStream extensions, which were loaded at runtime and resolved
-# host classes by name. Extensions are gone; these stay until a release build
-# is tested without them (#125 okhttp/okio, #126 fragment).
--keep class okhttp3.** { *; }
--keepclassmembers class okhttp3.** { *; }
--keep class okio.** { *; }
--keepclassmembers class okio.** { *; }
-
--keep class androidx.fragment.app.** { *; }
--keep interface androidx.fragment.app.** { *; }
-
 -dontwarn java.beans.ConstructorProperties
 -dontwarn java.beans.Transient

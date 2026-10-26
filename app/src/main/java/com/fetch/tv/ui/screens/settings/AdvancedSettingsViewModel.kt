@@ -24,6 +24,7 @@ data class AdvancedSettingsUiState(
     val playbackIssueReportsEnabled: Boolean = false,
     val playerStatsHudEnabled: Boolean = false,
     val rgb565Enabled: Boolean = true,
+    val hardwareBitmapsEnabled: Boolean = false,
     val addonTimeoutSeconds: Int = AddonTimeoutPreferences.DEFAULT_TIMEOUT_SECONDS,
     val skipSlowAddons: Boolean = false
 )
@@ -35,6 +36,7 @@ sealed class AdvancedSettingsEvent {
     data class SetPlaybackIssueReportsEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetPlayerStatsHudEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetRgb565Enabled(val enabled: Boolean) : AdvancedSettingsEvent()
+    data class SetHardwareBitmapsEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetAddonTimeoutSeconds(val seconds: Int) : AdvancedSettingsEvent()
     data class SetSkipSlowAddons(val enabled: Boolean) : AdvancedSettingsEvent()
 }
@@ -52,7 +54,12 @@ class AdvancedSettingsViewModel @Inject constructor(
     val uiState: StateFlow<AdvancedSettingsUiState> = _uiState.asStateFlow()
 
     init {
-        _uiState.update { it.copy(rgb565Enabled = imagePerformancePreferences.rgb565Enabled) }
+        _uiState.update {
+            it.copy(
+                rgb565Enabled = imagePerformancePreferences.rgb565Enabled,
+                hardwareBitmapsEnabled = imagePerformancePreferences.hardwareBitmapsEnabled
+            )
+        }
         viewModelScope.launch {
             layoutPreferenceDataStore.fastHorizontalNavigationEnabled.collectLatest { enabled ->
                 _uiState.update { it.copy(fastHorizontalNavigationEnabled = enabled) }
@@ -120,6 +127,12 @@ class AdvancedSettingsViewModel @Inject constructor(
             is AdvancedSettingsEvent.SetRgb565Enabled -> {
                 if (imagePerformancePreferences.setRgb565Enabled(event.enabled)) {
                     _uiState.update { it.copy(rgb565Enabled = event.enabled) }
+                    appRestarter.restart()
+                }
+            }
+            is AdvancedSettingsEvent.SetHardwareBitmapsEnabled -> {
+                if (imagePerformancePreferences.setHardwareBitmapsEnabled(event.enabled)) {
+                    _uiState.update { it.copy(hardwareBitmapsEnabled = event.enabled) }
                     appRestarter.restart()
                 }
             }

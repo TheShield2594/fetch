@@ -131,7 +131,6 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
                 // from rapid bitmap eviction during scrolling.
                 // Mid-range devices (≤3GB): use 0.20 for decent image caching.
                 // Normal devices (>3GB): use 0.25 for snappy image loading.
-                // - allowHardware(false) keeps bitmaps on heap instead of GPU memory
                 val cachePercent = when {
                     totalRamMb <= 2048 -> 0.15
                     totalRamMb <= 3072 -> 0.20
@@ -150,7 +149,9 @@ class FetchApplication : Application(), SingletonImageLoader.Factory {
             }
             .crossfade(false)
             .precision(coil3.size.Precision.INEXACT)
-            .allowHardware(false)
+            // Software bitmaps by default; hardware ones skip the per-draw GPU upload and free the
+            // Java heap, but RGB565 then no longer applies. Settings → Advanced has the switch.
+            .allowHardware(imagePerformancePreferences.hardwareBitmapsEnabled)
             .allowRgb565(imagePerformancePreferences.rgb565Enabled)
             .bitmapFactoryMaxParallelism(4)
             .build()

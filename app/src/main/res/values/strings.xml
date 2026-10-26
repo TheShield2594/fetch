@@ -647,6 +647,8 @@
     <string name="advanced_fetch_focus_scroll_subtitle">Use Fetch\'s custom global focus scroll animation and positioning.</string>
     <string name="advanced_rgb565">RGB565 image decoding</string>
     <string name="advanced_rgb565_subtitle">Use lower-memory 16-bit color for eligible opaque images. Changing this restarts the app.</string>
+    <string name="advanced_hardware_bitmaps">Hardware image decoding</string>
+    <string name="advanced_hardware_bitmaps_subtitle">Keep posters and backdrops in graphics memory for smoother scrolling (Android 8+). RGB565 no longer applies to those images. Turn off if images flicker or show up black. Changing this restarts the app.</string>
     <string name="advanced_compose_highlighter">Compose Highlighter</string>
     <string name="advanced_compose_highlighter_subtitle">Flash borders around recomposing UI elements for performance debugging.</string>
     <string name="advanced_clear_cw_cache">Clear Continue Watching Cache</string>

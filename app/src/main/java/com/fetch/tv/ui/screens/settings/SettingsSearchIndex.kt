@@ -350,6 +350,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.advanced_fast_horizontal_navigation,
         R.string.advanced_fetch_focus_scroll,
         R.string.advanced_rgb565,
+        R.string.advanced_hardware_bitmaps,
         R.string.advanced_section_addons,
         R.string.advanced_skip_slow_addons,
         R.string.advanced_addon_timeout,

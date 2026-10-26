@@ -20,8 +20,23 @@ class ImagePerformancePreferences @Inject constructor(
             .commit()
     }
 
+    /**
+     * Decode images straight into GPU memory (Android 8+). Off by default until it has been tried
+     * on low-end Fire TV and Google TV devices. Requests that read pixels (blur, colour sampling)
+     * still get software bitmaps: Coil falls back for transformations, and the rest opt out.
+     */
+    val hardwareBitmapsEnabled: Boolean
+        get() = preferences.getBoolean(KEY_HARDWARE_BITMAPS_ENABLED, false)
+
+    fun setHardwareBitmapsEnabled(enabled: Boolean): Boolean {
+        return preferences.edit()
+            .putBoolean(KEY_HARDWARE_BITMAPS_ENABLED, enabled)
+            .commit()
+    }
+
     private companion object {
         const val PREFERENCES_NAME = "image_performance"
         const val KEY_RGB565_ENABLED = "rgb565_enabled"
+        const val KEY_HARDWARE_BITMAPS_ENABLED = "hardware_bitmaps_enabled"
     }
 }

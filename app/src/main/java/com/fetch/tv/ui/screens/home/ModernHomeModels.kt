@@ -694,14 +694,26 @@ internal fun heroBackdropFor(item: ModernCarouselItem, enriched: MetaPreview?): 
 }
 
 /** Backdrops of the cards either side of [index] in [items], so the hero can load them early. */
+/**
+ * Backdrops to preload around the focused card. [singleNeighbour] (the low-RAM tier) keeps just one,
+ * the next card or the previous one at the row's end, since each is decoded at full hero size.
+ */
 internal fun neighbourHeroBackdrops(
     items: List<ModernCarouselItem>,
     index: Int,
-    enrichedPreviews: Map<String, MetaPreview>
-): List<String> = listOf(index - 1, index + 1).mapNotNull { i ->
-    val item = items.getOrNull(i) ?: return@mapNotNull null
-    heroBackdropFor(item, item.metaPreview?.id?.let { enrichedPreviews[it] })
-}.distinct()
+    enrichedPreviews: Map<String, MetaPreview>,
+    singleNeighbour: Boolean = false
+): List<String> {
+    val candidates = if (singleNeighbour) {
+        listOf(index + 1, index - 1).filter { it in items.indices }.take(1)
+    } else {
+        listOf(index - 1, index + 1)
+    }
+    return candidates.mapNotNull { i ->
+        val item = items.getOrNull(i) ?: return@mapNotNull null
+        heroBackdropFor(item, item.metaPreview?.id?.let { enrichedPreviews[it] })
+    }.distinct()
+}
 
 internal fun firstNonBlank(vararg candidates: String?): String? {
     return candidates.firstOrNull { !it.isNullOrBlank() }?.trim()

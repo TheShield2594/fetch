@@ -179,8 +179,10 @@ internal fun ModernHeroMediaLayer(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
+                    // A single image draw, so modulating alpha looks the same as an offscreen
+                    // layer without allocating a full-screen buffer for each crossfading backdrop.
                     .graphicsLayer {
-                        compositingStrategy = CompositingStrategy.Offscreen
+                        compositingStrategy = CompositingStrategy.ModulateAlpha
                         alpha = 1f - transitionProgressState.value
                     },
                 contentScale = ContentScale.Crop,
@@ -223,8 +225,9 @@ internal fun ModernHeroGradientLayer(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Box(
         modifier = modifier
+            // Alpha is only ever 0 or 1 here, so the overlapping gradients need no offscreen buffer.
             .graphicsLayer {
-                compositingStrategy = CompositingStrategy.Offscreen
+                compositingStrategy = CompositingStrategy.ModulateAlpha
                 alpha = if (isTrailerPlayingFullScreen()) 0f else 1f
             }
             .drawWithCache {

@@ -16,6 +16,7 @@ import { registerAuthGate } from "./lib/auth-gate.js";
 import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
 import { trendingCacheDeletePrefix } from "./lib/cache.js";
 import { listTraktProfiles, pollTraktHistory, syncTraktWatchlist } from "./lib/trakt-client.js";
+import { listSimklProfiles, syncSimkl } from "./lib/simkl.js";
 import { listStremioProfiles, syncStremioLibrary } from "./lib/stremio-library.js";
 import { accountOfOwner, adoptLegacyAiConfig } from "./lib/integration-owner.js";
 import { isPlayDetectionEnabled, settleDuePlaySignals } from "./lib/play-signal.js";
@@ -58,6 +59,7 @@ import aiRoutes from "./routes/ai.js";
 import stremioRoutes from "./routes/stremio.js";
 import stremioLibraryRoutes from "./routes/stremio-library.js";
 import traktRoutes from "./routes/trakt.js";
+import simklRoutes from "./routes/simkl.js";
 import scrobbleRoutes from "./routes/scrobble.js";
 import playbackRoutes from "./routes/playback.js";
 import pushRoutes from "./routes/push.js";
@@ -79,6 +81,8 @@ import syncOverviewRoutes from "./routes/sync-overview.js";
 // used to disable its job silently while the startup log said it had been "set
 // to 0".
 const TRAKT_POLL_INTERVAL_SEC = parseIntervalSec("TRAKT_POLL_INTERVAL_SEC", process.env.TRAKT_POLL_INTERVAL_SEC, 300);
+// Each pass asks Simkl only for what changed since the last one.
+const SIMKL_POLL_INTERVAL_SEC = parseIntervalSec("SIMKL_POLL_INTERVAL_SEC", process.env.SIMKL_POLL_INTERVAL_SEC, 900);
 
 // Shorter than the Trakt poll because it costs far less: when nothing has been
 // watched, a sync is a single small `datastoreMeta` call that fetches no items
@@ -275,6 +279,7 @@ app.register(aiRoutes);
 app.register(stremioRoutes);
 app.register(stremioLibraryRoutes);
 app.register(traktRoutes);
+app.register(simklRoutes);
 app.register(scrobbleRoutes);
 app.register(playbackRoutes);
 app.register(pushRoutes);
@@ -357,6 +362,22 @@ const start = async () => {
     });
   } else {
     app.log.info("Scheduled Trakt poll disabled because TRAKT_POLL_INTERVAL_SEC is set to 0");
+  }
+
+  if (SIMKL_POLL_INTERVAL_SEC > 0) {
+    everyInterval({
+      ...scheduler,
+      label: "Simkl sync",
+      intervalMs: SIMKL_POLL_INTERVAL_SEC * 1000,
+      // Every profile that connected Simkl, into that profile.
+      tick: async ({ runJob }) => {
+        for (const profileId of await listSimklProfiles()) {
+          await runJob("simkl-sync", () => syncSimkl(profileId, app.log));
+        }
+      },
+    });
+  } else {
+    app.log.info("Scheduled Simkl sync disabled because SIMKL_POLL_INTERVAL_SEC is set to 0");
   }
 
   if (STREMIO_POLL_INTERVAL_SEC > 0) {

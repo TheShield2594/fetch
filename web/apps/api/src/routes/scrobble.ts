@@ -3,6 +3,7 @@ import type { FastifyPluginAsync, FastifyBaseLogger } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { recordWatchEvent } from "../lib/watch-event.js";
 import { pushTraktScrobble } from "../lib/trakt-client.js";
+import { pushSimklScrobble } from "../lib/simkl.js";
 import { resolveProfile } from "../lib/profile.js";
 import { resolveProgressPercent, savePlaybackProgress, type PlaybackPosition } from "../lib/playback.js";
 import { MAX_EPISODE, MAX_SEASON } from "../lib/import-validation.js";
@@ -294,6 +295,11 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
         { type, imdbId, seriesImdbId, season, episode, progress, profileId: request.profileId! },
         request.log
       );
+      void pushSimklScrobble(
+        "start",
+        { type, imdbId, seriesImdbId, season, episode, progress, profileId: request.profileId! },
+        request.log
+      );
     }
 
     return reply.code(created ? 201 : 200).send({ session });
@@ -336,6 +342,19 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
     await saveResumePoint(request.profileId!, session, reported.position, updated.progress, request.log);
 
     void pushTraktScrobble(
+      "pause",
+      {
+        type: session.type,
+        imdbId,
+        seriesImdbId: session.seriesImdbId,
+        season,
+        episode,
+        progress: updated.progress,
+        profileId: request.profileId!,
+      },
+      request.log
+    );
+    void pushSimklScrobble(
       "pause",
       {
         type: session.type,
@@ -413,6 +432,19 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
     } else {
       await saveResumePoint(request.profileId!, session, reported.position, finalProgress, request.log);
       void pushTraktScrobble(
+        "stop",
+        {
+          type: session.type,
+          imdbId,
+          seriesImdbId: session.seriesImdbId,
+          season: session.season,
+          episode: session.episode,
+          progress: finalProgress,
+          profileId: request.profileId!,
+        },
+        request.log
+      );
+      void pushSimklScrobble(
         "stop",
         {
           type: session.type,

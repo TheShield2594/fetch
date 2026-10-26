@@ -1,5 +1,6 @@
 /**
- * The services that feed watch history in: Trakt and Stremio.
+ * The services that feed watch history in: Trakt, Simkl and Stremio. Each is
+ * the active profile's own connection.
  */
 
 import { request } from "./client";
@@ -9,7 +10,37 @@ import type {
   StremioSyncSummary,
 } from "./types";
 
+export type SimklPin = { userCode: string; verificationUrl: string; expiresAt: string; interval: number };
+
+export type SimklStatus = {
+  configured: boolean;
+  connected: boolean;
+  username: string | null;
+  lastSyncedAt: string | null;
+  pending: SimklPin | null;
+};
+
+export type TrackerSyncSummary = { movies: number; episodes: number; watchlist: number; skipped: number; full: boolean };
+
 export const integrationsApi = {
+  getSimklStatus() {
+    return request<SimklStatus>("/simkl/status");
+  },
+  startSimklPin() {
+    return request<SimklPin>("/simkl/pin", { method: "POST" });
+  },
+  pollSimklPin() {
+    return request<{ result: "pending" | "connected" | "expired" | "none"; status: SimklStatus }>("/simkl/pin/poll", {
+      method: "POST",
+    });
+  },
+  // A first sync reads the whole Simkl library, which can take a while.
+  syncSimkl(full = false) {
+    return request<TrackerSyncSummary>("/simkl/sync", { method: "POST", body: JSON.stringify({ full }), timeoutMs: 300000 });
+  },
+  disconnectSimkl() {
+    return request<{ connected: boolean }>("/simkl/disconnect", { method: "POST" });
+  },
   getTraktStatus() {
     return request<{ connected: boolean; configured: boolean; expiresAt: string | null; redirectUri: string }>("/trakt/status");
   },

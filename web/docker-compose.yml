@@ -144,6 +144,11 @@ services:
       TRAKT_POLL_MAX_PAGES: ${TRAKT_POLL_MAX_PAGES:-20}
       TRAKT_BACKFILL_MAX_PAGES: ${TRAKT_BACKFILL_MAX_PAGES:-500}
       TRAKT_WATCHLIST_MIRROR_DELETES: ${TRAKT_WATCHLIST_MIRROR_DELETES:-false}
+      # Simkl: the Fetch app's client id (simkl.com/settings/developer). Each
+      # profile then signs in to its own Simkl account from Settings.
+      SIMKL_CLIENT_ID: ${SIMKL_CLIENT_ID}
+      SIMKL_APP_NAME: ${SIMKL_APP_NAME:-fetch}
+      SIMKL_POLL_INTERVAL_SEC: ${SIMKL_POLL_INTERVAL_SEC:-900}
       STREMIO_POLL_INTERVAL_SEC: ${STREMIO_POLL_INTERVAL_SEC:-0}
       STREMIO_API_BASE: ${STREMIO_API_BASE:-https://api.strem.io}
       STREMIO_PLAY_DETECTION: ${STREMIO_PLAY_DETECTION:-false}

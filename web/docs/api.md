@@ -581,6 +581,23 @@ profile, and refuses them if the profile was deleted in the meantime.
 | `POST` | `/trakt/poll` | Run the scheduled poll now. |
 | `POST` | `/trakt/disconnect` | |
 
+### Simkl
+
+Each profile has its own Simkl connection; every route acts on the requesting
+profile's. Sign-in is Simkl's PIN flow. 409 `simkl_not_configured` when the
+server has no `SIMKL_CLIENT_ID`.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/simkl/status` | `{ configured, connected, username, lastSyncedAt, pending }`; `pending` is the code being waited on, if any. |
+| `POST` | `/simkl/pin` | Starts a sign-in: `{ userCode, verificationUrl, expiresAt, interval }`. The person enters `userCode` at `verificationUrl`. |
+| `POST` | `/simkl/pin/poll` | Checks once: `{ result: "pending" \| "connected" \| "expired" \| "none", status }`. Call it every `interval` seconds. |
+| `POST` | `/simkl/sync` | `{ full? }`. Reads the Simkl library (only what changed since the last sync unless `full`) into the profile: `{ movies, episodes, watchlist, skipped, full }`. 401 when Simkl has rejected the sign-in. |
+| `POST` | `/simkl/disconnect` | Forgets the sign-in. Simkl tokens don't expire and have no revoke call. |
+
+Plays recorded in Fetch, watchlist adds and scrobbles are sent to the profile's
+Simkl as they happen, best-effort.
+
 ### Stremio library
 
 Each profile has its own Stremio connection, which syncs into that profile.

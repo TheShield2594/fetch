@@ -5,6 +5,7 @@ const prismaMock = {
   kV: { findMany: vi.fn(), update: vi.fn() },
   traktToken: { findMany: vi.fn(), update: vi.fn() },
   stremioAuth: { findMany: vi.fn(), update: vi.fn() },
+  profileConnection: { findMany: vi.fn(async () => []), update: vi.fn() },
   notificationChannel: { findMany: vi.fn(), update: vi.fn() },
 };
 
@@ -26,6 +27,7 @@ beforeEach(() => {
   prismaMock.traktToken.findMany.mockResolvedValue([]);
   prismaMock.stremioAuth.findMany.mockResolvedValue([]);
   prismaMock.notificationChannel.findMany.mockResolvedValue([]);
+  prismaMock.profileConnection.findMany.mockResolvedValue([]);
   for (const model of [prismaMock.kV, prismaMock.traktToken, prismaMock.stremioAuth, prismaMock.notificationChannel]) {
     model.update.mockResolvedValue({});
   }

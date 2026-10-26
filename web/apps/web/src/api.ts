@@ -38,6 +38,7 @@ import { devicesApi } from "./api/devices";
 import { discoverApi } from "./api/discover";
 import { gamesApi } from "./api/games";
 import { integrationsApi } from "./api/integrations";
+export type { SimklPin, SimklStatus, TrackerSyncSummary } from "./api/integrations";
 import { listsApi } from "./api/lists";
 import { metadataApi } from "./api/metadata";
 import { notificationsApi } from "./api/notifications";

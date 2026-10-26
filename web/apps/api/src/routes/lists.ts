@@ -3,6 +3,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { backfillMissingMetadata, syncMetadata } from "../lib/metadata.js";
 import { pushTraktWatchlistChange } from "../lib/trakt-client.js";
+import { pushSimklWatchlistAdd } from "../lib/simkl.js";
 import { resolveProfile } from "../lib/profile.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 
@@ -222,6 +223,9 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
 
         if (list.kind === ListKind.watchlist) {
           await pushTraktWatchlistChange("add", { type, imdbId }, request.log, list.profileId);
+          // Simkl's plan-to-watch, as the TV adds to it. Not awaited: it is a
+          // second service on the same click, and never fails the add.
+          void pushSimklWatchlistAdd(list.profileId, { type, imdbId }, request.log);
         }
 
         return reply.code(201).send({ listItem });

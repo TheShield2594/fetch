@@ -104,6 +104,15 @@ export const encryptStoredSecrets = async (logger: FastifyBaseLogger): Promise<S
     );
   }
 
+  for (const connection of await prisma.profileConnection.findMany()) {
+    await visit(
+      SECRET_CONTEXT.profileConnectionCredentials,
+      `${connection.provider} sign-in`,
+      connection.credentials,
+      (value) => prisma.profileConnection.update({ where: { id: connection.id }, data: { credentials: value } })
+    );
+  }
+
   if (sweep.encrypted > 0) {
     logger.info(
       { count: sweep.encrypted },

@@ -345,6 +345,14 @@ Connect the account under **Settings → Stremio Watched Sync**. Each Fetch prof
 - Stremio reports the episode you're *on*, not a full play log, so episodes finished within a single poll interval collapse into the most recent one. At a 120-second interval that needs you to clear an episode in under two minutes.
 - Guest mode has no synced library, so there's nothing to read — the account is what makes this work.
 
+### Simkl
+
+Each profile can connect its own Simkl account under **Settings → Simkl**, the way the TV does: **Connect Simkl** shows a code to enter at [simkl.com/pin](https://simkl.com/pin), and the page connects as soon as you have. The server needs `SIMKL_CLIENT_ID` from an app registered at [simkl.com/settings/developer](https://simkl.com/settings/developer).
+
+- **Into Fetch:** the Simkl library comes in on a schedule (`SIMKL_POLL_INTERVAL_SEC`, every 15 minutes by default): completed films and every watched episode, each dated as Simkl recorded it, and the plan-to-watch list onto the watchlist. The first sync reads everything; later ones ask only for what changed. **Sync now** runs it on demand. A play already in Fetch from another source on the same day isn't added twice.
+- **Out to Simkl:** plays recorded in Fetch (by hand, from a webhook, from a scrobble), watchlist adds, and live scrobbles (start, pause, stop). A Simkl that is down never fails or delays any of them.
+- The website's Simkl sign-in is separate from the TV's; both record into the same Fetch history.
+
 ### Trakt is optional
 
 Trakt is supported but is not a system of record, and nothing depends on it. Each Fetch profile connects its own Trakt account, as on the TV; a play is sent to the Trakt account of the profile it is in, and the scheduled poll runs once per connected profile, into that profile. The website's connection is separate from the TV's: each signs in on its own, and both record into the same Fetch history.

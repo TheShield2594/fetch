@@ -149,6 +149,7 @@ model Profile {
   documents         ProfileDocument[]
   traktToken        TraktToken?
   stremioAuth       StremioAuth?
+  connections       ProfileConnection[]
 
   @@index([accountId])
 }
@@ -679,4 +680,24 @@ model ProfileDocument {
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@id([profileId, kind])
+}
+
+// A profile's sign-in to a tracking service or media server (Simkl, MDBList,
+// Plex, Jellyfin, Emby), as the TV app keeps per profile. `credentials` is an
+// encrypted JSON blob (lib/secret-box.ts); `details` is what Settings shows
+// (user name, server name and address). `externalKey` tells apart several of
+// one provider, such as two Plex servers; it is "" for a tracker.
+model ProfileConnection {
+  id          String   @id @default(uuid()) @db.Uuid
+  profileId   String   @db.Uuid
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  provider    String
+  externalKey String   @default("")
+  credentials String
+  details     Json     @default("{}")
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([profileId, provider, externalKey])
+  @@index([provider])
 }

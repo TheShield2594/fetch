@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook } from "lucide-react";
+import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks } from "lucide-react";
 import { Section } from "../components/settings/Section";
 import { healthSummary } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
@@ -14,6 +14,7 @@ import { OmdbSettings } from "../components/settings/OmdbSettings";
 import { RpdbSettings } from "../components/settings/RpdbSettings";
 import { AddonSettings } from "../components/settings/AddonSettings";
 import { StremioSyncSettings } from "../components/settings/StremioSyncSettings";
+import { SimklSettings } from "../components/settings/SimklSettings";
 import { PlayDetectionSettings } from "../components/settings/PlayDetectionSettings";
 import { AiSettings } from "../components/settings/AiSettings";
 import { DataSettings } from "../components/settings/DataSettings";
@@ -144,6 +145,15 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Link size={20} />,
     keywords: "scrobble import watchlist history oauth sync",
     content: <TraktSettings />,
+  },
+  {
+    id: "simkl",
+    tab: "integrations",
+    group: "Where history comes from",
+    title: "Simkl",
+    icon: <ListChecks size={20} />,
+    keywords: "simkl tracker scrobble watched history plan to watch watchlist anime sign in code",
+    content: <SimklSettings />,
   },
   {
     id: "stremio-sync",

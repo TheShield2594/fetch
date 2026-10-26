@@ -24,6 +24,8 @@ export const TRAKT_WATCHLIST_SNAPSHOT_KEY = "trakt:watchlistSnapshot";
 export const TRAKT_LAST_POLLED_AT_KEY = "trakt:lastPolledAt";
 export const TRAKT_HISTORY_BACKFILLED_AT_KEY = "trakt:historyBackfilledAt";
 export const STREMIO_WATERMARK_KEY = "stremio:libraryWatermark";
+export const SIMKL_PIN_KEY = "simkl:pin";
+export const SIMKL_LAST_SYNCED_AT_KEY = "simkl:lastSyncedAt";
 
 // Per-account settings (above).
 export const AI_CONFIG_KEY = "ai:config";

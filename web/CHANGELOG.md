@@ -101,6 +101,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Fixed
 
+- **CI applies the database migrations it claims to.** The "Generate Prisma client" and "Run database migrations" steps still filtered on the old `@cataloggy/api` package name. They matched nothing and passed silently, so a broken migration could reach a release. They now target `@fetch/api`.
+
 - **The `web` image builds again.** Its Dockerfile never copied `packages/shared`, so once the web app began importing the API's types from `@fetch/shared/contracts` the image build failed and `latest` stopped updating, while the `api`, `migrate` and `addon` images kept publishing. It now copies and builds the shared package first, as the other two Dockerfiles do.
 
 - **A failed Stats or History page can be retried without reloading the browser.** Both hand-rolled their own red error card, and neither had a retry button — so a request dropped by a flaky connection left the page a dead end whose only way out was the browser's reload. They now use the dashboard's error card, which has always had one ([#509](https://github.com/TheShield2594/cataloggy/issues/509)).

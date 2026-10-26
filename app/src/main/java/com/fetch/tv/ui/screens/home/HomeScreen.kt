@@ -491,7 +491,7 @@ private fun ModernHomeRoute(
     // Not delegated: ModernHomeContent reads these inside the hero, so this scope doesn't recompose.
     val enrichingItemId = viewModel.enrichingItemId.collectAsStateWithLifecycle()
     val enrichedPreviews = viewModel.enrichedPreviews.collectAsStateWithLifecycle()
-    val failedEnrichmentIds by viewModel.failedEnrichmentIds.collectAsStateWithLifecycle()
+    val failedEnrichmentIds = viewModel.failedEnrichmentIds.collectAsStateWithLifecycle()
     val requestTrailerPreview = remember(viewModel) {
         { itemId: String, title: String, releaseInfo: String?, apiType: String ->
             viewModel.requestTrailerPreview(itemId, title, releaseInfo, apiType)

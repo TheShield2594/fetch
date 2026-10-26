@@ -106,4 +106,14 @@ class NeighbourHeroBackdropsTest {
             neighbourHeroBackdrops(items, 1, emptyMap(), singleNeighbour = true)
         )
     }
+
+    @Test
+    fun `the low-RAM tier falls back to the previous card when the next has no art`() {
+        val items = listOf(card("a"), card("b"), card("c", backdrop = null))
+
+        assertEquals(
+            listOf("https://art.test/a-backdrop.jpg"),
+            neighbourHeroBackdrops(items, 1, emptyMap(), singleNeighbour = true)
+        )
+    }
 }

@@ -109,6 +109,7 @@ private class FixedState<T>(override val value: T) : State<T>
 
 internal val NoEnrichingItemId: State<String?> = FixedState(null)
 internal val NoEnrichedPreviews: State<Map<String, MetaPreview>> = FixedState(emptyMap())
+internal val NoFailedEnrichmentIds: State<Set<String>> = FixedState(emptySet())
 
 private class ItemIdentitySnapshot(
     var byRow: Map<String, StableList<String>> = emptyMap()
@@ -129,11 +130,11 @@ fun ModernHomeContent(
     uiState: HomeUiState,
     modernPresentation: ModernHomePresentationState = ModernHomePresentationState(),
     focusState: HomeScreenFocusState,
-    // Held as State and read only inside the hero's derived state, so an enrichment emission on
-    // each focus stop recomposes the hero rather than the whole Home body.
+    // These three are held as State and read only inside the hero's derived state, so an
+    // enrichment emission on each focus stop recomposes the hero rather than the whole Home body.
     enrichingItemId: State<String?> = NoEnrichingItemId,
     enrichedPreviews: State<Map<String, MetaPreview>> = NoEnrichedPreviews,
-    failedEnrichmentIds: Set<String> = emptySet(),
+    failedEnrichmentIds: State<Set<String>> = NoFailedEnrichmentIds,
     trailerPreviewUrls: Map<String, String> = emptyMap(),
     trailerPreviewAudioUrls: Map<String, String> = emptyMap(),
     onNavigateToDetail: (String, String, String) -> Unit,
@@ -783,7 +784,7 @@ fun ModernHomeContent(
                     // Exception: if enrichment already failed for this item, show addon data.
                     // Also treat as pending when activeCarouselItem is null (row not yet resolved).
                     val heroEnrichmentEnabled = uiState.heroEnrichmentEnabled
-                    val enrichmentFailed = activeItemId != null && activeItemId in failedEnrichmentIds
+                    val enrichmentFailed = activeItemId != null && activeItemId in failedEnrichmentIds.value
                     val effectiveEnrichmentActive = activeCarouselItem == null || enrichmentActive ||
                         (enrichedHero == null && activeItemId != null && heroEnrichmentEnabled && !enrichmentFailed)
                     

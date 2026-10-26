@@ -87,6 +87,7 @@ import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.screens.home.ModernHomeContent
 import com.fetch.tv.ui.screens.home.NoEnrichedPreviews
 import com.fetch.tv.ui.screens.home.NoEnrichingItemId
+import com.fetch.tv.ui.screens.home.NoFailedEnrichmentIds
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -126,7 +127,7 @@ fun FolderDetailScreen(
 
     val enrichingItemId = viewModel.enrichingItemId.collectAsStateWithLifecycle()
     val enrichedPreviews = viewModel.enrichedPreviews.collectAsStateWithLifecycle()
-    val failedEnrichmentIds by viewModel.failedEnrichmentIds.collectAsStateWithLifecycle()
+    val failedEnrichmentIds = viewModel.failedEnrichmentIds.collectAsStateWithLifecycle()
     val trailerPreviewUrls by viewModel.trailerPreviewUrls.collectAsStateWithLifecycle()
     val trailerPreviewAudioUrls by viewModel.trailerPreviewAudioUrls.collectAsStateWithLifecycle()
     val scrollToTopTrigger by viewModel.scrollToTopTrigger.collectAsStateWithLifecycle()
@@ -901,7 +902,7 @@ private fun FollowLayoutContent(
     focusState: HomeScreenFocusState,
     enrichingItemId: State<String?> = NoEnrichingItemId,
     enrichedPreviews: State<Map<String, MetaPreview>> = NoEnrichedPreviews,
-    failedEnrichmentIds: Set<String> = emptySet(),
+    failedEnrichmentIds: State<Set<String>> = NoFailedEnrichmentIds,
     onNavigateToDetail: (String, String, String) -> Unit,
     onLoadMoreCatalog: (String, String, String) -> Unit = { _, _, _ -> },
     onSelectTab: (Int) -> Unit = {},

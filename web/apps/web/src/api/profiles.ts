@@ -7,6 +7,8 @@ import { request } from "./client";
 import { runtimeConfig } from "./runtime";
 import type {
   Profile,
+  ProfileSettingsUpdate,
+  ProfileSummary,
 } from "./types";
 
 export const profilesApi = {
@@ -14,7 +16,7 @@ export const profilesApi = {
   getProfiles() {
     return request<{ profiles: Profile[] }>("/profiles");
   },
-  createProfile(payload: { name: string; pin?: string | undefined }) {
+  createProfile(payload: { name: string; pin?: string | undefined } & ProfileSettingsUpdate) {
     return request<{ profile: Profile }>("/profiles", {
       method: "POST",
       body: JSON.stringify(payload),
@@ -33,11 +35,17 @@ export const profilesApi = {
     runtimeConfig.setProfileToken(result.profileToken ?? "");
     return result;
   },
-  updateProfile(profileId: string, payload: { name?: string | undefined; pin?: string | null | undefined; currentPin?: string | undefined }) {
+  updateProfile(
+    profileId: string,
+    payload: { name?: string | undefined; pin?: string | null | undefined; currentPin?: string | undefined } & ProfileSettingsUpdate
+  ) {
     return request<{ profile: Profile }>(`/profiles/${encodeURIComponent(profileId)}`, {
       method: "PATCH",
       body: JSON.stringify(payload),
     });
+  },
+  getProfileSummary(profileId: string) {
+    return request<ProfileSummary>(`/profiles/${encodeURIComponent(profileId)}/summary`);
   },
   // `currentPin` is required by the server for a PIN-protected profile unless
   // the stored profile token was minted for that same profile — deleting one

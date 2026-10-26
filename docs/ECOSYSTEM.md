@@ -50,14 +50,14 @@ domain maps onto the website like this:
 
 | TV sync service | Website today | Gap |
 | --- | --- | --- |
-| `ProfileSyncService` | `/profiles`, PINs, `/profiles/:id/verify` | Avatars and per-profile colours |
+| `ProfileSyncService` | `/profiles` with colour, avatar and parental limits; `/devices/me/profiles` maps them to the TV's slots; PINs checked by `/profiles/:id/verify` | None — the TV uses it when paired (#96) |
 | `WatchProgressSyncService` | `/playback`, `/scrobble/*` (resume points) | None for the protocol; the TV client is missing |
 | `WatchedItemsSyncService` | `/watch`, `/series/progress` | None for the protocol |
 | `LibrarySyncService` | `/lists` (watchlist, collection, custom) | None for the protocol |
 | `AddonSyncService` | `/profiles/:id/addons`, Settings → TV → TV Addons | The TV client |
 | `ProfileSettingsSyncService` | `/profiles/:id/settings/tv`, Settings → TV → TV Playback Settings | The TV client |
 | `HomeCatalogSettingsSyncService` | `/profiles/:id/home-layout`, Settings → TV → Home Rows | The TV client |
-| `CollectionSyncService` | — | Custom home rows (could reuse custom lists) |
+| `CollectionSyncService` | `/collections`, plus a `fetch` source for the website's own lists | None — the TV uses it when paired (#95) |
 | `ProviderCredentialSyncService` | Trakt, TMDB, OMDb, RPDB keys | Decide what should leave the TV at all; MDBList and Simkl stay on the device for now |
 | Watch party | — | Not planned; stays Supabase-only or is removed (#4) |
 
@@ -65,12 +65,20 @@ domain maps onto the website like this:
 
 The website uses one shared `API_TOKEN` plus per-profile PIN tokens. That is
 fine for a browser on the LAN but not for a TV: a token typed or scanned into
-every device can't be revoked one device at a time. The plan is **device
-pairing**:
+every device can't be revoked one device at a time. A TV signs in by **device
+pairing** instead (#91):
 
-1. The TV shows a QR code and a short code (the same pattern as the phone hub).
-2. Signed in on the website, you scan it or type the code under Settings → Devices.
-3. The API issues that TV its own token, listed and revocable on the website.
+1. Settings → Account → Fetch website on the TV asks for the API address and
+   shows a short code, plus a QR code for the website's `/pair` page when the API
+   knows the website's address (`CATALOGGY_WEB_PUBLIC`).
+2. Signed in on the website, you scan it or type the code under Settings → TVs & Devices.
+3. The API issues that TV its own token, listed and revocable on the website. A
+   revoked TV gets a bearer 401 on its next request and says it was signed out.
+
+While paired, the TV's profile and collection sync go to the website instead of
+the Supabase sync server: profiles (colour, avatar, parental limit) and each
+profile's collections. Parental limits are written into the TV's own restriction
+store, so they keep applying offline.
 
 The Stremio addon keeps its per-profile secret URL, which already works.
 
@@ -84,8 +92,8 @@ Each phase ships on its own and leaves both halves working.
    keep their names so existing installs upgrade in place.
 2. **Lists on the TV with no new code.** Document installing the website's addon
    on the TV, and have the TV's first-run Server step offer it.
-3. **Device pairing.** `POST /devices/pair` and friends on the API, Settings →
-   Devices on the website, the QR flow on the TV (#4: "Pair by QR").
+3. **Device pairing** *(done, #91)*. `POST /devices/pair/start` and friends on
+   the API, Settings → TVs & Devices on the website, the QR flow on the TV.
 4. **A sync interface on the TV.** Put the per-domain services behind a backend
    interface, with Supabase as one implementation (#4: "Define a small sync
    interface"), and pick the backend in Settings → Account.

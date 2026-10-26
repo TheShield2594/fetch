@@ -4,6 +4,7 @@ import android.util.Log
 import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.CollectionsDataStore
+import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.data.remote.supabase.SupabaseCollectionBlob
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +29,8 @@ class CollectionSyncService @Inject constructor(
     private val authManager: AuthManager,
     private val collectionsDataStore: CollectionsDataStore,
     private val profileManager: ProfileManager,
-    private val syncClientIdentity: SyncClientIdentity
+    private val syncClientIdentity: SyncClientIdentity,
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
 ) {
     private val postgrest: Postgrest get() = postgrestLazy.get()
 
@@ -86,6 +88,9 @@ class CollectionSyncService @Inject constructor(
      * Returns true if local state was updated.
      */
     suspend fun pullFromRemote(): Result<Boolean> = withContext(Dispatchers.IO) {
+        if (websiteSync.get().isPaired) {
+            return@withContext runCatching { websiteSync.get().pullCollections() }.map { true }
+        }
         try {
             val profileId = profileManager.activeProfileId.value
 
@@ -140,6 +145,11 @@ class CollectionSyncService @Inject constructor(
      */
     fun triggerPush() {
         if (isSyncingFromRemote) return
+        // A TV signed in to a Fetch website saves its collections there instead.
+        if (websiteSync.get().isPaired) {
+            websiteSync.get().triggerCollectionsPush()
+            return
+        }
         if (!authManager.isAuthenticated) return
         pushJob?.cancel()
         pushJob = scope.launch {

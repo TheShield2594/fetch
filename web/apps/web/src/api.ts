@@ -30,7 +30,9 @@ export {
 } from "./api/runtime";
 
 import { aiApi } from "./api/ai";
+import { collectionsApi } from "./api/collections";
 import { dataApi } from "./api/data";
+import { devicesApi } from "./api/devices";
 import { discoverApi } from "./api/discover";
 import { gamesApi } from "./api/games";
 import { integrationsApi } from "./api/integrations";
@@ -51,7 +53,9 @@ import { watchApi } from "./api/watch";
  */
 export const api = {
   ...aiApi,
+  ...collectionsApi,
   ...dataApi,
+  ...devicesApi,
   ...discoverApi,
   ...gamesApi,
   ...integrationsApi,

@@ -6,7 +6,8 @@ import { MAX_IMPORT_ROWS } from "../lib/import-validation.js";
 const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 
 const prismaMock = {
-  profile: { findUnique: vi.fn() },
+  profile: { findUnique: vi.fn(), update: vi.fn() },
+  profileCollections: { findUnique: vi.fn(), upsert: vi.fn() },
   list: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
   watchEvent: { findMany: vi.fn(), update: vi.fn(), createMany: vi.fn() },
   seriesProgress: { findMany: vi.fn() },
@@ -18,6 +19,7 @@ const prismaMock = {
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 
 vi.mock("../lib/profile.js", () => ({
+  invalidateProfileCache: vi.fn(),
   resolveProfile: async (request: { profileId?: string }) => {
     request.profileId = PROFILE_ID;
   },
@@ -54,6 +56,9 @@ const resetMocks = () => {
   prismaMock.rating.createMany.mockResolvedValue({ count: 0 });
   prismaMock.rating.updateMany.mockResolvedValue({ count: 0 });
   prismaMock.playbackProgress.findMany.mockResolvedValue([]);
+  prismaMock.profileCollections.findUnique.mockResolvedValue(null);
+  prismaMock.profileCollections.upsert.mockResolvedValue({});
+  prismaMock.profile.update.mockResolvedValue({});
   playbackLibMock.importPlaybackProgress.mockImplementation(async (_profileId: string, rows: unknown[]) => rows.length);
 };
 
@@ -87,7 +92,7 @@ describe("export routes", () => {
       const response = await app.inject({ method: "POST", url: "/import", payload: { version: 1 } });
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual(
-        expect.objectContaining({ status: "imported", summary: { lists: 0, listItems: 0, watchEvents: 0, seriesProgress: 0, ratings: 0, playback: 0 } })
+        expect.objectContaining({ status: "imported", summary: { lists: 0, listItems: 0, watchEvents: 0, seriesProgress: 0, ratings: 0, playback: 0, collections: 0, profileSettings: false } })
       );
     });
   });
@@ -286,6 +291,77 @@ describe("export routes", () => {
     });
   });
 
+  describe("profile settings and collections", () => {
+    const OLD_LIST = "55555555-5555-4555-8555-555555555555";
+    const NEW_LIST = "66666666-6666-4666-8666-666666666666";
+    const collection = {
+      id: "c1",
+      title: "Family",
+      folders: [{ id: "f1", title: "Movies", sources: [{ provider: "fetch", listId: OLD_LIST, title: "Family night" }] }],
+    };
+
+    it("exports the profile's settings, its collections and its list ids", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue({
+        name: "Kid",
+        avatarColorHex: "#43A047",
+        avatarId: "fetch:panda",
+        profileBackgroundId: null,
+        usesPrimaryAddons: true,
+        usesPrimaryPlugins: false,
+        isKidsProfile: true,
+        maxRating: "PARENTAL_GUIDANCE",
+        allowUnrated: false,
+      });
+      prismaMock.list.findMany.mockResolvedValue([{ id: OLD_LIST, name: "Family night", kind: "custom", items: [] }]);
+      prismaMock.profileCollections.findUnique.mockResolvedValue({ collections: [collection] });
+      const app = await buildApp();
+
+      const body = (await app.inject({ method: "GET", url: "/export" })).json();
+
+      expect(body.profile.settings).toMatchObject({ avatarId: "fetch:panda", isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE" });
+      expect(body.collections).toEqual([collection]);
+      expect(body.lists[0].id).toBe(OLD_LIST);
+    });
+
+    it("restores settings, and points website-list sources at the restored list", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(null);
+      prismaMock.list.create.mockResolvedValue({ id: NEW_LIST });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 1,
+          profile: { name: "Kid", settings: { avatarId: "fetch:panda", maxRating: "TEENS" } },
+          lists: [{ id: OLD_LIST, name: "Family night", kind: "custom", items: [] }],
+          collections: [collection],
+        },
+      });
+
+      expect(response.json()).toMatchObject({ summary: { collections: 1, profileSettings: true } });
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: { avatarId: "fetch:panda", maxRating: "TEENS" } })
+      );
+      const saved = prismaMock.profileCollections.upsert.mock.calls[0]![0].create.collections;
+      expect(saved[0].folders[0].sources[0].listId).toBe(NEW_LIST);
+    });
+
+    it("keeps collections the profile already has rather than overwriting them", async () => {
+      prismaMock.profileCollections.findUnique.mockResolvedValue({ collections: [{ ...collection, title: "Mine" }] });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: { version: 1, collections: [collection] },
+      });
+
+      expect(response.json().summary.collections).toBe(0);
+      expect(prismaMock.profileCollections.upsert).not.toHaveBeenCalled();
+    });
+  });
+
   describe("POST /import — input validation", () => {
     it("survives a null element in every array instead of crashing", async () => {
       const app = await buildApp();
@@ -298,6 +374,7 @@ describe("export routes", () => {
           watchEvents: [null],
           seriesProgress: [null],
           ratings: [null],
+          collections: [null],
         },
       });
 
@@ -309,6 +386,8 @@ describe("export routes", () => {
         seriesProgress: 0,
         ratings: 0,
         playback: 0,
+        collections: 0,
+        profileSettings: false,
       });
     });
 

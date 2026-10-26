@@ -51,11 +51,24 @@ enum ScrobbleStatus {
   stopped
 }
 
+// The appearance and sharing fields mirror the TV's `UserProfile`, and the
+// parental ones its `ProfileRestrictions`, so a profile edited on the website
+// reads the same on every paired TV. `maxRating` is a `CertificationLevel` name
+// (ALL_AGES … ADULTS_ONLY), null for unrestricted.
 model Profile {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  pinHash   String?
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  id                  String   @id @default(uuid()) @db.Uuid
+  name                String
+  pinHash             String?
+  avatarColorHex      String?
+  avatarId            String?
+  profileBackgroundId String?
+  usesPrimaryAddons   Boolean  @default(false)
+  usesPrimaryPlugins  Boolean  @default(false)
+  isKidsProfile       Boolean  @default(false)
+  maxRating           String?
+  allowUnrated        Boolean  @default(true)
+  updatedAt           DateTime @default(now()) @updatedAt @db.Timestamptz(6)
+  createdAt           DateTime @default(now()) @db.Timestamptz(6)
 
   lists             List[]
   watchEvents       WatchEvent[]
@@ -71,6 +84,8 @@ model Profile {
   games             Game[]
   playSignals       PlaySignal[]
   playbackProgress  PlaybackProgress[]
+  collections       ProfileCollections?
+  deviceSlots       DeviceProfileSlot[]
   addons            ProfileAddon[]
   documents         ProfileDocument[]
 }
@@ -468,6 +483,58 @@ model Metadata {
   // ListItem: without one the table has no default replica identity. The
   // compound-key argument (`imdbId_type`) is unchanged.
   @@id([imdbId, type])
+}
+
+// A TV (or any other client) signed in through device pairing. Only a hash of
+// its token is kept: the token is shown to the device once, at the end of the
+// pairing poll, and revoking the device deletes this row.
+model Device {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  tokenHash  String    @unique
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  lastSeenAt DateTime? @db.Timestamptz(6)
+
+  profileSlots DeviceProfileSlot[]
+}
+
+// A pairing in progress: the code the TV shows, and a hash of the secret it
+// polls with. Confirming sets `confirmedAt`; the poll that follows deletes the
+// row and creates the Device, so a confirmed code can be claimed once.
+model DevicePairing {
+  id             String    @id @default(uuid()) @db.Uuid
+  code           String    @unique
+  pollSecretHash String    @unique
+  deviceName     String
+  expiresAt      DateTime  @db.Timestamptz(6)
+  confirmedAt    DateTime? @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+// The TV numbers its profiles 1..6 and treats 1 as the primary; the website
+// keys them by UUID. Each paired device keeps its own numbering, so a profile
+// keeps its slot on a TV even as others are added or removed elsewhere.
+model DeviceProfileSlot {
+  deviceId  String @db.Uuid
+  slot      Int
+  profileId String @db.Uuid
+
+  device  Device  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([deviceId, slot])
+  @@unique([deviceId, profileId])
+}
+
+// A profile's collections (custom Home rows and their folders), stored as the
+// TV's own serialized form so a collection made on the TV comes back unchanged.
+// The whole list is replaced on every save, as on the TV.
+model ProfileCollections {
+  profileId   String   @id @db.Uuid
+  collections Json
+  updatedAt   DateTime @db.Timestamptz(6)
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }
 
 // A Stremio addon installed for one profile, in the order the TV lists it.

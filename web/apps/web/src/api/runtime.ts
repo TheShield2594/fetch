@@ -398,6 +398,10 @@ export function invalidatedCachePrefixes(path: string): string[] | null {
     return ["dash:", "history:", "stats:", "calendar:"];
   }
 
+  // Paired devices and collections are read by nothing the client caches:
+  // the pages that show them fetch on mount.
+  if (under("/devices") || under("/collections")) return [];
+
   // Settings, keys, integrations and imports. A Trakt import writes thousands
   // of watch rows, a metadata refresh changes every poster, and a language
   // change re-renders titles — these genuinely do mean everything.

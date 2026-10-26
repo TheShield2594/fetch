@@ -382,3 +382,19 @@ describe("TmdbClient", () => {
     });
   });
 });
+
+describe("discoverParams", () => {
+  it("names release dates per media type and drops empty filters", async () => {
+    const { discoverParams } = await import("./tmdb.js");
+    expect(discoverParams("movie", { withGenres: "28", releaseDateGte: "1980-01-01", year: 1985, withKeywords: "" })).toEqual({
+      with_genres: "28",
+      "primary_release_date.gte": "1980-01-01",
+      primary_release_year: "1985",
+    });
+    expect(discoverParams("tv", { releaseDateLte: "1999-12-31", year: 1995, voteAverageGte: 7 })).toEqual({
+      "first_air_date.lte": "1999-12-31",
+      first_air_date_year: "1995",
+      "vote_average.gte": "7",
+    });
+  });
+});

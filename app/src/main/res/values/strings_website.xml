@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch website: pairing this TV with a self-hosted Fetch website (Settings → Account). -->
+    <string name="website_name">Fetch website</string>
+    <string name="website_sign_in_title">Sign in to a Fetch website</string>
+    <string name="website_sign_in_subtitle">Pair this TV with your Fetch website by a code. Profiles, parental limits and collections are then managed there.</string>
+    <string name="website_signed_in_subtitle">Signed in as %1$s · %2$s</string>
+    <string name="website_signed_out_notice">This TV was signed out from the Fetch website. Sign in again to keep syncing profiles and collections.</string>
+    <string name="website_manage_body">Profiles, parental limits and collections sync with this website. Signing out keeps everything on this TV as it is now.</string>
+    <string name="website_sync_now">Sync now</string>
+    <string name="website_sign_out">Sign out</string>
+    <string name="website_enter_address">Enter your Fetch website\'s API address, the same one its README calls CATALOGGY_API_PUBLIC.</string>
+    <string name="website_address_placeholder">http://192.168.1.25:7000</string>
+    <string name="website_address_invalid">That doesn\'t look like a web address.</string>
+    <string name="website_pairing_failed">Couldn\'t reach the website: %1$s</string>
+    <string name="website_continue">Continue</string>
+    <string name="website_pairing_starting">Asking the website for a code…</string>
+    <string name="website_code_instruction_qr">Scan the code with your phone, or open the website and enter the code under Settings → TVs &amp; Devices.</string>
+    <string name="website_code_instruction">Open the website and enter this code under Settings → TVs &amp; Devices.</string>
+    <string name="website_code_where">Settings → TVs &amp; Devices</string>
+    <string name="website_code_qr">QR code that opens the Fetch website to confirm this TV</string>
+    <string name="website_code_expires">Expires in %1$d:%2$02d</string>
+    <string name="website_code_waiting">Waiting for the code to be confirmed…</string>
+    <string name="website_pairing_expired">The code expired before it was confirmed.</string>
+    <string name="website_pairing_retry">Get a new code</string>
+    <string name="website_pairing_done">Signed in as %1$s. Profiles and collections are syncing now.</string>
+    <string name="website_done">Done</string>
+    <string name="website_list_source_default_title">Website list</string>
+    <string name="website_list_source_label">Fetch website list</string>
+    <string name="website_list_source_not_signed_in">Sign in to the Fetch website in Settings → Account to show this list.</string>
+    <string name="website_list_source_missing">This list no longer exists on the Fetch website.</string>
+    <string name="website_list_source_failed">Couldn\'t load this list from the Fetch website.</string>
+</resources>

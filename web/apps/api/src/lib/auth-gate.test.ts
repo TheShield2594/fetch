@@ -201,6 +201,8 @@ describe("isPublicPath", () => {
     expect(isPublicPath("/webhooks/jellyfin")).toBe(true);
     expect(isPublicPath("/webhooks/emby")).toBe(true);
     expect(isPublicPath(`/addon/stremio/${"0".repeat(64)}/manifest.json`)).toBe(true);
+    expect(isPublicPath("/devices/pair/start")).toBe(true);
+    expect(isPublicPath("/devices/pair/poll")).toBe(true);
   });
 
   it("gates everything else, including near-misses on the allowlist", async () => {
@@ -213,5 +215,9 @@ describe("isPublicPath", () => {
     // merely starts with the same characters.
     expect(isPublicPath("/webhooksomething")).toBe(false);
     expect(isPublicPath("/addonfoo")).toBe(false);
+    // Confirming a code and managing devices stay behind the token.
+    expect(isPublicPath("/devices/pair/confirm")).toBe(false);
+    expect(isPublicPath("/devices")).toBe(false);
+    expect(isPublicPath("/devices/pair/startx")).toBe(false);
   });
 });

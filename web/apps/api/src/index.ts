@@ -39,6 +39,8 @@ import {
 import healthRoutes from "./routes/health.js";
 import metricsRoutes from "./routes/metrics.js";
 import profilesRoutes from "./routes/profiles.js";
+import devicesRoutes from "./routes/devices.js";
+import collectionsRoutes from "./routes/collections.js";
 import searchRoutes from "./routes/search.js";
 import metadataRoutes from "./routes/metadata.js";
 import watchRoutes from "./routes/watch.js";
@@ -252,6 +254,8 @@ Sentry.setupFastifyErrorHandler(app);
 app.register(healthRoutes);
 app.register(metricsRoutes);
 app.register(profilesRoutes);
+app.register(devicesRoutes);
+app.register(collectionsRoutes);
 app.register(searchRoutes);
 app.register(metadataRoutes);
 app.register(watchRoutes);

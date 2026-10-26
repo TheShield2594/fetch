@@ -1,7 +1,10 @@
 # Cloudflare migration: Phase 0 audit
 
-Status: **audit only, for review before Phase 1.** No code has changed.
-Audited at commit `29be6e4`. Paths are relative to the repo root.
+Status: **not pursued.** The website stays self-hosted with Docker Compose,
+behind a reverse proxy. This audit is kept for its findings: the existing bugs
+in §10 apply whatever the hosting, and §5-7 are the starting point if moving to
+Workers comes up again. Audited at commit `29be6e4`. Paths are relative to the
+repo root.
 
 Cloudflare limits quoted here (CPU time, subrequests, memory, body size, cron wall time)
 come from memory of the published limits and change often. Check them against

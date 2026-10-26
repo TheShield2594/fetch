@@ -24,6 +24,7 @@ const context = (overrides: Partial<HomeRowContext> = {}): HomeRowContext => ({
   installedAddonIds: new Set(["com.cinemeta"]),
   hasUnidentifiedAddon: false,
   listIds: new Set([LIST_ID]),
+  collectionIds: new Set(["c1"]),
   ...overrides,
 });
 
@@ -37,7 +38,8 @@ describe("row keys", () => {
   it("reads list and built-in keys, and treats anything else as the TV's", () => {
     expect(parseRowKey(listRowKey(LIST_ID))).toEqual({ source: "list", listId: LIST_ID });
     expect(parseRowKey("builtin:continue_watching")).toEqual({ source: "builtin", name: "continue_watching" });
-    expect(parseRowKey("collection:abc")).toEqual({ source: "other" });
+    expect(parseRowKey("collection:abc")).toEqual({ source: "collection", collectionId: "abc" });
+    expect(parseRowKey("folder:abc")).toEqual({ source: "other" });
   });
 
   it("validates the shape of a key", () => {
@@ -62,15 +64,23 @@ describe("pruneRows", () => {
       { key: addonRowKey("com.removed", "movie", "x"), hidden: false },
       { key: listRowKey(LIST_ID), hidden: false },
       { key: listRowKey("22222222-2222-4222-8222-222222222222"), hidden: false },
-      { key: "collection:mine", hidden: true },
+      { key: "collection:c1", hidden: true },
+      { key: "collection:deleted", hidden: true },
+      { key: "folder:tv-owned", hidden: false },
       { key: listRowKey(LIST_ID), hidden: true },
       { key: "builtin:continue_watching", hidden: false },
     ];
     expect(pruneRows(rows, context()).map((row) => row.key)).toEqual([
       listRowKey(LIST_ID),
-      "collection:mine",
+      "collection:c1",
+      "folder:tv-owned",
       "builtin:continue_watching",
     ]);
+  });
+
+  it("keeps collection rows while the profile has no collections stored here", () => {
+    const rows = [{ key: "collection:from-the-tv", hidden: false }];
+    expect(pruneRows(rows, context({ collectionIds: null }))).toHaveLength(1);
   });
 
   it("keeps addon rows it can't rule out while an installed addon is unidentified", () => {

@@ -16,6 +16,7 @@ const prismaMock = {
     update: vi.fn(),
     deleteMany: vi.fn(),
   },
+  profileDocument: { findUnique: vi.fn(), upsert: vi.fn() },
   $transaction: vi.fn(),
 };
 
@@ -73,6 +74,7 @@ describe("profile addon routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     prismaMock.profileAddon.findMany.mockResolvedValue([]);
+    prismaMock.profileDocument.findUnique.mockResolvedValue(null);
     prismaMock.$transaction.mockImplementation(async (ops: unknown[]) => ops);
     prismaMock.profileAddon.create.mockImplementation(async ({ data }: { data: Record<string, unknown> }) => row(data));
     prismaMock.profileAddon.update.mockImplementation(async ({ data }: { data: Record<string, unknown> }) => row(data));
@@ -95,6 +97,18 @@ describe("profile addon routes", () => {
       configureUrl: "https://a.example/secret-config/configure",
       reachable: true,
     });
+    expect(response.json().updatedAt).toBeNull();
+  });
+
+  it("says when the list last changed, once anything has changed it", async () => {
+    prismaMock.profileDocument.findUnique.mockResolvedValue({
+      document: {},
+      version: 3,
+      updatedAt: new Date("2026-10-27T09:00:00Z"),
+    });
+    const app = await buildApp();
+    const response = await app.inject({ method: "GET", url: `/profiles/${PROFILE_ID}/addons` });
+    expect(response.json().updatedAt).toBe("2026-10-27T09:00:00.000Z");
   });
 
   describe("POST /profiles/:id/addons", () => {
@@ -188,6 +202,9 @@ describe("profile addon routes", () => {
     expect(response.statusCode).toBe(204);
     expect(prismaMock.profileAddon.deleteMany).toHaveBeenCalledWith({ where: { id: ADDON_ID, profileId: PROFILE_ID } });
     expect(pruneHomeLayoutForAddons).toHaveBeenCalled();
+    expect(prismaMock.profileDocument.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { profileId_kind: { profileId: PROFILE_ID, kind: "addon-list" } } })
+    );
   });
 
   describe("PUT /profiles/:id/addons/order", () => {

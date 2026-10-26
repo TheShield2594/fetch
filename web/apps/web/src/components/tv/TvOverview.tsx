@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { AlertCircle, AlertTriangle, Loader2 } from "lucide-react";
-import { api, type SyncOverview } from "../../api";
+import { AlertCircle, AlertTriangle, Loader2, Tv } from "lucide-react";
+import { api, type SyncOverview, type SyncOverviewDevice } from "../../api";
 import { StatusBadge } from "../settings/StatusBadge";
 import { timeAgo } from "../../utils/timeAgo";
 import { errorMessage } from "./reorder";
@@ -12,10 +12,49 @@ const COUNT_LABELS: { key: keyof SyncOverview["profiles"][number]["counts"]; lab
   { key: "watchedItems", label: "Watched" },
 ];
 
+const FLAVOR_LABELS: Record<string, string> = { full: "Full", playstore: "Play Store" };
+
+/** One paired TV: its build, and its last sync, flagged with the error when that sync failed. */
+function DeviceRow({ device }: { device: SyncOverviewDevice }) {
+  const build = [device.appVersion && `v${device.appVersion}`, device.flavor && (FLAVOR_LABELS[device.flavor] ?? device.flavor)]
+    .filter(Boolean)
+    .join(" · ");
+  const failing = device.lastSyncOk === false;
+  return (
+    <li className="flex items-start gap-3 rounded-xl border p-3" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>
+      <Tv size={18} className="mt-0.5 flex-none" style={{ color: "var(--text-mute)" }} aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium" style={{ color: "var(--text)" }}>
+            {device.name}
+          </span>
+          {build && (
+            <span className="font-mono text-2xs" style={{ color: "var(--text-mute)" }}>
+              {build}
+            </span>
+          )}
+          {device.lastSyncAt && <StatusBadge ok={!failing} label={failing ? "Last sync failed" : "Syncing"} />}
+        </div>
+        <p className="text-xs" style={{ color: "var(--text-mute)" }}>
+          {device.lastSyncAt ? `Last sync ${timeAgo(device.lastSyncAt)}` : "Hasn't synced yet"}
+          {device.lastSeenAt && ` · seen ${timeAgo(device.lastSeenAt)}`}
+        </p>
+        {failing && device.lastSyncError && (
+          <p className="mt-1 flex items-start gap-1.5 text-xs text-danger">
+            <AlertTriangle size={14} className="mt-0.5 flex-none" aria-hidden="true" />
+            <span className="break-words font-mono">{device.lastSyncError}</span>
+          </p>
+        )}
+      </div>
+    </li>
+  );
+}
+
 /**
- * A read-only look at what a TV gets from this server: per profile, how much of
- * each synced thing there is and when its settings and Home layout last
- * changed, and whether the server itself is healthy enough to sync.
+ * A read-only look at what a TV gets from this server: the paired TVs and how
+ * their last sync went, per profile how much of each synced thing there is and
+ * when its settings and Home layout last changed, and whether the server itself
+ * is healthy enough to sync.
  */
 export function TvOverview() {
   const [overview, setOverview] = useState<SyncOverview | null>(null);
@@ -86,6 +125,25 @@ export function TvOverview() {
             </li>
           ))}
         </ul>
+      )}
+
+      {overview.devices && (
+        <section aria-labelledby="tv-overview-devices" className="space-y-2">
+          <h4 id="tv-overview-devices" className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-mute)" }}>
+            Paired TVs
+          </h4>
+          {overview.devices.length === 0 ? (
+            <p className="text-sm" style={{ color: "var(--text-dim)" }}>
+              No TVs paired yet. Pair one under TVs &amp; Devices.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {overview.devices.map((device) => (
+                <DeviceRow key={device.id} device={device} />
+              ))}
+            </ul>
+          )}
+        </section>
       )}
 
       <div className="overflow-x-auto">

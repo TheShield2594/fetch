@@ -14,6 +14,8 @@ function describeRow(row: HomeRow): string {
       return [row.addonName ?? "Addon", row.type ? (TYPE_LABELS[row.type] ?? row.type) : null].filter(Boolean).join(" · ");
     case "list":
       return "Your list on this website";
+    case "collection":
+      return "Collection";
     case "builtin":
       return "Built into the TV";
     default:

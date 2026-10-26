@@ -15,6 +15,7 @@ import {
 import { MAX_URL_LENGTH, NON_BLANK } from "../lib/request-schema.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { pruneHomeLayoutForAddons } from "../lib/home-layout.js";
+import { getProfileDocument, touchAddonList } from "../lib/profile-document.js";
 
 /**
  * Each profile's installed Stremio addons, in the order the TV lists them.
@@ -171,8 +172,13 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", resolveProfileParam);
 
   app.get<{ Params: { id: string } }>("/profiles/:id/addons", async (request) => {
-    const rows = await listAddons(request.profileId!);
-    return { addons: rows.map(toAddonData) };
+    const [rows, marker] = await Promise.all([
+      listAddons(request.profileId!),
+      getProfileDocument(request.profileId!, "addon-list"),
+    ]);
+    // Null until the list is first changed from anywhere, which is how a TV
+    // pairing for the first time knows to hand the website its own addons.
+    return { addons: rows.map(toAddonData), updatedAt: marker?.updatedAt.toISOString() ?? null };
   });
 
   /** Install one addon by manifest URL, at the end of the list. */
@@ -204,6 +210,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
         const created = await prisma.profileAddon.create({
           data: { profileId, manifestUrl, position, enabled: true, ...manifestColumns(result.manifest, new Date()) },
         });
+        await touchAddonList(profileId);
         return reply.code(201).send({ addon: toAddonData(created) });
       } catch (error) {
         // Two adds of the same URL racing past the check above.
@@ -249,6 +256,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
 
       try {
         const updated = await prisma.profileAddon.update({ where: { id: row.id }, data });
+        await touchAddonList(row.profileId);
         return { addon: toAddonData(updated) };
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -288,6 +296,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
     const profileId = request.profileId!;
     const { count } = await prisma.profileAddon.deleteMany({ where: { id: addonId, profileId } });
     if (count === 0) return reply.code(404).send({ error: "Addon not found" });
+    await touchAddonList(profileId);
     // The removed addon's rows leave the Home layout with it, so the TV doesn't
     // keep a gap where they were.
     await pruneHomeLayoutForAddons(profileId);
@@ -310,6 +319,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
       await prisma.$transaction(
         ids.map((id, position) => prisma.profileAddon.update({ where: { id }, data: { position } }))
       );
+      await touchAddonList(profileId);
       return { addons: (await listAddons(profileId)).map(toAddonData) };
     }
   );
@@ -369,6 +379,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
         }),
       ]);
 
+      await touchAddonList(profileId);
       await pruneHomeLayoutForAddons(profileId);
       return { addons: (await listAddons(profileId)).map(toAddonData) };
     }

@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma.js";
 import { buildIntApp, createProfile } from "../lib/test-fixtures/int-db.js";
 import profileAddonsRoutes from "./profile-addons.js";
 import profileDocumentsRoutes from "./profile-documents.js";
+import syncOverviewRoutes from "./sync-overview.js";
 
 // What the mocked route tests can't see: the new tables as the migration
 // creates them, the conditional write racing itself for real, and the cascade
@@ -25,6 +26,7 @@ const MANIFEST_A = {
 const bothRoutes: FastifyPluginAsync = async (app) => {
   await app.register(profileAddonsRoutes);
   await app.register(profileDocumentsRoutes);
+  await app.register(syncOverviewRoutes);
 };
 
 let app: FastifyInstance;
@@ -162,5 +164,42 @@ describe("addons and the Home layout", () => {
     await expect(
       prisma.profileAddon.create({ data: { profileId: id, manifestUrl: ADDON_A, position: 1, name: "A again" } })
     ).rejects.toMatchObject({ code: "P2002" });
+  });
+});
+
+describe("the device sync report", () => {
+  it("is stored on the device and shown in the overview", async () => {
+    const device = await prisma.device.create({ data: { name: "Living room", tokenHash: "hash-for-test" } });
+    // The real gate sets this from the device's token; an onRequest hook can't be
+    // added to the shared app after it started, so the route is called on a
+    // dedicated instance carrying the same plugin.
+    const deviceApp = await buildIntApp(async (instance) => {
+      instance.addHook("onRequest", async (request) => {
+        request.deviceId = device.id;
+      });
+      await instance.register(syncOverviewRoutes);
+    });
+
+    const failed = await deviceApp.inject({
+      method: "PUT",
+      url: "/devices/me/report",
+      payload: { appVersion: "1.4.0", flavor: "full", ok: false, error: "Couldn't reach the website" },
+    });
+    expect(failed.statusCode).toBe(204);
+
+    const overview = await app.inject({ method: "GET", url: "/sync/overview" });
+    expect(overview.json().devices).toEqual([
+      expect.objectContaining({
+        name: "Living room",
+        appVersion: "1.4.0",
+        flavor: "full",
+        lastSyncOk: false,
+        lastSyncError: "Couldn't reach the website",
+      }),
+    ]);
+
+    await deviceApp.inject({ method: "PUT", url: "/devices/me/report", payload: { ok: true } });
+    const stored = await prisma.device.findUniqueOrThrow({ where: { id: device.id } });
+    expect(stored).toMatchObject({ lastSyncOk: true, lastSyncError: null, appVersion: "1.4.0" });
   });
 });

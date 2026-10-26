@@ -15,6 +15,7 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
+import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.data.local.ExperienceModeDataStore
 import com.fetch.tv.data.local.ProfileDataStoreFactory
 import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
@@ -176,8 +177,12 @@ class ProfileSettingsSyncService @Inject constructor(
     private val mediaServerSyncService: MediaServerSyncService,
     private val tmdbSettingsDataStore: TmdbSettingsDataStore,
     private val metaRepository: MetaRepository,
-    private val cwEnrichmentCache: ContinueWatchingEnrichmentCache
+    private val cwEnrichmentCache: ContinueWatchingEnrichmentCache,
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
 ) {
+    /** Somewhere to sync to: the Supabase account, or a Fetch website this TV is paired with. */
+    private val canSync: Boolean get() = websiteSync.get().isPaired || authManager.isAuthenticated
+
     private val postgrest: Postgrest get() = postgrestLazy.get()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -402,7 +407,7 @@ class ProfileSettingsSyncService @Inject constructor(
             if (!force) {
                 delay(FOREGROUND_PULL_DELAY_MS)
             }
-            if (!authManager.isAuthenticated) return@launch
+            if (!canSync) return@launch
 
             lastForegroundPullAtMs = SystemClock.elapsedRealtime()
             pullCurrentProfileFromRemote()
@@ -414,6 +419,10 @@ class ProfileSettingsSyncService @Inject constructor(
         settingsJson: JsonObject? = null
     ) {
         val resolvedSettingsJson = settingsJson ?: exportSettingsBlob(profileId)
+        if (websiteSync.get().isPaired) {
+            pushProfileToWebsite(profileId, resolvedSettingsJson)
+            return
+        }
         val params = buildJsonObject {
             put("p_profile_id", profileId)
             put("p_settings_json", resolvedSettingsJson)
@@ -425,7 +434,26 @@ class ProfileSettingsSyncService @Inject constructor(
         }
     }
 
+    /**
+     * A TV signed in to a Fetch website keeps its settings there. The website merges rather
+     * than replaces (see [FetchWebsiteSyncService.reconcileSettings]), so what comes back can
+     * hold changes made on the website since the last sync; those are applied here, the same way
+     * a pull applies them.
+     */
+    private suspend fun pushProfileToWebsite(profileId: Int, local: JsonObject) {
+        val merged = websiteSync.get().reconcileSettings(profileId, local) ?: return
+        val mergedFeatures = merged["features"]?.jsonObject ?: return
+        val localFeatures = local["features"]?.jsonObject ?: JsonObject(emptyMap())
+        val signature = buildSettingsSignature(mergedFeatures)
+        if (signature != buildSettingsSignature(localFeatures)) {
+            applySettingsBlob(profileId, mergedFeatures, signature)
+        }
+    }
+
     private suspend fun pullProfileFromRemote(profileId: Int): JsonObject? {
+        if (websiteSync.get().isPaired) {
+            return websiteSync.get().reconcileSettings(profileId, exportSettingsBlob(profileId))
+        }
         val params = buildJsonObject {
             put("p_profile_id", profileId)
             put("p_platform", SETTINGS_SYNC_PLATFORM)
@@ -578,7 +606,7 @@ class ProfileSettingsSyncService @Inject constructor(
                 }
                 .debounce(SETTINGS_PUSH_DEBOUNCE_MS)
                 .collect { (profileId, signature) ->
-                    if (!authManager.isAuthenticated) return@collect
+                    if (!canSync) return@collect
                     if (applyingRemoteBlob) return@collect
                     if (profileDataStoreFactory.corruptedFileNames.isNotEmpty()) {
                         Log.w(TAG, "DataStore corruption detected (${profileDataStoreFactory.corruptedFileNames}) — pulling from remote instead of pushing")

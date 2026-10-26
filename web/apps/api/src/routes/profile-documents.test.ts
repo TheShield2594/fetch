@@ -10,6 +10,7 @@ const prismaMock = {
   profileDocument: { findUnique: vi.fn(), create: vi.fn(), updateMany: vi.fn() },
   profileAddon: { findMany: vi.fn() },
   list: { findMany: vi.fn() },
+  profileCollections: { findUnique: vi.fn() },
 };
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
@@ -45,6 +46,7 @@ describe("profile document routes", () => {
       },
     ]);
     prismaMock.list.findMany.mockResolvedValue([{ id: LIST_ID, name: "Watchlist", kind: "watchlist" }]);
+    prismaMock.profileCollections.findUnique.mockResolvedValue({ collections: [{ id: "c1", title: "Friday", folders: [] }] });
   });
 
   describe("TV settings", () => {
@@ -122,6 +124,7 @@ describe("profile document routes", () => {
         "builtin:continue_watching",
         "addon:com.cinemeta:movie:top",
         `list:${LIST_ID}`,
+        "collection:c1",
       ]);
     });
 
@@ -157,6 +160,7 @@ describe("profile document routes", () => {
         [`list:${LIST_ID}`, false],
         ["addon:com.cinemeta:movie:top", true],
         ["builtin:continue_watching", false],
+        ["collection:c1", false],
       ]);
     });
 

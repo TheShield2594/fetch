@@ -36,7 +36,7 @@ export type TvAddon = {
   manifestFetchedAt: string | null;
 };
 
-export type HomeRowSource = "addon" | "list" | "builtin" | "other";
+export type HomeRowSource = "addon" | "list" | "collection" | "builtin" | "other";
 
 export type HomeRow = {
   key: string;
@@ -60,8 +60,22 @@ export type SyncOverviewProfile = {
   homeLayoutUpdatedAt: string | null;
 };
 
+/** A paired TV and what it said after its last sync. The `report` fields are null until it first reports. */
+export type SyncOverviewDevice = {
+  id: string;
+  name: string;
+  lastSeenAt: string | null;
+  appVersion: string | null;
+  flavor: string | null;
+  lastSyncAt: string | null;
+  lastSyncOk: boolean | null;
+  lastSyncError: string | null;
+};
+
 export type SyncOverview = {
   profiles: SyncOverviewProfile[];
+  /** Absent when a device asks; the website always gets it. */
+  devices?: SyncOverviewDevice[] | undefined;
   server: {
     database: { ok: boolean; latencyMs: number };
     jobs: { job: string; status: "ok" | "failed"; message: string | null; at: string }[];
@@ -79,7 +93,7 @@ export const tvApi = {
 
   // Addons
   getTvAddons(profileId: string) {
-    return request<{ addons: TvAddon[] }>(profilePath(profileId, "addons"));
+    return request<{ addons: TvAddon[]; updatedAt: string | null }>(profilePath(profileId, "addons"));
   },
   /**
    * `manifest` is the fallback for an addon the server can't reach but the

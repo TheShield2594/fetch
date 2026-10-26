@@ -5,6 +5,7 @@ import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.AddonPreferences
 import com.fetch.tv.data.remote.supabase.SupabaseAddon
+import com.fetch.tv.data.website.FetchWebsiteSyncService
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -24,9 +25,13 @@ class AddonSyncService @Inject constructor(
     private val authManager: AuthManager,
     private val addonPreferences: AddonPreferences,
     private val profileManager: ProfileManager,
-    private val syncClientIdentity: SyncClientIdentity
+    private val syncClientIdentity: SyncClientIdentity,
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
 ) {
     private val postgrest: Postgrest get() = postgrestLazy.get()
+
+    /** Whether there is anywhere to sync to: the Supabase account, or a Fetch website this TV is paired with. */
+    val canSync: Boolean get() = websiteSync.get().isPaired || authManager.isAuthenticated
 
     private suspend fun <T> withJwtRefreshRetry(block: suspend () -> T): T {
         return try {
@@ -56,6 +61,18 @@ class AddonSyncService @Inject constructor(
             val userSetNames = addonPreferences.userSetNames.first()
             val enabledStates = addonPreferences.addonEnabledStates.first()
             Log.d(TAG, "pushToRemote: localUrls count=${localUrls.size} for profile $profileId")
+
+            // A TV signed in to a Fetch website keeps its addons there instead.
+            if (websiteSync.get().isPaired) {
+                websiteSync.get().pushAddons(
+                    urls = localUrls,
+                    enabled = localUrls.associateWith { enabledStates[canonicalizeUrl(it)] ?: true },
+                    names = localUrls.mapNotNull { url ->
+                        (userSetNames[canonicalizeUrl(url)] ?: userSetNames[url])?.let { url to it }
+                    }.toMap()
+                )
+                return@withContext Result.success(Unit)
+            }
 
             val params = buildJsonObject {
                 put("p_addons", buildJsonArray {
@@ -89,6 +106,9 @@ class AddonSyncService @Inject constructor(
     }
 
     suspend fun getRemoteAddonUrls(): Result<List<String>> = withContext(Dispatchers.IO) {
+        if (websiteSync.get().isPaired) {
+            return@withContext runCatching { websiteSync.get().websiteAddonUrls().orEmpty() }
+        }
         try {
             val effectiveUserId = authManager.getEffectiveUserId(fallbackToOwnIdOnFailure = false)
                 ?: return@withContext Result.failure(

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyPluginAsync } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
 
 const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
@@ -14,6 +14,7 @@ const prismaMock = {
   playbackProgress: { groupBy: vi.fn() },
   watchEvent: { groupBy: vi.fn() },
   profileDocument: { findMany: vi.fn() },
+  device: { findMany: vi.fn(), update: vi.fn() },
 };
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
@@ -24,7 +25,26 @@ vi.mock("../lib/job-status.js", () => ({
   ],
 }));
 
-const buildApp = (): Promise<FastifyInstance> => buildRouteApp(() => import("./sync-overview.js"));
+const DEVICE_ID = "33333333-3333-4333-8333-333333333333";
+
+/**
+ * The real gate sets `request.deviceId` from a device token; here a test
+ * header stands in for it, as in devices.test.ts.
+ */
+const buildApp = (): Promise<FastifyInstance> =>
+  buildRouteApp(async () => {
+    const { default: routes } = await import("./sync-overview.js");
+    const plugin: FastifyPluginAsync = async (app) => {
+      app.addHook("onRequest", async (request) => {
+        const device = request.headers["x-test-device"];
+        if (typeof device === "string") request.deviceId = device;
+      });
+      await app.register(routes);
+    };
+    return { default: plugin };
+  });
+
+const asDevice = { "x-test-device": DEVICE_ID };
 
 describe("GET /sync/overview", () => {
   beforeEach(() => {
@@ -41,6 +61,18 @@ describe("GET /sync/overview", () => {
     prismaMock.watchEvent.groupBy.mockResolvedValue([count(PROFILE_ID, 120)]);
     prismaMock.profileDocument.findMany.mockResolvedValue([
       { profileId: PROFILE_ID, kind: "tv-settings", updatedAt: new Date("2026-10-25T10:00:00Z") },
+    ]);
+    prismaMock.device.findMany.mockResolvedValue([
+      {
+        id: DEVICE_ID,
+        name: "Living room",
+        lastSeenAt: new Date("2026-10-26T11:59:00Z"),
+        appVersion: "1.4.0",
+        flavor: "playstore",
+        lastSyncAt: new Date("2026-10-26T11:58:00Z"),
+        lastSyncOk: false,
+        lastSyncError: "Couldn't reach the website",
+      },
     ]);
   });
 
@@ -65,10 +97,61 @@ describe("GET /sync/overview", () => {
           homeLayoutUpdatedAt: null,
         },
       ],
+      devices: [
+        {
+          id: DEVICE_ID,
+          name: "Living room",
+          lastSeenAt: "2026-10-26T11:59:00.000Z",
+          appVersion: "1.4.0",
+          flavor: "playstore",
+          lastSyncAt: "2026-10-26T11:58:00.000Z",
+          lastSyncOk: false,
+          lastSyncError: "Couldn't reach the website",
+        },
+      ],
       server: {
         database: { ok: true, latencyMs: 3 },
         jobs: [{ job: "trakt-history-poll", status: "failed", message: "boom", at: "2026-10-26T12:00:00.000Z" }],
       },
     });
+  });
+
+  it("leaves the device list out for a device caller", async () => {
+    const app = await buildApp();
+    const response = await app.inject({ method: "GET", url: "/sync/overview", headers: asDevice });
+    expect(response.json().devices).toBeUndefined();
+    expect(prismaMock.device.findMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("PUT /devices/me/report", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("stores the device's build and how its sync went", async () => {
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "PUT",
+      url: "/devices/me/report",
+      headers: asDevice,
+      payload: { appVersion: "1.4.0", flavor: "full", ok: false, error: "x".repeat(800) },
+    });
+    expect(response.statusCode).toBe(204);
+    const { data } = prismaMock.device.update.mock.calls[0]![0] as { data: Record<string, unknown> };
+    expect(data).toMatchObject({ appVersion: "1.4.0", flavor: "full", lastSyncOk: false });
+    expect((data.lastSyncError as string).length).toBe(500);
+    expect(data.lastSyncAt).toBeInstanceOf(Date);
+  });
+
+  it("clears the error once a sync works", async () => {
+    const app = await buildApp();
+    await app.inject({ method: "PUT", url: "/devices/me/report", headers: asDevice, payload: { ok: true } });
+    const { data } = prismaMock.device.update.mock.calls[0]![0] as { data: Record<string, unknown> };
+    expect(data).toMatchObject({ lastSyncOk: true, lastSyncError: null });
+  });
+
+  it("is only for paired devices", async () => {
+    const app = await buildApp();
+    const response = await app.inject({ method: "PUT", url: "/devices/me/report", payload: { ok: true } });
+    expect(response.statusCode).toBe(403);
   });
 });

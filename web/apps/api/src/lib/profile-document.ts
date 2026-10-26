@@ -13,12 +13,28 @@ import { prisma } from "./prisma.js";
  * "there is no document yet", so the first write sends `If-Match: "0"`.
  */
 
-export type ProfileDocumentKind = "tv-settings" | "home-layout";
+export type ProfileDocumentKind = "tv-settings" | "home-layout" | "addon-list";
 
 export type StoredDocument = {
   document: Prisma.JsonValue;
   version: number;
   updatedAt: Date;
+};
+
+/**
+ * Records that a profile's addon list changed, as an empty `addon-list`
+ * document whose `updatedAt` moves. A TV pairing for the first time reads it
+ * to tell a list nobody has set up (null: give the website the TV's addons)
+ * from one emptied on purpose. The addons themselves are rows, not this
+ * document, and are last-writer-wins like the TV's own sync.
+ */
+export const touchAddonList = async (profileId: string): Promise<void> => {
+  const updatedAt = new Date();
+  await prisma.profileDocument.upsert({
+    where: { profileId_kind: { profileId, kind: "addon-list" } },
+    create: { profileId, kind: "addon-list", document: {}, version: 1, updatedAt },
+    update: { version: { increment: 1 }, updatedAt },
+  });
 };
 
 export const etagFor = (version: number): string => `"${version}"`;

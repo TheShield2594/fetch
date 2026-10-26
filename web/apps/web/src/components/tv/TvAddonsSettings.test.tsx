@@ -57,11 +57,11 @@ async function renderAddons() {
 describe("TvAddonsSettings", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getTvAddons.mockResolvedValue({ addons: [] });
+    getTvAddons.mockResolvedValue({ addons: [], updatedAt: null });
   });
 
   it("lists addons by host, never showing the configured URL", async () => {
-    getTvAddons.mockResolvedValue({ addons: [addon()] });
+    getTvAddons.mockResolvedValue({ addons: [addon()], updatedAt: null });
     await renderAddons();
     expect(getTvAddons).toHaveBeenCalledWith(PROFILE.id);
     expect(screen.getByText("Torrentio")).toBeInTheDocument();
@@ -90,7 +90,7 @@ describe("TvAddonsSettings", () => {
   it("moves an addon with the buttons and saves the new order", async () => {
     const first = addon({ id: "a1", name: "Torrentio" });
     const second = addon({ id: "a2", name: "Cinemeta", configureUrl: null });
-    getTvAddons.mockResolvedValue({ addons: [first, second] });
+    getTvAddons.mockResolvedValue({ addons: [first, second], updatedAt: null });
     reorderTvAddons.mockResolvedValue({ addons: [second, first] });
     await renderAddons();
 
@@ -102,7 +102,7 @@ describe("TvAddonsSettings", () => {
   });
 
   it("puts the order back when saving it fails", async () => {
-    getTvAddons.mockResolvedValue({ addons: [addon({ id: "a1", name: "Torrentio" }), addon({ id: "a2", name: "Cinemeta" })] });
+    getTvAddons.mockResolvedValue({ addons: [addon({ id: "a1", name: "Torrentio" }), addon({ id: "a2", name: "Cinemeta" })], updatedAt: null });
     reorderTvAddons.mockRejectedValue(new Error("offline"));
     await renderAddons();
     await userEvent.click(screen.getByRole("button", { name: "Move Cinemeta up" }));
@@ -111,7 +111,7 @@ describe("TvAddonsSettings", () => {
   });
 
   it("turns an addon off", async () => {
-    getTvAddons.mockResolvedValue({ addons: [addon()] });
+    getTvAddons.mockResolvedValue({ addons: [addon()], updatedAt: null });
     updateTvAddon.mockResolvedValue({ addon: addon({ enabled: false }) });
     await renderAddons();
     await userEvent.click(screen.getByRole("switch", { name: "Torrentio enabled" }));

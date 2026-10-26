@@ -495,6 +495,15 @@ model Device {
   createdAt  DateTime  @default(now()) @db.Timestamptz(6)
   lastSeenAt DateTime? @db.Timestamptz(6)
 
+  // What the device said about itself after its last sync (PUT
+  // /devices/me/report), for the account overview: which build it runs, and
+  // whether that sync worked. Null until it first reports.
+  appVersion    String?
+  flavor        String?
+  lastSyncAt    DateTime? @db.Timestamptz(6)
+  lastSyncOk    Boolean?
+  lastSyncError String?
+
   profileSlots DeviceProfileSlot[]
 }
 

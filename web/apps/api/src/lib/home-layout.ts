@@ -12,10 +12,12 @@ import { getProfileDocument, writeProfileDocument } from "./profile-document.js"
  *     and each part is URI-encoded so a `:` inside one can't split it.
  *   - `list:<uuid>` — one of the website's lists (watchlist, collection or a
  *     custom list), so a list made here can sit on Home like any catalog.
+ *   - `collection:<id>` — one of the profile's collections (`/collections`),
+ *     the TV's custom Home rows, by the id the TV gave it.
  *   - `builtin:<name>` — a row the TV draws itself, such as Continue Watching.
  *
- * Any other prefix is a row this server doesn't know how to resolve (a TV
- * collection, say). Those are kept exactly as sent: the TV owns them.
+ * Any other prefix is a row this server doesn't know how to resolve. Those are
+ * kept exactly as sent: the TV owns them.
  *
  * What is stored is only what someone arranged. Reading the layout merges in
  * every row the profile's addons and lists provide that isn't placed yet (at
@@ -32,7 +34,7 @@ export const BUILTIN_ROWS: readonly { key: string; title: string }[] = [
 
 export type StoredRow = { key: string; hidden: boolean; title?: string };
 
-export type HomeRowSource = "addon" | "list" | "builtin" | "other";
+export type HomeRowSource = "addon" | "list" | "collection" | "builtin" | "other";
 
 export type HomeRow = {
   key: string;
@@ -57,9 +59,12 @@ export const addonRowKey = (addonId: string, type: string, catalogId: string): s
 
 export const listRowKey = (listId: string): string => `list:${listId}`;
 
+export const collectionRowKey = (collectionId: string): string => `collection:${enc(collectionId)}`;
+
 type ParsedKey =
   | { source: "addon"; addonId: string; type: string; catalogId: string }
   | { source: "list"; listId: string }
+  | { source: "collection"; collectionId: string }
   | { source: "builtin"; name: string }
   | { source: "other" };
 
@@ -78,6 +83,10 @@ export const parseRowKey = (key: string): ParsedKey => {
     if (addonId && type && catalogId) return { source: "addon", addonId, type, catalogId };
   }
   if (prefix === "list" && parts.length === 1 && parts[0]) return { source: "list", listId: parts[0] };
+  if (prefix === "collection" && parts.length === 1 && parts[0]) {
+    const collectionId = decode(parts[0]);
+    if (collectionId) return { source: "collection", collectionId };
+  }
   if (prefix === "builtin" && parts.length === 1 && parts[0]) return { source: "builtin", name: parts[0] };
   return { source: "other" };
 };
@@ -112,10 +121,12 @@ export type HomeRowContext = {
   /** An installed addon whose manifest was never read: its rows can't be ruled out. */
   hasUnidentifiedAddon: boolean;
   listIds: Set<string>;
+  /** Null when the profile has never had collections stored: then none can be ruled out. */
+  collectionIds: Set<string> | null;
 };
 
 export const loadHomeRowContext = async (profileId: string): Promise<HomeRowContext> => {
-  const [addons, lists] = await Promise.all([
+  const [addons, lists, collectionsRow] = await Promise.all([
     prisma.profileAddon.findMany({
       where: { profileId },
       orderBy: [{ position: "asc" }, { createdAt: "asc" }],
@@ -126,6 +137,7 @@ export const loadHomeRowContext = async (profileId: string): Promise<HomeRowCont
       orderBy: { createdAt: "asc" },
       select: { id: true, name: true, kind: true },
     }),
+    prisma.profileCollections.findUnique({ where: { profileId }, select: { collections: true } }),
   ]);
 
   const sources: SourceRow[] = BUILTIN_ROWS.map((row) => ({
@@ -163,8 +175,37 @@ export const loadHomeRowContext = async (profileId: string): Promise<HomeRowCont
     sources.push({ key: listRowKey(list.id), title: list.name, source: "list", addonName: null, type: null, available: true });
   }
 
-  return { sources, installedAddonIds, hasUnidentifiedAddon, listIds: new Set(lists.map((list) => list.id)) };
+  const collections = readCollections(collectionsRow?.collections);
+  for (const collection of collections) {
+    sources.push({
+      key: collectionRowKey(collection.id),
+      title: collection.title,
+      source: "collection",
+      addonName: null,
+      type: null,
+      available: true,
+    });
+  }
+
+  return {
+    sources,
+    installedAddonIds,
+    hasUnidentifiedAddon,
+    listIds: new Set(lists.map((list) => list.id)),
+    collectionIds: collectionsRow ? new Set(collections.map((collection) => collection.id)) : null,
+  };
 };
+
+/** The id and title of each stored collection, skipping anything malformed. */
+const readCollections = (value: unknown): { id: string; title: string }[] =>
+  Array.isArray(value)
+    ? value.flatMap((entry) => {
+        const collection = entry as { id?: unknown; title?: unknown } | null;
+        return typeof collection?.id === "string" && collection.id
+          ? [{ id: collection.id, title: typeof collection.title === "string" && collection.title ? collection.title : "Collection" }]
+          : [];
+      })
+    : [];
 
 /** Whether a stored row's source still exists for this profile. */
 const rowStillBelongs = (row: StoredRow, context: HomeRowContext): boolean => {
@@ -174,6 +215,8 @@ const rowStillBelongs = (row: StoredRow, context: HomeRowContext): boolean => {
       return context.installedAddonIds.has(parsed.addonId) || context.hasUnidentifiedAddon;
     case "list":
       return context.listIds.has(parsed.listId);
+    case "collection":
+      return context.collectionIds === null || context.collectionIds.has(parsed.collectionId);
     default:
       return true;
   }
@@ -203,8 +246,9 @@ export const mergeHomeLayout = (stored: StoredRow[], context: HomeRowContext): H
       source: parsed.source,
       addonName: null,
       type: parsed.source === "addon" ? parsed.type : null,
-      // An `other` row is the TV's to resolve, not missing.
-      available: parsed.source === "other",
+      // An `other` row is the TV's to resolve, not missing; so is a collection
+      // when the profile has none stored here yet.
+      available: parsed.source === "other" || (parsed.source === "collection" && context.collectionIds === null),
     };
   });
   const placedKeys = new Set(placed.map((row) => row.key));

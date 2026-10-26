@@ -17,7 +17,11 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **The website has the Fetch logo and license.** The cat mark is replaced by Fetch's dog-and-play mark across the app, PWA icons, favicon and splash screens. The code is now GPL-3.0, like the rest of Fetch; releases published as Cataloggy stay available under MIT.
 
+- CORS now allows `PUT` and `If-Match`, which a web app on another origin needs to save the TV settings and Home layout (see Settings → TV below).
+
 ### Added
+
+- **Settings → TV: manage what a TV runs, per profile.** Four sections for the TV side of the Fetch ecosystem. **TV Addons** installs Stremio addons by manifest URL (validated server-side, with the reason when it fails), reorders them by drag or arrow buttons, toggles, reloads and removes them, links to an addon's own configure page, and offers this server's addon in one click. **Home Rows** orders and hides every row the profile's addons and lists provide, Continue Watching included, keeping rows it can't reach by name and dropping those whose addon or list is gone. **TV Playback Settings** edits auto-play, Essential/Advanced, audio and subtitle languages, subtitle style and Best match ranking rules as forms, under the TV's own keys, carrying every setting it doesn't know through a save. **Synced Data** shows each profile's counts and the server's health. The API behind them is `/profiles/:id/addons`, `/profiles/:id/home-layout`, `/profiles/:id/settings/tv` and `/sync/overview`; the two documents are versioned with `If-Match`, so a TV and a browser can't overwrite each other. The TV's sync against these lands with device pairing. See [What a TV syncs](docs/api.md#what-a-tv-syncs-per-profile).
 
 - **Resume points are in the backup.** `GET /export` now carries a `playback` collection, and `POST /import` restores it — so moving to a new server, or restoring after a lost database, no longer empties Continue Watching. The import only moves forward: a point is skipped when the profile already has a newer pause for that title, or has watched it since the pause (including a watch in the same file), because a resume point for something finished is worse than none. Files exported before this have no `playback` and import as before; the format version is unchanged.
 

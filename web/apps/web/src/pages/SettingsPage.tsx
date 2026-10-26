@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import { Key, Link, Database, Download, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, X } from "lucide-react";
+import { Key, Link, Database, Download, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, X, Tv, Puzzle, LayoutList, SlidersHorizontal } from "lucide-react";
 import { Section } from "../components/settings/Section";
 import { healthSummary } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
@@ -20,12 +20,16 @@ import { PushSettings } from "../components/settings/PushSettings";
 import { NotificationChannelsSettings } from "../components/settings/NotificationChannelsSettings";
 import { ProfileSettings } from "../components/settings/ProfileSettings";
 import { JobStatusSettings } from "../components/settings/JobStatusSettings";
+import { TvOverview } from "../components/tv/TvOverview";
+import { TvAddonsSettings } from "../components/tv/TvAddonsSettings";
+import { HomeLayoutSettings } from "../components/tv/HomeLayoutSettings";
+import { TvSettingsForm } from "../components/tv/TvSettingsForm";
 import { PAGE_TITLE } from "../components/typography";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "unknown";
 
-export type SettingsTab = "preferences" | "integrations";
+export type SettingsTab = "preferences" | "integrations" | "tv";
 
 export type SettingsSection = {
   /** Also the key `Section` persists its open/closed state under. */
@@ -210,6 +214,43 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     keywords: "export import backup restore refresh metadata steam wipe",
     content: <DataSettings />,
   },
+  // What a TV pointed at this server runs, per profile. The overview is
+  // all profiles; the three below edit the active one.
+  {
+    id: "tv-overview",
+    tab: "tv",
+    title: "Synced Data",
+    icon: <Tv size={20} />,
+    keywords: "dashboard overview counts health database jobs sync devices television",
+    content: <TvOverview />,
+  },
+  {
+    id: "tv-addons",
+    tab: "tv",
+    group: "This profile on the TV",
+    title: "TV Addons",
+    icon: <Puzzle size={20} />,
+    keywords: "addons manifest install configure order sources streams catalogs television",
+    content: <TvAddonsSettings />,
+  },
+  {
+    id: "tv-home",
+    tab: "tv",
+    group: "This profile on the TV",
+    title: "Home Rows",
+    icon: <LayoutList size={20} />,
+    keywords: "home screen rows order reorder hide catalogs lists continue watching layout television",
+    content: <HomeLayoutSettings />,
+  },
+  {
+    id: "tv-settings",
+    tab: "tv",
+    group: "This profile on the TV",
+    title: "TV Playback Settings",
+    icon: <SlidersHorizontal size={20} />,
+    keywords: "auto-play autoplay best match ranking resolution codec hdr audio subtitles language style essential advanced television",
+    content: <TvSettingsForm />,
+  },
 ];
 
 /**
@@ -231,10 +272,11 @@ export function matchesSearch(section: SettingsSection, query: string): boolean 
 export const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
   { id: "preferences", label: "Preferences" },
   { id: "integrations", label: "Integrations & Data" },
+  { id: "tv", label: "TV" },
 ];
 
 function isSettingsTab(value: string | null): value is SettingsTab {
-  return value === "preferences" || value === "integrations";
+  return value === "preferences" || value === "integrations" || value === "tv";
 }
 
 /**

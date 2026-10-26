@@ -54,9 +54,9 @@ domain maps onto the website like this:
 | `WatchProgressSyncService` | `/playback`, `/scrobble/*` (resume points) | None for the protocol; the TV client is missing |
 | `WatchedItemsSyncService` | `/watch`, `/series/progress` | None for the protocol |
 | `LibrarySyncService` | `/lists` (watchlist, collection, custom) | None for the protocol |
-| `AddonSyncService` | — | Per-profile installed addons: manifest URL, order, enabled |
-| `ProfileSettingsSyncService` | `/settings/preferences` (language, region) | A per-profile settings document for TV settings (stream ranking, player, subtitles) |
-| `HomeCatalogSettingsSyncService` | — | Home row order and visibility per profile |
+| `AddonSyncService` | `/profiles/:id/addons`, Settings → TV → TV Addons | The TV client |
+| `ProfileSettingsSyncService` | `/profiles/:id/settings/tv`, Settings → TV → TV Playback Settings | The TV client |
+| `HomeCatalogSettingsSyncService` | `/profiles/:id/home-layout`, Settings → TV → Home Rows | The TV client |
 | `CollectionSyncService` | — | Custom home rows (could reuse custom lists) |
 | `ProviderCredentialSyncService` | Trakt, TMDB, OMDb, RPDB keys | Decide what should leave the TV at all; MDBList and Simkl stay on the device for now |
 | Watch party | — | Not planned; stays Supabase-only or is removed (#4) |

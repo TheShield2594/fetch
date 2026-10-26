@@ -21,6 +21,10 @@ vi.mock("../components/settings/OmdbSettings", () => ({ OmdbSettings: () => <p>o
 vi.mock("../components/settings/RpdbSettings", () => ({ RpdbSettings: () => <p>rpdb body</p> }));
 vi.mock("../components/settings/AiSettings", () => ({ AiSettings: () => <p>ai body</p> }));
 vi.mock("../components/settings/DataSettings", () => ({ DataSettings: () => <p>data body</p> }));
+vi.mock("../components/tv/TvOverview", () => ({ TvOverview: () => <p>tv overview body</p> }));
+vi.mock("../components/tv/TvAddonsSettings", () => ({ TvAddonsSettings: () => <p>tv addons body</p> }));
+vi.mock("../components/tv/HomeLayoutSettings", () => ({ HomeLayoutSettings: () => <p>home rows body</p> }));
+vi.mock("../components/tv/TvSettingsForm", () => ({ TvSettingsForm: () => <p>tv settings body</p> }));
 
 // Health is six status requests and its own mapping rules, both tested
 // elsewhere (hooks/useSettingsHealth, components/settings/health.test.ts). Held

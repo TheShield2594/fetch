@@ -14,6 +14,7 @@
  */
 
 export * from "./api/types";
+export type * from "./api/tv";
 export { ApiContractError } from "@fetch/shared/contracts";
 export { ApiError, OfflineWriteQueuedError } from "./api/client";
 export {
@@ -39,6 +40,7 @@ import { notificationsApi } from "./api/notifications";
 import { profilesApi } from "./api/profiles";
 import { ratingsApi } from "./api/ratings";
 import { settingsApi } from "./api/settings";
+import { tvApi } from "./api/tv";
 import { watchApi } from "./api/watch";
 
 /**
@@ -59,5 +61,6 @@ export const api = {
   ...profilesApi,
   ...ratingsApi,
   ...settingsApi,
+  ...tvApi,
   ...watchApi,
 };

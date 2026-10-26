@@ -8,6 +8,7 @@ package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.ui.components.PlayLaunchOrigin
 import com.fetch.tv.ui.components.CatalogRowsSkeleton
+import com.fetch.tv.ui.screens.settings.MemoryBudget
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -30,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -103,6 +105,12 @@ import kotlin.math.roundToInt
 // Height of the wide card as a fraction of its width, matching the 2.5:1 shape of the mobile card.
 private const val WIDE_CARD_HEIGHT_RATIO = 0.4f
 
+private class FixedState<T>(override val value: T) : State<T>
+
+internal val NoEnrichingItemId: State<String?> = FixedState(null)
+internal val NoEnrichedPreviews: State<Map<String, MetaPreview>> = FixedState(emptyMap())
+internal val NoFailedEnrichmentIds: State<Set<String>> = FixedState(emptySet())
+
 private class ItemIdentitySnapshot(
     var byRow: Map<String, StableList<String>> = emptyMap()
 )
@@ -122,10 +130,11 @@ fun ModernHomeContent(
     uiState: HomeUiState,
     modernPresentation: ModernHomePresentationState = ModernHomePresentationState(),
     focusState: HomeScreenFocusState,
-    enrichingItemId: String? = null,
-    lastEnrichedPreview: MetaPreview? = null,
-    enrichedPreviews: Map<String, MetaPreview> = emptyMap(),
-    failedEnrichmentIds: Set<String> = emptySet(),
+    // These three are held as State and read only inside the hero's derived state, so an
+    // enrichment emission on each focus stop recomposes the hero rather than the whole Home body.
+    enrichingItemId: State<String?> = NoEnrichingItemId,
+    enrichedPreviews: State<Map<String, MetaPreview>> = NoEnrichedPreviews,
+    failedEnrichmentIds: State<Set<String>> = NoFailedEnrichmentIds,
     trailerPreviewUrls: Map<String, String> = emptyMap(),
     trailerPreviewAudioUrls: Map<String, String> = emptyMap(),
     onNavigateToDetail: (String, String, String) -> Unit,
@@ -319,7 +328,9 @@ fun ModernHomeContent(
             }
     }
     LaunchedEffect(enrichingItemId) {
-        metricsHolder.state?.putState("HeroEnriching", (enrichingItemId != null).toString())
+        snapshotFlow { enrichingItemId.value != null }
+            .distinctUntilChanged()
+            .collect { enriching -> metricsHolder.state?.putState("HeroEnriching", enriching.toString()) }
     }
 
     // Both effects restart when the settled selection or scroll state changes. Hosting them in their
@@ -725,9 +736,10 @@ fun ModernHomeContent(
                 derivedStateOf {
                     val activeCarouselItem = activeCarouselItemState.value
                     val activeItemId = activeCarouselItem?.metaPreview?.id
-                    val enrichmentActive = enrichingItemId != null && enrichingItemId == activeItemId
+                    val enrichingId = enrichingItemId.value
+                    val enrichmentActive = enrichingId != null && enrichingId == activeItemId
                     
-                    val enrichedItem = activeItemId?.let { enrichedPreviews[it] }
+                    val enrichedItem = activeItemId?.let { enrichedPreviews.value[it] }
                     val enrichedHero = if (enrichedItem != null) {
                         HeroPreview(
                             title = enrichedItem.name,
@@ -772,7 +784,7 @@ fun ModernHomeContent(
                     // Exception: if enrichment already failed for this item, show addon data.
                     // Also treat as pending when activeCarouselItem is null (row not yet resolved).
                     val heroEnrichmentEnabled = uiState.heroEnrichmentEnabled
-                    val enrichmentFailed = activeItemId != null && activeItemId in failedEnrichmentIds
+                    val enrichmentFailed = activeItemId != null && activeItemId in failedEnrichmentIds.value
                     val effectiveEnrichmentActive = activeCarouselItem == null || enrichmentActive ||
                         (enrichedHero == null && activeItemId != null && heroEnrichmentEnabled && !enrichmentFailed)
                     
@@ -1080,12 +1092,16 @@ fun ModernHomeContent(
 
             // Load the backdrops either side of the focused card at the size the hero asks for, so a
             // step left or right crossfades from the memory cache instead of waiting on the network.
-            val latestEnrichedPreviews by rememberUpdatedState(enrichedPreviews)
             val heroPreloadContext = LocalContext.current
             LaunchedEffect(rowByKey, heroMediaWidthPx, heroMediaHeightPx) {
                 snapshotFlow {
                     val row = activeRowKey.value?.let { rowByKey[it] } ?: return@snapshotFlow emptyList()
-                    neighbourHeroBackdrops(row.items.list, activeItemIndex.intValue, latestEnrichedPreviews)
+                    neighbourHeroBackdrops(
+                        row.items.list,
+                        activeItemIndex.intValue,
+                        enrichedPreviews.value,
+                        singleNeighbour = MemoryBudget.isLowRamTier
+                    )
                 }
                     .distinctUntilChanged()
                     .collectLatest { urls ->
@@ -1218,8 +1234,7 @@ fun ModernHomeContent(
             val stableTrailerContentAlphaLambda = remember { { trailerContentAlphaState.value } }
             val stableExpandedTrailerPreviewUrl = remember(heroTrailerUrlsState) { { heroTrailerUrlsState.value.first } }
             val stableExpandedTrailerPreviewAudioUrl = remember(heroTrailerUrlsState) { { heroTrailerUrlsState.value.second } }
-            val stableEnrichedPreviews = remember { androidx.compose.runtime.mutableStateOf(enrichedPreviews.asStable()) }
-                .apply { value = enrichedPreviews.asStable() }
+            val stableEnrichedPreviews = remember(enrichedPreviews) { derivedStateOf { enrichedPreviews.value.asStable() } }
             val stableTrailerPreviewUrls = remember(trailerPreviewUrls) { trailerPreviewUrls.asStable() }
             val stableTrailerPreviewAudioUrls = remember(trailerPreviewAudioUrls) { trailerPreviewAudioUrls.asStable() }
 

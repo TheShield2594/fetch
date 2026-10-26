@@ -33,6 +33,7 @@ import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.data.repository.MDBListRepository
 import com.fetch.tv.domain.model.MDBListSettings
 import com.fetch.tv.domain.model.TmdbSettings
+import com.fetch.tv.ui.screens.settings.MemoryBudget
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.domain.repository.CatalogRepository
 import com.fetch.tv.domain.repository.LibraryRepository
@@ -110,7 +111,10 @@ class HomeViewModel @Inject constructor(
         private const val MAX_RECENT_PROGRESS_ITEMS = 300
         private const val MAX_NEXT_UP_LOOKUPS = 24
         private const val MAX_NEXT_UP_CONCURRENCY = 4
-        private const val MAX_CATALOG_LOAD_CONCURRENCY = 3
+        // A permit is held for the whole load, so with 3 the 4th eager row and the hero-only
+        // catalogs queue behind the first three. Devices with headroom take one more at a time.
+        private const val LOW_RAM_CATALOG_LOAD_CONCURRENCY = 3
+        private const val CATALOG_LOAD_CONCURRENCY = 4
 
         /** How long a home catalog is left alone before a return to Home re-requests it. */
         private const val HOME_CATALOG_REFRESH_TTL_MS = 15L * 60L * 1000L
@@ -279,7 +283,9 @@ class HomeViewModel @Inject constructor(
     internal var currentHeroCatalogKeys: List<String> = emptyList()
     internal var catalogUpdateJob: Job? = null
     internal var hasRenderedFirstCatalog = false
-    internal val catalogLoadSemaphore = Semaphore(MAX_CATALOG_LOAD_CONCURRENCY)
+    internal val catalogLoadSemaphore = Semaphore(
+        if (MemoryBudget.isLowRamTier) LOW_RAM_CATALOG_LOAD_CONCURRENCY else CATALOG_LOAD_CONCURRENCY
+    )
     internal var pendingCatalogLoads = 0
     internal val activeCatalogLoadJobs = mutableSetOf<Job>()
     internal var activeCatalogLoadSignature: String? = null

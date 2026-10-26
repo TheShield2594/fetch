@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
@@ -60,6 +62,7 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.fetch.tv.ui.util.contentTextDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.fetch.tv.R
@@ -182,14 +185,11 @@ fun ContentCard(
 
     // Only pay the animation cost on the card that is actually focused/expanding.
     // Unfocused cards snap directly to baseCardWidth — no animation state overhead.
-    val animatedCardWidth = when {
-        !effectiveExpandEnabled -> baseCardWidth
-        !isFocused && !isBackdropExpanded -> baseCardWidth
-        else -> {
-            val targetCardWidth = if (isBackdropExpanded) expandedCardWidth else baseCardWidth
-            val width by animateDpAsState(targetValue = targetCardWidth, label = "contentCardWidth")
-            width
-        }
+    val targetCardWidth = if (effectiveExpandEnabled && isBackdropExpanded) expandedCardWidth else baseCardWidth
+    val animatedCardWidth: State<Dp> = when {
+        !effectiveExpandEnabled -> rememberUpdatedState(baseCardWidth)
+        !isFocused && !isBackdropExpanded -> rememberUpdatedState(baseCardWidth)
+        else -> animateDpAsState(targetValue = targetCardWidth, label = "contentCardWidth")
     }
     val metaTokensContext = LocalContext.current
     val metaTokens = if (isBackdropExpanded) {
@@ -230,19 +230,17 @@ fun ContentCard(
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
-            .width(animatedCardWidth)
+            // Read in the layout phase, so an expanding card re-measures each frame instead of
+            // recomposing itself and the row around it.
+            .animatedWidth { animatedCardWidth.value }
             .recompositionHighlighter()
     ) {
         val context = LocalContext.current
         val density = LocalDensity.current
-        // Keep decode size stable during width animation to avoid recreating requests/painters every frame.
-        val maxRequestCardWidth = if (effectiveExpandEnabled) {
-            maxOf(baseCardWidth, expandedCardWidth)
-        } else {
-            baseCardWidth
-        }
-        val requestWidthPx = remember(maxRequestCardWidth, density) {
-            with(density) { maxRequestCardWidth.roundToPx() }.coerceAtLeast(1)
+        // Decode at the target width, not the animated one, so the request isn't recreated per frame.
+        // A collapsed poster decodes at its own width; only the expanded card needs the wide image.
+        val requestWidthPx = remember(targetCardWidth, density) {
+            with(density) { targetCardWidth.roundToPx() }.coerceAtLeast(1)
         }
         val requestHeightPx = remember(baseCardHeight, density) {
             with(density) { baseCardHeight.roundToPx() }.coerceAtLeast(1)
@@ -759,4 +757,11 @@ private fun isSelectKey(keyCode: Int): Boolean {
     return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
         keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
         keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
+}
+
+// Like Modifier.width, but reads the width while measuring rather than during composition.
+private fun Modifier.animatedWidth(width: () -> Dp): Modifier = layout { measurable, constraints ->
+    val widthPx = width().roundToPx().coerceIn(constraints.minWidth, constraints.maxWidth)
+    val placeable = measurable.measure(constraints.copy(minWidth = widthPx, maxWidth = widthPx))
+    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
 }

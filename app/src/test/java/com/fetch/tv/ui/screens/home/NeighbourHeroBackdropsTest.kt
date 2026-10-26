@@ -86,4 +86,34 @@ class NeighbourHeroBackdropsTest {
 
         assertEquals(listOf("https://art.test/b-poster.jpg"), neighbourHeroBackdrops(items, 0, emptyMap()))
     }
+
+    @Test
+    fun `the low-RAM tier preloads only the next card`() {
+        val items = listOf(card("a"), card("b"), card("c"))
+
+        assertEquals(
+            listOf("https://art.test/c-backdrop.jpg"),
+            neighbourHeroBackdrops(items, 1, emptyMap(), singleNeighbour = true)
+        )
+    }
+
+    @Test
+    fun `the low-RAM tier falls back to the previous card at the row's end`() {
+        val items = listOf(card("a"), card("b"))
+
+        assertEquals(
+            listOf("https://art.test/a-backdrop.jpg"),
+            neighbourHeroBackdrops(items, 1, emptyMap(), singleNeighbour = true)
+        )
+    }
+
+    @Test
+    fun `the low-RAM tier falls back to the previous card when the next has no art`() {
+        val items = listOf(card("a"), card("b"), card("c", backdrop = null))
+
+        assertEquals(
+            listOf("https://art.test/a-backdrop.jpg"),
+            neighbourHeroBackdrops(items, 1, emptyMap(), singleNeighbour = true)
+        )
+    }
 }

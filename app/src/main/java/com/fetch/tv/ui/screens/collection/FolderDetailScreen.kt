@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -84,6 +85,9 @@ import com.fetch.tv.ui.screens.home.HomeScreenFocusState
 import com.fetch.tv.ui.screens.home.key
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.screens.home.ModernHomeContent
+import com.fetch.tv.ui.screens.home.NoEnrichedPreviews
+import com.fetch.tv.ui.screens.home.NoEnrichingItemId
+import com.fetch.tv.ui.screens.home.NoFailedEnrichmentIds
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -121,9 +125,9 @@ fun FolderDetailScreen(
         { item -> uiState.movieWatchedStatus[com.fetch.tv.ui.screens.home.homeItemStatusKey(item.id, item.apiType)] == true }
     }
 
-    val enrichingItemId by viewModel.enrichingItemId.collectAsStateWithLifecycle()
-    val enrichedPreviews by viewModel.enrichedPreviews.collectAsStateWithLifecycle()
-    val failedEnrichmentIds by viewModel.failedEnrichmentIds.collectAsStateWithLifecycle()
+    val enrichingItemId = viewModel.enrichingItemId.collectAsStateWithLifecycle()
+    val enrichedPreviews = viewModel.enrichedPreviews.collectAsStateWithLifecycle()
+    val failedEnrichmentIds = viewModel.failedEnrichmentIds.collectAsStateWithLifecycle()
     val trailerPreviewUrls by viewModel.trailerPreviewUrls.collectAsStateWithLifecycle()
     val trailerPreviewAudioUrls by viewModel.trailerPreviewAudioUrls.collectAsStateWithLifecycle()
     val scrollToTopTrigger by viewModel.scrollToTopTrigger.collectAsStateWithLifecycle()
@@ -896,9 +900,9 @@ private fun RowsContent(
 private fun FollowLayoutContent(
     uiState: FolderDetailUiState,
     focusState: HomeScreenFocusState,
-    enrichingItemId: String? = null,
-    enrichedPreviews: Map<String, MetaPreview> = emptyMap(),
-    failedEnrichmentIds: Set<String> = emptySet(),
+    enrichingItemId: State<String?> = NoEnrichingItemId,
+    enrichedPreviews: State<Map<String, MetaPreview>> = NoEnrichedPreviews,
+    failedEnrichmentIds: State<Set<String>> = NoFailedEnrichmentIds,
     onNavigateToDetail: (String, String, String) -> Unit,
     onLoadMoreCatalog: (String, String, String) -> Unit = { _, _, _ -> },
     onSelectTab: (Int) -> Unit = {},

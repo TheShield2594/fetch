@@ -90,6 +90,16 @@ export const authApi = {
   revokeInvite(id: string) {
     return request<void>(`/auth/invites/${encodeURIComponent(id)}`, { method: "DELETE" });
   },
+  getWebhookKey() {
+    return request<{ configured: boolean; createdAt: string | null }>("/auth/webhook-key");
+  },
+  /** Makes this account's webhook key, replacing any it had. The key is shown this once. */
+  createWebhookKey() {
+    return request<{ key: string; createdAt: string }>("/auth/webhook-key", { method: "POST" });
+  },
+  removeWebhookKey() {
+    return request<void>("/auth/webhook-key", { method: "DELETE" });
+  },
   getAccounts() {
     return request<{ accounts: AccountSummary[] }>("/auth/accounts");
   },

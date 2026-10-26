@@ -31,9 +31,13 @@ vi.mock("./watchlist.js", () => watchlistMock);
 const seriesProgressMock = { upsertSeriesProgressIfNewer: vi.fn() };
 vi.mock("./series-progress.js", () => seriesProgressMock);
 
+const profileMock = { usesInstallIntegrations: vi.fn<(profileId: string) => Promise<boolean>>(async () => true) };
+vi.mock("./profile.js", () => profileMock);
+
 const resetMocks = () => {
   vi.resetModules();
   vi.clearAllMocks();
+  profileMock.usesInstallIntegrations.mockResolvedValue(true);
 };
 
 describe("trakt-client", () => {
@@ -77,17 +81,35 @@ describe("trakt-client", () => {
       const { pushTraktScrobble } = await import("./trakt-client.js");
       const result = await pushTraktScrobble(
         "start",
-        { type: "episode", imdbId: "tt1", progress: 50 },
+        { type: "episode", imdbId: "tt1", progress: 50, profileId: "p1" },
         makeLogger()
       );
       expect(result).toBeNull();
       expect(prismaMock.traktToken.findUnique).not.toHaveBeenCalled();
     });
 
+    it("leaves Trakt alone for another account's profile", async () => {
+      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+      profileMock.usesInstallIntegrations.mockResolvedValue(false);
+      const fetchMock = vi.fn();
+      vi.stubGlobal("fetch", fetchMock);
+      const { pushTraktScrobble } = await import("./trakt-client.js");
+
+      const result = await pushTraktScrobble(
+        "stop",
+        { type: "movie", imdbId: "tt1", progress: 100, profileId: "friend-profile" },
+        makeLogger()
+      );
+
+      expect(result).toBeNull();
+      expect(profileMock.usesInstallIntegrations).toHaveBeenCalledWith("friend-profile");
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
     it("returns null when Trakt is not connected", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue(null);
       const { pushTraktScrobble } = await import("./trakt-client.js");
-      const result = await pushTraktScrobble("start", { type: "movie", imdbId: "tt1", progress: 50 }, makeLogger());
+      const result = await pushTraktScrobble("start", { type: "movie", imdbId: "tt1", progress: 50, profileId: "p1" }, makeLogger());
       expect(result).toBeNull();
     });
 
@@ -101,7 +123,7 @@ describe("trakt-client", () => {
 
       const { pushTraktScrobble } = await import("./trakt-client.js");
       const logger = makeLogger();
-      const result = await pushTraktScrobble("start", { type: "movie", imdbId: "tt1", progress: 50 }, logger);
+      const result = await pushTraktScrobble("start", { type: "movie", imdbId: "tt1", progress: 50, profileId: "p1" }, logger);
 
       expect(result).toBeNull();
       expect(logger.warn).toHaveBeenCalled();
@@ -121,7 +143,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { pushTraktScrobble } = await import("./trakt-client.js");
-      const result = await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100 }, makeLogger());
+      const result = await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100, profileId: "p1" }, makeLogger());
 
       expect(result).toBe(12345n);
     });
@@ -155,7 +177,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { pushTraktScrobble } = await import("./trakt-client.js");
-      const result = await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100 }, makeLogger());
+      const result = await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100, profileId: "p1" }, makeLogger());
 
       expect(result).toBe(1n);
       expect(prismaMock.traktToken.upsert).toHaveBeenCalledWith(
@@ -189,7 +211,7 @@ describe("trakt-client", () => {
 
       const { pushTraktScrobble } = await import("./trakt-client.js");
       const logger = makeLogger();
-      const result = await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100 }, logger);
+      const result = await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100, profileId: "p1" }, logger);
 
       // The underlying request throws (still 401, allowRefresh: false), pushTraktScrobble swallows it.
       expect(result).toBeNull();
@@ -236,7 +258,7 @@ describe("trakt-client", () => {
       vi.stubGlobal("fetch", fetchMock);
 
       const { pushTraktScrobble } = await import("./trakt-client.js");
-      await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100 }, makeLogger());
+      await pushTraktScrobble("stop", { type: "movie", imdbId: "tt1", progress: 100, profileId: "p1" }, makeLogger());
 
       expect(seenAuth).toBe("Bearer fresh-at");
       const stored = first(prismaMock.traktToken.upsert.mock.calls, "prismaMock.traktToken.upsert call")[0].update;

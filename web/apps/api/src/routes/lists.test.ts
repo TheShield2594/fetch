@@ -37,10 +37,12 @@ vi.mock("../lib/trakt-client.js", () => ({
 vi.mock("../lib/jellyseerr.js", () => ({
   pushWatchlistRequest: (...args: unknown[]) => pushWatchlistRequest(...args),
 }));
+const usesInstallIntegrations = vi.fn<(profileId: string) => Promise<boolean>>(async () => true);
 vi.mock("../lib/profile.js", () => ({
   resolveProfile: async (request: { profileId?: string }) => {
     request.profileId = PROFILE_ID;
   },
+  usesInstallIntegrations: (profileId: string) => usesInstallIntegrations(profileId),
 }));
 
 const buildApp = (): Promise<FastifyInstance> =>
@@ -277,7 +279,8 @@ describe("lists routes", () => {
       expect(pushTraktWatchlistChange).toHaveBeenCalledWith(
         "add",
         { type: "movie", imdbId: "tt0111161" },
-        expect.anything()
+        expect.anything(),
+        PROFILE_ID
       );
       // The same add is what a request service is told about — see
       // lib/jellyseerr.ts, which decides whether it is configured to act.
@@ -286,6 +289,22 @@ describe("lists routes", () => {
         { type: "movie", imdbId: "tt0111161" },
         expect.anything()
       );
+    });
+
+    it("files no Jellyseerr request for a profile outside the admin account", async () => {
+      usesInstallIntegrations.mockResolvedValueOnce(false);
+      prismaMock.list.findFirst.mockResolvedValue(listRow());
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "POST",
+        url: `/lists/${LIST_ID}/items`,
+        payload: { type: "movie", imdbId: "tt0111161" },
+      });
+
+      expect(res.statusCode).toBe(201);
+      await vi.waitFor(() => expect(usesInstallIntegrations).toHaveBeenCalledWith(PROFILE_ID));
+      expect(pushWatchlistRequest).not.toHaveBeenCalled();
     });
 
     it("still adds the item when the Jellyseerr push reports a failure", async () => {
@@ -417,7 +436,8 @@ describe("lists routes", () => {
       expect(pushTraktWatchlistChange).toHaveBeenCalledWith(
         "remove",
         { type: "movie", imdbId: "tt1" },
-        expect.anything()
+        expect.anything(),
+        PROFILE_ID
       );
       expect(pushWatchlistRequest).toHaveBeenCalledWith(
         "remove",

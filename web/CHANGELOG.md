@@ -13,6 +13,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Changed
 
+- **Only the admin's profiles reach the install's Trakt and Jellyseerr.** Both are connected once, by the admin, so another account's plays, scrobbles and watchlist changes no longer go to the admin's Trakt history or file requests on the admin's Jellyseerr.
+
 - **The browser no longer holds `API_TOKEN`.** The web app signs in and keeps a 30-day session instead, and the API Token section in Settings is replaced by Account (sign out, change password). The first visit after upgrading asks you to create the admin account, with the token the browser already had filled in. `API_TOKEN` keeps working for the add-on service, scripts and the API directly.
 
 - **Cataloggy is now the Fetch website.** The project moved into the [Fetch](https://github.com/TheShield2594/fetch) repository under `web/`, with its full history, and the app calls itself Fetch. Images are now published as `ghcr.io/theshield2594/fetch-{api,migrate,addon,web}`; the `cataloggy-*` images get no further updates, so pull the new `docker-compose.yml`. Releases are tagged `web-vX.Y.Z`, and the image tag stays `vX.Y.Z`. Nothing a running install depends on was renamed: `CATALOGGY_*` environment variables, the addon ID and catalog IDs, the database name and browser storage keys are unchanged, so an existing `.env`, volume and installed Stremio addon keep working.
@@ -22,6 +24,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 - CORS now allows `PUT` and `If-Match`, which a web app on another origin needs to save the TV settings and Home layout (see Settings → TV below).
 
 ### Added
+
+- **A webhook link for each account.** Settings → Plex, Jellyfin & Emby makes a Plex, Jellyfin or Emby webhook URL with the account's own key, so a friend's media server records plays in their profiles and nowhere else. `WEBHOOK_SECRET` keeps working and now acts for the admin account only: its `profile=` and name matching no longer reach another account's profiles.
 
 - **Signed add-on URLs, so the add-on can face the internet.** Settings → Stremio Addon now shows `/u/<profileId>/<key>/manifest.json`, where the key is derived from `API_TOKEN` per profile, and the TV addons list installs the same form. With `ADDON_REQUIRE_SIGNED_URLS=true` the add-on serves only those URLs and turns away the keyless `/p/<profileId>/` and bare ones, so a friend with an account can't read your lists by guessing your profile ID. Existing Stremio installs keep working until you turn it on; then reinstall from Settings.
 

@@ -9,6 +9,7 @@ import { parseBool } from "@fetch/shared";
 import { prisma } from "./prisma.js";
 import { upsertSeriesProgressIfNewer } from "./series-progress.js";
 import { getDefaultWatchlist } from "./watchlist.js";
+import { usesInstallIntegrations } from "./profile.js";
 import { watchEventDedupWhere, type WatchEventDedupKey } from "./watch-event-dedup.js";
 import type { SeriesProgressCandidate } from "./types.js";
 import type { FastifyRequest } from "fastify";
@@ -46,6 +47,8 @@ export type TraktScrobbleParams = {
   season?: number | null | undefined;
   episode?: number | null | undefined;
   progress: number;
+  /** Whose play this is. Only the admin's go to Trakt: see `usesInstallIntegrations`. */
+  profileId: string;
 };
 
 /**
@@ -62,6 +65,7 @@ export const pushTraktScrobble = async (
 ): Promise<bigint | null> => {
   if (params.type === "episode" && (params.season == null || params.episode == null)) return null;
   if (!(await isTraktConnected())) return null;
+  if (!(await usesInstallIntegrations(params.profileId))) return null;
 
   try {
     const client = await getTraktClient();
@@ -103,6 +107,7 @@ export const syncWatchEventToTrakt = (
     seriesImdbId?: string | null | undefined;
     season?: number | null | undefined;
     episode?: number | null | undefined;
+    profileId: string;
   },
   logger: FastifyRequest["log"]
 ): void => {
@@ -133,9 +138,11 @@ const toTraktWatchlistPayload = (item: WatchlistItemRef): TraktWatchlistMutation
 export const pushTraktWatchlistChange = async (
   action: "add" | "remove",
   item: WatchlistItemRef,
-  logger: FastifyRequest["log"]
+  logger: FastifyRequest["log"],
+  profileId: string
 ): Promise<void> => {
   if (!(await isTraktConnected())) return;
+  if (!(await usesInstallIntegrations(profileId))) return;
 
   try {
     const client = await getTraktClient();
@@ -267,7 +274,7 @@ export const syncTraktWatchlist = async (
     if (localByKey.has(key)) continue;
 
     if (pendingRemovalRetryKeys.has(key)) {
-      await pushTraktWatchlistChange("remove", item, logger);
+      await pushTraktWatchlistChange("remove", item, logger, profileId);
       pushedToTrakt += 1;
       continue;
     }
@@ -315,7 +322,8 @@ export const syncTraktWatchlist = async (
         await pushTraktWatchlistChange(
           "add",
           { type: item.type as "movie" | "series", imdbId: item.imdbId },
-          logger
+          logger,
+          profileId
         );
         pushedToTrakt += 1;
       }

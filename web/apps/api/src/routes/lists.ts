@@ -4,7 +4,7 @@ import { prisma } from "../lib/prisma.js";
 import { backfillMissingMetadata, syncMetadata } from "../lib/metadata.js";
 import { pushTraktWatchlistChange } from "../lib/trakt-client.js";
 import { pushWatchlistRequest } from "../lib/jellyseerr.js";
-import { resolveProfile } from "../lib/profile.js";
+import { resolveProfile, usesInstallIntegrations } from "../lib/profile.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 
 // A page a client asks for is capped rather than rejected: an addon asking for
@@ -43,6 +43,19 @@ const decodeListItemCursor = (cursor: string): ListItemCursor | null => {
   if (!imdbId || !Object.values(ListItemType).includes(type as ListItemType)) return null;
 
   return { type: type as ListItemType, imdbId };
+};
+
+// Jellyseerr is set up once, by the admin, so only the admin account's
+// watchlists file requests on it. Never throws, like pushWatchlistRequest.
+const requestOnJellyseerr = async (
+  profileId: string,
+  ...args: Parameters<typeof pushWatchlistRequest>
+): Promise<void> => {
+  try {
+    if (await usesInstallIntegrations(profileId)) await pushWatchlistRequest(...args);
+  } catch {
+    // Best-effort, like the request itself.
+  }
 };
 
 const listsRoutes: FastifyPluginAsync = async (app) => {
@@ -222,7 +235,7 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
         );
 
         if (list.kind === ListKind.watchlist) {
-          await pushTraktWatchlistChange("add", { type, imdbId }, request.log);
+          await pushTraktWatchlistChange("add", { type, imdbId }, request.log, list.profileId);
           // Scoped to the watchlist for the same reason the Trakt mirror is:
           // "I want to watch this" is what a watchlist add means, and it is the
           // only list membership that says anything about acquiring a title.
@@ -232,7 +245,7 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
           // its timeout would hold the add button spinning for ten seconds over
           // something the add does not depend on. It never throws and records
           // its own failures — see lib/jellyseerr.ts.
-          void pushWatchlistRequest("add", { type, imdbId }, request.log);
+          void requestOnJellyseerr(list.profileId, "add", { type, imdbId }, request.log);
         }
 
         return reply.code(201).send({ listItem });
@@ -274,8 +287,8 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
 
       if (list.kind === ListKind.watchlist) {
         const item = { type: type as ListItemType, imdbId: request.params.imdbId };
-        await pushTraktWatchlistChange("remove", item, request.log);
-        void pushWatchlistRequest("remove", item, request.log);
+        await pushTraktWatchlistChange("remove", item, request.log, list.profileId);
+        void requestOnJellyseerr(list.profileId, "remove", item, request.log);
       }
 
       return reply.code(204).send();
@@ -320,8 +333,8 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
 
       if (list.kind === ListKind.watchlist) {
         const item = { type: where.type!, imdbId: request.params.imdbId };
-        await pushTraktWatchlistChange("remove", item, request.log);
-        void pushWatchlistRequest("remove", item, request.log);
+        await pushTraktWatchlistChange("remove", item, request.log, list.profileId);
+        void requestOnJellyseerr(list.profileId, "remove", item, request.log);
       }
 
       return reply.code(204).send();

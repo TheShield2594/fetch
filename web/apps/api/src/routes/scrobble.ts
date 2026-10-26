@@ -289,7 +289,11 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
     });
 
     if (!wasPlaying) {
-      void pushTraktScrobble("start", { type, imdbId, seriesImdbId, season, episode, progress }, request.log);
+      void pushTraktScrobble(
+        "start",
+        { type, imdbId, seriesImdbId, season, episode, progress, profileId: request.profileId! },
+        request.log
+      );
     }
 
     return reply.code(created ? 201 : 200).send({ session });
@@ -340,6 +344,7 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
         season,
         episode,
         progress: updated.progress,
+        profileId: request.profileId!,
       },
       request.log
     );
@@ -416,6 +421,7 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
           season: session.season,
           episode: session.episode,
           progress: finalProgress,
+          profileId: request.profileId!,
         },
         request.log
       );

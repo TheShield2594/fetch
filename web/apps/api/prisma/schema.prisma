@@ -63,6 +63,10 @@ model Account {
   passwordHash String
   isAdmin      Boolean  @default(false)
   createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  // SHA-256 of the account's media-server webhook key (lib/webhook-key.ts).
+  // The key itself is shown once when it is made; a new one replaces it.
+  webhookKeyHash      String?   @unique
+  webhookKeyCreatedAt DateTime? @db.Timestamptz(6)
 
   profiles        Profile[]
   sessions        Session[]

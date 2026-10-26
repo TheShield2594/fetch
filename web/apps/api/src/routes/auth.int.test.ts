@@ -9,11 +9,13 @@ import { buildIntApp, createProfile } from "../lib/test-fixtures/int-db.js";
 
 const API_TOKEN = "int-test-api-token";
 process.env.API_TOKEN = API_TOKEN;
+const WEBHOOK_SECRET = "int-test-webhook-secret";
+process.env.WEBHOOK_SECRET = WEBHOOK_SECRET;
 
 let app: FastifyInstance;
 
 beforeAll(async () => {
-  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons] =
+  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons, webhookKey, jellyfin] =
     await Promise.all([
       import("../lib/auth-gate.js"),
       import("./auth.js"),
@@ -23,6 +25,8 @@ beforeAll(async () => {
       import("./devices.js"),
       import("./sync-overview.js"),
       import("./profile-addons.js"),
+      import("./webhook-key.js"),
+      import("./webhooks/jellyfin.js"),
     ]);
   app = await buildIntApp(async (instance) => {
     registerAuthGate(instance);
@@ -33,6 +37,8 @@ beforeAll(async () => {
     await instance.register(devices.default);
     await instance.register(syncOverview.default);
     await instance.register(profileAddons.default);
+    await instance.register(webhookKey.default);
+    await instance.register(jellyfin.default);
   });
 });
 
@@ -397,5 +403,84 @@ describe("the sync overview", () => {
     expect(overview.profiles.map((p) => p.name)).toEqual(["friend"]);
     expect(overview.devices).toEqual([]);
     expect(overview.server.jobs).toEqual([]);
+  });
+});
+
+const jellyfinStop = (credential: string, query = "", user = "") =>
+  call(null, {
+    method: "POST",
+    url: `/webhooks/jellyfin?token=${encodeURIComponent(credential)}${query}`,
+    payload: { NotificationType: "PlaybackStop", ItemType: "Movie", Name: "The Matrix", Provider_imdb: "tt0133093", NotificationUsername: user },
+  });
+
+const watchedProfiles = async () =>
+  (await prisma.watchEvent.findMany({ select: { profileId: true } })).map((event) => event.profileId);
+
+describe("media-server webhooks", () => {
+  it("record an account's key's plays in that account's profile", async () => {
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+    const [friendProfile] = await profilesOf(friend.token);
+
+    const made = await call(friend.token, { method: "POST", url: "/auth/webhook-key" });
+    expect(made.statusCode).toBe(201);
+    const { key } = made.json() as { key: string };
+    expect(key).toMatch(/^fwh_/);
+    expect((await call(friend.token, { method: "GET", url: "/auth/webhook-key" })).json()).toMatchObject({ configured: true });
+
+    expect((await jellyfinStop(key)).statusCode).toBe(201);
+    expect(await watchedProfiles()).toEqual([friendProfile!.id]);
+  });
+
+  it("can't reach another account's profile, by ID or by name", async () => {
+    const admin = await bootstrapAdmin();
+    await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Sam" } });
+    const [adminProfile] = await profilesOf(admin.token);
+    const friend = await inviteFriend(admin.token);
+    const [friendProfile] = await profilesOf(friend.token);
+    const { key } = (await call(friend.token, { method: "POST", url: "/auth/webhook-key" })).json() as { key: string };
+
+    expect((await jellyfinStop(key, `&profile=${adminProfile!.id}`)).statusCode).toBe(404);
+    expect((await jellyfinStop(WEBHOOK_SECRET, `&profile=${friendProfile!.id}`)).statusCode).toBe(404);
+    expect(await watchedProfiles()).toEqual([]);
+
+    // The friend's Jellyfin user shares a name with the admin's profile; the
+    // play still stays in the friend's account.
+    expect((await jellyfinStop(key, "", adminProfile!.name)).statusCode).toBe(201);
+    // And WEBHOOK_SECRET with the friend's name stays with the admin.
+    expect((await jellyfinStop(WEBHOOK_SECRET, "", friendProfile!.name)).statusCode).toBe(201);
+    expect((await watchedProfiles()).sort()).toEqual([friendProfile!.id, adminProfile!.id].sort());
+    expect(await prisma.watchEvent.count({ where: { profileId: friendProfile!.id } })).toBe(1);
+  });
+
+  it("stop working once the key is replaced or removed", async () => {
+    const admin = await bootstrapAdmin();
+    const { key: first } = (await call(admin.token, { method: "POST", url: "/auth/webhook-key" })).json() as { key: string };
+    const { key: second } = (await call(admin.token, { method: "POST", url: "/auth/webhook-key" })).json() as { key: string };
+
+    expect((await jellyfinStop(first)).statusCode).toBe(403);
+    expect((await jellyfinStop(second)).statusCode).toBe(201);
+
+    expect((await call(admin.token, { method: "DELETE", url: "/auth/webhook-key" })).statusCode).toBe(204);
+    expect((await jellyfinStop(second)).statusCode).toBe(403);
+    expect((await call(admin.token, { method: "GET", url: "/auth/webhook-key" })).json()).toEqual({ configured: false, createdAt: null });
+  });
+
+  it("keys are managed only by a signed-in account", async () => {
+    expect((await call(API_TOKEN, { method: "POST", url: "/auth/webhook-key" })).statusCode).toBe(400);
+    expect((await call(null, { method: "POST", url: "/auth/webhook-key" })).statusCode).toBe(401);
+  });
+});
+
+describe("the install's own Trakt and Jellyseerr", () => {
+  it("act only for the admin account's profiles", async () => {
+    const { usesInstallIntegrations } = await import("../lib/profile.js");
+    const legacy = await createProfile("From before accounts");
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+    const [friendProfile] = await profilesOf(friend.token);
+
+    expect(await usesInstallIntegrations(legacy.id)).toBe(true);
+    expect(await usesInstallIntegrations(friendProfile!.id)).toBe(false);
   });
 });

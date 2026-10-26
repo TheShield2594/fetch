@@ -100,7 +100,7 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
 
     syncWatchEventToTrakt(
       watchEvent,
-      { type: "episode", imdbId: resolvedSeriesImdbId, seriesImdbId: resolvedSeriesImdbId, season, episode },
+      { type: "episode", imdbId: resolvedSeriesImdbId, seriesImdbId: resolvedSeriesImdbId, season, episode, profileId },
       log
     );
 
@@ -151,7 +151,7 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
 
   await clearPlaybackProgress(profileId, { type: "movie", imdbId }, watchedAt, log);
 
-  syncWatchEventToTrakt(watchEvent, { type: "movie", imdbId }, log);
+  syncWatchEventToTrakt(watchEvent, { type: "movie", imdbId, profileId }, log);
 
   void (async () => {
     try {

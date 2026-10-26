@@ -1,11 +1,12 @@
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import { Link, Database, Download, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus } from "lucide-react";
+import { Link, Database, Download, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook } from "lucide-react";
 import { Section } from "../components/settings/Section";
 import { healthSummary } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
 import { AccountSettings } from "../components/settings/AccountSettings";
 import { InvitesSettings } from "../components/settings/InvitesSettings";
+import { WebhookSettings } from "../components/settings/WebhookSettings";
 import { useAccount } from "../hooks/useAccount";
 import { TraktSettings } from "../components/settings/TraktSettings";
 import { TmdbSettings } from "../components/settings/TmdbSettings";
@@ -156,6 +157,15 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Clapperboard size={20} />,
     keywords: "stremio watched history sync library account import scrobble",
     content: <StremioSyncSettings />,
+  },
+  {
+    id: "media-server-webhooks",
+    tab: "integrations",
+    group: "Where history comes from",
+    title: "Plex, Jellyfin & Emby",
+    icon: <Webhook size={20} />,
+    keywords: "plex jellyfin emby webhook media server scrobble watched link key",
+    content: <WebhookSettings />,
   },
   {
     id: "play-detection",

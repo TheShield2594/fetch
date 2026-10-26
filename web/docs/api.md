@@ -77,7 +77,7 @@ These paths are exempt, because they cannot carry a bearer token by construction
 | `GET /health/ready` | Readiness probe (the container healthcheck) | Nothing — it reports only whether the database answered, never why |
 | `/addon/stremio/<secret>/*` | Stremio sends no credentials | The unguessable per-profile secret in the path. The same routes without a secret need a token. |
 | `/trakt/oauth/callback` | Browser redirect from trakt.tv | The `state` value that started the flow |
-| `/webhooks/*` | Plex, Jellyfin and Emby post directly | `WEBHOOK_SECRET`, plus optional `WEBHOOK_ALLOWED_IPS` |
+| `/webhooks/*` | Plex, Jellyfin and Emby post directly | An account's webhook key, or `WEBHOOK_SECRET` plus optional `WEBHOOK_ALLOWED_IPS` |
 | `POST /devices/pair/start` | A TV has no credential yet | A code someone signed in must confirm; rate-limited, and capped at 20 pending |
 | `GET /devices/pair/poll` | As above | The poll secret `start` returned, in `x-pairing-secret` |
 
@@ -685,8 +685,12 @@ Those two formats are capped at 10,000 rows; the id-carrying formats allow
 
 ### Webhooks
 
-No bearer token. Authenticated by `WEBHOOK_SECRET`, in a header where the
-sender supports one and in a query parameter where it doesn't (Plex). Prefer
+No bearer token. Authenticated by an account's webhook key (`fwh_…`, see
+`/auth/webhook-key` below) or by `WEBHOOK_SECRET`, in the `x-webhook-secret`
+header where the sender supports one and in the `token` query parameter where it
+doesn't (Plex). A key limits the play to its account's profiles, and
+`WEBHOOK_SECRET` to the admin account's: `profile=<id>` naming a profile outside
+that account is a 404, and the account-name match only looks inside it. Prefer
 the header: Fetch redacts `token` from its own application logs
 (`?token=REDACTED`), but a reverse proxy or any other hop in front of it keeps
 its own access log, and that copy still carries the query string.
@@ -697,6 +701,17 @@ its own access log, and that copy still carries the query string.
 | `POST` | `/webhooks/jellyfin` |
 | `POST` | `/webhooks/emby` |
 
-Set `WEBHOOK_ALLOWED_IPS` to also restrict them by source address. See the
+| `GET` | `/auth/webhook-key` |
+| `POST` | `/auth/webhook-key` |
+| `DELETE` | `/auth/webhook-key` |
+
+The `/auth/webhook-key` routes take a signed-in session (400 otherwise) and
+manage that account's key: `GET` returns `{ configured, createdAt }`, `POST`
+makes a key and returns `{ key, createdAt }` with a 201, replacing any earlier
+key, and `DELETE` removes it (204). The key is stored as a SHA-256 hash, so
+`POST` is the only time it is returned.
+
+Set `WEBHOOK_ALLOWED_IPS` to also restrict `WEBHOOK_SECRET` by source address;
+it doesn't apply to account keys. See the
 [webhook secret placement](../README.md#webhook-secret-placement) section of the
 README for which field each server can actually send.

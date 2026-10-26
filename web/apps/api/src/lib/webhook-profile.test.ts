@@ -16,6 +16,7 @@ const makeRequest = (query: Record<string, unknown> = {}): FastifyRequest =>
   }) as unknown as FastifyRequest;
 
 const VALID_UUID = "3f2504e0-4f89-41d3-9a0c-0305e82c3301";
+const ACCOUNT = "acct-1";
 
 describe("resolveWebhookProfile", () => {
   beforeEach(() => {
@@ -23,22 +24,44 @@ describe("resolveWebhookProfile", () => {
     profileMock.getDefaultProfileId.mockResolvedValue("profile-default");
   });
 
-  it("uses the profile query parameter when it names an existing profile", async () => {
-    prismaMock.profile.findUnique.mockResolvedValue({ id: VALID_UUID });
+  it("uses the profile query parameter when it names a profile in the account", async () => {
+    prismaMock.profile.findFirst.mockResolvedValue({ id: VALID_UUID });
     const { resolveWebhookProfile } = await import("./webhook-profile.js");
 
-    const result = await resolveWebhookProfile(makeRequest({ profile: VALID_UUID }), "Sam");
+    const result = await resolveWebhookProfile(makeRequest({ profile: VALID_UUID }), "Sam", ACCOUNT);
 
     expect(result).toEqual({ ok: true, profileId: VALID_UUID });
+    expect(prismaMock.profile.findFirst).toHaveBeenCalledTimes(1);
+    expect(prismaMock.profile.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: VALID_UUID, accountId: ACCOUNT } })
+    );
     // An explicit profile wins outright — the account name isn't consulted.
-    expect(prismaMock.profile.findFirst).not.toHaveBeenCalled();
     expect(profileMock.getDefaultProfileId).not.toHaveBeenCalled();
+  });
+
+  it("treats another account's profile as not found", async () => {
+    // The scoped lookup finds nothing for a profile that exists elsewhere.
+    prismaMock.profile.findFirst.mockResolvedValue(null);
+    const { resolveWebhookProfile } = await import("./webhook-profile.js");
+
+    const result = await resolveWebhookProfile(makeRequest({ profile: VALID_UUID }), null, ACCOUNT);
+
+    expect(result).toEqual({ ok: false, status: 404, error: "Profile not found" });
+  });
+
+  it("searches every profile when there are no accounts yet", async () => {
+    prismaMock.profile.findFirst.mockResolvedValue({ id: VALID_UUID });
+    const { resolveWebhookProfile } = await import("./webhook-profile.js");
+
+    await resolveWebhookProfile(makeRequest({ profile: VALID_UUID }), null, null);
+
+    expect(prismaMock.profile.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: VALID_UUID } }));
   });
 
   it("rejects a malformed profile query parameter instead of falling back", async () => {
     const { resolveWebhookProfile } = await import("./webhook-profile.js");
 
-    const result = await resolveWebhookProfile(makeRequest({ profile: "nope" }), "Sam");
+    const result = await resolveWebhookProfile(makeRequest({ profile: "nope" }), "Sam", ACCOUNT);
 
     expect(result).toEqual({
       ok: false,
@@ -49,24 +72,24 @@ describe("resolveWebhookProfile", () => {
   });
 
   it("404s when the requested profile does not exist", async () => {
-    prismaMock.profile.findUnique.mockResolvedValue(null);
+    prismaMock.profile.findFirst.mockResolvedValue(null);
     const { resolveWebhookProfile } = await import("./webhook-profile.js");
 
-    const result = await resolveWebhookProfile(makeRequest({ profile: VALID_UUID }), null);
+    const result = await resolveWebhookProfile(makeRequest({ profile: VALID_UUID }), null, ACCOUNT);
 
     expect(result).toEqual({ ok: false, status: 404, error: "Profile not found" });
     expect(profileMock.getDefaultProfileId).not.toHaveBeenCalled();
   });
 
-  it("matches the media-server account name against profile names", async () => {
+  it("matches the media-server account name against the account's profile names", async () => {
     prismaMock.profile.findFirst.mockResolvedValue({ id: "profile-sam" });
     const { resolveWebhookProfile } = await import("./webhook-profile.js");
 
-    const result = await resolveWebhookProfile(makeRequest(), "  sam  ");
+    const result = await resolveWebhookProfile(makeRequest(), "  sam  ", ACCOUNT);
 
     expect(result).toEqual({ ok: true, profileId: "profile-sam" });
     expect(prismaMock.profile.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { name: { equals: "sam", mode: "insensitive" } } })
+      expect.objectContaining({ where: { name: { equals: "sam", mode: "insensitive" }, accountId: ACCOUNT } })
     );
     expect(profileMock.getDefaultProfileId).not.toHaveBeenCalled();
   });
@@ -75,15 +98,16 @@ describe("resolveWebhookProfile", () => {
     prismaMock.profile.findFirst.mockResolvedValue(null);
     const { resolveWebhookProfile } = await import("./webhook-profile.js");
 
-    const result = await resolveWebhookProfile(makeRequest(), "Nobody");
+    const result = await resolveWebhookProfile(makeRequest(), "Nobody", ACCOUNT);
 
     expect(result).toEqual({ ok: true, profileId: "profile-default" });
+    expect(profileMock.getDefaultProfileId).toHaveBeenCalledWith(ACCOUNT);
   });
 
   it("falls back to the default profile when the payload carries no account name", async () => {
     const { resolveWebhookProfile } = await import("./webhook-profile.js");
 
-    const result = await resolveWebhookProfile(makeRequest(), undefined);
+    const result = await resolveWebhookProfile(makeRequest(), undefined, ACCOUNT);
 
     expect(result).toEqual({ ok: true, profileId: "profile-default" });
     expect(prismaMock.profile.findFirst).not.toHaveBeenCalled();

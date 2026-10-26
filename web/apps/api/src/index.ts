@@ -38,6 +38,7 @@ import {
 // Route modules
 import healthRoutes from "./routes/health.js";
 import authRoutes from "./routes/auth.js";
+import webhookKeyRoutes from "./routes/webhook-key.js";
 import metricsRoutes from "./routes/metrics.js";
 import profilesRoutes from "./routes/profiles.js";
 import devicesRoutes from "./routes/devices.js";
@@ -254,6 +255,7 @@ Sentry.setupFastifyErrorHandler(app);
 
 app.register(healthRoutes);
 app.register(authRoutes);
+app.register(webhookKeyRoutes);
 app.register(metricsRoutes);
 app.register(profilesRoutes);
 app.register(devicesRoutes);

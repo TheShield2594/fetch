@@ -272,7 +272,17 @@ Older URL forms keep working unless you turn them off: `/p/PROFILE-ID/manifest.j
 
 ### Profiles and the media-server webhooks
 
-Plex, Jellyfin and Emby don't send Fetch's profile header either, so a scrobble's profile is worked out from the webhook itself:
+Each account has its own webhook link. Under **Settings → Plex, Jellyfin & Emby**, **Make a webhook link** shows a URL for each server, with that account's key in place of `WEBHOOK_SECRET`:
+
+```text
+https://fetch.example.com/api/webhooks/plex?token=fwh_…
+```
+
+Plays sent with it land only in that account's profiles, so a friend can point their own Plex at Fetch without their watching showing up in yours. The key is shown once; making a new one stops the old one working. `WEBHOOK_ALLOWED_IPS` doesn't apply to account keys, because a friend's server isn't on your network; the key is the credential.
+
+`WEBHOOK_SECRET` keeps working, and acts for the admin account: with it, plays go to the admin's profiles only.
+
+Plex, Jellyfin and Emby don't send Fetch's profile header either, so within the account, a scrobble's profile is worked out from the webhook itself:
 
 1. **A profile pinned to the URL.** Add `profile=<profile-id>` to the webhook URL you configure in Plex, Jellyfin or Emby, alongside the secret:
 
@@ -280,11 +290,11 @@ Plex, Jellyfin and Emby don't send Fetch's profile header either, so a scrobble'
    http://LAN-IP:7000/webhooks/plex?token=WEBHOOK_SECRET&profile=PROFILE-ID
    ```
 
-   All three let you set the target URL per user, so this is the reliable option for a shared server. An unknown or malformed profile ID is rejected rather than quietly redirected.
+   All three let you set the target URL per user, so this is the reliable option for a shared server. An unknown or malformed profile ID, or one from another account, is rejected rather than quietly redirected.
 
    On Jellyfin, send the secret as an `x-webhook-secret` header instead and leave only `profile` in the URL — see [Webhook secret placement](#webhook-secret-placement) below.
-2. **The media-server account name.** With no `profile` parameter, the Plex account title (or the Jellyfin/Emby username) is matched against your profile names, ignoring case — so a Plex user named `Sam` scrobbles into the Fetch profile named `Sam` with nothing to configure.
-3. **Your oldest profile**, if neither applies. This is what single-profile installs get, and what every webhook did before profiles were taken into account.
+2. **The media-server account name.** With no `profile` parameter, the Plex account title (or the Jellyfin/Emby username) is matched against the account's profile names, ignoring case — so a Plex user named `Sam` scrobbles into the Fetch profile named `Sam` with nothing to configure.
+3. **The account's oldest profile**, if neither applies. This is what single-profile installs get, and what every webhook did before profiles were taken into account.
 
 ## Where watch history comes from
 
@@ -363,6 +373,8 @@ being a manual hop into another app.
 Set it up under **Settings → Jellyseerr Requests**: your server's URL and the
 API key from **Settings → General → API Key** in Jellyseerr. Overseerr works
 too — the API this uses is the same one. Nothing is sent until you configure it.
+It is set up once, by the admin, so only the admin account's watchlists file
+requests; another account's watchlist doesn't reach your Jellyseerr.
 Saving stores the URL and key and then tests them straight away, so a typo or a
 revoked key shows up there and then rather than weeks later — and a server that
 happens to be off tonight doesn't stop you saving the setting that fixes it.
@@ -531,9 +543,9 @@ Fetch is designed for self-hosting on a trusted local network (LAN), not for dir
 - The separate add-on service (port `7001`, the full-featured one Settings links to) can't take a login either, so Settings gives it the same kind of per-profile key in the path: `/u/<profileId>/<key>/`. With `ADDON_REQUIRE_SIGNED_URLS=true` it serves nothing else, and a wrong key gets a 404. Without that setting it also answers the older keyless `/p/<profileId>/` and prefix-less URLs, which let anyone who can reach the port read the profile named in the URL (or the oldest profile), so leave it off only while the port stays on your LAN and everyone on it shares one account. Its write endpoints are separately protected. The scrobble endpoint takes a bearer token derived from `API_TOKEN`, which the service never emits. "Mark Watched" cannot use that token — Stremio can only fetch a plain URL, so the credential has to be in the URL, and the subtitles response carrying it is served to anyone who asks — so each of those URLs carries a capability signed for the one profile and the one title or episode it was built for, expiring after twelve hours. Reading one out of a subtitles response (or a proxy log) therefore allows re-marking that single title, not writing arbitrary history.
 - Connecting a Stremio account stores only the access key Stremio issues, never your password — the password is sent once to Stremio's login endpoint, exchanged for the key, and discarded. The key is not scoped: it grants the same library access a signed-in Stremio client has. It is encrypted at rest along with the other stored credentials (see below). Disconnecting from Settings deletes it. `POST /stremio/library/connect` is rate-limited to 10/min/IP like the other credential-accepting routes.
 - Linking a Trakt account is CSRF-protected: `GET /trakt/oauth/authorize` (which requires the API token) mints a single-use `state` that expires in 10 minutes, and the callback rejects anything else — so a link someone else sends you cannot silently bind your install to their Trakt account.
-- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager, see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup)), set `ADDON_REQUIRE_SIGNED_URLS=true` before proxying the add-on service, and keep the webhooks on the LAN.
+- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager, see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup)), set `ADDON_REQUIRE_SIGNED_URLS=true` before proxying the add-on service, and use account webhook links rather than `WEBHOOK_SECRET` for any media server outside your LAN.
 - All API routes are rate-limited globally (200 req/min/IP), with tighter per-route limits on sensitive endpoints: PIN verification (`POST /profiles/:id/verify`, 10/min/IP), the Trakt OAuth authorize/callback routes (10/min/IP), the Plex/Jellyfin/Emby webhooks (60/min/IP) and the built-in Stremio manifest/catalog routes (240/min/IP — they answer unauthenticated callers, but a Stremio home screen fetches one request per catalog, so the budget covers several refreshes a minute rather than a single request). Calls from the Stremio addon service get their own 1000 req/min bucket rather than sharing the browser's — every Stremio client reaches the API from that one container's IP. The addon identifies itself with a token derived from `API_TOKEN` (never the raw token, which the browser also holds), so nothing extra needs configuring and a leaked browser token cannot drain the addon's budget. The limiter's counters are in-memory and per-process, so they assume the documented single-`api`-container deployment; running multiple API replicas would give each its own independent budget.
-- The media-server webhook endpoints (`/webhooks/plex`, `/webhooks/jellyfin`, `/webhooks/emby`) authenticate with a single shared secret (`WEBHOOK_SECRET`) sent as a query param or header — none of the three sign their outgoing webhooks, so this is the strongest verification available. Treat `WEBHOOK_SECRET` like a password and **do not expose these endpoints to the public internet**; keep them reachable only from your LAN/reverse-proxy-internal network, where the media servers themselves run. If you must route them through a reverse proxy, set `WEBHOOK_ALLOWED_IPS` to a comma-separated allowlist of your media servers' IPs (requires `TRUST_PROXY` to be configured correctly) as a second layer of defense. Where you put the secret matters — see [Webhook secret placement](#webhook-secret-placement).
+- The media-server webhook endpoints (`/webhooks/plex`, `/webhooks/jellyfin`, `/webhooks/emby`) authenticate with a secret sent as a query param or header: either an account's own webhook key (`fwh_…`, made under Settings, stored only as a hash, and limited to that account's profiles) or the shared `WEBHOOK_SECRET`, which acts for the admin account. None of the three servers sign their outgoing webhooks, so this is the strongest verification available. Account keys are meant to be used from outside your network, for a friend's own media server. Treat `WEBHOOK_SECRET` like a password and keep it on your LAN, where your own media servers run. If you must route them through a reverse proxy, set `WEBHOOK_ALLOWED_IPS` to a comma-separated allowlist of your media servers' IPs (requires `TRUST_PROXY` to be configured correctly) as a second layer of defense. Where you put the secret matters — see [Webhook secret placement](#webhook-secret-placement).
 - Container logs are capped at 10MB × 3 files per service (`docker-compose.yml`'s `x-logging` block) so they can't grow unbounded on the host over a long-running, unattended deployment.
 
 ### Secrets at rest

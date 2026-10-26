@@ -647,6 +647,8 @@
     <string name="advanced_fetch_focus_scroll_subtitle">Use Fetch\'s custom global focus scroll animation and positioning.</string>
     <string name="advanced_rgb565">RGB565 image decoding</string>
     <string name="advanced_rgb565_subtitle">Use lower-memory 16-bit color for eligible opaque images. Changing this restarts the app.</string>
+    <string name="advanced_hardware_bitmaps">Hardware image decoding</string>
+    <string name="advanced_hardware_bitmaps_subtitle">Keep posters and backdrops in graphics memory for smoother scrolling (Android 8+). RGB565 no longer applies to those images. Turn off if images flicker or show up black. Changing this restarts the app.</string>
     <string name="advanced_compose_highlighter">Compose Highlighter</string>
     <string name="advanced_compose_highlighter_subtitle">Flash borders around recomposing UI elements for performance debugging.</string>
     <string name="advanced_clear_cw_cache">Clear Continue Watching Cache</string>
@@ -3080,6 +3082,8 @@
     <string name="ready_to_play">Ready to play</string>
     <string name="home_row_ready_tonight">Ready tonight</string>
     <string name="ready_check_title">Check what\'s ready in the background</string>
+    <string name="autoplay_start_early_title">Start without waiting for every addon</string>
+    <string name="autoplay_start_early_sub">Plays the best stream so far as soon as it reaches your preferred quality, and is cached when you prefer cached streams. A slower addon may have had a better one. Peer-to-peer torrents never start early.</string>
     <string name="ready_check_sub">On Wi-Fi or Ethernet, asks your addons about up to 6 titles from Continue Watching and your Watchlist, each at most every 12 hours, so Home can mark the ones that start instantly.</string>
     <string name="empty_state_add_addon">Add an addon</string>
     <string name="source_group_other">Other quality</string>

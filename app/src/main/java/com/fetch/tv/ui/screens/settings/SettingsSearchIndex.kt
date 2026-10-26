@@ -45,6 +45,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
     SettingsCategory.PLAYBACK_STREAM_SELECTION to listOf(
         R.string.playback_section_stream_selection,
         R.string.autoplay_stream_selection,
+        R.string.autoplay_start_early_title,
         R.string.best_match_preview_title,
         R.string.ready_check_title,
         R.string.autoplay_regex_title,
@@ -349,6 +350,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.advanced_fast_horizontal_navigation,
         R.string.advanced_fetch_focus_scroll,
         R.string.advanced_rgb565,
+        R.string.advanced_hardware_bitmaps,
         R.string.advanced_section_addons,
         R.string.advanced_skip_slow_addons,
         R.string.advanced_addon_timeout,

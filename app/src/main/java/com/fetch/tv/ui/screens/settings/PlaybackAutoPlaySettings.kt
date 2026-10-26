@@ -85,6 +85,12 @@ internal fun PlaybackStreamSelectionSection(
     if (settings.streamAutoPlayMode == StreamAutoPlayMode.BEST_MATCH) {
         PlaybackStreamRankingRows(settings, onUpdate, onOpenDialog)
         SettingsToggleRow(
+            title = stringResource(R.string.autoplay_start_early_title),
+            subtitle = stringResource(R.string.autoplay_start_early_sub),
+            checked = settings.streamAutoPlayStartEarly,
+            onToggle = { onUpdate { setStreamAutoPlayStartEarly(!settings.streamAutoPlayStartEarly) } }
+        )
+        SettingsToggleRow(
             title = stringResource(R.string.best_match_preview_title),
             subtitle = stringResource(R.string.best_match_preview_sub),
             checked = settings.bestMatchPreviewEnabled,

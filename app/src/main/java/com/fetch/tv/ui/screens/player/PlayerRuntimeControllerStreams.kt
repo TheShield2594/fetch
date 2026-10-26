@@ -1726,6 +1726,15 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                 }
             }
 
+            // "Start without waiting": take the Best match pick before every addon has answered
+            // once it meets the user's quality (and cached) rules.
+            fun tryStartEarly(data: List<AddonStreams>): Stream? {
+                if (!playerSettings.streamAutoPlayStartEarly || effectiveMode != StreamAutoPlayMode.BEST_MATCH) return null
+                return trySelectStream(data)?.takeIf {
+                    StreamAutoPlaySelector.isGoodEnoughToStartEarly(it, playerSettings.streamRankingRules)
+                }
+            }
+
             fun recordSelection(candidate: Stream) {
                 autoSelectTriggered = true
                 selectedStream = candidate
@@ -1748,8 +1757,8 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                                 val candidate = when {
                                     timeoutElapsed -> trySelectStream(result.data)
                                     playerSettings.streamAutoPlayPreferBingeGroupForNextEpisode ->
-                                        tryBingeGroupOnly(result.data)
-                                    else -> null
+                                        tryBingeGroupOnly(result.data) ?: tryStartEarly(result.data)
+                                    else -> tryStartEarly(result.data)
                                 }
                                 if (candidate != null) recordSelection(candidate)
                             }

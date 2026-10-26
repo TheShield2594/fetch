@@ -6,6 +6,9 @@ const resolveNotificationUrl = vi.fn();
 vi.mock("./ssrf.js", () => ({ resolveNotificationUrl: (...args: unknown[]) => resolveNotificationUrl(...args) }));
 vi.mock("./prisma.js", () => ({ prisma: { notificationChannel: { findMany: vi.fn() } } }));
 
+/** The admin's scope: LAN targets allowed. */
+const LAN = { allowPrivateNetwork: true };
+
 const EVENT: NotificationEvent = {
   event: "upcoming-episode",
   title: "Severance — new episode today",
@@ -175,7 +178,7 @@ describe("sendToChannel", () => {
   it("refuses to follow redirects, so an allowed host can't bounce the request inward", async () => {
     const { sendToChannel } = await loadModule();
 
-    await sendToChannel(channel({}), EVENT);
+    await sendToChannel(channel({}), EVENT, LAN);
 
     expect(fetchMock).toHaveBeenCalledWith(
       "https://ntfy.sh/cataloggy",
@@ -187,16 +190,16 @@ describe("sendToChannel", () => {
     const { sendToChannel } = await loadModule();
     resolveNotificationUrl.mockResolvedValue(null);
 
-    await expect(sendToChannel(channel({}), EVENT)).rejects.toThrow(/not an allowed outbound target/);
+    await expect(sendToChannel(channel({}), EVENT, LAN)).rejects.toThrow(/not an allowed outbound target/);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("resolves the URL actually being fetched, not the one that was saved", async () => {
     const { sendToChannel } = await loadModule();
 
-    await sendToChannel(channel({ kind: "gotify", url: "http://gotify.lan", token: "t" }), EVENT);
+    await sendToChannel(channel({ kind: "gotify", url: "http://gotify.lan", token: "t" }), EVENT, LAN);
 
-    expect(resolveNotificationUrl).toHaveBeenCalledWith("http://gotify.lan/message");
+    expect(resolveNotificationUrl).toHaveBeenCalledWith("http://gotify.lan/message", undefined, LAN);
   });
 
   it("reports a non-2xx by status without echoing the response body", async () => {
@@ -205,7 +208,7 @@ describe("sendToChannel", () => {
 
     // Reflecting the upstream body would make a notification channel a readable
     // SSRF probe.
-    await expect(sendToChannel(channel({ name: "Phone" }), EVENT)).rejects.toThrow("Phone: HTTP 403");
+    await expect(sendToChannel(channel({ name: "Phone" }), EVENT, LAN)).rejects.toThrow("Phone: HTTP 403");
   });
 
   // The detail above is for the log and for Sync Status. What a caller may be
@@ -216,7 +219,7 @@ describe("sendToChannel", () => {
 
     const outcomeOf = async (target: ChannelTarget) => {
       try {
-        await sendToChannel(target, EVENT);
+        await sendToChannel(target, EVENT, LAN);
         return "ok";
       } catch (error) {
         return error instanceof ChannelSendError ? error.outcome : "unclassified";
@@ -237,7 +240,7 @@ describe("sendToChannel", () => {
     const { sendToChannel, ChannelSendError } = await loadModule();
     fetchMock.mockRejectedValue(new Error("connect ECONNREFUSED 10.0.0.5:22"));
 
-    const error = await sendToChannel(channel({ name: "Phone" }), EVENT).catch((e: unknown) => e);
+    const error = await sendToChannel(channel({ name: "Phone" }), EVENT, LAN).catch((e: unknown) => e);
 
     expect(error).toBeInstanceOf(ChannelSendError);
     const failure = error as InstanceType<typeof ChannelSendError>;
@@ -264,7 +267,7 @@ describe("sendToChannel", () => {
       const stored = encryptSecret(SECRET_CONTEXT.notificationChannelToken, "gotify-app-token");
       resolveNotificationUrl.mockResolvedValue(new URL("http://gotify.lan/message"));
 
-      await sendToChannel(channel({ kind: "gotify", url: "http://gotify.lan", token: stored }), EVENT);
+      await sendToChannel(channel({ kind: "gotify", url: "http://gotify.lan", token: stored }), EVENT, LAN);
 
       expect(headersOf(first(fetchMock.mock.calls, "fetchMock call")[1])["X-Gotify-Key"]).toBe("gotify-app-token");
     });
@@ -277,7 +280,7 @@ describe("sendToChannel", () => {
       process.env.API_TOKEN = "rotated-key";
       const target = channel({ kind: "gotify", name: "Gotify", url: "http://gotify.lan", token: stored });
 
-      const error = await sendToChannel(target, EVENT).catch((e: unknown) => e);
+      const error = await sendToChannel(target, EVENT, LAN).catch((e: unknown) => e);
 
       expect(error).toBeInstanceOf(ChannelSendError);
       expect((error as Error).message).toMatch(/Gotify: stored token could not be decrypted/);

@@ -13,6 +13,10 @@ const prismaMock = {
   kV: { findUnique: vi.fn(), upsert: vi.fn() },
 };
 
+// Every caller is the account "owner-1" (lib/test-fixtures/integration-owner-mock.ts).
+vi.mock("../lib/integration-owner.js", async () =>
+  (await import("../lib/test-fixtures/integration-owner-mock.js")).integrationOwnerMock
+);
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 
 vi.mock("../lib/stremio-helpers.js", () => ({
@@ -47,7 +51,7 @@ vi.mock("../lib/profile.js", async (importOriginal) => ({
 const { aiConfigured } = vi.hoisted(() => ({ aiConfigured: { value: false } }));
 
 vi.mock("../lib/ai.js", () => ({
-  isAiConfigured: async () => aiConfigured.value,
+  isAiConfiguredForProfile: async () => aiConfigured.value,
   getAiRecommendations: async () => null,
 }));
 

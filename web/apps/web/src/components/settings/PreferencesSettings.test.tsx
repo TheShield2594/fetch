@@ -13,9 +13,15 @@ vi.mock("../../api", () => ({
   },
 }));
 
+const signedIn = vi.hoisted(() => ({ isAdmin: true }));
+vi.mock("../../hooks/useAccount", () => ({
+  useAccount: () => ({ account: null, isAdmin: signedIn.isAdmin, refresh: () => {} }),
+}));
+
 const LOADED = { language: "en-US", region: "US", spoilerProtection: false };
 
 beforeEach(() => {
+  signedIn.isAdmin = true;
   getPreferences.mockReset().mockResolvedValue(LOADED);
   updatePreferences.mockReset().mockImplementation((body) => Promise.resolve({ ...LOADED, ...(body as object) }));
 });
@@ -71,5 +77,14 @@ describe("PreferencesSettings", () => {
 
     expect(await screen.findByText("nope")).toBeInTheDocument();
     expect(screen.queryByText("Saved")).not.toBeInTheDocument();
+  });
+
+  it("lets another account set its region but not the server's language", async () => {
+    signedIn.isAdmin = false;
+    await renderLoaded();
+
+    expect(screen.getByLabelText("Metadata Language")).toBeDisabled();
+    expect(screen.getByLabelText("Streaming Region")).toBeEnabled();
+    expect(screen.getByText(/only the admin can change it/i)).toBeInTheDocument();
   });
 });

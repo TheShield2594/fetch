@@ -1,7 +1,7 @@
 import { prisma } from "./prisma.js";
 import { isUniqueConstraintError } from "./prisma-tolerant.js";
 import { upsertSeriesProgressIfNewer } from "./series-progress.js";
-import { shouldRefreshAiRecs, getAiRecommendations } from "./ai.js";
+import { shouldRefreshAiRecsForProfile, getAiRecommendations } from "./ai.js";
 import { trendingCacheDeletePrefix } from "./cache.js";
 import { syncWatchEventToTrakt } from "./trakt-client.js";
 import { watchEventDayWindow } from "./watch-event-dedup.js";
@@ -106,7 +106,7 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
 
     void (async () => {
       try {
-        if (await shouldRefreshAiRecs()) {
+        if (await shouldRefreshAiRecsForProfile(profileId)) {
           trendingCacheDeletePrefix("ai-recs:");
           await Promise.allSettled([
             getAiRecommendations("movie", 15, profileId, log),
@@ -155,7 +155,7 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
 
   void (async () => {
     try {
-      if (await shouldRefreshAiRecs()) {
+      if (await shouldRefreshAiRecsForProfile(profileId)) {
         trendingCacheDeletePrefix("ai-recs:");
         await Promise.allSettled([
           getAiRecommendations("movie", 15, profileId, log),

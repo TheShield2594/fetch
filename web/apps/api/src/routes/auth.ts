@@ -4,7 +4,7 @@ import { hashPin, pinMatches } from "../lib/pin-hash.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
 import { invalidateDeviceCache } from "../lib/device-token.js";
 import { invalidateProfileCache } from "../lib/profile.js";
-import { claimLegacyIntegrations, deleteOwnerIntegrations } from "../lib/integration-owner.js";
+import { adoptLegacyAiConfig, claimLegacyIntegrations, deleteOwnerIntegrations } from "../lib/integration-owner.js";
 import { resetTraktClient } from "../lib/trakt-client.js";
 import { hashSecret, isAdminRequest, requireAdmin } from "../lib/request-auth.js";
 import { createSession, findAdminAccountId, mintInviteCode } from "../lib/sessions.js";
@@ -94,6 +94,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
 
     invalidateProfileCache();
     resetTraktClient();
+    await adoptLegacyAiConfig();
     const token = await createSession(account.id);
     return reply.code(201).send({ token, account: publicAccount(account) });
   });

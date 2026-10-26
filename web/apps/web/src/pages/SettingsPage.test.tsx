@@ -290,6 +290,7 @@ describe("SettingsPage", () => {
     expect(screen.getByText("Where history comes from")).toBeInTheDocument();
     expect(screen.getByText("Metadata & artwork")).toBeInTheDocument();
     expect(screen.getByText("This server")).toBeInTheDocument();
+    expect(screen.getByText("Recommendations")).toBeInTheDocument();
   });
 
   it("drops the group headings while searching, where a result set spans all of them", async () => {
@@ -322,10 +323,10 @@ describe("SettingsPage for an account that isn't the admin", () => {
     signedIn.isAdmin = false;
     renderPage("preferences");
 
-    for (const title of ["Account", "Profile", "Notifications", "About"]) {
+    // Metadata & Region is theirs too: region and spoiler protection are per account.
+    for (const title of ["Account", "Metadata & Region", "Profile", "Notifications", "About"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
     }
-    expect(screen.queryByRole("button", { name: /^Metadata & Region/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^Sync Status/ })).not.toBeInTheDocument();
   });
 
@@ -334,10 +335,10 @@ describe("SettingsPage for an account that isn't the admin", () => {
     renderPage("integrations");
 
     // Each account connects its own Trakt and Stremio, and has its own webhook link.
-    for (const title of ["Data", "Trakt Integration", "Stremio Watched Sync", "Plex, Jellyfin & Emby"]) {
+    for (const title of ["Data", "Trakt Integration", "Stremio Watched Sync", "Plex, Jellyfin & Emby", "AI Recommendations"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
     }
-    for (const title of ["TMDB Metadata", "Invites & Accounts", "AI Recommendations", "Play Detection"]) {
+    for (const title of ["TMDB Metadata", "Invites & Accounts", "Play Detection"]) {
       expect(screen.queryByRole("button", { name: new RegExp(`^${title}`) })).not.toBeInTheDocument();
     }
   });

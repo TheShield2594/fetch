@@ -35,6 +35,10 @@ const loadRecommendations = vi.fn();
 const validateAiProviderUrl = vi.fn();
 const resolveAiProviderUrl = vi.fn();
 
+// Every caller is the account "owner-1" (lib/test-fixtures/integration-owner-mock.ts).
+vi.mock("../lib/integration-owner.js", async () =>
+  (await import("../lib/test-fixtures/integration-owner-mock.js")).integrationOwnerMock
+);
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 vi.mock("../lib/tmdb-client.js", () => ({ getTmdb: () => getTmdb() }));
 vi.mock("../lib/metadata.js", () => ({ upsertMetadata: (...a: unknown[]) => upsertMetadata(...a) }));
@@ -54,8 +58,8 @@ vi.mock("../lib/cache.js", async (importOriginal) => ({
 // stub redacts, which is not the property worth testing.
 vi.mock("../lib/ai.js", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../lib/ai.js")>()),
-  getAiConfig: () => getAiConfig(),
-  isAiConfigured: () => isAiConfigured(),
+  getAiConfig: (owner: string) => getAiConfig(owner),
+  isAiConfiguredForProfile: (profileId: string) => isAiConfigured(profileId),
   getAiRecommendations: (...a: unknown[]) => getAiRecommendations(...a),
 }));
 vi.mock("../lib/recommendations.js", () => ({
@@ -475,7 +479,8 @@ describe("ai routes", () => {
 
       expect(res.json()).toEqual({ configured: false });
       expect(prismaMock.kV.deleteMany).toHaveBeenCalledWith({
-        where: { key: { in: ["ai:config", "ai:lastRecsGeneratedAt"] } },
+        // The caller's own config.
+        where: { key: { in: ["ai:config:owner-1", "ai:lastRecsGeneratedAt:owner-1"] } },
       });
     });
   });

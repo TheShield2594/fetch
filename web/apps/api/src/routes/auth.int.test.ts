@@ -15,7 +15,7 @@ process.env.WEBHOOK_SECRET = WEBHOOK_SECRET;
 let app: FastifyInstance;
 
 beforeAll(async () => {
-  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons, webhookKey, jellyfin, trakt, stremio] =
+  const [{ registerAuthGate }, auth, profiles, lists, settings, devices, syncOverview, profileAddons, webhookKey, jellyfin, trakt, stremio, ai, notifications] =
     await Promise.all([
       import("../lib/auth-gate.js"),
       import("./auth.js"),
@@ -29,6 +29,8 @@ beforeAll(async () => {
       import("./webhooks/jellyfin.js"),
       import("./trakt.js"),
       import("./stremio-library.js"),
+      import("./ai.js"),
+      import("./notifications.js"),
     ]);
   app = await buildIntApp(async (instance) => {
     registerAuthGate(instance);
@@ -43,6 +45,8 @@ beforeAll(async () => {
     await instance.register(jellyfin.default);
     await instance.register(trakt.default);
     await instance.register(stremio.default);
+    await instance.register(ai.default);
+    await instance.register(notifications.default);
   });
 });
 
@@ -387,7 +391,7 @@ describe("a paired TV belongs to the account that paired it", () => {
     const admin = await bootstrapAdmin();
     const tv = await pairTv(admin.token);
 
-    const write = await call(tv.token, { method: "POST", url: "/settings/preferences", payload: { language: "fr-FR" } });
+    const write = await call(tv.token, { method: "POST", url: "/settings/preferences", payload: { language: "it-IT" } });
     expect(write.statusCode).toBe(403);
   });
 });
@@ -476,19 +480,6 @@ describe("media-server webhooks", () => {
   });
 });
 
-describe("the install's own Jellyseerr", () => {
-  it("act only for the admin account's profiles", async () => {
-    const { usesInstallIntegrations } = await import("../lib/profile.js");
-    const legacy = await createProfile("From before accounts");
-    const admin = await bootstrapAdmin();
-    const friend = await inviteFriend(admin.token);
-    const [friendProfile] = await profilesOf(friend.token);
-
-    expect(await usesInstallIntegrations(legacy.id)).toBe(true);
-    expect(await usesInstallIntegrations(friendProfile!.id)).toBe(false);
-  });
-});
-
 const seedTrakt = (id: string) =>
   prisma.traktToken.create({ data: { id, accessToken: "a", refreshToken: "r", expiresAt: new Date(Date.now() + 86_400_000) } });
 
@@ -542,5 +533,63 @@ describe("Trakt and Stremio connections", () => {
 
     expect((await prisma.traktToken.findMany()).map((row) => row.id)).toEqual([admin.account.id]);
     expect(await prisma.kV.count({ where: { key: { endsWith: friend.account.id } } })).toBe(0);
+  });
+});
+
+const aiConfig = (url: string) => ({
+  config: { url, headers: { Authorization: "Bearer sk-test" }, payload: { model: "test-model" } },
+});
+
+describe("AI, preferences and notifications", () => {
+  it("give each account its own AI provider, on the LAN for the admin only", async () => {
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+
+    const lan = await call(friend.token, { method: "POST", url: "/ai/config", payload: aiConfig("http://192.168.1.20:11434/v1/chat/completions") });
+    expect(lan.statusCode).toBe(400);
+
+    const pub = await call(friend.token, { method: "POST", url: "/ai/config", payload: aiConfig("https://api.example.com/v1/chat/completions") });
+    expect(pub.statusCode).toBe(200);
+    expect((await call(friend.token, { method: "GET", url: "/ai/config" })).json()).toMatchObject({ configured: true });
+    expect((await call(admin.token, { method: "GET", url: "/ai/config" })).json()).toMatchObject({ configured: false });
+
+    const adminLan = await call(admin.token, { method: "POST", url: "/ai/config", payload: aiConfig("http://192.168.1.20:11434/v1/chat/completions") });
+    expect(adminLan.statusCode).toBe(200);
+  });
+
+  it("keep a friend's notification channels off the LAN", async () => {
+    const admin = await bootstrapAdmin();
+    await call(admin.token, { method: "POST", url: "/profiles", payload: { name: "Owner" } });
+    const friend = await inviteFriend(admin.token);
+    const channel = (url: string) => ({ kind: "webhook", name: "Hook", url });
+
+    expect((await call(friend.token, { method: "POST", url: "/notifications/channels", payload: channel("http://10.0.0.5/hook") })).statusCode).toBe(400);
+    expect((await call(friend.token, { method: "POST", url: "/notifications/channels", payload: channel("https://hooks.example.com/x") })).statusCode).toBe(201);
+    expect((await call(admin.token, { method: "POST", url: "/notifications/channels", payload: channel("http://10.0.0.5/hook") })).statusCode).toBe(201);
+  });
+
+  it("keep region and spoiler protection per account, and the language with the admin", async () => {
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+    const prefs = async (token: string) =>
+      (await call(token, { method: "GET", url: "/settings/preferences" })).json() as { region: string; language: string; spoilerProtection: boolean };
+
+    expect((await call(friend.token, { method: "POST", url: "/settings/preferences", payload: { region: "GB", spoilerProtection: true } })).statusCode).toBe(200);
+    expect(await prefs(friend.token)).toMatchObject({ region: "GB", spoilerProtection: true });
+    expect(await prefs(admin.token)).toMatchObject({ region: "US", spoilerProtection: false });
+
+    expect((await call(friend.token, { method: "POST", url: "/settings/preferences", payload: { language: "de-DE" } })).statusCode).toBe(403);
+    expect((await call(admin.token, { method: "POST", url: "/settings/preferences", payload: { language: "de-DE" } })).statusCode).toBe(200);
+    expect(await prefs(friend.token)).toMatchObject({ language: "de-DE" });
+  });
+
+  it("hand the install's AI provider to the admin, still readable", async () => {
+    const { writeSecretKv } = await import("../lib/secret-store.js");
+    await writeSecretKv("ai:config", JSON.stringify(aiConfig("http://127.0.0.1:11434/v1").config));
+
+    const admin = await bootstrapAdmin();
+
+    expect((await call(admin.token, { method: "GET", url: "/ai/config" })).json()).toMatchObject({ configured: true });
+    expect(await prisma.kV.findUnique({ where: { key: "ai:config" } })).toBeNull();
   });
 });

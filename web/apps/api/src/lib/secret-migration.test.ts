@@ -113,8 +113,11 @@ describe("encryptStoredSecrets", () => {
     await run();
 
     const { where } = first(prismaMock.kV.findMany.mock.calls, "prismaMock.kV.findMany call")[0];
-    expect(where.key.in).toEqual(["tmdb:apiKey", "omdb:apiKey", "rpdb:apiKey", "ai:config", "push:vapidKeys"]);
-    expect(where.key.in).not.toContain("settings:language");
+    const [fixed, perAccount] = where.OR;
+    expect(fixed.key.in).toEqual(["tmdb:apiKey", "omdb:apiKey", "rpdb:apiKey", "ai:config", "push:vapidKeys"]);
+    expect(fixed.key.in).not.toContain("settings:language");
+    // Each account's own AI provider config.
+    expect(perAccount).toEqual({ key: { startsWith: "ai:config:" } });
   });
 
   it("writes ciphertext that later reads can actually open", async () => {

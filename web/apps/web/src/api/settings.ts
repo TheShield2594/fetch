@@ -7,10 +7,8 @@ import { request } from "./client";
 import type {
   AddonCatalogOption,
   AddonConfig,
-  JellyseerrStatus,
   JobFailure,
   JobRun,
-  OutboundFailure,
   TmdbStatus,
   UserPreferences,
 } from "./types";
@@ -79,36 +77,5 @@ export const settingsApi = {
       method: "POST",
       body: JSON.stringify(prefs),
     });
-  },
-  // Jellyseerr / Overseerr. The API key is write-only: it goes up, and only
-  // `hasApiKey` comes back.
-  getJellyseerrConfig() {
-    return request<JellyseerrStatus>("/settings/jellyseerr");
-  },
-  saveJellyseerrConfig(payload: {
-    url: string;
-    apiKey?: string | undefined;
-    requestOnAdd?: boolean | undefined;
-    cancelOnRemove?: boolean | undefined;
-  }) {
-    // The server tests the connection before storing it, which is a round trip
-    // to a service on someone's LAN rather than to the API.
-    return request<JellyseerrStatus>("/settings/jellyseerr", {
-      method: "POST",
-      body: JSON.stringify(payload),
-      timeoutMs: 30000,
-    });
-  },
-  removeJellyseerrConfig() {
-    return request<JellyseerrStatus>("/settings/jellyseerr", { method: "DELETE" });
-  },
-  testJellyseerr() {
-    return request<{
-      success: boolean;
-      version?: string | null | undefined;
-      applicationTitle?: string | null | undefined;
-      outcome?: OutboundFailure | undefined;
-      error?: string | undefined;
-    }>("/settings/jellyseerr/test", { method: "POST", timeoutMs: 30000 });
   },
 };

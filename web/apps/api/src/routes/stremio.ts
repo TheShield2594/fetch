@@ -5,7 +5,8 @@ import { accountScope } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { getRegionSetting } from "../lib/settings.js";
-import { isAiConfigured, getAiRecommendations } from "../lib/ai.js";
+import { ownerForProfile } from "../lib/integration-owner.js";
+import { isAiConfiguredForProfile, getAiRecommendations } from "../lib/ai.js";
 import { getAddonConfig, ALL_ADDON_CATALOGS, addonConfigKey } from "../lib/addon.js";
 import { trendingCacheGet, trendingCacheSet } from "../lib/cache.js";
 import {
@@ -229,7 +230,7 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
     const profileId = request.profileId as string;
     const [config, aiConfigured, userLists] = await Promise.all([
       getAddonConfig(profileId),
-      isAiConfigured(),
+      isAiConfiguredForProfile(profileId),
       prisma.list.findMany({
         where: { kind: ListKind.custom, profileId },
         select: { id: true, name: true },
@@ -333,7 +334,7 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
   );
 
   const buildManifest = async (profileId: string) => {
-    const [config, aiConfigured] = await Promise.all([getAddonConfig(profileId), isAiConfigured()]);
+    const [config, aiConfigured] = await Promise.all([getAddonConfig(profileId), isAiConfiguredForProfile(profileId)]);
 
     const catalogs: { id: string; type: string; name: string }[] = [
       ...CORE_STREMIO_CATALOGS.map((c) => ({ id: c.id, type: c.type, name: c.name })),
@@ -452,7 +453,9 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
     if (discovery.type !== type) return reply.code(400).send({ metas: [] });
 
     // Only the streaming catalogs vary by region, and the setting is a DB read.
-    const region = discovery.source.kind === "streaming" ? await getRegionSetting() : "";
+    // The region of the account whose addon URL this is.
+    const region =
+      discovery.source.kind === "streaming" ? await getRegionSetting((await ownerForProfile(profileId)) ?? undefined) : "";
     const cacheKey = discoveryCacheKey(discovery, profileId, region);
     const cached = trendingCacheGet(cacheKey);
     if (cached) return { metas: cached.data };
@@ -471,7 +474,7 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
         if (!result) return { metas: [] };
         return { metas: result.metas };
       } else if (discovery.source.kind === "recommended") {
-        if (await isAiConfigured()) {
+        if (await isAiConfiguredForProfile(profileId)) {
           const aiResult = await getAiRecommendations(discovery.type, 20, profileId);
           if (aiResult) {
             trendingCacheSet(cacheKey, { data: aiResult.metas });

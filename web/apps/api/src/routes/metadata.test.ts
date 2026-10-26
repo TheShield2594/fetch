@@ -24,6 +24,10 @@ const getOmdbApiKey = vi.fn();
 
 const EMPTY_PROVIDERS = { flatrate: [], rent: [], buy: [] };
 
+// Every caller is the account "owner-1" (lib/test-fixtures/integration-owner-mock.ts).
+vi.mock("../lib/integration-owner.js", async () =>
+  (await import("../lib/test-fixtures/integration-owner-mock.js")).integrationOwnerMock
+);
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 vi.mock("../lib/detail.js", () => ({
   EMPTY_PROVIDERS,

@@ -13,11 +13,11 @@ import { attachDatabaseLogging, prisma } from "./lib/prisma.js";
 import { applyCorsHeaders } from "./lib/cors.js";
 import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
-import { getAiRecommendations, isAiConfigured } from "./lib/ai.js";
+import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
 import { trendingCacheDeletePrefix } from "./lib/cache.js";
 import { listTraktOwners, pollTraktHistory, syncTraktWatchlist } from "./lib/trakt-client.js";
 import { listStremioConnections, syncStremioLibrary } from "./lib/stremio-library.js";
-import { accountOfOwner } from "./lib/integration-owner.js";
+import { accountOfOwner, adoptLegacyAiConfig } from "./lib/integration-owner.js";
 import { isPlayDetectionEnabled, settleDuePlaySignals } from "./lib/play-signal.js";
 import { ensureDefaultWatchlist } from "./lib/watchlist.js";
 import { ensureDefaultCollection } from "./lib/collection.js";
@@ -337,6 +337,8 @@ const start = async () => {
   // what the database was written under is one startup error rather than a
   // week of integrations failing separately.
   await encryptStoredSecrets(app.log);
+  // An install whose admin was created before AI configs were per account.
+  await adoptLegacyAiConfig();
 
   if (TRAKT_POLL_INTERVAL_SEC > 0) {
     everyInterval({
@@ -410,14 +412,19 @@ const start = async () => {
     );
   }
 
+  // Every account with its own AI provider, for its first profile.
   const refreshAiRecommendations = async () => {
-    if (!(await isAiConfigured())) return;
-    const profileId = await getDefaultProfileId();
+    const owners = await listAiOwners();
+    if (owners.length === 0) return;
     trendingCacheDeletePrefix("ai-recs:");
-    await Promise.allSettled([
-      getAiRecommendations("movie", 15, profileId),
-      getAiRecommendations("series", 15, profileId),
-    ]);
+    for (const owner of owners) {
+      if (!(await isAiConfigured(owner))) continue;
+      const profileId = await getDefaultProfileId(accountOfOwner(owner));
+      await Promise.allSettled([
+        getAiRecommendations("movie", 15, profileId),
+        getAiRecommendations("series", 15, profileId),
+      ]);
+    }
   };
 
   if (AI_REFRESH_INTERVAL_SEC > 0) {

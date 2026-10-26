@@ -14,6 +14,12 @@
 //   * The web-push endpoint only ever talks to public browser push services,
 //     so it blocks every private range as well.
 //
+// The first two allow LAN and loopback targets only for the admin account (and
+// API_TOKEN): reaching the home network is the admin's own setup to make.
+// Another account gets the push policy's private-range block too, so a friend's
+// AI endpoint or webhook can't make this server send requests into the network
+// it runs on. Callers pass that choice as an `OutboundScope`.
+//
 // Combined with disabling redirect following at the fetch call sites, this
 // stops a stolen API token from turning either feature into a
 // metadata-service / internal-probe proxy while preserving local-model setups.
@@ -75,6 +81,15 @@ const isBlockedPushHostname = (hostname: string): boolean => {
   );
 };
 
+/** Whether an outbound target may be on a private network: see the top of this file. */
+export type OutboundScope = { allowPrivateNetwork: boolean };
+
+export const PRIVATE_NETWORK_ALLOWED: OutboundScope = { allowPrivateNetwork: true };
+export const PUBLIC_ONLY: OutboundScope = { allowPrivateNetwork: false };
+
+const blockerFor = (scope: OutboundScope) =>
+  scope.allowPrivateNetwork ? isBlockedAiHostname : isBlockedPushHostname;
+
 /** Every address a connection to `hostname` could land on. */
 export type HostResolver = (hostname: string) => Promise<string[]>;
 
@@ -120,7 +135,7 @@ const hostnameResolvesSafely = async (
  * be rejected. Use this for save-time validation; `resolveAiProviderUrl` is the
  * check to run immediately before an outbound request.
  */
-export const validateAiProviderUrl = (raw: string): URL | null => {
+export const validateAiProviderUrl = (raw: string, scope: OutboundScope = PRIVATE_NETWORK_ALLOWED): URL | null => {
   let url: URL;
   try {
     url = new URL(raw);
@@ -128,7 +143,7 @@ export const validateAiProviderUrl = (raw: string): URL | null => {
     return null;
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") return null;
-  if (isBlockedAiHostname(url.hostname)) return null;
+  if (blockerFor(scope)(url.hostname)) return null;
   return url;
 };
 
@@ -139,11 +154,12 @@ export const validateAiProviderUrl = (raw: string): URL | null => {
  */
 export const resolveAiProviderUrl = async (
   raw: string,
-  resolveHost: HostResolver = dnsResolver
+  resolveHost: HostResolver = dnsResolver,
+  scope: OutboundScope = PRIVATE_NETWORK_ALLOWED
 ): Promise<URL | null> => {
-  const url = validateAiProviderUrl(raw);
+  const url = validateAiProviderUrl(raw, scope);
   if (!url) return null;
-  return (await hostnameResolvesSafely(url.hostname, isBlockedAiHostname, resolveHost)) ? url : null;
+  return (await hostnameResolvesSafely(url.hostname, blockerFor(scope), resolveHost)) ? url : null;
 };
 
 /**
@@ -152,7 +168,8 @@ export const resolveAiProviderUrl = async (
  * AI provider endpoint — a LAN or loopback host is the expected configuration
  * here, so only the never-legitimate targets are blocked.
  */
-export const validateNotificationUrl = (raw: string): URL | null => validateAiProviderUrl(raw);
+export const validateNotificationUrl = (raw: string, scope: OutboundScope = PRIVATE_NETWORK_ALLOWED): URL | null =>
+  validateAiProviderUrl(raw, scope);
 
 /**
  * `validateNotificationUrl` plus a DNS check. Run immediately before each send:
@@ -162,8 +179,9 @@ export const validateNotificationUrl = (raw: string): URL | null => validateAiPr
  */
 export const resolveNotificationUrl = async (
   raw: string,
-  resolveHost: HostResolver = dnsResolver
-): Promise<URL | null> => resolveAiProviderUrl(raw, resolveHost);
+  resolveHost: HostResolver = dnsResolver,
+  scope: OutboundScope = PRIVATE_NETWORK_ALLOWED
+): Promise<URL | null> => resolveAiProviderUrl(raw, resolveHost, scope);
 
 /**
  * Validates the syntax of a browser push-service endpoint: https only, and no

@@ -2,6 +2,7 @@ import { STREAMING_PROVIDERS } from "../tmdb.js";
 import type { FastifyPluginAsync } from "fastify";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { getRegionSetting } from "../lib/settings.js";
+import { ownerForRequest } from "../lib/integration-owner.js";
 import { upsertMetadata } from "../lib/metadata.js";
 import { getRpdbApiKey, applyRpdbToMetaList } from "../lib/rpdb.js";
 import { trendingCacheGet, trendingCacheSet } from "../lib/cache.js";
@@ -24,7 +25,7 @@ const streamingRoutes: FastifyPluginAsync = async (app) => {
         });
       }
 
-      const region = request.query.region ?? (await getRegionSetting());
+      const region = request.query.region ?? (await getRegionSetting(await ownerForRequest(request)));
       const provider = STREAMING_PROVIDERS[providerKey];
       const cacheKey = `streaming:${providerKey}:${rawType}:${region}`;
 

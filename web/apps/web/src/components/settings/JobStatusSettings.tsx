@@ -13,7 +13,6 @@ const JOB_LABELS: Record<string, string> = {
   "episode-notifications": "Upcoming episode notifications",
   "ai-recommendations": "AI recommendations refresh",
   "steam-sync": "Steam library sync",
-  "jellyseerr-request": "Jellyseerr requests",
 };
 
 const jobLabel = (job: string) => JOB_LABELS[job] ?? job;

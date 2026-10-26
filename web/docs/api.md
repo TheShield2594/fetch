@@ -86,13 +86,13 @@ These paths are exempt, because they cannot carry a bearer token by construction
 Accounts are invite-only. The first account is created with `API_TOKEN` and is
 the **admin**; everyone else redeems an invite link the admin made. Each account
 owns its profiles, and through them its lists, history, ratings and games, and
-has its own Trakt and Stremio connections and media-server webhook key.
+has its own Trakt and Stremio connections, media-server webhook key, AI
+provider, streaming region and spoiler protection.
 
 Settings that belong to the whole install are shared by every account and can
 only be changed by the admin; anyone else gets `403` with
-`code: "admin_required"`. That covers the TMDB, OMDb and RPDB keys, preferences
-(writes), the AI provider, Jellyseerr, the
-Steam sync, the metadata refresh, `/settings/job-status` and `/metrics`.
+`code: "admin_required"`. That covers the TMDB, OMDb and RPDB keys, the
+metadata language, play detection, the Steam sync, the metadata refresh, `/settings/job-status` and `/metrics`.
 `API_TOKEN` counts as the admin.
 
 ## Profiles
@@ -534,9 +534,9 @@ rotated key doesn't mean editing `.env` and restarting.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/settings/preferences` | Language, region, spoiler protection, and the provider catalogue. |
-| `POST` | `/settings/preferences` | `{ language?, region?, spoilerProtection? }`. Language is `en` or `en-US` shaped; region is two letters. Both are normalized. Clears the discovery cache. |
-| `GET` | `/settings/job-status` | Background jobs that are currently failing — the Steam sync, Trakt poll, episode notifications, AI refresh, Jellyseerr requests. Otherwise these are only visible in the logs. |
+| `GET` | `/settings/preferences` | Language, region, spoiler protection, and the provider catalogue. Region and spoiler protection are the caller's account's (an account that never set one gets the install's value); the language is the install's. |
+| `POST` | `/settings/preferences` | `{ language?, region?, spoilerProtection? }`. Language is `en` or `en-US` shaped; region is two letters. Both are normalized. Region and spoiler protection are saved for the caller's account; changing the language takes the admin (`403 admin_required` otherwise, though sending the current one back is accepted). Clears the discovery cache. |
+| `GET` | `/settings/job-status` | Background jobs that are currently failing — the Steam sync, Trakt poll, episode notifications, AI refresh. Otherwise these are only visible in the logs. |
 | `GET` | `/tmdb/status` | `{ configured, source }` where source is `db`, `env` or `none`. |
 | `POST` | `/tmdb/key` | Validated against TMDB before saving, so a typo can't overwrite a working key. |
 | `DELETE` | `/tmdb/key` | Reports the env fallback that remains, if any. |
@@ -554,8 +554,8 @@ Any OpenAI-compatible chat-completions endpoint, including a local one.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/ai/config` | Headers are redacted. Includes `lastGeneratedAt`. |
-| `POST` | `/ai/config` | `{ config: { url, headers, payload: { model, max_tokens? } } }`. `max_tokens` below 2048 is clamped up — under that, responses truncate mid-JSON. |
+| `GET` | `/ai/config` | The caller's account's provider. Headers are redacted. Includes `lastGeneratedAt`. |
+| `POST` | `/ai/config` | `{ config: { url, headers, payload: { model, max_tokens? } } }`, saved for the caller's account and used for its profiles' recommendations. `max_tokens` below 2048 is clamped up — under that, responses truncate mid-JSON. Only the admin's URL may be a private-network or loopback address; anyone else's must be public (400 otherwise). The same rule applies to notification channel URLs. |
 | `DELETE` | `/ai/config` | |
 | `POST` | `/ai/test` | Sends one trivial prompt. On failure returns `{ success: false, outcome, error }`, where `outcome` is one of `blocked` / `misconfigured` / `unreachable` / `rejected` / `failed` — never the status code, the socket error or the upstream body, so it can't be used as an SSRF probe. Redirects are not followed; the detail is in the server log. |
 | `GET` | `/recommendations/ai?type=&limit=` | With reasons per title. Falls back to TMDB seeds when no provider is configured. `limit` caps at 20. |
@@ -653,31 +653,6 @@ upcoming episode, `data` carries `seriesImdbId`, `seriesName`, `season`,
 `episode` and `episodeName`. Links (`url`, and the tap target on ntfy, Gotify
 and Discord) are only included when `CATALOGGY_WEB_PUBLIC` tells the API where
 the web UI lives.
-
-### Jellyseerr / Overseerr requests
-
-The one integration that writes outward: a watchlist add can become a request on
-a Jellyseerr (or Overseerr) server. Off unless configured, scoped to the default
-watchlist only, and never able to fail or delay a list write: the push runs in
-the background of a request that has already answered, and a failure is recorded
-against the `jellyseerr-request` job, where `/settings/job-status` shows it.
-The URL is held to the notification-channel rules (http(s) only, never the
-cloud-metadata/link-local range, checked by DNS as well as by name, re-resolved
-before every request, redirects refused), since a LAN address is the expected
-target.
-
-| Method | Path | Notes |
-| --- | --- | --- |
-| `GET` | `/settings/jellyseerr` | `{ configured, config }`. The stored API key is never returned — only `hasApiKey`. |
-| `POST` | `/settings/jellyseerr` | `{ url, apiKey?, requestOnAdd?, cancelOnRemove? }`. Omitting `apiKey` (or sending `""`) keeps the stored one. The URL is validated (syntax and DNS) and stored; it is not requested here — proving the connection is the test route below, which Settings calls straight after a save. Two reasons: a server that is down must not refuse the save that fixes a typo, and a route that fetched a URL out of its own request body is the request-forgery shape a scanner is right to flag. |
-| `DELETE` | `/settings/jellyseerr` | Forgets the URL, the key and both flags. |
-| `POST` | `/settings/jellyseerr/test` | Checks the stored config: `{ success: true, version, applicationTitle }`, or `{ success: false, outcome, error }`. 404 when nothing is configured. |
-
-A request is filed by TMDB id, resolved from the stored metadata row and falling
-back to a TMDB lookup by IMDb id; a title TMDB has never heard of is skipped
-rather than guessed at. Series are requested whole (`seasons: "all"`). An
-already-requested title (Jellyseerr's 409) counts as success. `cancelOnRemove`
-only ever deletes a request still in Jellyseerr's pending state.
 
 ### Export and import
 

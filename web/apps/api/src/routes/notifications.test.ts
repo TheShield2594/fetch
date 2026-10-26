@@ -19,6 +19,10 @@ const prismaMock = {
 };
 const sendToChannel = vi.fn();
 
+// Every caller is the account "owner-1" (lib/test-fixtures/integration-owner-mock.ts).
+vi.mock("../lib/integration-owner.js", async () =>
+  (await import("../lib/test-fixtures/integration-owner-mock.js")).integrationOwnerMock
+);
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 vi.mock("../lib/profile.js", () => ({
   resolveProfile: async (request: { profileId?: string }) => {
@@ -347,7 +351,8 @@ describe("notification channel routes", () => {
       expect(res.json()).toEqual({ success: true });
       expect(sendToChannel).toHaveBeenCalledWith(
         expect.objectContaining({ id: CHANNEL_ID }),
-        expect.objectContaining({ event: "test" })
+        expect.objectContaining({ event: "test" }),
+        { allowPrivateNetwork: true }
       );
     });
 

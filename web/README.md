@@ -18,7 +18,6 @@ Self-host it on your home server, open it on your phone or computer, and keep tr
 - **One shelf for everything** — shows, films and games in one grid, each measured in its own units: episodes for a season, hours for a game
 - **Discovery when you want it, not in the way** — trending, recommendations and upcoming episodes live on their own page
 - **Works with the tools you already use** — pairs with Stremio, Plex, Jellyfin, Emby, Trakt, and Stremio/Omni add-ons
-- **Adding to the watchlist can fetch it** — optional, off by default: a watchlist add becomes a Jellyseerr/Overseerr request
 - **No account you can't walk away from** — watch history comes straight from Stremio, Plex, Jellyfin or Emby, and every third-party service is optional and replaceable
 - **Yours, not the cloud's** — runs on your own hardware, your data stays on your network
 - **Phone friendly** — installs as an app on your phone (PWA; needs an HTTPS address, see [Install as a PWA](#install-as-a-pwa))
@@ -363,50 +362,6 @@ Trakt is supported but is not a system of record, and nothing depends on it. Eac
 
 Everything Fetch knows can be exported as a single JSON file (lists, watch history, series progress, ratings) — see [Export / import your data](#export--import-your-data).
 
-## Requesting what you add (Jellyseerr / Overseerr)
-
-Every other integration points inward: it answers "what have I watched" or
-"what is this thing". This one points the other way — adding a title to your
-watchlist can file a request on the server that actually fetches it, instead of
-being a manual hop into another app.
-
-Set it up under **Settings → Jellyseerr Requests**: your server's URL and the
-API key from **Settings → General → API Key** in Jellyseerr. Overseerr works
-too — the API this uses is the same one. Nothing is sent until you configure it.
-It is set up once, by the admin, so only the admin account's watchlists file
-requests; another account's watchlist doesn't reach your Jellyseerr.
-Saving stores the URL and key and then tests them straight away, so a typo or a
-revoked key shows up there and then rather than weeks later — and a server that
-happens to be off tonight doesn't stop you saving the setting that fixes it.
-**Test connection** re-runs that check whenever you want it.
-
-What it does, and deliberately does not do:
-
-- **Only the watchlist.** Your other lists stay local. "I want to watch this" is
-  what a watchlist add means, and it is the only list membership that says
-  anything about acquiring a title. (Same scoping the Trakt watchlist mirror
-  uses.)
-- **A failure never fails the add, or delays it.** The request is filed in the
-  background of an add that has already succeeded, so a Jellyseerr that is off
-  costs nothing but a line under **Settings → Sync Status**, alongside the
-  scheduled jobs. Re-adding something already requested is not a failure —
-  Jellyseerr says it already has it, and that is treated as success.
-- **Series are requested whole.** Picking seasons is a decision this has no way
-  to ask you about.
-- **Removals cancel nothing unless you opt in**, and even then only a request
-  nobody has approved yet. Once Jellyseerr has approved one, the download exists
-  or is on its way in Sonarr/Radarr, and un-listing a title is not a decision to
-  delete it — the same caution `TRAKT_WATCHLIST_MIRROR_DELETES` applies to the
-  watchlist itself, for a case that is harder to undo.
-
-The URL is checked the way the notification-channel and AI-provider URLs are:
-http(s) only, never the cloud-metadata/link-local range, by DNS result as well
-as by name, re-checked immediately before every request, and redirects are
-refused rather than followed. LAN and loopback addresses are allowed, since a
-Jellyseerr on your own network is the expected setup. The API key is stored
-encrypted (see [Secrets at rest](#secrets-at-rest)) and is never handed back
-out by the API.
-
 ## Notifications
 
 Fetch can tell you when the next episode of something you're watching airs.
@@ -444,9 +399,9 @@ Fetch is invite-only. There is no public sign-up page: the first account (create
 
 - **Inviting someone:** **Settings → Invites & Accounts → Create invite link**. Send them the link. It works once and expires after 7 days, and it is shown only when it is made. Lost it? Revoke it and make another. Links are built from `CATALOGGY_WEB_PUBLIC`, so set that to the address people actually open (your domain).
 - **What they get:** their own account and profile, with their own lists, watch history, ratings and games. They can make more profiles inside their account. Nobody else's profiles are visible to them, and theirs aren't visible to you in the app either.
-- **What stays shared:** the server's own setup is the admin's to change and applies to everyone: the TMDB, OMDb and RPDB keys, metadata language and region, the AI provider, Jellyseerr and the Steam library. Other accounts don't see those sections in Settings.
+- **What stays shared:** the server's own setup is the admin's to change and applies to everyone: the TMDB, OMDb and RPDB keys, the metadata language (titles are fetched once and shared, so they are in one language), play detection and the Steam library. Other accounts don't see those sections in Settings.
+- **Their own preferences and AI:** each account has its own streaming region and spoiler protection, and can connect its own AI provider for recommendations, with its own API key. Only the admin's AI provider and notification channels may point at an address on your home network; everyone else's must be a public service, so an account can't make your server send requests into your LAN.
 - **Their own connections:** each account connects its own Trakt and Stremio accounts under **Settings → Integrations & Data**, and makes its own Plex/Jellyfin/Emby webhook link. What those bring in lands in that account's profiles, and what they watch goes to their own Trakt, never yours. The Trakt app itself (`TRAKT_CLIENT_ID`, `TRAKT_CLIENT_SECRET`) is the server's and is shared; each person signs in to their own Trakt account through it. A Trakt or Stremio connection made before accounts existed becomes the admin's.
-- **Jellyseerr is the admin's:** only the admin account's watchlist files requests on it.
 - **Signing out, passwords:** **Settings → Account**. Changing your password signs out your other devices. A sign-in lasts 30 days from when it was last used. Five wrong passwords lock the account for a few minutes, longer each time.
 - **Removing someone:** **Settings → Invites & Accounts** deletes their account and everything in it.
 - **Locked out of the admin account:** `API_TOKEN` still works against the API directly (see [docs/api.md](docs/api.md)), for example to make an invite for a new account.
@@ -559,8 +514,7 @@ Every credential Fetch stores on your behalf is encrypted in the database with A
 | Stremio account access key | `StremioAuth.authKey` |
 | ntfy / Gotify / webhook tokens | `NotificationChannel.token` |
 | TMDB, OMDB and RPDB API keys | `KV` |
-| AI provider config, including its `Authorization` header | `KV` |
-| Jellyseerr URL + API key | `KV` |
+| AI provider config, including its `Authorization` header (one per account) | `KV` |
 | VAPID private key (web push) | `KV` |
 
 The key is derived from `API_TOKEN` with HKDF-SHA256 — the same "derive from the one secret you already have" approach as the add-on URL secret and profile access tokens — so there is no extra variable to set and no key file to lose. Each value is also bound to the column it lives in, so a ciphertext lifted out of one row and pasted into another fails to decrypt rather than being accepted somewhere it doesn't belong.

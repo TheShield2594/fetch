@@ -10,6 +10,7 @@ import { prisma } from "./prisma.js";
 import { sendPushToAllSubscriptions } from "./push.js";
 import { listEnabledChannels, sendToChannel } from "./notification-channels.js";
 import type { NotificationEvent } from "./notification-channels.js";
+import { outboundScopeForProfile } from "./integration-owner.js";
 
 export type DeliveryResult = {
   /** Targets that were tried: web push counts as one, plus one per channel. */
@@ -50,9 +51,11 @@ export const deliverNotification = async (
   event: NotificationEvent,
   profileId: string
 ): Promise<DeliveryResult> => {
-  const [pushCount, channels] = await Promise.all([
+  const [pushCount, channels, scope] = await Promise.all([
     prisma.pushSubscription.count({ where: { profileId } }),
     listEnabledChannels(profileId),
+    // A channel may be on the LAN only if the profile is the admin's.
+    outboundScopeForProfile(profileId),
   ]);
 
   const failures: Error[] = [];
@@ -81,7 +84,7 @@ export const deliverNotification = async (
   const attempts = await Promise.all(
     channels.map(async (channel) => {
       try {
-        await sendToChannel(channel, event);
+        await sendToChannel(channel, event, scope);
         return null;
       } catch (error) {
         return asError(error, `${channel.kind} channel`);

@@ -158,18 +158,6 @@ export type NotificationChannel = {
  */
 export type OutboundFailure = "blocked" | "misconfigured" | "unreachable" | "rejected" | "failed";
 
-export type JellyseerrConfig = {
-  url: string;
-  /** Whether a watchlist add becomes a request on the server. */
-  requestOnAdd: boolean;
-  /** Whether un-listing cancels a request nobody has approved yet. */
-  cancelOnRemove: boolean;
-  /** The key itself is write-only — the API never sends it back. */
-  hasApiKey: boolean;
-};
-
-export type JellyseerrStatus = { configured: boolean; config: JellyseerrConfig | null };
-
 export type PlaySignal = {
   id: string;
   type: "movie" | "episode";

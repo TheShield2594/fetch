@@ -21,7 +21,19 @@ const readSecretKv = vi.fn();
 vi.mock("./secret-store.js", () => ({ readSecretKv: (key: string) => readSecretKv(key) }));
 
 const resolveAiProviderUrl = vi.fn();
-vi.mock("./ssrf.js", () => ({ resolveAiProviderUrl: (url: string) => resolveAiProviderUrl(url) }));
+vi.mock("./ssrf.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./ssrf.js")>()),
+  resolveAiProviderUrl: (url: string, _resolveHost: unknown, scope: unknown) => resolveAiProviderUrl(url, scope),
+}));
+
+// Every profile is in the account "owner-1", whose provider is the one stored.
+const ownerForProfile = vi.fn<(profileId: string) => Promise<string | null>>();
+const outboundScopeForOwner = vi.fn();
+vi.mock("./integration-owner.js", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./integration-owner.js")>()),
+  ownerForProfile: (profileId: string) => ownerForProfile(profileId),
+  outboundScopeForOwner: (owner: string) => outboundScopeForOwner(owner),
+}));
 
 const search = vi.fn();
 vi.mock("./tmdb-client.js", () => ({ getTmdb: async () => ({ search }) }));
@@ -70,6 +82,8 @@ beforeEach(() => {
 
   readSecretKv.mockResolvedValue(JSON.stringify(CONFIG));
   resolveAiProviderUrl.mockResolvedValue(true);
+  ownerForProfile.mockResolvedValue("owner-1");
+  outboundScopeForOwner.mockResolvedValue({ allowPrivateNetwork: true });
 
   prismaMock.watchEvent.findMany.mockResolvedValue([]);
   prismaMock.metadata.findMany.mockResolvedValue([]);
@@ -93,13 +107,14 @@ const sentInit = () => first(fetchMock.mock.calls, "fetchMock call")[1] as Reque
 
 describe("getAiConfig", () => {
   it("reads the config through the encrypted store", async () => {
-    expect(await getAiConfig()).toEqual(CONFIG);
-    expect(readSecretKv).toHaveBeenCalledWith(AI_CONFIG_KEY);
+    expect(await getAiConfig("owner-1")).toEqual(CONFIG);
+    // The account's own config.
+    expect(readSecretKv).toHaveBeenCalledWith(`${AI_CONFIG_KEY}:owner-1`);
   });
 
   it("is null when nothing is stored", async () => {
     readSecretKv.mockResolvedValue(null);
-    expect(await getAiConfig()).toBeNull();
+    expect(await getAiConfig("owner-1")).toBeNull();
   });
 
   it("is null rather than throwing when the stored blob is not JSON", async () => {
@@ -107,13 +122,13 @@ describe("getAiConfig", () => {
     // usable. "Not configured" is the right reading; a throw would take down
     // whatever asked.
     readSecretKv.mockResolvedValue("not json");
-    expect(await getAiConfig()).toBeNull();
+    expect(await getAiConfig("owner-1")).toBeNull();
   });
 });
 
 describe("isAiConfigured", () => {
   it("needs a url, headers and a model", async () => {
-    expect(await isAiConfigured()).toBe(true);
+    expect(await isAiConfigured("owner-1")).toBe(true);
   });
 
   it.each([
@@ -122,7 +137,7 @@ describe("isAiConfigured", () => {
     ["model", { ...CONFIG, payload: { max_tokens: 4096 } }],
   ])("is false without a %s", async (_field, config) => {
     readSecretKv.mockResolvedValue(JSON.stringify(config));
-    expect(await isAiConfigured()).toBe(false);
+    expect(await isAiConfigured("owner-1")).toBe(false);
   });
 });
 
@@ -149,7 +164,7 @@ describe("redactAiConfig", () => {
 
 describe("the outbound request", () => {
   it("carries the configured headers alongside a JSON content type", async () => {
-    await getAiRecommendations("movie", 1, undefined, logger);
+    await getAiRecommendations("movie", 1, "profile-1", logger);
 
     expect(fetchMock).toHaveBeenCalledWith(CONFIG.url, expect.anything());
     expect(sentInit().headers).toEqual({
@@ -161,19 +176,19 @@ describe("the outbound request", () => {
   it("refuses to follow a redirect", async () => {
     // An allowed host must not be able to bounce the request — Authorization
     // header and all — at an address the SSRF check would have rejected.
-    await getAiRecommendations("movie", 1, undefined, logger);
+    await getAiRecommendations("movie", 1, "profile-1", logger);
 
     expect(sentInit().redirect).toBe("error");
   });
 
   it("is abortable, so a provider that never answers does not hold the request", async () => {
-    await getAiRecommendations("movie", 1, undefined, logger);
+    await getAiRecommendations("movie", 1, "profile-1", logger);
 
     expect(sentInit().signal).toBeInstanceOf(AbortSignal);
   });
 
   it("asks for a non-streaming completion carrying the prompt", async () => {
-    await getAiRecommendations("movie", 1, undefined, logger);
+    await getAiRecommendations("movie", 1, "profile-1", logger);
 
     const body = sentBody();
     expect(body).toMatchObject({ model: "gpt-4o-mini", stream: false });
@@ -183,15 +198,31 @@ describe("the outbound request", () => {
 
   it("re-resolves the URL before every call, not once at save time", async () => {
     // A hostname's DNS records can change between being saved and being used.
-    await getAiRecommendations("movie", 1, undefined, logger);
+    await getAiRecommendations("movie", 1, "profile-1", logger);
 
-    expect(resolveAiProviderUrl).toHaveBeenCalledWith(CONFIG.url);
+    expect(resolveAiProviderUrl).toHaveBeenCalledWith(CONFIG.url, { allowPrivateNetwork: true });
+  });
+
+  it("holds another account's provider to public addresses", async () => {
+    outboundScopeForOwner.mockResolvedValue({ allowPrivateNetwork: false });
+
+    await getAiRecommendations("movie", 1, "profile-1", logger);
+
+    expect(outboundScopeForOwner).toHaveBeenCalledWith("owner-1");
+    expect(resolveAiProviderUrl).toHaveBeenCalledWith(CONFIG.url, { allowPrivateNetwork: false });
+  });
+
+  it("uses nobody's provider for a profile that no longer exists", async () => {
+    ownerForProfile.mockResolvedValue(null);
+
+    expect(await getAiRecommendations("movie", 1, "gone", logger)).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("sends nothing at all when the URL resolves to a blocked target", async () => {
     resolveAiProviderUrl.mockResolvedValue(false);
 
-    expect(await getAiRecommendations("movie", 1, undefined, logger)).toBeNull();
+    expect(await getAiRecommendations("movie", 1, "profile-1", logger)).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -205,7 +236,7 @@ describe("the outbound request", () => {
       text: async () => "internal-service-response",
     });
 
-    expect(await getAiRecommendations("movie", 1, undefined, logger)).toBeNull();
+    expect(await getAiRecommendations("movie", 1, "profile-1", logger)).toBeNull();
     expect(JSON.stringify(loggerMocks.error.mock.calls)).not.toContain("internal-service-response");
     expect(first(loggerMocks.error.mock.calls, "loggerMocks.error call")[0]).toMatchObject({ message: "AI provider error (403)" });
   });
@@ -215,13 +246,13 @@ describe("the max_tokens floor", () => {
   it("raises a saved value low enough to truncate the response", async () => {
     readSecretKv.mockResolvedValue(JSON.stringify({ ...CONFIG, payload: { model: "m", max_tokens: 512 } }));
 
-    await getAiRecommendations("movie", 1, undefined, logger);
+    await getAiRecommendations("movie", 1, "profile-1", logger);
 
     expect(sentBody().max_tokens).toBeGreaterThanOrEqual(2048);
   });
 
   it("scales with how many recommendations were asked for", async () => {
-    await getAiRecommendations("movie", 50, undefined, logger);
+    await getAiRecommendations("movie", 50, "profile-1", logger);
 
     // 400 base + 150 per recommendation, which is above the 2048 floor by 50.
     expect(sentBody().max_tokens).toBe(7900);
@@ -230,7 +261,7 @@ describe("the max_tokens floor", () => {
   it("keeps a configured value that is already higher", async () => {
     readSecretKv.mockResolvedValue(JSON.stringify({ ...CONFIG, payload: { model: "m", max_tokens: 32000 } }));
 
-    await getAiRecommendations("movie", 1, undefined, logger);
+    await getAiRecommendations("movie", 1, "profile-1", logger);
 
     expect(sentBody().max_tokens).toBe(32000);
   });
@@ -238,7 +269,7 @@ describe("the max_tokens floor", () => {
 
 describe("reading the provider's answer", () => {
   const recommends = async () => {
-    const result = await getAiRecommendations("movie", 1, undefined, logger);
+    const result = await getAiRecommendations("movie", 1, "profile-1", logger);
     return result?.metas.map((meta) => meta.name) ?? null;
   };
 
@@ -266,13 +297,13 @@ describe("reading the provider's answer", () => {
   it("gives up on a response with no array in it", async () => {
     fetchMock.mockResolvedValue(aiResponse("I'm afraid I can't do that."));
 
-    expect(await getAiRecommendations("movie", 1, undefined, logger)).toBeNull();
+    expect(await getAiRecommendations("movie", 1, "profile-1", logger)).toBeNull();
   });
 
   it("says a truncated reasoning block needs more headroom, not better parsing", async () => {
     fetchMock.mockResolvedValue(aiResponse("<think>Considering the user's taste in crime"));
 
-    expect(await getAiRecommendations("movie", 1, undefined, logger)).toBeNull();
+    expect(await getAiRecommendations("movie", 1, "profile-1", logger)).toBeNull();
     expect(first(loggerMocks.error.mock.calls, "loggerMocks.error call")[0]).toMatchObject({ message: expect.stringMatching(/max_tokens/) });
   });
 });
@@ -303,31 +334,31 @@ describe("shouldRefreshAiRecs", () => {
   it("is false when no provider is configured", async () => {
     readSecretKv.mockResolvedValue(null);
 
-    expect(await shouldRefreshAiRecs()).toBe(false);
+    expect(await shouldRefreshAiRecs("owner-1")).toBe(false);
     expect(prismaMock.kV.findUnique).not.toHaveBeenCalled();
   });
 
   it("is true when nothing has been generated yet", async () => {
-    expect(await shouldRefreshAiRecs()).toBe(true);
+    expect(await shouldRefreshAiRecs("owner-1")).toBe(true);
   });
 
   it("is false a day after the last generation", async () => {
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     prismaMock.kV.findUnique.mockResolvedValue({ value: yesterday });
 
-    expect(await shouldRefreshAiRecs()).toBe(false);
+    expect(await shouldRefreshAiRecs("owner-1")).toBe(false);
   });
 
   it("is true a week after the last generation", async () => {
     const lastWeek = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
     prismaMock.kV.findUnique.mockResolvedValue({ value: lastWeek });
 
-    expect(await shouldRefreshAiRecs()).toBe(true);
+    expect(await shouldRefreshAiRecs("owner-1")).toBe(true);
   });
 
   it("is true when the stored timestamp is unreadable", async () => {
     prismaMock.kV.findUnique.mockResolvedValue({ value: "whenever" });
 
-    expect(await shouldRefreshAiRecs()).toBe(true);
+    expect(await shouldRefreshAiRecs("owner-1")).toBe(true);
   });
 });

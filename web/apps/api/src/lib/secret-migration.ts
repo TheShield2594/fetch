@@ -68,7 +68,10 @@ export const encryptStoredSecrets = async (logger: FastifyBaseLogger): Promise<S
     sweep.encrypted += 1;
   };
 
-  const kvRows = await prisma.kV.findMany({ where: { key: { in: [...SECRET_KV_KEYS] } } });
+  // Each account's AI provider config is a credential too, under its own key.
+  const kvRows = await prisma.kV.findMany({
+    where: { OR: [{ key: { in: [...SECRET_KV_KEYS] } }, { key: { startsWith: `${AI_CONFIG_KEY}:` } }] },
+  });
   for (const row of kvRows) {
     await visit(kvSecretContext(row.key), row.key, row.value, async (value) => {
       await prisma.kV.update({ where: { key: row.key }, data: { value, updatedAt: new Date() } });

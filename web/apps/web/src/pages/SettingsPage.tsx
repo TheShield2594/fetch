@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import { Link, Database, Download, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook } from "lucide-react";
+import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook } from "lucide-react";
 import { Section } from "../components/settings/Section";
 import { healthSummary } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
@@ -16,7 +16,6 @@ import { AddonSettings } from "../components/settings/AddonSettings";
 import { StremioSyncSettings } from "../components/settings/StremioSyncSettings";
 import { PlayDetectionSettings } from "../components/settings/PlayDetectionSettings";
 import { AiSettings } from "../components/settings/AiSettings";
-import { JellyseerrSettings } from "../components/settings/JellyseerrSettings";
 import { DataSettings } from "../components/settings/DataSettings";
 import { PreferencesSettings } from "../components/settings/PreferencesSettings";
 import { PushSettings } from "../components/settings/PushSettings";
@@ -80,7 +79,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "preferences",
-    adminOnly: true,
     tab: "preferences",
     title: "Metadata & Region",
     icon: <Globe size={20} />,
@@ -206,18 +204,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     keywords: "rating poster database artwork images api key",
     content: <RpdbSettings />,
   },
-  // The one integration that points outward: everything above answers "what
-  // have I watched" or "what is this thing"; this one acts on the answer.
-  {
-    id: "jellyseerr",
-    adminOnly: true,
-    tab: "integrations",
-    group: "Where titles go",
-    title: "Jellyseerr Requests",
-    icon: <Download size={20} />,
-    keywords: "jellyseerr overseerr request sonarr radarr download watchlist acquire",
-    content: <JellyseerrSettings />,
-  },
   // The app's own surfaces and the keys that reach them.
   {
     id: "addon",
@@ -240,16 +226,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     content: <InvitesSettings />,
   },
   {
-    id: "ai",
-    adminOnly: true,
-    tab: "integrations",
-    group: "This server",
-    title: "AI Recommendations",
-    icon: <Sparkles size={20} />,
-    keywords: "llm openai ollama model provider suggestions",
-    content: <AiSettings />,
-  },
-  {
     id: "data",
     tab: "integrations",
     group: "This server",
@@ -257,6 +233,15 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Database size={20} />,
     keywords: "export import backup restore refresh metadata steam wipe",
     content: <DataSettings />,
+  },
+  {
+    id: "ai",
+    tab: "integrations",
+    group: "Recommendations",
+    title: "AI Recommendations",
+    icon: <Sparkles size={20} />,
+    keywords: "llm openai ollama model provider suggestions",
+    content: <AiSettings />,
   },
   // What a TV pointed at this server runs, per profile. The overview is
   // all profiles; the three below edit the active one.

@@ -3,6 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AiSettings } from "./AiSettings";
 
+const signedIn = vi.hoisted(() => ({ isAdmin: true }));
+vi.mock("../../hooks/useAccount", () => ({
+  useAccount: () => ({ account: null, isAdmin: signedIn.isAdmin, refresh: () => {} }),
+}));
+
 vi.mock("../../api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../api")>();
   return {
@@ -39,6 +44,7 @@ async function renderSettings() {
 }
 
 beforeEach(() => {
+  signedIn.isAdmin = true;
   getAiConfig.mockResolvedValue({ configured: false, config: null, lastGeneratedAt: null });
   saveAiConfig.mockResolvedValue({ configured: true });
   deleteAiConfig.mockResolvedValue({ configured: false });
@@ -135,6 +141,14 @@ describe("AiSettings validation", () => {
     fireEvent.change(field.maxTokens(), { target: { value: "8000" } });
 
     expect(field.maxTokens()).toHaveValue(8000);
+  });
+
+  it("offers a local Ollama to the admin only", async () => {
+    signedIn.isAdmin = false;
+    await renderSettings();
+
+    expect(screen.queryByRole("option", { name: /ollama/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/has to be a public service/i)).toBeInTheDocument();
   });
 
   it("lets Ollama through without a key, and sends no auth header", async () => {

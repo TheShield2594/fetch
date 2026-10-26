@@ -6,6 +6,7 @@ import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.local.CollectionsDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.remote.supabase.SupabaseHomeCatalogSettingsBlob
+import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.domain.model.AuthState
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -32,6 +33,8 @@ private const val TAG = "HomeCatalogSettingsSyncService"
 private const val HOME_CATALOG_SHARED_SYNC_PLATFORM = "home_catalog_shared"
 private const val PAYLOAD_SAMPLE_LIMIT = 5
 private const val HIDE_UNRELEASED_CONTENT_KEY = "hide_unreleased_content"
+/** The scope's owner while paired: the website has no user id, and only one account per TV. */
+private const val WEBSITE_SCOPE_USER = "fetch-website"
 
 @Serializable
 data class SyncCatalogItem(
@@ -77,7 +80,8 @@ class HomeCatalogSettingsSyncService @Inject constructor(
     private val profileManager: ProfileManager,
     private val addonRepository: AddonRepository,
     private val collectionsDataStore: CollectionsDataStore,
-    private val syncClientIdentity: SyncClientIdentity
+    private val syncClientIdentity: SyncClientIdentity,
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
 ) {
     private val postgrest: Postgrest get() = postgrestLazy.get()
 
@@ -143,6 +147,23 @@ class HomeCatalogSettingsSyncService @Inject constructor(
             }
 
             val localPayload = loadLocalPayload()
+
+            // A TV signed in to a Fetch website keeps its Home layout there instead.
+            if (websiteSync.get().isPaired) {
+                val remotePayload = websiteSync.get().pullHomeLayout(localPayload)
+                if (remotePayload == null || remotePayload.items.isEmpty() || currentScope(profileId) != syncScope) {
+                    return@withContext Result.success(false)
+                }
+                isSyncingFromRemote = true
+                try {
+                    layoutPreferenceDataStore.applyCatalogSettingsFromRemote(remotePayload)
+                } finally {
+                    isSyncingFromRemote = false
+                }
+                Log.d(TAG, "Pull from website applied profile=$profileId ${remotePayload.summary()}")
+                return@withContext Result.success(true)
+            }
+
             val remoteBlob = fetchRemoteBlob(profileId)
             if (currentScope(profileId) != syncScope) {
                 return@withContext Result.success(false)
@@ -185,7 +206,7 @@ class HomeCatalogSettingsSyncService @Inject constructor(
 
     fun triggerPush() {
         if (isSyncingFromRemote) return
-        if (!authManager.isAuthenticated) return
+        if (!authManager.isAuthenticated && !websiteSync.get().isPaired) return
         pushJob?.cancel()
         pushJob = scope.launch {
             delay(500)
@@ -200,6 +221,10 @@ class HomeCatalogSettingsSyncService @Inject constructor(
     }
 
     private suspend fun pushPayload(syncScope: HomeCatalogSyncScope, payload: SyncHomeCatalogPayload) {
+        if (websiteSync.get().isPaired) {
+            websiteSync.get().pushHomeLayout(payload)
+            return
+        }
         val jsonElement = mergedSharedPayloadJson(syncScope, payload)
 
         val params = buildJsonObject {
@@ -252,8 +277,9 @@ class HomeCatalogSettingsSyncService @Inject constructor(
     }
 
     private fun currentScope(profileId: Int): HomeCatalogSyncScope? {
-        val state = authManager.authState.value as? AuthState.FullAccount ?: return null
         if (profileManager.activeProfileId.value != profileId) return null
+        if (websiteSync.get().isPaired) return HomeCatalogSyncScope(userId = WEBSITE_SCOPE_USER, profileId = profileId)
+        val state = authManager.authState.value as? AuthState.FullAccount ?: return null
         return HomeCatalogSyncScope(userId = state.userId, profileId = profileId)
     }
 

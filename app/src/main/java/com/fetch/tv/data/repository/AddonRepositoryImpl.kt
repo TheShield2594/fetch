@@ -112,7 +112,7 @@ class AddonRepositoryImpl(
             Log.d(TAG, "triggerRemoteSync: skipped (syncing from remote)")
             return
         }
-        if (!authManager.isAuthenticated) {
+        if (!addonSyncService.canSync) {
             Log.d(TAG, "triggerRemoteSync: skipped (not authenticated, state=${authManager.authState.value})")
             return
         }

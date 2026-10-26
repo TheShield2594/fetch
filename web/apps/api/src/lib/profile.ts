@@ -178,3 +178,25 @@ export const resolveProfile = async (request: FastifyRequest, reply: FastifyRepl
 
   return reply.code(400).send({ error: "x-profile-id header is required" });
 };
+
+/**
+ * `resolveProfile` for routes that name the profile in the path
+ * (`/profiles/:id/addons`) rather than in the `x-profile-id` header — the
+ * resources a TV syncs, where the profile being edited is the subject of the
+ * request. The PIN gate is the same one: a locked profile needs its own
+ * profile token, whoever is asking.
+ */
+export const resolveProfileParam = async (request: FastifyRequest, reply: FastifyReply) => {
+  const { id } = request.params as { id?: string };
+  if (!id || !UUID_V4_PATTERN.test(id)) {
+    return reply.code(400).send({ error: "id must be a valid UUID" });
+  }
+  const profile = await findProfileById(id);
+  if (!profile) {
+    return reply.code(404).send({ error: "Profile not found" });
+  }
+  if (profile.pinHash && !hasValidProfileToken(request, profile.id)) {
+    return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
+  }
+  request.profileId = id;
+};

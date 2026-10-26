@@ -42,6 +42,7 @@ class FetchWebsiteStore internal constructor(
     val lastServerUrl: String? get() = prefs.getString(KEY_SERVER_URL, null)
 
     fun save(session: FetchWebsiteSession) {
+        clearSettingsBases()
         prefs.edit()
             .putString(KEY_SERVER_URL, session.serverUrl)
             .putString(KEY_TOKEN, session.deviceToken)
@@ -55,12 +56,14 @@ class FetchWebsiteStore internal constructor(
     /** Signing out on the TV: forget the token, keep the address for next time. */
     fun clear() {
         prefs.edit().remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).apply()
+        clearSettingsBases()
         _session.value = null
     }
 
     /** The website revoked this TV. Same as [clear], but remembered so the TV can say why. */
     fun markSignedOutByWebsite() {
         prefs.edit().remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).putBoolean(KEY_SIGNED_OUT, true).apply()
+        clearSettingsBases()
         _signedOutByWebsite.value = true
         _session.value = null
     }
@@ -68,6 +71,24 @@ class FetchWebsiteStore internal constructor(
     fun dismissSignedOutNotice() {
         prefs.edit().putBoolean(KEY_SIGNED_OUT, false).apply()
         _signedOutByWebsite.value = false
+    }
+
+    /**
+     * The settings blob this TV and the website last agreed on for a website profile: the base
+     * of the three-way merge in [FetchWebsiteTvMappings.mergeSettings]. Kept across restarts, so
+     * a change made on the website while the TV was off is told apart from one made here.
+     */
+    fun settingsBase(websiteProfileId: String): String? = prefs.getString(KEY_SETTINGS_BASE_PREFIX + websiteProfileId, null)
+
+    fun saveSettingsBase(websiteProfileId: String, blob: String) {
+        prefs.edit().putString(KEY_SETTINGS_BASE_PREFIX + websiteProfileId, blob).apply()
+    }
+
+    /** A new pairing, or the website a TV left, starts from the TV's own settings again. */
+    private fun clearSettingsBases() {
+        val editor = prefs.edit()
+        prefs.all.keys.filter { it.startsWith(KEY_SETTINGS_BASE_PREFIX) }.forEach(editor::remove)
+        editor.apply()
     }
 
     private fun readSession(): FetchWebsiteSession? {
@@ -82,5 +103,6 @@ class FetchWebsiteStore internal constructor(
         const val KEY_TOKEN = "device_token"
         const val KEY_DEVICE_NAME = "device_name"
         const val KEY_SIGNED_OUT = "signed_out_by_website"
+        const val KEY_SETTINGS_BASE_PREFIX = "settings_base_"
     }
 }

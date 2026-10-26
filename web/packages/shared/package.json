@@ -8,7 +8,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./contracts": "./dist/api-contracts.js",
-    "./api-cache-routes": "./dist/api-cache-routes.js"
+    "./api-cache-routes": "./dist/api-cache-routes.js",
+    "./tv-settings": "./dist/tv-settings.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

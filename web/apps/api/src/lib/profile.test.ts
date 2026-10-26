@@ -201,3 +201,48 @@ describe("isProfileLocked", () => {
     expect(await isProfileLocked(makeRequest(), OTHER_PROFILE_ID)).toBe(false);
   });
 });
+
+describe("resolveProfileParam", () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+    const { profileCacheClear } = await import("./cache.js");
+    profileCacheClear();
+  });
+
+  const paramRequest = (id: string) =>
+    ({ headers: {}, params: { id } }) as unknown as FastifyRequest;
+
+  it("acts as the profile named in the path, whatever the header says", async () => {
+    prismaMock.profile.findUnique.mockResolvedValue({ id: OTHER_PROFILE_ID, pinHash: null });
+    const { resolveProfileParam } = await loadProfileLib();
+    const request = paramRequest(OTHER_PROFILE_ID);
+    (request.headers as Record<string, string>)["x-profile-id"] = PROFILE_ID;
+    const reply = new FakeReply();
+    await resolveProfileParam(request, reply as unknown as FastifyReply);
+    expect(reply.statusCode).toBeUndefined();
+    expect(request.profileId).toBe(OTHER_PROFILE_ID);
+  });
+
+  it("answers 400 for a malformed id and 404 for an unknown one", async () => {
+    const { resolveProfileParam } = await loadProfileLib();
+    const bad = new FakeReply();
+    await resolveProfileParam(paramRequest("nope"), bad as unknown as FastifyReply);
+    expect(bad.statusCode).toBe(400);
+
+    prismaMock.profile.findUnique.mockResolvedValue(null);
+    const missing = new FakeReply();
+    await resolveProfileParam(paramRequest(PROFILE_ID), missing as unknown as FastifyReply);
+    expect(missing.statusCode).toBe(404);
+  });
+
+  it("keeps a PIN-locked profile locked without its profile token", async () => {
+    prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, pinHash: "hash" });
+    const { resolveProfileParam } = await loadProfileLib();
+    const request = paramRequest(PROFILE_ID);
+    const reply = new FakeReply();
+    await resolveProfileParam(request, reply as unknown as FastifyReply);
+    expect(reply.statusCode).toBe(401);
+    expect(request.profileId).toBeUndefined();
+  });
+});

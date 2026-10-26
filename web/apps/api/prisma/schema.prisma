@@ -86,6 +86,8 @@ model Profile {
   playbackProgress  PlaybackProgress[]
   collections       ProfileCollections?
   deviceSlots       DeviceProfileSlot[]
+  addons            ProfileAddon[]
+  documents         ProfileDocument[]
 }
 
 model Item {
@@ -493,6 +495,15 @@ model Device {
   createdAt  DateTime  @default(now()) @db.Timestamptz(6)
   lastSeenAt DateTime? @db.Timestamptz(6)
 
+  // What the device said about itself after its last sync (PUT
+  // /devices/me/report), for the account overview: which build it runs, and
+  // whether that sync worked. Null until it first reports.
+  appVersion    String?
+  flavor        String?
+  lastSyncAt    DateTime? @db.Timestamptz(6)
+  lastSyncOk    Boolean?
+  lastSyncError String?
+
   profileSlots DeviceProfileSlot[]
 }
 
@@ -533,4 +544,59 @@ model ProfileCollections {
   updatedAt   DateTime @db.Timestamptz(6)
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+// A Stremio addon installed for one profile, in the order the TV lists it.
+// Edited from the website and synced to the TV as a whole list, the way the
+// TV's `AddonSyncService` already pushes it to Supabase.
+//
+// `manifestUrl` can carry the addon's own credentials (a debrid key in the
+// path, a token in the query), so it is never logged whole — see
+// lib/addon-manifest.ts. Everything below it is cached from the manifest so the
+// website and the Home layout can name the addon without fetching it again;
+// `addonId` and `manifest` are null when the manifest has never been reachable,
+// which keeps an addon the TV pushed listed by its URL rather than dropped.
+model ProfileAddon {
+  id          String  @id @default(uuid()) @db.Uuid
+  manifestUrl String
+  position    Int
+  enabled     Boolean @default(true)
+
+  // The manifest's own `id` (com.example.addon), which is how the TV's Home
+  // layout refers to an addon's catalogs.
+  addonId     String?
+  name        String
+  version     String?
+  description String?
+  logo        String?
+  // The trimmed manifest: types, resource names, catalogs and whether it is
+  // configurable. See `CachedManifest` in lib/addon-manifest.ts.
+  manifest          Json?
+  manifestFetchedAt DateTime? @db.Timestamptz(6)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, manifestUrl])
+  @@index([profileId, position])
+}
+
+// A per-profile JSON document the website stores but does not own: the TV's
+// settings (`tv-settings`) and its Home row order (`home-layout`). Each write
+// bumps `version`, and a write must name the version it was based on
+// (`If-Match`), so two editors — a TV and a browser, or two browsers — cannot
+// silently overwrite each other.
+model ProfileDocument {
+  kind      String
+  document  Json
+  version   Int
+  updatedAt DateTime @db.Timestamptz(6)
+
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, kind])
 }

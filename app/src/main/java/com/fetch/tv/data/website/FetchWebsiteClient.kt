@@ -3,6 +3,7 @@ package com.fetch.tv.data.website
 import com.fetch.tv.core.network.SharedHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
@@ -157,6 +158,77 @@ class FetchWebsiteClient internal constructor(
         }
     }
 
+    // ─── What the TV runs, per profile ───
+
+    suspend fun addons(profileId: String, profileToken: String?): WebsiteAddonsBody =
+        authed(profilePath(profileId, "addons"), profileToken = profileToken).use { response ->
+            json.decodeFromString(WebsiteAddonsBody.serializer(), response.body?.string().orEmpty())
+        }
+
+    /** Replaces the profile's whole addon list, in order. */
+    suspend fun putAddons(profileId: String, profileToken: String?, addons: List<WebsiteAddon>) {
+        val body = buildJsonObject {
+            put("addons", json.encodeToJsonElement(ListSerializer(WebsiteAddon.serializer()), addons))
+        }.toString()
+        authed(profilePath(profileId, "addons"), method = "PUT", body = body, profileToken = profileToken).close()
+    }
+
+    suspend fun homeLayout(profileId: String, profileToken: String?): WebsiteHomeLayout =
+        authed(profilePath(profileId, "home-layout"), profileToken = profileToken).use { response ->
+            json.decodeFromString(WebsiteHomeLayout.serializer(), response.body?.string().orEmpty())
+        }
+
+    /** Saves the layout as the next version after [version]; a 412 means it changed since. */
+    suspend fun putHomeLayout(
+        profileId: String,
+        profileToken: String?,
+        rows: List<WebsiteHomeRow>,
+        version: Int
+    ): WebsiteHomeLayout {
+        val body = buildJsonObject {
+            put("rows", json.encodeToJsonElement(ListSerializer(WebsiteHomeRow.serializer()), rows))
+        }.toString()
+        return authed(
+            profilePath(profileId, "home-layout"),
+            method = "PUT",
+            body = body,
+            profileToken = profileToken,
+            ifMatch = version
+        ).use { response ->
+            json.decodeFromString(WebsiteHomeLayout.serializer(), response.body?.string().orEmpty())
+        }
+    }
+
+    suspend fun tvSettings(profileId: String, profileToken: String?): WebsiteTvSettings =
+        authed(profilePath(profileId, "settings/tv"), profileToken = profileToken).use { response ->
+            json.decodeFromString(WebsiteTvSettings.serializer(), response.body?.string().orEmpty())
+        }
+
+    /** Saves the settings blob as the next version after [version]; a 412 means it changed since. */
+    suspend fun putTvSettings(profileId: String, profileToken: String?, settings: JsonObject, version: Int): WebsiteTvSettings {
+        val body = buildJsonObject { put("settings", settings) }.toString()
+        return authed(
+            profilePath(profileId, "settings/tv"),
+            method = "PUT",
+            body = body,
+            profileToken = profileToken,
+            ifMatch = version
+        ).use { response ->
+            json.decodeFromString(WebsiteTvSettings.serializer(), response.body?.string().orEmpty())
+        }
+    }
+
+    /** Tells the website which build this is and how the last sync went, for its overview. */
+    suspend fun reportSync(appVersion: String, flavor: String, ok: Boolean, error: String?) {
+        val body = buildJsonObject {
+            put("appVersion", appVersion)
+            put("flavor", flavor)
+            put("ok", ok)
+            if (!ok && !error.isNullOrBlank()) put("error", error.take(MAX_REPORTED_ERROR_LENGTH))
+        }.toString()
+        authed("devices/me/report", method = "PUT", body = body).close()
+    }
+
     /** A page of one of the profile's website lists, for a collection row. */
     internal suspend fun listMetas(
         profileId: String,
@@ -178,7 +250,8 @@ class FetchWebsiteClient internal constructor(
         method: String = "GET",
         body: String? = null,
         profileId: String? = null,
-        profileToken: String? = null
+        profileToken: String? = null,
+        ifMatch: Int? = null
     ): Response = call {
         val session = store.session.value ?: throw FetchWebsiteSignedOutException()
         val builder = Request.Builder()
@@ -187,6 +260,7 @@ class FetchWebsiteClient internal constructor(
             .method(method, body?.toRequestBody(JSON))
         if (profileId != null) builder.header("x-profile-id", profileId)
         if (!profileToken.isNullOrBlank()) builder.header("x-profile-token", profileToken)
+        if (ifMatch != null) builder.header("If-Match", "\"$ifMatch\"")
         val response = http.newCall(builder.build()).execute()
         try {
             ensureOk(response, session = true)
@@ -222,6 +296,12 @@ class FetchWebsiteClient internal constructor(
 
     companion object {
         private val JSON = "application/json".toMediaType()
+
+        /** The website keeps 500 characters of a sync error; this only bounds the request. */
+        private const val MAX_REPORTED_ERROR_LENGTH = 2_000
+
+        /** Routes that name the profile in the path; the PIN token still travels as a header. */
+        internal fun profilePath(profileId: String, rest: String): String = "profiles/$profileId/$rest"
 
         /**
          * The API base a person typed, tidied: a scheme added when missing, trailing slashes

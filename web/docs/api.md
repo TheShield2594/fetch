@@ -403,6 +403,7 @@ its own token that can be revoked on its own.
 | `GET` | `/devices/me` | The calling device. Device token only. |
 | `GET` | `/devices/me/profiles` | Every profile with the `slot` (1–6) it occupies on this device, plus `isPrimary` for slot 1. Slots are assigned on first sight and kept; when slot 1 is empty the oldest profile moves into it. Device token only. |
 | `PUT` | `/devices/me/profiles/:slot` | `{ name?, …settings }`. Updates the profile in that slot, or creates one there (`201`, `name` required). Never takes a PIN: PINs are set on the website and checked with `POST /profiles/:id/verify`. Device token only. |
+| `PUT` | `/devices/me/report` | `{ ok, appVersion?, flavor?, error? }`, sent by the TV after every sync: its build, and whether the sync worked. `GET /sync/overview` shows it. An `error` is kept to 500 characters and cleared by the next `ok: true`. Device token only. |
 
 ### Collections
 
@@ -429,6 +430,51 @@ is tagged by `provider`:
 | `fetch` | `listId` — one of this profile's lists on the website — `title`, `mediaType?`. Lets a list made here become a row on the TV without Trakt. |
 
 Fields the API doesn't know are kept as sent.
+### What a TV syncs, per profile
+
+The resources a TV pointed at this server syncs: its addons, its Home row order
+and its settings. A paired TV syncs all three for its active profile on start,
+on returning to the foreground and on a profile switch, and pushes a change
+made on it shortly after. The profile is named in the path rather than by `x-profile-id`,
+because the profile being arranged is the subject of the request; a
+PIN-protected one still needs its own `x-profile-token` (`401
+profile_verification_required` otherwise), whoever is asking.
+
+**Addons.** A manifest URL can carry the addon's own credentials (a debrid key
+in the path, a token in the query), so the API logs only its host and never
+repeats it in an error. Manifests are fetched under the notification-channel
+rules: http(s) only, LAN hosts allowed, never the cloud-metadata range, checked
+by DNS, redirects refused. `stremio://` URLs are read as `https://`.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/profiles/:id/addons` | `{ addons, updatedAt }`, in order. `updatedAt` is when the list last changed from anywhere, and `null` until it first does — how a TV pairing for the first time knows to send its own addons rather than adopt an empty list. Each has its `manifestUrl`, `enabled`, the manifest's `addonId`, `name`, `version`, `logo`, `types`, `resources`, `catalogs`, `configurable` and `configureUrl`. `reachable: false` means the manifest has never been readable: the addon is kept and named by its host, but its catalogs are unknown. |
+| `POST` | `/profiles/:id/addons` | `{ manifestUrl, manifest? }`. Fetches and validates the manifest and installs the addon at the end. `400 manifest_invalid` with a reason when the address doesn't answer or isn't a Stremio manifest, `409` when it is already installed. `manifest` is a fallback used only when the server can't reach the address itself (the website's own addon on a public URL the API container can't resolve); it is validated the same way. 100 addons per profile. |
+| `PATCH` | `/profiles/:id/addons/:addonId` | `{ enabled?, manifestUrl?, manifest? }`. A new `manifestUrl` (what an addon's configure page hands back) is fetched and validated like an add. |
+| `POST` | `/profiles/:id/addons/:addonId/refresh` | Fetches the manifest again. `502 manifest_unreachable` with a reason when it can't. |
+| `DELETE` | `/profiles/:id/addons/:addonId` | Also drops the addon's rows from the stored Home layout. |
+| `PUT` | `/profiles/:id/addons/order` | `{ ids }`: every installed addon's id, once each, in the new order. |
+| `PUT` | `/profiles/:id/addons` | `{ addons: [{ manifestUrl, enabled?, name?, manifest? }] }`, the whole list in order — the TV's sync. Installed addons keep their cached manifest; new ones are fetched, and one that can't be read is still kept, named by `name` or its host, so a TV's list survives the round trip. Addons not in the list are removed. |
+
+**Versioned documents.** TV settings and the Home layout are each one JSON
+document per profile, read with a `version` (also the `ETag`) and replaced whole
+by a `PUT` that sends `If-Match: "<version>"` — `"0"` when there is none yet. A
+stale version gets `412 version_conflict` with the current `version`, so a TV
+and a browser can't overwrite each other; re-read, merge and retry. A missing
+`If-Match` is `428 if_match_required`.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/profiles/:id/settings/tv` | `{ settings, version, updatedAt }`. `settings` is `{}` at version 0. |
+| `PUT` | `/profiles/:id/settings/tv` | `{ settings }`, with `If-Match`. An opaque JSON object of at most 256 KB: the API checks its size and shape and never reads it, because the TV app owns the schema (today `{ version, features: { <feature>: { <key>: { type, value } } } }`, as `ProfileSettingsSyncService` writes it). Device-only settings are never in it. |
+| `GET` | `/profiles/:id/home-layout` | `{ rows, version, updatedAt }`. `rows` is the full order: what was arranged, then every row the profile's addons and lists provide that hasn't been placed yet (visible), minus rows whose addon or list is gone. Each row has `key`, `title`, `hidden`, `source` (`addon`, `list`, `collection`, `builtin` or `other`), `addonName`, `type` and `available` (false for a row whose catalog this server can't currently read; it is kept). |
+| `PUT` | `/profiles/:id/home-layout` | `{ rows: [{ key, hidden?, title? }] }`, with `If-Match`, at most 500 rows. Keys are `addon:<addonId>:<type>:<catalogId>` (each part URI-encoded), `list:<listId>`, `collection:<collectionId>` (one of the profile's `/collections`, URI-encoded), `builtin:continue_watching`, or any other `prefix:value` the TV owns, which is kept as sent. A collection row is dropped once the collection is deleted, and kept while the profile has no collections stored here. A row left out isn't hidden: it goes back to unplaced and reappears at the end. |
+
+**Overview.**
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/sync/overview` | `devices`: every paired TV with `lastSeenAt` and what it last reported — `appVersion`, `flavor`, `lastSyncAt`, `lastSyncOk`, `lastSyncError` (all `null` until its first report); left out when a device asks. Every profile with counts of `addons`, `enabledAddons`, `lists`, `resumePoints` and `watchedItems`, and when its TV settings and Home layout last changed; plus `server.database` (the `/health/ready` probe) and `server.jobs` (the last run of each scheduled job). Counts only, so locked profiles are included, as `GET /profiles` lists their names. |
 
 ### Settings and API keys
 

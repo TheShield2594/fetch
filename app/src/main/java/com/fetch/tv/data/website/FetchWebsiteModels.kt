@@ -3,6 +3,7 @@ package com.fetch.tv.data.website
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class WebsitePairingStart(
@@ -87,4 +88,40 @@ internal data class WebsiteErrorBody(
     val error: String? = null,
     @SerialName("code") val code: String? = null,
     val retryAfterSec: Int? = null
+)
+
+/** An addon in a profile's list on the website, as much of it as the TV reads. */
+@Serializable
+data class WebsiteAddon(
+    val manifestUrl: String,
+    val enabled: Boolean = true,
+    val name: String? = null
+)
+
+@Serializable
+data class WebsiteAddonsBody(
+    val addons: List<WebsiteAddon> = emptyList(),
+    /** Null when nobody has ever set this profile's addons on the website. */
+    val updatedAt: String? = null
+)
+
+/** One Home row on the website. [source] is only read, never sent back. */
+@Serializable
+data class WebsiteHomeRow(
+    val key: String,
+    val hidden: Boolean = false,
+    val title: String? = null,
+    val source: String? = null
+)
+
+@Serializable
+data class WebsiteHomeLayout(
+    val rows: List<WebsiteHomeRow> = emptyList(),
+    val version: Int = 0
+)
+
+@Serializable
+data class WebsiteTvSettings(
+    val settings: JsonObject = JsonObject(emptyMap()),
+    val version: Int = 0
 )

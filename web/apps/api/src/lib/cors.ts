@@ -8,8 +8,10 @@ const CATALOGGY_ALLOWED_ORIGINS = (process.env.CATALOGGY_ALLOWED_ORIGINS ?? "")
   .filter(Boolean);
 export const ALLOWED_ORIGINS = IS_DEVELOPMENT ? ["*"] : Array.from(new Set(CATALOGGY_ALLOWED_ORIGINS));
 
-const CORS_METHODS = "GET,POST,DELETE,PATCH,OPTIONS";
-const CORS_HEADERS = "Authorization,Content-Type,X-Profile-Id,X-Profile-Token";
+// PUT and If-Match are for the versioned per-profile documents (TV settings,
+// Home layout), which a cross-origin web app saves with both.
+const CORS_METHODS = "GET,POST,PUT,DELETE,PATCH,OPTIONS";
+const CORS_HEADERS = "Authorization,Content-Type,If-Match,X-Profile-Id,X-Profile-Token";
 
 export const isAllowedOrigin = (origin: string | undefined): boolean => {
   if (IS_DEVELOPMENT) return true;

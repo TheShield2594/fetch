@@ -23,6 +23,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **MDBList, as on the TV.** Settings → MDBList connects a profile's own MDBList account with the TV's device sign-in. Its watched history and watchlist come in on a schedule (skipped when MDBList reports no change), and plays, watchlist adds and scrobbles go out to it. Needs `MDBLIST_CLIENT_ID`.
+
 - **Simkl, as on the TV.** Settings → Simkl connects a profile's own Simkl account with the code-at-simkl.com/pin sign-in the TV uses. Its library comes in on a schedule (completed films and watched episodes as plays, plan-to-watch as the watchlist, only what changed after the first run), and plays, watchlist adds and scrobbles recorded in Fetch go out to it. Needs `SIMKL_CLIENT_ID`.
 
 - **Each account has its own AI recommendations, region and spoiler protection.** Settings → AI Recommendations and Metadata & Region are now every account's: an account connects its own AI provider with its own key, used only for its profiles, and sets its own streaming region and spoiler protection. The metadata language stays the server's, since fetched metadata is shared. Only the admin account's AI provider and notification channels may point at the home network; anyone else's must be a public address. The install's existing AI provider becomes the admin's.

@@ -1,5 +1,7 @@
 import type { prisma } from "./prisma.js";
 import {
+  MDBLIST_ACTIVITIES_KEY,
+  MDBLIST_DEVICE_KEY,
   SIMKL_LAST_SYNCED_AT_KEY,
   SIMKL_PIN_KEY,
   STREMIO_WATERMARK_KEY,
@@ -24,6 +26,8 @@ export const PROFILE_CONNECTION_KV_KEYS = [
   STREMIO_WATERMARK_KEY,
   SIMKL_PIN_KEY,
   SIMKL_LAST_SYNCED_AT_KEY,
+  MDBLIST_DEVICE_KEY,
+  MDBLIST_ACTIVITIES_KEY,
 ];
 
 type Tx = Pick<typeof prisma, "kV">;

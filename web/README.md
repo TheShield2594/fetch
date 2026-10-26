@@ -353,6 +353,14 @@ Each profile can connect its own Simkl account under **Settings → Simkl**, the
 - **Out to Simkl:** plays recorded in Fetch (by hand, from a webhook, from a scrobble), watchlist adds, and live scrobbles (start, pause, stop). A Simkl that is down never fails or delays any of them.
 - The website's Simkl sign-in is separate from the TV's; both record into the same Fetch history.
 
+### MDBList
+
+Each profile can also connect its own MDBList account under **Settings → MDBList**, with the code-on-mdblist.com sign-in the TV uses. The server needs `MDBLIST_CLIENT_ID`, the OAuth client id of an app registered with MDBList.
+
+- **Into Fetch:** watched history and the MDBList watchlist, on a schedule (`MDBLIST_POLL_INTERVAL_SEC`, every 30 minutes by default). A pass first asks MDBList whether anything changed, and stops there if not.
+- **Out to MDBList:** plays recorded in Fetch, watchlist adds and live scrobbles, best-effort, as with Simkl.
+- Tokens refresh on their own; one MDBList has revoked drops the connection, and Settings asks you to connect again.
+
 ### Trakt is optional
 
 Trakt is supported but is not a system of record, and nothing depends on it. Each Fetch profile connects its own Trakt account, as on the TV; a play is sent to the Trakt account of the profile it is in, and the scheduled poll runs once per connected profile, into that profile. The website's connection is separate from the TV's: each signs in on its own, and both record into the same Fetch history.

@@ -14,7 +14,7 @@ import { OmdbSettings } from "../components/settings/OmdbSettings";
 import { RpdbSettings } from "../components/settings/RpdbSettings";
 import { AddonSettings } from "../components/settings/AddonSettings";
 import { StremioSyncSettings } from "../components/settings/StremioSyncSettings";
-import { SimklSettings } from "../components/settings/SimklSettings";
+import { MdbListSettings, SimklSettings } from "../components/settings/TrackerSignInSettings";
 import { PlayDetectionSettings } from "../components/settings/PlayDetectionSettings";
 import { AiSettings } from "../components/settings/AiSettings";
 import { DataSettings } from "../components/settings/DataSettings";
@@ -154,6 +154,15 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <ListChecks size={20} />,
     keywords: "simkl tracker scrobble watched history plan to watch watchlist anime sign in code",
     content: <SimklSettings />,
+  },
+  {
+    id: "mdblist",
+    tab: "integrations",
+    group: "Where history comes from",
+    title: "MDBList",
+    icon: <ListChecks size={20} />,
+    keywords: "mdblist tracker scrobble watched history watchlist sign in code",
+    content: <MdbListSettings />,
   },
   {
     id: "stremio-sync",

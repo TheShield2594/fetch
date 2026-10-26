@@ -149,6 +149,10 @@ services:
       SIMKL_CLIENT_ID: ${SIMKL_CLIENT_ID}
       SIMKL_APP_NAME: ${SIMKL_APP_NAME:-fetch}
       SIMKL_POLL_INTERVAL_SEC: ${SIMKL_POLL_INTERVAL_SEC:-900}
+      # MDBList: the Fetch app's OAuth client id. Each profile signs in to its
+      # own MDBList account from Settings.
+      MDBLIST_CLIENT_ID: ${MDBLIST_CLIENT_ID}
+      MDBLIST_POLL_INTERVAL_SEC: ${MDBLIST_POLL_INTERVAL_SEC:-1800}
       STREMIO_POLL_INTERVAL_SEC: ${STREMIO_POLL_INTERVAL_SEC:-0}
       STREMIO_API_BASE: ${STREMIO_API_BASE:-https://api.strem.io}
       STREMIO_PLAY_DETECTION: ${STREMIO_PLAY_DETECTION:-false}

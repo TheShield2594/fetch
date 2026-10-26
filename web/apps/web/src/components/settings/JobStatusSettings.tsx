@@ -8,6 +8,7 @@ const JOB_LABELS: Record<string, string> = {
   "trakt-history-poll": "Trakt history sync",
   "trakt-watchlist-sync": "Trakt watchlist sync",
   "simkl-sync": "Simkl sync",
+  "mdblist-sync": "MDBList sync",
   "stremio-library-sync": "Stremio library sync",
   "stremio-play-signals": "Stremio play signals",
   "scrobble-cleanup": "Scrobble session cleanup",

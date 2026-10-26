@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { SimklSettings, simklSummaryText } from "./SimklSettings";
+import { SimklSettings, trackerSummaryText } from "./TrackerSignInSettings";
 
 vi.mock("../../api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../api")>();
@@ -72,9 +72,9 @@ describe("SimklSettings", () => {
   });
 });
 
-describe("simklSummaryText", () => {
+describe("trackerSummaryText", () => {
   it("says so when nothing was new", () => {
-    expect(simklSummaryText({ movies: 0, episodes: 0, watchlist: 0, skipped: 3, full: false })).toBe("Nothing new on Simkl.");
+    expect(trackerSummaryText("Simkl", { movies: 0, episodes: 0, watchlist: 0, skipped: 3, full: false })).toBe("Nothing new on Simkl.");
   });
 });
 

@@ -1,5 +1,5 @@
 /**
- * The services that feed watch history in: Trakt, Simkl and Stremio. Each is
+ * The services that feed watch history in: Trakt, Simkl, MDBList and Stremio. Each is
  * the active profile's own connection.
  */
 
@@ -19,6 +19,16 @@ export type SimklStatus = {
   lastSyncedAt: string | null;
   pending: SimklPin | null;
 };
+
+export type MdbListPending = {
+  userCode: string;
+  verificationUrl: string;
+  verificationUrlComplete: string;
+  expiresAt: string;
+  interval: number;
+};
+
+export type MdbListStatus = Omit<SimklStatus, "pending"> & { pending: MdbListPending | null };
 
 export type TrackerSyncSummary = { movies: number; episodes: number; watchlist: number; skipped: number; full: boolean };
 
@@ -40,6 +50,28 @@ export const integrationsApi = {
   },
   disconnectSimkl() {
     return request<{ connected: boolean }>("/simkl/disconnect", { method: "POST" });
+  },
+  getMdbListStatus() {
+    return request<MdbListStatus>("/mdblist/status");
+  },
+  startMdbListDevice() {
+    return request<MdbListPending>("/mdblist/device", { method: "POST" });
+  },
+  pollMdbListDevice() {
+    return request<{ result: "pending" | "connected" | "expired" | "denied" | "none"; status: MdbListStatus }>(
+      "/mdblist/device/poll",
+      { method: "POST" }
+    );
+  },
+  syncMdbList(full = false) {
+    return request<TrackerSyncSummary & { unchanged: boolean }>("/mdblist/sync", {
+      method: "POST",
+      body: JSON.stringify({ full }),
+      timeoutMs: 300000,
+    });
+  },
+  disconnectMdbList() {
+    return request<{ connected: boolean }>("/mdblist/disconnect", { method: "POST" });
   },
   getTraktStatus() {
     return request<{ connected: boolean; configured: boolean; expiresAt: string | null; redirectUri: string }>("/trakt/status");

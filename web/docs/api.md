@@ -598,6 +598,19 @@ server has no `SIMKL_CLIENT_ID`.
 Plays recorded in Fetch, watchlist adds and scrobbles are sent to the profile's
 Simkl as they happen, best-effort.
 
+### MDBList
+
+The same shape as Simkl, with MDBList's OAuth device flow (write scope). 409
+`mdblist_not_configured` without `MDBLIST_CLIENT_ID`.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/mdblist/status` | `{ configured, connected, username, lastSyncedAt, pending }`. |
+| `POST` | `/mdblist/device` | Starts a sign-in: `{ userCode, verificationUrl, verificationUrlComplete, expiresAt, interval }`. The sign-in page is always https://mdblist.com. The device code itself stays on the server. |
+| `POST` | `/mdblist/device/poll` | `{ result: "pending" \| "connected" \| "expired" \| "denied" \| "none", status }`. |
+| `POST` | `/mdblist/sync` | `{ full? }`. Reads watched history and the watchlist into the profile, unless MDBList's last activities show no change (`unchanged: true`). 401 when MDBList revoked the sign-in. |
+| `POST` | `/mdblist/disconnect` | Revokes the token with MDBList, then forgets it. |
+
 ### Stremio library
 
 Each profile has its own Stremio connection, which syncs into that profile.

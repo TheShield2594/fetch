@@ -4,7 +4,7 @@ import { upsertSeriesProgressIfNewer } from "./series-progress.js";
 import { shouldRefreshAiRecsForProfile, getAiRecommendations } from "./ai.js";
 import { trendingCacheDeletePrefix } from "./cache.js";
 import { syncWatchEventToTrakt } from "./trakt-client.js";
-import { pushSimklWatched } from "./simkl.js";
+import { pushWatchedToTrackers } from "./trackers.js";
 import { watchEventDayWindow } from "./watch-event-dedup.js";
 import { clearPlaybackProgress } from "./playback.js";
 import type { RecordWatchParams } from "./types.js";
@@ -106,7 +106,7 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
     );
     // Only a newly recorded play: a same-day repeat Simkl already has.
     if (wasCreated) {
-      void pushSimklWatched(profileId, { type: "episode", seriesImdbId: resolvedSeriesImdbId, season, episode, watchedAt }, log);
+      void pushWatchedToTrackers(profileId, { type: "episode", seriesImdbId: resolvedSeriesImdbId, season, episode, watchedAt }, log);
     }
 
     void (async () => {
@@ -157,7 +157,7 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
   await clearPlaybackProgress(profileId, { type: "movie", imdbId }, watchedAt, log);
 
   syncWatchEventToTrakt(watchEvent, { type: "movie", imdbId, profileId }, log);
-  if (wasCreated) void pushSimklWatched(profileId, { type: "movie", imdbId, watchedAt }, log);
+  if (wasCreated) void pushWatchedToTrackers(profileId, { type: "movie", imdbId, watchedAt }, log);
 
   void (async () => {
     try {

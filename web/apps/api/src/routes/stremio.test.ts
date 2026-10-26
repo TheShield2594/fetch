@@ -582,4 +582,12 @@ describe("stremio routes — the addon URL is gated by a per-profile secret", ()
       `/addon/stremio/${await secretFor(PROFILE_ID)}/manifest.json`
     );
   });
+
+  it("hands the requesting profile's key back for the addon service's signed URL", async () => {
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/addon/config" });
+
+    expect(response.json().stremioProfileKey).toBe(await secretFor(PROFILE_ID));
+  });
 });

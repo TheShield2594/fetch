@@ -4,8 +4,9 @@ import { useTransientFlag } from "../../hooks/useTransientFlag";
 import type { AddonCatalogOption } from "../../api";
 import { Loader2, Check, AlertCircle, Copy, ExternalLink, Sparkles } from "lucide-react";
 import { KICKER } from "../typography";
+import { ownAddonManifestUrl } from "../../utils/ownAddon";
 
-function AddonManifestUrl({ profileName, multiProfile }: { profileName: string | null; multiProfile: boolean }) {
+function AddonManifestUrl({ profileName, multiProfile, profileKey }: { profileName: string | null; multiProfile: boolean; profileKey: string | null }) {
   const [copied, setCopied] = useTransientFlag();
   // Longer than a success: a failure the user has to do something about should
   // not disappear at the same speed as a confirmation they can ignore.
@@ -14,10 +15,11 @@ function AddonManifestUrl({ profileName, multiProfile }: { profileName: string |
   // installed URL: everything Stremio requests hangs off the manifest URL's
   // base, and the addon reads the profile back out of that path. Without it,
   // marking something watched from Stremio has no profile to write to once a
-  // second profile exists.
+  // second profile exists. The profile's key makes the URL unguessable, so it
+  // can't be used to read or mark watched on someone else's profile.
   const activeProfileId = runtimeConfig.getProfileId();
   const manifestUrl = activeProfileId
-    ? `${runtimeConfig.getAddonBase()}/p/${activeProfileId}/manifest.json`
+    ? ownAddonManifestUrl(activeProfileId, profileKey)
     : `${runtimeConfig.getAddonBase()}/manifest.json`;
 
   const copy = () => {
@@ -72,7 +74,7 @@ function AddonManifestUrl({ profileName, multiProfile }: { profileName: string |
         </a>
       </div>
       <p className="text-xs" style={{ color: "var(--text-mute)" }}>
-        The URL points to your local addon server. Stremio must be able to reach it on your network.
+        The URL points to your addon server, and Stremio must be able to reach it. Keep it to yourself: anyone with it can see this profile's catalogs and mark things watched.
         {multiProfile && " To use a different profile in Stremio, switch profiles here and install the URL shown then — each profile has its own."}
       </p>
     </div>
@@ -95,6 +97,7 @@ export function AddonSettings() {
   const [aiConfigured, setAiConfigured] = useState(false);
   const [profileName, setProfileName] = useState<string | null>(null);
   const [multiProfile, setMultiProfile] = useState(false);
+  const [profileKey, setProfileKey] = useState<string | null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -108,6 +111,7 @@ export function AddonSettings() {
         setAvailable(res.availableCatalogs);
         setAvailableLists(res.availableLists ?? []);
         setAiConfigured(res.aiConfigured ?? aiRes.configured);
+        setProfileKey(res.stremioProfileKey ?? null);
         const activeProfileId = runtimeConfig.getProfileId();
         setProfileName(profilesRes.profiles.find((p) => p.id === activeProfileId)?.name ?? null);
         setMultiProfile(profilesRes.profiles.length > 1);
@@ -145,7 +149,7 @@ export function AddonSettings() {
 
   return (
     <div className="space-y-4">
-      <AddonManifestUrl profileName={profileName} multiProfile={multiProfile} />
+      <AddonManifestUrl profileName={profileName} multiProfile={multiProfile} profileKey={profileKey} />
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
         Choose which catalogs appear in Stremio
         {multiProfile && profileName ? <> for <strong style={{ color: "var(--text-dim)" }}>{profileName}</strong> — each profile picks its own</> : null}.

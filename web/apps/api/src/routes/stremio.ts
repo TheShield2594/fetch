@@ -257,6 +257,9 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
       stremioManifestPath: manifestPath,
       stremioManifestUrl:
         manifestPath && CATALOGGY_API_PUBLIC ? `${CATALOGGY_API_PUBLIC}${manifestPath}` : null,
+      // The same key, for the addon service's install URL. Only ever returned
+      // for the caller's own profile: resolveProfile picked it.
+      stremioProfileKey: secret,
     };
   });
 

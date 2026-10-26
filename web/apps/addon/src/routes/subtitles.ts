@@ -1,7 +1,7 @@
 import { addonBaseUrl } from "../lib/config.js";
 import { mintMarkWatchedToken, type MarkWatchedTarget } from "../lib/mark-watched.js";
 import { forwardPlaySignal } from "../lib/play-signal.js";
-import { resolveProfileScope } from "../lib/profile.js";
+import { resolveProfileScope, signedProfilePath } from "../lib/profile.js";
 import type { AddonRouter } from "../lib/router.js";
 import type { StremioSubtitle } from "../lib/stremio-types.js";
 
@@ -40,8 +40,11 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
     // to be re-resolved later, so the write lands on the profile whose catalog
     // the user is actually looking at. A request that arrived without a profile
     // prefix has already resolved to the default profile by this point, so the
-    // URL handed to Stremio names it explicitly either way.
-    const profileSegment = scope.profileId ? `/p/${scope.profileId}` : "";
+    // URL handed to Stremio names it explicitly either way. The signed form,
+    // so the link still works once ADDON_REQUIRE_SIGNED_URLS turns /p/ off.
+    const profileSegment = scope.profileId
+      ? (signedProfilePath(scope.profileId) ?? `/p/${scope.profileId}`)
+      : "";
 
     // Minted against the same profile the URL above names, which is the value
     // /mark-watched reads back out of its own path and verifies against.

@@ -232,6 +232,8 @@ export type AddonConfigResponse = {
   aiConfigured: boolean;
   stremioManifestPath: string | null;
   stremioManifestUrl: string | null;
+  /** This profile's Stremio key, for the addon service's `/u/<profileId>/<key>/` URL. */
+  stremioProfileKey: string | null;
 };
 
 export type AddonManifestConfig = { enabledCatalogs: string[]; aiConfigured: boolean };

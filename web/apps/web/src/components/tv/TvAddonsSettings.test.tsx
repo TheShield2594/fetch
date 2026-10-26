@@ -19,6 +19,7 @@ vi.mock("../../api", async (importOriginal) => {
       refreshTvAddon: vi.fn(),
       removeTvAddon: vi.fn(),
       reorderTvAddons: vi.fn(),
+      getAddonConfig: vi.fn(),
     },
   };
 });
@@ -28,6 +29,7 @@ const getTvAddons = vi.mocked(api.getTvAddons);
 const addTvAddon = vi.mocked(api.addTvAddon);
 const reorderTvAddons = vi.mocked(api.reorderTvAddons);
 const updateTvAddon = vi.mocked(api.updateTvAddon);
+const getAddonConfig = vi.mocked(api.getAddonConfig);
 
 const addon = (over: Partial<TvAddon> = {}): TvAddon => ({
   id: "a1",
@@ -58,6 +60,13 @@ describe("TvAddonsSettings", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getTvAddons.mockResolvedValue({ addons: [], updatedAt: null });
+    getAddonConfig.mockResolvedValue({
+      config: { enabledCatalogs: [] },
+      availableCatalogs: [],
+      availableLists: [],
+      aiConfigured: false,
+      stremioProfileKey: "k".repeat(64),
+    });
   });
 
   it("lists addons by host, never showing the configured URL", async () => {
@@ -139,5 +148,21 @@ describe("TvAddonsSettings", () => {
   it("offers this server's addon until it is installed", async () => {
     await renderAddons();
     expect(screen.getByRole("button", { name: /Add this server's addon/ })).toBeInTheDocument();
+  });
+
+  it("installs this server's addon by the profile's signed URL", async () => {
+    addTvAddon.mockResolvedValue({ addon: addon({ id: "own" }) });
+    await renderAddons();
+    await userEvent.click(screen.getByRole("button", { name: /Add this server's addon/ }));
+    await waitFor(() => expect(addTvAddon).toHaveBeenCalled());
+    expect(addTvAddon.mock.calls[0]?.[1]).toMatch(new RegExp(`/u/${PROFILE.id}/${"k".repeat(64)}/manifest\\.json$`));
+  });
+
+  it("counts an addon installed by the older unsigned URL as this server's", async () => {
+    const { runtimeConfig } = await import("../../api");
+    const unsigned = `${runtimeConfig.getAddonBase()}/p/${PROFILE.id}/manifest.json`;
+    getTvAddons.mockResolvedValue({ addons: [addon({ manifestUrl: unsigned })], updatedAt: null });
+    await renderAddons();
+    expect(screen.queryByRole("button", { name: /Add this server's addon/ })).not.toBeInTheDocument();
   });
 });

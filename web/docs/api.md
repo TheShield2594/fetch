@@ -601,6 +601,13 @@ URLs; the unprefixed ones use the default profile.
 | `GET` | `/addon/stremio/:secret/configure` |
 | `GET`/`POST` | `/addon/config` |
 
+`GET /addon/config` answers for the calling profile and also returns
+`stremioManifestPath`/`stremioManifestUrl` (the API's own catalog addon) and
+`stremioProfileKey`, the same per-profile key, which the website puts in the
+addon service's install URL: `<ADDON_PUBLIC_BASE>/u/<profileId>/<key>/manifest.json`.
+With `ADDON_REQUIRE_SIGNED_URLS=true` that is the only URL form the addon
+service serves.
+
 Catalog data also has plain-JSON equivalents used by the web UI: `/watchlist`,
 `/continue`, `/recent`, `/stremio/list/:listId`, and
 `/stremio/catalog/my_{watchlist_movies,watchlist_series,continue_series,recent_movies}`.

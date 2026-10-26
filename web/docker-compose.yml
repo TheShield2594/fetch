@@ -206,6 +206,9 @@ services:
       # Path prefixes a reverse proxy may mount this service under. Defaults to
       # /addon, and is a separate .env variable from the api's for that reason.
       PROXY_PATH_PREFIXES: ${ADDON_PROXY_PATH_PREFIXES:-/addon}
+      # Serve only the signed /u/<profileId>/<key>/ URLs Settings hands out,
+      # so the addon can face the internet without showing anyone a profile.
+      ADDON_REQUIRE_SIGNED_URLS: ${ADDON_REQUIRE_SIGNED_URLS:-false}
       # Fastify log level: fatal, error, warn, info, debug, trace or silent.
       # The default is materialized here because an empty value is not a level
       # the logger accepts.

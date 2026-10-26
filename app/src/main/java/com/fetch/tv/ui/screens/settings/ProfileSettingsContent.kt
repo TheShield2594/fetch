@@ -83,7 +83,7 @@ internal fun ProfileSettingsContent(
             }
             SettingsActionRow(
                 title = stringResource(R.string.profile_manage_button),
-                subtitle = stringResource(R.string.profile_manage_subtitle),
+                subtitle = stringResource(R.string.profile_manage_row_subtitle),
                 onClick = onManageProfiles,
                 modifier = if (initialFocusRequester != null) {
                     Modifier.focusRequester(initialFocusRequester)

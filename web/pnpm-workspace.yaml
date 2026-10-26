@@ -33,11 +33,13 @@ overrides:
   deepmerge-ts: "^8.0.0"
 
 # pnpm does not run a dependency's install scripts unless it is approved here.
-# Prisma downloads its query engine that way, esbuild its platform binary.
+# Prisma downloads its query engine that way, esbuild its platform binary, and
+# workerd (wrangler's local Workers runtime, apps/cloudflare) its own.
 allowBuilds:
   "@prisma/engines": true
   esbuild: true
   prisma: true
+  workerd: true
 
 # Mirrors `node-linker=hoisted` in .npmrc, which pnpm 11 no longer reads.
 # Without this the layout silently switches to the isolated default.

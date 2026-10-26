@@ -1,0 +1,132 @@
+name: Web Deploy (Cloudflare)
+
+# Deploys the hosted website at https://watchfetch.tv: the PWA as Workers static
+# assets and the API, from its usual Dockerfile, as a Cloudflare Container. The
+# Worker and its config are in web/apps/cloudflare; setup is in
+# docs/cloudflare-deploy.md.
+#
+# It only runs on pushes once the repository variable CLOUDFLARE_DEPLOY is
+# "true", so main stays green until the secrets below exist. A manual run always
+# goes ahead.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web/**"
+      - ".github/workflows/web-*.yml"
+  workflow_dispatch:
+
+# Never two deploys at once, and never cancel one halfway: the migration step
+# and the rollout have to finish as a pair.
+concurrency:
+  group: web-deploy-cloudflare
+  cancel-in-progress: false
+
+jobs:
+  # The same checks CI runs, including every migration applied against a real
+  # Postgres, so a commit that fails them never reaches the live database.
+  verify:
+    if: vars.CLOUDFLARE_DEPLOY == 'true' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/web-verify.yml
+    permissions:
+      contents: read
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: web
+
+    env:
+      PUBLIC_ORIGIN: https://watchfetch.tv
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: web/package.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Check the deploy secrets are set
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: |
+          missing=""
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID DATABASE_URL API_TOKEN; do
+            [ -n "$(printenv "$name")" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing. See docs/cloudflare-deploy.md."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the web app
+        env:
+          VITE_API_BASE: ${{ env.PUBLIC_ORIGIN }}/api
+          VITE_ADDON_BASE: ${{ env.PUBLIC_ORIGIN }}/addon
+        run: |
+          pnpm --filter @fetch/shared build
+          pnpm --filter @fetch/web build
+          pnpm --filter @fetch/cloudflare prepare-assets
+
+      # Before the deploy, as the migrate container does before the api one
+      # starts: the new API image expects the new schema. Runs against the
+      # database directly.
+      - name: Apply database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          pnpm --filter @fetch/api prisma:generate
+          pnpm --filter @fetch/api exec prisma migrate deploy
+
+      - name: Deploy to Cloudflare
+        working-directory: web/apps/cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          TRAKT_CLIENT_SECRET: ${{ secrets.TRAKT_CLIENT_SECRET }}
+          TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          STEAM_ID: ${{ secrets.STEAM_ID }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          # Worker secrets, which the Worker hands to the API container. Unset
+          # optional ones are left out rather than sent empty.
+          secrets_file="$RUNNER_TEMP/worker-secrets.json"
+          SECRETS_FILE="$secrets_file" node -e '
+            const names = process.argv.slice(1);
+            const out = Object.fromEntries(names.filter((n) => process.env[n]).map((n) => [n, process.env[n]]));
+            require("node:fs").writeFileSync(process.env.SECRETS_FILE, JSON.stringify(out), { mode: 0o600 });
+          ' API_TOKEN DATABASE_URL TMDB_API_KEY TRAKT_CLIENT_ID TRAKT_CLIENT_SECRET \
+            TWITCH_CLIENT_ID TWITCH_CLIENT_SECRET STEAM_API_KEY STEAM_ID WEBHOOK_SECRET SENTRY_DSN
+          # One API instance, so a gradual rollout has nothing to be gradual over.
+          pnpm exec wrangler deploy --secrets-file "$secrets_file" --containers-rollout=immediate
+          rm -f "$secrets_file"

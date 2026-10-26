@@ -13,11 +13,15 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Changed
 
+- **The browser no longer holds `API_TOKEN`.** The web app signs in and keeps a 30-day session instead, and the API Token section in Settings is replaced by Account (sign out, change password). The first visit after upgrading asks you to create the admin account, with the token the browser already had filled in. `API_TOKEN` keeps working for the add-on service, scripts and the API directly.
+
 - **Cataloggy is now the Fetch website.** The project moved into the [Fetch](https://github.com/TheShield2594/fetch) repository under `web/`, with its full history, and the app calls itself Fetch. Images are now published as `ghcr.io/theshield2594/fetch-{api,migrate,addon,web}`; the `cataloggy-*` images get no further updates, so pull the new `docker-compose.yml`. Releases are tagged `web-vX.Y.Z`, and the image tag stays `vX.Y.Z`. Nothing a running install depends on was renamed: `CATALOGGY_*` environment variables, the addon ID and catalog IDs, the database name and browser storage keys are unchanged, so an existing `.env`, volume and installed Stremio addon keep working.
 
 - **The website has the Fetch logo and license.** The cat mark is replaced by Fetch's dog-and-play mark across the app, PWA icons, favicon and splash screens. The code is now GPL-3.0, like the rest of Fetch; releases published as Cataloggy stay available under MIT.
 
 ### Added
+
+- **Accounts, by invite.** People now sign in with a username and password, and each account has its own profiles, lists, watch history, ratings and games, invisible to every other account. There is no public sign-up: the first account is created with `API_TOKEN` and is the admin, and the admin makes single-use invite links under **Settings → Invites & Accounts**. The server-wide setup (API keys, Trakt, Stremio, AI, Jellyseerr, Steam) stays the admin's to change. Existing installs keep all their data: creating the admin account hands it every existing profile.
 
 - **Resume points are in the backup.** `GET /export` now carries a `playback` collection, and `POST /import` restores it — so moving to a new server, or restoring after a lost database, no longer empties Continue Watching. The import only moves forward: a point is skipped when the profile already has a newer pause for that title, or has watched it since the pause (including a watch in the same file), because a resume point for something finished is worse than none. Files exported before this have no `playback` and import as before; the format version is unchanged.
 

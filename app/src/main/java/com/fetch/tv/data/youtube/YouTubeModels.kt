@@ -14,11 +14,22 @@ data class YouTubeVideo(
     /** Streaming now; [duration] then holds YouTube's "LIVE" label. */
     val isLive: Boolean = false,
     /** The uploader's channel (a UC… browse id), when the tile links to it. */
-    val channelId: String? = null
+    val channelId: String? = null,
+    /**
+     * Every channel the tile links to, the uploader first. A collaboration ("YouTube and 3 more")
+     * credits several and may have no [channelId]; its byline or long-press menu lists them.
+     */
+    val channels: List<YouTubeChannelRef> = emptyList()
 ) {
     val watchUrl: String
         get() = "https://www.youtube.com/watch?v=$videoId"
 }
+
+/** A channel a video is credited to. */
+data class YouTubeChannelRef(
+    val channelId: String,
+    val name: String? = null
+)
 
 /** A tile that opens a page instead of playing: a channel, a playlist, or one of a channel's tabs. */
 data class YouTubeLink(
@@ -27,8 +38,21 @@ data class YouTubeLink(
     /** Null for the library shortcuts, which the screen names. */
     val title: String?,
     val subtitle: String? = null,
-    val thumbnailUrl: String? = null
+    val thumbnailUrl: String? = null,
+    /** The channel tab a channel page's shortcut opens, when it's one of those. */
+    val tab: YouTubeChannelTab? = null
 )
+
+/** The tabs of a channel page that its row of shortcuts opens. */
+enum class YouTubeChannelTab {
+    VIDEOS,
+    SHORTS,
+    LIVE,
+    PLAYLISTS,
+    RELEASES,
+    PODCASTS,
+    COMMUNITY
+}
 
 enum class YouTubeLinkKind {
     CHANNEL,

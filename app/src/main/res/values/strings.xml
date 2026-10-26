@@ -3122,6 +3122,7 @@
     <string name="youtube_liked_videos">Liked videos</string>
     <string name="youtube_menu_play">Play</string>
     <string name="youtube_menu_go_to_channel">Go to channel</string>
+    <string name="youtube_menu_go_to_named_channel">Go to %1$s</string>
     <string name="youtube_actions_hint">Press up to like, subscribe or go to the channel</string>
     <string name="youtube_action_like">Like</string>
     <string name="youtube_action_dislike">Dislike</string>

@@ -16,14 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -41,9 +40,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,6 +73,7 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.fetch.tv.R
 import com.fetch.tv.data.youtube.YouTubeBrowseTarget
+import com.fetch.tv.data.youtube.YouTubeChannelRef
 import com.fetch.tv.data.youtube.YouTubeFeed
 import com.fetch.tv.data.youtube.YouTubeLink
 import com.fetch.tv.data.youtube.YouTubeLinkKind
@@ -104,13 +106,49 @@ fun YouTubeScreen(
     // The video whose long-press menu is open.
     var menuVideo by remember { mutableStateOf<YouTubeVideo?>(null) }
     val openPage = state.browse.lastOrNull()
+    val pageKey = pageKey(state, state.browse.size)
+    val memory = remember { YouTubePageMemory() }
+    // The card to focus once the page showing composes it.
+    var pendingFocus by remember { mutableStateOf<PendingFocus?>(null) }
+    var openDepth by remember { mutableIntStateOf(state.browse.size) }
 
-    BackHandler(enabled = openPage != null, onBack = viewModel::closeBrowse)
-
-    // Opening or closing a page removes the focused card, so focus goes back to the tabs.
-    LaunchedEffect(state.browse.size) {
-        firstTabFocusRequester.requestFocusAfterFrames()
+    BackHandler(enabled = openPage != null) {
+        // Back goes to the card that opened the page.
+        val below = pageKey(state, state.browse.size - 1)
+        pendingFocus = PendingFocus(below, memory.focusedItem(below))
+        viewModel.closeBrowse()
     }
+
+    // A page that opens starts at its top, with its first card focused. One closed is forgotten,
+    // so opening it again starts afresh too.
+    LaunchedEffect(state.browse.size) {
+        val depth = state.browse.size
+        if (depth > openDepth) pendingFocus = PendingFocus(pageKey, item = null)
+        if (depth < openDepth) memory.forgetPagesFrom(depth)
+        openDepth = depth
+    }
+
+    val feed = state.currentFeed
+    // A page that loads again starts at its top.
+    LaunchedEffect(pageKey, feed.isLoading) {
+        if (feed.isLoading) memory.forget(pageKey)
+    }
+    // When the card to focus never shows (the page came back empty, or it's gone), the tabs take focus.
+    LaunchedEffect(pendingFocus, feed.isLoading) {
+        val pending = pendingFocus ?: return@LaunchedEffect
+        if (feed.isLoading) return@LaunchedEffect
+        repeat(FOCUS_RESTORE_FRAMES) { withFrameNanos { } }
+        if (pendingFocus == pending) {
+            pendingFocus = null
+            firstTabFocusRequester.requestFocusAfterFrames()
+        }
+    }
+    val cardFocus = CardFocus(
+        page = pageKey,
+        pending = pendingFocus,
+        onFocused = { item -> memory.setFocusedItem(pageKey, item) },
+        onRestored = { pendingFocus = null }
+    )
 
     Column(
         modifier = Modifier
@@ -152,10 +190,9 @@ fun YouTubeScreen(
             )
         }
 
-        // Each opened page starts at its top rather than where the page under it was scrolled.
+        // Each tab and opened page keeps its own scroll position, from [memory].
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-            key(state.browse.size) {
-                val feed = state.currentFeed
+            key(pageKey) {
                 when {
                     state.signedOut -> EmptyScreenState(
                         title = stringResource(R.string.youtube_signed_out_title),
@@ -184,6 +221,8 @@ fun YouTubeScreen(
                     // Subscriptions, history, search and the library are one long list: a grid reads better than one row.
                     feed.shelves.size == 1 -> YouTubeVideoGrid(
                         shelf = feed.shelves[0],
+                        gridState = memory.grid(pageKey),
+                        focus = cardFocus,
                         isLoadingMore = feed.isLoadingMore || 0 in feed.loadingShelves,
                         onNearEnd = viewModel::loadMore,
                         onPlay = viewModel::play,
@@ -192,6 +231,9 @@ fun YouTubeScreen(
                     )
                     else -> YouTubeShelves(
                         feed = feed,
+                        listState = memory.list(pageKey),
+                        rowState = { index -> memory.list("$pageKey/row_$index") },
+                        focus = cardFocus,
                         onNearFeedEnd = viewModel::loadMore,
                         onNearShelfEnd = viewModel::loadMoreInShelf,
                         onPlay = viewModel::play,
@@ -211,9 +253,9 @@ fun YouTubeScreen(
                 menuVideo = null
                 viewModel.play(video)
             },
-            onOpenChannel = {
+            onOpenChannel = { channel ->
                 menuVideo = null
-                viewModel.openChannel(video)
+                viewModel.openChannel(video, channel)
             }
         )
     }
@@ -233,6 +275,74 @@ fun YouTubeScreen(
     }
 }
 
+/** How many frames a card asked to take focus has to show up before the tabs take it instead. */
+private const val FOCUS_RESTORE_FRAMES = 10
+
+/** The tab, or the page opened [depth] deep over the tabs, that [state] shows at that depth. */
+private fun pageKey(state: YouTubeUiState, depth: Int): String {
+    val page = state.browse.getOrNull(depth - 1) ?: return "tab_${state.selectedFeed}"
+    return "browse_${depth}_${page.target}"
+}
+
+/** A card to focus: [item] on [page], or the page's first card when it's null. */
+private data class PendingFocus(val page: String, val item: String?)
+
+/** Where each tab and opened page is scrolled, and which card on it had focus last. */
+private class YouTubePageMemory {
+    private val lists = mutableMapOf<String, LazyListState>()
+    private val grids = mutableMapOf<String, LazyGridState>()
+    private val focused = mutableMapOf<String, String>()
+
+    fun list(key: String): LazyListState = lists.getOrPut(key) { LazyListState() }
+
+    fun grid(key: String): LazyGridState = grids.getOrPut(key) { LazyGridState() }
+
+    fun focusedItem(page: String): String? = focused[page]
+
+    fun setFocusedItem(page: String, item: String) {
+        focused[page] = item
+    }
+
+    /** Forgets [page], and its rows. */
+    fun forget(page: String) = forgetWhere { it == page || it.startsWith("$page/") }
+
+    /** Forgets the pages opened deeper than [depth]. */
+    fun forgetPagesFrom(depth: Int) = forgetWhere { key ->
+        key.startsWith("browse_") && (key.removePrefix("browse_").substringBefore('_').toIntOrNull() ?: 0) > depth
+    }
+
+    private fun forgetWhere(predicate: (String) -> Boolean) {
+        lists.keys.removeAll(predicate)
+        grids.keys.removeAll(predicate)
+        focused.keys.removeAll(predicate)
+    }
+}
+
+/** The page showing's cards report focus here, and the one [pending] names takes it back. */
+private class CardFocus(
+    val page: String,
+    val pending: PendingFocus?,
+    val onFocused: (item: String) -> Unit,
+    val onRestored: () -> Unit
+)
+
+/** Focus for the card [item] on [focus]'s page: remembered when it's taken, and taken when asked. */
+@Composable
+private fun restorableFocus(focus: CardFocus, item: String, isFirst: Boolean): Modifier {
+    val requester = remember { FocusRequester() }
+    val pending = focus.pending
+    val wanted = pending != null && pending.page == focus.page &&
+        (pending.item == item || (pending.item == null && isFirst))
+    if (wanted) {
+        LaunchedEffect(pending) {
+            if (requester.requestFocusAfterFrames()) focus.onRestored()
+        }
+    }
+    return Modifier
+        .focusRequester(requester)
+        .onFocusChanged { if (it.isFocused) focus.onFocused(item) }
+}
+
 /** How close to the end, in items, focus or scrolling gets before the next page loads. */
 private const val LOAD_MORE_THRESHOLD = 6
 private const val GRID_COLUMNS = 4
@@ -241,6 +351,8 @@ private const val SHORTS_GRID_COLUMNS = 7
 @Composable
 private fun YouTubeVideoGrid(
     shelf: YouTubeShelf,
+    gridState: LazyGridState,
+    focus: CardFocus,
     isLoadingMore: Boolean,
     onNearEnd: () -> Unit,
     onPlay: (YouTubeVideo) -> Unit,
@@ -249,7 +361,6 @@ private fun YouTubeVideoGrid(
 ) {
     val videos = shelf.videos
     val count = videos.size + shelf.links.size
-    val gridState = rememberLazyGridState()
     val nearEnd by remember(count) {
         derivedStateOf {
             val last = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
@@ -272,21 +383,32 @@ private fun YouTubeVideoGrid(
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
     ) {
-        items(videos, key = { it.videoId }) { video ->
+        itemsIndexed(videos, key = { _, video -> video.videoId }) { index, video ->
             YouTubeVideoCard(
                 video = video,
                 onClick = { onPlay(video) },
                 onLongClick = { onMenu(video) },
                 portrait = shelf.isShorts,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                cardModifier = restorableFocus(focus, video.videoId, isFirst = index == 0)
             )
         }
-        items(shelf.links, key = { "link_${it.target}" }) { link ->
-            YouTubeLinkCard(link = link, onOpen = onOpen, modifier = Modifier.fillMaxWidth())
+        itemsIndexed(shelf.links, key = { _, link -> "link_${link.target}" }) { index, link ->
+            YouTubeLinkCard(
+                link = link,
+                onOpen = onOpen,
+                modifier = Modifier.fillMaxWidth(),
+                cardModifier = restorableFocus(focus, "link_${link.target}", isFirst = videos.isEmpty() && index == 0)
+            )
         }
         shelf.viewAll?.let { target ->
             item(key = "view_all") {
-                YouTubeViewAllCard(onClick = { onOpen(target) }, portrait = shelf.isShorts, modifier = Modifier.fillMaxWidth())
+                YouTubeViewAllCard(
+                    onClick = { onOpen(target) },
+                    portrait = shelf.isShorts,
+                    modifier = Modifier.fillMaxWidth()
+                        .then(restorableFocus(focus, "view_all", isFirst = count == 0))
+                )
             }
         }
         if (isLoadingMore) {
@@ -300,6 +422,9 @@ private fun YouTubeVideoGrid(
 @Composable
 private fun YouTubeShelves(
     feed: YouTubeFeedState,
+    listState: LazyListState,
+    rowState: (Int) -> LazyListState,
+    focus: CardFocus,
     onNearFeedEnd: () -> Unit,
     onNearShelfEnd: (Int) -> Unit,
     onPlay: (YouTubeVideo) -> Unit,
@@ -307,7 +432,6 @@ private fun YouTubeShelves(
     onViewAll: (YouTubeBrowseTarget) -> Unit
 ) {
     val shelves = feed.shelves
-    val listState = rememberLazyListState()
     val nearEnd by remember(shelves.size) {
         derivedStateOf {
             val last = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
@@ -336,6 +460,7 @@ private fun YouTubeShelves(
                     )
                 }
                 LazyRow(
+                    state = rowState(index),
                     contentPadding = PaddingValues(horizontal = FetchTheme.spacing.screen.horizontal),
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
                 ) {
@@ -348,11 +473,25 @@ private fun YouTubeShelves(
                             },
                             onLongClick = { onMenu(video) },
                             portrait = shelf.isShorts,
-                            modifier = Modifier.width(if (shelf.isShorts) ShortCardWidth else VideoCardWidth)
+                            modifier = Modifier.width(if (shelf.isShorts) ShortCardWidth else VideoCardWidth),
+                            cardModifier = restorableFocus(
+                                focus,
+                                "shelf_$index/${video.videoId}",
+                                isFirst = index == 0 && videoIndex == 0
+                            )
                         )
                     }
-                    items(shelf.links, key = { "link_${it.target}" }) { link ->
-                        YouTubeLinkCard(link = link, onOpen = onViewAll, modifier = Modifier.width(VideoCardWidth))
+                    itemsIndexed(shelf.links, key = { _, link -> "link_${link.target}" }) { linkIndex, link ->
+                        YouTubeLinkCard(
+                            link = link,
+                            onOpen = onViewAll,
+                            modifier = Modifier.width(VideoCardWidth),
+                            cardModifier = restorableFocus(
+                                focus,
+                                "shelf_$index/link_${link.target}",
+                                isFirst = index == 0 && shelf.videos.isEmpty() && linkIndex == 0
+                            )
+                        )
                     }
                     shelf.viewAll?.let { target ->
                         item(key = "view_all") {
@@ -360,6 +499,7 @@ private fun YouTubeShelves(
                                 onClick = { onViewAll(target) },
                                 portrait = shelf.isShorts,
                                 modifier = Modifier.width(if (shelf.isShorts) ShortCardWidth else VideoCardWidth)
+                                    .then(restorableFocus(focus, "shelf_$index/view_all", isFirst = false))
                             )
                         }
                     }
@@ -378,7 +518,9 @@ internal fun YouTubeVideoCard(
     onFocused: () -> Unit = {},
     onLongClick: (() -> Unit)? = null,
     /** Shorts rows: a 9:16 card for their portrait thumbnails. */
-    portrait: Boolean = false
+    portrait: Boolean = false,
+    /** For the focusable card itself, rather than the card with its title under it. */
+    cardModifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(FetchRadii.tokens.md)
     Column(
@@ -388,7 +530,7 @@ internal fun YouTubeVideoCard(
         Card(
             onClick = onClick,
             onLongClick = onLongClick,
-            modifier = Modifier
+            modifier = cardModifier
                 .fillMaxWidth()
                 .aspectRatio(if (portrait) 9f / 16f else 16f / 9f)
                 .onFocusChanged { if (it.isFocused) onFocused() },
@@ -461,7 +603,8 @@ internal fun YouTubeVideoCard(
 private fun YouTubeLinkCard(
     link: YouTubeLink,
     onOpen: (YouTubeBrowseTarget) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cardModifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(FetchRadii.tokens.md)
     val title = link.title ?: stringResource(
@@ -473,7 +616,7 @@ private fun YouTubeLinkCard(
     ) {
         Card(
             onClick = { onOpen(link.target.copy(title = title)) },
-            modifier = Modifier
+            modifier = cardModifier
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f),
             shape = CardDefaults.shape(shape),
@@ -577,14 +720,14 @@ private fun YouTubeViewAllCard(
     }
 }
 
-/** A video's long-press menu: play it, or open its channel. */
+/** A video's long-press menu: play it, or open its channel, or one of a collaboration's. */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun YouTubeVideoMenu(
     video: YouTubeVideo,
     onDismiss: () -> Unit,
     onPlay: () -> Unit,
-    onOpenChannel: () -> Unit
+    onOpenChannel: (YouTubeChannelRef?) -> Unit
 ) {
     val playFocusRequester = remember { FocusRequester() }
     // The dialog's content attaches after this effect starts.
@@ -603,8 +746,16 @@ private fun YouTubeVideoMenu(
         ) {
             Text(stringResource(R.string.youtube_menu_play))
         }
-        if (video.channelId != null) {
-            Button(onClick = onOpenChannel, colors = buttonColors, modifier = Modifier.fillMaxWidth()) {
+        // A collaboration names each of its channels; a video from one channel just goes to it.
+        val named = video.channels.filter { it.name != null }
+        if (named.size > 1) {
+            named.forEach { channel ->
+                Button(onClick = { onOpenChannel(channel) }, colors = buttonColors, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.youtube_menu_go_to_named_channel, channel.name.orEmpty()))
+                }
+            }
+        } else if (video.channelId != null || video.channels.isNotEmpty()) {
+            Button(onClick = { onOpenChannel(null) }, colors = buttonColors, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.youtube_menu_go_to_channel))
             }
         }

@@ -13,6 +13,8 @@ import com.fetch.tv.data.youtube.pickDefaultCaptionTrack
 import com.fetch.tv.data.trailer.InAppYouTubeExtractor
 import com.fetch.tv.data.youtube.SponsorBlockService
 import com.fetch.tv.data.youtube.YouTubeBrowseTarget
+import com.fetch.tv.data.youtube.YouTubeChannelRef
+import com.fetch.tv.data.youtube.YouTubeChannelTab
 import com.fetch.tv.data.youtube.YouTubeFeed
 import com.fetch.tv.data.youtube.YouTubeLikeStatus
 import com.fetch.tv.data.youtube.YouTubeLinkKind
@@ -195,9 +197,12 @@ class YouTubeViewModel @Inject constructor(
         load(currentKey())
     }
 
-    fun openChannel(video: YouTubeVideo) {
-        val channelId = video.channelId ?: return
-        openBrowse(YouTubeBrowseTarget(browseId = channelId, title = video.channelName))
+    /** Opens [channel], one of a collaboration's, or else the video's uploader. */
+    fun openChannel(video: YouTubeVideo, channel: YouTubeChannelRef? = null) {
+        val channelId = channel?.channelId ?: video.channelId ?: video.channels.firstOrNull()?.channelId ?: return
+        // A collaboration's byline names all of its channels; the channel's own name is better.
+        val name = channel?.name ?: video.channels.firstOrNull { it.channelId == channelId }?.name ?: video.channelName
+        openBrowse(YouTubeBrowseTarget(browseId = channelId, title = name))
     }
 
     /** Back from an opened page, to the page or tab under it. */
@@ -522,13 +527,16 @@ class YouTubeViewModel @Inject constructor(
     /**
      * [page] through the feed filter. An opened page also drops "View all" links back to itself:
      * the TV client answers a channel's Videos link with the channel page it's on. A channel's
-     * row of its own tabs (Videos, Shorts, Playlists), which YouTube sends last, goes first.
+     * row of its own tabs (Videos, Shorts, Playlists), which YouTube sends last, goes first,
+     * without the Releases tab: its albums aren't tiles Fetch reads yet, so it would open empty.
      */
     private fun shown(key: FeedKey, page: YouTubePage): YouTubePage {
         val filtered = feedFilter.apply(page, key.feed)
         if (key !is FeedKey.Browse) return filtered
-        val shelves = filtered.shelves.map { shelf ->
-            if (shelf.viewAll?.browseId == key.target.browseId) shelf.copy(viewAll = null) else shelf
+        val shelves = filtered.shelves.mapNotNull { shelf ->
+            val links = shelf.links.filter { it.tab != YouTubeChannelTab.RELEASES }
+            val viewAll = shelf.viewAll?.takeIf { it.browseId != key.target.browseId }
+            shelf.copy(viewAll = viewAll, links = links).takeIf { !it.isEmpty() }
         }
         val (tabs, rest) = shelves.partition { shelf ->
             shelf.videos.isEmpty() && shelf.links.isNotEmpty() &&

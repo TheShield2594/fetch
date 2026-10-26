@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
+import java.util.Base64
 
 /**
  * Reads YouTube's InnerTube responses. The TV client nests its tiles differently on every page
@@ -15,6 +16,9 @@ import kotlinx.serialization.json.intOrNull
 internal object YouTubeResponseParser {
 
     private const val MAX_DEPTH = 64
+
+    /** Where a tile or lockup keeps the video's own title. */
+    private val VIDEO_METADATA_KEYS = setOf("tileMetadataRenderer", "lockupMetadataViewModel")
 
     fun parseShelves(root: JsonElement): List<YouTubeShelf> = parsePage(root).shelves
 
@@ -256,7 +260,56 @@ internal object YouTubeResponseParser {
                 ?.joinToString(" • ")
                 ?.takeIf { it.isNotBlank() }
         }
-        return YouTubeLink(target, kind, title, subtitle, bestThumbnail(header.path("thumbnail")))
+        val tab = if (kind == YouTubeLinkKind.CHANNEL) channelTab(target, tile) else null
+        return YouTubeLink(target, kind, title, subtitle, bestThumbnail(header.path("thumbnail")), tab)
+    }
+
+    /**
+     * The channel tab [target] opens. Its browse params are a protobuf whose second field names
+     * the tab ("videos", "shorts", "streams"…), as on the web; failing that, the shortcut's line
+     * icon (MY_VIDEOS, …) says which it is.
+     */
+    private fun channelTab(target: YouTubeBrowseTarget, tile: JsonElement): YouTubeChannelTab? {
+        val name = target.params?.let(::paramsTabName)
+        TAB_NAMES[name]?.let { return it }
+        val icons = mutableListOf<JsonObject>()
+        findObjectsWithKey(tile, "iconType", icons, depth = 0)
+        return icons.firstNotNullOfOrNull { icon ->
+            val type = icon["iconType"].stringOrNull() ?: return@firstNotNullOfOrNull null
+            when {
+                "SHORTS" in type -> YouTubeChannelTab.SHORTS
+                "VIDEOS" in type -> YouTubeChannelTab.VIDEOS
+                "LIVE" in type -> YouTubeChannelTab.LIVE
+                "PLAYLIST" in type -> YouTubeChannelTab.PLAYLISTS
+                "ALBUM" in type || "RELEASE" in type -> YouTubeChannelTab.RELEASES
+                "PODCAST" in type -> YouTubeChannelTab.PODCASTS
+                else -> null
+            }
+        }
+    }
+
+    private val TAB_NAMES = mapOf(
+        "videos" to YouTubeChannelTab.VIDEOS,
+        "shorts" to YouTubeChannelTab.SHORTS,
+        "streams" to YouTubeChannelTab.LIVE,
+        "playlists" to YouTubeChannelTab.PLAYLISTS,
+        "releases" to YouTubeChannelTab.RELEASES,
+        "podcasts" to YouTubeChannelTab.PODCASTS,
+        "community" to YouTubeChannelTab.COMMUNITY,
+        "posts" to YouTubeChannelTab.COMMUNITY
+    )
+
+    /** The tab name in a channel's browse params: field 2 (tag 0x12) of the protobuf they encode. */
+    internal fun paramsTabName(params: String): String? {
+        val bytes = runCatching {
+            // Sent URL-encoded ("%3D" padding), in either base64 alphabet.
+            val base64 = params.replace("%3D", "", ignoreCase = true).replace('+', '-').replace('/', '_').trimEnd('=')
+            Base64.getUrlDecoder().decode(base64)
+        }.getOrNull() ?: return null
+        if (bytes.size < 2 || bytes[0] != 0x12.toByte()) return null
+        val length = bytes[1].toInt()
+        if (length <= 0 || 2 + length > bytes.size) return null
+        return String(bytes, 2, length, Charsets.UTF_8)
     }
 
     private fun parseLockupLink(lockup: JsonObject): YouTubeLink? {
@@ -277,7 +330,8 @@ internal object YouTubeResponseParser {
             }
         val image = lockup.path("contentImage", "thumbnailViewModel", "image")
             ?: lockup.path("contentImage", "collectionThumbnailViewModel", "primaryThumbnail", "thumbnailViewModel", "image")
-        return YouTubeLink(target, kind, title, subtitle, bestThumbnail(image))
+        val tab = if (kind == YouTubeLinkKind.CHANNEL) channelTab(target, lockup) else null
+        return YouTubeLink(target, kind, title, subtitle, bestThumbnail(image), tab)
     }
 
     /**
@@ -321,7 +375,8 @@ internal object YouTubeResponseParser {
                 it.path("thumbnailBadgeViewModel", "badgeStyle").stringOrNull() == "THUMBNAIL_OVERLAY_BADGE_STYLE_LIVE"
             },
             // In the long-press menu's "Go to channel".
-            channelId = channelId(lockup["rendererContext"], depth = 0)
+            channelId = channelId(lockup["rendererContext"], depth = 0),
+            channels = channelRefs(lockup["metadata"], lockup["rendererContext"], lockup)
         )
     }
 
@@ -360,7 +415,9 @@ internal object YouTubeResponseParser {
             isShort = isShort,
             isLive = timeStatus.path("style").stringOrNull() == "LIVE",
             // On the channel name's line.
-            channelId = channelId(metadata, depth = 0)
+            channelId = channelId(metadata, depth = 0),
+            // A collaboration's byline or long-press menu lists its channels.
+            channels = channelRefs(metadata, tile)
         )
     }
 
@@ -391,7 +448,8 @@ internal object YouTubeResponseParser {
             watchedPercent = overlays.firstNotNullOfOrNull {
                 it.path("thumbnailOverlayResumePlaybackRenderer", "percentDurationWatched").intOrNull()
             },
-            channelId = channelId(renderer["ownerText"] ?: renderer["shortBylineText"] ?: renderer["longBylineText"], depth = 0)
+            channelId = channelId(renderer["ownerText"] ?: renderer["shortBylineText"] ?: renderer["longBylineText"], depth = 0),
+            channels = channelRefs(renderer["ownerText"], renderer["shortBylineText"], renderer["longBylineText"], renderer)
         )
     }
 
@@ -410,6 +468,36 @@ internal object YouTubeResponseParser {
                 ?: element.values.firstNotNullOfOrNull { channelId(it, depth + 1) }
             else -> null
         }
+    }
+
+    /**
+     * Every channel linked under [elements], in the order met, each named by the run or list item
+     * that links it. Menus and the video's own title name nothing: they'd name the menu item
+     * ("Go to channel") or the video.
+     */
+    private fun channelRefs(vararg elements: JsonElement?): List<YouTubeChannelRef> {
+        val found = LinkedHashMap<String, String?>()
+        fun walk(element: JsonElement?, name: String?, names: Boolean, inMenu: Boolean, depth: Int) {
+            if (element == null || depth > MAX_DEPTH) return
+            when (element) {
+                is JsonArray -> element.forEach { walk(it, name, names, inMenu, depth + 1) }
+                is JsonObject -> {
+                    val own = if (names && !inMenu) text(element["title"]) ?: text(element["text"]) else null
+                    val here = own ?: name
+                    element.path("browseEndpoint", "browseId").stringOrNull()?.takeIf { it.startsWith("UC") }?.let { id ->
+                        if (found[id] == null) found[id] = here
+                    }
+                    for ((key, value) in element) {
+                        val menu = inMenu || key.contains("menu", ignoreCase = true)
+                        walk(value, here, names = key !in VIDEO_METADATA_KEYS, inMenu = menu, depth = depth + 1)
+                    }
+                }
+                else -> Unit
+            }
+        }
+        // The renderers themselves are titled with the video.
+        elements.forEach { walk(it, name = null, names = false, inMenu = false, depth = 0) }
+        return found.map { (id, name) -> YouTubeChannelRef(id, name) }
     }
 
     private fun shelfTitle(shelf: JsonObject): String? =

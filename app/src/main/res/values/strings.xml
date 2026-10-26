@@ -512,6 +512,9 @@
     <string name="settings_search_prompt">Type part of a setting\'s name.</string>
     <string name="settings_search_empty">No settings match \"%1$s\".</string>
     <string name="settings_search_path" translatable="false">%1$s › %2$s</string>
+    <string name="settings_search_changed_only">Changed from default</string>
+    <string name="settings_search_changed_only_sub">Only list the settings this profile has changed.</string>
+    <string name="settings_search_changed_empty">This profile is using the default for every setting here.</string>
     <string name="settings_tracking_description">Connect tracking providers and choose which one powers your Library and Continue Watching.</string>
     <string name="tracking_accounts_title">Accounts</string>
     <string name="tracking_accounts_subtitle">Connect and manage tracking services</string>

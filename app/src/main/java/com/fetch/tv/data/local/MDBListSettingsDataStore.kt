@@ -1,5 +1,7 @@
 package com.fetch.tv.data.local
 
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -37,24 +39,28 @@ class MDBListSettingsDataStore @Inject constructor(
     private val ratingOrderKey = stringPreferencesKey("mdblist_rating_order")
 
     val settings: Flow<MDBListSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
-        factory.get(pid, FEATURE).data.map { prefs ->
-            MDBListSettings(
-                enabled = prefs[enabledKey] ?: false,
-                apiKey = prefs[apiKeyKey] ?: "",
-                showTrakt = prefs[showTraktKey] ?: true,
-                showImdb = prefs[showImdbKey] ?: true,
-                showTmdb = prefs[showTmdbKey] ?: true,
-                showLetterboxd = prefs[showLetterboxdKey] ?: true,
-                showTomatoes = prefs[showTomatoesKey] ?: true,
-                showAudience = prefs[showAudienceKey] ?: true,
-                showMetacritic = prefs[showMetacriticKey] ?: true,
-                showMal = prefs[showMalKey] ?: true,
-                showOnHero = prefs[showOnHeroKey] ?: false,
-                ratingOrder = prefs[ratingOrderKey]?.split(",")?.filter { it.isNotBlank() }
-                    ?: MDBListSettings.DEFAULT_RATING_ORDER
-            )
-        }
+        factory.get(pid, FEATURE).data.map(::readSettings)
     }
+
+    /** What the settings are before the profile changes any: [readSettings] on empty preferences. */
+    val defaultSettings: MDBListSettings by lazy { readSettings(emptyPreferences()) }
+
+    private fun readSettings(prefs: Preferences): MDBListSettings =
+        MDBListSettings(
+            enabled = prefs[enabledKey] ?: false,
+            apiKey = prefs[apiKeyKey] ?: "",
+            showTrakt = prefs[showTraktKey] ?: true,
+            showImdb = prefs[showImdbKey] ?: true,
+            showTmdb = prefs[showTmdbKey] ?: true,
+            showLetterboxd = prefs[showLetterboxdKey] ?: true,
+            showTomatoes = prefs[showTomatoesKey] ?: true,
+            showAudience = prefs[showAudienceKey] ?: true,
+            showMetacritic = prefs[showMetacriticKey] ?: true,
+            showMal = prefs[showMalKey] ?: true,
+            showOnHero = prefs[showOnHeroKey] ?: false,
+            ratingOrder = prefs[ratingOrderKey]?.split(",")?.filter { it.isNotBlank() }
+                ?: MDBListSettings.DEFAULT_RATING_ORDER
+        )
 
     suspend fun setEnabled(enabled: Boolean) {
         store().edit { it[enabledKey] = enabled }

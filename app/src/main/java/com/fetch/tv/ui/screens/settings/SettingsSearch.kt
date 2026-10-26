@@ -32,6 +32,21 @@ private const val MAX_RESULTS = 60
 internal data class SettingsSearchEntry(val category: SettingsCategory, val title: String)
 
 /**
+ * The entries to list: those matching [query], or with a blank query every entry when
+ * [changedOnly] is on. [changedOnly] keeps only the [changed] ones, in page order.
+ */
+internal fun settingsSearchResults(
+    query: String,
+    entries: List<SettingsSearchEntry>,
+    changedOnly: Boolean,
+    changed: Set<SettingsSearchEntry>
+): List<SettingsSearchEntry> = when {
+    !changedOnly -> searchSettings(query, entries)
+    query.isBlank() -> entries.distinct().filter { it in changed }
+    else -> searchSettings(query, entries.filter { it in changed })
+}
+
+/**
  * The entries in [entries] whose titles hold every word of [query], ignoring case and accents.
  * Titles that start with the query come first, then those with a word that does, then the rest,
  * each in page order. The same title on the same page is listed once.
@@ -75,6 +90,9 @@ internal fun SettingsSearchContent(
     visibleCategories: List<SettingsCategory>,
     query: String,
     onQueryChange: (String) -> Unit,
+    changedOnly: Boolean,
+    onChangedOnlyChange: (Boolean) -> Unit,
+    changedSettings: Set<SettingsSearchKey>,
     pageTitle: @Composable (SettingsCategory) -> String,
     groupTitle: @Composable (SettingsRailGroup) -> String,
     onOpen: (SettingsSearchEntry) -> Unit,
@@ -87,7 +105,12 @@ internal fun SettingsSearchContent(
             settingsSearchIndex[category].orEmpty().map { SettingsSearchEntry(category, context.getString(it)) }
         }
     }
-    val results = remember(query, entries) { searchSettings(query, entries) }
+    val changedEntries = remember(changedSettings, context) {
+        changedSettings.mapTo(HashSet()) { key -> SettingsSearchEntry(key.category, context.getString(key.title)) }
+    }
+    val results = remember(query, entries, changedOnly, changedEntries) {
+        settingsSearchResults(query, entries, changedOnly, changedEntries)
+    }
     // Page and category names, resolved once per page rather than once per result.
     val paths = visibleCategories.mapNotNull { category ->
         val group = category.group ?: return@mapNotNull null
@@ -111,13 +134,20 @@ internal fun SettingsSearchContent(
                 .fillMaxWidth()
                 .then(if (initialFocusRequester != null) Modifier.focusRequester(initialFocusRequester) else Modifier)
         )
+        SettingsToggleRow(
+            title = stringResource(R.string.settings_search_changed_only),
+            subtitle = stringResource(R.string.settings_search_changed_only_sub),
+            checked = changedOnly,
+            onToggle = { onChangedOnlyChange(!changedOnly) }
+        )
         SettingsGroupCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
             when {
-                query.isBlank() -> SearchNote(stringResource(R.string.settings_search_prompt))
+                query.isBlank() && !changedOnly -> SearchNote(stringResource(R.string.settings_search_prompt))
+                results.isEmpty() && query.isBlank() -> SearchNote(stringResource(R.string.settings_search_changed_empty))
                 results.isEmpty() -> SearchNote(stringResource(R.string.settings_search_empty, query.trim()))
                 else -> {
                     val listState = rememberLazyListState()

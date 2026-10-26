@@ -1,5 +1,7 @@
 package com.fetch.tv.data.local
 
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -48,25 +50,29 @@ class TmdbSettingsDataStore @Inject constructor(
     private val useCollectionsKey = booleanPreferencesKey("tmdb_use_collections")
 
     val settings: StateFlow<TmdbSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
-        factory.get(pid, FEATURE).data.map { prefs ->
-            TmdbSettings(
-                enabled = prefs[enabledKey] ?: false,
-                modernHomeEnabled = prefs[modernHomeEnabledKey] ?: false,
-                enrichContinueWatching = prefs[enrichContinueWatchingKey] ?: true,
-                language = prefs[languageKey] ?: "en",
-                useArtwork = prefs[useArtworkKey] ?: true,
-                useBasicInfo = prefs[useBasicInfoKey] ?: true,
-                useDetails = prefs[useDetailsKey] ?: true,
-                useCredits = prefs[useCreditsKey] ?: true,
-                useProductions = prefs[useProductionsKey] ?: true,
-                useNetworks = prefs[useNetworksKey] ?: true,
-                useEpisodes = prefs[useEpisodesKey] ?: true,
-                useTrailers = prefs[useTrailersKey] ?: true,
-                useMoreLikeThis = prefs[useMoreLikeThisKey] ?: true,
-                useCollections = prefs[useCollectionsKey] ?: true
-            )
-        }
+        factory.get(pid, FEATURE).data.map(::readSettings)
     }.stateIn(scope, SharingStarted.Eagerly, TmdbSettings())
+
+    /** What the settings are before the profile changes any: [readSettings] on empty preferences. */
+    val defaultSettings: TmdbSettings by lazy { readSettings(emptyPreferences()) }
+
+    private fun readSettings(prefs: Preferences): TmdbSettings =
+        TmdbSettings(
+            enabled = prefs[enabledKey] ?: false,
+            modernHomeEnabled = prefs[modernHomeEnabledKey] ?: false,
+            enrichContinueWatching = prefs[enrichContinueWatchingKey] ?: true,
+            language = prefs[languageKey] ?: "en",
+            useArtwork = prefs[useArtworkKey] ?: true,
+            useBasicInfo = prefs[useBasicInfoKey] ?: true,
+            useDetails = prefs[useDetailsKey] ?: true,
+            useCredits = prefs[useCreditsKey] ?: true,
+            useProductions = prefs[useProductionsKey] ?: true,
+            useNetworks = prefs[useNetworksKey] ?: true,
+            useEpisodes = prefs[useEpisodesKey] ?: true,
+            useTrailers = prefs[useTrailersKey] ?: true,
+            useMoreLikeThis = prefs[useMoreLikeThisKey] ?: true,
+            useCollections = prefs[useCollectionsKey] ?: true
+        )
 
     suspend fun setEnabled(enabled: Boolean) {
         store().edit { it[enabledKey] = enabled }

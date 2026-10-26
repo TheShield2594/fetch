@@ -208,7 +208,8 @@ fun SettingsScreen(
     experienceModeViewModel: ExperienceModeSettingsViewModel = hiltViewModel(),
     partyViewModel: PartyViewModel = hiltViewModel(),
     playbackViewModel: PlaybackSettingsViewModel = hiltViewModel(),
-    searchViewModel: SettingsSearchViewModel = hiltViewModel()
+    searchViewModel: SettingsSearchViewModel = hiltViewModel(),
+    changedViewModel: SettingsChangedViewModel = hiltViewModel()
 ) {
     val isPrimaryProfileActive by profileViewModel.isPrimaryProfileActive.collectAsStateWithLifecycle()
     val isWatchPartyAvailable by partyViewModel.party.available.collectAsStateWithLifecycle()
@@ -259,6 +260,8 @@ fun SettingsScreen(
     }
     // Hoisted so a query typed on the phone hub can be put in the search field.
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    var searchChangedOnly by rememberSaveable { mutableStateOf(false) }
+    val changedSettings by changedViewModel.changedSettings.collectAsStateWithLifecycle()
     val phoneSearchQuery by searchViewModel.pendingPhoneQuery.collectAsStateWithLifecycle()
     LaunchedEffect(phoneSearchQuery) {
         if (phoneSearchQuery == null) return@LaunchedEffect
@@ -667,6 +670,9 @@ fun SettingsScreen(
                         visibleCategories = visibleCategories,
                         searchQuery = searchQuery,
                         onSearchQueryChange = { searchQuery = it },
+                        searchChangedOnly = searchChangedOnly,
+                        onSearchChangedOnlyChange = { searchChangedOnly = it },
+                        changedSettings = changedSettings,
                         onOpenSearchResult = { result ->
                             visibleSections.firstOrNull { it.category == result.category }?.let { section ->
                                 rowTarget = SettingsRowTarget(result.category, result.title)
@@ -697,6 +703,9 @@ private fun SettingsDetailPane(
     visibleCategories: List<SettingsCategory>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
+    searchChangedOnly: Boolean,
+    onSearchChangedOnlyChange: (Boolean) -> Unit,
+    changedSettings: Set<SettingsSearchKey>,
     onOpenSearchResult: (SettingsSearchEntry) -> Unit,
     onNavigateToManageProfiles: () -> Unit,
     onNavigateToAddons: () -> Unit,
@@ -808,6 +817,9 @@ private fun SettingsDetailPane(
             visibleCategories = visibleCategories,
             query = searchQuery,
             onQueryChange = onSearchQueryChange,
+            changedOnly = searchChangedOnly,
+            onChangedOnlyChange = onSearchChangedOnlyChange,
+            changedSettings = changedSettings,
             pageTitle = { settingsSectionSpec(it).title },
             groupTitle = { settingsGroupTitle(it) },
             onOpen = onOpenSearchResult,

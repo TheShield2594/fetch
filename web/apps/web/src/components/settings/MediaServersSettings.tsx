@@ -1,8 +1,9 @@
 import { type FormEvent, useEffect, useId, useState } from "react";
 import { AlertCircle, ExternalLink, Loader2, RefreshCw, Trash2 } from "lucide-react";
-import { api, type MediaServer, type MediaServerSyncSummary, type PlexLink } from "../../api";
+import { api, type MediaServer, type MediaServerLibrary, type MediaServerSyncSummary, type PlexLink } from "../../api";
 
 const PROVIDER_NAMES: Record<MediaServer["provider"], string> = { plex: "Plex", jellyfin: "Jellyfin", emby: "Emby" };
+const LIBRARY_KINDS: Record<MediaServerLibrary["kind"], string> = { movies: "Films", shows: "Series", mixed: "Mixed" };
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-[var(--border)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15";
@@ -84,12 +85,12 @@ function PasswordSignIn({ provider, onSignedIn }: { provider: "jellyfin" | "emby
 }
 
 function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => void }) {
-  const [busy, setBusy] = useState<"sync" | "remove" | "toggle" | null>(null);
+  const [busy, setBusy] = useState<"sync" | "remove" | "toggle" | "libraries" | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const label = `${server.serverName} (${PROVIDER_NAMES[server.provider]})`;
 
-  const run = async (kind: "sync" | "remove" | "toggle", action: () => Promise<void>) => {
+  const run = async (kind: "sync" | "remove" | "toggle" | "libraries", action: () => Promise<void>) => {
     setBusy(kind);
     setError(null);
     try {
@@ -158,6 +159,48 @@ function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => 
         />
         Import watch progress (what you watched there, and where you stopped)
       </label>
+      <fieldset className="space-y-1">
+        <legend className="text-xs font-medium" style={{ color: "var(--text)" }}>Libraries to read</legend>
+        {server.libraries === null ? (
+          <p className="text-xs" style={{ color: "var(--text-mute)" }}>All of them, until the server lists them.</p>
+        ) : server.libraries.length === 0 ? (
+          <p className="text-xs" style={{ color: "var(--text-mute)" }}>The server has no film or series libraries.</p>
+        ) : (
+          server.libraries.map((library) => (
+            <label key={library.id} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-dim)" }}>
+              <input
+                type="checkbox"
+                checked={library.selected}
+                disabled={busy !== null}
+                onChange={(e) =>
+                  void run("libraries", async () => {
+                    const selected = server
+                      .libraries!.filter((other) => (other.id === library.id ? e.target.checked : other.selected))
+                      .map((other) => other.id);
+                    await api.setMediaServerLibraries(server.id, selected);
+                    onChange();
+                  })
+                }
+              />
+              {library.name}
+              <span style={{ color: "var(--text-mute)" }}>{LIBRARY_KINDS[library.kind]}</span>
+            </label>
+          ))
+        )}
+        <button
+          type="button"
+          className="text-xs underline"
+          disabled={busy !== null}
+          onClick={() =>
+            void run("libraries", async () => {
+              await api.refreshMediaServerLibraries(server.id);
+              onChange();
+            })
+          }
+        >
+          {busy === "libraries" ? "Checking..." : "Check the server for libraries"}
+        </button>
+      </fieldset>
       {result && <p role="status" className="text-xs">{result}</p>}
       {error && (
         <p role="alert" className="flex items-center gap-2 text-xs text-danger">

@@ -51,7 +51,16 @@ export type MediaServerDetails = {
   /** The TV's "Import watch progress": whether a sync brings plays and resume points in. */
   importWatchState: boolean;
   lastSyncedAt?: string | null;
+  /**
+   * The server's film and series libraries as last seen, each with whether a
+   * sync reads it, as the TV's `ServerConnection.libraries`. Missing on a
+   * sign-in from before libraries could be chosen; a library not listed here
+   * (new on the server since) is read, so the default is all of them.
+   */
+  libraries?: MediaServerLibrary[];
 };
+export type MediaServerLibraryKind = "movies" | "shows" | "mixed";
+export type MediaServerLibrary = { id: string; name: string; kind: MediaServerLibraryKind; selected: boolean };
 /** IMDb id (or "imdb:season:episode") to the server's item id, for marking plays. */
 export type MediaServerState = { movies?: Record<string, string>; episodes?: Record<string, string> };
 type ServerConnection = Connection<MediaServerCredentials, MediaServerDetails, MediaServerState>;
@@ -126,6 +135,16 @@ const withQuery = (base: string, path: string, query: Record<string, string | un
   for (const [key, value] of Object.entries(query)) if (value !== undefined) url.searchParams.set(key, value);
   return url.toString();
 };
+
+/** The server's current libraries, keeping what was chosen for the ones seen before; new ones start selected. */
+export const mergeLibraries = (
+  previous: MediaServerLibrary[] | undefined,
+  current: Omit<MediaServerLibrary, "selected">[]
+): MediaServerLibrary[] =>
+  current.map((library) => ({
+    ...library,
+    selected: previous?.find((known) => known.id === library.id)?.selected ?? true,
+  }));
 
 // ─── Plex ───
 
@@ -279,6 +298,9 @@ export const pollPlexLink = async (profileId: string): Promise<PlexLinkPoll> => 
     const token = server.accessToken?.trim() || accountToken;
     const address = await reachablePlexAddress(profileId, scope, server, token);
     if (!address) continue;
+    // Listed now so they can be chosen before the first sync; a server that
+    // won't list them yet still signs in, and the sync lists them.
+    const libraries = await plexLibraries(address, profileId, token, scope).catch(() => null);
     await saveConnection<MediaServerCredentials, MediaServerDetails>({
       profileId,
       provider: "plex",
@@ -292,6 +314,7 @@ export const pollPlexLink = async (profileId: string): Promise<PlexLinkPoll> => 
         userName,
         importWatchState: true,
         lastSyncedAt: null,
+        ...(libraries ? { libraries: mergeLibraries(undefined, libraries) } : {}),
       },
     });
     saved += 1;
@@ -377,6 +400,7 @@ export const signInMediaBrowser = async (
   const serverId = result?.ServerId ?? info?.Id;
   if (!token || !userId || !serverId) throw new MediaServerError("The server refused the sign-in", "auth");
 
+  const libraries = await mediaBrowserLibraries(provider, { address, userId }, profileId, token, scope).catch(() => null);
   const details: MediaServerDetails = {
     serverName: info?.ServerName?.trim() || new URL(address).host,
     address,
@@ -385,6 +409,7 @@ export const signInMediaBrowser = async (
     userName: result?.User?.Name ?? input.username,
     importWatchState: true,
     lastSyncedAt: null,
+    ...(libraries ? { libraries: mergeLibraries(undefined, libraries) } : {}),
   };
   await saveConnection<MediaServerCredentials, MediaServerDetails>({
     profileId,
@@ -472,25 +497,37 @@ const plexTitle = (item: PlexItem, imdbId: string, extra: Partial<ServerTitle> =
   ...extra,
 });
 
-const readPlex = async (connection: ServerConnection, scope: OutboundScope) => {
+/** A Plex server's film and series libraries (`/library/sections`). */
+const plexLibraries = async (
+  address: string,
+  profileId: string,
+  token: string,
+  scope: OutboundScope
+): Promise<Omit<MediaServerLibrary, "selected">[]> => {
   const sections =
     ((await readJson(
-      await serverFetch(scope, withQuery(connection.details.address, "/library/sections"), {
-        headers: plexHeaders(connection.profileId, connection.credentials!.token),
-      })
-    )) as { MediaContainer?: { Directory?: { key?: string; type?: string }[] } } | null)?.MediaContainer?.Directory ?? [];
+      await serverFetch(scope, withQuery(address, "/library/sections"), { headers: plexHeaders(profileId, token) })
+    )) as { MediaContainer?: { Directory?: { key?: string; type?: string; title?: string }[] } } | null)?.MediaContainer
+      ?.Directory ?? [];
+  return sections.flatMap((section) =>
+    section.key && (section.type === "movie" || section.type === "show")
+      ? [{ id: section.key, name: section.title?.trim() || section.key, kind: section.type === "movie" ? ("movies" as const) : ("shows" as const) }]
+      : []
+  );
+};
 
+const readPlex = async (connection: ServerConnection, scope: OutboundScope, libraries: MediaServerLibrary[]) => {
   const movies: ServerTitle[] = [];
   const episodes: ServerTitle[] = [];
-  for (const section of sections) {
-    if (!section.key) continue;
-    const path = `/library/sections/${encodeURIComponent(section.key)}/all`;
-    if (section.type === "movie") {
+  for (const library of libraries) {
+    if (!library.selected) continue;
+    const path = `/library/sections/${encodeURIComponent(library.id)}/all`;
+    if (library.kind === "movies") {
       for (const item of await plexItems(connection, scope, path, { type: "1" })) {
         const imdbId = imdbFromPlexGuids(item.Guid, item.guid);
         if (imdbId && item.ratingKey) movies.push(plexTitle(item, imdbId));
       }
-    } else if (section.type === "show") {
+    } else if (library.kind === "shows") {
       const shows = new Map<string, string>();
       for (const show of await plexItems(connection, scope, path, { type: "2" })) {
         const imdbId = imdbFromPlexGuids(show.Guid, show.guid);
@@ -530,7 +567,8 @@ const mediaBrowserItems = async (
   scope: OutboundScope,
   provider: "jellyfin" | "emby",
   itemType: string,
-  userData: boolean
+  userData: boolean,
+  parentId?: string
 ): Promise<MediaBrowserItem[]> => {
   const { address, userId } = connection.details;
   const root = mediaBrowserApiRoot(provider, address);
@@ -541,6 +579,7 @@ const mediaBrowserItems = async (
       scope,
       withQuery(root, path, {
         ...(provider === "jellyfin" ? { userId } : {}),
+        ...(parentId ? { parentId } : {}),
         recursive: "true",
         includeItemTypes: itemType,
         fields: "ProviderIds",
@@ -571,19 +610,60 @@ const mediaBrowserTitle = (item: MediaBrowserItem, imdbId: string, extra: Partia
   ...extra,
 });
 
-const readMediaBrowser = async (connection: ServerConnection, scope: OutboundScope, provider: "jellyfin" | "emby") => {
+/** A Jellyfin or Emby user's film, series and mixed libraries (their views). */
+const mediaBrowserLibraries = async (
+  provider: "jellyfin" | "emby",
+  details: Pick<MediaServerDetails, "address" | "userId">,
+  profileId: string,
+  token: string,
+  scope: OutboundScope
+): Promise<Omit<MediaServerLibrary, "selected">[]> => {
+  const root = mediaBrowserApiRoot(provider, details.address);
+  const url =
+    provider === "jellyfin"
+      ? withQuery(root, "/UserViews", { userId: details.userId })
+      : withQuery(root, `/Users/${encodeURIComponent(details.userId)}/Views`);
+  const views =
+    ((await readJson(await serverFetch(scope, url, { headers: mediaBrowserHeaders(provider, profileId, token) }))) as {
+      Items?: { Id?: string; Name?: string; CollectionType?: string }[];
+    } | null)?.Items ?? [];
+  return views.flatMap((view) => {
+    const type = view.CollectionType?.toLowerCase();
+    const kind: MediaServerLibraryKind | null =
+      type === "movies" ? "movies" : type === "tvshows" ? "shows" : !type || type === "mixed" ? "mixed" : null;
+    return view.Id && kind ? [{ id: view.Id, name: view.Name?.trim() || view.Id, kind }] : [];
+  });
+};
+
+const readMediaBrowser = async (
+  connection: ServerConnection,
+  scope: OutboundScope,
+  provider: "jellyfin" | "emby",
+  libraries: MediaServerLibrary[]
+) => {
+  // With every library chosen, the whole server in one pass per type, as
+  // before; otherwise one pass per chosen library.
+  const parents: (string | undefined)[] = libraries.every((library) => library.selected)
+    ? [undefined]
+    : libraries.filter((library) => library.selected).map((library) => library.id);
+  const read = async (itemType: string, userData: boolean) => {
+    const items: MediaBrowserItem[] = [];
+    for (const parentId of parents) items.push(...(await mediaBrowserItems(connection, scope, provider, itemType, userData, parentId)));
+    return items;
+  };
+
   const movies: ServerTitle[] = [];
-  for (const item of await mediaBrowserItems(connection, scope, provider, "Movie", true)) {
+  for (const item of await read("Movie", true)) {
     const imdbId = imdbFromProviderIds(item.ProviderIds);
     if (imdbId && item.Id) movies.push(mediaBrowserTitle(item, imdbId));
   }
   const series = new Map<string, string>();
-  for (const item of await mediaBrowserItems(connection, scope, provider, "Series", false)) {
+  for (const item of await read("Series", false)) {
     const imdbId = imdbFromProviderIds(item.ProviderIds);
     if (imdbId && item.Id) series.set(item.Id, imdbId);
   }
   const episodes: ServerTitle[] = [];
-  for (const item of await mediaBrowserItems(connection, scope, provider, "Episode", true)) {
+  for (const item of await read("Episode", true)) {
     const imdbId = item.SeriesId ? series.get(item.SeriesId) : undefined;
     if (!imdbId || !item.Id || item.ParentIndexNumber === undefined || item.IndexNumber === undefined) continue;
     episodes.push(
@@ -591,6 +671,24 @@ const readMediaBrowser = async (connection: ServerConnection, scope: OutboundSco
     );
   }
   return { movies, episodes };
+};
+
+/** Asks the server for its libraries now. */
+const fetchLibraries = (connection: ServerConnection, scope: OutboundScope) => {
+  const token = connection.credentials!.token;
+  return connection.provider === "plex"
+    ? plexLibraries(connection.details.address, connection.profileId, token, scope)
+    : mediaBrowserLibraries(connection.provider as "jellyfin" | "emby", connection.details, connection.profileId, token, scope);
+};
+
+/** Re-reads a server's libraries, keeps the choices made for them, and saves the list. */
+export const refreshMediaServerLibraries = async (connection: ServerConnection): Promise<MediaServerDetails> => {
+  if (!connection.credentials) throw new MediaServerError("The stored sign-in can't be read; sign in again", "auth");
+  const scope = await outboundScopeForProfile(connection.profileId);
+  const libraries = mergeLibraries(connection.details.libraries, await fetchLibraries(connection, scope));
+  const details = { ...connection.details, libraries };
+  await updateConnectionDetails<MediaServerDetails>(connection.id, details);
+  return details;
 };
 
 const episodeKey = (imdbId: string, season: number, episode: number) => `${imdbId}:${season}:${episode}`;
@@ -661,7 +759,13 @@ export const syncMediaServer = async (connection: ServerConnection, logger: Fast
   if (!connection.credentials) throw new MediaServerError("The stored sign-in can't be read; sign in again", "auth");
   const scope = await outboundScopeForProfile(connection.profileId);
   const provider = connection.provider as MediaServerProvider;
-  const titles = provider === "plex" ? await readPlex(connection, scope) : await readMediaBrowser(connection, scope, provider);
+  // The library list is read fresh each time, so one added on the server is
+  // picked up (and read) without a visit to Settings.
+  const libraries = mergeLibraries(connection.details.libraries, await fetchLibraries(connection, scope));
+  const titles =
+    provider === "plex"
+      ? await readPlex(connection, scope, libraries)
+      : await readMediaBrowser(connection, scope, provider, libraries);
   const syncedAt = new Date();
   const { watches, resume, state } = projectServerTitles(titles, syncedAt);
 
@@ -681,7 +785,11 @@ export const syncMediaServer = async (connection: ServerConnection, logger: Fast
     summary = { movies: imported.movies, episodes: imported.episodes, resumePoints, skipped: imported.skipped };
   }
   await updateConnectionState<MediaServerState>(connection.id, state);
-  await updateConnectionDetails<MediaServerDetails>(connection.id, { ...connection.details, lastSyncedAt: syncedAt.toISOString() });
+  await updateConnectionDetails<MediaServerDetails>(connection.id, {
+    ...connection.details,
+    libraries,
+    lastSyncedAt: syncedAt.toISOString(),
+  });
   return summary;
 };
 

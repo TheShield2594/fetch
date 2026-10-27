@@ -622,11 +622,12 @@ account's scope: only the admin's profiles may reach a private-network server
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/media-servers` | `{ providers, servers: [{ id, provider, serverName, address, userName, importWatchState, lastSyncedAt, connectedAt }], plexLink }`. |
+| `GET` | `/media-servers` | `{ providers, servers: [{ id, provider, serverName, address, userName, importWatchState, lastSyncedAt, libraries, connectedAt }], plexLink }`. `libraries` is the server's film, series and mixed libraries, `[{ id, name, kind: "movies" \| "shows" \| "mixed", selected }]`, listed at sign-in and on each sync; `null` until the server has listed them, when every library is read. |
 | `POST` | `/media-servers/plex/link` | Starts a Plex sign-in: `{ code, linkUrl, expiresAt, interval }`; the code is entered at plex.tv/link. |
 | `POST` | `/media-servers/plex/link/poll` | `{ result: "pending" \| "connected" \| "expired" \| "none", servers }`. On `connected`, each server on the account (Plex Media Server 1.30+) that answers at an allowed address is saved. |
 | `POST` | `/media-servers/:provider/sign-in` | `jellyfin` or `emby`: `{ address, username, password }` (Jellyfin 10.9+, Emby 4.7+). 201 `{ serverName, userName }`; 401 `server_auth` on a wrong password. |
-| `PATCH` | `/media-servers/:id` | `{ importWatchState }`. |
+| `PATCH` | `/media-servers/:id` | `{ importWatchState?, selectedLibraries? }`. `selectedLibraries` is the ids of the libraries a sync reads; the others listed are skipped, and one the server adds later is read until it is turned off. 409 if the libraries haven't been listed yet. |
+| `POST` | `/media-servers/:id/libraries/refresh` | Asks the server for its libraries again, keeping what was chosen; returns the server. |
 | `POST` | `/media-servers/:id/sync` | Reads the server now: `{ movies, episodes, resumePoints, skipped }`. |
 | `DELETE` | `/media-servers/:id` | Signs out (Jellyfin and Emby) and forgets the sign-in. |
 

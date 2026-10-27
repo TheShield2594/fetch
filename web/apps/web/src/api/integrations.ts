@@ -46,8 +46,12 @@ export type MediaServer = {
   userName: string;
   importWatchState: boolean;
   lastSyncedAt: string | null;
+  /** null until the server has listed them; every library is read then. */
+  libraries: MediaServerLibrary[] | null;
   connectedAt: string;
 };
+
+export type MediaServerLibrary = { id: string; name: string; kind: "movies" | "shows" | "mixed"; selected: boolean };
 
 export type PlexLink = { code: string; linkUrl: string; expiresAt: string; interval: number };
 
@@ -81,6 +85,18 @@ export const integrationsApi = {
     return request<MediaServer>(`/media-servers/${encodeURIComponent(id)}`, {
       method: "PATCH",
       body: JSON.stringify({ importWatchState }),
+    });
+  },
+  setMediaServerLibraries(id: string, selectedLibraries: string[]) {
+    return request<MediaServer>(`/media-servers/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ selectedLibraries }),
+    });
+  },
+  refreshMediaServerLibraries(id: string) {
+    return request<MediaServer>(`/media-servers/${encodeURIComponent(id)}/libraries/refresh`, {
+      method: "POST",
+      timeoutMs: 60000,
     });
   },
   syncMediaServer(id: string) {

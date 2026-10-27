@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.qr.QrCodeGenerator
+import com.fetch.tv.core.server.PhoneAddonRequest
 import com.fetch.tv.core.server.PhoneHubController
 import com.fetch.tv.core.server.PhoneHubState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +29,12 @@ class PhoneHubViewModel @Inject constructor(
         .map { url -> url?.let { QrCodeGenerator.generate(it, 512) } }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val pendingAddon: StateFlow<PhoneAddonRequest?> = controller.pendingAddon
+
+    fun confirmPendingAddon() = controller.confirmPendingAddon()
+
+    fun rejectPendingAddon() = controller.rejectPendingAddon()
 
     fun onScreenOpened() = controller.onScreenOpened()
 

@@ -25,7 +25,6 @@ import androidx.navigation.navArgument
 import com.fetch.tv.core.party.PartyMedia
 import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.ui.screens.CatalogSeeAllScreen
-import com.fetch.tv.ui.screens.ExperienceModeSelectionScreen
 import com.fetch.tv.ui.screens.detail.MetaDetailsScreen
 import com.fetch.tv.ui.screens.home.HomeScreen
 import com.fetch.tv.ui.screens.addon.AddonManagerScreen
@@ -46,6 +45,7 @@ import com.fetch.tv.ui.screens.settings.SettingsScreen
 import com.fetch.tv.ui.screens.settings.ThemeSettingsScreen
 import com.fetch.tv.ui.screens.settings.TrackingSettingsScreen
 import com.fetch.tv.ui.screens.settings.TmdbSettingsScreen
+import com.fetch.tv.ui.screens.setup.FirstRunWizardScreen
 import com.fetch.tv.ui.screens.stream.StreamScreen
 import com.fetch.tv.ui.screens.home.ContinueWatchingItem
 import com.fetch.tv.ui.screens.account.AuthQrSignInScreen
@@ -157,8 +157,8 @@ private fun PlaybackNavHost(
         }
     ) {
         composable(Screen.ExperienceModeSelection.route) {
-            ExperienceModeSelectionScreen(
-                onContinue = {
+            FirstRunWizardScreen(
+                onFinished = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.ExperienceModeSelection.route) { inclusive = true }
                     }

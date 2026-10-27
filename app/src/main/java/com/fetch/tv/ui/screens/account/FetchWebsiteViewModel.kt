@@ -3,6 +3,8 @@ package com.fetch.tv.ui.screens.account
 import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fetch.tv.data.website.DiscoveredFetchServer
+import com.fetch.tv.data.website.FetchServerDiscovery
 import com.fetch.tv.data.website.FetchWebsiteClient
 import com.fetch.tv.data.website.FetchWebsiteSession
 import com.fetch.tv.data.website.FetchWebsiteStore
@@ -14,8 +16,10 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
 
@@ -44,9 +48,14 @@ sealed interface WebsitePairingState {
 class FetchWebsiteViewModel @Inject constructor(
     private val store: FetchWebsiteStore,
     private val client: FetchWebsiteClient,
-    private val sync: FetchWebsiteSyncService
+    private val sync: FetchWebsiteSyncService,
+    discovery: FetchServerDiscovery
 ) : ViewModel() {
     val session: StateFlow<FetchWebsiteSession?> = store.session
+
+    /** Fetch websites announced on the LAN; the network is only browsed while something shows them. */
+    val discoveredServers: StateFlow<List<DiscoveredFetchServer>> = discovery.servers()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     val signedOutByWebsite: StateFlow<Boolean> = store.signedOutByWebsite
 
     private val _pairing = MutableStateFlow<WebsitePairingState>(WebsitePairingState.EnterAddress)

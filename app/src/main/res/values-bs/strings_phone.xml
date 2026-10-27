@@ -3,10 +3,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">Tvoj telefon mora biti na istoj Wi-Fi mreži kao ovaj TV. Ovo možeš uraditi i kasnije u Postavkama.</string>
     <string name="first_run_phone_qr_description">Kod za podešavanje telefonom</string>
-    <string name="first_run_phone_step_accounts">Prijavi se na Trakt, Simkl ili Jellyfin</string>
-    <string name="first_run_phone_step_rules">Odaberite pravila kvaliteta streamova</string>
     <string name="first_run_phone_step_scan">Skeniraj kamerom telefona</string>
-    <string name="first_run_phone_title">Podesi pomoću telefona. Bez kucanja daljinskim.</string>
     <string name="first_run_recommended">Preporučeno</string>
     <string name="phone_hub_description">Skeniraj jedan kod da koristiš telefon kao daljinski i tastaturu, prijaviš se na račune i mijenjaš duge postavke.</string>
     <string name="phone_hub_instruction">Skeniraj telefonom. Kod radi jednom; stranica ostaje otvorena dok je otvoren ovaj ekran.</string>

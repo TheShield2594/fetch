@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Fetch: new and changed strings -->
-    <string name="first_run_phone_title">Mit dem Handy einrichten. Kein Tippen mit der Fernbedienung.</string>
     <string name="first_run_phone_qr_description">Code zur Einrichtung per Handy</string>
     <string name="first_run_phone_step_scan">Mit der Handykamera scannen</string>
-    <string name="first_run_phone_step_rules">Regeln für die Stream-Qualität festlegen</string>
-    <string name="first_run_phone_step_accounts">Bei Trakt, Simkl oder Jellyfin anmelden</string>
     <string name="first_run_phone_network">Ihr Handy muss im selben WLAN wie dieser Fernseher sein. Sie können das auch später in den Optionen erledigen.</string>
     <string name="first_run_recommended">Empfohlen</string>
     <string name="phone_hub_title">Per Handy konfigurieren</string>

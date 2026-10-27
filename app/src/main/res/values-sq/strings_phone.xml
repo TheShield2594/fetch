@@ -3,10 +3,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">Telefoni yt duhet të jetë në të njëjtin Wi-Fi me këtë TV. Mund ta bësh këtë edhe më vonë te Cilësimet.</string>
     <string name="first_run_phone_qr_description">Kodi i konfigurimit me telefon</string>
-    <string name="first_run_phone_step_accounts">Identifikohu në Trakt, Simkl ose Jellyfin</string>
-    <string name="first_run_phone_step_rules">Zgjidhni rregullat e cilësisë së transmetimeve</string>
     <string name="first_run_phone_step_scan">Skano me kamerën e telefonit</string>
-    <string name="first_run_phone_title">Konfiguro me telefon. Pa shkruar me telekomandë.</string>
     <string name="first_run_recommended">Rekomanduar</string>
     <string name="phone_hub_description">Skano një kod për ta përdorur telefonin si telekomandë dhe tastierë, për t’u identifikuar në llogari dhe për të modifikuar cilësime të gjata.</string>
     <string name="phone_hub_instruction">Skano me telefonin. Kodi funksionon një herë; faqja mbetet e hapur sa kohë që ky ekran është i hapur.</string>

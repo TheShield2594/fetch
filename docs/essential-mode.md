@@ -132,33 +132,17 @@ If they have no installed add-ons, Home and Search empty states should deep-link
 
 ## Essential Onboarding Flow
 
-Recommended first-run flow:
+First run is a four-step wizard (`ui/screens/setup/FirstRunWizardScreen.kt`). Every step has **Skip for now**, Back goes to the previous step, and the whole flow works with the D-pad. The phone hub's code stays live for the whole wizard, so changes made on the phone show up on the step as they land. Skipping everything leaves the app local-only with the default addons, as a fresh install was before the wizard.
 
-1. Account sign-in
-   - Keep the existing QR sign-in flow.
-   - Allow continue without account.
-   - Explain that account sync is optional.
+1. **Server.** Pair this TV with a self-hosted Fetch website. Servers announced on the LAN (`_fetch._tcp` over mDNS, see `web/README.md`) are listed; an address can be typed when none is found. Uses the same pairing as Settings → Account → Fetch website.
 
-2. Experience mode
-   - Show Essential and Advanced choices.
-   - Essential is selected by default.
-   - Advanced mentions full customization.
+2. **Sources.** The phone code, with the phone's Addons page as the way in: paste a stream addon's link, or pick a suggestion, then confirm it on the TV (`PhoneAddonConfirmDialog`), which shows what the manifest provides before installing. Addons that must be configured first open their own setup page on the phone, which is also where debrid services sign in. The step shows how many stream addons and media servers are set up.
 
-3. Add-on setup
-   - If no add-ons are installed, show a focused Add-on Setup screen.
-   - Primary action: manage from phone with QR.
-   - Secondary action: enter add-on URL manually.
-   - Success state: show installed add-on and continue to Home.
+3. **Metadata.** TMDB enrichment on or off (when the build has a TMDB key), and the MDBList key and Trakt or Simkl sign-in from the phone's Accounts page.
 
-4. Basic preferences
-   - App language.
-   - Preferred subtitle language.
-   - Optional player preference only if external player apps are detected or the user asks.
+4. **Experience.** Essential or Advanced; Essential is recommended and is what Skip for now picks. Choosing marks first-run setup as done (`markHomeSetUp()`).
 
-5. Home
-   - Use Modern layout.
-   - Keep Discover enabled.
-   - Keep default poster sizes.
+A profile behind a parent PIN sees only the Experience step, since it can't change settings without unlocking.
 
 ## Essential Navigation
 

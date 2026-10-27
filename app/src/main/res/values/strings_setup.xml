@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- First-run setup wizard: Server → Sources → Metadata → Experience. -->
+    <string name="first_run_step_label">%1$d  %2$s</string>
+    <string name="first_run_step_server">Server</string>
+    <string name="first_run_step_sources">Sources</string>
+    <string name="first_run_step_metadata">Metadata</string>
+    <string name="first_run_step_experience">Experience</string>
+    <string name="first_run_back">Back</string>
+    <string name="first_run_skip">Skip for now</string>
+    <string name="first_run_continue">Continue</string>
+
+    <string name="first_run_server_title">Connect your Fetch server</string>
+    <string name="first_run_server_body">A self-hosted Fetch website keeps profiles, parental limits, collections and watch history in sync across your TVs. No server? Skip this and Fetch works on this TV on its own.</string>
+
+    <string name="first_run_sources_title">Add something to watch</string>
+    <string name="first_run_sources_step_addons">Open Addons and paste a stream addon\'s link</string>
+    <string name="first_run_sources_step_confirm">Confirm it here on the TV</string>
+    <string name="first_run_sources_stream_addons">Stream addons</string>
+    <plurals name="first_run_sources_stream_count">
+        <item quantity="one">%d installed</item>
+        <item quantity="other">%d installed</item>
+    </plurals>
+    <string name="first_run_sources_stream_none">None yet. Movies and shows will list, but won\'t play.</string>
+    <string name="first_run_sources_media_servers">Media servers</string>
+    <string name="first_run_sources_media_servers_none">None yet. Jellyfin and Emby connect on the phone under Accounts; Plex later in Settings on the TV.</string>
+    <string name="first_run_sources_debrid">Real-Debrid, Premiumize and TorBox sign in on a stream addon\'s own setup page, which the phone opens for you when the addon has one.</string>
+
+    <string name="first_run_metadata_title">Ratings and tracking</string>
+    <string name="first_run_metadata_step_accounts">Open Accounts</string>
+    <string name="first_run_metadata_step_keys">Add an MDBList key, or sign in to Trakt or Simkl</string>
+    <string name="first_run_metadata_tmdb">Richer details from TMDB</string>
+    <string name="first_run_metadata_tmdb_subtitle">Artwork, cast, episode titles and trailers on top of what addons give.</string>
+    <string name="first_run_metadata_mdblist">MDBList ratings</string>
+    <string name="first_run_metadata_mdblist_set">Key added</string>
+    <string name="first_run_metadata_mdblist_unset">No key yet</string>
+    <string name="first_run_metadata_trakt">Trakt</string>
+    <string name="first_run_metadata_trakt_connected_as">Connected as %1$s</string>
+    <string name="first_run_metadata_trakt_connected">Connected</string>
+    <string name="first_run_metadata_trakt_unset">Not connected</string>
+</resources>

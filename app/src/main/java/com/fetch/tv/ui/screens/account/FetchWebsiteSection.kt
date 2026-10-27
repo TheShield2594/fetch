@@ -19,6 +19,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -33,6 +35,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.qr.QrCodeGenerator
+import com.fetch.tv.data.website.DiscoveredFetchServer
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.screens.settings.SettingsActionRow
@@ -121,26 +124,55 @@ fun FetchWebsiteSection(viewModel: FetchWebsiteViewModel = hiltViewModel()) {
 
 @Composable
 private fun FetchWebsitePairingDialog(viewModel: FetchWebsiteViewModel, onDismiss: () -> Unit) {
-    val state by viewModel.pairing.collectAsStateWithLifecycle()
-    var address by remember { mutableStateOf(viewModel.lastServerUrl) }
-
-    DisposableEffect(Unit) { onDispose { if (viewModel.pairing.value !is WebsitePairingState.Paired) viewModel.resetPairing() } }
-
     FetchDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.website_sign_in_title),
         width = 640.dp
     ) {
+        FetchWebsitePairingContent(viewModel = viewModel, onCancel = onDismiss, onDone = onDismiss)
+    }
+}
+
+/**
+ * Pairing with a Fetch website: servers found on the LAN, an address to type when none is,
+ * then the code to confirm on the website. Used by the Settings dialog and the setup wizard;
+ * [onCancel] adds a Cancel button where the surroundings don't offer a way out, and
+ * [firstFocus] lands on the first server found, or on the address field.
+ */
+@Composable
+internal fun FetchWebsitePairingContent(
+    viewModel: FetchWebsiteViewModel,
+    onCancel: (() -> Unit)?,
+    onDone: () -> Unit,
+    firstFocus: FocusRequester? = null
+) {
+    val state by viewModel.pairing.collectAsStateWithLifecycle()
+    var address by remember { mutableStateOf(viewModel.lastServerUrl) }
+
+    DisposableEffect(Unit) { onDispose { if (viewModel.pairing.value !is WebsitePairingState.Paired) viewModel.resetPairing() } }
+
+    Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)) {
         when (val current = state) {
             WebsitePairingState.EnterAddress, is WebsitePairingState.Failed -> {
-                Message(stringResource(R.string.website_enter_address))
+                val servers by viewModel.discoveredServers.collectAsStateWithLifecycle()
+                DiscoveredServers(
+                    servers = servers,
+                    firstFocus = firstFocus,
+                    onPick = { server ->
+                        address = server.apiUrl
+                        viewModel.startPairing(server.apiUrl)
+                    }
+                )
+                Message(stringResource(if (servers.isEmpty()) R.string.website_enter_address else R.string.website_enter_address_other))
                 InputField(
                     value = address,
                     onValueChange = { address = it },
                     placeholder = stringResource(R.string.website_address_placeholder),
                     keyboardType = KeyboardType.Uri,
                     onImeAction = { viewModel.startPairing(address) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(if (servers.isEmpty() && firstFocus != null) Modifier.focusRequester(firstFocus) else Modifier)
                 )
                 if (current is WebsitePairingState.Failed) {
                     Text(
@@ -151,7 +183,9 @@ private fun FetchWebsitePairingDialog(viewModel: FetchWebsiteViewModel, onDismis
                     )
                 }
                 SettingsDialogActionRow {
-                    SettingsDialogActionButton(text = stringResource(R.string.action_cancel), onClick = onDismiss)
+                    if (onCancel != null) {
+                        SettingsDialogActionButton(text = stringResource(R.string.action_cancel), onClick = onCancel)
+                    }
                     SettingsDialogActionButton(
                         text = stringResource(R.string.website_continue),
                         primary = true,
@@ -164,13 +198,19 @@ private fun FetchWebsitePairingDialog(viewModel: FetchWebsiteViewModel, onDismis
             is WebsitePairingState.ShowingCode -> {
                 CodeContent(current)
                 SettingsDialogActionRow {
-                    SettingsDialogActionButton(text = stringResource(R.string.action_cancel), onClick = onDismiss)
+                    SettingsDialogActionButton(
+                        text = stringResource(R.string.action_cancel),
+                        onClick = onCancel ?: { viewModel.resetPairing() }
+                    )
                 }
             }
             WebsitePairingState.Expired -> {
                 Message(stringResource(R.string.website_pairing_expired))
                 SettingsDialogActionRow {
-                    SettingsDialogActionButton(text = stringResource(R.string.action_cancel), onClick = onDismiss)
+                    SettingsDialogActionButton(
+                        text = stringResource(R.string.action_cancel),
+                        onClick = onCancel ?: { viewModel.resetPairing() }
+                    )
                     SettingsDialogActionButton(
                         text = stringResource(R.string.website_pairing_retry),
                         primary = true,
@@ -181,9 +221,36 @@ private fun FetchWebsitePairingDialog(viewModel: FetchWebsiteViewModel, onDismis
             is WebsitePairingState.Paired -> {
                 Message(stringResource(R.string.website_pairing_done, current.deviceName))
                 SettingsDialogActionRow {
-                    SettingsDialogActionButton(text = stringResource(R.string.website_done), primary = true, onClick = onDismiss)
+                    SettingsDialogActionButton(text = stringResource(R.string.website_done), primary = true, onClick = onDone)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun DiscoveredServers(
+    servers: List<DiscoveredFetchServer>,
+    firstFocus: FocusRequester?,
+    onPick: (DiscoveredFetchServer) -> Unit
+) {
+    if (servers.isEmpty()) {
+        Progress(stringResource(R.string.website_discovering))
+        return
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+        Text(
+            text = stringResource(R.string.website_discovered_title),
+            style = MaterialTheme.typography.labelLarge,
+            color = FetchTheme.colors.TextSecondary
+        )
+        servers.forEachIndexed { index, server ->
+            SettingsActionRow(
+                title = server.name,
+                subtitle = server.apiUrl,
+                onClick = { onPick(server) },
+                modifier = if (index == 0 && firstFocus != null) Modifier.focusRequester(firstFocus) else Modifier
+            )
         }
     }
 }

@@ -39,13 +39,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.focus.FocusRequester
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.core.qr.QrCodeGenerator
 import com.fetch.tv.core.server.PhoneHubState
 import com.fetch.tv.core.streams.StreamBadgePlacement
-import com.fetch.tv.ui.screens.ExperienceModeSelectionContent
+import com.fetch.tv.ui.screens.setup.FirstRunStatus
+import com.fetch.tv.ui.screens.setup.FirstRunStep
+import com.fetch.tv.ui.screens.setup.FirstRunWizardContent
 import com.fetch.tv.ui.screens.player.LoadingOverlay
 import com.fetch.tv.ui.screens.stream.StreamCard
 import androidx.compose.foundation.layout.padding
@@ -371,14 +372,21 @@ class ReadmeScreenshots {
     }
 
     @Test
-    fun firstRun() = render("first-run") {
+    fun firstRun() = render("first-run", focusFirst = false) {
         val qr = remember { QrCodeGenerator.generate("http://192.168.1.20:8090/pair?token=sample", 512) }
         Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
-            ExperienceModeSelectionContent(
-                showPhoneSetup = true,
+            FirstRunWizardContent(
+                step = FirstRunStep.SOURCES,
+                steps = FirstRunStep.entries,
+                status = FirstRunStatus(addonCount = 2, streamAddonCount = 1, mediaServers = listOf("Jellyfin")),
                 qrCode = qr,
                 phoneState = PhoneHubState(url = "http://192.168.1.20:8090", running = true),
-                essentialFocusRequester = remember { FocusRequester() },
+                tmdbAvailable = true,
+                websiteSignedIn = null,
+                serverPairing = {},
+                onBack = {},
+                onNext = {},
+                onToggleTmdb = {},
                 onChoose = {}
             )
         }

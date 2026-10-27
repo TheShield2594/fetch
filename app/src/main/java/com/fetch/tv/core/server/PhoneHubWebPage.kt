@@ -79,12 +79,13 @@ object PhoneHubWebPage {
             showBack = false,
             body = """
                 ${card("/remote", "Remote and keyboard", "D-pad, OK, Back, play/pause, and typing into the TV")}
+                ${card("/addons", "Addons", "Add a stream addon by its link. The TV asks before installing it")}
                 ${card("/accounts", "Accounts", "MDBList, Trakt, Simkl and media servers")}
                 ${card("/ranking", "Stream ranking", "Resolution, size, codecs and keywords for Best match")}
                 ${card("/profiles", "Move a profile", "Save a profile to a file, or add one from another TV")}
                 $extra
                 <h2>On the TV</h2>
-                <p style="color:#9aa3b2;font-size:14px">Addons, catalog order and collections change what the TV loads, so each change is confirmed on the TV. Open those screens on the TV and use their own phone code.</p>
+                <p style="color:#9aa3b2;font-size:14px">Removing and reordering addons, catalog order and collections change what the TV loads, so they have screens of their own. Open them on the TV and use their own phone code.</p>
             """
         )
     }
@@ -374,6 +375,102 @@ object PhoneHubWebPage {
               }).then(function (d) { show('importStatus', d.message || 'Added'); refresh(); })
                 .catch(function (e) { show('importStatus', e.message, true); });
             });
+            refresh();
+        """
+    )
+
+    fun addons(): String = page(
+        title = "Addons",
+        body = """
+            <p style="color:#9aa3b2;font-size:14px">Streams come from addons. Paste an addon's link (it usually ends in manifest.json) and the TV shows what it is and asks before installing it. Debrid services such as Real-Debrid, Premiumize and TorBox are signed in on the addon's own setup page.</p>
+            <label for="url">Addon link</label>
+            <input id="url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://example.com/manifest.json">
+            <div class="row"><button id="send">Send to TV</button></div>
+            <div id="status" class="status"></div>
+            <div id="configure"></div>
+            <div id="suggestionsBlock" hidden>
+              <h2>Suggestions</h2>
+              <div id="suggestions"></div>
+            </div>
+            <h2>On this TV</h2>
+            <div id="installed" class="status"></div>
+        """,
+        script = """
+            function escapeHtml(value) {
+              return String(value).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
+            }
+            function safeLink(url) {
+              return /^https?:\/\//i.test(url) ? url : '#';
+            }
+            function refresh() {
+              fetch('/api/addons').then(function (r) { return r.json(); }).then(function (d) {
+                const streams = d.installed.filter(function (a) { return a.streams; }).length;
+                document.getElementById('installed').textContent = d.installed.length
+                  ? d.installed.map(function (a) { return a.name; }).join(', ') + '. ' +
+                    (streams ? streams + (streams === 1 ? ' of them gives' : ' of them give') + ' streams.' : 'None of them gives streams yet.')
+                  : 'No addons yet.';
+                const box = document.getElementById('suggestions');
+                document.getElementById('suggestionsBlock').hidden = !d.suggestions.length;
+                box.innerHTML = d.suggestions.map(function (s, i) {
+                  return '<a class="card" href="#" data-index="' + i + '">' + escapeHtml(s.name) + '<span>' + escapeHtml(s.description) + '</span></a>';
+                }).join('');
+                box.querySelectorAll('[data-index]').forEach(function (el) {
+                  el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const s = d.suggestions[Number(el.dataset.index)];
+                    document.getElementById('url').value = s.url;
+                    send();
+                  });
+                });
+              });
+            }
+            let pollTimer = null;
+            function showConfigure(d, required) {
+              const box = document.getElementById('configure');
+              if (!d.configureUrl) { box.innerHTML = ''; return; }
+              const name = escapeHtml(d.name || 'This addon');
+              box.innerHTML = '<p style="color:#9aa3b2;font-size:14px">' + (required
+                ? name + ' has to be set up before it can be installed. Open its setup page, finish there, then paste the link it gives you above and send it again.'
+                : name + ' can also be set up first, for example to sign in to a debrid service. Open its setup page, then send the link it gives you instead.') + '</p>' +
+                '<a class="card" target="_blank" rel="noopener" href="' + escapeHtml(safeLink(d.configureUrl)) + '">Open setup page<span>' + escapeHtml(d.configureUrl) + '</span></a>';
+            }
+            function handle(d) {
+              clearTimeout(pollTimer);
+              switch (d.status) {
+                case 'pending':
+                  show('status', 'Confirm ' + (d.name || 'the addon') + ' on the TV.');
+                  showConfigure(d, false);
+                  pollTimer = setTimeout(function () {
+                    fetch('/api/addons/status?id=' + encodeURIComponent(d.id)).then(function (r) { return r.json(); }).then(handle)
+                      .catch(function () { handle(d); });
+                  }, 1500);
+                  break;
+                case 'installed':
+                  show('status', d.message || ((d.name || 'The addon') + ' is installed.'));
+                  document.getElementById('url').value = '';
+                  document.getElementById('configure').innerHTML = '';
+                  refresh();
+                  break;
+                case 'rejected':
+                  show('status', 'Declined on the TV.', true);
+                  break;
+                case 'needs_configuration':
+                  show('status', d.message || 'This addon needs setting up first.', true);
+                  showConfigure(d, true);
+                  break;
+                default:
+                  show('status', d.message || 'Couldn\'t add the addon.', true);
+              }
+            }
+            function send() {
+              const url = document.getElementById('url').value.trim();
+              if (!url) { show('status', 'Paste an addon link first.', true); return; }
+              show('status', 'Reading the addon...');
+              document.getElementById('configure').innerHTML = '';
+              post('/api/addons', { url: url }).then(handle).catch(function (e) { show('status', e.message, true); });
+            }
+            document.getElementById('send').addEventListener('click', send);
+            document.getElementById('url').addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
             refresh();
         """
     )

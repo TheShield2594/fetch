@@ -3,10 +3,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">Telefón musí byť v rovnakej sieti Wi-Fi ako tento televízor. Môžete to urobiť aj neskôr v Nastaveniach.</string>
     <string name="first_run_phone_qr_description">Kód na nastavenie cez telefón</string>
-    <string name="first_run_phone_step_accounts">Prihláste sa do Trakt, Simkl alebo Jellyfin</string>
-    <string name="first_run_phone_step_rules">Vyberte pravidlá kvality streamov</string>
     <string name="first_run_phone_step_scan">Naskenujte fotoaparátom telefónu</string>
-    <string name="first_run_phone_title">Nastavte všetko telefónom. Bez písania ovládačom.</string>
     <string name="first_run_recommended">Odporúčané</string>
     <string name="phone_hub_description">Naskenujte jeden kód a používajte telefón ako diaľkový ovládač a klávesnicu, prihlasujte sa do účtov a upravujte dlhé nastavenia.</string>
     <string name="phone_hub_instruction">Naskenujte telefónom. Kód funguje raz; stránka zostane otvorená, kým je otvorená táto obrazovka.</string>

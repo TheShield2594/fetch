@@ -53,6 +53,11 @@ class FetchWebsiteClient internal constructor(
 
     private val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
 
+    // An address that doesn't answer quickly isn't the one to pair with.
+    private val probe: OkHttpClient by lazy {
+        http.newBuilder().connectTimeout(2, TimeUnit.SECONDS).readTimeout(2, TimeUnit.SECONDS).build()
+    }
+
     // ─── Pairing ───
 
     suspend fun startPairing(serverUrl: String, deviceName: String): WebsitePairingStart = call {
@@ -89,6 +94,12 @@ class FetchWebsiteClient internal constructor(
                 }
             }
         }
+    }
+
+    /** Whether a Fetch website's API answers at [serverUrl]; a quick check before offering it. */
+    suspend fun answers(serverUrl: String): Boolean = call {
+        val request = Request.Builder().url(endpoint(serverUrl, "health")).get().build()
+        runCatching { probe.newCall(request).execute().use { it.isSuccessful } }.getOrDefault(false)
     }
 
     // ─── Signed in ───

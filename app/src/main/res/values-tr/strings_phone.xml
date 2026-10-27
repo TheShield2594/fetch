@@ -4,10 +4,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">Telefonun bu TV ile aynı Wi-Fi ağında olmalı. Bunu daha sonra Ayarlar\'dan da yapabilirsin.</string>
     <string name="first_run_phone_qr_description">Telefon kurulum kodu</string>
-    <string name="first_run_phone_step_accounts">Trakt, Simkl veya Jellyfin\'e giriş yap</string>
-    <string name="first_run_phone_step_rules">Yayın kalitesi kurallarını seç</string>
     <string name="first_run_phone_step_scan">Telefon kameranla tara</string>
-    <string name="first_run_phone_title">Telefonunla kur. Kumandayla yazmak yok.</string>
     <string name="first_run_recommended">Önerilen</string>
     <string name="phone_hub_description">Telefonunu kumanda ve klavye olarak kullanmak, hesaplara giriş yapmak ve uzun ayarları düzenlemek için tek bir kod tara.</string>
     <string name="phone_hub_instruction">Telefonunla tara. Kod bir kez çalışır; sayfa bu ekran açık kaldıkça açık kalır.</string>

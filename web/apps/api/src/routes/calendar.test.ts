@@ -8,6 +8,10 @@ const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 const getUpcomingEpisodes = vi.fn();
 const getSpoilerProtection = vi.fn();
 
+// Every caller is the account "owner-1" (lib/test-fixtures/integration-owner-mock.ts).
+vi.mock("../lib/integration-owner.js", async () =>
+  (await import("../lib/test-fixtures/integration-owner-mock.js")).integrationOwnerMock
+);
 vi.mock("../lib/upcoming-episodes.js", () => ({
   getUpcomingEpisodes: (...a: unknown[]) => getUpcomingEpisodes(...a),
 }));

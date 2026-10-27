@@ -3,6 +3,7 @@ import type { FastifyPluginAsync, FastifyBaseLogger } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { recordWatchEvent } from "../lib/watch-event.js";
 import { pushTraktScrobble } from "../lib/trakt-client.js";
+import { pushScrobbleToTrackers } from "../lib/trackers.js";
 import { resolveProfile } from "../lib/profile.js";
 import { resolveProgressPercent, savePlaybackProgress, type PlaybackPosition } from "../lib/playback.js";
 import { MAX_EPISODE, MAX_SEASON } from "../lib/import-validation.js";
@@ -289,7 +290,16 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
     });
 
     if (!wasPlaying) {
-      void pushTraktScrobble("start", { type, imdbId, seriesImdbId, season, episode, progress }, request.log);
+      void pushTraktScrobble(
+        "start",
+        { type, imdbId, seriesImdbId, season, episode, progress, profileId: request.profileId! },
+        request.log
+      );
+      void pushScrobbleToTrackers(
+        "start",
+        { type, imdbId, seriesImdbId, season, episode, progress, profileId: request.profileId! },
+        request.log
+      );
     }
 
     return reply.code(created ? 201 : 200).send({ session });
@@ -340,6 +350,20 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
         season,
         episode,
         progress: updated.progress,
+        profileId: request.profileId!,
+      },
+      request.log
+    );
+    void pushScrobbleToTrackers(
+      "pause",
+      {
+        type: session.type,
+        imdbId,
+        seriesImdbId: session.seriesImdbId,
+        season,
+        episode,
+        progress: updated.progress,
+        profileId: request.profileId!,
       },
       request.log
     );
@@ -416,6 +440,20 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
           season: session.season,
           episode: session.episode,
           progress: finalProgress,
+          profileId: request.profileId!,
+        },
+        request.log
+      );
+      void pushScrobbleToTrackers(
+        "stop",
+        {
+          type: session.type,
+          imdbId,
+          seriesImdbId: session.seriesImdbId,
+          season: session.season,
+          episode: session.episode,
+          progress: finalProgress,
+          profileId: request.profileId!,
         },
         request.log
       );

@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { requireAdmin } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { upsertMetadata, syncMetadata } from "../lib/metadata.js";
@@ -15,6 +16,7 @@ import {
 import { loadRecommendations } from "../lib/recommendations.js";
 import { droppedSeriesKey } from "../lib/dropped-shows.js";
 import { resolveProfile } from "../lib/profile.js";
+import { ownerForRequest } from "../lib/integration-owner.js";
 import { searchAnime } from "../lib/anilist-client.js";
 
 /** Resolves to `fallback` instead of rejecting, for the bundle's optional sections. */
@@ -80,7 +82,9 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
     async (request) => {
       const type = getMetadataType(request.params.type);
       if (!type) return { providers: EMPTY_PROVIDERS };
-      return { providers: await loadProviders(type, request.params.imdbId.trim(), request.log) };
+      return {
+        providers: await loadProviders(type, request.params.imdbId.trim(), await ownerForRequest(request), request.log),
+      };
     }
   );
 
@@ -122,7 +126,7 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
 
       const [cast, providers, recommendations, seasons, dropped] = await Promise.all([
         settled(loadCast(type, imdbId, request.log), { cast: [], director: null }),
-        settled(loadProviders(type, imdbId, request.log), EMPTY_PROVIDERS),
+        settled(loadProviders(type, imdbId, await ownerForRequest(request), request.log), EMPTY_PROVIDERS),
         settled(loadRecommendations(request.params.type, type, imdbId), { metas: [] }),
         isSeries ? settled(loadSeasons(imdbId, request.log), []) : Promise.resolve([]),
         isSeries
@@ -171,7 +175,7 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
     }
   });
 
-  app.post<{ Querystring: { limit?: string } }>("/metadata/refresh-all", async (request, reply) => {
+  app.post<{ Querystring: { limit?: string } }>("/metadata/refresh-all", { preHandler: requireAdmin }, async (request, reply) => {
     const rawLimit = parseInt(request.query.limit ?? "50", 10);
     const limit = isNaN(rawLimit) || rawLimit < 1 ? 50 : Math.min(rawLimit, 500);
     const allMetadata = await prisma.metadata.findMany({

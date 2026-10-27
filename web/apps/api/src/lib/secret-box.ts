@@ -51,6 +51,7 @@ export const SECRET_CONTEXT = {
   traktRefreshToken: "traktToken.refreshToken",
   stremioAuthKey: "stremioAuth.authKey",
   notificationChannelToken: "notificationChannel.token",
+  profileConnectionCredentials: "profileConnection.credentials",
 } as const;
 
 /** The context a KV row's value is encrypted under — its own key. */

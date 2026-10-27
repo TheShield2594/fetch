@@ -11,6 +11,10 @@ const getRpdbApiKey = vi.fn();
 const trendingCacheGet = vi.fn();
 const trendingCacheSet = vi.fn();
 
+// Every caller is the account "owner-1" (lib/test-fixtures/integration-owner-mock.ts).
+vi.mock("../lib/integration-owner.js", async () =>
+  (await import("../lib/test-fixtures/integration-owner-mock.js")).integrationOwnerMock
+);
 vi.mock("../lib/tmdb-client.js", () => ({ getTmdb: () => getTmdb() }));
 vi.mock("../lib/settings.js", () => ({ getRegionSetting: () => getRegionSetting() }));
 vi.mock("../lib/metadata.js", () => ({ upsertMetadata: (...a: unknown[]) => upsertMetadata(...a) }));

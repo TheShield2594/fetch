@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { AlertCircle, ExternalLink, Loader2, Plus, Puzzle, RefreshCw, Settings2, Trash2 } from "lucide-react";
-import { api, runtimeConfig, type TvAddon } from "../../api";
+import { api, type TvAddon } from "../../api";
+import { isOwnAddonManifestUrl, ownAddonManifestUrl } from "../../utils/ownAddon";
 import { useProfile } from "../../hooks/useProfile";
 import { StatusBadge } from "../settings/StatusBadge";
 import {
@@ -25,8 +26,6 @@ const hostOf = (manifestUrl: string): string => {
   }
 };
 
-/** This server's own Stremio addon, for the profile being edited. */
-const ownAddonUrl = (profileId: string) => `${runtimeConfig.getAddonBase()}/p/${profileId}/manifest.json`;
 
 /**
  * The browser's own read of a manifest, sent along as the fallback for an addon
@@ -63,6 +62,8 @@ export function TvAddonsSettings() {
   const [manifestUrl, setManifestUrl] = useState("");
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  // This profile's key for the signed install URL of this server's own addon.
+  const [profileKey, setProfileKey] = useState<string | null>(null);
 
   // Inline rather than a shared `load()`, and setting state only once the
   // request settles, so mounting starts the request without an extra render;
@@ -73,9 +74,16 @@ export function TvAddonsSettings() {
     let cancelled = false;
     void (async () => {
       try {
-        const { addons: loaded } = await api.getTvAddons(profileId);
+        // The key comes from the addon config, which answers for the active
+        // profile, the same one useProfile names. Without it the own-addon
+        // button falls back to the unsigned URL rather than hiding.
+        const [{ addons: loaded }, addonConfig] = await Promise.all([
+          api.getTvAddons(profileId),
+          api.getAddonConfig().catch(() => null),
+        ]);
         if (cancelled) return;
         setAddons(loaded);
+        setProfileKey(addonConfig?.stremioProfileKey ?? null);
         setLoadError(null);
       } catch (err) {
         if (cancelled) return;
@@ -183,8 +191,8 @@ export function TvAddonsSettings() {
     );
   }
 
-  const ownUrl = ownAddonUrl(profileId);
-  const ownInstalled = addons.some((addon) => addon.manifestUrl === ownUrl);
+  const ownUrl = ownAddonManifestUrl(profileId, profileKey);
+  const ownInstalled = addons.some((addon) => isOwnAddonManifestUrl(addon.manifestUrl, profileId));
 
   return (
     <div className="space-y-4">

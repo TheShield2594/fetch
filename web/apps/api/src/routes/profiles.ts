@@ -1,104 +1,20 @@
-import type { FastifyInstance, FastifyPluginAsync } from "fastify";
+import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from "fastify";
+import { accountScope } from "../lib/request-auth.js";
+import { findAdminAccountId } from "../lib/sessions.js";
 import { prisma } from "../lib/prisma.js";
+import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
 import { mintProfileToken } from "../lib/profile-token.js";
-import { hasValidProfileToken, invalidateProfileCache, isActingAsProfile } from "../lib/profile.js";
+import { hasValidProfileToken, invalidateProfileCache, isActingAsProfile, ownsProfile } from "../lib/profile.js";
 import { hashPin, isValidPinFormat, needsRehash, pinLengthError, pinMatches } from "../lib/pin-hash.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
-
-const MAX_PIN_ATTEMPTS = 5;
-const PIN_LOCKOUT_MS = 5 * 60 * 1000;
-/** Ceiling on the doubling below — an hour, not a permanent lockout. */
-const MAX_PIN_LOCKOUT_MS = 60 * 60 * 1000;
-/**
- * Quiet period after which the escalation resets. Without it a household that
- * fat-fingers a PIN twice a year would eventually be starting from the long
- * end of the backoff; with it, only sustained guessing keeps the multiplier up.
- */
-const LOCKOUT_DECAY_MS = 24 * 60 * 60 * 1000;
+import { deleteProfileConnectionState } from "../lib/profile-connections.js";
+import { resetTraktClient } from "../lib/trakt-client.js";
 
 const pinAttemptKey = (profileId: string) => `pinattempts:${profileId}`;
-
-// `lockouts` is absent on rows written before it existed, and undefined is how
-// they read back — the same thing, so the type says both.
-type PinAttemptData = { count: number; lockedUntil: string; lockouts?: number | undefined };
-
-const getPinLockout = async (profileId: string): Promise<{ locked: boolean; retryAfterSec: number }> => {
-  const row = await prisma.kV.findUnique({ where: { key: pinAttemptKey(profileId) } });
-  if (!row) return { locked: false, retryAfterSec: 0 };
-
-  try {
-    const data = JSON.parse(row.value) as PinAttemptData;
-    if (data.lockedUntil && new Date(data.lockedUntil).getTime() > Date.now()) {
-      const retryAfterSec = Math.ceil((new Date(data.lockedUntil).getTime() - Date.now()) / 1000);
-      return { locked: true, retryAfterSec };
-    }
-  } catch { /* invalid data — treat as not locked */ }
-
-  return { locked: false, retryAfterSec: 0 };
-};
-
-const recordPinFailure = async (profileId: string): Promise<void> => {
-  const key = pinAttemptKey(profileId);
-  const now = new Date();
-
-  await prisma.$transaction(async (tx) => {
-    // Lock the row for the duration of this transaction so concurrent
-    // attempts can't read the same stale count. If the row doesn't exist
-    // yet, we create it first and then lock it via the upsert below — the
-    // unique constraint on KV.key ensures only one row wins the race.
-    await tx.$executeRaw`SELECT value FROM "KV" WHERE key = ${key} FOR UPDATE`;
-
-    const row = await tx.kV.findUnique({ where: { key } });
-    let data: PinAttemptData = { count: 0, lockedUntil: "", lockouts: 0 };
-
-    if (row) {
-      try {
-        const parsed = JSON.parse(row.value) as PinAttemptData;
-        data = {
-          count: Number.isInteger(parsed.count) ? parsed.count : 0,
-          lockedUntil: typeof parsed.lockedUntil === "string" ? parsed.lockedUntil : "",
-          lockouts: Number.isInteger(parsed.lockouts) ? (parsed.lockouts as number) : 0,
-        };
-      } catch { /* unreadable value — start the record over */ }
-
-      // A quiet day wipes the slate, escalation tier included; otherwise an
-      // expired lockout restarts the attempt count but keeps the tier, so a
-      // griefer can't reset the backoff by waiting each lockout out.
-      const sinceLastFailure = now.getTime() - row.updatedAt.getTime();
-      if (sinceLastFailure > LOCKOUT_DECAY_MS) {
-        data = { count: 0, lockedUntil: "", lockouts: 0 };
-      } else if (data.lockedUntil && new Date(data.lockedUntil).getTime() <= Date.now()) {
-        data = { count: 0, lockedUntil: "", lockouts: data.lockouts };
-      }
-    }
-
-    data.count += 1;
-    if (data.count >= MAX_PIN_ATTEMPTS) {
-      // Each successive lockout lasts twice as long, up to an hour. A flat
-      // 5 minutes let anyone holding the shared API_TOKEN re-lock a profile
-      // every five minutes forever for the cost of five wrong guesses;
-      // doubling makes sustaining that cost the griefer real time, while the
-      // first mistake still only costs the owner five minutes. Verifying the
-      // PIN clears the record entirely.
-      const lockouts = (data.lockouts ?? 0) + 1;
-      const lockoutMs = Math.min(PIN_LOCKOUT_MS * 2 ** (lockouts - 1), MAX_PIN_LOCKOUT_MS);
-      data.lockedUntil = new Date(Date.now() + lockoutMs).toISOString();
-      data.count = 0;
-      data.lockouts = lockouts;
-    }
-
-    await tx.kV.upsert({
-      where: { key },
-      create: { key, value: JSON.stringify(data), updatedAt: now },
-      update: { value: JSON.stringify(data), updatedAt: now },
-    });
-  });
-};
-
-const clearPinAttempts = async (profileId: string): Promise<void> => {
-  await prisma.kV.deleteMany({ where: { key: pinAttemptKey(profileId) } });
-};
+const getPinLockout = (profileId: string) => getLockout(pinAttemptKey(profileId));
+const recordPinFailure = (profileId: string) => recordFailure(pinAttemptKey(profileId));
+const clearPinAttempts = (profileId: string) => clearAttempts(pinAttemptKey(profileId));
 
 /**
  * Re-hashes a PIN that just verified against a pre-scrypt (unsalted SHA-256)
@@ -121,9 +37,20 @@ const upgradePinHashIfNeeded = async (
   }
 };
 
+/**
+ * The profile a route was asked about, or null when it doesn't exist or belongs
+ * to another account. Callers answer both with the same 404.
+ */
+const findOwnedProfileRow = async (request: FastifyRequest, id: string) => {
+  const profile = await prisma.profile.findUnique({ where: { id } });
+  return profile && ownsProfile(request, profile) ? profile : null;
+};
+
 const profilesRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/profiles", async () => {
+  app.get("/profiles", async (request) => {
+    const scope = accountScope(request);
     const profiles = await prisma.profile.findMany({
+      where: scope ? { accountId: scope } : {},
       orderBy: { createdAt: "asc" },
       select: PROFILE_VIEW_SELECT,
     });
@@ -154,8 +81,10 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     if (!attributes.ok) return reply.code(400).send({ error: attributes.error });
     const pinHash = pin ? await hashPin(pin) : null;
 
+    // A profile made with API_TOKEN goes to the admin, who is the operator.
+    const accountId = accountScope(request) ?? (await findAdminAccountId());
     const profile = await prisma.profile.create({
-      data: { name, pinHash, ...attributes.data },
+      data: { name, pinHash, accountId, ...attributes.data },
       select: PROFILE_VIEW_SELECT,
     });
     invalidateProfileCache();
@@ -171,7 +100,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ error: "id must be a valid UUID" });
       }
 
-      const profile = await prisma.profile.findUnique({ where: { id: request.params.id } });
+      const profile = await findOwnedProfileRow(request, request.params.id);
       if (!profile) return reply.code(404).send({ error: "Profile not found" });
 
       if (!profile.pinHash) {
@@ -207,7 +136,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ error: "id must be a valid UUID" });
     }
 
-    const profile = await prisma.profile.findUnique({ where: { id: request.params.id } });
+    const profile = await findOwnedProfileRow(request, request.params.id);
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
 
     const body = (request.body ?? {}) as { name?: unknown; pin?: unknown; currentPin?: unknown };
@@ -292,7 +221,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ error: "id must be a valid UUID" });
     }
     const profileId = request.params.id;
-    const profile = await prisma.profile.findUnique({ where: { id: profileId }, select: { id: true } });
+    const profile = await findOwnedProfileRow(request, profileId);
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
 
     const [watchEvents, lists, listItems, playbackProgress, ratings, collections] = await Promise.all([
@@ -319,10 +248,12 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ error: "id must be a valid UUID" });
     }
 
-    const profile = await prisma.profile.findUnique({ where: { id: request.params.id } });
+    const profile = await findOwnedProfileRow(request, request.params.id);
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
 
-    const profileCount = await prisma.profile.count();
+    // An account always keeps at least one profile, so it always has somewhere
+    // to land after signing in.
+    const profileCount = await prisma.profile.count({ where: { accountId: profile.accountId } });
     if (profileCount === 1) {
       return reply.code(400).send({ error: "Cannot delete the last profile" });
     }
@@ -351,7 +282,12 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       }
     }
 
-    await prisma.profile.delete({ where: { id: profile.id } });
+    // Its connections cascade; their sync state in KV is removed beside it.
+    await prisma.$transaction(async (tx) => {
+      await deleteProfileConnectionState(tx, [profile.id]);
+      await tx.profile.delete({ where: { id: profile.id } });
+    });
+    resetTraktClient(profile.id);
     invalidateProfileCache();
 
     // Clean up any PIN attempt records for the deleted profile

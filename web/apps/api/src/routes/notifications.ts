@@ -3,7 +3,8 @@ import type { NotificationChannelKind } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { resolveProfile } from "../lib/profile.js";
 import { SECRET_CONTEXT, encryptSecret } from "../lib/secret-box.js";
-import { validateNotificationUrl } from "../lib/ssrf.js";
+import { type OutboundScope, validateNotificationUrl } from "../lib/ssrf.js";
+import { outboundScopeForProfile } from "../lib/integration-owner.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import {
   ChannelSendError,
@@ -29,6 +30,8 @@ const DEFAULT_NAMES: Record<NotificationChannelKind, string> = {
 
 const URL_ERROR =
   "url must be an http(s) URL and must not target the cloud-metadata/link-local range";
+const PUBLIC_URL_ERROR =
+  "url must be a public address: only the admin account's profiles can notify a server on this network";
 
 // `NotificationChannel.id` is a uuid column, so a malformed id is rejected by
 // Postgres rather than simply matching nothing — an unhandled driver error and
@@ -65,9 +68,16 @@ const publicChannel = (channel: {
  * value, and on a PATCH that leaves the token alone the only thing in hand is
  * the stored ciphertext.
  */
-const validateForKind = (kind: NotificationChannelKind, url: string, hasToken: boolean): string | null => {
+const validateForKind = (
+  kind: NotificationChannelKind,
+  url: string,
+  hasToken: boolean,
+  scope: OutboundScope
+): string | null => {
   const parsed = validateNotificationUrl(url);
   if (!parsed) return URL_ERROR;
+  // Only the admin's profiles may notify a server on this network.
+  if (!validateNotificationUrl(url, scope)) return PUBLIC_URL_ERROR;
 
   // ntfy publishes to a topic, and the topic is the path — posting to the bare
   // server would 404 at send time, hours later and out of sight.
@@ -109,7 +119,7 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
     const url = typeof body.url === "string" ? body.url.trim() : "";
     const token = typeof body.token === "string" && body.token.trim() ? body.token.trim() : null;
 
-    const problem = validateForKind(kind, url, !!token);
+    const problem = validateForKind(kind, url, !!token, await outboundScopeForProfile(request.profileId!));
     if (problem) return reply.code(400).send({ error: problem });
     if (token && token.length > MAX_TOKEN_LENGTH) {
       return reply.code(400).send({ error: `token must be at most ${MAX_TOKEN_LENGTH} characters` });
@@ -170,7 +180,7 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
           ? existing.token
           : newToken && encryptSecret(SECRET_CONTEXT.notificationChannelToken, newToken);
 
-      const problem = validateForKind(existing.kind, url, !!token);
+      const problem = validateForKind(existing.kind, url, !!token, await outboundScopeForProfile(request.profileId!));
       if (problem) return reply.code(400).send({ error: problem });
       if (newToken && newToken.length > MAX_TOKEN_LENGTH) {
         return reply.code(400).send({ error: `token must be at most ${MAX_TOKEN_LENGTH} characters` });
@@ -223,12 +233,16 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
       if (!channel) return reply.code(404).send({ error: "Channel not found" });
 
       try {
-        await sendToChannel(channel, {
-          event: "test",
-          title: "Fetch test notification",
-          body: "If you can read this, Fetch can reach this channel.",
-          path: "/settings",
-        });
+        await sendToChannel(
+          channel,
+          {
+            event: "test",
+            title: "Fetch test notification",
+            body: "If you can read this, Fetch can reach this channel.",
+            path: "/settings",
+          },
+          await outboundScopeForProfile(request.profileId!)
+        );
         return { success: true };
       } catch (error) {
         // The status code and the socket error stay here. Handing them back

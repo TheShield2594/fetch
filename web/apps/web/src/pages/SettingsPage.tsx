@@ -1,19 +1,23 @@
 import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import { Key, Link, Database, Download, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal } from "lucide-react";
+import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks, Server } from "lucide-react";
 import { Section } from "../components/settings/Section";
 import { healthSummary } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
-import { ApiTokenSettings } from "../components/settings/ApiTokenSettings";
+import { AccountSettings } from "../components/settings/AccountSettings";
+import { InvitesSettings } from "../components/settings/InvitesSettings";
+import { WebhookSettings } from "../components/settings/WebhookSettings";
+import { MediaServersSettings } from "../components/settings/MediaServersSettings";
+import { useAccount } from "../hooks/useAccount";
 import { TraktSettings } from "../components/settings/TraktSettings";
 import { TmdbSettings } from "../components/settings/TmdbSettings";
 import { OmdbSettings } from "../components/settings/OmdbSettings";
 import { RpdbSettings } from "../components/settings/RpdbSettings";
 import { AddonSettings } from "../components/settings/AddonSettings";
 import { StremioSyncSettings } from "../components/settings/StremioSyncSettings";
+import { MdbListSettings, SimklSettings } from "../components/settings/TrackerSignInSettings";
 import { PlayDetectionSettings } from "../components/settings/PlayDetectionSettings";
 import { AiSettings } from "../components/settings/AiSettings";
-import { JellyseerrSettings } from "../components/settings/JellyseerrSettings";
 import { DataSettings } from "../components/settings/DataSettings";
 import { PreferencesSettings } from "../components/settings/PreferencesSettings";
 import { PushSettings } from "../components/settings/PushSettings";
@@ -49,6 +53,11 @@ export type SettingsSection = {
   /** Extra terms the section should be findable by; the title is always searched. */
   keywords: string;
   content: ReactNode;
+  /**
+   * Install-wide settings every account shares, which only the admin may
+   * change (the server refuses anyone else). Hidden from other accounts.
+   */
+  adminOnly?: true;
 };
 
 function AboutSection() {
@@ -62,6 +71,14 @@ function AboutSection() {
 }
 
 export const SETTINGS_SECTIONS: SettingsSection[] = [
+  {
+    id: "account",
+    tab: "preferences",
+    title: "Account",
+    icon: <UserCircle size={20} />,
+    keywords: "sign in sign out log out password username login",
+    content: <AccountSettings />,
+  },
   {
     id: "preferences",
     tab: "preferences",
@@ -103,6 +120,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "job-status",
+    adminOnly: true,
     tab: "preferences",
     title: "Sync Status",
     icon: <Activity size={20} />,
@@ -130,6 +148,24 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     content: <TraktSettings />,
   },
   {
+    id: "simkl",
+    tab: "integrations",
+    group: "Where history comes from",
+    title: "Simkl",
+    icon: <ListChecks size={20} />,
+    keywords: "simkl tracker scrobble watched history plan to watch watchlist anime sign in code",
+    content: <SimklSettings />,
+  },
+  {
+    id: "mdblist",
+    tab: "integrations",
+    group: "Where history comes from",
+    title: "MDBList",
+    icon: <ListChecks size={20} />,
+    keywords: "mdblist tracker scrobble watched history watchlist sign in code",
+    content: <MdbListSettings />,
+  },
+  {
     id: "stremio-sync",
     tab: "integrations",
     group: "Where history comes from",
@@ -139,7 +175,26 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     content: <StremioSyncSettings />,
   },
   {
+    id: "media-servers",
+    tab: "integrations",
+    group: "Where history comes from",
+    title: "Media Servers",
+    icon: <Server size={20} />,
+    keywords: "plex jellyfin emby media server sign in link code watched progress resume library",
+    content: <MediaServersSettings />,
+  },
+  {
+    id: "media-server-webhooks",
+    tab: "integrations",
+    group: "Where history comes from",
+    title: "Plex, Jellyfin & Emby Webhooks",
+    icon: <Webhook size={20} />,
+    keywords: "plex jellyfin emby webhook media server scrobble watched link key",
+    content: <WebhookSettings />,
+  },
+  {
     id: "play-detection",
+    adminOnly: true,
     tab: "integrations",
     group: "Where history comes from",
     title: "Play Detection",
@@ -150,6 +205,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   // What titles look like once they arrive.
   {
     id: "tmdb",
+    adminOnly: true,
     tab: "integrations",
     group: "Metadata & artwork",
     title: "TMDB Metadata",
@@ -159,6 +215,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "omdb",
+    adminOnly: true,
     tab: "integrations",
     group: "Metadata & artwork",
     title: "OMDB Ratings",
@@ -168,6 +225,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "rpdb",
+    adminOnly: true,
     tab: "integrations",
     group: "Metadata & artwork",
     title: "RPDB Posters",
@@ -175,20 +233,10 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     keywords: "rating poster database artwork images api key",
     content: <RpdbSettings />,
   },
-  // The one integration that points outward: everything above answers "what
-  // have I watched" or "what is this thing"; this one acts on the answer.
-  {
-    id: "jellyseerr",
-    tab: "integrations",
-    group: "Where titles go",
-    title: "Jellyseerr Requests",
-    icon: <Download size={20} />,
-    keywords: "jellyseerr overseerr request sonarr radarr download watchlist acquire",
-    content: <JellyseerrSettings />,
-  },
   // The app's own surfaces and the keys that reach them.
   {
     id: "addon",
+    adminOnly: true,
     tab: "integrations",
     group: "This server",
     title: "Stremio Addon",
@@ -197,22 +245,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     content: <AddonSettings />,
   },
   {
-    id: "api-token",
+    id: "invites",
+    adminOnly: true,
     tab: "integrations",
     group: "This server",
-    title: "API Token",
-    icon: <Key size={20} />,
-    keywords: "auth authentication bearer secret credentials",
-    content: <ApiTokenSettings />,
-  },
-  {
-    id: "ai",
-    tab: "integrations",
-    group: "This server",
-    title: "AI Recommendations",
-    icon: <Sparkles size={20} />,
-    keywords: "llm openai ollama model provider suggestions",
-    content: <AiSettings />,
+    title: "Invites & Accounts",
+    icon: <UserPlus size={20} />,
+    keywords: "invite friend share sign up users accounts members remove",
+    content: <InvitesSettings />,
   },
   {
     id: "data",
@@ -222,6 +262,15 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Database size={20} />,
     keywords: "export import backup restore refresh metadata steam wipe",
     content: <DataSettings />,
+  },
+  {
+    id: "ai",
+    tab: "integrations",
+    group: "Recommendations",
+    title: "AI Recommendations",
+    icon: <Sparkles size={20} />,
+    keywords: "llm openai ollama model provider suggestions",
+    content: <AiSettings />,
   },
   // What a TV pointed at this server runs, per profile. The overview is
   // all profiles; the three below edit the active one.
@@ -343,10 +392,11 @@ export function SettingsPage() {
     tablistRef.current?.querySelectorAll<HTMLElement>('[role="tab"]')[nextIndex]?.focus();
   };
 
-  const visible = useMemo(
-    () => (searching ? SETTINGS_SECTIONS.filter((s) => matchesSearch(s, query)) : SETTINGS_SECTIONS.filter((s) => s.tab === tab)),
-    [query, searching, tab]
-  );
+  const { isAdmin } = useAccount();
+  const visible = useMemo(() => {
+    const allowed = SETTINGS_SECTIONS.filter((s) => isAdmin || !s.adminOnly);
+    return searching ? allowed.filter((s) => matchesSearch(s, query)) : allowed.filter((s) => s.tab === tab);
+  }, [isAdmin, query, searching, tab]);
 
   // Empty until the status requests land, and empty again if every one of them
   // failed — in which case saying nothing is right, because the alternative is

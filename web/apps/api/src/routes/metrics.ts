@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { requireAdmin } from "../lib/request-auth.js";
 import { checkDatabase } from "../lib/db-health.js";
 import { withDeadline } from "../lib/deadline.js";
 import { getJobRuns } from "../lib/job-status.js";
@@ -25,7 +26,7 @@ const MAX_ERROR_LENGTH = 200;
 const JOB_STATUS_TIMEOUT_MS = 2000;
 
 const metricsRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/metrics", async (request, reply) => {
+  app.get("/metrics", { preHandler: requireAdmin }, async (request, reply) => {
     // Counters live in this process and change on every request, including the
     // one fetching them.
     reply.header("Cache-Control", "no-store");

@@ -31,10 +31,12 @@ const cutoff = () => new Date(Date.now() - OAUTH_STATE_TTL_MS);
  * someone repeatedly starting the flow, and each new start pays for the
  * cleanup of the ones before it.
  */
-export const createOAuthState = async (): Promise<string> => {
+export const createOAuthState = async (owner: string): Promise<string> => {
   const state = randomBytes(32).toString("hex");
+  // The value is whose connection this is: the callback arrives with no
+  // session, so the state is what says which profile the tokens belong to.
   await prisma.kV.create({
-    data: { key: stateKey(state), value: "", updatedAt: new Date() },
+    data: { key: stateKey(state), value: owner, updatedAt: new Date() },
   });
   await prisma.kV.deleteMany({
     where: { key: { startsWith: STATE_KEY_PREFIX }, updatedAt: { lt: cutoff() } },
@@ -43,8 +45,8 @@ export const createOAuthState = async (): Promise<string> => {
 };
 
 /**
- * Verifies and consumes a `state` returned by Trakt, returning false when it is
- * missing, malformed, unknown or expired.
+ * Verifies and consumes a `state` returned by Trakt, returning the owner it was
+ * minted for, or null when it is missing, malformed, unknown or expired.
  *
  * The delete *is* the check: a single `deleteMany` scoped to the exact key and
  * an unexpired timestamp reports how many rows it removed, so two concurrent
@@ -53,10 +55,14 @@ export const createOAuthState = async (): Promise<string> => {
  * state indistinguishable from an unknown one for the *next* attempt, which is
  * the same answer either way.
  */
-export const consumeOAuthState = async (candidate: unknown): Promise<boolean> => {
-  if (typeof candidate !== "string" || !STATE_PATTERN.test(candidate)) return false;
-  const { count } = await prisma.kV.deleteMany({
-    where: { key: stateKey(candidate), updatedAt: { gte: cutoff() } },
-  });
-  return count > 0;
+export const consumeOAuthState = async (candidate: unknown): Promise<string | null> => {
+  if (typeof candidate !== "string" || !STATE_PATTERN.test(candidate)) return null;
+  const where = { key: stateKey(candidate), updatedAt: { gte: cutoff() } };
+  const row = await prisma.kV.findFirst({ where, select: { value: true } });
+  if (!row) return null;
+  const { count } = await prisma.kV.deleteMany({ where });
+  if (count === 0) return null;
+  // The profile that started the flow. A state minted before states carried
+  // one has an empty value and names nobody, so it is refused.
+  return row.value || null;
 };

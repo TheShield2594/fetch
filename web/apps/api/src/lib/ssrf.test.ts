@@ -171,3 +171,23 @@ describe("resolvePushEndpoint", () => {
     expect(await resolvePushEndpoint("https://push.example.com/x", failsToResolve)).toBeNull();
   });
 });
+
+describe("the public-only scope another account's integrations get", () => {
+  it("refuses private and loopback hosts the admin may use", async () => {
+    const { PUBLIC_ONLY, PRIVATE_NETWORK_ALLOWED } = await import("./ssrf.js");
+    for (const url of ["http://192.168.1.20:11434/v1", "http://10.0.0.5/hook", "http://localhost:8080", "http://127.0.0.1/x"]) {
+      expect(validateAiProviderUrl(url, PRIVATE_NETWORK_ALLOWED)).not.toBeNull();
+      expect(validateAiProviderUrl(url, PUBLIC_ONLY)).toBeNull();
+      expect(validateNotificationUrl(url, PUBLIC_ONLY)).toBeNull();
+    }
+    expect(validateAiProviderUrl("https://api.example.com/v1", PUBLIC_ONLY)).not.toBeNull();
+  });
+
+  it("refuses a public name that resolves to a private address", async () => {
+    const { PUBLIC_ONLY } = await import("./ssrf.js");
+    const resolveToLan = async () => ["192.168.1.20"];
+    expect(await resolveAiProviderUrl("https://llm.example.com/v1", resolveToLan, PUBLIC_ONLY)).toBeNull();
+    expect(await resolveNotificationUrl("https://ntfy.example.com/t", resolveToLan, PUBLIC_ONLY)).toBeNull();
+    expect(await resolveAiProviderUrl("https://llm.example.com/v1", resolveToLan)).not.toBeNull();
+  });
+});

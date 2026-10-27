@@ -18,27 +18,27 @@ describe("device profile slots", () => {
     const second = await createProfile();
     const third = await createProfile();
 
-    expect((await listDeviceProfiles(device.id)).map((p) => [p.slot, p.profile.id])).toEqual([
+    expect((await listDeviceProfiles(device.id, null)).map((p) => [p.slot, p.profile.id])).toEqual([
       [1, first.id],
       [2, second.id],
       [3, third.id],
     ]);
 
     await prisma.profile.delete({ where: { id: second.id } });
-    expect((await listDeviceProfiles(device.id)).map((p) => [p.slot, p.profile.id])).toEqual([
+    expect((await listDeviceProfiles(device.id, null)).map((p) => [p.slot, p.profile.id])).toEqual([
       [1, first.id],
       [3, third.id],
     ]);
 
     // The TV needs a primary, so the oldest remaining profile moves into slot 1.
     await prisma.profile.delete({ where: { id: first.id } });
-    expect((await listDeviceProfiles(device.id)).map((p) => [p.slot, p.profile.id])).toEqual([[1, third.id]]);
+    expect((await listDeviceProfiles(device.id, null)).map((p) => [p.slot, p.profile.id])).toEqual([[1, third.id]]);
   });
 
   it("goes when the device is revoked", async () => {
     const device = await createDevice();
     await createProfile();
-    await listDeviceProfiles(device.id);
+    await listDeviceProfiles(device.id, null);
 
     await prisma.device.delete({ where: { id: device.id } });
 

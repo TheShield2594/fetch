@@ -5,6 +5,7 @@ import { Loader2, Check, AlertCircle, Clock, ChevronDown } from "lucide-react";
 import { timeAgo } from "../../utils/timeAgo";
 import { StatusBadge } from "./StatusBadge";
 import { SelectField } from "../SelectField";
+import { useAccount } from "../../hooks/useAccount";
 
 type Provider =
   | "openai"
@@ -118,6 +119,10 @@ function buildConfig(
  * and Remove actions with their busy and result states.
  */
 export function AiSettings() {
+  // Only the admin's provider may be on this server's network (the API
+  // enforces it), so a local Ollama isn't offered to anyone else.
+  const { isAdmin } = useAccount();
+  const providers = isAdmin ? PROVIDERS : PROVIDERS.filter((p) => p.id !== "ollama");
   const [loading, setLoading] = useState(true);
   const [configured, setConfigured] = useState(false);
   const [provider, setProvider] = useState<Provider>("openai");
@@ -306,7 +311,9 @@ export function AiSettings() {
         style={{ color: "var(--text-dim)" }}
       >
         Connect an OpenAI-compatible LLM to generate personalised
-        recommendations based on your watch history.
+        recommendations based on your watch history. It is yours: it is used
+        for your profiles only, with your own API key.
+        {!isAdmin && " It has to be a public service; only the server's admin can use one on the home network."}
       </p>
 
       <div className="flex items-center gap-3">
@@ -342,7 +349,7 @@ export function AiSettings() {
               wrapperClassName="w-full"
               chevronSize={16}
             >
-              {PROVIDERS.map((p) => (
+              {providers.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.label}
                 </option>

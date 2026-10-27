@@ -22,7 +22,7 @@ import { renderOAuthHtml } from "../lib/html.js";
 import { SECRET_CONTEXT, encryptSecret } from "../lib/secret-box.js";
 import { consumeOAuthState, createOAuthState } from "../lib/trakt-oauth-state.js";
 import { traktRedirectUri } from "../lib/trakt-redirect-uri.js";
-import { getDefaultProfileId, resolveProfile } from "../lib/profile.js";
+import { resolveProfile } from "../lib/profile.js";
 import type { SeriesProgressCandidate } from "../lib/types.js";
 
 // Tighter than the global 200/min bucket, on the two routes that touch the
@@ -36,8 +36,9 @@ const OAUTH_RATE_LIMIT = { config: { rateLimit: { max: 10, timeWindow: "1 minute
 // A full import walks the entire account and can run for minutes. Two at once
 // do the same work twice against the same rows — every write is idempotent, so
 // the result is correct either way, but the second run only adds contention and
-// Trakt requests. A second click gets told to wait instead.
-let importInProgress = false;
+// Trakt requests. A second click gets told to wait instead. Per account: one
+// profile's import doesn't hold up another's.
+const importsInProgress = new Set<string>();
 
 /**
  * Refuses a second import while one is running, and releases the flag however
@@ -46,20 +47,26 @@ let importInProgress = false;
 const withImportLock =
   (handler: RouteHandlerMethod): RouteHandlerMethod =>
   async function (request, reply) {
-    if (importInProgress) {
+    const owner = request.profileId!;
+    if (importsInProgress.has(owner)) {
       return reply.code(409).send({ error: "A Trakt import is already running. Wait for it to finish." });
     }
-    importInProgress = true;
+    importsInProgress.add(owner);
     try {
       return await handler.call(this, request, reply);
     } finally {
-      importInProgress = false;
+      importsInProgress.delete(owner);
     }
   };
 
+// Each profile connects its own Trakt account, as in the TV app, so every
+// route here acts on the requesting profile's. TRAKT_CLIENT_ID and
+// TRAKT_CLIENT_SECRET name the Fetch app to Trakt and are shared; the tokens
+// are not.
+
 const traktRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/trakt/status", async (_request, reply) => {
-    const token = await prisma.traktToken.findUnique({ where: { id: "default" } });
+  app.get("/trakt/status", { preHandler: resolveProfile }, async (request, reply) => {
+    const token = await prisma.traktToken.findUnique({ where: { id: request.profileId! } });
     const configured = !!(process.env.TRAKT_CLIENT_ID && process.env.TRAKT_CLIENT_SECRET);
     const redirectUri = traktRedirectUri();
     return reply.send({
@@ -70,7 +77,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     });
   });
 
-  app.get("/trakt/oauth/authorize", OAUTH_RATE_LIMIT, async (_request, reply) => {
+  app.get("/trakt/oauth/authorize", { ...OAUTH_RATE_LIMIT, preHandler: resolveProfile }, async (request, reply) => {
     const clientId = process.env.TRAKT_CLIENT_ID;
     const redirectUri = traktRedirectUri();
     if (!clientId) {
@@ -79,7 +86,7 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     // This route is behind the API token gate, so a `state` minted here proves
     // the flow was started from Fetch itself — the callback below refuses
     // anything else.
-    const state = await createOAuthState();
+    const state = await createOAuthState(request.profileId!);
     const url = `https://trakt.tv/oauth/authorize?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
     return reply.send({ url, redirectUri });
   });
@@ -99,7 +106,11 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     // Checked before the code is looked at, let alone exchanged: an
     // unrecognised state means this callback was not started by this install,
     // and the code it carries belongs to someone else's Trakt account.
-    if (!(await consumeOAuthState(state))) {
+    // The profile that started the flow. One deleted while its owner was on
+    // trakt.tv has nowhere to keep the tokens.
+    const owner = await consumeOAuthState(state);
+    const ownerGone = !!owner && !(await prisma.profile.findUnique({ where: { id: owner }, select: { id: true } }));
+    if (!owner || ownerGone) {
       request.log.warn("Rejected Trakt OAuth callback with a missing, unknown or expired state");
       return reply
         .code(403)
@@ -178,33 +189,33 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
     const refreshToken = encryptSecret(SECRET_CONTEXT.traktRefreshToken, tokens.refresh_token);
 
     await prisma.traktToken.upsert({
-      where: { id: "default" },
+      where: { id: owner },
       update: { accessToken, refreshToken, expiresAt },
-      create: { id: "default", accessToken, refreshToken, expiresAt },
+      create: { id: owner, profileId: owner, accessToken, refreshToken, expiresAt },
     });
 
-    resetTraktClient();
+    resetTraktClient(owner);
 
     return reply
       .type("text/html")
       .send(renderOAuthHtml("You can close this tab and return to Fetch.", "Trakt Connected!"));
   });
 
-  app.post("/trakt/disconnect", async (_request, reply) => {
-    await prisma.traktToken.deleteMany();
-    resetTraktClient();
+  app.post("/trakt/disconnect", { preHandler: resolveProfile }, async (request, reply) => {
+    const owner = request.profileId!;
+    await prisma.traktToken.deleteMany({ where: { id: owner } });
+    resetTraktClient(owner);
     return reply.send({ disconnected: true });
   });
 
-  // Imports land in the profile that asked for them, so this route — unlike the
-  // OAuth dance and the request-less /trakt/poll below — resolves the caller.
+  // Imports land in the profile that asked for them, from that profile's Trakt.
   app.post(
     "/trakt/import",
     { preHandler: resolveProfile },
     withImportLock(async (request, reply) => {
     let client: Awaited<ReturnType<typeof getTraktClient>>;
     try {
-      client = await getTraktClient();
+      client = await getTraktClient(request.profileId!);
     } catch (error) {
       request.log.error(error, "Trakt client initialization failed");
       return reply.code(500).send({ error: "Trakt integration is not configured" });
@@ -462,10 +473,10 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
   // `{ "full": true }` forces a complete history backfill instead of resuming
   // from the last poll — the way to recover history an earlier windowed sync
   // never imported, without disconnecting and reconnecting the account.
-  app.post("/trakt/poll", async (request, reply) => {
+  app.post("/trakt/poll", { preHandler: resolveProfile }, async (request, reply) => {
     try {
       const { full } = (request.body ?? {}) as { full?: boolean };
-      const profileId = await getDefaultProfileId();
+      const profileId = request.profileId!;
       const history = await pollTraktHistory(request.log, profileId, { full: full === true });
       const watchlist = await syncTraktWatchlist(request.log, profileId);
       return reply.code(200).send({ ...history, watchlist });

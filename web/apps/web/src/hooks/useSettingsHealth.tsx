@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api";
+import { useAccount } from "./useAccount";
 import { timeAgo } from "../utils/timeAgo";
 import {
   jobsHealth,
@@ -79,8 +80,14 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
     setEpoch((n) => n + 1);
   }, []);
 
+  // Every row here is an install-wide integration that only the admin can set
+  // up, and the admin-only status requests would fail for anyone else. So for
+  // other accounts there is nothing to report and nothing is asked.
+  const { isAdmin } = useAccount();
+
   useEffect(() => {
     let cancelled = false;
+    if (!isAdmin) return;
 
     void (async () => {
       // `null` here means "the request failed", which is why every mapper below
@@ -111,9 +118,9 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
     })();
 
     return () => { cancelled = true; };
-  }, [epoch]);
+  }, [epoch, isAdmin]);
 
-  const value = useMemo(() => ({ sections, refresh }), [sections, refresh]);
+  const value = useMemo(() => ({ sections: isAdmin ? sections : NO_SECTIONS, refresh }), [isAdmin, sections, refresh]);
   return <SettingsHealthContext.Provider value={value}>{children}</SettingsHealthContext.Provider>;
 }
 
@@ -131,4 +138,5 @@ export function useSettingsHealth(): SettingsHealth {
   return useContext(SettingsHealthContext) ?? EMPTY;
 }
 
-const EMPTY: SettingsHealth = { sections: {}, refresh: () => {} };
+const NO_SECTIONS: Record<string, SectionHealth> = {};
+const EMPTY: SettingsHealth = { sections: NO_SECTIONS, refresh: () => {} };

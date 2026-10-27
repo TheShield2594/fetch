@@ -3,6 +3,7 @@ import { api } from "../../api";
 import { useTransientFlag } from "../../hooks/useTransientFlag";
 import { Loader2, Check, AlertCircle, Shield } from "lucide-react";
 import { SelectField } from "../SelectField";
+import { useAccount } from "../../hooks/useAccount";
 
 const COMMON_LANGUAGES = [
   { code: "en-US", label: "English (US)" },
@@ -33,6 +34,9 @@ const COMMON_REGIONS = [
 ];
 
 export function PreferencesSettings() {
+  // Region and spoiler protection are each account's; the metadata language
+  // is the server's, since everyone shares the same fetched metadata.
+  const { isAdmin } = useAccount();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useTransientFlag();
@@ -101,7 +105,7 @@ export function PreferencesSettings() {
         <SelectField
           id="pref-language"
           value={language}
-          disabled={saving}
+          disabled={saving || !isAdmin}
           onChange={(e) => { setLanguage(e.target.value); void save({ language: e.target.value }); }}
           className="w-full rounded-xl px-4 py-3 text-sm"
           wrapperClassName="w-full"
@@ -116,6 +120,7 @@ export function PreferencesSettings() {
         </SelectField>
         <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
           Titles, descriptions, and metadata will be fetched in this language from TMDB.
+          {isAdmin ? " Everyone on this server shares it." : " It is the same for everyone on this server, and only the admin can change it."}
         </p>
       </div>
 

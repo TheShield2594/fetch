@@ -20,11 +20,17 @@ vi.mock("../api", () => ({
   },
 }));
 
+const signedIn = vi.hoisted(() => ({ isAdmin: true }));
+vi.mock("./useAccount", () => ({
+  useAccount: () => ({ account: null, isAdmin: signedIn.isAdmin, refresh: () => {} }),
+}));
+
 const { api } = await import("../api");
 const loadCount = () => vi.mocked(api.getTraktStatus).mock.calls.length;
 
 beforeEach(() => {
   vi.clearAllMocks();
+  signedIn.isAdmin = true;
 });
 
 function Report() {
@@ -55,6 +61,21 @@ function RefreshesOnMount() {
 }
 
 describe("SettingsHealthProvider", () => {
+  // Every row is an integration only the admin can set up, and most of the
+  // status reads are admin-only on the server.
+  it("asks nothing for an account that isn't the admin", async () => {
+    signedIn.isAdmin = false;
+    render(
+      <SettingsHealthProvider>
+        <Report />
+      </SettingsHealthProvider>
+    );
+
+    expect(await screen.findByText("trakt: —")).toBeInTheDocument();
+    expect(loadCount()).toBe(0);
+    expect(api.getTmdbStatus).not.toHaveBeenCalled();
+  });
+
   it("reads every source once and hands the mapped report to its consumers", async () => {
     render(
       <SettingsHealthProvider>

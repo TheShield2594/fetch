@@ -96,9 +96,10 @@ services:
       CATALOGGY_ALLOWED_ORIGINS: ${CATALOGGY_ALLOWED_ORIGINS:-http://192.168.1.25:7002,http://localhost:7002,http://127.0.0.1:7002}
       CATALOGGY_API_PUBLIC: ${CATALOGGY_API_PUBLIC:-http://192.168.1.25:7000}
       # Public URL of the web service — used to build the "Configure" link
-      # Stremio shows for this addon's manifest (redirects to /settings), and
-      # the link notification channels point at. Without it, notifications are
-      # still sent, just with nothing to tap.
+      # Stremio shows for this addon's manifest (redirects to /settings), the
+      # link notification channels point at, and invite links. Without it,
+      # notifications are still sent, just with nothing to tap, and Settings
+      # builds invite links from whatever address it was opened at.
       CATALOGGY_WEB_PUBLIC: ${CATALOGGY_WEB_PUBLIC:-http://192.168.1.25:7002}
       # Which reverse proxies may set X-Forwarded-For. Unset trusts none of
       # them, so behind a proxy every client arrives as the proxy's own address
@@ -143,6 +144,18 @@ services:
       TRAKT_POLL_MAX_PAGES: ${TRAKT_POLL_MAX_PAGES:-20}
       TRAKT_BACKFILL_MAX_PAGES: ${TRAKT_BACKFILL_MAX_PAGES:-500}
       TRAKT_WATCHLIST_MIRROR_DELETES: ${TRAKT_WATCHLIST_MIRROR_DELETES:-false}
+      # Simkl: the Fetch app's client id (simkl.com/settings/developer). Each
+      # profile then signs in to its own Simkl account from Settings.
+      SIMKL_CLIENT_ID: ${SIMKL_CLIENT_ID}
+      SIMKL_APP_NAME: ${SIMKL_APP_NAME:-fetch}
+      SIMKL_POLL_INTERVAL_SEC: ${SIMKL_POLL_INTERVAL_SEC:-900}
+      # MDBList: the Fetch app's OAuth client id. Each profile signs in to its
+      # own MDBList account from Settings.
+      MDBLIST_CLIENT_ID: ${MDBLIST_CLIENT_ID}
+      MDBLIST_POLL_INTERVAL_SEC: ${MDBLIST_POLL_INTERVAL_SEC:-1800}
+      # How often each profile's signed-in Plex, Jellyfin and Emby servers are
+      # read for watched state and resume points.
+      MEDIA_SERVER_SYNC_INTERVAL_SEC: ${MEDIA_SERVER_SYNC_INTERVAL_SEC:-3600}
       STREMIO_POLL_INTERVAL_SEC: ${STREMIO_POLL_INTERVAL_SEC:-0}
       STREMIO_API_BASE: ${STREMIO_API_BASE:-https://api.strem.io}
       STREMIO_PLAY_DETECTION: ${STREMIO_PLAY_DETECTION:-false}
@@ -205,6 +218,9 @@ services:
       # Path prefixes a reverse proxy may mount this service under. Defaults to
       # /addon, and is a separate .env variable from the api's for that reason.
       PROXY_PATH_PREFIXES: ${ADDON_PROXY_PATH_PREFIXES:-/addon}
+      # Serve only the signed /u/<profileId>/<key>/ URLs Settings hands out,
+      # so the addon can face the internet without showing anyone a profile.
+      ADDON_REQUIRE_SIGNED_URLS: ${ADDON_REQUIRE_SIGNED_URLS:-false}
       # Fastify log level: fatal, error, warn, info, debug, trace or silent.
       # The default is materialized here because an empty value is not a level
       # the logger accepts.

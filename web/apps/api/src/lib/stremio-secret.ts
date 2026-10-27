@@ -1,4 +1,5 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { timingSafeEqual } from "node:crypto";
+import { deriveStremioProfileKey } from "@fetch/shared";
 import { prisma } from "./prisma.js";
 
 // The Stremio addon protocol has no auth: Stremio fetches a manifest URL and
@@ -17,8 +18,6 @@ import { prisma } from "./prisma.js";
 // The secret is per profile, so it doubles as the profile selector: the URL a
 // profile installs serves that profile's lists and nothing else, which is what
 // closes the `?profileId=` targeting the query param used to allow.
-const SECRET_LABEL = "cataloggy-stremio-addon";
-
 const SECRET_PATTERN = /^[0-9a-f]{64}$/;
 
 /** Path shape the API token gate treats as a candidate public addon URL. */
@@ -27,7 +26,7 @@ const SECRET_PATH_PATTERN = /^\/addon\/stremio\/[0-9a-f]{64}(?:\/|$)/;
 export const deriveStremioSecret = (profileId: string): string | null => {
   const apiToken = process.env.API_TOKEN;
   if (!apiToken) return null;
-  return createHmac("sha256", apiToken).update(`${SECRET_LABEL}:${profileId}`).digest("hex");
+  return deriveStremioProfileKey(apiToken, profileId);
 };
 
 // Both sides are fixed-width hex digests, so the length guard — needed because

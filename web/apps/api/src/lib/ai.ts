@@ -7,10 +7,21 @@ import { getRpdbApiKey, withRpdbPoster } from "./rpdb.js";
 import { upsertMetadata } from "./metadata.js";
 import { resolveAiProviderUrl } from "./ssrf.js";
 import { readSecretKv } from "./secret-store.js";
+import {
+  AI_CONFIG_KEY,
+  AI_LAST_RECS_GENERATED_AT_KEY,
+  type IntegrationOwner,
+  LEGACY_OWNER,
+  outboundScopeForOwner,
+  accountOwnerForProfile,
+  ownerKvKey,
+} from "./integration-owner.js";
+import type { OutboundScope } from "./ssrf.js";
 import type { AiProviderConfig, StremioMetaPreview } from "./types.js";
 
-export const AI_CONFIG_KEY = "ai:config";
-export const AI_LAST_RECS_GENERATED_AT_KEY = "ai:lastRecsGeneratedAt";
+// Each account sets up its own AI provider. Its config and its generation
+// watermark are kept under `ownerKvKey(key, owner)`; see lib/integration-owner.ts.
+export { AI_CONFIG_KEY, AI_LAST_RECS_GENERATED_AT_KEY };
 export const AI_RECS_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 // Floor for a *saved* config's max_tokens. The per-request generation path
 // already computes a higher floor scaled to the requested limit, but this
@@ -26,8 +37,8 @@ const TOKENS_PER_RECOMMENDATION = 150;
 // Authorization header: the header is the credential, but the URL of a private
 // LLM endpoint is worth no more exposure than it needs either, and one blob
 // means there is no half-encrypted row to reason about.
-export const getAiConfig = async (): Promise<AiProviderConfig | null> => {
-  const stored = await readSecretKv(AI_CONFIG_KEY);
+export const getAiConfig = async (owner: IntegrationOwner): Promise<AiProviderConfig | null> => {
+  const stored = await readSecretKv(ownerKvKey(AI_CONFIG_KEY, owner));
   if (!stored) return null;
   try {
     return JSON.parse(stored) as AiProviderConfig;
@@ -36,9 +47,24 @@ export const getAiConfig = async (): Promise<AiProviderConfig | null> => {
   }
 };
 
-export const isAiConfigured = async (): Promise<boolean> => {
-  const config = await getAiConfig();
+export const isAiConfigured = async (owner: IntegrationOwner): Promise<boolean> => {
+  const config = await getAiConfig(owner);
   return !!(config?.url && config?.headers && config?.payload?.model);
+};
+
+/** Whether the account a profile is in has an AI provider set up. */
+export const isAiConfiguredForProfile = async (profileId: string): Promise<boolean> => {
+  const owner = await accountOwnerForProfile(profileId);
+  return owner ? isAiConfigured(owner) : false;
+};
+
+/** Every account with an AI provider set up, for the scheduled refresh. */
+export const listAiOwners = async (): Promise<IntegrationOwner[]> => {
+  const rows = await prisma.kV.findMany({
+    where: { OR: [{ key: AI_CONFIG_KEY }, { key: { startsWith: `${AI_CONFIG_KEY}:` } }] },
+    select: { key: true },
+  });
+  return rows.map((row) => (row.key === AI_CONFIG_KEY ? LEGACY_OWNER : row.key.slice(AI_CONFIG_KEY.length + 1)));
 };
 
 export const redactAiConfig = (config: AiProviderConfig): AiProviderConfig => ({
@@ -61,16 +87,22 @@ export const redactAiConfig = (config: AiProviderConfig): AiProviderConfig => ({
   },
 });
 
-export const shouldRefreshAiRecs = async (): Promise<boolean> => {
-  if (!(await isAiConfigured())) return false;
+export const shouldRefreshAiRecs = async (owner: IntegrationOwner): Promise<boolean> => {
+  if (!(await isAiConfigured(owner))) return false;
 
-  const lastGenRow = await prisma.kV.findUnique({ where: { key: AI_LAST_RECS_GENERATED_AT_KEY } });
+  const lastGenRow = await prisma.kV.findUnique({ where: { key: ownerKvKey(AI_LAST_RECS_GENERATED_AT_KEY, owner) } });
   if (!lastGenRow) return true;
 
   const lastGen = new Date(lastGenRow.value);
   if (isNaN(lastGen.getTime())) return true;
   const daysSinceLastGen = (Date.now() - lastGen.getTime()) / (1000 * 60 * 60 * 24);
   return daysSinceLastGen >= 7;
+};
+
+/** `shouldRefreshAiRecs` for the account a profile is in. */
+export const shouldRefreshAiRecsForProfile = async (profileId: string): Promise<boolean> => {
+  const owner = await accountOwnerForProfile(profileId);
+  return owner ? shouldRefreshAiRecs(owner) : false;
 };
 
 // Full watch history (not windowed like buildTasteProfile's last-50 events), used
@@ -180,6 +212,7 @@ export const buildTasteProfile = async (profileId?: string) => {
 
 const callAiProvider = async (
   config: AiProviderConfig,
+  scope: OutboundScope,
   prompt: string,
   minTokens = 0
 ): Promise<string> => {
@@ -188,7 +221,7 @@ const callAiProvider = async (
   // drive an outbound request at a blocked SSRF target. Re-checked here rather
   // than trusted from save time because the hostname's DNS records can change
   // between the two.
-  if (!(await resolveAiProviderUrl(config.url))) {
+  if (!(await resolveAiProviderUrl(config.url, undefined, scope))) {
     throw new Error("AI provider URL is not an allowed outbound target");
   }
 
@@ -300,11 +333,11 @@ const regeneratingCacheKeys = new Set<string>();
 
 export const getAiRecommendations = async (
   type: "movie" | "series",
-  limit = 10,
-  profileId?: string,
+  limit: number,
+  profileId: string,
   logger?: FastifyBaseLogger
 ): Promise<{ metas: StremioMetaPreview[]; reasons: Record<string, string> } | null> => {
-  const cacheKey = `ai-recs:${type}:${limit}${profileId ? `:${profileId}` : ""}`;
+  const cacheKey = `ai-recs:${type}:${limit}:${profileId}`;
   const cached = trendingCacheGet(cacheKey);
   if (cached) {
     // The cache lives up to AI_RECS_TTL_MS and isn't purged on every watch event
@@ -331,7 +364,11 @@ export const getAiRecommendations = async (
     return { metas, reasons };
   }
 
-  const config = await getAiConfig();
+  // The provider the profile's own account set up: one account's taste
+  // profile is never sent to another's provider, nor billed to its key.
+  const owner = await accountOwnerForProfile(profileId);
+  if (!owner) return null;
+  const config = await getAiConfig(owner);
   if (!config) return null;
 
   try {
@@ -362,7 +399,7 @@ Return ONLY a JSON array, no other text, no markdown:
     // Without this floor a low configured max_tokens truncates the array well
     // before `limit` items are reached.
     const minTokens = BASE_TOKENS + limit * TOKENS_PER_RECOMMENDATION;
-    const content = await callAiProvider(config, prompt, minTokens);
+    const content = await callAiProvider(config, await outboundScopeForOwner(owner), prompt, minTokens);
     const recs = parseRecsFromContent(content);
 
     const tmdb = await getTmdb();
@@ -398,9 +435,10 @@ Return ONLY a JSON array, no other text, no markdown:
     trendingCacheSet(cacheKey, { data: metas, reasons }, AI_RECS_TTL_MS);
 
     const now = new Date();
+    const lastGeneratedKey = ownerKvKey(AI_LAST_RECS_GENERATED_AT_KEY, owner);
     await prisma.kV.upsert({
-      where: { key: AI_LAST_RECS_GENERATED_AT_KEY },
-      create: { key: AI_LAST_RECS_GENERATED_AT_KEY, value: now.toISOString(), updatedAt: now },
+      where: { key: lastGeneratedKey },
+      create: { key: lastGeneratedKey, value: now.toISOString(), updatedAt: now },
       update: { value: now.toISOString(), updatedAt: now },
     });
 

@@ -20,7 +20,7 @@
 import type { NotificationChannelKind } from "@prisma/client";
 import { prisma } from "./prisma.js";
 import { SECRET_CONTEXT, decryptSecret } from "./secret-box.js";
-import { resolveNotificationUrl } from "./ssrf.js";
+import { type OutboundScope, resolveNotificationUrl } from "./ssrf.js";
 import { OUTBOUND_FAILURE_MESSAGE } from "./outbound-test.js";
 import type { OutboundFailure } from "./outbound-test.js";
 
@@ -204,7 +204,11 @@ export const buildChannelRequest = (channel: ChannelTarget, event: NotificationE
  * Delivers `event` over `channel`. Throws on anything that isn't a 2xx, on a
  * URL that no longer resolves to an allowed target, and on a timeout.
  */
-export const sendToChannel = async (channel: ChannelTarget, event: NotificationEvent): Promise<void> => {
+export const sendToChannel = async (
+  channel: ChannelTarget,
+  event: NotificationEvent,
+  scope: OutboundScope
+): Promise<void> => {
   // Sending without the token would reach the server and be rejected there,
   // hours later and reported as a plain 401 — naming the actual cause is worth
   // more than an attempt that cannot succeed.
@@ -223,7 +227,7 @@ export const sendToChannel = async (channel: ChannelTarget, event: NotificationE
 
   // Resolved here rather than trusting the save-time check: the channel may
   // have been stored months ago, and the name could point somewhere else now.
-  if (!(await resolveNotificationUrl(request.url))) {
+  if (!(await resolveNotificationUrl(request.url, undefined, scope))) {
     throw new ChannelSendError(
       "blocked",
       `${channel.name}: URL resolves to an address that is not an allowed outbound target`

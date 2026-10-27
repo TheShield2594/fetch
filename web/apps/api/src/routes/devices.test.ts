@@ -19,7 +19,9 @@ const prismaMock = {
   },
   device: { create: vi.fn(), findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn(), deleteMany: vi.fn() },
   deviceProfileSlot: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), delete: vi.fn() },
-  profile: { findMany: vi.fn(), create: vi.fn(), update: vi.fn() },
+  profile: { findMany: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
+  // A device confirmed with API_TOKEN goes to the admin account; none exists here.
+  account: { findFirst: vi.fn() },
   $transaction: vi.fn(),
 };
 
@@ -66,6 +68,8 @@ describe("device routes", () => {
     vi.stubEnv("CATALOGGY_WEB_PUBLIC", "https://fetch.example/");
     prismaMock.devicePairing.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.devicePairing.count.mockResolvedValue(0);
+    // The profile in a slot belongs to the device's account.
+    prismaMock.profile.count.mockResolvedValue(1);
     prismaMock.$transaction.mockImplementation(async (callback: (tx: typeof prismaMock) => unknown) => callback(prismaMock));
   });
 
@@ -124,7 +128,7 @@ describe("device routes", () => {
       expect(prismaMock.devicePairing.findUnique).toHaveBeenCalledWith({ where: { code: "ABCDEFGH" } });
       expect(prismaMock.devicePairing.update).toHaveBeenCalledWith({
         where: { id: "pairing-1" },
-        data: { confirmedAt: expect.any(Date), deviceName: "Living room" },
+        data: { confirmedAt: expect.any(Date), deviceName: "Living room", accountId: null },
       });
     });
 

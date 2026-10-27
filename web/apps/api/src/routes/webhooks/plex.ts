@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { recordWatchEvent } from "../../lib/watch-event.js";
-import { verifyWebhookSecret } from "../../lib/webhook-auth.js";
+import { authenticateWebhook } from "../../lib/webhook-caller.js";
 import { resolveWebhookProfile } from "../../lib/webhook-profile.js";
 
 function extractMultipartPayload(rawBody: string, contentType: string): string | null {
@@ -34,7 +34,8 @@ const plexWebhookRoutes: FastifyPluginAsync = async (app) => {
   );
 
   app.post("/webhooks/plex", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, async (request, reply) => {
-    if (!verifyWebhookSecret(request)) {
+    const caller = await authenticateWebhook(request);
+    if (!caller) {
       return reply.code(403).send({ error: "Invalid webhook secret" });
     }
 
@@ -102,7 +103,7 @@ const plexWebhookRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(200).send({ status: "skipped", reason: "no_imdb_id" });
     }
 
-    const profile = await resolveWebhookProfile(request, payload.Account?.title);
+    const profile = await resolveWebhookProfile(request, payload.Account?.title, caller.accountId);
     if (!profile.ok) {
       return reply.code(profile.status).send({ error: profile.error });
     }

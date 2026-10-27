@@ -36,7 +36,7 @@ export const normalizePairingCode = (raw: string): string => raw.toUpperCase().r
 /** `ABCD-EFGH`, the way the TV and the website show it. */
 export const formatPairingCode = (code: string): string => `${code.slice(0, 4)}-${code.slice(4)}`;
 
-export type AuthenticatedDevice = { id: string; name: string };
+export type AuthenticatedDevice = { id: string; name: string; accountId: string | null };
 
 type CachedDevice = { device: AuthenticatedDevice | null; expiresAt: number; lastSeenWrittenAt: number };
 
@@ -71,7 +71,7 @@ export const findDeviceByToken = async (token: string): Promise<AuthenticatedDev
     return cached.device;
   }
 
-  const row = await prisma.device.findUnique({ where: { tokenHash }, select: { id: true, name: true } });
+  const row = await prisma.device.findUnique({ where: { tokenHash }, select: { id: true, name: true, accountId: true } });
   if (deviceCache.size >= MAX_CACHED_DEVICES) deviceCache.clear();
   deviceCache.set(tokenHash, { device: row, expiresAt: now + DEVICE_CACHE_TTL_MS, lastSeenWrittenAt: row ? now : 0 });
   if (row) await touchLastSeen(row.id);

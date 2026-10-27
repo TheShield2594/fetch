@@ -9,16 +9,15 @@ const JOB_STATUS_KEY_PREFIX = "job-status:";
 export type JobName =
   | "trakt-history-poll"
   | "trakt-watchlist-sync"
+  | "simkl-sync"
+  | "mdblist-sync"
+  | "media-server-sync"
   | "stremio-library-sync"
   | "stremio-play-signals"
   | "scrobble-cleanup"
   | "episode-notifications"
   | "ai-recommendations"
-  | "steam-sync"
-  // Not scheduled: a watchlist add pushes to Jellyseerr in the background of a
-  // request that has already succeeded, so its failures are invisible for the
-  // same reason a job's are — nobody is watching when they happen.
-  | "jellyseerr-request";
+  | "steam-sync";
 
 const MAX_MESSAGE_LENGTH = 2000;
 

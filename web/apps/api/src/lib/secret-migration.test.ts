@@ -5,6 +5,7 @@ const prismaMock = {
   kV: { findMany: vi.fn(), update: vi.fn() },
   traktToken: { findMany: vi.fn(), update: vi.fn() },
   stremioAuth: { findMany: vi.fn(), update: vi.fn() },
+  profileConnection: { findMany: vi.fn(async () => []), update: vi.fn() },
   notificationChannel: { findMany: vi.fn(), update: vi.fn() },
 };
 
@@ -26,6 +27,7 @@ beforeEach(() => {
   prismaMock.traktToken.findMany.mockResolvedValue([]);
   prismaMock.stremioAuth.findMany.mockResolvedValue([]);
   prismaMock.notificationChannel.findMany.mockResolvedValue([]);
+  prismaMock.profileConnection.findMany.mockResolvedValue([]);
   for (const model of [prismaMock.kV, prismaMock.traktToken, prismaMock.stremioAuth, prismaMock.notificationChannel]) {
     model.update.mockResolvedValue({});
   }
@@ -113,8 +115,11 @@ describe("encryptStoredSecrets", () => {
     await run();
 
     const { where } = first(prismaMock.kV.findMany.mock.calls, "prismaMock.kV.findMany call")[0];
-    expect(where.key.in).toEqual(["tmdb:apiKey", "omdb:apiKey", "rpdb:apiKey", "ai:config", "push:vapidKeys"]);
-    expect(where.key.in).not.toContain("settings:language");
+    const [fixed, perAccount] = where.OR;
+    expect(fixed.key.in).toEqual(["tmdb:apiKey", "omdb:apiKey", "rpdb:apiKey", "ai:config", "push:vapidKeys"]);
+    expect(fixed.key.in).not.toContain("settings:language");
+    // Each account's own AI provider config.
+    expect(perAccount).toEqual({ key: { startsWith: "ai:config:" } });
   });
 
   it("writes ciphertext that later reads can actually open", async () => {

@@ -1,5 +1,7 @@
 import { STREAMING_PROVIDERS } from "../tmdb.js";
 import type { FastifyPluginAsync } from "fastify";
+import { isAdminRequest, requireAdmin } from "../lib/request-auth.js";
+import { ownerForRequest } from "../lib/integration-owner.js";
 import {
   getLanguageSetting,
   getRegionSetting,
@@ -15,28 +17,15 @@ import { trendingCache } from "../lib/cache.js";
 import { deleteSecretKv, writeSecretKv } from "../lib/secret-store.js";
 import { isServiceRequest } from "../lib/service-request.js";
 import { failuresFrom, getJobRuns } from "../lib/job-status.js";
-import { outboundFailure } from "../lib/outbound-test.js";
-import {
-  JellyseerrError,
-  clearJellyseerrConfig,
-  getJellyseerrConfig,
-  publicJellyseerrConfig,
-  resolveJellyseerrUrl,
-  saveJellyseerrConfig,
-  testJellyseerr,
-  validateJellyseerrUrl,
-  type JellyseerrConfig,
-} from "../lib/jellyseerr.js";
-
-const JELLYSEERR_URL_ERROR =
-  "url must be an http(s) URL and must not target the cloud-metadata/link-local range";
-
 const settingsRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/settings/preferences", async () => {
+  // Region and spoiler protection are the caller's account's; the metadata
+  // language is the install's, so only the admin changes it (lib/settings.ts).
+  app.get("/settings/preferences", async (request) => {
+    const owner = await ownerForRequest(request);
     const [language, region, spoilerProtection] = await Promise.all([
       getLanguageSetting(),
-      getRegionSetting(),
-      getSpoilerProtection(),
+      getRegionSetting(owner),
+      getSpoilerProtection(owner),
     ]);
     return {
       language,
@@ -47,6 +36,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.post<{ Body: unknown }>("/settings/preferences", async (request, reply) => {
+    const owner = await ownerForRequest(request);
     const body = request.body as {
       language?: unknown;
       region?: unknown;
@@ -70,7 +60,14 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
           error: "language must be a valid language code (e.g., 'en-US', 'fr')",
         });
       }
-      await setLanguageSetting(normalizedLang);
+      // Sending the current language back unchanged is fine from anyone: the
+      // form posts every field.
+      if (normalizedLang !== (await getLanguageSetting())) {
+        if (!isAdminRequest(request)) {
+          return reply.code(403).send({ error: "Only the admin can change the metadata language", code: "admin_required" });
+        }
+        await setLanguageSetting(normalizedLang);
+      }
     }
 
     if (typeof body.region === "string" && body.region.trim()) {
@@ -80,19 +77,19 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
           error: "region must be a valid two-letter country code (e.g., 'US', 'GB')",
         });
       }
-      await setRegionSetting(reg);
+      await setRegionSetting(reg, owner);
     }
 
     if (typeof body.spoilerProtection === "boolean") {
-      await setSpoilerProtection(body.spoilerProtection);
+      await setSpoilerProtection(body.spoilerProtection, owner);
     }
 
     trendingCache.clear();
 
     const [language, region, spoilerProtection] = await Promise.all([
       getLanguageSetting(),
-      getRegionSetting(),
-      getSpoilerProtection(),
+      getRegionSetting(owner),
+      getSpoilerProtection(owner),
     ]);
     return { language, region, spoilerProtection };
   });
@@ -104,7 +101,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: !!apiKey, source };
   });
 
-  app.post<{ Body: unknown }>("/tmdb/key", async (request, reply) => {
+  app.post<{ Body: unknown }>("/tmdb/key", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as { apiKey?: unknown } | null;
     if (!body || typeof body.apiKey !== "string") {
       return reply.code(400).send({ error: "apiKey must be a string" });
@@ -138,7 +135,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
 
   // Removing the saved key falls back to TMDB_API_KEY when the deployment
   // sets one, so the response says what is left rather than assuming nothing.
-  app.delete("/tmdb/key", async () => {
+  app.delete("/tmdb/key", { preHandler: requireAdmin }, async () => {
     await deleteSecretKv(TMDB_API_KEY_KV);
     const { apiKey, source } = await getTmdbApiKey();
     return { configured: !!apiKey, source };
@@ -151,7 +148,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: !!apiKey };
   });
 
-  app.post<{ Body: unknown }>("/omdb/key", async (request, reply) => {
+  app.post<{ Body: unknown }>("/omdb/key", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as { apiKey?: unknown } | null;
     const apiKey = typeof body?.apiKey === "string" ? body.apiKey.trim() : "";
     if (!apiKey) {
@@ -174,7 +171,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: true };
   });
 
-  app.delete("/omdb/key", async () => {
+  app.delete("/omdb/key", { preHandler: requireAdmin }, async () => {
     await deleteSecretKv(OMDB_API_KEY_KV);
     return { configured: false };
   });
@@ -186,7 +183,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: !!apiKey, hasKey: !!apiKey };
   });
 
-  app.post<{ Body: unknown }>("/rpdb/key", async (request, reply) => {
+  app.post<{ Body: unknown }>("/rpdb/key", { preHandler: requireAdmin }, async (request, reply) => {
     const body = request.body as { apiKey?: unknown } | null;
     if (!body || typeof body.apiKey !== "string") {
       return reply.code(400).send({ error: "apiKey must be a string" });
@@ -202,7 +199,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { configured: true };
   });
 
-  app.delete("/rpdb/key", async () => {
+  app.delete("/rpdb/key", { preHandler: requireAdmin }, async () => {
     await deleteSecretKv(RPDB_API_KEY_KV);
     return { configured: false };
   });
@@ -225,89 +222,6 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
     return { enabled: !!apiKey, apiKey: apiKey ?? null };
   });
 
-  // ─── Jellyseerr / Overseerr ───
-  // The one outbound integration: a watchlist add can become a request on the
-  // server that actually fetches things. See lib/jellyseerr.ts.
-
-  app.get("/settings/jellyseerr", async () => {
-    const config = await getJellyseerrConfig();
-    return { configured: !!config, config: config ? publicJellyseerrConfig(config) : null };
-  });
-
-  app.post<{ Body: unknown }>("/settings/jellyseerr", async (request, reply) => {
-    const body = request.body as {
-      url?: unknown;
-      apiKey?: unknown;
-      requestOnAdd?: unknown;
-      cancelOnRemove?: unknown;
-    } | null;
-    if (!body) return reply.code(400).send({ error: "Body is required" });
-
-    const url = typeof body.url === "string" ? body.url.trim() : "";
-    if (!url || !validateJellyseerrUrl(url)) {
-      return reply.code(400).send({ error: JELLYSEERR_URL_ERROR });
-    }
-
-    // The literal hostname is only half the check — a public name pointing at
-    // the metadata service passes the syntax test and fails this one.
-    if (!(await resolveJellyseerrUrl(url))) {
-      return reply.code(400).send({ error: "url resolves to an address that is not an allowed outbound target" });
-    }
-
-    // An existing key is kept when the field is left blank, so toggling
-    // "request on add" doesn't mean re-typing a credential the server already
-    // holds and never hands back.
-    const existing = await getJellyseerrConfig();
-    const apiKey = typeof body.apiKey === "string" && body.apiKey.trim() ? body.apiKey.trim() : existing?.apiKey ?? "";
-    if (!apiKey) return reply.code(400).send({ error: "apiKey is required" });
-
-    const config: JellyseerrConfig = {
-      url,
-      apiKey,
-      requestOnAdd: typeof body.requestOnAdd === "boolean" ? body.requestOnAdd : existing?.requestOnAdd ?? true,
-      cancelOnRemove: typeof body.cancelOnRemove === "boolean" ? body.cancelOnRemove : existing?.cancelOnRemove ?? false,
-    };
-
-    // Stored, not sent to. Proving the connection is `/settings/jellyseerr/test`
-    // below, which Settings calls the moment a save lands — the same shape the
-    // notification channels have, for two reasons beyond consistency:
-    //
-    //   * A server that is off must not stop you saving a correct URL. Testing
-    //     inline meant a Jellyseerr that was down for the evening refused every
-    //     save, including the one fixing a typo.
-    //   * Fetching a URL that arrived in this request body is the request-forgery
-    //     shape a scanner is right to flag. What the test route reaches for is
-    //     what is stored — validated above, and validated again per request in
-    //     `lib/jellyseerr.ts`.
-    await saveJellyseerrConfig(config);
-    return { configured: true, config: publicJellyseerrConfig(config) };
-  });
-
-  app.delete("/settings/jellyseerr", async () => {
-    await clearJellyseerrConfig();
-    return { configured: false, config: null };
-  });
-
-  // Same argument as the notification-channel test: the failures people hit
-  // here are a moved container, a revoked key or a URL that never reached the
-  // right service, and none of those are visible from the stored config.
-  app.post("/settings/jellyseerr/test", async (request, reply) => {
-    const config = await getJellyseerrConfig();
-    if (!config) return reply.code(404).send({ error: "Jellyseerr is not configured" });
-
-    try {
-      const result = await testJellyseerr(config);
-      return { success: true as const, ...result };
-    } catch (error) {
-      // The status code and the socket error stay in the log, for the reason
-      // lib/outbound-test.ts gives.
-      request.log.warn({ err: error }, "Jellyseerr connection test failed");
-      return error instanceof JellyseerrError
-        ? outboundFailure(error.outcome, error.publicMessage)
-        : outboundFailure("failed");
-    }
-  });
-
   // ─── Background job status ───
   // Surfaces scheduled-job failures (Steam sync, Trakt poll, episode
   // notifications, AI recs) that would otherwise only be visible in server
@@ -317,7 +231,7 @@ const settingsRoutes: FastifyPluginAsync = async (app) => {
   // took: a job that outlasts its own interval has its next tick dropped by the
   // scheduler, which is invisible from a list of failures because nothing
   // failed.
-  app.get("/settings/job-status", async () => {
+  app.get("/settings/job-status", { preHandler: requireAdmin }, async () => {
     const runs = await getJobRuns();
     return { failures: failuresFrom(runs), runs };
   });

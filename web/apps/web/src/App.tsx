@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Route, Routes, useLocation } from "react-router";
 import { Search, User } from "lucide-react";
-import { api, type Profile, runtimeConfig } from "./api";
+import { api, inviteCodeFromPath, type Profile, runtimeConfig } from "./api";
 import { useCommandPalette } from "./hooks/useCommandPalette";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { GhostLoader } from "./components/GhostLoader";
@@ -16,6 +16,7 @@ import { SettingsHealthProvider } from "./hooks/useSettingsHealth";
 import { useTheme } from "./hooks/useTheme";
 import { ToastProvider } from "./hooks/useToast";
 import { ProfileProvider, useProfile } from "./hooks/useProfile";
+import { AccountProvider } from "./hooks/useAccount";
 import { ShelfPage } from "./pages/ShelfPage";
 import {
   loadCalendarPage,
@@ -118,7 +119,13 @@ const ProfileSwitcherFallback = () => (
 
 export function App() {
   const location = useLocation();
-  const [needsSetup, setNeedsSetup] = useState(() => !runtimeConfig.getToken());
+  // Signed in means a session token. A token without the session prefix is the
+  // API token, stored by a browser from before accounts existed: it goes back
+  // through the wizard, which offers it for creating the admin. An invite link
+  // opens the wizard too, for whoever it was sent to.
+  const [needsSetup, setNeedsSetup] = useState(
+    () => !runtimeConfig.hasSession() || inviteCodeFromPath(window.location.pathname) !== null
+  );
   const [needsProfile, setNeedsProfile] = useState(() => !runtimeConfig.getProfileId());
   const { theme, setTheme } = useTheme();
   const { open: paletteOpen, setOpen: setPaletteOpen } = useCommandPalette();
@@ -172,6 +179,7 @@ export function App() {
 
   return (
     <ToastProvider>
+    <AccountProvider>
     <ProfileProvider initialProfile={null}>
       {/* One health report for the whole shell: the rail's Sources rows and the
           Settings page's status board ask the same six questions, and they are
@@ -189,6 +197,7 @@ export function App() {
       />
       </SettingsHealthProvider>
     </ProfileProvider>
+    </AccountProvider>
     </ToastProvider>
   );
 }

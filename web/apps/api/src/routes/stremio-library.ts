@@ -28,9 +28,12 @@ const CONNECT_RATE_LIMIT = { config: { rateLimit: { max: 10, timeWindow: "1 minu
 // Client identifiers are attacker-controlled strings kept only for display.
 const MAX_CLIENT_LENGTH = 200;
 
+// Each profile connects its own Stremio account, as in the TV app, so every
+// route here acts on the requesting profile's.
+
 const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/stremio/library/status", async (_request, reply) => {
-    return reply.send(await getStremioStatus());
+  app.get("/stremio/library/status", { preHandler: resolveProfile }, async (request, reply) => {
+    return reply.send(await getStremioStatus(request.profileId as string));
   });
 
   // Every route below acts on a profile's library, so it takes the profile from
@@ -74,19 +77,19 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
         await syncStremioLibrary(request.log, request.profileId as string, "baseline");
       } catch (error) {
         request.log.error(error, "Stremio baseline sync failed after connecting — undoing the connection");
-        await disconnectStremio();
+        await disconnectStremio(request.profileId as string);
         resetStremioClient();
         return reply
           .code(502)
           .send({ error: "Connected to Stremio, but could not read the library. Nothing was saved." });
       }
 
-      return reply.code(200).send(await getStremioStatus());
+      return reply.code(200).send(await getStremioStatus(request.profileId as string));
     }
   );
 
-  app.post("/stremio/library/disconnect", async (_request, reply) => {
-    await disconnectStremio();
+  app.post("/stremio/library/disconnect", { preHandler: resolveProfile }, async (request, reply) => {
+    await disconnectStremio(request.profileId as string);
     resetStremioClient();
     return reply.code(200).send({ connected: false });
   });
@@ -94,7 +97,7 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
   // One-time backfill of everything the Stremio account already has marked as
   // watched, dated from Stremio's own `lastWatched` rather than from now.
   app.post("/stremio/library/import", { preHandler: resolveProfile }, async (request, reply) => {
-    if (!(await isStremioConnected())) {
+    if (!(await isStremioConnected(request.profileId as string))) {
       return reply.code(400).send({ error: "No Stremio account is connected" });
     }
     try {
@@ -108,7 +111,7 @@ const stremioLibraryRoutes: FastifyPluginAsync = async (app) => {
 
   // Manual trigger for the same pass the scheduler runs.
   app.post("/stremio/library/sync", { preHandler: resolveProfile }, async (request, reply) => {
-    if (!(await isStremioConnected())) {
+    if (!(await isStremioConnected(request.profileId as string))) {
       return reply.code(400).send({ error: "No Stremio account is connected" });
     }
     try {

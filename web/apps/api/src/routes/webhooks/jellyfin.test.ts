@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildRouteApp } from "../../lib/test-fixtures/route-app.js";
 
-const webhookAuthMock = { verifyWebhookSecret: vi.fn(() => true) };
-vi.mock("../../lib/webhook-auth.js", () => webhookAuthMock);
+const webhookAuthMock = { authenticateWebhook: vi.fn() };
+vi.mock("../../lib/webhook-caller.js", () => webhookAuthMock);
 
 const watchEventMock = { recordWatchEvent: vi.fn() };
 vi.mock("../../lib/watch-event.js", () => watchEventMock);
@@ -17,13 +17,13 @@ const buildApp = (): Promise<FastifyInstance> =>
 describe("POST /webhooks/jellyfin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    webhookAuthMock.verifyWebhookSecret.mockReturnValue(true);
+    webhookAuthMock.authenticateWebhook.mockResolvedValue({ accountId: "account-1" });
     watchEventMock.recordWatchEvent.mockResolvedValue({ watchEvent: { id: "we-1" }, wasCreated: true });
     webhookProfileMock.resolveWebhookProfile.mockResolvedValue({ ok: true, profileId: "profile-1" });
   });
 
   it("rejects requests that fail webhook secret verification", async () => {
-    webhookAuthMock.verifyWebhookSecret.mockReturnValue(false);
+    webhookAuthMock.authenticateWebhook.mockResolvedValue(null);
     const app = await buildApp();
 
     const response = await app.inject({
@@ -141,7 +141,7 @@ describe("POST /webhooks/jellyfin", () => {
     });
 
     expect(response.statusCode).toBe(201);
-    expect(webhookProfileMock.resolveWebhookProfile).toHaveBeenCalledWith(expect.anything(), "Sam");
+    expect(webhookProfileMock.resolveWebhookProfile).toHaveBeenCalledWith(expect.anything(), "Sam", "account-1");
     expect(watchEventMock.recordWatchEvent).toHaveBeenCalledWith(
       expect.objectContaining({ imdbId: "tt3333333", profileId: "profile-sam" })
     );
@@ -161,7 +161,7 @@ describe("POST /webhooks/jellyfin", () => {
       },
     });
 
-    expect(webhookProfileMock.resolveWebhookProfile).toHaveBeenCalledWith(expect.anything(), "Alex");
+    expect(webhookProfileMock.resolveWebhookProfile).toHaveBeenCalledWith(expect.anything(), "Alex", "account-1");
   });
 
   it("falls back to Username when NotificationUsername renders empty", async () => {
@@ -179,7 +179,7 @@ describe("POST /webhooks/jellyfin", () => {
       },
     });
 
-    expect(webhookProfileMock.resolveWebhookProfile).toHaveBeenCalledWith(expect.anything(), "Alex");
+    expect(webhookProfileMock.resolveWebhookProfile).toHaveBeenCalledWith(expect.anything(), "Alex", "account-1");
   });
 
   it("does not record anything when the profile can't be resolved", async () => {

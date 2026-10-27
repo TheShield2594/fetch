@@ -1,9 +1,10 @@
 import { prisma } from "./prisma.js";
 import { isUniqueConstraintError } from "./prisma-tolerant.js";
 import { upsertSeriesProgressIfNewer } from "./series-progress.js";
-import { shouldRefreshAiRecs, getAiRecommendations } from "./ai.js";
+import { shouldRefreshAiRecsForProfile, getAiRecommendations } from "./ai.js";
 import { trendingCacheDeletePrefix } from "./cache.js";
 import { syncWatchEventToTrakt } from "./trakt-client.js";
+import { pushWatchedToTrackers } from "./trackers.js";
 import { watchEventDayWindow } from "./watch-event-dedup.js";
 import { clearPlaybackProgress } from "./playback.js";
 import type { RecordWatchParams } from "./types.js";
@@ -100,13 +101,17 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
 
     syncWatchEventToTrakt(
       watchEvent,
-      { type: "episode", imdbId: resolvedSeriesImdbId, seriesImdbId: resolvedSeriesImdbId, season, episode },
+      { type: "episode", imdbId: resolvedSeriesImdbId, seriesImdbId: resolvedSeriesImdbId, season, episode, profileId },
       log
     );
+    // Only a newly recorded play: a same-day repeat Simkl already has.
+    if (wasCreated) {
+      void pushWatchedToTrackers(profileId, { type: "episode", seriesImdbId: resolvedSeriesImdbId, season, episode, watchedAt }, log);
+    }
 
     void (async () => {
       try {
-        if (await shouldRefreshAiRecs()) {
+        if (await shouldRefreshAiRecsForProfile(profileId)) {
           trendingCacheDeletePrefix("ai-recs:");
           await Promise.allSettled([
             getAiRecommendations("movie", 15, profileId, log),
@@ -151,11 +156,12 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
 
   await clearPlaybackProgress(profileId, { type: "movie", imdbId }, watchedAt, log);
 
-  syncWatchEventToTrakt(watchEvent, { type: "movie", imdbId }, log);
+  syncWatchEventToTrakt(watchEvent, { type: "movie", imdbId, profileId }, log);
+  if (wasCreated) void pushWatchedToTrackers(profileId, { type: "movie", imdbId, watchedAt }, log);
 
   void (async () => {
     try {
-      if (await shouldRefreshAiRecs()) {
+      if (await shouldRefreshAiRecsForProfile(profileId)) {
         trendingCacheDeletePrefix("ai-recs:");
         await Promise.allSettled([
           getAiRecommendations("movie", 15, profileId, log),

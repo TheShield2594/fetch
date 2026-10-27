@@ -15,6 +15,9 @@ const { prismaMock, sendPushToAllSubscriptions, listEnabledChannels, sendToChann
 }));
 
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
+vi.mock("./integration-owner.js", () => ({
+  outboundScopeForProfile: async () => ({ allowPrivateNetwork: true }),
+}));
 vi.mock("./push.js", () => ({
   sendPushToAllSubscriptions: (...args: unknown[]) => sendPushToAllSubscriptions(...args),
 }));
@@ -76,6 +79,8 @@ describe("deliverNotification", () => {
       PROFILE
     );
     expect(sendToChannel).toHaveBeenCalledTimes(2);
+    // With the profile's account's outbound scope.
+    expect(sendToChannel).toHaveBeenCalledWith(expect.anything(), expect.anything(), { allowPrivateNetwork: true });
   });
 
   it("doesn't attempt push when the profile has no subscriptions", async () => {

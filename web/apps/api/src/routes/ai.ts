@@ -11,11 +11,12 @@ import {
   AI_LAST_RECS_GENERATED_AT_KEY,
   MIN_AI_CONFIG_MAX_TOKENS,
   getAiConfig,
-  isAiConfigured,
+  isAiConfiguredForProfile,
   redactAiConfig,
   getAiRecommendations,
 } from "../lib/ai.js";
 import { resolveProfile } from "../lib/profile.js";
+import { outboundScopeForOwner, ownerForRequest, ownerKvKey } from "../lib/integration-owner.js";
 import { writeSecretKv } from "../lib/secret-store.js";
 import { loadRecommendations } from "../lib/recommendations.js";
 import { resolveAiProviderUrl, validateAiProviderUrl } from "../lib/ssrf.js";
@@ -24,7 +25,12 @@ import { getMetadataType } from "../lib/types.js";
 import type { StremioMetaPreview, StremioMetaType } from "../lib/types.js";
 
 const aiRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", resolveProfile);
+  // Recommendations are for a profile; the provider config (/ai/config,
+  // /ai/test) is the account's, and needs none.
+  app.addHook("preHandler", async (request, reply) => {
+    if (request.routeOptions.url?.startsWith("/ai/")) return;
+    return resolveProfile(request, reply);
+  });
 
   app.get<{ Querystring: { imdbId?: string; type?: string } }>(
     "/recommendations",
@@ -48,7 +54,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
       const limit = Math.min(Math.max(Number(request.query.limit) || 20, 1), 40);
       const profileId = request.profileId!;
 
-      if (await isAiConfigured()) {
+      if (await isAiConfiguredForProfile(profileId)) {
         const aiResult = await getAiRecommendations(rawType as "movie" | "series", limit, profileId, request.log);
         if (aiResult) return { metas: aiResult.metas };
       }
@@ -170,7 +176,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
       const limit = Math.min(Math.max(Number(request.query.limit) || 10, 1), 20);
       const profileId = request.profileId!;
 
-      if (!(await isAiConfigured())) {
+      if (!(await isAiConfiguredForProfile(profileId))) {
         const recentItems =
           type === "movie"
             ? await prisma.watchEvent.findMany({
@@ -333,12 +339,20 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
   });
 
   // ─── AI Config ───
+  //
+  // Each account sets up its own provider, used for its own profiles. Only the
+  // admin's may point at a LAN or localhost address (lib/ssrf.ts): anyone
+  // else's has to be a public endpoint.
 
-  app.get("/ai/config", async () => {
-    const config = await getAiConfig();
+  const PUBLIC_URL_ERROR =
+    "config.url must be a public http(s) address: only the admin account can use an AI server on this network";
+
+  app.get("/ai/config", async (request) => {
+    const owner = await ownerForRequest(request);
+    const config = await getAiConfig(owner);
     const configured = !!(config?.url && config?.headers && config?.payload?.model);
     const lastGenRow = await prisma.kV.findUnique({
-      where: { key: AI_LAST_RECS_GENERATED_AT_KEY },
+      where: { key: ownerKvKey(AI_LAST_RECS_GENERATED_AT_KEY, owner) },
     });
     return {
       configured,
@@ -350,6 +364,8 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
   app.post<{ Body: unknown }>("/ai/config", async (request, reply) => {
     const body = request.body as { config?: unknown } | null;
     const cfg = body?.config as Record<string, unknown> | undefined;
+    const owner = await ownerForRequest(request);
+    const scope = await outboundScopeForOwner(owner);
 
     // Syntactic check only. The DNS-aware one runs immediately before each
     // outbound request instead: records can change after a config is saved, and
@@ -359,6 +375,9 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
         error:
           "config.url must be an http(s) URL and must not target the cloud-metadata/link-local range",
       });
+    }
+    if (!validateAiProviderUrl(cfg.url, scope)) {
+      return reply.code(400).send({ error: PUBLIC_URL_ERROR });
     }
     if (!cfg.headers || typeof cfg.headers !== "object" || Array.isArray(cfg.headers)) {
       return reply.code(400).send({ error: "config.headers must be an object" });
@@ -392,17 +411,21 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
       payload,
     };
 
-    await writeSecretKv(AI_CONFIG_KEY, JSON.stringify(validConfig));
+    await writeSecretKv(ownerKvKey(AI_CONFIG_KEY, owner), JSON.stringify(validConfig));
 
     trendingCacheDeletePrefix("ai-recs:");
 
     return { configured: true };
   });
 
-  app.delete("/ai/config", async () => {
-    await prisma.kV.deleteMany({ where: { key: { in: [AI_CONFIG_KEY, AI_LAST_RECS_GENERATED_AT_KEY] } } });
-    // AI_CONFIG_KEY is read through the KV cache; the watermark beside it is not.
-    invalidateKv(AI_CONFIG_KEY);
+  app.delete("/ai/config", async (request) => {
+    const owner = await ownerForRequest(request);
+    const configKey = ownerKvKey(AI_CONFIG_KEY, owner);
+    await prisma.kV.deleteMany({
+      where: { key: { in: [configKey, ownerKvKey(AI_LAST_RECS_GENERATED_AT_KEY, owner)] } },
+    });
+    // The config is read through the KV cache; the watermark beside it is not.
+    invalidateKv(configKey);
     trendingCacheDeletePrefix("ai-recs:");
     return { configured: false };
   });
@@ -414,6 +437,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
   app.post<{ Body: unknown }>("/ai/test", async (request) => {
     const body = request.body as { config?: unknown } | null;
     const cfg = body?.config as Record<string, unknown> | undefined;
+    const scope = await outboundScopeForOwner(await ownerForRequest(request));
 
     if (
       !cfg ||
@@ -435,7 +459,10 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
 
     // The syntactic check above only sees the literal hostname; resolve it too,
     // so a public name pointing at the metadata service can't be tested through.
-    if (!(await resolveAiProviderUrl(cfg.url))) {
+    if (!validateAiProviderUrl(cfg.url, scope)) {
+      return outboundFailure("blocked", PUBLIC_URL_ERROR);
+    }
+    if (!(await resolveAiProviderUrl(cfg.url, undefined, scope))) {
       return outboundFailure(
         "blocked",
         "Invalid config: url resolves to an address that is not an allowed outbound target"

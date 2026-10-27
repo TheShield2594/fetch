@@ -32,3 +32,30 @@ export const matchesServiceToken = (candidate: unknown, expected: string | null)
   if (presented.length !== wanted.length) return false;
   return timingSafeEqual(presented, wanted);
 };
+
+const STREMIO_PROFILE_SECRET_LABEL = "cataloggy-stremio-addon";
+
+/**
+ * A profile's Stremio key: the unguessable part of every addon URL that serves
+ * that profile. Stremio sends no credentials, so the URL itself is the
+ * credential. Derived from `API_TOKEN` rather than stored, so the API and the
+ * addon service agree on it with nothing extra configured, a leaked URL does
+ * not yield the token, and rotating `API_TOKEN` rotates every key.
+ *
+ * One key per profile, used by both the API's own catalog addon
+ * (`/addon/stremio/<key>/…`) and the addon service (`/u/<profileId>/<key>/…`).
+ */
+export const deriveStremioProfileKey = (apiToken: string, profileId: string): string =>
+  createHmac("sha256", apiToken).update(`${STREMIO_PROFILE_SECRET_LABEL}:${profileId}`).digest("hex");
+
+const STREMIO_PROFILE_KEY_PATTERN = /^[0-9a-f]{64}$/;
+
+/**
+ * Constant-time check of a presented profile key. The shape check comes first
+ * because timingSafeEqual throws on buffers of different byte lengths, and 64
+ * characters of anything but ASCII is more than 64 bytes.
+ */
+export const matchesStremioProfileKey = (candidate: unknown, apiToken: string | undefined, profileId: string): boolean => {
+  if (!apiToken || typeof candidate !== "string" || !STREMIO_PROFILE_KEY_PATTERN.test(candidate)) return false;
+  return timingSafeEqual(Buffer.from(candidate), Buffer.from(deriveStremioProfileKey(apiToken, profileId)));
+};

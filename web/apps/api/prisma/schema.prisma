@@ -51,6 +51,60 @@ enum ScrobbleStatus {
   stopped
 }
 
+// A person who signs in to the website. Accounts own profiles; everything a
+// profile owns is therefore scoped to one account. There is no public sign-up:
+// the first account is created with API_TOKEN and is the admin, and every
+// other one redeems an Invite the admin made.
+model Account {
+  id           String   @id @default(uuid()) @db.Uuid
+  // Stored lowercased, so "Alex" and "alex" are one name.
+  username     String   @unique
+  // Same scrypt format as Profile.pinHash (lib/pin-hash.ts).
+  passwordHash String
+  isAdmin      Boolean  @default(false)
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+  // SHA-256 of the account's media-server webhook key (lib/webhook-key.ts).
+  // The key itself is shown once when it is made; a new one replaces it.
+  webhookKeyHash      String?   @unique
+  webhookKeyCreatedAt DateTime? @db.Timestamptz(6)
+
+  profiles        Profile[]
+  sessions        Session[]
+  devices         Device[]
+  devicePairings  DevicePairing[]
+  invitesCreated  Invite[]  @relation("InviteCreatedBy")
+  inviteRedeemed  Invite?   @relation("InviteUsedBy")
+}
+
+// A signed-in device. The bearer token itself is never stored, only its
+// SHA-256, so a database dump holds nothing that can sign in.
+model Session {
+  id         String   @id @default(uuid()) @db.Uuid
+  tokenHash  String   @unique
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  lastUsedAt DateTime @default(now()) @db.Timestamptz(6)
+  expiresAt  DateTime @db.Timestamptz(6)
+
+  accountId String  @db.Uuid
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+}
+
+// A single-use invite link. Like Session, only the code's SHA-256 is kept.
+model Invite {
+  id        String    @id @default(uuid()) @db.Uuid
+  codeHash  String    @unique
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  expiresAt DateTime  @db.Timestamptz(6)
+  usedAt    DateTime? @db.Timestamptz(6)
+
+  createdById    String?  @db.Uuid
+  createdBy      Account? @relation("InviteCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  usedByAccountId String? @unique @db.Uuid
+  usedBy         Account? @relation("InviteUsedBy", fields: [usedByAccountId], references: [id], onDelete: SetNull)
+}
+
 // The appearance and sharing fields mirror the TV's `UserProfile`, and the
 // parental ones its `ProfileRestrictions`, so a profile edited on the website
 // reads the same on every paired TV. `maxRating` is a `CertificationLevel` name
@@ -70,6 +124,11 @@ model Profile {
   updatedAt           DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   createdAt           DateTime @default(now()) @db.Timestamptz(6)
 
+  // Null only for profiles that predate accounts; the first (admin) account
+  // claims them when it is created.
+  accountId String?  @db.Uuid
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
   lists             List[]
   watchEvents       WatchEvent[]
   seriesProgress    SeriesProgress[]
@@ -88,6 +147,11 @@ model Profile {
   deviceSlots       DeviceProfileSlot[]
   addons            ProfileAddon[]
   documents         ProfileDocument[]
+  traktToken        TraktToken?
+  stremioAuth       StremioAuth?
+  connections       ProfileConnection[]
+
+  @@index([accountId])
 }
 
 model Item {
@@ -282,8 +346,12 @@ model NotifiedEpisode {
   @@unique([profileId, seriesImdbId, season, episode])
 }
 
+// One per profile: `id` and `profileId` are both the profile's id (`id` is
+// the older text key the code reads by; `profileId` is what cascades).
 model TraktToken {
-  id           String   @id @default("default")
+  id           String   @id
+  profileId    String?  @unique @db.Uuid
+  profile      Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
   accessToken  String
   refreshToken String
   expiresAt    DateTime @db.Timestamptz(6)
@@ -333,8 +401,9 @@ model PlaySignal {
   @@index([dueAt])
 }
 
+// One per profile, keyed by the profile's id like TraktToken.
 model StremioAuth {
-  id      String  @id @default("default")
+  id      String  @id
   authKey String
   email   String?
   // The profile that connected the account. The scheduled sync has no request
@@ -343,7 +412,8 @@ model StremioAuth {
   // routes already act as the requesting profile, so the background job has to
   // agree with them. Null on rows predating this column; those fall back to the
   // default profile, which is what they were already doing.
-  profileId String? @db.Uuid
+  profileId String?  @unique @db.Uuid
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 }
@@ -504,7 +574,14 @@ model Device {
   lastSyncOk    Boolean?
   lastSyncError String?
 
+  // The account that paired it, whose profiles it sees. Null only for a device
+  // paired before accounts existed; the admin account claims those.
+  accountId String?  @db.Uuid
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
   profileSlots DeviceProfileSlot[]
+
+  @@index([accountId])
 }
 
 // A pairing in progress: the code the TV shows, and a hash of the secret it
@@ -518,6 +595,10 @@ model DevicePairing {
   expiresAt      DateTime  @db.Timestamptz(6)
   confirmedAt    DateTime? @db.Timestamptz(6)
   createdAt      DateTime  @default(now()) @db.Timestamptz(6)
+
+  // Who confirmed the code, so the device it becomes belongs to them.
+  accountId String?  @db.Uuid
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
 
 // The TV numbers its profiles 1..6 and treats 1 as the primary; the website
@@ -599,4 +680,27 @@ model ProfileDocument {
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@id([profileId, kind])
+}
+
+// A profile's sign-in to a tracking service or media server (Simkl, MDBList,
+// Plex, Jellyfin, Emby), as the TV app keeps per profile. `credentials` is an
+// encrypted JSON blob (lib/secret-box.ts); `details` is what Settings shows
+// (user name, server name and address). `externalKey` tells apart several of
+// one provider, such as two Plex servers; it is "" for a tracker.
+model ProfileConnection {
+  id          String   @id @default(uuid()) @db.Uuid
+  profileId   String   @db.Uuid
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  provider    String
+  externalKey String   @default("")
+  credentials String
+  details     Json     @default("{}")
+  // What a sync keeps between runs, such as a media server's IMDb-to-item
+  // index. Not shown in Settings.
+  state       Json     @default("{}")
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([profileId, provider, externalKey])
+  @@index([provider])
 }

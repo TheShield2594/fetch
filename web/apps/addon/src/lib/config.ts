@@ -21,6 +21,16 @@ export const PROXY_PATH_PREFIXES = parseProxyPathPrefixes(process.env.PROXY_PATH
 // server and the wrong request.
 export const trustProxy = parseTrustProxy(process.env.TRUST_PROXY);
 
+/**
+ * Answer only the signed `/u/<profileId>/<key>/` URLs, and turn away the bare
+ * and `/p/<profileId>/` ones. Those carry no secret: anyone who can reach this
+ * service and knows (or guesses) a profile id could read that profile's lists
+ * and record watches for it. Off by default so addons already installed on a
+ * home network keep working; turn it on before this service is reachable from
+ * the internet.
+ */
+export const REQUIRE_SIGNED_URLS = parseBool(process.env.ADDON_REQUIRE_SIGNED_URLS);
+
 /** Whether a `stream`/`subtitles` request is forwarded to the API as a play signal. */
 export const PLAY_DETECTION = parseBool(process.env.STREMIO_PLAY_DETECTION);
 

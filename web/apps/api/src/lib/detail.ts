@@ -6,6 +6,7 @@ import { getTmdb } from "./tmdb-client.js";
 import { fetchMetadata } from "./metadata.js";
 import { getRpdbApiKey, withRpdbPoster } from "./rpdb.js";
 import { getRegionSetting } from "./settings.js";
+import type { IntegrationOwner } from "./owner-keys.js";
 import { castCache, episodesCache, seasonsCache, watchProvidersCache } from "./cache.js";
 import { coalesce } from "./coalesce.js";
 import type { Credits, EpisodeInfo, SeasonInfo, WatchProviders } from "../tmdb.js";
@@ -127,11 +128,13 @@ export function loadEpisodes(
 export async function loadProviders(
   type: MetadataType,
   imdbId: string,
+  owner: IntegrationOwner,
   log?: FastifyBaseLogger
 ): Promise<WatchProviders> {
   // The region is part of the cache key, so it has to be resolved before the
-  // key exists — unlike the others, this one cannot be a pure delegation.
-  const region = await getRegionSetting();
+  // key exists — unlike the others, this one cannot be a pure delegation. It
+  // is the asking account's region.
+  const region = await getRegionSetting(owner);
   return loadCached(
     watchProvidersCache,
     `providers:${type}:${imdbId}:${region}`,

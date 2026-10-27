@@ -83,14 +83,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma client
-        run: pnpm --filter @cataloggy/api prisma:generate
+        run: pnpm --filter @fetch/api prisma:generate
 
       # Applies every migration against a real Postgres so a broken migration
       # fails CI instead of stopping a self-hoster's update (the same
       # `prisma migrate deploy` command runs in the migrate container, which
       # the api container waits on).
       - name: Run database migrations
-        run: pnpm --filter @cataloggy/api exec prisma migrate deploy
+        run: pnpm --filter @fetch/api exec prisma migrate deploy
 
       - name: Lint
         run: pnpm lint

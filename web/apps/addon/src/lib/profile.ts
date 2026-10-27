@@ -1,6 +1,7 @@
 import type { FastifyBaseLogger, FastifyRequest } from "fastify";
-import { parseProfilesResponse, UUID_V4_PATTERN } from "@fetch/shared";
+import { deriveStremioProfileKey, matchesStremioProfileKey, parseProfilesResponse, UUID_V4_PATTERN } from "@fetch/shared";
 import { apiGet } from "./api-client.js";
+import { CATALOGGY_API_TOKEN, REQUIRE_SIGNED_URLS } from "./config.js";
 
 /**
  * Which profile a request is acting as.
@@ -22,6 +23,22 @@ import { apiGet } from "./api-client.js";
  * default the API's own Stremio routes apply via `getDefaultProfileId`.
  */
 export const PROFILE_ROUTE_PREFIX = "/p/:profileId";
+
+/**
+ * The same, with the profile's Stremio key after the id: /u/<uuid>/<key>/…
+ *
+ * `/p/<uuid>` names a profile but proves nothing, so anyone who can reach this
+ * service could read that profile's lists and record watches as it. The key is
+ * an HMAC of the profile id under `API_TOKEN` (`deriveStremioProfileKey`), so it
+ * can only have come from someone signed in as that profile — Settings shows
+ * it — and is checked here with no lookup. These are the URLs that are safe to
+ * put on the internet; `ADDON_REQUIRE_SIGNED_URLS` turns the other two off.
+ */
+export const SIGNED_PROFILE_ROUTE_PREFIX = "/u/:profileId/:profileKey";
+
+/** The signed prefix for `profileId`, for URLs this service mints. Null with no API token. */
+export const signedProfilePath = (profileId: string): string | null =>
+  CATALOGGY_API_TOKEN ? `/u/${profileId}/${deriveStremioProfileKey(CATALOGGY_API_TOKEN, profileId)}` : null;
 
 /**
  * `profileId: null` means "no profile bound" — the header is omitted and the
@@ -58,6 +75,15 @@ const fetchDefaultProfileId = async (logger: FastifyBaseLogger): Promise<string 
 
 export const resolveProfileScope = async (request: FastifyRequest): Promise<ProfileScope> => {
   const raw = profilePathParam(request);
+  const params = request.params as Record<string, unknown> | null;
+  const key = params?.profileKey;
+  if (key !== undefined) {
+    // A wrong key answers exactly as an unknown profile does.
+    if (raw === undefined || !UUID_V4_PATTERN.test(raw)) return { ok: false };
+    if (!matchesStremioProfileKey(key, CATALOGGY_API_TOKEN, raw)) return { ok: false };
+    return { ok: true, profileId: raw };
+  }
+  if (REQUIRE_SIGNED_URLS) return { ok: false };
   if (raw !== undefined) {
     // A malformed id is never silently swapped for the default profile —
     // serving one profile's data under another's URL is exactly the kind of

@@ -1,9 +1,13 @@
 import { useRef, useState } from "react";
 import { api } from "../../api";
+import { useAccount } from "../../hooks/useAccount";
 import { Loader2, Check, AlertCircle, Download, Upload } from "lucide-react";
 import { SelectField } from "../SelectField";
 
 export function DataSettings() {
+  // Re-fetching every title's metadata is install-wide, and the server only
+  // lets the admin do it. Export and import are per profile, for everyone.
+  const { isAdmin } = useAccount();
   const [syncing, setSyncing] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -112,6 +116,7 @@ export function DataSettings() {
 
   return (
     <div className="space-y-6">
+      {isAdmin && (
       <div className="space-y-4">
         <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>Re-fetch metadata (posters, descriptions, etc.) for all tracked items from TMDB.</p>
         <button
@@ -125,8 +130,12 @@ export function DataSettings() {
         {result && <p className="flex items-center gap-2 text-sm text-success"><Check size={16} /> {result}</p>}
         {error && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>}
       </div>
+      )}
 
-      <div className="space-y-4 pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+      <div
+        className={isAdmin ? "space-y-4 pt-5" : "space-y-4"}
+        style={isAdmin ? { borderTop: "1px solid var(--border)" } : undefined}
+      >
         <div>
           <p className="text-sm font-semibold" style={{ color: "var(--text-dim)" }}>Export your data</p>
           <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>Download a JSON file with your lists, watch history, series progress, and ratings.</p>

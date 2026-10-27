@@ -18,7 +18,6 @@ Self-host it on your home server, open it on your phone or computer, and keep tr
 - **One shelf for everything** — shows, films and games in one grid, each measured in its own units: episodes for a season, hours for a game
 - **Discovery when you want it, not in the way** — trending, recommendations and upcoming episodes live on their own page
 - **Works with the tools you already use** — pairs with Stremio, Plex, Jellyfin, Emby, Trakt, and Stremio/Omni add-ons
-- **Adding to the watchlist can fetch it** — optional, off by default: a watchlist add becomes a Jellyseerr/Overseerr request
 - **No account you can't walk away from** — watch history comes straight from Stremio, Plex, Jellyfin or Emby, and every third-party service is optional and replaceable
 - **Yours, not the cloud's** — runs on your own hardware, your data stays on your network
 - **Phone friendly** — installs as an app on your phone (PWA; needs an HTTPS address, see [Install as a PWA](#install-as-a-pwa))
@@ -115,6 +114,8 @@ web/
    This validates API and add-on health endpoints, (when all Trakt env vars are configured) runs `/trakt/import` and verifies a catalog response contains a `metas` array, and (when `STEAM_API_KEY`/`STEAM_ID` are configured) runs `/games/steam/sync` and verifies it returns a sync summary.
 
    The authenticated checks need the same `API_TOKEN` the stack is running with, so the script reads `.env` from `web/` — the file Compose already uses — rather than expecting you to export it. Anything set in your shell takes precedence, which is how you point it at another host: `API_BASE=http://nas.lan:7000 ADDON_BASE=http://nas.lan:7001 pnpm smoke`.
+
+4. Create your account: open the web app (`http://LAN-IP:7002`, or your domain), paste `API_TOKEN` and choose a username and password. That first account is the admin, and everything already in Fetch becomes yours. From then on you sign in with the username and password; the API token stays in `.env`. To add someone else, see [Accounts and invites](#accounts-and-invites).
 
 ## Local development without Docker
 
@@ -255,22 +256,40 @@ The Stremio app is the way to use Fetch on a TV. The web app is built for touch 
 Stremio and Omni have no way to say *who* is watching — the installed URL is the only thing that distinguishes one installation from another. Fetch therefore binds a profile to the URL itself:
 
 ```text
-http://LAN-IP:7001/p/PROFILE-ID/manifest.json
+http://LAN-IP:7001/u/PROFILE-ID/PROFILE-KEY/manifest.json
 ```
 
-Behind a reverse proxy (see the Nginx section below), the `/p/PROFILE-ID` part sits after the proxy path, not before it:
+`PROFILE-KEY` is a 64-character key derived from `API_TOKEN`, one per profile, so knowing a profile's ID is not enough to read its lists or mark things watched on it. Behind a reverse proxy (see the Nginx section below), the `/u/…` part sits after the proxy path, not before it:
 
 ```text
-https://cataloggy.domain.com/addon/p/PROFILE-ID/manifest.json
+https://fetch.example.com/addon/u/PROFILE-ID/PROFILE-KEY/manifest.json
 ```
 
 Rather than assembling either by hand, use **Settings → Stremio Addon** — it always shows the correct, ready-to-paste URL for the profile you're currently using. To install for someone else: switch to their profile, come back, and copy the URL again. Catalogs, "Mark Watched", and scrobbles from that installation all belong to that profile.
 
-The prefix-less URLs (`http://LAN-IP:7001/manifest.json`, `https://cataloggy.domain.com/addon/manifest.json`) keep working and resolve to your oldest profile, so installs made before profiles existed are unaffected — but on a household with several profiles, each person should install their own URL.
+Older URL forms keep working unless you turn them off: `/p/PROFILE-ID/manifest.json` names a profile without a key, and the prefix-less `/manifest.json` resolves to your oldest profile. Neither proves the caller may see that profile, so once the add-on is reachable from outside your home, or anyone else has an account, set `ADDON_REQUIRE_SIGNED_URLS=true` in `.env`. The add-on then answers only the signed `/u/` URLs, and each person reinstalls from **Settings → Stremio Addon**. Rotating `API_TOKEN` changes every key, so reinstall after that too.
+
+### Signing in to Plex, Jellyfin and Emby
+
+Besides webhooks, a profile can sign in to its media servers under **Settings → Media Servers**, as on the TV: **Sign in to Plex** shows a code to enter at [plex.tv/link](https://plex.tv/link) and adds every server on that Plex account the website can reach; Jellyfin and Emby take the server's address and a user name and password (the password is sent to the server once and not kept).
+
+- **Import watch progress** (on by default, per server, as on the TV): what you watched on the server comes in as plays, dated as the server recorded them, and where you stopped comes in as resume points, which only ever move forward. A sync runs every `MEDIA_SERVER_SYNC_INTERVAL_SEC` (hourly by default) and from the server's row in Settings.
+- **Out to the server:** a play recorded in Fetch is marked played on each of the profile's servers that has the title.
+- **Reachability:** the website connects to the server itself. The admin account's profiles may use a server on your home network; anyone else's must be reachable at a public address (for Plex, turn on Remote Access).
 
 ### Profiles and the media-server webhooks
 
-Plex, Jellyfin and Emby don't send Fetch's profile header either, so a scrobble's profile is worked out from the webhook itself:
+Each account has its own webhook link. Under **Settings → Plex, Jellyfin & Emby Webhooks**, **Make a webhook link** shows a URL for each server, with that account's key in place of `WEBHOOK_SECRET`:
+
+```text
+https://fetch.example.com/api/webhooks/plex?token=fwh_…
+```
+
+Plays sent with it land only in that account's profiles, so a friend can point their own Plex at Fetch without their watching showing up in yours. The key is shown once; making a new one stops the old one working. `WEBHOOK_ALLOWED_IPS` doesn't apply to account keys, because a friend's server isn't on your network; the key is the credential.
+
+`WEBHOOK_SECRET` keeps working, and acts for the admin account: with it, plays go to the admin's profiles only.
+
+Plex, Jellyfin and Emby don't send Fetch's profile header either, so within the account, a scrobble's profile is worked out from the webhook itself:
 
 1. **A profile pinned to the URL.** Add `profile=<profile-id>` to the webhook URL you configure in Plex, Jellyfin or Emby, alongside the secret:
 
@@ -278,11 +297,11 @@ Plex, Jellyfin and Emby don't send Fetch's profile header either, so a scrobble'
    http://LAN-IP:7000/webhooks/plex?token=WEBHOOK_SECRET&profile=PROFILE-ID
    ```
 
-   All three let you set the target URL per user, so this is the reliable option for a shared server. An unknown or malformed profile ID is rejected rather than quietly redirected.
+   All three let you set the target URL per user, so this is the reliable option for a shared server. An unknown or malformed profile ID, or one from another account, is rejected rather than quietly redirected.
 
    On Jellyfin, send the secret as an `x-webhook-secret` header instead and leave only `profile` in the URL — see [Webhook secret placement](#webhook-secret-placement) below.
-2. **The media-server account name.** With no `profile` parameter, the Plex account title (or the Jellyfin/Emby username) is matched against your profile names, ignoring case — so a Plex user named `Sam` scrobbles into the Fetch profile named `Sam` with nothing to configure.
-3. **Your oldest profile**, if neither applies. This is what single-profile installs get, and what every webhook did before profiles were taken into account.
+2. **The media-server account name.** With no `profile` parameter, the Plex account title (or the Jellyfin/Emby username) is matched against the account's profile names, ignoring case — so a Plex user named `Sam` scrobbles into the Fetch profile named `Sam` with nothing to configure.
+3. **The account's oldest profile**, if neither applies. This is what single-profile installs get, and what every webhook did before profiles were taken into account.
 
 ## Where watch history comes from
 
@@ -325,7 +344,7 @@ Nothing pending is user-visible history; only what survives becomes a watch even
 
 Stremio's add-on protocol is read-only: an add-on serves catalogs and metadata, and is never told what you watched. But every Stremio client signed in to a **Stremio account** syncs its library — including watched state — to Stremio's servers, and Fetch can read that directly.
 
-Connect the account under **Settings → Stremio Watched Sync**. One connection covers every client on that account: desktop, mobile, Android TV, the web app, and third-party clients that sign in with a Stremio account. There's nothing to install per device.
+Connect the account under **Settings → Stremio Watched Sync**. Each Fetch profile connects its own, as on the TV, and it syncs into that profile. One connection covers every client on that account: desktop, mobile, Android TV, the web app, and third-party clients that sign in with a Stremio account. There's nothing to install per device.
 
 - Your password is exchanged for an access key once and **never stored** — only the key is.
 - Connecting starts tracking from that moment. Use **Import watch history** once to pull in what the account already has marked as watched, dated from Stremio's own watch history rather than from today. Play detection can't do this — it only ever sees things going forward — so this import is the way to bring existing history across without routing through Trakt.
@@ -334,9 +353,25 @@ Connect the account under **Settings → Stremio Watched Sync**. One connection 
 - Stremio reports the episode you're *on*, not a full play log, so episodes finished within a single poll interval collapse into the most recent one. At a 120-second interval that needs you to clear an episode in under two minutes.
 - Guest mode has no synced library, so there's nothing to read — the account is what makes this work.
 
+### Simkl
+
+Each profile can connect its own Simkl account under **Settings → Simkl**, the way the TV does: **Connect Simkl** shows a code to enter at [simkl.com/pin](https://simkl.com/pin), and the page connects as soon as you have. The server needs `SIMKL_CLIENT_ID` from an app registered at [simkl.com/settings/developer](https://simkl.com/settings/developer).
+
+- **Into Fetch:** the Simkl library comes in on a schedule (`SIMKL_POLL_INTERVAL_SEC`, every 15 minutes by default): completed films and every watched episode, each dated as Simkl recorded it, and the plan-to-watch list onto the watchlist. The first sync reads everything; later ones ask only for what changed. **Sync now** runs it on demand. A play already in Fetch from another source on the same day isn't added twice.
+- **Out to Simkl:** plays recorded in Fetch (by hand, from a webhook, from a scrobble), watchlist adds, and live scrobbles (start, pause, stop). A Simkl that is down never fails or delays any of them.
+- The website's Simkl sign-in is separate from the TV's; both record into the same Fetch history.
+
+### MDBList
+
+Each profile can also connect its own MDBList account under **Settings → MDBList**, with the code-on-mdblist.com sign-in the TV uses. The server needs `MDBLIST_CLIENT_ID`, the OAuth client id of an app registered with MDBList.
+
+- **Into Fetch:** watched history and the MDBList watchlist, on a schedule (`MDBLIST_POLL_INTERVAL_SEC`, every 30 minutes by default). A pass first asks MDBList whether anything changed, and stops there if not.
+- **Out to MDBList:** plays recorded in Fetch, watchlist adds and live scrobbles, best-effort, as with Simkl.
+- Tokens refresh on their own; one MDBList has revoked drops the connection, and Settings asks you to connect again.
+
 ### Trakt is optional
 
-Trakt is supported but is not a system of record, and nothing depends on it:
+Trakt is supported but is not a system of record, and nothing depends on it. Each Fetch profile connects its own Trakt account, as on the TV; a play is sent to the Trakt account of the profile it is in, and the scheduled poll runs once per connected profile, into that profile. The website's connection is separate from the TV's: each signs in on its own, and both record into the same Fetch history.
 
 - **Metadata** comes from TMDB, never Trakt.
 - **Importing** from Trakt is a one-time action (**Settings → Trakt Integration → Run Full Import**) and keeps working whether or not you leave the ongoing poll on. One run pulls everything Fetch can hold from a Trakt account, so it's enough to stop depending on Trakt afterwards:
@@ -350,48 +385,6 @@ Trakt is supported but is not a system of record, and nothing depends on it:
 - **Scrobbles and watchlist changes still push out to Trakt** when it's connected. That direction is a mirror: if Trakt stops answering, the pushes fail quietly and nothing local is affected.
 
 Everything Fetch knows can be exported as a single JSON file (lists, watch history, series progress, ratings) — see [Export / import your data](#export--import-your-data).
-
-## Requesting what you add (Jellyseerr / Overseerr)
-
-Every other integration points inward: it answers "what have I watched" or
-"what is this thing". This one points the other way — adding a title to your
-watchlist can file a request on the server that actually fetches it, instead of
-being a manual hop into another app.
-
-Set it up under **Settings → Jellyseerr Requests**: your server's URL and the
-API key from **Settings → General → API Key** in Jellyseerr. Overseerr works
-too — the API this uses is the same one. Nothing is sent until you configure it.
-Saving stores the URL and key and then tests them straight away, so a typo or a
-revoked key shows up there and then rather than weeks later — and a server that
-happens to be off tonight doesn't stop you saving the setting that fixes it.
-**Test connection** re-runs that check whenever you want it.
-
-What it does, and deliberately does not do:
-
-- **Only the watchlist.** Your other lists stay local. "I want to watch this" is
-  what a watchlist add means, and it is the only list membership that says
-  anything about acquiring a title. (Same scoping the Trakt watchlist mirror
-  uses.)
-- **A failure never fails the add, or delays it.** The request is filed in the
-  background of an add that has already succeeded, so a Jellyseerr that is off
-  costs nothing but a line under **Settings → Sync Status**, alongside the
-  scheduled jobs. Re-adding something already requested is not a failure —
-  Jellyseerr says it already has it, and that is treated as success.
-- **Series are requested whole.** Picking seasons is a decision this has no way
-  to ask you about.
-- **Removals cancel nothing unless you opt in**, and even then only a request
-  nobody has approved yet. Once Jellyseerr has approved one, the download exists
-  or is on its way in Sonarr/Radarr, and un-listing a title is not a decision to
-  delete it — the same caution `TRAKT_WATCHLIST_MIRROR_DELETES` applies to the
-  watchlist itself, for a case that is harder to undo.
-
-The URL is checked the way the notification-channel and AI-provider URLs are:
-http(s) only, never the cloud-metadata/link-local range, by DNS result as well
-as by name, re-checked immediately before every request, and redirects are
-refused rather than followed. LAN and loopback addresses are allowed, since a
-Jellyseerr on your own network is the expected setup. The API key is stored
-encrypted (see [Secrets at rest](#secrets-at-rest)) and is never handed back
-out by the API.
 
 ## Notifications
 
@@ -424,14 +417,38 @@ name, and re-checked immediately before each send. LAN and loopback addresses
 are allowed, since that is the point. A channel that starts failing shows up
 under **Settings → Sync Status**.
 
+## Accounts and invites
+
+Fetch is invite-only. There is no public sign-up page: the first account (created with `API_TOKEN`, see step 4 of the install) is the admin, and the admin invites everyone else.
+
+- **Inviting someone:** **Settings → Invites & Accounts → Create invite link**. Send them the link. It works once and expires after 7 days, and it is shown only when it is made. Lost it? Revoke it and make another. Links are built from `CATALOGGY_WEB_PUBLIC`, so set that to the address people actually open (your domain).
+- **What they get:** their own account and profile, with their own lists, watch history, ratings and games. They can make more profiles inside their account. Nobody else's profiles are visible to them, and theirs aren't visible to you in the app either.
+- **What stays shared:** the server's own setup is the admin's to change and applies to everyone: the TMDB, OMDb and RPDB keys, the metadata language (titles are fetched once and shared, so they are in one language), play detection and the Steam library. Other accounts don't see those sections in Settings.
+- **Their own preferences and AI:** each account has its own streaming region and spoiler protection, and can connect its own AI provider for recommendations, with its own API key. Only the admin's AI provider and notification channels may point at an address on your home network; everyone else's must be a public service, so an account can't make your server send requests into your LAN.
+- **Their own connections:** each profile connects its own Trakt and Stremio accounts under **Settings → Integrations & Data**, as on the TV, and each account makes its own Plex/Jellyfin/Emby webhook link. What those bring in lands in that profile, and what they watch goes to their own Trakt, never yours. The Trakt app itself (`TRAKT_CLIENT_ID`, `TRAKT_CLIENT_SECRET`) is the server's and is shared; each person signs in to their own Trakt account through it. A connection made before connections were per profile moved to its account's first profile.
+- **Signing out, passwords:** **Settings → Account**. Changing your password signs out your other devices. A sign-in lasts 30 days from when it was last used. Five wrong passwords lock the account for a few minutes, longer each time.
+- **Removing someone:** **Settings → Invites & Accounts** deletes their account and everything in it.
+- **Locked out of the admin account:** `API_TOKEN` still works against the API directly (see [docs/api.md](docs/api.md)), for example to make an invite for a new account.
+
 ## Nginx Proxy Manager Setup
 
-Configure Nginx Proxy Manager with one Proxy Host for your domain (for example, `cataloggy.domain.com`):
+Configure Nginx Proxy Manager with one Proxy Host for your domain (for example, `fetch.example.com`):
 
 - **Proxy Host target:** web service on port `7002`
 - **Advanced locations:**
   - `/api/` → port `7000`
-  - `/addon/` → port `7001`
+  - `/addon/` → port `7001`, **with `ADDON_REQUIRE_SIGNED_URLS=true` in `.env`**. Stremio can't send a login, so the add-on's install URL carries a per-profile key instead, and that setting makes the add-on refuse every URL without one. Without it, anyone who can reach the add-on can read the oldest profile's lists, or any profile's whose ID they know. See [Security](#security).
+
+Then point Fetch at that one address in `.env`, so the site and the API share an origin:
+
+```bash
+VITE_API_BASE=https://fetch.example.com/api
+CATALOGGY_API_PUBLIC=https://fetch.example.com/api
+CATALOGGY_WEB_PUBLIC=https://fetch.example.com
+CATALOGGY_ALLOWED_ORIGINS=https://fetch.example.com
+```
+
+`CATALOGGY_WEB_PUBLIC` is also what invite links are built from. With Trakt, the redirect URI becomes `https://fetch.example.com/api/trakt/oauth/callback`. At home, open the same domain rather than the LAN IP, or add the LAN address to `CATALOGGY_ALLOWED_ORIGINS` as well.
 
 There is nothing to set on the `web` service for the domain itself. The web container serves the built bundle with `serve`, which answers whatever `Host` it is given and has no allowlist to configure — so restricting which hostnames reach Fetch is the proxy's job, and Nginx Proxy Manager already does it: it forwards only the domains you have configured as Proxy Hosts. If you want everything else refused rather than falling through to whichever host happens to be first, add a default/catch-all Proxy Host that returns a 404.
 
@@ -441,15 +458,15 @@ Name the proxy rather than setting `TRUST_PROXY=true`. `true` trusts the whole f
 
 The `/api/` and `/addon/` prefixes above are stripped by the services themselves, which expect exactly those two by default. If your proxy mounts them somewhere else, set `API_PROXY_PATH_PREFIXES` / `ADDON_PROXY_PATH_PREFIXES` to match — they are separate variables because the two services need different values, and because giving the api `/addon` would strip the prefix off its own built-in Stremio manifest routes.
 
-Use this Omni add-on URL to install when accessing through your domain:
+Set `ADDON_PUBLIC_BASE` and `VITE_ADDON_BASE` to `https://fetch.example.com/addon`, and install the add-on in Stremio or Omni from the URL **Settings → Stremio Addon** shows, which has this shape:
 
 ```text
-https://cataloggy.domain.com/addon/p/PROFILE-ID/manifest.json
+https://fetch.example.com/addon/u/PROFILE-ID/PROFILE-KEY/manifest.json
 ```
 
-Copy it from **Settings → Stremio Addon** rather than filling in `PROFILE-ID` yourself — see [Profiles and the add-on URL](#profiles-and-the-add-on-url) for why the profile is part of the URL. Dropping the `/p/PROFILE-ID` segment also works and resolves to your oldest profile.
+See [Profiles and the add-on URL](#profiles-and-the-add-on-url) for why the profile and its key are part of the URL. The same signed URL works from anywhere, at home or not, so there is no separate LAN install to keep.
 
-LAN development URLs stay available, so you can continue using direct local access like `http://LAN-IP:7002` and `http://LAN-IP:7001/p/PROFILE-ID/manifest.json` on your network.
+LAN URLs stay available too, such as `http://LAN-IP:7002` for the site and `http://LAN-IP:7001/u/PROFILE-ID/PROFILE-KEY/manifest.json` for the add-on.
 
 ## Backup & Restore
 
@@ -500,15 +517,15 @@ If you don't have a recent backup when this happens, don't guess at manually edi
 
 Fetch is designed for self-hosting on a trusted local network (LAN), not for direct exposure to the internet. Found something outside that model? Report it privately — [SECURITY.md](SECURITY.md) covers where, which versions get fixes, and what is in scope. Known limitations:
 
-- The web client stores its API bearer token in `localStorage`. Any JavaScript running on the page (e.g. via an XSS vulnerability in a dependency) could read this token. Since the token only grants access to your own local API, this is an acceptable tradeoff for a LAN-only app. If exposing it via a reverse proxy, both the API and web client now send a restrictive `Content-Security-Policy` (no framing, and no inline script beyond the one the page itself ships, which is allowed by the SHA-256 hash of its exact contents rather than by `'unsafe-inline'`) plus `X-Content-Type-Options`/`X-Frame-Options`/`Referrer-Policy` headers to reduce the impact of a dependency-introduced XSS bug, but migrating to httpOnly session cookies would be a stronger fix if you need this on the internet.
+- People sign in with a username and password, and the web client stores the resulting session token in `localStorage`; `API_TOKEN` itself never reaches the browser. A session can only reach its own account's profiles, and only the admin's can change install-wide settings. Session tokens and invite codes are stored only as SHA-256 hashes, and passwords with scrypt. Any JavaScript running on the page (e.g. via an XSS vulnerability in a dependency) could still read the session token, which is the tradeoff the rest of this bullet is about. If exposing it via a reverse proxy, both the API and web client now send a restrictive `Content-Security-Policy` (no framing, and no inline script beyond the one the page itself ships, which is allowed by the SHA-256 hash of its exact contents rather than by `'unsafe-inline'`) plus `X-Content-Type-Options`/`X-Frame-Options`/`Referrer-Policy` headers to reduce the impact of a dependency-introduced XSS bug, but migrating to httpOnly session cookies would be a stronger fix if you need this on the internet.
 - That CSP's `connect-src` names only the origins this deployment actually talks to — `'self'`, plus `VITE_API_BASE`, `VITE_ADDON_BASE`, (if set) the `SENTRY_DSN` host, and the artwork CDNs the service worker caches posters from — rather than allowing every host, so script injected into the page cannot post your token to an arbitrary server. `img-src` names the same artwork CDNs (plus `'self'` and `data:`) for the same reason: an `<img>` is a request too, and pointing one at `https://attacker.example/?t=<token>` would carry the token out just as well as a `fetch` would, so leaving that directive open to every host would have undone the rest. `form-action 'self'` closes the third route out — `default-src` does not cover it, so without it injected markup could auto-submit a form off-origin. The header is rendered from `apps/web/serve.template.json` when the `web` container starts, since those origins are only known then. If some browser needs to reach an origin the container doesn't know about (most likely a per-browser API base set in Settings), add it to `CSP_CONNECT_SRC_EXTRA` — otherwise the browser will block the request. `style-src` still allows `'unsafe-inline'`, which the app's inline React styles require; style injection is far lower-risk than script injection, so that one is an accepted weakening.
 - The Stremio add-on protocol sends no credentials, so the API's built-in catalog manifest (`/addon/stremio/...`) cannot sit behind `API_TOKEN`. It is instead gated by an unguessable per-profile secret in the URL path (`/addon/stremio/<secret>/manifest.json`), derived from `API_TOKEN` and served to that profile from `GET /addon/config`; requests without a valid secret get the token check like any other route, and the secret decides which profile's lists are served, so one add-on URL cannot read another profile's library. Rotating `API_TOKEN` invalidates every add-on URL — reinstall from Settings afterwards.
-- The separate add-on service (port `7001`, the full-featured one Settings links to) is still unauthenticated: anyone who can reach it can read the lists of the profile named in its URL (or the oldest profile, for the prefix-less URL). That is inherent to the protocol — Stremio cannot send a token — so keep that port on your LAN, and do not proxy it to the internet unless you are comfortable with your watchlist being public. Its write endpoints are separately protected. The scrobble endpoint takes a bearer token derived from `API_TOKEN`, which the service never emits. "Mark Watched" cannot use that token — Stremio can only fetch a plain URL, so the credential has to be in the URL, and the subtitles response carrying it is served to anyone who asks — so each of those URLs carries a capability signed for the one profile and the one title or episode it was built for, expiring after twelve hours. Reading one out of a subtitles response (or a proxy log) therefore allows re-marking that single title, not writing arbitrary history.
+- The separate add-on service (port `7001`, the full-featured one Settings links to) can't take a login either, so Settings gives it the same kind of per-profile key in the path: `/u/<profileId>/<key>/`. With `ADDON_REQUIRE_SIGNED_URLS=true` it serves nothing else, and a wrong key gets a 404. Without that setting it also answers the older keyless `/p/<profileId>/` and prefix-less URLs, which let anyone who can reach the port read the profile named in the URL (or the oldest profile), so leave it off only while the port stays on your LAN and everyone on it shares one account. Its write endpoints are separately protected. The scrobble endpoint takes a bearer token derived from `API_TOKEN`, which the service never emits. "Mark Watched" cannot use that token — Stremio can only fetch a plain URL, so the credential has to be in the URL, and the subtitles response carrying it is served to anyone who asks — so each of those URLs carries a capability signed for the one profile and the one title or episode it was built for, expiring after twelve hours. Reading one out of a subtitles response (or a proxy log) therefore allows re-marking that single title, not writing arbitrary history.
 - Connecting a Stremio account stores only the access key Stremio issues, never your password — the password is sent once to Stremio's login endpoint, exchanged for the key, and discarded. The key is not scoped: it grants the same library access a signed-in Stremio client has. It is encrypted at rest along with the other stored credentials (see below). Disconnecting from Settings deletes it. `POST /stremio/library/connect` is rate-limited to 10/min/IP like the other credential-accepting routes.
 - Linking a Trakt account is CSRF-protected: `GET /trakt/oauth/authorize` (which requires the API token) mints a single-use `state` that expires in 10 minutes, and the callback rejects anything else — so a link someone else sends you cannot silently bind your install to their Trakt account.
-- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager) and consider implementing a proper session-based auth flow.
+- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager, see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup)), set `ADDON_REQUIRE_SIGNED_URLS=true` before proxying the add-on service, and use account webhook links rather than `WEBHOOK_SECRET` for any media server outside your LAN.
 - All API routes are rate-limited globally (200 req/min/IP), with tighter per-route limits on sensitive endpoints: PIN verification (`POST /profiles/:id/verify`, 10/min/IP), the Trakt OAuth authorize/callback routes (10/min/IP), the Plex/Jellyfin/Emby webhooks (60/min/IP) and the built-in Stremio manifest/catalog routes (240/min/IP — they answer unauthenticated callers, but a Stremio home screen fetches one request per catalog, so the budget covers several refreshes a minute rather than a single request). Calls from the Stremio addon service get their own 1000 req/min bucket rather than sharing the browser's — every Stremio client reaches the API from that one container's IP. The addon identifies itself with a token derived from `API_TOKEN` (never the raw token, which the browser also holds), so nothing extra needs configuring and a leaked browser token cannot drain the addon's budget. The limiter's counters are in-memory and per-process, so they assume the documented single-`api`-container deployment; running multiple API replicas would give each its own independent budget.
-- The media-server webhook endpoints (`/webhooks/plex`, `/webhooks/jellyfin`, `/webhooks/emby`) authenticate with a single shared secret (`WEBHOOK_SECRET`) sent as a query param or header — none of the three sign their outgoing webhooks, so this is the strongest verification available. Treat `WEBHOOK_SECRET` like a password and **do not expose these endpoints to the public internet**; keep them reachable only from your LAN/reverse-proxy-internal network, where the media servers themselves run. If you must route them through a reverse proxy, set `WEBHOOK_ALLOWED_IPS` to a comma-separated allowlist of your media servers' IPs (requires `TRUST_PROXY` to be configured correctly) as a second layer of defense. Where you put the secret matters — see [Webhook secret placement](#webhook-secret-placement).
+- The media-server webhook endpoints (`/webhooks/plex`, `/webhooks/jellyfin`, `/webhooks/emby`) authenticate with a secret sent as a query param or header: either an account's own webhook key (`fwh_…`, made under Settings, stored only as a hash, and limited to that account's profiles) or the shared `WEBHOOK_SECRET`, which acts for the admin account. None of the three servers sign their outgoing webhooks, so this is the strongest verification available. Account keys are meant to be used from outside your network, for a friend's own media server. Treat `WEBHOOK_SECRET` like a password and keep it on your LAN, where your own media servers run. If you must route them through a reverse proxy, set `WEBHOOK_ALLOWED_IPS` to a comma-separated allowlist of your media servers' IPs (requires `TRUST_PROXY` to be configured correctly) as a second layer of defense. Where you put the secret matters — see [Webhook secret placement](#webhook-secret-placement).
 - Container logs are capped at 10MB × 3 files per service (`docker-compose.yml`'s `x-logging` block) so they can't grow unbounded on the host over a long-running, unattended deployment.
 
 ### Secrets at rest
@@ -521,8 +538,7 @@ Every credential Fetch stores on your behalf is encrypted in the database with A
 | Stremio account access key | `StremioAuth.authKey` |
 | ntfy / Gotify / webhook tokens | `NotificationChannel.token` |
 | TMDB, OMDB and RPDB API keys | `KV` |
-| AI provider config, including its `Authorization` header | `KV` |
-| Jellyseerr URL + API key | `KV` |
+| AI provider config, including its `Authorization` header (one per account) | `KV` |
 | VAPID private key (web push) | `KV` |
 
 The key is derived from `API_TOKEN` with HKDF-SHA256 — the same "derive from the one secret you already have" approach as the add-on URL secret and profile access tokens — so there is no extra variable to set and no key file to lose. Each value is also bound to the column it lives in, so a ciphertext lifted out of one row and pasted into another fails to decrypt rather than being accepted somewhere it doesn't belong.

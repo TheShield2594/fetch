@@ -15,6 +15,7 @@
 
 export * from "./api/types";
 export type * from "./api/tv";
+export { inviteCodeFromPath, type Account, type AccountSummary, type Invite } from "./api/auth";
 export { ApiContractError } from "@fetch/shared/contracts";
 export { ApiError, OfflineWriteQueuedError } from "./api/client";
 export {
@@ -31,11 +32,22 @@ export {
 
 import { aiApi } from "./api/ai";
 import { collectionsApi } from "./api/collections";
+import { authApi } from "./api/auth";
 import { dataApi } from "./api/data";
 import { devicesApi } from "./api/devices";
 import { discoverApi } from "./api/discover";
 import { gamesApi } from "./api/games";
 import { integrationsApi } from "./api/integrations";
+export type {
+  MdbListPending,
+  MdbListStatus,
+  MediaServer,
+  MediaServerSyncSummary,
+  PlexLink,
+  SimklPin,
+  SimklStatus,
+  TrackerSyncSummary,
+} from "./api/integrations";
 import { listsApi } from "./api/lists";
 import { metadataApi } from "./api/metadata";
 import { notificationsApi } from "./api/notifications";
@@ -54,6 +66,7 @@ import { watchApi } from "./api/watch";
 export const api = {
   ...aiApi,
   ...collectionsApi,
+  ...authApi,
   ...dataApi,
   ...devicesApi,
   ...discoverApi,

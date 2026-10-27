@@ -1,11 +1,12 @@
 import type { FastifyPluginAsync } from "fastify";
 import { recordWatchEvent } from "../../lib/watch-event.js";
-import { verifyWebhookSecret } from "../../lib/webhook-auth.js";
+import { authenticateWebhook } from "../../lib/webhook-caller.js";
 import { resolveWebhookProfile } from "../../lib/webhook-profile.js";
 
 const jellyfinWebhookRoutes: FastifyPluginAsync = async (app) => {
   app.post("/webhooks/jellyfin", { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } }, async (request, reply) => {
-    if (!verifyWebhookSecret(request)) {
+    const caller = await authenticateWebhook(request);
+    if (!caller) {
       return reply.code(403).send({ error: "Invalid webhook secret" });
     }
 
@@ -42,7 +43,7 @@ const jellyfinWebhookRoutes: FastifyPluginAsync = async (app) => {
     // `??` alone would stop at a NotificationUsername the webhook template
     // rendered as an empty string, never reaching the Username fallback.
     const accountName = body.NotificationUsername?.trim() || body.Username;
-    const profile = await resolveWebhookProfile(request, accountName);
+    const profile = await resolveWebhookProfile(request, accountName, caller.accountId);
     if (!profile.ok) {
       return reply.code(profile.status).send({ error: profile.error });
     }

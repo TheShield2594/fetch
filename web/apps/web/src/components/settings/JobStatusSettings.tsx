@@ -7,13 +7,15 @@ import { timeAgo } from "../../utils/timeAgo";
 const JOB_LABELS: Record<string, string> = {
   "trakt-history-poll": "Trakt history sync",
   "trakt-watchlist-sync": "Trakt watchlist sync",
+  "simkl-sync": "Simkl sync",
+  "mdblist-sync": "MDBList sync",
+  "media-server-sync": "Plex, Jellyfin & Emby sync",
   "stremio-library-sync": "Stremio library sync",
   "stremio-play-signals": "Stremio play signals",
   "scrobble-cleanup": "Scrobble session cleanup",
   "episode-notifications": "Upcoming episode notifications",
   "ai-recommendations": "AI recommendations refresh",
   "steam-sync": "Steam library sync",
-  "jellyseerr-request": "Jellyseerr requests",
 };
 
 const jobLabel = (job: string) => JOB_LABELS[job] ?? job;

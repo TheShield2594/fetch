@@ -114,11 +114,13 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
       }
 
       if (provider === "trakt") {
-        if (!(await isTraktConnected())) {
+        // The profile's own Trakt: a list preview reads from it.
+        const traktOwner = request.profileId!;
+        if (!(await isTraktConnected(traktOwner))) {
           return reply.code(409).send({ error: "Connect Trakt in Settings to preview Trakt lists.", code: "trakt_not_connected" });
         }
         const type = stremioTypeOf(source.mediaType);
-        const client = await getTraktClient();
+        const client = await getTraktClient(traktOwner);
         const items = await client.fetchListItemsPage(
           source.traktListId as number,
           type === "movie" ? "movie" : "show",

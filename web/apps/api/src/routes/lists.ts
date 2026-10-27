@@ -3,7 +3,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { backfillMissingMetadata, syncMetadata } from "../lib/metadata.js";
 import { pushTraktWatchlistChange } from "../lib/trakt-client.js";
-import { pushWatchlistRequest } from "../lib/jellyseerr.js";
+import { pushWatchlistAddToTrackers } from "../lib/trackers.js";
 import { resolveProfile } from "../lib/profile.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 
@@ -222,17 +222,10 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
         );
 
         if (list.kind === ListKind.watchlist) {
-          await pushTraktWatchlistChange("add", { type, imdbId }, request.log);
-          // Scoped to the watchlist for the same reason the Trakt mirror is:
-          // "I want to watch this" is what a watchlist add means, and it is the
-          // only list membership that says anything about acquiring a title.
-          //
-          // Not awaited, unlike the Trakt push above: this one talks to a
-          // service on the user's own network that may be off, and waiting out
-          // its timeout would hold the add button spinning for ten seconds over
-          // something the add does not depend on. It never throws and records
-          // its own failures — see lib/jellyseerr.ts.
-          void pushWatchlistRequest("add", { type, imdbId }, request.log);
+          await pushTraktWatchlistChange("add", { type, imdbId }, request.log, list.profileId);
+          // Simkl's plan-to-watch and MDBList's watchlist, as the TV adds to
+          // them. Not awaited: they never fail the add, and shouldn't slow it.
+          void pushWatchlistAddToTrackers(list.profileId, { type, imdbId }, request.log);
         }
 
         return reply.code(201).send({ listItem });
@@ -274,8 +267,7 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
 
       if (list.kind === ListKind.watchlist) {
         const item = { type: type as ListItemType, imdbId: request.params.imdbId };
-        await pushTraktWatchlistChange("remove", item, request.log);
-        void pushWatchlistRequest("remove", item, request.log);
+        await pushTraktWatchlistChange("remove", item, request.log, list.profileId);
       }
 
       return reply.code(204).send();
@@ -320,8 +312,7 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
 
       if (list.kind === ListKind.watchlist) {
         const item = { type: where.type!, imdbId: request.params.imdbId };
-        await pushTraktWatchlistChange("remove", item, request.log);
-        void pushWatchlistRequest("remove", item, request.log);
+        await pushTraktWatchlistChange("remove", item, request.log, list.profileId);
       }
 
       return reply.code(204).send();

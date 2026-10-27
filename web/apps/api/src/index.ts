@@ -13,10 +13,14 @@ import { attachDatabaseLogging, prisma } from "./lib/prisma.js";
 import { applyCorsHeaders } from "./lib/cors.js";
 import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
-import { getAiRecommendations, isAiConfigured } from "./lib/ai.js";
+import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
 import { trendingCacheDeletePrefix } from "./lib/cache.js";
-import { pollTraktHistory, syncTraktWatchlist } from "./lib/trakt-client.js";
-import { isStremioConnected, getStremioProfileId, syncStremioLibrary } from "./lib/stremio-library.js";
+import { listTraktProfiles, pollTraktHistory, syncTraktWatchlist } from "./lib/trakt-client.js";
+import { listSimklProfiles, syncSimkl } from "./lib/simkl.js";
+import { listMdbListProfiles, syncMdbList } from "./lib/mdblist.js";
+import { listAllMediaServerConnections, syncMediaServer } from "./lib/media-servers.js";
+import { listStremioProfiles, syncStremioLibrary } from "./lib/stremio-library.js";
+import { accountOfOwner, adoptLegacyAiConfig } from "./lib/integration-owner.js";
 import { isPlayDetectionEnabled, settleDuePlaySignals } from "./lib/play-signal.js";
 import { ensureDefaultWatchlist } from "./lib/watchlist.js";
 import { ensureDefaultCollection } from "./lib/collection.js";
@@ -37,6 +41,8 @@ import {
 
 // Route modules
 import healthRoutes from "./routes/health.js";
+import authRoutes from "./routes/auth.js";
+import webhookKeyRoutes from "./routes/webhook-key.js";
 import metricsRoutes from "./routes/metrics.js";
 import profilesRoutes from "./routes/profiles.js";
 import devicesRoutes from "./routes/devices.js";
@@ -55,6 +61,9 @@ import aiRoutes from "./routes/ai.js";
 import stremioRoutes from "./routes/stremio.js";
 import stremioLibraryRoutes from "./routes/stremio-library.js";
 import traktRoutes from "./routes/trakt.js";
+import simklRoutes from "./routes/simkl.js";
+import mdbListRoutes from "./routes/mdblist.js";
+import mediaServerRoutes from "./routes/media-servers.js";
 import scrobbleRoutes from "./routes/scrobble.js";
 import playbackRoutes from "./routes/playback.js";
 import pushRoutes from "./routes/push.js";
@@ -76,6 +85,17 @@ import syncOverviewRoutes from "./routes/sync-overview.js";
 // used to disable its job silently while the startup log said it had been "set
 // to 0".
 const TRAKT_POLL_INTERVAL_SEC = parseIntervalSec("TRAKT_POLL_INTERVAL_SEC", process.env.TRAKT_POLL_INTERVAL_SEC, 300);
+// Each pass asks Simkl only for what changed since the last one.
+const SIMKL_POLL_INTERVAL_SEC = parseIntervalSec("SIMKL_POLL_INTERVAL_SEC", process.env.SIMKL_POLL_INTERVAL_SEC, 900);
+// A pass with nothing new on MDBList costs one last-activities request.
+const MDBLIST_POLL_INTERVAL_SEC = parseIntervalSec("MDBLIST_POLL_INTERVAL_SEC", process.env.MDBLIST_POLL_INTERVAL_SEC, 1800);
+// A pass reads each signed-in server's whole movie and show libraries, so it
+// runs hourly by default; the webhooks cover plays as they happen.
+const MEDIA_SERVER_SYNC_INTERVAL_SEC = parseIntervalSec(
+  "MEDIA_SERVER_SYNC_INTERVAL_SEC",
+  process.env.MEDIA_SERVER_SYNC_INTERVAL_SEC,
+  3600
+);
 
 // Shorter than the Trakt poll because it costs far less: when nothing has been
 // watched, a sync is a single small `datastoreMeta` call that fetches no items
@@ -252,6 +272,8 @@ Sentry.setupFastifyErrorHandler(app);
 // ─── Route registration ───
 
 app.register(healthRoutes);
+app.register(authRoutes);
+app.register(webhookKeyRoutes);
 app.register(metricsRoutes);
 app.register(profilesRoutes);
 app.register(devicesRoutes);
@@ -270,6 +292,9 @@ app.register(aiRoutes);
 app.register(stremioRoutes);
 app.register(stremioLibraryRoutes);
 app.register(traktRoutes);
+app.register(simklRoutes);
+app.register(mdbListRoutes);
+app.register(mediaServerRoutes);
 app.register(scrobbleRoutes);
 app.register(playbackRoutes);
 app.register(pushRoutes);
@@ -332,20 +357,73 @@ const start = async () => {
   // what the database was written under is one startup error rather than a
   // week of integrations failing separately.
   await encryptStoredSecrets(app.log);
+  // An install whose admin was created before AI configs were per account.
+  await adoptLegacyAiConfig();
 
   if (TRAKT_POLL_INTERVAL_SEC > 0) {
     everyInterval({
       ...scheduler,
       label: "Trakt poll",
       intervalMs: TRAKT_POLL_INTERVAL_SEC * 1000,
+      // Every profile that connected Trakt, into that profile. runJob contains
+      // each failure, so one profile's expired token doesn't stop the others
+      // syncing.
       tick: async ({ runJob }) => {
-        const profileId = await getDefaultProfileId();
-        await runJob("trakt-history-poll", () => pollTraktHistory(app.log, profileId));
-        await runJob("trakt-watchlist-sync", () => syncTraktWatchlist(app.log, profileId));
+        for (const profileId of await listTraktProfiles()) {
+          await runJob("trakt-history-poll", () => pollTraktHistory(app.log, profileId));
+          await runJob("trakt-watchlist-sync", () => syncTraktWatchlist(app.log, profileId));
+        }
       },
     });
   } else {
     app.log.info("Scheduled Trakt poll disabled because TRAKT_POLL_INTERVAL_SEC is set to 0");
+  }
+
+  if (SIMKL_POLL_INTERVAL_SEC > 0) {
+    everyInterval({
+      ...scheduler,
+      label: "Simkl sync",
+      intervalMs: SIMKL_POLL_INTERVAL_SEC * 1000,
+      // Every profile that connected Simkl, into that profile.
+      tick: async ({ runJob }) => {
+        for (const profileId of await listSimklProfiles()) {
+          await runJob("simkl-sync", () => syncSimkl(profileId, app.log));
+        }
+      },
+    });
+  } else {
+    app.log.info("Scheduled Simkl sync disabled because SIMKL_POLL_INTERVAL_SEC is set to 0");
+  }
+
+  if (MDBLIST_POLL_INTERVAL_SEC > 0) {
+    everyInterval({
+      ...scheduler,
+      label: "MDBList sync",
+      intervalMs: MDBLIST_POLL_INTERVAL_SEC * 1000,
+      tick: async ({ runJob }) => {
+        for (const profileId of await listMdbListProfiles()) {
+          await runJob("mdblist-sync", () => syncMdbList(profileId, app.log));
+        }
+      },
+    });
+  } else {
+    app.log.info("Scheduled MDBList sync disabled because MDBLIST_POLL_INTERVAL_SEC is set to 0");
+  }
+
+  if (MEDIA_SERVER_SYNC_INTERVAL_SEC > 0) {
+    everyInterval({
+      ...scheduler,
+      label: "Media server sync",
+      intervalMs: MEDIA_SERVER_SYNC_INTERVAL_SEC * 1000,
+      startAfterMs: DEFERRED_FIRST_RUN_MS,
+      tick: async ({ runJob }) => {
+        for (const connection of await listAllMediaServerConnections()) {
+          await runJob("media-server-sync", () => syncMediaServer(connection, app.log));
+        }
+      },
+    });
+  } else {
+    app.log.info("Scheduled media server sync disabled because MEDIA_SERVER_SYNC_INTERVAL_SEC is set to 0");
   }
 
   if (STREMIO_POLL_INTERVAL_SEC > 0) {
@@ -354,14 +432,12 @@ const start = async () => {
       label: "Stremio library sync",
       intervalMs: STREMIO_POLL_INTERVAL_SEC * 1000,
       tick: async ({ runJob }) => {
-        // Checked every tick rather than at boot, so connecting an account from
-        // Settings starts syncing without a restart.
-        if (!(await isStremioConnected())) return;
-        // The profile that connected the account, so scheduled watches land
-        // where the connect and import routes put theirs. Rows predating that
-        // column report null and keep the old default-profile behaviour.
-        const profileId = (await getStremioProfileId()) ?? (await getDefaultProfileId());
-        await runJob("stremio-library-sync", () => syncStremioLibrary(app.log, profileId, "incremental"));
+        // Read every tick rather than at boot, so connecting an account from
+        // Settings starts syncing without a restart. One pass per connected
+        // profile, into that profile.
+        for (const profileId of await listStremioProfiles()) {
+          await runJob("stremio-library-sync", () => syncStremioLibrary(app.log, profileId, "incremental"));
+        }
       },
     });
   } else {
@@ -399,14 +475,19 @@ const start = async () => {
     );
   }
 
+  // Every account with its own AI provider, for its first profile.
   const refreshAiRecommendations = async () => {
-    if (!(await isAiConfigured())) return;
-    const profileId = await getDefaultProfileId();
+    const owners = await listAiOwners();
+    if (owners.length === 0) return;
     trendingCacheDeletePrefix("ai-recs:");
-    await Promise.allSettled([
-      getAiRecommendations("movie", 15, profileId),
-      getAiRecommendations("series", 15, profileId),
-    ]);
+    for (const owner of owners) {
+      if (!(await isAiConfigured(owner))) continue;
+      const profileId = await getDefaultProfileId(accountOfOwner(owner));
+      await Promise.allSettled([
+        getAiRecommendations("movie", 15, profileId),
+        getAiRecommendations("series", 15, profileId),
+      ]);
+    }
   };
 
   if (AI_REFRESH_INTERVAL_SEC > 0) {

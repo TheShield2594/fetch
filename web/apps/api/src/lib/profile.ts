@@ -1,4 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { accountScope } from "./request-auth.js";
+import { findAdminAccountId } from "./sessions.js";
 import { prisma } from "./prisma.js";
 import { type CachedProfile, profileCache, profileCacheClear, profileLookups } from "./cache.js";
 import { verifyProfileToken } from "./profile-token.js";
@@ -26,13 +28,31 @@ const PROFILE_TOKEN_HEADER = "x-profile-token";
 // addon protocol, scheduled background jobs) to pick a sensible default —
 // the oldest profile, which is the seeded "Default" profile on existing
 // single-tenant installs.
-export const getDefaultProfileId = async (): Promise<string> => {
-  const profile = await prisma.profile.findFirst({ orderBy: { createdAt: "asc" } });
+//
+// Given an account, the default is that account's oldest profile. Without one
+// it is the admin account's: the scheduled jobs and webhooks act for the
+// install, and the admin is who set those integrations up. Before any account
+// exists that is simply the oldest profile.
+export const getDefaultProfileId = async (accountId?: string | null): Promise<string> => {
+  const ownerId = accountId ?? (await findAdminAccountId());
+  const profile = await prisma.profile.findFirst({
+    where: ownerId ? { accountId: ownerId } : {},
+    orderBy: { createdAt: "asc" },
+  });
   if (profile) return profile.id;
 
-  const created = await prisma.profile.create({ data: { name: "Default" } });
+  const created = await prisma.profile.create({ data: { name: "Default", accountId: ownerId } });
   invalidateProfileCache();
   return created.id;
+};
+
+/**
+ * Whether this request may use `profile` at all. A signed-in account sees only
+ * its own profiles; `API_TOKEN` sees every one.
+ */
+export const ownsProfile = (request: FastifyRequest, profile: { accountId: string | null }): boolean => {
+  const scope = accountScope(request);
+  return scope === null || profile.accountId === scope;
 };
 
 // Called by every route that creates, updates or deletes a profile — the cache
@@ -78,17 +98,33 @@ const findProfileById = async (id: string): Promise<CachedProfile | null> => {
   const profiles = await readThrough(id, async () => {
     const profile = await prisma.profile.findUnique({
       where: { id },
-      select: { id: true, pinHash: true },
+      select: { id: true, pinHash: true, accountId: true },
     });
     return profile ? [profile] : [];
   });
   return profiles[0] ?? null;
 };
 
-const findProfileCandidates = async (): Promise<CachedProfile[]> =>
-  readThrough(PROFILE_PROBE_KEY, () =>
-    prisma.profile.findMany({ select: { id: true, pinHash: true }, take: 2 })
+// Per account, so "the only profile" means the only one this caller can see.
+const findProfileCandidates = async (request: FastifyRequest): Promise<CachedProfile[]> => {
+  const scope = accountScope(request);
+  return readThrough(`${PROFILE_PROBE_KEY}:${scope ?? "all"}`, () =>
+    prisma.profile.findMany({
+      where: scope ? { accountId: scope } : {},
+      select: { id: true, pinHash: true, accountId: true },
+      take: 2,
+    })
   );
+};
+
+/** The profile with this id, if it exists and this request may use it. */
+export const findOwnedProfile = async (
+  request: FastifyRequest,
+  profileId: string
+): Promise<CachedProfile | null> => {
+  const profile = await findProfileById(profileId);
+  return profile && ownsProfile(request, profile) ? profile : null;
+};
 
 // A PIN-protected profile requires a valid, unexpired profile-access token
 // (minted by POST /profiles/:id/verify on correct PIN). This is what makes the
@@ -142,7 +178,7 @@ export const isActingAsProfile = async (
   if (rawProfileId) return rawProfileId === profileId;
 
   // No header is the single-profile install, where the one profile is implied.
-  const profiles = await findProfileCandidates();
+  const profiles = await findProfileCandidates(request);
   const [only, ...rest] = profiles;
   return rest.length === 0 && only?.id === profileId;
 };
@@ -155,7 +191,9 @@ export const resolveProfile = async (request: FastifyRequest, reply: FastifyRepl
     if (!UUID_V4_PATTERN.test(rawProfileId)) {
       return reply.code(400).send({ error: "x-profile-id must be a valid UUID" });
     }
-    const profile = await findProfileById(rawProfileId);
+    // Another account's profile answers exactly as a missing one does, so a
+    // profile id reveals nothing about who it belongs to.
+    const profile = await findOwnedProfile(request, rawProfileId);
     if (!profile) {
       return reply.code(404).send({ error: "Profile not found" });
     }
@@ -166,7 +204,7 @@ export const resolveProfile = async (request: FastifyRequest, reply: FastifyRepl
     return;
   }
 
-  const profiles = await findProfileCandidates();
+  const profiles = await findProfileCandidates(request);
   const [only, ...rest] = profiles;
   if (only && rest.length === 0) {
     if (only.pinHash && !hasValidProfileToken(request, only.id)) {
@@ -191,7 +229,7 @@ export const resolveProfileParam = async (request: FastifyRequest, reply: Fastif
   if (!id || !UUID_V4_PATTERN.test(id)) {
     return reply.code(400).send({ error: "id must be a valid UUID" });
   }
-  const profile = await findProfileById(id);
+  const profile = await findOwnedProfile(request, id);
   if (!profile) {
     return reply.code(404).send({ error: "Profile not found" });
   }

@@ -13,7 +13,8 @@ vi.mock("../components/settings/ProfileSettings", () => ({ ProfileSettings: () =
 vi.mock("../components/settings/DevicesSettings", () => ({ DevicesSettings: () => <p>devices body</p> }));
 vi.mock("../components/settings/PushSettings", () => ({ PushSettings: () => <p>notifications body</p> }));
 vi.mock("../components/settings/JobStatusSettings", () => ({ JobStatusSettings: () => <p>sync status body</p> }));
-vi.mock("../components/settings/ApiTokenSettings", () => ({ ApiTokenSettings: () => <p>api token body</p> }));
+vi.mock("../components/settings/AccountSettings", () => ({ AccountSettings: () => <p>account body</p> }));
+vi.mock("../components/settings/InvitesSettings", () => ({ InvitesSettings: () => <p>invites body</p> }));
 vi.mock("../components/settings/TraktSettings", () => ({ TraktSettings: () => <p>trakt body</p> }));
 vi.mock("../components/settings/AddonSettings", () => ({ AddonSettings: () => <p>addon body</p> }));
 vi.mock("../components/settings/StremioSyncSettings", () => ({ StremioSyncSettings: () => <p>stremio sync body</p> }));
@@ -41,9 +42,16 @@ vi.mock("../hooks/useSettingsHealth", () => ({
   useSettingsHealth: () => ({ sections: health.value, refresh }),
 }));
 
+// The admin sees every section; the cases about anyone else say so.
+const signedIn = vi.hoisted(() => ({ isAdmin: true }));
+vi.mock("../hooks/useAccount", () => ({
+  useAccount: () => ({ account: null, isAdmin: signedIn.isAdmin, refresh: () => {} }),
+}));
+
 beforeEach(() => {
   health.value = {};
   refresh.mockClear();
+  signedIn.isAdmin = true;
 });
 
 const byTab = (tab: SettingsTab) => SETTINGS_SECTIONS.filter((s) => s.tab === tab);
@@ -282,6 +290,7 @@ describe("SettingsPage", () => {
     expect(screen.getByText("Where history comes from")).toBeInTheDocument();
     expect(screen.getByText("Metadata & artwork")).toBeInTheDocument();
     expect(screen.getByText("This server")).toBeInTheDocument();
+    expect(screen.getByText("Recommendations")).toBeInTheDocument();
   });
 
   it("drops the group headings while searching, where a result set spans all of them", async () => {
@@ -299,5 +308,48 @@ describe("SettingsPage", () => {
     expect(searchBox()).toHaveValue("");
     expect(tabBar()).toBeInTheDocument();
     expect(onScreen()).toEqual(byTab("preferences").map((s) => s.title));
+  });
+});
+
+describe("SettingsPage for an account that isn't the admin", () => {
+  const renderPage = (tab: SettingsTab) =>
+    render(
+      <MemoryRouter initialEntries={[`/settings?tab=${tab}`]}>
+        <SettingsPage />
+      </MemoryRouter>
+    );
+
+  it("keeps their own sections and hides the install-wide ones", () => {
+    signedIn.isAdmin = false;
+    renderPage("preferences");
+
+    // Metadata & Region is theirs too: region and spoiler protection are per account.
+    for (const title of ["Account", "Metadata & Region", "Profile", "Notifications", "About"]) {
+      expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
+    }
+    expect(screen.queryByRole("button", { name: /^Sync Status/ })).not.toBeInTheDocument();
+  });
+
+  it("leaves only their own data and connections on the integrations tab", () => {
+    signedIn.isAdmin = false;
+    renderPage("integrations");
+
+    // Each account connects its own Trakt and Stremio, and has its own webhook link.
+    for (const title of ["Data", "Trakt Integration", "Stremio Watched Sync", "Plex, Jellyfin & Emby Webhooks", "Media Servers", "Simkl", "MDBList", "AI Recommendations"]) {
+      expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
+    }
+    for (const title of ["TMDB Metadata", "Invites & Accounts", "Play Detection"]) {
+      expect(screen.queryByRole("button", { name: new RegExp(`^${title}`) })).not.toBeInTheDocument();
+    }
+  });
+
+  it("can't find a hidden section by searching for it", async () => {
+    signedIn.isAdmin = false;
+    const user = userEvent.setup();
+    renderPage("preferences");
+
+    await user.type(screen.getByLabelText("Search settings"), "trakt");
+
+    expect(screen.queryByRole("button", { name: /^Trakt Integration/ })).not.toBeInTheDocument();
   });
 });

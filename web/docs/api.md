@@ -40,35 +40,61 @@ something on top of it.
 
 ## Authentication
 
-Every endpoint needs `API_TOKEN`, or a paired device's own token (see
-[Devices](#devices)), as a bearer token:
+Every endpoint needs a bearer token, which is one of three things:
+
+- **A session token**, from signing in (`POST /auth/login`, `/auth/register`
+  or `/auth/bootstrap`). This is what the web app uses. A session only ever
+  sees its own account's profiles. Session tokens start with `fs1_` and last
+  30 days, renewed as they are used.
+- **A paired device's token** (see [Devices](#devices)), which a TV gets by
+  pairing instead of being given `API_TOKEN`.
+- **`API_TOKEN`**, the server's own token. This is the operator: the add-on
+  service, scripts, and creating the first account. It sees every account's
+  profiles.
 
 ```bash
 curl -H "Authorization: Bearer $API_TOKEN" http://192.168.1.25:7000/watch/stats
 ```
 
-A missing or wrong token gets `401` with a `WWW-Authenticate: Bearer` header.
-That header is how the web client tells "your API token is wrong" apart from
+A missing, wrong or expired token gets `401` with a `WWW-Authenticate: Bearer`
+header. That header is how the web client tells "you are signed out" apart from
 other 401s (an incorrect profile PIN, for instance), so keep it in mind if you
 write your own client.
 
-A device token is accepted everywhere `API_TOKEN` is, except the routes that
-pair and revoke devices (`403 owner_token_required`). Once a device is revoked
-its token gets the same `401` with `WWW-Authenticate: Bearer`, which is how a TV
-knows it was signed out.
+A device belongs to the account that confirmed its pairing code (the admin's,
+when confirmed with `API_TOKEN`), and its token sees only that account's
+profiles, the same way a signed-in session does. It is never the admin, and it
+can't pair or revoke devices (`403 owner_token_required`). Once a device is
+revoked, or its account deleted, its token gets the same `401` with
+`WWW-Authenticate: Bearer`, which is how a TV knows it was signed out.
 
-Eight paths are exempt, because they cannot carry a bearer token by construction:
+These paths are exempt, because they cannot carry a bearer token by construction:
 
 | Path | Why it is exempt | What guards it instead |
 | --- | --- | --- |
+| `GET /auth/status`, `POST /auth/login`, `POST /auth/register` | They are how a browser gets a token | A password, or a single-use invite code; 10/minute |
 | `GET /health` | Liveness probe | Nothing — it reports no data |
 | `GET /health/ready` | Readiness probe (the container healthcheck) | Nothing — it reports only whether the database answered, never why |
-| `/addon/stremio/*` | Stremio sends no credentials | An unguessable per-profile secret in the path |
-| `GET /addon` | Add-on discovery | As above |
+| `/addon/stremio/<secret>/*` | Stremio sends no credentials | The unguessable per-profile secret in the path. The same routes without a secret need a token. |
 | `/trakt/oauth/callback` | Browser redirect from trakt.tv | The `state` value that started the flow |
-| `/webhooks/*` | Plex and Jellyfin post directly | `WEBHOOK_SECRET`, plus optional `WEBHOOK_ALLOWED_IPS` |
+| `/webhooks/*` | Plex, Jellyfin and Emby post directly | An account's webhook key, or `WEBHOOK_SECRET` plus optional `WEBHOOK_ALLOWED_IPS` |
 | `POST /devices/pair/start` | A TV has no credential yet | A code someone signed in must confirm; rate-limited, and capped at 20 pending |
 | `GET /devices/pair/poll` | As above | The poll secret `start` returned, in `x-pairing-secret` |
+
+### Accounts
+
+Accounts are invite-only. The first account is created with `API_TOKEN` and is
+the **admin**; everyone else redeems an invite link the admin made. Each account
+owns its profiles, and through them its lists, history, ratings, games and
+Trakt and Stremio connections (one per profile, as on the TV), and has its own
+media-server webhook key, AI provider, streaming region and spoiler
+protection.
+
+Settings that belong to the whole install are shared by every account and can
+only be changed by the admin; anyone else gets `403` with
+`code: "admin_required"`. That covers the TMDB, OMDb and RPDB keys, the
+metadata language, play detection, the Steam sync, the metadata refresh, `/settings/job-status` and `/metrics`.
+`API_TOKEN` counts as the admin.
 
 ## Profiles
 
@@ -76,21 +102,22 @@ Most endpoints act on one profile's data. The profile comes from the
 `x-profile-id` header:
 
 ```bash
-curl -H "Authorization: Bearer $API_TOKEN" \
+curl -H "Authorization: Bearer $TOKEN" \
      -H "x-profile-id: 3f1c…" \
      http://192.168.1.25:7000/lists
 ```
 
-Omit it and the default profile is used. A malformed value is a `400`, not a
-silent fallback — a typo'd profile id should not quietly write to someone else's
-history.
+Omit it and the only profile is used, when there is exactly one (in the
+caller's account, for a session); with two or more it is a `400`. A malformed
+value is a `400`, not a silent fallback — a typo'd profile id should not
+quietly write to someone else's history.
 
 Profiles protected by a PIN also need `x-profile-token`, which
 `POST /profiles/:id/verify` returns.
 
 Anything scoped to a profile only ever sees that profile's rows. Asking for
 another profile's list returns `404`, not `403` — the lookup is scoped, so the
-row genuinely is not found.
+row genuinely is not found. Another account's profile is a `404` the same way.
 
 ## Conventions
 
@@ -99,7 +126,8 @@ row genuinely is not found.
   a specific config change.
 - **Rate limits** are 200 requests/minute per IP, and 1000/minute for the add-on
   service, which authenticates with a derived service token. Credential-taking
-  routes (profile PIN verification, Stremio connect, the Trakt OAuth pair) are
+  routes (sign-in, sign-up, password changes, profile PIN verification, Stremio
+  connect, the Trakt OAuth pair) are
   limited to 10/minute on top of that.
 - **Types** are `movie` and `series` almost everywhere. Watch events use `movie`
   and `episode`; tags additionally accept `episode`.
@@ -397,11 +425,11 @@ its own token that can be revoked on its own.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/devices` | Paired devices: `id`, `name`, `createdAt`, `lastSeenAt`. `API_TOKEN` only. |
-| `PATCH` | `/devices/:id` | `{ name }`. `API_TOKEN` only. |
-| `DELETE` | `/devices/:id` | Revokes the device; its next request is `401`. `API_TOKEN` only. |
+| `GET` | `/devices` | The caller's account's paired devices (every one, for `API_TOKEN`): `id`, `name`, `createdAt`, `lastSeenAt`. Not with a device token. |
+| `PATCH` | `/devices/:id` | `{ name }`. Only your own account's devices (`404` otherwise). Not with a device token. |
+| `DELETE` | `/devices/:id` | Revokes the device; its next request is `401`. Only your own account's devices. Not with a device token. |
 | `GET` | `/devices/me` | The calling device. Device token only. |
-| `GET` | `/devices/me/profiles` | Every profile with the `slot` (1–6) it occupies on this device, plus `isPrimary` for slot 1. Slots are assigned on first sight and kept; when slot 1 is empty the oldest profile moves into it. Device token only. |
+| `GET` | `/devices/me/profiles` | Every profile of the device's account with the `slot` (1–6) it occupies on this device, plus `isPrimary` for slot 1. Slots are assigned on first sight and kept; when slot 1 is empty the oldest profile moves into it. Device token only. |
 | `PUT` | `/devices/me/profiles/:slot` | `{ name?, …settings }`. Updates the profile in that slot, or creates one there (`201`, `name` required). Never takes a PIN: PINs are set on the website and checked with `POST /profiles/:id/verify`. Device token only. |
 | `PUT` | `/devices/me/report` | `{ ok, appVersion?, flavor?, error? }`, sent by the TV after every sync: its build, and whether the sync worked. `GET /sync/overview` shows it. An `error` is kept to 500 characters and cleared by the next `ok: true`. Device token only. |
 
@@ -476,6 +504,30 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 | --- | --- | --- |
 | `GET` | `/sync/overview` | `devices`: every paired TV with `lastSeenAt` and what it last reported — `appVersion`, `flavor`, `lastSyncAt`, `lastSyncOk`, `lastSyncError` (all `null` until its first report); left out when a device asks. Every profile with counts of `addons`, `enabledAddons`, `lists`, `resumePoints` and `watchedItems`, and when its TV settings and Home layout last changed; plus `server.database` (the `/health/ready` probe) and `server.jobs` (the last run of each scheduled job). Counts only, so locked profiles are included, as `GET /profiles` lists their names. |
 
+### Sign-in and accounts
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/auth/status` | Public. `{ setupRequired }`: true until the admin account exists. |
+| `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password }` → `{ token, account }`. Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
+| `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account }`. `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
+| `POST` | `/auth/logout` | Ends this session. `204`. |
+| `GET` | `/auth/me` | `{ account: { id, username, isAdmin } \| null, isAdmin }`. `account` is null for `API_TOKEN`. |
+| `POST` | `/auth/password` | `{ currentPassword, newPassword }`. Signs out every other session. `204`. |
+| `POST` | `/auth/invites` | Admin. `{ expiresInDays? }` (1–30, default 7) → `{ invite: { id, code, expiresAt }, url }`. The code is shown only here; only its hash is stored. `url` is built from `CATALOGGY_WEB_PUBLIC`, or null when that is unset. |
+| `GET` | `/auth/invites` | Admin. `{ invites: [{ id, createdAt, expiresAt, usedAt, usedBy }] }`. |
+| `DELETE` | `/auth/invites/:id` | Admin. Revokes an invite. |
+| `POST` | `/auth/register` | Public. `{ inviteCode, username, password }` → `{ token, account }`. Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name, which leaves the invite usable. |
+| `GET` | `/auth/accounts` | Admin. `{ accounts: [{ id, username, isAdmin, createdAt, profileCount }] }`. |
+| `DELETE` | `/auth/accounts/:id` | Admin. Deletes the account and everything its profiles own. The admin account can't be deleted. |
+
+Usernames are 3–32 characters of letters, numbers, `.`, `-` and `_`, and are
+case-insensitive. Passwords are 8–256 characters, hashed with scrypt.
+
+`GET /profiles` lists the caller's own profiles (every profile, for
+`API_TOKEN`), and a new profile belongs to the caller's account. An account
+can't delete its last profile.
+
 ### Settings and API keys
 
 Keys saved here take precedence over the matching environment variable, so a
@@ -483,9 +535,9 @@ rotated key doesn't mean editing `.env` and restarting.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/settings/preferences` | Language, region, spoiler protection, and the provider catalogue. |
-| `POST` | `/settings/preferences` | `{ language?, region?, spoilerProtection? }`. Language is `en` or `en-US` shaped; region is two letters. Both are normalized. Clears the discovery cache. |
-| `GET` | `/settings/job-status` | Background jobs that are currently failing — the Steam sync, Trakt poll, episode notifications, AI refresh, Jellyseerr requests. Otherwise these are only visible in the logs. |
+| `GET` | `/settings/preferences` | Language, region, spoiler protection, and the provider catalogue. Region and spoiler protection are the caller's account's (an account that never set one gets the install's value); the language is the install's. |
+| `POST` | `/settings/preferences` | `{ language?, region?, spoilerProtection? }`. Language is `en` or `en-US` shaped; region is two letters. Both are normalized. Region and spoiler protection are saved for the caller's account; changing the language takes the admin (`403 admin_required` otherwise, though sending the current one back is accepted). Clears the discovery cache. |
+| `GET` | `/settings/job-status` | Background jobs that are currently failing — the Steam sync, Trakt poll, episode notifications, AI refresh. Otherwise these are only visible in the logs. |
 | `GET` | `/tmdb/status` | `{ configured, source }` where source is `db`, `env` or `none`. |
 | `POST` | `/tmdb/key` | Validated against TMDB before saving, so a typo can't overwrite a working key. |
 | `DELETE` | `/tmdb/key` | Reports the env fallback that remains, if any. |
@@ -503,8 +555,8 @@ Any OpenAI-compatible chat-completions endpoint, including a local one.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/ai/config` | Headers are redacted. Includes `lastGeneratedAt`. |
-| `POST` | `/ai/config` | `{ config: { url, headers, payload: { model, max_tokens? } } }`. `max_tokens` below 2048 is clamped up — under that, responses truncate mid-JSON. |
+| `GET` | `/ai/config` | The caller's account's provider. Headers are redacted. Includes `lastGeneratedAt`. |
+| `POST` | `/ai/config` | `{ config: { url, headers, payload: { model, max_tokens? } } }`, saved for the caller's account and used for its profiles' recommendations. `max_tokens` below 2048 is clamped up — under that, responses truncate mid-JSON. Only the admin's URL may be a private-network or loopback address; anyone else's must be public (400 otherwise). The same rule applies to notification channel URLs. |
 | `DELETE` | `/ai/config` | |
 | `POST` | `/ai/test` | Sends one trivial prompt. On failure returns `{ success: false, outcome, error }`, where `outcome` is one of `blocked` / `misconfigured` / `unreachable` / `rejected` / `failed` — never the status code, the socket error or the upstream body, so it can't be used as an SSRF probe. Redirects are not followed; the detail is in the server log. |
 | `GET` | `/recommendations/ai?type=&limit=` | With reasons per title. Falls back to TMDB seeds when no provider is configured. `limit` caps at 20. |
@@ -515,6 +567,11 @@ before each outbound request — records can change after a config is saved.
 
 ### Trakt
 
+Each profile has its own Trakt connection; these routes act on the requesting
+profile's (`x-profile-id`). The OAuth `state` records which profile started the
+flow, so the callback, which has no session, stores the tokens under that
+profile, and refuses them if the profile was deleted in the meantime.
+
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/trakt/status` | |
@@ -524,7 +581,57 @@ before each outbound request — records can change after a config is saved.
 | `POST` | `/trakt/poll` | Run the scheduled poll now. |
 | `POST` | `/trakt/disconnect` | |
 
+### Simkl
+
+Each profile has its own Simkl connection; every route acts on the requesting
+profile's. Sign-in is Simkl's PIN flow. 409 `simkl_not_configured` when the
+server has no `SIMKL_CLIENT_ID`.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/simkl/status` | `{ configured, connected, username, lastSyncedAt, pending }`; `pending` is the code being waited on, if any. |
+| `POST` | `/simkl/pin` | Starts a sign-in: `{ userCode, verificationUrl, expiresAt, interval }`. The person enters `userCode` at `verificationUrl`. |
+| `POST` | `/simkl/pin/poll` | Checks once: `{ result: "pending" \| "connected" \| "expired" \| "none", status }`. Call it every `interval` seconds. |
+| `POST` | `/simkl/sync` | `{ full? }`. Reads the Simkl library (only what changed since the last sync unless `full`) into the profile: `{ movies, episodes, watchlist, skipped, full }`. 401 when Simkl has rejected the sign-in. |
+| `POST` | `/simkl/disconnect` | Forgets the sign-in. Simkl tokens don't expire and have no revoke call. |
+
+Plays recorded in Fetch, watchlist adds and scrobbles are sent to the profile's
+Simkl as they happen, best-effort.
+
+### MDBList
+
+The same shape as Simkl, with MDBList's OAuth device flow (write scope). 409
+`mdblist_not_configured` without `MDBLIST_CLIENT_ID`.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/mdblist/status` | `{ configured, connected, username, lastSyncedAt, pending }`. |
+| `POST` | `/mdblist/device` | Starts a sign-in: `{ userCode, verificationUrl, verificationUrlComplete, expiresAt, interval }`. The sign-in page is always https://mdblist.com. The device code itself stays on the server. |
+| `POST` | `/mdblist/device/poll` | `{ result: "pending" \| "connected" \| "expired" \| "denied" \| "none", status }`. |
+| `POST` | `/mdblist/sync` | `{ full? }`. Reads watched history and the watchlist into the profile, unless MDBList's last activities show no change (`unchanged: true`). 401 when MDBList revoked the sign-in. |
+| `POST` | `/mdblist/disconnect` | Revokes the token with MDBList, then forgets it. |
+
+### Media servers
+
+A profile's Plex, Jellyfin and Emby sign-ins; every route acts on the
+requesting profile's. Addresses are checked like an AI provider's, under the
+account's scope: only the admin's profiles may reach a private-network server
+(`422 server_blocked` otherwise).
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `GET` | `/media-servers` | `{ providers, servers: [{ id, provider, serverName, address, userName, importWatchState, lastSyncedAt, connectedAt }], plexLink }`. |
+| `POST` | `/media-servers/plex/link` | Starts a Plex sign-in: `{ code, linkUrl, expiresAt, interval }`; the code is entered at plex.tv/link. |
+| `POST` | `/media-servers/plex/link/poll` | `{ result: "pending" \| "connected" \| "expired" \| "none", servers }`. On `connected`, each server on the account (Plex Media Server 1.30+) that answers at an allowed address is saved. |
+| `POST` | `/media-servers/:provider/sign-in` | `jellyfin` or `emby`: `{ address, username, password }` (Jellyfin 10.9+, Emby 4.7+). 201 `{ serverName, userName }`; 401 `server_auth` on a wrong password. |
+| `PATCH` | `/media-servers/:id` | `{ importWatchState }`. |
+| `POST` | `/media-servers/:id/sync` | Reads the server now: `{ movies, episodes, resumePoints, skipped }`. |
+| `DELETE` | `/media-servers/:id` | Signs out (Jellyfin and Emby) and forgets the sign-in. |
+
 ### Stremio library
+
+Each profile has its own Stremio connection, which syncs into that profile.
+Every route here acts on the requesting profile's (`x-profile-id`).
 
 | Method | Path | Notes |
 | --- | --- | --- |
@@ -550,6 +657,13 @@ URLs; the unprefixed ones use the default profile.
 | `GET` | `/addon/stremio/:secret/catalog/:type/:id.json` |
 | `GET` | `/addon/stremio/:secret/configure` |
 | `GET`/`POST` | `/addon/config` |
+
+`GET /addon/config` answers for the calling profile and also returns
+`stremioManifestPath`/`stremioManifestUrl` (the API's own catalog addon) and
+`stremioProfileKey`, the same per-profile key, which the website puts in the
+addon service's install URL: `<ADDON_PUBLIC_BASE>/u/<profileId>/<key>/manifest.json`.
+With `ADDON_REQUIRE_SIGNED_URLS=true` that is the only URL form the addon
+service serves.
 
 Catalog data also has plain-JSON equivalents used by the web UI: `/watchlist`,
 `/continue`, `/recent`, `/stremio/list/:listId`, and
@@ -586,31 +700,6 @@ upcoming episode, `data` carries `seriesImdbId`, `seriesName`, `season`,
 and Discord) are only included when `CATALOGGY_WEB_PUBLIC` tells the API where
 the web UI lives.
 
-### Jellyseerr / Overseerr requests
-
-The one integration that writes outward: a watchlist add can become a request on
-a Jellyseerr (or Overseerr) server. Off unless configured, scoped to the default
-watchlist only, and never able to fail or delay a list write: the push runs in
-the background of a request that has already answered, and a failure is recorded
-against the `jellyseerr-request` job, where `/settings/job-status` shows it.
-The URL is held to the notification-channel rules (http(s) only, never the
-cloud-metadata/link-local range, checked by DNS as well as by name, re-resolved
-before every request, redirects refused), since a LAN address is the expected
-target.
-
-| Method | Path | Notes |
-| --- | --- | --- |
-| `GET` | `/settings/jellyseerr` | `{ configured, config }`. The stored API key is never returned — only `hasApiKey`. |
-| `POST` | `/settings/jellyseerr` | `{ url, apiKey?, requestOnAdd?, cancelOnRemove? }`. Omitting `apiKey` (or sending `""`) keeps the stored one. The URL is validated (syntax and DNS) and stored; it is not requested here — proving the connection is the test route below, which Settings calls straight after a save. Two reasons: a server that is down must not refuse the save that fixes a typo, and a route that fetched a URL out of its own request body is the request-forgery shape a scanner is right to flag. |
-| `DELETE` | `/settings/jellyseerr` | Forgets the URL, the key and both flags. |
-| `POST` | `/settings/jellyseerr/test` | Checks the stored config: `{ success: true, version, applicationTitle }`, or `{ success: false, outcome, error }`. 404 when nothing is configured. |
-
-A request is filed by TMDB id, resolved from the stored metadata row and falling
-back to a TMDB lookup by IMDb id; a title TMDB has never heard of is skipped
-rather than guessed at. Series are requested whole (`seasons: "all"`). An
-already-requested title (Jellyseerr's 409) counts as success. `cancelOnRemove`
-only ever deletes a request still in Jellyseerr's pending state.
-
 ### Export and import
 
 | Method | Path | Notes |
@@ -628,8 +717,12 @@ Those two formats are capped at 10,000 rows; the id-carrying formats allow
 
 ### Webhooks
 
-No bearer token. Authenticated by `WEBHOOK_SECRET`, in a header where the
-sender supports one and in a query parameter where it doesn't (Plex). Prefer
+No bearer token. Authenticated by an account's webhook key (`fwh_…`, see
+`/auth/webhook-key` below) or by `WEBHOOK_SECRET`, in the `x-webhook-secret`
+header where the sender supports one and in the `token` query parameter where it
+doesn't (Plex). A key limits the play to its account's profiles, and
+`WEBHOOK_SECRET` to the admin account's: `profile=<id>` naming a profile outside
+that account is a 404, and the account-name match only looks inside it. Prefer
 the header: Fetch redacts `token` from its own application logs
 (`?token=REDACTED`), but a reverse proxy or any other hop in front of it keeps
 its own access log, and that copy still carries the query string.
@@ -640,6 +733,17 @@ its own access log, and that copy still carries the query string.
 | `POST` | `/webhooks/jellyfin` |
 | `POST` | `/webhooks/emby` |
 
-Set `WEBHOOK_ALLOWED_IPS` to also restrict them by source address. See the
+| `GET` | `/auth/webhook-key` |
+| `POST` | `/auth/webhook-key` |
+| `DELETE` | `/auth/webhook-key` |
+
+The `/auth/webhook-key` routes take a signed-in session (400 otherwise) and
+manage that account's key: `GET` returns `{ configured, createdAt }`, `POST`
+makes a key and returns `{ key, createdAt }` with a 201, replacing any earlier
+key, and `DELETE` removes it (204). The key is stored as a SHA-256 hash, so
+`POST` is the only time it is returned.
+
+Set `WEBHOOK_ALLOWED_IPS` to also restrict `WEBHOOK_SECRET` by source address;
+it doesn't apply to account keys. See the
 [webhook secret placement](../README.md#webhook-secret-placement) section of the
 README for which field each server can actually send.

@@ -13,6 +13,10 @@ const DEFAULT_PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_PROFILE_ID = "22222222-2222-4222-8222-222222222222";
 
 const MUTATION_TOKEN = createHmac("sha256", API_TOKEN).update("cataloggy-addon-mutation").digest("hex");
+/** A profile's Stremio key, as Settings hands it out: the same HMAC the API's own addon uses. */
+const profileKey = (profileId: string) =>
+  createHmac("sha256", API_TOKEN).update(`cataloggy-stremio-addon:${profileId}`).digest("hex");
+const signedPrefix = (profileId: string) => `/u/${profileId}/${profileKey(profileId)}`;
 
 type MarkWatchedTarget =
   | { type: "movie"; imdbId: string }
@@ -510,7 +514,7 @@ describe("profile scoping", () => {
     const { subtitles } = response.json() as { subtitles: { url: string }[] };
     const { url: subtitleUrl } = first(subtitles, "mark-watched subtitle row");
     expect(subtitleUrl).toContain(
-      `${ADDON_BASE}/p/${OTHER_PROFILE_ID}/mark-watched/episode/tt0903747/2/5.srt?token=`
+      `${ADDON_BASE}${signedPrefix(OTHER_PROFILE_ID)}/mark-watched/episode/tt0903747/2/5.srt?token=`
     );
     expect(
       capabilityMatches(subtitleUrl, { type: "episode", imdbId: "tt0903747", season: 2, episode: 5 }, OTHER_PROFILE_ID)
@@ -523,7 +527,7 @@ describe("profile scoping", () => {
     const { subtitles } = response.json() as { subtitles: { url: string }[] };
     const { url: subtitleUrl } = first(subtitles, "mark-watched subtitle row");
     expect(subtitleUrl).toContain(
-      `${ADDON_BASE}/p/${DEFAULT_PROFILE_ID}/mark-watched/movie/tt0111161.srt?token=`
+      `${ADDON_BASE}${signedPrefix(DEFAULT_PROFILE_ID)}/mark-watched/movie/tt0111161.srt?token=`
     );
     expect(capabilityMatches(subtitleUrl, { type: "movie", imdbId: "tt0111161" }, DEFAULT_PROFILE_ID)).toBe(true);
   });
@@ -822,6 +826,55 @@ describe("play detection", () => {
       await app.inject({ method: "GET", url: "/subtitles/series/tt0903747:2:7.json" });
 
       expect(callsTo("/stremio/play-signal")).toHaveLength(0);
+    });
+  });
+});
+
+describe("signed addon URLs", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("serves a profile at its signed URL", async () => {
+    const response = await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` });
+
+    expect(response.statusCode).toBe(200);
+  });
+
+  it("answers a wrong key, or another profile's, as an unknown profile", async () => {
+    const wrong = await app.inject({ method: "GET", url: `/u/${OTHER_PROFILE_ID}/${"0".repeat(64)}/manifest.json` });
+    const borrowed = await app.inject({
+      method: "GET",
+      url: `/u/${OTHER_PROFILE_ID}/${profileKey(DEFAULT_PROFILE_ID)}/manifest.json`,
+    });
+
+    expect(wrong.statusCode).toBe(404);
+    expect(borrowed.statusCode).toBe(404);
+  });
+
+  describe("with ADDON_REQUIRE_SIGNED_URLS", () => {
+    beforeEach(async () => {
+      vi.stubEnv("ADDON_REQUIRE_SIGNED_URLS", "true");
+      app = await buildApp();
+    });
+
+    it("turns away the URLs that carry no key", async () => {
+      expect((await app.inject({ method: "GET", url: "/manifest.json" })).statusCode).toBe(404);
+      expect((await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` })).statusCode).toBe(404);
+      const catalog = await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/catalog/movie/cataloggy-${WATCHLIST_ID}-movie.json` });
+      expect(catalog.json()).toEqual({ metas: [] });
+    });
+
+    it("still serves the signed URL, and records a watch from its mark-watched link", async () => {
+      expect((await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` })).statusCode).toBe(200);
+
+      const subtitles = await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/subtitles/movie/tt0111161.json` });
+      const { url } = first((subtitles.json() as { subtitles: { url: string }[] }).subtitles, "mark-watched subtitle row");
+      const link = new URL(url);
+      const marked = await app.inject({ method: "GET", url: `${link.pathname}${link.search}` });
+
+      expect(marked.body).toContain("Marked as watched");
+      expect(callsTo("/watch")).toHaveLength(1);
     });
   });
 });

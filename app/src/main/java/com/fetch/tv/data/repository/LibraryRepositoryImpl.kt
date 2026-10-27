@@ -93,11 +93,17 @@ class LibraryRepositoryImpl @Inject constructor(
         }
     }
 
-    private val providerConnections = combine(
-        trackingProviders.providers().map { provider ->
-            provider.isAuthenticated.map { authenticated -> provider.providerId to authenticated }
+    // combine() over no flows never emits, so with no providers say so directly.
+    private val providerConnections = trackingProviders.providers()
+        .takeIf { it.isNotEmpty() }
+        ?.let { providers ->
+            combine(
+                providers.map { provider ->
+                    provider.isAuthenticated.map { authenticated -> provider.providerId to authenticated }
+                }
+            ) { states -> states.toMap() }
         }
-    ) { states -> states.toMap() }
+        ?: flowOf(emptyMap())
 
     override val sourceMode: Flow<LibrarySourceMode> = combine(
         traktSettingsDataStore.librarySourceMode,

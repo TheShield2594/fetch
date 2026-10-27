@@ -8,6 +8,10 @@ import type {
   CatalogMeta,
   ItemListMembership,
   ListItemWithMeta,
+  ListLink,
+  ListLinkProvider,
+  ListLinkSyncResult,
+  ListLinkTarget,
   MediaType,
 } from "./types";
 
@@ -51,6 +55,25 @@ export const listsApi = {
     return request(`/lists/${encodedListId}/items/${item.type}/${encodedImdbId}`, {
       method: "DELETE"
     });
+  },
+  getListLinkTargets(provider: ListLinkProvider, signal?: AbortSignal) {
+    return request<{ lists: ListLinkTarget[] }>(`/lists/link-targets/${provider}`, { signal });
+  },
+  /** `remoteId` "new" makes a list on the service named after this one. */
+  linkList(listId: string, provider: ListLinkProvider, remoteId: string) {
+    return request<{ link: ListLink | null; sync: ListLinkSyncResult }>(
+      `/lists/${encodeURIComponent(listId)}/link`,
+      { method: "PUT", body: JSON.stringify({ provider, remoteId }) }
+    );
+  },
+  unlinkList(listId: string) {
+    return request<void>(`/lists/${encodeURIComponent(listId)}/link`, { method: "DELETE" });
+  },
+  syncListLink(listId: string) {
+    return request<{ link: ListLink | null; sync: ListLinkSyncResult }>(
+      `/lists/${encodeURIComponent(listId)}/link/sync`,
+      { method: "POST" }
+    );
   },
   getItemLists(imdbId: string) {
     return request<{ lists: ItemListMembership[] }>(`/items/${encodeURIComponent(imdbId)}/lists`);

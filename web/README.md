@@ -406,6 +406,12 @@ Each profile can also connect its own MDBList account under **Settings → MDBLi
 - **Out to MDBList:** plays recorded in Fetch, watchlist adds and live scrobbles, best-effort, as with Simkl.
 - Tokens refresh on their own; one MDBList has revoked drops the connection, and Settings asks you to connect again.
 
+### Linked lists (Trakt and MDBList)
+
+A custom list can be linked to one of the profile's own lists on Trakt or MDBList (**Lists → Link to Trakt or MDBList**), either an existing one or a new one named after it. The first sync merges both; after that, adds and removes made in Fetch are sent straight out, and changes made on the service come in on the scheduled Trakt poll or MDBList sync, which also retries anything that didn't get through. Renaming the Fetch list renames the linked one.
+
+Deleting is careful, as with `TRAKT_WATCHLIST_MIRROR_DELETES`: deleting the Fetch list only drops the link, a list deleted on the service leaves the Fetch list and everything in it alone (the link shows as broken until you unlink or relink it), and a side that has gone entirely empty since the last sync is treated as a fault rather than a reason to empty the other. Unlinking leaves both lists as they are.
+
 ### Trakt is optional
 
 Trakt is supported but is not a system of record, and nothing depends on it. Each Fetch profile connects its own Trakt account, as on the TV; a play is sent to the Trakt account of the profile it is in, and the scheduled poll runs once per connected profile, into that profile. The website's connection is separate from the TV's: each signs in on its own, and both record into the same Fetch history.

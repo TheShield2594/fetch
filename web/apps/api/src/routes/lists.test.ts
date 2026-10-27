@@ -18,6 +18,7 @@ const prismaMock = {
   listItem: { create: vi.fn(), findMany: vi.fn(), deleteMany: vi.fn() },
   item: { upsert: vi.fn(), findMany: vi.fn() },
   metadata: { findMany: vi.fn() },
+  listLink: { findFirst: vi.fn(), findUnique: vi.fn() },
   $transaction: vi.fn(),
 };
 
@@ -33,6 +34,30 @@ vi.mock("../lib/metadata.js", () => ({
 vi.mock("../lib/trakt-client.js", () => ({
   pushTraktWatchlistChange: (...args: unknown[]) => pushTraktWatchlistChange(...args),
 }));
+const listLinks = {
+  linkList: vi.fn(),
+  unlinkList: vi.fn(),
+  listLinkTargets: vi.fn(),
+  syncListLink: vi.fn(),
+  pushListLinkChange: vi.fn(),
+  pushListLinkRename: vi.fn(),
+};
+vi.mock("../lib/list-links.js", async () => {
+  // The pure parts (provider check, summary, error type) are the real ones;
+  // everything that talks to a service or the database is mocked.
+  const actual = await vi.importActual<typeof import("../lib/list-links.js")>("../lib/list-links.js");
+  return {
+    isListLinkProvider: actual.isListLinkProvider,
+    summarizeListLink: actual.summarizeListLink,
+    ListLinkError: actual.ListLinkError,
+    linkList: (...args: unknown[]) => listLinks.linkList(...args),
+    unlinkList: (...args: unknown[]) => listLinks.unlinkList(...args),
+    listLinkTargets: (...args: unknown[]) => listLinks.listLinkTargets(...args),
+    syncListLink: (...args: unknown[]) => listLinks.syncListLink(...args),
+    pushListLinkChange: (...args: unknown[]) => listLinks.pushListLinkChange(...args),
+    pushListLinkRename: (...args: unknown[]) => listLinks.pushListLinkRename(...args),
+  };
+});
 vi.mock("../lib/profile.js", () => ({
   resolveProfile: async (request: { profileId?: string }) => {
     request.profileId = PROFILE_ID;
@@ -48,6 +73,21 @@ const listRow = (over: Record<string, unknown> = {}) => ({
   kind: "watchlist",
   profileId: PROFILE_ID,
   createdAt: new Date("2026-01-01T00:00:00Z"),
+  ...over,
+});
+
+const linkRow = (over: Record<string, unknown> = {}) => ({
+  id: "44444444-4444-4444-8444-444444444444",
+  listId: LIST_ID,
+  profileId: PROFILE_ID,
+  provider: "trakt",
+  remoteId: "123",
+  remoteName: "Weekend",
+  snapshot: null,
+  lastSyncedAt: null,
+  lastError: null,
+  createdAt: new Date("2026-01-01T00:00:00Z"),
+  updatedAt: new Date("2026-01-01T00:00:00Z"),
   ...over,
 });
 
@@ -141,6 +181,126 @@ describe("lists routes", () => {
         expect.objectContaining({ name: "Watchlist", itemCount: 4 }),
         expect.objectContaining({ name: "Collection", itemCount: 0 }),
       ]);
+    });
+
+    it("says which service a linked list is kept in step with", async () => {
+      prismaMock.list.findMany.mockResolvedValue([
+        {
+          ...listRow({ kind: "custom", name: "Weekend" }),
+          _count: { items: 2 },
+          link: linkRow(),
+        },
+      ]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/lists" });
+
+      expect(res.json().lists[0].link).toEqual({
+        provider: "trakt",
+        remoteId: "123",
+        remoteName: "Weekend",
+        lastSyncedAt: null,
+        lastError: null,
+      });
+    });
+  });
+
+  describe("list links", () => {
+    it("lists the profile's lists on a service to link to", async () => {
+      listLinks.listLinkTargets.mockResolvedValue([{ id: "123", name: "Weekend", itemCount: 3 }]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/lists/link-targets/mdblist" });
+
+      expect(res.statusCode).toBe(200);
+      expect(listLinks.listLinkTargets).toHaveBeenCalledWith(PROFILE_ID, "mdblist", expect.anything());
+      expect(res.json().lists).toEqual([{ id: "123", name: "Weekend", itemCount: 3 }]);
+    });
+
+    it("rejects a service lists can't be linked to", async () => {
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/lists/link-targets/simkl" });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it("links a list and returns the first sync", async () => {
+      const sync = { status: "ok", addedLocally: 1, removedLocally: 0, pushedAdds: 2, pushedRemovals: 0, kept: 0, error: null };
+      listLinks.linkList.mockResolvedValue({ link: linkRow(), sync });
+      prismaMock.listLink.findUnique.mockResolvedValue(linkRow());
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "PUT",
+        url: `/lists/${LIST_ID}/link`,
+        payload: { provider: "trakt", remoteId: " 123 " },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(listLinks.linkList).toHaveBeenCalledWith(PROFILE_ID, LIST_ID, "trakt", "123", expect.anything());
+      expect(res.json()).toMatchObject({ link: { provider: "trakt", remoteId: "123" }, sync });
+    });
+
+    it("passes on why a link was refused", async () => {
+      const { ListLinkError } = await import("../lib/list-links.js");
+      listLinks.linkList.mockRejectedValue(new ListLinkError("Trakt is not connected for this profile", 409));
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "PUT",
+        url: `/lists/${LIST_ID}/link`,
+        payload: { provider: "trakt", remoteId: "new" },
+      });
+
+      expect(res.statusCode).toBe(409);
+      expect(res.json().error).toMatch(/not connected/);
+    });
+
+    it("reports the service failing as a bad gateway", async () => {
+      listLinks.linkList.mockRejectedValue(new Error("Trakt request failed (503)"));
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "PUT",
+        url: `/lists/${LIST_ID}/link`,
+        payload: { provider: "trakt", remoteId: "123" },
+      });
+
+      expect(res.statusCode).toBe(502);
+    });
+
+    it("unlinks without touching either list", async () => {
+      listLinks.unlinkList.mockResolvedValue(true);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "DELETE", url: `/lists/${LIST_ID}/link` });
+
+      expect(res.statusCode).toBe(204);
+      expect(listLinks.unlinkList).toHaveBeenCalledWith(PROFILE_ID, LIST_ID);
+      expect(prismaMock.list.delete).not.toHaveBeenCalled();
+    });
+
+    it("syncs a linked list on request", async () => {
+      prismaMock.listLink.findFirst.mockResolvedValue(linkRow());
+      prismaMock.listLink.findUnique.mockResolvedValue(linkRow());
+      listLinks.syncListLink.mockResolvedValue({ status: "ok" });
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "POST", url: `/lists/${LIST_ID}/link/sync` });
+
+      expect(res.statusCode).toBe(200);
+      expect(prismaMock.listLink.findFirst).toHaveBeenCalledWith({ where: { listId: LIST_ID, profileId: PROFILE_ID } });
+    });
+
+    it("pushes a rename of a custom list to its linked list", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "custom" }));
+      prismaMock.list.update.mockResolvedValue(listRow({ kind: "custom", name: "Renamed" }));
+      const app = await buildApp();
+
+      await app.inject({ method: "PATCH", url: `/lists/${LIST_ID}`, payload: { name: "Renamed" } });
+
+      expect(listLinks.pushListLinkRename).toHaveBeenCalledWith(LIST_ID, "Renamed", expect.anything());
     });
   });
 
@@ -292,6 +452,13 @@ describe("lists routes", () => {
 
       expect(res.statusCode).toBe(201);
       expect(pushTraktWatchlistChange).not.toHaveBeenCalled();
+      // ...but goes to the Trakt or MDBList list it is linked to, if any.
+      expect(listLinks.pushListLinkChange).toHaveBeenCalledWith(
+        LIST_ID,
+        "add",
+        { type: "series", imdbId: "tt0903747" },
+        expect.anything()
+      );
     });
 
     it("returns 409 rather than 500 when the item is already in the list", async () => {

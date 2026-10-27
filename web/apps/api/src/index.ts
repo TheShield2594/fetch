@@ -18,6 +18,7 @@ import { trendingCacheDeletePrefix } from "./lib/cache.js";
 import { listTraktProfiles, pollTraktHistory, syncTraktPlayback, syncTraktWatchlist } from "./lib/trakt-client.js";
 import { listSimklProfiles, syncSimkl } from "./lib/simkl.js";
 import { listMdbListProfiles, syncMdbList } from "./lib/mdblist.js";
+import { syncProfileListLinks } from "./lib/list-links.js";
 import { listAllMediaServerConnections, syncMediaServer } from "./lib/media-servers.js";
 import { listStremioProfiles, syncStremioLibrary } from "./lib/stremio-library.js";
 import { accountOfOwner, adoptLegacyAiConfig } from "./lib/integration-owner.js";
@@ -376,6 +377,7 @@ const start = async () => {
           // After the history poll, so a title finished elsewhere is already
           // recorded and its stale pause is skipped rather than resurrected.
           await runJob("trakt-playback-sync", () => syncTraktPlayback(app.log, profileId));
+          await runJob("trakt-list-sync", () => syncProfileListLinks(profileId, "trakt", app.log));
         }
       },
     });
@@ -407,6 +409,7 @@ const start = async () => {
       tick: async ({ runJob }) => {
         for (const profileId of await listMdbListProfiles()) {
           await runJob("mdblist-sync", () => syncMdbList(profileId, app.log));
+          await runJob("mdblist-list-sync", () => syncProfileListLinks(profileId, "mdblist", app.log));
         }
       },
     });

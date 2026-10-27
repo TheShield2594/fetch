@@ -12,6 +12,7 @@ import { Poster } from "../components/Poster";
 import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
 import { PosterGrid } from "../components/PosterGrid";
 import { PosterCard } from "../components/PosterCard";
+import { ListLinkPanel } from "../components/ListLinkPanel";
 
 type SortOption = "added" | "name" | "year" | "rating";
 
@@ -553,7 +554,10 @@ export function ListsPage() {
                     <AlertTriangle className="h-4 w-4 flex-none text-danger" />
                     <p role="alert" className="text-xs font-semibold text-danger">Delete "{list.name}"?</p>
                   </div>
-                  <p className="text-xs mb-3" style={{ color: "var(--text-mute)" }}>This will remove the list and all its items.</p>
+                  <p className="text-xs mb-3" style={{ color: "var(--text-mute)" }}>
+                    This will remove the list and all its items.
+                    {list.link && ` Its ${list.link.provider === "trakt" ? "Trakt" : "MDBList"} list is kept.`}
+                  </p>
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -727,6 +731,17 @@ export function ListsPage() {
                 Add
               </button>
             </div>
+
+            {selectedList.kind === "custom" && (
+              <ListLinkPanel
+                list={selectedList}
+                onMessage={showToast}
+                onChanged={() => {
+                  void loadLists();
+                  void loadItems(selectedList.id);
+                }}
+              />
+            )}
 
             {/* Sort & filter controls */}
             {items.length > 0 && (

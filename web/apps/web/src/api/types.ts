@@ -72,6 +72,31 @@ export type CatalogList = {
   name: string;
   kind: "watchlist" | "custom" | "collection";
   itemCount: number;
+  /** The Trakt or MDBList list a custom list is kept in step with, if any. */
+  link?: ListLink | null;
+};
+
+export type ListLinkProvider = "trakt" | "mdblist";
+
+export type ListLink = {
+  provider: ListLinkProvider;
+  remoteId: string;
+  remoteName: string;
+  lastSyncedAt: string | null;
+  lastError: string | null;
+};
+
+/** One of the profile's own lists on a service, to link a Fetch list to. */
+export type ListLinkTarget = { id: string; name: string; itemCount: number | null };
+
+export type ListLinkSyncResult = {
+  status: "ok" | "partial" | "missing" | "disconnected";
+  addedLocally: number;
+  removedLocally: number;
+  pushedAdds: number;
+  pushedRemovals: number;
+  kept: number;
+  error: string | null;
 };
 
 export type CatalogMeta = {

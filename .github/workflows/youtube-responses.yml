@@ -1,0 +1,42 @@
+name: YouTube responses
+
+# Fetches live signed-out YouTube TV responses (search, a channel and its tabs, a playlist,
+# next) and runs the parser's real-response checks against them, so a change on YouTube's side
+# shows up here before users notice. Scheduled only: it never blocks a pull request.
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Parse live YouTube responses
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Fetch responses
+        run: python3 scripts/youtube_fixtures.py --out "$RUNNER_TEMP/youtube"
+
+      - name: Parse them
+        env:
+          YOUTUBE_FIXTURES_DIR: ${{ runner.temp }}/youtube
+        run: ./gradlew --no-daemon :app:testFullDebugUnitTest --tests 'com.fetch.tv.data.youtube.YouTubeRealResponseTest'
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: youtube-responses
+          path: ${{ runner.temp }}/youtube
+          if-no-files-found: ignore

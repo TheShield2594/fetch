@@ -1,0 +1,1055 @@
+{
+ "contents": {
+  "tvBrowseRenderer": {
+   "content": {
+    "tvSecondaryNavRenderer": {
+     "sections": [
+      {
+       "tvSecondaryNavSectionRenderer": {
+        "tabs": [
+         {
+          "tabRenderer": {
+           "endpoint": {
+            "browseEndpoint": {
+             "params": "4qmFsgJoEhhVQ0xBX0RpUjFGZktOdmp1VXBCSG15bFEaTDhnWXhHaV9TQVN3aUtnb0FFaVEyWVdZMFl6STNOQzB3TURBd0xUSmhPVFV0T1RReFpDMWtOR1kxTkRkbE9ETm1NalFZQVElM0QlM0Q%3D"
+            }
+           },
+           "title": "Latest",
+           "selected": true,
+           "content": {
+            "tvSurfaceContentRenderer": {
+             "content": {
+              "gridRenderer": {
+               "items": [
+                {
+                 "tileRenderer": {
+                  "style": "TILE_STYLE_YTLR_DEFAULT",
+                  "header": {
+                   "tileHeaderRenderer": {
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/vi/9wq3VHsL_bE/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCC7609JJdE1ic8h5PLtaCFmDRDYg",
+                       "width": 480,
+                       "height": 270
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 17,
+                      "green": 66,
+                      "blue": 114
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 7045785
+                     }
+                    },
+                    "thumbnailOverlays": [
+                     {
+                      "thumbnailOverlayTimeStatusRenderer": {
+                       "text": {
+                        "runs": [
+                         {
+                          "text": "3",
+                          "bold": true
+                         },
+                         {
+                          "text": " videos"
+                         }
+                        ]
+                       },
+                       "style": "DEFAULT",
+                       "icon": {
+                        "iconType": "PLAYLISTS"
+                       }
+                      }
+                     },
+                     {
+                      "thumbnailOverlayStackingEffectRenderer": {
+                       "upperStackColor": 4282996064,
+                       "lowerStackColor": 4285957523
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "metadata": {
+                   "tileMetadataRenderer": {
+                    "title": {
+                     "simpleText": "Nancy Grace Roman Space Telescope"
+                    },
+                    "lines": [
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "runs": [
+                            {
+                             "text": "NASA",
+                             "navigationEndpoint": {
+                              "browseEndpoint": {
+                               "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+                              }
+                             }
+                            }
+                           ]
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     },
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "simpleText": "1.4K views"
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "onSelectCommand": {
+                   "browseEndpoint": {
+                    "browseId": "VLPLF98rxtslw6s",
+                    "pageAnimation": {
+                     "preloadPageConfig": {
+                      "backgroundScrimConfig": {
+                       "scrimStyle": "SCRIM_STYLE_DEFAULT"
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "contentId": "PLF98rxtslw6s",
+                  "contentType": "TILE_CONTENT_TYPE_PLAYLIST",
+                  "onLongPressCommand": {
+                   "showMenuCommand": {
+                    "contentId": "PLF98rxtslw6s",
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/vi/9wq3VHsL_bE/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCC7609JJdE1ic8h5PLtaCFmDRDYg",
+                       "width": 480,
+                       "height": 270
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 17,
+                      "green": 66,
+                      "blue": 114
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 7045785
+                     }
+                    },
+                    "title": {
+                     "simpleText": "Nancy Grace Roman Space Telescope"
+                    },
+                    "subtitle": {
+                     "simpleText": "NASA • @NASA"
+                    },
+                    "menu": {
+                     "menuRenderer": {
+                      "items": [
+                       {
+                        "menuNavigationItemRenderer": {
+                         "text": {
+                          "runs": [
+                           {
+                            "text": "Play"
+                           }
+                          ]
+                         },
+                         "navigationEndpoint": {
+                          "watchEndpoint": {
+                           "videoId": "9wq3VHsL_bE",
+                           "playlistId": "PLF98rxtslw6s"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "tileRenderer": {
+                  "style": "TILE_STYLE_YTLR_DEFAULT",
+                  "header": {
+                   "tileHeaderRenderer": {
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/pl_c/PLB29CbKaE2OY/studio_square_thumbnail.jpg?sqp=CPeMgtcG-oaymwEICIAKENAFSFqi85f_AwYIqMLO0wY=&rs=AOn4CLCQ-9j7tCvbw_fsIFmKTDkojdIgXQ",
+                       "width": 1280,
+                       "height": 720
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 76,
+                      "green": 76,
+                      "blue": 76
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 10066329
+                     }
+                    },
+                    "thumbnailOverlays": [
+                     {
+                      "thumbnailOverlayTimeStatusRenderer": {
+                       "text": {
+                        "runs": [
+                         {
+                          "text": "9",
+                          "bold": true
+                         },
+                         {
+                          "text": " videos"
+                         }
+                        ]
+                       },
+                       "style": "DEFAULT",
+                       "icon": {
+                        "iconType": "PLAYLISTS"
+                       }
+                      }
+                     },
+                     {
+                      "thumbnailOverlayStackingEffectRenderer": {
+                       "upperStackColor": 4284045657,
+                       "lowerStackColor": 4287401100
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "metadata": {
+                   "tileMetadataRenderer": {
+                    "title": {
+                     "simpleText": "NASA Moon Base"
+                    },
+                    "lines": [
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "runs": [
+                            {
+                             "text": "NASA",
+                             "navigationEndpoint": {
+                              "browseEndpoint": {
+                               "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+                              }
+                             }
+                            }
+                           ]
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     },
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "simpleText": "5.4K views"
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "onSelectCommand": {
+                   "browseEndpoint": {
+                    "browseId": "VLPLB29CbKaE2OY",
+                    "pageAnimation": {
+                     "preloadPageConfig": {
+                      "backgroundScrimConfig": {
+                       "scrimStyle": "SCRIM_STYLE_DEFAULT"
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "onFocusCommand": {
+                   "showHintCommand": {
+                    "shouldShowHint": true
+                   }
+                  },
+                  "contentId": "PLB29CbKaE2OY",
+                  "contentType": "TILE_CONTENT_TYPE_PLAYLIST",
+                  "onLongPressCommand": {
+                   "showMenuCommand": {
+                    "contentId": "PLB29CbKaE2OY",
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/pl_c/PLB29CbKaE2OY/studio_square_thumbnail.jpg?sqp=CPeMgtcG-oaymwEICIAKENAFSFqi85f_AwYIqMLO0wY=&rs=AOn4CLCQ-9j7tCvbw_fsIFmKTDkojdIgXQ",
+                       "width": 1280,
+                       "height": 720
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 76,
+                      "green": 76,
+                      "blue": 76
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 10066329
+                     }
+                    },
+                    "title": {
+                     "simpleText": "NASA Moon Base"
+                    },
+                    "subtitle": {
+                     "simpleText": "NASA • @NASA"
+                    },
+                    "menu": {
+                     "menuRenderer": {
+                      "items": [
+                       {
+                        "menuNavigationItemRenderer": {
+                         "text": {
+                          "runs": [
+                           {
+                            "text": "Play"
+                           }
+                          ]
+                         },
+                         "navigationEndpoint": {
+                          "watchEndpoint": {
+                           "videoId": "tQcNSJc8gEg",
+                           "playlistId": "PLB29CbKaE2OY"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "tileRenderer": {
+                  "style": "TILE_STYLE_YTLR_DEFAULT",
+                  "header": {
+                   "tileHeaderRenderer": {
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/pl_c/PLb911ot23pTQ/studio_square_thumbnail.jpg?sqp=CJzGgtcG-oaymwEICIAKENAFSFqi85f_AwYIyoGk0wY=&rs=AOn4CLBY0pdjk0EkV0HS4q2PCET6fdO5IA",
+                       "width": 1280,
+                       "height": 720
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 114,
+                      "green": 58,
+                      "blue": 17
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 10059371
+                     }
+                    },
+                    "thumbnailOverlays": [
+                     {
+                      "thumbnailOverlayTimeStatusRenderer": {
+                       "text": {
+                        "runs": [
+                         {
+                          "text": "4",
+                          "bold": true
+                         },
+                         {
+                          "text": " videos"
+                         }
+                        ]
+                       },
+                       "style": "DEFAULT",
+                       "icon": {
+                        "iconType": "PLAYLISTS"
+                       }
+                      }
+                     },
+                     {
+                      "thumbnailOverlayStackingEffectRenderer": {
+                       "upperStackColor": 4284502857,
+                       "lowerStackColor": 4287857270
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "metadata": {
+                   "tileMetadataRenderer": {
+                    "title": {
+                     "simpleText": "2026 Total Solar Eclipse"
+                    },
+                    "lines": [
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "runs": [
+                            {
+                             "text": "NASA",
+                             "navigationEndpoint": {
+                              "browseEndpoint": {
+                               "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+                              }
+                             }
+                            }
+                           ]
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     },
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "simpleText": "2.4K views"
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "onSelectCommand": {
+                   "browseEndpoint": {
+                    "browseId": "VLPLb911ot23pTQ",
+                    "pageAnimation": {
+                     "preloadPageConfig": {
+                      "backgroundScrimConfig": {
+                       "scrimStyle": "SCRIM_STYLE_DEFAULT"
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "contentId": "PLb911ot23pTQ",
+                  "contentType": "TILE_CONTENT_TYPE_PLAYLIST",
+                  "onLongPressCommand": {
+                   "showMenuCommand": {
+                    "contentId": "PLb911ot23pTQ",
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/pl_c/PLb911ot23pTQ/studio_square_thumbnail.jpg?sqp=CJzGgtcG-oaymwEICIAKENAFSFqi85f_AwYIyoGk0wY=&rs=AOn4CLBY0pdjk0EkV0HS4q2PCET6fdO5IA",
+                       "width": 1280,
+                       "height": 720
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 114,
+                      "green": 58,
+                      "blue": 17
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 10059371
+                     }
+                    },
+                    "title": {
+                     "simpleText": "2026 Total Solar Eclipse"
+                    },
+                    "subtitle": {
+                     "simpleText": "NASA • @NASA"
+                    },
+                    "menu": {
+                     "menuRenderer": {
+                      "items": [
+                       {
+                        "menuNavigationItemRenderer": {
+                         "text": {
+                          "runs": [
+                           {
+                            "text": "Play"
+                           }
+                          ]
+                         },
+                         "navigationEndpoint": {
+                          "watchEndpoint": {
+                           "videoId": "29ixFQIGZaY",
+                           "playlistId": "PLb911ot23pTQ"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "tileRenderer": {
+                  "style": "TILE_STYLE_YTLR_DEFAULT",
+                  "header": {
+                   "tileHeaderRenderer": {
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/vi/yMoGiIeDH9s/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDfsmBn0EzLglbGoa-Q9UCm9qS_kw",
+                       "width": 480,
+                       "height": 270
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 20,
+                      "green": 53,
+                      "blue": 114
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 7043993
+                     }
+                    },
+                    "thumbnailOverlays": [
+                     {
+                      "thumbnailOverlayTimeStatusRenderer": {
+                       "text": {
+                        "runs": [
+                         {
+                          "text": "9",
+                          "bold": true
+                         },
+                         {
+                          "text": " videos"
+                         }
+                        ]
+                       },
+                       "style": "DEFAULT",
+                       "icon": {
+                        "iconType": "PLAYLISTS"
+                       }
+                      }
+                     },
+                     {
+                      "thumbnailOverlayStackingEffectRenderer": {
+                       "upperStackColor": 4282995040,
+                       "lowerStackColor": 4285956243
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "metadata": {
+                   "tileMetadataRenderer": {
+                    "title": {
+                     "simpleText": "Artemis III"
+                    },
+                    "lines": [
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "runs": [
+                            {
+                             "text": "NASA",
+                             "navigationEndpoint": {
+                              "browseEndpoint": {
+                               "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+                              }
+                             }
+                            }
+                           ]
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     },
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "simpleText": "34K views"
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "onSelectCommand": {
+                   "browseEndpoint": {
+                    "browseId": "VLPL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                    "pageAnimation": {
+                     "preloadPageConfig": {
+                      "backgroundScrimConfig": {
+                       "scrimStyle": "SCRIM_STYLE_DEFAULT"
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "contentId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                  "contentType": "TILE_CONTENT_TYPE_PLAYLIST",
+                  "onLongPressCommand": {
+                   "showMenuCommand": {
+                    "contentId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ",
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/vi/yMoGiIeDH9s/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDfsmBn0EzLglbGoa-Q9UCm9qS_kw",
+                       "width": 480,
+                       "height": 270
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 20,
+                      "green": 53,
+                      "blue": 114
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 7043993
+                     }
+                    },
+                    "title": {
+                     "simpleText": "Artemis III"
+                    },
+                    "subtitle": {
+                     "simpleText": "NASA • @NASA"
+                    },
+                    "menu": {
+                     "menuRenderer": {
+                      "items": [
+                       {
+                        "menuNavigationItemRenderer": {
+                         "text": {
+                          "runs": [
+                           {
+                            "text": "Play"
+                           }
+                          ]
+                         },
+                         "navigationEndpoint": {
+                          "watchEndpoint": {
+                           "videoId": "yMoGiIeDH9s",
+                           "playlistId": "PL2aBZuCeDwlRaF6AIey7ulmW1X0SHI1mQ"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "tileRenderer": {
+                  "style": "TILE_STYLE_YTLR_DEFAULT",
+                  "header": {
+                   "tileHeaderRenderer": {
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/vi/7xz9s8cVFE4/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAve-rx2Knz3ddFvHSe-0zKEkPcwA",
+                       "width": 480,
+                       "height": 270
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 73,
+                      "green": 58,
+                      "blue": 114
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 7826329
+                     }
+                    },
+                    "thumbnailOverlays": [
+                     {
+                      "thumbnailOverlayTimeStatusRenderer": {
+                       "text": {
+                        "runs": [
+                         {
+                          "text": "6",
+                          "bold": true
+                         },
+                         {
+                          "text": " videos"
+                         }
+                        ]
+                       },
+                       "style": "DEFAULT",
+                       "icon": {
+                        "iconType": "PLAYLISTS"
+                       }
+                      }
+                     },
+                     {
+                      "thumbnailOverlayStackingEffectRenderer": {
+                       "upperStackColor": 4283386208,
+                       "lowerStackColor": 4286872731
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "metadata": {
+                   "tileMetadataRenderer": {
+                    "title": {
+                     "simpleText": "Artemis II Astronauts"
+                    },
+                    "lines": [
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "runs": [
+                            {
+                             "text": "NASA",
+                             "navigationEndpoint": {
+                              "browseEndpoint": {
+                               "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+                              }
+                             }
+                            }
+                           ]
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     },
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "simpleText": "70K views"
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "onSelectCommand": {
+                   "browseEndpoint": {
+                    "browseId": "VLPL2aBZuCeDwlSZtPohs7riBBDIgl9D5ltA",
+                    "pageAnimation": {
+                     "preloadPageConfig": {
+                      "backgroundScrimConfig": {
+                       "scrimStyle": "SCRIM_STYLE_DEFAULT"
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "contentId": "PL2aBZuCeDwlSZtPohs7riBBDIgl9D5ltA",
+                  "contentType": "TILE_CONTENT_TYPE_PLAYLIST",
+                  "onLongPressCommand": {
+                   "showMenuCommand": {
+                    "contentId": "PL2aBZuCeDwlSZtPohs7riBBDIgl9D5ltA",
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/vi/7xz9s8cVFE4/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLAve-rx2Knz3ddFvHSe-0zKEkPcwA",
+                       "width": 480,
+                       "height": 270
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 73,
+                      "green": 58,
+                      "blue": 114
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 7826329
+                     }
+                    },
+                    "title": {
+                     "simpleText": "Artemis II Astronauts"
+                    },
+                    "subtitle": {
+                     "simpleText": "NASA • @NASA"
+                    },
+                    "menu": {
+                     "menuRenderer": {
+                      "items": [
+                       {
+                        "menuNavigationItemRenderer": {
+                         "text": {
+                          "runs": [
+                           {
+                            "text": "Play"
+                           }
+                          ]
+                         },
+                         "navigationEndpoint": {
+                          "watchEndpoint": {
+                           "videoId": "7xz9s8cVFE4",
+                           "playlistId": "PL2aBZuCeDwlSZtPohs7riBBDIgl9D5ltA"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "tileRenderer": {
+                  "style": "TILE_STYLE_YTLR_DEFAULT",
+                  "header": {
+                   "tileHeaderRenderer": {
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/vi/o4KQZmCyMko/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLADvEmiMt_gS08Ata_08OTpMxfcCw",
+                       "width": 480,
+                       "height": 270
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 101,
+                      "green": 84,
+                      "blue": 60
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 12560261
+                     }
+                    },
+                    "thumbnailOverlays": [
+                     {
+                      "thumbnailOverlayTimeStatusRenderer": {
+                       "text": {
+                        "runs": [
+                         {
+                          "text": "18",
+                          "bold": true
+                         },
+                         {
+                          "text": " videos"
+                         }
+                        ]
+                       },
+                       "style": "DEFAULT",
+                       "icon": {
+                        "iconType": "PLAYLISTS"
+                       }
+                      }
+                     },
+                     {
+                      "thumbnailOverlayStackingEffectRenderer": {
+                       "upperStackColor": 4284503881,
+                       "lowerStackColor": 4287858550
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "metadata": {
+                   "tileMetadataRenderer": {
+                    "title": {
+                     "simpleText": "E.Z. Science"
+                    },
+                    "lines": [
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "runs": [
+                            {
+                             "text": "NASA",
+                             "navigationEndpoint": {
+                              "browseEndpoint": {
+                               "browseId": "UCLA_DiR1FfKNvjuUpBHmylQ"
+                              }
+                             }
+                            }
+                           ]
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     },
+                     {
+                      "lineRenderer": {
+                       "items": [
+                        {
+                         "lineItemRenderer": {
+                          "text": {
+                           "simpleText": "24K views"
+                          }
+                         }
+                        }
+                       ]
+                      }
+                     }
+                    ]
+                   }
+                  },
+                  "onSelectCommand": {
+                   "browseEndpoint": {
+                    "browseId": "VLPL2aBZuCeDwlSXza3YLqwbUFokwqQHpPbp",
+                    "pageAnimation": {
+                     "preloadPageConfig": {
+                      "backgroundScrimConfig": {
+                       "scrimStyle": "SCRIM_STYLE_DEFAULT"
+                      }
+                     }
+                    }
+                   }
+                  },
+                  "contentId": "PL2aBZuCeDwlSXza3YLqwbUFokwqQHpPbp",
+                  "contentType": "TILE_CONTENT_TYPE_PLAYLIST",
+                  "onLongPressCommand": {
+                   "showMenuCommand": {
+                    "contentId": "PL2aBZuCeDwlSXza3YLqwbUFokwqQHpPbp",
+                    "thumbnail": {
+                     "thumbnails": [
+                      {
+                       "url": "https://i.ytimg.com/vi/o4KQZmCyMko/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLADvEmiMt_gS08Ata_08OTpMxfcCw",
+                       "width": 480,
+                       "height": 270
+                      }
+                     ],
+                     "sampledThumbnailColor": {
+                      "red": 101,
+                      "green": 84,
+                      "blue": 60
+                     },
+                     "vibrantColorPalette": {
+                      "iconInactiveColor": 12560261
+                     }
+                    },
+                    "title": {
+                     "simpleText": "E.Z. Science"
+                    },
+                    "subtitle": {
+                     "simpleText": "NASA • @NASA"
+                    },
+                    "menu": {
+                     "menuRenderer": {
+                      "items": [
+                       {
+                        "menuNavigationItemRenderer": {
+                         "text": {
+                          "runs": [
+                           {
+                            "text": "Play"
+                           }
+                          ]
+                         },
+                         "navigationEndpoint": {
+                          "watchEndpoint": {
+                           "videoId": "o4KQZmCyMko",
+                           "playlistId": "PL2aBZuCeDwlSXza3YLqwbUFokwqQHpPbp"
+                          }
+                         }
+                        }
+                       }
+                      ]
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               ],
+               "continuations": [
+                {
+                 "nextContinuationData": {
+                  "continuation": "4qmFsgJ0EhhVQ0xBX0RpUjFGZktOdmp1VXBCSG15bFEaWDhnWV9HajNTQVRvS05Bb01RMmRWUzBFd1RrTk9Ra0ZCRWlRMllXWTBZekkzTlMwd01EQXdMVEpoT1RVdE9UUXhaQzFrTkdZMU5EZGxPRE5tTWpRU0FoQm8%3D"
+                 }
+                }
+               ],
+               "isCollapsible": false
+              }
+             },
+             "continuation": {
+              "reloadContinuationData": {
+               "continuation": "4qmFsgJoEhhVQ0xBX0RpUjFGZktOdmp1VXBCSG15bFEaTDhnWXhHaV9TQVN3aUtnb0FFaVEyWVdZMFl6STNOQzB3TURBd0xUSmhPVFV0T1RReFpDMWtOR1kxTkRkbE9ETm1NalFZQVElM0QlM0Q%3D"
+              }
+             },
+             "targetId": "6af4c274-0000-2a95-941d-d4f547e83f24"
+            }
+           }
+          }
+         },
+         {
+          "tabRenderer": {
+           "endpoint": {
+            "browseEndpoint": {
+             "params": "4qmFsgJoEhhVQ0xBX0RpUjFGZktOdmp1VXBCSG15bFEaTDhnWXhHaV9TQVN3aUtnb0FFaVEyWVdZMFl6STNOQzB3TURBd0xUSmhPVFV0T1RReFpDMWtOR1kxTkRkbE9ETm1NalFZQWclM0QlM0Q%3D"
+            }
+           },
+           "title": "Recently updated",
+           "selected": false,
+           "content": {
+            "tvSurfaceContentRenderer": {
+             "continuation": {
+              "reloadContinuationData": {
+               "continuation": "4qmFsgJoEhhVQ0xBX0RpUjFGZktOdmp1VXBCSG15bFEaTDhnWXhHaV9TQVN3aUtnb0FFaVEyWVdZMFl6STNOQzB3TURBd0xUSmhPVFV0T1RReFpDMWtOR1kxTkRkbE9ETm1NalFZQWclM0QlM0Q%3D"
+              }
+             },
+             "targetId": "6af4c274-0000-2a95-941d-d4f547e83f24"
+            }
+           }
+          }
+         }
+        ]
+       }
+      }
+     ],
+     "title": {
+      "simpleText": "Playlists"
+     },
+     "style": "TV_SECONDARY_NAV_RENDERER_STYLE_CHIPS_RIGHT_ALIGNED"
+    }
+   }
+  }
+ }
+}

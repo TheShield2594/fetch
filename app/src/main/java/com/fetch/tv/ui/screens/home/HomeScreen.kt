@@ -436,9 +436,16 @@ fun HomeScreen(
             onToggleRowPinned = {
                 selectedPoster.rowKey?.let(viewModel::toggleRowPinned)
                 posterOptionsTarget = null
+            },
+            extraActions = {
+                com.fetch.tv.ui.screens.profile.ParentalTitleMenuButton(
+                    title = com.fetch.tv.ui.screens.profile.parentalTitleOf(item),
+                    onDone = { posterOptionsTarget = null }
+                )
             }
         )
     }
+    com.fetch.tv.ui.screens.profile.ParentalTitleDialogHost()
 
     if (uiState.showPosterListPicker) {
         val localTab = LibraryListTab(
@@ -594,7 +601,8 @@ private fun HomePosterOptionsDialog(
     onDetails: () -> Unit,
     onToggleLibrary: () -> Unit,
     onToggleWatched: () -> Unit,
-    onToggleRowPinned: () -> Unit
+    onToggleRowPinned: () -> Unit,
+    extraActions: @Composable () -> Unit = {}
 ) {
     val primaryFocusRequester = remember { FocusRequester() }
 
@@ -680,6 +688,8 @@ private fun HomePosterOptionsDialog(
                 )
             }
         }
+
+        extraActions()
     }
 }
 

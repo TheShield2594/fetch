@@ -1,0 +1,125 @@
+{
+ "contents": {
+  "tvBrowseRenderer": {
+   "content": {
+    "tvSurfaceContentRenderer": {
+     "content": {
+      "gridRenderer": {
+       "items": [
+        {
+         "tileRenderer": {
+          "style": "TILE_STYLE_YTLR_SQUARE",
+          "header": {
+           "tileHeaderRenderer": {
+            "thumbnail": {
+             "thumbnails": [
+              {
+               "url": "https://i.ytimg.com/vi/JNCw3fUtwbs/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDRuwabMngfrYcDtQjQmLd0IyAxJQ",
+               "width": 480,
+               "height": 270
+              }
+             ]
+            }
+           }
+          },
+          "metadata": {
+           "tileMetadataRenderer": {
+            "title": {
+             "simpleText": "Gravity Assist: NASA Podcast"
+            },
+            "lines": [
+             {
+              "lineRenderer": {
+               "items": [
+                {
+                 "lineItemRenderer": {
+                  "text": {
+                   "simpleText": "25K views"
+                  }
+                 }
+                }
+               ],
+               "wrap": true
+              }
+             }
+            ]
+           }
+          },
+          "onSelectCommand": {
+           "browseEndpoint": {
+            "browseId": "VLPL2aBZuCeDwlTxZeGRlKrWpLiX_W7jpt6p",
+            "params": "kgYPKgtKTkN3M2ZVdHdic0AB",
+            "pageAnimation": {
+             "preloadPageConfig": {
+              "ghostState": "GHOST_STATE_EPISODIC_SHOW_PAGE"
+             }
+            }
+           }
+          },
+          "contentId": "PL2aBZuCeDwlTxZeGRlKrWpLiX_W7jpt6p",
+          "contentType": "TILE_CONTENT_TYPE_PLAYLIST",
+          "onLongPressCommand": {
+           "showMenuCommand": {
+            "contentId": "PL2aBZuCeDwlTxZeGRlKrWpLiX_W7jpt6p",
+            "thumbnail": {
+             "thumbnails": [
+              {
+               "url": "https://i.ytimg.com/vi/JNCw3fUtwbs/hqdefault.jpg?sqp=-oaymwEXCOADEI4CSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLDRuwabMngfrYcDtQjQmLd0IyAxJQ",
+               "width": 480,
+               "height": 270
+              }
+             ]
+            },
+            "title": {
+             "simpleText": "Gravity Assist: NASA Podcast"
+            },
+            "subtitle": {
+             "simpleText": "25K views • @NASA"
+            },
+            "menu": {
+             "menuRenderer": {
+              "items": [
+               {
+                "menuNavigationItemRenderer": {
+                 "text": {
+                  "runs": [
+                   {
+                    "text": "Play"
+                   }
+                  ]
+                 },
+                 "navigationEndpoint": {
+                  "watchEndpoint": {
+                   "videoId": "JNCw3fUtwbs",
+                   "playlistId": "PL2aBZuCeDwlTxZeGRlKrWpLiX_W7jpt6p"
+                  }
+                 }
+                }
+               }
+              ]
+             }
+            }
+           }
+          }
+         }
+        }
+       ],
+       "isCollapsible": false
+      }
+     },
+     "header": {
+      "tvSurfaceHeaderRenderer": {
+       "title": {
+        "runs": [
+         {
+          "text": "Podcasts"
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

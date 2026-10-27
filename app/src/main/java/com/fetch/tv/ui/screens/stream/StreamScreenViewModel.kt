@@ -404,7 +404,7 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     private suspend fun isAllowedForProfile(): Boolean {
-        if (!parentalControls.activeRestrictions.value.isRestricted) return true
+        if (!parentalControls.filtersContent()) return true
         val baseId = (contentId ?: videoId.substringBefore(":")).takeIf { it.isNotBlank() } ?: return false
         return parentalControls.isAllowedResolved(
             com.fetch.tv.core.parental.CertificationQuery(

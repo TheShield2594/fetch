@@ -5,9 +5,9 @@ import com.fetch.tv.core.parental.ParentalControls
 private fun com.fetch.tv.domain.model.CatalogRow.isPlaceholderRow(): Boolean =
     isLoading && items.firstOrNull()?.id?.startsWith("__placeholder_") == true
 
-/** Applies the active profile's certification limit to search and Discover results. */
+/** Applies the active profile's certification limit and hidden titles to search and Discover results. */
 internal fun SearchUiState.filteredForProfile(parentalControls: ParentalControls): SearchUiState {
-    if (!parentalControls.activeRestrictions.value.isRestricted) return this
+    if (!parentalControls.filtersContent()) return this
     return copy(
         catalogRows = catalogRows.mapNotNull { row ->
             if (row.isPlaceholderRow()) return@mapNotNull row

@@ -3080,6 +3080,15 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">No limit</string>
+    <string name="parental_title_hide">Hide from %1$s</string>
+    <string name="parental_title_limits">Parental limits for this title</string>
+    <string name="parental_title_dialog_subtitle">Choose how each profile treats this title. A hidden title is left out of that profile\'s rows, search, Continue Watching and autoplay, though a direct link still opens its page. An allowed one shows whatever its rating.</string>
+    <string name="parental_title_state_rating">%1$s: rating limit decides</string>
+    <string name="parental_title_state_hidden">%1$s: hidden</string>
+    <string name="parental_title_state_allowed">%1$s: always allowed</string>
+    <string name="parental_hidden_titles">Hidden titles</string>
+    <string name="parental_allowed_titles">Always allowed titles</string>
+    <string name="parental_title_lists_hint">Select a title to leave it to the rating limit again</string>
     <string name="ready_to_play">Ready to play</string>
     <string name="home_row_ready_tonight">Ready tonight</string>
     <string name="ready_check_title">Check what\'s ready in the background</string>

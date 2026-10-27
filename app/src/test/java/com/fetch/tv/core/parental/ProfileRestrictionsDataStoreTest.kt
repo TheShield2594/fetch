@@ -1,8 +1,10 @@
 package com.fetch.tv.core.parental
 
 import com.fetch.tv.TestPreferencesStore
+import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
+import com.fetch.tv.data.local.ProfileTitleLists
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -40,5 +42,67 @@ class ProfileRestrictionsDataStoreTest {
         assertTrue(preset.contentRestriction.allows(CertificationLevel.PARENTAL_GUIDANCE))
         assertFalse(preset.contentRestriction.allows(CertificationLevel.TEENS))
         assertFalse(ProfileRestrictions.None.isRestricted)
+    }
+
+    private val movie = ParentalTitle(ids = listOf("tt0111161", "tmdb:278"), type = "movie", name = "A Film")
+    private val show = ParentalTitle(ids = listOf("tt0903747"), type = "series", name = "A Show")
+
+    @Test
+    fun `title lists round trip per profile`() = runTest {
+        store.updateTitleLists(2) { it.withHidden(movie) }
+        store.updateTitleLists(3) { it.withAllowed(show) }
+
+        val all = store.titleLists.first()
+        assertEquals(listOf(movie), all[2]?.hidden)
+        assertEquals(listOf(show), all[3]?.allowed)
+    }
+
+    @Test
+    fun `limits from a website pull leave the title lists alone`() = runTest {
+        store.updateTitleLists(2) { it.withHidden(movie) }
+        store.setRestrictions(2, ProfileRestrictions.KidsPreset)
+        store.removeProfile(2)
+
+        assertEquals(listOf(movie), store.titleLists.first()[2]?.hidden)
+    }
+
+    @Test
+    fun `deleting a profile drops its title lists`() = runTest {
+        store.updateTitleLists(2) { it.withHidden(movie) }
+        store.deleteProfile(2)
+
+        assertTrue(store.titleLists.first().isEmpty())
+    }
+
+    @Test
+    fun `a title is on one list at most`() {
+        val lists = ProfileTitleLists().withHidden(movie).withAllowed(movie)
+
+        assertTrue(lists.hidden.isEmpty())
+        assertEquals(listOf(movie), lists.allowed)
+        assertTrue(lists.without(movie).isEmpty)
+    }
+
+    @Test
+    fun `a listed title matches any of its ids and its episodes`() {
+        val lists = ProfileTitleLists().withHidden(movie).withHidden(show)
+
+        assertTrue(lists.isHidden("tmdb:278", imdbId = null, type = "movie"))
+        assertTrue(lists.isHidden("tmdb:999", imdbId = "tt0111161", type = null))
+        assertTrue(lists.isHidden("tt0903747:1:2", imdbId = null, type = "series"))
+        assertFalse(lists.isHidden("tt09037470", imdbId = null, type = null))
+        assertFalse(lists.isAllowed("tt0111161", imdbId = null, type = "movie"))
+    }
+
+    @Test
+    fun `a movie and a series sharing an id stay apart`() {
+        val series = ParentalTitle(ids = listOf("tmdb:278"), type = "tv", name = "Another Show")
+        val lists = ProfileTitleLists().withAllowed(movie).withHidden(series)
+
+        assertTrue(lists.isAllowed("tmdb:278", imdbId = null, type = "movie"))
+        assertFalse(lists.isAllowed("tmdb:278", imdbId = null, type = "series"))
+        assertTrue(lists.isHidden("tmdb:278", imdbId = null, type = "series"))
+        assertFalse(lists.isHidden("tmdb:278", imdbId = null, type = "movie"))
+        assertEquals(listOf(series), lists.without(movie).hidden)
     }
 }

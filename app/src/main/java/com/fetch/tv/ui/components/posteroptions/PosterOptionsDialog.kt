@@ -34,6 +34,9 @@ import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.localizedMembershipTitle
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.ui.components.FetchDialog
+import com.fetch.tv.ui.screens.profile.ParentalTitleDialogHost
+import com.fetch.tv.ui.screens.profile.ParentalTitleMenuButton
+import com.fetch.tv.ui.screens.profile.parentalTitleOf
 import com.fetch.tv.ui.theme.FetchStatusTones
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -50,7 +53,9 @@ fun PosterOptionsDialog(
     onDismiss: () -> Unit,
     onDetails: () -> Unit,
     onToggleLibrary: () -> Unit,
-    onToggleWatched: () -> Unit
+    onToggleWatched: () -> Unit,
+    /** Further entries after the built-in ones, such as the parental one. */
+    extraActions: @Composable () -> Unit = {}
 ) {
     val primaryFocusRequester = remember { FocusRequester() }
 
@@ -117,6 +122,8 @@ fun PosterOptionsDialog(
                 )
             }
         }
+
+        extraActions()
     }
 }
 
@@ -243,9 +250,16 @@ fun PosterOptionsHost(
                     controller.toggleSeriesWatched()
                 }
                 controller.dismiss()
+            },
+            extraActions = {
+                ParentalTitleMenuButton(
+                    title = parentalTitleOf(target, state.originalItemId),
+                    onDone = controller::dismiss
+                )
             }
         )
     }
+    ParentalTitleDialogHost()
 
     if (state.listPickerActive) {
         val localTab = LibraryListTab(

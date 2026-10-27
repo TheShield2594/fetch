@@ -147,8 +147,9 @@ class FetchWebsiteSyncService @Inject constructor(
         // Parental limits come from the website while paired: it is where they are set.
         val slots = remote.map { it.slot }.toSet()
         remote.forEach { restrictionsDataStore.setRestrictions(it.slot, FetchWebsiteMappings.toRestrictions(it.parental)) }
-        restrictionsDataStore.restrictions.first().keys.filter { it !in slots }.forEach {
-            restrictionsDataStore.removeProfile(it)
+        val stored = restrictionsDataStore.restrictions.first().keys + restrictionsDataStore.titleLists.first().keys
+        stored.filter { it !in slots }.forEach {
+            restrictionsDataStore.deleteProfile(it)
         }
 
         // Which profiles are locked. The PIN itself is only ever checked by the website; the

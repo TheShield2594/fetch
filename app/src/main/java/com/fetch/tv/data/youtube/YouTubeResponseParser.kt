@@ -159,7 +159,8 @@ internal object YouTubeResponseParser {
                         continue
                     }
                     when (key) {
-                        "shelfRenderer", "richShelfRenderer", "reelShelfRenderer" -> {
+                        // Search sends some rows as clusters, each titled by its channel's button.
+                        "shelfRenderer", "richShelfRenderer", "reelShelfRenderer", "clusterRenderer" -> {
                             val bucket = Bucket()
                             collectVideos(value, bucket, depth + 1)
                             if (bucket.videos.isNotEmpty() || bucket.links.isNotEmpty()) {
@@ -171,7 +172,10 @@ internal object YouTubeResponseParser {
                                     continuation = bucket.token,
                                     isShorts = key == "reelShelfRenderer" ||
                                         value["tvhtml5ShelfRendererType"].stringOrNull() == "TVHTML5_SHELF_RENDERER_TYPE_SHORTS",
-                                    viewAll = browseTarget(value.path("endpoint"), title),
+                                    viewAll = browseTarget(
+                                        value.path("endpoint") ?: clusterButton(value).path("onTap", "innertubeCommand"),
+                                        title
+                                    ),
                                     links = bucket.links.distinctBy { it.target }
                                 )
                             }
@@ -506,6 +510,9 @@ internal object YouTubeResponseParser {
             ?: text(shelf.path("headerRenderer", "shelfHeaderRenderer", "title"))
             ?: text(shelf["title"])
             ?: text(shelf.path("header", "shelfHeaderRenderer", "title"))
+            ?: text(clusterButton(shelf).path("title"))
+
+    private fun clusterButton(shelf: JsonObject): JsonElement? = shelf.path("headerRenderer", "buttonViewModel")
 
     private fun findObjectsWithKey(element: JsonElement?, key: String, out: MutableList<JsonObject>, depth: Int) {
         if (element == null || depth > MAX_DEPTH) return

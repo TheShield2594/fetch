@@ -126,7 +126,17 @@ class LayoutPreferenceDataStore @Inject constructor(
             factory.get(pid, FEATURE).data.map { prefs -> extract(prefs) }
         }.also { flow -> profileFlowDefaults[flow] = extract(emptyPreferences()) }
 
-    /** The value [flow] has before the profile changes it. Only flows built with profileFlow have one. */
+    /** [profileFlow] held as a StateFlow; the default is recorded for the StateFlow, which is what callers see. */
+    private fun profileStateFlow(
+        initial: Boolean,
+        extract: (prefs: androidx.datastore.preferences.core.Preferences) -> Boolean
+    ): StateFlow<Boolean> {
+        val source = profileFlow(extract)
+        return source.stateIn(scope, SharingStarted.Eagerly, initial)
+            .also { flow -> profileFlowDefaults[flow] = profileFlowDefaults.remove(source) }
+    }
+
+    /** The value [flow] has before the profile changes it. Only flows built with profileFlow or profileStateFlow have one. */
     @Suppress("UNCHECKED_CAST")
     fun <T> defaultOf(flow: Flow<T>): T {
         require(profileFlowDefaults.containsKey(flow)) { "No default recorded for this flow" }
@@ -359,9 +369,9 @@ class LayoutPreferenceDataStore @Inject constructor(
         prefs[showUnairedNextUpKey] ?: true
     }
 
-    val nextUpFromFurthestEpisode: StateFlow<Boolean> = profileFlow { prefs ->
+    val nextUpFromFurthestEpisode: StateFlow<Boolean> = profileStateFlow(initial = true) { prefs ->
         prefs[nextUpFromFurthestEpisodeKey] ?: true
-    }.stateIn(scope, SharingStarted.Eagerly, true)
+    }
 
     val blurContinueWatchingNextUp: Flow<Boolean> = profileFlow { prefs ->
         prefs[blurContinueWatchingNextUpKey] ?: false
@@ -377,9 +387,9 @@ class LayoutPreferenceDataStore @Inject constructor(
         prefs[detailPageTrailerButtonEnabledKey] ?: true
     }
 
-    val preferExternalMetaAddonDetail: StateFlow<Boolean> = profileFlow { prefs ->
+    val preferExternalMetaAddonDetail: StateFlow<Boolean> = profileStateFlow(initial = true) { prefs ->
         prefs[preferExternalMetaAddonDetailKey] ?: true
-    }.stateIn(scope, SharingStarted.Eagerly, true)
+    }
 
     val hideUnreleasedContent: Flow<Boolean> = profileFlow { prefs ->
         prefs[hideUnreleasedContentKey] ?: false

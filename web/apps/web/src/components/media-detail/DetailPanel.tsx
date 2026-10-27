@@ -6,6 +6,7 @@ import { api, type CheckIn, OfflineWriteQueuedError, type SearchResult, type Tre
 import { WatchDateModal } from "./WatchDateModal";
 import { CheckInModal } from "./CheckInModal";
 import { ExternalLinks, ExternalRatings, StarRating } from "./RatingsSection";
+import { MdbListRatings, useMdbListRatings } from "./MdbListRatings";
 import { ListsSection } from "./ListsSection";
 import { TagsSection } from "./TagsSection";
 import { CastSection, type CastMember } from "./CastSection";
@@ -106,6 +107,7 @@ export function DetailPanel({
   const recommendations: TrendingMeta[] = detail?.recommendations ?? [];
   const seasons: SeasonInfo[] = detail?.seasons ?? [];
   const sectionsLoading = detailLoading;
+  const mdbList = useMdbListRatings(item.imdbId, item.type);
 
   // The header's hierarchy — see the note on it below, and on `buildMetaLine`.
   const hasRating = item.rating != null && item.rating > 0;
@@ -608,8 +610,19 @@ export function DetailPanel({
             </div>
           )}
 
-          {/* External Ratings */}
-          <ExternalRatings imdbId={item.imdbId} imdbRating={item.imdbRating} rtScore={item.rtScore} mcScore={item.mcScore} loading={sectionsLoading} />
+          {/* External Ratings: the profile's MDBList ratings when it has them on,
+              else the scores that came with the title. */}
+          {mdbList.ratings.length > 0 ? (
+            <MdbListRatings imdbId={item.imdbId} ratings={mdbList.ratings} />
+          ) : (
+            <ExternalRatings
+              imdbId={item.imdbId}
+              imdbRating={item.imdbRating}
+              rtScore={item.rtScore}
+              mcScore={item.mcScore}
+              loading={sectionsLoading || mdbList.loading}
+            />
+          )}
 
           {/* External Links */}
           <ExternalLinks tmdbId={item.tmdbId} type={item.type} />

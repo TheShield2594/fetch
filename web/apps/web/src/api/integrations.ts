@@ -3,6 +3,7 @@
  * the active profile's own connection.
  */
 
+import type { MdbListRatingSource } from "@fetch/shared/tv-settings";
 import { request } from "./client";
 import type {
   PlaySignal,
@@ -29,6 +30,11 @@ export type MdbListPending = {
 };
 
 export type MdbListStatus = Omit<SimklStatus, "pending"> & { pending: MdbListPending | null };
+
+/** The profile's MDBList API key for ratings, and whether its MDBList sign-in can stand in for one. */
+export type MdbListKeyStatus = { hasKey: boolean; signedIn: boolean };
+
+export type MdbListRating = { source: MdbListRatingSource; value: number; certified: boolean };
 
 export type TrackerSyncSummary = { movies: number; episodes: number; watchlist: number; skipped: number; full: boolean };
 
@@ -125,6 +131,21 @@ export const integrationsApi = {
   },
   disconnectMdbList() {
     return request<{ connected: boolean }>("/mdblist/disconnect", { method: "POST" });
+  },
+  getMdbListKeyStatus() {
+    return request<MdbListKeyStatus>("/mdblist/key");
+  },
+  setMdbListKey(apiKey: string) {
+    return request<MdbListKeyStatus>("/mdblist/key", { method: "PUT", body: JSON.stringify({ apiKey }) });
+  },
+  removeMdbListKey() {
+    return request<MdbListKeyStatus>("/mdblist/key", { method: "DELETE" });
+  },
+  /** Empty when the profile has MDBList ratings off, or nothing to read them with. */
+  getMdbListRatings(type: "movie" | "series", imdbId: string) {
+    return request<{ ratings: MdbListRating[] }>(
+      `/mdblist/ratings/${encodeURIComponent(type)}/${encodeURIComponent(imdbId)}`
+    );
   },
   getTraktStatus() {
     return request<{ connected: boolean; configured: boolean; expiresAt: string | null; redirectUri: string }>("/trakt/status");

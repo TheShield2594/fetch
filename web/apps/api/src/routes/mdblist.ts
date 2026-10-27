@@ -9,6 +9,13 @@ import {
   startMdbListDevice,
   syncMdbList,
 } from "../lib/mdblist.js";
+import {
+  getMdbListKeyStatus,
+  getMdbListRatings,
+  MdbListKeyRejected,
+  removeMdbListKey,
+  saveMdbListKey,
+} from "../lib/mdblist-ratings.js";
 
 // Each profile connects its own MDBList account, as in the TV app: every route
 // acts on the requesting profile's. Signing in is MDBList's OAuth device flow,
@@ -62,6 +69,47 @@ const mdbListRoutes: FastifyPluginAsync = async (app) => {
   app.post("/mdblist/disconnect", async (request) => {
     await disconnectMdbList(request.profileId!);
     return { connected: false };
+  });
+
+  // ─── Ratings ───
+  //
+  // A pasted API key, as the TV takes one, for the ratings on detail pages.
+  // Without one the profile's MDBList sign-in above is used instead.
+
+  app.get("/mdblist/key", async (request) => getMdbListKeyStatus(request.profileId!));
+
+  app.put("/mdblist/key", SIGN_IN_RATE_LIMIT, async (request, reply) => {
+    const { apiKey } = (request.body ?? {}) as { apiKey?: unknown };
+    if (typeof apiKey !== "string" || !apiKey.trim()) {
+      return reply.code(400).send({ error: "apiKey is required" });
+    }
+    try {
+      await saveMdbListKey(request.profileId!, apiKey);
+    } catch (error) {
+      if (error instanceof MdbListKeyRejected) return reply.code(400).send({ error: error.message, code: "mdblist_key_rejected" });
+      request.log.warn({ err: error }, "MDBList API key could not be checked");
+      return reply.code(502).send({ error: "Could not reach MDBList to check the key. Try again in a moment." });
+    }
+    return getMdbListKeyStatus(request.profileId!);
+  });
+
+  app.delete("/mdblist/key", async (request) => {
+    await removeMdbListKey(request.profileId!);
+    return getMdbListKeyStatus(request.profileId!);
+  });
+
+  app.get<{ Params: { type: string; imdbId: string } }>("/mdblist/ratings/:type/:imdbId", async (request, reply) => {
+    const { type, imdbId } = request.params;
+    if ((type !== "movie" && type !== "series") || !/^tt\d{1,10}$/.test(imdbId)) {
+      return reply.code(400).send({ error: "Expected /mdblist/ratings/movie|series/tt…" });
+    }
+    try {
+      return { ratings: await getMdbListRatings(request.profileId!, type, imdbId, request.log) };
+    } catch (error) {
+      // The page falls back to its own scores, so an outage costs nothing but these.
+      request.log.warn({ err: error }, "MDBList ratings unavailable");
+      return { ratings: [] };
+    }
   });
 };
 

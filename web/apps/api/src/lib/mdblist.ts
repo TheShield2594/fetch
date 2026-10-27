@@ -47,7 +47,7 @@ const parse = (text: string): unknown => {
   }
 };
 
-const mdbRequest = async <T>(
+export const mdbRequest = async <T>(
   method: "GET" | "POST",
   path: string,
   options: { token?: string; query?: Record<string, string>; body?: unknown; form?: Record<string, string> } = {}
@@ -262,7 +262,7 @@ export const disconnectMdbList = async (profileId: string): Promise<void> => {
  * run out. Null when it has no MDBList connection, or MDBList has revoked it
  * (the connection is then dropped, as the TV drops it).
  */
-const accessTokenFor = async (profileId: string): Promise<string | null> => {
+export const accessTokenFor = async (profileId: string): Promise<string | null> => {
   const id = clientId();
   if (!id) return null;
   const connection = await getConnection<MdbListCredentials, MdbListDetails>(profileId, "mdblist");

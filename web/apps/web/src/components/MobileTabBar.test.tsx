@@ -1,4 +1,4 @@
-import { render, screen, waitForElementToBeRemoved, within } from "@testing-library/react";
+import { render, screen, waitFor, waitForElementToBeRemoved, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { MemoryRouter } from "react-router";
@@ -187,7 +187,11 @@ describe("MobileTabBar", () => {
       await userEvent.keyboard("{Escape}");
       await dismissSheet();
 
-      expect(document.body.style.position).toBe("");
+      // The sheet unmounts from useExitAnimation's fallback timer, outside act,
+      // so React drops the dialog from the DOM at commit but runs the lock's
+      // effect cleanup a scheduler tick later. Wait for the release itself
+      // rather than assuming it landed with the DOM removal.
+      await waitFor(() => expect(document.body.style.position).toBe(""));
     });
   });
 });

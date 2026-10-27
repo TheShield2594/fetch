@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SearchResult, WatchEvent } from "../../api";
@@ -22,6 +22,7 @@ vi.mock("../../api", async (importOriginal) => {
       getWatchedEpisodes: vi.fn(),
       getSeasonEpisodes: vi.fn(),
       getTitleRatings: vi.fn(),
+      getMdbListRatings: vi.fn(),
     },
   };
 });
@@ -90,6 +91,7 @@ beforeEach(() => {
   getItemTags.mockResolvedValue({ tags: [] });
   vi.mocked(api.getWatchedEpisodes).mockResolvedValue({ episodes: [] } as never);
   vi.mocked(api.getTitleRatings).mockResolvedValue({ ratings: [] } as never);
+  vi.mocked(api.getMdbListRatings).mockResolvedValue({ ratings: [] });
 });
 
 // The API composes cast, providers, recommendations, seasons and dropped state
@@ -219,5 +221,37 @@ describe("DetailPanel dismissal", () => {
     await user.keyboard("{Escape}");
 
     await waitFor(() => expect(props.onClose).toHaveBeenCalled(), { timeout: 1000 });
+  });
+});
+
+describe("DetailPanel MDBList ratings", () => {
+  it("shows the profile's MDBList ratings in the order it gave them, in place of the title's own scores", async () => {
+    vi.mocked(api.getMdbListRatings).mockResolvedValue({
+      ratings: [
+        { source: "tomatoes", value: 92, certified: true },
+        { source: "imdb", value: 8.1, certified: false },
+        { source: "letterboxd", value: 4.2, certified: false },
+      ],
+    });
+    renderPanel({ item: { ...MOVIE, imdbRating: 7.9, rtScore: 50 } });
+
+    const row = await screen.findByRole("list", { name: "Ratings from MDBList" });
+    const items = within(row).getAllByRole("listitem");
+    expect(items.map((item) => item.textContent)).toEqual(["92%", "IMDb8.1/10", "LB4.2/5"]);
+    expect(within(row).getByRole("img", { name: "Rotten Tomatoes, Certified Fresh 92%" })).toBeInTheDocument();
+    expect(within(row).getByRole("link", { name: /IMDb 8\.1 out of 10/ })).toHaveAttribute(
+      "href",
+      "https://www.imdb.com/title/tt-solaris/"
+    );
+    // The OMDb score isn't drawn beside MDBList's own.
+    expect(screen.queryByText("7.9")).not.toBeInTheDocument();
+    expect(api.getMdbListRatings).toHaveBeenCalledWith("movie", "tt-solaris");
+  });
+
+  it("keeps the title's own scores when the profile has no MDBList ratings", async () => {
+    renderPanel({ item: { ...MOVIE, imdbRating: 7.9 } });
+
+    expect(await screen.findByText("7.9")).toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: "Ratings from MDBList" })).not.toBeInTheDocument();
   });
 });

@@ -16,6 +16,7 @@ import { RpdbSettings } from "../components/settings/RpdbSettings";
 import { AddonSettings } from "../components/settings/AddonSettings";
 import { StremioSyncSettings } from "../components/settings/StremioSyncSettings";
 import { MdbListSettings, SimklSettings } from "../components/settings/TrackerSignInSettings";
+import { MdbListRatingsSettings } from "../components/settings/MdbListRatingsSettings";
 import { PlayDetectionSettings } from "../components/settings/PlayDetectionSettings";
 import { AiSettings } from "../components/settings/AiSettings";
 import { DataSettings } from "../components/settings/DataSettings";
@@ -222,6 +223,15 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Star size={20} />,
     keywords: "imdb rotten tomatoes metacritic scores api key",
     content: <OmdbSettings />,
+  },
+  {
+    id: "mdblist-ratings",
+    tab: "integrations",
+    group: "Metadata & artwork",
+    title: "Ratings from MDBList",
+    icon: <Star size={20} />,
+    keywords: "mdblist ratings api key imdb trakt tmdb rotten tomatoes audience letterboxd metacritic myanimelist mal order detail",
+    content: <MdbListRatingsSettings />,
   },
   {
     id: "rpdb",

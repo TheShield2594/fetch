@@ -45,7 +45,13 @@ jobs:
           KEY_PASSWORD: ${{ secrets.FETCH_RELEASE_KEY_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.FETCH_RELEASE_STORE_PASSWORD }}
         run: |
+          # An empty secret reaches the build as an empty string, not an unset variable, so a
+          # partial set would pass as configured and fail later on the blank credential.
           if [ -n "$KEYSTORE_BASE64" ]; then
+            if [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ] || [ -z "$STORE_PASSWORD" ]; then
+              echo "::error::FETCH_RELEASE_KEYSTORE_BASE64 is set, but FETCH_RELEASE_KEY_ALIAS, FETCH_RELEASE_KEY_PASSWORD or FETCH_RELEASE_STORE_PASSWORD is empty."
+              exit 1
+            fi
             echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
             {
               echo "FETCH_RELEASE_STORE_FILE=$RUNNER_TEMP/release.jks"
@@ -54,6 +60,9 @@ jobs:
               echo "FETCH_RELEASE_STORE_PASSWORD=$STORE_PASSWORD"
             } >> "$GITHUB_ENV"
             echo "Signing with the release key."
+          elif [ -n "$KEY_ALIAS" ] || [ -n "$KEY_PASSWORD" ] || [ -n "$STORE_PASSWORD" ]; then
+            echo "::error::FETCH_RELEASE_KEY_ALIAS, FETCH_RELEASE_KEY_PASSWORD or FETCH_RELEASE_STORE_PASSWORD is set, but FETCH_RELEASE_KEYSTORE_BASE64 is empty."
+            exit 1
           else
             echo "No release key configured; signing with the debug key."
           fi

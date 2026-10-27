@@ -283,14 +283,25 @@ function toInt(address: string): number {
   return address.split(".").reduce((value, part) => (value << 8) + Number(part), 0) >>> 0;
 }
 
+function sameSubnet(peerValue: number, entry: LocalAddress): boolean {
+  const mask = toInt(entry.netmask);
+  return (toInt(entry.address) & mask) === (peerValue & mask);
+}
+
+/**
+ * Whether [peer] is on one of this host's subnets. RFC 6762 §11: only on-link askers get
+ * an answer, so a port forward to 5353 can't turn this into a reflector for the internet.
+ */
+export function isOnLink(peer: string, local: LocalAddress[]): boolean {
+  const peerValue = toInt(peer);
+  return local.some((entry) => sameSubnet(peerValue, entry));
+}
+
 /** The local addresses on the same subnet as [peer], so a reply never offers one it can't reach. */
 export function addressesFor(peer: string, local: LocalAddress[]): string[] {
   const peerValue = toInt(peer);
-  const sameSubnet = local.filter((entry) => {
-    const mask = toInt(entry.netmask);
-    return (toInt(entry.address) & mask) === (peerValue & mask);
-  });
-  return (sameSubnet.length ? sameSubnet : local).map((entry) => entry.address);
+  const onLink = local.filter((entry) => sameSubnet(peerValue, entry));
+  return (onLink.length ? onLink : local).map((entry) => entry.address);
 }
 
 // ─── Configuration ───
@@ -427,6 +438,7 @@ export async function startMdnsAdvertiser(config: MdnsConfig, log: Logger): Prom
   socket.on("message", (packet, rinfo) => {
     const query = parseQuery(packet);
     if (!query?.questions.length) return;
+    if (!isOnLink(rinfo.address, local)) return;
     const addresses = addressesFor(rinfo.address, local);
     const reply = answerFor(query.questions, info(addresses));
     if (!reply) return;

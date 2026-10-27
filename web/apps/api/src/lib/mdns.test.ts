@@ -5,6 +5,7 @@ import {
   encodeResponse,
   encodeTxt,
   fetchTxtRecord,
+  isOnLink,
   isMdnsEnabled,
   lanAddresses,
   mdnsConfigFromEnv,
@@ -130,6 +131,12 @@ describe("addresses", () => {
   it("offers only the address on the asker's subnet", () => {
     expect(addressesFor("192.168.1.80", local)).toEqual(["192.168.1.25"]);
     expect(addressesFor("10.9.9.9", local)).toEqual(["10.0.0.5"]);
+  });
+
+  it("knows which askers are on a local subnet", () => {
+    expect(isOnLink("192.168.1.80", local)).toBe(true);
+    expect(isOnLink("10.200.0.1", local)).toBe(true);
+    expect(isOnLink("203.0.113.7", local)).toBe(false);
   });
 
   it("offers everything when no subnet matches", () => {

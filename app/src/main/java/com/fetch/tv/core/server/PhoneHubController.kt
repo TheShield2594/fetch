@@ -365,14 +365,14 @@ class PhoneHubController @Inject constructor(
 
     override fun addonSuggestions(): List<PhoneHubAddonSuggestion> = PHONE_ADDON_SUGGESTIONS
 
+    /** Why the active profile can't take an addon now, or null when it can. */
+    private fun addonInstallBlocked(): String? =
+        settingsBlocked()?.message
+            ?: "This profile uses the main profile's addons. Add it from the main profile instead."
+                .takeIf { AddonManagementAccess.isReadOnly(profileManager.activeProfile) }
+
     override suspend fun proposeAddon(url: String): PhoneHubAddonProposal {
-        settingsBlocked()?.let { return PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, message = it.message) }
-        if (AddonManagementAccess.isReadOnly(profileManager.activeProfile)) {
-            return PhoneHubAddonProposal(
-                PhoneHubAddonStatus.FAILED,
-                message = "This profile uses the main profile's addons. Add it from the main profile instead."
-            )
-        }
+        addonInstallBlocked()?.let { return PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, message = it) }
         // The TV asks for confirmation only where the phone code is on screen; after that the
         // hub keeps serving the remote, but nobody would see the question.
         if (!screenOpen) {
@@ -414,12 +414,24 @@ class PhoneHubController @Inject constructor(
             catalogCount = addon.catalogs.size
         )
         val proposal = PhoneHubAddonProposal(PhoneHubAddonStatus.PENDING, id = request.id, name = name, configureUrl = configureUrl)
-        // One request at a time on the TV: a newer one replaces one nobody answered.
-        _pendingAddon.value?.let { previous ->
-            if (!previous.installing) addonProposals[previous.id] = PhoneHubAddonProposal(PhoneHubAddonStatus.REJECTED, id = previous.id, name = previous.name)
+        // Reading the manifest can take a while: check again, under the lock onScreenClosed()
+        // and stop() hold, that someone is still there to answer before publishing.
+        synchronized(this) {
+            if (!screenOpen) {
+                return PhoneHubAddonProposal(
+                    PhoneHubAddonStatus.FAILED,
+                    message = "The TV closed the phone code screen. Open it again, then send the link again."
+                )
+            }
+            val previous = _pendingAddon.value
+            if (previous?.installing == true) {
+                return PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, message = "The TV is installing another addon. Try again in a moment.")
+            }
+            // One request at a time on the TV: a newer one replaces one nobody answered.
+            previous?.let { addonProposals[it.id] = PhoneHubAddonProposal(PhoneHubAddonStatus.REJECTED, id = it.id, name = it.name) }
+            addonProposals[request.id] = proposal
+            _pendingAddon.value = request
         }
-        addonProposals[request.id] = proposal
-        _pendingAddon.value = request
         return proposal
     }
 
@@ -428,26 +440,47 @@ class PhoneHubController @Inject constructor(
     /** Installs the addon the phone sent, as someone at the TV just confirmed. */
     fun confirmPendingAddon() {
         val request = _pendingAddon.value?.takeUnless { it.installing } ?: return
-        _pendingAddon.value = request.copy(installing = true)
+        // The profile may have changed, or settings locked, since the phone asked.
+        addonInstallBlocked()?.let { reason ->
+            addonProposals[request.id] = PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, id = request.id, name = request.name, message = reason)
+            _pendingAddon.compareAndSet(request, null)
+            return
+        }
+        val installing = request.copy(installing = true)
+        // Only the request on screen: a newer one may have just replaced it.
+        if (!_pendingAddon.compareAndSet(request, installing)) return
         scope.launch {
-            val proposal = when (val outcome = addonRepository.installOrReplace(request.url)) {
-                is AddonInstallOutcome.Installed -> PhoneHubAddonProposal(PhoneHubAddonStatus.INSTALLED, id = request.id, name = request.name)
-                is AddonInstallOutcome.NeedsConfiguration -> PhoneHubAddonProposal(
-                    PhoneHubAddonStatus.NEEDS_CONFIGURATION,
-                    id = request.id,
-                    name = request.name,
-                    configureUrl = addonConfigureUrl(request.url),
-                    message = "${request.name} has to be set up first."
-                )
-                is AddonInstallOutcome.Failed -> PhoneHubAddonProposal(
+            try {
+                addonProposals[request.id] = when (val outcome = addonRepository.installOrReplace(request.url)) {
+                    is AddonInstallOutcome.Installed -> PhoneHubAddonProposal(PhoneHubAddonStatus.INSTALLED, id = request.id, name = request.name)
+                    is AddonInstallOutcome.NeedsConfiguration -> PhoneHubAddonProposal(
+                        PhoneHubAddonStatus.NEEDS_CONFIGURATION,
+                        id = request.id,
+                        name = request.name,
+                        configureUrl = addonConfigureUrl(request.url),
+                        message = "${request.name} has to be set up first."
+                    )
+                    is AddonInstallOutcome.Failed -> PhoneHubAddonProposal(
+                        PhoneHubAddonStatus.FAILED,
+                        id = request.id,
+                        name = request.name,
+                        message = outcome.message.ifBlank { "Couldn't install ${request.name}." }
+                    )
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Log.w(TAG, "Installing an addon from the phone failed", error)
+                addonProposals[request.id] = PhoneHubAddonProposal(
                     PhoneHubAddonStatus.FAILED,
                     id = request.id,
                     name = request.name,
-                    message = outcome.message.ifBlank { "Couldn't install ${request.name}." }
+                    message = "Couldn't install ${request.name}."
                 )
+            } finally {
+                // Whatever happened, the dialog must not stay stuck on Installing.
+                _pendingAddon.compareAndSet(installing, null)
             }
-            addonProposals[request.id] = proposal
-            _pendingAddon.compareAndSet(request.copy(installing = true), null)
         }
     }
 

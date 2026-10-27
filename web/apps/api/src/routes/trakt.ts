@@ -10,6 +10,7 @@ import {
   getTraktClient,
   resetTraktClient,
   pollTraktHistory,
+  syncTraktPlayback,
   syncTraktWatchlist,
   computeTokenExpiresAt,
 } from "../lib/trakt-client.js";
@@ -479,7 +480,8 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
       const profileId = request.profileId!;
       const history = await pollTraktHistory(request.log, profileId, { full: full === true });
       const watchlist = await syncTraktWatchlist(request.log, profileId);
-      return reply.code(200).send({ ...history, watchlist });
+      const playback = await syncTraktPlayback(request.log, profileId);
+      return reply.code(200).send({ ...history, watchlist, playback });
     } catch (error) {
       request.log.error(error, "Trakt poll failed");
       return reply.code(500).send({ error: "Trakt poll failed" });

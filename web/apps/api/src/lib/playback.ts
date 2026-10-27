@@ -145,6 +145,28 @@ export const clearPlaybackProgress = async (
   }
 };
 
+/**
+ * The most recent watch of each title among `imdbIds` (films, or the series
+ * of episodes), keyed like resume points. What decides whether a pause has
+ * been overtaken by finishing the title.
+ */
+export const latestWatchByKey = async (profileId: string, imdbIds: string[]): Promise<Map<string, Date>> => {
+  const latest = new Map<string, Date>();
+  if (imdbIds.length === 0) return latest;
+  // Episodes are stored against the series, so `imdbId` matches both kinds.
+  const watches = await prisma.watchEvent.findMany({
+    where: { profileId, imdbId: { in: imdbIds } },
+    select: { type: true, imdbId: true, seriesImdbId: true, season: true, episode: true, watchedAt: true },
+  });
+  for (const watch of watches) {
+    const key = resolvePlaybackTarget(watch)?.key;
+    if (!key) continue;
+    const seen = latest.get(key);
+    if (!seen || seen < watch.watchedAt) latest.set(key, watch.watchedAt);
+  }
+  return latest;
+};
+
 export type PlaybackImportRow = {
   target: PlaybackTarget;
   progress: number;
@@ -184,26 +206,15 @@ export const importPlaybackProgress = async (profileId: string, rows: PlaybackIm
   const keys = [...byKey.keys()];
   const imdbIds = [...new Set([...byKey.values()].map(({ resolved }) => resolved.imdbId))];
 
-  const [existing, watches] = await Promise.all([
+  const [existing, lastWatchByKey] = await Promise.all([
     prisma.playbackProgress.findMany({
       where: { profileId, key: { in: keys } },
       select: { key: true, pausedAt: true },
     }),
-    // Episodes are stored against the series, so `imdbId` matches both kinds.
-    prisma.watchEvent.findMany({
-      where: { profileId, imdbId: { in: imdbIds } },
-      select: { type: true, imdbId: true, seriesImdbId: true, season: true, episode: true, watchedAt: true },
-    }),
+    latestWatchByKey(profileId, imdbIds),
   ]);
 
   const pausedByKey = new Map(existing.map((row) => [row.key, row.pausedAt]));
-  const lastWatchByKey = new Map<string, Date>();
-  for (const watch of watches) {
-    const key = resolvePlaybackTarget(watch)?.key;
-    if (!key) continue;
-    const latest = lastWatchByKey.get(key);
-    if (!latest || latest < watch.watchedAt) lastWatchByKey.set(key, watch.watchedAt);
-  }
 
   const writes = [...byKey.values()].filter(({ row, resolved }) => {
     const paused = pausedByKey.get(resolved.key);

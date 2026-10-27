@@ -578,7 +578,7 @@ profile, and refuses them if the profile was deleted in the meantime.
 | `GET` | `/trakt/oauth/authorize` | Starts the flow. |
 | `GET` | `/trakt/oauth/callback` | The redirect target. No bearer token; bound to the flow by `state`. |
 | `POST` | `/trakt/import` | One-time history import. `409` if an import is already running. |
-| `POST` | `/trakt/poll` | Run the scheduled poll now. |
+| `POST` | `/trakt/poll` | Run the scheduled poll now: history, watchlist, then resume points from Trakt's `/sync/playback`. The response adds `playback: { fetched, resumePoints, removedFromTrakt }`. |
 | `POST` | `/trakt/disconnect` | |
 
 ### Simkl

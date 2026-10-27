@@ -19,7 +19,8 @@ const prismaMock = {
   kV: { findUnique: vi.fn(), upsert: vi.fn() },
   item: { upsert: vi.fn() },
   listItem: { findMany: vi.fn(), create: vi.fn(), delete: vi.fn() },
-  watchEvent: { update: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
+  watchEvent: { update: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), create: vi.fn() },
+  playbackProgress: { findMany: vi.fn(), upsert: vi.fn() },
   $transaction: vi.fn(async (operations: unknown[]) => Promise.all(operations)),
 };
 
@@ -541,6 +542,126 @@ describe("trakt-client", () => {
 
       expect(result).toEqual({ addedLocally: 0, removedLocally: 0, keptLocally: 0, pushedToTrakt: 0 });
       expect(watchlistMock.getDefaultWatchlist).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("syncTraktPlayback", () => {
+    const stubPlayback = (movies: unknown[], episodes: unknown[]) => {
+      const fetchMock = vi.fn().mockImplementation(async (url: URL, init?: RequestInit) => {
+        const href = url.toString();
+        const body = init?.method === "DELETE" ? [] : href.includes("/sync/playback/movies") ? movies : href.includes("/sync/playback/episodes") ? episodes : [];
+        return { ok: true, status: init?.method === "DELETE" ? 204 : 200, headers: new Headers(), json: async () => body };
+      });
+      vi.stubGlobal("fetch", fetchMock);
+      return fetchMock;
+    };
+    const deletedIds = (fetchMock: ReturnType<typeof vi.fn>) =>
+      fetchMock.mock.calls
+        .filter(([, init]) => (init as RequestInit | undefined)?.method === "DELETE")
+        .map(([url]) => String(url).split("/").pop());
+
+    beforeEach(() => {
+      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+      prismaMock.playbackProgress.findMany.mockResolvedValue([]);
+      prismaMock.watchEvent.findMany.mockResolvedValue([]);
+    });
+
+    it("does nothing for a profile without Trakt", async () => {
+      prismaMock.traktToken.findUnique.mockResolvedValue(null);
+      const fetchMock = stubPlayback([], []);
+      const { syncTraktPlayback } = await import("./trakt-client.js");
+
+      expect(await syncTraktPlayback(makeLogger(), "p1")).toEqual({ fetched: 0, resumePoints: 0, removedFromTrakt: 0 });
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("writes paused movies and episodes as resume points, episodes against their series", async () => {
+      stubPlayback(
+        [{ id: 1, progress: 42.5, paused_at: "2026-10-01T20:00:00.000Z", type: "movie", movie: { ids: { imdb: "tt1" } } }],
+        [
+          {
+            id: 2,
+            progress: 10,
+            paused_at: "2026-10-02T20:00:00.000Z",
+            type: "episode",
+            episode: { season: 2, number: 7, ids: { imdb: "tt-ep" } },
+            show: { ids: { imdb: "tt-show" } },
+          },
+        ]
+      );
+      const { syncTraktPlayback } = await import("./trakt-client.js");
+
+      const result = await syncTraktPlayback(makeLogger(), "p1");
+
+      expect(result).toEqual({ fetched: 2, resumePoints: 2, removedFromTrakt: 0 });
+      const writes = prismaMock.playbackProgress.upsert.mock.calls.map(([args]) => args.create);
+      expect(writes).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ key: "movie:tt1", progress: 42.5, positionSeconds: null }),
+          expect.objectContaining({ key: "episode:tt-show:2:7", imdbId: "tt-show", season: 2, episode: 7, progress: 10 }),
+        ])
+      );
+    });
+
+    it("keeps the seconds a player already reported for the title", async () => {
+      stubPlayback([{ id: 1, progress: 50, paused_at: "2026-10-01T20:00:00.000Z", movie: { ids: { imdb: "tt1" } } }], []);
+      prismaMock.playbackProgress.findMany.mockImplementation(async ({ select }: { select: Record<string, boolean> }) =>
+        select.durationSeconds
+          ? [{ key: "movie:tt1", durationSeconds: 7200 }]
+          : [{ key: "movie:tt1", pausedAt: new Date("2026-10-01T19:00:00.000Z") }]
+      );
+      const { syncTraktPlayback } = await import("./trakt-client.js");
+
+      await syncTraktPlayback(makeLogger(), "p1");
+
+      expect(first(prismaMock.playbackProgress.upsert.mock.calls, "resume point write")[0].update).toEqual(
+        expect.objectContaining({ progress: 50, positionSeconds: 3600, durationSeconds: 7200 })
+      );
+    });
+
+    it("skips a pause Fetch already holds a newer one of", async () => {
+      stubPlayback([{ id: 1, progress: 50, paused_at: "2026-10-01T20:00:00.000Z", movie: { ids: { imdb: "tt1" } } }], []);
+      prismaMock.playbackProgress.findMany.mockResolvedValue([
+        { key: "movie:tt1", pausedAt: new Date("2026-10-03T00:00:00.000Z"), durationSeconds: null },
+      ]);
+      const { syncTraktPlayback } = await import("./trakt-client.js");
+
+      expect((await syncTraktPlayback(makeLogger(), "p1")).resumePoints).toBe(0);
+      expect(prismaMock.playbackProgress.upsert).not.toHaveBeenCalled();
+    });
+
+    it("deletes Trakt's entry for a title finished in Fetch since the pause, and leaves a rewatch alone", async () => {
+      const fetchMock = stubPlayback(
+        [
+          { id: 11, progress: 60, paused_at: "2026-10-01T20:00:00.000Z", movie: { ids: { imdb: "tt-done" } } },
+          { id: 12, progress: 30, paused_at: "2026-10-05T20:00:00.000Z", movie: { ids: { imdb: "tt-rewatch" } } },
+        ],
+        []
+      );
+      prismaMock.watchEvent.findMany.mockResolvedValue([
+        { type: "movie", imdbId: "tt-done", seriesImdbId: null, season: null, episode: null, watchedAt: new Date("2026-10-02T00:00:00.000Z") },
+        { type: "movie", imdbId: "tt-rewatch", seriesImdbId: null, season: null, episode: null, watchedAt: new Date("2026-09-01T00:00:00.000Z") },
+      ]);
+      const { syncTraktPlayback } = await import("./trakt-client.js");
+
+      const result = await syncTraktPlayback(makeLogger(), "p1");
+
+      expect(result).toEqual({ fetched: 2, resumePoints: 1, removedFromTrakt: 1 });
+      expect(deletedIds(fetchMock)).toEqual(["11"]);
+      expect(first(prismaMock.playbackProgress.upsert.mock.calls, "resume point write")[0].create.key).toBe("movie:tt-rewatch");
+    });
+
+    it("ignores entries it can't place", async () => {
+      stubPlayback(
+        [
+          { id: 1, progress: 50, paused_at: "2026-10-01T20:00:00.000Z", movie: { ids: { tmdb: 5 } } },
+          { id: 2, progress: 50, paused_at: "not a date", movie: { ids: { imdb: "tt2" } } },
+        ],
+        [{ id: 3, progress: 50, paused_at: "2026-10-01T20:00:00.000Z", episode: { season: 1 }, show: { ids: { imdb: "tt3" } } }]
+      );
+      const { syncTraktPlayback } = await import("./trakt-client.js");
+
+      expect(await syncTraktPlayback(makeLogger(), "p1")).toEqual({ fetched: 0, resumePoints: 0, removedFromTrakt: 0 });
     });
   });
 

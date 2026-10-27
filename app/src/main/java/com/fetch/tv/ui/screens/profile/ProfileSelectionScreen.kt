@@ -7,9 +7,7 @@ import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.theme.ThemeColors
 import com.fetch.tv.ui.theme.brandWordmarkResource
-import com.fetch.tv.ui.theme.createFocusRingStyle
 
 import android.graphics.Rect
 import android.view.KeyEvent as AndroidKeyEvent
@@ -536,7 +534,6 @@ fun ProfileSelectionScreen(
                     profileRestrictions = profileRestrictions,
                     avatarImageUrlsById = avatarImageUrlsById,
                     brandWordmarkRes = focusedBrandWordmarkRes,
-                    profileThemes = profileThemes,
                     onProfileFocused = onProfileFocusedChange,
                     onProfileSelected = { profile ->
                         if (isManagementMode) {
@@ -1315,7 +1312,6 @@ private fun ProfileSelectionMainContent(
     profileRestrictions: Map<Int, ProfileRestrictions>,
     avatarImageUrlsById: Map<String, String>,
     brandWordmarkRes: Int? = null,
-    profileThemes: Map<Int, com.fetch.tv.domain.model.AppTheme> = emptyMap(),
     onProfileFocused: (UserProfile?) -> Unit,
     onProfileSelected: (UserProfile) -> Unit,
     onProfileLongPress: (UserProfile) -> Unit,
@@ -1365,7 +1361,6 @@ private fun ProfileSelectionMainContent(
             profilePinEnabled = profilePinEnabled,
             profileRestrictions = profileRestrictions,
             avatarImageUrlsById = avatarImageUrlsById,
-            profileThemes = profileThemes,
             onProfileFocused = onProfileFocused,
             onProfileSelected = onProfileSelected,
             onProfileLongPress = onProfileLongPress,
@@ -1403,7 +1398,6 @@ private fun ProfileGrid(
     profilePinEnabled: Map<Int, Boolean>,
     profileRestrictions: Map<Int, ProfileRestrictions>,
     avatarImageUrlsById: Map<String, String>,
-    profileThemes: Map<Int, com.fetch.tv.domain.model.AppTheme> = emptyMap(),
     onProfileFocused: (UserProfile?) -> Unit,
     onProfileSelected: (UserProfile) -> Unit,
     onProfileLongPress: (UserProfile) -> Unit,
@@ -1468,7 +1462,6 @@ private fun ProfileGrid(
                         compact = useCompactCards,
                         isLocked = profilePinEnabled[profile.id] == true,
                         isKids = profileRestrictions[profile.id]?.isKidsProfile == true,
-                        profileTheme = profileThemes[profile.id],
                         onFocused = { onProfileFocused(profile) },
                         onClick = { onProfileSelected(profile) },
                         onLongPress = { onProfileLongPress(profile) }
@@ -1505,7 +1498,6 @@ private fun ProfileCard(
     compact: Boolean,
     isLocked: Boolean,
     isKids: Boolean,
-    profileTheme: com.fetch.tv.domain.model.AppTheme? = null,
     onFocused: () -> Unit,
     onClick: () -> Unit,
     onLongPress: () -> Unit
@@ -1519,11 +1511,6 @@ private fun ProfileCard(
         animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast, easing = ProfileCardFocusEasing),
         label = "profileFocusProgress"
     )
-    val profileFocusRing = remember(profileTheme) {
-        profileTheme?.let {
-            createFocusRingStyle(ThemeColors.getColorPalette(it))
-        }
-    }
     val itemScale = 1f + (0.04f * focusProgress)
     val avatarSize = androidx.compose.ui.unit.lerp(
         if (compact) ProfileSelectionSpacing.CompactAvatarSize else 96.dp,
@@ -1535,7 +1522,7 @@ private fun ProfileCard(
         if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp,
         focusProgress
     )
-    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, 3.dp, focusProgress)
+    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, FetchTheme.strokes.focus, focusProgress)
     val nameColor = lerp(
         FetchTheme.colors.TextSecondary,
         FetchTheme.colors.TextPrimary,
@@ -1615,7 +1602,7 @@ private fun ProfileCard(
                         shape = CircleShape
                     )
                     .border(
-                        border = (profileFocusRing ?: FetchTheme.focusRing).border(ringWidth, focusProgress),
+                        border = FetchTheme.focusRing.border(ringWidth, focusProgress),
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -1750,7 +1737,7 @@ private fun AddProfileCard(
         if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp,
         focusProgress
     )
-    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, 3.dp, focusProgress)
+    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, FetchTheme.strokes.focus, focusProgress)
     val nameColor = lerp(
         FetchTheme.colors.TextTertiary,
         FetchTheme.colors.TextPrimary,

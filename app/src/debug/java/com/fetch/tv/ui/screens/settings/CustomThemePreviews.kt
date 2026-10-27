@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,10 +29,7 @@ import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
-import com.fetch.tv.ui.theme.LocalFetchFocusRingStyle
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.theme.ThemeColors
-import com.fetch.tv.ui.theme.createFocusRingStyle
 
 @Preview(widthDp = 960, heightDp = 540, uiMode = Configuration.UI_MODE_TYPE_TELEVISION)
 @Composable
@@ -101,27 +97,25 @@ private fun ThemeEditorPreviewFrame(
     content: @Composable ColumnScope.() -> Unit
 ) {
     FetchTheme(appTheme = AppTheme.ROSE_GOLD) {
-        CompositionLocalProvider(LocalFetchFocusRingStyle provides createFocusRingStyle(ThemeColors.White)) {
-            Box(
-                Modifier.fillMaxSize().background(FetchTheme.colors.Background),
-                contentAlignment = Alignment.Center
+        Box(
+            Modifier.fillMaxSize().background(FetchTheme.colors.Background),
+            contentAlignment = Alignment.Center
+        ) {
+            val shape = RoundedCornerShape(FetchTheme.radii.xl)
+            val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - FetchTheme.spacing.xxxl)
+                .coerceAtLeast(320.dp)
+            Column(
+                Modifier
+                    .width(width)
+                    .heightIn(max = maxDialogHeight)
+                    .background(FetchTheme.colors.BackgroundElevated, shape)
+                    .border(1.dp, FetchTheme.colors.Border, shape)
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                val shape = RoundedCornerShape(FetchTheme.radii.xl)
-                val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - FetchTheme.spacing.xxxl)
-                    .coerceAtLeast(320.dp)
-                Column(
-                    Modifier
-                        .width(width)
-                        .heightIn(max = maxDialogHeight)
-                        .background(FetchTheme.colors.BackgroundElevated, shape)
-                        .border(1.dp, FetchTheme.colors.Border, shape)
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(title, style = MaterialTheme.typography.titleLarge, color = FetchTheme.colors.TextPrimary)
-                    Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = FetchTheme.colors.TextSecondary)
-                    content()
-                }
+                Text(title, style = MaterialTheme.typography.titleLarge, color = FetchTheme.colors.TextPrimary)
+                Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = FetchTheme.colors.TextSecondary)
+                content()
             }
         }
     }

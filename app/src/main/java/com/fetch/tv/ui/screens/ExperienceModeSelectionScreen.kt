@@ -5,6 +5,7 @@ import com.fetch.tv.ui.theme.FetchTheme
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -285,9 +286,9 @@ private fun ExperienceModeCard(
                     Text(
                         text = stringResource(R.string.first_run_recommended),
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = FetchTheme.colors.OnSecondary,
+                        color = FetchTheme.colors.TextSecondary,
                         modifier = Modifier
-                            .background(FetchTheme.colors.Secondary, RoundedCornerShape(FetchTheme.radii.xs))
+                            .border(FetchTheme.spacing.hairline, FetchTheme.colors.TextTertiary, RoundedCornerShape(FetchTheme.radii.xs))
                             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
                     )
                 }

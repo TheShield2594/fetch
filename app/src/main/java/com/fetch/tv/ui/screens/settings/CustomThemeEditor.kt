@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,11 +52,8 @@ import com.fetch.tv.domain.model.CustomThemeColors
 import com.fetch.tv.domain.model.formatHexColor
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
-import com.fetch.tv.ui.theme.LocalFetchFocusRingStyle
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.theme.ThemeColors
 import com.fetch.tv.ui.theme.accentBrush
-import com.fetch.tv.ui.theme.createFocusRingStyle
 import com.fetch.tv.ui.theme.toColorPalette
 
 @Composable
@@ -68,29 +64,26 @@ internal fun CustomThemeDialog(
     onDismiss: () -> Unit
 ) {
     var gradientEnabled by remember(allowGradient) { mutableStateOf(allowGradient && !initialColors.isSolid) }
-    val editorFocusRing = remember { createFocusRingStyle(ThemeColors.White) }
-    CompositionLocalProvider(LocalFetchFocusRingStyle provides editorFocusRing) {
-        FetchDialog(
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = stringResource(
+            if (gradientEnabled) R.string.custom_theme_title else R.string.custom_theme_solid_title
+        ),
+        subtitle = stringResource(
+            if (gradientEnabled) R.string.custom_theme_subtitle else R.string.custom_theme_solid_subtitle
+        ),
+        width = 840.dp,
+        usePlatformDefaultWidth = false,
+        contentPadding = 20.dp,
+        contentSpacing = 12.dp
+    ) {
+        CustomThemeEditor(
+            initialColors = initialColors,
+            gradientEnabled = gradientEnabled,
+            onSave = onSave,
             onDismiss = onDismiss,
-            title = stringResource(
-                if (gradientEnabled) R.string.custom_theme_title else R.string.custom_theme_solid_title
-            ),
-            subtitle = stringResource(
-                if (gradientEnabled) R.string.custom_theme_subtitle else R.string.custom_theme_solid_subtitle
-            ),
-            width = 840.dp,
-            usePlatformDefaultWidth = false,
-            contentPadding = 20.dp,
-            contentSpacing = 12.dp
-        ) {
-            CustomThemeEditor(
-                initialColors = initialColors,
-                gradientEnabled = gradientEnabled,
-                onSave = onSave,
-                onDismiss = onDismiss,
-                onGradientChanged = if (allowGradient) { { gradientEnabled = it } } else null
-            )
-        }
+            onGradientChanged = if (allowGradient) { { gradientEnabled = it } } else null
+        )
     }
 }
 

@@ -136,9 +136,16 @@ class FetchColorScheme(
     val TextDisabled = FetchPrimitives.neutral700
     val TextInverse = FetchPrimitives.neutral925
 
-    val FocusRing = palette.focusRing
+    val FocusRing = FetchPrimitives.neutral100
     val FocusBackground = palette.focusBackground
     val FocusContent = FetchPrimitives.white
+
+    /**
+     * Neutral fill for a focused or selected control that isn't the screen's primary action
+     * (tabs, filter chips, the current sidebar page). The accent stays for primary actions.
+     */
+    val Highlight = FetchPrimitives.white
+    val OnHighlight = FetchPrimitives.neutral925
     val FocusScrim = FetchPrimitives.black.copy(alpha = 0.32f)
 
     val Rating = FetchPrimitives.rating
@@ -282,6 +289,7 @@ class FetchColorScheme(
             add(FetchContrastPair(OnSecondary, Secondary, "onSecondary on secondary"))
             add(FetchContrastPair(OnSecondaryVariant, SecondaryVariant, "onSecondaryVariant on secondaryVariant"))
             add(FetchContrastPair(FocusContent, FocusBackground, "focusContent on focusBackground"))
+            add(FetchContrastPair(OnHighlight, Highlight, "onHighlight on highlight"))
         }
     }
 }

@@ -1657,11 +1657,11 @@ private fun StreamSpecChip(text: String, highlighted: Boolean = false) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-        color = if (highlighted) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
+        color = if (highlighted) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
         maxLines = 1,
         modifier = Modifier
             .clip(RoundedCornerShape(FetchTheme.radii.xs))
-            .background(if (highlighted) FetchTheme.colors.Secondary else FetchTheme.colors.BackgroundCard)
+            .background(if (highlighted) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard)
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
     )
 }

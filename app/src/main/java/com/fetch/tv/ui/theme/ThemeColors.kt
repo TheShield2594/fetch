@@ -10,8 +10,6 @@ data class ThemeColorPalette(
     val onSecondary: Color = FetchPrimitives.white,
     val onSecondaryVariant: Color = FetchPrimitives.white,
     val accentGradient: List<Color> = listOf(secondary),
-    val focusRing: Color,
-    val focusRingGradient: List<Color> = listOf(focusRing),
     val focusBackground: Color,
     val background: Color = FetchPrimitives.neutral950,
     val backgroundElevated: Color = FetchPrimitives.neutral900,
@@ -33,7 +31,6 @@ object ThemeColors {
         secondaryVariant = Color(0xFFB9DC3A),
         onSecondary = Color(0xFF0D0E10),
         onSecondaryVariant = Color(0xFF0D0E10),
-        focusRing = Color(0xFFD7F75B),
         focusBackground = Color(0xFF23262C),
         background = Color(0xFF0D0E10),
         backgroundElevated = Color(0xFF141519),
@@ -51,7 +48,6 @@ object ThemeColors {
         secondaryVariant = FetchPrimitives.red600,
         // Neither white nor the near-black text reaches 4.5:1 on this red; pure black does.
         onSecondary = FetchPrimitives.black,
-        focusRing = FetchPrimitives.red300,
         focusBackground = Color(0xFF3D1A1A),
         backgroundCard = Color(0xFF241A1A)
     )
@@ -60,7 +56,6 @@ object ThemeColors {
         secondary = FetchPrimitives.blue500,
         secondaryVariant = FetchPrimitives.blue700,
         onSecondary = FetchPrimitives.neutral925,
-        focusRing = FetchPrimitives.blue300,
         focusBackground = Color(0xFF1A2D3D),
         background = Color(0xFF0D0D0F),
         backgroundElevated = Color(0xFF1A1A1E),
@@ -70,7 +65,6 @@ object ThemeColors {
     val Violet = ThemeColorPalette(
         secondary = FetchPrimitives.violet500,
         secondaryVariant = FetchPrimitives.violet700,
-        focusRing = FetchPrimitives.violet300,
         focusBackground = Color(0xFF2D1A3D),
         background = Color(0xFF0D0D0F),
         backgroundElevated = Color(0xFF1A1A1E),
@@ -81,7 +75,6 @@ object ThemeColors {
         secondary = FetchPrimitives.green500,
         secondaryVariant = FetchPrimitives.green700,
         onSecondary = FetchPrimitives.neutral925,
-        focusRing = FetchPrimitives.green300,
         focusBackground = Color(0xFF1A3D1E),
         backgroundCard = Color(0xFF1A241A)
     )
@@ -91,7 +84,6 @@ object ThemeColors {
         secondaryVariant = FetchPrimitives.amber700,
         onSecondary = FetchPrimitives.neutral925,
         onSecondaryVariant = FetchPrimitives.neutral925,
-        focusRing = FetchPrimitives.amber300,
         focusBackground = Color(0xFF3D2D1A),
         background = Color(0xFF0F0D0D),
         backgroundElevated = Color(0xFF1E1A1A),
@@ -101,7 +93,6 @@ object ThemeColors {
     val Rose = ThemeColorPalette(
         secondary = FetchPrimitives.rose500,
         secondaryVariant = FetchPrimitives.rose700,
-        focusRing = FetchPrimitives.rose300,
         focusBackground = Color(0xFF3D1A2D),
         backgroundCard = Color(0xFF241A1F)
     )
@@ -111,7 +102,6 @@ object ThemeColors {
         secondaryVariant = FetchPrimitives.neutral200,
         onSecondary = FetchPrimitives.neutral925,
         onSecondaryVariant = FetchPrimitives.neutral925,
-        focusRing = FetchPrimitives.white,
         focusBackground = Color(0xFF303030),
         backgroundCard = FetchPrimitives.neutral850
     )

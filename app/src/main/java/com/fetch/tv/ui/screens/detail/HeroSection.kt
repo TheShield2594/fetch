@@ -490,8 +490,7 @@ internal fun PlayButton(
                 false
             }
             .focusProperties { up = FocusRequester.Cancel },
-        // The primary action is always the accent; focus adds a light ring so it still reads
-        // when the ring colour and the button colour are the same.
+        // The primary action is always the accent; focus adds the usual neutral ring.
         colors = ButtonDefaults.colors(
             containerColor = FetchTheme.colors.Secondary,
             focusedContainerColor = FetchTheme.colors.Secondary,
@@ -503,7 +502,7 @@ internal fun PlayButton(
         ),
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FetchTheme.strokes.focus, FetchTheme.colors.TextPrimary),
+                border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
                 shape = FetchTheme.shapes.button
             )
         ),

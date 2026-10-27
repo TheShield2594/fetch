@@ -32,7 +32,7 @@ val LocalFetchExtendedColors = staticCompositionLocalOf {
         backgroundCard = Color(0xFF242424),
         textSecondary = Color(0xFFB3B3B3),
         textTertiary = Color(0xFFA3A3A3),
-        focusRing = ThemeColors.Fetch.focusRing,
+        focusRing = FetchPrimitives.neutral100,
         focusBackground = ThemeColors.Fetch.focusBackground,
         rating = Color(0xFFFFD700)
     )
@@ -45,7 +45,7 @@ val LocalAppTheme = staticCompositionLocalOf { com.fetch.tv.domain.model.DEFAULT
 val LocalThemePalette = staticCompositionLocalOf { ThemeColors.White }
 
 val LocalFetchFocusRingStyle = staticCompositionLocalOf {
-    createFocusRingStyle(ThemeColors.Fetch)
+    createFocusRingStyle()
 }
 
 /** See [isFullMotionAllowed]; read it through [FetchTheme.fullMotion]. */
@@ -64,7 +64,7 @@ fun FetchTheme(
     val palette = androidx.compose.runtime.remember(appTheme, customThemeColors) {
         ThemeColors.getColorPalette(appTheme, customThemeColors)
     }
-    val focusRingStyle = createFocusRingStyle(palette)
+    val focusRingStyle = createFocusRingStyle()
     val colorScheme = FetchColorScheme(
         palette = palette,
         amoledMode = amoledMode,

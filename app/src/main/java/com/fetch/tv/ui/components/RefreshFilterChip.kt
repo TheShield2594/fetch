@@ -39,7 +39,7 @@ fun RefreshFilterChip(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val contentColor = if (isFocused) {
-        FetchTheme.colors.OnSecondary
+        FetchTheme.colors.OnHighlight
     } else {
         FetchTheme.colors.TextSecondary
     }
@@ -89,7 +89,7 @@ fun RefreshFilterChip(
         },
         colors = FilterChipDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.Secondary,
+            focusedContainerColor = FetchTheme.colors.Highlight,
             contentColor = contentColor,
             focusedContentColor = contentColor
         ),

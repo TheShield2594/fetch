@@ -83,7 +83,7 @@ fun SourceStatusFilterChip(
 
     val textColor = when {
         isError -> FetchTheme.colors.Error
-        isFocused || isSelected -> FetchTheme.colors.OnSecondary
+        isFocused || isSelected -> FetchTheme.colors.OnHighlight
         else -> FetchTheme.colors.TextSecondary
     }
 
@@ -104,9 +104,9 @@ fun SourceStatusFilterChip(
             },
         colors = FilterChipDefaults.colors(
             containerColor = if (shouldUseNormalColors) FetchTheme.colors.BackgroundCard else FetchTheme.colors.Error.copy(alpha = 0.05f),
-            focusedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Secondary else FetchTheme.colors.Error.copy(alpha = 0.08f),
-            selectedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Secondary else FetchTheme.colors.Error.copy(alpha = 0.07f),
-            focusedSelectedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Secondary else FetchTheme.colors.Error.copy(alpha = 0.09f),
+            focusedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Highlight else FetchTheme.colors.Error.copy(alpha = 0.08f),
+            selectedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Highlight else FetchTheme.colors.Error.copy(alpha = 0.07f),
+            focusedSelectedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Highlight else FetchTheme.colors.Error.copy(alpha = 0.09f),
             contentColor = textColor,
             focusedContentColor = textColor,
             selectedContentColor = textColor,

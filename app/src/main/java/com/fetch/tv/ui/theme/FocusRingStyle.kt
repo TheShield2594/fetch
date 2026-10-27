@@ -9,17 +9,14 @@ import androidx.compose.ui.unit.Dp
 
 @Immutable
 class FetchFocusRingStyle internal constructor(
-    val solidColor: Color,
-    private val gradientColors: List<Color>
+    val solidColor: Color
 ) {
-    private val fullBrush = createThemeBrush(gradientColors)
+    private val fullBrush = SolidColor(solidColor)
 
     fun brush(alpha: Float = 1f): Brush {
         val normalizedAlpha = alpha.coerceIn(0f, 1f)
         if (normalizedAlpha == 1f) return fullBrush
-        return createThemeBrush(gradientColors.map { color ->
-            color.copy(alpha = color.alpha * normalizedAlpha)
-        })
+        return SolidColor(solidColor.copy(alpha = solidColor.alpha * normalizedAlpha))
     }
 
     fun border(width: Dp, alpha: Float = 1f): BorderStroke {
@@ -37,9 +34,10 @@ internal fun createThemeBrush(colors: List<Color>): Brush {
     }
 }
 
-internal fun createFocusRingStyle(palette: ThemeColorPalette): FetchFocusRingStyle {
-    return FetchFocusRingStyle(
-        solidColor = palette.focusRing,
-        gradientColors = palette.focusRingGradient
-    )
+/**
+ * Focus is the same soft white in every theme, so it reads the same over any artwork and never
+ * competes with the accent, which is kept for primary actions.
+ */
+internal fun createFocusRingStyle(): FetchFocusRingStyle {
+    return FetchFocusRingStyle(solidColor = FetchPrimitives.neutral100)
 }

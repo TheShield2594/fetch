@@ -347,7 +347,7 @@ fun SeasonTabs(
                 shape = CardDefaults.shape(shape = tabShape),
                 colors = CardDefaults.colors(
                     containerColor = if (isSelected) FetchTheme.colors.SurfaceVariant else FetchTheme.colors.BackgroundCard,
-                    focusedContainerColor = FetchTheme.colors.Secondary
+                    focusedContainerColor = FetchTheme.colors.Highlight
                 ),
                 border = tabBorder,
                 scale = tabScale
@@ -356,7 +356,7 @@ fun SeasonTabs(
                     text = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
                     style = tabTextStyle,
                     color = when {
-                        isFocused -> FetchTheme.colors.OnSecondary
+                        isFocused -> FetchTheme.colors.OnHighlight
                         isSelected -> FetchTheme.colors.TextPrimary
                         else -> textSecondary
                     },
@@ -806,7 +806,7 @@ private fun EpisodeCard(
         episode.episode?.let { number -> "$prefix $number" } ?: prefix
     }
 
-    val primaryColor = FetchTheme.colors.Secondary
+    val progressColor = FetchTheme.colors.TextPrimary
     val textPrimary = FetchTheme.colors.TextPrimary
     val focusRingBorder = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth)
 
@@ -1038,7 +1038,7 @@ private fun EpisodeCard(
                             end = cardMetrics.contentPadding,
                             bottom = cardMetrics.contentPadding * 0.5f
                         )
-                        .fetchCardProgress(progressPercent, primaryColor)
+                        .fetchCardProgress(progressPercent, progressColor)
                 )
             }
 

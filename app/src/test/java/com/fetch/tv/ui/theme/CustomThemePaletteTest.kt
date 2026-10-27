@@ -9,7 +9,7 @@ import org.junit.Test
 
 class CustomThemePaletteTest {
     @Test
-    fun solidColorsUseSolidAccentAndFocusBrushesWithTheExistingStorageFormat() {
+    fun solidColorsUseASolidAccentBrushWithTheExistingStorageFormat() {
         val colors = CustomThemeColors.solid(0x123456)
         val color = Color(0xFF123456)
         val palette = colors.toColorPalette()
@@ -18,10 +18,7 @@ class CustomThemePaletteTest {
         assertEquals("#123456,#123456,#123456", colors.encode())
         assertEquals(colors, CustomThemeColors.decode(colors.encode()))
         assertEquals(listOf(color), palette.accentGradient)
-        assertEquals(listOf(color), palette.focusRingGradient)
         assertEquals(SolidColor(color), palette.accentBrush())
-        assertEquals(SolidColor(color), createFocusRingStyle(palette).brush())
-        assertEquals(SolidColor(color.copy(alpha = 0.5f)), createFocusRingStyle(palette).brush(0.5f))
         assertEquals(color, palette.secondary)
         assertEquals(color, palette.secondaryVariant)
     }
@@ -34,7 +31,6 @@ class CustomThemePaletteTest {
 
         assertEquals(colors, CustomThemeColors.decode(colors.encode()))
         assertEquals(stops, palette.accentGradient)
-        assertEquals(stops, palette.focusRingGradient)
     }
 
     @Test

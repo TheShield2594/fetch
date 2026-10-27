@@ -18,8 +18,6 @@ fun CustomThemeColors.toColorPalette(): ThemeColorPalette {
         onSecondary = foreground(accent),
         onSecondaryVariant = foreground(gradient[2]),
         accentGradient = brushColors,
-        focusRing = gradient.maxBy { it.luminance() },
-        focusRingGradient = brushColors,
         focusBackground = surface(0xFF242424, 0.18f),
         background = surface(0xFF0C0D0F, 0.025f),
         backgroundElevated = surface(0xFF17191D, 0.045f),

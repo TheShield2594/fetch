@@ -60,7 +60,7 @@ internal fun sidebarScrimBrush(background: Color): Brush = Brush.horizontalGradi
 )
 
 /**
- * One sidebar entry: a round icon that keeps an accent fill for the current page, and a label
+ * One sidebar entry: a round icon that keeps a white fill for the current page, and a label
  * that slides out beside it while it has focus.
  */
 @Composable
@@ -76,7 +76,7 @@ internal fun FloatingSidebarButton(
     val tokens = FetchComponents.tokens.sidebar
     val circleColor by animateColorAsState(
         targetValue = when {
-            selected -> FetchTheme.colors.Secondary
+            selected -> FetchTheme.colors.Highlight
             isFocused -> FetchTheme.colors.FocusBackground
             else -> Color.Transparent
         },
@@ -84,7 +84,7 @@ internal fun FloatingSidebarButton(
     )
     val iconTint by animateColorAsState(
         targetValue = when {
-            selected -> FetchTheme.colors.OnSecondary
+            selected -> FetchTheme.colors.OnHighlight
             isFocused -> FetchTheme.colors.TextPrimary
             else -> FetchTheme.colors.TextSecondary
         },

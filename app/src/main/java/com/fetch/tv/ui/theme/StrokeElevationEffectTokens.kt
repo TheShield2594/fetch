@@ -48,7 +48,7 @@ object FetchStrokes {
         hairline = 1.dp,
         thin = 1.5.dp,
         medium = 2.dp,
-        focus = 3.dp,
+        focus = 2.dp,
         heavy = 3.dp,
         progress = 4.dp,
         divider = 1.dp

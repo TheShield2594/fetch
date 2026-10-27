@@ -198,6 +198,8 @@ Discovery responses are cached in memory and returned as Stremio meta previews
 | `GET` | `/watch/history?limit=&offset=&imdbId=&type=` | `limit` is 1–200, default 50. `type` is `movie` or `episode`; anything else is a `400` rather than a silently unfiltered page. Filtering happens server-side so it searches every row, not just the loaded page. |
 | `PATCH` | `/watch/:eventId` | `{ note }` — sets or clears the note on an existing watch (`null`, or a blank string, clears it), capped at 2,000 characters like `POST /watch`. It does not move the watch date. |
 | `DELETE` | `/watch/:eventId` | Deleting an episode rewinds series progress to the next-latest episode watched, or clears the progress row when none is left. |
+| `GET` | `/watch/state` | Everything the profile has watched, once per title with its latest watch: `{ movies: [{ imdbId, watchedAt, name, poster }], episodes: [{ imdbId, season, episode, watchedAt, name, poster }], dropped }`, episodes under their series id with the series' name and poster. `dropped` lists the watched shows hidden from Continue Watching (`POST /show/:imdbId/drop`). What a TV reads to badge posters and work out Next Up, in one request. |
+| `DELETE` | `/watch/movie/:imdbId` | Unmarks a film: removes every play of it. `204`. Episodes are unmarked under [Series progress](#series-progress). |
 | `GET` | `/watch/stats` | Headline counts. |
 | `GET` | `/watch/stats/detailed` | Genres, runtime, patterns over time. |
 | `GET` | `/watch/stats/year/:year` | Year in Review. |

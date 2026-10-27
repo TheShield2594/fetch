@@ -8,6 +8,7 @@ import android.graphics.Canvas
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,7 +37,6 @@ import com.fetch.tv.ui.util.rememberRawSvgPainter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.focus.FocusRequester
@@ -246,11 +246,12 @@ class ReadmeScreenshots {
                         nextVideoId = "sample-long-field:2:6",
                         nextSeason = 2,
                         nextEpisode = 6,
-                        displayText = "Play S2E6"
+                        displayText = "Play S2 E6"
                     ),
                     bestMatch = BestMatchPreview(
                         videoId = "sample-long-field:2:6",
                         labels = listOf("4K", "DV P8", "TrueHD Atmos", "18.2 GB"),
+                        buttonLabels = listOf("4K", "Dolby Vision", "Atmos"),
                         isCached = true,
                         addonName = "Torrentio",
                         sourceCount = 14,
@@ -326,45 +327,45 @@ class ReadmeScreenshots {
                 modifier = Modifier.fillMaxSize()
             )
             Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background.copy(alpha = 0.55f)))
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.6f)
-                    .padding(24.dp)
-                    .background(FetchTheme.colors.BackgroundElevated.copy(alpha = 0.94f), RoundedCornerShape(FetchTheme.radii.md))
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // The real list, so the screenshot shows Best match's pick and the quality sections.
-                com.fetch.tv.ui.screens.stream.StreamsList(
-                    streams = Samples.streams,
-                    streamExclusions = emptyMap(),
-                    sections = com.fetch.tv.ui.screens.stream.sourceSections(
-                        Samples.streams, emptyMap(), bestMatchFirst = true, addonFilter = null
-                    ),
-                    torrentsNeedExternalPlayer = false,
-                    sharedStream = null,
-                    partySource = null,
-                    onSharedStreamSelected = {},
-                    onStreamSelected = {},
-                    showFileSizeBadges = false,
-                    badgePlacement = StreamBadgePlacement.BOTTOM
+            // Same split as StreamScreen: the real title column, then the source list.
+            Row(Modifier.fillMaxSize()) {
+                com.fetch.tv.ui.screens.stream.LeftContentSection(
+                    title = meta.name,
+                    logo = meta.logo,
+                    isEpisode = true,
+                    season = 2,
+                    episode = 6,
+                    episodeName = "Hollow Ground",
+                    runtime = 52,
+                    genres = null,
+                    year = null,
+                    modifier = Modifier.weight(0.36f).fillMaxHeight()
                 )
-            }
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .fillMaxWidth(0.4f)
-                    .padding(start = 48.dp, end = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                AsyncImage(model = meta.logo, contentDescription = null, modifier = Modifier.height(90.dp))
-                Text(
-                    text = "S2 E6",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = FetchTheme.colors.TextSecondary
-                )
+                Column(
+                    modifier = Modifier
+                        .weight(0.64f)
+                        .fillMaxHeight()
+                        .padding(24.dp)
+                        .background(FetchTheme.colors.BackgroundElevated.copy(alpha = 0.94f), RoundedCornerShape(FetchTheme.radii.md))
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // The real list, so the screenshot shows Best match's pick and the quality sections.
+                    com.fetch.tv.ui.screens.stream.StreamsList(
+                        streams = Samples.streams,
+                        streamExclusions = emptyMap(),
+                        sections = com.fetch.tv.ui.screens.stream.sourceSections(
+                            Samples.streams, emptyMap(), bestMatchFirst = true, addonFilter = null
+                        ),
+                        torrentsNeedExternalPlayer = false,
+                        sharedStream = null,
+                        partySource = null,
+                        onSharedStreamSelected = {},
+                        onStreamSelected = {},
+                        showFileSizeBadges = false,
+                        badgePlacement = StreamBadgePlacement.BOTTOM
+                    )
+                }
             }
         }
     }

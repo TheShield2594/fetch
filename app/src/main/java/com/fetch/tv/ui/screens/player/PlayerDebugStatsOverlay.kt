@@ -128,7 +128,7 @@ internal fun PlayerDebugStatsOverlay(
             .clip(RoundedCornerShape(FetchRadii.tokens.sm))
             // Over video, so the darkest player scrim: it keeps the labels legible on a bright frame.
             .background(FetchTheme.colors.PlayerOverlay)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(3.dp)
     ) {
         stats.forEach { stat ->

@@ -353,7 +353,6 @@
     <string name="custom_theme_save">Salvar tema</string>
     <string name="custom_theme_remote_hint">← → Ajustar   ·   ↑ ↓ Mover   ·   Segure para ajustar mais rápido</string>
     <string name="custom_theme_preview">PRÉVIA</string>
-    <string name="custom_theme_preview_ring">Item em foco</string>
     <string name="appearance_amoled_mode">Modo AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Usar preto puro no plano de fundo do aplicativo</string>
     <string name="appearance_amoled_surfaces_mode">Superfícies em Preto Puro</string>
@@ -2731,8 +2730,6 @@
     <string name="skip_marker_start_recorded">Início marcado. Aperte de novo onde termina.</string>
     <string name="skip_marker_submit_failed">Não foi possível enviar o marcador ao IntroDB</string>
     <string name="skip_marker_submitted">Marcador enviado ao IntroDB</string>
-    <string name="skip_source">via %1$s</string>
-    <string name="skip_source_reportable">via %1$s · segure para relatar</string>
     <string name="sub_hdr_brightness">Brilho das legendas HDR</string>
     <string name="sub_hdr_style">Estilo separado para HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Usa outra cor de texto e um brilho mais baixo nas legendas de vídeos HDR e Dolby Vision</string>

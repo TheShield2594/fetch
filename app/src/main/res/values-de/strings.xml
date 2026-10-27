@@ -241,7 +241,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Bereitgestellt von Trakt</string>
     <string name="detail_comments_title">Kommentare</string>
     <string name="detail_comments_subtitle">Bewertungen von Trakt</string>
-    <string name="detail_comments_subtitle_episode">Trakt-Bewertungen für S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Trakt-Bewertungen für S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Serie</string>
     <string name="detail_comments_mode_episode">Folge</string>
     <string name="detail_comments_mode_episode_change">Folge wechseln (%1$s)</string>
@@ -2108,8 +2108,6 @@
     <string name="subtitle_style_text_color_hdr">Textfarbe (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Textdeckkraft (HDR)</string>
     <string name="subtitle_style_brightness_hdr">Helligkeit (HDR)</string>
-    <string name="skip_source">über %1$s</string>
-    <string name="skip_source_reportable">über %1$s · gedrückt halten zum Melden</string>
     <string name="skip_marker_reported">Falsche Markierung gemeldet. Danke!</string>
     <string name="skip_marker_report_failed">Markierung konnte nicht gemeldet werden</string>
     <string name="skip_marker_start_recorded">Anfang markiert. Am Ende erneut drücken.</string>

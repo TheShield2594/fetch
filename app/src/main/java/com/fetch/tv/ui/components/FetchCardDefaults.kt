@@ -53,7 +53,7 @@ object FetchCardDefaults {
 }
 
 /**
- * Draws a card's watch progress: a rounded track with the accent fill. Drawn rather than
+ * Draws a card's watch progress: a rounded track with a [fillColor] fill. Drawn rather than
  * composed, so a row of cards doesn't add two layout nodes per card.
  */
 fun Modifier.fetchCardProgress(progress: Float, fillColor: Color): Modifier = this
@@ -71,7 +71,7 @@ fun Modifier.fetchCardProgress(progress: Float, fillColor: Color): Modifier = th
     }
 
 /**
- * Fetch's "ready" mark: a small accent dot on a card whose Best match is cached and recently
+ * Fetch's "ready" mark: a small white dot on a card whose Best match is cached and recently
  * confirmed, so OK starts it at once. It means only that, everywhere it appears.
  */
 @Composable
@@ -81,7 +81,7 @@ fun ReadyDot(modifier: Modifier = Modifier) {
         modifier = modifier
             .size(12.dp)
             .border(2.dp, FetchTheme.colors.Background.copy(alpha = 0.6f), CircleShape)
-            .background(FetchTheme.colors.Secondary, CircleShape)
+            .background(FetchTheme.colors.TextPrimary, CircleShape)
             .semantics { contentDescription = description }
     )
 }

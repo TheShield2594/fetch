@@ -1145,7 +1145,7 @@ private fun SubtitleLanguageCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = FetchTheme.spacing.sm),
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1343,7 +1343,7 @@ private fun OverlayLoadingCard(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 6.dp, vertical = 10.dp),
+            .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.md),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -1365,7 +1365,7 @@ private fun OverlayEmptyCard(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 6.dp, vertical = 10.dp)
+            .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.md)
     ) {
         Text(
             text = text,

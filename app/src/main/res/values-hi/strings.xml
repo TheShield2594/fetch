@@ -955,8 +955,6 @@
     <string name="subtitle_style_text_color_hdr">टेक्स्ट रंग (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">टेक्स्ट अपारदर्शिता (HDR)</string>
     <string name="subtitle_style_brightness_hdr">ब्राइटनेस (HDR)</string>
-    <string name="skip_source">%1$s के ज़रिए</string>
-    <string name="skip_source_reportable">%1$s के ज़रिए · रिपोर्ट करने के लिए दबाकर रखें</string>
     <string name="skip_marker_reported">गलत मार्कर रिपोर्ट किया गया। धन्यवाद!</string>
     <string name="skip_marker_report_failed">मार्कर रिपोर्ट नहीं हो सका</string>
     <string name="skip_marker_start_recorded">शुरुआत मार्क हो गई। जहाँ खत्म हो वहाँ फिर से दबाएँ।</string>

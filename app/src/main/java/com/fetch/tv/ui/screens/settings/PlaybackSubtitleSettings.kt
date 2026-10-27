@@ -14,23 +14,14 @@ import com.fetch.tv.data.local.SubtitleLanguageOption
 import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.data.local.displayName
 import com.fetch.tv.ui.theme.FetchPrimitives
+import com.fetch.tv.ui.theme.FetchContentColors
 
-private val subtitleColors = listOf(
-    Color.White,
-    Color(0xFFD9D9D9),
-    Color.Yellow,
-    Color.Cyan,
-    Color.Green,
-    Color.Magenta,
-    Color(0xFFFF6B6B),
-    Color(0xFFFFA500),
-    Color(0xFF90EE90)
-)
+private val subtitleColors = FetchContentColors.subtitleSettingsTextPresets
 
 private val subtitleBackgroundColors = listOf(
     Color.Transparent,
     Color.Black,
-    Color(0x80000000),
+    FetchContentColors.subtitleBackgroundHalfBlack,
     FetchPrimitives.neutral900,
     FetchPrimitives.neutral800
 )

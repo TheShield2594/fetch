@@ -87,7 +87,7 @@ object FetchComponents {
             height = 189.dp,
             cornerRadius = 8.dp,
             contentPadding = 8.dp,
-            focusedBorderWidth = 3.dp,
+            focusedBorderWidth = 2.dp,
             focusedScale = 1.04f
         ),
         backdropCard = FetchCardComponentTokens(
@@ -95,7 +95,7 @@ object FetchComponents {
             height = 180.dp,
             cornerRadius = 8.dp,
             contentPadding = 16.dp,
-            focusedBorderWidth = 3.dp,
+            focusedBorderWidth = 2.dp,
             focusedScale = 1.04f
         ),
         collectionCard = FetchCardComponentTokens(
@@ -103,7 +103,7 @@ object FetchComponents {
             height = 180.dp,
             cornerRadius = 8.dp,
             contentPadding = 16.dp,
-            focusedBorderWidth = 3.dp,
+            focusedBorderWidth = 2.dp,
             focusedScale = 1.04f
         ),
         continueWatchingCard = FetchCardComponentTokens(
@@ -111,7 +111,7 @@ object FetchComponents {
             height = 146.dp,
             cornerRadius = 8.dp,
             contentPadding = 12.dp,
-            focusedBorderWidth = 3.dp,
+            focusedBorderWidth = 2.dp,
             focusedScale = 1.04f
         ),
         episodeCard = FetchCardComponentTokens(
@@ -119,7 +119,7 @@ object FetchComponents {
             height = 207.dp,
             cornerRadius = 8.dp,
             contentPadding = 16.dp,
-            focusedBorderWidth = 3.dp,
+            focusedBorderWidth = 2.dp,
             focusedScale = 1.04f
         ),
         row = FetchRowComponentTokens(
@@ -145,12 +145,12 @@ object FetchComponents {
         sidePanel = FetchDialogComponentTokens(
             maxWidth = 420.dp,
             contentPadding = 20.dp,
-            cornerRadius = 20.dp,
+            cornerRadius = 16.dp,
             actionSpacing = 12.dp
         ),
         settings = FetchSettingsComponentTokens(
-            containerRadius = 28.dp,
-            secondaryCardRadius = 18.dp,
+            containerRadius = 16.dp,
+            secondaryCardRadius = 12.dp,
             railItemHeight = 56.dp,
             workspacePadding = 20.dp,
             rowGap = 16.dp

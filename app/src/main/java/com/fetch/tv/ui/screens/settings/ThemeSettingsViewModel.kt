@@ -34,6 +34,7 @@ data class ThemeSettingsUiState(
     val availableFonts: List<AppFont> = AppFont.entries.toList(),
     val amoledMode: Boolean = false,
     val amoledSurfacesMode: Boolean = false,
+    val highContrast: Boolean = false,
 )
 
 sealed class ThemeSettingsEvent {
@@ -42,6 +43,7 @@ sealed class ThemeSettingsEvent {
     data class SelectFont(val font: AppFont) : ThemeSettingsEvent()
     data class ToggleAmoledMode(val enabled: Boolean) : ThemeSettingsEvent()
     data class ToggleAmoledSurfacesMode(val enabled: Boolean) : ThemeSettingsEvent()
+    data class ToggleHighContrast(val enabled: Boolean) : ThemeSettingsEvent()
     data object DismissAppIconFailure : ThemeSettingsEvent()
 }
 
@@ -112,6 +114,15 @@ class ThemeSettingsViewModel @Inject constructor(
                     }
                 }
         }
+        viewModelScope.launch {
+            themeDataStore.highContrast
+                .distinctUntilChanged()
+                .collectLatest { enabled ->
+                    _uiState.update { state ->
+                        if (state.highContrast == enabled) state else state.copy(highContrast = enabled)
+                    }
+                }
+        }
     }
 
     private fun currentTheme(): AppTheme {
@@ -125,6 +136,7 @@ class ThemeSettingsViewModel @Inject constructor(
             is ThemeSettingsEvent.SelectFont -> selectFont(event.font)
             is ThemeSettingsEvent.ToggleAmoledMode -> setAmoledMode(event.enabled)
             is ThemeSettingsEvent.ToggleAmoledSurfacesMode -> setAmoledSurfacesMode(event.enabled)
+            is ThemeSettingsEvent.ToggleHighContrast -> setHighContrast(event.enabled)
             ThemeSettingsEvent.DismissAppIconFailure -> appIconManager.clearFailure()
         }
     }
@@ -165,6 +177,13 @@ class ThemeSettingsViewModel @Inject constructor(
         if (_uiState.value.amoledSurfacesMode == enabled) return
         viewModelScope.launch {
             themeDataStore.setAmoledSurfacesMode(enabled)
+        }
+    }
+
+    private fun setHighContrast(enabled: Boolean) {
+        if (_uiState.value.highContrast == enabled) return
+        viewModelScope.launch {
+            themeDataStore.setHighContrast(enabled)
         }
     }
 }

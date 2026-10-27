@@ -243,7 +243,7 @@
     <string name="because_you_watched_reason_cast">Also stars %1$s</string>
     <string name="detail_comments_title">Comments</string>
     <string name="detail_comments_subtitle">Reviews from Trakt</string>
-    <string name="detail_comments_subtitle_episode">Reviews from Trakt for S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Reviews from Trakt for S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Show</string>
     <string name="detail_comments_mode_episode">Episode</string>
     <string name="detail_comments_mode_episode_change">Change Episode (%1$s)</string>
@@ -407,7 +407,10 @@
     <string name="custom_theme_save">Save theme</string>
     <string name="custom_theme_remote_hint">← → Adjust   ·   ↑ ↓ Move   ·   Hold to adjust faster</string>
     <string name="custom_theme_preview">PREVIEW</string>
-    <string name="custom_theme_preview_ring">Focused Item</string>
+    <string name="custom_theme_preview_action">Play</string>
+    <string name="custom_theme_adjusted_for_contrast">Lightened a little so buttons stay visible on dark backgrounds</string>
+    <string name="appearance_high_contrast">Increase contrast</string>
+    <string name="appearance_high_contrast_subtitle">Brighter secondary text and borders, and a heavier focus outline</string>
     <string name="appearance_amoled_mode">AMOLED Mode</string>
     <string name="appearance_amoled_mode_subtitle">Use pure black for app backgrounds</string>
     <string name="appearance_amoled_surfaces_mode">Pure Black Surfaces</string>
@@ -1820,8 +1823,6 @@
     <string name="skip_ending">Skip Ending</string>
     <string name="skip_recap">Skip Recap</string>
     <string name="skip_generic">Skip</string>
-    <string name="skip_source">via %1$s</string>
-    <string name="skip_source_reportable">via %1$s · hold to report</string>
     <string name="skip_marker_reported">Reported the wrong marker. Thanks!</string>
     <string name="skip_marker_report_failed">Couldn\'t report the marker</string>
     <string name="skip_marker_start_recorded">Start marked. Press again where it ends.</string>

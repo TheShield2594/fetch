@@ -262,7 +262,7 @@ Recommended Essential settings sections:
 5. Appearance
    - App language.
    - Theme.
-   - Font only if the UI can show it without creating a long customization section.
+   - Increase contrast.
 
 6. Account and profiles
    - Sign in or sign out.
@@ -293,7 +293,8 @@ Advanced settings should continue to use the existing `SettingsScreen` rail.
 | Profile management | Limited | Full | Essential can manage profiles from primary profile only. |
 | Appearance: theme | Show | Show | Minimal customization. |
 | Appearance: language | Show | Show | Accessibility and localization. |
-| Appearance: font | Optional | Show | Keep if it does not clutter Essential. |
+| Appearance: increase contrast | Show | Show | Accessibility. |
+| Appearance: font | Optional | Hide | Fetch's own type is the default; the picker is Advanced. |
 | AMOLED options | Hide | Show | Advanced visual preference. |
 | Layout selection | Never shown | Never shown | There is one Home layout. |
 | Layout settings | Hide | Show | Advanced customization. |
@@ -474,10 +475,11 @@ Rows:
 
 - App language.
 - Theme.
-- Font if desired.
+- Increase contrast.
 
 Hide in Essential:
 
+- Font.
 - AMOLED mode.
 - AMOLED surfaces mode.
 - Full layout settings.

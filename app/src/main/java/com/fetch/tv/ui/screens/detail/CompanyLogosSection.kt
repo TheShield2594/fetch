@@ -314,7 +314,7 @@ private fun CompanyLogoCard(
                     onError = { logoLoadFailed = true },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                        .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
                     contentScale = ContentScale.Fit
                 )
             } else {

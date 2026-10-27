@@ -404,7 +404,7 @@ private fun SettingsActionButton(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -486,7 +486,7 @@ private fun SignOutSettingsButton(
         scale = CardDefaults.scale(focusedScale = 1.02f)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = FetchTheme.spacing.sm),
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

@@ -232,7 +232,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Drevet af Trakt</string>
     <string name="detail_comments_title">Kommentarer</string>
     <string name="detail_comments_subtitle">Anmeldelser fra Trakt</string>
-    <string name="detail_comments_subtitle_episode">Anmeldelser fra Trakt for S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Anmeldelser fra Trakt for S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Serie</string>
     <string name="detail_comments_mode_episode">Episode</string>
     <string name="detail_comments_mode_episode_change">Skift episode (%1$s)</string>
@@ -2367,8 +2367,6 @@
     <string name="skip_marker_start_recorded">Start markeret. Tryk igen, hvor den slutter.</string>
     <string name="skip_marker_submit_failed">Kunne ikke sende markøren til IntroDB</string>
     <string name="skip_marker_submitted">Markør sendt til IntroDB</string>
-    <string name="skip_source">via %1$s</string>
-    <string name="skip_source_reportable">via %1$s · hold for at rapportere</string>
     <string name="sub_hdr_brightness">HDR-undertekstlysstyrke</string>
     <string name="sub_hdr_style">Separat HDR-/Dolby Vision-stil</string>
     <string name="sub_hdr_style_sub">Brug en anden tekstfarve og en dæmpet lysstyrke til undertekster på HDR- og Dolby Vision-video</string>

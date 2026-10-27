@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.player.StreamAutoPlaySelector
 import com.fetch.tv.core.streams.ranking.ExclusionReason
+import com.fetch.tv.core.streams.ranking.AudioFormat
 import com.fetch.tv.core.streams.ranking.StreamDescriptor
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.data.local.BingeGroupCacheDataStore
@@ -29,6 +30,8 @@ data class BestMatchPreview(
     val labels: List<String>,
     /** [labels] without the size, for a one-line spec ("4K · DV · Atmos"). */
     val specLabels: List<String> = labels,
+    /** The Play button's plain-words summary ("4K", "Dolby Vision", "Atmos"); the rest is on Sources. */
+    val buttonLabels: List<String> = specLabels,
     val isCached: Boolean,
     val addonName: String?,
     val sourceCount: Int,
@@ -123,6 +126,7 @@ class BestMatchPreviewer @Inject constructor(
                 videoId = videoId,
                 labels = descriptor.playButtonLabels(),
                 specLabels = descriptor.specLineLabels(),
+                buttonLabels = descriptor.playButtonSummary(),
                 isCached = descriptor.isDebridCached,
                 addonName = stream.addonName.takeIf { it.isNotBlank() },
                 sourceCount = streams.size,
@@ -156,6 +160,24 @@ internal fun StreamDescriptor.playButtonLabels(): List<String> {
     val all = summaryLabels()
     val codecAndSource = setOf(videoCodec.label, source.label).filter { it.isNotEmpty() }
     return all.filterNot { it in codecAndSource }
+}
+
+/**
+ * What the Play button names, in plain words: resolution, the best HDR format and object audio
+ * ("4K · Dolby Vision · Atmos"). The Dolby Vision profile, codec, audio codec and size stay on
+ * the Sources screen, for anyone who wants them.
+ */
+internal fun StreamDescriptor.playButtonSummary(): List<String> = buildList {
+    resolution.label.takeIf { it.isNotEmpty() }?.let(::add)
+    if (hasDolbyVision) {
+        add("Dolby Vision")
+    } else {
+        hdr.minByOrNull { it.ordinal }?.let { add(it.label) }
+    }
+    when {
+        hasAtmos -> add("Atmos")
+        AudioFormat.DTS_X in audio -> add(AudioFormat.DTS_X.label)
+    }
 }
 
 /** [playButtonLabels] without the size: what a spec line names ("4K · DV · Atmos"). */

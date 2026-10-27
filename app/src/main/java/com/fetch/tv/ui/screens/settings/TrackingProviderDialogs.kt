@@ -70,6 +70,7 @@ import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.rememberRawSvgPainter
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
+import com.fetch.tv.ui.theme.FetchContentColors
 
 @Composable
 internal fun TraktAccountDialog(
@@ -787,7 +788,7 @@ private fun TrackingBrandMessage(
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
             style = MaterialTheme.typography.bodySmall,
             color = if (isError) {
                 TrackingBrandError
@@ -833,13 +834,13 @@ internal enum class TrackingDialogBrand {
 
 private fun TrackingDialogBrand.cardBrush(): Brush = when (this) {
     TrackingDialogBrand.TRAKT -> Brush.linearGradient(
-        colors = listOf(Color(0xFF7D279B), Color(0xFFD61F56), Color(0xFFF22125))
+        colors = FetchContentColors.traktCardGradient
     )
     TrackingDialogBrand.SIMKL -> Brush.linearGradient(
-        colors = listOf(Color(0xFF050505), Color(0xFF292929), FetchPrimitives.neutral925)
+        colors = FetchContentColors.simklCardGradient
     )
     TrackingDialogBrand.MDBLIST -> Brush.linearGradient(
-        colors = listOf(Color(0xFF173D69), Color(0xFF225C97), Color(0xFF16385D))
+        colors = FetchContentColors.mdblistCardGradient
     )
 }
 
@@ -937,5 +938,5 @@ internal fun formatTrackingDuration(valueMs: Long): String {
 private const val TRAKT_ACTIVATION_URL = "https://trakt.tv/activate"
 private const val SIMKL_WEBSITE_URL = "https://simkl.com"
 private const val SIMKL_SYNC_GUIDE_URL = "https://api.simkl.org/guides/sync"
-private val TrackingBrandButtonContent = Color(0xFF171717)
-private val TrackingBrandError = Color(0xFFFFDAD6)
+private val TrackingBrandButtonContent = FetchContentColors.trackingBrandButtonContent
+private val TrackingBrandError = FetchContentColors.trackingBrandError

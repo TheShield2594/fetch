@@ -1641,7 +1641,7 @@
     <string name="detail_comments_mode_episode">Odcinek</string>
     <string name="detail_comments_mode_episode_change">Zmień odcinek (%1$s)</string>
     <string name="detail_comments_mode_show">Serial</string>
-    <string name="detail_comments_subtitle_episode">Recenzje z Trakt dla S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Recenzje z Trakt dla S%1$d E%2$d</string>
     <string name="episodes_open_comments">Otwórz komentarze odcinka</string>
 
     <!-- Missing translations -->
@@ -2756,7 +2756,6 @@
     <string name="custom_theme_save">Zapisz motyw</string>
     <string name="custom_theme_remote_hint">← → Reguluj   ·   ↑ ↓ Przesuń   ·   Przytrzymaj, aby szybciej</string>
     <string name="custom_theme_preview">PODGLĄD</string>
-    <string name="custom_theme_preview_ring">Wybrany element</string>
 
     <string name="youtube_resolving_stream">Ładowanie wideo z YouTube</string>
     <string name="youtube_resolution_failed">Nie udało się załadować tego wideo z YouTube.</string>
@@ -3023,8 +3022,6 @@
     <string name="skip_marker_start_recorded">Oznaczono początek. Naciśnij ponownie tam, gdzie się kończy.</string>
     <string name="skip_marker_submit_failed">Nie udało się wysłać znacznika do IntroDB</string>
     <string name="skip_marker_submitted">Wysłano znacznik do IntroDB</string>
-    <string name="skip_source">przez %1$s</string>
-    <string name="skip_source_reportable">przez %1$s · przytrzymaj, aby zgłosić</string>
     <string name="sub_hdr_brightness">Jasność napisów HDR</string>
     <string name="sub_hdr_style">Osobny styl dla HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Użyj innego koloru tekstu i niższej jasności napisów dla wideo HDR i Dolby Vision</string>

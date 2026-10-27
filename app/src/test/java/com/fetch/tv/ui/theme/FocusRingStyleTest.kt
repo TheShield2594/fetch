@@ -4,34 +4,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import com.fetch.tv.domain.model.AppTheme
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FocusRingStyleTest {
     @Test
-    fun standardThemeUsesItsSolidFocusColor() {
-        val style = createFocusRingStyle(ThemeColors.Ocean)
+    fun focusRingIsTheSameSolidNeutralInEveryTheme() {
+        val style = createFocusRingStyle()
 
-        assertEquals(Color(0xFF42A5F5), style.solidColor)
-        assertTrue(style.brush() is SolidColor)
-    }
-
-    @Test
-    fun supporterThemesUseGradientFocusRings() {
-        val expectedFallbacks = mapOf(
-            AppTheme.GOLD to Color(0xFFFFD45C),
-            AppTheme.JADE to Color(0xFF7BF08D),
-            AppTheme.ROSE_GOLD to Color(0xFFFFB37A),
-            AppTheme.ARCTIC_BLUE to Color(0xFF4DE3FF),
-            AppTheme.GRAPHITE to Color(0xFFF3F5F7)
-        )
-
-        expectedFallbacks.forEach { (theme, expectedFallback) ->
-            val style = createFocusRingStyle(ThemeColors.getColorPalette(theme))
-
-            assertEquals(expectedFallback, style.solidColor)
-            assertFalse(style.brush() is SolidColor)
+        assertEquals(FetchPrimitives.neutral100, style.solidColor)
+        assertEquals(SolidColor(FetchPrimitives.neutral100), style.brush())
+        assertEquals(SolidColor(FetchPrimitives.neutral100.copy(alpha = 0.5f)), style.brush(0.5f))
+        AppTheme.entries.forEach { theme ->
+            assertEquals(
+                "$theme focus ring",
+                FetchPrimitives.neutral100,
+                FetchColorScheme(ThemeColors.getColorPalette(theme)).FocusRing
+            )
         }
     }
 
@@ -61,10 +49,7 @@ class FocusRingStyleTest {
         )
 
         expectedGradients.forEach { (theme, expectedGradient) ->
-            val palette = ThemeColors.getColorPalette(theme)
-
-            assertEquals(expectedGradient, palette.accentGradient)
-            assertEquals(expectedGradient, palette.focusRingGradient)
+            assertEquals(expectedGradient, ThemeColors.getColorPalette(theme).accentGradient)
         }
     }
 }

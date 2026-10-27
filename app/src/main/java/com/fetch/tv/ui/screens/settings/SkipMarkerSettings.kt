@@ -206,7 +206,7 @@ private fun SettingsTextInputDialog(
             shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)),
             scale = CardDefaults.scale(focusedScale = 1f)
         ) {
-            Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = FetchTheme.spacing.md)) {
+            Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)) {
                 BasicTextField(
                     value = value,
                     onValueChange = { value = it },

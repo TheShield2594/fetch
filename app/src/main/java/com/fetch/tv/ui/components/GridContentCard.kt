@@ -274,7 +274,7 @@ fun GridContentCard(
                                 .align(Alignment.BottomStart)
                                 .fillMaxWidth(0.62f)
                                 .then(if (globalLandscape) Modifier.fillMaxHeight(0.34f) else Modifier.height(cardHeight * 0.34f))
-                                .padding(start = 10.dp, end = 10.dp, bottom = FetchTheme.spacing.sm),
+                                .padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.sm),
                             contentScale = ContentScale.Fit,
                             alignment = Alignment.CenterStart,
                             onError = { landscapeLogoFailed = true }
@@ -304,7 +304,7 @@ fun GridContentCard(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .fillMaxWidth(0.62f)
-                            .padding(start = 10.dp, end = 10.dp, bottom = FetchTheme.spacing.md)
+                            .padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.md)
                     )
                 } else if (showLogo && !item.logo.isNullOrBlank()) {
                     Box(

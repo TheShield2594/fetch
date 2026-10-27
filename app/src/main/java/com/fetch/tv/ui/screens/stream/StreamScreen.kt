@@ -505,7 +505,8 @@ fun StreamScreen(
             Row(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Left side - Title/Logo (centered vertically)
+                // Left side: the title, anchored low and left like Home and the detail page, so the
+                // backdrop shows above it instead of an empty column around a centred logo.
                 LeftContentSection(
                     title = uiState.title,
                     logo = uiState.logo,
@@ -517,7 +518,7 @@ fun StreamScreen(
                     genres = uiState.genres,
                     year = uiState.year,
                     modifier = Modifier
-                        .weight(0.4f)
+                        .weight(LEFT_PANE_WEIGHT)
                         .fillMaxHeight()
                 )
 
@@ -586,7 +587,7 @@ fun StreamScreen(
                     onSourceOptions = { _, options -> sourceOptions = options },
                     onNavigateToAddons = onNavigateToAddons,
                     modifier = Modifier
-                        .weight(0.6f)
+                        .weight(1f - LEFT_PANE_WEIGHT)
                         .fillMaxHeight()
                 )
             }
@@ -722,7 +723,7 @@ private fun StreamGradientLayer(
 }
 
 @Composable
-private fun LeftContentSection(
+internal fun LeftContentSection(
     title: String,
     logo: String?,
     isEpisode: Boolean,
@@ -749,13 +750,16 @@ private fun LeftContentSection(
         listOfNotNull(genres, year).joinToString(" • ")
     }
     Box(
-        modifier = modifier.padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xl),
-        contentAlignment = Alignment.CenterStart
+        modifier = modifier.padding(
+            start = FetchTheme.spacing.screen.horizontal,
+            end = FetchTheme.spacing.xl,
+            bottom = FetchTheme.spacing.xxxl
+        ),
+        contentAlignment = Alignment.BottomStart
     ) {
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth(0.8f)
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.fillMaxWidth()
         ) {
             if (logoModel != null && !logoLoadFailed) {
                 AsyncImage(
@@ -766,7 +770,7 @@ private fun LeftContentSection(
                         .fillMaxWidth()
                         .height(120.dp),
                     contentScale = ContentScale.Fit,
-                    alignment = Alignment.Center
+                    alignment = Alignment.CenterStart
                 )
             } else {
                 Text(
@@ -775,7 +779,7 @@ private fun LeftContentSection(
                     color = FetchTheme.colors.TextPrimary,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Start
                 )
             }
 
@@ -787,7 +791,7 @@ private fun LeftContentSection(
                     text = stringResource(R.string.stream_episode_label, season, episode),
                     style = MaterialTheme.typography.titleLarge,
                     color = FetchTheme.extendedColors.textSecondary,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Start
                 )
                 // "Episode 6" would only repeat the line above.
                 if (episodeName != null && !episodeName.isPlaceholderEpisodeTitle()) {
@@ -798,7 +802,7 @@ private fun LeftContentSection(
                         color = FetchTheme.colors.TextPrimary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Start
                     )
                 }
                 if (runtime != null) {
@@ -814,7 +818,7 @@ private fun LeftContentSection(
                         text = runtimeText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = FetchTheme.extendedColors.textSecondary,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Start
                     )
                 }
             } else {
@@ -825,7 +829,7 @@ private fun LeftContentSection(
                         text = infoText,
                         style = MaterialTheme.typography.bodyLarge,
                         color = FetchTheme.extendedColors.textSecondary,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Start
                     )
                 }
             }
@@ -1657,11 +1661,11 @@ private fun StreamSpecChip(text: String, highlighted: Boolean = false) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-        color = if (highlighted) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
+        color = if (highlighted) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
         maxLines = 1,
         modifier = Modifier
             .clip(RoundedCornerShape(FetchTheme.radii.xs))
-            .background(if (highlighted) FetchTheme.colors.Secondary else FetchTheme.colors.BackgroundCard)
+            .background(if (highlighted) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard)
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
     )
 }
@@ -1779,3 +1783,6 @@ internal fun PlayerChoiceDialog(
         }
     }
 }
+
+/** Share of the width the title column takes; the source list gets the rest. */
+private const val LEFT_PANE_WEIGHT = 0.36f

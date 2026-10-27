@@ -241,7 +241,7 @@
     <string name="detail_more_like_this_powered_by_trakt">بدعم من Trakt</string>
     <string name="detail_comments_title">التعليقات</string>
     <string name="detail_comments_subtitle">المراجعات من Trakt</string>
-    <string name="detail_comments_subtitle_episode">Reviews from Trakt for S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Reviews from Trakt for S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">إظهار</string>
     <string name="detail_comments_mode_episode">حلقة</string>
     <string name="detail_comments_mode_episode_change">تغيير الحلقة (%1$s)</string>
@@ -2627,8 +2627,6 @@
     <string name="skip_marker_start_recorded">تم تحديد البداية. اضغط مرة أخرى عند النهاية.</string>
     <string name="skip_marker_submit_failed">تعذر إرسال العلامة إلى IntroDB</string>
     <string name="skip_marker_submitted">تم إرسال العلامة إلى IntroDB</string>
-    <string name="skip_source">عبر %1$s</string>
-    <string name="skip_source_reportable">عبر %1$s · اضغط مطولاً للإبلاغ</string>
     <string name="sub_hdr_brightness">سطوع ترجمة HDR</string>
     <string name="sub_hdr_style">نمط منفصل لـ HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">استخدام لون نص مختلف وسطوع أخفت للترجمة في فيديو HDR وDolby Vision</string>

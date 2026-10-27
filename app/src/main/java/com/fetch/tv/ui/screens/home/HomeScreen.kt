@@ -71,6 +71,7 @@ import com.fetch.tv.core.tracking.supportsMembershipFor
 import com.fetch.tv.data.local.StartupAuthNotice
 import com.fetch.tv.ui.components.posteroptions.TrackingRemovalConfirmationDialog
 import kotlinx.coroutines.delay
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 private data class HomePosterOptionsTarget(
     val item: MetaPreview,
@@ -375,10 +376,10 @@ fun HomeScreen(
                     .align(Alignment.TopCenter)
                     .padding(top = FetchTheme.spacing.xl)
                     .background(
-                        color = Color(0xFF5A1C1C),
+                        color = FetchStatusTones.errorBanner,
                         shape = RoundedCornerShape(FetchRadii.tokens.sm)
                     )
-                    .padding(horizontal = 18.dp, vertical = 10.dp)
+                    .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
             ) {
                 Text(
                     text = when (startupAuthNotice) {
@@ -710,7 +711,7 @@ private fun HomeLibraryListPickerDialog(
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFFFB6B6)
+                color = FetchStatusTones.errorText
             )
         }
 

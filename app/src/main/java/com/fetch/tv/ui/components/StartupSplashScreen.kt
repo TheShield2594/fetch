@@ -64,7 +64,7 @@ fun StartupSplashScreen(
                 contentScale = ContentScale.Crop
             )
         } else if (!skipGradient) {
-            val baseBg = Color(0xFF121212)
+            val baseBg = FetchPrimitives.neutral925
             val baseBgElevated = FetchPrimitives.neutral875
             val gradientTop = lerp(baseBgElevated, avatarColor, 0.3f)
             val gradientMid = lerp(baseBg, avatarColor, 0.14f)

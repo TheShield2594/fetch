@@ -252,7 +252,7 @@
     <string name="because_you_watched_reason_cast">Aynı oyuncu: %1$s</string>
     <string name="detail_comments_title">Yorumlar</string>
     <string name="detail_comments_subtitle">Trakt incelemeleri</string>
-    <string name="detail_comments_subtitle_episode">S%1$dE%2$d için Trakt incelemeleri</string>
+    <string name="detail_comments_subtitle_episode">S%1$d E%2$d için Trakt incelemeleri</string>
     <string name="detail_comments_mode_show">Dizi Yorumları</string>
     <string name="detail_comments_mode_episode">Bölüm Yorumları</string>
     <string name="detail_comments_mode_episode_change">Bölümü Değiştir (%1$s)</string>
@@ -364,7 +364,6 @@
     <string name="custom_theme_save">Temayı kaydet</string>
     <string name="custom_theme_remote_hint">← → Ayarla   ·   ↑ ↓ Taşı   ·   Daha hızlı ayarlamak için basılı tutun</string>
     <string name="custom_theme_preview">ÖNİZLEME</string>
-    <string name="custom_theme_preview_ring">Odaklanan Öğe</string>
     <string name="appearance_amoled_mode">AMOLED Modu</string>
     <string name="appearance_amoled_mode_subtitle">Tamamen siyah arka plan kullan (OLED ekranlar için önerilir)</string>
     <string name="appearance_amoled_surfaces_mode">AMOLED Yüzeyler</string>
@@ -2953,8 +2952,6 @@
     <string name="skip_marker_start_recorded">Başlangıç işaretlendi. Bittiği yerde tekrar bas.</string>
     <string name="skip_marker_submit_failed">İşaret IntroDB\'ye gönderilemedi</string>
     <string name="skip_marker_submitted">İşaret IntroDB\'ye gönderildi</string>
-    <string name="skip_source">%1$s üzerinden</string>
-    <string name="skip_source_reportable">%1$s üzerinden · bildirmek için basılı tut</string>
     <string name="sub_hdr_brightness">HDR Altyazı Parlaklığı</string>
     <string name="sub_hdr_style">Ayrı HDR / Dolby Vision stili</string>
     <string name="sub_hdr_style_sub">HDR ve Dolby Vision videolarda altyazılar için farklı bir metin rengi ve daha düşük parlaklık kullan</string>

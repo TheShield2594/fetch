@@ -234,7 +234,7 @@
 <string name="detail_more_like_this_powered_by_trakt">Fornito da Trakt</string>
 <string name="detail_comments_title">Commenti</string>
 <string name="detail_comments_subtitle">Recensioni da Trakt</string>
-<string name="detail_comments_subtitle_episode">Recensioni da Trakt per S%1$dE%2$d</string>
+<string name="detail_comments_subtitle_episode">Recensioni da Trakt per S%1$d E%2$d</string>
 <string name="detail_comments_mode_show">Serie</string>
 <string name="detail_comments_mode_episode">Episodio</string>
 <string name="detail_comments_mode_episode_change">Cambia episodio (%1$s)</string>
@@ -2523,7 +2523,6 @@
     <string name="custom_theme_save">Salva tema</string>
     <string name="custom_theme_remote_hint">← → Regola · ↑ ↓ Sposta · Tieni premuto per regolare più rapidamente</string>
     <string name="custom_theme_preview">ANTEPRIMA</string>
-    <string name="custom_theme_preview_ring">Elemento selezionato</string>
     <string name="appearance_startup_splash">Schermata di avvio</string>
     <string name="appearance_startup_splash_subtitle">Mostra il logo e l\'indicatore di caricamento dopo la selezione di un profilo.</string>
     <string name="ambient_mode_title">Modalità ambientale</string>
@@ -2932,8 +2931,6 @@
     <string name="skip_marker_start_recorded">Inizio segnato. Premi di nuovo dove finisce.</string>
     <string name="skip_marker_submit_failed">Impossibile inviare il marcatore a IntroDB</string>
     <string name="skip_marker_submitted">Marcatore inviato a IntroDB</string>
-    <string name="skip_source">tramite %1$s</string>
-    <string name="skip_source_reportable">tramite %1$s · tieni premuto per segnalare</string>
     <string name="sub_hdr_brightness">Luminosità sottotitoli HDR</string>
     <string name="sub_hdr_style">Stile separato per HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Usa un colore del testo diverso e una luminosità ridotta per i sottotitoli dei video HDR e Dolby Vision</string>

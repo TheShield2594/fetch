@@ -106,6 +106,7 @@ import java.util.TimeZone
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
+import com.fetch.tv.ui.theme.FetchContentColors
 
 private const val EPISODE_CARD_CONTENT_TYPE = "episode_card"
 private const val EPISODE_SCROLL_REPEAT_THROTTLE_MS = 80L
@@ -133,11 +134,11 @@ fun SeasonTabs(
         regularSeasons + specials
     }
 
-    val tabShape = remember { RoundedCornerShape(FetchRadii.tokens.xxl) }
+    val tabShape = remember { RoundedCornerShape(FetchRadii.tokens.xl) }
     val tabBorder = CardDefaults.border(
         focusedBorder = Border(
             border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-            shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+            shape = RoundedCornerShape(FetchRadii.tokens.xl)
         )
     )
     val tabScale = CardDefaults.scale(focusedScale = 1.0f)
@@ -347,7 +348,7 @@ fun SeasonTabs(
                 shape = CardDefaults.shape(shape = tabShape),
                 colors = CardDefaults.colors(
                     containerColor = if (isSelected) FetchTheme.colors.SurfaceVariant else FetchTheme.colors.BackgroundCard,
-                    focusedContainerColor = FetchTheme.colors.Secondary
+                    focusedContainerColor = FetchTheme.colors.Highlight
                 ),
                 border = tabBorder,
                 scale = tabScale
@@ -356,7 +357,7 @@ fun SeasonTabs(
                     text = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
                     style = tabTextStyle,
                     color = when {
-                        isFocused -> FetchTheme.colors.OnSecondary
+                        isFocused -> FetchTheme.colors.OnHighlight
                         isSelected -> FetchTheme.colors.TextPrimary
                         else -> textSecondary
                     },
@@ -806,7 +807,7 @@ private fun EpisodeCard(
         episode.episode?.let { number -> "$prefix $number" } ?: prefix
     }
 
-    val primaryColor = FetchTheme.colors.Secondary
+    val progressColor = FetchTheme.colors.TextPrimary
     val textPrimary = FetchTheme.colors.TextPrimary
     val focusRingBorder = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth)
 
@@ -1038,7 +1039,7 @@ private fun EpisodeCard(
                             end = cardMetrics.contentPadding,
                             bottom = cardMetrics.contentPadding * 0.5f
                         )
-                        .fetchCardProgress(progressPercent, primaryColor)
+                        .fetchCardProgress(progressPercent, progressColor)
                 )
             }
 
@@ -1064,7 +1065,7 @@ private fun EpisodeCard(
                             top = cardMetrics.statusBadgeInset
                         )
                         .background(
-                            color = Color(0xCC5D4037),
+                            color = FetchContentColors.episodeUnavailableBadge,
                             shape = badgeShape
                         )
                         .padding(

@@ -64,7 +64,7 @@ fun EssentialAddonSetupScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 58.dp, vertical = 42.dp),
+            .padding(horizontal = FetchTheme.spacing.huge, vertical = FetchTheme.spacing.xxxl),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -128,7 +128,7 @@ fun EssentialAddonSetupScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .padding(horizontal = 14.dp, vertical = FetchTheme.spacing.md)
+                                        .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)
                                 ) {
                                     if (uiState.installUrl.isEmpty()) {
                                         Text(
@@ -226,7 +226,7 @@ fun EssentialAddonSetupScreen(
             ) {
                 Text(
                     text = stringResource(R.string.essential_addon_continue_for_now),
-                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp)
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.xs)
                 )
             }
         }

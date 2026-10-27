@@ -30,6 +30,13 @@ WORDMARK_COLORS = {
     "_rose_gold": (240, 178, 162),
     "_arctic_blue": (150, 210, 255),
     "_graphite": (190, 196, 206),
+    # Standard themes: each theme's 300 accent tone, 20% lighter so it reads on dark surfaces.
+    "_crimson": (255, 117, 117),
+    "_ocean": (104, 183, 247),
+    "_violet": (188, 108, 201),
+    "_emerald": (133, 201, 136),
+    "_amber": (255, 185, 81),
+    "_rose": (240, 102, 149),
 }
 BACKGROUND_TOP = (14, 14, 20)
 BACKGROUND_BOTTOM = (34, 22, 26)

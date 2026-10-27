@@ -16,13 +16,13 @@ internal fun PlayerRuntimeController.buildMediaSessionMetadata(): MediaMetadata 
     // Title: for series use the show name, for movies use the main title.
     val displayTitle = state.contentName?.takeIf { it.isNotBlank() } ?: state.title
 
-    // Subtitle / artist: for series show "S1:E2 – Episode Title", for movies show the year.
+    // Subtitle / artist: for series show "S1 E2 – Episode Title", for movies show the year.
     val displaySubtitle = if (isSeries) {
         buildString {
             val s = state.currentSeason
             val e = state.currentEpisode
             if (s != null && e != null) {
-                append("S${s}:E${e}")
+                append("S$s E$e")
                 state.currentEpisodeTitle?.takeIf { it.isNotBlank() }?.let {
                     append(" – $it")
                 }

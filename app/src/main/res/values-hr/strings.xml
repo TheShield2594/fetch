@@ -246,7 +246,7 @@
     <string name="because_you_watched_reason_cast">Također glumi %1$s</string>
     <string name="detail_comments_title">Komentari</string>
     <string name="detail_comments_subtitle">Recenzije s Trakta</string>
-    <string name="detail_comments_subtitle_episode">Recenzije s Trakta za S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Recenzije s Trakta za S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Serija</string>
     <string name="detail_comments_mode_episode">Epizoda</string>
     <string name="detail_comments_mode_episode_change">Promijeni epizodu (%1$s)</string>
@@ -365,7 +365,6 @@
     <string name="custom_theme_save">Spremi temu</string>
     <string name="custom_theme_remote_hint">← → Podesi   ·   ↑ ↓ Pomakni   ·   Drži za brže podešavanje</string>
     <string name="custom_theme_preview">PREGLED</string>
-    <string name="custom_theme_preview_ring">Fokusirana stavka</string>
     <string name="appearance_amoled_mode">AMOLED način</string>
     <string name="appearance_amoled_mode_subtitle">Koristi čisto crnu za pozadine aplikacije</string>
     <string name="appearance_amoled_surfaces_mode">Čisto crne površine</string>
@@ -2793,8 +2792,6 @@
     <string name="subtitle_style_text_color_hdr">Boja teksta (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
     <string name="subtitle_style_brightness_hdr">Svjetlina (HDR)</string>
-    <string name="skip_source">putem %1$s</string>
-    <string name="skip_source_reportable">putem %1$s · drži za prijavu</string>
     <string name="skip_marker_reported">Pogrešna oznaka prijavljena. Hvala!</string>
     <string name="skip_marker_report_failed">Prijava oznake nije uspjela</string>
     <string name="skip_marker_start_recorded">Početak označen. Pritisni ponovno gdje završava.</string>

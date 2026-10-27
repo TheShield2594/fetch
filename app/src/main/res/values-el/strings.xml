@@ -241,7 +241,7 @@
   <string name="because_you_watched_reason_cast">Παίζει επίσης: %1$s</string>
   <string name="detail_comments_title">Σχόλια</string>
   <string name="detail_comments_subtitle">Κριτικές από το Trakt</string>
-  <string name="detail_comments_subtitle_episode">Κριτικές από το Trakt για S%1$dE%2$d</string>
+  <string name="detail_comments_subtitle_episode">Κριτικές από το Trakt για S%1$d E%2$d</string>
   <string name="detail_comments_mode_show">Σειρά</string>
   <string name="detail_comments_mode_episode">Επεισόδιο</string>
   <string name="detail_comments_mode_episode_change">Αλλαγή επεισοδίου (%1$s)</string>
@@ -369,7 +369,6 @@
   <string name="custom_theme_save">Αποθήκευση θέματος</string>
   <string name="custom_theme_remote_hint">← → Προσαρμογή   ·   ↑ ↓ Μετακίνηση   ·   Κρατήστε πατημένο για ταχύτερη προσαρμογή</string>
   <string name="custom_theme_preview">ΠΡΟΕΠΙΣΚΟΠΗΣΗ</string>
-  <string name="custom_theme_preview_ring">Εστιασμένο στοιχείο</string>
   <string name="appearance_amoled_mode">Λειτουργία AMOLED</string>
   <string name="appearance_amoled_mode_subtitle">Χρήση καθαρού μαύρου στα φόντα της εφαρμογής</string>
   <string name="appearance_amoled_surfaces_mode">Καθαρά μαύρες επιφάνειες</string>
@@ -2774,8 +2773,6 @@
     <string name="subtitle_style_text_color_hdr">Χρώμα κειμένου (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Αδιαφάνεια κειμένου (HDR)</string>
     <string name="subtitle_style_brightness_hdr">Φωτεινότητα (HDR)</string>
-    <string name="skip_source">μέσω %1$s</string>
-    <string name="skip_source_reportable">μέσω %1$s · κρατήστε πατημένο για αναφορά</string>
     <string name="skip_marker_reported">Το λάθος σημάδι αναφέρθηκε. Ευχαριστούμε!</string>
     <string name="skip_marker_report_failed">Δεν ήταν δυνατή η αναφορά του σημαδιού</string>
     <string name="skip_marker_start_recorded">Η αρχή σημειώθηκε. Πατήστε ξανά εκεί που τελειώνει.</string>

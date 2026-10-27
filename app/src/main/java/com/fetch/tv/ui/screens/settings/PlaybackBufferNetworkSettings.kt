@@ -454,7 +454,7 @@ internal fun PlaybackMemoryUsageCard(settings: PlayerSettings) {
             .fillMaxWidth()
             .background(color = FetchTheme.colors.BackgroundCard, shape = RoundedCornerShape(FetchRadii.tokens.sm))
             .border(FetchTheme.spacing.hairline, usageColor.copy(alpha = 0.35f), RoundedCornerShape(FetchRadii.tokens.sm))
-            .padding(horizontal = 14.dp, vertical = 10.dp)
+            .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)
     ) {
         Text(
             text = usageText,

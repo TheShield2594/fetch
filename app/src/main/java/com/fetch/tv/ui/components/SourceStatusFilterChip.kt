@@ -83,7 +83,7 @@ fun SourceStatusFilterChip(
 
     val textColor = when {
         isError -> FetchTheme.colors.Error
-        isFocused || isSelected -> FetchTheme.colors.OnSecondary
+        isFocused || isSelected -> FetchTheme.colors.OnHighlight
         else -> FetchTheme.colors.TextSecondary
     }
 
@@ -104,9 +104,9 @@ fun SourceStatusFilterChip(
             },
         colors = FilterChipDefaults.colors(
             containerColor = if (shouldUseNormalColors) FetchTheme.colors.BackgroundCard else FetchTheme.colors.Error.copy(alpha = 0.05f),
-            focusedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Secondary else FetchTheme.colors.Error.copy(alpha = 0.08f),
-            selectedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Secondary else FetchTheme.colors.Error.copy(alpha = 0.07f),
-            focusedSelectedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Secondary else FetchTheme.colors.Error.copy(alpha = 0.09f),
+            focusedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Highlight else FetchTheme.colors.Error.copy(alpha = 0.08f),
+            selectedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Highlight else FetchTheme.colors.Error.copy(alpha = 0.07f),
+            focusedSelectedContainerColor = if (shouldUseNormalColors) FetchTheme.colors.Highlight else FetchTheme.colors.Error.copy(alpha = 0.09f),
             contentColor = textColor,
             focusedContentColor = textColor,
             selectedContentColor = textColor,
@@ -115,7 +115,7 @@ fun SourceStatusFilterChip(
         border = FilterChipDefaults.border(
             border = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, if (isError) FetchTheme.colors.Error.copy(alpha = 0.7f) else FetchTheme.colors.Border),
-                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             ),
             focusedBorder = Border(
                 border = if (isError) {
@@ -123,11 +123,11 @@ fun SourceStatusFilterChip(
                 } else {
                     FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
                 },
-                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             ),
             selectedBorder = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, if (isError) FetchTheme.colors.Error.copy(alpha = 0.75f) else FetchTheme.colors.Primary),
-                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             ),
             focusedSelectedBorder = Border(
                 border = if (isError) {
@@ -135,10 +135,10 @@ fun SourceStatusFilterChip(
                 } else {
                     FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
                 },
-                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
         ),
-        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.xxl))
+        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.xl))
     ) {
         Text(
             text = name,

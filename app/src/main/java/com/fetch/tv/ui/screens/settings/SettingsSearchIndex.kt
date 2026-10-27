@@ -223,6 +223,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
     SettingsCategory.APPEARANCE to listOf(
         R.string.appearance_title,
         R.string.appearance_color_theme,
+        R.string.appearance_high_contrast,
         R.string.appearance_amoled_mode,
         R.string.appearance_amoled_surfaces_mode,
         R.string.appearance_launcher_artwork,

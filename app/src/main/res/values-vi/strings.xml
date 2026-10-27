@@ -362,7 +362,6 @@
     <string name="custom_theme_save">Lưu chủ đề</string>
     <string name="custom_theme_remote_hint">← → Điều chỉnh   ·   ↑ ↓ Di chuyển   ·   Giữ để điều chỉnh nhanh hơn</string>
     <string name="custom_theme_preview">XEM TRƯỚC</string>
-    <string name="custom_theme_preview_ring">Mục đang chọn</string>
     <string name="appearance_amoled_mode">Chế độ AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Dùng màu đen tuyệt đối cho nền ứng dụng</string>
     <string name="appearance_amoled_surfaces_mode">Tông nền đen tuyệt đối</string>
@@ -2937,8 +2936,6 @@
     <string name="skip_marker_start_recorded">Đã đánh dấu điểm bắt đầu. Bấm lần nữa tại điểm kết thúc.</string>
     <string name="skip_marker_submit_failed">Không thể gửi mốc lên IntroDB</string>
     <string name="skip_marker_submitted">Đã gửi mốc lên IntroDB</string>
-    <string name="skip_source">qua %1$s</string>
-    <string name="skip_source_reportable">qua %1$s · giữ để báo cáo</string>
     <string name="sub_hdr_brightness">Độ sáng phụ đề HDR</string>
     <string name="sub_hdr_style">Kiểu riêng cho HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Dùng màu chữ khác và độ sáng thấp hơn cho phụ đề trên video HDR và Dolby Vision</string>

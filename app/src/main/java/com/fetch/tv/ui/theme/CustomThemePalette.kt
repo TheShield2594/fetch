@@ -5,12 +5,22 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import com.fetch.tv.domain.model.CustomThemeColors
 
+/**
+ * Builds a palette from the member's colours. The surfaces take a faint tint of the chosen accent;
+ * the accent itself is then lifted towards white wherever it has less than 3:1 contrast with the
+ * cards it sits on, so a very dark pick still gives a Play button you can see. The stored colours
+ * are never changed; see [CustomThemeColors.adjustedForContrast].
+ */
 fun CustomThemeColors.toColorPalette(): ThemeColorPalette {
-    val gradient = colors.map { Color(it or 0xFF000000.toInt()) }
+    val picked = colors.map { Color(it or 0xFF000000.toInt()) }
+    val tint = picked[1]
+    fun surface(base: Long, amount: Float) = lerp(Color(base), tint, amount)
+    fun foreground(color: Color) = if (color.luminance() > 0.179f) Color.Black else Color.White
+
+    val backgroundCard = surface(0xFF20242A, 0.06f)
+    val gradient = picked.map { it.liftedForContrast(backgroundCard, MIN_CONTROL_CONTRAST) }
     val accent = gradient[1]
     val brushColors = if (isSolid) listOf(accent) else gradient
-    fun surface(base: Long, tint: Float) = lerp(Color(base), accent, tint)
-    fun foreground(color: Color) = if (color.luminance() > 0.179f) Color.Black else Color.White
 
     return ThemeColorPalette(
         secondary = accent,
@@ -18,12 +28,10 @@ fun CustomThemeColors.toColorPalette(): ThemeColorPalette {
         onSecondary = foreground(accent),
         onSecondaryVariant = foreground(gradient[2]),
         accentGradient = brushColors,
-        focusRing = gradient.maxBy { it.luminance() },
-        focusRingGradient = brushColors,
         focusBackground = surface(0xFF242424, 0.18f),
         background = surface(0xFF0C0D0F, 0.025f),
         backgroundElevated = surface(0xFF17191D, 0.045f),
-        backgroundCard = surface(0xFF20242A, 0.06f),
+        backgroundCard = backgroundCard,
         surface = surface(0xFF1C1F23, 0.05f),
         surfaceVariant = surface(0xFF292E35, 0.06f),
         panel = surface(0xFF17191D, 0.045f),
@@ -32,3 +40,12 @@ fun CustomThemeColors.toColorPalette(): ThemeColorPalette {
         modal = surface(0xFF17191D, 0.045f)
     )
 }
+
+/** True when [toColorPalette] had to lighten one of the picked colours to keep it visible. */
+val CustomThemeColors.adjustedForContrast: Boolean
+    get() {
+        val palette = toColorPalette()
+        val picked = colors.map { Color(it or 0xFF000000.toInt()) }
+        val used = if (isSolid) listOf(picked[1]) else picked
+        return used != palette.accentGradient
+    }

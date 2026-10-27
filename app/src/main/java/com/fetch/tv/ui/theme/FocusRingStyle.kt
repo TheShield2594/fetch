@@ -10,20 +10,19 @@ import androidx.compose.ui.unit.Dp
 @Immutable
 class FetchFocusRingStyle internal constructor(
     val solidColor: Color,
-    private val gradientColors: List<Color>
+    /** Multiplies every ring width; 1.5 with "Increase contrast", so 2dp rings draw at 3dp. */
+    private val widthScale: Float = 1f
 ) {
-    private val fullBrush = createThemeBrush(gradientColors)
+    private val fullBrush = SolidColor(solidColor)
 
     fun brush(alpha: Float = 1f): Brush {
         val normalizedAlpha = alpha.coerceIn(0f, 1f)
         if (normalizedAlpha == 1f) return fullBrush
-        return createThemeBrush(gradientColors.map { color ->
-            color.copy(alpha = color.alpha * normalizedAlpha)
-        })
+        return SolidColor(solidColor.copy(alpha = solidColor.alpha * normalizedAlpha))
     }
 
     fun border(width: Dp, alpha: Float = 1f): BorderStroke {
-        return BorderStroke(width, brush(alpha))
+        return BorderStroke(width * widthScale, brush(alpha))
     }
 }
 
@@ -37,9 +36,17 @@ internal fun createThemeBrush(colors: List<Color>): Brush {
     }
 }
 
-internal fun createFocusRingStyle(palette: ThemeColorPalette): FetchFocusRingStyle {
-    return FetchFocusRingStyle(
-        solidColor = palette.focusRing,
-        gradientColors = palette.focusRingGradient
-    )
+/**
+ * Focus is the same soft white in every theme, so it reads the same over any artwork and never
+ * competes with the accent, which is kept for primary actions. "Increase contrast" makes it pure
+ * white and half as thick again.
+ */
+internal fun createFocusRingStyle(highContrast: Boolean = false): FetchFocusRingStyle {
+    return if (highContrast) {
+        FetchFocusRingStyle(solidColor = FetchPrimitives.white, widthScale = HIGH_CONTRAST_RING_SCALE)
+    } else {
+        FetchFocusRingStyle(solidColor = FetchPrimitives.neutral100)
+    }
 }
+
+private const val HIGH_CONTRAST_RING_SCALE = 1.5f

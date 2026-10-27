@@ -616,7 +616,7 @@ private fun AudioControlsContent(
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = if (persistAmplification) FetchTheme.colors.OnSecondary else Color.White,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp)
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm)
                 )
             }
         }

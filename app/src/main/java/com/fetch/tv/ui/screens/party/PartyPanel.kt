@@ -365,7 +365,7 @@ fun PartyStatusPill(
                 .clip(RoundedCornerShape(FetchTheme.radii.full))
                 .background(Color.Black.copy(alpha = 0.6f))
                 .animateContentSize()
-                .padding(start = 6.dp, top = 6.dp, bottom = 6.dp, end = if (message != null) 16.dp else 6.dp),
+                .padding(start = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.sm, end = if (message != null) FetchTheme.spacing.lg else FetchTheme.spacing.sm),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {

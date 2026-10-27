@@ -236,7 +236,7 @@
     <string name="detail_more_like_this_powered_by_trakt">由 Trakt 提供</string>
     <string name="detail_comments_title">评论</string>
     <string name="detail_comments_subtitle">来自 Trakt 的评论</string>
-    <string name="detail_comments_subtitle_episode">来自 Trakt 对 S%1$dE%2$d 的评论</string>
+    <string name="detail_comments_subtitle_episode">来自 Trakt 对 S%1$d E%2$d 的评论</string>
     <string name="detail_comments_mode_show">显示</string>
     <string name="detail_comments_mode_episode">剧集</string>
     <string name="detail_comments_mode_episode_change">切换剧集 (%1$s)</string>
@@ -355,7 +355,6 @@
     <string name="custom_theme_save">保存主题</string>
     <string name="custom_theme_remote_hint">← → 调整   ·   ↑ ↓ 移动   ·   长按以更快调整</string>
     <string name="custom_theme_preview">预览</string>
-    <string name="custom_theme_preview_ring">焦点项目</string>
     <string name="appearance_amoled_mode">AMOLED 模式</string>
     <string name="appearance_amoled_mode_subtitle">应用背景使用纯黑色</string>
     <string name="appearance_amoled_surfaces_mode">纯黑表面</string>
@@ -2791,8 +2790,6 @@
     <string name="skip_marker_start_recorded">已标记开始。请在结束处再按一次。</string>
     <string name="skip_marker_submit_failed">无法将标记发送到 IntroDB</string>
     <string name="skip_marker_submitted">标记已发送到 IntroDB</string>
-    <string name="skip_source">来自 %1$s</string>
-    <string name="skip_source_reportable">来自 %1$s · 长按以报告</string>
     <string name="sub_hdr_brightness">HDR 字幕亮度</string>
     <string name="sub_hdr_style">单独的 HDR / Dolby Vision 样式</string>
     <string name="sub_hdr_style_sub">为 HDR 和 Dolby Vision 视频的字幕使用不同的文字颜色和较低的亮度</string>

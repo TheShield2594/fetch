@@ -341,7 +341,7 @@ private fun DiscoverDropdownPicker(
                     if (blockFocus) Modifier.focusProperties { canFocus = false }
                     else Modifier
                 ),
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.lg)),
+            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
             colors = CardDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
                 focusedContainerColor = FetchTheme.colors.FocusBackground
@@ -349,11 +349,11 @@ private fun DiscoverDropdownPicker(
             border = CardDefaults.border(
                 border = Border(
                     border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = RoundedCornerShape(FetchRadii.tokens.lg)
+                    shape = RoundedCornerShape(FetchRadii.tokens.md)
                 ),
                 focusedBorder = Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchRadii.tokens.lg)
+                    shape = RoundedCornerShape(FetchRadii.tokens.md)
                 )
             ),
             scale = CardDefaults.scale(
@@ -364,7 +364,7 @@ private fun DiscoverDropdownPicker(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                    .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
             ) {
                 Text(
@@ -405,7 +405,7 @@ private fun DiscoverDropdownPicker(
             modifier = Modifier
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(FetchRadii.tokens.lg),
+            shape = RoundedCornerShape(FetchRadii.tokens.md),
             containerColor = FetchTheme.colors.BackgroundCard,
             tonalElevation = FetchTheme.spacing.none,
             shadowElevation = FetchTheme.spacing.sm,
@@ -436,7 +436,7 @@ private fun DiscoverDropdownPicker(
                                 Modifier
                             }
                         )
-                        .padding(horizontal = 6.dp, vertical = FetchTheme.spacing.xxs)
+                        .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
                             shape = RoundedCornerShape(FetchRadii.tokens.sm)

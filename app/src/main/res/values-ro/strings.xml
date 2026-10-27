@@ -899,8 +899,6 @@
     <string name="skip_marker_start_recorded">Început marcat. Apasă din nou unde se termină.</string>
     <string name="skip_marker_submit_failed">Marcajul nu a putut fi trimis la IntroDB</string>
     <string name="skip_marker_submitted">Marcaj trimis la IntroDB</string>
-    <string name="skip_source">prin %1$s</string>
-    <string name="skip_source_reportable">prin %1$s · ține apăsat pentru a raporta</string>
     <string name="sub_hdr_brightness">Luminozitate subtitrări HDR</string>
     <string name="sub_hdr_style">Stil separat pentru HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Folosește o altă culoare a textului și o luminozitate mai redusă pentru subtitrări la video HDR și Dolby Vision</string>

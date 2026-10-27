@@ -191,7 +191,7 @@ fun AuthQrSignInScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(start = 56.dp, end = 56.dp),
+                    .padding(start = FetchTheme.spacing.huge, end = FetchTheme.spacing.huge),
                 isSignedIn = isSignedIn,
                 fullAccount = fullAccount,
                 useEmailLogin = useEmailLogin
@@ -337,7 +337,7 @@ private fun AuthQrLoginPane(
     val focusEmail = useEmailLogin && !isSignedIn
     val focusMainAction = !focusEmail && !uiState.isLoading
     Column(
-        modifier = modifier.padding(horizontal = 48.dp),
+        modifier = modifier.padding(horizontal = FetchTheme.spacing.xxxl),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

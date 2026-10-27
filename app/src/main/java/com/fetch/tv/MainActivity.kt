@@ -224,6 +224,7 @@ private data class MainUiPrefs(
     val font: AppFont = AppFont.SCHIBSTED_GROTESK,
     val amoledMode: Boolean = false,
     val amoledSurfacesMode: Boolean = false,
+    val highContrast: Boolean = false,
     val hasChosenLayout: Boolean? = null,
     val experienceMode: ExperienceMode? = null,
     val experienceModeLoaded: Boolean = false,
@@ -516,13 +517,18 @@ open class MainActivity : ComponentActivity() {
                 // Group flows into two batches to reduce intermediate flow allocations.
                 // Each batch uses a single combine() instead of chaining .combine() calls,
                 // which avoids N intermediate flow objects and redundant emissions on startup.
+                val surfaceModesFlow = combine(
+                    themeDataStore.amoledMode,
+                    themeDataStore.amoledSurfacesMode,
+                    themeDataStore.highContrast,
+                    ::Triple
+                )
                 val themeAndExperienceFlow = combine(
                     activeThemeFlow,
                     themeDataStore.selectedFont,
-                    themeDataStore.amoledMode,
-                    themeDataStore.amoledSurfacesMode,
+                    surfaceModesFlow,
                     experienceModeDataStore.mode,
-                ) { themeAndAccess, font, amoledMode, amoledSurfacesMode, experienceMode ->
+                ) { themeAndAccess, font, (amoledMode, amoledSurfacesMode, highContrast), experienceMode ->
                     MainUiPrefs(
                         theme = themeAndAccess.first.theme ?: com.fetch.tv.domain.model.DEFAULT_APP_THEME,
                         customThemeColors = themeAndAccess.first.customColors,
@@ -530,6 +536,7 @@ open class MainActivity : ComponentActivity() {
                         font = font,
                         amoledMode = amoledMode,
                         amoledSurfacesMode = amoledSurfacesMode,
+                        highContrast = highContrast,
                         experienceMode = experienceMode,
                         experienceModeLoaded = true,
                     )
@@ -599,7 +606,8 @@ open class MainActivity : ComponentActivity() {
                 customThemeColors = mainUiPrefs.customThemeColors,
                 appFont = mainUiPrefs.font,
                 amoledMode = mainUiPrefs.amoledMode,
-                amoledSurfacesMode = mainUiPrefs.amoledSurfacesMode
+                amoledSurfacesMode = mainUiPrefs.amoledSurfacesMode,
+                highContrast = mainUiPrefs.highContrast
             ) {
                 val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
                 val bringIntoViewSpec = if (mainUiPrefs.smoothBringIntoViewEnabled) {

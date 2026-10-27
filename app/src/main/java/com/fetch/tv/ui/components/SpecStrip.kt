@@ -17,8 +17,8 @@ import com.fetch.tv.ui.theme.FetchTheme
  * Draws a [SpecLine] in Fetch's spec style: dimmed separators, and the cached
  * label in [cachedColor] so the one thing that means "starts instantly" stands out.
  *
- * On an accent-coloured surface, such as the detail page's Play button, pass the surface's
- * content colour as [cachedColor]; the accent would vanish there.
+ * On a coloured surface, such as the detail page's Play button, pass the surface's content
+ * colour as [cachedColor].
  */
 @Composable
 fun SpecStrip(
@@ -26,7 +26,7 @@ fun SpecStrip(
     modifier: Modifier = Modifier,
     style: TextStyle = FetchTheme.textStyles.spec,
     color: Color = FetchTheme.colors.TextSecondary,
-    cachedColor: Color = FetchTheme.colors.Secondary
+    cachedColor: Color = FetchTheme.colors.TextPrimary
 ) {
     val separatorColor = color.copy(alpha = color.alpha * 0.5f)
     val text = remember(line, color, cachedColor, separatorColor) {

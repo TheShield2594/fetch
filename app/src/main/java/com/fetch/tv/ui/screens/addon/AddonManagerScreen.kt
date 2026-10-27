@@ -657,7 +657,7 @@ internal fun AddonMessageOverlay(
                 shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = FetchTheme.spacing.md),
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
@@ -1516,7 +1516,7 @@ private fun AddonCardContent(
                         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                     ) {
                         Box(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
                             contentAlignment = Alignment.Center
                         ) {
                             Switch(

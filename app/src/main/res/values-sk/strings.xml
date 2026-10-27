@@ -246,7 +246,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Zabezpečuje Trakt</string>
     <string name="detail_comments_title">Komentáre</string>
     <string name="detail_comments_subtitle">Recenzie z Trakt</string>
-    <string name="detail_comments_subtitle_episode">Recenzie z Trakt pre S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Recenzie z Trakt pre S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Seriál</string>
     <string name="detail_comments_mode_episode">Epizóda</string>
     <string name="detail_comments_mode_episode_change">Zmeniť epizódu (%1$s)</string>
@@ -2562,7 +2562,6 @@
     <string name="custom_theme_save">Uložiť tému</string>
     <string name="custom_theme_remote_hint">← → Upraviť  ·  ↑ ↓ Posunúť  ·  Podržaním zrýchlite</string>
     <string name="custom_theme_preview">NÁHĽAD</string>
-    <string name="custom_theme_preview_ring">Vybraná položka</string>
     <string name="appearance_startup_splash">Úvodná obrazovka pri spustení</string>
     <string name="appearance_startup_splash_subtitle">Zobraziť logo a indikátor načítavania po výbere profilu</string>
     <string name="licenses_attributions_section_ui">KNIŽNICE UI</string>
@@ -2958,8 +2957,6 @@
     <string name="skip_marker_start_recorded">Začiatok označený. Stlačte znova tam, kde sa končí.</string>
     <string name="skip_marker_submit_failed">Značku sa nepodarilo odoslať do IntroDB</string>
     <string name="skip_marker_submitted">Značka odoslaná do IntroDB</string>
-    <string name="skip_source">cez %1$s</string>
-    <string name="skip_source_reportable">cez %1$s · podržaním nahlásite</string>
     <string name="sub_hdr_brightness">Jas titulkov HDR</string>
     <string name="sub_hdr_style">Samostatný štýl pre HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Použiť inú farbu textu a nižší jas titulkov pri videu HDR a Dolby Vision</string>

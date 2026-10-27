@@ -48,18 +48,19 @@ import com.fetch.tv.ui.theme.FetchTheme
 /**
  * The full-screen fade behind the open sidebar: a soft fade from the left edge instead of a
  * panel, so the icons and labels stay readable over artwork while the page runs edge to edge.
- * It stays near-opaque across the open sidebar's width (about a third of a 960dp TV screen) so
- * page text, such as the Home hero's meta lines, doesn't show through beside the focused label.
+ * It is fully opaque across the open sidebar's width (300dp, about a third of a 960dp TV screen):
+ * at anything less, bright page content such as the Home hero's white Resume button still showed
+ * through, and the focused label's pill cut it into a stray fragment ("sume S2 E5").
  */
 internal fun sidebarScrimBrush(background: Color): Brush = Brush.horizontalGradient(
-    0f to background.copy(alpha = 0.96f),
-    0.32f to background.copy(alpha = 0.9f),
+    0f to background,
+    0.32f to background,
     0.55f to background.copy(alpha = 0.4f),
     1f to Color.Transparent
 )
 
 /**
- * One sidebar entry: a round icon that keeps an accent fill for the current page, and a label
+ * One sidebar entry: a round icon that keeps a white fill for the current page, and a label
  * that slides out beside it while it has focus.
  */
 @Composable
@@ -75,7 +76,7 @@ internal fun FloatingSidebarButton(
     val tokens = FetchComponents.tokens.sidebar
     val circleColor by animateColorAsState(
         targetValue = when {
-            selected -> FetchTheme.colors.Secondary
+            selected -> FetchTheme.colors.Highlight
             isFocused -> FetchTheme.colors.FocusBackground
             else -> Color.Transparent
         },
@@ -83,7 +84,7 @@ internal fun FloatingSidebarButton(
     )
     val iconTint by animateColorAsState(
         targetValue = when {
-            selected -> FetchTheme.colors.OnSecondary
+            selected -> FetchTheme.colors.OnHighlight
             isFocused -> FetchTheme.colors.TextPrimary
             else -> FetchTheme.colors.TextSecondary
         },

@@ -94,7 +94,7 @@ internal fun EpisodeShufflePreview(
         }
         Column(
             modifier = Modifier.fillMaxSize()
-                .background(Brush.linearGradient(listOf(Color(0xFF070707), Color(0xFF101010), Color(0xFF151515))))
+                .background(Brush.linearGradient(listOf(FetchTheme.colors.Background, FetchTheme.colors.Panel, FetchTheme.colors.BackgroundElevated)))
                 .onPreviewKeyEvent { event ->
                     if (starting) return@onPreviewKeyEvent true
                     val native = event.nativeKeyEvent
@@ -117,7 +117,7 @@ internal fun EpisodeShufflePreview(
                     modifier = Modifier.focusRequester(backFocus).focusProperties { down = playFocus }
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Text(stringResource(R.string.action_back), modifier = Modifier.padding(start = 8.dp))
+                    Text(stringResource(R.string.action_back), modifier = Modifier.padding(start = FetchTheme.spacing.sm))
                 }
                 Text(meta.name, style = MaterialTheme.typography.titleLarge, color = FetchTheme.colors.TextPrimary,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -167,7 +167,7 @@ internal fun EpisodeShufflePreview(
                                 modifier = Modifier.focusProperties { up = backFocus; down = FocusRequester.Cancel }
                             ) {
                                 Icon(Icons.Default.Shuffle, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Text(stringResource(R.string.shuffle_again), modifier = Modifier.padding(start = 8.dp))
+                                Text(stringResource(R.string.shuffle_again), modifier = Modifier.padding(start = FetchTheme.spacing.sm))
                             }
                         }
                     }
@@ -229,7 +229,7 @@ private fun ShuffleEpisodeArtwork(episode: Video, isWatched: Boolean, hidden: Bo
             style = MaterialTheme.typography.labelMedium, color = Color.White,
             modifier = Modifier.align(Alignment.BottomStart).padding(14.dp)
                 .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(FetchRadii.tokens.sm))
-                .padding(horizontal = 10.dp, vertical = 5.dp)
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
         )
     }
 }

@@ -93,7 +93,7 @@ private fun ProfileEditorTabItem(
         animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileEditorTabText"
     )
-    val shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+    val shape = RoundedCornerShape(FetchRadii.tokens.xl)
 
     Text(
         text = label,
@@ -121,6 +121,6 @@ private fun ProfileEditorTabItem(
                 role = Role.Tab
                 selected = isSelected
             }
-            .padding(horizontal = 18.dp, vertical = FetchTheme.spacing.sm)
+            .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm)
     )
 }

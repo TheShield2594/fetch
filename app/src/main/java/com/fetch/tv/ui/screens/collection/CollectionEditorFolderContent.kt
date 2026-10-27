@@ -694,7 +694,7 @@ fun FolderEditorContent(
                                         modifier = Modifier
                                             .clip(CircleShape)
                                             .background(FetchTheme.colors.BackgroundElevated)
-                                            .padding(horizontal = 10.dp, vertical = FetchTheme.spacing.xs)
+                                            .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
                                     ) {
                                         Text(
                                             text = stringResource(R.string.collections_editor_genre_filter),

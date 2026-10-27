@@ -243,7 +243,7 @@
     <string name="because_you_watched_reason_cast">Avec également %1$s</string>
     <string name="detail_comments_title">Commentaires</string>
     <string name="detail_comments_subtitle">Critiques de Trakt</string>
-    <string name="detail_comments_subtitle_episode">Critiques de Trakt pour S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Critiques de Trakt pour S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Série</string>
     <string name="detail_comments_mode_episode">Épisode</string>
     <string name="detail_comments_mode_episode_change">Changer d’épisode (%1$s)</string>
@@ -362,7 +362,6 @@
     <string name="custom_theme_save">Enregistrer le thème</string>
     <string name="custom_theme_remote_hint">← → Ajuster   ·   ↑ ↓ Déplacer   ·   Maintenir pour ajuster plus vite</string>
     <string name="custom_theme_preview">APERÇU</string>
-    <string name="custom_theme_preview_ring">Élément sélectionné</string>
     <string name="appearance_amoled_mode">Mode AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Utiliser un noir pur pour les arrière-plans de l’application</string>
     <string name="appearance_amoled_surfaces_mode">Surfaces en noir pur</string>
@@ -2863,8 +2862,6 @@
     <string name="subtitle_style_text_color_hdr">Couleur du texte (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacité du texte (HDR)</string>
     <string name="subtitle_style_brightness_hdr">Luminosité (HDR)</string>
-    <string name="skip_source">via %1$s</string>
-    <string name="skip_source_reportable">via %1$s · maintenez pour signaler</string>
     <string name="skip_marker_reported">Repère erroné signalé. Merci&#160;!</string>
     <string name="skip_marker_report_failed">Impossible de signaler le repère</string>
     <string name="skip_marker_start_recorded">Début marqué. Appuyez à nouveau là où il se termine.</string>

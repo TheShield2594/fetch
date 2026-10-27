@@ -80,11 +80,9 @@ fun SkipIntroButton(
 ) {
 
     var lastType by remember { mutableStateOf(interval?.type) }
-    var lastProvider by remember { mutableStateOf(interval?.provider) }
     var lastReportable by remember { mutableStateOf(false) }
     if (interval != null) {
         lastType = interval.type
-        lastProvider = interval.provider
         lastReportable = onReport != null && canReportSkipInterval(interval)
     }
     // Count down over the segment itself (at least the default), so the button does not
@@ -216,7 +214,7 @@ fun SkipIntroButton(
                 modifier = Modifier.width(IntrinsicSize.Max)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 18.dp, vertical = FetchTheme.spacing.md),
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -230,15 +228,6 @@ fun SkipIntroButton(
                         color = if (isFocused) FetchTheme.colors.OnSecondary else Color.White,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(start = FetchTheme.spacing.sm)
-                    )
-                }
-                skipSourceLabel(lastProvider, lastReportable)?.let { source ->
-                    Text(
-                        text = source,
-                        color = (if (isFocused) FetchTheme.colors.OnSecondary else Color.White).copy(alpha = 0.7f),
-                        fontSize = 12.sp,
-                        maxLines = 1,
-                        modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = FetchTheme.spacing.sm)
                     )
                 }
                 Box(
@@ -268,20 +257,4 @@ private fun getSkipLabel(type: String?, targetsPostCredits: Boolean): String = w
     "movie-credits" -> stringResource(if (targetsPostCredits) R.string.skip_to_post_credits else R.string.skip_movie_credits)
     "recap" -> stringResource(R.string.skip_recap)
     else -> stringResource(R.string.skip_generic)
-}
-
-/** "via IntroDB"-style attribution for community markers; adds the report hint when supported. */
-@Composable
-private fun skipSourceLabel(provider: String?, reportable: Boolean): String? {
-    val name = when (provider) {
-        "introdb" -> "IntroDB"
-        "aniskip" -> "AniSkip"
-        "animeskip" -> "Anime-Skip"
-        else -> return null
-    }
-    return if (reportable) {
-        stringResource(R.string.skip_source_reportable, name)
-    } else {
-        stringResource(R.string.skip_source, name)
-    }
 }

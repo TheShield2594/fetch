@@ -238,7 +238,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Běží na Trakt</string>
     <string name="detail_comments_title">Komentáře</string>
     <string name="detail_comments_subtitle">Recenze z Trakt</string>
-    <string name="detail_comments_subtitle_episode">Recenze z Trakt pro S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Recenze z Trakt pro S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Seriál</string>
     <string name="detail_comments_mode_episode">Epizoda</string>
     <string name="detail_comments_mode_episode_change">Změnit epizodu (%1$s)</string>
@@ -2443,8 +2443,6 @@
     <string name="skip_marker_start_recorded">Začátek označen. Stiskněte znovu tam, kde končí.</string>
     <string name="skip_marker_submit_failed">Značku se nepodařilo odeslat do IntroDB</string>
     <string name="skip_marker_submitted">Značka odeslána do IntroDB</string>
-    <string name="skip_source">přes %1$s</string>
-    <string name="skip_source_reportable">přes %1$s · podržením nahlásíte</string>
     <string name="sub_hdr_brightness">Jas titulků HDR</string>
     <string name="sub_hdr_style">Samostatný styl pro HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Použít jinou barvu textu a nižší jas pro titulky u videa HDR a Dolby Vision</string>

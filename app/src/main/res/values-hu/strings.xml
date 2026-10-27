@@ -242,7 +242,7 @@
     <string name="because_you_watched_reason_cast">Szintén szerepel: %1$s</string>
     <string name="detail_comments_title">Vélemények</string>
     <string name="detail_comments_subtitle">Vélemények a Traktról</string>
-    <string name="detail_comments_subtitle_episode">Vélemények a Traktról (S%1$dE%2$d)</string>
+    <string name="detail_comments_subtitle_episode">Vélemények a Traktról (S%1$d E%2$d)</string>
     <string name="detail_comments_mode_show">Sorozat</string>
     <string name="detail_comments_mode_episode">Epizód</string>
     <string name="detail_comments_mode_episode_change">Epizód váltása (%1$s)</string>
@@ -361,7 +361,6 @@
     <string name="custom_theme_save">Téma mentése</string>
     <string name="custom_theme_remote_hint">← → Szín módosítása   ·   ↑ ↓ Mozgás   ·   Hosszan nyomva gyorsabb</string>
     <string name="custom_theme_preview">ELŐNÉZET</string>
-    <string name="custom_theme_preview_ring">Kijelölt elem</string>
     <string name="appearance_amoled_mode">AMOLED mód</string>
     <string name="appearance_amoled_mode_subtitle">Teljesen fekete háttér használata az alkalmazásban</string>
     <string name="appearance_amoled_surfaces_mode">Teljesen fekete felületek</string>
@@ -2833,8 +2832,6 @@
     <string name="subtitle_style_text_color_hdr">Szövegszín (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Szöveg átlátszatlansága (HDR)</string>
     <string name="subtitle_style_brightness_hdr">Fényerő (HDR)</string>
-    <string name="skip_source">forrás: %1$s</string>
-    <string name="skip_source_reportable">forrás: %1$s · tartsd lenyomva a bejelentéshez</string>
     <string name="skip_marker_reported">A hibás jelölőt bejelentettük. Köszönjük!</string>
     <string name="skip_marker_report_failed">Nem sikerült bejelenteni a jelölőt</string>
     <string name="skip_marker_start_recorded">Kezdet megjelölve. Nyomd meg újra, ahol véget ér.</string>

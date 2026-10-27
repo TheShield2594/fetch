@@ -259,7 +259,7 @@ private fun AttributionDetailRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 14.dp),
+                .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
             verticalAlignment = Alignment.Top
         ) {
             item.logo?.let { logo ->
@@ -314,7 +314,7 @@ private fun AttributionLogo(
         modifier = Modifier
             .size(52.dp)
             .clip(RoundedCornerShape(FetchTheme.radii.md))
-            .background(Color(0xFF24272E)),
+            .background(FetchTheme.colors.BackgroundCard),
         contentAlignment = Alignment.Center
     ) {
         Image(

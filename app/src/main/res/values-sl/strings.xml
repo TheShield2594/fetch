@@ -211,9 +211,9 @@
 	<!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Predvajaj</string>
     <string name="detail_btn_resume">Nadaljuj</string>
-    <string name="detail_btn_play_episode">Predvajaj S%1$dE%2$d</string>
-    <string name="detail_btn_resume_episode">Nadaljuj S%1$dE%2$d</string>
-    <string name="detail_btn_next_episode">Naslednja S%1$dE%2$d</string>
+    <string name="detail_btn_play_episode">Predvajaj S%1$d E%2$d</string>
+    <string name="detail_btn_resume_episode">Nadaljuj S%1$d E%2$d</string>
+    <string name="detail_btn_next_episode">Naslednja S%1$d E%2$d</string>
     <string name="detail_tab_cast">Ustvarjalci in zasedba</string>
     <string name="cast_role_creator">Ustvarjalec</string>
     <string name="cast_role_director">Režiser</string>
@@ -225,7 +225,7 @@
     <string name="detail_more_like_this_powered_by_trakt">Poganja Trakt</string>
     <string name="detail_comments_title">Komentarji</string>
 	<string name="detail_comments_subtitle">Ocene s Trakta</string>
-    <string name="detail_comments_subtitle_episode">Ocene s Trakta za S%1$dE%2$d</string>
+    <string name="detail_comments_subtitle_episode">Ocene s Trakta za S%1$d E%2$d</string>
     <string name="detail_comments_mode_show">Serija</string>
     <string name="detail_comments_mode_episode">Epizoda</string>
     <string name="detail_comments_mode_episode_change">Spremeni epizodo (%1$s)</string>
@@ -2096,8 +2096,6 @@
     <string name="skip_marker_start_recorded">Začetek označen. Pritisnite znova, kjer se konča.</string>
     <string name="skip_marker_submit_failed">Oznake ni bilo mogoče poslati v IntroDB</string>
     <string name="skip_marker_submitted">Oznaka poslana v IntroDB</string>
-    <string name="skip_source">prek %1$s</string>
-    <string name="skip_source_reportable">prek %1$s · pridržite za prijavo</string>
     <string name="sub_hdr_brightness">Svetlost podnapisov HDR</string>
     <string name="sub_hdr_style">Ločen slog za HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Uporabi drugo barvo besedila in manjšo svetlost podnapisov pri videu HDR in Dolby Vision</string>

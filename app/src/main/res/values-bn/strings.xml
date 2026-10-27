@@ -226,7 +226,7 @@
     <string name="because_you_watched_reason_cast">এতেও আছেন %1$s</string>
     <string name="detail_comments_title">মন্তব্য</string>
     <string name="detail_comments_subtitle">Trakt থেকে রিভিউ</string>
-    <string name="detail_comments_subtitle_episode">S%1$dE%2$d-এর জন্য Trakt থেকে রিভিউ</string>
+    <string name="detail_comments_subtitle_episode">S%1$d E%2$d-এর জন্য Trakt থেকে রিভিউ</string>
     <string name="detail_comments_mode_show">দেখান</string>
     <string name="detail_comments_mode_episode">পর্ব</string>
     <string name="detail_comments_mode_episode_change">এপিসোড পরিবর্তন করুন (%1$s)</string>
@@ -340,7 +340,6 @@
     <string name="custom_theme_save">থিম সেভ করুন</string>
     <string name="custom_theme_remote_hint">← → অ্যাডজাস্ট করুন   ·   ↑ ↓ সরান   ·   দ্রুত অ্যাডজাস্ট করতে চেপে ধরুন</string>
     <string name="custom_theme_preview">পূর্বরূপ</string>
-    <string name="custom_theme_preview_ring">ফোকাসড আইটেম</string>
     <string name="appearance_amoled_mode">AMOLED মোড</string>
     <string name="appearance_amoled_mode_subtitle">অ্যাপের ব্যাকগ্রাউন্ডের জন্য পিওর ব্ল্যাক ব্যবহার করুন</string>
     <string name="appearance_amoled_surfaces_mode">পিওর ব্ল্যাক সারফেস</string>
@@ -2693,8 +2692,6 @@
     <string name="skip_marker_start_recorded">শুরু মার্ক করা হয়েছে। যেখানে শেষ হয় সেখানে আবার চাপুন।</string>
     <string name="skip_marker_submit_failed">IntroDB-তে মার্কার পাঠানো যায়নি</string>
     <string name="skip_marker_submitted">IntroDB-তে মার্কার পাঠানো হয়েছে</string>
-    <string name="skip_source">%1$s-এর মাধ্যমে</string>
-    <string name="skip_source_reportable">%1$s-এর মাধ্যমে · রিপোর্ট করতে ধরে রাখুন</string>
     <string name="sub_hdr_brightness">HDR সাবটাইটেল ব্রাইটনেস</string>
     <string name="sub_hdr_style">আলাদা HDR / Dolby Vision স্টাইল</string>
     <string name="sub_hdr_style_sub">HDR ও Dolby Vision ভিডিওতে সাবটাইটেলের জন্য ভিন্ন টেক্সট কালার ও কম ব্রাইটনেস ব্যবহার করুন</string>

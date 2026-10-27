@@ -249,7 +249,7 @@ private fun CategoryTab(
                     Modifier
                 }
             )
-            .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
+            .clip(RoundedCornerShape(FetchRadii.tokens.xl))
             .background(bgColor)
             .border(
                 border = if (isFocused) {
@@ -257,7 +257,7 @@ private fun CategoryTab(
                 } else {
                     BorderStroke(borderWidth, borderColor)
                 },
-                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
             .onFocusChanged { isFocused = it.isFocused }
             .clickable(
@@ -269,7 +269,7 @@ private fun CategoryTab(
                 role = Role.Tab
                 selected = isSelected
             }
-            .padding(horizontal = 18.dp, vertical = FetchTheme.spacing.sm),
+            .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
         contentAlignment = Alignment.Center
     ) {
         Text(

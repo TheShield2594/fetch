@@ -94,6 +94,7 @@ import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.rememberRawSvgPainter
 import java.util.Locale
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 private const val MAX_VISIBLE_HERO_GENRES = 6
 
@@ -490,8 +491,7 @@ internal fun PlayButton(
                 false
             }
             .focusProperties { up = FocusRequester.Cancel },
-        // The primary action is always the accent; focus adds a light ring so it still reads
-        // when the ring colour and the button colour are the same.
+        // The primary action is always the accent; focus adds the usual neutral ring.
         colors = ButtonDefaults.colors(
             containerColor = FetchTheme.colors.Secondary,
             focusedContainerColor = FetchTheme.colors.Secondary,
@@ -499,12 +499,12 @@ internal fun PlayButton(
             focusedContentColor = FetchTheme.colors.OnSecondary
         ),
         shape = ButtonDefaults.shape(
-            shape = RoundedCornerShape(FetchTheme.radii.sm)
+            shape = FetchTheme.shapes.button
         ),
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FetchTheme.strokes.focus, FetchTheme.colors.TextPrimary),
-                shape = RoundedCornerShape(FetchTheme.radii.sm)
+                border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                shape = FetchTheme.shapes.button
             )
         ),
         contentPadding = PaddingValues(horizontal = FetchTheme.spacing.xl, vertical = 14.dp)
@@ -615,7 +615,7 @@ private fun ActionIconButton(
     onLongPress: (() -> Unit)? = null,
     enabled: Boolean = true,
     selected: Boolean = false,
-    selectedContainerColor: Color = Color(0xFF7CFF9B),
+    selectedContainerColor: Color = FetchStatusTones.toggleOn,
     selectedContentColor: Color = Color.Black,
     onFocused: () -> Unit = {},
     focusRequester: FocusRequester? = null
@@ -744,10 +744,10 @@ private fun MetaInfoRow(
     tmdbRating: Float? = null
 ) {
     val context = LocalContext.current
-    val genresText = remember(meta.genres) {
+    val genreLabels = remember(meta.genres) {
         meta.genres
             .take(MAX_VISIBLE_HERO_GENRES)
-            .joinToString(" • ") { localizedGenreLabel(context, it) }
+            .map { localizedGenreLabel(context, it) }
     }
     val runtimeText = remember(meta.runtime) { meta.runtime?.let { formatRuntime(it) } }
     val yearText = remember(meta.releaseInfo, meta.released, meta.type, showFullReleaseDate) {
@@ -812,15 +812,21 @@ private fun MetaInfoRow(
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (meta.genres.isNotEmpty()) {
-                Text(
-                    text = genresText,
-                    modifier = Modifier.weight(1f, fill = false),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = FetchTheme.extendedColors.textSecondary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            if (genreLabels.isNotEmpty()) {
+                // One Text per genre with the shared divider, so every gap in the row matches.
+                genreLabels.forEachIndexed { index, genre ->
+                    if (index > 0) {
+                        MetaInfoDivider()
+                    }
+                    Text(
+                        text = genre,
+                        modifier = if (index == genreLabels.lastIndex) Modifier.weight(1f, fill = false) else Modifier,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = FetchTheme.extendedColors.textSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 if (yearText != null || shouldShowImdbRating || shouldShowTmdbRating) {
                     MetaInfoDivider()
                 }
@@ -907,8 +913,8 @@ private fun MetaInfoRow(
                 secondaryItems.forEachIndexed { index, value ->
                     Text(
                         text = value,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = FetchTheme.colors.TextPrimary
+                        style = MaterialTheme.typography.labelLarge,
+                        color = FetchTheme.extendedColors.textSecondary
                     )
                     if (index < secondaryItems.lastIndex) {
                         MetaInfoDivider()
@@ -1063,11 +1069,11 @@ private fun MetaInfoDivider() {
     )
 }
 
-/** "4K · DV P8 · TrueHD Atmos · 18.2 GB · Cached", the file Best match will start. */
+/** "4K · Dolby Vision · Atmos · Cached": the file Best match will start, in plain words. */
 @Composable
 private fun rememberBestMatchSpecLine(preview: com.fetch.tv.core.streams.BestMatchPreview): SpecLine? {
     val cachedLabel = stringResource(R.string.best_match_cached)
     return remember(preview, cachedLabel) {
-        SpecLine.of(preview.labels, preview.isCached, cachedLabel)
+        SpecLine.of(preview.buttonLabels, preview.isCached, cachedLabel)
     }
 }

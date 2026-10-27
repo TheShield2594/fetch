@@ -289,7 +289,7 @@ private fun CastChip(
             text = member.name,
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White,
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

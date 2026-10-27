@@ -48,6 +48,7 @@ import coil3.size.Precision
 import com.fetch.tv.domain.model.StreamBadge
 import okio.Path.Companion.toOkioPath
 import kotlin.math.round
+import com.fetch.tv.ui.theme.FetchPrimitives
 
 /**
  * Shared badge ImageRequest cache. Badges with the same URL and target decode
@@ -157,9 +158,9 @@ private fun StreamFileSizeBadge(bytes: Long) {
         modifier = Modifier
             .height(20.dp)
             .clip(BadgeChipShape)
-            .background(Color(0xFF0A0C0C), BadgeChipShape)
-            .border(FetchTheme.spacing.hairline, Color(0xFF0A0C0C), BadgeChipShape)
-            .padding(horizontal = 6.dp),
+            .background(FetchPrimitives.neutral950, BadgeChipShape)
+            .border(FetchTheme.spacing.hairline, FetchPrimitives.neutral950, BadgeChipShape)
+            .padding(horizontal = FetchTheme.spacing.sm),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -215,7 +216,7 @@ private fun StreamImportedBadgeChip(badge: StreamBadge, crossfade: Boolean = fal
 
     Box(
         modifier = chipModifier
-            .padding(horizontal = 3.dp, vertical = FetchTheme.spacing.xxs),
+            .padding(horizontal = FetchTheme.spacing.xs, vertical = FetchTheme.spacing.xxs),
         contentAlignment = Alignment.Center
     ) {
         AsyncImage(

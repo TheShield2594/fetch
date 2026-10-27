@@ -7,9 +7,7 @@ import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.theme.ThemeColors
 import com.fetch.tv.ui.theme.brandWordmarkResource
-import com.fetch.tv.ui.theme.createFocusRingStyle
 
 import android.graphics.Rect
 import android.view.KeyEvent as AndroidKeyEvent
@@ -136,6 +134,8 @@ import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.domain.model.ProfileBackgroundSelection
 import com.fetch.tv.domain.model.resolveProfileBackgroundSelection
 import kotlinx.coroutines.delay
+import com.fetch.tv.ui.theme.FetchContentColors
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 private object ProfileSelectionSpacing {
     val ScreenPaddingHorizontal = FetchTheme.spacing.huge
@@ -383,7 +383,7 @@ fun ProfileSelectionScreen(
     val onProfileFocusedChange = remember(onProfileFocusChanged, onProfileThemeFocused) {
         { profile: UserProfile? ->
             focusedProfileId = profile?.id
-            focusedAvatarColor = profile?.avatarColorHex?.let(::parseProfileColor) ?: Color(0xFF555555)
+            focusedAvatarColor = profile?.avatarColorHex?.let(::parseProfileColor) ?: FetchPrimitives.neutral700
             Unit
         }
     }
@@ -536,7 +536,6 @@ fun ProfileSelectionScreen(
                     profileRestrictions = profileRestrictions,
                     avatarImageUrlsById = avatarImageUrlsById,
                     brandWordmarkRes = focusedBrandWordmarkRes,
-                    profileThemes = profileThemes,
                     onProfileFocused = onProfileFocusedChange,
                     onProfileSelected = { profile ->
                         if (isManagementMode) {
@@ -1023,7 +1022,7 @@ fun ProfileSelectionScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.colors(
-                            containerColor = Color(0xFF4A2323),
+                            containerColor = FetchStatusTones.errorContainer,
                             contentColor = FetchTheme.colors.TextPrimary
                         )
                     ) {
@@ -1135,7 +1134,7 @@ fun ProfileSelectionScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.colors(
-                        containerColor = Color(0xFF4A2323),
+                        containerColor = FetchStatusTones.errorContainer,
                         contentColor = FetchTheme.colors.TextPrimary
                     )
                 ) {
@@ -1238,7 +1237,7 @@ private fun ProfileSelectionBackground(
     )
     // Use fixed dark colors so the gradient is consistent.
     // Otherwise, profile selector and splash screen needs to know about user template
-    val baseBg = Color(0xFF121212)
+    val baseBg = FetchPrimitives.neutral925
     val baseBgElevated = FetchPrimitives.neutral875
     val gradientTop = lerp(baseBgElevated, animatedAvatarColor, 0.3f)
     val gradientMid = lerp(baseBg, animatedAvatarColor, 0.14f)
@@ -1315,7 +1314,6 @@ private fun ProfileSelectionMainContent(
     profileRestrictions: Map<Int, ProfileRestrictions>,
     avatarImageUrlsById: Map<String, String>,
     brandWordmarkRes: Int? = null,
-    profileThemes: Map<Int, com.fetch.tv.domain.model.AppTheme> = emptyMap(),
     onProfileFocused: (UserProfile?) -> Unit,
     onProfileSelected: (UserProfile) -> Unit,
     onProfileLongPress: (UserProfile) -> Unit,
@@ -1365,7 +1363,6 @@ private fun ProfileSelectionMainContent(
             profilePinEnabled = profilePinEnabled,
             profileRestrictions = profileRestrictions,
             avatarImageUrlsById = avatarImageUrlsById,
-            profileThemes = profileThemes,
             onProfileFocused = onProfileFocused,
             onProfileSelected = onProfileSelected,
             onProfileLongPress = onProfileLongPress,
@@ -1403,7 +1400,6 @@ private fun ProfileGrid(
     profilePinEnabled: Map<Int, Boolean>,
     profileRestrictions: Map<Int, ProfileRestrictions>,
     avatarImageUrlsById: Map<String, String>,
-    profileThemes: Map<Int, com.fetch.tv.domain.model.AppTheme> = emptyMap(),
     onProfileFocused: (UserProfile?) -> Unit,
     onProfileSelected: (UserProfile) -> Unit,
     onProfileLongPress: (UserProfile) -> Unit,
@@ -1468,7 +1464,6 @@ private fun ProfileGrid(
                         compact = useCompactCards,
                         isLocked = profilePinEnabled[profile.id] == true,
                         isKids = profileRestrictions[profile.id]?.isKidsProfile == true,
-                        profileTheme = profileThemes[profile.id],
                         onFocused = { onProfileFocused(profile) },
                         onClick = { onProfileSelected(profile) },
                         onLongPress = { onProfileLongPress(profile) }
@@ -1505,7 +1500,6 @@ private fun ProfileCard(
     compact: Boolean,
     isLocked: Boolean,
     isKids: Boolean,
-    profileTheme: com.fetch.tv.domain.model.AppTheme? = null,
     onFocused: () -> Unit,
     onClick: () -> Unit,
     onLongPress: () -> Unit
@@ -1519,11 +1513,6 @@ private fun ProfileCard(
         animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast, easing = ProfileCardFocusEasing),
         label = "profileFocusProgress"
     )
-    val profileFocusRing = remember(profileTheme) {
-        profileTheme?.let {
-            createFocusRingStyle(ThemeColors.getColorPalette(it))
-        }
-    }
     val itemScale = 1f + (0.04f * focusProgress)
     val avatarSize = androidx.compose.ui.unit.lerp(
         if (compact) ProfileSelectionSpacing.CompactAvatarSize else 96.dp,
@@ -1535,7 +1524,7 @@ private fun ProfileCard(
         if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp,
         focusProgress
     )
-    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, 3.dp, focusProgress)
+    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, FetchTheme.strokes.focus, focusProgress)
     val nameColor = lerp(
         FetchTheme.colors.TextSecondary,
         FetchTheme.colors.TextPrimary,
@@ -1615,7 +1604,7 @@ private fun ProfileCard(
                         shape = CircleShape
                     )
                     .border(
-                        border = (profileFocusRing ?: FetchTheme.focusRing).border(ringWidth, focusProgress),
+                        border = FetchTheme.focusRing.border(ringWidth, focusProgress),
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -1659,7 +1648,7 @@ private fun ProfileCard(
                         .offset(x = FetchTheme.spacing.xxs, y = FetchTheme.spacing.hairline)
                         .size(if (compact) 22.dp else 26.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFFFB300), CircleShape)
+                        .background(FetchContentColors.primaryProfileBadge, CircleShape)
                         .border(
                             width = FetchTheme.spacing.xxs,
                             color = FetchTheme.colors.Background,
@@ -1707,7 +1696,7 @@ private fun ProfileCard(
             if (profile.isPrimary) {
                 Text(
                     text = stringResource(R.string.profile_selection_primary_badge),
-                    color = Color(0xFFFFB300),
+                    color = FetchContentColors.primaryProfileBadge,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.8.sp
@@ -1750,7 +1739,7 @@ private fun AddProfileCard(
         if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp,
         focusProgress
     )
-    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, 3.dp, focusProgress)
+    val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, FetchTheme.strokes.focus, focusProgress)
     val nameColor = lerp(
         FetchTheme.colors.TextTertiary,
         FetchTheme.colors.TextPrimary,
@@ -1920,9 +1909,9 @@ private fun CreateProfileOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
-                .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
+                .clip(RoundedCornerShape(FetchRadii.tokens.xl))
                 .background(FetchTheme.colors.BackgroundElevated)
-                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xxl))
+                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xl))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -2305,9 +2294,9 @@ private fun EditProfileOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
-                .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
+                .clip(RoundedCornerShape(FetchRadii.tokens.xl))
                 .background(FetchTheme.colors.BackgroundElevated)
-                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xxl))
+                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xl))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -2807,7 +2796,7 @@ internal fun ProfilePinOverlay(
             else -> stringResource(R.string.profile_pin_overlay_set_support)
         }
         val supportTextColor = if (isErrorState) {
-            Color(0xFFFF8E8E)
+            FetchStatusTones.errorText
         } else {
             FetchTheme.colors.TextSecondary
         }
@@ -2966,7 +2955,7 @@ private fun ProfilePinBoxes(
                 !isWorking
             val borderColor by animateColorAsState(
                 targetValue = when {
-                    isErrorState -> Color(0xFFE35D5D)
+                    isErrorState -> FetchStatusTones.errorBorder
                     isFilled -> Color.White.copy(alpha = 0.92f)
                     isActive -> Color.White
                     else -> Color.White.copy(alpha = 0.72f)
@@ -2976,7 +2965,7 @@ private fun ProfilePinBoxes(
             )
             val backgroundColor by animateColorAsState(
                 targetValue = when {
-                    isErrorState -> Color(0xFF311818).copy(alpha = 0.76f)
+                    isErrorState -> FetchStatusTones.errorContainer.copy(alpha = 0.76f)
                     isFilled -> Color.White.copy(alpha = 0.07f)
                     isActive -> Color.White.copy(alpha = 0.04f)
                     else -> Color.Transparent
@@ -3183,7 +3172,7 @@ private fun OverlayButton(
                 onClick = onClick
             )
             .semantics { role = Role.Button }
-            .padding(horizontal = 28.dp, vertical = FetchTheme.spacing.md),
+            .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md),
         contentAlignment = Alignment.Center
     ) {
         Text(

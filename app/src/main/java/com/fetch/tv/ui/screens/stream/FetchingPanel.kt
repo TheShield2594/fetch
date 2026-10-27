@@ -2,7 +2,6 @@ package com.fetch.tv.ui.screens.stream
 
 import android.os.SystemClock
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -117,7 +116,7 @@ internal fun FetchingPanel(
                 Text(
                     text = stringResource(R.string.fetching_best_so_far).uppercase(),
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = FetchTheme.colors.Secondary
+                    color = FetchTheme.colors.TextSecondary
                 )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
@@ -193,13 +192,13 @@ private fun SpecChip(text: String, highlighted: Boolean = false) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-        color = if (highlighted) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
+        color = if (highlighted) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
         modifier = Modifier
             .background(
-                if (highlighted) FetchTheme.colors.Secondary else FetchTheme.colors.BackgroundCard,
+                if (highlighted) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard,
                 RoundedCornerShape(FetchTheme.radii.xs)
             )
-            .padding(horizontal = 10.dp, vertical = 5.dp)
+            .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
     )
 }
 
@@ -207,7 +206,7 @@ private fun SpecChip(text: String, highlighted: Boolean = false) {
 private fun AddonStatus(chip: SourceChipItem) {
     val dotColor by animateColorAsState(
         targetValue = when (chip.status) {
-            SourceChipStatus.SUCCESS -> FetchTheme.colors.Secondary
+            SourceChipStatus.SUCCESS -> FetchTheme.colors.Success
             SourceChipStatus.LOADING -> FetchTheme.colors.TextSecondary
             SourceChipStatus.ERROR, SourceChipStatus.TIMED_OUT -> FetchTheme.colors.Error
         },
@@ -243,7 +242,7 @@ private fun PanelButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(FetchTheme.radii.sm)
+    val shape = FetchTheme.shapes.button
     Button(
         onClick = onClick,
         modifier = modifier,
@@ -256,7 +255,7 @@ private fun PanelButton(
         shape = ButtonDefaults.shape(shape = shape),
         border = ButtonDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FetchTheme.strokes.focus, if (primary) FetchTheme.colors.TextPrimary else FetchTheme.colors.FocusRing),
+                border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
                 shape = shape
             )
         ),

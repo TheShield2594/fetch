@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import android.os.SystemClock
 import android.util.Log
 import androidx.media3.exoplayer.SeekParameters
 import com.fetch.tv.data.local.InternalPlayerEngine
@@ -93,7 +94,10 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
 ) {
     mpvMediaLoadPrepared = true
     prefetchAutoSyncIndex(url, headers) // AutoSync hook
-    _exoPlayer?.release()
+    _exoPlayer?.let { player ->
+        player.release()
+        lastExoPlayerReleaseElapsedMs = SystemClock.elapsedRealtime()
+    }
     _exoPlayer = null
     trackSelector = null
     try {

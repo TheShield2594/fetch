@@ -234,8 +234,10 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
                             )
                         }
                     },
+                    // A stale preflight makes OkHttp give up with null, which would start the
+                    // next probe at once; these two ignore cancellation, so don't start them.
                     {
-                        runDetachedProbe("NextLib", AFR_PREFLIGHT_NEXTLIB_TIMEOUT_MS) {
+                        if (isStale()) null else runDetachedProbe("NextLib", AFR_PREFLIGHT_NEXTLIB_TIMEOUT_MS) {
                             FrameRateUtils.detectFrameRateFromNextLib(
                                 context = context,
                                 sourceUrl = url,
@@ -246,7 +248,7 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
                         }
                     },
                     {
-                        runDetachedProbe("extractor", AFR_PREFLIGHT_FALLBACK_TIMEOUT_MS) {
+                        if (isStale()) null else runDetachedProbe("extractor", AFR_PREFLIGHT_FALLBACK_TIMEOUT_MS) {
                             FrameRateUtils.detectFrameRateFromExtractor(
                                 context = context,
                                 sourceUrl = url,

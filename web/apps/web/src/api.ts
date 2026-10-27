@@ -39,7 +39,9 @@ import { discoverApi } from "./api/discover";
 import { gamesApi } from "./api/games";
 import { integrationsApi } from "./api/integrations";
 export type {
+  MdbListKeyStatus,
   MdbListPending,
+  MdbListRating,
   MdbListStatus,
   MediaServer,
   MediaServerSyncSummary,

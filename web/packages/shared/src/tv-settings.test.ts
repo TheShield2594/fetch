@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
   ARGB_WHITE,
+  MDBLIST_RATING_SOURCES,
   TV_SETTING_GROUPS,
   argbAlpha,
   argbToHex,
   hexToArgb,
   readField,
+  readMdbListRatingSettings,
   readRankingRules,
+  visibleMdbListSources,
   withField,
+  withMdbListRatingSettings,
   withRankingRules,
   type TvSettingField,
   type TvSettingsDocument,
@@ -95,5 +99,53 @@ describe("colours", () => {
     expect(hexToArgb("#000000", 0)).toBe(0);
     expect(argbToHex(hexToArgb("#12ab34", 128))).toBe("#12ab34");
     expect(argbAlpha(hexToArgb("#12ab34", 128))).toBe(128);
+  });
+});
+
+describe("MDBList rating settings", () => {
+  it("reads the TV's defaults from an empty document: off, everything shown, the TV's order", () => {
+    const settings = readMdbListRatingSettings({});
+    expect(settings.enabled).toBe(false);
+    expect(Object.values(settings.shown).every(Boolean)).toBe(true);
+    expect(settings.order).toEqual([...MDBLIST_RATING_SOURCES]);
+  });
+
+  it("reads what the TV synced, keeping its order and dropping sources it doesn't know", () => {
+    const settings = readMdbListRatingSettings({
+      features: {
+        mdblist_settings: {
+          mdblist_enabled: { type: "boolean", value: true },
+          mdblist_show_trakt: { type: "boolean", value: false },
+          mdblist_rating_order: { type: "string", value: "tomatoes,imdb,future_source,imdb" },
+        },
+      },
+    });
+    expect(settings.enabled).toBe(true);
+    expect(settings.shown.trakt).toBe(false);
+    expect(settings.order.slice(0, 2)).toEqual(["tomatoes", "imdb"]);
+    expect(settings.order).toHaveLength(MDBLIST_RATING_SOURCES.length);
+    expect(visibleMdbListSources(settings)).not.toContain("trakt");
+  });
+
+  it("writes the TV's keys and types, leaving the rest of the feature alone", () => {
+    const document: TvSettingsDocument = {
+      features: { mdblist_settings: { mdblist_show_on_hero: { type: "boolean", value: true } } },
+    };
+    const settings = readMdbListRatingSettings(document);
+    const next = withMdbListRatingSettings(document, {
+      ...settings,
+      enabled: true,
+      shown: { ...settings.shown, mal: false },
+      order: ["mal", ...settings.order.filter((source) => source !== "mal")],
+    });
+    const feature = next.features?.mdblist_settings;
+    expect(feature?.mdblist_show_on_hero).toEqual({ type: "boolean", value: true });
+    expect(feature?.mdblist_enabled).toEqual({ type: "boolean", value: true });
+    expect(feature?.mdblist_show_mal).toEqual({ type: "boolean", value: false });
+    expect(feature?.mdblist_rating_order).toEqual({
+      type: "string",
+      value: "mal,imdb,trakt,tmdb,tomatoes,audience,letterboxd,metacritic",
+    });
+    expect(readMdbListRatingSettings(next).order[0]).toBe("mal");
   });
 });

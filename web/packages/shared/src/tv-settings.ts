@@ -391,6 +391,86 @@ export const withRankingRules = (document: TvSettingsDocument, rules: RankingRul
   return withTvValue(document, PLAYER_FEATURE, RANKING_RULES_KEY, { type: "string", value: JSON.stringify(stored) });
 };
 
+// ─── MDBList ratings ───
+//
+// Which MDBList ratings a detail page shows, and in what order: the TV's
+// `MDBListSettingsDataStore`, synced under `mdblist_settings`. The API key in
+// that DataStore is never in this document (the TV leaves credentials out), so
+// the website keeps its own; these are only the display choices, shared by
+// both.
+
+export const MDBLIST_FEATURE = "mdblist_settings";
+
+/** The TV's `MDBListSettings.DEFAULT_RATING_ORDER`. */
+export const MDBLIST_RATING_SOURCES = [
+  "imdb",
+  "trakt",
+  "tmdb",
+  "tomatoes",
+  "audience",
+  "letterboxd",
+  "metacritic",
+  "mal",
+] as const;
+
+export type MdbListRatingSource = (typeof MDBLIST_RATING_SOURCES)[number];
+
+export const MDBLIST_RATING_LABELS: Record<MdbListRatingSource, string> = {
+  imdb: "IMDb",
+  trakt: "Trakt",
+  tmdb: "TMDB",
+  tomatoes: "Rotten Tomatoes",
+  audience: "Audience",
+  letterboxd: "Letterboxd",
+  metacritic: "Metacritic",
+  mal: "MyAnimeList",
+};
+
+export type MdbListRatingSettings = {
+  /** `mdblist_enabled`: off until the profile turns it on, as on the TV. */
+  enabled: boolean;
+  shown: Record<MdbListRatingSource, boolean>;
+  order: MdbListRatingSource[];
+};
+
+const MDBLIST_ENABLED_KEY = "mdblist_enabled";
+const MDBLIST_ORDER_KEY = "mdblist_rating_order";
+const mdbListShowKey = (source: MdbListRatingSource) => `mdblist_show_${source}`;
+
+const isRatingSource = (value: string): value is MdbListRatingSource =>
+  (MDBLIST_RATING_SOURCES as readonly string[]).includes(value);
+
+export const readMdbListRatingSettings = (document: TvSettingsDocument): MdbListRatingSettings => {
+  const enabled = readTvValue(document, MDBLIST_FEATURE, MDBLIST_ENABLED_KEY);
+  const shown = {} as Record<MdbListRatingSource, boolean>;
+  for (const source of MDBLIST_RATING_SOURCES) {
+    const value = readTvValue(document, MDBLIST_FEATURE, mdbListShowKey(source));
+    shown[source] = typeof value === "boolean" ? value : true;
+  }
+  const stored = readTvValue(document, MDBLIST_FEATURE, MDBLIST_ORDER_KEY);
+  const listed = typeof stored === "string" ? stored.split(",").map((entry) => entry.trim()) : [];
+  // A source this build doesn't know (a newer TV's) is dropped, and one the
+  // stored order leaves out goes on the end rather than vanishing.
+  const order = [...new Set(listed.filter(isRatingSource))];
+  for (const source of MDBLIST_RATING_SOURCES) if (!order.includes(source)) order.push(source);
+  return { enabled: enabled === true, shown, order };
+};
+
+export const withMdbListRatingSettings = (
+  document: TvSettingsDocument,
+  settings: MdbListRatingSettings
+): TvSettingsDocument => {
+  let next = withTvValue(document, MDBLIST_FEATURE, MDBLIST_ENABLED_KEY, { type: "boolean", value: settings.enabled });
+  for (const source of MDBLIST_RATING_SOURCES) {
+    next = withTvValue(next, MDBLIST_FEATURE, mdbListShowKey(source), { type: "boolean", value: settings.shown[source] });
+  }
+  return withTvValue(next, MDBLIST_FEATURE, MDBLIST_ORDER_KEY, { type: "string", value: settings.order.join(",") });
+};
+
+/** The sources a detail page shows, in the order it shows them. */
+export const visibleMdbListSources = (settings: MdbListRatingSettings): MdbListRatingSource[] =>
+  settings.order.filter((source) => settings.shown[source]);
+
 // ─── Colours ───
 
 /** `#rrggbb` for an ARGB int, ignoring alpha. */

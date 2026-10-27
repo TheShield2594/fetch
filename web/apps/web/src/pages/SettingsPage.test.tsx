@@ -21,6 +21,7 @@ vi.mock("../components/settings/StremioSyncSettings", () => ({ StremioSyncSettin
 vi.mock("../components/settings/PlayDetectionSettings", () => ({ PlayDetectionSettings: () => <p>play detection body</p> }));
 vi.mock("../components/settings/OmdbSettings", () => ({ OmdbSettings: () => <p>omdb body</p> }));
 vi.mock("../components/settings/RpdbSettings", () => ({ RpdbSettings: () => <p>rpdb body</p> }));
+vi.mock("../components/settings/MdbListRatingsSettings", () => ({ MdbListRatingsSettings: () => <p>mdblist ratings body</p> }));
 vi.mock("../components/settings/AiSettings", () => ({ AiSettings: () => <p>ai body</p> }));
 vi.mock("../components/settings/DataSettings", () => ({ DataSettings: () => <p>data body</p> }));
 vi.mock("../components/tv/TvOverview", () => ({ TvOverview: () => <p>tv overview body</p> }));
@@ -225,7 +226,7 @@ describe("SettingsPage", () => {
     renderPage();
     await userEvent.type(searchBox(), "trakt");
 
-    expect(onScreen()).toEqual(["Sync Status", "Trakt Integration"]);
+    expect(onScreen()).toEqual(["Sync Status", "Trakt Integration", "Ratings from MDBList"]);
     expect(tabBar()).not.toBeInTheDocument();
   });
 
@@ -335,7 +336,7 @@ describe("SettingsPage for an account that isn't the admin", () => {
     renderPage("integrations");
 
     // Each account connects its own Trakt and Stremio, and has its own webhook link.
-    for (const title of ["Data", "Trakt Integration", "Stremio Watched Sync", "Plex, Jellyfin & Emby Webhooks", "Media Servers", "Simkl", "MDBList", "AI Recommendations"]) {
+    for (const title of ["Data", "Trakt Integration", "Stremio Watched Sync", "Plex, Jellyfin & Emby Webhooks", "Media Servers", "Simkl", "MDBList", "Ratings from MDBList", "AI Recommendations"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
     }
     for (const title of ["TMDB Metadata", "Invites & Accounts", "Play Detection"]) {

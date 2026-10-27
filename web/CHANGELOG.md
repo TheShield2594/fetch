@@ -23,6 +23,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **MDBList ratings on detail pages, as on the TV.** Settings → Ratings from MDBList takes a profile's own MDBList API key, checked with MDBList and stored encrypted, or uses its MDBList sign-in when it has no key. Detail pages then show IMDb, Trakt, TMDB, Rotten Tomatoes, Audience, Letterboxd, Metacritic and MyAnimeList scores in place of the OMDb ones, with the visibility and order settings the TV syncs, so a change on either side reaches the other.
+
 - **Plex, Jellyfin and Emby sign-ins, as on the TV.** Settings → Media Servers signs a profile in to Plex with a plex.tv/link code, or to Jellyfin and Emby with the server's address, user name and password. With Import watch progress on, each server's watched state comes in as plays and where you stopped as resume points, hourly and on demand, and plays recorded in Fetch are marked played on the servers. Only the admin's profiles may use a server on the home network.
 
 - **MDBList, as on the TV.** Settings → MDBList connects a profile's own MDBList account with the TV's device sign-in. Its watched history and watchlist come in on a schedule (skipped when MDBList reports no change), and plays, watchlist adds and scrobbles go out to it. Needs `MDBLIST_CLIENT_ID`.

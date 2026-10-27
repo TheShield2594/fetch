@@ -3,10 +3,11 @@ import { prisma } from "./prisma.js";
 import { SECRET_CONTEXT, decryptSecret, encryptSecret } from "./secret-box.js";
 
 // A profile's sign-ins to Simkl, MDBList, Plex, Jellyfin and Emby, kept in
-// ProfileConnection. Each is the profile's own, as in the TV app: the
+// ProfileConnection, and its MDBList API key for ratings (`mdblist-key`, a
+// provider of its own so the tracker's sync and disconnect never touch it). Each is the profile's own, as in the TV app: the
 // website's are separate from the TV's, and both record into the same history.
 
-export type ConnectionProvider = "simkl" | "mdblist" | "plex" | "jellyfin" | "emby";
+export type ConnectionProvider = "simkl" | "mdblist" | "mdblist-key" | "plex" | "jellyfin" | "emby";
 
 export type Connection<C, D, S = Record<string, unknown>> = {
   id: string;

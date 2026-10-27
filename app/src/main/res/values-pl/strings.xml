@@ -3022,8 +3022,6 @@
     <string name="skip_marker_start_recorded">Oznaczono początek. Naciśnij ponownie tam, gdzie się kończy.</string>
     <string name="skip_marker_submit_failed">Nie udało się wysłać znacznika do IntroDB</string>
     <string name="skip_marker_submitted">Wysłano znacznik do IntroDB</string>
-    <string name="skip_source">przez %1$s</string>
-    <string name="skip_source_reportable">przez %1$s · przytrzymaj, aby zgłosić</string>
     <string name="sub_hdr_brightness">Jasność napisów HDR</string>
     <string name="sub_hdr_style">Osobny styl dla HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Użyj innego koloru tekstu i niższej jasności napisów dla wideo HDR i Dolby Vision</string>

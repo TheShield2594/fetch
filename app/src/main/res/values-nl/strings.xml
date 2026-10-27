@@ -2701,8 +2701,6 @@
     <string name="skip_marker_start_recorded">Begin gemarkeerd. Druk nogmaals waar het eindigt.</string>
     <string name="skip_marker_submit_failed">Kan de markering niet naar IntroDB sturen</string>
     <string name="skip_marker_submitted">Markering naar IntroDB gestuurd</string>
-    <string name="skip_source">via %1$s</string>
-    <string name="skip_source_reportable">via %1$s · ingedrukt houden om te melden</string>
     <string name="sub_hdr_brightness">Helderheid HDR-ondertiteling</string>
     <string name="sub_hdr_style">Aparte stijl voor HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Gebruik een andere tekstkleur en een lagere helderheid voor ondertiteling bij HDR- en Dolby Vision-video</string>

@@ -2790,8 +2790,6 @@
     <string name="skip_marker_start_recorded">已標記開始。請在結束處再按一次。</string>
     <string name="skip_marker_submit_failed">無法將標記傳送到 IntroDB</string>
     <string name="skip_marker_submitted">標記已傳送到 IntroDB</string>
-    <string name="skip_source">來自 %1$s</string>
-    <string name="skip_source_reportable">來自 %1$s · 長按以回報</string>
     <string name="sub_hdr_brightness">HDR 字幕亮度</string>
     <string name="sub_hdr_style">獨立的 HDR / Dolby Vision 樣式</string>
     <string name="sub_hdr_style_sub">為 HDR 和 Dolby Vision 影片的字幕使用不同的文字顏色和較低的亮度</string>

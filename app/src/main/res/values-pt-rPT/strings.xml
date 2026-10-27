@@ -2243,8 +2243,6 @@
     <string name="skip_marker_start_recorded">Início marcado. Prime novamente onde termina.</string>
     <string name="skip_marker_submit_failed">Não foi possível enviar o marcador para o IntroDB</string>
     <string name="skip_marker_submitted">Marcador enviado para o IntroDB</string>
-    <string name="skip_source">via %1$s</string>
-    <string name="skip_source_reportable">via %1$s · mantém premido para reportar</string>
     <string name="sub_hdr_brightness">Brilho das legendas HDR</string>
     <string name="sub_hdr_style">Estilo separado para HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Usa uma cor de texto diferente e um brilho mais baixo para as legendas em vídeo HDR e Dolby Vision</string>

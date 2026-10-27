@@ -2478,8 +2478,6 @@
     <string name="skip_marker_start_recorded">Fillimi u shënua. Shtyp përsëri aty ku mbaron.</string>
     <string name="skip_marker_submit_failed">Shënuesi nuk u dërgua dot te IntroDB</string>
     <string name="skip_marker_submitted">Shënuesi u dërgua te IntroDB</string>
-    <string name="skip_source">nga %1$s</string>
-    <string name="skip_source_reportable">nga %1$s · mbaj shtypur për ta raportuar</string>
     <string name="sub_hdr_brightness">Ndriçimi i titrave HDR</string>
     <string name="sub_hdr_style">Stil i veçantë për HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Përdor një ngjyrë tjetër teksti dhe ndriçim më të ulët për titrat në video HDR dhe Dolby Vision</string>

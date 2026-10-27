@@ -2357,8 +2357,6 @@
     <string name="skip_marker_start_recorded">Началото е отбелязано. Натисни отново там, където свършва.</string>
     <string name="skip_marker_submit_failed">Маркерът не можа да бъде изпратен към IntroDB</string>
     <string name="skip_marker_submitted">Маркерът е изпратен към IntroDB</string>
-    <string name="skip_source">чрез %1$s</string>
-    <string name="skip_source_reportable">чрез %1$s · задръж, за да докладваш</string>
     <string name="sub_hdr_brightness">Яркост на HDR субтитрите</string>
     <string name="sub_hdr_style">Отделен стил за HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Използвай различен цвят на текста и по-ниска яркост за субтитрите при HDR и Dolby Vision видео</string>

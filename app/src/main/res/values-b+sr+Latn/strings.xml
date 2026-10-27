@@ -2731,8 +2731,6 @@
     <string name="skip_marker_start_recorded">Početak označen. Pritisnite ponovo tamo gde se završava.</string>
     <string name="skip_marker_submit_failed">Slanje oznake na IntroDB nije uspelo</string>
     <string name="skip_marker_submitted">Oznaka je poslata na IntroDB</string>
-    <string name="skip_source">preko %1$s</string>
-    <string name="skip_source_reportable">preko %1$s · zadržite za prijavu</string>
     <string name="sub_hdr_brightness">Osvetljenost HDR titlova</string>
     <string name="sub_hdr_style">Poseban stil za HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Koristi drugu boju teksta i slabiju osvetljenost za titlove na HDR i Dolby Vision videu</string>

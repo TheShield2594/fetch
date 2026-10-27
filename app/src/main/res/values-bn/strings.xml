@@ -2692,8 +2692,6 @@
     <string name="skip_marker_start_recorded">শুরু মার্ক করা হয়েছে। যেখানে শেষ হয় সেখানে আবার চাপুন।</string>
     <string name="skip_marker_submit_failed">IntroDB-তে মার্কার পাঠানো যায়নি</string>
     <string name="skip_marker_submitted">IntroDB-তে মার্কার পাঠানো হয়েছে</string>
-    <string name="skip_source">%1$s-এর মাধ্যমে</string>
-    <string name="skip_source_reportable">%1$s-এর মাধ্যমে · রিপোর্ট করতে ধরে রাখুন</string>
     <string name="sub_hdr_brightness">HDR সাবটাইটেল ব্রাইটনেস</string>
     <string name="sub_hdr_style">আলাদা HDR / Dolby Vision স্টাইল</string>
     <string name="sub_hdr_style_sub">HDR ও Dolby Vision ভিডিওতে সাবটাইটেলের জন্য ভিন্ন টেক্সট কালার ও কম ব্রাইটনেস ব্যবহার করুন</string>

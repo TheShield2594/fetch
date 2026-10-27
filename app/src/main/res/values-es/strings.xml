@@ -2718,8 +2718,6 @@
     <string name="subtitle_style_text_color_hdr">Color del texto (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacidad del texto (HDR)</string>
     <string name="subtitle_style_brightness_hdr">Brillo (HDR)</string>
-    <string name="skip_source">vía %1$s</string>
-    <string name="skip_source_reportable">vía %1$s · mantén pulsado para informar</string>
     <string name="skip_marker_reported">Marcador incorrecto informado. ¡Gracias!</string>
     <string name="skip_marker_report_failed">No se pudo informar del marcador</string>
     <string name="skip_marker_start_recorded">Inicio marcado. Pulsa de nuevo donde termina.</string>

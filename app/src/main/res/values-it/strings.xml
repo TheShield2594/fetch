@@ -2931,8 +2931,6 @@
     <string name="skip_marker_start_recorded">Inizio segnato. Premi di nuovo dove finisce.</string>
     <string name="skip_marker_submit_failed">Impossibile inviare il marcatore a IntroDB</string>
     <string name="skip_marker_submitted">Marcatore inviato a IntroDB</string>
-    <string name="skip_source">tramite %1$s</string>
-    <string name="skip_source_reportable">tramite %1$s · tieni premuto per segnalare</string>
     <string name="sub_hdr_brightness">Luminosità sottotitoli HDR</string>
     <string name="sub_hdr_style">Stile separato per HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Usa un colore del testo diverso e una luminosità ridotta per i sottotitoli dei video HDR e Dolby Vision</string>

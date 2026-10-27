@@ -2173,8 +2173,6 @@
     <string name="skip_marker_start_recorded">தொடக்கம் குறிக்கப்பட்டது. அது முடியும் இடத்தில் மீண்டும் அழுத்தவும்.</string>
     <string name="skip_marker_submit_failed">குறியை IntroDB-க்கு அனுப்ப முடியவில்லை</string>
     <string name="skip_marker_submitted">குறி IntroDB-க்கு அனுப்பப்பட்டது</string>
-    <string name="skip_source">%1$s வழியாக</string>
-    <string name="skip_source_reportable">%1$s வழியாக · புகாரளிக்க அழுத்திப் பிடிக்கவும்</string>
     <string name="sub_hdr_brightness">HDR வசன ஒளிர்வு</string>
     <string name="sub_hdr_style">தனி HDR / Dolby Vision பாணி</string>
     <string name="sub_hdr_style_sub">HDR மற்றும் Dolby Vision வீடியோவில் வசனங்களுக்கு வேறு உரை நிறமும் குறைந்த ஒளிர்வும் பயன்படுத்து</string>

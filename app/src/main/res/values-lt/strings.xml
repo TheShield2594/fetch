@@ -1037,8 +1037,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="skip_marker_start_recorded">Pradžia pažymėta. Paspauskite dar kartą ten, kur baigiasi.</string>
     <string name="skip_marker_submit_failed">Nepavyko išsiųsti žymos į „IntroDB“</string>
     <string name="skip_marker_submitted">Žyma išsiųsta į „IntroDB“</string>
-    <string name="skip_source">per %1$s</string>
-    <string name="skip_source_reportable">per %1$s · palaikykite, kad praneštumėte</string>
     <string name="sub_hdr_brightness">HDR subtitrų ryškumas</string>
     <string name="sub_hdr_style">Atskiras HDR / „Dolby Vision“ stilius</string>
     <string name="sub_hdr_style_sub">Naudoti kitą teksto spalvą ir mažesnį ryškumą HDR ir „Dolby Vision“ vaizdo subtitrams</string>

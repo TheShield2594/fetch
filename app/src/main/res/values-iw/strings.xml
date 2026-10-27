@@ -2947,8 +2947,6 @@
     <string name="skip_marker_start_recorded">ההתחלה סומנה. יש ללחוץ שוב במקום שבו זה נגמר.</string>
     <string name="skip_marker_submit_failed">לא ניתן היה לשלוח את הסימון ל-IntroDB</string>
     <string name="skip_marker_submitted">הסימון נשלח ל-IntroDB</string>
-    <string name="skip_source">דרך %1$s</string>
-    <string name="skip_source_reportable">דרך %1$s · לחיצה ארוכה לדיווח</string>
     <string name="sub_hdr_brightness">בהירות כתוביות HDR</string>
     <string name="sub_hdr_style">סגנון נפרד ל-HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">שימוש בצבע טקסט שונה ובבהירות עמומה יותר לכתוביות בווידאו HDR ו-Dolby Vision</string>

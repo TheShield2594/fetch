@@ -2952,8 +2952,6 @@
     <string name="skip_marker_start_recorded">Başlangıç işaretlendi. Bittiği yerde tekrar bas.</string>
     <string name="skip_marker_submit_failed">İşaret IntroDB\'ye gönderilemedi</string>
     <string name="skip_marker_submitted">İşaret IntroDB\'ye gönderildi</string>
-    <string name="skip_source">%1$s üzerinden</string>
-    <string name="skip_source_reportable">%1$s üzerinden · bildirmek için basılı tut</string>
     <string name="sub_hdr_brightness">HDR Altyazı Parlaklığı</string>
     <string name="sub_hdr_style">Ayrı HDR / Dolby Vision stili</string>
     <string name="sub_hdr_style_sub">HDR ve Dolby Vision videolarda altyazılar için farklı bir metin rengi ve daha düşük parlaklık kullan</string>

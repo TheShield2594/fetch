@@ -2392,8 +2392,6 @@
     <string name="skip_marker_start_recorded">Початок позначено. Натисніть ще раз там, де він закінчується.</string>
     <string name="skip_marker_submit_failed">Не вдалося надіслати позначку до IntroDB</string>
     <string name="skip_marker_submitted">Позначку надіслано до IntroDB</string>
-    <string name="skip_source">через %1$s</string>
-    <string name="skip_source_reportable">через %1$s · утримуйте, щоб повідомити</string>
     <string name="sub_hdr_brightness">Яскравість субтитрів HDR</string>
     <string name="sub_hdr_style">Окремий стиль для HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Використовувати інший колір тексту й меншу яскравість субтитрів для відео HDR і Dolby Vision</string>

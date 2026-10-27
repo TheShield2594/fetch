@@ -2773,8 +2773,6 @@
     <string name="subtitle_style_text_color_hdr">Χρώμα κειμένου (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Αδιαφάνεια κειμένου (HDR)</string>
     <string name="subtitle_style_brightness_hdr">Φωτεινότητα (HDR)</string>
-    <string name="skip_source">μέσω %1$s</string>
-    <string name="skip_source_reportable">μέσω %1$s · κρατήστε πατημένο για αναφορά</string>
     <string name="skip_marker_reported">Το λάθος σημάδι αναφέρθηκε. Ευχαριστούμε!</string>
     <string name="skip_marker_report_failed">Δεν ήταν δυνατή η αναφορά του σημαδιού</string>
     <string name="skip_marker_start_recorded">Η αρχή σημειώθηκε. Πατήστε ξανά εκεί που τελειώνει.</string>

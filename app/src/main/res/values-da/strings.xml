@@ -2367,8 +2367,6 @@
     <string name="skip_marker_start_recorded">Start markeret. Tryk igen, hvor den slutter.</string>
     <string name="skip_marker_submit_failed">Kunne ikke sende markøren til IntroDB</string>
     <string name="skip_marker_submitted">Markør sendt til IntroDB</string>
-    <string name="skip_source">via %1$s</string>
-    <string name="skip_source_reportable">via %1$s · hold for at rapportere</string>
     <string name="sub_hdr_brightness">HDR-undertekstlysstyrke</string>
     <string name="sub_hdr_style">Separat HDR-/Dolby Vision-stil</string>
     <string name="sub_hdr_style_sub">Brug en anden tekstfarve og en dæmpet lysstyrke til undertekster på HDR- og Dolby Vision-video</string>

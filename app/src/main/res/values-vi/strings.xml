@@ -2936,8 +2936,6 @@
     <string name="skip_marker_start_recorded">Đã đánh dấu điểm bắt đầu. Bấm lần nữa tại điểm kết thúc.</string>
     <string name="skip_marker_submit_failed">Không thể gửi mốc lên IntroDB</string>
     <string name="skip_marker_submitted">Đã gửi mốc lên IntroDB</string>
-    <string name="skip_source">qua %1$s</string>
-    <string name="skip_source_reportable">qua %1$s · giữ để báo cáo</string>
     <string name="sub_hdr_brightness">Độ sáng phụ đề HDR</string>
     <string name="sub_hdr_style">Kiểu riêng cho HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Dùng màu chữ khác và độ sáng thấp hơn cho phụ đề trên video HDR và Dolby Vision</string>

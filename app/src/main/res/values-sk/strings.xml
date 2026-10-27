@@ -2957,8 +2957,6 @@
     <string name="skip_marker_start_recorded">Začiatok označený. Stlačte znova tam, kde sa končí.</string>
     <string name="skip_marker_submit_failed">Značku sa nepodarilo odoslať do IntroDB</string>
     <string name="skip_marker_submitted">Značka odoslaná do IntroDB</string>
-    <string name="skip_source">cez %1$s</string>
-    <string name="skip_source_reportable">cez %1$s · podržaním nahlásite</string>
     <string name="sub_hdr_brightness">Jas titulkov HDR</string>
     <string name="sub_hdr_style">Samostatný štýl pre HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Použiť inú farbu textu a nižší jas titulkov pri videu HDR a Dolby Vision</string>

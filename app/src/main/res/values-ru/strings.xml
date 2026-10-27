@@ -2684,8 +2684,6 @@
     <string name="skip_marker_start_recorded">Начало отмечено. Нажмите ещё раз в месте окончания.</string>
     <string name="skip_marker_submit_failed">Не удалось отправить метку в IntroDB</string>
     <string name="skip_marker_submitted">Метка отправлена в IntroDB</string>
-    <string name="skip_source">через %1$s</string>
-    <string name="skip_source_reportable">через %1$s · удерживайте, чтобы пожаловаться</string>
     <string name="sub_hdr_brightness">Яркость субтитров HDR</string>
     <string name="sub_hdr_style">Отдельный стиль для HDR / Dolby Vision</string>
     <string name="sub_hdr_style_sub">Использовать другой цвет текста и меньшую яркость субтитров для видео HDR и Dolby Vision</string>

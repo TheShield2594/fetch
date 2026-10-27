@@ -2362,8 +2362,6 @@
     <string name="skip_marker_start_recorded">開始をマークしました。終了位置でもう一度押してください。</string>
     <string name="skip_marker_submit_failed">マーカーをIntroDBに送信できませんでした</string>
     <string name="skip_marker_submitted">マーカーをIntroDBに送信しました</string>
-    <string name="skip_source">%1$s経由</string>
-    <string name="skip_source_reportable">%1$s経由 · 長押しで報告</string>
     <string name="sub_hdr_brightness">HDR字幕の明るさ</string>
     <string name="sub_hdr_style">HDR / Dolby Vision用に別スタイル</string>
     <string name="sub_hdr_style_sub">HDRとDolby Vision動画の字幕に別の文字色と控えめな明るさを使用します</string>

@@ -1823,8 +1823,6 @@
     <string name="skip_ending">Skip Ending</string>
     <string name="skip_recap">Skip Recap</string>
     <string name="skip_generic">Skip</string>
-    <string name="skip_source">via %1$s</string>
-    <string name="skip_source_reportable">via %1$s · hold to report</string>
     <string name="skip_marker_reported">Reported the wrong marker. Thanks!</string>
     <string name="skip_marker_report_failed">Couldn\'t report the marker</string>
     <string name="skip_marker_start_recorded">Start marked. Press again where it ends.</string>

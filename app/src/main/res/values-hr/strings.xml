@@ -2792,8 +2792,6 @@
     <string name="subtitle_style_text_color_hdr">Boja teksta (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
     <string name="subtitle_style_brightness_hdr">Svjetlina (HDR)</string>
-    <string name="skip_source">putem %1$s</string>
-    <string name="skip_source_reportable">putem %1$s · drži za prijavu</string>
     <string name="skip_marker_reported">Pogrešna oznaka prijavljena. Hvala!</string>
     <string name="skip_marker_report_failed">Prijava oznake nije uspjela</string>
     <string name="skip_marker_start_recorded">Početak označen. Pritisni ponovno gdje završava.</string>

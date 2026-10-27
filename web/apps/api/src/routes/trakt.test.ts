@@ -14,13 +14,15 @@ const prismaMock = {
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 
-vi.mock("../lib/trakt-client.js", () => ({
+const traktClientMock = {
   getTraktClient: vi.fn(),
   resetTraktClient: vi.fn(),
   pollTraktHistory: vi.fn(),
   syncTraktWatchlist: vi.fn(),
+  syncTraktPlayback: vi.fn(),
   computeTokenExpiresAt: () => new Date("2026-01-01T00:00:00Z"),
-}));
+};
+vi.mock("../lib/trakt-client.js", () => traktClientMock);
 
 vi.mock("../lib/tmdb-client.js", () => ({ getTmdb: async () => ({}) }));
 vi.mock("../lib/metadata.js", () => ({ upsertMetadata: vi.fn() }));
@@ -161,5 +163,39 @@ describe("trakt OAuth — the callback is bound to the flow that started it", ()
 
     expect(response.statusCode).toBe(403);
     expect(response.body).toContain("User said no");
+  });
+});
+
+describe("POST /trakt/poll", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    traktClientMock.pollTraktHistory.mockResolvedValue({ importedWatchEvents: { movies: 1, episodes: 2 } });
+    traktClientMock.syncTraktWatchlist.mockResolvedValue({ added: 0 });
+  });
+
+  it("reports resume points beside the history and watchlist", async () => {
+    traktClientMock.syncTraktPlayback.mockResolvedValue({ fetched: 3, resumePoints: 2, removedFromTrakt: 1 });
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "POST", url: "/trakt/poll", payload: {} });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      importedWatchEvents: { movies: 1, episodes: 2 },
+      playback: { fetched: 3, resumePoints: 2, removedFromTrakt: 1 },
+    });
+  });
+
+  it("keeps a poll whose history landed a success when only the resume points fail", async () => {
+    traktClientMock.syncTraktPlayback.mockRejectedValue(new Error("Trakt request failed (502)"));
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "POST", url: "/trakt/poll", payload: {} });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      importedWatchEvents: { movies: 1, episodes: 2 },
+      playback: { resumePoints: 0, error: "Trakt playback sync failed" },
+    });
   });
 });

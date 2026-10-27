@@ -246,9 +246,10 @@ class FetchWebsiteClient internal constructor(
     // profile by `x-profile-id`, as its watch and list routes expect.
 
     suspend fun playback(profileId: String, profileToken: String?): List<WebsitePlayback> =
-        authed("playback?limit=200", profileId = profileId, profileToken = profileToken).use { response ->
-            json.decodeFromString(WebsitePlaybackBody.serializer(), response.body?.string().orEmpty()).playback
-        }
+        json.decodeFromString(
+            WebsitePlaybackBody.serializer(),
+            authedText("playback?limit=200", profileId = profileId, profileToken = profileToken)
+        ).playback
 
     /** Saves where playback is now; a resume point, never a watch. */
     suspend fun putPlayback(profileId: String, profileToken: String?, body: JsonObject) {
@@ -265,9 +266,7 @@ class FetchWebsiteClient internal constructor(
     }
 
     suspend fun watchState(profileId: String, profileToken: String?): WebsiteWatchState =
-        authed("watch/state", profileId = profileId, profileToken = profileToken).use { response ->
-            json.decodeFromString(WebsiteWatchState.serializer(), response.body?.string().orEmpty())
-        }
+        json.decodeFromString(WebsiteWatchState.serializer(), authedText("watch/state", profileId = profileId, profileToken = profileToken))
 
     suspend fun recordWatch(profileId: String, profileToken: String?, body: JsonObject) {
         authed("watch", method = "POST", body = body.toString(), profileId = profileId, profileToken = profileToken).close()
@@ -287,9 +286,7 @@ class FetchWebsiteClient internal constructor(
     }
 
     suspend fun lists(profileId: String, profileToken: String?): List<WebsiteList> =
-        authed("lists", profileId = profileId, profileToken = profileToken).use { response ->
-            json.decodeFromString(WebsiteListsBody.serializer(), response.body?.string().orEmpty()).lists
-        }
+        json.decodeFromString(WebsiteListsBody.serializer(), authedText("lists", profileId = profileId, profileToken = profileToken)).lists
 
     /** Every item of one list, a page at a time, in the website's own order. */
     suspend fun listItems(profileId: String, profileToken: String?, listId: String): List<WebsiteListItem> {
@@ -297,9 +294,10 @@ class FetchWebsiteClient internal constructor(
         var cursor: String? = null
         repeat(MAX_LIST_PAGES) {
             val path = "lists/$listId/items?limit=$LIST_PAGE_SIZE" + (cursor?.let { "&cursor=${encode(it)}" } ?: "")
-            val page = authed(path, profileId = profileId, profileToken = profileToken).use { response ->
-                json.decodeFromString(WebsiteListItemsBody.serializer(), response.body?.string().orEmpty())
-            }
+            val page = json.decodeFromString(
+                WebsiteListItemsBody.serializer(),
+                authedText(path, profileId = profileId, profileToken = profileToken)
+            )
             items += page.items
             cursor = page.nextCursor ?: return items
         }
@@ -311,9 +309,10 @@ class FetchWebsiteClient internal constructor(
             put("name", name)
             put("kind", "custom")
         }.toString()
-        return authed("lists", method = "POST", body = body, profileId = profileId, profileToken = profileToken).use { response ->
-            json.decodeFromString(WebsiteCreatedListBody.serializer(), response.body?.string().orEmpty()).list
-        }
+        return json.decodeFromString(
+            WebsiteCreatedListBody.serializer(),
+            authedText("lists", method = "POST", body = body, profileId = profileId, profileToken = profileToken)
+        ).list
     }
 
     suspend fun renameList(profileId: String, profileToken: String?, listId: String, name: String) {
@@ -393,6 +392,20 @@ class FetchWebsiteClient internal constructor(
             throw error
         }
         response
+    }
+
+    /**
+     * [authed] with the body read on the IO dispatcher as well. The watch-state and list calls are
+     * made from view-model scopes too, which run on the main thread, where reading a socket throws.
+     */
+    private suspend fun authedText(
+        path: String,
+        method: String = "GET",
+        body: String? = null,
+        profileId: String? = null,
+        profileToken: String? = null
+    ): String = authed(path, method, body, profileId, profileToken).use { response ->
+        call { response.body?.string().orEmpty() }
     }
 
     /**

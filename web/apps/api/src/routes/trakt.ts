@@ -480,7 +480,12 @@ const traktRoutes: FastifyPluginAsync = async (app) => {
       const profileId = request.profileId!;
       const history = await pollTraktHistory(request.log, profileId, { full: full === true });
       const watchlist = await syncTraktWatchlist(request.log, profileId);
-      const playback = await syncTraktPlayback(request.log, profileId);
+      // History and watchlist are committed by now; resume points failing to come in is
+      // reported beside them rather than turning the whole poll into a 500.
+      const playback = await syncTraktPlayback(request.log, profileId).catch((error: unknown) => {
+        request.log.error(error, "Trakt playback sync failed");
+        return { fetched: 0, resumePoints: 0, removedFromTrakt: 0, error: "Trakt playback sync failed" };
+      });
       return reply.code(200).send({ ...history, watchlist, playback });
     } catch (error) {
       request.log.error(error, "Trakt poll failed");

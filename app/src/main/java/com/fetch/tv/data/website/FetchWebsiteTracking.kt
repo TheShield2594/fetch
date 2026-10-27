@@ -179,10 +179,15 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
 
     override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) {
         repository.ensureLoaded()
-        val ids = repository.currentSnapshot()?.playbackIdsFor(contentId, season, episode).orEmpty()
+        var ids = repository.currentSnapshot()?.playbackIdsFor(contentId, season, episode).orEmpty()
+        if (ids.any(::isLocalPlaybackId)) {
+            // A point saved from this TV but not read back yet has no website id: read it first.
+            repository.refresh(TrackingRefreshIntent.AUTOMATIC)
+            ids = ids + repository.currentSnapshot()?.playbackIdsFor(contentId, season, episode).orEmpty()
+        }
         if (ids.isEmpty()) return
         repository.asProfile { profileId, token ->
-            ids.forEach { id ->
+            ids.filterNot(::isLocalPlaybackId).distinct().forEach { id ->
                 try {
                     client.deletePlayback(profileId, token, id)
                 } catch (error: FetchWebsiteException) {
@@ -406,6 +411,11 @@ internal fun fetchWebsitePlaybackBody(progress: WatchProgress): JsonObject? {
     }
 }
 
+/** A resume point held here before the website has given it an id; never sent back to it. */
+private const val LOCAL_PLAYBACK_ID_PREFIX = "local:"
+
+internal fun isLocalPlaybackId(id: String): Boolean = id.startsWith(LOCAL_PLAYBACK_ID_PREFIX)
+
 private fun LibraryEntryInput.websiteImdbId(): String? =
     imdbId?.takeIf { it.startsWith("tt") } ?: itemId.takeIf { it.startsWith("tt") }?.substringBefore(':')
 
@@ -414,7 +424,7 @@ private fun WatchProgress.toWebsitePlayback(): WebsitePlayback? {
     val isEpisode = season != null && episode != null
     return WebsitePlayback(
         id = trackingProviderItemId?.takeIf { trackingProviderId == FETCH_WEBSITE_PROVIDER_STORAGE_ID }
-            ?: "local:$contentId:${season ?: -1}:${episode ?: -1}",
+            ?: "$LOCAL_PLAYBACK_ID_PREFIX$contentId:${season ?: -1}:${episode ?: -1}",
         type = if (isEpisode) "episode" else "movie",
         imdbId = contentId,
         season = season,

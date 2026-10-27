@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -109,9 +110,13 @@ class FetchWebsiteTrackingRepository @Inject constructor(
                 if (profileManager.activeProfileId.value != slot) return
                 if (mutationGeneration.get() != generation) {
                     // A write from this TV landed while reading; what was read may predate it.
-                    // Keep the optimistic state and read again shortly.
+                    // Keep the optimistic state and read again shortly, not at once: saves can come
+                    // every second while seeking, and each would otherwise restart the read.
                     _snapshot.update { it?.copy(fetchedAtMs = 0L) }
-                    refreshAsync()
+                    scope.launch {
+                        delay(CONFLICT_RETRY_MS)
+                        refresh(TrackingRefreshIntent.AUTOMATIC)
+                    }
                     return
                 }
                 _snapshot.value = read
@@ -158,16 +163,21 @@ class FetchWebsiteTrackingRepository @Inject constructor(
 
     /**
      * [this] flow, reading the website every [POLL_INTERVAL_MS] while it is collected, so a
-     * screen showing website state stays within a minute of it.
+     * screen showing website state stays within a minute of it. A profile switch or a new
+     * sign-in reads at once rather than at the next tick.
      */
     fun <T> Flow<T>.polledWhileCollected(): Flow<T> {
         val upstream = this
         return channelFlow {
             val poller = launch {
-                while (true) {
-                    refresh(TrackingRefreshIntent.AUTOMATIC)
-                    delay(POLL_INTERVAL_MS)
-                }
+                combine(profileManager.activeProfileId, store.session) { slot, session -> slot to session }
+                    .distinctUntilChanged()
+                    .collectLatest {
+                        while (true) {
+                            refresh(TrackingRefreshIntent.AUTOMATIC)
+                            delay(POLL_INTERVAL_MS)
+                        }
+                    }
             }
             upstream.collect { send(it) }
             poller.cancel()
@@ -204,5 +214,6 @@ class FetchWebsiteTrackingRepository @Inject constructor(
     companion object {
         const val POLL_INTERVAL_MS = 60_000L
         private const val ERROR_RETRY_MS = 30_000L
+        private const val CONFLICT_RETRY_MS = 2_000L
     }
 }

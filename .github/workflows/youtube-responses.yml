@@ -34,7 +34,7 @@ jobs:
           YOUTUBE_FIXTURES_DIR: ${{ runner.temp }}/youtube
         run: ./gradlew --no-daemon :app:testFullDebugUnitTest --tests 'com.fetch.tv.data.youtube.YouTubeRealResponseTest'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: youtube-responses

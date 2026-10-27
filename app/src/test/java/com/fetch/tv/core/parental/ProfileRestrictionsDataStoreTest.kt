@@ -87,10 +87,22 @@ class ProfileRestrictionsDataStoreTest {
     fun `a listed title matches any of its ids and its episodes`() {
         val lists = ProfileTitleLists().withHidden(movie).withHidden(show)
 
-        assertTrue(lists.isHidden("tmdb:278", imdbId = null))
-        assertTrue(lists.isHidden("tmdb:999", imdbId = "tt0111161"))
-        assertTrue(lists.isHidden("tt0903747:1:2", imdbId = null))
-        assertFalse(lists.isHidden("tt09037470", imdbId = null))
-        assertFalse(lists.isAllowed("tt0111161", imdbId = null))
+        assertTrue(lists.isHidden("tmdb:278", imdbId = null, type = "movie"))
+        assertTrue(lists.isHidden("tmdb:999", imdbId = "tt0111161", type = null))
+        assertTrue(lists.isHidden("tt0903747:1:2", imdbId = null, type = "series"))
+        assertFalse(lists.isHidden("tt09037470", imdbId = null, type = null))
+        assertFalse(lists.isAllowed("tt0111161", imdbId = null, type = "movie"))
+    }
+
+    @Test
+    fun `a movie and a series sharing an id stay apart`() {
+        val series = ParentalTitle(ids = listOf("tmdb:278"), type = "tv", name = "Another Show")
+        val lists = ProfileTitleLists().withAllowed(movie).withHidden(series)
+
+        assertTrue(lists.isAllowed("tmdb:278", imdbId = null, type = "movie"))
+        assertFalse(lists.isAllowed("tmdb:278", imdbId = null, type = "series"))
+        assertTrue(lists.isHidden("tmdb:278", imdbId = null, type = "series"))
+        assertFalse(lists.isHidden("tmdb:278", imdbId = null, type = "movie"))
+        assertEquals(listOf(series), lists.without(movie).hidden)
     }
 }

@@ -2886,7 +2886,7 @@
     <string name="parental_level_unrestricted">ללא הגבלה</string>
     <string name="parental_title_hide">הסתרה מ-%1$s</string>
     <string name="parental_title_limits">הגבלות הורים לכותר זה</string>
-    <string name="parental_title_dialog_subtitle">בחרו איך כל פרופיל מתייחס לכותר זה. כותר מוסתר לא מופיע בשום מקום בפרופיל, וכותר מותר מופיע בלי קשר לסיווג שלו.</string>
+    <string name="parental_title_dialog_subtitle">בחרו איך כל פרופיל מתייחס לכותר זה. כותר מוסתר לא נכלל בשורות, בחיפוש, ב״המשך בצפייה״ ובהפעלה האוטומטית של הפרופיל, אף שקישור ישיר עדיין פותח את הדף שלו. כותר מותר מופיע בלי קשר לסיווג שלו.</string>
     <string name="parental_title_state_rating">%1$s: ההגבלה לפי סיווג קובעת</string>
     <string name="parental_title_state_hidden">%1$s: מוסתר</string>
     <string name="parental_title_state_allowed">%1$s: מותר תמיד</string>

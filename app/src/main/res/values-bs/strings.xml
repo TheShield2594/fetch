@@ -1408,7 +1408,7 @@
     <string name="parental_level_unrestricted">Bez ograničenja</string>
     <string name="parental_title_hide">Sakrij od %1$s</string>
     <string name="parental_title_limits">Roditeljska ograničenja za ovaj naslov</string>
-    <string name="parental_title_dialog_subtitle">Odaberi kako svaki profil tretira ovaj naslov. Skriveni naslov se ne prikazuje nigdje na tom profilu, a dozvoljeni se prikazuje bez obzira na rejting.</string>
+    <string name="parental_title_dialog_subtitle">Odaberi kako svaki profil tretira ovaj naslov. Skriveni naslov je izostavljen iz redova, pretrage, reda Nastavi Gledati i automatske reprodukcije na tom profilu, iako ga direktan link i dalje otvara. Dozvoljeni se prikazuje bez obzira na rejting.</string>
     <string name="parental_title_state_rating">%1$s: odlučuje ograničenje rejtinga</string>
     <string name="parental_title_state_hidden">%1$s: skriveno</string>
     <string name="parental_title_state_allowed">%1$s: uvijek dozvoljeno</string>

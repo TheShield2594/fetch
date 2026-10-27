@@ -74,7 +74,7 @@ class ParentalTitleViewModel @Inject constructor(
 
     fun stateFor(profileId: Int, title: ParentalTitle): ParentalTitleState =
         title.ids.firstNotNullOfOrNull { id ->
-            parentalControls.titleState(profileId, id, null).takeIf { it != ParentalTitleState.BY_RATING }
+            parentalControls.titleState(profileId, id, null, title.type).takeIf { it != ParentalTitleState.BY_RATING }
         } ?: ParentalTitleState.BY_RATING
 
     /** Steps the profile on to the next state: rating limit, hidden, always allowed. */

@@ -2330,7 +2330,7 @@
     <string name="parental_level_unrestricted">Без обмежень</string>
     <string name="parental_title_hide">Приховати від %1$s</string>
     <string name="parental_title_limits">Батьківські обмеження для цього контенту</string>
-    <string name="parental_title_dialog_subtitle">Виберіть, як кожен профіль ставиться до цього контенту. Прихований контент ніде не показується в цьому профілі, а дозволений показується незалежно від рейтингу.</string>
+    <string name="parental_title_dialog_subtitle">Виберіть, як кожен профіль ставиться до цього контенту. Прихований контент виключається з рядів, пошуку, розділу Продовжити перегляд і автовідтворення в цьому профілі, але пряме посилання все одно відкриває його сторінку. Дозволений показується незалежно від рейтингу.</string>
     <string name="parental_title_state_rating">%1$s: вирішує обмеження за рейтингом</string>
     <string name="parental_title_state_hidden">%1$s: приховано</string>
     <string name="parental_title_state_allowed">%1$s: завжди дозволено</string>

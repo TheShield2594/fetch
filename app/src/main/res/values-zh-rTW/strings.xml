@@ -2731,7 +2731,7 @@
     <string name="parental_level_unrestricted">無限制</string>
     <string name="parental_title_hide">對 %1$s 隱藏</string>
     <string name="parental_title_limits">此內容的家長限制</string>
-    <string name="parental_title_dialog_subtitle">選擇每個個人資料如何處理此內容。隱藏的內容不會在該個人資料的任何位置顯示；一律允許的內容無論分級為何都會顯示。</string>
+    <string name="parental_title_dialog_subtitle">選擇每個個人資料如何處理此內容。隱藏的內容會從該個人資料的列、搜尋、繼續觀看和自動播放中排除，但直接連結仍可開啟其頁面；一律允許的內容無論分級為何都會顯示。</string>
     <string name="parental_title_state_rating">%1$s：由分級限制決定</string>
     <string name="parental_title_state_hidden">%1$s：已隱藏</string>
     <string name="parental_title_state_allowed">%1$s：一律允許</string>

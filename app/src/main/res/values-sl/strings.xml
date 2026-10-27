@@ -2034,7 +2034,7 @@
     <string name="parental_level_unrestricted">Brez omejitve</string>
     <string name="parental_title_hide">Skrij pred %1$s</string>
     <string name="parental_title_limits">Starševske omejitve za ta naslov</string>
-    <string name="parental_title_dialog_subtitle">Izberi, kako posamezen profil obravnava ta naslov. Skriti naslov se v tem profilu ne prikaže nikjer, dovoljeni pa se prikaže ne glede na oceno.</string>
+    <string name="parental_title_dialog_subtitle">Izberi, kako posamezen profil obravnava ta naslov. Skriti naslov je v tem profilu izpuščen iz vrstic, iskanja, Nadaljuj z gledanjem in samodejnega predvajanja, čeprav neposredna povezava še vedno odpre njegovo stran. Dovoljeni pa se prikaže ne glede na oceno.</string>
     <string name="parental_title_state_rating">%1$s: odloča omejitev ocene</string>
     <string name="parental_title_state_hidden">%1$s: skrito</string>
     <string name="parental_title_state_allowed">%1$s: vedno dovoljeno</string>
@@ -2206,7 +2206,7 @@
     <string name="youtube_captions_hint">Pritisnite navzdol za podnapise: %1$s</string>
     <string name="youtube_captions_auto">%1$s (samodejno ustvarjeni)</string>
     <string name="youtube_captions_translated">%1$s (samodejno prevedeni)</string>
-    <string name="youtube_captions_failed">Teh podnapisov ni bilo mogoče naložiti. Poskusite drug posnetek.</string>
+    <string name="youtube_captions_failed">Teh podnapisov ni bilo mogoče naložiti. Poskusite z drugim podnapisom.</string>
     <string name="youtube_up_next">Naslednje</string>
     <string name="youtube_up_next_select">Izberite videoposnetek za predvajanje</string>
     <string name="youtube_up_next_close">Zapri</string>

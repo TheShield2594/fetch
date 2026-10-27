@@ -2213,7 +2213,7 @@
     <string name="parental_level_unrestricted">Tanpa batas</string>
     <string name="parental_title_hide">Sembunyikan dari %1$s</string>
     <string name="parental_title_limits">Batasan orang tua untuk judul ini</string>
-    <string name="parental_title_dialog_subtitle">Pilih cara setiap profil memperlakukan judul ini. Judul yang disembunyikan tidak muncul di mana pun pada profil tersebut; judul yang diizinkan tetap muncul apa pun ratingnya.</string>
+    <string name="parental_title_dialog_subtitle">Pilih cara setiap profil memperlakukan judul ini. Judul yang disembunyikan tidak disertakan di baris, pencarian, Lanjutkan Menonton, dan putar otomatis pada profil tersebut, meskipun tautan langsung tetap membuka halamannya. Judul yang diizinkan tetap muncul apa pun ratingnya.</string>
     <string name="parental_title_state_rating">%1$s: ditentukan batas rating</string>
     <string name="parental_title_state_hidden">%1$s: disembunyikan</string>
     <string name="parental_title_state_allowed">%1$s: selalu diizinkan</string>

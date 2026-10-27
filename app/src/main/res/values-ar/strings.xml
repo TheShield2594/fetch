@@ -2563,7 +2563,7 @@
     <string name="parental_level_unrestricted">بلا حد</string>
     <string name="parental_title_hide">إخفاء عن %1$s</string>
     <string name="parental_title_limits">القيود الأبوية لهذا العنوان</string>
-    <string name="parental_title_dialog_subtitle">اختر كيف يتعامل كل ملف شخصي مع هذا العنوان. العنوان المخفي لا يظهر في أي مكان في ذلك الملف الشخصي، أما المسموح به فيظهر مهما كان تصنيفه.</string>
+    <string name="parental_title_dialog_subtitle">اختر كيف يتعامل كل ملف شخصي مع هذا العنوان. العنوان المخفي يُستبعد من صفوف ذلك الملف الشخصي والبحث و«متابعة المشاهدة» والتشغيل التلقائي، مع أن الرابط المباشر يفتح صفحته. أما المسموح به فيظهر مهما كان تصنيفه.</string>
     <string name="parental_title_state_rating">%1$s: حد التصنيف هو الذي يحدد</string>
     <string name="parental_title_state_hidden">%1$s: مخفي</string>
     <string name="parental_title_state_allowed">%1$s: مسموح دائمًا</string>

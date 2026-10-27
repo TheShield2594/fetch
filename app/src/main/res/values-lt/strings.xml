@@ -975,7 +975,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="parental_level_unrestricted">Be apribojimų</string>
     <string name="parental_title_hide">Slėpti nuo %1$s</string>
     <string name="parental_title_limits">Tėvų apribojimai šiam pavadinimui</string>
-    <string name="parental_title_dialog_subtitle">Pasirinkite, kaip kiekvienas profilis elgiasi su šiuo pavadinimu. Paslėptas pavadinimas tame profilyje nerodomas niekur; leidžiamas rodomas nepaisant jo klasifikacijos.</string>
+    <string name="parental_title_dialog_subtitle">Pasirinkite, kaip kiekvienas profilis elgiasi su šiuo pavadinimu. Paslėptas pavadinimas tame profilyje neįtraukiamas į eilutes, paiešką, Tęsti žiūrėjimą ir automatinį paleidimą, nors tiesioginė nuoroda vis tiek atidaro jo puslapį. Leidžiamas rodomas nepaisant jo klasifikacijos.</string>
     <string name="parental_title_state_rating">%1$s: lemia klasifikacijos riba</string>
     <string name="parental_title_state_hidden">%1$s: paslėpta</string>
     <string name="parental_title_state_allowed">%1$s: visada leidžiama</string>

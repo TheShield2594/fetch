@@ -838,7 +838,7 @@
     <string name="parental_level_unrestricted">Fără limită</string>
     <string name="parental_title_hide">Ascunde de %1$s</string>
     <string name="parental_title_limits">Restricții parentale pentru acest titlu</string>
-    <string name="parental_title_dialog_subtitle">Alege cum tratează fiecare profil acest titlu. Un titlu ascuns nu apare nicăieri în acel profil; unul permis apare indiferent de clasificare.</string>
+    <string name="parental_title_dialog_subtitle">Alege cum tratează fiecare profil acest titlu. Un titlu ascuns este omis din rândurile, căutarea, Continuă vizionarea și redarea automată ale acelui profil, deși un link direct îi deschide în continuare pagina. Unul permis apare indiferent de clasificare.</string>
     <string name="parental_title_state_rating">%1$s: decide limita de clasificare</string>
     <string name="parental_title_state_hidden">%1$s: ascuns</string>
     <string name="parental_title_state_allowed">%1$s: întotdeauna permis</string>

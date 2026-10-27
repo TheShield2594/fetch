@@ -2303,7 +2303,7 @@
     <string name="parental_level_unrestricted">制限なし</string>
     <string name="parental_title_hide">%1$sから非表示</string>
     <string name="parental_title_limits">このタイトルの視聴制限</string>
-    <string name="parental_title_dialog_subtitle">このタイトルを各プロフィールでどう扱うか選択します。非表示にしたタイトルはそのプロフィールのどこにも表示されず、常に許可したタイトルはレーティングに関係なく表示されます。</string>
+    <string name="parental_title_dialog_subtitle">このタイトルを各プロフィールでどう扱うか選択します。非表示にしたタイトルはそのプロフィールの行、検索、視聴を続ける、自動再生から除外されますが、直接リンクからはページを開けます。常に許可したタイトルはレーティングに関係なく表示されます。</string>
     <string name="parental_title_state_rating">%1$s: レーティング制限に従う</string>
     <string name="parental_title_state_hidden">%1$s: 非表示</string>
     <string name="parental_title_state_allowed">%1$s: 常に許可</string>

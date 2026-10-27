@@ -2883,7 +2883,7 @@
     <string name="parental_level_unrestricted">Bez ograničenja</string>
     <string name="parental_title_hide">Sakrij od %1$s</string>
     <string name="parental_title_limits">Roditeljska ograničenja za ovaj naslov</string>
-    <string name="parental_title_dialog_subtitle">Odaberi kako svaki profil postupa s ovim naslovom. Skriveni naslov ne prikazuje se nigdje na tom profilu, a dopušteni se prikazuje bez obzira na oznaku.</string>
+    <string name="parental_title_dialog_subtitle">Odaberi kako svaki profil postupa s ovim naslovom. Skriveni naslov izostavljen je iz redova, pretraživanja, Nastavi gledati i automatske reprodukcije na tom profilu, iako ga izravna poveznica i dalje otvara. Dopušteni se prikazuje bez obzira na oznaku.</string>
     <string name="parental_title_state_rating">%1$s: odlučuje ograničenje oznake</string>
     <string name="parental_title_state_hidden">%1$s: skriveno</string>
     <string name="parental_title_state_allowed">%1$s: uvijek dopušteno</string>

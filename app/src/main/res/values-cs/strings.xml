@@ -2381,7 +2381,7 @@
     <string name="parental_level_unrestricted">Bez omezení</string>
     <string name="parental_title_hide">Skrýt pro %1$s</string>
     <string name="parental_title_limits">Rodičovská omezení pro tento titul</string>
-    <string name="parental_title_dialog_subtitle">Vyber, jak bude s tímto titulem zacházet každý profil. Skrytý titul se v tom profilu nezobrazuje nikde, povolený se zobrazí bez ohledu na hodnocení.</string>
+    <string name="parental_title_dialog_subtitle">Vyber, jak bude s tímto titulem zacházet každý profil. Skrytý titul je v tom profilu vynechán z řad, vyhledávání, Pokračovat ve sledování i automatického přehrávání, i když přímý odkaz stále otevře jeho stránku. Povolený se zobrazí bez ohledu na hodnocení.</string>
     <string name="parental_title_state_rating">%1$s: rozhoduje limit hodnocení</string>
     <string name="parental_title_state_hidden">%1$s: skryto</string>
     <string name="parental_title_state_allowed">%1$s: vždy povoleno</string>

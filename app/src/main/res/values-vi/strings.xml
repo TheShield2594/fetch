@@ -2877,7 +2877,7 @@
     <string name="parental_level_unrestricted">Không giới hạn</string>
     <string name="parental_title_hide">Ẩn khỏi %1$s</string>
     <string name="parental_title_limits">Giới hạn của phụ huynh cho nội dung này</string>
-    <string name="parental_title_dialog_subtitle">Chọn cách mỗi hồ sơ xử lý nội dung này. Nội dung bị ẩn sẽ không hiển thị ở bất kỳ đâu trên hồ sơ đó; nội dung được cho phép sẽ hiển thị bất kể phân loại.</string>
+    <string name="parental_title_dialog_subtitle">Chọn cách mỗi hồ sơ xử lý nội dung này. Nội dung bị ẩn sẽ bị loại khỏi các hàng, tìm kiếm, Tiếp tục xem và tự động phát của hồ sơ đó, dù liên kết trực tiếp vẫn mở trang của nội dung. Nội dung được cho phép sẽ hiển thị bất kể phân loại.</string>
     <string name="parental_title_state_rating">%1$s: do giới hạn phân loại quyết định</string>
     <string name="parental_title_state_hidden">%1$s: đã ẩn</string>
     <string name="parental_title_state_allowed">%1$s: luôn được cho phép</string>

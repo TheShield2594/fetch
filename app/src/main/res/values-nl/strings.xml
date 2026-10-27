@@ -2641,7 +2641,7 @@
     <string name="parental_level_unrestricted">Geen limiet</string>
     <string name="parental_title_hide">Verbergen voor %1$s</string>
     <string name="parental_title_limits">Ouderlijke beperkingen voor deze titel</string>
-    <string name="parental_title_dialog_subtitle">Kies hoe elk profiel met deze titel omgaat. Een verborgen titel verschijnt nergens in dat profiel; een toegestane titel verschijnt ongeacht de leeftijdsclassificatie.</string>
+    <string name="parental_title_dialog_subtitle">Kies hoe elk profiel met deze titel omgaat. Een verborgen titel wordt in dat profiel weggelaten uit de rijen, zoeken, Verder kijken en automatisch afspelen, al opent een directe link nog steeds de pagina. Een toegestane titel verschijnt ongeacht de leeftijdsclassificatie.</string>
     <string name="parental_title_state_rating">%1$s: leeftijdslimiet beslist</string>
     <string name="parental_title_state_hidden">%1$s: verborgen</string>
     <string name="parental_title_state_allowed">%1$s: altijd toegestaan</string>

@@ -2632,7 +2632,7 @@
     <string name="parental_level_unrestricted">কোনো লিমিট নেই</string>
     <string name="parental_title_hide">%1$s থেকে লুকান</string>
     <string name="parental_title_limits">এই টাইটেলের প্যারেন্টাল লিমিট</string>
-    <string name="parental_title_dialog_subtitle">প্রতিটি প্রোফাইল এই টাইটেলকে কীভাবে দেখবে তা বেছে নিন। লুকানো টাইটেল ওই প্রোফাইলের কোথাও দেখা যায় না; অনুমোদিত টাইটেল রেটিং যা-ই হোক দেখা যায়।</string>
+    <string name="parental_title_dialog_subtitle">প্রতিটি প্রোফাইল এই টাইটেলকে কীভাবে দেখবে তা বেছে নিন। লুকানো টাইটেল ওই প্রোফাইলের সারি, সার্চ, দেখা চালিয়ে যান এবং অটোপ্লে থেকে বাদ যায়, তবে সরাসরি লিঙ্ক এখনও তার পেজ খোলে। অনুমোদিত টাইটেল রেটিং যা-ই হোক দেখা যায়।</string>
     <string name="parental_title_state_rating">%1$s: রেটিং লিমিট ঠিক করবে</string>
     <string name="parental_title_state_hidden">%1$s: লুকানো</string>
     <string name="parental_title_state_allowed">%1$s: সবসময় অনুমোদিত</string>

@@ -2960,7 +2960,7 @@
     <string name="parental_level_unrestricted">Bez limitu</string>
     <string name="parental_title_hide">Ukryj przed %1$s</string>
     <string name="parental_title_limits">Ograniczenia rodzicielskie dla tego tytułu</string>
-    <string name="parental_title_dialog_subtitle">Wybierz, jak każdy profil traktuje ten tytuł. Ukryty tytuł nie pojawia się nigdzie w tym profilu; dozwolony pojawia się niezależnie od klasyfikacji.</string>
+    <string name="parental_title_dialog_subtitle">Wybierz, jak każdy profil traktuje ten tytuł. Ukryty tytuł jest pomijany w wierszach, wyszukiwaniu, Kontynuuj oglądanie i autoodtwarzaniu w tym profilu, choć bezpośredni link nadal otwiera jego stronę. Dozwolony pojawia się niezależnie od klasyfikacji.</string>
     <string name="parental_title_state_rating">%1$s: decyduje limit klasyfikacji</string>
     <string name="parental_title_state_hidden">%1$s: ukryty</string>
     <string name="parental_title_state_allowed">%1$s: zawsze dozwolony</string>

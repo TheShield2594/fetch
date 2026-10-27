@@ -1045,7 +1045,7 @@
     <string name="parental_level_unrestricted">कोई सीमा नहीं</string>
     <string name="parental_title_hide">%1$s से छिपाएँ</string>
     <string name="parental_title_limits">इस टाइटल के लिए पैरेंटल सीमाएँ</string>
-    <string name="parental_title_dialog_subtitle">चुनें कि हर प्रोफाइल इस टाइटल को कैसे संभाले। छिपा हुआ टाइटल उस प्रोफाइल में कहीं नहीं दिखता; अनुमति वाला टाइटल रेटिंग चाहे जो हो, दिखता है।</string>
+    <string name="parental_title_dialog_subtitle">चुनें कि हर प्रोफाइल इस टाइटल को कैसे संभाले। छिपा हुआ टाइटल उस प्रोफाइल की पंक्तियों, सर्च, देखना जारी रखें और ऑटोप्ले से बाहर रहता है, हालांकि सीधा लिंक अब भी उसका पेज खोलता है। अनुमति वाला टाइटल रेटिंग चाहे जो हो, दिखता है।</string>
     <string name="parental_title_state_rating">%1$s: रेटिंग सीमा तय करेगी</string>
     <string name="parental_title_state_hidden">%1$s: छिपा हुआ</string>
     <string name="parental_title_state_allowed">%1$s: हमेशा अनुमति</string>

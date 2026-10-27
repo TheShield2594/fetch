@@ -2871,7 +2871,7 @@
     <string name="parental_level_unrestricted">Nessun limite</string>
     <string name="parental_title_hide">Nascondi da %1$s</string>
     <string name="parental_title_limits">Controllo genitori per questo titolo</string>
-    <string name="parental_title_dialog_subtitle">Scegli come ogni profilo tratta questo titolo. Un titolo nascosto non compare da nessuna parte in quel profilo; uno consentito compare qualunque sia la sua classificazione.</string>
+    <string name="parental_title_dialog_subtitle">Scegli come ogni profilo tratta questo titolo. Un titolo nascosto è escluso dalle righe, dalla ricerca, da Continua a guardare e dalla riproduzione automatica di quel profilo, anche se un link diretto ne apre ancora la pagina. Uno consentito compare qualunque sia la sua classificazione.</string>
     <string name="parental_title_state_rating">%1$s: decide il limite di classificazione</string>
     <string name="parental_title_state_hidden">%1$s: nascosto</string>
     <string name="parental_title_state_allowed">%1$s: sempre consentito</string>

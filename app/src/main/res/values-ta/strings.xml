@@ -2113,7 +2113,7 @@
     <string name="parental_level_unrestricted">வரம்பு இல்லை</string>
     <string name="parental_title_hide">%1$s இலிருந்து மறை</string>
     <string name="parental_title_limits">இந்தத் தலைப்புக்கான பெற்றோர் வரம்புகள்</string>
-    <string name="parental_title_dialog_subtitle">ஒவ்வொரு சுயவிவரமும் இந்தத் தலைப்பை எப்படி கையாள வேண்டும் என்பதைத் தேர்ந்தெடுக்கவும். மறைக்கப்பட்ட தலைப்பு அந்தச் சுயவிவரத்தில் எங்கும் தோன்றாது; அனுமதிக்கப்பட்ட தலைப்பு மதிப்பீடு எதுவாக இருந்தாலும் தோன்றும்.</string>
+    <string name="parental_title_dialog_subtitle">ஒவ்வொரு சுயவிவரமும் இந்தத் தலைப்பை எப்படி கையாள வேண்டும் என்பதைத் தேர்ந்தெடுக்கவும். மறைக்கப்பட்ட தலைப்பு அந்தச் சுயவிவரத்தின் வரிசைகள், தேடல், தொடர்ந்து பார்க்க, தானியங்கி இயக்கம் ஆகியவற்றில் இருந்து விலக்கப்படும்; ஆனால் நேரடி இணைப்பு இன்னும் அதன் பக்கத்தைத் திறக்கும். அனுமதிக்கப்பட்ட தலைப்பு மதிப்பீடு எதுவாக இருந்தாலும் தோன்றும்.</string>
     <string name="parental_title_state_rating">%1$s: மதிப்பீட்டு வரம்பு தீர்மானிக்கும்</string>
     <string name="parental_title_state_hidden">%1$s: மறைக்கப்பட்டது</string>
     <string name="parental_title_state_allowed">%1$s: எப்போதும் அனுமதி</string>

@@ -52,10 +52,25 @@ data class ParentalTitle(
     val type: String,
     val name: String
 ) {
-    /** True for [contentId] or [imdbId] naming this title, or one of its episodes ("tt123:1:2"). */
-    fun matches(contentId: String, imdbId: String?): Boolean = ids.any { id ->
-        id == contentId || id == imdbId || contentId.startsWith("$id:")
+    /**
+     * True for [contentId] or [imdbId] naming this title, or one of its episodes ("tt123:1:2").
+     * A movie and a series can share an id ("tmdb:123"), so a known [type] must agree too.
+     */
+    fun matches(contentId: String, imdbId: String?, type: String?): Boolean =
+        sameKind(type) && ids.any { id -> id == contentId || id == imdbId || contentId.startsWith("$id:") }
+
+    internal fun sameKind(other: String?): Boolean {
+        val mine = titleKind(type) ?: return true
+        val theirs = titleKind(other) ?: return true
+        return mine == theirs
     }
+}
+
+/** Movies apart from series ("series", "tv" and "anime" are one kind); null when unknown. */
+private fun titleKind(type: String?): String? = when (type?.trim()?.lowercase()) {
+    "movie" -> "movie"
+    "series", "tv", "anime" -> "series"
+    else -> null
 }
 
 /**
@@ -69,9 +84,11 @@ data class ProfileTitleLists(
 ) {
     val isEmpty: Boolean get() = hidden.isEmpty() && allowed.isEmpty()
 
-    fun isHidden(contentId: String, imdbId: String?): Boolean = hidden.any { it.matches(contentId, imdbId) }
+    fun isHidden(contentId: String, imdbId: String?, type: String?): Boolean =
+        hidden.any { it.matches(contentId, imdbId, type) }
 
-    fun isAllowed(contentId: String, imdbId: String?): Boolean = allowed.any { it.matches(contentId, imdbId) }
+    fun isAllowed(contentId: String, imdbId: String?, type: String?): Boolean =
+        allowed.any { it.matches(contentId, imdbId, type) }
 
     fun withHidden(title: ParentalTitle): ProfileTitleLists = without(title).let { it.copy(hidden = it.hidden + title) }
 
@@ -79,7 +96,9 @@ data class ProfileTitleLists(
 
     /** Takes the title off both lists. */
     fun without(title: ParentalTitle): ProfileTitleLists {
-        fun List<ParentalTitle>.drop() = filterNot { listed -> listed.ids.any { it in title.ids } }
+        fun List<ParentalTitle>.drop() = filterNot { listed ->
+            listed.sameKind(title.type) && listed.ids.any { it in title.ids }
+        }
         return ProfileTitleLists(hidden = hidden.drop(), allowed = allowed.drop())
     }
 

@@ -2418,7 +2418,7 @@
     <string name="parental_level_unrestricted">Pa kufi</string>
     <string name="parental_title_hide">Fshih nga %1$s</string>
     <string name="parental_title_limits">Kufizimet prindërore për këtë titull</string>
-    <string name="parental_title_dialog_subtitle">Zgjidh si e trajton secili profil këtë titull. Një titull i fshehur nuk shfaqet askund në atë profil; një i lejuar shfaqet pavarësisht klasifikimit.</string>
+    <string name="parental_title_dialog_subtitle">Zgjidh si e trajton secili profil këtë titull. Një titull i fshehur lihet jashtë rreshtave, kërkimit, Vazhdo shikimin dhe luajtjes automatike të atij profili, megjithëse një lidhje e drejtpërdrejtë ende e hap faqen e tij. Një i lejuar shfaqet pavarësisht klasifikimit.</string>
     <string name="parental_title_state_rating">%1$s: vendos kufiri i klasifikimit</string>
     <string name="parental_title_state_hidden">%1$s: i fshehur</string>
     <string name="parental_title_state_allowed">%1$s: gjithmonë i lejuar</string>

@@ -127,6 +127,14 @@ class YouTubeRealResponseTest {
     }
 
     @Test
+    fun `saved live tab flags streams that are live now, not upcoming ones`() {
+        assumeSaved()
+        val videos = page("channel_tab_live").shelves.flatMap { it.videos }
+        assertEquals(2, videos.count { it.isLive })
+        assertEquals(6, videos.size)
+    }
+
+    @Test
     fun `saved channel tabs are read from their icons`() {
         assumeSaved()
         val tabs = page("channel").shelves.flatMap { it.links }.associate { it.title to it.tab }

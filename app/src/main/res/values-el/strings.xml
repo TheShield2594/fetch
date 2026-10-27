@@ -2863,7 +2863,7 @@
     <string name="parental_level_unrestricted">Χωρίς όριο</string>
     <string name="parental_title_hide">Απόκρυψη από %1$s</string>
     <string name="parental_title_limits">Γονικά όρια για αυτόν τον τίτλο</string>
-    <string name="parental_title_dialog_subtitle">Επίλεξε πώς αντιμετωπίζει κάθε προφίλ αυτόν τον τίτλο. Ένας κρυμμένος τίτλος δεν εμφανίζεται πουθενά σε αυτό το προφίλ· ένας επιτρεπόμενος εμφανίζεται ανεξάρτητα από τη διαβάθμισή του.</string>
+    <string name="parental_title_dialog_subtitle">Επίλεξε πώς αντιμετωπίζει κάθε προφίλ αυτόν τον τίτλο. Ένας κρυμμένος τίτλος αποκλείεται από τις σειρές, την αναζήτηση, τη Συνέχεια παρακολούθησης και την αυτόματη αναπαραγωγή αυτού του προφίλ, αν και ένας άμεσος σύνδεσμος ανοίγει ακόμη τη σελίδα του. Ένας επιτρεπόμενος εμφανίζεται ανεξάρτητα από τη διαβάθμισή του.</string>
     <string name="parental_title_state_rating">%1$s: αποφασίζει το όριο διαβάθμισης</string>
     <string name="parental_title_state_hidden">%1$s: κρυμμένος</string>
     <string name="parental_title_state_allowed">%1$s: πάντα επιτρεπόμενος</string>

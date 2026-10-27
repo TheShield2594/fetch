@@ -7,6 +7,7 @@ import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.local.ProfileTitleLists
 import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.domain.model.CatalogRow
+import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.MetaPreview
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -110,11 +111,11 @@ class ParentalControls @Inject constructor(
         return true
     }
 
-    fun titleState(profileId: Int, contentId: String, imdbId: String?): ParentalTitleState {
+    fun titleState(profileId: Int, contentId: String, imdbId: String?, type: String?): ParentalTitleState {
         val lists = allTitleLists.value[profileId] ?: return ParentalTitleState.BY_RATING
         return when {
-            lists.isHidden(contentId, imdbId) -> ParentalTitleState.HIDDEN
-            lists.isAllowed(contentId, imdbId) -> ParentalTitleState.ALLOWED
+            lists.isHidden(contentId, imdbId, type) -> ParentalTitleState.HIDDEN
+            lists.isAllowed(contentId, imdbId, type) -> ParentalTitleState.ALLOWED
             else -> ParentalTitleState.BY_RATING
         }
     }
@@ -183,9 +184,10 @@ class ParentalControls @Inject constructor(
      */
     fun isAllowed(query: CertificationQuery): Boolean {
         val lists = activeTitleLists.value
-        if (lists.isHidden(query.contentId, query.imdbId)) return false
+        val type = query.type.takeIf { it != ContentType.UNKNOWN }?.toApiString()
+        if (lists.isHidden(query.contentId, query.imdbId, type)) return false
         val restriction = activeRestrictions.value.contentRestriction
-        if (!restriction.isRestricted || lists.isAllowed(query.contentId, query.imdbId)) return true
+        if (!restriction.isRestricted || lists.isAllowed(query.contentId, query.imdbId, type)) return true
         val resolved = resolver.levelIfKnown(query) ?: return false
         return restriction.allows(resolved.level)
     }
@@ -206,9 +208,10 @@ class ParentalControls @Inject constructor(
     /** Suspending check that waits for the lookup; used before auto-play. */
     suspend fun isAllowedResolved(query: CertificationQuery): Boolean {
         val lists = activeTitleLists.value
-        if (lists.isHidden(query.contentId, query.imdbId)) return false
+        val type = query.type.takeIf { it != ContentType.UNKNOWN }?.toApiString()
+        if (lists.isHidden(query.contentId, query.imdbId, type)) return false
         val restriction = activeRestrictions.value.contentRestriction
-        if (!restriction.isRestricted || lists.isAllowed(query.contentId, query.imdbId)) return true
+        if (!restriction.isRestricted || lists.isAllowed(query.contentId, query.imdbId, type)) return true
         return restriction.allows(resolver.resolve(query))
     }
 }

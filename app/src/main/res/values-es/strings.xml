@@ -2809,7 +2809,7 @@
     <string name="parental_level_unrestricted">Sin límite</string>
     <string name="parental_title_hide">Ocultar de %1$s</string>
     <string name="parental_title_limits">Control parental para este título</string>
-    <string name="parental_title_dialog_subtitle">Elige cómo trata cada perfil este título. Un título oculto no aparece en ninguna parte de ese perfil; uno permitido aparece sin importar su clasificación.</string>
+    <string name="parental_title_dialog_subtitle">Elige cómo trata cada perfil este título. Un título oculto queda fuera de las filas, la búsqueda, Continuar viendo y la reproducción automática de ese perfil, aunque un enlace directo sigue abriendo su página. Uno permitido aparece sin importar su clasificación.</string>
     <string name="parental_title_state_rating">%1$s: decide el límite de clasificación</string>
     <string name="parental_title_state_hidden">%1$s: oculto</string>
     <string name="parental_title_state_allowed">%1$s: siempre permitido</string>

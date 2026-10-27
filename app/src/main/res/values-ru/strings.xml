@@ -2622,7 +2622,7 @@
     <string name="parental_level_unrestricted">Без ограничений</string>
     <string name="parental_title_hide">Скрыть от %1$s</string>
     <string name="parental_title_limits">Родительские ограничения для этого тайтла</string>
-    <string name="parental_title_dialog_subtitle">Выберите, как каждый профиль обращается с этим тайтлом. Скрытый тайтл нигде не отображается в этом профиле, а разрешённый показывается независимо от рейтинга.</string>
+    <string name="parental_title_dialog_subtitle">Выберите, как каждый профиль обращается с этим тайтлом. Скрытый тайтл исключается из рядов, поиска, раздела Продолжить просмотр и автовоспроизведения в этом профиле, но прямая ссылка по-прежнему открывает его страницу. Разрешённый показывается независимо от рейтинга.</string>
     <string name="parental_title_state_rating">%1$s: решает ограничение по рейтингу</string>
     <string name="parental_title_state_hidden">%1$s: скрыт</string>
     <string name="parental_title_state_allowed">%1$s: всегда разрешён</string>

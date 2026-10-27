@@ -2953,7 +2953,7 @@
     <string name="parental_level_unrestricted">Aucune limite</string>
     <string name="parental_title_hide">Masquer pour %1$s</string>
     <string name="parental_title_limits">Limites parentales pour ce titre</string>
-    <string name="parental_title_dialog_subtitle">Choisissez comment chaque profil traite ce titre. Un titre masqué n’apparaît nulle part sur ce profil&#160;; un titre autorisé apparaît quelle que soit sa classification.</string>
+    <string name="parental_title_dialog_subtitle">Choisissez comment chaque profil traite ce titre. Un titre masqué est exclu des rangées, de la recherche, de Continuer à regarder et de la lecture automatique de ce profil, même si un lien direct ouvre toujours sa page. Un titre autorisé apparaît quelle que soit sa classification.</string>
     <string name="parental_title_state_rating">%1$s&#160;: la limite de classification décide</string>
     <string name="parental_title_state_hidden">%1$s&#160;: masqué</string>
     <string name="parental_title_state_allowed">%1$s&#160;: toujours autorisé</string>

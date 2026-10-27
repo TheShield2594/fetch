@@ -1066,7 +1066,7 @@
     <string name="parental_level_unrestricted">Ingen grense</string>
     <string name="parental_title_hide">Skjul for %1$s</string>
     <string name="parental_title_limits">Foreldrebegrensninger for denne tittelen</string>
-    <string name="parental_title_dialog_subtitle">Velg hvordan hver profil behandler denne tittelen. En skjult tittel vises ingen steder på den profilen; en tillatt tittel vises uansett aldersgrense.</string>
+    <string name="parental_title_dialog_subtitle">Velg hvordan hver profil behandler denne tittelen. En skjult tittel utelates fra den profilens rader, søk, Fortsett å se og automatisk avspilling, selv om en direkte lenke fortsatt åpner siden. En tillatt tittel vises uansett aldersgrense.</string>
     <string name="parental_title_state_rating">%1$s: aldersgrensen avgjør</string>
     <string name="parental_title_state_hidden">%1$s: skjult</string>
     <string name="parental_title_state_allowed">%1$s: alltid tillatt</string>

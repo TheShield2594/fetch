@@ -3082,7 +3082,7 @@
     <string name="parental_level_unrestricted">No limit</string>
     <string name="parental_title_hide">Hide from %1$s</string>
     <string name="parental_title_limits">Parental limits for this title</string>
-    <string name="parental_title_dialog_subtitle">Choose how each profile treats this title. A hidden title shows nowhere on that profile; an allowed one shows whatever its rating.</string>
+    <string name="parental_title_dialog_subtitle">Choose how each profile treats this title. A hidden title is left out of that profile\'s rows, search, Continue Watching and autoplay, though a direct link still opens its page. An allowed one shows whatever its rating.</string>
     <string name="parental_title_state_rating">%1$s: rating limit decides</string>
     <string name="parental_title_state_hidden">%1$s: hidden</string>
     <string name="parental_title_state_allowed">%1$s: always allowed</string>

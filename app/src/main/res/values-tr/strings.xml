@@ -2892,7 +2892,7 @@
     <string name="parental_level_unrestricted">Sınır yok</string>
     <string name="parental_title_hide">%1$s için gizle</string>
     <string name="parental_title_limits">Bu başlık için ebeveyn sınırları</string>
-    <string name="parental_title_dialog_subtitle">Her profilin bu başlığa nasıl davranacağını seç. Gizlenen başlık o profilde hiçbir yerde görünmez; izin verilen başlık derecelendirmesi ne olursa olsun görünür.</string>
+    <string name="parental_title_dialog_subtitle">Her profilin bu başlığa nasıl davranacağını seç. Gizlenen başlık o profilin satırlarından, aramadan, İzlemeye Devam Et bölümünden ve otomatik oynatmadan çıkarılır, ancak doğrudan bağlantı yine de sayfasını açar. İzin verilen başlık derecelendirmesi ne olursa olsun görünür.</string>
     <string name="parental_title_state_rating">%1$s: derecelendirme sınırı belirler</string>
     <string name="parental_title_state_hidden">%1$s: gizli</string>
     <string name="parental_title_state_allowed">%1$s: her zaman izinli</string>

@@ -2297,7 +2297,7 @@
     <string name="parental_level_unrestricted">Без ограничение</string>
     <string name="parental_title_hide">Скриване от %1$s</string>
     <string name="parental_title_limits">Родителски ограничения за това заглавие</string>
-    <string name="parental_title_dialog_subtitle">Избери как всеки профил третира това заглавие. Скритото заглавие не се показва никъде в този профил, а разрешеното се показва независимо от рейтинга си.</string>
+    <string name="parental_title_dialog_subtitle">Избери как всеки профил третира това заглавие. Скритото заглавие е изключено от редовете, търсенето, Продължаване на гледането и автоматичното възпроизвеждане в този профил, но директна връзка пак отваря страницата му. Разрешеното се показва независимо от рейтинга си.</string>
     <string name="parental_title_state_rating">%1$s: решава ограничението по рейтинг</string>
     <string name="parental_title_state_hidden">%1$s: скрито</string>
     <string name="parental_title_state_allowed">%1$s: винаги разрешено</string>

@@ -2198,7 +2198,7 @@
     <string name="parental_level_unrestricted">Kein Limit</string>
     <string name="parental_title_hide">Für %1$s ausblenden</string>
     <string name="parental_title_limits">Jugendschutz für diesen Titel</string>
-    <string name="parental_title_dialog_subtitle">Lege fest, wie jedes Profil diesen Titel behandelt. Ein ausgeblendeter Titel erscheint in diesem Profil nirgends; ein erlaubter wird unabhängig von seiner Freigabe angezeigt.</string>
+    <string name="parental_title_dialog_subtitle">Lege fest, wie jedes Profil diesen Titel behandelt. Ein ausgeblendeter Titel wird in den Reihen, der Suche, bei Weiter ansehen und bei der automatischen Wiedergabe dieses Profils ausgelassen, ein direkter Link öffnet aber weiterhin seine Seite. Ein erlaubter Titel wird unabhängig von seiner Freigabe angezeigt.</string>
     <string name="parental_title_state_rating">%1$s: Limit entscheidet</string>
     <string name="parental_title_state_hidden">%1$s: ausgeblendet</string>
     <string name="parental_title_state_allowed">%1$s: immer erlaubt</string>

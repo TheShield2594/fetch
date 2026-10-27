@@ -116,7 +116,8 @@ fun TrackingSettingsContent(
             TrackingProviderId.TRAKT -> traktState.mode == TraktConnectionMode.CONNECTED
             TrackingProviderId.SIMKL -> simklState.mode == SimklConnectionMode.CONNECTED
             TrackingProviderId.MDBLIST -> mdbListState.isConnected
-            null -> false
+            // Signed in by pairing under Settings → Account, never from here.
+            TrackingProviderId.FETCH_WEBSITE, null -> false
         }
         if (activeProvider == dismissOnConnected && connected) {
             activeProvider = null
@@ -142,11 +143,13 @@ fun TrackingSettingsContent(
         restoreFocusTarget = null
     }
 
-    val openProvider: (TrackingProviderId) -> Unit = { provider ->
+    val openProvider: (TrackingProviderId) -> Unit = openProvider@{ provider ->
         restoreFocusTarget = when (provider) {
             TrackingProviderId.TRAKT -> TrackingFocusTarget.TRAKT
             TrackingProviderId.SIMKL -> TrackingFocusTarget.SIMKL
             TrackingProviderId.MDBLIST -> TrackingFocusTarget.MDBLIST
+            // Paired under Settings → Account; it has no account dialog here.
+            TrackingProviderId.FETCH_WEBSITE -> return@openProvider
         }
         activeProvider = provider
         disconnectProvider = null
@@ -180,6 +183,7 @@ fun TrackingSettingsContent(
                     mdbListViewModel.onConnect()
                 }
             }
+            TrackingProviderId.FETCH_WEBSITE -> Unit
         }
     }
 
@@ -284,7 +288,7 @@ fun TrackingSettingsContent(
                 }
             )
         }
-        null -> Unit
+        TrackingProviderId.FETCH_WEBSITE, null -> Unit
     }
 
     disconnectProvider?.let { provider ->
@@ -298,6 +302,8 @@ fun TrackingSettingsContent(
                     TrackingProviderId.TRAKT -> R.string.trakt_disconnect_title
                     TrackingProviderId.SIMKL -> R.string.simkl_disconnect_title
                     TrackingProviderId.MDBLIST -> R.string.mdblist_disconnect_title
+                    // Signed out under Settings → Account; this dialog never opens for it.
+                    TrackingProviderId.FETCH_WEBSITE -> error("The Fetch website is signed out under Settings → Account")
                 }
             ),
             subtitle = stringResource(
@@ -305,6 +311,8 @@ fun TrackingSettingsContent(
                     TrackingProviderId.TRAKT -> R.string.trakt_disconnect_subtitle
                     TrackingProviderId.SIMKL -> R.string.simkl_disconnect_subtitle
                     TrackingProviderId.MDBLIST -> R.string.mdblist_disconnect_subtitle
+                    // Signed out under Settings → Account; this dialog never opens for it.
+                    TrackingProviderId.FETCH_WEBSITE -> error("The Fetch website is signed out under Settings → Account")
                 }
             ),
             width = 520.dp,
@@ -326,6 +334,7 @@ fun TrackingSettingsContent(
                             TrackingProviderId.TRAKT -> traktViewModel.onDisconnectClick()
                             TrackingProviderId.SIMKL -> simklViewModel.onDisconnect()
                             TrackingProviderId.MDBLIST -> mdbListViewModel.onDisconnect()
+                            TrackingProviderId.FETCH_WEBSITE -> Unit
                         }
                     },
                     primary = true
@@ -767,6 +776,7 @@ private fun watchProgressSourceLabel(source: WatchProgressSource): String = when
     WatchProgressSource.SIMKL -> stringResource(R.string.simkl_name)
     WatchProgressSource.MDBLIST -> stringResource(R.string.mdblist_name)
     WatchProgressSource.FETCH_SYNC -> stringResource(R.string.trakt_watch_progress_source_fetch)
+    WatchProgressSource.FETCH_WEBSITE -> stringResource(R.string.website_name)
 }
 
 @Composable
@@ -775,6 +785,7 @@ private fun librarySourceLabel(mode: LibrarySourceMode): String = when (mode) {
     LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
     LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
     LibrarySourceMode.LOCAL -> stringResource(R.string.trakt_library_source_fetch)
+    LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
 }
 
 @Composable

@@ -51,9 +51,9 @@ domain maps onto the website like this:
 | TV sync service | Website today | Gap |
 | --- | --- | --- |
 | `ProfileSyncService` | `/profiles` with colour, avatar and parental limits; `/devices/me/profiles` maps them to the TV's slots; PINs checked by `/profiles/:id/verify` | None — the TV uses it when paired (#96) |
-| `WatchProgressSyncService` | `/playback`, `/scrobble/*` (resume points) | None for the protocol; the TV client is missing |
-| `WatchedItemsSyncService` | `/watch`, `/series/progress` | None for the protocol |
-| `LibrarySyncService` | `/lists` (watchlist, collection, custom) | None for the protocol |
+| `WatchProgressSyncService` | `/playback`, `/scrobble/*` (resume points) | None — while paired the website is a tracking provider (`data/website/FetchWebsiteTracking.kt`): scrobbles and resume points go to it, and Continue Watching reads from it when chosen as the watch progress source |
+| `WatchedItemsSyncService` | `/watch`, `/watch/state`, `/series/progress` | None — watched marks go to the website, and badges and Next Up read `/watch/state` |
+| `LibrarySyncService` | `/lists` (watchlist, collection, custom) | None — the **Fetch website** library source shows and edits the website's lists |
 | `AddonSyncService` | `/profiles/:id/addons`, Settings → TV → TV Addons | None — the TV uses it when paired |
 | `ProfileSettingsSyncService` | `/profiles/:id/settings/tv`, Settings → TV → TV Playback Settings | None — the TV uses it when paired |
 | `HomeCatalogSettingsSyncService` | `/profiles/:id/home-layout`, Settings → TV → Home Rows | None — the TV uses it when paired |
@@ -97,8 +97,10 @@ Each phase ships on its own and leaves both halves working.
 4. **A sync interface on the TV.** Put the per-domain services behind a backend
    interface, with Supabase as one implementation (#4: "Define a small sync
    interface"), and pick the backend in Settings → Account.
-5. **Fetch website backend, watch state first.** Resume points, watched items and
-   lists, using the endpoints that already exist.
+5. **Fetch website backend, watch state first** *(done, #108)*. The website is a
+   tracking provider on a paired TV, next to Trakt, Simkl and MDBList: scrobbles,
+   resume points and watched marks go to it, and Continue Watching, watched
+   badges and the Library read from it when it is the chosen source.
 6. **Addons, settings and home rows.** New API resources for the gaps above, and
    website pages to edit them. This is where the website becomes the place you
    manage the TV.

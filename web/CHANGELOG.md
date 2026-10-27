@@ -23,6 +23,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **Watch state and lists on the Fetch TV app.** A paired TV now scrobbles to the website and sends its watched marks and exact resume points, so what it plays shows up here within a minute. Choosing **Fetch website** as the TV's watch progress or library source makes Continue Watching, watched badges and the Library read from here, and lists can be edited from either side. New for it: `GET /watch/state` (everything a profile has watched, once per title) and `DELETE /watch/movie/:imdbId`. See README.md, "Watch state and lists on the Fetch TV app".
+
 - **Trakt resume points in Continue Watching.** The scheduled Trakt poll (and **Sync now**) now reads each connected profile's Trakt playback progress, so something paused in another Trakt app shows up here, only ever moving a resume point forward and skipping titles watched since. A title finished in Fetch has its Trakt resume point deleted, as the TV does.
 
 - **The TV finds the server by itself.** A new `mdns` service in `docker-compose.yml` announces the server on the LAN as `_fetch._tcp`, with the public API and web URLs in its TXT record, so the TV app's setup wizard lists it instead of asking for an address. It runs on the host network, since multicast doesn't cross Docker's bridge; a non-Docker install sets `FETCH_MDNS=true` on the API instead. See README.md, "Finding the server from the TV".

@@ -49,6 +49,22 @@ abstract class TrackingModule {
     abstract fun bindMdbListHistory(writer: MdbListTrackingHistoryWriter): TrackingHistoryWriter
 
     @Binds
+    @IntoSet
+    abstract fun bindFetchWebsiteLibrary(provider: com.fetch.tv.data.website.FetchWebsiteTrackingLibraryProvider): TrackingLibraryProvider
+
+    @Binds
+    @IntoSet
+    abstract fun bindFetchWebsiteProvider(provider: com.fetch.tv.data.website.FetchWebsiteTrackingProvider): TrackingProvider
+
+    @Binds
+    @IntoSet
+    abstract fun bindFetchWebsiteProgress(provider: com.fetch.tv.data.website.FetchWebsiteTrackingProgressProvider): TrackingProgressProvider
+
+    @Binds
+    @IntoSet
+    abstract fun bindFetchWebsiteHistory(writer: com.fetch.tv.data.website.FetchWebsiteTrackingHistoryWriter): TrackingHistoryWriter
+
+    @Binds
     @Singleton
     abstract fun bindSimklAuthStorage(storage: AndroidSimklAuthStorage): SimklAuthStorage
 

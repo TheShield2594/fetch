@@ -240,6 +240,119 @@ class FetchWebsiteClient internal constructor(
         authed("devices/me/report", method = "PUT", body = body).close()
     }
 
+    // ─── Watch state and lists ───
+    //
+    // The website as a tracking provider for the active profile. Every call names the website
+    // profile by `x-profile-id`, as its watch and list routes expect.
+
+    suspend fun playback(profileId: String, profileToken: String?): List<WebsitePlayback> =
+        authed("playback?limit=200", profileId = profileId, profileToken = profileToken).use { response ->
+            json.decodeFromString(WebsitePlaybackBody.serializer(), response.body?.string().orEmpty()).playback
+        }
+
+    /** Saves where playback is now; a resume point, never a watch. */
+    suspend fun putPlayback(profileId: String, profileToken: String?, body: JsonObject) {
+        authed("playback", method = "PUT", body = body.toString(), profileId = profileId, profileToken = profileToken).close()
+    }
+
+    suspend fun deletePlayback(profileId: String, profileToken: String?, playbackId: String) {
+        authed("playback/$playbackId", method = "DELETE", profileId = profileId, profileToken = profileToken).close()
+    }
+
+    /** `start`, `pause` or `stop`. A stop at 80% or more records the watch on the website. */
+    suspend fun scrobble(profileId: String, profileToken: String?, action: String, body: JsonObject) {
+        authed("scrobble/$action", method = "POST", body = body.toString(), profileId = profileId, profileToken = profileToken).close()
+    }
+
+    suspend fun watchState(profileId: String, profileToken: String?): WebsiteWatchState =
+        authed("watch/state", profileId = profileId, profileToken = profileToken).use { response ->
+            json.decodeFromString(WebsiteWatchState.serializer(), response.body?.string().orEmpty())
+        }
+
+    suspend fun recordWatch(profileId: String, profileToken: String?, body: JsonObject) {
+        authed("watch", method = "POST", body = body.toString(), profileId = profileId, profileToken = profileToken).close()
+    }
+
+    suspend fun unwatchMovie(profileId: String, profileToken: String?, imdbId: String) {
+        authed("watch/movie/${encode(imdbId)}", method = "DELETE", profileId = profileId, profileToken = profileToken).close()
+    }
+
+    suspend fun unwatchEpisode(profileId: String, profileToken: String?, imdbId: String, season: Int, episode: Int) {
+        authed(
+            "series/${encode(imdbId)}/season/$season/episode/$episode/watch",
+            method = "DELETE",
+            profileId = profileId,
+            profileToken = profileToken
+        ).close()
+    }
+
+    suspend fun lists(profileId: String, profileToken: String?): List<WebsiteList> =
+        authed("lists", profileId = profileId, profileToken = profileToken).use { response ->
+            json.decodeFromString(WebsiteListsBody.serializer(), response.body?.string().orEmpty()).lists
+        }
+
+    /** Every item of one list, a page at a time, in the website's own order. */
+    suspend fun listItems(profileId: String, profileToken: String?, listId: String): List<WebsiteListItem> {
+        val items = mutableListOf<WebsiteListItem>()
+        var cursor: String? = null
+        repeat(MAX_LIST_PAGES) {
+            val path = "lists/$listId/items?limit=$LIST_PAGE_SIZE" + (cursor?.let { "&cursor=${encode(it)}" } ?: "")
+            val page = authed(path, profileId = profileId, profileToken = profileToken).use { response ->
+                json.decodeFromString(WebsiteListItemsBody.serializer(), response.body?.string().orEmpty())
+            }
+            items += page.items
+            cursor = page.nextCursor ?: return items
+        }
+        return items
+    }
+
+    suspend fun createList(profileId: String, profileToken: String?, name: String): WebsiteList {
+        val body = buildJsonObject {
+            put("name", name)
+            put("kind", "custom")
+        }.toString()
+        return authed("lists", method = "POST", body = body, profileId = profileId, profileToken = profileToken).use { response ->
+            json.decodeFromString(WebsiteCreatedListBody.serializer(), response.body?.string().orEmpty()).list
+        }
+    }
+
+    suspend fun renameList(profileId: String, profileToken: String?, listId: String, name: String) {
+        val body = buildJsonObject { put("name", name) }.toString()
+        authed("lists/$listId", method = "PATCH", body = body, profileId = profileId, profileToken = profileToken).close()
+    }
+
+    suspend fun deleteList(profileId: String, profileToken: String?, listId: String) {
+        authed("lists/$listId", method = "DELETE", profileId = profileId, profileToken = profileToken).close()
+    }
+
+    /** Adds a title to a list; one that is already there (409) counts as added. */
+    suspend fun addListItem(profileId: String, profileToken: String?, listId: String, type: String, imdbId: String, title: String?) {
+        val body = buildJsonObject {
+            put("type", type)
+            put("imdbId", imdbId)
+            if (!title.isNullOrBlank()) put("title", title)
+        }.toString()
+        try {
+            authed("lists/$listId/items", method = "POST", body = body, profileId = profileId, profileToken = profileToken).close()
+        } catch (error: FetchWebsiteException) {
+            if (error.status != 409) throw error
+        }
+    }
+
+    /** Removes a title from a list; one that is already gone (404) counts as removed. */
+    suspend fun removeListItem(profileId: String, profileToken: String?, listId: String, type: String, imdbId: String) {
+        try {
+            authed(
+                "lists/$listId/items/$type/${encode(imdbId)}",
+                method = "DELETE",
+                profileId = profileId,
+                profileToken = profileToken
+            ).close()
+        } catch (error: FetchWebsiteException) {
+            if (error.status != 404) throw error
+        }
+    }
+
     /** A page of one of the profile's website lists, for a collection row. */
     internal suspend fun listMetas(
         profileId: String,
@@ -307,6 +420,12 @@ class FetchWebsiteClient internal constructor(
 
     companion object {
         private val JSON = "application/json".toMediaType()
+
+        /** The website's largest list page; a list longer than [MAX_LIST_PAGES] of them is cut off. */
+        private const val LIST_PAGE_SIZE = 500
+        private const val MAX_LIST_PAGES = 20
+
+        private fun encode(value: String): String = java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
         /** The website keeps 500 characters of a sync error; this only bounds the request. */
         private const val MAX_REPORTED_ERROR_LENGTH = 2_000

@@ -26,7 +26,9 @@ enum class WatchProgressSource {
     TRAKT,
     SIMKL,
     MDBLIST,
-    FETCH_SYNC;
+    FETCH_SYNC,
+    /** The paired Fetch website's resume points and watch history. */
+    FETCH_WEBSITE;
 
     companion object {
         fun fromStorage(value: String?): WatchProgressSource {

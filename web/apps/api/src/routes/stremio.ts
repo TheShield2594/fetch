@@ -37,17 +37,17 @@ import {
 } from "@fetch/shared";
 import type { AddonConfigResponse, DiscoveryCatalog } from "@fetch/shared";
 
-const STREMIO_ADDON_ID = "com.cataloggy.api";
+const STREMIO_ADDON_ID = "com.fetch.api";
 const STREMIO_ADDON_VERSION = "1.0.0";
 
 // Only set once this route has an actual place to send Stremio's
 // "Configure" button — otherwise behaviorHints.configurable stays false
 // even though catalog selection is possible via the web Settings page.
-const CATALOGGY_WEB_PUBLIC = (process.env.CATALOGGY_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
+const FETCH_WEB_PUBLIC = (process.env.FETCH_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
 
 // Only used to hand Settings a ready-to-paste addon URL; the routes themselves
 // never depend on knowing their own public address.
-const CATALOGGY_API_PUBLIC = process.env.CATALOGGY_API_PUBLIC?.replace(/\/+$/, "");
+const FETCH_API_PUBLIC = process.env.FETCH_API_PUBLIC?.replace(/\/+$/, "");
 
 const CORE_STREMIO_CATALOGS = [
   { id: "my_watchlist_movies", type: "movie" as const, name: "My Watchlist – Movies" },
@@ -257,7 +257,7 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
       aiConfigured,
       stremioManifestPath: manifestPath,
       stremioManifestUrl:
-        manifestPath && CATALOGGY_API_PUBLIC ? `${CATALOGGY_API_PUBLIC}${manifestPath}` : null,
+        manifestPath && FETCH_API_PUBLIC ? `${FETCH_API_PUBLIC}${manifestPath}` : null,
       // The same key, for the addon service's install URL. Only ever returned
       // for the caller's own profile: resolveProfile picked it.
       stremioProfileKey: secret,
@@ -318,8 +318,8 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
   const publicRoute = { config: { rateLimit: PUBLIC_STREMIO_RATE_LIMIT } };
 
   const configureHandler = async (_request: unknown, reply: FastifyReply) => {
-    if (!CATALOGGY_WEB_PUBLIC) return reply.code(404).send({ error: "Not configured" });
-    return reply.redirect(`${CATALOGGY_WEB_PUBLIC}/settings`);
+    if (!FETCH_WEB_PUBLIC) return reply.code(404).send({ error: "Not configured" });
+    return reply.redirect(`${FETCH_WEB_PUBLIC}/settings`);
   };
 
   app.get("/addon/stremio/configure", publicRoute, configureHandler);
@@ -370,12 +370,12 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
       // Stremio needs an absolute URL it can reach itself, so the mark can only
       // be offered once the web UI has a public address. Empty otherwise, which
       // is what this has always been — Stremio falls back to a generic tile.
-      logo: CATALOGGY_WEB_PUBLIC ? `${CATALOGGY_WEB_PUBLIC}/icons/icon-192.png` : "",
+      logo: FETCH_WEB_PUBLIC ? `${FETCH_WEB_PUBLIC}/icons/icon-192.png` : "",
       background: "",
       resources: ["catalog"],
       types: ["movie", "series"],
       catalogs,
-      ...(CATALOGGY_WEB_PUBLIC
+      ...(FETCH_WEB_PUBLIC
         ? { behaviorHints: { configurable: true, configurationRequired: false } }
         : {}),
     };

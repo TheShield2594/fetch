@@ -80,7 +80,7 @@ describe("parseSlowQueryMs", () => {
 
 describe("requireDatabaseUrl", () => {
   it("returns the trimmed connection string", () => {
-    expect(requireDatabaseUrl("  postgresql://u:p@db:5432/cataloggy  ")).toBe("postgresql://u:p@db:5432/cataloggy");
+    expect(requireDatabaseUrl("  postgresql://u:p@db:5432/fetch  ")).toBe("postgresql://u:p@db:5432/fetch");
   });
 
   it("refuses a missing or blank value rather than letting pg guess", () => {

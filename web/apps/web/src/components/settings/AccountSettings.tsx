@@ -93,7 +93,7 @@ export function AccountSettings() {
       // Signed out on this device regardless; the server forgets the session
       // when it next expires.
     } finally {
-      window.dispatchEvent(new Event("cataloggy:unauthorized"));
+      window.dispatchEvent(new Event("fetch:unauthorized"));
     }
   };
 

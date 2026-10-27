@@ -6,7 +6,7 @@ Home Assistant automation, or your own client.
 
 This is a reference for the endpoints as they behave today. It is not a
 stability promise — Fetch is a self-hosted app with one supported client, and
-routes do change between versions. Pin `CATALOGGY_IMAGE_TAG` if you build
+routes do change between versions. Pin `FETCH_IMAGE_TAG` if you build
 something on top of it.
 
 - [Authentication](#authentication)
@@ -413,7 +413,7 @@ its own token that can be revoked on its own.
 1. The TV calls `POST /devices/pair/start` with `{ name? }` and gets
    `{ code, pollSecret, expiresAt, intervalSec, confirmUrl }`. `code` looks like
    `ABCD-EFGH` and lives for five minutes. `confirmUrl` is the website's
-   `/pair?code=…` page for a QR code, built from `CATALOGGY_WEB_PUBLIC`, and
+   `/pair?code=…` page for a QR code, built from `FETCH_WEB_PUBLIC`, and
    `null` when that isn't set.
 2. Someone signed in to the website confirms it: `POST /devices/pair/confirm`
    with `{ code, name? }`. Case, spaces and the dash don't matter. A wrong or
@@ -514,7 +514,7 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 | `POST` | `/auth/logout` | Ends this session. `204`. |
 | `GET` | `/auth/me` | `{ account: { id, username, isAdmin } \| null, isAdmin }`. `account` is null for `API_TOKEN`. |
 | `POST` | `/auth/password` | `{ currentPassword, newPassword }`. Signs out every other session. `204`. |
-| `POST` | `/auth/invites` | Admin. `{ expiresInDays? }` (1–30, default 7) → `{ invite: { id, code, expiresAt }, url }`. The code is shown only here; only its hash is stored. `url` is built from `CATALOGGY_WEB_PUBLIC`, or null when that is unset. |
+| `POST` | `/auth/invites` | Admin. `{ expiresInDays? }` (1–30, default 7) → `{ invite: { id, code, expiresAt }, url }`. The code is shown only here; only its hash is stored. `url` is built from `FETCH_WEB_PUBLIC`, or null when that is unset. |
 | `GET` | `/auth/invites` | Admin. `{ invites: [{ id, createdAt, expiresAt, usedAt, usedBy }] }`. |
 | `DELETE` | `/auth/invites/:id` | Admin. Revokes an invite. |
 | `POST` | `/auth/register` | Public. `{ inviteCode, username, password }` → `{ token, account }`. Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name, which leaves the invite usable. |
@@ -697,7 +697,7 @@ re-resolved immediately before each send. Redirects are refused, not followed.
 A generic `webhook` receives `{ event, title, message, url, data }`; for an
 upcoming episode, `data` carries `seriesImdbId`, `seriesName`, `season`,
 `episode` and `episodeName`. Links (`url`, and the tap target on ntfy, Gotify
-and Discord) are only included when `CATALOGGY_WEB_PUBLIC` tells the API where
+and Discord) are only included when `FETCH_WEB_PUBLIC` tells the API where
 the web UI lives.
 
 ### Export and import

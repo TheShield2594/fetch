@@ -80,8 +80,8 @@ function RailSectionLabel({ children, expanded }: { children: string; expanded: 
   );
 }
 
-export const PIN_KEY = "cataloggy:sidebar-pinned";
-const HINT_KEY = "cataloggy:sidebar-hint-seen";
+export const PIN_KEY = "fetch:sidebar-pinned";
+const HINT_KEY = "fetch:sidebar-hint-seen";
 const HOVER_DELAY_MS = 200;
 const HINT_AUTO_DISMISS_MS = 15000;
 

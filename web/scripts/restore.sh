@@ -20,7 +20,7 @@ COMPOSE_PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$COMPOSE_PROJECT_DIR"
 
 POSTGRES_USER="${POSTGRES_USER:-postgres}"
-POSTGRES_DB="${POSTGRES_DB:-cataloggy}"
+POSTGRES_DB="${POSTGRES_DB:-fetch}"
 
 echo "This will OVERWRITE the current contents of database '$POSTGRES_DB'."
 read -r -p "Type 'yes' to continue: " CONFIRM

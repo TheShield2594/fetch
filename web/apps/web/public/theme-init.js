@@ -23,7 +23,7 @@
 
   var stored = null;
   try {
-    stored = localStorage.getItem("cataloggy:theme");
+    stored = localStorage.getItem("fetch:theme");
   } catch (e) {
     // localStorage unavailable (private browsing, disabled storage, etc.) — fall back to default theme.
   }

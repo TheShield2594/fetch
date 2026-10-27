@@ -65,7 +65,7 @@ const asDevice = { "x-test-device": DEVICE_ID };
 describe("device routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv("CATALOGGY_WEB_PUBLIC", "https://fetch.example/");
+    vi.stubEnv("FETCH_WEB_PUBLIC", "https://fetch.example/");
     prismaMock.devicePairing.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.devicePairing.count.mockResolvedValue(0);
     // The profile in a slot belongs to the device's account.

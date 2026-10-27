@@ -17,7 +17,7 @@ if (!DATABASE_URL_TEST) {
   throw new Error(
     "DATABASE_URL_TEST is not set. The integration suite truncates every table between tests, so it will not " +
       "run against DATABASE_URL. Point it at a throwaway database — it is created and migrated for you:\n\n" +
-      "  DATABASE_URL_TEST=postgresql://postgres:postgres@127.0.0.1:5432/cataloggy_int pnpm test:int\n"
+      "  DATABASE_URL_TEST=postgresql://postgres:postgres@127.0.0.1:5432/fetch_int pnpm test:int\n"
   );
 }
 

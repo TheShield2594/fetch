@@ -7,7 +7,7 @@ import {
 } from "./api-contracts.js";
 
 // These three parsers exist for one scenario, and it is the scenario
-// `CATALOGGY_IMAGE_TAG` deliberately makes possible: a `web` container talking
+// `FETCH_IMAGE_TAG` deliberately makes possible: a `web` container talking
 // to an `api` container from a different build. Each test below is a shape an
 // older or newer API could plausibly send, and the assertion is the same one
 // every time — the request fails, loudly and by name, rather than handing a

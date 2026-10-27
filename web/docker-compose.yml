@@ -1,11 +1,11 @@
 # All four app images move together, so the version they run is one setting:
-# CATALOGGY_IMAGE_TAG in .env. It defaults to `latest`, which follows whatever
+# FETCH_IMAGE_TAG in .env. It defaults to `latest`, which follows whatever
 # was last built from main — fine for trying Fetch out, but it means
 # `docker compose pull` can move you onto an untested build, and there is no
 # version to roll back to. Once the stack works, pin it: every image is also
 # published as `sha-<short-sha>` and, for tagged releases, `vX.Y.Z`.
 #
-#     CATALOGGY_IMAGE_TAG=v0.1.0
+#     FETCH_IMAGE_TAG=v0.1.0
 #
 # Rolling back is the same edit with the previous tag, followed by
 # `docker compose pull && docker compose up -d`. Keep the four images on the
@@ -24,11 +24,11 @@ services:
     # the pair together (see .github/dependabot.yml).
     image: postgres:16@sha256:33f923b05f64ca54ac4401c01126a6b92afe839a0aa0a52bc5aeb5cc958e5f20
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-cataloggy}
+      POSTGRES_DB: ${POSTGRES_DB:-fetch}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}
     # Bind Postgres to loopback only. The api/addon services reach it over the
-    # internal "cataloggy" Docker network (host db:5432), so no host mapping is
+    # internal "fetch" Docker network (host db:5432), so no host mapping is
     # needed for the app to work. Publishing on 0.0.0.0 would expose the
     # database — including stored OAuth tokens — to the whole LAN (and the
     # internet if the host is port-forwarded), bypassing API_TOKEN entirely.
@@ -45,22 +45,22 @@ services:
     security_opt:
       - no-new-privileges:true
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d cataloggy"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fetch"]
       interval: 5s
       timeout: 5s
       retries: 10
     logging: *default-logging
     networks:
-      - cataloggy
+      - fetch
 
   # Applies pending database migrations, then exits. The api service waits for
   # it to finish. It ships as a separate image because it needs the Prisma CLI,
   # which is around 250 MB of tooling the api service never loads — keeping the
   # CLI out of that image is what lets it stay small.
   migrate:
-    image: ghcr.io/theshield2594/fetch-migrate:${CATALOGGY_IMAGE_TAG:-latest}
+    image: ghcr.io/theshield2594/fetch-migrate:${FETCH_IMAGE_TAG:-latest}
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}@db:5432/${POSTGRES_DB:-cataloggy}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}@db:5432/${POSTGRES_DB:-fetch}
     depends_on:
       db:
         condition: service_healthy
@@ -73,12 +73,12 @@ services:
       - ALL
     logging: *default-logging
     networks:
-      - cataloggy
+      - fetch
 
   api:
-    image: ghcr.io/theshield2594/fetch-api:${CATALOGGY_IMAGE_TAG:-latest}
+    image: ghcr.io/theshield2594/fetch-api:${FETCH_IMAGE_TAG:-latest}
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}@db:5432/${POSTGRES_DB:-cataloggy}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml — see README.md}@db:5432/${POSTGRES_DB:-fetch}
       PORT: "7000"
       # Connections the API keeps to Postgres (1–100, default 10). Postgres
       # itself allows 100 by default, shared with the migrate container and any
@@ -93,14 +93,14 @@ services:
       # parameters). 1–60000, default 1000; 0 turns the logging off.
       DATABASE_SLOW_QUERY_MS: ${DATABASE_SLOW_QUERY_MS}
       API_TOKEN: ${API_TOKEN:?Set API_TOKEN in a .env file next to docker-compose.yml — see README.md}
-      CATALOGGY_ALLOWED_ORIGINS: ${CATALOGGY_ALLOWED_ORIGINS:-http://192.168.1.25:7002,http://localhost:7002,http://127.0.0.1:7002}
-      CATALOGGY_API_PUBLIC: ${CATALOGGY_API_PUBLIC:-http://192.168.1.25:7000}
+      FETCH_ALLOWED_ORIGINS: ${FETCH_ALLOWED_ORIGINS:-http://192.168.1.25:7002,http://localhost:7002,http://127.0.0.1:7002}
+      FETCH_API_PUBLIC: ${FETCH_API_PUBLIC:-http://192.168.1.25:7000}
       # Public URL of the web service — used to build the "Configure" link
       # Stremio shows for this addon's manifest (redirects to /settings), the
       # link notification channels point at, and invite links. Without it,
       # notifications are still sent, just with nothing to tap, and Settings
       # builds invite links from whatever address it was opened at.
-      CATALOGGY_WEB_PUBLIC: ${CATALOGGY_WEB_PUBLIC:-http://192.168.1.25:7002}
+      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-http://192.168.1.25:7002}
       # Which reverse proxies may set X-Forwarded-For. Unset trusts none of
       # them, so behind a proxy every client arrives as the proxy's own address
       # and the whole household shares one rate-limit budget. Set it to the
@@ -124,7 +124,7 @@ services:
       # identify this server. The default is materialized here rather than left
       # empty, because an empty VAPID subject is rejected by the push library
       # where an absent one falls back to this same value.
-      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:admin@cataloggy.local}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:admin@fetch.local}
       # Shared secret for the Plex/Jellyfin webhook endpoints. Unset leaves
       # them rejecting every request; the API warns about it at startup. See
       # README.md "Webhook secret placement" before choosing how to send it.
@@ -196,18 +196,18 @@ services:
       start_period: 10s
     logging: *default-logging
     networks:
-      - cataloggy
+      - fetch
 
   addon:
-    image: ghcr.io/theshield2594/fetch-addon:${CATALOGGY_IMAGE_TAG:-latest}
+    image: ghcr.io/theshield2594/fetch-addon:${FETCH_IMAGE_TAG:-latest}
     environment:
       PORT: "7001"
-      CATALOGGY_API_BASE: http://api:7000
-      CATALOGGY_API_TOKEN: ${API_TOKEN:?Set API_TOKEN in a .env file next to docker-compose.yml — see README.md}
+      FETCH_API_BASE: http://api:7000
+      FETCH_API_TOKEN: ${API_TOKEN:?Set API_TOKEN in a .env file next to docker-compose.yml — see README.md}
       ADDON_PUBLIC_BASE: ${ADDON_PUBLIC_BASE:-http://192.168.1.25:7001}
       # Public URL of the web service — used to build the "Configure" link
       # Stremio shows for this addon's manifest (redirects to /settings).
-      CATALOGGY_WEB_PUBLIC: ${CATALOGGY_WEB_PUBLIC:-http://192.168.1.25:7002}
+      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-http://192.168.1.25:7002}
       # Must match the api service's value — the addon observes the signals and
       # the api decides what to do with them, so enabling it on only one side
       # does nothing.
@@ -246,10 +246,10 @@ services:
       start_period: 10s
     logging: *default-logging
     networks:
-      - cataloggy
+      - fetch
 
   web:
-    image: ghcr.io/theshield2594/fetch-web:${CATALOGGY_IMAGE_TAG:-latest}
+    image: ghcr.io/theshield2594/fetch-web:${FETCH_IMAGE_TAG:-latest}
     environment:
       VITE_API_BASE: ${VITE_API_BASE:-http://192.168.1.25:7000}
       # Public URL of the dedicated addon service — the full-featured
@@ -282,11 +282,11 @@ services:
       start_period: 10s
     logging: *default-logging
     networks:
-      - cataloggy
+      - fetch
 
 volumes:
   pgdata:
 
 networks:
-  cataloggy:
+  fetch:
     driver: bridge

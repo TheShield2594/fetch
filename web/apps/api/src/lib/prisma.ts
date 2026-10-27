@@ -26,7 +26,7 @@ const adapter = new PrismaPg({
   // Names these connections in `pg_stat_activity`, so an operator looking at a
   // busy database can tell the API's connections from the migrate container's
   // and from their own psql session.
-  application_name: "cataloggy-api",
+  application_name: "fetch-api",
 });
 
 export const prisma = new PrismaClient({

@@ -42,7 +42,7 @@ dependency of the API image. The schema and migrations still live with
 `@fetch/api`. See
 [packages/migrate/README.md](packages/migrate/README.md) — it is one of the
 four images `.github/workflows/web-dockerpublish.yml` (at the repository root) builds, and all four have to
-stay on the same `CATALOGGY_IMAGE_TAG`.
+stay on the same `FETCH_IMAGE_TAG`.
 
 ## Before opening a PR
 
@@ -68,7 +68,7 @@ Tests live next to the code they cover as `*.test.ts`/`*.test.tsx`. `apps/api` a
 `pnpm test` mocks Prisma everywhere, which leaves out the part of the schema that only exists in migration SQL: the partial unique indexes (the default watchlist and collection singletons, the watch-event dedup key), the `onDelete: Cascade` rules, the check constraints, and the column types. `apps/api/src/**/*.int.test.ts` covers those against a real Postgres:
 
 ```bash
-DATABASE_URL_TEST=postgresql://postgres:postgres@127.0.0.1:5432/cataloggy_int pnpm test:int
+DATABASE_URL_TEST=postgresql://postgres:postgres@127.0.0.1:5432/fetch_int pnpm test:int
 ```
 
 The database is created and migrated for you; it just has to be a database you don't mind losing, because **every table is truncated between tests**. That is why the suite takes its own variable and refuses to run against `DATABASE_URL` — the one the README has you point at your own library. It is a separate command from `pnpm test` for the same reason, and CI runs it as its own step.

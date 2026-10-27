@@ -35,7 +35,7 @@ const load = async (env: Record<string, string | undefined> = {}) => {
   clientOptions.length = 0;
   adapterConfigs.length = 0;
 
-  process.env.DATABASE_URL = "postgresql://postgres:postgres@db:5432/cataloggy";
+  process.env.DATABASE_URL = "postgresql://postgres:postgres@db:5432/fetch";
   for (const [name, value] of Object.entries(env)) {
     if (value === undefined) delete process.env[name];
     else process.env[name] = value;
@@ -62,10 +62,10 @@ describe("the pool the adapter is built with", () => {
     await load();
 
     expect(adapterConfigs[0]).toMatchObject({
-      connectionString: "postgresql://postgres:postgres@db:5432/cataloggy",
+      connectionString: "postgresql://postgres:postgres@db:5432/fetch",
       max: 10,
       statement_timeout: 30_000,
-      application_name: "cataloggy-api",
+      application_name: "fetch-api",
     });
     // Without this a caller waits out the exhaustion it is queued behind.
     expect(first(adapterConfigs, "adapter config").connectionTimeoutMillis).toBeGreaterThan(0);

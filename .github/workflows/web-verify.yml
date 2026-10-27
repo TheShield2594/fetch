@@ -22,13 +22,13 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: cataloggy
+          POSTGRES_DB: fetch
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d cataloggy"
+          --health-cmd "pg_isready -U postgres -d fetch"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -38,7 +38,7 @@ jobs:
         working-directory: web
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cataloggy
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fetch
 
     steps:
       - name: Checkout repository
@@ -109,7 +109,7 @@ jobs:
       # DATABASE_URL for that reason. It creates and migrates it itself.
       - name: Integration tests
         env:
-          DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5432/cataloggy_int
+          DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5432/fetch_int
         run: pnpm test:int
 
       - name: Build

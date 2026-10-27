@@ -66,7 +66,7 @@ vi.mock("workbox-expiration", () => ({ ExpirationPlugin: StrategyStub }));
 vi.mock("workbox-background-sync", () => ({ Queue: QueueStub }));
 
 const CONFIG_JS = (apiBase: string) =>
-  `window.__CATALOGGY_API_BASE__ = ${JSON.stringify(apiBase)};\nwindow.__CATALOGGY_ADDON_BASE__ = "";\n`;
+  `window.__FETCH_API_BASE__ = ${JSON.stringify(apiBase)};\nwindow.__FETCH_ADDON_BASE__ = "";\n`;
 
 /**
  * Cache Storage: where the worker keeps the API base across restarts, and where
@@ -171,13 +171,13 @@ describe("API response caching", () => {
     // README's documented HTTPS deployment: Nginx Proxy Manager forwards /api/
     // to the API container. The root-anchored matcher this replaces matched
     // none of these, leaving the whole cache — and every offline read — dead.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const matches = apiRoute();
 
-    expect(matches(apiRequest("https://cataloggy.example/api/watchlist"))).toBeTruthy();
-    expect(matches(apiRequest("https://cataloggy.example/api/watch/history"))).toBeTruthy();
-    expect(matches(apiRequest("https://cataloggy.example/api/lists/abc/items"))).toBeTruthy();
-    expect(matches(apiRequest("https://cataloggy.example/api/watch/stats/detailed"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/watchlist"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/watch/history"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/lists/abc/items"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/watch/stats/detailed"))).toBeTruthy();
   });
 
   it("caches the same endpoints when the API is mounted at the root of its own host", async () => {
@@ -190,12 +190,12 @@ describe("API response caching", () => {
   });
 
   it("caches nothing from another host, whatever the path looks like", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const matches = apiRoute();
 
     expect(matches(apiRequest("https://somewhere.else/api/watchlist"))).toBeFalsy();
     // A path that merely starts with the same characters is not under the base.
-    expect(matches(apiRequest("https://cataloggy.example/apifoo/watchlist"))).toBeFalsy();
+    expect(matches(apiRequest("https://fetch.example/apifoo/watchlist"))).toBeFalsy();
   });
 
   it("caches every read-only route the API declares cacheable, not a subset of them", async () => {
@@ -204,13 +204,13 @@ describe("API response caching", () => {
     // library, tags and the anime catalog were all read-only routes the API
     // tiers for caching that nonetheless did nothing offline. Both sides now
     // read one table (@fetch/shared/api-cache-routes).
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const matches = apiRoute();
 
-    expect(matches(apiRequest("https://cataloggy.example/api/collection"))).toBeTruthy();
-    expect(matches(apiRequest("https://cataloggy.example/api/games"))).toBeTruthy();
-    expect(matches(apiRequest("https://cataloggy.example/api/tags"))).toBeTruthy();
-    expect(matches(apiRequest("https://cataloggy.example/api/anime"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/collection"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/games"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/tags"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/anime"))).toBeTruthy();
   });
 
   it("caches the per-profile routes the API keeps out of the browser's own cache", async () => {
@@ -221,29 +221,29 @@ describe("API response caching", () => {
     // INVALIDATE_API_CACHE drops it whole on any mutation and on a profile
     // switch — so caching them here is safe, and is what makes them readable
     // offline.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const matches = apiRoute();
 
-    expect(matches(apiRequest("https://cataloggy.example/api/meta/movie/tt1/bundle"))).toBeTruthy();
-    expect(matches(apiRequest("https://cataloggy.example/api/recommendations/personal"))).toBeTruthy();
-    expect(matches(apiRequest("https://cataloggy.example/api/recommendations/ai"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/meta/movie/tt1/bundle"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/recommendations/personal"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/recommendations/ai"))).toBeTruthy();
   });
 
   it("does not cache a maintenance route that merely reads like a cacheable one", async () => {
     // `/metadata/*` rebuilds the metadata cache; `/meta/*` reads it.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const matches = apiRoute();
 
-    expect(matches(apiRequest("https://cataloggy.example/api/metadata/sync"))).toBeFalsy();
-    expect(matches(apiRequest("https://cataloggy.example/api/metadata/anime-search?q=bebop"))).toBeFalsy();
+    expect(matches(apiRequest("https://fetch.example/api/metadata/sync"))).toBeFalsy();
+    expect(matches(apiRequest("https://fetch.example/api/metadata/anime-search?q=bebop"))).toBeFalsy();
   });
 
   it("leaves write endpoints and anything unlisted to the network", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const matches = apiRoute();
 
-    expect(matches(apiRequest("https://cataloggy.example/api/search?q=dune"))).toBeFalsy();
-    expect(matches(apiRequest("https://cataloggy.example/api/settings/job-status"))).toBeFalsy();
+    expect(matches(apiRequest("https://fetch.example/api/search?q=dune"))).toBeFalsy();
+    expect(matches(apiRequest("https://fetch.example/api/settings/job-status"))).toBeFalsy();
   });
 
   it("falls back to matching the path tail before the API base is known", async () => {
@@ -251,16 +251,16 @@ describe("API response caching", () => {
     await loadWorker(null);
     const matches = apiRoute();
 
-    expect(matches(apiRequest("https://cataloggy.example/api/watchlist"))).toBeTruthy();
+    expect(matches(apiRequest("https://fetch.example/api/watchlist"))).toBeTruthy();
     expect(matches(apiRequest("http://192.168.1.25:7000/watchlist"))).toBeTruthy();
   });
 
   it("never caches a write, only the reads it is safe to serve stale", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
 
     expect(
       apiRoute()({
-        url: new URL("https://cataloggy.example/api/lists/abc/items"),
+        url: new URL("https://fetch.example/api/lists/abc/items"),
         request: { method: "POST", mode: "cors" as RequestMode, destination: "" as RequestDestination },
       })
     ).toBeFalsy();
@@ -268,24 +268,24 @@ describe("API response caching", () => {
 
   it("never caches a page navigation, even to a path the API also serves", async () => {
     // "/lists" is both an API endpoint and a React Router route.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
 
     expect(
       apiRoute()({
-        url: new URL("https://cataloggy.example/lists"),
+        url: new URL("https://fetch.example/lists"),
         request: { method: "GET", mode: "navigate" as RequestMode, destination: "document" as RequestDestination },
       })
     ).toBeFalsy();
   });
 
   it("takes the API base from the page, which is the only place a per-device override exists", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     expect(apiRoute()(apiRequest("https://override.example/watchlist"))).toBeFalsy();
 
     await sendToWorker({ type: "SET_API_BASE", apiBase: "https://override.example" });
 
     expect(apiRoute()(apiRequest("https://override.example/watchlist"))).toBeTruthy();
-    expect(apiRoute()(apiRequest("https://cataloggy.example/api/watchlist"))).toBeFalsy();
+    expect(apiRoute()(apiRequest("https://fetch.example/api/watchlist"))).toBeFalsy();
   });
 
   it("keeps matching the path tail when the page reports an empty API base", async () => {
@@ -295,16 +295,16 @@ describe("API response caching", () => {
 
     await sendToWorker({ type: "SET_API_BASE", apiBase: "" });
 
-    expect(apiRoute()(apiRequest("https://cataloggy.example/api/watchlist"))).toBeTruthy();
+    expect(apiRoute()(apiRequest("https://fetch.example/api/watchlist"))).toBeTruthy();
     expect(apiRoute()(apiRequest("http://192.168.1.25:7000/watchlist"))).toBeTruthy();
   });
 
   it("does not let an empty API base clobber one it already knew", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
 
     await sendToWorker({ type: "SET_API_BASE", apiBase: "" });
 
-    expect(apiRoute()(apiRequest("https://cataloggy.example/api/watchlist"))).toBeTruthy();
+    expect(apiRoute()(apiRequest("https://fetch.example/api/watchlist"))).toBeTruthy();
     // Falling back to the tail match here would start caching another host's
     // responses under this origin's cache.
     expect(apiRoute()(apiRequest("https://somewhere.else/watchlist"))).toBeFalsy();
@@ -325,26 +325,26 @@ describe("offline navigation", () => {
   it("answers any in-app route from the precached shell", async () => {
     // Without this, only "/" worked offline (precacheAndRoute's directoryIndex);
     // /lists, /search and a refresh on /history all hit the network and failed.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const route = navigationRoute();
 
     expect(route?.handler).toEqual({ precachedShell: "/index.html" });
-    expect(route?.match(navigation("https://cataloggy.example/lists"))).toBeTruthy();
-    expect(route?.match(navigation("https://cataloggy.example/calendar"))).toBeTruthy();
+    expect(route?.match(navigation("https://fetch.example/lists"))).toBeTruthy();
+    expect(route?.match(navigation("https://fetch.example/calendar"))).toBeTruthy();
   });
 
   it("leaves navigations to the API itself alone", async () => {
     // A same-origin API is only a path away, and someone opening /api/health in
     // a tab wants the API's answer, not the app shell.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
 
-    expect(navigationRoute()?.match(navigation("https://cataloggy.example/api/health"))).toBeFalsy();
+    expect(navigationRoute()?.match(navigation("https://fetch.example/api/health"))).toBeFalsy();
   });
 
   it("does not intercept the app's own fetches", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
 
-    expect(navigationRoute()?.match(apiRequest("https://cataloggy.example/api/watchlist"))).toBeFalsy();
+    expect(navigationRoute()?.match(apiRequest("https://fetch.example/api/watchlist"))).toBeFalsy();
   });
 });
 
@@ -374,14 +374,14 @@ describe("poster cache keys", () => {
     // The point of the whole plugin: a title in a 342-wide grid slot whose
     // 500-wide card is already stored costs no second entry and no second
     // download. `maxEntries` counts URLs, so an entry saved is a title kept.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     alreadyCached(500);
 
     await expect(readKey(poster(342))).resolves.toBe(poster(500));
   });
 
   it("prefers the narrowest cached variant that will do", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     alreadyCached(500);
     alreadyCached(780);
 
@@ -392,7 +392,7 @@ describe("poster cache keys", () => {
   it("never answers from a narrower poster", async () => {
     // The failure mode a naive collapse-to-one-key has: cache the 28px history
     // thumbnail first and the shelf hero becomes a 92px image blown up to 304.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     alreadyCached(92);
 
     await expect(readKey(poster(780))).resolves.toBe(poster(780));
@@ -400,7 +400,7 @@ describe("poster cache keys", () => {
 
   it("does not reach past the width where a stand-in costs more than it saves", async () => {
     // 780 in a 92 slot is 90 KB and a full-size decode to draw a thumbnail.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     alreadyCached(780);
 
     await expect(readKey(poster(92))).resolves.toBe(poster(92));
@@ -409,7 +409,7 @@ describe("poster cache keys", () => {
   it("stores what it fetched under the width it fetched", async () => {
     // Writing a w92 response under a w342 key is the downgrade the read side
     // refuses to make; it must not arrive by the back door either.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     alreadyCached(500);
 
     await expect(
@@ -420,7 +420,7 @@ describe("poster cache keys", () => {
   it("leaves artwork that isn't width-addressed alone", async () => {
     // The other three CDNs serve one URL per image — there is no size segment
     // to reason about.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const steam = "https://media.steampowered.com/steam/apps/1/header.jpg";
 
     await expect(readKey(steam)).resolves.toBe(steam);
@@ -449,20 +449,20 @@ describe("writes made with no network", () => {
     vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("Failed to fetch"); }));
 
   it("takes the watch writes, and only those", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     const { match } = writeRoute();
 
-    expect(match(post("https://cataloggy.example/api/watch"))).toBeTruthy();
-    expect(match(post("https://cataloggy.example/api/series/tt1/season/2/episode/3/watch"))).toBeTruthy();
-    expect(match(post("https://cataloggy.example/api/series/tt1/season/2/watch-all"))).toBeTruthy();
+    expect(match(post("https://fetch.example/api/watch"))).toBeTruthy();
+    expect(match(post("https://fetch.example/api/series/tt1/season/2/episode/3/watch"))).toBeTruthy();
+    expect(match(post("https://fetch.example/api/series/tt1/season/2/watch-all"))).toBeTruthy();
 
     // A queue is a promise to finish something later, which only suits a write
     // whose meaning doesn't decay. These are requests about the present.
-    expect(match(post("https://cataloggy.example/api/lists"))).toBeFalsy();
-    expect(match(post("https://cataloggy.example/api/settings/preferences"))).toBeFalsy();
-    expect(match(post("https://cataloggy.example/api/checkin"))).toBeFalsy();
+    expect(match(post("https://fetch.example/api/lists"))).toBeFalsy();
+    expect(match(post("https://fetch.example/api/settings/preferences"))).toBeFalsy();
+    expect(match(post("https://fetch.example/api/checkin"))).toBeFalsy();
     // /watch/:id is a DELETE-and-PATCH route; nothing POSTs to it.
-    expect(match(post("https://cataloggy.example/api/watch/evt_1"))).toBeFalsy();
+    expect(match(post("https://fetch.example/api/watch/evt_1"))).toBeFalsy();
   });
 
   it("holds a write for nothing until it knows where the API is", async () => {
@@ -470,15 +470,15 @@ describe("writes made with no network", () => {
     // means replaying someone's POST into an endpoint we were never sure of.
     await loadWorker(null);
 
-    expect(writeRoute().match(post("https://cataloggy.example/api/watch"))).toBeFalsy();
+    expect(writeRoute().match(post("https://fetch.example/api/watch"))).toBeFalsy();
   });
 
   it("passes a write straight through while the network is there", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 201 })));
 
     const response = await writeRoute().handler({
-      request: new Request("https://cataloggy.example/api/watch", { method: "POST", body: "{}" }),
+      request: new Request("https://fetch.example/api/watch", { method: "POST", body: "{}" }),
     });
 
     expect(response.status).toBe(201);
@@ -486,26 +486,26 @@ describe("writes made with no network", () => {
   });
 
   it("queues a write the network refused, and says so in a way the page can read", async () => {
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     offline();
 
     const response = await writeRoute().handler({
-      request: new Request("https://cataloggy.example/api/watch", { method: "POST", body: "{}" }),
+      request: new Request("https://fetch.example/api/watch", { method: "POST", body: "{}" }),
     });
 
     // 202 and not a rethrown failure: "held, and it will be sent" is a different
     // answer from "gone", and only this worker knows which just happened.
     expect(response.status).toBe(202);
-    expect(response.headers.get("X-Cataloggy-Queued")).toBe("1");
+    expect(response.headers.get("X-Fetch-Queued")).toBe("1");
     expect(writeQueue().entries).toHaveLength(1);
   });
 
   it("sends what it was holding when the page says the connection is back", async () => {
     // Chromium would fire its own sync event. Nothing else does — on iOS this
     // message is the only thing that ever drains the queue.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     writeQueue().entries.push({
-      request: new Request("https://cataloggy.example/api/watch", { method: "POST", body: "{}" }),
+      request: new Request("https://fetch.example/api/watch", { method: "POST", body: "{}" }),
     });
     const fetched = vi.fn(async () => new Response("{}", { status: 201 }));
     vi.stubGlobal("fetch", fetched);
@@ -520,9 +520,9 @@ describe("writes made with no network", () => {
   });
 
   it("puts a write back when the network is still down, and keeps the order", async () => {
-    await loadWorker("https://cataloggy.example/api");
-    const first = new Request("https://cataloggy.example/api/watch", { method: "POST", body: '{"n":1}' });
-    const second = new Request("https://cataloggy.example/api/watch", { method: "POST", body: '{"n":2}' });
+    await loadWorker("https://fetch.example/api");
+    const first = new Request("https://fetch.example/api/watch", { method: "POST", body: '{"n":1}' });
+    const second = new Request("https://fetch.example/api/watch", { method: "POST", body: '{"n":2}' });
     writeQueue().entries.push({ request: first }, { request: second });
     offline();
 
@@ -537,9 +537,9 @@ describe("writes made with no network", () => {
   it("keeps a write the API was too broken to take", async () => {
     // A 5xx is neither an outage nor a refusal: the API is there and having a
     // bad time, and nothing about this write is wrong.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     writeQueue().entries.push({
-      request: new Request("https://cataloggy.example/api/watch", { method: "POST", body: "{}" }),
+      request: new Request("https://fetch.example/api/watch", { method: "POST", body: "{}" }),
     });
     vi.stubGlobal("fetch", vi.fn(async () => new Response("boom", { status: 503 })));
 
@@ -553,8 +553,8 @@ describe("writes made with no network", () => {
     // A reconnect sends the whole queue at once and the API is globally rate
     // limited, so a 429 on a later entry is this drain's most likely non-ok
     // answer. Dropping it would delete a watch the user was told was saved.
-    await loadWorker("https://cataloggy.example/api");
-    const request = new Request("https://cataloggy.example/api/watch", { method: "POST", body: "{}" });
+    await loadWorker("https://fetch.example/api");
+    const request = new Request("https://fetch.example/api/watch", { method: "POST", body: "{}" });
     writeQueue().entries.push({ request });
     vi.stubGlobal("fetch", vi.fn(async () => new Response("slow down", { status: 429 })));
 
@@ -566,10 +566,10 @@ describe("writes made with no network", () => {
 
   it("keeps a write the peer asked us to send again later", async () => {
     // 408 and 425 are the two that no status-class test catches.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     for (const status of [408, 425]) {
       writeQueue().entries.push({
-        request: new Request("https://cataloggy.example/api/watch", { method: "POST", body: "{}" }),
+        request: new Request("https://fetch.example/api/watch", { method: "POST", body: "{}" }),
       });
       vi.stubGlobal("fetch", vi.fn(async () => new Response("later", { status })));
 
@@ -584,10 +584,10 @@ describe("writes made with no network", () => {
     // The sync event, this message and workbox's startup replay are three
     // callers. Two interleaving their shift/unshift pairs is how a queue that
     // exists to preserve order stops preserving it.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     for (const n of [1, 2, 3]) {
       writeQueue().entries.push({
-        request: new Request("https://cataloggy.example/api/watch", { method: "POST", body: `{"n":${n}}` }),
+        request: new Request("https://fetch.example/api/watch", { method: "POST", body: `{"n":${n}}` }),
       });
     }
     let inFlight = 0;
@@ -618,9 +618,9 @@ describe("writes made with no network", () => {
     // The request reached the API and the API said no. Re-sending it on every
     // future sync would never produce a different answer — but the user was
     // told it was saved, so the count goes back to the page to be shown.
-    await loadWorker("https://cataloggy.example/api");
+    await loadWorker("https://fetch.example/api");
     writeQueue().entries.push({
-      request: new Request("https://cataloggy.example/api/watch", { method: "POST", body: "{}" }),
+      request: new Request("https://fetch.example/api/watch", { method: "POST", body: "{}" }),
     });
     vi.stubGlobal("fetch", vi.fn(async () => new Response('{"error":"nope"}', { status: 400 })));
 

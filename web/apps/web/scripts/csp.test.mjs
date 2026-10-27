@@ -23,11 +23,11 @@ const withoutImageCdns = (connectSrc) =>
 describe("connect-src", () => {
   it("allows the app's own origin plus the configured API and addon origins", () => {
     const connectSrc = buildConnectSrc({
-      apiBase: "https://cataloggy.example.com/api/",
-      addonBase: "https://cataloggy.example.com/addon",
+      apiBase: "https://fetch.example.com/api/",
+      addonBase: "https://fetch.example.com/addon",
     });
 
-    expect(withoutImageCdns(connectSrc)).toBe("'self' https://cataloggy.example.com");
+    expect(withoutImageCdns(connectSrc)).toBe("'self' https://fetch.example.com");
   });
 
   it("keeps distinct hosts and ports apart", () => {
@@ -46,7 +46,7 @@ describe("connect-src", () => {
   // the worker — and a fetch is checked against connect-src, not img-src. When
   // the two lists drifted, every poster in the app broke at once.
   it("allows every artwork CDN the service worker fetches", () => {
-    const connectSrc = buildConnectSrc({ apiBase: "https://cataloggy.example.com" });
+    const connectSrc = buildConnectSrc({ apiBase: "https://fetch.example.com" });
 
     for (const host of IMAGE_CDN_HOSTS) {
       expect(connectSrc.split(" ")).toContain(`https://${host}`);
@@ -83,10 +83,10 @@ describe("connect-src", () => {
     const connectSrc = buildConnectSrc({
       apiBase: "http://192.168.1.25:7000",
       addonBase: "http://192.168.1.25:7001",
-      extra: "https://cataloggy.example.com, https://api.example.com/v1 ",
+      extra: "https://fetch.example.com, https://api.example.com/v1 ",
     });
 
-    expect(connectSrc).toContain("https://cataloggy.example.com");
+    expect(connectSrc).toContain("https://fetch.example.com");
     expect(connectSrc).toContain("https://api.example.com");
   });
 
@@ -130,7 +130,7 @@ describe("img-src", () => {
   // poster, once the service worker answers it, is a fetch checked against
   // connect-src. A host in only one of the two breaks one of those paths.
   it("allows every host connect-src does, so either load path works", () => {
-    const connectSrc = buildConnectSrc({ apiBase: "https://cataloggy.example.com" }).split(" ");
+    const connectSrc = buildConnectSrc({ apiBase: "https://fetch.example.com" }).split(" ");
     const imgSrc = buildImgSrc().split(" ");
 
     for (const host of IMAGE_CDN_HOSTS) {

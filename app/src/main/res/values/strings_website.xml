@@ -9,7 +9,7 @@
     <string name="website_manage_body">Profiles, parental limits and collections sync with this website. Signing out keeps everything on this TV as it is now.</string>
     <string name="website_sync_now">Sync now</string>
     <string name="website_sign_out">Sign out</string>
-    <string name="website_enter_address">Enter your Fetch website\'s API address, the same one its README calls CATALOGGY_API_PUBLIC.</string>
+    <string name="website_enter_address">Enter your Fetch website\'s API address, the same one its README calls FETCH_API_PUBLIC.</string>
     <string name="website_address_placeholder">http://192.168.1.25:7000</string>
     <string name="website_address_invalid">That doesn\'t look like a web address.</string>
     <string name="website_pairing_failed">Couldn\'t reach the website: %1$s</string>

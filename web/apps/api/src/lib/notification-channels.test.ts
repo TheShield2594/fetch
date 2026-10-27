@@ -21,17 +21,17 @@ const channel = (over: Partial<ChannelTarget>): ChannelTarget => ({
   id: "channel-1",
   kind: "ntfy",
   name: "Phone",
-  url: "https://ntfy.sh/cataloggy",
+  url: "https://ntfy.sh/fetch",
   token: null,
   ...over,
 });
 
-// The module reads CATALOGGY_WEB_PUBLIC once at import, so each test imports it
+// The module reads FETCH_WEB_PUBLIC once at import, so each test imports it
 // fresh with the environment it wants.
 const loadModule = async (webPublic?: string) => {
   vi.resetModules();
-  if (webPublic === undefined) delete process.env.CATALOGGY_WEB_PUBLIC;
-  else process.env.CATALOGGY_WEB_PUBLIC = webPublic;
+  if (webPublic === undefined) delete process.env.FETCH_WEB_PUBLIC;
+  else process.env.FETCH_WEB_PUBLIC = webPublic;
   return import("./notification-channels.js");
 };
 
@@ -40,19 +40,19 @@ const headersOf = (init: RequestInit) => init.headers as Record<string, string>;
 
 describe("buildChannelRequest", () => {
   afterEach(() => {
-    delete process.env.CATALOGGY_WEB_PUBLIC;
+    delete process.env.FETCH_WEB_PUBLIC;
   });
 
   it("posts the message as the body for ntfy, with the title in a header", async () => {
-    const { buildChannelRequest } = await loadModule("https://cataloggy.example");
+    const { buildChannelRequest } = await loadModule("https://fetch.example");
 
     const { url, init } = buildChannelRequest(channel({ kind: "ntfy" }), { ...EVENT, title: "Severance today" });
 
-    expect(url).toBe("https://ntfy.sh/cataloggy");
+    expect(url).toBe("https://ntfy.sh/fetch");
     expect(init.method).toBe("POST");
     expect(init.body).toBe(EVENT.body);
     expect(headersOf(init).Title).toBe("Severance today");
-    expect(headersOf(init).Click).toBe("https://cataloggy.example/calendar");
+    expect(headersOf(init).Click).toBe("https://fetch.example/calendar");
     expect(headersOf(init).Authorization).toBeUndefined();
   });
 
@@ -77,7 +77,7 @@ describe("buildChannelRequest", () => {
   });
 
   it("appends /message to a Gotify base URL and carries the token in a header", async () => {
-    const { buildChannelRequest } = await loadModule("https://cataloggy.example");
+    const { buildChannelRequest } = await loadModule("https://fetch.example");
 
     const { url, init } = buildChannelRequest(
       channel({ kind: "gotify", url: "http://192.168.1.25:8080/", token: "app-token" }),
@@ -89,7 +89,7 @@ describe("buildChannelRequest", () => {
     expect(bodyOf(init)).toMatchObject({
       title: EVENT.title,
       message: EVENT.body,
-      extras: { "client::notification": { click: { url: "https://cataloggy.example/calendar" } } },
+      extras: { "client::notification": { click: { url: "https://fetch.example/calendar" } } },
     });
   });
 
@@ -116,7 +116,7 @@ describe("buildChannelRequest", () => {
   });
 
   it("sends a Discord embed", async () => {
-    const { buildChannelRequest } = await loadModule("https://cataloggy.example");
+    const { buildChannelRequest } = await loadModule("https://fetch.example");
 
     const { url, init } = buildChannelRequest(
       channel({ kind: "discord", url: "https://discord.com/api/webhooks/1/abc" }),
@@ -127,7 +127,7 @@ describe("buildChannelRequest", () => {
     expect(bodyOf(init).embeds[0]).toMatchObject({
       title: EVENT.title,
       description: EVENT.body,
-      url: "https://cataloggy.example/calendar",
+      url: "https://fetch.example/calendar",
     });
   });
 
@@ -142,7 +142,7 @@ describe("buildChannelRequest", () => {
   });
 
   it("gives a generic webhook the structured event, not just the text", async () => {
-    const { buildChannelRequest } = await loadModule("https://cataloggy.example");
+    const { buildChannelRequest } = await loadModule("https://fetch.example");
 
     const { init } = buildChannelRequest(
       channel({ kind: "webhook", url: "https://home.example/api/webhook/x", token: "secret" }),
@@ -154,7 +154,7 @@ describe("buildChannelRequest", () => {
       event: "upcoming-episode",
       title: EVENT.title,
       message: EVENT.body,
-      url: "https://cataloggy.example/calendar",
+      url: "https://fetch.example/calendar",
       data: EVENT.data,
     });
   });
@@ -165,14 +165,14 @@ describe("sendToChannel", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    resolveNotificationUrl.mockResolvedValue(new URL("https://ntfy.sh/cataloggy"));
+    resolveNotificationUrl.mockResolvedValue(new URL("https://ntfy.sh/fetch"));
     vi.stubGlobal("fetch", fetchMock);
     fetchMock.mockResolvedValue({ ok: true, status: 200 });
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete process.env.CATALOGGY_WEB_PUBLIC;
+    delete process.env.FETCH_WEB_PUBLIC;
   });
 
   it("refuses to follow redirects, so an allowed host can't bounce the request inward", async () => {
@@ -181,7 +181,7 @@ describe("sendToChannel", () => {
     await sendToChannel(channel({}), EVENT, LAN);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://ntfy.sh/cataloggy",
+      "https://ntfy.sh/fetch",
       expect.objectContaining({ redirect: "error", method: "POST" })
     );
   });

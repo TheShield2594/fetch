@@ -18,4 +18,4 @@
  */
 export const traktRedirectUri = (): string =>
   process.env.TRAKT_REDIRECT_URI ??
-  `${process.env.CATALOGGY_API_PUBLIC ?? "http://localhost:7000"}/trakt/oauth/callback`;
+  `${process.env.FETCH_API_PUBLIC ?? "http://localhost:7000"}/trakt/oauth/callback`;

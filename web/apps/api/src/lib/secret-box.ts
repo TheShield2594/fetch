@@ -32,8 +32,8 @@ import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:cr
  */
 const SCHEME = "cgy1";
 
-const HKDF_SALT = "cataloggy-secret-box-v1";
-const HKDF_INFO = "cataloggy-secret-box";
+const HKDF_SALT = "fetch-secret-box-v1";
+const HKDF_INFO = "fetch-secret-box";
 const KEY_BYTES = 32;
 const IV_BYTES = 12;
 const TAG_BYTES = 16;

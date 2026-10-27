@@ -8,10 +8,10 @@ import { parseProxyPathPrefixes, parseTrustProxy, parseBool } from "@fetch/share
  * used is a value a deployment can appear to change without a restart.
  */
 
-export const CATALOGGY_API_BASE = process.env.CATALOGGY_API_BASE ?? "http://api:7000";
-export const CATALOGGY_API_TOKEN = process.env.CATALOGGY_API_TOKEN;
+export const FETCH_API_BASE = process.env.FETCH_API_BASE ?? "http://api:7000";
+export const FETCH_API_TOKEN = process.env.FETCH_API_TOKEN;
 export const ADDON_PUBLIC_BASE = process.env.ADDON_PUBLIC_BASE;
-export const WEB_PUBLIC_BASE = (process.env.CATALOGGY_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
+export const WEB_PUBLIC_BASE = (process.env.FETCH_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
 export const PROXY_PATH_PREFIXES = parseProxyPathPrefixes(process.env.PROXY_PATH_PREFIXES, ["/addon"] as const);
 
 // Omitted rather than passed as `undefined` when `TRUST_PROXY` is unset:

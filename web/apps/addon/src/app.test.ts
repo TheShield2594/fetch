@@ -12,10 +12,10 @@ const ADDON_BASE = "http://addon.test";
 const DEFAULT_PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_PROFILE_ID = "22222222-2222-4222-8222-222222222222";
 
-const MUTATION_TOKEN = createHmac("sha256", API_TOKEN).update("cataloggy-addon-mutation").digest("hex");
+const MUTATION_TOKEN = createHmac("sha256", API_TOKEN).update("fetch-addon-mutation").digest("hex");
 /** A profile's Stremio key, as Settings hands it out: the same HMAC the API's own addon uses. */
 const profileKey = (profileId: string) =>
-  createHmac("sha256", API_TOKEN).update(`cataloggy-stremio-addon:${profileId}`).digest("hex");
+  createHmac("sha256", API_TOKEN).update(`fetch-stremio-addon:${profileId}`).digest("hex");
 const signedPrefix = (profileId: string) => `/u/${profileId}/${profileKey(profileId)}`;
 
 type MarkWatchedTarget =
@@ -49,8 +49,8 @@ const capabilityMatches = (url: string, target: MarkWatchedTarget, profileSegmen
   return Number.isInteger(expiry) && expiry > Date.now() && token === capability(target, profileSegmentId, expiry);
 };
 
-process.env.CATALOGGY_API_TOKEN = API_TOKEN;
-process.env.CATALOGGY_API_BASE = API_BASE;
+process.env.FETCH_API_TOKEN = API_TOKEN;
+process.env.FETCH_API_BASE = API_BASE;
 process.env.ADDON_PUBLIC_BASE = ADDON_BASE;
 process.env.LOG_LEVEL = "silent";
 
@@ -176,35 +176,35 @@ describe("manifest catalogs follow the profile's configuration", () => {
   const idsOf = async () => (await manifestCatalogs()).map((c) => c.id);
 
   it("advertises the AI Picks catalogs Settings offers, once an AI provider exists", async () => {
-    addonConfig = { enabledCatalogs: ["cataloggy-ai-movie", "cataloggy-ai-series"], aiConfigured: true };
+    addonConfig = { enabledCatalogs: ["fetch-ai-movie", "fetch-ai-series"], aiConfigured: true };
 
     const catalogs = await manifestCatalogs();
 
     expect(catalogs.map((c) => c.id)).toEqual(
-      expect.arrayContaining(["cataloggy-ai-movie", "cataloggy-ai-series"])
+      expect.arrayContaining(["fetch-ai-movie", "fetch-ai-series"])
     );
     // The row title comes from the shared registry, so Stremio and Settings
     // can't name the same catalog differently.
-    expect(catalogs.find((c) => c.id === "cataloggy-ai-movie")?.name).toBe("AI Picks — Movies");
+    expect(catalogs.find((c) => c.id === "fetch-ai-movie")?.name).toBe("AI Picks — Movies");
   });
 
   it("drops the AI catalogs when no AI provider is configured", async () => {
-    addonConfig = { enabledCatalogs: ["cataloggy-ai-movie", "cataloggy-trending-movie"], aiConfigured: false };
+    addonConfig = { enabledCatalogs: ["fetch-ai-movie", "fetch-trending-movie"], aiConfigured: false };
 
     const ids = await idsOf();
 
-    expect(ids).not.toContain("cataloggy-ai-movie");
-    expect(ids).toContain("cataloggy-trending-movie");
+    expect(ids).not.toContain("fetch-ai-movie");
+    expect(ids).toContain("fetch-trending-movie");
   });
 
   it("advertises every catalog family the picker offers, not just trending and popular", async () => {
     addonConfig = {
-      enabledCatalogs: ["cataloggy-anime-series", "cataloggy-netflix-movie", "cataloggy-recommended-movie"],
+      enabledCatalogs: ["fetch-anime-series", "fetch-netflix-movie", "fetch-recommended-movie"],
       aiConfigured: false,
     };
 
     expect(await idsOf()).toEqual(
-      expect.arrayContaining(["cataloggy-anime-series", "cataloggy-netflix-movie", "cataloggy-recommended-movie"])
+      expect.arrayContaining(["fetch-anime-series", "fetch-netflix-movie", "fetch-recommended-movie"])
     );
   });
 
@@ -217,9 +217,9 @@ describe("manifest catalogs follow the profile's configuration", () => {
 
     const ids = await idsOf();
 
-    expect(ids).not.toContain(`cataloggy-${CUSTOM_LIST_ID}-movie`);
+    expect(ids).not.toContain(`fetch-${CUSTOM_LIST_ID}-movie`);
     // The watchlist has no checkbox in Settings, so it is never gated on one.
-    expect(ids).toContain(`cataloggy-${WATCHLIST_ID}-movie`);
+    expect(ids).toContain(`fetch-${WATCHLIST_ID}-movie`);
   });
 
   it("adds the custom list back once it is ticked", async () => {
@@ -230,7 +230,7 @@ describe("manifest catalogs follow the profile's configuration", () => {
     addonConfig = { enabledCatalogs: [`list:${CUSTOM_LIST_ID}`], aiConfigured: false };
 
     expect(await idsOf()).toEqual(
-      expect.arrayContaining([`cataloggy-${CUSTOM_LIST_ID}-movie`, `cataloggy-${CUSTOM_LIST_ID}-series`])
+      expect.arrayContaining([`fetch-${CUSTOM_LIST_ID}-movie`, `fetch-${CUSTOM_LIST_ID}-series`])
     );
   });
 
@@ -241,18 +241,18 @@ describe("manifest catalogs follow the profile's configuration", () => {
 
     const ids = await idsOf();
 
-    expect(ids).toContain("cataloggy-trending-movie");
-    expect(ids).not.toContain("cataloggy-ai-movie");
+    expect(ids).toContain("fetch-trending-movie");
+    expect(ids).not.toContain("fetch-ai-movie");
   });
 });
 
 describe("catalog routes serve only what the manifest advertised", () => {
   it("fetches AI catalog rows from the API's AI recommendations endpoint", async () => {
-    addonConfig = { enabledCatalogs: ["cataloggy-ai-movie"], aiConfigured: true };
+    addonConfig = { enabledCatalogs: ["fetch-ai-movie"], aiConfigured: true };
     const fresh = await buildApp();
 
     try {
-      const response = await fresh.inject({ method: "GET", url: "/catalog/movie/cataloggy-ai-movie.json" });
+      const response = await fresh.inject({ method: "GET", url: "/catalog/movie/fetch-ai-movie.json" });
 
       expect(response.json().metas).toHaveLength(1);
       expect(callsTo("/recommendations/ai")).toHaveLength(1);
@@ -262,11 +262,11 @@ describe("catalog routes serve only what the manifest advertised", () => {
   });
 
   it("returns nothing for a discovery catalog the profile disabled", async () => {
-    addonConfig = { enabledCatalogs: ["cataloggy-popular-movie"], aiConfigured: false };
+    addonConfig = { enabledCatalogs: ["fetch-popular-movie"], aiConfigured: false };
     const fresh = await buildApp();
 
     try {
-      const response = await fresh.inject({ method: "GET", url: "/catalog/movie/cataloggy-trending-movie.json" });
+      const response = await fresh.inject({ method: "GET", url: "/catalog/movie/fetch-trending-movie.json" });
 
       expect(response.json()).toEqual({ metas: [] });
       expect(callsTo("/trending")).toHaveLength(0);
@@ -283,7 +283,7 @@ describe("catalog routes serve only what the manifest advertised", () => {
     try {
       const response = await fresh.inject({
         method: "GET",
-        url: `/catalog/movie/cataloggy-${CUSTOM_LIST_ID}-movie.json`,
+        url: `/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
       });
 
       expect(response.json()).toEqual({ metas: [] });
@@ -301,7 +301,7 @@ describe("catalog routes serve only what the manifest advertised", () => {
     try {
       const response = await fresh.inject({
         method: "GET",
-        url: `/catalog/movie/cataloggy-${CUSTOM_LIST_ID}-movie.json`,
+        url: `/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
       });
 
       expect(response.json().metas).toEqual([
@@ -320,7 +320,7 @@ describe("catalog routes serve only what the manifest advertised", () => {
     const fresh = await buildApp();
 
     try {
-      await fresh.inject({ method: "GET", url: `/catalog/series/cataloggy-${CUSTOM_LIST_ID}-series.json` });
+      await fresh.inject({ method: "GET", url: `/catalog/series/fetch-${CUSTOM_LIST_ID}-series.json` });
 
       const call = first(callsTo(`/lists/${CUSTOM_LIST_ID}/items`), "request to the list's items");
       expect(new URL(call.url).searchParams.get("type")).toBe("series");
@@ -335,7 +335,7 @@ describe("catalog routes serve only what the manifest advertised", () => {
     const fresh = await buildApp();
 
     try {
-      const url = `/catalog/movie/cataloggy-${CUSTOM_LIST_ID}-movie.json`;
+      const url = `/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`;
       const first = await fresh.inject({ method: "GET", url });
       const second = await fresh.inject({ method: "GET", url });
 
@@ -369,7 +369,7 @@ describe("catalog routes serve only what the manifest advertised", () => {
         return response;
       });
 
-      const url = `/catalog/movie/cataloggy-${CUSTOM_LIST_ID}-movie.json`;
+      const url = `/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`;
       await fresh.inject({ method: "GET", url });
       await fresh.inject({ method: "GET", url });
 
@@ -391,11 +391,11 @@ describe("catalog routes serve only what the manifest advertised", () => {
     try {
       const movies = await fresh.inject({
         method: "GET",
-        url: `/catalog/movie/cataloggy-${CUSTOM_LIST_ID}-movie.json`,
+        url: `/catalog/movie/fetch-${CUSTOM_LIST_ID}-movie.json`,
       });
       const series = await fresh.inject({
         method: "GET",
-        url: `/catalog/series/cataloggy-${CUSTOM_LIST_ID}-series.json`,
+        url: `/catalog/series/fetch-${CUSTOM_LIST_ID}-series.json`,
       });
 
       expect(movies.json().metas).toEqual([expect.objectContaining({ id: "tt0111161", type: "movie" })]);
@@ -475,13 +475,13 @@ describe("profile scoping", () => {
     // Stremio fetches the logo itself, so it stays absent rather than relative.
     expect(JSON.parse(before.body).logo).toBeUndefined();
 
-    process.env.CATALOGGY_WEB_PUBLIC = "https://cataloggy.example/";
+    process.env.FETCH_WEB_PUBLIC = "https://fetch.example/";
     try {
       const configured = await buildApp();
       const response = await configured.inject({ method: "GET", url: "/manifest.json" });
-      expect(JSON.parse(response.body).logo).toBe("https://cataloggy.example/icons/icon-192.png");
+      expect(JSON.parse(response.body).logo).toBe("https://fetch.example/icons/icon-192.png");
     } finally {
-      delete process.env.CATALOGGY_WEB_PUBLIC;
+      delete process.env.FETCH_WEB_PUBLIC;
     }
   });
 
@@ -861,7 +861,7 @@ describe("signed addon URLs", () => {
     it("turns away the URLs that carry no key", async () => {
       expect((await app.inject({ method: "GET", url: "/manifest.json" })).statusCode).toBe(404);
       expect((await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/manifest.json` })).statusCode).toBe(404);
-      const catalog = await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/catalog/movie/cataloggy-${WATCHLIST_ID}-movie.json` });
+      const catalog = await app.inject({ method: "GET", url: `/p/${OTHER_PROFILE_ID}/catalog/movie/fetch-${WATCHLIST_ID}-movie.json` });
       expect(catalog.json()).toEqual({ metas: [] });
     });
 

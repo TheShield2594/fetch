@@ -302,7 +302,7 @@ describe("Sidebar", () => {
   });
 
   it("does not show the tip again once it has been seen", () => {
-    localStorage.setItem("cataloggy:sidebar-hint-seen", "1");
+    localStorage.setItem("fetch:sidebar-hint-seen", "1");
     renderSidebar();
 
     expect(screen.queryByText("Quick tip")).not.toBeInTheDocument();
@@ -323,7 +323,7 @@ describe("Sidebar", () => {
 
     expect(screen.queryByText("Quick tip")).not.toBeInTheDocument();
     // Unseen, so it is still there for the first desktop visit.
-    expect(localStorage.getItem("cataloggy:sidebar-hint-seen")).toBeNull();
+    expect(localStorage.getItem("fetch:sidebar-hint-seen")).toBeNull();
   });
 
   it("does not offer a tip about pinning to someone whose rail is already pinned", () => {

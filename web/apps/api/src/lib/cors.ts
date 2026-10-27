@@ -2,11 +2,11 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { appendVary } from "./vary.js";
 
 const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
-const CATALOGGY_ALLOWED_ORIGINS = (process.env.CATALOGGY_ALLOWED_ORIGINS ?? "")
+const FETCH_ALLOWED_ORIGINS = (process.env.FETCH_ALLOWED_ORIGINS ?? "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
-export const ALLOWED_ORIGINS = IS_DEVELOPMENT ? ["*"] : Array.from(new Set(CATALOGGY_ALLOWED_ORIGINS));
+export const ALLOWED_ORIGINS = IS_DEVELOPMENT ? ["*"] : Array.from(new Set(FETCH_ALLOWED_ORIGINS));
 
 // PUT and If-Match are for the versioned per-profile documents (TV settings,
 // Home layout), which a cross-origin web app saves with both.

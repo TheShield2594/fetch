@@ -132,7 +132,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     tab: "preferences",
     title: "About",
     icon: <Info size={20} />,
-    keywords: "version build release cataloggy",
+    keywords: "version build release fetch",
     content: <AboutSection />,
   },
   // Where history comes from. These lead the tab because they are what the

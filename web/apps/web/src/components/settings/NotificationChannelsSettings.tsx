@@ -48,7 +48,7 @@ const KINDS: [KindSpec, ...KindSpec[]] = [
     id: "webhook",
     label: "Webhook",
     urlLabel: "URL",
-    urlPlaceholder: "https://home.example/api/webhook/cataloggy",
+    urlPlaceholder: "https://home.example/api/webhook/fetch",
     tokenLabel: "Bearer token (optional)",
     tokenRequired: false,
     help: "Receives a JSON POST with the event, title, message and episode details — for Home Assistant, Slack, n8n, or anything else.",

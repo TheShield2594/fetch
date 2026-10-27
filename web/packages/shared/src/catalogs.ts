@@ -35,26 +35,26 @@ export type DiscoveryCatalog = {
 };
 
 export const DISCOVERY_CATALOGS: readonly DiscoveryCatalog[] = [
-  { id: "cataloggy-trending-movie",     type: "movie",  label: "Trending Movies",     source: { kind: "trending" } },
-  { id: "cataloggy-trending-series",    type: "series", label: "Trending Series",     source: { kind: "trending" } },
-  { id: "cataloggy-popular-movie",      type: "movie",  label: "Popular Movies",      source: { kind: "popular" } },
-  { id: "cataloggy-popular-series",     type: "series", label: "Popular Series",      source: { kind: "popular" } },
-  { id: "cataloggy-recommended-movie",  type: "movie",  label: "Recommended Movies",  source: { kind: "recommended" } },
-  { id: "cataloggy-recommended-series", type: "series", label: "Recommended Series",  source: { kind: "recommended" } },
-  { id: "cataloggy-ai-movie",           type: "movie",  label: "AI Picks — Movies",   source: { kind: "ai" } },
-  { id: "cataloggy-ai-series",          type: "series", label: "AI Picks — Series",   source: { kind: "ai" } },
-  { id: "cataloggy-anime-series",       type: "series", label: "Anime",               source: { kind: "anime" } },
-  { id: "cataloggy-anime-movie",        type: "movie",  label: "Anime Movies",        source: { kind: "anime" } },
-  { id: "cataloggy-netflix-movie",      type: "movie",  label: "Netflix Movies",      source: { kind: "streaming", provider: "netflix" } },
-  { id: "cataloggy-netflix-series",     type: "series", label: "Netflix Series",      source: { kind: "streaming", provider: "netflix" } },
-  { id: "cataloggy-disney-movie",       type: "movie",  label: "Disney+ Movies",      source: { kind: "streaming", provider: "disney" } },
-  { id: "cataloggy-disney-series",      type: "series", label: "Disney+ Series",      source: { kind: "streaming", provider: "disney" } },
-  { id: "cataloggy-amazon-movie",       type: "movie",  label: "Prime Video Movies",  source: { kind: "streaming", provider: "amazon" } },
-  { id: "cataloggy-amazon-series",      type: "series", label: "Prime Video Series",  source: { kind: "streaming", provider: "amazon" } },
-  { id: "cataloggy-apple-movie",        type: "movie",  label: "Apple TV+ Movies",    source: { kind: "streaming", provider: "apple" } },
-  { id: "cataloggy-apple-series",       type: "series", label: "Apple TV+ Series",    source: { kind: "streaming", provider: "apple" } },
-  { id: "cataloggy-max-movie",          type: "movie",  label: "Max Movies",          source: { kind: "streaming", provider: "max" } },
-  { id: "cataloggy-max-series",         type: "series", label: "Max Series",          source: { kind: "streaming", provider: "max" } },
+  { id: "fetch-trending-movie",     type: "movie",  label: "Trending Movies",     source: { kind: "trending" } },
+  { id: "fetch-trending-series",    type: "series", label: "Trending Series",     source: { kind: "trending" } },
+  { id: "fetch-popular-movie",      type: "movie",  label: "Popular Movies",      source: { kind: "popular" } },
+  { id: "fetch-popular-series",     type: "series", label: "Popular Series",      source: { kind: "popular" } },
+  { id: "fetch-recommended-movie",  type: "movie",  label: "Recommended Movies",  source: { kind: "recommended" } },
+  { id: "fetch-recommended-series", type: "series", label: "Recommended Series",  source: { kind: "recommended" } },
+  { id: "fetch-ai-movie",           type: "movie",  label: "AI Picks — Movies",   source: { kind: "ai" } },
+  { id: "fetch-ai-series",          type: "series", label: "AI Picks — Series",   source: { kind: "ai" } },
+  { id: "fetch-anime-series",       type: "series", label: "Anime",               source: { kind: "anime" } },
+  { id: "fetch-anime-movie",        type: "movie",  label: "Anime Movies",        source: { kind: "anime" } },
+  { id: "fetch-netflix-movie",      type: "movie",  label: "Netflix Movies",      source: { kind: "streaming", provider: "netflix" } },
+  { id: "fetch-netflix-series",     type: "series", label: "Netflix Series",      source: { kind: "streaming", provider: "netflix" } },
+  { id: "fetch-disney-movie",       type: "movie",  label: "Disney+ Movies",      source: { kind: "streaming", provider: "disney" } },
+  { id: "fetch-disney-series",      type: "series", label: "Disney+ Series",      source: { kind: "streaming", provider: "disney" } },
+  { id: "fetch-amazon-movie",       type: "movie",  label: "Prime Video Movies",  source: { kind: "streaming", provider: "amazon" } },
+  { id: "fetch-amazon-series",      type: "series", label: "Prime Video Series",  source: { kind: "streaming", provider: "amazon" } },
+  { id: "fetch-apple-movie",        type: "movie",  label: "Apple TV+ Movies",    source: { kind: "streaming", provider: "apple" } },
+  { id: "fetch-apple-series",       type: "series", label: "Apple TV+ Series",    source: { kind: "streaming", provider: "apple" } },
+  { id: "fetch-max-movie",          type: "movie",  label: "Max Movies",          source: { kind: "streaming", provider: "max" } },
+  { id: "fetch-max-series",         type: "series", label: "Max Series",          source: { kind: "streaming", provider: "max" } },
 ];
 
 export const DISCOVERY_CATALOG_IDS: readonly string[] = DISCOVERY_CATALOGS.map((c) => c.id);
@@ -67,9 +67,9 @@ export const isDiscoveryCatalogId = (id: string): boolean => CATALOGS_BY_ID.has(
 
 /** What a profile that has never opened the Settings picker gets. */
 export const DEFAULT_DISCOVERY_CATALOG_IDS: readonly string[] = [
-  "cataloggy-trending-movie", "cataloggy-trending-series",
-  "cataloggy-popular-movie", "cataloggy-popular-series",
-  "cataloggy-recommended-movie", "cataloggy-recommended-series",
+  "fetch-trending-movie", "fetch-trending-series",
+  "fetch-popular-movie", "fetch-popular-series",
+  "fetch-recommended-movie", "fetch-recommended-series",
 ];
 
 /**
@@ -133,14 +133,20 @@ export const parseListCatalogId = (catalogId: string): string | null =>
 //
 // The first version of the picker stored the API's core catalog ids. They still
 // turn up in configs written before the rename, so they are translated on read
-// rather than silently dropped.
+// rather than silently dropped. Likewise the discovery ids were prefixed
+// `cataloggy-` before the website became Fetch.
 
 export const LEGACY_CATALOG_MAP: Readonly<Record<string, string>> = {
-  my_watchlist_movies: "cataloggy-trending-movie",
-  my_watchlist_series: "cataloggy-trending-series",
-  my_recent_movies: "cataloggy-popular-movie",
-  my_continue_series: "cataloggy-popular-series",
+  my_watchlist_movies: "fetch-trending-movie",
+  my_watchlist_series: "fetch-trending-series",
+  my_recent_movies: "fetch-popular-movie",
+  my_continue_series: "fetch-popular-series",
 };
 
+const LEGACY_DISCOVERY_PREFIX = "cataloggy-";
+
 export const migrateLegacyCatalogs = (catalogs: readonly string[]): string[] =>
-  catalogs.map((c) => LEGACY_CATALOG_MAP[c] ?? c);
+  catalogs.map((c) =>
+    LEGACY_CATALOG_MAP[c] ??
+    (c.startsWith(LEGACY_DISCOVERY_PREFIX) ? `fetch-${c.slice(LEGACY_DISCOVERY_PREFIX.length)}` : c)
+  );

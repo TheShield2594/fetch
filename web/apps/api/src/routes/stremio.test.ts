@@ -106,7 +106,7 @@ describe("stremio routes — addon config is per profile", () => {
 
       const response = await app.inject({ method: "GET", url: "/addon/config" });
 
-      expect(response.json().config.enabledCatalogs).toContain("cataloggy-trending-movie");
+      expect(response.json().config.enabledCatalogs).toContain("fetch-trending-movie");
     });
 
     // The picker, this API's manifest and the addon service's manifest all used
@@ -120,12 +120,12 @@ describe("stremio routes — addon config is per profile", () => {
         .availableCatalogs as { id: string; label: string; requiresAi: boolean }[];
 
       expect(catalogs).toContainEqual({
-        id: "cataloggy-trending-movie",
+        id: "fetch-trending-movie",
         label: "Trending Movies",
         requiresAi: false,
       });
       expect(catalogs).toContainEqual({
-        id: "cataloggy-ai-movie",
+        id: "fetch-ai-movie",
         label: "AI Picks — Movies",
         requiresAi: true,
       });
@@ -152,7 +152,7 @@ describe("stremio routes — addon config is per profile", () => {
       const response = await app.inject({
         method: "POST",
         url: "/addon/config",
-        payload: { enabledCatalogs: ["cataloggy-anime-series"] },
+        payload: { enabledCatalogs: ["fetch-anime-series"] },
       });
 
       expect(response.statusCode).toBe(200);
@@ -217,26 +217,26 @@ describe("stremio routes — addon config is per profile", () => {
       expect(before.json().logo).toBe("");
       await unconfigured.close();
 
-      process.env.CATALOGGY_WEB_PUBLIC = "https://cataloggy.example/";
+      process.env.FETCH_WEB_PUBLIC = "https://fetch.example/";
       try {
         const app = await buildApp();
         const response = await app.inject({ method: "GET", url: "/addon/stremio/manifest.json" });
-        expect(response.json().logo).toBe("https://cataloggy.example/icons/icon-192.png");
+        expect(response.json().logo).toBe("https://fetch.example/icons/icon-192.png");
       } finally {
-        delete process.env.CATALOGGY_WEB_PUBLIC;
+        delete process.env.FETCH_WEB_PUBLIC;
       }
     });
 
     it("names discovery catalogs from the shared registry", async () => {
       prismaMock.kV.findUnique.mockResolvedValue({
-        value: JSON.stringify({ enabledCatalogs: ["cataloggy-netflix-series"] }),
+        value: JSON.stringify({ enabledCatalogs: ["fetch-netflix-series"] }),
       });
       const app = await buildApp();
 
       const response = await app.inject({ method: "GET", url: "/addon/stremio/manifest.json" });
 
       expect(response.json().catalogs).toContainEqual({
-        id: "cataloggy-netflix-series",
+        id: "fetch-netflix-series",
         type: "series",
         name: "Netflix Series",
       });
@@ -244,19 +244,19 @@ describe("stremio routes — addon config is per profile", () => {
 
     it("withholds an enabled AI catalog until a provider is configured", async () => {
       prismaMock.kV.findUnique.mockResolvedValue({
-        value: JSON.stringify({ enabledCatalogs: ["cataloggy-ai-movie"] }),
+        value: JSON.stringify({ enabledCatalogs: ["fetch-ai-movie"] }),
       });
 
       const withoutAi = await buildApp();
       const before = (await withoutAi.inject({ method: "GET", url: "/addon/stremio/manifest.json" })).json();
-      expect((before.catalogs as { id: string }[]).map((c) => c.id)).not.toContain("cataloggy-ai-movie");
+      expect((before.catalogs as { id: string }[]).map((c) => c.id)).not.toContain("fetch-ai-movie");
       await withoutAi.close();
 
       aiConfigured.value = true;
       const withAi = await buildApp();
       const after = (await withAi.inject({ method: "GET", url: "/addon/stremio/manifest.json" })).json();
       expect(after.catalogs).toContainEqual({
-        id: "cataloggy-ai-movie",
+        id: "fetch-ai-movie",
         type: "movie",
         name: "AI Picks — Movies",
       });
@@ -492,7 +492,7 @@ describe("stremio routes — the addon URL is gated by a per-profile secret", ()
     const response = await app.inject({ method: "GET", url: `/addon/stremio/${"f".repeat(64)}/configure` });
 
     // The message distinguishes this from the 404 the redirect itself returns
-    // when CATALOGGY_WEB_PUBLIC is unset — the status code alone cannot.
+    // when FETCH_WEB_PUBLIC is unset — the status code alone cannot.
     expect(response.statusCode).toBe(404);
     expect(response.json().error).toBe("Unknown addon URL");
   });

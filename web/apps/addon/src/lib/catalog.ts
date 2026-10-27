@@ -1,6 +1,6 @@
 import type { FastifyBaseLogger } from "fastify";
 import { getDiscoveryCatalog } from "@fetch/shared";
-import type { CataloggyListItem } from "@fetch/shared";
+import type { FetchListItem } from "@fetch/shared";
 import {
   applyRpdbToMetas,
   fetchAddonConfig,
@@ -8,14 +8,14 @@ import {
   fetchDiscoveryMetas,
   fetchListItems,
   fetchRpdbConfig,
-} from "./cataloggy-data.js";
+} from "./fetch-data.js";
 import { isDiscoveryEnabled, isListEnabled } from "./manifest.js";
 import type { StremioMetaPreview } from "./stremio-types.js";
 
 /** Answering "what is in this catalog" — the shared body of both catalog routes. */
 
 export const parseCatalogId = (id: string) => {
-  const match = id.match(/^cataloggy-([0-9a-f-]+)-(movie|series)$/i);
+  const match = id.match(/^fetch-([0-9a-f-]+)-(movie|series)$/i);
   if (!match) return null;
   // Both groups are required by the pattern, so a match has both. The check is
   // what says so to the checker, and keeps saying it if the pattern is edited.
@@ -24,7 +24,7 @@ export const parseCatalogId = (id: string) => {
   return { listId, catalogType };
 };
 
-export const itemsToMetas = (items: CataloggyListItem[], type: string): StremioMetaPreview[] =>
+export const itemsToMetas = (items: FetchListItem[], type: string): StremioMetaPreview[] =>
   items
     // Redundant against a current API, which now filters by type itself, but the
     // addon and the API are separate containers and a rolling update runs one

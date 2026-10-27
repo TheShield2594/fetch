@@ -12,8 +12,8 @@ import {
 } from "@fetch/shared";
 import type {
   AddonManifestConfig,
-  CataloggyList,
-  CataloggyListItem,
+  FetchList,
+  FetchListItem,
   RpdbConfigResponse,
 } from "@fetch/shared";
 import { apiGet } from "./api-client.js";
@@ -34,10 +34,10 @@ import type { StremioMetaPreview } from "./stremio-types.js";
 // Keyed by profile like the manifest it feeds, and read by the catalog routes
 // too so they can apply the same enabled/disabled rule the manifest applied
 // without a round trip per row Stremio draws.
-const listsCache = new Map<string, CacheEntry<CataloggyList[]>>();
+const listsCache = new Map<string, CacheEntry<FetchList[]>>();
 const LISTS_CACHE_TTL_MS = 60_000;
 
-export const fetchAllLists = async (profileId: string | null): Promise<CataloggyList[]> => {
+export const fetchAllLists = async (profileId: string | null): Promise<FetchList[]> => {
   const now = Date.now();
   const cacheKey = cacheKeyFor(profileId);
   const cached = listsCache.get(cacheKey);
@@ -170,14 +170,14 @@ export const fetchAddonConfig = async (
 // is what a user changes and then immediately looks for in Stremio, while the
 // set of lists itself barely moves. Keyed by type as well as list, since the
 // request is now typed and the two types are different payloads.
-const listItemsCache = new Map<string, CacheEntry<CataloggyListItem[]>>();
+const listItemsCache = new Map<string, CacheEntry<FetchListItem[]>>();
 const LIST_ITEMS_CACHE_TTL_MS = 30_000;
 
 export const fetchListItems = async (
   listId: string,
   profileId: string | null,
   type: string
-): Promise<CataloggyListItem[]> => {
+): Promise<FetchListItem[]> => {
   const now = Date.now();
   // Two keys per list rather than one, so this map fills toward MAX_CACHE_ENTRIES
   // twice as fast as the others — the bound in cacheSet is what keeps that in check.

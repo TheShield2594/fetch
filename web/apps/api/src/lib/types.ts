@@ -1,13 +1,13 @@
 import type { MetadataType } from "@prisma/client";
 import type { FastifyBaseLogger } from "fastify";
-import type { CataloggyMetaPreview, StremioCatalogType } from "@fetch/shared";
+import type { FetchMetaPreview, StremioCatalogType } from "@fetch/shared";
 
 // Both aliases of the api↔addon contract in @fetch/shared: this is the
 // shape the addon service parses off the wire, so a change made here has to be
 // a change made there — which is the point.
 export type StremioMetaType = StremioCatalogType;
 
-export type StremioMetaPreview = CataloggyMetaPreview;
+export type StremioMetaPreview = FetchMetaPreview;
 
 export type ContinueMetaPreview = StremioMetaPreview & {
   extension: {

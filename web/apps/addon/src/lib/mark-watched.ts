@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import type { FastifyRequest } from "fastify";
-import { CATALOGGY_API_TOKEN } from "./config.js";
+import { FETCH_API_TOKEN } from "./config.js";
 import { isAllowedMutationOrigin, tokensMatch } from "./mutation-auth.js";
 import { profilePathParam } from "./profile.js";
 
@@ -46,8 +46,8 @@ const markWatchedScope = (profileSegmentId: string | null, target: MarkWatchedTa
   ].join(":");
 
 const signMarkWatched = (scope: string, expiry: number): string | null =>
-  CATALOGGY_API_TOKEN
-    ? createHmac("sha256", CATALOGGY_API_TOKEN).update(`${scope}:${expiry}`).digest("hex")
+  FETCH_API_TOKEN
+    ? createHmac("sha256", FETCH_API_TOKEN).update(`${scope}:${expiry}`).digest("hex")
     : null;
 
 /** `<expiry>.<signature>`, or null when there is no API token to sign with. */

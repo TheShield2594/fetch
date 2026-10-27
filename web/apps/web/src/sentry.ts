@@ -1,14 +1,14 @@
 // Pre-built Docker images bake VITE_* vars in at image-build time, which
 // doesn't work for self-hosters configuring via .env. Mirror the
-// window.__CATALOGGY_API_BASE__ pattern from api.ts: docker-entrypoint.sh
+// window.__FETCH_API_BASE__ pattern from api.ts: docker-entrypoint.sh
 // writes the runtime SENTRY_DSN value into dist/config.js on container start.
 declare global {
   interface Window {
-    __CATALOGGY_SENTRY_DSN__?: string;
+    __FETCH_SENTRY_DSN__?: string;
   }
 }
 
-const dsn = (window.__CATALOGGY_SENTRY_DSN__ || import.meta.env.VITE_SENTRY_DSN || "").trim();
+const dsn = (window.__FETCH_SENTRY_DSN__ || import.meta.env.VITE_SENTRY_DSN || "").trim();
 
 // @sentry/react is ~28 kB gzipped — close to a quarter of the entry bundle — and
 // the DSN is an opt-in that most self-hosted installs never set. Imported

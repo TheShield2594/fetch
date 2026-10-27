@@ -106,7 +106,7 @@ describe("notification channel URLs", () => {
     // A self-hosted ntfy or Gotify on the LAN is the intended configuration,
     // so the push endpoint's private-range block would reject the common case.
     expect(validateNotificationUrl("https://ntfy.sh/my-topic")).not.toBeNull();
-    expect(validateNotificationUrl("http://192.168.1.25:8080/cataloggy")).not.toBeNull();
+    expect(validateNotificationUrl("http://192.168.1.25:8080/fetch")).not.toBeNull();
     expect(validateNotificationUrl("http://localhost:2586")).not.toBeNull();
     expect(validateNotificationUrl("https://discord.com/api/webhooks/1/abc")).not.toBeNull();
   });

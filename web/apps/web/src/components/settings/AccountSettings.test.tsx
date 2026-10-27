@@ -52,7 +52,7 @@ describe("AccountSettings", () => {
 
   it("signs out and sends the app back to sign-in", async () => {
     const unauthorized = vi.fn();
-    window.addEventListener("cataloggy:unauthorized", unauthorized);
+    window.addEventListener("fetch:unauthorized", unauthorized);
     const user = userEvent.setup();
     render(<AccountSettings />);
 
@@ -60,7 +60,7 @@ describe("AccountSettings", () => {
 
     await waitFor(() => expect(unauthorized).toHaveBeenCalled());
     expect(api.logout).toHaveBeenCalled();
-    window.removeEventListener("cataloggy:unauthorized", unauthorized);
+    window.removeEventListener("fetch:unauthorized", unauthorized);
   });
 
   it("changes the password, and refuses new passwords that don't match", async () => {

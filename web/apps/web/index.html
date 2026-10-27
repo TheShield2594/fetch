@@ -96,14 +96,14 @@
           if (window.location.pathname !== "/") return;
 
           var base = (
-            (window.localStorage.getItem("cataloggy_api_base_override") || "").trim() ||
-            window.__CATALOGGY_API_BASE__ ||
+            (window.localStorage.getItem("fetch_api_base_override") || "").trim() ||
+            window.__FETCH_API_BASE__ ||
             ""
           ).replace(/\/+$/, "");
           if (!base) return;
 
-          var token = window.localStorage.getItem("cataloggy_token");
-          var profileId = window.localStorage.getItem("cataloggy_profile_id");
+          var token = window.localStorage.getItem("fetch_token");
+          var profileId = window.localStorage.getItem("fetch_profile_id");
           // No token means the setup wizard, no profile means the profile picker —
           // neither of which shows any of this.
           if (!token || !profileId) return;
@@ -112,7 +112,7 @@
             Authorization: "Bearer " + token,
             "x-profile-id": profileId,
           };
-          var profileToken = window.localStorage.getItem("cataloggy_profile_token");
+          var profileToken = window.localStorage.getItem("fetch_profile_token");
           if (profileToken) headers["x-profile-token"] = profileToken;
 
           // These must stay character-for-character what api.ts requests, since that
@@ -136,7 +136,7 @@
             })(paths[i]);
           }
 
-          window.__CATALOGGY_PRELOAD__ = preloaded;
+          window.__FETCH_PRELOAD__ = preloaded;
         } catch {
           // Private-mode localStorage, a blocked fetch, anything at all — startup
           // matters more than this optimisation.

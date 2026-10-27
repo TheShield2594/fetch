@@ -28,7 +28,7 @@ const MANIFESTS = [
 // Plain `major.minor.patch`, each component either `0` or without a leading
 // zero — `01.2.3` is not the same string as `1.2.3` and only one of them will
 // be a published image tag. Pre-release and build metadata are deliberately
-// unsupported: `CATALOGGY_IMAGE_TAG` is what a self-hoster types into a `.env`,
+// unsupported: `FETCH_IMAGE_TAG` is what a self-hoster types into a `.env`,
 // and a tag with a `+` in it is not a valid Docker tag.
 const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 

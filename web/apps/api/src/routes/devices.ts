@@ -42,7 +42,7 @@ const PAIRING_SECRET_HEADER = "x-pairing-secret";
  * code filled in. The TV talks to the API, which is usually on another port, so
  * it can't work this out itself. Unset means the TV shows the code alone.
  */
-const WEB_PUBLIC = (process.env.CATALOGGY_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.trim().replace(/\/+$/, "");
+const WEB_PUBLIC = (process.env.FETCH_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.trim().replace(/\/+$/, "");
 
 export const pairingConfirmUrl = (code: string): string | null =>
   WEB_PUBLIC ? `${WEB_PUBLIC}/pair?code=${encodeURIComponent(code)}` : null;

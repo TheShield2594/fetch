@@ -58,7 +58,7 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
       if (!token) return reply.send({ subtitles: [] });
 
       const subtitles: StremioSubtitle[] = [{
-        id: `cataloggy-watch-${imdbId}`,
+        id: `fetch-watch-${imdbId}`,
         url: `${addonBase}${profileSegment}/mark-watched/${type}/${imdbId}.srt?token=${token}`,
         lang: "Fetch: Mark Watched",
       }];
@@ -74,7 +74,7 @@ export const registerSubtitlesRoute = (routes: AddonRouter): void => {
         if (!token) return reply.send({ subtitles: [] });
 
         const subtitles: StremioSubtitle[] = [{
-          id: `cataloggy-watch-${imdbId}-s${season}e${episode}`,
+          id: `fetch-watch-${imdbId}-s${season}e${episode}`,
           url: `${addonBase}${profileSegment}/mark-watched/episode/${imdbId}/${season}/${episode}.srt?token=${token}`,
           lang: `Fetch: Mark S${season}E${episode} Watched`,
         }];

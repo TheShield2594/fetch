@@ -70,7 +70,7 @@ pairing** instead (#91):
 
 1. Settings → Account → Fetch website on the TV asks for the API address and
    shows a short code, plus a QR code for the website's `/pair` page when the API
-   knows the website's address (`CATALOGGY_WEB_PUBLIC`).
+   knows the website's address (`FETCH_WEB_PUBLIC`).
 2. Signed in on the website, you scan it or type the code under Settings → TVs & Devices.
 3. The API issues that TV its own token, listed and revocable on the website. A
    revoked TV gets a bearer 401 on its next request and says it was signed out.
@@ -87,9 +87,9 @@ The Stremio addon keeps its per-profile secret URL, which already works.
 Each phase ships on its own and leaves both halves working.
 
 1. **One repository** *(this change)*. Cataloggy moved into `web/` with its
-   history, CI runs from the root, and the website calls itself Fetch. Stable
-   identifiers (env vars, addon ID, catalog IDs, database name, storage keys)
-   keep their names so existing installs upgrade in place.
+   history, CI runs from the root, and the website calls itself Fetch. Its
+   env vars, addon ID, catalog IDs, database name and storage keys were
+   renamed from `cataloggy` to `fetch` before the website's first deployment.
 2. **Lists on the TV with no new code.** Document installing the website's addon
    on the TV, and have the TV's first-run Server step offer it.
 3. **Device pairing** *(done, #91)*. `POST /devices/pair/start` and friends on

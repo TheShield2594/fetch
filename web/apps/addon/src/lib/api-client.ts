@@ -1,5 +1,5 @@
 import { ApiContractError, deriveServiceToken, SERVICE_TOKEN_HEADER } from "@fetch/shared";
-import { CATALOGGY_API_BASE, CATALOGGY_API_TOKEN } from "./config.js";
+import { FETCH_API_BASE, FETCH_API_TOKEN } from "./config.js";
 
 /**
  * How this service talks to the Fetch API.
@@ -13,12 +13,12 @@ import { CATALOGGY_API_BASE, CATALOGGY_API_TOKEN } from "./config.js";
 // Proves these calls come from the addon rather than from a browser holding the
 // same API token, so the API can rate-limit them separately — every Stremio
 // client's requests reach the API from this one container's IP.
-const SERVICE_TOKEN = CATALOGGY_API_TOKEN ? deriveServiceToken(CATALOGGY_API_TOKEN) : null;
+const SERVICE_TOKEN = FETCH_API_TOKEN ? deriveServiceToken(FETCH_API_TOKEN) : null;
 
 export const apiHeaders = (profileId?: string | null): Record<string, string> => {
   const headers: Record<string, string> = {};
   if (SERVICE_TOKEN) headers[SERVICE_TOKEN_HEADER] = SERVICE_TOKEN;
-  if (CATALOGGY_API_TOKEN) headers.Authorization = `Bearer ${CATALOGGY_API_TOKEN}`;
+  if (FETCH_API_TOKEN) headers.Authorization = `Bearer ${FETCH_API_TOKEN}`;
   if (profileId) headers["x-profile-id"] = profileId;
   return headers;
 };
@@ -41,7 +41,7 @@ export const fetchWithTimeout = async (url: string | URL, init?: RequestInit): P
 };
 
 /** An API URL, for a caller that has to make the request itself. */
-export const apiUrl = (path: string): URL => new URL(path, CATALOGGY_API_BASE);
+export const apiUrl = (path: string): URL => new URL(path, FETCH_API_BASE);
 
 // Every response is run through the contract parser for its endpoint rather
 // than asserted into the expected type. An API that changes shape used to

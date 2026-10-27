@@ -22,7 +22,7 @@ describe("parseProxyPathPrefixes", () => {
   });
 
   it("splits a list and trims each entry", () => {
-    expect(parseProxyPathPrefixes("/api, /cataloggy", ["/x"])).toEqual(["/api", "/cataloggy"]);
+    expect(parseProxyPathPrefixes("/api, /fetch", ["/x"])).toEqual(["/api", "/fetch"]);
   });
 
   it("adds the leading slash a hand-written value usually omits", () => {
@@ -77,7 +77,7 @@ describe("stripProxyPrefix", () => {
 
 describe("normalizeProxyPath", () => {
   it("uses the first prefix that applies", () => {
-    expect(normalizeProxyPath("/cataloggy/health", ["/api", "/cataloggy"])).toBe("/health");
+    expect(normalizeProxyPath("/fetch/health", ["/api", "/fetch"])).toBe("/health");
   });
 
   it("passes a URL under no prefix through unchanged", () => {

@@ -9,7 +9,7 @@ type BeforeInstallPromptEvent = Event & {
 
 const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 
-const SNOOZE_KEY = "cataloggy:install-snooze-until";
+const SNOOZE_KEY = "fetch:install-snooze-until";
 const SNOOZE_DAYS = 14;
 
 function isSnoozed() {

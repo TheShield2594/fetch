@@ -81,7 +81,7 @@ export function InvitesSettings() {
     setError(null);
     try {
       const { invite, url } = await api.createInvite();
-      // The server builds the link from CATALOGGY_WEB_PUBLIC. Without it, this
+      // The server builds the link from FETCH_WEB_PUBLIC. Without it, this
       // page's own address is the next best guess.
       setNewUrl(url ?? `${window.location.origin}/invite/${invite.code}`);
       await load();

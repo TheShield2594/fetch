@@ -10,7 +10,7 @@ export const THEMES: { id: Theme; label: string }[] = [
   { id: "letterboxd", label: "Letterboxd" },
 ];
 
-const STORAGE_KEY = "cataloggy:theme";
+const STORAGE_KEY = "fetch:theme";
 
 // The colour the browser paints its own chrome with — the address bar on
 // Android, the status bar in an installed app. It has to be each theme's

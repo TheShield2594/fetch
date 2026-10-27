@@ -33,7 +33,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       # Signs with the release key when the FETCH_RELEASE_* secrets are set. Without them the
       # build falls back to the debug key: fine for sideloading, but such an install can't later

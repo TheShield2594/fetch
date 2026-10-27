@@ -84,6 +84,107 @@ import com.fetch.tv.domain.model.TmdbCollectionSourceType
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.R
 import androidx.compose.ui.res.stringResource
+import com.fetch.tv.core.tracking.LocalList
+import com.fetch.tv.domain.model.LocalListCollectionSource
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+fun LocalListPickerContent(
+    lists: List<LocalList>,
+    alreadyAdded: List<CollectionSource>,
+    onToggle: (LocalList) -> Unit,
+    onBack: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = FetchTheme.spacing.xxxl, start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.collections_editor_select_local_lists),
+                style = MaterialTheme.typography.headlineMedium,
+                color = FetchTheme.colors.TextPrimary
+            )
+            FetchButton(onClick = onBack) { Text(stringResource(R.string.collections_editor_done)) }
+        }
+
+        Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
+
+        if (lists.isEmpty()) {
+            Text(
+                text = stringResource(R.string.collections_editor_no_local_lists),
+                style = MaterialTheme.typography.bodyMedium,
+                color = FetchTheme.colors.TextSecondary
+            )
+            return@Column
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, top = FetchTheme.spacing.xs, bottom = FetchTheme.spacing.xxxl),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+        ) {
+            items(items = lists, key = { it.id }) { list ->
+                val isAdded = alreadyAdded.any { it is LocalListCollectionSource && it.listId == list.id }
+                Card(
+                    onClick = { onToggle(list) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.colors(
+                        containerColor = if (isAdded) FetchTheme.colors.Secondary.copy(alpha = 0.15f) else FetchTheme.colors.BackgroundCard,
+                        focusedContainerColor = FetchTheme.colors.FocusBackground
+                    ),
+                    border = CardDefaults.border(
+                        border = if (isAdded) Border(
+                            border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Secondary.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(FetchTheme.radii.md)
+                        ) else Border.None,
+                        focusedBorder = Border(
+                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            shape = RoundedCornerShape(FetchTheme.radii.md)
+                        )
+                    ),
+                    shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
+                    scale = CardDefaults.scale(focusedScale = 1.01f)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(FetchTheme.spacing.lg),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = list.name,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = FetchTheme.colors.TextPrimary
+                            )
+                            Text(
+                                text = stringResource(R.string.collections_editor_local_list_count, list.items.size),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = FetchTheme.colors.TextTertiary
+                            )
+                        }
+                        Icon(
+                            imageVector = if (isAdded) Icons.Default.Close else Icons.Default.Add,
+                            contentDescription = if (isAdded) {
+                                stringResource(R.string.collection_editor_remove_cd)
+                            } else {
+                                stringResource(R.string.cd_add)
+                            },
+                            tint = if (isAdded) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable

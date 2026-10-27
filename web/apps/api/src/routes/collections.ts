@@ -133,6 +133,10 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
         return { metas: await buildMetasFromIds(ids, type) };
       }
 
+      if (provider === "local") {
+        return reply.code(422).send({ error: "This list is kept on the TV, so only the TV can show it.", code: "preview_on_tv" });
+      }
+
       return reply.code(422).send({
         error: "Addon catalogs are previewed from the addon itself.",
         code: "preview_in_browser",

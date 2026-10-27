@@ -343,7 +343,8 @@ export type Device = {
  * carried through untouched so a collection made on the TV round-trips.
  */
 export type CollectionSource = {
-  provider: "addon" | "tmdb" | "trakt" | "fetch";
+  /** `local` is a list kept on one TV; the website carries it but can't add or preview one. */
+  provider: "addon" | "tmdb" | "trakt" | "fetch" | "local";
   title?: string | null | undefined;
   // addon
   addonId?: string | undefined;

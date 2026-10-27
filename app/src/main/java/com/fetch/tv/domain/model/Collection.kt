@@ -57,6 +57,17 @@ data class FetchListCollectionSource(
     val mediaType: TmdbCollectionMediaType? = null
 ) : CollectionSource
 
+/**
+ * One of the active profile's local lists, kept on this TV with no account. [mediaType] null
+ * means movies and series together.
+ */
+@Immutable
+data class LocalListCollectionSource(
+    val listId: String,
+    val title: String,
+    val mediaType: TmdbCollectionMediaType? = null
+) : CollectionSource
+
 enum class TmdbCollectionSourceType {
     LIST,
     COLLECTION,

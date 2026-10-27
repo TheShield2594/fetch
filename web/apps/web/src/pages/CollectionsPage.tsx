@@ -160,7 +160,7 @@ function SourcePreview({ source, onClose }: { source: CollectionSource; onClose:
 
 // ─── Adding a source ───
 
-type Provider = CollectionSource["provider"];
+type Provider = Exclude<CollectionSource["provider"], "local">;
 
 const PROVIDER_LABELS: Record<Provider, string> = {
   fetch: "Website list",
@@ -539,9 +539,11 @@ function FolderEditor({
         {sources.map((source, sourceIndex) => (
           <li key={sourceIndex} className="flex items-center gap-2 rounded-lg px-2 py-1" style={{ background: "var(--surface)" }}>
             <span className="min-w-0 flex-1 truncate text-sm" style={{ color: "var(--text)" }}>{describeSource(source)}</span>
-            <button type="button" onClick={() => onPreview(source)} aria-label={`Preview ${describeSource(source)}`} className="rounded-lg p-1 hover:bg-[var(--surface-strong)]" style={{ color: "var(--text-mute)" }}>
-              <Eye size={14} />
-            </button>
+            {source.provider !== "local" && (
+              <button type="button" onClick={() => onPreview(source)} aria-label={`Preview ${describeSource(source)}`} className="rounded-lg p-1 hover:bg-[var(--surface-strong)]" style={{ color: "var(--text-mute)" }}>
+                <Eye size={14} />
+              </button>
+            )}
             <button
               type="button"
               onClick={() => onChange({ ...folder, sources: sources.filter((_, i) => i !== sourceIndex) })}

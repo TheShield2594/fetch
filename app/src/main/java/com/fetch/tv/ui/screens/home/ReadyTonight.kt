@@ -4,6 +4,7 @@ import androidx.compose.runtime.compositionLocalOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import com.fetch.tv.core.tracking.LOCAL_LIBRARY_LIST_KEY
 import com.fetch.tv.data.local.BestMatchCacheDataStore
 import com.fetch.tv.data.local.CachedBestMatch
 import com.fetch.tv.data.local.isReady
@@ -60,7 +61,7 @@ internal fun readyBestMatchKeys(entries: Map<String, CachedBestMatch>, nowMs: Lo
 
 /**
  * Movies on the watchlist, newest first. With a tracking service that is its watchlist tab; the
- * local library has no separate watchlist, so all of it counts. Series are left out: which
+ * local library has no separate watchlist, so all its saved titles count. Series are left out: which
  * episode to start isn't known until they're in Continue Watching.
  */
 internal fun watchlistMovies(
@@ -71,7 +72,8 @@ internal fun watchlistMovies(
 ): List<LibraryEntry> {
     val movies = entries.filter { it.type.equals("movie", ignoreCase = true) }
     val onWatchlist = if (mode == LibrarySourceMode.LOCAL) {
-        movies
+        // The saved titles, not those only on one of the profile's own lists.
+        movies.filter { it.listKeys.isEmpty() || LOCAL_LIBRARY_LIST_KEY in it.listKeys }
     } else {
         val watchlistKeys = tabs.filter { it.type == LibraryListTab.Type.WATCHLIST }.map { it.key }.toSet()
         movies.filter { entry -> entry.listKeys.any { it in watchlistKeys } }

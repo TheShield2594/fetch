@@ -218,7 +218,7 @@ class PosterOptionsController @Inject constructor(
     fun openListPicker() {
         val state = _state.value
         val item = state.target ?: return
-        if (state.librarySourceMode == LibrarySourceMode.LOCAL) {
+        if (!state.usesListPicker) {
             toggleLibrary()
             dismiss()
             return
@@ -288,7 +288,7 @@ class PosterOptionsController @Inject constructor(
     fun saveListPicker() {
         val state = _state.value
         if (state.listPickerPending) return
-        if (state.librarySourceMode == LibrarySourceMode.LOCAL) return
+        if (!state.usesListPicker) return
         val input = activeListPickerInput ?: return
         val scope = this.scope ?: return
 

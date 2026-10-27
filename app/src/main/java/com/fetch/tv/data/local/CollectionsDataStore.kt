@@ -14,6 +14,7 @@ import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.CollectionSource
 import com.fetch.tv.domain.model.FetchListCollectionSource
 import com.fetch.tv.domain.model.FolderViewMode
+import com.fetch.tv.domain.model.LocalListCollectionSource
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.TmdbCollectionFilters
 import com.fetch.tv.domain.model.TmdbCollectionMediaType
@@ -340,6 +341,12 @@ class CollectionsDataStore @Inject constructor(
                 listId = listId,
                 mediaType = mediaType?.name
             )
+            is LocalListCollectionSource -> SerializableSource(
+                provider = "local",
+                title = title,
+                listId = listId,
+                mediaType = mediaType?.name
+            )
         }
     }
 
@@ -441,6 +448,16 @@ class CollectionsDataStore @Inject constructor(
                 FetchListCollectionSource(
                     listId = id,
                     title = title?.takeIf { it.isNotBlank() } ?: string(R.string.website_list_source_default_title),
+                    mediaType = mediaType?.let { raw ->
+                        runCatching { TmdbCollectionMediaType.valueOf(raw.uppercase()) }.getOrNull()
+                    }
+                )
+            }
+            "local" -> {
+                val id = listId?.takeIf { it.isNotBlank() } ?: return null
+                LocalListCollectionSource(
+                    listId = id,
+                    title = title?.takeIf { it.isNotBlank() } ?: string(R.string.local_list_source_default_title),
                     mediaType = mediaType?.let { raw ->
                         runCatching { TmdbCollectionMediaType.valueOf(raw.uppercase()) }.getOrNull()
                     }

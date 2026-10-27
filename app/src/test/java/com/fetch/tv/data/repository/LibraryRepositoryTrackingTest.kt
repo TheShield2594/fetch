@@ -4,6 +4,8 @@ import android.content.Context
 import com.fetch.tv.core.auth.AuthManager
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.LibrarySyncService
+import com.fetch.tv.core.tracking.LOCAL_LIBRARY_LIST_KEY
+import com.fetch.tv.core.tracking.LocalList
 import com.fetch.tv.core.tracking.TrackingLibraryProvider
 import com.fetch.tv.core.tracking.TrackingListManager
 import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
@@ -12,6 +14,8 @@ import com.fetch.tv.core.tracking.TrackingMembershipRemovalImpact
 import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.core.tracking.TrackingRefreshIntent
 import com.fetch.tv.data.local.LibraryPreferences
+import com.fetch.tv.data.local.LocalListsDataStore
+import com.fetch.tv.data.local.LocalTrackingListManager
 import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryEntryInput
@@ -21,6 +25,7 @@ import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.ListMembershipChanges
 import com.fetch.tv.domain.model.ListMembershipSnapshot
 import com.fetch.tv.domain.repository.MetaRepository
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -193,12 +198,78 @@ class LibraryRepositoryTrackingTest {
         assertEquals(listOf(TrackingRefreshIntent.USER_INITIATED), providers.last().refreshIntents)
     }
 
+    @Test
+    fun `the local library shows its own lists as tabs once one exists`() = runTest {
+        val source = MutableStateFlow(LibrarySourceMode.LOCAL)
+        val lists = MutableStateFlow(emptyList<LocalList>())
+        val repository = repository(source, emptySet(), lists)
+
+        assertEquals(emptyList<LibraryListTab>(), repository.listTabs.first())
+
+        lists.value = listOf(LocalList(id = "a", name = "Weekend movies"), LocalList(id = "b", name = "Kids' shows"))
+
+        assertEquals(
+            listOf(LOCAL_LIBRARY_LIST_KEY, "local:list:a", "local:list:b"),
+            repository.listTabs.first().map { it.key }
+        )
+        assertEquals(listOf("local:list:a", "local:list:b"), repository.membershipListTabs.first().map { it.key })
+    }
+
+    @Test
+    fun `local list management routes to the device and never to a tracking provider`() = runTest {
+        val source = MutableStateFlow(LibrarySourceMode.LOCAL)
+        val traktManager = mockk<TrackingListManager>(relaxed = true)
+        val localManager = mockk<LocalTrackingListManager>(relaxed = true)
+        val trakt = FakeLibraryProvider(TrackingProviderId.TRAKT, tab("watchlist", TrackingProviderId.TRAKT), listManager = traktManager)
+        val repository = repository(source, setOf(trakt), localListManager = localManager)
+
+        repository.createPersonalList("Weekend movies", null, LibraryListPrivacy.PRIVATE, LibrarySourceMode.LOCAL)
+        repository.reorderPersonalLists(listOf("local:list:b", "local:list:a"), LibrarySourceMode.LOCAL)
+        repository.deletePersonalList("local:list:a", LibrarySourceMode.LOCAL)
+        val foreign = runCatching { repository.deletePersonalList("personal:7", LibrarySourceMode.LOCAL) }
+
+        assertTrue(foreign.exceptionOrNull() is IllegalArgumentException)
+        coVerify(exactly = 1) { localManager.createList("Weekend movies", null, LibraryListPrivacy.PRIVATE) }
+        coVerify(exactly = 1) { localManager.reorderLists(listOf("local:list:b", "local:list:a")) }
+        coVerify(exactly = 1) { localManager.deleteList("local:list:a") }
+        coVerify(exactly = 0) { traktManager.createList(any(), any(), any()) }
+        coVerify(exactly = 0) { traktManager.deleteList(any()) }
+    }
+
+    @Test
+    fun `signed in to Trakt, local lists stay in the picker and are written on the device only`() = runTest {
+        val source = MutableStateFlow(LibrarySourceMode.TRAKT)
+        val lists = MutableStateFlow(listOf(LocalList(id = "a", name = "Weekend movies")))
+        val traktTab = tab("watchlist", TrackingProviderId.TRAKT)
+        val trakt = FakeLibraryProvider(TrackingProviderId.TRAKT, traktTab)
+        val repository = repository(source, setOf(trakt), lists)
+        val item = LibraryEntryInput("tt1", "movie", "Movie")
+
+        assertEquals(listOf("local:list:a", traktTab.key), repository.membershipListTabs.first().map { it.key })
+        assertEquals(false, repository.getMembershipSnapshot(item).listMembership["local:list:a"])
+
+        repository.applyMembershipChanges(item, ListMembershipChanges(mapOf("local:list:a" to true)))
+
+        assertEquals(listOf("tt1"), lists.value.single().items.map { it.id })
+        assertEquals(0, trakt.applyCalls)
+        assertEquals(true, repository.getMembershipSnapshot(item).listMembership["local:list:a"])
+    }
+
     private fun repository(
         sourceMode: MutableStateFlow<LibrarySourceMode>,
-        providers: Set<TrackingLibraryProvider>
+        providers: Set<TrackingLibraryProvider>,
+        localLists: MutableStateFlow<List<LocalList>> = MutableStateFlow(emptyList()),
+        localListManager: LocalTrackingListManager = mockk(relaxed = true)
     ): LibraryRepositoryImpl {
         val settings = mockk<TraktSettingsDataStore>(relaxed = true) {
             every { librarySourceMode } returns sourceMode
+        }
+        val localStore = mockk<LocalListsDataStore> {
+            every { lists } returns localLists
+            coEvery { getLists(any()) } answers { localLists.value }
+            coEvery { update(any(), any()) } answers {
+                localLists.value = secondArg<(List<LocalList>) -> List<LocalList>>()(localLists.value)
+            }
         }
         return LibraryRepositoryImpl(
             appContext = mockk<Context>(relaxed = true),
@@ -208,7 +279,9 @@ class LibraryRepositoryTrackingTest {
             authManager = mockk<AuthManager>(relaxed = true),
             metaRepository = mockk<MetaRepository>(relaxed = true),
             trackingProviders = TrackingLibraryProviderRegistry(providers),
-            profileManager = mockk<ProfileManager> { every { activeProfileId } returns MutableStateFlow(1) }
+            profileManager = mockk<ProfileManager> { every { activeProfileId } returns MutableStateFlow(1) },
+            localLists = localStore,
+            localListManager = localListManager
         )
     }
 

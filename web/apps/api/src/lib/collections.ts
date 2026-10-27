@@ -13,6 +13,8 @@
  *   - `tmdb`   — `tmdbSourceType`, and `tmdbId` or `filters` depending on it
  *   - `trakt`  — `traktListId`
  *   - `fetch`  — one of this website's own lists: `listId`
+ *   - `local`  — a list kept on one TV with no account (`listId`); only that TV can fill it,
+ *                so the website keeps it as given and doesn't preview it
  */
 
 export const MAX_COLLECTIONS = 50;
@@ -20,7 +22,7 @@ export const MAX_FOLDERS_PER_COLLECTION = 50;
 export const MAX_SOURCES_PER_FOLDER = 30;
 const MAX_TEXT = 300;
 
-export const SOURCE_PROVIDERS = ["addon", "tmdb", "trakt", "fetch"] as const;
+export const SOURCE_PROVIDERS = ["addon", "tmdb", "trakt", "fetch", "local"] as const;
 export const TMDB_SOURCE_TYPES = ["LIST", "COLLECTION", "COMPANY", "NETWORK", "DISCOVER", "PERSON", "DIRECTOR"] as const;
 export const VIEW_MODES = ["TABBED_GRID", "ROWS", "FOLLOW_LAYOUT"] as const;
 
@@ -81,6 +83,11 @@ export const validateSource = (source: unknown, where: string): string | null =>
     case "fetch":
       if (typeof source.listId !== "string" || !UUID_PATTERN.test(source.listId)) {
         return `${where}: a website list source needs a listId`;
+      }
+      return null;
+    case "local":
+      if (!nonBlank(source.listId)) {
+        return `${where}: a TV list source needs a listId`;
       }
       return null;
     default:

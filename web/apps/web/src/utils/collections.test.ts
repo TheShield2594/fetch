@@ -15,6 +15,7 @@ describe("describeSource", () => {
   it.each([
     [{ provider: "fetch", listId: "x", title: "Family night", mediaType: "MOVIE" }, "Family night · movies"],
     [{ provider: "fetch", listId: "x", title: "Family night" }, "Family night · movies and series"],
+    [{ provider: "local", listId: "x", title: "Kids' shows" }, "Kids' shows · kept on the TV"],
     [{ provider: "trakt", traktListId: 4, title: "Mine", mediaType: "TV" }, "Trakt: Mine · series"],
     [
       { provider: "tmdb", tmdbSourceType: "DISCOVER", mediaType: "MOVIE", filters: { withGenres: "28,35", year: 1985, voteAverageGte: 7 } },

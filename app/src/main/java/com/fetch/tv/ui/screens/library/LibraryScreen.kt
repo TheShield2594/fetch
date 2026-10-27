@@ -390,6 +390,7 @@ fun LibraryScreen(
                         pending = uiState.pendingOperation,
                         isSyncing = uiState.isSyncing,
                         showManageLists = uiState.listManagement != null,
+                        showRefresh = uiState.sourceMode != LibrarySourceMode.LOCAL,
                         onManageLists = viewModel::onOpenManageLists,
                         onRefresh = viewModel::onRefresh
                     )
@@ -646,7 +647,7 @@ private fun LibrarySelectorsRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            if (sourceMode != LibrarySourceMode.LOCAL) {
+            if (listTabs.isNotEmpty()) {
                 LibraryDropdownPicker(
                     modifier = Modifier
                         .weight(1f)
@@ -663,7 +664,7 @@ private fun LibrarySelectorsRow(
             }
 
             LibraryDropdownPicker(
-                modifier = if (sourceMode != LibrarySourceMode.LOCAL) {
+                modifier = if (listTabs.isNotEmpty()) {
                     Modifier.weight(1f)
                 } else {
                     Modifier
@@ -959,6 +960,7 @@ private fun LibraryActionsRow(
     pending: Boolean,
     isSyncing: Boolean,
     showManageLists: Boolean,
+    showRefresh: Boolean,
     onManageLists: () -> Unit,
     onRefresh: () -> Unit
 ) {
@@ -978,15 +980,17 @@ private fun LibraryActionsRow(
                 Text(stringResource(R.string.library_manage_lists))
             }
         }
-        Button(
-            onClick = onRefresh,
-            enabled = !pending && !isSyncing,
-            colors = ButtonDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
-        ) {
-            Text(if (isSyncing) stringResource(R.string.library_syncing_btn) else stringResource(R.string.library_sync_btn))
+        if (showRefresh) {
+            Button(
+                onClick = onRefresh,
+                enabled = !pending && !isSyncing,
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(if (isSyncing) stringResource(R.string.library_syncing_btn) else stringResource(R.string.library_sync_btn))
+            }
         }
     }
 }

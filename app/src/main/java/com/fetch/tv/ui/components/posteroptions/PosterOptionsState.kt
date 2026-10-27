@@ -5,6 +5,7 @@ import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.core.tracking.TrackingMembershipRemovalConfirmation
+import com.fetch.tv.core.tracking.usesLibraryListPicker
 
 @Immutable
 data class PosterOptionsState(
@@ -26,3 +27,7 @@ data class PosterOptionsState(
     val listPickerError: String? = null,
     val removalConfirmations: List<TrackingMembershipRemovalConfirmation> = emptyList()
 )
+
+/** Long-press "Add to list" opens the list picker rather than toggling the saved library. */
+val PosterOptionsState.usesListPicker: Boolean
+    get() = usesLibraryListPicker(librarySourceMode == LibrarySourceMode.LOCAL, libraryListTabs)

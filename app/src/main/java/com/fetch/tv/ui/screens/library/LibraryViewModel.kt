@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.library
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.auth.AuthManager
+import com.fetch.tv.core.tracking.LocalListManagementCapabilities
 import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
 import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
 import com.fetch.tv.core.tracking.providerId
@@ -499,8 +500,9 @@ class LibraryViewModel @Inject constructor(
                 val (sourceMode, isSyncing, items, listTabs, persistedSortKey, authState, isTrackingAuthenticated, persistedListKey, persistedTypeKey) = bundle
                 if (_uiState.value.sourceMode != sourceMode || !isTrackingAuthenticated) onCloseManageLists()
                 _uiState.update { current ->
+                    // The local library has tabs only once the profile has a list of its own.
                     val nextSelectedList = when {
-                        sourceMode.providerId != null && isTrackingAuthenticated -> {
+                        isTrackingAuthenticated -> {
                             current.selectedListKey
                                 ?.takeIf { key -> listTabs.any { it.key == key } }
                                 ?: persistedListKey?.takeIf { key -> listTabs.any { it.key == key } }
@@ -540,7 +542,11 @@ class LibraryViewModel @Inject constructor(
 
                     val updated = current.copy(
                         sourceMode = sourceMode,
-                        listManagement = sourceMode.providerId?.let(trackingProviderRegistry::provider)?.listManager?.capabilities,
+                        listManagement = if (sourceMode == LibrarySourceMode.LOCAL) {
+                            LocalListManagementCapabilities
+                        } else {
+                            sourceMode.providerId?.let(trackingProviderRegistry::provider)?.listManager?.capabilities
+                        },
                         allItems = items,
                         listTabs = listTabs,
                         availableSortOptions = sortOptions,
@@ -671,7 +677,7 @@ class LibraryViewModel @Inject constructor(
         releaseInfo?.let { YEAR_REGEX.find(it)?.value }
 
     private fun LibraryUiState.withVisibleItems(): LibraryUiState {
-        val listFiltered = if (sourceMode.providerId != null) {
+        val listFiltered = if (sourceMode.providerId != null || selectedListKey != null) {
             val listKey = selectedListKey ?: ""
             allItems.filter { entry -> entry.listKeys.contains(listKey) }
         } else {

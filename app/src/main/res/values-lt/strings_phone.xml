@@ -4,10 +4,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">Telefonas turi būti prijungtas prie to paties „Wi-Fi“ kaip ir šis televizorius. Tai galite padaryti ir vėliau nustatymuose.</string>
     <string name="first_run_phone_qr_description">Telefono sąrankos kodas</string>
-    <string name="first_run_phone_step_accounts">Prisijunkite prie „Trakt“, „Simkl“ arba „Jellyfin“</string>
-    <string name="first_run_phone_step_rules">Pasirinkite srautų kokybės taisykles</string>
     <string name="first_run_phone_step_scan">Nuskenuokite telefono kamera</string>
-    <string name="first_run_phone_title">Nustatykite telefonu. Nereikia rašyti pulteliu.</string>
     <string name="first_run_recommended">Rekomenduojama</string>
     <string name="phone_hub_description">Nuskenuokite vieną kodą, kad galėtumėte naudoti telefoną kaip pultelį ir klaviatūrą, prisijungti prie paskyrų ir redaguoti ilgus nustatymus.</string>
     <string name="phone_hub_instruction">Nuskenuokite telefonu. Kodas veikia vieną kartą; puslapis lieka atidarytas, kol atidarytas šis ekranas.</string>

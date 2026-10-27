@@ -4,10 +4,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">உங்கள் ஃபோன் இந்த டிவி இருக்கும் அதே Wi-Fi-இல் இருக்க வேண்டும். இதைப் பின்னர் அமைப்புகளிலும் செய்யலாம்.</string>
     <string name="first_run_phone_qr_description">ஃபோன் அமைவுக் குறியீடு</string>
-    <string name="first_run_phone_step_accounts">Trakt, Simkl அல்லது Jellyfin-இல் உள்நுழையவும்</string>
-    <string name="first_run_phone_step_rules">ஸ்ட்ரீம் தர விதிகளைத் தேர்ந்தெடுக்கவும்</string>
     <string name="first_run_phone_step_scan">ஃபோன் கேமராவால் ஸ்கேன் செய்யவும்</string>
-    <string name="first_run_phone_title">ஃபோன் மூலம் அமைக்கவும். ரிமோட்டில் தட்டச்சு தேவையில்லை.</string>
     <string name="first_run_recommended">பரிந்துரைக்கப்பட்டது</string>
     <string name="phone_hub_description">ஒரே குறியீட்டை ஸ்கேன் செய்து உங்கள் ஃபோனை ரிமோட் மற்றும் கீபோர்டாகப் பயன்படுத்தலாம், கணக்குகளில் உள்நுழையலாம், நீண்ட அமைப்புகளைத் திருத்தலாம்.</string>
     <string name="phone_hub_instruction">உங்கள் ஃபோனால் ஸ்கேன் செய்யவும். குறியீடு ஒருமுறை மட்டுமே வேலை செய்யும்; இந்தத் திரை திறந்திருக்கும் வரை பக்கமும் திறந்திருக்கும்.</string>

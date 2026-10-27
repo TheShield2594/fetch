@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Fetch: new and changed strings -->
-    <string name="first_run_phone_title">Configurez avec votre téléphone. Pas de saisie à la télécommande.</string>
     <string name="first_run_phone_qr_description">Code de configuration par téléphone</string>
     <string name="first_run_phone_step_scan">Scannez avec l’appareil photo de votre téléphone</string>
-    <string name="first_run_phone_step_rules">Choisissez vos règles de qualité de flux</string>
-    <string name="first_run_phone_step_accounts">Connectez-vous à Trakt, Simkl ou Jellyfin</string>
     <string name="first_run_phone_network">Votre téléphone doit être sur le même Wi-Fi que cette TV. Vous pouvez aussi le faire plus tard dans les paramètres.</string>
     <string name="first_run_recommended">Recommandé</string>
     <string name="phone_hub_title">Configurer depuis le téléphone</string>

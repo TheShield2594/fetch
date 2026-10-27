@@ -4,10 +4,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">您的手機必須與這台電視連線至同一個 Wi-Fi。您也可以稍後在設定中完成此操作。</string>
     <string name="first_run_phone_qr_description">手機設定 QR 碼</string>
-    <string name="first_run_phone_step_accounts">登入 Trakt、Simkl 或 Jellyfin</string>
-    <string name="first_run_phone_step_rules">選擇串流畫質規則</string>
     <string name="first_run_phone_step_scan">用手機相機掃描</string>
-    <string name="first_run_phone_title">用手機設定，不必用遙控器打字。</string>
     <string name="first_run_recommended">建議</string>
     <string name="phone_hub_description">掃描一個 QR 碼，即可將手機當作遙控器和鍵盤、登入帳戶以及編輯較長的設定。</string>
     <string name="phone_hub_instruction">用手機掃描。QR 碼僅能使用一次；只要此畫面保持開啟，頁面就會保持開啟。</string>

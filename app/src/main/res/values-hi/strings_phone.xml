@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Fetch: new and changed strings -->
-    <string name="first_run_phone_title">अपने फोन से सेट अप करें। रिमोट से टाइप करने की ज़रूरत नहीं।</string>
     <string name="first_run_phone_qr_description">फोन सेटअप कोड</string>
     <string name="first_run_phone_step_scan">अपने फोन के कैमरे से स्कैन करें</string>
-    <string name="first_run_phone_step_rules">स्ट्रीम गुणवत्ता के नियम चुनें</string>
-    <string name="first_run_phone_step_accounts">Trakt, Simkl या Jellyfin में साइन इन करें</string>
     <string name="first_run_phone_network">आपका फोन इस टीवी वाले Wi-Fi पर ही होना चाहिए। आप यह बाद में सेटिंग्स में भी कर सकते हैं।</string>
     <string name="first_run_recommended">सुझाया गया</string>
     <string name="phone_hub_title">फोन से कॉन्फ़िगर करें</string>

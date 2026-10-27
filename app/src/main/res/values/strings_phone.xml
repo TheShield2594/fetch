@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="first_run_phone_title">Set up with your phone. No remote typing.</string>
     <string name="first_run_phone_qr_description">Phone setup code</string>
     <string name="first_run_phone_step_scan">Scan with your phone camera</string>
-    <string name="first_run_phone_step_rules">Choose your stream quality rules</string>
-    <string name="first_run_phone_step_accounts">Sign in to Trakt, Simkl or Jellyfin</string>
     <string name="first_run_phone_network">Your phone must be on the same Wi-Fi as this TV. You can also do this later in Settings.</string>
     <string name="first_run_recommended">Recommended</string>
     <string name="phone_hub_title">Configure from phone</string>
@@ -16,5 +13,19 @@
         <item quantity="one">%d phone connected. The remote keeps working for 10 minutes after you close this screen.</item>
         <item quantity="other">%d phones connected. The remote keeps working for 10 minutes after you close this screen.</item>
     </plurals>
+    <string name="phone_addon_confirm_title">Install this addon from your phone?</string>
+    <string name="phone_addon_confirm_provides">Provides: %1$s</string>
+    <plurals name="phone_addon_confirm_catalogs">
+        <item quantity="one">%d catalog for Home and Discover</item>
+        <item quantity="other">%d catalogs for Home and Discover</item>
+    </plurals>
+    <string name="phone_addon_confirm_trust">Addons are run by whoever made them. Install only ones you trust.</string>
+    <string name="phone_addon_install">Install</string>
+    <string name="phone_addon_decline">Decline</string>
+    <string name="phone_addon_installing">Installing…</string>
+    <string name="phone_addon_resource_streams">streams</string>
+    <string name="phone_addon_resource_catalogs">catalogs</string>
+    <string name="phone_addon_resource_meta">details</string>
+    <string name="phone_addon_resource_subtitles">subtitles</string>
     <string name="phone_hub_parental_blocked">This profile has parental limits. Unlock settings on the TV first.</string>
 </resources>

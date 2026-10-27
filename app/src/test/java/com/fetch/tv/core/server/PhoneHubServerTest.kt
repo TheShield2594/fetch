@@ -61,6 +61,30 @@ class PhoneHubServerTest {
             importedProfile = document
             return PhoneHubResult(true, "Added Kids.")
         }
+
+        val proposedUrls = mutableListOf<String>()
+
+        override suspend fun installedAddons() = listOf(PhoneHubAddon("Cinemeta", streams = false))
+
+        override fun addonSuggestions() =
+            listOf(PhoneHubAddonSuggestion("Subtitles", "Many languages", "https://subs.example/manifest.json"))
+
+        override suspend fun proposeAddon(url: String): PhoneHubAddonProposal {
+            proposedUrls += url
+            return if (url.contains("needs-setup")) {
+                PhoneHubAddonProposal(
+                    PhoneHubAddonStatus.NEEDS_CONFIGURATION,
+                    name = "Setup",
+                    configureUrl = "$url/configure",
+                    message = "Setup has to be set up first."
+                )
+            } else {
+                PhoneHubAddonProposal(PhoneHubAddonStatus.PENDING, id = "req-1", name = "Streams")
+            }
+        }
+
+        override fun addonProposal(id: String) =
+            if (id == "req-1") PhoneHubAddonProposal(PhoneHubAddonStatus.INSTALLED, id = id, name = "Streams") else null
     }
 
     private val actions = FakeActions()
@@ -84,6 +108,7 @@ class PhoneHubServerTest {
     fun `landing page links every section`() {
         val page = body(server.serve(FakeHttpSession("/")))
         assertTrue(page.contains("href=\"/remote\""))
+        assertTrue(page.contains("href=\"/addons\""))
         assertTrue(page.contains("href=\"/accounts\""))
         assertTrue(page.contains("href=\"/ranking\""))
         assertTrue(page.contains("href=\"/profiles\""))
@@ -184,6 +209,45 @@ class PhoneHubServerTest {
         val imported = post("/api/profiles/import", """{"format":"fetch-profile","version":1}""")
         assertEquals(NanoHTTPD.Response.Status.OK, imported.status)
         assertEquals(JsonPrimitive("fetch-profile"), actions.importedProfile?.get("format"))
+    }
+
+    @Test
+    fun `addons page lists what is installed and the suggestions`() {
+        assertTrue(body(server.serve(FakeHttpSession("/addons"))).contains("Send to TV"))
+        val json = body(server.serve(FakeHttpSession("/api/addons")))
+        assertTrue(json.contains("\"name\":\"Cinemeta\""))
+        assertTrue(json.contains("\"streams\":false"))
+        assertTrue(json.contains("https://subs.example/manifest.json"))
+    }
+
+    @Test
+    fun `an addon link is normalized and waits for the TV`() {
+        val response = post("/api/addons", """{"url":"stremio://streams.example/abc/manifest.json"}""")
+        assertEquals(NanoHTTPD.Response.Status.OK, response.status)
+        assertTrue(body(response).contains("\"status\":\"pending\""))
+        assertEquals(listOf("https://streams.example/abc"), actions.proposedUrls)
+
+        val status = server.serve(FakeHttpSession("/api/addons/status", parameters = mapOf("id" to listOf("req-1"))))
+        assertTrue(body(status).contains("\"status\":\"installed\""))
+
+        val forgotten = server.serve(FakeHttpSession("/api/addons/status", parameters = mapOf("id" to listOf("old"))))
+        assertTrue(body(forgotten).contains("\"status\":\"failed\""))
+    }
+
+    @Test
+    fun `an addon that must be set up first sends the phone to its setup page`() {
+        val json = body(post("/api/addons", """{"url":"https://needs-setup.example/manifest.json"}"""))
+        assertTrue(json.contains("\"status\":\"needs_configuration\""))
+        assertTrue(json.contains("\"configureUrl\":\"https://needs-setup.example/configure\""))
+    }
+
+    @Test
+    fun `addon links that are not links never reach the TV`() {
+        assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, post("/api/addons", """{"url":"ftp://x/manifest.json"}""").status)
+        assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, post("/api/addons", """{"url":""}""").status)
+        val long = "https://x.example/" + "a".repeat(9_000)
+        assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, post("/api/addons", """{"url":"$long"}""").status)
+        assertTrue(actions.proposedUrls.isEmpty())
     }
 
     @Test

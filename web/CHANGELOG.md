@@ -23,6 +23,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **The TV finds the server by itself.** A new `mdns` service in `docker-compose.yml` announces the server on the LAN as `_fetch._tcp`, with the public API and web URLs in its TXT record, so the TV app's setup wizard lists it instead of asking for an address. It runs on the host network, since multicast doesn't cross Docker's bridge; a non-Docker install sets `FETCH_MDNS=true` on the API instead. See README.md, "Finding the server from the TV".
+
 - **MDBList ratings on detail pages, as on the TV.** Settings → Ratings from MDBList takes a profile's own MDBList API key, checked with MDBList and stored encrypted, or uses its MDBList sign-in when it has no key. Detail pages then show IMDb, Trakt, TMDB, Rotten Tomatoes, Audience, Letterboxd, Metacritic and MyAnimeList scores in place of the OMDb ones, with the visibility and order settings the TV syncs, so a change on either side reaches the other.
 
 - **Plex, Jellyfin and Emby sign-ins, as on the TV.** Settings → Media Servers signs a profile in to Plex with a plex.tv/link code, or to Jellyfin and Emby with the server's address, user name and password. With Import watch progress on, each server's watched state comes in as plays and where you stopped as resume points, hourly and on demand, and plays recorded in Fetch are marked played on the servers. Only the admin's profiles may use a server on the home network.

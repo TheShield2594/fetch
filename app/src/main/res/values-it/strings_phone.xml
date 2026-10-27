@@ -4,10 +4,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">Il telefono deve essere sulla stessa rete Wi-Fi di questa TV. Puoi farlo anche più tardi nelle Impostazioni.</string>
     <string name="first_run_phone_qr_description">Codice di configurazione per telefono</string>
-    <string name="first_run_phone_step_accounts">Accedi a Trakt, Simkl o Jellyfin</string>
-    <string name="first_run_phone_step_rules">Scegli le regole di qualità degli stream</string>
     <string name="first_run_phone_step_scan">Scansiona con la fotocamera del telefono</string>
-    <string name="first_run_phone_title">Configura con il telefono. Niente digitazione col telecomando.</string>
     <string name="first_run_recommended">Consigliato</string>
     <string name="phone_hub_description">Scansiona un solo codice per usare il telefono come telecomando e tastiera, accedere agli account e modificare impostazioni lunghe.</string>
     <string name="phone_hub_instruction">Scansiona con il telefono. Il codice funziona una volta; la pagina resta aperta finché è aperta questa schermata.</string>

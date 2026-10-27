@@ -3,10 +3,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">আপনার ফোনকে এই টিভির একই Wi-Fi-তে থাকতে হবে। আপনি এটি পরে সেটিংস থেকেও করতে পারেন।</string>
     <string name="first_run_phone_qr_description">ফোন সেটআপ কোড</string>
-    <string name="first_run_phone_step_accounts">Trakt, Simkl বা Jellyfin-এ সাইন ইন করুন</string>
-    <string name="first_run_phone_step_rules">স্ট্রিমের মানের নিয়ম বেছে নিন</string>
     <string name="first_run_phone_step_scan">আপনার ফোনের ক্যামেরা দিয়ে স্ক্যান করুন</string>
-    <string name="first_run_phone_title">আপনার ফোন দিয়ে সেটআপ করুন। রিমোটে টাইপ করার ঝামেলা নেই।</string>
     <string name="first_run_recommended">প্রস্তাবিত</string>
     <string name="phone_hub_description">একটি কোড স্ক্যান করে আপনার ফোনকে রিমোট ও কীবোর্ড হিসেবে ব্যবহার করুন, অ্যাকাউন্টে সাইন ইন করুন এবং লম্বা সেটিংস এডিট করুন।</string>
     <string name="phone_hub_instruction">আপনার ফোন দিয়ে স্ক্যান করুন। কোডটি একবারই কাজ করে; এই স্ক্রিন খোলা থাকা পর্যন্ত পেজটি খোলা থাকে।</string>

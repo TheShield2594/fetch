@@ -3,10 +3,7 @@
     <!-- Fetch: new and changed strings -->
     <string name="first_run_phone_network">Телефонът ти трябва да е в същата Wi-Fi мрежа като този телевизор. Можеш да направиш това и по-късно в Настройки.</string>
     <string name="first_run_phone_qr_description">Код за настройка с телефон</string>
-    <string name="first_run_phone_step_accounts">Влез в Trakt, Simkl или Jellyfin</string>
-    <string name="first_run_phone_step_rules">Изберете правила за качество на потоците</string>
     <string name="first_run_phone_step_scan">Сканирай с камерата на телефона си</string>
-    <string name="first_run_phone_title">Настрой с телефона си. Без писане с дистанционното.</string>
     <string name="first_run_recommended">Препоръчително</string>
     <string name="phone_hub_description">Сканирай един код, за да използваш телефона си като дистанционно и клавиатура, да влизаш в акаунти и да редактираш дълги настройки.</string>
     <string name="phone_hub_instruction">Сканирай с телефона си. Кодът работи веднъж; страницата остава отворена, докато е отворен този екран.</string>

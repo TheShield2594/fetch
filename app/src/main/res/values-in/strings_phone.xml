@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Fetch: new and changed strings -->
-    <string name="first_run_phone_title">Atur dengan ponsel. Tanpa mengetik pakai remote.</string>
     <string name="first_run_phone_qr_description">Kode pengaturan ponsel</string>
     <string name="first_run_phone_step_scan">Pindai dengan kamera ponsel</string>
-    <string name="first_run_phone_step_rules">Pilih aturan kualitas stream</string>
-    <string name="first_run_phone_step_accounts">Masuk ke Trakt, Simkl, atau Jellyfin</string>
     <string name="first_run_phone_network">Ponsel Anda harus terhubung ke Wi-Fi yang sama dengan TV ini. Anda juga bisa melakukannya nanti di Pengaturan.</string>
     <string name="first_run_recommended">Direkomendasikan</string>
     <string name="phone_hub_title">Konfigurasi dari ponsel</string>

@@ -19,6 +19,7 @@ fun PhoneHubScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val qrCode by viewModel.qrCode.collectAsStateWithLifecycle()
+    val pendingAddon by viewModel.pendingAddon.collectAsStateWithLifecycle()
 
     DisposableEffect(viewModel) {
         viewModel.onScreenOpened()
@@ -36,6 +37,8 @@ fun PhoneHubScreen(
         serverUrl = state.url,
         instruction = instruction,
         onClose = onBackPress,
+        hasPendingChange = pendingAddon != null,
         qrSize = 260.dp
     )
+    PhoneAddonConfirmDialog(viewModel)
 }

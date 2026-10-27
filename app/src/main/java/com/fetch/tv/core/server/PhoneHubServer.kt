@@ -1,5 +1,6 @@
 package com.fetch.tv.core.server
 
+import com.fetch.tv.core.addon.normalizeAddonInstallUrl
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.remote.RemoteKey
@@ -37,6 +38,26 @@ data class PhoneHubAccountStatus(
     val mediaServers: List<String>
 )
 
+/** An installed addon as the phone's Addons page lists it. */
+data class PhoneHubAddon(val name: String, val streams: Boolean)
+
+/** A suggestion on the phone's Addons page: one tap sends [url] to the TV, like a pasted link. */
+data class PhoneHubAddonSuggestion(val name: String, val description: String, val url: String)
+
+enum class PhoneHubAddonStatus { PENDING, INSTALLED, REJECTED, NEEDS_CONFIGURATION, FAILED }
+
+/**
+ * Where an addon sent from the phone has got to. [configureUrl] is the addon's own setup page,
+ * set when it has one; with [PhoneHubAddonStatus.NEEDS_CONFIGURATION] it must be used first.
+ */
+data class PhoneHubAddonProposal(
+    val status: PhoneHubAddonStatus,
+    val id: String? = null,
+    val name: String? = null,
+    val configureUrl: String? = null,
+    val message: String? = null
+)
+
 /** What the phone hub can do on the TV. Implemented by [PhoneHubController]. */
 interface PhoneHubActions {
     fun sendRemote(command: RemoteCommand): Boolean
@@ -51,12 +72,18 @@ interface PhoneHubActions {
     /** The profile as a file for [importProfile] on another TV; fails with a message to show. */
     suspend fun exportProfile(profileId: Int): Result<JsonObject>
     suspend fun importProfile(document: JsonObject): PhoneHubResult
+    suspend fun installedAddons(): List<PhoneHubAddon>
+    fun addonSuggestions(): List<PhoneHubAddonSuggestion>
+    /** Reads the manifest at [url] and asks the TV to confirm installing it. */
+    suspend fun proposeAddon(url: String): PhoneHubAddonProposal
+    /** The state of a proposal from [proposeAddon], or null once the TV no longer knows it. */
+    fun addonProposal(id: String): PhoneHubAddonProposal?
 }
 
 /**
  * One phone page for everything that needs typing: the landing page links to the remote and
- * keyboard, account sign-ins, stream ranking rules, and the existing pages for stream badges
- * and custom posters, which are served under their own prefix.
+ * keyboard, addons (each confirmed on the TV), account sign-ins, stream ranking rules, and the
+ * existing pages for stream badges and custom posters, which are served under their own prefix.
  */
 class PhoneHubServer(
     private val actions: PhoneHubActions,
@@ -96,6 +123,7 @@ class PhoneHubServer(
         session.method == Method.GET && uri == "/accounts" -> html(PhoneHubWebPage.accounts())
         session.method == Method.GET && uri == "/ranking" -> html(PhoneHubWebPage.ranking())
         session.method == Method.GET && uri == "/profiles" -> html(PhoneHubWebPage.profiles())
+        session.method == Method.GET && uri == "/addons" -> html(PhoneHubWebPage.addons())
         session.method == Method.POST && uri == "/api/remote" -> handleRemote(readJson(session))
         session.method == Method.GET && uri == "/api/accounts" -> jsonResponse(accountsJson())
         session.method == Method.POST && uri == "/api/accounts/mdblist" -> handleMdbList(readJson(session))
@@ -103,6 +131,9 @@ class PhoneHubServer(
         session.method == Method.POST && uri == "/api/accounts/tracker" -> handleTracker(readJson(session))
         session.method == Method.GET && uri == "/api/ranking" -> jsonResponse(rankingJson())
         session.method == Method.POST && uri == "/api/ranking" -> handleRanking(session)
+        session.method == Method.GET && uri == "/api/addons" -> jsonResponse(addonsJson())
+        session.method == Method.POST && uri == "/api/addons" -> handleAddonProposal(readJson(session))
+        session.method == Method.GET && uri == "/api/addons/status" -> handleAddonStatus(session)
         session.method == Method.GET && uri == "/api/profiles" -> jsonResponse(profilesJson())
         session.method == Method.GET && uri == "/api/profiles/export" -> handleProfileExport(session)
         session.method == Method.POST && uri == "/api/profiles/import" ->
@@ -162,6 +193,50 @@ class PhoneHubServer(
         runBlocking { actions.saveRankingRules(rules) }
         return ok()
     }
+
+    private fun addonsJson(): JsonElement = buildJsonObject {
+        put("installed", buildJsonArray {
+            runBlocking { actions.installedAddons() }.forEach { addon ->
+                add(buildJsonObject {
+                    put("name", addon.name)
+                    put("streams", addon.streams)
+                })
+            }
+        })
+        put("suggestions", buildJsonArray {
+            actions.addonSuggestions().forEach { suggestion ->
+                add(buildJsonObject {
+                    put("name", suggestion.name)
+                    put("description", suggestion.description)
+                    put("url", suggestion.url)
+                })
+            }
+        })
+    }
+
+    private fun handleAddonProposal(body: JsonObject): Response {
+        // Configured addon links carry their settings and can run long, so not requiredText's limit.
+        val raw = body.string("url")?.trim()?.takeIf { it.isNotEmpty() } ?: throw IllegalArgumentException("Missing url.")
+        require(raw.length <= MAX_ADDON_URL_LENGTH) { "That link is too long." }
+        val url = normalizeAddonInstallUrl(raw)
+            ?: throw IllegalArgumentException("That isn't an addon link. It starts with https:// and usually ends in manifest.json.")
+        return proposalResponse(runBlocking { actions.proposeAddon(url) })
+    }
+
+    private fun handleAddonStatus(session: IHTTPSession): Response {
+        val id = session.parameters["id"]?.firstOrNull() ?: throw IllegalArgumentException("Missing id.")
+        val proposal = actions.addonProposal(id)
+            ?: PhoneHubAddonProposal(PhoneHubAddonStatus.FAILED, id = id, message = "The TV no longer has this request. Send it again.")
+        return proposalResponse(proposal)
+    }
+
+    private fun proposalResponse(proposal: PhoneHubAddonProposal): Response = jsonResponse(buildJsonObject {
+        put("status", proposal.status.name.lowercase())
+        proposal.id?.let { put("id", it) }
+        proposal.name?.let { put("name", it) }
+        proposal.configureUrl?.let { put("configureUrl", it) }
+        proposal.message?.let { put("message", it) }
+    })
 
     private fun profilesJson(): JsonElement = buildJsonObject {
         put("profiles", buildJsonArray {
@@ -297,6 +372,7 @@ class PhoneHubServer(
         const val SECTION_BADGES = "badges"
         const val SECTION_POSTERS = "posters"
         private const val MAX_BODY_BYTES = 256 * 1024
+        private const val MAX_ADDON_URL_LENGTH = 8 * 1024
         // A profile file carries the whole watch history.
         private const val MAX_PROFILE_BYTES = 16 * 1024 * 1024
 

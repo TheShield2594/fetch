@@ -32,6 +32,7 @@ import { cleanupStaleSessions, SCROBBLE_CLEANUP_INTERVAL_MS } from "./routes/scr
 import { everyInterval, parseIntervalSec } from "./lib/scheduler.js";
 import { bodyTooLargeMessage, isBodyTooLargeError, mbToBytes, parseMaxBodySizeMb } from "./lib/body-limit.js";
 import { isServiceRequest } from "./lib/service-request.js";
+import { isMdnsEnabled, mdnsConfigFromEnv, startMdnsAdvertiser, type MdnsAdvertiser } from "./lib/mdns.js";
 import { instrumentUpstreamFetch, recordRequest } from "./lib/metrics.js";
 import {
   isSchemaValidationError,
@@ -525,7 +526,15 @@ const start = async () => {
   }
 
   await app.listen({ port, host: "0.0.0.0" });
+
+  // Only when the API itself sits on the LAN (no Docker, or host networking);
+  // the compose file runs the separate `mdns` service instead.
+  if (isMdnsEnabled(process.env)) {
+    mdnsAdvertiser = await startMdnsAdvertiser(mdnsConfigFromEnv(process.env), app.log);
+  }
 };
+
+let mdnsAdvertiser: MdnsAdvertiser | undefined;
 
 // ─── Graceful shutdown ───
 
@@ -536,6 +545,7 @@ const shutdown = async (signal: string) => {
   app.log.info({ signal }, "Shutting down API service");
 
   try {
+    await mdnsAdvertiser?.stop();
     await app.close();
     await prisma.$disconnect();
     app.log.info("API service shutdown complete");

@@ -252,6 +252,32 @@ Fetch's add-on service speaks the standard Stremio add-on protocol, so it works 
 
 The Stremio app is the way to use Fetch on a TV. The web app is built for touch and pointer input: it has no D-pad/arrow-key focus navigation and no 10-foot layout, so while it will load in an Android TV browser, driving it with a remote is painful. Apple TV has no web browser at all, so Omni plus the add-on is the only route there.
 
+### Finding the server from the TV
+
+The Fetch TV app's setup wizard (and **Settings → Account → Fetch website**) lists Fetch servers it finds on your network, so pairing the TV is a matter of picking one and confirming the code. The `mdns` service in `docker-compose.yml` is what makes it findable: it announces `_fetch._tcp` over multicast DNS with `FETCH_API_PUBLIC` and `FETCH_WEB_PUBLIC` in the TXT record, and answers on the host's LAN address. The TV pairs against `FETCH_API_PUBLIC` when that answers and falls back to the host's LAN address and the api port when it doesn't.
+
+- **It runs on the host network.** Multicast doesn't cross Docker's default bridge network, so only this small service (no database, no secrets) uses `network_mode: host`; the api stays on the bridge. Docker Desktop on macOS and Windows doesn't give containers the host network, so there the service starts but the TV won't hear it.
+- **The name and port.** The TV shows `FETCH_MDNS_NAME` (default `Fetch (<host name>)`). `FETCH_MDNS_PORT` is the host port the api is published on, `7000` unless you changed the `ports:` mapping.
+- **Without Docker,** set `FETCH_MDNS=true` on the API and it announces itself.
+- **A host already running Avahi** usually shares UDP 5353 fine. If the `mdns` log says it couldn't listen on 5353, remove the service and let Avahi announce Fetch instead, with `/etc/avahi/services/fetch.service`:
+
+  ```xml
+  <?xml version="1.0" standalone="no"?>
+  <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+  <service-group>
+    <name replace-wildcards="yes">Fetch (%h)</name>
+    <service>
+      <type>_fetch._tcp</type>
+      <port>7000</port>
+      <txt-record>v=1</txt-record>
+      <txt-record>api=http://LAN-IP:7000</txt-record>
+      <txt-record>web=http://LAN-IP:7002</txt-record>
+    </service>
+  </service-group>
+  ```
+
+- **When the TV can't see it** (the TV on another subnet or VLAN, or a router that filters multicast), choose **Enter the address** on the TV and type the API's address, `http://LAN-IP:7000` — or your domain, if you set up one address for everything as in [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup).
+
 ### Profiles and the add-on URL
 
 Stremio and Omni have no way to say *who* is watching — the installed URL is the only thing that distinguishes one installation from another. Fetch therefore binds a profile to the URL itself:
@@ -448,6 +474,8 @@ FETCH_API_PUBLIC=https://fetch.example.com/api
 FETCH_WEB_PUBLIC=https://fetch.example.com
 FETCH_ALLOWED_ORIGINS=https://fetch.example.com
 ```
+
+With one address for everything, the TV only needs that one URL too: it pairs against `FETCH_API_PUBLIC` (here `https://fetch.example.com/api`), which the `mdns` service announces, and the pairing code it shows links to `FETCH_WEB_PUBLIC`.
 
 `FETCH_WEB_PUBLIC` is also what invite links are built from. With Trakt, the redirect URI becomes `https://fetch.example.com/api/trakt/oauth/callback`. At home, open the same domain rather than the LAN IP, or add the LAN address to `FETCH_ALLOWED_ORIGINS` as well.
 

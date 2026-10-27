@@ -506,6 +506,8 @@ class PlayerRuntimeController(
     internal var exoStoppedForLifecycle: Boolean = false
     // Set when the player is stopped on purpose and prepared again on the same item.
     internal var holdExoTracksAcrossStop: Boolean = false
+    // elapsedRealtime of the last ExoPlayer release; 0 until one has been released.
+    internal var lastExoPlayerReleaseElapsedMs: Long = 0L
     internal var backgroundCrashSavedPositionMs: Long = 0L
 
     internal var skipIntervals: List<SkipInterval> = emptyList()

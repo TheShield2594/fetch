@@ -2,8 +2,13 @@ package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.core.player.FrameRateUtils
 import com.fetch.tv.data.local.FrameRateMatchingMode
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -26,17 +31,85 @@ class AfrPreflightPolicyTest {
     }
 
     @Test
-    fun `preflight budgets stay short and prefer OkHttp with remaining-time fallbacks`() {
+    fun `preflight budgets stay short and the probes race behind a head start`() {
         assertEquals(15_000L, AFR_PREFLIGHT_OKHTTP_TIMEOUT_MS)
         assertEquals(10_000L, AFR_PREFLIGHT_NEXTLIB_TIMEOUT_MS)
         assertEquals(5_000L, AFR_PREFLIGHT_FALLBACK_TIMEOUT_MS)
-        assertEquals(18_000L, AFR_PREFLIGHT_TOTAL_TIMEOUT_MS)
-        assertEquals(2_000L, AFR_PREFLIGHT_MIN_STAGE_MS)
+        assertEquals(15_000L, AFR_PREFLIGHT_TOTAL_TIMEOUT_MS)
+        assertEquals(2_000L, AFR_PREFLIGHT_STAGE_HEAD_START_MS)
         // User-facing await must not grow with cold-CDN retries; warmup is inside OkHttp.
         assertTrue(AFR_PREFLIGHT_TOTAL_TIMEOUT_MS >= AFR_PREFLIGHT_OKHTTP_TIMEOUT_MS)
+        // Every probe gets its full budget inside the total, even when started late.
+        assertTrue(AFR_PREFLIGHT_STAGE_HEAD_START_MS + AFR_PREFLIGHT_NEXTLIB_TIMEOUT_MS <= AFR_PREFLIGHT_TOTAL_TIMEOUT_MS)
+        assertTrue(2 * AFR_PREFLIGHT_STAGE_HEAD_START_MS + AFR_PREFLIGHT_FALLBACK_TIMEOUT_MS <= AFR_PREFLIGHT_TOTAL_TIMEOUT_MS)
         assertTrue(AFR_PREFLIGHT_NEXTLIB_TIMEOUT_MS < LEGACY_0_7_10_NEXTLIB_TIMEOUT_MS)
         assertTrue(AFR_PREFLIGHT_FALLBACK_TIMEOUT_MS < LEGACY_0_7_10_FALLBACK_TIMEOUT_MS)
         assertEquals(262_144L, FrameRateUtils.AFR_CDN_WARMUP_MAX_BYTES)
+    }
+
+    @Test
+    fun `fast first probe wins without starting the others`() = runTest {
+        val startedAt = mutableListOf<Long>()
+        val result = firstNonNullStaggered<String>(
+            headStartMs = 2_000L,
+            probes = listOf(
+                { startedAt += currentTime; delay(500L); "okhttp" },
+                { startedAt += currentTime; "nextlib" },
+                { startedAt += currentTime; "extractor" }
+            )
+        )
+        assertEquals("okhttp", result)
+        assertEquals(listOf(0L), startedAt)
+        assertEquals(500L, currentTime)
+    }
+
+    @Test
+    fun `slow first probe loses to a later probe once its head start elapses`() = runTest {
+        var okHttpCancelled = false
+        val result = firstNonNullStaggered<String>(
+            headStartMs = 2_000L,
+            probes = listOf(
+                {
+                    try {
+                        delay(15_000L); "okhttp"
+                    } catch (e: CancellationException) {
+                        okHttpCancelled = true
+                        throw e
+                    }
+                },
+                { delay(1_000L); "nextlib" },
+                { delay(10_000L); "extractor" }
+            )
+        )
+        assertEquals("nextlib", result)
+        // NextLib starts at 2 s and answers 1 s later, instead of after OkHttp's 15 s.
+        assertEquals(3_000L, currentTime)
+        assertTrue(okHttpCancelled)
+    }
+
+    @Test
+    fun `a failed probe starts the next one at once`() = runTest {
+        val startedAt = mutableListOf<Long>()
+        val result = firstNonNullStaggered<String>(
+            headStartMs = 2_000L,
+            probes = listOf(
+                { startedAt += currentTime; delay(300L); null },
+                { startedAt += currentTime; delay(200L); null },
+                { startedAt += currentTime; delay(100L); "extractor" }
+            )
+        )
+        assertEquals("extractor", result)
+        assertEquals(listOf(0L, 300L, 500L), startedAt)
+    }
+
+    @Test
+    fun `all probes failing yields null`() = runTest {
+        val result = firstNonNullStaggered<String>(
+            headStartMs = 2_000L,
+            probes = listOf({ delay(5_000L); null }, { null }, { delay(100L); null })
+        )
+        assertNull(result)
+        assertEquals(5_000L, currentTime)
     }
 
     @Test

@@ -2328,6 +2328,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Без обмежень</string>
+    <string name="parental_title_hide">Приховати від %1$s</string>
+    <string name="parental_title_limits">Батьківські обмеження для цього контенту</string>
+    <string name="parental_title_dialog_subtitle">Виберіть, як кожен профіль ставиться до цього контенту. Прихований контент ніде не показується в цьому профілі, а дозволений показується незалежно від рейтингу.</string>
+    <string name="parental_title_state_rating">%1$s: вирішує обмеження за рейтингом</string>
+    <string name="parental_title_state_hidden">%1$s: приховано</string>
+    <string name="parental_title_state_allowed">%1$s: завжди дозволено</string>
+    <string name="parental_hidden_titles">Прихований контент</string>
+    <string name="parental_allowed_titles">Завжди дозволений контент</string>
+    <string name="parental_title_lists_hint">Виберіть контент, щоб знову підпорядкувати його обмеженню за рейтингом</string>
     <string name="parental_limits_label">Батьківські обмеження</string>
     <string name="parental_limits_saved">Батьківські обмеження для %1$s збережено</string>
     <string name="parental_limits_subtitle">Для змін потрібен PIN основного профілю. Контент понад ліміт приховано з головної, пошуку й «Продовжити перегляд», і його не можна відтворити.</string>

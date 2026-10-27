@@ -836,6 +836,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Fără limită</string>
+    <string name="parental_title_hide">Ascunde de %1$s</string>
+    <string name="parental_title_limits">Restricții parentale pentru acest titlu</string>
+    <string name="parental_title_dialog_subtitle">Alege cum tratează fiecare profil acest titlu. Un titlu ascuns nu apare nicăieri în acel profil; unul permis apare indiferent de clasificare.</string>
+    <string name="parental_title_state_rating">%1$s: decide limita de clasificare</string>
+    <string name="parental_title_state_hidden">%1$s: ascuns</string>
+    <string name="parental_title_state_allowed">%1$s: întotdeauna permis</string>
+    <string name="parental_hidden_titles">Titluri ascunse</string>
+    <string name="parental_allowed_titles">Titluri permise întotdeauna</string>
+    <string name="parental_title_lists_hint">Selectează un titlu pentru a-l lăsa din nou sub limita de clasificare</string>
     <string name="parental_limits_label">Restricții parentale</string>
     <string name="parental_limits_saved">Restricțiile parentale au fost salvate pentru %1$s</string>
     <string name="parental_limits_subtitle">Modificările necesită PIN-ul profilului principal. Titlurile peste limită sunt ascunse din Acasă, căutare și Continuă vizionarea și nu pot fi redate.</string>

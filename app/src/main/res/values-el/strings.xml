@@ -2861,6 +2861,15 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Χωρίς όριο</string>
+    <string name="parental_title_hide">Απόκρυψη από %1$s</string>
+    <string name="parental_title_limits">Γονικά όρια για αυτόν τον τίτλο</string>
+    <string name="parental_title_dialog_subtitle">Επίλεξε πώς αντιμετωπίζει κάθε προφίλ αυτόν τον τίτλο. Ένας κρυμμένος τίτλος δεν εμφανίζεται πουθενά σε αυτό το προφίλ· ένας επιτρεπόμενος εμφανίζεται ανεξάρτητα από τη διαβάθμισή του.</string>
+    <string name="parental_title_state_rating">%1$s: αποφασίζει το όριο διαβάθμισης</string>
+    <string name="parental_title_state_hidden">%1$s: κρυμμένος</string>
+    <string name="parental_title_state_allowed">%1$s: πάντα επιτρεπόμενος</string>
+    <string name="parental_hidden_titles">Κρυμμένοι τίτλοι</string>
+    <string name="parental_allowed_titles">Πάντα επιτρεπόμενοι τίτλοι</string>
+    <string name="parental_title_lists_hint">Επίλεξε έναν τίτλο για να τον αφήσεις ξανά στο όριο διαβάθμισης</string>
     <string name="ready_to_play">Έτοιμο για αναπαραγωγή</string>
     <string name="home_row_ready_tonight">Έτοιμο για απόψε</string>
     <string name="ready_check_title">Έλεγχος στο παρασκήνιο για ό,τι είναι έτοιμο</string>

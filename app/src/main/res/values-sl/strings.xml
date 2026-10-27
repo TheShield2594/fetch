@@ -2032,6 +2032,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Brez omejitve</string>
+    <string name="parental_title_hide">Skrij pred %1$s</string>
+    <string name="parental_title_limits">Starševske omejitve za ta naslov</string>
+    <string name="parental_title_dialog_subtitle">Izberi, kako posamezen profil obravnava ta naslov. Skriti naslov se v tem profilu ne prikaže nikjer, dovoljeni pa se prikaže ne glede na oceno.</string>
+    <string name="parental_title_state_rating">%1$s: odloča omejitev ocene</string>
+    <string name="parental_title_state_hidden">%1$s: skrito</string>
+    <string name="parental_title_state_allowed">%1$s: vedno dovoljeno</string>
+    <string name="parental_hidden_titles">Skriti naslovi</string>
+    <string name="parental_allowed_titles">Vedno dovoljeni naslovi</string>
+    <string name="parental_title_lists_hint">Izberi naslov, da o njem spet odloča omejitev ocene</string>
     <string name="parental_limits_label">Starševske omejitve</string>
     <string name="parental_limits_saved">Starševske omejitve za %1$s so shranjene</string>
     <string name="parental_limits_subtitle">Za spremembe je potreben PIN glavnega profila. Naslovi nad omejitvijo so skriti na začetnem zaslonu, v iskanju in v Nadaljuj z gledanjem ter jih ni mogoče predvajati.</string>

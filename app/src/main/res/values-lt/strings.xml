@@ -973,6 +973,15 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Be apribojimų</string>
+    <string name="parental_title_hide">Slėpti nuo %1$s</string>
+    <string name="parental_title_limits">Tėvų apribojimai šiam pavadinimui</string>
+    <string name="parental_title_dialog_subtitle">Pasirinkite, kaip kiekvienas profilis elgiasi su šiuo pavadinimu. Paslėptas pavadinimas tame profilyje nerodomas niekur; leidžiamas rodomas nepaisant jo klasifikacijos.</string>
+    <string name="parental_title_state_rating">%1$s: lemia klasifikacijos riba</string>
+    <string name="parental_title_state_hidden">%1$s: paslėpta</string>
+    <string name="parental_title_state_allowed">%1$s: visada leidžiama</string>
+    <string name="parental_hidden_titles">Paslėpti pavadinimai</string>
+    <string name="parental_allowed_titles">Visada leidžiami pavadinimai</string>
+    <string name="parental_title_lists_hint">Pasirinkite pavadinimą, kad vėl lemtų klasifikacijos riba</string>
     <string name="parental_limits_label">Tėvų apribojimai</string>
     <string name="parental_limits_saved">Tėvų apribojimai išsaugoti: %1$s</string>
     <string name="parental_limits_subtitle">Pakeitimams reikia pagrindinio profilio PIN. Ribą viršijantys pavadinimai paslepiami pagrindiniame ekrane, paieškoje ir „Tęsti žiūrėjimą“ ir negali būti paleisti.</string>

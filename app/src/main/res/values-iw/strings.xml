@@ -2884,6 +2884,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">ללא הגבלה</string>
+    <string name="parental_title_hide">הסתרה מ-%1$s</string>
+    <string name="parental_title_limits">הגבלות הורים לכותר זה</string>
+    <string name="parental_title_dialog_subtitle">בחרו איך כל פרופיל מתייחס לכותר זה. כותר מוסתר לא מופיע בשום מקום בפרופיל, וכותר מותר מופיע בלי קשר לסיווג שלו.</string>
+    <string name="parental_title_state_rating">%1$s: ההגבלה לפי סיווג קובעת</string>
+    <string name="parental_title_state_hidden">%1$s: מוסתר</string>
+    <string name="parental_title_state_allowed">%1$s: מותר תמיד</string>
+    <string name="parental_hidden_titles">כותרים מוסתרים</string>
+    <string name="parental_allowed_titles">כותרים מותרים תמיד</string>
+    <string name="parental_title_lists_hint">בחרו כותר כדי להחזיר אותו להגבלת הסיווג</string>
     <string name="parental_limits_label">הגבלות הורים</string>
     <string name="parental_limits_saved">הגבלות ההורים נשמרו עבור %1$s</string>
     <string name="parental_limits_subtitle">שינויים דורשים את קוד ה-PIN של הפרופיל הראשי. כותרים מעל ההגבלה מוסתרים מדף הבית, מהחיפוש ומהמשך הצפייה ולא ניתן לנגן אותם.</string>

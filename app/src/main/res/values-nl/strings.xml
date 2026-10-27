@@ -2639,6 +2639,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Geen limiet</string>
+    <string name="parental_title_hide">Verbergen voor %1$s</string>
+    <string name="parental_title_limits">Ouderlijke beperkingen voor deze titel</string>
+    <string name="parental_title_dialog_subtitle">Kies hoe elk profiel met deze titel omgaat. Een verborgen titel verschijnt nergens in dat profiel; een toegestane titel verschijnt ongeacht de leeftijdsclassificatie.</string>
+    <string name="parental_title_state_rating">%1$s: leeftijdslimiet beslist</string>
+    <string name="parental_title_state_hidden">%1$s: verborgen</string>
+    <string name="parental_title_state_allowed">%1$s: altijd toegestaan</string>
+    <string name="parental_hidden_titles">Verborgen titels</string>
+    <string name="parental_allowed_titles">Altijd toegestane titels</string>
+    <string name="parental_title_lists_hint">Selecteer een titel om het weer aan de leeftijdslimiet over te laten</string>
     <string name="parental_limits_label">Ouderlijke beperkingen</string>
     <string name="parental_limits_saved">Ouderlijke beperkingen opgeslagen voor %1$s</string>
     <string name="parental_limits_subtitle">Voor wijzigingen is de pincode van het hoofdprofiel nodig. Titels boven de limiet worden verborgen in Home, zoeken en Verder kijken en kunnen niet worden afgespeeld.</string>

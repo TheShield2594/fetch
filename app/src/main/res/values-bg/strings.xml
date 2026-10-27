@@ -2295,6 +2295,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Без ограничение</string>
+    <string name="parental_title_hide">Скриване от %1$s</string>
+    <string name="parental_title_limits">Родителски ограничения за това заглавие</string>
+    <string name="parental_title_dialog_subtitle">Избери как всеки профил третира това заглавие. Скритото заглавие не се показва никъде в този профил, а разрешеното се показва независимо от рейтинга си.</string>
+    <string name="parental_title_state_rating">%1$s: решава ограничението по рейтинг</string>
+    <string name="parental_title_state_hidden">%1$s: скрито</string>
+    <string name="parental_title_state_allowed">%1$s: винаги разрешено</string>
+    <string name="parental_hidden_titles">Скрити заглавия</string>
+    <string name="parental_allowed_titles">Винаги разрешени заглавия</string>
+    <string name="parental_title_lists_hint">Избери заглавие, за да го върнеш към ограничението по рейтинг</string>
     <string name="parental_limits_label">Родителски ограничения</string>
     <string name="parental_limits_saved">Родителските ограничения за %1$s са запазени</string>
     <string name="parental_limits_subtitle">Промените изискват PIN на основния профил. Заглавията над ограничението се скриват от Начало, търсенето и Продължаване на гледането и не могат да се пускат.</string>

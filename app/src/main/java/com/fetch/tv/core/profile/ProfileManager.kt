@@ -119,7 +119,7 @@ class ProfileManager @Inject constructor(
         credentialStores.forEach { store -> store.removeProfile(id) }
         // A new profile can reuse this id, so its PIN and limits must not survive.
         profileLockStateDataStore.removeProfile(id)
-        profileRestrictionsDataStore.removeProfile(id)
+        profileRestrictionsDataStore.deleteProfile(id)
         deleteProfileDataAsync(id)
         profileDataStore.deleteProfile(id)
         return true

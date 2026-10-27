@@ -276,6 +276,7 @@ fun ProfileSelectionScreen(
     val isCopyingSettings by viewModel.isCopyingSettings.collectAsState()
     val profilePinEnabled by viewModel.profilePinEnabled.collectAsState()
     val profileRestrictions by viewModel.profileRestrictions.collectAsState()
+    val profileTitleLists by viewModel.profileTitleLists.collectAsState()
     val isPinOperationInProgress by viewModel.isPinOperationInProgress.collectAsState()
     val avatarImageUrlsById = remember(avatarCatalog, profiles) {
         buildMap {
@@ -1055,7 +1056,9 @@ fun ProfileSelectionScreen(
                     limitsTarget = null
                     profileActionMessage = context.getString(R.string.parental_limits_saved, targetProfile.name)
                     if (restrictions.isRestricted && !primaryHasPin) parentPinNudgeFor = targetProfile
-                }
+                },
+                titleLists = profileTitleLists[targetProfile.id] ?: com.fetch.tv.data.local.ProfileTitleLists.Empty,
+                onClearTitle = { title -> viewModel.clearParentalTitle(targetProfile.id, title) }
             )
         }
 

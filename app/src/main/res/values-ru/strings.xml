@@ -2620,6 +2620,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Без ограничений</string>
+    <string name="parental_title_hide">Скрыть от %1$s</string>
+    <string name="parental_title_limits">Родительские ограничения для этого тайтла</string>
+    <string name="parental_title_dialog_subtitle">Выберите, как каждый профиль обращается с этим тайтлом. Скрытый тайтл нигде не отображается в этом профиле, а разрешённый показывается независимо от рейтинга.</string>
+    <string name="parental_title_state_rating">%1$s: решает ограничение по рейтингу</string>
+    <string name="parental_title_state_hidden">%1$s: скрыт</string>
+    <string name="parental_title_state_allowed">%1$s: всегда разрешён</string>
+    <string name="parental_hidden_titles">Скрытые тайтлы</string>
+    <string name="parental_allowed_titles">Всегда разрешённые тайтлы</string>
+    <string name="parental_title_lists_hint">Выберите тайтл, чтобы снова подчинить его ограничению по рейтингу</string>
     <string name="parental_limits_label">Родительские ограничения</string>
     <string name="parental_limits_saved">Родительские ограничения сохранены для %1$s</string>
     <string name="parental_limits_subtitle">Для изменений нужен PIN основного профиля. Тайтлы выше ограничения скрыты на главной, в поиске и в «Продолжить просмотр» и не воспроизводятся.</string>

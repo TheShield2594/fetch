@@ -1520,6 +1520,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Ingen gräns</string>
+    <string name="parental_title_hide">Dölj för %1$s</string>
+    <string name="parental_title_limits">Föräldrabegränsningar för den här titeln</string>
+    <string name="parental_title_dialog_subtitle">Välj hur varje profil behandlar den här titeln. En dold titel visas ingenstans i den profilen; en tillåten titel visas oavsett åldersgräns.</string>
+    <string name="parental_title_state_rating">%1$s: åldersgränsen avgör</string>
+    <string name="parental_title_state_hidden">%1$s: dold</string>
+    <string name="parental_title_state_allowed">%1$s: alltid tillåten</string>
+    <string name="parental_hidden_titles">Dolda titlar</string>
+    <string name="parental_allowed_titles">Alltid tillåtna titlar</string>
+    <string name="parental_title_lists_hint">Välj en titel för att låta åldersgränsen avgöra igen</string>
     <string name="parental_limits_label">Föräldrabegränsningar</string>
     <string name="parental_limits_saved">Föräldrabegränsningar sparade för %1$s</string>
     <string name="parental_limits_subtitle">Ändringar kräver huvudprofilens PIN. Titlar över gränsen döljs från hem, sök och Fortsätt titta och kan inte spelas upp.</string>

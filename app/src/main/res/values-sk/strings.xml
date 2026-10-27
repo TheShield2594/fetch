@@ -2893,6 +2893,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Bez obmedzenia</string>
+    <string name="parental_title_hide">Skryť pre %1$s</string>
+    <string name="parental_title_limits">Rodičovské obmedzenia pre tento titul</string>
+    <string name="parental_title_dialog_subtitle">Vyber, ako sa s týmto titulom zaobchádza v jednotlivých profiloch. Skrytý titul sa v danom profile nezobrazuje nikde, povolený sa zobrazí bez ohľadu na hodnotenie.</string>
+    <string name="parental_title_state_rating">%1$s: rozhoduje limit hodnotenia</string>
+    <string name="parental_title_state_hidden">%1$s: skryté</string>
+    <string name="parental_title_state_allowed">%1$s: vždy povolené</string>
+    <string name="parental_hidden_titles">Skryté tituly</string>
+    <string name="parental_allowed_titles">Vždy povolené tituly</string>
+    <string name="parental_title_lists_hint">Vyber titul, aby sa opäť riadil limitom hodnotenia</string>
     <string name="parental_limits_label">Rodičovské obmedzenia</string>
     <string name="parental_limits_saved">Rodičovské obmedzenia pre %1$s boli uložené</string>
     <string name="parental_limits_subtitle">Zmeny vyžadujú PIN hlavného profilu. Tituly nad limitom sú skryté na obrazovke Domov, vo vyhľadávaní a v Pokračovať v sledovaní a nedajú sa prehrať.</string>

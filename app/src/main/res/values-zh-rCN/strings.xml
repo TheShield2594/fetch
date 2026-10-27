@@ -2729,6 +2729,15 @@
     <string name="parental_level_pg">PG、TV-PG</string>
     <string name="parental_level_teens">PG-13、TV-14</string>
     <string name="parental_level_unrestricted">无限制</string>
+    <string name="parental_title_hide">对 %1$s 隐藏</string>
+    <string name="parental_title_limits">此内容的家长限制</string>
+    <string name="parental_title_dialog_subtitle">选择每个个人资料如何处理此内容。隐藏的内容不会在该个人资料的任何位置显示；始终允许的内容无论分级如何都会显示。</string>
+    <string name="parental_title_state_rating">%1$s：由分级限制决定</string>
+    <string name="parental_title_state_hidden">%1$s：已隐藏</string>
+    <string name="parental_title_state_allowed">%1$s：始终允许</string>
+    <string name="parental_hidden_titles">已隐藏的内容</string>
+    <string name="parental_allowed_titles">始终允许的内容</string>
+    <string name="parental_title_lists_hint">选择一项内容，使其重新由分级限制决定</string>
     <string name="parental_limits_label">家长限制</string>
     <string name="parental_limits_saved">已为 %1$s 保存家长限制</string>
     <string name="parental_limits_subtitle">更改需要主个人资料的 PIN。超出限制的内容将从首页、搜索和继续观看中隐藏，且无法播放。</string>

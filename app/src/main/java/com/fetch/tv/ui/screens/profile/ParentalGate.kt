@@ -42,6 +42,12 @@ fun interface ParentalGate {
 
     fun runGuarded(action: () -> Unit) = runGuarded(onCancel = {}, action = action)
 
+    /**
+     * Runs [action] after the parent PIN whenever the active profile isn't the parent's, even
+     * one with no limits: hiding a title from it is the parent's call.
+     */
+    fun runParentGuarded(action: () -> Unit) = runGuarded(action)
+
     companion object {
         val Open = ParentalGate { _, action -> action() }
     }
@@ -84,8 +90,13 @@ class ParentalGateViewModel @Inject constructor(
 
     fun needsGate(): Boolean = parentalControls.needsGate()
 
-    override fun runGuarded(onCancel: () -> Unit, action: () -> Unit) {
-        val guardId = parentalControls.guardPinProfileId()
+    override fun runGuarded(onCancel: () -> Unit, action: () -> Unit) =
+        guard(parentalControls.guardPinProfileId(), onCancel, action)
+
+    override fun runParentGuarded(action: () -> Unit) =
+        guard(parentalControls.parentPinProfileId(), onCancel = {}, action = action)
+
+    private fun guard(guardId: Int?, onCancel: () -> Unit, action: () -> Unit) {
         if (guardId == null || parentalControls.isGateUnlocked()) {
             action()
             return

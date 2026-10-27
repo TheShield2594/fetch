@@ -2416,6 +2416,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Pa kufi</string>
+    <string name="parental_title_hide">Fshih nga %1$s</string>
+    <string name="parental_title_limits">Kufizimet prindërore për këtë titull</string>
+    <string name="parental_title_dialog_subtitle">Zgjidh si e trajton secili profil këtë titull. Një titull i fshehur nuk shfaqet askund në atë profil; një i lejuar shfaqet pavarësisht klasifikimit.</string>
+    <string name="parental_title_state_rating">%1$s: vendos kufiri i klasifikimit</string>
+    <string name="parental_title_state_hidden">%1$s: i fshehur</string>
+    <string name="parental_title_state_allowed">%1$s: gjithmonë i lejuar</string>
+    <string name="parental_hidden_titles">Titujt e fshehur</string>
+    <string name="parental_allowed_titles">Titujt gjithmonë të lejuar</string>
+    <string name="parental_title_lists_hint">Zgjidh një titull për ta lënë sërish te kufiri i klasifikimit</string>
     <string name="parental_limits_label">Kufizimet prindërore</string>
     <string name="parental_limits_saved">Kufizimet prindërore u ruajtën për %1$s</string>
     <string name="parental_limits_subtitle">Ndryshimet kërkojnë PIN-in e profilit kryesor. Titujt mbi kufirin fshihen nga faqja kryesore, kërkimi dhe Vazhdo shikimin dhe nuk mund të luhen.</string>

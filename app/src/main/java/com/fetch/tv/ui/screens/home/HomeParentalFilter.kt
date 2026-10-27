@@ -16,12 +16,12 @@ internal fun ContinueWatchingItem.certificationQuery(): CertificationQuery = whe
 }
 
 /**
- * Hides Continue Watching and upcoming entries the active profile's limit doesn't allow.
+ * Hides Continue Watching and upcoming entries the active profile's limit or hidden titles don't allow.
  * Kids profiles get a simplified home without the upcoming row.
  */
 internal fun filterContinueWatchingForProfile(state: HomeUiState, parentalControls: ParentalControls): HomeUiState {
+    if (!parentalControls.filtersContent()) return state
     val restrictions = parentalControls.activeRestrictions.value
-    if (!restrictions.isRestricted) return state
     val main = parentalControls.filterAllowed(state.continueWatchingItems) { it.certificationQuery() }
     val upcoming = if (restrictions.isKidsProfile) {
         emptyList()

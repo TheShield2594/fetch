@@ -1,6 +1,10 @@
 package com.fetch.tv.ui.screens.profile
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,10 +19,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
+import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.parental.CertificationLevel
+import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
+import com.fetch.tv.data.local.ProfileTitleLists
 import com.fetch.tv.domain.model.UserProfile
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchTheme
@@ -51,7 +58,11 @@ internal fun ProfileLimitsDialog(
     initial: ProfileRestrictions,
     parentPinSet: Boolean,
     onDismiss: () -> Unit,
-    onSave: (ProfileRestrictions) -> Unit
+    onSave: (ProfileRestrictions) -> Unit,
+    /** Titles hidden from or allowed on the profile from a poster's long-press menu. */
+    titleLists: ProfileTitleLists = ProfileTitleLists.Empty,
+    /** Leaves a listed title to the rating limit again, straight away. */
+    onClearTitle: (ParentalTitle) -> Unit = {}
 ) {
     var restrictions by remember(profile.id) { mutableStateOf(initial) }
     val firstFocus = remember(profile.id) { FocusRequester() }
@@ -118,6 +129,42 @@ internal fun ProfileLimitsDialog(
                         stringResource(if (restrictions.allowUnrated) R.string.parental_on else R.string.parental_off)
                     )
                 )
+            }
+        }
+
+        if (!titleLists.isEmpty) {
+            Text(
+                text = stringResource(R.string.parental_title_lists_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.TextSecondary
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 220.dp),
+                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+            ) {
+                listOf(
+                    R.string.parental_hidden_titles to titleLists.hidden,
+                    R.string.parental_allowed_titles to titleLists.allowed
+                ).filter { it.second.isNotEmpty() }.forEach { (header, titles) ->
+                    item(key = header) {
+                        Text(
+                            text = stringResource(header),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = FetchTheme.colors.TextPrimary
+                        )
+                    }
+                    items(titles, key = { "$header:${it.ids.first()}" }) { title ->
+                        Button(
+                            onClick = { onClearTitle(title) },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = buttonColors
+                        ) {
+                            Text(title.name, maxLines = 1)
+                        }
+                    }
+                }
             }
         }
 

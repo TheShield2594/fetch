@@ -2111,6 +2111,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">வரம்பு இல்லை</string>
+    <string name="parental_title_hide">%1$s இலிருந்து மறை</string>
+    <string name="parental_title_limits">இந்தத் தலைப்புக்கான பெற்றோர் வரம்புகள்</string>
+    <string name="parental_title_dialog_subtitle">ஒவ்வொரு சுயவிவரமும் இந்தத் தலைப்பை எப்படி கையாள வேண்டும் என்பதைத் தேர்ந்தெடுக்கவும். மறைக்கப்பட்ட தலைப்பு அந்தச் சுயவிவரத்தில் எங்கும் தோன்றாது; அனுமதிக்கப்பட்ட தலைப்பு மதிப்பீடு எதுவாக இருந்தாலும் தோன்றும்.</string>
+    <string name="parental_title_state_rating">%1$s: மதிப்பீட்டு வரம்பு தீர்மானிக்கும்</string>
+    <string name="parental_title_state_hidden">%1$s: மறைக்கப்பட்டது</string>
+    <string name="parental_title_state_allowed">%1$s: எப்போதும் அனுமதி</string>
+    <string name="parental_hidden_titles">மறைக்கப்பட்ட தலைப்புகள்</string>
+    <string name="parental_allowed_titles">எப்போதும் அனுமதிக்கப்பட்ட தலைப்புகள்</string>
+    <string name="parental_title_lists_hint">மதிப்பீட்டு வரம்புக்கே மீண்டும் விட, ஒரு தலைப்பைத் தேர்ந்தெடுக்கவும்</string>
     <string name="parental_limits_label">பெற்றோர் வரம்புகள்</string>
     <string name="parental_limits_saved">%1$s-க்கான பெற்றோர் வரம்புகள் சேமிக்கப்பட்டன</string>
     <string name="parental_limits_subtitle">மாற்றங்களுக்கு முதன்மைச் சுயவிவரத்தின் பின் தேவை. வரம்புக்கு மேலான தலைப்புகள் முகப்பு, தேடல், தொடர்ந்து பார்க்க ஆகியவற்றில் மறைக்கப்படும், இயக்கவும் முடியாது.</string>

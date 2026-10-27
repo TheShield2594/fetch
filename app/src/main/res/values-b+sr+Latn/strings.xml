@@ -2668,6 +2668,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Bez ograničenja</string>
+    <string name="parental_title_hide">Sakrij od %1$s</string>
+    <string name="parental_title_limits">Roditeljska ograničenja za ovaj naslov</string>
+    <string name="parental_title_dialog_subtitle">Izaberi kako svaki profil tretira ovaj naslov. Skriveni naslov se ne prikazuje nigde na tom profilu, a dozvoljeni se prikazuje bez obzira na rejting.</string>
+    <string name="parental_title_state_rating">%1$s: odlučuje ograničenje rejtinga</string>
+    <string name="parental_title_state_hidden">%1$s: skriveno</string>
+    <string name="parental_title_state_allowed">%1$s: uvek dozvoljeno</string>
+    <string name="parental_hidden_titles">Skriveni naslovi</string>
+    <string name="parental_allowed_titles">Uvek dozvoljeni naslovi</string>
+    <string name="parental_title_lists_hint">Izaberi naslov da ga ponovo prepustiš ograničenju rejtinga</string>
     <string name="parental_limits_label">Roditeljska ograničenja</string>
     <string name="parental_limits_saved">Roditeljska ograničenja sačuvana za %1$s</string>
     <string name="parental_limits_subtitle">Za izmene je potreban PIN glavnog profila. Naslovi iznad ograničenja skriveni su sa Početne, iz pretrage i Nastavi gledanje i ne mogu se pustiti.</string>

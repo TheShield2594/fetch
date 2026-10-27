@@ -2630,6 +2630,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">কোনো লিমিট নেই</string>
+    <string name="parental_title_hide">%1$s থেকে লুকান</string>
+    <string name="parental_title_limits">এই টাইটেলের প্যারেন্টাল লিমিট</string>
+    <string name="parental_title_dialog_subtitle">প্রতিটি প্রোফাইল এই টাইটেলকে কীভাবে দেখবে তা বেছে নিন। লুকানো টাইটেল ওই প্রোফাইলের কোথাও দেখা যায় না; অনুমোদিত টাইটেল রেটিং যা-ই হোক দেখা যায়।</string>
+    <string name="parental_title_state_rating">%1$s: রেটিং লিমিট ঠিক করবে</string>
+    <string name="parental_title_state_hidden">%1$s: লুকানো</string>
+    <string name="parental_title_state_allowed">%1$s: সবসময় অনুমোদিত</string>
+    <string name="parental_hidden_titles">লুকানো টাইটেল</string>
+    <string name="parental_allowed_titles">সবসময় অনুমোদিত টাইটেল</string>
+    <string name="parental_title_lists_hint">রেটিং লিমিটের হাতে আবার ছেড়ে দিতে একটি টাইটেল বেছে নিন</string>
     <string name="parental_limits_label">প্যারেন্টাল লিমিট</string>
     <string name="parental_limits_saved">%1$s-এর জন্য প্যারেন্টাল লিমিট সেভ হয়েছে</string>
     <string name="parental_limits_subtitle">পরিবর্তনের জন্য মূল প্রোফাইলের পিন প্রয়োজন। লিমিটের উপরের টাইটেলগুলো হোম, সার্চ ও দেখা চালিয়ে যান থেকে লুকানো থাকে এবং প্লে করা যায় না।</string>

@@ -110,6 +110,15 @@ class ProfileSelectionViewModel @Inject constructor(
         viewModelScope.launch { parentalControls.setRestrictions(profileId, restrictions) }
     }
 
+    val profileTitleLists: StateFlow<Map<Int, com.fetch.tv.data.local.ProfileTitleLists>> =
+        parentalControls.allTitleLists
+
+    fun clearParentalTitle(profileId: Int, title: com.fetch.tv.data.local.ParentalTitle) {
+        viewModelScope.launch {
+            parentalControls.setTitleState(profileId, title, com.fetch.tv.core.parental.ParentalTitleState.BY_RATING)
+        }
+    }
+
     private val _isPinOperationInProgress = MutableStateFlow(false)
     val isPinOperationInProgress: StateFlow<Boolean> = _isPinOperationInProgress.asStateFlow()
 

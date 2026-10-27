@@ -146,7 +146,7 @@ class HomeViewModel @Inject constructor(
             libraryRepository.libraryItems,
             libraryRepository.listTabs,
             libraryRepository.sourceMode,
-            parentalControls.activeRestrictions
+            parentalControls.filterRevision
         ) { entries, tabs, mode, _ ->
             parentalControls.filterAllowed(watchlistMovies(entries, tabs, mode)) { it.toMetaPreview().certificationQuery() }
         }

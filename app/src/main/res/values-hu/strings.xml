@@ -2920,6 +2920,15 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Nincs korlát</string>
+    <string name="parental_title_hide">Elrejtés innen: %1$s</string>
+    <string name="parental_title_limits">Szülői korlátozások ehhez a címhez</string>
+    <string name="parental_title_dialog_subtitle">Válaszd ki, hogyan kezeli az egyes profilok ezt a címet. Az elrejtett cím sehol sem jelenik meg az adott profilon; az engedélyezett besorolástól függetlenül megjelenik.</string>
+    <string name="parental_title_state_rating">%1$s: a besorolási korlát dönt</string>
+    <string name="parental_title_state_hidden">%1$s: elrejtve</string>
+    <string name="parental_title_state_allowed">%1$s: mindig engedélyezett</string>
+    <string name="parental_hidden_titles">Elrejtett címek</string>
+    <string name="parental_allowed_titles">Mindig engedélyezett címek</string>
+    <string name="parental_title_lists_hint">Válassz egy címet, hogy újra a besorolási korlát döntsön róla</string>
     <string name="ready_to_play">Lejátszásra kész</string>
     <string name="home_row_ready_tonight">Ma estére kész</string>
     <string name="ready_check_title">Ellenőrzés a háttérben, mi áll készen</string>

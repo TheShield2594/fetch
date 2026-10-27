@@ -2211,6 +2211,15 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Tanpa batas</string>
+    <string name="parental_title_hide">Sembunyikan dari %1$s</string>
+    <string name="parental_title_limits">Batasan orang tua untuk judul ini</string>
+    <string name="parental_title_dialog_subtitle">Pilih cara setiap profil memperlakukan judul ini. Judul yang disembunyikan tidak muncul di mana pun pada profil tersebut; judul yang diizinkan tetap muncul apa pun ratingnya.</string>
+    <string name="parental_title_state_rating">%1$s: ditentukan batas rating</string>
+    <string name="parental_title_state_hidden">%1$s: disembunyikan</string>
+    <string name="parental_title_state_allowed">%1$s: selalu diizinkan</string>
+    <string name="parental_hidden_titles">Judul yang disembunyikan</string>
+    <string name="parental_allowed_titles">Judul yang selalu diizinkan</string>
+    <string name="parental_title_lists_hint">Pilih judul untuk menyerahkannya kembali ke batas rating</string>
     <string name="because_you_watched_row_title">Karena Anda menonton %1$s</string>
     <string name="because_you_watched_reason_collection">Juga di %1$s</string>
     <string name="because_you_watched_reason_director">Juga disutradarai %1$s</string>

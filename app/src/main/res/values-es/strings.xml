@@ -2807,6 +2807,15 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">Sin límite</string>
+    <string name="parental_title_hide">Ocultar de %1$s</string>
+    <string name="parental_title_limits">Control parental para este título</string>
+    <string name="parental_title_dialog_subtitle">Elige cómo trata cada perfil este título. Un título oculto no aparece en ninguna parte de ese perfil; uno permitido aparece sin importar su clasificación.</string>
+    <string name="parental_title_state_rating">%1$s: decide el límite de clasificación</string>
+    <string name="parental_title_state_hidden">%1$s: oculto</string>
+    <string name="parental_title_state_allowed">%1$s: siempre permitido</string>
+    <string name="parental_hidden_titles">Títulos ocultos</string>
+    <string name="parental_allowed_titles">Títulos siempre permitidos</string>
+    <string name="parental_title_lists_hint">Selecciona un título para volver a dejarlo en manos del límite de clasificación</string>
     <string name="ready_to_play">Listo para reproducir</string>
     <string name="home_row_ready_tonight">Listo para esta noche</string>
     <string name="ready_check_title">Comprobar en segundo plano qué está listo</string>

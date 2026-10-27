@@ -2561,6 +2561,15 @@
     <string name="parental_level_pg">PG، TV-PG</string>
     <string name="parental_level_teens">PG-13، TV-14</string>
     <string name="parental_level_unrestricted">بلا حد</string>
+    <string name="parental_title_hide">إخفاء عن %1$s</string>
+    <string name="parental_title_limits">القيود الأبوية لهذا العنوان</string>
+    <string name="parental_title_dialog_subtitle">اختر كيف يتعامل كل ملف شخصي مع هذا العنوان. العنوان المخفي لا يظهر في أي مكان في ذلك الملف الشخصي، أما المسموح به فيظهر مهما كان تصنيفه.</string>
+    <string name="parental_title_state_rating">%1$s: حد التصنيف هو الذي يحدد</string>
+    <string name="parental_title_state_hidden">%1$s: مخفي</string>
+    <string name="parental_title_state_allowed">%1$s: مسموح دائمًا</string>
+    <string name="parental_hidden_titles">العناوين المخفية</string>
+    <string name="parental_allowed_titles">العناوين المسموح بها دائمًا</string>
+    <string name="parental_title_lists_hint">اختر عنوانًا لإعادته إلى حد التصنيف</string>
     <string name="parental_limits_label">القيود الأبوية</string>
     <string name="parental_limits_saved">تم حفظ القيود الأبوية لـ %1$s</string>
     <string name="parental_limits_subtitle">تتطلب التغييرات رمز PIN للملف الشخصي الرئيسي. العناوين التي تتجاوز الحد تُخفى من الرئيسية والبحث ومتابعة المشاهدة ولا يمكن تشغيلها.</string>

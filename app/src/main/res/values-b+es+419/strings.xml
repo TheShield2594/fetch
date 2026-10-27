@@ -2879,6 +2879,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Sin límite</string>
+    <string name="parental_title_hide">Ocultar de %1$s</string>
+    <string name="parental_title_limits">Límites parentales para este título</string>
+    <string name="parental_title_dialog_subtitle">Elige cómo trata cada perfil este título. Un título oculto no aparece en ninguna parte de ese perfil; uno permitido aparece sin importar su clasificación.</string>
+    <string name="parental_title_state_rating">%1$s: decide el límite de clasificación</string>
+    <string name="parental_title_state_hidden">%1$s: oculto</string>
+    <string name="parental_title_state_allowed">%1$s: siempre permitido</string>
+    <string name="parental_hidden_titles">Títulos ocultos</string>
+    <string name="parental_allowed_titles">Títulos siempre permitidos</string>
+    <string name="parental_title_lists_hint">Selecciona un título para volver a dejarlo en manos del límite de clasificación</string>
     <string name="parental_limits_label">Límites parentales</string>
     <string name="parental_limits_saved">Límites parentales guardados para %1$s</string>
     <string name="parental_limits_subtitle">Los cambios requieren el PIN del perfil principal. Los títulos por encima del límite se ocultan de Inicio, la búsqueda y Seguir viendo, y no se pueden reproducir.</string>

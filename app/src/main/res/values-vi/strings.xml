@@ -2875,6 +2875,15 @@
     <string name="parental_level_pg">PG, TV-PG</string>
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_unrestricted">Không giới hạn</string>
+    <string name="parental_title_hide">Ẩn khỏi %1$s</string>
+    <string name="parental_title_limits">Giới hạn của phụ huynh cho nội dung này</string>
+    <string name="parental_title_dialog_subtitle">Chọn cách mỗi hồ sơ xử lý nội dung này. Nội dung bị ẩn sẽ không hiển thị ở bất kỳ đâu trên hồ sơ đó; nội dung được cho phép sẽ hiển thị bất kể phân loại.</string>
+    <string name="parental_title_state_rating">%1$s: do giới hạn phân loại quyết định</string>
+    <string name="parental_title_state_hidden">%1$s: đã ẩn</string>
+    <string name="parental_title_state_allowed">%1$s: luôn được cho phép</string>
+    <string name="parental_hidden_titles">Nội dung bị ẩn</string>
+    <string name="parental_allowed_titles">Nội dung luôn được cho phép</string>
+    <string name="parental_title_lists_hint">Chọn một nội dung để giao lại cho giới hạn phân loại</string>
     <string name="parental_limits_label">Giới hạn của phụ huynh</string>
     <string name="parental_limits_saved">Đã lưu giới hạn của phụ huynh cho %1$s</string>
     <string name="parental_limits_subtitle">Thay đổi cần mã PIN của hồ sơ chính. Nội dung vượt giới hạn sẽ bị ẩn khỏi trang chủ, tìm kiếm và Tiếp tục xem, và không thể phát.</string>

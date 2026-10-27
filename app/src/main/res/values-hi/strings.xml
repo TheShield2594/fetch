@@ -1043,6 +1043,15 @@
     <string name="parental_level_teens">PG-13, TV-14</string>
     <string name="parental_level_mature">R, TV-MA</string>
     <string name="parental_level_unrestricted">कोई सीमा नहीं</string>
+    <string name="parental_title_hide">%1$s से छिपाएँ</string>
+    <string name="parental_title_limits">इस टाइटल के लिए पैरेंटल सीमाएँ</string>
+    <string name="parental_title_dialog_subtitle">चुनें कि हर प्रोफाइल इस टाइटल को कैसे संभाले। छिपा हुआ टाइटल उस प्रोफाइल में कहीं नहीं दिखता; अनुमति वाला टाइटल रेटिंग चाहे जो हो, दिखता है।</string>
+    <string name="parental_title_state_rating">%1$s: रेटिंग सीमा तय करेगी</string>
+    <string name="parental_title_state_hidden">%1$s: छिपा हुआ</string>
+    <string name="parental_title_state_allowed">%1$s: हमेशा अनुमति</string>
+    <string name="parental_hidden_titles">छिपे हुए टाइटल</string>
+    <string name="parental_allowed_titles">हमेशा अनुमति वाले टाइटल</string>
+    <string name="parental_title_lists_hint">रेटिंग सीमा पर वापस छोड़ने के लिए कोई टाइटल चुनें</string>
     <string name="because_you_watched_row_title">आपके %1$s देखने के कारण</string>
     <string name="because_you_watched_reason_collection">%1$s में भी</string>
     <string name="because_you_watched_reason_director">वही डायरेक्टर: %1$s</string>

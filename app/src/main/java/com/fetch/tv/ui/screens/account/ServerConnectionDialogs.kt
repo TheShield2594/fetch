@@ -111,7 +111,7 @@ internal fun ServerOptionsMenuHost(
             onDismissRequest = { expanded = false },
             offset = DpOffset(x = 0.dp, y = 12.dp),
             modifier = Modifier.width(320.dp),
-            shape = RoundedCornerShape(FetchRadii.tokens.lg),
+            shape = RoundedCornerShape(FetchRadii.tokens.md),
             containerColor = FetchTheme.colors.BackgroundCard,
             tonalElevation = 0.dp,
             shadowElevation = FetchTheme.spacing.sm,
@@ -186,7 +186,7 @@ private fun ServerMenuItem(
     DropdownMenuItem(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 6.dp, vertical = FetchTheme.spacing.xxs)
+            .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
             .background(
                 color = if (isFocused) FetchTheme.colors.Secondary else Color.Transparent,
                 shape = RoundedCornerShape(FetchRadii.tokens.sm)
@@ -387,8 +387,8 @@ private fun ServerWarning(server: ServerConfiguration) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, FetchTheme.colors.Warning.copy(alpha = 0.4f), RoundedCornerShape(FetchRadii.tokens.lg))
-            .background(FetchTheme.colors.Warning.copy(alpha = 0.12f), RoundedCornerShape(FetchRadii.tokens.lg))
+            .border(1.dp, FetchTheme.colors.Warning.copy(alpha = 0.4f), RoundedCornerShape(FetchRadii.tokens.md))
+            .background(FetchTheme.colors.Warning.copy(alpha = 0.12f), RoundedCornerShape(FetchRadii.tokens.md))
             .padding(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
     ) {

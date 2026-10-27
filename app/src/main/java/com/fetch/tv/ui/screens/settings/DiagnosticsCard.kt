@@ -240,7 +240,7 @@ private fun DiagnosticsSectionCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = FetchTheme.spacing.sm),
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
         ) {
             content()

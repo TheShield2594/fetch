@@ -58,19 +58,21 @@ fun FetchTheme(
     appFont: AppFont = AppFont.SCHIBSTED_GROTESK,
     amoledMode: Boolean = false,
     amoledSurfacesMode: Boolean = false,
+    highContrast: Boolean = false,
     customThemeColors: CustomThemeColors = CustomThemeColors.Default,
     content: @Composable () -> Unit
 ) {
     val palette = androidx.compose.runtime.remember(appTheme, customThemeColors) {
         ThemeColors.getColorPalette(appTheme, customThemeColors)
     }
-    val focusRingStyle = createFocusRingStyle()
+    val focusRingStyle = createFocusRingStyle(highContrast)
     val colorScheme = FetchColorScheme(
         palette = palette,
         amoledMode = amoledMode,
-        amoledSurfacesMode = amoledSurfacesMode
+        amoledSurfacesMode = amoledSurfacesMode,
+        highContrast = highContrast
     )
-    val typography = buildFetchTypography(getFontFamily(appFont), getDisplayFontFamily(appFont))
+    val typography = buildFetchTypography(getFontFamily(appFont))
     val textStyles = buildFetchTextStyles(typography)
     val fullMotion = rememberFullMotionAllowed()
 

@@ -64,7 +64,7 @@ fun SyncCodeClaimScreen(
                 .fillMaxWidth(0.5f)
                 .background(
                     color = FetchTheme.colors.BackgroundElevated,
-                    shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+                    shape = RoundedCornerShape(FetchRadii.tokens.xl)
                 )
                 .padding(FetchTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally

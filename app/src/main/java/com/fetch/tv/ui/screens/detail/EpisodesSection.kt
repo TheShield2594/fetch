@@ -106,6 +106,7 @@ import java.util.TimeZone
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
+import com.fetch.tv.ui.theme.FetchContentColors
 
 private const val EPISODE_CARD_CONTENT_TYPE = "episode_card"
 private const val EPISODE_SCROLL_REPEAT_THROTTLE_MS = 80L
@@ -133,11 +134,11 @@ fun SeasonTabs(
         regularSeasons + specials
     }
 
-    val tabShape = remember { RoundedCornerShape(FetchRadii.tokens.xxl) }
+    val tabShape = remember { RoundedCornerShape(FetchRadii.tokens.xl) }
     val tabBorder = CardDefaults.border(
         focusedBorder = Border(
             border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-            shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+            shape = RoundedCornerShape(FetchRadii.tokens.xl)
         )
     )
     val tabScale = CardDefaults.scale(focusedScale = 1.0f)
@@ -1064,7 +1065,7 @@ private fun EpisodeCard(
                             top = cardMetrics.statusBadgeInset
                         )
                         .background(
-                            color = Color(0xCC5D4037),
+                            color = FetchContentColors.episodeUnavailableBadge,
                             shape = badgeShape
                         )
                         .padding(

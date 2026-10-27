@@ -365,7 +365,6 @@
     <string name="custom_theme_save">שמירת ערכת נושא</string>
     <string name="custom_theme_remote_hint">← → כיוון   ·   ↑ ↓ תזוזה   ·   החזקה לכיוון מהיר יותר</string>
     <string name="custom_theme_preview">תצוגה מקדימה</string>
-    <string name="custom_theme_preview_ring">פריט ממוקד</string>
     <string name="appearance_amoled_mode">מצב AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">שימוש בשחור מוחלט כרקע האפליקציה</string>
     <string name="appearance_amoled_surfaces_mode">משטחים בשחור מוחלט</string>

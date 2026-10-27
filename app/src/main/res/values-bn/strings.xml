@@ -340,7 +340,6 @@
     <string name="custom_theme_save">থিম সেভ করুন</string>
     <string name="custom_theme_remote_hint">← → অ্যাডজাস্ট করুন   ·   ↑ ↓ সরান   ·   দ্রুত অ্যাডজাস্ট করতে চেপে ধরুন</string>
     <string name="custom_theme_preview">পূর্বরূপ</string>
-    <string name="custom_theme_preview_ring">ফোকাসড আইটেম</string>
     <string name="appearance_amoled_mode">AMOLED মোড</string>
     <string name="appearance_amoled_mode_subtitle">অ্যাপের ব্যাকগ্রাউন্ডের জন্য পিওর ব্ল্যাক ব্যবহার করুন</string>
     <string name="appearance_amoled_surfaces_mode">পিওর ব্ল্যাক সারফেস</string>

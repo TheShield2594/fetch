@@ -135,6 +135,7 @@ import com.fetch.tv.core.tracking.supportsMembershipFor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 private enum class RestoreTarget {
     HERO,
@@ -1121,13 +1122,13 @@ fun MetaDetailsScreen(
                     .padding(top = FetchTheme.spacing.xl)
                     .background(
                         color = if (uiState.userMessageIsError) {
-                            Color(0xFF5A1C1C)
+                            FetchStatusTones.errorBanner
                         } else {
                             FetchTheme.colors.BackgroundElevated
                         },
                         shape = RoundedCornerShape(FetchRadii.tokens.sm)
                     )
-                    .padding(horizontal = 18.dp, vertical = 10.dp)
+                    .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
             ) {
                 Text(
                     text = message,
@@ -3465,7 +3466,7 @@ private fun PeopleSectionTabs(
                         text = "|",
                         style = MaterialTheme.typography.titleLarge,
                         color = FetchTheme.colors.TextPrimary.copy(alpha = 0.45f),
-                        modifier = Modifier.padding(horizontal = 10.dp)
+                        modifier = Modifier.padding(horizontal = FetchTheme.spacing.md)
                     )
                 }
 
@@ -3583,7 +3584,7 @@ private fun LibraryListPickerDialog(
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFFFB6B6)
+                color = FetchStatusTones.errorText
             )
         }
 

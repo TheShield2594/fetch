@@ -369,7 +369,6 @@
   <string name="custom_theme_save">Αποθήκευση θέματος</string>
   <string name="custom_theme_remote_hint">← → Προσαρμογή   ·   ↑ ↓ Μετακίνηση   ·   Κρατήστε πατημένο για ταχύτερη προσαρμογή</string>
   <string name="custom_theme_preview">ΠΡΟΕΠΙΣΚΟΠΗΣΗ</string>
-  <string name="custom_theme_preview_ring">Εστιασμένο στοιχείο</string>
   <string name="appearance_amoled_mode">Λειτουργία AMOLED</string>
   <string name="appearance_amoled_mode_subtitle">Χρήση καθαρού μαύρου στα φόντα της εφαρμογής</string>
   <string name="appearance_amoled_surfaces_mode">Καθαρά μαύρες επιφάνειες</string>

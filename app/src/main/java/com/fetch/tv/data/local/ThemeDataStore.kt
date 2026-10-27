@@ -32,6 +32,7 @@ class ThemeDataStore @Inject constructor(
     private val fontKey = stringPreferencesKey("selected_font")
     private val amoledModeKey = booleanPreferencesKey("amoled_mode")
     private val amoledSurfacesModeKey = booleanPreferencesKey("amoled_surfaces_mode")
+    private val highContrastKey = booleanPreferencesKey("high_contrast")
 
     val themeSelection: Flow<ThemeSelection> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
@@ -62,6 +63,13 @@ class ThemeDataStore @Inject constructor(
     val amoledSurfacesMode: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
             prefs[amoledSurfacesModeKey] ?: false
+        }
+    }
+
+    /** Brighter secondary text, borders and a heavier focus ring, for anyone who finds the default too faint. */
+    val highContrast: Flow<Boolean> = profileManager.activeProfileId.flatMapLatest { pid ->
+        factory.get(pid, FEATURE).data.map { prefs ->
+            prefs[highContrastKey] ?: false
         }
     }
 
@@ -96,6 +104,12 @@ class ThemeDataStore @Inject constructor(
     suspend fun setAmoledSurfacesMode(enabled: Boolean) {
         store().edit { prefs ->
             prefs[amoledSurfacesModeKey] = enabled
+        }
+    }
+
+    suspend fun setHighContrast(enabled: Boolean) {
+        store().edit { prefs ->
+            prefs[highContrastKey] = enabled
         }
     }
 

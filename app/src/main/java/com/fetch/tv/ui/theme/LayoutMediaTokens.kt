@@ -31,7 +31,7 @@ data class FetchMediaTokens(
 object FetchLayout {
     val tokens = FetchLayoutTokens(
         tvSafeHorizontal = 48.dp,
-        tvSafeVertical = 24.dp,
+        tvSafeVertical = 27.dp,
         compactSafeHorizontal = 32.dp,
         compactSafeVertical = 16.dp,
         sidebarContentOffset = 54.dp,

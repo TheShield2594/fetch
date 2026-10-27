@@ -198,7 +198,7 @@ private fun SpecChip(text: String, highlighted: Boolean = false) {
                 if (highlighted) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard,
                 RoundedCornerShape(FetchTheme.radii.xs)
             )
-            .padding(horizontal = 10.dp, vertical = 5.dp)
+            .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
     )
 }
 

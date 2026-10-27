@@ -221,9 +221,9 @@ fun SynopsisOverlay(
                 .background(
                     Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFF070707),
-                            Color(0xFF101010),
-                            Color(0xFF151515)
+                            FetchTheme.colors.Background,
+                            FetchTheme.colors.Panel,
+                            FetchTheme.colors.BackgroundElevated
                         )
                     )
                 )

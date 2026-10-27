@@ -268,7 +268,7 @@ private fun MemberRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = FetchTheme.spacing.sm),
+                .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
             content = content,
@@ -292,7 +292,7 @@ private fun PartyRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = FetchTheme.spacing.sm),
+                .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
             content = content,
@@ -347,7 +347,7 @@ internal fun HostSettings(
 @Composable
 internal fun HostOnlyNote(modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.padding(horizontal = 18.dp, vertical = FetchTheme.spacing.sm),
+        modifier = modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {

@@ -10,7 +10,7 @@ import java.util.Locale
 
 /**
  * Runs every [FetchColorScheme.contrastPairs] entry, in every built-in theme with and without the
- * AMOLED modes, against WCAG AA's 4.5:1 for normal-size text. A custom theme picks its own accent,
+ * AMOLED modes and "Increase contrast", against WCAG AA's 4.5:1 for normal-size text. A custom theme picks its own accent,
  * so only its default colours are checked here.
  */
 class ThemeContrastTest {
@@ -28,11 +28,14 @@ class ThemeContrastTest {
         val failures = buildList {
             AppTheme.entries.forEach { theme ->
                 listOf(false to false, true to false, true to true).forEach { (amoled, amoledSurfaces) ->
-                    val scheme = FetchColorScheme(ThemeColors.getColorPalette(theme), amoled, amoledSurfaces)
-                    scheme.contrastPairs.forEach { pair ->
-                        val ratio = contrast(pair.foreground, pair.background, scheme.Background)
-                        if (ratio < MIN_RATIO) {
-                            add(String.format(Locale.US, "%s%s: %s is %.2f:1", theme.name, modeName(amoled, amoledSurfaces), pair.label, ratio))
+                    listOf(false, true).forEach { highContrast ->
+                        val scheme = FetchColorScheme(ThemeColors.getColorPalette(theme), amoled, amoledSurfaces, highContrast)
+                        scheme.contrastPairs.forEach { pair ->
+                            val ratio = contrast(pair.foreground, pair.background, scheme.Background)
+                            if (ratio < MIN_RATIO) {
+                                val mode = modeName(amoled, amoledSurfaces) + if (highContrast) " (high contrast)" else ""
+                                add(String.format(Locale.US, "%s%s: %s is %.2f:1", theme.name, mode, pair.label, ratio))
+                            }
                         }
                     }
                 }

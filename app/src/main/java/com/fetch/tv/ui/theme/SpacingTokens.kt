@@ -69,7 +69,8 @@ object FetchSpacing {
         huge = 56.dp,
         screen = FetchScreenSpacing(
             horizontal = 48.dp,
-            vertical = 24.dp,
+            // 5% of a 960x540dp TV screen on each side, the usual TV safe area.
+            vertical = 27.dp,
             compactHorizontal = 32.dp,
             compactVertical = 16.dp,
             overscanHorizontal = 56.dp,

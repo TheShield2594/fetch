@@ -105,6 +105,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 import com.fetch.tv.R
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 private const val KEY_REPEAT_THROTTLE_MS = 80L
 
@@ -546,7 +547,7 @@ fun LibraryScreen(
                 modifier = Modifier
                     .padding(top = FetchTheme.spacing.xl)
                     .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchRadii.tokens.sm))
-                    .padding(horizontal = 18.dp, vertical = 10.dp)
+                    .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
             )
         }
     }
@@ -820,7 +821,7 @@ private fun LibraryDropdownPicker(
                 )
                 .onSizeChanged { anchorSize = it }
                 .onFocusChanged { isFocused = it.isFocused },
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.lg)),
+            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
             colors = CardDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
                 focusedContainerColor = FetchTheme.colors.FocusBackground
@@ -828,11 +829,11 @@ private fun LibraryDropdownPicker(
             border = CardDefaults.border(
                 border = androidx.tv.material3.Border(
                     border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = RoundedCornerShape(FetchRadii.tokens.lg)
+                    shape = RoundedCornerShape(FetchRadii.tokens.md)
                 ),
                 focusedBorder = androidx.tv.material3.Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchRadii.tokens.lg)
+                    shape = RoundedCornerShape(FetchRadii.tokens.md)
                 )
             ),
             scale = CardDefaults.scale(
@@ -843,7 +844,7 @@ private fun LibraryDropdownPicker(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                    .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
             ) {
                 Text(
@@ -881,7 +882,7 @@ private fun LibraryDropdownPicker(
             modifier = Modifier
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(FetchRadii.tokens.lg),
+            shape = RoundedCornerShape(FetchRadii.tokens.md),
             containerColor = FetchTheme.colors.BackgroundCard,
             tonalElevation = FetchTheme.spacing.none,
             shadowElevation = FetchTheme.spacing.sm,
@@ -912,7 +913,7 @@ private fun LibraryDropdownPicker(
                                 Modifier
                             }
                         )
-                        .padding(horizontal = 6.dp, vertical = FetchTheme.spacing.xxs)
+                        .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
                             shape = RoundedCornerShape(FetchRadii.tokens.sm)
@@ -1005,7 +1006,7 @@ private fun ConfirmDeleteDialog(
             enabled = !pending,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.colors(
-                containerColor = Color(0xFF4A2323),
+                containerColor = FetchStatusTones.errorContainer,
                 contentColor = FetchTheme.colors.TextPrimary
             )
         ) {

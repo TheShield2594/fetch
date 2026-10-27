@@ -90,10 +90,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.TextStyle
 import kotlinx.coroutines.delay
+import com.fetch.tv.ui.theme.FetchContentColors
 
 private val BadgeShape = RoundedCornerShape(FetchTheme.radii.xs)
-private val CwNewEpisodeBadgeColor = Color(0xFF1D4ED8)
-private val CwNewSeasonBadgeColor = Color(0xFFB45309)
+private val CwNewEpisodeBadgeColor = FetchContentColors.newEpisodeBadge
+private val CwNewSeasonBadgeColor = FetchContentColors.newSeasonBadge
 
 /** URLs that failed to load — skip them immediately on next recomposition. */
 internal val brokenImageUrls = java.util.Collections.synchronizedSet(mutableSetOf<String>())
@@ -822,7 +823,7 @@ fun ContinueWatchingCard(
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .padding(horizontal = 10.dp, vertical = barInset)
+                            .padding(horizontal = FetchTheme.spacing.sm, vertical = barInset)
                             .fillMaxWidth()
                             .then(
                                 if (isPosterStyle) {

@@ -571,7 +571,7 @@ fun ContentCard(
                             .align(Alignment.BottomStart)
                             .fillMaxWidth(0.62f)
                             .height(baseCardHeight * 0.34f)
-                            .padding(start = 10.dp, end = 10.dp, bottom = FetchTheme.spacing.sm)
+                            .padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.sm)
                             .zIndex(1.6f),
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterStart
@@ -602,7 +602,7 @@ fun ContentCard(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .fillMaxWidth(0.62f)
-                            .padding(start = 10.dp, end = 10.dp, bottom = FetchTheme.spacing.md)
+                            .padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.md)
                             .zIndex(1.6f)
                     )
                 }

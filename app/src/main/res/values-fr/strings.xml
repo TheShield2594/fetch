@@ -362,7 +362,6 @@
     <string name="custom_theme_save">Enregistrer le thème</string>
     <string name="custom_theme_remote_hint">← → Ajuster   ·   ↑ ↓ Déplacer   ·   Maintenir pour ajuster plus vite</string>
     <string name="custom_theme_preview">APERÇU</string>
-    <string name="custom_theme_preview_ring">Élément sélectionné</string>
     <string name="appearance_amoled_mode">Mode AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Utiliser un noir pur pour les arrière-plans de l’application</string>
     <string name="appearance_amoled_surfaces_mode">Surfaces en noir pur</string>

@@ -71,6 +71,7 @@ import coil3.request.crossfade
 import coil3.request.transformations
 import com.fetch.tv.R
 import com.fetch.tv.ui.util.BlurTransformation
+import com.fetch.tv.ui.theme.FetchPrimitives
 
 @Composable
 fun PostPlayOverlay(
@@ -107,19 +108,19 @@ fun PostPlayOverlay(
         }
         Card(
             onClick = onCardClick,
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.lg)),
+            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
             colors = CardDefaults.colors(
-                containerColor = Color(0xE3191919),
-                focusedContainerColor = Color(0xE3191919),
+                containerColor = FetchPrimitives.neutral900.copy(alpha = 0.89f),
+                focusedContainerColor = FetchPrimitives.neutral900.copy(alpha = 0.89f),
             ),
             border = CardDefaults.border(
                 border = Border(
                     border = BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.16f)),
-                    shape = RoundedCornerShape(FetchRadii.tokens.lg),
+                    shape = RoundedCornerShape(FetchRadii.tokens.md),
                 ),
                 focusedBorder = Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchRadii.tokens.lg),
+                    shape = RoundedCornerShape(FetchRadii.tokens.md),
                 ),
             ),
             scale = CardDefaults.scale(focusedScale = 1f),
@@ -176,7 +177,7 @@ private fun AutoPlayBody(
     val nextEpisode = mode.nextEpisode
     val isPlayable = nextEpisode.hasAired
     Row(
-        modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+        modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         NextEpisodeThumbnail(
@@ -224,7 +225,7 @@ private fun AutoPlayBody(
                     BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.2f)),
                     CircleShape,
                 )
-                .padding(horizontal = 10.dp, vertical = 6.dp),
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -241,7 +242,7 @@ private fun AutoPlayBody(
                 },
                 color = if (isPlayable) Color.White else Color.White.copy(alpha = 0.72f),
                 fontSize = 12.sp,
-                modifier = Modifier.padding(start = 3.dp),
+                modifier = Modifier.padding(start = FetchTheme.spacing.xs),
             )
         }
     }
@@ -260,7 +261,7 @@ private fun StillWatchingBody(
 
     val nextEpisode = mode.nextEpisode
     Row(
-        modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+        modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (nextEpisode.thumbnail != null) {
@@ -369,7 +370,7 @@ private fun PostPlayPillButton(
         modifier = modifier.focusRequester(focusRequester),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -382,7 +383,7 @@ private fun PostPlayPillButton(
                 text = label,
                 color = textColor,
                 fontSize = 12.sp,
-                modifier = Modifier.padding(start = 3.dp),
+                modifier = Modifier.padding(start = FetchTheme.spacing.xs),
             )
         }
     }

@@ -233,7 +233,15 @@ fun ThemeSettingsContent(
                     }
                     SettingsHorizontalScrollIndicators(state = themeRowState)
                 }
-                // Essential mode keeps the theme, font, language and ambient mode; the rest is Advanced.
+                // Essential mode keeps the theme, contrast, language and ambient mode; the rest is Advanced.
+                SettingsToggleRow(
+                    title = stringResource(R.string.appearance_high_contrast),
+                    subtitle = stringResource(R.string.appearance_high_contrast_subtitle),
+                    checked = uiState.highContrast,
+                    onToggle = {
+                        viewModel.onEvent(ThemeSettingsEvent.ToggleHighContrast(!uiState.highContrast))
+                    }
+                )
                 if (!essentialMode) SettingsToggleRow(
                     title = stringResource(R.string.appearance_amoled_mode),
                     subtitle = stringResource(R.string.appearance_amoled_mode_subtitle),
@@ -275,12 +283,17 @@ fun ThemeSettingsContent(
 
             AmbientModeSettingsCard(essentialMode = essentialMode)
 
+            // The font picker is Advanced: Fetch's own type is the default look.
             SettingsGroupCard(
                 modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.appearance_font_and_language),
-                subtitle = stringResource(R.string.appearance_font_and_language_subtitle)
+                title = stringResource(
+                    if (essentialMode) R.string.appearance_language else R.string.appearance_font_and_language
+                ),
+                subtitle = stringResource(
+                    if (essentialMode) R.string.appearance_language_subtitle else R.string.appearance_font_and_language_subtitle
+                )
             ) {
-                SettingsActionRow(
+                if (!essentialMode) SettingsActionRow(
                     title = stringResource(R.string.appearance_font),
                     subtitle = stringResource(R.string.appearance_font_subtitle),
                     value = uiState.selectedFont.displayName,

@@ -131,9 +131,10 @@ class SettingsChangedViewModel @Inject constructor(
         )
 
         val appearance = SettingsCategory.APPEARANCE
-        // The theme a profile hasn't picked is stored as none; the font and AMOLED flags as below.
+        // The theme a profile hasn't picked is stored as none; the font, contrast and AMOLED flags as below.
         add(theme.themeSelection.map { it.theme }.changedRow(SettingsSearchKey(appearance, R.string.appearance_color_theme), null))
         add(theme.selectedFont.changedRow(SettingsSearchKey(appearance, R.string.appearance_font), AppFont.SCHIBSTED_GROTESK))
+        add(theme.highContrast.changedRow(SettingsSearchKey(appearance, R.string.appearance_high_contrast), false))
         add(theme.amoledMode.changedRow(SettingsSearchKey(appearance, R.string.appearance_amoled_mode), false))
         add(theme.amoledSurfacesMode.changedRow(SettingsSearchKey(appearance, R.string.appearance_amoled_surfaces_mode), false))
         add(

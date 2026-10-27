@@ -54,6 +54,7 @@ import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.accentBrush
+import com.fetch.tv.ui.theme.adjustedForContrast
 import com.fetch.tv.ui.theme.toColorPalette
 
 @Composable
@@ -198,7 +199,7 @@ internal fun CustomThemeEditor(
                     scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -292,7 +293,7 @@ private fun ThemeColorSlot(
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -322,19 +323,29 @@ private fun CustomThemeSample(colors: CustomThemeColors, modifier: Modifier = Mo
             style = MaterialTheme.typography.labelMedium,
             color = FetchTheme.colors.TextSecondary
         )
+        // The accent marks primary actions, so the preview shows it as a Play button on a card.
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .border(BorderStroke(2.dp, brush), sampleShape)
-                .background(palette.backgroundElevated, sampleShape)
+                .background(palette.backgroundCard, sampleShape)
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                stringResource(R.string.custom_theme_preview_ring),
+                stringResource(R.string.custom_theme_preview_action),
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White
+                color = palette.onSecondary,
+                modifier = Modifier
+                    .background(brush, FetchTheme.shapes.button)
+                    .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.sm)
+            )
+        }
+        if (colors.adjustedForContrast) {
+            Text(
+                stringResource(R.string.custom_theme_adjusted_for_contrast),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.TextSecondary
             )
         }
     }

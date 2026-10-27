@@ -49,7 +49,7 @@ internal fun PreferNextTimePrompt(
     Column(
         modifier = modifier
             .widthIn(max = 520.dp)
-            .background(Color.Black.copy(alpha = 0.82f), RoundedCornerShape(FetchTheme.radii.lg))
+            .background(Color.Black.copy(alpha = 0.82f), RoundedCornerShape(FetchTheme.radii.md))
             .padding(FetchTheme.spacing.lg)
             .focusGroup()
             .onFocusChanged { onFocusChanged(it.hasFocus) },

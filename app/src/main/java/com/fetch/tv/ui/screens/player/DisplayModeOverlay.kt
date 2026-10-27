@@ -122,7 +122,7 @@ fun DisplayModeOverlay(
                 modifier = Modifier
                     .clip(RoundedCornerShape(FetchRadii.tokens.sm))
                     .background(Color.Black.copy(alpha = 0.45f))
-                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
             )
         }
 

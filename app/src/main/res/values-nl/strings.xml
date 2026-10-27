@@ -349,7 +349,6 @@
     <string name="custom_theme_save">Thema opslaan</string>
     <string name="custom_theme_remote_hint">← → Aanpassen   ·   ↑ ↓ Verplaatsen   ·   Houd ingedrukt om sneller aan te passen</string>
     <string name="custom_theme_preview">VOORBEELD</string>
-    <string name="custom_theme_preview_ring">Item met focus</string>
     <string name="appearance_amoled_mode">AMOLED-modus</string>
     <string name="appearance_amoled_mode_subtitle">Gebruik puur zwart voor de achtergronden van de app</string>
     <string name="appearance_amoled_surfaces_mode">Puur zwarte oppervlakken</string>

@@ -2523,7 +2523,6 @@
     <string name="custom_theme_save">Salva tema</string>
     <string name="custom_theme_remote_hint">← → Regola · ↑ ↓ Sposta · Tieni premuto per regolare più rapidamente</string>
     <string name="custom_theme_preview">ANTEPRIMA</string>
-    <string name="custom_theme_preview_ring">Elemento selezionato</string>
     <string name="appearance_startup_splash">Schermata di avvio</string>
     <string name="appearance_startup_splash_subtitle">Mostra il logo e l\'indicatore di caricamento dopo la selezione di un profilo.</string>
     <string name="ambient_mode_title">Modalità ambientale</string>

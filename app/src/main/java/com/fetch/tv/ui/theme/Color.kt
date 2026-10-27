@@ -101,10 +101,15 @@ data class FetchContrastPair(
     val label: String = ""
 )
 
+/**
+ * @param highContrast the "Increase contrast" setting: secondary and tertiary text, borders,
+ * dividers and the focus ring move to brighter neutrals, and scrims behind text get darker.
+ */
 class FetchColorScheme(
     palette: ThemeColorPalette,
     amoledMode: Boolean = false,
-    amoledSurfacesMode: Boolean = false
+    amoledSurfacesMode: Boolean = false,
+    highContrast: Boolean = false
 ) {
     private val pureBlack = FetchPrimitives.black
     private val pureBlackSurfaces = amoledMode && amoledSurfacesMode
@@ -120,7 +125,7 @@ class FetchColorScheme(
     val Menu = if (pureBlackSurfaces) pureBlack else palette.menu
     val Modal = if (pureBlackSurfaces) pureBlack else palette.modal
     val PlayerOverlay = palette.playerOverlay
-    val Divider = FetchPrimitives.neutral750
+    val Divider = if (highContrast) FetchPrimitives.neutral600 else FetchPrimitives.neutral750
 
     val Primary = FetchPrimitives.neutral500
     val PrimaryVariant = FetchPrimitives.neutral650
@@ -131,12 +136,12 @@ class FetchColorScheme(
     val OnSecondaryVariant = palette.onSecondaryVariant
 
     val TextPrimary = FetchPrimitives.white
-    val TextSecondary = FetchPrimitives.neutral400
-    val TextTertiary = FetchPrimitives.neutral450
+    val TextSecondary = if (highContrast) FetchPrimitives.neutral200 else FetchPrimitives.neutral400
+    val TextTertiary = if (highContrast) FetchPrimitives.neutral400 else FetchPrimitives.neutral450
     val TextDisabled = FetchPrimitives.neutral700
     val TextInverse = FetchPrimitives.neutral925
 
-    val FocusRing = FetchPrimitives.neutral100
+    val FocusRing = if (highContrast) FetchPrimitives.white else FetchPrimitives.neutral100
     val FocusBackground = palette.focusBackground
     val FocusContent = FetchPrimitives.white
 
@@ -159,12 +164,12 @@ class FetchColorScheme(
     val Torrent = FetchPrimitives.torrent
     val Premium = FetchPrimitives.premium
 
-    val Border = FetchPrimitives.neutral750
+    val Border = if (highContrast) FetchPrimitives.neutral600 else FetchPrimitives.neutral750
     val BorderFocused = FocusRing
-    val BorderMuted = FetchPrimitives.neutral750.copy(alpha = 0.58f)
+    val BorderMuted = Border.copy(alpha = 0.58f)
 
-    val Scrim = FetchPrimitives.black.copy(alpha = 0.62f)
-    val ImageScrim = FetchPrimitives.black.copy(alpha = 0.58f)
+    val Scrim = FetchPrimitives.black.copy(alpha = if (highContrast) 0.78f else 0.62f)
+    val ImageScrim = FetchPrimitives.black.copy(alpha = if (highContrast) 0.74f else 0.58f)
     val VideoControlsScrim = FetchPrimitives.black.copy(alpha = 0.72f)
     val PosterFallback = BackgroundCard
 

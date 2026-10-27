@@ -701,15 +701,15 @@ private fun StreamRegexDialog(
                             border = CardDefaults.border(
                                 focusedBorder = Border(
                                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.xxl)
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.xl)
                                 )
                             ),
-                            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.xxl)),
+                            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.xl)),
                             scale = CardDefaults.scale(focusedScale = 1.02f)
                         ) {
                             Text(
                                 text = label,
-                                modifier = Modifier.padding(horizontal = 14.dp, vertical = FetchTheme.spacing.sm),
+                                modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = if (isFocused) FetchTheme.colors.Primary else FetchTheme.colors.TextPrimary
                             )
@@ -739,7 +739,7 @@ private fun StreamRegexDialog(
                     shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)),
                     scale = CardDefaults.scale(focusedScale = 1f)
                 ) {
-                    Box(modifier = Modifier.padding(horizontal = 14.dp, vertical = FetchTheme.spacing.md)) {
+                    Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)) {
                         BasicTextField(
                             value = regex,
                             onValueChange = {

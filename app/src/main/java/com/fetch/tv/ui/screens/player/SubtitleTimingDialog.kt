@@ -53,6 +53,7 @@ import com.fetch.tv.domain.model.Subtitle
 import com.fetch.tv.ui.components.LoadingIndicator
 import kotlinx.coroutines.delay
 import kotlin.math.abs
+import com.fetch.tv.ui.theme.FetchPrimitives
 
 private enum class SyncStage {
     WAIT_FOR_SYNC,
@@ -112,9 +113,9 @@ internal fun SubtitleTimingDialog(
             .clip(RoundedCornerShape(FetchTheme.spacing.xl))
             .background(
                 if (stage == SyncStage.PICK_LINE) {
-                    Color(0x2E090909)
+                    FetchPrimitives.black.copy(alpha = 0.18f)
                 } else {
-                    Color(0x47090909)
+                    FetchPrimitives.black.copy(alpha = 0.28f)
                 }
             )
             .padding(
@@ -173,13 +174,13 @@ private fun SyncPromptPanel(
                 containerColor = Color.White.copy(alpha = 0.14f),
                 focusedContainerColor = Color.White.copy(alpha = 0.26f)
             ),
-            shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.lg))
+            shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.md))
         ) {
             Text(
                 text = stringResource(R.string.subtitle_timing_sync_button),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
                 color = Color.White,
-                modifier = Modifier.padding(horizontal = 28.dp, vertical = FetchTheme.spacing.md)
+                modifier = Modifier.padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md)
             )
         }
     }
@@ -246,7 +247,7 @@ private fun CueSelectionPanel(
             Text(
                 text = statusMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFF9BE2AF)
+                color = FetchTheme.colors.Success
             )
         }
 
@@ -254,7 +255,7 @@ private fun CueSelectionPanel(
             Text(
                 text = errorMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFFFFB37A)
+                color = FetchTheme.colors.Warning
             )
             return
         }
@@ -263,7 +264,7 @@ private fun CueSelectionPanel(
             Text(
                 text = stringResource(R.string.subtitle_timing_select_addon_first),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFFFB37A)
+                color = FetchTheme.colors.Warning
             )
             return
         }

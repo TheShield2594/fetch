@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextDirection
 import com.fetch.tv.R
 import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -98,7 +99,7 @@ internal fun ManageListsDialog(
                     Text(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFFFFB6B6)
+                        color = FetchStatusTones.errorText
                     )
                 }
 
@@ -185,7 +186,7 @@ internal fun ManageListsDialog(
                         onClick = onDelete,
                         enabled = !pending && selectedKey != null,
                         colors = ButtonDefaults.colors(
-                            containerColor = Color(0xFF4A2323),
+                            containerColor = FetchStatusTones.errorContainer,
                             contentColor = FetchTheme.colors.TextPrimary
                         )
                     ) { Text(stringResource(R.string.library_list_delete)) }

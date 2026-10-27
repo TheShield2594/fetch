@@ -145,12 +145,12 @@ object FetchComponents {
         sidePanel = FetchDialogComponentTokens(
             maxWidth = 420.dp,
             contentPadding = 20.dp,
-            cornerRadius = 20.dp,
+            cornerRadius = 16.dp,
             actionSpacing = 12.dp
         ),
         settings = FetchSettingsComponentTokens(
-            containerRadius = 28.dp,
-            secondaryCardRadius = 18.dp,
+            containerRadius = 16.dp,
+            secondaryCardRadius = 12.dp,
             railItemHeight = 56.dp,
             workspacePadding = 20.dp,
             rowGap = 16.dp

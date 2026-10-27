@@ -304,7 +304,7 @@ internal fun LayoutCustomPosterSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchRadii.tokens.sm))
-                .padding(horizontal = 14.dp, vertical = FetchTheme.spacing.md)
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)
         )
     }
     SettingsActionRow(

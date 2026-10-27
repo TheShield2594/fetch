@@ -365,7 +365,6 @@
     <string name="custom_theme_save">Spremi temu</string>
     <string name="custom_theme_remote_hint">← → Podesi   ·   ↑ ↓ Pomakni   ·   Drži za brže podešavanje</string>
     <string name="custom_theme_preview">PREGLED</string>
-    <string name="custom_theme_preview_ring">Fokusirana stavka</string>
     <string name="appearance_amoled_mode">AMOLED način</string>
     <string name="appearance_amoled_mode_subtitle">Koristi čisto crnu za pozadine aplikacije</string>
     <string name="appearance_amoled_surfaces_mode">Čisto crne površine</string>

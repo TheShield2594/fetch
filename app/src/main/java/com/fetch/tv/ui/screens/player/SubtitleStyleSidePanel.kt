@@ -90,8 +90,8 @@ internal fun SubtitleStyleSidePanel(
         modifier = modifier
             .width(PlayerSidePanelWidth)
             .height(330.dp)
-            .clip(RoundedCornerShape(bottomStart = FetchTheme.radii.xxl, bottomEnd = FetchTheme.radii.xxl))
-            .background(Color(0xFF101010))
+            .clip(RoundedCornerShape(bottomStart = FetchTheme.radii.xl, bottomEnd = FetchTheme.radii.xl))
+            .background(FetchTheme.colors.Panel)
             .then(if (isStyleDisabledByLibass) Modifier.focusProperties { canFocus = false } else Modifier)
             .padding(start = FetchTheme.spacing.lg, end = FetchTheme.spacing.lg, top = 22.dp, bottom = 10.dp)
     ) {
@@ -326,7 +326,7 @@ private fun SubtitleStyleSection(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(FetchRadii.tokens.lg))
+            .clip(RoundedCornerShape(FetchRadii.tokens.md))
             .background(Color.White.copy(alpha = 0.06f))
             .padding(FetchTheme.spacing.md)
     ) {
@@ -408,7 +408,7 @@ private fun SubtitleStyleValueDisplay(text: String) {
             .widthIn(min = 52.dp)
             .clip(RoundedCornerShape(FetchRadii.tokens.sm))
             .background(Color.White.copy(alpha = 0.12f))
-            .padding(horizontal = 10.dp, vertical = 5.dp),
+            .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
         contentAlignment = Alignment.Center
     ) {
         Text(

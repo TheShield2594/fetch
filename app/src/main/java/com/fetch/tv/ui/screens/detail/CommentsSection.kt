@@ -780,9 +780,9 @@ fun CommentOverlay(
                 .background(
                     Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFF070707),
-                            Color(0xFF101010),
-                            Color(0xFF151515)
+                            FetchTheme.colors.Background,
+                            FetchTheme.colors.Panel,
+                            FetchTheme.colors.BackgroundElevated
                         )
                     )
                 )
@@ -864,7 +864,7 @@ fun CommentOverlay(
                 )
                 Text(
                     text = stringResource(R.string.detail_comments_back_hint),
-                    modifier = Modifier.padding(start = 18.dp),
+                    modifier = Modifier.padding(start = FetchTheme.spacing.lg),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.34f)
                 )

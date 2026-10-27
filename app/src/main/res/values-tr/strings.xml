@@ -364,7 +364,6 @@
     <string name="custom_theme_save">Temayı kaydet</string>
     <string name="custom_theme_remote_hint">← → Ayarla   ·   ↑ ↓ Taşı   ·   Daha hızlı ayarlamak için basılı tutun</string>
     <string name="custom_theme_preview">ÖNİZLEME</string>
-    <string name="custom_theme_preview_ring">Odaklanan Öğe</string>
     <string name="appearance_amoled_mode">AMOLED Modu</string>
     <string name="appearance_amoled_mode_subtitle">Tamamen siyah arka plan kullan (OLED ekranlar için önerilir)</string>
     <string name="appearance_amoled_surfaces_mode">AMOLED Yüzeyler</string>

@@ -130,7 +130,7 @@ fun ParentalGuideOverlay(
 
         // Warning items
         Column(
-            modifier = Modifier.padding(start = 10.dp),
+            modifier = Modifier.padding(start = FetchTheme.spacing.sm),
             verticalArrangement = Arrangement.spacedBy(ROW_GAP)
         ) {
             warnings.forEachIndexed { index, warning ->

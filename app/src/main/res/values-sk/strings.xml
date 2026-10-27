@@ -2562,7 +2562,6 @@
     <string name="custom_theme_save">Uložiť tému</string>
     <string name="custom_theme_remote_hint">← → Upraviť  ·  ↑ ↓ Posunúť  ·  Podržaním zrýchlite</string>
     <string name="custom_theme_preview">NÁHĽAD</string>
-    <string name="custom_theme_preview_ring">Vybraná položka</string>
     <string name="appearance_startup_splash">Úvodná obrazovka pri spustení</string>
     <string name="appearance_startup_splash_subtitle">Zobraziť logo a indikátor načítavania po výbere profilu</string>
     <string name="licenses_attributions_section_ui">KNIŽNICE UI</string>

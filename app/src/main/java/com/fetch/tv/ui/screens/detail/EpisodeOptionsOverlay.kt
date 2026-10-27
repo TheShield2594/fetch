@@ -115,7 +115,8 @@ internal fun EpisodeOptionsOverlay(
     val context = LocalContext.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
-    val overlayColor = Color(0xFF050505)
+    val overlayColor = FetchTheme.colors.Background
+    val overlayPanelColor = FetchTheme.colors.Panel
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val primaryFocusRequester = remember { FocusRequester() }
     val detailsFocusRequester = remember { FocusRequester() }
@@ -166,12 +167,12 @@ internal fun EpisodeOptionsOverlay(
             )
         }
     }
-    val noneBackgroundBrush = remember {
+    val noneBackgroundBrush = remember(overlayColor, overlayPanelColor) {
         Brush.horizontalGradient(
             colors = listOf(
-                Color(0xFF050505),
-                Color(0xFF090909),
-                FetchPrimitives.neutral925
+                overlayColor,
+                overlayColor,
+                overlayPanelColor
             )
         )
     }
@@ -287,7 +288,7 @@ internal fun EpisodeOptionsOverlay(
                     if (isNoneStyle) {
                         Modifier.background(noneBackgroundBrush)
                     } else {
-                        Modifier.background(Color(0xFF050505))
+                        Modifier.background(overlayColor)
                     }
                 )
                 .onPreviewKeyEvent { event ->

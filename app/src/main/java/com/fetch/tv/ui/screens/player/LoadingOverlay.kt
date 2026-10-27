@@ -53,6 +53,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
+import com.fetch.tv.ui.theme.FetchPrimitives
 
 @Composable
 fun LoadingOverlay(
@@ -119,10 +120,10 @@ fun LoadingOverlay(
         val overlayBrush = remember {
             Brush.verticalGradient(
                 colorStops = arrayOf(
-                    0f to Color(0x4D000000),
-                    0.35f to Color(0x99000000),
-                    0.7f to Color(0xCC000000),
-                    1f to Color(0xE6000000)
+                    0f to FetchPrimitives.black.copy(alpha = 0.3f),
+                    0.35f to FetchPrimitives.black.copy(alpha = 0.6f),
+                    0.7f to FetchPrimitives.black.copy(alpha = 0.8f),
+                    1f to FetchPrimitives.black.copy(alpha = 0.9f)
                 )
             )
         }

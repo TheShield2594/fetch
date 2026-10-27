@@ -355,7 +355,6 @@
     <string name="custom_theme_save">儲存主題</string>
     <string name="custom_theme_remote_hint">← → 調整   ·   ↑ ↓ 移動   ·   長按以更快調整</string>
     <string name="custom_theme_preview">預覽</string>
-    <string name="custom_theme_preview_ring">焦點項目</string>
     <string name="appearance_amoled_mode">AMOLED 模式</string>
     <string name="appearance_amoled_mode_subtitle">應用程式背景使用純黑色</string>
     <string name="appearance_amoled_surfaces_mode">純黑表面</string>

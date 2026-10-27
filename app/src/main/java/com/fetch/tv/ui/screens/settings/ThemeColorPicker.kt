@@ -180,7 +180,7 @@ private fun ColorChannelSlider(
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

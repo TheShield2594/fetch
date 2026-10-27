@@ -125,7 +125,7 @@ internal fun ExperienceModeSelectionContent(
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 64.dp, vertical = FetchTheme.spacing.xxxl),
+            .padding(horizontal = FetchTheme.spacing.huge, vertical = FetchTheme.spacing.xxxl),
         horizontalArrangement = Arrangement.spacedBy(72.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -166,6 +166,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import io.github.peerless2012.ass.media.widget.AssSubtitleView
 import kotlin.math.abs
 import kotlinx.coroutines.flow.collectLatest
+import com.fetch.tv.ui.theme.FetchStatusTones
+import com.fetch.tv.ui.theme.FetchPrimitives
 
 private fun PlayerUiState.returnFocusSeasonEpisode(completed: Boolean): Pair<Int?, Int?> {
     val next = nextEpisode?.takeIf {
@@ -3101,7 +3103,7 @@ private fun ReportControlButton(
                 maxLines = 1,
                 modifier = Modifier
                     .background(Color.Black.copy(alpha = 0.78f), RoundedCornerShape(FetchRadii.tokens.xs))
-                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                    .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
             )
         }
     }
@@ -3266,11 +3268,11 @@ private fun UpNextQueueCard(
         border = CardDefaults.border(
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = RoundedCornerShape(FetchTheme.radii.lg)
+                shape = RoundedCornerShape(FetchTheme.radii.md)
             )
         ),
         scale = CardDefaults.scale(focusedScale = 1f),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.lg))
+        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md))
     ) {
         Row(
             modifier = Modifier.padding(FetchTheme.spacing.sm),
@@ -3640,7 +3642,7 @@ private fun AspectRatioIndicator(text: String) {
                 color = Color.Black.copy(alpha = 0.85f),
                 shape = RoundedCornerShape(FetchTheme.spacing.xl)
             )
-            .padding(horizontal = 20.dp, vertical = FetchTheme.spacing.md),
+            .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -3649,7 +3651,7 @@ private fun AspectRatioIndicator(text: String) {
             modifier = Modifier
                 .size(36.dp)
                 .background(
-                    color = Color(0xFF3B3B3B),
+                    color = FetchPrimitives.neutral750,
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -3682,9 +3684,9 @@ private fun StreamSourceIndicator(text: String) {
         modifier = Modifier
             .background(
                 color = Color.Black.copy(alpha = 0.82f),
-                shape = RoundedCornerShape(FetchRadii.tokens.xxl)
+                shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
-            .padding(horizontal = 14.dp, vertical = FetchTheme.spacing.sm),
+            .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -3704,9 +3706,9 @@ private fun PlayerEngineSwitchIndicator(
 ) {
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
+            .clip(RoundedCornerShape(FetchRadii.tokens.xl))
             .background(Color.Black.copy(alpha = 0.86f))
-            .padding(horizontal = 22.dp, vertical = FetchTheme.spacing.lg),
+            .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -3758,14 +3760,14 @@ private fun SubtitleDelayOverlay(
 ) {
     val fraction = ((subtitleDelayMs - SUBTITLE_DELAY_MIN_MS).toFloat() /
         (SUBTITLE_DELAY_MAX_MS - SUBTITLE_DELAY_MIN_MS).toFloat()).coerceIn(0f, 1f)
-    val sliderAccent = if (isSliderFocused) Color(0xFF4AA3FF) else Color.White
+    val sliderAccent = if (isSliderFocused) FetchPrimitives.blue300 else Color.White
 
     Column(
         modifier = Modifier
             .fillMaxWidth(0.6f)
-            .clip(RoundedCornerShape(FetchRadii.tokens.panel))
-            .background(Color(0xCC0F0F0F))
-            .padding(horizontal = 26.dp, vertical = 20.dp)
+            .clip(RoundedCornerShape(FetchRadii.tokens.xl))
+            .background(FetchTheme.colors.PlayerOverlay)
+            .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.lg)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -3862,7 +3864,7 @@ private fun SubtitleDelayOverlay(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 9.dp),
+                        .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -3898,7 +3900,7 @@ private fun SubtitleDelayOverlay(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 9.dp),
+                        .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -3930,7 +3932,7 @@ private fun LoadingIssueReportAction(
     }
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(FetchTheme.radii.lg))
+            .clip(RoundedCornerShape(FetchTheme.radii.md))
             .background(Color.Black.copy(alpha = 0.72f))
             .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -4054,7 +4056,7 @@ private fun ErrorOverlay(
                     style = MaterialTheme.typography.bodyMedium,
                     color = when (reportStatus) {
                         PlaybackIssueReportStatus.Sent -> FetchTheme.colors.Secondary
-                        PlaybackIssueReportStatus.Failed -> Color(0xFFFF8A80)
+                        PlaybackIssueReportStatus.Failed -> FetchStatusTones.errorText
                         else -> Color.White.copy(alpha = 0.7f)
                     },
                     textAlign = TextAlign.Center,

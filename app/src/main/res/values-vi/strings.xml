@@ -362,7 +362,6 @@
     <string name="custom_theme_save">Lưu chủ đề</string>
     <string name="custom_theme_remote_hint">← → Điều chỉnh   ·   ↑ ↓ Di chuyển   ·   Giữ để điều chỉnh nhanh hơn</string>
     <string name="custom_theme_preview">XEM TRƯỚC</string>
-    <string name="custom_theme_preview_ring">Mục đang chọn</string>
     <string name="appearance_amoled_mode">Chế độ AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Dùng màu đen tuyệt đối cho nền ứng dụng</string>
     <string name="appearance_amoled_surfaces_mode">Tông nền đen tuyệt đối</string>

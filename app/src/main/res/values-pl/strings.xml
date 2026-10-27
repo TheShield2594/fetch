@@ -2756,7 +2756,6 @@
     <string name="custom_theme_save">Zapisz motyw</string>
     <string name="custom_theme_remote_hint">← → Reguluj   ·   ↑ ↓ Przesuń   ·   Przytrzymaj, aby szybciej</string>
     <string name="custom_theme_preview">PODGLĄD</string>
-    <string name="custom_theme_preview_ring">Wybrany element</string>
 
     <string name="youtube_resolving_stream">Ładowanie wideo z YouTube</string>
     <string name="youtube_resolution_failed">Nie udało się załadować tego wideo z YouTube.</string>

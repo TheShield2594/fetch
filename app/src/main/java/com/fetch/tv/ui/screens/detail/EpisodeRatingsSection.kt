@@ -40,6 +40,7 @@ import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.Video
+import com.fetch.tv.ui.theme.FetchContentColors
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -185,7 +186,7 @@ fun EpisodeRatingsSection(
                                         selectedSeason = season
                                     }
                                 },
-                            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.lg)),
+                            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
                             colors = CardDefaults.colors(
                                 containerColor = if (isSelected) {
                                     FetchTheme.colors.FocusBackground
@@ -197,7 +198,7 @@ fun EpisodeRatingsSection(
                             border = CardDefaults.border(
                                 focusedBorder = Border(
                                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(FetchRadii.tokens.lg)
+                                    shape = RoundedCornerShape(FetchRadii.tokens.md)
                                 )
                             ),
                             scale = CardDefaults.scale(focusedScale = 1f)
@@ -206,7 +207,7 @@ fun EpisodeRatingsSection(
                                 text = stringResource(R.string.ratings_season_label, season),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = FetchTheme.colors.TextPrimary,
-                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp)
+                                modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
                             )
                         }
                     }
@@ -242,7 +243,7 @@ fun EpisodeRatingsSection(
                                 .then(
                                     if (isFirstEpisode) Modifier.focusRequester(firstEpisodeRatingFocusRequester) else Modifier
                                 ),
-                            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.lg)),
+                            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
                             colors = CardDefaults.colors(
                                 containerColor = episodeRating.chipColor,
                                 focusedContainerColor = episodeRating.chipColor
@@ -250,7 +251,7 @@ fun EpisodeRatingsSection(
                             border = CardDefaults.border(
                                 focusedBorder = Border(
                                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(FetchRadii.tokens.lg)
+                                    shape = RoundedCornerShape(FetchRadii.tokens.md)
                                 )
                             ),
                             scale = CardDefaults.scale(focusedScale = 1.03f)
@@ -283,19 +284,19 @@ fun EpisodeRatingsSection(
 
 private fun ratingColor(value: Double): androidx.compose.ui.graphics.Color {
     return when {
-        value >= 9.7 -> androidx.compose.ui.graphics.Color(0xFF1DA1F3)
-        value >= 9.0 -> androidx.compose.ui.graphics.Color(0xFF186A3B)
-        value >= 8.0 -> androidx.compose.ui.graphics.Color(0xFF28B463)
-        value >= 7.5 -> androidx.compose.ui.graphics.Color(0xFFF4D03F)
-        value >= 7.0 -> androidx.compose.ui.graphics.Color(0xFFF39C12)
-        value >= 6.0 -> androidx.compose.ui.graphics.Color(0xFFE74C3C)
-        else -> androidx.compose.ui.graphics.Color(0xFF633974)
+        value >= 9.7 -> FetchContentColors.ratingExceptional
+        value >= 9.0 -> FetchContentColors.ratingGreat
+        value >= 8.0 -> FetchContentColors.ratingVeryGood
+        value >= 7.5 -> FetchContentColors.ratingGood
+        value >= 7.0 -> FetchContentColors.ratingFair
+        value >= 6.0 -> FetchContentColors.ratingPoor
+        else -> FetchContentColors.ratingBad
     }
 }
 
 private fun ratingTextColor(value: Double): Color {
     return when {
-        value >= 7.0 && value < 8.0 -> Color(0xFF1D1D1F)
+        value >= 7.0 && value < 8.0 -> FetchContentColors.ratingTextOnLight
         else -> Color.White
     }
 }

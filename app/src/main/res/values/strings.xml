@@ -407,7 +407,10 @@
     <string name="custom_theme_save">Save theme</string>
     <string name="custom_theme_remote_hint">← → Adjust   ·   ↑ ↓ Move   ·   Hold to adjust faster</string>
     <string name="custom_theme_preview">PREVIEW</string>
-    <string name="custom_theme_preview_ring">Focused Item</string>
+    <string name="custom_theme_preview_action">Play</string>
+    <string name="custom_theme_adjusted_for_contrast">Lightened a little so buttons stay visible on dark backgrounds</string>
+    <string name="appearance_high_contrast">Increase contrast</string>
+    <string name="appearance_high_contrast_subtitle">Brighter secondary text and borders, and a heavier focus outline</string>
     <string name="appearance_amoled_mode">AMOLED Mode</string>
     <string name="appearance_amoled_mode_subtitle">Use pure black for app backgrounds</string>
     <string name="appearance_amoled_surfaces_mode">Pure Black Surfaces</string>

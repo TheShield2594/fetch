@@ -94,6 +94,7 @@ import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.rememberRawSvgPainter
 import java.util.Locale
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 private const val MAX_VISIBLE_HERO_GENRES = 6
 
@@ -614,7 +615,7 @@ private fun ActionIconButton(
     onLongPress: (() -> Unit)? = null,
     enabled: Boolean = true,
     selected: Boolean = false,
-    selectedContainerColor: Color = Color(0xFF7CFF9B),
+    selectedContainerColor: Color = FetchStatusTones.toggleOn,
     selectedContentColor: Color = Color.Black,
     onFocused: () -> Unit = {},
     focusRequester: FocusRequester? = null
@@ -1068,11 +1069,11 @@ private fun MetaInfoDivider() {
     )
 }
 
-/** "4K · DV P8 · TrueHD Atmos · 18.2 GB · Cached", the file Best match will start. */
+/** "4K · Dolby Vision · Atmos · Cached": the file Best match will start, in plain words. */
 @Composable
 private fun rememberBestMatchSpecLine(preview: com.fetch.tv.core.streams.BestMatchPreview): SpecLine? {
     val cachedLabel = stringResource(R.string.best_match_cached)
     return remember(preview, cachedLabel) {
-        SpecLine.of(preview.labels, preview.isCached, cachedLabel)
+        SpecLine.of(preview.buttonLabels, preview.isCached, cachedLabel)
     }
 }

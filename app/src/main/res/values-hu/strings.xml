@@ -361,7 +361,6 @@
     <string name="custom_theme_save">Téma mentése</string>
     <string name="custom_theme_remote_hint">← → Szín módosítása   ·   ↑ ↓ Mozgás   ·   Hosszan nyomva gyorsabb</string>
     <string name="custom_theme_preview">ELŐNÉZET</string>
-    <string name="custom_theme_preview_ring">Kijelölt elem</string>
     <string name="appearance_amoled_mode">AMOLED mód</string>
     <string name="appearance_amoled_mode_subtitle">Teljesen fekete háttér használata az alkalmazásban</string>
     <string name="appearance_amoled_surfaces_mode">Teljesen fekete felületek</string>

@@ -216,7 +216,7 @@ fun SkipIntroButton(
                 modifier = Modifier.width(IntrinsicSize.Max)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 18.dp, vertical = FetchTheme.spacing.md),
+                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -238,7 +238,7 @@ fun SkipIntroButton(
                         color = (if (isFocused) FetchTheme.colors.OnSecondary else Color.White).copy(alpha = 0.7f),
                         fontSize = 12.sp,
                         maxLines = 1,
-                        modifier = Modifier.padding(start = 18.dp, end = 18.dp, bottom = FetchTheme.spacing.sm)
+                        modifier = Modifier.padding(start = FetchTheme.spacing.lg, end = FetchTheme.spacing.lg, bottom = FetchTheme.spacing.sm)
                     )
                 }
                 Box(

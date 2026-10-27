@@ -373,7 +373,7 @@ internal fun SettingsRailButton(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 18.dp),
+                    .padding(horizontal = FetchTheme.spacing.lg),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -534,7 +534,7 @@ internal fun SettingsToggleRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = FetchTheme.spacing.md),
+                .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -625,7 +625,7 @@ internal fun SettingsActionRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 62.dp)
-                .padding(horizontal = 18.dp, vertical = FetchTheme.spacing.md),
+                .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (leadingRawIconRes != null) {

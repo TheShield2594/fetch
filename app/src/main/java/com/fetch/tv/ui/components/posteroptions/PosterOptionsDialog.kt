@@ -34,6 +34,7 @@ import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.localizedMembershipTitle
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.ui.components.FetchDialog
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -147,7 +148,7 @@ fun PosterListPickerDialog(
             Text(
                 text = error,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFFFB6B6)
+                color = FetchStatusTones.errorText
             )
         }
 

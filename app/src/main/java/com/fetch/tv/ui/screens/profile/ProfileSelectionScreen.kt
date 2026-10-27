@@ -134,6 +134,8 @@ import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.domain.model.ProfileBackgroundSelection
 import com.fetch.tv.domain.model.resolveProfileBackgroundSelection
 import kotlinx.coroutines.delay
+import com.fetch.tv.ui.theme.FetchContentColors
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 private object ProfileSelectionSpacing {
     val ScreenPaddingHorizontal = FetchTheme.spacing.huge
@@ -381,7 +383,7 @@ fun ProfileSelectionScreen(
     val onProfileFocusedChange = remember(onProfileFocusChanged, onProfileThemeFocused) {
         { profile: UserProfile? ->
             focusedProfileId = profile?.id
-            focusedAvatarColor = profile?.avatarColorHex?.let(::parseProfileColor) ?: Color(0xFF555555)
+            focusedAvatarColor = profile?.avatarColorHex?.let(::parseProfileColor) ?: FetchPrimitives.neutral700
             Unit
         }
     }
@@ -1020,7 +1022,7 @@ fun ProfileSelectionScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.colors(
-                            containerColor = Color(0xFF4A2323),
+                            containerColor = FetchStatusTones.errorContainer,
                             contentColor = FetchTheme.colors.TextPrimary
                         )
                     ) {
@@ -1132,7 +1134,7 @@ fun ProfileSelectionScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.colors(
-                        containerColor = Color(0xFF4A2323),
+                        containerColor = FetchStatusTones.errorContainer,
                         contentColor = FetchTheme.colors.TextPrimary
                     )
                 ) {
@@ -1235,7 +1237,7 @@ private fun ProfileSelectionBackground(
     )
     // Use fixed dark colors so the gradient is consistent.
     // Otherwise, profile selector and splash screen needs to know about user template
-    val baseBg = Color(0xFF121212)
+    val baseBg = FetchPrimitives.neutral925
     val baseBgElevated = FetchPrimitives.neutral875
     val gradientTop = lerp(baseBgElevated, animatedAvatarColor, 0.3f)
     val gradientMid = lerp(baseBg, animatedAvatarColor, 0.14f)
@@ -1646,7 +1648,7 @@ private fun ProfileCard(
                         .offset(x = FetchTheme.spacing.xxs, y = FetchTheme.spacing.hairline)
                         .size(if (compact) 22.dp else 26.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFFFB300), CircleShape)
+                        .background(FetchContentColors.primaryProfileBadge, CircleShape)
                         .border(
                             width = FetchTheme.spacing.xxs,
                             color = FetchTheme.colors.Background,
@@ -1694,7 +1696,7 @@ private fun ProfileCard(
             if (profile.isPrimary) {
                 Text(
                     text = stringResource(R.string.profile_selection_primary_badge),
-                    color = Color(0xFFFFB300),
+                    color = FetchContentColors.primaryProfileBadge,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.8.sp
@@ -1907,9 +1909,9 @@ private fun CreateProfileOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
-                .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
+                .clip(RoundedCornerShape(FetchRadii.tokens.xl))
                 .background(FetchTheme.colors.BackgroundElevated)
-                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xxl))
+                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xl))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -2292,9 +2294,9 @@ private fun EditProfileOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
-                .clip(RoundedCornerShape(FetchRadii.tokens.xxl))
+                .clip(RoundedCornerShape(FetchRadii.tokens.xl))
                 .background(FetchTheme.colors.BackgroundElevated)
-                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xxl))
+                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xl))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -2794,7 +2796,7 @@ internal fun ProfilePinOverlay(
             else -> stringResource(R.string.profile_pin_overlay_set_support)
         }
         val supportTextColor = if (isErrorState) {
-            Color(0xFFFF8E8E)
+            FetchStatusTones.errorText
         } else {
             FetchTheme.colors.TextSecondary
         }
@@ -2953,7 +2955,7 @@ private fun ProfilePinBoxes(
                 !isWorking
             val borderColor by animateColorAsState(
                 targetValue = when {
-                    isErrorState -> Color(0xFFE35D5D)
+                    isErrorState -> FetchStatusTones.errorBorder
                     isFilled -> Color.White.copy(alpha = 0.92f)
                     isActive -> Color.White
                     else -> Color.White.copy(alpha = 0.72f)
@@ -2963,7 +2965,7 @@ private fun ProfilePinBoxes(
             )
             val backgroundColor by animateColorAsState(
                 targetValue = when {
-                    isErrorState -> Color(0xFF311818).copy(alpha = 0.76f)
+                    isErrorState -> FetchStatusTones.errorContainer.copy(alpha = 0.76f)
                     isFilled -> Color.White.copy(alpha = 0.07f)
                     isActive -> Color.White.copy(alpha = 0.04f)
                     else -> Color.Transparent
@@ -3170,7 +3172,7 @@ private fun OverlayButton(
                 onClick = onClick
             )
             .semantics { role = Role.Button }
-            .padding(horizontal = 28.dp, vertical = FetchTheme.spacing.md),
+            .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md),
         contentAlignment = Alignment.Center
     ) {
         Text(

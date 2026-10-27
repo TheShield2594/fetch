@@ -42,6 +42,7 @@ import com.fetch.tv.ui.membership.Membership
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
+import com.fetch.tv.ui.theme.FetchContentColors
 
 private const val MemberWordmarkHeightRatio = 132f / 344f
 private const val MemberWordmarkVerticalOffsetRatio = -12f / 344f
@@ -58,18 +59,18 @@ internal fun MemberTier.badgeStyle(): MemberBadgeStyle = when (this) {
     MemberTier.SUPPORTER -> MemberBadgeStyle(
         label = "Supporter",
         colorStops = listOf(
-            0f to Color(0xFFD4843D),
-            0.5f to Color(0xFFFFDE90),
-            1f to Color(0xFFD4843D)
+            0f to FetchContentColors.supporterGold,
+            0.5f to FetchContentColors.supporterGoldLight,
+            1f to FetchContentColors.supporterGold
         )
     )
     MemberTier.SUPPORTER_PLUS -> MemberBadgeStyle(
         label = "Supporter+",
         colorStops = listOf(
-            0f to Color(0xFF91A8FF),
-            0.52f to Color(0xFFF08BD8),
-            0.78f to Color(0xFFFF9B8E),
-            1f to Color(0xFF91A8FF)
+            0f to FetchContentColors.supporterPlusBlue,
+            0.52f to FetchContentColors.supporterPlusPink,
+            0.78f to FetchContentColors.supporterPlusCoral,
+            1f to FetchContentColors.supporterPlusBlue
         )
     )
 }

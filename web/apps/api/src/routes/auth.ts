@@ -26,7 +26,7 @@ const DEFAULT_INVITE_DAYS = 7;
 const MAX_INVITE_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const WEB_PUBLIC_BASE = (process.env.CATALOGGY_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
+const WEB_PUBLIC_BASE = (process.env.FETCH_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
 
 // The same budget as PIN verification: these take a password, and the server
 // is reachable from the internet.

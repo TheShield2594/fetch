@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { FastifyRequest } from "fastify";
-import { CATALOGGY_API_TOKEN } from "./config.js";
+import { FETCH_API_TOKEN } from "./config.js";
 
 /**
  * What is allowed to write through this service.
@@ -10,15 +10,15 @@ import { CATALOGGY_API_TOKEN } from "./config.js";
  * isn't real auth — it only stops browser-issued cross-origin requests; nothing
  * stops a direct script/curl request from setting its own Origin header. So
  * mutations additionally require a token derived from the shared
- * CATALOGGY_API_TOKEN (never the raw token itself, to cap the blast radius if a
+ * FETCH_API_TOKEN (never the raw token itself, to cap the blast radius if a
  * URL containing it leaks — e.g. via proxy/access logs).
  *
  * Scrobble callers (media-player integrations, capable of setting headers) send
  * this as a standard Bearer token. It is never emitted from a route — see
  * `lib/mark-watched.ts` for why /subtitles cannot hand it out.
  */
-const MUTATION_TOKEN = CATALOGGY_API_TOKEN
-  ? createHmac("sha256", CATALOGGY_API_TOKEN).update("cataloggy-addon-mutation").digest("hex")
+const MUTATION_TOKEN = FETCH_API_TOKEN
+  ? createHmac("sha256", FETCH_API_TOKEN).update("fetch-addon-mutation").digest("hex")
   : null;
 
 // Fastify doesn't validate query/header types against the route's TS generics at

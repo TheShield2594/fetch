@@ -47,7 +47,7 @@ const EXEMPT = new Map([
   ],
   [
     "WEB_PUBLIC_BASE",
-    "legacy alias read only as a fallback for CATALOGGY_WEB_PUBLIC, which compose does set",
+    "legacy alias read only as a fallback for FETCH_WEB_PUBLIC, which compose does set",
   ],
   [
     "DATABASE_URL_TEST",

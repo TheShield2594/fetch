@@ -76,12 +76,12 @@ Every public URL in `.env` has to be the LAN IP (or domain) the client actually
 uses:
 
 ```
-CATALOGGY_API_PUBLIC=http://192.168.1.25:7000
-CATALOGGY_WEB_PUBLIC=http://192.168.1.25:7002
+FETCH_API_PUBLIC=http://192.168.1.25:7000
+FETCH_WEB_PUBLIC=http://192.168.1.25:7002
 ADDON_PUBLIC_BASE=http://192.168.1.25:7001
 VITE_API_BASE=http://192.168.1.25:7000
 VITE_ADDON_BASE=http://192.168.1.25:7001
-CATALOGGY_ALLOWED_ORIGINS=http://192.168.1.25:7002
+FETCH_ALLOWED_ORIGINS=http://192.168.1.25:7002
 ```
 
 None of them need a rebuild. `api` and `addon` read theirs at startup, and the
@@ -94,15 +94,15 @@ different environment:
 docker compose up -d
 ```
 
-The internal ones (`CATALOGGY_API_BASE`, pointing at `http://api:7000`) stay as
+The internal ones (`FETCH_API_BASE`, pointing at `http://api:7000`) stay as
 they are — that's service-to-service traffic inside the Docker network, and it
 doesn't go via your LAN.
 
 ### Blocked by CORS
 
-The browser's origin has to be in `CATALOGGY_ALLOWED_ORIGINS`. Scheme, host and
+The browser's origin has to be in `FETCH_ALLOWED_ORIGINS`. Scheme, host and
 port all have to match — `http://192.168.1.25:7002` and
-`http://cataloggy.local` are two different origins, so list both if you use
+`http://fetch.local` are two different origins, so list both if you use
 both.
 
 ### Blank page behind a reverse proxy
@@ -115,7 +115,7 @@ browser console for which of the two it is:
   address than `VITE_API_BASE`, a per-browser override under Settings, say. Add
   that origin to `CSP_CONNECT_SRC_EXTRA` on the `web` service.
 - A **CORS** error — add the origin the browser is using to
-  `CATALOGGY_ALLOWED_ORIGINS` on the `api` service, domain included, not just
+  `FETCH_ALLOWED_ORIGINS` on the `api` service, domain included, not just
   the LAN IP.
 
 ### 401 on every request
@@ -252,15 +252,15 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
 - **Catalogs are empty** — they're per-profile. Check you installed the URL for
   the profile whose data you expect; each profile has its own secret path.
 - **"Configure" goes nowhere** — that link is built from
-  `CATALOGGY_WEB_PUBLIC`.
+  `FETCH_WEB_PUBLIC`.
 - **Add-on can't reach the API** — that one *is* internal:
-  `CATALOGGY_API_BASE=http://api:7000`. Only change it if you renamed the
+  `FETCH_API_BASE=http://api:7000`. Only change it if you renamed the
   service.
 
 ## Trakt
 
 - **OAuth fails** — the redirect URI registered on trakt.tv has to match exactly
-  what Fetch builds from `CATALOGGY_API_PUBLIC`. A trailing slash counts as
+  what Fetch builds from `FETCH_API_PUBLIC`. A trailing slash counts as
   a mismatch.
 - **The callback 400s** — the `state` value expired or didn't match. Start the
   flow again; it's bound to the browser session that began it.
@@ -321,7 +321,7 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
   stay server-side because a channel may point anywhere on your LAN, and
   echoing them back would make the test button a port scanner for anyone
   holding the API token.
-- **Notifications have no link to tap** — set `CATALOGGY_WEB_PUBLIC` to the
+- **Notifications have no link to tap** — set `FETCH_WEB_PUBLIC` to the
   externally reachable URL of the web UI. Without it the API doesn't know its
   own address, so it sends the notification without a link rather than a broken
   one.
@@ -413,7 +413,7 @@ docker compose logs migrate
 Restore from a backup and retry, rather than editing the schema by hand:
 
 ```bash
-./scripts/restore.sh backups/cataloggy-<timestamp>.sql.gz
+./scripts/restore.sh backups/fetch-<timestamp>.sql.gz
 ```
 
 Take a backup before every update — `./scripts/backup.sh`. See
@@ -421,7 +421,7 @@ Take a backup before every update — `./scripts/backup.sh`. See
 
 ### Images are on mismatched versions
 
-Keep all four (`api`, `addon`, `web`, `migrate`) on one `CATALOGGY_IMAGE_TAG`.
+Keep all four (`api`, `addon`, `web`, `migrate`) on one `FETCH_IMAGE_TAG`.
 The `migrate` image applies the schema the `api` image expects; mixing them is
 how you get a running API against a schema it doesn't understand.
 
@@ -430,7 +430,7 @@ Unset, the tag means `latest`, which follows the most recent build of `main` —
 back to. Pin it:
 
 ```
-CATALOGGY_IMAGE_TAG=v0.1.0
+FETCH_IMAGE_TAG=v0.1.0
 ```
 
 Rolling back is the same two commands with the previous tag.
@@ -460,5 +460,5 @@ that are currently failing. If you've set `SENTRY_DSN`, unhandled errors are
 there too — it's off by default, and no error data leaves your server without it.
 
 When opening an issue, include the logs above, your Fetch version
-(`CATALOGGY_IMAGE_TAG`), and a redacted `.env` — please strip `API_TOKEN`,
+(`FETCH_IMAGE_TAG`), and a redacted `.env` — please strip `API_TOKEN`,
 `POSTGRES_PASSWORD`, `WEBHOOK_SECRET`, and every API key before posting.

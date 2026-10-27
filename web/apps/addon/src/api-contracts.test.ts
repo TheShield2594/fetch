@@ -61,37 +61,41 @@ describe("catalog registry", () => {
 
   it("treats only the AI catalogs as needing a provider", () => {
     const gated = DISCOVERY_CATALOGS.filter(catalogRequiresAi).map((c) => c.id);
-    expect(gated).toEqual(["cataloggy-ai-movie", "cataloggy-ai-series"]);
+    expect(gated).toEqual(["fetch-ai-movie", "fetch-ai-series"]);
   });
 
   it("does not mistake a list catalog for a discovery one", () => {
     expect(getDiscoveryCatalog("list:abc")).toBeNull();
     expect(parseListCatalogId(listCatalogId("abc"))).toBe("abc");
-    expect(parseListCatalogId("cataloggy-trending-movie")).toBeNull();
+    expect(parseListCatalogId("fetch-trending-movie")).toBeNull();
   });
 
   it("translates the catalog ids written by the first version of the picker", () => {
-    expect(migrateLegacyCatalogs(["my_watchlist_movies", "cataloggy-anime-movie"])).toEqual([
-      "cataloggy-trending-movie",
-      "cataloggy-anime-movie",
+    expect(migrateLegacyCatalogs(["my_watchlist_movies", "fetch-anime-movie"])).toEqual([
+      "fetch-trending-movie",
+      "fetch-anime-movie",
     ]);
+  });
+
+  it("translates the discovery ids written before the website became Fetch", () => {
+    expect(migrateLegacyCatalogs(["cataloggy-ai-series", "list:abc"])).toEqual(["fetch-ai-series", "list:abc"]);
   });
 });
 
 describe("selectDiscoveryCatalogs", () => {
   it("keeps only what the profile enabled", () => {
-    const selected = selectDiscoveryCatalogs(["cataloggy-popular-movie", "list:abc"], { aiConfigured: true });
-    expect(selected.map((c) => c.id)).toEqual(["cataloggy-popular-movie"]);
+    const selected = selectDiscoveryCatalogs(["fetch-popular-movie", "list:abc"], { aiConfigured: true });
+    expect(selected.map((c) => c.id)).toEqual(["fetch-popular-movie"]);
   });
 
   it("withholds the AI catalogs until a provider exists", () => {
-    const enabled = ["cataloggy-ai-movie", "cataloggy-popular-movie"];
+    const enabled = ["fetch-ai-movie", "fetch-popular-movie"];
     expect(selectDiscoveryCatalogs(enabled, { aiConfigured: false }).map((c) => c.id)).toEqual([
-      "cataloggy-popular-movie",
+      "fetch-popular-movie",
     ]);
     expect(selectDiscoveryCatalogs(enabled, { aiConfigured: true }).map((c) => c.id)).toEqual([
-      "cataloggy-popular-movie",
-      "cataloggy-ai-movie",
+      "fetch-popular-movie",
+      "fetch-ai-movie",
     ]);
   });
 });
@@ -193,8 +197,8 @@ describe("response parsers", () => {
   it("assumes AI is available when an older API omits the flag", () => {
     // The API has already dropped the AI catalogs itself if it has no provider,
     // so defaulting to false here would hide catalogs a user did enable.
-    expect(parseAddonConfigResponse({ config: { enabledCatalogs: ["cataloggy-ai-movie"] } })).toEqual({
-      enabledCatalogs: ["cataloggy-ai-movie"],
+    expect(parseAddonConfigResponse({ config: { enabledCatalogs: ["fetch-ai-movie"] } })).toEqual({
+      enabledCatalogs: ["fetch-ai-movie"],
       aiConfigured: true,
     });
   });

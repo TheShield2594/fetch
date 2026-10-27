@@ -65,7 +65,7 @@ of the conclusions depends on the exact numbers.
 | D3 | **HTTP framework** | **Port to Hono.** | Fastify 5 needs Node `http` listen semantics. Cloudflare's `node:http` bridge is unproven for Fastify 5 plus its plugins. Hono's handler model maps closely to the existing route modules. |
 | D4 | **LAN integrations** (Ollama/LAN LLM, ntfy, Gotify, Jellyseerr, generic webhooks on `192.168.x.x`) | Decide: Cloudflare Tunnel + Workers VPC, or require public endpoints and document it. | A Worker cannot reach RFC1918 addresses. The code deliberately allows them today (`web/apps/api/src/lib/ssrf.ts:53-62`). |
 | D5 | **Who runs it?** Is it one Cloudflare deployment per household (today's self-host model), or a hosted multi-tenant service? | Assume one deployment per household. | Everything (the `API_TOKEN` model, singleton Trakt and Stremio connections, install-global settings) is single-tenant. Multi-tenant would be a redesign. |
-| D6 | **Does Docker Compose self-hosting stay?** | Keep it working through the migration if possible. | Existing installs and the `CATALOGGY_*` compatibility promise in `web/README.md`. This affects whether the code keeps a Node entrypoint alongside the Worker one. |
+| D6 | **Does Docker Compose self-hosting stay?** | Keep it working through the migration if possible. | Existing Docker Compose installs. This affects whether the code keeps a Node entrypoint alongside the Worker one. |
 | D7 | **Same origin for web, API and addon?** | Yes: one zone, with `/api/*` and `/addon/*` as routes. | It removes CORS (§10, bug 1), shrinks CSP `connect-src` to `'self'`, and the `/api` and `/addon` prefixes are already the defaults. |
 | D8 | **Addon URL continuity** | Keep the addon's hostname and path shape, or plan a reinstall prompt. | TVs and Stremio clients store the full manifest URL, and the TV's addon sync propagates it to other devices (§3.2). |
 
@@ -128,7 +128,7 @@ These are assembled in `web/apps/api/src/index.ts`:
 
 1. **Shared bearer `API_TOKEN`.** `Authorization: Bearer`, compared via SHA-256 +
    `timingSafeEqual` (`lib/auth.ts`). The PWA keeps it in `localStorage`
-   (`cataloggy_token`); the addon holds it as `CATALOGGY_API_TOKEN`.
+   (`fetch_token`); the addon holds it as `FETCH_API_TOKEN`.
    - Public paths are `/health`, `/health/ready`, `/addon/stremio/<64-hex>/…`,
      `/trakt/oauth/callback*` and `/webhooks/*`.
    - `/addon` is also exempted, but no route exists there.
@@ -146,7 +146,7 @@ These are assembled in `web/apps/api/src/index.ts`:
      `SELECT … FOR UPDATE`.
 4. **Derived secrets, all HMACs of `API_TOKEN`:**
    - The API's built-in addon secret URL (per profile).
-   - The addon **service token** (`x-cataloggy-service-token`). It unlocks `/rpdb/config`
+   - The addon **service token** (`x-fetch-service-token`). It unlocks `/rpdb/config`
      and `/stremio/play-signal`.
    - The addon **scrobble mutation token**.
    - The addon's 12 h **mark-watched capabilities**.
@@ -215,7 +215,7 @@ There are **two** Stremio addons:
 
 | | Built into the API (`routes/stremio.ts`) | Addon service (`apps/addon`) |
 |---|---|---|
-| Manifest id | `com.cataloggy.api` | `com.cataloggy.addon` |
+| Manifest id | `com.fetch.api` | `com.fetch.addon` |
 | Resources | catalog | catalog, meta, stream, subtitles |
 | URL / credential | `/addon/stremio/<64-hex HMAC secret>/…`; the bare paths need the bearer | `/<route>` or `/p/<profile-uuid>/<route>`, **no credential** |
 | Shown in the PWA | No. `GET /addon/config` computes it, but the UI never displays it. | Yes. `AddonSettings.tsx:18-21` hands out `${VITE_ADDON_BASE}/p/<id>/manifest.json`. |
@@ -232,7 +232,7 @@ Addon service routes (each also under `/p/:profileId`, except `/health`):
 | GET | `/subtitles/:type/:id.json` | `{subtitles:[{id, url:"…/mark-watched/….srt?token=<cap>", lang}]}` |
 | GET | `/mark-watched/:type/:imdbId.srt`, `/mark-watched/:type/:imdbId/:season/:episode.srt` | `text/srt`. Calls `POST /watch`. |
 | POST | `/scrobble/:action` (start/pause/stop) | API passthrough. Needs the mutation token. |
-| GET | `/configure` | 302 → `${CATALOGGY_WEB_PUBLIC}/settings` |
+| GET | `/configure` | 302 → `${FETCH_WEB_PUBLIC}/settings` |
 
 Addon caches are in-process maps with a TTL (manifest 60 s, list items 30 s, discovery
 30 min, and so on), and the addon serves stale data when the API errors.
@@ -345,7 +345,7 @@ Appendix A.
 - **Headers:** every request sends `Authorization: Bearer`, `x-profile-id` and
   `x-profile-token` from `localStorage`.
 - **Base URL:** chosen in this order: a `localStorage` override,
-  `window.__CATALOGGY_API_BASE__` from `/config.js`, `VITE_API_BASE`, then localhost.
+  `window.__FETCH_API_BASE__` from `/config.js`, `VITE_API_BASE`, then localhost.
 - **Behaviour the client relies on:**
   - **401 handling.** `code:"profile_verification_required"` locks the profile.
     `WWW-Authenticate: Bearer` clears the token.
@@ -355,7 +355,7 @@ Appendix A.
     The service worker's read cache keys on the profile and a hash of `Authorization`.
   - **Offline queue.** The service worker queues `POST /watch`,
     `POST /series/:id/season/:n/episode/:e/watch` and `POST /series/:id/season/:n/watch-all`
-    while offline. It answers them with a synthetic `202` and `X-Cataloggy-Queued: 1`, then
+    while offline. It answers them with a synthetic `202` and `X-Fetch-Queued: 1`, then
     replays them. The replayed requests must stay idempotent; the watch-event dedup unique
     index guarantees that.
   - **Preload.** `index.html:89-140` preloads `GET /lists`, `/series/progress` and
@@ -368,7 +368,7 @@ Appendix A.
 
 ### 4.2 Addon → API
 
-These go over the Docker network today (`CATALOGGY_API_BASE=http://api:7000`). Each
+These go over the Docker network today (`FETCH_API_BASE=http://api:7000`). Each
 request carries the bearer, the service token and `x-profile-id`.
 
 | Endpoint | Parsed by |
@@ -612,9 +612,9 @@ channel tokens.
 | `API_TOKEN` **S** | required | Bearer **and** root key for every derived secret | Secret. **Must be the same value.** |
 | `PORT` | 7000 | listen port | Drop |
 | `NODE_ENV` | production | guards, CORS dev wildcard, Sentry env | Var |
-| `CATALOGGY_ALLOWED_ORIGINS` | LAN defaults | CORS allowlist | Var, or drop if same-origin (D7) |
-| `CATALOGGY_API_PUBLIC` | `http://localhost:7000` | Trakt redirect default, addon URL | Var |
-| `CATALOGGY_WEB_PUBLIC` / `WEB_PUBLIC_BASE` | unset | Configure link, notification links | Var |
+| `FETCH_ALLOWED_ORIGINS` | LAN defaults | CORS allowlist | Var, or drop if same-origin (D7) |
+| `FETCH_API_PUBLIC` | `http://localhost:7000` | Trakt redirect default, addon URL | Var |
+| `FETCH_WEB_PUBLIC` / `WEB_PUBLIC_BASE` | unset | Configure link, notification links | Var |
 | `TRUST_PROXY` | unset | client IP | Drop (`CF-Connecting-IP`) |
 | `PROXY_PATH_PREFIXES` (compose: `API_PROXY_PATH_PREFIXES`) | `/api` | prefix stripping | Keep, or handle in routing |
 | `MAX_BODY_SIZE_MB` | 32 | body limit | Cap below 100 |
@@ -625,7 +625,7 @@ channel tokens.
 | `AI_REFRESH_INTERVAL_SEC` (86400), `NOTIFICATION_CHECK_INTERVAL_SEC` (3600), `STEAM_SYNC_INTERVAL_SEC` (86400) | | job cadence | Vars read by the cron dispatcher |
 | `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET` **S** | unset | IGDB | Var / secret |
 | `STEAM_API_KEY` **S**, `STEAM_ID` | unset | Steam | Secret / var |
-| `VAPID_SUBJECT` | `mailto:admin@cataloggy.local` | VAPID `sub` | Var |
+| `VAPID_SUBJECT` | `mailto:admin@fetch.local` | VAPID `sub` | Var |
 | `WEBHOOK_SECRET` **S**, `WEBHOOK_ALLOWED_IPS` | unset | webhook auth | Secret / var |
 | `SENTRY_DSN` | unset | errors | Var |
 
@@ -633,10 +633,10 @@ channel tokens.
 
 | Var | Default | Workers fate |
 |---|---|---|
-| `CATALOGGY_API_BASE` | `http://api:7000` | Service Binding |
-| `CATALOGGY_API_TOKEN` **S** | = `API_TOKEN` | Secret (same value) |
+| `FETCH_API_BASE` | `http://api:7000` | Service Binding |
+| `FETCH_API_TOKEN` **S** | = `API_TOKEN` | Secret (same value) |
 | `ADDON_PUBLIC_BASE` | `http://localhost:7001` | Var. **Keep the published value** (§3.2). |
-| `CATALOGGY_WEB_PUBLIC` / `WEB_PUBLIC_BASE` | unset | Var |
+| `FETCH_WEB_PUBLIC` / `WEB_PUBLIC_BASE` | unset | Var |
 | `PROXY_PATH_PREFIXES` (compose: `ADDON_PROXY_PATH_PREFIXES`) | `/addon` | Keep or route |
 | `TRUST_PROXY` | unset | Drop |
 | `STREMIO_PLAY_DETECTION` | false | Var |
@@ -656,7 +656,7 @@ channel tokens.
 ### Compose and scripts only
 
 - **Compose:** `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` **S** and
-  `CATALOGGY_IMAGE_TAG`.
+  `FETCH_IMAGE_TAG`.
 - **Scripts:**
   - `BACKUP_DIR`
   - `API_BASE`, `ADDON_BASE` (`scripts/smoke.ts`)
@@ -671,8 +671,8 @@ channel tokens.
 **Today:**
 
 - `node:26-alpine` runs `serve -s dist -l 7002`.
-- `docker-entrypoint.sh` writes `dist/config.js` (`window.__CATALOGGY_API_BASE__`,
-  `__CATALOGGY_ADDON_BASE__`, `__CATALOGGY_SENTRY_DSN__`).
+- `docker-entrypoint.sh` writes `dist/config.js` (`window.__FETCH_API_BASE__`,
+  `__FETCH_ADDON_BASE__`, `__FETCH_SENTRY_DSN__`).
 - It also renders `serve.json` with the CSP:
   - `script-src` = SHA-256 hashes of the inline scripts in the built `index.html`.
   - `connect-src` = API, addon and Sentry origins + image CDNs + `CSP_CONNECT_SRC_EXTRA`.
@@ -713,7 +713,7 @@ them, and so they can be fixed separately.
      resume point outside development.
 2. **The CI migration steps do nothing.** *Fixed: the filter now targets `@fetch/api`.
    All 38 migrations were checked against a clean Postgres 16 with the corrected command.*
-   - **Where:** `.github/workflows/web-verify.yml:86,93` filter on `@cataloggy/api`, but
+   - **Where:** `.github/workflows/web-verify.yml:86,93` filter on `@fetch/api`, but
      the package is `@fetch/api`.
    - **Effect:** "Generate Prisma client" and "Run database migrations" match no project.
      Migrations are exercised only by `test:int`.

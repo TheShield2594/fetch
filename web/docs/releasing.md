@@ -55,7 +55,7 @@ Everything happens on `main`, after the work being released is merged.
 4. **Tag and push the tag.** Website tags carry a `web-` prefix, because plain
    `vX.Y.Z` tags in this repository are the Android app's APK releases. The
    image tag is the git tag without that prefix, `v` included —
-   `CATALOGGY_IMAGE_TAG=v0.2.0` is what a self-hoster will write.
+   `FETCH_IMAGE_TAG=v0.2.0` is what a self-hoster will write.
 
    ```bash
    git tag -a web-v0.2.0 -m "Fetch website v0.2.0"

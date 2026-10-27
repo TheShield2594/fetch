@@ -3,7 +3,7 @@
 ## Supported versions
 
 Fetch ships as tagged releases (`vX.Y.Z`), each one a set of Docker images
-you can pin `CATALOGGY_IMAGE_TAG` to — see [docs/releasing.md](../docs/releasing.md).
+you can pin `FETCH_IMAGE_TAG` to — see [docs/releasing.md](../docs/releasing.md).
 Fixes land on `main` and go out in the next release. Nothing is backported, and
 no tag is ever re-published: upgrading forward is the only way to get a fix.
 

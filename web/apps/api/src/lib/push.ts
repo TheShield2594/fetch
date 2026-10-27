@@ -6,7 +6,7 @@ import { decryptSecret, encryptSecret, kvSecretContext } from "./secret-box.js";
 import { readSecretKv } from "./secret-store.js";
 
 export const VAPID_KEYS_KV = "push:vapidKeys";
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT ?? "mailto:admin@cataloggy.local";
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT ?? "mailto:admin@fetch.local";
 
 let configured: { publicKey: string } | null = null;
 

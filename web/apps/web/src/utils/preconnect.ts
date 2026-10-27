@@ -2,7 +2,7 @@
  * Opens the connection to a cross-origin API host before the app's first
  * request needs it.
  *
- * The API base is a runtime value (window.__CATALOGGY_API_BASE__, written into
+ * The API base is a runtime value (window.__FETCH_API_BASE__, written into
  * config.js at container start), so it can't be a static <link> in index.html
  * the way the TMDB image host is. Without this, the dashboard's opening burst of
  * requests all queue behind one DNS + TCP + TLS handshake — on a remote host

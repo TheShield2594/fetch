@@ -4,7 +4,7 @@ import {
   applyRpdbPoster,
   fetchRpdbConfig,
   isSpoilerProtectionEnabled,
-} from "../lib/cataloggy-data.js";
+} from "../lib/fetch-data.js";
 import { resolveProfileScope } from "../lib/profile.js";
 import type { AddonRouter } from "../lib/router.js";
 

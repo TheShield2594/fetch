@@ -81,7 +81,7 @@ const SEND_TIMEOUT_MS = 10_000;
 // Deep links can only be built when the deployment has told the API where the
 // web UI lives. Without it the notification still goes out, just without a link
 // — better than shipping a relative path that resolves against ntfy.sh.
-const WEB_PUBLIC_BASE = (process.env.CATALOGGY_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
+const WEB_PUBLIC_BASE = (process.env.FETCH_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
 
 const absoluteLink = (path?: string): string | undefined => {
   if (!path || !WEB_PUBLIC_BASE) return undefined;

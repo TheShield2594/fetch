@@ -75,7 +75,7 @@ const authHeaders = (hasBody: boolean) => {
 declare global {
   interface Window {
     /** Set by public/preload-dashboard.js — in-flight responses started during HTML parse. */
-    __CATALOGGY_PRELOAD__?: Record<string, Promise<Response | null>> | undefined;
+    __FETCH_PRELOAD__?: Record<string, Promise<Response | null>> | undefined;
   }
 }
 
@@ -86,7 +86,7 @@ declare global {
  * for the very first request of a session, not for the cache.
  */
 function claimPreloadedResponse(path: string): Promise<Response | null> | null {
-  const preloaded = window.__CATALOGGY_PRELOAD__;
+  const preloaded = window.__FETCH_PRELOAD__;
   if (!preloaded) return null;
   const pending = preloaded[path];
   if (!pending) return null;
@@ -201,7 +201,7 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
   // wasn't there and will send it later. A 202 the API itself could return is
   // not confusable with this one — the header is synthesised in sw.js and no
   // response off the wire carries it.
-  if (response.status === 202 && response.headers.get("x-cataloggy-queued") === "1") {
+  if (response.status === 202 && response.headers.get("x-fetch-queued") === "1") {
     throw new OfflineWriteQueuedError();
   }
 
@@ -230,7 +230,7 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
     // leaving every page stuck on a 401.
     if (response.status === 401 && errorCode === "profile_verification_required") {
       runtimeConfig.clearProfileId();
-      window.dispatchEvent(new Event("cataloggy:profile-locked"));
+      window.dispatchEvent(new Event("fetch:profile-locked"));
     }
     // A 401 with a WWW-Authenticate header (RFC 6750) comes from the bearer-token
     // auth middleware itself, meaning the stored token is missing/invalid/rotated —
@@ -239,7 +239,7 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
     // stuck on a generic "Unable to connect" error for the rest of the session.
     if (response.status === 401 && response.headers.get("www-authenticate")) {
       runtimeConfig.setToken("");
-      window.dispatchEvent(new Event("cataloggy:unauthorized"));
+      window.dispatchEvent(new Event("fetch:unauthorized"));
     }
     throw new ApiError(message || `Request failed: ${response.status}`, response.status, errorCode);
   }
@@ -278,7 +278,7 @@ export function validated<T>(path: string, parse: (value: unknown) => T, body: u
     throw new Error(
       `The API's answer for ${path} isn't the shape this version of Fetch expects. ` +
         `That usually means the web and api containers are on different image tags — ` +
-        `check that CATALOGGY_IMAGE_TAG matches for both.`,
+        `check that FETCH_IMAGE_TAG matches for both.`,
       { cause: err }
     );
   }

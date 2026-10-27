@@ -35,7 +35,7 @@ describe("Section", () => {
     const { unmount } = renderSection();
     await userEvent.click(header());
     expect(header()).toHaveAttribute("aria-expanded", "true");
-    expect(localStorage.getItem("cataloggy:settings-section:trakt")).toBe("1");
+    expect(localStorage.getItem("fetch:settings-section:trakt")).toBe("1");
 
     unmount();
     renderSection();
@@ -45,7 +45,7 @@ describe("Section", () => {
   it("remembers what the user closed, in preference to the default", async () => {
     const { unmount } = renderSection({ defaultOpen: true });
     await userEvent.click(header());
-    expect(localStorage.getItem("cataloggy:settings-section:trakt")).toBe("0");
+    expect(localStorage.getItem("fetch:settings-section:trakt")).toBe("0");
 
     unmount();
     renderSection({ defaultOpen: true });
@@ -64,7 +64,7 @@ describe("Section", () => {
   });
 
   it("drops the toggle entirely when held open, so the chevron can't disagree with the panel", () => {
-    localStorage.setItem("cataloggy:settings-section:trakt", "0");
+    localStorage.setItem("fetch:settings-section:trakt", "0");
     renderSection({ alwaysOpen: true });
 
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
@@ -73,7 +73,7 @@ describe("Section", () => {
   });
 
   it("hands the section back to the user's own preference when it stops being held open", async () => {
-    localStorage.setItem("cataloggy:settings-section:trakt", "0");
+    localStorage.setItem("fetch:settings-section:trakt", "0");
     const { rerender } = renderSection({ alwaysOpen: true });
 
     rerender(sectionElement({ alwaysOpen: false }));
@@ -81,11 +81,11 @@ describe("Section", () => {
     expect(header()).toHaveAttribute("aria-expanded", "false");
     // Unlike the mount case this one animates: it was on screen a frame ago.
     await waitFor(() => expect(track()).toHaveStyle("grid-template-rows: 0fr"));
-    expect(localStorage.getItem("cataloggy:settings-section:trakt")).toBe("0");
+    expect(localStorage.getItem("fetch:settings-section:trakt")).toBe("0");
   });
 
   it("stays open after being held open, when that is what the user had chosen", () => {
-    localStorage.setItem("cataloggy:settings-section:trakt", "1");
+    localStorage.setItem("fetch:settings-section:trakt", "1");
     const { rerender } = renderSection({ alwaysOpen: true });
 
     rerender(sectionElement({ alwaysOpen: false }));

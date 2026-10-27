@@ -5,9 +5,10 @@ The self-hosted half of Fetch: the server and web app that sit next to the
 live, and it is your own personal home page for everything you watch and play. It opens on one shelf — your shows, films and games together, with whatever you're part-way through at the top — instead of making you jump between five different apps to find it.
 
 This was a separate project called Cataloggy until it moved into the Fetch
-repository. Existing installs keep working: environment variables
-(`CATALOGGY_*`), the addon ID and its catalog IDs, the Postgres database name
-and browser storage keys keep their old names on purpose. See
+repository. Its environment variables (`FETCH_*`), addon ID, catalog IDs,
+Postgres database name and browser storage keys have all been renamed to
+match, so a `.env` written for Cataloggy needs its `CATALOGGY_*` variables
+renamed to `FETCH_*`. See
 [docs/ECOSYSTEM.md](../docs/ECOSYSTEM.md) for how the website and the TV app
 fit together.
 
@@ -76,10 +77,10 @@ web/
 
    **Internal vs. public URLs:** the `api` and `addon` services distinguish between the URL used for service-to-service traffic inside the Docker network and the URL your browser/Apple TV/Omni actually reach:
 
-   - `CATALOGGY_API_BASE` (addon service) — internal URL the addon uses to call the API (e.g. `http://api:7000`). Only needs to change if you rename the `api` service or run it elsewhere.
-   - `CATALOGGY_API_PUBLIC` (api service) — externally reachable URL for the API, used to build the Trakt OAuth redirect URI. Set this to the LAN IP or domain you actually use to reach the API.
+   - `FETCH_API_BASE` (addon service) — internal URL the addon uses to call the API (e.g. `http://api:7000`). Only needs to change if you rename the `api` service or run it elsewhere.
+   - `FETCH_API_PUBLIC` (api service) — externally reachable URL for the API, used to build the Trakt OAuth redirect URI. Set this to the LAN IP or domain you actually use to reach the API.
    - `ADDON_PUBLIC_BASE` (addon service) — externally reachable URL for the addon, used when generating manifest/catalog URLs for clients like Apple TV.
-   - `CATALOGGY_WEB_PUBLIC` (api and addon services) — externally reachable URL for the web UI, used to build the "Configure" link Stremio shows on the addon's manifest (it redirects to the Settings page), and the link a notification channel gives you to tap.
+   - `FETCH_WEB_PUBLIC` (api and addon services) — externally reachable URL for the web UI, used to build the "Configure" link Stremio shows on the addon's manifest (it redirects to the Settings page), and the link a notification channel gives you to tap.
    - `VITE_ADDON_BASE` (web service) — externally reachable URL for the addon, used to build the manifest URL shown on the Settings page. Should match `ADDON_PUBLIC_BASE`.
 
 2. Start everything:
@@ -88,11 +89,11 @@ web/
    docker compose up -d
    ```
 
-   **Pinning the version you run.** All four app images (`api`, `addon`, `web`, `migrate`) take their tag from `CATALOGGY_IMAGE_TAG` in your `.env`. Unset, it means `latest`, which always follows the most recent build from `main`: `docker compose pull` can move you onto an untested build, and there's no earlier version to fall back to. Once the stack works, pin it — every build is also published as `sha-<short-sha>`, and tagged releases as `vX.Y.Z`:
+   **Pinning the version you run.** All four app images (`api`, `addon`, `web`, `migrate`) take their tag from `FETCH_IMAGE_TAG` in your `.env`. Unset, it means `latest`, which always follows the most recent build from `main`: `docker compose pull` can move you onto an untested build, and there's no earlier version to fall back to. Once the stack works, pin it — every build is also published as `sha-<short-sha>`, and tagged releases as `vX.Y.Z`:
 
    ```bash
    # in .env, next to docker-compose.yml
-   CATALOGGY_IMAGE_TAG=v0.1.0
+   FETCH_IMAGE_TAG=v0.1.0
    ```
 
    ```bash
@@ -102,7 +103,7 @@ web/
    Rolling back is the same two commands with the previous tag. Released versions are listed under
    [Releases](https://github.com/TheShield2594/fetch/releases), each with its changelog section;
    `sha-` tags for individual builds are in the
-   [package listing](https://github.com/TheShield2594?tab=packages&repo_name=cataloggy).
+   [package listing](https://github.com/TheShield2594?tab=packages&repo_name=fetch).
    Keep all four images on one tag — the `migrate` image applies the schema the `api` image expects — which is why it's a single setting. The Postgres image and the Node base image the app images are built from are pinned by digest in the repo, so a rebuild uses the exact image the stack was tested against; Dependabot proposes those bumps weekly.
 
 3. Run the smoke checks:
@@ -136,7 +137,7 @@ web/
 - API: http://localhost:7000/health
 - Addon: http://localhost:7001/manifest.json
 - Web: http://localhost:7002
-- Postgres: `localhost:5432` (user `postgres` by default, db `cataloggy`, password from `POSTGRES_PASSWORD` in your `.env`)
+- Postgres: `localhost:5432` (user `postgres` by default, db `fetch`, password from `POSTGRES_PASSWORD` in your `.env`)
 
 ## Health checks and metrics
 
@@ -408,7 +409,7 @@ Two ways to receive that, set up under **Settings → Notifications**:
 Channels belong to a profile, so a household can point each one somewhere
 different, and a profile can have several. **Send a test notification** on a
 saved channel POSTs for real and reports what came back, rather than leaving you
-to find out at the next episode. Set `CATALOGGY_WEB_PUBLIC` if you want the
+to find out at the next episode. Set `FETCH_WEB_PUBLIC` if you want the
 notifications to link back into the app.
 
 A channel URL is checked the same way the AI provider endpoint is: http(s)
@@ -421,7 +422,7 @@ under **Settings → Sync Status**.
 
 Fetch is invite-only. There is no public sign-up page: the first account (created with `API_TOKEN`, see step 4 of the install) is the admin, and the admin invites everyone else.
 
-- **Inviting someone:** **Settings → Invites & Accounts → Create invite link**. Send them the link. It works once and expires after 7 days, and it is shown only when it is made. Lost it? Revoke it and make another. Links are built from `CATALOGGY_WEB_PUBLIC`, so set that to the address people actually open (your domain).
+- **Inviting someone:** **Settings → Invites & Accounts → Create invite link**. Send them the link. It works once and expires after 7 days, and it is shown only when it is made. Lost it? Revoke it and make another. Links are built from `FETCH_WEB_PUBLIC`, so set that to the address people actually open (your domain).
 - **What they get:** their own account and profile, with their own lists, watch history, ratings and games. They can make more profiles inside their account. Nobody else's profiles are visible to them, and theirs aren't visible to you in the app either.
 - **What stays shared:** the server's own setup is the admin's to change and applies to everyone: the TMDB, OMDb and RPDB keys, the metadata language (titles are fetched once and shared, so they are in one language), play detection and the Steam library. Other accounts don't see those sections in Settings.
 - **Their own preferences and AI:** each account has its own streaming region and spoiler protection, and can connect its own AI provider for recommendations, with its own API key. Only the admin's AI provider and notification channels may point at an address on your home network; everyone else's must be a public service, so an account can't make your server send requests into your LAN.
@@ -443,12 +444,12 @@ Then point Fetch at that one address in `.env`, so the site and the API share an
 
 ```bash
 VITE_API_BASE=https://fetch.example.com/api
-CATALOGGY_API_PUBLIC=https://fetch.example.com/api
-CATALOGGY_WEB_PUBLIC=https://fetch.example.com
-CATALOGGY_ALLOWED_ORIGINS=https://fetch.example.com
+FETCH_API_PUBLIC=https://fetch.example.com/api
+FETCH_WEB_PUBLIC=https://fetch.example.com
+FETCH_ALLOWED_ORIGINS=https://fetch.example.com
 ```
 
-`CATALOGGY_WEB_PUBLIC` is also what invite links are built from. With Trakt, the redirect URI becomes `https://fetch.example.com/api/trakt/oauth/callback`. At home, open the same domain rather than the LAN IP, or add the LAN address to `CATALOGGY_ALLOWED_ORIGINS` as well.
+`FETCH_WEB_PUBLIC` is also what invite links are built from. With Trakt, the redirect URI becomes `https://fetch.example.com/api/trakt/oauth/callback`. At home, open the same domain rather than the LAN IP, or add the LAN address to `FETCH_ALLOWED_ORIGINS` as well.
 
 There is nothing to set on the `web` service for the domain itself. The web container serves the built bundle with `serve`, which answers whatever `Host` it is given and has no allowlist to configure — so restricting which hostnames reach Fetch is the proxy's job, and Nginx Proxy Manager already does it: it forwards only the domains you have configured as Proxy Hosts. If you want everything else refused rather than falling through to whichever host happens to be first, add a default/catch-all Proxy Host that returns a 404.
 
@@ -473,14 +474,14 @@ LAN URLs stay available too, such as `http://LAN-IP:7002` for the site and `http
 Fetch stores everything in the Postgres database run by the `db` service in `docker-compose.yml`. Two helper scripts wrap `pg_dump`/`psql` for simple backup and restore:
 
 ```bash
-# Back up the database to backups/cataloggy-<timestamp>.sql.gz
+# Back up the database to backups/fetch-<timestamp>.sql.gz
 ./scripts/backup.sh
 
 # Restore from a backup file (prompts for confirmation; overwrites current data)
-./scripts/restore.sh backups/cataloggy-20260101-120000.sql.gz
+./scripts/restore.sh backups/fetch-20260101-120000.sql.gz
 ```
 
-Both scripts run against the `db` service via `docker compose exec`, so Docker Compose must already be up. They read `POSTGRES_USER`/`POSTGRES_DB` from the environment (same defaults as `docker-compose.yml`: `postgres`/`cataloggy`), and `backup.sh` writes into `BACKUP_DIR` (defaults to `./backups`).
+Both scripts run against the `db` service via `docker compose exec`, so Docker Compose must already be up. They read `POSTGRES_USER`/`POSTGRES_DB` from the environment (same defaults as `docker-compose.yml`: `postgres`/`fetch`), and `backup.sh` writes into `BACKUP_DIR` (defaults to `./backups`).
 
 To schedule automatic backups, add a cron entry that runs `backup.sh` on a schedule, e.g. nightly at 3am:
 

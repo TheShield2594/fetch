@@ -1,9 +1,9 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 /** Header the addon sends to identify its calls to the API as service traffic. */
-export const SERVICE_TOKEN_HEADER = "x-cataloggy-service-token";
+export const SERVICE_TOKEN_HEADER = "x-fetch-service-token";
 
-const SERVICE_TOKEN_LABEL = "cataloggy-service-client";
+const SERVICE_TOKEN_LABEL = "fetch-service-client";
 
 /**
  * Derives the addon's service token from the shared API token.
@@ -33,7 +33,7 @@ export const matchesServiceToken = (candidate: unknown, expected: string | null)
   return timingSafeEqual(presented, wanted);
 };
 
-const STREMIO_PROFILE_SECRET_LABEL = "cataloggy-stremio-addon";
+const STREMIO_PROFILE_SECRET_LABEL = "fetch-stremio-addon";
 
 /**
  * A profile's Stremio key: the unguessable part of every addon URL that serves

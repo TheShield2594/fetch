@@ -1,11 +1,11 @@
 # Changelog
 
-All notable changes to Cataloggy are documented in this file, starting from this entry onward. Earlier history predates this file — see `git log` for the full commit history.
+All notable changes to the Fetch website (formerly Cataloggy) are documented in this file, starting from this entry onward. Earlier history predates this file — see `git log` for the full commit history.
 
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates are UTC.
 
 Each released version is a git tag (`vX.Y.Z`), and each tag is a set of Docker
-images you can pin `CATALOGGY_IMAGE_TAG` to. See [docs/releasing.md](docs/releasing.md)
+images you can pin `FETCH_IMAGE_TAG` to. See [docs/releasing.md](docs/releasing.md)
 for how a release is cut, and for the entry style this file follows from 0.1.0
 onward: one to three sentences per entry, with the reasoning in the PR.
 
@@ -15,7 +15,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **The browser no longer holds `API_TOKEN`.** The web app signs in and keeps a 30-day session instead, and the API Token section in Settings is replaced by Account (sign out, change password). The first visit after upgrading asks you to create the admin account, with the token the browser already had filled in. `API_TOKEN` keeps working for the add-on service, scripts and the API directly.
 
-- **Cataloggy is now the Fetch website.** The project moved into the [Fetch](https://github.com/TheShield2594/fetch) repository under `web/`, with its full history, and the app calls itself Fetch. Images are now published as `ghcr.io/theshield2594/fetch-{api,migrate,addon,web}`; the `cataloggy-*` images get no further updates, so pull the new `docker-compose.yml`. Releases are tagged `web-vX.Y.Z`, and the image tag stays `vX.Y.Z`. Nothing a running install depends on was renamed: `CATALOGGY_*` environment variables, the addon ID and catalog IDs, the database name and browser storage keys are unchanged, so an existing `.env`, volume and installed Stremio addon keep working.
+- **Cataloggy is now the Fetch website.** The project moved into the [Fetch](https://github.com/TheShield2594/fetch) repository under `web/`, with its full history, and the app calls itself Fetch. Images are now published as `ghcr.io/theshield2594/fetch-{api,migrate,addon,web}`; the `cataloggy-*` images get no further updates, so pull the new `docker-compose.yml`. Releases are tagged `web-vX.Y.Z`, and the image tag stays `vX.Y.Z`. Everything else that said Cataloggy was renamed too: the `CATALOGGY_*` environment variables are now `FETCH_*` (rename them in your `.env`), the Postgres database and Docker network default to `fetch`, the addon IDs are `com.fetch.api` and `com.fetch.addon`, catalog IDs start with `fetch-`, and browser storage keys start with `fetch`. An existing install needs its `.env` updated, `POSTGRES_DB=cataloggy` set to keep its old database, the Stremio addon reinstalled and the browser signed in again; catalog IDs saved in an old config are translated on read.
 
 - **The website has the Fetch logo and license.** The cat mark is replaced by Fetch's dog-and-play mark across the app, PWA icons, favicon and splash screens. The code is now GPL-3.0, like the rest of Fetch; releases published as Cataloggy stay available under MIT.
 

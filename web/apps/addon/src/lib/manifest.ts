@@ -4,7 +4,7 @@ import {
   listCatalogId,
   selectDiscoveryCatalogs,
 } from "@fetch/shared";
-import type { AddonManifestConfig, CataloggyList, DiscoveryCatalog } from "@fetch/shared";
+import type { AddonManifestConfig, FetchList, DiscoveryCatalog } from "@fetch/shared";
 import { WEB_PUBLIC_BASE } from "./config.js";
 
 /** The manifest Stremio installs, and the rules about what appears in it. */
@@ -19,7 +19,7 @@ const SORT_OPTIONS = ["A-Z", "Z-A"];
 // checkbox anywhere — gating them would remove them with no way to bring them
 // back. Unticking a custom list in Settings now removes it here too, which is
 // what the picker has always claimed it does.
-export const isListEnabled = (list: CataloggyList, config: AddonManifestConfig | null): boolean => {
+export const isListEnabled = (list: FetchList, config: AddonManifestConfig | null): boolean => {
   if (list.kind !== "custom") return true;
   if (!config) return true;
   return config.enabledCatalogs.includes(listCatalogId(list.id));
@@ -30,7 +30,7 @@ export const isDiscoveryEnabled = (catalog: DiscoveryCatalog, config: AddonManif
     (c) => c.id === catalog.id
   );
 
-export const buildManifest = (lists: CataloggyList[], genres: string[], config: AddonManifestConfig | null) => {
+export const buildManifest = (lists: FetchList[], genres: string[], config: AddonManifestConfig | null) => {
   const genreExtra = [{ name: "genre", options: [...SORT_OPTIONS, ...genres], isRequired: false }];
 
   const listCatalogs = lists
@@ -38,7 +38,7 @@ export const buildManifest = (lists: CataloggyList[], genres: string[], config: 
     .flatMap((list) => [
       {
         type: "movie" as const,
-        id: `cataloggy-${list.id}-movie`,
+        id: `fetch-${list.id}-movie`,
         name: list.name,
         extra: [
           { name: "search", isRequired: false },
@@ -47,7 +47,7 @@ export const buildManifest = (lists: CataloggyList[], genres: string[], config: 
       },
       {
         type: "series" as const,
-        id: `cataloggy-${list.id}-series`,
+        id: `fetch-${list.id}-series`,
         name: list.name,
         extra: [
           { name: "search", isRequired: false },
@@ -79,7 +79,7 @@ export const buildManifest = (lists: CataloggyList[], genres: string[], config: 
   const configUrl = WEB_PUBLIC_BASE ? `${WEB_PUBLIC_BASE}/settings` : undefined;
 
   return {
-    id: "com.cataloggy.addon",
+    id: "com.fetch.addon",
     version: "0.3.0",
     name: "Fetch",
     description: "Personal catalogs, tracking, and discovery powered by Fetch.",

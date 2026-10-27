@@ -13,26 +13,26 @@ import { invalidateAll as invalidateMemoryCache, setCacheScope } from "../utils/
 
 declare global {
   interface Window {
-    __CATALOGGY_API_BASE__?: string | undefined;
-    __CATALOGGY_ADDON_BASE__?: string | undefined;
+    __FETCH_API_BASE__?: string | undefined;
+    __FETCH_ADDON_BASE__?: string | undefined;
   }
 }
 
 const stripTrailingSlash = (url: string) => url.replace(/\/+$/, "");
 
 const API_BASE_DEFAULT = stripTrailingSlash(
-  window.__CATALOGGY_API_BASE__ || import.meta.env.VITE_API_BASE || "http://localhost:7000"
+  window.__FETCH_API_BASE__ || import.meta.env.VITE_API_BASE || "http://localhost:7000"
 );
 // Base URL of the dedicated apps/addon service (the full-featured Stremio
 // addon with meta/subtitles/search/genre support) — distinct from the API
 // server above, which only hosts a thinner catalog-only manifest.
 const ADDON_BASE_DEFAULT = stripTrailingSlash(
-  window.__CATALOGGY_ADDON_BASE__ || import.meta.env.VITE_ADDON_BASE || "http://localhost:7001"
+  window.__FETCH_ADDON_BASE__ || import.meta.env.VITE_ADDON_BASE || "http://localhost:7001"
 );
-const API_BASE_OVERRIDE_KEY = "cataloggy_api_base_override";
-const TOKEN_KEY = "cataloggy_token";
-const PROFILE_ID_KEY = "cataloggy_profile_id";
-const PROFILE_TOKEN_KEY = "cataloggy_profile_token";
+const API_BASE_OVERRIDE_KEY = "fetch_api_base_override";
+const TOKEN_KEY = "fetch_token";
+const PROFILE_ID_KEY = "fetch_profile_id";
+const PROFILE_TOKEN_KEY = "fetch_profile_token";
 
 // Identity of whoever the in-memory cache's entries belong to. Bumped rather
 // than derived from the token itself: the counter is enough to make every old
@@ -247,11 +247,11 @@ export async function replayQueuedWrites(): Promise<void> {
  * saved stays on screen as saved until the panel is closed and reopened, which
  * is the one outcome worse than saying nothing.
  *
- * Same shape as `cataloggy:unauthorized` and `cataloggy:profile-locked` above:
+ * Same shape as `fetch:unauthorized` and `fetch:profile-locked` above:
  * a bare window event, because the surfaces that care are scattered and none of
  * them is an ancestor of the others.
  */
-export const WATCH_STATE_STALE_EVENT = "cataloggy:watch-state-stale";
+export const WATCH_STATE_STALE_EVENT = "fetch:watch-state-stale";
 
 /** What the worker reports back once it has drained the queue (see sw.js). */
 export type QueuedWritesReplayed = {

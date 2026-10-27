@@ -44,7 +44,7 @@ const storedChannel = (over: Record<string, unknown> = {}) => ({
   id: CHANNEL_ID,
   kind: "ntfy",
   name: "Phone",
-  url: "https://ntfy.sh/cataloggy",
+  url: "https://ntfy.sh/fetch",
   token: null,
   enabled: true,
   createdAt: new Date("2026-08-06T12:00:00Z"),
@@ -93,14 +93,14 @@ describe("notification channel routes", () => {
     it("stores a channel against the calling profile", async () => {
       const app = await buildApp();
 
-      const res = await create(app, { kind: "ntfy", name: "Phone", url: "https://ntfy.sh/cataloggy" });
+      const res = await create(app, { kind: "ntfy", name: "Phone", url: "https://ntfy.sh/fetch" });
 
       expect(res.statusCode).toBe(201);
       expect(prismaMock.notificationChannel.create).toHaveBeenCalledWith({
         data: {
           kind: "ntfy",
           name: "Phone",
-          url: "https://ntfy.sh/cataloggy",
+          url: "https://ntfy.sh/fetch",
           token: null,
           enabled: true,
           profileId: PROFILE_ID,
@@ -221,7 +221,7 @@ describe("notification channel routes", () => {
       expect(res.statusCode).toBe(200);
       expect(prismaMock.notificationChannel.update).toHaveBeenCalledWith({
         where: { id: CHANNEL_ID },
-        data: { url: "https://ntfy.sh/cataloggy", token: null, enabled: false },
+        data: { url: "https://ntfy.sh/fetch", token: null, enabled: false },
       });
     });
 

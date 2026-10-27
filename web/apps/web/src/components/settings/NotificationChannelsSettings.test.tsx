@@ -29,7 +29,7 @@ const channel = (over: Partial<NotificationChannel> = {}): NotificationChannel =
   id: "channel-1",
   kind: "ntfy",
   name: "Phone",
-  url: "https://ntfy.sh/cataloggy",
+  url: "https://ntfy.sh/fetch",
   hasToken: false,
   enabled: true,
   createdAt: "2026-08-06T12:00:00Z",
@@ -54,14 +54,14 @@ describe("NotificationChannelsSettings", () => {
   it("adds a channel and lists it without a reload", async () => {
     await renderChannels();
 
-    await userEvent.type(screen.getByLabelText("Topic URL"), "https://ntfy.sh/cataloggy");
+    await userEvent.type(screen.getByLabelText("Topic URL"), "https://ntfy.sh/fetch");
     await userEvent.click(screen.getByRole("button", { name: /add channel/i }));
 
     await waitFor(() => expect(screen.getByText("Phone")).toBeInTheDocument());
     expect(createNotificationChannel).toHaveBeenCalledWith({
       kind: "ntfy",
       name: undefined,
-      url: "https://ntfy.sh/cataloggy",
+      url: "https://ntfy.sh/fetch",
       token: undefined,
     });
   });
@@ -152,7 +152,7 @@ describe("NotificationChannelsSettings", () => {
     await renderChannels();
 
     const row = screen.getByRole("listitem");
-    expect(within(row).getByText("https://ntfy.sh/cataloggy")).toBeInTheDocument();
+    expect(within(row).getByText("https://ntfy.sh/fetch")).toBeInTheDocument();
     expect(row.textContent).not.toMatch(/token/i);
   });
 });

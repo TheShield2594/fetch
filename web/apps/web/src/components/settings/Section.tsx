@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { SECTION_TITLE } from "../typography";
 import { healthDotClass, type SectionHealth } from "./health";
 
-const STORAGE_PREFIX = "cataloggy:settings-section:";
+const STORAGE_PREFIX = "fetch:settings-section:";
 
 function readStoredOpen(storageKey: string, fallback: boolean): boolean {
   try {

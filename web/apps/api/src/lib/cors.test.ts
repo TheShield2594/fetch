@@ -19,11 +19,11 @@ const loadCors = async () => import("./cors.js");
 
 describe("cors", () => {
   const originalNodeEnv = process.env.NODE_ENV;
-  const originalAllowedOrigins = process.env.CATALOGGY_ALLOWED_ORIGINS;
+  const originalAllowedOrigins = process.env.FETCH_ALLOWED_ORIGINS;
 
   afterEach(() => {
     process.env.NODE_ENV = originalNodeEnv;
-    process.env.CATALOGGY_ALLOWED_ORIGINS = originalAllowedOrigins;
+    process.env.FETCH_ALLOWED_ORIGINS = originalAllowedOrigins;
     vi.resetModules();
   });
 
@@ -44,9 +44,9 @@ describe("cors", () => {
   });
 
   describe("production mode", () => {
-    it("only allows origins listed in CATALOGGY_ALLOWED_ORIGINS", async () => {
+    it("only allows origins listed in FETCH_ALLOWED_ORIGINS", async () => {
       process.env.NODE_ENV = "production";
-      process.env.CATALOGGY_ALLOWED_ORIGINS = "https://app.example.com, https://other.example.com";
+      process.env.FETCH_ALLOWED_ORIGINS = "https://app.example.com, https://other.example.com";
       vi.resetModules();
       const { isAllowedOrigin, applyCorsHeaders } = await loadCors();
 
@@ -66,9 +66,9 @@ describe("cors", () => {
       expect(blockedReply.headers["Access-Control-Allow-Origin"]).toBeUndefined();
     });
 
-    it("does not allow any origin when CATALOGGY_ALLOWED_ORIGINS is unset", async () => {
+    it("does not allow any origin when FETCH_ALLOWED_ORIGINS is unset", async () => {
       process.env.NODE_ENV = "production";
-      delete process.env.CATALOGGY_ALLOWED_ORIGINS;
+      delete process.env.FETCH_ALLOWED_ORIGINS;
       vi.resetModules();
       const { isAllowedOrigin } = await loadCors();
 
@@ -77,7 +77,7 @@ describe("cors", () => {
 
     it("allows every method the API routes use, so a preflight never blocks one", async () => {
       process.env.NODE_ENV = "production";
-      process.env.CATALOGGY_ALLOWED_ORIGINS = "https://app.example.com";
+      process.env.FETCH_ALLOWED_ORIGINS = "https://app.example.com";
       vi.resetModules();
       const { applyCorsHeaders } = await loadCors();
       const reply = new FakeReply();

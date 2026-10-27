@@ -159,7 +159,7 @@ registerRoute(
 const CACHEABLE_API_TAIL_RE = new RegExp("(?:^|/)(?:" + API_CACHE_PATH_ALTERNATION + ")$");
 
 const CONFIG_CACHE_NAME = "sw-config-v1";
-const API_BASE_CACHE_KEY = "/__cataloggy-sw/api-base";
+const API_BASE_CACHE_KEY = "/__fetch-sw/api-base";
 
 /** Absolute origin + path prefix of the API, no trailing slash. Null until known. */
 let apiBase = null;
@@ -195,7 +195,7 @@ const readApiBaseFromConfigJs = async () => {
   const response = await fetch("/config.js", { cache: "no-store" });
   if (!response.ok) return null;
   const source = await response.text();
-  const match = source.match(/__CATALOGGY_API_BASE__\s*=\s*("(?:[^"\\]|\\.)*")/);
+  const match = source.match(/__FETCH_API_BASE__\s*=\s*("(?:[^"\\]|\\.)*")/);
   return match ? JSON.parse(match[1]) : null;
 };
 
@@ -297,7 +297,7 @@ registerRoute(
 //    (see `replayQueuedWrites` in api.ts) — this is what carries iOS;
 //  - and, where `sync` is missing, Workbox's own fallback of replaying once at
 //    worker startup.
-const WRITE_QUEUE_NAME = "cataloggy-offline-writes";
+const WRITE_QUEUE_NAME = "fetch-offline-writes";
 
 // Relative to the API base, so `/watch` is the log-a-watch endpoint and not a
 // React Router path that happens to read like it.
@@ -430,7 +430,7 @@ registerRoute(
       // and only this worker knows which of the two just happened.
       return new Response(JSON.stringify({ queued: true }), {
         status: 202,
-        headers: { "Content-Type": "application/json", "X-Cataloggy-Queued": "1" },
+        headers: { "Content-Type": "application/json", "X-Fetch-Queued": "1" },
       });
     }
   },

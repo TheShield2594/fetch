@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { traktRedirectUri } from "./trakt-redirect-uri.js";
 
-const ENV_KEYS = ["TRAKT_REDIRECT_URI", "CATALOGGY_API_PUBLIC"] as const;
+const ENV_KEYS = ["TRAKT_REDIRECT_URI", "FETCH_API_PUBLIC"] as const;
 
 let saved: Partial<Record<(typeof ENV_KEYS)[number], string | undefined>>;
 
@@ -20,14 +20,14 @@ afterEach(() => {
 
 describe("traktRedirectUri", () => {
   it("prefers TRAKT_REDIRECT_URI when it is set", () => {
-    process.env.TRAKT_REDIRECT_URI = "https://cataloggy.example.com/trakt/oauth/callback";
-    process.env.CATALOGGY_API_PUBLIC = "https://ignored.example.com";
-    expect(traktRedirectUri()).toBe("https://cataloggy.example.com/trakt/oauth/callback");
+    process.env.TRAKT_REDIRECT_URI = "https://fetch.example.com/trakt/oauth/callback";
+    process.env.FETCH_API_PUBLIC = "https://ignored.example.com";
+    expect(traktRedirectUri()).toBe("https://fetch.example.com/trakt/oauth/callback");
   });
 
-  it("derives the callback from CATALOGGY_API_PUBLIC otherwise", () => {
-    process.env.CATALOGGY_API_PUBLIC = "https://cataloggy.example.com";
-    expect(traktRedirectUri()).toBe("https://cataloggy.example.com/trakt/oauth/callback");
+  it("derives the callback from FETCH_API_PUBLIC otherwise", () => {
+    process.env.FETCH_API_PUBLIC = "https://fetch.example.com";
+    expect(traktRedirectUri()).toBe("https://fetch.example.com/trakt/oauth/callback");
   });
 
   it("falls back to localhost when neither is configured", () => {
@@ -37,7 +37,7 @@ describe("traktRedirectUri", () => {
   // The three call sites — status, authorize and the callback's token exchange
   // — must agree byte for byte or Trakt answers the exchange `invalid_grant`.
   it("is stable across calls", () => {
-    process.env.CATALOGGY_API_PUBLIC = "https://cataloggy.example.com";
+    process.env.FETCH_API_PUBLIC = "https://fetch.example.com";
     expect(traktRedirectUri()).toBe(traktRedirectUri());
   });
 

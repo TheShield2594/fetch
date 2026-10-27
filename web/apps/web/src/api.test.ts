@@ -16,7 +16,7 @@ const json = (body: unknown, init: ResponseInit = {}) =>
 const unauthorized = (body: unknown = { error: "Unauthorized" }) =>
   new Response(JSON.stringify(body), {
     status: 401,
-    headers: { "content-type": "application/json", "www-authenticate": 'Bearer realm="cataloggy"' },
+    headers: { "content-type": "application/json", "www-authenticate": 'Bearer realm="fetch"' },
   });
 
 /** A route-level 401 — no WWW-Authenticate header. */
@@ -84,31 +84,31 @@ describe("request auth headers", () => {
 describe("request 401 handling", () => {
   it("clears the stored token and announces it when the token itself is rejected", async () => {
     const onUnauthorized = vi.fn();
-    window.addEventListener("cataloggy:unauthorized", onUnauthorized);
+    window.addEventListener("fetch:unauthorized", onUnauthorized);
     fetchMock.mockResolvedValue(unauthorized());
 
     await expect(api.getLists()).rejects.toThrow(ApiError);
 
     expect(runtimeConfig.getToken()).toBe("");
     expect(onUnauthorized).toHaveBeenCalledOnce();
-    window.removeEventListener("cataloggy:unauthorized", onUnauthorized);
+    window.removeEventListener("fetch:unauthorized", onUnauthorized);
   });
 
   it("keeps the token on a route-level 401 that carries no WWW-Authenticate header", async () => {
     const onUnauthorized = vi.fn();
-    window.addEventListener("cataloggy:unauthorized", onUnauthorized);
+    window.addEventListener("fetch:unauthorized", onUnauthorized);
     fetchMock.mockResolvedValue(routeError(401, { error: "Incorrect PIN." }));
 
     await expect(api.getLists()).rejects.toThrow("Incorrect PIN.");
 
     expect(runtimeConfig.getToken()).toBe("stored-token");
     expect(onUnauthorized).not.toHaveBeenCalled();
-    window.removeEventListener("cataloggy:unauthorized", onUnauthorized);
+    window.removeEventListener("fetch:unauthorized", onUnauthorized);
   });
 
   it("drops the profile selection and its token when profile verification is required", async () => {
     const onLocked = vi.fn();
-    window.addEventListener("cataloggy:profile-locked", onLocked);
+    window.addEventListener("fetch:profile-locked", onLocked);
     runtimeConfig.setProfileId("profile-1");
     runtimeConfig.setProfileToken("signed-capability");
     fetchMock.mockResolvedValue(
@@ -122,12 +122,12 @@ describe("request 401 handling", () => {
     expect(onLocked).toHaveBeenCalledOnce();
     // The bearer token is unrelated to a locked profile and must survive.
     expect(runtimeConfig.getToken()).toBe("stored-token");
-    window.removeEventListener("cataloggy:profile-locked", onLocked);
+    window.removeEventListener("fetch:profile-locked", onLocked);
   });
 
   it("does not treat the profile_verification_required code on a non-401 as a lock", async () => {
     const onLocked = vi.fn();
-    window.addEventListener("cataloggy:profile-locked", onLocked);
+    window.addEventListener("fetch:profile-locked", onLocked);
     runtimeConfig.setProfileId("profile-1");
     fetchMock.mockResolvedValue(routeError(403, { error: "Forbidden", code: "profile_verification_required" }));
 
@@ -135,7 +135,7 @@ describe("request 401 handling", () => {
 
     expect(runtimeConfig.getProfileId()).toBe("profile-1");
     expect(onLocked).not.toHaveBeenCalled();
-    window.removeEventListener("cataloggy:profile-locked", onLocked);
+    window.removeEventListener("fetch:profile-locked", onLocked);
   });
 });
 
@@ -211,7 +211,7 @@ describe("validated responses", () => {
       json({ calendar: [{ seriesImdbId: "tt1", seriesName: "Show", poster: null, season: 1, episode: 1, episodeName: "Pilot", overview: null }] })
     );
 
-    await expect(api.getCalendar()).rejects.toThrow(/CATALOGGY_IMAGE_TAG/);
+    await expect(api.getCalendar()).rejects.toThrow(/FETCH_IMAGE_TAG/);
   });
 
   it("keeps the parser's field path as the cause, and off the screen", async () => {
@@ -279,7 +279,7 @@ describe("request response decoding", () => {
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({ lists: [] }), {
         status: 200,
-        headers: { "content-type": "application/vnd.cataloggy+json" },
+        headers: { "content-type": "application/vnd.fetch+json" },
       })
     );
 
@@ -312,14 +312,14 @@ describe("runtimeConfig", () => {
   it("prefers a saved API base override over the build-time default", () => {
     expect(runtimeConfig.getApiBase()).toBe(runtimeConfig.apiBaseDefault);
 
-    runtimeConfig.setApiBaseOverride("  https://cataloggy.example  ");
+    runtimeConfig.setApiBaseOverride("  https://fetch.example  ");
 
-    expect(runtimeConfig.getApiBaseOverride()).toBe("https://cataloggy.example");
-    expect(runtimeConfig.getApiBase()).toBe("https://cataloggy.example");
+    expect(runtimeConfig.getApiBaseOverride()).toBe("https://fetch.example");
+    expect(runtimeConfig.getApiBase()).toBe("https://fetch.example");
   });
 
   it("removes the override rather than storing a blank one", () => {
-    runtimeConfig.setApiBaseOverride("https://cataloggy.example");
+    runtimeConfig.setApiBaseOverride("https://fetch.example");
     runtimeConfig.setApiBaseOverride("   ");
 
     expect(window.localStorage.getItem(runtimeConfig.apiBaseOverrideKey)).toBeNull();
@@ -344,7 +344,7 @@ describe("runtimeConfig", () => {
    * them for the life of the tab.
    */
   it("names the cache scope from stored identity at startup, not on the first write", async () => {
-    window.localStorage.setItem("cataloggy_profile_id", "profile-9");
+    window.localStorage.setItem("fetch_profile_id", "profile-9");
     vi.resetModules();
 
     const { getCacheScope } = await import("./utils/dataCache");
@@ -509,7 +509,7 @@ describe("writes the service worker is holding", () => {
   const queued = () =>
     new Response(JSON.stringify({ queued: true }), {
       status: 202,
-      headers: { "content-type": "application/json", "x-cataloggy-queued": "1" },
+      headers: { "content-type": "application/json", "x-fetch-queued": "1" },
     });
 
   it("tells the caller the write is saved, not that it failed", async () => {

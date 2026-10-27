@@ -84,7 +84,7 @@ const asCatalogType = (value: unknown, what: string): StremioCatalogType =>
  * Prisma `where`, a `fetch` init) keeps its bare `?:`.
  */
 
-export type CataloggyMetaPreview = {
+export type FetchMetaPreview = {
   id: string;
   type: StremioCatalogType;
   name: string;
@@ -95,7 +95,7 @@ export type CataloggyMetaPreview = {
   rating?: number | undefined;
 };
 
-export type MetasResponse = { metas: CataloggyMetaPreview[] };
+export type MetasResponse = { metas: FetchMetaPreview[] };
 
 export const parseMetasResponse = (value: unknown): MetasResponse => {
   const body = asObject(value, "response");
@@ -117,25 +117,25 @@ export const parseMetasResponse = (value: unknown): MetasResponse => {
 
 // ─── Lists ───
 
-export type CataloggyListKind = "watchlist" | "custom" | "collection";
+export type FetchListKind = "watchlist" | "custom" | "collection";
 
-export type CataloggyList = {
+export type FetchList = {
   id: string;
   name: string;
-  kind: CataloggyListKind;
+  kind: FetchListKind;
 };
 
 /** `GET /lists`. `createdAt` is a Date on the wire-producing side. */
 export type ListsResponse = {
-  lists: (CataloggyList & { createdAt?: string | Date; itemCount?: number })[];
+  lists: (FetchList & { createdAt?: string | Date; itemCount?: number })[];
 };
 
-const asListKind = (value: unknown, what: string): CataloggyListKind =>
+const asListKind = (value: unknown, what: string): FetchListKind =>
   value === "watchlist" || value === "custom" || value === "collection"
     ? value
     : fail(`${what} must be one of: watchlist, custom, collection`);
 
-export const parseListsResponse = (value: unknown): { lists: CataloggyList[] } => {
+export const parseListsResponse = (value: unknown): { lists: FetchList[] } => {
   const body = asObject(value, "response");
   const lists = asArray(body.lists ?? [], "lists").map((entry, index) => {
     const list = asObject(entry, `lists[${index}]`);
@@ -148,7 +148,7 @@ export const parseListsResponse = (value: unknown): { lists: CataloggyList[] } =
   return { lists };
 };
 
-export type CataloggyListItem = {
+export type FetchListItem = {
   imdbId: string;
   type: string;
   /** Title captured when the item was added — stands in until the metadata row lands. */
@@ -163,7 +163,7 @@ export type CataloggyListItem = {
 };
 
 export type ListItemsResponse = {
-  items: CataloggyListItem[];
+  items: FetchListItem[];
   /** Opaque cursor for the next page; absent once the list is exhausted, and always absent when the caller asked for no `limit`. */
   nextCursor: string | null;
 };
@@ -302,7 +302,7 @@ export const parseSeriesProgressResponse = (value: unknown): SeriesProgressRespo
 //
 // Everything above crosses api↔addon. What follows crosses api↔web, and it is
 // there for a sharper reason: self-hosted upgrades are staggered *by design* —
-// `CATALOGGY_IMAGE_TAG` exists so a `web` image from one build can run against
+// `FETCH_IMAGE_TAG` exists so a `web` image from one build can run against
 // an `api` image from another — so version skew across this boundary is the
 // expected case, not the exceptional one.
 //

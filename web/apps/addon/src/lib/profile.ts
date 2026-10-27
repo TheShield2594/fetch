@@ -1,7 +1,7 @@
 import type { FastifyBaseLogger, FastifyRequest } from "fastify";
 import { deriveStremioProfileKey, matchesStremioProfileKey, parseProfilesResponse, UUID_V4_PATTERN } from "@fetch/shared";
 import { apiGet } from "./api-client.js";
-import { CATALOGGY_API_TOKEN, REQUIRE_SIGNED_URLS } from "./config.js";
+import { FETCH_API_TOKEN, REQUIRE_SIGNED_URLS } from "./config.js";
 
 /**
  * Which profile a request is acting as.
@@ -38,7 +38,7 @@ export const SIGNED_PROFILE_ROUTE_PREFIX = "/u/:profileId/:profileKey";
 
 /** The signed prefix for `profileId`, for URLs this service mints. Null with no API token. */
 export const signedProfilePath = (profileId: string): string | null =>
-  CATALOGGY_API_TOKEN ? `/u/${profileId}/${deriveStremioProfileKey(CATALOGGY_API_TOKEN, profileId)}` : null;
+  FETCH_API_TOKEN ? `/u/${profileId}/${deriveStremioProfileKey(FETCH_API_TOKEN, profileId)}` : null;
 
 /**
  * `profileId: null` means "no profile bound" — the header is omitted and the
@@ -80,7 +80,7 @@ export const resolveProfileScope = async (request: FastifyRequest): Promise<Prof
   if (key !== undefined) {
     // A wrong key answers exactly as an unknown profile does.
     if (raw === undefined || !UUID_V4_PATTERN.test(raw)) return { ok: false };
-    if (!matchesStremioProfileKey(key, CATALOGGY_API_TOKEN, raw)) return { ok: false };
+    if (!matchesStremioProfileKey(key, FETCH_API_TOKEN, raw)) return { ok: false };
     return { ok: true, profileId: raw };
   }
   if (REQUIRE_SIGNED_URLS) return { ok: false };

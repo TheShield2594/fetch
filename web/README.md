@@ -278,6 +278,16 @@ The Fetch TV app's setup wizard (and **Settings → Account → Fetch website**)
 
 - **When the TV can't see it** (the TV on another subnet or VLAN, or a router that filters multicast), choose **Enter the address** on the TV and type the API's address, `http://LAN-IP:7000` — or your domain, if you set up one address for everything as in [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup).
 
+### Watch state and lists on the Fetch TV app
+
+Once the TV is paired, the website is one of its tracking sources, next to Trakt, Simkl and MDBList:
+
+- **From the TV, always.** Plays, pauses and stops are scrobbled to the website, and marking something watched or unwatched on the TV does the same here, so the website shows what the TV played within a minute. Resume points keep the exact second the TV stopped at.
+- **To the TV, when chosen.** On the TV, **Settings → Tracking → Watch Progress** and **Library Source** each offer **Fetch website**. With watch progress set to it, Continue Watching, Next Up and watched badges come from the website's resume points and history; with the library set to it, the TV's Library shows the profile's lists here, and lists can be made, renamed, deleted and filled from either side. The TV checks for changes every minute while it shows them.
+- **Only titles with an IMDb id** travel, as everywhere else on the website. Progress on anything else stays on the TV.
+
+A list also becomes a Home row on any Stremio-compatible app, the Fetch TV app included, by installing the add-on from **Settings → Stremio Addon** as above; on the Fetch TV app paste it under **Addons**. A paired TV doesn't need to: its collections can use website lists as rows directly.
+
 ### Profiles and the add-on URL
 
 Stremio and Omni have no way to say *who* is watching — the installed URL is the only thing that distinguishes one installation from another. Fetch therefore binds a profile to the URL itself:
@@ -408,6 +418,7 @@ Trakt is supported but is not a system of record, and nothing depends on it. Eac
 
   Anything Trakt knows only by its own or TMDB's id is skipped and counted, never guessed at. On a large library the import can take several minutes; afterwards the scheduled poll only fetches what is new. `TRAKT_BACKFILL_MAX_PAGES` caps how far back a single import walks: 100 plays per page, default `500` pages (50,000 plays), hard ceiling `1000` pages (100,000 plays) — a larger value is clamped to that, and a value that isn't a positive whole number falls back to the default.
 - **Ongoing polling** (`TRAKT_POLL_INTERVAL_SEC`) is off-switchable: set it to `0`. With Stremio watched sync connected, the poll is no longer the only thing catching what you watch in Stremio.
+- **Resume points** come in with each poll too. Something paused in another Trakt app (or on the TV) shows up in Continue Watching here, unless Fetch already holds a later pause of it or it has been watched since. A title finished in Fetch has its Trakt resume point removed on the next poll, as the TV does, so Trakt's own apps stop offering to resume it.
 - **Removals on Trakt never remove anything locally** unless you opt in with `TRAKT_WATCHLIST_MIRROR_DELETES=true`. Even then, a Trakt watchlist that has gone entirely empty is treated as a fault and never mirrored — so a broken or discontinued Trakt cannot empty your library.
 - **Scrobbles and watchlist changes still push out to Trakt** when it's connected. That direction is a mirror: if Trakt stops answering, the pushes fail quietly and nothing local is affected.
 

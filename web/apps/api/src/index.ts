@@ -15,7 +15,7 @@ import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
 import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
 import { trendingCacheDeletePrefix } from "./lib/cache.js";
-import { listTraktProfiles, pollTraktHistory, syncTraktWatchlist } from "./lib/trakt-client.js";
+import { listTraktProfiles, pollTraktHistory, syncTraktPlayback, syncTraktWatchlist } from "./lib/trakt-client.js";
 import { listSimklProfiles, syncSimkl } from "./lib/simkl.js";
 import { listMdbListProfiles, syncMdbList } from "./lib/mdblist.js";
 import { listAllMediaServerConnections, syncMediaServer } from "./lib/media-servers.js";
@@ -373,6 +373,9 @@ const start = async () => {
         for (const profileId of await listTraktProfiles()) {
           await runJob("trakt-history-poll", () => pollTraktHistory(app.log, profileId));
           await runJob("trakt-watchlist-sync", () => syncTraktWatchlist(app.log, profileId));
+          // After the history poll, so a title finished elsewhere is already
+          // recorded and its stale pause is skipped rather than resurrected.
+          await runJob("trakt-playback-sync", () => syncTraktPlayback(app.log, profileId));
         }
       },
     });

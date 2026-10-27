@@ -201,6 +201,20 @@ export type TraktScrobbleResponse = {
   progress?: number;
 };
 
+/**
+ * One paused title from `/sync/playback/{movies,episodes}`. `id` is the
+ * playback entry's own id, the one `DELETE /sync/playback/{id}` takes.
+ */
+export type TraktPlaybackPayload = {
+  id?: number;
+  progress?: number;
+  paused_at?: string;
+  type?: "movie" | "episode";
+  movie?: { title?: string; ids?: TraktIds };
+  episode?: { season?: number; number?: number; title?: string; ids?: TraktIds };
+  show?: { title?: string; ids?: TraktIds };
+};
+
 export type TraktWatchlistMutationPayload = {
   movies?: { ids: { imdb: string } }[];
   shows?: { ids: { imdb: string } }[];
@@ -382,6 +396,25 @@ export class TraktClient {
     );
   }
 
+  // Every paused title Trakt holds, which is rarely more than a page or two.
+  // The incremental poll's page cap is plenty and keeps a pathological account
+  // from turning a resume-point refresh into a backfill.
+  async fetchPlayback(type: "movies" | "episodes", logger: FastifyBaseLogger): Promise<TraktPlaybackPayload[]> {
+    return this.fetchAllPages<TraktPlaybackPayload>(`/sync/playback/${type}`, logger, undefined, POLL_MAX_PAGES);
+  }
+
+  async removePlayback(id: number, logger: FastifyBaseLogger): Promise<void> {
+    await this.request(`/sync/playback/${id}`, {
+      method: "DELETE",
+      headers: {
+        "trakt-api-version": "2",
+        "trakt-api-key": this.clientId,
+        Authorization: `Bearer ${this.accessToken}`
+      },
+      logger
+    });
+  }
+
   async scrobbleStart(payload: TraktScrobblePayload, logger: FastifyBaseLogger): Promise<TraktScrobbleResponse> {
     return this.postScrobble("/scrobble/start", payload, logger);
   }
@@ -505,7 +538,7 @@ export class TraktClient {
   private async request(
     path: string,
     options: {
-      method: "GET" | "POST";
+      method: "GET" | "POST" | "DELETE";
       headers: Record<string, string>;
       body?: string | undefined;
       queryParams?: Record<string, string> | undefined;

@@ -12,6 +12,7 @@ fun LibraryListTab.localizedMembershipTitle(): String {
         TrackingProviderId.TRAKT -> stringResource(R.string.trakt_name)
         TrackingProviderId.SIMKL -> stringResource(R.string.simkl_name)
         TrackingProviderId.MDBLIST -> stringResource(R.string.mdblist_name)
+        TrackingProviderId.FETCH_WEBSITE -> stringResource(R.string.website_name)
         null -> null
     }
     return provider?.let { "$it · ${localizedTitle()}" } ?: localizedTitle()

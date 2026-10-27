@@ -19,6 +19,8 @@ const prismaMock = {
     update: vi.fn(),
     aggregate: vi.fn(),
     count: vi.fn(),
+    groupBy: vi.fn(),
+    deleteMany: vi.fn(),
   },
   metadata: { findMany: vi.fn() },
   rating: { findMany: vi.fn() },
@@ -36,6 +38,9 @@ vi.mock("../lib/profile.js", () => ({
 
 const watchEventMock = { recordWatchEvent: vi.fn() };
 vi.mock("../lib/watch-event.js", () => watchEventMock);
+
+const droppedMock = { getDroppedSeriesIds: vi.fn(async () => new Set<string>()) };
+vi.mock("../lib/dropped-shows.js", () => droppedMock);
 
 const buildApp = (): Promise<FastifyInstance> =>
   buildRouteApp(() => import("./watch.js"));
@@ -296,6 +301,54 @@ describe("watch routes", () => {
       expect(response.statusCode).toBe(400);
       expect(response.json().error).toBe("eventId must be a valid UUID");
       expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("GET /watch/state", () => {
+    it("answers once per title with its latest watch, episodes under their series", async () => {
+      prismaMock.watchEvent.groupBy.mockResolvedValue([
+        { type: "movie", imdbId: "tt1", seriesImdbId: null, season: null, episode: null, _max: { watchedAt: new Date("2026-01-01T00:00:00Z") } },
+        { type: "episode", imdbId: "tt-ep", seriesImdbId: "tt-show", season: 1, episode: 2, _max: { watchedAt: new Date("2026-01-02T00:00:00Z") } },
+        { type: "episode", imdbId: "tt-show", seriesImdbId: "tt-show", season: 1, episode: 2, _max: { watchedAt: new Date("2026-01-03T00:00:00Z") } },
+        { type: "episode", imdbId: "tt-show", seriesImdbId: "tt-show", season: null, episode: null, _max: { watchedAt: new Date("2026-01-03T00:00:00Z") } },
+      ]);
+      prismaMock.metadata.findMany.mockResolvedValue([
+        { imdbId: "tt1", type: "movie", name: "A Film", poster: "https://img/1.jpg" },
+        { imdbId: "tt-show", type: "series", name: "A Show", poster: null },
+      ]);
+      droppedMock.getDroppedSeriesIds.mockResolvedValue(new Set(["tt-show"]));
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "GET", url: "/watch/state" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({
+        movies: [{ imdbId: "tt1", watchedAt: "2026-01-01T00:00:00.000Z", name: "A Film", poster: "https://img/1.jpg" }],
+        episodes: [
+          { imdbId: "tt-show", season: 1, episode: 2, watchedAt: "2026-01-03T00:00:00.000Z", name: "A Show", poster: null },
+        ],
+        dropped: ["tt-show"],
+      });
+      expect(droppedMock.getDroppedSeriesIds).toHaveBeenCalledWith(PROFILE_ID, ["tt-show"]);
+      expect(prismaMock.watchEvent.groupBy).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { profileId: PROFILE_ID } })
+      );
+      await app.close();
+    });
+  });
+
+  describe("DELETE /watch/movie/:imdbId", () => {
+    it("removes every play of the film in this profile", async () => {
+      prismaMock.watchEvent.deleteMany.mockResolvedValue({ count: 2 });
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "DELETE", url: "/watch/movie/tt1" });
+
+      expect(response.statusCode).toBe(204);
+      expect(prismaMock.watchEvent.deleteMany).toHaveBeenCalledWith({
+        where: { profileId: PROFILE_ID, type: "movie", imdbId: "tt1" },
+      });
+      await app.close();
     });
   });
 

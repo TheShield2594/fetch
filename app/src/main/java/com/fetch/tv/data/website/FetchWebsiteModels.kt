@@ -125,3 +125,89 @@ data class WebsiteTvSettings(
     val settings: JsonObject = JsonObject(emptyMap()),
     val version: Int = 0
 )
+
+// ─── Watch state and lists, for the website as a tracking provider ───
+
+/** A resume point from `/playback`. Episodes carry their series id as [imdbId]. */
+@Serializable
+data class WebsitePlayback(
+    val id: String,
+    val type: String,
+    val imdbId: String,
+    val season: Int? = null,
+    val episode: Int? = null,
+    val progress: Double = 0.0,
+    val positionSeconds: Long? = null,
+    val durationSeconds: Long? = null,
+    val pausedAt: String,
+    val name: String? = null,
+    val poster: String? = null
+)
+
+@Serializable
+internal data class WebsitePlaybackBody(val playback: List<WebsitePlayback> = emptyList())
+
+@Serializable
+data class WebsiteWatchedMovie(
+    val imdbId: String,
+    val watchedAt: String,
+    val name: String? = null,
+    val poster: String? = null
+)
+
+/** One watched episode from `/watch/state`, under its series id, with the series' name and poster. */
+@Serializable
+data class WebsiteWatchedEpisode(
+    val imdbId: String,
+    val season: Int,
+    val episode: Int,
+    val watchedAt: String,
+    val name: String? = null,
+    val poster: String? = null
+)
+
+/** Everything a profile has watched, once per title, and the shows it dropped. */
+@Serializable
+data class WebsiteWatchState(
+    val movies: List<WebsiteWatchedMovie> = emptyList(),
+    val episodes: List<WebsiteWatchedEpisode> = emptyList(),
+    val dropped: List<String> = emptyList()
+)
+
+/** A list on the website: `watchlist` and `collection` are the profile's defaults, `custom` its own. */
+@Serializable
+data class WebsiteList(
+    val id: String,
+    val name: String,
+    val kind: String
+)
+
+@Serializable
+internal data class WebsiteListsBody(val lists: List<WebsiteList> = emptyList())
+
+@Serializable
+internal data class WebsiteCreatedListBody(val list: WebsiteList)
+
+@Serializable
+data class WebsiteListItemMetadata(
+    val name: String? = null,
+    val poster: String? = null,
+    val year: Int? = null,
+    val genres: List<String> = emptyList(),
+    val rating: Double? = null
+)
+
+@Serializable
+data class WebsiteListItem(
+    val type: String,
+    val imdbId: String,
+    val addedAt: String? = null,
+    val title: String? = null,
+    val metadata: WebsiteListItemMetadata? = null
+)
+
+@Serializable
+internal data class WebsiteListItemsBody(
+    val items: List<WebsiteListItem> = emptyList(),
+    val nextCursor: String? = null
+)

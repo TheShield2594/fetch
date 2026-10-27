@@ -16,6 +16,7 @@ import com.fetch.tv.data.simkl.SimklAnimeIdPreference
 import com.fetch.tv.data.simkl.SimklAuthRepository
 import com.fetch.tv.data.simkl.SimklSyncRepository
 import com.fetch.tv.data.mdblist.MdbListAuthStore
+import com.fetch.tv.data.website.FetchWebsiteStore
 import com.fetch.tv.domain.model.LibrarySourceMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -48,6 +49,7 @@ class TrackingSettingsViewModel @Inject constructor(
     traktAuthDataStore: TraktAuthDataStore,
     simklAuthRepository: SimklAuthRepository,
     mdbListAuth: MdbListAuthStore,
+    websiteStore: FetchWebsiteStore,
     profiles: ProfileManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TrackingSettingsUiState())
@@ -55,11 +57,18 @@ class TrackingSettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val connected = combine(traktAuthDataStore.state, simklAuthRepository.state, mdbListAuth.state, profiles.activeProfileId) { trakt, simkl, mdblist, profileId ->
+            val connected = combine(
+                traktAuthDataStore.state,
+                simklAuthRepository.state,
+                mdbListAuth.state,
+                websiteStore.session,
+                profiles.activeProfileId
+            ) { trakt, simkl, mdblist, website, profileId ->
                 if (mdblist.scope.profileId != profileId) null else buildSet<TrackingProviderId> {
                     if (trakt.isAuthenticated) add(TrackingProviderId.TRAKT)
                     if (simkl.isAuthenticated) add(TrackingProviderId.SIMKL)
                     if (mdblist.isAuthenticated) add(TrackingProviderId.MDBLIST)
+                    if (website != null) add(TrackingProviderId.FETCH_WEBSITE)
                 }
             }
             combine(

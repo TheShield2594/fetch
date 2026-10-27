@@ -13,6 +13,7 @@ import com.fetch.tv.data.mdblist.MdbListTestHarness
 import com.fetch.tv.data.simkl.SimklAnimeIdPreference
 import com.fetch.tv.data.simkl.SimklAuthRepository
 import com.fetch.tv.data.simkl.SimklAuthState
+import com.fetch.tv.data.website.FetchWebsiteStore
 import com.fetch.tv.domain.model.LibrarySourceMode
 import io.mockk.coEvery
 import io.mockk.every
@@ -55,7 +56,8 @@ class TrackingSettingsViewModelTest {
         }
         val trakt = mockk<TraktAuthDataStore> { every { state } returns flowOf(TraktAuthState()) }
         val simkl = mockk<SimklAuthRepository> { every { state } returns MutableStateFlow(SimklAuthState()) }
-        val viewModel = TrackingSettingsViewModel(controller, settings, mockk(), trakt, simkl, harness.store, profiles)
+        val website = mockk<FetchWebsiteStore> { every { session } returns MutableStateFlow(null) }
+        val viewModel = TrackingSettingsViewModel(controller, settings, mockk(), trakt, simkl, harness.store, website, profiles)
         runCurrent()
         assertEquals(setOf(TrackingProviderId.MDBLIST), viewModel.uiState.value.connectedProviderIds)
         val previousCount = reconciliations.size

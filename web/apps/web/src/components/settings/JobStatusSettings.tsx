@@ -7,6 +7,7 @@ import { timeAgo } from "../../utils/timeAgo";
 const JOB_LABELS: Record<string, string> = {
   "trakt-history-poll": "Trakt history sync",
   "trakt-watchlist-sync": "Trakt watchlist sync",
+  "trakt-playback-sync": "Trakt resume points",
   "simkl-sync": "Simkl sync",
   "mdblist-sync": "MDBList sync",
   "media-server-sync": "Plex, Jellyfin & Emby sync",

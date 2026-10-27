@@ -3,6 +3,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { resolveProfile } from "../lib/profile.js";
 import { recordWatchEvent } from "../lib/watch-event.js";
+import { getDroppedSeriesIds } from "../lib/dropped-shows.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 
 /**
@@ -213,6 +214,81 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       }
       throw err;
     }
+  });
+
+  // Everything the profile has watched, once per title, with the latest watch:
+  // what a TV needs to badge posters and work out Next Up, in one request
+  // rather than paging /watch/history. Episodes are keyed by their series,
+  // and `dropped` names the shows hidden from Continue Watching.
+  app.get("/watch/state", async (request) => {
+    const rows = await prisma.watchEvent.groupBy({
+      by: ["type", "imdbId", "seriesImdbId", "season", "episode"],
+      where: { profileId: request.profileId! },
+      _max: { watchedAt: true },
+    });
+
+    const movies = new Map<string, Date>();
+    const episodes = new Map<string, { imdbId: string; season: number; episode: number; watchedAt: Date }>();
+    for (const row of rows) {
+      const watchedAt = row._max.watchedAt;
+      if (!watchedAt) continue;
+      if (row.type === "movie") {
+        const seen = movies.get(row.imdbId);
+        if (!seen || seen < watchedAt) movies.set(row.imdbId, watchedAt);
+        continue;
+      }
+      if (row.season == null || row.episode == null) continue;
+      const imdbId = row.seriesImdbId || row.imdbId;
+      const key = `${imdbId}:${row.season}:${row.episode}`;
+      const seen = episodes.get(key);
+      if (!seen || seen.watchedAt < watchedAt) {
+        episodes.set(key, { imdbId, season: row.season, episode: row.episode, watchedAt });
+      }
+    }
+
+    const seriesIds = [...new Set([...episodes.values()].map((entry) => entry.imdbId))];
+    const [metadata, dropped] = await Promise.all([
+      movies.size + seriesIds.length > 0
+        ? prisma.metadata.findMany({
+            where: {
+              OR: [
+                { type: "movie", imdbId: { in: [...movies.keys()] } },
+                { type: "series", imdbId: { in: seriesIds } },
+              ],
+            },
+            select: { imdbId: true, type: true, name: true, poster: true },
+          })
+        : [],
+      getDroppedSeriesIds(request.profileId!, seriesIds),
+    ]);
+    const metaByKey = new Map(metadata.map((row) => [`${row.type}:${row.imdbId}`, row]));
+    const titled = (type: "movie" | "series", imdbId: string) => {
+      const meta = metaByKey.get(`${type}:${imdbId}`);
+      return { name: meta?.name ?? null, poster: meta?.poster ?? null };
+    };
+
+    return {
+      movies: [...movies].map(([imdbId, watchedAt]) => ({
+        imdbId,
+        watchedAt: watchedAt.toISOString(),
+        ...titled("movie", imdbId),
+      })),
+      episodes: [...episodes.values()].map((entry) => ({
+        ...entry,
+        watchedAt: entry.watchedAt.toISOString(),
+        ...titled("series", entry.imdbId),
+      })),
+      dropped: [...dropped],
+    };
+  });
+
+  // Unmarks a film: every play of it goes, as "not watched" means on a TV.
+  // Episodes have their own route under /series.
+  app.delete<{ Params: { imdbId: string } }>("/watch/movie/:imdbId", async (request, reply) => {
+    const imdbId = request.params.imdbId.trim();
+    if (!imdbId) return reply.code(400).send({ error: "imdbId is required" });
+    await prisma.watchEvent.deleteMany({ where: { profileId: request.profileId!, type: "movie", imdbId } });
+    return reply.code(204).send();
   });
 
   app.get<{ Querystring: { limit?: string; offset?: string; imdbId?: string; type?: string } }>(

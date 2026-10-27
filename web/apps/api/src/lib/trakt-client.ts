@@ -2,12 +2,14 @@ import { ItemType, ListItemType, Prisma } from "@prisma/client";
 import {
   TraktClient,
   computeTokenExpiresAt,
+  type TraktPlaybackPayload,
   type TraktScrobblePayload,
   type TraktWatchlistMutationPayload,
 } from "../trakt.js";
 import { parseBool } from "@fetch/shared";
 import { prisma } from "./prisma.js";
 import { upsertSeriesProgressIfNewer } from "./series-progress.js";
+import { importPlaybackProgress, latestWatchByKey, resolvePlaybackTarget, type PlaybackImportRow, type PlaybackTarget } from "./playback.js";
 import { getDefaultWatchlist } from "./watchlist.js";
 import {
   TRAKT_HISTORY_BACKFILLED_AT_KEY,
@@ -698,4 +700,105 @@ export const pollTraktHistory = async (
     importedWatchEvents,
     updatedSeriesProgress: seriesProgressByImdb.size,
   };
+};
+
+export type TraktPlaybackSyncSummary = { fetched: number; resumePoints: number; removedFromTrakt: number };
+
+type TraktPausedTitle = { traktId: number | null; key: string; row: PlaybackImportRow };
+
+const toPausedTitle = (entry: TraktPlaybackPayload): TraktPausedTitle | null => {
+  const pausedAt = entry.paused_at ? new Date(entry.paused_at) : null;
+  if (!pausedAt || Number.isNaN(pausedAt.getTime())) return null;
+  if (typeof entry.progress !== "number" || !Number.isFinite(entry.progress)) return null;
+
+  // Episodes are keyed by their series, as every other writer stores them.
+  const showImdbId = entry.show?.ids?.imdb;
+  const target: PlaybackTarget | null = entry.movie
+    ? entry.movie.ids?.imdb
+      ? { type: "movie", imdbId: entry.movie.ids.imdb }
+      : null
+    : showImdbId
+      ? { type: "episode", imdbId: showImdbId, season: entry.episode?.season, episode: entry.episode?.number }
+      : null;
+  const resolved = target ? resolvePlaybackTarget(target) : null;
+  if (!target || !resolved) return null;
+
+  return {
+    traktId: typeof entry.id === "number" ? entry.id : null,
+    key: resolved.key,
+    row: {
+      target,
+      progress: Math.max(0, Math.min(100, entry.progress)),
+      positionSeconds: null,
+      durationSeconds: null,
+      pausedAt,
+    },
+  };
+};
+
+/**
+ * Brings Trakt's resume points (`/sync/playback`) into the profile's Continue
+ * Watching, the way the TV reads them, so something paused in another Trakt
+ * client shows up here too.
+ *
+ * Only ever forward, through importPlaybackProgress: a pause Fetch already
+ * holds a newer one of is left alone, and so is a title watched since Trakt
+ * saw the pause. Trakt only knows a percentage, so the seconds come from the
+ * duration a player already reported for that title, when one did; without
+ * that a pause Fetch itself sent to Trakt would come back and lose its exact
+ * position.
+ *
+ * A title finished in Fetch since its pause has its Trakt entry deleted, as
+ * the TV does, so Trakt's own apps stop offering to resume it. Best-effort per
+ * entry: a delete that fails is retried on the next poll.
+ */
+export const syncTraktPlayback = async (
+  logger: FastifyRequest["log"],
+  profileId: string
+): Promise<TraktPlaybackSyncSummary> => {
+  const owner = await traktOwnerForProfile(profileId);
+  if (!owner) return { fetched: 0, resumePoints: 0, removedFromTrakt: 0 };
+
+  const client = await getTraktClient(owner);
+  const [movies, episodes] = await Promise.all([
+    client.fetchPlayback("movies", logger),
+    client.fetchPlayback("episodes", logger),
+  ]);
+  const paused = [...movies, ...episodes].flatMap((entry) => toPausedTitle(entry) ?? []);
+  if (paused.length === 0) return { fetched: 0, resumePoints: 0, removedFromTrakt: 0 };
+
+  const keys = [...new Set(paused.map((title) => title.key))];
+  const imdbIds = [...new Set(paused.map((title) => title.row.target.imdbId))];
+  const [stored, lastWatchByKey] = await Promise.all([
+    prisma.playbackProgress.findMany({
+      where: { profileId, key: { in: keys } },
+      select: { key: true, durationSeconds: true },
+    }),
+    latestWatchByKey(profileId, imdbIds),
+  ]);
+
+  const durationByKey = new Map(stored.map((row) => [row.key, row.durationSeconds]));
+  for (const title of paused) {
+    const duration = durationByKey.get(title.key);
+    if (duration && duration > 0) {
+      title.row.durationSeconds = duration;
+      title.row.positionSeconds = Math.round((duration * title.row.progress) / 100);
+    }
+  }
+
+  const resumePoints = await importPlaybackProgress(profileId, paused.map((title) => title.row));
+
+  let removedFromTrakt = 0;
+  for (const title of paused) {
+    const watchedAt = lastWatchByKey.get(title.key);
+    if (title.traktId === null || !watchedAt || watchedAt < title.row.pausedAt) continue;
+    try {
+      await client.removePlayback(title.traktId, logger);
+      removedFromTrakt += 1;
+    } catch (error) {
+      logger.warn({ error, key: title.key }, "Failed to remove a finished title's Trakt playback entry");
+    }
+  }
+
+  return { fetched: paused.length, resumePoints, removedFromTrakt };
 };

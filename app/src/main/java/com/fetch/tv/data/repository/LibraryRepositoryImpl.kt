@@ -176,7 +176,13 @@ class LibraryRepositoryImpl @Inject constructor(
                 provider.observeMembership(itemId, itemType)
                     .map { memberships -> memberships.isNotEmpty() }
             } else {
-                libraryPreferences.isInLibrary(itemId = itemId, itemType = itemType)
+                // On any list counts, as with a tracking provider, to match the Library screen.
+                combine(
+                    libraryPreferences.isInLibrary(itemId = itemId, itemType = itemType),
+                    localLists.lists
+                ) { saved, lists ->
+                    saved || LocalListsReducer.membership(lists, itemId, itemType).values.any { it }
+                }
             }
         }.distinctUntilChanged()
     }
@@ -438,6 +444,7 @@ internal fun localLibraryEntries(
         } else {
             existing.copy(
                 listKeys = existing.listKeys + listKey,
+                listAddedAt = existing.listAddedAt + (listKey to item.addedAt),
                 listedAt = maxOf(existing.listedAt, item.addedAt)
             )
         }
@@ -464,6 +471,7 @@ private fun SavedLibraryItem.toLocalLibraryEntry(listKey: String): LibraryEntry 
     genres = genres,
     addonBaseUrl = addonBaseUrl,
     listKeys = setOf(listKey),
+    listAddedAt = mapOf(listKey to addedAt),
     listedAt = addedAt,
     rawPosterUrl = poster
 )

@@ -94,7 +94,9 @@ const adapters: Record<ListLinkProvider, ProviderAdapter> = {
       });
     },
     items: async (profileId, remoteId, logger) => {
-      const items = await (await getTraktClient(profileId)).fetchPersonalListItems(traktListId(remoteId), logger);
+      const items = await (await getTraktClient(profileId)).fetchPersonalListItems(traktListId(remoteId), logger, {
+        requireComplete: true,
+      });
       return items.flatMap((item): ListItemRef[] => {
         if (item.movie?.ids?.imdb) return [{ type: "movie", imdbId: item.movie.ids.imdb }];
         if (item.show?.ids?.imdb) return [{ type: "series", imdbId: item.show.ids.imdb }];
@@ -295,13 +297,27 @@ const runSync = async (link: ListLink, logger: FastifyBaseLogger): Promise<ListL
     return emptyResult("missing", error);
   }
 
+  // A Fetch rename the service refused earlier is sent again until it lands.
+  let remoteName = remoteList.name;
+  let renameError: string | null = null;
+  if (link.pendingName !== null && link.pendingName !== remoteList.name) {
+    try {
+      await adapter.rename(link.profileId, link.remoteId, link.pendingName, logger);
+      remoteName = link.pendingName;
+    } catch (error) {
+      renameError = errorMessage(error);
+      logger.warn({ error, listId: link.listId }, "Linked list rename failed; retrying next sync");
+    }
+  }
+
   const remoteItems = await adapter.items(link.profileId, link.remoteId, logger);
   const localItems = await prisma.listItem.findMany({ where: { listId: link.listId }, select: { type: true, imdbId: true } });
 
   const remote = new Set(remoteItems.map(keyOf));
   const local = new Set(localItems.map((item) => keyOf({ type: item.type, imdbId: item.imdbId })));
   const plan = planListLinkSync(remote, local, readSnapshot(link.snapshot));
-  if (plan.remoteWentEmpty || plan.localWentEmpty) {
+  const emptied = plan.remoteWentEmpty || plan.localWentEmpty;
+  if (emptied) {
     logger.warn(
       { listId: link.listId, provider, remoteWentEmpty: plan.remoteWentEmpty, localWentEmpty: plan.localWentEmpty },
       "A linked list went entirely empty since the last sync — not removing anything from the other side"
@@ -324,10 +340,16 @@ const runSync = async (link: ListLink, logger: FastifyBaseLogger): Promise<ListL
   for (const key of plan.pushRemove) if (!removedRemotely.has(key)) next.add(key);
   for (const key of plan.kept) next.add(key);
 
-  const error = adds.error ?? removals.error;
+  // An emptied side is a fault to look at, not a clean sync: the two lists
+  // still differ, and every sync keeps them so until someone decides.
+  const emptiedError = emptied
+    ? `The ${plan.remoteWentEmpty ? `${service} list` : "Fetch list"} went empty since the last sync, so nothing was removed from the other side. Remove the items there too, or unlink the list.`
+    : null;
+  const error = adds.error ?? removals.error ?? renameError ?? emptiedError;
   await record({
     snapshot: [...next],
-    remoteName: remoteList.name,
+    remoteName,
+    ...(renameError === null ? { pendingName: null } : {}),
     lastSyncedAt: new Date(),
     lastError: error,
   });
@@ -343,15 +365,36 @@ const runSync = async (link: ListLink, logger: FastifyBaseLogger): Promise<ListL
   };
 };
 
-// A manual "Sync now" landing on top of the scheduled pass would otherwise run
-// the same reconciliation twice at once, each from the same stale snapshot.
-const inFlight = new Map<string, Promise<ListLinkSyncResult>>();
+// Everything that reads and rewrites a link (syncs, relinks, unlinks, rename
+// retries) runs one at a time per Fetch list, so a relink can't land in the
+// middle of a sync of the old target, and a "Sync now" on top of the scheduled
+// pass waits for it rather than reconciling from the same stale snapshot.
+const lanes = new Map<string, Promise<unknown>>();
 
+const inLane = <T>(listId: string, work: () => Promise<T>): Promise<T> => {
+  const run = (lanes.get(listId) ?? Promise.resolve()).then(work, work);
+  const tail = run.catch(() => undefined);
+  lanes.set(listId, tail);
+  void tail.then(() => {
+    if (lanes.get(listId) === tail) lanes.delete(listId);
+  });
+  return run;
+};
+
+// A sync asked for while one is already waiting its turn joins that one.
+const queuedSyncs = new Map<string, Promise<ListLinkSyncResult>>();
+
+/** Syncs the list's current link, read afresh once its turn comes. */
 export const syncListLink = (link: ListLink, logger: FastifyBaseLogger): Promise<ListLinkSyncResult> => {
-  const running = inFlight.get(link.id);
-  if (running) return running;
-  const run = runSync(link, logger).finally(() => inFlight.delete(link.id));
-  inFlight.set(link.id, run);
+  const queued = queuedSyncs.get(link.listId);
+  if (queued) return queued;
+  const run = inLane(link.listId, async () => {
+    queuedSyncs.delete(link.listId);
+    const current = await prisma.listLink.findUnique({ where: { listId: link.listId } });
+    if (!current) return emptyResult("missing", "This list is no longer linked");
+    return runSync(current, logger);
+  });
+  queuedSyncs.set(link.listId, run);
   return run;
 };
 
@@ -382,6 +425,20 @@ export const syncProfileListLinks = async (
   }
   return results;
 };
+
+/**
+ * Profiles with a list linked to the service other than `except`, so the
+ * scheduled sync also reaches links whose profile has since disconnected it
+ * and marks them so.
+ */
+export const listOtherLinkedProfiles = async (provider: ListLinkProvider, except: string[]): Promise<string[]> =>
+  (
+    await prisma.listLink.findMany({
+      where: { provider, profileId: { notIn: except } },
+      distinct: ["profileId"],
+      select: { profileId: true },
+    })
+  ).map((link) => link.profileId);
 
 // ─── Linking ───
 
@@ -426,6 +483,8 @@ export const linkList = async (
   }
 
   let target: RemoteList | undefined;
+  // A list created here and then not linked (the save below failing) is left
+  // on the service: there's no delete to undo it with, and it's harmless.
   if (remoteId === "new") {
     target = await adapter.create(profileId, list.name, logger);
   } else {
@@ -433,28 +492,45 @@ export const linkList = async (
     if (!target) throw new ListLinkError(`That ${PROVIDER_NAMES[provider]} list wasn't found on this account`, 404);
   }
 
-  let link: ListLink;
-  try {
-    link = await prisma.listLink.upsert({
-      where: { listId },
-      create: { listId, profileId, provider, remoteId: target.id, remoteName: target.name },
-      update: { provider, remoteId: target.id, remoteName: target.name, snapshot: Prisma.DbNull, lastSyncedAt: null, lastError: null },
-    });
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      throw new ListLinkError(`That ${PROVIDER_NAMES[provider]} list is already linked to another Fetch list`, 409);
+  const chosen = target;
+  return inLane(listId, async () => {
+    // Linking the list it's already linked to keeps what both sides agreed on;
+    // a different list starts over from a merge.
+    const existing = await prisma.listLink.findUnique({ where: { listId } });
+    const sameTarget = existing?.provider === provider && existing.remoteId === chosen.id;
+    let link: ListLink;
+    try {
+      link = await prisma.listLink.upsert({
+        where: { listId },
+        create: { listId, profileId, provider, remoteId: chosen.id, remoteName: chosen.name },
+        update: sameTarget
+          ? { remoteName: chosen.name }
+          : {
+              provider,
+              remoteId: chosen.id,
+              remoteName: chosen.name,
+              pendingName: null,
+              snapshot: Prisma.DbNull,
+              lastSyncedAt: null,
+              lastError: null,
+            },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new ListLinkError(`That ${PROVIDER_NAMES[provider]} list is already linked to another Fetch list`, 409);
+      }
+      throw error;
     }
-    throw error;
-  }
-
-  return { link, sync: await syncListLink(link, logger) };
+    return { link, sync: await runSync(link, logger) };
+  });
 };
 
 /** Forgets the link. Neither list nor any item in either is touched. */
-export const unlinkList = async (profileId: string, listId: string): Promise<boolean> => {
-  const { count } = await prisma.listLink.deleteMany({ where: { listId, profileId } });
-  return count > 0;
-};
+export const unlinkList = (profileId: string, listId: string): Promise<boolean> =>
+  inLane(listId, async () => {
+    const { count } = await prisma.listLink.deleteMany({ where: { listId, profileId } });
+    return count > 0;
+  });
 
 // ─── Pushing a change as it happens ───
 
@@ -478,17 +554,21 @@ export const pushListLinkChange = async (
   }
 };
 
-/** Renames the linked list along with the Fetch one. Best-effort, like the item pushes. */
-export const pushListLinkRename = async (listId: string, name: string, logger: FastifyBaseLogger): Promise<void> => {
-  try {
+/**
+ * Renames the linked list along with the Fetch one. Never throws: the name is
+ * kept as pending first, so a rename the service refuses is retried by the
+ * next sync.
+ */
+export const pushListLinkRename = (listId: string, name: string, logger: FastifyBaseLogger): Promise<void> =>
+  inLane(listId, async () => {
     const link = await prisma.listLink.findUnique({ where: { listId } });
     if (!link || !isListLinkProvider(link.provider)) return;
+    await prisma.listLink.update({ where: { id: link.id }, data: { pendingName: name } });
     await adapters[link.provider].rename(link.profileId, link.remoteId, name, logger);
-    await prisma.listLink.update({ where: { id: link.id }, data: { remoteName: name } });
-  } catch (error) {
-    logger.warn({ error, listId }, "Linked list rename failed");
-  }
-};
+    await prisma.listLink.update({ where: { id: link.id }, data: { remoteName: name, pendingName: null } });
+  }).catch((error) => {
+    logger.warn({ error, listId }, "Linked list rename failed; the next sync retries it");
+  });
 
 export type ListLinkSummary = {
   provider: ListLinkProvider;

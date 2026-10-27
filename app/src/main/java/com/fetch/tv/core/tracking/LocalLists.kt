@@ -78,7 +78,7 @@ object LocalListsReducer {
                 name = (list.name ?: "").ifBlank { list.id },
                 kind = (list.kind ?: "").ifBlank { LocalListKind.CUSTOM },
                 items = items.filterNotNull().filter { item ->
-                    item.id != null && item.type != null && itemKeys.add(item.membershipKey())
+                    !item.id.isNullOrBlank() && !item.type.isNullOrBlank() && itemKeys.add(item.membershipKey())
                 }.map { item ->
                     item.copy(
                         name = item.name ?: "",

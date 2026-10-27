@@ -783,12 +783,12 @@ class LibraryViewModel @Inject constructor(
                 else -> watchedFiltered
             }
             LibrarySortOption.ADDED_DESC -> watchedFiltered.sortedWith(
-                providerOrder ?: compareByDescending<LibraryEntry> { it.listedAt }
+                providerOrder ?: compareByDescending<LibraryEntry> { it.addedTo(selectedListKey) }
                     .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name.ifBlank { it.id } }
                     .thenBy { it.id }
             )
             LibrarySortOption.ADDED_ASC -> watchedFiltered.sortedWith(
-                providerOrder ?: compareBy<LibraryEntry> { it.listedAt }
+                providerOrder ?: compareBy<LibraryEntry> { it.addedTo(selectedListKey) }
                     .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name.ifBlank { it.id } }
                     .thenBy { it.id }
             )
@@ -870,3 +870,7 @@ private val LEADING_ARTICLE_REGEX = Regex("^(the|an|a)\\s+", RegexOption.IGNORE_
 
 private fun titleSortKey(title: String): String =
     title.trim().replace(LEADING_ARTICLE_REGEX, "").lowercase(Locale.ROOT)
+
+/** The date the title went on [listKey] when that list keeps one, else its latest addition anywhere. */
+private fun LibraryEntry.addedTo(listKey: String?): Long =
+    listKey?.let(listAddedAt::get) ?: listedAt

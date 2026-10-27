@@ -333,6 +333,28 @@ describe("trakt-client", () => {
       );
     });
 
+    it("refuses to hand a linked list's sync only the first pages of a list", async () => {
+      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          headers: new Headers({ "x-pagination-page-count": "101" }),
+          json: async () => [{ movie: { ids: { imdb: "tt1" } } }],
+        })
+      );
+
+      const { getTraktClient } = await import("./trakt-client.js");
+      const client = await getTraktClient("p1");
+
+      await expect(client.fetchPersonalListItems(7, makeLogger(), { requireComplete: true })).rejects.toThrow(
+        /can't be read in full/
+      );
+      // Without it (the one-off import) the first pages still come back.
+      expect(await client.fetchPersonalListItems(7, makeLogger())).toHaveLength(100);
+    });
+
     it("falls back to length-based pagination when no page-count header is present", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
 

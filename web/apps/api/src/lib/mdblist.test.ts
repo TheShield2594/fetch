@@ -273,6 +273,28 @@ describe("personal lists", () => {
     expect(call().url.searchParams.get("unified")).toBe("true");
   });
 
+  it("refuses a list longer than the page cap rather than returning part of it", async () => {
+    fetchMock.mockImplementation(async () =>
+      json({ items: [{ mediatype: "movie", imdb_id: "tt1" }], pagination: { has_more: true, next_cursor: "next" } })
+    );
+    try {
+      await expect(mdb.fetchMdbListListItems(PROFILE, "7")).rejects.toThrow(/can't be read in full/);
+    } finally {
+      fetchMock.mockReset();
+    }
+  });
+
+  it("adds with bare ids", async () => {
+    fetchMock.mockResolvedValue(json({}));
+    await mdb.changeMdbListListItems(PROFILE, "7", "add", [
+      { type: "movie", imdbId: "tt1" },
+      { type: "series", imdbId: "tt2" },
+    ]);
+    expect(call().init.method).toBe("POST");
+    expect(call().url.pathname).toBe("/lists/7/items/add");
+    expect(call().body).toEqual({ movies: [{ imdb: "tt1" }], shows: [{ imdb: "tt2" }] });
+  });
+
   it("adds and removes with bare ids, as a personal list takes them", async () => {
     fetchMock.mockResolvedValue(json({}));
     await mdb.changeMdbListListItems(PROFILE, "7", "remove", [

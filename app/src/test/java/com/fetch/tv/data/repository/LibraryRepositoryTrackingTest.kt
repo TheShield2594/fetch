@@ -24,6 +24,8 @@ import com.fetch.tv.domain.model.LibraryListPrivacy
 import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.ListMembershipChanges
 import com.fetch.tv.domain.model.ListMembershipSnapshot
+import com.fetch.tv.domain.model.PosterShape
+import com.fetch.tv.domain.model.SavedLibraryItem
 import com.fetch.tv.domain.repository.MetaRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -216,6 +218,32 @@ class LibraryRepositoryTrackingTest {
     }
 
     @Test
+    fun `a title only on a local list reads as in the library, like the Library screen shows it`() = runTest {
+        val source = MutableStateFlow(LibrarySourceMode.LOCAL)
+        val listed = SavedLibraryItem(
+            id = "tt2",
+            type = "movie",
+            name = "Movie",
+            poster = null,
+            posterShape = PosterShape.POSTER,
+            background = null,
+            description = null,
+            releaseInfo = null,
+            imdbRating = null,
+            genres = emptyList(),
+            addonBaseUrl = null
+        )
+        val lists = MutableStateFlow(listOf(LocalList(id = "a", name = "Weekend movies", items = listOf(listed))))
+        val preferences = mockk<LibraryPreferences>(relaxed = true) {
+            every { isInLibrary(any(), any()) } returns flowOf(false)
+        }
+        val repository = repository(source, emptySet(), lists, libraryPreferences = preferences)
+
+        assertTrue(repository.isInLibrary("tt2", "movie").first())
+        assertFalse(repository.isInLibrary("tt3", "movie").first())
+    }
+
+    @Test
     fun `local list management routes to the device and never to a tracking provider`() = runTest {
         val source = MutableStateFlow(LibrarySourceMode.LOCAL)
         val traktManager = mockk<TrackingListManager>(relaxed = true)
@@ -259,7 +287,8 @@ class LibraryRepositoryTrackingTest {
         sourceMode: MutableStateFlow<LibrarySourceMode>,
         providers: Set<TrackingLibraryProvider>,
         localLists: MutableStateFlow<List<LocalList>> = MutableStateFlow(emptyList()),
-        localListManager: LocalTrackingListManager = mockk(relaxed = true)
+        localListManager: LocalTrackingListManager = mockk(relaxed = true),
+        libraryPreferences: LibraryPreferences = mockk(relaxed = true)
     ): LibraryRepositoryImpl {
         val settings = mockk<TraktSettingsDataStore>(relaxed = true) {
             every { librarySourceMode } returns sourceMode
@@ -273,7 +302,7 @@ class LibraryRepositoryTrackingTest {
         }
         return LibraryRepositoryImpl(
             appContext = mockk<Context>(relaxed = true),
-            libraryPreferences = mockk<LibraryPreferences>(relaxed = true),
+            libraryPreferences = libraryPreferences,
             traktSettingsDataStore = settings,
             librarySyncService = mockk<LibrarySyncService>(relaxed = true),
             authManager = mockk<AuthManager>(relaxed = true),

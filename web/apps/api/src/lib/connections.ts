@@ -105,6 +105,24 @@ export const updateConnectionDetails = async <D>(id: string, details: D): Promis
   await prisma.profileConnection.updateMany({ where: { id }, data: { details: details as Prisma.InputJsonValue } });
 };
 
+/**
+ * Rewrites a connection's details from what is stored now, with the row locked,
+ * so a sync finishing and a Settings change made meanwhile don't overwrite each
+ * other. `change` returns null to leave them as they are. Returns what was
+ * written (or what is stored, on null), or null when the connection is gone.
+ */
+export const changeConnectionDetails = async <D>(id: string, change: (current: D) => D | null): Promise<D | null> =>
+  prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT id FROM "ProfileConnection" WHERE id = ${id}::uuid FOR UPDATE`;
+    const row = await tx.profileConnection.findUnique({ where: { id }, select: { details: true } });
+    if (!row) return null;
+    const current = (row.details ?? {}) as D;
+    const next = change(current);
+    if (next === null) return current;
+    await tx.profileConnection.update({ where: { id }, data: { details: next as Prisma.InputJsonValue } });
+    return next;
+  });
+
 export const deleteConnection = async (
   profileId: string,
   provider: ConnectionProvider,

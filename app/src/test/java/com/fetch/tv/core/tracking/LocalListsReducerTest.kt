@@ -68,7 +68,12 @@ class LocalListsReducerTest {
     fun `sanitize drops what a damaged file leaves behind`() {
         val duplicate = item("tt1", "movie")
         val sanitized = LocalListsReducer.sanitize(
-            listOf(null, list("a").copy(items = listOf(duplicate, duplicate)), list("a"), list(" "))
+            listOf(
+                null,
+                list("a").copy(items = listOf(duplicate, duplicate, item(" ", "movie"), item("tt2", ""))),
+                list("a"),
+                list(" ")
+            )
         )
 
         assertEquals(listOf("a"), sanitized.map { it.id })
@@ -109,6 +114,10 @@ class LocalListsReducerTest {
         assertEquals(setOf(LOCAL_LIBRARY_LIST_KEY, "local:list:a"), entries.first().listKeys)
         assertEquals(9L, entries.first().listedAt)
         assertEquals(setOf("local:list:a", "local:list:b"), entries.last().listKeys)
+        assertEquals(
+            mapOf(LOCAL_LIBRARY_LIST_KEY to 5L, "local:list:a" to 9L),
+            entries.first().listAddedAt
+        )
     }
 
     private fun list(id: String) = LocalList(id = id, name = "List $id")

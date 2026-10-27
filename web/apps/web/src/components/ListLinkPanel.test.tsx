@@ -43,6 +43,39 @@ describe("ListLinkPanel", () => {
     expect(onMessage).toHaveBeenCalledWith(expect.stringMatching(/Linked to MDBList/), "success");
   });
 
+  it("says when the first sync after linking failed, and still reloads the list", async () => {
+    vi.mocked(api.getListLinkTargets).mockResolvedValue({ lists: [] });
+    vi.mocked(api.linkList).mockResolvedValue({
+      link: null,
+      sync: { ...SYNC, status: "disconnected", addedLocally: 0, pushedAdds: 0, error: "Trakt is not connected" },
+    });
+    const onChanged = vi.fn();
+    const onMessage = vi.fn();
+    render(<ListLinkPanel list={LIST} onChanged={onChanged} onMessage={onMessage} />);
+
+    await userEvent.click(screen.getByRole("button", { name: /link to trakt or mdblist/i }));
+    await userEvent.click(screen.getByRole("button", { name: "Link" }));
+
+    await waitFor(() => expect(onMessage).toHaveBeenCalledWith(expect.stringMatching(/first sync failed: Trakt is not connected/), "error"));
+    expect(onChanged).toHaveBeenCalled();
+  });
+
+  it("reloads the list after a sync that recorded an error", async () => {
+    vi.mocked(api.syncListLink).mockResolvedValue({ link: null, sync: { ...SYNC, status: "partial", error: "Trakt request failed (503)" } });
+    const linked: CatalogList = {
+      ...LIST,
+      link: { provider: "trakt", remoteId: "1", remoteName: "Weekend", lastSyncedAt: null, lastError: null },
+    };
+    const onChanged = vi.fn();
+    const onMessage = vi.fn();
+    render(<ListLinkPanel list={linked} onChanged={onChanged} onMessage={onMessage} />);
+
+    await userEvent.click(screen.getByRole("button", { name: /sync now/i }));
+
+    await waitFor(() => expect(onMessage).toHaveBeenCalledWith("Trakt request failed (503)", "error"));
+    expect(onChanged).toHaveBeenCalled();
+  });
+
   it("says why the service's lists can't be listed", async () => {
     vi.mocked(api.getListLinkTargets).mockRejectedValue(new Error("Trakt is not connected for this profile"));
     render(<ListLinkPanel list={LIST} onChanged={vi.fn()} onMessage={vi.fn()} />);

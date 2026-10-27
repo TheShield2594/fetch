@@ -63,7 +63,8 @@ export const listsApi = {
   linkList(listId: string, provider: ListLinkProvider, remoteId: string) {
     return request<{ link: ListLink | null; sync: ListLinkSyncResult }>(
       `/lists/${encodeURIComponent(listId)}/link`,
-      { method: "PUT", body: JSON.stringify({ provider, remoteId }) }
+      // The first merge reads both lists in full and may push many batches.
+      { method: "PUT", body: JSON.stringify({ provider, remoteId }), timeoutMs: 120000 }
     );
   },
   unlinkList(listId: string) {
@@ -72,7 +73,7 @@ export const listsApi = {
   syncListLink(listId: string) {
     return request<{ link: ListLink | null; sync: ListLinkSyncResult }>(
       `/lists/${encodeURIComponent(listId)}/link/sync`,
-      { method: "POST" }
+      { method: "POST", timeoutMs: 120000 }
     );
   },
   getItemLists(imdbId: string) {

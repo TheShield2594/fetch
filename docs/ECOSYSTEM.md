@@ -18,7 +18,7 @@ for Nuvio, except that you run it.
   are created on the website and show up as rows on the TV. Trakt and Simkl
   become optional imports, not the thing your library depends on. A TV with
   neither still has lists: each profile can make its own under Library → Manage
-  Lists, kept on the device (`core/tracking/LocalLists.kt`) in the same shape as
+  Lists, kept on the device (`data/local/LocalListsDataStore.kt`) in the same shape as
   the website's `/lists`, and add one as a Home row through a collection.
 - **Settings in one place.** Profiles, PINs, installed addons and their order,
   home rows and stream ranking rules are edited on a real keyboard and screen,

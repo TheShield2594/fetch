@@ -350,8 +350,19 @@ export class TraktClient {
 
   // Movies and shows only: a personal list can also hold people, seasons and
   // episodes, none of which a Fetch list can hold.
-  async fetchPersonalListItems(listId: number, logger: FastifyBaseLogger): Promise<TraktListItemPayload[]> {
-    return this.fetchAllPages<TraktListItemPayload>(`/users/me/lists/${listId}/items/movie,show`, logger);
+  // With `requireComplete`, a list longer than the page cap is an error rather
+  // than its first pages: a linked list's sync reads anything missing as removed.
+  async fetchPersonalListItems(
+    listId: number,
+    logger: FastifyBaseLogger,
+    options: { requireComplete?: boolean } = {}
+  ): Promise<TraktListItemPayload[]> {
+    const path = `/users/me/lists/${listId}/items/movie,show`;
+    const { items, truncated } = await this.fetchPages<TraktListItemPayload>(path, logger);
+    if (truncated && options.requireComplete) {
+      throw new Error(`Trakt list ${listId} is longer than ${MAX_PAGES} pages and can't be read in full`);
+    }
+    return items;
   }
 
   // Any list by its Trakt id — the TV's collection sources name lists this way,
@@ -527,6 +538,15 @@ export class TraktClient {
     queryParams?: Record<string, string>,
     maxPages: number = MAX_PAGES
   ): Promise<T[]> {
+    return (await this.fetchPages<T>(path, logger, queryParams, maxPages)).items;
+  }
+
+  private async fetchPages<T>(
+    path: string,
+    logger: FastifyBaseLogger,
+    queryParams?: Record<string, string>,
+    maxPages: number = MAX_PAGES
+  ): Promise<{ items: T[]; truncated: boolean }> {
     const items: T[] = [];
     let page = 1;
     let hasMore = true;
@@ -575,7 +595,7 @@ export class TraktClient {
       logger.warn({ path, maxPages }, "Reached maximum Trakt pagination limit");
     }
 
-    return items;
+    return { items, truncated: reachedMaxPages };
   }
 
   private async request(

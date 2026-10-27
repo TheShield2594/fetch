@@ -20,13 +20,24 @@ vi.mock("./prisma.js", () => ({
   },
 }));
 
+// The details as stored, which changeConnectionDetails reads and rewrites under its lock.
+const storedDetails = new Map<string, Record<string, unknown>>();
 const connections = {
   saveConnection: vi.fn(),
+  getConnection: vi.fn<(...args: unknown[]) => Promise<unknown>>(async () => null),
+  changeConnectionDetails: vi.fn(
+    async (id: string, change: (current: Record<string, unknown>) => Record<string, unknown> | null) => {
+      const current = storedDetails.get(id);
+      if (!current) return null;
+      const next = change(current);
+      if (next) storedDetails.set(id, next);
+      return next ?? current;
+    }
+  ),
   listConnections: vi.fn<(provider: string) => Promise<unknown[]>>(async () => []),
   listProfileConnections: vi.fn<(profileId: string, provider: string) => Promise<unknown[]>>(async () => []),
   getProfileConnectionById: vi.fn(),
   deleteConnectionById: vi.fn(),
-  updateConnectionDetails: vi.fn(),
   updateConnectionState: vi.fn(),
 };
 vi.mock("./connections.js", () => connections);
@@ -53,9 +64,16 @@ const initOf = (index: number) => (fetchMock.mock.calls[index] as [string, Reque
 
 const servers = await import("./media-servers.js");
 
+/** Syncs a connection whose details are as stored. */
+const sync = (connection: { id: string; details: Record<string, unknown> }) => {
+  storedDetails.set(connection.id, { ...connection.details });
+  return servers.syncMediaServer(connection as never, logger);
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   kv.clear();
+  storedDetails.clear();
   scope.allowPrivateNetwork = true;
   vi.stubGlobal("fetch", fetchMock);
 });
@@ -132,6 +150,43 @@ describe("Plex sign-in", () => {
           libraries: [
             { id: "1", name: "Films", kind: "movies", selected: true },
             { id: "3", name: "Kids", kind: "shows", selected: true },
+          ],
+        }),
+      })
+    );
+  });
+
+  it("keeps the libraries turned off when the same server is signed in to again", async () => {
+    connections.getConnection.mockResolvedValueOnce({
+      details: { libraries: [{ id: "3", name: "Kids", kind: "shows", selected: false }] },
+    });
+    route({ "/api/v2/pins": () => json({ id: 7, code: "ABCD", expiresIn: 600 }) });
+    await servers.startPlexLink(PROFILE);
+    route({
+      "/api/v2/pins/7": () => json({ authToken: "account-token" }),
+      "/api/v2/user": () => json({ id: 99, username: "sam" }),
+      "/api/v2/resources": () => json(RESOURCES),
+      "/identity": () => json({ MediaContainer: { machineIdentifier: "srv-1" } }),
+      "/library/sections": () =>
+        json({
+          MediaContainer: {
+            Directory: [
+              { key: "1", type: "movie", title: "Films" },
+              { key: "3", type: "show", title: "Kids" },
+            ],
+          },
+        }),
+    });
+
+    await servers.pollPlexLink(PROFILE);
+
+    expect(connections.getConnection).toHaveBeenCalledWith(PROFILE, "plex", "srv-1|99");
+    expect(connections.saveConnection).toHaveBeenCalledWith(
+      expect.objectContaining({
+        details: expect.objectContaining({
+          libraries: [
+            { id: "1", name: "Films", kind: "movies", selected: true },
+            { id: "3", name: "Kids", kind: "shows", selected: false },
           ],
         }),
       })
@@ -271,15 +326,14 @@ describe("syncing a Jellyfin server", () => {
       });
     });
 
-    const summary = await servers.syncMediaServer(connection as never, logger);
+    const summary = await sync(connection);
 
     expect(summary).toEqual({ movies: 1, episodes: 1, resumePoints: 1, skipped: 0 });
     expect(urlOf(0).pathname).toBe("/UserViews");
     expect(urlOf(1).searchParams.get("userId")).toBe("u-1");
     // Every library chosen (the default): the whole server, no parentId.
     expect(urlOf(1).searchParams.has("parentId")).toBe(false);
-    expect(connections.updateConnectionDetails).toHaveBeenCalledWith(
-      "c1",
+    expect(storedDetails.get("c1")).toEqual(
       expect.objectContaining({
         libraries: [
           { id: "v-films", name: "Films", kind: "movies", selected: true },
@@ -319,7 +373,7 @@ describe("syncing a Jellyfin server", () => {
       },
     };
 
-    await servers.syncMediaServer(chosen as never, logger);
+    await sync(chosen);
 
     const parents = fetchMock.mock.calls
       .map(([input]) => new URL(input as string))
@@ -328,8 +382,7 @@ describe("syncing a Jellyfin server", () => {
     // Films was chosen, Kids wasn't, and TV is new on the server so it's read.
     expect(new Set(parents)).toEqual(new Set(["v-films", "v-tv"]));
     expect(connections.updateConnectionState).toHaveBeenCalledWith("c1", { movies: { tt1: "m1" }, episodes: {} });
-    expect(connections.updateConnectionDetails).toHaveBeenCalledWith(
-      "c1",
+    expect(storedDetails.get("c1")).toEqual(
       expect.objectContaining({
         libraries: [
           { id: "v-films", name: "Films", kind: "movies", selected: true },
@@ -355,10 +408,7 @@ describe("syncing a Jellyfin server", () => {
       });
     });
 
-    await servers.syncMediaServer(
-      { ...connection, details: { ...connection.details, lastSyncedAt: "2026-01-05T00:00:00Z" } } as never,
-      logger
-    );
+    await sync({ ...connection, details: { ...connection.details, lastSyncedAt: "2026-01-05T00:00:00Z" } });
 
     const [, watches] = importTrackerItems.mock.calls[0] as unknown as [string, { imdbId: string }[]];
     expect(watches.map((watch) => watch.imdbId)).toEqual(["tt2"]);
@@ -369,10 +419,92 @@ describe("syncing a Jellyfin server", () => {
     });
   });
 
+  it("keeps a choice made in Settings while the server was being read", async () => {
+    fetchMock.mockImplementation(async (input: string) => {
+      if (new URL(input).pathname === "/UserViews") return json({ Items: VIEWS });
+      // Settings changes the connection mid-sync.
+      storedDetails.set("c1", {
+        ...storedDetails.get("c1"),
+        importWatchState: false,
+        libraries: [{ id: "v-tv", name: "TV", kind: "shows", selected: false }],
+      });
+      return json({ Items: [], TotalRecordCount: 0 });
+    });
+
+    await sync(connection);
+
+    expect(storedDetails.get("c1")).toEqual(
+      expect.objectContaining({
+        importWatchState: false,
+        libraries: expect.arrayContaining([{ id: "v-tv", name: "TV", kind: "shows", selected: false }]),
+        lastSyncedAt: expect.any(String),
+      })
+    );
+  });
+
+  it("still reads the server when its libraries can't be listed, keeping the stored list", async () => {
+    const stored = [{ id: "v-films", name: "Films", kind: "movies", selected: true }];
+    fetchMock.mockImplementation(async (input: string) => {
+      if (new URL(input).pathname === "/UserViews") return new Response("", { status: 500 });
+      return json({ Items: [], TotalRecordCount: 0 });
+    });
+
+    await sync({ ...connection, details: { ...connection.details, libraries: stored } });
+
+    const items = fetchMock.mock.calls.map(([input]) => new URL(input as string)).filter((url) => url.pathname === "/Items");
+    expect(items.length).toBeGreaterThan(0);
+    expect(storedDetails.get("c1")).toEqual(expect.objectContaining({ libraries: stored, lastSyncedAt: expect.any(String) }));
+    expect(logger.warn).toHaveBeenCalled();
+  });
+
+  describe("a library the last sync didn't read", () => {
+    const OLD_PLAY = {
+      Items: [{ Id: "old", ProviderIds: { Imdb: "tt1" }, UserData: { Played: true, LastPlayedDate: "2025-06-01T00:00:00Z" } }],
+      TotalRecordCount: 1,
+    };
+    const views = [
+      { Id: "v-films", Name: "Films", CollectionType: "movies" },
+      { Id: "v-tv", Name: "TV", CollectionType: "tvshows" },
+    ];
+    const libraries = (tvSelected: boolean) => [
+      { id: "v-films", name: "Films", kind: "movies", selected: true },
+      { id: "v-tv", name: "TV", kind: "shows", selected: tvSelected },
+    ];
+    const serve = () =>
+      fetchMock.mockImplementation(async (input: string) => {
+        const url = new URL(input);
+        if (url.pathname === "/UserViews") return json({ Items: views });
+        return url.searchParams.get("includeItemTypes") === "Movie" ? json(OLD_PLAY) : json({ Items: [], TotalRecordCount: 0 });
+      });
+    const watchedIds = () =>
+      ((importTrackerItems.mock.calls[0] as unknown as [string, { imdbId: string }[]])[1] ?? []).map((watch) => watch.imdbId);
+
+    it("is read in full once chosen, older plays included", async () => {
+      serve();
+      await sync({
+        ...connection,
+        details: { ...connection.details, lastSyncedAt: "2026-01-05T00:00:00Z", libraries: libraries(true), coveredLibraries: ["v-films"] },
+      });
+
+      expect(watchedIds()).toEqual(["tt1"]);
+      expect(storedDetails.get("c1")).toEqual(expect.objectContaining({ coveredLibraries: ["v-films", "v-tv"] }));
+    });
+
+    it("isn't, when the libraries read are the same as last time", async () => {
+      serve();
+      await sync({
+        ...connection,
+        details: { ...connection.details, lastSyncedAt: "2026-01-05T00:00:00Z", libraries: libraries(true), coveredLibraries: ["v-films", "v-tv"] },
+      });
+
+      expect(watchedIds()).toEqual([]);
+    });
+  });
+
   it("only indexes when importing watch progress is off", async () => {
     fetchMock.mockImplementation(async () => json({ Items: [], TotalRecordCount: 0 }));
 
-    await servers.syncMediaServer({ ...connection, details: { ...connection.details, importWatchState: false } } as never, logger);
+    await sync({ ...connection, details: { ...connection.details, importWatchState: false } });
 
     expect(importTrackerItems).not.toHaveBeenCalled();
     expect(connections.updateConnectionState).toHaveBeenCalled();
@@ -389,12 +521,19 @@ describe("syncing a Plex server", () => {
             Directory: [
               { key: "1", type: "movie", title: "Films" },
               { key: "3", type: "show", title: "Kids" },
+              { key: "4", type: "show", title: "TV" },
             ],
           },
         });
       }
       if (url.pathname === "/library/sections/1/all") {
         return json({ MediaContainer: { Metadata: [{ ratingKey: "42", Guid: [{ id: "imdb://tt1" }], viewCount: 1, lastViewedAt: 1767225600 }] } });
+      }
+      if (url.pathname === "/library/sections/4/all" && url.searchParams.get("type") === "2") {
+        return json({ MediaContainer: { Metadata: [{ ratingKey: "s9", Guid: [{ id: "imdb://tt9" }] }] } });
+      }
+      if (url.pathname === "/library/sections/4/all" && url.searchParams.get("type") === "4") {
+        return json({ MediaContainer: { Metadata: [{ ratingKey: "e7", grandparentRatingKey: "s9", parentIndex: 1, index: 2 }] } });
       }
       throw new Error(`unexpected ${url}`);
     });
@@ -413,15 +552,16 @@ describe("syncing a Plex server", () => {
         libraries: [
           { id: "1", name: "Films", kind: "movies", selected: true },
           { id: "3", name: "Kids", kind: "shows", selected: false },
+          { id: "4", name: "TV", kind: "shows", selected: true },
         ],
       },
       state: {},
     };
 
-    await servers.syncMediaServer(connection as never, logger);
+    await sync(connection);
 
     expect(fetchMock.mock.calls.map(([input]) => new URL(input as string).pathname)).not.toContain("/library/sections/3/all");
-    expect(connections.updateConnectionState).toHaveBeenCalledWith("p1", { movies: { tt1: "42" }, episodes: {} });
+    expect(connections.updateConnectionState).toHaveBeenCalledWith("p1", { movies: { tt1: "42" }, episodes: { "tt9:1:2": "e7" } });
   });
 });
 

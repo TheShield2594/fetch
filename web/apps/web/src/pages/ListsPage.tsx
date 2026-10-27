@@ -738,7 +738,8 @@ export function ListsPage() {
                 onMessage={showToast}
                 onChanged={() => {
                   void loadLists();
-                  void loadItems(selectedList.id);
+                  // Not if another list was picked while the action ran.
+                  if (selectedListIdRef.current === selectedList.id) void loadItems(selectedList.id);
                 }}
               />
             )}

@@ -558,6 +558,22 @@ describe("lists routes", () => {
         PROFILE_ID
       );
     });
+
+    it("sends the removal to the linked list for a custom list", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "custom" }));
+      prismaMock.listItem.deleteMany.mockResolvedValue({ count: 1 });
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "DELETE", url: `/lists/${LIST_ID}/items/tt1?type=movie` });
+
+      expect(res.statusCode).toBe(204);
+      expect(listLinks.pushListLinkChange).toHaveBeenCalledWith(
+        LIST_ID,
+        "remove",
+        { type: "movie", imdbId: "tt1" },
+        expect.anything()
+      );
+    });
   });
 
   describe("DELETE /lists/:listId/items/:type/:imdbId", () => {
@@ -571,7 +587,12 @@ describe("lists routes", () => {
       expect(res.statusCode).toBe(204);
       expect(prismaMock.listItem.deleteMany).toHaveBeenCalledWith({
         where: { listId: LIST_ID, type: "movie", imdbId: "tt1" },
-      });
+      });      expect(listLinks.pushListLinkChange).toHaveBeenCalledWith(
+        LIST_ID,
+        "remove",
+        { type: "movie", imdbId: "tt1" },
+        expect.anything()
+      );
     });
 
     it("404s when the row does not exist", async () => {

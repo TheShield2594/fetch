@@ -372,7 +372,8 @@ export const projectMdbListWatchlist = (pages: WatchlistPage[]): ImportedWatchli
 const readPages = async <T extends { pagination?: WatchedPage["pagination"] }>(
   path: string,
   token: string,
-  extra: Record<string, string> = {}
+  extra: Record<string, string> = {},
+  options: { requireComplete?: boolean } = {}
 ): Promise<T[]> => {
   const pages: T[] = [];
   const initial = { ...extra, limit: String(PAGE_LIMIT) };
@@ -391,8 +392,13 @@ const readPages = async <T extends { pagination?: WatchedPage["pagination"] }>(
     ) {
       query = { ...initial, offset: String((pagination?.offset ?? 0) + (pagination?.limit ?? PAGE_LIMIT)) };
     } else {
-      break;
+      return pages;
     }
+  }
+  // Out of pages with more to come. A linked list's sync would read the rest
+  // as removed, so it asks for the whole list or nothing.
+  if (options.requireComplete) {
+    throw new MdbListError(`MDBList list is longer than ${MAX_PAGES} pages and can't be read in full`);
   }
   return pages;
 };
@@ -572,7 +578,12 @@ export const fetchMdbListListItems = async (
   listId: string
 ): Promise<{ type: "movie" | "series"; imdbId: string }[]> => {
   const token = await requireToken(profileId);
-  const pages = await readPages<WatchlistPage>(`/lists/${encodeURIComponent(listId)}/items`, token, { unified: "true" });
+  const pages = await readPages<WatchlistPage>(
+    `/lists/${encodeURIComponent(listId)}/items`,
+    token,
+    { unified: "true" },
+    { requireComplete: true }
+  );
   return projectMdbListWatchlist(pages).map(({ type, imdbId }) => ({ type, imdbId }));
 };
 

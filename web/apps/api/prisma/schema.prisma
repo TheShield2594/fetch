@@ -204,6 +204,8 @@ model ListLink {
   // The service's own id for the list.
   remoteId     String
   remoteName   String
+  // A Fetch rename not yet accepted by the service; the next sync retries it.
+  pendingName  String?
   // `type:imdbId` keys both sides agreed on after the last sync, which is how
   // the next one tells an add on one side from a removal on the other. Null
   // until the first sync, which merges both sides.

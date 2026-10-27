@@ -64,10 +64,14 @@ export function ListLinkPanel({
     return () => controller.abort();
   }, [open, provider]);
 
-  const run = async (action: () => Promise<string>) => {
+  // An action resolves to its message; a sync that ran but recorded an error
+  // resolves with the error tone, and the link is reloaded either way.
+  const run = async (action: () => Promise<string | { error: string }>) => {
     setBusy(true);
     try {
-      onMessage(await action(), "success");
+      const result = await action();
+      if (typeof result === "string") onMessage(result, "success");
+      else onMessage(result.error, "error");
       onChanged();
     } catch (err) {
       onMessage(err instanceof Error ? err.message : "Something went wrong", "error");
@@ -80,14 +84,14 @@ export function ListLinkPanel({
     run(async () => {
       const { sync } = await api.linkList(list.id, provider, remoteId);
       setOpen(false);
+      if (sync.error) return { error: `Linked to ${SERVICE_NAMES[provider]}, but the first sync failed: ${sync.error}` };
       return `Linked to ${SERVICE_NAMES[provider]}. ${describeListLinkSync(sync)}.`;
     });
 
   const handleSync = () =>
     run(async () => {
       const { sync } = await api.syncListLink(list.id);
-      if (sync.error) throw new Error(sync.error);
-      return describeListLinkSync(sync);
+      return sync.error ? { error: sync.error } : describeListLinkSync(sync);
     });
 
   const handleUnlink = () =>

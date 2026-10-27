@@ -105,6 +105,31 @@ class CollectionsDataStore @Inject constructor(
         }
     }
 
+    /** Keeps the rows made from a local list named after it when the list is renamed. */
+    suspend fun renameLocalListSources(profileId: Int, listId: String, title: String) {
+        factory.get(profileId, FEATURE).edit { prefs ->
+            val current = parseCollections(prefs[collectionsKey])
+            var changed = false
+            val renamed = current.map { collection ->
+                collection.copy(
+                    folders = collection.folders.map { folder ->
+                        folder.copy(
+                            sources = folder.sources.map { source ->
+                                if (source is LocalListCollectionSource && source.listId == listId && source.title != title) {
+                                    changed = true
+                                    source.copy(title = title)
+                                } else {
+                                    source
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+            if (changed) prefs[collectionsKey] = gson.toJson(renamed.map { it.toSerializable() })
+        }
+    }
+
     fun generateId(): String = UUID.randomUUID().toString()
 
     fun exportToJson(collections: List<Collection>): String {

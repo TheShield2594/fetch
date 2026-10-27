@@ -6,6 +6,7 @@ CREATE TABLE "ListLink" (
     "provider" TEXT NOT NULL,
     "remoteId" TEXT NOT NULL,
     "remoteName" TEXT NOT NULL,
+    "pendingName" TEXT,
     "snapshot" JSONB,
     "lastSyncedAt" TIMESTAMPTZ(6),
     "lastError" TEXT,

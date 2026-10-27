@@ -84,11 +84,13 @@ function PasswordSignIn({ provider, onSignedIn }: { provider: "jellyfin" | "emby
   );
 }
 
-function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => void }) {
+function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => Promise<void> }) {
   const [busy, setBusy] = useState<"sync" | "remove" | "toggle" | "libraries" | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const label = `${server.serverName} (${PROVIDER_NAMES[server.provider]})`;
+  // An API from before libraries could be chosen leaves the field out.
+  const libraries = server.libraries ?? null;
 
   const run = async (kind: "sync" | "remove" | "toggle" | "libraries", action: () => Promise<void>) => {
     setBusy(kind);
@@ -121,7 +123,7 @@ function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => 
             onClick={() =>
               void run("sync", async () => {
                 setResult(mediaServerSummaryText(await api.syncMediaServer(server.id)));
-                onChange();
+                await onChange();
               })
             }
           >
@@ -135,7 +137,7 @@ function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => 
             onClick={() =>
               void run("remove", async () => {
                 await api.removeMediaServer(server.id);
-                onChange();
+                await onChange();
               })
             }
           >
@@ -153,7 +155,7 @@ function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => 
           onChange={(e) =>
             void run("toggle", async () => {
               await api.setMediaServerImport(server.id, e.target.checked);
-              onChange();
+              await onChange();
             })
           }
         />
@@ -161,12 +163,12 @@ function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => 
       </label>
       <fieldset className="space-y-1">
         <legend className="text-xs font-medium" style={{ color: "var(--text)" }}>Libraries to read</legend>
-        {server.libraries === null ? (
+        {libraries === null ? (
           <p className="text-xs" style={{ color: "var(--text-mute)" }}>All of them, until the server lists them.</p>
-        ) : server.libraries.length === 0 ? (
+        ) : libraries.length === 0 ? (
           <p className="text-xs" style={{ color: "var(--text-mute)" }}>The server has no film or series libraries.</p>
         ) : (
-          server.libraries.map((library) => (
+          libraries.map((library) => (
             <label key={library.id} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-dim)" }}>
               <input
                 type="checkbox"
@@ -174,11 +176,11 @@ function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => 
                 disabled={busy !== null}
                 onChange={(e) =>
                   void run("libraries", async () => {
-                    const selected = server
-                      .libraries!.filter((other) => (other.id === library.id ? e.target.checked : other.selected))
+                    const selected = libraries
+                      .filter((other) => (other.id === library.id ? e.target.checked : other.selected))
                       .map((other) => other.id);
                     await api.setMediaServerLibraries(server.id, selected);
-                    onChange();
+                    await onChange();
                   })
                 }
               />
@@ -194,7 +196,7 @@ function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => 
           onClick={() =>
             void run("libraries", async () => {
               await api.refreshMediaServerLibraries(server.id);
-              onChange();
+              await onChange();
             })
           }
         >
@@ -304,7 +306,7 @@ export function MediaServersSettings() {
       {servers && servers.length > 0 && (
         <ul className="space-y-2" aria-label="Signed-in servers">
           {servers.map((server) => (
-            <ServerRow key={server.id} server={server} onChange={() => void reload()} />
+            <ServerRow key={server.id} server={server} onChange={reload} />
           ))}
         </ul>
       )}

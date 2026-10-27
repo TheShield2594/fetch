@@ -15,6 +15,7 @@ import javax.inject.Singleton
 @Singleton
 class LocalTrackingListManager @Inject constructor(
     private val store: LocalListsDataStore,
+    private val collections: CollectionsDataStore,
     private val profileManager: ProfileManager
 ) : TrackingListManager {
     override val capabilities: TrackingListManagementCapabilities = LocalListManagementCapabilities
@@ -33,8 +34,12 @@ class LocalTrackingListManager @Inject constructor(
 
     override suspend fun updateList(key: String, name: String, description: String?, privacy: LibraryListPrivacy) {
         val id = requireListId(key)
-        store.update(profileManager.activeProfileId.value) { lists ->
+        val profileId = profileManager.activeProfileId.value
+        store.update(profileId) { lists ->
             LocalListsReducer.update(lists, id, name, description, System.currentTimeMillis())
+        }
+        store.getLists(profileId).firstOrNull { it.id == id }?.let { list ->
+            collections.renameLocalListSources(profileId, id, list.name)
         }
     }
 

@@ -4,12 +4,13 @@ import { prisma } from "./prisma.js";
 import {
   type Connection,
   type ConnectionProvider,
+  changeConnectionDetails,
   deleteConnectionById,
+  getConnection,
   getProfileConnectionById,
   listConnections,
   listProfileConnections,
   saveConnection,
-  updateConnectionDetails,
   updateConnectionState,
 } from "./connections.js";
 import { connectionKvKey } from "./profile-connections.js";
@@ -58,6 +59,12 @@ export type MediaServerDetails = {
    * (new on the server since) is read, so the default is all of them.
    */
   libraries?: MediaServerLibrary[];
+  /**
+   * The libraries the last sync read. One chosen since (or new on the server)
+   * wasn't, so the next sync reads it in full rather than only what changed
+   * since `lastSyncedAt`. Missing when that sync read the whole server.
+   */
+  coveredLibraries?: string[];
 };
 export type MediaServerLibraryKind = "movies" | "shows" | "mixed";
 export type MediaServerLibrary = { id: string; name: string; kind: MediaServerLibraryKind; selected: boolean };
@@ -81,6 +88,8 @@ const MAX_ITEMS = 50_000;
 const PLEX_TV = "https://plex.tv";
 const CLIENT_VERSION = "web";
 const IMDB_ID = /^tt\d+$/;
+/** Libraries kept per server, and the most a selection may name. */
+export const MAX_LIBRARIES = 500;
 
 /** A per-profile id the servers know this sign-in by, stable across restarts. */
 const deviceId = (profileId: string) =>
@@ -141,10 +150,26 @@ export const mergeLibraries = (
   previous: MediaServerLibrary[] | undefined,
   current: Omit<MediaServerLibrary, "selected">[]
 ): MediaServerLibrary[] =>
-  current.map((library) => ({
+  current.slice(0, MAX_LIBRARIES).map((library) => ({
     ...library,
     selected: previous?.find((known) => known.id === library.id)?.selected ?? true,
   }));
+
+/**
+ * The libraries to store at a sign-in: the ones just listed, keeping what was
+ * chosen if this server was signed in to before (or the stored list, if the
+ * server wouldn't list them now).
+ */
+const knownLibraries = async (
+  profileId: string,
+  provider: MediaServerProvider,
+  externalKey: string,
+  listed: Omit<MediaServerLibrary, "selected">[] | null
+): Promise<MediaServerLibrary[] | undefined> => {
+  const previous = (await getConnection<MediaServerCredentials, MediaServerDetails>(profileId, provider, externalKey))?.details
+    .libraries;
+  return listed ? mergeLibraries(previous, listed) : previous;
+};
 
 // ─── Plex ───
 
@@ -301,10 +326,12 @@ export const pollPlexLink = async (profileId: string): Promise<PlexLinkPoll> => 
     // Listed now so they can be chosen before the first sync; a server that
     // won't list them yet still signs in, and the sync lists them.
     const libraries = await plexLibraries(address, profileId, token, scope).catch(() => null);
+    const externalKey = `${server.clientIdentifier}|${userId}`;
+    const known = await knownLibraries(profileId, "plex", externalKey, libraries);
     await saveConnection<MediaServerCredentials, MediaServerDetails>({
       profileId,
       provider: "plex",
-      externalKey: `${server.clientIdentifier}|${userId}`,
+      externalKey,
       credentials: { token },
       details: {
         serverName: server.name?.trim() || new URL(address).host,
@@ -314,7 +341,7 @@ export const pollPlexLink = async (profileId: string): Promise<PlexLinkPoll> => 
         userName,
         importWatchState: true,
         lastSyncedAt: null,
-        ...(libraries ? { libraries: mergeLibraries(undefined, libraries) } : {}),
+        ...(known ? { libraries: known } : {}),
       },
     });
     saved += 1;
@@ -401,6 +428,7 @@ export const signInMediaBrowser = async (
   if (!token || !userId || !serverId) throw new MediaServerError("The server refused the sign-in", "auth");
 
   const libraries = await mediaBrowserLibraries(provider, { address, userId }, profileId, token, scope).catch(() => null);
+  const known = await knownLibraries(profileId, provider, `${serverId}|${userId}`, libraries);
   const details: MediaServerDetails = {
     serverName: info?.ServerName?.trim() || new URL(address).host,
     address,
@@ -409,7 +437,7 @@ export const signInMediaBrowser = async (
     userName: result?.User?.Name ?? input.username,
     importWatchState: true,
     lastSyncedAt: null,
-    ...(libraries ? { libraries: mergeLibraries(undefined, libraries) } : {}),
+    ...(known ? { libraries: known } : {}),
   };
   await saveConnection<MediaServerCredentials, MediaServerDetails>({
     profileId,
@@ -685,9 +713,12 @@ const fetchLibraries = (connection: ServerConnection, scope: OutboundScope) => {
 export const refreshMediaServerLibraries = async (connection: ServerConnection): Promise<MediaServerDetails> => {
   if (!connection.credentials) throw new MediaServerError("The stored sign-in can't be read; sign in again", "auth");
   const scope = await outboundScopeForProfile(connection.profileId);
-  const libraries = mergeLibraries(connection.details.libraries, await fetchLibraries(connection, scope));
-  const details = { ...connection.details, libraries };
-  await updateConnectionDetails<MediaServerDetails>(connection.id, details);
+  const listed = await fetchLibraries(connection, scope);
+  const details = await changeConnectionDetails<MediaServerDetails>(connection.id, (current) => ({
+    ...current,
+    libraries: mergeLibraries(current.libraries, listed),
+  }));
+  if (!details) throw new MediaServerError("That server was removed");
   return details;
 };
 
@@ -760,8 +791,20 @@ export const syncMediaServer = async (connection: ServerConnection, logger: Fast
   const scope = await outboundScopeForProfile(connection.profileId);
   const provider = connection.provider as MediaServerProvider;
   // The library list is read fresh each time, so one added on the server is
-  // picked up (and read) without a visit to Settings.
-  const libraries = mergeLibraries(connection.details.libraries, await fetchLibraries(connection, scope));
+  // picked up (and read) without a visit to Settings. Jellyfin and Emby read
+  // their items without it if the views can't be listed, as before libraries
+  // could be chosen, so a views hiccup doesn't skip the sync.
+  let listed: Omit<MediaServerLibrary, "selected">[] | null;
+  try {
+    listed = await fetchLibraries(connection, scope);
+  } catch (error) {
+    if (provider === "plex") throw error;
+    logger.warn({ err: error, provider }, "Listing a media server's libraries failed; using the stored list");
+    listed = null;
+  }
+  const libraries = listed ? mergeLibraries(connection.details.libraries, listed) : connection.details.libraries ?? [];
+  const listKnown = listed !== null || connection.details.libraries !== undefined;
+  const reading = libraries.filter((library) => library.selected).map((library) => library.id);
   const titles =
     provider === "plex"
       ? await readPlex(connection, scope, libraries)
@@ -773,8 +816,13 @@ export const syncMediaServer = async (connection: ServerConnection, logger: Fast
   // a day's overlap): the rest was imported then, and re-checking a whole
   // library against the profile every hour is thousands of lookups for nothing.
   // Undated plays are only looked at on the first pass for the same reason.
+  // A library the last sync didn't read (chosen since, or new on the server)
+  // has never been imported, so this pass is a full one; plays already
+  // recorded are skipped by the import, so nothing is added twice.
+  const covered = connection.details.coveredLibraries;
+  const newlyRead = listKnown && covered !== undefined && reading.some((id) => !covered.includes(id));
   const last = connection.details.lastSyncedAt ? Date.parse(connection.details.lastSyncedAt) : null;
-  const cutoff = last === null || Number.isNaN(last) ? null : new Date(last - 24 * 60 * 60 * 1000);
+  const cutoff = newlyRead || last === null || Number.isNaN(last) ? null : new Date(last - 24 * 60 * 60 * 1000);
   const recentWatches = cutoff ? watches.filter((watch) => !watch.undated && watch.watchedAt >= cutoff) : watches;
   const recentResume = cutoff ? resume.filter((row) => row.pausedAt >= cutoff) : resume;
 
@@ -785,10 +833,17 @@ export const syncMediaServer = async (connection: ServerConnection, logger: Fast
     summary = { movies: imported.movies, episodes: imported.episodes, resumePoints, skipped: imported.skipped };
   }
   await updateConnectionState<MediaServerState>(connection.id, state);
-  await updateConnectionDetails<MediaServerDetails>(connection.id, {
-    ...connection.details,
-    libraries,
-    lastSyncedAt: syncedAt.toISOString(),
+  // From the stored details as they are now, so a choice made in Settings
+  // while the server was being read isn't undone.
+  await changeConnectionDetails<MediaServerDetails>(connection.id, (current) => {
+    const next: MediaServerDetails = {
+      ...current,
+      ...(listed ? { libraries: mergeLibraries(current.libraries, listed) } : {}),
+      lastSyncedAt: syncedAt.toISOString(),
+    };
+    if (listKnown) next.coveredLibraries = reading;
+    else delete next.coveredLibraries;
+    return next;
   });
   return summary;
 };

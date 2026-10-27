@@ -198,6 +198,38 @@ services:
     networks:
       - fetch
 
+  # Tells the Fetch TV app where this server is, so its setup wizard lists it
+  # without anyone typing an address. It answers multicast DNS (`_fetch._tcp`)
+  # with the public URLs below and does nothing else: no database, no secrets.
+  # Multicast doesn't cross Docker's bridge network, so this one service runs on
+  # the host network while the api stays where it is. Docker Desktop on macOS
+  # and Windows has no host networking for containers, so there it starts but
+  # isn't heard; type the address on the TV instead. Remove the service if you
+  # don't want the server announced on your LAN.
+  mdns:
+    image: ghcr.io/theshield2594/fetch-api:${FETCH_IMAGE_TAG:-latest}
+    command: ["node", "dist/mdns-advertise.js"]
+    network_mode: host
+    environment:
+      # The port the api is published on (the "7000:7000" mapping above).
+      FETCH_MDNS_PORT: ${FETCH_MDNS_PORT:-7000}
+      # Shown in the TV's server list. Defaults to "Fetch (<host name>)".
+      FETCH_MDNS_NAME: ${FETCH_MDNS_NAME:-}
+      # Sent along so the TV pairs against the address you use, a reverse
+      # proxy's included. The TV checks it answers and falls back to this
+      # host's LAN address when it doesn't.
+      FETCH_API_PUBLIC: ${FETCH_API_PUBLIC:-http://192.168.1.25:7000}
+      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-http://192.168.1.25:7002}
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging: *default-logging
+
   addon:
     image: ghcr.io/theshield2594/fetch-addon:${FETCH_IMAGE_TAG:-latest}
     environment:

@@ -97,6 +97,13 @@ import androidx.media3.common.Tracks
 private const val MPV_AFR_SETTLE_DELAY_MS = 2_000L
 private const val AUDIO_DELAY_REFRESH_DEBOUNCE_MS = 120L
 private const val PLAYER_RELEASE_TIMEOUT_MS = 3000L
+/**
+ * Pause between releasing a previous ExoPlayer and building its replacement (stream switch,
+ * engine failover, retry). Some TV SoCs free the old instance's hardware decoders and audio
+ * track a beat after release() returns, and claiming them again at once can fail codec init.
+ * Only the part of this window not already spent since the last release is waited out, so a
+ * first start, or a rebuild after a slow preflight, does not wait at all.
+ */
 private const val PLAYER_REBUILD_SETTLE_DELAY_MS = 120L
 private const val ADAPTIVE_QUALITY_INCREASE_MIN_DURATION_MS = 2_000
 private const val ADAPTIVE_INITIAL_BITRATE_ESTIMATE_BPS = 25_000_000L
@@ -144,6 +151,7 @@ private fun PlayerRuntimeController.disposeExoPlayerBeforeRebuild() {
         runCatching { player.clearMediaItems() }
         runCatching { player.clearVideoSurface() }
         runCatching { player.release() }
+        lastExoPlayerReleaseElapsedMs = SystemClock.elapsedRealtime()
     }
     _exoPlayer = null
     holdExoTracksAcrossStop = false
@@ -1003,7 +1011,10 @@ internal fun PlayerRuntimeController.initializePlayer(
             }
 
             disposeExoPlayerBeforeRebuild()
-            delay(PLAYER_REBUILD_SETTLE_DELAY_MS)
+            if (lastExoPlayerReleaseElapsedMs > 0L) {
+                val sinceReleaseMs = SystemClock.elapsedRealtime() - lastExoPlayerReleaseElapsedMs
+                delay((PLAYER_REBUILD_SETTLE_DELAY_MS - sinceReleaseMs).coerceAtLeast(0L))
+            }
             if (!afrPreflightGate.isCurrent(afrPreflightToken)) return@launch
 
             _exoPlayer = if (useLibass) {

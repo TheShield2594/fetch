@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.player
 
 import android.content.Intent
 import android.media.audiofx.AudioEffect
+import android.os.SystemClock
 import kotlinx.coroutines.flow.update
 
 internal fun PlayerRuntimeController.releasePlayer() {
@@ -81,6 +82,7 @@ internal fun PlayerRuntimeController.releasePlayer(
         runCatching { player.clearMediaItems() }
         runCatching { player.clearVideoSurface() }
         runCatching { player.release() }
+        lastExoPlayerReleaseElapsedMs = SystemClock.elapsedRealtime()
     }
     _exoPlayer = null
     holdExoTracksAcrossStop = false

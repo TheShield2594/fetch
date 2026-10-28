@@ -1,6 +1,6 @@
 # 020 — Motion token cleanup: retire dead tokens, unify shimmer and focus scales, tokenize and defer the splash fade
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; ran with 017 deferred, which needed none of the retired tokens)
 - **Commit**: ee8dd84
 - **Severity**: LOW
 - **Category**: 7. Cohesion & tokens

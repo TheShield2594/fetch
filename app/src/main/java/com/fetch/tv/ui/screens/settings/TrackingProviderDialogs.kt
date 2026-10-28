@@ -701,7 +701,7 @@ private fun TrackingBrandPrimaryButton(
             disabledContainerColor = Color.White.copy(alpha = 0.34f),
             disabledContentColor = Color.White.copy(alpha = 0.7f)
         ),
-        scale = ButtonDefaults.scale(focusedScale = 1.02f),
+        scale = ButtonDefaults.scale(focusedScale = FetchTheme.focus.scale),
         shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
         contentPadding = PaddingValues(0.dp)
     ) {
@@ -752,7 +752,7 @@ private fun TrackingBrandFooterButton(
             disabledContainerColor = Color.Transparent,
             disabledContentColor = Color.White.copy(alpha = 0.38f)
         ),
-        scale = ButtonDefaults.scale(focusedScale = 1.02f),
+        scale = ButtonDefaults.scale(focusedScale = FetchTheme.focus.scale),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Box(

@@ -713,7 +713,7 @@ private fun ManageFromPhoneCard(
             )
         ),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
     ) {
         Row(
             modifier = Modifier
@@ -775,7 +775,7 @@ private fun CatalogOrderEntryCard(onClick: () -> Unit) {
             )
         ),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
     ) {
         Row(
             modifier = Modifier
@@ -864,7 +864,7 @@ private fun NavigationEntryCard(
             )
         ),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
     ) {
         Row(
             modifier = Modifier
@@ -930,7 +930,7 @@ private fun RefreshAddonsEntryCard(
             )
         ),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
     ) {
         Row(
             modifier = Modifier

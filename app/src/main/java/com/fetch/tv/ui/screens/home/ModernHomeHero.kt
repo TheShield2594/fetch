@@ -68,7 +68,6 @@ import coil3.request.crossfade
 import com.fetch.tv.ui.util.LocalRecompositionHighlighterEnabled
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.recompositionHighlighter
-import coil3.request.transitionFactory
 import com.fetch.tv.R
 import kotlinx.coroutines.delay
 import com.fetch.tv.ui.components.ImdbRatingSourceLabel

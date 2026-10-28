@@ -18,6 +18,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -50,6 +51,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.MutableState
@@ -172,6 +174,7 @@ import com.fetch.tv.ui.screens.addon.EssentialAddonSetupScreen
 import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.theme.FetchComponents
 import com.fetch.tv.ui.theme.FetchLayout
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.brandWordmarkResource
 import com.fetch.tv.ui.util.LocalFastHorizontalNavigationEnabled
@@ -1278,28 +1281,40 @@ open class MainActivity : ComponentActivity() {
                         complete = startupLoadingState.complete,
                         destination = startupDestination
                     )
-                    val animatedSplashAlpha by animateFloatAsState(
+                    val splashFade = animateFloatAsState(
                         targetValue = if (showSplash) 1f else 0f,
-                        animationSpec = tween(if (showSplash) 0 else 400),
+                        animationSpec = if (showSplash) {
+                            snap()
+                        } else {
+                            tween(
+                                durationMillis = FetchMotion.tokens.durations.splashExit,
+                                easing = FetchMotion.tokens.easings.out
+                            )
+                        },
                         label = "startupSplashAlpha"
                     )
-                    val splashAlpha = if (showSplash) 1f else animatedSplashAlpha
-                    LaunchedEffect(splashAlpha, startupDestination) {
-                        if (splashAlpha == 0f && startupDestination != StartupDestination.ProfileSelection) {
+                    // Composition only needs to know whether the splash is still up; the alpha is read
+                    // in the draw layer, so the fade doesn't recompose this scope on every frame.
+                    val splashFadeVisible by remember { derivedStateOf { splashFade.value > 0f } }
+                    val splashOnScreen = showSplash || splashFadeVisible
+                    LaunchedEffect(splashOnScreen, startupDestination) {
+                        if (!splashOnScreen && startupDestination != StartupDestination.ProfileSelection) {
                             focusedSplashColor = null
                             focusedSplashBgUrl = null
                             focusedSplashCacheKey = null
                             focusedSplashTheme = null
                         }
                     }
-                    if (splashAlpha > 0f) {
+                    if (splashOnScreen) {
                         com.fetch.tv.ui.components.StartupSplashScreen(
                             profileColorHex = splashBackground.profileColorHex,
                             profileBackgroundUrl = splashBackground.backgroundUrl,
                             backgroundCacheKey = splashBackground.backgroundCacheKey,
                             skipGradient = splashBackground.skipGradient,
                             brandWordmarkRes = splashBackground.brandWordmarkRes,
-                            modifier = Modifier.graphicsLayer { alpha = splashAlpha }
+                            modifier = Modifier.graphicsLayer {
+                                alpha = if (showSplash) 1f else splashFade.value
+                            }
                         )
                     }
                     }

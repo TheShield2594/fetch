@@ -36,6 +36,8 @@ data class MetaDetailsUiState(
     val isInLibrary: Boolean = false,
     val nextToWatch: NextToWatch? = null,
     val episodeProgressMap: Map<Pair<Int, Int>, WatchProgress> = emptyMap(),
+    /** The active profile may not see this title's trailers (above its limit, or hidden). */
+    val trailersBlocked: Boolean = false,
     val trailerUrl: String? = null,
     val trailerAudioUrl: String? = null,
     val isTrailerPlaying: Boolean = false,
@@ -133,4 +135,15 @@ sealed class MetaDetailsEvent {
     data object OnRemovalCancelled : MetaDetailsEvent()
     data object OnClearMessage : MetaDetailsEvent()
     data object OnLifecyclePause : MetaDetailsEvent()
+}
+
+/** Leaves out More like this and collection titles the active profile may not see. */
+internal fun MetaDetailsUiState.filteredForProfile(
+    parentalControls: com.fetch.tv.core.parental.ParentalControls
+): MetaDetailsUiState {
+    if (!parentalControls.filtersContent()) return this
+    val similar = parentalControls.filterPreviews(moreLikeThis)
+    val inCollection = parentalControls.filterPreviews(collection)
+    if (similar === moreLikeThis && inCollection === collection) return this
+    return copy(moreLikeThis = similar, collection = inCollection)
 }

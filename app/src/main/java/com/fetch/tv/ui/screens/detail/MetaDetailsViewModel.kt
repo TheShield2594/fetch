@@ -106,6 +106,7 @@ class MetaDetailsViewModel @Inject constructor(
     private val metaDetailsSessionState: MetaDetailsSessionState,
     private val watchedSeriesStateHolder: com.fetch.tv.data.local.WatchedSeriesStateHolder,
     private val bestMatchPreviewer: com.fetch.tv.core.streams.BestMatchPreviewer,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -153,9 +154,10 @@ class MetaDetailsViewModel @Inject constructor(
     }
     private val shuffleVisit = System.nanoTime()
     val uiState: StateFlow<MetaDetailsUiState> = combine(
-        _uiState, episodeShuffleStore.profiles, watchProgressRepository.continueWatching
-    ) { state, profile, progress ->
+        _uiState, episodeShuffleStore.profiles, watchProgressRepository.continueWatching, parentalControls.filterRevision
+    ) { state, profile, progress, _ ->
         applyDetailShuffle(state, profile, progress, episodeShuffle, shuffleVisit, localizedContext)
+            .filteredForProfile(parentalControls)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, MetaDetailsUiState())
 
     private val _posterCardCornerRadiusDp = MutableStateFlow(12)
@@ -2868,7 +2870,23 @@ class MetaDetailsViewModel @Inject constructor(
         val meta = _uiState.value.meta ?: return
 
         trailerFetchJob?.cancel()
+        // A restricted profile gets no trailer for a title above its limit or hidden from it.
+        // Blocked until the rating is known, so nothing autoplays while it resolves.
+        val checkProfile = parentalControls.filtersContent()
+        if (checkProfile) blockTrailers()
         trailerFetchJob = viewModelScope.launch {
+            if (checkProfile) {
+                val allowed = parentalControls.isAllowedResolved(
+                    com.fetch.tv.core.parental.CertificationQuery(
+                        contentId = meta.id,
+                        type = meta.type,
+                        imdbId = meta.imdbId,
+                        knownCertification = meta.ageRating
+                    )
+                )
+                if (!allowed) return@launch
+                _uiState.update { state -> if (state.trailersBlocked) state.copy(trailersBlocked = false) else state }
+            }
             _uiState.update { state ->
                 if (state.isTrailerLoading) state else state.copy(isTrailerLoading = true)
             }
@@ -2931,6 +2949,23 @@ class MetaDetailsViewModel @Inject constructor(
             if (url != null && isPlayButtonFocused && AppFeaturePolicy.inAppTrailerPlaybackEnabled) {
                 startIdleTimer()
             }
+        }
+    }
+
+    private fun blockTrailers() {
+        idleTimerJob?.cancel()
+        dismissSharedTrailerOverlay()
+        _uiState.update { state ->
+            state.copy(
+                trailersBlocked = true,
+                trailerUrl = null,
+                trailerAudioUrl = null,
+                isTrailerLoading = false,
+                isTrailerPlaying = false,
+                isBackgroundTrailerPlaying = false,
+                showTrailerControls = false,
+                hideLogoDuringTrailer = false
+            )
         }
     }
 
@@ -3020,6 +3055,7 @@ class MetaDetailsViewModel @Inject constructor(
     }
 
     private fun handleSharedTrailerSelected(trailer: MetaTrailer) {
+        if (_uiState.value.trailersBlocked) return
         val ytId = trailer.ytId?.trim().orEmpty()
         if (ytId.isBlank()) {
             _uiState.update { state ->

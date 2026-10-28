@@ -221,6 +221,12 @@ class ParentalControls @Inject constructor(
         return items.filter { isAllowed(query(it)) }
     }
 
+    fun filterPreviews(items: List<MetaPreview>): List<MetaPreview> {
+        if (!filtersContent()) return items
+        val filtered = items.filter(::isAllowed)
+        return if (filtered.size == items.size) items else filtered
+    }
+
     fun filterRow(row: CatalogRow): CatalogRow {
         if (!filtersContent()) return row
         val filtered = row.items.filter(::isAllowed)

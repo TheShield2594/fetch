@@ -17,8 +17,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class LibraryServerShelf(
@@ -31,11 +33,19 @@ data class LibraryServerShelf(
 @HiltViewModel
 class LibraryServersViewModel @Inject constructor(
     private val serverCatalog: ServerCatalog,
-    repository: ServerRepository
+    repository: ServerRepository,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls
 ) : ViewModel() {
     val servers: StateFlow<ServersUiState> = repository.uiState
     private val _shelves = MutableStateFlow<List<LibraryServerShelf>?>(null)
-    val shelves: StateFlow<List<LibraryServerShelf>?> = _shelves.asStateFlow()
+    // Titles above the active profile's limit, or hidden from it, are left out of each shelf.
+    val shelves: StateFlow<List<LibraryServerShelf>?> = combine(_shelves, parentalControls.filterRevision) { shelves, _ ->
+        if (shelves == null || !parentalControls.filtersContent()) {
+            shelves
+        } else {
+            shelves.map { shelf -> shelf.copy(row = shelf.row?.let(parentalControls::filterRow)) }
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     private var loadJob: Job? = null
     private var loadedRevision: Int? = null
     var focusedShelfKey: String? = null

@@ -50,13 +50,16 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -131,14 +134,23 @@ class FolderDetailViewModel @Inject constructor(
     private val traktPublicListSourceResolver: TraktPublicListSourceResolver,
     private val fetchListSourceResolver: com.fetch.tv.data.website.FetchListSourceResolver,
     private val localListSourceResolver: com.fetch.tv.data.local.LocalListSourceResolver,
-    val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController
+    val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls
 ) : ViewModel() {
 
     private val collectionId: String = savedStateHandle["collectionId"] ?: ""
     private val folderId: String = savedStateHandle["folderId"] ?: ""
 
     private val _uiState = MutableStateFlow(FolderDetailUiState())
-    val uiState: StateFlow<FolderDetailUiState> = _uiState.asStateFlow()
+    // Titles above the active profile's limit, or hidden from it, are left out of every tab.
+    // The Home-layout rows are filtered when they're built (rebuildFollowLayoutState).
+    val uiState: StateFlow<FolderDetailUiState> = combine(_uiState, parentalControls.filterRevision) { state, _ ->
+        if (!parentalControls.filtersContent()) {
+            state
+        } else {
+            state.copy(tabs = state.tabs.map { tab -> tab.copy(catalogRow = tab.catalogRow?.let(parentalControls::filterRow)) })
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, FolderDetailUiState())
 
     private var movieWatchedJob: Job? = null
     private var enrichFocusJob: Job? = null
@@ -191,6 +203,9 @@ class FolderDetailViewModel @Inject constructor(
         posterOptions.bind(viewModelScope)
         loadFolder()
         observeWatchedStatusCombined()
+        viewModelScope.launch {
+            parentalControls.filterRevision.drop(1).collect { rebuildFollowLayoutState() }
+        }
         viewModelScope.launch {
             mdbListSettingsDataStore.settings.distinctUntilChanged().collect { currentMdbListSettings = it }
         }
@@ -455,7 +470,7 @@ class FolderDetailViewModel @Inject constructor(
         val allRows = run {
             sourceTabs.map { tab ->
                 if (tab.catalogRow != null) {
-                    tab.catalogRow
+                    parentalControls.filterRow(tab.catalogRow)
                 } else if (tab.isLoading) {
                     // Generate a placeholder CatalogRow with shimmer items
                     val (phAddonId, phCatalogId, phBaseUrl) = when (val src = tab.source) {

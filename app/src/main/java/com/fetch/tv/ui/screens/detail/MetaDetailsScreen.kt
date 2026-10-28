@@ -683,7 +683,11 @@ fun MetaDetailsScreen(
                 )
             }
             uiState.meta != null -> {
-                val meta = uiState.meta!!
+                val meta = remember(uiState.meta, uiState.trailersBlocked) {
+                    uiState.meta!!.let { loaded ->
+                        if (uiState.trailersBlocked) loaded.copy(trailers = emptyList(), trailerYtIds = emptyList()) else loaded
+                    }
+                }
                 val context = LocalContext.current
                 val genresString = remember(meta.genres) {
                     meta.genres.takeIf { it.isNotEmpty() }

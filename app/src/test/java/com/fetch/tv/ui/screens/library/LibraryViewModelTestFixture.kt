@@ -67,6 +67,7 @@ internal class LibraryViewModelTestFixture(sorter: TrackingLibrarySorter? = null
         watchProgressRepository = mockk<WatchProgressRepository> { every { observeWatchedMovieIds() } returns flowOf(emptySet()) },
         watchedSeriesStateHolder = mockk<WatchedSeriesStateHolder> { every { fullyWatchedSeriesIds } returns MutableStateFlow(emptySet()) },
         profileManager = mockk<ProfileManager> { every { activeProfileId } returns profile },
+        parentalControls = com.fetch.tv.unrestrictedParentalControls(),
         posterOptions = mockk(relaxed = true), context = mockk(relaxed = true)
     )
 }

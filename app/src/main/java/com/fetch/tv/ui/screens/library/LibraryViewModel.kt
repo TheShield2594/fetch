@@ -23,6 +23,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.fetch.tv.R
@@ -131,6 +133,22 @@ data class LibraryUiState(
         com.fetch.tv.core.poster.CustomPosterScreen.ALL
 )
 
+internal fun LibraryEntry.certificationQuery() = com.fetch.tv.core.parental.CertificationQuery(
+    contentId = id,
+    type = com.fetch.tv.domain.model.ContentType.fromString(type),
+    imdbId = imdbId
+)
+
+internal fun LibraryUiState.filteredForProfile(
+    parentalControls: com.fetch.tv.core.parental.ParentalControls
+): LibraryUiState {
+    if (!parentalControls.filtersContent()) return this
+    return copy(
+        allItems = parentalControls.filterAllowed(allItems) { it.certificationQuery() },
+        visibleItems = parentalControls.filterAllowed(visibleItems) { it.certificationQuery() }
+    )
+}
+
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val libraryRepository: LibraryRepository,
@@ -142,12 +160,16 @@ class LibraryViewModel @Inject constructor(
     private val watchProgressRepository: com.fetch.tv.domain.repository.WatchProgressRepository,
     private val watchedSeriesStateHolder: com.fetch.tv.data.local.WatchedSeriesStateHolder,
     private val profileManager: com.fetch.tv.core.profile.ProfileManager,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LibraryUiState())
-    val uiState: StateFlow<LibraryUiState> = _uiState.asStateFlow()
+    // Titles above the active profile's limit, or hidden from it, are left out.
+    val uiState: StateFlow<LibraryUiState> = combine(_uiState, parentalControls.filterRevision) { state, _ ->
+        state.filteredForProfile(parentalControls)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, LibraryUiState())
 
     private val _watchedMovieIds = MutableStateFlow<Set<String>>(emptySet())
     val watchedMovieIds: StateFlow<Set<String>> = _watchedMovieIds.asStateFlow()

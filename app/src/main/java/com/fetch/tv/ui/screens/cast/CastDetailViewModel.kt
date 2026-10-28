@@ -11,9 +11,12 @@ import com.fetch.tv.data.local.TmdbSettingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,6 +28,7 @@ class CastDetailViewModel @Inject constructor(
     private val watchProgressRepository: com.fetch.tv.domain.repository.WatchProgressRepository,
     private val watchedSeriesStateHolder: com.fetch.tv.data.local.WatchedSeriesStateHolder,
     private val layoutPreferenceDataStore: com.fetch.tv.data.local.LayoutPreferenceDataStore,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -36,7 +40,10 @@ class CastDetailViewModel @Inject constructor(
     private val preferCrew: Boolean = savedStateHandle.get<Boolean>("preferCrew") ?: false
 
     private val _uiState = MutableStateFlow<CastDetailUiState>(CastDetailUiState.Loading)
-    val uiState: StateFlow<CastDetailUiState> = _uiState.asStateFlow()
+    // Credits above the active profile's limit, or hidden from it, are left out.
+    val uiState: StateFlow<CastDetailUiState> = combine(_uiState, parentalControls.filterRevision) { state, _ ->
+        state.filteredForProfile(parentalControls)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, CastDetailUiState.Loading)
 
     private val _watchedMovieIds = MutableStateFlow<Set<String>>(emptySet())
     val watchedMovieIds: StateFlow<Set<String>> = _watchedMovieIds.asStateFlow()

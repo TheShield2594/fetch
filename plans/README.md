@@ -24,7 +24,7 @@ executor to stop and report rather than improvise.
 | 010 | [Focus labels without relayout](010-focus-labels-no-relayout.md) | MEDIUM | Sidebar, detail actions | TODO |
 | 011 | [Subtitle rail fade](011-subtitle-rail-fade.md) | MEDIUM | Player | TODO |
 | 012 | [Playback-start overlays](012-playback-start-overlays.md) | MEDIUM | Player | TODO |
-| 013 | [Play → Fetching morph](013-play-to-fetching-morph.md) | MEDIUM | Stream | TODO |
+| 013 | [Play → Fetching morph](013-play-to-fetching-morph.md) | MEDIUM | Stream | DONE |
 | 014 | [Detail backdrop fades and scroll restore](014-detail-backdrop-fades.md) | MEDIUM | Detail | TODO |
 | 015 | [Card trailer cover fade](015-card-trailer-cover-fade.md) | MEDIUM | Poster cards | TODO |
 | 016 | [Reduced-motion sweep](016-reduced-motion-sweep.md) | MEDIUM | App-wide | TODO |

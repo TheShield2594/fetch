@@ -1,6 +1,6 @@
 # 013 — Play → Fetching morph: 250ms, earlier content reveal, resume by remaining distance
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; shipped 250ms, A/B not run)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: 2. Easing & duration + 4. Interruptibility

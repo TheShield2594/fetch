@@ -458,10 +458,12 @@ fun StreamScreen(
                     if (android.os.SystemClock.elapsedRealtime() - pressedAtMs > PlayLaunchOrigin.MAX_AGE_MS) {
                         launchProgress.snapTo(1f)
                     } else {
+                        // A morph cut short (the panel left and came back) runs only the distance it has left.
+                        val remaining = 1f - launchProgress.value
                         launchProgress.animateTo(
                             targetValue = 1f,
                             animationSpec = tween(
-                                durationMillis = FetchMotion.tokens.durations.hero,
+                                durationMillis = (FetchMotion.tokens.durations.move * remaining).toInt(),
                                 // Linear time; FetchLaunchMorph eases the growth itself.
                                 easing = LinearEasing
                             )

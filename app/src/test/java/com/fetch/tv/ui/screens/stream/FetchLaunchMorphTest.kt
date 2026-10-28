@@ -34,10 +34,10 @@ class FetchLaunchMorphTest {
     }
 
     @Test
-    fun `panel content shows only at the end of the morph`() {
+    fun `panel content fades in over the last 70 percent of the morph`() {
         assertEquals(0f, launchContentAlpha(0f), 0f)
-        assertEquals(0f, launchContentAlpha(0.5f), 0f)
+        assertEquals(0f, launchContentAlpha(0.3f), 0f)
         assertEquals(1f, launchContentAlpha(1f), 0f)
-        assertEquals(0.5f, launchContentAlpha(0.775f), 0.001f)
+        assertEquals(0.5f, launchContentAlpha(0.65f), 0.001f)
     }
 }

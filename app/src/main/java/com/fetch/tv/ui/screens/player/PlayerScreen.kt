@@ -22,6 +22,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -93,6 +94,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -100,11 +105,15 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
@@ -115,6 +124,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -166,6 +176,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.media3.exoplayer.ExoPlayer
 import io.github.peerless2012.ass.media.widget.AssSubtitleView
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
 import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchPrimitives
@@ -1043,29 +1054,17 @@ fun PlayerScreen(
                 } else false
             }
     ) {
-        val postPlayRecommendationPlayerWidth by animateFloatAsState(
-            targetValue = if (postPlayRecommendationState.isVisible) 0.32f else 1f,
-            animationSpec = tween(durationMillis = POST_PLAY_RECOMMENDATION_TRANSITION_MS),
-            label = "postPlayRecommendationPlayerWidth"
+        // 0 = full screen, 1 = docked beside the recommendation. Read only while measuring,
+        // placing and drawing the surface, so the shrink never recomposes PlayerScreen.
+        val postPlayShrink = animateFloatAsState(
+            targetValue = if (postPlayRecommendationState.isVisible) 1f else 0f,
+            animationSpec = if (FetchTheme.fullMotion) FetchMotion.moveTween() else snap(),
+            label = "postPlayShrink"
         )
-        val postPlayRecommendationPlayerPadding by animateDpAsState(
-            targetValue = if (postPlayRecommendationState.isVisible) FetchTheme.spacing.xxl else 0.dp,
-            animationSpec = tween(durationMillis = POST_PLAY_RECOMMENDATION_TRANSITION_MS),
-            label = "postPlayRecommendationPlayerPadding"
-        )
-        val postPlayRecommendationPlayerCornerRadius by animateDpAsState(
-            targetValue = if (postPlayRecommendationState.isVisible) 12.dp else 0.dp,
-            animationSpec = tween(durationMillis = POST_PLAY_RECOMMENDATION_TRANSITION_MS),
-            label = "postPlayRecommendationPlayerCornerRadius"
-        )
-        val postPlayRecommendationPlayerBorderAlpha by animateFloatAsState(
-            targetValue = if (postPlayRecommendationState.isVisible) 0.2f else 0f,
-            animationSpec = tween(durationMillis = POST_PLAY_RECOMMENDATION_TRANSITION_MS),
-            label = "postPlayRecommendationPlayerBorderAlpha"
-        )
-        val playerSurfaceShape = RoundedCornerShape(postPlayRecommendationPlayerCornerRadius)
-        val playerSurfaceIsFullscreen = !postPlayRecommendationState.isVisible &&
-            postPlayRecommendationPlayerWidth >= 0.999f
+        val postPlayVisible = postPlayRecommendationState.isVisible
+        val postPlayInsetPx = with(LocalDensity.current) { FetchTheme.spacing.xxl.toPx() }
+        val postPlayCornerRadiusPx = with(LocalDensity.current) { POST_PLAY_PLAYER_CORNER_RADIUS.toPx() }
+        val postPlayBorderWidthPx = with(LocalDensity.current) { POST_PLAY_PLAYER_BORDER_WIDTH.toPx() }
         var subtitleControlsClearancePx by remember { mutableFloatStateOf(0f) }
         var skipClearancePx by remember { mutableFloatStateOf(0f) }
         var postPlayClearancePx by remember { mutableFloatStateOf(0f) }
@@ -1113,25 +1112,54 @@ fun PlayerScreen(
         val fallbackSubtitleLiftPx = with(LocalDensity.current) { SUBTITLE_CONTROLS_LIFT.toPx() }
         val playerSurfaceModifier = Modifier
             .align(Alignment.TopEnd)
-            .padding(end = postPlayRecommendationPlayerPadding, top = postPlayRecommendationPlayerPadding)
-            .fillMaxWidth(postPlayRecommendationPlayerWidth)
-            .aspectRatio(16f / 9f)
-            .clip(playerSurfaceShape)
-            .border(
-                BorderStroke(1.dp, Color.White.copy(alpha = postPlayRecommendationPlayerBorderAlpha)),
-                playerSurfaceShape
-            )
-            .then(
-                if (transparentLetterbox && playerSurfaceIsFullscreen) Modifier
-                else Modifier.background(Color.Black)
-            )
-            .zIndex(
-                if (postPlayRecommendationState.isVisible || postPlayRecommendationPlayerWidth < 0.999f) {
-                    2.2f
+            // Same geometry as padding(end, top) + fillMaxWidth(fraction), from one value.
+            .layout { measurable, constraints ->
+                val t = postPlayShrink.value
+                val insetPx = (postPlayInsetPx * t).roundToInt()
+                val availableWidth = (constraints.maxWidth - insetPx).coerceAtLeast(0)
+                val widthFraction = 1f - (1f - POST_PLAY_PLAYER_WIDTH_FRACTION) * t
+                val width = (availableWidth * widthFraction).roundToInt()
+                val maxHeight = if (constraints.hasBoundedHeight) {
+                    (constraints.maxHeight - insetPx).coerceAtLeast(0)
                 } else {
-                    0f
+                    Constraints.Infinity
                 }
-            )
+                val placeable = measurable.measure(
+                    Constraints(minWidth = width, maxWidth = width, minHeight = 0, maxHeight = maxHeight)
+                )
+                layout(placeable.width + insetPx, placeable.height + insetPx) {
+                    // placeRelative mirrors in RTL, so the inset stays on the screen-edge side.
+                    placeable.placeRelative(
+                        x = 0,
+                        y = insetPx,
+                        zIndex = if (postPlayVisible || t >= 0.001f) 2.2f else 0f
+                    )
+                }
+            }
+            .aspectRatio(16f / 9f)
+            .graphicsLayer {
+                val t = postPlayShrink.value
+                shape = if (t > 0f) RoundedCornerShape(postPlayCornerRadiusPx * t) else RectangleShape
+                clip = true
+            }
+            .drawWithContent {
+                val t = postPlayShrink.value
+                val fullscreen = !postPlayVisible && t < 0.001f
+                if (!(transparentLetterbox && fullscreen)) drawRect(Color.Black)
+                drawContent()
+                val borderAlpha = POST_PLAY_PLAYER_BORDER_ALPHA * t
+                if (borderAlpha > 0f) {
+                    val half = postPlayBorderWidthPx / 2f
+                    val radius = (postPlayCornerRadiusPx * t - half).coerceAtLeast(0f)
+                    drawRoundRect(
+                        color = Color.White.copy(alpha = borderAlpha),
+                        topLeft = Offset(half, half),
+                        size = Size(size.width - postPlayBorderWidthPx, size.height - postPlayBorderWidthPx),
+                        cornerRadius = CornerRadius(radius),
+                        style = Stroke(width = postPlayBorderWidthPx)
+                    )
+                }
+            }
 
         if (!exitDispatched &&
             !postPlayRecommendationState.isTrailerPlaying &&
@@ -2289,6 +2317,12 @@ private data class SubtitleAppliedConfig(
 )
 
 private val SUBTITLE_CONTROLS_LIFT = 130.dp
+
+/** Width of the docked player while the post-play recommendation shows. */
+private const val POST_PLAY_PLAYER_WIDTH_FRACTION = 0.32f
+private val POST_PLAY_PLAYER_CORNER_RADIUS = 12.dp
+private val POST_PLAY_PLAYER_BORDER_WIDTH = 1.dp
+private const val POST_PLAY_PLAYER_BORDER_ALPHA = 0.2f
 private val SUBTITLE_CONTROLS_GAP = 8.dp
 
 /** Frames to keep retrying focus while freshly shown controls attach (about 67 ms at 60 Hz). */

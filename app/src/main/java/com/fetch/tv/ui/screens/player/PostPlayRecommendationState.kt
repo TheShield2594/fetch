@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.MDBListRatings
 import com.fetch.tv.domain.model.MetaPreview
+import com.fetch.tv.ui.theme.FetchMotion
 import kotlin.math.ceil
 
 @Immutable
@@ -92,7 +93,9 @@ internal fun PlayerUiState.blocksPostPlayRecommendation(): Boolean {
 internal const val POST_PLAY_RECOMMENDATION_PREFETCH_PROGRESS = 0.9f
 internal const val POST_PLAY_RECOMMENDATION_PREFETCH_REMAINING_MS = 10 * 60_000L
 internal const val POST_PLAY_RECOMMENDATION_TRAILER_COUNTDOWN_SECONDS = 5
-internal const val POST_PLAY_RECOMMENDATION_TRANSITION_MS = 420
+/** How long the player surface takes to dock or return; delays that wait for it use this. */
+internal val POST_PLAY_RECOMMENDATION_TRANSITION_MS: Int
+    get() = FetchMotion.tokens.durations.move
 
 internal fun shouldPrefetchPostPlayRecommendation(
     positionMs: Long,

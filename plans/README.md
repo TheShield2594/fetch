@@ -19,7 +19,7 @@ executor to stop and report rather than improvise.
 | 005 | [Skip Intro button](005-skip-intro-button.md) | HIGH | Player | TODO |
 | 006 | [Loading overlay](006-loading-overlay.md) | HIGH | Fetching / buffering | DONE |
 | 007 | [Detail hero ⇄ trailer morph](007-detail-hero-trailer-morph.md) | HIGH | Detail | DONE |
-| 008 | [Post-play surface shrink](008-post-play-surface-shrink.md) | HIGH | Player | TODO |
+| 008 | [Post-play surface shrink](008-post-play-surface-shrink.md) | HIGH | Player | DONE |
 | 009 | [Skeleton shimmer](009-skeleton-shimmer.md) | HIGH | Loading states | DONE |
 | 010 | [Focus labels without relayout](010-focus-labels-no-relayout.md) | MEDIUM | Sidebar, detail actions | TODO |
 | 011 | [Subtitle rail fade](011-subtitle-rail-fade.md) | MEDIUM | Player | TODO |

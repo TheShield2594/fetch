@@ -1,6 +1,6 @@
 # 008 — Drive the post-play player shrink from one value read in layout and draw, not composition
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session). Executed with one correction: `placeable.place(` became `placeable.placeRelative(` so the docked inset mirrors in RTL, as the old `padding(end = ...)` did.
 - **Commit**: ee8dd84
 - **Severity**: HIGH
 - **Category**: 5. Performance (with 2. Easing & duration, 6. Accessibility)

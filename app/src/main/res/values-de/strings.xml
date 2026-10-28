@@ -943,7 +943,7 @@
     <string name="collection_editor_untitled_collection">Unbenannte Sammlung</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Addons</string>
-    <string name="addon_readonly_notice">Verwendet Addons des primären Profils und kann nicht geändert werden</string>
+    <string name="addon_readonly_notice">Verwendet Addons des Hauptprofils und kann nicht geändert werden</string>
     <string name="addon_install_title">Addon installieren</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Installation läuft</string>
@@ -1299,7 +1299,7 @@
     <string name="profile_selection_subtitle">Wählen Sie ein Profil aus, um fortzufahren</string>
     <string name="profile_selection_hint">Zum Verwalten des Profils gedrückt halten</string>
     <string name="profile_selection_empty">Keine Profile gefunden</string>
-    <string name="profile_selection_primary_badge">PRIMÄR</string>
+    <string name="profile_selection_primary_badge">Hauptprofil</string>
     <string name="profile_selection_options_title">Profiloptionen</string>
     <string name="profile_delete_confirm_title">Profil löschen?</string>
     <string name="profile_delete_confirm_subtitle">Dadurch werden dieses Profil und alle zugehörigen Daten, einschließlich Bibliothek, Verlauf und Add-on-Einstellungen, dauerhaft gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
@@ -2358,7 +2358,7 @@
     <string name="profile_pin_forgot_main">Die PIN des Hauptprofils kann nicht zurückgesetzt werden. Bewahre sie sicher auf.</string>
     <string name="profile_pin_reset_for_profile">PIN für %1$s zurückgesetzt.</string>
     <string name="profile_pin_incorrect_for_profile">Falsche PIN für %1$s.</string>
-    <string name="profile_selection_kids_badge">KINDER</string>
+    <string name="profile_selection_kids_badge">Kinder</string>
     <string name="profile_manage_done">Fertig</string>
     <string name="cd_profile_locked">Mit PIN gesperrt</string>
     <string name="profile_save_error">Profil konnte nicht gespeichert werden. Bitte erneut versuchen.</string>

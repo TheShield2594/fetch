@@ -528,7 +528,7 @@
 
     <!-- AddonManagerScreen -->
     <string name="addon_title">Tillägg</string>
-    <string name="addon_readonly_notice">Använder primärprofilens tillägg och kan inte ändras</string>
+    <string name="addon_readonly_notice">Använder huvudprofilens tillägg och kan inte ändras</string>
     <string name="addon_install_title">Installera tillägg</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Installerar</string>
@@ -797,7 +797,7 @@
     <string name="profile_selection_subtitle">Välj en profil för att fortsätta</string>
     <string name="profile_selection_hint">Håll nedtryckt för att hantera profil</string>
     <string name="profile_selection_empty">Inga profiler hittades</string>
-    <string name="profile_selection_primary_badge">PRIMÄR</string>
+    <string name="profile_selection_primary_badge">Huvudprofil</string>
     <string name="profile_selection_options_title">Profilalternativ</string>
     <string name="profile_delete_confirm_title">Radera profil?</string>
     <string name="profile_delete_confirm_subtitle">Detta raderar permanent denna profil och all dess data inklusive bibliotek, tittarhistorik och tilläggsinställningar. Det går inte att ångra.</string>
@@ -1763,7 +1763,7 @@
     <string name="profile_pin_forgot_main">Huvudprofilens PIN kan inte återställas, så förvara den på ett säkert ställe.</string>
     <string name="profile_pin_reset_for_profile">PIN återställd för %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">Fel PIN för %1$s.</string>
-    <string name="profile_selection_kids_badge">BARN</string>
+    <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Klar</string>
     <string name="cd_profile_locked">Låst med PIN</string>
     <string name="profile_save_error">Kunde inte spara profilen. Försök igen.</string>

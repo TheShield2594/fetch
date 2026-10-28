@@ -1105,7 +1105,7 @@
     <string name="profile_copy_settings_setup_title">Profielinstellingen</string>
     <string name="profile_copy_settings_setup_subtitle">Begin opnieuw of kopieer eenmalig de tv-instellingen van een ander profiel.</string>
     <string name="profile_copy_settings_start_fresh">Opnieuw beginnen</string>
-    <string name="profile_copy_settings_primary_source">%1$s (primair)</string>
+    <string name="profile_copy_settings_primary_source">%1$s (hoofdprofiel)</string>
     <string name="profile_copy_settings_create_fresh">Instellingen: opnieuw beginnen</string>
     <string name="profile_copy_settings_create_source">Instellingen: %1$s</string>
     <string name="profile_copy_settings_title">Instellingen kopiëren naar %1$s</string>
@@ -1153,7 +1153,7 @@
     <string name="collection_editor_untitled_collection">Naamloze collectie</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Add-ons</string>
-    <string name="addon_readonly_notice">Gebruikt add-ons van het primaire profiel en kan niet worden gewijzigd</string>
+    <string name="addon_readonly_notice">Gebruikt add-ons van het hoofdprofiel en kan niet worden gewijzigd</string>
     <string name="addon_install_title">Add-on installeren</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Bezig met installeren</string>
@@ -1633,7 +1633,7 @@
     <string name="profile_selection_subtitle">Selecteer een profiel om verder te gaan</string>
     <string name="profile_selection_hint">Houd ingedrukt om het profiel te beheren</string>
     <string name="profile_selection_empty">Geen profielen gevonden</string>
-    <string name="profile_selection_primary_badge">PRIMAIR</string>
+    <string name="profile_selection_primary_badge">Hoofdprofiel</string>
     <string name="profile_selection_options_title">Profielopties</string>
     <string name="profile_delete_confirm_title">Profiel verwijderen?</string>
     <string name="profile_delete_confirm_subtitle">Hiermee worden dit profiel en alle bijbehorende gegevens permanent verwijderd, waaronder de bibliotheek, kijkgeschiedenis en add-oninstellingen. Dit kan niet ongedaan worden gemaakt.</string>
@@ -2868,7 +2868,7 @@
     <string name="profile_pin_forgot_main">De pincode van het hoofdprofiel kan niet worden gereset, dus bewaar hem goed.</string>
     <string name="profile_pin_reset_for_profile">Pincode gereset voor %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">Onjuiste pincode voor %1$s.</string>
-    <string name="profile_selection_kids_badge">KINDEREN</string>
+    <string name="profile_selection_kids_badge">Kinderen</string>
     <string name="profile_manage_done">Klaar</string>
     <string name="cd_profile_locked">Vergrendeld met pincode</string>
     <string name="profile_save_error">Kon het profiel niet opslaan. Probeer het opnieuw.</string>

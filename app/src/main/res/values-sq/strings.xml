@@ -1480,7 +1480,7 @@
     <string name="profile_selection_subtitle">Zgjidh një profil për të vazhduar</string>
     <string name="profile_selection_hint">Mbaj shtypur për të menaxhuar profilin</string>
     <string name="profile_selection_empty">Nuk u gjetën profile</string>
-    <string name="profile_selection_primary_badge">KRYESOR</string>
+    <string name="profile_selection_primary_badge">Kryesor</string>
     <string name="profile_selection_options_title">Opsionet e profilit</string>
     <string name="profile_delete_confirm_title">Të fshihet profili?</string>
     <string name="profile_delete_confirm_subtitle">Kjo do ta fshijë përgjithmonë këtë profil dhe të gjitha të dhënat e tij, përfshirë bibliotekën, historikun e shikimit dhe cilësimet e shtesave. Kjo nuk mund të zhbëhet.</string>
@@ -2645,7 +2645,7 @@
     <string name="profile_pin_forgot_main">PIN-i i profilit kryesor nuk mund të rivendoset, ndaj ruaje në një vend të sigurt.</string>
     <string name="profile_pin_reset_for_profile">PIN-i u rivendos për %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">PIN i pasaktë për %1$s.</string>
-    <string name="profile_selection_kids_badge">FËMIJË</string>
+    <string name="profile_selection_kids_badge">Fëmijë</string>
     <string name="profile_manage_done">U krye</string>
     <string name="cd_profile_locked">I bllokuar me PIN</string>
     <string name="profile_save_error">Profili nuk mund të ruhej. Provo përsëri.</string>

@@ -1316,7 +1316,7 @@
     <string name="collection_editor_untitled_collection">İsimsiz Koleksiyon</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Eklentiler</string>
-    <string name="addon_readonly_notice">Birincil profilin eklentileri kullanılıyor, değiştirilemez</string>
+    <string name="addon_readonly_notice">Ana profilin eklentileri kullanılıyor, değiştirilemez</string>
     <string name="addon_install_title">Eklenti Kur</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Kuruluyor</string>
@@ -1794,7 +1794,7 @@
     <string name="profile_selection_subtitle">İçeriklere girmek için kullanıcı profilinizden birine tıklayın</string>
     <string name="profile_selection_hint">Görmek için uzaktan kumanda D-Pad oklarını tıklatın</string>
     <string name="profile_selection_empty">Henüz kaydedilmiş profil bulunamadı</string>
-    <string name="profile_selection_primary_badge">YÖNETİCİ</string>
+    <string name="profile_selection_primary_badge">Ana</string>
     <string name="profile_selection_options_title">Profil Özelleştirmeleri</string>
     <string name="profile_delete_confirm_title">Bu Profil Silinsin mi?</string>
     <string name="profile_delete_confirm_subtitle">Bu işlem, profili ve o profile ait kişisel kütüphane, izleme geçmişi ve tüm eklenti tercihlerini kalıcı olarak sistemden siler. Bu eylem geri döndürülemez.</string>
@@ -3086,7 +3086,7 @@
     <string name="profile_pin_forgot_main">Ana profilin PIN\'i sıfırlanamaz, bu yüzden güvenli bir yerde saklayın.</string>
     <string name="profile_pin_reset_for_profile">%1$s için PIN sıfırlandı.</string>
     <string name="profile_pin_incorrect_for_profile">%1$s için PIN hatalı.</string>
-    <string name="profile_selection_kids_badge">ÇOCUK</string>
+    <string name="profile_selection_kids_badge">Çocuk</string>
     <string name="profile_manage_done">Tamam</string>
     <string name="cd_profile_locked">PIN ile kilitli</string>
     <string name="profile_save_error">Profil kaydedilemedi. Tekrar deneyin.</string>

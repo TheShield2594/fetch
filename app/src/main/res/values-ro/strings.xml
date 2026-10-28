@@ -623,7 +623,7 @@
     <string name="profile_selection_subtitle">Selectează un profil pentru a continua</string>
     <string name="profile_selection_hint">Folosește D-pad pentru a alege un profil</string>
     <string name="profile_selection_empty">Nu s-au găsit profiluri</string>
-    <string name="profile_selection_primary_badge">PRIMAR</string>
+    <string name="profile_selection_primary_badge">Principal</string>
 
     <!-- CastDetailScreen -->
     <string name="cast_detail_error">Ceva a mers greșit</string>
@@ -1095,7 +1095,7 @@
     <string name="profile_pin_forgot_main">PIN-ul profilului principal nu poate fi resetat, așa că păstrează-l într-un loc sigur.</string>
     <string name="profile_pin_reset_for_profile">PIN resetat pentru %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">PIN incorect pentru %1$s.</string>
-    <string name="profile_selection_kids_badge">COPII</string>
+    <string name="profile_selection_kids_badge">Copii</string>
     <string name="profile_manage_done">Gata</string>
     <string name="cd_profile_locked">Blocat cu PIN</string>
     <string name="profile_save_error">Profilul nu a putut fi salvat. Încearcă din nou.</string>

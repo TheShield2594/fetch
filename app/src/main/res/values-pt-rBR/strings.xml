@@ -1663,7 +1663,7 @@
     <string name="profile_selection_subtitle">Selecione um perfil para continuar</string>
     <string name="profile_selection_hint">Segure para gerenciar o perfil</string>
     <string name="profile_selection_empty">Nenhum perfil encontrado</string>
-    <string name="profile_selection_primary_badge">PRINCIPAL</string>
+    <string name="profile_selection_primary_badge">Principal</string>
     <string name="profile_selection_options_title">Opções do Perfil</string>
     <string name="profile_delete_confirm_title">Excluir Perfil?</string>
     <string name="profile_delete_confirm_subtitle">Isso excluirá permanentemente este perfil e todos os seus dados, incluindo biblioteca, histórico e configurações de addons. Esta ação não pode ser desfeita.</string>
@@ -2898,7 +2898,7 @@
     <string name="profile_pin_forgot_main">O PIN do perfil principal não pode ser redefinido, então guarde-o em um lugar seguro.</string>
     <string name="profile_pin_reset_for_profile">PIN de %1$s redefinido.</string>
     <string name="profile_pin_incorrect_for_profile">PIN incorreto para %1$s.</string>
-    <string name="profile_selection_kids_badge">INFANTIL</string>
+    <string name="profile_selection_kids_badge">Infantil</string>
     <string name="profile_manage_done">Concluído</string>
     <string name="cd_profile_locked">Bloqueado com PIN</string>
     <string name="profile_save_error">Não foi possível salvar o perfil. Tente novamente.</string>

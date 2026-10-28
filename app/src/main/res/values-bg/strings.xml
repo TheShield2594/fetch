@@ -996,7 +996,7 @@
     <string name="collection_editor_untitled_collection">Колекция без заглавие</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Добавки</string>
-    <string name="addon_readonly_notice">Използва добавките на primary профила и не може да се променя</string>
+    <string name="addon_readonly_notice">Използва добавките на основния профил и не може да се променя</string>
     <string name="addon_install_title">Инсталирай добавка</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Инсталиране</string>
@@ -1369,7 +1369,7 @@
     <string name="profile_selection_subtitle">Избери профил, за да продължиш</string>
     <string name="profile_selection_hint">Задръж за управление на профила</string>
     <string name="profile_selection_empty">Няма намерени профили</string>
-    <string name="profile_selection_primary_badge">ОСНОВЕН</string>
+    <string name="profile_selection_primary_badge">Основен</string>
     <string name="profile_selection_options_title">Опции за профила</string>
     <string name="profile_delete_confirm_title">Изтрий профила?</string>
     <string name="profile_delete_confirm_subtitle">Това ще изтрие завинаги този профил и всичките му данни, включително библиотека, история на гледане и настройки на добавки. Това не може да се отмени.</string>
@@ -2525,7 +2525,7 @@
     <string name="profile_pin_forgot_main">PIN на основния профил не може да се нулира, затова го пази на сигурно място.</string>
     <string name="profile_pin_reset_for_profile">PIN за %1$s е нулиран.</string>
     <string name="profile_pin_incorrect_for_profile">Грешен PIN за %1$s.</string>
-    <string name="profile_selection_kids_badge">ДЕТСКИ</string>
+    <string name="profile_selection_kids_badge">Детски</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заключен с PIN</string>
     <string name="profile_save_error">Профилът не можа да се запази. Опитай отново.</string>

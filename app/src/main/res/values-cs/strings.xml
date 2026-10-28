@@ -1020,7 +1020,7 @@
     <string name="collection_editor_untitled_collection">Kolekce bez názvu</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Doplňky</string>
-    <string name="addon_readonly_notice">Používá doplňky primárního profilu a nelze je změnit</string>
+    <string name="addon_readonly_notice">Používá doplňky hlavního profilu a nelze je změnit</string>
     <string name="addon_install_title">Instalovat doplněk</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Instalace</string>
@@ -1420,7 +1420,7 @@
     <string name="profile_selection_subtitle">Vyberte profil pro pokračování</string>
     <string name="profile_selection_hint">Podržte pro správu profilu</string>
     <string name="profile_selection_empty">Nenalezeny žádné profily</string>
-    <string name="profile_selection_primary_badge">PRIMÁRNÍ</string>
+    <string name="profile_selection_primary_badge">Hlavní</string>
     <string name="profile_selection_options_title">Možnosti profilu</string>
     <string name="profile_delete_confirm_title">Smazat profil?</string>
     <string name="profile_delete_confirm_subtitle">Toto trvale smaže tento profil a všechna jeho data včetně knihovny, historie sledování a nastavení doplňků. Tuto akci nelze vrátit zpět.</string>
@@ -2613,7 +2613,7 @@
     <string name="profile_pin_forgot_main">PIN hlavního profilu nelze obnovit, proto si ho uschovejte na bezpečném místě.</string>
     <string name="profile_pin_reset_for_profile">PIN pro %1$s byl obnoven.</string>
     <string name="profile_pin_incorrect_for_profile">Nesprávný PIN pro %1$s.</string>
-    <string name="profile_selection_kids_badge">DĚTSKÝ</string>
+    <string name="profile_selection_kids_badge">Dětský</string>
     <string name="profile_manage_done">Hotovo</string>
     <string name="cd_profile_locked">Uzamčeno PINem</string>
     <string name="profile_save_error">Profil se nepodařilo uložit. Zkuste to znovu.</string>

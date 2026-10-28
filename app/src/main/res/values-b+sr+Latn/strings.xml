@@ -1130,7 +1130,7 @@
     <string name="profile_copy_settings_setup_title">Podešavanja profila</string>
     <string name="profile_copy_settings_setup_subtitle">Počnite ispočetka ili jednom kopirajte TV podešavanja iz drugog profila.</string>
     <string name="profile_copy_settings_start_fresh">Počni ispočetka</string>
-    <string name="profile_copy_settings_primary_source">%1$s (Primarni)</string>
+    <string name="profile_copy_settings_primary_source">%1$s (glavni)</string>
     <string name="profile_copy_settings_create_fresh">Podešavanja: Počni ispočetka</string>
     <string name="profile_copy_settings_create_source">Podešavanja: %1$s</string>
     <string name="profile_copy_settings_title">Kopiraj podešavanja u %1$s</string>
@@ -1178,7 +1178,7 @@
     <string name="collection_editor_untitled_collection">Neimenovana kolekcija</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Dodaci</string>
-    <string name="addon_readonly_notice">Koriste se dodaci primarnog profila i ne mogu se menjati</string>
+    <string name="addon_readonly_notice">Koriste se dodaci glavnog profila i ne mogu se menjati</string>
     <string name="addon_install_title">Instaliraj dodatak</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Instaliranje</string>
@@ -1660,7 +1660,7 @@
     <string name="profile_selection_subtitle">Izaberite profil da biste nastavili</string>
     <string name="profile_selection_hint">Zadržite da biste upravljali profilom</string>
     <string name="profile_selection_empty">Nisu pronađeni profili</string>
-    <string name="profile_selection_primary_badge">PRIMARNI</string>
+    <string name="profile_selection_primary_badge">Glavni</string>
     <string name="profile_selection_options_title">Opcije profila</string>
     <string name="profile_delete_confirm_title">Obrisati profil?</string>
     <string name="profile_delete_confirm_subtitle">Ovo će trajno obrisati ovaj profil i sve njegove podatke uključujući biblioteku, istoriju gledanja i podešavanja dodataka. Ovo se ne može opozvati.</string>
@@ -2899,7 +2899,7 @@
     <string name="profile_pin_forgot_main">PIN glavnog profila ne može da se resetuje, zato ga čuvajte na sigurnom.</string>
     <string name="profile_pin_reset_for_profile">PIN je resetovan za %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">Netačan PIN za %1$s.</string>
-    <string name="profile_selection_kids_badge">DEČJI</string>
+    <string name="profile_selection_kids_badge">Dečji</string>
     <string name="profile_manage_done">Gotovo</string>
     <string name="cd_profile_locked">Zaključano PIN-om</string>
     <string name="profile_save_error">Nije moguće sačuvati profil. Pokušajte ponovo.</string>

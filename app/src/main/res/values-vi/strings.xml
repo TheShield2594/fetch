@@ -1801,7 +1801,7 @@
     <string name="profile_selection_subtitle">Chọn hồ sơ để tiếp tục</string>
     <string name="profile_selection_hint">Sử dụng phím điều hướng để chọn hồ sơ</string>
     <string name="profile_selection_empty">Không tìm thấy hồ sơ</string>
-    <string name="profile_selection_primary_badge">CHÍNH</string>
+    <string name="profile_selection_primary_badge">Chính</string>
     <string name="profile_selection_options_title">Tùy chọn hồ sơ</string>
     <string name="profile_delete_confirm_title">Xóa hồ sơ?</string>
     <string name="profile_delete_confirm_subtitle">Thao tác này sẽ xóa vĩnh viễn hồ sơ và toàn bộ dữ liệu của hồ sơ, bao gồm thư viện, lịch sử xem và cài đặt tiện ích. Không thể hoàn tác.</string>
@@ -3069,7 +3069,7 @@
     <string name="profile_pin_forgot_main">Không thể đặt lại mã PIN của hồ sơ chính, vì vậy hãy cất giữ cẩn thận.</string>
     <string name="profile_pin_reset_for_profile">Đã đặt lại mã PIN cho %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">Mã PIN của %1$s không đúng.</string>
-    <string name="profile_selection_kids_badge">TRẺ EM</string>
+    <string name="profile_selection_kids_badge">Trẻ em</string>
     <string name="profile_manage_done">Xong</string>
     <string name="cd_profile_locked">Đã khóa bằng mã PIN</string>
     <string name="profile_save_error">Không thể lưu hồ sơ. Vui lòng thử lại.</string>

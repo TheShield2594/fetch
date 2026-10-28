@@ -1629,7 +1629,7 @@
 <string name="profile_selection_subtitle">Seleziona un profilo per continuare</string>
 <string name="profile_selection_hint">Tieni premuto per gestire il profilo</string>
 <string name="profile_selection_empty">Nessun profilo trovato</string>
-<string name="profile_selection_primary_badge">PRINCIPALE</string>
+<string name="profile_selection_primary_badge">Principale</string>
 <string name="profile_selection_options_title">Opzioni Profilo</string>
 <string name="profile_delete_confirm_title">Cancellare Profilo?</string>
 <string name="profile_delete_confirm_subtitle">Questo cancellerà permanentemente questo profilo e i dati ad esso associati, inclusi libreria, storico e impostazioni. L\'operazione non si può annullare.</string>
@@ -3066,7 +3066,7 @@
     <string name="profile_pin_forgot_main">Il PIN del profilo principale non può essere reimpostato, quindi conservalo in un posto sicuro.</string>
     <string name="profile_pin_reset_for_profile">PIN reimpostato per %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">PIN errato per %1$s.</string>
-    <string name="profile_selection_kids_badge">BAMBINI</string>
+    <string name="profile_selection_kids_badge">Bambini</string>
     <string name="profile_manage_done">Fatto</string>
     <string name="cd_profile_locked">Bloccato con PIN</string>
     <string name="profile_save_error">Impossibile salvare il profilo. Riprova.</string>

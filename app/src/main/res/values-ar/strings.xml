@@ -1004,7 +1004,7 @@
     <string name="collection_editor_untitled_collection">مجموعة بدون عنوان</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">الإضافات</string>
-    <string name="addon_readonly_notice">يتم استخدام إضافات الملف الأساسي ولا يمكن تغييرها</string>
+    <string name="addon_readonly_notice">يتم استخدام إضافات الملف الرئيسي ولا يمكن تغييرها</string>
     <string name="addon_install_title">تثبيت إضافة</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">جاري التثبيت</string>
@@ -1396,7 +1396,7 @@
     <string name="profile_selection_subtitle">إختر ملفاً شخصياً للمتابعة</string>
     <string name="profile_selection_hint">استخدم أزرار الاتجاهات لاختيار ملف</string>
     <string name="profile_selection_empty">لم يتم العثور على ملفات شخصية</string>
-    <string name="profile_selection_primary_badge">أساسي</string>
+    <string name="profile_selection_primary_badge">رئيسي</string>
     <string name="profile_selection_options_title">خيارات الملف الشخصي</string>
     <string name="profile_delete_confirm_title">حذف الملف الشخصي؟</string>
     <string name="profile_delete_confirm_subtitle">سيؤدي هذا إلى حذف هذا الملف الشخصي وبياناته نهائياً بما في ذلك المكتبة وسجل المشاهدة وإعدادات الإضافات. لا يمكن التراجع عن هذا الإجراء.</string>

@@ -1,6 +1,6 @@
 # 015 — Stop the poster card dipping to black when its trailer starts
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: Cohesion & tokens + Performance (deferred state reads)

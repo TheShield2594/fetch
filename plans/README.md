@@ -26,7 +26,7 @@ executor to stop and report rather than improvise.
 | 012 | [Playback-start overlays](012-playback-start-overlays.md) | MEDIUM | Player | DONE |
 | 013 | [Play → Fetching morph](013-play-to-fetching-morph.md) | MEDIUM | Stream | DONE |
 | 014 | [Detail backdrop fades and scroll restore](014-detail-backdrop-fades.md) | MEDIUM | Detail | DONE |
-| 015 | [Card trailer cover fade](015-card-trailer-cover-fade.md) | MEDIUM | Poster cards | TODO |
+| 015 | [Card trailer cover fade](015-card-trailer-cover-fade.md) | MEDIUM | Poster cards | DONE |
 | 016 | [Reduced-motion sweep](016-reduced-motion-sweep.md) | MEDIUM | App-wide | TODO |
 | 017 | [tv-material Card recomposition](017-tv-card-recomposition.md) | MEDIUM (gated on measurement) | Poster cards | TODO |
 | 018 | [Network test spinner](018-network-spinner.md) | LOW | Settings | TODO |
@@ -115,7 +115,7 @@ or incomplete:
   with `isVisible && animating` true, neither branch runs, and the overlay can stay half-shown
   (pre-existing, found while executing 012).
 - `app/src/main/generated/baselineProfiles/*-prof.txt` still name the removed
-  `SkeletonsKt.rememberShimmerBrush` (from plan 009). They're harmless at runtime; regenerate the
+  `SkeletonsKt.rememberShimmerBrush` (from plan 009) and the old `TrailerPlayer` signature (plan 015). They're harmless at runtime; regenerate the
   baseline profile at the next release.
 - `CatalogOrderScreen` has the same teleporting reorder as the addon manager (024 is the template).
 - `PlayerScreen.kt:667` has a second fixed `delay(250)` focus wait, the same pattern as 019.

@@ -33,6 +33,22 @@ data class ProfileRestrictions(
     /** A restricted profile can't manage addons and needs the parent PIN for settings. */
     val isRestricted: Boolean get() = isKidsProfile || maxLevel != null
 
+    /**
+     * The stricter of this and [other], setting by setting: kids if either is, the lower rating
+     * limit, and unrated titles only when every limit allows them. Never looser than either.
+     */
+    fun tightenedWith(other: ProfileRestrictions): ProfileRestrictions {
+        val level = listOfNotNull(maxLevel, other.maxLevel).minByOrNull { it.rank }
+        return ProfileRestrictions(
+            isKidsProfile = isKidsProfile || other.isKidsProfile,
+            maxLevel = level,
+            // Without a limit the flag means nothing; keep the default so "no limit" stays None.
+            allowUnrated = level == null || (allowsUnratedUnderLimit && other.allowsUnratedUnderLimit)
+        )
+    }
+
+    private val allowsUnratedUnderLimit: Boolean get() = maxLevel == null || allowUnrated
+
     companion object {
         val None = ProfileRestrictions()
 
@@ -109,7 +125,11 @@ data class ProfileTitleLists(
 
 /**
  * Per-profile parental restrictions. Kept on the device and outside the synced profile
- * list, so a sync pull can never loosen them.
+ * list, so a sync pull can never loosen them: limits from the account only ever tighten the
+ * ones here ([tightenFromAccount]), and removing one is done on each TV behind the parent PIN.
+ *
+ * Next to the limits it keeps the account's copy as this TV last saw or sent it, which is what
+ * the TV sends back with the profile's settings; a limit removed on one TV doesn't reach the others.
  */
 @Singleton
 class ProfileRestrictionsDataStore internal constructor(
@@ -119,6 +139,8 @@ class ProfileRestrictionsDataStore internal constructor(
     constructor(@ApplicationContext context: Context) : this(context.profileRestrictionsDataStore)
 
     private val restrictionsKey = stringPreferencesKey("restrictions_map")
+    // The account's limits per profile; a profile is missing until this TV has seen or sent them.
+    private val accountRestrictionsKey = stringPreferencesKey("account_restrictions_map")
     // Kept apart from the limits, which a website pull replaces; the lists are only set on this TV.
     private val titleListsKey = stringPreferencesKey("title_lists")
     private val json = Json { ignoreUnknownKeys = true }
@@ -133,6 +155,42 @@ class ProfileRestrictionsDataStore internal constructor(
             if (restrictions == ProfileRestrictions.None) current.remove(profileId) else current[profileId] = restrictions
             prefs[restrictionsKey] = encode(current)
         }
+    }
+
+    val accountRestrictions: Flow<Map<Int, ProfileRestrictions>> = dataStore.data.map { prefs ->
+        decode(prefs[accountRestrictionsKey])
+    }
+
+    /** Records [restrictions] as the account's limits for the profile, without changing this TV's. */
+    suspend fun setAccountRestrictions(profileId: Int, restrictions: ProfileRestrictions) {
+        dataStore.edit { prefs ->
+            val current = decode(prefs[accountRestrictionsKey]).toMutableMap()
+            current[profileId] = restrictions
+            prefs[accountRestrictionsKey] = encode(current)
+        }
+    }
+
+    /**
+     * Applies limits pulled from the account: records them as the account's copy and tightens
+     * this TV's limits to at least as strict. Returns true when this TV's limits changed.
+     */
+    suspend fun tightenFromAccount(profileId: Int, account: ProfileRestrictions): Boolean {
+        var changed = false
+        dataStore.edit { prefs ->
+            val accountCopies = decode(prefs[accountRestrictionsKey]).toMutableMap()
+            accountCopies[profileId] = account
+            prefs[accountRestrictionsKey] = encode(accountCopies)
+
+            val current = decode(prefs[restrictionsKey]).toMutableMap()
+            val local = current[profileId] ?: ProfileRestrictions.None
+            val tightened = local.tightenedWith(account)
+            if (tightened != local) {
+                current[profileId] = tightened
+                prefs[restrictionsKey] = encode(current)
+                changed = true
+            }
+        }
+        return changed
     }
 
     val titleLists: Flow<Map<Int, ProfileTitleLists>> = dataStore.data.map { prefs ->
@@ -151,9 +209,13 @@ class ProfileRestrictionsDataStore internal constructor(
     /** Drops the profile's limits. Its title lists stay: they're kept on this TV whatever the website says. */
     suspend fun removeProfile(profileId: Int) = setRestrictions(profileId, ProfileRestrictions.None)
 
-    /** For a deleted profile: its limits and its title lists. */
+    /** For a deleted profile: its limits, the account's copy of them and its title lists. */
     suspend fun deleteProfile(profileId: Int) {
         removeProfile(profileId)
+        dataStore.edit { prefs ->
+            val accountCopies = decode(prefs[accountRestrictionsKey])
+            if (profileId in accountCopies) prefs[accountRestrictionsKey] = encode(accountCopies - profileId)
+        }
         updateTitleLists(profileId) { ProfileTitleLists.Empty }
     }
 

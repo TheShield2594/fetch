@@ -51,7 +51,8 @@ class ProfileSyncService @Inject constructor(
     private val profileDataStore: ProfileDataStore,
     private val profileManager: ProfileManager,
     private val syncClientIdentity: SyncClientIdentity,
-    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>,
+    private val profileSettingsSync: dagger.Lazy<ProfileSettingsSyncService>
 ) {
     private val postgrest: Postgrest get() = postgrestLazy.get()
 
@@ -140,6 +141,8 @@ class ProfileSyncService @Inject constructor(
                 if (profiles.isNotEmpty()) {
                     profileDataStore.replaceAllProfiles(profiles)
                     Log.d(TAG, "Merged ${profiles.size} remote profiles into local store")
+                    // Limits travel with each profile's settings; best-effort, logged inside.
+                    profileSettingsSync.get().pullParentalLimits(profiles.map { it.id })
                 }
 
                 val currentUserId = (authManager.authState.value as? AuthState.FullAccount)?.userId

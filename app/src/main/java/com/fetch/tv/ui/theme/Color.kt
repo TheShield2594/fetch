@@ -129,7 +129,7 @@ class FetchColorScheme(
 
     val Primary = FetchPrimitives.neutral500
     val PrimaryVariant = FetchPrimitives.neutral650
-    val OnPrimary = FetchPrimitives.white
+    val OnPrimary = FetchPrimitives.neutral925
     val Secondary = palette.secondary
     val SecondaryVariant = palette.secondaryVariant
     val OnSecondary = palette.onSecondary
@@ -291,6 +291,7 @@ class FetchColorScheme(
                     add(FetchContrastPair(text, surface, "$textName on $surfaceName"))
                 }
             }
+            add(FetchContrastPair(OnPrimary, Primary, "onPrimary on primary"))
             add(FetchContrastPair(OnSecondary, Secondary, "onSecondary on secondary"))
             add(FetchContrastPair(OnSecondaryVariant, SecondaryVariant, "onSecondaryVariant on secondaryVariant"))
             add(FetchContrastPair(FocusContent, FocusBackground, "focusContent on focusBackground"))
@@ -327,7 +328,7 @@ object FetchColors {
 
     val Primary = FetchPrimitives.neutral500
     val PrimaryVariant = FetchPrimitives.neutral650
-    val OnPrimary = FetchPrimitives.white
+    val OnPrimary = FetchPrimitives.neutral925
     val TextPrimary = FetchPrimitives.white
     val TextSecondary = FetchPrimitives.neutral400
     val TextTertiary = FetchPrimitives.neutral450

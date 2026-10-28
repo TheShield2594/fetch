@@ -98,8 +98,8 @@
 
     <string name="home_no_addons">No addons installed. Add one to get started.</string>
     <string name="home_no_catalog_addons">No catalog addons installed. Install a catalog addon to see content.</string>
-    <string name="auth_notice_fetch_logged_out">You have been signed out of Fetch. Please sign in again.</string>
-    <string name="auth_notice_trakt_logged_out">You have been signed out of Trakt. Please reconnect.</string>
+    <string name="auth_notice_fetch_logged_out">Signed out of Fetch. Sign in again from Settings &gt; Account.</string>
+    <string name="auth_notice_trakt_logged_out">Signed out of Trakt. Reconnect it from Settings &gt; Tracking.</string>
     <string name="error_generic">An error occurred</string>
 
     <string name="action_retry">Retry</string>
@@ -2039,6 +2039,16 @@
     <string name="profile_selection_kids_badge">KIDS</string>
     <string name="profile_manage_done">Done</string>
     <string name="cd_profile_locked">Locked with a PIN</string>
+    <string name="cd_profile_pin_progress">%1$d of %2$d digits entered</string>
+    <string name="cd_profile_color_crimson">Crimson</string>
+    <string name="cd_profile_color_ocean">Ocean</string>
+    <string name="cd_profile_color_violet">Violet</string>
+    <string name="cd_profile_color_emerald">Emerald</string>
+    <string name="cd_profile_color_amber">Amber</string>
+    <string name="cd_profile_color_rose">Rose</string>
+    <string name="cd_profile_color_cyan">Cyan</string>
+    <string name="cd_profile_color_brown">Brown</string>
+    <string name="cd_profile_color_position">Color %1$d of %2$d</string>
     <string name="profile_selection_options_title">Profile Options</string>
     <string name="profile_delete_confirm_title">Delete Profile?</string>
     <string name="profile_delete_confirm_subtitle">This will permanently delete this profile and all its data including library, watch history, and addon settings. This cannot be undone.</string>

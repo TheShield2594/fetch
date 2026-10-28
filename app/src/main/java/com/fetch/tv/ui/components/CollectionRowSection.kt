@@ -323,7 +323,7 @@ private fun FolderCard(
             }
 
             // GIF overlay: show on top of cover image or emoji, visible only once loaded
-            val focusGifUrl = if (isFocused && folder.focusGifEnabled) folder.focusGifUrl else null
+            val focusGifUrl = if (FetchTheme.fullMotion && isFocused && folder.focusGifEnabled) folder.focusGifUrl else null
             if (!focusGifUrl.isNullOrBlank()) {
                 var gifLoaded by remember(focusGifUrl) { mutableStateOf(false) }
                 val gifAlpha by animateFloatAsState(

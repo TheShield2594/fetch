@@ -294,8 +294,7 @@ private fun SliderStepButton(
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                tint = (if (isFocused) FetchTheme.colors.OnPrimary else FetchTheme.colors.TextPrimary)
-                    .copy(alpha = contentAlpha),
+                tint = FetchTheme.colors.TextPrimary.copy(alpha = contentAlpha),
                 modifier = Modifier.size(20.dp)
             )
         }

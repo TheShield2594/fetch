@@ -746,8 +746,9 @@ class HomeViewModel @Inject constructor(
                     if (state.startupAuthNotice == notice) state else state.copy(startupAuthNotice = notice)
                 }
                 startupAuthNoticeJob?.cancel()
+                // Long enough to read from the couch; the notice is consumed and won't show again.
                 startupAuthNoticeJob = viewModelScope.launch {
-                    delay(3200)
+                    delay(8000)
                     clearStartupAuthNotice(notice)
                 }
                 authSessionNoticeDataStore.consumeNotice(notice)

@@ -398,8 +398,6 @@
     <string name="essential_autoplay_next_episode">Автовідтворення наступного епізоду</string>
     <string name="essential_autoplay_next_episode_subtitle">Продовжити з наступним епізодом після закінчення потоку.</string>
     <string name="external_auto_next_loading">Завантаження наступного епізоду…</string>
-    <string name="essential_p2p_streams">P2P потоки</string>
-    <string name="essential_p2p_streams_subtitle">Дозволити P2P-джерела потоків.</string>
     <string name="essential_subtitle_language_subtitle">Бажана мова субтитрів.</string>
     <string name="essential_audio_language_subtitle">Бажана мова аудіо.</string>
     <!-- Account / sign-in error messages -->
@@ -1055,14 +1053,6 @@
     <string name="stream_no_streams">Потоки не знайдено</string>
     <string name="stream_no_streams_hint">Спробуйте встановити більше адонів для пошуку потоків</string>
     <string name="stream_finding_source">Пошук джерела потоку</string>
-    <string name="p2p_consent_title">P2P Стримінг</string>
-    <string name="p2p_consent_body">Цей потік використовує технологію P2P. Вмикаючи P2P, ви визнаєте та погоджуєтесь з тим, що:\n\n\u2022 Ваша IP-адреса буде видима іншим учасникам мережі\n\u2022 Ви несете повну відповідальність за контент, до якого звертаєтесь\n\u2022 Ви підтверджуєте законність стримінгу у вашій юрисдикції\n\u2022 Fetch не розміщує, не розповсюджує та не контролює P2P-контент\n\u2022 Fetch не несе відповідальності за юридичні наслідки\n\nВи використовуєте цю функцію на власний ризик. P2P можна вимкнути в Налаштуваннях.</string>
-    <string name="p2p_consent_enable">Увімкнути P2P</string>
-    <string name="p2p_consent_cancel">Скасувати</string>
-    <string name="settings_p2p_title">P2P Стримінг</string>
-    <string name="settings_p2p_subtitle">Дозволити P2P (торент) потоки</string>
-    <string name="settings_p2p_hide_stats_title">Приховати статистику торента</string>
-    <string name="settings_p2p_hide_stats_subtitle">Приховати буфер, сіди, піри та швидкість завантаження під час завантаження та відтворення</string>
     <string name="stream_player_picker_title">Який плеєр використовувати?</string>
     <string name="stream_player_internal">Вбудований</string>
     <string name="stream_player_external">Зовнішній</string>
@@ -1519,7 +1509,6 @@
     <string name="home_error_no_catalog_addons">Немає встановлених адонів каталогів</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Не вдалося запустити торент: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Підтримка HDR через рендеринг Canvas. Може блокувати потік UI.</string>
@@ -1877,11 +1866,6 @@
     <string name="playback_player_internal_desc">Використовувати вбудований плеєр Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d сідів · %2$d пірів</string>
-    <string name="player_torrent_buffered_status">%1$s буфер · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d пірів · %2$d сідів · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Підключення до пірів…</string>
     <string name="player_track_audio_fallback">Аудіо %1$d</string>
     <string name="player_track_subtitle_fallback">Субтитри %1$d</string>
 
@@ -1896,7 +1880,6 @@
     <string name="player_error_initialize_failed">Не вдалося ініціалізувати плеєр</string>
     <string name="player_error_mpv_surface_failed">Не вдалося ініціалізувати поверхню libmpv</string>
     <string name="player_error_mpv_playback_failed">Не вдалося ініціалізувати відтворення libmpv</string>
-    <string name="player_error_torrent">Помилка торента: %1$s</string>
     <string name="player_error_playback_fallback">Помилка відтворення</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">У цьому файлі не знайдено рядків субтитрів.</string>
@@ -1994,7 +1977,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Запуск рушія P2P…</string>
     <string name="player_stream_error_invalid_external_url">Невірний зовнішній URL потоку</string>
     <string name="player_stream_error_open_external_link_failed">Не вдалося відкрити зовнішнє посилання</string>
     <string name="player_stream_error_invalid_url">Невірний URL потоку</string>
@@ -2174,9 +2156,6 @@
     <string name="unit_size_kb">%1$s КБ</string>
     <string name="unit_size_mb">%1$s МБ</string>
     <string name="unit_size_gb">%1$s ГБ</string>
-    <string name="unit_speed_b_s">%1$d Б/с</string>
-    <string name="unit_speed_kb_s">%1$s КБ/с</string>
-    <string name="unit_speed_mb_s">%1$s МБ/с</string>
     <string name="playback_estimated_memory_usage">Орієнтовне використання пам’яті: %1$d / %2$d МБ</string>
     <string name="profile_default_name">Профіль %1$d</string>
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
@@ -2409,7 +2388,6 @@
     <string name="subtitle_style_text_color_hdr">Колір тексту (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Непрозорість тексту (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Це торент-потік, а у Fetch немає вбудованого торент-рушія. Налаштуйте debrid у доповненні, щоб отримати посилання, яке відтворюється тут, або відкрийте його в зовнішньому плеєрі.</string>
     <string name="because_you_watched_row_title">Тому що ви дивилися %1$s</string>
     <string name="because_you_watched_reason_collection">Також із: %1$s</string>
     <string name="because_you_watched_reason_director">Той самий режисер: %1$s</string>
@@ -2520,4 +2498,77 @@
     <string name="youtube_show_live_subtitle">Додає трансляції, що тривають зараз, до стрічок, результатів пошуку та розділу Далі</string>
     <string name="youtube_hide_watched_title">Приховувати переглянуті відео</string>
     <string name="youtube_hide_watched_subtitle">Пропускає відео, які ви переглянули до кінця. В історії вони залишаються</string>
+    <string name="profile_avatar_category_supporter">Прихильники</string>
+    <string name="profile_avatar_category_animals">Тварини</string>
+    <string name="profile_avatar_category_characters">Персонажі</string>
+    <string name="profile_avatar_category_fun">Розваги</string>
+    <string name="avatar_name_fox">Лисиця</string>
+    <string name="avatar_name_cat">Кіт</string>
+    <string name="avatar_name_dog">Пес</string>
+    <string name="avatar_name_panda">Панда</string>
+    <string name="avatar_name_koala">Коала</string>
+    <string name="avatar_name_lion">Лев</string>
+    <string name="avatar_name_tiger">Тигр</string>
+    <string name="avatar_name_frog">Жаба</string>
+    <string name="avatar_name_owl">Сова</string>
+    <string name="avatar_name_penguin">Пінгвін</string>
+    <string name="avatar_name_unicorn">Єдиноріг</string>
+    <string name="avatar_name_dragon">Дракон</string>
+    <string name="avatar_name_octopus">Восьминіг</string>
+    <string name="avatar_name_monkey">Мавпа</string>
+    <string name="avatar_name_rabbit">Кролик</string>
+    <string name="avatar_name_bear">Ведмідь</string>
+    <string name="avatar_name_hamster">Хом\'як</string>
+    <string name="avatar_name_sloth">Лінивець</string>
+    <string name="avatar_name_dinosaur">Динозавр</string>
+    <string name="avatar_name_butterfly">Метелик</string>
+    <string name="avatar_name_robot">Робот</string>
+    <string name="avatar_name_alien">Прибулець</string>
+    <string name="avatar_name_ghost">Привид</string>
+    <string name="avatar_name_space_invader">Космічний загарбник</string>
+    <string name="avatar_name_cool">Крутий</string>
+    <string name="avatar_name_pumpkin">Гарбуз</string>
+    <string name="avatar_name_rocket">Ракета</string>
+    <string name="avatar_name_star">Зірка</string>
+    <string name="avatar_name_pizza">Піца</string>
+    <string name="avatar_name_popcorn">Попкорн</string>
+    <string name="avatar_name_controller">Геймпад</string>
+    <string name="avatar_name_guitar">Гітара</string>
+    <string name="avatar_name_soccer">Футбольний м\'яч</string>
+    <string name="avatar_name_basketball">Баскетбольний м\'яч</string>
+    <string name="avatar_name_rainbow">Веселка</string>
+    <string name="avatar_name_cactus">Кактус</string>
+    <string name="avatar_name_sun">Сонце</string>
+    <string name="avatar_name_crystal_ball">Кришталева куля</string>
+    <string name="avatar_name_clapper">Хлопавка</string>
+    <string name="avatar_name_donut">Пончик</string>
+    <string name="profile_setup_button">Налаштування профілю</string>
+    <string name="profile_setup_summary">Налаштування: %1$s</string>
+    <string name="profile_setup_part_kids">Дитячий</string>
+    <string name="profile_setup_part_addons">Адони профілю %1$s</string>
+    <string name="profile_setup_part_settings">налаштування з профілю %1$s</string>
+    <string name="profile_setup_title">Налаштування профілю</string>
+    <string name="profile_setup_subtitle">Дитячий профіль показує лише контент із рейтингом PG або нижче й приховує контент без рейтингу. Адони, спільні з профілем %1$s, можна змінити лише з профілю %1$s.</string>
+    <string name="profile_addons_own">Адони: Окремі</string>
+    <string name="profile_addons_shared">Адони: Як у %1$s</string>
+    <string name="profile_addons_shared_saved">%1$s тепер використовує адони профілю %2$s.</string>
+    <string name="profile_addons_own_saved">%1$s тепер має окремі адони.</string>
+    <string name="profile_pin_overlay_access_heading">Введіть PIN для %1$s.</string>
+    <string name="profile_pin_overlay_access_support">Цей профіль заблоковано. Введіть його 4-значний PIN, щоб продовжити.</string>
+    <string name="profile_pin_overlay_reset_heading">Введіть PIN профілю %1$s, щоб скинути цей PIN.</string>
+    <string name="profile_pin_overlay_reset_support">Потім виберіть новий PIN для %1$s.</string>
+    <string name="profile_pin_forgot_reset">Забули PIN? Скиньте його за допомогою PIN профілю %1$s</string>
+    <string name="profile_pin_forgot_needs_main">Забули PIN? Спершу встановіть PIN для %1$s, а потім скористайтеся ним, щоб скинути цей.</string>
+    <string name="profile_pin_forgot_main">PIN основного профілю не можна скинути, тож зберігайте його в надійному місці.</string>
+    <string name="profile_pin_reset_for_profile">PIN для %1$s скинуто.</string>
+    <string name="profile_pin_incorrect_for_profile">Неправильний PIN для %1$s.</string>
+    <string name="profile_selection_kids_badge">ДИТЯЧИЙ</string>
+    <string name="profile_manage_done">Готово</string>
+    <string name="cd_profile_locked">Заблоковано PIN-кодом</string>
+    <string name="profile_save_error">Не вдалося зберегти профіль. Спробуйте ще раз.</string>
+    <string name="profile_delete_error">Не вдалося видалити профіль. Спробуйте ще раз.</string>
+    <string name="parental_pin_nudge_title">Захистіть обмеження профілю %1$s</string>
+    <string name="parental_pin_nudge_subtitle">Встановіть PIN для %1$s. Без нього будь-хто зможе змінити обмеження профілю %2$s або перейти на інший профіль.</string>
+    <string name="parental_pin_nudge_set">Встановити PIN для %1$s</string>
+    <string name="parental_pin_nudge_later">Не зараз</string>
 </resources>

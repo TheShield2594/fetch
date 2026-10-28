@@ -15,7 +15,6 @@ import com.fetch.tv.core.player.BitrateAwareLoadControl
 import com.fetch.tv.core.player.LastPlaybackDiagnostics
 import com.fetch.tv.core.tracking.TrackingMediaReference
 import com.fetch.tv.core.tracking.TrackingScrobbleCoordinator
-import com.fetch.tv.core.torrent.TorrentService
 import com.fetch.tv.data.local.AutoSkipSegmentType
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.data.local.MpvHardwareDecodeMode
@@ -83,8 +82,6 @@ class PlayerRuntimeController(
     internal val watchedItemsPreferences: com.fetch.tv.data.local.WatchedItemsPreferences,
     internal val trackPreferenceDataStore: com.fetch.tv.data.local.TrackPreferenceDataStore,
     internal val audioDelayRouteDataStore: AudioDelayRouteDataStore,
-    internal val torrentService: TorrentService,
-    internal val torrentSettings: com.fetch.tv.core.torrent.TorrentSettings,
     internal val tmdbService: com.fetch.tv.core.tmdb.TmdbService,
     internal val tmdbMetadataService: com.fetch.tv.core.tmdb.TmdbMetadataService,
     internal val tmdbSettingsDataStore: com.fetch.tv.data.local.TmdbSettingsDataStore,
@@ -692,20 +689,9 @@ class PlayerRuntimeController(
     internal var libassPipelineSwitchInFlight: Boolean = false
     internal var hasDetectedAssSsaTrackForCurrentStream: Boolean = false
     internal var libassPipelineDecisionStreamUrl: String? = null
-    internal var torrentStreamJob: Job? = null
-    internal var torrentStateObserverJob: Job? = null
-    internal var isTorrentStream: Boolean = navigationArgs.infoHash != null && !initialStreamUrl.startsWith("http")
+    // Info hash and file index of a debrid-resolved torrent, for party source matching.
     internal var currentInfoHash: String? = navigationArgs.infoHash
     internal var currentFileIdx: Int? = navigationArgs.fileIdx
-    internal var currentTorrentSources: List<String>? =
-        navigationArgs.sourcesJson?.let { raw ->
-            runCatching {
-                val arr = org.json.JSONArray(raw)
-                (0 until arr.length()).mapNotNull { i ->
-                    arr.optString(i).takeIf { s -> s.isNotEmpty() }
-                }
-            }.getOrNull()?.takeIf { it.isNotEmpty() }
-        }
 
     internal var currentStreamHasVideoTrack: Boolean = false
     internal var currentVideoTrackIsLikelyVc1: Boolean = false
@@ -739,21 +725,12 @@ class PlayerRuntimeController(
         observeBlurUnwatchedEpisodes()
         observeEpisodeOptionsOverlayStyle()
         observeEpisodeWatchProgress()
-        observeTorrentSettings()
         observeStreamBadgeSettings()
         observeDeviceLocalAspectMode()
         observeDeviceLocalTransparentLetterbox()
         observeDeviceLocalTunneledSurfaceFill()
         observePlayerStatsHud()
         observeEpisodeQueue()
-    }
-
-    private fun observeTorrentSettings() {
-        scope.launch {
-            torrentSettings.settings.collect { settings ->
-                _uiState.update { it.copy(hideTorrentStats = settings.hideTorrentStats) }
-            }
-        }
     }
 
     private fun observeStreamBadgeSettings() {
@@ -774,8 +751,6 @@ class PlayerRuntimeController(
         playerSession.close()
         stopServerPlayback()
         releasePlayer()
-        stopTorrentStream()
-        torrentService.shutdown()
         startupLoadingReportJob?.cancel()
         vodTelemetryJob?.cancel()
         mediaSourceFactory.shutdown()

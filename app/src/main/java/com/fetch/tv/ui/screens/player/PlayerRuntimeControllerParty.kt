@@ -136,7 +136,7 @@ internal fun PlayerRuntimeController.currentPartyMedia(): PartyMedia = PartyMedi
 )
 
 internal fun PlayerRuntimeController.currentPartyStream(): PartyStream? {
-    if (isTorrentStream || _uiState.value.isServerStream) return null
+    if (_uiState.value.isServerStream) return null
     val url = currentStreamUrl
     if (!isShareableStreamUrl(url)) return null
     return PartyStream(

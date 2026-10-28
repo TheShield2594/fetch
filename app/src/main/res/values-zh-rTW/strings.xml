@@ -486,8 +486,6 @@
     <string name="essential_autoplay_next_episode">自動播放下一集</string>
     <string name="essential_autoplay_next_episode_subtitle">在串流播放結束後繼續播放下一集。</string>
     <string name="external_auto_next_loading">正在載入下一集…</string>
-    <string name="essential_p2p_streams">P2P 串流</string>
-    <string name="essential_p2p_streams_subtitle">允許點對點串流來源。</string>
     <string name="essential_subtitle_language_subtitle">偏好的字幕語言。</string>
     <string name="essential_audio_language_subtitle">偏好的音訊語言。</string>
     <!-- 帳戶/登入錯誤訊息 -->
@@ -1294,14 +1292,6 @@
     <string name="stream_no_streams">找不到串流</string>
     <string name="stream_no_streams_hint">嘗試安裝更多擴充套件以尋找串流</string>
     <string name="stream_finding_source">正在尋找串流來源</string>
-    <string name="p2p_consent_title">P2P 串流</string>
-    <string name="p2p_consent_body">此串流使用點對點 (P2P) 技術。啟用 P2P 即表示您知悉並同意：\n\n\u2022 您的 IP 位址將對網路中的其他對等節點可見\n\u2022 您對所存取的內容負全部責任\n\u2022 您確認在您的司法管轄區內擁有串流此內容的合法權利\n\u2022 Fetch 不託管、散佈或控制任何 P2P 內容\n\u2022 Fetch 對您因使用 P2P 串流而產生的任何法律後果不承擔任何責任\n\n您完全自行承擔使用此功能的風險。P2P 可隨時在設定中停用。</string>
-    <string name="p2p_consent_enable">啟用 P2P</string>
-    <string name="p2p_consent_cancel">取消</string>
-    <string name="settings_p2p_title">P2P 串流</string>
-    <string name="settings_p2p_subtitle">允許點對點 (torrent) 串流</string>
-    <string name="settings_p2p_hide_stats_title">隱藏 torrent 統計資料</string>
-    <string name="settings_p2p_hide_stats_subtitle">在載入和播放期間隱藏緩衝、種子、對等節點和下載速度</string>
     <string name="stream_player_picker_title">應使用哪個播放器？</string>
     <string name="stream_player_internal">內建</string>
     <string name="stream_player_external">外部</string>
@@ -1872,7 +1862,6 @@
     <string name="home_error_no_catalog_addons">未安裝目錄擴充套件</string>
 
     <!-- 播放器錯誤 -->
-    <string name="player_error_failed_start_torrent">啟動 torrent 失敗：%1$s</string>
 
     <!-- 播放字幕設定 -->
     <string name="sub_mode_overlay_canvas_sub">支援 HDR 的 Canvas 渲染。可能阻塞 UI 執行緒。</string>
@@ -2240,11 +2229,6 @@
     <string name="playback_player_internal_desc">使用 Fetch 的內建播放器</string>
 
     <!-- 播放器執行時期：torrent 覆蓋層 + 音軌 -->
-    <string name="player_torrent_peer_info">%1$d 個種子 · %2$d 個對等節點</string>
-    <string name="player_torrent_buffered_status">%1$s 已緩衝 · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d 個對等節點 · %2$d 個種子 · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">正在連線至對等節點…</string>
     <string name="player_track_audio_fallback">音訊 %1$d</string>
     <string name="player_track_subtitle_fallback">字幕 %1$d</string>
 
@@ -2259,7 +2243,6 @@
     <string name="player_error_initialize_failed">初始化播放器失敗</string>
     <string name="player_error_mpv_surface_failed">初始化 libmpv 表面失敗</string>
     <string name="player_error_mpv_playback_failed">初始化 libmpv 播放失敗</string>
-    <string name="player_error_torrent">Torrent 錯誤：%1$s</string>
     <string name="player_error_playback_fallback">播放錯誤</string>
     <!-- 字幕時間同步復原 -->
     <string name="subtitle_timing_file_no_lines">在此檔案中找不到字幕行。</string>
@@ -2391,7 +2374,6 @@
     <!-- Torrent 服務 / TorrServer 二進位錯誤 -->
 
     <!-- 播放器執行時期：串流 / 外部連結錯誤 -->
-    <string name="player_torrent_starting_engine">正在啟動 P2P 引擎…</string>
     <string name="player_stream_error_invalid_external_url">無效的外部網址</string>
     <string name="player_stream_error_open_external_link_failed">無法開啟外部連結</string>
     <string name="player_stream_error_invalid_url">無效的串流網址</string>
@@ -2559,9 +2541,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- 其他備用文字 -->
     <string name="playback_estimated_memory_usage">預估記憶體使用量：%1$d / %2$d MB</string>
@@ -2807,7 +2786,6 @@
     <string name="subtitle_style_text_color_hdr">文字顏色（HDR）</string>
     <string name="subtitle_style_text_opacity_hdr">文字不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">這是種子串流，而 Fetch 沒有內建種子引擎。請在附加元件中設定 debrid 以取得可在此播放的連結，或在外部播放器中開啟。</string>
     <string name="because_you_watched_row_title">因為您看過《%1$s》</string>
     <string name="because_you_watched_reason_collection">同系列：%1$s</string>
     <string name="because_you_watched_reason_director">同一導演：%1$s</string>
@@ -2915,4 +2893,76 @@
     <string name="youtube_show_live_subtitle">在內容、搜尋結果和接下來中包含正在進行的直播</string>
     <string name="youtube_hide_watched_title">隱藏已觀看的影片</string>
     <string name="youtube_hide_watched_subtitle">不顯示你已看完的影片，觀看記錄中仍會列出</string>
+    <string name="profile_avatar_category_animals">動物</string>
+    <string name="profile_avatar_category_characters">角色</string>
+    <string name="profile_avatar_category_fun">趣味</string>
+    <string name="avatar_name_fox">狐狸</string>
+    <string name="avatar_name_cat">貓</string>
+    <string name="avatar_name_dog">狗</string>
+    <string name="avatar_name_panda">熊貓</string>
+    <string name="avatar_name_koala">無尾熊</string>
+    <string name="avatar_name_lion">獅子</string>
+    <string name="avatar_name_tiger">老虎</string>
+    <string name="avatar_name_frog">青蛙</string>
+    <string name="avatar_name_owl">貓頭鷹</string>
+    <string name="avatar_name_penguin">企鵝</string>
+    <string name="avatar_name_unicorn">獨角獸</string>
+    <string name="avatar_name_dragon">龍</string>
+    <string name="avatar_name_octopus">章魚</string>
+    <string name="avatar_name_monkey">猴子</string>
+    <string name="avatar_name_rabbit">兔子</string>
+    <string name="avatar_name_bear">熊</string>
+    <string name="avatar_name_hamster">倉鼠</string>
+    <string name="avatar_name_sloth">樹懶</string>
+    <string name="avatar_name_dinosaur">恐龍</string>
+    <string name="avatar_name_butterfly">蝴蝶</string>
+    <string name="avatar_name_robot">機器人</string>
+    <string name="avatar_name_alien">外星人</string>
+    <string name="avatar_name_ghost">幽靈</string>
+    <string name="avatar_name_space_invader">太空侵略者</string>
+    <string name="avatar_name_cool">酷</string>
+    <string name="avatar_name_pumpkin">南瓜</string>
+    <string name="avatar_name_rocket">火箭</string>
+    <string name="avatar_name_star">星星</string>
+    <string name="avatar_name_pizza">披薩</string>
+    <string name="avatar_name_popcorn">爆米花</string>
+    <string name="avatar_name_controller">遊戲手把</string>
+    <string name="avatar_name_guitar">吉他</string>
+    <string name="avatar_name_soccer">足球</string>
+    <string name="avatar_name_basketball">籃球</string>
+    <string name="avatar_name_rainbow">彩虹</string>
+    <string name="avatar_name_cactus">仙人掌</string>
+    <string name="avatar_name_sun">太陽</string>
+    <string name="avatar_name_crystal_ball">水晶球</string>
+    <string name="avatar_name_clapper">場記板</string>
+    <string name="avatar_name_donut">甜甜圈</string>
+    <string name="profile_setup_button">個人資料設定</string>
+    <string name="profile_setup_summary">設定：%1$s</string>
+    <string name="profile_setup_part_kids">兒童</string>
+    <string name="profile_setup_part_addons">%1$s 的擴充套件</string>
+    <string name="profile_setup_part_settings">來自 %1$s 的設定</string>
+    <string name="profile_setup_title">個人資料設定</string>
+    <string name="profile_setup_subtitle">兒童個人資料只會顯示 PG 以下分級的內容，並隱藏未分級的內容。與 %1$s 共用的擴充套件只能從 %1$s 變更。</string>
+    <string name="profile_addons_own">擴充套件：獨立</string>
+    <string name="profile_addons_shared">擴充套件：與 %1$s 相同</string>
+    <string name="profile_addons_shared_saved">%1$s 現在使用 %2$s 的擴充套件。</string>
+    <string name="profile_addons_own_saved">%1$s 現在擁有獨立的擴充套件。</string>
+    <string name="profile_pin_overlay_access_heading">輸入 %1$s 的 PIN。</string>
+    <string name="profile_pin_overlay_access_support">此個人資料已鎖定。請輸入 4 位數 PIN 以繼續。</string>
+    <string name="profile_pin_overlay_reset_heading">輸入 %1$s 的 PIN 以重設此 PIN。</string>
+    <string name="profile_pin_overlay_reset_support">然後為 %1$s 選擇新的 PIN。</string>
+    <string name="profile_pin_forgot_reset">忘記 PIN？使用 %1$s 的 PIN 重設</string>
+    <string name="profile_pin_forgot_needs_main">忘記 PIN？請先為 %1$s 設定 PIN，再用它重設此 PIN。</string>
+    <string name="profile_pin_forgot_main">主要個人資料的 PIN 無法重設，請妥善保管。</string>
+    <string name="profile_pin_reset_for_profile">已重設 %1$s 的 PIN。</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s 的 PIN 不正確。</string>
+    <string name="profile_selection_kids_badge">兒童</string>
+    <string name="profile_manage_done">完成</string>
+    <string name="cd_profile_locked">已用 PIN 鎖定</string>
+    <string name="profile_save_error">無法儲存個人資料。請重試。</string>
+    <string name="profile_delete_error">無法刪除個人資料。請重試。</string>
+    <string name="parental_pin_nudge_title">保護 %1$s 的限制</string>
+    <string name="parental_pin_nudge_subtitle">為 %1$s 設定 PIN。若未設定，任何人都能變更 %2$s 的限制或切換到其他個人資料。</string>
+    <string name="parental_pin_nudge_set">為 %1$s 設定 PIN</string>
+    <string name="parental_pin_nudge_later">稍後再說</string>
 </resources>

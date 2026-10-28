@@ -164,9 +164,6 @@ internal fun PlayerRuntimeController.buildPlaybackIssueLoadingInput(reportReason
         addonSubtitlesCount = state.addonSubtitles.size,
         isLoadingSourceStreams = state.isLoadingSourceStreams,
         isLoadingEpisodeStreams = state.isLoadingEpisodeStreams,
-        torrentDownloadSpeed = state.torrentDownloadSpeed,
-        torrentPeers = state.torrentPeers,
-        torrentSeeds = state.torrentSeeds,
         rawEventLines = loadingDiagnosticRawEventLines.toList(),
         events = loadingDiagnosticEvents.map {
             PlaybackIssueLoadingEventInput(

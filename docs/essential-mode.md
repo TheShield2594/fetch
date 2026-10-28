@@ -41,7 +41,7 @@ Current root navigation:
 Current settings rail, after Search, by heading:
 
 - People: Profiles, Watch party
-- Playback: in advanced mode one entry per section (Player, Stream selection, Up next, Skip segments, Player interface, Audio, Subtitles, Video, Buffer & network when the engine uses ExoPlayer, P2P streaming when the torrent engine is built in); in essential mode the single Playback basics page. Anime-Skip follows either way.
+- Playback: in advanced mode one entry per section (Player, Stream selection, Up next, Skip segments, Player interface, Audio, Subtitles, Video, Buffer & network when the engine uses ExoPlayer); in essential mode the single Playback basics page. Anime-Skip follows either way.
 - Sources: Content & discovery, TMDB, MDBList
 - Home: Appearance, Layout
 - Accounts: Account, Tracking, YouTube
@@ -77,7 +77,7 @@ Essential mode hides:
 - Layout customization beyond one or two safe choices.
 - Catalog ordering and collection editing.
 - Integration tuning for TMDB, MDBList, Anime-Skip, and Trakt advanced options.
-- Detailed playback tuning, decoder settings, frame-rate switching, subtitle renderer controls, P2P stats, cache tools, and debug tools.
+- Detailed playback tuning, decoder settings, frame-rate switching, subtitle renderer controls, cache tools, and debug tools.
 
 ### Advanced Mode
 
@@ -88,7 +88,7 @@ Advanced mode is for users who want:
 - Full layout and home customization.
 - Catalog order and collection management.
 - Trakt, TMDB, MDBList, and Anime-Skip configuration.
-- Playback engine selection, frame-rate matching, subtitle rendering, P2P settings, and diagnostics.
+- Playback engine selection, frame-rate matching, subtitle rendering, and diagnostics.
 
 ### Non-Goals
 
@@ -236,7 +236,6 @@ Recommended Essential settings sections:
    - Player: Internal, External, Ask every time.
    - Stream selection: Manual or Auto-play first available.
    - Auto-play next episode.
-   - P2P streaming toggle or status if torrent streams are encountered.
 
 4. Subtitles and audio
    - Preferred subtitle language.
@@ -307,8 +306,6 @@ Advanced settings should continue to use the existing `SettingsScreen` rail.
 | Subtitle vertical offset | Hide | Show | Advanced style. |
 | Subtitle colors, outline, bold | Hide | Show | Advanced style. |
 | libass and render type | Hide | Show | Advanced renderer behavior. |
-| P2P enable consent | Show when needed | Show | Essential must not surprise users with torrents. |
-| P2P stats visibility | Hide | Show | Advanced diagnostics. |
 | TMDB settings | Hide | Show | Keep defaults in Essential. |
 | MDBList settings | Hide | Show | Advanced ratings integration. |
 | Anime-Skip settings | Hide | Show | Advanced integration. |
@@ -349,7 +346,6 @@ Recommended defaults for a new Essential user:
 | Pause overlay | enabled | Current default. |
 | OSD clock | enabled | Current default. |
 | Trailer autoplay | current default | Hide setting unless Advanced. |
-| P2P | disabled until user consents | Current default and safer. |
 
 ## Detailed Essential Settings Design
 
@@ -407,10 +403,6 @@ Rows:
 
 - Auto-play next episode
   - Maps to `streamAutoPlayNextEpisodeEnabled`.
-
-- P2P streaming
-  - Maps to `TorrentSettings.p2pEnabled`.
-  - The first torrent playback should still show consent even if the settings row is not visited.
 
 Hide in Essential:
 
@@ -681,7 +673,6 @@ Essential rows:
 - Player preference.
 - Stream selection manual/first stream.
 - Auto-play next episode.
-- P2P enabled.
 - Preferred audio language.
 - Preferred subtitle language.
 - Subtitle size.
@@ -715,7 +706,6 @@ Essential should hide:
 - Aspect ratio.
 - Open in external player from More.
 - Stream info.
-- Torrent stats toggle.
 
 Keep keyboard shortcuts and back behavior stable.
 
@@ -770,7 +760,6 @@ Switching modes must never:
 - Delete library items.
 - Clear watch progress.
 - Reset theme, layout, playback, subtitle, or account settings.
-- Change P2P state without explicit user action.
 - Change Trakt or account sync source without explicit user action.
 
 Switching to Essential only changes visibility.
@@ -830,7 +819,6 @@ Playback:
 - Essential player still supports play/pause, seek, subtitles, audio, sources, and episodes.
 - Hidden advanced controls do not leave focus traps.
 - External player preference still works.
-- Torrent stream consent still appears before enabling P2P.
 
 Build variants:
 

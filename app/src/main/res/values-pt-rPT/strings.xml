@@ -382,8 +382,6 @@
     <string name="essential_autoplay_next_episode">Reproduzir episódio seguinte automaticamente</string>
     <string name="essential_autoplay_next_episode_subtitle">Continua para o episódio seguinte após o término de um stream.</string>
     <string name="external_auto_next_loading">A carregar o episódio seguinte…</string>
-    <string name="essential_p2p_streams">Streams P2P</string>
-    <string name="essential_p2p_streams_subtitle">Permitir fontes de stream peer-to-peer.</string>
     <string name="essential_subtitle_language_subtitle">Idioma preferido das legendas.</string>
     <string name="essential_audio_language_subtitle">Idioma preferido do áudio.</string>
     <!-- Account / sign-in error messages -->
@@ -1025,14 +1023,6 @@
     <string name="stream_no_streams">Nenhum stream encontrado</string>
     <string name="stream_no_streams_hint">Tenta instalar mais addons para encontrar streams</string>
     <string name="stream_finding_source">A procurar fonte do stream</string>
-    <string name="p2p_consent_title">Streaming P2P</string>
-    <string name="p2p_consent_body">Este stream utiliza tecnologia peer-to-peer (P2P). Ao ativar o P2P, reconheces e concordas que:\n\n\u2022 O teu endereço IP estará visível para outros utilizadores (peers) na rede\n\u2022 És o único responsável pelo conteúdo a que acedes\n\u2022 Confirmas que tens o direito legal de reproduzir este conteúdo na tua jurisdição\n\u2022 O Fetch não aloja, distribui ou controla qualquer conteúdo P2P\n\u2022 O Fetch não assume qualquer responsabilidade por quaisquer consequências legais decorrentes da tua utilização de streaming P2P\n\nUtilizas esta funcionalidade inteiramente por tua conta e risco. O P2P pode ser desativado a qualquer momento nas Definições.</string>
-    <string name="p2p_consent_enable">Ativar P2P</string>
-    <string name="p2p_consent_cancel">Cancelar</string>
-    <string name="settings_p2p_title">Streaming P2P</string>
-    <string name="settings_p2p_subtitle">Permitir streams peer-to-peer (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Ocultar estatísticas de torrent</string>
-    <string name="settings_p2p_hide_stats_subtitle">Ocultar buffer, seeds, peers e velocidade de transferência durante o carregamento e reprodução</string>
     <string name="stream_player_picker_title">Que leitor deve ser utilizado?</string>
     <string name="stream_player_internal">Interno</string>
     <string name="stream_player_external">Externo</string>
@@ -1445,7 +1435,6 @@
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Nenhum addon de catálogo instalado</string>
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Falha ao iniciar o torrent: %1$s</string>
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Suporte HDR com renderização em canvas. Pode bloquear a thread da interface (UI).</string>
     <string name="ratings_season_label">T%1$d</string>
@@ -1793,11 +1782,6 @@
     <!-- Playback settings sections -->
     <string name="playback_player_internal_desc">Utilizar o leitor interno do Fetch</string>
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seeds · %2$d peers</string>
-    <string name="player_torrent_buffered_status">%1$s em buffer · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peers · %2$d seeds · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">A ligar aos peers…</string>
     <string name="player_track_audio_fallback">Áudio %1$d</string>
     <string name="player_track_subtitle_fallback">Legenda %1$d</string>
     <!-- Player runtime: error recovery -->
@@ -1811,7 +1795,6 @@
     <string name="player_error_initialize_failed">Falha ao inicializar o leitor</string>
     <string name="player_error_mpv_surface_failed">Falha ao inicializar a superfície libmpv</string>
     <string name="player_error_mpv_playback_failed">Falha ao inicializar a reprodução libmpv</string>
-    <string name="player_error_torrent">Erro de torrent: %1$s</string>
     <string name="player_error_playback_fallback">Erro de reprodução</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Não foram encontradas linhas de legenda neste ficheiro.</string>
@@ -1896,7 +1879,6 @@
     <string name="network_fast_error_token_missing">fast.com: token não encontrado no pacote (bundle)</string>
     <!-- Torrent service / TorrServer binary errors -->
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">A iniciar o motor P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL externo inválido</string>
     <string name="player_stream_error_open_external_link_failed">Não foi possível abrir o link externo</string>
     <string name="player_stream_error_invalid_url">URL do stream inválido</string>
@@ -2030,9 +2012,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Uso estimado de memória: %1$d / %2$d MB</string>
     <string name="profile_default_name">Perfil %1$d</string>
@@ -2260,7 +2239,6 @@
     <string name="subtitle_style_text_color_hdr">Cor do texto (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacidade do texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Este é um stream torrent e o Fetch não tem um motor de torrent integrado. Configure o debrid no addon para obter uma ligação que reproduza aqui, ou abra-o num leitor externo.</string>
     <string name="because_you_watched_row_title">Porque viste %1$s</string>
     <string name="because_you_watched_reason_collection">Também em %1$s</string>
     <string name="because_you_watched_reason_director">Também realizado por %1$s</string>
@@ -2370,4 +2348,77 @@
     <string name="youtube_show_live_subtitle">Inclui transmissões em direto nos teus feeds, resultados de pesquisa e em Seguinte</string>
     <string name="youtube_hide_watched_title">Ocultar vídeos vistos</string>
     <string name="youtube_hide_watched_subtitle">Deixa de fora os vídeos que viste até ao fim. O histórico continua a listá-los</string>
+    <string name="profile_avatar_category_supporter">Apoiantes</string>
+    <string name="profile_avatar_category_animals">Animais</string>
+    <string name="profile_avatar_category_characters">Personagens</string>
+    <string name="profile_avatar_category_fun">Diversão</string>
+    <string name="avatar_name_fox">Raposa</string>
+    <string name="avatar_name_cat">Gato</string>
+    <string name="avatar_name_dog">Cão</string>
+    <string name="avatar_name_panda">Panda</string>
+    <string name="avatar_name_koala">Coala</string>
+    <string name="avatar_name_lion">Leão</string>
+    <string name="avatar_name_tiger">Tigre</string>
+    <string name="avatar_name_frog">Sapo</string>
+    <string name="avatar_name_owl">Mocho</string>
+    <string name="avatar_name_penguin">Pinguim</string>
+    <string name="avatar_name_unicorn">Unicórnio</string>
+    <string name="avatar_name_dragon">Dragão</string>
+    <string name="avatar_name_octopus">Polvo</string>
+    <string name="avatar_name_monkey">Macaco</string>
+    <string name="avatar_name_rabbit">Coelho</string>
+    <string name="avatar_name_bear">Urso</string>
+    <string name="avatar_name_hamster">Hamster</string>
+    <string name="avatar_name_sloth">Preguiça</string>
+    <string name="avatar_name_dinosaur">Dinossauro</string>
+    <string name="avatar_name_butterfly">Borboleta</string>
+    <string name="avatar_name_robot">Robô</string>
+    <string name="avatar_name_alien">Extraterrestre</string>
+    <string name="avatar_name_ghost">Fantasma</string>
+    <string name="avatar_name_space_invader">Invasor espacial</string>
+    <string name="avatar_name_cool">Fixe</string>
+    <string name="avatar_name_pumpkin">Abóbora</string>
+    <string name="avatar_name_rocket">Foguetão</string>
+    <string name="avatar_name_star">Estrela</string>
+    <string name="avatar_name_pizza">Pizza</string>
+    <string name="avatar_name_popcorn">Pipocas</string>
+    <string name="avatar_name_controller">Comando</string>
+    <string name="avatar_name_guitar">Guitarra</string>
+    <string name="avatar_name_soccer">Futebol</string>
+    <string name="avatar_name_basketball">Basquetebol</string>
+    <string name="avatar_name_rainbow">Arco-íris</string>
+    <string name="avatar_name_cactus">Cato</string>
+    <string name="avatar_name_sun">Sol</string>
+    <string name="avatar_name_crystal_ball">Bola de cristal</string>
+    <string name="avatar_name_clapper">Claquete</string>
+    <string name="avatar_name_donut">Donut</string>
+    <string name="profile_setup_button">Configuração do perfil</string>
+    <string name="profile_setup_summary">Configuração: %1$s</string>
+    <string name="profile_setup_part_kids">Infantil</string>
+    <string name="profile_setup_part_addons">addons de %1$s</string>
+    <string name="profile_setup_part_settings">definições de %1$s</string>
+    <string name="profile_setup_title">Configuração do perfil</string>
+    <string name="profile_setup_subtitle">Um perfil infantil só mostra títulos com classificação PG ou inferior e oculta os não classificados. Os addons partilhados com %1$s só podem ser alterados a partir de %1$s.</string>
+    <string name="profile_addons_own">Addons: Próprios</string>
+    <string name="profile_addons_shared">Addons: Iguais a %1$s</string>
+    <string name="profile_addons_shared_saved">%1$s usa agora os addons de %2$s.</string>
+    <string name="profile_addons_own_saved">%1$s tem agora addons próprios.</string>
+    <string name="profile_pin_overlay_access_heading">Introduz o PIN de %1$s.</string>
+    <string name="profile_pin_overlay_access_support">Este perfil está bloqueado. Introduz o PIN de 4 dígitos para continuar.</string>
+    <string name="profile_pin_overlay_reset_heading">Introduz o PIN de %1$s para repor este PIN.</string>
+    <string name="profile_pin_overlay_reset_support">Depois, escolhe um novo PIN para %1$s.</string>
+    <string name="profile_pin_forgot_reset">Esqueceste o PIN? Repõe-no com o PIN de %1$s</string>
+    <string name="profile_pin_forgot_needs_main">Esqueceste o PIN? Define primeiro um PIN em %1$s e depois usa-o para repor este.</string>
+    <string name="profile_pin_forgot_main">O PIN do perfil principal não pode ser reposto, por isso guarda-o num local seguro.</string>
+    <string name="profile_pin_reset_for_profile">PIN de %1$s reposto.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN incorreto para %1$s.</string>
+    <string name="profile_selection_kids_badge">INFANTIL</string>
+    <string name="profile_manage_done">Concluído</string>
+    <string name="cd_profile_locked">Bloqueado com PIN</string>
+    <string name="profile_save_error">Não foi possível guardar o perfil. Tenta novamente.</string>
+    <string name="profile_delete_error">Não foi possível eliminar o perfil. Tenta novamente.</string>
+    <string name="parental_pin_nudge_title">Protege os limites de %1$s</string>
+    <string name="parental_pin_nudge_subtitle">Define um PIN em %1$s. Sem ele, qualquer pessoa pode alterar os limites de %2$s ou mudar para outro perfil.</string>
+    <string name="parental_pin_nudge_set">Definir PIN em %1$s</string>
+    <string name="parental_pin_nudge_later">Agora não</string>
 </resources>

@@ -238,21 +238,6 @@ data class PlayerUiState(
     // Stream info overlay
     val showStreamInfoOverlay: Boolean = false,
     val streamInfoData: StreamInfoData? = null,
-    // Torrent streaming state
-    val isTorrentStream: Boolean = false,
-    val torrentDownloadSpeed: Long = 0L,
-    val torrentUploadSpeed: Long = 0L,
-    val torrentPeers: Int = 0,
-    val torrentSeeds: Int = 0,
-    val torrentBufferProgress: Float = 0f,
-    val torrentTotalProgress: Float = 0f,
-    val showTorrentStats: Boolean = false,
-    // Torrent mid-playback rebuffering (shown on the buffering spinner, not loading overlay)
-    val torrentBufferingMessage: String? = null,
-    val torrentBufferingProgress: Float = 0f,
-    // When true, suppress all torrent stats text (buffer, seeds, peers, speed)
-    // from loading overlay, rebuffering indicator, and corner overlay.
-    val hideTorrentStats: Boolean = true,
     val isLive: Boolean = false
 ) {
     /** Subtitle style to render with, after applying the HDR override for the current video. */
@@ -402,7 +387,6 @@ sealed class PlayerEvent {
     data object OnShowStreamInfo : PlayerEvent()
     data object OnDismissStreamInfo : PlayerEvent()
     data object OnTogglePlayerStatsHud : PlayerEvent()
-    data object OnToggleTorrentStats : PlayerEvent()
 }
 
 data class ParentalWarning(

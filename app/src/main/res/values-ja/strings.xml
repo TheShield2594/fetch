@@ -396,8 +396,6 @@
     <string name="essential_autoplay_next_episode">次のエピソードを自動再生</string>
     <string name="essential_autoplay_next_episode_subtitle">ストリーム終了後に次のエピソードへ続行。</string>
     <string name="external_auto_next_loading">次のエピソードを読み込み中…</string>
-    <string name="essential_p2p_streams">P2Pストリーム</string>
-    <string name="essential_p2p_streams_subtitle">ピアツーピアストリームソースを許可。</string>
     <string name="essential_subtitle_language_subtitle">優先字幕言語。</string>
     <string name="essential_audio_language_subtitle">優先音声言語。</string>
     <!-- Account / sign-in error messages -->
@@ -1060,14 +1058,6 @@
     <string name="stream_no_streams">ストリームが見つかりません</string>
     <string name="stream_no_streams_hint">より多くのアドオンをインストールしてストリームを見つけてみてください</string>
     <string name="stream_finding_source">ストリームソースを検索中</string>
-    <string name="p2p_consent_title">P2Pストリーミング</string>
-    <string name="p2p_consent_body">このストリームはピアツーピア（P2P）技術を使用します。P2Pを有効にすると、以下を了承したものとみなされます:\n\n\u2022 あなたのIPアドレスはネットワーク上の他のピアに公開されます\n\u2022 アクセスするコンテンツに対する責任はすべてあなた自身にあります\n\u2022 あなたの管轄区域でこのコンテンツをストリーミングする法的権利を有することを確認します\n\u2022 FetchはP2Pコンテンツをホスト、配布、または制御しません\n\u2022 FetchはP2Pストリーミングの使用に起因する法的結果に対して一切の責任を負いません\n\nこの機能は完全に自己責任で使用してください。P2Pはいつでも設定で無効にできます。</string>
-    <string name="p2p_consent_enable">P2Pを有効にする</string>
-    <string name="p2p_consent_cancel">キャンセル</string>
-    <string name="settings_p2p_title">P2Pストリーミング</string>
-    <string name="settings_p2p_subtitle">ピアツーピア（トレント）ストリームを許可</string>
-    <string name="settings_p2p_hide_stats_title">トレント統計を非表示</string>
-    <string name="settings_p2p_hide_stats_subtitle">読み込み中と再生中にバッファ、シード、ピア、ダウンロード速度を非表示</string>
     <string name="stream_player_picker_title">使用するプレーヤーを選択してください</string>
     <string name="stream_player_internal">内部</string>
     <string name="stream_player_external">外部</string>
@@ -1524,7 +1514,6 @@
     <string name="home_error_no_catalog_addons">カタログアドオンがインストールされていません</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">トレントの開始に失敗しました: %1$s</string>
 
     <string name="ratings_season_label">S%1$d</string>
     <string name="ratings_episode_label">E%1$d</string>
@@ -1879,11 +1868,6 @@
     <string name="playback_player_internal_desc">Fetchの内蔵プレーヤーを使用</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$dシード · %2$dピア</string>
-    <string name="player_torrent_buffered_status">%1$s バッファ済み · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$dピア · %2$dシード · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">ピアに接続中…</string>
     <string name="player_track_audio_fallback">音声%1$d</string>
     <string name="player_track_subtitle_fallback">字幕%1$d</string>
 
@@ -1898,7 +1882,6 @@
     <string name="player_error_initialize_failed">プレーヤーの初期化に失敗しました</string>
     <string name="player_error_mpv_surface_failed">libmpvサーフェスの初期化に失敗しました</string>
     <string name="player_error_mpv_playback_failed">libmpv再生の初期化に失敗しました</string>
-    <string name="player_error_torrent">トレントエラー: %1$s</string>
     <string name="player_error_playback_fallback">再生エラー</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">このファイルに字幕行が見つかりませんでした。</string>
@@ -1996,7 +1979,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">P2Pエンジンを起動中…</string>
     <string name="player_stream_error_invalid_external_url">無効な外部URL</string>
     <string name="player_stream_error_open_external_link_failed">外部リンクを開けませんでした</string>
     <string name="player_stream_error_invalid_url">無効なストリームURL</string>
@@ -2151,9 +2133,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">推定メモリ使用量: %1$d / %2$d MB</string>
@@ -2379,7 +2358,6 @@
     <string name="subtitle_style_text_color_hdr">文字色（HDR）</string>
     <string name="subtitle_style_text_opacity_hdr">文字の不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">これはトレントストリームで、Fetch にはトレントエンジンが内蔵されていません。ここで再生できるリンクを得るにはアドオンで Debrid を設定するか、外部プレーヤーで開いてください。</string>
     <string name="because_you_watched_row_title">「%1$s」を視聴したあなたへ</string>
     <string name="because_you_watched_reason_collection">同じシリーズ: %1$s</string>
     <string name="because_you_watched_reason_director">同じ監督: %1$s</string>
@@ -2487,4 +2465,77 @@
     <string name="youtube_show_live_subtitle">現在ライブ中の配信をフィード、検索結果、次の動画に含めます</string>
     <string name="youtube_hide_watched_title">視聴済みの動画を非表示</string>
     <string name="youtube_hide_watched_subtitle">最後まで視聴した動画を除外します。履歴には引き続き表示されます</string>
+    <string name="profile_avatar_category_supporter">サポーター</string>
+    <string name="profile_avatar_category_animals">動物</string>
+    <string name="profile_avatar_category_characters">キャラクター</string>
+    <string name="profile_avatar_category_fun">おもしろ</string>
+    <string name="avatar_name_fox">キツネ</string>
+    <string name="avatar_name_cat">ネコ</string>
+    <string name="avatar_name_dog">イヌ</string>
+    <string name="avatar_name_panda">パンダ</string>
+    <string name="avatar_name_koala">コアラ</string>
+    <string name="avatar_name_lion">ライオン</string>
+    <string name="avatar_name_tiger">トラ</string>
+    <string name="avatar_name_frog">カエル</string>
+    <string name="avatar_name_owl">フクロウ</string>
+    <string name="avatar_name_penguin">ペンギン</string>
+    <string name="avatar_name_unicorn">ユニコーン</string>
+    <string name="avatar_name_dragon">ドラゴン</string>
+    <string name="avatar_name_octopus">タコ</string>
+    <string name="avatar_name_monkey">サル</string>
+    <string name="avatar_name_rabbit">ウサギ</string>
+    <string name="avatar_name_bear">クマ</string>
+    <string name="avatar_name_hamster">ハムスター</string>
+    <string name="avatar_name_sloth">ナマケモノ</string>
+    <string name="avatar_name_dinosaur">恐竜</string>
+    <string name="avatar_name_butterfly">チョウ</string>
+    <string name="avatar_name_robot">ロボット</string>
+    <string name="avatar_name_alien">宇宙人</string>
+    <string name="avatar_name_ghost">おばけ</string>
+    <string name="avatar_name_space_invader">インベーダー</string>
+    <string name="avatar_name_cool">クール</string>
+    <string name="avatar_name_pumpkin">カボチャ</string>
+    <string name="avatar_name_rocket">ロケット</string>
+    <string name="avatar_name_star">星</string>
+    <string name="avatar_name_pizza">ピザ</string>
+    <string name="avatar_name_popcorn">ポップコーン</string>
+    <string name="avatar_name_controller">コントローラー</string>
+    <string name="avatar_name_guitar">ギター</string>
+    <string name="avatar_name_soccer">サッカー</string>
+    <string name="avatar_name_basketball">バスケットボール</string>
+    <string name="avatar_name_rainbow">虹</string>
+    <string name="avatar_name_cactus">サボテン</string>
+    <string name="avatar_name_sun">太陽</string>
+    <string name="avatar_name_crystal_ball">水晶玉</string>
+    <string name="avatar_name_clapper">カチンコ</string>
+    <string name="avatar_name_donut">ドーナツ</string>
+    <string name="profile_setup_button">プロフィール設定</string>
+    <string name="profile_setup_summary">設定: %1$s</string>
+    <string name="profile_setup_part_kids">キッズ</string>
+    <string name="profile_setup_part_addons">%1$sのアドオン</string>
+    <string name="profile_setup_part_settings">%1$sの設定</string>
+    <string name="profile_setup_title">プロフィール設定</string>
+    <string name="profile_setup_subtitle">キッズプロフィールではPG以下のタイトルのみ表示され、レーティングのないタイトルは非表示になります。%1$sと共有しているアドオンは%1$sからのみ変更できます。</string>
+    <string name="profile_addons_own">アドオン: 個別</string>
+    <string name="profile_addons_shared">アドオン: %1$sと同じ</string>
+    <string name="profile_addons_shared_saved">%1$sは%2$sのアドオンを使用するようになりました。</string>
+    <string name="profile_addons_own_saved">%1$sは個別のアドオンを使用するようになりました。</string>
+    <string name="profile_pin_overlay_access_heading">%1$sのPINを入力してください</string>
+    <string name="profile_pin_overlay_access_support">このプロフィールはロックされています。続行するには4桁のPINを入力してください</string>
+    <string name="profile_pin_overlay_reset_heading">このPINをリセットするには%1$sのPINを入力してください</string>
+    <string name="profile_pin_overlay_reset_support">その後、%1$sの新しいPINを選択してください</string>
+    <string name="profile_pin_forgot_reset">PINをお忘れですか？%1$sのPINでリセット</string>
+    <string name="profile_pin_forgot_needs_main">PINをお忘れですか？まず%1$sにPINを設定し、それを使ってこのPINをリセットしてください。</string>
+    <string name="profile_pin_forgot_main">メインプロフィールのPINはリセットできないため、安全な場所に保管してください。</string>
+    <string name="profile_pin_reset_for_profile">%1$sのPINをリセットしました。</string>
+    <string name="profile_pin_incorrect_for_profile">%1$sのPINが正しくありません。</string>
+    <string name="profile_selection_kids_badge">キッズ</string>
+    <string name="profile_manage_done">完了</string>
+    <string name="cd_profile_locked">PINでロック中</string>
+    <string name="profile_save_error">プロフィールを保存できませんでした。もう一度お試しください。</string>
+    <string name="profile_delete_error">プロフィールを削除できませんでした。もう一度お試しください。</string>
+    <string name="parental_pin_nudge_title">%1$sの視聴制限を保護</string>
+    <string name="parental_pin_nudge_subtitle">%1$sにPINを設定してください。PINがないと、誰でも%2$sの視聴制限を変更したり、別のプロフィールに切り替えたりできます。</string>
+    <string name="parental_pin_nudge_set">%1$sにPINを設定</string>
+    <string name="parental_pin_nudge_later">後で</string>
 </resources>

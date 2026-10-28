@@ -389,8 +389,6 @@
     <string name="essential_stream_selection_subtitle">கைமுறையாக தேர்வு செய்யவும் அல்லது முதல் ஸ்ட்ரீமை தானாக இயக்கவும்.</string>
     <string name="essential_autoplay_next_episode">அடுத்த அத்தியாயம் தானியங்கு இயக்கம்</string>
     <string name="essential_autoplay_next_episode_subtitle">ஒரு ஸ்ட்ரீம் முடிந்ததும் அடுத்த அத்தியாயத்தை தொடர்க.</string>
-    <string name="essential_p2p_streams">P2P ஸ்ட்ரீம்கள்</string>
-    <string name="essential_p2p_streams_subtitle">பயனர்-பயனர் ஸ்ட்ரீம் மூலங்களை அனுமதி.</string>
     <string name="essential_subtitle_language_subtitle">விருப்பமான வசனவரி மொழி.</string>
     <string name="essential_audio_language_subtitle">விருப்பமான ஒலி மொழி.</string>
     <!-- Account / sign-in error messages -->
@@ -982,14 +980,6 @@
     <string name="stream_no_streams">ஸ்ட்ரீம்கள் எதுவும் கிடைக்கவில்லை</string>
     <string name="stream_no_streams_hint">ஸ்ட்ரீம்களை கண்டுபிடிக்க மேலும் ஆடான்களை நிறுவ முயற்சிக்கவும்</string>
     <string name="stream_finding_source">ஸ்ட்ரீம் மூலத்தை கண்டுபிடிக்கிறது</string>
-    <string name="p2p_consent_title">பீடூபீ ஸ்ட்ரீமிங்</string>
-    <string name="p2p_consent_body">இந்த ஸ்ட்ரீம் பியர்-டு-பியர் (பீடூபீ) தொழில்நுட்பத்தை பயன்படுத்துகிறது. பீடூபீயை இயக்குவதன் மூலம், நீங்கள் பின்வருவனவற்றை ஒப்புக்கொள்கிறீர்கள்:\n\n\u2022 உங்கள் ஐபி முகவரி பிணையத்தில் உள்ள பிற பியர்களுக்கு தெரியும்\n\u2022 நீங்கள் அணுகும் உள்ளடக்கத்திற்கு முழுப் பொறுப்பு உங்களுக்கே\n\u2022 உங்கள் சட்டப்பரப்பில் இந்த உள்ளடக்கத்தை ஸ்ட்ரீம் செய்ய சட்டப்பூர்வ உரிமை உங்களிடம் உள்ளது என்பதை உறுதிப்படுத்துகிறீர்கள்\n\u2022 Fetch எந்த பீடூபீ உள்ளடக்கத்தையும் ஹோஸ்ட் செய்யாது, பகிராது அல்லது கட்டுப்படுத்தாது\n\u2022 பீடூபீ ஸ்ட்ரீமிங்கைப் பயன்படுத்துவதால் ஏற்படும் எந்த சட்ட விளைவுகளுக்கும் Fetch பொறுப்பேற்காது\n\nஇந்த அம்சத்தை முழுமையாக உங்கள் சொந்த ஆபத்தில் பயன்படுத்துகிறீர்கள். அமைப்புகளில் எப்போது வேண்டுமானாலும் பீடூபீயை முடக்கலாம்.</string>
-    <string name="p2p_consent_enable">பீடூபீயை இயக்கு</string>
-    <string name="p2p_consent_cancel">ரத்து செய்</string>
-    <string name="settings_p2p_title">பீடூபீ ஸ்ட்ரீமிங்</string>
-    <string name="settings_p2p_subtitle">பியர்-டு-பியர் (டோரண்ட்) ஸ்ட்ரீம்களை அனுமதி</string>
-    <string name="settings_p2p_hide_stats_title">டோரண்ட் புள்ளிவிவரங்களை மறை</string>
-    <string name="settings_p2p_hide_stats_subtitle">ஏற்றுதல் மற்றும் இயக்கத்தின் போது பஃபர், சீட்ஸ், பியர்ஸ் மற்றும் பதிவிறக்க வேகத்தை மறை</string>
     <string name="stream_player_picker_title">எந்த பிளேயர் பயன்படுத்தப்பட வேண்டும்?</string>
     <string name="stream_player_internal">உள்ளமைவு</string>
     <string name="stream_player_external">வெளிப்புறம்</string>
@@ -1451,7 +1441,6 @@
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">ஸ்ட்ரீம் யுஆர்எல் வழங்கப்படவில்லை</string>
-    <string name="player_error_failed_start_torrent">டோரண்டை தொடங்க முடியவில்லை: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">கேன்வாஸ் ரெண்டரிங்குடன் எச்டிஆர் ஆதரவு. யுஐ த்ரெடை தடுக்கக்கூடும்.</string>
@@ -1818,11 +1807,6 @@
     <string name="playback_player_internal_desc">Fetch-இன் உள்ளமைந்த பிளேயரை பயன்படுத்து</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d விதைகள் · %2$d இணைகள்</string>
-    <string name="player_torrent_buffered_status">%1$s சேமிக்கப்பட்டது · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d இணைகள் · %2$d விதைகள் · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">இணைகளுடன் இணைக்கப்படுகிறது…</string>
     <string name="player_track_audio_fallback">ஒலி %1$d</string>
     <string name="player_track_subtitle_fallback">வசனம் %1$d</string>
 
@@ -1837,7 +1821,6 @@
     <string name="player_error_initialize_failed">பிளேயரை தொடங்க முடியவில்லை</string>
     <string name="player_error_mpv_surface_failed">libmpv மேற்பரப்பை தொடங்க முடியவில்லை</string>
     <string name="player_error_mpv_playback_failed">libmpv இயக்கத்தை தொடங்க முடியவில்லை</string>
-    <string name="player_error_torrent">டாரண்ட் பிழை: %1$s</string>
     <string name="player_error_playback_fallback">இயக்கப் பிழை</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">இந்த கோப்பில் வசன வரிகள் எதுவும் கிடைக்கவில்லை.</string>
@@ -1935,7 +1918,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">பி2பி இயந்திரம் தொடங்குகிறது…</string>
     <string name="player_stream_error_invalid_external_url">தவறான வெளிப்புற யுஆர்எல்</string>
     <string name="player_stream_error_open_external_link_failed">வெளிப்புற இணைப்பைத் திறக்க முடியவில்லை</string>
     <string name="player_stream_error_invalid_url">தவறான ஸ்ட்ரீம் யுஆர்எல்</string>
@@ -2190,7 +2172,6 @@
     <string name="subtitle_style_text_color_hdr">உரை நிறம் (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">உரை ஒளிபுகாத்தன்மை (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">இது ஒரு டொரென்ட் ஸ்ட்ரீம், Fetch-இல் உள்ளமைந்த டொரென்ட் இயந்திரம் இல்லை. இங்கே இயங்கும் இணைப்பைப் பெற செருகுநிரலில் debrid-ஐ அமைக்கவும், அல்லது வெளிப்புற பிளேயரில் திறக்கவும்.</string>
     <string name="because_you_watched_row_title">நீங்கள் %1$s பார்த்ததால்</string>
     <string name="because_you_watched_reason_collection">இதுவும் %1$s-இல்</string>
     <string name="because_you_watched_reason_director">அதே இயக்குனர்: %1$s</string>
@@ -2299,4 +2280,77 @@
     <string name="youtube_show_live_subtitle">இப்போது நேரலையில் உள்ள ஒளிபரப்புகளை உங்கள் ஊட்டங்கள், தேடல் முடிவுகள் மற்றும் அடுத்தது பகுதியில் சேர்க்கவும்</string>
     <string name="youtube_hide_watched_title">பார்த்த வீடியோக்களை மறை</string>
     <string name="youtube_hide_watched_subtitle">முழுமையாகப் பார்த்த வீடியோக்களை விலக்கும். வரலாறு அவற்றை இன்னும் பட்டியலிடும்</string>
+    <string name="profile_avatar_category_supporter">ஆதரவாளர்</string>
+    <string name="profile_avatar_category_animals">விலங்குகள்</string>
+    <string name="profile_avatar_category_characters">கதாபாத்திரங்கள்</string>
+    <string name="profile_avatar_category_fun">வேடிக்கை</string>
+    <string name="avatar_name_fox">நரி</string>
+    <string name="avatar_name_cat">பூனை</string>
+    <string name="avatar_name_dog">நாய்</string>
+    <string name="avatar_name_panda">பாண்டா</string>
+    <string name="avatar_name_koala">கோலா</string>
+    <string name="avatar_name_lion">சிங்கம்</string>
+    <string name="avatar_name_tiger">புலி</string>
+    <string name="avatar_name_frog">தவளை</string>
+    <string name="avatar_name_owl">ஆந்தை</string>
+    <string name="avatar_name_penguin">பென்குயின்</string>
+    <string name="avatar_name_unicorn">ஒற்றைக்கொம்புக் குதிரை</string>
+    <string name="avatar_name_dragon">டிராகன்</string>
+    <string name="avatar_name_octopus">எண்காலி</string>
+    <string name="avatar_name_monkey">குரங்கு</string>
+    <string name="avatar_name_rabbit">முயல்</string>
+    <string name="avatar_name_bear">கரடி</string>
+    <string name="avatar_name_hamster">வெள்ளெலி</string>
+    <string name="avatar_name_sloth">சோம்பேறி விலங்கு</string>
+    <string name="avatar_name_dinosaur">டைனோசர்</string>
+    <string name="avatar_name_butterfly">பட்டாம்பூச்சி</string>
+    <string name="avatar_name_robot">ரோபோ</string>
+    <string name="avatar_name_alien">வேற்றுக்கிரகவாசி</string>
+    <string name="avatar_name_ghost">பேய்</string>
+    <string name="avatar_name_space_invader">விண்வெளிப் படையெடுப்பாளர்</string>
+    <string name="avatar_name_cool">கெத்து</string>
+    <string name="avatar_name_pumpkin">பூசணி</string>
+    <string name="avatar_name_rocket">ராக்கெட்</string>
+    <string name="avatar_name_star">நட்சத்திரம்</string>
+    <string name="avatar_name_pizza">பீட்சா</string>
+    <string name="avatar_name_popcorn">பாப்கார்ன்</string>
+    <string name="avatar_name_controller">கேம் கன்ட்ரோலர்</string>
+    <string name="avatar_name_guitar">கிட்டார்</string>
+    <string name="avatar_name_soccer">கால்பந்து</string>
+    <string name="avatar_name_basketball">கூடைப்பந்து</string>
+    <string name="avatar_name_rainbow">வானவில்</string>
+    <string name="avatar_name_cactus">கள்ளிச்செடி</string>
+    <string name="avatar_name_sun">சூரியன்</string>
+    <string name="avatar_name_crystal_ball">படிகப் பந்து</string>
+    <string name="avatar_name_clapper">கிளாப்பர் போர்டு</string>
+    <string name="avatar_name_donut">டோனட்</string>
+    <string name="profile_setup_button">சுயவிவர அமைப்பு</string>
+    <string name="profile_setup_summary">அமைப்பு: %1$s</string>
+    <string name="profile_setup_part_kids">குழந்தைகள்</string>
+    <string name="profile_setup_part_addons">%1$s இன் ஆட்ஆன்கள்</string>
+    <string name="profile_setup_part_settings">%1$s இலிருந்து அமைப்புகள்</string>
+    <string name="profile_setup_title">சுயவிவர அமைப்பு</string>
+    <string name="profile_setup_subtitle">குழந்தைகள் சுயவிவரம் PG அல்லது அதற்குக் குறைவான மதிப்பீடு கொண்ட தலைப்புகளை மட்டுமே காட்டும், மதிப்பீடு இல்லாதவற்றை மறைக்கும். %1$s உடன் பகிரப்பட்ட ஆட்ஆன்களை %1$s இலிருந்து மட்டுமே மாற்ற முடியும்.</string>
+    <string name="profile_addons_own">ஆட்ஆன்கள்: தனி</string>
+    <string name="profile_addons_shared">ஆட்ஆன்கள்: %1$s போலவே</string>
+    <string name="profile_addons_shared_saved">%1$s இப்போது %2$s இன் ஆட்ஆன்களைப் பயன்படுத்துகிறது.</string>
+    <string name="profile_addons_own_saved">%1$s க்கு இப்போது தனி ஆட்ஆன்கள் உள்ளன.</string>
+    <string name="profile_pin_overlay_access_heading">%1$s க்கான பின்னை உள்ளிடவும்.</string>
+    <string name="profile_pin_overlay_access_support">இந்தச் சுயவிவரம் பூட்டப்பட்டுள்ளது. தொடர அதன் 4 இலக்க பின்னை உள்ளிடவும்.</string>
+    <string name="profile_pin_overlay_reset_heading">இந்தப் பின்னை மீட்டமைக்க %1$s இன் பின்னை உள்ளிடவும்.</string>
+    <string name="profile_pin_overlay_reset_support">பிறகு %1$s க்குப் புதிய பின்னைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="profile_pin_forgot_reset">பின் மறந்துவிட்டதா? %1$s இன் பின் மூலம் மீட்டமைக்கவும்</string>
+    <string name="profile_pin_forgot_needs_main">பின் மறந்துவிட்டதா? முதலில் %1$s இல் பின் அமைத்து, பிறகு அதைக் கொண்டு இதை மீட்டமைக்கவும்.</string>
+    <string name="profile_pin_forgot_main">முதன்மைச் சுயவிவரத்தின் பின்னை மீட்டமைக்க முடியாது, எனவே அதைப் பாதுகாப்பாக வைத்திருக்கவும்.</string>
+    <string name="profile_pin_reset_for_profile">%1$s க்கான பின் மீட்டமைக்கப்பட்டது.</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s க்கான பின் தவறானது.</string>
+    <string name="profile_selection_kids_badge">குழந்தைகள்</string>
+    <string name="profile_manage_done">முடிந்தது</string>
+    <string name="cd_profile_locked">பின் மூலம் பூட்டப்பட்டுள்ளது</string>
+    <string name="profile_save_error">சுயவிவரத்தைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
+    <string name="profile_delete_error">சுயவிவரத்தை நீக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
+    <string name="parental_pin_nudge_title">%1$s இன் வரம்புகளைப் பாதுகாக்கவும்</string>
+    <string name="parental_pin_nudge_subtitle">%1$s இல் பின் அமைக்கவும். இல்லையெனில் யார் வேண்டுமானாலும் %2$s இன் வரம்புகளை மாற்றலாம் அல்லது வேறு சுயவிவரத்துக்கு மாறலாம்.</string>
+    <string name="parental_pin_nudge_set">%1$s இல் பின் அமை</string>
+    <string name="parental_pin_nudge_later">இப்போது வேண்டாம்</string>
 </resources>

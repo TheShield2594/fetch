@@ -2,7 +2,6 @@ package com.fetch.tv.ui.screens.settings
 
 import androidx.annotation.StringRes
 import com.fetch.tv.R
-import com.fetch.tv.core.torrent.TorrentSettingsData
 import com.fetch.tv.data.local.AutoSkipSegmentType
 import com.fetch.tv.data.local.PlayerSettings
 import kotlinx.coroutines.flow.Flow
@@ -178,11 +177,3 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(advanced, R.string.advanced_playback_issue_reports) { it.playbackIssueReportsEnabled })
     add(rule(advanced, R.string.dv7_libdovi_mode_row_title) { it.dv7LibdoviModeOverride })
 }
-
-internal val torrentSettingsChangeRules: List<SettingsChangeRule<TorrentSettingsData>> = listOf(
-    rule(SettingsCategory.PLAYBACK, R.string.essential_p2p_streams) { it.p2pEnabled },
-    rule(SettingsCategory.PLAYBACK_P2P, R.string.p2p_consent_enable) { it.p2pEnabled },
-    rule(SettingsCategory.PLAYBACK_P2P, R.string.settings_p2p_hide_stats_title) { it.hideTorrentStats },
-    rule(SettingsCategory.PLAYBACK_P2P, R.string.settings_p2p_profile_title) { it.torrentProfile },
-    rule(SettingsCategory.PLAYBACK_P2P, R.string.settings_p2p_cache_size_title) { it.cacheSize }
-)

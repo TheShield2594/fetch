@@ -343,9 +343,12 @@ class StreamRepositoryImpl @Inject constructor(
         }
     }
 
-    // Fetch has no built-in debrid service, so drop streams an addon left for the client to resolve.
+    // Fetch plays debrid and direct links only. It has no built-in debrid service and no torrent
+    // engine, so drop streams an addon left for the client to resolve and bare torrents.
     private fun presentStreams(result: AddonStreams): AddonStreams =
-        result.copy(streams = result.streams.filterNot { stream -> stream.needsClientDebridResolve() })
+        result.copy(
+            streams = result.streams.filterNot { stream -> stream.needsClientDebridResolve() || stream.isTorrent() }
+        )
 
     private fun mergeStreams(existing: List<Stream>, incoming: List<Stream>): List<Stream> {
         val streamsByKey = LinkedHashMap<String, Stream>()

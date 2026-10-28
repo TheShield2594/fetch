@@ -53,7 +53,6 @@ data class PlaybackIssueReportInput(
     val bufferedPositionMs: Long?,
     val selectedAudioTrack: String?,
     val selectedSubtitleTrack: String?,
-    val isTorrentStream: Boolean,
     val playbackSettings: PlaybackIssuePlaybackSettingsInput?,
     val playbackAnalytics: PlaybackIssuePlaybackAnalyticsInput?
 )
@@ -81,9 +80,6 @@ data class PlaybackIssueLoadingInput(
     val addonSubtitlesCount: Int,
     val isLoadingSourceStreams: Boolean,
     val isLoadingEpisodeStreams: Boolean,
-    val torrentDownloadSpeed: Long,
-    val torrentPeers: Int,
-    val torrentSeeds: Int,
     val rawEventLines: List<String>,
     val events: List<PlaybackIssueLoadingEventInput>
 )
@@ -259,7 +255,8 @@ class PlaybackIssueReportRepository @Inject constructor(
                 bufferedPositionMs = bufferedPositionMs,
                 audioTrack = selectedAudioTrack.cleanText(160),
                 subtitleTrack = selectedSubtitleTrack.cleanText(160),
-                isTorrentStream = isTorrentStream
+                // The report schema still has the torrent fields; Fetch plays no torrents.
+                isTorrentStream = false
             ),
             loading = loading.toDto(),
             error = PlaybackIssueErrorDto(
@@ -301,9 +298,9 @@ class PlaybackIssueReportRepository @Inject constructor(
             addonSubtitlesCount = addonSubtitlesCount.coerceAtLeast(0),
             isLoadingSourceStreams = isLoadingSourceStreams,
             isLoadingEpisodeStreams = isLoadingEpisodeStreams,
-            torrentDownloadSpeed = torrentDownloadSpeed.coerceAtLeast(0L),
-            torrentPeers = torrentPeers.coerceAtLeast(0),
-            torrentSeeds = torrentSeeds.coerceAtLeast(0),
+            torrentDownloadSpeed = 0L,
+            torrentPeers = 0,
+            torrentSeeds = 0,
             rawEventLines = rawEventLines.takeLast(120).mapNotNull { it.rawLogLine(2000) },
             events = events.takeLast(80).map { event ->
                 PlaybackIssueLoadingEventDto(

@@ -486,8 +486,6 @@
     <string name="essential_autoplay_next_episode">自动播放下一集</string>
     <string name="essential_autoplay_next_episode_subtitle">在流播放结束后继续播放下一集。</string>
     <string name="external_auto_next_loading">正在加载下一集…</string>
-    <string name="essential_p2p_streams">P2P 流</string>
-    <string name="essential_p2p_streams_subtitle">允许点对点流来源。</string>
     <string name="essential_subtitle_language_subtitle">偏好的字幕语言。</string>
     <string name="essential_audio_language_subtitle">偏好的音频语言。</string>
     <!-- 账户/登录错误信息 -->
@@ -1294,14 +1292,6 @@
     <string name="stream_no_streams">找不到流</string>
     <string name="stream_no_streams_hint">尝试安装更多扩展以寻找流</string>
     <string name="stream_finding_source">正在寻找流来源</string>
-    <string name="p2p_consent_title">P2P 流</string>
-    <string name="p2p_consent_body">此流使用点对点 (P2P) 技术。启用 P2P 即表示您知悉并同意：\n\n\u2022 您的 IP 地址将对网络中的其他对等节点可见\n\u2022 您对所访问的内容负全部责任\n\u2022 您确认在您的司法管辖区内拥有流式传输此内容的合法权利\n\u2022 Fetch 不托管、分发或控制任何 P2P 内容\n\u2022 Fetch 对您因使用 P2P 流而产生的任何法律后果不承担任何责任\n\n您完全自行承担使用此功能的风险。P2P 可随时在设置中禁用。</string>
-    <string name="p2p_consent_enable">启用 P2P</string>
-    <string name="p2p_consent_cancel">取消</string>
-    <string name="settings_p2p_title">P2P 流</string>
-    <string name="settings_p2p_subtitle">允许点对点 (torrent) 流</string>
-    <string name="settings_p2p_hide_stats_title">隐藏 torrent 统计信息</string>
-    <string name="settings_p2p_hide_stats_subtitle">在加载和播放期间隐藏缓冲、种子、对等节点和下载速度</string>
     <string name="stream_player_picker_title">应使用哪个播放器？</string>
     <string name="stream_player_internal">内置</string>
     <string name="stream_player_external">外部</string>
@@ -1872,7 +1862,6 @@
     <string name="home_error_no_catalog_addons">未安装目录扩展</string>
 
     <!-- 播放器错误 -->
-    <string name="player_error_failed_start_torrent">启动 torrent 失败：%1$s</string>
 
     <!-- 播放字幕设置 -->
     <string name="sub_mode_overlay_canvas_sub">支持 HDR 的 Canvas 渲染。可能阻塞 UI 线程。</string>
@@ -2240,11 +2229,6 @@
     <string name="playback_player_internal_desc">使用 Fetch 的内置播放器</string>
 
     <!-- 播放器运行时：torrent 覆盖层 + 音轨 -->
-    <string name="player_torrent_peer_info">%1$d 个种子 · %2$d 个对等节点</string>
-    <string name="player_torrent_buffered_status">%1$s 已缓冲 · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d 个对等节点 · %2$d 个种子 · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">正在连接至对等节点…</string>
     <string name="player_track_audio_fallback">音频 %1$d</string>
     <string name="player_track_subtitle_fallback">字幕 %1$d</string>
 
@@ -2259,7 +2243,6 @@
     <string name="player_error_initialize_failed">初始化播放器失败</string>
     <string name="player_error_mpv_surface_failed">初始化 libmpv 表面失败</string>
     <string name="player_error_mpv_playback_failed">初始化 libmpv 播放失败</string>
-    <string name="player_error_torrent">Torrent 错误：%1$s</string>
     <string name="player_error_playback_fallback">播放错误</string>
     <!-- 字幕时间同步恢复 -->
     <string name="subtitle_timing_file_no_lines">在此文件中找不到字幕行。</string>
@@ -2391,7 +2374,6 @@
     <!-- Torrent 服务 / TorrServer 二进制错误 -->
 
     <!-- 播放器运行时：流 / 外部链接错误 -->
-    <string name="player_torrent_starting_engine">正在启动 P2P 引擎…</string>
     <string name="player_stream_error_invalid_external_url">无效的外部网址</string>
     <string name="player_stream_error_open_external_link_failed">无法打开外部链接</string>
     <string name="player_stream_error_invalid_url">无效的流网址</string>
@@ -2559,9 +2541,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- 其他备用文字 -->
     <string name="playback_estimated_memory_usage">预估内存使用量：%1$d / %2$d MB</string>
@@ -2807,7 +2786,6 @@
     <string name="subtitle_style_text_color_hdr">文字颜色（HDR）</string>
     <string name="subtitle_style_text_opacity_hdr">文字不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">这是种子流，而 Fetch 没有内置种子引擎。请在插件中设置 debrid 以获取可在此播放的链接，或在外部播放器中打开。</string>
     <string name="because_you_watched_row_title">因为您看过《%1$s》</string>
     <string name="because_you_watched_reason_collection">同系列：%1$s</string>
     <string name="because_you_watched_reason_director">同一导演：%1$s</string>
@@ -2915,4 +2893,76 @@
     <string name="youtube_show_live_subtitle">在内容、搜索结果和接下来中包含正在进行的直播</string>
     <string name="youtube_hide_watched_title">隐藏已观看的视频</string>
     <string name="youtube_hide_watched_subtitle">不显示你已看完的视频，历史记录中仍会列出</string>
+    <string name="profile_avatar_category_animals">动物</string>
+    <string name="profile_avatar_category_characters">角色</string>
+    <string name="profile_avatar_category_fun">趣味</string>
+    <string name="avatar_name_fox">狐狸</string>
+    <string name="avatar_name_cat">猫</string>
+    <string name="avatar_name_dog">狗</string>
+    <string name="avatar_name_panda">熊猫</string>
+    <string name="avatar_name_koala">考拉</string>
+    <string name="avatar_name_lion">狮子</string>
+    <string name="avatar_name_tiger">老虎</string>
+    <string name="avatar_name_frog">青蛙</string>
+    <string name="avatar_name_owl">猫头鹰</string>
+    <string name="avatar_name_penguin">企鹅</string>
+    <string name="avatar_name_unicorn">独角兽</string>
+    <string name="avatar_name_dragon">龙</string>
+    <string name="avatar_name_octopus">章鱼</string>
+    <string name="avatar_name_monkey">猴子</string>
+    <string name="avatar_name_rabbit">兔子</string>
+    <string name="avatar_name_bear">熊</string>
+    <string name="avatar_name_hamster">仓鼠</string>
+    <string name="avatar_name_sloth">树懒</string>
+    <string name="avatar_name_dinosaur">恐龙</string>
+    <string name="avatar_name_butterfly">蝴蝶</string>
+    <string name="avatar_name_robot">机器人</string>
+    <string name="avatar_name_alien">外星人</string>
+    <string name="avatar_name_ghost">幽灵</string>
+    <string name="avatar_name_space_invader">太空侵略者</string>
+    <string name="avatar_name_cool">酷</string>
+    <string name="avatar_name_pumpkin">南瓜</string>
+    <string name="avatar_name_rocket">火箭</string>
+    <string name="avatar_name_star">星星</string>
+    <string name="avatar_name_pizza">披萨</string>
+    <string name="avatar_name_popcorn">爆米花</string>
+    <string name="avatar_name_controller">游戏手柄</string>
+    <string name="avatar_name_guitar">吉他</string>
+    <string name="avatar_name_soccer">足球</string>
+    <string name="avatar_name_basketball">篮球</string>
+    <string name="avatar_name_rainbow">彩虹</string>
+    <string name="avatar_name_cactus">仙人掌</string>
+    <string name="avatar_name_sun">太阳</string>
+    <string name="avatar_name_crystal_ball">水晶球</string>
+    <string name="avatar_name_clapper">场记板</string>
+    <string name="avatar_name_donut">甜甜圈</string>
+    <string name="profile_setup_button">设置个人资料</string>
+    <string name="profile_setup_summary">设置：%1$s</string>
+    <string name="profile_setup_part_kids">儿童</string>
+    <string name="profile_setup_part_addons">%1$s 的扩展</string>
+    <string name="profile_setup_part_settings">来自 %1$s 的设置</string>
+    <string name="profile_setup_title">设置个人资料</string>
+    <string name="profile_setup_subtitle">儿童个人资料仅显示 PG 及以下分级的内容，并隐藏未分级内容。与 %1$s 共享的扩展只能在 %1$s 中更改。</string>
+    <string name="profile_addons_own">扩展：独立</string>
+    <string name="profile_addons_shared">扩展：与 %1$s 相同</string>
+    <string name="profile_addons_shared_saved">%1$s 现在使用 %2$s 的扩展。</string>
+    <string name="profile_addons_own_saved">%1$s 现在拥有独立的扩展。</string>
+    <string name="profile_pin_overlay_access_heading">输入 %1$s 的 PIN。</string>
+    <string name="profile_pin_overlay_access_support">此个人资料已锁定。输入其 4 位数 PIN 以继续。</string>
+    <string name="profile_pin_overlay_reset_heading">输入 %1$s 的 PIN 以重置此 PIN。</string>
+    <string name="profile_pin_overlay_reset_support">然后为 %1$s 选择新的 PIN。</string>
+    <string name="profile_pin_forgot_reset">忘记 PIN？使用 %1$s 的 PIN 重置</string>
+    <string name="profile_pin_forgot_needs_main">忘记 PIN？请先为 %1$s 设置 PIN，然后用它重置此 PIN。</string>
+    <string name="profile_pin_forgot_main">主要个人资料的 PIN 无法重置，请妥善保管。</string>
+    <string name="profile_pin_reset_for_profile">已重置 %1$s 的 PIN。</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s 的 PIN 不正确。</string>
+    <string name="profile_selection_kids_badge">儿童</string>
+    <string name="profile_manage_done">完成</string>
+    <string name="cd_profile_locked">已用 PIN 锁定</string>
+    <string name="profile_save_error">无法保存个人资料。请重试。</string>
+    <string name="profile_delete_error">无法删除个人资料。请重试。</string>
+    <string name="parental_pin_nudge_title">保护 %1$s 的限制</string>
+    <string name="parental_pin_nudge_subtitle">为 %1$s 设置 PIN。否则，任何人都可以更改 %2$s 的限制或切换到其他个人资料。</string>
+    <string name="parental_pin_nudge_set">为 %1$s 设置 PIN</string>
+    <string name="parental_pin_nudge_later">以后再说</string>
 </resources>

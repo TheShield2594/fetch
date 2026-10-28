@@ -511,8 +511,6 @@
     <string name="essential_autoplay_next_episode">הפעלה אוטומטית של הפרק הבא</string>
     <string name="essential_autoplay_next_episode_subtitle">מעבר לפרק הבא בתום ההפעלה.</string>
     <string name="external_auto_next_loading">טוען את הפרק הבא…</string>
-    <string name="essential_p2p_streams">סטרימינג P2P</string>
-    <string name="essential_p2p_streams_subtitle">מתן אפשרות לשימוש במקורות עמית-לעמית (חינמי, אך הטעינה איטית).</string>
     <string name="essential_subtitle_language_subtitle">שפת הכתוביות המועדפת.</string>
     <string name="essential_audio_language_subtitle">שפת האודיו המועדפת.</string>
     <!-- Account / sign-in error messages -->
@@ -1382,34 +1380,6 @@
     <string name="stream_finding_source">מחפש מקור</string>
     <string name="youtube_resolving_stream">טוען סרטון YouTube…</string>
     <string name="youtube_resolution_failed">לא ניתן היה לטעון את סרטון ה-YouTube הזה.</string>
-    <string name="p2p_consent_title">P2P סטרימינג</string>
-    <string name="p2p_consent_body">This stream uses peer-to-peer (P2P) technology. By enabling P2P, you acknowledge and agree that:\n\n\u2022 Your IP address will be visible to other peers in the network\n\u2022 You are solely responsible for the content you access\n\u2022 You confirm you have the legal right to stream this content in your jurisdiction\n\u2022 Fetch does not host, distribute, or control any P2P content\n\u2022 Fetch bears no liability for any legal consequences arising from your use of P2P streaming\n\nYou use this feature entirely at your own risk. P2P can be disabled anytime in Settings.</string>
-    <string name="p2p_consent_enable">P2P הפעלת</string>
-    <string name="p2p_consent_cancel">ביטול</string>
-    <string name="settings_p2p_title">סטרימינג P2P</string>
-    <string name="settings_p2p_subtitle">אפשור מקורות עמית-לעמית (חינמי, אך הטעינה איטית).</string>
-    <string name="settings_p2p_hide_stats_title">הסתרת נתוני טורנט</string>
-    <string name="settings_p2p_hide_stats_subtitle">הסתרת מאגר נתונים, seeds, peers ומהירות הורדה במהלך טעינה והפעלה</string>
-    <string name="settings_p2p_profile_title">פרופיל טורנט</string>
-    <string name="settings_p2p_profile_soft">עדין</string>
-    <string name="settings_p2p_profile_balanced">מאוזן</string>
-    <string name="settings_p2p_profile_fast">מהיר</string>
-    <string name="settings_p2p_profile_soft_description">שימוש בפחות חיבורי עמיתים, להפחתת העומס על הסוללה והרשת</string>
-    <string name="settings_p2p_profile_balanced_description">איזון מומלץ בין מהירות התחלה ליציבות החיבור</string>
-    <string name="settings_p2p_profile_fast_description">שימוש ביותר חיבורי עמיתים עבור טורנטים קשים או בעלי קצב סיביות גבוה</string>
-    <string name="settings_p2p_cache_size_title">גודל מטמון טורנט</string>
-    <string name="settings_p2p_cache_size_description">נתוני טורנט שהורדו נשמרים במכשיר זה להפעלה חוזרת מהירה יותר</string>
-    <string name="settings_p2p_cache_none">ללא מטמון קבוע</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">ניקוי מטמון טורנט</string>
-    <string name="settings_p2p_clear_cache_usage">%1$s בשימוש כרגע</string>
-    <string name="settings_p2p_clear_cache_usage_pending">השימוש נמדד לאחר הפעלת P2P; ניתן לבחור כדי לנקות נתוני טורנט שמורים במטמון</string>
-    <string name="settings_p2p_clear_cache_clearing">מנקה נתוני טורנט לא פעילים…</string>
-    <string name="settings_p2p_clear_cache_playback_active">יש לעצור הפעלת P2P לפני ניקוי המטמון</string>
-    <string name="settings_p2p_clear_cache_done">נוקו %1$s של נתוני טורנט לא פעילים</string>
-    <string name="settings_p2p_clear_cache_failed">לא ניתן היה לנקות את מטמון הטורנט</string>
     <string name="stream_player_picker_title">באיזה נגן להשתמש?</string>
     <string name="stream_player_internal">פנימי</string>
     <string name="stream_player_external">חיצוני</string>
@@ -1981,7 +1951,6 @@
     <string name="home_error_no_catalog_addons">אין תוספי קטלוג מותקנים.</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">התחלת הטורנט נכשלה: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">תמיכה ב-HDR עם עיבוד Canvas. עלול לחסום את שרשור הממשק.</string>
@@ -2350,15 +2319,6 @@
     <string name="playback_player_internal_desc">שימוש בנגן המובנה של Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d מקורות · %2$d עמיתים</string>
-    <string name="player_torrent_buffered_status">%1$s במאגר · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d עמיתים · %2$d מקורות · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">מתחבר לעמיתים…</string>
-    <string name="player_torrent_fetching_metadata">מביא מטא-דאטה של הטורנט…</string>
-    <string name="player_torrent_preparing_stream">מכין את הטורנט…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s ירדו · %2$s · %3$s</string>
     <string name="player_track_audio_fallback">שמע %1$d</string>
     <string name="player_track_subtitle_fallback">כתוביות %1$d</string>
 
@@ -2373,7 +2333,6 @@
     <string name="player_error_initialize_failed">אתחול הנגן נכשל</string>
     <string name="player_error_mpv_surface_failed">אתחול משטח ה-libmpv נכשל</string>
     <string name="player_error_mpv_playback_failed">אתחול ההפעלה של libmpv נכשל</string>
-    <string name="player_error_torrent">שגיאת טורנט: %1$s</string>
     <string name="player_error_playback_fallback">שגיאת הפעלה</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">לא נמצאו שורות כתוביות בקובץ זה.</string>
@@ -2503,10 +2462,8 @@
     <string name="network_fast_error_token_missing">fast.com: האסימון לא נמצא בחבילה</string>
 
     <!-- Torrent service errors -->
-    <string name="torrent_error_start_timeout">הטורנט לא התחיל תוך %1$d שניות</string>
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">מפעיל מנוע P2P…</string>
     <string name="player_stream_error_invalid_external_url">כתובת חיצונית לא תקינה</string>
     <string name="player_stream_error_open_external_link_failed">לא ניתן לפתוח קישור חיצוני</string>
     <string name="player_stream_error_invalid_url">כתובת מקור לא תקינה</string>
@@ -2674,9 +2631,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">שימוש משוער בזיכרון: %1$d / %2$d MB</string>
@@ -2964,7 +2918,6 @@
     <string name="subtitle_style_text_color_hdr">צבע טקסט (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">אטימות טקסט (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">זהו סטרים טורנט ול-Fetch אין מנוע טורנט מובנה. הגדירו debrid בתוסף כדי לקבל קישור שמתנגן כאן, או פתחו אותו בנגן חיצוני.</string>
     <string name="ready_to_play">מוכן לניגון</string>
     <string name="home_row_ready_tonight">מוכן להערב</string>
     <string name="ready_check_title">בדיקה ברקע של מה שמוכן</string>
@@ -3066,4 +3019,76 @@
     <string name="youtube_show_live_subtitle">הכללת שידורים חיים בפידים, בתוצאות החיפוש ובהבא בתור</string>
     <string name="youtube_hide_watched_title">הסתרת סרטונים שנצפו</string>
     <string name="youtube_hide_watched_subtitle">מדלג על סרטונים שצפיתם בהם עד הסוף. ההיסטוריה עדיין מציגה אותם</string>
+    <string name="profile_avatar_category_animals">בעלי חיים</string>
+    <string name="profile_avatar_category_characters">דמויות</string>
+    <string name="profile_avatar_category_fun">כיף</string>
+    <string name="avatar_name_fox">שועל</string>
+    <string name="avatar_name_cat">חתול</string>
+    <string name="avatar_name_dog">כלב</string>
+    <string name="avatar_name_panda">פנדה</string>
+    <string name="avatar_name_koala">קואלה</string>
+    <string name="avatar_name_lion">אריה</string>
+    <string name="avatar_name_tiger">נמר</string>
+    <string name="avatar_name_frog">צפרדע</string>
+    <string name="avatar_name_owl">ינשוף</string>
+    <string name="avatar_name_penguin">פינגווין</string>
+    <string name="avatar_name_unicorn">חד-קרן</string>
+    <string name="avatar_name_dragon">דרקון</string>
+    <string name="avatar_name_octopus">תמנון</string>
+    <string name="avatar_name_monkey">קוף</string>
+    <string name="avatar_name_rabbit">ארנב</string>
+    <string name="avatar_name_bear">דוב</string>
+    <string name="avatar_name_hamster">אוגר</string>
+    <string name="avatar_name_sloth">עצלן</string>
+    <string name="avatar_name_dinosaur">דינוזאור</string>
+    <string name="avatar_name_butterfly">פרפר</string>
+    <string name="avatar_name_robot">רובוט</string>
+    <string name="avatar_name_alien">חייזר</string>
+    <string name="avatar_name_ghost">רוח רפאים</string>
+    <string name="avatar_name_space_invader">פולש מהחלל</string>
+    <string name="avatar_name_cool">מגניב</string>
+    <string name="avatar_name_pumpkin">דלעת</string>
+    <string name="avatar_name_rocket">טיל</string>
+    <string name="avatar_name_star">כוכב</string>
+    <string name="avatar_name_pizza">פיצה</string>
+    <string name="avatar_name_popcorn">פופקורן</string>
+    <string name="avatar_name_controller">בקר משחק</string>
+    <string name="avatar_name_guitar">גיטרה</string>
+    <string name="avatar_name_soccer">כדורגל</string>
+    <string name="avatar_name_basketball">כדורסל</string>
+    <string name="avatar_name_rainbow">קשת בענן</string>
+    <string name="avatar_name_cactus">קקטוס</string>
+    <string name="avatar_name_sun">שמש</string>
+    <string name="avatar_name_crystal_ball">כדור בדולח</string>
+    <string name="avatar_name_clapper">קלאפר</string>
+    <string name="avatar_name_donut">דונאט</string>
+    <string name="profile_setup_button">הגדרת פרופיל</string>
+    <string name="profile_setup_summary">הגדרה: %1$s</string>
+    <string name="profile_setup_part_kids">ילדים</string>
+    <string name="profile_setup_part_addons">התוספים של %1$s</string>
+    <string name="profile_setup_part_settings">הגדרות מ-%1$s</string>
+    <string name="profile_setup_title">הגדרת פרופיל</string>
+    <string name="profile_setup_subtitle">פרופיל ילדים מציג רק כותרים בסיווג PG ומטה ומסתיר כותרים ללא סיווג. תוספים משותפים עם %1$s ניתן לשנות רק מתוך %1$s.</string>
+    <string name="profile_addons_own">תוספים: נפרדים</string>
+    <string name="profile_addons_shared">תוספים: כמו של %1$s</string>
+    <string name="profile_addons_shared_saved">הפרופיל %1$s משתמש כעת בתוספים של %2$s.</string>
+    <string name="profile_addons_own_saved">לפרופיל %1$s יש כעת תוספים נפרדים.</string>
+    <string name="profile_pin_overlay_access_heading">יש להזין את הסיסמה של %1$s.</string>
+    <string name="profile_pin_overlay_access_support">הפרופיל הזה נעול. יש להזין את הסיסמה בת 4 הספרות כדי להמשיך.</string>
+    <string name="profile_pin_overlay_reset_heading">יש להזין את הסיסמה של %1$s כדי לאפס סיסמה זו.</string>
+    <string name="profile_pin_overlay_reset_support">לאחר מכן יש לבחור סיסמה חדשה עבור %1$s.</string>
+    <string name="profile_pin_forgot_reset">שכחת את הסיסמה? אפשר לאפס אותה עם הסיסמה של %1$s</string>
+    <string name="profile_pin_forgot_needs_main">שכחת את הסיסמה? יש להגדיר קודם סיסמה ל-%1$s ואז להשתמש בה כדי לאפס את הסיסמה הזו.</string>
+    <string name="profile_pin_forgot_main">לא ניתן לאפס את הסיסמה של הפרופיל הראשי, לכן כדאי לשמור אותה במקום בטוח.</string>
+    <string name="profile_pin_reset_for_profile">הסיסמה של %1$s אופסה.</string>
+    <string name="profile_pin_incorrect_for_profile">סיסמה שגויה עבור %1$s.</string>
+    <string name="profile_selection_kids_badge">ילדים</string>
+    <string name="profile_manage_done">סיום</string>
+    <string name="cd_profile_locked">נעול בסיסמה</string>
+    <string name="profile_save_error">לא ניתן היה לשמור את הפרופיל. כדאי לנסות שוב.</string>
+    <string name="profile_delete_error">לא ניתן היה למחוק את הפרופיל. כדאי לנסות שוב.</string>
+    <string name="parental_pin_nudge_title">הגנה על ההגבלות של %1$s</string>
+    <string name="parental_pin_nudge_subtitle">יש להגדיר קוד PIN ל-%1$s. בלעדיו, כל אחד יכול לשנות את ההגבלות של %2$s או לעבור לפרופיל אחר.</string>
+    <string name="parental_pin_nudge_set">הגדרת קוד PIN ל-%1$s</string>
+    <string name="parental_pin_nudge_later">לא עכשיו</string>
 </resources>

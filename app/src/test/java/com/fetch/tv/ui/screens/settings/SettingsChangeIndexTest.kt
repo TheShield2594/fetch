@@ -13,8 +13,8 @@ class SettingsChangeIndexTest {
     private val stringIds = R.string::class.java.fields.associate { it.getInt(null) to it.name }
 
     @Test
-    fun `every player and P2P rule points at a row its page lists`() {
-        val problems = (playerSettingsChangeRules.map { it.key } + torrentSettingsChangeRules.map { it.key })
+    fun `every player rule points at a row its page lists`() {
+        val problems = playerSettingsChangeRules.map { it.key }
             .filterNot { key -> key.title in settingsSearchIndex[key.category].orEmpty() }
             .map { key -> "${key.category} has no R.string.${stringIds[key.title]}" }
         if (problems.isNotEmpty()) fail(problems.joinToString("\n"))
@@ -22,7 +22,7 @@ class SettingsChangeIndexTest {
 
     @Test
     fun `no row has two rules`() {
-        val keys = playerSettingsChangeRules.map { it.key } + torrentSettingsChangeRules.map { it.key }
+        val keys = playerSettingsChangeRules.map { it.key }
         assertEquals(keys.groupBy { it }.filterValues { it.size > 1 }.keys, emptySet<SettingsSearchKey>())
     }
 

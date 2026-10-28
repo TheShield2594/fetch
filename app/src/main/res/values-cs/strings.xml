@@ -402,8 +402,6 @@
     <string name="essential_autoplay_next_episode">Automaticky přehrát další epizodu</string>
     <string name="essential_autoplay_next_episode_subtitle">Po skončení streamu pokračovat další epizodou.</string>
     <string name="external_auto_next_loading">Načítání další epizody…</string>
-    <string name="essential_p2p_streams">P2P streamy</string>
-    <string name="essential_p2p_streams_subtitle">Povolit zdroje streamů typu peer-to-peer.</string>
     <string name="essential_subtitle_language_subtitle">Preferovaný jazyk titulků.</string>
     <string name="essential_audio_language_subtitle">Preferovaný jazyk zvuku.</string>
     <!-- Account / sign-in error messages -->
@@ -1077,14 +1075,6 @@
     <string name="stream_no_streams">Nenalezeny žádné streamy</string>
     <string name="stream_no_streams_hint">Zkuste nainstalovat více doplňků pro nalezení streamů</string>
     <string name="stream_finding_source">Hledání zdroje streamu</string>
-    <string name="p2p_consent_title">P2P streamování</string>
-    <string name="p2p_consent_body">Tento stream používá technologii peer-to-peer (P2P). Povolením P2P berete na vědomí a souhlasíte, že:\n\n\u2022 Vaše IP adresa bude viditelná pro ostatní peer v síti\n\u2022 Jste výhradně odpovědní za obsah, ke kterému přistupujete\n\u2022 Potvrzujete, že máte zákonné právo streamovat tento obsah ve vaší jurisdikci\n\u2022 Fetch nehostuje, nedistribuuje ani nekontroluje žádný P2P obsah\n\u2022 Fetch nenese žádnou odpovědnost za jakékoli právní důsledky vyplývající z vašeho použití P2P streamování\n\nTuto funkci používáte výhradně na vlastní riziko. P2P lze kdykoli zakázat v Nastavení.</string>
-    <string name="p2p_consent_enable">Povolit P2P</string>
-    <string name="p2p_consent_cancel">Zrušit</string>
-    <string name="settings_p2p_title">P2P streamování</string>
-    <string name="settings_p2p_subtitle">Povolit peer-to-peer (torrent) streamy</string>
-    <string name="settings_p2p_hide_stats_title">Skrýt statistiky torrentu</string>
-    <string name="settings_p2p_hide_stats_subtitle">Skrýt vyrovnávací paměť, seedy, peery a rychlost stahování během načítání a přehrávání</string>
     <string name="stream_player_picker_title">Jaký přehrávač by měl být použit?</string>
     <string name="stream_player_internal">Interní</string>
     <string name="stream_player_external">Externí</string>
@@ -1568,7 +1558,6 @@
     <string name="home_error_no_catalog_addons">Nejsou nainstalovány žádné katalogové doplňky</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Nepodařilo se spustit torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Podpora HDR s vykreslováním Canvas. Může blokovat UI vlákno.</string>
@@ -1926,11 +1915,6 @@
     <string name="playback_player_internal_desc">Použít vestavěný přehrávač Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seedů · %2$d peerů</string>
-    <string name="player_torrent_buffered_status">%1$s načteno v bufferu · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peerů · %2$d seedů · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Připojování k peerům…</string>
     <string name="player_track_audio_fallback">Zvuk %1$d</string>
     <string name="player_track_subtitle_fallback">Titulky %1$d</string>
 
@@ -1945,7 +1929,6 @@
     <string name="player_error_initialize_failed">Nepodařilo se inicializovat přehrávač</string>
     <string name="player_error_mpv_surface_failed">Nepodařilo se inicializovat plochu libmpv</string>
     <string name="player_error_mpv_playback_failed">Nepodařilo se inicializovat přehrávání libmpv</string>
-    <string name="player_error_torrent">Chyba torrentu: %1$s</string>
     <string name="player_error_playback_fallback">Chyba přehrávání</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">V tomto souboru nebyly nalezeny žádné řádky titulků.</string>
@@ -2043,7 +2026,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Spouštění P2P jádra…</string>
     <string name="player_stream_error_invalid_external_url">Neplatná externí URL</string>
     <string name="player_stream_error_open_external_link_failed">Externí odkaz se nepodařilo otevřít</string>
     <string name="player_stream_error_invalid_url">Neplatná URL streamu</string>
@@ -2203,9 +2185,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Odhadované využití paměti: %1$d / %2$d MB</string>
@@ -2460,7 +2439,6 @@
     <string name="subtitle_style_text_color_hdr">Barva textu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprůhlednost textu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Toto je torrentový stream a Fetch nemá vestavěný torrentový engine. Nastavte debrid v doplňku, abyste získali odkaz, který se přehraje zde, nebo ho otevřete v externím přehrávači.</string>
     <string name="because_you_watched_row_title">Protože jste sledovali %1$s</string>
     <string name="because_you_watched_reason_collection">Také z: %1$s</string>
     <string name="because_you_watched_reason_director">Stejný režisér: %1$s</string>
@@ -2571,4 +2549,77 @@
     <string name="youtube_show_live_subtitle">Zahrnout právě živá vysílání do kanálů, výsledků hledání a Další</string>
     <string name="youtube_hide_watched_title">Skrýt zhlédnutá videa</string>
     <string name="youtube_hide_watched_subtitle">Vynechá videa, která jste zhlédli až do konce. V historii zůstanou</string>
+    <string name="profile_avatar_category_supporter">Podporovatelé</string>
+    <string name="profile_avatar_category_animals">Zvířata</string>
+    <string name="profile_avatar_category_characters">Postavy</string>
+    <string name="profile_avatar_category_fun">Zábava</string>
+    <string name="avatar_name_fox">Liška</string>
+    <string name="avatar_name_cat">Kočka</string>
+    <string name="avatar_name_dog">Pes</string>
+    <string name="avatar_name_panda">Panda</string>
+    <string name="avatar_name_koala">Koala</string>
+    <string name="avatar_name_lion">Lev</string>
+    <string name="avatar_name_tiger">Tygr</string>
+    <string name="avatar_name_frog">Žába</string>
+    <string name="avatar_name_owl">Sova</string>
+    <string name="avatar_name_penguin">Tučňák</string>
+    <string name="avatar_name_unicorn">Jednorožec</string>
+    <string name="avatar_name_dragon">Drak</string>
+    <string name="avatar_name_octopus">Chobotnice</string>
+    <string name="avatar_name_monkey">Opice</string>
+    <string name="avatar_name_rabbit">Králík</string>
+    <string name="avatar_name_bear">Medvěd</string>
+    <string name="avatar_name_hamster">Křeček</string>
+    <string name="avatar_name_sloth">Lenochod</string>
+    <string name="avatar_name_dinosaur">Dinosaurus</string>
+    <string name="avatar_name_butterfly">Motýl</string>
+    <string name="avatar_name_robot">Robot</string>
+    <string name="avatar_name_alien">Mimozemšťan</string>
+    <string name="avatar_name_ghost">Duch</string>
+    <string name="avatar_name_space_invader">Vesmírný vetřelec</string>
+    <string name="avatar_name_cool">Frajer</string>
+    <string name="avatar_name_pumpkin">Dýně</string>
+    <string name="avatar_name_rocket">Raketa</string>
+    <string name="avatar_name_star">Hvězda</string>
+    <string name="avatar_name_pizza">Pizza</string>
+    <string name="avatar_name_popcorn">Popcorn</string>
+    <string name="avatar_name_controller">Ovladač</string>
+    <string name="avatar_name_guitar">Kytara</string>
+    <string name="avatar_name_soccer">Fotbal</string>
+    <string name="avatar_name_basketball">Basketbal</string>
+    <string name="avatar_name_rainbow">Duha</string>
+    <string name="avatar_name_cactus">Kaktus</string>
+    <string name="avatar_name_sun">Slunce</string>
+    <string name="avatar_name_crystal_ball">Křišťálová koule</string>
+    <string name="avatar_name_clapper">Filmová klapka</string>
+    <string name="avatar_name_donut">Donut</string>
+    <string name="profile_setup_button">Nastavení profilu</string>
+    <string name="profile_setup_summary">Nastavení: %1$s</string>
+    <string name="profile_setup_part_kids">Dětský</string>
+    <string name="profile_setup_part_addons">doplňky profilu %1$s</string>
+    <string name="profile_setup_part_settings">nastavení z profilu %1$s</string>
+    <string name="profile_setup_title">Nastavení profilu</string>
+    <string name="profile_setup_subtitle">Dětský profil zobrazuje jen tituly s hodnocením PG nebo nižším a skrývá tituly bez hodnocení. Doplňky sdílené s profilem %1$s lze měnit jen z profilu %1$s.</string>
+    <string name="profile_addons_own">Doplňky: Vlastní</string>
+    <string name="profile_addons_shared">Doplňky: Stejné jako %1$s</string>
+    <string name="profile_addons_shared_saved">%1$s nyní používá doplňky profilu %2$s.</string>
+    <string name="profile_addons_own_saved">%1$s má nyní vlastní doplňky.</string>
+    <string name="profile_pin_overlay_access_heading">Zadejte PIN pro %1$s.</string>
+    <string name="profile_pin_overlay_access_support">Tento profil je uzamčen. Pro pokračování zadejte jeho 4místný PIN.</string>
+    <string name="profile_pin_overlay_reset_heading">Pro obnovení tohoto PINu zadejte PIN profilu %1$s.</string>
+    <string name="profile_pin_overlay_reset_support">Poté zvolte nový PIN pro %1$s.</string>
+    <string name="profile_pin_forgot_reset">Zapomněli jste PIN? Obnovte ho pomocí PINu profilu %1$s</string>
+    <string name="profile_pin_forgot_needs_main">Zapomněli jste PIN? Nejprve nastavte PIN na profilu %1$s a pak ho použijte k obnovení tohoto.</string>
+    <string name="profile_pin_forgot_main">PIN hlavního profilu nelze obnovit, proto si ho uschovejte na bezpečném místě.</string>
+    <string name="profile_pin_reset_for_profile">PIN pro %1$s byl obnoven.</string>
+    <string name="profile_pin_incorrect_for_profile">Nesprávný PIN pro %1$s.</string>
+    <string name="profile_selection_kids_badge">DĚTSKÝ</string>
+    <string name="profile_manage_done">Hotovo</string>
+    <string name="cd_profile_locked">Uzamčeno PINem</string>
+    <string name="profile_save_error">Profil se nepodařilo uložit. Zkuste to znovu.</string>
+    <string name="profile_delete_error">Profil se nepodařilo smazat. Zkuste to znovu.</string>
+    <string name="parental_pin_nudge_title">Chraňte omezení profilu %1$s</string>
+    <string name="parental_pin_nudge_subtitle">Nastavte PIN na profilu %1$s. Bez něj může kdokoli změnit omezení profilu %2$s nebo přepnout na jiný profil.</string>
+    <string name="parental_pin_nudge_set">Nastavit PIN na profilu %1$s</string>
+    <string name="parental_pin_nudge_later">Teď ne</string>
 </resources>

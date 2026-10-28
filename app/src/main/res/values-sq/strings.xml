@@ -422,8 +422,6 @@
     <string name="essential_autoplay_next_episode">Luaj automatikisht episodin tjetër</string>
     <string name="essential_autoplay_next_episode_subtitle">Vazhdo te episodi tjetër pasi të përfundojë transmetimi.</string>
     <string name="external_auto_next_loading">Duke ngarkuar episodin tjetër…</string>
-    <string name="essential_p2p_streams">Transmetime P2P</string>
-    <string name="essential_p2p_streams_subtitle">Lejo burime transmetimi peer-to-peer.</string>
     <string name="essential_subtitle_language_subtitle">Gjuha e preferuar e titrave.</string>
     <string name="essential_audio_language_subtitle">Gjuha e preferuar e audios.</string>
     <!-- Account / sign-in error messages -->
@@ -1111,14 +1109,6 @@
     <string name="stream_no_streams">Nuk u gjetën transmetime</string>
     <string name="stream_no_streams_hint">Provo të instalosh më shumë shtesa për të gjetur transmetime</string>
     <string name="stream_finding_source">Duke kërkuar burimin e transmetimit</string>
-    <string name="p2p_consent_title">Transmetim P2P</string>
-    <string name="p2p_consent_body">Ky transmetim përdor teknologjinë peer-to-peer (P2P). Duke aktivizuar P2P, pranon dhe konfirmon se:\n\n\u2022 Adresa jote IP do të jetë e dukshme për pjesëmarrësit e tjerë në rrjet\n\u2022 Je vetëm ti përgjegjës për përmbajtjen që qasesh\n\u2022 Konfirmon se ke të drejtën ligjore për ta transmetuar këtë përmbajtje në juridiksionin tënd\n\u2022 Fetch nuk hoston, shpërndan apo kontrollon asnjë përmbajtje P2P\n\u2022 Fetch nuk mban përgjegjësi për pasoja ligjore që mund të lindin nga përdorimi yt i transmetimit P2P\n\nKëtë veçori e përdor tërësisht me rrezikun tënd. P2P mund të çaktivizohet në çdo kohë te Cilësimet.</string>
-    <string name="p2p_consent_enable">Aktivizo P2P</string>
-    <string name="p2p_consent_cancel">Anulo</string>
-    <string name="settings_p2p_title">Transmetim P2P</string>
-    <string name="settings_p2p_subtitle">Lejo transmetimet peer-to-peer (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Fshih statistikat e torrentit</string>
-    <string name="settings_p2p_hide_stats_subtitle">Fshih buffer-in, seed-et, peer-at dhe shpejtësinë e shkarkimit gjatë ngarkimit dhe riprodhimit</string>
     <string name="stream_player_picker_title">Cili luajtës duhet të përdoret?</string>
     <string name="stream_player_internal">I brendshëm</string>
     <string name="stream_player_external">I jashtëm</string>
@@ -1609,7 +1599,6 @@
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Nuk ka shtesa katalogu të instaluara</string>
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Nisja e torrentit dështoi: %1$s</string>
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Mbështetje HDR me renderim Canvas. Mund të bllokojë thread-in e ndërfaqes.</string>
     <string name="ratings_season_label">S%1$d</string>
@@ -1967,11 +1956,6 @@
     <!-- Playback settings sections -->
     <string name="playback_player_internal_desc">Përdor luajtësin e integruar të Fetch</string>
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seed · %2$d peer</string>
-    <string name="player_torrent_buffered_status">%1$s në buffer · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peer · %2$d seed · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Duke u lidhur me peer-at…</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Titra %1$d</string>
     <!-- Player runtime: error recovery -->
@@ -1985,7 +1969,6 @@
     <string name="player_error_initialize_failed">Inicializimi i luajtësit dështoi</string>
     <string name="player_error_mpv_surface_failed">Inicializimi i sipërfaqes libmpv dështoi</string>
     <string name="player_error_mpv_playback_failed">Inicializimi i riprodhimit libmpv dështoi</string>
-    <string name="player_error_torrent">Gabim torrenti: %1$s</string>
     <string name="player_error_playback_fallback">Gabim riprodhimi</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nuk u gjetën rreshta titrash në këtë skedar.</string>
@@ -2104,7 +2087,6 @@
     <string name="network_fast_error_token_missing">fast.com: tokeni nuk u gjet në paketë</string>
     <!-- Torrent service / TorrServer binary errors -->
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Duke nisur motorin P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL e jashtme e pavlefshme</string>
     <string name="player_stream_error_open_external_link_failed">Nuk mund të hapet lidhja e jashtme</string>
     <string name="player_stream_error_invalid_url">URL transmetimi e pavlefshme</string>
@@ -2246,9 +2228,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Përdorimi i vlerësuar i memories: %1$d / %2$d MB</string>
     <string name="profile_default_name">Profili %1$d</string>
@@ -2495,7 +2474,6 @@
     <string name="subtitle_style_text_color_hdr">Ngjyra e tekstit (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opaciteti i tekstit (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Ky është një transmetim torrent dhe Fetch nuk ka motor torrent të integruar. Konfiguroni debrid në shtesë për të marrë një lidhje që luhet këtu, ose hapeni në një luajtës të jashtëm.</string>
     <string name="because_you_watched_row_title">Sepse shikuat %1$s</string>
     <string name="because_you_watched_reason_collection">Gjithashtu në: %1$s</string>
     <string name="because_you_watched_reason_director">I njëjti regjisor: %1$s</string>
@@ -2604,4 +2582,76 @@
     <string name="youtube_show_live_subtitle">Përfshi transmetimet që janë live tani në burimet, rezultatet e kërkimit dhe te Më pas</string>
     <string name="youtube_hide_watched_title">Fshih videot e shikuara</string>
     <string name="youtube_hide_watched_subtitle">Lë jashtë videot që i ke parë deri në fund. Historiku i shfaq prapë</string>
+    <string name="profile_avatar_category_animals">Kafshë</string>
+    <string name="profile_avatar_category_characters">Personazhe</string>
+    <string name="profile_avatar_category_fun">Argëtim</string>
+    <string name="avatar_name_fox">Dhelpër</string>
+    <string name="avatar_name_cat">Mace</string>
+    <string name="avatar_name_dog">Qen</string>
+    <string name="avatar_name_panda">Panda</string>
+    <string name="avatar_name_koala">Koala</string>
+    <string name="avatar_name_lion">Luan</string>
+    <string name="avatar_name_tiger">Tigër</string>
+    <string name="avatar_name_frog">Bretkosë</string>
+    <string name="avatar_name_owl">Buf</string>
+    <string name="avatar_name_penguin">Pinguin</string>
+    <string name="avatar_name_unicorn">Njëbrirësh</string>
+    <string name="avatar_name_dragon">Dragua</string>
+    <string name="avatar_name_octopus">Oktapod</string>
+    <string name="avatar_name_monkey">Majmun</string>
+    <string name="avatar_name_rabbit">Lepur</string>
+    <string name="avatar_name_bear">Ari</string>
+    <string name="avatar_name_hamster">Hamster</string>
+    <string name="avatar_name_sloth">Përtac</string>
+    <string name="avatar_name_dinosaur">Dinozaur</string>
+    <string name="avatar_name_butterfly">Flutur</string>
+    <string name="avatar_name_robot">Robot</string>
+    <string name="avatar_name_alien">Jashtëtokësor</string>
+    <string name="avatar_name_ghost">Fantazmë</string>
+    <string name="avatar_name_space_invader">Pushtues hapësinor</string>
+    <string name="avatar_name_cool">Me stil</string>
+    <string name="avatar_name_pumpkin">Kungull</string>
+    <string name="avatar_name_rocket">Raketë</string>
+    <string name="avatar_name_star">Yll</string>
+    <string name="avatar_name_pizza">Pica</string>
+    <string name="avatar_name_popcorn">Kokoshka</string>
+    <string name="avatar_name_controller">Kontroller</string>
+    <string name="avatar_name_guitar">Kitarë</string>
+    <string name="avatar_name_soccer">Top futbolli</string>
+    <string name="avatar_name_basketball">Basketboll</string>
+    <string name="avatar_name_rainbow">Ylber</string>
+    <string name="avatar_name_cactus">Kaktus</string>
+    <string name="avatar_name_sun">Diell</string>
+    <string name="avatar_name_crystal_ball">Top kristali</string>
+    <string name="avatar_name_clapper">Klaketë</string>
+    <string name="avatar_name_donut">Petull</string>
+    <string name="profile_setup_button">Konfigurimi i profilit</string>
+    <string name="profile_setup_summary">Konfigurimi: %1$s</string>
+    <string name="profile_setup_part_kids">Fëmijë</string>
+    <string name="profile_setup_part_addons">shtesat e %1$s</string>
+    <string name="profile_setup_part_settings">cilësimet nga %1$s</string>
+    <string name="profile_setup_title">Konfigurimi i profilit</string>
+    <string name="profile_setup_subtitle">Një profil për fëmijë shfaq vetëm titujt e klasifikuar PG ose më poshtë dhe fsheh ata pa klasifikim. Shtesat e ndara me %1$s mund të ndryshohen vetëm nga %1$s.</string>
+    <string name="profile_addons_own">Shtesat: Të veçanta</string>
+    <string name="profile_addons_shared">Shtesat: Si te %1$s</string>
+    <string name="profile_addons_shared_saved">%1$s tani përdor shtesat e %2$s.</string>
+    <string name="profile_addons_own_saved">%1$s tani ka shtesa të veçanta.</string>
+    <string name="profile_pin_overlay_access_heading">Shkruaj PIN-in për %1$s.</string>
+    <string name="profile_pin_overlay_access_support">Ky profil është i bllokuar. Shkruaj PIN-in e tij 4-shifror për të vazhduar.</string>
+    <string name="profile_pin_overlay_reset_heading">Shkruaj PIN-in e %1$s për ta rivendosur këtë PIN.</string>
+    <string name="profile_pin_overlay_reset_support">Pastaj zgjidh një PIN të ri për %1$s.</string>
+    <string name="profile_pin_forgot_reset">Harrove PIN-in? Rivendose me PIN-in e %1$s</string>
+    <string name="profile_pin_forgot_needs_main">Harrove PIN-in? Cakto fillimisht një PIN te %1$s, pastaj përdore për ta rivendosur këtë.</string>
+    <string name="profile_pin_forgot_main">PIN-i i profilit kryesor nuk mund të rivendoset, ndaj ruaje në një vend të sigurt.</string>
+    <string name="profile_pin_reset_for_profile">PIN-i u rivendos për %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN i pasaktë për %1$s.</string>
+    <string name="profile_selection_kids_badge">FËMIJË</string>
+    <string name="profile_manage_done">U krye</string>
+    <string name="cd_profile_locked">I bllokuar me PIN</string>
+    <string name="profile_save_error">Profili nuk mund të ruhej. Provo përsëri.</string>
+    <string name="profile_delete_error">Profili nuk mund të fshihej. Provo përsëri.</string>
+    <string name="parental_pin_nudge_title">Mbro kufizimet e %1$s</string>
+    <string name="parental_pin_nudge_subtitle">Cakto një PIN te %1$s. Pa të, kushdo mund të ndryshojë kufizimet e %2$s ose të kalojë te një profil tjetër.</string>
+    <string name="parental_pin_nudge_set">Cakto një PIN te %1$s</string>
+    <string name="parental_pin_nudge_later">Jo tani</string>
 </resources>

@@ -22,7 +22,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | Skip intro / recap from community markers | ✅ | `data/repository/SkipIntroRepository.kt`: AniSkip, Anime-Skip and IntroDB (public `api.introdb.app` by default, overridable in Advanced settings). |
 | Two-way Trakt and Simkl sync | ✅ | `data/repository/Trakt*`, `data/simkl/`, `core/tracking/`. |
 | Android TV "Watch Next" row | ✅ | `core/recommendations/TvRecommendationManager.kt`, `core/sync/androidtv/`. |
-| Debrid through addons | ✅ | Built-in debrid (TorBox, Premiumize, Real-Debrid, AllDebrid, Debrid-Link) and the cloud library were removed; debrid is configured in addons, as in Stremio. Streams an addon leaves for the client to resolve are hidden, and torrent results say they open in an external player. |
+| Debrid through addons | ✅ | Built-in debrid (TorBox, Premiumize, Real-Debrid, AllDebrid, Debrid-Link) and the cloud library were removed; debrid is configured in addons, as in Stremio. Fetch is debrid-only: streams an addon leaves for the client to resolve and bare torrent results (an info hash or magnet with no playable URL) are hidden (`StreamRepositoryImpl.presentStreams`). There is no torrent engine or P2P setting (#15). |
 | Profiles | ✅ | `core/profile/ProfileManager.kt`, per-profile settings and addons. The profile editor has a Preferences tab (audio and subtitle language, autoplay next episode, Home trailers) that writes that profile's own stores; each profile's viewing activity is in its options (behind the main PIN for other profiles); Settings → Profiles shows the profiles and the start-up choice; the phone hub saves a profile to a file and adds one on another TV (`core/profile/ProfileTransfer.kt`). |
 | Parental controls | ✅ | `core/parental/`: local salted PIN hash with lockout (`ProfilePinManager`, works offline; mirrored to the sync server when signed in), per-profile rating limit and unrated toggle (`ParentalControls`, ratings from addons or TMDB), kids preset with a Home of its own (`HomeUiState.kidsHome`: no hero, upcoming row, recommendations or Ready tonight, at most six rows after Continue Watching, bigger cards, no addon names, ratings or source details, and "Switch profile" first in the sidebar), limits shared with the account's other TVs through each profile's settings blob, tighten-only (`ParentalLimitsBlob`, `ProfileRestrictionsDataStore.tightenFromAccount`; removing a limit stays per TV behind the parent PIN), filtering of home rows, search, Discover and Continue Watching, and blocked streams above the limit. The parent PIN guards settings, addon management, phone pages and leaving a restricted profile (`ui/screens/profile/ParentalGate.kt`). |
 | Low-end performance (lazy artwork, capped caches, fast cold start) | 🟡 | Coil memory cache scales with RAM, disk cache scaled to free storage, RGB565 option, deferred startup work, baseline profiles, decoder probing off the main thread. Measurement procedure, cold-start Macrobenchmark and result tables in `docs/performance.md`. Gap: numbers from a Fire TV Stick and a Chromecast with Google TV HD, and a baseline profile regenerated from a Fetch build. |
@@ -45,8 +45,9 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 - **Media3 and QuickJS forks.** Replaced with stock Media3 1.8.0 and the published
   quickjs-kt 1.0.5 (#1). What was dropped and what to re-check on devices is in
   `docs/architecture/media3-fork.md`.
-- **Torrent engine.** `core/torrent/TorrentService.kt` keeps the upstream API without an
-  engine. An open-source engine (e.g. libtorrent4j) can be plugged in there.
+- **No torrent engine.** Fetch plays debrid and direct links only, for legal and UX reasons
+  (#15). The upstream torrent service stub, P2P settings, consent dialog and player torrent
+  overlay were removed.
 - **Translations.** Changed and new strings are translated in every locale, unused strings
   are pruned (lint `UnusedResources` is clean for strings), and brand-name grammar was
   reviewed after the Nuvio → Fetch replacement. Older locales that were already incomplete
@@ -60,7 +61,7 @@ from NuvioTV (grouped by area, each linking the original reports).
 
 | Area | Issues |
 |---|---|
-| Stream picker / addons | #8 follow-ups, #15 torrent engine |
+| Stream picker / addons | #8 follow-ups |
 | Player | #1 replace Media3 fork, #17 DV/HDR, #18 refresh rate & judder, #19 playback failures, #20 subtitles, #21 controls & episode flow, #47 overlay and side panels, #48 episode queue |
 | Watch state | #11 skip intro markers, #22 Continue Watching / Trakt / Simkl |
 | Sources | #3 Plex, #25 media servers & TMDB |

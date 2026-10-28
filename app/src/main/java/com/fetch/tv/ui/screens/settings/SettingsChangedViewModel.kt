@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
-import com.fetch.tv.core.torrent.TorrentSettings
 import com.fetch.tv.data.local.AddonTimeoutPreferences
 import com.fetch.tv.data.local.AmbientModeDataStore
 import com.fetch.tv.data.local.AnimeSkipSettingsDataStore
@@ -42,7 +41,6 @@ internal data class SettingsSearchKey(val category: SettingsCategory, @StringRes
 @HiltViewModel
 class SettingsChangedViewModel @Inject constructor(
     playerSettings: PlayerSettingsDataStore,
-    torrentSettings: TorrentSettings,
     deviceLocalPlayer: DeviceLocalPlayerPreferences,
     layout: LayoutPreferenceDataStore,
     trailers: TrailerSettingsDataStore,
@@ -60,7 +58,6 @@ class SettingsChangedViewModel @Inject constructor(
 
     private val sources: List<Flow<Set<SettingsSearchKey>>> = buildList {
         add(playerSettings.playerSettings.changedRows(playerSettings.defaultPlayerSettings, playerSettingsChangeRules))
-        add(torrentSettings.settings.changedRows(torrentSettings.defaultSettings, torrentSettingsChangeRules))
         add(
             deviceLocalPlayer.transparentLetterbox.changedRow(
                 SettingsSearchKey(SettingsCategory.PLAYBACK_VIDEO, R.string.playback_true_black_letterbox),

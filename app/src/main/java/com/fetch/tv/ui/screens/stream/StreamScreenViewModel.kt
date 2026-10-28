@@ -16,9 +16,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
 import com.fetch.tv.core.network.NetworkResult
-import com.fetch.tv.core.torrent.TorrentSettings
-import com.fetch.tv.core.torrent.TorrentService
-import com.fetch.tv.core.torrent.TorrentState
 import com.fetch.tv.core.player.StreamAutoPlayPolicy
 import com.fetch.tv.core.player.StreamAutoPlaySelector
 import com.fetch.tv.core.tracking.TrackingMediaKind
@@ -94,17 +91,14 @@ class StreamScreenViewModel @Inject constructor(
     private val streamBadgePresentation: StreamBadgePresentation,
     streamBadgeSettingsDataStore: StreamBadgeSettingsDataStore,
     private val bingeGroupCacheDataStore: BingeGroupCacheDataStore,
-    private val torrentSettings: TorrentSettings,
     private val watchProgressRepository: WatchProgressRepository,
     private val trackingScrobbleCoordinator: TrackingScrobbleCoordinator,
     private val youTubeStreamResolver: YouTubeStreamResolver,
     private val externalPlaybackTracker: com.fetch.tv.core.player.ExternalPlaybackTracker,
     private val subtitleRepository: com.fetch.tv.domain.repository.SubtitleRepository,
     private val subtitleFileCache: com.fetch.tv.core.player.SubtitleFileCache,
-    private val torrentService: TorrentService,
     private val serverStreams: ServerStreams,
     private val serverPlayback: ServerPlayback,
-    private val okHttpClient: okhttp3.OkHttpClient,
     party: com.fetch.tv.core.party.PartyRepository,
     profileManager: com.fetch.tv.core.profile.ProfileManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
@@ -114,7 +108,6 @@ class StreamScreenViewModel @Inject constructor(
     private var autoPlayHandledForSession = false
     private var directAutoPlayModeInitializedForSession = false
     private var directAutoPlayFlowEnabledForSession = false
-    private var isTorrentStreamStarted = false
     private var streamLoadJob: Job? = null
     private var streamLoadScope: kotlinx.coroutines.CoroutineScope? = null
     private var streamLoadCompleted = false
@@ -203,12 +196,6 @@ class StreamScreenViewModel @Inject constructor(
     val playerPreference = playerSettingsDataStore.playerSettings
         .map { it.playerPreference }
         .distinctUntilChanged()
-
-    val p2pEnabled = torrentSettings.settings
-        .map { it.p2pEnabled }
-        .distinctUntilChanged()
-
-    fun enableP2p() = torrentSettings.setP2pEnabled(true)
 
     private inline fun updateUiStateIfChanged(
         transform: (StreamScreenUiState) -> StreamScreenUiState
@@ -507,7 +494,6 @@ class StreamScreenViewModel @Inject constructor(
                 if (cached != null) {
                     autoPlayHandledForSession = true
                     resolvedAutoPlayTarget = true
-                    val isCachedTorrent = cached.infoHash != null && cached.url.isNullOrBlank()
                     val showOverlay = playerSettings.playerPreference == PlayerPreference.EXTERNAL
                     updateUiStateIfChanged {
                         it.copy(
@@ -517,7 +503,6 @@ class StreamScreenViewModel @Inject constructor(
                                 streamName = cached.streamName,
                                 year = cached.year ?: year,
                                 isExternal = false,
-                                isTorrent = isCachedTorrent,
                                 infoHash = cached.infoHash,
                                 ytId = null,
                                 headers = cached.headers,
@@ -1506,10 +1491,6 @@ class StreamScreenViewModel @Inject constructor(
         if (System.currentTimeMillis() - externalPlayerLaunchTimeMs < 500L) return
         externalPlayerLaunched = false
         externalPlayerLaunchTimeMs = 0L
-        if (isTorrentStreamStarted) {
-            torrentService.stopStream()
-            isTorrentStreamStarted = false
-        }
         if (com.fetch.tv.core.player.ZidooPlayerMonitor.isZidooDevice()) {
             externalPlaybackTracker.dismissOverlayOnly()
         } else {
@@ -1560,7 +1541,6 @@ class StreamScreenViewModel @Inject constructor(
             streamName = stream.name ?: stream.addonName,
             year = year,
             isExternal = stream.isExternal(),
-            isTorrent = stream.isTorrent(),
             infoHash = stream.getEffectiveInfoHash(),
             ytId = stream.ytId,
             headers = stream.behaviorHints?.proxyHeaders?.request,
@@ -1631,10 +1611,6 @@ class StreamScreenViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        if (isTorrentStreamStarted) {
-            torrentService.stopStream()
-            isTorrentStreamStarted = false
-        }
         externalOverlayHideJob?.cancel()
         streamLoadScope?.cancel()
         streamLoadScope = null
@@ -1693,144 +1669,6 @@ class StreamScreenViewModel @Inject constructor(
         // Persist only the stream that actually launches. A missing group clears stale reuse state.
         persistBingeGroupForPlayback(playbackInfo)
 
-        var playUrl = url
-        if (playbackInfo.isTorrent || url.startsWith("torrent:")) {
-            val torrentSettingsData = torrentSettings.settings.first()
-            val statsHidden = torrentSettingsData.hideTorrentStats
-
-            updateUiStateIfChanged {
-                it.copy(
-                    directAutoPlayMessage = context.getString(R.string.player_torrent_starting_engine),
-                    directAutoPlayProgress = null
-                )
-            }
-            
-            val fileLimit = playbackInfo.videoSize ?: Long.MAX_VALUE
-            val preloadTarget = minOf(5_242_880L, fileLimit)
-
-            val preloadCompleted = kotlinx.coroutines.CompletableDeferred<Unit>()
-            val statsJob = viewModelScope.launch {
-                torrentService.state.collectLatest { torrentState ->
-                    when (torrentState) {
-                        is TorrentState.Idle -> { /* No-op */ }
-                        is TorrentState.Connecting -> {
-                            updateUiStateIfChanged {
-                                it.copy(
-                                    directAutoPlayMessage = context.getString(R.string.player_torrent_connecting_peers),
-                                    directAutoPlayProgress = null
-                                )
-                            }
-                        }
-                        is TorrentState.Streaming -> {
-                            val message = if (statsHidden) {
-                                null
-                            } else {
-                                val speed = formatSpeed(context, torrentState.downloadSpeed)
-                                val peerInfo = context.getString(R.string.player_torrent_peer_info, torrentState.seeds, torrentState.peers)
-                                val mbLoaded = formatMB(context, torrentState.loadedBytes)
-                                context.getString(R.string.player_torrent_loading_status, mbLoaded, peerInfo, speed)
-                            }
-
-                            val progress = (torrentState.deliveredBytes.toFloat() / preloadTarget).coerceIn(0f, 1f)
-
-                            updateUiStateIfChanged {
-                                it.copy(
-                                    directAutoPlayMessage = message,
-                                    directAutoPlayProgress = progress
-                                )
-                            }
-
-                            if (torrentState.deliveredBytes >= preloadTarget) {
-                                preloadCompleted.complete(Unit)
-                            }
-                        }
-                        is TorrentState.Error -> {
-                            preloadCompleted.completeExceptionally(Exception(torrentState.message))
-                        }
-                    }
-                }
-            }
-
-            var call: okhttp3.Call? = null
-            var fetchJob: kotlinx.coroutines.Job? = null
-            try {
-                val trackers = playbackInfo.sources
-                    ?.filter { it.startsWith("tracker:") }
-                    ?.map { it.removePrefix("tracker:") }
-                    ?: emptyList()
-                val localUrl = torrentService.startStream(
-                    infoHash = playbackInfo.infoHash ?: "",
-                    fileIdx = playbackInfo.fileIdx,
-                    filename = playbackInfo.filename,
-                    trackers = trackers
-                )
-                playUrl = localUrl
-                isTorrentStreamStarted = true
-
-                // Share the app's connection pool, but keep the stream out of its HTTP cache.
-                val client = okHttpClient.newBuilder()
-                    .cache(null)
-                    .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
-                    .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
-                    .build()
-                val request = okhttp3.Request.Builder()
-                    .url(localUrl)
-                    .build()
-                val activeCall = client.newCall(request)
-                call = activeCall
-
-                fetchJob = viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-                    try {
-                        activeCall.execute().use { response ->
-                            if (response.isSuccessful) {
-                                val byteStream = response.body?.byteStream()
-                                val buffer = ByteArray(16384)
-                                while (this@launch.isActive) {
-                                    val read = byteStream?.read(buffer) ?: -1
-                                    if (read == -1) break
-                                }
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Log.d(TAG, "Preload background HTTP request cancelled or failed: ${e.message}")
-                    }
-                }
-
-                val preloaded = kotlinx.coroutines.withTimeoutOrNull(60_000L) {
-                    preloadCompleted.await()
-                    true
-                } ?: false
-
-                if (!preloaded) {
-                    throw Exception(context.getString(R.string.torrent_error_start_timeout, 60))
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to start torrent stream for external player", e)
-                updateUiStateIfChanged {
-                    it.copy(
-                        showDirectAutoPlayOverlay = false,
-                        externalPlayerOverlayVisible = false,
-                        directAutoPlayMessage = null,
-                        directAutoPlayProgress = null,
-                        playbackErrorMessage = context.getString(
-                            R.string.player_error_failed_start_torrent,
-                            e.message ?: context.getString(R.string.error_unknown)
-                        )
-                    )
-                }
-                externalPlaybackTracker.releaseAutoNextOverlay(forceRelease = true)
-                return
-            } finally {
-                call?.cancel()
-                fetchJob?.cancel()
-                statsJob.cancel()
-                if (!externalPlayerLaunched && isTorrentStreamStarted) {
-                    torrentService.stopStream()
-                    isTorrentStreamStarted = false
-                }
-            }
-        }
-
         externalPlayerLaunched = true
         // Block stopExternalPlayerTracking during subtitle fetch and player launch.
         // Will be set to real timestamp right before the player intent is sent.
@@ -1877,7 +1715,7 @@ class StreamScreenViewModel @Inject constructor(
 
         val launched = externalPlaybackTracker.launchPlayer(
             metadata = metadata,
-            url = playUrl,
+            url = url,
             title = metadata.buildPlayerTitle(),
             headers = playbackInfo.headers,
             resumePositionMs = resumePositionMs,
@@ -2090,7 +1928,6 @@ data class StreamPlaybackInfo(
     val streamName: String,
     val year: String?,
     val isExternal: Boolean,
-    val isTorrent: Boolean,
     val infoHash: String?,
     val ytId: String?,
     val headers: Map<String, String>?,
@@ -2122,15 +1959,3 @@ data class StreamPlaybackInfo(
 
 private fun playbackUrlFor(playbackInfo: StreamPlaybackInfo): String? =
     playbackInfo.url?.takeIf { it.isNotBlank() }
-        ?: if (playbackInfo.isTorrent) playbackInfo.infoHash?.let { "torrent://$it" } else null
-
-private fun formatSpeed(context: android.content.Context, bytesPerSec: Long): String {
-    return when {
-        bytesPerSec >= 1_048_576 -> context.getString(R.string.unit_speed_mb_s, String.format("%.1f", bytesPerSec / 1_048_576.0))
-        bytesPerSec >= 1_024 -> context.getString(R.string.unit_speed_kb_s, String.format("%.0f", bytesPerSec / 1_024.0))
-        else -> context.getString(R.string.unit_speed_b_s, bytesPerSec)
-    }
-}
-
-private fun formatMB(context: android.content.Context, bytes: Long): String =
-    context.getString(R.string.unit_size_mb, String.format("%.1f", bytes / 1_048_576.0))

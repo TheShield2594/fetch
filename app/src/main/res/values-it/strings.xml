@@ -458,8 +458,6 @@
 <string name="essential_autoplay_next_episode">Riproduzione automatica episodio successivo</string>
 <string name="essential_autoplay_next_episode_subtitle">Passa all\'episodio successivo al termine dello streaming.</string>
 <string name="external_auto_next_loading">Caricamento del prossimo episodio…</string>
-<string name="essential_p2p_streams">Streaming P2P</string>
-<string name="essential_p2p_streams_subtitle">Consenti sorgenti di streaming peer-to-peer.</string>
 <string name="essential_subtitle_language_subtitle">Lingua preferita per i sottotitoli.</string>
 <string name="essential_audio_language_subtitle">Lingua preferita per l\'audio.</string>
     <!-- Account / sign-in error messages -->
@@ -1211,14 +1209,6 @@
 <string name="stream_no_streams">Nessuno stream trovato</string>
 <string name="stream_no_streams_hint">Prova a installare più addon per trovare degli stream</string>
 <string name="stream_finding_source">Recupero Sorgente Video</string>
-<string name="p2p_consent_title">Streaming P2P</string>
-<string name="p2p_consent_body">Questo flusso utilizza la tecnologia peer-to-peer (P2P). Abilitando il P2P, riconosci e accetti che:\n\n\u2022 Il tuo indirizzo IP sarà visibile agli altri peer nella rete\n\u2022 Sei l\'unico responsabile per i contenuti a cui accedi\n\u2022 Confermi di avere il diritto legale di trasmettere questo contenuto nella tua giurisdizione\n\u2022 Fetch non ospita, distribuisce o controlla alcun contenuto P2P\n\u2022 Fetch non si assume alcuna responsabilità per eventuali conseguenze legali derivanti dall\'uso dello streaming P2P\n\nL\'utilizzo di questa funzione è interamente a tuo rischio. Il P2P può essere disabilitato in qualsiasi momento nelle Impostazioni.</string>
-<string name="p2p_consent_enable">Abilita P2P</string>
-<string name="p2p_consent_cancel">Annulla</string>
-<string name="settings_p2p_title">Streaming P2P</string>
-<string name="settings_p2p_subtitle">Consenti flussi peer-to-peer (torrent)</string>
-<string name="settings_p2p_hide_stats_title">Nascondi statistiche torrent</string>
-<string name="settings_p2p_hide_stats_subtitle">Nascondi buffer, seed, peer e velocità di download durante il caricamento e la riproduzione</string>
 <string name="stream_player_picker_title">Quale player vuoi usare?</string>
 <string name="stream_player_internal">Interno</string>
 <string name="stream_player_external">Esterno</string>
@@ -1784,7 +1774,6 @@
 <string name="home_error_no_catalog_addons">Nessun addon catalogo installato</string>
 
     <!-- Player errors -->
-<string name="player_error_failed_start_torrent">Impossibile avviare il torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
 <string name="sub_mode_overlay_canvas_sub">Supporto HDR con rendering canvas. Potrebbe bloccare il thread UI.</string>
@@ -2152,11 +2141,6 @@
 <string name="playback_player_internal_desc">Usa il lettore integrato di Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-<string name="player_torrent_peer_info">%1$d seed · %2$d peer</string>
-<string name="player_torrent_buffered_status">%1$s bufferizzati · %2$s · %3$s</string>
-<string name="player_torrent_status">%1$s · %2$s</string>
-<string name="player_torrent_stats">%1$d peer · %2$d seed · %3$d%%</string>
-<string name="player_torrent_connecting_peers">Connessione ai peer in corso…</string>
 <string name="player_track_audio_fallback">Audio %1$d</string>
 <string name="player_track_subtitle_fallback">Sottotitolo %1$d</string>
 
@@ -2171,7 +2155,6 @@
 <string name="player_error_initialize_failed">Impossibile inizializzare il lettore</string>
 <string name="player_error_mpv_surface_failed">Impossibile inizializzare la superficie libmpv</string>
 <string name="player_error_mpv_playback_failed">Impossibile inizializzare la riproduzione libmpv</string>
-<string name="player_error_torrent">Errore torrent: %1$s</string>
 <string name="player_error_playback_fallback">Errore di riproduzione</string>
     <!-- Subtitle timing recovery -->
 <string name="subtitle_timing_file_no_lines">Nessuna riga di sottotitoli trovata in questo file.</string>
@@ -2303,7 +2286,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-<string name="player_torrent_starting_engine">Avvio motore P2P in corso…</string>
 <string name="player_stream_error_invalid_external_url">URL esterno non valido</string>
 <string name="player_stream_error_open_external_link_failed">Impossibile aprire il link esterno</string>
 <string name="player_stream_error_invalid_url">URL streaming non valido</string>
@@ -2463,9 +2445,6 @@
 <string name="unit_size_kb">%1$s KB</string>
 <string name="unit_size_mb">%1$s MB</string>
 <string name="unit_size_gb">%1$s GB</string>
-<string name="unit_speed_b_s">%1$d B/s</string>
-<string name="unit_speed_kb_s">%1$s KB/s</string>
-<string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
 <string name="playback_estimated_memory_usage">Uso stimato della memoria: %1$d / %2$d MB</string>
@@ -2654,37 +2633,12 @@
     <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="youtube_resolving_stream">Caricamento del video YouTube</string>
     <string name="youtube_resolution_failed">Impossibile caricare questo video di YouTube.</string>
-    <string name="settings_p2p_profile_title">Profilo torrent</string>
-    <string name="settings_p2p_profile_soft">Leggero</string>
-    <string name="settings_p2p_profile_balanced">Bilanciato</string>
-    <string name="settings_p2p_profile_fast">Veloce</string>
-    <string name="settings_p2p_profile_soft_description">Usa meno connessioni peer per ridurre il consumo della batteria e della rete.</string>
-    <string name="settings_p2p_profile_balanced_description">Equilibrio consigliato tra velocità di avvio e stabilità della connessione.</string>
-    <string name="settings_p2p_profile_fast_description">Usa più connessioni peer per torrent difficili o con bitrate elevato.</string>
-    <string name="settings_p2p_cache_size_title">Dimensione della cache torrent</string>
-    <string name="settings_p2p_cache_size_description">Dati torrent scaricati e conservati su questo dispositivo per velocizzare le riproduzioni successive.</string>
-    <string name="settings_p2p_cache_none">Nessuna cache permanente</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">Svuota cache torrent</string>
-    <string name="settings_p2p_clear_cache_usage">%1$s utilizzato al momento</string>
-    <string name="settings_p2p_clear_cache_usage_pending">L\'utilizzo viene misurato dopo l\'avvio del P2P; seleziona per cancellare i dati torrent memorizzati nella cache.</string>
-    <string name="settings_p2p_clear_cache_clearing">Rimozione dei dati torrent inattivi…</string>
-    <string name="settings_p2p_clear_cache_playback_active">Interrompi la riproduzione P2P prima di svuotare la cache.</string>
-    <string name="settings_p2p_clear_cache_done">Rimossi %1$s di dati torrent inattivi</string>
-    <string name="settings_p2p_clear_cache_failed">Impossibile svuotare la cache torrent.</string>
     <string name="player_switch_to_mpv">Passa al lettore MPV</string>
     <string name="cd_remove_recent_search">Rimuovi %1$s dalle ricerche recenti</string>
     <string name="library_sort_released_desc">Data di uscita ↓</string>
     <string name="library_sort_released_asc">Data di uscita ↑</string>
     <string name="library_error_sort_failed">Impossibile caricare l\'ordinamento. Verrà mostrato l\'ordine del provider.</string>
     <string name="collections_editor_catalog_missing">Catalogo non disponibile</string>
-    <string name="player_torrent_fetching_metadata">Recupero dei metadati del torrent…</string>
-    <string name="player_torrent_preparing_stream">Preparazione del flusso torrent…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s scaricato · %2$s · %3$s</string>
-    <string name="torrent_error_start_timeout">Il flusso torrent non è stato avviato entro %1$ds</string>
     <string name="playback_cache_write_warning">Sui dispositivi con memoria interna, le scritture sono continue e possono usurare la memoria nel tempo.</string>
     <string name="diag_label_last_convert">Ultima conversione</string>
     <string name="diag_label_disk_cache">Cache su disco</string>
@@ -2948,7 +2902,6 @@
     <string name="subtitle_style_text_color_hdr">Colore testo (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacità testo (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Questo è uno stream torrent e Fetch non ha un motore torrent integrato. Configura debrid nell’addon per ottenere un link riproducibile qui, oppure aprilo in un player esterno.</string>
     <string name="ready_to_play">Pronto da riprodurre</string>
     <string name="home_row_ready_tonight">Pronto per stasera</string>
     <string name="ready_check_title">Controlla in background cosa è pronto</string>
@@ -3050,4 +3003,76 @@
     <string name="youtube_show_live_subtitle">Includi le dirette in corso in feed, risultati di ricerca e Prossimo</string>
     <string name="youtube_hide_watched_title">Nascondi video guardati</string>
     <string name="youtube_hide_watched_subtitle">Escludi i video che hai guardato fino alla fine. La cronologia continua a elencarli</string>
+    <string name="profile_avatar_category_animals">Animali</string>
+    <string name="profile_avatar_category_characters">Personaggi</string>
+    <string name="profile_avatar_category_fun">Divertenti</string>
+    <string name="avatar_name_fox">Volpe</string>
+    <string name="avatar_name_cat">Gatto</string>
+    <string name="avatar_name_dog">Cane</string>
+    <string name="avatar_name_panda">Panda</string>
+    <string name="avatar_name_koala">Koala</string>
+    <string name="avatar_name_lion">Leone</string>
+    <string name="avatar_name_tiger">Tigre</string>
+    <string name="avatar_name_frog">Rana</string>
+    <string name="avatar_name_owl">Gufo</string>
+    <string name="avatar_name_penguin">Pinguino</string>
+    <string name="avatar_name_unicorn">Unicorno</string>
+    <string name="avatar_name_dragon">Drago</string>
+    <string name="avatar_name_octopus">Polpo</string>
+    <string name="avatar_name_monkey">Scimmia</string>
+    <string name="avatar_name_rabbit">Coniglio</string>
+    <string name="avatar_name_bear">Orso</string>
+    <string name="avatar_name_hamster">Criceto</string>
+    <string name="avatar_name_sloth">Bradipo</string>
+    <string name="avatar_name_dinosaur">Dinosauro</string>
+    <string name="avatar_name_butterfly">Farfalla</string>
+    <string name="avatar_name_robot">Robot</string>
+    <string name="avatar_name_alien">Alieno</string>
+    <string name="avatar_name_ghost">Fantasma</string>
+    <string name="avatar_name_space_invader">Invasore spaziale</string>
+    <string name="avatar_name_cool">Occhiali da sole</string>
+    <string name="avatar_name_pumpkin">Zucca</string>
+    <string name="avatar_name_rocket">Razzo</string>
+    <string name="avatar_name_star">Stella</string>
+    <string name="avatar_name_pizza">Pizza</string>
+    <string name="avatar_name_popcorn">Popcorn</string>
+    <string name="avatar_name_controller">Joypad</string>
+    <string name="avatar_name_guitar">Chitarra</string>
+    <string name="avatar_name_soccer">Pallone da calcio</string>
+    <string name="avatar_name_basketball">Basket</string>
+    <string name="avatar_name_rainbow">Arcobaleno</string>
+    <string name="avatar_name_cactus">Cactus</string>
+    <string name="avatar_name_sun">Sole</string>
+    <string name="avatar_name_crystal_ball">Sfera di cristallo</string>
+    <string name="avatar_name_clapper">Ciak</string>
+    <string name="avatar_name_donut">Ciambella</string>
+    <string name="profile_setup_button">Configurazione profilo</string>
+    <string name="profile_setup_summary">Configurazione: %1$s</string>
+    <string name="profile_setup_part_kids">Bambini</string>
+    <string name="profile_setup_part_addons">addon di %1$s</string>
+    <string name="profile_setup_part_settings">impostazioni di %1$s</string>
+    <string name="profile_setup_title">Configurazione profilo</string>
+    <string name="profile_setup_subtitle">Un profilo bambini mostra solo titoli con classificazione PG o inferiore e nasconde quelli non classificati. Gli addon condivisi con %1$s si possono modificare solo da %1$s.</string>
+    <string name="profile_addons_own">Addon: separati</string>
+    <string name="profile_addons_shared">Addon: come %1$s</string>
+    <string name="profile_addons_shared_saved">%1$s ora usa gli addon di %2$s.</string>
+    <string name="profile_addons_own_saved">%1$s ora ha addon separati.</string>
+    <string name="profile_pin_overlay_access_heading">Inserisci il PIN di %1$s.</string>
+    <string name="profile_pin_overlay_access_support">Questo profilo è bloccato. Inserisci il suo PIN di 4 cifre per continuare.</string>
+    <string name="profile_pin_overlay_reset_heading">Inserisci il PIN di %1$s per reimpostare questo PIN.</string>
+    <string name="profile_pin_overlay_reset_support">Poi scegli un nuovo PIN per %1$s.</string>
+    <string name="profile_pin_forgot_reset">PIN dimenticato? Reimpostalo con il PIN di %1$s</string>
+    <string name="profile_pin_forgot_needs_main">PIN dimenticato? Imposta prima un PIN su %1$s, poi usalo per reimpostare questo.</string>
+    <string name="profile_pin_forgot_main">Il PIN del profilo principale non può essere reimpostato, quindi conservalo in un posto sicuro.</string>
+    <string name="profile_pin_reset_for_profile">PIN reimpostato per %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN errato per %1$s.</string>
+    <string name="profile_selection_kids_badge">BAMBINI</string>
+    <string name="profile_manage_done">Fatto</string>
+    <string name="cd_profile_locked">Bloccato con PIN</string>
+    <string name="profile_save_error">Impossibile salvare il profilo. Riprova.</string>
+    <string name="profile_delete_error">Impossibile eliminare il profilo. Riprova.</string>
+    <string name="parental_pin_nudge_title">Proteggi i limiti di %1$s</string>
+    <string name="parental_pin_nudge_subtitle">Imposta un PIN su %1$s. Senza PIN, chiunque può modificare i limiti di %2$s o passare a un altro profilo.</string>
+    <string name="parental_pin_nudge_set">Imposta un PIN su %1$s</string>
+    <string name="parental_pin_nudge_later">Non ora</string>
 </resources>

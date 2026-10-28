@@ -405,8 +405,6 @@
     <string name="essential_stream_selection_subtitle">إختر يدوياً أو قم بتشغيل أول مصدر متاح تلقائياً.</string>
     <string name="essential_autoplay_next_episode">تشغيل الحلقة التالية تلقائياً</string>
     <string name="essential_autoplay_next_episode_subtitle">المتابعة إلى الحلقة التالية بعد انتهاء البث.</string>
-    <string name="essential_p2p_streams">مصادر التورنت (P2P)</string>
-    <string name="essential_p2p_streams_subtitle">السماح بمصادر ملفات التورنت (P2P).</string>
     <string name="essential_subtitle_language_subtitle">لغة الترجمة المفضلة.</string>
     <string name="essential_audio_language_subtitle">لغة الصوت المفضلة.</string>
     <!-- Account / sign-in error messages -->
@@ -1063,14 +1061,6 @@
     <string name="stream_no_streams">لم يتم العثور على مصادر</string>
     <string name="stream_no_streams_hint">حاول تثبيت المزيد من الإضافات للعثور على مصادر</string>
     <string name="stream_finding_source">جاري البحث عن مصدر</string>
-    <string name="p2p_consent_title">التورنت P2P</string>
-    <string name="p2p_consent_body">يستخدم هذا البث تقنية الند للند (P2P). بتفعيل P2P، أنت تقر وتوافق على الآتي:\n\n\u2022 سيكون عنوان IP الخاص بك مرئياً للأقران الآخرين في الشبكة\n\u2022 أنت وحدك المسؤول عن المحتوى الذي تصل إليه\n\u2022 أنت تؤكد أن لديك الحق القانوني لبث هذا المحتوى في ولايتك القضائية\n\u2022 لا تستضيف Fetch أو توزع أو تتحكم في أي محتوى P2P\n\u2022 لا تتحمل Fetch أي مسؤولية عن أي عواقب قانونية تنشأ عن استخدامك لبث P2P\n\nأنت تستخدم هذه الميزة على مسؤوليتك الخاصة بالكامل. يمكن تعطيل P2P في أي وقت من الإعدادات.</string>
-    <string name="p2p_consent_enable">تفعيل التورنت</string>
-    <string name="p2p_consent_cancel">إلغاء</string>
-    <string name="settings_p2p_title">تشغيل ملفات التورنت</string>
-    <string name="settings_p2p_subtitle">السماح بتشغيل ملفات التورنت</string>
-    <string name="settings_p2p_hide_stats_title">إخفاء إحصائيات التورنت</string>
-    <string name="settings_p2p_hide_stats_subtitle">إخفاء التخزين المؤقت، والمزودين، وعدد المتصلين، وسرعة التنزيل أثناء التحميل والتشغيل</string>
     <string name="stream_player_picker_title">ما هو المشغل الذي تود استخدامه؟</string>
     <string name="stream_player_internal">داخلي</string>
     <string name="stream_player_external">خارجي</string>
@@ -1535,7 +1525,6 @@
     <string name="home_error_no_catalog_addons">لا توجد إضافات قوائم مثبتة</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">تعذر بدء ملف التورنت %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">HDR support with canvas rendering. May block UI thread.</string>
@@ -1896,11 +1885,6 @@
     <string name="playback_player_internal_desc">استخدام مشغل Fetch المدمج</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seeds · %2$d peers</string>
-    <string name="player_torrent_buffered_status">%1$s buffered · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peers · %2$d seeds · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Connecting to peers…</string>
     <string name="player_track_audio_fallback">المسار الصوتي %1$d</string>
     <string name="player_track_subtitle_fallback">ملف الترجمة %1$d</string>
 
@@ -1915,7 +1899,6 @@
     <string name="player_error_initialize_failed">فشل تهيئة المشغل</string>
     <string name="player_error_mpv_surface_failed">فشل تهيئة واجهة libmpv</string>
     <string name="player_error_mpv_playback_failed">فشل تهيئة تشغيل libmpv</string>
-    <string name="player_error_torrent">خطأ في التورنت: %1$s</string>
     <string name="player_error_playback_fallback">خطأ في التشغيل</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">لم يتم العثور على أسطر ترجمة في هذا الملف.</string>
@@ -2013,7 +1996,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">جاري تشغيل محرك P2P…</string>
     <string name="player_stream_error_invalid_external_url">رابط خارجي غير صالح</string>
     <string name="player_stream_error_open_external_link_failed">تعذر فتح الرابط الخارجي</string>
     <string name="player_stream_error_invalid_url">رابط بث غير صالح</string>
@@ -2391,9 +2373,6 @@
     <string name="unit_size_gb">‏%1$s ج.ب</string>
     <string name="unit_size_kb">‏%1$s ك.ب</string>
     <string name="unit_size_mb">‏%1$s م.ب</string>
-    <string name="unit_speed_b_s">‏%1$d بايت/ث</string>
-    <string name="unit_speed_kb_s">‏%1$s ك.ب/ث</string>
-    <string name="unit_speed_mb_s">‏%1$s م.ب/ث</string>
     <string name="upcoming_section_title">القادم</string>
     <string name="update_available">يتوفر تحديث</string>
     <string name="update_downloading_progress">جارٍ التنزيل %1$d%%</string>
@@ -2644,7 +2623,6 @@
     <string name="subtitle_style_text_color_hdr">لون النص (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">شفافية النص (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">هذا مصدر تورنت ولا يحتوي Fetch على محرك تورنت مدمج. فعّل ديبريد في الإضافة للحصول على رابط يعمل هنا، أو افتحه في مشغل خارجي.</string>
     <string name="because_you_watched_row_title">لأنك شاهدت %1$s</string>
     <string name="because_you_watched_reason_collection">ضمن %1$s أيضًا</string>
     <string name="because_you_watched_reason_director">من إخراج %1$s أيضًا</string>
@@ -2757,4 +2735,76 @@
     <string name="youtube_show_live_subtitle">تضمين البث المباشر الجاري حاليًا في خلاصاتك ونتائج البحث والفيديو التالي</string>
     <string name="youtube_hide_watched_title">إخفاء الفيديوهات المشاهدة</string>
     <string name="youtube_hide_watched_subtitle">استبعاد الفيديوهات التي شاهدتها حتى النهاية. ما زال السجل يعرضها</string>
+    <string name="profile_avatar_category_animals">الحيوانات</string>
+    <string name="profile_avatar_category_characters">الشخصيات</string>
+    <string name="profile_avatar_category_fun">تسلية</string>
+    <string name="avatar_name_fox">ثعلب</string>
+    <string name="avatar_name_cat">قطة</string>
+    <string name="avatar_name_dog">كلب</string>
+    <string name="avatar_name_panda">باندا</string>
+    <string name="avatar_name_koala">كوالا</string>
+    <string name="avatar_name_lion">أسد</string>
+    <string name="avatar_name_tiger">نمر</string>
+    <string name="avatar_name_frog">ضفدع</string>
+    <string name="avatar_name_owl">بومة</string>
+    <string name="avatar_name_penguin">بطريق</string>
+    <string name="avatar_name_unicorn">حصان وحيد القرن</string>
+    <string name="avatar_name_dragon">تنين</string>
+    <string name="avatar_name_octopus">أخطبوط</string>
+    <string name="avatar_name_monkey">قرد</string>
+    <string name="avatar_name_rabbit">أرنب</string>
+    <string name="avatar_name_bear">دب</string>
+    <string name="avatar_name_hamster">هامستر</string>
+    <string name="avatar_name_sloth">كسلان</string>
+    <string name="avatar_name_dinosaur">ديناصور</string>
+    <string name="avatar_name_butterfly">فراشة</string>
+    <string name="avatar_name_robot">روبوت</string>
+    <string name="avatar_name_alien">كائن فضائي</string>
+    <string name="avatar_name_ghost">شبح</string>
+    <string name="avatar_name_space_invader">غازي الفضاء</string>
+    <string name="avatar_name_cool">رائع</string>
+    <string name="avatar_name_pumpkin">يقطينة</string>
+    <string name="avatar_name_rocket">صاروخ</string>
+    <string name="avatar_name_star">نجمة</string>
+    <string name="avatar_name_pizza">بيتزا</string>
+    <string name="avatar_name_popcorn">فشار</string>
+    <string name="avatar_name_controller">ذراع تحكم</string>
+    <string name="avatar_name_guitar">غيتار</string>
+    <string name="avatar_name_soccer">كرة قدم</string>
+    <string name="avatar_name_basketball">كرة سلة</string>
+    <string name="avatar_name_rainbow">قوس قزح</string>
+    <string name="avatar_name_cactus">صبار</string>
+    <string name="avatar_name_sun">شمس</string>
+    <string name="avatar_name_crystal_ball">كرة بلورية</string>
+    <string name="avatar_name_clapper">كلاكيت</string>
+    <string name="avatar_name_donut">دونات</string>
+    <string name="profile_setup_button">إعداد الملف الشخصي</string>
+    <string name="profile_setup_summary">الإعداد: %1$s</string>
+    <string name="profile_setup_part_kids">أطفال</string>
+    <string name="profile_setup_part_addons">إضافات %1$s</string>
+    <string name="profile_setup_part_settings">إعدادات من %1$s</string>
+    <string name="profile_setup_title">إعداد الملف الشخصي</string>
+    <string name="profile_setup_subtitle">يعرض ملف الأطفال الشخصي فقط العناوين المصنفة PG أو أقل ويخفي غير المصنفة. لا يمكن تغيير الإضافات المشتركة مع %1$s إلا من %1$s.</string>
+    <string name="profile_addons_own">الإضافات: منفصلة</string>
+    <string name="profile_addons_shared">الإضافات: مثل %1$s</string>
+    <string name="profile_addons_shared_saved">يستخدم %1$s الآن إضافات %2$s.</string>
+    <string name="profile_addons_own_saved">أصبحت لـ %1$s إضافات منفصلة.</string>
+    <string name="profile_pin_overlay_access_heading">أدخل رمز PIN لـ %1$s.</string>
+    <string name="profile_pin_overlay_access_support">هذا الملف الشخصي مقفل. أدخل رمز PIN المكون من 4 أرقام للمتابعة.</string>
+    <string name="profile_pin_overlay_reset_heading">أدخل رمز PIN لـ %1$s لإعادة تعيين هذا الرمز.</string>
+    <string name="profile_pin_overlay_reset_support">ثم اختر رمز PIN جديداً لـ %1$s.</string>
+    <string name="profile_pin_forgot_reset">نسيت رمز PIN؟ أعد تعيينه باستخدام رمز PIN لـ %1$s</string>
+    <string name="profile_pin_forgot_needs_main">نسيت رمز PIN؟ عيّن رمز PIN لـ %1$s أولاً، ثم استخدمه لإعادة تعيين هذا الرمز.</string>
+    <string name="profile_pin_forgot_main">لا يمكن إعادة تعيين رمز PIN للملف الشخصي الرئيسي، لذا احتفظ به في مكان آمن.</string>
+    <string name="profile_pin_reset_for_profile">تمت إعادة تعيين رمز PIN لـ %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">رمز PIN غير صحيح لـ %1$s.</string>
+    <string name="profile_selection_kids_badge">أطفال</string>
+    <string name="profile_manage_done">تم</string>
+    <string name="cd_profile_locked">مقفل برمز PIN</string>
+    <string name="profile_save_error">تعذر حفظ الملف الشخصي. حاول مجدداً.</string>
+    <string name="profile_delete_error">تعذر حذف الملف الشخصي. حاول مجدداً.</string>
+    <string name="parental_pin_nudge_title">احمِ قيود %1$s</string>
+    <string name="parental_pin_nudge_subtitle">عيّن رمز PIN لـ %1$s. بدونه، يمكن لأي شخص تغيير قيود %2$s أو التبديل إلى ملف شخصي آخر.</string>
+    <string name="parental_pin_nudge_set">عيّن رمز PIN لـ %1$s</string>
+    <string name="parental_pin_nudge_later">ليس الآن</string>
 </resources>

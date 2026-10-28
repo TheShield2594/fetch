@@ -410,8 +410,6 @@
     <string name="essential_stream_selection_subtitle">Vyberte manuálne alebo automaticky prehrajte prvý dostupný stream.</string>
     <string name="essential_autoplay_next_episode">Automaticky prehrať ďalšiu epizódu</string>
     <string name="essential_autoplay_next_episode_subtitle">Pokračovať na ďalšiu epizódu po skončení streamu.</string>
-    <string name="essential_p2p_streams">P2P streamy</string>
-    <string name="essential_p2p_streams_subtitle">Povoliť peer-to-peer zdroje streamov.</string>
     <string name="essential_subtitle_language_subtitle">Preferovaný jazyk titulkov.</string>
     <string name="essential_audio_language_subtitle">Preferovaný jazyk audia.</string>
     
@@ -1013,14 +1011,6 @@
     <string name="stream_no_streams">Nenašli sa žiadne streamy</string>
     <string name="stream_no_streams_hint">Skúste nainštalovať viac doplnkov</string>
     <string name="stream_finding_source">Hľadá sa zdroj streamu</string>
-    <string name="p2p_consent_title">P2P streamovanie</string>
-    <string name="p2p_consent_body">Tento stream používa peer-to-peer (P2P) technológiu. Povolením P2P beriete na vedomie a súhlasíte s tým, že:\n\n\u2022 Vaša IP adresa bude viditeľná pre ostatných účastníkov siete\n\u2022 Ste výhradne zodpovední za obsah, ku ktorému pristupujete\n\u2022 Potvrdzujete, že máte zákonné právo streamovať tento obsah vo vašej jurisdikcii\n\u2022 Fetch nehostuje, nedistribuuje ani nekontroluje žiadny P2P obsah\n\u2022 Fetch nenesie žiadnu zodpovednosť za právne dôsledky vyplývajúce z vášho používania P2P streamovania\n\nTúto funkciu používate výhradne na vlastné riziko. P2P je možné kedykoľvek zakázať v Nastaveniach.</string>
-    <string name="p2p_consent_enable">Povoliť P2P</string>
-    <string name="p2p_consent_cancel">Zrušiť</string>
-    <string name="settings_p2p_title">P2P streamovanie</string>
-    <string name="settings_p2p_subtitle">Povoliť peer-to-peer (torrent) streamy</string>
-    <string name="settings_p2p_hide_stats_title">Skryť štatistiky torrentu</string>
-    <string name="settings_p2p_hide_stats_subtitle">Skryť buffer, seeds, peers a rýchlosť sťahovania počas načítavania a prehrávania</string>
     <string name="stream_player_picker_title">Ktorý prehrávač sa má použiť?</string>
     <string name="stream_player_internal">Interný</string>
     <string name="stream_player_external">Externý</string>
@@ -1495,7 +1485,6 @@
 
     
     <string name="player_error_no_stream_url">Nebola poskytnutá URL streamu</string>
-    <string name="player_error_failed_start_torrent">Nepodarilo sa spustiť torrent: %1$s</string>
 
     
     <string name="sub_mode_overlay_canvas_sub">Podpora HDR s Canvas renderovaním. Môže blokovať UI vlákno.</string>
@@ -1862,11 +1851,6 @@
     <string name="playback_player_internal_desc">Použiť vstavaný prehrávač Fetch</string>
 
     
-    <string name="player_torrent_peer_info">%1$d seedov · %2$d peerov</string>
-    <string name="player_torrent_buffered_status">%1$s v bufferi · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peerov · %2$d seedov · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Pripája sa k peerom…</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Titulky %1$d</string>
 
@@ -1881,7 +1865,6 @@
     <string name="player_error_initialize_failed">Nepodarilo sa inicializovať prehrávač</string>
     <string name="player_error_mpv_surface_failed">Nepodarilo sa inicializovať povrch libmpv</string>
     <string name="player_error_mpv_playback_failed">Nepodarilo sa inicializovať prehrávanie libmpv</string>
-    <string name="player_error_torrent">Chyba torrentu: %1$s</string>
     <string name="player_error_playback_fallback">Chyba prehrávania</string>
     
     <string name="subtitle_timing_file_no_lines">V tomto súbore sa nenašli žiadne riadky titulkov.</string>
@@ -1979,7 +1962,6 @@
     
 
     
-    <string name="player_torrent_starting_engine">Spúšťa sa P2P engine…</string>
     <string name="player_stream_error_invalid_external_url">Neplatná externá URL</string>
     <string name="player_stream_error_open_external_link_failed">Nepodarilo sa otvoriť externý odkaz</string>
     <string name="player_stream_error_invalid_url">Neplatná URL streamu</string>
@@ -2237,9 +2219,6 @@
 <string name="unit_size_kb">%1$s KB</string>
 <string name="unit_size_mb">%1$s MB</string>
 <string name="unit_size_gb">%1$s GB</string>
-<string name="unit_speed_b_s">%1$d B/s</string>
-<string name="unit_speed_kb_s">%1$s KB/s</string>
-<string name="unit_speed_mb_s">%1$s MB/s</string>
 <string name="playback_estimated_memory_usage">Odhadované využitie pamäte: %1$d / %2$d MB</string>
 <string name="profile_default_name">Profil %1$d</string>
 <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
@@ -2685,34 +2664,9 @@
     <string name="tracking_mdblist_features_subtitle">Nastavenia špecifické pre MDBList</string>
     <string name="youtube_resolving_stream">Načítava sa video z YouTube</string>
     <string name="youtube_resolution_failed">Toto video z YouTube sa nepodarilo načítať.</string>
-    <string name="settings_p2p_profile_title">Profil torrentu</string>
-    <string name="settings_p2p_profile_soft">Šetrný</string>
-    <string name="settings_p2p_profile_balanced">Vyvážený</string>
-    <string name="settings_p2p_profile_fast">Rýchly</string>
-    <string name="settings_p2p_profile_soft_description">Používa menej spojení s peerov na zníženie záťaže batérie a siete</string>
-    <string name="settings_p2p_profile_balanced_description">Odporúčaná rovnováha medzi rýchlosťou spustenia a stabilitou pripojenia</string>
-    <string name="settings_p2p_profile_fast_description">Používa viac spojení s peerov pre náročné torrenty alebo torrenty s vysokým dátovým tokom</string>
-    <string name="settings_p2p_cache_size_title">Veľkosť vyrovnávacej pamäte torrentu</string>
-    <string name="settings_p2p_cache_size_description">Stiahnuté dáta torrentu uložené na tomto zariadení pre rýchlejšie opätovné prehrávanie</string>
-    <string name="settings_p2p_cache_none">Bez trvalej vyrovnávacej pamäte</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">Vymazať vyrovnávaciu pamäť torrentu</string>
-    <string name="settings_p2p_clear_cache_usage">Aktuálne využité: %1$s</string>
-    <string name="settings_p2p_clear_cache_usage_pending">Využitie sa meria po spustení P2P; výberom vymažete uložené dáta torrentu</string>
-    <string name="settings_p2p_clear_cache_clearing">Mažú sa neaktívne dáta torrentov…</string>
-    <string name="settings_p2p_clear_cache_playback_active">Pred vymazaním vyrovnávacej pamäte zastavte prehrávanie P2P</string>
-    <string name="settings_p2p_clear_cache_done">Vymazaných %1$s neaktívnych dát torrentov</string>
-    <string name="settings_p2p_clear_cache_failed">Nepodarilo sa vymazať vyrovnávaciu pamäť torrentov</string>
     <string name="library_sort_released_desc">Dátum vydania ↓</string>
     <string name="library_sort_released_asc">Dátum vydania ↑</string>
     <string name="collections_editor_catalog_missing">Katalóg nie je k dispozícii</string>
-    <string name="player_torrent_fetching_metadata">Načítavajú sa metadáta torrentu…</string>
-    <string name="player_torrent_preparing_stream">Pripravuje sa stream torrentu…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">Stiahnuté %1$s · %2$s · %3$s</string>
-    <string name="torrent_error_start_timeout">Stream torrentu sa nespustil do %1$d s</string>
     <string name="random_episode_title">Náhodný výber</string>
     <string name="layout_random_episode_sub">Náhodne prehrávať epizódy z akéhokoľvek seriálu. Vypnutím tejto možnosti pozastavíte náhodný výber.</string>
     <string name="random_episode_unwatched">Nevidené epizódy</string>
@@ -2974,7 +2928,6 @@
     <string name="subtitle_style_text_color_hdr">Farba textu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Nepriehľadnosť textu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Toto je torrentový stream a Fetch nemá vstavaný torrentový engine. Nastavte debrid v doplnku, aby ste získali odkaz, ktorý sa prehrá tu, alebo ho otvorte v externom prehrávači.</string>
     <string name="ready_to_play">Pripravené na prehranie</string>
     <string name="home_row_ready_tonight">Pripravené na dnešný večer</string>
     <string name="ready_check_title">Kontrolovať na pozadí, čo je pripravené</string>
@@ -3077,4 +3030,76 @@
     <string name="youtube_show_live_subtitle">Zahrnie práve prebiehajúce vysielania do kanálov, výsledkov vyhľadávania a ponuky Ďalšie</string>
     <string name="youtube_hide_watched_title">Skrývať pozreté videá</string>
     <string name="youtube_hide_watched_subtitle">Vynechá videá, ktoré ste pozreli do konca. História ich stále zobrazuje</string>
+    <string name="profile_avatar_category_animals">Zvieratá</string>
+    <string name="profile_avatar_category_characters">Postavy</string>
+    <string name="profile_avatar_category_fun">Zábava</string>
+    <string name="avatar_name_fox">Líška</string>
+    <string name="avatar_name_cat">Mačka</string>
+    <string name="avatar_name_dog">Pes</string>
+    <string name="avatar_name_panda">Panda</string>
+    <string name="avatar_name_koala">Koala</string>
+    <string name="avatar_name_lion">Lev</string>
+    <string name="avatar_name_tiger">Tiger</string>
+    <string name="avatar_name_frog">Žaba</string>
+    <string name="avatar_name_owl">Sova</string>
+    <string name="avatar_name_penguin">Tučniak</string>
+    <string name="avatar_name_unicorn">Jednorožec</string>
+    <string name="avatar_name_dragon">Drak</string>
+    <string name="avatar_name_octopus">Chobotnica</string>
+    <string name="avatar_name_monkey">Opica</string>
+    <string name="avatar_name_rabbit">Zajac</string>
+    <string name="avatar_name_bear">Medveď</string>
+    <string name="avatar_name_hamster">Škrečok</string>
+    <string name="avatar_name_sloth">Leňochod</string>
+    <string name="avatar_name_dinosaur">Dinosaurus</string>
+    <string name="avatar_name_butterfly">Motýľ</string>
+    <string name="avatar_name_robot">Robot</string>
+    <string name="avatar_name_alien">Mimozemšťan</string>
+    <string name="avatar_name_ghost">Duch</string>
+    <string name="avatar_name_space_invader">Vesmírny votrelec</string>
+    <string name="avatar_name_cool">Frajer</string>
+    <string name="avatar_name_pumpkin">Tekvica</string>
+    <string name="avatar_name_rocket">Raketa</string>
+    <string name="avatar_name_star">Hviezda</string>
+    <string name="avatar_name_pizza">Pizza</string>
+    <string name="avatar_name_popcorn">Pukance</string>
+    <string name="avatar_name_controller">Ovládač</string>
+    <string name="avatar_name_guitar">Gitara</string>
+    <string name="avatar_name_soccer">Futbalová lopta</string>
+    <string name="avatar_name_basketball">Basketbalová lopta</string>
+    <string name="avatar_name_rainbow">Dúha</string>
+    <string name="avatar_name_cactus">Kaktus</string>
+    <string name="avatar_name_sun">Slnko</string>
+    <string name="avatar_name_crystal_ball">Krištáľová guľa</string>
+    <string name="avatar_name_clapper">Filmová klapka</string>
+    <string name="avatar_name_donut">Šiška</string>
+    <string name="profile_setup_button">Nastavenie profilu</string>
+    <string name="profile_setup_summary">Nastavenie: %1$s</string>
+    <string name="profile_setup_part_kids">Detský</string>
+    <string name="profile_setup_part_addons">Doplnky profilu %1$s</string>
+    <string name="profile_setup_part_settings">nastavenia z profilu %1$s</string>
+    <string name="profile_setup_title">Nastavenie profilu</string>
+    <string name="profile_setup_subtitle">Detský profil zobrazuje len tituly s hodnotením PG alebo nižším a skrýva tituly bez hodnotenia. Doplnky zdieľané s profilom %1$s možno meniť len z profilu %1$s.</string>
+    <string name="profile_addons_own">Doplnky: Samostatné</string>
+    <string name="profile_addons_shared">Doplnky: Rovnaké ako %1$s</string>
+    <string name="profile_addons_shared_saved">%1$s teraz používa doplnky profilu %2$s.</string>
+    <string name="profile_addons_own_saved">%1$s má teraz samostatné doplnky.</string>
+    <string name="profile_pin_overlay_access_heading">Zadajte PIN pre %1$s.</string>
+    <string name="profile_pin_overlay_access_support">Tento profil je zamknutý. Pokračujte zadaním jeho 4-ciferného PIN.</string>
+    <string name="profile_pin_overlay_reset_heading">Na obnovenie tohto PIN zadajte PIN profilu %1$s.</string>
+    <string name="profile_pin_overlay_reset_support">Potom zvoľte nový PIN pre %1$s.</string>
+    <string name="profile_pin_forgot_reset">Zabudli ste PIN? Obnovte ho pomocou PIN profilu %1$s</string>
+    <string name="profile_pin_forgot_needs_main">Zabudli ste PIN? Najprv nastavte PIN pre %1$s a potom ním obnovte tento.</string>
+    <string name="profile_pin_forgot_main">PIN hlavného profilu nemožno obnoviť, preto si ho uschovajte na bezpečnom mieste.</string>
+    <string name="profile_pin_reset_for_profile">PIN pre %1$s bol obnovený.</string>
+    <string name="profile_pin_incorrect_for_profile">Nesprávny PIN pre %1$s.</string>
+    <string name="profile_selection_kids_badge">DETSKÝ</string>
+    <string name="profile_manage_done">Hotovo</string>
+    <string name="cd_profile_locked">Zamknuté PIN kódom</string>
+    <string name="profile_save_error">Profil sa nepodarilo uložiť. Skúste to znova.</string>
+    <string name="profile_delete_error">Profil sa nepodarilo odstrániť. Skúste to znova.</string>
+    <string name="parental_pin_nudge_title">Chráňte obmedzenia profilu %1$s</string>
+    <string name="parental_pin_nudge_subtitle">Nastavte PIN pre %1$s. Bez neho môže ktokoľvek zmeniť obmedzenia profilu %2$s alebo prepnúť na iný profil.</string>
+    <string name="parental_pin_nudge_set">Nastaviť PIN pre %1$s</string>
+    <string name="parental_pin_nudge_later">Teraz nie</string>
 </resources>

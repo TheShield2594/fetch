@@ -484,8 +484,6 @@
     <string name="essential_autoplay_next_episode">Automatski pusti sledeću epizodu</string>
     <string name="essential_autoplay_next_episode_subtitle">Nastavite na sledeću epizodu nakon što se strim završi.</string>
     <string name="external_auto_next_loading">Učitavanje sledeće epizode…</string>
-    <string name="essential_p2p_streams">P2P strimovi</string>
-    <string name="essential_p2p_streams_subtitle">Dozvoli P2P izvore strimovanja.</string>
     <string name="essential_subtitle_language_subtitle">Željeni jezik titlova.</string>
     <string name="essential_audio_language_subtitle">Željeni jezik zvuka.</string>
     <!-- Account / sign-in error messages -->
@@ -1239,14 +1237,6 @@
     <string name="stream_no_streams">Nisu pronađeni strimovi</string>
     <string name="stream_no_streams_hint">Pokušajte da instalirate više dodataka da biste pronašli strimove</string>
     <string name="stream_finding_source">Pronalaženje izvora strima</string>
-    <string name="p2p_consent_title">P2P strimovanje</string>
-    <string name="p2p_consent_body">Ovaj strim koristi peer-to-peer (P2P) tehnologiju. Omogućavanjem P2P-a potvrđujete i saglasni ste da:\n\n\u2022 Vaša IP adresa će biti vidljiva drugim korisnicima u mreži\n\u2022 Vi ste isključivo odgovorni za sadržaj kom pristupate\n\u2022 Potvrđujete da imate zakonsko pravo na strimovanje ovog sadržaja u vašoj jurisdikciji\n\u2022 Fetch ne hostuje, ne distribuira i ne kontroliše P2P sadržaj\n\u2022 Fetch ne snosi nikakvu odgovornost za pravne posledice proistekle iz vašeg korišćenja P2P strimovanja\n\nOvu funkciju koristite isključivo na sopstvenu odgovornost. P2P se može onemogućiti u bilo kom trenutku u Podešavanjima.</string>
-    <string name="p2p_consent_enable">Omogući P2P</string>
-    <string name="p2p_consent_cancel">Otkaži</string>
-    <string name="settings_p2p_title">P2P strimovanje</string>
-    <string name="settings_p2p_subtitle">Dozvoli peer-to-peer (torrent) strimove</string>
-    <string name="settings_p2p_hide_stats_title">Sakrij torrent statistiku</string>
-    <string name="settings_p2p_hide_stats_subtitle">Sakrij bafer, seed-ove, peer-ove i brzinu preuzimanja tokom učitavanja i reprodukcije</string>
     <string name="stream_player_picker_title">Koji plejer treba koristiti?</string>
     <string name="stream_player_internal">Interni</string>
     <string name="stream_player_external">Spoljni</string>
@@ -1815,7 +1805,6 @@
     <string name="home_error_no_catalog_addons">Nema instaliranih dodataka za katalog</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Pokretanje torenta nije uspelo: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">HDR podrška sa iscrtavanjem na platnu (canvas). Može blokirati interfejs.</string>
@@ -2183,11 +2172,6 @@
     <string name="playback_player_internal_desc">Koristi ugrađeni Fetch plejer</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d sedera · %2$d pira</string>
-    <string name="player_torrent_buffered_status">%1$s baferovano · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d pira · %2$d sedera · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Povezivanje sa pirima…</string>
     <string name="player_track_audio_fallback">Zvuk %1$d</string>
     <string name="player_track_subtitle_fallback">Titl %1$d</string>
 
@@ -2202,7 +2186,6 @@
     <string name="player_error_initialize_failed">Neuspešno pokretanje plejera</string>
     <string name="player_error_mpv_surface_failed">Neuspešno pokretanje libmpv površine</string>
     <string name="player_error_mpv_playback_failed">Neuspešno pokretanje libmpv reprodukcije</string>
-    <string name="player_error_torrent">Greška torenta: %1$s</string>
     <string name="player_error_playback_fallback">Greška pri reprodukciji</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">U ovoj datoteci nisu pronađene linije titla.</string>
@@ -2334,7 +2317,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Pokretanje P2P motora…</string>
     <string name="player_stream_error_invalid_external_url">Nevažeća spoljna URL adresa</string>
     <string name="player_stream_error_open_external_link_failed">Otvaranje spoljne veze nije uspelo</string>
     <string name="player_stream_error_invalid_url">Nevažeća URL adresa strima</string>
@@ -2494,9 +2476,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Procenjena potrošnja memorije: %1$d / %2$d MB</string>
@@ -2748,7 +2727,6 @@
     <string name="subtitle_style_text_color_hdr">Boja teksta (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Ovo je torrent strim, a Fetch nema ugrađeni torrent mehanizam. Podesite debrid u dodatku da biste dobili link koji se ovde reprodukuje, ili ga otvorite u spoljnom plejeru.</string>
     <string name="because_you_watched_row_title">Zato što ste gledali %1$s</string>
     <string name="because_you_watched_reason_collection">Takođe iz: %1$s</string>
     <string name="because_you_watched_reason_director">Isti režiser: %1$s</string>
@@ -2858,4 +2836,76 @@
     <string name="youtube_show_live_subtitle">Uključi prenose koji su trenutno uživo u feedove, rezultate pretrage i Sledeće</string>
     <string name="youtube_hide_watched_title">Sakrij pogledane video snimke</string>
     <string name="youtube_hide_watched_subtitle">Izostavlja video snimke koje ste pogledali do kraja. Istorija ih i dalje prikazuje</string>
+    <string name="profile_avatar_category_animals">Životinje</string>
+    <string name="profile_avatar_category_characters">Likovi</string>
+    <string name="profile_avatar_category_fun">Zabava</string>
+    <string name="avatar_name_fox">Lisica</string>
+    <string name="avatar_name_cat">Mačka</string>
+    <string name="avatar_name_dog">Pas</string>
+    <string name="avatar_name_panda">Panda</string>
+    <string name="avatar_name_koala">Koala</string>
+    <string name="avatar_name_lion">Lav</string>
+    <string name="avatar_name_tiger">Tigar</string>
+    <string name="avatar_name_frog">Žaba</string>
+    <string name="avatar_name_owl">Sova</string>
+    <string name="avatar_name_penguin">Pingvin</string>
+    <string name="avatar_name_unicorn">Jednorog</string>
+    <string name="avatar_name_dragon">Zmaj</string>
+    <string name="avatar_name_octopus">Hobotnica</string>
+    <string name="avatar_name_monkey">Majmun</string>
+    <string name="avatar_name_rabbit">Zec</string>
+    <string name="avatar_name_bear">Medved</string>
+    <string name="avatar_name_hamster">Hrčak</string>
+    <string name="avatar_name_sloth">Lenjivac</string>
+    <string name="avatar_name_dinosaur">Dinosaurus</string>
+    <string name="avatar_name_butterfly">Leptir</string>
+    <string name="avatar_name_robot">Robot</string>
+    <string name="avatar_name_alien">Vanzemaljac</string>
+    <string name="avatar_name_ghost">Duh</string>
+    <string name="avatar_name_space_invader">Svemirski osvajač</string>
+    <string name="avatar_name_cool">Kul</string>
+    <string name="avatar_name_pumpkin">Bundeva</string>
+    <string name="avatar_name_rocket">Raketa</string>
+    <string name="avatar_name_star">Zvezda</string>
+    <string name="avatar_name_pizza">Pica</string>
+    <string name="avatar_name_popcorn">Kokice</string>
+    <string name="avatar_name_controller">Džojstik</string>
+    <string name="avatar_name_guitar">Gitara</string>
+    <string name="avatar_name_soccer">Fudbal</string>
+    <string name="avatar_name_basketball">Košarka</string>
+    <string name="avatar_name_rainbow">Duga</string>
+    <string name="avatar_name_cactus">Kaktus</string>
+    <string name="avatar_name_sun">Sunce</string>
+    <string name="avatar_name_crystal_ball">Kristalna kugla</string>
+    <string name="avatar_name_clapper">Filmska klapa</string>
+    <string name="avatar_name_donut">Krofna</string>
+    <string name="profile_setup_button">Podešavanje profila</string>
+    <string name="profile_setup_summary">Podešavanje: %1$s</string>
+    <string name="profile_setup_part_kids">Dečji</string>
+    <string name="profile_setup_part_addons">dodaci profila %1$s</string>
+    <string name="profile_setup_part_settings">podešavanja iz profila %1$s</string>
+    <string name="profile_setup_title">Podešavanje profila</string>
+    <string name="profile_setup_subtitle">Dečji profil prikazuje samo naslove sa rejtingom PG ili nižim i skriva one bez rejtinga. Dodaci deljeni sa profilom %1$s mogu se menjati samo iz profila %1$s.</string>
+    <string name="profile_addons_own">Dodaci: Zasebni</string>
+    <string name="profile_addons_shared">Dodaci: Isti kao %1$s</string>
+    <string name="profile_addons_shared_saved">%1$s sada koristi dodatke profila %2$s.</string>
+    <string name="profile_addons_own_saved">%1$s sada ima zasebne dodatke.</string>
+    <string name="profile_pin_overlay_access_heading">Unesite PIN za %1$s.</string>
+    <string name="profile_pin_overlay_access_support">Ovaj profil je zaključan. Unesite njegov četvorocifreni PIN za nastavak.</string>
+    <string name="profile_pin_overlay_reset_heading">Unesite PIN profila %1$s da biste resetovali ovaj PIN.</string>
+    <string name="profile_pin_overlay_reset_support">Zatim izaberite novi PIN za %1$s.</string>
+    <string name="profile_pin_forgot_reset">Zaboravili ste PIN? Resetujte ga PIN-om profila %1$s</string>
+    <string name="profile_pin_forgot_needs_main">Zaboravili ste PIN? Prvo podesite PIN na profilu %1$s, a zatim njime resetujte ovaj.</string>
+    <string name="profile_pin_forgot_main">PIN glavnog profila ne može da se resetuje, zato ga čuvajte na sigurnom.</string>
+    <string name="profile_pin_reset_for_profile">PIN je resetovan za %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Netačan PIN za %1$s.</string>
+    <string name="profile_selection_kids_badge">DEČJI</string>
+    <string name="profile_manage_done">Gotovo</string>
+    <string name="cd_profile_locked">Zaključano PIN-om</string>
+    <string name="profile_save_error">Nije moguće sačuvati profil. Pokušajte ponovo.</string>
+    <string name="profile_delete_error">Nije moguće obrisati profil. Pokušajte ponovo.</string>
+    <string name="parental_pin_nudge_title">Zaštitite ograničenja profila %1$s</string>
+    <string name="parental_pin_nudge_subtitle">Podesite PIN na profilu %1$s. Bez njega svako može da menja ograničenja profila %2$s ili da pređe na drugi profil.</string>
+    <string name="parental_pin_nudge_set">Podesi PIN na profilu %1$s</string>
+    <string name="parental_pin_nudge_later">Ne sada</string>
 </resources>

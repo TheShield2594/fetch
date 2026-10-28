@@ -48,7 +48,7 @@ object FetchCardDefaults {
      * Faint edge on a card at rest, so dark artwork doesn't melt into a dark background. White at
      * low alpha rather than a grey, so over bright artwork it reads as an edge, not a frame.
      */
-    val RestingBorderColor: Color = Color.White.copy(alpha = 0.10f)
+    val RestingBorderColor: Color = Color.White.copy(alpha = 0.06f)
 
     fun restingBorder(shape: Shape): Border = Border(
         border = androidx.compose.foundation.BorderStroke(FetchStrokes.tokens.hairline, RestingBorderColor),

@@ -1,6 +1,6 @@
 # 006 — Stop the loading overlay recomposing every frame; glide its inset in the draw phase
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: HIGH
 - **Category**: 1. Performance (deferred state reads) + 2. Easing & duration

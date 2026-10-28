@@ -5,10 +5,11 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -29,13 +30,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
@@ -69,11 +75,18 @@ fun LoadingOverlay(
 ) {
     var logoLoadFailed by remember(logoUrl) { mutableStateOf(false) }
     val showLogo = !logoUrl.isNullOrBlank() && !logoLoadFailed
-    val animatedBottomInset by animateDpAsState(
-        targetValue = bottomInset,
-        animationSpec = tween(FetchMotion.tokens.durations.medium, easing = FetchMotion.tokens.easings.standard),
-        label = "loadingBottomInset"
-    )
+    val fullMotion = FetchTheme.fullMotion
+    // Layout takes the new inset at once; the drawn content glides there (see the BoxWithConstraints).
+    val drawnBottomInset = remember { Animatable(bottomInset, Dp.VectorConverter) }
+    LaunchedEffect(bottomInset, fullMotion) {
+        // The first inset arrives a frame after the panel is measured, while the overlay is
+        // still fading in: snap it so the logo never drifts on open.
+        if (!fullMotion || drawnBottomInset.value == 0.dp) {
+            drawnBottomInset.snapTo(bottomInset)
+        } else {
+            drawnBottomInset.animateTo(bottomInset, FetchMotion.moveTween())
+        }
+    }
 
     AnimatedVisibility(
         visible = visible,
@@ -82,25 +95,8 @@ fun LoadingOverlay(
         modifier = modifier
     ) {
         val context = LocalContext.current
-        val logoAlpha by animateFloatAsState(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.long, delayMillis = 400, easing = LinearEasing),
-            label = "loadingLogoAlpha"
-        )
-        val logoScale = if (FetchTheme.fullMotion) {
-            val infiniteTransition = rememberInfiniteTransition(label = "loadingLogoPulse")
-            infiniteTransition.animateFloat(
-                initialValue = 1f,
-                targetValue = 1.04f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 2000, easing = LinearEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "loadingLogoScale"
-            ).value
-        } else {
-            1f
-        }
+        // Only the idle logo or title breathes; the fill mode holds still.
+        val logoPulse = rememberLogoPulse(enabled = fullMotion && !(showLogo && progress != null))
         val backdropRequest = remember(context, backdropUrl) {
             backdropUrl?.takeIf { it.isNotBlank() }?.let { url ->
                 ImageRequest.Builder(context)
@@ -152,7 +148,11 @@ fun LoadingOverlay(
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = animatedBottomInset),
+                    .padding(bottom = bottomInset)
+                    .graphicsLayer {
+                        // Centred content moves half as far as its bottom padding changes.
+                        translationY = (bottomInset - drawnBottomInset.value).toPx() / 2f
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 // Shrinks the logo only when a bottom panel leaves less room than it needs.
@@ -189,11 +189,10 @@ fun LoadingOverlay(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .graphicsLayer {
-                                        alpha = if (isLogoFillActive) 0.25f else logoAlpha
-                                        if (!isLogoFillActive) {
-                                            scaleX = logoScale
-                                            scaleY = logoScale
-                                        }
+                                        alpha = if (isLogoFillActive) 0.25f else 1f
+                                        val scale = logoPulse?.value ?: 1f
+                                        scaleX = scale
+                                        scaleY = scale
                                     },
                                 contentScale = ContentScale.Fit
                             )
@@ -228,9 +227,9 @@ fun LoadingOverlay(
                             modifier = Modifier
                                 .padding(horizontal = FetchTheme.spacing.xl)
                                 .graphicsLayer {
-                                    alpha = logoAlpha
-                                    scaleX = logoScale
-                                    scaleY = logoScale
+                                    val scale = logoPulse?.value ?: 1f
+                                    scaleX = scale
+                                    scaleY = scale
                                 }
                         )
                     } else {
@@ -282,11 +281,14 @@ fun LoadingOverlay(
                         }
                         if (showHorizontalBar) {
                             Spacer(modifier = Modifier.height(10.dp))
-                            val animatedProgress by animateFloatAsState(
+                            val animatedProgress = animateFloatAsState(
                                 targetValue = progress.coerceIn(0f, 1f),
-                                animationSpec = tween(durationMillis = FetchMotion.tokens.durations.overlay),
+                                // Constant-rate indicator: linear, and read only while drawing.
+                                animationSpec = tween(durationMillis = FetchMotion.tokens.durations.overlay, easing = LinearEasing),
                                 label = "loadingProgress"
                             )
+                            val fillColor = Color.White.copy(alpha = 0.85f)
+                            val fillRadius = FetchTheme.radii.xxs
                             Box(
                                 modifier = Modifier
                                     .width(240.dp)
@@ -295,21 +297,40 @@ fun LoadingOverlay(
                                         color = Color.White.copy(alpha = 0.2f),
                                         shape = RoundedCornerShape(FetchTheme.radii.xxs)
                                     )
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth(animatedProgress)
-                                        .height(FetchTheme.spacing.xs)
-                                        .background(
-                                            color = Color.White.copy(alpha = 0.85f),
-                                            shape = RoundedCornerShape(FetchTheme.radii.xxs)
-                                        )
-                                )
-                            }
+                                    .drawBehind {
+                                        val fillWidth = size.width * animatedProgress.value
+                                        if (fillWidth > 0f) {
+                                            drawRoundRect(
+                                                color = fillColor,
+                                                size = Size(fillWidth, size.height),
+                                                cornerRadius = CornerRadius(fillRadius.toPx())
+                                            )
+                                        }
+                                    }
+                            )
                         }
                     }
                 }
             }
         }
     }
+}
+
+/**
+ * The idle logo's slow breathing scale, or null when it should hold still. Read the value
+ * only in a graphicsLayer, so the pulse redraws without recomposing the overlay.
+ */
+@Composable
+private fun rememberLogoPulse(enabled: Boolean): State<Float>? {
+    if (!enabled) return null
+    val transition = rememberInfiniteTransition(label = "loadingLogoPulse")
+    return transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.04f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = FetchMotion.tokens.easings.inOut),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "loadingLogoScale"
+    )
 }

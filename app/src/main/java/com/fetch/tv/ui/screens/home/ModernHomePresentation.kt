@@ -24,6 +24,8 @@ internal data class ModernHomePresentationInput(
     val readyTonightItems: List<ContinueWatchingItem> = emptyList(),
     /** Ready watchlist movies not already in Continue Watching; shown after [readyTonightItems]. */
     val readyWatchlistMovies: List<com.fetch.tv.domain.model.LibraryEntry> = emptyList(),
+    /** A kids profile's Home: no recommendations, and at most [KIDS_HOME_MAX_ROWS] rows after Continue Watching. */
+    val kidsHome: Boolean = false,
     val useLandscapePosters: Boolean,
     val showCatalogTypeSuffix: Boolean,
     val showFullReleaseDate: Boolean,
@@ -380,6 +382,7 @@ internal fun buildModernHomePresentation(
 
 private fun resolveVisibleHomeRows(input: ModernHomePresentationInput): List<HomeRow> {
     val rows = resolveConfiguredHomeRows(input)
+    if (input.kidsHome) return rows.take(KIDS_HOME_MAX_ROWS)
     val recommendationRows = input.becauseYouWatchedRows
         .filter { it.items.isNotEmpty() }
         .map(HomeRow::Catalog)

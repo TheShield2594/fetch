@@ -533,20 +533,22 @@ private fun ModernHomeRoute(
     // Checks a few titles in the background once Continue Watching settles. Leaving Home (to the
     // player, say) cancels it, so it never competes with playback.
     // A hidden Continue Watching row is never checked.
-    val readyCheckItems = if (uiState.continueWatchingEnabled) uiState.continueWatchingItems else emptyList()
+    // A kids Home shows nothing about sources, so it checks none.
+    val readyCheckItems = if (uiState.continueWatchingEnabled && !uiState.kidsHome) uiState.continueWatchingItems else emptyList()
     LaunchedEffect(readyCheckItems) {
         delay(READY_CHECK_SETTLE_MS)
         viewModel.runReadyCheck(readyCheckItems)
     }
     // Ready means cached and confirmed in the last day; the dot and "Ready tonight" both read this.
     val readinessNow by remember { readinessTicks() }.collectAsStateWithLifecycle(initialValue = System.currentTimeMillis())
-    val readyBestMatchKeys = remember(cachedBestMatches, readinessNow) {
-        readyBestMatchKeys(cachedBestMatches, readinessNow)
+    val shownBestMatches = if (uiState.kidsHome) emptyMap() else cachedBestMatches
+    val readyBestMatchKeys = remember(shownBestMatches, readinessNow) {
+        readyBestMatchKeys(shownBestMatches, readinessNow)
     }
     CompositionLocalProvider(LocalReadyBestMatchKeys provides readyBestMatchKeys) {
         ModernHomeContent(
             uiState = uiState,
-            cachedBestMatches = cachedBestMatches,
+            cachedBestMatches = shownBestMatches,
             queuedVideoIds = queuedVideoIds,
             onToggleQueue = remember(viewModel) { { item: ContinueWatchingItem -> viewModel.toggleQueued(item) } },
             modernPresentation = modernPresentation,

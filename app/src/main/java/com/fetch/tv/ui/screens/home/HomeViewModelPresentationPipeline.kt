@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private data class CoreLayoutPrefs(
+    val kidsHome: Boolean,
     val heroCatalogKeys: List<String>,
     val heroSectionEnabled: Boolean,
     val posterLabelsEnabled: Boolean,
@@ -50,6 +51,7 @@ private data class FocusedBackdropPrefs(
 )
 
 private data class LayoutUiPrefs(
+    val kidsHome: Boolean,
     val heroCatalogKeys: List<String>,
     val heroSectionEnabled: Boolean,
     val posterLabelsEnabled: Boolean,
@@ -85,19 +87,18 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
     val coreLayoutPrefsFlow = combine(
         combine(
             layoutPreferenceDataStore.heroCatalogSelections,
-            // Kids profiles get a simplified home without the hero section.
-            combine(
-                layoutPreferenceDataStore.heroSectionEnabled,
-                parentalControls.activeRestrictions
-            ) { enabled, restrictions -> enabled && !restrictions.isKidsProfile },
+            layoutPreferenceDataStore.heroSectionEnabled,
             layoutPreferenceDataStore.posterLabelsEnabled,
-            layoutPreferenceDataStore.catalogAddonNameEnabled
-        ) { heroCatalogKeys, heroSectionEnabled, posterLabelsEnabled, catalogAddonNameEnabled ->
+            layoutPreferenceDataStore.catalogAddonNameEnabled,
+            parentalControls.activeRestrictions.map { it.isKidsProfile }.distinctUntilChanged()
+        ) { heroCatalogKeys, heroSectionEnabled, posterLabelsEnabled, catalogAddonNameEnabled, kidsHome ->
+            // Kids profiles get a Home of their own: no hero, and no addon names on the rows.
             CoreLayoutPrefs(
+                kidsHome = kidsHome,
                 heroCatalogKeys = heroCatalogKeys,
-                heroSectionEnabled = heroSectionEnabled,
+                heroSectionEnabled = heroSectionEnabled && !kidsHome,
                 posterLabelsEnabled = posterLabelsEnabled,
-                catalogAddonNameEnabled = catalogAddonNameEnabled,
+                catalogAddonNameEnabled = catalogAddonNameEnabled && !kidsHome,
                 catalogTypeSuffixEnabled = true,
                 hideUnreleasedContent = false,
                 showFullReleaseDate = true
@@ -108,7 +109,7 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
         layoutPreferenceDataStore.showFullReleaseDate
     ) { corePrefs, catalogTypeSuffixEnabled, hideUnreleasedContent, showFullReleaseDate ->
         corePrefs.copy(
-            catalogTypeSuffixEnabled = catalogTypeSuffixEnabled,
+            catalogTypeSuffixEnabled = catalogTypeSuffixEnabled && !corePrefs.kidsHome,
             hideUnreleasedContent = hideUnreleasedContent,
             showFullReleaseDate = showFullReleaseDate
         )
@@ -153,7 +154,10 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
         layoutPreferenceDataStore.posterCardHeightDp,
         layoutPreferenceDataStore.posterCardCornerRadiusDp
     ) { corePrefs, focusedBackdropPrefs, posterCardWidthDp, posterCardHeightDp, posterCardCornerRadiusDp ->
+        // Bigger cards on a kids Home, so there's less on screen and each is easier to pick.
+        val cardScale = if (corePrefs.kidsHome) KIDS_HOME_CARD_SCALE else 1f
         LayoutUiPrefs(
+            kidsHome = corePrefs.kidsHome,
             heroCatalogKeys = corePrefs.heroCatalogKeys,
             heroSectionEnabled = corePrefs.heroSectionEnabled,
             posterLabelsEnabled = corePrefs.posterLabelsEnabled,
@@ -170,8 +174,8 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                 AppFeaturePolicy.inAppTrailerPlaybackEnabled,
             focusedBackdropTrailerMuted = focusedBackdropPrefs.trailerMuted,
             focusedBackdropTrailerPlaybackTarget = focusedBackdropPrefs.trailerPlaybackTarget,
-            posterCardWidthDp = posterCardWidthDp,
-            posterCardHeightDp = posterCardHeightDp,
+            posterCardWidthDp = (posterCardWidthDp * cardScale).toInt(),
+            posterCardHeightDp = (posterCardHeightDp * cardScale).toInt(),
             posterCardCornerRadiusDp = posterCardCornerRadiusDp
         )
     }
@@ -199,6 +203,7 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                 val shouldRefreshCatalogPresentation =
                     heroKeysChanged ||
                         previousState.heroSectionEnabled != prefs.heroSectionEnabled ||
+                        previousState.kidsHome != prefs.kidsHome ||
                         previousState.hideUnreleasedContent != prefs.hideUnreleasedContent ||
                         previousState.posterCardWidthDp != prefs.posterCardWidthDp ||
                         previousState.homeImdbRatingsVisibility != prefs.homeImdbRatingsVisibility
@@ -206,6 +211,7 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                 _uiState.update {
                     it.copy(
                         layoutPreferencesReady = true,
+                        kidsHome = prefs.kidsHome,
                         heroCatalogKeys = prefs.heroCatalogKeys,
                         heroSectionEnabled = prefs.heroSectionEnabled,
                         posterLabelsEnabled = effectivePosterLabelsEnabled,
@@ -309,16 +315,18 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     becauseYouWatchedRows = state.becauseYouWatchedRows,
                     continueWatchingItems = overlay.continueWatchingItems,
                     upcomingItems = overlay.upcomingItems,
-                    readyTonightItems = readyTonightItems(overlay.continueWatchingItems, readyKeys),
-                    readyWatchlistMovies = readyWatchlistMovies(
+                    // Ready tonight is about sources, which a kids Home leaves out.
+                    readyTonightItems = if (state.kidsHome) emptyList() else readyTonightItems(overlay.continueWatchingItems, readyKeys),
+                    readyWatchlistMovies = if (state.kidsHome) emptyList() else readyWatchlistMovies(
                         movies = watchlist,
                         readyKeys = readyKeys,
                         exceptKeys = overlay.continueWatchingItems.mapNotNull { it.bestMatchKey() }.toSet()
                     ),
+                    kidsHome = state.kidsHome,
                     useLandscapePosters = state.modernLandscapePostersEnabled,
                     showCatalogTypeSuffix = state.catalogTypeSuffixEnabled,
                     showFullReleaseDate = state.showFullReleaseDate,
-                    showImdbRatings = state.homeImdbRatingsVisibility.showRatings,
+                    showImdbRatings = state.homeImdbRatingsVisibility.showRatings && !state.kidsHome,
                     detailImdbRatingsVisibility = state.detailImdbRatingsVisibility,
                     localeTag = localeTag
                 )
@@ -334,6 +342,7 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     && old.upcomingItems == new.upcomingItems
                     && old.readyTonightItems == new.readyTonightItems
                     && old.readyWatchlistMovies == new.readyWatchlistMovies
+                    && old.kidsHome == new.kidsHome
                     && old.useLandscapePosters == new.useLandscapePosters
                     && old.showCatalogTypeSuffix == new.showCatalogTypeSuffix
                     && old.showFullReleaseDate == new.showFullReleaseDate

@@ -1,6 +1,6 @@
 # 024 — Animate addon cards into their new place when reordered
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: LOW (missed opportunity)
 - **Category**: Missed opportunity, spatial continuity

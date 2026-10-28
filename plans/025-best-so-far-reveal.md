@@ -1,6 +1,6 @@
 # 025 — Fade in "Best so far"; draw the addon dots in draw; tidy the stream list entrance
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: LOW
 - **Category**: Missed opportunity + 1. Performance + 6. Accessibility (reduced motion)

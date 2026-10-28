@@ -822,6 +822,7 @@ private fun RightStreamSection(
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     var enter by remember { mutableStateOf(false) }
+    val fullMotion = FetchTheme.fullMotion
     var firstStreamFocusRequestId by remember { mutableStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
     var focusedStreamKeyInList by remember { mutableStateOf<String?>(null) }
@@ -919,8 +920,8 @@ private fun RightStreamSection(
         Box(modifier = Modifier.height(chipRowHeight)) {
             androidx.compose.animation.AnimatedVisibility(
                 visible = sourceChips.isNotEmpty() || (!isLoading && availableAddons.isNotEmpty()),
-                enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.medium)),
-                exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.medium))
+                enter = fadeIn(animationSpec = FetchMotion.enterTween()),
+                exit = fadeOut(animationSpec = FetchMotion.exitTween())
             ) {
                 AddonFilterChips(
                     addons = availableAddons,
@@ -944,11 +945,15 @@ private fun RightStreamSection(
 
         androidx.compose.animation.AnimatedVisibility(
             visible = enter,
-            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)) +
-                slideInHorizontally(
-                    animationSpec = tween(FetchMotion.tokens.durations.fast),
-                    initialOffsetX = { fullWidth -> (fullWidth * 0.06f).toInt() }
-                ),
+            enter = if (fullMotion) {
+                fadeIn(animationSpec = FetchMotion.enterTween()) +
+                    slideInHorizontally(
+                        animationSpec = FetchMotion.enterTween(),
+                        initialOffsetX = { fullWidth -> (fullWidth * 0.06f).toInt() }
+                    )
+            } else {
+                fadeIn(animationSpec = FetchMotion.enterTween())
+            },
             exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
         ) {
             // Content area

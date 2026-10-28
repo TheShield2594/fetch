@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.navigation
 
 import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.components.PlaybackAvailabilityProvider
 import com.fetch.tv.ui.components.LocalPlaybackAvailability
 import com.fetch.tv.ui.components.canStream
@@ -8,7 +9,6 @@ import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.fetch.tv.R
 
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
@@ -104,6 +104,9 @@ private fun PlaybackNavHost(
         )
     }
 
+    // Transition lambdas aren't composable, so read reduced motion here and capture it.
+    val fullMotion = FetchTheme.fullMotion
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -116,7 +119,7 @@ private fun PlaybackNavHost(
             if (isStreamToPlayer(from, to) && isAutoPlayNav) {
                 EnterTransition.None
             } else {
-                fadeIn(animationSpec = tween(FetchMotion.tokens.durations.medium))
+                if (fullMotion) fadeIn(animationSpec = FetchMotion.enterTween()) else EnterTransition.None
             }
         },
         exitTransition = {
@@ -128,7 +131,7 @@ private fun PlaybackNavHost(
             if (isStreamToPlayer(from, to) && isAutoPlayNav) {
                 ExitTransition.None
             } else {
-                fadeOut(animationSpec = tween(FetchMotion.tokens.durations.medium))
+                if (fullMotion) fadeOut(animationSpec = FetchMotion.exitTween()) else ExitTransition.None
             }
         },
         popEnterTransition = {
@@ -140,7 +143,7 @@ private fun PlaybackNavHost(
             if (isPlayerToStream(from, to) && isAutoPlayNav) {
                 EnterTransition.None
             } else {
-                fadeIn(animationSpec = tween(FetchMotion.tokens.durations.medium))
+                if (fullMotion) fadeIn(animationSpec = FetchMotion.enterTween()) else EnterTransition.None
             }
         },
         popExitTransition = {
@@ -152,7 +155,7 @@ private fun PlaybackNavHost(
             if (isPlayerToStream(from, to) && isAutoPlayNav) {
                 ExitTransition.None
             } else {
-                fadeOut(animationSpec = tween(FetchMotion.tokens.durations.medium))
+                if (fullMotion) fadeOut(animationSpec = FetchMotion.exitTween()) else ExitTransition.None
             }
         }
     ) {

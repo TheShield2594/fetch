@@ -17,7 +17,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -173,7 +172,6 @@ import com.fetch.tv.ui.screens.addon.EssentialAddonSetupScreen
 import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.theme.FetchComponents
 import com.fetch.tv.ui.theme.FetchLayout
-import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.brandWordmarkResource
 import com.fetch.tv.ui.util.LocalFastHorizontalNavigationEnabled
@@ -1662,15 +1660,13 @@ private fun FetchSidebarScaffold(
             }
         }
     ) {
-        val contentStartPadding by animateDpAsState(
-            targetValue = if (showSidebar && !sidebarCollapsed) {
-                FetchLayout.tokens.sidebarContentOffset
-            } else {
-                FetchTheme.spacing.none
-            },
-            animationSpec = tween(FetchMotion.tokens.durations.medium),
-            label = "contentStartPadding"
-        )
+        // Snaps on purpose: animating this padding re-laid-out both screens of the NavHost
+        // crossfade every frame, and the crossfade already covers the change.
+        val contentStartPadding = if (showSidebar && !sidebarCollapsed) {
+            FetchLayout.tokens.sidebarContentOffset
+        } else {
+            FetchTheme.spacing.none
+        }
         Box(
             modifier = Modifier
                 .fillMaxSize()

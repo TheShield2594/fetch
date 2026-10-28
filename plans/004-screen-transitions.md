@@ -1,6 +1,6 @@
 # 004 — Stop sliding the whole NavHost on navigation, and make screen transitions a short ease-out crossfade
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; shipped variant A, no enter delay)
 - **Commit**: ee8dd84
 - **Severity**: HIGH
 - **Category**: 5. Performance / 2. Easing & duration

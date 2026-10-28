@@ -293,8 +293,11 @@ import androidx.compose.animation.core.snap
 import androidx.compose.runtime.derivedStateOf
 ```
 
+and, beside `import com.fetch.tv.ui.theme.FetchTheme`, add `import com.fetch.tv.ui.theme.FetchMotion`
+if it is not already there (plan 004 removed it when the sidebar padding stopped animating;
+check with `grep -n "import com.fetch.tv.ui.theme.FetchMotion" app/src/main/java/com/fetch/tv/MainActivity.kt`).
+
 - Keep `import androidx.compose.animation.core.tween` and `animateFloatAsState`.
-- `FetchMotion` is already imported (line 176).
 
 ### Step 7 — Retire tokens with zero usages
 
@@ -345,7 +348,7 @@ directly above its field in `FetchMotionDurations`, filling in the value. For `m
   `shimmer` (1200), `medium`, `overlay`, `slow` or `hero`.
 - Do NOT change `LightweightCard.kt`. Its default no-scale behaviour is intentional (plan 017 may have added an optional `focusedScale` parameter defaulting to 1f; leave it as is).
 - Do NOT touch `longPressInitialDelayMillis`, `longPressRepeatMillis` or `scrollViewportTarget`.
-- Do NOT edit `MainActivity.kt` outside the splash block and its two imports.
+- Do NOT edit `MainActivity.kt` outside the splash block and its imports (`snap`, `derivedStateOf`, and `FetchMotion` if missing).
 - Do NOT delete a token whose Step 7 count is not `0`.
 - Do NOT add new dependencies.
 - If a step doesn't match the code you find (drift since ee8dd84 beyond what plans 001-019

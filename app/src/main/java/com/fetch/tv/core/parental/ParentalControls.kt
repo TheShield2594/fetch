@@ -13,12 +13,15 @@ import com.fetch.tv.domain.model.MetaPreview
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -179,9 +182,19 @@ class ParentalControls @Inject constructor(
         gateUnlockedUntilMs = nowMs + GATE_UNLOCK_WINDOW_MS
     }
 
+    private val _gateLocks = MutableStateFlow(0)
+
+    /**
+     * Goes up each time an open gate locks again, so guarded screens on display ask for the
+     * PIN again instead of staying open.
+     */
+    val gateLocks: StateFlow<Int> = _gateLocks.asStateFlow()
+
     fun lockGate() {
+        val wasUnlocked = gateUnlockedForProfileId != null
         gateUnlockedForProfileId = null
         gateUnlockedUntilMs = 0L
+        if (wasUnlocked) _gateLocks.update { it + 1 }
     }
 
     /** True when an action needs the parent PIN right now. */

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,10 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import com.fetch.tv.R
 import com.fetch.tv.core.parental.ParentalControls
 import com.fetch.tv.core.parental.ProfilePinManager
@@ -29,7 +34,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 /**
@@ -48,8 +56,20 @@ fun interface ParentalGate {
      */
     fun runParentGuarded(action: () -> Unit) = runGuarded(action)
 
+    /** Goes up each time an open gate locks again; see [ParentalControls.gateLocks]. */
+    val locks: StateFlow<Int> get() = NeverLocked
+
+    /**
+     * Marks a guarded screen as open. The gate stays unlocked while one is, and locks again
+     * when the last one closes.
+     */
+    fun openGuardedScreen(key: Any) {}
+
+    fun closeGuardedScreen(key: Any) {}
+
     companion object {
         val Open = ParentalGate { _, action -> action() }
+        private val NeverLocked: StateFlow<Int> = MutableStateFlow(0)
     }
 }
 
@@ -76,6 +96,10 @@ class ParentalGateViewModel @Inject constructor(
     private val _error = MutableStateFlow<GateError?>(null)
     val error: StateFlow<GateError?> = _error.asStateFlow()
 
+    private val openGuardedScreens = mutableSetOf<Any>()
+
+    override val locks: StateFlow<Int> = parentalControls.gateLocks
+
     sealed interface GateError {
         data object Incorrect : GateError
         data class Locked(val retryAfterSeconds: Int) : GateError
@@ -101,13 +125,32 @@ class ParentalGateViewModel @Inject constructor(
             action()
             return
         }
-        val parent = profileManager.profiles.value.firstOrNull { it.id == guardId }
-        if (parent == null) {
-            action()
+        val loaded = profileManager.profiles.value.firstOrNull { it.id == guardId }
+        if (loaded != null) {
+            ask(loaded, onCancel, action)
             return
         }
+        // A PIN is set but the profile list hasn't caught up yet. Wait for it rather than
+        // open the gate, and stay locked if the parent profile never shows up.
+        viewModelScope.launch {
+            val parent = withTimeoutOrNull(PARENT_PROFILE_WAIT_MS) {
+                profileManager.profiles.mapNotNull { profiles -> profiles.firstOrNull { it.id == guardId } }.first()
+            }
+            if (parent != null) ask(parent, onCancel, action) else onCancel()
+        }
+    }
+
+    private fun ask(parent: UserProfile, onCancel: () -> Unit, action: () -> Unit) {
         _error.value = null
         _request.value = ParentalGateRequest(parent, action, onCancel)
+    }
+
+    override fun openGuardedScreen(key: Any) {
+        openGuardedScreens += key
+    }
+
+    override fun closeGuardedScreen(key: Any) {
+        if (openGuardedScreens.remove(key) && openGuardedScreens.isEmpty()) parentalControls.lockGate()
     }
 
     fun submit(pin: String) {
@@ -123,6 +166,9 @@ class ParentalGateViewModel @Inject constructor(
                     _request.value = null
                     _error.value = null
                     current.onUnlocked()
+                    // A one-off action (hiding a title, leaving the profile) doesn't keep the
+                    // gate open; only a guarded screen does, until it closes.
+                    if (openGuardedScreens.isEmpty()) parentalControls.lockGate()
                 }
                 result != null && result.retryAfterSeconds > 0 -> _error.value = GateError.Locked(result.retryAfterSeconds)
                 else -> _error.value = GateError.Incorrect
@@ -197,9 +243,33 @@ fun ParentalGuardedRoute(
     content: @Composable () -> Unit
 ) {
     val gate = LocalParentalGate.current
-    var unlocked by remember { mutableStateOf(false) }
-    LaunchedEffect(gate) {
-        gate.runGuarded(onCancel = onCancel) { unlocked = true }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val key = remember(lifecycleOwner) { (lifecycleOwner as? NavBackStackEntry)?.id ?: Any() }
+    // Open from the first composition until the back stack entry is gone, so moving on to
+    // another guarded screen and back keeps the gate open, and leaving the last one locks it.
+    DisposableEffect(gate, lifecycleOwner) {
+        gate.openGuardedScreen(key)
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_DESTROY) gate.closeGuardedScreen(key)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            if (lifecycleOwner !is NavBackStackEntry) {
+                lifecycleOwner.lifecycle.removeObserver(observer)
+                gate.closeGuardedScreen(key)
+            }
+        }
     }
-    if (unlocked) content()
+    val locks by gate.locks.collectAsStateWithLifecycle()
+    var unlockedAt by remember { mutableStateOf<Int?>(null) }
+    // Asks again when the gate locks while the screen is up, such as after the app was in the
+    // background.
+    LaunchedEffect(gate, locks) {
+        if (unlockedAt == locks) return@LaunchedEffect
+        unlockedAt = null
+        gate.runGuarded(onCancel = onCancel) { unlockedAt = locks }
+    }
+    if (unlockedAt == locks) content()
 }
+
+private const val PARENT_PROFILE_WAIT_MS = 2_000L

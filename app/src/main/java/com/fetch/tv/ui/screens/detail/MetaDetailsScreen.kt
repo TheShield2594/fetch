@@ -13,6 +13,7 @@ import android.view.KeyEvent
 import android.os.SystemClock
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -1507,7 +1508,7 @@ private fun MetaDetailsContent(
         if (currentIndex == index) {
             val delta = (offset - currentOffset).toFloat()
             if (kotlin.math.abs(delta) > 1f) {
-                listState.animateScrollBy(delta, FetchMotion.slowTween())
+                listState.animateScrollBy(delta, FetchMotion.moveTween())
             }
             return
         }
@@ -1535,7 +1536,7 @@ private fun MetaDetailsContent(
         }
         if (distance <= 1f) return
         coroutineScope.launch {
-            listState.animateScrollBy(distance, FetchMotion.slowTween())
+            listState.animateScrollBy(distance, FetchMotion.moveTween())
         }
     }
 
@@ -1666,7 +1667,8 @@ private fun MetaDetailsContent(
         val bumpCompany = pendingRestoreType == RestoreTarget.COMPANY_OR_NETWORK
         coroutineScope.launch {
             if (index >= 0) {
-                animateDetailScrollTo(index, offset)
+                // Land where the user left off; watching the page scroll back reads as lag.
+                listState.scrollToItem(index, offset)
             }
             if (bumpCompany) {
                 companyRestoreToken += 1
@@ -2251,7 +2253,7 @@ private fun MetaDetailsContent(
         } else {
             ImageRequest.Builder(localContext)
                 .data(backdropDataUrl)
-                .apply { if (shouldShowSeedBackdropUnderlay) crossfade(400) else if (hasHeroBackdrop) crossfade(false) else crossfade(400) }
+                .apply { if (shouldShowSeedBackdropUnderlay) crossfade(FetchMotion.tokens.durations.enter) else if (hasHeroBackdrop) crossfade(false) else crossfade(FetchMotion.tokens.durations.enter) }
                 .size(width = backdropWidthPx, height = backdropHeightPx)
                 .build()
         }
@@ -3353,6 +3355,13 @@ private fun BackdropLayer(
         isBackgroundTrailerPlaying && pauseBackgroundTrailerOnScroll && isScrolledPastHero
     val isBackgroundTrailerVisible = isBackgroundTrailerPlaying && !isBackgroundTrailerPaused
     var isBackgroundTrailerRendered by remember(isBackgroundTrailerPlaying) { mutableStateOf(false) }
+    // Dimming as the page scrolls past the hero is an exit; coming back is an entrance. A
+    // trailer starting or stopping takes a little longer, to cover the player's first frames.
+    val backdropFadeSpec: FiniteAnimationSpec<Float> = when {
+        isScrolledPastHero -> FetchMotion.exitTween()
+        isTrailerPlaying || isBackgroundTrailerVisible -> FetchMotion.mediumTween()
+        else -> FetchMotion.enterTween()
+    }
     val backdropAlphaState = animateFloatAsState(
         targetValue = when {
             isTrailerPlaying -> 0f
@@ -3360,7 +3369,7 @@ private fun BackdropLayer(
             isScrolledPastHero -> 0.15f
             else -> 1f
         },
-        animationSpec = tween(durationMillis = if (isScrolledPastHero) 300 else 800),
+        animationSpec = backdropFadeSpec,
         label = "backdropFade"
     )
     val backgroundTrailerAlphaState = animateFloatAsState(
@@ -3369,12 +3378,12 @@ private fun BackdropLayer(
             isScrolledPastHero -> 0.15f
             else -> 1f
         },
-        animationSpec = tween(durationMillis = if (isScrolledPastHero) 300 else 800),
+        animationSpec = backdropFadeSpec,
         label = "backgroundTrailerFade"
     )
     val gradientAlphaState = animateFloatAsState(
         targetValue = if (isTrailerPlaying || isScrolledPastHero) 0f else 1f,
-        animationSpec = tween(durationMillis = if (isScrolledPastHero) 300 else 800),
+        animationSpec = backdropFadeSpec,
         label = "gradientFade"
     )
     Box(modifier = Modifier.fillMaxSize()) {

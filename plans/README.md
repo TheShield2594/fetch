@@ -25,7 +25,7 @@ executor to stop and report rather than improvise.
 | 011 | [Subtitle rail fade](011-subtitle-rail-fade.md) | MEDIUM | Player | TODO |
 | 012 | [Playback-start overlays](012-playback-start-overlays.md) | MEDIUM | Player | TODO |
 | 013 | [Play → Fetching morph](013-play-to-fetching-morph.md) | MEDIUM | Stream | DONE |
-| 014 | [Detail backdrop fades and scroll restore](014-detail-backdrop-fades.md) | MEDIUM | Detail | TODO |
+| 014 | [Detail backdrop fades and scroll restore](014-detail-backdrop-fades.md) | MEDIUM | Detail | DONE |
 | 015 | [Card trailer cover fade](015-card-trailer-cover-fade.md) | MEDIUM | Poster cards | TODO |
 | 016 | [Reduced-motion sweep](016-reduced-motion-sweep.md) | MEDIUM | App-wide | TODO |
 | 017 | [tv-material Card recomposition](017-tv-card-recomposition.md) | MEDIUM (gated on measurement) | Poster cards | TODO |

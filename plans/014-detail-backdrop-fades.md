@@ -1,6 +1,6 @@
 # 014 — Detail page: token backdrop fades, instant scroll restore, quicker nudges
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: 2. Easing & duration + 7. Cohesion & tokens

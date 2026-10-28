@@ -1840,7 +1840,8 @@ private fun MetaDetailsContent(
 
     val belowHeroAlpha = animateFloatAsState(
         targetValue = if (isTrailerPlaying) 0f else 1f,
-        animationSpec = tween(FetchMotion.tokens.durations.overlay),
+        // Out with the hero details, so they are gone before a taller hero pushes them down.
+        animationSpec = if (isTrailerPlaying) FetchMotion.exitTween() else FetchMotion.enterTween(),
         label = "belowHeroFade"
     )
 

@@ -1,6 +1,6 @@
 # 007 — Detail hero ⇄ trailer: snap the layout, morph the logo in graphicsLayer
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; shipped trailer logo scale 0.5, A/B not run)
 - **Commit**: ee8dd84
 - **Severity**: HIGH
 - **Category**: 1. Performance + 2. Easing & duration + 6. Accessibility (reduced motion)

@@ -1,6 +1,6 @@
 # 010 — Stop focus labels from animating layout, and snap the sidebar circle colour
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: 5. Performance / 1. Purpose & frequency

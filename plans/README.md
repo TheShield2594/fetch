@@ -21,7 +21,7 @@ executor to stop and report rather than improvise.
 | 007 | [Detail hero ⇄ trailer morph](007-detail-hero-trailer-morph.md) | HIGH | Detail | DONE |
 | 008 | [Post-play surface shrink](008-post-play-surface-shrink.md) | HIGH | Player | DONE |
 | 009 | [Skeleton shimmer](009-skeleton-shimmer.md) | HIGH | Loading states | DONE |
-| 010 | [Focus labels without relayout](010-focus-labels-no-relayout.md) | MEDIUM | Sidebar, detail actions | TODO |
+| 010 | [Focus labels without relayout](010-focus-labels-no-relayout.md) | MEDIUM | Sidebar, detail actions | DONE |
 | 011 | [Subtitle rail fade](011-subtitle-rail-fade.md) | MEDIUM | Player | DONE |
 | 012 | [Playback-start overlays](012-playback-start-overlays.md) | MEDIUM | Player | DONE |
 | 013 | [Play → Fetching morph](013-play-to-fetching-morph.md) | MEDIUM | Stream | DONE |

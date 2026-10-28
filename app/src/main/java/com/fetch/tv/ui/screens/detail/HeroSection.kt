@@ -4,6 +4,7 @@ import com.fetch.tv.ui.theme.FetchRadii
 import androidx.tv.material3.LocalContentColor
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
+import com.fetch.tv.ui.components.focusLabelEntrance
 import com.fetch.tv.ui.components.PlayLaunchOrigin
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
@@ -16,9 +17,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -764,13 +763,9 @@ private fun ActionIconButton(
  */
 @Composable
 private fun ActionFocusLabel(text: String, visible: Boolean) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(tween(FetchMotion.tokens.durations.fast)) +
-            expandHorizontally(tween(FetchMotion.tokens.durations.fast)),
-        exit = fadeOut(tween(FetchMotion.tokens.durations.quick)) +
-            shrinkHorizontally(tween(FetchMotion.tokens.durations.quick))
-    ) {
+    // In and out of layout in one frame, with focus, so the buttons after it shift once instead of
+    // sliding under the focus ring; only the fade and slide animate, in the draw layer.
+    if (visible) {
         Text(
             text = text,
             color = FetchTheme.colors.TextPrimary,
@@ -779,6 +774,7 @@ private fun ActionFocusLabel(text: String, visible: Boolean) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .padding(start = FetchTheme.spacing.sm)
+                .focusLabelEntrance()
                 .clearAndSetSemantics { }
                 .background(FetchTheme.colors.BackgroundCard, FetchTheme.shapes.navItem)
                 .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)

@@ -106,7 +106,14 @@ fun FocusScrollingText(
                     )
                 )
             } else {
-                offsetPx.snapTo(distancePx.toFloat())
+                // A page at a time, holding on each, so the middle of a long description shows too.
+                val pagePx = collapsedHeightPx.coerceAtLeast(1)
+                var shownPx = 0
+                while (shownPx < distancePx) {
+                    shownPx = minOf(shownPx + pagePx, distancePx)
+                    offsetPx.snapTo(shownPx.toFloat())
+                    if (shownPx < distancePx) delay(EndHoldMillis)
+                }
             }
             delay(EndHoldMillis)
             if (fullMotion) {

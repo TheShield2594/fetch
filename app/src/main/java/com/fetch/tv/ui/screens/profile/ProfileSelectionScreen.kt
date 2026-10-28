@@ -809,7 +809,9 @@ fun ProfileSelectionScreen(
                         isSaving = isSaving,
                         avatarUrlResolver = { avatarId -> viewModel.getAvatarImageUrl(avatarId) },
                         onDismiss = { profileToEdit = null },
-                        onSaveProfile = { updated, preferences ->
+                        onSaveProfile = onSave@{ updated, preferences ->
+                            // Closing: a click or accessibility action during the fade-out must not save again.
+                            if (profileToEdit == null) return@onSave
                             viewModel.updateProfile(updated, preferences, editorPreferences) { saved ->
                                 if (saved) {
                                     profileToEdit = null

@@ -1,6 +1,6 @@
 # 016 — Gate slides, scales, shakes and marquees on reduced motion
 
-- **Status**: DONE (build not verified locally: no Android SDK in the session; all 15 sites applied)
+- **Status**: DONE (build not verified locally: no Android SDK in the session; all 15 sites applied). Review follow-up: site H was reverted (the endless focused marquee is the only way to reach clipped stream badges, so it stays on under reduced motion), and site I steps a page at a time instead of jumping to the end)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: Accessibility (reduced motion), and also Performance, because `fullMotion` is false on low-RAM devices

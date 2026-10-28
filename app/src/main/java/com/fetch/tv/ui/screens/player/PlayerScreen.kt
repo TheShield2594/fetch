@@ -630,10 +630,12 @@ fun PlayerScreen(
             // Focus as soon as the controls' content is attached; it can take focus while it
             // is still fading in. A fixed wait let early D-pad presses land elsewhere first.
             val returnTo = panelReturnFocus
-            panelReturnFocus = null
             val restored = returnTo != null && requestFocusWithinFrames {
                 returnTo.requestFocus(androidx.compose.ui.focus.FocusDirection.Enter)
             }
+            // Cleared only once the attempt finishes, so a restart during the frame retries keeps
+            // the target, and only if no newer panel has set one meanwhile.
+            if (panelReturnFocus === returnTo) panelReturnFocus = null
             if (!restored) {
                 requestFocusWithinFrames { playPauseFocusRequester.requestFocus() }
             }

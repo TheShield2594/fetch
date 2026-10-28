@@ -989,7 +989,7 @@
     <string name="profile_selection_subtitle">Odaberi profil za nastavak</string>
     <string name="profile_selection_hint">Zadrži za upravljanje profilom</string>
     <string name="profile_selection_empty">Profili nisu pronađeni</string>
-    <string name="profile_selection_primary_badge">PRIMARNI</string>
+    <string name="profile_selection_primary_badge">Primarni</string>
     <string name="profile_selection_options_title">Opcije Profila</string>
     <string name="profile_delete_confirm_title">Izbrisati Profil?</string>
     <string name="profile_delete_confirm_subtitle">Ovo će trajno izbrisati ovaj profil i sve njegove podatke uključujući biblioteku, historiju gledanja i postavke addona. Ovo se ne može poništiti.</string>
@@ -1651,7 +1651,7 @@
     <string name="profile_pin_forgot_main">PIN primarnog profila se ne može resetovati, zato ga čuvaj na sigurnom.</string>
     <string name="profile_pin_reset_for_profile">PIN za %1$s je resetovan.</string>
     <string name="profile_pin_incorrect_for_profile">Pogrešan PIN za %1$s.</string>
-    <string name="profile_selection_kids_badge">DJEČIJI</string>
+    <string name="profile_selection_kids_badge">Dječiji</string>
     <string name="profile_manage_done">Gotovo</string>
     <string name="cd_profile_locked">Zaključano PIN-om</string>
     <string name="profile_save_error">Nije moguće spasiti profil. Pokušaj ponovo.</string>

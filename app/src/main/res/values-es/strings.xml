@@ -1719,7 +1719,7 @@
     <string name="profile_selection_subtitle">Selecciona un perfil para continuar</string>
     <string name="profile_selection_hint">Usa el D-pad para elegir un perfil</string>
     <string name="profile_selection_empty">No se encontraron perfiles</string>
-    <string name="profile_selection_primary_badge">PRINCIPAL</string>
+    <string name="profile_selection_primary_badge">Principal</string>
     <string name="profile_selection_options_title">Opciones de perfil</string>
     <string name="profile_delete_confirm_title">¿Eliminar perfil?</string>
     <string name="profile_delete_confirm_subtitle">Esto eliminará permanentemente este perfil y todos sus datos, incluida la biblioteca, historial de visualización y configuración de complementos. Esto no se puede deshacer.</string>
@@ -2960,7 +2960,7 @@
     <string name="profile_pin_forgot_main">El PIN del perfil principal no se puede restablecer, así que guárdalo en un lugar seguro.</string>
     <string name="profile_pin_reset_for_profile">PIN restablecido para %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">PIN incorrecto para %1$s.</string>
-    <string name="profile_selection_kids_badge">INFANTIL</string>
+    <string name="profile_selection_kids_badge">Infantil</string>
     <string name="profile_manage_done">Hecho</string>
     <string name="cd_profile_locked">Bloqueado con PIN</string>
     <string name="profile_save_error">No se pudo guardar el perfil. Inténtalo de nuevo.</string>

@@ -600,7 +600,7 @@
 
     <!-- AddonManagerScreen -->
     <string name="addon_title">Tillegg</string>
-    <string name="addon_readonly_notice">Bruker primær profilens tillegg og kan ikke endres</string>
+    <string name="addon_readonly_notice">Bruker hovedprofilens tillegg og kan ikke endres</string>
     <string name="addon_install_title">Installer tillegg</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Installerer</string>
@@ -840,7 +840,7 @@
     <string name="profile_selection_subtitle">Velg en profil for å fortsette</string>
     <string name="profile_selection_hint">Hold for å administrere profil</string>
     <string name="profile_selection_empty">Ingen profiler funnet</string>
-    <string name="profile_selection_primary_badge">PRIMÆR</string>
+    <string name="profile_selection_primary_badge">Hovedprofil</string>
     <string name="profile_selection_options_title">Profilalternativer</string>
     <string name="profile_delete_confirm_title">Slett profil?</string>
     <string name="profile_delete_confirm_subtitle">Dette vil permanent slette denne profilen og alle dens data inkludert bibliotek, seehistorikk og tileggsinnstillinger. Dette kan ikke angres.</string>
@@ -1315,7 +1315,7 @@
     <string name="profile_pin_forgot_main">PIN-en til hovedprofilen kan ikke tilbakestilles, så oppbevar den på et trygt sted.</string>
     <string name="profile_pin_reset_for_profile">PIN tilbakestilt for %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">Feil PIN for %1$s.</string>
-    <string name="profile_selection_kids_badge">BARN</string>
+    <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Ferdig</string>
     <string name="cd_profile_locked">Låst med PIN</string>
     <string name="profile_save_error">Kunne ikke lagre profilen. Prøv igjen.</string>

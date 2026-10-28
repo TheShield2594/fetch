@@ -1224,7 +1224,7 @@
     <string name="profile_selection_subtitle">Izberite profil za nadaljevanje</string>
     <string name="profile_selection_hint">Uporabite smerne tipke za izbiro profila</string>
     <string name="profile_selection_empty">Ni najdenih profilov</string>
-    <string name="profile_selection_primary_badge">GLAVNI</string>
+    <string name="profile_selection_primary_badge">Glavni</string>
 	<string name="profile_selection_options_title">Možnosti profila</string>
     <string name="profile_delete_confirm_title">Izbrišem profil?</string>
     <string name="profile_delete_confirm_subtitle">S tem boste trajno izbrisali ta profil in vse njegove podatke, vključno s knjižnico, zgodovino ogledov in nastavitvami dodatkov. Tega dejanja ni mogoče razveljaviti.</string>
@@ -2270,7 +2270,7 @@
     <string name="profile_pin_forgot_main">Kode PIN glavnega profila ni mogoče ponastaviti, zato jo shranite na varnem.</string>
     <string name="profile_pin_reset_for_profile">Koda PIN za profil %1$s je ponastavljena.</string>
     <string name="profile_pin_incorrect_for_profile">Napačna koda PIN za profil %1$s.</string>
-    <string name="profile_selection_kids_badge">OTROCI</string>
+    <string name="profile_selection_kids_badge">Otroci</string>
     <string name="profile_manage_done">Končano</string>
     <string name="cd_profile_locked">Zaklenjeno s kodo PIN</string>
     <string name="profile_save_error">Profila ni bilo mogoče shraniti. Poskusite znova.</string>

@@ -35,6 +35,7 @@ internal fun ProfileSetupDialog(
         repeat(2) { withFrameNanos { } }
         runCatching { firstFocus.requestFocus() }
     }
+    val buttonShape = ButtonDefaults.shape(FetchTheme.shapes.button)
     val buttonColors = ButtonDefaults.colors(
         containerColor = FetchTheme.colors.BackgroundCard,
         contentColor = FetchTheme.colors.TextPrimary
@@ -52,6 +53,7 @@ internal fun ProfileSetupDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(firstFocus),
+            shape = buttonShape,
             colors = buttonColors
         ) {
             Text(
@@ -65,6 +67,7 @@ internal fun ProfileSetupDialog(
         Button(
             onClick = { onUsesMainAddonsChange(!usesMainAddons) },
             modifier = Modifier.fillMaxWidth(),
+            shape = buttonShape,
             colors = buttonColors
         ) {
             Text(profileAddonsLabel(usesMainAddons, mainProfileName))
@@ -73,6 +76,7 @@ internal fun ProfileSetupDialog(
         Button(
             onClick = onChooseSettingsSource,
             modifier = Modifier.fillMaxWidth(),
+            shape = buttonShape,
             colors = buttonColors
         ) {
             Text(settingsSourceLabel)

@@ -1003,7 +1003,7 @@
     <string name="collection_editor_untitled_collection">Unavngiven samling</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Addons</string>
-    <string name="addon_readonly_notice">Bruger primærprofilens addons og kan ikke ændres</string>
+    <string name="addon_readonly_notice">Bruger hovedprofilens addons og kan ikke ændres</string>
     <string name="addon_install_title">Installér addon</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Installerer</string>
@@ -1376,7 +1376,7 @@
     <string name="profile_selection_subtitle">Vælg en profil for at fortsætte</string>
     <string name="profile_selection_hint">Hold nede for at administrere profil</string>
     <string name="profile_selection_empty">Ingen profiler fundet</string>
-    <string name="profile_selection_primary_badge">PRIMÆR</string>
+    <string name="profile_selection_primary_badge">Hovedprofil</string>
     <string name="profile_selection_options_title">Profilindstillinger</string>
     <string name="profile_delete_confirm_title">Slet profil?</string>
     <string name="profile_delete_confirm_subtitle">Dette vil permanent slette denne profil og alle dens data, herunder bibliotek, se-historik og addon-indstillinger. Dette kan ikke fortrydes.</string>
@@ -2535,7 +2535,7 @@
     <string name="profile_pin_forgot_main">Hovedprofilens PIN kan ikke nulstilles, så gem den et sikkert sted.</string>
     <string name="profile_pin_reset_for_profile">PIN nulstillet for %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">Forkert PIN for %1$s.</string>
-    <string name="profile_selection_kids_badge">BØRN</string>
+    <string name="profile_selection_kids_badge">Børn</string>
     <string name="profile_manage_done">Udført</string>
     <string name="cd_profile_locked">Låst med PIN</string>
     <string name="profile_save_error">Kunne ikke gemme profil. Prøv igen.</string>

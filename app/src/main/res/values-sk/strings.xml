@@ -957,7 +957,7 @@
     <string name="collection_editor_untitled_collection">Kolekcia bez názvu</string>
     
     <string name="addon_title">Doplnky</string>
-    <string name="addon_readonly_notice">Používajú sa doplnky primárneho profilu a nemožno ich meniť</string>
+    <string name="addon_readonly_notice">Používajú sa doplnky hlavného profilu a nemožno ich meniť</string>
     <string name="addon_install_title">Nainštalovať doplnok</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Inštaluje sa</string>
@@ -1323,7 +1323,7 @@
     <string name="profile_selection_subtitle">Vyberte profil pre pokračovanie</string>
     <string name="profile_selection_hint">Podržte pre správu profilu</string>
     <string name="profile_selection_empty">Nenašli sa žiadne profily</string>
-    <string name="profile_selection_primary_badge">PRIMÁRNY</string>
+    <string name="profile_selection_primary_badge">Hlavný</string>
     <string name="profile_selection_options_title">Možnosti profilu</string>
     <string name="profile_delete_confirm_title">Odstrániť profil?</string>
     <string name="profile_delete_confirm_subtitle">Toto natrvalo odstráni tento profil a všetky jeho údaje vrátane knižnice, histórie sledovania a nastavení doplnkov. Túto akciu nie je možné vrátiť späť.</string>
@@ -3093,7 +3093,7 @@
     <string name="profile_pin_forgot_main">PIN hlavného profilu nemožno obnoviť, preto si ho uschovajte na bezpečnom mieste.</string>
     <string name="profile_pin_reset_for_profile">PIN pre %1$s bol obnovený.</string>
     <string name="profile_pin_incorrect_for_profile">Nesprávny PIN pre %1$s.</string>
-    <string name="profile_selection_kids_badge">DETSKÝ</string>
+    <string name="profile_selection_kids_badge">Detský</string>
     <string name="profile_manage_done">Hotovo</string>
     <string name="cd_profile_locked">Zamknuté PIN kódom</string>
     <string name="profile_save_error">Profil sa nepodarilo uložiť. Skúste to znova.</string>

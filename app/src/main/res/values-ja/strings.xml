@@ -1003,7 +1003,7 @@
     <string name="collection_editor_untitled_collection">無題のコレクション</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">アドオン</string>
-    <string name="addon_readonly_notice">プライマリプロフィールのアドオンを使用しており、変更できません</string>
+    <string name="addon_readonly_notice">メインプロフィールのアドオンを使用しており、変更できません</string>
     <string name="addon_install_title">アドオンをインストール</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">インストール中</string>
@@ -1376,7 +1376,7 @@
     <string name="profile_selection_subtitle">続けるプロフィールを選択</string>
     <string name="profile_selection_hint">長押ししてプロフィールを管理</string>
     <string name="profile_selection_empty">プロフィールが見つかりません</string>
-    <string name="profile_selection_primary_badge">プライマリ</string>
+    <string name="profile_selection_primary_badge">メイン</string>
     <string name="profile_selection_options_title">プロフィールオプション</string>
     <string name="profile_delete_confirm_title">プロフィールを削除しますか？</string>
     <string name="profile_delete_confirm_subtitle">このプロフィールとすべてのデータ（ライブラリ・視聴履歴・アドオン設定）が完全に削除されます。この操作は取り消せません</string>

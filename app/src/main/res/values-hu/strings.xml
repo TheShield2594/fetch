@@ -1259,7 +1259,7 @@
     <string name="profile_copy_settings_setup_title">Profilbeállítások</string>
     <string name="profile_copy_settings_setup_subtitle">Kezdj új beállításokkal, vagy másold át egyszeri alkalommal egy másik profil TV-beállításait.</string>
     <string name="profile_copy_settings_start_fresh">Kezdés új beállításokkal</string>
-    <string name="profile_copy_settings_primary_source">%1$s (elsődleges)</string>
+    <string name="profile_copy_settings_primary_source">%1$s (fő)</string>
     <string name="profile_copy_settings_create_fresh">Beállítások: másolás nélkül</string>
     <string name="profile_copy_settings_create_source">Beállítások: %1$s</string>
     <string name="profile_copy_settings_title">Beállítások másolása ebbe a profilba: %1$s</string>
@@ -1307,7 +1307,7 @@
     <string name="collection_editor_untitled_collection">Névtelen gyűjtemény</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Bővítmények</string>
-    <string name="addon_readonly_notice">Az elsődleges profil bővítményeit használod, ezek nem módosíthatók</string>
+    <string name="addon_readonly_notice">A fő profil bővítményeit használod, ezek nem módosíthatók</string>
     <string name="addon_install_title">Bővítmény telepítése</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Telepítés</string>
@@ -1793,7 +1793,7 @@
     <string name="profile_selection_subtitle">Válassz egy profilt a folytatáshoz</string>
     <string name="profile_selection_hint">Tartsd lenyomva a profil kezeléséhez</string>
     <string name="profile_selection_empty">Nem találhatók profilok</string>
-    <string name="profile_selection_primary_badge">ELSŐDLEGES</string>
+    <string name="profile_selection_primary_badge">Fő</string>
     <string name="profile_selection_options_title">Profil beállításai</string>
     <string name="profile_delete_confirm_title">Törlöd a profilt?</string>
     <string name="profile_delete_confirm_subtitle">Ez véglegesen törli a profilt és annak minden adatát, beleértve a könyvtárat, az előzményeket és a bővítmény beállításokat. Ez a művelet nem vonható vissza.</string>
@@ -3045,7 +3045,7 @@
     <string name="profile_pin_forgot_main">A fő profil PIN-kódja nem állítható vissza, ezért tartsd biztonságos helyen.</string>
     <string name="profile_pin_reset_for_profile">PIN-kód visszaállítva: %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">Helytelen PIN-kód: %1$s.</string>
-    <string name="profile_selection_kids_badge">GYEREK</string>
+    <string name="profile_selection_kids_badge">Gyerek</string>
     <string name="profile_manage_done">Kész</string>
     <string name="cd_profile_locked">PIN-kóddal zárolva</string>
     <string name="profile_save_error">Nem sikerült menteni a profilt. Próbáld újra.</string>

@@ -1190,7 +1190,7 @@
     <string name="profile_selection_subtitle">Выберите профиль для продолжения</string>
     <string name="profile_selection_hint">Удерживайте для управления профилем</string>
     <string name="profile_selection_empty">Профили не найдены</string>
-    <string name="profile_selection_primary_badge">ОСНОВНОЙ</string>
+    <string name="profile_selection_primary_badge">Основной</string>
     <string name="profile_selection_options_title">Опции профиля</string>
     <string name="profile_delete_confirm_title">Удалить профиль?</string>
     <string name="profile_delete_confirm_subtitle">Это безвозвратно удалит профиль и все его данные, включая библиотеку, историю просмотров и настройки аддонов. Это действие нельзя отменить.</string>
@@ -2853,7 +2853,7 @@
     <string name="profile_pin_forgot_main">PIN основного профиля нельзя сбросить, поэтому храните его в надёжном месте.</string>
     <string name="profile_pin_reset_for_profile">PIN профиля %1$s сброшен.</string>
     <string name="profile_pin_incorrect_for_profile">Неверный PIN профиля %1$s.</string>
-    <string name="profile_selection_kids_badge">ДЕТСКИЙ</string>
+    <string name="profile_selection_kids_badge">Детский</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Защищено PIN</string>
     <string name="profile_save_error">Не удалось сохранить профиль. Попробуйте ещё раз.</string>

@@ -522,7 +522,7 @@
 
     <!-- AddonManagerScreen -->
     <string name="addon_title">ऐडऑन</string>
-    <string name="addon_readonly_notice">प्राइमरी प्रोफाइल के ऐडऑन उपयोग हो रहे हैं और इन्हें बदला नहीं जा सकता</string>
+    <string name="addon_readonly_notice">मुख्य प्रोफाइल के ऐडऑन उपयोग हो रहे हैं और इन्हें बदला नहीं जा सकता</string>
     <string name="addon_install_title">ऐडऑन इंस्टॉल करें</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">इंस्टॉल हो रहा है</string>
@@ -752,7 +752,7 @@
     <string name="profile_selection_subtitle">जारी रखने के लिए प्रोफाइल चुनें</string>
     <string name="profile_selection_hint">प्रोफाइल मैनेज करने के लिए होल्ड करें</string>
     <string name="profile_selection_empty">कोई प्रोफाइल नहीं मिला</string>
-    <string name="profile_selection_primary_badge">प्राइमरी</string>
+    <string name="profile_selection_primary_badge">मुख्य</string>
     <string name="profile_selection_options_title">प्रोफाइल विकल्प</string>
     <string name="profile_delete_confirm_title">प्रोफाइल हटाएँ?</string>
     <string name="profile_delete_confirm_subtitle">यह प्रोफाइल और उससे जुड़ा सभी डेटा स्थायी रूप से हटा देगा जिसमें लाइब्रेरी, वॉच हिस्ट्री और ऐडऑन सेटिंग शामिल हैं। इसे वापस नहीं किया जा सकता।</string>

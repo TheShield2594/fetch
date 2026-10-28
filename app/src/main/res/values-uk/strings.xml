@@ -1371,7 +1371,7 @@
     <string name="profile_selection_subtitle">Оберіть профіль для продовження</string>
     <string name="profile_selection_hint">Утримуйте для керування профілем</string>
     <string name="profile_selection_empty">Профілі не знайдено</string>
-    <string name="profile_selection_primary_badge">ОСНОВНИЙ</string>
+    <string name="profile_selection_primary_badge">Основний</string>
     <string name="profile_selection_options_title">Параметри профілю</string>
     <string name="profile_delete_confirm_title">Видалити профіль?</string>
     <string name="profile_delete_confirm_subtitle">Це безповоротно видалить профіль та всі його дані, включаючи бібліотеку, історію переглядів та налаштування адонів. Цю дію не можна скасувати.</string>
@@ -2562,7 +2562,7 @@
     <string name="profile_pin_forgot_main">PIN основного профілю не можна скинути, тож зберігайте його в надійному місці.</string>
     <string name="profile_pin_reset_for_profile">PIN для %1$s скинуто.</string>
     <string name="profile_pin_incorrect_for_profile">Неправильний PIN для %1$s.</string>
-    <string name="profile_selection_kids_badge">ДИТЯЧИЙ</string>
+    <string name="profile_selection_kids_badge">Дитячий</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заблоковано PIN-кодом</string>
     <string name="profile_save_error">Не вдалося зберегти профіль. Спробуйте ще раз.</string>

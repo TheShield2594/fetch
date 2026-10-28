@@ -86,6 +86,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -855,7 +856,7 @@ fun ProfileSelectionScreen(
                     Text(
                         text = message,
                         color = FetchTheme.colors.TextPrimary,
-                        fontSize = 15.sp,
+                        style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -884,6 +885,7 @@ fun ProfileSelectionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(primaryDialogFocusRequester),
+                    shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextPrimary
@@ -902,6 +904,7 @@ fun ProfileSelectionScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
+                        shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundCard,
                             contentColor = FetchTheme.colors.TextPrimary
@@ -922,6 +925,7 @@ fun ProfileSelectionScreen(
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextPrimary
@@ -944,6 +948,7 @@ fun ProfileSelectionScreen(
                             pinOverlayState = ProfilePinOverlayState.VerifyCurrentForRemove(profile)
                         },
                         modifier = Modifier.fillMaxWidth(),
+                        shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundCard,
                             contentColor = FetchTheme.colors.TextPrimary
@@ -978,6 +983,7 @@ fun ProfileSelectionScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
+                        shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundCard,
                             contentColor = FetchTheme.colors.TextPrimary
@@ -1001,6 +1007,7 @@ fun ProfileSelectionScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
+                        shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundCard,
                             contentColor = FetchTheme.colors.TextPrimary
@@ -1024,6 +1031,7 @@ fun ProfileSelectionScreen(
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextPrimary
@@ -1044,6 +1052,7 @@ fun ProfileSelectionScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
+                        shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                         colors = ButtonDefaults.colors(
                             containerColor = FetchStatusTones.errorContainer,
                             contentColor = FetchTheme.colors.TextPrimary
@@ -1141,6 +1150,7 @@ fun ProfileSelectionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(primaryDialogFocusRequester),
+                    shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                     colors = ButtonDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundCard,
                         contentColor = FetchTheme.colors.TextPrimary
@@ -1158,6 +1168,7 @@ fun ProfileSelectionScreen(
                         profileToDelete = null
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = ButtonDefaults.shape(FetchTheme.shapes.button),
                     colors = ButtonDefaults.colors(
                         containerColor = FetchStatusTones.errorContainer,
                         contentColor = FetchTheme.colors.TextPrimary
@@ -1364,9 +1375,7 @@ private fun ProfileSelectionMainContent(
         Text(
             text = screenTitle,
             color = FetchTheme.colors.TextPrimary,
-            fontSize = 44.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = (-0.5).sp
+            style = MaterialTheme.typography.displayLarge
         )
 
         Spacer(modifier = Modifier.height(ProfileSelectionSpacing.HeadingToSubheading))
@@ -1374,8 +1383,7 @@ private fun ProfileSelectionMainContent(
         Text(
             text = screenSubtitle,
             color = FetchTheme.colors.TextSecondary,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium
+            style = MaterialTheme.typography.titleLarge
         )
 
         Spacer(modifier = Modifier.weight(1f, fill = true))
@@ -1410,8 +1418,7 @@ private fun ProfileSelectionMainContent(
         Text(
             text = screenHint,
             color = FetchTheme.colors.TextTertiary.copy(alpha = 0.9f),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
+            style = MaterialTheme.typography.titleSmall
         )
     }
 }
@@ -1451,8 +1458,7 @@ private fun ProfileGrid(
         Text(
             text = stringResource(R.string.profile_selection_empty),
             color = FetchTheme.colors.TextSecondary,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium
+            style = MaterialTheme.typography.titleLarge
         )
     } else {
         BoxWithConstraints(
@@ -1684,7 +1690,7 @@ private fun ProfileCard(
                     Text(
                         text = "\u2605",
                         color = FetchPrimitives.neutral925,
-                        fontSize = if (compact) 12.sp else 14.sp,
+                        style = if (compact) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
@@ -1701,11 +1707,10 @@ private fun ProfileCard(
 
         Text(
             text = profile.name,
-            style = MaterialTheme.typography.labelLarge.copy(
+            style = (if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge).copy(
                 textDirection = profile.name.contentTextDirection()
             ),
             color = nameColor,
-            fontSize = if (compact) 15.sp else 17.sp,
             fontWeight = nameWeight,
             textAlign = TextAlign.Center,
             maxLines = 1,
@@ -1718,21 +1723,19 @@ private fun ProfileCard(
             modifier = Modifier.height(ProfileSelectionSpacing.MetaSlotHeight),
             contentAlignment = Alignment.TopCenter
         ) {
+            // Badge strings are stored in normal case; the badge style shows them in capitals.
+            val badgeLocale = LocalConfiguration.current.locales[0]
             if (profile.isPrimary) {
                 Text(
-                    text = stringResource(R.string.profile_selection_primary_badge),
+                    text = stringResource(R.string.profile_selection_primary_badge).uppercase(badgeLocale),
                     color = FetchContentColors.primaryProfileBadge,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.8.sp
+                    style = FetchTheme.textStyles.badge
                 )
             } else if (isKids) {
                 Text(
-                    text = stringResource(R.string.profile_selection_kids_badge),
+                    text = stringResource(R.string.profile_selection_kids_badge).uppercase(badgeLocale),
                     color = FetchTheme.colors.Info,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.8.sp
+                    style = FetchTheme.textStyles.badge
                 )
             }
         }
@@ -1863,7 +1866,7 @@ private fun AddProfileCard(
         Text(
             text = stringResource(R.string.profile_add_new),
             color = nameColor,
-            fontSize = if (compact) 15.sp else 17.sp,
+            style = if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
             fontWeight = if (isFocused) FontWeight.SemiBold else FontWeight.Medium,
             textAlign = TextAlign.Center,
             maxLines = 1,
@@ -1956,8 +1959,7 @@ private fun CreateProfileOverlay(
                 Text(
                     text = stringResource(R.string.profile_create_title),
                     color = Color.White,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.headlineLarge
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
                     OverlayButton(
@@ -2017,12 +2019,10 @@ private fun CreateProfileOverlay(
 
                     Text(
                         text = profileName.ifBlank { stringResource(R.string.profile_name_placeholder) },
-                        style = MaterialTheme.typography.labelLarge.copy(
+                        style = MaterialTheme.typography.headlineMedium.copy(
                             textDirection = profileName.contentTextDirection()
                         ),
                         color = if (profileName.isBlank()) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextPrimary,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
@@ -2071,8 +2071,7 @@ private fun CreateProfileOverlay(
                         text = stringResource(R.string.profile_choose_avatar),
                         modifier = Modifier.fillMaxWidth(),
                         color = FetchTheme.colors.TextSecondary,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.titleSmall,
                         textAlign = TextAlign.Center
                     )
 
@@ -2100,7 +2099,7 @@ private fun CreateProfileOverlay(
                             text = focusedAvatarName ?: stringResource(R.string.profile_avatar_focus_hint),
                             modifier = Modifier.fillMaxWidth(),
                             color = if (focusedAvatarName != null) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextTertiary,
-                            fontSize = 18.sp,
+                            style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center
                         )
@@ -2117,7 +2116,7 @@ private fun CreateProfileOverlay(
                             Text(
                                 text = stringResource(R.string.profile_choose_avatar),
                                 color = FetchTheme.colors.TextTertiary,
-                                fontSize = 15.sp
+                                style = MaterialTheme.typography.bodyLarge
                             )
                         }
                     }
@@ -2342,17 +2341,15 @@ private fun EditProfileOverlay(
                     Text(
                         text = stringResource(R.string.profile_edit_header),
                         color = FetchTheme.colors.TextSecondary,
-                        fontSize = 16.sp,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = profile.name,
-                        style = MaterialTheme.typography.labelLarge.copy(
+                        style = MaterialTheme.typography.headlineLarge.copy(
                             textDirection = profile.name.contentTextDirection()
                         ),
-                        color = Color.White,
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Black
+                        color = Color.White
                     )
                 }
                 OverlayButton(
@@ -2400,12 +2397,10 @@ private fun EditProfileOverlay(
 
                     Text(
                         text = profileName.ifBlank { stringResource(R.string.profile_name_placeholder) },
-                        style = MaterialTheme.typography.labelLarge.copy(
+                        style = MaterialTheme.typography.headlineMedium.copy(
                             textDirection = profileName.contentTextDirection()
                         ),
                         color = if (profileName.isBlank()) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextPrimary,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
@@ -2451,8 +2446,7 @@ private fun EditProfileOverlay(
                                 text = stringResource(R.string.profile_choose_avatar),
                                 modifier = Modifier.fillMaxWidth(),
                                 color = FetchTheme.colors.TextTertiary,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.titleSmall,
                                 textAlign = TextAlign.Center
                             )
 
@@ -2480,7 +2474,7 @@ private fun EditProfileOverlay(
                                     text = focusedAvatarName ?: stringResource(R.string.profile_avatar_focus_hint),
                                     modifier = Modifier.fillMaxWidth(),
                                     color = if (focusedAvatarName != null) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextTertiary,
-                                    fontSize = 18.sp,
+                                    style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center
                                 )
@@ -2501,7 +2495,7 @@ private fun EditProfileOverlay(
                                     Text(
                                         text = stringResource(R.string.profile_choose_avatar),
                                         color = FetchTheme.colors.TextTertiary,
-                                        fontSize = 15.sp
+                                        style = MaterialTheme.typography.bodyLarge
                                     )
                                 }
                             }
@@ -2512,8 +2506,7 @@ private fun EditProfileOverlay(
                                 text = stringResource(R.string.profile_choose_background),
                                 modifier = Modifier.fillMaxWidth(),
                                 color = FetchTheme.colors.TextSecondary,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.titleSmall,
                                 textAlign = TextAlign.Center
                             )
 
@@ -2560,8 +2553,7 @@ private fun EditProfileOverlay(
                                 text = stringResource(R.string.profile_preferences_hint),
                                 modifier = Modifier.fillMaxWidth(),
                                 color = FetchTheme.colors.TextSecondary,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.titleSmall,
                                 textAlign = TextAlign.Center
                             )
                             ProfileEditorPreferencesPanel(
@@ -2608,19 +2600,24 @@ internal fun ProfilePinOverlay(
     val mismatchMessage = stringResource(R.string.profile_pin_overlay_mismatch)
     val shouldUseCompactLayout = keyboardState.isVisible
     val headerFontSize by animateFloatAsState(
-        targetValue = if (shouldUseCompactLayout) 28f else 42f,
+        targetValue = if (shouldUseCompactLayout) 28f else 36f,
         animationSpec = tween(FetchMotion.tokens.durations.fast),
         label = "pinHeaderFontSize"
     )
     val headerLineHeight by animateFloatAsState(
-        targetValue = if (shouldUseCompactLayout) 34f else 48f,
+        targetValue = if (shouldUseCompactLayout) 34f else 42f,
         animationSpec = tween(FetchMotion.tokens.durations.fast),
         label = "pinHeaderLineHeight"
     )
     val supportFontSize by animateFloatAsState(
-        targetValue = if (shouldUseCompactLayout) 16f else 18f,
+        targetValue = if (shouldUseCompactLayout) 16f else 20f,
         animationSpec = tween(FetchMotion.tokens.durations.fast),
         label = "pinSupportFontSize"
+    )
+    val supportLineHeight by animateFloatAsState(
+        targetValue = if (shouldUseCompactLayout) 24f else 28f,
+        animationSpec = tween(FetchMotion.tokens.durations.fast),
+        label = "pinSupportLineHeight"
     )
     val topPadding by animateDpAsState(
         targetValue = if (shouldUseCompactLayout) 40.dp else FetchTheme.spacing.none,
@@ -2860,7 +2857,7 @@ internal fun ProfilePinOverlay(
                 fontSize = supportFontSize.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
-                lineHeight = 24.sp
+                lineHeight = supportLineHeight.sp
             )
 
             if (forgotPin != null) {
@@ -2879,10 +2876,8 @@ internal fun ProfilePinOverlay(
                         text = forgotPin.label,
                         modifier = Modifier.widthIn(max = ProfileSelectionSpacing.PinSupportMaxWidth),
                         color = FetchTheme.colors.TextTertiary,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 20.sp
+                        style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -2892,8 +2887,7 @@ internal fun ProfilePinOverlay(
             Text(
                 text = stringResource(R.string.profile_pin_overlay_back_hint),
                 color = FetchTheme.colors.TextTertiary,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.titleSmall
             )
 
             Spacer(modifier = Modifier.height(contentBottomPadding))
@@ -3108,7 +3102,7 @@ private fun ProfileNameField(
             Text(
                 text = stringResource(R.string.profile_name_placeholder),
                 color = FetchTheme.colors.TextTertiary,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.bodyLarge
             )
         }
         BasicTextField(
@@ -3118,9 +3112,8 @@ private fun ProfileNameField(
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
                 .onFocusChanged { isFocused = it.isFocused },
-            textStyle = TextStyle(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = Color.White,
-                fontSize = 16.sp,
                 textDirection = TextDirection.Content
             ),
             singleLine = true,
@@ -3183,7 +3176,7 @@ private fun OverlayButton(
     Box(
         modifier = modifier
             .heightIn(min = 48.dp)
-            .clip(RoundedCornerShape(FetchTheme.radii.md))
+            .clip(FetchTheme.shapes.button)
             .background(bgColor)
             .border(
                 border = if (isFocused && enabled) {
@@ -3191,7 +3184,7 @@ private fun OverlayButton(
                 } else {
                     BorderStroke(borderWidth, borderColor)
                 },
-                shape = RoundedCornerShape(FetchTheme.radii.md)
+                shape = FetchTheme.shapes.button
             )
             .onFocusChanged { isFocused = it.isFocused }
             .focusable(enabled = enabled, interactionSource = interactionSource)
@@ -3217,8 +3210,7 @@ private fun OverlayButton(
         Text(
             text = text,
             color = textColor,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
+            style = FetchTheme.textStyles.button,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center

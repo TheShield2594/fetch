@@ -918,7 +918,7 @@
     <string name="profile_selection_subtitle">Wybierz profil, aby kontynuować</string>
     <string name="profile_selection_hint">Użyj D-pada, aby wybrać profil</string>
     <string name="profile_selection_empty">Nie znaleziono profili</string>
-    <string name="profile_selection_primary_badge">GŁÓWNY</string>
+    <string name="profile_selection_primary_badge">Główny</string>
 
     <!-- CastDetailScreen -->
     <string name="cast_detail_error">Coś poszło nie tak</string>
@@ -3158,7 +3158,7 @@
     <string name="profile_pin_forgot_main">PIN-u profilu głównego nie można zresetować, więc przechowuj go w bezpiecznym miejscu.</string>
     <string name="profile_pin_reset_for_profile">Zresetowano PIN profilu %1$s.</string>
     <string name="profile_pin_incorrect_for_profile">Nieprawidłowy PIN profilu %1$s.</string>
-    <string name="profile_selection_kids_badge">DZIECI</string>
+    <string name="profile_selection_kids_badge">Dzieci</string>
     <string name="profile_manage_done">Gotowe</string>
     <string name="cd_profile_locked">Zablokowany PIN-em</string>
     <string name="profile_save_error">Nie można zapisać profilu. Spróbuj ponownie.</string>

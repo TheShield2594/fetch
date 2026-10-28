@@ -1405,7 +1405,7 @@
     <string name="profile_copy_settings_setup_title">Profile Settings</string>
     <string name="profile_copy_settings_setup_subtitle">Start fresh or copy TV settings from another profile once.</string>
     <string name="profile_copy_settings_start_fresh">Start Fresh</string>
-    <string name="profile_copy_settings_primary_source">%1$s (Primary)</string>
+    <string name="profile_copy_settings_primary_source">%1$s (Main)</string>
     <string name="profile_copy_settings_create_fresh">Settings: Start fresh</string>
     <string name="profile_copy_settings_create_source">Settings: %1$s</string>
     <string name="profile_setup_button">Profile setup</string>
@@ -1474,7 +1474,7 @@
     <string name="collection_editor_untitled_collection">Untitled Collection</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Addons</string>
-    <string name="addon_readonly_notice">Using primary profile\'s addons and can\'t be changed</string>
+    <string name="addon_readonly_notice">Using main profile\'s addons and can\'t be changed</string>
     <string name="addon_install_title">Install addon</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Installing</string>
@@ -2035,8 +2035,8 @@
     <string name="profile_selection_subtitle">Select a profile to continue</string>
     <string name="profile_selection_hint">Hold to manage profile</string>
     <string name="profile_selection_empty">No profiles found</string>
-    <string name="profile_selection_primary_badge">PRIMARY</string>
-    <string name="profile_selection_kids_badge">KIDS</string>
+    <string name="profile_selection_primary_badge">Main</string>
+    <string name="profile_selection_kids_badge">Kids</string>
     <string name="profile_manage_done">Done</string>
     <string name="cd_profile_locked">Locked with a PIN</string>
     <string name="cd_profile_pin_progress">%1$d of %2$d digits entered</string>

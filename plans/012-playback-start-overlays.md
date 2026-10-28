@@ -1,6 +1,6 @@
 # 012 — Move the playback-start overlays (parental guide, display mode) to layer reads and tighter timing
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: 5. Performance + 2. Easing & duration (with 6. Accessibility, 7. Cohesion: stagger)

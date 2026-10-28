@@ -2,13 +2,10 @@
 
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,15 +17,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -64,34 +63,18 @@ fun DisplayModeOverlay(
     val itemAlphas = remember(info) { List(count) { Animatable(0f) } }
     var animating by remember { mutableStateOf(false) }
 
+    val fullMotion = FetchTheme.fullMotion
+
     LaunchedEffect(isVisible, info) {
         if (isVisible && !animating) {
             animating = true
-
-            containerAlpha.animateTo(1f, tween(FetchMotion.tokens.durations.medium))
-            lineHeightFraction.animateTo(1f, tween(FetchMotion.tokens.durations.slow, easing = FastOutSlowInEasing))
-
-            for (i in 0 until count) {
-                delay(80)
-                itemAlphas[i].animateTo(1f, tween(FetchMotion.tokens.durations.fast))
-            }
-
-            delay(5000)
-
-            for (i in (count - 1) downTo 0) {
-                delay(60)
-                itemAlphas[i].animateTo(0f, tween(FetchMotion.tokens.durations.quick))
-            }
-
-            delay(100)
-            lineHeightFraction.animateTo(0f, tween(FetchMotion.tokens.durations.medium, easing = FastOutSlowInEasing))
-
-            delay(200)
-            containerAlpha.animateTo(0f, tween(FetchMotion.tokens.durations.fast))
-
+            playStartOverlayIn(fullMotion, containerAlpha, lineHeightFraction, itemAlphas)
+            delay(START_OVERLAY_HOLD_MS)
+            playStartOverlayOut(fullMotion, containerAlpha, lineHeightFraction, itemAlphas)
             animating = false
             onAnimationComplete()
         } else if (!isVisible && animating) {
+            // Quick hide if something forces it off (e.g. controls shown during animation)
             for (i in (count - 1) downTo 0) {
                 itemAlphas[i].snapTo(0f)
             }
@@ -102,11 +85,13 @@ fun DisplayModeOverlay(
         }
     }
 
-    if (containerAlpha.value <= 0f) return
+    // Recompose only when the overlay appears or disappears, not on every fade frame.
+    val shown by remember { derivedStateOf { containerAlpha.value > 0f } }
+    if (!shown) return
 
     Column(
         modifier = modifier
-            .alpha(containerAlpha.value)
+            .graphicsLayer { alpha = containerAlpha.value }
             .padding(end = FetchTheme.spacing.xxl, top = FetchTheme.spacing.xl),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
         horizontalAlignment = Alignment.End
@@ -136,7 +121,7 @@ fun DisplayModeOverlay(
                     Row(
                         modifier = Modifier
                             .height(ROW_HEIGHT)
-                            .alpha(itemAlphas.getOrNull(index)?.value ?: 0f),
+                            .graphicsLayer { alpha = itemAlphas.getOrNull(index)?.value ?: 0f },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -164,7 +149,11 @@ fun DisplayModeOverlay(
             Box(
                 modifier = Modifier
                     .width(3.dp)
-                    .height((totalLineHeight * lineHeightFraction.value).dp)
+                    .height(totalLineHeight.dp)
+                    .graphicsLayer {
+                        scaleY = lineHeightFraction.value
+                        transformOrigin = TransformOrigin(0.5f, 0f)
+                    }
                     .clip(RoundedCornerShape(FetchTheme.spacing.hairline))
                     .background(FetchTheme.colors.Secondary)
             )

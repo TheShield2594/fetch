@@ -23,7 +23,7 @@ executor to stop and report rather than improvise.
 | 009 | [Skeleton shimmer](009-skeleton-shimmer.md) | HIGH | Loading states | DONE |
 | 010 | [Focus labels without relayout](010-focus-labels-no-relayout.md) | MEDIUM | Sidebar, detail actions | TODO |
 | 011 | [Subtitle rail fade](011-subtitle-rail-fade.md) | MEDIUM | Player | DONE |
-| 012 | [Playback-start overlays](012-playback-start-overlays.md) | MEDIUM | Player | TODO |
+| 012 | [Playback-start overlays](012-playback-start-overlays.md) | MEDIUM | Player | DONE |
 | 013 | [Play → Fetching morph](013-play-to-fetching-morph.md) | MEDIUM | Stream | DONE |
 | 014 | [Detail backdrop fades and scroll restore](014-detail-backdrop-fades.md) | MEDIUM | Detail | DONE |
 | 015 | [Card trailer cover fade](015-card-trailer-cover-fade.md) | MEDIUM | Poster cards | TODO |
@@ -111,6 +111,9 @@ or incomplete:
 
 ## Noted, not planned
 
+- `DisplayModeOverlay.kt`: if `info` changes while the overlay is animating, the effect restarts
+  with `isVisible && animating` true, neither branch runs, and the overlay can stay half-shown
+  (pre-existing, found while executing 012).
 - `app/src/main/generated/baselineProfiles/*-prof.txt` still name the removed
   `SkeletonsKt.rememberShimmerBrush` (from plan 009). They're harmless at runtime; regenerate the
   baseline profile at the next release.

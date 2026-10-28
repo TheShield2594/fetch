@@ -49,6 +49,23 @@ the keystore outside GitHub: if it is lost, every user has to uninstall to move 
 3. The workflow builds the per-ABI APKs and a universal APK, names them
    `fetch-<tag>-<abi>.apk`, and attaches them to a new GitHub release with generated notes.
 
+## Device smoke test
+
+Run this on an Android TV, a Fire TV and a Google TV device before marking a release stable.
+Install the release APK over the previous release, not on a clean device, so an update that
+won't install in place shows up here.
+
+- [ ] First launch: first-run setup opens and finishes with Back and OK only.
+- [ ] Install Cinemeta and a debrid stream addon from Sources, then from the phone QR page.
+- [ ] Play a movie with Best match: the Play button names the file, and playback starts.
+- [ ] Bare torrent results don't appear in Sources.
+- [ ] External player hand-off: with mpv or Just Player installed, "Ask every time" offers it,
+  and the external player starts the same stream.
+- [ ] Trakt sign-in completes with the device code, and a finished episode scrobbles.
+- [ ] The Watch Next row on the launcher shows the title you just stopped.
+- [ ] QR phone config: the page opens on a phone on the same network, and a change made there
+  shows on the TV.
+
 ## Package names
 
 The TV build is `com.fetch.tv` and the Play Store flavor is `com.fetch.app`. As of 2026-10-26

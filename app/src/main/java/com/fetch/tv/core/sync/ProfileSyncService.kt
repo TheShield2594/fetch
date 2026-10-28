@@ -138,15 +138,17 @@ class ProfileSyncService @Inject constructor(
                     )
                 }
 
+                var limitsSynced = true
                 if (profiles.isNotEmpty()) {
                     profileDataStore.replaceAllProfiles(profiles)
                     Log.d(TAG, "Merged ${profiles.size} remote profiles into local store")
-                    // Limits travel with each profile's settings; best-effort, logged inside.
-                    profileSettingsSync.get().pullParentalLimits(profiles.map { it.id })
+                    // Limits travel with each profile's settings; failures are logged inside, and
+                    // the pull isn't marked fresh so the next one tries again.
+                    limitsSynced = profileSettingsSync.get().pullParentalLimits(profiles.map { it.id })
                 }
 
                 val currentUserId = (authManager.authState.value as? AuthState.FullAccount)?.userId
-                if (userId != null && currentUserId == userId) {
+                if (userId != null && currentUserId == userId && limitsSynced) {
                     lastPulledProfiles = profiles
                     pullFreshness = ProfilePullFreshness(
                         userId = userId,

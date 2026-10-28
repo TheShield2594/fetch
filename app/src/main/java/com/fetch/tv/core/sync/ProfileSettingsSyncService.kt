@@ -307,7 +307,8 @@ class ProfileSettingsSyncService @Inject constructor(
                         require(sourceBlob["features"] is JsonObject)
                         // The copy takes the whole blob, parental limits too; the target keeps its own.
                         val targetParental = if (websiteSync.get().isPaired) null else parentalLimitsForPush(targetProfileId)
-                        targetParental?.let { restrictionsDataStore.setAccountRestrictions(targetProfileId, it) }
+                        // Pending until the restore below lands, so a failed one is retried on the next pull.
+                        targetParental?.let { restrictionsDataStore.setPendingAccountRestrictions(targetProfileId, it) }
 
                         val params = buildJsonObject {
                             put("p_source_profile_id", sourceProfileId)
@@ -410,19 +411,30 @@ class ProfileSettingsSyncService @Inject constructor(
     /**
      * Reads each profile's parental limits from the account and tightens this TV's to match, so
      * a kids profile set up on another TV is one here too, before anyone opens it. Limits only
-     * ever get stricter this way. A TV paired with a Fetch website gets them with its profiles.
+     * ever get stricter this way. A parent's change that hasn't reached the account yet is sent
+     * first. A TV paired with a Fetch website gets them with its profiles.
+     *
+     * Returns false when a read or a send failed, so the caller tries again sooner.
      */
-    suspend fun pullParentalLimits(profileIds: Collection<Int>) = withContext(Dispatchers.IO) {
-        if (websiteSync.get().isPaired || !authManager.isAuthenticated) return@withContext
-        profileIds.filter { it != PRIMARY_PROFILE_ID }.forEach { profileId ->
+    suspend fun pullParentalLimits(profileIds: Collection<Int>): Boolean = withContext(Dispatchers.IO) {
+        if (websiteSync.get().isPaired || !authManager.isAuthenticated) return@withContext true
+        var allDone = true
+        val ids = profileIds.filter { it != PRIMARY_PROFILE_ID }
+        val pending = restrictionsDataStore.pendingAccountPushes.first()
+        ids.filter { it in pending }.forEach { profileId ->
+            if (pushProfileSettingsToRemote(profileId).isFailure) allDone = false
+        }
+        ids.forEach { profileId ->
             try {
                 applyParentalLimits(profileId, pullSupabaseBlob(profileId))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                allDone = false
                 Log.w(TAG, "Couldn't read parental limits for profile $profileId", e)
             }
         }
+        allDone
     }
 
     /** After a parent changed a profile's limits on this TV: sends them to the account. */
@@ -499,7 +511,7 @@ class ProfileSettingsSyncService @Inject constructor(
         withJwtRefreshRetry {
             postgrest.rpc("sync_push_profile_settings_blob", params)
         }
-        if (parental != null) restrictionsDataStore.setAccountRestrictions(profileId, parental)
+        if (parental != null) restrictionsDataStore.accountPushSucceeded(profileId, parental)
     }
 
     /**

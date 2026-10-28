@@ -110,11 +110,11 @@ class ParentalControls @Inject constructor(
      */
     suspend fun setRestrictions(profileId: Int, restrictions: ProfileRestrictions): Boolean {
         if (profileId == 1) return false
-        restrictionsDataStore.setRestrictions(profileId, restrictions)
         // Shared with the account straight away, so other TVs pick it up (only if it's stricter
-        // than theirs) and the next pull doesn't put the old one back. A TV signed in to a Fetch
-        // website shares it with the website instead.
-        restrictionsDataStore.setAccountRestrictions(profileId, restrictions)
+        // than theirs). Until the account has it, pulls leave this profile alone, so they can't
+        // put the old limit back; a failed push is retried on the next pull. A TV signed in to a
+        // Fetch website shares it with the website instead.
+        restrictionsDataStore.setByParent(profileId, restrictions)
         profileSettingsSync.get().triggerParentalLimitsPush(profileId)
         websiteSync.get().triggerProfilesPush()
         return true

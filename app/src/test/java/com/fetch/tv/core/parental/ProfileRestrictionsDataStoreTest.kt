@@ -85,11 +85,39 @@ class ProfileRestrictionsDataStoreTest {
 
     @Test
     fun `the account copy keeps an explicit none and goes with the profile`() = runTest {
-        store.setAccountRestrictions(2, ProfileRestrictions.None)
+        store.accountPushSucceeded(2, ProfileRestrictions.None)
         assertEquals(ProfileRestrictions.None, store.accountRestrictions.first()[2])
 
+        store.setByParent(2, ProfileRestrictions.KidsPreset)
         store.deleteProfile(2)
         assertFalse(2 in store.accountRestrictions.first())
+        assertFalse(2 in store.pendingAccountPushes.first())
+    }
+
+    @Test
+    fun `a pull can't put back a limit the parent removed until the account has the removal`() = runTest {
+        store.tightenFromAccount(2, ProfileRestrictions.KidsPreset)
+        store.setByParent(2, ProfileRestrictions.None)
+
+        assertFalse(store.tightenFromAccount(2, ProfileRestrictions.KidsPreset))
+        assertFalse(2 in store.restrictions.first())
+        assertEquals(ProfileRestrictions.None, store.accountRestrictions.first()[2])
+
+        store.accountPushSucceeded(2, ProfileRestrictions.None)
+        assertFalse(2 in store.pendingAccountPushes.first())
+        // Once it's sent, the account is followed again: a limit set on another TV since arrives.
+        assertTrue(store.tightenFromAccount(2, ProfileRestrictions.KidsPreset))
+    }
+
+    @Test
+    fun `a push of an older copy leaves a newer change pending`() = runTest {
+        store.setByParent(2, ProfileRestrictions.KidsPreset)
+        store.setByParent(2, ProfileRestrictions.None)
+
+        store.accountPushSucceeded(2, ProfileRestrictions.KidsPreset)
+
+        assertTrue(2 in store.pendingAccountPushes.first())
+        assertEquals(ProfileRestrictions.None, store.accountRestrictions.first()[2])
     }
 
     private val movie = ParentalTitle(ids = listOf("tt0111161", "tmdb:278"), type = "movie", name = "A Film")

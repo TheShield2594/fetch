@@ -1,6 +1,6 @@
 # 017 — Move poster cards off tv-material `Card` onto `LightweightCard` (measure first)
 
-- **Status**: TODO (NEEDS VERIFICATION: Step 0 is a go/no-go gate)
+- **Status**: DEFERRED (needs the Step 0 Layout Inspector measurement on a device; not run in the planning session)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: Performance (state reads during composition on D-pad focus moves)

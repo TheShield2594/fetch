@@ -28,7 +28,7 @@ executor to stop and report rather than improvise.
 | 014 | [Detail backdrop fades and scroll restore](014-detail-backdrop-fades.md) | MEDIUM | Detail | DONE |
 | 015 | [Card trailer cover fade](015-card-trailer-cover-fade.md) | MEDIUM | Poster cards | DONE |
 | 016 | [Reduced-motion sweep](016-reduced-motion-sweep.md) | MEDIUM | App-wide | DONE |
-| 017 | [tv-material Card recomposition](017-tv-card-recomposition.md) | MEDIUM (gated on measurement) | Poster cards | TODO |
+| 017 | [tv-material Card recomposition](017-tv-card-recomposition.md) | MEDIUM (gated on measurement) | Poster cards | DEFERRED |
 | 018 | [Network test spinner](018-network-spinner.md) | LOW | Settings | DONE |
 | 019 | [Controls focus delay](019-controls-focus-delay.md) | LOW | Player | DONE |
 | 020 | [Motion token cleanup](020-motion-token-cleanup.md) | LOW | Tokens | TODO |

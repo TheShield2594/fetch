@@ -1,6 +1,6 @@
 # 002 — Give the focus-scroll spring a real stiffness, and near-snap it under reduced motion
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; A/B not run, shipped default 400)
 - **Commit**: ee8dd84
 - **Severity**: HIGH
 - **Category**: 2. Easing & duration / 4. Interruptibility

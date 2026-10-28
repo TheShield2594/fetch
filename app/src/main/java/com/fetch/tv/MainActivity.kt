@@ -610,10 +610,11 @@ open class MainActivity : ComponentActivity() {
                 highContrast = mainUiPrefs.highContrast
             ) {
                 val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
-                val bringIntoViewSpec = if (mainUiPrefs.smoothBringIntoViewEnabled) {
-                    FetchScrollDefaults.smoothScrollSpec
-                } else {
-                    defaultBringIntoViewSpec
+                val fullMotion = FetchTheme.fullMotion
+                val bringIntoViewSpec = when {
+                    !mainUiPrefs.smoothBringIntoViewEnabled -> defaultBringIntoViewSpec
+                    fullMotion -> FetchScrollDefaults.smoothScrollSpec
+                    else -> FetchScrollDefaults.reducedMotionScrollSpec
                 }
                 val systemDensity = LocalDensity.current
                 val clampedFontScaleDensity = remember(systemDensity) {

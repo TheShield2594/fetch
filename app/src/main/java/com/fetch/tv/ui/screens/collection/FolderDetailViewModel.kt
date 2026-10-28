@@ -50,7 +50,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -59,7 +58,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -144,13 +142,13 @@ class FolderDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(FolderDetailUiState())
     // Titles above the active profile's limit, or hidden from it, are left out of every tab.
     // The Home-layout rows are filtered when they're built (rebuildFollowLayoutState).
-    val uiState: StateFlow<FolderDetailUiState> = combine(_uiState, parentalControls.filterRevision) { state, _ ->
+    val uiState: StateFlow<FolderDetailUiState> = com.fetch.tv.core.util.derivedStateFlow(_uiState, parentalControls.filterRevision) { state, _ ->
         if (!parentalControls.filtersContent()) {
             state
         } else {
             state.copy(tabs = state.tabs.map { tab -> tab.copy(catalogRow = tab.catalogRow?.let(parentalControls::filterRow)) })
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, FolderDetailUiState())
+    }
 
     private var movieWatchedJob: Job? = null
     private var enrichFocusJob: Job? = null

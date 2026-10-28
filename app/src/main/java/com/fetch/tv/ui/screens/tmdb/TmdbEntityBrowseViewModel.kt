@@ -15,12 +15,9 @@ import com.fetch.tv.data.local.TmdbSettingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
 import javax.inject.Inject
@@ -55,9 +52,9 @@ class TmdbEntityBrowseViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<TmdbEntityBrowseUiState>(TmdbEntityBrowseUiState.Loading)
     // Titles above the active profile's limit, or hidden from it, are left out.
-    val uiState: StateFlow<TmdbEntityBrowseUiState> = combine(_uiState, parentalControls.filterRevision) { state, _ ->
+    val uiState: StateFlow<TmdbEntityBrowseUiState> = com.fetch.tv.core.util.derivedStateFlow(_uiState, parentalControls.filterRevision) { state, _ ->
         state.filteredForProfile(parentalControls)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, TmdbEntityBrowseUiState.Loading)
+    }
 
     private val _posterCardCornerRadiusDp = MutableStateFlow(12)
     val posterCardCornerRadiusDp: StateFlow<Int> = _posterCardCornerRadiusDp.asStateFlow()

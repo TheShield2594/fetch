@@ -23,7 +23,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -33,7 +32,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.fetch.tv.R
@@ -167,9 +165,9 @@ class LibraryViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(LibraryUiState())
     // Titles above the active profile's limit, or hidden from it, are left out.
-    val uiState: StateFlow<LibraryUiState> = combine(_uiState, parentalControls.filterRevision) { state, _ ->
+    val uiState: StateFlow<LibraryUiState> = com.fetch.tv.core.util.derivedStateFlow(_uiState, parentalControls.filterRevision) { state, _ ->
         state.filteredForProfile(parentalControls)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, LibraryUiState())
+    }
 
     private val _watchedMovieIds = MutableStateFlow<Set<String>>(emptySet())
     val watchedMovieIds: StateFlow<Set<String>> = _watchedMovieIds.asStateFlow()

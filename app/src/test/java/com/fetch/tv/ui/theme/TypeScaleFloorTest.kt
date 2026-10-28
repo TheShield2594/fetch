@@ -46,6 +46,25 @@ class TypeScaleFloorTest {
     }
 
     @Test
+    fun `styles that carry reading text are at least 14sp`() {
+        // 12sp is fine for a badge glanced at; metadata, spec lines and secondary sentences are
+        // read from the couch, so they get 28px at 1080p.
+        val readingMinSp = 14f
+        val typography = buildFetchTypography(FontFamily.Default)
+        val tokens = buildFetchTextStyles(typography)
+        val reading: Map<String, TextStyle> = mapOf(
+            "bodySmall" to typography.bodySmall,
+            "bodyMedium" to typography.bodyMedium,
+            "labelMedium" to typography.labelMedium,
+            "labelLarge" to typography.labelLarge,
+            "metadata" to tokens.metadata,
+            "spec" to tokens.spec
+        )
+        val small = reading.filterValues { it.fontSize.value < readingMinSp }
+        assertTrue("Reading text below ${readingMinSp}sp: ${small.keys}", small.isEmpty())
+    }
+
+    @Test
     fun `screens set no font size below 12sp`() {
         val sourceRoot = File("src/main/java")
         check(sourceRoot.isDirectory) { "Run from the app module; ${sourceRoot.absolutePath} is missing" }

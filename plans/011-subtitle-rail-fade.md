@@ -1,6 +1,6 @@
 # 011 — Make the subtitle rail fade an interruptible ease-out with an animated hide
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: 2. Easing & duration (with 4. Interruptibility, 5. Performance)

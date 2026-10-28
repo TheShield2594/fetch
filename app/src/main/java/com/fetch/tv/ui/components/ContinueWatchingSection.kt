@@ -673,7 +673,8 @@ fun ContinueWatchingCard(
                 border = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth),
                 shape = cwCardShape
             )
-        }
+        },
+        restingBorder = if (textBelowArtwork) Border.None else FetchCardDefaults.restingBorder(cwCardShape)
     ) {
         if (isWideStyle) {
             WideCardContent(

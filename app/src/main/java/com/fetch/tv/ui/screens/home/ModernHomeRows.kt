@@ -11,7 +11,6 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -1298,13 +1297,9 @@ private fun ModernCarouselCard(
     // card is visible at the leading edge.
     val isFastScrollingState = LocalFastScrollActive.current
     val isFastScrolling = isFastScrollingState.value
-    val transparentFocusBorder = remember(cardShape) {
-        Border(
-            border = BorderStroke(FetchTheme.spacing.none, Color.Transparent),
-            shape = cardShape
-        )
-    }
-    val effectiveFocusedBorder = if (isFastScrolling) transparentFocusBorder else focusedBorder
+    val restingBorder = remember(cardShape) { FetchCardDefaults.restingBorder(cardShape) }
+    // The focused card keeps the resting edge so it matches its neighbours mid-drag.
+    val effectiveFocusedBorder = if (isFastScrolling) restingBorder else focusedBorder
     val titleStyle = remember(titleMedium) {
         titleMedium.copy(fontWeight = FontWeight.Medium)
     }
@@ -1367,7 +1362,8 @@ private fun ModernCarouselCard(
                 },
             shape = cardShape,
             containerColor = backgroundCardColor,
-            focusedBorder = effectiveFocusedBorder
+            focusedBorder = effectiveFocusedBorder,
+            restingBorder = restingBorder
         ) {
             Box(
                 modifier = Modifier

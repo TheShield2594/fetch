@@ -382,6 +382,7 @@ fun ContentCard(
                 focusedContainerColor = Color.Transparent
             ),
             border = CardDefaults.border(
+                border = if (posterCardStyle.showRestingBorder) FetchCardDefaults.restingBorder(cardShape) else Border.None,
                 focusedBorder = Border(
                     border = FetchTheme.focusRing.border(posterCardStyle.focusedBorderWidth),
                     shape = cardShape

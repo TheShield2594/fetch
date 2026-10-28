@@ -171,7 +171,8 @@ fun LibraryScreen(
     val posterCardStyle = PosterCardDefaults.Style.copy(
         width = uiState.posterCardWidthDp.dp,
         height = (uiState.posterCardWidthDp * 3 / 2).dp,
-        cornerRadius = uiState.posterCardCornerRadiusDp.dp
+        cornerRadius = uiState.posterCardCornerRadiusDp.dp,
+        showRestingBorder = true
     )
 
     LaunchedEffect(viewMode, servers.revision) {

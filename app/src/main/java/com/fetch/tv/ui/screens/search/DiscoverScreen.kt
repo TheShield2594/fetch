@@ -57,7 +57,8 @@ fun DiscoverScreen(
             height = computedHeightDp.dp,
             cornerRadius = uiState.posterCardCornerRadiusDp.dp,
             focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
-            focusedScale = PosterCardDefaults.Style.focusedScale
+            focusedScale = PosterCardDefaults.Style.focusedScale,
+            showRestingBorder = true
         )
     }
 

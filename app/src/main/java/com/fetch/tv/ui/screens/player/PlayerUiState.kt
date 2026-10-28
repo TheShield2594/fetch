@@ -58,6 +58,11 @@ sealed interface PostPlayMode {
     }
 }
 
+/** Seconds the autoplay countdown runs once the next episode's source is chosen. */
+internal const val AUTO_PLAY_COUNTDOWN_SECONDS = 3
+/** Interval between autoplay countdown ticks; the up-next fill animates over each one. */
+internal const val POST_PLAY_COUNTDOWN_TICK_MS = 1_000
+
 data class PlayerUiState(
     val isPlaying: Boolean = false,
     val isBuffering: Boolean = true,

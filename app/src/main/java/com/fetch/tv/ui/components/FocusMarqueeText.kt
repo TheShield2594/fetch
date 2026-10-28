@@ -12,6 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
+import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.contentLayoutDirection
 
 private val MarqueeVelocity = 45.dp
@@ -37,12 +38,14 @@ fun FocusMarqueeText(
     val textDirection = remember(text) { text.contentLayoutDirection() }
     val needsDirectionOverride = textDirection != currentDirection
 
-    val textModifier = if (focused) {
+    // Reduced motion keeps the ellipsized title still instead of scrolling it.
+    val marquee = focused && FetchTheme.fullMotion
+    val textModifier = if (marquee) {
         modifier.basicMarquee(iterations = MarqueeIterations, velocity = MarqueeVelocity)
     } else {
         modifier
     }
-    val textOverflow = if (focused) TextOverflow.Clip else TextOverflow.Ellipsis
+    val textOverflow = if (marquee) TextOverflow.Clip else TextOverflow.Ellipsis
 
     val content = @Composable {
         Text(

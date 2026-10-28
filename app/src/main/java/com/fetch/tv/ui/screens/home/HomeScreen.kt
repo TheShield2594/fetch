@@ -337,12 +337,14 @@ fun HomeScreen(
                         visible = showHomeContentWithAnimation,
                         enter = if (hasShownInitialHomeContent) {
                             EnterTransition.None
-                        } else {
+                        } else if (FetchTheme.fullMotion) {
                             fadeIn(animationSpec = tween(FetchMotion.tokens.durations.medium)) +
                                 slideInVertically(
                                     initialOffsetY = { it / 24 },
                                     animationSpec = tween(FetchMotion.tokens.durations.medium)
                                 )
+                        } else {
+                            fadeIn(animationSpec = tween(FetchMotion.tokens.durations.medium))
                         }
                     ) {
                         ModernHomeRoute(

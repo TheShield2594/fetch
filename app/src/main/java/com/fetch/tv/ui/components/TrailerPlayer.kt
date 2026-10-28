@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -62,8 +63,14 @@ fun TrailerPlayer(
     overscanZoom: Float = 1f,
     autoCropLetterbox: Boolean = false,
     modifier: Modifier = Modifier,
-    enter: EnterTransition = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.long)),
-    exit: ExitTransition = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.slow)),
+    enter: EnterTransition = fadeIn(animationSpec = FetchMotion.enterTween()),
+    exit: ExitTransition = fadeOut(animationSpec = FetchMotion.exitTween()),
+    /**
+     * Fade the video in over [FetchMotion] `medium` once its first frame renders. Callers that
+     * keep an opaque cover image above the player pass false, so the video is fully opaque
+     * underneath before their cover fades away.
+     */
+    firstFrameFadeIn: Boolean = true,
     trailerPlayerPool: TrailerPlayerPool? = null
 ) {
     val context = LocalContext.current
@@ -80,7 +87,11 @@ fun TrailerPlayer(
     var hasRenderedFirstFrame by remember(trailerUrl) { mutableStateOf(false) }
     val playerAlphaState = animateFloatAsState(
         targetValue = if (isPlaying && hasRenderedFirstFrame) 1f else 0f,
-        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.medium),
+        animationSpec = if (firstFrameFadeIn) {
+            tween(durationMillis = FetchMotion.tokens.durations.medium)
+        } else {
+            snap()
+        },
         label = "trailerFirstFrameAlpha"
     )
     val playerViewRef = remember { mutableStateOf<PlayerView?>(null) }

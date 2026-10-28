@@ -4,6 +4,7 @@ import com.fetch.tv.core.streams.AddonHealth
 import com.fetch.tv.core.streams.AddonHealthStatus
 import com.fetch.tv.core.streams.AddonRequestOutcome
 import com.fetch.tv.ui.theme.FetchPrimitives
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.graphics.Bitmap
@@ -305,7 +306,7 @@ fun AddonManagerScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .animateContentSize(),
+                            .animateContentSize(animationSpec = FetchMotion.moveTween()),
                         colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundCard),
                         shape = RoundedCornerShape(FetchTheme.radii.md)
                     ) {
@@ -505,8 +506,18 @@ fun AddonManagerScreen(
                     key = { _, addon -> addon.baseUrl }
                 ) { index, addon ->
                     val bringIntoViewRequester = remember { BringIntoViewRequester() }
+                    val fullMotion = FetchTheme.fullMotion
+                    // Scroll once the card has landed, so bringIntoView targets its final slot.
+                    val settleMillis = if (fullMotion) FetchMotion.tokens.durations.move.toLong() else 50L
                     AddonCard(
-                        modifier = Modifier.bringIntoViewRequester(bringIntoViewRequester),
+                        // Moved cards slide to their new slot; added/removed cards still appear and vanish at once.
+                        modifier = Modifier
+                            .animateItem(
+                                fadeInSpec = null,
+                                placementSpec = if (fullMotion) FetchMotion.moveTween() else null,
+                                fadeOutSpec = null
+                            )
+                            .bringIntoViewRequester(bringIntoViewRequester),
                         addon = addon,
                         health = addonHealth[addon.displayName],
                         canMoveUp = index > 0,
@@ -514,14 +525,14 @@ fun AddonManagerScreen(
                         onMoveUp = {
                             viewModel.moveAddonUp(addon.baseUrl)
                             addonListScope.launch {
-                                kotlinx.coroutines.delay(50)
+                                kotlinx.coroutines.delay(settleMillis)
                                 bringIntoViewRequester.bringIntoView()
                             }
                         },
                         onMoveDown = {
                             viewModel.moveAddonDown(addon.baseUrl)
                             addonListScope.launch {
-                                kotlinx.coroutines.delay(50)
+                                kotlinx.coroutines.delay(settleMillis)
                                 bringIntoViewRequester.bringIntoView()
                             }
                         },
@@ -702,7 +713,7 @@ private fun ManageFromPhoneCard(
             )
         ),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
     ) {
         Row(
             modifier = Modifier
@@ -764,7 +775,7 @@ private fun CatalogOrderEntryCard(onClick: () -> Unit) {
             )
         ),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
     ) {
         Row(
             modifier = Modifier
@@ -853,7 +864,7 @@ private fun NavigationEntryCard(
             )
         ),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
     ) {
         Row(
             modifier = Modifier
@@ -919,7 +930,7 @@ private fun RefreshAddonsEntryCard(
             )
         ),
         shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.01f)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = FetchTheme.focus.subtleScale)
     ) {
         Row(
             modifier = Modifier
@@ -1371,7 +1382,7 @@ private fun AddonCard(
             onClick = { },
             modifier = modifier
                 .fillMaxWidth()
-                .animateContentSize(),
+                .animateContentSize(animationSpec = FetchMotion.moveTween()),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
                 focusedContainerColor = FetchTheme.colors.BackgroundCard
@@ -1395,7 +1406,7 @@ private fun AddonCard(
         Card(
             modifier = modifier
                 .fillMaxWidth()
-                .animateContentSize()
+                .animateContentSize(animationSpec = FetchMotion.moveTween())
                 .focusProperties {
                     enter = { effectiveToggleFocusRequester }
                 }

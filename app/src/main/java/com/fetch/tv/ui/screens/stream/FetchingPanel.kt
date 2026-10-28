@@ -1,7 +1,10 @@
 package com.fetch.tv.ui.screens.stream
 
 import android.os.SystemClock
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.pluralStringResource
@@ -68,6 +71,9 @@ internal fun FetchingPanel(
     val playNowFocus = remember { FocusRequester() }
     val seeAllFocus = remember { FocusRequester() }
     val hasBest = bestSoFar != null
+    // Kept while "Best so far" fades out, if the best stream is ever withdrawn.
+    val shownBest = remember { mutableStateOf(bestSoFar) }
+    if (bestSoFar != null) shownBest.value = bestSoFar
     // Names in the order their addons answered, so the filled dots grow from the left.
     val answerOrder = remember { mutableStateListOf<String>() }
     LaunchedEffect(sourceChips) {
@@ -111,35 +117,45 @@ internal fun FetchingPanel(
             }
         }
 
-        if (bestSoFar != null) {
-            Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
-                Text(
-                    text = stringResource(R.string.fetching_best_so_far).uppercase(),
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                    color = FetchTheme.colors.TextSecondary
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
-                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-                ) {
-                    bestSoFar.labels.forEach { label -> SpecChip(label) }
-                    if (bestSoFar.isCached) {
-                        SpecChip(stringResource(R.string.best_match_cached), highlighted = true)
-                    }
-                    bestSoFar.addonName?.let { name ->
-                        Text(
-                            text = name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = FetchTheme.colors.TextSecondary,
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
+        AnimatedVisibility(
+            visible = hasBest,
+            enter = fadeIn(FetchMotion.enterTween()),
+            exit = fadeOut(FetchMotion.exitTween())
+        ) {
+            shownBest.value?.let { best ->
+                Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+                    Text(
+                        text = stringResource(R.string.fetching_best_so_far).uppercase(),
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        color = FetchTheme.colors.TextSecondary
+                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+                    ) {
+                        best.labels.forEach { label -> SpecChip(label) }
+                        if (best.isCached) {
+                            SpecChip(stringResource(R.string.best_match_cached), highlighted = true)
+                        }
+                        best.addonName?.let { name ->
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = FetchTheme.colors.TextSecondary,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
                     }
                 }
             }
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-            if (bestSoFar != null) {
+            AnimatedVisibility(
+                visible = hasBest,
+                enter = fadeIn(FetchMotion.enterTween()),
+                exit = fadeOut(FetchMotion.exitTween())
+            ) {
                 PanelButton(
                     text = stringResource(R.string.fetching_play_now),
                     primary = true,
@@ -204,7 +220,7 @@ private fun SpecChip(text: String, highlighted: Boolean = false) {
 
 @Composable
 private fun AddonStatus(chip: SourceChipItem) {
-    val dotColor by animateColorAsState(
+    val dotColor = animateColorAsState(
         targetValue = when (chip.status) {
             SourceChipStatus.SUCCESS -> FetchTheme.colors.Success
             SourceChipStatus.LOADING -> FetchTheme.colors.TextSecondary
@@ -220,7 +236,8 @@ private fun AddonStatus(chip: SourceChipItem) {
         Box(
             modifier = Modifier
                 .size(8.dp)
-                .background(dotColor, CircleShape)
+                // Colour read while drawing, so a status change only redraws the dot.
+                .drawBehind { drawCircle(dotColor.value) }
         )
         Text(
             text = if (chip.status == SourceChipStatus.TIMED_OUT) {

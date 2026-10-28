@@ -59,6 +59,7 @@ fun SourceStatusFilterChip(
     val shakeOffsetPx = remember { Animatable(0f) }
     val alphaPulse = remember { Animatable(1f) }
 
+    val fullMotion = FetchTheme.fullMotion
     LaunchedEffect(isError) {
         shakeOffsetPx.snapTo(0f)
         alphaPulse.snapTo(1f)
@@ -72,6 +73,9 @@ fun SourceStatusFilterChip(
             targetValue = 1f,
             animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast, easing = FastOutSlowInEasing)
         )
+
+        // Reduced motion keeps the pulse and the error colours, without moving the chip.
+        if (!fullMotion) return@LaunchedEffect
 
         // Two gentle shakes (less abrupt than the previous infinite shake/blink loop).
         shakeOffsetPx.animateTo(3f, tween(FetchMotion.tokens.durations.quick, easing = FastOutSlowInEasing))

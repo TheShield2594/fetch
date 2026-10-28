@@ -1051,7 +1051,7 @@ private fun RecentSearchesSection(
                 ) {
                     var isSearchFocused by remember(recentQuery) { mutableStateOf(false) }
                     val searchScale by animateFloatAsState(
-                        targetValue = if (isSearchFocused) 1.02f else 1f,
+                        targetValue = if (isSearchFocused) FetchTheme.focus.scale else 1f,
                         animationSpec = tween(durationMillis = FetchMotion.tokens.durations.quick),
                         label = "recentSearchScale"
                     )

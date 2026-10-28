@@ -739,8 +739,8 @@ fun ProfileSelectionScreen(
         // Create Profile Overlay
         AnimatedVisibility(
             visible = showCreateProfile,
-            enter = fadeIn(tween(FetchMotion.tokens.durations.fast)),
-            exit = fadeOut(tween(FetchMotion.tokens.durations.quick))
+            enter = fadeIn(FetchMotion.enterTween()),
+            exit = fadeOut(FetchMotion.exitTween())
         ) {
             CreateProfileOverlay(
                 profiles = profiles,
@@ -784,29 +784,45 @@ fun ProfileSelectionScreen(
         }
 
         // Edit Profile Overlay
-        profileToEdit?.let { profile ->
-            val editorPreferences by remember(profile.id) {
-                viewModel.editorPreferences(profile.id)
-            }.collectAsState(initial = null)
-            EditProfileOverlay(
-                profile = profile,
-                avatarCatalog = avatarCatalog,
-                profileBackgroundCatalog = profileBackgroundCatalog,
-                hasProfileBackgroundAccess = hasProfileBackgroundAccess,
-                preferences = editorPreferences,
-                isSaving = isSaving,
-                avatarUrlResolver = { avatarId -> viewModel.getAvatarImageUrl(avatarId) },
-                onDismiss = { profileToEdit = null },
-                onSaveProfile = { updated, preferences ->
-                    viewModel.updateProfile(updated, preferences, editorPreferences) { saved ->
-                        if (saved) {
-                            profileToEdit = null
-                        } else {
-                            profileActionMessage = context.getString(R.string.profile_save_error)
+        // Keeps the last profile on screen while the overlay fades out, so it doesn't go blank.
+        val lastProfileToEdit = remember { mutableStateOf<UserProfile?>(null) }
+        profileToEdit?.let { lastProfileToEdit.value = it }
+        AnimatedVisibility(
+            visible = profileToEdit != null,
+            enter = fadeIn(FetchMotion.enterTween()),
+            exit = fadeOut(FetchMotion.exitTween())
+        ) {
+            // Ignore keys while fading out, so a quick second OK can't save twice.
+            // Exiting exactly when there is no profile to edit (reopening mid-fade clears it).
+            val exiting = profileToEdit == null
+            Box(modifier = Modifier.onPreviewKeyEvent { exiting }) {
+                lastProfileToEdit.value?.let { profile ->
+                    val editorPreferences by remember(profile.id) {
+                        viewModel.editorPreferences(profile.id)
+                    }.collectAsState(initial = null)
+                    EditProfileOverlay(
+                        profile = profile,
+                        avatarCatalog = avatarCatalog,
+                        profileBackgroundCatalog = profileBackgroundCatalog,
+                        hasProfileBackgroundAccess = hasProfileBackgroundAccess,
+                        preferences = editorPreferences,
+                        isSaving = isSaving,
+                        avatarUrlResolver = { avatarId -> viewModel.getAvatarImageUrl(avatarId) },
+                        onDismiss = { profileToEdit = null },
+                        onSaveProfile = onSave@{ updated, preferences ->
+                            // Closing: a click or accessibility action during the fade-out must not save again.
+                            if (profileToEdit == null) return@onSave
+                            viewModel.updateProfile(updated, preferences, editorPreferences) { saved ->
+                                if (saved) {
+                                    profileToEdit = null
+                                } else {
+                                    profileActionMessage = context.getString(R.string.profile_save_error)
+                                }
+                            }
                         }
-                    }
+                    )
                 }
-            )
+            }
         }
 
         LaunchedEffect(profileActionMessage) {
@@ -2586,19 +2602,7 @@ internal fun ProfilePinOverlay(
     var isInputFocused by remember(state) { mutableStateOf(false) }
     var keyboardWasVisible by remember(state) { mutableStateOf(false) }
     val shakeOffset = remember(state) { androidx.compose.animation.core.Animatable(0f) }
-    val cursorAlpha = if (FetchTheme.fullMotion) {
-        rememberInfiniteTransition(label = "pinCursor").animateFloat(
-            initialValue = 0.25f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(FetchMotion.tokens.durations.slow),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "pinCursorAlpha"
-        ).value
-    } else {
-        1f
-    }
+    val fullMotion = FetchTheme.fullMotion
     val resolvedErrorMessage = if (isSingleEntryMode) errorMessage else internalErrorMessage ?: errorMessage
     val isErrorState = !resolvedErrorMessage.isNullOrEmpty()
     val mismatchMessage = stringResource(R.string.profile_pin_overlay_mismatch)
@@ -2657,6 +2661,8 @@ internal fun ProfilePinOverlay(
 
     suspend fun playErrorAnimation() {
         shakeOffset.snapTo(0f)
+        // Reduced motion: the red PIN boxes and the message carry the error; the boxes don't shake.
+        if (!fullMotion) return
         listOf(-22f, 18f, -14f, 10f, -6f, 0f).forEach { offset ->
             shakeOffset.animateTo(offset, animationSpec = tween(42))
         }
@@ -2837,7 +2843,6 @@ internal fun ProfilePinOverlay(
                 isWorking = isWorking,
                 isErrorState = isErrorState,
                 isInputFocused = isInputFocused,
-                cursorAlpha = cursorAlpha,
                 compactMode = shouldUseCompactLayout,
                 modifier = Modifier.graphicsLayer {
                     translationX = shakeOffset.value
@@ -2933,7 +2938,6 @@ private fun ProfilePinBoxes(
     isWorking: Boolean,
     isErrorState: Boolean,
     isInputFocused: Boolean,
-    cursorAlpha: Float,
     compactMode: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -3021,19 +3025,37 @@ private fun ProfilePinBoxes(
                         )
                     }
 
-                    isActive -> {
-                        Box(
-                            modifier = Modifier
-                                .width(FetchTheme.spacing.xxs)
-                                .height(activeCursorHeight)
-                                .background(Color.White.copy(alpha = cursorAlpha))
-                        )
-                    }
+                    isActive -> PinCursor(height = activeCursorHeight)
                 }
             }
         }
     }
     }
+}
+
+/** The caret in the active PIN box. Its blink lives here and is read in the layer, so only the caret redraws. */
+@Composable
+private fun PinCursor(height: Dp) {
+    val blink = if (FetchTheme.fullMotion) {
+        rememberInfiniteTransition(label = "pinCursor").animateFloat(
+            initialValue = 1f,
+            targetValue = 0.25f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(FetchMotion.tokens.durations.slow),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pinCursorAlpha"
+        )
+    } else {
+        null
+    }
+    Box(
+        modifier = Modifier
+            .width(FetchTheme.spacing.xxs)
+            .height(height)
+            .graphicsLayer { alpha = blink?.value ?: 1f }
+            .background(Color.White)
+    )
 }
 
 @Composable

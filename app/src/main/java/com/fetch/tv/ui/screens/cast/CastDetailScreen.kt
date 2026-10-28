@@ -1,10 +1,13 @@
 package com.fetch.tv.ui.screens.cast
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -91,7 +94,8 @@ import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.PosterCardStyle
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.ui.components.LocalLandscapePosterMode
-import com.fetch.tv.ui.components.rememberShimmerBrush
+import com.fetch.tv.ui.components.rememberSkeletonShimmer
+import com.fetch.tv.ui.components.skeletonShimmer
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -250,55 +254,51 @@ private fun CastDetailContent(
         )
 
         // Main content
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn()
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                HeroSection(
-                    person = person,
-                    isBiographyExpanded = isBiographyExpanded,
-                    isBiographyTruncated = isBiographyTruncated,
-                    onBiographyTruncationChanged = { isBiographyTruncated = it },
-                    onPortraitClick = {
-                        if (isBiographyExpanded || isBiographyTruncated) {
-                            onBiographyExpandedChange(!isBiographyExpanded)
-                        }
-                    },
-                    modifier = if (isBiographyExpanded) Modifier.weight(1f) else Modifier
-                )
-
-                AnimatedVisibility(
-                    visible = allCredits.isNotEmpty() && !isBiographyExpanded,
-                    enter = fadeIn() +
-                        expandVertically(expandFrom = Alignment.Top) +
-                        slideInVertically(initialOffsetY = { it / 2 }),
-                    exit = fadeOut() +
-                        shrinkVertically(shrinkTowards = Alignment.Top) +
-                        slideOutVertically(targetOffsetY = { it })
-                ) {
-                    Column {
-                        SectionHeader(
-                            title = stringResource(R.string.cast_detail_filmography),
-                            count = allCredits.size
-                        )
-                        FilmographyRow(
-                            credits = allCredits,
-                            posterCardStyle = filmographyPosterStyle,
-                            firstItemFocusRequester = firstPosterFocusRequester,
-                            restoreItemId = pendingRestoreItemId,
-                            restoreFocusToken = restoreFocusToken,
-                            onRestoreFocusHandled = { pendingRestoreItemId = null },
-                            onItemClick = { item ->
-                                pendingRestoreItemId = item.id
-                                onNavigateToDetail(item.id, item.apiType, null)
-                            },
-                            onItemLongPress = { item ->
-                                posterOptions.show(item, null)
-                            },
-                            isItemWatched = isItemWatched
-                        )
+        Column(modifier = Modifier.fillMaxSize()) {
+            HeroSection(
+                person = person,
+                isBiographyExpanded = isBiographyExpanded,
+                isBiographyTruncated = isBiographyTruncated,
+                onBiographyTruncationChanged = { isBiographyTruncated = it },
+                onPortraitClick = {
+                    if (isBiographyExpanded || isBiographyTruncated) {
+                        onBiographyExpandedChange(!isBiographyExpanded)
                     }
+                },
+                modifier = if (isBiographyExpanded) Modifier.weight(1f) else Modifier
+            )
+
+            val fullMotion = FetchTheme.fullMotion
+            AnimatedVisibility(
+                visible = allCredits.isNotEmpty() && !isBiographyExpanded,
+                enter = fadeIn(FetchMotion.enterTween()) +
+                    expandVertically(FetchMotion.moveTween(), expandFrom = Alignment.Top) +
+                    (if (fullMotion) slideInVertically(FetchMotion.enterTween()) { it / 4 } else EnterTransition.None),
+                exit = fadeOut(FetchMotion.exitTween()) +
+                    shrinkVertically(FetchMotion.moveTween(), shrinkTowards = Alignment.Top) +
+                    (if (fullMotion) slideOutVertically(FetchMotion.exitTween()) { it / 4 } else ExitTransition.None)
+            ) {
+                Column {
+                    SectionHeader(
+                        title = stringResource(R.string.cast_detail_filmography),
+                        count = allCredits.size
+                    )
+                    FilmographyRow(
+                        credits = allCredits,
+                        posterCardStyle = filmographyPosterStyle,
+                        firstItemFocusRequester = firstPosterFocusRequester,
+                        restoreItemId = pendingRestoreItemId,
+                        restoreFocusToken = restoreFocusToken,
+                        onRestoreFocusHandled = { pendingRestoreItemId = null },
+                        onItemClick = { item ->
+                            pendingRestoreItemId = item.id
+                            onNavigateToDetail(item.id, item.apiType, null)
+                        },
+                        onItemLongPress = { item ->
+                            posterOptions.show(item, null)
+                        },
+                        isItemWatched = isItemWatched
+                    )
                 }
             }
         }
@@ -655,7 +655,7 @@ private fun FilmographyRow(
 private fun CastDetailSkeleton(personName: String) {
     val backgroundColor = FetchTheme.colors.Background
     val accentColor = FetchTheme.colors.Secondary
-    val shimmerBrush = rememberShimmerBrush()
+    val shimmer = rememberSkeletonShimmer()
 
     Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
         val accentGradient = remember(accentColor, backgroundColor) {
@@ -685,7 +685,7 @@ private fun CastDetailSkeleton(personName: String) {
                         .width(160.dp)
                         .height(240.dp)
                         .clip(RoundedCornerShape(FetchTheme.radii.xl))
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
 
                 Spacer(modifier = Modifier.width(FetchTheme.spacing.xl))
@@ -711,7 +711,7 @@ private fun CastDetailSkeleton(personName: String) {
                                 .fillMaxWidth(if (it == 0) 0.60f else if (it == 1) 0.48f else 0.72f)
                                 .height(14.dp)
                                 .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                                .background(shimmerBrush)
+                                .skeletonShimmer(shimmer)
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
@@ -721,7 +721,7 @@ private fun CastDetailSkeleton(personName: String) {
                             .fillMaxWidth(0.86f)
                             .height(14.dp)
                             .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                            .background(shimmerBrush)
+                            .skeletonShimmer(shimmer)
                     )
                 }
             }
@@ -738,7 +738,7 @@ private fun CastDetailSkeleton(personName: String) {
                         .width(140.dp)
                         .height(20.dp)
                         .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
                 Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
                 Box(
@@ -746,7 +746,7 @@ private fun CastDetailSkeleton(personName: String) {
                         .width(36.dp)
                         .height(18.dp)
                         .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
             }
 
@@ -764,7 +764,7 @@ private fun CastDetailSkeleton(personName: String) {
                                 .width(112.dp)
                                 .height(168.dp)
                                 .clip(RoundedCornerShape(PosterCardDefaults.Style.cornerRadius))
-                                .background(shimmerBrush)
+                                .skeletonShimmer(shimmer)
                         )
                         Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
                         Box(
@@ -772,7 +772,7 @@ private fun CastDetailSkeleton(personName: String) {
                                 .fillMaxWidth()
                                 .height(FetchTheme.spacing.lg)
                                 .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                                .background(shimmerBrush)
+                                .skeletonShimmer(shimmer)
                         )
                     }
                 }

@@ -388,7 +388,9 @@ fun ContentCard(
                     shape = cardShape
                 )
             ),
-            scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
+            scale = CardDefaults.scale(
+                focusedScale = if (FetchTheme.fullMotion) posterCardStyle.focusedScale else FetchMotion.tokens.reducedMotionScale
+            )
         ) {
             Box(
                 modifier = Modifier
@@ -441,16 +443,18 @@ fun ContentCard(
                     }
                 }
 
-                // Only allocate animation state when trailer is actually playing.
-                val trailerCoverAlpha = if (shouldPlayTrailerPreview) {
-                    val alpha by animateFloatAsState(
+                // Only allocate animation state when trailer is actually playing. Held as a State
+                // and read in the cover's graphicsLayer, so the fade redraws without recomposing.
+                // The player snaps opaque under the cover (firstFrameFadeIn = false), so the cover
+                // fading out never reveals the black plate.
+                val trailerCoverAlphaState = if (shouldPlayTrailerPreview) {
+                    animateFloatAsState(
                         targetValue = if (!trailerFirstFrameRendered) 1f else 0f,
-                        animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
+                        animationSpec = FetchMotion.exitTween(),
                         label = "trailerCoverAlpha"
                     )
-                    alpha
                 } else {
-                    0f
+                    null
                 }
 
                 if (shouldPlayTrailerPreview) {
@@ -475,7 +479,8 @@ fun ContentCard(
                             trailerFirstFrameRendered = true
                         },
                         modifier = Modifier.fillMaxSize(),
-                        muted = focusedPosterBackdropTrailerMuted
+                        muted = focusedPosterBackdropTrailerMuted,
+                        firstFrameFadeIn = false
                     )
                 }
 
@@ -485,7 +490,7 @@ fun ContentCard(
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxSize()
-                            .graphicsLayer { alpha = trailerCoverAlpha },
+                            .graphicsLayer { alpha = trailerCoverAlphaState?.value ?: 0f },
                         contentScale = ContentScale.Crop
                     )
                 }

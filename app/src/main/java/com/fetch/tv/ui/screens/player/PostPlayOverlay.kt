@@ -9,6 +9,8 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
@@ -35,6 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +45,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
 import androidx.compose.ui.focus.focusProperties
@@ -95,10 +101,18 @@ fun PostPlayOverlay(
 
     transition.AnimatedVisibility(
         visible = { it != null },
-        enter = slideInHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), initialOffsetX = { it / 2 }) +
-            fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
-        exit = slideOutHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), targetOffsetX = { it / 2 }) +
-            fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+        enter = if (FetchTheme.fullMotion) {
+            slideInHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), initialOffsetX = { it / 2 }) +
+                fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast))
+        } else {
+            fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast))
+        },
+        exit = if (FetchTheme.fullMotion) {
+            slideOutHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), targetOffsetX = { it / 2 }) +
+                fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
+        } else {
+            fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
+        },
         modifier = modifier,
     ) {
         val onCardClick: () -> Unit = when {
@@ -176,6 +190,26 @@ private fun AutoPlayBody(
 ) {
     val nextEpisode = mode.nextEpisode
     val isPlayable = nextEpisode.hasAired
+    // Elapsed share of the autoplay countdown, paced by the controller's own ticks.
+    val countdownFill = remember { Animatable(0f) }
+    val fullMotion = FetchTheme.fullMotion
+    val countdownSec = mode.countdownSec
+    LaunchedEffect(countdownSec) {
+        if (countdownSec == null) {
+            countdownFill.snapTo(0f)
+            return@LaunchedEffect
+        }
+        val total = AUTO_PLAY_COUNTDOWN_SECONDS.toFloat()
+        val tickStart = ((total - countdownSec) / total).coerceIn(0f, 1f)
+        val tickEnd = ((total - countdownSec + 1) / total).coerceIn(0f, 1f)
+        if (countdownFill.value < tickStart) countdownFill.snapTo(tickStart)
+        if (fullMotion) {
+            countdownFill.animateTo(tickEnd, tween(POST_PLAY_COUNTDOWN_TICK_MS, easing = LinearEasing))
+        } else {
+            countdownFill.snapTo(tickEnd)
+        }
+    }
+    val showCountdownFill = isPlayable && countdownSec != null
     Row(
         modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically,
@@ -221,6 +255,19 @@ private fun AutoPlayBody(
             modifier = Modifier
                 .padding(start = FetchTheme.spacing.sm)
                 .clip(CircleShape)
+                // Autoplay countdown, read while drawing only.
+                .drawBehind {
+                    if (!showCountdownFill) return@drawBehind
+                    val fraction = countdownFill.value.coerceIn(0f, 1f)
+                    if (fraction <= 0f) return@drawBehind
+                    val fillWidth = size.width * fraction
+                    val left = if (layoutDirection == LayoutDirection.Rtl) size.width - fillWidth else 0f
+                    drawRect(
+                        color = Color.White.copy(alpha = 0.16f),
+                        topLeft = Offset(left, 0f),
+                        size = Size(fillWidth, size.height),
+                    )
+                }
                 .border(
                     BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.2f)),
                     CircleShape,

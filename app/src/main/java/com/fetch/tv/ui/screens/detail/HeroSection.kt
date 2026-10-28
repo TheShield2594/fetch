@@ -4,6 +4,7 @@ import com.fetch.tv.ui.theme.FetchRadii
 import androidx.tv.material3.LocalContentColor
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
+import com.fetch.tv.ui.components.focusLabelEntrance
 import com.fetch.tv.ui.components.PlayLaunchOrigin
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
@@ -13,13 +14,10 @@ import com.fetch.tv.ui.theme.FetchMotion
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -95,8 +93,30 @@ import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.rememberRawSvgPainter
 import java.util.Locale
 import com.fetch.tv.ui.theme.FetchStatusTones
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.snap
+import androidx.compose.foundation.layout.offset
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
+import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 private const val MAX_VISIBLE_HERO_GENRES = 6
+
+/** How small the logo draws while a trailer plays, from its bottom-start corner. */
+private const val TRAILER_LOGO_SCALE = 0.5f
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -174,42 +194,47 @@ fun HeroContentSection(
         }
     }
 
-    // Animate logo properties for trailer mode
-    val logoHeight by animateDpAsState(
-        targetValue = if (isTrailerPlaying) 60.dp else 100.dp,
-        animationSpec = tween(FetchMotion.tokens.durations.long),
-        label = "logoHeight"
-    )
-    val logoBottomPadding by animateDpAsState(
-        targetValue = if (isTrailerPlaying) FetchTheme.spacing.xl else FetchTheme.spacing.lg,
-        animationSpec = tween(FetchMotion.tokens.durations.long),
-        label = "logoPadding"
-    )
-    val logoMaxWidth by animateFloatAsState(
-        targetValue = if (isTrailerPlaying) 0.25f else 0.4f,
-        animationSpec = tween(FetchMotion.tokens.durations.long),
-        label = "logoWidth"
-    )
+    val fullMotion = FetchTheme.fullMotion
+    // The details fade out first, and only then does the hero take its trailer layout, so
+    // nothing still visible jumps. Coming back, the layout returns at once and they fade in.
+    val heroDetailsVisibility = remember { MutableTransitionState(!isTrailerPlaying) }
+    val upNextVisibility = remember { MutableTransitionState(!isTrailerPlaying) }
+    SideEffect {
+        heroDetailsVisibility.targetState = !isTrailerPlaying
+        upNextVisibility.targetState = !isTrailerPlaying
+    }
+    val trailerLayout = isTrailerPlaying &&
+        !heroDetailsVisibility.currentState &&
+        (upNext == null || !upNextVisibility.currentState)
     // During a trailer the hero fills the screen so the logo sits at the bottom
     // on screens taller than the hero (lower-density TV boxes).
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-    val heroHeight by animateDpAsState(
-        targetValue = if (isTrailerPlaying) maxOf(540.dp, screenHeight) else 540.dp,
-        animationSpec = tween(FetchMotion.tokens.durations.long),
-        label = "heroHeight"
+    val heroHeight = if (trailerLayout) maxOf(540.dp, screenHeight) else 540.dp
+    val logoScale = animateFloatAsState(
+        targetValue = if (trailerLayout) TRAILER_LOGO_SCALE else 1f,
+        animationSpec = if (fullMotion) FetchMotion.moveTween() else snap(),
+        label = "logoScale"
     )
+    val logoOrigin = if (LocalLayoutDirection.current == LayoutDirection.Rtl) {
+        TransformOrigin(1f, 1f)
+    } else {
+        TransformOrigin(0f, 1f)
+    }
+    // The logo's layout top within the hero, and the glide that draws it from where it was.
+    var heroCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var logoLayoutTop by remember { mutableFloatStateOf(Float.NaN) }
+    var logoGlide by remember { mutableStateOf<Animatable<Float, AnimationVector1D>?>(null) }
+    val logoGlideScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(heroHeight),
+            .height(heroHeight)
+            .onPlaced { heroCoordinates = it },
         verticalArrangement = Arrangement.Bottom
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .animateContentSize(
-                    animationSpec = tween(FetchMotion.tokens.durations.long)
-                )
                 .padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, bottom = FetchTheme.spacing.lg),
             verticalArrangement = Arrangement.Bottom
         ) {
@@ -220,9 +245,33 @@ fun HeroContentSection(
                     contentDescription = meta.name,
                     onError = { logoLoadFailed = true },
                     modifier = Modifier
-                        .height(logoHeight)
-                        .fillMaxWidth(logoMaxWidth)
-                        .padding(bottom = logoBottomPadding),
+                        // Positions are measured from the hero, so scrolling the page never moves the glide.
+                        .onPlaced { coordinates ->
+                            val hero = heroCoordinates ?: return@onPlaced
+                            logoLayoutTop = hero.localPositionOf(coordinates, Offset.Zero).y
+                        }
+                        .offset {
+                            val target = logoLayoutTop
+                            if (target.isNaN() || !fullMotion) {
+                                logoGlide = null
+                                return@offset IntOffset.Zero
+                            }
+                            val glide = logoGlide ?: Animatable(target).also { logoGlide = it }
+                            if (glide.targetValue != target) {
+                                logoGlideScope.launch { glide.animateTo(target, FetchMotion.moveTween()) }
+                            }
+                            // Drawn where the glide is, so a snapped layout never shows a jump.
+                            IntOffset(0, (glide.value - target).roundToInt())
+                        }
+                        .padding(bottom = if (trailerLayout) FetchTheme.spacing.xl else FetchTheme.spacing.lg)
+                        // 100dp slot minus the 16dp resting padding: today's resting image area.
+                        .height(84.dp)
+                        .fillMaxWidth(0.4f)
+                        .graphicsLayer {
+                            scaleX = logoScale.value
+                            scaleY = logoScale.value
+                            transformOrigin = logoOrigin
+                        },
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.CenterStart
                 )
@@ -230,8 +279,8 @@ fun HeroContentSection(
                 // Text title hides entirely during trailer
                 AnimatedVisibility(
                     visible = !isTrailerPlaying,
-                    enter = fadeIn(tween(FetchMotion.tokens.durations.overlay)),
-                    exit = fadeOut(tween(FetchMotion.tokens.durations.overlay))
+                    enter = fadeIn(FetchMotion.enterTween()),
+                    exit = fadeOut(FetchMotion.exitTween())
                 ) {
                     Text(
                         text = meta.name,
@@ -246,9 +295,10 @@ fun HeroContentSection(
 
             // Everything below the logo fades out during trailer
             AnimatedVisibility(
-                visible = isTrailerPlaying && !hideLogoDuringTrailer,
-                enter = fadeIn(tween(FetchMotion.tokens.durations.long)),
-                exit = fadeOut(tween(FetchMotion.tokens.durations.medium))
+                visible = trailerLayout && !hideLogoDuringTrailer,
+                enter = fadeIn(FetchMotion.enterTween()),
+                // Leaves at once, so the returning logo moves in one glide, not two.
+                exit = ExitTransition.None
             ) {
                 Text(
                     text = stringResource(R.string.hero_press_back_trailer),
@@ -260,9 +310,9 @@ fun HeroContentSection(
 
             // Everything below the logo fades out during trailer
             AnimatedVisibility(
-                visible = !isTrailerPlaying,
-                enter = fadeIn(tween(FetchMotion.tokens.durations.overlay)),
-                exit = fadeOut(tween(FetchMotion.tokens.durations.overlay))
+                visibleState = heroDetailsVisibility,
+                enter = fadeIn(FetchMotion.enterTween()),
+                exit = fadeOut(FetchMotion.exitTween())
             ) {
                 Column {
                     Row(
@@ -405,9 +455,9 @@ fun HeroContentSection(
         // Full width, so the row keeps its own edge padding and scrolls to the screen edge.
         if (upNext != null) {
             AnimatedVisibility(
-                visible = !isTrailerPlaying,
-                enter = fadeIn(tween(FetchMotion.tokens.durations.overlay)),
-                exit = fadeOut(tween(FetchMotion.tokens.durations.overlay))
+                visibleState = upNextVisibility,
+                enter = fadeIn(FetchMotion.enterTween()),
+                exit = fadeOut(FetchMotion.exitTween())
             ) {
                 upNext()
             }
@@ -713,13 +763,9 @@ private fun ActionIconButton(
  */
 @Composable
 private fun ActionFocusLabel(text: String, visible: Boolean) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(tween(FetchMotion.tokens.durations.fast)) +
-            expandHorizontally(tween(FetchMotion.tokens.durations.fast)),
-        exit = fadeOut(tween(FetchMotion.tokens.durations.quick)) +
-            shrinkHorizontally(tween(FetchMotion.tokens.durations.quick))
-    ) {
+    // In and out of layout in one frame, with focus, so the buttons after it shift once instead of
+    // sliding under the focus ring; only the fade and slide animate, in the draw layer.
+    if (visible) {
         Text(
             text = text,
             color = FetchTheme.colors.TextPrimary,
@@ -728,6 +774,7 @@ private fun ActionFocusLabel(text: String, visible: Boolean) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .padding(start = FetchTheme.spacing.sm)
+                .focusLabelEntrance()
                 .clearAndSetSemantics { }
                 .background(FetchTheme.colors.BackgroundCard, FetchTheme.shapes.navItem)
                 .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)

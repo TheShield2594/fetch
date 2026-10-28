@@ -4,11 +4,14 @@ package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.FetchMotion
 
 import android.util.Log
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
@@ -49,7 +52,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
@@ -77,8 +79,6 @@ import com.fetch.tv.ui.screens.player.autosync.AutoSyncedChip
 private const val SubtitleOffLanguageKey = "__off__"
 private const val SubtitleUnknownLanguageKey = "__unknown__"
 private const val SubtitleFocusTag = "SubtitleFocus"
-
-private const val RailFadeDurationMs = 120
 
 @Composable
 internal fun SubtitleSelectionOverlay(
@@ -601,22 +601,16 @@ private fun RailFadeIn(
     visible: Boolean,
     content: @Composable () -> Unit
 ) {
-    if (!visible) return
-
-    val alpha = remember { Animatable(0f) }
-
-    LaunchedEffect(Unit) {
-        alpha.snapTo(0f)
-        alpha.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(
-                durationMillis = RailFadeDurationMs,
-                easing = FastOutLinearInEasing
-            )
-        )
-    }
-
-    Box(modifier = Modifier.graphicsLayer(alpha = alpha.value)) {
+    // AnimatedVisibility retargets from the current alpha when a rail is toggled mid-fade.
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(tween(FetchMotion.tokens.durations.quick, easing = FetchMotion.tokens.easings.out)),
+        exit = fadeOut(tween(FetchMotion.tokens.durations.quick, easing = FetchMotion.tokens.easings.out)),
+        modifier = Modifier
+            // A rail that is fading out must not take D-pad focus.
+            .focusProperties { onEnter = { if (!visible) cancelFocusChange() } }
+            .focusGroup()
+    ) {
         content()
     }
 }

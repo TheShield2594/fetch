@@ -27,7 +27,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -39,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import androidx.compose.ui.zIndex
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -120,20 +120,21 @@ private fun PresenceDot(
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         if (state == PartyPresenceState.Busy) {
             // Reduced motion holds the halo still, partway out, so Busy still reads as a ring.
-            val pulse = if (FetchTheme.fullMotion) {
+            val pulseState = if (FetchTheme.fullMotion) {
                 rememberInfiniteTransition(label = "presence").animateFloat(
                     initialValue = 0f,
                     targetValue = 1f,
                     animationSpec = infiniteRepeatable(tween(1100), RepeatMode.Restart),
                     label = "presencePulse",
-                ).value
+                )
             } else {
-                0.35f
+                null
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
+                        val pulse = pulseState?.value ?: 0.35f
                         scaleX = 1f + pulse
                         scaleY = 1f + pulse
                         alpha = 1f - pulse
@@ -213,11 +214,16 @@ private fun StackSlot(
     animateIn: Boolean,
     content: @Composable () -> Unit,
 ) {
-    val scale = remember { Animatable(if (animateIn) 0f else 1f) }
+    val fullMotion = FetchTheme.fullMotion
+    // 0 → 1 drives both opacity and a 0.9 → 1 scale; the bouncy spring overshoots 1 slightly.
+    val progress = remember { Animatable(if (animateIn) 0f else 1f) }
     if (animateIn) {
         LaunchedEffect(Unit) {
             delay(index * 90L)
-            scale.animateTo(1f, spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow))
+            progress.animateTo(
+                1f,
+                if (fullMotion) spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow) else FetchMotion.enterTween<Float>()
+            )
         }
     }
     Box(
@@ -225,8 +231,11 @@ private fun StackSlot(
             .offset(x = step * index)
             .zIndex((slots - index).toFloat())
             .graphicsLayer {
-                scaleX = scale.value
-                scaleY = scale.value
+                val p = progress.value
+                val s = if (fullMotion) lerp(0.9f, 1f, p) else 1f
+                scaleX = s
+                scaleY = s
+                alpha = p.coerceIn(0f, 1f)
             }
             .border(FetchTheme.strokes.medium, ringColor, CircleShape),
     ) {
@@ -289,20 +298,20 @@ internal fun SeatsHero(
 
 @Composable
 internal fun PulsingDot() {
-    val alpha = if (FetchTheme.fullMotion) {
+    val alphaState = if (FetchTheme.fullMotion) {
         rememberInfiniteTransition(label = "pulsingDot").animateFloat(
             initialValue = 1f,
             targetValue = 0.25f,
             animationSpec = infiniteRepeatable(tween(FetchMotion.tokens.durations.long), RepeatMode.Reverse),
             label = "pulsingDotAlpha",
-        ).value
+        )
     } else {
-        1f
+        null
     }
     Box(
         modifier = Modifier
             .size(8.dp)
-            .alpha(alpha)
+            .graphicsLayer { alpha = alphaState?.value ?: 1f }
             .clip(CircleShape)
             .background(FetchTheme.colors.Secondary),
     )

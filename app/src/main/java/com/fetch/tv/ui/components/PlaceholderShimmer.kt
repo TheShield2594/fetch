@@ -2,6 +2,7 @@ package com.fetch.tv.ui.components
 
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -36,7 +37,7 @@ fun rememberPlaceholderShimmerOffsetState(label: String): State<Float> {
         initialValue = -1f,
         targetValue = 2f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1600, easing = LinearEasing),
+            animation = tween(durationMillis = FetchMotion.tokens.durations.shimmer, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "shimmerOffset"

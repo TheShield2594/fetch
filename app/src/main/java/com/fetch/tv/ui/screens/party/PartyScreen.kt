@@ -178,6 +178,7 @@ private fun JoinContent(
     val firstKeyFocusRequester = remember { FocusRequester() }
     val submitFocusRequester = remember { FocusRequester() }
     val shake = remember { Animatable(0f) }
+    val fullMotion = FetchTheme.fullMotion
     val prefilled = remember { isValidPartyCode(initialCode) }
     var code by remember {
         mutableStateOf(if (prefilled) "" else normalizePartyCode(initialCode).take(PARTY_CODE_LENGTH))
@@ -195,6 +196,8 @@ private fun JoinContent(
 
     suspend fun reject(result: PartyError) {
         error = result
+        // Reduced motion: the error message below the code is the feedback; the code doesn't shake.
+        if (!fullMotion) return
         shake.animateTo(
             targetValue = 0f,
             animationSpec = keyframes {

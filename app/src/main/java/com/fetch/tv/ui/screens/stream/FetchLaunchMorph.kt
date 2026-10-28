@@ -14,7 +14,7 @@ import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 /** The share of the morph after which the Fetching panel's own content starts to show. */
-private const val CONTENT_REVEAL_START = 0.55f
+private const val CONTENT_REVEAL_START = 0.3f
 
 /** The shape stays the accent colour for this share of the morph, so it reads as the button. */
 private const val ACCENT_HOLD = 0.4f
@@ -50,7 +50,7 @@ internal fun FetchLaunchMorph(
     }
 }
 
-/** How visible the panel's content is at [progress] through the morph: it fades in at the end. */
+/** How visible the panel's content is at [progress] through the morph: it fades in over the last 70%. */
 internal fun launchContentAlpha(progress: Float): Float =
     ((progress - CONTENT_REVEAL_START) / (1f - CONTENT_REVEAL_START)).coerceIn(0f, 1f)
 

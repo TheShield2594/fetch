@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
 import com.fetch.tv.ui.theme.FetchRadii
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.AnimatedContent
@@ -813,19 +814,22 @@ fun CommentOverlay(
                 }
                 .padding(horizontal = FetchTheme.spacing.xl, vertical = 10.dp)
         ) {
+            val fullMotion = FetchTheme.fullMotion
             AnimatedContent(
                 targetState = review,
                 transitionSpec = {
+                    val enterFade = fadeIn(FetchMotion.enterTween())
+                    val exitFade = fadeOut(FetchMotion.exitTween())
                     when {
+                        !fullMotion || transitionDirection == 0 -> enterFade togetherWith exitFade
                         transitionDirection > 0 -> {
-                            slideInHorizontally(initialOffsetX = { it / 5 }) + fadeIn() togetherWith
-                                slideOutHorizontally(targetOffsetX = { -it / 5 }) + fadeOut()
+                            slideInHorizontally(FetchMotion.enterTween()) { it / 5 } + enterFade togetherWith
+                                slideOutHorizontally(FetchMotion.exitTween()) { -it / 5 } + exitFade
                         }
-                        transitionDirection < 0 -> {
-                            slideInHorizontally(initialOffsetX = { -it / 5 }) + fadeIn() togetherWith
-                                slideOutHorizontally(targetOffsetX = { it / 5 }) + fadeOut()
+                        else -> {
+                            slideInHorizontally(FetchMotion.enterTween()) { -it / 5 } + enterFade togetherWith
+                                slideOutHorizontally(FetchMotion.exitTween()) { it / 5 } + exitFade
                         }
-                        else -> fadeIn() togetherWith fadeOut()
                     }
                 },
                 label = "comment_overlay_transition",

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.tv.material3.Text
+import com.fetch.tv.ui.theme.FetchTheme
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -82,8 +83,10 @@ fun FocusScrollingText(
     // Read through a holder rather than capturing the value, because the effect is keyed on focus alone and the text can still be settling when it starts.
     val currentOverflowPx by rememberUpdatedState(overflowPx)
 
-    // Keyed on focus only, so the wait always starts when the card is focused instead of restarting every time layout revises the overflow.
-    LaunchedEffect(focused) {
+    // Reduced motion jumps a page at a time instead of scrolling, so the rest of the text is still reachable.
+    val fullMotion = FetchTheme.fullMotion
+    // Keyed on focus (and the motion setting) only, so the wait always starts when the card is focused instead of restarting every time layout revises the overflow.
+    LaunchedEffect(focused, fullMotion) {
         offsetPx.snapTo(0f)
         if (!focused) return@LaunchedEffect
 
@@ -94,21 +97,36 @@ fun FocusScrollingText(
             delay(startDelayMillis)
             val distancePx = currentOverflowPx
             if (distancePx <= 0) return@LaunchedEffect
-            offsetPx.animateTo(
-                targetValue = distancePx.toFloat(),
-                animationSpec = tween(
-                    durationMillis = focusScrollDurationMillis(distancePx, revealPxPerSecond),
-                    easing = LinearEasing
+            if (fullMotion) {
+                offsetPx.animateTo(
+                    targetValue = distancePx.toFloat(),
+                    animationSpec = tween(
+                        durationMillis = focusScrollDurationMillis(distancePx, revealPxPerSecond),
+                        easing = LinearEasing
+                    )
                 )
-            )
+            } else {
+                // A page at a time, holding on each, so the middle of a long description shows too.
+                val pagePx = collapsedHeightPx.coerceAtLeast(1)
+                var shownPx = 0
+                while (shownPx < distancePx) {
+                    shownPx = minOf(shownPx + pagePx, distancePx)
+                    offsetPx.snapTo(shownPx.toFloat())
+                    if (shownPx < distancePx) delay(EndHoldMillis)
+                }
+            }
             delay(EndHoldMillis)
-            offsetPx.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(
-                    durationMillis = focusScrollDurationMillis(distancePx, returnPxPerSecond),
-                    easing = LinearEasing
+            if (fullMotion) {
+                offsetPx.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(
+                        durationMillis = focusScrollDurationMillis(distancePx, returnPxPerSecond),
+                        easing = LinearEasing
+                    )
                 )
-            )
+            } else {
+                offsetPx.snapTo(0f)
+            }
         }
     }
 

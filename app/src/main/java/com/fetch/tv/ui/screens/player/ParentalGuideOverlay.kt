@@ -7,7 +7,7 @@ import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.accentBrush
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,23 +20,31 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private val ROW_HEIGHT = 18.dp
 private val ROW_GAP = FetchTheme.spacing.xxs
+/** Gap between consecutive items starting to fade, on the way in and out. */
+internal const val START_OVERLAY_ITEM_STAGGER_MS = 50L
+/** How long the playback-start overlays stay up before hiding themselves. */
+internal const val START_OVERLAY_HOLD_MS = 5_000L
 
 /**
  * Parental guide overlay showing content warnings with animated vertical line + staggered items.
@@ -63,40 +71,14 @@ fun ParentalGuideOverlay(
     val itemAlphas = remember(count) { List(count) { Animatable(0f) } }
     var animating by remember { mutableStateOf(false) }
 
+    val fullMotion = FetchTheme.fullMotion
+
     LaunchedEffect(isVisible) {
         if (isVisible && !animating) {
             animating = true
-
-            // FADE IN sequence
-            // Container fade in
-            containerAlpha.animateTo(1f, tween(FetchMotion.tokens.durations.medium))
-
-            // Line grows top to bottom
-            lineHeightFraction.animateTo(1f, tween(FetchMotion.tokens.durations.slow, easing = FastOutSlowInEasing))
-
-            // Items fade in one by one (staggered after line)
-            for (i in 0 until count) {
-                delay(80)
-                itemAlphas[i].animateTo(1f, tween(FetchMotion.tokens.durations.fast))
-            }
-
-            // Hold visible for 5 seconds
-            delay(5000)
-
-            // FADE OUT sequence: items reverse order (bottom to top)
-            for (i in (count - 1) downTo 0) {
-                delay(60)
-                itemAlphas[i].animateTo(0f, tween(FetchMotion.tokens.durations.quick))
-            }
-
-            // Line shrinks
-            delay(100)
-            lineHeightFraction.animateTo(0f, tween(FetchMotion.tokens.durations.medium, easing = FastOutSlowInEasing))
-
-            // Container fades out
-            delay(200)
-            containerAlpha.animateTo(0f, tween(FetchMotion.tokens.durations.fast))
-
+            playStartOverlayIn(fullMotion, containerAlpha, lineHeightFraction, itemAlphas)
+            delay(START_OVERLAY_HOLD_MS)
+            playStartOverlayOut(fullMotion, containerAlpha, lineHeightFraction, itemAlphas)
             animating = false
             onAnimationComplete()
         } else if (!isVisible && animating) {
@@ -111,11 +93,13 @@ fun ParentalGuideOverlay(
         }
     }
 
-    if (containerAlpha.value <= 0f) return
+    // Recompose only when the overlay appears or disappears, not on every fade frame.
+    val shown by remember { derivedStateOf { containerAlpha.value > 0f } }
+    if (!shown) return
 
     Row(
         modifier = modifier
-            .alpha(containerAlpha.value)
+            .graphicsLayer { alpha = containerAlpha.value }
             .padding(start = FetchTheme.spacing.xxl, top = FetchTheme.spacing.xl),
         verticalAlignment = Alignment.Top
     ) {
@@ -123,7 +107,12 @@ fun ParentalGuideOverlay(
         Box(
             modifier = Modifier
                 .width(3.dp)
-                .height((totalLineHeight * lineHeightFraction.value).dp)
+                .height(totalLineHeight.dp)
+                // Grows top-down as a transform, so the line never relayouts.
+                .graphicsLayer {
+                    scaleY = lineHeightFraction.value
+                    transformOrigin = TransformOrigin(0.5f, 0f)
+                }
                 .clip(RoundedCornerShape(FetchTheme.spacing.hairline))
                 .background(accentBrush)
         )
@@ -137,7 +126,7 @@ fun ParentalGuideOverlay(
                 Row(
                     modifier = Modifier
                         .height(ROW_HEIGHT)
-                        .alpha(itemAlphas.getOrNull(index)?.value ?: 0f),
+                        .graphicsLayer { alpha = itemAlphas.getOrNull(index)?.value ?: 0f },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -159,5 +148,60 @@ fun ParentalGuideOverlay(
                 }
             }
         }
+    }
+}
+
+/** Container fades in, the accent line grows top-down, then the items stagger in. */
+internal suspend fun playStartOverlayIn(
+    fullMotion: Boolean,
+    containerAlpha: Animatable<Float, AnimationVector1D>,
+    lineHeightFraction: Animatable<Float, AnimationVector1D>,
+    itemAlphas: List<Animatable<Float, AnimationVector1D>>
+) {
+    if (!fullMotion) {
+        lineHeightFraction.snapTo(1f)
+        itemAlphas.forEach { it.snapTo(1f) }
+        containerAlpha.animateTo(1f, FetchMotion.enterTween())
+        return
+    }
+    containerAlpha.animateTo(1f, FetchMotion.enterTween())
+    lineHeightFraction.animateTo(
+        1f,
+        tween(FetchMotion.tokens.durations.move, easing = FetchMotion.tokens.easings.out)
+    )
+    coroutineScope {
+        itemAlphas.forEachIndexed { index, alpha ->
+            launch {
+                delay(index * START_OVERLAY_ITEM_STAGGER_MS)
+                alpha.animateTo(1f, FetchMotion.enterTween())
+            }
+        }
+    }
+}
+
+/** Items stagger out bottom-up, then the line and the container leave together. */
+internal suspend fun playStartOverlayOut(
+    fullMotion: Boolean,
+    containerAlpha: Animatable<Float, AnimationVector1D>,
+    lineHeightFraction: Animatable<Float, AnimationVector1D>,
+    itemAlphas: List<Animatable<Float, AnimationVector1D>>
+) {
+    if (!fullMotion) {
+        containerAlpha.animateTo(0f, FetchMotion.exitTween())
+        lineHeightFraction.snapTo(0f)
+        itemAlphas.forEach { it.snapTo(0f) }
+        return
+    }
+    coroutineScope {
+        itemAlphas.asReversed().forEachIndexed { order, alpha ->
+            launch {
+                delay(order * START_OVERLAY_ITEM_STAGGER_MS)
+                alpha.animateTo(0f, FetchMotion.exitTween())
+            }
+        }
+    }
+    coroutineScope {
+        launch { lineHeightFraction.animateTo(0f, FetchMotion.exitTween()) }
+        launch { containerAlpha.animateTo(0f, FetchMotion.exitTween()) }
     }
 }

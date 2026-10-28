@@ -496,8 +496,6 @@
     <string name="essential_autoplay_next_episode">Reproducción automática del siguiente episodio</string>
     <string name="essential_autoplay_next_episode_subtitle">Continúa con el siguiente episodio cuando termine una transmisión.</string>
     <string name="external_auto_next_loading">Cargando siguiente episodio…</string>
-    <string name="essential_p2p_streams">Transmisiones P2P</string>
-    <string name="essential_p2p_streams_subtitle">Permite fuentes de transmisión peer-to-peer.</string>
     <string name="essential_subtitle_language_subtitle">Idioma de subtítulos preferido.</string>
     <string name="essential_audio_language_subtitle">Idioma de audio preferido.</string>
     <!-- Account / sign-in error messages -->
@@ -1298,14 +1296,6 @@
     <string name="stream_no_streams">No se encontraron transmisiones</string>
     <string name="stream_no_streams_hint">Intenta instalar más complementos para encontrar transmisiones</string>
     <string name="stream_finding_source">Buscando fuente de transmisión</string>
-    <string name="p2p_consent_title">Transmisión P2P</string>
-    <string name="p2p_consent_body">Esta transmisión utiliza tecnología de igual a igual (P2P). Al activar P2P, reconoces y aceptas que:\n\n• Tu dirección IP será visible para otros pares de la red\n• Eres el único responsable del contenido al que accedes\n• Confirmas que tienes el derecho legal de transmitir este contenido en tu jurisdicción\n• Fetch no aloja, distribuye ni controla ningún contenido P2P\n• Fetch no asume ninguna responsabilidad por las consecuencias legales derivadas del uso de transmisión P2P\n\nUtilizas esta función bajo tu entera responsabilidad. P2P se puede desactivar en cualquier momento desde Ajustes.</string>
-    <string name="p2p_consent_enable">Activar P2P</string>
-    <string name="p2p_consent_cancel">Cancelar</string>
-    <string name="settings_p2p_title">Transmisión P2P</string>
-    <string name="settings_p2p_subtitle">Permitir transmisiones de igual a igual (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Ocultar estadísticas de torrent</string>
-    <string name="settings_p2p_hide_stats_subtitle">Oculta búfer, semillas, pares y velocidad de descarga durante la carga y la reproducción</string>
     <string name="stream_player_picker_title">¿Qué reproductor debería usarse?</string>
     <string name="stream_player_internal">Interno</string>
     <string name="stream_player_external">Externo</string>
@@ -1874,7 +1864,6 @@
     <string name="home_error_no_catalog_addons">No hay complementos de catálogo instalados</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Error al iniciar el torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Soporte HDR con renderizado Canvas. Puede bloquear el hilo de la interfaz.</string>
@@ -2242,11 +2231,6 @@
     <string name="playback_player_internal_desc">Usa el reproductor integrado de Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d semillas · %2$d pares</string>
-    <string name="player_torrent_buffered_status">%1$s almacenado en búfer · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d pares · %2$d semillas · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Conectando con pares…</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Subtítulo %1$d</string>
 
@@ -2261,7 +2245,6 @@
     <string name="player_error_initialize_failed">Error al inicializar el reproductor</string>
     <string name="player_error_mpv_surface_failed">Error al inicializar la superficie de libmpv</string>
     <string name="player_error_mpv_playback_failed">Error al inicializar la reproducción de libmpv</string>
-    <string name="player_error_torrent">Error de torrent: %1$s</string>
     <string name="player_error_playback_fallback">Error de reproducción</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">No se encontraron líneas de subtítulos en este archivo.</string>
@@ -2393,7 +2376,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Iniciando motor P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL externa no válida</string>
     <string name="player_stream_error_open_external_link_failed">No se pudo abrir el enlace externo</string>
     <string name="player_stream_error_invalid_url">URL de transmisión no válida</string>
@@ -2561,9 +2543,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Uso de memoria estimado: %1$d / %2$d MB</string>
@@ -2786,7 +2765,6 @@
     <string name="addon_health_failing">La última solicitud falló</string>
     <string name="addon_health_timed_out">La última solicitud agotó el tiempo de espera</string>
     <string name="account_local_only_note">La sincronización está desactivada. Fetch guarda tus complementos, progreso y ajustes en esta TV y no necesita cuenta. Para sincronizar entre dispositivos, conecta tu propio servidor de sincronización desde las opciones de servidor.</string>
-    <string name="torrent_engine_unavailable">Este es un stream torrent y Fetch no tiene un motor torrent integrado. Configura debrid en el addon para obtener un enlace que se reproduzca aquí, o ábrelo en un reproductor externo.</string>
     <string name="parental_title_blocked">Este título supera el límite de clasificación de este perfil.</string>
     <string name="parental_addons_blocked">Este perfil no puede instalar complementos. Pídeselo a un adulto.</string>
     <string name="parental_gate_heading">Introduce el PIN de %1$s</string>

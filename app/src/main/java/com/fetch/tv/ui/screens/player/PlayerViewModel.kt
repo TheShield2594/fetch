@@ -8,8 +8,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.fetch.tv.core.party.PartyMedia
 import com.fetch.tv.core.player.StreamAutoPlayPolicy
 import com.fetch.tv.core.tracking.TrackingScrobbleCoordinator
-import com.fetch.tv.core.torrent.TorrentService
-import com.fetch.tv.core.torrent.TorrentSettings
 import com.fetch.tv.data.local.AudioDelayRouteDataStore
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.DeviceLocalPlayerPreferences
@@ -69,8 +67,6 @@ class PlayerViewModel @Inject constructor(
     private val watchedSeriesStateHolder: WatchedSeriesStateHolder,
     private val trackPreferenceDataStore: com.fetch.tv.data.local.TrackPreferenceDataStore,
     private val audioDelayRouteDataStore: AudioDelayRouteDataStore,
-    private val torrentService: TorrentService,
-    private val torrentSettings: TorrentSettings,
     private val tmdbService: TmdbService,
     private val tmdbMetadataService: TmdbMetadataService,
     private val tmdbSettingsDataStore: TmdbSettingsDataStore,
@@ -126,8 +122,6 @@ class PlayerViewModel @Inject constructor(
         episodeShufflePlayback = episodeShufflePlayback,
         trackPreferenceDataStore = trackPreferenceDataStore,
         audioDelayRouteDataStore = audioDelayRouteDataStore,
-        torrentService = torrentService,
-        torrentSettings = torrentSettings,
         tmdbService = tmdbService,
         tmdbMetadataService = tmdbMetadataService,
         tmdbSettingsDataStore = tmdbSettingsDataStore,

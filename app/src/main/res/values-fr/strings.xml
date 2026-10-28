@@ -507,8 +507,6 @@
     <string name="essential_autoplay_next_episode">Lecture automatique de l’épisode suivant</string>
     <string name="essential_autoplay_next_episode_subtitle">Passer à l’épisode suivant à la fin d’un flux.</string>
     <string name="external_auto_next_loading">Chargement de l’épisode suivant…</string>
-    <string name="essential_p2p_streams">Flux P2P</string>
-    <string name="essential_p2p_streams_subtitle">Autoriser les sources de flux en pair-à-pair.</string>
     <string name="essential_subtitle_language_subtitle">Langue préférée des sous-titres.</string>
     <string name="essential_audio_language_subtitle">Langue audio préférée.</string>
     <!-- Account / sign-in error messages -->
@@ -1378,34 +1376,6 @@
     <string name="stream_finding_source">Recherche de la source du flux</string>
     <string name="youtube_resolving_stream">Chargement de la vidéo YouTube</string>
     <string name="youtube_resolution_failed">Impossible de charger cette vidéo YouTube.</string>
-    <string name="p2p_consent_title">Streaming P2P</string>
-    <string name="p2p_consent_body">Ce flux utilise la technologie pair-à-pair (P2P). En activant le P2P, vous reconnaissez et acceptez que&#160;:\n\n\u2022 Votre adresse IP sera visible par les autres pairs du réseau\n\u2022 Vous êtes seul responsable du contenu auquel vous accédez\n\u2022 Vous confirmez avoir le droit légal de diffuser ce contenu dans votre juridiction\n\u2022 Fetch n’héberge, ne distribue ni ne contrôle aucun contenu P2P\n\u2022 Fetch ne peut être tenu responsable des conséquences juridiques liées à votre utilisation du streaming P2P\n\nVous utilisez cette fonctionnalité entièrement à vos propres risques. Le P2P peut être désactivé à tout moment dans les paramètres.</string>
-    <string name="p2p_consent_enable">Activer le P2P</string>
-    <string name="p2p_consent_cancel">Annuler</string>
-    <string name="settings_p2p_title">Streaming P2P</string>
-    <string name="settings_p2p_subtitle">Autoriser les flux pair-à-pair (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Masquer les statistiques du torrent</string>
-    <string name="settings_p2p_hide_stats_subtitle">Masquer la mémoire tampon, les seeders, les pairs et la vitesse de téléchargement pendant le chargement et la lecture</string>
-    <string name="settings_p2p_profile_title">Profil du torrent</string>
-    <string name="settings_p2p_profile_soft">Souple</string>
-    <string name="settings_p2p_profile_balanced">Équilibré</string>
-    <string name="settings_p2p_profile_fast">Rapide</string>
-    <string name="settings_p2p_profile_soft_description">Utilise moins de connexions de pairs pour réduire la consommation de batterie et la charge réseau</string>
-    <string name="settings_p2p_profile_balanced_description">Compromis recommandé entre vitesse de démarrage et stabilité de la connexion</string>
-    <string name="settings_p2p_profile_fast_description">Utilise davantage de connexions de pairs pour les torrents difficiles ou à haut débit binaire</string>
-    <string name="settings_p2p_cache_size_title">Taille du cache du torrent</string>
-    <string name="settings_p2p_cache_size_description">Données de torrent téléchargées et conservées sur cet appareil pour accélérer les relectures</string>
-    <string name="settings_p2p_cache_none">Aucun cache persistant</string>
-    <string name="settings_p2p_cache_2_gb">2 Go</string>
-    <string name="settings_p2p_cache_5_gb">5 Go</string>
-    <string name="settings_p2p_cache_10_gb">10 Go</string>
-    <string name="settings_p2p_clear_cache_title">Vider le cache du torrent</string>
-    <string name="settings_p2p_clear_cache_usage">%1$s actuellement utilisés</string>
-    <string name="settings_p2p_clear_cache_usage_pending">L’utilisation est mesurée après le démarrage du P2P&#160;; sélectionnez pour vider les données de torrent en cache</string>
-    <string name="settings_p2p_clear_cache_clearing">Suppression des données de torrent inactives…</string>
-    <string name="settings_p2p_clear_cache_playback_active">Arrêtez la lecture P2P avant de vider le cache</string>
-    <string name="settings_p2p_clear_cache_done">%1$s de données de torrent inactives supprimés</string>
-    <string name="settings_p2p_clear_cache_failed">Impossible de vider le cache du torrent</string>
     <string name="stream_player_picker_title">Quel lecteur utiliser&#160;?</string>
     <string name="stream_player_internal">Interne</string>
     <string name="stream_player_external">Externe</string>
@@ -1976,7 +1946,6 @@
     <string name="home_error_no_catalog_addons">Aucun addon de catalogue installé</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Impossible de démarrer le torrent&#160;: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Prise en charge du HDR avec rendu Canvas. Peut bloquer le thread de l’interface.</string>
@@ -2345,15 +2314,6 @@
     <string name="playback_player_internal_desc">Utiliser le lecteur intégré de Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seeders · %2$d pairs</string>
-    <string name="player_torrent_buffered_status">%1$s en mémoire tampon · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d pairs · %2$d seeders · %3$d&#160;%%</string>
-    <string name="player_torrent_connecting_peers">Connexion aux pairs…</string>
-    <string name="player_torrent_fetching_metadata">Récupération des métadonnées du torrent…</string>
-    <string name="player_torrent_preparing_stream">Préparation du flux torrent…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s téléchargés · %2$s · %3$s</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Sous-titres %1$d</string>
 
@@ -2368,7 +2328,6 @@
     <string name="player_error_initialize_failed">Échec de l’initialisation du lecteur</string>
     <string name="player_error_mpv_surface_failed">Échec de l’initialisation de la surface libmpv</string>
     <string name="player_error_mpv_playback_failed">Échec de l’initialisation de la lecture libmpv</string>
-    <string name="player_error_torrent">Erreur de torrent&#160;: %1$s</string>
     <string name="player_error_playback_fallback">Erreur de lecture</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Aucune ligne de sous-titres trouvée dans ce fichier.</string>
@@ -2498,10 +2457,8 @@
     <string name="network_fast_error_token_missing">fast.com&#160;: jeton introuvable dans le bundle</string>
 
     <!-- Torrent service errors -->
-    <string name="torrent_error_start_timeout">Le flux torrent n’a pas démarré dans un délai de %1$d s</string>
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Démarrage du moteur P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL externe invalide</string>
     <string name="player_stream_error_open_external_link_failed">Impossible d’ouvrir le lien externe</string>
     <string name="player_stream_error_invalid_url">URL de flux invalide</string>
@@ -2669,9 +2626,6 @@
     <string name="unit_size_kb">%1$s ko</string>
     <string name="unit_size_mb">%1$s Mo</string>
     <string name="unit_size_gb">%1$s Go</string>
-    <string name="unit_speed_b_s">%1$d o/s</string>
-    <string name="unit_speed_kb_s">%1$s ko/s</string>
-    <string name="unit_speed_mb_s">%1$s Mo/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Utilisation mémoire estimée&#160;: %1$d / %2$d Mo</string>
@@ -2930,7 +2884,6 @@
     <string name="addon_health_failing">Échec de la dernière requête</string>
     <string name="addon_health_timed_out">Délai dépassé pour la dernière requête</string>
     <string name="account_local_only_note">La synchronisation est désactivée. Fetch conserve vos addons, votre progression et vos paramètres sur cette TV et ne nécessite aucun compte. Pour synchroniser entre appareils, connectez votre propre serveur de synchronisation depuis les options du serveur.</string>
-    <string name="torrent_engine_unavailable">Il s’agit d’un flux torrent et Fetch n’a pas de moteur torrent intégré. Configurez debrid dans l’addon pour obtenir un lien lisible ici, ou ouvrez-le dans un lecteur externe.</string>
     <string name="parental_title_blocked">Ce titre dépasse la limite de classification de ce profil.</string>
     <string name="parental_addons_blocked">Ce profil ne peut pas installer d’addons. Demandez à un parent.</string>
     <string name="parental_gate_heading">Saisissez le code PIN de %1$s</string>

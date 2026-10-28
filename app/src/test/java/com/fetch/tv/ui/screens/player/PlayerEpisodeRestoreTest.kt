@@ -61,40 +61,4 @@ class PlayerEpisodeRestoreTest {
         // Untouched launch args survive.
         assertEquals("Show", args.title)
     }
-
-    @Test
-    fun `a torrent episode restores from its info hash and trackers`() {
-        val handle = launchedOnFirstEpisode()
-
-        handle.rememberEpisodeForRestore(
-            streamUrl = "",
-            headersJson = null,
-            videoId = "tt1:1:2",
-            season = 1,
-            episode = 2,
-            episodeTitle = null,
-            streamName = null,
-            filename = null,
-            bingeGroup = null,
-            videoHash = null,
-            videoSize = null,
-            addonName = null,
-            addonLogo = null,
-            streamDescription = null,
-            infoHash = "deadbeef",
-            fileIdx = 3,
-            sources = listOf("tracker:udp://tracker.example:80"),
-            audioDelayMs = null
-        )
-
-        val args = PlayerNavigationArgs.from(handle)
-        assertEquals("", args.streamUrl)
-        assertEquals("deadbeef", args.infoHash)
-        assertEquals(3, args.fileIdx)
-        assertEquals(listOf("udp://tracker.example:80"), args.torrentTrackers)
-        assertNull(args.headersJson)
-        assertNull(args.initialEpisodeTitle)
-        // The first stream's delay doesn't carry over to one without a hint.
-        assertNull(args.audioDelayMs)
-    }
 }

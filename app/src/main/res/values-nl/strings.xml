@@ -474,8 +474,6 @@
     <string name="essential_autoplay_next_episode">Volgende aflevering automatisch afspelen</string>
     <string name="essential_autoplay_next_episode_subtitle">Ga verder met de volgende aflevering nadat een stream is afgelopen.</string>
     <string name="external_auto_next_loading">Volgende aflevering laden…</string>
-    <string name="essential_p2p_streams">P2P-streams</string>
-    <string name="essential_p2p_streams_subtitle">Peer-to-peer-streambronnen toestaan.</string>
     <string name="essential_subtitle_language_subtitle">Voorkeurstaal voor ondertiteling.</string>
     <string name="essential_audio_language_subtitle">Voorkeurstaal voor audio.</string>
     <!-- Account / sign-in error messages -->
@@ -1214,14 +1212,6 @@
     <string name="stream_no_streams">Geen streams gevonden</string>
     <string name="stream_no_streams_hint">Probeer meer add-ons te installeren om streams te vinden</string>
     <string name="stream_finding_source">Streambron zoeken</string>
-    <string name="p2p_consent_title">P2P-streaming</string>
-    <string name="p2p_consent_body">Deze stream gebruikt peer-to-peer-technologie (P2P). Door P2P in te schakelen erken je en ga je ermee akkoord dat:\n\n\u2022 Je IP-adres zichtbaar is voor andere peers in het netwerk\n\u2022 Jij als enige verantwoordelijk bent voor de inhoud die je opent\n\u2022 Je bevestigt dat je het wettelijke recht hebt om deze inhoud in jouw rechtsgebied te streamen\n\u2022 Fetch geen P2P-inhoud host, verspreidt of beheert\n\u2022 Fetch geen aansprakelijkheid draagt voor juridische gevolgen van jouw gebruik van P2P-streaming\n\nJe gebruikt deze functie volledig op eigen risico. P2P kan altijd worden uitgeschakeld in de instellingen.</string>
-    <string name="p2p_consent_enable">P2P inschakelen</string>
-    <string name="p2p_consent_cancel">Annuleren</string>
-    <string name="settings_p2p_title">P2P-streaming</string>
-    <string name="settings_p2p_subtitle">Peer-to-peer-streams (torrent) toestaan</string>
-    <string name="settings_p2p_hide_stats_title">Torrentstatistieken verbergen</string>
-    <string name="settings_p2p_hide_stats_subtitle">Verberg buffer, seeds, peers en downloadsnelheid tijdens het laden en afspelen</string>
     <string name="stream_player_picker_title">Welke speler moet worden gebruikt?</string>
     <string name="stream_player_internal">Intern</string>
     <string name="stream_player_external">Extern</string>
@@ -1788,7 +1778,6 @@
     <string name="home_error_no_catalog_addons">Geen catalogus-add-ons geïnstalleerd</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Kon de torrent niet starten: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">HDR-ondersteuning met canvas-rendering. Kan de UI-thread blokkeren.</string>
@@ -2156,11 +2145,6 @@
     <string name="playback_player_internal_desc">Gebruik de ingebouwde speler van Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seeds · %2$d peers</string>
-    <string name="player_torrent_buffered_status">%1$s gebufferd · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peers · %2$d seeds · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Verbinden met peers…</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Ondertiteling %1$d</string>
 
@@ -2175,7 +2159,6 @@
     <string name="player_error_initialize_failed">Kon de speler niet initialiseren</string>
     <string name="player_error_mpv_surface_failed">Kon het libmpv-oppervlak niet initialiseren</string>
     <string name="player_error_mpv_playback_failed">Kon het afspelen via libmpv niet initialiseren</string>
-    <string name="player_error_torrent">Torrentfout: %1$s</string>
     <string name="player_error_playback_fallback">Afspeelfout</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Er zijn geen ondertitelregels in dit bestand gevonden.</string>
@@ -2307,7 +2290,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">P2P-engine starten…</string>
     <string name="player_stream_error_invalid_external_url">Ongeldige externe URL</string>
     <string name="player_stream_error_open_external_link_failed">Kan de externe link niet openen</string>
     <string name="player_stream_error_invalid_url">Ongeldige stream-URL</string>
@@ -2467,9 +2449,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Geschat geheugengebruik: %1$d / %2$d MB</string>
@@ -2718,7 +2697,6 @@
     <string name="subtitle_style_text_color_hdr">Tekstkleur (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Tekstdekking (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Dit is een torrentstream en Fetch heeft geen ingebouwde torrent-engine. Stel debrid in de add-on in om een link te krijgen die hier afspeelt, of open hem in een externe speler.</string>
     <string name="because_you_watched_row_title">Omdat je %1$s hebt gekeken</string>
     <string name="because_you_watched_reason_collection">Ook in %1$s</string>
     <string name="because_you_watched_reason_director">Ook geregisseerd door %1$s</string>

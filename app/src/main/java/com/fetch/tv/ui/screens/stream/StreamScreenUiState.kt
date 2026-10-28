@@ -35,8 +35,6 @@ data class StreamScreenUiState(
     val streamExclusions: Map<String, com.fetch.tv.core.streams.ranking.ExclusionReason> = emptyMap(),
     /** True when the All tab is ordered by Best match, so its first stream is the pick. */
     val bestMatchFirst: Boolean = false,
-    /** Torrent results can't play here: there is no torrent engine, so they open externally. */
-    val torrentsNeedExternalPlayer: Boolean = !com.fetch.tv.core.torrent.TorrentService.ENGINE_AVAILABLE,
     val availableAddons: List<String> = emptyList(),
     val sourceChips: List<SourceChipItem> = emptyList(),
     val autoPlayStream: Stream? = null,

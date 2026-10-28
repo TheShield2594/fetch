@@ -27,9 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.R
-import com.fetch.tv.core.torrent.TorrentCacheClearResult
-import com.fetch.tv.core.torrent.TorrentSettingsData
-import com.fetch.tv.core.torrent.TorrentState
 import com.fetch.tv.data.local.PlayerSettings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -61,27 +58,6 @@ internal fun PlaybackSettingsContent(
 ) {
     val playerSettings by viewModel.playerSettings.collectAsStateWithLifecycle(initialValue = PlayerSettings())
     val transparentLetterbox by viewModel.transparentLetterbox.collectAsStateWithLifecycle(initialValue = false)
-    val torrentSettings by viewModel.torrentSettingsFlow.collectAsStateWithLifecycle(initialValue = TorrentSettingsData())
-    val torrentCacheState by viewModel.torrentCacheState.collectAsStateWithLifecycle()
-    val torrentState by viewModel.torrentState.collectAsStateWithLifecycle()
-    var torrentCacheClearResult by remember { mutableStateOf<TorrentCacheClearResult?>(null) }
-    var torrentCacheClearFailed by remember { mutableStateOf(false) }
-    val torrentCacheClearAvailable = torrentState !is TorrentState.Connecting &&
-        torrentState !is TorrentState.Streaming &&
-        !torrentCacheState.isClearing
-    val p2p = P2pSettingsUi(
-        enabled = torrentSettings.p2pEnabled,
-        hideStats = torrentSettings.hideTorrentStats,
-        profile = torrentSettings.torrentProfile,
-        cacheSize = torrentSettings.cacheSize,
-        cacheSummary = torrentCacheSummary(
-            cacheState = torrentCacheState,
-            clearAvailable = torrentCacheClearAvailable,
-            clearResult = torrentCacheClearResult,
-            clearFailed = torrentCacheClearFailed
-        ),
-        cacheClearEnabled = torrentCacheClearAvailable
-    )
     val installedAddonNames by viewModel.installedAddonNames.collectAsStateWithLifecycle(initialValue = emptyList())
     val coroutineScope = rememberCoroutineScope()
     var openDialog by remember { mutableStateOf<PlaybackDialog?>(null) }
@@ -114,24 +90,13 @@ internal fun PlaybackSettingsContent(
         ) {
             val onOpenDialog: (PlaybackDialog) -> Unit = { openDialog = it }
             val onMemorySettingChanged: () -> Unit = { memoryUsageTrigger++ }
-            val onClearTorrentCache: () -> Unit = {
-                torrentCacheClearResult = null
-                torrentCacheClearFailed = false
-                coroutineScope.launch {
-                    runCatching { viewModel.clearTorrentCache() }
-                        .onSuccess { torrentCacheClearResult = it }
-                        .onFailure { torrentCacheClearFailed = true }
-                }
-            }
             if (section == null) {
                 PlaybackSettingsSections(
                     playerSettings = playerSettings,
-                    p2p = p2p,
                     transparentLetterbox = transparentLetterbox,
                     onUpdate = onUpdate,
                     onOpenDialog = onOpenDialog,
                     onMemorySettingChanged = onMemorySettingChanged,
-                    onClearTorrentCache = onClearTorrentCache,
                     initialFocusRequester = initialFocusRequester
                 )
             } else {
@@ -148,12 +113,10 @@ internal fun PlaybackSettingsContent(
                         PlaybackSectionContent(
                             section = section,
                             playerSettings = playerSettings,
-                            p2p = p2p,
                             transparentLetterbox = transparentLetterbox,
                             onUpdate = onUpdate,
                             onOpenDialog = onOpenDialog,
-                            onMemorySettingChanged = onMemorySettingChanged,
-                            onClearTorrentCache = onClearTorrentCache
+                            onMemorySettingChanged = onMemorySettingChanged
                         )
                     }
                     SettingsVerticalScrollIndicators(state = scrollState)
@@ -177,7 +140,6 @@ internal fun PlaybackSettingsContent(
     PlaybackSettingsDialogs(
         dialog = openDialog,
         settings = playerSettings,
-        p2p = p2p,
         installedAddonNames = installedAddonNames,
         onUpdate = onUpdate,
         onDismiss = { openDialog = null }

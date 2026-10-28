@@ -1620,8 +1620,6 @@
     <string name="essential_autoplay_next_episode">Автовоспроизведение следующего эпизода</string>
     <string name="essential_autoplay_next_episode_subtitle">Продолжить со следующим эпизодом после окончания потока.</string>
     <string name="external_auto_next_loading">Загрузка следующего эпизода…</string>
-    <string name="essential_p2p_streams">P2P потоки</string>
-    <string name="essential_p2p_streams_subtitle">Разрешить P2P-источники потоков.</string>
     <string name="essential_subtitle_language_subtitle">Предпочитаемый язык субтитров.</string>
     <string name="essential_audio_language_subtitle">Предпочитаемый язык аудио.</string>
     <!-- Batch 3: account errors, experience mode switches, advanced settings -->
@@ -1848,14 +1846,6 @@
     <string name="catalog_order_follow_addons">Следовать порядку аддонов</string>
     <string name="catalog_order_follow_addons_desc">Каталоги следуют порядку манифеста аддона. Коллекции всё ещё можно перемещать между аддонами.</string>
     <!-- Batch 7: debrid resolving, p2p, stream filter, subtitle timing, player items -->
-    <string name="p2p_consent_title">P2P Стриминг</string>
-    <string name="p2p_consent_body">Этот поток использует технологию P2P. Включая P2P, вы признаёте и соглашаетесь с тем, что:\n\n\u2022 Ваш IP-адрес будет виден другим участникам сети\n\u2022 Вы несёте полную ответственность за контент, к которому обращаетесь\n\u2022 Вы подтверждаете законность стриминга в вашей юрисдикции\n\u2022 Fetch не размещает, не распространяет и не контролирует P2P-контент\n\u2022 Fetch не несёт ответственности за юридические последствия\n\nВы используете эту функцию на свой риск. P2P можно отключить в Настройках.</string>
-    <string name="p2p_consent_enable">Включить P2P</string>
-    <string name="p2p_consent_cancel">Отмена</string>
-    <string name="settings_p2p_title">P2P Стриминг</string>
-    <string name="settings_p2p_subtitle">Разрешить P2P (торрент) потоки</string>
-    <string name="settings_p2p_hide_stats_title">Скрыть статистику торрента</string>
-    <string name="settings_p2p_hide_stats_subtitle">Скрыть буфер, сиды, пиры и скорость загрузки во время загрузки и воспроизведения</string>
     <string name="stream_filter_all">Все</string>
     <string name="player_sync_line">Строка синхронизации</string>
     <string name="subtitle_timing_press_sync">Нажмите Синхронизация, когда услышите реплику.</string>
@@ -1941,7 +1931,6 @@
     <string name="trakt_error_failed_start">Не удалось запустить авторизацию Trakt</string>
     <string name="error_unknown">Неизвестная ошибка</string>
     <string name="addon_error_not_found">Аддон не найден</string>
-    <string name="player_error_failed_start_torrent">Не удалось запустить торрент: %1$s</string>
     <string name="debug_generate_library_result_added">Добавлено %1$d элементов в библиотеку</string>
     <string name="collections_delete_confirm_title">Удалить коллекцию?</string>
     <string name="collections_delete_confirm">Удалить</string>
@@ -2179,11 +2168,6 @@
     <string name="autoplay_regex_preset_no_cam_ts">Без CAM/TS</string>
     <string name="autoplay_regex_preset_no_remux_hdr">Без REMUX/HDR</string>
     <string name="playback_player_internal_desc">Использовать встроенный плеер Fetch</string>
-    <string name="player_torrent_peer_info">%1$d сидов · %2$d пиров</string>
-    <string name="player_torrent_buffered_status">%1$s буфер · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d пиров · %2$d сидов · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Подключение к пирам…</string>
     <string name="player_track_audio_fallback">Аудио %1$d</string>
     <string name="player_track_subtitle_fallback">Субтитры %1$d</string>
     <string name="player_error_stream_blocked">\n\nИсточник потока заблокирован или ограничен. Попробуйте другой источник.</string>
@@ -2196,7 +2180,6 @@
     <string name="player_error_initialize_failed">Не удалось инициализировать плеер</string>
     <string name="player_error_mpv_surface_failed">Не удалось инициализировать поверхность libmpv</string>
     <string name="player_error_mpv_playback_failed">Не удалось инициализировать воспроизведение libmpv</string>
-    <string name="player_error_torrent">Ошибка торрента: %1$s</string>
     <string name="player_error_playback_fallback">Ошибка воспроизведения</string>
     <string name="subtitle_timing_file_no_lines">В этом файле не найдено строк субтитров.</string>
     <string name="subtitle_timing_load_lines_failed">Не удалось загрузить строки субтитров.</string>
@@ -2301,7 +2284,6 @@
     <string name="network_error_unknown">Неизвестная ошибка сети</string>
     <string name="network_fast_error_script_path_missing">Отсутствует путь скрипта fast.com</string>
     <string name="network_fast_error_token_missing">Отсутствует токен fast.com</string>
-    <string name="player_torrent_starting_engine">Запуск движка P2P…</string>
     <string name="player_stream_error_invalid_external_url">Неверный внешний URL потока</string>
     <string name="player_stream_error_open_external_link_failed">Не удалось открыть внешнюю ссылку</string>
     <string name="player_stream_error_invalid_url">Неверный URL потока</string>
@@ -2448,9 +2430,6 @@
     <string name="unit_size_kb">%1$s КБ</string>
     <string name="unit_size_mb">%1$s МБ</string>
     <string name="unit_size_gb">%1$s ГБ</string>
-    <string name="unit_speed_b_s">%1$d Б/с</string>
-    <string name="unit_speed_kb_s">%1$s КБ/с</string>
-    <string name="unit_speed_mb_s">%1$s МБ/с</string>
     <string name="playback_estimated_memory_usage">Ориентировочное использование памяти: %1$d / %2$d МБ</string>
     <string name="profile_default_name">Профиль %1$d</string>
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
@@ -2701,7 +2680,6 @@
     <string name="subtitle_style_text_color_hdr">Цвет текста (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Прозрачность текста (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Это торрент-поток, а в Fetch нет встроенного торрент-движка. Настройте debrid в аддоне, чтобы получить ссылку, которая воспроизводится здесь, или откройте его во внешнем плеере.</string>
     <string name="because_you_watched_row_title">Потому что вы смотрели %1$s</string>
     <string name="because_you_watched_reason_collection">Также из: %1$s</string>
     <string name="because_you_watched_reason_director">Тот же режиссер: %1$s</string>

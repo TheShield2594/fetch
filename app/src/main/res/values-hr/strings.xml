@@ -496,8 +496,6 @@
     <string name="essential_autoplay_next_episode">Automatski reproduciraj sljedeću epizodu</string>
     <string name="essential_autoplay_next_episode_subtitle">Nastavi na sljedeću epizodu nakon što stream završi.</string>
     <string name="external_auto_next_loading">Učitavanje sljedeće epizode…</string>
-    <string name="essential_p2p_streams">P2P streamovi</string>
-    <string name="essential_p2p_streams_subtitle">Dopusti peer-to-peer izvore streamova.</string>
     <string name="essential_subtitle_language_subtitle">Preferirani jezik titlova.</string>
     <string name="essential_audio_language_subtitle">Preferirani jezik zvuka.</string>
     <!-- Poruke o pogreškama računa / prijave -->
@@ -1333,34 +1331,6 @@
     <string name="stream_finding_source">Traženje izvora streama</string>
     <string name="youtube_resolving_stream">Učitavanje YouTube videa</string>
     <string name="youtube_resolution_failed">Nije moguće učitati ovaj YouTube video.</string>
-    <string name="p2p_consent_title">P2P streamanje</string>
-    <string name="p2p_consent_body">Ovaj stream koristi peer-to-peer (P2P) tehnologiju. Omogućavanjem P2P-a potvrđuješ i prihvaćaš sljedeće:\n\n\u2022 Tvoja IP adresa bit će vidljiva ostalim sudionicima u mreži\n\u2022 Odgovornost za sadržaj kojem pristupaš isključivo je tvoja\n\u2022 Potvrđuješ da imaš zakonsko pravo streamati ovaj sadržaj u svojoj jurisdikciji\n\u2022 Fetch ne hostira, ne distribuira niti kontrolira bilo kakav P2P sadržaj\n\u2022 Fetch ne snosi odgovornost za bilo kakve pravne posljedice koje proizlaze iz tvog korištenja P2P streamanja\n\nOvu značajku koristiš u potpunosti na vlastiti rizik. P2P se može isključiti bilo kada u Postavkama.</string>
-    <string name="p2p_consent_enable">Omogući P2P</string>
-    <string name="p2p_consent_cancel">Odustani</string>
-    <string name="settings_p2p_title">P2P streamanje</string>
-    <string name="settings_p2p_subtitle">Dopusti peer-to-peer (torrent) streamove</string>
-    <string name="settings_p2p_hide_stats_title">Sakrij statistiku torrenta</string>
-    <string name="settings_p2p_hide_stats_subtitle">Sakrij međuspremnik, seedove, peerove i brzinu preuzimanja tijekom učitavanja i reprodukcije</string>
-    <string name="settings_p2p_profile_title">Torrent profil</string>
-    <string name="settings_p2p_profile_soft">Blagi</string>
-    <string name="settings_p2p_profile_balanced">Uravnoteženi</string>
-    <string name="settings_p2p_profile_fast">Brzi</string>
-    <string name="settings_p2p_profile_soft_description">Koristi manje veza s peerovima radi smanjenja opterećenja baterije i mreže</string>
-    <string name="settings_p2p_profile_balanced_description">Preporučena ravnoteža brzine pokretanja i stabilnosti veze</string>
-    <string name="settings_p2p_profile_fast_description">Koristi više veza s peerovima za zahtjevne torrente ili torrente visokog bitratea</string>
-    <string name="settings_p2p_cache_size_title">Veličina torrent predmemorije</string>
-    <string name="settings_p2p_cache_size_description">Preuzeti torrent podaci koji se čuvaju na ovom uređaju za brže ponovne reprodukcije</string>
-    <string name="settings_p2p_cache_none">Bez trajne predmemorije</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">Očisti torrent predmemoriju</string>
-    <string name="settings_p2p_clear_cache_usage">Trenutno se koristi %1$s</string>
-    <string name="settings_p2p_clear_cache_usage_pending">Potrošnja se mjeri nakon pokretanja P2P-a; odaberi za čišćenje predmemoriranih torrent podataka</string>
-    <string name="settings_p2p_clear_cache_clearing">Čišćenje neaktivnih torrent podataka…</string>
-    <string name="settings_p2p_clear_cache_playback_active">Zaustavi P2P reprodukciju prije čišćenja predmemorije</string>
-    <string name="settings_p2p_clear_cache_done">Očišćeno %1$s neaktivnih torrent podataka</string>
-    <string name="settings_p2p_clear_cache_failed">Nije moguće očistiti torrent predmemoriju</string>
     <string name="stream_player_picker_title">Koji player koristiti?</string>
     <string name="stream_player_internal">Interni</string>
     <string name="stream_player_external">Vanjski</string>
@@ -1920,7 +1890,6 @@
     <string name="home_error_no_catalog_addons">Nema instaliranih dodataka s katalozima</string>
 
     <!-- Pogreške playera -->
-    <string name="player_error_failed_start_torrent">Pokretanje torrenta nije uspjelo: %1$s</string>
 
     <!-- Postavke titlova za reprodukciju -->
     <string name="sub_mode_overlay_canvas_sub">Podrška za HDR s canvas iscrtavanjem. Može blokirati UI nit.</string>
@@ -2289,15 +2258,6 @@
     <string name="playback_player_internal_desc">Koristi ugrađeni player Fetcha</string>
 
     <!-- Player: torrent sloj + zapisi -->
-    <string name="player_torrent_peer_info">%1$d seedova · %2$d peerova</string>
-    <string name="player_torrent_buffered_status">%1$s u međuspremniku · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peerova · %2$d seedova · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Povezivanje s peerovima…</string>
-    <string name="player_torrent_fetching_metadata">Dohvaćanje metapodataka torrenta…</string>
-    <string name="player_torrent_preparing_stream">Priprema torrent streama…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s preuzeto · %2$s · %3$s</string>
     <string name="player_track_audio_fallback">Zvuk %1$d</string>
     <string name="player_track_subtitle_fallback">Titlovi %1$d</string>
 
@@ -2312,7 +2272,6 @@
     <string name="player_error_initialize_failed">Inicijalizacija playera nije uspjela</string>
     <string name="player_error_mpv_surface_failed">Inicijalizacija libmpv površine nije uspjela</string>
     <string name="player_error_mpv_playback_failed">Inicijalizacija libmpv reprodukcije nije uspjela</string>
-    <string name="player_error_torrent">Pogreška torrenta: %1$s</string>
     <string name="player_error_playback_fallback">Pogreška reprodukcije</string>
     <!-- Oporavak vremena titlova -->
     <string name="subtitle_timing_file_no_lines">U ovoj datoteci nisu pronađeni redci titlova.</string>
@@ -2442,10 +2401,8 @@
     <string name="network_fast_error_token_missing">fast.com: token nije pronađen u paketu</string>
 
     <!-- Pogreške torrent usluge -->
-    <string name="torrent_error_start_timeout">Torrent stream nije pokrenut unutar %1$ds</string>
 
     <!-- Player: pogreške streama / vanjskih poveznica -->
-    <string name="player_torrent_starting_engine">Pokretanje P2P pogona…</string>
     <string name="player_stream_error_invalid_external_url">Neispravan vanjski URL</string>
     <string name="player_stream_error_open_external_link_failed">Nije moguće otvoriti vanjsku poveznicu</string>
     <string name="player_stream_error_invalid_url">Neispravan URL streama</string>
@@ -2613,9 +2570,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Razne zamjenske vrijednosti -->
     <string name="playback_estimated_memory_usage">Procijenjena potrošnja memorije: %1$d / %2$d MB</string>
@@ -2860,7 +2814,6 @@
     <string name="addon_health_failing">Zadnji zahtjev nije uspio</string>
     <string name="addon_health_timed_out">Zadnjem zahtjevu isteklo je vrijeme</string>
     <string name="account_local_only_note">Sinkronizacija je isključena. Fetch čuva tvoje dodatke, napredak i postavke na ovom TV-u i ne treba račun. Za sinkronizaciju između uređaja poveži vlastiti poslužitelj za sinkronizaciju u opcijama poslužitelja.</string>
-    <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent mehanizam. Postavite debrid u dodatku da biste dobili poveznicu koja se reproducira ovdje, ili ga otvorite u vanjskom playeru.</string>
     <string name="parental_title_blocked">Ovaj naslov prelazi dobno ograničenje ovog profila.</string>
     <string name="parental_addons_blocked">Ovaj profil ne može instalirati dodatke. Pitaj roditelja.</string>
     <string name="parental_gate_heading">Unesi PIN za %1$s</string>

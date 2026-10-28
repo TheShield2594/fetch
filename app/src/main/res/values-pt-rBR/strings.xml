@@ -480,8 +480,6 @@
     <string name="essential_autoplay_next_episode">Autorreproduzir próximo episódio</string>
     <string name="essential_autoplay_next_episode_subtitle">Ir para o próximo episódio automaticamente após termino</string>
     <string name="external_auto_next_loading">Carregando próximo episódio…</string>
-    <string name="essential_p2p_streams">Streams P2P (Torrent)</string>
-    <string name="essential_p2p_streams_subtitle">Permitir fontes P2P (BitTorrent)</string>
     <string name="essential_subtitle_language_subtitle">Idioma preferido da legenda</string>
     <string name="essential_audio_language_subtitle">Idioma preferido do áudio</string>
     <!-- Account / sign-in error messages -->
@@ -1241,14 +1239,6 @@
     <string name="stream_no_streams">Nenhuma fonte encontrada</string>
     <string name="stream_no_streams_hint">Tente instalar mais addons para encontrar links</string>
     <string name="stream_finding_source">Buscando fontes…</string>
-    <string name="p2p_consent_title">Fontes P2P</string>
-    <string name="p2p_consent_body">Esta fonte usa tecnologia peer-to-peer (P2P). Ao habilitar o P2P, você reconhece e concorda que:\n\n\u2022 Seu endereço IP ficará visível para outros peers na rede\n\u2022 Você é o único responsável pelo conteúdo que acessa\n\u2022 Você confirma que possui o direito legal de transmitir este conteúdo em sua jurisdição\n\u2022 O Fetch não hospeda, distribui ou controla nenhum conteúdo P2P\n\u2022 O Fetch não se responsabiliza por quaisquer consequências legais decorrentes do uso de streaming P2P\n\nVocê usa este recurso inteiramente por sua conta e risco. O P2P pode ser desativado a qualquer momento nas Configurações.</string>
-    <string name="p2p_consent_enable">Ativar P2P</string>
-    <string name="p2p_consent_cancel">Cancelar</string>
-    <string name="settings_p2p_title">Fonte P2P</string>
-    <string name="settings_p2p_subtitle">Permitir Fonte peer-to-peer (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Ocultar estatísticas do torrent</string>
-    <string name="settings_p2p_hide_stats_subtitle">Ocultar buffer, seeds, peers e velocidade de download durante o carregamento e reprodução</string>
     <string name="stream_player_picker_title">Qual player deseja usar?</string>
     <string name="stream_player_internal">Player Interno</string>
     <string name="stream_player_external">Player Externo</string>
@@ -1818,7 +1808,6 @@
     <string name="home_error_no_catalog_addons">Nenhum addon de catálogo instalado</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Falha ao iniciar torrent: %1$s</string>
     
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Suporte HDR com renderização em canvas. Pode bloquear a interface.</string>
@@ -2186,11 +2175,6 @@
     <string name="playback_player_internal_desc">Usar player interno do Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seeds · %2$d peers</string>
-    <string name="player_torrent_buffered_status">%1$s armazenado · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peers · %2$d seeds · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Conectando a peers…</string>
     <string name="player_track_audio_fallback">Áudio %1$d</string>
     <string name="player_track_subtitle_fallback">Legenda %1$d</string>
 
@@ -2205,7 +2189,6 @@
     <string name="player_error_initialize_failed">Falha ao inicializar player</string>
     <string name="player_error_mpv_surface_failed">Falha ao iniciar a renderização de vídeo (libmpv)</string>
     <string name="player_error_mpv_playback_failed">Falha ao inicializar reprodução libmpv</string>
-    <string name="player_error_torrent">Erro de torrent: %1$s</string>
     <string name="player_error_playback_fallback">Erro de reprodução</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nenhum texto encontrado nesta legenda</string>
@@ -2337,7 +2320,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Iniciando motor P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL externo inválido</string>
     <string name="player_stream_error_open_external_link_failed">Não foi possível abrir link externo</string>
     <string name="player_stream_error_invalid_url">URL de stream inválido</string>
@@ -2497,9 +2479,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Uso estimado de memória: %1$d / %2$d MB</string>
@@ -2747,7 +2726,6 @@
     <string name="subtitle_style_text_color_hdr">Cor do texto (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacidade do texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Este é um stream torrent e o Fetch não tem um mecanismo de torrent integrado. Configure o debrid no addon para obter um link que toque aqui, ou abra-o em um player externo.</string>
     <string name="because_you_watched_row_title">Porque você assistiu %1$s</string>
     <string name="because_you_watched_reason_collection">Também em %1$s</string>
     <string name="because_you_watched_reason_director">Também dirigido por %1$s</string>

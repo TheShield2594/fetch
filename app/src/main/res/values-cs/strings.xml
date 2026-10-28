@@ -402,8 +402,6 @@
     <string name="essential_autoplay_next_episode">Automaticky přehrát další epizodu</string>
     <string name="essential_autoplay_next_episode_subtitle">Po skončení streamu pokračovat další epizodou.</string>
     <string name="external_auto_next_loading">Načítání další epizody…</string>
-    <string name="essential_p2p_streams">P2P streamy</string>
-    <string name="essential_p2p_streams_subtitle">Povolit zdroje streamů typu peer-to-peer.</string>
     <string name="essential_subtitle_language_subtitle">Preferovaný jazyk titulků.</string>
     <string name="essential_audio_language_subtitle">Preferovaný jazyk zvuku.</string>
     <!-- Account / sign-in error messages -->
@@ -1077,14 +1075,6 @@
     <string name="stream_no_streams">Nenalezeny žádné streamy</string>
     <string name="stream_no_streams_hint">Zkuste nainstalovat více doplňků pro nalezení streamů</string>
     <string name="stream_finding_source">Hledání zdroje streamu</string>
-    <string name="p2p_consent_title">P2P streamování</string>
-    <string name="p2p_consent_body">Tento stream používá technologii peer-to-peer (P2P). Povolením P2P berete na vědomí a souhlasíte, že:\n\n\u2022 Vaše IP adresa bude viditelná pro ostatní peer v síti\n\u2022 Jste výhradně odpovědní za obsah, ke kterému přistupujete\n\u2022 Potvrzujete, že máte zákonné právo streamovat tento obsah ve vaší jurisdikci\n\u2022 Fetch nehostuje, nedistribuuje ani nekontroluje žádný P2P obsah\n\u2022 Fetch nenese žádnou odpovědnost za jakékoli právní důsledky vyplývající z vašeho použití P2P streamování\n\nTuto funkci používáte výhradně na vlastní riziko. P2P lze kdykoli zakázat v Nastavení.</string>
-    <string name="p2p_consent_enable">Povolit P2P</string>
-    <string name="p2p_consent_cancel">Zrušit</string>
-    <string name="settings_p2p_title">P2P streamování</string>
-    <string name="settings_p2p_subtitle">Povolit peer-to-peer (torrent) streamy</string>
-    <string name="settings_p2p_hide_stats_title">Skrýt statistiky torrentu</string>
-    <string name="settings_p2p_hide_stats_subtitle">Skrýt vyrovnávací paměť, seedy, peery a rychlost stahování během načítání a přehrávání</string>
     <string name="stream_player_picker_title">Jaký přehrávač by měl být použit?</string>
     <string name="stream_player_internal">Interní</string>
     <string name="stream_player_external">Externí</string>
@@ -1568,7 +1558,6 @@
     <string name="home_error_no_catalog_addons">Nejsou nainstalovány žádné katalogové doplňky</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Nepodařilo se spustit torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Podpora HDR s vykreslováním Canvas. Může blokovat UI vlákno.</string>
@@ -1926,11 +1915,6 @@
     <string name="playback_player_internal_desc">Použít vestavěný přehrávač Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seedů · %2$d peerů</string>
-    <string name="player_torrent_buffered_status">%1$s načteno v bufferu · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peerů · %2$d seedů · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Připojování k peerům…</string>
     <string name="player_track_audio_fallback">Zvuk %1$d</string>
     <string name="player_track_subtitle_fallback">Titulky %1$d</string>
 
@@ -1945,7 +1929,6 @@
     <string name="player_error_initialize_failed">Nepodařilo se inicializovat přehrávač</string>
     <string name="player_error_mpv_surface_failed">Nepodařilo se inicializovat plochu libmpv</string>
     <string name="player_error_mpv_playback_failed">Nepodařilo se inicializovat přehrávání libmpv</string>
-    <string name="player_error_torrent">Chyba torrentu: %1$s</string>
     <string name="player_error_playback_fallback">Chyba přehrávání</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">V tomto souboru nebyly nalezeny žádné řádky titulků.</string>
@@ -2043,7 +2026,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Spouštění P2P jádra…</string>
     <string name="player_stream_error_invalid_external_url">Neplatná externí URL</string>
     <string name="player_stream_error_open_external_link_failed">Externí odkaz se nepodařilo otevřít</string>
     <string name="player_stream_error_invalid_url">Neplatná URL streamu</string>
@@ -2203,9 +2185,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Odhadované využití paměti: %1$d / %2$d MB</string>
@@ -2460,7 +2439,6 @@
     <string name="subtitle_style_text_color_hdr">Barva textu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprůhlednost textu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Toto je torrentový stream a Fetch nemá vestavěný torrentový engine. Nastavte debrid v doplňku, abyste získali odkaz, který se přehraje zde, nebo ho otevřete v externím přehrávači.</string>
     <string name="because_you_watched_row_title">Protože jste sledovali %1$s</string>
     <string name="because_you_watched_reason_collection">Také z: %1$s</string>
     <string name="because_you_watched_reason_director">Stejný režisér: %1$s</string>

@@ -721,14 +721,6 @@
     <string name="stream_no_streams">Streamovi nisu pronađeni</string>
     <string name="stream_no_streams_hint">Pokušaj instalirati više addona da pronađeš streamove</string>
     <string name="stream_finding_source">Traženje izvora streama</string>
-    <string name="p2p_consent_title">P2P Streaming</string>
-    <string name="p2p_consent_body">Ovaj stream koristi peer-to-peer (P2P) tehnologiju. Omogućavanjem P2P-a, slažete se sa sljedećim:\n\n• Vaša IP adresa će biti vidljiva drugim učesnicima u mreži\n• Vi ste isključivo odgovorni za sadržaj kojem pristupate\n• Potvrđujete da imate zakonsko pravo streamati ovaj sadržaj u vašoj državi\n• Fetch ne hosta, ne distribuira i ne kontroliše bilo kakav P2P sadržaj\n• Fetch ne snosi odgovornost za bilo kakve pravne posljedice koje proizilaze iz vašeg korištenja P2P streaminga\n\nOvu funkciju koristite u potpunosti na vlastiti rizik. P2P možete isključiti bilo kada u Postavkama.</string>
-    <string name="p2p_consent_enable">Omogući P2P</string>
-    <string name="p2p_consent_cancel">Otkaži</string>
-    <string name="settings_p2p_title">P2P Streaming</string>
-    <string name="settings_p2p_subtitle">Dozvoli peer-to-peer (torrent) streamove</string>
-    <string name="settings_p2p_hide_stats_title">Sakrij torrent statistiku</string>
-    <string name="settings_p2p_hide_stats_subtitle">Sakrij buffer, seeds, peers i brzinu preuzimanja tokom učitavanja i reprodukcije</string>
     <string name="stream_player_picker_title">Koji player treba koristiti?</string>
     <string name="stream_player_internal">Interni</string>
     <string name="stream_player_external">Eksterni</string>
@@ -1486,7 +1478,6 @@
     <string name="subtitle_style_text_color_hdr">Boja teksta (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Neprozirnost teksta (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Ovo je torrent stream, a Fetch nema ugrađeni torrent mehanizam. Podesite debrid u dodatku da dobijete link koji se ovdje reproducira, ili ga otvorite u vanjskom playeru.</string>
     <string name="because_you_watched_row_title">Zato što ste gledali %1$s</string>
     <string name="because_you_watched_reason_collection">Također iz: %1$s</string>
     <string name="because_you_watched_reason_director">Isti režiser: %1$s</string>

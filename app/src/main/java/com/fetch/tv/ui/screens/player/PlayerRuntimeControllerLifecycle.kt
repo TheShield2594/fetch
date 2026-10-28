@@ -9,17 +9,13 @@ internal fun PlayerRuntimeController.releasePlayer() {
     releasePlayer(flushPlaybackState = true)
 }
 
-// A rebuild on the same stream passes keepTorrentStream: currentStreamUrl is then the torrent
-// engine's local url, which stops serving once the torrent stream is stopped.
 internal fun PlayerRuntimeController.releasePlayer(
-    flushPlaybackState: Boolean,
-    keepTorrentStream: Boolean = false
+    flushPlaybackState: Boolean
 ) {
     logScrobbleDiagnostic("release_player", "flushPlaybackState=$flushPlaybackState")
     isReleasingPlayer = true
     com.fetch.tv.core.recommendations.TvRecommendationManager.isPlaybackActive.value = false
     if (flushPlaybackState) {
-        if (!keepTorrentStream) stopTorrentStream()
         flushPlaybackSnapshotForSwitchOrExit()
     }
 

@@ -398,8 +398,6 @@
     <string name="essential_autoplay_next_episode">Автовідтворення наступного епізоду</string>
     <string name="essential_autoplay_next_episode_subtitle">Продовжити з наступним епізодом після закінчення потоку.</string>
     <string name="external_auto_next_loading">Завантаження наступного епізоду…</string>
-    <string name="essential_p2p_streams">P2P потоки</string>
-    <string name="essential_p2p_streams_subtitle">Дозволити P2P-джерела потоків.</string>
     <string name="essential_subtitle_language_subtitle">Бажана мова субтитрів.</string>
     <string name="essential_audio_language_subtitle">Бажана мова аудіо.</string>
     <!-- Account / sign-in error messages -->
@@ -1055,14 +1053,6 @@
     <string name="stream_no_streams">Потоки не знайдено</string>
     <string name="stream_no_streams_hint">Спробуйте встановити більше адонів для пошуку потоків</string>
     <string name="stream_finding_source">Пошук джерела потоку</string>
-    <string name="p2p_consent_title">P2P Стримінг</string>
-    <string name="p2p_consent_body">Цей потік використовує технологію P2P. Вмикаючи P2P, ви визнаєте та погоджуєтесь з тим, що:\n\n\u2022 Ваша IP-адреса буде видима іншим учасникам мережі\n\u2022 Ви несете повну відповідальність за контент, до якого звертаєтесь\n\u2022 Ви підтверджуєте законність стримінгу у вашій юрисдикції\n\u2022 Fetch не розміщує, не розповсюджує та не контролює P2P-контент\n\u2022 Fetch не несе відповідальності за юридичні наслідки\n\nВи використовуєте цю функцію на власний ризик. P2P можна вимкнути в Налаштуваннях.</string>
-    <string name="p2p_consent_enable">Увімкнути P2P</string>
-    <string name="p2p_consent_cancel">Скасувати</string>
-    <string name="settings_p2p_title">P2P Стримінг</string>
-    <string name="settings_p2p_subtitle">Дозволити P2P (торент) потоки</string>
-    <string name="settings_p2p_hide_stats_title">Приховати статистику торента</string>
-    <string name="settings_p2p_hide_stats_subtitle">Приховати буфер, сіди, піри та швидкість завантаження під час завантаження та відтворення</string>
     <string name="stream_player_picker_title">Який плеєр використовувати?</string>
     <string name="stream_player_internal">Вбудований</string>
     <string name="stream_player_external">Зовнішній</string>
@@ -1519,7 +1509,6 @@
     <string name="home_error_no_catalog_addons">Немає встановлених адонів каталогів</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Не вдалося запустити торент: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Підтримка HDR через рендеринг Canvas. Може блокувати потік UI.</string>
@@ -1877,11 +1866,6 @@
     <string name="playback_player_internal_desc">Використовувати вбудований плеєр Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d сідів · %2$d пірів</string>
-    <string name="player_torrent_buffered_status">%1$s буфер · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d пірів · %2$d сідів · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Підключення до пірів…</string>
     <string name="player_track_audio_fallback">Аудіо %1$d</string>
     <string name="player_track_subtitle_fallback">Субтитри %1$d</string>
 
@@ -1896,7 +1880,6 @@
     <string name="player_error_initialize_failed">Не вдалося ініціалізувати плеєр</string>
     <string name="player_error_mpv_surface_failed">Не вдалося ініціалізувати поверхню libmpv</string>
     <string name="player_error_mpv_playback_failed">Не вдалося ініціалізувати відтворення libmpv</string>
-    <string name="player_error_torrent">Помилка торента: %1$s</string>
     <string name="player_error_playback_fallback">Помилка відтворення</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">У цьому файлі не знайдено рядків субтитрів.</string>
@@ -1994,7 +1977,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Запуск рушія P2P…</string>
     <string name="player_stream_error_invalid_external_url">Невірний зовнішній URL потоку</string>
     <string name="player_stream_error_open_external_link_failed">Не вдалося відкрити зовнішнє посилання</string>
     <string name="player_stream_error_invalid_url">Невірний URL потоку</string>
@@ -2174,9 +2156,6 @@
     <string name="unit_size_kb">%1$s КБ</string>
     <string name="unit_size_mb">%1$s МБ</string>
     <string name="unit_size_gb">%1$s ГБ</string>
-    <string name="unit_speed_b_s">%1$d Б/с</string>
-    <string name="unit_speed_kb_s">%1$s КБ/с</string>
-    <string name="unit_speed_mb_s">%1$s МБ/с</string>
     <string name="playback_estimated_memory_usage">Орієнтовне використання пам’яті: %1$d / %2$d МБ</string>
     <string name="profile_default_name">Профіль %1$d</string>
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
@@ -2409,7 +2388,6 @@
     <string name="subtitle_style_text_color_hdr">Колір тексту (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Непрозорість тексту (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Це торент-потік, а у Fetch немає вбудованого торент-рушія. Налаштуйте debrid у доповненні, щоб отримати посилання, яке відтворюється тут, або відкрийте його в зовнішньому плеєрі.</string>
     <string name="because_you_watched_row_title">Тому що ви дивилися %1$s</string>
     <string name="because_you_watched_reason_collection">Також із: %1$s</string>
     <string name="because_you_watched_reason_director">Той самий режисер: %1$s</string>

@@ -570,8 +570,6 @@
     <string name="essential_autoplay_next_episode">Auto-play next episode</string>
     <string name="essential_autoplay_next_episode_subtitle">Continue to the next episode after a stream finishes.</string>
     <string name="external_auto_next_loading">Loading next episode…</string>
-    <string name="essential_p2p_streams">P2P streams</string>
-    <string name="essential_p2p_streams_subtitle">Allow peer-to-peer stream sources.</string>
     <string name="essential_subtitle_language_subtitle">Preferred subtitle language.</string>
     <string name="essential_audio_language_subtitle">Preferred audio language.</string>
     <!-- Account / sign-in error messages -->
@@ -1595,34 +1593,6 @@
     <string name="stream_finding_source">Finding stream source</string>
     <string name="youtube_resolving_stream">Loading YouTube video</string>
     <string name="youtube_resolution_failed">Could not load this YouTube video.</string>
-    <string name="p2p_consent_title">P2P Streaming</string>
-    <string name="p2p_consent_body">This stream uses peer-to-peer (P2P) technology. By enabling P2P, you acknowledge and agree that:\n\n\u2022 Your IP address will be visible to other peers in the network\n\u2022 You are solely responsible for the content you access\n\u2022 You confirm you have the legal right to stream this content in your jurisdiction\n\u2022 Fetch does not host, distribute, or control any P2P content\n\u2022 Fetch bears no liability for any legal consequences arising from your use of P2P streaming\n\nYou use this feature entirely at your own risk. P2P can be disabled anytime in Settings.</string>
-    <string name="p2p_consent_enable">Enable P2P</string>
-    <string name="p2p_consent_cancel">Cancel</string>
-    <string name="settings_p2p_title">P2P Streaming</string>
-    <string name="settings_p2p_subtitle">Allow peer-to-peer (torrent) streams</string>
-    <string name="settings_p2p_hide_stats_title">Hide torrent stats</string>
-    <string name="settings_p2p_hide_stats_subtitle">Hide buffer, seeds, peers and download speed during loading and playback</string>
-    <string name="settings_p2p_profile_title">Torrent profile</string>
-    <string name="settings_p2p_profile_soft">Soft</string>
-    <string name="settings_p2p_profile_balanced">Balanced</string>
-    <string name="settings_p2p_profile_fast">Fast</string>
-    <string name="settings_p2p_profile_soft_description">Uses fewer peer connections to reduce battery and network load</string>
-    <string name="settings_p2p_profile_balanced_description">Recommended balance of startup speed and connection stability</string>
-    <string name="settings_p2p_profile_fast_description">Uses more peer connections for difficult or high-bitrate torrents</string>
-    <string name="settings_p2p_cache_size_title">Torrent cache size</string>
-    <string name="settings_p2p_cache_size_description">Downloaded torrent data kept on this device for faster replays</string>
-    <string name="settings_p2p_cache_none">No persistent cache</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">Clear torrent cache</string>
-    <string name="settings_p2p_clear_cache_usage">%1$s currently used</string>
-    <string name="settings_p2p_clear_cache_usage_pending">Usage is measured after P2P starts; select to clear cached torrent data</string>
-    <string name="settings_p2p_clear_cache_clearing">Clearing inactive torrent data…</string>
-    <string name="settings_p2p_clear_cache_playback_active">Stop P2P playback before clearing the cache</string>
-    <string name="settings_p2p_clear_cache_done">Cleared %1$s of inactive torrent data</string>
-    <string name="settings_p2p_clear_cache_failed">Could not clear the torrent cache</string>
     <string name="stream_player_picker_title">What player should be used?</string>
     <string name="stream_player_internal">Internal</string>
     <string name="stream_player_external">External</string>
@@ -2216,7 +2186,6 @@
     <string name="home_error_no_catalog_addons">No catalog addons installed</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Failed to start torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">HDR support with canvas rendering. May block UI thread.</string>
@@ -2589,15 +2558,6 @@
     <string name="playback_player_internal_desc">Use Fetch\'s built-in player</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seeds · %2$d peers</string>
-    <string name="player_torrent_buffered_status">%1$s buffered · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peers · %2$d seeds · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Connecting to peers…</string>
-    <string name="player_torrent_fetching_metadata">Fetching torrent metadata…</string>
-    <string name="player_torrent_preparing_stream">Preparing torrent stream…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s downloaded · %2$s · %3$s</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Subtitle %1$d</string>
 
@@ -2612,7 +2572,6 @@
     <string name="player_error_initialize_failed">Failed to initialize player</string>
     <string name="player_error_mpv_surface_failed">Failed to initialize libmpv surface</string>
     <string name="player_error_mpv_playback_failed">Failed to initialize libmpv playback</string>
-    <string name="player_error_torrent">Torrent error: %1$s</string>
     <string name="player_error_playback_fallback">Playback error</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">No subtitle lines were found in this file.</string>
@@ -2818,12 +2777,8 @@
     <string name="advanced_skip_slow_addons">Don\'t wait for slow addons</string>
     <string name="advanced_skip_slow_addons_subtitle">Give up on an addon after %1$d s. Results come faster, but slow addons may be left out.</string>
     <string name="account_local_only_note">Sync is off. Fetch keeps your addons, progress and settings on this TV and needs no account. To sync between devices, connect your own sync server from the server options.</string>
-    <string name="torrent_engine_unavailable">This is a torrent stream and Fetch has no built-in torrent engine. Set up debrid in the addon to get a link that plays here, or open it in an external player.</string>
-    <string name="stream_torrent_external_player">Torrent: opens in an external player. Set up debrid in the addon to get a link that plays here.</string>
-    <string name="torrent_error_start_timeout">Torrent stream did not start within %1$ds</string>
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Starting P2P engine…</string>
     <string name="player_stream_error_invalid_external_url">Invalid external URL</string>
     <string name="player_stream_error_open_external_link_failed">Unable to open external link</string>
     <string name="player_stream_error_invalid_url">Invalid stream URL</string>
@@ -2991,9 +2946,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Estimated memory usage: %1$d / %2$d MB</string>

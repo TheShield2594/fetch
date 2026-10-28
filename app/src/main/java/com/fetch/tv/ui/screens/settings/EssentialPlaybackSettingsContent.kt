@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.core.torrent.TorrentService
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +24,6 @@ import com.fetch.tv.R
 import com.fetch.tv.data.local.AudioLanguageOption
 import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.local.SubtitleLanguageOption
-import com.fetch.tv.ui.components.P2pConsentDialog
 import kotlinx.coroutines.launch
 
 @Composable
@@ -34,13 +32,11 @@ fun EssentialPlaybackSettingsContent(
     viewModel: PlaybackSettingsViewModel = hiltViewModel()
 ) {
     val playerSettings by viewModel.playerSettings.collectAsStateWithLifecycle(initialValue = null)
-    val torrentSettings by viewModel.torrentSettingsFlow.collectAsStateWithLifecycle(initialValue = null)
     val coroutineScope = rememberCoroutineScope()
     var showSubtitleLanguageDialog by remember { mutableStateOf(false) }
     var showAudioLanguageDialog by remember { mutableStateOf(false) }
     var showDecoderPriorityDialog by remember { mutableStateOf(false) }
     var showFrameRateDialog by remember { mutableStateOf(false) }
-    var showP2pConsentDialog by remember { mutableStateOf(false) }
     val settings = playerSettings
 
     val listState = rememberLazyListState()
@@ -116,20 +112,6 @@ fun EssentialPlaybackSettingsContent(
                         value = settings?.let { frameRateMatchingLabel(it.frameRateMatchingMode) },
                         onClick = { showFrameRateDialog = true },
                         enabled = settings != null
-                    )
-                    if (TorrentService.ENGINE_AVAILABLE) SettingsToggleRow(
-                        title = stringResource(R.string.essential_p2p_streams),
-                        subtitle = stringResource(R.string.essential_p2p_streams_subtitle),
-                        checked = torrentSettings?.p2pEnabled == true,
-                        onToggle = {
-                            val current = torrentSettings ?: return@SettingsToggleRow
-                            if (current.p2pEnabled) {
-                                viewModel.setP2pEnabled(false)
-                            } else {
-                                showP2pConsentDialog = true
-                            }
-                        },
-                        enabled = torrentSettings != null
                     )
                 }
             }
@@ -226,15 +208,6 @@ fun EssentialPlaybackSettingsContent(
                 showFrameRateDialog = false
             },
             onDismiss = { showFrameRateDialog = false }
-        )
-    }
-    if (showP2pConsentDialog) {
-        P2pConsentDialog(
-            onEnableP2p = {
-                viewModel.setP2pEnabled(true)
-                showP2pConsentDialog = false
-            },
-            onDismiss = { showP2pConsentDialog = false }
         )
     }
 }

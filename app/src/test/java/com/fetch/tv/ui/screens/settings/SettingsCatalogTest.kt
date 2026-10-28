@@ -28,7 +28,6 @@ class SettingsCatalogTest {
                 SettingsCategory.PLAYBACK_SUBTITLES,
                 SettingsCategory.PLAYBACK_VIDEO,
                 SettingsCategory.PLAYBACK_BUFFER_NETWORK,
-                SettingsCategory.PLAYBACK_P2P,
                 SettingsCategory.ANIME_SKIP,
                 SettingsCategory.CONTENT_DISCOVERY,
                 SettingsCategory.TMDB,
@@ -190,7 +189,7 @@ class SettingsCatalogTest {
 
     @Test
     fun `the rail only lists the playback sections the player settings show`() {
-        val sections = PlaybackSection.entries - PlaybackSection.BUFFER_NETWORK - PlaybackSection.P2P
+        val sections = PlaybackSection.entries - PlaybackSection.BUFFER_NETWORK
         val categories = visibleSettingsCategories(
             isPrimaryProfile = true,
             isEssentialMode = false,

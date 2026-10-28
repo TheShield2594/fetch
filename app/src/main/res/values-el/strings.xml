@@ -453,8 +453,6 @@
   <string name="essential_stream_selection_subtitle">Επιλέξτε χειροκίνητα ή αυτόματη αναπαραγωγή της πρώτης διαθέσιμης ροής.</string>
   <string name="essential_autoplay_next_episode">Αυτόματη αναπαραγωγή επόμενου επεισοδίου</string>
   <string name="essential_autoplay_next_episode_subtitle">Συνέχεια στο επόμενο επεισόδιο μετά το τέλος μιας ροής.</string>
-  <string name="essential_p2p_streams">Ροές P2P</string>
-  <string name="essential_p2p_streams_subtitle">Να επιτρέπονται πηγές ροής peer-to-peer.</string>
   <string name="essential_subtitle_language_subtitle">Προτιμώμενη γλώσσα υπότιτλων.</string>
   <string name="essential_audio_language_subtitle">Προτιμώμενη γλώσσα ήχου.</string>
   <!-- Account / sign-in error messages -->
@@ -1288,34 +1286,6 @@
   <string name="stream_finding_source">Αναζήτηση πηγής ροής</string>
   <string name="youtube_resolving_stream">Φόρτωση βίντεο YouTube</string>
   <string name="youtube_resolution_failed">Δεν ήταν δυνατή η φόρτωση αυτού του βίντεο YouTube.</string>
-  <string name="p2p_consent_title">Ροή P2P</string>
-  <string name="p2p_consent_body">Αυτή η ροή χρησιμοποιεί τεχνολογία peer-to-peer (P2P). Ενεργοποιώντας το P2P, αναγνωρίζετε και αποδέχεστε ότι:\n\n• Η διεύθυνση IP σας θα είναι ορατή σε άλλους ομότιμους κόμβους (peers) στο δίκτυο\n• Είστε αποκλειστικά υπεύθυνοι για το περιεχόμενο που προσπελάζετε\n• Επιβεβαιώνετε ότι έχετε το νομικό δικαίωμα να κάνετε streaming αυτού του περιεχομένου στη δικαιοδοσία σας\n• Το Fetch δεν φιλοξενεί, δεν διανέμει και δεν ελέγχει κανένα περιεχόμενο P2P\n• Το Fetch δεν φέρει καμία ευθύνη για νομικές συνέπειες που προκύπτουν από τη χρήση του P2P streaming\n\nΧρησιμοποιείτε αυτή τη λειτουργία αποκλειστικά με δική σας ευθύνη. Το P2P μπορεί να απενεργοποιηθεί οποιαδήποτε στιγμή στις Ρυθμίσεις.</string>
-  <string name="p2p_consent_enable">Ενεργοποίηση P2P</string>
-  <string name="p2p_consent_cancel">Ακύρωση</string>
-  <string name="settings_p2p_title">Ροή P2P</string>
-  <string name="settings_p2p_subtitle">Να επιτρέπονται ροές peer-to-peer (torrent)</string>
-  <string name="settings_p2p_hide_stats_title">Απόκρυψη στατιστικών torrent</string>
-  <string name="settings_p2p_hide_stats_subtitle">Απόκρυψη buffer, seeds, peers και ταχύτητας λήψης κατά τη φόρτωση και την αναπαραγωγή</string>
-  <string name="settings_p2p_profile_title">Προφίλ torrent</string>
-  <string name="settings_p2p_profile_soft">Ήπιο</string>
-  <string name="settings_p2p_profile_balanced">Ισορροπημένο</string>
-  <string name="settings_p2p_profile_fast">Γρήγορο</string>
-  <string name="settings_p2p_profile_soft_description">Χρησιμοποιεί λιγότερες συνδέσεις με λήπτες για μειωμένη κατανάλωση μπαταρίας και δικτύου</string>
-  <string name="settings_p2p_profile_balanced_description">Συνιστώμενη ισορροπία μεταξύ ταχύτητας εκκίνησης και σταθερότητας σύνδεσης</string>
-  <string name="settings_p2p_profile_fast_description">Χρησιμοποιεί περισσότερες συνδέσεις με λήπτες για δύσκολα torrent ή torrent υψηλού ρυθμού μετάδοσης</string>
-  <string name="settings_p2p_cache_size_title">Μέγεθος προσωρινής μνήμης torrent</string>
-  <string name="settings_p2p_cache_size_description">Ληφθέντα δεδομένα torrent που διατηρούνται σε αυτή τη συσκευή για ταχύτερη επανάληψη</string>
-  <string name="settings_p2p_cache_none">Χωρίς μόνιμη προσωρινή μνήμη</string>
-  <string name="settings_p2p_cache_2_gb">2 GB</string>
-  <string name="settings_p2p_cache_5_gb">5 GB</string>
-  <string name="settings_p2p_cache_10_gb">10 GB</string>
-  <string name="settings_p2p_clear_cache_title">Καθαρισμός προσωρινής μνήμης torrent</string>
-  <string name="settings_p2p_clear_cache_usage">Σε χρήση αυτή τη στιγμή: %1$s</string>
-  <string name="settings_p2p_clear_cache_usage_pending">Η χρήση μετριέται αφού ξεκινήσει το P2P· επιλέξτε για να καθαρίσετε τα αποθηκευμένα δεδομένα torrent</string>
-  <string name="settings_p2p_clear_cache_clearing">Καθαρισμός ανενεργών δεδομένων torrent…</string>
-  <string name="settings_p2p_clear_cache_playback_active">Σταματήστε την αναπαραγωγή P2P πριν από τον καθαρισμό της προσωρινής μνήμης</string>
-  <string name="settings_p2p_clear_cache_done">Καθαρίστηκαν %1$s ανενεργών δεδομένων torrent</string>
-  <string name="settings_p2p_clear_cache_failed">Δεν ήταν δυνατός ο καθαρισμός της προσωρινής μνήμης torrent</string>
   <string name="stream_player_picker_title">Ποιο πρόγραμμα αναπαραγωγής να χρησιμοποιηθεί;</string>
   <string name="stream_player_internal">Εσωτερικό</string>
   <string name="stream_player_external">Εξωτερικό</string>
@@ -1838,7 +1808,6 @@
   <string name="home_error_no_catalog_addons">Δεν υπάρχουν εγκατεστημένα πρόσθετα καταλόγου</string>
   <!-- Player errors -->
   <string name="player_error_no_stream_url">Δεν δόθηκε URL ροής</string>
-  <string name="player_error_failed_start_torrent">Αποτυχία εκκίνησης torrent: %1$s</string>
   <!-- Playback subtitle settings -->
   <string name="sub_mode_overlay_canvas_sub">Υποστήριξη HDR με απόδοση καμβά. Ενδέχεται να μπλοκάρει το νήμα UI.</string>
   <string name="subtitle_style_weight">Πάχος</string>
@@ -2195,15 +2164,6 @@
   <!-- Playback settings sections -->
   <string name="playback_player_internal_desc">Χρήση του ενσωματωμένου προγράμματος αναπαραγωγής Fetch</string>
   <!-- Player runtime: torrent overlay + tracks -->
-  <string name="player_torrent_peer_info">%1$d διανομείς · %2$d λήπτες</string>
-  <string name="player_torrent_buffered_status">%1$s στην προσωρινή μνήμη · %2$s · %3$s</string>
-  <string name="player_torrent_status">%1$s · %2$s</string>
-  <string name="player_torrent_stats">%1$d λήπτες · %2$d διανομείς · %3$d%%</string>
-  <string name="player_torrent_connecting_peers">Σύνδεση με peers…</string>
-  <string name="player_torrent_fetching_metadata">Λήψη μεταδεδομένων torrent…</string>
-  <string name="player_torrent_preparing_stream">Προετοιμασία ροής torrent…</string>
-  <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-  <string name="player_torrent_loading_status">%1$s ληφθέντα · %2$s · %3$s</string>
   <string name="player_track_audio_fallback">Ήχος %1$d</string>
   <string name="player_track_subtitle_fallback">Υπότιτλος %1$d</string>
   <!-- Player runtime: error recovery -->
@@ -2217,7 +2177,6 @@
   <string name="player_error_initialize_failed">Αποτυχία αρχικοποίησης προγράμματος αναπαραγωγής</string>
   <string name="player_error_mpv_surface_failed">Αποτυχία αρχικοποίησης επιφάνειας libmpv</string>
   <string name="player_error_mpv_playback_failed">Αποτυχία αρχικοποίησης αναπαραγωγής libmpv</string>
-  <string name="player_error_torrent">Σφάλμα torrent: %1$s</string>
   <string name="player_error_playback_fallback">Σφάλμα αναπαραγωγής</string>
   <!-- Subtitle timing recovery -->
   <string name="subtitle_timing_file_no_lines">Δεν βρέθηκαν γραμμές υπότιτλων σε αυτό το αρχείο.</string>
@@ -2302,8 +2261,6 @@
   <string name="network_fast_error_token_missing">fast.com: δεν βρέθηκε διακριτικό στο bundle</string>
   <!-- Torrent service / TorrServer binary errors -->
   <!-- Player runtime: stream / external link errors -->
-  <string name="torrent_error_start_timeout">Η ροή torrent δεν ξεκίνησε εντός %1$d δευτ.</string>
-  <string name="player_torrent_starting_engine">Εκκίνηση μηχανής P2P…</string>
   <string name="player_stream_error_invalid_external_url">Μη έγκυρη εξωτερική URL</string>
   <string name="player_stream_error_open_external_link_failed">Δεν ήταν δυνατό το άνοιγμα εξωτερικού συνδέσμου</string>
   <string name="player_stream_error_invalid_url">Μη έγκυρη URL ροής</string>
@@ -2434,9 +2391,7 @@
   <string name="dv7_libdovi_mode_0_sub">Αναλύει το RPU και το εγγράφει ξανά χωρίς αλλαγές. Καμία μετατροπή προφίλ.</string>
   <string name="collections_editor_tmdb_collection_fallback">Συλλογή TMDB %1$d</string>
   <string name="diag_last_playback_title">Διαγνωστικά τελευταίας αναπαραγωγής</string>
-  <string name="unit_speed_b_s">%1$d B/s</string>
   <string name="hero_synopsis_read_more">Περισσότερα</string>
-  <string name="unit_speed_mb_s">%1$s MB/s</string>
   <string name="diag_label_device">Συσκευή</string>
   <string name="playback_net_fetch_performance_mode_sub">Ενεργοποίηση εγγενούς εκχωρητή μνήμης εκτός σωρού και βελτιστοποιήσεων μετακίνησης στο βίντεο.</string>
   <string name="dv7_libdovi_mode_3_sub">Μετατρέπει τις ροές Προφίλ 5 (DV5) σε Προφίλ 8.1. Ίδια μετατροπή με αυτή που χρησιμοποιεί η εναλλαγή «Μετατροπή DV5 σε DV8.1».</string>
@@ -2510,7 +2465,6 @@
   <string name="diag_value_available">Διαθέσιμο</string>
   <string name="settings_stream_addon_logo_description">Εμφάνιση λογότυπου και ονόματος πρόσθετου δίπλα στις πηγές ροών.</string>
   <string name="dv7_libdovi_mode_3_title">Λειτουργία 3 — Προφίλ 5 σε 8.1</string>
-  <string name="unit_speed_kb_s">%1$s KB/s</string>
   <string name="playback_estimated_memory_usage">Εκτιμώμενη χρήση μνήμης: %1$d / %2$d MB</string>
   <string name="dv7_libdovi_mode_0_title">Λειτουργία 0 — Αντιγραφή (χωρίς μετατροπή)</string>
   <string name="settings_stream_badge_position_dialog_title">Θέση διακριτικού</string>
@@ -2840,7 +2794,6 @@
     <string name="addon_health_failing">Το τελευταίο αίτημα απέτυχε</string>
     <string name="addon_health_timed_out">Το τελευταίο αίτημα έληξε</string>
     <string name="account_local_only_note">Ο συγχρονισμός είναι απενεργοποιημένος. Το Fetch κρατά τα πρόσθετα, την πρόοδο και τις ρυθμίσεις σας σε αυτή την τηλεόραση και δεν χρειάζεται λογαριασμό. Για συγχρονισμό μεταξύ συσκευών, συνδέστε τον δικό σας διακομιστή συγχρονισμού από τις επιλογές διακομιστή.</string>
-    <string name="torrent_engine_unavailable">Αυτή είναι ροή torrent και το Fetch δεν έχει ενσωματωμένη μηχανή torrent. Ρυθμίστε το debrid στο πρόσθετο για να λάβετε σύνδεσμο που παίζει εδώ, ή ανοίξτε το σε εξωτερικό πρόγραμμα αναπαραγωγής.</string>
     <string name="parental_title_blocked">Αυτός ο τίτλος ξεπερνά το όριο καταλληλότητας αυτού του προφίλ.</string>
     <string name="parental_addons_blocked">Αυτό το προφίλ δεν μπορεί να εγκαταστήσει πρόσθετα. Ζητήστε από έναν γονέα.</string>
     <string name="parental_gate_heading">Εισαγάγετε το PIN του προφίλ %1$s</string>

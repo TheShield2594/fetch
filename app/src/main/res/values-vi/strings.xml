@@ -507,8 +507,6 @@
     <string name="essential_autoplay_next_episode">Tự động phát tập tiếp theo</string>
     <string name="essential_autoplay_next_episode_subtitle">Tiếp tục phát tập tiếp theo sau khi luồng kết thúc.</string>
     <string name="external_auto_next_loading">Đang tải tập tiếp theo…</string>
-    <string name="essential_p2p_streams">Luồng P2P</string>
-    <string name="essential_p2p_streams_subtitle">Cho phép các nguồn luồng ngang hàng.</string>
     <string name="essential_subtitle_language_subtitle">Ngôn ngữ phụ đề ưu tiên.</string>
     <string name="essential_audio_language_subtitle">Ngôn ngữ âm thanh ưu tiên.</string>
     <!-- Account / sign-in error messages -->
@@ -1378,34 +1376,6 @@
     <string name="stream_finding_source">Đang tìm nguồn phát</string>
     <string name="youtube_resolving_stream">Đang tải video YouTube</string>
     <string name="youtube_resolution_failed">Không thể tải video YouTube này.</string>
-    <string name="p2p_consent_title">Phát luồng P2P</string>
-    <string name="p2p_consent_body">Luồng phát này sử dụng công nghệ ngang hàng (P2P)\n\nKhi bật P2P, bạn xác nhận và đồng ý rằng:\n\n• Địa chỉ IP của bạn sẽ hiển thị với các người dùng ngang hàng khác trong mạng.\n• Bạn tự chịu trách nhiệm về nội dung mình truy cập.\n• Bạn xác nhận mình có quyền hợp pháp để phát nội dung này tại khu vực của mình.\n• Fetch không lưu trữ, phân phối hoặc kiểm soát bất kỳ nội dung P2P nào.\n• Fetch không chịu trách nhiệm cho bất kỳ hậu quả pháp lý nào phát sinh từ việc sử dụng P2P.\n\nBạn tự chịu mọi rủi ro khi sử dụng tính năng này. Có thể tắt P2P bất cứ lúc nào trong phần Cài đặt</string>
-    <string name="p2p_consent_enable">Bật P2P</string>
-    <string name="p2p_consent_cancel">Hủy</string>
-    <string name="settings_p2p_title">Phát luồng P2P</string>
-    <string name="settings_p2p_subtitle">Cho phép phát trực tuyến ngang hàng (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Ẩn thống kê torrent</string>
-    <string name="settings_p2p_hide_stats_subtitle">Ẩn bộ đệm, số lượng seed, peer và tốc độ tải xuống trong khi tải và phát lại</string>
-    <string name="settings_p2p_profile_title">Cấu hình Torrent</string>
-    <string name="settings_p2p_profile_soft">Nhẹ</string>
-    <string name="settings_p2p_profile_balanced">Cân bằng</string>
-    <string name="settings_p2p_profile_fast">Nhanh</string>
-    <string name="settings_p2p_profile_soft_description">Sử dụng ít kết nối người dùng ngang hàng hơn để giảm tải cho pin và mạng</string>
-    <string name="settings_p2p_profile_balanced_description">Cân bằng được khuyến nghị giữa tốc độ khởi động và độ ổn định kết nối</string>
-    <string name="settings_p2p_profile_fast_description">Sử dụng nhiều kết nối người dùng ngang hàng hơn cho torrent khó tải hoặc có bitrate cao</string>
-    <string name="settings_p2p_cache_size_title">Dung lượng bộ nhớ đệm torrent</string>
-    <string name="settings_p2p_cache_size_description">Dữ liệu torrent đã tải xuống được lưu trên thiết bị này để xem lại nhanh hơn.</string>
-    <string name="settings_p2p_cache_none">Không có bộ nhớ đệm vĩnh viễn</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">Xóa bộ nhớ đệm torrent</string>
-    <string name="settings_p2p_clear_cache_usage">%1$s đang được dùng</string>
-    <string name="settings_p2p_clear_cache_usage_pending">Mức sử dụng sẽ được đo sau khi P2P khởi động; chạm để xóa dữ liệu torrent đã lưu trong bộ nhớ đệm</string>
-    <string name="settings_p2p_clear_cache_clearing">Đang xóa dữ liệu torrent không còn hoạt động…</string>
-    <string name="settings_p2p_clear_cache_playback_active">Dừng phát P2P trước khi xóa bộ nhớ đệm</string>
-    <string name="settings_p2p_clear_cache_done">Đã xóa %1$s dữ liệu torrent không hoạt động</string>
-    <string name="settings_p2p_clear_cache_failed">Không thể xóa bộ nhớ đệm torrent</string>
     <string name="stream_player_picker_title">Dùng trình phát nào?</string>
     <string name="stream_player_internal">Bên trong</string>
     <string name="stream_player_external">Bên ngoài</string>
@@ -1976,7 +1946,6 @@
     <string name="home_error_no_catalog_addons">Không có tiện ích danh mục đã cài đặt</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Không thể khởi động torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Hỗ trợ HDR khi kết xuất bằng vùng vẽ. Có thể làm nghẽn luồng giao diện người dùng.</string>
@@ -2345,15 +2314,6 @@
     <string name="playback_player_internal_desc">Sử dụng trình phát tích hợp của Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seed · %2$d peer</string>
-    <string name="player_torrent_buffered_status">Đã đệm %1$s · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peer · %2$d seed · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Đang kết nối tới các người dùng ngang hàng…</string>
-    <string name="player_torrent_fetching_metadata">Đang lấy siêu dữ liệu torrent…</string>
-    <string name="player_torrent_preparing_stream">Đang chuẩn bị luồng torrent…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s đã tải xuống · %2$s · %3$s</string>
     <string name="player_track_audio_fallback">Âm thanh %1$d</string>
     <string name="player_track_subtitle_fallback">Phụ đề %1$d</string>
 
@@ -2368,7 +2328,6 @@
     <string name="player_error_initialize_failed">Không thể khởi tạo trình phát</string>
     <string name="player_error_mpv_surface_failed">Không thể khởi tạo giao diện libmpv</string>
     <string name="player_error_mpv_playback_failed">Không thể khởi tạo quá trình phát libmpv</string>
-    <string name="player_error_torrent">Lỗi torrent: %1$s</string>
     <string name="player_error_playback_fallback">Lỗi phát lại</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Không tìm thấy dòng phụ đề nào trong tệp này.</string>
@@ -2498,10 +2457,8 @@
     <string name="network_fast_error_token_missing">fast.com: Không tìm thấy token trong gói</string>
 
     <!-- Torrent service / TorrServer binary errors -->
-    <string name="torrent_error_start_timeout">Luồng torrent đã không khởi chạy trong vòng %1$ds</string>
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Đang khởi động lõi P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL bên ngoài không hợp lệ</string>
     <string name="player_stream_error_open_external_link_failed">Không thể mở liên kết bên ngoài</string>
     <string name="player_stream_error_invalid_url">URL luồng phát không hợp lệ</string>
@@ -2669,9 +2626,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Mức sử dụng bộ nhớ ước tính: %1$d / %2$d MB</string>
@@ -2953,7 +2907,6 @@
     <string name="subtitle_style_text_color_hdr">Màu chữ (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Độ mờ đục chữ (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Đây là luồng torrent và Fetch không có trình torrent tích hợp. Thiết lập debrid trong addon để nhận liên kết phát được ở đây, hoặc mở nó trong trình phát bên ngoài.</string>
     <string name="ready_to_play">Sẵn sàng phát</string>
     <string name="home_row_ready_tonight">Sẵn sàng tối nay</string>
     <string name="ready_check_title">Kiểm tra nội dung sẵn sàng trong nền</string>

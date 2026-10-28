@@ -368,36 +368,6 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     rebufferCount = rebufferCount,
                     rebufferTotalMs = rebufferTotalMs
                 )
-                // Update torrent rebuffer progress from ExoPlayer's buffer state
-                if (isTorrentStream && _uiState.value.isBuffering && hasRenderedFirstFrame) {
-                    val bufferedAheadMs = (player.bufferedPosition - pos).coerceAtLeast(0)
-                    val bufferedSec = bufferedAheadMs / 1000f
-                    val statsHidden = _uiState.value.hideTorrentStats
-                    val message = if (statsHidden) {
-                        null
-                    } else {
-                        val speed = formatTorrentSpeed(context, _uiState.value.torrentDownloadSpeed)
-                        val peerInfo = context.getString(
-                            R.string.player_torrent_peer_info,
-                            _uiState.value.torrentSeeds,
-                            _uiState.value.torrentPeers
-                        )
-                        val bufLabel = String.format("%.0fs", bufferedSec)
-                        context.getString(
-                            R.string.player_torrent_buffered_status,
-                            bufLabel,
-                            peerInfo,
-                            speed
-                        )
-                    }
-                    val progress = (bufferedSec / 10f).coerceIn(0f, 1f)
-                    _uiState.update {
-                        it.copy(
-                            torrentBufferingMessage = message,
-                            torrentBufferingProgress = progress
-                        )
-                    }
-                }
                 updateActiveSkipInterval(pos)
                 if (!_playbackTimeline.value.isLive) {
                     evaluatePostPlayOverlayVisibility(
@@ -517,7 +487,6 @@ internal fun PlayerRuntimeController.submitPlaybackIssueReport() {
         bufferedPositionMs = timeline.bufferedPosition.takeIf { it > 0L },
         selectedAudioTrack = audioTrack,
         selectedSubtitleTrack = subtitleTrack,
-        isTorrentStream = isTorrentStream,
         playbackSettings = buildPlaybackIssuePlaybackSettingsInput(),
         playbackAnalytics = playbackAnalyticsInput
     )
@@ -1754,39 +1723,14 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     showSubtitleDelayOverlay = false
                 )
             }
-            if (isTorrentStream && currentInfoHash != null) {
-                releasePlayer()
-                stopTorrentStream()
-                launchTorrentSourceStream(
-                    stream = com.fetch.tv.domain.model.Stream(
-                        name = _uiState.value.currentStreamName,
-                        title = null,
-                        description = null,
-                        url = null,
-                        ytId = null,
-                        infoHash = currentInfoHash,
-                        fileIdx = currentFileIdx,
-                        externalUrl = null,
-                        behaviorHints = null,
-                        addonName = currentAddonName ?: "",
-                        addonLogo = currentAddonLogo
-                    ),
-                    infoHash = currentInfoHash!!,
-                    loadSavedProgress = true
-                )
-            } else {
-                releasePlayer()
-                initializePlayer(currentStreamUrl, currentHeaders)
-            }
+            releasePlayer()
+            initializePlayer(currentStreamUrl, currentHeaders)
         }
         PlayerEvent.OnReportPlaybackIssue -> {
             submitPlaybackIssueReport()
         }
         PlayerEvent.OnParentalGuideHide -> {
             _uiState.update { it.copy(showParentalGuide = false) }
-        }
-        PlayerEvent.OnToggleTorrentStats -> {
-            _uiState.update { it.copy(showTorrentStats = !it.showTorrentStats) }
         }
         is PlayerEvent.OnShowDisplayModeInfo -> {
             _uiState.update {
@@ -2033,12 +1977,4 @@ private fun String.safePlaybackEventsHost(): String {
     return runCatching {
         Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
-}
-
-private fun formatTorrentSpeed(context: android.content.Context, bytesPerSec: Long): String {
-    return when {
-        bytesPerSec >= 1_048_576 -> context.getString(R.string.unit_speed_mb_s, String.format("%.1f", bytesPerSec / 1_048_576.0))
-        bytesPerSec >= 1_024 -> context.getString(R.string.unit_speed_kb_s, String.format("%.0f", bytesPerSec / 1_024.0))
-        else -> context.getString(R.string.unit_speed_b_s, bytesPerSec)
-    }
 }

@@ -100,9 +100,8 @@ class StreamLinkCacheDataStore @Inject constructor(
             val url = json.optString("url", "")
             val streamName = json.optString("streamName", "")
             val infoHash = json.optString("infoHash", "").ifBlank { null }
-            // Accept entry if it has either a real URL (HTTP stream) or an
-            // infoHash (torrent stream — URL is re-resolved on each playback).
-            if (streamName.isBlank() || (url.isBlank() && infoHash == null)) return@runCatching null
+            // An entry without a URL is a bare torrent saved before Fetch went debrid-only.
+            if (streamName.isBlank() || url.isBlank()) return@runCatching null
 
             val sourcesJson = json.optJSONArray("sources")
             val sources = sourcesJson?.let { arr ->

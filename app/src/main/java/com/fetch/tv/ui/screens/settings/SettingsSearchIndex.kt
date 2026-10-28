@@ -26,7 +26,6 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.essential_stream_selection,
         R.string.essential_autoplay_next_episode,
         R.string.autoplay_post_play_recommendations,
-        R.string.essential_p2p_streams,
         R.string.essential_subtitles_and_audio,
         R.string.essential_subtitle_language,
         R.string.sub_use_forced_subtitles,
@@ -168,14 +167,6 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.playback_net_parallel,
         R.string.playback_net_connection_count,
         R.string.playback_net_chunk_size
-    ),
-    SettingsCategory.PLAYBACK_P2P to listOf(
-        R.string.settings_p2p_title,
-        R.string.p2p_consent_enable,
-        R.string.settings_p2p_hide_stats_title,
-        R.string.settings_p2p_profile_title,
-        R.string.settings_p2p_cache_size_title,
-        R.string.settings_p2p_clear_cache_title
     ),
     SettingsCategory.ANIME_SKIP to listOf(
         R.string.animeskip_title,

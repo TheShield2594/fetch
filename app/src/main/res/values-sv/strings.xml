@@ -1138,14 +1138,6 @@
     <string name="addon_qr_collections_scan_instruction">Skanna med din telefon för att hantera samlingar</string>
 
     <!-- StreamScreen / P2P -->
-    <string name="p2p_consent_title">P2P-streaming</string>
-    <string name="p2p_consent_body">Denna ström använder peer-to-peer (P2P)-teknik. Genom att aktivera P2P bekräftar och godkänner du att:\n\n• Din IP-adress kommer att vara synlig för andra peers i nätverket\n• Du är ensam ansvarig för det innehåll du ser\n• Du bekräftar att du har laglig rätt att se detta innehåll i din jurisdiktion\n• Fetch är inte värd för, distribuerar eller kontrollerar något P2P-innehåll\n• Fetch bär inget ansvar för rättsliga konsekvenser som uppstår vid din användning av P2P-streaming\n\nDu använder denna funktion helt på egen risk. P2P kan inaktiveras när som helst i Inställningar.</string>
-    <string name="p2p_consent_enable">Aktivera P2P</string>
-    <string name="p2p_consent_cancel">Avbryt</string>
-    <string name="settings_p2p_title">P2P-streaming</string>
-    <string name="settings_p2p_subtitle">Tillåt peer-to-peer (torrent)-strömmar</string>
-    <string name="settings_p2p_hide_stats_title">Dölj torrent-statistik</string>
-    <string name="settings_p2p_hide_stats_subtitle">Dölj buffer, seeds, peers och nedladdningshastighet under laddning och uppspelning</string>
 
     <!-- PlayerScreen -->
     <string name="player_loading_preparing">Förbereder ström…</string>
@@ -1599,7 +1591,6 @@
     <string name="subtitle_style_text_color_hdr">Textfärg (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Textopacitet (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Det här är en torrentström och Fetch har ingen inbyggd torrentmotor. Ställ in debrid i tillägget för att få en länk som spelas här, eller öppna den i en extern spelare.</string>
     <string name="because_you_watched_row_title">Eftersom du såg %1$s</string>
     <string name="because_you_watched_reason_collection">Även i %1$s</string>
     <string name="because_you_watched_reason_director">Även regisserad av %1$s</string>

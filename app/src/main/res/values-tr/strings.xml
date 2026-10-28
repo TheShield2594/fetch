@@ -512,8 +512,6 @@
     <string name="essential_autoplay_next_episode">Sonraki bölümü otomatik oynat</string>
     <string name="essential_autoplay_next_episode_subtitle">Bir yayın bittikten sonra sonraki bölüme geç.</string>
     <string name="external_auto_next_loading">Sonraki bölüm yükleniyor…</string>
-    <string name="essential_p2p_streams">P2P yayınları</string>
-    <string name="essential_p2p_streams_subtitle">Eşler arası (peer-to-peer) yayın kaynaklarına izin ver.</string>
     <string name="essential_subtitle_language_subtitle">Tercih edilen altyazı dili.</string>
     <string name="essential_audio_language_subtitle">Tercih edilen ses dili.</string>
     <!-- Account / sign-in error messages -->
@@ -1378,34 +1376,6 @@
     <string name="stream_finding_source">Kaynak aranıyor</string>
     <string name="youtube_resolving_stream">YouTube videosu yükleniyor…</string>
     <string name="youtube_resolution_failed">Bu YouTube videosu yüklenemedi.</string>
-    <string name="p2p_consent_title">P2P Yayın</string>
-    <string name="p2p_consent_body">Bu yayın eşler arası (P2P) teknolojisini kullanmaktadır. P2P\'yi etkinleştirerek şunları kabul etmiş olursunuz:\n\n\u2022 IP adresiniz ağdaki diğer kullanıcılara görünür hale gelecektir\n\u2022 Eriştiğiniz içerikten yalnızca siz sorumlusunuz\n\u2022 Bulunduğunuz yerde bu içeriği yasal olarak izleme hakkınız olduğunu onaylayıyorsunuz\n\u2022 Fetch hiçbir P2P içeriği barındırmaz, dağıtmaz veya kontrol etmez\n\u2022 Fetch, P2P yayını kullanımınızdan doğabilecek hukuki sonuçlardan sorumlu değildir\n\nBu özelliği tamamen kendi riskinizle kullanırsınız. P2P, istediğiniz zaman Ayarlar\'dan kapatılabilir.</string>
-    <string name="p2p_consent_enable">P2P\'yi Etkinleştir</string>
-    <string name="p2p_consent_cancel">İptal</string>
-    <string name="settings_p2p_title">P2P Yayın</string>
-    <string name="settings_p2p_subtitle">Eşler arası (torrent) yayınlara izin ver</string>
-    <string name="settings_p2p_hide_stats_title">Torrent istatistiklerini gizle</string>
-    <string name="settings_p2p_hide_stats_subtitle">Yükleme ve oynatma sırasında tampon, tohum, eş ve indirme hızı bilgisini gizle</string>
-    <string name="settings_p2p_profile_title">Torrent Profili</string>
-    <string name="settings_p2p_profile_soft">Hafif</string>
-    <string name="settings_p2p_profile_balanced">Dengeli</string>
-    <string name="settings_p2p_profile_fast">Hızlı</string>
-    <string name="settings_p2p_profile_soft_description">Pil ve ağ yükünü azaltmak için daha az eş bağlantısı kullanır</string>
-    <string name="settings_p2p_profile_balanced_description">Başlangıç hızı ile bağlantı kararlılığı arasında önerilen denge</string>
-    <string name="settings_p2p_profile_fast_description">Zor veya yüksek bit hızlı torrentler için daha fazla eş bağlantısı kullanır</string>
-    <string name="settings_p2p_cache_size_title">Torrent Önbellek Boyutu</string>
-    <string name="settings_p2p_cache_size_description">Daha hızlı tekrar oynatma için bu cihazda saklanan indirilen torrent verileri</string>
-    <string name="settings_p2p_cache_none">Kalıcı önbellek yok</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">Torrent Önbelleğini Temizle</string>
-    <string name="settings_p2p_clear_cache_usage">Şu anda %1$s kullanılıyor</string>
-    <string name="settings_p2p_clear_cache_usage_pending">Kullanım P2P başladıktan sonra ölçülür; önbelleğe alınan torrent verilerini temizlemek için seçin</string>
-    <string name="settings_p2p_clear_cache_clearing">Etkin olmayan torrent verileri temizleniyor…</string>
-    <string name="settings_p2p_clear_cache_playback_active">Önbelleği temizlemeden önce P2P oynatmayı durdurun</string>
-    <string name="settings_p2p_clear_cache_done">%1$s etkin olmayan torrent verisi temizlendi</string>
-    <string name="settings_p2p_clear_cache_failed">Torrent önbelleği temizlenemedi</string>
     <string name="stream_player_picker_title">Hangi oynatıcı kullanılsın?</string>
     <string name="stream_player_internal">Dahili Oynatıcı</string>
     <string name="stream_player_external">Harici Oynatıcı</string>
@@ -2044,9 +2014,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
     <string name="playback_estimated_memory_usage">Tahmini bellek kullanımı: %1$d / %2$d MB</string>
     <string name="profile_default_name">Profil %1$d</string>
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
@@ -2137,7 +2104,6 @@
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">Yayın URL\'si yok</string>
-    <string name="player_error_failed_start_torrent">Torrent başlatılamadı: %1$s</string>
     <string name="player_stream_error_invalid_external_url">Geçersiz harici URL</string>
     <string name="player_stream_error_open_external_link_failed">Harici bağlantı açılamadı</string>
     <string name="player_stream_error_invalid_url">Geçersiz yayın URL\'si</string>
@@ -2531,16 +2497,6 @@
     <string name="playback_player_internal_desc">Fetch\'in dahili oynatıcısını kullan</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seed · %2$d peer</string>
-    <string name="player_torrent_buffered_status">%1$s önbellekte · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peer · %2$d seed · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Eşlere bağlanılıyor…</string>
-    <string name="player_torrent_fetching_metadata">Torrent meta verileri alınıyor…</string>
-    <string name="player_torrent_preparing_stream">Torrent yayını hazırlanıyor…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s indirildi · %2$s · %3$s</string>
-    <string name="player_torrent_starting_engine">P2P motoru başlatılıyor…</string>
     <string name="player_track_audio_fallback">Ses %1$d</string>
     <string name="player_track_subtitle_fallback">Altyazı %1$d</string>
 
@@ -2555,7 +2511,6 @@
     <string name="player_error_initialize_failed">Oynatıcı başlatılamadı</string>
     <string name="player_error_mpv_surface_failed">libmpv yüzeyi başlatılamadı</string>
     <string name="player_error_mpv_playback_failed">libmpv oynatması başlatılamadı</string>
-    <string name="player_error_torrent">Torrent hatası: %1$s</string>
     <string name="player_error_playback_fallback">Oynatma hatası</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Bu dosyada altyazı satırı bulunamadı.</string>
@@ -2686,7 +2641,6 @@
     <string name="network_error_unknown">Bilinmeyen bir hata oluştu</string>
     <string name="network_fast_error_script_path_missing">fast.com: betik yolu bulunamadı</string>
     <string name="network_fast_error_token_missing">fast.com: pakette token bulunamadı</string>
-    <string name="torrent_error_start_timeout">Torrent yayını %1$d saniye içinde başlamadı</string>
 
     <!-- Subtitle preferred language fallback -->
 
@@ -2969,7 +2923,6 @@
     <string name="subtitle_style_text_color_hdr">Metin Rengi (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Metin Opaklığı (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Bu bir torrent yayını ve Fetch\'te yerleşik bir torrent motoru yok. Burada oynatılan bir bağlantı almak için eklentide debrid ayarla veya harici bir oynatıcıda aç.</string>
     <string name="ready_to_play">Oynatmaya hazır</string>
     <string name="home_row_ready_tonight">Bu akşam için hazır</string>
     <string name="ready_check_title">Neyin hazır olduğunu arka planda denetle</string>

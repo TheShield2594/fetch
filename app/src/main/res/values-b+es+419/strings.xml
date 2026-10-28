@@ -507,8 +507,6 @@
     <string name="essential_autoplay_next_episode">Reproducción automática del siguiente episodio</string>
     <string name="essential_autoplay_next_episode_subtitle">Continúa al siguiente episodio cuando termine un stream.</string>
     <string name="external_auto_next_loading">Cargando el siguiente episodio…</string>
-    <string name="essential_p2p_streams">Streams P2P</string>
-    <string name="essential_p2p_streams_subtitle">Permitir fuentes de stream peer-to-peer.</string>
     <string name="essential_subtitle_language_subtitle">Idioma preferido de subtítulos.</string>
     <string name="essential_audio_language_subtitle">Idioma preferido de audio.</string>
     <!-- Account / sign-in error messages -->
@@ -1378,34 +1376,6 @@
     <string name="stream_finding_source">Buscando fuentes de transmisión</string>
     <string name="youtube_resolving_stream">Cargando video de YouTube</string>
     <string name="youtube_resolution_failed">No se pudo cargar este video de YouTube.</string>
-    <string name="p2p_consent_title">Streaming P2P</string>
-    <string name="p2p_consent_body">Este contenido utiliza tecnología peer-to-peer (P2P). Al habilitar P2P, reconoces y aceptas que:\n\n\u2022 Tu dirección IP será visible para otros pares en la red\n\u2022 Eres el único responsable del contenido al que accedes\n\u2022 Confirmas que tienes el derecho legal para reproducir este contenido en tu jurisdicción\n\u2022 Fetch no aloja, distribuye ni controla contenido P2P\n\u2022 Fetch no asume responsabilidad por consecuencias legales derivadas del uso de P2P\n\nUsas esta función bajo tu propio riesgo. Puedes desactivar P2P en cualquier momento desde Configuración.</string>
-    <string name="p2p_consent_enable">Activar P2P</string>
-    <string name="p2p_consent_cancel">Cancelar</string>
-    <string name="settings_p2p_title">Streaming P2P</string>
-    <string name="settings_p2p_subtitle">Permitir transmisiones peer-to-peer (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Ocultar estadísticas de torrent</string>
-    <string name="settings_p2p_hide_stats_subtitle">Ocultar buffer, seeds, peers y velocidad de descarga durante la carga y reproducción</string>
-    <string name="settings_p2p_profile_title">Perfil de torrent</string>
-    <string name="settings_p2p_profile_soft">Suave</string>
-    <string name="settings_p2p_profile_balanced">Equilibrado</string>
-    <string name="settings_p2p_profile_fast">Rápido</string>
-    <string name="settings_p2p_profile_soft_description">Usa menos conexiones con pares para reducir el consumo de batería y la carga de la red</string>
-    <string name="settings_p2p_profile_balanced_description">Equilibrio recomendado entre velocidad de inicio y estabilidad de la conexión</string>
-    <string name="settings_p2p_profile_fast_description">Usa más conexiones con pares para torrents difíciles o de alta tasa de bits</string>
-    <string name="settings_p2p_cache_size_title">Tamaño de la caché de torrents</string>
-    <string name="settings_p2p_cache_size_description">Datos de torrents descargados que se conservan en este dispositivo para reproducirlos más rápido</string>
-    <string name="settings_p2p_cache_none">Sin caché persistente</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">Borrar caché de torrents</string>
-    <string name="settings_p2p_clear_cache_usage">%1$s usados actualmente</string>
-    <string name="settings_p2p_clear_cache_usage_pending">El uso se mide después de iniciar P2P; selecciona para borrar los datos de torrents almacenados en caché</string>
-    <string name="settings_p2p_clear_cache_clearing">Borrando datos de torrents inactivos…</string>
-    <string name="settings_p2p_clear_cache_playback_active">Detén la reproducción P2P antes de borrar la caché</string>
-    <string name="settings_p2p_clear_cache_done">Se borraron %1$s de datos de torrents inactivos</string>
-    <string name="settings_p2p_clear_cache_failed">No se pudo borrar la caché de torrents</string>
     <string name="stream_player_picker_title">¿Qué reproductor se debería usar?</string>
     <string name="stream_player_internal">Interno</string>
     <string name="stream_player_external">Externo</string>
@@ -1976,7 +1946,6 @@
     <string name="home_error_no_catalog_addons">No hay addons de catálogo instalados</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">No se pudo iniciar el torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Soporte HDR con renderizado en canvas. Puede bloquear el hilo de la interfaz.</string>
@@ -2345,15 +2314,6 @@
     <string name="playback_player_internal_desc">Usar el reproductor integrado de Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seeds · %2$d peers</string>
-    <string name="player_torrent_buffered_status">%1$s almacenado · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peers · %2$d seeds · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Conectando a peers…</string>
-    <string name="player_torrent_fetching_metadata">Obteniendo metadatos del torrent…</string>
-    <string name="player_torrent_preparing_stream">Preparando stream del torrent…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s descargado · %2$s · %3$s</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Subtítulo %1$d</string>
 
@@ -2368,7 +2328,6 @@
     <string name="player_error_initialize_failed">No se pudo inicializar el reproductor</string>
     <string name="player_error_mpv_surface_failed">No se pudo inicializar la superficie de libmpv</string>
     <string name="player_error_mpv_playback_failed">No se pudo inicializar la reproducción de libmpv</string>
-    <string name="player_error_torrent">Error de torrent: %1$s</string>
     <string name="player_error_playback_fallback">Error de reproducción</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">No se encontraron líneas de subtítulos en este archivo.</string>
@@ -2498,10 +2457,8 @@
     <string name="network_fast_error_token_missing">fast.com: token no encontrado en el paquete</string>
 
     <!-- Torrent service / TorrServer binary errors -->
-    <string name="torrent_error_start_timeout">El stream del torrent no se inició dentro de %1$ds</string>
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Iniciando motor P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL externa no válida</string>
     <string name="player_stream_error_open_external_link_failed">No se pudo abrir el enlace externo</string>
     <string name="player_stream_error_invalid_url">URL de stream no válida</string>
@@ -2669,9 +2626,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Uso estimado de memoria: %1$d / %2$d MB</string>
@@ -2959,7 +2913,6 @@
     <string name="subtitle_style_text_color_hdr">Color del texto (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacidad del texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Este es un stream torrent y Fetch no tiene un motor torrent integrado. Configura debrid en el addon para obtener un enlace que se reproduzca aquí, o ábrelo en un reproductor externo.</string>
     <string name="ready_to_play">Listo para reproducir</string>
     <string name="home_row_ready_tonight">Listo para esta noche</string>
     <string name="ready_check_title">Revisar en segundo plano qué está listo</string>

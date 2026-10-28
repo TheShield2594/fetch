@@ -53,6 +53,7 @@ Highlights:
 - **Watch state.** Continue Watching, next-episode autoplay, skip intro/recap from community
   markers (IntroDB, AniSkip, Anime-Skip), Trakt and Simkl sync, and the Android TV "Watch Next" row.
 - **Debrid through addons.** Like Stremio, debrid accounts are set up in the addons that support them.
+  Fetch is debrid-only: it has no torrent engine and hides torrent results that have no playable link.
 - **Your own library.** Jellyfin, Emby and Plex items appear alongside addon results and outrank them.
 - **Configure from your phone.** Scan a QR code to manage addons, catalogs, stream ranking and
   badges from a phone browser on the same network.
@@ -105,8 +106,6 @@ Two flavors exist: `full` (in-app updates from this repo's GitHub releases, in-a
 - **DV7 → 8.1 conversion** links a prebuilt [libdovi](https://github.com/quietvoid/dovi_tool)
   when `DOVI_NATIVE_ENABLED=true`. The static archives are not committed; build or download
   them into `DV7/libdovi/<abi>/` and point `DOVI_LIBDOVI_PREBUILT_ROOT` at that folder.
-- **On-device torrent streaming** is not included. Torrent results are handed to an external
-  player; debrid links come from addons already resolved.
 
 ### Logo
 

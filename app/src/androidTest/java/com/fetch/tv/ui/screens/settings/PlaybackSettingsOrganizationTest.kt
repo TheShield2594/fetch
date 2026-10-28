@@ -130,12 +130,10 @@ class PlaybackSettingsOrganizationTest {
                 Box(modifier = Modifier.requiredHeight(6000.dp)) {
                     PlaybackSettingsSections(
                         playerSettings = settings,
-                        p2p = P2pSettingsUi(),
                         transparentLetterbox = false,
                         onUpdate = {},
                         onOpenDialog = {},
-                        onMemorySettingChanged = {},
-                        onClearTorrentCache = {}
+                        onMemorySettingChanged = {}
                     )
                 }
             }

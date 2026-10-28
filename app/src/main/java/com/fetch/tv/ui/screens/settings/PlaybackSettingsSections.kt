@@ -19,7 +19,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.data.local.PlayerSettings
-import com.fetch.tv.ui.components.P2pConsentDialog
 
 internal object PlaybackSettingsTestTags {
     fun section(section: PlaybackSection): String = "playback_section_${section.name.lowercase()}"
@@ -28,12 +27,10 @@ internal object PlaybackSettingsTestTags {
 @Composable
 internal fun PlaybackSettingsSections(
     playerSettings: PlayerSettings,
-    p2p: P2pSettingsUi,
     transparentLetterbox: Boolean,
     onUpdate: PlaybackSettingsUpdate,
     onOpenDialog: (PlaybackDialog) -> Unit,
     onMemorySettingChanged: () -> Unit,
-    onClearTorrentCache: () -> Unit,
     initialFocusRequester: FocusRequester? = null
 ) {
     val sections = visiblePlaybackSections(playerSettings)
@@ -67,12 +64,10 @@ internal fun PlaybackSettingsSections(
                     PlaybackSectionContent(
                         section = section,
                         playerSettings = playerSettings,
-                        p2p = p2p,
                         transparentLetterbox = transparentLetterbox,
                         onUpdate = onUpdate,
                         onOpenDialog = onOpenDialog,
-                        onMemorySettingChanged = onMemorySettingChanged,
-                        onClearTorrentCache = onClearTorrentCache
+                        onMemorySettingChanged = onMemorySettingChanged
                     )
                 }
             }
@@ -85,12 +80,10 @@ internal fun PlaybackSettingsSections(
 internal fun PlaybackSectionContent(
     section: PlaybackSection,
     playerSettings: PlayerSettings,
-    p2p: P2pSettingsUi,
     transparentLetterbox: Boolean,
     onUpdate: PlaybackSettingsUpdate,
     onOpenDialog: (PlaybackDialog) -> Unit,
-    onMemorySettingChanged: () -> Unit,
-    onClearTorrentCache: () -> Unit
+    onMemorySettingChanged: () -> Unit
 ) {
     when (section) {
         PlaybackSection.PLAYER -> PlaybackPlayerSection(playerSettings, onUpdate, onOpenDialog)
@@ -102,7 +95,6 @@ internal fun PlaybackSectionContent(
         PlaybackSection.SUBTITLES -> PlaybackSubtitlesSection(playerSettings, onUpdate, onOpenDialog)
         PlaybackSection.VIDEO -> PlaybackVideoSection(playerSettings, transparentLetterbox, onUpdate, onOpenDialog)
         PlaybackSection.BUFFER_NETWORK -> PlaybackBufferNetworkSection(playerSettings, onUpdate, onMemorySettingChanged)
-        PlaybackSection.P2P -> PlaybackP2pSection(p2p, onUpdate, onOpenDialog, onClearTorrentCache)
     }
 }
 
@@ -110,7 +102,6 @@ internal fun PlaybackSectionContent(
 internal fun PlaybackSettingsDialogs(
     dialog: PlaybackDialog?,
     settings: PlayerSettings,
-    p2p: P2pSettingsUi,
     installedAddonNames: List<String>,
     onUpdate: PlaybackSettingsUpdate,
     onDismiss: () -> Unit
@@ -133,19 +124,11 @@ internal fun PlaybackSettingsDialogs(
             },
             onDismiss = onDismiss
         )
-        PlaybackDialog.P2P_CONSENT -> P2pConsentDialog(
-            onEnableP2p = {
-                onUpdate { setP2pEnabled(true) }
-                onDismiss()
-            },
-            onDismiss = onDismiss
-        )
         else -> {
             AutoPlaySettingsDialogs(dialog, settings, installedAddonNames, onUpdate, onDismiss)
             AudioSettingsDialogs(dialog, settings, onUpdate, onDismiss)
             SubtitleSettingsDialogs(dialog, settings, onUpdate, onDismiss)
             VideoSettingsDialogs(dialog, settings, onUpdate, onDismiss)
-            P2pSettingsDialogs(dialog, p2p, onUpdate, onDismiss)
         }
     }
 }

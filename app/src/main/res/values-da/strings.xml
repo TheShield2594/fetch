@@ -396,8 +396,6 @@
     <string name="essential_autoplay_next_episode">Autoafspil næste afsnit</string>
     <string name="essential_autoplay_next_episode_subtitle">Fortsæt til næste afsnit, når en stream er færdig.</string>
     <string name="external_auto_next_loading">Indlæser næste afsnit…</string>
-    <string name="essential_p2p_streams">P2P-streams</string>
-    <string name="essential_p2p_streams_subtitle">Tillad peer-to-peer-streamkilder.</string>
     <string name="essential_subtitle_language_subtitle">Foretrukket undertekstsprog.</string>
     <string name="essential_audio_language_subtitle">Foretrukket lydsprog.</string>
     <!-- Account / sign-in error messages -->
@@ -1060,14 +1058,6 @@
     <string name="stream_no_streams">Ingen streams fundet</string>
     <string name="stream_no_streams_hint">Prøv at installere flere addons for at finde streams</string>
     <string name="stream_finding_source">Finder stream-kilde</string>
-    <string name="p2p_consent_title">P2P-streaming</string>
-    <string name="p2p_consent_body">Denne stream bruger peer-to-peer (P2P)-teknologi. Ved at aktivere P2P anerkender og accepterer du, at:\n\n\u2022 Din IP-adresse vil være synlig for andre peers i netværket\n\u2022 Du er eneansvarlig for det indhold, du tilgår\n\u2022 Du bekræfter, at du har den lovlige ret til at streame dette indhold i din jurisdiktion\n\u2022 Fetch hoster, distribuerer eller kontrollerer ikke noget P2P-indhold\n\u2022 Fetch er ikke ansvarlig for eventuelle juridiske konsekvenser som følge af din brug af P2P-streaming\n\nDu bruger denne funktion udelukkende på eget ansvar. P2P kan deaktiveres når som helst i Indstillinger.</string>
-    <string name="p2p_consent_enable">Aktivér P2P</string>
-    <string name="p2p_consent_cancel">Annullér</string>
-    <string name="settings_p2p_title">P2P-streaming</string>
-    <string name="settings_p2p_subtitle">Tillad peer-to-peer (torrent)-streams</string>
-    <string name="settings_p2p_hide_stats_title">Skjul torrent-statistik</string>
-    <string name="settings_p2p_hide_stats_subtitle">Skjul buffer, seeds, peers og downloadhastighed under indlæsning og afspilning</string>
     <string name="stream_player_picker_title">Hvilken afspiller skal bruges?</string>
     <string name="stream_player_internal">Intern</string>
     <string name="stream_player_external">Ekstern</string>
@@ -1524,7 +1514,6 @@
     <string name="home_error_no_catalog_addons">Ingen katalog-addons installeret</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Kunne ikke starte torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">HDR-understøttelse med canvas-rendering. Kan blokere UI-tråden.</string>
@@ -1882,11 +1871,6 @@
     <string name="playback_player_internal_desc">Brug den indbyggede afspiller i Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seeders · %2$d peers</string>
-    <string name="player_torrent_buffered_status">%1$s bufferet · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peers · %2$d seeders · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Opretter forbindelse til peers…</string>
     <string name="player_track_audio_fallback">Lyd %1$d</string>
     <string name="player_track_subtitle_fallback">Undertekst %1$d</string>
 
@@ -1901,7 +1885,6 @@
     <string name="player_error_initialize_failed">Kunne ikke initialisere afspiller</string>
     <string name="player_error_mpv_surface_failed">Kunne ikke initialisere libmpv-overflade</string>
     <string name="player_error_mpv_playback_failed">Kunne ikke initialisere libmpv-afspilning</string>
-    <string name="player_error_torrent">Torrent-fejl: %1$s</string>
     <string name="player_error_playback_fallback">Afspilningsfejl</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Der blev ikke fundet undertekstlinjer i denne fil.</string>
@@ -1999,7 +1982,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Starter P2P-motor…</string>
     <string name="player_stream_error_invalid_external_url">Ugyldig ekstern URL</string>
     <string name="player_stream_error_open_external_link_failed">Kunne ikke åbne eksternt link</string>
     <string name="player_stream_error_invalid_url">Ugyldig stream-URL</string>
@@ -2154,9 +2136,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Estimeret hukommelsesforbrug: %1$d / %2$d MB</string>
@@ -2384,7 +2363,6 @@
     <string name="subtitle_style_text_color_hdr">Tekstfarve (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Tekstgennemsigtighed (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Dette er en torrent-stream, og Fetch har ingen indbygget torrent-motor. Opsæt debrid i tilføjelsen for at få et link, der kan afspilles her, eller åbn den i en ekstern afspiller.</string>
     <string name="because_you_watched_row_title">Fordi du så %1$s</string>
     <string name="because_you_watched_reason_collection">Også i %1$s</string>
     <string name="because_you_watched_reason_director">Også instrueret af %1$s</string>

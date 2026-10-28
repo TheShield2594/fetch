@@ -21,7 +21,6 @@ import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.streams.ranking.ExclusionReason
 import com.fetch.tv.core.streams.ranking.label
-import com.fetch.tv.core.torrent.TorrentService
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -111,7 +110,6 @@ import com.fetch.tv.data.local.PlayerPreference
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
-import com.fetch.tv.ui.components.P2pConsentDialog
 import com.fetch.tv.ui.components.StreamBadgeChips
 import com.fetch.tv.ui.components.StreamsSkeletonList
 import com.fetch.tv.ui.screens.player.LoadingOverlay
@@ -156,9 +154,6 @@ fun StreamScreen(
     var showPlayerChoiceDialog by remember { mutableStateOf(false) }
     var sourceOptions by remember { mutableStateOf<List<SourceRule>?>(null) }
     var pendingPlaybackInfo by remember { mutableStateOf<StreamPlaybackInfo?>(null) }
-    var showP2pConsentDialog by remember { mutableStateOf(false) }
-    var pendingTorrentPlaybackInfo by remember { mutableStateOf<StreamPlaybackInfo?>(null) }
-    val p2pEnabled by viewModel.p2pEnabled.collectAsStateWithLifecycle(initialValue = false)
     val streamBadgeSettings by viewModel.streamBadgeSettings.collectAsStateWithLifecycle(
         initialValue = StreamBadgeSettings()
     )
@@ -172,7 +167,7 @@ fun StreamScreen(
     }
 
     fun launchExternalPlayer(playbackInfo: StreamPlaybackInfo) {
-        val url = playbackInfo.url ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else return
+        val url = playbackInfo.url ?: return
         scope.coroutineLaunch {
             viewModel.launchExternalPlayer(
                 playbackInfo = playbackInfo,
@@ -212,24 +207,12 @@ fun StreamScreen(
             return
         }
         val preference = if (playbackInfo.isServerStream) PlayerPreference.INTERNAL else playerPreference ?: return
-        if (playbackInfo.isTorrent && !p2pEnabled && TorrentService.ENGINE_AVAILABLE) {
-            pendingTorrentPlaybackInfo = playbackInfo
-            showP2pConsentDialog = true
-            return
-        }
-        // With no torrent engine, an unresolved torrent only plays in an external player, so
-        // offer the player choice instead of letting the internal player fail on it.
-        if (playbackInfo.isTorrent && !TorrentService.ENGINE_AVAILABLE && preference == PlayerPreference.INTERNAL) {
-            pendingPlaybackInfo = playbackInfo
-            showPlayerChoiceDialog = true
-            return
-        }
         when (preference) {
             PlayerPreference.INTERNAL -> {
                 launchInternalPlayer(playbackInfo)
             }
             PlayerPreference.EXTERNAL -> {
-                if (playbackInfo.url != null || playbackInfo.isTorrent) {
+                if (playbackInfo.url != null) {
                     launchExternalPlayer(playbackInfo)
                 }
             }
@@ -245,18 +228,12 @@ fun StreamScreen(
             viewModel.onEvent(StreamScreenEvent.OnAutoPlayConsumed)
             return
         }
-        // Always check P2P consent for torrents, even in direct auto-play flow
-        if (playbackInfo.isTorrent && !p2pEnabled && TorrentService.ENGINE_AVAILABLE) {
-            pendingTorrentPlaybackInfo = playbackInfo
-            showP2pConsentDialog = true
-            return
-        }
         val preference = if (playbackInfo.isServerStream) PlayerPreference.INTERNAL else playerPreference ?: return
         if (uiState.isDirectAutoPlayFlow) {
             // Respect player preference even in direct autoplay flow
             when (preference) {
                 PlayerPreference.EXTERNAL -> {
-                    val url = playbackInfo.url ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else null
+                    val url = playbackInfo.url
                     url?.let { urlString ->
                         scope.coroutineLaunch {
                             viewModel.launchExternalPlayer(
@@ -308,9 +285,7 @@ fun StreamScreen(
             viewModel.onEvent(StreamScreenEvent.OnAutoPlayConsumed)
             return@LaunchedEffect
         }
-        // Torrent streams have url == null but carry an infoHash; navigation
-        // builds a torrent:// sentinel URL downstream.
-        if (playbackInfo.url != null || (playbackInfo.isTorrent && playbackInfo.infoHash != null)) {
+        if (playbackInfo.url != null) {
             viewModel.awaitStreamLinkCacheSave()
             routeAutoPlay(playbackInfo)
         }
@@ -341,17 +316,11 @@ fun StreamScreen(
             viewModel.onEvent(StreamScreenEvent.OnAutoPlayConsumed)
             return@LaunchedEffect
         }
-        if (playbackInfo.url != null || (playbackInfo.isTorrent && playbackInfo.infoHash != null)) {
-            // Torrent cached links still need P2P consent
-            if (playbackInfo.isTorrent && !p2pEnabled && TorrentService.ENGINE_AVAILABLE) {
-                pendingTorrentPlaybackInfo = playbackInfo
-                showP2pConsentDialog = true
-                return@LaunchedEffect
-            }
+        if (playbackInfo.url != null) {
             // Respect player preference for cached links too
             when (playerPreference ?: return@LaunchedEffect) {
                 PlayerPreference.EXTERNAL -> {
-                    val url = playbackInfo.url ?: if (playbackInfo.isTorrent) "torrent://${playbackInfo.infoHash}" else null
+                    val url = playbackInfo.url
                     url?.let { urlString ->
                         Log.d("StreamScreen", "autoPlayPlaybackInfo EXTERNAL: launching player, will pop after 800ms")
                         viewModel.launchExternalPlayer(
@@ -529,7 +498,6 @@ fun StreamScreen(
                     streams = uiState.filteredStreams,
                     streamExclusions = uiState.streamExclusions,
                     bestMatchFirst = uiState.bestMatchFirst,
-                    torrentsNeedExternalPlayer = uiState.torrentsNeedExternalPlayer,
                     availableAddons = uiState.availableAddons,
                     sourceChips = uiState.sourceChips,
                     selectedAddonFilter = uiState.selectedAddonFilter,
@@ -614,7 +582,7 @@ fun StreamScreen(
                 onExternalSelected = {
                     showPlayerChoiceDialog = false
                     pendingPlaybackInfo?.let { info ->
-                        if (info.url != null || info.isTorrent) {
+                        if (info.url != null) {
                             launchExternalPlayer(info)
                         }
                     }
@@ -623,24 +591,6 @@ fun StreamScreen(
                 onDismiss = {
                     showPlayerChoiceDialog = false
                     pendingPlaybackInfo = null
-                }
-            )
-        }
-
-        if (showP2pConsentDialog && pendingTorrentPlaybackInfo != null) {
-            P2pConsentDialog(
-                onEnableP2p = {
-                    viewModel.enableP2p()
-                    showP2pConsentDialog = false
-                    val info = pendingTorrentPlaybackInfo!!
-                    pendingTorrentPlaybackInfo = null
-                    routePlayback(info)
-                },
-                onDismiss = {
-                    showP2pConsentDialog = false
-                    pendingTorrentPlaybackInfo = null
-                    // Cancelled P2P consent — fall back to manual stream selection
-                    viewModel.onEvent(StreamScreenEvent.OnAutoPlayConsumed)
                 }
             )
         }
@@ -866,7 +816,6 @@ private fun RightStreamSection(
     onSourceOptions: (Stream, List<SourceRule>) -> Unit = { _, _ -> },
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
     bestMatchFirst: Boolean = false,
-    torrentsNeedExternalPlayer: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -1037,7 +986,6 @@ private fun RightStreamSection(
                             streams = streams,
                             streamExclusions = streamExclusions,
                             sections = sections,
-                            torrentsNeedExternalPlayer = torrentsNeedExternalPlayer,
                             sharedStream = sharedStream,
                             partySource = partySource,
                             onSharedStreamSelected = onSharedStreamSelected,
@@ -1084,7 +1032,6 @@ internal fun StreamsList(
     streamExclusions: Map<String, ExclusionReason>,
     /** The list's quality sections, from [sourceSections]. */
     sections: List<SourceSection>,
-    torrentsNeedExternalPlayer: Boolean,
     sharedStream: SharedStream?,
     partySource: PartySource?,
     onSharedStreamSelected: (Stream) -> Unit,
@@ -1326,7 +1273,6 @@ internal fun StreamsList(
                     marked = isPartySource,
                     markedLabel = partySourceLabel.takeIf { isPartySource },
                     exclusion = if (streamExclusions.isEmpty()) null else streamExclusions[stream.stableKey()],
-                    needsExternalPlayer = torrentsNeedExternalPlayer && stream.isTorrent(),
                     onClick = { onStreamSelected(stream) },
                     onLongClick = {
                         val options = sourceRuleOptions(stream)
@@ -1401,7 +1347,6 @@ internal fun StreamCard(
     marked: Boolean = false,
     markedLabel: String? = null,
     exclusion: ExclusionReason? = null,
-    needsExternalPlayer: Boolean = false,
     onLongClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
@@ -1544,18 +1489,6 @@ internal fun StreamCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                // Fetch has no torrent engine, so a torrent can only open in an external player.
-                // Say so here rather than failing once it is picked.
-                if (needsExternalPlayer) {
-                    Text(
-                        text = stringResource(R.string.stream_torrent_external_player),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = FetchTheme.colors.TextTertiary,
-                        maxLines = if (isFocused) Int.MAX_VALUE else 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
                 // With the spec strip shown, the addon's name line mostly repeats it, so it joins
                 // the release name on the focused card. A party mark keeps the line visible.
                 if (!hasParsedSpec || isFocused || markedLabel != null) Row(

@@ -396,8 +396,6 @@
     <string name="essential_autoplay_next_episode">次のエピソードを自動再生</string>
     <string name="essential_autoplay_next_episode_subtitle">ストリーム終了後に次のエピソードへ続行。</string>
     <string name="external_auto_next_loading">次のエピソードを読み込み中…</string>
-    <string name="essential_p2p_streams">P2Pストリーム</string>
-    <string name="essential_p2p_streams_subtitle">ピアツーピアストリームソースを許可。</string>
     <string name="essential_subtitle_language_subtitle">優先字幕言語。</string>
     <string name="essential_audio_language_subtitle">優先音声言語。</string>
     <!-- Account / sign-in error messages -->
@@ -1060,14 +1058,6 @@
     <string name="stream_no_streams">ストリームが見つかりません</string>
     <string name="stream_no_streams_hint">より多くのアドオンをインストールしてストリームを見つけてみてください</string>
     <string name="stream_finding_source">ストリームソースを検索中</string>
-    <string name="p2p_consent_title">P2Pストリーミング</string>
-    <string name="p2p_consent_body">このストリームはピアツーピア（P2P）技術を使用します。P2Pを有効にすると、以下を了承したものとみなされます:\n\n\u2022 あなたのIPアドレスはネットワーク上の他のピアに公開されます\n\u2022 アクセスするコンテンツに対する責任はすべてあなた自身にあります\n\u2022 あなたの管轄区域でこのコンテンツをストリーミングする法的権利を有することを確認します\n\u2022 FetchはP2Pコンテンツをホスト、配布、または制御しません\n\u2022 FetchはP2Pストリーミングの使用に起因する法的結果に対して一切の責任を負いません\n\nこの機能は完全に自己責任で使用してください。P2Pはいつでも設定で無効にできます。</string>
-    <string name="p2p_consent_enable">P2Pを有効にする</string>
-    <string name="p2p_consent_cancel">キャンセル</string>
-    <string name="settings_p2p_title">P2Pストリーミング</string>
-    <string name="settings_p2p_subtitle">ピアツーピア（トレント）ストリームを許可</string>
-    <string name="settings_p2p_hide_stats_title">トレント統計を非表示</string>
-    <string name="settings_p2p_hide_stats_subtitle">読み込み中と再生中にバッファ、シード、ピア、ダウンロード速度を非表示</string>
     <string name="stream_player_picker_title">使用するプレーヤーを選択してください</string>
     <string name="stream_player_internal">内部</string>
     <string name="stream_player_external">外部</string>
@@ -1524,7 +1514,6 @@
     <string name="home_error_no_catalog_addons">カタログアドオンがインストールされていません</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">トレントの開始に失敗しました: %1$s</string>
 
     <string name="ratings_season_label">S%1$d</string>
     <string name="ratings_episode_label">E%1$d</string>
@@ -1879,11 +1868,6 @@
     <string name="playback_player_internal_desc">Fetchの内蔵プレーヤーを使用</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$dシード · %2$dピア</string>
-    <string name="player_torrent_buffered_status">%1$s バッファ済み · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$dピア · %2$dシード · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">ピアに接続中…</string>
     <string name="player_track_audio_fallback">音声%1$d</string>
     <string name="player_track_subtitle_fallback">字幕%1$d</string>
 
@@ -1898,7 +1882,6 @@
     <string name="player_error_initialize_failed">プレーヤーの初期化に失敗しました</string>
     <string name="player_error_mpv_surface_failed">libmpvサーフェスの初期化に失敗しました</string>
     <string name="player_error_mpv_playback_failed">libmpv再生の初期化に失敗しました</string>
-    <string name="player_error_torrent">トレントエラー: %1$s</string>
     <string name="player_error_playback_fallback">再生エラー</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">このファイルに字幕行が見つかりませんでした。</string>
@@ -1996,7 +1979,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">P2Pエンジンを起動中…</string>
     <string name="player_stream_error_invalid_external_url">無効な外部URL</string>
     <string name="player_stream_error_open_external_link_failed">外部リンクを開けませんでした</string>
     <string name="player_stream_error_invalid_url">無効なストリームURL</string>
@@ -2151,9 +2133,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
 
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">推定メモリ使用量: %1$d / %2$d MB</string>
@@ -2379,7 +2358,6 @@
     <string name="subtitle_style_text_color_hdr">文字色（HDR）</string>
     <string name="subtitle_style_text_opacity_hdr">文字の不透明度（HDR）</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">これはトレントストリームで、Fetch にはトレントエンジンが内蔵されていません。ここで再生できるリンクを得るにはアドオンで Debrid を設定するか、外部プレーヤーで開いてください。</string>
     <string name="because_you_watched_row_title">「%1$s」を視聴したあなたへ</string>
     <string name="because_you_watched_reason_collection">同じシリーズ: %1$s</string>
     <string name="because_you_watched_reason_director">同じ監督: %1$s</string>

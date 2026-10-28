@@ -34,8 +34,7 @@ object StreamAutoPlaySelector {
      * For Best match with "Start without waiting" on: whether the best stream found so far is
      * good enough to play without waiting for slower sources. It has to reach the preferred
      * quality (never above the maximum) and, when cached debrid streams are preferred, be cached.
-     * Your own media servers don't need to be cached. Peer-to-peer torrents never qualify: they
-     * can take a long time to start.
+     * Your own media servers don't need to be cached. A bare torrent never qualifies.
      */
     fun isGoodEnoughToStartEarly(stream: Stream, rankingRules: StreamRankingRules): Boolean {
         if (stream.isTorrent()) return false
@@ -75,10 +74,9 @@ object StreamAutoPlaySelector {
         if (stream.isExternal()) return false
         if (stream.serverTarget != null) return true
         if (stream.getStreamUrl() != null) return true
-        return stream.isTorrent() ||
-            // A YouTube id is resolved to a playable URL on the device when the stream is played.
-            // Builds without in-app YouTube playback open the watch page instead, an external link.
-            (AppFeaturePolicy.inAppTrailerPlaybackEnabled && stream.youTubeIdToResolve() != null)
+        // A YouTube id is resolved to a playable URL on the device when the stream is played.
+        // Builds without in-app YouTube playback open the watch page instead, an external link.
+        return AppFeaturePolicy.inAppTrailerPlaybackEnabled && stream.youTubeIdToResolve() != null
     }
 
     /** The streams auto-play may choose from once the addon limit applies. */
@@ -188,7 +186,6 @@ object StreamAutoPlaySelector {
                         append(stream.title.orEmpty()).append(' ')
                         append(stream.description.orEmpty()).append(' ')
                         append(stream.getStreamUrl().orEmpty())
-                        if (stream.isTorrent()) append(' ').append(stream.infoHash.orEmpty())
                     }
 
                     // Must match include pattern

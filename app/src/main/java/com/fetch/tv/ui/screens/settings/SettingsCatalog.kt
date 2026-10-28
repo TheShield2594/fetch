@@ -32,7 +32,6 @@ internal enum class SettingsCategory(
     PLAYBACK_SUBTITLES(SettingsRailGroup.PLAYBACK, PlaybackSection.SUBTITLES),
     PLAYBACK_VIDEO(SettingsRailGroup.PLAYBACK, PlaybackSection.VIDEO),
     PLAYBACK_BUFFER_NETWORK(SettingsRailGroup.PLAYBACK, PlaybackSection.BUFFER_NETWORK),
-    PLAYBACK_P2P(SettingsRailGroup.PLAYBACK, PlaybackSection.P2P),
     ANIME_SKIP(SettingsRailGroup.PLAYBACK),
     CONTENT_DISCOVERY(SettingsRailGroup.SOURCES),
     TMDB(SettingsRailGroup.SOURCES),

@@ -405,8 +405,6 @@
     <string name="essential_stream_selection_subtitle">Pilih secara manual atau putar otomatis stream yang pertama tersedia.</string>
     <string name="essential_autoplay_next_episode">Putar otomatis episode berikutnya</string>
     <string name="essential_autoplay_next_episode_subtitle">Lanjutkan ke episode berikutnya setelah stream selesai.</string>
-    <string name="essential_p2p_streams">Stream P2P</string>
-    <string name="essential_p2p_streams_subtitle">Izinkan sumber stream peer-to-peer.</string>
     <string name="essential_subtitle_language_subtitle">Bahasa subtitle yang diutamakan.</string>
     <string name="essential_audio_language_subtitle">Bahasa audio yang diutamakan.</string>
     <!-- Account / sign-in error messages -->
@@ -1007,14 +1005,6 @@
     <string name="stream_no_streams">Tidak ada stream ditemukan</string>
     <string name="stream_no_streams_hint">Coba pasang lebih banyak addon untuk menemukan stream</string>
     <string name="stream_finding_source">Mencari sumber stream</string>
-    <string name="p2p_consent_title">Streaming P2P</string>
-    <string name="p2p_consent_body">Stream ini menggunakan teknologi peer-to-peer (P2P). Dengan mengaktifkan P2P, Anda mengakui dan menyetujui bahwa:\n\n\u2022 Alamat IP Anda akan terlihat oleh peer lain di jaringan\n\u2022 Anda sepenuhnya bertanggung jawab atas konten yang Anda akses\n\u2022 Anda mengonfirmasi bahwa Anda memiliki hak hukum untuk streaming konten ini di yurisdiksi Anda\n\u2022 Fetch tidak menyelenggarakan, mendistribusikan, atau mengontrol konten P2P apa pun\n\u2022 Fetch tidak bertanggung jawab atas konsekuensi hukum apa pun yang timbul dari penggunaan streaming P2P Anda\n\nAnda menggunakan fitur ini sepenuhnya atas risiko Anda sendiri. P2P dapat dinonaktifkan kapan saja di Pengaturan.</string>
-    <string name="p2p_consent_enable">Aktifkan P2P</string>
-    <string name="p2p_consent_cancel">Batal</string>
-    <string name="settings_p2p_title">Streaming P2P</string>
-    <string name="settings_p2p_subtitle">Izinkan stream peer-to-peer (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Sembunyikan statistik torrent</string>
-    <string name="settings_p2p_hide_stats_subtitle">Sembunyikan buffer, seed, peer, dan kecepatan unduhan selama pemuatan dan pemutaran</string>
     <string name="stream_player_picker_title">Pemutar apa yang harus digunakan?</string>
     <string name="stream_player_internal">Internal</string>
     <string name="stream_player_external">Eksternal</string>
@@ -1483,7 +1473,6 @@
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">Tidak ada URL stream yang diberikan</string>
-    <string name="player_error_failed_start_torrent">Gagal memulai torrent: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Dukungan HDR dengan rendering canvas. Mungkin memblokir thread UI.</string>
@@ -1850,11 +1839,6 @@
     <string name="playback_player_internal_desc">Gunakan pemutar bawaan Fetch</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seed · %2$d peer</string>
-    <string name="player_torrent_buffered_status">%1$s dibuffer · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peer · %2$d seed · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Menghubungkan ke peer…</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Subtitle %1$d</string>
 
@@ -1869,7 +1853,6 @@
     <string name="player_error_initialize_failed">Gagal menginisialisasi pemutar</string>
     <string name="player_error_mpv_surface_failed">Gagal menginisialisasi permukaan libmpv</string>
     <string name="player_error_mpv_playback_failed">Gagal menginisialisasi pemutaran libmpv</string>
-    <string name="player_error_torrent">Error torrent: %1$s</string>
     <string name="player_error_playback_fallback">Error pemutaran</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Tidak ada baris subtitle ditemukan dalam file ini.</string>
@@ -1967,7 +1950,6 @@
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Memulai mesin P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL eksternal tidak valid</string>
     <string name="player_stream_error_open_external_link_failed">Tidak dapat membuka tautan eksternal</string>
     <string name="player_stream_error_invalid_url">URL stream tidak valid</string>
@@ -2190,7 +2172,6 @@
     <string name="addon_health_failing">Permintaan terakhir gagal</string>
     <string name="addon_health_timed_out">Permintaan terakhir habis waktu</string>
     <string name="account_local_only_note">Sinkronisasi mati. Fetch menyimpan addon, progres, dan pengaturan Anda di TV ini dan tidak memerlukan akun. Untuk menyinkronkan antarperangkat, hubungkan server sinkronisasi Anda sendiri dari opsi server.</string>
-    <string name="torrent_engine_unavailable">Ini adalah stream torrent dan Fetch tidak memiliki mesin torrent bawaan. Atur debrid di addon untuk mendapatkan tautan yang dapat diputar di sini, atau buka di pemutar eksternal.</string>
     <string name="parental_title_blocked">Judul ini melebihi batas rating profil ini.</string>
     <string name="parental_addons_blocked">Profil ini tidak bisa memasang addon. Minta bantuan orang tua.</string>
     <string name="parental_gate_heading">Masukkan PIN %1$s</string>

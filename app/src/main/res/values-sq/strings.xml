@@ -422,8 +422,6 @@
     <string name="essential_autoplay_next_episode">Luaj automatikisht episodin tjetër</string>
     <string name="essential_autoplay_next_episode_subtitle">Vazhdo te episodi tjetër pasi të përfundojë transmetimi.</string>
     <string name="external_auto_next_loading">Duke ngarkuar episodin tjetër…</string>
-    <string name="essential_p2p_streams">Transmetime P2P</string>
-    <string name="essential_p2p_streams_subtitle">Lejo burime transmetimi peer-to-peer.</string>
     <string name="essential_subtitle_language_subtitle">Gjuha e preferuar e titrave.</string>
     <string name="essential_audio_language_subtitle">Gjuha e preferuar e audios.</string>
     <!-- Account / sign-in error messages -->
@@ -1111,14 +1109,6 @@
     <string name="stream_no_streams">Nuk u gjetën transmetime</string>
     <string name="stream_no_streams_hint">Provo të instalosh më shumë shtesa për të gjetur transmetime</string>
     <string name="stream_finding_source">Duke kërkuar burimin e transmetimit</string>
-    <string name="p2p_consent_title">Transmetim P2P</string>
-    <string name="p2p_consent_body">Ky transmetim përdor teknologjinë peer-to-peer (P2P). Duke aktivizuar P2P, pranon dhe konfirmon se:\n\n\u2022 Adresa jote IP do të jetë e dukshme për pjesëmarrësit e tjerë në rrjet\n\u2022 Je vetëm ti përgjegjës për përmbajtjen që qasesh\n\u2022 Konfirmon se ke të drejtën ligjore për ta transmetuar këtë përmbajtje në juridiksionin tënd\n\u2022 Fetch nuk hoston, shpërndan apo kontrollon asnjë përmbajtje P2P\n\u2022 Fetch nuk mban përgjegjësi për pasoja ligjore që mund të lindin nga përdorimi yt i transmetimit P2P\n\nKëtë veçori e përdor tërësisht me rrezikun tënd. P2P mund të çaktivizohet në çdo kohë te Cilësimet.</string>
-    <string name="p2p_consent_enable">Aktivizo P2P</string>
-    <string name="p2p_consent_cancel">Anulo</string>
-    <string name="settings_p2p_title">Transmetim P2P</string>
-    <string name="settings_p2p_subtitle">Lejo transmetimet peer-to-peer (torrent)</string>
-    <string name="settings_p2p_hide_stats_title">Fshih statistikat e torrentit</string>
-    <string name="settings_p2p_hide_stats_subtitle">Fshih buffer-in, seed-et, peer-at dhe shpejtësinë e shkarkimit gjatë ngarkimit dhe riprodhimit</string>
     <string name="stream_player_picker_title">Cili luajtës duhet të përdoret?</string>
     <string name="stream_player_internal">I brendshëm</string>
     <string name="stream_player_external">I jashtëm</string>
@@ -1609,7 +1599,6 @@
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Nuk ka shtesa katalogu të instaluara</string>
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Nisja e torrentit dështoi: %1$s</string>
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Mbështetje HDR me renderim Canvas. Mund të bllokojë thread-in e ndërfaqes.</string>
     <string name="ratings_season_label">S%1$d</string>
@@ -1967,11 +1956,6 @@
     <!-- Playback settings sections -->
     <string name="playback_player_internal_desc">Përdor luajtësin e integruar të Fetch</string>
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seed · %2$d peer</string>
-    <string name="player_torrent_buffered_status">%1$s në buffer · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peer · %2$d seed · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Duke u lidhur me peer-at…</string>
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Titra %1$d</string>
     <!-- Player runtime: error recovery -->
@@ -1985,7 +1969,6 @@
     <string name="player_error_initialize_failed">Inicializimi i luajtësit dështoi</string>
     <string name="player_error_mpv_surface_failed">Inicializimi i sipërfaqes libmpv dështoi</string>
     <string name="player_error_mpv_playback_failed">Inicializimi i riprodhimit libmpv dështoi</string>
-    <string name="player_error_torrent">Gabim torrenti: %1$s</string>
     <string name="player_error_playback_fallback">Gabim riprodhimi</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nuk u gjetën rreshta titrash në këtë skedar.</string>
@@ -2104,7 +2087,6 @@
     <string name="network_fast_error_token_missing">fast.com: tokeni nuk u gjet në paketë</string>
     <!-- Torrent service / TorrServer binary errors -->
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">Duke nisur motorin P2P…</string>
     <string name="player_stream_error_invalid_external_url">URL e jashtme e pavlefshme</string>
     <string name="player_stream_error_open_external_link_failed">Nuk mund të hapet lidhja e jashtme</string>
     <string name="player_stream_error_invalid_url">URL transmetimi e pavlefshme</string>
@@ -2246,9 +2228,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
     <!-- Misc fallbacks -->
     <string name="playback_estimated_memory_usage">Përdorimi i vlerësuar i memories: %1$d / %2$d MB</string>
     <string name="profile_default_name">Profili %1$d</string>
@@ -2495,7 +2474,6 @@
     <string name="subtitle_style_text_color_hdr">Ngjyra e tekstit (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opaciteti i tekstit (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="torrent_engine_unavailable">Ky është një transmetim torrent dhe Fetch nuk ka motor torrent të integruar. Konfiguroni debrid në shtesë për të marrë një lidhje që luhet këtu, ose hapeni në një luajtës të jashtëm.</string>
     <string name="because_you_watched_row_title">Sepse shikuat %1$s</string>
     <string name="because_you_watched_reason_collection">Gjithashtu në: %1$s</string>
     <string name="because_you_watched_reason_director">I njëjti regjisor: %1$s</string>

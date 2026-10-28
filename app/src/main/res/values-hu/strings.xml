@@ -506,8 +506,6 @@
     <string name="essential_autoplay_next_episode">Következő epizód automatikus lejátszása</string>
     <string name="essential_autoplay_next_episode_subtitle">A lejátszás befejezése után automatikusan elindítja a következő epizódot.</string>
     <string name="external_auto_next_loading">Következő epizód betöltése…</string>
-    <string name="essential_p2p_streams">P2P streamek</string>
-    <string name="essential_p2p_streams_subtitle">Peer-to-peer stream források engedélyezése.</string>
     <string name="essential_subtitle_language_subtitle">A feliratok előnyben részesített nyelve.</string>
     <string name="essential_audio_language_subtitle">A hangsáv előnyben részesített nyelve.</string>
     <!-- Account / sign-in error messages -->
@@ -1370,34 +1368,6 @@
     <string name="stream_finding_source">Forrás keresése</string>
     <string name="youtube_resolving_stream">YouTube-videó betöltése</string>
     <string name="youtube_resolution_failed">Nem sikerült betölteni ezt a YouTube-videót.</string>
-    <string name="p2p_consent_title">P2P Streamelés</string>
-    <string name="p2p_consent_body">Ez a stream peer-to-peer (P2P) technológiát használ. A P2P engedélyezésével tudomásul veszed és elfogadod, hogy:\n\n\u2022 Az IP címed látható lesz a hálózat más résztvevői számára\n\u2022 Kizárólag te vagy a felelős a megtekintett tartalomért\n\u2022 Megerősíted, hogy jogod van streamelni ezt a tartalmat a te joghatóságodban\n\u2022 A Fetch nem tárol, terjeszt és nem is felügyel semmilyen P2P tartalmat\n\u2022 A Fetch nem vállal felelősséget a P2P streamelésből eredő jogi következményekért\n\nEzt a funkciót kizárólag a saját felelősségedre használod. A P2P bármikor kikapcsolható a Beállításokban.</string>
-    <string name="p2p_consent_enable">P2P engedélyezése</string>
-    <string name="p2p_consent_cancel">Mégse</string>
-    <string name="settings_p2p_title">P2P Streamelés</string>
-    <string name="settings_p2p_subtitle">Engedélyezi a peer-to-peer (torrentek) streameket</string>
-    <string name="settings_p2p_hide_stats_title">Torrent statisztikák elrejtése</string>
-    <string name="settings_p2p_hide_stats_subtitle">A pufferadatok, a megosztók (seeds), a kapcsolódó résztvevők (peers) és a letöltési sebesség elrejtése betöltés és lejátszás közben</string>
-    <string name="settings_p2p_profile_title">Torrentprofil</string>
-    <string name="settings_p2p_profile_soft">Kímélő</string>
-    <string name="settings_p2p_profile_balanced">Kiegyensúlyozott</string>
-    <string name="settings_p2p_profile_fast">Gyors</string>
-    <string name="settings_p2p_profile_soft_description">Kevesebb torrentkapcsolatot használ, így kisebb az akkumulátor és a hálózat terhelése</string>
-    <string name="settings_p2p_profile_balanced_description">Ajánlott beállítás az indulási sebesség és a kapcsolat stabilitásának egyensúlyához</string>
-    <string name="settings_p2p_profile_fast_description">Több torrentkapcsolatot használ a nehezen elérhető vagy nagy bitrátájú torrentekhez</string>
-    <string name="settings_p2p_cache_size_title">Torrentgyorsítótár mérete</string>
-    <string name="settings_p2p_cache_size_description">Az eszközön tárolt torrentadatok, amelyek gyorsítják az ismételt lejátszást</string>
-    <string name="settings_p2p_cache_none">Nincs tartós gyorsítótár</string>
-    <string name="settings_p2p_cache_2_gb">2 GB</string>
-    <string name="settings_p2p_cache_5_gb">5 GB</string>
-    <string name="settings_p2p_cache_10_gb">10 GB</string>
-    <string name="settings_p2p_clear_cache_title">Torrentgyorsítótár törlése</string>
-    <string name="settings_p2p_clear_cache_usage">Használt tárhely: %1$s</string>
-    <string name="settings_p2p_clear_cache_usage_pending">A foglalt tárhelyet a P2P indítása után mérjük. Válaszd ki a gyorsítótár törléséhez</string>
-    <string name="settings_p2p_clear_cache_clearing">Inaktív torrentadatok törlése…</string>
-    <string name="settings_p2p_clear_cache_playback_active">A gyorsítótár törlése előtt állítsd le a P2P-lejátszást</string>
-    <string name="settings_p2p_clear_cache_done">%1$s inaktív torrentadat törölve</string>
-    <string name="settings_p2p_clear_cache_failed">Nem sikerült törölni a torrentgyorsítótárat</string>
     <string name="stream_player_picker_title">Melyik lejátszót használjuk?</string>
     <string name="stream_player_internal">Belső</string>
     <string name="stream_player_external">Külső</string>
@@ -1968,7 +1938,6 @@
     <string name="home_error_no_catalog_addons">Nincsenek telepített katalógusbővítmények</string>
 
     <!-- Player errors -->
-    <string name="player_error_failed_start_torrent">Nem sikerült elindítani a torrentet: %1$s</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">HDR támogatás canvas megjelenítéssel. Blokkolhatja a felhasználói felület szálát.</string>
@@ -2337,15 +2306,6 @@
     <string name="playback_player_internal_desc">A Fetch beépített lejátszójának használata</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
-    <string name="player_torrent_peer_info">%1$d seed · %2$d peer</string>
-    <string name="player_torrent_buffered_status">%1$s pufferelve · %2$s · %3$s</string>
-    <string name="player_torrent_status">%1$s · %2$s</string>
-    <string name="player_torrent_stats">%1$d peer · %2$d seed · %3$d%%</string>
-    <string name="player_torrent_connecting_peers">Csatlakozás peerekhez…</string>
-    <string name="player_torrent_fetching_metadata">Torrentmetaadatok lekérése…</string>
-    <string name="player_torrent_preparing_stream">Torrentstream előkészítése…</string>
-    <string name="player_torrent_connecting_status">%1$s · %2$s · %3$s</string>
-    <string name="player_torrent_loading_status">%1$s letöltve · %2$s · %3$s</string>
     <string name="player_track_audio_fallback">Hang %1$d</string>
     <string name="player_track_subtitle_fallback">Felirat %1$d</string>
 
@@ -2360,7 +2320,6 @@
     <string name="player_error_initialize_failed">A lejátszó inicializálása sikertelen</string>
     <string name="player_error_mpv_surface_failed">A libmpv felület inicializálása sikertelen</string>
     <string name="player_error_mpv_playback_failed">A libmpv lejátszás inicializálása sikertelen</string>
-    <string name="player_error_torrent">Torrenthiba: %1$s</string>
     <string name="player_error_playback_fallback">Lejátszási hiba</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nem találhatók feliratsorok ebben a fájlban.</string>
@@ -2488,12 +2447,10 @@
     <!-- Network settings: fast.com errors -->
     <string name="network_fast_error_script_path_missing">fast.com: szkript elérési útja nem található</string>
     <string name="network_fast_error_token_missing">fast.com: token nem található a csomagban</string>
-    <string name="torrent_error_start_timeout">A torrentstream nem indult el %1$d másodpercen belül</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
     <!-- Player runtime: stream / external link errors -->
-    <string name="player_torrent_starting_engine">A P2P motor indítása…</string>
     <string name="player_stream_error_invalid_external_url">Érvénytelen külső URL</string>
     <string name="player_stream_error_open_external_link_failed">Nem sikerült megnyitni a külső linket</string>
     <string name="player_stream_error_invalid_url">Érvénytelen stream URL</string>
@@ -2648,9 +2605,6 @@
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
     <string name="unit_size_gb">%1$s GB</string>
-    <string name="unit_speed_b_s">%1$d B/s</string>
-    <string name="unit_speed_kb_s">%1$s KB/s</string>
-    <string name="unit_speed_mb_s">%1$s MB/s</string>
     <string name="playback_estimated_memory_usage">Becsült memóriahasználat: %1$d / %2$d MB</string>
     <string name="profile_default_name">%1$d. profil</string>
     <string name="detail_tmdb_fallback_title">TMDB %1$d</string>
@@ -2899,7 +2853,6 @@
     <string name="addon_health_failing">Az utolsó kérés sikertelen volt</string>
     <string name="addon_health_timed_out">Az utolsó kérés túllépte az időkorlátot</string>
     <string name="account_local_only_note">A szinkronizálás ki van kapcsolva. A Fetch ezen a TV-n tárolja a bővítményeidet, a megtekintési állapotot és a beállításokat, és nincs szüksége fiókra. Az eszközök közötti szinkronizáláshoz csatlakoztasd a saját szinkronizálási szerveredet a szerverbeállításokban.</string>
-    <string name="torrent_engine_unavailable">Ez egy torrent stream, és a Fetch nem rendelkezik beépített torrent motorral. Állítsa be a debridet a kiegészítőben, hogy itt lejátszható linket kapjon, vagy nyissa meg külső lejátszóban.</string>
     <string name="parental_title_blocked">Ez a cím meghaladja a profil korhatár-besorolási korlátját.</string>
     <string name="parental_addons_blocked">Ez a profil nem telepíthet bővítményeket. Kérd meg egy szülőt.</string>
     <string name="parental_gate_heading">Add meg %1$s PIN-kódját</string>

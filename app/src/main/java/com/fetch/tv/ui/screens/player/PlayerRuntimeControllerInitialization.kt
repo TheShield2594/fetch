@@ -605,7 +605,7 @@ internal fun PlayerRuntimeController.initializePlayer(
             mediaSourceFactory.vodCacheSizeMb = playerSettings.vodCacheSizeMb
 
             mediaSourceFactory.fetchPerformanceModeEnabled = playerSettings.fetchPerformanceModeEnabled
-            if (playerSettings.parallelNetworkEnabled && !isTorrentStream) {
+            if (playerSettings.parallelNetworkEnabled) {
                 mediaSourceFactory.useParallelConnections = playerSettings.useParallelConnections
                 mediaSourceFactory.parallelConnectionCount = playerSettings.parallelConnectionCount
                 mediaSourceFactory.parallelChunkSizeKb = playerSettings.parallelChunkSizeKb

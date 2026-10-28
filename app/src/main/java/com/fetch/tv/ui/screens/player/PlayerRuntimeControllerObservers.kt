@@ -58,24 +58,7 @@ internal suspend fun PlayerRuntimeController.fetchAddonSubtitlesNow(
             val key = streamCacheKey
             if (key != null) {
                 val state = _uiState.value
-                val torrentInfoHash = currentInfoHash
-                if (isTorrentStream && torrentInfoHash != null) {
-                    streamLinkCacheDataStore.save(
-                        contentKey = key,
-                        url = "",
-                        streamName = state.currentStreamName ?: title,
-                        headers = emptyMap(),
-                        filename = currentFilename,
-                        videoHash = currentVideoHash,
-                        videoSize = currentVideoSize,
-                        infoHash = torrentInfoHash,
-                        fileIdx = currentFileIdx,
-                        sources = currentTorrentSources,
-                        bingeGroup = currentStreamBingeGroup,
-                        contentLanguage = contentLanguage,
-                        year = year
-                    )
-                } else if (currentStreamUrl.isNotBlank() && !isServerStream) {
+                if (currentStreamUrl.isNotBlank() && !isServerStream) {
                     streamLinkCacheDataStore.save(
                         contentKey = key,
                         url = currentStreamUrl,
@@ -930,7 +913,7 @@ internal fun PlayerRuntimeController.scheduleDeferredPlayerReinitialize(
     scope.launch {
         yield()
         runCatching {
-            releasePlayer(flushPlaybackState = true, keepTorrentStream = true)
+            releasePlayer(flushPlaybackState = true)
             initializePlayer(currentStreamUrl, currentHeaders)
         }.onFailure { e ->
             _uiState.update {

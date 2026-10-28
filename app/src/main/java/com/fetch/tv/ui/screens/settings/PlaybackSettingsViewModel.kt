@@ -20,14 +20,6 @@ import com.fetch.tv.data.local.MpvHardwareDecodeMode
 import com.fetch.tv.data.local.SubtitleOrganizationMode
 import com.fetch.tv.data.local.TrailerSettings
 import com.fetch.tv.data.local.TrailerSettingsDataStore
-import com.fetch.tv.core.torrent.TorrentCacheClearResult
-import com.fetch.tv.core.torrent.TorrentCacheSize
-import com.fetch.tv.core.torrent.TorrentCacheState
-import com.fetch.tv.core.torrent.TorrentProfile
-import com.fetch.tv.core.torrent.TorrentService
-import com.fetch.tv.core.torrent.TorrentSettings
-import com.fetch.tv.core.torrent.TorrentSettingsData
-import com.fetch.tv.core.torrent.TorrentState
 import com.fetch.tv.data.local.VodCacheSizeMode
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -43,24 +35,12 @@ class PlaybackSettingsViewModel @Inject constructor(
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val deviceLocalPlayerPreferences: DeviceLocalPlayerPreferences,
     private val trailerSettingsDataStore: TrailerSettingsDataStore,
-    private val addonRepository: AddonRepository,
-    private val torrentSettings: TorrentSettings,
-    private val torrentService: TorrentService
+    private val addonRepository: AddonRepository
 ) : ViewModel() {
 
     val playerSettings: Flow<PlayerSettings> = playerSettingsDataStore.playerSettings
     val transparentLetterbox: Flow<Boolean> = deviceLocalPlayerPreferences.transparentLetterbox
     val trailerSettings: Flow<TrailerSettings> = trailerSettingsDataStore.settings
-    val torrentSettingsFlow: Flow<TorrentSettingsData> = torrentSettings.settings
-    val torrentCacheState: StateFlow<TorrentCacheState> = torrentService.cacheState
-    val torrentState: StateFlow<TorrentState> = torrentService.state
-
-    fun setP2pEnabled(enabled: Boolean) = torrentSettings.setP2pEnabled(enabled)
-    fun setHideTorrentStats(enabled: Boolean) = torrentSettings.setHideTorrentStats(enabled)
-    fun setTorrentProfile(profile: TorrentProfile) = torrentSettings.setTorrentProfile(profile)
-    fun setTorrentCacheSize(size: TorrentCacheSize) = torrentSettings.setCacheSize(size)
-    suspend fun clearTorrentCache(): TorrentCacheClearResult = torrentService.clearCache()
-
     val lastPlaybackDiagnostics: Flow<LastPlaybackDiagnostics> = playerSettingsDataStore.lastPlaybackDiagnostics
     val installedAddonNames: Flow<List<String>> = addonRepository.getInstalledAddons().map { addons ->
         addons

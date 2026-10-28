@@ -358,7 +358,6 @@ class ReadmeScreenshots {
                         sections = com.fetch.tv.ui.screens.stream.sourceSections(
                             Samples.streams, emptyMap(), bestMatchFirst = true, addonFilter = null
                         ),
-                        torrentsNeedExternalPlayer = false,
                         sharedStream = null,
                         partySource = null,
                         onSharedStreamSelected = {},

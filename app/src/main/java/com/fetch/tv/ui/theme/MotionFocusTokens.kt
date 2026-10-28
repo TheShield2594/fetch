@@ -16,6 +16,12 @@ data class FetchMotionDurations(
     val instant: Int,
     val quick: Int,
     val fast: Int,
+    /** Something appearing on screen. */
+    val enter: Int,
+    /** Something leaving the screen; shorter than [enter]. */
+    val exit: Int,
+    /** On-screen movement or a morph between two resting states. */
+    val move: Int,
     val medium: Int,
     val slow: Int,
     /** Large, deliberate moves such as the detail hero growing to full screen. */
@@ -37,7 +43,13 @@ data class FetchMotionEasings(
     val standard: Easing,
     val emphasized: Easing,
     val decelerate: Easing,
-    val accelerate: Easing
+    val accelerate: Easing,
+    /** Strong ease-out for things entering or leaving. */
+    val out: Easing,
+    /** Strong ease-in-out for things moving on screen. */
+    val inOut: Easing,
+    /** Drawer and side-panel slides. */
+    val drawer: Easing
 )
 
 @Immutable
@@ -67,6 +79,9 @@ object FetchMotion {
             instant = 0,
             quick = 125,
             fast = 180,
+            enter = 200,
+            exit = 150,
+            move = 250,
             medium = 350,
             slow = 450,
             long = 600,
@@ -85,7 +100,10 @@ object FetchMotion {
             standard = FastOutSlowInEasing,
             emphasized = CubicBezierEasing(0.2f, 0f, 0f, 1f),
             decelerate = LinearOutSlowInEasing,
-            accelerate = CubicBezierEasing(0.4f, 0f, 1f, 1f)
+            accelerate = CubicBezierEasing(0.4f, 0f, 1f, 1f),
+            out = CubicBezierEasing(0.23f, 1f, 0.32f, 1f),
+            inOut = CubicBezierEasing(0.77f, 0f, 0.175f, 1f),
+            drawer = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)
         ),
         focusScale = 1.02f,
         selectedScale = 1.01f,
@@ -100,6 +118,15 @@ object FetchMotion {
     fun <T> mediumTween(): TweenSpec<T> = tween(tokens.durations.medium, easing = tokens.easings.standard)
 
     fun <T> slowTween(): TweenSpec<T> = tween(tokens.durations.slow, easing = tokens.easings.decelerate)
+
+    /** Something appearing: overlays, panels, labels, crossfades the user is waiting on. */
+    fun <T> enterTween(): TweenSpec<T> = tween(tokens.durations.enter, easing = tokens.easings.out)
+
+    /** Something leaving. Shorter than [enterTween] so the response feels immediate. */
+    fun <T> exitTween(): TweenSpec<T> = tween(tokens.durations.exit, easing = tokens.easings.out)
+
+    /** Something moving or morphing between two on-screen resting states. */
+    fun <T> moveTween(): TweenSpec<T> = tween(tokens.durations.move, easing = tokens.easings.inOut)
 
     fun <T> focusSpring(): SpringSpec<T> = spring(
         dampingRatio = Spring.DampingRatioNoBouncy,

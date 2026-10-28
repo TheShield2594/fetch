@@ -1,6 +1,6 @@
 # 001 — Add strong ease-out / ease-in-out curves and enter/exit tween helpers to FetchMotion
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: HIGH (enabler — most other plans depend on it)
 - **Category**: 7. Cohesion & tokens (and 2. Easing & duration)

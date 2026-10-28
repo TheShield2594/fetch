@@ -1,6 +1,6 @@
 # 023 — Show the next-episode autoplay countdown as a linear fill on the Play pill
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: LOW
 - **Category**: 8. Missed opportunities

@@ -83,7 +83,9 @@ data class HeroPreview(
     /** Continue Watching only: time left ("38m left"), the first part of the spec line. */
     val resumeTimeLeftText: String? = null,
     /** Continue Watching only: key of this video in the Best match cache. */
-    val bestMatchKey: String? = null
+    val bestMatchKey: String? = null,
+    /** Why this title is on Home ("NEW EPISODE", a recommendation reason), shown above the title. */
+    val eyebrowText: String? = null
 )
 
 @Immutable
@@ -421,7 +423,8 @@ internal fun buildContinueWatchingItem(
                 contentTypeText = episodeLabel,
                 isSeries = true,
                 yearText = extractYearOrRange(item.info.releaseInfo),
-                secondaryHighlightText = secondaryHighlightText,
+                // Next Up, New episode or the air date says why the show is here, so it leads.
+                eyebrowText = secondaryHighlightText,
                 resumeActionText = if (item.info.hasAired) {
                     context.getString(R.string.detail_btn_play_episode, item.info.season, item.info.episode)
                 } else {
@@ -565,7 +568,8 @@ internal fun buildCatalogItem(
         mdbListRatings = item.mdbListRatings,
         mdbListRatingOrder = item.mdbListRatingOrder,
         frozenBackdropUrl = frozenBackdrop,
-        frozenLogoUrl = frozenLogo
+        frozenLogoUrl = frozenLogo,
+        eyebrowText = item.recommendationReason?.takeIf { it.isNotBlank() }
     )
 
     return ModernCarouselItem(
@@ -625,7 +629,8 @@ internal fun buildCollectionFolderItem(
             genres = emptyList<String>().asStable(),
             poster = imageUrl,
             backdrop = heroBackdrop,
-            imageUrl = imageUrl
+            imageUrl = imageUrl,
+            eyebrowText = if (folder.hideTitle) null else collection.title.takeIf { it.isNotBlank() }
         ),
         payload = ModernPayload.CollectionFolder(
             focusKey = "collection_${collection.id}::${folder.id}",

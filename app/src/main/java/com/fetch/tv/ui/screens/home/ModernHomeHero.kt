@@ -54,6 +54,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.tv.material3.Icon
@@ -360,9 +361,10 @@ private fun HeroTitleContent(
 ) {
     val preview = previewProvider() ?: return
     val highlighterEnabled = LocalRecompositionHighlighterEnabled.current
-    // The hero keeps little text over the art: two lines of description at most, and none when
-    // Resume is there to be the main thing.
-    val descriptionMaxLines = 2
+    val eyebrowText = preview.eyebrowText?.trim()?.takeIf { it.isNotBlank() }
+    // The hero keeps little text over the art: two lines of description at most, one when the
+    // eyebrow takes a line, and none when Resume is there to be the main thing.
+    val descriptionMaxLines = if (eyebrowText != null) 1 else 2
     val descriptionScale = if (portraitMode) 0.90f else 1f
     val titleScale = if (portraitMode) 0.92f else 1f
     val metaScale = 1f
@@ -411,6 +413,20 @@ private fun HeroTitleContent(
         modifier = if (highlighterEnabled) Modifier.recompositionHighlighter() else Modifier,
         verticalArrangement = Arrangement.spacedBy(titleSpacing)
     ) {
+        eyebrowText?.let { text ->
+            val eyebrowStyle = remember(labelMedium) {
+                labelMedium.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 1.5.sp)
+            }
+            Text(
+                text = text.uppercase(),
+                style = eyebrowStyle.copy(textDirection = text.contentTextDirection()),
+                color = FetchTheme.colors.TextSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.graphicsLayer { alpha = metaAlpha }
+            )
+        }
+
         var logoLoadFailed by remember(preview.logo) { mutableStateOf(false) }
         val showLogo = !preview.logo.isNullOrBlank() && !logoLoadFailed
         if (showLogo) {

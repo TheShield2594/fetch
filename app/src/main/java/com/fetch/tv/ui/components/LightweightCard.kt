@@ -62,6 +62,7 @@ fun LightweightCard(
     containerColor: Color,
     modifier: Modifier = Modifier,
     focusedBorder: Border = Border.None,
+    restingBorder: Border = Border.None,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -71,7 +72,7 @@ fun LightweightCard(
         targetValue = if (focused) FOCUSED_Z_INDEX else NON_FOCUSED_Z_INDEX,
         label = "zIndex"
     )
-    val border = if (focused || pressed) focusedBorder else Border.None
+    val border = if (focused || pressed) focusedBorder else restingBorder
     val coroutineScope = rememberCoroutineScope()
     val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
 

@@ -767,7 +767,8 @@ fun ModernHomeContent(
                             frozenLogoUrl = activeCarouselItem?.heroPreview?.frozenLogoUrl,
                             resumeActionText = activeCarouselItem?.heroPreview?.resumeActionText,
                             resumeTimeLeftText = activeCarouselItem?.heroPreview?.resumeTimeLeftText,
-                            bestMatchKey = activeCarouselItem?.heroPreview?.bestMatchKey
+                            bestMatchKey = activeCarouselItem?.heroPreview?.bestMatchKey,
+                            eyebrowText = activeCarouselItem?.heroPreview?.eyebrowText
                         )
                     } else null
 

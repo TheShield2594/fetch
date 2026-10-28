@@ -1,6 +1,6 @@
 # 022 — Fade the Edit Profile overlay in and out like Create Profile
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session). Executed with one change: the fade-out key guard tests `profileToEdit == null` instead of `transition.targetState == EnterExitState.PostExit`, which avoids an API that may need an experimental opt-in and is otherwise equivalent.
 - **Commit**: ee8dd84
 - **Severity**: LOW-MEDIUM
 - **Category**: Missed opportunity (hard cut) + 7. Cohesion

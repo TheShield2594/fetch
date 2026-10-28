@@ -739,8 +739,8 @@ fun ProfileSelectionScreen(
         // Create Profile Overlay
         AnimatedVisibility(
             visible = showCreateProfile,
-            enter = fadeIn(tween(FetchMotion.tokens.durations.fast)),
-            exit = fadeOut(tween(FetchMotion.tokens.durations.quick))
+            enter = fadeIn(FetchMotion.enterTween()),
+            exit = fadeOut(FetchMotion.exitTween())
         ) {
             CreateProfileOverlay(
                 profiles = profiles,
@@ -784,29 +784,43 @@ fun ProfileSelectionScreen(
         }
 
         // Edit Profile Overlay
-        profileToEdit?.let { profile ->
-            val editorPreferences by remember(profile.id) {
-                viewModel.editorPreferences(profile.id)
-            }.collectAsState(initial = null)
-            EditProfileOverlay(
-                profile = profile,
-                avatarCatalog = avatarCatalog,
-                profileBackgroundCatalog = profileBackgroundCatalog,
-                hasProfileBackgroundAccess = hasProfileBackgroundAccess,
-                preferences = editorPreferences,
-                isSaving = isSaving,
-                avatarUrlResolver = { avatarId -> viewModel.getAvatarImageUrl(avatarId) },
-                onDismiss = { profileToEdit = null },
-                onSaveProfile = { updated, preferences ->
-                    viewModel.updateProfile(updated, preferences, editorPreferences) { saved ->
-                        if (saved) {
-                            profileToEdit = null
-                        } else {
-                            profileActionMessage = context.getString(R.string.profile_save_error)
+        // Keeps the last profile on screen while the overlay fades out, so it doesn't go blank.
+        val lastProfileToEdit = remember { mutableStateOf<UserProfile?>(null) }
+        profileToEdit?.let { lastProfileToEdit.value = it }
+        AnimatedVisibility(
+            visible = profileToEdit != null,
+            enter = fadeIn(FetchMotion.enterTween()),
+            exit = fadeOut(FetchMotion.exitTween())
+        ) {
+            // Ignore keys while fading out, so a quick second OK can't save twice.
+            // Exiting exactly when there is no profile to edit (reopening mid-fade clears it).
+            val exiting = profileToEdit == null
+            Box(modifier = Modifier.onPreviewKeyEvent { exiting }) {
+                lastProfileToEdit.value?.let { profile ->
+                    val editorPreferences by remember(profile.id) {
+                        viewModel.editorPreferences(profile.id)
+                    }.collectAsState(initial = null)
+                    EditProfileOverlay(
+                        profile = profile,
+                        avatarCatalog = avatarCatalog,
+                        profileBackgroundCatalog = profileBackgroundCatalog,
+                        hasProfileBackgroundAccess = hasProfileBackgroundAccess,
+                        preferences = editorPreferences,
+                        isSaving = isSaving,
+                        avatarUrlResolver = { avatarId -> viewModel.getAvatarImageUrl(avatarId) },
+                        onDismiss = { profileToEdit = null },
+                        onSaveProfile = { updated, preferences ->
+                            viewModel.updateProfile(updated, preferences, editorPreferences) { saved ->
+                                if (saved) {
+                                    profileToEdit = null
+                                } else {
+                                    profileActionMessage = context.getString(R.string.profile_save_error)
+                                }
+                            }
                         }
-                    }
+                    )
                 }
-            )
+            }
         }
 
         LaunchedEffect(profileActionMessage) {

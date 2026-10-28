@@ -33,7 +33,7 @@ executor to stop and report rather than improvise.
 | 019 | [Controls focus delay](019-controls-focus-delay.md) | LOW | Player | DONE |
 | 020 | [Motion token cleanup](020-motion-token-cleanup.md) | LOW | Tokens | TODO |
 | 021 | [Low-severity polish (a–f)](021-low-polish-items.md) | LOW | Party, ambient, cast, PIN, first-run | TODO |
-| 022 | [Edit Profile overlay fade](022-overlay-hard-cuts.md) | LOW-MEDIUM (missed opportunity) | Profiles | TODO |
+| 022 | [Edit Profile overlay fade](022-overlay-hard-cuts.md) | LOW-MEDIUM (missed opportunity) | Profiles | DONE |
 | 023 | [Up-next countdown fill](023-up-next-countdown-fill.md) | LOW (missed opportunity) | Post-play | TODO |
 | 024 | [Addon reorder animation](024-addon-reorder-animation.md) | LOW (missed opportunity) | Addons | TODO |
 | 025 | [Best-so-far reveal](025-best-so-far-reveal.md) | LOW (missed opportunity) | Fetching | DONE |

@@ -90,6 +90,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -1199,6 +1201,7 @@ private fun ModernCarouselCard(
     }
     // GIF overlay: shown on top of the base image only when focused and loaded
     val focusGifUrl = when {
+        !FetchTheme.fullMotion -> null
         payload == null -> null
         !payload.focusGifEnabled -> null
         isFocused -> payload.focusGifUrl
@@ -1321,6 +1324,8 @@ private fun ModernCarouselCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(cardHeight)
+                // Name the card itself: the artwork can be missing, and the title sits outside it.
+                .semantics { contentDescription = item.title }
                 .focusRequester(focusRequester)
                 .onFocusChanged {
                     isFocused = it.isFocused
@@ -1401,7 +1406,7 @@ private fun ModernCarouselCard(
                     } else if (hasImage) {
                         AsyncImage(
                             model = imageModel,
-                            contentDescription = item.title,
+                            contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             placeholder = backgroundPainter,
                             error = backgroundPainter,
@@ -1473,7 +1478,7 @@ private fun ModernCarouselCard(
                 if (hasLandscapeLogo) {
                     AsyncImage(
                         model = logoModel,
-                        contentDescription = item.title,
+                        contentDescription = null,
                         onError = { landscapeLogoLoadFailed = true },
                         modifier = Modifier
                             .align(Alignment.BottomStart)

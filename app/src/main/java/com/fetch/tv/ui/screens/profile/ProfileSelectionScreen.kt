@@ -20,10 +20,14 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -830,6 +834,7 @@ fun ProfileSelectionScreen(
                             shape = RoundedCornerShape(FetchRadii.tokens.full)
                         )
                         .padding(horizontal = FetchTheme.spacing.xl, vertical = 14.dp)
+                        .semantics { liveRegion = LiveRegionMode.Polite }
                 ) {
                     Text(
                         text = message,
@@ -852,7 +857,8 @@ fun ProfileSelectionScreen(
                 onDismiss = { longPressedProfile = null },
                 title = stringResource(R.string.profile_selection_options_title),
                 width = 360.dp,
-                suppressFirstKeyUp = suppressOptionsDialogFirstKeyUp
+                suppressFirstKeyUp = suppressOptionsDialogFirstKeyUp,
+                scrollable = true
             ) {
                 Button(
                     onClick = {
@@ -1661,7 +1667,7 @@ private fun ProfileCard(
                 ) {
                     Text(
                         text = "\u2605",
-                        color = Color.White,
+                        color = FetchPrimitives.neutral925,
                         fontSize = if (compact) 12.sp else 14.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
@@ -2842,7 +2848,9 @@ internal fun ProfilePinOverlay(
 
             Text(
                 text = supportText,
-                modifier = Modifier.widthIn(max = ProfileSelectionSpacing.PinSupportMaxWidth),
+                modifier = Modifier
+                    .widthIn(max = ProfileSelectionSpacing.PinSupportMaxWidth)
+                    .semantics { liveRegion = LiveRegionMode.Polite },
                 color = supportTextColor,
                 fontSize = supportFontSize.sp,
                 fontWeight = FontWeight.Medium,
@@ -2886,6 +2894,7 @@ internal fun ProfilePinOverlay(
             Spacer(modifier = Modifier.height(contentBottomPadding))
         }
 
+        val pinProgressDescription = stringResource(R.string.cd_profile_pin_progress, pin.length, ProfilePinLength)
         BasicTextField(
             value = pin,
             onValueChange = { value ->
@@ -2895,12 +2904,17 @@ internal fun ProfilePinOverlay(
                     if (!isSingleEntryMode) internalErrorMessage = null
                 }
             },
+            // No alpha = 0f here: Compose prunes fully transparent nodes from the accessibility
+            // tree. Transparent text and cursor at hairline size already draw nothing.
             modifier = Modifier
                 .size(FetchTheme.spacing.hairline)
-                .graphicsLayer { alpha = 0f }
                 .focusRequester(focusRequester)
                 .onFocusChanged { state ->
                     isInputFocused = state.isFocused
+                }
+                .semantics {
+                    contentDescription = headingText
+                    stateDescription = pinProgressDescription
                 },
             singleLine = true,
             textStyle = TextStyle(color = Color.Transparent),
@@ -3197,6 +3211,22 @@ internal fun nextProfileColor(profiles: List<UserProfile>): String {
         ?: PROFILE_AVATAR_COLORS[profiles.size % PROFILE_AVATAR_COLORS.size]
 }
 
+@Composable
+private fun profileColorName(colorHex: String): String? {
+    val res = when (colorHex.uppercase()) {
+        "#E53935" -> R.string.cd_profile_color_crimson
+        "#1E88E5" -> R.string.cd_profile_color_ocean
+        "#8E24AA" -> R.string.cd_profile_color_violet
+        "#43A047" -> R.string.cd_profile_color_emerald
+        "#FFB300" -> R.string.cd_profile_color_amber
+        "#D81B60" -> R.string.cd_profile_color_rose
+        "#00ACC1" -> R.string.cd_profile_color_cyan
+        "#6D4C41" -> R.string.cd_profile_color_brown
+        else -> return null
+    }
+    return stringResource(res)
+}
+
 // One row so it fits the editor's left column on a 960x540dp screen.
 @Composable
 private fun ProfileColorPicker(
@@ -3204,9 +3234,11 @@ private fun ProfileColorPicker(
     onColorSelected: (String) -> Unit
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-        PROFILE_AVATAR_COLORS.forEach { colorHex ->
+        PROFILE_AVATAR_COLORS.forEachIndexed { index, colorHex ->
             ProfileColorSwatch(
                 colorHex = colorHex,
+                colorName = profileColorName(colorHex)
+                    ?: stringResource(R.string.cd_profile_color_position, index + 1, PROFILE_AVATAR_COLORS.size),
                 isSelected = colorHex.equals(selectedColorHex, ignoreCase = true),
                 onClick = { onColorSelected(colorHex) }
             )
@@ -3217,6 +3249,7 @@ private fun ProfileColorPicker(
 @Composable
 private fun ProfileColorSwatch(
     colorHex: String,
+    colorName: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -3253,6 +3286,7 @@ private fun ProfileColorSwatch(
             .semantics {
                 role = Role.RadioButton
                 selected = isSelected
+                contentDescription = colorName
             },
         contentAlignment = Alignment.Center
     ) {

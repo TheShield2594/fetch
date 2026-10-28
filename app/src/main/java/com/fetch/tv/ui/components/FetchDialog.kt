@@ -7,6 +7,8 @@ import android.os.SystemClock
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -55,6 +57,9 @@ fun FetchDialog(
     containerCornerRadius: Dp = FetchTheme.radii.xl,
     contentPadding: Dp = FetchTheme.spacing.xl,
     contentSpacing: Dp = FetchTheme.spacing.lg,
+    // Scroll the content when it outgrows the height cap, so focus can reach clipped controls.
+    // Off by default: content that holds an unbounded lazy list or weighted children can't scroll.
+    scrollable: Boolean = false,
     backgroundContent: @Composable BoxScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -100,6 +105,7 @@ fun FetchDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .then(if (scrollable) Modifier.verticalScroll(rememberScrollState()) else Modifier)
                     .padding(contentPadding),
                 verticalArrangement = Arrangement.spacedBy(contentSpacing)
             ) {

@@ -22,6 +22,9 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.fetch.tv.ui.theme.FetchPrimitives
+import com.fetch.tv.ui.theme.MIN_LARGE_TEXT_CONTRAST
+import com.fetch.tv.ui.theme.MIN_TEXT_CONTRAST
+import com.fetch.tv.ui.theme.readableContentOn
 
 @Composable
 fun ProfileAvatarCircle(
@@ -37,6 +40,13 @@ fun ProfileAvatarCircle(
         .getOrDefault(FetchPrimitives.blue500)
     val initial = remember(name) { profileInitial(name) }
     val fontSize = (size.value * 0.4f).sp
+    // The bold initial counts as large text from about 18.7sp.
+    val initialColor = remember(avatarColor, fontSize) {
+        readableContentOn(
+            avatarColor,
+            if (fontSize.value >= 18.7f) MIN_LARGE_TEXT_CONTRAST else MIN_TEXT_CONTRAST
+        )
+    }
     val context = LocalContext.current
     val imageRequest = remember(context, avatarImageUrl, imageCrossfade) {
         avatarImageUrl?.let {
@@ -73,7 +83,7 @@ fun ProfileAvatarCircle(
         } else {
             Text(
                 text = initial,
-                color = Color.White,
+                color = initialColor,
                 fontSize = fontSize,
                 fontWeight = FontWeight.Bold
             )

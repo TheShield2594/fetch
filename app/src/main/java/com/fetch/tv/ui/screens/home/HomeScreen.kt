@@ -41,6 +41,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -379,6 +382,7 @@ fun HomeScreen(
                         shape = RoundedCornerShape(FetchRadii.tokens.sm)
                     )
                     .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
+                    .semantics { liveRegion = LiveRegionMode.Polite }
             ) {
                 Text(
                     text = when (startupAuthNotice) {
@@ -716,7 +720,8 @@ private fun HomeLibraryListPickerDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = stringResource(R.string.detail_lists_subtitle),
-        width = 500.dp
+        width = 500.dp,
+        scrollable = true
     ) {
         if (!error.isNullOrBlank()) {
             Text(

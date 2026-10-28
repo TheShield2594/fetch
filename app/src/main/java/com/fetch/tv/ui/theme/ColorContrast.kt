@@ -30,3 +30,21 @@ fun Color.liftedForContrast(background: Color, minRatio: Float): Color {
 const val MIN_CONTROL_CONTRAST = 3f
 
 private const val LIFT_STEPS = 40
+
+/**
+ * White, unless white falls below [minRatio] on [fill]; then whichever of white and the
+ * near-black neutral contrasts more. Keeps the usual white-on-colour look and only flips on
+ * light fills such as amber or cyan.
+ */
+fun readableContentOn(fill: Color, minRatio: Float = MIN_TEXT_CONTRAST): Color {
+    val onWhite = contrastRatio(Color.White, fill)
+    if (onWhite >= minRatio) return Color.White
+    val dark = FetchPrimitives.neutral925
+    return if (contrastRatio(dark, fill) > onWhite) dark else Color.White
+}
+
+/** WCAG's minimum for body-size text. */
+const val MIN_TEXT_CONTRAST = 4.5f
+
+/** WCAG's minimum for large text: 24sp, or about 18.7sp bold. */
+const val MIN_LARGE_TEXT_CONTRAST = 3f

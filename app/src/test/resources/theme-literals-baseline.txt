@@ -5,4 +5,3 @@ com/fetch/tv/ui/components/Shimmer.kt|DURATION|1
 com/fetch/tv/ui/screens/party/PartyUi.kt|DURATION|1
 com/fetch/tv/ui/screens/player/LoadingOverlay.kt|DURATION|1
 com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt|DURATION|1
-com/fetch/tv/ui/screens/settings/NetworkSettingsScreen.kt|DURATION|1

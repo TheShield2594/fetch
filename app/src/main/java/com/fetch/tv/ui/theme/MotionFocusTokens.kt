@@ -35,6 +35,8 @@ data class FetchMotionDurations(
     val sidebarEnter: Int,
     val sidebarExit: Int,
     val hero: Int,
+    /** One full turn of a loading spinner glyph (linear, repeating). */
+    val spinner: Int,
     val shimmer: Int
 )
 
@@ -94,6 +96,7 @@ object FetchMotion {
             sidebarEnter = 385,
             sidebarExit = 145,
             hero = 450,
+            spinner = 1000,
             shimmer = 1200
         ),
         easings = FetchMotionEasings(

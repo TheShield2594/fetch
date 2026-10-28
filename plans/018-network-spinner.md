@@ -1,6 +1,6 @@
 # 018 — Only spin the network test icon while a test runs, and spin it in the layer
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; guard counts re-checked by script)
 - **Commit**: ee8dd84
 - **Severity**: LOW
 - **Category**: Performance (deferred state reads, idle animation clocks)

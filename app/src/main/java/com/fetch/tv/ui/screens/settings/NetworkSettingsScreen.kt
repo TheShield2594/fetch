@@ -5,6 +5,7 @@ package com.fetch.tv.ui.screens.settings
 
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.BuildConfig
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.net.ConnectivityManager
@@ -49,10 +50,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -907,30 +908,21 @@ private fun NetworkMetricCard(
     value: String?,
     loading: Boolean
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "spin")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-
     Column(
         modifier = modifier.padding(FetchTheme.spacing.sm),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
     ) {
-        Icon(
-            imageVector = if (loading) Icons.Default.Refresh else icon,
-            contentDescription = null,
-            modifier = Modifier
-                .size(28.dp)
-                .then(if (loading) Modifier.rotate(rotation) else Modifier),
-            tint = if (loading) FetchTheme.colors.Secondary else FetchTheme.colors.Primary
-        )
+        if (loading) {
+            SpinningRefreshIcon()
+        } else {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(28.dp),
+                tint = FetchTheme.colors.Primary
+            )
+        }
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
@@ -946,6 +938,35 @@ private fun NetworkMetricCard(
             color = if (value != null && !loading) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextTertiary
         )
     }
+}
+
+/**
+ * The refresh glyph turning once per second while a test runs. The clock lives only as long as
+ * this composable and is read in the layer, so only the icon redraws; reduced motion holds it still.
+ */
+@Composable
+private fun SpinningRefreshIcon() {
+    val rotation = if (FetchTheme.fullMotion) {
+        rememberInfiniteTransition(label = "spin").animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(FetchMotion.tokens.durations.spinner, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "rotation"
+        )
+    } else {
+        null
+    }
+    Icon(
+        imageVector = Icons.Default.Refresh,
+        contentDescription = null,
+        modifier = Modifier
+            .size(28.dp)
+            .graphicsLayer { rotationZ = rotation?.value ?: 0f },
+        tint = FetchTheme.colors.Secondary
+    )
 }
 
 @Composable

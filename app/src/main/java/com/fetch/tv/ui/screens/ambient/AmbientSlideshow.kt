@@ -46,6 +46,7 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.size.Precision
 import coil3.toBitmap
+import com.fetch.tv.ui.theme.FetchTheme
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -97,6 +98,9 @@ fun AmbientSlideshow(
     var motion by remember { mutableStateOf(nextAmbientMotion(null)) }
 
     val latestSlides by rememberUpdatedState(slides)
+    // Reduced motion: a still, unzoomed backdrop and titles that only fade.
+    val fullMotion = FetchTheme.fullMotion
+    val currentFullMotion by rememberUpdatedState(fullMotion)
 
     LaunchedEffect(Unit) {
         coroutineScope {
@@ -132,7 +136,7 @@ fun AmbientSlideshow(
                 current = loaded
                 motion = nextAmbientMotion(motion)
                 motionProgress.snapTo(0f)
-                val motionJob = launch {
+                val motionJob = if (!currentFullMotion) null else launch {
                     // Timed on the frame clock, not with tween(): tweens follow the system animator
                     // duration scale but the slide hold is a plain delay(), so below 1x the motion
                     // used to end seconds before the slide did and the backdrop stood still.
@@ -156,7 +160,7 @@ fun AmbientSlideshow(
                 genresAlpha.animateTo(0f, tween(GENRES_FADE_OUT_MS, easing = FastOutSlowInEasing))
                 titleAlpha.animateTo(0f, tween(TITLE_FADE_OUT_MS, easing = FastOutSlowInEasing))
                 backdropAlpha.animateTo(0f, tween(BACKDROP_FADE_OUT_MS, easing = FastOutSlowInEasing))
-                motionJob.cancel()
+                motionJob?.cancel()
                 delay(BLACK_HOLD_MS)
             }
         }
@@ -177,7 +181,7 @@ fun AmbientSlideshow(
                 .fillMaxSize()
                 .graphicsLayer {
                     alpha = backdropAlpha.value
-                    applyAmbientMotion(motion, motionProgress.value)
+                    if (fullMotion) applyAmbientMotion(motion, motionProgress.value)
                 }
         )
         Box(
@@ -200,7 +204,7 @@ fun AmbientSlideshow(
         ) {
             val titleModifier = Modifier.graphicsLayer {
                 alpha = titleAlpha.value
-                translationY = (1f - titleAlpha.value) * titleOffsetPx
+                translationY = if (fullMotion) (1f - titleAlpha.value) * titleOffsetPx else 0f
             }
             if (loaded.logo != null) {
                 Image(
@@ -235,7 +239,7 @@ fun AmbientSlideshow(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.graphicsLayer {
                         alpha = genresAlpha.value
-                        translationY = (1f - genresAlpha.value) * genresOffsetPx
+                        translationY = if (fullMotion) (1f - genresAlpha.value) * genresOffsetPx else 0f
                     }
                 )
             }

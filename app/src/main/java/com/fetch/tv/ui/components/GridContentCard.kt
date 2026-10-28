@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -189,7 +190,9 @@ fun GridContentCard(
                     shape = cardShape
                 )
             ),
-            scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
+            scale = CardDefaults.scale(
+                focusedScale = if (FetchTheme.fullMotion) posterCardStyle.focusedScale else FetchMotion.tokens.reducedMotionScale
+            )
         ) {
             Box(
                 modifier = Modifier

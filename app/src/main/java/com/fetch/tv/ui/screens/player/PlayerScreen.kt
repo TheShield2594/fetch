@@ -1864,14 +1864,22 @@ fun PlayerScreen(
 
         AnimatedVisibility(
             visible = uiState.showPartyPanel && uiState.error == null,
-            enter = slideInHorizontally(
-                animationSpec = tween(FetchMotion.tokens.durations.fast),
-                initialOffsetX = { it }
-            ),
-            exit = slideOutHorizontally(
-                animationSpec = tween(FetchMotion.tokens.durations.fast),
-                targetOffsetX = { it }
-            )
+            enter = if (FetchTheme.fullMotion) {
+                slideInHorizontally(
+                    animationSpec = tween(FetchMotion.tokens.durations.fast),
+                    initialOffsetX = { it }
+                )
+            } else {
+                fadeIn(animationSpec = FetchMotion.enterTween())
+            },
+            exit = if (FetchTheme.fullMotion) {
+                slideOutHorizontally(
+                    animationSpec = tween(FetchMotion.tokens.durations.fast),
+                    targetOffsetX = { it }
+                )
+            } else {
+                fadeOut(animationSpec = FetchMotion.exitTween())
+            }
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 PartyPanel(
@@ -1928,14 +1936,22 @@ fun PlayerScreen(
         // Subtitle style panel
         AnimatedVisibility(
             visible = uiState.showSubtitleStylePanel && uiState.error == null,
-            enter = slideInVertically(
-                animationSpec = tween(FetchMotion.tokens.durations.fast),
-                initialOffsetY = { -it }
-            ),
-            exit = slideOutVertically(
-                animationSpec = tween(FetchMotion.tokens.durations.fast),
-                targetOffsetY = { -it }
-            )
+            enter = if (FetchTheme.fullMotion) {
+                slideInVertically(
+                    animationSpec = tween(FetchMotion.tokens.durations.fast),
+                    initialOffsetY = { -it }
+                )
+            } else {
+                fadeIn(animationSpec = FetchMotion.enterTween())
+            },
+            exit = if (FetchTheme.fullMotion) {
+                slideOutVertically(
+                    animationSpec = tween(FetchMotion.tokens.durations.fast),
+                    targetOffsetY = { -it }
+                )
+            } else {
+                fadeOut(animationSpec = FetchMotion.exitTween())
+            }
         ) {
             Box(
                 modifier = Modifier.fillMaxSize()
@@ -2944,14 +2960,22 @@ internal fun PlayerControlsOverlay(
 
                 AnimatedVisibility(
                     visible = uiState.showMoreDialog,
-                    enter = slideInHorizontally(
-                        animationSpec = tween(FetchMotion.tokens.durations.fast),
-                        initialOffsetX = { it / 2 }
-                    ) + fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
-                    exit = slideOutHorizontally(
-                        animationSpec = tween(FetchMotion.tokens.durations.fast),
-                        targetOffsetX = { it / 2 }
-                    ) + fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
+                    enter = if (FetchTheme.fullMotion) {
+                        slideInHorizontally(
+                            animationSpec = tween(FetchMotion.tokens.durations.fast),
+                            initialOffsetX = { it / 2 }
+                        ) + fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast))
+                    } else {
+                        fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast))
+                    },
+                    exit = if (FetchTheme.fullMotion) {
+                        slideOutHorizontally(
+                            animationSpec = tween(FetchMotion.tokens.durations.fast),
+                            targetOffsetX = { it / 2 }
+                        ) + fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
+                    } else {
+                        fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
+                    }
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),

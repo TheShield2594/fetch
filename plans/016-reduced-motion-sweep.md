@@ -1,6 +1,6 @@
 # 016 — Gate slides, scales, shakes and marquees on reduced motion
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; all 15 sites applied)
 - **Commit**: ee8dd84
 - **Severity**: MEDIUM
 - **Category**: Accessibility (reduced motion), and also Performance, because `fullMotion` is false on low-RAM devices

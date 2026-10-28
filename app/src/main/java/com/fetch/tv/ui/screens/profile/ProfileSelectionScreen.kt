@@ -2600,6 +2600,7 @@ internal fun ProfilePinOverlay(
     var isInputFocused by remember(state) { mutableStateOf(false) }
     var keyboardWasVisible by remember(state) { mutableStateOf(false) }
     val shakeOffset = remember(state) { androidx.compose.animation.core.Animatable(0f) }
+    val fullMotion = FetchTheme.fullMotion
     val cursorAlpha = if (FetchTheme.fullMotion) {
         rememberInfiniteTransition(label = "pinCursor").animateFloat(
             initialValue = 0.25f,
@@ -2671,6 +2672,8 @@ internal fun ProfilePinOverlay(
 
     suspend fun playErrorAnimation() {
         shakeOffset.snapTo(0f)
+        // Reduced motion: the red PIN boxes and the message carry the error; the boxes don't shake.
+        if (!fullMotion) return
         listOf(-22f, 18f, -14f, 10f, -6f, 0f).forEach { offset ->
             shakeOffset.animateTo(offset, animationSpec = tween(42))
         }

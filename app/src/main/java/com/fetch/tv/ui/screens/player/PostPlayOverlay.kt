@@ -101,10 +101,18 @@ fun PostPlayOverlay(
 
     transition.AnimatedVisibility(
         visible = { it != null },
-        enter = slideInHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), initialOffsetX = { it / 2 }) +
-            fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
-        exit = slideOutHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), targetOffsetX = { it / 2 }) +
-            fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+        enter = if (FetchTheme.fullMotion) {
+            slideInHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), initialOffsetX = { it / 2 }) +
+                fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast))
+        } else {
+            fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast))
+        },
+        exit = if (FetchTheme.fullMotion) {
+            slideOutHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), targetOffsetX = { it / 2 }) +
+                fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
+        } else {
+            fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
+        },
         modifier = modifier,
     ) {
         val onCardClick: () -> Unit = when {

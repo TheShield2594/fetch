@@ -58,10 +58,26 @@ internal fun PlayerSidePanel(
                     .background(Color.Black.copy(alpha = scrimAlpha))
             )
         }
+        val fullMotion = FetchTheme.fullMotion
         AnimatedVisibility(
             visible = visible,
-            enter = slideInHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), initialOffsetX = { it }),
-            exit = slideOutHorizontally(animationSpec = tween(FetchMotion.tokens.durations.fast), targetOffsetX = { it }),
+            // Drawer curve for the slide; reduced motion fades the panel in place instead.
+            enter = if (fullMotion) {
+                slideInHorizontally(
+                    animationSpec = tween(FetchMotion.tokens.durations.enter, easing = FetchMotion.tokens.easings.drawer),
+                    initialOffsetX = { it }
+                )
+            } else {
+                fadeIn(animationSpec = FetchMotion.enterTween())
+            },
+            exit = if (fullMotion) {
+                slideOutHorizontally(
+                    animationSpec = tween(FetchMotion.tokens.durations.exit, easing = FetchMotion.tokens.easings.drawer),
+                    targetOffsetX = { it }
+                )
+            } else {
+                fadeOut(animationSpec = FetchMotion.exitTween())
+            },
             modifier = Modifier.align(Alignment.CenterEnd)
         ) {
             Box(

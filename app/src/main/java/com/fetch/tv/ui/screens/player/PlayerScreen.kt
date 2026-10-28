@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
@@ -1070,6 +1069,7 @@ fun PlayerScreen(
         var postPlayClearancePx by remember { mutableFloatStateOf(0f) }
         var seekClearancePx by remember { mutableFloatStateOf(0f) }
         val subtitleClearanceGapPx = with(LocalDensity.current) { SUBTITLE_CONTROLS_GAP.toPx() }
+        val skipButtonControlsLiftPx = with(LocalDensity.current) { SKIP_BUTTON_CONTROLS_LIFT.toPx() }
         val postPlayOverlayMode = uiState.postPlayMode.takeIf {
             uiState.error == null &&
                 !postPlayRecommendationState.isVisible &&
@@ -1183,7 +1183,12 @@ fun PlayerScreen(
                     controlsClearancePx = subtitleControlsClearancePx,
                     fallbackControlsLiftPx = fallbackSubtitleLiftPx,
                     skipVisible = skipButtonActuallyVisible,
-                    skipClearancePx = skipClearancePx,
+                    // Reported at the un-lifted layout position; add the lift the button rests at.
+                    skipClearancePx = if (uiState.showControls) {
+                        skipClearancePx + skipButtonControlsLiftPx
+                    } else {
+                        skipClearancePx
+                    },
                     postPlayVisible = postPlayOverlayMode != null,
                     postPlayClearancePx = postPlayClearancePx,
                     seekVisible = seekOverlayVisible,
@@ -1383,11 +1388,16 @@ fun PlayerScreen(
             )
         }
 
-        val skipButtonBottomPadding by animateDpAsState(
-            // Clears the scrubber with the transport and panel rows below it.
-            targetValue = if (uiState.showControls) 174.dp else 30.dp,
-            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast),
-            label = "skipButtonBottomPadding"
+        // 1 = lifted above the controls, 0 = resting near the bottom edge. Read only in the
+        // button's graphicsLayer so the lift neither relayouts nor recomposes this screen.
+        val skipButtonLift = animateFloatAsState(
+            targetValue = if (uiState.showControls) 1f else 0f,
+            animationSpec = if (FetchTheme.fullMotion) {
+                tween(durationMillis = FetchMotion.tokens.durations.fast)
+            } else {
+                snap()
+            },
+            label = "skipButtonLift"
         )
 
         // Skip Intro button (bottom-left, lifted when controls are visible)
@@ -1435,9 +1445,13 @@ fun PlayerScreen(
             },
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = FetchTheme.spacing.xxl, bottom = skipButtonBottomPadding)
+                .padding(start = FetchTheme.spacing.xxl, bottom = SKIP_BUTTON_BOTTOM_PADDING)
                 .zIndex(2.1f)
+                // Must stay outside (before) the graphicsLayer: it reports the resting layout position.
                 .reportSubtitleClearance(subtitleClearanceGapPx) { skipClearancePx = it }
+                .graphicsLayer {
+                    translationY = -skipButtonLift.value * SKIP_BUTTON_CONTROLS_LIFT.toPx()
+                }
         )
         PostPlayOverlay(
             mode = postPlayOverlayMode,
@@ -2317,6 +2331,10 @@ private data class SubtitleAppliedConfig(
 )
 
 private val SUBTITLE_CONTROLS_LIFT = 130.dp
+/** Where the Skip Intro button rests while the controls are hidden. */
+private val SKIP_BUTTON_BOTTOM_PADDING = 30.dp
+/** Extra lift while controls are visible: 174.dp in total clears the scrubber, transport and panel rows. */
+private val SKIP_BUTTON_CONTROLS_LIFT = 144.dp
 
 /** Width of the docked player while the post-play recommendation shows. */
 private const val POST_PLAY_PLAYER_WIDTH_FRACTION = 0.32f

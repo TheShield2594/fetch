@@ -1,6 +1,6 @@
 # 005 — Draw the Skip Intro countdown, tighten its entrance, and lift it with a transform
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: HIGH
 - **Category**: 5. Performance + 2. Easing & duration + 3. Physicality & origin

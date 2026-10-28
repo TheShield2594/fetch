@@ -36,12 +36,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Card
@@ -153,10 +159,27 @@ fun SkipIntroButton(
         }
     }
 
+    val fullMotion = FetchTheme.fullMotion
+    // Grow from the corner the button is anchored to (bottom-start).
+    val anchor = if (LocalLayoutDirection.current == LayoutDirection.Rtl) {
+        TransformOrigin(1f, 1f)
+    } else {
+        TransformOrigin(0f, 1f)
+    }
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn(tween(FetchMotion.tokens.durations.medium)) + scaleIn(tween(FetchMotion.tokens.durations.medium), initialScale = 0.8f),
-        exit = fadeOut(tween(FetchMotion.tokens.durations.fast)) + scaleOut(tween(FetchMotion.tokens.durations.fast), targetScale = 0.8f),
+        enter = if (fullMotion) {
+            fadeIn(FetchMotion.enterTween()) +
+                scaleIn(FetchMotion.enterTween(), initialScale = 0.95f, transformOrigin = anchor)
+        } else {
+            fadeIn(FetchMotion.enterTween())
+        },
+        exit = if (fullMotion) {
+            fadeOut(FetchMotion.exitTween()) +
+                scaleOut(FetchMotion.exitTween(), targetScale = 0.95f, transformOrigin = anchor)
+        } else {
+            fadeOut(FetchMotion.exitTween())
+        },
         modifier = modifier
     ) {
         Card(
@@ -230,20 +253,28 @@ fun SkipIntroButton(
                         modifier = Modifier.padding(start = FetchTheme.spacing.sm)
                     )
                 }
+                val countdownHidden = controlsVisible || autoHidden || dismissed
+                val countdownFill = FetchPrimitives.neutral875.copy(alpha = if (countdownHidden) 0f else 0.85f)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(FetchTheme.spacing.xs)
                         .clip(RoundedCornerShape(bottomStart = FetchTheme.spacing.md, bottomEnd = FetchTheme.spacing.md))
-                        .background(Color.White.copy(alpha = if (controlsVisible || autoHidden || dismissed) 0f else 0.15f))
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(progress.value)
-                            .height(FetchTheme.spacing.xs)
-                            .background(FetchPrimitives.neutral875.copy(alpha = if (controlsVisible || autoHidden || dismissed) 0f else 0.85f))
-                    )
-                }
+                        .background(Color.White.copy(alpha = if (countdownHidden) 0f else 0.15f))
+                        // Read while drawing only: the countdown runs for the whole segment.
+                        .drawBehind {
+                            val fraction = progress.value.coerceIn(0f, 1f)
+                            if (fraction > 0f && countdownFill.alpha > 0f) {
+                                val fillWidth = size.width * fraction
+                                val left = if (layoutDirection == LayoutDirection.Rtl) size.width - fillWidth else 0f
+                                drawRect(
+                                    color = countdownFill,
+                                    topLeft = Offset(left, 0f),
+                                    size = Size(fillWidth, size.height)
+                                )
+                            }
+                        }
+                )
             }
         }
     }

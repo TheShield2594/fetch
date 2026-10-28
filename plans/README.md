@@ -16,7 +16,7 @@ executor to stop and report rather than improvise.
 | 002 | [Scroll spring stiffness](002-scroll-spring-stiffness.md) | HIGH | Every row and column | DONE |
 | 003 | [Home hero backdrop crossfade](003-home-hero-backdrop-crossfade.md) | HIGH | Home | DONE |
 | 004 | [Screen transitions](004-screen-transitions.md) | HIGH | Navigation | DONE |
-| 005 | [Skip Intro button](005-skip-intro-button.md) | HIGH | Player | TODO |
+| 005 | [Skip Intro button](005-skip-intro-button.md) | HIGH | Player | DONE |
 | 006 | [Loading overlay](006-loading-overlay.md) | HIGH | Fetching / buffering | DONE |
 | 007 | [Detail hero ⇄ trailer morph](007-detail-hero-trailer-morph.md) | HIGH | Detail | DONE |
 | 008 | [Post-play surface shrink](008-post-play-surface-shrink.md) | HIGH | Player | DONE |

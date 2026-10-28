@@ -88,6 +88,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
@@ -616,18 +617,15 @@ fun PlayerScreen(
             !uiState.showSubtitleTimingDialog &&
             !uiState.showSpeedDialog
         ) {
-            // Wait for AnimatedVisibility animation to complete before focusing play/pause button
-            kotlinx.coroutines.delay(250)
+            // Focus as soon as the controls' content is attached; it can take focus while it
+            // is still fading in. A fixed wait let early D-pad presses land elsewhere first.
             val returnTo = panelReturnFocus
             panelReturnFocus = null
-            val restored = returnTo != null &&
-                runCatching { returnTo.requestFocus(androidx.compose.ui.focus.FocusDirection.Enter) }.getOrDefault(false)
+            val restored = returnTo != null && requestFocusWithinFrames {
+                returnTo.requestFocus(androidx.compose.ui.focus.FocusDirection.Enter)
+            }
             if (!restored) {
-                try {
-                    playPauseFocusRequester.requestFocus()
-                } catch (e: Exception) {
-                    // Focus requester may not be ready yet
-                }
+                requestFocusWithinFrames { playPauseFocusRequester.requestFocus() }
             }
         } else if (!uiState.showControls) {
             panelReturnFocus = null
@@ -2292,6 +2290,22 @@ private data class SubtitleAppliedConfig(
 
 private val SUBTITLE_CONTROLS_LIFT = 130.dp
 private val SUBTITLE_CONTROLS_GAP = 8.dp
+
+/** Frames to keep retrying focus while freshly shown controls attach (about 67 ms at 60 Hz). */
+private const val CONTROLS_FOCUS_MAX_FRAMES = 4
+
+/**
+ * Runs [request] on each of the next [CONTROLS_FOCUS_MAX_FRAMES] frames until it returns true.
+ * The controls' content is composed in the same pass that shows it, so the target is normally
+ * ready after one frame, while the fade-in is still running.
+ */
+private suspend fun requestFocusWithinFrames(request: () -> Boolean): Boolean {
+    repeat(CONTROLS_FOCUS_MAX_FRAMES) {
+        withFrameNanos { }
+        if (runCatching(request).getOrDefault(false)) return true
+    }
+    return false
+}
 
 private fun Modifier.reportSubtitleClearance(gapPx: Float, onClearance: (Float) -> Unit): Modifier =
     onGloballyPositioned { coordinates ->

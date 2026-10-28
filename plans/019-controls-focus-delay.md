@@ -1,6 +1,6 @@
 # 019 — Focus play/pause as soon as the controls attach, not after a fixed 250 ms
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: LOW
 - **Category**: 4. Interruptibility

@@ -2904,9 +2904,10 @@ internal fun ProfilePinOverlay(
                     if (!isSingleEntryMode) internalErrorMessage = null
                 }
             },
+            // No alpha = 0f here: Compose prunes fully transparent nodes from the accessibility
+            // tree. Transparent text and cursor at hairline size already draw nothing.
             modifier = Modifier
                 .size(FetchTheme.spacing.hairline)
-                .graphicsLayer { alpha = 0f }
                 .focusRequester(focusRequester)
                 .onFocusChanged { state ->
                     isInputFocused = state.isFocused

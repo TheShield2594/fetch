@@ -27,4 +27,13 @@ class ProfileAvatarContrastTest {
         assertEquals(FetchPrimitives.neutral925, readableContentOn(parse("#FFB300"), MIN_LARGE_TEXT_CONTRAST))
         assertEquals(FetchPrimitives.neutral925, readableContentOn(parse("#00ACC1"), MIN_LARGE_TEXT_CONTRAST))
     }
+
+    @Test
+    fun `when neither passes, the better of white and near-black wins`() {
+        // Crimson at body-text size: white is about 4.23:1, near-black about 4.47:1.
+        val crimson = parse("#E53935")
+        val picked = readableContentOn(crimson, MIN_TEXT_CONTRAST)
+        val other = if (picked == Color.White) FetchPrimitives.neutral925 else Color.White
+        assertTrue(contrastRatio(picked, crimson) >= contrastRatio(other, crimson))
+    }
 }

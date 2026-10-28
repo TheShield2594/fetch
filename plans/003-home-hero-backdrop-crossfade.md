@@ -1,6 +1,6 @@
 # 003 — Shorten the Home hero backdrop crossfade to 200ms ease-out, and snap it under reduced motion
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session)
 - **Commit**: ee8dd84
 - **Severity**: HIGH
 - **Category**: 1. Purpose & frequency / 5. Performance

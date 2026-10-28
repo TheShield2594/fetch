@@ -10,6 +10,8 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.snap
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -169,10 +171,15 @@ internal fun ModernHeroMediaLayer(
         displayedBackdrop?.let { HeroBackdropState.update(it) }
     }
 
+    // Focus settles on a new card hundreds of times a day: keep the backdrop swap short, and
+    // skip the blend entirely when motion is reduced (also the low-RAM path).
+    val backdropCrossfadeSpec: FiniteAnimationSpec<Float> =
+        if (FetchTheme.fullMotion) FetchMotion.enterTween() else snap()
+
     Box(modifier = modifier) {
         androidx.compose.animation.Crossfade(
             targetState = imageModel,
-            animationSpec = tween(durationMillis = FetchMotion.tokens.durations.overlay),
+            animationSpec = backdropCrossfadeSpec,
             label = "heroBackdropCrossfade"
         ) { model ->
             AsyncImage(

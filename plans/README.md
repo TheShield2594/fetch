@@ -14,7 +14,7 @@ executor to stop and report rather than improvise.
 |---|---|---|---|---|
 | 001 | [Motion token foundation](001-motion-token-foundation.md) | HIGH (enabler) | Tokens | DONE |
 | 002 | [Scroll spring stiffness](002-scroll-spring-stiffness.md) | HIGH | Every row and column | DONE |
-| 003 | [Home hero backdrop crossfade](003-home-hero-backdrop-crossfade.md) | HIGH | Home | TODO |
+| 003 | [Home hero backdrop crossfade](003-home-hero-backdrop-crossfade.md) | HIGH | Home | DONE |
 | 004 | [Screen transitions](004-screen-transitions.md) | HIGH | Navigation | TODO |
 | 005 | [Skip Intro button](005-skip-intro-button.md) | HIGH | Player | TODO |
 | 006 | [Loading overlay](006-loading-overlay.md) | HIGH | Fetching / buffering | TODO |

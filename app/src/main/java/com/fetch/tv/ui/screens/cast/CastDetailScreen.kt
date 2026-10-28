@@ -91,7 +91,8 @@ import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.PosterCardStyle
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.ui.components.LocalLandscapePosterMode
-import com.fetch.tv.ui.components.rememberShimmerBrush
+import com.fetch.tv.ui.components.rememberSkeletonShimmer
+import com.fetch.tv.ui.components.skeletonShimmer
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -655,7 +656,7 @@ private fun FilmographyRow(
 private fun CastDetailSkeleton(personName: String) {
     val backgroundColor = FetchTheme.colors.Background
     val accentColor = FetchTheme.colors.Secondary
-    val shimmerBrush = rememberShimmerBrush()
+    val shimmer = rememberSkeletonShimmer()
 
     Box(modifier = Modifier.fillMaxSize().background(backgroundColor)) {
         val accentGradient = remember(accentColor, backgroundColor) {
@@ -685,7 +686,7 @@ private fun CastDetailSkeleton(personName: String) {
                         .width(160.dp)
                         .height(240.dp)
                         .clip(RoundedCornerShape(FetchTheme.radii.xl))
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
 
                 Spacer(modifier = Modifier.width(FetchTheme.spacing.xl))
@@ -711,7 +712,7 @@ private fun CastDetailSkeleton(personName: String) {
                                 .fillMaxWidth(if (it == 0) 0.60f else if (it == 1) 0.48f else 0.72f)
                                 .height(14.dp)
                                 .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                                .background(shimmerBrush)
+                                .skeletonShimmer(shimmer)
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
@@ -721,7 +722,7 @@ private fun CastDetailSkeleton(personName: String) {
                             .fillMaxWidth(0.86f)
                             .height(14.dp)
                             .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                            .background(shimmerBrush)
+                            .skeletonShimmer(shimmer)
                     )
                 }
             }
@@ -738,7 +739,7 @@ private fun CastDetailSkeleton(personName: String) {
                         .width(140.dp)
                         .height(20.dp)
                         .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
                 Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
                 Box(
@@ -746,7 +747,7 @@ private fun CastDetailSkeleton(personName: String) {
                         .width(36.dp)
                         .height(18.dp)
                         .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
             }
 
@@ -764,7 +765,7 @@ private fun CastDetailSkeleton(personName: String) {
                                 .width(112.dp)
                                 .height(168.dp)
                                 .clip(RoundedCornerShape(PosterCardDefaults.Style.cornerRadius))
-                                .background(shimmerBrush)
+                                .skeletonShimmer(shimmer)
                         )
                         Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
                         Box(
@@ -772,7 +773,7 @@ private fun CastDetailSkeleton(personName: String) {
                                 .fillMaxWidth()
                                 .height(FetchTheme.spacing.lg)
                                 .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                                .background(shimmerBrush)
+                                .skeletonShimmer(shimmer)
                         )
                     }
                 }

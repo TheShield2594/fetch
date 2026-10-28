@@ -1,6 +1,6 @@
 # 009 — Draw the skeleton shimmer in the draw phase from one clock per skeleton
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; guard counts re-checked by script; shipped 1200ms default)
 - **Commit**: ee8dd84
 - **Severity**: HIGH
 - **Category**: Performance (deferred state reads)

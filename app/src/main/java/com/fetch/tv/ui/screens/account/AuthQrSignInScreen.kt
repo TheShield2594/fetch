@@ -67,7 +67,7 @@ import com.fetch.tv.R
 import com.fetch.tv.domain.model.AuthState
 import com.fetch.tv.ui.components.BrandWordmark
 import com.fetch.tv.ui.components.SkeletonBar
-import com.fetch.tv.ui.components.rememberShimmerBrush
+import com.fetch.tv.ui.components.rememberSkeletonShimmer
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import kotlin.math.PI
 import kotlin.math.abs
@@ -629,7 +629,7 @@ private fun AuthQrManualCodeDetails(
                 )
             }
         } else if (isLoading) {
-            val shimmerBrush = rememberShimmerBrush(backdropAware = true)
+            val shimmer = rememberSkeletonShimmer(backdropAware = true)
             Spacer(modifier = Modifier.height(18.dp))
             Box(
                 modifier = Modifier
@@ -637,7 +637,7 @@ private fun AuthQrManualCodeDetails(
                     .height(20.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SkeletonBar(width = 238.dp, height = 12.dp, brush = shimmerBrush, cornerRadius = 6.dp)
+                SkeletonBar(width = 238.dp, height = 12.dp, shimmer = shimmer, cornerRadius = 6.dp)
             }
             Spacer(modifier = Modifier.height(10.dp))
             Box(
@@ -646,7 +646,7 @@ private fun AuthQrManualCodeDetails(
                     .height(32.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SkeletonBar(width = 116.dp, height = 22.dp, brush = shimmerBrush, cornerRadius = 8.dp)
+                SkeletonBar(width = 116.dp, height = 22.dp, shimmer = shimmer, cornerRadius = 8.dp)
             }
             Spacer(modifier = Modifier.height(6.dp))
             Box(
@@ -655,7 +655,7 @@ private fun AuthQrManualCodeDetails(
                     .height(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SkeletonBar(width = 84.dp, height = 8.dp, brush = shimmerBrush, cornerRadius = 4.dp)
+                SkeletonBar(width = 84.dp, height = 8.dp, shimmer = shimmer, cornerRadius = 4.dp)
             }
         }
     }

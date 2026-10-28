@@ -1,6 +1,6 @@
 package com.fetch.tv.ui.components
 
-import androidx.compose.ui.graphics.SolidColor
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.core.LinearEasing
@@ -24,11 +24,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -45,6 +48,7 @@ fun StreamsSkeletonList(
     showAddonLogo: Boolean = true,
     itemCount: Int = 6
 ) {
+    val shimmer = rememberSkeletonShimmer()
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -53,7 +57,7 @@ fun StreamsSkeletonList(
         contentPadding = PaddingValues(vertical = FetchTheme.spacing.sm)
     ) {
         items(itemCount) {
-            StreamCardSkeleton(showAddonLogo = showAddonLogo, shimmerBrush = rememberShimmerBrush())
+            StreamCardSkeleton(showAddonLogo = showAddonLogo, shimmer = shimmer)
         }
     }
 }
@@ -62,7 +66,7 @@ fun StreamsSkeletonList(
 fun StreamCardSkeleton(
     modifier: Modifier = Modifier,
     showAddonLogo: Boolean = true,
-    shimmerBrush: Brush = rememberShimmerBrush()
+    shimmer: SkeletonShimmer = rememberSkeletonShimmer()
 ) {
     Box(
         modifier = modifier
@@ -80,11 +84,11 @@ fun StreamCardSkeleton(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
             ) {
-                SkeletonBar(width = 180.dp, height = FetchTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 140.dp, height = FetchTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(width = 180.dp, height = FetchTheme.spacing.lg, shimmer = shimmer, cornerRadius = 10.dp)
+                SkeletonBar(width = 140.dp, height = FetchTheme.spacing.md, shimmer = shimmer, cornerRadius = 10.dp)
                 Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
-                    SkeletonBar(width = 64.dp, height = FetchTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
-                    SkeletonBar(width = 52.dp, height = FetchTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(width = 64.dp, height = FetchTheme.spacing.lg, shimmer = shimmer, cornerRadius = 10.dp)
+                    SkeletonBar(width = 52.dp, height = FetchTheme.spacing.lg, shimmer = shimmer, cornerRadius = 10.dp)
                 }
             }
 
@@ -96,10 +100,10 @@ fun StreamCardSkeleton(
                         modifier = Modifier
                             .size(FetchTheme.spacing.xxl)
                             .clip(RoundedCornerShape(FetchTheme.radii.sm))
-                            .background(shimmerBrush)
+                            .skeletonShimmer(shimmer)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    SkeletonBar(width = 64.dp, height = 10.dp, brush = shimmerBrush, cornerRadius = FetchTheme.spacing.sm)
+                    SkeletonBar(width = 64.dp, height = 10.dp, shimmer = shimmer, cornerRadius = FetchTheme.spacing.sm)
                 }
             }
         }
@@ -108,7 +112,7 @@ fun StreamCardSkeleton(
 
 @Composable
 fun MetaDetailsSkeleton(backdropAware: Boolean = false) {
-    val shimmerBrush = rememberShimmerBrush(backdropAware = backdropAware)
+    val shimmer = rememberSkeletonShimmer(backdropAware = backdropAware)
     val episodeCardColor = if (backdropAware) {
         FetchTheme.colors.BackgroundCard.copy(alpha = 0.40f)
     } else {
@@ -128,30 +132,30 @@ fun MetaDetailsSkeleton(backdropAware: Boolean = false) {
             modifier = Modifier.fillMaxSize()
         ) {
             item {
-                MetaHeroSkeleton(shimmerBrush = shimmerBrush)
+                MetaHeroSkeleton(shimmer = shimmer)
             }
 
             item {
-                SeasonTabsSkeleton(shimmerBrush = shimmerBrush)
+                SeasonTabsSkeleton(shimmer = shimmer)
             }
 
             item {
                 EpisodesRowSkeleton(
-                    shimmerBrush = shimmerBrush,
+                    shimmer = shimmer,
                     cardColor = episodeCardColor
                 )
             }
 
             item {
-                CastSectionSkeleton(shimmerBrush = shimmerBrush)
+                CastSectionSkeleton(shimmer = shimmer)
             }
 
             item {
-                CompanyLogosSkeleton(titleWidth = 140.dp, shimmerBrush = shimmerBrush)
+                CompanyLogosSkeleton(titleWidth = 140.dp, shimmer = shimmer)
             }
 
             item {
-                CompanyLogosSkeleton(titleWidth = 110.dp, shimmerBrush = shimmerBrush)
+                CompanyLogosSkeleton(titleWidth = 110.dp, shimmer = shimmer)
             }
         }
     }
@@ -213,7 +217,7 @@ private fun BackdropLoadingScrim() {
 }
 
 @Composable
-private fun MetaHeroSkeleton(shimmerBrush: Brush) {
+private fun MetaHeroSkeleton(shimmer: SkeletonShimmer) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,7 +233,7 @@ private fun MetaHeroSkeleton(shimmerBrush: Brush) {
             SkeletonBar(
                 width = 0.4f,
                 height = 100.dp,
-                brush = shimmerBrush,
+                shimmer = shimmer,
                 cornerRadius = FetchTheme.spacing.md
             )
 
@@ -239,58 +243,58 @@ private fun MetaHeroSkeleton(shimmerBrush: Brush) {
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SkeletonPill(width = 100.dp, height = FetchTheme.spacing.xxxl, brush = shimmerBrush)
+                SkeletonPill(width = 100.dp, height = FetchTheme.spacing.xxxl, shimmer = shimmer)
                 Box(
                     modifier = Modifier
                         .size(FetchTheme.spacing.xxxl)
                         .clip(CircleShape)
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
             }
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
 
-            SkeletonBar(width = 0.5f, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(width = 0.5f, height = 14.dp, shimmer = shimmer, cornerRadius = 10.dp)
             Spacer(modifier = Modifier.height(10.dp))
-            SkeletonBar(width = 0.6f, height = FetchTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(width = 0.6f, height = FetchTheme.spacing.lg, shimmer = shimmer, cornerRadius = 10.dp)
             Spacer(modifier = Modifier.height(6.dp))
-            SkeletonBar(width = 0.55f, height = FetchTheme.spacing.lg, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(width = 0.55f, height = FetchTheme.spacing.lg, shimmer = shimmer, cornerRadius = 10.dp)
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
 
             Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-                SkeletonBar(width = 96.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 72.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 84.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = 64.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(width = 96.dp, height = 14.dp, shimmer = shimmer, cornerRadius = 10.dp)
+                SkeletonBar(width = 72.dp, height = 14.dp, shimmer = shimmer, cornerRadius = 10.dp)
+                SkeletonBar(width = 84.dp, height = 14.dp, shimmer = shimmer, cornerRadius = 10.dp)
+                SkeletonBar(width = 64.dp, height = 14.dp, shimmer = shimmer, cornerRadius = 10.dp)
             }
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
 
             Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-                SkeletonBar(width = 72.dp, height = FetchTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
-                SkeletonBar(width = FetchTheme.spacing.huge, height = FetchTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                SkeletonBar(width = 72.dp, height = FetchTheme.spacing.md, shimmer = shimmer, cornerRadius = 10.dp)
+                SkeletonBar(width = FetchTheme.spacing.huge, height = FetchTheme.spacing.md, shimmer = shimmer, cornerRadius = 10.dp)
             }
         }
     }
 }
 
 @Composable
-private fun SeasonTabsSkeleton(shimmerBrush: Brush) {
+private fun SeasonTabsSkeleton(shimmer: SkeletonShimmer) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = FetchTheme.spacing.xxxl, vertical = FetchTheme.spacing.xl),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
         items(5) {
-            SkeletonPill(width = 96.dp, height = 36.dp, brush = shimmerBrush)
+            SkeletonPill(width = 96.dp, height = 36.dp, shimmer = shimmer)
         }
     }
 }
 
 @Composable
 private fun EpisodesRowSkeleton(
-    shimmerBrush: Brush,
+    shimmer: SkeletonShimmer,
     cardColor: Color
 ) {
     LazyRow(
@@ -310,12 +314,12 @@ private fun EpisodesRowSkeleton(
                         .fillMaxWidth()
                         .height(158.dp)
                         .clip(RoundedCornerShape(topStart = FetchTheme.spacing.md, topEnd = FetchTheme.spacing.md))
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
                 Column(modifier = Modifier.padding(FetchTheme.spacing.md)) {
-                    SkeletonBar(width = 160.dp, height = 14.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(width = 160.dp, height = 14.dp, shimmer = shimmer, cornerRadius = 10.dp)
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
-                    SkeletonBar(width = 120.dp, height = FetchTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(width = 120.dp, height = FetchTheme.spacing.md, shimmer = shimmer, cornerRadius = 10.dp)
                 }
             }
         }
@@ -323,14 +327,14 @@ private fun EpisodesRowSkeleton(
 }
 
 @Composable
-private fun CastSectionSkeleton(shimmerBrush: Brush) {
+private fun CastSectionSkeleton(shimmer: SkeletonShimmer) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 20.dp, bottom = FetchTheme.spacing.sm)
     ) {
         Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)) {
-            SkeletonBar(width = 120.dp, height = 20.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(width = 120.dp, height = 20.dp, shimmer = shimmer, cornerRadius = 10.dp)
         }
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
@@ -349,12 +353,12 @@ private fun CastSectionSkeleton(shimmerBrush: Brush) {
                         modifier = Modifier
                             .size(72.dp)
                             .clip(CircleShape)
-                            .background(shimmerBrush)
+                            .skeletonShimmer(shimmer)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    SkeletonBar(width = 90.dp, height = FetchTheme.spacing.md, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(width = 90.dp, height = FetchTheme.spacing.md, shimmer = shimmer, cornerRadius = 10.dp)
                     Spacer(modifier = Modifier.height(6.dp))
-                    SkeletonBar(width = 70.dp, height = 10.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+                    SkeletonBar(width = 70.dp, height = 10.dp, shimmer = shimmer, cornerRadius = 10.dp)
                 }
             }
         }
@@ -364,7 +368,7 @@ private fun CastSectionSkeleton(shimmerBrush: Brush) {
 @Composable
 private fun CompanyLogosSkeleton(
     titleWidth: Dp,
-    shimmerBrush: Brush
+    shimmer: SkeletonShimmer
 ) {
     Column(
         modifier = Modifier
@@ -372,7 +376,7 @@ private fun CompanyLogosSkeleton(
             .padding(top = 20.dp, bottom = FetchTheme.spacing.sm)
     ) {
         Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)) {
-            SkeletonBar(width = titleWidth, height = 20.dp, brush = shimmerBrush, cornerRadius = 10.dp)
+            SkeletonBar(width = titleWidth, height = 20.dp, shimmer = shimmer, cornerRadius = 10.dp)
         }
 
         LazyRow(
@@ -386,7 +390,7 @@ private fun CompanyLogosSkeleton(
                         .width(140.dp)
                         .height(FetchTheme.spacing.huge)
                         .clip(RoundedCornerShape(FetchTheme.radii.md))
-                        .background(shimmerBrush)
+                        .skeletonShimmer(shimmer)
                 )
             }
         }
@@ -397,7 +401,7 @@ private fun CompanyLogosSkeleton(
 fun SkeletonBar(
     width: Dp,
     height: Dp,
-    brush: Brush,
+    shimmer: SkeletonShimmer,
     cornerRadius: Dp = FetchTheme.spacing.sm
 ) {
     Box(
@@ -405,7 +409,7 @@ fun SkeletonBar(
             .width(width)
             .height(height)
             .clip(RoundedCornerShape(cornerRadius))
-            .background(brush)
+            .skeletonShimmer(shimmer)
     )
 }
 
@@ -413,7 +417,7 @@ fun SkeletonBar(
 fun SkeletonBar(
     width: Float,
     height: Dp,
-    brush: Brush,
+    shimmer: SkeletonShimmer,
     cornerRadius: Dp = FetchTheme.spacing.sm
 ) {
     Box(
@@ -421,7 +425,7 @@ fun SkeletonBar(
             .fillMaxWidth(width)
             .height(height)
             .clip(RoundedCornerShape(cornerRadius))
-            .background(brush)
+            .skeletonShimmer(shimmer)
     )
 }
 
@@ -429,20 +433,35 @@ fun SkeletonBar(
 fun SkeletonPill(
     width: Dp,
     height: Dp,
-    brush: Brush
+    shimmer: SkeletonShimmer
 ) {
     Box(
         modifier = Modifier
             .width(width)
             .height(height)
             .clip(RoundedCornerShape(FetchTheme.spacing.xxl))
-            .background(brush)
+            .skeletonShimmer(shimmer)
     )
 }
 
+/** Sweep distance of the skeleton gradient, in px of each placeholder's own coordinates. */
+private const val SKELETON_SHIMMER_DISTANCE_PX = 1000f
+
+/**
+ * The shared shimmer for one skeleton tree. Create it once with [rememberSkeletonShimmer] and pass
+ * the same instance to every bar; [skeletonShimmer] reads its clock only while drawing, so the
+ * sweep redraws the bars without recomposing them.
+ */
+@Stable
+class SkeletonShimmer internal constructor(
+    internal val colors: List<Color>,
+    /** Null under reduced motion: the bars hold their resting colour. */
+    internal val offset: State<Float>?
+)
+
 @Composable
-fun rememberShimmerBrush(backdropAware: Boolean = false): Brush {
-    val shimmerColors = if (backdropAware) {
+fun rememberSkeletonShimmer(backdropAware: Boolean = false): SkeletonShimmer {
+    val colors = if (backdropAware) {
         listOf(
             FetchTheme.colors.TextPrimary.copy(alpha = 0.08f),
             FetchTheme.colors.TextPrimary.copy(alpha = 0.20f),
@@ -456,22 +475,33 @@ fun rememberShimmerBrush(backdropAware: Boolean = false): Brush {
         )
     }
     // Reduced motion keeps the placeholder's resting colour without the sweep.
-    if (!FetchTheme.fullMotion) return SolidColor(shimmerColors.first())
-    val transition = rememberInfiniteTransition(label = "shimmer")
-    val translate by transition.animateFloat(
+    if (!FetchTheme.fullMotion) return remember(colors) { SkeletonShimmer(colors, offset = null) }
+    val offset = rememberInfiniteTransition(label = "skeletonShimmer").animateFloat(
         initialValue = 0f,
-        targetValue = 1000f,
+        targetValue = SKELETON_SHIMMER_DISTANCE_PX,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1400, easing = LinearEasing)
+            animation = tween(FetchMotion.tokens.durations.shimmer, easing = LinearEasing)
         ),
-        label = "shimmer_translate"
+        label = "skeletonShimmerOffset"
     )
+    return remember(colors, offset) { SkeletonShimmer(colors, offset) }
+}
 
-    return Brush.linearGradient(
-        colors = shimmerColors,
-        start = Offset(translate - 1000f, 0f),
-        end = Offset(translate, 0f)
-    )
+/** Fills the element with [shimmer]; put it after `clip(...)` exactly where `background(brush)` was. */
+fun Modifier.skeletonShimmer(shimmer: SkeletonShimmer): Modifier = drawBehind {
+    val offset = shimmer.offset
+    if (offset == null) {
+        drawRect(color = shimmer.colors.first())
+    } else {
+        val t = offset.value
+        drawRect(
+            brush = Brush.linearGradient(
+                colors = shimmer.colors,
+                start = Offset(t - SKELETON_SHIMMER_DISTANCE_PX, 0f),
+                end = Offset(t, 0f)
+            )
+        )
+    }
 }
 
 /**
@@ -487,7 +517,7 @@ fun CatalogRowsSkeleton(
     cardWidth: Dp = FetchTheme.sizes.cards.posterWidth,
     cardHeight: Dp = FetchTheme.sizes.cards.posterHeight
 ) {
-    val shimmerBrush = rememberShimmerBrush()
+    val shimmer = rememberSkeletonShimmer()
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -500,15 +530,15 @@ fun CatalogRowsSkeleton(
                 modifier = Modifier.padding(top = FetchTheme.spacing.huge, bottom = FetchTheme.spacing.xl),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
             ) {
-                SkeletonBar(width = 360.dp, height = FetchTheme.spacing.xxxl, brush = shimmerBrush)
-                SkeletonBar(width = 280.dp, height = FetchTheme.spacing.lg, brush = shimmerBrush)
+                SkeletonBar(width = 360.dp, height = FetchTheme.spacing.xxxl, shimmer = shimmer)
+                SkeletonBar(width = 280.dp, height = FetchTheme.spacing.lg, shimmer = shimmer)
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
-                SkeletonPill(width = 160.dp, height = FetchTheme.spacing.xxxl, brush = shimmerBrush)
+                SkeletonPill(width = 160.dp, height = FetchTheme.spacing.xxxl, shimmer = shimmer)
             }
         }
         repeat(rowCount) {
             Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
-                SkeletonBar(width = 180.dp, height = FetchTheme.spacing.lg, brush = shimmerBrush)
+                SkeletonBar(width = 180.dp, height = FetchTheme.spacing.lg, shimmer = shimmer)
                 Row(
                     modifier = Modifier.wrapContentWidth(Alignment.Start, unbounded = true),
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
@@ -517,7 +547,7 @@ fun CatalogRowsSkeleton(
                         SkeletonBar(
                             width = cardWidth,
                             height = cardHeight,
-                            brush = shimmerBrush,
+                            shimmer = shimmer,
                             cornerRadius = FetchTheme.radii.sm
                         )
                     }
@@ -535,7 +565,7 @@ fun PosterGridSkeleton(
     cardWidth: Dp = FetchTheme.sizes.cards.posterWidth,
     cardHeight: Dp = FetchTheme.sizes.cards.posterHeight
 ) {
-    val shimmerBrush = rememberShimmerBrush()
+    val shimmer = rememberSkeletonShimmer()
     Column(
         modifier = modifier.fillMaxWidth().clipToBounds(),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
@@ -549,7 +579,7 @@ fun PosterGridSkeleton(
                     SkeletonBar(
                         width = cardWidth,
                         height = cardHeight,
-                        brush = shimmerBrush,
+                        shimmer = shimmer,
                         cornerRadius = FetchTheme.radii.sm
                     )
                 }

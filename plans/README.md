@@ -20,7 +20,7 @@ executor to stop and report rather than improvise.
 | 006 | [Loading overlay](006-loading-overlay.md) | HIGH | Fetching / buffering | TODO |
 | 007 | [Detail hero ⇄ trailer morph](007-detail-hero-trailer-morph.md) | HIGH | Detail | TODO |
 | 008 | [Post-play surface shrink](008-post-play-surface-shrink.md) | HIGH | Player | TODO |
-| 009 | [Skeleton shimmer](009-skeleton-shimmer.md) | HIGH | Loading states | TODO |
+| 009 | [Skeleton shimmer](009-skeleton-shimmer.md) | HIGH | Loading states | DONE |
 | 010 | [Focus labels without relayout](010-focus-labels-no-relayout.md) | MEDIUM | Sidebar, detail actions | TODO |
 | 011 | [Subtitle rail fade](011-subtitle-rail-fade.md) | MEDIUM | Player | TODO |
 | 012 | [Playback-start overlays](012-playback-start-overlays.md) | MEDIUM | Player | TODO |
@@ -111,6 +111,9 @@ or incomplete:
 
 ## Noted, not planned
 
+- `app/src/main/generated/baselineProfiles/*-prof.txt` still name the removed
+  `SkeletonsKt.rememberShimmerBrush` (from plan 009). They're harmless at runtime; regenerate the
+  baseline profile at the next release.
 - `CatalogOrderScreen` has the same teleporting reorder as the addon manager (024 is the template).
 - `PlayerScreen.kt:667` has a second fixed `delay(250)` focus wait, the same pattern as 019.
 - `LoadingOverlay.kt:172` has hard-coded 160/400ms fill durations that slip past the literal guard.

@@ -42,6 +42,38 @@ class LibraryListManagementTest {
     }
 
     @Test
+    fun `the local library manages lists with no account and filters by its list tabs`() = runTest {
+        val f = LibraryViewModelTestFixture()
+        f.source.value = LibrarySourceMode.LOCAL
+        f.tabs.value = listOf(
+            com.fetch.tv.domain.model.LibraryListTab("local", "Fetch Library", com.fetch.tv.domain.model.LibraryListTab.Type.WATCHLIST),
+            com.fetch.tv.domain.model.LibraryListTab("local:list:a", "Weekend movies", com.fetch.tv.domain.model.LibraryListTab.Type.PERSONAL)
+        )
+        f.items.value = listOf(entry("tt1", setOf("local")), entry("tt2", setOf("local:list:a")))
+        runCurrent()
+
+        assertEquals(listOf("tt1"), f.viewModel.uiState.value.visibleItems.map { it.id })
+        f.viewModel.onSelectListTab("local:list:a")
+        assertEquals(listOf("tt2"), f.viewModel.uiState.value.visibleItems.map { it.id })
+
+        f.viewModel.onOpenManageLists()
+        assertTrue(f.viewModel.uiState.value.showManageDialog)
+        assertEquals("local:list:a", f.viewModel.uiState.value.manageSelectedListKey)
+        f.viewModel.onStartCreateList()
+        f.viewModel.onUpdateEditorName("Kids' shows")
+        f.viewModel.onSubmitEditor()
+        runCurrent()
+        coVerify(exactly = 1) {
+            f.repository.createPersonalList("Kids' shows", null, LibraryListPrivacy.PRIVATE, LibrarySourceMode.LOCAL)
+        }
+    }
+
+    private fun entry(id: String, listKeys: Set<String>) = LibraryEntry(
+        id = id, type = "movie", name = id, poster = null, background = null, logo = null, description = null,
+        releaseInfo = null, imdbRating = null, genres = emptyList(), addonBaseUrl = null, listKeys = listKeys
+    )
+
+    @Test
     fun `profile switch clears the editor and prevents submitting to the new profile`() = runTest {
         val f = LibraryViewModelTestFixture()
         runCurrent()

@@ -13,6 +13,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import com.fetch.tv.data.remote.api.TmdbCollectionSearchResult
 import com.fetch.tv.data.remote.api.TmdbCompanySearchResult
 import com.fetch.tv.data.local.CollectionsDataStore
+import com.fetch.tv.data.local.LocalListsDataStore
+import com.fetch.tv.core.tracking.LocalList
 import com.fetch.tv.domain.model.AddonCatalogCollectionSource
 import com.fetch.tv.domain.model.catalogTypesMatch
 import com.fetch.tv.domain.model.collectionCatalogKey
@@ -21,6 +23,7 @@ import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.CollectionSource
 import com.fetch.tv.domain.model.FolderViewMode
+import com.fetch.tv.domain.model.LocalListCollectionSource
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.TmdbCollectionFilters
 import com.fetch.tv.domain.model.TmdbCollectionMediaType
@@ -60,6 +63,9 @@ data class CollectionEditorUiState(
     val showCatalogPicker: Boolean = false,
     val showTmdbSourcePicker: Boolean = false,
     val showTraktSourcePicker: Boolean = false,
+    val showLocalListPicker: Boolean = false,
+    /** The profile's local lists, offered as row sources. */
+    val localLists: List<LocalList> = emptyList(),
     val editingTmdbSourceIndex: Int? = null,
     val editingTraktSourceIndex: Int? = null,
     val tmdbBuilderMode: TmdbBuilderMode = TmdbBuilderMode.PRESETS,
@@ -126,7 +132,8 @@ class CollectionEditorViewModel @Inject constructor(
     private val addonRepository: AddonRepository,
     private val tmdbCollectionSourceResolver: TmdbCollectionSourceResolver,
     private val traktPublicListSourceResolver: TraktPublicListSourceResolver,
-    private val collectionSyncService: CollectionSyncService
+    private val collectionSyncService: CollectionSyncService,
+    private val localListsDataStore: LocalListsDataStore
 ) : ViewModel() {
 
     private val collectionIdArg: String = savedStateHandle["collectionId"] ?: ""
@@ -136,6 +143,11 @@ class CollectionEditorViewModel @Inject constructor(
 
     init {
         loadData()
+        viewModelScope.launch {
+            localListsDataStore.lists.collect { lists ->
+                _uiState.update { it.copy(localLists = lists) }
+            }
+        }
     }
 
     private fun string(resId: Int): String = appContext.getString(resId)
@@ -967,6 +979,29 @@ class CollectionEditorViewModel @Inject constructor(
         }
     }
 
+    fun showLocalListPicker() {
+        _uiState.update { it.copy(showLocalListPicker = true, genrePickerSourceIndex = null) }
+    }
+
+    fun hideLocalListPicker() {
+        _uiState.update { it.copy(showLocalListPicker = false) }
+    }
+
+    /** Adds [list] as a row source, or removes it when the folder already has it. */
+    fun toggleLocalListSource(list: LocalList) {
+        _uiState.update { state ->
+            val folder = state.editingFolder ?: return@update state
+            val existing = folder.sources.filterIsInstance<LocalListCollectionSource>()
+                .firstOrNull { it.listId == list.id }
+            val updatedSources = if (existing != null) {
+                folder.sources - existing
+            } else {
+                folder.sources + LocalListCollectionSource(listId = list.id, title = list.name)
+            }
+            state.copy(editingFolder = folder.copy(sources = updatedSources))
+        }
+    }
+
     private fun selectedMediaTypes(
         state: CollectionEditorUiState,
         sourceType: TmdbCollectionSourceType
@@ -1105,6 +1140,7 @@ class CollectionEditorViewModel @Inject constructor(
                 showCatalogPicker = false,
                 showTmdbSourcePicker = false,
                 showTraktSourcePicker = false,
+                showLocalListPicker = false,
                 genrePickerSourceIndex = null,
                 showEmojiPicker = false
             )
@@ -1119,6 +1155,7 @@ class CollectionEditorViewModel @Inject constructor(
                 showCatalogPicker = false,
                 showTmdbSourcePicker = false,
                 showTraktSourcePicker = false,
+                showLocalListPicker = false,
                 genrePickerSourceIndex = null,
                 showEmojiPicker = false
             )

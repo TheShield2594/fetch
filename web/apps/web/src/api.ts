@@ -44,6 +44,7 @@ export type {
   MdbListRating,
   MdbListStatus,
   MediaServer,
+  MediaServerLibrary,
   MediaServerSyncSummary,
   PlexLink,
   SimklPin,

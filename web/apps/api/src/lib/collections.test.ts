@@ -24,6 +24,7 @@ const tvCollection = {
         { provider: "tmdb", tmdbSourceType: "DISCOVER", title: "Eighties", mediaType: "MOVIE", sortBy: "popularity.desc", filters: { year: 1985 } },
         { provider: "trakt", title: "Mine", traktListId: 42, mediaType: "TV", sortBy: "rank", sortHow: "asc" },
         { provider: "fetch", title: "Family night", listId: LIST_ID, mediaType: "MOVIE" },
+        { provider: "local", title: "Kids' shows", listId: "a-tv-list-id" },
       ],
       catalogSources: [{ addonId: "com.example", type: "movie", catalogId: "top" }],
       someFieldFromANewerTv: 7,
@@ -65,6 +66,11 @@ describe("validateCollections", () => {
     [
       "a website list source with no list",
       [{ id: "c", title: "A", folders: [{ id: "f", title: "F", sources: [{ provider: "fetch", listId: "nope" }] }] }],
+      /needs a listId/,
+    ],
+    [
+      "a TV list source with no list",
+      [{ id: "c", title: "A", folders: [{ id: "f", title: "F", sources: [{ provider: "local", listId: " " }] }] }],
       /needs a listId/,
     ],
     [

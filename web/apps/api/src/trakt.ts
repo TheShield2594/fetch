@@ -350,8 +350,19 @@ export class TraktClient {
 
   // Movies and shows only: a personal list can also hold people, seasons and
   // episodes, none of which a Fetch list can hold.
-  async fetchPersonalListItems(listId: number, logger: FastifyBaseLogger): Promise<TraktListItemPayload[]> {
-    return this.fetchAllPages<TraktListItemPayload>(`/users/me/lists/${listId}/items/movie,show`, logger);
+  // With `requireComplete`, a list longer than the page cap is an error rather
+  // than its first pages: a linked list's sync reads anything missing as removed.
+  async fetchPersonalListItems(
+    listId: number,
+    logger: FastifyBaseLogger,
+    options: { requireComplete?: boolean } = {}
+  ): Promise<TraktListItemPayload[]> {
+    const path = `/users/me/lists/${listId}/items/movie,show`;
+    const { items, truncated } = await this.fetchPages<TraktListItemPayload>(path, logger);
+    if (truncated && options.requireComplete) {
+      throw new Error(`Trakt list ${listId} is longer than ${MAX_PAGES} pages and can't be read in full`);
+    }
+    return items;
   }
 
   // Any list by its Trakt id — the TV's collection sources name lists this way,
@@ -460,6 +471,49 @@ export class TraktClient {
     await this.postWatchlistMutation("/sync/watchlist/remove", payload, logger);
   }
 
+  // A personal list's own CRUD, as the TV's TraktLibraryService does it. Used
+  // for a Fetch list linked to a Trakt list (lib/list-links.ts). There is no
+  // delete here on purpose: deleting a list on one side never deletes the other.
+  async createPersonalList(name: string, logger: FastifyBaseLogger): Promise<TraktPersonalListPayload> {
+    const response = await this.request("/users/me/lists", {
+      method: "POST",
+      headers: this.jsonHeaders(),
+      body: JSON.stringify({ name, privacy: "private" }),
+      logger
+    });
+    try {
+      return (await response.json()) as TraktPersonalListPayload;
+    } catch {
+      throw new Error(`Trakt API returned non-JSON response for /users/me/lists (status ${response.status})`);
+    }
+  }
+
+  async renamePersonalList(listId: number, name: string, logger: FastifyBaseLogger): Promise<void> {
+    await this.request(`/users/me/lists/${listId}`, {
+      method: "PUT",
+      headers: this.jsonHeaders(),
+      body: JSON.stringify({ name }),
+      logger
+    });
+  }
+
+  async addPersonalListItems(listId: number, payload: TraktWatchlistMutationPayload, logger: FastifyBaseLogger): Promise<void> {
+    await this.postWatchlistMutation(`/users/me/lists/${listId}/items`, payload, logger);
+  }
+
+  async removePersonalListItems(listId: number, payload: TraktWatchlistMutationPayload, logger: FastifyBaseLogger): Promise<void> {
+    await this.postWatchlistMutation(`/users/me/lists/${listId}/items/remove`, payload, logger);
+  }
+
+  private jsonHeaders(): Record<string, string> {
+    return {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": this.clientId,
+      Authorization: `Bearer ${this.accessToken}`
+    };
+  }
+
   private async postWatchlistMutation(
     path: string,
     payload: TraktWatchlistMutationPayload,
@@ -484,6 +538,15 @@ export class TraktClient {
     queryParams?: Record<string, string>,
     maxPages: number = MAX_PAGES
   ): Promise<T[]> {
+    return (await this.fetchPages<T>(path, logger, queryParams, maxPages)).items;
+  }
+
+  private async fetchPages<T>(
+    path: string,
+    logger: FastifyBaseLogger,
+    queryParams?: Record<string, string>,
+    maxPages: number = MAX_PAGES
+  ): Promise<{ items: T[]; truncated: boolean }> {
     const items: T[] = [];
     let page = 1;
     let hasMore = true;
@@ -532,13 +595,13 @@ export class TraktClient {
       logger.warn({ path, maxPages }, "Reached maximum Trakt pagination limit");
     }
 
-    return items;
+    return { items, truncated: reachedMaxPages };
   }
 
   private async request(
     path: string,
     options: {
-      method: "GET" | "POST" | "DELETE";
+      method: "GET" | "POST" | "PUT" | "DELETE";
       headers: Record<string, string>;
       body?: string | undefined;
       queryParams?: Record<string, string> | undefined;

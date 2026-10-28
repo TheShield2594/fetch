@@ -72,6 +72,31 @@ export type CatalogList = {
   name: string;
   kind: "watchlist" | "custom" | "collection";
   itemCount: number;
+  /** The Trakt or MDBList list a custom list is kept in step with, if any. */
+  link?: ListLink | null;
+};
+
+export type ListLinkProvider = "trakt" | "mdblist";
+
+export type ListLink = {
+  provider: ListLinkProvider;
+  remoteId: string;
+  remoteName: string;
+  lastSyncedAt: string | null;
+  lastError: string | null;
+};
+
+/** One of the profile's own lists on a service, to link a Fetch list to. */
+export type ListLinkTarget = { id: string; name: string; itemCount: number | null };
+
+export type ListLinkSyncResult = {
+  status: "ok" | "partial" | "missing" | "disconnected";
+  addedLocally: number;
+  removedLocally: number;
+  pushedAdds: number;
+  pushedRemovals: number;
+  kept: number;
+  error: string | null;
 };
 
 export type CatalogMeta = {
@@ -343,7 +368,8 @@ export type Device = {
  * carried through untouched so a collection made on the TV round-trips.
  */
 export type CollectionSource = {
-  provider: "addon" | "tmdb" | "trakt" | "fetch";
+  /** `local` is a list kept on one TV; the website carries it but can't add or preview one. */
+  provider: "addon" | "tmdb" | "trakt" | "fetch" | "local";
   title?: string | null | undefined;
   // addon
   addonId?: string | undefined;

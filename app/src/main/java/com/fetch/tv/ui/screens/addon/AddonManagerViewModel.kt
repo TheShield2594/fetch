@@ -49,6 +49,7 @@ import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.AddonCatalogCollectionSource
 import com.fetch.tv.domain.model.FetchListCollectionSource
+import com.fetch.tv.domain.model.LocalListCollectionSource
 import com.fetch.tv.domain.model.ExperienceMode
 import com.fetch.tv.domain.model.TmdbCollectionSource
 import com.fetch.tv.domain.model.TmdbCollectionSourceType
@@ -914,6 +915,12 @@ class AddonManagerViewModel @Inject constructor(
                                 )
                                 is FetchListCollectionSource -> CollectionSourceInfo(
                                     provider = "fetch",
+                                    title = source.title,
+                                    listId = source.listId,
+                                    mediaType = source.mediaType?.name
+                                )
+                                is LocalListCollectionSource -> CollectionSourceInfo(
+                                    provider = "local",
                                     title = source.title,
                                     listId = source.listId,
                                     mediaType = source.mediaType?.name

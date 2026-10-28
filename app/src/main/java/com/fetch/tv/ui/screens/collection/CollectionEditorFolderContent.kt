@@ -77,6 +77,7 @@ import com.fetch.tv.domain.model.collectionCatalogKey
 import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.CollectionSource
 import com.fetch.tv.domain.model.FolderViewMode
+import com.fetch.tv.domain.model.LocalListCollectionSource
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.TmdbCollectionFilters
 import com.fetch.tv.domain.model.TmdbCollectionMediaType
@@ -147,6 +148,17 @@ fun FolderEditorContent(
             onAddFromInput = { viewModel.addTraktSourceFromInput() },
             onAddResult = { viewModel.addTraktSourceFromResult(it) },
             onBack = { viewModel.hideTraktSourcePicker() }
+        )
+        return
+    }
+
+    if (uiState.showLocalListPicker) {
+        BackHandler { viewModel.hideLocalListPicker() }
+        LocalListPickerContent(
+            lists = uiState.localLists,
+            alreadyAdded = folder.sources,
+            onToggle = { viewModel.toggleLocalListSource(it) },
+            onBack = { viewModel.hideLocalListPicker() }
         )
         return
     }
@@ -620,6 +632,7 @@ fun FolderEditorContent(
                 val addonSource = source as? AddonCatalogCollectionSource
                 val tmdbSource = source as? TmdbCollectionSource
                 val traktSource = source as? TraktCollectionSource
+                val localListSource = source as? LocalListCollectionSource
                 val catalog = addonSource?.let { addon ->
                     uiState.availableCatalogs.find {
                         it.addonId == addon.addonId && catalogTypesMatch(it.type, addon.type) && it.catalogId == addon.catalogId
@@ -665,6 +678,7 @@ fun FolderEditorContent(
                                 text = catalog?.catalogName?.replaceFirstChar { it.uppercase() }
                                     ?: tmdbSource?.title
                                     ?: traktSource?.title
+                                    ?: localListSource?.title
                                     ?: addonCatalogInfo?.catalogName?.replaceFirstChar { it.uppercase() }
                                     ?: addonSource?.catalogId
                                     ?: stringResource(R.string.collections_editor_source),
@@ -679,6 +693,7 @@ fun FolderEditorContent(
                                     addonSource != null && addonCatalogInfo != null -> "$addonTypeLabel - ${addonCatalogInfo.addonName}"
                                     tmdbSource != null -> tmdbSourceSubtitle(tmdbSource)
                                     traktSource != null -> traktSourceSubtitle(traktSource)
+                                    localListSource != null -> stringResource(R.string.local_list_source_label)
                                     else -> stringResource(R.string.collections_editor_source)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
@@ -850,6 +865,11 @@ fun FolderEditorContent(
                         Icon(Icons.Default.Add, stringResource(R.string.cd_add))
                         Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                         Text(stringResource(R.string.collections_editor_add_trakt_source))
+                    }
+                    FetchButton(onClick = { viewModel.showLocalListPicker() }) {
+                        Icon(Icons.Default.Add, stringResource(R.string.cd_add))
+                        Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
+                        Text(stringResource(R.string.collections_editor_add_local_list))
                     }
                 }
             }

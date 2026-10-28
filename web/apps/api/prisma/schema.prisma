@@ -150,6 +150,7 @@ model Profile {
   traktToken        TraktToken?
   stremioAuth       StremioAuth?
   connections       ProfileConnection[]
+  listLinks         ListLink[]
 
   @@index([accountId])
 }
@@ -180,11 +181,42 @@ model List {
   kind      ListKind
   createdAt DateTime   @default(now()) @db.Timestamptz(6)
   items     ListItem[]
+  link      ListLink?
 
   profileId String  @db.Uuid
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@index([profileId])
+}
+
+// A custom list kept in step with one of the profile's own lists on Trakt or
+// MDBList (lib/list-links.ts). Deleting the Fetch list drops the link and
+// nothing else; a list deleted on the service leaves the Fetch list alone and
+// marks the link broken. Neither side is ever deleted on the other's behalf.
+model ListLink {
+  id           String    @id @default(uuid()) @db.Uuid
+  listId       String    @unique @db.Uuid
+  list         List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  profileId    String    @db.Uuid
+  profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  // "trakt" or "mdblist".
+  provider     String
+  // The service's own id for the list.
+  remoteId     String
+  remoteName   String
+  // A Fetch rename not yet accepted by the service; the next sync retries it.
+  pendingName  String?
+  // `type:imdbId` keys both sides agreed on after the last sync, which is how
+  // the next one tells an add on one side from a removal on the other. Null
+  // until the first sync, which merges both sides.
+  snapshot     Json?
+  lastSyncedAt DateTime? @db.Timestamptz(6)
+  lastError    String?
+  createdAt    DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@unique([profileId, provider, remoteId])
+  @@index([provider])
 }
 
 model ListItem {

@@ -71,6 +71,8 @@ export function describeSource(source: CollectionSource): string {
   switch (source.provider) {
     case "fetch":
       return `${source.title ?? "Website list"} · ${source.mediaType ? media : "movies and series"}`;
+    case "local":
+      return `${source.title ?? "TV list"} · kept on the TV`;
     case "trakt":
       return `Trakt: ${source.title ?? `list ${source.traktListId}`} · ${media}`;
     case "tmdb": {

@@ -13,6 +13,8 @@ vi.mock("../../api", async (importOriginal) => {
       pollPlexLink: vi.fn(),
       signInMediaServer: vi.fn(),
       setMediaServerImport: vi.fn(),
+      setMediaServerLibraries: vi.fn(),
+      refreshMediaServerLibraries: vi.fn(),
       syncMediaServer: vi.fn(),
       removeMediaServer: vi.fn(),
     },
@@ -28,6 +30,7 @@ const SERVER = {
   userName: "sam",
   importWatchState: true,
   lastSyncedAt: null,
+  libraries: null,
   connectedAt: "2026-01-01T00:00:00Z",
 };
 
@@ -80,6 +83,33 @@ describe("MediaServersSettings", () => {
 
     await user.click(screen.getByRole("button", { name: "Remove Den (Jellyfin)" }));
     expect(api.removeMediaServer).toHaveBeenCalledWith("c1");
+  });
+
+  it("lists the server's libraries and saves which ones a sync reads", async () => {
+    const libraries = [
+      { id: "lib-films", name: "Films", kind: "movies" as const, selected: true },
+      { id: "lib-kids", name: "Kids", kind: "shows" as const, selected: true },
+    ];
+    vi.mocked(api.getMediaServers).mockResolvedValue({ providers: [], servers: [{ ...SERVER, libraries }], plexLink: null });
+    vi.mocked(api.setMediaServerLibraries).mockResolvedValue({ ...SERVER, libraries });
+    const user = userEvent.setup();
+    render(<MediaServersSettings />);
+
+    await user.click(await screen.findByRole("checkbox", { name: /Kids/ }));
+
+    expect(api.setMediaServerLibraries).toHaveBeenCalledWith("c1", ["lib-films"]);
+  });
+
+  it("asks the server for its libraries when they haven't been listed", async () => {
+    vi.mocked(api.getMediaServers).mockResolvedValue({ providers: [], servers: [SERVER], plexLink: null });
+    vi.mocked(api.refreshMediaServerLibraries).mockResolvedValue(SERVER);
+    const user = userEvent.setup();
+    render(<MediaServersSettings />);
+
+    expect(await screen.findByText("All of them, until the server lists them.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Check the server for libraries" }));
+
+    expect(api.refreshMediaServerLibraries).toHaveBeenCalledWith("c1");
   });
 });
 

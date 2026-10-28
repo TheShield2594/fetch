@@ -32,7 +32,6 @@ import com.fetch.tv.core.tracking.LOCAL_LIBRARY_LIST_KEY
 import com.fetch.tv.core.tracking.supportsMembershipFor
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.localizedMembershipTitle
-import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.screens.profile.ParentalTitleDialogHost
 import com.fetch.tv.ui.screens.profile.ParentalTitleMenuButton
@@ -225,7 +224,7 @@ fun PosterOptionsHost(
             title = target.name,
             isInLibrary = state.isInLibrary,
             isLibraryPending = state.isLibraryPending,
-            showManageLists = state.librarySourceMode != LibrarySourceMode.LOCAL,
+            showManageLists = state.usesListPicker,
             isMovie = isMovie,
             isSeries = isSeries,
             isWatched = state.isWatched,
@@ -236,7 +235,7 @@ fun PosterOptionsHost(
                 controller.dismiss()
             },
             onToggleLibrary = {
-                if (state.librarySourceMode != LibrarySourceMode.LOCAL) {
+                if (state.usesListPicker) {
                     controller.openListPicker()
                 } else {
                     controller.toggleLibrary()

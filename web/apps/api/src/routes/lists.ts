@@ -1,10 +1,21 @@
 import { ItemType, ListItemType, ListKind, MetadataType, Prisma } from "@prisma/client";
-import type { FastifyPluginAsync } from "fastify";
+import type { FastifyPluginAsync, FastifyReply } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { backfillMissingMetadata, syncMetadata } from "../lib/metadata.js";
 import { pushTraktWatchlistChange } from "../lib/trakt-client.js";
 import { pushWatchlistAddToTrackers } from "../lib/trackers.js";
 import { resolveProfile } from "../lib/profile.js";
+import {
+  isListLinkProvider,
+  linkList,
+  ListLinkError,
+  listLinkTargets,
+  pushListLinkChange,
+  pushListLinkRename,
+  summarizeListLink,
+  syncListLink,
+  unlinkList,
+} from "../lib/list-links.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 
 // A page a client asks for is capped rather than rejected: an addon asking for
@@ -84,7 +95,7 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
     const lists = await prisma.list.findMany({
       where: { profileId: request.profileId! },
       orderBy: [{ createdAt: "asc" }],
-      include: { _count: { select: { items: true } } },
+      include: { _count: { select: { items: true } }, link: true },
     });
 
     return {
@@ -94,8 +105,78 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
         kind: list.kind,
         createdAt: list.createdAt,
         itemCount: list._count.items,
+        link: summarizeListLink(list.link),
       })),
     };
+  });
+
+  // ─── Linking a custom list to a Trakt or MDBList list (lib/list-links.ts) ───
+
+  // Errors from the service itself (a Trakt outage, an expired MDBList token)
+  // are a bad gateway rather than a 500: nothing is wrong with this server.
+  const sendLinkError = (reply: FastifyReply, error: unknown) => {
+    if (error instanceof ListLinkError) return reply.code(error.status).send({ error: error.message });
+    return reply.code(502).send({ error: error instanceof Error ? error.message : "The service didn't answer" });
+  };
+
+  app.get<{ Params: { provider: string } }>("/lists/link-targets/:provider", async (request, reply) => {
+    if (!isListLinkProvider(request.params.provider)) {
+      return reply.code(400).send({ error: "provider must be one of: trakt, mdblist" });
+    }
+    try {
+      return { lists: await listLinkTargets(request.profileId!, request.params.provider, request.log) };
+    } catch (error) {
+      return sendLinkError(reply, error);
+    }
+  });
+
+  app.put<{ Params: { id: string }; Body: unknown }>("/lists/:id/link", async (request, reply) => {
+    if (!UUID_V4_PATTERN.test(request.params.id)) {
+      return reply.code(400).send({ error: "id must be a valid UUID" });
+    }
+    const body = (request.body ?? {}) as { provider?: unknown; remoteId?: unknown };
+    if (!isListLinkProvider(body.provider)) {
+      return reply.code(400).send({ error: "provider must be one of: trakt, mdblist" });
+    }
+    if (typeof body.remoteId !== "string" || !body.remoteId.trim()) {
+      return reply.code(400).send({ error: 'remoteId is required: a list id, or "new" to create one' });
+    }
+    try {
+      const { link, sync } = await linkList(
+        request.profileId!,
+        request.params.id,
+        body.provider,
+        body.remoteId.trim(),
+        request.log
+      );
+      return { link: summarizeListLink(await prisma.listLink.findUnique({ where: { id: link.id } })), sync };
+    } catch (error) {
+      return sendLinkError(reply, error);
+    }
+  });
+
+  // Unlinking leaves both lists exactly as they are.
+  app.delete<{ Params: { id: string } }>("/lists/:id/link", async (request, reply) => {
+    if (!UUID_V4_PATTERN.test(request.params.id)) {
+      return reply.code(400).send({ error: "id must be a valid UUID" });
+    }
+    const removed = await unlinkList(request.profileId!, request.params.id);
+    if (!removed) return reply.code(404).send({ error: "This list isn't linked" });
+    return reply.code(204).send();
+  });
+
+  app.post<{ Params: { id: string } }>("/lists/:id/link/sync", async (request, reply) => {
+    if (!UUID_V4_PATTERN.test(request.params.id)) {
+      return reply.code(400).send({ error: "id must be a valid UUID" });
+    }
+    const link = await prisma.listLink.findFirst({ where: { listId: request.params.id, profileId: request.profileId! } });
+    if (!link) return reply.code(404).send({ error: "This list isn't linked" });
+    try {
+      const sync = await syncListLink(link, request.log);
+      return { link: summarizeListLink(await prisma.listLink.findUnique({ where: { id: link.id } })), sync };
+    } catch (error) {
+      return sendLinkError(reply, error);
+    }
   });
 
   app.delete<{ Params: { id: string } }>("/lists/:id", async (request, reply) => {
@@ -137,6 +218,8 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
       }
     }
 
+    // A linked list's link goes with it (it cascades); the list on Trakt or
+    // MDBList is left alone. Deleting on one side never deletes the other.
     await prisma.list.delete({ where: { id: list.id } });
 
     return reply.code(204).send();
@@ -165,6 +248,7 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
       where: { id: list.id },
       data: { name: body.name.trim() },
     });
+    if (list.kind === ListKind.custom) void pushListLinkRename(list.id, updated.name, request.log);
 
     return { list: updated };
   });
@@ -226,6 +310,10 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
           // Simkl's plan-to-watch and MDBList's watchlist, as the TV adds to
           // them. Not awaited: they never fail the add, and shouldn't slow it.
           void pushWatchlistAddToTrackers(list.profileId, { type, imdbId }, request.log);
+        } else if (list.kind === ListKind.custom) {
+          // To the Trakt or MDBList list it is linked to, if any. Not awaited,
+          // and never fails the add: the next sync retries a push that failed.
+          void pushListLinkChange(list.id, "add", { type, imdbId }, request.log);
         }
 
         return reply.code(201).send({ listItem });
@@ -268,6 +356,9 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
       if (list.kind === ListKind.watchlist) {
         const item = { type: type as ListItemType, imdbId: request.params.imdbId };
         await pushTraktWatchlistChange("remove", item, request.log, list.profileId);
+      } else if (list.kind === ListKind.custom) {
+        const item = { type: type as ListItemType, imdbId: request.params.imdbId };
+        void pushListLinkChange(list.id, "remove", item, request.log);
       }
 
       return reply.code(204).send();
@@ -313,6 +404,8 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
       if (list.kind === ListKind.watchlist) {
         const item = { type: where.type!, imdbId: request.params.imdbId };
         await pushTraktWatchlistChange("remove", item, request.log, list.profileId);
+      } else if (list.kind === ListKind.custom) {
+        void pushListLinkChange(list.id, "remove", { type: where.type!, imdbId: request.params.imdbId }, request.log);
       }
 
       return reply.code(204).send();

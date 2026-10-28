@@ -328,24 +328,27 @@ internal fun ListEditorDialog(
             )
         }
 
-        Text(
-            text = stringResource(R.string.library_list_privacy),
-            style = MaterialTheme.typography.bodyMedium,
-            color = FetchTheme.extendedColors.textSecondary
-        )
+        // Local lists are always private; a single choice isn't worth a row.
+        if (capabilities.privacyOptions.size > 1) {
+            Text(
+                text = stringResource(R.string.library_list_privacy),
+                style = MaterialTheme.typography.bodyMedium,
+                color = FetchTheme.extendedColors.textSecondary
+            )
 
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(capabilities.privacyOptions, key = { it.name }) { privacy ->
-                val selected = privacy == state.privacy
-                Button(
-                    onClick = { onPrivacyChanged(privacy) },
-                    enabled = !pending,
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (selected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
-                        contentColor = FetchTheme.colors.TextPrimary
-                    )
-                ) {
-                    Text(privacy.apiValue.replaceFirstChar { it.uppercase() })
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(capabilities.privacyOptions, key = { it.name }) { privacy ->
+                    val selected = privacy == state.privacy
+                    Button(
+                        onClick = { onPrivacyChanged(privacy) },
+                        enabled = !pending,
+                        colors = ButtonDefaults.colors(
+                            containerColor = if (selected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
+                            contentColor = FetchTheme.colors.TextPrimary
+                        )
+                    ) {
+                        Text(privacy.apiValue.replaceFirstChar { it.uppercase() })
+                    }
                 }
             }
         }

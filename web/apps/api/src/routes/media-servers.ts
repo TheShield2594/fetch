@@ -1,14 +1,16 @@
 import type { FastifyPluginAsync, FastifyReply } from "fastify";
 import { resolveProfile } from "../lib/profile.js";
-import { updateConnectionDetails } from "../lib/connections.js";
+import { changeConnectionDetails } from "../lib/connections.js";
 import {
   getPlexLinkPending,
   getProfileMediaServer,
   listProfileMediaServers,
+  MAX_LIBRARIES,
   MEDIA_SERVER_PROVIDERS,
   MediaServerError,
   type MediaServerDetails,
   pollPlexLink,
+  refreshMediaServerLibraries,
   removeMediaServer,
   signInMediaBrowser,
   startPlexLink,
@@ -34,6 +36,8 @@ const publicServer = (connection: { id: string; provider: string; details: Media
   userName: connection.details.userName,
   importWatchState: connection.details.importWatchState,
   lastSyncedAt: connection.details.lastSyncedAt ?? null,
+  // null until the server has been asked (a sign-in from before libraries could be chosen): all are read.
+  libraries: connection.details.libraries ?? null,
   connectedAt: connection.createdAt.toISOString(),
 });
 
@@ -103,11 +107,56 @@ const mediaServerRoutes: FastifyPluginAsync = async (app) => {
     if (!UUID_V4_PATTERN.test(request.params.id)) return reply.code(400).send({ error: "id must be a valid UUID" });
     const connection = await getProfileMediaServer(request.profileId!, request.params.id);
     if (!connection) return reply.code(404).send({ error: "Server not found" });
-    const { importWatchState } = (request.body ?? {}) as { importWatchState?: unknown };
-    if (typeof importWatchState !== "boolean") return reply.code(400).send({ error: "importWatchState must be a boolean" });
-    const details = { ...connection.details, importWatchState };
-    await updateConnectionDetails(connection.id, details);
+    const { importWatchState, selectedLibraries } = (request.body ?? {}) as {
+      importWatchState?: unknown;
+      selectedLibraries?: unknown;
+    };
+    if (importWatchState === undefined && selectedLibraries === undefined) {
+      return reply.code(400).send({ error: "importWatchState or selectedLibraries is required" });
+    }
+    if (importWatchState !== undefined && typeof importWatchState !== "boolean") {
+      return reply.code(400).send({ error: "importWatchState must be a boolean" });
+    }
+    if (
+      selectedLibraries !== undefined &&
+      (!Array.isArray(selectedLibraries) ||
+        selectedLibraries.length > MAX_LIBRARIES ||
+        !selectedLibraries.every((libraryId) => typeof libraryId === "string"))
+    ) {
+      return reply.code(400).send({ error: "selectedLibraries must be a list of library ids" });
+    }
+    let unlisted = false;
+    // Applied to the stored details as they are now, so a sync finishing meanwhile doesn't undo it.
+    const details = await changeConnectionDetails<MediaServerDetails>(connection.id, (current) => {
+      let next: MediaServerDetails = { ...current, ...(importWatchState !== undefined ? { importWatchState } : {}) };
+      if (selectedLibraries !== undefined) {
+        if (!next.libraries) {
+          unlisted = true;
+          return null;
+        }
+        // Libraries not named are turned off; ones the server adds later start on.
+        const chosen = new Set(selectedLibraries);
+        next = { ...next, libraries: next.libraries.map((library) => ({ ...library, selected: chosen.has(library.id) })) };
+      }
+      return next;
+    });
+    if (!details) return reply.code(404).send({ error: "Server not found" });
+    if (unlisted) return reply.code(409).send({ error: "The server's libraries haven't been listed yet" });
     return publicServer({ ...connection, details });
+  });
+
+  // Asks the server for its libraries again (one added since sign-in), keeping what was chosen.
+  app.post<{ Params: { id: string } }>("/media-servers/:id/libraries/refresh", async (request, reply) => {
+    if (!UUID_V4_PATTERN.test(request.params.id)) return reply.code(400).send({ error: "id must be a valid UUID" });
+    const connection = await getProfileMediaServer(request.profileId!, request.params.id);
+    if (!connection) return reply.code(404).send({ error: "Server not found" });
+    try {
+      const details = await refreshMediaServerLibraries(connection);
+      return publicServer({ ...connection, details });
+    } catch (error) {
+      request.log.warn({ err: error, provider: connection.provider }, "Listing a media server's libraries failed");
+      return sendFailure(reply, error, "Could not list the server's libraries");
+    }
   });
 
   app.post<{ Params: { id: string } }>("/media-servers/:id/sync", async (request, reply) => {

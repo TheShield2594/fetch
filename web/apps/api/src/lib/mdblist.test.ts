@@ -247,3 +247,76 @@ describe("sending to MDBList", () => {
     expect(call().body).toEqual({ show: { ids: { imdb: "tt5753856" }, season: 1, episode: 2 }, progress: 12.34 });
   });
 });
+
+describe("personal lists", () => {
+  it("offers only the account's static lists", () => {
+    expect(
+      mdb.projectMdbListUserLists([
+        { id: 1, name: "Weekend", type: "static", items: 3, private: true },
+        { id: 2, name: "Top rated", dynamic: true },
+        { id: 3, name: "Filtered", type: "dynamic" },
+        { id: 0, name: "Broken" },
+        null,
+      ])
+    ).toEqual([{ id: "1", name: "Weekend", itemCount: 3, private: true }]);
+  });
+
+  it("reads a list's items, both kinds", async () => {
+    fetchMock.mockResolvedValueOnce(
+      json({ items: [{ mediatype: "movie", imdb_id: "tt1" }, { mediatype: "show", imdb_id: "tt2" }] })
+    );
+    expect(await mdb.fetchMdbListListItems(PROFILE, "7")).toEqual([
+      { type: "movie", imdbId: "tt1" },
+      { type: "series", imdbId: "tt2" },
+    ]);
+    expect(call().url.pathname).toBe("/lists/7/items");
+    expect(call().url.searchParams.get("unified")).toBe("true");
+  });
+
+  it("refuses a list longer than the page cap rather than returning part of it", async () => {
+    fetchMock.mockImplementation(async () =>
+      json({ items: [{ mediatype: "movie", imdb_id: "tt1" }], pagination: { has_more: true, next_cursor: "next" } })
+    );
+    try {
+      await expect(mdb.fetchMdbListListItems(PROFILE, "7")).rejects.toThrow(/can't be read in full/);
+    } finally {
+      fetchMock.mockReset();
+    }
+  });
+
+  it("adds with bare ids", async () => {
+    fetchMock.mockResolvedValue(json({}));
+    await mdb.changeMdbListListItems(PROFILE, "7", "add", [
+      { type: "movie", imdbId: "tt1" },
+      { type: "series", imdbId: "tt2" },
+    ]);
+    expect(call().init.method).toBe("POST");
+    expect(call().url.pathname).toBe("/lists/7/items/add");
+    expect(call().body).toEqual({ movies: [{ imdb: "tt1" }], shows: [{ imdb: "tt2" }] });
+  });
+
+  it("adds and removes with bare ids, as a personal list takes them", async () => {
+    fetchMock.mockResolvedValue(json({}));
+    await mdb.changeMdbListListItems(PROFILE, "7", "remove", [
+      { type: "movie", imdbId: "tt1" },
+      { type: "series", imdbId: "tt2" },
+    ]);
+    expect(call().url.pathname).toBe("/lists/7/items/remove");
+    expect(call().body).toEqual({ movies: [{ imdb: "tt1" }], shows: [{ imdb: "tt2" }] });
+  });
+
+  it("keeps a list's privacy when renaming it", async () => {
+    fetchMock
+      .mockResolvedValueOnce(json([{ id: 7, name: "Old", type: "static", private: false }]))
+      .mockResolvedValueOnce(json({ success: true, id: 7 }));
+    await mdb.renameMdbListList(PROFILE, "7", "New");
+    expect(call(1).init.method).toBe("PUT");
+    expect(call(1).url.pathname).toBe("/lists/7");
+    expect(call(1).body).toEqual({ name: "New", private: false });
+  });
+
+  it("throws when the profile isn't connected, so the sync can say so", async () => {
+    connections.getConnection.mockResolvedValue(null);
+    await expect(mdb.fetchMdbListUserLists(PROFILE)).rejects.toThrow(/not connected/);
+  });
+});

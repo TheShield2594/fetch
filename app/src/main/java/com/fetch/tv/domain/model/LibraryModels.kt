@@ -19,6 +19,8 @@ data class LibraryEntry(
     val listKeys: Set<String> = emptySet(),
     val listRanks: Map<String, Int> = emptyMap(),
     val listedAt: Long = 0L,
+    /** When the title went on each local list, so a list sorts by its own dates. */
+    val listAddedAt: Map<String, Long> = emptyMap(),
     val traktRank: Int? = null,
     val imdbId: String? = null,
     val tmdbId: Int? = null,

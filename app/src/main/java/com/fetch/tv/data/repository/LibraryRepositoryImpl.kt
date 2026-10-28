@@ -14,9 +14,17 @@ import com.fetch.tv.core.tracking.LOCAL_LIBRARY_LIST_KEY
 import com.fetch.tv.core.tracking.TrackingMembershipMutationException
 import com.fetch.tv.core.tracking.dispatchTrackingMembershipChanges
 import com.fetch.tv.core.tracking.TrackingRefreshIntent
+import com.fetch.tv.core.tracking.LocalList
+import com.fetch.tv.core.tracking.LocalListsReducer
 import com.fetch.tv.core.tracking.effectiveLibrarySourceMode
+import com.fetch.tv.core.tracking.isLocalListKey
+import com.fetch.tv.core.tracking.localListIdFromKey
+import com.fetch.tv.core.tracking.localListKey
 import com.fetch.tv.core.tracking.providerId
+import com.fetch.tv.core.tracking.toListTab
 import com.fetch.tv.data.local.LibraryPreferences
+import com.fetch.tv.data.local.LocalListsDataStore
+import com.fetch.tv.data.local.LocalTrackingListManager
 import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.tv.domain.repository.MetaRepository
@@ -61,6 +69,8 @@ class LibraryRepositoryImpl @Inject constructor(
     private val metaRepository: MetaRepository,
     private val trackingProviders: TrackingLibraryProviderRegistry,
     private val profileManager: ProfileManager,
+    private val localLists: LocalListsDataStore,
+    private val localListManager: LocalTrackingListManager,
 ) : LibraryRepository {
 
     private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -83,11 +93,17 @@ class LibraryRepositoryImpl @Inject constructor(
         }
     }
 
-    private val providerConnections = combine(
-        trackingProviders.providers().map { provider ->
-            provider.isAuthenticated.map { authenticated -> provider.providerId to authenticated }
+    // combine() over no flows never emits, so with no providers say so directly.
+    private val providerConnections = trackingProviders.providers()
+        .takeIf { it.isNotEmpty() }
+        ?.let { providers ->
+            combine(
+                providers.map { provider ->
+                    provider.isAuthenticated.map { authenticated -> provider.providerId to authenticated }
+                }
+            ) { states -> states.toMap() }
         }
-    ) { states -> states.toMap() }
+        ?: flowOf(emptyMap())
 
     override val sourceMode: Flow<LibrarySourceMode> = combine(
         traktSettingsDataStore.librarySourceMode,
@@ -111,45 +127,45 @@ class LibraryRepositoryImpl @Inject constructor(
             if (provider != null) {
                 provider.items
             } else {
-                libraryPreferences.libraryItems.map { items ->
-                    items.map { saved ->
-                        LibraryEntry(
-                            id = saved.id,
-                            type = saved.type,
-                            name = saved.name,
-                            poster = saved.poster,
-                            posterShape = saved.posterShape,
-                            background = saved.background,
-                            logo = saved.logo,
-                            description = saved.description,
-                            releaseInfo = saved.releaseInfo,
-                            imdbRating = saved.imdbRating,
-                            genres = saved.genres,
-                            addonBaseUrl = saved.addonBaseUrl,
-                            listedAt = saved.addedAt,
-                            rawPosterUrl = saved.poster
-                        )
-                    }
+                combine(libraryPreferences.libraryItems, localLists.lists) { saved, lists ->
+                    localLibraryEntries(saved, lists)
                 }
             }
         }
         .distinctUntilChanged()
+
+    /** The local library's tabs: its saved titles, then each local list. None until a list exists. */
+    private val localListTabs: Flow<List<LibraryListTab>> = localLists.lists
+        .map { lists ->
+            if (lists.isEmpty()) {
+                emptyList()
+            } else {
+                listOf(
+                    LibraryListTab(
+                        key = LOCAL_LIBRARY_LIST_KEY,
+                        title = appContext.getString(R.string.trakt_library_source_fetch),
+                        type = LibraryListTab.Type.WATCHLIST
+                    )
+                ) + lists.map(LocalList::toListTab)
+            }
+        }
 
     override val listTabs: Flow<List<LibraryListTab>> = sourceMode
         .flatMapLatest { mode ->
             mode.providerId
                 ?.let(trackingProviders::provider)
                 ?.tabs
-                ?: flowOf(emptyList())
+                ?: localListTabs
         }
         .distinctUntilChanged()
 
     override val membershipListTabs: Flow<List<LibraryListTab>> = combine(
-        trackingProviders.providers().map { provider ->
-            provider.isAuthenticated.flatMapLatest { authenticated ->
-                if (authenticated) provider.tabs else flowOf(emptyList())
+        listOf(localLists.lists.map { lists -> lists.map(LocalList::toListTab) }) +
+            trackingProviders.providers().map { provider ->
+                provider.isAuthenticated.flatMapLatest { authenticated ->
+                    if (authenticated) provider.tabs else flowOf(emptyList())
+                }
             }
-        }
     ) { tabs -> tabs.flatMap { it } }
         .distinctUntilChanged()
 
@@ -160,7 +176,13 @@ class LibraryRepositoryImpl @Inject constructor(
                 provider.observeMembership(itemId, itemType)
                     .map { memberships -> memberships.isNotEmpty() }
             } else {
-                libraryPreferences.isInLibrary(itemId = itemId, itemType = itemType)
+                // On any list counts, as with a tracking provider, to match the Library screen.
+                combine(
+                    libraryPreferences.isInLibrary(itemId = itemId, itemType = itemType),
+                    localLists.lists
+                ) { saved, lists ->
+                    saved || LocalListsReducer.membership(lists, itemId, itemType).values.any { it }
+                }
             }
         }.distinctUntilChanged()
     }
@@ -241,6 +263,7 @@ class LibraryRepositoryImpl @Inject constructor(
 
         val membership = mutableMapOf<String, Boolean>()
         membership[LOCAL_LIBRARY_LIST_KEY] = inLocal
+        membership.putAll(LocalListsReducer.membership(localLists.getLists(profileId), item.itemId, item.itemType))
 
         if (!item.isServerItem) {
             trackingProviders.providers().forEach { provider ->
@@ -299,6 +322,15 @@ class LibraryRepositoryImpl @Inject constructor(
             }
             triggerRemoteSync(profileId)
         }
+        val localListChanges = desired.mapNotNull { (key, wanted) ->
+            localListIdFromKey(key)?.let { id -> id to wanted }
+        }.toMap()
+        if (localListChanges.isNotEmpty()) {
+            val savedItem = item.toSavedLibraryItem()
+            localLists.update(profileId) { lists ->
+                LocalListsReducer.applyMembership(lists, savedItem, localListChanges, System.currentTimeMillis())
+            }
+        }
 
         val failures = dispatchTrackingMembershipChanges(
             item = item,
@@ -339,6 +371,11 @@ class LibraryRepositoryImpl @Inject constructor(
     ): TrackingListManager {
         val profileId = profileManager.activeProfileId.value
         check(sourceMode.first() == source) { "Library source changed" }
+        if (source.providerId == null) {
+            require(keys.all(::isLocalListKey)) { "Invalid list for the local library" }
+            check(profileManager.activeProfileId.value == profileId) { "Profile changed" }
+            return localListManager
+        }
         val provider = source.providerId?.let(trackingProviders::provider)
             ?: throw IllegalStateException("This library does not support list management")
         check(provider.isAuthenticated.first()) { "Connect the library account first" }
@@ -388,3 +425,53 @@ class LibraryRepositoryImpl @Inject constructor(
 
 private val LibraryEntryInput.isServerItem: Boolean
     get() = ServerItemRef.isServerId(itemId)
+
+/**
+ * The local library as one list of entries: the saved titles carry [LOCAL_LIBRARY_LIST_KEY], and
+ * a title on local lists carries each list's key, so the Library screen filters by tab the same
+ * way it does for a tracking service.
+ */
+internal fun localLibraryEntries(
+    saved: List<SavedLibraryItem>,
+    lists: List<LocalList>
+): List<LibraryEntry> {
+    val entries = LinkedHashMap<String, LibraryEntry>()
+    fun add(item: SavedLibraryItem, listKey: String) {
+        val key = "${item.type.lowercase()}:${item.id}"
+        val existing = entries[key]
+        entries[key] = if (existing == null) {
+            item.toLocalLibraryEntry(listKey)
+        } else {
+            existing.copy(
+                listKeys = existing.listKeys + listKey,
+                listAddedAt = existing.listAddedAt + (listKey to item.addedAt),
+                listedAt = maxOf(existing.listedAt, item.addedAt)
+            )
+        }
+    }
+    saved.forEach { item -> add(item, LOCAL_LIBRARY_LIST_KEY) }
+    lists.forEach { list ->
+        val listKey = localListKey(list.id)
+        list.items.forEach { item -> add(item, listKey) }
+    }
+    return entries.values.toList()
+}
+
+private fun SavedLibraryItem.toLocalLibraryEntry(listKey: String): LibraryEntry = LibraryEntry(
+    id = id,
+    type = type,
+    name = name,
+    poster = poster,
+    posterShape = posterShape,
+    background = background,
+    logo = logo,
+    description = description,
+    releaseInfo = releaseInfo,
+    imdbRating = imdbRating,
+    genres = genres,
+    addonBaseUrl = addonBaseUrl,
+    listKeys = setOf(listKey),
+    listAddedAt = mapOf(listKey to addedAt),
+    listedAt = addedAt,
+    rawPosterUrl = poster
+)

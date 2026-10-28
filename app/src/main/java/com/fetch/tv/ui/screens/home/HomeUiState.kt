@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.home
 
 import androidx.compose.runtime.Immutable
 import com.fetch.tv.core.tracking.TrackingMembershipRemovalConfirmation
+import com.fetch.tv.core.tracking.usesLibraryListPicker
 import com.fetch.tv.data.local.StartupAuthNotice
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
@@ -75,6 +76,10 @@ data class HomeUiState(
     val mdbListShowOnHero: Boolean = false,
     val mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER
 )
+
+/** Long-press "Add to list" opens the list picker rather than toggling the saved library. */
+val HomeUiState.usesPosterListPicker: Boolean
+    get() = usesLibraryListPicker(librarySourceMode == LibrarySourceMode.LOCAL, libraryListTabs)
 
 @Immutable
 sealed class ContinueWatchingItem {

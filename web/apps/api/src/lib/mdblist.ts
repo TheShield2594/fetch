@@ -48,7 +48,7 @@ const parse = (text: string): unknown => {
 };
 
 export const mdbRequest = async <T>(
-  method: "GET" | "POST",
+  method: "GET" | "POST" | "PUT",
   path: string,
   options: { token?: string; query?: Record<string, string>; body?: unknown; form?: Record<string, string> } = {}
 ): Promise<T> => {
@@ -369,25 +369,36 @@ export const projectMdbListWatchlist = (pages: WatchlistPage[]): ImportedWatchli
   return items;
 };
 
-const readPages = async <T extends { pagination?: WatchedPage["pagination"] }>(path: string, token: string): Promise<T[]> => {
+const readPages = async <T extends { pagination?: WatchedPage["pagination"] }>(
+  path: string,
+  token: string,
+  extra: Record<string, string> = {},
+  options: { requireComplete?: boolean } = {}
+): Promise<T[]> => {
   const pages: T[] = [];
-  let query: Record<string, string> = { limit: String(PAGE_LIMIT) };
+  const initial = { ...extra, limit: String(PAGE_LIMIT) };
+  let query: Record<string, string> = initial;
   for (let i = 0; i < MAX_PAGES; i += 1) {
     const page = await mdbRequest<T>("GET", path, { token, query });
     pages.push(page);
     const pagination = page?.pagination;
     if (pagination?.next_cursor) {
-      query = { limit: String(PAGE_LIMIT), cursor: pagination.next_cursor };
+      query = { ...initial, cursor: pagination.next_cursor };
     } else if (
       pagination?.has_more ??
       (pagination?.offset !== undefined && pagination.limit !== undefined && pagination.total !== undefined
         ? pagination.offset + pagination.limit < pagination.total
         : false)
     ) {
-      query = { limit: String(PAGE_LIMIT), offset: String((pagination?.offset ?? 0) + (pagination?.limit ?? PAGE_LIMIT)) };
+      query = { ...initial, offset: String((pagination?.offset ?? 0) + (pagination?.limit ?? PAGE_LIMIT)) };
     } else {
-      break;
+      return pages;
     }
+  }
+  // Out of pages with more to come. A linked list's sync would read the rest
+  // as removed, so it asks for the whole list or nothing.
+  if (options.requireComplete) {
+    throw new MdbListError(`MDBList list is longer than ${MAX_PAGES} pages and can't be read in full`);
   }
   return pages;
 };
@@ -510,4 +521,107 @@ export const pushMdbListScrobble = async (
   } catch (error) {
     logger.warn({ error, action }, "MDBList scrobble failed");
   }
+};
+
+// ─── Personal lists ───
+//
+// The profile's own static lists, for a Fetch list linked to one
+// (lib/list-links.ts), with the endpoints the TV's MdbListLibraryRemote and
+// MdbListLibraryWriter use. Unlike the pushes above these throw: the link sync
+// records the failure and retries on its next run. There is no delete:
+// deleting a list on one side never deletes the other.
+
+export type MdbListUserList = { id: string; name: string; itemCount: number | null; private: boolean | null };
+
+type UserListRow = {
+  id?: number | string | null;
+  name?: string | null;
+  type?: string | null;
+  dynamic?: boolean | null;
+  items?: number | null;
+  private?: boolean | null;
+};
+
+const requireToken = async (profileId: string): Promise<string> => {
+  const token = await accessTokenFor(profileId);
+  if (!token) throw new MdbListError("MDBList is not connected for this profile");
+  return token;
+};
+
+/** Static lists only: a dynamic list is filled by MDBList's filters and can't take items. Exported for tests. */
+export const projectMdbListUserLists = (rows: unknown): MdbListUserList[] => {
+  if (!Array.isArray(rows)) throw new MdbListError("MDBList returned an unexpected list of lists");
+  const lists: MdbListUserList[] = [];
+  for (const row of rows as (UserListRow | null)[]) {
+    if (!row || row.dynamic === true || (row.type != null && row.type !== "static")) continue;
+    const id = Number(row.id);
+    const name = row.name?.trim();
+    if (!Number.isInteger(id) || id <= 0 || !name) continue;
+    lists.push({
+      id: String(id),
+      name,
+      itemCount: typeof row.items === "number" ? row.items : null,
+      private: typeof row.private === "boolean" ? row.private : null,
+    });
+  }
+  return lists;
+};
+
+const readUserLists = async (token: string): Promise<MdbListUserList[]> =>
+  projectMdbListUserLists(await mdbRequest<unknown>("GET", "/lists/user", { token, query: { unified: "false" } }));
+
+export const fetchMdbListUserLists = async (profileId: string): Promise<MdbListUserList[]> =>
+  readUserLists(await requireToken(profileId));
+
+export const fetchMdbListListItems = async (
+  profileId: string,
+  listId: string
+): Promise<{ type: "movie" | "series"; imdbId: string }[]> => {
+  const token = await requireToken(profileId);
+  const pages = await readPages<WatchlistPage>(
+    `/lists/${encodeURIComponent(listId)}/items`,
+    token,
+    { unified: "true" },
+    { requireComplete: true }
+  );
+  return projectMdbListWatchlist(pages).map(({ type, imdbId }) => ({ type, imdbId }));
+};
+
+export const createMdbListList = async (profileId: string, name: string): Promise<MdbListUserList> => {
+  const token = await requireToken(profileId);
+  const created = await mdbRequest<UserListRow | null>("POST", "/lists/user/add", {
+    token,
+    body: { name, private: true },
+  });
+  const id = Number(created?.id);
+  if (!Number.isInteger(id) || id <= 0) throw new MdbListError("MDBList returned an unexpected new list");
+  return { id: String(id), name: created?.name?.trim() || name, itemCount: 0, private: true };
+};
+
+export const renameMdbListList = async (profileId: string, listId: string, name: string): Promise<void> => {
+  const token = await requireToken(profileId);
+  // MDBList's update takes the privacy along with the name, so the current one
+  // is read first rather than changed by leaving it out.
+  const current = (await readUserLists(token)).find((list) => list.id === listId);
+  await mdbRequest("PUT", `/lists/${encodeURIComponent(listId)}`, {
+    token,
+    body: { name, private: current?.private ?? true },
+  });
+};
+
+export const changeMdbListListItems = async (
+  profileId: string,
+  listId: string,
+  action: "add" | "remove",
+  items: { type: "movie" | "series"; imdbId: string }[]
+): Promise<void> => {
+  if (items.length === 0) return;
+  const token = await requireToken(profileId);
+  // A personal list takes bare ids, where the watchlist wraps them in `ids`.
+  const movies = items.filter((item) => item.type === "movie").map((item) => ({ imdb: item.imdbId }));
+  const shows = items.filter((item) => item.type === "series").map((item) => ({ imdb: item.imdbId }));
+  await mdbRequest("POST", `/lists/${encodeURIComponent(listId)}/items/${action}`, {
+    token,
+    body: { ...(movies.length ? { movies } : {}), ...(shows.length ? { shows } : {}) },
+  });
 };

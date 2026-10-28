@@ -120,7 +120,7 @@ fun HomeViewModel.togglePosterLibrary(item: MetaPreview, addonBaseUrl: String?) 
 }
 
 fun HomeViewModel.openPosterListPicker(item: MetaPreview, addonBaseUrl: String?) {
-    if (_uiState.value.librarySourceMode == LibrarySourceMode.LOCAL) {
+    if (!_uiState.value.usesPosterListPicker) {
         togglePosterLibrary(item, addonBaseUrl)
         return
     }
@@ -187,7 +187,7 @@ fun HomeViewModel.togglePosterListPickerMembership(listKey: String) {
 
 fun HomeViewModel.savePosterListPickerMembership() {
     if (_uiState.value.posterListPickerPending) return
-    if (_uiState.value.librarySourceMode == LibrarySourceMode.LOCAL) return
+    if (!_uiState.value.usesPosterListPicker) return
     val input = activePosterListPickerInput ?: return
     val changes = ListMembershipChanges(
         desiredMembership = _uiState.value.posterListPickerMembership

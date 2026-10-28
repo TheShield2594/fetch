@@ -18,6 +18,7 @@ import com.fetch.tv.domain.model.AddonCatalogCollectionSource
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.CollectionSource
 import com.fetch.tv.domain.model.FetchListCollectionSource
+import com.fetch.tv.domain.model.LocalListCollectionSource
 import com.fetch.tv.domain.model.CollectionFolder
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.FolderViewMode
@@ -47,6 +48,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -128,6 +130,7 @@ class FolderDetailViewModel @Inject constructor(
     private val tmdbCollectionSourceResolver: TmdbCollectionSourceResolver,
     private val traktPublicListSourceResolver: TraktPublicListSourceResolver,
     private val fetchListSourceResolver: com.fetch.tv.data.website.FetchListSourceResolver,
+    private val localListSourceResolver: com.fetch.tv.data.local.LocalListSourceResolver,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController
 ) : ViewModel() {
 
@@ -286,6 +289,11 @@ class FolderDetailViewModel @Inject constructor(
                         appContext.getString(R.string.website_list_source_label),
                         (source.mediaType?.value ?: "movie").toCollectionRawType()
                     )
+                    is LocalListCollectionSource -> Triple(
+                        source.title,
+                        appContext.getString(R.string.local_list_source_label),
+                        (source.mediaType?.value ?: "movie").toCollectionRawType()
+                    )
                 }
                 // Generate placeholder CatalogRow with shimmer items for Modern/Classic follow-layout
                 val placeholderRow = if (useShimmerPlaceholders) {
@@ -297,6 +305,7 @@ class FolderDetailViewModel @Inject constructor(
                         is TmdbCollectionSource -> Triple("tmdb", buildTmdbSourceKey(source), "")
                         is TraktCollectionSource -> Triple("trakt", buildTraktSourceKey(source), "")
                         is FetchListCollectionSource -> Triple("fetch", "fetch_${source.listId}", "")
+                        is LocalListCollectionSource -> Triple("local", "local_${source.listId}", "")
                     }
                     val apiType = rawType.ifBlank { "movie" }
                     val fakeItems = (0 until 8).map { i ->
@@ -454,6 +463,7 @@ class FolderDetailViewModel @Inject constructor(
                         is TmdbCollectionSource -> Triple("tmdb", buildTmdbSourceKey(src), "")
                         is TraktCollectionSource -> Triple("trakt", buildTraktSourceKey(src), "")
                         is FetchListCollectionSource -> Triple("fetch", "fetch_${src.listId}", "")
+                        is LocalListCollectionSource -> Triple("local", "local_${src.listId}", "")
                         else -> Triple("placeholder", tab.label, "")
                     }
                     val apiType = tab.rawType.ifBlank { "movie" }
@@ -664,13 +674,15 @@ class FolderDetailViewModel @Inject constructor(
             is AddonCatalogCollectionSource -> loadAddonCatalogForTab(tabIndex, source)
             is TmdbCollectionSource -> loadTmdbSourceForTab(tabIndex, source, page = 1, append = false)
             is TraktCollectionSource -> loadTraktSourceForTab(tabIndex, source, page = 1, append = false)
-            is FetchListCollectionSource -> loadFetchListSourceForTab(tabIndex, source)
+            is FetchListCollectionSource -> loadListSourceForTab(tabIndex, fetchListSourceResolver.resolve(source))
+            is LocalListCollectionSource -> loadListSourceForTab(tabIndex, localListSourceResolver.resolve(source))
         }
     }
 
-    private fun loadFetchListSourceForTab(tabIndex: Int, source: FetchListCollectionSource) {
+    /** A whole list as one page: the website's lists and the profile's local lists. */
+    private fun loadListSourceForTab(tabIndex: Int, rows: Flow<NetworkResult<CatalogRow>>) {
         viewModelScope.launch {
-            fetchListSourceResolver.resolve(source).collect { result ->
+            rows.collect { result ->
                 when (result) {
                     is NetworkResult.Success -> {
                         _uiState.update { s ->

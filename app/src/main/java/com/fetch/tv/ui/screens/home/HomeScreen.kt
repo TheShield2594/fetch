@@ -51,7 +51,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.localizedMembershipTitle
-import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.CatalogRowsSkeleton
@@ -406,7 +405,7 @@ fun HomeScreen(
             title = item.name,
             isInLibrary = uiState.posterLibraryMembership[statusKey] == true,
             isLibraryPending = statusKey in uiState.posterLibraryPending,
-            showManageLists = uiState.librarySourceMode != LibrarySourceMode.LOCAL,
+            showManageLists = uiState.usesPosterListPicker,
             isMovie = isMovie,
             isSeries = isSeries,
             isWatched = movieWatchedStatus[statusKey] == true,
@@ -418,7 +417,7 @@ fun HomeScreen(
                 posterOptionsTarget = null
             },
             onToggleLibrary = {
-                if (uiState.librarySourceMode != LibrarySourceMode.LOCAL) {
+                if (uiState.usesPosterListPicker) {
                     viewModel.openPosterListPicker(item, selectedPoster.addonBaseUrl)
                 } else {
                     viewModel.togglePosterLibrary(item, selectedPoster.addonBaseUrl)

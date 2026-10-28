@@ -18,6 +18,7 @@ import { trendingCacheDeletePrefix } from "./lib/cache.js";
 import { listTraktProfiles, pollTraktHistory, syncTraktPlayback, syncTraktWatchlist } from "./lib/trakt-client.js";
 import { listSimklProfiles, syncSimkl } from "./lib/simkl.js";
 import { listMdbListProfiles, syncMdbList } from "./lib/mdblist.js";
+import { listOtherLinkedProfiles, syncProfileListLinks } from "./lib/list-links.js";
 import { listAllMediaServerConnections, syncMediaServer } from "./lib/media-servers.js";
 import { listStremioProfiles, syncStremioLibrary } from "./lib/stremio-library.js";
 import { accountOfOwner, adoptLegacyAiConfig } from "./lib/integration-owner.js";
@@ -370,12 +371,17 @@ const start = async () => {
       // each failure, so one profile's expired token doesn't stop the others
       // syncing.
       tick: async ({ runJob }) => {
-        for (const profileId of await listTraktProfiles()) {
+        const traktProfiles = await listTraktProfiles();
+        for (const profileId of traktProfiles) {
           await runJob("trakt-history-poll", () => pollTraktHistory(app.log, profileId));
           await runJob("trakt-watchlist-sync", () => syncTraktWatchlist(app.log, profileId));
           // After the history poll, so a title finished elsewhere is already
           // recorded and its stale pause is skipped rather than resurrected.
           await runJob("trakt-playback-sync", () => syncTraktPlayback(app.log, profileId));
+          await runJob("trakt-list-sync", () => syncProfileListLinks(profileId, "trakt", app.log));
+        }
+        for (const profileId of await listOtherLinkedProfiles("trakt", traktProfiles)) {
+          await runJob("trakt-list-sync", () => syncProfileListLinks(profileId, "trakt", app.log));
         }
       },
     });
@@ -405,8 +411,13 @@ const start = async () => {
       label: "MDBList sync",
       intervalMs: MDBLIST_POLL_INTERVAL_SEC * 1000,
       tick: async ({ runJob }) => {
-        for (const profileId of await listMdbListProfiles()) {
+        const mdbListProfiles = await listMdbListProfiles();
+        for (const profileId of mdbListProfiles) {
           await runJob("mdblist-sync", () => syncMdbList(profileId, app.log));
+          await runJob("mdblist-list-sync", () => syncProfileListLinks(profileId, "mdblist", app.log));
+        }
+        for (const profileId of await listOtherLinkedProfiles("mdblist", mdbListProfiles)) {
+          await runJob("mdblist-list-sync", () => syncProfileListLinks(profileId, "mdblist", app.log));
         }
       },
     });

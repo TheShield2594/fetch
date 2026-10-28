@@ -7,12 +7,10 @@ import android.view.KeyEvent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -36,12 +34,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -96,6 +94,7 @@ private fun CodeSlot(
     textStyle: TextStyle,
     modifier: Modifier = Modifier,
 ) {
+    val fullMotion = FetchTheme.fullMotion
     val lineColor by animateColorAsState(
         targetValue = when {
             active -> FetchTheme.colors.Secondary
@@ -119,8 +118,12 @@ private fun CodeSlot(
             AnimatedContent(
                 targetState = char,
                 transitionSpec = {
-                    (fadeIn(tween(FetchMotion.tokens.durations.quick)) + scaleIn(spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium), initialScale = 0.5f)) togetherWith
-                        fadeOut(tween(FetchMotion.tokens.durations.quick))
+                    val enter = if (fullMotion) {
+                        fadeIn(FetchMotion.enterTween()) + scaleIn(FetchMotion.enterTween(), initialScale = 0.9f)
+                    } else {
+                        fadeIn(FetchMotion.enterTween())
+                    }
+                    enter togetherWith fadeOut(FetchMotion.exitTween())
                 },
                 label = "codeSlotChar",
             ) { value ->
@@ -148,21 +151,21 @@ private fun CodeSlot(
 
 @Composable
 private fun Caret() {
-    val alpha = if (FetchTheme.fullMotion) {
+    val alphaState = if (FetchTheme.fullMotion) {
         rememberInfiniteTransition(label = "codeCaret").animateFloat(
             initialValue = 1f,
             targetValue = 0f,
             animationSpec = infiniteRepeatable(tween(FetchMotion.tokens.durations.slow), RepeatMode.Reverse),
             label = "codeCaretAlpha",
-        ).value
+        )
     } else {
-        1f
+        null
     }
     Box(
         modifier = Modifier
             .width(FetchTheme.strokes.medium)
             .height(26.dp)
-            .alpha(alpha)
+            .graphicsLayer { alpha = alphaState?.value ?: 1f }
             .background(FetchTheme.colors.Secondary),
     )
 }

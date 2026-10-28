@@ -59,7 +59,7 @@ fun AmbientModeHost(
     AnimatedVisibility(
         visible = isShowing,
         enter = fadeIn(tween(FetchMotion.tokens.durations.long)),
-        exit = fadeOut(tween(FetchMotion.tokens.durations.slow))
+        exit = fadeOut(FetchMotion.exitTween())
     ) {
         AmbientSlideshow(
             slides = slides,

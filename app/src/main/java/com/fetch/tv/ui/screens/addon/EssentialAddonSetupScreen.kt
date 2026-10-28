@@ -1,8 +1,13 @@
 package com.fetch.tv.ui.screens.addon
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -162,9 +170,16 @@ fun EssentialAddonSetupScreen(
                                 }
                             )
                         }
-                        AnimatedVisibility(visible = uiState.error != null) {
+                        // Keep the last message during the exit, so the text doesn't blank before it collapses.
+                        var lastError by remember { mutableStateOf(uiState.error) }
+                        if (uiState.error != null && uiState.error != lastError) lastError = uiState.error
+                        AnimatedVisibility(
+                            visible = uiState.error != null,
+                            enter = fadeIn(FetchMotion.enterTween()) + expandVertically(FetchMotion.moveTween()),
+                            exit = fadeOut(FetchMotion.exitTween()) + shrinkVertically(FetchMotion.moveTween())
+                        ) {
                             Text(
-                                text = uiState.error.orEmpty(),
+                                text = lastError.orEmpty(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = FetchTheme.colors.Error
                             )

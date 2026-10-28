@@ -1,10 +1,13 @@
 package com.fetch.tv.ui.screens.cast
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -251,55 +254,51 @@ private fun CastDetailContent(
         )
 
         // Main content
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn()
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                HeroSection(
-                    person = person,
-                    isBiographyExpanded = isBiographyExpanded,
-                    isBiographyTruncated = isBiographyTruncated,
-                    onBiographyTruncationChanged = { isBiographyTruncated = it },
-                    onPortraitClick = {
-                        if (isBiographyExpanded || isBiographyTruncated) {
-                            onBiographyExpandedChange(!isBiographyExpanded)
-                        }
-                    },
-                    modifier = if (isBiographyExpanded) Modifier.weight(1f) else Modifier
-                )
-
-                AnimatedVisibility(
-                    visible = allCredits.isNotEmpty() && !isBiographyExpanded,
-                    enter = fadeIn() +
-                        expandVertically(expandFrom = Alignment.Top) +
-                        slideInVertically(initialOffsetY = { it / 2 }),
-                    exit = fadeOut() +
-                        shrinkVertically(shrinkTowards = Alignment.Top) +
-                        slideOutVertically(targetOffsetY = { it })
-                ) {
-                    Column {
-                        SectionHeader(
-                            title = stringResource(R.string.cast_detail_filmography),
-                            count = allCredits.size
-                        )
-                        FilmographyRow(
-                            credits = allCredits,
-                            posterCardStyle = filmographyPosterStyle,
-                            firstItemFocusRequester = firstPosterFocusRequester,
-                            restoreItemId = pendingRestoreItemId,
-                            restoreFocusToken = restoreFocusToken,
-                            onRestoreFocusHandled = { pendingRestoreItemId = null },
-                            onItemClick = { item ->
-                                pendingRestoreItemId = item.id
-                                onNavigateToDetail(item.id, item.apiType, null)
-                            },
-                            onItemLongPress = { item ->
-                                posterOptions.show(item, null)
-                            },
-                            isItemWatched = isItemWatched
-                        )
+        Column(modifier = Modifier.fillMaxSize()) {
+            HeroSection(
+                person = person,
+                isBiographyExpanded = isBiographyExpanded,
+                isBiographyTruncated = isBiographyTruncated,
+                onBiographyTruncationChanged = { isBiographyTruncated = it },
+                onPortraitClick = {
+                    if (isBiographyExpanded || isBiographyTruncated) {
+                        onBiographyExpandedChange(!isBiographyExpanded)
                     }
+                },
+                modifier = if (isBiographyExpanded) Modifier.weight(1f) else Modifier
+            )
+
+            val fullMotion = FetchTheme.fullMotion
+            AnimatedVisibility(
+                visible = allCredits.isNotEmpty() && !isBiographyExpanded,
+                enter = fadeIn(FetchMotion.enterTween()) +
+                    expandVertically(FetchMotion.moveTween(), expandFrom = Alignment.Top) +
+                    (if (fullMotion) slideInVertically(FetchMotion.enterTween()) { it / 4 } else EnterTransition.None),
+                exit = fadeOut(FetchMotion.exitTween()) +
+                    shrinkVertically(FetchMotion.moveTween(), shrinkTowards = Alignment.Top) +
+                    (if (fullMotion) slideOutVertically(FetchMotion.exitTween()) { it / 4 } else ExitTransition.None)
+            ) {
+                Column {
+                    SectionHeader(
+                        title = stringResource(R.string.cast_detail_filmography),
+                        count = allCredits.size
+                    )
+                    FilmographyRow(
+                        credits = allCredits,
+                        posterCardStyle = filmographyPosterStyle,
+                        firstItemFocusRequester = firstPosterFocusRequester,
+                        restoreItemId = pendingRestoreItemId,
+                        restoreFocusToken = restoreFocusToken,
+                        onRestoreFocusHandled = { pendingRestoreItemId = null },
+                        onItemClick = { item ->
+                            pendingRestoreItemId = item.id
+                            onNavigateToDetail(item.id, item.apiType, null)
+                        },
+                        onItemLongPress = { item ->
+                            posterOptions.show(item, null)
+                        },
+                        isItemWatched = isItemWatched
+                    )
                 }
             }
         }

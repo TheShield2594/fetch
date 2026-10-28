@@ -1,6 +1,6 @@
 # 021 — Low-severity motion polish: party, ambient exit, cast page, PIN cursor, addon error
 
-- **Status**: TODO
+- **Status**: DONE (build not verified locally: no Android SDK in the session; all six sub-sections applied)
 - **Commit**: ee8dd84
 - **Severity**: LOW
 - **Category**: Mixed (scale-from-zero, bouncy springs on typed input, exit speed, dead motion, untokened transitions, composition reads, exit content)

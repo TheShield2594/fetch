@@ -2601,19 +2601,6 @@ internal fun ProfilePinOverlay(
     var keyboardWasVisible by remember(state) { mutableStateOf(false) }
     val shakeOffset = remember(state) { androidx.compose.animation.core.Animatable(0f) }
     val fullMotion = FetchTheme.fullMotion
-    val cursorAlpha = if (FetchTheme.fullMotion) {
-        rememberInfiniteTransition(label = "pinCursor").animateFloat(
-            initialValue = 0.25f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(FetchMotion.tokens.durations.slow),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "pinCursorAlpha"
-        ).value
-    } else {
-        1f
-    }
     val resolvedErrorMessage = if (isSingleEntryMode) errorMessage else internalErrorMessage ?: errorMessage
     val isErrorState = !resolvedErrorMessage.isNullOrEmpty()
     val mismatchMessage = stringResource(R.string.profile_pin_overlay_mismatch)
@@ -2854,7 +2841,6 @@ internal fun ProfilePinOverlay(
                 isWorking = isWorking,
                 isErrorState = isErrorState,
                 isInputFocused = isInputFocused,
-                cursorAlpha = cursorAlpha,
                 compactMode = shouldUseCompactLayout,
                 modifier = Modifier.graphicsLayer {
                     translationX = shakeOffset.value
@@ -2950,7 +2936,6 @@ private fun ProfilePinBoxes(
     isWorking: Boolean,
     isErrorState: Boolean,
     isInputFocused: Boolean,
-    cursorAlpha: Float,
     compactMode: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -3038,19 +3023,37 @@ private fun ProfilePinBoxes(
                         )
                     }
 
-                    isActive -> {
-                        Box(
-                            modifier = Modifier
-                                .width(FetchTheme.spacing.xxs)
-                                .height(activeCursorHeight)
-                                .background(Color.White.copy(alpha = cursorAlpha))
-                        )
-                    }
+                    isActive -> PinCursor(height = activeCursorHeight)
                 }
             }
         }
     }
     }
+}
+
+/** The caret in the active PIN box. Its blink lives here and is read in the layer, so only the caret redraws. */
+@Composable
+private fun PinCursor(height: Dp) {
+    val blink = if (FetchTheme.fullMotion) {
+        rememberInfiniteTransition(label = "pinCursor").animateFloat(
+            initialValue = 1f,
+            targetValue = 0.25f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(FetchMotion.tokens.durations.slow),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pinCursorAlpha"
+        )
+    } else {
+        null
+    }
+    Box(
+        modifier = Modifier
+            .width(FetchTheme.spacing.xxs)
+            .height(height)
+            .graphicsLayer { alpha = blink?.value ?: 1f }
+            .background(Color.White)
+    )
 }
 
 @Composable

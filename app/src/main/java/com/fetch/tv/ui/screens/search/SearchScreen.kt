@@ -313,7 +313,8 @@ fun SearchScreen(
         PosterCardStyle(
             cornerRadius = uiState.posterCardCornerRadiusDp.dp,
             focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
-            focusedScale = PosterCardDefaults.Style.focusedScale
+            focusedScale = PosterCardDefaults.Style.focusedScale,
+            showRestingBorder = true
         )
     }
 

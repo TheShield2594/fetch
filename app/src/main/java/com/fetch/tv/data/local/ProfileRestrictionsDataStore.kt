@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.fetch.tv.core.parental.CertificationLevel
 import com.fetch.tv.core.parental.ContentRestriction
@@ -32,6 +33,22 @@ data class ProfileRestrictions(
 
     /** A restricted profile can't manage addons and needs the parent PIN for settings. */
     val isRestricted: Boolean get() = isKidsProfile || maxLevel != null
+
+    /**
+     * The stricter of this and [other], setting by setting: kids if either is, the lower rating
+     * limit, and unrated titles only when every limit allows them. Never looser than either.
+     */
+    fun tightenedWith(other: ProfileRestrictions): ProfileRestrictions {
+        val level = listOfNotNull(maxLevel, other.maxLevel).minByOrNull { it.rank }
+        return ProfileRestrictions(
+            isKidsProfile = isKidsProfile || other.isKidsProfile,
+            maxLevel = level,
+            // Without a limit the flag means nothing; keep the default so "no limit" stays None.
+            allowUnrated = level == null || (allowsUnratedUnderLimit && other.allowsUnratedUnderLimit)
+        )
+    }
+
+    private val allowsUnratedUnderLimit: Boolean get() = maxLevel == null || allowUnrated
 
     companion object {
         val None = ProfileRestrictions()
@@ -109,7 +126,13 @@ data class ProfileTitleLists(
 
 /**
  * Per-profile parental restrictions. Kept on the device and outside the synced profile
- * list, so a sync pull can never loosen them.
+ * list, so a sync pull can never loosen them: limits from the account only ever tighten the
+ * ones here ([tightenFromAccount]), and removing one is done on each TV behind the parent PIN.
+ *
+ * Next to the limits it keeps the account's copy as this TV last saw or sent it, which is what
+ * the TV sends back with the profile's settings; a limit removed on one TV doesn't reach the others.
+ * A parent's change waits as a pending push until the account has it; until then a pull leaves
+ * that profile alone, so it can't put back a limit the parent just removed.
  */
 @Singleton
 class ProfileRestrictionsDataStore internal constructor(
@@ -119,6 +142,10 @@ class ProfileRestrictionsDataStore internal constructor(
     constructor(@ApplicationContext context: Context) : this(context.profileRestrictionsDataStore)
 
     private val restrictionsKey = stringPreferencesKey("restrictions_map")
+    // The account's limits per profile; a profile is missing until this TV has seen or sent them.
+    private val accountRestrictionsKey = stringPreferencesKey("account_restrictions_map")
+    // Profiles whose account copy was changed here and hasn't reached the account yet.
+    private val pendingAccountPushKey = stringSetPreferencesKey("account_push_pending")
     // Kept apart from the limits, which a website pull replaces; the lists are only set on this TV.
     private val titleListsKey = stringPreferencesKey("title_lists")
     private val json = Json { ignoreUnknownKeys = true }
@@ -133,6 +160,74 @@ class ProfileRestrictionsDataStore internal constructor(
             if (restrictions == ProfileRestrictions.None) current.remove(profileId) else current[profileId] = restrictions
             prefs[restrictionsKey] = encode(current)
         }
+    }
+
+    val accountRestrictions: Flow<Map<Int, ProfileRestrictions>> = dataStore.data.map { prefs ->
+        decode(prefs[accountRestrictionsKey])
+    }
+
+    val pendingAccountPushes: Flow<Set<Int>> = dataStore.data.map { prefs -> decodePending(prefs) }
+
+    /**
+     * A parent set the profile's limits on this TV: they become both this TV's limits and the
+     * account's copy, waiting to be pushed.
+     */
+    suspend fun setByParent(profileId: Int, restrictions: ProfileRestrictions) {
+        setRestrictions(profileId, restrictions)
+        setPendingAccountRestrictions(profileId, restrictions)
+    }
+
+    /** Records [restrictions] as the account's copy for the profile, waiting to be pushed. */
+    suspend fun setPendingAccountRestrictions(profileId: Int, restrictions: ProfileRestrictions) {
+        dataStore.edit { prefs ->
+            val current = decode(prefs[accountRestrictionsKey]).toMutableMap()
+            current[profileId] = restrictions
+            prefs[accountRestrictionsKey] = encode(current)
+            prefs[pendingAccountPushKey] = (decodePending(prefs) + profileId).mapTo(HashSet()) { it.toString() }
+        }
+    }
+
+    /**
+     * The account now holds [pushed] for the profile: it becomes the account's copy, and a
+     * pending push of it is done. A copy changed again while this one was being sent is left
+     * pending, since that change still needs its own push.
+     */
+    suspend fun accountPushSucceeded(profileId: Int, pushed: ProfileRestrictions) {
+        dataStore.edit { prefs ->
+            val accountCopies = decode(prefs[accountRestrictionsKey])
+            val pending = decodePending(prefs)
+            if (profileId in pending) {
+                if (accountCopies[profileId] != pushed) return@edit
+                prefs[pendingAccountPushKey] = (pending - profileId).mapTo(HashSet()) { it.toString() }
+            } else {
+                prefs[accountRestrictionsKey] = encode(accountCopies + (profileId to pushed))
+            }
+        }
+    }
+
+    /**
+     * Applies limits pulled from the account: records them as the account's copy and tightens
+     * this TV's limits to at least as strict. Returns true when this TV's limits changed. A
+     * profile with a pending push is left alone: this TV's change is the newer one.
+     */
+    suspend fun tightenFromAccount(profileId: Int, account: ProfileRestrictions): Boolean {
+        var changed = false
+        dataStore.edit { prefs ->
+            if (profileId in decodePending(prefs)) return@edit
+            val accountCopies = decode(prefs[accountRestrictionsKey]).toMutableMap()
+            accountCopies[profileId] = account
+            prefs[accountRestrictionsKey] = encode(accountCopies)
+
+            val current = decode(prefs[restrictionsKey]).toMutableMap()
+            val local = current[profileId] ?: ProfileRestrictions.None
+            val tightened = local.tightenedWith(account)
+            if (tightened != local) {
+                current[profileId] = tightened
+                prefs[restrictionsKey] = encode(current)
+                changed = true
+            }
+        }
+        return changed
     }
 
     val titleLists: Flow<Map<Int, ProfileTitleLists>> = dataStore.data.map { prefs ->
@@ -151,15 +246,24 @@ class ProfileRestrictionsDataStore internal constructor(
     /** Drops the profile's limits. Its title lists stay: they're kept on this TV whatever the website says. */
     suspend fun removeProfile(profileId: Int) = setRestrictions(profileId, ProfileRestrictions.None)
 
-    /** For a deleted profile: its limits and its title lists. */
+    /** For a deleted profile: its limits, the account's copy of them and its title lists. */
     suspend fun deleteProfile(profileId: Int) {
         removeProfile(profileId)
+        dataStore.edit { prefs ->
+            val accountCopies = decode(prefs[accountRestrictionsKey])
+            if (profileId in accountCopies) prefs[accountRestrictionsKey] = encode(accountCopies - profileId)
+            val pending = decodePending(prefs)
+            if (profileId in pending) prefs[pendingAccountPushKey] = (pending - profileId).mapTo(HashSet()) { it.toString() }
+        }
         updateTitleLists(profileId) { ProfileTitleLists.Empty }
     }
 
     suspend fun clearAll() {
         dataStore.edit { prefs -> prefs.clear() }
     }
+
+    private fun decodePending(prefs: Preferences): Set<Int> =
+        prefs[pendingAccountPushKey].orEmpty().mapNotNullTo(HashSet()) { it.toIntOrNull() }
 
     // "<id>:<kids>:<level or ->:<allowUnrated>" entries separated by ','.
     private fun encode(map: Map<Int, ProfileRestrictions>): String =

@@ -1,6 +1,7 @@
 package com.fetch.tv.core.parental
 
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.sync.ProfileSettingsSyncService
 import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
@@ -49,7 +50,8 @@ class ParentalControls @Inject constructor(
     private val restrictionsDataStore: ProfileRestrictionsDataStore,
     private val pinManager: ProfilePinManager,
     private val resolver: CertificationResolver,
-    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>
+    private val websiteSync: dagger.Lazy<FetchWebsiteSyncService>,
+    private val profileSettingsSync: dagger.Lazy<ProfileSettingsSyncService>
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -101,12 +103,19 @@ class ParentalControls @Inject constructor(
     fun restrictionsFor(profileId: Int): ProfileRestrictions =
         allRestrictions.value[profileId] ?: ProfileRestrictions.None
 
-    /** The primary profile is the parent profile and can't be restricted. */
+    /**
+     * The primary profile is the parent profile and can't be restricted. Callers ask for the
+     * parent PIN first: this is the only way limits get looser on a TV, since a sync pull only
+     * ever tightens them.
+     */
     suspend fun setRestrictions(profileId: Int, restrictions: ProfileRestrictions): Boolean {
         if (profileId == 1) return false
-        restrictionsDataStore.setRestrictions(profileId, restrictions)
-        // A TV signed in to a Fetch website shares the limit with it straight away, so the
-        // website shows it and the next pull doesn't put the old one back.
+        // Shared with the account straight away, so other TVs pick it up (only if it's stricter
+        // than theirs). Until the account has it, pulls leave this profile alone, so they can't
+        // put the old limit back; a failed push is retried on the next pull. A TV signed in to a
+        // Fetch website shares it with the website instead.
+        restrictionsDataStore.setByParent(profileId, restrictions)
+        profileSettingsSync.get().triggerParentalLimitsPush(profileId)
         websiteSync.get().triggerProfilesPush()
         return true
     }

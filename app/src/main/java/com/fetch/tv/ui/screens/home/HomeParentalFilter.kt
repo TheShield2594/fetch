@@ -4,6 +4,12 @@ import com.fetch.tv.core.parental.CertificationQuery
 import com.fetch.tv.core.parental.ParentalControls
 import com.fetch.tv.domain.model.ContentType
 
+/** Rows a kids Home shows after Continue Watching. */
+internal const val KIDS_HOME_MAX_ROWS = 6
+
+/** How much bigger cards are on a kids Home than the poster size setting. */
+internal const val KIDS_HOME_CARD_SCALE = 1.25f
+
 internal fun ContinueWatchingItem.certificationQuery(): CertificationQuery = when (this) {
     is ContinueWatchingItem.InProgress -> CertificationQuery(
         contentId = progress.contentId,
@@ -17,7 +23,7 @@ internal fun ContinueWatchingItem.certificationQuery(): CertificationQuery = whe
 
 /**
  * Hides Continue Watching and upcoming entries the active profile's limit or hidden titles don't allow.
- * Kids profiles get a simplified home without the upcoming row.
+ * Kids profiles get a Home of their own (see [HomeUiState.kidsHome]), without the upcoming row.
  */
 internal fun filterContinueWatchingForProfile(state: HomeUiState, parentalControls: ParentalControls): HomeUiState {
     if (!parentalControls.filtersContent()) return state

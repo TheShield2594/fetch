@@ -33,6 +33,11 @@ data class HomeUiState(
     val heroItems: List<MetaPreview> = emptyList(),
     val heroCatalogKeys: List<String> = emptyList(),
     val heroSectionEnabled: Boolean = true,
+    /**
+     * A kids profile's Home: no hero, fewer rows, bigger cards, and nothing about addons,
+     * sources or ratings on the cards. See [KIDS_HOME_MAX_ROWS].
+     */
+    val kidsHome: Boolean = false,
     val modernHomePresentation: ModernHomePresentationState = ModernHomePresentationState(),
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,

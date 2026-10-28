@@ -1231,6 +1231,7 @@ open class MainActivity : ComponentActivity() {
                                 activeProfileColorHex = activeProfile?.avatarColorHex ?: "#1E88E5",
                                 activeProfileAvatarImageUrl = activeProfileAvatarImageUrl,
                                 showProfileSelector = profiles.size > 1,
+                                kidsProfile = parentalRestrictions.isKidsProfile,
                                 onSwitchProfile = handleSwitchProfile,
                                 onNavigate = { optimisticRoute = it },
                                 onExitApp = handleExitApp
@@ -1482,6 +1483,7 @@ private fun FetchSidebarScaffold(
     activeProfileColorHex: String,
     activeProfileAvatarImageUrl: String?,
     showProfileSelector: Boolean,
+    kidsProfile: Boolean,
     onSwitchProfile: () -> Unit,
     onNavigate: (String) -> Unit,
     onExitApp: () -> Unit
@@ -1497,6 +1499,7 @@ private fun FetchSidebarScaffold(
     }
 
     val sidebarTokens = FetchComponents.tokens.sidebar
+    val profileButtonLabel = if (kidsProfile) stringResource(R.string.sidebar_switch_profile) else activeProfileName
     val closedDrawerWidth = if (sidebarCollapsed) FetchTheme.spacing.none else sidebarTokens.collapsedWidth
     val openDrawerWidth = sidebarTokens.expandedWidth
 
@@ -1593,6 +1596,31 @@ private fun FetchSidebarScaffold(
                         verticalArrangement = Arrangement.spacedBy(sidebarTokens.floatingGap),
                         horizontalAlignment = Alignment.Start
                     ) {
+                        val profileButton: @Composable () -> Unit = {
+                            FloatingSidebarButton(
+                                label = profileButtonLabel,
+                                selected = false,
+                                expanded = isExpanded,
+                                onClick = {
+                                    onSwitchProfile()
+                                    drawerState.setValue(DrawerValue.Closed)
+                                }
+                            ) { _ ->
+                                ProfileAvatarCircle(
+                                    name = activeProfileName,
+                                    colorHex = activeProfileColorHex,
+                                    size = sidebarTokens.floatingButtonSize - FetchTheme.spacing.xs,
+                                    avatarImageUrl = activeProfileAvatarImageUrl,
+                                    imageCrossfade = false
+                                )
+                            }
+                        }
+                        // A kids profile has the way back to a parent first, where it's easy to find.
+                        // Leaving still asks for the parent PIN.
+                        if (kidsProfile && activeProfileName.isNotEmpty()) {
+                            profileButton()
+                            Spacer(modifier = Modifier.height(sidebarTokens.floatingGap))
+                        }
                         drawerItems.forEach { item ->
                             key(item.route) {
                                 FloatingSidebarButton(
@@ -1624,25 +1652,9 @@ private fun FetchSidebarScaffold(
                                 }
                             }
                         }
-                        if (showProfileSelector && activeProfileName.isNotEmpty()) {
+                        if (!kidsProfile && showProfileSelector && activeProfileName.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(sidebarTokens.floatingGap))
-                            FloatingSidebarButton(
-                                label = activeProfileName,
-                                selected = false,
-                                expanded = isExpanded,
-                                onClick = {
-                                    onSwitchProfile()
-                                    drawerState.setValue(DrawerValue.Closed)
-                                }
-                            ) { _ ->
-                                ProfileAvatarCircle(
-                                    name = activeProfileName,
-                                    colorHex = activeProfileColorHex,
-                                    size = sidebarTokens.floatingButtonSize - FetchTheme.spacing.xs,
-                                    avatarImageUrl = activeProfileAvatarImageUrl,
-                                    imageCrossfade = false
-                                )
-                            }
+                            profileButton()
                         }
                     }
                 }

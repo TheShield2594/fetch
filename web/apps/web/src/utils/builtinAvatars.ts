@@ -3,7 +3,7 @@
  * (`BundledAvatars.kt`), so a picture chosen here is the one the TV draws. The
  * images are copied into `public/avatars/` from the app's assets.
  *
- * Artwork: Noto Emoji (Apache License 2.0), see `public/avatars/LICENSE-NotoEmoji.txt`.
+ * Artwork: made for Fetch with Higgsfield, see `docs/avatars.md` at the repo root.
  */
 
 export type BuiltinAvatar = { id: string; name: string; category: "animals" | "characters" | "fun"; bgColor: string };

@@ -13,6 +13,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Changed
 
+- **New profile pictures.** The 40 built-in avatars are now 3D-rendered artwork made for Fetch, in place of the Noto emoji, with the same ids, so a profile keeps its picture. The TV ships the same set.
+
 - **The browser no longer holds `API_TOKEN`.** The web app signs in and keeps a 30-day session instead, and the API Token section in Settings is replaced by Account (sign out, change password). The first visit after upgrading asks you to create the admin account, with the token the browser already had filled in. `API_TOKEN` keeps working for the add-on service, scripts and the API directly.
 
 - **Cataloggy is now the Fetch website.** The project moved into the [Fetch](https://github.com/TheShield2594/fetch) repository under `web/`, with its full history, and the app calls itself Fetch. Images are now published as `ghcr.io/theshield2594/fetch-{api,migrate,addon,web}`; the `cataloggy-*` images get no further updates, so pull the new `docker-compose.yml`. Releases are tagged `web-vX.Y.Z`, and the image tag stays `vX.Y.Z`. Everything else that said Cataloggy was renamed too: the `CATALOGGY_*` environment variables are now `FETCH_*` (rename them in your `.env`), the Postgres database and Docker network default to `fetch`, the addon IDs are `com.fetch.api` and `com.fetch.addon`, catalog IDs start with `fetch-`, and browser storage keys start with `fetch`. An existing install needs its `.env` updated, `POSTGRES_DB=cataloggy` set to keep its old database, the Stremio addon reinstalled and the browser signed in again; catalog IDs saved in an old config are translated on read.

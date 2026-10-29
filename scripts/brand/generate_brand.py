@@ -15,9 +15,11 @@ FONT = os.path.join(RES, "font", "dm_sans_variable.ttf")
 DOTO = os.path.join(RES, "font", "doto_variable.ttf")
 GLYPH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mark_glyph.png")
 
-# Primary brand gradient: warm amber to coral. Theme variants reuse the same shapes.
+# Primary brand tile: Fetch red (ui/theme/ThemeColors.kt FetchRed) easing to a deeper red, with
+# the dog in white. The variants are the optional launcher icons (Settings > App icon) and keep
+# their own colours; they reuse the same shapes.
 PALETTES = {
-    "": ((255, 170, 64), (255, 77, 109)),
+    "": ((220, 43, 51), (150, 18, 26)),
     "_copper": ((222, 140, 86), (176, 82, 52)),
     "_emerald": ((80, 220, 160), (16, 140, 110)),
     "_rose_gold": ((246, 190, 170), (214, 120, 130)),
@@ -39,8 +41,9 @@ WORDMARK_COLORS = {
     "_amber": (255, 185, 81),
     "_rose": (240, 102, 149),
 }
-BACKGROUND_TOP = (14, 14, 20)
-BACKGROUND_BOTTOM = (34, 22, 26)
+# The TV banner's ground: the app's near-black (#0A0A0B) lifting slightly toward the bottom.
+BACKGROUND_TOP = (10, 10, 11)
+BACKGROUND_BOTTOM = (22, 22, 24)
 
 
 def gradient(size: int, start, end) -> Image.Image:
@@ -131,7 +134,7 @@ def dot_wordmark(width: int, height: int) -> Image.Image:
     return img.resize((width, height), Image.LANCZOS)
 
 
-def banner(width: int, height: int, palette=PALETTES[""]) -> Image.Image:
+def banner(width: int, height: int, palette=PALETTES[""], dot: bool = False) -> Image.Image:
     img = Image.new("RGB", (width, height))
     px = img.load()
     for y in range(height):
@@ -141,7 +144,10 @@ def banner(width: int, height: int, palette=PALETTES[""]) -> Image.Image:
             px[x, y] = row
     img = img.convert("RGBA")
     m = mark(int(height * 0.34), palette)
-    w = wordmark(int(width * 0.42), int(height * 0.24), WORDMARK_COLORS[""])
+    if dot:
+        w = dot_wordmark(int(width * 0.46), int(height * 0.30))
+    else:
+        w = wordmark(int(width * 0.42), int(height * 0.24), WORDMARK_COLORS[""])
     w = w.crop(w.getbbox())
     gap = int(width * 0.03)
     total = m.width + gap + w.width
@@ -156,6 +162,21 @@ def save(img: Image.Image, *parts: str) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     img.save(path, optimize=True)
     print("wrote", os.path.relpath(path, ROOT))
+
+
+def write_default_icon() -> None:
+    """The default launcher icon, its banner and the brand marks; the variants are left alone."""
+    densities = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
+    for density, size in densities.items():
+        save(mark(size, PALETTES[""]), RES, f"mipmap-{density}", "ic_launcher.png")
+    save(mark(512, PALETTES[""]), RES, "drawable", "ic_launcher.png")
+    save(mark(1080, PALETTES[""]), RES, "drawable", "app_logo_mark.png")
+    save(mark(1080, PALETTES[""]), ROOT, "assets", "brand", "app_logo_mark.png")
+    save(banner(320, 180, PALETTES[""], dot=True), RES, "mipmap-xhdpi", "banner.png")
+    b = banner(1280, 720, dot=True)
+    save(b, RES, "drawable", "tv_banner.png")
+    save(b, RES, "drawable-nodpi", "tv_banner.png")
+    save(b, ROOT, "assets", "fetch.png")
 
 
 def write_dot_wordmarks() -> None:
@@ -178,11 +199,12 @@ def main() -> None:
     write_dot_wordmarks()
     save(wordmark(1000, 230, WORDMARK_COLORS[""]), RES, "drawable", "fetch_text.png")
 
-    # Android TV launcher banners, one per launcher icon theme.
+    # Android TV launcher banners, one per launcher icon theme. The default one carries the
+    # dot-matrix wordmark; the optional icons keep their lettered banners.
     for suffix, palette in PALETTES.items():
-        save(banner(320, 180, palette), RES, "mipmap-xhdpi", f"banner{suffix}.png")
+        save(banner(320, 180, palette, dot=not suffix), RES, "mipmap-xhdpi", f"banner{suffix}.png")
 
-    b = banner(1280, 720)
+    b = banner(1280, 720, dot=True)
     save(b, RES, "drawable", "tv_banner.png")
     save(b, RES, "drawable-nodpi", "tv_banner.png")
     save(b, ROOT, "assets", "fetch.png")
@@ -191,8 +213,10 @@ def main() -> None:
 if __name__ == "__main__":
     import sys
 
-    # --wordmark: only the dot-matrix wordmark, so the other bitmaps aren't rewritten.
+    # --wordmark / --default-icon: only those bitmaps, so the others aren't rewritten.
     if "--wordmark" in sys.argv:
         write_dot_wordmarks()
+    elif "--default-icon" in sys.argv:
+        write_default_icon()
     else:
         main()

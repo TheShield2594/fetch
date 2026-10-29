@@ -2,7 +2,7 @@ import { useId } from "react";
 
 /**
  * The Fetch mark: a dog in profile whose ear is a play button, on the
- * amber-to-coral tile the Android TV app's launcher icon uses.
+ * Fetch-red tile the Android TV app's launcher icon uses.
  *
  * The tile carries its own colour, so one drawing reads on the light, dark and
  * glass themes alike. Inline rather than `<img src="/logo.svg">` so it paints
@@ -29,8 +29,8 @@ export function BrandMark({ className, title }: { className?: string; title?: st
       {title ? <title>{title}</title> : null}
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ffaa40" />
-          <stop offset="1" stopColor="#ff4d6d" />
+          <stop offset="0" stopColor="#dc2b33" />
+          <stop offset="1" stopColor="#96121a" />
         </linearGradient>
       </defs>
       <rect width="100" height="100" rx="23" fill={`url(#${gradientId})`} />

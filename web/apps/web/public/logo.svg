@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Fetch">
   <title>Fetch</title>
   <!-- The Fetch mark: a dog in profile whose ear is a play button, on the
-       amber-to-coral tile the Android TV app's launcher icon uses. The dog is
+       Fetch-red tile the Android TV app's launcher icon uses. The dog is
        traced from scripts/brand/mark_glyph.png at the root of the repository,
        placed the way scripts/brand/generate_brand.py places it. -->
   <defs>
     <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ffaa40"/>
-      <stop offset="1" stop-color="#ff4d6d"/>
+      <stop offset="0" stop-color="#dc2b33"/>
+      <stop offset="1" stop-color="#96121a"/>
     </linearGradient>
   </defs>
   <rect width="100" height="100" rx="23" fill="url(#tile)"/>

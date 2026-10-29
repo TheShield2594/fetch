@@ -14,7 +14,7 @@ export const LOGO_SVG = join(repoRoot, "apps/web/public/logo.svg");
 
 /**
  * The mark as an SVG buffer, exactly as browsers get it: the dog on a rounded
- * amber-to-coral tile, the same artwork as the Android TV launcher icon.
+ * Fetch-red tile, the same artwork as the Android TV launcher icon.
  */
 export async function logoSvg() {
   return Buffer.from(await readFile(LOGO_SVG, "utf8"));

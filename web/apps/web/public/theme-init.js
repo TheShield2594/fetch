@@ -1,7 +1,7 @@
 (function () {
   // Keep in sync with THEMES/THEME_BG in apps/web/src/hooks/useTheme.ts
   var themeBg = {
-    fetch: "#0d0e10",
+    fetch: "#0a0a0b",
     light: "#f2f2f7",
     dark: "#000000",
     glass: "#0b0d12",
@@ -15,7 +15,7 @@
   // blue and red themes, on the one frame a visitor sees first. Keep in sync
   // with the --accent declarations in apps/web/src/index.css.
   var themeAccent = {
-    fetch: "#d7f75b",
+    fetch: "#dc2b33",
     light: "#ff9500",
     dark: "#ff9f0a",
     glass: "#0a84ff",

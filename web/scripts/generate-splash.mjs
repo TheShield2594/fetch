@@ -22,7 +22,7 @@ const OUT_DIR = join(repoRoot, "apps/web/public/splash");
 // rather than the default light theme: it is the installed-app launch screen,
 // and the manifest already declares dark as the app's background. The mark
 // brings its own tile, so it reads the same on dark as on light.
-const BACKGROUND = "#0d0b0a";
+const BACKGROUND = "#0a0a0b";
 
 // The box the logo is scaled to fit inside, as a fraction of each screen edge.
 // Height binds in landscape and width in portrait. Capping both keeps it the

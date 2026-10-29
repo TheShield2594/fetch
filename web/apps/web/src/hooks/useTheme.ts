@@ -18,7 +18,7 @@ const STORAGE_KEY = "fetch:theme";
 // Android, the status bar in an installed app. It has to be each theme's
 // --bg-0 exactly: a near-match reads as a seam between the app and the phone.
 const THEME_BG: Record<Theme, string> = {
-  fetch: "#0d0e10",
+  fetch: "#0a0a0b",
   light: "#f2f2f7",
   dark: "#000000",
   glass: "#0b0d12",

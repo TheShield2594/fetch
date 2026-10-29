@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -251,7 +252,7 @@ private fun DiagnosticsSectionCard(
 @Composable
 private fun SectionHeader(label: String, subtitle: String? = null) {
     Text(
-        text = label.uppercase(),
+        text = label.uppercase(LocalConfiguration.current.locales[0]),
         style = MaterialTheme.typography.labelSmall,
         color = FetchTheme.colors.Primary
     )

@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Paste</string>
     <string name="web_import_tab_file">File</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Paste collections JSON here...</string>
+    <string name="web_import_paste_placeholder">Paste collections JSON here…</string>
     <string name="web_import_file_select">Tap to select a .json file</string>
     <string name="web_order_send_to_top">Send to top</string>
     <string name="web_order_send_to_bottom">Send to bottom</string>
@@ -101,7 +101,7 @@
     <string name="home_empty_no_catalog_addons_title">No catalog addons yet</string>
     <string name="home_empty_no_catalog_addons_subtitle">Home needs a catalog addon to show titles.</string>
     <string name="home_empty_no_catalogs_title">No catalogs to show</string>
-    <string name="home_empty_no_catalogs_subtitle">Your addons don\'t offer any Home catalogs.</string>
+    <string name="home_empty_no_catalogs_subtitle">Your addons don’t offer any Home catalogs.</string>
     <string name="auth_notice_fetch_logged_out">Signed out of Fetch. Sign in again from Settings &gt; Account.</string>
     <string name="auth_notice_trakt_logged_out">Signed out of Trakt. Reconnect it from Settings &gt; Tracking.</string>
     <string name="error_generic">An error occurred</string>
@@ -258,8 +258,8 @@
     <string name="detail_section_network">Network</string>
     <string name="detail_section_production">Production</string>
     <string name="detail_comments_empty">No Trakt reviews available yet.</string>
-    <string name="detail_comments_error">Couldn\'t load Trakt reviews right now.</string>
-    <string name="detail_trailer_error">Couldn\'t load trailer right now.</string>
+    <string name="detail_comments_error">Couldn’t load Trakt reviews right now.</string>
+    <string name="detail_trailer_error">Couldn’t load trailer right now.</string>
     <string name="detail_comments_spoiler_hidden">Spoiler review. Press OK to reveal.</string>
     <string name="detail_comments_reveal_spoiler_hint">Press OK to reveal spoiler.</string>
     <string name="detail_comments_back_hint">Click back to close</string>
@@ -375,12 +375,12 @@
     <string name="exclusion_cam">cam or telesync copy</string>
     <string name="exclusion_3d">3D release</string>
     <string name="exclusion_keyword">matches an excluded keyword</string>
-    <string name="exclusion_unsupported_codec">this TV can\'t decode %1$s</string>
-    <string name="exclusion_unsupported_dv">DV profile 5 isn\'t supported on this TV</string>
+    <string name="exclusion_unsupported_codec">this TV can’t decode %1$s</string>
+    <string name="exclusion_unsupported_dv">DV profile 5 isn’t supported on this TV</string>
     <string name="exclusion_unsupported_dv_hdr10_plus">DV with HDR10+ shows a black screen on this device</string>
     <string name="exclusion_unsupported_resolution">higher resolution than this TV shows</string>
-    <string name="exclusion_unsupported_audio">%1$s needs passthrough or a decoder this TV doesn\'t have</string>
-    <string name="exclusion_not_playable">this player can\'t open it</string>
+    <string name="exclusion_unsupported_audio">%1$s needs passthrough or a decoder this TV doesn’t have</string>
+    <string name="exclusion_not_playable">this player can’t open it</string>
     <plurals name="fetching_addons_waiting">
         <item quantity="one">Fetching… %1$d answered, %2$d addon still looking</item>
         <item quantity="other">Fetching… %1$d answered, %2$d addons still looking</item>
@@ -518,10 +518,10 @@
     <string name="settings_search_title">Search</string>
     <string name="settings_search_subtitle">Find a setting by name, then open the page that has it.</string>
     <string name="settings_search_hint">Search settings</string>
-    <string name="settings_search_prompt">Type part of a setting\'s name.</string>
+    <string name="settings_search_prompt">Type part of a setting’s name.</string>
     <string name="settings_search_empty">No settings match \"%1$s\".</string>
     <string name="settings_search_path" translatable="false">%1$s › %2$s</string>
-    <string name="essential_frame_rate_matching_subtitle">Switch the TV to the video\'s frame rate.</string>
+    <string name="essential_frame_rate_matching_subtitle">Switch the TV to the video’s frame rate.</string>
     <string name="settings_search_changed_only">Changed from default</string>
     <string name="settings_search_changed_only_sub">Only list the settings this profile has changed.</string>
     <string name="settings_search_changed_empty">This profile is using the default for every setting here.</string>
@@ -651,7 +651,7 @@
     <string name="advanced_fast_horizontal_navigation">Fast Horizontal Navigation</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Increase D-pad repeat speed in rows while keeping repeat throttling enabled.</string>
     <string name="advanced_fetch_focus_scroll">Fetch Focus Scrolling</string>
-    <string name="advanced_fetch_focus_scroll_subtitle">Use Fetch\'s custom global focus scroll animation and positioning.</string>
+    <string name="advanced_fetch_focus_scroll_subtitle">Use Fetch’s custom global focus scroll animation and positioning.</string>
     <string name="advanced_rgb565">RGB565 image decoding</string>
     <string name="advanced_rgb565_subtitle">Use lower-memory 16-bit color for eligible opaque images. Changing this restarts the app.</string>
     <string name="advanced_hardware_bitmaps">Hardware image decoding</string>
@@ -749,7 +749,7 @@
     <string name="playback_section_subtitles">Subtitles</string>
     <string name="playback_section_subtitles_desc">Language, style, and render mode.</string>
     <string name="playback_afr_off">Off</string>
-    <string name="playback_afr_off_sub">Don\'t change display refresh rate.</string>
+    <string name="playback_afr_off_sub">Don’t change display refresh rate.</string>
     <string name="playback_afr_on_start">On start</string>
     <string name="playback_afr_on_start_sub">Switch when playback starts.</string>
     <string name="playback_afr_on_start_stop">On start/stop</string>
@@ -788,7 +788,7 @@
     <string name="audio_remember_delay_per_device">Remember audio delay per device</string>
     <string name="audio_remember_delay_per_device_sub">Save and restore the in-player audio delay for the current audio output route</string>
     <string name="audio_advanced_section">Advanced Audio</string>
-    <string name="audio_advanced_warning">These settings may cause issues on some devices. Change only if you know what you\'re doing.</string>
+    <string name="audio_advanced_warning">These settings may cause issues on some devices. Change only if you know what you’re doing.</string>
     <string name="audio_number_of_channels">Number of channels</string>
     <string name="audio_number_of_channels_desc">Sets the speaker layout used for FFmpeg downmix.</string>
     <string name="audio_decoder_device_only">Device decoders only</string>
@@ -974,7 +974,7 @@
     <string name="layout_catalog_type">Show Catalog Type</string>
     <string name="layout_catalog_type_sub">Show type suffix next to catalog name (Movie/Series).</string>
     <string name="layout_hide_unreleased">Hide Unreleased Content</string>
-    <string name="layout_hide_unreleased_sub">Hide movies and shows that haven\'t been released yet.</string>
+    <string name="layout_hide_unreleased_sub">Hide movies and shows that haven’t been released yet.</string>
     <string name="layout_section_detail">Detail Page</string>
     <string name="layout_section_detail_desc">Settings for the detail and episode screens.</string>
     <string name="layout_overall_ratings">Overall Ratings</string>
@@ -1239,7 +1239,7 @@
     <string name="qr_login_approved">Login approved. Finishing sign in…</string>
     <string name="qr_login_pending">Waiting for approval on your phone…</string>
     <string name="qr_login_expired">QR login expired. Generate a new code.</string>
-    <string name="qr_login_preparing">Preparing QR login...</string>
+    <string name="qr_login_preparing">Preparing QR login…</string>
     <string name="qr_login_scan_prompt">Scan QR and sign in on your phone</string>
     <string name="qr_login_start_failed">Failed to start QR login</string>
     <string name="qr_login_signing_in">Signing you in…</string>
@@ -1342,7 +1342,7 @@
     <string name="profile_editor_tab_background">Background</string>
     <string name="profile_editor_tab_preferences">Preferences</string>
     <string name="profile_viewing_activity_label">Viewing activity</string>
-    <string name="profile_viewing_activity_title">%1$s\'s viewing activity</string>
+    <string name="profile_viewing_activity_title">%1$s’s viewing activity</string>
     <string name="profile_viewing_activity_loading">Loading…</string>
     <string name="profile_viewing_activity_empty">Nothing watched on this profile yet.</string>
     <string name="profile_viewing_activity_finished">Finished</string>
@@ -1417,13 +1417,13 @@
     <string name="profile_setup_button">Profile setup</string>
     <string name="profile_setup_summary">Setup: %1$s</string>
     <string name="profile_setup_part_kids">Kids</string>
-    <string name="profile_setup_part_addons">%1$s\'s addons</string>
+    <string name="profile_setup_part_addons">%1$s’s addons</string>
     <string name="profile_setup_part_settings">settings from %1$s</string>
     <string name="profile_setup_title">Profile setup</string>
     <string name="profile_setup_subtitle">A kids profile only shows titles rated PG or lower and hides unrated ones. Addons shared with %1$s can only be changed from %1$s.</string>
     <string name="profile_addons_own">Addons: Separate</string>
     <string name="profile_addons_shared">Addons: Same as %1$s</string>
-    <string name="profile_addons_shared_saved">%1$s now uses %2$s\'s addons.</string>
+    <string name="profile_addons_shared_saved">%1$s now uses %2$s’s addons.</string>
     <string name="profile_addons_own_saved">%1$s now has separate addons.</string>
     <string name="profile_copy_settings_title">Copy settings to %1$s</string>
     <string name="profile_copy_settings_subtitle">Choose a source profile. Its supported TV settings will replace this profile’s settings once.</string>
@@ -1460,11 +1460,11 @@
     <string name="profile_pin_overlay_back_hint">Press back to cancel</string>
     <string name="profile_pin_overlay_access_heading">Enter the PIN for %1$s.</string>
     <string name="profile_pin_overlay_access_support">This profile is locked. Enter its 4-digit PIN to continue.</string>
-    <string name="profile_pin_overlay_reset_heading">Enter %1$s\'s PIN to reset this PIN.</string>
+    <string name="profile_pin_overlay_reset_heading">Enter %1$s’s PIN to reset this PIN.</string>
     <string name="profile_pin_overlay_reset_support">Then choose a new PIN for %1$s.</string>
-    <string name="profile_pin_forgot_reset">Forgot PIN? Reset it with %1$s\'s PIN</string>
+    <string name="profile_pin_forgot_reset">Forgot PIN? Reset it with %1$s’s PIN</string>
     <string name="profile_pin_forgot_needs_main">Forgot PIN? Set a PIN on %1$s first, then use it to reset this one.</string>
-    <string name="profile_pin_forgot_main">The main profile\'s PIN can\'t be reset, so keep it somewhere safe.</string>
+    <string name="profile_pin_forgot_main">The main profile’s PIN can’t be reset, so keep it somewhere safe.</string>
     <string name="profile_pin_reset_for_profile">PIN reset for %1$s.</string>
     <string name="profile_pin_reset_local_only">PIN reset for %1$s on this TV. Your other devices still use the old PIN.</string>
     <string name="profile_pin_incorrect_for_profile">Incorrect PIN for %1$s.</string>
@@ -1480,7 +1480,7 @@
     <string name="collection_editor_untitled_collection">Untitled Collection</string>
     <!-- AddonManagerScreen -->
     <string name="addon_title">Addons</string>
-    <string name="addon_readonly_notice">Using main profile\'s addons and can\'t be changed</string>
+    <string name="addon_readonly_notice">Using main profile’s addons and can’t be changed</string>
     <string name="addon_install_title">Install addon</string>
     <string name="addon_install_placeholder">https://example.com</string>
     <string name="addon_installing">Installing</string>
@@ -1495,7 +1495,7 @@
     <string name="addon_badge_needs_setup">Needs setup</string>
     <string name="addon_needs_configuration">%1$s needs to be set up before it can be installed</string>
     <string name="addon_configure_updated">Updated %1$s</string>
-    <string name="addon_configure_still_unconfigured">%1$s still isn\'t set up. Finish its configuration page, then send the link again.</string>
+    <string name="addon_configure_still_unconfigured">%1$s still isn’t set up. Finish its configuration page, then send the link again.</string>
     <string name="addon_configure_title">Configure %1$s</string>
     <string name="addon_configure_received">Your phone sent: %1$s</string>
     <string name="addon_configure_install">Install</string>
@@ -1510,8 +1510,8 @@
     <string name="addon_configure_web_placeholder">https://…/manifest.json or stremio://…</string>
     <string name="addon_configure_web_send">Send to TV</string>
     <string name="addon_configure_web_sent">Sent. Confirm it on your TV.</string>
-    <string name="addon_configure_web_invalid">That doesn\'t look like an addon link.</string>
-    <string name="addon_configure_web_failed">Couldn\'t reach the TV. Is it still on the configure screen?</string>
+    <string name="addon_configure_web_invalid">That doesn’t look like an addon link.</string>
+    <string name="addon_configure_web_failed">Couldn’t reach the TV. Is it still on the configure screen?</string>
     <string name="addon_delete_confirm_title">Delete addon?</string>
     <string name="addon_delete_confirm_message">Are you sure you want to delete it?</string>
     <string name="addon_delete_no">No</string>
@@ -1564,7 +1564,7 @@
     <string name="filter_rows_edit">Edit</string>
     <string name="filter_rows_delete">Delete</string>
     <string name="filter_rows_save">Save</string>
-    <string name="filter_rows_save_failed">Couldn\'t save. Try again.</string>
+    <string name="filter_rows_save_failed">Couldn’t save. Try again.</string>
     <string name="filter_row_any">Any</string>
     <string name="filter_row_source">Source</string>
     <string name="filter_row_genre">Genre</string>
@@ -1585,7 +1585,7 @@
     <string name="filter_row_descending">Descending</string>
     <string name="filter_row_ascending">Ascending</string>
     <string name="filter_row_addon_note">Addon catalogs can only be filtered by genre.</string>
-    <string name="filter_row_source_missing">This row\'s source is no longer available.</string>
+    <string name="filter_row_source_missing">This row’s source is no longer available.</string>
     <string name="home_poster_pin_row">Pin this row to the top</string>
     <string name="home_poster_unpin_row">Unpin this row</string>
     <string name="catalog_order_unpin">Unpin</string>
@@ -1617,7 +1617,7 @@
     <string name="player_loading_buffering">Buffering…</string>
     <string name="player_engine_switching_title">Switching Player Engine</string>
     <string name="player_engine_switching_message">Startup failed. Switching to %1$s…</string>
-    <string name="player_engine_switching_manual_message">Switching to %1$s...</string>
+    <string name="player_engine_switching_manual_message">Switching to %1$s…</string>
     <string name="playback_show_loading_status">Show loading status</string>
     <string name="playback_show_loading_status_sub">Display step-by-step progress while the player is initializing.</string>
     <string name="player_sync_line">Sync Line</string>
@@ -1658,8 +1658,8 @@
     <string name="player_go_back">Go Back</string>
     <string name="player_switch_to_mpv">Switch to MPV Player</string>
     <string name="player_report_issue">Report Issue</string>
-    <string name="player_report_issue_sending">Sending playback report...</string>
-    <string name="player_report_issue_sending_button">Sending...</string>
+    <string name="player_report_issue_sending">Sending playback report…</string>
+    <string name="player_report_issue_sending_button">Sending…</string>
     <string name="player_report_issue_sent">Report sent: %1$s</string>
     <string name="player_report_issue_sent_button">Report Sent</string>
     <string name="player_report_issue_failed">Unable to send report</string>
@@ -1762,7 +1762,7 @@
     <string name="subtitle_style_off">Off</string>
     <string name="subtitle_style_weight">Weight</string>
 
-    <string name="pause_you_are_watching">You\'re watching</string>
+    <string name="pause_you_are_watching">You’re watching</string>
     <string name="pause_cast_label">Cast</string>
     <string name="pause_back_to_details">Back to details</string>
     <string name="pause_as_character">as %1$s</string>
@@ -1786,7 +1786,7 @@
     <string name="player_post_play_trailer_playing">Trailer playing</string>
     <string name="player_post_play_trailer">Trailer</string>
     <string name="next_episode_unaired">Unaired</string>
-    <string name="next_episode_not_aired_yet">Next episode hasn\'t aired yet</string>
+    <string name="next_episode_not_aired_yet">Next episode hasn’t aired yet</string>
     <string name="still_watching_title">Are you still watching?</string>
     <string name="still_watching_continue">Play</string>
     <string name="still_watching_exit">Exit</string>
@@ -1800,10 +1800,10 @@
     <string name="skip_recap">Skip Recap</string>
     <string name="skip_generic">Skip</string>
     <string name="skip_marker_reported">Reported the wrong marker. Thanks!</string>
-    <string name="skip_marker_report_failed">Couldn\'t report the marker</string>
+    <string name="skip_marker_report_failed">Couldn’t report the marker</string>
     <string name="skip_marker_start_recorded">Start marked. Press again where it ends.</string>
     <string name="skip_marker_submitted">Marker sent to IntroDB</string>
-    <string name="skip_marker_submit_failed">Couldn\'t send the marker to IntroDB</string>
+    <string name="skip_marker_submit_failed">Couldn’t send the marker to IntroDB</string>
     <string name="display_mode_refresh">Refresh</string>
     <string name="display_mode_resolution">Resolution</string>
 
@@ -1882,7 +1882,7 @@
     <string name="library_sort_released_asc">Released ↑</string>
     <string name="library_sort_title_asc">Title A-Z</string>
     <string name="library_sort_title_desc">Title Z-A</string>
-    <string name="library_error_sort_failed">Couldn\'t load sort order. Showing provider order.</string>
+    <string name="library_error_sort_failed">Couldn’t load sort order. Showing provider order.</string>
     <string name="library_manage_lists">Manage lists</string>
     <string name="library_no_lists">No personal lists yet.</string>
     <string name="library_list_create">Create</string>
@@ -2037,7 +2037,7 @@
     <string name="sync_claim_linking">Linking\u2026</string>
 
 
-    <string name="profile_selection_title">Who\'s watching?</string>
+    <string name="profile_selection_title">Who’s watching?</string>
     <string name="profile_selection_subtitle">Select a profile to continue</string>
     <string name="profile_selection_hint">Hold to manage profile</string>
     <string name="profile_selection_empty">No profiles found</string>
@@ -2096,7 +2096,7 @@
     <string name="account_unlink">Unlink</string>
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Loading episode ratings...</string>
+    <string name="ratings_loading">Loading episode ratings…</string>
     <string name="ratings_unavailable">Episode ratings are unavailable.</string>
     <string name="ratings_load_error">Unable to load episode ratings.</string>
     <string name="ratings_season_summary">Season %1$d - %2$d episodes</string>
@@ -2104,7 +2104,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Discover</string>
     <string name="discover_load_more">Load more</string>
-    <string name="discover_loading">Loading...</string>
+    <string name="discover_loading">Loading…</string>
     <string name="discover_filter_type">Type</string>
     <string name="discover_filter_catalog">Catalog</string>
     <string name="discover_filter_genre">Genre</string>
@@ -2182,11 +2182,11 @@
     <string name="trakt_error_list_not_found_or_private">Trakt list not found or not public</string>
     <string name="trakt_error_rate_limit_reached">Trakt rate limit reached</string>
     <string name="trakt_status_enter_activation_code">Enter code on trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Syncing...</string>
+    <string name="trakt_status_syncing">Syncing…</string>
     <string name="trakt_status_sync_completed">Sync completed</string>
     <string name="trakt_status_disconnected">Disconnected from Trakt</string>
     <string name="trakt_status_cw_window_updated">Continue watching window updated</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Rate limited, slowing down polling...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Rate limited, slowing down polling…</string>
     <string name="trakt_user_fallback">Trakt user</string>
     <string name="trakt_error_failed_start">Failed to start Trakt auth</string>
 
@@ -2269,7 +2269,7 @@
     <string name="collections_saved_downloads">Saved to Downloads</string>
     <string name="collections_export_failed">Export failed</string>
     <string name="collections_import_header">Import Collections</string>
-    <string name="collections_import_description">Import collections from JSON. Catalogs from addons you don\'t have installed will show a warning.</string>
+    <string name="collections_import_description">Import collections from JSON. Catalogs from addons you don’t have installed will show a warning.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
     <string name="collections_import_failed_fetch_http">Failed to fetch: HTTP %1$d</string>
     <string name="collections_import_failed_fetch_url">Failed to fetch URL: %1$s</string>
@@ -2453,7 +2453,7 @@
     <string name="collections_editor_tmdb_placeholder_network">213 for Netflix, 49 for HBO, 2739 for Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, or person URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
     <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 for Animation</string>
@@ -2490,9 +2490,9 @@
     <string name="collections_editor_placeholder_hero_video">Custom hero video URL (optional)</string>
     <string name="collections_editor_title_logo">Title Logo (Modern Home)</string>
     <string name="collections_editor_placeholder_title_logo">Custom title logo URL (optional)</string>
-    <string name="collections_editor_search_emoji_placeholder">Search emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filter active sources...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Search catalogs...</string>
+    <string name="collections_editor_search_emoji_placeholder">Search emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filter active sources…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Search catalogs…</string>
     <string name="collections_editor_genre_filter">Genre Filter</string>
     <string name="collections_editor_choose_genre">Choose</string>
     <string name="collections_editor_select_genre">Select genre</string>
@@ -2571,7 +2571,7 @@
     <string name="autoplay_regex_preset_no_remux_hdr">No REMUX/HDR</string>
 
     <!-- Playback settings sections -->
-    <string name="playback_player_internal_desc">Use Fetch\'s built-in player</string>
+    <string name="playback_player_internal_desc">Use Fetch’s built-in player</string>
 
     <!-- Player runtime: torrent overlay + tracks -->
     <string name="player_track_audio_fallback">Audio %1$d</string>
@@ -2728,13 +2728,13 @@
     <string name="ranking_max_size">Maximum file size</string>
     <string name="ranking_max_size_sub">Larger files are never auto-played</string>
     <string name="ranking_skip_dv5">Skip Dolby Vision profile 5</string>
-    <string name="ranking_skip_dv5_sub">Profile 5 has no HDR10 fallback. It is always skipped when this TV can\'t display it</string>
+    <string name="ranking_skip_dv5_sub">Profile 5 has no HDR10 fallback. It is always skipped when this TV can’t display it</string>
     <string name="ranking_prefer_cached">Prefer cached debrid results</string>
     <string name="ranking_prefer_cached_sub">Cached files start instantly</string>
     <string name="ranking_prefer_library">Prefer my own library</string>
     <string name="ranking_prefer_library_sub">A file on your Jellyfin, Emby or Plex server beats anything streamed</string>
     <string name="ranking_hide_cam">Never auto-play CAM or telesync</string>
-    <string name="ranking_drop_undecodable">Skip streams this device can\'t decode</string>
+    <string name="ranking_drop_undecodable">Skip streams this device can’t decode</string>
     <string name="ranking_drop_undecodable_sub">Based on the decoders, HDR formats and resolution this device reports</string>
     <string name="ranking_any">Any</string>
     <string name="ranking_no_limit">No limit</string>
@@ -2766,10 +2766,10 @@
     <string name="addon_health_failing">Last request failed</string>
     <string name="addon_health_timed_out">Last request timed out</string>
     <string name="addon_health_failed_in_a_row">Failed %1$d times in a row · consider disabling it</string>
-    <string name="addon_request_timed_out">%1$s didn\'t answer in time</string>
+    <string name="addon_request_timed_out">%1$s didn’t answer in time</string>
     <string name="addon_health_entry_title">Addon health</string>
     <string name="addon_health_entry_subtitle">Response times, failure rates and last errors</string>
-    <string name="addon_health_panel_subtitle">Over each addon\'s last %1$d requests for streams, catalogs and details</string>
+    <string name="addon_health_panel_subtitle">Over each addon’s last %1$d requests for streams, catalogs and details</string>
     <string name="addon_health_sort_label">Sort by</string>
     <string name="addon_health_sort_name">Name</string>
     <string name="addon_health_sort_latency">Response time</string>
@@ -2787,10 +2787,10 @@
     <string name="source_chip_timed_out">timed out</string>
     <string name="advanced_section_addons">Addons</string>
     <string name="advanced_addon_timeout">Addon timeout</string>
-    <string name="advanced_addon_timeout_subtitle">How long to wait for each addon\'s streams, catalogs and details before giving up on it</string>
+    <string name="advanced_addon_timeout_subtitle">How long to wait for each addon’s streams, catalogs and details before giving up on it</string>
     <string name="advanced_addon_timeout_value">%1$d s</string>
     <string name="advanced_addon_timeout_default">%1$d s (default)</string>
-    <string name="advanced_skip_slow_addons">Don\'t wait for slow addons</string>
+    <string name="advanced_skip_slow_addons">Don’t wait for slow addons</string>
     <string name="advanced_skip_slow_addons_subtitle">Give up on an addon after %1$d s. Results come faster, but slow addons may be left out.</string>
     <string name="account_local_only_note">Sync is off. Fetch keeps your addons, progress and settings on this TV and needs no account. To sync between devices, connect your own sync server from the server options.</string>
 
@@ -2861,7 +2861,7 @@
     <string name="playback_net_fetch_performance_mode_sub">Enable native off-heap allocator and scrubbing optimizations.</string>
     <string name="playback_net_fetch_performance_mode_not_supported">This feature is not supported by your device.</string>
     <string name="playback_buffer_custom">Custom Playback Buffers</string>
-    <string name="playback_buffer_custom_sub">Override Media3\'s default buffering with the values below. When off, the player uses Media3\'s stock buffer durations and target size.</string>
+    <string name="playback_buffer_custom_sub">Override Media3’s default buffering with the values below. When off, the player uses Media3’s stock buffer durations and target size.</string>
     <string name="playback_buffer_header">Buffer</string>
     <string name="playback_buffer_warning">These settings affect buffering behavior. Incorrect values may cause playback issues.</string>
     <string name="playback_buffer_min">Min Buffer Duration</string>
@@ -2877,9 +2877,9 @@
     <string name="playback_buffer_back_sub">How much already-played content to keep in memory. Enables fast backward seeking without re-downloading. Set to 0 to disable and save memory.</string>
     <string name="playback_buffer_back_reserve">Reserves ~%1$dMB on top of Target Buffer. Raising Max Buffer Duration shrinks this without losing back-buffer time.</string>
     <string name="playback_buffer_managed">Managed Memory Budget</string>
-    <string name="playback_buffer_managed_sub">Caps the buffer to a safe share of this device\'s memory. Turn off to set the Target Buffer Size yourself (advanced — large values can crash low-memory devices).</string>
+    <string name="playback_buffer_managed_sub">Caps the buffer to a safe share of this device’s memory. Turn off to set the Target Buffer Size yourself (advanced — large values can crash low-memory devices).</string>
     <string name="playback_buffer_target">Target Buffer Size</string>
-    <string name="playback_buffer_target_sub">Maximum RAM used for ahead-buffering. The maximum is calculated from your device\'s available memory (Android\'s per-app heap limit), so higher-RAM devices unlock larger caps automatically.</string>
+    <string name="playback_buffer_target_sub">Maximum RAM used for ahead-buffering. The maximum is calculated from your device’s available memory (Android’s per-app heap limit), so higher-RAM devices unlock larger caps automatically.</string>
     <string name="playback_buffer_target_managed_hint">Managed by the device memory budget. Turn off Managed Memory Budget to set this.</string>
     <string name="playback_buffer_target_warning">Warning: above device safe limit (%1$d MB). App may crash during playback.</string>
     <string name="playback_buffer_target_danger_warning">Danger: Above warning limit (%1$d MB). High crash risk.</string>
@@ -2974,12 +2974,12 @@
     <string name="stream_test_card_title">Run Last Played Stream Speed Test</string>
     <string name="stream_test_server_label">Server: %1$s</string>
     <string name="stream_test_no_stream">No playback recorded. Play a video to run diagnostic tests on its host.</string>
-    <string name="stream_test_btn_measuring_baseline">Measuring Baseline...</string>
-    <string name="stream_test_btn_measuring_parallel1">Measuring Parallel (1MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Measuring Parallel (4MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Measuring Parallel (8MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Measuring Parallel (16MB)...</string>
-    <string name="stream_test_btn_running">Running...</string>
+    <string name="stream_test_btn_measuring_baseline">Measuring Baseline…</string>
+    <string name="stream_test_btn_measuring_parallel1">Measuring Parallel (1MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Measuring Parallel (4MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Measuring Parallel (8MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Measuring Parallel (16MB)…</string>
+    <string name="stream_test_btn_running">Running…</string>
     <string name="stream_test_label_baseline">Standard Single Connection (Baseline)</string>
     <string name="stream_test_label_parallel1">Parallel Connect (1 MB Chunks)</string>
     <string name="stream_test_label_parallel4">Parallel Connect (4 MB Chunks)</string>
@@ -3020,29 +3020,29 @@
     <string name="autosync_tolerance_value">%1$d ms</string>
     <string name="autosync_thorough_title">Thorough Auto Sync Search</string>
     <string name="autosync_thorough_description">Keep comparing other subtitles and embedded tracks for a closer match before syncing. When off, the first strong match is used sooner. Only confident matches are ever applied.</string>
-    <string name="autosync_toast_failed">Sync failed: Auto Sync couldn\'t match this subtitle to the video.</string>
+    <string name="autosync_toast_failed">Sync failed: Auto Sync couldn’t match this subtitle to the video.</string>
     <string name="autosync_toast_failed_no_reference">Sync failed: this video has no embedded subtitles to compare with.</string>
-    <string name="autosync_toast_failed_unsupported">Sync failed: Auto Sync doesn\'t support this subtitle format.</string>
+    <string name="autosync_toast_failed_unsupported">Sync failed: Auto Sync doesn’t support this subtitle format.</string>
     <string name="autosync_label_synced">Auto synced</string>
     <!-- Parental controls -->
-    <string name="parental_title_blocked">This title is above this profile\'s rating limit.</string>
-    <string name="parental_addons_blocked">This profile can\'t install addons. Ask a parent.</string>
-    <string name="parental_gate_heading">Enter %1$s\'s PIN</string>
-    <string name="parental_gate_support">This profile has parental limits. A parent\'s PIN is needed to continue.</string>
-    <string name="parental_gate_open_support">%1$s has no PIN of its own, so a parent\'s PIN is needed to open it while another profile has parental limits.</string>
+    <string name="parental_title_blocked">This title is above this profile’s rating limit.</string>
+    <string name="parental_addons_blocked">This profile can’t install addons. Ask a parent.</string>
+    <string name="parental_gate_heading">Enter %1$s’s PIN</string>
+    <string name="parental_gate_support">This profile has parental limits. A parent’s PIN is needed to continue.</string>
+    <string name="parental_gate_open_support">%1$s has no PIN of its own, so a parent’s PIN is needed to open it while another profile has parental limits.</string>
     <string name="parental_lock_profiles_title">Lock profiles without limits</string>
-    <string name="parental_lock_profiles_subtitle">While a profile has parental limits, opening a profile with no limits and no PIN of its own needs %1$s\'s PIN.</string>
+    <string name="parental_lock_profiles_subtitle">While a profile has parental limits, opening a profile with no limits and no PIN of its own needs %1$s’s PIN.</string>
     <string name="parental_lock_profiles_needs_pin">Set a PIN on %1$s first.</string>
     <string name="parental_lock_profiles_offer_title">Lock the other profiles too?</string>
-    <string name="parental_lock_profiles_offer_subtitle">%1$s can open %2$s and skip every limit, since they have no PIN. Fetch can ask for %3$s\'s PIN to open them instead.</string>
-    <string name="parental_lock_profiles_offer_accept">Ask for %1$s\'s PIN</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s can open %2$s and skip every limit, since they have no PIN. Fetch can ask for %3$s’s PIN to open them instead.</string>
+    <string name="parental_lock_profiles_offer_accept">Ask for %1$s’s PIN</string>
     <string name="parental_limits_label">Parental limits</string>
     <string name="parental_limits_title">Parental limits for %1$s</string>
-    <string name="parental_limits_subtitle">Changes need the main profile\'s PIN. Titles above the limit are hidden from home, search and Continue Watching and can\'t be played.</string>
+    <string name="parental_limits_subtitle">Changes need the main profile’s PIN. Titles above the limit are hidden from home, search and Continue Watching and can’t be played.</string>
     <string name="parental_limits_subtitle_no_pin">Set a PIN on the main profile, or anyone on this profile can change these limits.</string>
     <string name="parental_limits_saved">Parental limits saved for %1$s</string>
-    <string name="parental_pin_nudge_title">Protect %1$s\'s limits</string>
-    <string name="parental_pin_nudge_subtitle">Set a PIN on %1$s. Without one, anyone can change %2$s\'s limits or switch to another profile.</string>
+    <string name="parental_pin_nudge_title">Protect %1$s’s limits</string>
+    <string name="parental_pin_nudge_subtitle">Set a PIN on %1$s. Without one, anyone can change %2$s’s limits or switch to another profile.</string>
     <string name="parental_pin_nudge_set">Set a PIN on %1$s</string>
     <string name="parental_pin_nudge_later">Not now</string>
     <string name="parental_kids_profile_toggle">Kids profile: %1$s</string>
@@ -3058,7 +3058,7 @@
     <string name="parental_level_unrestricted">No limit</string>
     <string name="parental_title_hide">Hide from %1$s</string>
     <string name="parental_title_limits">Parental limits for this title</string>
-    <string name="parental_title_dialog_subtitle">Choose how each profile treats this title. A hidden title is left out of that profile\'s rows, search, Continue Watching and autoplay, though a direct link still opens its page. An allowed one shows whatever its rating.</string>
+    <string name="parental_title_dialog_subtitle">Choose how each profile treats this title. A hidden title is left out of that profile’s rows, search, Continue Watching and autoplay, though a direct link still opens its page. An allowed one shows whatever its rating.</string>
     <string name="parental_title_state_rating">%1$s: rating limit decides</string>
     <string name="parental_title_state_hidden">%1$s: hidden</string>
     <string name="parental_title_state_allowed">%1$s: always allowed</string>
@@ -3069,20 +3069,20 @@
     <string name="kids_approved_only">Approved titles only: %1$s</string>
     <string name="kids_approved_movies">Movies for you</string>
     <string name="kids_approved_shows">Shows for you</string>
-    <string name="kids_approved_only_hint">Only always-allowed titles show on this profile. Allow a title from its poster\'s long-press menu on the main profile.</string>
+    <string name="kids_approved_only_hint">Only always-allowed titles show on this profile. Allow a title from its poster’s long-press menu on the main profile.</string>
     <string name="kids_daily_time">Daily screen time: %1$s</string>
     <string name="kids_bedtime">Bedtime: %1$s to %2$s</string>
     <string name="kids_bedtime_off">Bedtime: Off</string>
-    <string name="kids_at_limit_finish">At the limit: finish what\'s playing</string>
+    <string name="kids_at_limit_finish">At the limit: finish what’s playing</string>
     <string name="kids_at_limit_stop">At the limit: stop right away</string>
     <plurals name="kids_episodes">
         <item quantity="one">%1$d episode</item>
         <item quantity="other">%1$d episodes</item>
     </plurals>
     <string name="kids_minutes">%1$d min</string>
-    <string name="screen_time_title">That\'s all for today</string>
-    <string name="screen_time_daily">Today\'s screen time is used up. See you tomorrow!</string>
-    <string name="screen_time_bedtime">It\'s bedtime. See you tomorrow!</string>
+    <string name="screen_time_title">That’s all for today</string>
+    <string name="screen_time_daily">Today’s screen time is used up. See you tomorrow!</string>
+    <string name="screen_time_bedtime">It’s bedtime. See you tomorrow!</string>
     <string name="screen_time_choose">How much more time?</string>
     <string name="screen_time_ok">OK</string>
     <string name="screen_time_more">More time (parent)</string>
@@ -3092,7 +3092,7 @@
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
     <string name="ready_to_play">Ready to play</string>
     <string name="home_row_ready_tonight">Ready tonight</string>
-    <string name="ready_check_title">Check what\'s ready in the background</string>
+    <string name="ready_check_title">Check what’s ready in the background</string>
     <string name="autoplay_start_early_title">Start without waiting for every addon</string>
     <string name="autoplay_start_early_sub">Plays the best stream so far as soon as it reaches your preferred quality, and is cached when you prefer cached streams. A slower addon may have had a better one. Peer-to-peer torrents never start early.</string>
     <string name="ready_check_sub">On Wi-Fi or Ethernet, asks your addons about up to 6 titles from Continue Watching and your Watchlist, each at most every 12 hours, so Home can mark the ones that start instantly.</string>
@@ -3113,7 +3113,7 @@
     <!-- YouTube -->
     <string name="nav_youtube" translatable="false">YouTube</string>
     <string name="youtube_name" translatable="false">YouTube</string>
-    <string name="youtube_settings_subtitle">Sign in to watch your YouTube home feed, subscriptions and history. YouTube appears in the sidebar while you\'re signed in.</string>
+    <string name="youtube_settings_subtitle">Sign in to watch your YouTube home feed, subscriptions and history. YouTube appears in the sidebar while you’re signed in.</string>
     <string name="youtube_sign_in_title">Sign in to YouTube</string>
     <string name="youtube_sign_in_subtitle">Use the code shown on screen at youtube.com/activate</string>
     <string name="youtube_account_title">YouTube account</string>
@@ -3125,10 +3125,10 @@
     <string name="youtube_waiting_approval">Waiting for you to approve on YouTube…</string>
     <string name="youtube_error_code_expired">The code expired. Try again for a new one.</string>
     <string name="youtube_error_denied">Sign-in was cancelled on YouTube.</string>
-    <string name="youtube_error_start_failed">Couldn\'t reach YouTube to start sign-in.</string>
+    <string name="youtube_error_start_failed">Couldn’t reach YouTube to start sign-in.</string>
     <string name="youtube_signed_in_toast">Signed in to YouTube. Find it in the sidebar.</string>
     <string name="youtube_signed_out_status">Signed out of YouTube</string>
-    <string name="youtube_settings_note">Fetch signs in the way YouTube\'s TV app does. YouTube can change this without notice, and an account sign-in may not be allowed by YouTube\'s terms. Videos play without ads.</string>
+    <string name="youtube_settings_note">Fetch signs in the way YouTube’s TV app does. YouTube can change this without notice, and an account sign-in may not be allowed by YouTube’s terms. Videos play without ads.</string>
     <string name="cd_youtube_logo">YouTube logo</string>
     <string name="cd_youtube_qr">QR code for youtube.com/activate</string>
     <string name="youtube_tab_home">Home</string>
@@ -3140,8 +3140,8 @@
     <string name="youtube_feed_empty">Nothing to show here yet</string>
     <string name="youtube_search_empty">Search for a video, then press Enter</string>
     <string name="youtube_search_no_results">No videos match your search</string>
-    <string name="youtube_feed_error">Couldn\'t load YouTube. Check your connection and try again.</string>
-    <string name="youtube_signed_out_title">You\'re signed out of YouTube</string>
+    <string name="youtube_feed_error">Couldn’t load YouTube. Check your connection and try again.</string>
+    <string name="youtube_signed_out_title">You’re signed out of YouTube</string>
     <string name="youtube_signed_out_subtitle">Sign in again in Settings to see your feeds.</string>
     <string name="youtube_live">LIVE</string>
     <string name="youtube_view_all">View all</string>
@@ -3155,12 +3155,12 @@
     <string name="youtube_action_dislike">Dislike</string>
     <string name="youtube_action_subscribe">Subscribe</string>
     <string name="youtube_action_subscribed">Subscribed</string>
-    <string name="youtube_action_failed">YouTube didn\'t accept that. Try again.</string>
-    <string name="youtube_play_failed">This video can\'t be played</string>
+    <string name="youtube_action_failed">YouTube didn’t accept that. Try again.</string>
+    <string name="youtube_play_failed">This video can’t be played</string>
     <string name="youtube_switch_channel_hint">Select to switch channel</string>
     <string name="youtube_channel_picker_title">Choose a channel</string>
     <string name="youtube_channel_picker_subtitle">Your feeds, history and searches come from the channel you pick.</string>
-    <string name="youtube_channel_picker_failed">Couldn\'t load your channels. Check your connection and try again.</string>
+    <string name="youtube_channel_picker_failed">Couldn’t load your channels. Check your connection and try again.</string>
     <string name="youtube_channel_current">Current</string>
     <string name="youtube_sponsor_block_title">Skip sponsors</string>
     <string name="youtube_sponsor_block_subtitle">Skips sponsor spots, self-promotion and subscribe reminders that SponsorBlock users have marked</string>
@@ -3172,7 +3172,7 @@
     <string name="youtube_captions_hint">Press down for captions: %1$s</string>
     <string name="youtube_captions_auto">%1$s (auto-generated)</string>
     <string name="youtube_captions_translated">%1$s (auto-translated)</string>
-    <string name="youtube_captions_failed">These captions couldn\'t be loaded. Try another track.</string>
+    <string name="youtube_captions_failed">These captions couldn’t be loaded. Try another track.</string>
     <string name="youtube_up_next">Up next</string>
     <string name="youtube_up_next_select">Select a video to play</string>
     <string name="youtube_up_next_close">Close</string>
@@ -3181,11 +3181,11 @@
         <item quantity="other">Playing in %1$d seconds</item>
     </plurals>
     <string name="youtube_autoplay_title">Autoplay next video</string>
-    <string name="youtube_autoplay_subtitle">When a video ends, play YouTube\'s Up Next pick after a 10-second countdown</string>
+    <string name="youtube_autoplay_subtitle">When a video ends, play YouTube’s Up Next pick after a 10-second countdown</string>
     <string name="youtube_show_shorts_title">Show Shorts</string>
     <string name="youtube_show_shorts_subtitle">Include Shorts in your feeds, search results and Up Next</string>
     <string name="youtube_show_live_title">Show live streams</string>
     <string name="youtube_show_live_subtitle">Include streams that are live now in your feeds, search results and Up Next</string>
     <string name="youtube_hide_watched_title">Hide watched videos</string>
-    <string name="youtube_hide_watched_subtitle">Leave out videos you\'ve watched to the end. History still lists them</string>
+    <string name="youtube_hide_watched_subtitle">Leave out videos you’ve watched to the end. History still lists them</string>
 </resources>

@@ -316,7 +316,8 @@ private fun ServerTrustConfirmationDialog(
         title = stringResource(R.string.custom_server_review_title),
         subtitle = stringResource(R.string.custom_server_review_description),
         width = 620.dp,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         ServerDetailRow(
             icon = Icons.Default.CheckCircle,

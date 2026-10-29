@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
@@ -97,7 +98,7 @@ internal fun SettingsSectionLabel(
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
     ) {
         Text(
-            text = text.uppercase(),
+            text = text.uppercase(LocalConfiguration.current.locales[0]),
             style = MaterialTheme.typography.labelMedium,
             letterSpacing = 1.2.sp,
             color = FetchTheme.colors.TextTertiary
@@ -141,7 +142,7 @@ internal fun SettingsNote(
 internal fun SettingsRailHeading(text: String, first: Boolean) {
     // Not focusable: it names the category, and only its entries can be picked.
     Text(
-        text = text.uppercase(),
+        text = text.uppercase(LocalConfiguration.current.locales[0]),
         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
         color = FetchTheme.colors.TextTertiary,
         maxLines = 1,

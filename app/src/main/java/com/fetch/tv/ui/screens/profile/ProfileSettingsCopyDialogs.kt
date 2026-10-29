@@ -63,7 +63,8 @@ internal fun ProfileSettingsSourceDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.profile_copy_settings_setup_title),
         subtitle = stringResource(R.string.profile_copy_settings_setup_subtitle),
-        width = 520.dp
+        width = 520.dp,
+        scrollable = true
     ) {
         LazyColumn(
             modifier = Modifier
@@ -175,7 +176,8 @@ internal fun CopyProfileSettingsDialog(
         onDismiss = { if (!isCopying) onDismiss() },
         title = stringResource(R.string.profile_copy_settings_title, targetProfile.name),
         subtitle = stringResource(R.string.profile_copy_settings_subtitle),
-        width = 560.dp
+        width = 560.dp,
+        scrollable = true
     ) {
         Text(
             text = stringResource(R.string.profile_copy_settings_from),

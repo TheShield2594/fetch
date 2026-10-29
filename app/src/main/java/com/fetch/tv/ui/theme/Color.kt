@@ -70,9 +70,6 @@ data class FetchStatusColors(
     val warning: Color,
     val success: Color,
     val info: Color,
-    val watched: Color,
-    val unwatched: Color,
-    val cached: Color,
     val torrent: Color,
     val premium: Color
 )
@@ -158,9 +155,6 @@ class FetchColorScheme(
     val Warning = FetchPrimitives.warning
     val Success = FetchPrimitives.success
     val Info = FetchPrimitives.info
-    val Watched = FetchPrimitives.success
-    val Unwatched = FetchPrimitives.neutral600
-    val Cached = FetchPrimitives.blue300
     val Torrent = FetchPrimitives.torrent
     val Premium = FetchPrimitives.premium
 
@@ -240,9 +234,6 @@ class FetchColorScheme(
         warning = Warning,
         success = Success,
         info = Info,
-        watched = Watched,
-        unwatched = Unwatched,
-        cached = Cached,
         torrent = Torrent,
         premium = Premium
     )

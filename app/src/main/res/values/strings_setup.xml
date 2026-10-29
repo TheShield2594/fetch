@@ -14,17 +14,17 @@
     <string name="first_run_server_body">A self-hosted Fetch website keeps profiles, parental limits, collections and watch history in sync across your TVs. No server? Skip this and Fetch works on this TV on its own.</string>
 
     <string name="first_run_sources_title">Add something to watch</string>
-    <string name="first_run_sources_step_addons">Open Addons and paste a stream addon\'s link</string>
+    <string name="first_run_sources_step_addons">Open Addons and paste a stream addon’s link</string>
     <string name="first_run_sources_step_confirm">Confirm it here on the TV</string>
     <string name="first_run_sources_stream_addons">Stream addons</string>
     <plurals name="first_run_sources_stream_count">
         <item quantity="one">%d installed</item>
         <item quantity="other">%d installed</item>
     </plurals>
-    <string name="first_run_sources_stream_none">None yet. Movies and shows will list, but won\'t play.</string>
+    <string name="first_run_sources_stream_none">None yet. Movies and shows will list, but won’t play.</string>
     <string name="first_run_sources_media_servers">Media servers</string>
     <string name="first_run_sources_media_servers_none">None yet. Jellyfin and Emby connect on the phone under Accounts; Plex later in Settings on the TV.</string>
-    <string name="first_run_sources_debrid">Real-Debrid, Premiumize and TorBox sign in on a stream addon\'s own setup page, which the phone opens for you when the addon has one.</string>
+    <string name="first_run_sources_debrid">Real-Debrid, Premiumize and TorBox sign in on a stream addon’s own setup page, which the phone opens for you when the addon has one.</string>
 
     <string name="first_run_metadata_title">Ratings and tracking</string>
     <string name="first_run_metadata_step_accounts">Open Accounts</string>

@@ -48,9 +48,10 @@ internal fun MdbListLibraryListsDialog(
     ) {
         when {
             hasLists -> LazyColumn(
+                // Leaves room under FetchDialog's 492dp cap for the error text below the list at 1.3x text.
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 380.dp),
+                    .heightIn(max = 260.dp),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
                 contentPadding = PaddingValues(vertical = FetchTheme.spacing.xs)
             ) {

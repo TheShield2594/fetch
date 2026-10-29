@@ -373,7 +373,8 @@ private fun ChoiceDialog(title: String, loading: Boolean, choices: List<Choice>,
         }
         LazyColumn(
             state = listState,
-            modifier = Modifier.heightIn(max = 420.dp),
+            // Fits under FetchDialog's 492dp cap with the padding and title at 1.3x text.
+            modifier = Modifier.heightIn(max = 380.dp),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
         ) {
             items(choices.size) { index ->

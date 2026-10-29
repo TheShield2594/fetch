@@ -67,7 +67,8 @@ internal fun ServerSignInDialog(
         onDismiss = { if (!state.connecting) onDismiss() },
         title = stringResource(R.string.servers_sign_in_title, provider.displayName),
         subtitle = stringResource(R.string.servers_sign_in_subtitle, provider.displayName),
-        width = 640.dp
+        width = 640.dp,
+        scrollable = true
     ) {
         SignInField(label = stringResource(R.string.servers_address)) {
             InputField(

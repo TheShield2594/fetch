@@ -736,7 +736,7 @@ private fun YouTubeVideoMenu(
         containerColor = FetchTheme.colors.BackgroundCard,
         contentColor = FetchTheme.colors.TextPrimary
     )
-    FetchDialog(onDismiss = onDismiss, title = video.title, subtitle = video.channelName) {
+    FetchDialog(onDismiss = onDismiss, title = video.title, subtitle = video.channelName, scrollable = true) {
         Button(
             onClick = onPlay,
             colors = buttonColors,

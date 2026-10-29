@@ -104,6 +104,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalConfiguration
 import com.fetch.tv.R
 import com.fetch.tv.ui.theme.FetchStatusTones
 
@@ -309,11 +310,11 @@ fun LibraryScreen(
                 )
                 Text(
                     text = when {
-                        viewMode == LibraryViewMode.Servers -> stringResource(R.string.library_source_servers).uppercase()
+                        viewMode == LibraryViewMode.Servers -> stringResource(R.string.library_source_servers).uppercase(LocalConfiguration.current.locales[0])
                         uiState.sourceMode == LibrarySourceMode.TRAKT -> "TRAKT"
                         uiState.sourceMode == LibrarySourceMode.SIMKL -> "SIMKL"
                         uiState.sourceMode == LibrarySourceMode.MDBLIST -> "MDBLIST"
-                        uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name).uppercase()
+                        uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name).uppercase(LocalConfiguration.current.locales[0])
                         uiState.isFetchAccount -> "FETCH"
                         else -> stringResource(R.string.library_source_local)
                     },

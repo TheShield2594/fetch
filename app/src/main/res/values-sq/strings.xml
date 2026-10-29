@@ -1357,7 +1357,6 @@
     <string name="library_list_description_label">Përshkrimi</string>
     <string name="library_list_privacy">Privatësia</string>
     <string name="library_delete_title">Të fshihet kjo listë?</string>
-    <string name="library_delete_subtitle">Kjo heq listën dhe të gjithë artikujt e saj nga Trakt.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Ruajtur</string>
     <string name="library_watchlist">Lista e shikimit</string>

@@ -1083,7 +1083,6 @@
     <string name="library_list_description_label">Описание</string>
     <string name="library_list_privacy">Приватность</string>
     <string name="library_delete_title">Удалить этот список?</string>
-    <string name="library_delete_subtitle">Это удалит список и все его элементы из Trakt.</string>
     <string name="library_source_local">ЛОКАЛЬНО</string>
     <string name="library_syncing_library">Синхронизация библиотеки\u2026</string>
     <string name="library_type_all">Все</string>

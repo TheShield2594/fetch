@@ -193,10 +193,7 @@ internal fun ManageListsDialog(
                     Button(
                         onClick = onDelete,
                         enabled = !pending && selectedKey != null,
-                        colors = ButtonDefaults.colors(
-                            containerColor = FetchStatusTones.errorContainer,
-                            contentColor = FetchTheme.colors.TextPrimary
-                        )
+                        colors = destructiveButtonColors()
                     ) {
                         // Name the list Delete acts on, so the target is never ambiguous.
                         val selectedTitle = personalTabs.firstOrNull { it.key == selectedKey }?.localizedTitle()
@@ -408,3 +405,17 @@ internal fun SelectedCheckmark() {
     )
     Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
 }
+
+/**
+ * Colors for a destructive Library button. The focused pair is set too: without it, focus fell back
+ * to the library's white fill and the danger color vanished exactly when the button was about to
+ * be pressed.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+internal fun destructiveButtonColors() = ButtonDefaults.colors(
+    containerColor = FetchStatusTones.errorContainer,
+    contentColor = FetchTheme.colors.TextPrimary,
+    focusedContainerColor = FetchTheme.colors.Error,
+    focusedContentColor = FetchTheme.colors.OnHighlight
+)

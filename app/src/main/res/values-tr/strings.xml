@@ -1673,7 +1673,6 @@
     <string name="library_list_description_label">Açıklama</string>
     <string name="library_list_privacy">Gizlilik</string>
     <string name="library_delete_title">Listeyi silmek istediğinizden emin misiniz?</string>
-    <string name="library_delete_subtitle">Bu işlem listeyi ve içindeki tüm öğeleri Trakt hesabınızdan kaldırır.</string>
     <string name="library_source_local">YEREL</string>
     <string name="library_source_saved">Kaydedildi</string>
     <string name="library_watchlist">İzleme Listesi</string>

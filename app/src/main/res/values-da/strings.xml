@@ -1302,7 +1302,6 @@
     <string name="library_list_description_label">Beskrivelse</string>
     <string name="library_list_privacy">Privatliv</string>
     <string name="library_delete_title">Slet denne liste?</string>
-    <string name="library_delete_subtitle">Dette fjerner listen og alle listeelementer fra Trakt.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Gemt</string>
     <string name="library_watchlist">Seerliste</string>

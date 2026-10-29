@@ -695,7 +695,6 @@
     <string name="library_list_description_label">विवरण</string>
     <string name="library_list_privacy">गोपनीयता</string>
     <string name="library_delete_title">क्या इस लिस्ट को हटाएँ?</string>
-    <string name="library_delete_subtitle">यह लिस्ट और उसके सभी आइटम Trakt से हटा देगा।</string>
     <string name="library_source_local">लोकल</string>
     <string name="library_type_all">सभी</string>
     <string name="library_empty_local_title">अभी कोई %1$s नहीं</string>

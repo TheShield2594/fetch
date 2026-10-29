@@ -1897,7 +1897,9 @@
     <string name="library_list_description_label">Description</string>
     <string name="library_list_privacy">Privacy</string>
     <string name="library_delete_title">Delete this list?</string>
-    <string name="library_delete_subtitle">This removes the list and all list items from Trakt.</string>
+    <string name="library_delete_title_named">Delete “%1$s”?</string>
+    <string name="library_delete_subtitle_provider">This removes the list and its items from %1$s. This can’t be undone.</string>
+    <string name="library_delete_subtitle_local">This removes the list and its items from your library. This can’t be undone.</string>
     <string name="library_source_local">LOCAL</string>
     <string name="library_source_saved">Saved</string>
     <string name="library_watchlist">Watchlist</string>

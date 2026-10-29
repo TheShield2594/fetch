@@ -1582,7 +1582,6 @@
     <string name="library_list_description_label">描述</string>
     <string name="library_list_privacy">隐私</string>
     <string name="library_delete_title">删除此列表？</string>
-    <string name="library_delete_subtitle">这将从 Trakt 移除该列表及其所有项目。</string>
     <string name="library_source_local">本地</string>
     <string name="library_source_saved">已保存</string>
     <string name="library_watchlist">观看列表</string>

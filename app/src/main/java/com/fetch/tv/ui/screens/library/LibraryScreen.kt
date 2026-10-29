@@ -110,7 +110,6 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.platform.LocalConfiguration
 import com.fetch.tv.R
-import com.fetch.tv.ui.theme.FetchStatusTones
 
 private const val KEY_REPEAT_THROTTLE_MS = 80L
 
@@ -520,6 +519,8 @@ fun LibraryScreen(
 
     if (showDeleteConfirm && uiState.showManageDialog) {
         ConfirmDeleteDialog(
+            listTitle = uiState.listTabs.firstOrNull { it.key == uiState.manageSelectedListKey }?.localizedTitle(),
+            sourceMode = uiState.sourceMode,
             pending = uiState.pendingOperation,
             onConfirm = {
                 showDeleteConfirm = false
@@ -1018,26 +1019,64 @@ private fun LibraryActionsRow(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ConfirmDeleteDialog(
+    listTitle: String?,
+    sourceMode: LibrarySourceMode,
     pending: Boolean,
     onConfirm: () -> Unit,
     onCancel: () -> Unit
 ) {
+    val cancelFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        runCatching { cancelFocusRequester.requestFocus() }
+    }
+    // Name the service the list is really deleted from; this used to say Trakt for every provider.
+    val providerName = when (sourceMode) {
+        LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
+        LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
+        LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
+        LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
+        LibrarySourceMode.LOCAL -> null
+    }
     FetchDialog(
         onDismiss = onCancel,
-        title = stringResource(R.string.library_delete_title),
-        subtitle = stringResource(R.string.library_delete_subtitle),
+        title = if (listTitle != null) {
+            stringResource(R.string.library_delete_title_named, listTitle)
+        } else {
+            stringResource(R.string.library_delete_title)
+        },
+        subtitle = if (providerName != null) {
+            stringResource(R.string.library_delete_subtitle_provider, providerName)
+        } else {
+            stringResource(R.string.library_delete_subtitle_local)
+        },
         width = 420.dp
     ) {
-        Button(
-            onClick = onConfirm,
-            enabled = !pending,
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = FetchStatusTones.errorContainer,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            Text(stringResource(R.string.library_list_delete))
+            // Cancel first and focused, so one stray OK press can't delete the list.
+            Button(
+                onClick = onCancel,
+                enabled = !pending,
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(cancelFocusRequester),
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(stringResource(R.string.action_cancel))
+            }
+            Button(
+                onClick = onConfirm,
+                enabled = !pending,
+                modifier = Modifier.weight(1f),
+                colors = destructiveButtonColors()
+            ) {
+                Text(stringResource(R.string.library_list_delete))
+            }
         }
     }
 }

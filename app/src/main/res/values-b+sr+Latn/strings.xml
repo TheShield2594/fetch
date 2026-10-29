@@ -1528,7 +1528,6 @@
     <string name="library_list_description_label">Opis</string>
     <string name="library_list_privacy">Privatnost</string>
     <string name="library_delete_title">Obrisati ovu listu?</string>
-    <string name="library_delete_subtitle">Ovo uklanja listu i sve stavke u njoj sa Trakt-a.</string>
     <string name="library_source_local">LOKALNO</string>
     <string name="library_source_saved">Sačuvano</string>
     <string name="library_watchlist">Lista za gledanje</string>

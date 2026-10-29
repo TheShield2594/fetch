@@ -1623,7 +1623,6 @@
     <string name="library_list_description_label">Opis</string>
     <string name="library_list_privacy">Privatnost</string>
     <string name="library_delete_title">Izbrisati ovaj popis?</string>
-    <string name="library_delete_subtitle">Ovo uklanja popis i sve njegove stavke s Trakta.</string>
     <string name="library_source_local">LOKALNO</string>
     <string name="library_source_saved">Spremljeno</string>
     <string name="library_watchlist">Popis za gledanje</string>

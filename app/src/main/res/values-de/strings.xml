@@ -1238,7 +1238,6 @@
     <string name="library_list_description_label">Beschreibung</string>
     <string name="library_list_privacy">Datenschutz</string>
     <string name="library_delete_title">Diese Liste löschen?</string>
-    <string name="library_delete_subtitle">Dadurch werden die Liste und alle Listenelemente aus Trakt entfernt.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_watchlist">Watchlist</string>
     <string name="library_syncing_library">Synchronisiere Bibliothek\u2026</string>

@@ -692,7 +692,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="library_list_description_label">Aprašymas</string>
     <string name="library_list_privacy">Privatumas</string>
     <string name="library_delete_title">Ištrinti šį sąrašą?</string>
-    <string name="library_delete_subtitle">Tai pašalins sąrašą ir visus jo elementus iš „Trakt“.</string>
     <string name="library_source_local">VIETINĖ</string>
     <string name="library_type_all">Visi</string>
     <string name="library_empty_local_title">Kol kas nėra %1$s</string>

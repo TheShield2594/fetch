@@ -1253,7 +1253,6 @@
     <string name="library_list_description_label">Deskripsi</string>
     <string name="library_list_privacy">Privasi</string>
     <string name="library_delete_title">Hapus daftar ini?</string>
-    <string name="library_delete_subtitle">Ini menghapus daftar dan semua item daftar dari Trakt.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Tersimpan</string>
     <string name="library_watchlist">Daftar Tonton</string>

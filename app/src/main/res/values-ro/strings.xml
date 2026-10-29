@@ -567,7 +567,6 @@
     <string name="library_list_description_label">Descriere</string>
     <string name="library_list_privacy">Confidențialitate</string>
     <string name="library_delete_title">Ștergi această listă?</string>
-    <string name="library_delete_subtitle">Aceasta elimină lista și toate elementele din listă de pe Trakt.</string>
     <string name="library_source_local">LOCAL</string>
     <string name="library_type_all">Toate</string>
     <string name="library_empty_local_title">Încă nu există %1$s</string>

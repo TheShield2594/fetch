@@ -1295,7 +1295,6 @@
     <string name="library_list_description_label">Описание</string>
     <string name="library_list_privacy">Поверителност</string>
     <string name="library_delete_title">Изтрий този списък?</string>
-    <string name="library_delete_subtitle">Това ще премахне списъка и всички елементи от него от Trakt.</string>
     <string name="library_source_local">ЛОКАЛНО</string>
     <string name="library_source_saved">Запазено</string>
     <string name="library_watchlist">Списък за гледане</string>

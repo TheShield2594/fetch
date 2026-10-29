@@ -1501,7 +1501,6 @@
     <string name="library_list_description_label">Beschrijving</string>
     <string name="library_list_privacy">Privacy</string>
     <string name="library_delete_title">Deze lijst verwijderen?</string>
-    <string name="library_delete_subtitle">Dit verwijdert de lijst en alle items uit Trakt.</string>
     <string name="library_source_local">LOKAAL</string>
     <string name="library_source_saved">Opgeslagen</string>
     <string name="library_watchlist">Kijklijst</string>

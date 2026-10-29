@@ -77,6 +77,7 @@ import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.theme.ThemeColors
 import com.fetch.tv.ui.theme.accentBrush
 import com.fetch.tv.ui.theme.getFontFamily
+import com.fetch.tv.ui.theme.themeStyle
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -464,6 +465,16 @@ private fun ThemeSwatchChip(
                         modifier = Modifier.size(20.dp)
                     )
                 }
+                // A theme's signal colour, shown as the dot it will appear as.
+                theme.themeStyle().signal?.let { signal ->
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(FetchTheme.spacing.xs)
+                            .size(8.dp)
+                            .background(signal, CircleShape)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
@@ -493,5 +504,6 @@ private fun AppTheme.localizedName(): String = when (this) {
     AppTheme.AMBER -> stringResource(R.string.theme_color_amber)
     AppTheme.ROSE -> stringResource(R.string.theme_color_rose)
     AppTheme.WHITE -> stringResource(R.string.theme_color_white)
+    AppTheme.SIGNAL -> stringResource(R.string.theme_color_signal)
     AppTheme.FETCH -> stringResource(R.string.theme_color_fetch)
 }

@@ -348,6 +348,7 @@
     <string name="theme_color_amber">Amber</string>
     <string name="theme_color_rose">Rose</string>
     <string name="theme_color_white">White</string>
+    <string name="theme_color_signal">Signal</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="best_match_cached">Cached</string>
     <string name="prefer_next_time_title">Prefer this next time?</string>

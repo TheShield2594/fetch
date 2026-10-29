@@ -1038,7 +1038,7 @@ private fun EpisodeCard(
                             end = cardMetrics.contentPadding,
                             bottom = cardMetrics.contentPadding * 0.5f
                         )
-                        .fetchCardProgress(progressPercent, progressColor)
+                        .fetchCardProgress(progressPercent, progressColor, dots = FetchTheme.style.dotMatrix)
                 )
             }
 

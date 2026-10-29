@@ -7,6 +7,7 @@ import com.fetch.tv.ui.components.offersPlayLaunchOrigin
 import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.components.dotProgress
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -802,22 +803,33 @@ private fun HeroResumeRow(
     }
 }
 
-/** The Fetch line: a thin track with the watched part in the accent. Drawn, not laid out. */
+/**
+ * The Fetch line: a thin track with the watched part in the accent, or a row of dots in the
+ * Signal theme. Drawn, not laid out.
+ */
 @Composable
 private fun HeroProgressLine(fraction: Float, color: Color) {
     val track = FetchTheme.colors.TextPrimary.copy(alpha = 0.16f)
     val clamped = fraction.coerceIn(0f, 1f)
+    val dots = FetchTheme.style.dotMatrix
     Box(
         modifier = Modifier
             // The card and hero text only say the time left; this announces how much is watched.
             .semantics { progressBarRangeInfo = ProgressBarRangeInfo(clamped, 0f..1f) }
             .width(HERO_PROGRESS_LINE_WIDTH)
             .height(FetchTheme.spacing.xs)
-            .clip(CircleShape)
-            .drawBehind {
-                drawRect(track)
-                drawRect(color, size = size.copy(width = size.width * clamped))
-            }
+            .then(
+                if (dots) {
+                    Modifier.dotProgress(clamped, color, track)
+                } else {
+                    Modifier
+                        .clip(CircleShape)
+                        .drawBehind {
+                            drawRect(track)
+                            drawRect(color, size = size.copy(width = size.width * clamped))
+                        }
+                }
+            )
     )
 }
 

@@ -62,6 +62,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.fetch.tv.domain.model.AppTheme
+import com.fetch.tv.domain.model.DEFAULT_APP_THEME
 import com.fetch.tv.domain.model.NextToWatch
 import com.fetch.tv.ui.screens.detail.HeroContentSection
 import com.fetch.tv.ui.screens.home.HomeRow
@@ -214,7 +216,10 @@ class ReadmeScreenshots {
     }
 
     @Test
-    fun detail() = render("detail") {
+    fun detail() = render("detail") { SampleDetail() }
+
+    @Composable
+    private fun SampleDetail() {
         val meta = Samples.detailMeta
         Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
             AsyncImage(
@@ -271,8 +276,21 @@ class ReadmeScreenshots {
         }
     }
 
+    // The Signal theme: the same screens in monochrome and dots (written next to the README ones).
     @Test
-    fun fetchingPanel() = render("fetching") {
+    fun signalHome() = render("signal-home", appTheme = AppTheme.SIGNAL) { SampleHome() }
+
+    @Test
+    fun signalFetching() = render("signal-fetching", appTheme = AppTheme.SIGNAL) { SampleFetching() }
+
+    @Test
+    fun signalDetail() = render("signal-detail", appTheme = AppTheme.SIGNAL) { SampleDetail() }
+
+    @Test
+    fun fetchingPanel() = render("fetching") { SampleFetching() }
+
+    @Composable
+    private fun SampleFetching() {
         val meta = Samples.detailMeta
         Box(
             modifier = Modifier
@@ -398,9 +416,10 @@ class ReadmeScreenshots {
         name: String,
         focusFirst: Boolean = true,
         focusOn: String? = null,
+        appTheme: AppTheme = DEFAULT_APP_THEME,
         content: @Composable () -> Unit
     ) {
-        compose.setContent { FetchTheme { content() } }
+        compose.setContent { FetchTheme(appTheme = appTheme) { content() } }
         // Let images load and enter animations settle before drawing.
         repeat(6) {
             compose.mainClock.advanceTimeBy(1_000)

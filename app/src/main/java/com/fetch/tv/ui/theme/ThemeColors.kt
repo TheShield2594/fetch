@@ -163,6 +163,28 @@ object ThemeColors {
         backgroundCard = FetchPrimitives.neutral850
     )
 
+    /**
+     * Signal: a monochrome, dot-matrix look. True black, white for the main action, and no
+     * coloured accent at all; the one colour, a red, lives in [FetchThemeStyle.signal] and only
+     * ever marks state.
+     */
+    val Signal = ThemeColorPalette(
+        secondary = Color(0xFFF2F2F2),
+        secondaryVariant = Color(0xFFD9D9D9),
+        onSecondary = Color(0xFF000000),
+        onSecondaryVariant = Color(0xFF000000),
+        focusBackground = Color(0xFF262626),
+        background = Color(0xFF000000),
+        backgroundElevated = Color(0xFF0B0B0B),
+        backgroundCard = Color(0xFF111111),
+        surface = Color(0xFF141414),
+        surfaceVariant = Color(0xFF1C1C1C),
+        panel = Color(0xFF0B0B0B),
+        field = Color(0xFF141414),
+        menu = Color(0xFF141414),
+        modal = Color(0xFF0B0B0B)
+    )
+
     fun getColorPalette(
         theme: AppTheme,
         customColors: CustomThemeColors = CustomThemeColors.Default
@@ -181,6 +203,7 @@ object ThemeColors {
             AppTheme.AMBER -> Amber
             AppTheme.ROSE -> Rose
             AppTheme.WHITE -> White
+            AppTheme.SIGNAL -> Signal
             AppTheme.FETCH -> Fetch
         }
     }

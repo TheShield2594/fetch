@@ -178,9 +178,6 @@
     <string name="action_see_all">查看全部</string>
     <string name="action_load_more">加载更多</string>
 
-    <string name="hero_creator">创作者：%1$s</string>
-    <string name="hero_director">导演：%1$s</string>
-    <string name="hero_writer">编剧：%1$s</string>
     <string name="hero_play">播放</string>
     <string name="hero_add_to_library">加入媒体库</string>
     <string name="hero_remove_from_library">从媒体库移除</string>
@@ -2826,7 +2823,6 @@
     <string name="because_you_watched_reason_creator">同一创作者：%1$s</string>
     <string name="because_you_watched_reason_writer">同一编剧：%1$s</string>
     <string name="because_you_watched_reason_cast">同一演员：%1$s</string>
-    <string name="ready_to_play">可立即播放</string>
     <string name="home_row_ready_tonight">今晚可看</string>
     <string name="ready_check_title">在后台检查哪些可以立即播放</string>
     <string name="ready_check_sub">在 Wi-Fi 或以太网下，向插件查询“继续观看”和观看列表中最多 6 部作品，每部最多每 12 小时一次，以便主页标出可以立即播放的内容。</string>

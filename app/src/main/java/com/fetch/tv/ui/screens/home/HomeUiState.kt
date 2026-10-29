@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import androidx.compose.runtime.Immutable
 import com.fetch.tv.core.tracking.TrackingMembershipRemovalConfirmation
 import com.fetch.tv.core.tracking.usesLibraryListPicker
@@ -50,7 +51,7 @@ data class HomeUiState(
         FocusedPosterTrailerPlaybackTarget.HERO_MEDIA,
     val posterCardWidthDp: Int = 126,
     val posterCardHeightDp: Int = 189,
-    val posterCardCornerRadiusDp: Int = 8,
+    val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val librarySourceMode: LibrarySourceMode = LibrarySourceMode.LOCAL,
     val libraryListTabs: List<LibraryListTab> = emptyList(),
     val posterLibraryMembership: Map<String, Boolean> = emptyMap(),

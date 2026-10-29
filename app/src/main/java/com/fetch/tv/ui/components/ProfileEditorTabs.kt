@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.components
 
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -93,7 +92,7 @@ private fun ProfileEditorTabItem(
         animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileEditorTabText"
     )
-    val shape = RoundedCornerShape(FetchRadii.tokens.xl)
+    val shape = RoundedCornerShape(FetchTheme.radii.xl)
 
     Text(
         text = label,

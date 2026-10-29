@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { AlertCircle, ArrowRight, Loader2, Lock, Plus, X } from "lucide-react";
 import { api, ApiError, type Profile, runtimeConfig } from "../api";
-import { BRAND_WORDMARK, BrandLockup, BrandMark } from "../components/BrandMark";
+import { BrandLockup, BrandMark, BrandWordmark } from "../components/BrandMark";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { useExitAnimation } from "../hooks/useExitAnimation";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -43,7 +43,7 @@ function Shell({ children, onClose }: { children: React.ReactNode; onClose?: (()
         >
           <div className="flex items-center justify-center gap-2.5">
             <BrandMark className="h-10 w-10 flex-none" />
-            <span className={`text-2xl ${BRAND_WORDMARK}`} style={{ color: "var(--text)" }}>Fetch</span>
+            <BrandWordmark className="h-5 w-auto" style={{ color: "var(--text)" }} />
           </div>
 
           <div className="glass-surface relative rounded-3xl border p-6 shadow-e3" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>

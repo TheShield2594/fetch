@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.account
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -46,7 +45,7 @@ fun AuthSignInScreen(
                 .fillMaxWidth(0.5f)
                 .background(
                     color = FetchTheme.colors.BackgroundElevated,
-                    shape = RoundedCornerShape(FetchRadii.tokens.xl)
+                    shape = RoundedCornerShape(FetchTheme.radii.xl)
                 )
                 .padding(FetchTheme.spacing.xxl),
             horizontalAlignment = Alignment.CenterHorizontally

@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -193,9 +192,9 @@ internal fun CustomThemeEditor(
                         containerColor = FetchTheme.colors.Background,
                         focusedContainerColor = FetchTheme.colors.Background
                     ),
-                    shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
+                    shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
                     border = CardDefaults.border(
-                        focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = RoundedCornerShape(FetchRadii.tokens.sm))
+                        focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = RoundedCornerShape(FetchTheme.radii.sm))
                     ),
                     scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
                 ) {
@@ -278,7 +277,7 @@ private fun ThemeColorSlot(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(FetchRadii.tokens.md)
+    val shape = RoundedCornerShape(FetchTheme.radii.md)
     val label = stringResource(R.string.custom_theme_color_number, index + 1)
     Card(
         onClick = onClick,
@@ -316,10 +315,10 @@ private fun ThemeColorSlot(
 private fun CustomThemeSample(colors: CustomThemeColors, modifier: Modifier = Modifier) {
     val palette = remember(colors) { colors.toColorPalette() }
     val brush = palette.accentBrush()
-    val sampleShape = RoundedCornerShape(FetchRadii.tokens.md)
+    val sampleShape = RoundedCornerShape(FetchTheme.radii.md)
     Column(
         modifier = modifier
-            .background(palette.background, RoundedCornerShape(FetchRadii.tokens.xl))
+            .background(palette.background, RoundedCornerShape(FetchTheme.radii.xl))
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {

@@ -1,8 +1,8 @@
-import { useId } from "react";
+import { useId, type CSSProperties } from "react";
 
 /**
  * The Fetch mark: a dog in profile whose ear is a play button, on the
- * amber-to-coral tile the Android TV app's launcher icon uses.
+ * Fetch-red tile the Android TV app's launcher icon uses.
  *
  * The tile carries its own colour, so one drawing reads on the light, dark and
  * glass themes alike. Inline rather than `<img src="/logo.svg">` so it paints
@@ -29,8 +29,8 @@ export function BrandMark({ className, title }: { className?: string; title?: st
       {title ? <title>{title}</title> : null}
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ffaa40" />
-          <stop offset="1" stopColor="#ff4d6d" />
+          <stop offset="0" stopColor="#dc2b33" />
+          <stop offset="1" stopColor="#96121a" />
         </linearGradient>
       </defs>
       <rect width="100" height="100" rx="23" fill={`url(#${gradientId})`} />
@@ -40,16 +40,53 @@ export function BrandMark({ className, title }: { className?: string; title?: st
 }
 
 /**
- * The wordmark's type, wherever it sits beside the mark.
- *
- * Heavier and tighter than anything else in the app on purpose: at the UI's own
- * `font-bold` and default tracking, "Fetch" is set identically to a page
- * heading like "Games" or "Calendar", and the eye reads it as one more label
- * rather than as the product's name. 800 with tracking pulled in is the smallest
- * change that makes it a wordmark. Size stays with the caller — it ranges from
- * the 16px sidebar rail to the 30px first-run splash.
+ * FETCH on a 5×7 dot matrix, one letter per glyph: the same letterforms as the
+ * Android TV app's wordmark (the Doto face, scripts/brand/generate_brand.py),
+ * drawn as circles so the website doesn't ship a 450 kB font for five letters
+ * and the dots stay round at the sidebar's 16px.
  */
-export const BRAND_WORDMARK = "font-extrabold tracking-tight";
+const DOT_GLYPHS = [
+  // F
+  ["#####", "#....", "#....", "####.", "#....", "#....", "#...."],
+  // E
+  ["#####", "#....", "#....", "####.", "#....", "#....", "#####"],
+  // T
+  ["#####", "..#..", "..#..", "..#..", "..#..", "..#..", "..#.."],
+  // C
+  [".###.", "#...#", "#....", "#....", "#....", "#...#", ".###."],
+  // H
+  ["#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"],
+];
+/** Two empty columns between letters: the wordmark is tracked out, as on the TV. */
+const DOT_LETTER_STEP = 7;
+const DOT_WIDTH = DOT_GLYPHS.length * DOT_LETTER_STEP - 2;
+const DOTS = DOT_GLYPHS.flatMap((rows, letter) =>
+  rows.flatMap((row, y) =>
+    [...row].flatMap((cell, x) => (cell === "#" ? [{ cx: letter * DOT_LETTER_STEP + x + 0.5, cy: y + 0.5 }] : [])),
+  ),
+);
+
+/**
+ * The dot-matrix FETCH wordmark, in the text colour. Size it by height; the
+ * width follows. It is the product's name, so it is labelled "Fetch".
+ */
+export function BrandWordmark({ className, style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <svg
+      viewBox={`0 0 ${DOT_WIDTH} 7`}
+      className={className}
+      style={style}
+      role="img"
+      aria-label="Fetch"
+      focusable="false"
+      fill="currentColor"
+    >
+      {DOTS.map(({ cx, cy }) => (
+        <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={0.42} />
+      ))}
+    </svg>
+  );
+}
 
 /** Carried over from the old logo art, which had it set under the name. */
 const TAGLINE = "Track your movies & shows";
@@ -66,9 +103,7 @@ export function BrandLockup() {
   return (
     <div className="flex flex-col items-center text-center">
       <BrandMark className="h-16 w-16" />
-      <span className={`mt-3 text-3xl ${BRAND_WORDMARK}`} style={{ color: "var(--text)" }}>
-        Fetch
-      </span>
+      <BrandWordmark className="mt-4 h-6 w-auto" style={{ color: "var(--text)" }} />
       <span
         className="mt-1.5 text-2xs font-semibold uppercase tracking-[0.2em]"
         style={{ color: "var(--text-mute)" }}

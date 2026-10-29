@@ -184,9 +184,6 @@
     <string name="action_load_more">Muat Lebih Banyak</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Pencipta: %1$s</string>
-    <string name="hero_director">Sutradara: %1$s</string>
-    <string name="hero_writer">Penulis: %1$s</string>
     <string name="hero_play">Putar</string>
     <string name="hero_add_to_library">Tambah ke pustaka</string>
     <string name="hero_remove_from_library">Hapus dari pustaka</string>
@@ -2243,7 +2240,6 @@
     <string name="because_you_watched_reason_creator">Juga dibuat oleh %1$s</string>
     <string name="because_you_watched_reason_writer">Juga ditulis oleh %1$s</string>
     <string name="because_you_watched_reason_cast">Juga dibintangi %1$s</string>
-    <string name="ready_to_play">Siap diputar</string>
     <string name="home_row_ready_tonight">Siap malam ini</string>
     <string name="ready_check_title">Periksa yang siap di latar belakang</string>
     <string name="ready_check_sub">Melalui Wi-Fi atau Ethernet, menanyakan addon Anda tentang maksimal 6 judul dari Lanjutkan Menonton dan Daftar Tonton, masing-masing paling sering setiap 12 jam, agar Beranda dapat menandai yang langsung diputar.</string>

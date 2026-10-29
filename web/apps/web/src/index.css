@@ -309,15 +309,16 @@
 
   /*
    * Fetch — the TV app's own look, so the web side and the couch read as one
-   * product: the graphite #0d0e10 ground and card ramp from the TV palette
-   * (ThemeColors.Fetch), its tennis-ball accent, and white focus. On the TV,
-   * focus is white in every theme so it never competes with the accent, which
-   * is kept for the primary action and progress; the ring here does the same.
-   * The face is Schibsted Grotesk, the TV app's default: self-hosted at the top
-   * of this file, set in :root[data-theme="fetch"] after the shared --font-ui.
+   * product: the near-black #0a0a0b ground and neutral card ramp from the TV
+   * palette (ThemeColors.Fetch), Fetch red as the only colour, and white focus.
+   * Red is for the primary action, progress and the page you are on; on the
+   * TV, focus is white in every theme so it never competes with it, and the
+   * ring here does the same. The face is Schibsted Grotesk, the TV app's
+   * default: self-hosted at the top of this file, set in
+   * :root[data-theme="fetch"] after the shared --font-ui.
    */
-  --bg-0: #0d0e10;
-  --bg-1: #17191d;
+  --bg-0: #0a0a0b;
+  --bg-1: #151517;
   --bg-2: #f5f5f5;
   --surface: rgba(255,255,255,0.06);
   --surface-strong: rgba(255,255,255,0.10);
@@ -326,19 +327,21 @@
   --text: #ffffff;
   --text-dim: #b4b7bd;
   --text-mute: #9a9ea6;
-  --accent: #d7f75b;
-  --accent-2: #e6fb97;
+  --accent: #dc2b33;
+  --accent-2: #ff5a5f;
   --accent-3: #3dd68c;
-  --accent-rgb: 215 247 91;
-  --accent-2-rgb: 230 251 151;
-  --accent-strong-rgb: 185 220 58;
-  --accent-tint-rgb: 244 253 214;
-  --accent-light-rgb: 233 250 166;
-  /* The accent is light, so the label on it is the ground colour, as on the
-     TV's Play button: 15.9:1 on --accent, 11.6:1 on the hover fill. */
-  --on-accent-rgb: 13 14 16;
+  --accent-rgb: 220 43 51;
+  --accent-2-rgb: 255 90 95;
+  --accent-strong-rgb: 176 30 38;
+  --accent-tint-rgb: 255 224 225;
+  --accent-light-rgb: 255 150 153;
+  /* White on the red, as on the TV's Play button: 4.7:1 on --accent, 6.9:1 on
+     the hover fill. */
+  --on-accent-rgb: 255 255 255;
   --on-accent: rgb(var(--on-accent-rgb));
-  --accent-text-rgb: 215 247 91;
+  /* Red text on the ground needs a lighter red: --accent itself is 4.2:1 on
+     --bg-0. This is 6.4:1 on --bg-0 and 6.0:1 on --bg-1. */
+  --accent-text-rgb: 255 90 95;
   --accent-text: rgb(var(--accent-text-rgb));
   --focus-ring: #f5f5f5;
 }

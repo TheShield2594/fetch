@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.collection
 
+import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PosterGridSkeleton
 import com.fetch.tv.ui.components.CatalogRowsSkeleton
 import com.fetch.tv.ui.theme.FetchTheme
@@ -411,7 +412,7 @@ private fun TabbedGridContent(
             val posterCardStyle = PosterCardStyle(
                 width = uiState.posterCardWidthDp.dp,
                 height = (uiState.posterCardWidthDp * 1.5f).dp,
-                cornerRadius = uiState.posterCardCornerRadiusDp.dp
+                cornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
             )
             val itemFocusRequesters = remember(uiState.selectedTabIndex) { mutableMapOf<String, FocusRequester>() }
             var lastFocusedItemKey by remember(

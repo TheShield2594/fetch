@@ -177,9 +177,6 @@
     <string name="action_see_all">Összes megtekintése</string>
     <string name="action_load_more">Továbbiak betöltése</string>
 
-    <string name="hero_creator">Alkotó: %1$s</string>
-    <string name="hero_director">Rendező: %1$s</string>
-    <string name="hero_writer">Író: %1$s</string>
     <string name="hero_play">Lejátszás</string>
     <string name="hero_add_to_library">Hozzáadás a könyvtárhoz</string>
     <string name="hero_remove_from_library">Eltávolítás a könyvtárból</string>
@@ -2916,7 +2913,6 @@
     <string name="parental_hidden_titles">Elrejtett címek</string>
     <string name="parental_allowed_titles">Mindig engedélyezett címek</string>
     <string name="parental_title_lists_hint">Válassz egy címet, hogy újra a besorolási korlát döntsön róla</string>
-    <string name="ready_to_play">Lejátszásra kész</string>
     <string name="home_row_ready_tonight">Ma estére kész</string>
     <string name="ready_check_title">Ellenőrzés a háttérben, mi áll készen</string>
     <string name="ready_check_sub">Wi-Fi-n vagy Etherneten megkérdezi a kiegészítőket legfeljebb 6 címről a Megtekintés folytatása és a Várólista közül, mindegyikről legfeljebb 12 óránként egyszer, hogy a Kezdőlap megjelölhesse az azonnal induló címeket.</string>

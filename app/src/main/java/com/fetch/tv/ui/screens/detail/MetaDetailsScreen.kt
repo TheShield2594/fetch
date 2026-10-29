@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
-import com.fetch.tv.ui.theme.FetchRadii
+import com.fetch.tv.ui.theme.cardCornerRadius
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.components.LocalPlaybackAvailability
 import com.fetch.tv.ui.navigation.LocalDetailChildClosedEpoch
 import com.fetch.tv.ui.navigation.LocalDetailChildOverlayVisible
@@ -1167,7 +1168,7 @@ fun MetaDetailsScreen(
                         } else {
                             FetchTheme.colors.BackgroundElevated
                         },
-                        shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                        shape = RoundedCornerShape(FetchTheme.radii.sm)
                     )
                     .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
                     .semantics { liveRegion = LiveRegionMode.Polite }
@@ -1254,7 +1255,7 @@ private fun MetaDetailsContent(
     isMovieWatchedPending: Boolean,
     moreLikeThis: List<MetaPreview>,
     moreLikeThisSource: MoreLikeThisSource?,
-    posterCardCornerRadiusDp: Int = 8,
+    posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     collection: List<MetaPreview>,
     collectionName: String?,
     relatedWatchedStatus: Map<String, Boolean> = emptyMap(),
@@ -2676,6 +2677,24 @@ private fun MetaDetailsContent(
             }
 
             // Season tabs and episodes for series
+            // Sources: the pick Play starts and a way to every file, right under the hero.
+            if (!shufflePoolEmpty && isPlayEnabled) {
+                item(key = "sources", contentType = "sources") {
+                    DetailSourcesRow(
+                        bestMatch = heroBestMatch,
+                        onPlayBestMatch = heroPlayClick,
+                        // With auto-play on, Play starts the pick, so "All sources" asks for the
+                        // list; with it off, Play already opens the list.
+                        onAllSources = if (showManualPlayOption) heroPlayManualClick else heroPlayClick,
+                        modifier = Modifier.padding(
+                            start = FetchTheme.spacing.xxxl,
+                            end = FetchTheme.spacing.xxxl,
+                            bottom = FetchTheme.spacing.xl
+                        )
+                    )
+                }
+            }
+
             if (showSeasonTabs) {
                 item(key = "season_tabs", contentType = "season_tabs") {
                     Box(modifier = Modifier.bringIntoViewResponder(detailRowBringIntoViewResponder)) {
@@ -2870,7 +2889,7 @@ private fun MetaDetailsContent(
                                     items = moreLikeThis,
                                     listState = moreLikeThisListState,
                                     sourceLabel = moreLikeThisSourceLabel,
-                                    posterCardCornerRadius = posterCardCornerRadiusDp.dp,
+                                    posterCardCornerRadius = cardCornerRadius(posterCardCornerRadiusDp),
                                     upFocusRequester = if (hasVisiblePeopleTabs) moreLikeTabFocusRequester else seasonDownFocusRequester ?: heroPlayFocusRequester,
                                     downFocusRequester = if (shouldShowCommentsSection && canToggleEpisodeComments) commentsSelectedModeFocusRequester else null,
                                     sectionFocusRequester = moreLikeSectionFocusRequester,
@@ -2901,7 +2920,7 @@ private fun MetaDetailsContent(
                                 TrailerSection(
                                     trailers = meta.trailers,
                                     listState = trailerListState,
-                                    posterCardCornerRadius = posterCardCornerRadiusDp.dp,
+                                    posterCardCornerRadius = cardCornerRadius(posterCardCornerRadiusDp),
                                     upFocusRequester = if (hasVisiblePeopleTabs) trailerTabFocusRequester else seasonDownFocusRequester ?: heroPlayFocusRequester,
                                     downFocusRequester = when {
                                         shouldSplitCollection && collection.isNotEmpty() -> collectionSectionFocusRequester
@@ -2925,7 +2944,7 @@ private fun MetaDetailsContent(
                                 CollectionSection(
                                     items = collection,
                                     listState = collectionListState,
-                                    posterCardCornerRadius = posterCardCornerRadiusDp.dp,
+                                    posterCardCornerRadius = cardCornerRadius(posterCardCornerRadiusDp),
                                     upFocusRequester = if (hasVisiblePeopleTabs) collectionTabFocusRequester else seasonDownFocusRequester ?: heroPlayFocusRequester,
                                     downFocusRequester = if (shouldShowCommentsSection && canToggleEpisodeComments) commentsSelectedModeFocusRequester else null,
                                     sectionFocusRequester = collectionSectionFocusRequester,
@@ -2982,7 +3001,7 @@ private fun MetaDetailsContent(
                         items = collection,
                         listState = collectionListState,
                         title = collectionName ?: strTabCollection,
-                        posterCardCornerRadius = posterCardCornerRadiusDp.dp,
+                        posterCardCornerRadius = cardCornerRadius(posterCardCornerRadiusDp),
                         upFocusRequester = if (hasVisiblePeopleSection) {
                             when (activePeopleTab) {
                                 PeopleSectionTab.CAST -> castSectionFocusRequester

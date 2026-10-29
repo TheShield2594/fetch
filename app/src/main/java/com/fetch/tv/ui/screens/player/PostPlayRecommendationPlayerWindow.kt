@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchRadii
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -33,7 +32,7 @@ internal fun PostPlayRecommendationPlayerWindow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(FetchRadii.tokens.md)
+    val shape = RoundedCornerShape(FetchTheme.radii.md)
     val description = stringResource(R.string.player_post_play_return_to_player)
 
     Card(

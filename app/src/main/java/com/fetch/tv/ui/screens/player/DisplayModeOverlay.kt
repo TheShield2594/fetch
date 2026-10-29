@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.core.Animatable
@@ -105,7 +104,7 @@ fun DisplayModeOverlay(
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(FetchRadii.tokens.sm))
+                    .clip(RoundedCornerShape(FetchTheme.radii.sm))
                     .background(FetchTheme.colors.Player.ScrimLight)
                     .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
             )

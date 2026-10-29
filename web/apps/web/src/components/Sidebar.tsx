@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { BarChart3, CalendarDays, Compass, Gamepad2, History, LayoutGrid, Library, List, Pin, PinOff, Search, Settings, User, Users } from "lucide-react";
 import { api, type CatalogList, type Profile } from "../api";
-import { BRAND_WORDMARK, BrandMark } from "./BrandMark";
+import { BrandMark, BrandWordmark } from "./BrandMark";
 import { healthDotClass } from "./settings/health";
 import { listTint, orderListsForRail, railSources } from "./sidebar-data";
 import { useCachedState } from "../hooks/useCachedState";
@@ -303,12 +303,10 @@ export function Sidebar({
       >
         <div className="flex items-center gap-2.5 px-4 pb-5" style={{ color: "var(--text)" }}>
           <BrandMark className="h-8 w-8 flex-none" />
-          <span
-            className={`whitespace-nowrap text-base transition-opacity ${BRAND_WORDMARK}`}
+          <BrandWordmark
+            className="h-4 w-auto flex-none transition-opacity"
             style={{ opacity: expanded ? 1 : 0 }}
-          >
-            Fetch
-          </span>
+          />
         </div>
 
         {/* Scrolls on a short window rather than squeezing the rows: four

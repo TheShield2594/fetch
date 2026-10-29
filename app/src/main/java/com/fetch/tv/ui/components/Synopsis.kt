@@ -5,8 +5,8 @@
 
 package com.fetch.tv.ui.components
 
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -109,7 +109,18 @@ fun SynopsisDescription(
                         } else {
                             Color.Transparent
                         },
-                        shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                        shape = RoundedCornerShape(FetchTheme.radii.sm)
+                    )
+                    // The same white ring as every other focusable, so "Read more" is never a guess.
+                    .then(
+                        if (isFocused) {
+                            Modifier.border(
+                                FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                                RoundedCornerShape(FetchTheme.radii.sm)
+                            )
+                        } else {
+                            Modifier
+                        }
                     )
                     .then(
                         if (upFocusRequester != null || downFocusRequester != null) {

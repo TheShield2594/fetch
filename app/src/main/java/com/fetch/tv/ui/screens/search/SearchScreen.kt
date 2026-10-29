@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
@@ -316,9 +317,10 @@ fun SearchScreen(
         }
     }
 
-    val posterCardStyle = remember(uiState.posterCardCornerRadiusDp) {
+    val cardRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
+    val posterCardStyle = remember(cardRadius) {
         PosterCardStyle(
-            cornerRadius = uiState.posterCardCornerRadiusDp.dp,
+            cornerRadius = cardRadius,
             focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
             focusedScale = PosterCardDefaults.Style.focusedScale,
             showRestingBorder = true

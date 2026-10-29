@@ -85,9 +85,6 @@
     <string name="action_see_all">Se Allt</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Skapare: %1$s</string>
-    <string name="hero_director">Regissör: %1$s</string>
-    <string name="hero_writer">Skribent: %1$s</string>
     <string name="hero_play">Spela</string>
     <string name="hero_add_to_library">Lägg till i biblioteket</string>
     <string name="hero_remove_from_library">Ta bort från biblioteket</string>
@@ -1636,7 +1633,6 @@
     <string name="because_you_watched_reason_creator">Även skapad av %1$s</string>
     <string name="because_you_watched_reason_writer">Även skriven av %1$s</string>
     <string name="because_you_watched_reason_cast">Även med %1$s</string>
-    <string name="ready_to_play">Redo att spela</string>
     <string name="home_row_ready_tonight">Redo i kväll</string>
     <string name="ready_check_title">Kontrollera i bakgrunden vad som är redo</string>
     <string name="ready_check_sub">På Wi-Fi eller Ethernet frågar den dina tillägg om upp till 6 titlar från Fortsätt titta och din bevakningslista, var och en högst var 12:e timme, så att Hem kan markera de som startar direkt.</string>

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import androidx.compose.runtime.Immutable
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.CatalogRow
@@ -45,7 +46,7 @@ data class SearchUiState(
     val catalogTypeSuffixEnabled: Boolean = true,
     val posterCardWidthDp: Int = 126,
     val posterCardHeightDp: Int = 189,
-    val posterCardCornerRadiusDp: Int = 8,
+    val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val recentSearches: List<String> = emptyList(),
     val suggestions: List<String> = emptyList()
 )

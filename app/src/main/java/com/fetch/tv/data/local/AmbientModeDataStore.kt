@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.domain.model.AmbientFace
 import com.fetch.tv.domain.model.AmbientModeSettings
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,7 @@ class AmbientModeDataStore @Inject constructor(
     private val enabledKey = booleanPreferencesKey("ambient_enabled")
     private val timeoutMinutesKey = intPreferencesKey("ambient_timeout_minutes")
     private val catalogKeysKey = stringPreferencesKey("ambient_catalog_keys")
+    private val faceKey = stringPreferencesKey("ambient_face")
 
     val settings: Flow<AmbientModeSettings> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map(::readSettings)
@@ -44,7 +46,8 @@ class AmbientModeDataStore @Inject constructor(
         AmbientModeSettings(
             enabled = prefs[enabledKey] ?: true,
             timeoutMinutes = prefs[timeoutMinutesKey] ?: AmbientModeSettings.DEFAULT_TIMEOUT_MINUTES,
-            catalogKeys = decodeKeys(prefs[catalogKeysKey])
+            catalogKeys = decodeKeys(prefs[catalogKeysKey]),
+            face = prefs[faceKey]?.let { name -> AmbientFace.entries.firstOrNull { it.name == name } }
         )
 
     suspend fun setEnabled(enabled: Boolean) {
@@ -53,6 +56,10 @@ class AmbientModeDataStore @Inject constructor(
 
     suspend fun setTimeoutMinutes(minutes: Int) {
         store().edit { it[timeoutMinutesKey] = minutes }
+    }
+
+    suspend fun setFace(face: AmbientFace) {
+        store().edit { it[faceKey] = face.name }
     }
 
     suspend fun setCatalogKeys(keys: List<String>) {

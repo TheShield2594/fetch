@@ -90,9 +90,6 @@
     <string name="action_see_all">Se alt</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Forfatter: %1$s</string>
-    <string name="hero_director">Regissør: %1$s</string>
-    <string name="hero_writer">Skribent: %1$s</string>
     <string name="hero_play">Spill av</string>
     <string name="hero_add_to_library">Legg til i biblioteket</string>
     <string name="hero_remove_from_library">Fjern fra biblioteket</string>
@@ -1189,7 +1186,6 @@
     <string name="because_you_watched_reason_creator">Også skapt av %1$s</string>
     <string name="because_you_watched_reason_writer">Også skrevet av %1$s</string>
     <string name="because_you_watched_reason_cast">Også med %1$s</string>
-    <string name="ready_to_play">Klar til avspilling</string>
     <string name="home_row_ready_tonight">Klar for i kveld</string>
     <string name="ready_check_title">Sjekk i bakgrunnen hva som er klart</string>
     <string name="ready_check_sub">På Wi-Fi eller Ethernet spør den tilleggene dine om opptil 6 titler fra Fortsett å se og se-listen din, hver høyst hver 12. time, slik at Hjem kan merke de som starter med en gang.</string>

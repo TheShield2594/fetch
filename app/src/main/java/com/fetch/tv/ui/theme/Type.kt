@@ -82,37 +82,39 @@ data class FetchTextStyleTokens(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 fun buildFetchTypography(fontFamily: FontFamily): Typography = Typography(
+    // Display sizes are titles over artwork: medium, not heavy, so they read as a cinema
+    // title card rather than a block headline.
     displayLarge = TextStyle(
         fontFamily = fontFamily,
-        fontWeight = FontWeight.ExtraBold,
+        fontWeight = FontWeight.Medium,
         fontSize = 48.sp,
         lineHeight = 52.sp,
         letterSpacing = (-1).sp
     ),
     displayMedium = TextStyle(
         fontFamily = fontFamily,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Medium,
         fontSize = 36.sp,
         lineHeight = 42.sp,
         letterSpacing = (-0.5).sp
     ),
     displaySmall = TextStyle(
         fontFamily = fontFamily,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Medium,
         fontSize = 32.sp,
         lineHeight = 38.sp,
         letterSpacing = (-0.5).sp
     ),
     headlineLarge = TextStyle(
         fontFamily = fontFamily,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 28.sp,
         lineHeight = 34.sp,
         letterSpacing = (-0.25).sp
     ),
     headlineMedium = TextStyle(
         fontFamily = fontFamily,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 24.sp,
         lineHeight = 30.sp,
         letterSpacing = 0.sp

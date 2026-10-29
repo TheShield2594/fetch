@@ -12,11 +12,14 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 RES = os.path.join(ROOT, "app", "src", "main", "res")
 FONT = os.path.join(RES, "font", "dm_sans_variable.ttf")
+DOTO = os.path.join(RES, "font", "doto_variable.ttf")
 GLYPH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mark_glyph.png")
 
-# Primary brand gradient: warm amber to coral. Theme variants reuse the same shapes.
+# Primary brand tile: Fetch red (ui/theme/ThemeColors.kt FetchRed) easing to a deeper red, with
+# the dog in white. The variants are the optional launcher icons (Settings > App icon) and keep
+# their own colours; they reuse the same shapes.
 PALETTES = {
-    "": ((255, 170, 64), (255, 77, 109)),
+    "": ((220, 43, 51), (150, 18, 26)),
     "_copper": ((222, 140, 86), (176, 82, 52)),
     "_emerald": ((80, 220, 160), (16, 140, 110)),
     "_rose_gold": ((246, 190, 170), (214, 120, 130)),
@@ -38,8 +41,9 @@ WORDMARK_COLORS = {
     "_amber": (255, 185, 81),
     "_rose": (240, 102, 149),
 }
-BACKGROUND_TOP = (14, 14, 20)
-BACKGROUND_BOTTOM = (34, 22, 26)
+# The TV banner's ground: the app's near-black (#0A0A0B) lifting slightly toward the bottom.
+BACKGROUND_TOP = (10, 10, 11)
+BACKGROUND_BOTTOM = (22, 22, 24)
 
 
 def gradient(size: int, start, end) -> Image.Image:
@@ -101,7 +105,36 @@ def wordmark(width: int, height: int, color) -> Image.Image:
     return img
 
 
-def banner(width: int, height: int, palette=PALETTES[""]) -> Image.Image:
+def dot_wordmark(width: int, height: int) -> Image.Image:
+    """Fetch's own wordmark: FETCH in the Doto dot-matrix face, tracked out.
+
+    The default (white) wordmark; the coloured theme wordmarks keep the "fetch" lettering.
+    """
+    scale = 4  # supersample for round dots
+    w, h = width * scale, height * scale
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    f = ImageFont.truetype(DOTO, int(h * 0.62))
+    try:
+        f.set_variation_by_axes([100, 900])  # (ROND: round dots, wght: heaviest)
+    except Exception:
+        pass
+    text = "FETCH"
+    tracking = h * 0.06
+    widths = [draw.textbbox((0, 0), c, font=f)[2] - draw.textbbox((0, 0), c, font=f)[0] for c in text]
+    cap = draw.textbbox((0, 0), "H", font=f)
+    cap_h = cap[3] - cap[1]
+    total = sum(widths) + tracking * (len(text) - 1)
+    x = (w - total) / 2
+    y = (h - cap_h) / 2 - cap[1]
+    for c, cw in zip(text, widths):
+        box = draw.textbbox((0, 0), c, font=f)
+        draw.text((x - box[0], y), c, font=f, fill=(255, 255, 255, 255))
+        x += cw + tracking
+    return img.resize((width, height), Image.LANCZOS)
+
+
+def banner(width: int, height: int, palette=PALETTES[""], dot: bool = False) -> Image.Image:
     img = Image.new("RGB", (width, height))
     px = img.load()
     for y in range(height):
@@ -111,7 +144,10 @@ def banner(width: int, height: int, palette=PALETTES[""]) -> Image.Image:
             px[x, y] = row
     img = img.convert("RGBA")
     m = mark(int(height * 0.34), palette)
-    w = wordmark(int(width * 0.42), int(height * 0.24), WORDMARK_COLORS[""])
+    if dot:
+        w = dot_wordmark(int(width * 0.46), int(height * 0.30))
+    else:
+        w = wordmark(int(width * 0.42), int(height * 0.24), WORDMARK_COLORS[""])
     w = w.crop(w.getbbox())
     gap = int(width * 0.03)
     total = m.width + gap + w.width
@@ -128,6 +164,26 @@ def save(img: Image.Image, *parts: str) -> None:
     print("wrote", os.path.relpath(path, ROOT))
 
 
+def write_default_icon() -> None:
+    """The default launcher icon, its banner and the brand marks; the variants are left alone."""
+    densities = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
+    for density, size in densities.items():
+        save(mark(size, PALETTES[""]), RES, f"mipmap-{density}", "ic_launcher.png")
+    save(mark(512, PALETTES[""]), RES, "drawable", "ic_launcher.png")
+    save(mark(1080, PALETTES[""]), RES, "drawable", "app_logo_mark.png")
+    save(mark(1080, PALETTES[""]), ROOT, "assets", "brand", "app_logo_mark.png")
+    save(banner(320, 180, PALETTES[""], dot=True), RES, "mipmap-xhdpi", "banner.png")
+    b = banner(1280, 720, dot=True)
+    save(b, RES, "drawable", "tv_banner.png")
+    save(b, RES, "drawable-nodpi", "tv_banner.png")
+    save(b, ROOT, "assets", "fetch.png")
+
+
+def write_dot_wordmarks() -> None:
+    save(dot_wordmark(1085, 344), RES, "drawable", "app_logo_wordmark.png")
+    save(dot_wordmark(1085, 344), ROOT, "assets", "brand", "app_logo_wordmark.png")
+
+
 def main() -> None:
     densities = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
     for suffix, palette in PALETTES.items():
@@ -138,19 +194,29 @@ def main() -> None:
     save(mark(1080, PALETTES[""]), ROOT, "assets", "brand", "app_logo_mark.png")
 
     for suffix, color in WORDMARK_COLORS.items():
-        save(wordmark(1085, 344, color), RES, "drawable", f"app_logo_wordmark{suffix}.png")
-    save(wordmark(1085, 344, WORDMARK_COLORS[""]), ROOT, "assets", "brand", "app_logo_wordmark.png")
+        if suffix:
+            save(wordmark(1085, 344, color), RES, "drawable", f"app_logo_wordmark{suffix}.png")
+    write_dot_wordmarks()
     save(wordmark(1000, 230, WORDMARK_COLORS[""]), RES, "drawable", "fetch_text.png")
 
-    # Android TV launcher banners, one per launcher icon theme.
+    # Android TV launcher banners, one per launcher icon theme. The default one carries the
+    # dot-matrix wordmark; the optional icons keep their lettered banners.
     for suffix, palette in PALETTES.items():
-        save(banner(320, 180, palette), RES, "mipmap-xhdpi", f"banner{suffix}.png")
+        save(banner(320, 180, palette, dot=not suffix), RES, "mipmap-xhdpi", f"banner{suffix}.png")
 
-    b = banner(1280, 720)
+    b = banner(1280, 720, dot=True)
     save(b, RES, "drawable", "tv_banner.png")
     save(b, RES, "drawable-nodpi", "tv_banner.png")
     save(b, ROOT, "assets", "fetch.png")
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    # --wordmark / --default-icon: only those bitmaps, so the others aren't rewritten.
+    if "--wordmark" in sys.argv:
+        write_dot_wordmarks()
+    elif "--default-icon" in sys.argv:
+        write_default_icon()
+    else:
+        main()

@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
-import com.fetch.tv.ui.theme.FetchRadii
+import com.fetch.tv.ui.theme.cardCornerRadius
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.components.fetchCardProgress
 import com.fetch.tv.ui.components.FetchCardDefaults
 import android.view.KeyEvent as AndroidKeyEvent
@@ -134,11 +135,12 @@ fun SeasonTabs(
         regularSeasons + specials
     }
 
-    val tabShape = remember { RoundedCornerShape(FetchRadii.tokens.xl) }
+    val tabRadius = FetchTheme.radii.xl
+    val tabShape = remember(tabRadius) { RoundedCornerShape(tabRadius) }
     val tabBorder = CardDefaults.border(
         focusedBorder = Border(
             border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-            shape = RoundedCornerShape(FetchRadii.tokens.xl)
+            shape = RoundedCornerShape(FetchTheme.radii.xl)
         )
     )
     val tabScale = CardDefaults.scale(focusedScale = 1.0f)
@@ -386,7 +388,7 @@ fun EpisodesRow(
     episodeWatchedPendingKeys: Set<String> = emptySet(),
     blurUnwatchedEpisodes: Boolean = false,
     episodeOptionsOverlayStyle: EpisodeOptionsOverlayStyle = EpisodeOptionsOverlayStyle.ARTWORK,
-    posterCardCornerRadiusDp: Int = 8,
+    posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     onEpisodeClick: (Video) -> Unit,
     canPlayEpisode: (Video) -> Boolean = { true },
     onEpisodeManualPlayClick: (Video) -> Unit = onEpisodeClick,
@@ -817,7 +819,7 @@ private fun EpisodeCard(
         episode.episode?.let { number -> "$prefix $number" } ?: prefix
     }
 
-    val progressColor = FetchTheme.colors.TextPrimary
+    val progressColor = FetchTheme.colors.Accent
     val textPrimary = FetchTheme.colors.TextPrimary
     val focusRingBorder = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth)
 
@@ -881,7 +883,9 @@ private fun EpisodeCard(
         focusedBorder = Border(
             border = focusRingBorder,
             shape = shape
-        )
+        ),
+        focusedScale = FetchTheme.focus.cardScale,
+        focusedShadow = FetchTheme.focus.cardShadow
     ) {
         Box(
             modifier = Modifier
@@ -1188,9 +1192,9 @@ private data class EpisodeCardMetrics(
 )
 
 @Composable
-private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = 8): EpisodeCardMetrics {
+private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS): EpisodeCardMetrics {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
-    val userCornerRadius = posterCardCornerRadiusDp.dp
+    val userCornerRadius = cardCornerRadius(posterCardCornerRadiusDp)
     return remember(screenWidthDp, userCornerRadius) {
         when {
             screenWidthDp >= 1300 -> EpisodeCardMetrics(

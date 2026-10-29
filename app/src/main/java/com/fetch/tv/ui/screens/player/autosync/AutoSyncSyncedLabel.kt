@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.player.autosync
 
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -51,7 +50,7 @@ internal fun AutoSyncedChip(subtitleUrl: String, selected: Boolean) {
     val contentColor = FetchTheme.colors.OnSecondary.copy(alpha = 0.9f)
     Row(
         modifier = Modifier
-            .background(FetchTheme.colors.OnSecondary.copy(alpha = 0.14f), RoundedCornerShape(FetchRadii.tokens.full))
+            .background(FetchTheme.colors.OnSecondary.copy(alpha = 0.14f), RoundedCornerShape(FetchTheme.radii.full))
             .padding(horizontal = FetchTheme.spacing.sm, vertical = 3.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically,

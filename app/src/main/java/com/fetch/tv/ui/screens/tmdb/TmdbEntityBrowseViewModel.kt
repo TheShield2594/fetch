@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.tmdb
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -56,7 +57,7 @@ class TmdbEntityBrowseViewModel @Inject constructor(
         state.filteredForProfile(parentalControls)
     }
 
-    private val _posterCardCornerRadiusDp = MutableStateFlow(12)
+    private val _posterCardCornerRadiusDp = MutableStateFlow(THEME_CARD_CORNER_RADIUS)
     val posterCardCornerRadiusDp: StateFlow<Int> = _posterCardCornerRadiusDp.asStateFlow()
 
     init {

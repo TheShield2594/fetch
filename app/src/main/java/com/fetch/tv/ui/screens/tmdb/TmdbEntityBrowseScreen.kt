@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.tmdb
 
+import com.fetch.tv.ui.theme.cardCornerRadius
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -168,7 +170,7 @@ private fun TmdbEntityBrowseContent(
     sourceType: String,
     watchedMovieIds: Set<String>,
     watchedSeriesIds: Set<String>,
-    posterCardCornerRadiusDp: Int = 8,
+    posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     onNavigateToDetail: (itemId: String, itemType: String, addonBaseUrl: String?) -> Unit,
     onItemLongPress: (MetaPreview) -> Unit = {},
     onLoadMoreRail: (TmdbEntityMediaType, TmdbEntityRailType) -> Unit
@@ -191,7 +193,7 @@ private fun TmdbEntityBrowseContent(
     }
 
     val posterCardStyle = PosterCardDefaults.Style.copy(
-        cornerRadius = posterCardCornerRadiusDp.dp
+        cornerRadius = cardCornerRadius(posterCardCornerRadiusDp)
     )
     val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
     val localDensity = LocalDensity.current

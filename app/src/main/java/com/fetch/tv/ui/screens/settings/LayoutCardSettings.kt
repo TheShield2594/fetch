@@ -2,7 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.theme.FetchRadii
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.background
@@ -245,6 +245,7 @@ internal fun LayoutPosterCardSection(
         PresetOption(stringResource(R.string.layout_preset_large), 140)
     )
     val radiusOptions = listOf(
+        PresetOption(stringResource(R.string.layout_preset_theme), THEME_CARD_CORNER_RADIUS),
         PresetOption(stringResource(R.string.layout_preset_sharp), 0),
         PresetOption(stringResource(R.string.layout_preset_subtle), 4),
         PresetOption(stringResource(R.string.layout_preset_classic), 8),
@@ -303,7 +304,7 @@ internal fun LayoutCustomPosterSection(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .fillMaxWidth()
-                .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchRadii.tokens.sm))
+                .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchTheme.radii.sm))
                 .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)
         )
     }

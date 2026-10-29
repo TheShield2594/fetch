@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.components
 
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -681,7 +680,7 @@ fun ContentCard(
                                             FetchTheme.spacing.hairline,
                                             FetchTheme.extendedColors.textSecondary.copy(alpha = 0.55f)
                                         ),
-                                        shape = RoundedCornerShape(FetchRadii.tokens.xs)
+                                        shape = RoundedCornerShape(FetchTheme.radii.xs)
                                     )
                                     .padding(horizontal = FetchTheme.spacing.sm, vertical = 2.dp),
                                 contentAlignment = Alignment.Center

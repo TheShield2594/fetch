@@ -43,9 +43,6 @@
     <string name="action_see_all">Vezi tot</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Creator: %1$s</string>
-    <string name="hero_director">Director: %1$s</string>
-    <string name="hero_writer">Scriitor: %1$s</string>
     <string name="hero_play">Redă</string>
     <string name="hero_add_to_library">Adaugă în bibliotecă</string>
     <string name="hero_remove_from_library">Elimină din bibliotecă</string>
@@ -962,7 +959,6 @@
     <string name="because_you_watched_reason_creator">Același creator: %1$s</string>
     <string name="because_you_watched_reason_writer">Același scenarist: %1$s</string>
     <string name="because_you_watched_reason_cast">Tot cu %1$s</string>
-    <string name="ready_to_play">Gata de redare</string>
     <string name="home_row_ready_tonight">Gata pentru diseară</string>
     <string name="ready_check_title">Verifică în fundal ce este gata</string>
     <string name="ready_check_sub">Pe Wi-Fi sau Ethernet, întreabă addon-urile despre cel mult 6 titluri din Continuă vizionarea și din lista de urmărit, fiecare cel mult o dată la 12 ore, ca ecranul principal să le marcheze pe cele care pornesc imediat.</string>

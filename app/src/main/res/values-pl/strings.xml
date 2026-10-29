@@ -55,9 +55,6 @@
     <string name="action_see_all">Zobacz wszystkie</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Twórca: %1$s</string>
-    <string name="hero_director">Reżyser: %1$s</string>
-    <string name="hero_writer">Scenarzysta: %1$s</string>
     <string name="hero_play">Odtwórz</string>
     <string name="hero_add_to_library">Dodaj do biblioteki</string>
     <string name="hero_remove_from_library">Usuń z biblioteki</string>
@@ -3027,7 +3024,6 @@
     <string name="subtitle_style_text_color_hdr">Kolor tekstu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Krycie tekstu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="ready_to_play">Gotowe do odtworzenia</string>
     <string name="home_row_ready_tonight">Gotowe na dziś wieczór</string>
     <string name="ready_check_title">Sprawdzaj w tle, co jest gotowe</string>
     <string name="ready_check_sub">Przez Wi-Fi lub Ethernet pyta dodatki o maksymalnie 6 tytułów z Kontynuuj oglądanie i Listy do obejrzenia, o każdy nie częściej niż co 12 godzin, aby ekran główny oznaczył te, które startują od razu.</string>

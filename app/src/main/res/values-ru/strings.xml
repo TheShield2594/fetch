@@ -151,9 +151,6 @@
     <string name="action_see_all">Показать все</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Создатель: %1$s</string>
-    <string name="hero_director">Режиссер: %1$s</string>
-    <string name="hero_writer">Сценарист: %1$s</string>
     <string name="hero_play">Смотреть</string>
     <string name="hero_add_to_library">Добавить в библиотеку</string>
     <string name="hero_remove_from_library">Удалить из библиотеки</string>
@@ -2721,7 +2718,6 @@
     <string name="because_you_watched_reason_creator">Тот же создатель: %1$s</string>
     <string name="because_you_watched_reason_writer">Тот же сценарист: %1$s</string>
     <string name="because_you_watched_reason_cast">Также в ролях: %1$s</string>
-    <string name="ready_to_play">Готово к просмотру</string>
     <string name="home_row_ready_tonight">Готово на вечер</string>
     <string name="ready_check_title">Проверять в фоне, что готово</string>
     <string name="ready_check_sub">По Wi-Fi или Ethernet спрашивает аддоны о не более чем 6 тайтлах из «Продолжить просмотр» и «Списка для просмотра», о каждом не чаще раза в 12 часов, чтобы главная отмечала те, что запустятся сразу.</string>

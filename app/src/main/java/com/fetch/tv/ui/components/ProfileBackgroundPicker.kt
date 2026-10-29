@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.components
 
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -144,7 +143,7 @@ private fun ProfileBackgroundItem(
         animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileBackgroundLabel"
     )
-    val shape = RoundedCornerShape(FetchRadii.tokens.md)
+    val shape = RoundedCornerShape(FetchTheme.radii.md)
 
     Column(
         modifier = Modifier

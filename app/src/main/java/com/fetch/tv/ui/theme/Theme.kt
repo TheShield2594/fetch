@@ -73,6 +73,7 @@ fun FetchTheme(
         highContrast = highContrast
     )
     val typography = buildFetchTypography(getFontFamily(appFont))
+    val themeStyle = appTheme.themeStyle()
     val textStyles = buildFetchTextStyles(typography)
     val fullMotion = rememberFullMotionAllowed()
 
@@ -107,6 +108,7 @@ fun FetchTheme(
         LocalAppTheme provides appTheme,
         LocalThemePalette provides palette,
         LocalFetchFocusRingStyle provides focusRingStyle,
+        LocalFetchThemeStyle provides themeStyle,
         LocalFullMotion provides fullMotion
     ) {
         MaterialTheme(
@@ -138,14 +140,24 @@ object FetchTheme {
         @ReadOnlyComposable
         get() = LocalFetchTextStyles.current
 
+    /** What the theme changes beyond colour: its corners and shapes. */
+    val style: FetchThemeStyle
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalFetchThemeStyle.current
+
     val spacing: FetchSpacingTokens
         get() = FetchSpacing.tokens
 
     val radii: FetchRadiusTokens
-        get() = FetchRadii.tokens
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalFetchThemeStyle.current.radii
 
     val shapes: FetchShapeTokens
-        get() = FetchShapes.tokens
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalFetchThemeStyle.current.shapes
 
     val sizes: FetchSizeTokens
         get() = FetchSizes.tokens

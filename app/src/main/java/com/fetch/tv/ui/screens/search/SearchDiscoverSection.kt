@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.search
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -344,7 +343,7 @@ private fun DiscoverDropdownPicker(
                     if (blockFocus) Modifier.focusProperties { canFocus = false }
                     else Modifier
                 ),
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
+            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
             colors = CardDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
                 focusedContainerColor = FetchTheme.colors.FocusBackground
@@ -352,11 +351,11 @@ private fun DiscoverDropdownPicker(
             border = CardDefaults.border(
                 border = Border(
                     border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = RoundedCornerShape(FetchRadii.tokens.md)
+                    shape = RoundedCornerShape(FetchTheme.radii.md)
                 ),
                 focusedBorder = Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchRadii.tokens.md)
+                    shape = RoundedCornerShape(FetchTheme.radii.md)
                 )
             ),
             scale = CardDefaults.scale(
@@ -408,7 +407,7 @@ private fun DiscoverDropdownPicker(
             modifier = Modifier
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(FetchRadii.tokens.md),
+            shape = RoundedCornerShape(FetchTheme.radii.md),
             containerColor = FetchTheme.colors.BackgroundCard,
             tonalElevation = FetchTheme.spacing.none,
             shadowElevation = FetchTheme.spacing.sm,
@@ -442,7 +441,7 @@ private fun DiscoverDropdownPicker(
                         .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
-                            shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                            shape = RoundedCornerShape(FetchTheme.radii.sm)
                         )
                         // The selected option carries a checkmark and a selected state, so it
                         // stays identifiable (and announced) when focus is on another option.

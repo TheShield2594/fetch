@@ -10,6 +10,11 @@ data class ThemeColorPalette(
     val onSecondary: Color = FetchPrimitives.white,
     val onSecondaryVariant: Color = FetchPrimitives.white,
     val accentGradient: List<Color> = listOf(secondary),
+    /**
+     * The colour that marks "here" and "now": watch progress and the current page. The same as
+     * the action colour unless a theme sets it apart.
+     */
+    val accent: Color = secondary,
     val focusBackground: Color,
     val background: Color = FetchPrimitives.neutral950,
     val backgroundElevated: Color = FetchPrimitives.neutral900,
@@ -24,26 +29,36 @@ data class ThemeColorPalette(
     val playerOverlay: Color = Color(0xCC000000)
 )
 
+/**
+ * Fetch red: the main action, watch progress and the current page. Deep enough that white text
+ * on it passes 4.5:1.
+ */
+val FetchRed = Color(0xFFDC2B33)
+
 object ThemeColors {
     // Each built-in theme is an art direction, not a hue swap: its own tinted ground ramp
     // (background → elevated → card → surface → variant), an accent with a dark label on it,
     // and a focus background in the same family. Focus itself stays white in every theme.
-    /** Fetch's own look: near-black surfaces and a tennis-ball accent that reads on any poster. */
+    /**
+     * Fetch's own look: near-monochrome. A true-dark ground with neutral greys and Fetch red
+     * as the only colour: the main action, progress and the current page. The artwork brings
+     * the rest.
+     */
     val Fetch = ThemeColorPalette(
-        secondary = Color(0xFFD7F75B),
-        secondaryVariant = Color(0xFFB9DC3A),
-        onSecondary = Color(0xFF0D0E10),
-        onSecondaryVariant = Color(0xFF0D0E10),
-        focusBackground = Color(0xFF23262C),
-        background = Color(0xFF0D0E10),
-        backgroundElevated = Color(0xFF141519),
-        backgroundCard = Color(0xFF17191D),
-        surface = Color(0xFF1B1D22),
-        surfaceVariant = Color(0xFF23262C),
-        panel = Color(0xFF141519),
-        field = Color(0xFF1B1D22),
-        menu = Color(0xFF1B1D22),
-        modal = Color(0xFF141519)
+        secondary = FetchRed,
+        secondaryVariant = Color(0xFFC0222A),
+        onSecondary = Color(0xFFFFFFFF),
+        onSecondaryVariant = Color(0xFFFFFFFF),
+        focusBackground = Color(0xFF2A2A2E),
+        background = Color(0xFF0A0A0B),
+        backgroundElevated = Color(0xFF111113),
+        backgroundCard = Color(0xFF151517),
+        surface = Color(0xFF18181B),
+        surfaceVariant = Color(0xFF202023),
+        panel = Color(0xFF111113),
+        field = Color(0xFF18181B),
+        menu = Color(0xFF18181B),
+        modal = Color(0xFF111113)
     )
 
     /** Velvet-seat warm black and a red that still reads on black text. */

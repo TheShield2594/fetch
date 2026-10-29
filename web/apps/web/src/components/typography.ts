@@ -1,9 +1,8 @@
 /**
  * The app's heading scale, as four class strings.
  *
- * These exist for the same reason `BRAND_WORDMARK` does: a heading's type is a
- * decision about the product, not about the screen it happens to sit on, so it
- * belongs in one place that every screen reads from. Before this file the same
+ * A heading's type is a decision about the product, not about the screen it
+ * happens to sit on, so it belongs in one place that every screen reads from. Before this file the same
  * four roles were spelled eleven different ways — page titles were `text-2xl
  * font-bold` on six pages but `font-heading text-2xl font-extrabold
  * tracking-tight` on the hero and the detail panels, section headers were

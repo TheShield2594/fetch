@@ -180,12 +180,10 @@
     <string name="action_see_all">See All</string>
     <string name="action_load_more">Load More</string>
 
-    <string name="hero_creator">Creator: %1$s</string>
-    <string name="hero_director">Director: %1$s</string>
-    <string name="hero_writer">Writer: %1$s</string>
     <string name="hero_play">Play</string>
     <string name="hero_add_to_library">Add to library</string>
     <string name="hero_remove_from_library">Remove from library</string>
+    <string name="hero_in_library">In library</string>
     <string name="hero_mark_watched">Mark as watched</string>
     <string name="hero_mark_unwatched">Mark as unwatched</string>
     <string name="hero_play_trailer">Play trailer</string>
@@ -435,6 +433,10 @@
         <item quantity="one">%1$d minute</item>
         <item quantity="other">%1$d minutes</item>
     </plurals>
+    <string name="ambient_mode_face">Show</string>
+    <string name="ambient_mode_face_subtitle">Artwork from your catalogs, or a clock with what to resume</string>
+    <string name="ambient_mode_face_artwork">Artwork</string>
+    <string name="ambient_mode_face_clock">Clock</string>
     <string name="ambient_mode_catalogs">Catalogs</string>
     <string name="ambient_mode_catalogs_subtitle">Choose up to 3 catalogs to pull artwork from</string>
     <string name="ambient_mode_catalogs_dialog_subtitle">Choose up to 3 catalogs</string>
@@ -1067,6 +1069,7 @@
     <string name="layout_preset_balanced">Balanced</string>
     <string name="layout_preset_comfort">Comfort</string>
     <string name="layout_preset_large">Large</string>
+    <string name="layout_preset_theme">Theme</string>
     <string name="layout_preset_sharp">Sharp</string>
     <string name="layout_preset_subtle">Subtle</string>
     <string name="layout_preset_classic">Classic</string>
@@ -1706,6 +1709,13 @@
     <string name="stream_info_player_engine">Player Engine</string>
 
     <string name="sources_title">Sources</string>
+    <string name="detail_sources_all">All sources</string>
+    <string name="detail_sources_choose">Choose a file</string>
+    <string name="detail_sources_searching">Searching…</string>
+    <plurals name="detail_sources_found">
+        <item quantity="one">%1$d found</item>
+        <item quantity="other">%1$d found</item>
+    </plurals>
     <string name="sources_close">Close</string>
     <string name="sources_playing">Playing</string>
     <string name="sources_no_streams">No streams found</string>
@@ -3121,7 +3131,6 @@
     <string name="screen_time_rest_of_day">No limit for the rest of today</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
-    <string name="ready_to_play">Ready to play</string>
     <string name="home_row_ready_tonight">Ready tonight</string>
     <string name="ready_check_title">Check what’s ready in the background</string>
     <string name="autoplay_start_early_title">Start without waiting for every addon</string>

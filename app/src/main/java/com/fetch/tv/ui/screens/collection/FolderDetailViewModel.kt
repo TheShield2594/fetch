@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.collection
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -84,7 +85,7 @@ data class FolderDetailUiState(
         FocusedPosterTrailerPlaybackTarget.HERO_MEDIA,
     val posterCardWidthDp: Int = 126,
     val posterCardHeightDp: Int = 189,
-    val posterCardCornerRadiusDp: Int = 8,
+    val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val tabs: List<FolderTab> = emptyList(),
     val selectedTabIndex: Int = 0,
     val isLoading: Boolean = true,

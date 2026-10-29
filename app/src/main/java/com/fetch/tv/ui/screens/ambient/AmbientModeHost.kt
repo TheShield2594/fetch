@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.ambient
 
+import com.fetch.tv.domain.model.AmbientFace
 import com.fetch.tv.ui.theme.FetchMotion
 import android.os.SystemClock
 import androidx.compose.animation.AnimatedVisibility
@@ -31,6 +32,8 @@ fun AmbientModeHost(
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val isShowing by controller.isShowing.collectAsStateWithLifecycle()
     val slides by viewModel.slides.collectAsStateWithLifecycle()
+    val resume by viewModel.resume.collectAsStateWithLifecycle()
+    val face = settings.face ?: AmbientFace.ARTWORK
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     val active = settings.enabled && allowed && lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
     val timeoutMs = settings.timeoutMinutes * 60_000L
@@ -61,11 +64,12 @@ fun AmbientModeHost(
         enter = fadeIn(tween(FetchMotion.tokens.durations.long)),
         exit = fadeOut(FetchMotion.exitTween())
     ) {
-        AmbientSlideshow(
-            slides = slides,
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) { detectTapGestures { controller.dismiss() } }
-        )
+        val faceModifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) { detectTapGestures { controller.dismiss() } }
+        when (face) {
+            AmbientFace.CLOCK -> AmbientClock(resume = resume, modifier = faceModifier)
+            AmbientFace.ARTWORK -> AmbientSlideshow(slides = slides, modifier = faceModifier)
+        }
     }
 }

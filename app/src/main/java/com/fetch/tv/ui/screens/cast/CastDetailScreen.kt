@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.cast
 
+import com.fetch.tv.ui.theme.cardCornerRadius
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -180,7 +182,7 @@ private fun CastDetailContent(
     onBiographyExpandedChange: (Boolean) -> Unit,
     onNavigateToDetail: (itemId: String, itemType: String, addonBaseUrl: String?) -> Unit,
     posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
-    posterCardCornerRadiusDp: Int = 8,
+    posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     isItemWatched: (MetaPreview) -> Boolean = { false }
 ) {
     val backgroundColor = FetchTheme.colors.Background
@@ -193,12 +195,13 @@ private fun CastDetailContent(
     }
 
     val globalLandscape = LocalLandscapePosterMode.current
-    val filmographyPosterStyle = remember(posterCardCornerRadiusDp, globalLandscape) {
+    val cardRadius = cardCornerRadius(posterCardCornerRadiusDp)
+    val filmographyPosterStyle = remember(cardRadius, globalLandscape) {
         if (globalLandscape) {
             PosterCardStyle(
                 width = 112.dp,
                 height = 240.dp,
-                cornerRadius = posterCardCornerRadiusDp.dp,
+                cornerRadius = cardRadius,
                 focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
                 focusedScale = PosterCardDefaults.Style.focusedScale
             )
@@ -206,7 +209,7 @@ private fun CastDetailContent(
             PosterCardStyle(
                 width = 112.dp,
                 height = 168.dp,
-                cornerRadius = posterCardCornerRadiusDp.dp,
+                cornerRadius = cardRadius,
                 focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
                 focusedScale = PosterCardDefaults.Style.focusedScale
             )

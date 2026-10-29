@@ -178,9 +178,6 @@
     <string name="action_see_all">すべて表示</string>
     <string name="action_load_more">さらに読み込む</string>
 
-    <string name="hero_creator">原作: %1$s</string>
-    <string name="hero_director">監督: %1$s</string>
-    <string name="hero_writer">脚本: %1$s</string>
     <string name="hero_play">再生</string>
     <string name="hero_add_to_library">ライブラリに追加</string>
     <string name="hero_remove_from_library">ライブラリから削除</string>
@@ -2400,7 +2397,6 @@
     <string name="because_you_watched_reason_creator">同じ制作者: %1$s</string>
     <string name="because_you_watched_reason_writer">同じ脚本家: %1$s</string>
     <string name="because_you_watched_reason_cast">同じ出演者: %1$s</string>
-    <string name="ready_to_play">すぐに再生できます</string>
     <string name="home_row_ready_tonight">今夜すぐ見られる</string>
     <string name="ready_check_title">すぐ見られる作品をバックグラウンドで確認</string>
     <string name="ready_check_sub">Wi-Fi またはイーサネット接続時に、「視聴を続ける」とウォッチリストの最大 6 作品について、各作品 12 時間に 1 回までアドオンに問い合わせ、すぐに再生できる作品をホームに表示します。</string>

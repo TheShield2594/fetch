@@ -178,9 +178,6 @@
     <string name="action_see_all">Se alle</string>
     <string name="action_load_more">Indlæs mere</string>
 
-    <string name="hero_creator">Skaber: %1$s</string>
-    <string name="hero_director">Instruktør: %1$s</string>
-    <string name="hero_writer">Forfatter: %1$s</string>
     <string name="hero_play">Afspil</string>
     <string name="hero_add_to_library">Føj til bibliotek</string>
     <string name="hero_remove_from_library">Fjern fra bibliotek</string>
@@ -2405,7 +2402,6 @@
     <string name="because_you_watched_reason_creator">Også skabt af %1$s</string>
     <string name="because_you_watched_reason_writer">Også skrevet af %1$s</string>
     <string name="because_you_watched_reason_cast">Også med %1$s</string>
-    <string name="ready_to_play">Klar til afspilning</string>
     <string name="home_row_ready_tonight">Klar i aften</string>
     <string name="ready_check_title">Tjek i baggrunden, hvad der er klar</string>
     <string name="ready_check_sub">På Wi-Fi eller Ethernet spørger den dine tilføjelser om op til 6 titler fra Fortsæt med at se og din Seerliste, hver højst hver 12. time, så Hjem kan markere dem, der starter med det samme.</string>

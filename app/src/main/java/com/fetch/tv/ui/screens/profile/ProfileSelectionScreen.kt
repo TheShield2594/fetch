@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.profile
 
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.tv.material3.MaterialTheme
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.util.contentTextDirection
@@ -900,12 +899,12 @@ fun ProfileSelectionScreen(
                 Box(
                     modifier = Modifier
                         .padding(bottom = 34.dp)
-                        .clip(RoundedCornerShape(FetchRadii.tokens.full))
+                        .clip(RoundedCornerShape(FetchTheme.radii.full))
                         .background(FetchTheme.colors.Overlay)
                         .border(
                             width = FetchTheme.spacing.hairline,
                             color = FetchTheme.colors.TextPrimary.copy(alpha = 0.14f),
-                            shape = RoundedCornerShape(FetchRadii.tokens.full)
+                            shape = RoundedCornerShape(FetchTheme.radii.full)
                         )
                         .padding(horizontal = FetchTheme.spacing.xl, vertical = 14.dp)
                         .semantics { liveRegion = LiveRegionMode.Polite }
@@ -1967,14 +1966,14 @@ private fun AddProfileCard(
                         modifier = Modifier
                             .width(if (compact) 22.dp else 26.dp)
                             .height(3.dp)
-                            .clip(RoundedCornerShape(FetchRadii.tokens.full))
+                            .clip(RoundedCornerShape(FetchTheme.radii.full))
                             .background(plusColor)
                     )
                     Box(
                         modifier = Modifier
                             .width(3.dp)
                             .height(if (compact) 22.dp else 26.dp)
-                            .clip(RoundedCornerShape(FetchRadii.tokens.full))
+                            .clip(RoundedCornerShape(FetchTheme.radii.full))
                             .background(plusColor)
                     )
                 }
@@ -2062,9 +2061,9 @@ private fun CreateProfileOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
-                .clip(RoundedCornerShape(FetchRadii.tokens.xl))
+                .clip(RoundedCornerShape(FetchTheme.radii.xl))
                 .background(FetchTheme.colors.BackgroundElevated)
-                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xl))
+                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchTheme.radii.xl))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -2235,9 +2234,9 @@ private fun CreateProfileOverlay(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(160.dp)
-                                .clip(RoundedCornerShape(FetchRadii.tokens.xl))
+                                .clip(RoundedCornerShape(FetchTheme.radii.xl))
                                 .background(FetchTheme.colors.BackgroundCard)
-                                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xl)),
+                                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchTheme.radii.xl)),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -2445,9 +2444,9 @@ private fun EditProfileOverlay(
             modifier = Modifier
                 .fillMaxWidth(0.92f)
                 .widthIn(max = ProfileSelectionSpacing.EditorPanelMaxWidth)
-                .clip(RoundedCornerShape(FetchRadii.tokens.xl))
+                .clip(RoundedCornerShape(FetchTheme.radii.xl))
                 .background(FetchTheme.colors.BackgroundElevated)
-                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchRadii.tokens.xl))
+                .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border, RoundedCornerShape(FetchTheme.radii.xl))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -2612,12 +2611,12 @@ private fun EditProfileOverlay(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(160.dp)
-                                        .clip(RoundedCornerShape(FetchRadii.tokens.xl))
+                                        .clip(RoundedCornerShape(FetchTheme.radii.xl))
                                         .background(FetchTheme.colors.BackgroundCard)
                                         .border(
                                             FetchTheme.spacing.hairline,
                                             FetchTheme.colors.Border,
-                                            RoundedCornerShape(FetchRadii.tokens.xl)
+                                            RoundedCornerShape(FetchTheme.radii.xl)
                                         ),
                                     contentAlignment = Alignment.Center
                                 ) {

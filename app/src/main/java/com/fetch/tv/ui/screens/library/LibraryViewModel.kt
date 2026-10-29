@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.library
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.auth.AuthManager
@@ -120,7 +121,7 @@ data class LibraryUiState(
     val isFetchAccount: Boolean = false,
     val isTrackingAuthenticated: Boolean = false,
     val posterCardWidthDp: Int = 126,
-    val posterCardCornerRadiusDp: Int = 8,
+    val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val isLoading: Boolean = true,
     val isSyncing: Boolean = false,
     val errorMessage: String? = null,

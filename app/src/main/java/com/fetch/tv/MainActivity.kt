@@ -101,6 +101,7 @@ import com.fetch.tv.ui.components.LocalStartupLoadingState
 import com.fetch.tv.ui.components.LocalStartupSplashEnabled
 import com.fetch.tv.ui.components.StartupLoadingState
 import com.fetch.tv.ui.components.FloatingSidebarButton
+import com.fetch.tv.ui.components.FetchWordmark
 import com.fetch.tv.ui.components.sidebarFocusEntry
 import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.StartupDestination
@@ -1576,7 +1577,7 @@ private fun FetchSidebarScaffold(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        scrimBrush = sidebarScrimBrush(FetchTheme.colors.Background),
+        scrimBrush = sidebarScrimBrush(FetchTheme.colors.Background, FetchTheme.focus.railContentDim),
         drawerContent = { drawerValue ->
             if (showSidebar) {
                 val isExpanded = drawerValue == DrawerValue.Open
@@ -1607,6 +1608,12 @@ private fun FetchSidebarScaffold(
                             }
                         }
                 ) {
+                    // The logo, above the rail on every root page.
+                    FetchWordmark(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = sidebarTokens.floatingInset + FetchTheme.spacing.xs, top = FetchTheme.spacing.xl)
+                    )
                     Column(
                         modifier = Modifier
                             .align(Alignment.CenterStart)

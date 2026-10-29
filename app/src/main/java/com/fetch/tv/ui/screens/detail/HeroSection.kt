@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.detail
 
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.tv.material3.LocalContentColor
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
@@ -161,9 +160,6 @@ fun HeroContentSection(
     upNext: (@Composable () -> Unit)? = null
 ) {
     val context = LocalContext.current
-    val isSeriesApi = remember(meta.apiType) {
-        meta.apiType.equals("series", ignoreCase = true) || meta.apiType.equals("tv", ignoreCase = true)
-    }
     val logoModel = remember(context, meta.logo) {
         meta.logo?.let { logo ->
             ImageRequest.Builder(context)
@@ -179,20 +175,8 @@ fun HeroContentSection(
             !(isTrailerPlaying && hideLogoDuringTrailer)
     val libraryAddPainter = rememberRawSvgPainter(rawIconRes = com.fetch.tv.R.raw.library_add_plus)
     val trailerPainter = rememberRawSvgPainter(rawIconRes = com.fetch.tv.R.raw.trailer_play_button)
-    val strCreator = stringResource(R.string.hero_creator)
-    val strDirector = stringResource(R.string.hero_director)
-    val strWriter = stringResource(R.string.hero_writer)
-    val creditLine = remember(meta.director, meta.writer, isSeriesApi) {
-        val directorLine = meta.director.takeIf { it.isNotEmpty() }?.joinToString(", ")
-        val writerLine = meta.writer.takeIf { it.isNotEmpty() }?.joinToString(", ")
-        when {
-            !directorLine.isNullOrBlank() -> {
-                if (isSeriesApi) strCreator.format(directorLine) else strDirector.format(directorLine)
-            }
-            !writerLine.isNullOrBlank() -> strWriter.format(writerLine)
-            else -> null
-        }
-    }
+    val synopsisFocusRequester = remember { FocusRequester() }
+    var synopsisTruncated by remember(meta.description) { mutableStateOf(false) }
 
     val fullMotion = FetchTheme.fullMotion
     // The details fade out first, and only then does the hero take its trailer layout, so
@@ -323,6 +307,46 @@ fun HeroContentSection(
                 exit = fadeOut(FetchMotion.exitTween())
             ) {
                 Column {
+                    // Title, then what it is, then what it's about, then what to do: the order
+                    // a viewer reads it. The synopsis is short here; "Read more" opens the rest.
+                    MetaInfoRow(
+                        meta = meta,
+                        hideImdbRating = hideMetaInfoImdb,
+                        showFullReleaseDate = showFullReleaseDate,
+                        tmdbRating = tmdbRating
+                    )
+
+                    if (upNext == null && mdbListRatings?.isEmpty() == false) {
+                        Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+                        MDBListRatingsRow(ratings = mdbListRatings, order = mdbListRatingOrder)
+                    }
+
+                    val description = meta.description?.takeIf { upNext == null && it.isNotBlank() }
+                    if (description != null) {
+                        Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+                        SynopsisDescription(
+                            description = description,
+                            onShowFullDescription = onShowFullDescription,
+                            maxLines = HERO_SYNOPSIS_LINES,
+                            focusRequester = synopsisFocusRequester,
+                            downFocusRequester = playButtonFocusRequester,
+                            onFocused = onHeroActionFocused,
+                            onTruncationChanged = {
+                                synopsisTruncated = it
+                                onTruncationChanged(it)
+                            },
+                            modifier = Modifier.fillMaxWidth(0.6f)
+                        )
+                    }
+                    // Up from the actions reaches the synopsis only when it can open; otherwise
+                    // Up stays put rather than leaving for the sidebar.
+                    val actionsUp = if (description != null && synopsisTruncated) {
+                        synopsisFocusRequester
+                    } else {
+                        FocusRequester.Cancel
+                    }
+
+                    Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
                         verticalAlignment = Alignment.CenterVertically
@@ -338,7 +362,8 @@ fun HeroContentSection(
                             onFocusRestored = {
                                 onHeroActionFocused()
                                 onPlayFocusRestored()
-                            }
+                            },
+                            upFocusRequester = actionsUp
                         )
 
                         ActionIconButton(
@@ -351,7 +376,9 @@ fun HeroContentSection(
                             contentDescription = if (isInLibrary) stringResource(R.string.hero_remove_from_library) else stringResource(R.string.hero_add_to_library),
                             onClick = onToggleLibrary,
                             onLongPress = onLibraryLongPress,
-                            onFocused = onHeroActionFocused
+                            onFocused = onHeroActionFocused,
+                            upFocusRequester = actionsUp,
+                            label = if (isInLibrary) stringResource(R.string.hero_in_library) else stringResource(R.string.hero_add_to_library)
                         )
 
                         if (meta.apiType == "movie") {
@@ -371,7 +398,8 @@ fun HeroContentSection(
                                 selected = isMovieWatched,
                                 selectedContainerColor = Color.White,
                                 selectedContentColor = Color.Black,
-                                onFocused = onHeroActionFocused
+                                onFocused = onHeroActionFocused,
+                                upFocusRequester = actionsUp
                             )
                         }
 
@@ -380,7 +408,8 @@ fun HeroContentSection(
                                 painter = trailerPainter,
                                 contentDescription = stringResource(R.string.hero_play_trailer),
                                 onClick = onTrailerClick,
-                                onFocused = onHeroActionFocused
+                                onFocused = onHeroActionFocused,
+                                upFocusRequester = actionsUp
                             )
                         }
 
@@ -390,7 +419,8 @@ fun HeroContentSection(
                                 pending = shuffleActionPending,
                                 onClick = onRandomEpisodeClick,
                                 focusRequester = randomEpisodeFocusRequester,
-                                onFocused = onHeroActionFocused
+                                onFocused = onHeroActionFocused,
+                                upFocusRequester = actionsUp
                             )
                         }
                     }
@@ -414,50 +444,6 @@ fun HeroContentSection(
                                 .padding(top = FetchTheme.spacing.sm)
                         )
                     }
-
-                    if (upNext == null) {
-                        Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
-
-                        // Director/Writer line above description
-                        if (!creditLine.isNullOrBlank()) {
-                            Text(
-                                text = creditLine,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    textDirection = creditLine.contentTextDirection()
-                                ),
-                                color = FetchTheme.extendedColors.textSecondary,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.fillMaxWidth(0.6f)
-                            )
-                            Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
-                        }
-
-                        if (mdbListRatings?.isEmpty() == false) {
-                            MDBListRatingsRow(ratings = mdbListRatings, order = mdbListRatingOrder)
-                            Spacer(modifier = Modifier.height(14.dp))
-                        }
-
-                        meta.description?.let { description ->
-                            SynopsisDescription(
-                                description = description,
-                                onShowFullDescription = onShowFullDescription,
-                                upFocusRequester = playButtonFocusRequester,
-                                onFocused = onHeroActionFocused,
-                                onTruncationChanged = onTruncationChanged,
-                                modifier = Modifier
-                                    .fillMaxWidth(0.6f)
-                                    .padding(bottom = FetchTheme.spacing.md)
-                            )
-                        }
-
-                        MetaInfoRow(
-                            meta = meta,
-                            hideImdbRating = hideMetaInfoImdb,
-                            showFullReleaseDate = showFullReleaseDate,
-                            tmdbRating = tmdbRating
-                        )
-                    }
                 }
             }
         }
@@ -474,6 +460,9 @@ fun HeroContentSection(
     }
 }
 
+/** The hero keeps the synopsis short; "Read more" opens the rest. */
+private const val HERO_SYNOPSIS_LINES = 3
+
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 internal fun PlayButton(
@@ -485,7 +474,9 @@ internal fun PlayButton(
     onLongPress: (() -> Unit)? = null,
     focusRequester: FocusRequester? = null,
     restoreFocusToken: Int = 0,
-    onFocusRestored: () -> Unit = {}
+    onFocusRestored: () -> Unit = {},
+    /** Where Up goes: the synopsis above when it can open, otherwise nowhere. */
+    upFocusRequester: FocusRequester = FocusRequester.Cancel
 ) {
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
@@ -549,7 +540,7 @@ internal fun PlayButton(
                 }
                 false
             }
-            .focusProperties { up = FocusRequester.Cancel },
+            .focusProperties { up = upFocusRequester },
         // The primary action is always the accent; focus adds the usual neutral ring.
         colors = ButtonDefaults.colors(
             containerColor = FetchTheme.colors.Secondary,
@@ -624,7 +615,8 @@ private fun ActionIconButtonPainter(
     contentDescription: String,
     onClick: () -> Unit,
     onFocused: () -> Unit = {},
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    upFocusRequester: FocusRequester = FocusRequester.Cancel
 ) {
     var isFocused by remember { mutableStateOf(false) }
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -637,12 +629,13 @@ private fun ActionIconButtonPainter(
                     isFocused = state.isFocused
                     if (state.isFocused) onFocused()
                 }
-                .focusProperties { up = FocusRequester.Cancel },
+                .focusProperties { up = upFocusRequester },
+            // Focus is white, as everywhere; red stays for the main action.
             colors = IconButtonDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
-                focusedContainerColor = FetchTheme.colors.Secondary,
+                focusedContainerColor = FetchTheme.colors.Highlight,
                 contentColor = FetchTheme.colors.TextPrimary,
-                focusedContentColor = FetchTheme.colors.OnSecondary
+                focusedContentColor = FetchTheme.colors.OnHighlight
             ),
             border = IconButtonDefaults.border(
                 focusedBorder = Border(
@@ -677,67 +670,110 @@ private fun ActionIconButton(
     selectedContainerColor: Color = FetchStatusTones.toggleOn,
     selectedContentColor: Color = Color.Black,
     onFocused: () -> Unit = {},
-    focusRequester: FocusRequester? = null
+    focusRequester: FocusRequester? = null,
+    upFocusRequester: FocusRequester = FocusRequester.Cancel,
+    /** Shown inside a pill instead of beside a round button on focus ("Add to Library"). */
+    label: String? = null
 ) {
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
     var isFocused by remember { mutableStateOf(false) }
+    val click = {
+        if (longPressTriggered) {
+            longPressTriggered = false
+        } else {
+            onClick()
+        }
+    }
+    val keyModifier = Modifier
+        .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+        .onFocusChanged { state ->
+            isFocused = state.isFocused
+            if (state.isFocused) onFocused()
+        }
+        .onPreviewKeyEvent { event ->
+            val native = event.nativeKeyEvent
+            if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0 && isSelectKey(native.keyCode)) {
+                longPressTriggered = false
+            }
+            if (onLongPress != null && native.action == AndroidKeyEvent.ACTION_DOWN) {
+                if (native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
+                    longPressTriggered = true
+                    if (native.repeatCount == 0) onLongPress()
+                    return@onPreviewKeyEvent true
+                }
+            }
+            if (onLongPress != null &&
+                longPressKeyTracker.handle(native, ::isSelectKey) {
+                    longPressTriggered = true
+                    onLongPress()
+                }
+            ) {
+                if (native.action == AndroidKeyEvent.ACTION_UP) {
+                    longPressTriggered = false
+                }
+                return@onPreviewKeyEvent true
+            }
+
+            if (native.action == AndroidKeyEvent.ACTION_UP && longPressTriggered) {
+                if (isSelectOrMenuKey(native.keyCode)) {
+                    longPressTriggered = false
+                    return@onPreviewKeyEvent true
+                }
+            }
+            false
+        }
+        .focusProperties { up = upFocusRequester }
+
+    if (label != null) {
+        Button(
+            onClick = click,
+            enabled = enabled,
+            modifier = keyModifier,
+            colors = ButtonDefaults.colors(
+                containerColor = FetchTheme.colors.BackgroundCard,
+                focusedContainerColor = FetchTheme.colors.Highlight,
+                contentColor = FetchTheme.colors.TextPrimary,
+                focusedContentColor = FetchTheme.colors.OnHighlight
+            ),
+            shape = ButtonDefaults.shape(shape = FetchTheme.shapes.button),
+            border = ButtonDefaults.border(
+                focusedBorder = Border(
+                    border = FetchTheme.focusRing.border(FetchTheme.strokes.focus),
+                    shape = FetchTheme.shapes.button
+                )
+            ),
+            contentPadding = PaddingValues(horizontal = FetchTheme.spacing.lg, vertical = 14.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+            ) {
+                when {
+                    painter != null -> Icon(painter = painter, contentDescription = null, modifier = Modifier.size(18.dp))
+                    icon != null -> Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                }
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    maxLines = 1
+                )
+            }
+        }
+        return
+    }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(
-            onClick = {
-                if (longPressTriggered) {
-                    longPressTriggered = false
-                } else {
-                    onClick()
-                }
-            },
+            onClick = click,
             enabled = enabled,
-            modifier = Modifier
-                .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
-                .size(FetchTheme.spacing.xxxl)
-                .onFocusChanged { state ->
-                    isFocused = state.isFocused
-                    if (state.isFocused) onFocused()
-                }
-                .onPreviewKeyEvent { event ->
-                    val native = event.nativeKeyEvent
-                    if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0 && isSelectKey(native.keyCode)) {
-                        longPressTriggered = false
-                    }
-                    if (onLongPress != null && native.action == AndroidKeyEvent.ACTION_DOWN) {
-                        if (native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
-                            longPressTriggered = true
-                            if (native.repeatCount == 0) onLongPress()
-                            return@onPreviewKeyEvent true
-                        }
-                    }
-                    if (onLongPress != null &&
-                        longPressKeyTracker.handle(native, ::isSelectKey) {
-                            longPressTriggered = true
-                            onLongPress()
-                        }
-                    ) {
-                        if (native.action == AndroidKeyEvent.ACTION_UP) {
-                            longPressTriggered = false
-                        }
-                        return@onPreviewKeyEvent true
-                    }
-
-                    if (native.action == AndroidKeyEvent.ACTION_UP && longPressTriggered) {
-                        if (isSelectOrMenuKey(native.keyCode)) {
-                            longPressTriggered = false
-                            return@onPreviewKeyEvent true
-                        }
-                    }
-                    false
-                }
-                .focusProperties { up = FocusRequester.Cancel },
+            modifier = keyModifier.size(FetchTheme.spacing.xxxl),
+            // Focus is white, as everywhere; red stays for the main action.
             colors = IconButtonDefaults.colors(
                 containerColor = if (selected) selectedContainerColor else FetchTheme.colors.BackgroundCard,
-                focusedContainerColor = FetchTheme.colors.Secondary,
+                focusedContainerColor = FetchTheme.colors.Highlight,
                 contentColor = if (selected) selectedContentColor else FetchTheme.colors.TextPrimary,
-                focusedContentColor = FetchTheme.colors.OnSecondary
+                focusedContentColor = FetchTheme.colors.OnHighlight
             ),
             border = IconButtonDefaults.border(
                 focusedBorder = Border(
@@ -991,7 +1027,7 @@ private fun HeroMetaBadge(
         modifier = Modifier
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
-                shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         contentAlignment = Alignment.Center
@@ -1017,7 +1053,7 @@ private fun CombinedMetaBadge(
         modifier = Modifier
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, dividerColor),
-                shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,

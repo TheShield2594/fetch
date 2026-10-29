@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 import android.content.Context
 import android.net.TrafficStats
@@ -125,7 +124,7 @@ internal fun PlayerDebugStatsOverlay(
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
+            .clip(RoundedCornerShape(FetchTheme.radii.sm))
             // Over video, so the darkest player scrim: it keeps the labels legible on a bright frame.
             .background(FetchTheme.colors.PlayerOverlay)
             .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md),

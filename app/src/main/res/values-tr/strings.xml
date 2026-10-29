@@ -184,9 +184,6 @@
     <string name="action_load_more">Daha Fazla Yükle</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Yapımcı: %1$s</string>
-    <string name="hero_director">Yönetmen: %1$s</string>
-    <string name="hero_writer">Yazar: %1$s</string>
     <string name="hero_play">Oynat</string>
     <string name="hero_add_to_library">Kütüphaneye ekle</string>
     <string name="hero_remove_from_library">Kütüphaneden kaldır</string>
@@ -2957,7 +2954,6 @@
     <string name="subtitle_style_text_color_hdr">Metin Rengi (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Metin Opaklığı (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="ready_to_play">Oynatmaya hazır</string>
     <string name="home_row_ready_tonight">Bu akşam için hazır</string>
     <string name="ready_check_title">Neyin hazır olduğunu arka planda denetle</string>
     <string name="ready_check_sub">Wi-Fi veya Ethernet\'te, İzlemeye Devam Et ve İzleme Listesi\'ndeki en fazla 6 başlık için eklentilerine sorar, her birini en fazla 12 saatte bir; böylece Ana sayfa hemen başlayanları işaretleyebilir.</string>

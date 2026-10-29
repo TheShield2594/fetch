@@ -6,7 +6,6 @@
 package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -881,7 +880,7 @@ private fun EpisodeItem(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .padding(FetchTheme.spacing.sm)
-                            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
+                            .clip(RoundedCornerShape(FetchTheme.radii.sm))
                             .background(FetchTheme.colors.Player.Scrim)
                             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
                     ) {
@@ -899,7 +898,7 @@ private fun EpisodeItem(
                             .align(Alignment.TopEnd)
                             .padding(6.dp)
                             .size(22.dp)
-                            .clip(RoundedCornerShape(FetchRadii.tokens.md))
+                            .clip(RoundedCornerShape(FetchTheme.radii.md))
                             .background(FetchTheme.colors.Player.Scrim),
                         contentAlignment = Alignment.Center
                     ) {
@@ -916,7 +915,7 @@ private fun EpisodeItem(
                             .align(Alignment.TopEnd)
                             .padding(6.dp)
                             .size(22.dp)
-                            .clip(RoundedCornerShape(FetchRadii.tokens.md))
+                            .clip(RoundedCornerShape(FetchTheme.radii.md))
                             .background(FetchTheme.colors.Player.Scrim),
                         contentAlignment = Alignment.Center
                     ) {

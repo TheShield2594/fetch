@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.tv.material3.Icon
 import com.fetch.tv.R
 import com.fetch.tv.ui.components.FloatingSidebarButton
+import com.fetch.tv.ui.components.FetchWordmark
 import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.ProfileAvatarCircle
 import com.fetch.tv.ui.theme.FetchComponents
@@ -47,9 +48,13 @@ import com.fetch.tv.core.streams.StreamBadgePlacement
 import com.fetch.tv.ui.screens.setup.FirstRunStatus
 import com.fetch.tv.ui.screens.setup.FirstRunStep
 import com.fetch.tv.ui.screens.setup.FirstRunWizardContent
+import com.fetch.tv.ui.screens.ambient.AmbientClock
 import com.fetch.tv.ui.screens.player.LoadingOverlay
 import com.fetch.tv.ui.screens.stream.StreamCard
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
@@ -62,6 +67,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.fetch.tv.domain.model.AppTheme
+import com.fetch.tv.domain.model.DEFAULT_APP_THEME
 import com.fetch.tv.domain.model.NextToWatch
 import com.fetch.tv.ui.screens.detail.HeroContentSection
 import com.fetch.tv.ui.screens.home.HomeRow
@@ -116,7 +123,12 @@ class ReadmeScreenshots {
             // The scaffold pads root screens by this much so the icon column has its own lane.
             Box(Modifier.fillMaxSize().padding(start = FetchLayout.tokens.sidebarContentOffset)) { SampleHome() }
             // Same fade and column as FetchSidebarScaffold while the sidebar has focus.
-            Box(Modifier.fillMaxSize().background(sidebarScrimBrush(FetchTheme.colors.Background)))
+            Box(Modifier.fillMaxSize().background(sidebarScrimBrush(FetchTheme.colors.Background, FetchTheme.focus.railContentDim)))
+            FetchWordmark(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = FetchComponents.tokens.sidebar.floatingInset + FetchTheme.spacing.xs, top = FetchTheme.spacing.xl)
+            )
             Column(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
@@ -214,7 +226,10 @@ class ReadmeScreenshots {
     }
 
     @Test
-    fun detail() = render("detail") {
+    fun detail() = render("detail") { SampleDetail() }
+
+    @Composable
+    private fun SampleDetail() {
         val meta = Samples.detailMeta
         Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
             AsyncImage(
@@ -237,7 +252,24 @@ class ReadmeScreenshots {
                     Brush.verticalGradient(0.55f to Color.Transparent, 1f to FetchTheme.colors.Background)
                 )
             )
-            Box(Modifier.fillMaxSize().padding(start = 48.dp, top = 110.dp)) {
+            // Same order as the page: the 540dp hero, then the Sources row under it.
+            val bestMatch = BestMatchPreview(
+                videoId = "sample-long-field:2:6",
+                labels = listOf("4K", "DV P8", "TrueHD Atmos", "18.2 GB"),
+                buttonLabels = listOf("4K", "Dolby Vision", "Atmos"),
+                isCached = true,
+                addonName = "Torrentio",
+                sourceCount = 14,
+                isFinal = true
+            )
+            // Unbounded like the page's list, then scrolled to Sources the way Down from Play does.
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(Alignment.Top, unbounded = true)
+                    .padding(start = 48.dp)
+                    .offset(y = (-190).dp)
+            ) {
                 HeroContentSection(
                     meta = meta,
                     nextEpisode = meta.videos.firstOrNull { it.episode == 6 },
@@ -249,15 +281,7 @@ class ReadmeScreenshots {
                         nextEpisode = 6,
                         displayText = "Play S2 E6"
                     ),
-                    bestMatch = BestMatchPreview(
-                        videoId = "sample-long-field:2:6",
-                        labels = listOf("4K", "DV P8", "TrueHD Atmos", "18.2 GB"),
-                        buttonLabels = listOf("4K", "Dolby Vision", "Atmos"),
-                        isCached = true,
-                        addonName = "Torrentio",
-                        sourceCount = 14,
-                        isFinal = true
-                    ),
+                    bestMatch = bestMatch,
                     onPlayClick = {},
                     isInLibrary = true,
                     onToggleLibrary = {},
@@ -267,12 +291,28 @@ class ReadmeScreenshots {
                     onToggleMovieWatched = {},
                     trailerAvailable = true
                 )
+                com.fetch.tv.ui.screens.detail.DetailSourcesRow(
+                    bestMatch = bestMatch,
+                    onPlayBestMatch = {},
+                    onAllSources = {},
+                    modifier = Modifier.padding(start = FetchTheme.spacing.xxxl)
+                )
             }
         }
     }
 
+    // Ambient Mode's clock face, at a fixed time.
     @Test
-    fun fetchingPanel() = render("fetching") {
+    fun ambientClock() = render("ambient-clock", focusFirst = false) {
+        val resume = (Samples.continueWatching.first() as com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress).progress
+        AmbientClock(resume = resume, now = { SAMPLE_EVENING })
+    }
+
+    @Test
+    fun fetchingPanel() = render("fetching") { SampleFetching() }
+
+    @Composable
+    private fun SampleFetching() {
         val meta = Samples.detailMeta
         Box(
             modifier = Modifier
@@ -398,9 +438,15 @@ class ReadmeScreenshots {
         name: String,
         focusFirst: Boolean = true,
         focusOn: String? = null,
+        appTheme: AppTheme = DEFAULT_APP_THEME,
         content: @Composable () -> Unit
     ) {
-        compose.setContent { FetchTheme { content() } }
+        // A fixed evening, so the clocks on screen don't change every run.
+        compose.setContent {
+            CompositionLocalProvider(com.fetch.tv.ui.components.LocalWallClock provides { SAMPLE_EVENING }) {
+                FetchTheme(appTheme = appTheme) { content() }
+            }
+        }
         // Let images load and enter animations settle before drawing.
         repeat(6) {
             compose.mainClock.advanceTimeBy(1_000)
@@ -426,3 +472,7 @@ class ReadmeScreenshots {
         println("Wrote $out (${bitmap.width}x${bitmap.height})")
     }
 }
+
+/** 9:47 pm on a Thursday, at an even second so the Ambient Mode clock's colon is lit. */
+private val SAMPLE_EVENING: Long = java.time.LocalDateTime.of(2026, 10, 29, 21, 47, 0)
+    .atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()

@@ -184,9 +184,6 @@
     <string name="action_load_more">تحميل المزيد</string>    
 
     <!-- HeroSection -->
-    <string name="hero_creator">المؤلف: %1$s</string>
-    <string name="hero_director">المخرج: %1$s</string>
-    <string name="hero_writer">الكاتب: %1$s</string>
     <string name="hero_play">تشغيل</string>
     <string name="hero_add_to_library">إضافة للمكتبة</string>
     <string name="hero_remove_from_library">إزالة من المكتبة</string>
@@ -2664,7 +2661,6 @@
     <string name="because_you_watched_reason_creator">من تأليف %1$s أيضًا</string>
     <string name="because_you_watched_reason_writer">من كتابة %1$s أيضًا</string>
     <string name="because_you_watched_reason_cast">بطولة %1$s أيضًا</string>
-    <string name="ready_to_play">جاهز للتشغيل</string>
     <string name="home_row_ready_tonight">جاهز الليلة</string>
     <string name="ready_check_title">التحقق من الجاهز في الخلفية</string>
     <string name="ready_check_sub">عبر Wi-Fi أو Ethernet، يسأل إضافاتك عن 6 عناوين كحد أقصى من متابعة المشاهدة وقائمة المشاهدة، كل عنوان مرة كل 12 ساعة على الأكثر، لتُظهر الرئيسية ما يبدأ فورًا.</string>

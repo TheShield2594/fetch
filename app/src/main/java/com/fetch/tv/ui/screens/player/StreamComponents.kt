@@ -5,7 +5,6 @@
 
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -188,7 +187,7 @@ internal fun StreamItem(
                         if (isCurrentStream) {
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(FetchRadii.tokens.full))
+                                    .clip(RoundedCornerShape(FetchTheme.radii.full))
                                     .background(FetchTheme.colors.Primary.copy(alpha = 0.2f))
                                     .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
                             ) {

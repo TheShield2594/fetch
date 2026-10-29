@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.R
+import com.fetch.tv.domain.model.AmbientFace
 import com.fetch.tv.domain.model.AmbientModeSettings
 
 @Composable
@@ -25,6 +26,7 @@ internal fun AmbientModeSettingsCard(
     val settings = uiState.settings
     var showTimeoutDialog by remember { mutableStateOf(false) }
     var showCatalogsDialog by remember { mutableStateOf(false) }
+    var showFaceDialog by remember { mutableStateOf(false) }
     val selectedCatalogs = settings.catalogKeys.filter { key -> uiState.catalogs.any { it.key == key } }
 
     SettingsGroupCard(
@@ -44,6 +46,12 @@ internal fun AmbientModeSettingsCard(
                 subtitle = stringResource(R.string.ambient_mode_timeout_subtitle),
                 value = timeoutLabel(settings.timeoutMinutes),
                 onClick = { showTimeoutDialog = true }
+            )
+            SettingsActionRow(
+                title = stringResource(R.string.ambient_mode_face),
+                subtitle = stringResource(R.string.ambient_mode_face_subtitle),
+                value = faceLabel(settings.face),
+                onClick = { showFaceDialog = true }
             )
             SettingsActionRow(
                 title = stringResource(R.string.ambient_mode_catalogs),
@@ -80,6 +88,22 @@ internal fun AmbientModeSettingsCard(
         )
     }
 
+    if (showFaceDialog) {
+        SettingsSingleChoiceDialog(
+            title = stringResource(R.string.ambient_mode_face),
+            subtitle = stringResource(R.string.ambient_mode_face_subtitle),
+            options = AmbientFace.entries.map { face ->
+                SettingsPickerOption(face, faceLabel(face))
+            },
+            selectedValue = settings.face ?: AmbientFace.ARTWORK,
+            onOptionSelected = { face ->
+                viewModel.setFace(face)
+                showFaceDialog = false
+            },
+            onDismiss = { showFaceDialog = false }
+        )
+    }
+
     if (showCatalogsDialog) {
         SettingsMultiChoiceDialog(
             title = stringResource(R.string.ambient_mode_catalogs),
@@ -98,6 +122,12 @@ internal fun AmbientModeSettingsCard(
             maxSelections = AmbientModeSettings.MAX_CATALOGS
         )
     }
+}
+
+@Composable
+private fun faceLabel(face: AmbientFace?): String = when (face ?: AmbientFace.ARTWORK) {
+    AmbientFace.ARTWORK -> stringResource(R.string.ambient_mode_face_artwork)
+    AmbientFace.CLOCK -> stringResource(R.string.ambient_mode_face_clock)
 }
 
 @Composable

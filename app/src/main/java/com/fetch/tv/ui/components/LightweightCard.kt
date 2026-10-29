@@ -42,11 +42,17 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.contentColorFor
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchTheme
 
 /**
  * Drop-in replacement for tv-material `Card` as the home rows configure it: one [shape] and
- * [containerColor] for every state, no scale, no glow and [focusedBorder] while focused or
- * pressed (`CardDefaults.border(focusedBorder = ...)`, `CardDefaults.scale(focusedScale = 1f)`).
+ * [containerColor] for every state, no glow and [focusedBorder] while focused or pressed
+ * (`CardDefaults.border(focusedBorder = ...)`). While focused it grows to [focusedScale] and lifts
+ * on a [focusedShadow]; both default to off.
  *
  * It draws the same layers in the same order as tv-material's `Surface` (z-index, border,
  * background, clip) and handles D-pad select, focus and semantics the same way. The difference is
@@ -63,6 +69,8 @@ fun LightweightCard(
     modifier: Modifier = Modifier,
     focusedBorder: Border = Border.None,
     restingBorder: Border = Border.None,
+    focusedScale: Float = 1f,
+    focusedShadow: Dp = 0.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -72,6 +80,15 @@ fun LightweightCard(
         targetValue = if (focused) FOCUSED_Z_INDEX else NON_FOCUSED_Z_INDEX,
         label = "zIndex"
     )
+    // Reduced motion keeps the ring and drops the growth.
+    val targetScale = if (FetchTheme.fullMotion) focusedScale else 1f
+    // Read only in the draw layer below, so the lift animates without recomposing the card.
+    val scale = animateFloatAsState(
+        targetValue = if (focused) targetScale else 1f,
+        animationSpec = FetchMotion.focusSpring(),
+        label = "cardScale"
+    )
+    val shadowPx = with(LocalDensity.current) { focusedShadow.toPx() }
     val border = if (focused || pressed) focusedBorder else restingBorder
     val coroutineScope = rememberCoroutineScope()
     val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
@@ -110,7 +127,16 @@ fun LightweightCard(
                     }
                     onLongClick { false }
                 }
-                .graphicsLayer(scaleX = 1f, scaleY = 1f)
+                .graphicsLayer {
+                    val s = scale.value
+                    scaleX = s
+                    scaleY = s
+                    if (shadowPx > 0f && targetScale > 1f) {
+                        // The shadow grows with the lift, so a resting card has none to draw.
+                        shadowElevation = shadowPx * ((s - 1f) / (targetScale - 1f)).coerceIn(0f, 1f)
+                        this.shape = shape
+                    }
+                }
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
                     layout(placeable.width, placeable.height) {

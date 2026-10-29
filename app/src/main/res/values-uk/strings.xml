@@ -183,9 +183,6 @@
     <string name="action_see_all">Показати всі</string>
     <string name="action_load_more">Завантажити ще</string>
 
-    <string name="hero_creator">Автор: %1$s</string>
-    <string name="hero_director">Режисер: %1$s</string>
-    <string name="hero_writer">Сценарист: %1$s</string>
     <string name="hero_play">Дивитися</string>
     <string name="hero_add_to_library">Додати до бібліотеки</string>
     <string name="hero_remove_from_library">Видалити з бібліотеки</string>
@@ -2430,7 +2427,6 @@
     <string name="because_you_watched_reason_creator">Той самий автор: %1$s</string>
     <string name="because_you_watched_reason_writer">Той самий сценарист: %1$s</string>
     <string name="because_you_watched_reason_cast">Також у ролях: %1$s</string>
-    <string name="ready_to_play">Готово до відтворення</string>
     <string name="home_row_ready_tonight">Готово на вечір</string>
     <string name="ready_check_title">Перевіряти у фоні, що готово</string>
     <string name="ready_check_sub">Через Wi-Fi або Ethernet запитує доповнення про не більше ніж 6 назв із «Продовжити перегляд» і «Списку для перегляду», про кожну не частіше ніж раз на 12 годин, щоб головна позначала ті, що запустяться одразу.</string>

@@ -14,7 +14,8 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.profile_title,
         R.string.profile_manage_button,
         R.string.profile_section_startup,
-        R.string.profile_remember_last_profile
+        R.string.profile_remember_last_profile,
+        R.string.parental_lock_profiles_title
     ),
     SettingsCategory.WATCH_PARTY to listOf(
         R.string.party_title,

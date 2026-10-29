@@ -80,6 +80,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
@@ -1458,6 +1459,9 @@ private fun AddonCardContent(
     showReorder: Boolean = true,
     toggleFocusRequester: FocusRequester? = null
 ) {
+    val enabledToggleDescription = stringResource(R.string.cd_addon_enabled_toggle, addon.displayName)
+    val configureDescription = stringResource(R.string.cd_configure_addon, addon.displayName)
+    val removeDescription = stringResource(R.string.cd_remove_addon, addon.displayName)
     Column(modifier = Modifier.padding(20.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1517,6 +1521,7 @@ private fun AddonCardContent(
                             .focusRequester(toggleFocusRequester ?: remember { FocusRequester() })
                             .semantics {
                                 role = Role.Switch
+                                contentDescription = enabledToggleDescription
                                 toggleableState = if (addon.enabled) ToggleableState.On else ToggleableState.Off
                             },
                         colors = ClickableSurfaceDefaults.colors(
@@ -1565,7 +1570,7 @@ private fun AddonCardContent(
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                         ) {
-                            Icon(imageVector = Icons.Default.ArrowUpward, contentDescription = stringResource(R.string.cd_move_up))
+                            Icon(imageVector = Icons.Default.ArrowUpward, contentDescription = stringResource(R.string.cd_move_addon_up, addon.displayName))
                         }
                         Button(
                             onClick = onMoveDown,
@@ -1585,13 +1590,16 @@ private fun AddonCardContent(
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                         ) {
-                            Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.cd_move_down))
+                            Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.cd_move_addon_down, addon.displayName))
                         }
                     }
                     if (onConfigure != null) {
                         Button(
                             onClick = onConfigure,
-                            modifier = Modifier.semantics { role = Role.Button },
+                            modifier = Modifier.semantics {
+                                role = Role.Button
+                                contentDescription = configureDescription
+                            },
                             colors = ButtonDefaults.colors(
                                 containerColor = FetchTheme.colors.BackgroundCard,
                                 contentColor = FetchTheme.colors.TextSecondary,
@@ -1611,7 +1619,10 @@ private fun AddonCardContent(
                     }
                     Button(
                         onClick = onRemove,
-                        modifier = Modifier.semantics { role = Role.Button },
+                        modifier = Modifier.semantics {
+                            role = Role.Button
+                            contentDescription = removeDescription
+                        },
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundCard,
                             contentColor = FetchTheme.colors.TextSecondary,

@@ -2232,6 +2232,11 @@
     <string name="cd_loading_logo">Loading logo</string>
     <string name="cd_move_up">Move up</string>
     <string name="cd_move_down">Move down</string>
+    <string name="cd_move_addon_up">Move %1$s up</string>
+    <string name="cd_move_addon_down">Move %1$s down</string>
+    <string name="cd_addon_enabled_toggle">%1$s enabled</string>
+    <string name="cd_configure_addon">Configure %1$s</string>
+    <string name="cd_remove_addon">Remove %1$s</string>
     <string name="cd_edit">Edit</string>
     <string name="cd_delete">Delete</string>
     <string name="cd_qr_code">QR Code</string>

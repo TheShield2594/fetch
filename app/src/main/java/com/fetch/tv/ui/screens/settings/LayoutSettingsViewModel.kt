@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
@@ -51,7 +52,7 @@ data class LayoutSettingsUiState(
         FocusedPosterTrailerPlaybackTarget.HERO_MEDIA,
     val posterCardWidthDp: Int = 126,
     val posterCardHeightDp: Int = 189,
-    val posterCardCornerRadiusDp: Int = 8,
+    val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val blurUnwatchedEpisodes: Boolean = false,
     val randomEpisodeEnabled: Boolean = false,
     val episodeOptionsOverlayStyle: EpisodeOptionsOverlayStyle = EpisodeOptionsOverlayStyle.BLUR,
@@ -753,14 +754,14 @@ class LayoutSettingsViewModel @Inject constructor(
         if (
             _uiState.value.posterCardWidthDp == 126 &&
             _uiState.value.posterCardHeightDp == 189 &&
-            _uiState.value.posterCardCornerRadiusDp == 12
+            _uiState.value.posterCardCornerRadiusDp == THEME_CARD_CORNER_RADIUS
         ) {
             return
         }
         viewModelScope.launch {
             layoutPreferenceDataStore.setPosterCardWidthDp(126)
             layoutPreferenceDataStore.setPosterCardHeightDp(189)
-            layoutPreferenceDataStore.setPosterCardCornerRadiusDp(12)
+            layoutPreferenceDataStore.setPosterCardCornerRadiusDp(THEME_CARD_CORNER_RADIUS)
         }
     }
 

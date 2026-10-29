@@ -17,7 +17,6 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.graphics.graphicsLayer
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.ranking.StreamTitleParser
 import com.fetch.tv.core.streams.ranking.ExclusionReason
 import com.fetch.tv.core.streams.ranking.label
@@ -1525,7 +1524,7 @@ internal fun StreamCard(
                     if (markedLabel != null) {
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(FetchRadii.tokens.full))
+                                .clip(RoundedCornerShape(FetchTheme.radii.full))
                                 .background(FetchTheme.colors.Primary.copy(alpha = 0.2f))
                                 .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
                         ) {

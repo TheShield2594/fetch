@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.components
 
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.contentTextDirection
 
@@ -119,7 +118,7 @@ fun SourceStatusFilterChip(
         border = FilterChipDefaults.border(
             border = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, if (isError) FetchTheme.colors.Error.copy(alpha = 0.7f) else FetchTheme.colors.Border),
-                shape = RoundedCornerShape(FetchRadii.tokens.xl)
+                shape = RoundedCornerShape(FetchTheme.radii.xl)
             ),
             focusedBorder = Border(
                 border = if (isError) {
@@ -127,11 +126,11 @@ fun SourceStatusFilterChip(
                 } else {
                     FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
                 },
-                shape = RoundedCornerShape(FetchRadii.tokens.xl)
+                shape = RoundedCornerShape(FetchTheme.radii.xl)
             ),
             selectedBorder = Border(
                 border = BorderStroke(FetchTheme.spacing.hairline, if (isError) FetchTheme.colors.Error.copy(alpha = 0.75f) else FetchTheme.colors.Primary),
-                shape = RoundedCornerShape(FetchRadii.tokens.xl)
+                shape = RoundedCornerShape(FetchTheme.radii.xl)
             ),
             focusedSelectedBorder = Border(
                 border = if (isError) {
@@ -139,10 +138,10 @@ fun SourceStatusFilterChip(
                 } else {
                     FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
                 },
-                shape = RoundedCornerShape(FetchRadii.tokens.xl)
+                shape = RoundedCornerShape(FetchTheme.radii.xl)
             )
         ),
-        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.xl))
+        shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.xl))
     ) {
         Text(
             text = name,

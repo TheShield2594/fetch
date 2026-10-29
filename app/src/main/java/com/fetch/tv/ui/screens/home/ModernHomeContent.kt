@@ -6,6 +6,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PlayLaunchOrigin
 import com.fetch.tv.ui.components.CatalogRowsSkeleton
 import com.fetch.tv.ui.screens.settings.MemoryBudget
@@ -715,7 +716,7 @@ fun ModernHomeContent(
     val screenHeight = localConfiguration.screenHeightDp.dp
 
     Box(modifier = Modifier.fillMaxSize().background(FetchTheme.colors.Background)) {
-            val posterCardCornerRadius = remember(uiState.posterCardCornerRadiusDp) { uiState.posterCardCornerRadiusDp.dp }
+            val posterCardCornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
             val rowHorizontalPadding = 52.dp
 
             val activeCarouselItemState = remember(carouselRows, rowByKey) {
@@ -1298,7 +1299,7 @@ fun ModernHomeContent(
                 blurUnwatchedEpisodes = uiState.blurUnwatchedEpisodes,
                 useEpisodeThumbnails = uiState.useEpisodeThumbnailsInCw,
                 continueWatchingCardStyle = continueWatchingStyle,
-                continueWatchingCornerRadius = uiState.posterCardCornerRadiusDp.dp,
+                continueWatchingCornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp),
                 pendingRowFocusKey = pendingRowFocusKey,
                 pendingRowFocusIndex = pendingRowFocusIndex,
                 pendingRowFocusNonce = pendingRowFocusNonce,

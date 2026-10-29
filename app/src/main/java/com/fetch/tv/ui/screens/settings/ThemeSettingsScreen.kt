@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.app.Activity
@@ -412,7 +411,7 @@ private fun ThemeSwatchChip(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val palette = remember(theme, customColors) { ThemeColors.getColorPalette(theme, customColors) }
-    val chipShape = RoundedCornerShape(FetchRadii.tokens.xl)
+    val chipShape = RoundedCornerShape(FetchTheme.radii.xl)
     val label = theme.localizedName()
 
     Card(

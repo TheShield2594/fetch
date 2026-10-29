@@ -14,8 +14,8 @@ import com.fetch.tv.domain.model.AppTheme
 
 /**
  * What a theme changes beyond its colours. Most themes are a palette and nothing else; Signal
- * also swaps bars and spinners for dots, sets its large type in a dot-matrix face, and keeps one
- * red for state.
+ * also swaps bars and spinners for dots, sets its large type in a dot-matrix face, keeps one red
+ * for state, and has its own corners.
  */
 @Immutable
 data class FetchThemeStyle(
@@ -25,7 +25,11 @@ data class FetchThemeStyle(
      * A colour kept for state only (ready, failed), never a fill or a label colour. Null means
      * the theme marks state with its ordinary colours.
      */
-    val signal: Color? = null
+    val signal: Color? = null,
+    /** Corner radii; read through [FetchTheme.radii]. */
+    val radii: FetchRadiusTokens = FetchRadii.tokens,
+    /** Shapes by role; read through [FetchTheme.shapes]. */
+    val shapes: FetchShapeTokens = FetchShapes.tokens
 )
 
 val LocalFetchThemeStyle = staticCompositionLocalOf { FetchThemeStyle() }
@@ -49,7 +53,12 @@ val SpaceMonoFamily = FontFamily(
     Font(R.font.space_mono_bold, FontWeight.Bold)
 )
 
-private val SignalStyle = FetchThemeStyle(dotMatrix = true, signal = Color(0xFFD71921))
+private val SignalStyle = FetchThemeStyle(
+    dotMatrix = true,
+    signal = Color(0xFFD71921),
+    radii = FetchRadii.signal,
+    shapes = FetchShapes.signal
+)
 
 fun AppTheme.themeStyle(): FetchThemeStyle = when (this) {
     AppTheme.SIGNAL -> SignalStyle

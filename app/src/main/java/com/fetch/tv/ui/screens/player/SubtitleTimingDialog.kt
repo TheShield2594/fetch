@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.background
@@ -174,7 +173,7 @@ private fun SyncPromptPanel(
                 containerColor = FetchTheme.colors.Player.Divider,
                 focusedContainerColor = FetchTheme.colors.Player.Track
             ),
-            shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.md))
+            shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
         ) {
             Text(
                 text = stringResource(R.string.subtitle_timing_sync_button),

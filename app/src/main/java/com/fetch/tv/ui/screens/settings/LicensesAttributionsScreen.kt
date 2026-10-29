@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.content.Intent
@@ -153,8 +152,8 @@ private fun LicensesAttributionsDetailsPanel(
 
     Column(
         modifier = modifier
-            .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border.copy(alpha = 0.5f), RoundedCornerShape(FetchRadii.tokens.xl))
-            .background(FetchTheme.colors.BackgroundElevated.copy(alpha = 0.35f), RoundedCornerShape(FetchRadii.tokens.xl))
+            .border(FetchTheme.spacing.hairline, FetchTheme.colors.Border.copy(alpha = 0.5f), RoundedCornerShape(FetchTheme.radii.xl))
+            .background(FetchTheme.colors.BackgroundElevated.copy(alpha = 0.35f), RoundedCornerShape(FetchTheme.radii.xl))
             .padding(20.dp)
     ) {
         Box(

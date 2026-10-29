@@ -5,7 +5,6 @@
 
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.screens.detail.formatPlaybackTime
@@ -3197,7 +3196,7 @@ private fun ReportControlButton(
                 color = FetchTheme.colors.Player.TextPrimary,
                 maxLines = 1,
                 modifier = Modifier
-                    .background(FetchTheme.colors.Player.Scrim, RoundedCornerShape(FetchRadii.tokens.xs))
+                    .background(FetchTheme.colors.Player.Scrim, RoundedCornerShape(FetchTheme.radii.xs))
                     .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
             )
         }
@@ -3587,7 +3586,7 @@ private fun ProgressBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(if (isFocused) FetchTheme.spacing.md else FetchTheme.spacing.sm)
-                .clip(RoundedCornerShape(FetchRadii.tokens.xs))
+                .clip(RoundedCornerShape(FetchTheme.radii.xs))
                 .background(
                     if (isFocused) FetchTheme.colors.Player.TrackFocused
                     else FetchTheme.colors.Player.Track
@@ -3800,7 +3799,7 @@ private fun StreamSourceIndicator(text: String) {
         modifier = Modifier
             .background(
                 color = FetchTheme.colors.Player.ScrimStrong,
-                shape = RoundedCornerShape(FetchRadii.tokens.xl)
+                shape = RoundedCornerShape(FetchTheme.radii.xl)
             )
             .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
@@ -3822,7 +3821,7 @@ private fun PlayerEngineSwitchIndicator(
 ) {
     Column(
         modifier = Modifier
-            .clip(RoundedCornerShape(FetchRadii.tokens.xl))
+            .clip(RoundedCornerShape(FetchTheme.radii.xl))
             .background(FetchTheme.colors.Player.ScrimStrong)
             .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -3881,7 +3880,7 @@ private fun SubtitleDelayOverlay(
     Column(
         modifier = Modifier
             .fillMaxWidth(0.6f)
-            .clip(RoundedCornerShape(FetchRadii.tokens.xl))
+            .clip(RoundedCornerShape(FetchTheme.radii.xl))
             .background(FetchTheme.colors.PlayerOverlay)
             .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.lg)
     ) {
@@ -4400,7 +4399,7 @@ private fun MoreActionItem(
             containerColor = FetchTheme.colors.BackgroundCard,
             focusedContainerColor = FetchTheme.colors.FocusBackground
         ),
-        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.sm))
+        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm))
     ) {
         Text(
             text = text,

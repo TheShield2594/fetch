@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -160,7 +161,7 @@ class MetaDetailsViewModel @Inject constructor(
             .filteredForProfile(parentalControls)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, MetaDetailsUiState())
 
-    private val _posterCardCornerRadiusDp = MutableStateFlow(12)
+    private val _posterCardCornerRadiusDp = MutableStateFlow(THEME_CARD_CORNER_RADIUS)
     val posterCardCornerRadiusDp: StateFlow<Int> = _posterCardCornerRadiusDp.asStateFlow()
 
     private val localizedContext: Context

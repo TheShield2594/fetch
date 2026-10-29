@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.home
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
 import com.fetch.tv.ui.components.offersPlayLaunchOrigin
@@ -877,10 +876,10 @@ private fun HeroCombinedMetaBadge(
     val dividerColor = contentColor.copy(alpha = 0.55f)
     Row(
         modifier = Modifier
-            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
+            .clip(RoundedCornerShape(FetchTheme.radii.sm))
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, dividerColor),
-                shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
@@ -918,10 +917,10 @@ private fun HeroMetaBadge(
 ) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
+            .clip(RoundedCornerShape(FetchTheme.radii.sm))
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
-                shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         contentAlignment = Alignment.Center

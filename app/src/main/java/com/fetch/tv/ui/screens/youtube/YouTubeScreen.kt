@@ -86,7 +86,6 @@ import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.settings.SettingsChoiceChip
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 private val VideoCardWidth = 300.dp
@@ -522,7 +521,7 @@ internal fun YouTubeVideoCard(
     /** For the focusable card itself, rather than the card with its title under it. */
     cardModifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(FetchRadii.tokens.md)
+    val shape = RoundedCornerShape(FetchTheme.radii.md)
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
@@ -559,7 +558,7 @@ internal fun YouTubeVideoCard(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(FetchTheme.spacing.xs)
-                            .clip(RoundedCornerShape(FetchRadii.tokens.xs))
+                            .clip(RoundedCornerShape(FetchTheme.radii.xs))
                             .background(
                                 if (video.isLive) FetchTheme.colors.Error
                                 else FetchTheme.colors.Background.copy(alpha = 0.8f)
@@ -606,7 +605,7 @@ private fun YouTubeLinkCard(
     modifier: Modifier = Modifier,
     cardModifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(FetchRadii.tokens.md)
+    val shape = RoundedCornerShape(FetchTheme.radii.md)
     val title = link.title ?: stringResource(
         if (link.kind == YouTubeLinkKind.LIKED) R.string.youtube_liked_videos else R.string.youtube_watch_later
     )
@@ -658,7 +657,7 @@ private fun YouTubeLinkCard(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(FetchTheme.spacing.xs)
-                            .clip(RoundedCornerShape(FetchRadii.tokens.xs))
+                            .clip(RoundedCornerShape(FetchTheme.radii.xs))
                             .background(FetchTheme.colors.Background.copy(alpha = 0.8f))
                     )
                 }
@@ -691,7 +690,7 @@ private fun YouTubeViewAllCard(
     portrait: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val shape = RoundedCornerShape(FetchRadii.tokens.md)
+    val shape = RoundedCornerShape(FetchTheme.radii.md)
     Card(
         onClick = onClick,
         modifier = modifier.aspectRatio(if (portrait) 9f / 16f else 16f / 9f),
@@ -773,7 +772,7 @@ private fun YouTubeSearchField(
     val inputFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isFocused by remember { mutableStateOf(false) }
-    val shape = RoundedCornerShape(FetchRadii.tokens.sm)
+    val shape = RoundedCornerShape(FetchTheme.radii.sm)
     Card(
         onClick = { inputFocusRequester.requestFocus() },
         modifier = modifier

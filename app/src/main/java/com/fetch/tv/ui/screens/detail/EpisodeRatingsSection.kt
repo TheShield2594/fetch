@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.detail
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.focusGroup
@@ -186,7 +185,7 @@ fun EpisodeRatingsSection(
                                         selectedSeason = season
                                     }
                                 },
-                            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
+                            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
                             colors = CardDefaults.colors(
                                 containerColor = if (isSelected) {
                                     FetchTheme.colors.FocusBackground
@@ -198,7 +197,7 @@ fun EpisodeRatingsSection(
                             border = CardDefaults.border(
                                 focusedBorder = Border(
                                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(FetchRadii.tokens.md)
+                                    shape = RoundedCornerShape(FetchTheme.radii.md)
                                 )
                             ),
                             scale = CardDefaults.scale(focusedScale = 1f)
@@ -243,7 +242,7 @@ fun EpisodeRatingsSection(
                                 .then(
                                     if (isFirstEpisode) Modifier.focusRequester(firstEpisodeRatingFocusRequester) else Modifier
                                 ),
-                            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
+                            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
                             colors = CardDefaults.colors(
                                 containerColor = episodeRating.chipColor,
                                 focusedContainerColor = episodeRating.chipColor
@@ -251,7 +250,7 @@ fun EpisodeRatingsSection(
                             border = CardDefaults.border(
                                 focusedBorder = Border(
                                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                    shape = RoundedCornerShape(FetchRadii.tokens.md)
+                                    shape = RoundedCornerShape(FetchTheme.radii.md)
                                 )
                             ),
                             scale = CardDefaults.scale(focusedScale = 1.03f)

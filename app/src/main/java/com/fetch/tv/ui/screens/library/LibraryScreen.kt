@@ -1,6 +1,6 @@
 package com.fetch.tv.ui.screens.library
 
-import com.fetch.tv.ui.theme.FetchRadii
+import com.fetch.tv.ui.theme.cardCornerRadius
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -172,7 +172,7 @@ fun LibraryScreen(
     val posterCardStyle = PosterCardDefaults.Style.copy(
         width = uiState.posterCardWidthDp.dp,
         height = (uiState.posterCardWidthDp * 3 / 2).dp,
-        cornerRadius = uiState.posterCardCornerRadiusDp.dp,
+        cornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp),
         showRestingBorder = true
     )
 
@@ -552,7 +552,7 @@ fun LibraryScreen(
                 color = FetchTheme.colors.TextPrimary,
                 modifier = Modifier
                     .padding(top = FetchTheme.spacing.xl)
-                    .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchRadii.tokens.sm))
+                    .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchTheme.radii.sm))
                     .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
             )
         }
@@ -827,7 +827,7 @@ private fun LibraryDropdownPicker(
                 )
                 .onSizeChanged { anchorSize = it }
                 .onFocusChanged { isFocused = it.isFocused },
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
+            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
             colors = CardDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
                 focusedContainerColor = FetchTheme.colors.FocusBackground
@@ -835,11 +835,11 @@ private fun LibraryDropdownPicker(
             border = CardDefaults.border(
                 border = androidx.tv.material3.Border(
                     border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = RoundedCornerShape(FetchRadii.tokens.md)
+                    shape = RoundedCornerShape(FetchTheme.radii.md)
                 ),
                 focusedBorder = androidx.tv.material3.Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchRadii.tokens.md)
+                    shape = RoundedCornerShape(FetchTheme.radii.md)
                 )
             ),
             scale = CardDefaults.scale(
@@ -888,7 +888,7 @@ private fun LibraryDropdownPicker(
             modifier = Modifier
                 .width(with(LocalDensity.current) { anchorSize.width.toDp() })
                 .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(FetchRadii.tokens.md),
+            shape = RoundedCornerShape(FetchTheme.radii.md),
             containerColor = FetchTheme.colors.BackgroundCard,
             tonalElevation = FetchTheme.spacing.none,
             shadowElevation = FetchTheme.spacing.sm,
@@ -922,7 +922,7 @@ private fun LibraryDropdownPicker(
                         .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
                         .background(
                             color = itemBackgroundColor,
-                            shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                            shape = RoundedCornerShape(FetchTheme.radii.sm)
                         )
                         .onFocusChanged { state ->
                             val hasFocus = state.isFocused || state.hasFocus

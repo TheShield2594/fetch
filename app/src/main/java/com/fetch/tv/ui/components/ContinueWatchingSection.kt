@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.components
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.screens.home.shuffleFocusKey
 
 import android.view.KeyEvent as AndroidKeyEvent
@@ -20,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.MutableIntState
@@ -92,7 +93,8 @@ import androidx.compose.ui.text.TextStyle
 import kotlinx.coroutines.delay
 import com.fetch.tv.ui.theme.FetchContentColors
 
-private val BadgeShape = RoundedCornerShape(FetchTheme.radii.xs)
+private val BadgeShape: Shape
+    @Composable @ReadOnlyComposable get() = FetchTheme.shapes.badge
 private val CwNewEpisodeBadgeColor = FetchContentColors.newEpisodeBadge
 private val CwNewSeasonBadgeColor = FetchContentColors.newSeasonBadge
 
@@ -829,7 +831,7 @@ fun ContinueWatchingCard(
                             .then(
                                 if (isPosterStyle) {
                                     Modifier
-                                        .clip(RoundedCornerShape(FetchRadii.tokens.full))
+                                        .clip(RoundedCornerShape(FetchTheme.radii.full))
                                         .background(FetchTheme.colors.Background.copy(alpha = 0.7f))
                                         .padding(FetchTheme.spacing.xxs)
                                 } else {

@@ -152,10 +152,14 @@ object FetchTheme {
         get() = FetchSpacing.tokens
 
     val radii: FetchRadiusTokens
-        get() = FetchRadii.tokens
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalFetchThemeStyle.current.radii
 
     val shapes: FetchShapeTokens
-        get() = FetchShapes.tokens
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalFetchThemeStyle.current.shapes
 
     val sizes: FetchSizeTokens
         get() = FetchSizes.tokens

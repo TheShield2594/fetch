@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent
@@ -161,14 +160,14 @@ private fun AnimeSkipClientIdDialog(
             border = CardDefaults.border(
                 border = Border(
                     border = androidx.compose.foundation.BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)
                 ),
                 focusedBorder = Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)
                 )
             ),
-            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)),
+            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)),
             scale = CardDefaults.scale(focusedScale = 1f)
         ) {
             Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)) {

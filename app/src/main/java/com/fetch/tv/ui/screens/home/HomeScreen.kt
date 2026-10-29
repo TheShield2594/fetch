@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.ReportDrawnWhen
@@ -385,7 +384,7 @@ fun HomeScreen(
                     .padding(top = FetchTheme.spacing.xl)
                     .background(
                         color = FetchStatusTones.errorBanner,
-                        shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                        shape = RoundedCornerShape(FetchTheme.radii.sm)
                     )
                     .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
                     .semantics { liveRegion = LiveRegionMode.Polite }

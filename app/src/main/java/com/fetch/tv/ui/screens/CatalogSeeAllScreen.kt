@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens
 
+import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PosterGridSkeleton
 import com.fetch.tv.domain.model.catalogRowLegacyKey
 import com.fetch.tv.ui.theme.FetchTheme
@@ -90,7 +91,7 @@ fun CatalogSeeAllScreen(
     val posterCardStyle = PosterCardStyle(
         width = uiState.posterCardWidthDp.dp,
         height = computedHeightDp.dp,
-        cornerRadius = uiState.posterCardCornerRadiusDp.dp,
+        cornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp),
         focusedBorderWidth = PosterCardDefaults.Style.focusedBorderWidth,
         focusedScale = PosterCardDefaults.Style.focusedScale
     )

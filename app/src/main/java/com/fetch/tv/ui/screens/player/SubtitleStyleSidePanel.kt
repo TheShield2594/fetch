@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.FetchPrimitives
 
@@ -328,7 +327,7 @@ private fun SubtitleStyleSection(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(FetchRadii.tokens.md))
+            .clip(RoundedCornerShape(FetchTheme.radii.md))
             .background(FetchTheme.colors.Player.Control)
             .padding(FetchTheme.spacing.md)
     ) {
@@ -397,7 +396,7 @@ private fun SubtitleStyleStepperButton(
             contentColor = FetchTheme.colors.Player.TextPrimary,
             focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
-        shape = IconButtonDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.sm))
+        shape = IconButtonDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm))
     ) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(FetchTheme.spacing.lg))
     }
@@ -408,7 +407,7 @@ private fun SubtitleStyleValueDisplay(text: String) {
     Box(
         modifier = Modifier
             .widthIn(min = 52.dp)
-            .clip(RoundedCornerShape(FetchRadii.tokens.sm))
+            .clip(RoundedCornerShape(FetchTheme.radii.sm))
             .background(FetchTheme.colors.Player.Control)
             .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
         contentAlignment = Alignment.Center
@@ -471,7 +470,7 @@ private fun SubtitleStyleToggleButton(
             focusedContainerColor = FetchTheme.colors.Player.Focus,
             focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
-        shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm))
+        shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm))
     ) {
         Text(
             text = if (isEnabled) stringResource(R.string.subtitle_style_on) else stringResource(R.string.subtitle_style_off),

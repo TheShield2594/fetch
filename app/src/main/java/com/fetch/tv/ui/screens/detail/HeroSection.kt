@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.detail
 
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.tv.material3.LocalContentColor
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
@@ -990,7 +989,7 @@ private fun HeroMetaBadge(
         modifier = Modifier
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, contentColor.copy(alpha = 0.55f)),
-                shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         contentAlignment = Alignment.Center
@@ -1016,7 +1015,7 @@ private fun CombinedMetaBadge(
         modifier = Modifier
             .border(
                 border = BorderStroke(FetchTheme.spacing.hairline, dividerColor),
-                shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
         verticalAlignment = Alignment.CenterVertically,

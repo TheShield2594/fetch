@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.cast
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -46,7 +47,7 @@ class CastDetailViewModel @Inject constructor(
     val watchedMovieIds: StateFlow<Set<String>> = _watchedMovieIds.asStateFlow()
     val watchedSeriesIds: StateFlow<Set<String>> = watchedSeriesStateHolder.fullyWatchedSeriesIds
 
-    private val _posterCardCornerRadiusDp = MutableStateFlow(12)
+    private val _posterCardCornerRadiusDp = MutableStateFlow(THEME_CARD_CORNER_RADIUS)
     val posterCardCornerRadiusDp: StateFlow<Int> = _posterCardCornerRadiusDp.asStateFlow()
 
     init {

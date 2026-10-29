@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.AnimatedVisibility
@@ -305,14 +304,14 @@ fun TrailerSeekOverlay(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(6.dp)
-                    .clip(RoundedCornerShape(FetchRadii.tokens.xs))
+                    .clip(RoundedCornerShape(FetchTheme.radii.xs))
                     .background(Color.White.copy(alpha = 0.3f))
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(animatedProgress)
-                        .clip(RoundedCornerShape(FetchRadii.tokens.xs))
+                        .clip(RoundedCornerShape(FetchTheme.radii.xs))
                         .background(FetchTheme.colors.Secondary)
                 )
             }

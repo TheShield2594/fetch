@@ -1,5 +1,6 @@
 package com.fetch.tv.data.local
 
+import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -51,7 +52,7 @@ class LayoutPreferenceDataStore @Inject constructor(
         private const val FEATURE = "layout_settings"
         private const val DEFAULT_POSTER_CARD_WIDTH_DP = 126
         private const val DEFAULT_POSTER_CARD_HEIGHT_DP = 189
-        private const val DEFAULT_POSTER_CARD_CORNER_RADIUS_DP = 8
+        private const val DEFAULT_POSTER_CARD_CORNER_RADIUS_DP = THEME_CARD_CORNER_RADIUS
         private const val DEFAULT_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS = 3
         private const val MIN_FOCUSED_POSTER_BACKDROP_EXPAND_DELAY_SECONDS = 0
     }

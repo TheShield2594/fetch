@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent
@@ -506,7 +505,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                     containerColor = if (selected.isEmpty()) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                     focusedContainerColor = FetchTheme.colors.FocusBackground
                 ),
-                shape = CardDefaults.shape(shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)),
+                shape = CardDefaults.shape(shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)),
                 scale = CardDefaults.scale(focusedScale = 1f)
             ) {
                 Row(
@@ -564,7 +563,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                                 containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground
                             ),
-                            shape = CardDefaults.shape(shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)),
+                            shape = CardDefaults.shape(shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)),
                             scale = CardDefaults.scale(focusedScale = 1f)
                         ) {
                             Row(
@@ -701,10 +700,10 @@ private fun StreamRegexDialog(
                             border = CardDefaults.border(
                                 focusedBorder = Border(
                                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.xl)
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.xl)
                                 )
                             ),
-                            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.xl)),
+                            shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.xl)),
                             scale = CardDefaults.scale(focusedScale = 1.02f)
                         ) {
                             Text(
@@ -729,14 +728,14 @@ private fun StreamRegexDialog(
                     border = CardDefaults.border(
                         border = Border(
                             border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)
                         ),
                         focusedBorder = Border(
                             border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)
                         )
                     ),
-                    shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)),
+                    shape = CardDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm)),
                     scale = CardDefaults.scale(focusedScale = 1f)
                 ) {
                     Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)) {
@@ -798,7 +797,7 @@ private fun StreamRegexDialog(
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
-                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm))
+                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm))
                     ) {
                         Text(stringResource(R.string.action_cancel))
                     }
@@ -814,7 +813,7 @@ private fun StreamRegexDialog(
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
-                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm))
+                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm))
                     ) {
                         Text(stringResource(R.string.action_none))
                     }
@@ -837,7 +836,7 @@ private fun StreamRegexDialog(
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
-                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm))
+                        shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm))
                     ) {
                         Text(stringResource(R.string.action_save))
                     }

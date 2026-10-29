@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
@@ -122,7 +121,7 @@ fun PostPlayOverlay(
         }
         Card(
             onClick = onCardClick,
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
+            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
             colors = CardDefaults.colors(
                 containerColor = FetchPrimitives.neutral900.copy(alpha = 0.89f),
                 focusedContainerColor = FetchPrimitives.neutral900.copy(alpha = 0.89f),
@@ -130,11 +129,11 @@ fun PostPlayOverlay(
             border = CardDefaults.border(
                 border = Border(
                     border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Player.Divider),
-                    shape = RoundedCornerShape(FetchRadii.tokens.md),
+                    shape = RoundedCornerShape(FetchTheme.radii.md),
                 ),
                 focusedBorder = Border(
                     border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchRadii.tokens.md),
+                    shape = RoundedCornerShape(FetchTheme.radii.md),
                 ),
             ),
             scale = CardDefaults.scale(focusedScale = 1f),
@@ -456,7 +455,7 @@ private fun NextEpisodeThumbnail(
     Box(
         modifier = modifier
             .size(width = 112.dp, height = 64.dp)
-            .clip(RoundedCornerShape(FetchRadii.tokens.sm)),
+            .clip(RoundedCornerShape(FetchTheme.radii.sm)),
     ) {
         AsyncImage(
             model = imageRequest,

@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.components
 
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.animation.animateColorAsState
@@ -249,7 +248,7 @@ private fun CategoryTab(
                     Modifier
                 }
             )
-            .clip(RoundedCornerShape(FetchRadii.tokens.xl))
+            .clip(RoundedCornerShape(FetchTheme.radii.xl))
             .background(bgColor)
             .border(
                 border = if (isFocused) {
@@ -257,7 +256,7 @@ private fun CategoryTab(
                 } else {
                     BorderStroke(borderWidth, borderColor)
                 },
-                shape = RoundedCornerShape(FetchRadii.tokens.xl)
+                shape = RoundedCornerShape(FetchTheme.radii.xl)
             )
             .onFocusChanged { isFocused = it.isFocused }
             .clickable(

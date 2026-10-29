@@ -72,7 +72,6 @@ import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayHost
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayState
 import com.fetch.tv.ui.theme.FetchMotion
-import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 import kotlinx.coroutines.delay
 
@@ -324,7 +323,7 @@ fun YouTubePlayerOverlay(
                     style = MaterialTheme.typography.labelLarge,
                     color = Color.White,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(FetchRadii.tokens.sm))
+                        .clip(RoundedCornerShape(FetchTheme.radii.sm))
                         .background(Color.Black.copy(alpha = 0.7f))
                         .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
                 )
@@ -414,7 +413,7 @@ private fun VideoActionsMenu(
         modifier = modifier
             .padding(FetchTheme.spacing.xl)
             .width(CAPTION_MENU_WIDTH)
-            .clip(RoundedCornerShape(FetchRadii.tokens.md))
+            .clip(RoundedCornerShape(FetchTheme.radii.md))
             .background(Color.Black.copy(alpha = 0.85f))
             .padding(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
@@ -589,7 +588,7 @@ private fun CaptionText(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(start = FetchTheme.spacing.xxl, end = FetchTheme.spacing.xxl, bottom = bottom)
-                .background(Color(style.backgroundColor), RoundedCornerShape(FetchRadii.tokens.xs))
+                .background(Color(style.backgroundColor), RoundedCornerShape(FetchTheme.radii.xs))
                 .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
         ) {
             if (style.outlineEnabled) {
@@ -621,7 +620,7 @@ private fun CaptionMenu(
         modifier = modifier
             .padding(FetchTheme.spacing.xl)
             .width(CAPTION_MENU_WIDTH)
-            .clip(RoundedCornerShape(FetchRadii.tokens.md))
+            .clip(RoundedCornerShape(FetchTheme.radii.md))
             .background(Color.Black.copy(alpha = 0.85f))
             .padding(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
@@ -675,7 +674,7 @@ private fun CaptionMenuRow(
     modifier: Modifier = Modifier,
     loading: Boolean = false
 ) {
-    val shape = RoundedCornerShape(FetchRadii.tokens.sm)
+    val shape = RoundedCornerShape(FetchTheme.radii.sm)
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),

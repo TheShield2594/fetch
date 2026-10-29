@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.settings
 
-import com.fetch.tv.ui.theme.FetchRadii
 import android.view.KeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -143,7 +142,7 @@ private fun ColorChannelSlider(
     onValueChange: (Int) -> Unit,
     step: Int = 1
 ) {
-    val shape = RoundedCornerShape(FetchRadii.tokens.sm)
+    val shape = RoundedCornerShape(FetchTheme.radii.sm)
     Card(
         onClick = {},
         modifier = Modifier

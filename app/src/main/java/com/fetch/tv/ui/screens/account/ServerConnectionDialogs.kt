@@ -2,7 +2,6 @@
 
 package com.fetch.tv.ui.screens.account
 
-import com.fetch.tv.ui.theme.FetchRadii
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -111,7 +110,7 @@ internal fun ServerOptionsMenuHost(
             onDismissRequest = { expanded = false },
             offset = DpOffset(x = 0.dp, y = 12.dp),
             modifier = Modifier.width(320.dp),
-            shape = RoundedCornerShape(FetchRadii.tokens.md),
+            shape = RoundedCornerShape(FetchTheme.radii.md),
             containerColor = FetchTheme.colors.BackgroundCard,
             tonalElevation = 0.dp,
             shadowElevation = FetchTheme.spacing.sm,
@@ -189,12 +188,12 @@ private fun ServerMenuItem(
             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
             .background(
                 color = if (isFocused) FetchTheme.colors.Secondary else Color.Transparent,
-                shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
             .border(
                 width = if (isFocused) FetchTheme.spacing.xxs else FetchTheme.spacing.hairline,
                 color = if (isFocused) FetchTheme.colors.FocusRing else Color.Transparent,
-                shape = RoundedCornerShape(FetchRadii.tokens.sm)
+                shape = RoundedCornerShape(FetchTheme.radii.sm)
             )
             .onFocusChanged { state -> isFocused = state.isFocused || state.hasFocus },
         text = {
@@ -388,8 +387,8 @@ private fun ServerWarning(server: ServerConfiguration) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, FetchTheme.colors.Warning.copy(alpha = 0.4f), RoundedCornerShape(FetchRadii.tokens.md))
-            .background(FetchTheme.colors.Warning.copy(alpha = 0.12f), RoundedCornerShape(FetchRadii.tokens.md))
+            .border(1.dp, FetchTheme.colors.Warning.copy(alpha = 0.4f), RoundedCornerShape(FetchTheme.radii.md))
+            .background(FetchTheme.colors.Warning.copy(alpha = 0.12f), RoundedCornerShape(FetchTheme.radii.md))
             .padding(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
     ) {

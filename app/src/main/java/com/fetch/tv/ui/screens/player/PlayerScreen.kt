@@ -4472,7 +4472,7 @@ private fun SpeedItem(
             Text(
                 text = if (speed == 1f) stringResource(R.string.player_speed_normal) else "${speed}x",
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (isSelected) FetchTheme.colors.Primary else FetchTheme.colors.TextPrimary
+                color = FetchTheme.colors.TextPrimary
             )
 
             if (isSelected) {

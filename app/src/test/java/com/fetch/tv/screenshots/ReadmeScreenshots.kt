@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.tv.material3.Icon
 import com.fetch.tv.R
 import com.fetch.tv.ui.components.FloatingSidebarButton
+import com.fetch.tv.ui.components.FetchWordmark
 import com.fetch.tv.ui.components.sidebarScrimBrush
 import com.fetch.tv.ui.components.ProfileAvatarCircle
 import com.fetch.tv.ui.theme.FetchComponents
@@ -119,7 +120,12 @@ class ReadmeScreenshots {
             // The scaffold pads root screens by this much so the icon column has its own lane.
             Box(Modifier.fillMaxSize().padding(start = FetchLayout.tokens.sidebarContentOffset)) { SampleHome() }
             // Same fade and column as FetchSidebarScaffold while the sidebar has focus.
-            Box(Modifier.fillMaxSize().background(sidebarScrimBrush(FetchTheme.colors.Background)))
+            Box(Modifier.fillMaxSize().background(sidebarScrimBrush(FetchTheme.colors.Background, FetchTheme.focus.railContentDim)))
+            FetchWordmark(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = FetchComponents.tokens.sidebar.floatingInset + FetchTheme.spacing.xs, top = FetchTheme.spacing.xl)
+            )
             Column(
                 modifier = Modifier
                     .align(Alignment.CenterStart)

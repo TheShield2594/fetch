@@ -873,7 +873,9 @@ private fun EpisodeCard(
         focusedBorder = Border(
             border = focusRingBorder,
             shape = shape
-        )
+        ),
+        focusedScale = FetchTheme.focus.cardScale,
+        focusedShadow = FetchTheme.focus.cardShadow
     ) {
         Box(
             modifier = Modifier

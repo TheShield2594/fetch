@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 RES = os.path.join(ROOT, "app", "src", "main", "res")
 FONT = os.path.join(RES, "font", "dm_sans_variable.ttf")
+DOTO = os.path.join(RES, "font", "doto_variable.ttf")
 GLYPH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mark_glyph.png")
 
 # Primary brand gradient: warm amber to coral. Theme variants reuse the same shapes.
@@ -101,6 +102,35 @@ def wordmark(width: int, height: int, color) -> Image.Image:
     return img
 
 
+def dot_wordmark(width: int, height: int) -> Image.Image:
+    """Fetch's own wordmark: FETCH in the Doto dot-matrix face, tracked out.
+
+    The default (white) wordmark; the coloured theme wordmarks keep the "fetch" lettering.
+    """
+    scale = 4  # supersample for round dots
+    w, h = width * scale, height * scale
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    f = ImageFont.truetype(DOTO, int(h * 0.62))
+    try:
+        f.set_variation_by_axes([100, 900])  # (ROND: round dots, wght: heaviest)
+    except Exception:
+        pass
+    text = "FETCH"
+    tracking = h * 0.06
+    widths = [draw.textbbox((0, 0), c, font=f)[2] - draw.textbbox((0, 0), c, font=f)[0] for c in text]
+    cap = draw.textbbox((0, 0), "H", font=f)
+    cap_h = cap[3] - cap[1]
+    total = sum(widths) + tracking * (len(text) - 1)
+    x = (w - total) / 2
+    y = (h - cap_h) / 2 - cap[1]
+    for c, cw in zip(text, widths):
+        box = draw.textbbox((0, 0), c, font=f)
+        draw.text((x - box[0], y), c, font=f, fill=(255, 255, 255, 255))
+        x += cw + tracking
+    return img.resize((width, height), Image.LANCZOS)
+
+
 def banner(width: int, height: int, palette=PALETTES[""]) -> Image.Image:
     img = Image.new("RGB", (width, height))
     px = img.load()
@@ -128,6 +158,11 @@ def save(img: Image.Image, *parts: str) -> None:
     print("wrote", os.path.relpath(path, ROOT))
 
 
+def write_dot_wordmarks() -> None:
+    save(dot_wordmark(1085, 344), RES, "drawable", "app_logo_wordmark.png")
+    save(dot_wordmark(1085, 344), ROOT, "assets", "brand", "app_logo_wordmark.png")
+
+
 def main() -> None:
     densities = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
     for suffix, palette in PALETTES.items():
@@ -138,8 +173,9 @@ def main() -> None:
     save(mark(1080, PALETTES[""]), ROOT, "assets", "brand", "app_logo_mark.png")
 
     for suffix, color in WORDMARK_COLORS.items():
-        save(wordmark(1085, 344, color), RES, "drawable", f"app_logo_wordmark{suffix}.png")
-    save(wordmark(1085, 344, WORDMARK_COLORS[""]), ROOT, "assets", "brand", "app_logo_wordmark.png")
+        if suffix:
+            save(wordmark(1085, 344, color), RES, "drawable", f"app_logo_wordmark{suffix}.png")
+    write_dot_wordmarks()
     save(wordmark(1000, 230, WORDMARK_COLORS[""]), RES, "drawable", "fetch_text.png")
 
     # Android TV launcher banners, one per launcher icon theme.
@@ -153,4 +189,10 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    # --wordmark: only the dot-matrix wordmark, so the other bitmaps aren't rewritten.
+    if "--wordmark" in sys.argv:
+        write_dot_wordmarks()
+    else:
+        main()

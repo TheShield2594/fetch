@@ -3,10 +3,6 @@ package com.fetch.tv.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,25 +45,26 @@ import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
 /**
- * The full-screen fade behind the open sidebar: a soft fade from the left edge instead of a
- * panel, so the icons and labels stay readable over artwork while the page runs edge to edge.
- * It is fully opaque across the open sidebar's width (300dp, about a third of a 960dp TV screen):
- * at anything less, bright page content such as the Home hero's white Resume button still showed
- * through, and the focused label's pill cut it into a stray fragment ("sume S2 E5").
+ * The full-screen fade behind the open sidebar. Opaque behind the labels (the open sidebar is
+ * 300dp, about a third of a 960dp TV screen), so bright page content such as the hero's Resume
+ * button never shows through them, then easing to a light dim over the rest of the page: the
+ * page stays visible, just stepped back, while the rail has focus.
  */
-internal fun sidebarScrimBrush(background: Color): Brush = Brush.horizontalGradient(
+internal fun sidebarScrimBrush(background: Color, contentDim: Float): Brush = Brush.horizontalGradient(
     0f to background,
-    0.32f to background,
-    0.55f to background.copy(alpha = 0.4f),
-    1f to Color.Transparent
+    0.28f to background,
+    0.5f to background.copy(alpha = contentDim),
+    1f to background.copy(alpha = contentDim)
 )
 
 /**
- * One sidebar entry: a round icon and a label that slides out beside it while it has focus.
+ * One rail entry: an icon tile, and while the rail has focus ([expanded]) its label beside it.
+ * Every label shows while the rail is open, so the whole menu reads at once, and they slide in
+ * together with the rail.
  *
- * Focus is the loudest state: the focused item fills white, whether or not it is the current
- * page. The current page, unfocused, keeps a bright icon and a short accent tick at its leading
- * edge. Before, the current page held the white fill, so it out-shouted the item focus was on.
+ * Focus is the loudest state: the focused item fills white with a ring, whether or not it is the
+ * current page. The current page, unfocused, is tinted in the accent with an accent icon, so it
+ * says "you are here" without competing with focus.
  */
 @Composable
 internal fun FloatingSidebarButton(
@@ -81,18 +78,17 @@ internal fun FloatingSidebarButton(
     var isFocused by remember { mutableStateOf(false) }
     val tokens = FetchComponents.tokens.sidebar
     // Snaps with the focus ring: focus moves through the sidebar far too often for a colour fade.
-    val circleColor = when {
+    val tileColor = when {
         isFocused -> FetchTheme.colors.Highlight
-        selected -> FetchTheme.colors.FocusBackground
+        selected -> FetchTheme.colors.Accent.copy(alpha = SELECTED_TINT_ALPHA)
         else -> Color.Transparent
     }
     val iconTint = when {
         isFocused -> FetchTheme.colors.OnHighlight
-        selected -> FetchTheme.colors.TextPrimary
+        selected -> FetchTheme.colors.Accent
         else -> FetchTheme.colors.TextSecondary
     }
-    val tickColor = FetchTheme.colors.Secondary
-    val showTick = selected && !isFocused
+    val tileShape = RoundedCornerShape(FetchTheme.radii.md)
 
     // The ring sits outside the circle with a small gap, so the slot is wider than the circle.
     val ringGap = FetchTheme.strokes.focus + 2.dp
@@ -120,50 +116,34 @@ internal fun FloatingSidebarButton(
                 .size(slotSize)
                 .then(
                     if (isFocused) {
-                        Modifier.border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), CircleShape)
-                    } else {
-                        Modifier
-                    }
-                )
-                .then(
-                    if (showTick) {
-                        // In the ring's gap at the leading edge, so it never covers the icon.
-                        Modifier.drawBehind {
-                            val tickWidth = ringGap.toPx() * 0.75f
-                            val tickHeight = size.height * 0.36f
-                            val left = if (layoutDirection == LayoutDirection.Rtl) size.width - tickWidth else 0f
-                            drawRoundRect(
-                                color = tickColor,
-                                topLeft = Offset(left, (size.height - tickHeight) / 2f),
-                                size = Size(tickWidth, tickHeight),
-                                cornerRadius = CornerRadius(tickWidth / 2f)
-                            )
-                        }
+                        Modifier.border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), tileShape)
                     } else {
                         Modifier
                     }
                 )
                 .padding(ringGap)
-                .background(circleColor, CircleShape),
+                .background(tileColor, tileShape),
             contentAlignment = Alignment.Center
         ) {
             leading(iconTint)
         }
-        if (isFocused && expanded) {
+        if (expanded) {
             Text(
                 text = label,
-                color = FetchTheme.colors.TextPrimary,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = if (isFocused || selected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = if (isFocused) FontWeight.SemiBold else FontWeight.Normal
+                ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .focusLabelEntrance()
-                    .background(FetchTheme.colors.BackgroundCard, FetchTheme.shapes.navItem)
-                    .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
+                modifier = Modifier.focusLabelEntrance()
             )
         }
     }
 }
+
+/** The current page's tile: the accent at this strength, so its icon in full accent still reads on it. */
+private const val SELECTED_TINT_ALPHA = 0.18f
 
 /**
  * Makes focus that enters the sidebar land on [currentPage], the current page's item.

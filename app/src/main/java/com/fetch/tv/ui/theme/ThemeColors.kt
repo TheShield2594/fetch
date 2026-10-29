@@ -11,9 +11,8 @@ data class ThemeColorPalette(
     val onSecondaryVariant: Color = FetchPrimitives.white,
     val accentGradient: List<Color> = listOf(secondary),
     /**
-     * The one colour that marks "here" and "now": watch progress, the current page, the
-     * wordmark's dot. Most themes use their action colour; Fetch keeps its action white and
-     * this red.
+     * The colour that marks "here" and "now": watch progress and the current page. The same as
+     * the action colour unless a theme sets it apart.
      */
     val accent: Color = secondary,
     val focusBackground: Color,
@@ -30,24 +29,26 @@ data class ThemeColorPalette(
     val playerOverlay: Color = Color(0xCC000000)
 )
 
-/** Fetch red: the wordmark's dot, watch progress and the current page. Nothing else. */
-val FetchRed = Color(0xFFE8333A)
+/**
+ * Fetch red: the main action, watch progress and the current page. Deep enough that white text
+ * on it passes 4.5:1.
+ */
+val FetchRed = Color(0xFFDC2B33)
 
 object ThemeColors {
     // Each built-in theme is an art direction, not a hue swap: its own tinted ground ramp
     // (background → elevated → card → surface → variant), an accent with a dark label on it,
     // and a focus background in the same family. Focus itself stays white in every theme.
     /**
-     * Fetch's own look: near-monochrome. A true-dark ground with neutral greys, white for the
-     * main action, and Fetch red as the only colour, for progress, the current page and the
-     * wordmark's dot. The artwork brings the colour.
+     * Fetch's own look: near-monochrome. A true-dark ground with neutral greys and Fetch red
+     * as the only colour: the main action, progress and the current page. The artwork brings
+     * the rest.
      */
     val Fetch = ThemeColorPalette(
-        secondary = Color(0xFFF2F2F2),
-        secondaryVariant = Color(0xFFD9D9D9),
-        onSecondary = Color(0xFF0A0A0B),
-        onSecondaryVariant = Color(0xFF0A0A0B),
-        accent = FetchRed,
+        secondary = FetchRed,
+        secondaryVariant = Color(0xFFC0222A),
+        onSecondary = Color(0xFFFFFFFF),
+        onSecondaryVariant = Color(0xFFFFFFFF),
         focusBackground = Color(0xFF2A2A2E),
         background = Color(0xFF0A0A0B),
         backgroundElevated = Color(0xFF111113),

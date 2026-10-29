@@ -1375,7 +1375,11 @@ private fun ModernCarouselCard(
             shape = cardShape,
             containerColor = backgroundCardColor,
             focusedBorder = effectiveFocusedBorder,
-            restingBorder = restingBorder
+            restingBorder = restingBorder,
+            // A card that widens into its backdrop on focus doesn't also grow; nor does one the
+            // held D-pad is only sliding past.
+            focusedScale = if (focusedPosterBackdropExpandEnabled || isFastScrolling) 1f else FetchTheme.focus.cardScale,
+            focusedShadow = FetchTheme.focus.cardShadow
         ) {
             Box(
                 modifier = Modifier

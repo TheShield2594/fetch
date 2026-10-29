@@ -88,7 +88,7 @@ object FetchComponents {
             cornerRadius = 8.dp,
             contentPadding = 8.dp,
             focusedBorderWidth = 2.dp,
-            focusedScale = 1.04f
+            focusedScale = FetchFocus.tokens.cardScale
         ),
         backdropCard = FetchCardComponentTokens(
             width = 320.dp,
@@ -96,7 +96,7 @@ object FetchComponents {
             cornerRadius = 8.dp,
             contentPadding = 16.dp,
             focusedBorderWidth = 2.dp,
-            focusedScale = 1.04f
+            focusedScale = FetchFocus.tokens.cardScale
         ),
         collectionCard = FetchCardComponentTokens(
             width = 320.dp,
@@ -104,7 +104,7 @@ object FetchComponents {
             cornerRadius = 8.dp,
             contentPadding = 16.dp,
             focusedBorderWidth = 2.dp,
-            focusedScale = 1.04f
+            focusedScale = FetchFocus.tokens.cardScale
         ),
         continueWatchingCard = FetchCardComponentTokens(
             width = 260.dp,
@@ -112,7 +112,7 @@ object FetchComponents {
             cornerRadius = 8.dp,
             contentPadding = 12.dp,
             focusedBorderWidth = 2.dp,
-            focusedScale = 1.04f
+            focusedScale = FetchFocus.tokens.cardScale
         ),
         episodeCard = FetchCardComponentTokens(
             width = 320.dp,
@@ -120,7 +120,7 @@ object FetchComponents {
             cornerRadius = 8.dp,
             contentPadding = 16.dp,
             focusedBorderWidth = 2.dp,
-            focusedScale = 1.04f
+            focusedScale = FetchFocus.tokens.cardScale
         ),
         row = FetchRowComponentTokens(
             horizontalPadding = 48.dp,

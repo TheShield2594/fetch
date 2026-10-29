@@ -1890,6 +1890,7 @@
     <string name="library_list_move_up">Move Up</string>
     <string name="library_list_move_down">Move Down</string>
     <string name="library_list_delete">Delete</string>
+    <string name="library_list_delete_named">Delete “%1$s”</string>
     <string name="library_list_close">Close</string>
     <string name="library_list_name_label">Name</string>
     <string name="library_error_list_name_required">List name is required</string>

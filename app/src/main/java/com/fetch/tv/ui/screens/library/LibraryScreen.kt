@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -33,6 +34,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.focusable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.DropdownMenu
@@ -71,6 +73,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
@@ -583,16 +587,15 @@ private fun LibraryViewModeRow(
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
             modes.forEach { mode ->
-                val selected = mode == selectedMode
+                val isSelected = mode == selectedMode
                 Button(
                     onClick = { onSelected(mode) },
                     modifier = Modifier
-                        .then(if (selected) Modifier.focusRequester(primaryFocusRequester) else Modifier),
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (selected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
-                        contentColor = FetchTheme.colors.TextPrimary
-                    )
+                        .then(if (isSelected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
+                        .semantics { selected = isSelected },
+                    colors = selectableButtonColors(isSelected)
                 ) {
+                    if (isSelected) SelectedCheckmark()
                     Text(
                         text = when (mode) {
                             LibraryViewMode.Saved -> stringResource(R.string.library_source_saved)
@@ -924,6 +927,7 @@ private fun LibraryDropdownPicker(
                             color = itemBackgroundColor,
                             shape = RoundedCornerShape(FetchRadii.tokens.sm)
                         )
+                        .semantics { selected = isSelected }
                         .onFocusChanged { state ->
                             val hasFocus = state.isFocused || state.hasFocus
                             focusedOptionValue = when {
@@ -939,6 +943,20 @@ private fun LibraryDropdownPicker(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                    },
+                    // The current choice keeps a checkmark, so it stays identifiable once focus
+                    // moves to another option.
+                    trailingIcon = if (isSelected) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = itemTextColor
+                            )
+                        }
+                    } else {
+                        null
                     },
                     onClick = { onSelect(option) },
                     colors = MenuDefaults.itemColors(

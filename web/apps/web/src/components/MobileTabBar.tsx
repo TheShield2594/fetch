@@ -110,8 +110,10 @@ export function MobileTabBar({ pathname }: { pathname: string }) {
     moreButtonRef.current?.focus();
   };
 
+  // --accent-text, not --accent: the label is text on the bar, and on the light
+  // theme --accent measures 2.2:1 there against 5.5:1 for --accent-text.
   const tabStyle = (isActive: boolean) =>
-    isActive ? { color: "rgb(var(--accent-rgb))" } : { color: "var(--text-dim)" };
+    isActive ? { color: "var(--accent-text)" } : { color: "var(--text-dim)" };
 
   return (
     <>
@@ -190,7 +192,7 @@ export function MobileTabBar({ pathname }: { pathname: string }) {
           aria-current={searchActive ? "page" : undefined}
           onTouchStart={() => prefetchRoute(SEARCH_ITEM.to)}
           className="bar-glass flex h-16 w-16 flex-none items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-          style={searchActive ? { color: "rgb(var(--accent-rgb))" } : { color: "var(--text-dim)" }}
+          style={searchActive ? { color: "var(--accent-text)" } : { color: "var(--text-dim)" }}
         >
           <SEARCH_ITEM.icon className="h-6 w-6" strokeWidth={2.1} />
         </Link>
@@ -266,7 +268,7 @@ function MoreSheet({ pathname, onClose }: { pathname: string; onClose: () => voi
                   onPointerEnter={() => prefetchRoute(item.to)}
                   aria-current={isActive ? "page" : undefined}
                   className="flex min-h-[3.25rem] items-center gap-3 rounded-2xl px-3 text-[1.0625rem] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                  style={{ color: isActive ? "rgb(var(--accent-rgb))" : "var(--text)" }}
+                  style={{ color: isActive ? "var(--accent-text)" : "var(--text)" }}
                 >
                   <Icon
                     className="h-[1.375rem] w-[1.375rem] flex-none"

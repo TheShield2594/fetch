@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
@@ -55,7 +56,8 @@ private fun PhoneAddonConfirmContent(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = FetchTheme.colors.TextPrimary,
-                maxLines = 4
+                maxLines = 4,
+                overflow = TextOverflow.Ellipsis
             )
         }
         val provides = request.resources.map { resourceLabel(it) }
@@ -73,11 +75,11 @@ private fun PhoneAddonConfirmContent(
                 color = FetchTheme.colors.TextSecondary
             )
         }
+        // Shown in full: the link is what the viewer is asked to trust, and the dialog scrolls.
         Text(
             text = request.url,
             style = MaterialTheme.typography.bodySmall,
-            color = FetchTheme.colors.TextTertiary,
-            maxLines = 2
+            color = FetchTheme.colors.TextTertiary
         )
         Text(
             text = stringResource(R.string.phone_addon_confirm_trust),

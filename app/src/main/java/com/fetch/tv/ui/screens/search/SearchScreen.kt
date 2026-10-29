@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.search
 
 import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -106,6 +107,7 @@ import androidx.tv.material3.Text
 import com.fetch.tv.ui.components.CatalogRowSection
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
+import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.ui.components.PosterCardStyle
@@ -160,6 +162,7 @@ fun SearchScreen(
     // Track the whole input row, including voice and Discover.
     var inputRowHasFocus by remember { mutableStateOf(false) }
     var isRecentSearchSectionFocused by remember { mutableStateOf(false) }
+    var showClearHistoryConfirm by remember { mutableStateOf(false) }
     var focusResults by remember { mutableStateOf(false) }
     var pendingFocusMoveToResultsQuery by remember { mutableStateOf<String?>(null) }
     var pendingFocusMoveSawSearching by remember { mutableStateOf(false) }
@@ -670,9 +673,7 @@ fun SearchScreen(
                         RecentSearchesSection(
                             recentSearches = uiState.recentSearches,
                             onSearchSelected = submitRecentSearch,
-                            onClearHistory = {
-                                viewModel.onEvent(SearchEvent.ClearRecentSearches)
-                            },
+                            onClearHistory = { showClearHistoryConfirm = true },
                             onRemoveSearch = { query ->
                                 viewModel.onEvent(SearchEvent.RemoveRecentSearch(query))
                             },
@@ -703,9 +704,7 @@ fun SearchScreen(
                                 RecentSearchesSection(
                                     recentSearches = uiState.recentSearches,
                                     onSearchSelected = submitRecentSearch,
-                                    onClearHistory = {
-                                        viewModel.onEvent(SearchEvent.ClearRecentSearches)
-                                    },
+                                    onClearHistory = { showClearHistoryConfirm = true },
                                     onRemoveSearch = { query ->
                                         viewModel.onEvent(SearchEvent.RemoveRecentSearch(query))
                                     },
@@ -954,6 +953,71 @@ fun SearchScreen(
             onNavigateToDetail(id, type, addonBaseUrl)
         }
     )
+
+    if (showClearHistoryConfirm) {
+        ClearSearchHistoryDialog(
+            onConfirm = {
+                showClearHistoryConfirm = false
+                viewModel.onEvent(SearchEvent.ClearRecentSearches)
+                // The Clear history button leaves with the list, so hand focus to the field.
+                coroutineScope.launch {
+                    repeat(2) { withFrameNanos { } }
+                    runCatching { searchFocusRequester.requestFocus() }
+                    keyboardController?.hide()
+                }
+            },
+            onDismiss = { showClearHistoryConfirm = false }
+        )
+    }
+}
+
+/** Confirms before wiping every recent search; focus starts on Cancel. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ClearSearchHistoryDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val cancelFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        cancelFocusRequester.requestFocus()
+    }
+
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = stringResource(R.string.search_recent_clear_confirm_title),
+        subtitle = stringResource(R.string.search_recent_clear_confirm_subtitle),
+        width = 420.dp
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+        ) {
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(cancelFocusRequester),
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(stringResource(R.string.action_cancel))
+            }
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchStatusTones.errorContainer,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(stringResource(R.string.search_recent_clear))
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -1018,7 +1082,8 @@ private fun RecentSearchesSection(
                     },
                 colors = ButtonDefaults.colors(
                     containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary,
+                    // Destructive, so its label is the error tone rather than the query-row white.
+                    contentColor = FetchStatusTones.errorText,
                     // Focus is the neutral white pair, as in StateActionButton; the old
                     // grey-on-grey fill with a dimmer label was nearly invisible.
                     focusedContainerColor = FetchTheme.colors.Highlight,

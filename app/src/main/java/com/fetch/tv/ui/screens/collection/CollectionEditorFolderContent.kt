@@ -205,7 +205,20 @@ fun FolderEditorContent(
         return
     }
 
-    BackHandler { viewModel.cancelFolderEdit() }
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    BackHandler {
+        if (uiState.hasUnsavedFolderChanges) showDiscardDialog = true else viewModel.cancelFolderEdit()
+    }
+    if (showDiscardDialog) {
+        DiscardChangesDialog(
+            subtitle = stringResource(R.string.collections_editor_discard_folder_subtitle),
+            onKeepEditing = { showDiscardDialog = false },
+            onDiscard = {
+                showDiscardDialog = false
+                viewModel.cancelFolderEdit()
+            }
+        )
+    }
 
     val titleFocusRequester = remember { FocusRequester() }
 
@@ -290,7 +303,7 @@ fun FolderEditorContent(
                         onClick = { viewModel.clearFolderCover() },
                         colors = ButtonDefaults.colors(
                             containerColor = if (coverMode == "none") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "none") FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                            contentColor = if (coverMode == "none") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
@@ -311,7 +324,7 @@ fun FolderEditorContent(
                         onClick = { viewModel.showEmojiPicker() },
                         colors = ButtonDefaults.colors(
                             containerColor = if (coverMode == "emoji") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "emoji") FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                            contentColor = if (coverMode == "emoji") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
@@ -338,7 +351,7 @@ fun FolderEditorContent(
                         onClick = { viewModel.switchToImageMode() },
                         colors = ButtonDefaults.colors(
                             containerColor = if (coverMode == "image") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "image") FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                            contentColor = if (coverMode == "image") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
@@ -536,7 +549,7 @@ fun FolderEditorContent(
                             modifier = Modifier.focusRequester(shapeFocusRequesters[shape]!!),
                             colors = ButtonDefaults.colors(
                                 containerColor = if (isSelected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                                contentColor = if (isSelected) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                                contentColor = if (isSelected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
                                 focusedContentColor = FetchTheme.colors.Primary
                             ),
@@ -697,7 +710,7 @@ fun FolderEditorContent(
                                     else -> stringResource(R.string.collections_editor_source)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
-                                color = if (isMissing) FetchTheme.colors.Error.copy(alpha = 0.7f) else FetchTheme.colors.TextTertiary
+                                color = if (isMissing) FetchTheme.colors.Error else FetchTheme.colors.TextTertiary
                             )
                             if (hasGenreOptions) {
                                 Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
@@ -786,8 +799,13 @@ fun FolderEditorContent(
                                     Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
                                 }
                             }
+                            val canMoveUp = index > 0
+                            val canMoveDown = index < folder.sources.size - 1
+                            // Same disabled look as FetchButton; a disabled button can't take focus.
                             Button(
                                 onClick = { viewModel.moveCatalogSourceUp(index) },
+                                enabled = canMoveUp,
+                                modifier = if (canMoveUp) Modifier else Modifier.alpha(0.35f),
                                 colors = ButtonDefaults.colors(
                                     containerColor = FetchTheme.colors.BackgroundCard,
                                     contentColor = FetchTheme.colors.TextSecondary,
@@ -802,10 +820,12 @@ fun FolderEditorContent(
                                 ),
                                 shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                             ) {
-                                Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.cd_move_up), tint = if (index > 0) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary)
+                                Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.cd_move_up))
                             }
                             Button(
                                 onClick = { viewModel.moveCatalogSourceDown(index) },
+                                enabled = canMoveDown,
+                                modifier = if (canMoveDown) Modifier else Modifier.alpha(0.35f),
                                 colors = ButtonDefaults.colors(
                                     containerColor = FetchTheme.colors.BackgroundCard,
                                     contentColor = FetchTheme.colors.TextSecondary,
@@ -820,7 +840,7 @@ fun FolderEditorContent(
                                 ),
                                 shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                             ) {
-                                Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.cd_move_down), tint = if (index < folder.sources.size - 1) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary)
+                                Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.cd_move_down))
                             }
                             Button(
                                 onClick = {

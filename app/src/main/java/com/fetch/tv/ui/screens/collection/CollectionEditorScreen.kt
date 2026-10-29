@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.collection
 
 import com.fetch.tv.ui.theme.FetchTheme
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -132,6 +133,22 @@ fun CollectionEditorScreen(
             LoadingIndicator()
         }
         return
+    }
+
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    // With unsaved edits, Back asks first; with none it leaves at once. The folder editor has its own.
+    BackHandler(enabled = !uiState.showFolderEditor && uiState.hasUnsavedCollectionChanges) {
+        showDiscardDialog = true
+    }
+    if (showDiscardDialog) {
+        DiscardChangesDialog(
+            subtitle = stringResource(R.string.collections_editor_discard_collection_subtitle),
+            onKeepEditing = { showDiscardDialog = false },
+            onDiscard = {
+                showDiscardDialog = false
+                onBack()
+            }
+        )
     }
 
     if (uiState.showFolderEditor) {
@@ -276,7 +293,7 @@ fun CollectionEditorScreen(
                         onClick = { viewModel.setViewMode(mode) },
                         colors = ButtonDefaults.colors(
                             containerColor = if (isSelected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (isSelected) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                            contentColor = if (isSelected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
@@ -497,11 +514,11 @@ private fun FolderListItem(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)) {
-                FetchButton(onClick = onMoveUp) {
-                    Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.cd_move_up), tint = if (!isFirst) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary)
+                FetchButton(onClick = onMoveUp, enabled = !isFirst) {
+                    Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.cd_move_up), tint = FetchTheme.colors.TextSecondary)
                 }
-                FetchButton(onClick = onMoveDown) {
-                    Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.cd_move_down), tint = if (!isLast) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary)
+                FetchButton(onClick = onMoveDown, enabled = !isLast) {
+                    Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.cd_move_down), tint = FetchTheme.colors.TextSecondary)
                 }
                 FetchButton(
                     onClick = onEdit,

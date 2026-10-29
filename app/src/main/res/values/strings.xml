@@ -2283,7 +2283,7 @@
     <string name="collections_import">Import</string>
     <string name="collections_export_file">Export File</string>
     <string name="collections_saved_downloads">Saved to Downloads</string>
-    <string name="collections_export_failed">Export failed</string>
+    <string name="collections_export_failed">Couldn’t save to Downloads. Check storage permission and free space, then try again.</string>
     <string name="collections_import_header">Import Collections</string>
     <string name="collections_import_description">Import collections from JSON. Catalogs from addons you don’t have installed will show a warning.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2528,6 +2528,16 @@
     <string name="collection_editor_folder_count_other">%1$d items</string>
     <string name="collections_editor_delete_folder_title">Delete Folder?</string>
     <string name="collections_editor_delete_folder_subtitle">This will permanently delete \"%1$s\" and its contents.</string>
+    <string name="folder_error_addon_source">Couldn’t load this catalog. Check that its addon is installed and online, then try again.</string>
+    <string name="folder_error_addon_missing">This catalog’s addon isn’t installed. Install it from Addons, or remove this source from the folder.</string>
+    <string name="folder_error_tmdb_source">Couldn’t load this from TMDB. Check your connection, then try again.</string>
+    <string name="folder_error_trakt_source">Couldn’t load this Trakt list. Check your connection and that the list is still public, then try again.</string>
+    <string name="folder_error_list_source">Couldn’t load this list. Check your connection, then try again.</string>
+    <string name="collections_editor_discard_title">Discard changes?</string>
+    <string name="collections_editor_discard_collection_subtitle">Your changes to this collection haven’t been saved.</string>
+    <string name="collections_editor_discard_folder_subtitle">Your changes to this folder haven’t been saved.</string>
+    <string name="collections_editor_keep_editing">Keep editing</string>
+    <string name="collections_editor_discard">Discard</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Best Action Movies, Korean Dramas, 2024 Animation</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>

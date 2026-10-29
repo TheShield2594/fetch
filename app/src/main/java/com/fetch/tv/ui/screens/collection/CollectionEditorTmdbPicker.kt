@@ -159,9 +159,15 @@ fun TmdbSourcePickerContent(
                         },
                     colors = ButtonDefaults.colors(
                         containerColor = if (selected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                        contentColor = if (selected) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                        contentColor = if (selected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                         focusedContainerColor = FetchTheme.colors.FocusBackground,
-                        focusedContentColor = FetchTheme.colors.Primary
+                        focusedContentColor = FetchTheme.colors.TextPrimary
+                    ),
+                    border = ButtonDefaults.border(
+                        focusedBorder = Border(
+                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                            shape = RoundedCornerShape(FetchTheme.radii.md)
+                        )
                     ),
                     shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
                     scale = ButtonDefaults.scale(focusedScale = 1f)
@@ -935,9 +941,15 @@ fun TmdbChoiceButton(
         enabled = enabled,
         colors = ButtonDefaults.colors(
             containerColor = if (selected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-            contentColor = if (selected) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+            contentColor = if (selected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
             focusedContainerColor = FetchTheme.colors.FocusBackground,
-            focusedContentColor = FetchTheme.colors.Primary
+            focusedContentColor = FetchTheme.colors.TextPrimary
+        ),
+        border = ButtonDefaults.border(
+            focusedBorder = Border(
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                shape = RoundedCornerShape(FetchTheme.radii.md)
+            )
         ),
         shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
         scale = ButtonDefaults.scale(focusedScale = 1f)

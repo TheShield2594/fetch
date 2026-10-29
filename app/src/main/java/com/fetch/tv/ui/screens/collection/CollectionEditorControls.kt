@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.collection
 
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -83,6 +84,7 @@ import com.fetch.tv.domain.model.TmdbCollectionSort
 import com.fetch.tv.domain.model.TmdbCollectionSource
 import com.fetch.tv.domain.model.TmdbCollectionSourceType
 import com.fetch.tv.domain.model.TraktCollectionSource
+import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.R
 import androidx.compose.ui.res.stringResource
@@ -96,7 +98,8 @@ fun FetchTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "",
-    focusRequester: FocusRequester? = null
+    focusRequester: FocusRequester? = null,
+    isError: Boolean = false
 ) {
     var isEditing by remember { mutableStateOf(false) }
     val textFieldFocusRequester = remember { FocusRequester() }
@@ -119,7 +122,10 @@ fun FetchTextField(
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
+                border = BorderStroke(
+                    FetchTheme.spacing.hairline,
+                    if (isError) FetchStatusTones.errorBorder else FetchTheme.colors.Border
+                ),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             ),
             focusedBorder = Border(
@@ -168,6 +174,42 @@ fun FetchTextField(
                     innerTextField()
                 }
             )
+        }
+    }
+}
+
+/** Asks before Back throws away unsaved edits. "Keep editing" takes focus, so a stray press is safe. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+internal fun DiscardChangesDialog(
+    subtitle: String,
+    onKeepEditing: () -> Unit,
+    onDiscard: () -> Unit
+) {
+    val keepEditingFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        repeat(3) { androidx.compose.runtime.withFrameNanos { } }
+        try { keepEditingFocusRequester.requestFocus() } catch (_: Exception) {}
+    }
+    FetchDialog(
+        onDismiss = onKeepEditing,
+        title = stringResource(R.string.collections_editor_discard_title),
+        subtitle = subtitle,
+        suppressFirstKeyUp = false
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md, Alignment.End)
+        ) {
+            FetchButton(
+                onClick = onKeepEditing,
+                modifier = Modifier.focusRequester(keepEditingFocusRequester)
+            ) {
+                Text(stringResource(R.string.collections_editor_keep_editing))
+            }
+            FetchButton(onClick = onDiscard) {
+                Text(stringResource(R.string.collections_editor_discard))
+            }
         }
     }
 }

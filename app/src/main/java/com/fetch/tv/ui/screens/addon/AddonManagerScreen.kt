@@ -17,6 +17,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -76,10 +77,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
@@ -112,6 +115,7 @@ import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.ExperienceMode
+import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.util.contentTextDirection
@@ -407,7 +411,13 @@ fun AddonManagerScreen(
                                         containerColor = FetchTheme.colors.BackgroundCard,
                                         contentColor = FetchTheme.colors.TextPrimary,
                                         focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                        focusedContentColor = FetchTheme.colors.Primary
+                                        focusedContentColor = FetchTheme.colors.TextPrimary
+                                    ),
+                                    border = ButtonDefaults.border(
+                                        focusedBorder = Border(
+                                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                            shape = RoundedCornerShape(FetchTheme.radii.md)
+                                        )
                                     ),
                                     shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                                 ) {
@@ -492,7 +502,15 @@ fun AddonManagerScreen(
                 }
             }
 
-            if (uiState.installedAddons.isEmpty() && !uiState.isLoading) {
+            if (uiState.installedAddonsLoadFailed && uiState.installedAddons.isEmpty()) {
+                item {
+                    ErrorState(
+                        message = stringResource(R.string.addon_list_load_failed),
+                        onRetry = viewModel::retryLoadInstalledAddons,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            } else if (uiState.installedAddons.isEmpty() && !uiState.isLoading) {
                 item {
                     Text(
                         text = stringResource(R.string.addon_empty),
@@ -1079,6 +1097,8 @@ internal fun ConfirmAddonChangesDialog(
 ) {
     val focusRequester = remember { FocusRequester() }
     val scrollState = rememberScrollState()
+    // Same cap as FetchDialog, so Reject/Confirm stay on a 540dp screen.
+    val maxDialogHeight = (LocalConfiguration.current.screenHeightDp.dp - FetchTheme.spacing.xxxl).coerceAtLeast(320.dp)
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -1096,7 +1116,7 @@ internal fun ConfirmAddonChangesDialog(
             onClick = { },
             modifier = Modifier
                 .width(560.dp)
-                .heightIn(max = 640.dp),
+                .heightIn(max = maxDialogHeight),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = FetchTheme.colors.SurfaceVariant
             ),
@@ -1122,9 +1142,11 @@ internal fun ConfirmAddonChangesDialog(
 
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
 
+                // Shrinks before the totals and the action row do, so those are never pushed off.
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .weight(1f, fill = false)
                         .heightIn(max = 320.dp)
                         .background(
                             color = FetchTheme.colors.Surface,
@@ -1138,7 +1160,7 @@ internal fun ConfirmAddonChangesDialog(
                             .verticalScroll(scrollState)
                     ) {
                         if (pendingChange.addedUrls.isNotEmpty()) {
-                            Text(
+                            PendingChangeLine(
                                 text = stringResource(R.string.addon_confirm_added),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = FetchTheme.colors.Success,
@@ -1148,7 +1170,7 @@ internal fun ConfirmAddonChangesDialog(
                             )
                             pendingChange.addedUrls.forEach { url ->
                                 val displayName = pendingChange.addedNames[url] ?: url
-                                Text(
+                                PendingChangeLine(
                                     text = "+ $displayName",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = FetchTheme.colors.Success,
@@ -1161,7 +1183,7 @@ internal fun ConfirmAddonChangesDialog(
                         }
 
                         if (pendingChange.removedUrls.isNotEmpty()) {
-                            Text(
+                            PendingChangeLine(
                                 text = stringResource(R.string.addon_confirm_removed),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = FetchTheme.colors.Error,
@@ -1171,7 +1193,7 @@ internal fun ConfirmAddonChangesDialog(
                             )
                             pendingChange.removedUrls.forEach { url ->
                                 val displayName = pendingChange.removedNames[url] ?: url
-                                Text(
+                                PendingChangeLine(
                                     text = "- $displayName",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = FetchTheme.colors.Error,
@@ -1184,7 +1206,7 @@ internal fun ConfirmAddonChangesDialog(
                         }
 
                         if (pendingChange.catalogsReordered) {
-                            Text(
+                            PendingChangeLine(
                                 text = stringResource(R.string.addon_confirm_catalog_reordered),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = FetchTheme.colors.TextSecondary,
@@ -1195,7 +1217,7 @@ internal fun ConfirmAddonChangesDialog(
                         }
 
                         if (pendingChange.disabledCatalogNames.isNotEmpty()) {
-                            Text(
+                            PendingChangeLine(
                                 text = stringResource(R.string.addon_confirm_catalogs_disabled),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = FetchTheme.colors.Error,
@@ -1204,7 +1226,7 @@ internal fun ConfirmAddonChangesDialog(
                                     .padding(bottom = FetchTheme.spacing.xs)
                             )
                             pendingChange.disabledCatalogNames.forEach { name ->
-                                Text(
+                                PendingChangeLine(
                                     text = "- $name",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = FetchTheme.colors.Error,
@@ -1217,7 +1239,7 @@ internal fun ConfirmAddonChangesDialog(
                         }
 
                         if (pendingChange.enabledCatalogNames.isNotEmpty()) {
-                            Text(
+                            PendingChangeLine(
                                 text = stringResource(R.string.addon_confirm_catalogs_enabled),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = FetchTheme.colors.Success,
@@ -1226,7 +1248,7 @@ internal fun ConfirmAddonChangesDialog(
                                     .padding(bottom = FetchTheme.spacing.xs)
                             )
                             pendingChange.enabledCatalogNames.forEach { name ->
-                                Text(
+                                PendingChangeLine(
                                     text = "+ $name",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = FetchTheme.colors.Success,
@@ -1239,7 +1261,7 @@ internal fun ConfirmAddonChangesDialog(
                         }
 
                         if (pendingChange.collectionsChanged) {
-                            Text(
+                            PendingChangeLine(
                                 text = stringResource(R.string.addon_pending_collections_updated),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = FetchTheme.colors.TextPrimary,
@@ -1247,7 +1269,7 @@ internal fun ConfirmAddonChangesDialog(
                                     .fillMaxWidth()
                                     .padding(bottom = FetchTheme.spacing.xs)
                             )
-                            Text(
+                            PendingChangeLine(
                                 text = stringResource(R.string.addon_pending_collections_replace, pendingChange.proposedCollectionCount),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = FetchTheme.colors.TextSecondary,
@@ -1266,7 +1288,7 @@ internal fun ConfirmAddonChangesDialog(
                             pendingChange.enabledCatalogNames.isEmpty() &&
                             !pendingChange.collectionsChanged
                         ) {
-                            Text(
+                            PendingChangeLine(
                                 text = stringResource(R.string.addon_confirm_no_changes),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = FetchTheme.colors.TextSecondary
@@ -1358,6 +1380,32 @@ internal fun ConfirmAddonChangesDialog(
             }
         }
     }
+}
+
+/**
+ * One line of the pending-change list. Focusable so the D-pad can scroll the list (focus brings
+ * the line into view); there's nothing to open.
+ */
+@Composable
+private fun PendingChangeLine(
+    text: String,
+    style: TextStyle,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    val shape = RoundedCornerShape(FetchTheme.radii.sm)
+    Text(
+        text = text,
+        style = style,
+        color = color,
+        modifier = modifier
+            .then(
+                if (isFocused) Modifier.border(FetchTheme.focusRing.border(FetchTheme.spacing.xxs), shape) else Modifier
+            )
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusable()
+    )
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -1452,6 +1500,9 @@ private fun AddonCardContent(
     showReorder: Boolean = true,
     toggleFocusRequester: FocusRequester? = null
 ) {
+    val enabledToggleDescription = stringResource(R.string.cd_addon_enabled_toggle, addon.displayName)
+    val configureDescription = stringResource(R.string.cd_configure_addon, addon.displayName)
+    val removeDescription = stringResource(R.string.cd_remove_addon, addon.displayName)
     Column(modifier = Modifier.padding(20.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1511,6 +1562,7 @@ private fun AddonCardContent(
                             .focusRequester(toggleFocusRequester ?: remember { FocusRequester() })
                             .semantics {
                                 role = Role.Switch
+                                contentDescription = enabledToggleDescription
                                 toggleableState = if (addon.enabled) ToggleableState.On else ToggleableState.Off
                             },
                         colors = ClickableSurfaceDefaults.colors(
@@ -1549,11 +1601,17 @@ private fun AddonCardContent(
                                 containerColor = FetchTheme.colors.BackgroundCard,
                                 contentColor = FetchTheme.colors.TextSecondary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
+                                focusedContentColor = FetchTheme.colors.TextPrimary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(FetchTheme.radii.md)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                         ) {
-                            Icon(imageVector = Icons.Default.ArrowUpward, contentDescription = stringResource(R.string.cd_move_up))
+                            Icon(imageVector = Icons.Default.ArrowUpward, contentDescription = stringResource(R.string.cd_move_addon_up, addon.displayName))
                         }
                         Button(
                             onClick = onMoveDown,
@@ -1563,22 +1621,37 @@ private fun AddonCardContent(
                                 containerColor = FetchTheme.colors.BackgroundCard,
                                 contentColor = FetchTheme.colors.TextSecondary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
+                                focusedContentColor = FetchTheme.colors.TextPrimary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(FetchTheme.radii.md)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                         ) {
-                            Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.cd_move_down))
+                            Icon(imageVector = Icons.Default.ArrowDownward, contentDescription = stringResource(R.string.cd_move_addon_down, addon.displayName))
                         }
                     }
                     if (onConfigure != null) {
                         Button(
                             onClick = onConfigure,
-                            modifier = Modifier.semantics { role = Role.Button },
+                            modifier = Modifier.semantics {
+                                role = Role.Button
+                                contentDescription = configureDescription
+                            },
                             colors = ButtonDefaults.colors(
                                 containerColor = FetchTheme.colors.BackgroundCard,
                                 contentColor = FetchTheme.colors.TextSecondary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
+                                focusedContentColor = FetchTheme.colors.TextPrimary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(FetchTheme.radii.md)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                         ) {
@@ -1587,12 +1660,21 @@ private fun AddonCardContent(
                     }
                     Button(
                         onClick = onRemove,
-                        modifier = Modifier.semantics { role = Role.Button },
+                        modifier = Modifier.semantics {
+                            role = Role.Button
+                            contentDescription = removeDescription
+                        },
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundCard,
                             contentColor = FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Error
+                        ),
+                        border = ButtonDefaults.border(
+                            focusedBorder = Border(
+                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                shape = RoundedCornerShape(FetchTheme.radii.md)
+                            )
                         ),
                         shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                     ) {
@@ -1678,6 +1760,8 @@ internal fun AddonConfigureOverlay(
         runCatching { (if (received != null) confirmFocusRequester else focusRequester).requestFocus() }
     }
     BackHandler { onClose() }
+    // Smaller codes once a link arrives, so the link and Cancel/Install fit a 540dp screen.
+    val qrSize = if (received != null) 140.dp else 200.dp
 
     Box(
         modifier = Modifier
@@ -1685,7 +1769,13 @@ internal fun AddonConfigureOverlay(
             .background(Color.Black.copy(alpha = 0.88f)),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Scrolls as a last resort at large text sizes; focusing a button brings it into view.
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = FetchTheme.spacing.xl),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
                 text = stringResource(R.string.addon_configure_title, target.name),
                 style = MaterialTheme.typography.headlineSmall,
@@ -1697,13 +1787,15 @@ internal fun AddonConfigureOverlay(
                 AddonConfigureQrStep(
                     step = stringResource(R.string.addon_configure_step_open),
                     bitmap = target.configureQr,
-                    url = target.configureUrl
+                    url = target.configureUrl,
+                    qrSize = qrSize
                 )
                 if (target.sendToTvUrl != null) {
                     AddonConfigureQrStep(
                         step = stringResource(R.string.addon_configure_step_send),
                         bitmap = target.sendToTvQr,
-                        url = target.sendToTvUrl
+                        url = target.sendToTvUrl,
+                        qrSize = qrSize
                     )
                 }
             }
@@ -1778,7 +1870,7 @@ internal fun AddonConfigureOverlay(
 }
 
 @Composable
-private fun AddonConfigureQrStep(step: String, bitmap: Bitmap?, url: String) {
+private fun AddonConfigureQrStep(step: String, bitmap: Bitmap?, url: String, qrSize: Dp = 200.dp) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(260.dp)
@@ -1790,7 +1882,7 @@ private fun AddonConfigureQrStep(step: String, bitmap: Bitmap?, url: String) {
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
-        Box(modifier = Modifier.size(200.dp), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.size(qrSize), contentAlignment = Alignment.Center) {
             if (bitmap != null) {
                 Image(
                     bitmap = bitmap.asImageBitmap(),

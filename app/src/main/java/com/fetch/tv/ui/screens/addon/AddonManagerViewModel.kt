@@ -59,6 +59,7 @@ import com.fetch.tv.domain.repository.AddonRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -111,6 +112,7 @@ class AddonManagerViewModel @Inject constructor(
     }
 
     private var server: AddonConfigServer? = null
+    private var installedAddonsJob: Job? = null
     private var configureServer: AddonConfigureServer? = null
     private var logoBytes: ByteArray? = null
     private var homeCatalogOrderKeys: List<String> = emptyList()
@@ -384,7 +386,7 @@ class AddonManagerViewModel @Inject constructor(
     fun startQrMode(webConfigMode: AddonWebConfigMode = this.webConfigMode) {
         val ip = DeviceIpAddress.get(context)
         if (ip == null) {
-            _uiState.update { it.copy(error = context.getString(R.string.error_network_required)) }
+            showQrModeError(context.getString(R.string.error_network_required))
             return
         }
 
@@ -494,7 +496,7 @@ class AddonManagerViewModel @Inject constructor(
 
         val activeServer = server
         if (activeServer == null) {
-            _uiState.update { it.copy(error = context.getString(R.string.error_server_ports_unavailable)) }
+            showQrModeError(context.getString(R.string.error_server_ports_unavailable))
             return
         }
 
@@ -505,10 +507,14 @@ class AddonManagerViewModel @Inject constructor(
             it.copy(
                 isQrModeActive = true,
                 qrCodeBitmap = qrBitmap,
-                serverUrl = url,
-                error = null
+                serverUrl = url
             )
         }
+    }
+
+    /** Shown as a toast wherever focus is, since read-only profiles have no install field to show it under. */
+    private fun showQrModeError(message: String) {
+        _uiState.update { it.copy(transientMessage = message, transientMessageIsError = true) }
     }
 
     fun stopQrMode() {
@@ -937,20 +943,29 @@ class AddonManagerViewModel @Inject constructor(
         return collectionsDataStore.importFromJson(json)
     }
 
+    fun retryLoadInstalledAddons() {
+        observeInstalledAddons()
+    }
+
     private fun observeInstalledAddons() {
-        viewModelScope.launch {
-            if (_uiState.value.installedAddons.isEmpty()) {
-                _uiState.update { it.copy(isLoading = true) }
+        installedAddonsJob?.cancel()
+        installedAddonsJob = viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLoading = it.installedAddons.isEmpty() || it.isLoading,
+                    installedAddonsLoadFailed = false
+                )
             }
             addonRepository.getInstalledAddons()
-                .catch { error ->
-                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                .catch {
+                    _uiState.update { it.copy(isLoading = false, installedAddonsLoadFailed = true) }
                 }
                 .collect { addons ->
                     _uiState.update { state ->
                         state.copy(
                             installedAddons = addons,
                             isLoading = false,
+                            installedAddonsLoadFailed = false,
                             error = null
                         )
                     }

@@ -1490,6 +1490,7 @@
     <string name="addon_error_invalid_scheme">Addon URL must start with http or https</string>
     <string name="addon_installed_section">Installed</string>
     <string name="addon_empty">No addons installed. Add one to get started.</string>
+    <string name="addon_list_load_failed">Couldn’t load your installed addons. Try again.</string>
     <string name="addon_remove">Remove</string>
     <string name="addon_configure">Configure</string>
     <string name="addon_badge_needs_setup">Needs setup</string>
@@ -2162,7 +2163,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Connect to Wi-Fi or Ethernet to use this feature</string>
-    <string name="error_server_ports_unavailable">Could not start server. All ports in use.</string>
+    <string name="error_server_ports_unavailable">Couldn’t start the phone connection. Restart Fetch and try again.</string>
 
     <!-- Trakt errors -->
 
@@ -2231,6 +2232,11 @@
     <string name="cd_loading_logo">Loading logo</string>
     <string name="cd_move_up">Move up</string>
     <string name="cd_move_down">Move down</string>
+    <string name="cd_move_addon_up">Move %1$s up</string>
+    <string name="cd_move_addon_down">Move %1$s down</string>
+    <string name="cd_addon_enabled_toggle">%1$s enabled</string>
+    <string name="cd_configure_addon">Configure %1$s</string>
+    <string name="cd_remove_addon">Remove %1$s</string>
     <string name="cd_edit">Edit</string>
     <string name="cd_delete">Delete</string>
     <string name="cd_qr_code">QR Code</string>

@@ -1893,7 +1893,7 @@
     <string name="library_list_delete_named">Delete “%1$s”</string>
     <string name="library_list_close">Close</string>
     <string name="library_list_name_label">Name</string>
-    <string name="library_error_list_name_required">List name is required</string>
+    <string name="library_error_list_name_required">Enter a name for the list</string>
     <string name="library_list_description_label">Description</string>
     <string name="library_list_privacy">Privacy</string>
     <string name="library_delete_title">Delete this list?</string>
@@ -2622,6 +2622,7 @@
     <string name="library_list_created">List created</string>
     <string name="library_list_updated">List updated</string>
     <string name="library_error_save_list_failed">Failed to save list</string>
+    <string name="library_error_save_list_next_step">Check your connection and try again.</string>
     <string name="library_list_deleted">List deleted</string>
     <string name="library_error_delete_list_failed">Failed to delete list</string>
     <string name="library_list_order_updated">List order updated</string>

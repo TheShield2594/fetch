@@ -33,6 +33,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -248,6 +250,10 @@ internal fun ListEditorDialog(
     LaunchedEffect(Unit) {
         nameFocusRequester.requestFocus()
     }
+    // An empty name sends the user back to the field the message is about.
+    LaunchedEffect(state.nameError) {
+        if (state.nameError) runCatching { nameFocusRequester.requestFocus() }
+    }
 
     FetchDialog(
         onDismiss = onCancel,
@@ -287,6 +293,17 @@ internal fun ListEditorDialog(
                 }
             ),
             label = { androidx.compose.material3.Text(stringResource(R.string.library_list_name_label)) },
+            isError = state.nameError,
+            supportingText = if (state.nameError && state.error != null) {
+                {
+                    androidx.compose.material3.Text(
+                        text = state.error.orEmpty(),
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+                    )
+                }
+            } else {
+                null
+            },
             textStyle = androidx.compose.material3.LocalTextStyle.current.copy(
                 textDirection = TextDirection.Content
             ),
@@ -300,6 +317,12 @@ internal fun ListEditorDialog(
                 focusedLabelColor = FetchTheme.colors.TextSecondary,
                 unfocusedLabelColor = FetchTheme.colors.TextTertiary,
                 cursorColor = FetchTheme.colors.FocusRing,
+                errorTextColor = FetchTheme.colors.TextPrimary,
+                errorContainerColor = FetchTheme.colors.BackgroundCard,
+                errorBorderColor = FetchStatusTones.errorBorder,
+                errorLabelColor = FetchStatusTones.errorText,
+                errorSupportingTextColor = FetchStatusTones.errorText,
+                errorCursorColor = FetchTheme.colors.FocusRing,
             )
         )
 
@@ -368,6 +391,16 @@ internal fun ListEditorDialog(
                     }
                 }
             }
+        }
+
+        // A failed save isn't about one field, so it sits just above Save.
+        if (!state.nameError && state.error != null) {
+            Text(
+                text = state.error.orEmpty(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = FetchStatusTones.errorText,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+            )
         }
 
         Button(

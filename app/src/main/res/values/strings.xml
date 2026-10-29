@@ -682,6 +682,9 @@
     <string name="playback_subtitle">Configure video playback and subtitle options</string>
     <string name="cd_decrease">Decrease</string>
     <string name="cd_increase">Increase</string>
+    <string name="cd_decrease_setting">Decrease %1$s</string>
+    <string name="cd_increase_setting">Increase %1$s</string>
+    <string name="cd_seek_bar">Seek bar</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_apply">Apply</string>
     <string name="sub_opacity">Opacity</string>

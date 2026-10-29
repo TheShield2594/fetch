@@ -873,6 +873,7 @@ private fun SubtitleStyleRail(
                     modifier = styleCardModifier
                 ) {
                     StepperRow(
+                        label = stringResource(R.string.subtitle_style_font_size),
                         value = "${subtitleStyle.size}%",
                         onDecrease = { dispatchStyleEvent(PlayerEvent.OnSetSubtitleSize(subtitleStyle.size - 10)) },
                         onIncrease = { dispatchStyleEvent(PlayerEvent.OnSetSubtitleSize(subtitleStyle.size + 10)) },
@@ -933,6 +934,11 @@ private fun SubtitleStyleRail(
                     val currentColor = Color(subtitleStyle.textColor)
                     val currentAlphaPercent = (currentColor.alpha * 100f).roundToInt().coerceIn(0, 100)
                     StepperRow(
+                        label = if (isEditingHdrStyle) {
+                            stringResource(R.string.subtitle_style_text_opacity_hdr)
+                        } else {
+                            stringResource(R.string.subtitle_style_text_opacity)
+                        },
                         value = "$currentAlphaPercent%",
                         onDecrease = {
                             val newAlpha = (currentAlphaPercent - 10).coerceAtLeast(0) / 100f
@@ -958,6 +964,7 @@ private fun SubtitleStyleRail(
                         modifier = styleCardModifier
                     ) {
                         StepperRow(
+                            label = stringResource(R.string.subtitle_style_brightness_hdr),
                             value = "${subtitleStyle.hdrBrightness}%",
                             onDecrease = {
                                 dispatchStyleEvent(PlayerEvent.OnSetSubtitleHdrBrightness(subtitleStyle.hdrBrightness - 10))
@@ -1014,6 +1021,7 @@ private fun SubtitleStyleRail(
                     modifier = styleCardModifier
                 ) {
                     StepperRow(
+                        label = stringResource(R.string.subtitle_style_bottom_offset),
                         value = subtitleStyle.verticalOffset.toString(),
                         onDecrease = { dispatchStyleEvent(PlayerEvent.OnSetSubtitleVerticalOffset(subtitleStyle.verticalOffset - 5)) },
                         onIncrease = { dispatchStyleEvent(PlayerEvent.OnSetSubtitleVerticalOffset(subtitleStyle.verticalOffset + 5)) },
@@ -1390,6 +1398,7 @@ private fun OverlaySectionCard(
 
 @Composable
 private fun StepperRow(
+    label: String,
     value: String,
     onDecrease: () -> Unit,
     onIncrease: () -> Unit,
@@ -1407,6 +1416,7 @@ private fun StepperRow(
     ) {
         StepperButton(
             icon = Icons.Default.Remove,
+            contentDescription = stringResource(R.string.cd_decrease_setting, label),
             onClick = onDecrease,
             onMoveLeft = onMoveLeft,
             focusRequester = decrementFocusRequester,
@@ -1428,6 +1438,7 @@ private fun StepperRow(
         }
         StepperButton(
             icon = Icons.Default.Add,
+            contentDescription = stringResource(R.string.cd_increase_setting, label),
             onClick = onIncrease,
             focusRequester = incrementFocusRequester,
             focusKey = incrementFocusKey,
@@ -1439,6 +1450,7 @@ private fun StepperRow(
 @Composable
 private fun StepperButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
     onClick: () -> Unit,
     onMoveLeft: (() -> Unit)? = null,
     focusRequester: FocusRequester? = null,
@@ -1497,7 +1509,7 @@ private fun StepperButton(
         shape = IconButtonDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
         scale = IconButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
-        Icon(imageVector = icon, contentDescription = null)
+        Icon(imageVector = icon, contentDescription = contentDescription)
     }
 }
 

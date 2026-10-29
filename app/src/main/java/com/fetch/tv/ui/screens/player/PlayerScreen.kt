@@ -90,7 +90,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import com.fetch.tv.ui.components.focusLabelEntrance
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
@@ -3472,6 +3477,8 @@ private fun ProgressBar(
         label = "bufferedProgress"
     )
     var isFocused by remember { mutableStateOf(false) }
+    val seekBarDescription = stringResource(R.string.cd_seek_bar)
+    val seekBarState = "${formatTime(currentPosition)} / ${formatTime(duration)}"
 
     Box(
         modifier = Modifier
@@ -3494,6 +3501,11 @@ private fun ProgressBar(
             .onFocusChanged {
                 isFocused = it.isFocused
                 if (it.isFocused) onFocused?.invoke()
+            }
+            .semantics {
+                contentDescription = seekBarDescription
+                stateDescription = seekBarState
+                progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f)
             }
             .focusable()
             .playerPlayhead(

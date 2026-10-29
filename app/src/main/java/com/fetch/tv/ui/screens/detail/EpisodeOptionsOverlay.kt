@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -110,7 +111,10 @@ internal fun EpisodeOptionsOverlay(
     onMarkPreviousEpisodesWatched: () -> Unit = {},
     showWatchedActions: Boolean = true,
     isCurrentlyPlaying: Boolean = false,
-    onNavigateEpisode: ((Int) -> Unit)? = null
+    onNavigateEpisode: ((Int) -> Unit)? = null,
+    /** Whether [onNavigateEpisode] has an episode to step to, so the overlay can show a chevron. */
+    canNavigatePrevious: Boolean = false,
+    canNavigateNext: Boolean = false
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -263,6 +267,7 @@ internal fun EpisodeOptionsOverlay(
 
     val hasEnabledAction = actions.any { it.enabled }
     var descriptionFocused by remember { mutableStateOf(false) }
+    var detailsPanelFocused by remember { mutableStateOf(false) }
 
     LaunchedEffect(episode.id) {
         detailsScrollState.scrollTo(0)
@@ -361,6 +366,19 @@ internal fun EpisodeOptionsOverlay(
                             } else {
                                 Modifier
                                     .fillMaxHeight()
+                                    .onFocusChanged { detailsPanelFocused = it.hasFocus }
+                                    .scrollableTextPanel(
+                                        scrollState = detailsScrollState,
+                                        focusBorder = if (detailsPanelFocused) {
+                                            FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                                        } else {
+                                            null
+                                        },
+                                        shape = RoundedCornerShape(FetchTheme.radii.md),
+                                        thumbColor = FetchTheme.colors.TextSecondary,
+                                        trackColor = FetchTheme.colors.Divider
+                                    )
+                                    .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
                                     .verticalScroll(detailsScrollState)
                                     .focusRequester(detailsFocusRequester)
                                     .focusProperties {
@@ -514,6 +532,16 @@ internal fun EpisodeOptionsOverlay(
                         }
                     }
                 }
+            }
+
+            // Left and Right step to the previous and next episode; the chevrons sit in the side padding.
+            if (onNavigateEpisode != null) {
+                OverlayPagingCues(
+                    showPrevious = canNavigatePrevious,
+                    showNext = canNavigateNext,
+                    iconSize = FetchTheme.spacing.xl,
+                    modifier = Modifier.padding(horizontal = (horizontalPadding - FetchTheme.spacing.xl) / 2)
+                )
             }
         }
     }

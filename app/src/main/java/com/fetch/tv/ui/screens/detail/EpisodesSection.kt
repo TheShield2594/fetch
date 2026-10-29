@@ -598,6 +598,8 @@ fun EpisodesRow(
             onNavigateEpisode = { step ->
                 adjacentEpisode(dedupedEpisodes, selectedEpisode, step)?.let { optionsEpisode = it }
             },
+            canNavigatePrevious = adjacentEpisode(dedupedEpisodes, selectedEpisode, -1) != null,
+            canNavigateNext = adjacentEpisode(dedupedEpisodes, selectedEpisode, 1) != null,
             isPlayEnabled = canPlayEpisode(selectedEpisode),
             onPlay = {
                 onEpisodeClick(selectedEpisode)

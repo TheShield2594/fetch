@@ -1456,9 +1456,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Не можахме да запазим PIN. Опитай отново.</string>
     <string name="profile_pin_locked">Профилът е заключен. Опитай отново след %1$dс.</string>
-    <string name="profile_pin_invalid">Невалиден PIN. Опитай отново.</string>
     <string name="profile_pin_verify_error">Не можахме да проверим PIN. Опитай отново.</string>
-    <string name="profile_pin_incorrect">Текущият PIN е грешен.</string>
+    <string name="profile_pin_incorrect">Грешен PIN. Опитай отново.</string>
     <string name="profile_pin_current_required">Този профил вече има PIN. Въведи текущия PIN, за да го промениш.</string>
 
     <!-- Account Screen -->
@@ -2529,7 +2528,7 @@
     <string name="profile_pin_forgot_needs_main">Забрави PIN? Първо задай PIN на %1$s, после го използвай, за да нулираш този.</string>
     <string name="profile_pin_forgot_main">PIN на основния профил не може да се нулира, затова го пази на сигурно място.</string>
     <string name="profile_pin_reset_for_profile">PIN за %1$s е нулиран.</string>
-    <string name="profile_pin_incorrect_for_profile">Грешен PIN за %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Грешен PIN за %1$s. Опитай отново.</string>
     <string name="profile_selection_kids_badge">Детски</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заключен с PIN</string>

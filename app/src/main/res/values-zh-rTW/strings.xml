@@ -1808,9 +1808,8 @@
     <!-- 個人資料 PIN 錯誤 -->
     <string name="profile_pin_save_error">無法儲存 PIN。請重試。</string>
     <string name="profile_pin_locked">個人資料已鎖定。請在 %1$ds 後重試。</string>
-    <string name="profile_pin_invalid">無效的 PIN。請重試。</string>
     <string name="profile_pin_verify_error">無法驗證 PIN。請重試。</string>
-    <string name="profile_pin_incorrect">目前的 PIN 不正確。</string>
+    <string name="profile_pin_incorrect">PIN 不正確。請重試。</string>
     <string name="profile_pin_current_required">此個人資料已有 PIN。請輸入目前的 PIN 以變更它。</string>
 
     <!-- Account Screen -->
@@ -2959,7 +2958,7 @@
     <string name="profile_pin_forgot_needs_main">忘記 PIN？請先為 %1$s 設定 PIN，再用它重設此 PIN。</string>
     <string name="profile_pin_forgot_main">主要個人資料的 PIN 無法重設，請妥善保管。</string>
     <string name="profile_pin_reset_for_profile">已重設 %1$s 的 PIN。</string>
-    <string name="profile_pin_incorrect_for_profile">%1$s 的 PIN 不正確。</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s 的 PIN 不正確。請重試。</string>
     <string name="profile_selection_kids_badge">兒童</string>
     <string name="profile_manage_done">完成</string>
     <string name="cd_profile_locked">已用 PIN 鎖定</string>

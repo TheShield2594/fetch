@@ -1463,9 +1463,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Kunne ikke gemme PIN. Prøv igen.</string>
     <string name="profile_pin_locked">Profil er låst. Prøv igen om %1$ds.</string>
-    <string name="profile_pin_invalid">Ugyldig PIN. Prøv igen.</string>
     <string name="profile_pin_verify_error">Kunne ikke bekræfte PIN. Prøv igen.</string>
-    <string name="profile_pin_incorrect">Den nuværende PIN er forkert.</string>
+    <string name="profile_pin_incorrect">Forkert PIN. Prøv igen.</string>
     <string name="profile_pin_current_required">Denne profil har allerede en PIN. Indtast den nuværende PIN for at ændre den.</string>
 
     <!-- Account Screen -->
@@ -2539,7 +2538,7 @@
     <string name="profile_pin_forgot_needs_main">Glemt PIN? Indstil først en PIN på %1$s, og brug den derefter til at nulstille denne.</string>
     <string name="profile_pin_forgot_main">Hovedprofilens PIN kan ikke nulstilles, så gem den et sikkert sted.</string>
     <string name="profile_pin_reset_for_profile">PIN nulstillet for %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Forkert PIN for %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Forkert PIN for %1$s. Prøv igen.</string>
     <string name="profile_selection_kids_badge">Børn</string>
     <string name="profile_manage_done">Udført</string>
     <string name="cd_profile_locked">Låst med PIN</string>

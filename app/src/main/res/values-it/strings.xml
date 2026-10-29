@@ -1722,9 +1722,8 @@
     <!-- Profile PIN errors -->
 <string name="profile_pin_save_error">Impossibile salvare il PIN. Riprova.</string>
 <string name="profile_pin_locked">Il profilo è bloccato. Riprova tra %1$ds.</string>
-<string name="profile_pin_invalid">PIN non valido. Riprova.</string>
 <string name="profile_pin_verify_error">Impossibile verificare il PIN. Riprova.</string>
-<string name="profile_pin_incorrect">Il PIN attuale non è corretto.</string>
+<string name="profile_pin_incorrect">PIN errato. Riprova.</string>
 <string name="profile_pin_current_required">Questo profilo ha già un PIN. Inserisci il PIN attuale per modificarlo.</string>
 
     <!-- Account Screen -->
@@ -3069,7 +3068,7 @@
     <string name="profile_pin_forgot_needs_main">PIN dimenticato? Imposta prima un PIN su %1$s, poi usalo per reimpostare questo.</string>
     <string name="profile_pin_forgot_main">Il PIN del profilo principale non può essere reimpostato, quindi conservalo in un posto sicuro.</string>
     <string name="profile_pin_reset_for_profile">PIN reimpostato per %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">PIN errato per %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN errato per %1$s. Riprova.</string>
     <string name="profile_selection_kids_badge">Bambini</string>
     <string name="profile_manage_done">Fatto</string>
     <string name="cd_profile_locked">Bloccato con PIN</string>

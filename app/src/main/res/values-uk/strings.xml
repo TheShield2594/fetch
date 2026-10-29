@@ -1458,9 +1458,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Не вдалося зберегти PIN. Спробуйте знову.</string>
     <string name="profile_pin_locked">Профіль заблоковано. Спробуйте через %1$d с.</string>
-    <string name="profile_pin_invalid">Невірний PIN. Спробуйте знову.</string>
     <string name="profile_pin_verify_error">Не вдалося перевірити PIN. Спробуйте знову.</string>
-    <string name="profile_pin_incorrect">Поточний PIN невірний.</string>
+    <string name="profile_pin_incorrect">Неправильний PIN. Спробуйте знову.</string>
     <string name="profile_pin_current_required">Цей профіль вже має PIN. Введіть поточний PIN для зміни.</string>
 
     <!-- Account Screen -->
@@ -2566,7 +2565,7 @@
     <string name="profile_pin_forgot_needs_main">Забули PIN? Спершу встановіть PIN для %1$s, а потім скористайтеся ним, щоб скинути цей.</string>
     <string name="profile_pin_forgot_main">PIN основного профілю не можна скинути, тож зберігайте його в надійному місці.</string>
     <string name="profile_pin_reset_for_profile">PIN для %1$s скинуто.</string>
-    <string name="profile_pin_incorrect_for_profile">Неправильний PIN для %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Неправильний PIN для %1$s. Спробуйте знову.</string>
     <string name="profile_selection_kids_badge">Дитячий</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заблоковано PIN-кодом</string>

@@ -1726,9 +1726,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Kon de pincode niet opslaan. Probeer het opnieuw.</string>
     <string name="profile_pin_locked">Het profiel is vergrendeld. Probeer het over %1$d s opnieuw.</string>
-    <string name="profile_pin_invalid">Ongeldige pincode. Probeer het opnieuw.</string>
     <string name="profile_pin_verify_error">Kon de pincode niet verifiëren. Probeer het opnieuw.</string>
-    <string name="profile_pin_incorrect">De huidige pincode is onjuist.</string>
+    <string name="profile_pin_incorrect">Onjuiste pincode. Probeer het opnieuw.</string>
     <string name="profile_pin_current_required">Dit profiel heeft al een pincode. Voer de huidige pincode in om deze te wijzigen.</string>
 
     <!-- Account Screen -->
@@ -2871,7 +2870,7 @@
     <string name="profile_pin_forgot_needs_main">Pincode vergeten? Stel eerst een pincode in op %1$s en reset deze daarmee.</string>
     <string name="profile_pin_forgot_main">De pincode van het hoofdprofiel kan niet worden gereset, dus bewaar hem goed.</string>
     <string name="profile_pin_reset_for_profile">Pincode gereset voor %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Onjuiste pincode voor %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Onjuiste pincode voor %1$s. Probeer het opnieuw.</string>
     <string name="profile_selection_kids_badge">Kinderen</string>
     <string name="profile_manage_done">Klaar</string>
     <string name="cd_profile_locked">Vergrendeld met pincode</string>

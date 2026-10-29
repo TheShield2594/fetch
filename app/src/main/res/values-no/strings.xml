@@ -1319,7 +1319,8 @@
     <string name="profile_pin_forgot_needs_main">Glemt PIN? Angi en PIN på %1$s først, og bruk den til å tilbakestille denne.</string>
     <string name="profile_pin_forgot_main">PIN-en til hovedprofilen kan ikke tilbakestilles, så oppbevar den på et trygt sted.</string>
     <string name="profile_pin_reset_for_profile">PIN tilbakestilt for %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Feil PIN for %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Feil PIN for %1$s. Prøv igjen.</string>
+    <string name="profile_pin_incorrect">Feil PIN. Prøv igjen.</string>
     <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Ferdig</string>
     <string name="cd_profile_locked">Låst med PIN</string>

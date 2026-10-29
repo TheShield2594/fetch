@@ -1302,9 +1302,8 @@
          	<!-- Profile PIN errors -->																			   
 	<string name="profile_pin_save_error">Kode PIN ni bilo mogoče shraniti. Poskusite znova.</string>
     <string name="profile_pin_locked">Profil je zaklenjen. Poskusite znova čez %1$ds.</string>
-    <string name="profile_pin_invalid">Neveljavna koda PIN. Poskusite znova.</string>
     <string name="profile_pin_verify_error">Kode PIN ni bilo mogoče preveriti. Poskusite znova.</string>
-	<string name="profile_pin_incorrect">Trenutna koda PIN ni pravilna.</string>										  
+	<string name="profile_pin_incorrect">Napačna koda PIN. Poskusite znova.</string>										  
     <string name="profile_pin_current_required">Ta profil že ima kodo PIN. Za spremembo vnesite trenutno kodo PIN.</string>
 	
 	<!-- Account Screen -->					   
@@ -2274,7 +2273,7 @@
     <string name="profile_pin_forgot_needs_main">Ste pozabili kodo PIN? Najprej nastavite kodo PIN za profil %1$s, nato z njo ponastavite to.</string>
     <string name="profile_pin_forgot_main">Kode PIN glavnega profila ni mogoče ponastaviti, zato jo shranite na varnem.</string>
     <string name="profile_pin_reset_for_profile">Koda PIN za profil %1$s je ponastavljena.</string>
-    <string name="profile_pin_incorrect_for_profile">Napačna koda PIN za profil %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Napačna koda PIN za profil %1$s. Poskusite znova.</string>
     <string name="profile_selection_kids_badge">Otroci</string>
     <string name="profile_manage_done">Končano</string>
     <string name="cd_profile_locked">Zaklenjeno s kodo PIN</string>

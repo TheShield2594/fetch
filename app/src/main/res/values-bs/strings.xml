@@ -1078,9 +1078,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Nije bilo moguće spasiti PIN. Pokušaj ponovo.</string>
     <string name="profile_pin_locked">Profil je zaključan. Pokušaj ponovo za %1$ds.</string>
-    <string name="profile_pin_invalid">Nevažeći PIN. Pokušaj ponovo.</string>
     <string name="profile_pin_verify_error">Nije bilo moguće provjeriti PIN. Pokušaj ponovo.</string>
-    <string name="profile_pin_incorrect">Trenutni PIN je netačan.</string>
+    <string name="profile_pin_incorrect">Netačan PIN. Pokušaj ponovo.</string>
 
     <!-- Account Screen -->
     <string name="account_signin_create_title">Prijavi se / Kreiraj Račun</string>
@@ -1655,7 +1654,7 @@
     <string name="profile_pin_forgot_needs_main">Zaboravljen PIN? Prvo postavi PIN na profilu %1$s, pa ga iskoristi da resetuješ ovaj.</string>
     <string name="profile_pin_forgot_main">PIN primarnog profila se ne može resetovati, zato ga čuvaj na sigurnom.</string>
     <string name="profile_pin_reset_for_profile">PIN za %1$s je resetovan.</string>
-    <string name="profile_pin_incorrect_for_profile">Pogrešan PIN za %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Netačan PIN za %1$s. Pokušaj ponovo.</string>
     <string name="profile_selection_kids_badge">Dječiji</string>
     <string name="profile_manage_done">Gotovo</string>
     <string name="cd_profile_locked">Zaključano PIN-om</string>

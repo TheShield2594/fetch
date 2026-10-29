@@ -1232,7 +1232,8 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="profile_pin_forgot_needs_main">Pamiršote PIN? Pirmiausia nustatykite PIN profiliui %1$s, tada juo iš naujo nustatykite šį.</string>
     <string name="profile_pin_forgot_main">Pagrindinio profilio PIN negalima nustatyti iš naujo, todėl laikykite jį saugioje vietoje.</string>
     <string name="profile_pin_reset_for_profile">Profilio %1$s PIN nustatytas iš naujo.</string>
-    <string name="profile_pin_incorrect_for_profile">Neteisingas profilio %1$s PIN.</string>
+    <string name="profile_pin_incorrect_for_profile">Neteisingas profilio %1$s PIN. Bandykite dar kartą.</string>
+    <string name="profile_pin_incorrect">Neteisingas PIN. Bandykite dar kartą.</string>
     <string name="profile_selection_kids_badge">Vaikams</string>
     <string name="profile_manage_done">Atlikta</string>
     <string name="cd_profile_locked">Užrakinta PIN kodu</string>

@@ -1899,9 +1899,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">לא ניתן היה לשמור את הסיסמה. כדאי לנסות שוב.</string>
     <string name="profile_pin_locked">הפרופיל נעול. כדאי לנסות שוב בעוד %1$d שנ׳.</string>
-    <string name="profile_pin_invalid">סיסמה שגויה. כדאי לנסות שוב.</string>
     <string name="profile_pin_verify_error">לא ניתן היה לאמת את הסיסמה. כדאי לנסות שוב.</string>
-    <string name="profile_pin_incorrect">הסיסמה הנוכחית שגויה.</string>
+    <string name="profile_pin_incorrect">סיסמה שגויה. כדאי לנסות שוב.</string>
     <string name="profile_pin_current_required">לפרופיל זה יש כבר סיסמה. יש להזין את הסיסמה הנוכחית כדי לשנות אותה.</string>
 
     <!-- Account Screen -->
@@ -3085,7 +3084,7 @@
     <string name="profile_pin_forgot_needs_main">שכחת את הסיסמה? יש להגדיר קודם סיסמה ל-%1$s ואז להשתמש בה כדי לאפס את הסיסמה הזו.</string>
     <string name="profile_pin_forgot_main">לא ניתן לאפס את הסיסמה של הפרופיל הראשי, לכן כדאי לשמור אותה במקום בטוח.</string>
     <string name="profile_pin_reset_for_profile">הסיסמה של %1$s אופסה.</string>
-    <string name="profile_pin_incorrect_for_profile">סיסמה שגויה עבור %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">סיסמה שגויה עבור %1$s. כדאי לנסות שוב.</string>
     <string name="profile_selection_kids_badge">ילדים</string>
     <string name="profile_manage_done">סיום</string>
     <string name="cd_profile_locked">נעול בסיסמה</string>

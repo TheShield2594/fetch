@@ -1894,9 +1894,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Không thể lưu mã PIN. Vui lòng thử lại.</string>
     <string name="profile_pin_locked">Hồ sơ đã bị khóa. Vui lòng thử lại sau %1$ds.</string>
-    <string name="profile_pin_invalid">Mã PIN không hợp lệ. Vui lòng thử lại.</string>
     <string name="profile_pin_verify_error">Không thể xác thực mã PIN. Vui lòng thử lại.</string>
-    <string name="profile_pin_incorrect">Mã PIN hiện tại không đúng.</string>
+    <string name="profile_pin_incorrect">Mã PIN không đúng. Vui lòng thử lại.</string>
     <string name="profile_pin_current_required">Hồ sơ này đã có mã PIN. Nhập mã PIN hiện tại để thay đổi.</string>
 
     <!-- Account Screen -->
@@ -3072,7 +3071,7 @@
     <string name="profile_pin_forgot_needs_main">Quên mã PIN? Hãy đặt mã PIN cho %1$s trước, rồi dùng mã đó để đặt lại mã này.</string>
     <string name="profile_pin_forgot_main">Không thể đặt lại mã PIN của hồ sơ chính, vì vậy hãy cất giữ cẩn thận.</string>
     <string name="profile_pin_reset_for_profile">Đã đặt lại mã PIN cho %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Mã PIN của %1$s không đúng.</string>
+    <string name="profile_pin_incorrect_for_profile">Mã PIN của %1$s không đúng. Vui lòng thử lại.</string>
     <string name="profile_selection_kids_badge">Trẻ em</string>
     <string name="profile_manage_done">Xong</string>
     <string name="cd_profile_locked">Đã khóa bằng mã PIN</string>

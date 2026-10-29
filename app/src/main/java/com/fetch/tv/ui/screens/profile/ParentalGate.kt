@@ -219,7 +219,7 @@ fun ParentalGateHost(
                 isWorking = isWorking,
                 errorMessage = when (val gateError = error) {
                     null -> null
-                    ParentalGateViewModel.GateError.Incorrect -> context.getString(R.string.profile_pin_invalid)
+                    ParentalGateViewModel.GateError.Incorrect -> context.getString(R.string.profile_pin_incorrect)
                     is ParentalGateViewModel.GateError.Locked ->
                         context.getString(R.string.profile_pin_locked, gateError.retryAfterSeconds)
                 },

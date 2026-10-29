@@ -680,7 +680,7 @@ fun ProfileSelectionScreen(
                                             pinOverlayError = if (verify.retryAfterSeconds > 0) {
                                                 context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
                                             } else {
-                                                context.getString(R.string.profile_pin_invalid)
+                                                context.getString(R.string.profile_pin_incorrect)
                                             }
                                         }
                                     }.onFailure {

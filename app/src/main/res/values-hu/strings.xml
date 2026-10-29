@@ -1886,9 +1886,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Nem sikerült menteni a PIN-kódot. Próbáld újra.</string>
     <string name="profile_pin_locked">A profil zárolva van. Próbáld újra %1$d mp múlva.</string>
-    <string name="profile_pin_invalid">Érvénytelen PIN. Próbáld újra.</string>
     <string name="profile_pin_verify_error">Nem sikerült ellenőrizni a PIN-kódot. Próbáld újra.</string>
-    <string name="profile_pin_incorrect">A jelenlegi PIN-kód helytelen.</string>
+    <string name="profile_pin_incorrect">Helytelen PIN-kód. Próbáld újra.</string>
     <string name="profile_pin_current_required">Ennek a profilnak már van PIN-kódja. A módosításhoz add meg a jelenlegi PIN-kódot.</string>
 
     <!-- Account Screen -->
@@ -3048,7 +3047,7 @@
     <string name="profile_pin_forgot_needs_main">Elfelejtetted a PIN-kódot? Előbb állíts be PIN-kódot ehhez: %1$s, majd azzal állítsd vissza ezt.</string>
     <string name="profile_pin_forgot_main">A fő profil PIN-kódja nem állítható vissza, ezért tartsd biztonságos helyen.</string>
     <string name="profile_pin_reset_for_profile">PIN-kód visszaállítva: %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Helytelen PIN-kód: %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Helytelen PIN-kód: %1$s. Próbáld újra.</string>
     <string name="profile_selection_kids_badge">Gyerek</string>
     <string name="profile_manage_done">Kész</string>
     <string name="cd_profile_locked">PIN-kóddal zárolva</string>

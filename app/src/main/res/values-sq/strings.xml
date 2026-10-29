@@ -1559,9 +1559,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Nuk mund të ruhej PIN-i. Provo përsëri.</string>
     <string name="profile_pin_locked">Profili është i bllokuar. Provo përsëri pas %1$ds.</string>
-    <string name="profile_pin_invalid">PIN i pavlefshëm. Provo përsëri.</string>
     <string name="profile_pin_verify_error">Nuk mund të verifikohej PIN-i. Provo përsëri.</string>
-    <string name="profile_pin_incorrect">PIN-i aktual është i pasaktë.</string>
+    <string name="profile_pin_incorrect">PIN i pasaktë. Provo përsëri.</string>
     <string name="profile_pin_current_required">Ky profil tashmë ka PIN. Shkruaj PIN-in aktual për ta ndryshuar.</string>
     <!-- Account Screen -->
     <!-- Sync screens -->
@@ -2648,7 +2647,7 @@
     <string name="profile_pin_forgot_needs_main">Harrove PIN-in? Cakto fillimisht një PIN te %1$s, pastaj përdore për ta rivendosur këtë.</string>
     <string name="profile_pin_forgot_main">PIN-i i profilit kryesor nuk mund të rivendoset, ndaj ruaje në një vend të sigurt.</string>
     <string name="profile_pin_reset_for_profile">PIN-i u rivendos për %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">PIN i pasaktë për %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN i pasaktë për %1$s. Provo përsëri.</string>
     <string name="profile_selection_kids_badge">Fëmijë</string>
     <string name="profile_manage_done">U krye</string>
     <string name="cd_profile_locked">I bllokuar me PIN</string>

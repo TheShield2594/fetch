@@ -1463,9 +1463,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">PINを保存できませんでした。もう一度お試しください。</string>
     <string name="profile_pin_locked">プロフィールはロックされています。%1$ds後にもう一度お試しください。</string>
-    <string name="profile_pin_invalid">無効なPINです。もう一度お試しください。</string>
     <string name="profile_pin_verify_error">PINを確認できませんでした。もう一度お試しください。</string>
-    <string name="profile_pin_incorrect">現在のPINが正しくありません。</string>
+    <string name="profile_pin_incorrect">PINが正しくありません。もう一度お試しください。</string>
     <string name="profile_pin_current_required">このプロフィールには既にPINが設定されています。変更するには現在のPINを入力してください。</string>
 
     <!-- Account Screen -->
@@ -2533,7 +2532,7 @@
     <string name="profile_pin_forgot_needs_main">PINをお忘れですか？まず%1$sにPINを設定し、それを使ってこのPINをリセットしてください。</string>
     <string name="profile_pin_forgot_main">メインプロフィールのPINはリセットできないため、安全な場所に保管してください。</string>
     <string name="profile_pin_reset_for_profile">%1$sのPINをリセットしました。</string>
-    <string name="profile_pin_incorrect_for_profile">%1$sのPINが正しくありません。</string>
+    <string name="profile_pin_incorrect_for_profile">%1$sのPINが正しくありません。もう一度お試しください。</string>
     <string name="profile_selection_kids_badge">キッズ</string>
     <string name="profile_manage_done">完了</string>
     <string name="cd_profile_locked">PINでロック中</string>

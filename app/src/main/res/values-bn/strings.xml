@@ -1750,9 +1750,8 @@
     <string name="update_error_apk_missing">ডাউনলোড করা ফাইলটি পাওয়া যাচ্ছে না</string>
     <string name="profile_pin_save_error">পিন সেভ করা যায়নি। আবার চেষ্টা করুন।</string>
     <string name="profile_pin_locked">প্রোফাইল লক করা আছে। %1$d সেকেন্ড পর আবার চেষ্টা করুন।</string>
-    <string name="profile_pin_invalid">অকার্যকর পিন। আবার চেষ্টা করুন।</string>
     <string name="profile_pin_verify_error">পিন যাচাই করা যায়নি। আবার চেষ্টা করুন।</string>
-    <string name="profile_pin_incorrect">বর্তমান পিন ভুল।</string>
+    <string name="profile_pin_incorrect">ভুল পিন। আবার চেষ্টা করুন।</string>
     <string name="profile_pin_current_required">এই প্রোফাইলে ইতিমধ্যেই একটি পিন রয়েছে। এটি পরিবর্তন করতে বর্তমান পিনটি লিখুন।</string>
     <string name="discover_disabled_title">Discover নিষ্ক্রিয় করা আছে</string>
     <string name="discover_disabled_subtitle">লেআউট সেটিংসে Discover সক্রিয় করুন</string>
@@ -2821,7 +2820,7 @@
     <string name="profile_pin_forgot_needs_main">পিন ভুলে গেছেন? আগে %1$s-এ একটি পিন সেট করুন, তারপর সেটি দিয়ে এই পিন রিসেট করুন।</string>
     <string name="profile_pin_forgot_main">প্রাইমারি প্রোফাইলের পিন রিসেট করা যায় না, তাই এটি নিরাপদে রাখুন।</string>
     <string name="profile_pin_reset_for_profile">%1$s-এর পিন রিসেট করা হয়েছে।</string>
-    <string name="profile_pin_incorrect_for_profile">%1$s-এর জন্য ভুল পিন।</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s-এর জন্য ভুল পিন। আবার চেষ্টা করুন।</string>
     <string name="profile_selection_kids_badge">শিশু</string>
     <string name="profile_manage_done">সম্পন্ন</string>
     <string name="cd_profile_locked">পিন দিয়ে লক করা</string>

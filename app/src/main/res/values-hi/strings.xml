@@ -1227,7 +1227,8 @@
     <string name="profile_pin_forgot_needs_main">PIN भूल गए? पहले %1$s पर PIN सेट करें, फिर उससे यह PIN रीसेट करें।</string>
     <string name="profile_pin_forgot_main">मुख्य प्रोफाइल का PIN रीसेट नहीं हो सकता, इसलिए इसे सुरक्षित जगह रखें।</string>
     <string name="profile_pin_reset_for_profile">%1$s का PIN रीसेट हो गया।</string>
-    <string name="profile_pin_incorrect_for_profile">%1$s का PIN गलत है।</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s का PIN गलत है। फिर से कोशिश करें।</string>
+    <string name="profile_pin_incorrect">PIN गलत है। फिर से कोशिश करें।</string>
     <string name="profile_selection_kids_badge">किड्स</string>
     <string name="profile_manage_done">पूरा</string>
     <string name="cd_profile_locked">PIN से लॉक</string>

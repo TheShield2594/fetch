@@ -1275,9 +1275,8 @@
     <string name="profile_edit_header">Edytuj profil</string>
     <string name="profile_pin_save_error">Nie można zapisać PIN-u. Spróbuj ponownie.</string>
     <string name="profile_pin_locked">Profil jest zablokowany. Spróbuj ponownie za %1$ds.</string>
-    <string name="profile_pin_invalid">Nieprawidłowy PIN. Spróbuj ponownie.</string>
     <string name="profile_pin_verify_error">Nie można zweryfikować PIN-u. Spróbuj ponownie.</string>
-    <string name="profile_pin_incorrect">Bieżący PIN jest nieprawidłowy.</string>
+    <string name="profile_pin_incorrect">Nieprawidłowy PIN. Spróbuj ponownie.</string>
 
     <string name="ratings_season_label">S%1$d</string>
     <string name="ratings_episode_label">E%1$d</string>
@@ -3161,7 +3160,7 @@
     <string name="profile_pin_forgot_needs_main">Nie pamiętasz PIN-u? Najpierw ustaw PIN w profilu %1$s, a potem użyj go do zresetowania tego.</string>
     <string name="profile_pin_forgot_main">PIN-u profilu głównego nie można zresetować, więc przechowuj go w bezpiecznym miejscu.</string>
     <string name="profile_pin_reset_for_profile">Zresetowano PIN profilu %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Nieprawidłowy PIN profilu %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Nieprawidłowy PIN profilu %1$s. Spróbuj ponownie.</string>
     <string name="profile_selection_kids_badge">Dzieci</string>
     <string name="profile_manage_done">Gotowe</string>
     <string name="cd_profile_locked">Zablokowany PIN-em</string>

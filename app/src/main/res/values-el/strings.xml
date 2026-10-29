@@ -1749,9 +1749,8 @@
   <!-- Profile PIN errors -->
   <string name="profile_pin_save_error">Δεν ήταν δυνατή η αποθήκευση του PIN. Δοκιμάστε ξανά.</string>
   <string name="profile_pin_locked">Το προφίλ είναι κλειδωμένο. Δοκιμάστε ξανά σε %1$ds.</string>
-  <string name="profile_pin_invalid">Μη έγκυρο PIN. Δοκιμάστε ξανά.</string>
   <string name="profile_pin_verify_error">Δεν ήταν δυνατή η επαλήθευση του PIN. Δοκιμάστε ξανά.</string>
-  <string name="profile_pin_incorrect">Το τρέχον PIN είναι λανθασμένο.</string>
+  <string name="profile_pin_incorrect">Λάθος PIN. Δοκιμάστε ξανά.</string>
   <string name="profile_pin_current_required">Αυτό το προφίλ έχει ήδη PIN. Εισαγάγετε το τρέχον PIN για να το αλλάξετε.</string>
   <!-- Account Screen -->
   <string name="account_signin_create_title">Σύνδεση / Δημιουργία λογαριασμού</string>
@@ -2989,7 +2988,7 @@
     <string name="profile_pin_forgot_needs_main">Ξεχάσατε το PIN; Ορίστε πρώτα PIN στο %1$s και μετά χρησιμοποιήστε το για επαναφορά αυτού.</string>
     <string name="profile_pin_forgot_main">Το PIN του κύριου προφίλ δεν μπορεί να επαναφερθεί, οπότε φυλάξτε το σε ασφαλές μέρος.</string>
     <string name="profile_pin_reset_for_profile">Έγινε επαναφορά του PIN για το %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Λάθος PIN για το %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Λάθος PIN για το %1$s. Δοκιμάστε ξανά.</string>
     <string name="profile_selection_kids_badge">Παιδικό</string>
     <string name="profile_manage_done">Τέλος</string>
     <string name="cd_profile_locked">Κλειδωμένο με PIN</string>

@@ -1484,9 +1484,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">تعذر حفظ رمز PIN. حاول مجدداً.</string>
     <string name="profile_pin_locked">الملف الشخصي مقفل. حاول مجدداً بعد %1$d ثوان.</string>
-    <string name="profile_pin_invalid">رمز PIN غير صالح. حاول مجدداً.</string>
     <string name="profile_pin_verify_error">تعذر التحقق من رمز PIN. حاول مجدداً.</string>
-    <string name="profile_pin_incorrect">رمز PIN الحالي غير صحيح.</string>
+    <string name="profile_pin_incorrect">رمز PIN غير صحيح. حاول مجدداً.</string>
     <string name="profile_pin_current_required">الملف محمي برمز PIN.أدخل الرمز الحالي لتغييره.</string>
 
     <!-- Search -->
@@ -2801,7 +2800,7 @@
     <string name="profile_pin_forgot_needs_main">نسيت رمز PIN؟ عيّن رمز PIN لـ %1$s أولاً، ثم استخدمه لإعادة تعيين هذا الرمز.</string>
     <string name="profile_pin_forgot_main">لا يمكن إعادة تعيين رمز PIN للملف الشخصي الرئيسي، لذا احتفظ به في مكان آمن.</string>
     <string name="profile_pin_reset_for_profile">تمت إعادة تعيين رمز PIN لـ %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">رمز PIN غير صحيح لـ %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">رمز PIN غير صحيح لـ %1$s. حاول مجدداً.</string>
     <string name="profile_selection_kids_badge">أطفال</string>
     <string name="profile_manage_done">تم</string>
     <string name="cd_profile_locked">مقفل برمز PIN</string>

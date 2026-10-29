@@ -1894,9 +1894,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Impossible d’enregistrer le code PIN. Veuillez réessayer.</string>
     <string name="profile_pin_locked">Profil verrouillé. Réessayez dans %1$d s.</string>
-    <string name="profile_pin_invalid">Code PIN invalide. Veuillez réessayer.</string>
     <string name="profile_pin_verify_error">Impossible de vérifier le code PIN. Veuillez réessayer.</string>
-    <string name="profile_pin_incorrect">Le code PIN actuel est incorrect.</string>
+    <string name="profile_pin_incorrect">Code PIN incorrect. Veuillez réessayer.</string>
     <string name="profile_pin_current_required">Ce profil possède déjà un code PIN. Saisissez le code PIN actuel pour le modifier.</string>
 
     <!-- Account Screen -->
@@ -3080,7 +3079,7 @@
     <string name="profile_pin_forgot_needs_main">Code PIN oublié ? Définissez d’abord un code PIN sur %1$s, puis utilisez-le pour réinitialiser celui-ci.</string>
     <string name="profile_pin_forgot_main">Le code PIN du profil principal ne peut pas être réinitialisé : conservez-le en lieu sûr.</string>
     <string name="profile_pin_reset_for_profile">Code PIN de %1$s réinitialisé.</string>
-    <string name="profile_pin_incorrect_for_profile">Code PIN incorrect pour %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Code PIN incorrect pour %1$s. Veuillez réessayer.</string>
     <string name="profile_selection_kids_badge">Enfant</string>
     <string name="profile_manage_done">Terminé</string>
     <string name="cd_profile_locked">Verrouillé par un code PIN</string>

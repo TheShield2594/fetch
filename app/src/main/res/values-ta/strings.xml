@@ -1372,9 +1372,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">பின்னை சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
     <string name="profile_pin_locked">சுயவிவரம் பூட்டப்பட்டுள்ளது. %1$ds இல் மீண்டும் முயற்சிக்கவும்.</string>
-    <string name="profile_pin_invalid">தவறான பின். மீண்டும் முயற்சிக்கவும்.</string>
     <string name="profile_pin_verify_error">பின்னை சரிபார்க்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
-    <string name="profile_pin_incorrect">தற்போதைய பின் தவறானது.</string>
+    <string name="profile_pin_incorrect">பின் தவறானது. மீண்டும் முயற்சிக்கவும்.</string>
     <string name="profile_pin_current_required">இந்த சுயவிவரத்தில் ஏற்கனவே பின் உள்ளது. மாற்ற தற்போதைய பின்னை உள்ளிடவும்.</string>
 
     <!-- Account Screen -->
@@ -2348,7 +2347,7 @@
     <string name="profile_pin_forgot_needs_main">பின் மறந்துவிட்டதா? முதலில் %1$s இல் பின் அமைத்து, பிறகு அதைக் கொண்டு இதை மீட்டமைக்கவும்.</string>
     <string name="profile_pin_forgot_main">முதன்மைச் சுயவிவரத்தின் பின்னை மீட்டமைக்க முடியாது, எனவே அதைப் பாதுகாப்பாக வைத்திருக்கவும்.</string>
     <string name="profile_pin_reset_for_profile">%1$s க்கான பின் மீட்டமைக்கப்பட்டது.</string>
-    <string name="profile_pin_incorrect_for_profile">%1$s க்கான பின் தவறானது.</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s க்கான பின் தவறானது. மீண்டும் முயற்சிக்கவும்.</string>
     <string name="profile_selection_kids_badge">குழந்தைகள்</string>
     <string name="profile_manage_done">முடிந்தது</string>
     <string name="cd_profile_locked">பின் மூலம் பூட்டப்பட்டுள்ளது</string>

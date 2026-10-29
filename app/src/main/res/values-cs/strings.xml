@@ -1507,9 +1507,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">PIN nemohl být uložen. Zkuste to znovu.</string>
     <string name="profile_pin_locked">Profil je uzamčen. Zkuste to znovu za %1$ds.</string>
-    <string name="profile_pin_invalid">Neplatný PIN. Zkuste to znovu.</string>
     <string name="profile_pin_verify_error">PIN nemohl být ověřen. Zkuste to znovu.</string>
-    <string name="profile_pin_incorrect">Aktuální PIN je nesprávný.</string>
+    <string name="profile_pin_incorrect">Nesprávný PIN. Zkuste to znovu.</string>
     <string name="profile_pin_current_required">Tento profil již má PIN. Pro změnu zadejte aktuální PIN.</string>
 
     <!-- Account Screen -->
@@ -2617,7 +2616,7 @@
     <string name="profile_pin_forgot_needs_main">Zapomněli jste PIN? Nejprve nastavte PIN na profilu %1$s a pak ho použijte k obnovení tohoto.</string>
     <string name="profile_pin_forgot_main">PIN hlavního profilu nelze obnovit, proto si ho uschovejte na bezpečném místě.</string>
     <string name="profile_pin_reset_for_profile">PIN pro %1$s byl obnoven.</string>
-    <string name="profile_pin_incorrect_for_profile">Nesprávný PIN pro %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Nesprávný PIN pro %1$s. Zkuste to znovu.</string>
     <string name="profile_selection_kids_badge">Dětský</string>
     <string name="profile_manage_done">Hotovo</string>
     <string name="cd_profile_locked">Uzamčeno PINem</string>

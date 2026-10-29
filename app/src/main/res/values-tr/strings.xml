@@ -2026,9 +2026,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">PIN kaydedilemedi. Tekrar deneyin.</string>
     <string name="profile_pin_locked">Profil kilitli. %1$d sn sonra tekrar deneyin.</string>
-    <string name="profile_pin_invalid">Geçersiz PIN. Tekrar deneyin.</string>
     <string name="profile_pin_verify_error">PIN doğrulanamadı. Tekrar deneyin.</string>
-    <string name="profile_pin_incorrect">Mevcut PIN yanlış.</string>
+    <string name="profile_pin_incorrect">PIN hatalı. Tekrar deneyin.</string>
     <string name="profile_pin_current_required">Bu profilde zaten bir PIN var. Değiştirmek için mevcut PIN\'i girin.</string>
     <string name="profile_pin_saved_for_profile">%1$s için PIN kaydedildi.</string>
     <string name="profile_pin_lock_removed_for_profile">%1$s için PIN kilidi kaldırıldı.</string>
@@ -3089,7 +3088,7 @@
     <string name="profile_pin_forgot_needs_main">PIN\'i mi unuttunuz? Önce %1$s profiline bir PIN belirleyin, ardından bunu sıfırlamak için kullanın.</string>
     <string name="profile_pin_forgot_main">Ana profilin PIN\'i sıfırlanamaz, bu yüzden güvenli bir yerde saklayın.</string>
     <string name="profile_pin_reset_for_profile">%1$s için PIN sıfırlandı.</string>
-    <string name="profile_pin_incorrect_for_profile">%1$s için PIN hatalı.</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s için PIN hatalı. Tekrar deneyin.</string>
     <string name="profile_selection_kids_badge">Çocuk</string>
     <string name="profile_manage_done">Tamam</string>
     <string name="cd_profile_locked">PIN ile kilitli</string>

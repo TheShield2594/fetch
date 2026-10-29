@@ -1241,9 +1241,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Kunde inte spara PIN. Försök igen.</string>
     <string name="profile_pin_locked">Profilen är låst. Försök igen om %1$ds.</string>
-    <string name="profile_pin_invalid">Ogiltig PIN. Försök igen.</string>
     <string name="profile_pin_verify_error">Kunde inte verifiera PIN. Försök igen.</string>
-    <string name="profile_pin_incorrect">Nuvarande PIN är felaktig.</string>
+    <string name="profile_pin_incorrect">Fel PIN. Försök igen.</string>
     <string name="profile_pin_current_required">Denna profil har redan en PIN. Ange den nuvarande PIN-koden för att ändra den.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Ange nuvarande PIN för att radera %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Ange den nuvarande 4-siffriga PIN-koden innan du raderar denna profil.</string>
@@ -1767,7 +1766,7 @@
     <string name="profile_pin_forgot_needs_main">Glömt PIN? Ställ först in en PIN på %1$s och använd den sedan för att återställa den här.</string>
     <string name="profile_pin_forgot_main">Huvudprofilens PIN kan inte återställas, så förvara den på ett säkert ställe.</string>
     <string name="profile_pin_reset_for_profile">PIN återställd för %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Fel PIN för %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Fel PIN för %1$s. Försök igen.</string>
     <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Klar</string>
     <string name="cd_profile_locked">Låst med PIN</string>

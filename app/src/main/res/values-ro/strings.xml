@@ -1099,7 +1099,8 @@
     <string name="profile_pin_forgot_needs_main">Ai uitat PIN-ul? Setează mai întâi un PIN pe %1$s, apoi folosește-l pentru a-l reseta pe acesta.</string>
     <string name="profile_pin_forgot_main">PIN-ul profilului principal nu poate fi resetat, așa că păstrează-l într-un loc sigur.</string>
     <string name="profile_pin_reset_for_profile">PIN resetat pentru %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">PIN incorect pentru %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN incorect pentru %1$s. Încearcă din nou.</string>
+    <string name="profile_pin_incorrect">PIN incorect. Încearcă din nou.</string>
     <string name="profile_selection_kids_badge">Copii</string>
     <string name="profile_manage_done">Gata</string>
     <string name="cd_profile_locked">Blocat cu PIN</string>

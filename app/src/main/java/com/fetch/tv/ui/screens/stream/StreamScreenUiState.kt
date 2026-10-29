@@ -7,6 +7,8 @@ import com.fetch.tv.ui.components.SourceChipStatus
 
 data class StreamScreenUiState(
     val isLoading: Boolean = true,
+    /** Set when a kids profile can't watch now: its screen time is used up, or it's bedtime. */
+    val screenTimeBlock: com.fetch.tv.core.parental.ScreenTimeStatus? = null,
     val isDirectAutoPlayFlow: Boolean = false,
     val showDirectAutoPlayOverlay: Boolean = false,
     val autoPlayDecided: Boolean = false,

@@ -38,7 +38,9 @@ import javax.inject.Inject
 fun parentalTitleOf(item: MetaPreview, originalId: String? = null): ParentalTitle = ParentalTitle(
     ids = listOfNotNull(item.id, item.imdbId, originalId).filter { it.isNotBlank() }.distinct(),
     type = item.apiType,
-    name = item.name
+    name = item.name,
+    poster = item.poster,
+    background = item.background
 )
 
 /**

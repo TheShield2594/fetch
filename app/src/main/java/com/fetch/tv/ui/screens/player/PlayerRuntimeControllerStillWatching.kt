@@ -19,6 +19,35 @@ internal fun shouldEnterStillWatchingPrompt(
     nextEpisodeHasAired &&
     consecutiveAutoPlayCount >= threshold
 
+/**
+ * The still-watching prompt as the active profile has it: a kids profile's autoplay cap
+ * turns it on whatever the setting, at the cap or the setting's threshold, whichever is lower.
+ */
+internal fun effectiveStillWatching(
+    stillWatchingEnabled: Boolean,
+    threshold: Int,
+    kidsAutoplayCap: Int?
+): Pair<Boolean, Int> = when {
+    kidsAutoplayCap == null -> stillWatchingEnabled to threshold
+    stillWatchingEnabled -> true to minOf(threshold, kidsAutoplayCap)
+    else -> true to kidsAutoplayCap
+}
+
+internal fun PlayerRuntimeController.shouldPromptStillWatching(nextEpisodeHasAired: Boolean): Boolean {
+    val (enabled, threshold) = effectiveStillWatching(
+        stillWatchingEnabled = stillWatchingEnabledSetting,
+        threshold = stillWatchingEpisodeThresholdSetting,
+        kidsAutoplayCap = parentalControls.autoplayEpisodeCap()
+    )
+    return shouldEnterStillWatchingPrompt(
+        stillWatchingEnabled = enabled,
+        autoPlayNextEpisodeEnabled = streamAutoPlayNextEpisodeEnabledSetting,
+        nextEpisodeHasAired = nextEpisodeHasAired,
+        consecutiveAutoPlayCount = consecutiveAutoPlayCount,
+        threshold = threshold,
+    )
+}
+
 internal fun PlayerRuntimeController.enterStillWatchingPromptMode() {
     val nextInfo = _uiState.value.nextEpisode ?: return
     if (_uiState.value.postPlayMode is PostPlayMode.StillWatching && stillWatchingPromptJob?.isActive == true) {

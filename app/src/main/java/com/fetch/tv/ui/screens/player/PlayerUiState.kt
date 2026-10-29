@@ -19,7 +19,9 @@ import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.ui.components.SourceChipItem
 
 enum class PlayerExitReason {
-    StillWatchingPrompt
+    StillWatchingPrompt,
+    /** A kids profile's screen time ran out, or bedtime started. */
+    ScreenTimeLimit
 }
 
 enum class PlaybackIssueReportStatus {
@@ -68,6 +70,8 @@ data class PlayerUiState(
     val isBuffering: Boolean = true,
     val playbackEnded: Boolean = false,
     val pendingExitReason: PlayerExitReason? = null,
+    /** Set while the "That's all for today" dialog is up. */
+    val screenTimeBlock: com.fetch.tv.core.parental.ScreenTimeStatus? = null,
     val title: String = "",
     val contentName: String? = null, // Series/show name (for series content)
     val releaseYear: String? = null, // Release year for movies

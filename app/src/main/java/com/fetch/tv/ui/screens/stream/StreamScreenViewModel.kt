@@ -102,6 +102,7 @@ class StreamScreenViewModel @Inject constructor(
     party: com.fetch.tv.core.party.PartyRepository,
     profileManager: com.fetch.tv.core.profile.ProfileManager,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
+    private val screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
     private val addonHealthTracker: com.fetch.tv.core.streams.AddonHealthTracker,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -320,6 +321,13 @@ class StreamScreenViewModel @Inject constructor(
         }
     }
 
+    /** A parent added screen time: load the sources as if the screen had just opened. */
+    fun onScreenTimeGranted() {
+        _uiState.update { it.copy(screenTimeBlock = null) }
+        autoPlayHandledForSession = false
+        loadStreams()
+    }
+
     fun onEvent(event: StreamScreenEvent) {
         when (event) {
             is StreamScreenEvent.OnAddonFilterSelected -> filterByAddon(event.addonName)
@@ -423,6 +431,23 @@ class StreamScreenViewModel @Inject constructor(
                     it.copy(
                         isLoading = false,
                         error = context.getString(R.string.parental_title_blocked),
+                        autoPlayStream = null,
+                        isDirectAutoPlayFlow = false,
+                        showDirectAutoPlayOverlay = false,
+                        directAutoPlayMessage = null
+                    )
+                }
+                streamLoadCompleted = true
+                return@launch
+            }
+            val screenTimeStatus = screenTime.status()
+            if (screenTimeStatus.isBlocked) {
+                // A kids profile's screen time is used up, or it's bedtime: nothing auto-plays.
+                autoPlayHandledForSession = true
+                updateUiStateIfChanged {
+                    it.copy(
+                        isLoading = false,
+                        screenTimeBlock = screenTimeStatus,
                         autoPlayStream = null,
                         isDirectAutoPlayFlow = false,
                         showDirectAutoPlayOverlay = false,

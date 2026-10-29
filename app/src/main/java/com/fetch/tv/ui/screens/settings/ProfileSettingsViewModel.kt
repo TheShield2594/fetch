@@ -24,8 +24,16 @@ import javax.inject.Inject
 class ProfileSettingsViewModel @Inject constructor(
     private val profileManager: ProfileManager,
     private val avatarRepository: AvatarRepository,
-    private val memberAccessRepository: MemberAccessRepository
+    private val memberAccessRepository: MemberAccessRepository,
+    private val parentalControls: com.fetch.tv.core.parental.ParentalControls
 ) : ViewModel() {
+
+    val lockUnrestrictedProfiles: StateFlow<Boolean> = parentalControls.lockUnrestrictedProfiles
+    val parentPinSet: StateFlow<Boolean> = parentalControls.parentPinSet
+
+    fun setLockUnrestrictedProfiles(enabled: Boolean) {
+        viewModelScope.launch { parentalControls.setLockUnrestrictedProfiles(enabled) }
+    }
 
     val isPrimaryProfileActive: StateFlow<Boolean> = profileManager.activeProfileId
         .map { it == 1 }

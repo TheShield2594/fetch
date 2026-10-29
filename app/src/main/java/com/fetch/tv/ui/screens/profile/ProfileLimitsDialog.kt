@@ -23,6 +23,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.parental.CertificationLevel
+import com.fetch.tv.data.local.KidsRules
 import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileTitleLists
@@ -52,19 +53,50 @@ internal fun certificationLevelLabel(level: CertificationLevel?): String = strin
     }
 )
 
+/** Autoplay caps offered for a kids profile, ending with no cap. */
+internal val AutoplayCapChoices: List<Int?> = listOf(1, 2, 3, 5, null)
+
+/** Daily screen time offered for a kids profile, in minutes, starting with no limit. */
+internal val DailyMinutesChoices: List<Int?> = listOf(null, 30, 60, 90, 120, 180)
+
+/** Bedtime starts offered for a kids profile, in minutes after midnight, starting with none. */
+internal val BedtimeStartChoices: List<Int?> = listOf(null, 19 * 60, 20 * 60, 21 * 60, 22 * 60)
+
+/** Bedtime always ends at 7:00. */
+internal const val BEDTIME_END_MINUTE = 7 * 60
+
+private fun <T> List<T>.after(current: T): T = this[(indexOf(current).coerceAtLeast(0) + 1) % size]
+
+@Composable
+private fun minuteOfDayLabel(minute: Int): String {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    return java.time.LocalTime.of(minute / 60, minute % 60)
+        .format(java.time.format.DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(locale))
+}
+
+@Composable
+internal fun dailyMinutesLabel(minutes: Int?): String = when {
+    minutes == null -> stringResource(R.string.parental_level_unrestricted)
+    minutes < 60 -> stringResource(R.string.kids_minutes, minutes)
+    minutes % 60 == 0 -> stringResource(R.string.kids_hours, minutes / 60)
+    else -> stringResource(R.string.kids_hours_minutes, minutes / 60, minutes % 60)
+}
+
 @Composable
 internal fun ProfileLimitsDialog(
     profile: UserProfile,
     initial: ProfileRestrictions,
     parentPinSet: Boolean,
     onDismiss: () -> Unit,
-    onSave: (ProfileRestrictions) -> Unit,
+    onSave: (ProfileRestrictions, KidsRules) -> Unit,
+    initialKidsRules: KidsRules = KidsRules.Default,
     /** Titles hidden from or allowed on the profile from a poster's long-press menu. */
     titleLists: ProfileTitleLists = ProfileTitleLists.Empty,
     /** Leaves a listed title to the rating limit again, straight away. */
     onClearTitle: (ParentalTitle) -> Unit = {}
 ) {
     var restrictions by remember(profile.id) { mutableStateOf(initial) }
+    var kidsRules by remember(profile.id) { mutableStateOf(initialKidsRules) }
     val firstFocus = remember(profile.id) { FocusRequester() }
     LaunchedEffect(profile.id) {
         repeat(2) { withFrameNanos { } }
@@ -82,7 +114,8 @@ internal fun ProfileLimitsDialog(
             if (parentPinSet) R.string.parental_limits_subtitle else R.string.parental_limits_subtitle_no_pin
         ),
         width = 480.dp,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         Button(
             onClick = {
@@ -132,6 +165,64 @@ internal fun ProfileLimitsDialog(
             }
         }
 
+        if (restrictions.isKidsProfile) {
+            @Composable
+            fun RuleButton(text: String, onClick: () -> Unit) {
+                Button(onClick = onClick, modifier = Modifier.fillMaxWidth(), colors = buttonColors) { Text(text) }
+            }
+            fun onOff(value: Boolean) = if (value) R.string.parental_on else R.string.parental_off
+
+            RuleButton(
+                stringResource(
+                    R.string.kids_autoplay_cap,
+                    kidsRules.autoplayEpisodeCap?.let { cap ->
+                        androidx.compose.ui.res.pluralStringResource(R.plurals.kids_episodes, cap, cap)
+                    } ?: stringResource(R.string.parental_level_unrestricted)
+                )
+            ) {
+                kidsRules = kidsRules.copy(autoplayEpisodeCap = AutoplayCapChoices.after(kidsRules.autoplayEpisodeCap))
+            }
+            RuleButton(
+                stringResource(R.string.kids_approved_only, stringResource(onOff(kidsRules.approvedTitlesOnly)))
+            ) {
+                kidsRules = kidsRules.copy(approvedTitlesOnly = !kidsRules.approvedTitlesOnly)
+            }
+            if (kidsRules.approvedTitlesOnly) {
+                Text(
+                    text = stringResource(R.string.kids_approved_only_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FetchTheme.colors.TextSecondary
+                )
+            }
+            RuleButton(stringResource(R.string.kids_daily_time, dailyMinutesLabel(kidsRules.dailyMinutes))) {
+                kidsRules = kidsRules.copy(dailyMinutes = DailyMinutesChoices.after(kidsRules.dailyMinutes))
+            }
+            RuleButton(
+                kidsRules.bedtimeStartMinute?.let { start ->
+                    stringResource(
+                        R.string.kids_bedtime,
+                        minuteOfDayLabel(start),
+                        minuteOfDayLabel(kidsRules.bedtimeEndMinute ?: BEDTIME_END_MINUTE)
+                    )
+                } ?: stringResource(R.string.kids_bedtime_off)
+            ) {
+                val start = BedtimeStartChoices.after(kidsRules.bedtimeStartMinute)
+                kidsRules = kidsRules.copy(
+                    bedtimeStartMinute = start,
+                    bedtimeEndMinute = start?.let { BEDTIME_END_MINUTE }
+                )
+            }
+            if (kidsRules.dailyMinutes != null || kidsRules.hasBedtime) {
+                RuleButton(
+                    stringResource(
+                        if (kidsRules.hardStop) R.string.kids_at_limit_stop else R.string.kids_at_limit_finish
+                    )
+                ) {
+                    kidsRules = kidsRules.copy(hardStop = !kidsRules.hardStop)
+                }
+            }
+        }
+
         if (!titleLists.isEmpty) {
             Text(
                 text = stringResource(R.string.parental_title_lists_hint),
@@ -169,7 +260,7 @@ internal fun ProfileLimitsDialog(
         }
 
         Button(
-            onClick = { onSave(restrictions) },
+            onClick = { onSave(restrictions, kidsRules) },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.colors(
                 containerColor = FetchTheme.colors.Primary,

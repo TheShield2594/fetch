@@ -141,6 +141,13 @@ fun StreamScreen(
     onNavigateToAddons: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    uiState.screenTimeBlock?.let { status ->
+        com.fetch.tv.ui.screens.profile.ScreenTimeLimitDialog(
+            status = status,
+            onExit = onBackPress,
+            onGranted = viewModel::onScreenTimeGranted
+        )
+    }
     val sharedStream by viewModel.sharedStream.collectAsStateWithLifecycle()
     val partySource by viewModel.partySource.collectAsStateWithLifecycle()
     val playerPreference by viewModel.playerPreference.collectAsStateWithLifecycle(

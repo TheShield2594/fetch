@@ -150,3 +150,58 @@ internal fun ParentPinNudgeDialog(
         }
     }
 }
+
+/**
+ * Offers to lock the profiles with no limits and no PIN, after [restrictedProfile] gets limits:
+ * otherwise it can open one of them from the profile picker and skip every limit.
+ */
+@Composable
+internal fun LockProfilesOfferDialog(
+    restrictedProfile: UserProfile,
+    unlockedProfiles: List<UserProfile>,
+    mainProfile: UserProfile,
+    onAccept: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val firstFocus = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        repeat(2) { withFrameNanos { } }
+        runCatching { firstFocus.requestFocus() }
+    }
+    val names = unlockedProfiles.joinToString(", ") { it.name }
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = stringResource(R.string.parental_lock_profiles_offer_title),
+        subtitle = stringResource(
+            R.string.parental_lock_profiles_offer_subtitle,
+            restrictedProfile.name,
+            names,
+            mainProfile.name
+        ),
+        width = 480.dp,
+        suppressFirstKeyUp = false
+    ) {
+        Button(
+            onClick = onAccept,
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(firstFocus),
+            colors = ButtonDefaults.colors(
+                containerColor = FetchTheme.colors.Primary,
+                contentColor = FetchTheme.colors.OnPrimary
+            )
+        ) {
+            Text(stringResource(R.string.parental_lock_profiles_offer_accept, mainProfile.name))
+        }
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.colors(
+                containerColor = FetchTheme.colors.BackgroundCard,
+                contentColor = FetchTheme.colors.TextPrimary
+            )
+        ) {
+            Text(stringResource(R.string.parental_pin_nudge_later))
+        }
+    }
+}

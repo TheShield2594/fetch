@@ -197,8 +197,15 @@ internal fun PlayerRuntimeController.resetPostPlayStateAfterPlaybackEnded() {
     val autoPlayEligible = streamAutoPlayNextEpisodeEnabledSetting &&
         state.nextEpisode?.hasAired == true &&
         nextEpisodeVideo != null
-    if (autoPlayEligible && (state.postPlayDismissedForCurrentEpisode || state.postPlayMode == null)) {
-        playNextEpisode()
+    if (autoPlayEligible && !isScreenTimeBlocked() &&
+        (state.postPlayDismissedForCurrentEpisode || state.postPlayMode == null)
+    ) {
+        // Past the still-watching threshold (or a kids profile's autoplay cap), ask first.
+        if (shouldPromptStillWatching(nextEpisodeHasAired = true)) {
+            enterStillWatchingPromptMode()
+        } else {
+            playNextEpisode()
+        }
         return
     }
 

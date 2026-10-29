@@ -1004,7 +1004,8 @@ private fun PlaybackNavHost(
                             popUpTo(Screen.Player.route) { inclusive = true }
                         }
                     } else {
-                        if (exitReason == PlayerExitReason.StillWatchingPrompt) {
+                        // Back to the detail page after a still-watching or screen time stop.
+                        if (exitReason != null) {
                             val detailEntry = navController.currentBackStack.value
                                 .lastOrNull { it.destination.route?.startsWith("detail/") == true }
                             if (detailEntry != null) {

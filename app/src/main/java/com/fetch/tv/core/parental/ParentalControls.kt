@@ -2,6 +2,7 @@ package com.fetch.tv.core.parental
 
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.ProfileSettingsSyncService
+import com.fetch.tv.data.local.KidsRules
 import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
@@ -35,7 +36,8 @@ private const val GATE_UNLOCK_WINDOW_MS = 5 * 60_000L
 data class ParentalFilterRevision(
     val restriction: ContentRestriction,
     val titleLists: ProfileTitleLists,
-    val certifications: Long
+    val certifications: Long,
+    val approvedTitlesOnly: Boolean = false
 )
 
 /** How a parent set one title for a profile. */
@@ -78,8 +80,59 @@ class ParentalControls @Inject constructor(
         .distinctUntilChanged()
         .stateIn(scope, SharingStarted.Eagerly, ProfileTitleLists.Empty)
 
+    val allKidsRules: StateFlow<Map<Int, KidsRules>> = restrictionsDataStore.kidsRules
+        .stateIn(scope, SharingStarted.Eagerly, emptyMap())
+
+    /** The active profile's kids rules, or null when it isn't a kids profile. */
+    val activeKidsRules: StateFlow<KidsRules?> = combine(
+        profileManager.activeProfileId,
+        activeRestrictions,
+        allKidsRules
+    ) { profileId, restrictions, all ->
+        if (restrictions.isKidsProfile) all[profileId] ?: KidsRules.Default else null
+    }
+        .distinctUntilChanged()
+        .stateIn(scope, SharingStarted.Eagerly, null)
+
+    fun kidsRulesFor(profileId: Int): KidsRules = allKidsRules.value[profileId] ?: KidsRules.Default
+
+    /** Saves a kids profile's rules. Kept on this TV; callers ask for the parent PIN first. */
+    suspend fun setKidsRules(profileId: Int, rules: KidsRules): Boolean {
+        if (profileId == 1) return false
+        restrictionsDataStore.setKidsRules(profileId, rules)
+        return true
+    }
+
+    val lockUnrestrictedProfiles: StateFlow<Boolean> = restrictionsDataStore.lockUnrestrictedProfiles
+        .stateIn(scope, SharingStarted.Eagerly, false)
+
+    suspend fun setLockUnrestrictedProfiles(enabled: Boolean) = restrictionsDataStore.setLockUnrestrictedProfiles(enabled)
+
+    /**
+     * True when opening [profileId] from the profile picker needs the main profile's PIN: the
+     * lock is on, some profile has limits, and this one has neither limits nor a PIN of its own.
+     */
+    fun needsParentPinToOpen(profileId: Int, profileIds: List<Int>): Boolean = needsParentPinToOpen(
+        profileId = profileId,
+        profileIds = profileIds,
+        lockOn = lockUnrestrictedProfiles.value,
+        restrictions = allRestrictions.value,
+        pinEnabled = pinStates.value
+    )
+
+    /** Episodes that may autoplay in a row on the active profile; null for no cap. */
+    fun autoplayEpisodeCap(): Int? = activeKidsRules.value?.autoplayEpisodeCap
+
+    private val approvedTitlesOnly: Boolean
+        get() = activeKidsRules.value?.approvedTitlesOnly == true
+
     private val pinStates: StateFlow<Map<Int, Boolean>> = pinManager.pinEnabled
         .stateIn(scope, SharingStarted.Eagerly, emptyMap())
+
+    /** True when the main (parent) profile has a PIN. */
+    val parentPinSet: StateFlow<Boolean> = pinStates.map { it[1] == true }
+        .distinctUntilChanged()
+        .stateIn(scope, SharingStarted.Eagerly, false)
 
     /**
      * Changes whenever filtering results may differ: the active limit or title lists changed,
@@ -88,9 +141,10 @@ class ParentalControls @Inject constructor(
     val filterRevision: StateFlow<ParentalFilterRevision> = combine(
         activeRestrictions.map { it.contentRestriction }.distinctUntilChanged(),
         activeTitleLists,
-        resolver.revision
-    ) { restriction, lists, revision ->
-        ParentalFilterRevision(restriction, lists, if (restriction.isRestricted) revision else 0L)
+        resolver.revision,
+        activeKidsRules.map { it?.approvedTitlesOnly == true }.distinctUntilChanged()
+    ) { restriction, lists, revision, approvedOnly ->
+        ParentalFilterRevision(restriction, lists, if (restriction.isRestricted) revision else 0L, approvedOnly)
     }
         .distinctUntilChanged()
         .stateIn(
@@ -101,7 +155,7 @@ class ParentalControls @Inject constructor(
 
     /** True when some titles may be left out for the active profile: it has a limit or hidden titles. */
     fun filtersContent(): Boolean =
-        activeRestrictions.value.isRestricted || activeTitleLists.value.hidden.isNotEmpty()
+        activeRestrictions.value.isRestricted || activeTitleLists.value.hidden.isNotEmpty() || approvedTitlesOnly
 
     fun restrictionsFor(profileId: Int): ProfileRestrictions =
         allRestrictions.value[profileId] ?: ProfileRestrictions.None
@@ -208,6 +262,8 @@ class ParentalControls @Inject constructor(
         val lists = activeTitleLists.value
         val type = query.type.takeIf { it != ContentType.UNKNOWN }?.toApiString()
         if (lists.isHidden(query.contentId, query.imdbId, type)) return false
+        // "Approved titles only": the parent's list decides, whatever the rating.
+        if (approvedTitlesOnly) return lists.isAllowed(query.contentId, query.imdbId, type)
         val restriction = activeRestrictions.value.contentRestriction
         if (!restriction.isRestricted || lists.isAllowed(query.contentId, query.imdbId, type)) return true
         val resolved = resolver.levelIfKnown(query) ?: return false
@@ -238,6 +294,7 @@ class ParentalControls @Inject constructor(
         val lists = activeTitleLists.value
         val type = query.type.takeIf { it != ContentType.UNKNOWN }?.toApiString()
         if (lists.isHidden(query.contentId, query.imdbId, type)) return false
+        if (approvedTitlesOnly) return lists.isAllowed(query.contentId, query.imdbId, type)
         val restriction = activeRestrictions.value.contentRestriction
         if (!restriction.isRestricted || lists.isAllowed(query.contentId, query.imdbId, type)) return true
         return restriction.allows(resolver.resolve(query))
@@ -250,3 +307,16 @@ fun MetaPreview.certificationQuery(): CertificationQuery = CertificationQuery(
     imdbId = imdbId,
     knownCertification = ageRating
 )
+
+/** See [ParentalControls.needsParentPinToOpen]. */
+internal fun needsParentPinToOpen(
+    profileId: Int,
+    profileIds: List<Int>,
+    lockOn: Boolean,
+    restrictions: Map<Int, ProfileRestrictions>,
+    pinEnabled: Map<Int, Boolean>
+): Boolean {
+    if (!lockOn || profileId == 1 || pinEnabled[1] != true || pinEnabled[profileId] == true) return false
+    if (restrictions[profileId]?.isRestricted == true) return false
+    return profileIds.any { restrictions[it]?.isRestricted == true }
+}

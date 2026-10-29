@@ -221,7 +221,9 @@ internal sealed interface ProfilePinOverlayState {
         override val profile: UserProfile,
         val targetProfile: UserProfile? = null,
         /** Set instead of [targetProfile] when the PIN opens this profile's viewing activity. */
-        val activityProfile: UserProfile? = null
+        val activityProfile: UserProfile? = null,
+        /** Set instead when the PIN opens this unlocked profile while another has limits. */
+        val openProfile: UserProfile? = null
     ) : ProfilePinOverlayState
 }
 
@@ -282,6 +284,7 @@ fun ProfileSelectionScreen(
     val profilePinEnabled by viewModel.profilePinEnabled.collectAsState()
     val profileRestrictions by viewModel.profileRestrictions.collectAsState()
     val profileTitleLists by viewModel.profileTitleLists.collectAsState()
+    val profileKidsRules by viewModel.profileKidsRules.collectAsState()
     val isPinOperationInProgress by viewModel.isPinOperationInProgress.collectAsState()
     val avatarImageUrlsById = remember(avatarCatalog, profiles) {
         buildMap {
@@ -311,6 +314,8 @@ fun ProfileSelectionScreen(
     var profileActionMessage by remember { mutableStateOf<String?>(null) }
     var pinCheck by remember { mutableStateOf<ProfilePinCheck?>(null) }
     var parentPinNudgeFor by remember { mutableStateOf<UserProfile?>(null) }
+    var lockOfferFor by remember { mutableStateOf<UserProfile?>(null) }
+    val lockUnrestrictedProfiles by viewModel.lockUnrestrictedProfiles.collectAsState()
     var pinCheckError by remember { mutableStateOf<String?>(null) }
     // Editing a locked profile, or copying settings (and API keys) to or from it, needs its PIN.
     // The profile already open behind Manage Profiles was unlocked to get there; the startup
@@ -548,9 +553,14 @@ fun ProfileSelectionScreen(
                             suppressOptionsDialogFirstKeyUp = false
                             longPressedProfile = profile
                         } else {
+                            val parent = profiles.firstOrNull { it.isPrimary }
                             if (profilePinEnabled[profile.id] == true) {
                                 pinOverlayError = null
                                 pinOverlayState = ProfilePinOverlayState.Unlock(profile)
+                            } else if (parent != null && viewModel.needsParentPinToOpen(profile.id)) {
+                                // Otherwise a kid could open a profile with no limits and no PIN.
+                                pinOverlayError = null
+                                pinOverlayState = ProfilePinOverlayState.ParentGate(parent, openProfile = profile)
                             } else {
                                 selectProfile(profile.id)
                             }
@@ -696,6 +706,7 @@ fun ProfileSelectionScreen(
                                             pinOverlayState = null
                                             limitsTarget = activePinOverlay.targetProfile
                                             activityTarget = activePinOverlay.activityProfile
+                                            activePinOverlay.openProfile?.let { selectProfile(it.id) }
                                         } else {
                                             pinOverlayError = if (verify.retryAfterSeconds > 0) {
                                                 context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
@@ -763,6 +774,7 @@ fun ProfileSelectionScreen(
                             is CreateProfileResult.Created -> {
                                 showCreateProfile = false
                                 if (setup.isKidsProfile && !parentHasPin) parentPinNudgeFor = result.profile
+                                if (setup.isKidsProfile && parentHasPin) lockOfferFor = result.profile
                                 val sourceName = profiles.firstOrNull { it.id == setup.copyFromProfileId }?.name
                                 if (result.settingsCopyResult?.isSuccess == true && sourceName != null) {
                                     profileActionMessage = context.getString(
@@ -1082,11 +1094,14 @@ fun ProfileSelectionScreen(
                 initial = profileRestrictions[targetProfile.id] ?: ProfileRestrictions.None,
                 parentPinSet = primaryHasPin,
                 onDismiss = { limitsTarget = null },
-                onSave = { restrictions ->
+                initialKidsRules = profileKidsRules[targetProfile.id] ?: com.fetch.tv.data.local.KidsRules.Default,
+                onSave = { restrictions, kidsRules ->
                     viewModel.setProfileRestrictions(targetProfile.id, restrictions)
+                    viewModel.setKidsRules(targetProfile.id, kidsRules)
                     limitsTarget = null
                     profileActionMessage = context.getString(R.string.parental_limits_saved, targetProfile.name)
                     if (restrictions.isRestricted && !primaryHasPin) parentPinNudgeFor = targetProfile
+                    if (restrictions.isRestricted && primaryHasPin) lockOfferFor = targetProfile
                 },
                 titleLists = profileTitleLists[targetProfile.id] ?: com.fetch.tv.data.local.ProfileTitleLists.Empty,
                 onClearTitle = { title -> viewModel.clearParentalTitle(targetProfile.id, title) }
@@ -1192,6 +1207,27 @@ fun ProfileSelectionScreen(
                     pinOverlayState = ProfilePinOverlayState.Set(nudgeParent)
                 },
                 onDismiss = { parentPinNudgeFor = null }
+            )
+        }
+
+        // Offered once the main profile has a PIN, while the lock is off and some profile is open.
+        val lockOfferTarget = lockOfferFor
+        val lockOfferParent = parentProfile?.takeIf { parentHasPin && !lockUnrestrictedProfiles }
+        val unlockedProfiles = profiles.filter { profile ->
+            !profile.isPrimary && profile.id != lockOfferTarget?.id &&
+                profilePinEnabled[profile.id] != true &&
+                profileRestrictions[profile.id]?.isRestricted != true
+        }
+        if (lockOfferTarget != null && lockOfferParent != null && unlockedProfiles.isNotEmpty()) {
+            LockProfilesOfferDialog(
+                restrictedProfile = lockOfferTarget,
+                unlockedProfiles = unlockedProfiles,
+                mainProfile = lockOfferParent,
+                onAccept = {
+                    viewModel.setLockUnrestrictedProfiles(true)
+                    lockOfferFor = null
+                },
+                onDismiss = { lockOfferFor = null }
             )
         }
 
@@ -2803,6 +2839,8 @@ internal fun ProfilePinOverlay(
             state is ProfilePinOverlayState.VerifyCurrentForDelete -> stringResource(R.string.profile_pin_overlay_delete_verify_support)
             state is ProfilePinOverlayState.VerifyAccess -> stringResource(R.string.profile_pin_overlay_access_support)
             state is ProfilePinOverlayState.ResetVerifyParent -> stringResource(R.string.profile_pin_overlay_reset_support, state.target.name)
+            state is ProfilePinOverlayState.ParentGate && state.openProfile != null ->
+                stringResource(R.string.parental_gate_open_support, state.openProfile.name)
             state is ProfilePinOverlayState.ParentGate -> stringResource(R.string.parental_gate_support)
             entryStage == ProfilePinEntryStage.Confirm -> stringResource(R.string.profile_pin_overlay_confirm_support)
             else -> stringResource(R.string.profile_pin_overlay_set_support)

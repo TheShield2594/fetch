@@ -3,6 +3,7 @@ package com.fetch.tv.data.local
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -62,12 +63,53 @@ data class ProfileRestrictions(
     }
 }
 
+/**
+ * Extra rules for a kids profile, set by a parent next to its limits. They apply only while the
+ * profile is a kids profile, and are kept on this TV, like the title lists.
+ */
+@Serializable
+data class KidsRules(
+    /** Episodes that autoplay in a row before a button press is needed; null for no cap. */
+    val autoplayEpisodeCap: Int? = DEFAULT_AUTOPLAY_EPISODE_CAP,
+    /** Only titles on the allowed list show, whatever their rating. */
+    val approvedTitlesOnly: Boolean = false,
+    /** Playback allowed per day, in minutes; null for no limit. */
+    val dailyMinutes: Int? = null,
+    /** Start of the no-watching window, in minutes after midnight; null for no bedtime. */
+    val bedtimeStartMinute: Int? = null,
+    /** End of the no-watching window, in minutes after midnight. */
+    val bedtimeEndMinute: Int? = null,
+    /** At the limit, stop right away instead of letting the episode or movie finish. */
+    val hardStop: Boolean = false
+) {
+    val hasBedtime: Boolean get() = bedtimeStartMinute != null && bedtimeEndMinute != null
+
+    /** True when [minuteOfDay] falls in the bedtime window, which may run past midnight. */
+    fun isBedtime(minuteOfDay: Int): Boolean {
+        val start = bedtimeStartMinute ?: return false
+        val end = bedtimeEndMinute ?: return false
+        return when {
+            start == end -> false
+            start < end -> minuteOfDay in start until end
+            else -> minuteOfDay >= start || minuteOfDay < end
+        }
+    }
+
+    companion object {
+        const val DEFAULT_AUTOPLAY_EPISODE_CAP = 3
+        val Default = KidsRules()
+    }
+}
+
 /** A title on a profile's hidden or allowed list, with every id it's known by. */
 @Serializable
 data class ParentalTitle(
     val ids: List<String>,
     val type: String,
-    val name: String
+    val name: String,
+    /** Artwork kept so an approved title can be shown on a kids Home without a lookup. */
+    val poster: String? = null,
+    val background: String? = null
 ) {
     /**
      * True for [contentId] or [imdbId] naming this title, or one of its episodes ("tt123:1:2").
@@ -148,6 +190,8 @@ class ProfileRestrictionsDataStore internal constructor(
     private val pendingAccountPushKey = stringSetPreferencesKey("account_push_pending")
     // Kept apart from the limits, which a website pull replaces; the lists are only set on this TV.
     private val titleListsKey = stringPreferencesKey("title_lists")
+    private val kidsRulesKey = stringPreferencesKey("kids_rules")
+    private val lockUnrestrictedKey = booleanPreferencesKey("lock_unrestricted_profiles")
     private val json = Json { ignoreUnknownKeys = true }
 
     val restrictions: Flow<Map<Int, ProfileRestrictions>> = dataStore.data.map { prefs ->
@@ -243,6 +287,29 @@ class ProfileRestrictionsDataStore internal constructor(
         }
     }
 
+    /**
+     * While a profile has limits, opening a profile with no limits and no PIN of its own needs
+     * the main profile's PIN. One setting for the TV.
+     */
+    val lockUnrestrictedProfiles: Flow<Boolean> = dataStore.data.map { prefs -> prefs[lockUnrestrictedKey] == true }
+
+    suspend fun setLockUnrestrictedProfiles(enabled: Boolean) {
+        dataStore.edit { prefs -> prefs[lockUnrestrictedKey] = enabled }
+    }
+
+    /** Rules per kids profile; a profile missing here uses [KidsRules.Default]. */
+    val kidsRules: Flow<Map<Int, KidsRules>> = dataStore.data.map { prefs ->
+        decodeKidsRules(prefs[kidsRulesKey])
+    }
+
+    suspend fun setKidsRules(profileId: Int, rules: KidsRules) {
+        dataStore.edit { prefs ->
+            val current = decodeKidsRules(prefs[kidsRulesKey]).toMutableMap()
+            if (rules == KidsRules.Default) current.remove(profileId) else current[profileId] = rules
+            prefs[kidsRulesKey] = json.encodeToString(current.mapKeys { it.key.toString() })
+        }
+    }
+
     /** Drops the profile's limits. Its title lists stay: they're kept on this TV whatever the website says. */
     suspend fun removeProfile(profileId: Int) = setRestrictions(profileId, ProfileRestrictions.None)
 
@@ -256,6 +323,7 @@ class ProfileRestrictionsDataStore internal constructor(
             if (profileId in pending) prefs[pendingAccountPushKey] = (pending - profileId).mapTo(HashSet()) { it.toString() }
         }
         updateTitleLists(profileId) { ProfileTitleLists.Empty }
+        setKidsRules(profileId, KidsRules.Default)
     }
 
     suspend fun clearAll() {
@@ -276,6 +344,13 @@ class ProfileRestrictionsDataStore internal constructor(
         val stored = runCatching { json.decodeFromString<Map<String, ProfileTitleLists>>(raw) }.getOrNull()
             ?: return emptyMap()
         return stored.mapNotNull { (id, lists) -> id.toIntOrNull()?.let { it to lists } }.toMap()
+    }
+
+    private fun decodeKidsRules(raw: String?): Map<Int, KidsRules> {
+        if (raw.isNullOrBlank()) return emptyMap()
+        val stored = runCatching { json.decodeFromString<Map<String, KidsRules>>(raw) }.getOrNull()
+            ?: return emptyMap()
+        return stored.mapNotNull { (id, rules) -> id.toIntOrNull()?.let { it to rules } }.toMap()
     }
 
     private fun decode(raw: String?): Map<Int, ProfileRestrictions> {

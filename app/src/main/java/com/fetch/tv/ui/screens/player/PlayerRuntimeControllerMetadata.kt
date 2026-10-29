@@ -396,14 +396,10 @@ internal fun PlayerRuntimeController.evaluatePostPlayOverlayVisibility(positionM
     if (!shouldShow) return
 
     if (_uiState.value.postPlayDismissedForCurrentEpisode) return
+    // Out of screen time or past bedtime: the title plays to its end, nothing follows it.
+    if (isScreenTimeBlocked()) return
 
-    val shouldEnterStillWatching = shouldEnterStillWatchingPrompt(
-        stillWatchingEnabled = stillWatchingEnabledSetting,
-        autoPlayNextEpisodeEnabled = streamAutoPlayNextEpisodeEnabledSetting,
-        nextEpisodeHasAired = state.nextEpisode.hasAired,
-        consecutiveAutoPlayCount = consecutiveAutoPlayCount,
-        threshold = stillWatchingEpisodeThresholdSetting,
-    )
+    val shouldEnterStillWatching = shouldPromptStillWatching(state.nextEpisode.hasAired)
 
     if (shouldEnterStillWatching) {
         enterStillWatchingPromptMode()

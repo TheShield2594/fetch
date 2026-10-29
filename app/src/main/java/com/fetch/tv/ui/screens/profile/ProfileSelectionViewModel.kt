@@ -110,6 +110,21 @@ class ProfileSelectionViewModel @Inject constructor(
         viewModelScope.launch { parentalControls.setRestrictions(profileId, restrictions) }
     }
 
+    fun needsParentPinToOpen(profileId: Int): Boolean =
+        parentalControls.needsParentPinToOpen(profileId, profileManager.profiles.value.map { it.id })
+
+    val lockUnrestrictedProfiles: StateFlow<Boolean> = parentalControls.lockUnrestrictedProfiles
+
+    fun setLockUnrestrictedProfiles(enabled: Boolean) {
+        viewModelScope.launch { parentalControls.setLockUnrestrictedProfiles(enabled) }
+    }
+
+    val profileKidsRules: StateFlow<Map<Int, com.fetch.tv.data.local.KidsRules>> = parentalControls.allKidsRules
+
+    fun setKidsRules(profileId: Int, rules: com.fetch.tv.data.local.KidsRules) {
+        viewModelScope.launch { parentalControls.setKidsRules(profileId, rules) }
+    }
+
     val profileTitleLists: StateFlow<Map<Int, com.fetch.tv.data.local.ProfileTitleLists>> =
         parentalControls.allTitleLists
 

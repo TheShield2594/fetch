@@ -40,6 +40,10 @@ internal fun ProfileSettingsContent(
     val profiles by viewModel.profiles.collectAsStateWithLifecycle()
     val avatarImageUrls by viewModel.avatarImageUrls.collectAsStateWithLifecycle()
     val rememberLastProfileEnabled by viewModel.rememberLastProfileEnabled.collectAsStateWithLifecycle()
+    val lockUnrestrictedProfiles by viewModel.lockUnrestrictedProfiles.collectAsStateWithLifecycle()
+    val parentPinSet by viewModel.parentPinSet.collectAsStateWithLifecycle()
+    val parentalGate = com.fetch.tv.ui.screens.profile.LocalParentalGate.current
+    val mainProfileName = profiles.firstOrNull { it.isPrimary }?.name.orEmpty()
     LaunchedEffect(viewModel) { viewModel.loadAvatars() }
 
     Column(
@@ -101,6 +105,23 @@ internal fun ProfileSettingsContent(
                 subtitle = stringResource(R.string.profile_remember_last_profile_subtitle),
                 checked = rememberLastProfileEnabled,
                 onToggle = { viewModel.setRememberLastProfileEnabled(!rememberLastProfileEnabled) }
+            )
+            SettingsToggleRow(
+                title = stringResource(R.string.parental_lock_profiles_title),
+                subtitle = stringResource(
+                    if (parentPinSet) R.string.parental_lock_profiles_subtitle else R.string.parental_lock_profiles_needs_pin,
+                    mainProfileName
+                ),
+                checked = lockUnrestrictedProfiles && parentPinSet,
+                enabled = parentPinSet,
+                onToggle = {
+                    if (lockUnrestrictedProfiles) {
+                        // Unlocking is the parent's call.
+                        parentalGate.runParentGuarded { viewModel.setLockUnrestrictedProfiles(false) }
+                    } else {
+                        viewModel.setLockUnrestrictedProfiles(true)
+                    }
+                }
             )
         }
     }

@@ -407,7 +407,13 @@ fun AddonManagerScreen(
                                         containerColor = FetchTheme.colors.BackgroundCard,
                                         contentColor = FetchTheme.colors.TextPrimary,
                                         focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                        focusedContentColor = FetchTheme.colors.Primary
+                                        focusedContentColor = FetchTheme.colors.TextPrimary
+                                    ),
+                                    border = ButtonDefaults.border(
+                                        focusedBorder = Border(
+                                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                            shape = RoundedCornerShape(FetchTheme.radii.md)
+                                        )
                                     ),
                                     shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                                 ) {
@@ -1549,7 +1555,13 @@ private fun AddonCardContent(
                                 containerColor = FetchTheme.colors.BackgroundCard,
                                 contentColor = FetchTheme.colors.TextSecondary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
+                                focusedContentColor = FetchTheme.colors.TextPrimary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(FetchTheme.radii.md)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                         ) {
@@ -1563,7 +1575,13 @@ private fun AddonCardContent(
                                 containerColor = FetchTheme.colors.BackgroundCard,
                                 contentColor = FetchTheme.colors.TextSecondary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
+                                focusedContentColor = FetchTheme.colors.TextPrimary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(FetchTheme.radii.md)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                         ) {
@@ -1578,7 +1596,13 @@ private fun AddonCardContent(
                                 containerColor = FetchTheme.colors.BackgroundCard,
                                 contentColor = FetchTheme.colors.TextSecondary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
+                                focusedContentColor = FetchTheme.colors.TextPrimary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(FetchTheme.radii.md)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                         ) {
@@ -1593,6 +1617,12 @@ private fun AddonCardContent(
                             contentColor = FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Error
+                        ),
+                        border = ButtonDefaults.border(
+                            focusedBorder = Border(
+                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                shape = RoundedCornerShape(FetchTheme.radii.md)
+                            )
                         ),
                         shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                     ) {

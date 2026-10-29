@@ -44,6 +44,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -158,7 +159,14 @@ fun EssentialAddonSetupScreen(
                             colors = ButtonDefaults.colors(
                                 containerColor = FetchTheme.colors.Secondary,
                                 contentColor = FetchTheme.colors.OnSecondary,
-                                focusedContainerColor = FetchTheme.colors.SecondaryVariant
+                                focusedContainerColor = FetchTheme.colors.SecondaryVariant,
+                                focusedContentColor = FetchTheme.colors.OnSecondary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(50)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(50))
                         ) {
@@ -218,7 +226,13 @@ fun EssentialAddonSetupScreen(
                                 containerColor = FetchTheme.colors.BackgroundElevated,
                                 contentColor = FetchTheme.colors.TextPrimary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
+                                focusedContentColor = FetchTheme.colors.TextPrimary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(50)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(50))
                         ) {
@@ -235,7 +249,13 @@ fun EssentialAddonSetupScreen(
                     containerColor = FetchTheme.colors.BackgroundCard,
                     contentColor = FetchTheme.colors.TextPrimary,
                     focusedContainerColor = FetchTheme.colors.FocusBackground,
-                    focusedContentColor = FetchTheme.colors.Primary
+                    focusedContentColor = FetchTheme.colors.TextPrimary
+                ),
+                border = ButtonDefaults.border(
+                    focusedBorder = Border(
+                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        shape = RoundedCornerShape(50)
+                    )
                 ),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50))
             ) {

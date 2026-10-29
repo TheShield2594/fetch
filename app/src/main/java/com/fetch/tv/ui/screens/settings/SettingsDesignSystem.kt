@@ -722,7 +722,8 @@ internal fun <T> SettingsSingleChoiceDialog(
         title = title,
         subtitle = subtitle,
         width = width,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         Box(
             modifier = Modifier
@@ -825,7 +826,8 @@ internal fun <T> SettingsMultiChoiceDialog(
         title = title,
         subtitle = subtitle,
         width = width,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         Column(
             modifier = Modifier

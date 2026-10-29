@@ -1090,7 +1090,8 @@ fun ContinueWatchingOptionsDialog(
     FetchDialog(
         onDismiss = onDismiss,
         title = title,
-        subtitle = stringResource(R.string.cw_dialog_subtitle)
+        subtitle = stringResource(R.string.cw_dialog_subtitle),
+        scrollable = true
     ) {
         Button(
             onClick = onDetails,

@@ -92,7 +92,8 @@ internal fun AddonHealthPanel(
         subtitle = stringResource(R.string.addon_health_panel_subtitle, AddonHealth.WINDOW_SIZE),
         width = 760.dp,
         usePlatformDefaultWidth = false,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),

@@ -46,7 +46,8 @@ internal fun ProfileSetupDialog(
         title = stringResource(R.string.profile_setup_title),
         subtitle = stringResource(R.string.profile_setup_subtitle, mainProfileName),
         width = 480.dp,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         Button(
             onClick = { onKidsProfileChange(!isKidsProfile) },

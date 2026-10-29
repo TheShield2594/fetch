@@ -2827,11 +2827,11 @@
     <string name="cd_profile_locked">পিন দিয়ে লক করা</string>
     <string name="cd_profile_pin_progress">%2$d-এর মধ্যে %1$d অঙ্ক দেওয়া হয়েছে</string>
     <string name="cd_profile_color_crimson">ক্রিমসন</string>
-    <string name="cd_profile_color_ocean">সমুদ্রনীল</string>
-    <string name="cd_profile_color_violet">বেগুনি</string>
-    <string name="cd_profile_color_emerald">পান্না</string>
-    <string name="cd_profile_color_amber">অ্যাম্বার</string>
-    <string name="cd_profile_color_rose">গোলাপি</string>
+    <string name="cd_profile_color_ocean">ওশান</string>
+    <string name="cd_profile_color_violet">ভায়োলেট</string>
+    <string name="cd_profile_color_emerald">এমরাল্ড</string>
+    <string name="cd_profile_color_amber">অম্বর</string>
+    <string name="cd_profile_color_rose">রোজ</string>
     <string name="cd_profile_color_cyan">সায়ান</string>
     <string name="cd_profile_color_brown">বাদামি</string>
     <string name="cd_profile_color_position">রং %2$d-এর মধ্যে %1$d</string>

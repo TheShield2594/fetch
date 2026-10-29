@@ -2653,7 +2653,7 @@
     <string name="profile_manage_done">U krye</string>
     <string name="cd_profile_locked">I bllokuar me PIN</string>
     <string name="cd_profile_pin_progress">U futën %1$d nga %2$d shifra</string>
-    <string name="cd_profile_color_crimson">E kuqe e thellë</string>
+    <string name="cd_profile_color_crimson">E kuqe e mbyllur</string>
     <string name="cd_profile_color_ocean">Oqean</string>
     <string name="cd_profile_color_violet">Vjollcë</string>
     <string name="cd_profile_color_emerald">Smerald</string>

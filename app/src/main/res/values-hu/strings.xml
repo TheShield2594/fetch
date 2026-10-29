@@ -3053,7 +3053,7 @@
     <string name="profile_manage_done">Kész</string>
     <string name="cd_profile_locked">PIN-kóddal zárolva</string>
     <string name="cd_profile_pin_progress">%2$d számjegyből %1$d megadva</string>
-    <string name="cd_profile_color_crimson">Bíbor</string>
+    <string name="cd_profile_color_crimson">Karmazsin</string>
     <string name="cd_profile_color_ocean">Óceán</string>
     <string name="cd_profile_color_violet">Ibolya</string>
     <string name="cd_profile_color_emerald">Smaragd</string>

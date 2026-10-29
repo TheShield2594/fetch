@@ -3095,8 +3095,8 @@
     <string name="cd_profile_color_violet">סגול</string>
     <string name="cd_profile_color_emerald">אזמרגד</string>
     <string name="cd_profile_color_amber">ענבר</string>
-    <string name="cd_profile_color_rose">ורוד</string>
-    <string name="cd_profile_color_cyan">טורקיז</string>
+    <string name="cd_profile_color_rose">ורוד שושנה</string>
+    <string name="cd_profile_color_cyan">ציאן</string>
     <string name="cd_profile_color_brown">חום</string>
     <string name="cd_profile_color_position">צבע %1$d מתוך %2$d</string>
     <string name="profile_save_error">לא ניתן היה לשמור את הפרופיל. כדאי לנסות שוב.</string>

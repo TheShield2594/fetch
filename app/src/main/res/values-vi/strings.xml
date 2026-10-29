@@ -3078,10 +3078,10 @@
     <string name="cd_profile_locked">Đã khóa bằng mã PIN</string>
     <string name="cd_profile_pin_progress">Đã nhập %1$d/%2$d chữ số</string>
     <string name="cd_profile_color_crimson">Đỏ thẫm</string>
-    <string name="cd_profile_color_ocean">Đại dương</string>
+    <string name="cd_profile_color_ocean">Xanh lam</string>
     <string name="cd_profile_color_violet">Tím</string>
     <string name="cd_profile_color_emerald">Ngọc lục bảo</string>
-    <string name="cd_profile_color_amber">Hổ phách</string>
+    <string name="cd_profile_color_amber">Cam</string>
     <string name="cd_profile_color_rose">Hồng</string>
     <string name="cd_profile_color_cyan">Lục lam</string>
     <string name="cd_profile_color_brown">Nâu</string>

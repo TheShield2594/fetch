@@ -2367,8 +2367,8 @@
     <string name="profile_manage_done">Fertig</string>
     <string name="cd_profile_locked">Mit PIN gesperrt</string>
     <string name="cd_profile_pin_progress">%1$d von %2$d Ziffern eingegeben</string>
-    <string name="cd_profile_color_crimson">Karmesin</string>
-    <string name="cd_profile_color_ocean">Ozean</string>
+    <string name="cd_profile_color_crimson">Purpurrot</string>
+    <string name="cd_profile_color_ocean">Ozeanblau</string>
     <string name="cd_profile_color_violet">Violett</string>
     <string name="cd_profile_color_emerald">Smaragd</string>
     <string name="cd_profile_color_amber">Bernstein</string>

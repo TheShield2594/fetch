@@ -2534,12 +2534,12 @@
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заключен с PIN</string>
     <string name="cd_profile_pin_progress">Въведени цифри: %1$d от %2$d</string>
-    <string name="cd_profile_color_crimson">Пурпурен</string>
+    <string name="cd_profile_color_crimson">Кървавочервено</string>
     <string name="cd_profile_color_ocean">Океан</string>
-    <string name="cd_profile_color_violet">Виолетов</string>
-    <string name="cd_profile_color_emerald">Изумруден</string>
-    <string name="cd_profile_color_amber">Кехлибарен</string>
-    <string name="cd_profile_color_rose">Розов</string>
+    <string name="cd_profile_color_violet">Виолетово</string>
+    <string name="cd_profile_color_emerald">Смарагдово</string>
+    <string name="cd_profile_color_amber">Кехлибар</string>
+    <string name="cd_profile_color_rose">Роза</string>
     <string name="cd_profile_color_cyan">Циан</string>
     <string name="cd_profile_color_brown">Кафяв</string>
     <string name="cd_profile_color_position">Цвят %1$d от %2$d</string>

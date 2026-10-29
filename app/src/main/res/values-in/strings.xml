@@ -2381,12 +2381,12 @@
     <string name="profile_manage_done">Selesai</string>
     <string name="cd_profile_locked">Dikunci dengan PIN</string>
     <string name="cd_profile_pin_progress">%1$d dari %2$d digit dimasukkan</string>
-    <string name="cd_profile_color_crimson">Merah Tua</string>
+    <string name="cd_profile_color_crimson">Delima</string>
     <string name="cd_profile_color_ocean">Samudra</string>
-    <string name="cd_profile_color_violet">Ungu</string>
+    <string name="cd_profile_color_violet">Lavender</string>
     <string name="cd_profile_color_emerald">Zamrud</string>
     <string name="cd_profile_color_amber">Amber</string>
-    <string name="cd_profile_color_rose">Merah Muda</string>
+    <string name="cd_profile_color_rose">Mawar</string>
     <string name="cd_profile_color_cyan">Sian</string>
     <string name="cd_profile_color_brown">Cokelat</string>
     <string name="cd_profile_color_position">Warna %1$d dari %2$d</string>

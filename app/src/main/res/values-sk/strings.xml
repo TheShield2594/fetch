@@ -3102,7 +3102,7 @@
     <string name="cd_profile_locked">Zamknuté PIN kódom</string>
     <string name="cd_profile_pin_progress">Zadané číslice: %1$d z %2$d</string>
     <string name="cd_profile_color_crimson">Karmínová</string>
-    <string name="cd_profile_color_ocean">Oceánová</string>
+    <string name="cd_profile_color_ocean">Oceán</string>
     <string name="cd_profile_color_violet">Fialová</string>
     <string name="cd_profile_color_emerald">Smaragdová</string>
     <string name="cd_profile_color_amber">Jantárová</string>

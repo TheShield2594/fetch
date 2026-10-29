@@ -3166,12 +3166,12 @@
     <string name="profile_manage_done">Gotowe</string>
     <string name="cd_profile_locked">Zablokowany PIN-em</string>
     <string name="cd_profile_pin_progress">Wprowadzono %1$d z %2$d cyfr</string>
-    <string name="cd_profile_color_crimson">Karmazynowy</string>
+    <string name="cd_profile_color_crimson">Karmazyn</string>
     <string name="cd_profile_color_ocean">Oceaniczny</string>
-    <string name="cd_profile_color_violet">Fioletowy</string>
-    <string name="cd_profile_color_emerald">Szmaragdowy</string>
-    <string name="cd_profile_color_amber">Bursztynowy</string>
-    <string name="cd_profile_color_rose">Różany</string>
+    <string name="cd_profile_color_violet">Fiolet</string>
+    <string name="cd_profile_color_emerald">Szmaragd</string>
+    <string name="cd_profile_color_amber">Bursztyn</string>
+    <string name="cd_profile_color_rose">Róż</string>
     <string name="cd_profile_color_cyan">Cyjan</string>
     <string name="cd_profile_color_brown">Brązowy</string>
     <string name="cd_profile_color_position">Kolor %1$d z %2$d</string>

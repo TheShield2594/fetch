@@ -261,7 +261,8 @@ private fun YouTubeSignInDialog(
         title = "",
         width = 720.dp,
         titleTextAlign = TextAlign.Center,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         val displayUrl = state.verificationUrl ?: YouTubeService.ACTIVATION_URL
         TrackingDeviceAuthContent(

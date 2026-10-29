@@ -72,7 +72,8 @@ internal fun AppIconPickerDialog(
         suppressFirstKeyUp = false,
         usePlatformDefaultWidth = false,
         contentPadding = 18.dp,
-        contentSpacing = 12.dp
+        contentSpacing = 12.dp,
+        scrollable = true
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             AppIconOption.entries.chunked(3).forEach { options ->

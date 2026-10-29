@@ -34,7 +34,7 @@ internal fun MdbListAccountDialog(
             )
         }
     } else {
-        FetchDialog(onDismiss = onDismiss, title = "", width = 720.dp, titleTextAlign = TextAlign.Center, suppressFirstKeyUp = false) {
+        FetchDialog(onDismiss = onDismiss, title = "", width = 720.dp, titleTextAlign = TextAlign.Center, suppressFirstKeyUp = false, scrollable = true) {
             TrackingDeviceAuthContent(
                 providerName = stringResource(R.string.mdblist_name),
                 logo = logo,

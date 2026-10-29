@@ -50,7 +50,8 @@ internal fun HexColorDialog(
         subtitle = stringResource(R.string.custom_theme_hex_hint),
         width = 420.dp,
         contentPadding = 20.dp,
-        contentSpacing = 12.dp
+        contentSpacing = 12.dp,
+        scrollable = true
     ) {
         HexColorEditor(initialColor, onConfirm, onDismiss)
     }

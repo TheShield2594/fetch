@@ -76,7 +76,8 @@ internal fun CustomThemeDialog(
         width = 840.dp,
         usePlatformDefaultWidth = false,
         contentPadding = 20.dp,
-        contentSpacing = 12.dp
+        contentSpacing = 12.dp,
+        scrollable = true
     ) {
         CustomThemeEditor(
             initialColors = initialColors,

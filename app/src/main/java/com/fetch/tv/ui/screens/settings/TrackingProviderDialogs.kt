@@ -117,7 +117,8 @@ internal fun TraktAccountDialog(
             title = "",
             width = 720.dp,
             titleTextAlign = TextAlign.Center,
-            suppressFirstKeyUp = false
+            suppressFirstKeyUp = false,
+            scrollable = true
         ) {
             val displayUrl = state.verificationUrl ?: TRAKT_ACTIVATION_URL
             val qrUrl = state.deviceUserCode?.let { "$TRAKT_ACTIVATION_URL/$it" } ?: displayUrl
@@ -243,7 +244,8 @@ internal fun SimklAccountDialog(
             title = "",
             width = 720.dp,
             titleTextAlign = TextAlign.Center,
-            suppressFirstKeyUp = false
+            suppressFirstKeyUp = false,
+            scrollable = true
         ) {
             TrackingDeviceAuthContent(
                 providerName = stringResource(R.string.simkl_name),
@@ -475,7 +477,8 @@ internal fun ConnectedTrackingAccountDialog(
                 contentScale = ContentScale.Fit
             )
         },
-        content = content
+        content = content,
+        scrollable = true
     )
 }
 

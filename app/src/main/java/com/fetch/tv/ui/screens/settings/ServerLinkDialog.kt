@@ -60,7 +60,8 @@ internal fun ServerLinkDialog(
     FetchDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.servers_sign_in_title, provider.displayName),
-        width = 640.dp
+        width = 640.dp,
+        scrollable = true
     ) {
         val code = state.code
         val connectingTo = state.connectingTo

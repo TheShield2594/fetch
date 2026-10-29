@@ -5,7 +5,6 @@
 
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchPrimitives
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.annotation.RawRes
 import androidx.compose.animation.AnimatedContent
@@ -153,17 +152,19 @@ fun PostPlayRecommendationOverlay(
         animationSpec = tween(FetchMotion.tokens.durations.long),
         label = "postPlayRecommendationActionSpacing"
     )
+    // The text side takes ScrimStrong; the trailer side stays clear.
+    val scrimStrong = FetchTheme.colors.Player.ScrimStrong
     val horizontalScrim = if (isRtl) {
         Brush.horizontalGradient(
-            0f to FetchPrimitives.black.copy(alpha = 0.22f),
-            0.46f to FetchPrimitives.black.copy(alpha = 0.16f),
-            1f to FetchPrimitives.black.copy(alpha = 0.88f)
+            0f to Color.Transparent,
+            0.46f to Color.Transparent,
+            1f to scrimStrong
         )
     } else {
         Brush.horizontalGradient(
-            0f to FetchPrimitives.black.copy(alpha = 0.88f),
-            0.54f to FetchPrimitives.black.copy(alpha = 0.16f),
-            1f to FetchPrimitives.black.copy(alpha = 0.22f)
+            0f to scrimStrong,
+            0.54f to Color.Transparent,
+            1f to Color.Transparent
         )
     }
 
@@ -271,9 +272,9 @@ fun PostPlayRecommendationOverlay(
                     .background(horizontalScrim)
                     .background(
                         Brush.verticalGradient(
-                            0f to FetchPrimitives.black.copy(alpha = 0.08f),
+                            0f to Color.Transparent,
                             0.58f to Color.Transparent,
-                            1f to FetchPrimitives.black.copy(alpha = 0.82f)
+                            1f to scrimStrong
                         )
                     )
             )

@@ -138,7 +138,7 @@ private fun PauseMetadataView(
             Text(
                 text = stringResource(R.string.pause_you_are_watching),
                 style = MaterialTheme.typography.bodyLarge,
-                color = FetchTheme.colors.TextTertiary
+                color = FetchTheme.colors.Player.TextTertiary
             )
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
@@ -189,7 +189,7 @@ private fun PauseMetadataView(
                 Text(
                     text = "$year$episodeLabel",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = FetchTheme.colors.TextSecondary,
+                    color = FetchTheme.colors.Player.TextSecondary,
                     modifier = Modifier.padding(top = FetchTheme.spacing.sm)
                 )
             }
@@ -212,7 +212,7 @@ private fun PauseMetadataView(
                     style = MaterialTheme.typography.bodyLarge.copy(
                         textDirection = description.contentTextDirection()
                     ),
-                    color = FetchTheme.colors.TextSecondary,
+                    color = FetchTheme.colors.Player.TextSecondary,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = FetchTheme.spacing.lg)
@@ -225,7 +225,7 @@ private fun PauseMetadataView(
                 Text(
                     text = stringResource(R.string.pause_cast_label),
                     style = MaterialTheme.typography.titleSmall,
-                    color = FetchTheme.colors.TextTertiary
+                    color = FetchTheme.colors.Player.TextTertiary
                 )
 
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.md))

@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,6 +61,7 @@ import com.fetch.tv.core.server.AddonWebConfigMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -72,6 +74,13 @@ fun EssentialAddonSetupScreen(
 
     DisposableEffect(Unit) {
         onDispose { viewModel.stopQrMode() }
+    }
+
+    LaunchedEffect(uiState.transientMessage) {
+        if (uiState.transientMessage != null) {
+            delay(3200)
+            viewModel.clearTransientMessage()
+        }
     }
 
     Box(

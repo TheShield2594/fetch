@@ -1490,6 +1490,7 @@
     <string name="addon_error_invalid_scheme">Addon URL must start with http or https</string>
     <string name="addon_installed_section">Installed</string>
     <string name="addon_empty">No addons installed. Add one to get started.</string>
+    <string name="addon_list_load_failed">Couldn’t load your installed addons. Try again.</string>
     <string name="addon_remove">Remove</string>
     <string name="addon_configure">Configure</string>
     <string name="addon_badge_needs_setup">Needs setup</string>
@@ -2163,7 +2164,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Connect to Wi-Fi or Ethernet to use this feature</string>
-    <string name="error_server_ports_unavailable">Could not start server. All ports in use.</string>
+    <string name="error_server_ports_unavailable">Couldn’t start the phone connection. Restart Fetch and try again.</string>
 
     <!-- Trakt errors -->
 

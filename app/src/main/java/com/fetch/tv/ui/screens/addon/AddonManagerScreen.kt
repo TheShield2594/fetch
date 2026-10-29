@@ -113,6 +113,7 @@ import androidx.tv.material3.SwitchDefaults
 import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.ExperienceMode
+import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.util.contentTextDirection
@@ -499,7 +500,15 @@ fun AddonManagerScreen(
                 }
             }
 
-            if (uiState.installedAddons.isEmpty() && !uiState.isLoading) {
+            if (uiState.installedAddonsLoadFailed && uiState.installedAddons.isEmpty()) {
+                item {
+                    ErrorState(
+                        message = stringResource(R.string.addon_list_load_failed),
+                        onRetry = viewModel::retryLoadInstalledAddons,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            } else if (uiState.installedAddons.isEmpty() && !uiState.isLoading) {
                 item {
                     Text(
                         text = stringResource(R.string.addon_empty),

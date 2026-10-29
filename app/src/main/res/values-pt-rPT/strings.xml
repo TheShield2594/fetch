@@ -1080,7 +1080,6 @@
     <string name="season_episode_format">T%1$d E%2$d</string>
     <string name="player_subtitle_delay">Atraso das Legendas</string>
     <string name="player_error_title">Erro de Reprodução</string>
-    <string name="player_go_back">Voltar atrás</string>
     <string name="player_speed_title">Velocidade de Reprodução</string>
     <string name="player_more_actions_title">Mais Ações</string>
     <string name="player_more_speed">Velocidade de Reprodução</string>
@@ -1164,8 +1163,6 @@
     <string name="subtitle_style_weight">Espessura (Weight)</string>
     <string name="pause_you_are_watching">Estás a ver</string>
     <string name="pause_cast_label">Elenco</string>
-    <string name="pause_back_to_details">Voltar aos detalhes</string>
-    <string name="pause_as_character">como %1$s</string>
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Próximo episódio</string>
     <string name="next_episode_finding_source">A procurar fonte…</string>

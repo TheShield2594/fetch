@@ -674,7 +674,6 @@
     <string name="player_via">via %1$s</string>
     <string name="player_subtitle_delay">Undertekst forsinkelse</string>
     <string name="player_error_title">Avspillingsfeil</string>
-    <string name="player_go_back">Gå tilbake</string>
     <string name="player_speed_title">Avspillingshastighet</string>
     <string name="player_more_actions_title">Flere handlinger</string>
     <string name="player_more_speed">Avspillingshastighet</string>
@@ -734,8 +733,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Du ser</string>
     <string name="pause_cast_label">Kast</string>
-    <string name="pause_back_to_details">Tilbake til detaljer</string>
-    <string name="pause_as_character">som %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Neste episode</string>

@@ -1440,7 +1440,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">עיכוב כתוביות</string>
     <string name="player_error_title">שגיאת הפעלה</string>
-    <string name="player_go_back">חזרה</string>
     <string name="player_switch_to_mpv">מעבר לנגן MPV</string>
     <string name="player_report_issue">דיווח על תקלה</string>
     <string name="player_report_issue_sending">שולח דוח הפעלה…</string>
@@ -1547,8 +1546,6 @@
 
     <string name="pause_you_are_watching">על המסך עכשיו</string>
     <string name="pause_cast_label">שחקנים</string>
-    <string name="pause_back_to_details">חזרה לפרטים</string>
-    <string name="pause_as_character">בתפקיד %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">הפרק הבא</string>

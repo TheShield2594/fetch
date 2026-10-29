@@ -590,7 +590,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="player_via">per %1$s</string>
     <string name="player_subtitle_delay">Subtitrų delsa</string>
     <string name="player_error_title">Atkūrimo klaida</string>
-    <string name="player_go_back">Grįžti atgal</string>
     <string name="player_speed_title">Atkūrimo greitis</string>
     <string name="player_more_actions_title">Daugiau veiksmų</string>
     <string name="player_more_speed">Atkūrimo greitis</string>
@@ -643,8 +642,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Jūs žiūrite</string>
     <string name="pause_cast_label">Aktoriai</string>
-    <string name="pause_back_to_details">Grįžti į informaciją</string>
-    <string name="pause_as_character">kaip %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Kita serija</string>

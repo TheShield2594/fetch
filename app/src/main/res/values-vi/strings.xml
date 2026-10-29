@@ -1436,7 +1436,6 @@
     <string name="season_episode_format">M%1$d T%2$d</string>
     <string name="player_subtitle_delay">Độ trễ phụ đề</string>
     <string name="player_error_title">Lỗi phát lại</string>
-    <string name="player_go_back">Quay lại</string>
     <string name="player_switch_to_mpv">Chuyển sang trình phát MPV</string>
     <string name="player_report_issue">Báo cáo lỗi</string>
     <string name="player_report_issue_sending">Đang gửi báo cáo phát lại...</string>
@@ -1542,8 +1541,6 @@
 
     <string name="pause_you_are_watching">Bạn đang xem</string>
     <string name="pause_cast_label">Diễn viên</string>
-    <string name="pause_back_to_details">Quay lại chi tiết</string>
-    <string name="pause_as_character">vai %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Tập tiếp theo</string>

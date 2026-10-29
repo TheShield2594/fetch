@@ -1352,7 +1352,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">字幕延遲</string>
     <string name="player_error_title">播放錯誤</string>
-    <string name="player_go_back">返回</string>
     <string name="player_switch_to_mpv">切換到 MPV 播放器</string>
     <string name="player_report_issue">報告問題</string>
     <string name="player_report_issue_sending">正在傳送播放報告...</string>
@@ -1458,8 +1457,6 @@
 
     <string name="pause_you_are_watching">您正在觀看</string>
     <string name="pause_cast_label">演員</string>
-    <string name="pause_back_to_details">返回詳情</string>
-    <string name="pause_as_character">飾演 %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">下一集</string>

@@ -1436,7 +1436,6 @@
     <string name="season_episode_format">T%1$d E%2$d</string>
     <string name="player_subtitle_delay">Retraso de Subtítulos</string>
     <string name="player_error_title">Error de Reproducción</string>
-    <string name="player_go_back">Volver</string>
     <string name="player_switch_to_mpv">Cambiar al reproductor MPV</string>
     <string name="player_report_issue">Reportar problema</string>
     <string name="player_report_issue_sending">Enviando reporte de reproducción...</string>
@@ -1542,8 +1541,6 @@
 
     <string name="pause_you_are_watching">Estás viendo</string>
     <string name="pause_cast_label">Elenco</string>
-    <string name="pause_back_to_details">Volver a detalles</string>
-    <string name="pause_as_character">como %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Siguiente Episodio</string>

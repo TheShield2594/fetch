@@ -723,7 +723,6 @@
     <string name="player_loading_starting">Uruchamianie strumienia…</string>
     <string name="player_loading_buffering">Buforowanie…</string>
     <string name="player_error_title">Błąd odtwarzania</string>
-    <string name="player_go_back">Wróć</string>
     <string name="player_speed_title">Prędkość odtwarzania</string>
     <string name="player_more_actions_title">Więcej opcji</string>
     <string name="player_more_speed">Prędkość odtwarzania</string>
@@ -801,8 +800,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Oglądasz</string>
     <string name="pause_cast_label">Obsada</string>
-    <string name="pause_back_to_details">Wróć do szczegółów</string>
-    <string name="pause_as_character">jako %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Następny odcinek</string>

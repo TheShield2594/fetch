@@ -1343,7 +1343,6 @@
   <string name="season_episode_format">S%1$d E%2$d</string>
   <string name="player_subtitle_delay">Καθυστέρηση υπότιτλων</string>
   <string name="player_error_title">Σφάλμα αναπαραγωγής</string>
-  <string name="player_go_back">Επιστροφή</string>
   <string name="player_switch_to_mpv">Εναλλαγή σε MPV</string>
   <string name="player_speed_title">Ταχύτητα αναπαραγωγής</string>
   <string name="player_more_actions_title">Περισσότερες ενέργειες</string>
@@ -1435,8 +1434,6 @@
   <!-- PauseOverlay -->
   <string name="pause_you_are_watching">Παρακολουθείτε</string>
   <string name="pause_cast_label">Ηθοποιοί</string>
-  <string name="pause_back_to_details">Επιστροφή σε λεπτομέρειες</string>
-  <string name="pause_as_character">ως %1$s</string>
   <!-- PostPlayOverlay -->
   <string name="next_episode_label">Επόμενο επεισόδιο</string>
   <string name="next_episode_finding_source">Αναζήτηση πηγής…</string>

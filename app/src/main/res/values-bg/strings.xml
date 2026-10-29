@@ -1110,7 +1110,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Забавяне на субтитрите</string>
     <string name="player_error_title">Грешка при възпроизвеждане</string>
-    <string name="player_go_back">Върни се</string>
     <string name="player_speed_title">Скорост на възпроизвеждане</string>
     <string name="player_more_actions_title">Още действия</string>
     <string name="player_more_speed">Скорост на възпроизвеждане</string>
@@ -1201,8 +1200,6 @@
 
     <string name="pause_you_are_watching">Гледаш</string>
     <string name="pause_cast_label">Актьорски състав</string>
-    <string name="pause_back_to_details">Обратно към детайлите</string>
-    <string name="pause_as_character">като %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Следващ епизод</string>

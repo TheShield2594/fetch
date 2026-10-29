@@ -1166,7 +1166,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Vonesa e titrave</string>
     <string name="player_error_title">Gabim riprodhimi</string>
-    <string name="player_go_back">Kthehu</string>
     <string name="player_report_issue">Raporto problem</string>
     <string name="player_report_issue_sending">Duke dërguar raportin e riprodhimit...</string>
     <string name="player_report_issue_sending_button">Duke dërguar...</string>
@@ -1262,8 +1261,6 @@
     <string name="subtitle_style_weight">Trashësia</string>
     <string name="pause_you_are_watching">Po shikon</string>
     <string name="pause_cast_label">Aktorët</string>
-    <string name="pause_back_to_details">Kthehu te detajet</string>
-    <string name="pause_as_character">si %1$s</string>
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Episodi tjetër</string>
     <string name="next_episode_finding_source">Duke kërkuar burimin…</string>

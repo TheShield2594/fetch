@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.theme.FetchPrimitives
 
 /** Two-column panels (Audio's tracks beside its options, the subtitle style grid) need this much. */
 internal val PlayerSidePanelWidth = 640.dp
@@ -49,7 +48,7 @@ internal val PlayerSidePanelContentPadding = 20.dp
 internal fun PlayerSidePanel(
     visible: Boolean,
     modifier: Modifier = Modifier,
-    scrimAlpha: Float = 0.45f,
+    scrimColor: Color = FetchTheme.colors.Player.ScrimLight,
     /** Draws the standard panel surface and padding; panels that style themselves leave it off. */
     drawSurface: Boolean = false,
     width: Dp = PlayerSidePanelWidth,
@@ -64,7 +63,7 @@ internal fun PlayerSidePanel(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(FetchPrimitives.black.copy(alpha = scrimAlpha))
+                    .background(scrimColor)
             )
         }
         val fullMotion = FetchTheme.fullMotion

@@ -1000,7 +1000,6 @@
 	<string name="season_episode_format">S%1$d E%2$d</string>														 
     <string name="player_subtitle_delay">Zakasnitev podnapisov</string>
     <string name="player_error_title">Napaka pri predvajanju</string>
-    <string name="player_go_back">Nazaj</string>
     <string name="player_speed_title">Hitrost predvajanja</string>
     <string name="player_more_actions_title">Več dejanj</string>
     <string name="player_more_speed">Hitrost predvajanja</string>
@@ -1082,8 +1081,6 @@
 	<!-- PauseOverlay -->
     <string name="pause_you_are_watching">Gledate</string>
     <string name="pause_cast_label">Zasedba</string>
-    <string name="pause_back_to_details">Nazaj na podrobnosti</string>
-    <string name="pause_as_character">kot %1$s</string>
     <!-- PostPlayOverlay -->	
     <string name="next_episode_label">Naslednja epizoda</string>
 	<string name="next_episode_finding_source">Iskanje vira…</string>

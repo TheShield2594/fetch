@@ -113,13 +113,16 @@ fun LoadingOverlay(
                     .build()
             }
         }
-        val overlayBrush = remember {
+        val scrimLight = FetchTheme.colors.Player.ScrimLight
+        val scrim = FetchTheme.colors.Player.Scrim
+        val scrimStrong = FetchTheme.colors.Player.ScrimStrong
+        val overlayBrush = remember(scrimLight, scrim, scrimStrong) {
             Brush.verticalGradient(
                 colorStops = arrayOf(
-                    0f to FetchPrimitives.black.copy(alpha = 0.3f),
-                    0.35f to FetchPrimitives.black.copy(alpha = 0.6f),
-                    0.7f to FetchPrimitives.black.copy(alpha = 0.8f),
-                    1f to FetchPrimitives.black.copy(alpha = 0.9f)
+                    0f to scrimLight,
+                    0.35f to scrim,
+                    0.7f to scrimStrong,
+                    1f to scrimStrong
                 )
             )
         }

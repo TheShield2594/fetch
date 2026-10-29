@@ -1670,6 +1670,9 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         is PlayerEvent.OnRemoveQueueItem -> {
             removeQueueItem(event.videoId)
         }
+        is PlayerEvent.OnRestoreQueueItem -> {
+            restoreQueueItem(event.item, event.index)
+        }
         is PlayerEvent.OnMoveQueueItem -> {
             moveQueueItem(event.videoId, event.up)
         }

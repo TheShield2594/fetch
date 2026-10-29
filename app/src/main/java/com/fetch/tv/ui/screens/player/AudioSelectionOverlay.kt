@@ -664,6 +664,7 @@ private fun AdjustmentSection(
         ) {
             StepCard(
                 icon = Icons.Default.Remove,
+                contentDescription = stringResource(R.string.cd_decrease_setting, title),
                 enabled = canDecrease,
                 focusRequester = minusFocusRequester,
                 leftFocusRequester = minusLeftFocusRequester,
@@ -675,6 +676,7 @@ private fun AdjustmentSection(
             )
             StepCard(
                 icon = Icons.Default.Add,
+                contentDescription = stringResource(R.string.cd_increase_setting, title),
                 enabled = canIncrease,
                 focusRequester = plusFocusRequester,
                 leftFocusRequester = plusLeftFocusRequester,
@@ -696,6 +698,7 @@ private fun AdjustmentSection(
 @Composable
 private fun StepCard(
     icon: ImageVector,
+    contentDescription: String,
     enabled: Boolean,
     focusRequester: FocusRequester,
     leftFocusRequester: FocusRequester,
@@ -777,7 +780,7 @@ private fun StepCard(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = contentDescription,
                 tint = if (enabled) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextDisabled
             )
         }

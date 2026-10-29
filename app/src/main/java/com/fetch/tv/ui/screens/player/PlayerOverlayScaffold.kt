@@ -1,6 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
-import com.fetch.tv.ui.theme.FetchPrimitives
+import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.FetchMotion
 import android.view.KeyEvent
 import androidx.compose.animation.AnimatedVisibility
@@ -35,7 +35,7 @@ internal fun PlayerOverlayScaffold(
     captureKeys: Boolean = true,
     dismissOnCenter: Boolean = false,
     dismissOnBackgroundClick: Boolean = false,
-    overlayTint: Color = FetchPrimitives.black.copy(alpha = 0.34f),
+    overlayTint: Color = FetchTheme.colors.Player.ScrimLight,
     contentPadding: PaddingValues = PaddingValues(),
     topEndContent: (@Composable () -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit
@@ -54,6 +54,12 @@ internal fun PlayerOverlayScaffold(
                 runCatching { focusRequester.requestFocus() }
             }
         }
+
+        // Built from the player chrome tokens so "Increase contrast" deepens them. The text
+        // edge takes ScrimStrong and the far edge keeps ScrimLight (on top of the flat tint),
+        // so copy that runs the width of the screen stays readable over a bright frame.
+        val scrimStrong = FetchTheme.colors.Player.ScrimStrong
+        val scrimLight = FetchTheme.colors.Player.ScrimLight
 
         Box(
             modifier = Modifier
@@ -109,16 +115,12 @@ internal fun PlayerOverlayScaffold(
                     .fillMaxSize()
                     .drawWithCache {
                         val horizontalGradient = Brush.horizontalGradient(
-                            colors = listOf(
-                                FetchPrimitives.black.copy(alpha = 0.88f),
-                                Color.Transparent
-                            )
+                            colors = listOf(scrimStrong, scrimLight)
                         )
                         val verticalGradient = Brush.verticalGradient(
                             colorStops = arrayOf(
-                                0f to FetchPrimitives.black.copy(alpha = 0.6f),
-                                0.3f to FetchPrimitives.black.copy(alpha = 0.4f),
-                                0.6f to FetchPrimitives.black.copy(alpha = 0.2f),
+                                0f to scrimLight,
+                                0.6f to Color.Transparent,
                                 1f to Color.Transparent
                             )
                         )

@@ -1064,7 +1064,6 @@
     <string name="season_episode_format">M%1$d E%2$d</string>
     <string name="player_subtitle_delay">Penundaan Subtitle</string>
     <string name="player_error_title">Error Pemutaran</string>
-    <string name="player_go_back">Kembali</string>
     <string name="player_speed_title">Kecepatan Pemutaran</string>
     <string name="player_more_actions_title">Aksi Lainnya</string>
     <string name="player_more_speed">Kecepatan Pemutaran</string>
@@ -1158,8 +1157,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Anda sedang menonton</string>
     <string name="pause_cast_label">Pemeran</string>
-    <string name="pause_back_to_details">Kembali ke detail</string>
-    <string name="pause_as_character">sebagai %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Episode Berikutnya</string>

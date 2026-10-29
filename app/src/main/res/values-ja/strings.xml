@@ -1117,7 +1117,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">字幕の遅延</string>
     <string name="player_error_title">再生エラー</string>
-    <string name="player_go_back">戻る</string>
     <string name="player_speed_title">再生速度</string>
     <string name="player_more_actions_title">その他の操作</string>
     <string name="player_more_speed">再生速度</string>
@@ -1208,8 +1207,6 @@
 
     <string name="pause_you_are_watching">視聴中</string>
     <string name="pause_cast_label">キャスト</string>
-    <string name="pause_back_to_details">詳細に戻る</string>
-    <string name="pause_as_character">%1$s 役</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">次のエピソード</string>

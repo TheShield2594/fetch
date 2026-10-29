@@ -766,7 +766,6 @@
     <string name="player_via">preko %1$s</string>
     <string name="player_subtitle_delay">Odgoda Titlova</string>
     <string name="player_error_title">Greška Reprodukcije</string>
-    <string name="player_go_back">Nazad</string>
     <string name="player_speed_title">Brzina Reprodukcije</string>
     <string name="player_more_actions_title">Više Opcija</string>
     <string name="player_more_speed">Brzina Reprodukcije</string>
@@ -850,8 +849,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Gledate</string>
     <string name="pause_cast_label">Uloge</string>
-    <string name="pause_back_to_details">Nazad na detalje</string>
-    <string name="pause_as_character">kao %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Sljedeća Epizoda</string>

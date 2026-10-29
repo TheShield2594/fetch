@@ -44,7 +44,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.absoluteOffset
@@ -90,7 +94,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import com.fetch.tv.ui.components.focusLabelEntrance
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
@@ -1857,6 +1866,7 @@ fun PlayerScreen(
                 onPlay = { viewModel.onEvent(PlayerEvent.OnPlayQueueItem(it)) },
                 onMove = { item, up -> viewModel.onEvent(PlayerEvent.OnMoveQueueItem(item.videoId, up)) },
                 onRemove = { viewModel.onEvent(PlayerEvent.OnRemoveQueueItem(it.videoId)) },
+                onRestore = { item, index -> viewModel.onEvent(PlayerEvent.OnRestoreQueueItem(item, index)) },
                 onClose = { viewModel.onEvent(PlayerEvent.OnDismissQueuePanel) }
             )
         }
@@ -2884,7 +2894,13 @@ internal fun PlayerControlsOverlay(
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
 
+            // With More open (and the focus label beside the focused button) the row can be
+            // wider than the screen, so it scrolls instead of squeezing its last buttons to
+            // nothing; ControlButton brings itself and its label into view on focus.
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -3220,10 +3236,18 @@ private fun ControlButton(
     focusLabel: String? = contentDescription
 ) {
     var isFocused by remember { mutableStateOf(false) }
+    // In the scrolling bottom row, keep the label (not just the button) on screen once it joins.
+    val labelBringIntoView = remember { BringIntoViewRequester() }
+    LaunchedEffect(isFocused) {
+        if (isFocused && focusLabel != null) labelBringIntoView.bringIntoView()
+    }
 
     // Icon-only buttons (engine, party, aspect, flag, report) were hard to tell apart from the
     // couch. The label joins and leaves layout in one frame with focus; only its fade animates.
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.bringIntoViewRequester(labelBringIntoView),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
     IconButton(
         onClick = onClick,
         enabled = enabled,
@@ -3472,6 +3496,8 @@ private fun ProgressBar(
         label = "bufferedProgress"
     )
     var isFocused by remember { mutableStateOf(false) }
+    val seekBarDescription = stringResource(R.string.cd_seek_bar)
+    val seekBarState = "${formatTime(currentPosition)} / ${formatTime(duration)}"
 
     Box(
         modifier = Modifier
@@ -3494,6 +3520,11 @@ private fun ProgressBar(
             .onFocusChanged {
                 isFocused = it.isFocused
                 if (it.isFocused) onFocused?.invoke()
+            }
+            .semantics {
+                contentDescription = seekBarDescription
+                stateDescription = seekBarState
+                progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f)
             }
             .focusable()
             .playerPlayhead(
@@ -4219,7 +4250,7 @@ private fun ErrorOverlay(
                     )
                 }
                 PlayerOverlayButton(
-                    text = stringResource(R.string.player_go_back),
+                    text = stringResource(R.string.player_error_choose_source),
                     onClick = onBack,
                     primary = onSwitchMpvAction == null,
                     modifier = Modifier
@@ -4441,7 +4472,7 @@ private fun SpeedItem(
             Text(
                 text = if (speed == 1f) stringResource(R.string.player_speed_normal) else "${speed}x",
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (isSelected) FetchTheme.colors.Primary else FetchTheme.colors.TextPrimary
+                color = FetchTheme.colors.TextPrimary
             )
 
             if (isSelected) {

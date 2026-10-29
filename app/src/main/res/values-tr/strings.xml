@@ -1437,7 +1437,6 @@
     <string name="season_episode_format">S%1$d B%2$d</string>
     <string name="player_subtitle_delay">Altyazı Gecikmesi</string>
     <string name="player_error_title">Oynatma Hatası</string>
-    <string name="player_go_back">Geri Git</string>
     <string name="player_switch_to_mpv">MPV Oynatıcıya Geç</string>
     <string name="player_report_issue">Sorun Bildir</string>
     <string name="player_report_issue_sending">Oynatma raporu gönderiliyor...</string>
@@ -1545,8 +1544,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Şu an izliyorsunuz:</string>
     <string name="pause_cast_label">Oyuncular</string>
-    <string name="pause_back_to_details">Ayrıntılara dön</string>
-    <string name="pause_as_character">Karakter: %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="player_next_episode_prompt_title">İzlemeye devam edilsin mi?</string>

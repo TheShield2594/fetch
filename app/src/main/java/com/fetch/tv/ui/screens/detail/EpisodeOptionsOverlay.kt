@@ -268,6 +268,9 @@ internal fun EpisodeOptionsOverlay(
     val hasEnabledAction = actions.any { it.enabled }
     var descriptionFocused by remember { mutableStateOf(false) }
     var detailsPanelFocused by remember { mutableStateOf(false) }
+    // The artwork styles always let the details column take focus; "None" only once its text is
+    // longer than the screen, so a short overview keeps Left on the actions as previous episode.
+    val detailsCanFocus = !isNoneStyle || detailsScrollState.maxValue > 0
 
     LaunchedEffect(episode.id) {
         detailsScrollState.scrollTo(0)
@@ -362,64 +365,65 @@ internal fun EpisodeOptionsOverlay(
                         .weight(1f)
                         .then(
                             if (isNoneStyle) {
+                                // Wraps short text so it stays centred; scrolls once it outgrows the screen.
                                 Modifier.padding(end = 24.dp)
                             } else {
-                                Modifier
-                                    .fillMaxHeight()
-                                    .onFocusChanged { detailsPanelFocused = it.hasFocus }
-                                    .scrollableTextPanel(
-                                        scrollState = detailsScrollState,
-                                        focusBorder = if (detailsPanelFocused) {
-                                            FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
-                                        } else {
-                                            null
-                                        },
-                                        shape = RoundedCornerShape(FetchTheme.radii.md),
-                                        thumbColor = FetchTheme.colors.TextSecondary,
-                                        trackColor = FetchTheme.colors.Divider
-                                    )
-                                    .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
-                                    .verticalScroll(detailsScrollState)
-                                    .focusRequester(detailsFocusRequester)
-                                    .focusProperties {
-                                        if (isRtl) {
-                                            left = primaryFocusRequester
-                                        } else {
-                                            right = primaryFocusRequester
-                                        }
-                                    }
-                                    .focusable()
-                                    .onFocusChanged { descriptionFocused = it.isFocused }
-                                    .onPreviewKeyEvent { event ->
-                                        val step = episodeStepForKey(event.nativeKeyEvent.keyCode, isRtl)
-                                        when {
-                                            event.type != KeyEventType.KeyDown -> false
-                                            onNavigateEpisode != null && (step == -1 || (step == 1 && !hasEnabledAction)) -> {
-                                                onNavigateEpisode(step)
-                                                true
-                                            }
-                                            event.key == Key.DirectionDown && detailsScrollState.value < detailsScrollState.maxValue -> {
-                                                coroutineScope.launch {
-                                                    detailsScrollState.animateScrollTo(
-                                                        (detailsScrollState.value + 260)
-                                                            .coerceAtMost(detailsScrollState.maxValue)
-                                                    )
-                                                }
-                                                true
-                                            }
-                                            event.key == Key.DirectionUp && detailsScrollState.value > 0 -> {
-                                                coroutineScope.launch {
-                                                    detailsScrollState.animateScrollTo(
-                                                        (detailsScrollState.value - 260).coerceAtLeast(0)
-                                                    )
-                                                }
-                                                true
-                                            }
-                                            else -> false
-                                        }
-                                    }
+                                Modifier.fillMaxHeight()
                             }
-                        ),
+                        )
+                        .onFocusChanged { detailsPanelFocused = it.hasFocus }
+                        .scrollableTextPanel(
+                            scrollState = detailsScrollState,
+                            focusBorder = if (detailsPanelFocused) {
+                                FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                            } else {
+                                null
+                            },
+                            shape = RoundedCornerShape(FetchTheme.radii.md),
+                            thumbColor = FetchTheme.colors.TextSecondary,
+                            trackColor = FetchTheme.colors.Divider
+                        )
+                        .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
+                        .verticalScroll(detailsScrollState)
+                        .focusRequester(detailsFocusRequester)
+                        .focusProperties {
+                            canFocus = detailsCanFocus
+                            if (isRtl) {
+                                left = primaryFocusRequester
+                            } else {
+                                right = primaryFocusRequester
+                            }
+                        }
+                        .focusable()
+                        .onFocusChanged { descriptionFocused = it.isFocused }
+                        .onPreviewKeyEvent { event ->
+                            val step = episodeStepForKey(event.nativeKeyEvent.keyCode, isRtl)
+                            when {
+                                event.type != KeyEventType.KeyDown -> false
+                                onNavigateEpisode != null && (step == -1 || (step == 1 && !hasEnabledAction)) -> {
+                                    onNavigateEpisode(step)
+                                    true
+                                }
+                                event.key == Key.DirectionDown && detailsScrollState.value < detailsScrollState.maxValue -> {
+                                    coroutineScope.launch {
+                                        detailsScrollState.animateScrollTo(
+                                            (detailsScrollState.value + 260)
+                                                .coerceAtMost(detailsScrollState.maxValue)
+                                        )
+                                    }
+                                    true
+                                }
+                                event.key == Key.DirectionUp && detailsScrollState.value > 0 -> {
+                                    coroutineScope.launch {
+                                        detailsScrollState.animateScrollTo(
+                                            (detailsScrollState.value - 260).coerceAtLeast(0)
+                                        )
+                                    }
+                                    true
+                                }
+                                else -> false
+                            }
+                        },
                     verticalArrangement = if (isNoneStyle) {
                         Arrangement.spacedBy(FetchTheme.spacing.lg)
                     } else {
@@ -473,8 +477,6 @@ internal fun EpisodeOptionsOverlay(
                                 descriptionStyle
                             }).copy(textDirection = description.contentTextDirection()),
                             color = Color.White.copy(alpha = 0.72f),
-                            maxLines = if (isNoneStyle) 8 else Int.MAX_VALUE,
-                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -487,7 +489,7 @@ internal fun EpisodeOptionsOverlay(
                                 return@onPreviewKeyEvent false
                             }
                             val step = episodeStepForKey(event.nativeKeyEvent.keyCode, isRtl)
-                            if (step == 1 || (step == -1 && isNoneStyle)) {
+                            if (step == 1 || (step == -1 && !detailsCanFocus)) {
                                 onNavigateEpisode(step)
                                 true
                             } else {
@@ -504,7 +506,7 @@ internal fun EpisodeOptionsOverlay(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .then(
-                                    if (isNoneStyle) {
+                                    if (!detailsCanFocus) {
                                         Modifier
                                     } else {
                                         Modifier.focusProperties {

@@ -406,7 +406,8 @@ fun HeroContentSection(
                             ),
                             style = MaterialTheme.typography.labelMedium,
                             color = FetchTheme.colors.TextSecondary,
-                            maxLines = 1,
+                            // Two lines fit the longest reason at the 1.3x text scale.
+                            maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)

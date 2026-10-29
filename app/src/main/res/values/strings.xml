@@ -357,6 +357,7 @@
     <string name="prefer_next_time_not_now">Not now</string>
     <string name="prefer_next_time_saved">Best match will prefer: %1$s</string>
     <string name="best_match_excluded">Not auto-played: %1$s</string>
+    <string name="stream_hold_for_options">Hold OK for Best match options</string>
     <string name="best_match_skipped">Skipped %1$s: %2$s</string>
     <string name="exclusion_above_max_resolution">above your maximum resolution</string>
     <string name="exclusion_below_min_resolution">below your minimum resolution</string>

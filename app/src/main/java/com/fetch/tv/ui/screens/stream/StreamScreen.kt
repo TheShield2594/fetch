@@ -1292,6 +1292,7 @@ internal fun StreamsList(
                         val options = sourceRuleOptions(stream)
                         if (options.isNotEmpty()) onSourceOptions(stream, options)
                     },
+                    hasLongPressOptions = { sourceRuleOptions(stream).isNotEmpty() },
                     focusRequester = when {
                         shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester
                         else -> streamFocusRequesters.getOrPut(streamKeys[index]) { FocusRequester() }
@@ -1361,7 +1362,9 @@ internal fun StreamCard(
     marked: Boolean = false,
     markedLabel: String? = null,
     exclusion: ExclusionReason? = null,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    /** Whether [onLongClick] has a menu to open; asked only while the card has focus. */
+    hasLongPressOptions: () -> Boolean = { false }
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -1570,6 +1573,18 @@ internal fun StreamCard(
                     } else {
                         Spacer(modifier = Modifier.height(22.dp))
                     }
+                }
+
+                // The long-press menu (Best match rules) has no other cue, so the focused card
+                // names it when there is something to offer.
+                if (isFocused && onLongClick != null && hasLongPressOptions()) {
+                    Text(
+                        text = stringResource(R.string.stream_hold_for_options),
+                        style = FetchTheme.textStyles.metadata,
+                        color = FetchTheme.colors.TextTertiary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
 

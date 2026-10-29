@@ -1658,7 +1658,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Subtitles Delay</string>
     <string name="player_error_title">Playback Error</string>
-    <string name="player_go_back">Go Back</string>
+    <string name="player_error_choose_source">Choose another source</string>
     <string name="player_switch_to_mpv">Switch to MPV Player</string>
     <string name="player_report_issue">Report Issue</string>
     <string name="player_report_issue_sending">Sending playback report…</string>
@@ -1676,7 +1676,7 @@
     <string name="player_more_speed">Playback Speed</string>
     <string name="player_more_aspect_ratio">Aspect Ratio</string>
     <string name="player_more_open_external">Open in External Player</string>
-    <string name="player_error_no_stream_url">No stream URL provided</string>
+    <string name="player_error_no_stream_url">This source has no stream link. Choose another source.</string>
 
 
     <string name="stream_info_section_source">SOURCE</string>
@@ -2579,17 +2579,17 @@
     <string name="player_track_subtitle_fallback">Subtitle %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nThe stream source is blocked or restricted. Try a different source.</string>
-    <string name="player_error_stream_removed">\n\nThe stream link has expired or been removed. Try a different source.</string>
-    <string name="player_error_stream_expired">\n\nThe stream link has expired. Try a different source.</string>
-    <string name="player_error_stream_rate_limited">\n\nToo many requests to the stream source. Wait a moment and try again.</string>
-    <string name="player_error_stream_unavailable">\n\nThe stream server is currently unavailable. Try a different source.</string>
-    <string name="player_error_source_invalid_content">Source error: The stream source returned invalid or unplayable content. The link may have expired or the server returned an error page instead of video.\n\nTry a different source. [%1$s]</string>
-    <string name="player_error_unsupported_format">This stream uses a format your device may not support. Try a different source. [%1$s]</string>
-    <string name="player_error_initialize_failed">Failed to initialize player</string>
-    <string name="player_error_mpv_surface_failed">Failed to initialize libmpv surface</string>
-    <string name="player_error_mpv_playback_failed">Failed to initialize libmpv playback</string>
-    <string name="player_error_playback_fallback">Playback error</string>
+    <string name="player_error_stream_blocked">\n\nThe stream source is blocked or restricted. Choose another source.</string>
+    <string name="player_error_stream_removed">\n\nThe stream link has expired or been removed. Choose another source.</string>
+    <string name="player_error_stream_expired">\n\nThe stream link has expired. Choose another source.</string>
+    <string name="player_error_stream_rate_limited">\n\nToo many requests to the stream source. Wait a moment, then choose a source again.</string>
+    <string name="player_error_stream_unavailable">\n\nThe stream server is currently unavailable. Choose another source.</string>
+    <string name="player_error_source_invalid_content">Source error: The stream source returned invalid or unplayable content. The link may have expired or the server returned an error page instead of video.\n\nChoose another source. [%1$s]</string>
+    <string name="player_error_unsupported_format">This stream uses a format your device may not support. Choose another source. [%1$s]</string>
+    <string name="player_error_initialize_failed">Unable to start the player. Choose another source.</string>
+    <string name="player_error_mpv_surface_failed">Unable to start the mpv player. Choose another source.</string>
+    <string name="player_error_mpv_playback_failed">Unable to start playback in the mpv player. Choose another source.</string>
+    <string name="player_error_playback_fallback">Unable to play this stream. Choose another source.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">No subtitle lines were found in this file.</string>
     <string name="subtitle_timing_load_lines_failed">Failed to load subtitle lines.</string>
@@ -2956,7 +2956,7 @@
     <string name="diag_value_never_rendered">Never rendered</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Failed to play selected stream</string>
+    <string name="player_error_play_stream_failed">Unable to play the selected stream. Choose another source.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>

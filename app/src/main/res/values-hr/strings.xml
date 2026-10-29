@@ -1391,7 +1391,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Kašnjenje titlova</string>
     <string name="player_error_title">Pogreška reprodukcije</string>
-    <string name="player_go_back">Natrag</string>
     <string name="player_switch_to_mpv">Prebaci na MPV player</string>
     <string name="player_report_issue">Prijavi problem</string>
     <string name="player_report_issue_sending">Slanje izvješća o reprodukciji...</string>

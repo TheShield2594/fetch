@@ -1436,7 +1436,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Délai des sous-titres</string>
     <string name="player_error_title">Erreur de lecture</string>
-    <string name="player_go_back">Retour</string>
     <string name="player_switch_to_mpv">Passer au lecteur MPV</string>
     <string name="player_report_issue">Signaler un problème</string>
     <string name="player_report_issue_sending">Envoi du rapport de lecture…</string>

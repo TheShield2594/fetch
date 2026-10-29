@@ -4249,7 +4249,7 @@ private fun ErrorOverlay(
                     )
                 }
                 PlayerOverlayButton(
-                    text = stringResource(R.string.player_go_back),
+                    text = stringResource(R.string.player_error_choose_source),
                     onClick = onBack,
                     primary = onSwitchMpvAction == null,
                     modifier = Modifier

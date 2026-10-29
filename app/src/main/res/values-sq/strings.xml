@@ -1166,7 +1166,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Vonesa e titrave</string>
     <string name="player_error_title">Gabim riprodhimi</string>
-    <string name="player_go_back">Kthehu</string>
     <string name="player_report_issue">Raporto problem</string>
     <string name="player_report_issue_sending">Duke dërguar raportin e riprodhimit...</string>
     <string name="player_report_issue_sending_button">Duke dërguar...</string>

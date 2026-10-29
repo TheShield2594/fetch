@@ -1299,7 +1299,6 @@
     <string name="season_episode_format">T%1$d:E%2$d</string>
     <string name="player_subtitle_delay">Atraso da legenda</string>
     <string name="player_error_title">Erro de Reprodução</string>
-    <string name="player_go_back">Voltar</string>
     <string name="player_switch_to_mpv">Trocar para o MPV Player</string>
     <string name="player_report_issue">Relatar problema</string>
     <string name="player_report_issue_sending">Enviando relatório de reprodução...</string>

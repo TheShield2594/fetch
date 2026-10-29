@@ -1341,7 +1341,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">সাবটাইটেল ডিলে</string>
     <string name="player_error_title">প্লেব্যাক এরর</string>
-    <string name="player_go_back">ফিরে যান</string>
     <string name="player_switch_to_mpv">MPV প্লেয়ারে সুইচ করুন</string>
     <string name="player_report_issue">সমস্যা রিপোর্ট করুন</string>
     <string name="player_report_issue_sending">প্লেব্যাক রিপোর্ট পাঠানো হচ্ছে…</string>

@@ -1428,7 +1428,6 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Felirat késleltetése</string>
     <string name="player_error_title">Lejátszási hiba</string>
-    <string name="player_go_back">Vissza</string>
     <string name="player_switch_to_mpv">Váltás az MPV-lejátszóra</string>
     <string name="player_report_issue">Probléma jelentése</string>
     <string name="player_report_issue_sending">Lejátszási jelentés küldése...</string>

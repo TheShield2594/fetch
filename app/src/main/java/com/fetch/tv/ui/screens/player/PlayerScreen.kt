@@ -55,6 +55,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -125,6 +126,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -2665,6 +2667,8 @@ internal fun PlayerControlsOverlay(
     val sourceSpecLine = remember(uiState.currentSourceSpecLabels, uiState.currentSourceIsCached, cachedLabel) {
         playerSourceSpecLine(uiState.currentSourceSpecLabels, uiState.currentSourceIsCached, cachedLabel)
     }
+    val moreFocusRequester = remember { FocusRequester() }
+    val moreExtrasFocusRequester = remember { FocusRequester() }
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Top gradient
@@ -2751,6 +2755,16 @@ internal fun PlayerControlsOverlay(
                 )
             }
 
+            // What's playing: "4K · DV · Atmos · Cached", under the title like a film's credits.
+            sourceSpecLine?.let { line ->
+                SpecStrip(
+                    line = line,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FetchTheme.colors.Player.TextSecondary,
+                    modifier = Modifier.padding(top = FetchTheme.spacing.xs)
+                )
+            }
+
             AnimatedVisibility(
                 visible = !uiState.isPlaying && !uiState.currentStreamName.isNullOrBlank(),
                 enter = fadeIn(animationSpec = tween(durationMillis = FetchMotion.tokens.durations.fast)),
@@ -2797,223 +2811,81 @@ internal fun PlayerControlsOverlay(
             }
 
             if (!isLivePlayback) {
-                // Progress bar — always LTR regardless of locale
+                // Elapsed time, the scrubber, then the full length. Always LTR regardless of locale.
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    PlayerControlsProgressBarHost(
-                        viewModel = viewModel,
-                        focusRequester = progressBarFocusRequester,
-                        upFocusRequester = progressBarUpFocusRequester,
-                        downFocusRequester = playPauseFocusRequester,
-                        onUpKey = onHideControls,
-                        onFocused = onResetHideTimer,
-                        onClick = onPlayPause
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
+                    ) {
+                        PlayerTimeTextHost(viewModel = viewModel, side = PlayerTimeSide.ELAPSED)
+                        Box(modifier = Modifier.weight(1f)) {
+                            PlayerControlsProgressBarHost(
+                                viewModel = viewModel,
+                                focusRequester = progressBarFocusRequester,
+                                upFocusRequester = progressBarUpFocusRequester,
+                                downFocusRequester = playPauseFocusRequester,
+                                onUpKey = onHideControls,
+                                onFocused = onResetHideTimer,
+                                onClick = onPlayPause
+                            )
+                        }
+                        PlayerTimeTextHost(viewModel = viewModel, side = PlayerTimeSide.TOTAL)
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
             } else {
+                PlayerControlsTimeTextHost(viewModel = viewModel)
                 Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
             }
 
-            // Transport row and panel row — always LTR regardless of locale
+            val showNextEpisodeButton = uiState.nextEpisode?.hasAired == true &&
+                (uiState.postPlayMode as? PostPlayMode.AutoPlay)?.let {
+                    !it.searching && it.countdownSec == null
+                } != false
+            val hasEpisodeContext = uiState.currentSeason != null && uiState.currentEpisode != null
+            val hasSubtitleControl = uiState.subtitleTracks.isNotEmpty() || uiState.addonSubtitles.isNotEmpty()
+            val hasAudioControl = uiState.audioTracks.isNotEmpty()
+            val backToMore: () -> Unit = { runCatching { moreFocusRequester.requestFocus() } }
+
+            // More's extras open as their own row above the right-hand controls, so the centred
+            // transport never moves. Up from More enters it; Down from it comes back to More.
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val showNextEpisodeButton = uiState.nextEpisode?.hasAired == true &&
-                    (uiState.postPlayMode as? PostPlayMode.AutoPlay)?.let {
-                        !it.searching && it.countdownSec == null
-                    } != false
-
-                ControlButton(
-                    icon = if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    iconPainter = if (uiState.isPlaying) customPausePainter else customPlayPainter,
-                    contentDescription = if (uiState.isPlaying) stringResource(R.string.cd_pause) else stringResource(R.string.cd_play),
-                    onClick = onPlayPause,
-                    focusRequester = playPauseFocusRequester,
-                    upFocusRequester = progressUpTarget,
-                    onFocused = onResetHideTimer
-                )
-
-                if (!isLivePlayback) {
-                    ControlButton(
-                        icon = Icons.Default.Replay10,
-                        contentDescription = stringResource(R.string.player_seek_back_10),
-                        onClick = { onSeekBy(-PLAYER_SEEK_BACK_MS) },
-                        upFocusRequester = progressUpTarget,
-                        onFocused = onResetHideTimer
-                    )
-                    ControlButton(
-                        icon = Icons.Default.Forward30,
-                        contentDescription = stringResource(R.string.player_seek_forward_30),
-                        onClick = { onSeekBy(PLAYER_SEEK_FORWARD_MS) },
-                        upFocusRequester = progressUpTarget,
-                        onFocused = onResetHideTimer
-                    )
-                }
-
-                if (showNextEpisodeButton) {
-                    ControlButton(
-                        icon = Icons.Default.SkipNext,
-                        contentDescription = stringResource(R.string.next_episode_label),
-                        onClick = onPlayNextEpisode,
-                        upFocusRequester = progressUpTarget,
-                        onFocused = onResetHideTimer
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = FetchTheme.spacing.md)
-                ) {
-                    sourceSpecLine?.let { line ->
-                        SpecStrip(
-                            line = line,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = FetchTheme.colors.Player.TextSecondary
-                        )
-                    }
-                }
-
-                PlayerControlsTimeTextHost(viewModel = viewModel)
-            }
-
-            Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val hasEpisodeContext = uiState.currentSeason != null && uiState.currentEpisode != null
-                val hasSubtitleControl = uiState.subtitleTracks.isNotEmpty() || uiState.addonSubtitles.isNotEmpty()
-                val hasAudioControl = uiState.audioTracks.isNotEmpty()
-
-                if (hasAudioControl) {
-                    PanelControlButton(
-                        label = stringResource(R.string.audio_dialog_title),
-                        iconPainter = customAudioPainter,
-                        onClick = onShowAudioDialog,
-                        focusRequester = panelButtonFocus.audio,
-                        upFocusRequester = playPauseFocusRequester,
-                        onDownKey = onHideControls,
-                        onFocused = onResetHideTimer
-                    )
-                }
-
-                if (hasSubtitleControl) {
-                    PanelControlButton(
-                        label = stringResource(R.string.subtitle_dialog_title),
-                        iconPainter = customSubtitlePainter,
-                        onClick = onShowSubtitleDialog,
-                        focusRequester = panelButtonFocus.subtitles,
-                        upFocusRequester = playPauseFocusRequester,
-                        onDownKey = onHideControls,
-                        onFocused = onResetHideTimer
-                    )
-                }
-
-                PanelControlButton(
-                    label = stringResource(R.string.sources_title),
-                    iconPainter = customSourcePainter,
-                    onClick = onShowSourcesPanel,
-                    focusRequester = panelButtonFocus.sources,
-                    upFocusRequester = playPauseFocusRequester,
-                    onDownKey = onHideControls,
-                    onFocused = onResetHideTimer
-                )
-
-                PanelControlButton(
-                    label = stringResource(R.string.player_queue),
-                    icon = Icons.AutoMirrored.Filled.QueueMusic,
-                    onClick = onShowQueuePanel,
-                    focusRequester = panelButtonFocus.queue,
-                    upFocusRequester = playPauseFocusRequester,
-                    onDownKey = onHideControls,
-                    onFocused = onResetHideTimer
-                )
-
-                if (hasEpisodeContext) {
-                    PanelControlButton(
-                        label = stringResource(R.string.episodes_panel_title),
-                        iconPainter = customEpisodesPainter,
-                        onClick = onShowEpisodesPanel,
-                        focusRequester = panelButtonFocus.episodes,
-                        upFocusRequester = playPauseFocusRequester,
-                        onDownKey = onHideControls,
-                        onFocused = onResetHideTimer
-                    )
-                }
-
-                // The main row holds what people reach for while watching. Party stays here
-                // only while a party is running, where its accent icon is live status; otherwise
-                // it waits under More with the engine switch, a troubleshooting action.
-                if (onShowPartyPanel != null && partyActive) {
-                    ControlButton(
-                        icon = Icons.Rounded.Groups,
-                        contentDescription = stringResource(R.string.party_title),
-                        onClick = onShowPartyPanel,
-                        upFocusRequester = playPauseFocusRequester,
-                        onDownKey = onHideControls,
-                        onFocused = onResetHideTimer,
-                        contentColor = FetchTheme.colors.Secondary
-                    )
-                }
-
                 AnimatedVisibility(
                     visible = uiState.showMoreDialog,
-                    enter = if (FetchTheme.fullMotion) {
-                        slideInHorizontally(
-                            animationSpec = tween(FetchMotion.tokens.durations.fast),
-                            initialOffsetX = { it / 2 }
-                        ) + fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast))
-                    } else {
-                        fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast))
-                    },
-                    exit = if (FetchTheme.fullMotion) {
-                        slideOutHorizontally(
-                            animationSpec = tween(FetchMotion.tokens.durations.fast),
-                            targetOffsetX = { it / 2 }
-                        ) + fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
-                    } else {
-                        fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
-                    }
+                    enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
+                    exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.fast))
                 ) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = FetchTheme.spacing.md),
+                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm, Alignment.End),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         ControlButton(
-                            icon = Icons.Default.Speed,
-                            contentDescription = stringResource(R.string.cd_playback_speed),
-                            onClick = {
-                                onShowSpeedDialog()
-                            },
-                            upFocusRequester = playPauseFocusRequester,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer
-                        )
-                        ControlButton(
                             icon = Icons.Default.AspectRatio,
                             iconPainter = customAspectPainter,
+                            focusRequester = moreExtrasFocusRequester,
                             contentDescription = stringResource(R.string.cd_aspect_ratio),
                             onClick = {
                                 onToggleAspectRatio()
                             },
-                            upFocusRequester = playPauseFocusRequester,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = backToMore,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true
                         )
                         onOpenInExternalPlayer?.let { openInExternalPlayer ->
                             ControlButton(
                                 icon = Icons.AutoMirrored.Filled.OpenInNew,
                                 contentDescription = stringResource(R.string.cd_open_external_player),
                                 onClick = openInExternalPlayer,
-                                upFocusRequester = playPauseFocusRequester,
-                                onDownKey = onHideControls,
-                                onFocused = onResetHideTimer
+                                upFocusRequester = progressUpTarget,
+                                onDownKey = backToMore,
+                                onFocused = onResetHideTimer,
+                                labelAbove = true
                             )
                         }
                         ControlButton(
@@ -3023,9 +2895,10 @@ internal fun PlayerControlsOverlay(
                                 onShowStreamInfo()
                             },
                             focusRequester = streamInfoFocusRequester,
-                            upFocusRequester = playPauseFocusRequester,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = backToMore,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true
                         )
                         if (uiState.markerSubmissionAvailable) {
                             val marking = uiState.markerStartSec != null
@@ -3041,9 +2914,10 @@ internal fun PlayerControlsOverlay(
                                     }
                                 ),
                                 onClick = onMarkSkipSegment,
-                                upFocusRequester = playPauseFocusRequester,
-                                onDownKey = onHideControls,
+                                upFocusRequester = progressUpTarget,
+                                onDownKey = backToMore,
                                 onFocused = onResetHideTimer,
+                                labelAbove = true,
                                 contentColor = if (marking) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextPrimary
                             )
                         }
@@ -3052,18 +2926,20 @@ internal fun PlayerControlsOverlay(
                                 icon = Icons.Rounded.Groups,
                                 contentDescription = stringResource(R.string.party_title),
                                 onClick = onShowPartyPanel,
-                                upFocusRequester = playPauseFocusRequester,
-                                onDownKey = onHideControls,
-                                onFocused = onResetHideTimer
+                                upFocusRequester = progressUpTarget,
+                                onDownKey = backToMore,
+                                onFocused = onResetHideTimer,
+                                labelAbove = true
                             )
                         }
                         ControlButton(
                             icon = Icons.Default.SwapHoriz,
                             contentDescription = stringResource(R.string.cd_switch_player_engine),
                             onClick = onSwitchPlayerEngine,
-                            upFocusRequester = playPauseFocusRequester,
-                            onDownKey = onHideControls,
-                            onFocused = onResetHideTimer
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = backToMore,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true
                         )
                         if (uiState.playbackIssueReportsEnabled) {
                             ReportControlButton(
@@ -3072,26 +2948,182 @@ internal fun PlayerControlsOverlay(
                                 onClick = onReportPlaybackIssue,
                                 enabled = uiState.playbackIssueReportStatus != PlaybackIssueReportStatus.Sending &&
                                     uiState.playbackIssueReportStatus != PlaybackIssueReportStatus.Sent,
-                                upFocusRequester = playPauseFocusRequester,
-                                onDownKey = onHideControls,
+                                upFocusRequester = progressUpTarget,
+                                onDownKey = backToMore,
                                 onFocused = onResetHideTimer
                             )
                         }
                     }
                 }
+            }
 
-                ControlButton(
-                    icon = if (uiState.showMoreDialog) {
-                        Icons.AutoMirrored.Filled.KeyboardArrowLeft
-                    } else {
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight
-                    },
-                    contentDescription = if (uiState.showMoreDialog) stringResource(R.string.cd_close_more_actions) else stringResource(R.string.cd_more_actions),
-                    onClick = onToggleMoreActions,
-                    upFocusRequester = playPauseFocusRequester,
-                    onDownKey = onHideControls,
-                    onFocused = onResetHideTimer
-                )
+            // One row: lists on the left, the transport in the centre, what you tune on the right.
+            // Up goes to the scrubber, Down hides the controls. Always LTR regardless of locale.
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.align(Alignment.CenterStart),
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (hasEpisodeContext) {
+                        ControlButton(
+                            icon = Icons.AutoMirrored.Filled.QueueMusic,
+                            iconPainter = customEpisodesPainter,
+                            contentDescription = stringResource(R.string.episodes_panel_title),
+                            onClick = onShowEpisodesPanel,
+                            focusRequester = panelButtonFocus.episodes,
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true
+                        )
+                    }
+                    ControlButton(
+                        icon = Icons.AutoMirrored.Filled.QueueMusic,
+                        contentDescription = stringResource(R.string.player_queue),
+                        onClick = onShowQueuePanel,
+                        focusRequester = panelButtonFocus.queue,
+                        upFocusRequester = progressUpTarget,
+                        onDownKey = onHideControls,
+                        onFocused = onResetHideTimer,
+                        labelAbove = true
+                    )
+                    if (showNextEpisodeButton) {
+                        ControlButton(
+                            icon = Icons.Default.SkipNext,
+                            contentDescription = stringResource(R.string.next_episode_label),
+                            onClick = onPlayNextEpisode,
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true
+                        )
+                    }
+                    // Party sits here only while one is running, where its accent icon is live
+                    // status; otherwise it waits under More.
+                    if (onShowPartyPanel != null && partyActive) {
+                        ControlButton(
+                            icon = Icons.Rounded.Groups,
+                            contentDescription = stringResource(R.string.party_title),
+                            onClick = onShowPartyPanel,
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            contentColor = FetchTheme.colors.Secondary,
+                            labelAbove = true
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (!isLivePlayback) {
+                        ControlButton(
+                            icon = Icons.Default.Replay10,
+                            contentDescription = stringResource(R.string.player_seek_back_10),
+                            onClick = { onSeekBy(-PLAYER_SEEK_BACK_MS) },
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            focusLabel = null,
+                            size = TRANSPORT_SKIP_SIZE,
+                            iconSize = 32.dp
+                        )
+                    }
+                    ControlButton(
+                        icon = if (uiState.isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        iconPainter = if (uiState.isPlaying) customPausePainter else customPlayPainter,
+                        contentDescription = if (uiState.isPlaying) stringResource(R.string.cd_pause) else stringResource(R.string.cd_play),
+                        onClick = onPlayPause,
+                        focusRequester = playPauseFocusRequester,
+                        upFocusRequester = progressUpTarget,
+                        onDownKey = onHideControls,
+                        onFocused = onResetHideTimer,
+                        focusLabel = null,
+                        size = TRANSPORT_PLAY_SIZE,
+                        iconSize = 36.dp
+                    )
+                    if (!isLivePlayback) {
+                        ControlButton(
+                            icon = Icons.Default.Forward30,
+                            contentDescription = stringResource(R.string.player_seek_forward_30),
+                            onClick = { onSeekBy(PLAYER_SEEK_FORWARD_MS) },
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            focusLabel = null,
+                            size = TRANSPORT_SKIP_SIZE,
+                            iconSize = 32.dp
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (hasSubtitleControl) {
+                        ControlButton(
+                            icon = Icons.Default.Info,
+                            iconPainter = customSubtitlePainter,
+                            contentDescription = stringResource(R.string.subtitle_dialog_title),
+                            onClick = onShowSubtitleDialog,
+                            focusRequester = panelButtonFocus.subtitles,
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true
+                        )
+                    }
+                    if (hasAudioControl) {
+                        ControlButton(
+                            icon = Icons.Default.Info,
+                            iconPainter = customAudioPainter,
+                            contentDescription = stringResource(R.string.audio_dialog_title),
+                            onClick = onShowAudioDialog,
+                            focusRequester = panelButtonFocus.audio,
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true
+                        )
+                    }
+                    ControlButton(
+                        icon = Icons.Default.Info,
+                        iconPainter = customSourcePainter,
+                        contentDescription = stringResource(R.string.sources_title),
+                        onClick = onShowSourcesPanel,
+                        focusRequester = panelButtonFocus.sources,
+                        upFocusRequester = progressUpTarget,
+                        onDownKey = onHideControls,
+                        onFocused = onResetHideTimer,
+                        labelAbove = true
+                    )
+                    ControlButton(
+                        icon = Icons.Default.Speed,
+                        contentDescription = stringResource(R.string.cd_playback_speed),
+                        onClick = onShowSpeedDialog,
+                        upFocusRequester = progressUpTarget,
+                        onDownKey = onHideControls,
+                        onFocused = onResetHideTimer,
+                        labelAbove = true
+                    )
+                    ControlButton(
+                        icon = Icons.Default.MoreHoriz,
+                        contentDescription = if (uiState.showMoreDialog) stringResource(R.string.cd_close_more_actions) else stringResource(R.string.cd_more_actions),
+                        onClick = onToggleMoreActions,
+                        focusRequester = moreFocusRequester,
+                        upFocusRequester = if (uiState.showMoreDialog) moreExtrasFocusRequester else progressUpTarget,
+                        onDownKey = onHideControls,
+                        onFocused = onResetHideTimer,
+                        labelAbove = true
+                    )
+                }
             }
             }
         }
@@ -3099,6 +3131,9 @@ internal fun PlayerControlsOverlay(
 }
 
 private const val PLAYER_SEEK_BACK_MS = 10_000L
+/** The transport is the biggest target on screen: play/pause first, the skips beside it. */
+private val TRANSPORT_PLAY_SIZE = 72.dp
+private val TRANSPORT_SKIP_SIZE = 56.dp
 private const val PLAYER_SEEK_FORWARD_MS = 30_000L
 
 /** "4K · DV · Atmos · Cached" for the playing stream, or null when nothing is known about it. */
@@ -3143,6 +3178,22 @@ private fun PlayerControlsProgressBarHost(
         onFocused = onFocused,
         onClick = onClick,
         bufferedPosition = playbackTimeline.bufferedPosition
+    )
+}
+
+internal enum class PlayerTimeSide { ELAPSED, TOTAL }
+
+/** One end of the scrubber: where playback is, or how long the title runs. */
+@Composable
+private fun PlayerTimeTextHost(viewModel: PlayerViewModel, side: PlayerTimeSide) {
+    val playbackTimeline by viewModel.playbackTimeline.collectAsState()
+    Text(
+        text = formatTime(
+            if (side == PlayerTimeSide.ELAPSED) playbackTimeline.currentPosition else playbackTimeline.duration
+        ),
+        style = MaterialTheme.typography.titleMedium,
+        color = if (side == PlayerTimeSide.ELAPSED) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextSecondary,
+        maxLines = 1
     )
 }
 
@@ -3216,18 +3267,26 @@ private fun ControlButton(
     onFocused: (() -> Unit)? = null,
     contentColor: Color = FetchTheme.colors.Player.TextPrimary,
     /** Shown beside the focused button, as on the detail hero; null keeps the button bare. */
-    focusLabel: String? = contentDescription
+    focusLabel: String? = contentDescription,
+    size: Dp = FetchTheme.spacing.xxxl,
+    iconSize: Dp? = null,
+    /**
+     * Float the label above the focused button instead of beside it, so it takes no room and
+     * nothing in the row moves while focus walks along it.
+     */
+    labelAbove: Boolean = false
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
     // Icon-only buttons (engine, party, aspect, flag, report) were hard to tell apart from the
     // couch. The label joins and leaves layout in one frame with focus; only its fade animates.
     Row(verticalAlignment = Alignment.CenterVertically) {
+    Box(contentAlignment = Alignment.Center) {
     IconButton(
         onClick = onClick,
         enabled = enabled,
         modifier = Modifier
-            .size(FetchTheme.spacing.xxxl)
+            .size(size)
             .then(
                 if (focusRequester != null) Modifier.focusRequester(focusRequester)
                 else Modifier
@@ -3276,17 +3335,40 @@ private fun ControlButton(
             Icon(
                 painter = iconPainter,
                 contentDescription = contentDescription,
-                modifier = Modifier.size(FetchTheme.spacing.xl)
+                modifier = Modifier.size(iconSize ?: FetchTheme.spacing.xl)
             )
         } else {
             Icon(
                 imageVector = icon,
                 contentDescription = contentDescription,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(iconSize ?: 28.dp)
             )
         }
     }
-    if (isFocused && focusLabel != null) {
+    if (labelAbove && isFocused && focusLabel != null) {
+        val gapPx = with(LocalDensity.current) { FetchTheme.spacing.sm.roundToPx() }
+        Text(
+            text = focusLabel,
+            color = FetchTheme.colors.TextPrimary,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            maxLines = 1,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                // Zero size in layout, drawn centred above the button.
+                .layout { measurable, _ ->
+                    val placeable = measurable.measure(Constraints())
+                    layout(0, 0) {
+                        placeable.place(-placeable.width / 2, -placeable.height - gapPx)
+                    }
+                }
+                .focusLabelEntrance()
+                .clearAndSetSemantics { }
+                .background(FetchTheme.colors.BackgroundCard, FetchTheme.shapes.navItem)
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
+        )
+    }
+    }
+    if (!labelAbove && isFocused && focusLabel != null) {
         Text(
             text = focusLabel,
             color = FetchTheme.colors.TextPrimary,
@@ -3301,62 +3383,6 @@ private fun ControlButton(
                 .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
         )
     }
-    }
-}
-
-/** A labelled pill in the player's bottom row; each one opens a right-hand side panel. */
-@Composable
-private fun PanelControlButton(
-    label: String,
-    onClick: () -> Unit,
-    focusRequester: FocusRequester,
-    upFocusRequester: FocusRequester,
-    onDownKey: () -> Unit,
-    onFocused: () -> Unit,
-    icon: ImageVector? = null,
-    iconPainter: Painter? = null
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .height(FetchTheme.spacing.xxxl)
-            .focusRequester(focusRequester)
-            .focusProperties { up = upFocusRequester }
-            .onPreviewKeyEvent { keyEvent ->
-                if (keyEvent.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
-                when (keyEvent.nativeKeyEvent.keyCode) {
-                    KeyEvent.KEYCODE_DPAD_UP -> {
-                        runCatching { upFocusRequester.requestFocus() }
-                        true
-                    }
-                    KeyEvent.KEYCODE_DPAD_DOWN -> {
-                        onDownKey()
-                        true
-                    }
-                    else -> false
-                }
-            }
-            .onFocusChanged { if (it.isFocused) onFocused() },
-        colors = ButtonDefaults.colors(
-            containerColor = FetchTheme.colors.Player.Control,
-            contentColor = FetchTheme.colors.Player.TextPrimary,
-            focusedContainerColor = FetchTheme.colors.Player.Focus,
-            focusedContentColor = FetchTheme.colors.Player.OnFocus
-        ),
-        shape = ButtonDefaults.shape(shape = CircleShape),
-        scale = ButtonDefaults.scale(focusedScale = 1f),
-        contentPadding = PaddingValues(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.xs)
-    ) {
-        when {
-            iconPainter != null -> Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.size(20.dp))
-            icon != null -> Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(20.dp))
-        }
-        Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            maxLines = 1
-        )
     }
 }
 

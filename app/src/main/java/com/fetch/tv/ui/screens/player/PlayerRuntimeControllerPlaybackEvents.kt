@@ -1040,9 +1040,10 @@ internal fun PlayerRuntimeController.scheduleProgressSyncAfterSeek() {
 
 /**
  * How long the controls stay up after the last key press while playing. 3s was too short to read
- * the spec line or find a panel pill from across the room; 5s is the usual TV player window.
+ * the spec line from across the room; the design's 4s keeps them out of the picture sooner while
+ * still leaving time to read it.
  */
-internal const val PLAYER_CONTROLS_AUTO_HIDE_MS = 5_000L
+internal val PLAYER_CONTROLS_AUTO_HIDE_MS = com.fetch.tv.ui.theme.FetchMotion.tokens.durations.playerControlsAutoHide.toLong()
 
 fun PlayerRuntimeController.scheduleHideControls() {
     hideControlsJob?.cancel()

@@ -6,7 +6,6 @@ import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +34,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -190,13 +188,10 @@ private fun MDBListApiKeyDialog(
     val inputFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val validating by viewModel.validating.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val invalidApiKeyMsg = stringResource(R.string.mdblist_invalid_api_key)
+    var showInvalid by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.validationError.collect {
-            Toast.makeText(context, invalidApiKeyMsg, Toast.LENGTH_SHORT).show()
-        }
+        viewModel.validationError.collect { showInvalid = true }
     }
 
     FetchDialog(
@@ -230,7 +225,10 @@ private fun MDBListApiKeyDialog(
             Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)) {
                 BasicTextField(
                     value = value,
-                    onValueChange = { value = it },
+                    onValueChange = {
+                        value = it
+                        showInvalid = false
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(inputFocusRequester)
@@ -262,6 +260,8 @@ private fun MDBListApiKeyDialog(
                 )
             }
         }
+
+        SettingsInputErrorText(if (showInvalid) stringResource(R.string.mdblist_invalid_api_key) else null)
 
         Row(
             modifier = Modifier.fillMaxWidth(),

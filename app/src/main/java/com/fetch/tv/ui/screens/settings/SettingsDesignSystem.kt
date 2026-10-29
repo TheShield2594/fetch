@@ -64,7 +64,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -926,6 +928,21 @@ internal fun <T> SettingsMultiChoiceDialog(
             }
         }
     }
+}
+
+/**
+ * An input error shown under the field in a settings dialog. It stays until the caller clears it,
+ * which callers do when the user edits the field, unlike a toast that is gone in two seconds.
+ */
+@Composable
+internal fun SettingsInputErrorText(message: String?) {
+    if (message.isNullOrBlank()) return
+    Text(
+        text = message,
+        color = FetchTheme.colors.Error,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+    )
 }
 
 @Composable

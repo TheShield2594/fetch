@@ -213,6 +213,13 @@ fun PlayerScreen(
     onPlayQueueItem: (com.fetch.tv.data.local.QueueItem) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    uiState.screenTimeBlock?.let { status ->
+        com.fetch.tv.ui.screens.profile.ScreenTimeLimitDialog(
+            status = status,
+            onExit = viewModel::onScreenTimeExit,
+            onGranted = viewModel::onScreenTimeGranted
+        )
+    }
     val partyState by viewModel.party.state.collectAsState()
     val partyPlayback by viewModel.party.playback.collectAsState()
     val partyAvailable by viewModel.party.available.collectAsState()
@@ -485,11 +492,11 @@ fun PlayerScreen(
             !shouldConfirmNextEpisodeOnEnd &&
             explicitReason == null
         when {
-            explicitReason == PlayerExitReason.StillWatchingPrompt -> {
+            explicitReason != null -> {
                 viewModel.stopAndRelease()
                 val cb = currentOnPlaybackEnded
                 if (cb != null) {
-                    cb(null, null, null, PlayerExitReason.StillWatchingPrompt)
+                    cb(null, null, null, explicitReason)
                 } else {
                     val (focusSeason, focusEpisode) = uiState.returnFocusSeasonEpisode(completed = true)
                     currentOnBackPress(

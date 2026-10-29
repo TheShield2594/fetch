@@ -89,6 +89,8 @@ class PlayerViewModel @Inject constructor(
     private val serverPlayback: com.fetch.tv.data.mediaserver.ServerPlayback,
     private val serverStreams: com.fetch.tv.data.mediaserver.ServerStreams,
     partyRepository: com.fetch.tv.core.party.PartyRepository,
+    parentalControls: com.fetch.tv.core.parental.ParentalControls,
+    screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
     profileManager: com.fetch.tv.core.profile.ProfileManager,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -132,6 +134,8 @@ class PlayerViewModel @Inject constructor(
         serverPlayback = serverPlayback,
         serverStreams = serverStreams,
         party = partyRepository,
+        parentalControls = parentalControls,
+        screenTime = screenTime,
         profileId = savedStateHandle.get<String>("profileId")?.toIntOrNull()
             ?: profileManager.activeProfileId.value,
         savedStateHandle = savedStateHandle,
@@ -300,6 +304,10 @@ class PlayerViewModel @Inject constructor(
     fun bindExoSubtitleView(subtitleView: androidx.media3.ui.SubtitleView?) {
         controller.bindExoSubtitleView(subtitleView)
     }
+
+    fun onScreenTimeExit() = controller.onScreenTimeExit()
+
+    fun onScreenTimeGranted() = controller.onScreenTimeGranted()
 
     fun consumePendingExitReason() {
         controller.consumePendingExitReason()

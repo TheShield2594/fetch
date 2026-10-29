@@ -591,7 +591,14 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
     val hideUnreleased = _uiState.value.hideUnreleasedContent
     val titlesSnapshot = customCatalogTitles
 
-    val (displayRows, baseHeroItems, fullRowsFiltered) = withContext(Dispatchers.Default) {
+    // "Approved titles only" on a kids profile: its approved titles come first.
+    val approvedRows = approvedTitleRows(
+        approvedOnly = parentalControls.activeKidsRules.value?.approvedTitlesOnly == true,
+        lists = parentalControls.activeTitleLists.value,
+        moviesTitle = appContext.getString(com.fetch.tv.R.string.kids_approved_movies),
+        showsTitle = appContext.getString(com.fetch.tv.R.string.kids_approved_shows)
+    )
+    val (catalogDisplayRows, baseHeroItems, fullRowsFiltered) = withContext(Dispatchers.Default) {
         val rawRows = orderedKeys.mapNotNull { key ->
             val row = catalogSnapshot[key] ?: return@mapNotNull null
             val custom = titlesSnapshot[key]
@@ -701,8 +708,10 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
 
     heroItemOrder = baseHeroItems.map { it.id }
 
+    val displayRows = approvedRows + catalogDisplayRows
     val computedHomeRows = withContext(Dispatchers.Default) {
         val computedHomeRows = buildList {
+            approvedRows.forEach { add(HomeRow.Catalog(it)) }
             val displayRowsByKey = displayRows.associateBy { it.legacyKey() }
             // Build a lookup of placeholder descriptors by key for lazy catalogs
             val placeholdersByKey = synchronized(catalogStateLock) {

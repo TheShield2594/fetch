@@ -158,6 +158,8 @@ internal fun resolveExternalNextEpisodeSnapshot(
     )
 }
 
+private const val MAX_COUNTED_EXTERNAL_MS = 4 * 60 * 60_000L
+
 /**
  * Application-scoped singleton that tracks external player playback.
  *
@@ -181,7 +183,9 @@ class ExternalPlaybackTracker @Inject constructor(
     private val episodeShufflePlayback: EpisodeShufflePlayback,
     private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val skipIntroRepository: SkipIntroRepository,
-    private val profileManager: com.fetch.tv.core.profile.ProfileManager
+    private val profileManager: com.fetch.tv.core.profile.ProfileManager,
+    private val parentalControls: dagger.Lazy<com.fetch.tv.core.parental.ParentalControls>,
+    private val screenTime: dagger.Lazy<com.fetch.tv.core.parental.ScreenTimeManager>
 ) {
     companion object {
         private const val TAG = "ExtPlaybackTracker"
@@ -276,6 +280,11 @@ class ExternalPlaybackTracker @Inject constructor(
 
     /** True when the external player was launched automatically (not by manual stream click). */
     var isAutoLaunch: Boolean = false
+
+    // Episodes auto-launched in a row since the last manual launch, for a kids profile's cap.
+    private var autoLaunchesInChain = 0
+    // When the external player was opened, to count its time against a kids profile's allowance.
+    private var launchedAtElapsedMs = 0L
         private set
 
     val isTracking: Boolean get() = pendingMetadata != null
@@ -303,6 +312,8 @@ class ExternalPlaybackTracker @Inject constructor(
         awaitingExternalPlayerResult = true
         pendingMetadata = metadata
         isAutoLaunch = autoLaunch
+        autoLaunchesInChain = if (autoLaunch) autoLaunchesInChain + 1 else 0
+        launchedAtElapsedMs = android.os.SystemClock.elapsedRealtime()
         // A manual launch is always fresh; only an auto-launch within the window is a continuation
         // that keeps a user's abort in effect (so one Back press stops a runaway chain).
         val shouldResetAbort = !autoNextNavigationPending &&
@@ -559,6 +570,7 @@ class ExternalPlaybackTracker @Inject constructor(
      *  duration if needed, save progress, and auto-advance on completion. */
     fun onActivityResult(result: ExternalPlayerResult?) {
         awaitingExternalPlayerResult = false
+        recordExternalScreenTime()
         // The result arrived, so this is a live session, not a dead one — stand down the watchdog
         // before it can clear the persisted copy out from under the recovery below.
         staleReturnWatchdogJob?.cancel()
@@ -913,6 +925,11 @@ class ExternalPlaybackTracker @Inject constructor(
             cancelled = autoNextCancelled,
             chainAborted = autoNextChainAborted
         )
+        if (isKidsAutoNextHeld()) {
+            Log.d(AUTO_NEXT_TAG, "Auto-next stopped at the kids autoplay cap")
+            _autoNextOverlay.value = null
+            return
+        }
         if (!attemptAdvance || episode == null) {
             Log.d(AUTO_NEXT_TAG, "Auto-next not attempted: season=$season episode=$episode " +
                 "type=${metadata.contentType} cancelled=$autoNextCancelled chainAborted=$autoNextChainAborted")
@@ -1173,6 +1190,25 @@ class ExternalPlaybackTracker @Inject constructor(
         }
     }
 
+    /**
+     * A kids profile's autoplay cap is reached, or its screen time is used up: the next
+     * episode isn't launched on its own.
+     */
+    private fun isKidsAutoNextHeld(): Boolean {
+        if (screenTime.get().status().isBlocked) return true
+        val cap = parentalControls.get().autoplayEpisodeCap() ?: return false
+        return autoLaunchesInChain >= cap
+    }
+
+    /** Counts the time spent in the external player, at most a few hours, as playback. */
+    private fun recordExternalScreenTime() {
+        val launchedAt = launchedAtElapsedMs.takeIf { it > 0L } ?: return
+        launchedAtElapsedMs = 0L
+        val elapsed = (android.os.SystemClock.elapsedRealtime() - launchedAt).coerceIn(0L, MAX_COUNTED_EXTERNAL_MS)
+        screenTime.get().recordPlayback(elapsed)
+        screenTime.get().save()
+    }
+
     private fun raiseAutoNextOverlay(
         metadata: ExternalPlaybackMetadata,
         allowUnknownNextEpisode: Boolean = false
@@ -1189,7 +1225,7 @@ class ExternalPlaybackTracker @Inject constructor(
             hasNextEpisode = hasNextEpisode,
             allowUnknownNextEpisode = allowUnknownNextEpisode
         )
-        if (!shouldRaise) {
+        if (!shouldRaise || isKidsAutoNextHeld()) {
             if (hasNextEpisode == false) {
                 Log.d(AUTO_NEXT_TAG, "loader skipped for known final episode ${metadata.videoId}")
             }

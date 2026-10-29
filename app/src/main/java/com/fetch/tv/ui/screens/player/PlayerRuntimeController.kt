@@ -92,6 +92,8 @@ class PlayerRuntimeController(
     internal val serverPlayback: ServerPlayback,
     internal val serverStreams: ServerStreams,
     internal val party: com.fetch.tv.core.party.PartyRepository,
+    internal val parentalControls: com.fetch.tv.core.parental.ParentalControls,
+    internal val screenTime: com.fetch.tv.core.parental.ScreenTimeManager,
     internal val profileId: Int,
     internal val savedStateHandle: SavedStateHandle,
     internal val scope: CoroutineScope
@@ -307,6 +309,11 @@ class PlayerRuntimeController(
             currentEpisodeTitle = currentEpisodeTitle
         )
     )
+
+    init {
+        startScreenTimeTracking()
+    }
+
     val uiState: StateFlow<PlayerUiState> = _uiState.asStateFlow()
 
     init {
@@ -749,6 +756,7 @@ class PlayerRuntimeController(
 
     fun onCleared() {
         playerSession.close()
+        screenTime.save()
         stopServerPlayback()
         releasePlayer()
         startupLoadingReportJob?.cancel()

@@ -1448,6 +1448,8 @@ open class MainActivity : ComponentActivity() {
     override fun onStop() {
         externalPlaybackTracker.onExternalPlayerCoveredApp()
         super.onStop()
+        // Leaving the app or turning the screen off ends a parent's unlock on a kids profile.
+        parentalControls.lockGate()
         startupSyncService.stopPeriodicSurfacePulls()
         // App going to background (e.g. user returning to the launcher): reconcile the
         // Continue Watching channel once so Projectivy repaints it with fresh progress.

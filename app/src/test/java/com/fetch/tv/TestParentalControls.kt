@@ -23,4 +23,6 @@ fun unrestrictedParentalControls(): ParentalControls = mockk(relaxed = true) {
     every { isAllowed(any<com.fetch.tv.domain.model.MetaPreview>()) } returns true
     every { guardPinProfileId() } returns null
     every { needsGate() } returns false
+    every { activeKidsRules } returns MutableStateFlow(null)
+    every { autoplayEpisodeCap() } returns null
 }

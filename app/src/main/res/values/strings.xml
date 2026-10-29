@@ -2267,7 +2267,7 @@
     <string name="collections_import">Import</string>
     <string name="collections_export_file">Export File</string>
     <string name="collections_saved_downloads">Saved to Downloads</string>
-    <string name="collections_export_failed">Export failed</string>
+    <string name="collections_export_failed">Couldn’t save to Downloads. Check storage permission and free space, then try again.</string>
     <string name="collections_import_header">Import Collections</string>
     <string name="collections_import_description">Import collections from JSON. Catalogs from addons you don’t have installed will show a warning.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>

@@ -506,6 +506,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                     containerColor = if (selected.isEmpty()) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                     focusedContainerColor = FetchTheme.colors.FocusBackground
                 ),
+                border = settingsOptionCardBorder(),
                 shape = CardDefaults.shape(shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)),
                 scale = CardDefaults.scale(focusedScale = 1f)
             ) {
@@ -564,6 +565,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                                 containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground
                             ),
+                            border = settingsOptionCardBorder(),
                             shape = CardDefaults.shape(shape = androidx.compose.foundation.shape.RoundedCornerShape(FetchRadii.tokens.sm)),
                             scale = CardDefaults.scale(focusedScale = 1f)
                         ) {

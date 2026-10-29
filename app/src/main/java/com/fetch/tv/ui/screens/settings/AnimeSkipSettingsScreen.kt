@@ -6,7 +6,6 @@ import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -136,13 +134,10 @@ private fun AnimeSkipClientIdDialog(
     val inputFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val validating by viewModel.validating.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val invalidClientIdMsg = stringResource(R.string.animeskip_invalid_client_id)
+    var showInvalid by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        viewModel.validationError.collect {
-            Toast.makeText(context, invalidClientIdMsg, Toast.LENGTH_SHORT).show()
-        }
+        viewModel.validationError.collect { showInvalid = true }
     }
 
     FetchDialog(
@@ -174,7 +169,10 @@ private fun AnimeSkipClientIdDialog(
             Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)) {
                 BasicTextField(
                     value = value,
-                    onValueChange = { value = it },
+                    onValueChange = {
+                        value = it
+                        showInvalid = false
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(inputFocusRequester)
@@ -206,6 +204,8 @@ private fun AnimeSkipClientIdDialog(
                 )
             }
         }
+
+        SettingsInputErrorText(if (showInvalid) stringResource(R.string.animeskip_invalid_client_id) else null)
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Button(

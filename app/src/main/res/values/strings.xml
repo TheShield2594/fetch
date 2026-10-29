@@ -1145,7 +1145,7 @@
     <string name="mdblist_dialog_title">MDBList API Key</string>
     <string name="mdblist_dialog_placeholder">Enter MDBList API key</string>
     <string name="mdblist_not_set">Not set</string>
-    <string name="mdblist_invalid_api_key">Invalid MDBList API key</string>
+    <string name="mdblist_invalid_api_key">Couldn’t verify this API key. Check it matches the key in your MDBList account and that you’re online, then try again.</string>
     <string name="mdblist_library_lists">Library lists</string>
     <string name="mdblist_library_lists_description">Choose which MDBList lists appear in the Library and in Manage lists. The Watchlist is always shown.</string>
     <string name="mdblist_library_lists_empty">No lists found in your MDBList account yet. Sync to load them.</string>
@@ -1196,7 +1196,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Create your own Client ID at anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Enter Client ID</string>
-    <string name="animeskip_invalid_client_id">Invalid Client ID</string>
+    <string name="animeskip_invalid_client_id">Couldn’t verify this Client ID. Check it matches the one in your Anime Skip account and that you’re online, then try again.</string>
     <string name="action_clear">Clear</string>
 
     <string name="tmdb_title">TMDB Enrichment</string>

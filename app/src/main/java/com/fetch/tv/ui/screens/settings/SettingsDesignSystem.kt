@@ -64,7 +64,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -137,6 +139,15 @@ internal fun settingsRowBorder(
         shape = shape
     )
 )
+
+/**
+ * Focus ring for the option cards in settings pickers. A selected option already carries the
+ * focus fill, so without a ring of its own it looks the same with or without focus.
+ */
+@Composable
+internal fun settingsOptionCardBorder(
+    shape: RoundedCornerShape = RoundedCornerShape(FetchRadii.tokens.sm)
+): CardBorder = settingsRowBorder(shape = shape)
 
 internal object SettingsTestTags {
     const val ROW_ICON = "settings_row_icon"
@@ -749,6 +760,7 @@ internal fun <T> SettingsSingleChoiceDialog(
                             containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                             focusedContainerColor = FetchTheme.colors.FocusBackground
                         ),
+                        border = settingsOptionCardBorder(),
                         shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                         scale = CardDefaults.scale(focusedScale = 1f)
                     ) {
@@ -865,6 +877,7 @@ internal fun <T> SettingsMultiChoiceDialog(
                                 containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground
                             ),
+                            border = settingsOptionCardBorder(),
                             shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                             scale = CardDefaults.scale(focusedScale = 1f)
                         ) {
@@ -919,6 +932,21 @@ internal fun <T> SettingsMultiChoiceDialog(
     }
 }
 
+/**
+ * An input error shown under the field in a settings dialog. It stays until the caller clears it,
+ * which callers do when the user edits the field, unlike a toast that is gone in two seconds.
+ */
+@Composable
+internal fun SettingsInputErrorText(message: String?) {
+    if (message.isNullOrBlank()) return
+    Text(
+        text = message,
+        color = FetchTheme.colors.Error,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+    )
+}
+
 @Composable
 internal fun SettingsDialogActionRow(
     horizontalAlignment: Alignment.Horizontal = Alignment.End,
@@ -969,13 +997,18 @@ internal fun SettingsChoiceChip(
 
     Card(
         onClick = onClick,
-        modifier = modifier.onFocusChanged { state ->
-            val nowFocused = state.isFocused
-            if (isFocused != nowFocused) {
-                isFocused = nowFocused
-                if (nowFocused) onFocused()
+        modifier = modifier
+            .onFocusChanged { state ->
+                val nowFocused = state.isFocused
+                if (isFocused != nowFocused) {
+                    isFocused = nowFocused
+                    if (nowFocused) onFocused()
+                }
             }
-        },
+            .semantics {
+                this.selected = selected
+                role = Role.RadioButton
+            },
         colors = CardDefaults.colors(
             containerColor = if (selected) FetchTheme.colors.FocusRing.copy(alpha = 0.2f) else FetchTheme.colors.Background,
             focusedContainerColor = if (selected) FetchTheme.colors.FocusRing.copy(alpha = 0.2f) else FetchTheme.colors.Background
@@ -985,8 +1018,9 @@ internal fun SettingsChoiceChip(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
                 shape = RoundedCornerShape(SettingsPillRadius)
             ) else Border.None,
+            // Thicker than the selection hairline, so focus shows on a selected chip too.
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsPillRadius)
             )
         ),

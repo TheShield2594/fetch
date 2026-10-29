@@ -955,7 +955,7 @@ internal fun ModernRowSection(
                         }
                     },
                     contentType = { _, item ->
-                        when (val payload = item.payload) {
+                        if (item.widget != null) "home_widget" else when (val payload = item.payload) {
                             is ModernPayload.ContinueWatching -> "modern_cw_card"
                             is ModernPayload.Catalog -> if (payload.itemId.startsWith("__placeholder_")) "placeholder" else payload.itemType
                             is ModernPayload.CollectionFolder -> "modern_collection_folder_card"
@@ -985,7 +985,25 @@ internal fun ModernRowSection(
                         }
                     }
 
-                    when (val payload = item.payload) {
+                    val widget = item.widget
+                    if (widget != null) {
+                        HomeWidgetRowItem(
+                            item = item,
+                            widget = widget,
+                            requester = requester,
+                            isTargetItem = isTargetItem,
+                            width = continueWatchingCardWidth,
+                            height = continueWatchingCardHeight,
+                            onFocused = onFocused,
+                            onClick = {
+                                when (val payload = item.payload) {
+                                    is ModernPayload.ContinueWatching -> onContinueWatchingClick(payload.item)
+                                    is ModernPayload.Catalog -> onNavigateToDetail(payload.itemId, payload.itemType, payload.addonBaseUrl)
+                                    is ModernPayload.CollectionFolder -> onNavigateToFolderDetail(payload.collectionId, payload.folderId)
+                                }
+                            }
+                        )
+                    } else when (val payload = item.payload) {
                         is ModernPayload.ContinueWatching -> {
                             ModernContinueWatchingRowItem(
                                 payload = payload,

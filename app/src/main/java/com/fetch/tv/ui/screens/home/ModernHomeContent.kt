@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.fetch.tv.R
+import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -185,7 +186,12 @@ fun ModernHomeContent(
         effectiveExpandEnabled ||
             (effectiveAutoplayEnabled &&
                 trailerPlaybackTarget == FocusedPosterTrailerPlaybackTarget.HERO_MEDIA)
-    val presentation = modernPresentation
+    // Signal adds its "At a glance" widgets, built from the rows Home already has.
+    val showAtAGlance = FetchTheme.style.dotMatrix
+    val atAGlanceTitle = stringResource(R.string.home_row_at_a_glance)
+    val presentation = remember(modernPresentation, showAtAGlance, atAGlanceTitle) {
+        if (showAtAGlance) modernPresentation.withAtAGlanceRow(atAGlanceTitle) else modernPresentation
+    }
     val carouselRows = presentation.rows
 
     val hasCollections = remember(uiState.homeRows) {

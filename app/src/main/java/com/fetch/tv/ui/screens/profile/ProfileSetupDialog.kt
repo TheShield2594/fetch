@@ -112,7 +112,8 @@ internal fun ParentPinNudgeDialog(
     restrictedProfile: UserProfile,
     mainProfile: UserProfile,
     onSetPin: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -121,6 +122,7 @@ internal fun ParentPinNudgeDialog(
     }
     FetchDialog(
         onDismiss = onDismiss,
+        modifier = modifier,
         title = stringResource(R.string.parental_pin_nudge_title, restrictedProfile.name),
         subtitle = stringResource(R.string.parental_pin_nudge_subtitle, mainProfile.name, restrictedProfile.name),
         width = 480.dp,
@@ -161,7 +163,8 @@ internal fun LockProfilesOfferDialog(
     unlockedProfiles: List<UserProfile>,
     mainProfile: UserProfile,
     onAccept: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -171,6 +174,7 @@ internal fun LockProfilesOfferDialog(
     val names = unlockedProfiles.joinToString(", ") { it.name }
     FetchDialog(
         onDismiss = onDismiss,
+        modifier = modifier,
         title = stringResource(R.string.parental_lock_profiles_offer_title),
         subtitle = stringResource(
             R.string.parental_lock_profiles_offer_subtitle,

@@ -93,7 +93,8 @@ internal fun ProfileLimitsDialog(
     /** Titles hidden from or allowed on the profile from a poster's long-press menu. */
     titleLists: ProfileTitleLists = ProfileTitleLists.Empty,
     /** Leaves a listed title to the rating limit again, straight away. */
-    onClearTitle: (ParentalTitle) -> Unit = {}
+    onClearTitle: (ParentalTitle) -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     var restrictions by remember(profile.id) { mutableStateOf(initial) }
     var kidsRules by remember(profile.id) { mutableStateOf(initialKidsRules) }
@@ -109,6 +110,7 @@ internal fun ProfileLimitsDialog(
 
     FetchDialog(
         onDismiss = onDismiss,
+        modifier = modifier,
         title = stringResource(R.string.parental_limits_title, profile.name),
         subtitle = stringResource(
             if (parentPinSet) R.string.parental_limits_subtitle else R.string.parental_limits_subtitle_no_pin

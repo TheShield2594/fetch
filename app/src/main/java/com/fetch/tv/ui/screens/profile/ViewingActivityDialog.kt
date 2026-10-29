@@ -42,10 +42,12 @@ import java.util.Date
 internal fun ViewingActivityDialog(
     profile: UserProfile,
     entries: List<ViewingActivityEntry>?,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     FetchDialog(
         onDismiss = onDismiss,
+        modifier = modifier,
         title = stringResource(R.string.profile_viewing_activity_title, profile.name),
         width = 640.dp
     ) {

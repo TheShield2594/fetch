@@ -479,16 +479,19 @@ fun ProfileSelectionScreen(
         }
     }
 
+    // Observes key presses without consuming them, to clear an error that has been read. Dialogs
+    // get their own window, so each one this screen opens carries it too.
+    val dismissReadErrorOnKey = Modifier.onPreviewKeyEvent { event ->
+        if (errorReadyToDismiss && event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_DOWN) {
+            profileActionMessage = null
+        }
+        false
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .onPreviewKeyEvent { event ->
-                // Observes key presses without consuming them, to clear an error that has been read.
-                if (errorReadyToDismiss && event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_DOWN) {
-                    profileActionMessage = null
-                }
-                false
-            }
+            .then(dismissReadErrorOnKey)
     ) {
         val overlayProfileColor = pinOverlayState?.profile?.avatarColorHex?.let(::parseProfileColor)
         val backgroundProfile = pinOverlayState?.profile ?: focusedProfile
@@ -926,6 +929,7 @@ fun ProfileSelectionScreen(
             }
             FetchDialog(
                 onDismiss = { longPressedProfile = null },
+                modifier = dismissReadErrorOnKey,
                 title = stringResource(R.string.profile_selection_options_title),
                 width = 360.dp,
                 suppressFirstKeyUp = suppressOptionsDialogFirstKeyUp,
@@ -1127,6 +1131,7 @@ fun ProfileSelectionScreen(
                 viewModel.observeViewingActivity(targetProfile.id)
             }.collectAsState(initial = null)
             ViewingActivityDialog(
+                modifier = dismissReadErrorOnKey,
                 profile = targetProfile,
                 entries = entries,
                 onDismiss = { activityTarget = null }
@@ -1136,6 +1141,7 @@ fun ProfileSelectionScreen(
         limitsTarget?.let { targetProfile ->
             val primaryHasPin = profiles.firstOrNull { it.isPrimary }?.let { profilePinEnabled[it.id] == true } == true
             ProfileLimitsDialog(
+                modifier = dismissReadErrorOnKey,
                 profile = targetProfile,
                 initial = profileRestrictions[targetProfile.id] ?: ProfileRestrictions.None,
                 parentPinSet = primaryHasPin,
@@ -1158,6 +1164,7 @@ fun ProfileSelectionScreen(
 
         settingsCopyTarget?.let { targetProfile ->
             CopyProfileSettingsDialog(
+                modifier = dismissReadErrorOnKey,
                 profiles = profiles,
                 targetProfile = targetProfile,
                 isCopying = isCopyingSettings,
@@ -1204,6 +1211,7 @@ fun ProfileSelectionScreen(
             }
             FetchDialog(
                 onDismiss = { profileToDelete = null },
+                modifier = dismissReadErrorOnKey,
                 title = stringResource(R.string.profile_delete_confirm_title),
                 subtitle = stringResource(R.string.profile_delete_confirm_subtitle),
                 width = 420.dp,
@@ -1249,6 +1257,7 @@ fun ProfileSelectionScreen(
         val nudgeFor = parentPinNudgeFor
         if (nudgeFor != null && nudgeParent != null) {
             ParentPinNudgeDialog(
+                modifier = dismissReadErrorOnKey,
                 restrictedProfile = nudgeFor,
                 mainProfile = nudgeParent,
                 onSetPin = {
@@ -1270,6 +1279,7 @@ fun ProfileSelectionScreen(
         }
         if (lockOfferTarget != null && lockOfferParent != null && unlockedProfiles.isNotEmpty()) {
             LockProfilesOfferDialog(
+                modifier = dismissReadErrorOnKey,
                 restrictedProfile = lockOfferTarget,
                 unlockedProfiles = unlockedProfiles,
                 mainProfile = lockOfferParent,
@@ -1296,6 +1306,7 @@ fun ProfileSelectionScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(FetchTheme.colors.Background)
+                        .then(dismissReadErrorOnKey)
                 ) {
                     ProfilePinOverlay(
                         state = check.stage,

@@ -153,7 +153,8 @@ internal fun CopyProfileSettingsDialog(
     isCopying: Boolean,
     errorMessage: String?,
     onDismiss: () -> Unit,
-    onCopy: (sourceProfileId: Int, copyProviderCredentials: Boolean) -> Unit
+    onCopy: (sourceProfileId: Int, copyProviderCredentials: Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val sourceProfiles = remember(profiles, targetProfile.id) {
         profiles.filterNot { it.id == targetProfile.id }
@@ -174,6 +175,7 @@ internal fun CopyProfileSettingsDialog(
 
     FetchDialog(
         onDismiss = { if (!isCopying) onDismiss() },
+        modifier = modifier,
         title = stringResource(R.string.profile_copy_settings_title, targetProfile.name),
         subtitle = stringResource(R.string.profile_copy_settings_subtitle),
         width = 560.dp,

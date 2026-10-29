@@ -46,6 +46,7 @@ import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
 fun FetchDialog(
     onDismiss: () -> Unit,
     title: String,
+    modifier: Modifier = Modifier,
     subtitle: String? = null,
     width: Dp = 520.dp,
     titleTextAlign: TextAlign = TextAlign.Start,
@@ -88,6 +89,8 @@ fun FetchDialog(
                     containerBorderColor ?: FetchTheme.colors.Border,
                     containerShape
                 )
+                // Ahead of the first-key-up guard, so callers observing keys see every press.
+                .then(modifier)
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
                     if (isSelectKey(native.keyCode) || native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {

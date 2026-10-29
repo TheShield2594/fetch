@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewResponder
 import androidx.compose.foundation.relocation.bringIntoViewResponder
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -3546,27 +3545,28 @@ private fun PeopleSectionTabButton(
                     onFocused()
                 }
             },
+        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.xl)),
         colors = CardDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent
+            focusedContainerColor = FetchTheme.colors.Highlight
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FetchTheme.spacing.none, Color.Transparent),
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
                 shape = RoundedCornerShape(FetchTheme.radii.xl)
             )
         ),
-        scale = CardDefaults.scale(focusedScale = 1.03f)
+        scale = CardDefaults.scale(focusedScale = 1f)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.titleLarge,
             color = when {
-                isFocused -> FetchTheme.colors.TextPrimary
+                isFocused -> FetchTheme.colors.OnHighlight
                 selected -> FetchTheme.colors.TextPrimary.copy(alpha = 0.92f)
                 else -> FetchTheme.colors.TextPrimary.copy(alpha = 0.55f)
             },
-            modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxs, vertical = FetchTheme.spacing.xxs)
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
         )
     }
 }

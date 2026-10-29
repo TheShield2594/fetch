@@ -27,6 +27,12 @@ class ThemeLiteralGuardTest {
         COLOR(
             Regex("""\bColor\(\s*0x[0-9A-Fa-f]+\s*\)"""),
             "use FetchTheme.colors"
+        ),
+        // Color.White / Color.Black skip the theme just as a hex literal does: they ignore
+        // "Increase contrast" and custom themes. Existing uses are baselined and can only shrink.
+        WHITE_BLACK(
+            Regex("""\bColor\.(White|Black)\b"""),
+            "use FetchTheme.colors (TextPrimary, Highlight, OnHighlight, Scrim) instead of Color.White/Black"
         )
     }
 

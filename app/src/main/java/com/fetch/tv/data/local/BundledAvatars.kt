@@ -6,7 +6,7 @@ import com.fetch.tv.data.remote.supabase.AvatarCatalogItem
 
 /**
  * Avatars shipped in the APK, so every profile can have a picture without a sync server.
- * Artwork: Noto Emoji (Apache License 2.0), see docs/third-party/avatars/.
+ * Artwork: made for Fetch with Higgsfield, see docs/avatars.md.
  */
 object BundledAvatars {
     /** Bundled avatar ids carry this prefix so they never collide with a server catalog's ids. */

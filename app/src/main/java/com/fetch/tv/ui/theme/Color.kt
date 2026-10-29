@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 
 @Immutable
 data class FetchSurfaceColors(
@@ -290,6 +291,14 @@ class FetchColorScheme(
             add(FetchContrastPair(OnSecondaryVariant, SecondaryVariant, "onSecondaryVariant on secondaryVariant"))
             add(FetchContrastPair(FocusContent, FocusBackground, "focusContent on focusBackground"))
             add(FetchContrastPair(OnHighlight, Highlight, "onHighlight on highlight"))
+            // A selected option chip (the collection editors): the accent at 30% over a card, labelled in TextPrimary.
+            add(
+                FetchContrastPair(
+                    TextPrimary,
+                    Secondary.copy(alpha = 0.3f).compositeOver(BackgroundCard),
+                    "textPrimary on selected option tint"
+                )
+            )
         }
     }
 }

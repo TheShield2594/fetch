@@ -303,7 +303,7 @@ fun FolderEditorContent(
                         onClick = { viewModel.clearFolderCover() },
                         colors = ButtonDefaults.colors(
                             containerColor = if (coverMode == "none") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "none") FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                            contentColor = if (coverMode == "none") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
@@ -324,7 +324,7 @@ fun FolderEditorContent(
                         onClick = { viewModel.showEmojiPicker() },
                         colors = ButtonDefaults.colors(
                             containerColor = if (coverMode == "emoji") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "emoji") FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                            contentColor = if (coverMode == "emoji") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
@@ -351,7 +351,7 @@ fun FolderEditorContent(
                         onClick = { viewModel.switchToImageMode() },
                         colors = ButtonDefaults.colors(
                             containerColor = if (coverMode == "image") FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                            contentColor = if (coverMode == "image") FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                            contentColor = if (coverMode == "image") FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                             focusedContainerColor = FetchTheme.colors.FocusBackground,
                             focusedContentColor = FetchTheme.colors.Primary
                         ),
@@ -549,7 +549,7 @@ fun FolderEditorContent(
                             modifier = Modifier.focusRequester(shapeFocusRequesters[shape]!!),
                             colors = ButtonDefaults.colors(
                                 containerColor = if (isSelected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                                contentColor = if (isSelected) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                                contentColor = if (isSelected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
                                 focusedContentColor = FetchTheme.colors.Primary
                             ),
@@ -710,7 +710,7 @@ fun FolderEditorContent(
                                     else -> stringResource(R.string.collections_editor_source)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
-                                color = if (isMissing) FetchTheme.colors.Error.copy(alpha = 0.7f) else FetchTheme.colors.TextTertiary
+                                color = if (isMissing) FetchTheme.colors.Error else FetchTheme.colors.TextTertiary
                             )
                             if (hasGenreOptions) {
                                 Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))

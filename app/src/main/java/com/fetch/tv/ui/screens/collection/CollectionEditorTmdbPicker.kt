@@ -159,7 +159,7 @@ fun TmdbSourcePickerContent(
                         },
                     colors = ButtonDefaults.colors(
                         containerColor = if (selected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-                        contentColor = if (selected) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+                        contentColor = if (selected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
                         focusedContainerColor = FetchTheme.colors.FocusBackground,
                         focusedContentColor = FetchTheme.colors.TextPrimary
                     ),
@@ -941,7 +941,7 @@ fun TmdbChoiceButton(
         enabled = enabled,
         colors = ButtonDefaults.colors(
             containerColor = if (selected) FetchTheme.colors.Secondary.copy(alpha = 0.3f) else FetchTheme.colors.BackgroundCard,
-            contentColor = if (selected) FetchTheme.colors.Secondary else FetchTheme.colors.TextSecondary,
+            contentColor = if (selected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
             focusedContainerColor = FetchTheme.colors.FocusBackground,
             focusedContentColor = FetchTheme.colors.TextPrimary
         ),

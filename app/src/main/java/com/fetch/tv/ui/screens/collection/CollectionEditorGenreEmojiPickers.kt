@@ -206,7 +206,7 @@ fun GenrePickerOptionCard(
                 Text(
                     text = stringResource(R.string.cd_selected),
                     style = MaterialTheme.typography.labelSmall,
-                    color = FetchTheme.colors.Secondary
+                    color = FetchTheme.colors.TextPrimary
                 )
             }
         }

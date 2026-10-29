@@ -8,6 +8,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
@@ -113,12 +117,15 @@ fun EssentialAddonSetupScreen(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
                             color = FetchTheme.colors.TextPrimary,
                         )
+                        var isUrlFieldFocused by remember { mutableStateOf(false) }
+                        val urlFieldShape = RoundedCornerShape(FetchTheme.radii.md)
                         BasicTextField(
                             value = uiState.installUrl,
                             onValueChange = viewModel::onInstallUrlChange,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(FetchTheme.spacing.xxxl),
+                                .height(FetchTheme.spacing.xxxl)
+                                .onFocusChanged { isUrlFieldFocused = it.isFocused },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Uri,
@@ -134,9 +141,19 @@ fun EssentialAddonSetupScreen(
                                             textDirection = TextDirection.Content),
                             cursorBrush = SolidColor(FetchTheme.colors.Primary),
                             decorationBox = { innerTextField ->
+                                // Same edge and focus ring as the full addon manager's URL field.
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
+                                        .background(FetchTheme.colors.BackgroundElevated, urlFieldShape)
+                                        .border(
+                                            border = if (isUrlFieldFocused) {
+                                                FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                                            } else {
+                                                BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border)
+                                            },
+                                            shape = urlFieldShape
+                                        )
                                         .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)
                                 ) {
                                     if (uiState.installUrl.isEmpty()) {

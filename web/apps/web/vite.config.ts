@@ -112,8 +112,8 @@ export default defineConfig({
         // theme-init.js still overrides that meta per theme wherever a browser
         // honours it.
         // Keep in sync with THEME_BG.light in apps/web/src/hooks/useTheme.ts.
-        background_color: "#f2f2f7",
-        theme_color: "#f2f2f7",
+        background_color: "#0d0e10",
+        theme_color: "#0d0e10",
         shortcuts: navShortcuts(),
         ...(screenshots.length > 0 ? { screenshots } : {}),
         icons: [

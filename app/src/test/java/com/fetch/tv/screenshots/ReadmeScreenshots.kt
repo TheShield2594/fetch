@@ -19,10 +19,6 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.requestFocus
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.pressKey
-import androidx.compose.ui.input.key.Key
 import com.fetch.tv.core.streams.BestMatchPreview
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -285,13 +281,6 @@ class ReadmeScreenshots {
     @Test
     fun signalHome() = render("signal-home", appTheme = AppTheme.SIGNAL) { SampleHome() }
 
-    // Down twice from the first card (Continue Watching, Ready tonight) lands on the first
-    // "At a glance" tile: the row scrolls up and the hero shows its title.
-    @Test
-    fun signalAtAGlance() = render("signal-glance", pressDown = 2, appTheme = AppTheme.SIGNAL) {
-        CompositionLocalProvider(com.fetch.tv.ui.screens.home.LocalHomeClock provides { SAMPLE_EVENING }) { SampleHome() }
-    }
-
     @Test
     fun signalFetching() = render("signal-fetching", appTheme = AppTheme.SIGNAL) { SampleFetching() }
 
@@ -301,7 +290,10 @@ class ReadmeScreenshots {
     @Test
     fun signalAmbient() = render("signal-ambient", focusFirst = false, appTheme = AppTheme.SIGNAL) {
         val resume = (Samples.continueWatching.first() as com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress).progress
-        AmbientClock(resume = resume, now = { SAMPLE_EVENING })
+        // 9:47 pm on a Thursday, at an even second so the colon is lit.
+        val evening = java.time.LocalDateTime.of(2026, 10, 29, 21, 47, 0)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        AmbientClock(resume = resume, now = { evening })
     }
 
     @Test
@@ -434,7 +426,6 @@ class ReadmeScreenshots {
         name: String,
         focusFirst: Boolean = true,
         focusOn: String? = null,
-        pressDown: Int = 0,
         appTheme: AppTheme = DEFAULT_APP_THEME,
         content: @Composable () -> Unit
     ) {
@@ -454,11 +445,6 @@ class ReadmeScreenshots {
             compose.mainClock.advanceTimeBy(1_000)
             compose.waitForIdle()
         }
-        repeat(pressDown) {
-            compose.onRoot().performKeyInput { pressKey(Key.DirectionDown) }
-            compose.mainClock.advanceTimeBy(1_000)
-            compose.waitForIdle()
-        }
         // Draw the window in software: Robolectric has no hardware redraw for captureToImage to wait on.
         val root = compose.activity.window.decorView
         val bitmap = Bitmap.createBitmap(root.width, root.height, Bitmap.Config.ARGB_8888)
@@ -469,7 +455,3 @@ class ReadmeScreenshots {
         println("Wrote $out (${bitmap.width}x${bitmap.height})")
     }
 }
-
-/** 9:47 pm on a Thursday, at an even second so the clock's colon is lit. */
-private val SAMPLE_EVENING: Long = java.time.LocalDateTime.of(2026, 10, 29, 21, 47, 0)
-    .atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()

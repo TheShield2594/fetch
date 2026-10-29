@@ -131,9 +131,7 @@ data class ModernCarouselItem(
     val imageUrl: String?,
     val heroPreview: HeroPreview,
     val payload: ModernPayload,
-    val metaPreview: MetaPreview? = null,
-    /** Set on "At a glance" tiles: the card is drawn as this widget instead. */
-    val widget: HomeWidget? = null
+    val metaPreview: MetaPreview? = null
 )
 
 @Immutable

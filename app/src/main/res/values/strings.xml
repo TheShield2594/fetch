@@ -3098,11 +3098,6 @@
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
     <string name="ready_to_play">Ready to play</string>
-    <string name="home_row_at_a_glance">At a glance</string>
-    <string name="home_widget_finish_by">Finish by</string>
-    <string name="home_widget_almost_done">Almost done</string>
-    <string name="home_widget_minutes">%1$dm</string>
-    <string name="home_widget_and_more">%1$s + %2$d more</string>
     <string name="home_row_ready_tonight">Ready tonight</string>
     <string name="ready_check_title">Check what’s ready in the background</string>
     <string name="autoplay_start_early_title">Start without waiting for every addon</string>

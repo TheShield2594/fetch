@@ -12,13 +12,18 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -89,8 +94,11 @@ fun EssentialAddonSetupScreen(
             .padding(horizontal = FetchTheme.spacing.huge, vertical = FetchTheme.spacing.xxxl),
         contentAlignment = Alignment.Center
     ) {
+        // Scrolls if the taller cards push Continue for now off a 540dp screen at large text sizes.
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -105,15 +113,19 @@ fun EssentialAddonSetupScreen(
                 color = FetchTheme.colors.TextSecondary
             )
             Spacer(modifier = Modifier.height(28.dp))
+            // Cards grow with their content at large text sizes; the intrinsic height keeps them level.
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .height(220.dp),
+                        .fillMaxHeight()
+                        .heightIn(min = 220.dp),
                     colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundCard),
                     shape = RoundedCornerShape(FetchTheme.radii.md)
                 ) {
@@ -223,7 +235,8 @@ fun EssentialAddonSetupScreen(
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .height(220.dp),
+                        .fillMaxHeight()
+                        .heightIn(min = 220.dp),
                     colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundCard),
                     shape = RoundedCornerShape(FetchTheme.radii.md)
                 ) {

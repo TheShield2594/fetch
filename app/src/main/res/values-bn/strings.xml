@@ -1436,8 +1436,6 @@
     <string name="subtitle_style_weight">ওয়েট</string>
     <string name="pause_you_are_watching">আপনি দেখছেন</string>
     <string name="pause_cast_label">কাস্ট</string>
-    <string name="pause_back_to_details">বিস্তারিততে ফিরে যান</string>
-    <string name="pause_as_character">%1$s হিসেবে</string>
     <string name="next_episode_label">পরবর্তী পর্ব</string>
     <string name="next_episode_finding_source">সোর্স খোঁজা হচ্ছে…</string>
     <string name="next_episode_playing_via">%2$d সেকেন্ডে %1$s-এর মাধ্যমে প্লে হচ্ছে</string>

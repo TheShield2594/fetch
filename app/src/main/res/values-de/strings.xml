@@ -1143,8 +1143,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Sie sehen gerade</string>
     <string name="pause_cast_label">Besetzung</string>
-    <string name="pause_back_to_details">Zurück zu den Details</string>
-    <string name="pause_as_character">als %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Nächste Folge</string>

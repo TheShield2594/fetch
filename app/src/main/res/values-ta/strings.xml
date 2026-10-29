@@ -1127,8 +1127,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">நீங்கள் பார்க்கிறது</string>
     <string name="pause_cast_label">நடிகர்கள்</string>
-    <string name="pause_back_to_details">விவரங்களுக்கு திரும்பு</string>
-    <string name="pause_as_character">%1$s ஆக</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">அடுத்த எபிசோடு</string>

@@ -1542,8 +1542,6 @@
 
     <string name="pause_you_are_watching">Bạn đang xem</string>
     <string name="pause_cast_label">Diễn viên</string>
-    <string name="pause_back_to_details">Quay lại chi tiết</string>
-    <string name="pause_as_character">vai %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Tập tiếp theo</string>

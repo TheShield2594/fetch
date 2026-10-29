@@ -1405,8 +1405,6 @@
 
     <string name="pause_you_are_watching">Você está assistindo</string>
     <string name="pause_cast_label">Elenco</string>
-    <string name="pause_back_to_details">Voltar para detalhes</string>
-    <string name="pause_as_character">como %1$s</string>
    
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Próximo Episódio</string>

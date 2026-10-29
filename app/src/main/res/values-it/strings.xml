@@ -1374,8 +1374,6 @@
 
 <string name="pause_you_are_watching">Stai guardando</string>
 <string name="pause_cast_label">Interpreti</string>
-<string name="pause_back_to_details">Torna ai dettagli</string>
-<string name="pause_as_character">nel ruolo di %1$s</string>
 
     <!-- PostPlayOverlay -->
 <string name="next_episode_label">Prossimo Episodio</string>

@@ -1545,8 +1545,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Şu an izliyorsunuz:</string>
     <string name="pause_cast_label">Oyuncular</string>
-    <string name="pause_back_to_details">Ayrıntılara dön</string>
-    <string name="pause_as_character">Karakter: %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="player_next_episode_prompt_title">İzlemeye devam edilsin mi?</string>

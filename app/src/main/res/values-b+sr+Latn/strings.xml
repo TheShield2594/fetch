@@ -1404,8 +1404,6 @@
 
     <string name="pause_you_are_watching">Gledate</string>
     <string name="pause_cast_label">Glumci</string>
-    <string name="pause_back_to_details">Nazad na detalje</string>
-    <string name="pause_as_character">kao %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Sledeća epizoda</string>

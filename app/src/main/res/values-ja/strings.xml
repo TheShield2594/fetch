@@ -1208,8 +1208,6 @@
 
     <string name="pause_you_are_watching">視聴中</string>
     <string name="pause_cast_label">キャスト</string>
-    <string name="pause_back_to_details">詳細に戻る</string>
-    <string name="pause_as_character">%1$s 役</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">次のエピソード</string>

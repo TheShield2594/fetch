@@ -102,6 +102,8 @@ class ParentalGateViewModel @Inject constructor(
 
     sealed interface GateError {
         data object Incorrect : GateError
+        /** The check couldn't run (for example, the sync server holding the PIN is unreachable). */
+        data object VerifyFailed : GateError
         data class Locked(val retryAfterSeconds: Int) : GateError
     }
 
@@ -158,7 +160,8 @@ class ParentalGateViewModel @Inject constructor(
         if (_isWorking.value) return
         viewModelScope.launch {
             _isWorking.value = true
-            val result = pinManager.verifyPin(current.parentProfile.id, pin).getOrNull()
+            val verify = pinManager.verifyPin(current.parentProfile.id, pin)
+            val result = verify.getOrNull()
             _isWorking.value = false
             when {
                 result?.unlocked == true -> {
@@ -171,6 +174,7 @@ class ParentalGateViewModel @Inject constructor(
                     if (openGuardedScreens.isEmpty()) parentalControls.lockGate()
                 }
                 result != null && result.retryAfterSeconds > 0 -> _error.value = GateError.Locked(result.retryAfterSeconds)
+                verify.isFailure -> _error.value = GateError.VerifyFailed
                 else -> _error.value = GateError.Incorrect
             }
         }
@@ -220,6 +224,7 @@ fun ParentalGateHost(
                 errorMessage = when (val gateError = error) {
                     null -> null
                     ParentalGateViewModel.GateError.Incorrect -> context.getString(R.string.profile_pin_incorrect)
+                    ParentalGateViewModel.GateError.VerifyFailed -> context.getString(R.string.profile_pin_verify_error)
                     is ParentalGateViewModel.GateError.Locked ->
                         context.getString(R.string.profile_pin_locked, gateError.retryAfterSeconds)
                 },

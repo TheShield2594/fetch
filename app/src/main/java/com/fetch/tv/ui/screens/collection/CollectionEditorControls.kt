@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.collection
 
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.FetchStatusTones
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -96,7 +97,8 @@ fun FetchTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "",
-    focusRequester: FocusRequester? = null
+    focusRequester: FocusRequester? = null,
+    isError: Boolean = false
 ) {
     var isEditing by remember { mutableStateOf(false) }
     val textFieldFocusRequester = remember { FocusRequester() }
@@ -119,7 +121,10 @@ fun FetchTextField(
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
-                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
+                border = BorderStroke(
+                    FetchTheme.spacing.hairline,
+                    if (isError) FetchStatusTones.errorBorder else FetchTheme.colors.Border
+                ),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             ),
             focusedBorder = Border(

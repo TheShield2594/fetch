@@ -481,41 +481,22 @@ private fun ImportContent(
                     }
 
                     ImportMode.URL -> {
-                        Surface(
-                            shape = RoundedCornerShape(FetchTheme.radii.md),
-                            colors = SurfaceDefaults.colors(containerColor = FetchTheme.colors.BackgroundElevated),
-                            border = Border(
-                                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(FetchTheme.spacing.huge)
-                        ) {
-                            Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md), contentAlignment = Alignment.CenterStart) {
-                                BasicTextField(
-                                    value = importUrl,
-                                    onValueChange = onUrlChange,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                        color = FetchTheme.colors.TextPrimary,
-                                            textDirection = TextDirection.Content
-                                    ),
-                                    cursorBrush = SolidColor(FetchTheme.colors.Primary),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                                    decorationBox = { innerTextField ->
-                                        if (importUrl.isEmpty()) {
-                                            Text(
-                                                text = stringResource(R.string.collections_import_url_placeholder),
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = FetchTheme.colors.TextTertiary
-                                            )
-                                        }
-                                        innerTextField()
-                                    }
-                                )
-                            }
+                        FetchTextField(
+                            value = importUrl,
+                            onValueChange = onUrlChange,
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = stringResource(R.string.collections_import_url_placeholder),
+                            isError = importError != null
+                        )
+
+                        // The error belongs to the field, so it sits right under it.
+                        if (importError != null) {
+                            Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+                            Text(
+                                text = importError,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = FetchTheme.colors.Error
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
@@ -566,7 +547,7 @@ private fun ImportContent(
                 }
             }
 
-            if (importError != null) {
+            if (importError != null && importMode != ImportMode.URL) {
                 item {
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
                     Text(

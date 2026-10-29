@@ -100,6 +100,18 @@
   --accent-text: rgb(var(--accent-text-rgb));
   --focus-ring: #b25400;
 
+}
+
+/*
+ * Light's platform surfaces, in a block of their own. They used to sit in the
+ * `:root, [data-theme="light"]` block above, and `:root` is the <html> element
+ * under every theme: the themes that don't restate these (glass, midnight,
+ * letterboxd) took light's white segmented thumb under their own
+ * near-white text, so the selected segment's label vanished, and a white tab
+ * bar. Scoped to light, those themes get the derived values in the first
+ * :root block, which follow their own --text and --bg-1.
+ */
+[data-theme="light"] {
   /* The system palette, for identity rather than for status: the dot beside a
      list name says *which list*, the way a calendar's colour does. Status has
      its own trio further down (--status-ok/bad/warn) and must not borrow these.

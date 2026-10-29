@@ -14,6 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -36,14 +39,23 @@ import com.fetch.tv.ui.theme.FetchTheme
  * search already found, so it never asks the addons anything itself.
  *
  * With no pick (Best match off, or a reused link) only the "All sources" card shows.
+ * [focusRequester] goes on the first card, where up from the rows below lands; [upFocusRequester]
+ * and [downFocusRequester] pin the rows around it, so focus never skips past the row.
  */
 @Composable
 internal fun DetailSourcesRow(
     bestMatch: BestMatchPreview?,
     onPlayBestMatch: () -> Unit,
     onAllSources: () -> Unit,
+    focusRequester: FocusRequester,
+    upFocusRequester: FocusRequester?,
+    downFocusRequester: FocusRequester?,
     modifier: Modifier = Modifier
 ) {
+    val neighbours = Modifier.focusProperties {
+        upFocusRequester?.let { up = it }
+        downFocusRequester?.let { down = it }
+    }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
         Text(
             text = stringResource(R.string.sources_title),
@@ -52,7 +64,12 @@ internal fun DetailSourcesRow(
         )
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
             bestMatch?.let { pick ->
-                SourceCard(onClick = onPlayBestMatch, modifier = Modifier.widthIn(min = 300.dp, max = 420.dp)) {
+                SourceCard(
+                    onClick = onPlayBestMatch,
+                    modifier = neighbours
+                        .focusRequester(focusRequester)
+                        .widthIn(min = 300.dp, max = 420.dp)
+                ) {
                     // Red marks the pick: it is what OK on Play starts.
                     Text(
                         text = stringResource(
@@ -76,7 +93,12 @@ internal fun DetailSourcesRow(
                     )
                 }
             }
-            SourceCard(onClick = onAllSources, modifier = Modifier.width(240.dp)) {
+            SourceCard(
+                onClick = onAllSources,
+                modifier = neighbours
+                    .then(if (bestMatch == null) Modifier.focusRequester(focusRequester) else Modifier)
+                    .width(240.dp)
+            ) {
                 Text(
                     text = stringResource(R.string.detail_sources_all),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),

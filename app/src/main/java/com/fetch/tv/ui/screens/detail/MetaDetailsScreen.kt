@@ -1421,6 +1421,10 @@ private fun MetaDetailsContent(
     val heroPlayButtonFocusRequester = remember { FocusRequester() }
     var synopsisTruncated by remember(meta.id, meta.description) { mutableStateOf(false) }
     val heroPlayFocusRequester = if (synopsisTruncated) null else heroPlayButtonFocusRequester
+    // The Sources row sits between the hero and everything below it, so rows under it go up to it.
+    val showSourcesRow = !shufflePoolEmpty && isPlayEnabled
+    val sourcesFocusRequester = remember { FocusRequester() }
+    val sourcesUpTarget = sourcesFocusRequester.takeIf { showSourcesRow }
     val randomEpisodeFocusRequester = remember { FocusRequester() }
     val castTabFocusRequester = remember { FocusRequester() }
     val moreLikeTabFocusRequester = remember { FocusRequester() }
@@ -2107,8 +2111,8 @@ private fun MetaDetailsContent(
             PeopleSectionTab.COLLECTION -> collectionSectionFocusRequester
             PeopleSectionTab.RATINGS -> ratingsGridFocusRequester
         }
-        isSeries -> seasonDownFocusRequester ?: heroPlayFocusRequester
-        else -> heroPlayFocusRequester
+        isSeries -> seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester
+        else -> sourcesUpTarget ?: heroPlayFocusRequester
     }
     val canToggleEpisodeComments = isSeries && episodesForSeason.isNotEmpty()
     val commentsSelectedModeFocusRequester =
@@ -2506,6 +2510,7 @@ private fun MetaDetailsContent(
                             val name = key as? String ?: return null
                             return when {
                                 name == "hero" -> heroPlayButtonFocusRequester
+                                name == "sources" -> sourcesFocusRequester
                                 name == "season_tabs" -> selectedSeasonFocusRequester
                                 name.startsWith("episodes_") ->
                                     seasonDownFocusRequester ?: selectedSeasonFocusRequester
@@ -2656,7 +2661,7 @@ private fun MetaDetailsContent(
                                     showOpenEpisodeComments = shouldShowCommentsSection,
                                     onMarkPreviousEpisodesWatched = onMarkPreviousEpisodesWatched,
                                     upFocusRequester = heroPlayButtonFocusRequester,
-                                    downFocusRequester = if (showSeasonTabs) selectedSeasonFocusRequester else seasonDownFocusRequester,
+                                    downFocusRequester = sourcesUpTarget ?: if (showSeasonTabs) selectedSeasonFocusRequester else seasonDownFocusRequester,
                                     episodeFocusRequesters = upNextFocusRequesters,
                                     restoreEpisodeId = pendingRestoreEpisodeId.takeIf { restoreInUpNext },
                                     restoreFocusToken = if (restoreInUpNext) restoreFocusToken else 0,
@@ -2678,9 +2683,18 @@ private fun MetaDetailsContent(
 
             // Season tabs and episodes for series
             // Sources: the pick Play starts and a way to every file, right under the hero.
-            if (!shufflePoolEmpty && isPlayEnabled) {
+            if (showSourcesRow) {
                 item(key = "sources", contentType = "sources") {
                     DetailSourcesRow(
+                        focusRequester = sourcesFocusRequester,
+                        upFocusRequester = upNextUpTarget ?: heroPlayFocusRequester,
+                        // Down lands on the row right below, never a tab picked by position.
+                        downFocusRequester = when {
+                            showSeasonTabs -> selectedSeasonFocusRequester
+                            showEpisodesRow -> seasonDownFocusRequester
+                            hasVisiblePeopleTabs -> activePeopleTabFocusRequester
+                            else -> null
+                        },
                         bestMatch = heroBestMatch,
                         onPlayBestMatch = heroPlayClick,
                         // With auto-play on, Play starts the pick, so "All sources" asks for the
@@ -2704,7 +2718,7 @@ private fun MetaDetailsContent(
                             onSeasonSelected = onSeasonSelected,
                             onSeasonLongPress = { seasonOptionsDialogSeason = it },
                             selectedTabFocusRequester = selectedSeasonFocusRequester,
-                            upFocusRequester = upNextUpTarget ?: heroPlayFocusRequester,
+                            upFocusRequester = sourcesUpTarget ?: upNextUpTarget ?: heroPlayFocusRequester,
                             downFocusRequester = seasonDownFocusRequester,
                             isFocusEnabled = pendingRestoreType != RestoreTarget.EPISODE
                         )
@@ -2748,7 +2762,7 @@ private fun MetaDetailsContent(
                             onOpenEpisodeComments = episodeCommentsClick,
                             showOpenEpisodeComments = shouldShowCommentsSection,
                             onMarkPreviousEpisodesWatched = onMarkPreviousEpisodesWatched,
-                            upFocusRequester = if (showSeasonTabs) selectedSeasonFocusRequester else (upNextUpTarget ?: heroPlayFocusRequester ?: heroPlayButtonFocusRequester),
+                            upFocusRequester = if (showSeasonTabs) selectedSeasonFocusRequester else (sourcesUpTarget ?: upNextUpTarget ?: heroPlayFocusRequester ?: heroPlayButtonFocusRequester),
                             downFocusRequester = episodesDownFocusRequester,
                             episodeFocusRequesters = seasonEpisodeFocusRequesters,
                             restoreEpisodeId = visibleEpisodeRestoreId,
@@ -2813,7 +2827,7 @@ private fun MetaDetailsContent(
                             activeTab = activePeopleTab,
                             tabs = visiblePeopleTabItems,
                             tabsCanFocus = pendingRestoreType != RestoreTarget.COMPANY_OR_NETWORK,
-                            upFocusRequester = seasonDownFocusRequester ?: heroPlayFocusRequester,
+                            upFocusRequester = seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester,
                             ratingsDownFocusRequester = ratingsContentFocusRequester,
                             onTabFocused = { tab ->
                                 val lockedTab = when (pendingRestoreType) {
@@ -2856,7 +2870,7 @@ private fun MetaDetailsContent(
                                     listState = castRowListState,
                                     title = if (hasVisiblePeopleTabs) "" else strTabCast,
                                     leadingCast = directorWriterMembers,
-                                    upFocusRequester = if (hasVisiblePeopleTabs) castTabFocusRequester else seasonDownFocusRequester ?: heroPlayFocusRequester,
+                                    upFocusRequester = if (hasVisiblePeopleTabs) castTabFocusRequester else seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester,
                                     downFocusRequester = if (shouldShowCommentsSection && canToggleEpisodeComments) commentsSelectedModeFocusRequester else null,
                                     sectionFocusRequester = castSectionFocusRequester,
                                     restorePersonId = if (!childOverlayVisible && pendingRestoreType == RestoreTarget.CAST_MEMBER) pendingRestoreCastPersonId else null,
@@ -2890,7 +2904,7 @@ private fun MetaDetailsContent(
                                     listState = moreLikeThisListState,
                                     sourceLabel = moreLikeThisSourceLabel,
                                     posterCardCornerRadius = cardCornerRadius(posterCardCornerRadiusDp),
-                                    upFocusRequester = if (hasVisiblePeopleTabs) moreLikeTabFocusRequester else seasonDownFocusRequester ?: heroPlayFocusRequester,
+                                    upFocusRequester = if (hasVisiblePeopleTabs) moreLikeTabFocusRequester else seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester,
                                     downFocusRequester = if (shouldShowCommentsSection && canToggleEpisodeComments) commentsSelectedModeFocusRequester else null,
                                     sectionFocusRequester = moreLikeSectionFocusRequester,
                                     restoreItemId = if (!childOverlayVisible && pendingRestoreType == RestoreTarget.MORE_LIKE_THIS) pendingRestoreMoreLikeItemId else null,
@@ -2921,7 +2935,7 @@ private fun MetaDetailsContent(
                                     trailers = meta.trailers,
                                     listState = trailerListState,
                                     posterCardCornerRadius = cardCornerRadius(posterCardCornerRadiusDp),
-                                    upFocusRequester = if (hasVisiblePeopleTabs) trailerTabFocusRequester else seasonDownFocusRequester ?: heroPlayFocusRequester,
+                                    upFocusRequester = if (hasVisiblePeopleTabs) trailerTabFocusRequester else seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester,
                                     downFocusRequester = when {
                                         shouldSplitCollection && collection.isNotEmpty() -> collectionSectionFocusRequester
                                         shouldShowCommentsSection && canToggleEpisodeComments -> commentsSelectedModeFocusRequester
@@ -2945,7 +2959,7 @@ private fun MetaDetailsContent(
                                     items = collection,
                                     listState = collectionListState,
                                     posterCardCornerRadius = cardCornerRadius(posterCardCornerRadiusDp),
-                                    upFocusRequester = if (hasVisiblePeopleTabs) collectionTabFocusRequester else seasonDownFocusRequester ?: heroPlayFocusRequester,
+                                    upFocusRequester = if (hasVisiblePeopleTabs) collectionTabFocusRequester else seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester,
                                     downFocusRequester = if (shouldShowCommentsSection && canToggleEpisodeComments) commentsSelectedModeFocusRequester else null,
                                     sectionFocusRequester = collectionSectionFocusRequester,
                                     restoreItemId = if (!childOverlayVisible && pendingRestoreType == RestoreTarget.COLLECTION) pendingRestoreCollectionItemId else null,
@@ -2981,7 +2995,7 @@ private fun MetaDetailsContent(
                                     upFocusRequester = if (hasVisiblePeopleTabs) {
                                         ratingsTabFocusRequester
                                     } else {
-                                        seasonDownFocusRequester ?: heroPlayFocusRequester
+                                        seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester
                                     },
                                     downFocusRequester = if (shouldShowCommentsSection && canToggleEpisodeComments) commentsSelectedModeFocusRequester else null,
                                     firstItemFocusRequester = ratingsContentFocusRequester,
@@ -3008,10 +3022,10 @@ private fun MetaDetailsContent(
                                 PeopleSectionTab.MORE_LIKE_THIS -> moreLikeSectionFocusRequester
                                 PeopleSectionTab.TRAILER -> trailerSectionFocusRequester
                                 PeopleSectionTab.RATINGS -> ratingsContentFocusRequester
-                                else -> seasonDownFocusRequester ?: heroPlayFocusRequester
+                                else -> seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester
                             }
                         } else {
-                            seasonDownFocusRequester ?: heroPlayFocusRequester
+                            seasonDownFocusRequester ?: sourcesUpTarget ?: heroPlayFocusRequester
                         },
                         sectionFocusRequester = collectionSectionFocusRequester,
                         restoreItemId = if (!childOverlayVisible && pendingRestoreType == RestoreTarget.COLLECTION) pendingRestoreCollectionItemId else null,

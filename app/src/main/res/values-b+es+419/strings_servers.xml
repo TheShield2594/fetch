@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">No se pudo conectar con el servidor.</string>
     <string name="servers_error_unsupported">Se requiere %1$s %2$s o una versión posterior.</string>
     <string name="servers_error_forbidden">Este usuario no tiene acceso.</string>
-    <string name="servers_error_failed">No se pudo conectar con el servidor.</string>
+    <string name="servers_error_failed">No se pudo conectar con el servidor. Comprueba que esté encendido y accesible, y vuelve a intentarlo.</string>
     <string name="servers_failure_auth">Vuelve a iniciar sesión en este servidor desde Configuración.</string>
-    <string name="servers_failure_unreachable">El servidor no está disponible.</string>
+    <string name="servers_failure_unreachable">El servidor no está disponible. Comprueba que esté encendido y accesible, y vuelve a intentarlo.</string>
     <string name="servers_failure_not_found">Este elemento ya no está disponible en el servidor.</string>
     <string name="servers_failure_unsupported">El servidor no admite este elemento.</string>
     <string name="servers_failure_incomplete">Aún se está revisando la biblioteca de este servidor. Vuelve a intentarlo en un momento.</string>

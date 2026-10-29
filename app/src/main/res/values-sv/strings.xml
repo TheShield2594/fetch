@@ -214,6 +214,9 @@
     <string name="playback_subtitle">Konfigurera videouppspelning och undertextalternativ</string>
     <string name="cd_decrease">Minska</string>
     <string name="cd_increase">Öka</string>
+    <string name="cd_decrease_setting">Minska %1$s</string>
+    <string name="cd_increase_setting">Öka %1$s</string>
+    <string name="cd_seek_bar">Tidslinje</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_none">Ingen</string>
     <string name="action_close">Stäng</string>
@@ -410,7 +413,7 @@
     <string name="mdblist_dialog_title">MDBList API-nyckel</string>
     <string name="mdblist_dialog_placeholder">Ange MDBList API-nyckel</string>
     <string name="mdblist_not_set">Ej inställd</string>
-    <string name="mdblist_invalid_api_key">Ogiltig MDBList API-nyckel</string>
+    <string name="mdblist_invalid_api_key">Det gick inte att verifiera API-nyckeln. Kontrollera att den matchar nyckeln i ditt MDBList-konto och att du är online, och försök sedan igen.</string>
 
     <!-- Anime-Skip -->
     <string name="animeskip_title">Anime Skip</string>
@@ -422,7 +425,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Skapa ditt eget Client ID på anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Ange Client ID</string>
-    <string name="animeskip_invalid_client_id">Ogiltigt Client ID</string>
+    <string name="animeskip_invalid_client_id">Det gick inte att verifiera Client ID. Kontrollera att det matchar det i ditt Anime Skip-konto och att du är online, och försök sedan igen.</string>
     <string name="action_clear">Rensa</string>
 
     <!-- TmdbSettingsScreen -->
@@ -540,6 +543,7 @@
     <string name="addon_install_btn">Installera</string>
     <string name="addon_installed_section">Installerade</string>
     <string name="addon_empty">Inga tillägg installerade. Lägg till ett för att komma igång.</string>
+    <string name="addon_list_load_failed">Det gick inte att läsa in dina installerade tillägg. Försök igen.</string>
     <string name="addon_remove">Ta bort</string>
     <string name="addon_manage_from_phone_title">Hantera från telefon</string>
     <string name="addon_manage_from_phone_subtitle">Skanna en QR-kod för att hantera tillägg och hemkataloger från din telefon</string>
@@ -594,11 +598,14 @@
     <string name="player_up_next_in_queue">Nästa i kön</string>
     <string name="player_queue_move_up">Flytta upp</string>
     <string name="player_queue_move_down">Flytta ned</string>
+    <string name="player_queue_removed">Tog bort %1$s från kön</string>
+    <string name="player_queue_undo">Ångra</string>
     <string name="player_seek_back_10">10 sekunder bakåt</string>
     <string name="player_seek_forward_30">30 sekunder framåt</string>
     <string name="player_via">via %1$s</string>
     <string name="player_subtitle_delay">Undertextfördröjning</string>
     <string name="player_error_title">Uppspelningsfel</string>
+    <string name="player_error_choose_source">Välj en annan källa</string>
     <string name="player_speed_title">Uppspelningshastighet</string>
     <string name="player_more_actions_title">Fler åtgärder</string>
     <string name="player_more_speed">Uppspelningshastighet</string>
@@ -731,11 +738,15 @@
     <string name="library_list_move_up">Flytta upp</string>
     <string name="library_list_move_down">Flytta ner</string>
     <string name="library_list_delete">Radera</string>
+    <string name="library_list_delete_named">Radera ”%1$s”</string>
     <string name="library_list_close">Stäng</string>
     <string name="library_list_name_label">Namn</string>
     <string name="library_list_description_label">Beskrivning</string>
     <string name="library_list_privacy">Sekretess</string>
     <string name="library_delete_title">Radera denna lista?</string>
+    <string name="library_delete_title_named">Radera ”%1$s”?</string>
+    <string name="library_delete_subtitle_provider">Det här tar bort listan och dess objekt från %1$s. Det går inte att ångra.</string>
+    <string name="library_delete_subtitle_local">Det här tar bort listan och dess objekt från ditt bibliotek. Det går inte att ångra.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_syncing_library">Synkroniserar bibliotek\u2026</string>
     <string name="library_type_all">Alla</string>
@@ -1172,6 +1183,8 @@
     <!-- SearchScreen -->
     <string name="search_recent_title">Senaste sökningar</string>
     <string name="search_recent_clear">Rensa historik</string>
+    <string name="search_recent_clear_confirm_title">Rensa sökhistoriken?</string>
+    <string name="search_recent_clear_confirm_subtitle">Alla dina senaste sökningar tas bort. Det går inte att ångra.</string>
 
     <!-- LibraryScreen -->
     <string name="library_empty_trakt_not_auth_title">Trakt inte anslutet</string>
@@ -1205,7 +1218,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Anslut till Wi-Fi eller Ethernet för att använda denna funktion</string>
-    <string name="error_server_ports_unavailable">Kunde inte starta servern. Alla portar är upptagna.</string>
+    <string name="error_server_ports_unavailable">Det gick inte att starta telefonanslutningen. Starta om Fetch och försök igen.</string>
 
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Enhetskoden har gått ut. Börja om.</string>
@@ -1217,12 +1230,14 @@
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Inga sökbara kataloger hittades i installerade tillägg</string>
+    <string name="search_no_catalogs_title">Inget av dina tillägg kan söka</string>
+    <string name="search_no_catalogs_subtitle">Installera ett tillägg med en sökkatalog och försök sedan igen.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Inga katalogtillägg installerade</string>
 
     <!-- Player errors -->
-    <string name="player_error_no_stream_url">Ingen ström-URL angiven</string>
+    <string name="player_error_no_stream_url">Den här källan har ingen strömlänk. Välj en annan källa.</string>
 
     <!-- Subtitle style -->
     <string name="subtitle_style_weight">Vikt</string>
@@ -1263,6 +1278,11 @@
     <string name="cd_loading_logo">Laddar logotyp</string>
     <string name="cd_move_up">Flytta upp</string>
     <string name="cd_move_down">Flytta ner</string>
+    <string name="cd_move_addon_up">Flytta %1$s uppåt</string>
+    <string name="cd_move_addon_down">Flytta %1$s nedåt</string>
+    <string name="cd_addon_enabled_toggle">%1$s aktiverat</string>
+    <string name="cd_configure_addon">Konfigurera %1$s</string>
+    <string name="cd_remove_addon">Ta bort %1$s</string>
     <string name="cd_edit">Redigera</string>
     <string name="cd_delete">Radera</string>
     <string name="cd_qr_code">QR-kod</string>
@@ -1294,7 +1314,7 @@
     <string name="collections_import">Importera</string>
     <string name="collections_export_file">Exportera fil</string>
     <string name="collections_saved_downloads">Sparat i Nedladdningar</string>
-    <string name="collections_export_failed">Export misslyckades</string>
+    <string name="collections_export_failed">Det gick inte att spara i Nedladdningar. Kontrollera lagringsbehörigheten och ledigt utrymme och försök sedan igen.</string>
     <string name="collections_import_header">Importera samlingar</string>
     <string name="collections_import_description">Importera samlingar från JSON. Kataloger från tillägg du inte har installerat visas med en varning.</string>
     <string name="collections_cancel">Avbryt</string>
@@ -1369,6 +1389,17 @@
     <string name="collections_card_subtitle">Gruppera kataloger i mappar på din hemskärm</string>
     <string name="collections_tab_all">Alla</string>
     <string name="collections_tab_combined">Kombinerat</string>
+    <string name="folder_error_addon_source">Det gick inte att läsa in den här katalogen. Kontrollera att dess tillägg är installerat och online och försök sedan igen.</string>
+    <string name="folder_error_addon_missing">Den här katalogens tillägg är inte installerat. Installera det från Tillägg eller ta bort den här källan från mappen.</string>
+    <string name="folder_error_tmdb_source">Det gick inte att läsa in det här från TMDB. Kontrollera anslutningen och försök sedan igen.</string>
+    <string name="folder_error_trakt_source">Det gick inte att läsa in den här Trakt-listan. Kontrollera anslutningen och att listan fortfarande är offentlig, och försök sedan igen.</string>
+    <string name="folder_error_list_source">Det gick inte att läsa in den här listan. Kontrollera anslutningen och försök sedan igen.</string>
+    <string name="collections_editor_discard_title">Släng ändringarna?</string>
+    <string name="collections_editor_discard_collection_subtitle">Dina ändringar i den här samlingen har inte sparats.</string>
+    <string name="collections_editor_discard_folder_subtitle">Dina ändringar i den här mappen har inte sparats.</string>
+    <string name="collections_editor_keep_editing">Fortsätt redigera</string>
+    <string name="collections_editor_discard">Släng</string>
+    <string name="library_error_save_list_next_step">Kontrollera anslutningen och försök igen.</string>
 
     <!-- Fetch: new and changed strings -->
     <string name="account_local_only_note">Synkning är av. Fetch sparar dina tillägg, ditt framsteg och dina inställningar på den här tv:n och behöver inget konto. Anslut din egen synkserver under serveralternativen för att synka mellan enheter.</string>
@@ -1397,6 +1428,9 @@
     <string name="addon_health_ok">Svarar · %1$s</string>
     <string name="addon_health_slow">Långsam · %1$s</string>
     <string name="addon_health_timed_out">Senaste begäran tog för lång tid</string>
+    <string name="source_chip_failed">misslyckades</string>
+    <string name="source_chip_loading">läses in</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s måste konfigureras innan det kan installeras</string>
     <string name="advanced_introdb_api_key">API-nyckel för IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Skapa en nyckel på introdb.app. Den börjar med idb_.</string>
@@ -1412,6 +1446,7 @@
     <string name="autoplay_mode_best_desc">Rangordnar alla resultat efter kvalitet, dina regler och vad den här enheten kan spela upp, och startar sedan vinnaren. Andra källor finns ett knapptryck bort.</string>
     <string name="best_match_cached">Cachad</string>
     <string name="best_match_excluded">Spelas inte upp automatiskt: %1$s</string>
+    <string name="stream_hold_for_options">Håll ned OK för alternativ för Bästa matchning</string>
     <string name="best_match_preview_sub">Frågar dina strömtillägg om en titel medan du tittar på den, så att Spela upp-knappen kan visa filen och uppspelningen startar snabbare. Stäng av för att bara söka efter att du tryckt på Spela upp.</string>
     <string name="best_match_preview_title">Visa valet på Spela upp-knappen</string>
     <string name="catalog_order_pin">Fäst högst upp</string>

@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">Đã đánh dấu %1$d tập trước đã xem</string>
 
     <string name="playback_unavailable">Không thể phát nội dung</string>
-    <string name="playback_unavailable_message">Không thể phát nội dung này với thiết lập hiện tại.</string>
+    <string name="playback_unavailable_message">Không tiện ích nào của bạn có thể phát nội dung này. Hãy thêm hoặc bật một tiện ích phát trực tuyến trong Cài đặt &gt; Nội dung &amp; Khám phá &gt; Tiện ích.</string>
     <string name="detail_btn_play">Phát</string>
     <string name="detail_btn_resume">Xem tiếp</string>
     <string name="detail_btn_play_episode">Phát M%1$dT%2$d</string>
@@ -606,6 +606,9 @@
     <string name="playback_subtitle">Cấu hình trình phát lại video và tuỳ chọn phụ đề</string>
     <string name="cd_decrease">Giảm</string>
     <string name="cd_increase">Tăng</string>
+    <string name="cd_decrease_setting">Giảm %1$s</string>
+    <string name="cd_increase_setting">Tăng %1$s</string>
+    <string name="cd_seek_bar">Thanh tua</string>
     <string name="action_cancel">Huỷ</string>
     <string name="action_apply">Áp dụng</string>
     <string name="sub_opacity">Độ mờ</string>
@@ -1060,7 +1063,7 @@
     <string name="mdblist_dialog_title">Mã khóa API của MDBList</string>
     <string name="mdblist_dialog_placeholder">Nhập mã khóa API của MDBList</string>
     <string name="mdblist_not_set">Chưa đặt</string>
-    <string name="mdblist_invalid_api_key">Mã khóa API của MDBList không hợp lệ</string>
+    <string name="mdblist_invalid_api_key">Không thể xác minh khóa API này. Hãy kiểm tra xem khóa có khớp với khóa trong tài khoản MDBList của bạn không và bạn có đang trực tuyến không, sau đó thử lại.</string>
     <string name="mdblist_library_lists">Danh sách Thư viện</string>
     <string name="mdblist_library_lists_description">Chọn danh sách MDBList nào xuất hiện trong Thư viện và trong quản lý danh sách. Danh sách Theo dõi luôn được hiển thị.</string>
     <string name="mdblist_library_lists_empty">Không tìm thấy danh sách nào trong tài khoản MDBList của bạn. Đồng bộ để tải chúng.</string>
@@ -1111,7 +1114,7 @@
     <string name="animeskip_dialog_title">ID máy khách Anime Skip</string>
     <string name="animeskip_dialog_subtitle">Tạo ID máy khách tại anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Nhập ID máy khách</string>
-    <string name="animeskip_invalid_client_id">ID máy khách không hợp lệ</string>
+    <string name="animeskip_invalid_client_id">Không thể xác minh ID máy khách này. Hãy kiểm tra xem ID có khớp với ID trong tài khoản Anime Skip của bạn không và bạn có đang trực tuyến không, sau đó thử lại.</string>
     <string name="action_clear">Xóa</string>
 
     <string name="tmdb_title">Bổ sung dữ liệu TMDB</string>
@@ -1329,6 +1332,7 @@
     <string name="addon_error_invalid_scheme">URL tiện ích phải bắt đầu bằng http hoặc https</string>
     <string name="addon_installed_section">Đã cài đặt</string>
     <string name="addon_empty">Chưa cài đặt tiện ích nào. Thêm một tiện ích để bắt đầu.</string>
+    <string name="addon_list_load_failed">Không thể tải các tiện ích đã cài đặt. Vui lòng thử lại.</string>
     <string name="addon_remove">Xóa</string>
     <string name="addon_delete_confirm_title">Xóa tiện ích?</string>
     <string name="addon_delete_confirm_message">Bạn có chắc chắn muốn xóa không?</string>
@@ -1428,6 +1432,8 @@
     <string name="player_up_next_in_queue">Tiếp theo trong hàng chờ</string>
     <string name="player_queue_move_up">Di chuyển lên</string>
     <string name="player_queue_move_down">Di chuyển xuống</string>
+    <string name="player_queue_removed">Đã xóa %1$s khỏi hàng chờ</string>
+    <string name="player_queue_undo">Hoàn tác</string>
     <string name="player_seek_back_10">Lùi 10 giây</string>
     <string name="player_seek_forward_30">Tiến 30 giây</string>
     <string name="player_live_watched">TRỰC TIẾP  %1$s</string>
@@ -1436,6 +1442,7 @@
     <string name="season_episode_format">M%1$d T%2$d</string>
     <string name="player_subtitle_delay">Độ trễ phụ đề</string>
     <string name="player_error_title">Lỗi phát lại</string>
+    <string name="player_error_choose_source">Chọn nguồn khác</string>
     <string name="player_switch_to_mpv">Chuyển sang trình phát MPV</string>
     <string name="player_report_issue">Báo cáo lỗi</string>
     <string name="player_report_issue_sending">Đang gửi báo cáo phát lại...</string>
@@ -1453,7 +1460,7 @@
     <string name="player_more_speed">Tốc độ phát lại</string>
     <string name="player_more_aspect_ratio">Tỉ lệ khung hình</string>
     <string name="player_more_open_external">Mở bằng trình phát bên ngoài</string>
-    <string name="player_error_no_stream_url">Chưa cung cấp URL luồng phát</string>
+    <string name="player_error_no_stream_url">Nguồn này không có liên kết luồng phát. Vui lòng chọn nguồn khác.</string>
 
 
     <string name="stream_info_section_source">NGUỒN</string>
@@ -1584,6 +1591,8 @@
     <string name="search_start_subtitle_no_discover">Khám phá đã tắt. Nhập ít nhất 2 ký tự</string>
     <string name="search_recent_title">Tìm kiếm gần đây</string>
     <string name="search_recent_clear">Xóa lịch sử</string>
+    <string name="search_recent_clear_confirm_title">Xóa lịch sử tìm kiếm?</string>
+    <string name="search_recent_clear_confirm_subtitle">Tất cả tìm kiếm gần đây sẽ bị xóa. Không thể hoàn tác thao tác này.</string>
     <string name="cd_remove_recent_search">Xóa %1$s khỏi tìm kiếm gần đây</string>
     <string name="search_voice_no_speech">Không phát hiện giọng nói. Thử lại.</string>
     <string name="search_voice_mic_permission">Cần quyền micro để tìm kiếm bằng giọng nói.</string>
@@ -1592,6 +1601,8 @@
     <string name="search_no_results_title">Không có kết quả</string>
     <string name="search_no_results_subtitle">Thử tìm kiếm bằng từ khóa khác</string>
     <string name="search_error_no_catalogs">Không tìm thấy danh mục có thể tìm kiếm trong các tiện ích đã cài đặt</string>
+    <string name="search_no_catalogs_title">Không tiện ích nào của bạn có thể tìm kiếm</string>
+    <string name="search_no_catalogs_subtitle">Hãy cài đặt một tiện ích có danh mục tìm kiếm, sau đó thử lại.</string>
 
     <string name="library_title">Thư viện</string>
     <string name="library_filter_list">Danh sách</string>
@@ -1660,12 +1671,16 @@
     <string name="library_list_move_up">Chuyển lên</string>
     <string name="library_list_move_down">Chuyển xuống</string>
     <string name="library_list_delete">Xóa</string>
+    <string name="library_list_delete_named">Xóa “%1$s”</string>
     <string name="library_list_close">Đóng</string>
     <string name="library_list_name_label">Tên</string>
-    <string name="library_error_list_name_required">Tên danh sách là bắt buộc</string>
+    <string name="library_error_list_name_required">Nhập tên cho danh sách</string>
     <string name="library_list_description_label">Mô tả</string>
     <string name="library_list_privacy">Quyền riêng tư</string>
     <string name="library_delete_title">Xóa danh sách này?</string>
+    <string name="library_delete_title_named">Xóa “%1$s”?</string>
+    <string name="library_delete_subtitle_provider">Thao tác này sẽ xóa danh sách và các mục trong đó khỏi %1$s. Không thể hoàn tác thao tác này.</string>
+    <string name="library_delete_subtitle_local">Thao tác này sẽ xóa danh sách và các mục trong đó khỏi thư viện của bạn. Không thể hoàn tác thao tác này.</string>
     <string name="library_source_local">CỤC BỘ</string>
     <string name="library_source_saved">Đã lưu</string>
     <string name="library_watchlist">Danh sách theo dõi</string>
@@ -1906,7 +1921,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Kết nối với Wi-Fi hoặc mạng có dây để sử dụng tính năng này</string>
-    <string name="error_server_ports_unavailable">Không thể khởi động máy chủ. Tất cả các cổng đều đang được sử dụng.</string>
+    <string name="error_server_ports_unavailable">Không thể khởi động kết nối với điện thoại. Hãy khởi động lại Fetch và thử lại.</string>
 
     <!-- Trakt errors -->
 
@@ -1971,6 +1986,11 @@
     <string name="cd_loading_logo">Logo đang tải</string>
     <string name="cd_move_up">Chuyển lên</string>
     <string name="cd_move_down">Chuyển xuống</string>
+    <string name="cd_move_addon_up">Di chuyển %1$s lên</string>
+    <string name="cd_move_addon_down">Di chuyển %1$s xuống</string>
+    <string name="cd_addon_enabled_toggle">Đã bật %1$s</string>
+    <string name="cd_configure_addon">Cấu hình %1$s</string>
+    <string name="cd_remove_addon">Xóa %1$s</string>
     <string name="cd_edit">Sửa</string>
     <string name="cd_delete">Xóa</string>
     <string name="cd_qr_code">Mã QR</string>
@@ -2006,7 +2026,7 @@
     <string name="collections_import">Nhập</string>
     <string name="collections_export_file">Xuất tệp</string>
     <string name="collections_saved_downloads">Đã lưu vào mục Tải xuống</string>
-    <string name="collections_export_failed">Xuất tệp thất bại</string>
+    <string name="collections_export_failed">Không thể lưu vào thư mục Tải xuống. Hãy kiểm tra quyền truy cập bộ nhớ và dung lượng trống, sau đó thử lại.</string>
     <string name="collections_import_header">Nhập Bộ sưu tập</string>
     <string name="collections_import_description">Nhập các bộ sưu tập từ JSON. Các danh mục từ những tiện ích bổ sung bạn chưa cài đặt sẽ hiển thị cảnh báo.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2251,6 +2271,16 @@
     <string name="collection_editor_folder_count_other">%1$d mục</string>
     <string name="collections_editor_delete_folder_title">Xóa thư mục?</string>
     <string name="collections_editor_delete_folder_subtitle">Thao tác này sẽ xóa vĩnh viễn \"%1$s\" và nội dung của nó.</string>
+    <string name="folder_error_addon_source">Không thể tải danh mục này. Hãy kiểm tra xem tiện ích của danh mục đã được cài đặt và đang trực tuyến chưa, sau đó thử lại.</string>
+    <string name="folder_error_addon_missing">Tiện ích của danh mục này chưa được cài đặt. Hãy cài đặt từ Tiện ích hoặc xóa nguồn này khỏi thư mục.</string>
+    <string name="folder_error_tmdb_source">Không thể tải nội dung này từ TMDB. Hãy kiểm tra kết nối, sau đó thử lại.</string>
+    <string name="folder_error_trakt_source">Không thể tải danh sách Trakt này. Hãy kiểm tra kết nối và xem danh sách có còn công khai không, sau đó thử lại.</string>
+    <string name="folder_error_list_source">Không thể tải danh sách này. Hãy kiểm tra kết nối, sau đó thử lại.</string>
+    <string name="collections_editor_discard_title">Hủy các thay đổi?</string>
+    <string name="collections_editor_discard_collection_subtitle">Các thay đổi của bạn đối với bộ sưu tập này chưa được lưu.</string>
+    <string name="collections_editor_discard_folder_subtitle">Các thay đổi của bạn đối với thư mục này chưa được lưu.</string>
+    <string name="collections_editor_keep_editing">Tiếp tục chỉnh sửa</string>
+    <string name="collections_editor_discard">Hủy thay đổi</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Phim Marvel, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Phim hành động hay nhất, Phim Hàn Quốc, Hoạt hình 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Phim Tom Hanks, Diễn viên yêu thích</string>
@@ -2317,17 +2347,17 @@
     <string name="player_track_subtitle_fallback">Phụ đề %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nNguồn phát bị chặn hoặc bị hạn chế. Vui lòng thử một nguồn khác.</string>
-    <string name="player_error_stream_removed">\n\nLiên kết luồng đã hết hạn hoặc bị xóa. Vui lòng thử một nguồn khác.</string>
-    <string name="player_error_stream_expired">\n\nLiên kết luồng đã hết hạn. Vui lòng thử một nguồn khác.</string>
-    <string name="player_error_stream_rate_limited">\n\nQuá nhiều yêu cầu đến nguồn phát. Vui lòng thử lại sau.</string>
-    <string name="player_error_stream_unavailable">\n\nMáy chủ nguồn phát không khả dụng. Vui lòng thử một nguồn khác</string>
-    <string name="player_error_source_invalid_content">Lỗi nguồn: Nguồn phát trả về nội dung không hợp lệ hoặc không thể phát. Liên kết có thể đã hết hạn hoặc máy chủ đã trả về trang lỗi thay vì video.\n\nVui lòng thử một nguồn khác. [%1$s]</string>
-    <string name="player_error_unsupported_format">Luồng phát này sử dụng định dạng mà thiết bị của bạn có thể không hỗ trợ. Vui lòng thử một nguồn khác. [%1$s]</string>
-    <string name="player_error_initialize_failed">Không thể khởi tạo trình phát</string>
-    <string name="player_error_mpv_surface_failed">Không thể khởi tạo giao diện libmpv</string>
-    <string name="player_error_mpv_playback_failed">Không thể khởi tạo quá trình phát libmpv</string>
-    <string name="player_error_playback_fallback">Lỗi phát lại</string>
+    <string name="player_error_stream_blocked">\n\nNguồn phát bị chặn hoặc bị hạn chế. Vui lòng chọn nguồn khác.</string>
+    <string name="player_error_stream_removed">\n\nLiên kết luồng đã hết hạn hoặc bị xóa. Vui lòng chọn nguồn khác.</string>
+    <string name="player_error_stream_expired">\n\nLiên kết luồng đã hết hạn. Vui lòng chọn nguồn khác.</string>
+    <string name="player_error_stream_rate_limited">\n\nQuá nhiều yêu cầu đến nguồn phát. Vui lòng đợi một lát, sau đó chọn lại nguồn.</string>
+    <string name="player_error_stream_unavailable">\n\nMáy chủ nguồn phát hiện không khả dụng. Vui lòng chọn nguồn khác.</string>
+    <string name="player_error_source_invalid_content">Lỗi nguồn: Nguồn phát trả về nội dung không hợp lệ hoặc không thể phát. Liên kết có thể đã hết hạn hoặc máy chủ đã trả về trang lỗi thay vì video.\n\nVui lòng chọn nguồn khác. [%1$s]</string>
+    <string name="player_error_unsupported_format">Luồng phát này sử dụng định dạng mà thiết bị của bạn có thể không hỗ trợ. Vui lòng chọn nguồn khác. [%1$s]</string>
+    <string name="player_error_initialize_failed">Không thể khởi động trình phát. Vui lòng chọn nguồn khác.</string>
+    <string name="player_error_mpv_surface_failed">Không thể khởi động trình phát mpv. Vui lòng chọn nguồn khác.</string>
+    <string name="player_error_mpv_playback_failed">Không thể bắt đầu phát trong trình phát mpv. Vui lòng chọn nguồn khác.</string>
+    <string name="player_error_playback_fallback">Không thể phát luồng này. Vui lòng chọn nguồn khác.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Không tìm thấy dòng phụ đề nào trong tệp này.</string>
     <string name="subtitle_timing_load_lines_failed">Không thể tải các dòng phụ đề.</string>
@@ -2358,6 +2388,7 @@
     <string name="library_list_created">Đã tạo danh sách</string>
     <string name="library_list_updated">Đã cập nhật danh sách</string>
     <string name="library_error_save_list_failed">Không thể lưu danh sách</string>
+    <string name="library_error_save_list_next_step">Vui lòng kiểm tra kết nối và thử lại.</string>
     <string name="library_list_deleted">Đã xóa danh sách</string>
     <string name="library_error_delete_list_failed">Không thể xóa danh sách</string>
     <string name="library_list_order_updated">Đã cập nhật thứ tự danh sách</string>
@@ -2420,11 +2451,11 @@
     <string name="trakt_error_mark_watched_failed">Không thể đánh dấu đã xem trên Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Không thể cập nhật thư viện</string>
-    <string name="detail_error_load_lists_failed">Không thể tải danh sách</string>
-    <string name="detail_error_update_lists_failed">Không thể cập nhật danh sách</string>
-    <string name="detail_error_update_watched_failed">Không thể cập nhật trạng thái đã xem</string>
-    <string name="detail_error_update_episode_watched_failed">Không thể cập nhật trạng thái đã xem của tập phim</string>
+    <string name="detail_error_update_library_failed">Không thể cập nhật thư viện. Vui lòng kiểm tra kết nối và thử lại.</string>
+    <string name="detail_error_load_lists_failed">Không thể tải danh sách của bạn. Vui lòng kiểm tra kết nối và thử lại.</string>
+    <string name="detail_error_update_lists_failed">Không thể cập nhật danh sách của bạn. Vui lòng kiểm tra kết nối và thử lại.</string>
+    <string name="detail_error_update_watched_failed">Không thể cập nhật trạng thái đã xem. Vui lòng kiểm tra kết nối và thử lại.</string>
+    <string name="detail_error_update_episode_watched_failed">Không thể cập nhật trạng thái đã xem của tập này. Vui lòng kiểm tra kết nối và thử lại.</string>
     <string name="poster_options_error_load_lists_failed">Không thể tải danh sách</string>
     <string name="poster_options_error_update_lists_failed">Không thể cập nhật danh sách</string>
 
@@ -2618,7 +2649,7 @@
     <string name="diag_value_never_rendered">Chưa từng kết xuất</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Không thể phát luồng đã chọn</string>
+    <string name="player_error_play_stream_failed">Không thể phát luồng đã chọn. Vui lòng chọn nguồn khác.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2715,6 +2746,9 @@
     <string name="addon_health_ok">Đang phản hồi · %1$s</string>
     <string name="addon_health_slow">Chậm · %1$s</string>
     <string name="addon_health_timed_out">Yêu cầu gần nhất đã hết thời gian chờ</string>
+    <string name="source_chip_failed">thất bại</string>
+    <string name="source_chip_loading">đang tải</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s cần được thiết lập trước khi cài đặt</string>
     <string name="advanced_introdb_api_key">Khóa API IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Tạo khóa trên introdb.app. Khóa bắt đầu bằng idb_.</string>
@@ -2730,6 +2764,7 @@
     <string name="autoplay_mode_best_desc">Xếp hạng mọi kết quả theo chất lượng, quy tắc của bạn và khả năng phát của thiết bị này, rồi phát kết quả tốt nhất. Các nguồn khác vẫn chỉ cách một lần bấm.</string>
     <string name="best_match_cached">Đã lưu đệm</string>
     <string name="best_match_excluded">Không tự động phát: %1$s</string>
+    <string name="stream_hold_for_options">Giữ OK để xem tùy chọn Khớp nhất</string>
     <string name="best_match_preview_sub">Hỏi các tiện ích luồng về một nội dung khi bạn đang xem nó, để nút Phát có thể hiển thị tên tệp và phát nhanh hơn. Tắt để chỉ tìm sau khi bạn bấm Phát.</string>
     <string name="best_match_preview_title">Hiển thị lựa chọn trên nút Phát</string>
     <string name="catalog_order_pin">Ghim lên đầu</string>

@@ -570,6 +570,9 @@
     <string name="playback_subtitle">Configureer videoweergave en ondertitelopties</string>
     <string name="cd_decrease">Verlagen</string>
     <string name="cd_increase">Verhogen</string>
+    <string name="cd_decrease_setting">%1$s verlagen</string>
+    <string name="cd_increase_setting">%1$s verhogen</string>
+    <string name="cd_seek_bar">Zoekbalk</string>
     <string name="action_cancel">Annuleren</string>
     <string name="action_apply">Toepassen</string>
     <string name="sub_opacity">Dekking</string>
@@ -905,7 +908,7 @@
     <string name="mdblist_dialog_title">MDBList API-sleutel</string>
     <string name="mdblist_dialog_placeholder">Voer MDBList API-sleutel in</string>
     <string name="mdblist_not_set">Niet ingesteld</string>
-    <string name="mdblist_invalid_api_key">Ongeldige MDBList-API-sleutel</string>
+    <string name="mdblist_invalid_api_key">Kon deze API-sleutel niet verifiëren. Controleer of hij overeenkomt met de sleutel in je MDBList-account en of je online bent, en probeer het opnieuw.</string>
 
 
 
@@ -950,7 +953,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Maak je eigen Client ID via anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Voer Client ID in</string>
-    <string name="animeskip_invalid_client_id">Ongeldig client-ID</string>
+    <string name="animeskip_invalid_client_id">Kon deze Client ID niet verifiëren. Controleer of hij overeenkomt met die in je Anime Skip-account en of je online bent, en probeer het opnieuw.</string>
     <string name="action_clear">Wissen</string>
 
     <string name="tmdb_title">TMDB-verrijking</string>
@@ -1167,6 +1170,7 @@
     <string name="addon_error_invalid_scheme">De add-on-URL moet beginnen met http of https</string>
     <string name="addon_installed_section">Geïnstalleerd</string>
     <string name="addon_empty">Geen add-ons geïnstalleerd. Voeg er één toe om te beginnen.</string>
+    <string name="addon_list_load_failed">Kon je geïnstalleerde add-ons niet laden. Probeer het opnieuw.</string>
     <string name="addon_remove">Verwijderen</string>
     <string name="addon_delete_confirm_title">Add-on verwijderen?</string>
     <string name="addon_delete_confirm_message">Weet je zeker dat je deze wilt verwijderen?</string>
@@ -1264,6 +1268,8 @@
     <string name="player_up_next_in_queue">Volgende in de wachtrij</string>
     <string name="player_queue_move_up">Omhoog</string>
     <string name="player_queue_move_down">Omlaag</string>
+    <string name="player_queue_removed">%1$s uit de wachtrij verwijderd</string>
+    <string name="player_queue_undo">Ongedaan maken</string>
     <string name="player_seek_back_10">10 seconden terug</string>
     <string name="player_seek_forward_30">30 seconden vooruit</string>
     <string name="player_live_watched">LIVE  %1$s</string>
@@ -1272,6 +1278,7 @@
     <string name="season_episode_format">S%1$d A%2$d</string>
     <string name="player_subtitle_delay">Ondertitelvertraging</string>
     <string name="player_error_title">Afspeelfout</string>
+    <string name="player_error_choose_source">Kies een andere bron</string>
     <string name="player_report_issue">Probleem melden</string>
     <string name="player_report_issue_sending">Afspeelrapport verzenden...</string>
     <string name="player_report_issue_sending_button">Verzenden...</string>
@@ -1288,7 +1295,7 @@
     <string name="player_more_speed">Afspeelsnelheid</string>
     <string name="player_more_aspect_ratio">Beeldverhouding</string>
     <string name="player_more_open_external">Openen in externe speler</string>
-    <string name="player_error_no_stream_url">Geen stream-URL opgegeven</string>
+    <string name="player_error_no_stream_url">Deze bron heeft geen streamlink. Kies een andere bron.</string>
 
 
     <string name="stream_info_section_source">BRON</string>
@@ -1419,6 +1426,8 @@
     <string name="search_start_subtitle_no_discover">Ontdekken is uitgeschakeld. Voer minimaal 2 tekens in</string>
     <string name="search_recent_title">Recente zoekopdrachten</string>
     <string name="search_recent_clear">Geschiedenis wissen</string>
+    <string name="search_recent_clear_confirm_title">Zoekgeschiedenis wissen?</string>
+    <string name="search_recent_clear_confirm_subtitle">Al je recente zoekopdrachten worden verwijderd. Dit kan niet ongedaan worden gemaakt.</string>
     <string name="cd_remove_recent_search">%1$s verwijderen uit recente zoekopdrachten</string>
     <string name="search_voice_no_speech">Geen spraak gedetecteerd. Probeer het opnieuw.</string>
     <string name="search_voice_mic_permission">Toestemming voor de microfoon is vereist voor spraakzoeken.</string>
@@ -1427,6 +1436,8 @@
     <string name="search_no_results_title">Geen resultaten</string>
     <string name="search_no_results_subtitle">Probeer te zoeken met andere trefwoorden</string>
     <string name="search_error_no_catalogs">Geen doorzoekbare catalogi gevonden in de geïnstalleerde add-ons</string>
+    <string name="search_no_catalogs_title">Geen van je add-ons kan zoeken</string>
+    <string name="search_no_catalogs_subtitle">Installeer een add-on met een zoekcatalogus en probeer het opnieuw.</string>
 
     <string name="library_title">Bibliotheek</string>
     <string name="library_filter_list">Lijst</string>
@@ -1492,12 +1503,16 @@
     <string name="library_list_move_up">Omhoog</string>
     <string name="library_list_move_down">Omlaag</string>
     <string name="library_list_delete">Verwijderen</string>
+    <string name="library_list_delete_named">“%1$s” verwijderen</string>
     <string name="library_list_close">Sluiten</string>
     <string name="library_list_name_label">Naam</string>
-    <string name="library_error_list_name_required">Een lijstnaam is verplicht</string>
+    <string name="library_error_list_name_required">Voer een naam in voor de lijst</string>
     <string name="library_list_description_label">Beschrijving</string>
     <string name="library_list_privacy">Privacy</string>
     <string name="library_delete_title">Deze lijst verwijderen?</string>
+    <string name="library_delete_title_named">“%1$s” verwijderen?</string>
+    <string name="library_delete_subtitle_provider">Hiermee worden de lijst en de items erin verwijderd uit %1$s. Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="library_delete_subtitle_local">Hiermee worden de lijst en de items erin verwijderd uit je bibliotheek. Dit kan niet ongedaan worden gemaakt.</string>
     <string name="library_source_local">LOKAAL</string>
     <string name="library_source_saved">Opgeslagen</string>
     <string name="library_watchlist">Kijklijst</string>
@@ -1738,7 +1753,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Maak verbinding met Wi-Fi of ethernet om deze functie te gebruiken</string>
-    <string name="error_server_ports_unavailable">Kon de server niet starten. Alle poorten zijn in gebruik.</string>
+    <string name="error_server_ports_unavailable">Kon de telefoonverbinding niet starten. Start Fetch opnieuw en probeer het nog eens.</string>
 
     <!-- Trakt errors -->
 
@@ -1803,6 +1818,11 @@
     <string name="cd_loading_logo">Logo laden</string>
     <string name="cd_move_up">Omhoog verplaatsen</string>
     <string name="cd_move_down">Omlaag verplaatsen</string>
+    <string name="cd_move_addon_up">%1$s omhoog verplaatsen</string>
+    <string name="cd_move_addon_down">%1$s omlaag verplaatsen</string>
+    <string name="cd_addon_enabled_toggle">%1$s ingeschakeld</string>
+    <string name="cd_configure_addon">%1$s configureren</string>
+    <string name="cd_remove_addon">%1$s verwijderen</string>
     <string name="cd_edit">Bewerken</string>
     <string name="cd_delete">Verwijderen</string>
     <string name="cd_qr_code">QR-code</string>
@@ -1838,7 +1858,7 @@
     <string name="collections_import">Importeren</string>
     <string name="collections_export_file">Bestand exporteren</string>
     <string name="collections_saved_downloads">Opgeslagen in Downloads</string>
-    <string name="collections_export_failed">Exporteren mislukt</string>
+    <string name="collections_export_failed">Kon niet opslaan in Downloads. Controleer de opslagmachtiging en vrije ruimte en probeer het opnieuw.</string>
     <string name="collections_import_header">Collecties importeren</string>
     <string name="collections_import_description">Importeer collecties uit JSON. Catalogi van add-ons die je niet hebt geïnstalleerd, tonen een waarschuwing.</string>
     <string name="collections_import_url_placeholder">https://voorbeeld.com/collections.json</string>
@@ -2082,6 +2102,16 @@
     <string name="collection_editor_folder_count_other">%1$d items</string>
     <string name="collections_editor_delete_folder_title">Map verwijderen?</string>
     <string name="collections_editor_delete_folder_subtitle">Hiermee worden \"%1$s\" en de inhoud ervan permanent verwijderd.</string>
+    <string name="folder_error_addon_source">Kon deze catalogus niet laden. Controleer of de add-on geïnstalleerd en online is en probeer het opnieuw.</string>
+    <string name="folder_error_addon_missing">De add-on van deze catalogus is niet geïnstalleerd. Installeer hem via Add-ons of verwijder deze bron uit de map.</string>
+    <string name="folder_error_tmdb_source">Kon dit niet laden van TMDB. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="folder_error_trakt_source">Kon deze Trakt-lijst niet laden. Controleer je verbinding en of de lijst nog openbaar is, en probeer het opnieuw.</string>
+    <string name="folder_error_list_source">Kon deze lijst niet laden. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="collections_editor_discard_title">Wijzigingen negeren?</string>
+    <string name="collections_editor_discard_collection_subtitle">Je wijzigingen in deze collectie zijn niet opgeslagen.</string>
+    <string name="collections_editor_discard_folder_subtitle">Je wijzigingen in deze map zijn niet opgeslagen.</string>
+    <string name="collections_editor_keep_editing">Verder bewerken</string>
+    <string name="collections_editor_discard">Negeren</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel-films, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Beste actiefilms, Koreaanse drama\'s, animatie 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Films van Tom Hanks, favoriete acteurs</string>
@@ -2148,17 +2178,17 @@
     <string name="player_track_subtitle_fallback">Ondertiteling %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nDe streambron is geblokkeerd of beperkt. Probeer een andere bron.</string>
-    <string name="player_error_stream_removed">\n\nDe streamlink is verlopen of verwijderd. Probeer een andere bron.</string>
-    <string name="player_error_stream_expired">\n\nDe streamlink is verlopen. Probeer een andere bron.</string>
-    <string name="player_error_stream_rate_limited">\n\nTe veel verzoeken aan de streambron. Wacht even en probeer het opnieuw.</string>
-    <string name="player_error_stream_unavailable">\n\nDe streamserver is momenteel niet beschikbaar. Probeer een andere bron.</string>
-    <string name="player_error_source_invalid_content">Bronfout: de streambron gaf ongeldige of onafspeelbare inhoud terug. De link is mogelijk verlopen of de server gaf een foutpagina terug in plaats van video.\n\nProbeer een andere bron. [%1$s]</string>
-    <string name="player_error_unsupported_format">Deze stream gebruikt een formaat dat je apparaat mogelijk niet ondersteunt. Probeer een andere bron. [%1$s]</string>
-    <string name="player_error_initialize_failed">Kon de speler niet initialiseren</string>
-    <string name="player_error_mpv_surface_failed">Kon het libmpv-oppervlak niet initialiseren</string>
-    <string name="player_error_mpv_playback_failed">Kon het afspelen via libmpv niet initialiseren</string>
-    <string name="player_error_playback_fallback">Afspeelfout</string>
+    <string name="player_error_stream_blocked">\n\nDe streambron is geblokkeerd of beperkt. Kies een andere bron.</string>
+    <string name="player_error_stream_removed">\n\nDe streamlink is verlopen of verwijderd. Kies een andere bron.</string>
+    <string name="player_error_stream_expired">\n\nDe streamlink is verlopen. Kies een andere bron.</string>
+    <string name="player_error_stream_rate_limited">\n\nTe veel verzoeken aan de streambron. Wacht even en kies dan opnieuw een bron.</string>
+    <string name="player_error_stream_unavailable">\n\nDe streamserver is momenteel niet beschikbaar. Kies een andere bron.</string>
+    <string name="player_error_source_invalid_content">Bronfout: de streambron gaf ongeldige of onafspeelbare inhoud terug. De link is mogelijk verlopen of de server gaf een foutpagina terug in plaats van video.\n\nKies een andere bron. [%1$s]</string>
+    <string name="player_error_unsupported_format">Deze stream gebruikt een formaat dat je apparaat mogelijk niet ondersteunt. Kies een andere bron. [%1$s]</string>
+    <string name="player_error_initialize_failed">Kan de speler niet starten. Kies een andere bron.</string>
+    <string name="player_error_mpv_surface_failed">Kan de mpv-speler niet starten. Kies een andere bron.</string>
+    <string name="player_error_mpv_playback_failed">Kan het afspelen in de mpv-speler niet starten. Kies een andere bron.</string>
+    <string name="player_error_playback_fallback">Kan deze stream niet afspelen. Kies een andere bron.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Er zijn geen ondertitelregels in dit bestand gevonden.</string>
     <string name="subtitle_timing_load_lines_failed">Kon de ondertitelregels niet laden.</string>
@@ -2189,6 +2219,7 @@
     <string name="library_list_created">Lijst gemaakt</string>
     <string name="library_list_updated">Lijst bijgewerkt</string>
     <string name="library_error_save_list_failed">Kon de lijst niet opslaan</string>
+    <string name="library_error_save_list_next_step">Controleer je verbinding en probeer het opnieuw.</string>
     <string name="library_list_deleted">Lijst verwijderd</string>
     <string name="library_error_delete_list_failed">Kon de lijst niet verwijderen</string>
     <string name="library_list_order_updated">Lijstvolgorde bijgewerkt</string>
@@ -2251,11 +2282,11 @@
     <string name="trakt_error_mark_watched_failed">Kon niet als bekeken markeren op Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Kon de bibliotheek niet bijwerken</string>
-    <string name="detail_error_load_lists_failed">Kon de lijsten niet laden</string>
-    <string name="detail_error_update_lists_failed">Kon de lijsten niet bijwerken</string>
-    <string name="detail_error_update_watched_failed">Kon de bekeken-status niet bijwerken</string>
-    <string name="detail_error_update_episode_watched_failed">Kon de bekeken-status van de aflevering niet bijwerken</string>
+    <string name="detail_error_update_library_failed">Kon je bibliotheek niet bijwerken. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="detail_error_load_lists_failed">Kon je lijsten niet laden. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="detail_error_update_lists_failed">Kon je lijsten niet bijwerken. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="detail_error_update_watched_failed">Kon de bekeken-status niet bijwerken. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="detail_error_update_episode_watched_failed">Kon de bekeken-status van deze aflevering niet bijwerken. Controleer je verbinding en probeer het opnieuw.</string>
     <string name="poster_options_error_load_lists_failed">Kon de lijsten niet laden</string>
     <string name="poster_options_error_update_lists_failed">Kon de lijsten niet bijwerken</string>
 
@@ -2441,7 +2472,7 @@
     <string name="diag_value_never_rendered">Nooit weergegeven</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Kon de geselecteerde stream niet afspelen</string>
+    <string name="player_error_play_stream_failed">Kan de geselecteerde stream niet afspelen. Kies een andere bron.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2502,6 +2533,9 @@
     <string name="addon_health_ok">Reageert · %1$s</string>
     <string name="addon_health_slow">Traag · %1$s</string>
     <string name="addon_health_timed_out">Time-out bij laatste verzoek</string>
+    <string name="source_chip_failed">mislukt</string>
+    <string name="source_chip_loading">laden</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s moet worden ingesteld voordat je het kunt installeren</string>
     <string name="advanced_introdb_api_key">IntroDB-API-sleutel</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Maak een sleutel aan op introdb.app. Die begint met idb_.</string>
@@ -2517,6 +2551,7 @@
     <string name="autoplay_mode_best_desc">Rangschikt elk resultaat op kwaliteit, je regels en wat dit apparaat kan afspelen, en start dan de winnaar. Andere bronnen blijven één druk op de knop verwijderd.</string>
     <string name="best_match_cached">In cache</string>
     <string name="best_match_excluded">Niet automatisch afgespeeld: %1$s</string>
+    <string name="stream_hold_for_options">Houd OK ingedrukt voor Beste match-opties</string>
     <string name="best_match_preview_sub">Vraagt je stream-add-ons naar een titel terwijl je ernaar kijkt, zodat de afspeelknop het bestand kan tonen en het afspelen sneller start. Zet uit om pas te zoeken nadat je op Afspelen drukt.</string>
     <string name="best_match_preview_title">Keuze tonen op de afspeelknop</string>
     <string name="catalog_order_pin">Bovenaan vastzetten</string>

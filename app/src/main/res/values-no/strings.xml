@@ -252,6 +252,9 @@
     <string name="playback_subtitle">Konfigurer videoavspilling og undertekst</string>
     <string name="cd_decrease">Reduser</string>
     <string name="cd_increase">Øk</string>
+    <string name="cd_decrease_setting">Reduser %1$s</string>
+    <string name="cd_increase_setting">Øk %1$s</string>
+    <string name="cd_seek_bar">Spolelinje</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_none">Ingen</string>
     <string name="action_close">Lukk</string>
@@ -452,7 +455,7 @@
     <string name="mdblist_dialog_title">MDBList API-nøkkel</string>
     <string name="mdblist_dialog_placeholder">Skriv inn MDBList API-nøkkel</string>
     <string name="mdblist_not_set">Ikke angitt</string>
-    <string name="mdblist_invalid_api_key">Ugyldig MDBList API-nøkkel</string>
+    <string name="mdblist_invalid_api_key">Kunne ikke bekrefte denne API-nøkkelen. Sjekk at den samsvarer med nøkkelen i MDBList-kontoen din og at du er på nett, og prøv igjen.</string>
 
     <!-- Anime-Skip -->
     <string name="animeskip_title">Anime hopp</string>
@@ -464,7 +467,7 @@
     <string name="animeskip_dialog_title">Anime hopp-klient-ID</string>
     <string name="animeskip_dialog_subtitle">Lag din egen klient-ID på anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Skriv inn klient-ID</string>
-    <string name="animeskip_invalid_client_id">Ugyldig klient-ID</string>
+    <string name="animeskip_invalid_client_id">Kunne ikke bekrefte denne klient-ID-en. Sjekk at den samsvarer med den i Anime Skip-kontoen din og at du er på nett, og prøv igjen.</string>
     <string name="action_clear">Tøm</string>
 
     <!-- TmdbSettingsScreen -->
@@ -615,6 +618,7 @@
     <string name="addon_error_invalid_scheme">Tilleggs-URL må starte med http eller https</string>
     <string name="addon_installed_section">Installert</string>
     <string name="addon_empty">Ingen tillegg installert. Legg til ett for å komme i gang.</string>
+    <string name="addon_list_load_failed">Kunne ikke laste inn de installerte tilleggene dine. Prøv igjen.</string>
     <string name="addon_remove">Fjern</string>
     <string name="addon_manage_from_phone_title">Administrer fra telefon</string>
     <string name="addon_manage_from_phone_subtitle">Skann en QR-kode for å administrere tillegg og hjemmekatalogier fra telefonen din</string>
@@ -669,11 +673,14 @@
     <string name="player_up_next_in_queue">Neste i køen</string>
     <string name="player_queue_move_up">Flytt opp</string>
     <string name="player_queue_move_down">Flytt ned</string>
+    <string name="player_queue_removed">Fjernet %1$s fra køen</string>
+    <string name="player_queue_undo">Angre</string>
     <string name="player_seek_back_10">10 sekunder tilbake</string>
     <string name="player_seek_forward_30">30 sekunder frem</string>
     <string name="player_via">via %1$s</string>
     <string name="player_subtitle_delay">Undertekst forsinkelse</string>
     <string name="player_error_title">Avspillingsfeil</string>
+    <string name="player_error_choose_source">Velg en annen kilde</string>
     <string name="player_speed_title">Avspillingshastighet</string>
     <string name="player_more_actions_title">Flere handlinger</string>
     <string name="player_more_speed">Avspillingshastighet</string>
@@ -754,10 +761,14 @@
     <string name="search_start_title">Start søk</string>
     <string name="search_start_subtitle">Skriv inn minst 2 tegn</string>
     <string name="search_start_subtitle_no_discover">Discover er deaktivert. Skriv inn minst 2 tegn</string>
+    <string name="search_recent_clear_confirm_title">Vil du tømme søkehistorikken?</string>
+    <string name="search_recent_clear_confirm_subtitle">Alle de nylige søkene dine fjernes. Dette kan ikke angres.</string>
     <string name="search_voice_no_speech">Ingen tale oppdaget. Prøv igjen.</string>
     <string name="search_voice_mic_permission">Mikrofonrettighet er nødvendig for røstsøk.</string>
     <string name="search_voice_failed">Røstgjenkjenning mislyktes. Prøv igjen.</string>
     <string name="search_voice_unavailable">Røstsøk er utilgjengelig på denne enheten.</string>
+    <string name="search_no_catalogs_title">Ingen av tilleggene dine kan søke</string>
+    <string name="search_no_catalogs_subtitle">Installer et tillegg med en søkekatalog, og prøv igjen.</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">Bibliotek</string>
@@ -775,11 +786,15 @@
     <string name="library_list_move_up">Flytt opp</string>
     <string name="library_list_move_down">Flytt ned</string>
     <string name="library_list_delete">Slett</string>
+    <string name="library_list_delete_named">Slett «%1$s»</string>
     <string name="library_list_close">Lukk</string>
     <string name="library_list_name_label">Navn</string>
     <string name="library_list_description_label">Beskrivelse</string>
     <string name="library_list_privacy">Personvern</string>
     <string name="library_delete_title">Slett denne listen?</string>
+    <string name="library_delete_title_named">Vil du slette «%1$s»?</string>
+    <string name="library_delete_subtitle_provider">Dette fjerner listen og elementene i den fra %1$s. Dette kan ikke angres.</string>
+    <string name="library_delete_subtitle_local">Dette fjerner listen og elementene i den fra biblioteket ditt. Dette kan ikke angres.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_type_all">Alle</string>
     <string name="library_empty_local_title">Ingen %1$s ennå</string>
@@ -950,6 +965,9 @@
     <string name="addon_health_ok">Svarer · %1$s</string>
     <string name="addon_health_slow">Treg · %1$s</string>
     <string name="addon_health_timed_out">Siste forespørsel fikk tidsavbrudd</string>
+    <string name="source_chip_failed">mislyktes</string>
+    <string name="source_chip_loading">laster inn</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s må konfigureres før det kan installeres</string>
     <string name="advanced_introdb_api_key">IntroDB API-nøkkel</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Opprett en nøkkel på introdb.app. Den starter med idb_.</string>
@@ -965,12 +983,29 @@
     <string name="autoplay_mode_best_desc">Rangerer hvert resultat etter kvalitet, reglene dine og hva denne enheten kan spille av, og starter så vinneren. Andre kilder er bare ett trykk unna.</string>
     <string name="best_match_cached">Bufret</string>
     <string name="best_match_excluded">Ikke autoavspilt: %1$s</string>
+    <string name="stream_hold_for_options">Hold inne OK for Beste treff-valg</string>
     <string name="best_match_preview_sub">Spør strømmetilleggene om en tittel mens du ser på den, slik at Spill av-knappen kan vise filen og avspillingen starter raskere. Slå av for å søke først etter at du trykker Spill av.</string>
     <string name="best_match_preview_title">Vis valget på Spill av-knappen</string>
     <string name="catalog_order_pin">Fest øverst</string>
     <string name="catalog_order_pinned_on_home">Festet øverst på Hjem</string>
     <string name="catalog_order_unpin">Løsne</string>
     <string name="cd_mark_credits_end">Marker slutt på rulletekst</string>
+    <string name="cd_move_addon_up">Flytt %1$s opp</string>
+    <string name="cd_move_addon_down">Flytt %1$s ned</string>
+    <string name="cd_addon_enabled_toggle">%1$s aktivert</string>
+    <string name="cd_configure_addon">Konfigurer %1$s</string>
+    <string name="cd_remove_addon">Fjern %1$s</string>
+    <string name="folder_error_addon_source">Kunne ikke laste inn denne katalogen. Sjekk at tillegget er installert og tilgjengelig, og prøv igjen.</string>
+    <string name="folder_error_addon_missing">Tillegget for denne katalogen er ikke installert. Installer det fra Tillegg, eller fjern denne kilden fra mappen.</string>
+    <string name="folder_error_tmdb_source">Kunne ikke laste inn dette fra TMDB. Sjekk tilkoblingen, og prøv igjen.</string>
+    <string name="folder_error_trakt_source">Kunne ikke laste inn denne Trakt-listen. Sjekk tilkoblingen og at listen fortsatt er offentlig, og prøv igjen.</string>
+    <string name="folder_error_list_source">Kunne ikke laste inn denne listen. Sjekk tilkoblingen, og prøv igjen.</string>
+    <string name="collections_editor_discard_title">Vil du forkaste endringene?</string>
+    <string name="collections_editor_discard_collection_subtitle">Endringene dine i denne samlingen er ikke lagret.</string>
+    <string name="collections_editor_discard_folder_subtitle">Endringene dine i denne mappen er ikke lagret.</string>
+    <string name="collections_editor_keep_editing">Fortsett å redigere</string>
+    <string name="collections_editor_discard">Forkast</string>
+    <string name="library_error_save_list_next_step">Sjekk tilkoblingen, og prøv igjen.</string>
     <string name="cd_mark_credits_start">Marker start på rulletekst</string>
     <string name="cd_mark_intro_end">Marker slutt på intro</string>
     <string name="cd_mark_intro_start">Marker start på intro</string>

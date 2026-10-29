@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">Sunucuya ulaşılamadı.</string>
     <string name="servers_error_unsupported">%1$s %2$s veya daha yenisi gereklidir.</string>
     <string name="servers_error_forbidden">Bu kullanıcının erişim izni yok.</string>
-    <string name="servers_error_failed">Sunucuya bağlanılamadı.</string>
+    <string name="servers_error_failed">Sunucuya bağlanılamadı. Sunucunun açık ve erişilebilir olduğunu kontrol edin, ardından tekrar deneyin.</string>
     <string name="servers_failure_auth">Ayarlar\'da bu sunucuya yeniden giriş yapın.</string>
-    <string name="servers_failure_unreachable">Sunucuya ulaşılamıyor.</string>
+    <string name="servers_failure_unreachable">Sunucuya ulaşılamıyor. Sunucunun açık ve erişilebilir olduğunu kontrol edin, ardından tekrar deneyin.</string>
     <string name="servers_failure_not_found">Bu öğe artık sunucuda mevcut değil.</string>
     <string name="servers_failure_unsupported">Sunucu bu öğeyi desteklemiyor.</string>
     <string name="servers_failure_incomplete">Bu sunucunun kütüphanesi hala kontrol ediliyor. Birazdan tekrar deneyin.</string>

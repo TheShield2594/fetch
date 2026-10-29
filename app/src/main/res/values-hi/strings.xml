@@ -212,6 +212,9 @@
     <string name="playback_subtitle">वीडियो प्लेबैक और सबटाइटल विकल्प कॉन्फ़िगर करें</string>
     <string name="cd_decrease">कम करें</string>
     <string name="cd_increase">बढ़ाएँ</string>
+    <string name="cd_decrease_setting">%1$s कम करें</string>
+    <string name="cd_increase_setting">%1$s बढ़ाएँ</string>
+    <string name="cd_seek_bar">सीक बार</string>
     <string name="action_cancel">रद्द करें</string>
     <string name="action_none">कोई नहीं</string>
     <string name="action_close">बंद करें</string>
@@ -408,7 +411,7 @@
     <string name="mdblist_dialog_title">MDBList API Key</string>
     <string name="mdblist_dialog_placeholder">MDBList API Key दर्ज करें</string>
     <string name="mdblist_not_set">सेट नहीं</string>
-    <string name="mdblist_invalid_api_key">अमान्य MDBList API Key</string>
+    <string name="mdblist_invalid_api_key">इस API की की पुष्टि नहीं हो सकी। जांचें कि यह आपके MDBList खाते की की से मेल खाती है और आप ऑनलाइन हैं, फिर दोबारा कोशिश करें।</string>
 
     <!-- Anime-Skip -->
     <string name="animeskip_title">Anime Skip</string>
@@ -420,7 +423,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">anime-skip.com/account/settings पर अपना Client ID बनाएँ</string>
     <string name="animeskip_dialog_placeholder">Client ID दर्ज करें</string>
-    <string name="animeskip_invalid_client_id">अमान्य Client ID</string>
+    <string name="animeskip_invalid_client_id">इस Client ID की पुष्टि नहीं हो सकी। जांचें कि यह आपके Anime Skip खाते वाली ID से मेल खाती है और आप ऑनलाइन हैं, फिर दोबारा कोशिश करें।</string>
     <string name="action_clear">क्लियर</string>
 
     <!-- TmdbSettingsScreen -->
@@ -534,6 +537,7 @@
     <string name="addon_install_btn">इंस्टॉल</string>
     <string name="addon_installed_section">इंस्टॉल किए गए</string>
     <string name="addon_empty">कोई ऐडऑन इंस्टॉल नहीं है। शुरू करने के लिए एक जोड़ें।</string>
+    <string name="addon_list_load_failed">आपके इंस्टॉल किए गए ऐडऑन लोड नहीं हो सके। फिर से कोशिश करें।</string>
     <string name="addon_remove">हटाएँ</string>
     <string name="addon_manage_from_phone_title">फोन से मैनेज करें</string>
     <string name="addon_manage_from_phone_subtitle">अपने फोन से ऐडऑन और होम कैटलॉग मैनेज करने के लिए QR कोड स्कैन करें</string>
@@ -588,11 +592,14 @@
     <string name="player_up_next_in_queue">कतार में अगला</string>
     <string name="player_queue_move_up">ऊपर ले जाएँ</string>
     <string name="player_queue_move_down">नीचे ले जाएँ</string>
+    <string name="player_queue_removed">%1$s को कतार से हटाया गया</string>
+    <string name="player_queue_undo">पहले जैसा करें</string>
     <string name="player_seek_back_10">10 सेकंड पीछे</string>
     <string name="player_seek_forward_30">30 सेकंड आगे</string>
     <string name="player_via">%1$s के माध्यम से</string>
     <string name="player_subtitle_delay">सबटाइटल देरी</string>
     <string name="player_error_title">प्लेबैक त्रुटि</string>
+    <string name="player_error_choose_source">कोई दूसरा सोर्स चुनें</string>
     <string name="player_speed_title">प्लेबैक गति</string>
     <string name="player_more_actions_title">अधिक विकल्प</string>
     <string name="player_more_speed">प्लेबैक गति</string>
@@ -666,10 +673,14 @@
     <string name="search_start_title">खोज शुरू करें</string>
     <string name="search_start_subtitle">कम से कम 2 अक्षर दर्ज करें</string>
     <string name="search_start_subtitle_no_discover">Discover बंद है। कम से कम 2 अक्षर दर्ज करें</string>
+    <string name="search_recent_clear_confirm_title">खोज इतिहास साफ़ करें?</string>
+    <string name="search_recent_clear_confirm_subtitle">आपकी सभी हाल की खोजें हटा दी जाएँगी। इसे पहले जैसा नहीं किया जा सकता।</string>
     <string name="search_voice_no_speech">कोई आवाज़ नहीं मिली। फिर से कोशिश करें।</string>
     <string name="search_voice_mic_permission">वॉइस सर्च के लिए माइक्रोफोन अनुमति आवश्यक है।</string>
     <string name="search_voice_failed">वॉइस पहचान विफल रही। फिर से कोशिश करें।</string>
     <string name="search_voice_unavailable">इस डिवाइस पर वॉइस सर्च उपलब्ध नहीं है।</string>
+    <string name="search_no_catalogs_title">आपका कोई भी ऐडऑन खोज नहीं कर सकता</string>
+    <string name="search_no_catalogs_subtitle">खोज कैटलॉग वाला कोई ऐडऑन इंस्टॉल करें, फिर दोबारा कोशिश करें।</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">लाइब्रेरी</string>
@@ -687,11 +698,15 @@
     <string name="library_list_move_up">ऊपर ले जाएँ</string>
     <string name="library_list_move_down">नीचे ले जाएँ</string>
     <string name="library_list_delete">हटाएँ</string>
+    <string name="library_list_delete_named">“%1$s” हटाएँ</string>
     <string name="library_list_close">बंद करें</string>
     <string name="library_list_name_label">नाम</string>
     <string name="library_list_description_label">विवरण</string>
     <string name="library_list_privacy">गोपनीयता</string>
     <string name="library_delete_title">क्या इस लिस्ट को हटाएँ?</string>
+    <string name="library_delete_title_named">“%1$s” हटाएँ?</string>
+    <string name="library_delete_subtitle_provider">इससे लिस्ट और उसके आइटम %1$s से हट जाएँगे। इसे पहले जैसा नहीं किया जा सकता।</string>
+    <string name="library_delete_subtitle_local">इससे लिस्ट और उसके आइटम आपकी लाइब्रेरी से हट जाएँगे। इसे पहले जैसा नहीं किया जा सकता।</string>
     <string name="library_source_local">लोकल</string>
     <string name="library_type_all">सभी</string>
     <string name="library_empty_local_title">अभी कोई %1$s नहीं</string>
@@ -841,6 +856,7 @@
     <string name="prefer_next_time_not_now">अभी नहीं</string>
     <string name="prefer_next_time_saved">बेस्ट मैच इसे प्राथमिकता देगा: %1$s</string>
     <string name="best_match_excluded">ऑटो-प्ले नहीं हुआ: %1$s</string>
+    <string name="stream_hold_for_options">बेस्ट मैच विकल्पों के लिए OK दबाकर रखें</string>
     <string name="exclusion_above_max_resolution">आपके अधिकतम रिज़ॉल्यूशन से ऊपर</string>
     <string name="exclusion_below_min_resolution">आपके न्यूनतम रिज़ॉल्यूशन से नीचे</string>
     <string name="exclusion_over_max_size">आपकी साइज़ सीमा से बड़ा</string>
@@ -974,6 +990,22 @@
     <string name="cd_mark_intro_end">इंट्रो का अंत मार्क करें</string>
     <string name="cd_mark_credits_start">एंड क्रेडिट की शुरुआत मार्क करें</string>
     <string name="cd_mark_credits_end">एंड क्रेडिट का अंत मार्क करें</string>
+    <string name="cd_move_addon_up">%1$s को ऊपर ले जाएँ</string>
+    <string name="cd_move_addon_down">%1$s को नीचे ले जाएँ</string>
+    <string name="cd_addon_enabled_toggle">%1$s चालू</string>
+    <string name="cd_configure_addon">%1$s कॉन्फ़िगर करें</string>
+    <string name="cd_remove_addon">%1$s हटाएँ</string>
+    <string name="folder_error_addon_source">यह कैटलॉग लोड नहीं हो सका। जांचें कि इसका ऐडऑन इंस्टॉल और ऑनलाइन है, फिर दोबारा कोशिश करें।</string>
+    <string name="folder_error_addon_missing">इस कैटलॉग का ऐडऑन इंस्टॉल नहीं है। इसे ऐडऑन से इंस्टॉल करें, या इस सोर्स को फ़ोल्डर से हटाएँ।</string>
+    <string name="folder_error_tmdb_source">इसे TMDB से लोड नहीं किया जा सका। अपना कनेक्शन जांचें, फिर दोबारा कोशिश करें।</string>
+    <string name="folder_error_trakt_source">यह Trakt लिस्ट लोड नहीं हो सकी। अपना कनेक्शन जांचें और देखें कि लिस्ट अभी भी पब्लिक है, फिर दोबारा कोशिश करें।</string>
+    <string name="folder_error_list_source">यह लिस्ट लोड नहीं हो सकी। अपना कनेक्शन जांचें, फिर दोबारा कोशिश करें।</string>
+    <string name="collections_editor_discard_title">बदलाव छोड़ें?</string>
+    <string name="collections_editor_discard_collection_subtitle">इस कलेक्शन में किए गए आपके बदलाव सेव नहीं हुए हैं।</string>
+    <string name="collections_editor_discard_folder_subtitle">इस फ़ोल्डर में किए गए आपके बदलाव सेव नहीं हुए हैं।</string>
+    <string name="collections_editor_keep_editing">एडिट करते रहें</string>
+    <string name="collections_editor_discard">छोड़ें</string>
+    <string name="library_error_save_list_next_step">अपना कनेक्शन जांचें और फिर से कोशिश करें।</string>
     <string name="autoplay_mode_best">बेस्ट मैच</string>
     <string name="autoplay_mode_best_desc">हर रिज़ल्ट को क्वालिटी, आपके नियमों और इस डिवाइस की प्ले करने की क्षमता के आधार पर रैंक करता है, फिर सबसे अच्छा शुरू करता है। बाकी सोर्स बस एक बटन दूर रहते हैं।</string>
     <string name="ranking_preferred_quality">पसंदीदा क्वालिटी</string>
@@ -1022,6 +1054,9 @@
     <string name="addon_health_slow">धीमा · %1$s</string>
     <string name="addon_health_failing">पिछली रिक्वेस्ट फ़ेल हुई</string>
     <string name="addon_health_timed_out">पिछली रिक्वेस्ट का समय खत्म हो गया</string>
+    <string name="source_chip_failed">विफल</string>
+    <string name="source_chip_loading">लोड हो रहा है</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="account_local_only_note">सिंक बंद है। Fetch आपके ऐडऑन, प्रोग्रेस और सेटिंग्स इसी टीवी पर रखता है और इसके लिए किसी अकाउंट की ज़रूरत नहीं है। डिवाइसों के बीच सिंक करने के लिए, सर्वर विकल्पों से अपना सिंक सर्वर कनेक्ट करें।</string>
     <string name="parental_title_blocked">यह टाइटल इस प्रोफाइल की रेटिंग सीमा से ऊपर है।</string>
     <string name="parental_addons_blocked">यह प्रोफाइल ऐडऑन इंस्टॉल नहीं कर सकता। किसी अभिभावक से कहें।</string>

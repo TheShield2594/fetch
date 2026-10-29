@@ -464,6 +464,9 @@
     <string name="playback_subtitle">Konfigurirajte možnosti predvajanja videa in podnapisov</string>
     <string name="cd_decrease">Zmanjšaj</string>
     <string name="cd_increase">Povečaj</string>
+    <string name="cd_decrease_setting">Zmanjšaj %1$s</string>
+    <string name="cd_increase_setting">Povečaj %1$s</string>
+    <string name="cd_seek_bar">Drsnik predvajanja</string>
     <string name="action_cancel">Prekliči</string>
 	<string name="action_apply">Uveljavi</string>										  
 	<string name="sub_opacity">Prosojnost</string>
@@ -727,7 +730,7 @@
     <string name="mdblist_dialog_title">MDBList API ključ</string>
     <string name="mdblist_dialog_placeholder">Vnesite MDBList API ključ</string>
     <string name="mdblist_not_set">Ni nastavljeno</string>
-	<string name="mdblist_invalid_api_key">Napačen MDBList API ključ</string>																	   
+	<string name="mdblist_invalid_api_key">Tega ključa API ni bilo mogoče preveriti. Preverite, ali se ujema s ključem v vašem računu MDBList in ali ste povezani v splet, nato poskusite znova.</string>																	   
 	<!-- Anime-Skip -->				   
 	<string name="animeskip_title">Anime Skip</string>
     <string name="animeskip_subtitle">Konfigurirajte svoj Anime Skip ID odjemalca za preskakovanje uvodov/odjav animejev</string>
@@ -738,7 +741,7 @@
     <string name="animeskip_dialog_title">Anime Skip ID odjemalca</string>
     <string name="animeskip_dialog_subtitle">Ustvarite svoj ID odjemalca na anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Vnesite ID odjemalca</string>
-    <string name="animeskip_invalid_client_id">Neveljaven ID odjemalca</string>												  
+    <string name="animeskip_invalid_client_id">Tega ID-ja odjemalca ni bilo mogoče preveriti. Preverite, ali se ujema s tistim v vašem računu Anime Skip in ali ste povezani v splet, nato poskusite znova.</string>												  
     <string name="action_clear">Počisti</string>
 	<!-- TmdbSettingsScreen -->
     <string name="tmdb_title">Obogatitev s TMDB</string>
@@ -909,6 +912,7 @@
     <string name="addon_error_invalid_scheme">URL dodatka se mora začeti s http ali https</string>															
 	<string name="addon_installed_section">Nameščeno</string>
     <string name="addon_empty">Ni nameščenih dodatkov. Dodajte enega za začetek.</string>
+    <string name="addon_list_load_failed">Nameščenih dodatkov ni bilo mogoče naložiti. Poskusite znova.</string>
     <string name="addon_remove">Odstrani</string>
     <string name="addon_manage_from_phone_title">Upravljajte s telefonom</string>
     <string name="addon_manage_from_phone_subtitle">Skenirajte QR kodo za upravljanje dodatkov in domačih katalogov s telefona</string>
@@ -993,6 +997,8 @@
     <string name="player_up_next_in_queue">Naslednje v čakalni vrsti</string>
     <string name="player_queue_move_up">Premakni gor</string>
     <string name="player_queue_move_down">Premakni dol</string>
+    <string name="player_queue_removed">Odstranjeno iz čakalne vrste: %1$s</string>
+    <string name="player_queue_undo">Razveljavi</string>
     <string name="player_seek_back_10">Nazaj 10 sekund</string>
     <string name="player_seek_forward_30">Naprej 30 sekund</string>
     <string name="player_via">prek %1$s</string>
@@ -1000,6 +1006,7 @@
 	<string name="season_episode_format">S%1$d E%2$d</string>														 
     <string name="player_subtitle_delay">Zakasnitev podnapisov</string>
     <string name="player_error_title">Napaka pri predvajanju</string>
+    <string name="player_error_choose_source">Izberite drug vir</string>
     <string name="player_speed_title">Hitrost predvajanja</string>
     <string name="player_more_actions_title">Več dejanj</string>
     <string name="player_more_speed">Hitrost predvajanja</string>
@@ -1109,6 +1116,8 @@
     <string name="search_start_subtitle_no_discover">Odkrivanje je onemogočeno. Vnesite vsaj 2 znaka</string>
     <string name="search_recent_title">Nedavna iskanja</string>
     <string name="search_recent_clear">Počisti zgodovino</string>
+    <string name="search_recent_clear_confirm_title">Želite počistiti zgodovino iskanja?</string>
+    <string name="search_recent_clear_confirm_subtitle">Vsa nedavna iskanja bodo odstranjena. Tega ni mogoče razveljaviti.</string>
     <string name="search_voice_no_speech">Govor ni bil zaznan. Poskusite znova.</string>
     <string name="search_voice_mic_permission">Za glasovno iskanje je potrebno dovoljenje za mikrofon.</string>
     <string name="search_voice_failed">Prepoznavanje glasu ni uspelo. Poskusite znova.</string>
@@ -1160,12 +1169,16 @@
     <string name="library_list_move_up">Premakni gor</string>
     <string name="library_list_move_down">Premakni dol</string>
     <string name="library_list_delete">Izbriši</string>
+    <string name="library_list_delete_named">Izbriši »%1$s«</string>
     <string name="library_list_close">Zapri</string>
     <string name="library_list_name_label">Ime</string>
-	<string name="library_error_list_name_required">Vnesti morate ime seznama</string>																			  
+	<string name="library_error_list_name_required">Vnesite ime seznama</string>																			  
     <string name="library_list_description_label">Opis</string>
     <string name="library_list_privacy">Zasebnost</string>
     <string name="library_delete_title">Izbriši ta seznam?</string>
+    <string name="library_delete_title_named">Želite izbrisati »%1$s«?</string>
+    <string name="library_delete_subtitle_provider">S tem boste seznam in njegove elemente odstranili iz storitve %1$s. Tega ni mogoče razveljaviti.</string>
+    <string name="library_delete_subtitle_local">S tem boste seznam in njegove elemente odstranili iz knjižnice. Tega ni mogoče razveljaviti.</string>
     <string name="library_source_local">LOKALNO</string>
 	<string name="library_watchlist">Seznam za ogled</string> 
 	<string name="library_syncing_library">Sinhroniziranje knjižnice\u2026</string>
@@ -1326,7 +1339,7 @@
     <string name="library_syncing_btn">Sinhroniziranje\u2026</string>														
 	<!-- Error messages (shared) -->								
 	<string name="error_network_required">Za uporabo te funkcije se povežite v omrežje Wi-Fi ali Ethernet</string>
-    <string name="error_server_ports_unavailable">Strežnika ni bilo mogoče zagnati. Vsa vrata so v uporabi.</string>																							   
+    <string name="error_server_ports_unavailable">Povezave s telefonom ni bilo mogoče vzpostaviti. Znova zaženite Fetch in poskusite znova.</string>																							   
 	<!-- Trakt errors -->					 
 	<string name="trakt_error_code_expired">Koda naprave je potekla. Začnite znova.</string>
     <string name="trakt_error_code_used">Koda naprave je že uporabljena. Začnite znova.</string>
@@ -1357,11 +1370,13 @@
     <!-- Account errors -->					   
 	<string name="account_error_signin_required">Najprej se prijavite z računom.</string>																					
 	<!-- Search errors -->					  
-	<string name="search_error_no_catalogs">V nameščenih dodatkih ni iskalnih katalogov</string>																								 
+	<string name="search_error_no_catalogs">V nameščenih dodatkih ni iskalnih katalogov</string>
+	<string name="search_no_catalogs_title">Noben od vaših dodatkov ne omogoča iskanja</string>
+	<string name="search_no_catalogs_subtitle">Namestite dodatek s katalogom za iskanje in poskusite znova.</string>																								 
 	<!-- Home errors -->					
     <string name="home_error_no_catalog_addons">Ni nameščenih dodatkov s katalogi</string>																
     <!-- Player errors -->					  
-	<string name="player_error_no_stream_url">Ni podanega URL-ja vira</string>																		 
+	<string name="player_error_no_stream_url">Ta vir nima povezave za pretakanje. Izberite drug vir.</string>																		 
 	<!-- Playback subtitle settings -->								   
 	<string name="sub_mode_overlay_canvas_sub">Podpora za HDR z izrisovanjem na platno. Lahko blokira nit uporabniškega vmesnika.</string>
     <string name="subtitle_style_weight">Debelina</string>																										   
@@ -1391,6 +1406,11 @@
     <string name="cd_loading_logo">Nalaganje logotipa</string>
     <string name="cd_move_up">Premakni gor</string>
     <string name="cd_move_down">Premakni dol</string>
+    <string name="cd_move_addon_up">Premakni %1$s navzgor</string>
+    <string name="cd_move_addon_down">Premakni %1$s navzdol</string>
+    <string name="cd_addon_enabled_toggle">%1$s omogočen</string>
+    <string name="cd_configure_addon">Konfiguriraj %1$s</string>
+    <string name="cd_remove_addon">Odstrani %1$s</string>
     <string name="cd_edit">Uredi</string>
     <string name="cd_delete">Izbriši</string>
     <string name="cd_qr_code">Koda QR</string>
@@ -1425,7 +1445,7 @@
     <string name="collections_import">Uvozi</string>
     <string name="collections_export_file">Izvozi datoteko</string>
     <string name="collections_saved_downloads">Shranjeno v prenose</string>
-    <string name="collections_export_failed">Izvoz ni uspel</string>
+    <string name="collections_export_failed">Shranjevanje v mapo Prenosi ni uspelo. Preverite dovoljenje za shrambo in prosti prostor, nato poskusite znova.</string>
     <string name="collections_import_header">Uvoz zbirk</string>
     <string name="collections_import_description">Uvozite zbirke iz JSON-a. Katalogi iz dodatkov, ki niso nameščeni, bodo prikazali opozorilo.</string>
     <string name="collections_import_url_placeholder">https://primer.si/collections.json</string>
@@ -1665,6 +1685,16 @@
     <string name="collection_editor_folder_count_other">%1$d elementov</string>
     <string name="collections_editor_delete_folder_title">Izbrišem mapo?</string>
     <string name="collections_editor_delete_folder_subtitle">To bo trajno izbrisalo \"%1$s\" in njeno vsebino.</string>
+    <string name="folder_error_addon_source">Tega kataloga ni bilo mogoče naložiti. Preverite, ali je njegov dodatek nameščen in dosegljiv, nato poskusite znova.</string>
+    <string name="folder_error_addon_missing">Dodatek tega kataloga ni nameščen. Namestite ga v razdelku Dodatki ali odstranite ta vir iz mape.</string>
+    <string name="folder_error_tmdb_source">Vsebine iz TMDB ni bilo mogoče naložiti. Preverite povezavo, nato poskusite znova.</string>
+    <string name="folder_error_trakt_source">Tega seznama Trakt ni bilo mogoče naložiti. Preverite povezavo in ali je seznam še vedno javen, nato poskusite znova.</string>
+    <string name="folder_error_list_source">Tega seznama ni bilo mogoče naložiti. Preverite povezavo, nato poskusite znova.</string>
+    <string name="collections_editor_discard_title">Želite zavreči spremembe?</string>
+    <string name="collections_editor_discard_collection_subtitle">Spremembe te zbirke niso shranjene.</string>
+    <string name="collections_editor_discard_folder_subtitle">Spremembe te mape niso shranjene.</string>
+    <string name="collections_editor_keep_editing">Nadaljuj z urejanjem</string>
+    <string name="collections_editor_discard">Zavrzi</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvelovi filmi, Netflixovi izvirniki, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Najboljši akcijski filmi, Korejske drame, Animacija 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Filmi Toma Hanksa, Najljubši igralci</string>
@@ -1729,17 +1759,17 @@
     <string name="player_track_subtitle_fallback">Podnapis %1$d</string>
     
 	<!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nVir za pretakanje je blokiran ali omejen. Poskusite z drugim virom.</string>
-    <string name="player_error_stream_removed">\n\nPovezava za pretakanje je potekla ali bila odstranjena. Poskusite z drugim virom.</string>
-    <string name="player_error_stream_expired">\n\nPovezava za pretakanje je potekla. Poskusite z drugim virom.</string>
-    <string name="player_error_stream_rate_limited">\n\nPreveč zahtev do vira za pretakanje. Počakajte trenutek in poskusite znova.</string>
-    <string name="player_error_stream_unavailable">\n\nStrežnik za pretakanje trenutno ni na voljo. Poskusite z drugim virom.</string>
-    <string name="player_error_source_invalid_content">Napaka vira: Vir za pretakanje je vrnil neveljavno vsebino ali vsebino, ki je ni mogoče predvajati. Povezava je morda potekla ali pa je strežnik namesto videa vrnil stran z napako.\n\nPoskusite z drugim virom. [%1$s]</string>
-       <string name="player_error_unsupported_format">Ta vir uporablja format, ki ga vaša naprava morda ne podpira. Poskusite z drugim virom. [%1$s]</string>
-    <string name="player_error_initialize_failed">Predvajalnika ni bilo mogoče zagnati</string>
-    <string name="player_error_mpv_surface_failed">Površine libmpv ni bilo mogoče zagnati</string>
-    <string name="player_error_mpv_playback_failed">Predvajanja libmpv ni bilo mogoče zagnati</string>
-       <string name="player_error_playback_fallback">Napaka pri predvajanju</string>
+    <string name="player_error_stream_blocked">\n\nVir za pretakanje je blokiran ali omejen. Izberite drug vir.</string>
+    <string name="player_error_stream_removed">\n\nPovezava za pretakanje je potekla ali bila odstranjena. Izberite drug vir.</string>
+    <string name="player_error_stream_expired">\n\nPovezava za pretakanje je potekla. Izberite drug vir.</string>
+    <string name="player_error_stream_rate_limited">\n\nPreveč zahtev do vira za pretakanje. Počakajte trenutek, nato znova izberite vir.</string>
+    <string name="player_error_stream_unavailable">\n\nStrežnik za pretakanje trenutno ni na voljo. Izberite drug vir.</string>
+    <string name="player_error_source_invalid_content">Napaka vira: Vir za pretakanje je vrnil neveljavno vsebino ali vsebino, ki je ni mogoče predvajati. Povezava je morda potekla ali pa je strežnik namesto videa vrnil stran z napako.\n\nIzberite drug vir. [%1$s]</string>
+       <string name="player_error_unsupported_format">Ta vir uporablja format, ki ga vaša naprava morda ne podpira. Izberite drug vir. [%1$s]</string>
+    <string name="player_error_initialize_failed">Predvajalnika ni bilo mogoče zagnati. Izberite drug vir.</string>
+    <string name="player_error_mpv_surface_failed">Predvajalnika mpv ni bilo mogoče zagnati. Izberite drug vir.</string>
+    <string name="player_error_mpv_playback_failed">Predvajanja v predvajalniku mpv ni bilo mogoče začeti. Izberite drug vir.</string>
+       <string name="player_error_playback_fallback">Tega pretoka ni bilo mogoče predvajati. Izberite drug vir.</string>
     <!-- Subtitle timing recovery -->    
     <string name="subtitle_timing_file_no_lines">V tej datoteki ni bilo najdenih vrstic s podnapisi.</string>
     <string name="subtitle_timing_load_lines_failed">Vrstic s podnapisi ni bilo mogoče naložiti.</string>
@@ -1770,6 +1800,7 @@
     <string name="library_list_created">Seznam je ustvarjen</string>
        <string name="library_list_updated">Seznam je posodobljen</string>
     <string name="library_error_save_list_failed">Seznama ni bilo mogoče shraniti</string>
+    <string name="library_error_save_list_next_step">Preverite povezavo in poskusite znova.</string>
     <string name="library_list_deleted">Seznam je izbrisan</string>
     <string name="library_error_delete_list_failed">Seznama ni bilo mogoče izbrisati</string>
     <string name="library_list_order_updated">Vrstni red seznamov je posodobljen</string>
@@ -1798,11 +1829,11 @@
     <string name="trakt_error_mark_watched_failed">Označevanje kot ogledano na Traktu ni uspelo (%1$d)</string>
 
     <!-- Detail / poster options errors -->    
-    <string name="detail_error_update_library_failed">Posodobitev knjižnice ni uspela</string>
-    <string name="detail_error_load_lists_failed">Nalaganje seznamov ni uspelo</string>
-    <string name="detail_error_update_lists_failed">Posodobitev seznamov ni uspela</string>
-    <string name="detail_error_update_watched_failed">Posodobitev stanja ogleda ni uspela</string>
-    <string name="detail_error_update_episode_watched_failed">Posodobitev stanja ogleda epizode ni uspela</string>
+    <string name="detail_error_update_library_failed">Knjižnice ni bilo mogoče posodobiti. Preverite povezavo in poskusite znova.</string>
+    <string name="detail_error_load_lists_failed">Vaših seznamov ni bilo mogoče naložiti. Preverite povezavo in poskusite znova.</string>
+    <string name="detail_error_update_lists_failed">Vaših seznamov ni bilo mogoče posodobiti. Preverite povezavo in poskusite znova.</string>
+    <string name="detail_error_update_watched_failed">Stanja ogleda ni bilo mogoče posodobiti. Preverite povezavo in poskusite znova.</string>
+    <string name="detail_error_update_episode_watched_failed">Stanja ogleda te epizode ni bilo mogoče posodobiti. Preverite povezavo in poskusite znova.</string>
     <string name="poster_options_error_load_lists_failed">Nalaganje seznamov ni uspelo</string>
     <string name="poster_options_error_update_lists_failed">Posodobitev seznamov ni uspela</string>
 
@@ -1896,6 +1927,9 @@
     <string name="addon_health_ok">Se odziva · %1$s</string>
     <string name="addon_health_slow">Počasno · %1$s</string>
     <string name="addon_health_timed_out">Zadnja zahteva je potekla</string>
+    <string name="source_chip_failed">ni uspelo</string>
+    <string name="source_chip_loading">nalaganje</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s je treba nastaviti, preden ga lahko namestite</string>
     <string name="advanced_introdb_api_key">Ključ API za IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Ustvarite ključ na introdb.app. Začne se z idb_.</string>
@@ -1911,6 +1945,7 @@
     <string name="autoplay_mode_best_desc">Razvrsti vse rezultate po kakovosti, vaših pravilih in tem, kar ta naprava lahko predvaja, nato zažene zmagovalca. Drugi viri so na voljo z enim pritiskom.</string>
     <string name="best_match_cached">V predpomnilniku</string>
     <string name="best_match_excluded">Ni samodejno predvajano: %1$s</string>
+    <string name="stream_hold_for_options">Pridržite OK za možnosti Najboljšega ujemanja</string>
     <string name="best_match_preview_sub">Med ogledom naslova povpraša vaše dodatke za vire, da gumb Predvajaj pokaže datoteko in se predvajanje začne hitreje. Izklopite, če želite iskati šele po pritisku na Predvajaj.</string>
     <string name="best_match_preview_title">Prikaži izbiro na gumbu Predvajaj</string>
     <string name="catalog_order_pin">Pripni na vrh</string>

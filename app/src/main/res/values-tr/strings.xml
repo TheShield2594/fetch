@@ -230,7 +230,7 @@
     <string name="detail_marked_episodes_unwatched">İzlenmedi olarak işaretlenen bölümler: %1$d</string>
     <string name="detail_marked_previous_watched">İzlendi olarak işaretlenen önceki bölümler: %1$d</string>
     <string name="playback_unavailable">Oynatma kullanılamıyor</string>
-    <string name="playback_unavailable_message">Mevcut kurulumunuzla bu içerik oynatılamıyor.</string>
+    <string name="playback_unavailable_message">Eklentilerinizin hiçbiri bu içeriği oynatamıyor. Ayarlar &gt; İçerik ve Keşif &gt; Eklentiler bölümünden bir yayın eklentisi ekleyin veya açın.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Oynat</string>
@@ -612,6 +612,9 @@
     <string name="playback_subtitle">Video oynatma ve altyazı seçeneklerini yapılandırın</string>
     <string name="cd_decrease">Azalt</string>
     <string name="cd_increase">Artır</string>
+    <string name="cd_decrease_setting">%1$s değerini azalt</string>
+    <string name="cd_increase_setting">%1$s değerini artır</string>
+    <string name="cd_seek_bar">İlerleme çubuğu</string>
     <string name="action_cancel">İptal</string>
     <string name="action_apply">Uygula</string>
     <string name="sub_opacity">Altyazı Opaklığı</string>
@@ -1066,7 +1069,7 @@
     <string name="mdblist_dialog_title">MDBList API Key</string>
     <string name="mdblist_dialog_placeholder">MDBList API Anahtarını Girin</string>
     <string name="mdblist_not_set">Ayarlanmadı</string>
-    <string name="mdblist_invalid_api_key">Geçersiz MDBList API anahtarı</string>
+    <string name="mdblist_invalid_api_key">Bu API anahtarı doğrulanamadı. MDBList hesabınızdaki anahtarla eşleştiğini ve çevrimiçi olduğunuzu kontrol edin, ardından tekrar deneyin.</string>
     <string name="mdblist_library_lists">Kütüphane listeleri</string>
     <string name="mdblist_library_lists_description">Hangi MDBList listelerinin Kütüphane ve Listeleri Yönet bölümlerinde görüneceğini seçin. İzleme Listesi her zaman gösterilir.</string>
     <string name="mdblist_library_lists_empty">MDBList hesabınızda henüz liste bulunamadı. Yüklemek için senkronize edin.</string>
@@ -1115,7 +1118,7 @@
     <string name="animeskip_dialog_title">Anime Skip İstemci Kimliği</string>
     <string name="animeskip_dialog_subtitle">Kendi İstemci Kimliğinizi (Client ID) anime-skip.com/account/settings adresi üzerinden kopyalayabilirsiniz</string>
     <string name="animeskip_dialog_placeholder">İstemci Kimliğinizi Buraya Yapıştırın</string>
-    <string name="animeskip_invalid_client_id">Geçersiz Client ID</string>
+    <string name="animeskip_invalid_client_id">Bu Client ID doğrulanamadı. Anime Skip hesabınızdakiyle eşleştiğini ve çevrimiçi olduğunuzu kontrol edin, ardından tekrar deneyin.</string>
     <string name="action_clear">Temizle</string>
 
     <!-- TmdbSettingsScreen -->
@@ -1330,6 +1333,7 @@
     <string name="addon_error_invalid_scheme">Eklenti URL\'si http veya https ile başlamalıdır</string>
     <string name="addon_installed_section">Kurulu</string>
     <string name="addon_empty">Kurulu eklenti bulunamadı. Başlamak için bir tane ekleyin.</string>
+    <string name="addon_list_load_failed">Yüklü eklentileriniz yüklenemedi. Tekrar deneyin.</string>
     <string name="addon_remove">Kaldır</string>
     <string name="addon_delete_confirm_title">Eklenti silinsin mi?</string>
     <string name="addon_delete_confirm_message">Silmek istediğinizden emin misiniz?</string>
@@ -1429,6 +1433,8 @@
     <string name="player_up_next_in_queue">Sırada sonraki</string>
     <string name="player_queue_move_up">Yukarı taşı</string>
     <string name="player_queue_move_down">Aşağı taşı</string>
+    <string name="player_queue_removed">%1$s sıradan kaldırıldı</string>
+    <string name="player_queue_undo">Geri al</string>
     <string name="player_seek_back_10">10 saniye geri</string>
     <string name="player_seek_forward_30">30 saniye ileri</string>
     <string name="player_live_watched">CANLI  %1$s</string>
@@ -1437,6 +1443,7 @@
     <string name="season_episode_format">S%1$d B%2$d</string>
     <string name="player_subtitle_delay">Altyazı Gecikmesi</string>
     <string name="player_error_title">Oynatma Hatası</string>
+    <string name="player_error_choose_source">Başka bir kaynak seçin</string>
     <string name="player_switch_to_mpv">MPV Oynatıcıya Geç</string>
     <string name="player_report_issue">Sorun Bildir</string>
     <string name="player_report_issue_sending">Oynatma raporu gönderiliyor...</string>
@@ -1588,6 +1595,8 @@
     <string name="search_start_subtitle_no_discover">Keşfet kapalı. En az 2 karakter girin</string>
     <string name="search_recent_title">Son aramalar</string>
     <string name="search_recent_clear">Geçmişi temizle</string>
+    <string name="search_recent_clear_confirm_title">Arama geçmişi temizlensin mi?</string>
+    <string name="search_recent_clear_confirm_subtitle">Tüm son aramalarınız kaldırılacak. Bu işlem geri alınamaz.</string>
     <string name="cd_remove_recent_search">%1$s öğesini son aramalardan kaldır</string>
     <string name="search_voice_no_speech">Konuşma algılanamadı. Tekrar deneyin.</string>
     <string name="search_voice_mic_permission">Sesli arama için mikrofon izni gereklidir.</string>
@@ -1664,12 +1673,16 @@
     <string name="library_list_move_up">Yukarı Taşı</string>
     <string name="library_list_move_down">Aşağı Taşı</string>
     <string name="library_list_delete">Sil</string>
+    <string name="library_list_delete_named">“%1$s” listesini sil</string>
     <string name="library_list_close">Kapat</string>
     <string name="library_list_name_label">Liste Adı</string>
-    <string name="library_error_list_name_required">Liste adı gerekli</string>
+    <string name="library_error_list_name_required">Liste için bir ad girin</string>
     <string name="library_list_description_label">Açıklama</string>
     <string name="library_list_privacy">Gizlilik</string>
     <string name="library_delete_title">Listeyi silmek istediğinizden emin misiniz?</string>
+    <string name="library_delete_title_named">“%1$s” silinsin mi?</string>
+    <string name="library_delete_subtitle_provider">Bu işlem listeyi ve öğelerini %1$s hizmetinden kaldırır. Bu işlem geri alınamaz.</string>
+    <string name="library_delete_subtitle_local">Bu işlem listeyi ve öğelerini kütüphanenizden kaldırır. Bu işlem geri alınamaz.</string>
     <string name="library_source_local">YEREL</string>
     <string name="library_source_saved">Kaydedildi</string>
     <string name="library_watchlist">İzleme Listesi</string>
@@ -2009,7 +2022,7 @@
     <string name="diag_value_off">Kapalı</string>
     <string name="diag_value_conversions_fmt">%2$d üzerinden %1$d başarılı</string>
     <string name="diag_value_never_rendered">Hiç görüntülenmedi</string>
-    <string name="player_error_play_stream_failed">Seçilen yayın oynatılamadı</string>
+    <string name="player_error_play_stream_failed">Seçilen yayın oynatılamadı. Başka bir kaynak seçin.</string>
     <string name="unit_size_b">%1$d B</string>
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
@@ -2056,7 +2069,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Bu özelliği kullanmak için Wi-Fi veya Ethernet\'e bağlanın</string>
-    <string name="error_server_ports_unavailable">Sunucu başlatılamadı. Tüm portlar kullanımda.</string>
+    <string name="error_server_ports_unavailable">Telefon bağlantısı başlatılamadı. Fetch’i yeniden başlatıp tekrar deneyin.</string>
 
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Cihaz kodunun süresi doldu. Yeniden başlayın.</string>
@@ -2095,6 +2108,8 @@
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Kurulu eklentilerde aranabilir katalog bulunamadı</string>
+    <string name="search_no_catalogs_title">Eklentilerinizin hiçbiri arama yapamıyor</string>
+    <string name="search_no_catalogs_subtitle">Arama kataloğu olan bir eklenti yükleyin, ardından tekrar deneyin.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Kurulu katalog eklentisi yok</string>
@@ -2102,7 +2117,7 @@
     <string name="home_poster_lists_error_update_failed">Listeler güncellenemedi</string>
 
     <!-- Player errors -->
-    <string name="player_error_no_stream_url">Yayın URL\'si yok</string>
+    <string name="player_error_no_stream_url">Bu kaynağın yayın bağlantısı yok. Başka bir kaynak seçin.</string>
     <string name="player_stream_error_invalid_external_url">Geçersiz harici URL</string>
     <string name="player_stream_error_open_external_link_failed">Harici bağlantı açılamadı</string>
     <string name="player_stream_error_invalid_url">Geçersiz yayın URL\'si</string>
@@ -2141,6 +2156,11 @@
     <string name="cd_loading_logo">Logo yükleniyor</string>
     <string name="cd_move_up">Yukarı taşı</string>
     <string name="cd_move_down">Aşağı taşı</string>
+    <string name="cd_move_addon_up">%1$s öğesini yukarı taşı</string>
+    <string name="cd_move_addon_down">%1$s öğesini aşağı taşı</string>
+    <string name="cd_addon_enabled_toggle">%1$s etkin</string>
+    <string name="cd_configure_addon">%1$s öğesini yapılandır</string>
+    <string name="cd_remove_addon">%1$s öğesini kaldır</string>
     <string name="cd_edit">Düzenle</string>
     <string name="cd_delete">Sil</string>
     <string name="cd_qr_code">QR kod</string>
@@ -2176,7 +2196,7 @@
     <string name="collections_import">İçe Aktar</string>
     <string name="collections_export_file">Dosyayı Dışa Aktar</string>
     <string name="collections_saved_downloads">İndirilenler klasörüne kaydedildi</string>
-    <string name="collections_export_failed">Dışa aktarma başarısız</string>
+    <string name="collections_export_failed">İndirilenler klasörüne kaydedilemedi. Depolama iznini ve boş alanı kontrol edin, ardından tekrar deneyin.</string>
     <string name="collections_import_header">Koleksiyonları İçe Aktar</string>
     <string name="collections_import_description">JSON formatında koleksiyon içe aktarın. Kurulu olmayan eklentilere ait kataloglar uyarı gösterir.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2210,6 +2230,16 @@
     <string name="collections_delete_confirm_subtitle">\"%1$s\" kalıcı olarak silinecek. Bu işlem geri alınamaz.</string>
     <string name="collections_editor_delete_folder_title">Klasör silinsin mi?</string>
     <string name="collections_editor_delete_folder_subtitle">\"%1$s\" ve içindekiler kalıcı olarak silinecek.</string>
+    <string name="folder_error_addon_source">Bu katalog yüklenemedi. Eklentisinin yüklü ve çevrimiçi olduğunu kontrol edin, ardından tekrar deneyin.</string>
+    <string name="folder_error_addon_missing">Bu kataloğun eklentisi yüklü değil. Eklentiler bölümünden yükleyin veya bu kaynağı klasörden kaldırın.</string>
+    <string name="folder_error_tmdb_source">Bu içerik TMDB’den yüklenemedi. Bağlantınızı kontrol edin, ardından tekrar deneyin.</string>
+    <string name="folder_error_trakt_source">Bu Trakt listesi yüklenemedi. Bağlantınızı ve listenin hâlâ herkese açık olduğunu kontrol edin, ardından tekrar deneyin.</string>
+    <string name="folder_error_list_source">Bu liste yüklenemedi. Bağlantınızı kontrol edin, ardından tekrar deneyin.</string>
+    <string name="collections_editor_discard_title">Değişiklikler silinsin mi?</string>
+    <string name="collections_editor_discard_collection_subtitle">Bu koleksiyondaki değişiklikleriniz kaydedilmedi.</string>
+    <string name="collections_editor_discard_folder_subtitle">Bu klasördeki değişiklikleriniz kaydedilmedi.</string>
+    <string name="collections_editor_keep_editing">Düzenlemeye devam et</string>
+    <string name="collections_editor_discard">Değişiklikleri sil</string>
     <string name="collections_editor_row_title">Satır Başlığı</string>
     <string name="collections_editor_save">Kaydet</string>
     <string name="collections_editor_backdrop">Arka Plan Görseli</string>
@@ -2500,17 +2530,17 @@
     <string name="player_track_subtitle_fallback">Altyazı %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nYayın kaynağı engellendi veya kısıtlandı. Farklı bir kaynak deneyin.</string>
-    <string name="player_error_stream_removed">\n\nYayın bağlantısının süresi doldu veya kaldırıldı. Farklı bir kaynak deneyin.</string>
-    <string name="player_error_stream_expired">\n\nYayın bağlantısının süresi doldu. Farklı bir kaynak deneyin.</string>
-    <string name="player_error_stream_rate_limited">\n\nYayın kaynağına çok fazla istek yapıldı. Biraz bekleyip tekrar deneyin.</string>
-    <string name="player_error_stream_unavailable">\n\nYayın sunucusu şu an kullanılamıyor. Farklı bir kaynak deneyin.</string>
-    <string name="player_error_source_invalid_content">Kaynak hatası: Yayın kaynağı geçersiz veya oynatılamaz içerik döndürdü. Bağlantının süresi dolmuş olabilir veya sunucu video yerine hata sayfası döndürmüş olabilir.\n\nFarklı bir kaynak deneyin. [%1$s]</string>
-    <string name="player_error_unsupported_format">Bu yayın cihazınızın desteklemeyebileceği bir format kullanıyor. Farklı bir kaynak deneyin. [%1$s]</string>
-    <string name="player_error_initialize_failed">Oynatıcı başlatılamadı</string>
-    <string name="player_error_mpv_surface_failed">libmpv yüzeyi başlatılamadı</string>
-    <string name="player_error_mpv_playback_failed">libmpv oynatması başlatılamadı</string>
-    <string name="player_error_playback_fallback">Oynatma hatası</string>
+    <string name="player_error_stream_blocked">\n\nYayın kaynağı engellendi veya kısıtlandı. Başka bir kaynak seçin.</string>
+    <string name="player_error_stream_removed">\n\nYayın bağlantısının süresi doldu veya kaldırıldı. Başka bir kaynak seçin.</string>
+    <string name="player_error_stream_expired">\n\nYayın bağlantısının süresi doldu. Başka bir kaynak seçin.</string>
+    <string name="player_error_stream_rate_limited">\n\nYayın kaynağına çok fazla istek yapıldı. Biraz bekleyin, ardından yeniden bir kaynak seçin.</string>
+    <string name="player_error_stream_unavailable">\n\nYayın sunucusu şu an kullanılamıyor. Başka bir kaynak seçin.</string>
+    <string name="player_error_source_invalid_content">Kaynak hatası: Yayın kaynağı geçersiz veya oynatılamaz içerik döndürdü. Bağlantının süresi dolmuş olabilir veya sunucu video yerine hata sayfası döndürmüş olabilir.\n\nBaşka bir kaynak seçin. [%1$s]</string>
+    <string name="player_error_unsupported_format">Bu yayın cihazınızın desteklemeyebileceği bir format kullanıyor. Başka bir kaynak seçin. [%1$s]</string>
+    <string name="player_error_initialize_failed">Oynatıcı başlatılamadı. Başka bir kaynak seçin.</string>
+    <string name="player_error_mpv_surface_failed">mpv oynatıcısı başlatılamadı. Başka bir kaynak seçin.</string>
+    <string name="player_error_mpv_playback_failed">mpv oynatıcısında oynatma başlatılamadı. Başka bir kaynak seçin.</string>
+    <string name="player_error_playback_fallback">Bu yayın oynatılamadı. Başka bir kaynak seçin.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Bu dosyada altyazı satırı bulunamadı.</string>
     <string name="subtitle_timing_load_lines_failed">Altyazı satırları yüklenemedi.</string>
@@ -2541,6 +2571,7 @@
     <string name="library_list_created">Liste oluşturuldu</string>
     <string name="library_list_updated">Liste güncellendi</string>
     <string name="library_error_save_list_failed">Liste kaydedilemedi</string>
+    <string name="library_error_save_list_next_step">Bağlantınızı kontrol edip tekrar deneyin.</string>
     <string name="library_list_deleted">Liste silindi</string>
     <string name="library_error_delete_list_failed">Liste silinemedi</string>
     <string name="library_list_order_updated">Liste sırası güncellendi</string>
@@ -2608,11 +2639,11 @@
     <string name="trakt_more_like_this_source_simkl">Simkl</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Kütüphane güncellenemedi</string>
-    <string name="detail_error_load_lists_failed">Listeler yüklenemedi</string>
-    <string name="detail_error_update_lists_failed">Listeler güncellenemedi</string>
-    <string name="detail_error_update_watched_failed">İzlenme durumu güncellenemedi</string>
-    <string name="detail_error_update_episode_watched_failed">Bölüm izlenme durumu güncellenemedi</string>
+    <string name="detail_error_update_library_failed">Kütüphaneniz güncellenemedi. Bağlantınızı kontrol edip tekrar deneyin.</string>
+    <string name="detail_error_load_lists_failed">Listeleriniz yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.</string>
+    <string name="detail_error_update_lists_failed">Listeleriniz güncellenemedi. Bağlantınızı kontrol edip tekrar deneyin.</string>
+    <string name="detail_error_update_watched_failed">İzlenme durumu güncellenemedi. Bağlantınızı kontrol edip tekrar deneyin.</string>
+    <string name="detail_error_update_episode_watched_failed">Bu bölümün izlenme durumu güncellenemedi. Bağlantınızı kontrol edip tekrar deneyin.</string>
     <string name="poster_options_error_load_lists_failed">Listeler yüklenemedi</string>
     <string name="poster_options_error_update_lists_failed">Listeler güncellenemedi</string>
     <string name="meta_error_detail_no_metadata_for_id">bu içerik için bilgi döndürmedi</string>
@@ -2728,6 +2759,9 @@
     <string name="addon_health_ok">Yanıt veriyor · %1$s</string>
     <string name="addon_health_slow">Yavaş · %1$s</string>
     <string name="addon_health_timed_out">Son istek zaman aşımına uğradı</string>
+    <string name="source_chip_failed">başarısız</string>
+    <string name="source_chip_loading">yükleniyor</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s kurulmadan önce yapılandırılmalı</string>
     <string name="advanced_introdb_api_key">IntroDB API anahtarı</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">introdb.app üzerinde bir anahtar oluştur. idb_ ile başlar.</string>
@@ -2743,6 +2777,7 @@
     <string name="autoplay_mode_best_desc">Her sonucu kaliteye, kurallarına ve bu cihazın oynatabildiklerine göre sıralar, ardından kazananı başlatır. Diğer kaynaklar bir tık uzakta kalır.</string>
     <string name="best_match_cached">Önbellekte</string>
     <string name="best_match_excluded">Otomatik oynatılmadı: %1$s</string>
+    <string name="stream_hold_for_options">En iyi eşleşme seçenekleri için OK tuşunu basılı tutun</string>
     <string name="best_match_preview_sub">Bir başlığa bakarken yayın eklentilerine sorar, böylece Oynat düğmesi dosyayı gösterebilir ve oynatma daha hızlı başlar. Yalnızca Oynat\'a bastıktan sonra aramak için kapat.</string>
     <string name="best_match_preview_title">Seçimi Oynat düğmesinde göster</string>
     <string name="catalog_order_pin">En üste sabitle</string>

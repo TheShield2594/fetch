@@ -485,6 +485,9 @@
     <string name="playback_subtitle">Konfigurer videoafspilning og undertekstindstillinger</string>
     <string name="cd_decrease">Mindsk</string>
     <string name="cd_increase">Øg</string>
+    <string name="cd_decrease_setting">Mindsk %1$s</string>
+    <string name="cd_increase_setting">Øg %1$s</string>
+    <string name="cd_seek_bar">Tidslinje</string>
     <string name="action_cancel">Annuller</string>
     <string name="action_apply">Anvend</string>
     <string name="sub_opacity">Gennemsigtighed</string>
@@ -795,7 +798,7 @@
     <string name="mdblist_dialog_title">MDBList API-nøgle</string>
     <string name="mdblist_dialog_placeholder">Indtast MDBList API-nøgle</string>
     <string name="mdblist_not_set">Ikke angivet</string>
-    <string name="mdblist_invalid_api_key">Ugyldig MDBList API-nøgle</string>
+    <string name="mdblist_invalid_api_key">Kunne ikke bekræfte denne API-nøgle. Tjek, at den matcher nøglen på din MDBList-konto, og at du er online, og prøv derefter igen.</string>
 
 
 
@@ -840,7 +843,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Opret dit eget Client ID på anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Indtast Client ID</string>
-    <string name="animeskip_invalid_client_id">Ugyldigt Client ID</string>
+    <string name="animeskip_invalid_client_id">Kunne ikke bekræfte dette Client ID. Tjek, at det matcher det på din Anime Skip-konto, og at du er online, og prøv derefter igen.</string>
     <string name="action_clear">Ryd</string>
 
     <string name="tmdb_title">TMDB-berigelse</string>
@@ -1018,6 +1021,7 @@
     <string name="addon_error_invalid_scheme">Addon-URL skal starte med http eller https</string>
     <string name="addon_installed_section">Installerede</string>
     <string name="addon_empty">Ingen addons installeret. Tilføj ét for at komme i gang.</string>
+    <string name="addon_list_load_failed">Kunne ikke indlæse dine installerede addons. Prøv igen.</string>
     <string name="addon_remove">Fjern</string>
     <string name="addons_badge_disabled">Deaktiveret</string>
     <string name="addon_manage_from_phone_title">Administrer fra telefon</string>
@@ -1110,6 +1114,8 @@
     <string name="player_up_next_in_queue">Næste i køen</string>
     <string name="player_queue_move_up">Flyt op</string>
     <string name="player_queue_move_down">Flyt ned</string>
+    <string name="player_queue_removed">%1$s fjernet fra køen</string>
+    <string name="player_queue_undo">Fortryd</string>
     <string name="player_seek_back_10">10 sekunder tilbage</string>
     <string name="player_seek_forward_30">30 sekunder frem</string>
     <string name="player_via">via %1$s</string>
@@ -1117,12 +1123,13 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Undertekst-forsinkelse</string>
     <string name="player_error_title">Afspilningsfejl</string>
+    <string name="player_error_choose_source">Vælg en anden kilde</string>
     <string name="player_speed_title">Afspilningshastighed</string>
     <string name="player_more_actions_title">Flere handlinger</string>
     <string name="player_more_speed">Afspilningshastighed</string>
     <string name="player_more_aspect_ratio">Billedformat</string>
     <string name="player_more_open_external">Åbn i ekstern afspiller</string>
-    <string name="player_error_no_stream_url">Ingen stream-URL angivet</string>
+    <string name="player_error_no_stream_url">Denne kilde har intet stream-link. Vælg en anden kilde.</string>
 
 
     <string name="stream_info_section_source">KILDE</string>
@@ -1241,6 +1248,8 @@
     <string name="search_start_subtitle_no_discover">Opdag er deaktiveret. Indtast mindst 2 tegn</string>
     <string name="search_recent_title">Seneste søgninger</string>
     <string name="search_recent_clear">Ryd historik</string>
+    <string name="search_recent_clear_confirm_title">Ryd søgehistorik?</string>
+    <string name="search_recent_clear_confirm_subtitle">Alle dine seneste søgninger fjernes. Dette kan ikke fortrydes.</string>
     <string name="search_voice_no_speech">Ingen tale registreret. Prøv igen.</string>
     <string name="search_voice_mic_permission">Mikrofontilladelse er påkrævet for stemmesøgning.</string>
     <string name="search_voice_failed">Stemmegenkendelse mislykkedes. Prøv igen.</string>
@@ -1248,6 +1257,8 @@
     <string name="search_no_results_title">Ingen resultater</string>
     <string name="search_no_results_subtitle">Prøv at søge med andre søgeord</string>
     <string name="search_error_no_catalogs">Ingen søgbare kataloger fundet i installerede addons</string>
+    <string name="search_no_catalogs_title">Ingen af dine addons kan søge</string>
+    <string name="search_no_catalogs_subtitle">Installer en addon med et søgekatalog, og prøv derefter igen.</string>
 
     <string name="library_title">Bibliotek</string>
     <string name="library_filter_list">Liste</string>
@@ -1293,12 +1304,16 @@
     <string name="library_list_move_up">Flyt op</string>
     <string name="library_list_move_down">Flyt ned</string>
     <string name="library_list_delete">Slet</string>
+    <string name="library_list_delete_named">Slet »%1$s«</string>
     <string name="library_list_close">Luk</string>
     <string name="library_list_name_label">Navn</string>
-    <string name="library_error_list_name_required">Listenavn er påkrævet</string>
+    <string name="library_error_list_name_required">Indtast et navn til listen</string>
     <string name="library_list_description_label">Beskrivelse</string>
     <string name="library_list_privacy">Privatliv</string>
     <string name="library_delete_title">Slet denne liste?</string>
+    <string name="library_delete_title_named">Slet »%1$s«?</string>
+    <string name="library_delete_subtitle_provider">Dette fjerner listen og dens elementer fra %1$s. Dette kan ikke fortrydes.</string>
+    <string name="library_delete_subtitle_local">Dette fjerner listen og dens elementer fra dit bibliotek. Dette kan ikke fortrydes.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Gemt</string>
     <string name="library_watchlist">Seerliste</string>
@@ -1475,7 +1490,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Opret forbindelse til Wi-Fi eller Ethernet for at bruge denne funktion</string>
-    <string name="error_server_ports_unavailable">Kunne ikke starte server. Alle porte er i brug.</string>
+    <string name="error_server_ports_unavailable">Kunne ikke starte telefonforbindelsen. Genstart Fetch, og prøv igen.</string>
 
     <!-- Trakt errors -->
 
@@ -1540,6 +1555,11 @@
     <string name="cd_loading_logo">Indlæser logo</string>
     <string name="cd_move_up">Flyt op</string>
     <string name="cd_move_down">Flyt ned</string>
+    <string name="cd_move_addon_up">Flyt %1$s op</string>
+    <string name="cd_move_addon_down">Flyt %1$s ned</string>
+    <string name="cd_addon_enabled_toggle">%1$s aktiveret</string>
+    <string name="cd_configure_addon">Konfigurér %1$s</string>
+    <string name="cd_remove_addon">Fjern %1$s</string>
     <string name="cd_edit">Rediger</string>
     <string name="cd_delete">Slet</string>
     <string name="cd_qr_code">QR-kode</string>
@@ -1574,7 +1594,7 @@
     <string name="collections_import">Importer</string>
     <string name="collections_export_file">Eksporter fil</string>
     <string name="collections_saved_downloads">Gemt i Downloads</string>
-    <string name="collections_export_failed">Eksport mislykkedes</string>
+    <string name="collections_export_failed">Kunne ikke gemme i Downloads. Tjek lagertilladelsen og den ledige plads, og prøv derefter igen.</string>
     <string name="collections_import_header">Importer samlinger</string>
     <string name="collections_import_description">Importer samlinger fra JSON. Kataloger fra addons, du ikke har installeret, vil vise en advarsel.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1811,6 +1831,16 @@
     <string name="collection_editor_folder_count_other">%1$d elementer</string>
     <string name="collections_editor_delete_folder_title">Slet mappe?</string>
     <string name="collections_editor_delete_folder_subtitle">Dette vil permanent slette \"%1$s\" og dens indhold.</string>
+    <string name="folder_error_addon_source">Kunne ikke indlæse dette katalog. Tjek, at dets addon er installeret og online, og prøv derefter igen.</string>
+    <string name="folder_error_addon_missing">Dette katalogs addon er ikke installeret. Installer den fra Addons, eller fjern denne kilde fra mappen.</string>
+    <string name="folder_error_tmdb_source">Kunne ikke indlæse dette fra TMDB. Tjek din forbindelse, og prøv derefter igen.</string>
+    <string name="folder_error_trakt_source">Kunne ikke indlæse denne Trakt-liste. Tjek din forbindelse, og at listen stadig er offentlig, og prøv derefter igen.</string>
+    <string name="folder_error_list_source">Kunne ikke indlæse denne liste. Tjek din forbindelse, og prøv derefter igen.</string>
+    <string name="collections_editor_discard_title">Kassér ændringer?</string>
+    <string name="collections_editor_discard_collection_subtitle">Dine ændringer af denne samling er ikke gemt.</string>
+    <string name="collections_editor_discard_folder_subtitle">Dine ændringer af denne mappe er ikke gemt.</string>
+    <string name="collections_editor_keep_editing">Fortsæt redigering</string>
+    <string name="collections_editor_discard">Kassér</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Bedste actionfilm, Koreanske dramaer, 2024 Animation</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks-film, Yndlingsskuespillere</string>
@@ -1875,17 +1905,17 @@
     <string name="player_track_subtitle_fallback">Undertekst %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nStream-kilden er blokeret eller begrænset. Prøv en anden kilde.</string>
-    <string name="player_error_stream_removed">\n\nStream-linket er udløbet eller fjernet. Prøv en anden kilde.</string>
-    <string name="player_error_stream_expired">\n\nStream-linket er udløbet. Prøv en anden kilde.</string>
-    <string name="player_error_stream_rate_limited">\n\nFor mange forespørgsler til stream-kilden. Vent et øjeblik og prøv igen.</string>
-    <string name="player_error_stream_unavailable">\n\nStream-serveren er i øjeblikket utilgængelig. Prøv en anden kilde.</string>
-    <string name="player_error_source_invalid_content">Kildefejl: Stream-kilden returnerede ugyldigt eller ikke-afspilleligt indhold. Linket kan være udløbet, eller serveren returnerede en fejlside i stedet for video.\n\nPrøv en anden kilde. [%1$s]</string>
-    <string name="player_error_unsupported_format">Denne stream bruger et format, som din enhed muligvis ikke understøtter. Prøv en anden kilde. [%1$s]</string>
-    <string name="player_error_initialize_failed">Kunne ikke initialisere afspiller</string>
-    <string name="player_error_mpv_surface_failed">Kunne ikke initialisere libmpv-overflade</string>
-    <string name="player_error_mpv_playback_failed">Kunne ikke initialisere libmpv-afspilning</string>
-    <string name="player_error_playback_fallback">Afspilningsfejl</string>
+    <string name="player_error_stream_blocked">\n\nStream-kilden er blokeret eller begrænset. Vælg en anden kilde.</string>
+    <string name="player_error_stream_removed">\n\nStream-linket er udløbet eller fjernet. Vælg en anden kilde.</string>
+    <string name="player_error_stream_expired">\n\nStream-linket er udløbet. Vælg en anden kilde.</string>
+    <string name="player_error_stream_rate_limited">\n\nFor mange forespørgsler til stream-kilden. Vent et øjeblik, og vælg derefter en kilde igen.</string>
+    <string name="player_error_stream_unavailable">\n\nStream-serveren er i øjeblikket utilgængelig. Vælg en anden kilde.</string>
+    <string name="player_error_source_invalid_content">Kildefejl: Stream-kilden returnerede ugyldigt eller ikke-afspilleligt indhold. Linket kan være udløbet, eller serveren returnerede en fejlside i stedet for video.\n\nVælg en anden kilde. [%1$s]</string>
+    <string name="player_error_unsupported_format">Denne stream bruger et format, som din enhed muligvis ikke understøtter. Vælg en anden kilde. [%1$s]</string>
+    <string name="player_error_initialize_failed">Kunne ikke starte afspilleren. Vælg en anden kilde.</string>
+    <string name="player_error_mpv_surface_failed">Kunne ikke starte mpv-afspilleren. Vælg en anden kilde.</string>
+    <string name="player_error_mpv_playback_failed">Kunne ikke starte afspilning i mpv-afspilleren. Vælg en anden kilde.</string>
+    <string name="player_error_playback_fallback">Kan ikke afspille denne stream. Vælg en anden kilde.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Der blev ikke fundet undertekstlinjer i denne fil.</string>
     <string name="subtitle_timing_load_lines_failed">Kunne ikke indlæse undertekstlinjer.</string>
@@ -1916,6 +1946,7 @@
     <string name="library_list_created">Liste oprettet</string>
     <string name="library_list_updated">Liste opdateret</string>
     <string name="library_error_save_list_failed">Kunne ikke gemme liste</string>
+    <string name="library_error_save_list_next_step">Tjek din forbindelse, og prøv igen.</string>
     <string name="library_list_deleted">Liste slettet</string>
     <string name="library_error_delete_list_failed">Kunne ikke slette liste</string>
     <string name="library_list_order_updated">Listeorden opdateret</string>
@@ -1944,11 +1975,11 @@
     <string name="trakt_error_mark_watched_failed">Markering som set på Trakt mislykkedes (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Opdatering af bibliotek mislykkedes</string>
-    <string name="detail_error_load_lists_failed">Indlæsning af lister mislykkedes</string>
-    <string name="detail_error_update_lists_failed">Opdatering af lister mislykkedes</string>
-    <string name="detail_error_update_watched_failed">Opdatering af set-status mislykkedes</string>
-    <string name="detail_error_update_episode_watched_failed">Opdatering af episodens set-status mislykkedes</string>
+    <string name="detail_error_update_library_failed">Kunne ikke opdatere dit bibliotek. Tjek din forbindelse, og prøv igen.</string>
+    <string name="detail_error_load_lists_failed">Kunne ikke indlæse dine lister. Tjek din forbindelse, og prøv igen.</string>
+    <string name="detail_error_update_lists_failed">Kunne ikke opdatere dine lister. Tjek din forbindelse, og prøv igen.</string>
+    <string name="detail_error_update_watched_failed">Kunne ikke opdatere set-status. Tjek din forbindelse, og prøv igen.</string>
+    <string name="detail_error_update_episode_watched_failed">Kunne ikke opdatere episodens set-status. Tjek din forbindelse, og prøv igen.</string>
     <string name="poster_options_error_load_lists_failed">Indlæsning af lister mislykkedes</string>
     <string name="poster_options_error_update_lists_failed">Opdatering af lister mislykkedes</string>
 
@@ -2129,7 +2160,7 @@
     <string name="diag_value_never_rendered">Aldrig vist</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Afspilning af valgt stream mislykkedes</string>
+    <string name="player_error_play_stream_failed">Kan ikke afspille den valgte stream. Vælg en anden kilde.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2169,6 +2200,9 @@
     <string name="addon_health_ok">Svarer · %1$s</string>
     <string name="addon_health_slow">Langsom · %1$s</string>
     <string name="addon_health_timed_out">Seneste forespørgsel fik timeout</string>
+    <string name="source_chip_failed">mislykkedes</string>
+    <string name="source_chip_loading">indlæser</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s skal konfigureres, før det kan installeres</string>
     <string name="advanced_introdb_api_key">IntroDB API-nøgle</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Opret en nøgle på introdb.app. Den starter med idb_.</string>
@@ -2184,6 +2218,7 @@
     <string name="autoplay_mode_best_desc">Rangerer alle resultater efter kvalitet, dine regler og hvad denne enhed kan afspille, og starter vinderen. Andre kilder er kun et tryk væk.</string>
     <string name="best_match_cached">Cachet</string>
     <string name="best_match_excluded">Afspilles ikke automatisk: %1$s</string>
+    <string name="stream_hold_for_options">Hold OK nede for Bedste match-muligheder</string>
     <string name="best_match_preview_sub">Spørger dine stream-addons om en titel, mens du kigger på den, så Afspil-knappen kan vise filen, og afspilningen starter hurtigere. Slå fra for kun at søge, når du trykker på Afspil.</string>
     <string name="best_match_preview_title">Vis valget på Afspil-knappen</string>
     <string name="catalog_order_pin">Fastgør øverst</string>

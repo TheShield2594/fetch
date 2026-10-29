@@ -837,7 +837,7 @@ fun ContinueWatchingCard(
                                 }
                             )
                     ) {
-                        Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.TextPrimary))
+                        Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.Highlight))
                     }
                 }
             }
@@ -1014,7 +1014,7 @@ private fun WideCardContent(
                     .alpha(if (hasProgress) 1f else 0f),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
             ) {
-                Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.TextPrimary))
+                Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.Highlight))
                 Text(
                     text = badgeText,
                     style = MaterialTheme.typography.labelSmall,

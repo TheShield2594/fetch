@@ -92,7 +92,7 @@ fun ReadyDot(modifier: Modifier = Modifier) {
         modifier = modifier
             .size(12.dp)
             .border(2.dp, FetchTheme.colors.Background.copy(alpha = 0.6f), CircleShape)
-            .background(FetchTheme.colors.TextPrimary, CircleShape)
+            .background(FetchTheme.colors.Highlight, CircleShape)
             .semantics { contentDescription = description }
     )
 }

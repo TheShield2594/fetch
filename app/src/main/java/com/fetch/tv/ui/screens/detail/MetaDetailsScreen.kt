@@ -75,6 +75,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
@@ -364,6 +367,10 @@ private const val RETURN_FOCUS_SEASON_ADVANCE_WAIT_MS = 400L
 
 private const val USER_INTERACTION_DISPATCH_DEBOUNCE_MS = 120L
 
+// A confirmation fades after a moment; an error stays at least this long, then until a key press.
+private const val USER_INFO_MESSAGE_MS = 2500L
+private const val USER_ERROR_MESSAGE_MIN_MS = 8000L
+
 
 private fun formatDetailYearRange(releaseInfo: String?): String? {
     if (releaseInfo.isNullOrBlank()) return null
@@ -523,10 +530,18 @@ fun MetaDetailsScreen(
         }
     }
 
-    LaunchedEffect(uiState.userMessage) {
+    // An error stays until it has been up long enough to read and the user then presses a key.
+    var userErrorReadyToDismiss by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.userMessage, uiState.userMessageIsError) {
+        userErrorReadyToDismiss = false
         if (uiState.userMessage != null) {
-            delay(2500)
-            viewModel.onEvent(MetaDetailsEvent.OnClearMessage)
+            if (uiState.userMessageIsError) {
+                delay(USER_ERROR_MESSAGE_MIN_MS)
+                userErrorReadyToDismiss = true
+            } else {
+                delay(USER_INFO_MESSAGE_MS)
+                viewModel.onEvent(MetaDetailsEvent.OnClearMessage)
+            }
         }
     }
 
@@ -561,6 +576,11 @@ fun MetaDetailsScreen(
             .fillMaxSize()
             .background(FetchTheme.colors.Background)
             .onPreviewKeyEvent { keyEvent ->
+                // Observes the key without consuming it, to clear an error that has been read.
+                if (userErrorReadyToDismiss && keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                    userErrorReadyToDismiss = false
+                    viewModel.onEvent(MetaDetailsEvent.OnClearMessage)
+                }
                 if (currentIsTrailerPlaying) {
                     if (currentShowTrailerControls) {
                         if (keyEvent.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) {
@@ -1150,6 +1170,7 @@ fun MetaDetailsScreen(
                         shape = RoundedCornerShape(FetchRadii.tokens.sm)
                     )
                     .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
+                    .semantics { liveRegion = LiveRegionMode.Polite }
             ) {
                 Text(
                     text = message,

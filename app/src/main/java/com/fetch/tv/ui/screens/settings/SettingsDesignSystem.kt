@@ -978,13 +978,18 @@ internal fun SettingsChoiceChip(
 
     Card(
         onClick = onClick,
-        modifier = modifier.onFocusChanged { state ->
-            val nowFocused = state.isFocused
-            if (isFocused != nowFocused) {
-                isFocused = nowFocused
-                if (nowFocused) onFocused()
+        modifier = modifier
+            .onFocusChanged { state ->
+                val nowFocused = state.isFocused
+                if (isFocused != nowFocused) {
+                    isFocused = nowFocused
+                    if (nowFocused) onFocused()
+                }
             }
-        },
+            .semantics {
+                this.selected = selected
+                role = Role.RadioButton
+            },
         colors = CardDefaults.colors(
             containerColor = if (selected) FetchTheme.colors.FocusRing.copy(alpha = 0.2f) else FetchTheme.colors.Background,
             focusedContainerColor = if (selected) FetchTheme.colors.FocusRing.copy(alpha = 0.2f) else FetchTheme.colors.Background
@@ -994,8 +999,9 @@ internal fun SettingsChoiceChip(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
                 shape = RoundedCornerShape(SettingsPillRadius)
             ) else Border.None,
+            // Thicker than the selection hairline, so focus shows on a selected chip too.
             focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsPillRadius)
             )
         ),

@@ -1674,4 +1674,37 @@
     <string name="parental_pin_nudge_subtitle">Postavi PIN na profilu %1$s. Bez njega bilo ko može promijeniti ograničenja za %2$s ili se prebaciti na drugi profil.</string>
     <string name="parental_pin_nudge_set">Postavi PIN na profilu %1$s</string>
     <string name="parental_pin_nudge_later">Ne sada</string>
+    <string name="parental_gate_open_support">Profil %1$s nema svoj PIN, pa je za njegovo otvaranje potreban PIN roditelja dok drugi profil ima roditeljska ograničenja.</string>
+    <string name="parental_lock_profiles_title">Zaključaj profile bez ograničenja</string>
+    <string name="parental_lock_profiles_subtitle">Dok neki profil ima roditeljska ograničenja, za otvaranje profila bez ograničenja i bez vlastitog PIN-a potreban je PIN profila %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Prvo postavi PIN na profilu %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Zaključati i ostale profile?</string>
+    <string name="parental_lock_profiles_offer_subtitle">Profil %1$s može otvoriti %2$s i zaobići sva ograničenja, jer nemaju PIN. Fetch umjesto toga može tražiti PIN profila %3$s za njihovo otvaranje.</string>
+    <string name="parental_lock_profiles_offer_accept">Traži PIN profila %1$s</string>
+    <string name="kids_autoplay_cap">Automatska reprodukcija zaredom: %1$s</string>
+    <string name="kids_approved_only">Samo odobreni naslovi: %1$s</string>
+    <string name="kids_approved_movies">Filmovi za tebe</string>
+    <string name="kids_approved_shows">Serije za tebe</string>
+    <string name="kids_approved_only_hint">Na ovom profilu prikazuju se samo uvijek dozvoljeni naslovi. Dozvoli naslov iz menija dugog pritiska na njegovom posteru na glavnom profilu.</string>
+    <string name="kids_daily_time">Dnevno vrijeme pred ekranom: %1$s</string>
+    <string name="kids_bedtime">Vrijeme za spavanje: od %1$s do %2$s</string>
+    <string name="kids_bedtime_off">Vrijeme za spavanje: isključeno</string>
+    <string name="kids_at_limit_finish">Na granici: završi ono što se pušta</string>
+    <string name="kids_at_limit_stop">Na granici: odmah zaustavi</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d epizoda</item>
+        <item quantity="few">%1$d epizode</item>
+        <item quantity="other">%1$d epizoda</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">To je sve za danas</string>
+    <string name="screen_time_daily">Današnje vrijeme pred ekranom je potrošeno. Vidimo se sutra!</string>
+    <string name="screen_time_bedtime">Vrijeme je za spavanje. Vidimo se sutra!</string>
+    <string name="screen_time_choose">Koliko još vremena?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Još vremena (roditelj)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Bez ograničenja do kraja dana</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

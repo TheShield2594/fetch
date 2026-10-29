@@ -1122,4 +1122,37 @@
     <string name="parental_pin_nudge_subtitle">Setează un PIN pe %1$s. Fără el, oricine poate modifica limitele pentru %2$s sau poate trece la alt profil.</string>
     <string name="parental_pin_nudge_set">Setează un PIN pe %1$s</string>
     <string name="parental_pin_nudge_later">Nu acum</string>
+    <string name="parental_gate_open_support">%1$s nu are un PIN propriu, așa că este necesar PIN-ul unui părinte pentru a-l deschide cât timp alt profil are restricții parentale.</string>
+    <string name="parental_lock_profiles_title">Blochează profilurile fără restricții</string>
+    <string name="parental_lock_profiles_subtitle">Cât timp un profil are restricții parentale, deschiderea unui profil fără restricții și fără PIN propriu necesită PIN-ul lui %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Setează mai întâi un PIN pentru %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Blochezi și celelalte profiluri?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s poate deschide %2$s și poate ocoli orice restricție, deoarece nu au PIN. În schimb, Fetch poate cere PIN-ul lui %3$s pentru a le deschide.</string>
+    <string name="parental_lock_profiles_offer_accept">Cere PIN-ul lui %1$s</string>
+    <string name="kids_autoplay_cap">Redare automată la rând: %1$s</string>
+    <string name="kids_approved_only">Doar titluri aprobate: %1$s</string>
+    <string name="kids_approved_movies">Filme pentru tine</string>
+    <string name="kids_approved_shows">Seriale pentru tine</string>
+    <string name="kids_approved_only_hint">Pe acest profil apar doar titlurile permise întotdeauna. Permite un titlu din meniul care se deschide ținând apăsat pe afișul său, pe profilul principal.</string>
+    <string name="kids_daily_time">Timp zilnic în fața ecranului: %1$s</string>
+    <string name="kids_bedtime">Ora de culcare: %1$s – %2$s</string>
+    <string name="kids_bedtime_off">Ora de culcare: Dezactivat</string>
+    <string name="kids_at_limit_finish">La limită: termină ce rulează</string>
+    <string name="kids_at_limit_stop">La limită: oprește imediat</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d episod</item>
+        <item quantity="few">%1$d episoade</item>
+        <item quantity="other">%1$d de episoade</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Asta a fost tot pentru azi</string>
+    <string name="screen_time_daily">Timpul de ecran de azi s-a terminat. Ne vedem mâine!</string>
+    <string name="screen_time_bedtime">E ora de culcare. Ne vedem mâine!</string>
+    <string name="screen_time_choose">Cât timp în plus?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Mai mult timp (părinte)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Fără limită tot restul zilei</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

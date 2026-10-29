@@ -2395,4 +2395,35 @@
     <string name="parental_pin_nudge_subtitle">Atur PIN pada %1$s. Tanpa PIN, siapa pun bisa mengubah batasan %2$s atau beralih ke profil lain.</string>
     <string name="parental_pin_nudge_set">Atur PIN pada %1$s</string>
     <string name="parental_pin_nudge_later">Nanti saja</string>
+    <string name="parental_gate_open_support">%1$s tidak punya PIN sendiri, jadi PIN orang tua diperlukan untuk membukanya selama profil lain memiliki batasan orang tua.</string>
+    <string name="parental_lock_profiles_title">Kunci profil tanpa batasan</string>
+    <string name="parental_lock_profiles_subtitle">Selama ada profil dengan batasan orang tua, membuka profil tanpa batasan dan tanpa PIN sendiri memerlukan PIN %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Atur PIN pada %1$s terlebih dahulu.</string>
+    <string name="parental_lock_profiles_offer_title">Kunci profil lainnya juga?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s bisa membuka %2$s dan melewati semua batasan, karena profil tersebut tidak punya PIN. Fetch bisa meminta PIN %3$s untuk membukanya.</string>
+    <string name="parental_lock_profiles_offer_accept">Minta PIN %1$s</string>
+    <string name="kids_autoplay_cap">Putar otomatis berturut-turut: %1$s</string>
+    <string name="kids_approved_only">Hanya judul yang disetujui: %1$s</string>
+    <string name="kids_approved_movies">Film untuk Anda</string>
+    <string name="kids_approved_shows">Acara untuk Anda</string>
+    <string name="kids_approved_only_hint">Hanya judul yang selalu diizinkan yang tampil di profil ini. Izinkan judul dari menu tekan lama pada posternya di profil utama.</string>
+    <string name="kids_daily_time">Waktu layar harian: %1$s</string>
+    <string name="kids_bedtime">Waktu tidur: %1$s sampai %2$s</string>
+    <string name="kids_bedtime_off">Waktu tidur: Mati</string>
+    <string name="kids_at_limit_finish">Saat batas tercapai: selesaikan yang sedang diputar</string>
+    <string name="kids_at_limit_stop">Saat batas tercapai: langsung berhenti</string>
+    <plurals name="kids_episodes">
+        <item quantity="other">%1$d episode</item>
+    </plurals>
+    <string name="kids_minutes">%1$d mnt</string>
+    <string name="screen_time_title">Sekian untuk hari ini</string>
+    <string name="screen_time_daily">Waktu layar hari ini sudah habis. Sampai jumpa besok!</string>
+    <string name="screen_time_bedtime">Sudah waktunya tidur. Sampai jumpa besok!</string>
+    <string name="screen_time_choose">Tambah berapa lama?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Tambah waktu (orang tua)</string>
+    <string name="screen_time_add_minutes">+%1$d mnt</string>
+    <string name="screen_time_rest_of_day">Tanpa batas sampai akhir hari ini</string>
+    <string name="kids_hours">%1$d j</string>
+    <string name="kids_hours_minutes">%1$d j %2$d mnt</string>
 </resources>

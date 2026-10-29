@@ -2978,4 +2978,35 @@
     <string name="parental_pin_nudge_subtitle">为 %1$s 设置 PIN。否则，任何人都可以更改 %2$s 的限制或切换到其他个人资料。</string>
     <string name="parental_pin_nudge_set">为 %1$s 设置 PIN</string>
     <string name="parental_pin_nudge_later">以后再说</string>
+    <string name="parental_gate_open_support">%1$s 没有自己的 PIN，因此在其他个人资料设有家长限制时，需要家长的 PIN 才能打开。</string>
+    <string name="parental_lock_profiles_title">锁定无限制的个人资料</string>
+    <string name="parental_lock_profiles_subtitle">当有个人资料设有家长限制时，打开无限制且没有自己 PIN 的个人资料需要 %1$s 的 PIN。</string>
+    <string name="parental_lock_profiles_needs_pin">请先为 %1$s 设置 PIN。</string>
+    <string name="parental_lock_profiles_offer_title">同时锁定其他个人资料？</string>
+    <string name="parental_lock_profiles_offer_subtitle">由于 %2$s 没有 PIN，%1$s 可以打开它们并绕过所有限制。Fetch 可以改为要求输入 %3$s 的 PIN 才能打开。</string>
+    <string name="parental_lock_profiles_offer_accept">要求输入 %1$s 的 PIN</string>
+    <string name="kids_autoplay_cap">连续自动播放：%1$s</string>
+    <string name="kids_approved_only">仅限已批准内容：%1$s</string>
+    <string name="kids_approved_movies">为您推荐的电影</string>
+    <string name="kids_approved_shows">为您推荐的剧集</string>
+    <string name="kids_approved_only_hint">此个人资料仅显示始终允许的内容。在主个人资料中长按海报，即可从菜单中允许该内容。</string>
+    <string name="kids_daily_time">每日屏幕时间：%1$s</string>
+    <string name="kids_bedtime">就寝时间：%1$s 至 %2$s</string>
+    <string name="kids_bedtime_off">就寝时间：关闭</string>
+    <string name="kids_at_limit_finish">达到限制时：播完当前内容</string>
+    <string name="kids_at_limit_stop">达到限制时：立即停止</string>
+    <plurals name="kids_episodes">
+        <item quantity="other">%1$d 集</item>
+    </plurals>
+    <string name="kids_minutes">%1$d 分钟</string>
+    <string name="screen_time_title">今天就到这里</string>
+    <string name="screen_time_daily">今天的屏幕时间已用完。明天见！</string>
+    <string name="screen_time_bedtime">该睡觉了。明天见！</string>
+    <string name="screen_time_choose">要增加多少时间？</string>
+    <string name="screen_time_ok">确定</string>
+    <string name="screen_time_more">更多时间（家长）</string>
+    <string name="screen_time_add_minutes">+%1$d 分钟</string>
+    <string name="screen_time_rest_of_day">今天剩余时间不限</string>
+    <string name="kids_hours">%1$d 小时</string>
+    <string name="kids_hours_minutes">%1$d 小时 %2$d 分钟</string>
 </resources>

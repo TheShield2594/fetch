@@ -3067,4 +3067,36 @@
     <string name="parental_pin_nudge_subtitle">Állíts be PIN-kódot ehhez: %1$s. Enélkül bárki módosíthatja %2$s korlátozásait, vagy átválthat egy másik profilra.</string>
     <string name="parental_pin_nudge_set">PIN-kód beállítása: %1$s</string>
     <string name="parental_pin_nudge_later">Most nem</string>
+    <string name="parental_gate_open_support">A(z) %1$s profilnak nincs saját PIN-kódja, ezért a megnyitásához egy szülő PIN-kódja kell, amíg egy másik profilhoz szülői korlátozás tartozik.</string>
+    <string name="parental_lock_profiles_title">Korlátozás nélküli profilok zárolása</string>
+    <string name="parental_lock_profiles_subtitle">Amíg egy profilhoz szülői korlátozás tartozik, a korlátozás és saját PIN-kód nélküli profilok megnyitásához a(z) %1$s profil PIN-kódja szükséges.</string>
+    <string name="parental_lock_profiles_needs_pin">Előbb állíts be PIN-kódot a(z) %1$s profilhoz.</string>
+    <string name="parental_lock_profiles_offer_title">A többi profilt is zárolod?</string>
+    <string name="parental_lock_profiles_offer_subtitle">A(z) %1$s profilról megnyitható %2$s, így minden korlátozás megkerülhető, mert nincs PIN-kódjuk. A Fetch ehelyett kérheti a(z) %3$s profil PIN-kódját a megnyitásukhoz.</string>
+    <string name="parental_lock_profiles_offer_accept">%1$s PIN-kódjának kérése</string>
+    <string name="kids_autoplay_cap">Automatikus lejátszás egymás után: %1$s</string>
+    <string name="kids_approved_only">Csak jóváhagyott címek: %1$s</string>
+    <string name="kids_approved_movies">Filmek neked</string>
+    <string name="kids_approved_shows">Sorozatok neked</string>
+    <string name="kids_approved_only_hint">Ezen a profilon csak a mindig engedélyezett címek jelennek meg. Címet a fő profilon, a plakátja hosszú lenyomásos menüjéből engedélyezhetsz.</string>
+    <string name="kids_daily_time">Napi képernyőidő: %1$s</string>
+    <string name="kids_bedtime">Lefekvés: %1$s – %2$s</string>
+    <string name="kids_bedtime_off">Lefekvés: Kikapcsolva</string>
+    <string name="kids_at_limit_finish">A korlát elérésekor: az aktuális lejátszás befejezése</string>
+    <string name="kids_at_limit_stop">A korlát elérésekor: azonnali leállítás</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d epizód</item>
+        <item quantity="other">%1$d epizód</item>
+    </plurals>
+    <string name="kids_minutes">%1$d perc</string>
+    <string name="screen_time_title">Mára ennyi volt</string>
+    <string name="screen_time_daily">A mai képernyőidő elfogyott. Holnap találkozunk!</string>
+    <string name="screen_time_bedtime">Ideje lefeküdni. Holnap találkozunk!</string>
+    <string name="screen_time_choose">Mennyi plusz idő legyen?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Több idő (szülő)</string>
+    <string name="screen_time_add_minutes">+%1$d perc</string>
+    <string name="screen_time_rest_of_day">Nincs korlát a nap hátralévő részében</string>
+    <string name="kids_hours">%1$d óra</string>
+    <string name="kids_hours_minutes">%1$d ó %2$d perc</string>
 </resources>

@@ -2558,4 +2558,36 @@
     <string name="parental_pin_nudge_subtitle">Indstil en PIN på %1$s. Uden en kan alle ændre begrænsningerne for %2$s eller skifte til en anden profil.</string>
     <string name="parental_pin_nudge_set">Indstil en PIN på %1$s</string>
     <string name="parental_pin_nudge_later">Ikke nu</string>
+    <string name="parental_gate_open_support">%1$s har ingen egen PIN, så en forælders PIN er nødvendig for at åbne den, mens en anden profil har forældrebegrænsninger.</string>
+    <string name="parental_lock_profiles_title">Lås profiler uden begrænsninger</string>
+    <string name="parental_lock_profiles_subtitle">Mens en profil har forældrebegrænsninger, kræver det PIN for %1$s at åbne en profil uden begrænsninger og uden egen PIN.</string>
+    <string name="parental_lock_profiles_needs_pin">Indstil først en PIN på %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Lås også de andre profiler?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s kan åbne %2$s og springe alle begrænsninger over, da de ikke har nogen PIN. Fetch kan i stedet bede om PIN for %3$s for at åbne dem.</string>
+    <string name="parental_lock_profiles_offer_accept">Bed om PIN for %1$s</string>
+    <string name="kids_autoplay_cap">Autoafspilning i træk: %1$s</string>
+    <string name="kids_approved_only">Kun godkendte titler: %1$s</string>
+    <string name="kids_approved_movies">Film til dig</string>
+    <string name="kids_approved_shows">Serier til dig</string>
+    <string name="kids_approved_only_hint">Kun altid tilladte titler vises på denne profil. Tillad en titel fra plakatens menu med langt tryk på hovedprofilen.</string>
+    <string name="kids_daily_time">Daglig skærmtid: %1$s</string>
+    <string name="kids_bedtime">Sengetid: %1$s til %2$s</string>
+    <string name="kids_bedtime_off">Sengetid: Fra</string>
+    <string name="kids_at_limit_finish">Ved grænsen: afslut det, der afspilles</string>
+    <string name="kids_at_limit_stop">Ved grænsen: stop med det samme</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d afsnit</item>
+        <item quantity="other">%1$d afsnit</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Det var alt for i dag</string>
+    <string name="screen_time_daily">Dagens skærmtid er brugt. Vi ses i morgen!</string>
+    <string name="screen_time_bedtime">Det er sengetid. Vi ses i morgen!</string>
+    <string name="screen_time_choose">Hvor meget mere tid?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Mere tid (forælder)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Ingen grænse resten af dagen</string>
+    <string name="kids_hours">%1$d t</string>
+    <string name="kids_hours_minutes">%1$d t %2$d min</string>
 </resources>

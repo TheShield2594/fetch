@@ -2367,4 +2367,36 @@
     <string name="parental_pin_nudge_subtitle">%1$s இல் பின் அமைக்கவும். இல்லையெனில் யார் வேண்டுமானாலும் %2$s இன் வரம்புகளை மாற்றலாம் அல்லது வேறு சுயவிவரத்துக்கு மாறலாம்.</string>
     <string name="parental_pin_nudge_set">%1$s இல் பின் அமை</string>
     <string name="parental_pin_nudge_later">இப்போது வேண்டாம்</string>
+    <string name="parental_gate_open_support">%1$s-க்குச் சொந்தப் பின் இல்லை, எனவே மற்றொரு சுயவிவரத்தில் பெற்றோர் வரம்புகள் இருக்கும்போது இதைத் திறக்கப் பெற்றோரின் பின் தேவை.</string>
+    <string name="parental_lock_profiles_title">வரம்புகள் இல்லாத சுயவிவரங்களைப் பூட்டு</string>
+    <string name="parental_lock_profiles_subtitle">ஒரு சுயவிவரத்தில் பெற்றோர் வரம்புகள் இருக்கும்போது, வரம்புகளும் சொந்தப் பின்னும் இல்லாத சுயவிவரத்தைத் திறக்க %1$s இன் பின் தேவை.</string>
+    <string name="parental_lock_profiles_needs_pin">முதலில் %1$s இல் பின் அமைக்கவும்.</string>
+    <string name="parental_lock_profiles_offer_title">மற்ற சுயவிவரங்களையும் பூட்டவா?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%2$s-க்குப் பின் இல்லாததால், %1$s அவற்றைத் திறந்து எல்லா வரம்புகளையும் தவிர்க்கலாம். அதற்குப் பதிலாக, அவற்றைத் திறக்க Fetch %3$s இன் பின்னைக் கேட்கலாம்.</string>
+    <string name="parental_lock_profiles_offer_accept">%1$s இன் பின்னைக் கேள்</string>
+    <string name="kids_autoplay_cap">தொடர்ச்சியான தானியங்கு இயக்கம்: %1$s</string>
+    <string name="kids_approved_only">அனுமதிக்கப்பட்ட தலைப்புகள் மட்டும்: %1$s</string>
+    <string name="kids_approved_movies">உங்களுக்கான திரைப்படங்கள்</string>
+    <string name="kids_approved_shows">உங்களுக்கான தொடர்கள்</string>
+    <string name="kids_approved_only_hint">எப்போதும் அனுமதிக்கப்பட்ட தலைப்புகள் மட்டுமே இந்தச் சுயவிவரத்தில் காட்டப்படும். முதன்மைச் சுயவிவரத்தில் தலைப்பின் போஸ்டரை நீண்ட நேரம் அழுத்தி வரும் மெனுவில் அதை அனுமதிக்கவும்.</string>
+    <string name="kids_daily_time">தினசரி திரை நேரம்: %1$s</string>
+    <string name="kids_bedtime">உறங்கும் நேரம்: %1$s முதல் %2$s வரை</string>
+    <string name="kids_bedtime_off">உறங்கும் நேரம்: முடக்கம்</string>
+    <string name="kids_at_limit_finish">வரம்பை அடைந்ததும்: இயங்குவதை முடி</string>
+    <string name="kids_at_limit_stop">வரம்பை அடைந்ததும்: உடனே நிறுத்து</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d எபிசோடு</item>
+        <item quantity="other">%1$d எபிசோடுகள்</item>
+    </plurals>
+    <string name="kids_minutes">%1$d நிமி</string>
+    <string name="screen_time_title">இன்றைக்கு இவ்வளவுதான்</string>
+    <string name="screen_time_daily">இன்றைய திரை நேரம் முடிந்தது. நாளை சந்திப்போம்!</string>
+    <string name="screen_time_bedtime">உறங்கும் நேரம் ஆகிவிட்டது. நாளை சந்திப்போம்!</string>
+    <string name="screen_time_choose">இன்னும் எவ்வளவு நேரம்?</string>
+    <string name="screen_time_ok">சரி</string>
+    <string name="screen_time_more">கூடுதல் நேரம் (பெற்றோர்)</string>
+    <string name="screen_time_add_minutes">+%1$d நிமி</string>
+    <string name="screen_time_rest_of_day">இன்று முழுவதும் வரம்பு இல்லை</string>
+    <string name="kids_hours">%1$d மணி</string>
+    <string name="kids_hours_minutes">%1$d மணி %2$d நிமி</string>
 </resources>

@@ -3088,4 +3088,37 @@
     <string name="parental_pin_nudge_subtitle">Imposta un PIN su %1$s. Senza PIN, chiunque può modificare i limiti di %2$s o passare a un altro profilo.</string>
     <string name="parental_pin_nudge_set">Imposta un PIN su %1$s</string>
     <string name="parental_pin_nudge_later">Non ora</string>
+    <string name="parental_gate_open_support">%1$s non ha un PIN proprio, quindi serve il PIN di un genitore per aprirlo finché un altro profilo ha limiti del controllo genitori.</string>
+    <string name="parental_lock_profiles_title">Blocca i profili senza limiti</string>
+    <string name="parental_lock_profiles_subtitle">Finché un profilo ha limiti del controllo genitori, per aprire un profilo senza limiti e senza un PIN proprio serve il PIN di %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Prima imposta un PIN su %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Bloccare anche gli altri profili?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s può aprire %2$s e aggirare ogni limite, perché non hanno un PIN. Fetch può invece chiedere il PIN di %3$s per aprirli.</string>
+    <string name="parental_lock_profiles_offer_accept">Chiedi il PIN di %1$s</string>
+    <string name="kids_autoplay_cap">Riproduzione automatica di seguito: %1$s</string>
+    <string name="kids_approved_only">Solo titoli approvati: %1$s</string>
+    <string name="kids_approved_movies">Film per te</string>
+    <string name="kids_approved_shows">Serie per te</string>
+    <string name="kids_approved_only_hint">Su questo profilo compaiono solo i titoli sempre consentiti. Consenti un titolo dal menu a pressione prolungata della sua locandina nel profilo principale.</string>
+    <string name="kids_daily_time">Tempo schermo giornaliero: %1$s</string>
+    <string name="kids_bedtime">Ora di dormire: dalle %1$s alle %2$s</string>
+    <string name="kids_bedtime_off">Ora di dormire: Disattivata</string>
+    <string name="kids_at_limit_finish">Al limite: finisci ciò che è in riproduzione</string>
+    <string name="kids_at_limit_stop">Al limite: interrompi subito</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d episodio</item>
+        <item quantity="many">%1$d episodi</item>
+        <item quantity="other">%1$d episodi</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Per oggi è tutto</string>
+    <string name="screen_time_daily">Il tempo schermo di oggi è finito. A domani!</string>
+    <string name="screen_time_bedtime">È ora di andare a letto. A domani!</string>
+    <string name="screen_time_choose">Quanto tempo in più?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Più tempo (genitore)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Nessun limite per il resto della giornata</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

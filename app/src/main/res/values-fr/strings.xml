@@ -3099,4 +3099,37 @@
     <string name="parental_pin_nudge_subtitle">Définissez un code PIN sur %1$s. Sans code PIN, n’importe qui peut modifier les limites de %2$s ou passer à un autre profil.</string>
     <string name="parental_pin_nudge_set">Définir un code PIN sur %1$s</string>
     <string name="parental_pin_nudge_later">Plus tard</string>
+    <string name="parental_gate_open_support">%1$s n’a pas de code PIN, donc le code PIN d’un parent est nécessaire pour l’ouvrir tant qu’un autre profil a des limites parentales.</string>
+    <string name="parental_lock_profiles_title">Verrouiller les profils sans limites</string>
+    <string name="parental_lock_profiles_subtitle">Tant qu’un profil a des limites parentales, ouvrir un profil sans limites ni code PIN nécessite le code PIN de %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Définissez d’abord un code PIN pour %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Verrouiller aussi les autres profils ?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s peut ouvrir %2$s et contourner toutes les limites, car ils n’ont pas de code PIN. Fetch peut plutôt demander le code PIN de %3$s pour les ouvrir.</string>
+    <string name="parental_lock_profiles_offer_accept">Demander le code PIN de %1$s</string>
+    <string name="kids_autoplay_cap">Lecture automatique à la suite : %1$s</string>
+    <string name="kids_approved_only">Titres approuvés uniquement : %1$s</string>
+    <string name="kids_approved_movies">Films pour vous</string>
+    <string name="kids_approved_shows">Séries pour vous</string>
+    <string name="kids_approved_only_hint">Seuls les titres toujours autorisés s’affichent sur ce profil. Autorisez un titre depuis le menu d’appui long de son affiche sur le profil principal.</string>
+    <string name="kids_daily_time">Temps d’écran quotidien : %1$s</string>
+    <string name="kids_bedtime">Heure du coucher : de %1$s à %2$s</string>
+    <string name="kids_bedtime_off">Heure du coucher : désactivée</string>
+    <string name="kids_at_limit_finish">À la limite : finir la lecture en cours</string>
+    <string name="kids_at_limit_stop">À la limite : arrêter immédiatement</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d épisode</item>
+        <item quantity="many">%1$d épisodes</item>
+        <item quantity="other">%1$d épisodes</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">C’est tout pour aujourd’hui</string>
+    <string name="screen_time_daily">Le temps d’écran du jour est écoulé. À demain !</string>
+    <string name="screen_time_bedtime">C’est l’heure d’aller au lit. À demain !</string>
+    <string name="screen_time_choose">Combien de temps en plus ?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Plus de temps (parent)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Aucune limite pour le reste de la journée</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

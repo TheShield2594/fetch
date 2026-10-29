@@ -1786,4 +1786,36 @@
     <string name="parental_pin_nudge_subtitle">Ställ in en PIN på %1$s. Utan den kan vem som helst ändra begränsningarna för %2$s eller byta till en annan profil.</string>
     <string name="parental_pin_nudge_set">Ställ in PIN på %1$s</string>
     <string name="parental_pin_nudge_later">Inte nu</string>
+    <string name="parental_gate_open_support">%1$s har ingen egen PIN, så en förälders PIN krävs för att öppna den medan en annan profil har föräldrabegränsningar.</string>
+    <string name="parental_lock_profiles_title">Lås profiler utan begränsningar</string>
+    <string name="parental_lock_profiles_subtitle">Medan en profil har föräldrabegränsningar krävs PIN för %1$s för att öppna en profil utan begränsningar och utan egen PIN.</string>
+    <string name="parental_lock_profiles_needs_pin">Ställ in en PIN på %1$s först.</string>
+    <string name="parental_lock_profiles_offer_title">Lås de andra profilerna också?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s kan öppna %2$s och kringgå alla begränsningar, eftersom de saknar PIN. Fetch kan i stället fråga efter PIN för %3$s för att öppna dem.</string>
+    <string name="parental_lock_profiles_offer_accept">Fråga efter PIN för %1$s</string>
+    <string name="kids_autoplay_cap">Automatisk uppspelning i följd: %1$s</string>
+    <string name="kids_approved_only">Endast godkända titlar: %1$s</string>
+    <string name="kids_approved_movies">Filmer för dig</string>
+    <string name="kids_approved_shows">Serier för dig</string>
+    <string name="kids_approved_only_hint">Endast titlar som alltid är tillåtna visas på den här profilen. Tillåt en titel via affischens långtrycksmeny på huvudprofilen.</string>
+    <string name="kids_daily_time">Daglig skärmtid: %1$s</string>
+    <string name="kids_bedtime">Läggdags: %1$s till %2$s</string>
+    <string name="kids_bedtime_off">Läggdags: Av</string>
+    <string name="kids_at_limit_finish">Vid gränsen: spela klart det som spelas</string>
+    <string name="kids_at_limit_stop">Vid gränsen: stoppa direkt</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d avsnitt</item>
+        <item quantity="other">%1$d avsnitt</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Det var allt för i dag</string>
+    <string name="screen_time_daily">Dagens skärmtid är slut. Vi ses i morgon!</string>
+    <string name="screen_time_bedtime">Det är läggdags. Vi ses i morgon!</string>
+    <string name="screen_time_choose">Hur mycket mer tid?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Mer tid (förälder)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Ingen gräns resten av dagen</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

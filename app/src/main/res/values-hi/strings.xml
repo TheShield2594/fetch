@@ -1250,4 +1250,36 @@
     <string name="parental_pin_nudge_subtitle">%1$s पर PIN सेट करें। इसके बिना कोई भी %2$s की सीमाएँ बदल सकता है या किसी दूसरे प्रोफाइल पर जा सकता है।</string>
     <string name="parental_pin_nudge_set">%1$s पर PIN सेट करें</string>
     <string name="parental_pin_nudge_later">अभी नहीं</string>
+    <string name="parental_gate_open_support">%1$s का अपना कोई PIN नहीं है, इसलिए जब तक किसी दूसरी प्रोफाइल पर पैरेंटल सीमाएँ हैं, इसे खोलने के लिए अभिभावक का PIN चाहिए।</string>
+    <string name="parental_lock_profiles_title">बिना सीमाओं वाली प्रोफाइल लॉक करें</string>
+    <string name="parental_lock_profiles_subtitle">जब किसी प्रोफाइल पर पैरेंटल सीमाएँ हों, तो बिना सीमाओं और बिना अपने PIN वाली प्रोफाइल खोलने के लिए %1$s का PIN चाहिए।</string>
+    <string name="parental_lock_profiles_needs_pin">पहले %1$s पर PIN सेट करें।</string>
+    <string name="parental_lock_profiles_offer_title">बाकी प्रोफाइल भी लॉक करें?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s, %2$s को खोलकर हर सीमा से बच सकता है, क्योंकि उन पर कोई PIN नहीं है। इसके बजाय Fetch उन्हें खोलने के लिए %3$s का PIN माँग सकता है।</string>
+    <string name="parental_lock_profiles_offer_accept">%1$s का PIN माँगें</string>
+    <string name="kids_autoplay_cap">लगातार ऑटोप्ले: %1$s</string>
+    <string name="kids_approved_only">सिर्फ़ मंज़ूर टाइटल: %1$s</string>
+    <string name="kids_approved_movies">आपके लिए फ़िल्में</string>
+    <string name="kids_approved_shows">आपके लिए शो</string>
+    <string name="kids_approved_only_hint">इस प्रोफाइल पर सिर्फ़ हमेशा अनुमति वाले टाइटल दिखते हैं। मुख्य प्रोफाइल पर टाइटल के पोस्टर को देर तक दबाकर खुलने वाले मेन्यू से उसे अनुमति दें।</string>
+    <string name="kids_daily_time">रोज़ का स्क्रीन टाइम: %1$s</string>
+    <string name="kids_bedtime">सोने का समय: %1$s से %2$s</string>
+    <string name="kids_bedtime_off">सोने का समय: ऑफ</string>
+    <string name="kids_at_limit_finish">सीमा पर: जो चल रहा है उसे पूरा करें</string>
+    <string name="kids_at_limit_stop">सीमा पर: तुरंत रोकें</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d एपिसोड</item>
+        <item quantity="other">%1$d एपिसोड</item>
+    </plurals>
+    <string name="kids_minutes">%1$d मिनट</string>
+    <string name="screen_time_title">आज के लिए बस इतना ही</string>
+    <string name="screen_time_daily">आज का स्क्रीन टाइम खत्म हो गया। कल मिलते हैं!</string>
+    <string name="screen_time_bedtime">सोने का समय हो गया। कल मिलते हैं!</string>
+    <string name="screen_time_choose">और कितना समय?</string>
+    <string name="screen_time_ok">ठीक है</string>
+    <string name="screen_time_more">और समय (अभिभावक)</string>
+    <string name="screen_time_add_minutes">+%1$d मिनट</string>
+    <string name="screen_time_rest_of_day">आज बाकी दिन कोई सीमा नहीं</string>
+    <string name="kids_hours">%1$d घंटे</string>
+    <string name="kids_hours_minutes">%1$d घंटे %2$d मिनट</string>
 </resources>

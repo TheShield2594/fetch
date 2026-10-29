@@ -6,7 +6,7 @@ const PROVIDER_NAMES: Record<MediaServer["provider"], string> = { plex: "Plex", 
 const LIBRARY_KINDS: Record<MediaServerLibrary["kind"], string> = { movies: "Films", shows: "Series", mixed: "Mixed" };
 
 const INPUT_CLASS =
-  "w-full rounded-xl border border-[var(--border)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15";
+  "w-full rounded-xl border border-[var(--border)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] field-control";
 
 export const mediaServerSummaryText = (summary: MediaServerSyncSummary): string => {
   const parts = [

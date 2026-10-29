@@ -360,7 +360,7 @@ export function SearchPage() {
             onChange={(e) => setFilters({ query: e.target.value })}
             placeholder="Search movies & TV shows..."
             aria-label="Search movies and TV shows"
-            className="w-full rounded-full py-3.5 pl-14 pr-12 text-base placeholder:text-[var(--text-mute)] focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15 transition-[border-color,box-shadow] duration-base"
+            className="w-full rounded-full py-3.5 pl-14 pr-12 text-base placeholder:text-[var(--text-mute)] field-control transition-[border-color,box-shadow] duration-base"
             style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", background: "var(--bg-0)", color: "var(--text)" }}
             autoFocus={typeof window !== "undefined" && !window.matchMedia("(pointer: coarse)").matches}
           />
@@ -477,7 +477,7 @@ export function SearchPage() {
                   max="2030"
                   value={filters.yearMin}
                   onChange={(e) => setFilters({ yearMin: e.target.value })}
-                  className="w-full min-w-0 rounded-full px-1.5 py-2 text-center text-sm placeholder:text-[var(--text-mute)] focus:border-claw-500 focus:outline-none focus:ring-1 focus:ring-claw-500/30"
+                  className="w-full min-w-0 rounded-full px-1.5 py-2 text-center text-sm placeholder:text-[var(--text-mute)] field-control"
                   style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", background: "var(--bg-0)", color: "var(--text)" }}
                 />
                 <input
@@ -488,7 +488,7 @@ export function SearchPage() {
                   max="2030"
                   value={filters.yearMax}
                   onChange={(e) => setFilters({ yearMax: e.target.value })}
-                  className="w-full min-w-0 rounded-full px-1.5 py-2 text-center text-sm placeholder:text-[var(--text-mute)] focus:border-claw-500 focus:outline-none focus:ring-1 focus:ring-claw-500/30"
+                  className="w-full min-w-0 rounded-full px-1.5 py-2 text-center text-sm placeholder:text-[var(--text-mute)] field-control"
                   style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", background: "var(--bg-0)", color: "var(--text)" }}
                 />
               </div>
@@ -994,7 +994,7 @@ function ResultCard({
                   }}
                   placeholder="List name..."
                   aria-label="New list name"
-                  className="min-w-0 flex-1 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-claw-500/40"
+                  className="min-w-0 flex-1 rounded-md px-2 py-1 text-sm field-control"
                   style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", background: "var(--bg-1)", color: "var(--text)" }}
                 />
                 <button

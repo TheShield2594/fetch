@@ -35,7 +35,7 @@ function RenameForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved:
         value={name}
         onChange={(e) => setName(e.target.value)}
         aria-label={`Rename ${profile.name}`}
-        className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control"
         style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button type="submit" disabled={saving} aria-label="Save name" className="flex-none rounded-lg p-1.5 text-success hover:bg-[var(--surface-strong)]">
@@ -93,7 +93,7 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
           onChange={(e) => setCurrentPin(e.target.value)}
           placeholder="Current PIN"
           aria-label={`Current PIN for ${profile.name}`}
-          className="w-full min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+          className="w-full min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm field-control"
           style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
         />
       )}
@@ -108,7 +108,7 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
         onChange={(e) => setPin(e.target.value)}
         placeholder={profile.hasPin ? "New PIN" : "PIN"}
         aria-label={profile.hasPin ? `New PIN for ${profile.name}` : `PIN for ${profile.name}`}
-        className="w-full min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        className="w-full min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm field-control"
         style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button
@@ -162,7 +162,7 @@ function RemovePinForm({ profile, onSaved, onCancel }: { profile: Profile; onSav
         onChange={(e) => setCurrentPin(e.target.value)}
         placeholder="Current PIN to confirm removal"
         aria-label={`Current PIN for ${profile.name}, to confirm removal`}
-        className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control"
         style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button type="submit" disabled={saving || !currentPin.trim()} aria-label="Confirm PIN removal" className="flex-none rounded-lg p-1.5 text-success hover:bg-[var(--surface-strong)] disabled:opacity-50">
@@ -214,7 +214,7 @@ function DeleteConfirmForm({ profile, onDeleted, onCancel }: { profile: Profile;
         onChange={(e) => setPin(e.target.value)}
         placeholder={`PIN for ${profile.name} to confirm deletion`}
         aria-label={`PIN for ${profile.name}, to confirm deletion`}
-        className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        className="w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control"
         style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button
@@ -520,7 +520,7 @@ function AddProfileForm({ onCreated }: { onCreated: (profile: Profile) => void }
         onChange={(e) => setName(e.target.value)}
         placeholder="Name"
         aria-label="New profile name"
-        className="min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        className="min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm field-control"
         style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <button type="submit" disabled={saving || !name.trim()} className="btn-primary btn-sm">

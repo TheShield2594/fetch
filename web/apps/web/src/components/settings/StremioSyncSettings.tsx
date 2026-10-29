@@ -118,7 +118,7 @@ export function StremioSyncSettings() {
               autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full max-w-sm rounded-xl px-3 py-2 text-sm"
+              className="w-full max-w-sm rounded-xl px-3 py-2 text-sm field-control"
               style={{ border: "1px solid var(--border-strong)", background: "var(--bg-1)" }}
             />
           </div>
@@ -132,7 +132,7 @@ export function StremioSyncSettings() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full max-w-sm rounded-xl px-3 py-2 text-sm"
+              className="w-full max-w-sm rounded-xl px-3 py-2 text-sm field-control"
               style={{ border: "1px solid var(--border-strong)", background: "var(--bg-1)" }}
             />
           </div>

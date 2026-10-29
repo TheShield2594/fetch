@@ -87,7 +87,7 @@ export function SearchAddDialog({
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder={placeholder}
               aria-label={inputLabel}
-              className="w-full rounded-full border py-2.5 pl-9 pr-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+              className="w-full rounded-full border py-2.5 pl-9 pr-3 text-sm field-control"
               style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
             />
           </div>

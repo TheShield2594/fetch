@@ -110,7 +110,7 @@ export const errorMessage = (error: unknown, fallback: string): string =>
   error instanceof Error && error.message ? error.message : fallback;
 
 export const inputClass =
-  "w-full rounded-xl border px-4 py-2.5 text-sm focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/30";
+  "w-full rounded-xl border px-4 py-2.5 text-sm field-control";
 export const inputStyle = { borderColor: "var(--border-strong)", color: "var(--text)", background: "var(--bg-1)" };
 export const labelClass = "mb-1 block text-xs font-medium";
 export const labelStyle = { color: "var(--text-dim)" };

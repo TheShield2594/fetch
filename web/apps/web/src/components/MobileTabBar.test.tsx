@@ -82,7 +82,7 @@ describe("MobileTabBar", () => {
     const bar = tabBar();
     expect(bar.querySelectorAll('span[aria-hidden="true"]')).toHaveLength(0);
     expect(within(bar).getByRole("link", { name: /discover/i })).toHaveStyle({
-      color: "rgb(var(--accent-rgb))",
+      color: "var(--accent-text)",
     });
     expect(within(bar).getByRole("link", { name: /shelf/i })).toHaveStyle({ color: "var(--text-dim)" });
   });
@@ -95,7 +95,7 @@ describe("MobileTabBar", () => {
   it("highlights More while a route behind it is open, and marks that route inside", async () => {
     renderBar("/settings");
     const moreTab = within(tabBar()).getByRole("button", { name: /more/i });
-    expect(moreTab).toHaveStyle({ color: "rgb(var(--accent-rgb))" });
+    expect(moreTab).toHaveStyle({ color: "var(--accent-text)" });
 
     await userEvent.click(moreTab);
 

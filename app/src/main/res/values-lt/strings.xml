@@ -114,6 +114,7 @@
     <string name="detail_marked_episodes_watched">Serijų pažymėta kaip žiūrėta: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Serijų pažymėta kaip nežiūrėta: %1$d</string>
     <string name="detail_marked_previous_watched">Ankstesnių serijų pažymėta kaip žiūrėta: %1$d</string>
+    <string name="playback_unavailable_message">Niekas iš to, ką nustatėte, negali paleisti šio pavadinimo. Pridėkite arba įjunkite srautinio perdavimo priedą skiltyje Nustatymai &gt; Turinys ir atradimai &gt; Priedai arba patikrinkite ryšį su medijos serveriu.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Leisti</string>
@@ -203,6 +204,9 @@
     <string name="playback_subtitle">Konfigūruoti vaizdo atkūrimo ir subtitrų parinktis</string>
     <string name="cd_decrease">Sumažinti</string>
     <string name="cd_increase">Padidinti</string>
+    <string name="cd_decrease_setting">Sumažinti: %1$s</string>
+    <string name="cd_increase_setting">Padidinti: %1$s</string>
+    <string name="cd_seek_bar">Prasukimo juosta</string>
     <string name="action_cancel">Atšaukti</string>
     <string name="action_none">Nėra</string>
     <string name="action_close">Uždaryti</string>
@@ -399,7 +403,7 @@
     <string name="mdblist_dialog_title">MDBList API raktas</string>
     <string name="mdblist_dialog_placeholder">Įveskite MDBList API raktą</string>
     <string name="mdblist_not_set">Nenustatyta</string>
-    <string name="mdblist_invalid_api_key">Neteisingas MDBList API raktas</string>
+    <string name="mdblist_invalid_api_key">Nepavyko patvirtinti šio API rakto. Patikrinkite, ar jis sutampa su raktu jūsų „MDBList“ paskyroje ir ar esate prisijungę prie interneto, tada bandykite dar kartą.</string>
 
     <!-- Anime-Skip -->
     <string name="animeskip_title">Anime praleidimas (Anime Skip)</string>
@@ -411,7 +415,7 @@
     <string name="animeskip_dialog_title">Anime Skip kliento ID</string>
     <string name="animeskip_dialog_subtitle">Susikurkite savo kliento ID adresu anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Įveskite kliento ID</string>
-    <string name="animeskip_invalid_client_id">Neteisingas kliento ID</string>
+    <string name="animeskip_invalid_client_id">Nepavyko patvirtinti šio kliento ID. Patikrinkite, ar jis sutampa su ID jūsų „Anime Skip“ paskyroje ir ar esate prisijungę prie interneto, tada bandykite dar kartą.</string>
     <string name="action_clear">Išvalyti</string>
 
     <!-- TmdbSettingsScreen -->
@@ -531,6 +535,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_install_btn">Įdiegti</string>
     <string name="addon_installed_section">Įdiegta</string>
     <string name="addon_empty">Nėra įdiegtų priedų. Pridėkite vieną, kad pradėtumėte.</string>
+    <string name="addon_list_load_failed">Nepavyko įkelti įdiegtų priedų. Bandykite dar kartą.</string>
     <string name="addon_remove">Pašalinti</string>
     <string name="addon_manage_from_phone_title">Valdyti iš telefono</string>
     <string name="addon_manage_from_phone_subtitle">Skenuokite QR kodą, kad valdytumėte priedus ir pradinio ekrano katalogus iš savo telefono</string>
@@ -585,11 +590,14 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="player_up_next_in_queue">Kitas eilėje</string>
     <string name="player_queue_move_up">Perkelti aukštyn</string>
     <string name="player_queue_move_down">Perkelti žemyn</string>
+    <string name="player_queue_removed">Pašalinta iš eilės: %1$s</string>
+    <string name="player_queue_undo">Anuliuoti</string>
     <string name="player_seek_back_10">Atgal 10 sekundžių</string>
     <string name="player_seek_forward_30">Pirmyn 30 sekundžių</string>
     <string name="player_via">per %1$s</string>
     <string name="player_subtitle_delay">Subtitrų delsa</string>
     <string name="player_error_title">Atkūrimo klaida</string>
+    <string name="player_error_choose_source">Pasirinkite kitą šaltinį</string>
     <string name="player_speed_title">Atkūrimo greitis</string>
     <string name="player_more_actions_title">Daugiau veiksmų</string>
     <string name="player_more_speed">Atkūrimo greitis</string>
@@ -663,10 +671,14 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="search_start_title">Pradėti paiešką</string>
     <string name="search_start_subtitle">Įveskite bent 2 simbolius</string>
     <string name="search_start_subtitle_no_discover">„Atrasti“ funkcija išjungta. Įveskite bent 2 simbolius</string>
+    <string name="search_recent_clear_confirm_title">Išvalyti paieškos istoriją?</string>
+    <string name="search_recent_clear_confirm_subtitle">Visos naujausios paieškos bus pašalintos. Šio veiksmo anuliuoti negalima.</string>
     <string name="search_voice_no_speech">Kalba neaptikta. Bandykite dar kartą.</string>
     <string name="search_voice_mic_permission">Balsinei paieškai reikalingas leidimas naudoti mikrofoną.</string>
     <string name="search_voice_failed">Balsinis atpažinimas nepavyko. Bandykite dar kartą.</string>
     <string name="search_voice_unavailable">Balsinė paieška šiame įrenginyje neprieinama.</string>
+    <string name="search_no_catalogs_title">Nė vienas jūsų priedas negali ieškoti</string>
+    <string name="search_no_catalogs_subtitle">Įdiekite priedą su paieškos katalogu ir bandykite dar kartą.</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">Biblioteka</string>
@@ -684,11 +696,15 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="library_list_move_up">Pakelti</string>
     <string name="library_list_move_down">Nuleisti</string>
     <string name="library_list_delete">Ištrinti</string>
+    <string name="library_list_delete_named">Ištrinti „%1$s“</string>
     <string name="library_list_close">Uždaryti</string>
     <string name="library_list_name_label">Pavadinimas</string>
     <string name="library_list_description_label">Aprašymas</string>
     <string name="library_list_privacy">Privatumas</string>
     <string name="library_delete_title">Ištrinti šį sąrašą?</string>
+    <string name="library_delete_title_named">Ištrinti „%1$s“?</string>
+    <string name="library_delete_subtitle_provider">Sąrašas ir jo elementai bus pašalinti iš %1$s. Šio veiksmo anuliuoti negalima.</string>
+    <string name="library_delete_subtitle_local">Sąrašas ir jo elementai bus pašalinti iš jūsų bibliotekos. Šio veiksmo anuliuoti negalima.</string>
     <string name="library_source_local">VIETINĖ</string>
     <string name="library_type_all">Visi</string>
     <string name="library_empty_local_title">Kol kas nėra %1$s</string>
@@ -855,6 +871,9 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_health_ok">Atsako · %1$s</string>
     <string name="addon_health_slow">Lėtas · %1$s</string>
     <string name="addon_health_timed_out">Baigėsi paskutinės užklausos laikas</string>
+    <string name="source_chip_failed">nepavyko</string>
+    <string name="source_chip_loading">įkeliama</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">Prieš diegiant %1$s reikia sukonfigūruoti</string>
     <string name="advanced_introdb_api_key">„IntroDB“ API raktas</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Sukurkite raktą svetainėje introdb.app. Jis prasideda idb_.</string>
@@ -870,12 +889,32 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="autoplay_mode_best_desc">Surikiuoja visus rezultatus pagal kokybę, jūsų taisykles ir tai, ką gali atkurti šis įrenginys, tada paleidžia geriausią. Kiti šaltiniai lieka vieno paspaudimo atstumu.</string>
     <string name="best_match_cached">Talpykloje</string>
     <string name="best_match_excluded">Nepaleista automatiškai: %1$s</string>
+    <string name="stream_hold_for_options">Laikykite OK, kad atvertumėte Geriausio atitikmens parinktis</string>
     <string name="best_match_preview_sub">Kol žiūrite į pavadinimą, užklausia srautų priedus, kad mygtukas „Leisti“ galėtų parodyti failą ir atkūrimas prasidėtų greičiau. Išjunkite, kad paieška vyktų tik paspaudus „Leisti“.</string>
     <string name="best_match_preview_title">Rodyti pasirinkimą ant mygtuko „Leisti“</string>
     <string name="catalog_order_pin">Prisegti viršuje</string>
     <string name="catalog_order_pinned_on_home">Prisegta pagrindinio ekrano viršuje</string>
     <string name="catalog_order_unpin">Atsegti</string>
     <string name="cd_mark_credits_end">Pažymėti titrų pabaigą</string>
+    <string name="cd_move_addon_up">Perkelti %1$s aukštyn</string>
+    <string name="cd_move_addon_down">Perkelti %1$s žemyn</string>
+    <string name="cd_addon_enabled_toggle">%1$s įjungtas</string>
+    <string name="cd_configure_addon">Konfigūruoti %1$s</string>
+    <string name="cd_remove_addon">Pašalinti %1$s</string>
+    <string name="folder_error_addon_source">Nepavyko įkelti šio katalogo. Patikrinkite, ar jo priedas įdiegtas ir pasiekiamas, tada bandykite dar kartą.</string>
+    <string name="folder_error_addon_missing">Šio katalogo priedas neįdiegtas. Įdiekite jį skiltyje Priedai arba pašalinkite šį šaltinį iš aplanko.</string>
+    <string name="folder_error_tmdb_source">Nepavyko įkelti iš „TMDB“. Patikrinkite ryšį ir bandykite dar kartą.</string>
+    <string name="folder_error_trakt_source">Nepavyko įkelti šio „Trakt“ sąrašo. Patikrinkite ryšį ir ar sąrašas vis dar viešas, tada bandykite dar kartą.</string>
+    <string name="folder_error_list_source">Nepavyko įkelti šio sąrašo. Patikrinkite ryšį ir bandykite dar kartą.</string>
+    <string name="collections_editor_discard_title">Atmesti pakeitimus?</string>
+    <string name="collections_editor_discard_collection_subtitle">Šios kolekcijos pakeitimai neišsaugoti.</string>
+    <string name="collections_editor_discard_folder_subtitle">Šio aplanko pakeitimai neišsaugoti.</string>
+    <string name="collections_editor_keep_editing">Toliau redaguoti</string>
+    <string name="collections_editor_discard">Atmesti</string>
+    <string name="player_error_initialize_failed">Nepavyko paleisti grotuvo. Iš naujo paleiskite Fetch ir bandykite dar kartą.</string>
+    <string name="player_error_mpv_surface_failed">Nepavyko paleisti mpv grotuvo. Bandykite dar kartą arba pakeiskite Vidinis variklis skiltyje Nustatymai &gt; Atkūrimas.</string>
+    <string name="player_error_mpv_playback_failed">Nepavyko pradėti atkūrimo mpv grotuve. Bandykite dar kartą arba pakeiskite Vidinis variklis skiltyje Nustatymai &gt; Atkūrimas.</string>
+    <string name="library_error_save_list_next_step">Patikrinkite ryšį ir bandykite dar kartą.</string>
     <string name="cd_mark_credits_start">Pažymėti titrų pradžią</string>
     <string name="cd_mark_intro_end">Pažymėti įžangos pabaigą</string>
     <string name="cd_mark_intro_start">Pažymėti įžangos pradžią</string>

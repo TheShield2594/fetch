@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">Không thể kết nối với máy chủ.</string>
     <string name="servers_error_unsupported">Yêu cầu %1$s %2$s trở lên.</string>
     <string name="servers_error_forbidden">Người dùng này không có quyền truy cập.</string>
-    <string name="servers_error_failed">Không thể kết nối với máy chủ.</string>
+    <string name="servers_error_failed">Không thể kết nối với máy chủ. Hãy kiểm tra xem máy chủ đã bật và có thể truy cập được không, sau đó thử lại.</string>
     <string name="servers_failure_auth">Đăng nhập lại vào máy chủ này trong Cài đặt.</string>
-    <string name="servers_failure_unreachable">Máy chủ không có sẵn.</string>
+    <string name="servers_failure_unreachable">Máy chủ không khả dụng. Hãy kiểm tra xem máy chủ đã bật và có thể truy cập được không, sau đó thử lại.</string>
     <string name="servers_failure_not_found">Mục này không còn có sẵn trên máy chủ.</string>
     <string name="servers_failure_unsupported">Máy chủ không hỗ trợ mục này.</string>
     <string name="servers_failure_incomplete">Đang kiểm tra thư viện của máy chủ này. Vui lòng thử lại sau.</string>

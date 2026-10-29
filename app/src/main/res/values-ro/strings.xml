@@ -82,6 +82,7 @@
     <string name="detail_marked_episodes_watched">Episoade marcate ca vizionate: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episoade marcate ca necitite: %1$d</string>
     <string name="detail_marked_previous_watched">Episoadele anterioare marcate ca vizionate: %1$d</string>
+    <string name="playback_unavailable_message">Nimic din ce ai configurat nu poate reda acest titlu. Adaugă sau activează un complement de streaming în Setări &gt; Conținut și descoperire &gt; Complementuri sau verifică conexiunea cu serverul media.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Redă</string>
@@ -146,6 +147,9 @@
     <string name="playback_subtitle">Configurează redarea video și opțiunile de subtitrări</string>
     <string name="cd_decrease">Scade</string>
     <string name="cd_increase">Mărește</string>
+    <string name="cd_decrease_setting">Scade %1$s</string>
+    <string name="cd_increase_setting">Crește %1$s</string>
+    <string name="cd_seek_bar">Bară de derulare</string>
     <string name="action_cancel">Anulează</string>
     <string name="action_none">Nimic</string>
 
@@ -426,6 +430,7 @@
     <string name="addon_install_btn">Instalează</string>
     <string name="addon_installed_section">Instalat</string>
     <string name="addon_empty">Niciun complement instalat. Adaugă unul pentru a începe.</string>
+    <string name="addon_list_load_failed">Nu s-au putut încărca extensiile instalate. Încearcă din nou.</string>
     <string name="addon_remove">Înlătură</string>
     <string name="addon_manage_from_phone_title">Gestionează de pe telefon</string>
     <string name="addon_manage_from_phone_subtitle">Scanează un cod QR pentru a gestiona complementele și cataloagele Home de pe telefon</string>
@@ -469,11 +474,14 @@
     <string name="player_up_next_in_queue">Următorul în coadă</string>
     <string name="player_queue_move_up">Mută în sus</string>
     <string name="player_queue_move_down">Mută în jos</string>
+    <string name="player_queue_removed">Eliminat din coadă: %1$s</string>
+    <string name="player_queue_undo">Anulează</string>
     <string name="player_seek_back_10">Înapoi 10 secunde</string>
     <string name="player_seek_forward_30">Înainte 30 de secunde</string>
     <string name="player_via">prin %1$s</string>
     <string name="player_subtitle_delay">Întârziere subtitrări</string>
     <string name="player_error_title">Eroare de redare</string>
+    <string name="player_error_choose_source">Alege altă sursă</string>
     <string name="player_speed_title">Viteză redare</string>
     <string name="player_more_actions_title">Mai multe acțiuni</string>
     <string name="player_more_speed">Viteză redare</string>
@@ -546,6 +554,10 @@
     <string name="search_start_title">Începe căutarea</string>
     <string name="search_start_subtitle">Introdu cel puțin 2 caractere</string>
     <string name="search_start_subtitle_no_discover">Descoperirea este dezactivată. Introdu cel puțin 2 caractere</string>
+    <string name="search_recent_clear_confirm_title">Ștergi istoricul căutărilor?</string>
+    <string name="search_recent_clear_confirm_subtitle">Toate căutările recente vor fi eliminate. Acțiunea nu poate fi anulată.</string>
+    <string name="search_no_catalogs_title">Niciuna dintre extensiile tale nu poate căuta</string>
+    <string name="search_no_catalogs_subtitle">Instalează o extensie cu un catalog de căutare, apoi încearcă din nou.</string>
 
     !-- LibraryScreen -->
     <string name="library_title">Bibliotecă</string>
@@ -559,11 +571,15 @@
     <string name="library_list_move_up">Mută sus</string>
     <string name="library_list_move_down">Mută jos</string>
     <string name="library_list_delete">Șterge</string>
+    <string name="library_list_delete_named">Șterge „%1$s”</string>
     <string name="library_list_close">Închide</string>
     <string name="library_list_name_label">Nume</string>
     <string name="library_list_description_label">Descriere</string>
     <string name="library_list_privacy">Confidențialitate</string>
     <string name="library_delete_title">Ștergi această listă?</string>
+    <string name="library_delete_title_named">Ștergi „%1$s”?</string>
+    <string name="library_delete_subtitle_provider">Lista și elementele ei vor fi eliminate din %1$s. Acțiunea nu poate fi anulată.</string>
+    <string name="library_delete_subtitle_local">Lista și elementele ei vor fi eliminate din biblioteca ta. Acțiunea nu poate fi anulată.</string>
     <string name="library_source_local">LOCAL</string>
     <string name="library_type_all">Toate</string>
     <string name="library_empty_local_title">Încă nu există %1$s</string>
@@ -720,6 +736,9 @@
     <string name="addon_health_ok">Răspunde · %1$s</string>
     <string name="addon_health_slow">Lent · %1$s</string>
     <string name="addon_health_timed_out">Ultima cerere a expirat</string>
+    <string name="source_chip_failed">eșuat</string>
+    <string name="source_chip_loading">se încarcă</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s trebuie configurat înainte de a putea fi instalat</string>
     <string name="advanced_introdb_api_key">Cheie API IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Creează o cheie pe introdb.app. Începe cu idb_.</string>
@@ -735,12 +754,32 @@
     <string name="autoplay_mode_best_desc">Ordonează fiecare rezultat după calitate, regulile tale și ce poate reda acest dispozitiv, apoi pornește câștigătorul. Celelalte surse rămân la o apăsare distanță.</string>
     <string name="best_match_cached">În cache</string>
     <string name="best_match_excluded">Nu se redă automat: %1$s</string>
+    <string name="stream_hold_for_options">Ține apăsat OK pentru opțiunile Cea mai bună potrivire</string>
     <string name="best_match_preview_sub">Interoghează suplimentele de fluxuri despre un titlu cât timp îl privești, astfel încât butonul Redă să numească fișierul și redarea să pornească mai repede. Dezactivează pentru a căuta doar după ce apeși Redă.</string>
     <string name="best_match_preview_title">Arată alegerea pe butonul Redă</string>
     <string name="catalog_order_pin">Fixează sus</string>
     <string name="catalog_order_pinned_on_home">Fixat în partea de sus a ecranului Acasă</string>
     <string name="catalog_order_unpin">Anulează fixarea</string>
     <string name="cd_mark_credits_end">Marchează sfârșitul genericului de final</string>
+    <string name="cd_move_addon_up">Mută %1$s în sus</string>
+    <string name="cd_move_addon_down">Mută %1$s în jos</string>
+    <string name="cd_addon_enabled_toggle">%1$s activată</string>
+    <string name="cd_configure_addon">Configurează %1$s</string>
+    <string name="cd_remove_addon">Elimină %1$s</string>
+    <string name="folder_error_addon_source">Nu s-a putut încărca acest catalog. Verifică dacă extensia lui este instalată și online, apoi încearcă din nou.</string>
+    <string name="folder_error_addon_missing">Extensia acestui catalog nu este instalată. Instaleaz-o din Complementuri sau elimină această sursă din dosar.</string>
+    <string name="folder_error_tmdb_source">Nu s-a putut încărca de pe TMDB. Verifică conexiunea, apoi încearcă din nou.</string>
+    <string name="folder_error_trakt_source">Nu s-a putut încărca această listă Trakt. Verifică conexiunea și dacă lista este încă publică, apoi încearcă din nou.</string>
+    <string name="folder_error_list_source">Nu s-a putut încărca această listă. Verifică conexiunea, apoi încearcă din nou.</string>
+    <string name="collections_editor_discard_title">Renunți la modificări?</string>
+    <string name="collections_editor_discard_collection_subtitle">Modificările aduse acestei colecții nu au fost salvate.</string>
+    <string name="collections_editor_discard_folder_subtitle">Modificările aduse acestui dosar nu au fost salvate.</string>
+    <string name="collections_editor_keep_editing">Continuă editarea</string>
+    <string name="collections_editor_discard">Renunță</string>
+    <string name="player_error_initialize_failed">Playerul nu a putut porni. Repornește Fetch și încearcă din nou.</string>
+    <string name="player_error_mpv_surface_failed">Playerul mpv nu a putut porni. Încearcă din nou sau schimbă Motor intern în Setări &gt; Redare.</string>
+    <string name="player_error_mpv_playback_failed">Redarea în playerul mpv nu a putut porni. Încearcă din nou sau schimbă Motor intern în Setări &gt; Redare.</string>
+    <string name="library_error_save_list_next_step">Verifică conexiunea și încearcă din nou.</string>
     <string name="cd_mark_credits_start">Marchează începutul genericului de final</string>
     <string name="cd_mark_intro_end">Marchează sfârșitul intro-ului</string>
     <string name="cd_mark_intro_start">Marchează începutul intro-ului</string>

@@ -225,6 +225,7 @@
     <string name="detail_marked_episodes_watched">Epizody označené jako zhlédnuté: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizody označené jako nezhlédnuté: %1$d</string>
     <string name="detail_marked_previous_watched">Předchozí epizody označené jako zhlédnuté: %1$d</string>
+    <string name="playback_unavailable_message">Nic z toho, co máte nastavené, nedokáže tento titul přehrát. Přidejte nebo zapněte doplněk pro streamování v Nastavení &gt; Obsah a objevování &gt; Doplňky, nebo zkontrolujte připojení k mediálnímu serveru.</string>
 
     <string name="detail_btn_play">Přehrát</string>
     <string name="detail_btn_resume">Pokračovat</string>
@@ -493,6 +494,9 @@
     <string name="playback_subtitle">Konfigurovat možnosti přehrávání videa a titulků</string>
     <string name="cd_decrease">Snížit</string>
     <string name="cd_increase">Zvýšit</string>
+    <string name="cd_decrease_setting">Snížit %1$s</string>
+    <string name="cd_increase_setting">Zvýšit %1$s</string>
+    <string name="cd_seek_bar">Posuvník přehrávání</string>
     <string name="action_cancel">Zrušit</string>
     <string name="action_apply">Použít</string>
     <string name="sub_opacity">Neprůhlednost</string>
@@ -806,7 +810,7 @@
     <string name="mdblist_dialog_title">MDBList API klíč</string>
     <string name="mdblist_dialog_placeholder">Zadejte MDBList API klíč</string>
     <string name="mdblist_not_set">Nenastaveno</string>
-    <string name="mdblist_invalid_api_key">Neplatný MDBList API klíč</string>
+    <string name="mdblist_invalid_api_key">Tento API klíč se nepodařilo ověřit. Zkontrolujte, že odpovídá klíči ve vašem účtu MDBList a že jste online, a zkuste to znovu.</string>
 
 
 
@@ -851,7 +855,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Vytvořte si vlastní Client ID na anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Zadejte Client ID</string>
-    <string name="animeskip_invalid_client_id">Neplatné Client ID</string>
+    <string name="animeskip_invalid_client_id">Toto Client ID se nepodařilo ověřit. Zkontrolujte, že odpovídá ID ve vašem účtu Anime Skip a že jste online, a zkuste to znovu.</string>
     <string name="action_clear">Vymazat</string>
 
     <string name="tmdb_title">Obohacení TMDB</string>
@@ -1035,6 +1039,7 @@
     <string name="addon_error_invalid_scheme">URL doplňku musí začínat http nebo https</string>
     <string name="addon_installed_section">Nainstalováno</string>
     <string name="addon_empty">Žádné nainstalované doplňky. Přidejte jeden pro začátek.</string>
+    <string name="addon_list_load_failed">Nainstalované doplňky se nepodařilo načíst. Zkuste to znovu.</string>
     <string name="addon_remove">Odebrat</string>
     <string name="addons_badge_disabled">Vypnuto</string>
     <string name="addon_manage_from_phone_title">Spravovat z telefonu</string>
@@ -1128,6 +1133,8 @@
     <string name="player_up_next_in_queue">Další ve frontě</string>
     <string name="player_queue_move_up">Posunout nahoru</string>
     <string name="player_queue_move_down">Posunout dolů</string>
+    <string name="player_queue_removed">%1$s odebráno z fronty</string>
+    <string name="player_queue_undo">Zpět</string>
     <string name="player_seek_back_10">Zpět o 10 sekund</string>
     <string name="player_seek_forward_30">Vpřed o 30 sekund</string>
     <string name="player_via">přes %1$s</string>
@@ -1135,6 +1142,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Zpoždění titulků</string>
     <string name="player_error_title">Chyba přehrávání</string>
+    <string name="player_error_choose_source">Vyberte jiný zdroj</string>
     <string name="player_report_issue">Nahlásit problém</string>
     <string name="player_report_issue_sending">Odesílání hlášení o přehrávání...</string>
     <string name="player_report_issue_sending_button">Odesílání...</string>
@@ -1153,7 +1161,7 @@
     <string name="player_more_speed">Rychlost přehrávání</string>
     <string name="player_more_aspect_ratio">Poměr stran</string>
     <string name="player_more_open_external">Otevřít v externím přehrávači</string>
-    <string name="player_error_no_stream_url">Nebyla poskytnuta URL streamu</string>
+    <string name="player_error_no_stream_url">Tento zdroj nemá odkaz na stream. Vyberte jiný zdroj.</string>
 
 
     <string name="stream_info_section_source">ZDROJ</string>
@@ -1272,6 +1280,8 @@
     <string name="search_start_subtitle_no_discover">Objevování je zakázáno. Zadejte alespoň 2 znaky</string>
     <string name="search_recent_title">Nedávná hledání</string>
     <string name="search_recent_clear">Vymazat historii</string>
+    <string name="search_recent_clear_confirm_title">Vymazat historii hledání?</string>
+    <string name="search_recent_clear_confirm_subtitle">Všechna vaše nedávná hledání budou odstraněna. Tuto akci nelze vrátit.</string>
     <string name="search_voice_no_speech">Nebyla rozpoznána žádná řeč. Zkuste to znovu.</string>
     <string name="search_voice_mic_permission">Pro hlasové vyhledávání je vyžadováno oprávnění k mikrofonu.</string>
     <string name="search_voice_failed">Rozpoznání hlasu selhalo. Zkuste to znovu.</string>
@@ -1279,6 +1289,8 @@
     <string name="search_no_results_title">Žádné výsledky</string>
     <string name="search_no_results_subtitle">Zkuste hledat s jinými klíčovými slovy</string>
     <string name="search_error_no_catalogs">V nainstalovaných doplňcích nebyly nalezeny žádné prohledávatelné katalogy</string>
+    <string name="search_no_catalogs_title">Žádný z vašich doplňků neumí vyhledávat</string>
+    <string name="search_no_catalogs_subtitle">Nainstalujte doplněk s vyhledávacím katalogem a zkuste to znovu.</string>
 
     <string name="library_title">Knihovna</string>
     <string name="library_filter_list">Seznam</string>
@@ -1324,12 +1336,16 @@
     <string name="library_list_move_up">Přesunout nahoru</string>
     <string name="library_list_move_down">Přesunout dolů</string>
     <string name="library_list_delete">Smazat</string>
+    <string name="library_list_delete_named">Smazat „%1$s“</string>
     <string name="library_list_close">Zavřít</string>
     <string name="library_list_name_label">Název</string>
-    <string name="library_error_list_name_required">Název seznamu je vyžadován</string>
+    <string name="library_error_list_name_required">Zadejte název seznamu</string>
     <string name="library_list_description_label">Popis</string>
     <string name="library_list_privacy">Soukromí</string>
     <string name="library_delete_title">Smazat tento seznam?</string>
+    <string name="library_delete_title_named">Smazat „%1$s“?</string>
+    <string name="library_delete_subtitle_provider">Tímto odstraníte seznam a jeho položky z %1$s. Tuto akci nelze vrátit.</string>
+    <string name="library_delete_subtitle_local">Tímto odstraníte seznam a jeho položky z vaší knihovny. Tuto akci nelze vrátit.</string>
     <string name="library_source_local">MÍSTNÍ</string>
     <string name="library_source_saved">Uloženo</string>
     <string name="library_watchlist">Watchlist</string>
@@ -1519,7 +1535,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Pro použití této funkce se připojte k Wi-Fi nebo Ethernetu</string>
-    <string name="error_server_ports_unavailable">Nepodařilo se spustit server. Všechny porty jsou obsazeny.</string>
+    <string name="error_server_ports_unavailable">Nepodařilo se spustit připojení k telefonu. Restartujte Fetch a zkuste to znovu.</string>
 
     <!-- Trakt errors -->
 
@@ -1584,6 +1600,11 @@
     <string name="cd_loading_logo">Načítání loga</string>
     <string name="cd_move_up">Přesunout nahoru</string>
     <string name="cd_move_down">Přesunout dolů</string>
+    <string name="cd_move_addon_up">Posunout %1$s nahoru</string>
+    <string name="cd_move_addon_down">Posunout %1$s dolů</string>
+    <string name="cd_addon_enabled_toggle">%1$s povoleno</string>
+    <string name="cd_configure_addon">Konfigurovat %1$s</string>
+    <string name="cd_remove_addon">Odebrat %1$s</string>
     <string name="cd_edit">Upravit</string>
     <string name="cd_delete">Smazat</string>
     <string name="cd_qr_code">QR kód</string>
@@ -1618,7 +1639,7 @@
     <string name="collections_import">Importovat</string>
     <string name="collections_export_file">Exportovat soubor</string>
     <string name="collections_saved_downloads">Uloženo do Stahování</string>
-    <string name="collections_export_failed">Export selhal</string>
+    <string name="collections_export_failed">Nepodařilo se uložit do složky Stažené soubory. Zkontrolujte oprávnění k úložišti a volné místo a zkuste to znovu.</string>
     <string name="collections_import_header">Importovat kolekce</string>
     <string name="collections_import_description">Importovat kolekce z JSON. Katalogy z doplňků, které nemáte nainstalované, zobrazí varování.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1855,6 +1876,16 @@
     <string name="collection_editor_folder_count_other">%1$d položek</string>
     <string name="collections_editor_delete_folder_title">Odstranit složku?</string>
     <string name="collections_editor_delete_folder_subtitle">Toto trvale odstraní \"%1$s\" a její obsah.</string>
+    <string name="folder_error_addon_source">Tento katalog se nepodařilo načíst. Zkontrolujte, že je jeho doplněk nainstalovaný a online, a zkuste to znovu.</string>
+    <string name="folder_error_addon_missing">Doplněk tohoto katalogu není nainstalovaný. Nainstalujte ho v sekci Doplňky, nebo tento zdroj ze složky odeberte.</string>
+    <string name="folder_error_tmdb_source">Obsah z TMDB se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.</string>
+    <string name="folder_error_trakt_source">Tento seznam Trakt se nepodařilo načíst. Zkontrolujte připojení a to, že je seznam stále veřejný, a zkuste to znovu.</string>
+    <string name="folder_error_list_source">Tento seznam se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.</string>
+    <string name="collections_editor_discard_title">Zahodit změny?</string>
+    <string name="collections_editor_discard_collection_subtitle">Vaše změny této kolekce nebyly uloženy.</string>
+    <string name="collections_editor_discard_folder_subtitle">Vaše změny této složky nebyly uloženy.</string>
+    <string name="collections_editor_keep_editing">Pokračovat v úpravách</string>
+    <string name="collections_editor_discard">Zahodit</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel filmy, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Nejlepší akční filmy, Korejská dramata, Animace 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Filmy Toma Hankse, Oblíbení herci</string>
@@ -1919,17 +1950,17 @@
     <string name="player_track_subtitle_fallback">Titulky %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nZdroj streamu je blokovaný nebo omezený. Zkuste jiný zdroj.</string>
-    <string name="player_error_stream_removed">\n\nPlatnost odkazu na stream vypršela nebo byl odstraněn. Zkuste jiný zdroj.</string>
-    <string name="player_error_stream_expired">\n\nPlatnost odkazu na stream vypršela. Zkuste jiný zdroj.</string>
-    <string name="player_error_stream_rate_limited">\n\nPříliš mnoho požadavků na zdroj streamu. Chvíli počkejte a zkuste to znovu.</string>
-    <string name="player_error_stream_unavailable">\n\nServer streamu je momentálně nedostupný. Zkuste jiný zdroj.</string>
-    <string name="player_error_source_invalid_content">Chyba zdroje: Zdroj streamu vrátil neplatný nebo nepřehratelný obsah. Platnost odkazu mohla vypršet, nebo server vrátil chybovou stránku místo videa.\n\nZkuste jiný zdroj. [%1$s]</string>
-    <string name="player_error_unsupported_format">Tento stream používá formát, který vaše zařízení možná nepodporuje. Zkuste jiný zdroj. [%1$s]</string>
-    <string name="player_error_initialize_failed">Nepodařilo se inicializovat přehrávač</string>
-    <string name="player_error_mpv_surface_failed">Nepodařilo se inicializovat plochu libmpv</string>
-    <string name="player_error_mpv_playback_failed">Nepodařilo se inicializovat přehrávání libmpv</string>
-    <string name="player_error_playback_fallback">Chyba přehrávání</string>
+    <string name="player_error_stream_blocked">\n\nZdroj streamu je blokovaný nebo omezený. Vyberte jiný zdroj.</string>
+    <string name="player_error_stream_removed">\n\nPlatnost odkazu na stream vypršela nebo byl odstraněn. Vyberte jiný zdroj.</string>
+    <string name="player_error_stream_expired">\n\nPlatnost odkazu na stream vypršela. Vyberte jiný zdroj.</string>
+    <string name="player_error_stream_rate_limited">\n\nPříliš mnoho požadavků na zdroj streamu. Chvíli počkejte a pak zdroj vyberte znovu.</string>
+    <string name="player_error_stream_unavailable">\n\nServer streamu je momentálně nedostupný. Vyberte jiný zdroj.</string>
+    <string name="player_error_source_invalid_content">Chyba zdroje: Zdroj streamu vrátil neplatný nebo nepřehratelný obsah. Platnost odkazu mohla vypršet, nebo server vrátil chybovou stránku místo videa.\n\nVyberte jiný zdroj. [%1$s]</string>
+    <string name="player_error_unsupported_format">Tento stream používá formát, který vaše zařízení možná nepodporuje. Vyberte jiný zdroj. [%1$s]</string>
+    <string name="player_error_initialize_failed">Přehrávač se nepodařilo spustit. Restartujte Fetch a zkuste to znovu.</string>
+    <string name="player_error_mpv_surface_failed">Přehrávač mpv se nepodařilo spustit. Zkuste to znovu, nebo změňte Interní engine v Nastavení &gt; Přehrávání.</string>
+    <string name="player_error_mpv_playback_failed">Přehrávání v přehrávači mpv se nepodařilo spustit. Zkuste to znovu, nebo změňte Interní engine v Nastavení &gt; Přehrávání.</string>
+    <string name="player_error_playback_fallback">Tento stream nelze přehrát. Vyberte jiný zdroj.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">V tomto souboru nebyly nalezeny žádné řádky titulků.</string>
     <string name="subtitle_timing_load_lines_failed">Načtení řádků titulků selhalo.</string>
@@ -1960,6 +1991,7 @@
     <string name="library_list_created">Seznam vytvořen</string>
     <string name="library_list_updated">Seznam aktualizován</string>
     <string name="library_error_save_list_failed">Uložení seznamu selhalo</string>
+    <string name="library_error_save_list_next_step">Zkontrolujte připojení a zkuste to znovu.</string>
     <string name="library_list_deleted">Seznam odstraněn</string>
     <string name="library_error_delete_list_failed">Odstranění seznamu selhalo</string>
     <string name="library_list_order_updated">Pořadí seznamu aktualizováno</string>
@@ -1988,11 +2020,11 @@
     <string name="trakt_error_mark_watched_failed">Označení jako zhlédnuté na Trakt selhalo (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Aktualizace knihovny selhala</string>
-    <string name="detail_error_load_lists_failed">Načtení seznamů selhalo</string>
-    <string name="detail_error_update_lists_failed">Aktualizace seznamů selhala</string>
-    <string name="detail_error_update_watched_failed">Aktualizace stavu zhlédnutí selhala</string>
-    <string name="detail_error_update_episode_watched_failed">Aktualizace stavu zhlédnutí epizody selhala</string>
+    <string name="detail_error_update_library_failed">Knihovnu se nepodařilo aktualizovat. Zkontrolujte připojení a zkuste to znovu.</string>
+    <string name="detail_error_load_lists_failed">Seznamy se nepodařilo načíst. Zkontrolujte připojení a zkuste to znovu.</string>
+    <string name="detail_error_update_lists_failed">Seznamy se nepodařilo aktualizovat. Zkontrolujte připojení a zkuste to znovu.</string>
+    <string name="detail_error_update_watched_failed">Stav zhlédnutí se nepodařilo aktualizovat. Zkontrolujte připojení a zkuste to znovu.</string>
+    <string name="detail_error_update_episode_watched_failed">Stav zhlédnutí této epizody se nepodařilo aktualizovat. Zkontrolujte připojení a zkuste to znovu.</string>
     <string name="poster_options_error_load_lists_failed">Načtení seznamů selhalo</string>
     <string name="poster_options_error_update_lists_failed">Aktualizace seznamů selhala</string>
 
@@ -2178,7 +2210,7 @@
     <string name="diag_value_never_rendered">Nikdy nevykresleno</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Přehrání vybraného streamu selhalo</string>
+    <string name="player_error_play_stream_failed">Vybraný stream nelze přehrát. Vyberte jiný zdroj.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2239,6 +2271,9 @@
     <string name="addon_health_ok">Odpovídá · %1$s</string>
     <string name="addon_health_slow">Pomalý · %1$s</string>
     <string name="addon_health_timed_out">Časový limit posledního požadavku vypršel</string>
+    <string name="source_chip_failed">selhalo</string>
+    <string name="source_chip_loading">načítání</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s je nutné před instalací nastavit</string>
     <string name="advanced_introdb_api_key">API klíč IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Vytvořte klíč na introdb.app. Začíná na idb_.</string>
@@ -2254,6 +2289,7 @@
     <string name="autoplay_mode_best_desc">Seřadí všechny výsledky podle kvality, vašich pravidel a toho, co toto zařízení umí přehrát, a spustí vítěze. Ostatní zdroje jsou na jedno stisknutí.</string>
     <string name="best_match_cached">V mezipaměti</string>
     <string name="best_match_excluded">Nepřehrává se automaticky: %1$s</string>
+    <string name="stream_hold_for_options">Podržte OK pro možnosti Nejlepší shody</string>
     <string name="best_match_preview_sub">Zeptá se vašich streamovacích doplňků na titul, zatímco si jej prohlížíte, takže tlačítko Přehrát může ukázat soubor a přehrávání začne dříve. Vypněte, chcete-li hledat až po stisknutí Přehrát.</string>
     <string name="best_match_preview_title">Zobrazit výběr na tlačítku Přehrát</string>
     <string name="catalog_order_pin">Připnout nahoru</string>

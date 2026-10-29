@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">Impossibile raggiungere il server.</string>
     <string name="servers_error_unsupported">È richiesto %1$s %2$s o una versione successiva.</string>
     <string name="servers_error_forbidden">Questo utente non dispone dell\'accesso necessario.</string>
-    <string name="servers_error_failed">Impossibile connettersi al server.</string>
+    <string name="servers_error_failed">Impossibile connettersi al server. Verifica che sia acceso e raggiungibile, poi riprova.</string>
     <string name="servers_failure_auth">Accedi di nuovo a questo server nelle Impostazioni.</string>
-    <string name="servers_failure_unreachable">Il server non è disponibile.</string>
+    <string name="servers_failure_unreachable">Il server non è disponibile. Verifica che sia acceso e raggiungibile, poi riprova.</string>
     <string name="servers_failure_not_found">Questo elemento non è più disponibile sul server.</string>
     <string name="servers_failure_unsupported">Il server non supporta questo elemento.</string>
     <string name="servers_failure_incomplete">La verifica della libreria del server è ancora in corso. Riprova tra qualche istante.</string>

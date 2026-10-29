@@ -221,6 +221,7 @@
     <string name="detail_marked_episodes_watched">Episódios marcados como assistidos: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episódios marcados como não assistidos: %1$d</string>
     <string name="detail_marked_previous_watched">Episódios anteriores marcados como assistidos: %1$d</string>
+    <string name="playback_unavailable_message">Nada do que você configurou consegue reproduzir este título. Adicione ou ative um addon de streaming em Ajustes &gt; Conteúdo e Descoberta &gt; Addons, ou verifique a conexão com seu servidor de mídia.</string>
     
     <string name="detail_btn_play">Assistir</string>
     <string name="detail_btn_resume">Continuar</string>
@@ -578,6 +579,9 @@
     <string name="playback_subtitle">Configurar vídeo, áudio e legendas</string>
     <string name="cd_decrease">Diminuir</string>
     <string name="cd_increase">Aumentar</string>
+    <string name="cd_decrease_setting">Diminuir %1$s</string>
+    <string name="cd_increase_setting">Aumentar %1$s</string>
+    <string name="cd_seek_bar">Barra de progresso</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_apply">Aplicar</string>
     <string name="sub_opacity">Opacidade</string>
@@ -926,7 +930,7 @@
     <string name="mdblist_dialog_title">Chave API MDBList</string>
     <string name="mdblist_dialog_placeholder">Digite sua chave API MDBList</string>
     <string name="mdblist_not_set">Não definido</string>
-    <string name="mdblist_invalid_api_key">Chave API inválida</string>
+    <string name="mdblist_invalid_api_key">Não foi possível verificar esta chave API. Confira se ela é igual à chave da sua conta MDBList e se você está on-line e tente novamente.</string>
     <string name="mdblist_library_lists">Listas da Biblioteca</string>
     <string name="mdblist_library_lists_description">Escolha quais listas do MDBList aparecem na Biblioteca e em Gerenciar Listas. A Minha Lista sempre aparece.</string>
     <string name="mdblist_library_lists_empty">Nenhuma lista encontrada na sua conta MDBList ainda. Sincronize para carregá-las.</string>
@@ -977,7 +981,7 @@
     <string name="animeskip_dialog_title">ID de Cliente Anime Skip</string>
     <string name="animeskip_dialog_subtitle">Crie seu ID em: anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Digite o ID de Cliente</string>
-    <string name="animeskip_invalid_client_id">ID de Cliente inválido</string>
+    <string name="animeskip_invalid_client_id">Não foi possível verificar este ID de Cliente. Confira se ele é igual ao da sua conta Anime Skip e se você está on-line e tente novamente.</string>
     <string name="action_clear">Limpar</string>
     
     <string name="tmdb_title">Enriquecimento TMDB</string>
@@ -1194,6 +1198,7 @@
     <string name="addon_error_invalid_scheme">A URL deve começar com http ou https.</string>
     <string name="addon_installed_section">Instalados</string>
     <string name="addon_empty">Nenhum addon instalado. Adicione um para começar.</string>
+    <string name="addon_list_load_failed">Não foi possível carregar seus addons instalados. Tente novamente.</string>
     <string name="addon_remove">Remover</string>
     <string name="addon_delete_confirm_title">Excluir addon?</string>
     <string name="addon_delete_confirm_message">Tem certeza de que deseja excluí-lo?</string>
@@ -1291,6 +1296,8 @@
     <string name="player_up_next_in_queue">A seguir na fila</string>
     <string name="player_queue_move_up">Mover para cima</string>
     <string name="player_queue_move_down">Mover para baixo</string>
+    <string name="player_queue_removed">Removido da fila: %1$s</string>
+    <string name="player_queue_undo">Desfazer</string>
     <string name="player_seek_back_10">Voltar 10 segundos</string>
     <string name="player_seek_forward_30">Avançar 30 segundos</string>
     <string name="player_live_watched">AO VIVO • %1$s</string>
@@ -1299,6 +1306,7 @@
     <string name="season_episode_format">T%1$d:E%2$d</string>
     <string name="player_subtitle_delay">Atraso da legenda</string>
     <string name="player_error_title">Erro de Reprodução</string>
+    <string name="player_error_choose_source">Escolha outra fonte</string>
     <string name="player_switch_to_mpv">Trocar para o MPV Player</string>
     <string name="player_report_issue">Relatar problema</string>
     <string name="player_report_issue_sending">Enviando relatório de reprodução...</string>
@@ -1316,7 +1324,7 @@
     <string name="player_more_speed">Velocidade de reprodução</string>
     <string name="player_more_aspect_ratio">Proporção</string>
     <string name="player_more_open_external">Abrir em Player Externo</string>    
-    <string name="player_error_no_stream_url">Nenhum link de vídeo fornecido</string>
+    <string name="player_error_no_stream_url">Esta fonte não tem link de vídeo. Escolha outra fonte.</string>
     
  
     <string name="stream_info_section_source">FONTE</string>
@@ -1447,6 +1455,8 @@
     <string name="search_start_subtitle_no_discover">Descobrir desativado. Digite ao menos 2 caracteres</string>
     <string name="search_recent_title">Pesquisas recentes</string>
     <string name="search_recent_clear">Limpar histórico</string>
+    <string name="search_recent_clear_confirm_title">Limpar histórico de pesquisa?</string>
+    <string name="search_recent_clear_confirm_subtitle">Todas as suas pesquisas recentes serão removidas. Esta ação não pode ser desfeita.</string>
     <string name="cd_remove_recent_search">Remover %1$s das buscas recentes</string>
     <string name="search_voice_no_speech">Nenhuma voz detectada. Tente novamente</string>
     <string name="search_voice_mic_permission">Permissão do microfone necessária para busca por voz</string>
@@ -1455,6 +1465,8 @@
     <string name="search_no_results_title">Nenhum resultado</string>
     <string name="search_no_results_subtitle">Tente buscar usando outras palavras</string>
     <string name="search_error_no_catalogs">Nenhum catálogo de busca encontrado nos addons instalados</string>
+    <string name="search_no_catalogs_title">Nenhum dos seus addons pode pesquisar</string>
+    <string name="search_no_catalogs_subtitle">Instale um addon com catálogo de pesquisa e tente novamente.</string>
 
     <string name="library_title">Biblioteca</string>
     <string name="library_filter_list">Lista</string>
@@ -1522,12 +1534,16 @@
     <string name="library_list_move_up">Mover para cima</string>
     <string name="library_list_move_down">Mover para baixo</string>
     <string name="library_list_delete">Excluir</string>
+    <string name="library_list_delete_named">Excluir “%1$s”</string>
     <string name="library_list_close">Fechar</string>
     <string name="library_list_name_label">Nome</string>
-    <string name="library_error_list_name_required">Nome da lista é obrigatório</string>
+    <string name="library_error_list_name_required">Digite um nome para a lista</string>
     <string name="library_list_description_label">Descrição</string>
     <string name="library_list_privacy">Privacidade</string>
     <string name="library_delete_title">Excluir esta lista?</string>
+    <string name="library_delete_title_named">Excluir “%1$s”?</string>
+    <string name="library_delete_subtitle_provider">Isso remove a lista e os itens dela do %1$s. Esta ação não pode ser desfeita.</string>
+    <string name="library_delete_subtitle_local">Isso remove a lista e os itens dela da sua biblioteca. Esta ação não pode ser desfeita.</string>
     <string name="library_source_local">LOCAL</string>
     <string name="library_source_saved">Salvos</string>
     <string name="library_watchlist">Minha Lista</string>
@@ -1768,7 +1784,7 @@
  
     <!-- Error messages (shared) -->
     <string name="error_network_required">Conecte-se à internet para usar este recurso</string>
-    <string name="error_server_ports_unavailable">Não foi possível iniciar o servidor. Todas as portas estão em uso.</string>
+    <string name="error_server_ports_unavailable">Não foi possível iniciar a conexão com o celular. Reinicie o Fetch e tente novamente.</string>
 
     <!-- Trakt errors -->
     
@@ -1833,6 +1849,11 @@
     <string name="cd_loading_logo">Carregando logo</string>
     <string name="cd_move_up">Mover para cima</string>
     <string name="cd_move_down">Mover para baixo</string>
+    <string name="cd_move_addon_up">Mover %1$s para cima</string>
+    <string name="cd_move_addon_down">Mover %1$s para baixo</string>
+    <string name="cd_addon_enabled_toggle">%1$s ativado</string>
+    <string name="cd_configure_addon">Configurar %1$s</string>
+    <string name="cd_remove_addon">Remover %1$s</string>
     <string name="cd_edit">Editar</string>
     <string name="cd_delete">Deletar</string>
     <string name="cd_qr_code">Código QR</string>
@@ -1868,7 +1889,7 @@
     <string name="collections_import">Importar</string>
     <string name="collections_export_file">Exportar arquivo</string>
     <string name="collections_saved_downloads">Salvo em Downloads</string>
-    <string name="collections_export_failed">Falha na exportação</string>
+    <string name="collections_export_failed">Não foi possível salvar em Downloads. Verifique a permissão de armazenamento e o espaço livre e tente novamente.</string>
     <string name="collections_import_header">Importar coleções</string>
     <string name="collections_import_description">Importar coleções de JSON. Catálogos de addons não instalados exibirão um aviso.</string>
     <string name="collections_import_url_placeholder">https://exemplo.com/colecoes.json</string>
@@ -2111,7 +2132,17 @@
     <string name="collection_editor_folder_count_one">%1$d item</string>
     <string name="collection_editor_folder_count_other">%1$d itens</string>
     <string name="collections_editor_delete_folder_title">Excluir pasta?</string>
-    <string name="collections_editor_delete_folder_subtitle">Isso excluirá permanentemente \"%1$s\" e todo o seu conteúdo.</string>  
+    <string name="collections_editor_delete_folder_subtitle">Isso excluirá permanentemente \"%1$s\" e todo o seu conteúdo.</string>
+    <string name="folder_error_addon_source">Não foi possível carregar este catálogo. Verifique se o addon dele está instalado e on-line e tente novamente.</string>
+    <string name="folder_error_addon_missing">O addon deste catálogo não está instalado. Instale-o em Addons ou remova esta fonte da pasta.</string>
+    <string name="folder_error_tmdb_source">Não foi possível carregar do TMDB. Verifique sua conexão e tente novamente.</string>
+    <string name="folder_error_trakt_source">Não foi possível carregar esta lista do Trakt. Verifique sua conexão e se a lista ainda é pública e tente novamente.</string>
+    <string name="folder_error_list_source">Não foi possível carregar esta lista. Verifique sua conexão e tente novamente.</string>
+    <string name="collections_editor_discard_title">Descartar alterações?</string>
+    <string name="collections_editor_discard_collection_subtitle">Suas alterações nesta coleção não foram salvas.</string>
+    <string name="collections_editor_discard_folder_subtitle">Suas alterações nesta pasta não foram salvas.</string>
+    <string name="collections_editor_keep_editing">Continuar editando</string>
+    <string name="collections_editor_discard">Descartar</string>  
     <string name="collections_editor_tmdb_movie_title_placeholder">Filmes da Marvel, Originais Netflix, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Melhores Filmes de Ação, Doramas Coreanos, Animações de 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Filmes de Tom Hanks, Atores favoritos</string>
@@ -2178,17 +2209,17 @@
     <string name="player_track_subtitle_fallback">Legenda %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nA fonte de vídeo está bloqueada ou restrita. Tente outra opção.</string>
-    <string name="player_error_stream_removed">\n\nO link expirou ou foi removido. Tente outra fonte.</string>
-    <string name="player_error_stream_expired">\n\nO link expirou. Tente outra fonte.</string>
-    <string name="player_error_stream_rate_limited">\n\nMuitos acessos simultâneos a esta fonte. Aguarde um instante e tente novamente.</string>
-    <string name="player_error_stream_unavailable">\n\nServidor indisponível. Tente outra fonte.</string>
-    <string name="player_error_source_invalid_content">Erro de fonte: conteúdo inválido ou não reproduzível. O link pode ter expirado ou o servidor retornou uma página de erro.\n\nTente outra fonte. [%1$s]</string>
-    <string name="player_error_unsupported_format">Formato não suportado pelo dispositivo. Tente outra fonte. [%1$s]</string>
-    <string name="player_error_initialize_failed">Falha ao inicializar player</string>
-    <string name="player_error_mpv_surface_failed">Falha ao iniciar a renderização de vídeo (libmpv)</string>
-    <string name="player_error_mpv_playback_failed">Falha ao inicializar reprodução libmpv</string>
-    <string name="player_error_playback_fallback">Erro de reprodução</string>
+    <string name="player_error_stream_blocked">\n\nA fonte de vídeo está bloqueada ou restrita. Escolha outra fonte.</string>
+    <string name="player_error_stream_removed">\n\nO link expirou ou foi removido. Escolha outra fonte.</string>
+    <string name="player_error_stream_expired">\n\nO link expirou. Escolha outra fonte.</string>
+    <string name="player_error_stream_rate_limited">\n\nMuitos acessos simultâneos a esta fonte. Aguarde um instante e escolha uma fonte novamente.</string>
+    <string name="player_error_stream_unavailable">\n\nServidor indisponível no momento. Escolha outra fonte.</string>
+    <string name="player_error_source_invalid_content">Erro de fonte: conteúdo inválido ou não reproduzível. O link pode ter expirado ou o servidor retornou uma página de erro em vez do vídeo.\n\nEscolha outra fonte. [%1$s]</string>
+    <string name="player_error_unsupported_format">Este vídeo usa um formato que seu dispositivo talvez não suporte. Escolha outra fonte. [%1$s]</string>
+    <string name="player_error_initialize_failed">Não foi possível iniciar o player. Reinicie o Fetch e tente novamente.</string>
+    <string name="player_error_mpv_surface_failed">Não foi possível iniciar o player mpv. Tente novamente ou altere Player Interno em Ajustes &gt; Reprodução.</string>
+    <string name="player_error_mpv_playback_failed">Não foi possível iniciar a reprodução no player mpv. Tente novamente ou altere Player Interno em Ajustes &gt; Reprodução.</string>
+    <string name="player_error_playback_fallback">Não foi possível reproduzir este stream. Escolha outra fonte.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nenhum texto encontrado nesta legenda</string>
     <string name="subtitle_timing_load_lines_failed">Falha ao carregar os textos da legenda</string>
@@ -2219,6 +2250,7 @@
     <string name="library_list_created">Lista criada</string>
     <string name="library_list_updated">Lista atualizada</string>
     <string name="library_error_save_list_failed">Falha ao salvar lista</string>
+    <string name="library_error_save_list_next_step">Verifique sua conexão e tente novamente.</string>
     <string name="library_list_deleted">Lista excluída</string>
     <string name="library_error_delete_list_failed">Falha ao excluir lista</string>
     <string name="library_list_order_updated">Ordem das listas atualizada</string>
@@ -2281,11 +2313,11 @@
     <string name="trakt_error_mark_watched_failed">Falha ao marcar como assistido no Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Falha ao atualizar biblioteca</string>
-    <string name="detail_error_load_lists_failed">Falha ao carregar listas</string>
-    <string name="detail_error_update_lists_failed">Falha ao atualizar listas</string>
-    <string name="detail_error_update_watched_failed">Falha ao atualizar status de assistido</string>
-    <string name="detail_error_update_episode_watched_failed">Falha ao atualizar status de episódio assistido</string>
+    <string name="detail_error_update_library_failed">Não foi possível atualizar sua biblioteca. Verifique sua conexão e tente novamente.</string>
+    <string name="detail_error_load_lists_failed">Não foi possível carregar suas listas. Verifique sua conexão e tente novamente.</string>
+    <string name="detail_error_update_lists_failed">Não foi possível atualizar suas listas. Verifique sua conexão e tente novamente.</string>
+    <string name="detail_error_update_watched_failed">Não foi possível atualizar o status de assistido. Verifique sua conexão e tente novamente.</string>
+    <string name="detail_error_update_episode_watched_failed">Não foi possível atualizar o status de assistido deste episódio. Verifique sua conexão e tente novamente.</string>
     <string name="poster_options_error_load_lists_failed">Falha ao carregar listas</string>
     <string name="poster_options_error_update_lists_failed">Falha ao atualizar listas</string>
 
@@ -2471,7 +2503,7 @@
     <string name="diag_value_never_rendered">Nunca renderizado</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Falha ao reproduzir o stream selecionado</string>
+    <string name="player_error_play_stream_failed">Não foi possível reproduzir o stream selecionado. Escolha outra fonte.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2531,6 +2563,9 @@
     <string name="addon_health_ok">Respondendo · %1$s</string>
     <string name="addon_health_slow">Lento · %1$s</string>
     <string name="addon_health_timed_out">A última solicitação expirou</string>
+    <string name="source_chip_failed">falhou</string>
+    <string name="source_chip_loading">carregando</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s precisa ser configurado antes de ser instalado</string>
     <string name="advanced_introdb_api_key">Chave de API do IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Crie uma chave em introdb.app. Ela começa com idb_.</string>
@@ -2546,6 +2581,7 @@
     <string name="autoplay_mode_best_desc">Classifica cada resultado por qualidade, suas regras e o que este dispositivo consegue reproduzir, e então inicia o vencedor. As outras fontes ficam a um clique.</string>
     <string name="best_match_cached">Em cache</string>
     <string name="best_match_excluded">Não reproduzido automaticamente: %1$s</string>
+    <string name="stream_hold_for_options">Segure OK para ver as opções da Melhor opção</string>
     <string name="best_match_preview_sub">Consulta seus addons de stream sobre um título enquanto você o vê, para que o botão Assistir mostre o arquivo e a reprodução comece mais rápido. Desative para buscar só depois de apertar Assistir.</string>
     <string name="best_match_preview_title">Mostrar a escolha no botão Assistir</string>
     <string name="catalog_order_pin">Fixar no topo</string>

@@ -498,6 +498,9 @@
     <string name="playback_subtitle">Konfigurácia videa a titulkov</string>
     <string name="cd_decrease">Znížiť</string>
     <string name="cd_increase">Zvýšiť</string>
+    <string name="cd_decrease_setting">Znížiť %1$s</string>
+    <string name="cd_increase_setting">Zvýšiť %1$s</string>
+    <string name="cd_seek_bar">Posuvník prehrávania</string>
     <string name="action_cancel">Zrušiť</string>
     <string name="action_apply">Použiť</string>
     <string name="sub_opacity">Nepriehľadnosť</string>
@@ -775,7 +778,7 @@
     <string name="mdblist_dialog_title">MDBList API kľúč</string>
     <string name="mdblist_dialog_placeholder">Zadajte MDBList API kľúč</string>
     <string name="mdblist_not_set">Nenastavené</string>
-    <string name="mdblist_invalid_api_key">Neplatný MDBList API kľúč</string>
+    <string name="mdblist_invalid_api_key">Tento API kľúč sa nepodarilo overiť. Skontrolujte, či sa zhoduje s kľúčom vo vašom účte MDBList a či ste online, a skúste to znova.</string>
 
 
     
@@ -791,7 +794,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Vytvorte si vlastný Client ID na anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Zadajte Client ID</string>
-    <string name="animeskip_invalid_client_id">Neplatný Client ID</string>
+    <string name="animeskip_invalid_client_id">Toto Client ID sa nepodarilo overiť. Skontrolujte, či sa zhoduje s tým vo vašom účte Anime Skip a či ste online, a skúste to znova.</string>
     <string name="action_clear">Vymazať</string>
 
     
@@ -971,6 +974,7 @@
     <string name="addon_error_invalid_scheme">URL doplnku musí začínať http alebo https</string>
     <string name="addon_installed_section">Nainštalované</string>
     <string name="addon_empty">Žiadne doplnky nie sú nainštalované. Pridajte jeden pre začiatok.</string>
+    <string name="addon_list_load_failed">Nainštalované doplnky sa nepodarilo načítať. Skúste to znova.</string>
     <string name="addon_remove">Odstrániť</string>
     <string name="addons_badge_disabled">Zakázané</string>
     <string name="addon_manage_from_phone_title">Spravovať z telefónu</string>
@@ -1062,6 +1066,8 @@
     <string name="player_up_next_in_queue">Ďalšie vo fronte</string>
     <string name="player_queue_move_up">Posunúť nahor</string>
     <string name="player_queue_move_down">Posunúť nadol</string>
+    <string name="player_queue_removed">Odstránené z frontu: %1$s</string>
+    <string name="player_queue_undo">Späť</string>
     <string name="player_seek_back_10">Späť o 10 sekúnd</string>
     <string name="player_seek_forward_30">Vpred o 30 sekúnd</string>
     <string name="player_via">cez %1$s</string>
@@ -1069,6 +1075,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Oneskorenie titulkov</string>
     <string name="player_error_title">Chyba prehrávania</string>
+    <string name="player_error_choose_source">Vyberte iný zdroj</string>
     <string name="player_speed_title">Rýchlosť prehrávania</string>
     <string name="player_more_actions_title">Ďalšie akcie</string>
     <string name="player_more_speed">Rýchlosť prehrávania</string>
@@ -1197,6 +1204,8 @@
     <string name="search_start_subtitle_no_discover">Objavovanie je vypnuté. Zadajte aspoň 2 znaky</string>
     <string name="search_recent_title">Nedávne vyhľadávania</string>
     <string name="search_recent_clear">Vymazať históriu</string>
+    <string name="search_recent_clear_confirm_title">Vymazať históriu vyhľadávania?</string>
+    <string name="search_recent_clear_confirm_subtitle">Všetky nedávne vyhľadávania budú odstránené. Túto akciu nemožno vrátiť späť.</string>
     <string name="search_voice_no_speech">Nebola rozpoznaná žiadna reč. Skúste to znova.</string>
     <string name="search_voice_mic_permission">Pre hlasové vyhľadávanie je potrebné povolenie mikrofónu.</string>
     <string name="search_voice_failed">Rozpoznávanie hlasu zlyhalo. Skúste to znova.</string>
@@ -1249,12 +1258,16 @@
     <string name="library_list_move_up">Posunúť vyššie</string>
     <string name="library_list_move_down">Posunúť nižšie</string>
     <string name="library_list_delete">Odstrániť</string>
+    <string name="library_list_delete_named">Odstrániť „%1$s“</string>
     <string name="library_list_close">Zavrieť</string>
     <string name="library_list_name_label">Názov</string>
-    <string name="library_error_list_name_required">Názov zoznamu je povinný</string>
+    <string name="library_error_list_name_required">Zadajte názov zoznamu</string>
     <string name="library_list_description_label">Popis</string>
     <string name="library_list_privacy">Súkromie</string>
     <string name="library_delete_title">Odstrániť tento zoznam?</string>
+    <string name="library_delete_title_named">Odstrániť „%1$s“?</string>
+    <string name="library_delete_subtitle_provider">Týmto sa zoznam a jeho položky odstránia zo služby %1$s. Túto akciu nemožno vrátiť späť.</string>
+    <string name="library_delete_subtitle_local">Týmto sa zoznam a jeho položky odstránia z vašej knižnice. Túto akciu nemožno vrátiť späť.</string>
     <string name="library_source_local">LOKÁLNE</string>
     <string name="library_source_saved">Uložené</string>
     <string name="library_watchlist">Watchlist</string>
@@ -1441,7 +1454,7 @@
 
     
     <string name="error_network_required">Pripojte sa k Wi‑Fi alebo Ethernetu, aby ste mohli používať túto funkciu</string>
-    <string name="error_server_ports_unavailable">Nepodarilo sa spustiť server. Všetky porty sú obsadené.</string>
+    <string name="error_server_ports_unavailable">Pripojenie k telefónu sa nepodarilo spustiť. Reštartujte Fetch a skúste to znova.</string>
 
     
 
@@ -1478,12 +1491,14 @@
 
     
     <string name="search_error_no_catalogs">V nainštalovaných doplnkoch sa nenašli žiadne prehľadávateľné katalógy</string>
+    <string name="search_no_catalogs_title">Žiadny z vašich doplnkov nevie vyhľadávať</string>
+    <string name="search_no_catalogs_subtitle">Nainštalujte doplnok s vyhľadávacím katalógom a skúste to znova.</string>
 
     
     <string name="home_error_no_catalog_addons">Žiadne katalógové doplnky nie sú nainštalované</string>
 
     
-    <string name="player_error_no_stream_url">Nebola poskytnutá URL streamu</string>
+    <string name="player_error_no_stream_url">Tento zdroj nemá odkaz na stream. Vyberte iný zdroj.</string>
 
     
     <string name="sub_mode_overlay_canvas_sub">Podpora HDR s Canvas renderovaním. Môže blokovať UI vlákno.</string>
@@ -1518,6 +1533,11 @@
     <string name="cd_loading_logo">Načítava sa logo</string>
     <string name="cd_move_up">Posunúť hore</string>
     <string name="cd_move_down">Posunúť dole</string>
+    <string name="cd_move_addon_up">Posunúť %1$s nahor</string>
+    <string name="cd_move_addon_down">Posunúť %1$s nadol</string>
+    <string name="cd_addon_enabled_toggle">%1$s zapnutý</string>
+    <string name="cd_configure_addon">Konfigurovať %1$s</string>
+    <string name="cd_remove_addon">Odstrániť %1$s</string>
     <string name="cd_edit">Upraviť</string>
     <string name="cd_delete">Odstrániť</string>
     <string name="cd_qr_code">QR kód</string>
@@ -1553,7 +1573,7 @@
     <string name="collections_import">Importovať</string>
     <string name="collections_export_file">Exportovať súbor</string>
     <string name="collections_saved_downloads">Uložené do Stiahnutých súborov</string>
-    <string name="collections_export_failed">Export zlyhal</string>
+    <string name="collections_export_failed">Nepodarilo sa uložiť do priečinka Stiahnuté súbory. Skontrolujte povolenie úložiska a voľné miesto a skúste to znova.</string>
     <string name="collections_import_header">Importovať kolekcie</string>
     <string name="collections_import_description">Importujte kolekcie z JSON. Katalógy z doplnkov, ktoré nemáte nainštalované, zobrazia upozornenie.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1790,6 +1810,16 @@
     <string name="collection_editor_folder_count_other">%1$d položiek</string>
     <string name="collections_editor_delete_folder_title">Odstrániť priečinok?</string>
     <string name="collections_editor_delete_folder_subtitle">Týmto sa natrvalo odstráni „%1$s“ aj jeho obsah.</string>
+    <string name="folder_error_addon_source">Tento katalóg sa nepodarilo načítať. Skontrolujte, či je jeho doplnok nainštalovaný a online, a skúste to znova.</string>
+    <string name="folder_error_addon_missing">Doplnok tohto katalógu nie je nainštalovaný. Nainštalujte ho v sekcii Doplnky alebo odstráňte tento zdroj z priečinka.</string>
+    <string name="folder_error_tmdb_source">Obsah z TMDB sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.</string>
+    <string name="folder_error_trakt_source">Tento zoznam Trakt sa nepodarilo načítať. Skontrolujte pripojenie a či je zoznam stále verejný, a skúste to znova.</string>
+    <string name="folder_error_list_source">Tento zoznam sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.</string>
+    <string name="collections_editor_discard_title">Zahodiť zmeny?</string>
+    <string name="collections_editor_discard_collection_subtitle">Zmeny v tejto kolekcii neboli uložené.</string>
+    <string name="collections_editor_discard_folder_subtitle">Zmeny v tomto priečinku neboli uložené.</string>
+    <string name="collections_editor_keep_editing">Pokračovať v úpravách</string>
+    <string name="collections_editor_discard">Zahodiť</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel filmy, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Najlepšie akčné filmy, Kórejské drámy, Animácia 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Filmy Toma Hanksa, Obľúbení herci</string>
@@ -1854,17 +1884,17 @@
     <string name="player_track_subtitle_fallback">Titulky %1$d</string>
 
     
-    <string name="player_error_stream_blocked">\n\nZdroj streamu je zablokovaný alebo obmedzený. Skúste iný zdroj.</string>
-    <string name="player_error_stream_removed">\n\nOdkaz na stream vypršal alebo bol odstránený. Skúste iný zdroj.</string>
-    <string name="player_error_stream_expired">\n\nOdkaz na stream vypršal. Skúste iný zdroj.</string>
-    <string name="player_error_stream_rate_limited">\n\nPríliš veľa požiadaviek na zdroj streamu. Počkajte chvíľu a skúste to znova.</string>
-    <string name="player_error_stream_unavailable">\n\nServer streamu je momentálne nedostupný. Skúste iný zdroj.</string>
-    <string name="player_error_source_invalid_content">Chyba zdroja: Zdroj streamu vrátil neplatný alebo neprehrateľný obsah. Odkaz mohol vypršať alebo server vrátil chybovú stránku namiesto videa.\n\nSkúste iný zdroj. [%1$s]</string>
-    <string name="player_error_unsupported_format">Tento stream používa formát, ktorý vaše zariadenie nemusí podporovať. Skúste iný zdroj. [%1$s]</string>
-    <string name="player_error_initialize_failed">Nepodarilo sa inicializovať prehrávač</string>
-    <string name="player_error_mpv_surface_failed">Nepodarilo sa inicializovať povrch libmpv</string>
-    <string name="player_error_mpv_playback_failed">Nepodarilo sa inicializovať prehrávanie libmpv</string>
-    <string name="player_error_playback_fallback">Chyba prehrávania</string>
+    <string name="player_error_stream_blocked">\n\nZdroj streamu je zablokovaný alebo obmedzený. Vyberte iný zdroj.</string>
+    <string name="player_error_stream_removed">\n\nOdkaz na stream vypršal alebo bol odstránený. Vyberte iný zdroj.</string>
+    <string name="player_error_stream_expired">\n\nOdkaz na stream vypršal. Vyberte iný zdroj.</string>
+    <string name="player_error_stream_rate_limited">\n\nPríliš veľa požiadaviek na zdroj streamu. Počkajte chvíľu a potom znova vyberte zdroj.</string>
+    <string name="player_error_stream_unavailable">\n\nServer streamu je momentálne nedostupný. Vyberte iný zdroj.</string>
+    <string name="player_error_source_invalid_content">Chyba zdroja: Zdroj streamu vrátil neplatný alebo neprehrateľný obsah. Odkaz mohol vypršať alebo server vrátil chybovú stránku namiesto videa.\n\nVyberte iný zdroj. [%1$s]</string>
+    <string name="player_error_unsupported_format">Tento stream používa formát, ktorý vaše zariadenie nemusí podporovať. Vyberte iný zdroj. [%1$s]</string>
+    <string name="player_error_initialize_failed">Prehrávač sa nepodarilo spustiť. Reštartujte Fetch a skúste to znova.</string>
+    <string name="player_error_mpv_surface_failed">Prehrávač mpv sa nepodarilo spustiť. Skúste to znova alebo zmeňte Interný engine v Nastavenia &gt; Prehrávanie.</string>
+    <string name="player_error_mpv_playback_failed">V prehrávači mpv sa nepodarilo spustiť prehrávanie. Skúste to znova alebo zmeňte Interný engine v Nastavenia &gt; Prehrávanie.</string>
+    <string name="player_error_playback_fallback">Tento stream sa nepodarilo prehrať. Vyberte iný zdroj.</string>
     
     <string name="subtitle_timing_file_no_lines">V tomto súbore sa nenašli žiadne riadky titulkov.</string>
     <string name="subtitle_timing_load_lines_failed">Nepodarilo sa načítať riadky titulkov.</string>
@@ -1895,6 +1925,7 @@
     <string name="library_list_created">Zoznam vytvorený</string>
     <string name="library_list_updated">Zoznam aktualizovaný</string>
     <string name="library_error_save_list_failed">Nepodarilo sa uložiť zoznam</string>
+    <string name="library_error_save_list_next_step">Skontrolujte pripojenie a skúste to znova.</string>
     <string name="library_list_deleted">Zoznam odstránený</string>
     <string name="library_error_delete_list_failed">Nepodarilo sa odstrániť zoznam</string>
     <string name="library_list_order_updated">Poradie zoznamov aktualizované</string>
@@ -1923,11 +1954,11 @@
     <string name="trakt_error_mark_watched_failed">Nepodarilo sa označiť ako videné v Trakt (%1$d)</string>
 
     
-    <string name="detail_error_update_library_failed">Nepodarilo sa aktualizovať knižnicu</string>
-    <string name="detail_error_load_lists_failed">Nepodarilo sa načítať zoznamy</string>
-    <string name="detail_error_update_lists_failed">Nepodarilo sa aktualizovať zoznamy</string>
-    <string name="detail_error_update_watched_failed">Nepodarilo sa aktualizovať stav videnia</string>
-    <string name="detail_error_update_episode_watched_failed">Nepodarilo sa aktualizovať stav videnia epizódy</string>
+    <string name="detail_error_update_library_failed">Knižnicu sa nepodarilo aktualizovať. Skontrolujte pripojenie a skúste to znova.</string>
+    <string name="detail_error_load_lists_failed">Vaše zoznamy sa nepodarilo načítať. Skontrolujte pripojenie a skúste to znova.</string>
+    <string name="detail_error_update_lists_failed">Vaše zoznamy sa nepodarilo aktualizovať. Skontrolujte pripojenie a skúste to znova.</string>
+    <string name="detail_error_update_watched_failed">Stav videnia sa nepodarilo aktualizovať. Skontrolujte pripojenie a skúste to znova.</string>
+    <string name="detail_error_update_episode_watched_failed">Stav videnia tejto epizódy sa nepodarilo aktualizovať. Skontrolujte pripojenie a skúste to znova.</string>
     <string name="poster_options_error_load_lists_failed">Nepodarilo sa načítať zoznamy</string>
     <string name="poster_options_error_update_lists_failed">Nepodarilo sa aktualizovať zoznamy</string>
 
@@ -2213,7 +2244,7 @@
 <string name="diag_value_off">Vypnuté</string>
 <string name="diag_value_conversions_fmt">%1$d z %2$d úspešných</string>
 <string name="diag_value_never_rendered">Nikdy nevykreslené</string>
-<string name="player_error_play_stream_failed">Nepodarilo sa prehrať vybraný stream</string>
+<string name="player_error_play_stream_failed">Vybraný stream sa nepodarilo prehrať. Vyberte iný zdroj.</string>
 <string name="unit_size_b">%1$d B</string>
 <string name="unit_size_kb">%1$s KB</string>
 <string name="unit_size_mb">%1$s MB</string>
@@ -2512,7 +2543,7 @@
     <string name="cd_remove_recent_search">Odstrániť %1$s z nedávnych vyhľadávaní</string>
 
     <string name="playback_unavailable">Prehrávanie nie je k dispozícii</string>
-    <string name="playback_unavailable_message">Prehrávanie tohto titulu nie je s vaším aktuálnym nastavením k dispozícii.</string>
+    <string name="playback_unavailable_message">Nič z toho, čo máte nastavené, nevie prehrať tento titul. Pridajte alebo zapnite streamovací doplnok v Nastavenia &gt; Obsah a objavovanie &gt; Doplnky, alebo skontrolujte pripojenie k mediálnemu serveru.</string>
     <string name="detail_more_like_this_powered_by_simkl">S podporou Simkl</string>
     <string name="because_you_watched_row_title">Pretože ste pozerali %1$s</string>
     <string name="because_you_watched_reason_collection">Aj z: %1$s</string>
@@ -2727,6 +2758,9 @@
     <string name="addon_health_ok">Odpovedá · %1$s</string>
     <string name="addon_health_slow">Pomalé · %1$s</string>
     <string name="addon_health_timed_out">Časový limit poslednej požiadavky vypršal</string>
+    <string name="source_chip_failed">zlyhalo</string>
+    <string name="source_chip_loading">načítava sa</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s je potrebné pred inštaláciou nastaviť</string>
     <string name="advanced_introdb_api_key">API kľúč IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Vytvorte kľúč na introdb.app. Začína sa na idb_.</string>
@@ -2742,6 +2776,7 @@
     <string name="autoplay_mode_best_desc">Zoradí všetky výsledky podľa kvality, vašich pravidiel a toho, čo toto zariadenie dokáže prehrať, a spustí víťaza. Ostatné zdroje sú na jedno stlačenie.</string>
     <string name="best_match_cached">V cache</string>
     <string name="best_match_excluded">Neprehrá sa automaticky: %1$s</string>
+    <string name="stream_hold_for_options">Podržte OK pre možnosti Najlepšej zhody</string>
     <string name="best_match_preview_sub">Kým si titul prezeráte, opýta sa na neho vašich doplnkov streamov, aby tlačidlo Prehrať ukázalo názov súboru a prehrávanie sa spustilo rýchlejšie. Vypnite, ak chcete hľadať až po stlačení Prehrať.</string>
     <string name="best_match_preview_title">Zobraziť výber na tlačidle Prehrať</string>
     <string name="catalog_order_pin">Pripnúť navrch</string>

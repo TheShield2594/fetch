@@ -226,7 +226,7 @@
     <string name="detail_marked_previous_watched">Episodios anteriores marcados como vistos: %1$d</string>
 
     <string name="playback_unavailable">Reproducción no disponible</string>
-    <string name="playback_unavailable_message">La reproducción no está disponible para este título con tu configuración actual.</string>
+    <string name="playback_unavailable_message">Nada de lo que has configurado puede reproducir este título. Añade o activa un complemento de transmisión en Configuración &gt; Contenido &amp; descubrimiento &gt; Complementos, o comprueba la conexión con tu servidor multimedia.</string>
     <string name="detail_btn_play">Reproducir</string>
     <string name="detail_btn_resume">Reanudar</string>
     <string name="detail_btn_play_episode">Reproducir T%1$d E%2$d</string>
@@ -592,6 +592,9 @@
     <string name="playback_subtitle">Configura opciones de reproducción de vídeo y subtítulos</string>
     <string name="cd_decrease">Disminuir</string>
     <string name="cd_increase">Aumentar</string>
+    <string name="cd_decrease_setting">Disminuir %1$s</string>
+    <string name="cd_increase_setting">Aumentar %1$s</string>
+    <string name="cd_seek_bar">Barra de progreso</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_apply">Aplicar</string>
     <string name="sub_opacity">Opacidad</string>
@@ -988,7 +991,7 @@
     <string name="mdblist_dialog_title">Clave API de MDBList</string>
     <string name="mdblist_dialog_placeholder">Introduce clave API de MDBList</string>
     <string name="mdblist_not_set">No configurado</string>
-    <string name="mdblist_invalid_api_key">Clave API de MDBList inválida</string>
+    <string name="mdblist_invalid_api_key">No se pudo verificar esta clave API. Comprueba que coincida con la clave de tu cuenta de MDBList y que tengas conexión, e inténtalo de nuevo.</string>
 
 
 
@@ -1033,7 +1036,7 @@
     <string name="animeskip_dialog_title">ID de cliente de Anime Skip</string>
     <string name="animeskip_dialog_subtitle">Crea tu propio ID de cliente en anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Introduce ID de cliente</string>
-    <string name="animeskip_invalid_client_id">ID de cliente inválido</string>
+    <string name="animeskip_invalid_client_id">No se pudo verificar este ID de cliente. Comprueba que coincida con el de tu cuenta de Anime Skip y que tengas conexión, e inténtalo de nuevo.</string>
     <string name="action_clear">Limpiar</string>
 
     <string name="tmdb_title">Enriquecimiento de TMDB</string>
@@ -1251,6 +1254,7 @@
     <string name="addon_error_invalid_scheme">La URL del complemento debe comenzar con http o https</string>
     <string name="addon_installed_section">Instalado</string>
     <string name="addon_empty">No hay complementos instalados. Instala uno para empezar.</string>
+    <string name="addon_list_load_failed">No se pudieron cargar tus complementos instalados. Inténtalo de nuevo.</string>
     <string name="addon_remove">Eliminar</string>
     <string name="addon_delete_confirm_title">¿Eliminar complemento?</string>
     <string name="addon_delete_confirm_message">¿Seguro que quieres eliminarlo?</string>
@@ -1348,6 +1352,8 @@
     <string name="player_up_next_in_queue">Siguiente en la cola</string>
     <string name="player_queue_move_up">Subir</string>
     <string name="player_queue_move_down">Bajar</string>
+    <string name="player_queue_removed">Se quitó %1$s de la cola</string>
+    <string name="player_queue_undo">Deshacer</string>
     <string name="player_seek_back_10">Retroceder 10 segundos</string>
     <string name="player_seek_forward_30">Avanzar 30 segundos</string>
     <string name="player_live_watched">EN DIRECTO  %1$s</string>
@@ -1356,6 +1362,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Retraso de subtítulos</string>
     <string name="player_error_title">Error de reproducción</string>
+    <string name="player_error_choose_source">Elige otra fuente</string>
     <string name="player_switch_to_mpv">Cambiar a reproductor MPV</string>
     <string name="player_report_issue">Reportar problema</string>
     <string name="player_report_issue_sending">Enviando informe de reproducción...</string>
@@ -1373,7 +1380,7 @@
     <string name="player_more_speed">Velocidad de reproducción</string>
     <string name="player_more_aspect_ratio">Relación de aspecto</string>
     <string name="player_more_open_external">Abrir en reproductor externo</string>
-    <string name="player_error_no_stream_url">No se proporcionó ninguna URL de transmisión</string>
+    <string name="player_error_no_stream_url">Esta fuente no tiene enlace de transmisión. Elige otra fuente.</string>
 
 
     <string name="stream_info_section_source">FUENTE</string>
@@ -1504,6 +1511,8 @@
     <string name="search_start_subtitle_no_discover">El descubrimiento está desactivado. Introduce al menos 2 caracteres</string>
     <string name="search_recent_title">Búsquedas recientes</string>
     <string name="search_recent_clear">Borrar historial</string>
+    <string name="search_recent_clear_confirm_title">¿Borrar el historial de búsqueda?</string>
+    <string name="search_recent_clear_confirm_subtitle">Se eliminarán todas tus búsquedas recientes. Esta acción no se puede deshacer.</string>
     <string name="cd_remove_recent_search">Quitar %1$s de las búsquedas recientes</string>
     <string name="search_voice_no_speech">Sin voz detectada. Intenta de nuevo.</string>
     <string name="search_voice_mic_permission">Se requiere permiso de micrófono para búsqueda por voz.</string>
@@ -1512,6 +1521,8 @@
     <string name="search_no_results_title">Sin resultados</string>
     <string name="search_no_results_subtitle">Prueba a buscar con otras palabras clave</string>
     <string name="search_error_no_catalogs">No se encontraron catálogos con búsqueda en los complementos instalados</string>
+    <string name="search_no_catalogs_title">Ninguno de tus complementos permite buscar</string>
+    <string name="search_no_catalogs_subtitle">Instala un complemento con un catálogo de búsqueda e inténtalo de nuevo.</string>
 
     <string name="library_title">Biblioteca</string>
     <string name="library_filter_list">Lista</string>
@@ -1578,12 +1589,16 @@
     <string name="library_list_move_up">Mover arriba</string>
     <string name="library_list_move_down">Mover abajo</string>
     <string name="library_list_delete">Eliminar</string>
+    <string name="library_list_delete_named">Eliminar «%1$s»</string>
     <string name="library_list_close">Cerrar</string>
     <string name="library_list_name_label">Nombre</string>
-    <string name="library_error_list_name_required">El nombre de la lista es obligatorio</string>
+    <string name="library_error_list_name_required">Escribe un nombre para la lista</string>
     <string name="library_list_description_label">Descripción</string>
     <string name="library_list_privacy">Privacidad</string>
     <string name="library_delete_title">¿Eliminar esta lista?</string>
+    <string name="library_delete_title_named">¿Eliminar «%1$s»?</string>
+    <string name="library_delete_subtitle_provider">Se eliminarán la lista y sus elementos de %1$s. Esta acción no se puede deshacer.</string>
+    <string name="library_delete_subtitle_local">Se eliminarán la lista y sus elementos de tu biblioteca. Esta acción no se puede deshacer.</string>
     <string name="library_source_local">LOCAL</string>
     <string name="library_source_saved">Guardado</string>
     <string name="library_watchlist">Lista de deseos</string>
@@ -1824,7 +1839,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Conéctate a Wi-Fi o Ethernet para usar esta función</string>
-    <string name="error_server_ports_unavailable">No se pudo iniciar el servidor. Todos los puertos están en uso.</string>
+    <string name="error_server_ports_unavailable">No se pudo iniciar la conexión con el teléfono. Reinicia Fetch e inténtalo de nuevo.</string>
 
     <!-- Trakt errors -->
 
@@ -1889,6 +1904,11 @@
     <string name="cd_loading_logo">Cargando logotipo</string>
     <string name="cd_move_up">Mover arriba</string>
     <string name="cd_move_down">Mover abajo</string>
+    <string name="cd_move_addon_up">Subir %1$s</string>
+    <string name="cd_move_addon_down">Bajar %1$s</string>
+    <string name="cd_addon_enabled_toggle">%1$s activado</string>
+    <string name="cd_configure_addon">Configurar %1$s</string>
+    <string name="cd_remove_addon">Eliminar %1$s</string>
     <string name="cd_edit">Editar</string>
     <string name="cd_delete">Eliminar</string>
     <string name="cd_qr_code">Código QR</string>
@@ -1924,7 +1944,7 @@
     <string name="collections_import">Importar</string>
     <string name="collections_export_file">Exportar archivo</string>
     <string name="collections_saved_downloads">Guardado en Descargas</string>
-    <string name="collections_export_failed">Error al exportar</string>
+    <string name="collections_export_failed">No se pudo guardar en Descargas. Comprueba el permiso de almacenamiento y el espacio libre, e inténtalo de nuevo.</string>
     <string name="collections_import_header">Importar colecciones</string>
     <string name="collections_import_description">Importa colecciones desde JSON. Los catálogos de complementos que no tengas instalados mostrarán una advertencia.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2168,6 +2188,16 @@
     <string name="collection_editor_folder_count_other">%1$d elementos</string>
     <string name="collections_editor_delete_folder_title">¿Eliminar carpeta?</string>
     <string name="collections_editor_delete_folder_subtitle">Esto eliminará permanentemente \"%1$s\" y su contenido.</string>
+    <string name="folder_error_addon_source">No se pudo cargar este catálogo. Comprueba que su complemento esté instalado y en línea, e inténtalo de nuevo.</string>
+    <string name="folder_error_addon_missing">El complemento de este catálogo no está instalado. Instálalo desde Complementos o quita esta fuente de la carpeta.</string>
+    <string name="folder_error_tmdb_source">No se pudo cargar esto desde TMDB. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="folder_error_trakt_source">No se pudo cargar esta lista de Trakt. Comprueba tu conexión y que la lista siga siendo pública, e inténtalo de nuevo.</string>
+    <string name="folder_error_list_source">No se pudo cargar esta lista. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="collections_editor_discard_title">¿Descartar los cambios?</string>
+    <string name="collections_editor_discard_collection_subtitle">Tus cambios en esta colección no se han guardado.</string>
+    <string name="collections_editor_discard_folder_subtitle">Tus cambios en esta carpeta no se han guardado.</string>
+    <string name="collections_editor_keep_editing">Seguir editando</string>
+    <string name="collections_editor_discard">Descartar</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Best Action Movies, Korean Dramas, 2024 Animation</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
@@ -2234,17 +2264,17 @@
     <string name="player_track_subtitle_fallback">Subtítulo %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nLa fuente de la transmisión está bloqueada o restringida. Prueba con otra fuente.</string>
-    <string name="player_error_stream_removed">\n\nEl enlace de la transmisión ha caducado o ha sido eliminado. Prueba con otra fuente.</string>
-    <string name="player_error_stream_expired">\n\nEl enlace de la transmisión ha caducado. Prueba con otra fuente.</string>
-    <string name="player_error_stream_rate_limited">\n\nDemasiadas solicitudes a la fuente de la transmisión. Espera un momento e inténtalo de nuevo.</string>
-    <string name="player_error_stream_unavailable">\n\nEl servidor de la transmisión no está disponible en este momento. Prueba con otra fuente.</string>
-    <string name="player_error_source_invalid_content">Error de fuente: la fuente de la transmisión devolvió contenido inválido o no reproducible. Es posible que el enlace haya caducado o que el servidor haya devuelto una página de error en lugar de vídeo.\n\nPrueba con otra fuente. [%1$s]</string>
-    <string name="player_error_unsupported_format">Esta transmisión usa un formato que tu dispositivo podría no admitir. Prueba con otra fuente. [%1$s]</string>
-    <string name="player_error_initialize_failed">Error al inicializar el reproductor</string>
-    <string name="player_error_mpv_surface_failed">Error al inicializar la superficie de libmpv</string>
-    <string name="player_error_mpv_playback_failed">Error al inicializar la reproducción de libmpv</string>
-    <string name="player_error_playback_fallback">Error de reproducción</string>
+    <string name="player_error_stream_blocked">\n\nLa fuente de la transmisión está bloqueada o restringida. Elige otra fuente.</string>
+    <string name="player_error_stream_removed">\n\nEl enlace de la transmisión ha caducado o ha sido eliminado. Elige otra fuente.</string>
+    <string name="player_error_stream_expired">\n\nEl enlace de la transmisión ha caducado. Elige otra fuente.</string>
+    <string name="player_error_stream_rate_limited">\n\nDemasiadas solicitudes a la fuente de la transmisión. Espera un momento y vuelve a elegir una fuente.</string>
+    <string name="player_error_stream_unavailable">\n\nEl servidor de la transmisión no está disponible en este momento. Elige otra fuente.</string>
+    <string name="player_error_source_invalid_content">Error de fuente: la fuente de la transmisión devolvió contenido inválido o no reproducible. Es posible que el enlace haya caducado o que el servidor haya devuelto una página de error en lugar de vídeo.\n\nElige otra fuente. [%1$s]</string>
+    <string name="player_error_unsupported_format">Esta transmisión usa un formato que tu dispositivo podría no admitir. Elige otra fuente. [%1$s]</string>
+    <string name="player_error_initialize_failed">No se pudo iniciar el reproductor. Reinicia Fetch e inténtalo de nuevo.</string>
+    <string name="player_error_mpv_surface_failed">No se pudo iniciar el reproductor mpv. Inténtalo de nuevo o cambia Motor interno en Configuración &gt; Reproducción.</string>
+    <string name="player_error_mpv_playback_failed">No se pudo iniciar la reproducción en el reproductor mpv. Inténtalo de nuevo o cambia Motor interno en Configuración &gt; Reproducción.</string>
+    <string name="player_error_playback_fallback">No se puede reproducir esta transmisión. Elige otra fuente.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">No se encontraron líneas de subtítulos en este archivo.</string>
     <string name="subtitle_timing_load_lines_failed">Error al cargar las líneas de subtítulos.</string>
@@ -2275,6 +2305,7 @@
     <string name="library_list_created">Lista creada</string>
     <string name="library_list_updated">Lista actualizada</string>
     <string name="library_error_save_list_failed">Error al guardar la lista</string>
+    <string name="library_error_save_list_next_step">Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="library_list_deleted">Lista eliminada</string>
     <string name="library_error_delete_list_failed">Error al eliminar la lista</string>
     <string name="library_list_order_updated">Orden de la lista actualizado</string>
@@ -2337,11 +2368,11 @@
     <string name="trakt_error_mark_watched_failed">No se pudo marcar como visto en Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">No se pudo actualizar la biblioteca</string>
-    <string name="detail_error_load_lists_failed">No se pudieron cargar las listas</string>
-    <string name="detail_error_update_lists_failed">No se pudieron actualizar las listas</string>
-    <string name="detail_error_update_watched_failed">No se pudo actualizar el estado de visto</string>
-    <string name="detail_error_update_episode_watched_failed">No se pudo actualizar el estado de visto del episodio</string>
+    <string name="detail_error_update_library_failed">No se pudo actualizar tu biblioteca. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="detail_error_load_lists_failed">No se pudieron cargar tus listas. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="detail_error_update_lists_failed">No se pudieron actualizar tus listas. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="detail_error_update_watched_failed">No se pudo actualizar el estado de visto. Comprueba tu conexión e inténtalo de nuevo.</string>
+    <string name="detail_error_update_episode_watched_failed">No se pudo actualizar el estado de visto de este episodio. Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="poster_options_error_load_lists_failed">No se pudieron cargar las listas</string>
     <string name="poster_options_error_update_lists_failed">No se pudieron actualizar las listas</string>
 
@@ -2535,7 +2566,7 @@
     <string name="diag_value_never_rendered">Nunca renderizado</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">No se pudo reproducir la transmisión seleccionada</string>
+    <string name="player_error_play_stream_failed">No se pudo reproducir la transmisión seleccionada. Elige otra fuente.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2579,6 +2610,7 @@
     <string name="prefer_next_time_not_now">Ahora no</string>
     <string name="prefer_next_time_saved">La mejor coincidencia preferirá: %1$s</string>
     <string name="best_match_excluded">No se reproduce automáticamente: %1$s</string>
+    <string name="stream_hold_for_options">Mantén pulsado OK para ver las opciones de Mejor coincidencia</string>
     <string name="exclusion_above_max_resolution">supera tu resolución máxima</string>
     <string name="exclusion_below_min_resolution">está por debajo de tu resolución mínima</string>
     <string name="exclusion_over_max_size">supera tu límite de tamaño</string>
@@ -2763,6 +2795,9 @@
     <string name="addon_health_slow">Lento · %1$s</string>
     <string name="addon_health_failing">La última solicitud falló</string>
     <string name="addon_health_timed_out">La última solicitud agotó el tiempo de espera</string>
+    <string name="source_chip_failed">error</string>
+    <string name="source_chip_loading">cargando</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="account_local_only_note">La sincronización está desactivada. Fetch guarda tus complementos, progreso y ajustes en esta TV y no necesita cuenta. Para sincronizar entre dispositivos, conecta tu propio servidor de sincronización desde las opciones de servidor.</string>
     <string name="parental_title_blocked">Este título supera el límite de clasificación de este perfil.</string>
     <string name="parental_addons_blocked">Este perfil no puede instalar complementos. Pídeselo a un adulto.</string>

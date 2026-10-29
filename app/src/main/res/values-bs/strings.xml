@@ -179,6 +179,7 @@
     <string name="detail_marked_episodes_watched">Epizode označene kao odgledane: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizode označene kao neodgledane: %1$d</string>
     <string name="detail_marked_previous_watched">Prethodne epizode označene kao odgledane: %1$d</string>
+    <string name="playback_unavailable_message">Ništa od onoga što je postavljeno ne može reproducirati ovaj naslov. Dodaj ili uključi addon za streamove u Postavke &gt; Sadržaj i otkrivanje &gt; Addoni ili provjeri vezu s medijskim serverom.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Pusti</string>
@@ -303,6 +304,9 @@
     <string name="playback_subtitle">Konfigurirajte opcije za video i titlove</string>
     <string name="cd_decrease">Smanji</string>
     <string name="cd_increase">Povećaj</string>
+    <string name="cd_decrease_setting">Smanji %1$s</string>
+    <string name="cd_increase_setting">Povećaj %1$s</string>
+    <string name="cd_seek_bar">Traka za premotavanje</string>
     <string name="action_cancel">Otkaži</string>
     <string name="action_none">Ništa</string>
     <string name="action_close">Zatvori</string>
@@ -525,7 +529,7 @@
     <string name="mdblist_dialog_title">MDBList API Key</string>
     <string name="mdblist_dialog_placeholder">Unesi MDBList API key</string>
     <string name="mdblist_not_set">Nije postavljeno</string>
-    <string name="mdblist_invalid_api_key">Neispravan MDBList API key</string>
+    <string name="mdblist_invalid_api_key">Nije moguće provjeriti ovaj API key. Provjeri da li se podudara s ključem u tvom MDBList računu i da li si na mreži, pa pokušaj ponovo.</string>
 
     <!-- Anime-Skip -->
     <string name="animeskip_title">Anime Skip</string>
@@ -537,7 +541,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Kreiraj svoj Client ID na anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Unesi Client ID</string>
-    <string name="animeskip_invalid_client_id">Neispravan Client ID</string>
+    <string name="animeskip_invalid_client_id">Nije moguće provjeriti ovaj Client ID. Provjeri da li se podudara s onim u tvom Anime Skip računu i da li si na mreži, pa pokušaj ponovo.</string>
     <string name="action_clear">Očisti</string>
 
     <!-- TmdbSettingsScreen -->
@@ -693,6 +697,7 @@
     <string name="addon_error_invalid_scheme">URL addona mora počinjati sa http ili https</string>
     <string name="addon_installed_section">Instalirano</string>
     <string name="addon_empty">Nema instaliranih addona. Dodaj jedan za početak.</string>
+    <string name="addon_list_load_failed">Nije moguće učitati instalirane addone. Pokušaj ponovo.</string>
     <string name="addon_remove">Ukloni</string>
     <string name="addon_manage_from_phone_title">Upravljaj preko telefona</string>
     <string name="addon_manage_from_phone_subtitle">Skeniraj QR kod da upravljaš addonima, katalozima i kolekcijama sa svog telefona</string>
@@ -761,11 +766,14 @@
     <string name="player_up_next_in_queue">Sljedeće u redu</string>
     <string name="player_queue_move_up">Pomjeri gore</string>
     <string name="player_queue_move_down">Pomjeri dolje</string>
+    <string name="player_queue_removed">Uklonjeno iz reda: %1$s</string>
+    <string name="player_queue_undo">Poništi</string>
     <string name="player_seek_back_10">Nazad 10 sekundi</string>
     <string name="player_seek_forward_30">Naprijed 30 sekundi</string>
     <string name="player_via">preko %1$s</string>
     <string name="player_subtitle_delay">Odgoda Titlova</string>
     <string name="player_error_title">Greška Reprodukcije</string>
+    <string name="player_error_choose_source">Izaberi drugi izvor</string>
     <string name="player_speed_title">Brzina Reprodukcije</string>
     <string name="player_more_actions_title">Više Opcija</string>
     <string name="player_more_speed">Brzina Reprodukcije</string>
@@ -871,6 +879,8 @@
     <string name="search_start_subtitle_no_discover">Otkrivanje je onemogućeno. Unesi najmanje 2 karaktera</string>
     <string name="search_recent_title">Nedavne pretrage</string>
     <string name="search_recent_clear">Očisti historiju</string>
+    <string name="search_recent_clear_confirm_title">Očistiti historiju pretrage?</string>
+    <string name="search_recent_clear_confirm_subtitle">Sve tvoje nedavne pretrage bit će uklonjene. Ovo se ne može poništiti.</string>
     <string name="search_voice_no_speech">Glas nije prepoznat. Pokušaj ponovo.</string>
     <string name="search_voice_mic_permission">Za glasovnu pretragu je potrebna dozvola za mikrofon.</string>
     <string name="search_voice_failed">Glasovno prepoznavanje nije uspjelo. Pokušaj ponovo.</string>
@@ -923,11 +933,15 @@
     <string name="library_list_move_up">Pomjeri Gore</string>
     <string name="library_list_move_down">Pomjeri Dolje</string>
     <string name="library_list_delete">Izbriši</string>
+    <string name="library_list_delete_named">Izbriši „%1$s“</string>
     <string name="library_list_close">Zatvori</string>
     <string name="library_list_name_label">Ime</string>
     <string name="library_list_description_label">Opis</string>
     <string name="library_list_privacy">Privatnost</string>
     <string name="library_delete_title">Izbrisati ovu listu?</string>
+    <string name="library_delete_title_named">Izbrisati „%1$s“?</string>
+    <string name="library_delete_subtitle_provider">Ovo uklanja listu i njene stavke sa usluge %1$s. Ovo se ne može poništiti.</string>
+    <string name="library_delete_subtitle_local">Ovo uklanja listu i njene stavke iz tvoje biblioteke. Ovo se ne može poništiti.</string>
     <string name="library_source_local">LOKALNO</string>
     <string name="library_syncing_library">Sinhronizacija biblioteke…</string>
     <string name="library_type_all">Sve</string>
@@ -1105,7 +1119,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Poveži se na Wi-Fi ili LAN za korištenje ove funkcije</string>
-    <string name="error_server_ports_unavailable">Nije moguće pokrenuti server. Svi portovi su u upotrebi.</string>
+    <string name="error_server_ports_unavailable">Nije moguće pokrenuti vezu s telefonom. Ponovo pokreni Fetch i pokušaj ponovo.</string>
 
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Kod uređaja je istekao. Pokreni ponovo.</string>
@@ -1117,12 +1131,14 @@
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Nisu pronađeni pretraživi katalozi u instaliranim addonima</string>
+    <string name="search_no_catalogs_title">Nijedan tvoj addon ne može pretraživati</string>
+    <string name="search_no_catalogs_subtitle">Instaliraj addon sa katalogom za pretragu, pa pokušaj ponovo.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Nema instaliranih katalog addona</string>
 
     <!-- Player errors -->
-    <string name="player_error_no_stream_url">Nije proslijeđen stream URL</string>
+    <string name="player_error_no_stream_url">Ovaj izvor nema link za stream. Izaberi drugi izvor.</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">HDR podrška uz canvas rendering. Može blokirati UI thread.</string>
@@ -1157,6 +1173,11 @@
     <string name="cd_loading_logo">Učitavanje logotipa</string>
     <string name="cd_move_up">Pomjeri gore</string>
     <string name="cd_move_down">Pomjeri dolje</string>
+    <string name="cd_move_addon_up">Pomjeri %1$s gore</string>
+    <string name="cd_move_addon_down">Pomjeri %1$s dolje</string>
+    <string name="cd_addon_enabled_toggle">%1$s omogućen</string>
+    <string name="cd_configure_addon">Konfiguriši %1$s</string>
+    <string name="cd_remove_addon">Ukloni %1$s</string>
     <string name="cd_edit">Uredi</string>
     <string name="cd_delete">Izbriši</string>
     <string name="cd_qr_code">QR Kod</string>
@@ -1188,7 +1209,7 @@
     <string name="collections_import">Uvezi</string>
     <string name="collections_export_file">Izvezi Fajl</string>
     <string name="collections_saved_downloads">Sačuvano u Preuzimanja (Downloads)</string>
-    <string name="collections_export_failed">Izvoz nije uspio</string>
+    <string name="collections_export_failed">Nije moguće spremiti u Preuzimanja. Provjeri dozvolu za pohranu i slobodan prostor, pa pokušaj ponovo.</string>
     <string name="collections_import_header">Uvezi Kolekcije</string>
     <string name="collections_import_description">Uvezi kolekcije iz JSON fajla. Katalozi iz addona koje niste instalirali prikazivat će upozorenje.</string>
     <string name="collections_cancel">Otkaži</string>
@@ -1253,6 +1274,20 @@
     <string name="collections_card_subtitle">Grupiši kataloge u foldere na svom početnom ekranu</string>
     <string name="collections_tab_all">Sve</string>
     <string name="collections_tab_combined">Kombinovano</string>
+    <string name="folder_error_addon_source">Nije moguće učitati ovaj katalog. Provjeri da li je njegov addon instaliran i na mreži, pa pokušaj ponovo.</string>
+    <string name="folder_error_addon_missing">Addon ovog kataloga nije instaliran. Instaliraj ga iz sekcije Addoni ili ukloni ovaj izvor iz foldera.</string>
+    <string name="folder_error_tmdb_source">Nije moguće učitati sadržaj sa TMDB-a. Provjeri vezu, pa pokušaj ponovo.</string>
+    <string name="folder_error_trakt_source">Nije moguće učitati ovu Trakt listu. Provjeri vezu i da li je lista još uvijek javna, pa pokušaj ponovo.</string>
+    <string name="folder_error_list_source">Nije moguće učitati ovu listu. Provjeri vezu, pa pokušaj ponovo.</string>
+    <string name="collections_editor_discard_title">Odbaciti promjene?</string>
+    <string name="collections_editor_discard_collection_subtitle">Tvoje promjene ove kolekcije nisu spremljene.</string>
+    <string name="collections_editor_discard_folder_subtitle">Tvoje promjene ovog foldera nisu spremljene.</string>
+    <string name="collections_editor_keep_editing">Nastavi uređivanje</string>
+    <string name="collections_editor_discard">Odbaci</string>
+    <string name="player_error_initialize_failed">Nije moguće pokrenuti player. Ponovo pokreni Fetch i pokušaj ponovo.</string>
+    <string name="player_error_mpv_surface_failed">Nije moguće pokrenuti mpv player. Pokušaj ponovo ili promijeni Interni Engine u Postavke &gt; Playback.</string>
+    <string name="player_error_mpv_playback_failed">Nije moguće pokrenuti reprodukciju u mpv playeru. Pokušaj ponovo ili promijeni Interni Engine u Postavke &gt; Playback.</string>
+    <string name="library_error_save_list_next_step">Provjeri vezu i pokušaj ponovo.</string>
 
     <!-- Fetch: new and changed strings -->
     <string name="account_local_only_note">Sinhronizacija je isključena. Fetch čuva tvoje addone, napredak i postavke na ovom TV-u i ne treba mu račun. Za sinhronizaciju između uređaja poveži vlastiti server za sinhronizaciju iz opcija servera.</string>
@@ -1281,6 +1316,9 @@
     <string name="addon_health_ok">Odgovara · %1$s</string>
     <string name="addon_health_slow">Sporo · %1$s</string>
     <string name="addon_health_timed_out">Posljednjem zahtjevu je isteklo vrijeme</string>
+    <string name="source_chip_failed">neuspješno</string>
+    <string name="source_chip_loading">učitavanje</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s se mora podesiti prije instalacije</string>
     <string name="advanced_introdb_api_key">IntroDB API ključ</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Napravi ključ na introdb.app. Počinje sa idb_.</string>
@@ -1296,6 +1334,7 @@
     <string name="autoplay_mode_best_desc">Rangira svaki rezultat po kvalitetu, tvojim pravilima i onome što ovaj uređaj može pustiti, pa pokreće pobjednika. Ostali izvori su na jedan pritisak.</string>
     <string name="best_match_cached">Keširano</string>
     <string name="best_match_excluded">Ne pušta se automatski: %1$s</string>
+    <string name="stream_hold_for_options">Drži OK za opcije Najboljeg podudaranja</string>
     <string name="best_match_preview_sub">Pita tvoje stream addone za naslov dok ga gledaš, tako da dugme Pusti može prikazati fajl, a reprodukcija počne brže. Isključi da se pretraga vrši tek nakon pritiska na Pusti.</string>
     <string name="best_match_preview_title">Prikaži izbor na dugmetu Pusti</string>
     <string name="catalog_order_pin">Zakači na vrh</string>

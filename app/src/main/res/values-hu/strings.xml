@@ -221,7 +221,7 @@
     <string name="detail_marked_episodes_unwatched">Nem látottként megjelölt epizódok: %1$d</string>
     <string name="detail_marked_previous_watched">Megnézettként megjelölt korábbi epizódok: %1$d</string>
     <string name="playback_unavailable">A lejátszás nem érhető el</string>
-    <string name="playback_unavailable_message">A jelenlegi beállítások mellett ez a tartalom nem játszható le.</string>
+    <string name="playback_unavailable_message">Semmi, amit beállítottál, nem tudja lejátszani ezt a címet. Adj hozzá vagy kapcsolj be egy stream bővítményt itt: Beállítások &gt; Tartalom és felfedezés &gt; Bővítmények, vagy ellenőrizd a médiaszerver-kapcsolatot.</string>
 
     <string name="detail_btn_play">Lejátszás</string>
     <string name="detail_btn_resume">Folytatás</string>
@@ -605,6 +605,9 @@
     <string name="playback_subtitle">Videólejátszás és feliratok konfigurálása</string>
     <string name="cd_decrease">Csökkentés</string>
     <string name="cd_increase">Növelés</string>
+    <string name="cd_decrease_setting">%1$s csökkentése</string>
+    <string name="cd_increase_setting">%1$s növelése</string>
+    <string name="cd_seek_bar">Tekerősáv</string>
     <string name="action_cancel">Mégse</string>
     <string name="action_apply">Alkalmaz</string>
     <string name="sub_opacity">Átlátszatlanság</string>
@@ -1052,7 +1055,7 @@
     <string name="mdblist_dialog_title">MDBList API-kulcs</string>
     <string name="mdblist_dialog_placeholder">MDBList API-kulcs megadása</string>
     <string name="mdblist_not_set">Nincs beállítva</string>
-    <string name="mdblist_invalid_api_key">Érvénytelen MDBList API-kulcs</string>
+    <string name="mdblist_invalid_api_key">Nem sikerült ellenőrizni ezt az API-kulcsot. Ellenőrizd, hogy egyezik-e az MDBList-fiókodban lévő kulccsal, és hogy van-e internetkapcsolat, majd próbáld újra.</string>
     <string name="mdblist_library_lists">Könyvtári listák</string>
     <string name="mdblist_library_lists_description">Válaszd ki, mely MDBList-listák jelenjenek meg a Könyvtárban és a Listák kezelése menüben. A Várólista mindig látható.</string>
     <string name="mdblist_library_lists_empty">Még nincsenek listák az MDBList-fiókodban. Szinkronizálj a betöltésükhöz.</string>
@@ -1103,7 +1106,7 @@
     <string name="animeskip_dialog_title">Anime Skip kliensazonosító</string>
     <string name="animeskip_dialog_subtitle">Hozd létre saját azonosítódat az anime-skip.com/account/settings oldalon</string>
     <string name="animeskip_dialog_placeholder">Írd be az azonosítót</string>
-    <string name="animeskip_invalid_client_id">Érvénytelen azonosító</string>
+    <string name="animeskip_invalid_client_id">Nem sikerült ellenőrizni ezt a kliensazonosítót. Ellenőrizd, hogy egyezik-e az Anime Skip-fiókodban lévővel, és hogy van-e internetkapcsolat, majd próbáld újra.</string>
     <string name="action_clear">Törlés</string>
 
     <string name="tmdb_title">TMDB adatbővítés</string>
@@ -1321,6 +1324,7 @@
     <string name="addon_error_invalid_scheme">A bővítmény URL-jének http-vel vagy https-sel kell kezdődnie</string>
     <string name="addon_installed_section">Telepítve</string>
     <string name="addon_empty">Nincsenek telepített bővítmények. A kezdéshez adj hozzá egyet.</string>
+    <string name="addon_list_load_failed">Nem sikerült betölteni a telepített bővítményeidet. Próbáld újra.</string>
     <string name="addon_remove">Eltávolítás</string>
     <string name="addon_delete_confirm_title">Törlöd a bővítményt?</string>
     <string name="addon_delete_confirm_message">Biztosan törölni szeretnéd?</string>
@@ -1420,6 +1424,8 @@
     <string name="player_up_next_in_queue">Következő a sorban</string>
     <string name="player_queue_move_up">Feljebb</string>
     <string name="player_queue_move_down">Lejjebb</string>
+    <string name="player_queue_removed">Eltávolítva a sorból: %1$s</string>
+    <string name="player_queue_undo">Visszavonás</string>
     <string name="player_seek_back_10">Vissza 10 másodpercet</string>
     <string name="player_seek_forward_30">Előre 30 másodpercet</string>
     <string name="player_live_watched">ÉLŐ  %1$s</string>
@@ -1428,6 +1434,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Felirat késleltetése</string>
     <string name="player_error_title">Lejátszási hiba</string>
+    <string name="player_error_choose_source">Válassz másik forrást</string>
     <string name="player_switch_to_mpv">Váltás az MPV-lejátszóra</string>
     <string name="player_report_issue">Probléma jelentése</string>
     <string name="player_report_issue_sending">Lejátszási jelentés küldése...</string>
@@ -1445,7 +1452,7 @@
     <string name="player_more_speed">Lejátszási sebesség</string>
     <string name="player_more_aspect_ratio">Képarány</string>
     <string name="player_more_open_external">Megnyitás külső lejátszóban</string>
-    <string name="player_error_no_stream_url">Nincs megadva stream URL</string>
+    <string name="player_error_no_stream_url">Ennek a forrásnak nincs stream linkje. Válassz másik forrást.</string>
 
 
     <string name="stream_info_section_source">FORRÁS</string>
@@ -1576,6 +1583,8 @@
     <string name="search_start_subtitle_no_discover">A felfedezés ki van kapcsolva. Adj meg legalább 2 karaktert</string>
     <string name="search_recent_title">Legutóbbi keresések</string>
     <string name="search_recent_clear">Előzmények törlése</string>
+    <string name="search_recent_clear_confirm_title">Törlöd a keresési előzményeket?</string>
+    <string name="search_recent_clear_confirm_subtitle">Az összes legutóbbi keresésed törlődik. Ez nem vonható vissza.</string>
     <string name="cd_remove_recent_search">%1$s eltávolítása a legutóbbi keresésekből</string>
     <string name="search_voice_no_speech">Nem észleltem beszédet. Próbáld újra.</string>
     <string name="search_voice_mic_permission">A hangalapú kereséshez mikrofonengedély szükséges.</string>
@@ -1584,6 +1593,8 @@
     <string name="search_no_results_title">Nincs találat</string>
     <string name="search_no_results_subtitle">Próbálkozz más kulcsszavakkal</string>
     <string name="search_error_no_catalogs">Nincsenek kereshető katalógusok a telepített bővítményekben</string>
+    <string name="search_no_catalogs_title">Egyik bővítményed sem tud keresni</string>
+    <string name="search_no_catalogs_subtitle">Telepíts egy keresési katalógussal rendelkező bővítményt, majd próbáld újra.</string>
 
     <string name="library_title">Könyvtár</string>
     <string name="library_filter_list">Lista</string>
@@ -1652,12 +1663,16 @@
     <string name="library_list_move_up">Mozgatás felfelé</string>
     <string name="library_list_move_down">Mozgatás lefelé</string>
     <string name="library_list_delete">Törlés</string>
+    <string name="library_list_delete_named">„%1$s” törlése</string>
     <string name="library_list_close">Bezárás</string>
     <string name="library_list_name_label">Név</string>
-    <string name="library_error_list_name_required">A lista neve kötelező</string>
+    <string name="library_error_list_name_required">Adj nevet a listának</string>
     <string name="library_list_description_label">Leírás</string>
     <string name="library_list_privacy">Láthatóság</string>
     <string name="library_delete_title">Törlöd ezt a listát?</string>
+    <string name="library_delete_title_named">Törlöd ezt: „%1$s”?</string>
+    <string name="library_delete_subtitle_provider">A lista és az elemei törlődnek innen: %1$s. Ez nem vonható vissza.</string>
+    <string name="library_delete_subtitle_local">A lista és az elemei törlődnek a könyvtáradból. Ez nem vonható vissza.</string>
     <string name="library_source_local">HELYI</string>
     <string name="library_source_saved">Mentett</string>
     <string name="library_watchlist">Várólista</string>
@@ -1898,7 +1913,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">A funkció használatához Wi-Fi vagy Ethernet kapcsolat szükséges</string>
-    <string name="error_server_ports_unavailable">Nem sikerült elindítani a szervert. Minden port foglalt.</string>
+    <string name="error_server_ports_unavailable">Nem sikerült elindítani a telefonos kapcsolatot. Indítsd újra a Fetch-et, és próbáld újra.</string>
 
     <!-- Trakt errors -->
 
@@ -1963,6 +1978,11 @@
     <string name="cd_loading_logo">Logó betöltése</string>
     <string name="cd_move_up">Mozgatás felfelé</string>
     <string name="cd_move_down">Mozgatás lefelé</string>
+    <string name="cd_move_addon_up">%1$s feljebb mozgatása</string>
+    <string name="cd_move_addon_down">%1$s lejjebb mozgatása</string>
+    <string name="cd_addon_enabled_toggle">%1$s engedélyezve</string>
+    <string name="cd_configure_addon">%1$s beállítása</string>
+    <string name="cd_remove_addon">%1$s eltávolítása</string>
     <string name="cd_edit">Szerkesztés</string>
     <string name="cd_delete">Törlés</string>
     <string name="cd_qr_code">QR-kód</string>
@@ -1998,7 +2018,7 @@
     <string name="collections_import">Importálás</string>
     <string name="collections_export_file">Fájl exportálása</string>
     <string name="collections_saved_downloads">Mentve a Letöltések mappába</string>
-    <string name="collections_export_failed">Az exportálás sikertelen</string>
+    <string name="collections_export_failed">Nem sikerült menteni a Letöltések mappába. Ellenőrizd a tárhely-engedélyt és a szabad helyet, majd próbáld újra.</string>
     <string name="collections_import_header">Gyűjtemények importálása</string>
     <string name="collections_import_description">Gyűjtemények importálása JSON-formátumból. Figyelmeztetés jelenik meg azoknál a katalógusoknál, amelyek bővítménye nincs telepítve.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2243,6 +2263,16 @@
     <string name="collection_editor_folder_count_other">%1$d elem</string>
     <string name="collections_editor_delete_folder_title">Mappa törlése?</string>
     <string name="collections_editor_delete_folder_subtitle">Ez véglegesen törli a következőt és annak tartalmát: \&quot;%1$s\&quot;.</string>
+    <string name="folder_error_addon_source">Nem sikerült betölteni ezt a katalógust. Ellenőrizd, hogy a bővítménye telepítve van és elérhető, majd próbáld újra.</string>
+    <string name="folder_error_addon_missing">Ennek a katalógusnak a bővítménye nincs telepítve. Telepítsd a Bővítmények között, vagy távolítsd el ezt a forrást a mappából.</string>
+    <string name="folder_error_tmdb_source">Nem sikerült betölteni ezt a TMDB-ről. Ellenőrizd a kapcsolatot, majd próbáld újra.</string>
+    <string name="folder_error_trakt_source">Nem sikerült betölteni ezt a Trakt-listát. Ellenőrizd a kapcsolatot, és hogy a lista még nyilvános-e, majd próbáld újra.</string>
+    <string name="folder_error_list_source">Nem sikerült betölteni ezt a listát. Ellenőrizd a kapcsolatot, majd próbáld újra.</string>
+    <string name="collections_editor_discard_title">Elveted a módosításokat?</string>
+    <string name="collections_editor_discard_collection_subtitle">A gyűjteményen végzett módosításaid nincsenek mentve.</string>
+    <string name="collections_editor_discard_folder_subtitle">A mappán végzett módosításaid nincsenek mentve.</string>
+    <string name="collections_editor_keep_editing">Szerkesztés folytatása</string>
+    <string name="collections_editor_discard">Elvetés</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel filmek, Netflix eredeti filmek, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Legjobb akciósorozatok, Koreai drámák, 2024 animáció</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks filmjei, Kedvenc színészek</string>
@@ -2309,17 +2339,17 @@
     <string name="player_track_subtitle_fallback">Felirat %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nA stream forrás blokkolva van vagy korlátozott. Próbálj meg egy másik forrást.</string>
-    <string name="player_error_stream_removed">\n\nA stream link lejárt vagy eltávolították. Próbálj meg egy másik forrást.</string>
-    <string name="player_error_stream_expired">\n\nA stream link lejárt. Próbálj meg egy másik forrást.</string>
-    <string name="player_error_stream_rate_limited">\n\nTúl sok kérés a stream forráshoz. Várj egy pillanatot, és próbáld újra.</string>
-    <string name="player_error_stream_unavailable">\n\nA stream szerver jelenleg nem elérhető. Próbálj meg egy másik forrást.</string>
-    <string name="player_error_source_invalid_content">Forráshiba: A stream forrás érvénytelen vagy lejátszhatatlan tartalmat adott vissza. Lehet, hogy a link lejárt, vagy a szerver hibaoldalt adott vissza videó helyett.\n\nPróbálj meg egy másik forrást. [%1$s]</string>
-    <string name="player_error_unsupported_format">Ez a stream olyan formátumot használ, amelyet a készüléked nem biztos, hogy támogat. Próbálj meg egy másik forrást. [%1$s]</string>
-    <string name="player_error_initialize_failed">A lejátszó inicializálása sikertelen</string>
-    <string name="player_error_mpv_surface_failed">A libmpv felület inicializálása sikertelen</string>
-    <string name="player_error_mpv_playback_failed">A libmpv lejátszás inicializálása sikertelen</string>
-    <string name="player_error_playback_fallback">Lejátszási hiba</string>
+    <string name="player_error_stream_blocked">\n\nA stream forrás blokkolva van vagy korlátozott. Válassz másik forrást.</string>
+    <string name="player_error_stream_removed">\n\nA stream link lejárt vagy eltávolították. Válassz másik forrást.</string>
+    <string name="player_error_stream_expired">\n\nA stream link lejárt. Válassz másik forrást.</string>
+    <string name="player_error_stream_rate_limited">\n\nTúl sok kérés a stream forráshoz. Várj egy pillanatot, majd válassz újra forrást.</string>
+    <string name="player_error_stream_unavailable">\n\nA stream szerver jelenleg nem elérhető. Válassz másik forrást.</string>
+    <string name="player_error_source_invalid_content">Forráshiba: A stream forrás érvénytelen vagy lejátszhatatlan tartalmat adott vissza. Lehet, hogy a link lejárt, vagy a szerver hibaoldalt adott vissza videó helyett.\n\nVálassz másik forrást. [%1$s]</string>
+    <string name="player_error_unsupported_format">Ez a stream olyan formátumot használ, amelyet a készüléked nem biztos, hogy támogat. Válassz másik forrást. [%1$s]</string>
+    <string name="player_error_initialize_failed">Nem sikerült elindítani a lejátszót. Indítsd újra a Fetch-et, és próbáld újra.</string>
+    <string name="player_error_mpv_surface_failed">Nem sikerült elindítani az mpv lejátszót. Próbáld újra, vagy módosítsd a Belső motor beállítást itt: Beállítások &gt; Lejátszás.</string>
+    <string name="player_error_mpv_playback_failed">Nem sikerült elindítani a lejátszást az mpv lejátszóban. Próbáld újra, vagy módosítsd a Belső motor beállítást itt: Beállítások &gt; Lejátszás.</string>
+    <string name="player_error_playback_fallback">Ez a stream nem játszható le. Válassz másik forrást.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nem találhatók feliratsorok ebben a fájlban.</string>
     <string name="subtitle_timing_load_lines_failed">A feliratsorok betöltése sikertelen.</string>
@@ -2350,6 +2380,7 @@
     <string name="library_list_created">Lista létrehozva</string>
     <string name="library_list_updated">Lista frissítve</string>
     <string name="library_error_save_list_failed">A lista mentése sikertelen</string>
+    <string name="library_error_save_list_next_step">Ellenőrizd a kapcsolatot, és próbáld újra.</string>
     <string name="library_list_deleted">Lista törölve</string>
     <string name="library_error_delete_list_failed">A lista törlése sikertelen</string>
     <string name="library_list_order_updated">Lista sorrendje frissítve</string>
@@ -2412,11 +2443,11 @@
     <string name="trakt_error_mark_watched_failed">A megnézettként való megjelölés a Trakt-on sikertelen (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">A könyvtár frissítése sikertelen</string>
-    <string name="detail_error_load_lists_failed">A listák betöltése sikertelen</string>
-    <string name="detail_error_update_lists_failed">A listák frissítése sikertelen</string>
-    <string name="detail_error_update_watched_failed">A megnézett állapot frissítése sikertelen</string>
-    <string name="detail_error_update_episode_watched_failed">Az epizód megnézett állapotának frissítése sikertelen</string>
+    <string name="detail_error_update_library_failed">Nem sikerült frissíteni a könyvtáradat. Ellenőrizd a kapcsolatot, és próbáld újra.</string>
+    <string name="detail_error_load_lists_failed">Nem sikerült betölteni a listáidat. Ellenőrizd a kapcsolatot, és próbáld újra.</string>
+    <string name="detail_error_update_lists_failed">Nem sikerült frissíteni a listáidat. Ellenőrizd a kapcsolatot, és próbáld újra.</string>
+    <string name="detail_error_update_watched_failed">Nem sikerült frissíteni a megnézett állapotot. Ellenőrizd a kapcsolatot, és próbáld újra.</string>
+    <string name="detail_error_update_episode_watched_failed">Nem sikerült frissíteni az epizód megnézett állapotát. Ellenőrizd a kapcsolatot, és próbáld újra.</string>
     <string name="poster_options_error_load_lists_failed">A listák betöltése sikertelen</string>
     <string name="poster_options_error_update_lists_failed">A listák frissítése sikertelen</string>
 
@@ -2599,7 +2630,7 @@
     <string name="diag_value_off">Ki</string>
     <string name="diag_value_conversions_fmt">%1$d / %2$d sikeres</string>
     <string name="diag_value_never_rendered">Soha nem jelent meg</string>
-    <string name="player_error_play_stream_failed">A kiválasztott stream lejátszása nem sikerült</string>
+    <string name="player_error_play_stream_failed">Nem sikerült lejátszani a kiválasztott streamet. Válassz másik forrást.</string>
     <string name="unit_size_b">%1$d B</string>
     <string name="unit_size_kb">%1$s KB</string>
     <string name="unit_size_mb">%1$s MB</string>
@@ -2670,6 +2701,7 @@
     <string name="prefer_next_time_not_now">Most nem</string>
     <string name="prefer_next_time_saved">A legjobb találat ezt részesíti előnyben: %1$s</string>
     <string name="best_match_excluded">Nincs automatikus lejátszás: %1$s</string>
+    <string name="stream_hold_for_options">Tartsd lenyomva az OK gombot a Legjobb találat beállításaihoz</string>
     <string name="exclusion_above_max_resolution">meghaladja a maximális felbontásodat</string>
     <string name="exclusion_below_min_resolution">a minimális felbontásod alatt van</string>
     <string name="exclusion_over_max_size">nagyobb a méretkorlátodnál</string>
@@ -2851,6 +2883,9 @@
     <string name="addon_health_slow">Lassú · %1$s</string>
     <string name="addon_health_failing">Az utolsó kérés sikertelen volt</string>
     <string name="addon_health_timed_out">Az utolsó kérés túllépte az időkorlátot</string>
+    <string name="source_chip_failed">sikertelen</string>
+    <string name="source_chip_loading">betöltés</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="account_local_only_note">A szinkronizálás ki van kapcsolva. A Fetch ezen a TV-n tárolja a bővítményeidet, a megtekintési állapotot és a beállításokat, és nincs szüksége fiókra. Az eszközök közötti szinkronizáláshoz csatlakoztasd a saját szinkronizálási szerveredet a szerverbeállításokban.</string>
     <string name="parental_title_blocked">Ez a cím meghaladja a profil korhatár-besorolási korlátját.</string>
     <string name="parental_addons_blocked">Ez a profil nem telepíthet bővítményeket. Kérd meg egy szülőt.</string>

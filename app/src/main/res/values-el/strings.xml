@@ -220,7 +220,7 @@
   <string name="detail_marked_episodes_unwatched">Επισημάνθηκαν ως μη προβληθέντα επεισόδια: %1$d</string>
   <string name="detail_marked_previous_watched">Επισημάνθηκαν ως προβληθέντα προηγούμενα επεισόδια: %1$d</string>
   <string name="playback_unavailable">Μη διαθέσιμη αναπαραγωγή</string>
-  <string name="playback_unavailable_message">Η αναπαραγωγή δεν είναι διαθέσιμη για αυτόν τον τίτλο με τις τρέχουσες ρυθμίσεις σας.</string>
+  <string name="playback_unavailable_message">Τίποτα από όσα έχετε ρυθμίσει δεν μπορεί να αναπαραγάγει αυτόν τον τίτλο. Προσθέστε ή ενεργοποιήστε ένα πρόσθετο ροών στις Ρυθμίσεις &gt; Περιεχόμενο &amp; Ανακάλυψη &gt; Πρόσθετα ή ελέγξτε τη σύνδεση με τον διακομιστή πολυμέσων σας.</string>
   <!-- MetaDetailsScreen -->
   <string name="detail_btn_play">Αναπαραγωγή</string>
   <string name="detail_btn_resume">Συνέχεια</string>
@@ -545,6 +545,9 @@
   <string name="playback_subtitle">Διαμόρφωση αναπαραγωγής βίντεο και επιλογών υπότιτλων</string>
   <string name="cd_decrease">Μείωση</string>
   <string name="cd_increase">Αύξηση</string>
+  <string name="cd_decrease_setting">Μείωση %1$s</string>
+  <string name="cd_increase_setting">Αύξηση %1$s</string>
+  <string name="cd_seek_bar">Γραμμή προόδου</string>
   <string name="action_cancel">Ακύρωση</string>
   <string name="action_apply">Εφαρμογή</string>
   <string name="sub_opacity">Αδιαφάνεια</string>
@@ -951,7 +954,7 @@
   <string name="mdblist_dialog_title">Κλειδί API MDBList</string>
   <string name="mdblist_dialog_placeholder">Εισάγετε κλειδί API MDBList</string>
   <string name="mdblist_not_set">Δεν έχει οριστεί</string>
-  <string name="mdblist_invalid_api_key">Μη έγκυρο κλειδί API MDBList</string>
+  <string name="mdblist_invalid_api_key">Δεν ήταν δυνατή η επαλήθευση αυτού του κλειδιού API. Ελέγξτε ότι ταιριάζει με το κλειδί του λογαριασμού σας MDBList και ότι είστε συνδεδεμένοι και δοκιμάστε ξανά.</string>
   <string name="mdblist_library_lists">Λίστες βιβλιοθήκης</string>
   <string name="mdblist_library_lists_description">Επιλέξτε ποιες λίστες MDBList εμφανίζονται στη Βιβλιοθήκη και στη Διαχείριση λιστών. Η λίστα παρακολούθησης εμφανίζεται πάντα.</string>
   <string name="mdblist_library_lists_empty">Δεν βρέθηκαν ακόμη λίστες στον λογαριασμό σας MDBList. Συγχρονίστε για να φορτωθούν.</string>
@@ -968,7 +971,7 @@
   <string name="animeskip_dialog_title">Client ID για Anime Skip</string>
   <string name="animeskip_dialog_subtitle">Δημιουργήστε το δικό σας Client ID στο anime-skip.com/account/settings</string>
   <string name="animeskip_dialog_placeholder">Εισάγετε το Client ID</string>
-  <string name="animeskip_invalid_client_id">Μη έγκυρο Client ID.</string>
+  <string name="animeskip_invalid_client_id">Δεν ήταν δυνατή η επαλήθευση αυτού του Client ID. Ελέγξτε ότι ταιριάζει με αυτό του λογαριασμού σας Anime Skip και ότι είστε συνδεδεμένοι και δοκιμάστε ξανά.</string>
   <string name="action_clear">Καθαρισμός</string>
   <!-- TmdbSettingsScreen -->
   <string name="tmdb_title">Εμπλουτισμός TMDB</string>
@@ -1243,6 +1246,7 @@
   <string name="addon_error_invalid_scheme">Το URL του πρόσθετου πρέπει να ξεκινά με http ή https</string>
   <string name="addon_installed_section">Εγκατεστημένα</string>
   <string name="addon_empty">Δεν έχετε εγκαταστήσει πρόσθετα. Προσθέστε ένα για να ξεκινήσετε.</string>
+  <string name="addon_list_load_failed">Δεν ήταν δυνατή η φόρτωση των εγκατεστημένων προσθέτων σας. Δοκιμάστε ξανά.</string>
   <string name="addon_remove">Αφαίρεση</string>
   <string name="addon_delete_confirm_title">Διαγραφή πρόσθετου;</string>
   <string name="addon_delete_confirm_message">Είστε σίγουροι ότι θέλετε να το διαγράψετε;</string>
@@ -1335,6 +1339,8 @@
     <string name="player_up_next_in_queue">Επόμενο στην ουρά</string>
     <string name="player_queue_move_up">Μετακίνηση πάνω</string>
     <string name="player_queue_move_down">Μετακίνηση κάτω</string>
+    <string name="player_queue_removed">Αφαιρέθηκε από την ουρά: %1$s</string>
+    <string name="player_queue_undo">Αναίρεση</string>
     <string name="player_seek_back_10">Πίσω 10 δευτερόλεπτα</string>
     <string name="player_seek_forward_30">Μπροστά 30 δευτερόλεπτα</string>
   <string name="player_live_watched">ΖΩΝΤΑΝΑ  %1$s</string>
@@ -1343,6 +1349,7 @@
   <string name="season_episode_format">S%1$d E%2$d</string>
   <string name="player_subtitle_delay">Καθυστέρηση υπότιτλων</string>
   <string name="player_error_title">Σφάλμα αναπαραγωγής</string>
+  <string name="player_error_choose_source">Επιλέξτε άλλη πηγή</string>
   <string name="player_switch_to_mpv">Εναλλαγή σε MPV</string>
   <string name="player_speed_title">Ταχύτητα αναπαραγωγής</string>
   <string name="player_more_actions_title">Περισσότερες ενέργειες</string>
@@ -1475,6 +1482,8 @@
   <string name="search_start_subtitle_no_discover">Η Ανακάλυψη είναι απενεργοποιημένη. Εισάγετε τουλάχιστον 2 χαρακτήρες</string>
   <string name="search_recent_title">Πρόσφατες αναζητήσεις</string>
   <string name="search_recent_clear">Εκκαθάριση ιστορικού</string>
+  <string name="search_recent_clear_confirm_title">Εκκαθάριση ιστορικού αναζήτησης;</string>
+  <string name="search_recent_clear_confirm_subtitle">Όλες οι πρόσφατες αναζητήσεις σας θα αφαιρεθούν. Αυτή η ενέργεια δεν αναιρείται.</string>
   <string name="cd_remove_recent_search">Αφαίρεση %1$s από τις πρόσφατες αναζητήσεις</string>
   <string name="search_voice_no_speech">Δεν ανιχνεύτηκε ομιλία. Δοκιμάστε ξανά.</string>
   <string name="search_voice_mic_permission">Απαιτείται άδεια μικροφώνου για φωνητική αναζήτηση.</string>
@@ -1551,12 +1560,16 @@
   <string name="library_list_move_up">Μετακίνηση πάνω</string>
   <string name="library_list_move_down">Μετακίνηση κάτω</string>
   <string name="library_list_delete">Διαγραφή</string>
+  <string name="library_list_delete_named">Διαγραφή «%1$s»</string>
   <string name="library_list_close">Κλείσιμο</string>
   <string name="library_list_name_label">Όνομα</string>
-  <string name="library_error_list_name_required">Το όνομα λίστας είναι υποχρεωτικό</string>
+  <string name="library_error_list_name_required">Εισαγάγετε όνομα για τη λίστα</string>
   <string name="library_list_description_label">Περιγραφή</string>
   <string name="library_list_privacy">Απόρρητο</string>
   <string name="library_delete_title">Διαγραφή αυτής της λίστας;</string>
+  <string name="library_delete_title_named">Διαγραφή «%1$s»;</string>
+  <string name="library_delete_subtitle_provider">Η λίστα και τα στοιχεία της θα αφαιρεθούν από το %1$s. Αυτή η ενέργεια δεν αναιρείται.</string>
+  <string name="library_delete_subtitle_local">Η λίστα και τα στοιχεία της θα αφαιρεθούν από τη βιβλιοθήκη σας. Αυτή η ενέργεια δεν αναιρείται.</string>
   <string name="library_source_local">ΤΟΠΙΚΗ</string>
   <string name="library_source_saved">Αποθηκευμένα</string>
   <string name="library_watchlist">Λίστα παρακολούθησης</string>
@@ -1772,7 +1785,7 @@
   <string name="library_syncing_btn">Συγχρονισμός…</string>
   <!-- Error messages (shared) -->
   <string name="error_network_required">Συνδεθείτε σε Wi-Fi ή Ethernet για να χρησιμοποιήσετε αυτή τη δυνατότητα</string>
-  <string name="error_server_ports_unavailable">Δεν ήταν δυνατή η εκκίνηση του διακομιστή. Όλες οι θύρες χρησιμοποιούνται.</string>
+  <string name="error_server_ports_unavailable">Δεν ήταν δυνατή η έναρξη της σύνδεσης με το κινητό. Επανεκκινήστε το Fetch και δοκιμάστε ξανά.</string>
   <!-- Trakt errors -->
   <string name="trakt_error_code_expired">Ο κωδικός συσκευής έληξε. Ξεκινήστε ξανά.</string>
   <string name="trakt_error_code_used">Ο κωδικός συσκευής έχει ήδη χρησιμοποιηθεί. Ξεκινήστε ξανά.</string>
@@ -1803,10 +1816,12 @@
   <string name="account_error_signin_required">Συνδεθείτε πρώτα με έναν λογαριασμό.</string>
   <!-- Search errors -->
   <string name="search_error_no_catalogs">Δεν βρέθηκαν κατάλογοι με δυνατότητα αναζήτησης στα εγκατεστημένα πρόσθετα</string>
+  <string name="search_no_catalogs_title">Κανένα από τα πρόσθετά σας δεν υποστηρίζει αναζήτηση</string>
+  <string name="search_no_catalogs_subtitle">Εγκαταστήστε ένα πρόσθετο με κατάλογο αναζήτησης και δοκιμάστε ξανά.</string>
   <!-- Home errors -->
   <string name="home_error_no_catalog_addons">Δεν υπάρχουν εγκατεστημένα πρόσθετα καταλόγου</string>
   <!-- Player errors -->
-  <string name="player_error_no_stream_url">Δεν δόθηκε URL ροής</string>
+  <string name="player_error_no_stream_url">Αυτή η πηγή δεν έχει σύνδεσμο ροής. Επιλέξτε άλλη πηγή.</string>
   <!-- Playback subtitle settings -->
   <string name="sub_mode_overlay_canvas_sub">Υποστήριξη HDR με απόδοση καμβά. Ενδέχεται να μπλοκάρει το νήμα UI.</string>
   <string name="subtitle_style_weight">Πάχος</string>
@@ -1836,6 +1851,11 @@
   <string name="cd_loading_logo">Φόρτωση λογότυπου</string>
   <string name="cd_move_up">Μετακίνηση πάνω</string>
   <string name="cd_move_down">Μετακίνηση κάτω</string>
+  <string name="cd_move_addon_up">Μετακίνηση %1$s πάνω</string>
+  <string name="cd_move_addon_down">Μετακίνηση %1$s κάτω</string>
+  <string name="cd_addon_enabled_toggle">%1$s ενεργό</string>
+  <string name="cd_configure_addon">Διαμόρφωση %1$s</string>
+  <string name="cd_remove_addon">Αφαίρεση %1$s</string>
   <string name="cd_edit">Επεξεργασία</string>
   <string name="cd_delete">Διαγραφή</string>
   <string name="cd_qr_code">Κωδικός QR</string>
@@ -1870,7 +1890,7 @@
   <string name="collections_import">Εισαγωγή</string>
   <string name="collections_export_file">Εξαγωγή αρχείου</string>
   <string name="collections_saved_downloads">Αποθηκεύτηκε στις Λήψεις</string>
-  <string name="collections_export_failed">Η εξαγωγή απέτυχε</string>
+  <string name="collections_export_failed">Δεν ήταν δυνατή η αποθήκευση στις Λήψεις. Ελέγξτε την άδεια αποθηκευτικού χώρου και τον ελεύθερο χώρο και δοκιμάστε ξανά.</string>
   <string name="collections_import_header">Εισαγωγή συλλογών</string>
   <string name="collections_import_description">Εισαγάγετε συλλογές από JSON. Οι κατάλογοι από πρόσθετα που δεν έχετε εγκαταστήσει θα εμφανίσουν προειδοποίηση.</string>
   <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2107,6 +2127,16 @@
   <string name="collection_editor_folder_count_other">%1$d στοιχεία</string>
   <string name="collections_editor_delete_folder_title">Διαγραφή φακέλου;</string>
   <string name="collections_editor_delete_folder_subtitle">Αυτό θα διαγράψει οριστικά το «%1$s» και το περιεχόμενό του.</string>
+  <string name="folder_error_addon_source">Δεν ήταν δυνατή η φόρτωση αυτού του καταλόγου. Ελέγξτε ότι το πρόσθετό του είναι εγκατεστημένο και σε λειτουργία και δοκιμάστε ξανά.</string>
+  <string name="folder_error_addon_missing">Το πρόσθετο αυτού του καταλόγου δεν είναι εγκατεστημένο. Εγκαταστήστε το από τα Πρόσθετα ή αφαιρέστε αυτή την πηγή από τον φάκελο.</string>
+  <string name="folder_error_tmdb_source">Δεν ήταν δυνατή η φόρτωση από το TMDB. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
+  <string name="folder_error_trakt_source">Δεν ήταν δυνατή η φόρτωση αυτής της λίστας Trakt. Ελέγξτε τη σύνδεσή σας και ότι η λίστα είναι ακόμη δημόσια και δοκιμάστε ξανά.</string>
+  <string name="folder_error_list_source">Δεν ήταν δυνατή η φόρτωση αυτής της λίστας. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
+  <string name="collections_editor_discard_title">Απόρριψη αλλαγών;</string>
+  <string name="collections_editor_discard_collection_subtitle">Οι αλλαγές σας σε αυτή τη συλλογή δεν έχουν αποθηκευτεί.</string>
+  <string name="collections_editor_discard_folder_subtitle">Οι αλλαγές σας σε αυτόν τον φάκελο δεν έχουν αποθηκευτεί.</string>
+  <string name="collections_editor_keep_editing">Συνέχεια επεξεργασίας</string>
+  <string name="collections_editor_discard">Απόρριψη</string>
   <string name="collections_editor_tmdb_movie_title_placeholder">Ταινίες Marvel, Netflix Originals, Pixar</string>
   <string name="collections_editor_tmdb_tv_title_placeholder">Καλύτερες ταινίες δράσης, κορεατικά δράματα, animation 2024</string>
   <string name="collections_editor_tmdb_person_title_placeholder">Ταινίες Tom Hanks, αγαπημένοι ηθοποιοί</string>
@@ -2166,17 +2196,17 @@
   <string name="player_track_audio_fallback">Ήχος %1$d</string>
   <string name="player_track_subtitle_fallback">Υπότιτλος %1$d</string>
   <!-- Player runtime: error recovery -->
-  <string name="player_error_stream_blocked">\n\nΗ πηγή ροής είναι αποκλεισμένη ή περιορισμένη. Δοκιμάστε διαφορετική πηγή.</string>
-  <string name="player_error_stream_removed">\n\nΟ σύνδεσμος ροής έληξε ή αφαιρέθηκε. Δοκιμάστε διαφορετική πηγή.</string>
-  <string name="player_error_stream_expired">\n\nΟ σύνδεσμος ροής έληξε. Δοκιμάστε διαφορετική πηγή.</string>
-  <string name="player_error_stream_rate_limited">\n\nΠάρα πολλά αιτήματα προς την πηγή ροής. Περιμένετε λίγο και δοκιμάστε ξανά.</string>
-  <string name="player_error_stream_unavailable">\n\nΟ διακομιστής ροής δεν είναι διαθέσιμος αυτή τη στιγμή. Δοκιμάστε διαφορετική πηγή.</string>
-  <string name="player_error_source_invalid_content">Σφάλμα πηγής: Η πηγή ροής επέστρεψε μη έγκυρο ή μη αναπαραγώγιμο περιεχόμενο. Ο σύνδεσμος μπορεί να έληξε ή ο διακομιστής επέστρεψε σελίδα σφάλματος αντί για βίντεο.\n\nΔοκιμάστε διαφορετική πηγή. [%1$s]</string>
-  <string name="player_error_unsupported_format">Αυτή η ροή χρησιμοποιεί μορφή που η συσκευή σας μπορεί να μην υποστηρίζει. Δοκιμάστε διαφορετική πηγή. [%1$s]</string>
-  <string name="player_error_initialize_failed">Αποτυχία αρχικοποίησης προγράμματος αναπαραγωγής</string>
-  <string name="player_error_mpv_surface_failed">Αποτυχία αρχικοποίησης επιφάνειας libmpv</string>
-  <string name="player_error_mpv_playback_failed">Αποτυχία αρχικοποίησης αναπαραγωγής libmpv</string>
-  <string name="player_error_playback_fallback">Σφάλμα αναπαραγωγής</string>
+  <string name="player_error_stream_blocked">\n\nΗ πηγή ροής είναι αποκλεισμένη ή περιορισμένη. Επιλέξτε άλλη πηγή.</string>
+  <string name="player_error_stream_removed">\n\nΟ σύνδεσμος ροής έληξε ή αφαιρέθηκε. Επιλέξτε άλλη πηγή.</string>
+  <string name="player_error_stream_expired">\n\nΟ σύνδεσμος ροής έληξε. Επιλέξτε άλλη πηγή.</string>
+  <string name="player_error_stream_rate_limited">\n\nΠάρα πολλά αιτήματα προς την πηγή ροής. Περιμένετε λίγο και επιλέξτε ξανά πηγή.</string>
+  <string name="player_error_stream_unavailable">\n\nΟ διακομιστής ροής δεν είναι διαθέσιμος αυτή τη στιγμή. Επιλέξτε άλλη πηγή.</string>
+  <string name="player_error_source_invalid_content">Σφάλμα πηγής: Η πηγή ροής επέστρεψε μη έγκυρο ή μη αναπαραγώγιμο περιεχόμενο. Ο σύνδεσμος μπορεί να έληξε ή ο διακομιστής επέστρεψε σελίδα σφάλματος αντί για βίντεο.\n\nΕπιλέξτε άλλη πηγή. [%1$s]</string>
+  <string name="player_error_unsupported_format">Αυτή η ροή χρησιμοποιεί μορφή που η συσκευή σας μπορεί να μην υποστηρίζει. Επιλέξτε άλλη πηγή. [%1$s]</string>
+  <string name="player_error_initialize_failed">Δεν είναι δυνατή η εκκίνηση του προγράμματος αναπαραγωγής. Επανεκκινήστε το Fetch και δοκιμάστε ξανά.</string>
+  <string name="player_error_mpv_surface_failed">Δεν είναι δυνατή η εκκίνηση του προγράμματος αναπαραγωγής mpv. Δοκιμάστε ξανά ή αλλάξτε την επιλογή Εσωτερική μηχανή στις Ρυθμίσεις &gt; Αναπαραγωγή.</string>
+  <string name="player_error_mpv_playback_failed">Δεν είναι δυνατή η έναρξη αναπαραγωγής στο πρόγραμμα αναπαραγωγής mpv. Δοκιμάστε ξανά ή αλλάξτε την επιλογή Εσωτερική μηχανή στις Ρυθμίσεις &gt; Αναπαραγωγή.</string>
+  <string name="player_error_playback_fallback">Δεν είναι δυνατή η αναπαραγωγή αυτής της ροής. Επιλέξτε άλλη πηγή.</string>
   <!-- Subtitle timing recovery -->
   <string name="subtitle_timing_file_no_lines">Δεν βρέθηκαν γραμμές υπότιτλων σε αυτό το αρχείο.</string>
   <string name="subtitle_timing_load_lines_failed">Αποτυχία φόρτωσης γραμμών υπότιτλων.</string>
@@ -2205,6 +2235,7 @@
   <string name="library_list_created">Η λίστα δημιουργήθηκε</string>
   <string name="library_list_updated">Η λίστα ενημερώθηκε</string>
   <string name="library_error_save_list_failed">Αποτυχία αποθήκευσης λίστας</string>
+  <string name="library_error_save_list_next_step">Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
   <string name="library_list_deleted">Η λίστα διαγράφηκε</string>
   <string name="library_error_delete_list_failed">Αποτυχία διαγραφής λίστας</string>
   <string name="library_list_order_updated">Η σειρά λιστών ενημερώθηκε</string>
@@ -2231,11 +2262,11 @@
   <string name="trakt_error_request_failed">Αποτυχία αιτήματος Trakt</string>
   <string name="trakt_error_mark_watched_failed">Αποτυχία σήμανσης ως παρακολουθημένο στο Trakt (%1$d)</string>
   <!-- Detail / poster options errors -->
-  <string name="detail_error_update_library_failed">Αποτυχία ενημέρωσης βιβλιοθήκης</string>
-  <string name="detail_error_load_lists_failed">Αποτυχία φόρτωσης λιστών</string>
-  <string name="detail_error_update_lists_failed">Αποτυχία ενημέρωσης λιστών</string>
-  <string name="detail_error_update_watched_failed">Αποτυχία ενημέρωσης κατάστασης παρακολούθησης</string>
-  <string name="detail_error_update_episode_watched_failed">Αποτυχία ενημέρωσης κατάστασης παρακολούθησης επεισοδίου</string>
+  <string name="detail_error_update_library_failed">Δεν ήταν δυνατή η ενημέρωση της βιβλιοθήκης σας. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
+  <string name="detail_error_load_lists_failed">Δεν ήταν δυνατή η φόρτωση των λιστών σας. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
+  <string name="detail_error_update_lists_failed">Δεν ήταν δυνατή η ενημέρωση των λιστών σας. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
+  <string name="detail_error_update_watched_failed">Δεν ήταν δυνατή η ενημέρωση της κατάστασης παρακολούθησης. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
+  <string name="detail_error_update_episode_watched_failed">Δεν ήταν δυνατή η ενημέρωση της κατάστασης παρακολούθησης αυτού του επεισοδίου. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
   <string name="poster_options_error_load_lists_failed">Αποτυχία φόρτωσης λιστών</string>
   <string name="poster_options_error_update_lists_failed">Αποτυχία ενημέρωσης λιστών</string>
   <!-- Search errors -->
@@ -2431,7 +2462,7 @@
   <string name="diag_value_on">Ενεργό</string>
   <string name="player_report_issue_sent">Η αναφορά στάλθηκε: %1$s</string>
   <string name="hero_synopsis_dismiss_hint">Πατήστε πίσω για κλείσιμο</string>
-  <string name="player_error_play_stream_failed">Αποτυχία αναπαραγωγής της επιλεγμένης ροής</string>
+  <string name="player_error_play_stream_failed">Δεν είναι δυνατή η αναπαραγωγή της επιλεγμένης ροής. Επιλέξτε άλλη πηγή.</string>
   <string name="stream_test_section_header">Διαγνωστικά ταχύτητας ροής</string>
   <string name="stream_test_error_connection">Η σύνδεση απέτυχε. Ο σύνδεσμος της τελευταίας αναπαραγωγής μπορεί να έχει λήξει ή να μην είναι προσβάσιμος. Αναπαράγετε ξανά το βίντεο και δοκιμάστε πάλι.</string>
   <string name="unit_size_kb">%1$s KB</string>
@@ -2611,6 +2642,7 @@
     <string name="prefer_next_time_not_now">Όχι τώρα</string>
     <string name="prefer_next_time_saved">Η καλύτερη αντιστοίχιση θα προτιμά: %1$s</string>
     <string name="best_match_excluded">Δεν αναπαράγεται αυτόματα: %1$s</string>
+    <string name="stream_hold_for_options">Κρατήστε πατημένο το OK για τις επιλογές Καλύτερης αντιστοίχισης</string>
     <string name="exclusion_above_max_resolution">πάνω από τη μέγιστη ανάλυσή σας</string>
     <string name="exclusion_below_min_resolution">κάτω από την ελάχιστη ανάλυσή σας</string>
     <string name="exclusion_over_max_size">μεγαλύτερο από το όριο μεγέθους σας</string>
@@ -2792,6 +2824,9 @@
     <string name="addon_health_slow">Αργό · %1$s</string>
     <string name="addon_health_failing">Το τελευταίο αίτημα απέτυχε</string>
     <string name="addon_health_timed_out">Το τελευταίο αίτημα έληξε</string>
+    <string name="source_chip_failed">απέτυχε</string>
+    <string name="source_chip_loading">φόρτωση</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="account_local_only_note">Ο συγχρονισμός είναι απενεργοποιημένος. Το Fetch κρατά τα πρόσθετα, την πρόοδο και τις ρυθμίσεις σας σε αυτή την τηλεόραση και δεν χρειάζεται λογαριασμό. Για συγχρονισμό μεταξύ συσκευών, συνδέστε τον δικό σας διακομιστή συγχρονισμού από τις επιλογές διακομιστή.</string>
     <string name="parental_title_blocked">Αυτός ο τίτλος ξεπερνά το όριο καταλληλότητας αυτού του προφίλ.</string>
     <string name="parental_addons_blocked">Αυτό το προφίλ δεν μπορεί να εγκαταστήσει πρόσθετα. Ζητήστε από έναν γονέα.</string>

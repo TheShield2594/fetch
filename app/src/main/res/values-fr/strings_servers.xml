@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">Impossible de joindre le serveur.</string>
     <string name="servers_error_unsupported">%1$s %2$s ou une version ultérieure est requis.</string>
     <string name="servers_error_forbidden">Cet utilisateur n’a pas accès.</string>
-    <string name="servers_error_failed">Impossible de se connecter au serveur.</string>
+    <string name="servers_error_failed">Impossible de se connecter au serveur. Vérifiez qu’il est allumé et accessible, puis réessayez.</string>
     <string name="servers_failure_auth">Reconnectez-vous à ce serveur dans les paramètres.</string>
-    <string name="servers_failure_unreachable">Le serveur est indisponible.</string>
+    <string name="servers_failure_unreachable">Le serveur est indisponible. Vérifiez qu’il est allumé et accessible, puis réessayez.</string>
     <string name="servers_failure_not_found">Cet élément n’est plus disponible sur le serveur.</string>
     <string name="servers_failure_unsupported">Le serveur ne prend pas en charge cet élément.</string>
     <string name="servers_failure_incomplete">Vérification de la bibliothèque de ce serveur en cours. Réessayez dans un instant.</string>

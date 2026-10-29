@@ -227,6 +227,7 @@
     <string name="detail_marked_episodes_watched">Episode ditandai sudah ditonton: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode ditandai belum ditonton: %1$d</string>
     <string name="detail_marked_previous_watched">Episode sebelumnya ditandai sudah ditonton: %1$d</string>
+    <string name="playback_unavailable_message">Tidak ada yang Anda siapkan yang dapat memutar judul ini. Tambahkan atau aktifkan addon streaming di Pengaturan &gt; Konten &amp; Penemuan &gt; Addon, atau periksa koneksi server media Anda.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Putar</string>
@@ -494,6 +495,9 @@
     <string name="playback_subtitle">Konfigurasikan pemutaran video dan opsi subtitle</string>
     <string name="cd_decrease">Kurangi</string>
     <string name="cd_increase">Tambah</string>
+    <string name="cd_decrease_setting">Kurangi %1$s</string>
+    <string name="cd_increase_setting">Tambah %1$s</string>
+    <string name="cd_seek_bar">Bilah progres</string>
     <string name="action_cancel">Batal</string>
     <string name="action_apply">Terapkan</string>
     <string name="sub_opacity">Opasitas</string>
@@ -771,7 +775,7 @@
     <string name="mdblist_dialog_title">Kunci API MDBList</string>
     <string name="mdblist_dialog_placeholder">Masukkan kunci API MDBList</string>
     <string name="mdblist_not_set">Tidak diatur</string>
-    <string name="mdblist_invalid_api_key">Kunci API MDBList tidak valid</string>
+    <string name="mdblist_invalid_api_key">Tidak dapat memverifikasi kunci API ini. Pastikan kunci sama dengan yang ada di akun MDBList Anda dan Anda sedang online, lalu coba lagi.</string>
 
 
 
@@ -786,7 +790,7 @@
     <string name="animeskip_dialog_title">Client ID Anime Skip</string>
     <string name="animeskip_dialog_subtitle">Buat Client ID Anda sendiri di anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Masukkan Client ID</string>
-    <string name="animeskip_invalid_client_id">Client ID tidak valid</string>
+    <string name="animeskip_invalid_client_id">Tidak dapat memverifikasi Client ID ini. Pastikan sama dengan yang ada di akun Anime Skip Anda dan Anda sedang online, lalu coba lagi.</string>
     <string name="action_clear">Hapus</string>
 
     <!-- TmdbSettingsScreen -->
@@ -966,6 +970,7 @@
     <string name="addon_error_invalid_scheme">URL addon harus diawali dengan http atau https</string>
     <string name="addon_installed_section">Terpasang</string>
     <string name="addon_empty">Tidak ada addon terpasang. Tambahkan satu untuk memulai.</string>
+    <string name="addon_list_load_failed">Tidak dapat memuat addon terpasang Anda. Coba lagi.</string>
     <string name="addon_remove">Hapus</string>
     <string name="addons_badge_disabled">Tidak Aktif</string>
     <string name="addon_manage_from_phone_title">Kelola dari ponsel</string>
@@ -1057,6 +1062,8 @@
     <string name="player_up_next_in_queue">Berikutnya di antrean</string>
     <string name="player_queue_move_up">Naikkan</string>
     <string name="player_queue_move_down">Turunkan</string>
+    <string name="player_queue_removed">%1$s dihapus dari antrean</string>
+    <string name="player_queue_undo">Urungkan</string>
     <string name="player_seek_back_10">Mundur 10 detik</string>
     <string name="player_seek_forward_30">Maju 30 detik</string>
     <string name="player_via">via %1$s</string>
@@ -1064,6 +1071,7 @@
     <string name="season_episode_format">M%1$d E%2$d</string>
     <string name="player_subtitle_delay">Penundaan Subtitle</string>
     <string name="player_error_title">Error Pemutaran</string>
+    <string name="player_error_choose_source">Pilih sumber lain</string>
     <string name="player_speed_title">Kecepatan Pemutaran</string>
     <string name="player_more_actions_title">Aksi Lainnya</string>
     <string name="player_more_speed">Kecepatan Pemutaran</string>
@@ -1192,6 +1200,8 @@
     <string name="search_start_subtitle_no_discover">Penemuan dinonaktifkan. Masukkan setidaknya 2 karakter</string>
     <string name="search_recent_title">Pencarian terbaru</string>
     <string name="search_recent_clear">Hapus riwayat</string>
+    <string name="search_recent_clear_confirm_title">Hapus riwayat pencarian?</string>
+    <string name="search_recent_clear_confirm_subtitle">Semua pencarian terbaru Anda akan dihapus. Tindakan ini tidak dapat diurungkan.</string>
     <string name="search_voice_no_speech">Tidak ada ucapan terdeteksi. Coba lagi.</string>
     <string name="search_voice_mic_permission">Izin mikrofon diperlukan untuk pencarian suara.</string>
     <string name="search_voice_failed">Pengenalan suara gagal. Coba lagi.</string>
@@ -1244,12 +1254,16 @@
     <string name="library_list_move_up">Pindah ke Atas</string>
     <string name="library_list_move_down">Pindah ke Bawah</string>
     <string name="library_list_delete">Hapus</string>
+    <string name="library_list_delete_named">Hapus “%1$s”</string>
     <string name="library_list_close">Tutup</string>
     <string name="library_list_name_label">Nama</string>
-    <string name="library_error_list_name_required">Nama daftar diperlukan</string>
+    <string name="library_error_list_name_required">Masukkan nama untuk daftar</string>
     <string name="library_list_description_label">Deskripsi</string>
     <string name="library_list_privacy">Privasi</string>
     <string name="library_delete_title">Hapus daftar ini?</string>
+    <string name="library_delete_title_named">Hapus “%1$s”?</string>
+    <string name="library_delete_subtitle_provider">Tindakan ini menghapus daftar beserta itemnya dari %1$s. Tindakan ini tidak dapat diurungkan.</string>
+    <string name="library_delete_subtitle_local">Tindakan ini menghapus daftar beserta itemnya dari pustaka Anda. Tindakan ini tidak dapat diurungkan.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Tersimpan</string>
     <string name="library_watchlist">Daftar Tonton</string>
@@ -1432,7 +1446,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Hubungkan ke Wi-Fi atau Ethernet untuk menggunakan fitur ini</string>
-    <string name="error_server_ports_unavailable">Tidak dapat memulai server. Semua port digunakan.</string>
+    <string name="error_server_ports_unavailable">Tidak dapat memulai koneksi ponsel. Mulai ulang Fetch dan coba lagi.</string>
 
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Kode perangkat kedaluwarsa. Mulai lagi.</string>
@@ -1467,12 +1481,14 @@
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Tidak ada katalog yang bisa dicari ditemukan di addon terpasang</string>
+    <string name="search_no_catalogs_title">Tidak ada addon Anda yang bisa mencari</string>
+    <string name="search_no_catalogs_subtitle">Pasang addon dengan katalog pencarian, lalu coba lagi.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Tidak ada addon katalog terpasang</string>
 
     <!-- Player errors -->
-    <string name="player_error_no_stream_url">Tidak ada URL stream yang diberikan</string>
+    <string name="player_error_no_stream_url">Sumber ini tidak memiliki tautan stream. Pilih sumber lain.</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Dukungan HDR dengan rendering canvas. Mungkin memblokir thread UI.</string>
@@ -1507,6 +1523,11 @@
     <string name="cd_loading_logo">Memuat logo</string>
     <string name="cd_move_up">Pindah ke atas</string>
     <string name="cd_move_down">Pindah ke bawah</string>
+    <string name="cd_move_addon_up">Naikkan %1$s</string>
+    <string name="cd_move_addon_down">Turunkan %1$s</string>
+    <string name="cd_addon_enabled_toggle">%1$s aktif</string>
+    <string name="cd_configure_addon">Konfigurasi %1$s</string>
+    <string name="cd_remove_addon">Hapus %1$s</string>
     <string name="cd_edit">Edit</string>
     <string name="cd_delete">Hapus</string>
     <string name="cd_qr_code">Kode QR</string>
@@ -1542,7 +1563,7 @@
     <string name="collections_import">Impor</string>
     <string name="collections_export_file">Ekspor File</string>
     <string name="collections_saved_downloads">Disimpan ke Unduhan</string>
-    <string name="collections_export_failed">Ekspor gagal</string>
+    <string name="collections_export_failed">Tidak dapat menyimpan ke Unduhan. Periksa izin penyimpanan dan ruang kosong, lalu coba lagi.</string>
     <string name="collections_import_header">Impor Koleksi</string>
     <string name="collections_import_description">Impor koleksi dari JSON. Katalog dari addon yang belum Anda pasang akan menampilkan peringatan.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1779,6 +1800,16 @@
     <string name="collection_editor_folder_count_other">%1$d item</string>
     <string name="collections_editor_delete_folder_title">Hapus Folder?</string>
     <string name="collections_editor_delete_folder_subtitle">Ini akan menghapus \"%1$s\" dan seluruh isinya secara permanen.</string>
+    <string name="folder_error_addon_source">Tidak dapat memuat katalog ini. Pastikan addon-nya terpasang dan online, lalu coba lagi.</string>
+    <string name="folder_error_addon_missing">Addon katalog ini tidak terpasang. Pasang dari Addon, atau hapus sumber ini dari folder.</string>
+    <string name="folder_error_tmdb_source">Tidak dapat memuat ini dari TMDB. Periksa koneksi Anda, lalu coba lagi.</string>
+    <string name="folder_error_trakt_source">Tidak dapat memuat daftar Trakt ini. Periksa koneksi Anda dan pastikan daftar masih publik, lalu coba lagi.</string>
+    <string name="folder_error_list_source">Tidak dapat memuat daftar ini. Periksa koneksi Anda, lalu coba lagi.</string>
+    <string name="collections_editor_discard_title">Buang perubahan?</string>
+    <string name="collections_editor_discard_collection_subtitle">Perubahan Anda pada koleksi ini belum disimpan.</string>
+    <string name="collections_editor_discard_folder_subtitle">Perubahan Anda pada folder ini belum disimpan.</string>
+    <string name="collections_editor_keep_editing">Lanjutkan mengedit</string>
+    <string name="collections_editor_discard">Buang</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Film Marvel, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Film Aksi Terbaik, Drama Korea, Animasi 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Film Tom Hanks, Aktor Favorit</string>
@@ -1843,17 +1874,17 @@
     <string name="player_track_subtitle_fallback">Subtitle %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nSumber stream diblokir atau dibatasi. Coba sumber lain.</string>
-    <string name="player_error_stream_removed">\n\nTautan stream telah kedaluwarsa atau dihapus. Coba sumber lain.</string>
-    <string name="player_error_stream_expired">\n\nTautan stream telah kedaluwarsa. Coba sumber lain.</string>
-    <string name="player_error_stream_rate_limited">\n\nTerlalu banyak permintaan ke sumber stream. Tunggu sebentar dan coba lagi.</string>
-    <string name="player_error_stream_unavailable">\n\nServer stream saat ini tidak tersedia. Coba sumber lain.</string>
-    <string name="player_error_source_invalid_content">Error sumber: Sumber stream menghasilkan konten tidak valid atau tidak dapat diputar. Tautan mungkin telah kedaluwarsa atau server menghasilkan halaman error, bukan video.\n\nCoba sumber lain. [%1$s]</string>
-    <string name="player_error_unsupported_format">Stream ini menggunakan format yang mungkin tidak didukung perangkat Anda. Coba sumber lain. [%1$s]</string>
-    <string name="player_error_initialize_failed">Gagal menginisialisasi pemutar</string>
-    <string name="player_error_mpv_surface_failed">Gagal menginisialisasi permukaan libmpv</string>
-    <string name="player_error_mpv_playback_failed">Gagal menginisialisasi pemutaran libmpv</string>
-    <string name="player_error_playback_fallback">Error pemutaran</string>
+    <string name="player_error_stream_blocked">\n\nSumber stream diblokir atau dibatasi. Pilih sumber lain.</string>
+    <string name="player_error_stream_removed">\n\nTautan stream telah kedaluwarsa atau dihapus. Pilih sumber lain.</string>
+    <string name="player_error_stream_expired">\n\nTautan stream telah kedaluwarsa. Pilih sumber lain.</string>
+    <string name="player_error_stream_rate_limited">\n\nTerlalu banyak permintaan ke sumber stream. Tunggu sebentar, lalu pilih sumber lagi.</string>
+    <string name="player_error_stream_unavailable">\n\nServer stream saat ini tidak tersedia. Pilih sumber lain.</string>
+    <string name="player_error_source_invalid_content">Error sumber: Sumber stream menghasilkan konten tidak valid atau tidak dapat diputar. Tautan mungkin telah kedaluwarsa atau server menghasilkan halaman error, bukan video.\n\nPilih sumber lain. [%1$s]</string>
+    <string name="player_error_unsupported_format">Stream ini menggunakan format yang mungkin tidak didukung perangkat Anda. Pilih sumber lain. [%1$s]</string>
+    <string name="player_error_initialize_failed">Tidak dapat memulai pemutar. Mulai ulang Fetch dan coba lagi.</string>
+    <string name="player_error_mpv_surface_failed">Tidak dapat memulai pemutar mpv. Coba lagi, atau ubah Mesin Internal di Pengaturan &gt; Pemutaran.</string>
+    <string name="player_error_mpv_playback_failed">Tidak dapat memulai pemutaran di pemutar mpv. Coba lagi, atau ubah Mesin Internal di Pengaturan &gt; Pemutaran.</string>
+    <string name="player_error_playback_fallback">Tidak dapat memutar stream ini. Pilih sumber lain.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Tidak ada baris subtitle ditemukan dalam file ini.</string>
     <string name="subtitle_timing_load_lines_failed">Gagal memuat baris subtitle.</string>
@@ -1884,6 +1915,7 @@
     <string name="library_list_created">Daftar dibuat</string>
     <string name="library_list_updated">Daftar diperbarui</string>
     <string name="library_error_save_list_failed">Gagal menyimpan daftar</string>
+    <string name="library_error_save_list_next_step">Periksa koneksi Anda dan coba lagi.</string>
     <string name="library_list_deleted">Daftar dihapus</string>
     <string name="library_error_delete_list_failed">Gagal menghapus daftar</string>
     <string name="library_list_order_updated">Urutan daftar diperbarui</string>
@@ -1912,11 +1944,11 @@
     <string name="trakt_error_mark_watched_failed">Gagal menandai sudah ditonton di Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Gagal memperbarui pustaka</string>
-    <string name="detail_error_load_lists_failed">Gagal memuat daftar</string>
-    <string name="detail_error_update_lists_failed">Gagal memperbarui daftar</string>
-    <string name="detail_error_update_watched_failed">Gagal memperbarui status tonton</string>
-    <string name="detail_error_update_episode_watched_failed">Gagal memperbarui status tonton episode</string>
+    <string name="detail_error_update_library_failed">Tidak dapat memperbarui pustaka Anda. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="detail_error_load_lists_failed">Tidak dapat memuat daftar Anda. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="detail_error_update_lists_failed">Tidak dapat memperbarui daftar Anda. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="detail_error_update_watched_failed">Tidak dapat memperbarui status tonton. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="detail_error_update_episode_watched_failed">Tidak dapat memperbarui status tonton episode ini. Periksa koneksi Anda dan coba lagi.</string>
     <string name="poster_options_error_load_lists_failed">Gagal memuat daftar</string>
     <string name="poster_options_error_update_lists_failed">Gagal memperbarui daftar</string>
 
@@ -1993,6 +2025,7 @@
     <string name="prefer_next_time_not_now">Jangan sekarang</string>
     <string name="prefer_next_time_saved">Kecocokan terbaik akan mengutamakan: %1$s</string>
     <string name="best_match_excluded">Tidak diputar otomatis: %1$s</string>
+    <string name="stream_hold_for_options">Tahan OK untuk opsi Kecocokan terbaik</string>
     <string name="exclusion_above_max_resolution">melebihi resolusi maksimum Anda</string>
     <string name="exclusion_below_min_resolution">di bawah resolusi minimum Anda</string>
     <string name="exclusion_over_max_size">melebihi batas ukuran Anda</string>
@@ -2171,6 +2204,9 @@
     <string name="addon_health_slow">Lambat · %1$s</string>
     <string name="addon_health_failing">Permintaan terakhir gagal</string>
     <string name="addon_health_timed_out">Permintaan terakhir habis waktu</string>
+    <string name="source_chip_failed">gagal</string>
+    <string name="source_chip_loading">memuat</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="account_local_only_note">Sinkronisasi mati. Fetch menyimpan addon, progres, dan pengaturan Anda di TV ini dan tidak memerlukan akun. Untuk menyinkronkan antarperangkat, hubungkan server sinkronisasi Anda sendiri dari opsi server.</string>
     <string name="parental_title_blocked">Judul ini melebihi batas rating profil ini.</string>
     <string name="parental_addons_blocked">Profil ini tidak bisa memasang addon. Minta bantuan orang tua.</string>

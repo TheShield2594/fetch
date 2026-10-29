@@ -225,7 +225,7 @@
     <string name="detail_marked_previous_watched">Previous episodes marked as watched: %1$d</string>
 
     <string name="playback_unavailable">Playback unavailable</string>
-    <string name="playback_unavailable_message">None of your addons can play this title. Add or turn on a streaming addon in Settings &gt; Content &amp; Discovery &gt; Addons.</string>
+    <string name="playback_unavailable_message">Nothing you’ve set up can play this title. Add or turn on a streaming addon in Settings &gt; Content &amp; Discovery &gt; Addons, or check your media server connection.</string>
     <string name="detail_btn_play">Play</string>
     <string name="detail_btn_resume">Resume</string>
     <string name="detail_btn_play_episode">Play S%1$d E%2$d</string>
@@ -2611,9 +2611,9 @@
     <string name="player_error_stream_unavailable">\n\nThe stream server is currently unavailable. Choose another source.</string>
     <string name="player_error_source_invalid_content">Source error: The stream source returned invalid or unplayable content. The link may have expired or the server returned an error page instead of video.\n\nChoose another source. [%1$s]</string>
     <string name="player_error_unsupported_format">This stream uses a format your device may not support. Choose another source. [%1$s]</string>
-    <string name="player_error_initialize_failed">Unable to start the player. Choose another source.</string>
-    <string name="player_error_mpv_surface_failed">Unable to start the mpv player. Choose another source.</string>
-    <string name="player_error_mpv_playback_failed">Unable to start playback in the mpv player. Choose another source.</string>
+    <string name="player_error_initialize_failed">Unable to start the player. Restart Fetch and try again.</string>
+    <string name="player_error_mpv_surface_failed">Unable to start the mpv player. Try again, or change Internal Engine in Settings &gt; Playback.</string>
+    <string name="player_error_mpv_playback_failed">Unable to start playback in the mpv player. Try again, or change Internal Engine in Settings &gt; Playback.</string>
     <string name="player_error_playback_fallback">Unable to play this stream. Choose another source.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">No subtitle lines were found in this file.</string>

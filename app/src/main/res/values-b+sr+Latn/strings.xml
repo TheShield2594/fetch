@@ -225,7 +225,7 @@
     <string name="detail_marked_previous_watched">Prethodne epizode označene kao odgledane: %1$d</string>
 
     <string name="playback_unavailable">Reprodukcija nije dostupna</string>
-    <string name="playback_unavailable_message">Reprodukcija nije dostupna za ovaj naslov sa vašim trenutnim podešavanjima.</string>
+    <string name="playback_unavailable_message">Ništa od onoga što ste podesili ne može da pusti ovaj naslov. Dodajte ili uključite dodatak za strimovanje u Podešavanja &gt; Sadržaj i otkrivanje &gt; Dodaci ili proverite vezu sa medijskim serverom.</string>
     <string name="detail_btn_play">Pusti</string>
     <string name="detail_btn_resume">Nastavi</string>
     <string name="detail_btn_play_episode">Pusti S%1$d E%2$d</string>
@@ -581,6 +581,9 @@
     <string name="playback_subtitle">Konfigurišite opcije video reprodukcije i titlova</string>
     <string name="cd_decrease">Smanji</string>
     <string name="cd_increase">Povećaj</string>
+    <string name="cd_decrease_setting">Smanji %1$s</string>
+    <string name="cd_increase_setting">Povećaj %1$s</string>
+    <string name="cd_seek_bar">Traka za premotavanje</string>
     <string name="action_cancel">Otkaži</string>
     <string name="action_apply">Primeni</string>
     <string name="sub_opacity">Prozirnost</string>
@@ -930,7 +933,7 @@
     <string name="mdblist_dialog_title">MDBList API Ključ</string>
     <string name="mdblist_dialog_placeholder">Unesite MDBList API ključ</string>
     <string name="mdblist_not_set">Nije podešeno</string>
-    <string name="mdblist_invalid_api_key">Nevažeći MDBList API ključ</string>
+    <string name="mdblist_invalid_api_key">Nije moguće proveriti ovaj API ključ. Proverite da li se poklapa sa ključem u vašem MDBList nalogu i da li ste na mreži, pa pokušajte ponovo.</string>
 
 
 
@@ -975,7 +978,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Kreirajte sopstveni Client ID na anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Unesite Client ID</string>
-    <string name="animeskip_invalid_client_id">Nevažeći Client ID</string>
+    <string name="animeskip_invalid_client_id">Nije moguće proveriti ovaj Client ID. Proverite da li se poklapa sa onim u vašem Anime Skip nalogu i da li ste na mreži, pa pokušajte ponovo.</string>
     <string name="action_clear">Očisti</string>
 
     <string name="tmdb_title">TMDB Obogaćivanje</string>
@@ -1192,6 +1195,7 @@
     <string name="addon_error_invalid_scheme">URL dodatka mora počinjati sa http ili https</string>
     <string name="addon_installed_section">Instalirano</string>
     <string name="addon_empty">Nema instaliranih dodataka. Dodajte jedan da biste započeli.</string>
+    <string name="addon_list_load_failed">Nije moguće učitati instalirane dodatke. Pokušajte ponovo.</string>
     <string name="addon_remove">Ukloni</string>
     <string name="addon_delete_confirm_title">Obrisati dodatak?</string>
     <string name="addon_delete_confirm_message">Da li ste sigurni da želite da ga obrišete?</string>
@@ -1289,6 +1293,8 @@
     <string name="player_up_next_in_queue">Sledeće u redu</string>
     <string name="player_queue_move_up">Pomeri gore</string>
     <string name="player_queue_move_down">Pomeri dole</string>
+    <string name="player_queue_removed">Uklonjeno iz reda: %1$s</string>
+    <string name="player_queue_undo">Opozovi</string>
     <string name="player_seek_back_10">Nazad 10 sekundi</string>
     <string name="player_seek_forward_30">Napred 30 sekundi</string>
     <string name="player_live_watched">UŽIVO %1$s</string>
@@ -1297,6 +1303,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Kašnjenje titlova</string>
     <string name="player_error_title">Greška pri reprodukciji</string>
+    <string name="player_error_choose_source">Izaberite drugi izvor</string>
     <string name="player_switch_to_mpv">Prebaci na MPV plejer</string>
     <string name="player_report_issue">Prijavi problem</string>
     <string name="player_report_issue_sending">Slanje izveštaja o reprodukciji...</string>
@@ -1315,7 +1322,7 @@
     <string name="player_more_speed">Brzina reprodukcije</string>
     <string name="player_more_aspect_ratio">Odnos stranica (Aspect Ratio)</string>
     <string name="player_more_open_external">Otvori u spoljnom plejeru</string>
-    <string name="player_error_no_stream_url">Nije naveden URL strima</string>
+    <string name="player_error_no_stream_url">Ovaj izvor nema vezu do strima. Izaberite drugi izvor.</string>
 
 
     <string name="stream_info_section_source">IZVOR</string>
@@ -1446,6 +1453,8 @@
     <string name="search_start_subtitle_no_discover">Otkrivanje je onemogućeno. Unesite najmanje 2 karaktera</string>
     <string name="search_recent_title">Nedavne pretrage</string>
     <string name="search_recent_clear">Obriši istoriju</string>
+    <string name="search_recent_clear_confirm_title">Obrisati istoriju pretrage?</string>
+    <string name="search_recent_clear_confirm_subtitle">Sve vaše nedavne pretrage biće uklonjene. Ovo se ne može opozvati.</string>
     <string name="cd_remove_recent_search">Ukloni %1$s iz nedavnih pretraga</string>
     <string name="search_voice_no_speech">Govor nije detektovan. Pokušajte ponovo.</string>
     <string name="search_voice_mic_permission">Dozvola za mikrofon je potrebna za glasovnu pretragu.</string>
@@ -1454,6 +1463,8 @@
     <string name="search_no_results_title">Nema rezultata</string>
     <string name="search_no_results_subtitle">Pokušajte sa drugim ključnim rečima</string>
     <string name="search_error_no_catalogs">Nisu pronađeni pretraživi katalozi u instaliranim dodacima</string>
+    <string name="search_no_catalogs_title">Nijedan vaš dodatak ne može da pretražuje</string>
+    <string name="search_no_catalogs_subtitle">Instalirajte dodatak sa katalogom za pretragu, pa pokušajte ponovo.</string>
 
     <string name="library_title">Biblioteka</string>
     <string name="library_filter_list">Lista</string>
@@ -1519,12 +1530,16 @@
     <string name="library_list_move_up">Pomeri gore</string>
     <string name="library_list_move_down">Pomeri dole</string>
     <string name="library_list_delete">Obriši</string>
+    <string name="library_list_delete_named">Obriši „%1$s“</string>
     <string name="library_list_close">Zatvori</string>
     <string name="library_list_name_label">Naziv</string>
-    <string name="library_error_list_name_required">Naziv liste je obavezan</string>
+    <string name="library_error_list_name_required">Unesite naziv liste</string>
     <string name="library_list_description_label">Opis</string>
     <string name="library_list_privacy">Privatnost</string>
     <string name="library_delete_title">Obrisati ovu listu?</string>
+    <string name="library_delete_title_named">Obrisati „%1$s“?</string>
+    <string name="library_delete_subtitle_provider">Ovo uklanja listu i njene stavke sa usluge %1$s. Ovo se ne može opozvati.</string>
+    <string name="library_delete_subtitle_local">Ovo uklanja listu i njene stavke iz vaše biblioteke. Ovo se ne može opozvati.</string>
     <string name="library_source_local">LOKALNO</string>
     <string name="library_source_saved">Sačuvano</string>
     <string name="library_watchlist">Lista za gledanje</string>
@@ -1765,7 +1780,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Povežite se na Wi-Fi ili Ethernet mrežu da biste koristili ovu funkciju</string>
-    <string name="error_server_ports_unavailable">Nije moguće pokrenuti server. Svi portovi su u upotrebi.</string>
+    <string name="error_server_ports_unavailable">Nije moguće pokrenuti vezu sa telefonom. Ponovo pokrenite Fetch i pokušajte ponovo.</string>
 
     <!-- Trakt errors -->
 
@@ -1830,6 +1845,11 @@
     <string name="cd_loading_logo">Učitavanje logotipa</string>
     <string name="cd_move_up">Pomeri gore</string>
     <string name="cd_move_down">Pomeri dole</string>
+    <string name="cd_move_addon_up">Pomeri %1$s gore</string>
+    <string name="cd_move_addon_down">Pomeri %1$s dole</string>
+    <string name="cd_addon_enabled_toggle">%1$s omogućen</string>
+    <string name="cd_configure_addon">Konfiguriši %1$s</string>
+    <string name="cd_remove_addon">Ukloni %1$s</string>
     <string name="cd_edit">Uredi</string>
     <string name="cd_delete">Obriši</string>
     <string name="cd_qr_code">QR kod</string>
@@ -1865,7 +1885,7 @@
     <string name="collections_import">Uvezi</string>
     <string name="collections_export_file">Izvezi datoteku</string>
     <string name="collections_saved_downloads">Sačuvano u Preuzimanja</string>
-    <string name="collections_export_failed">Izvoz nije uspeo</string>
+    <string name="collections_export_failed">Nije moguće sačuvati u Preuzimanja. Proverite dozvolu za skladište i slobodan prostor, pa pokušajte ponovo.</string>
     <string name="collections_import_header">Uvoz kolekcija</string>
     <string name="collections_import_description">Uvezite kolekcije iz JSON-a. Katalozi iz dodataka koje nemate instalirane prikazaće upozorenje.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2109,6 +2129,16 @@
     <string name="collection_editor_folder_count_other">%1$d stavki</string>
     <string name="collections_editor_delete_folder_title">Obrisati fasciklu?</string>
     <string name="collections_editor_delete_folder_subtitle">Ovo će trajno obrisati „%1$s“ i njen sadržaj.</string>
+    <string name="folder_error_addon_source">Nije moguće učitati ovaj katalog. Proverite da li je njegov dodatak instaliran i na mreži, pa pokušajte ponovo.</string>
+    <string name="folder_error_addon_missing">Dodatak ovog kataloga nije instaliran. Instalirajte ga iz odeljka Dodaci ili uklonite ovaj izvor iz fascikle.</string>
+    <string name="folder_error_tmdb_source">Nije moguće učitati sadržaj sa TMDB-a. Proverite vezu, pa pokušajte ponovo.</string>
+    <string name="folder_error_trakt_source">Nije moguće učitati ovu Trakt listu. Proverite vezu i da li je lista i dalje javna, pa pokušajte ponovo.</string>
+    <string name="folder_error_list_source">Nije moguće učitati ovu listu. Proverite vezu, pa pokušajte ponovo.</string>
+    <string name="collections_editor_discard_title">Odbaciti izmene?</string>
+    <string name="collections_editor_discard_collection_subtitle">Vaše izmene ove kolekcije nisu sačuvane.</string>
+    <string name="collections_editor_discard_folder_subtitle">Vaše izmene ove fascikle nisu sačuvane.</string>
+    <string name="collections_editor_keep_editing">Nastavi uređivanje</string>
+    <string name="collections_editor_discard">Odbaci</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel filmovi, Netflix originali, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Najbolji akcioni filmovi, Korejske drame, Animacija 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Filmovi sa Tomom Henksom, Omiljeni glumci</string>
@@ -2175,17 +2205,17 @@
     <string name="player_track_subtitle_fallback">Titl %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nIzvor strima je blokiran ili ograničen. Pokušajte sa drugim izvorom.</string>
-    <string name="player_error_stream_removed">\n\nVeza do strima je istekla ili je uklonjena. Pokušajte sa drugim izvorom.</string>
-    <string name="player_error_stream_expired">\n\nVeza do strima je istekla. Pokušajte sa drugim izvorom.</string>
-    <string name="player_error_stream_rate_limited">\n\nPreviše zahteva prema izvoru strima. Sačekajte trenutak pa pokušajte ponovo.</string>
-    <string name="player_error_stream_unavailable">\n\nServer strima trenutno nije dostupan. Pokušajte sa drugim izvorom.</string>
-    <string name="player_error_source_invalid_content">Greška izvora: Izvor strima je vratio nevažeći sadržaj koji se ne može reprodukovati. Veza je možda istekla ili je server vratio stranicu sa greškom umesto videa.\n\nPokušajte sa drugim izvorom. [%1$s]</string>
-    <string name="player_error_unsupported_format">Ovaj strim koristi format koji vaš uređaj možda ne podržava. Pokušajte sa drugim izvorom. [%1$s]</string>
-    <string name="player_error_initialize_failed">Neuspešno pokretanje plejera</string>
-    <string name="player_error_mpv_surface_failed">Neuspešno pokretanje libmpv površine</string>
-    <string name="player_error_mpv_playback_failed">Neuspešno pokretanje libmpv reprodukcije</string>
-    <string name="player_error_playback_fallback">Greška pri reprodukciji</string>
+    <string name="player_error_stream_blocked">\n\nIzvor strima je blokiran ili ograničen. Izaberite drugi izvor.</string>
+    <string name="player_error_stream_removed">\n\nVeza do strima je istekla ili je uklonjena. Izaberite drugi izvor.</string>
+    <string name="player_error_stream_expired">\n\nVeza do strima je istekla. Izaberite drugi izvor.</string>
+    <string name="player_error_stream_rate_limited">\n\nPreviše zahteva prema izvoru strima. Sačekajte trenutak, pa ponovo izaberite izvor.</string>
+    <string name="player_error_stream_unavailable">\n\nServer strima trenutno nije dostupan. Izaberite drugi izvor.</string>
+    <string name="player_error_source_invalid_content">Greška izvora: Izvor strima je vratio nevažeći sadržaj koji se ne može reprodukovati. Veza je možda istekla ili je server vratio stranicu sa greškom umesto videa.\n\nIzaberite drugi izvor. [%1$s]</string>
+    <string name="player_error_unsupported_format">Ovaj strim koristi format koji vaš uređaj možda ne podržava. Izaberite drugi izvor. [%1$s]</string>
+    <string name="player_error_initialize_failed">Nije moguće pokrenuti plejer. Ponovo pokrenite Fetch i pokušajte ponovo.</string>
+    <string name="player_error_mpv_surface_failed">Nije moguće pokrenuti mpv plejer. Pokušajte ponovo ili promenite Interni mehanizam u Podešavanja &gt; Reprodukcija.</string>
+    <string name="player_error_mpv_playback_failed">Nije moguće pokrenuti reprodukciju u mpv plejeru. Pokušajte ponovo ili promenite Interni mehanizam u Podešavanja &gt; Reprodukcija.</string>
+    <string name="player_error_playback_fallback">Nije moguće pustiti ovaj strim. Izaberite drugi izvor.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">U ovoj datoteci nisu pronađene linije titla.</string>
     <string name="subtitle_timing_load_lines_failed">Neuspešno učitavanje linija titla.</string>
@@ -2216,6 +2246,7 @@
     <string name="library_list_created">Lista je kreirana</string>
     <string name="library_list_updated">Lista je ažurirana</string>
     <string name="library_error_save_list_failed">Čuvanje liste nije uspelo</string>
+    <string name="library_error_save_list_next_step">Proverite vezu i pokušajte ponovo.</string>
     <string name="library_list_deleted">Lista je obrisana</string>
     <string name="library_error_delete_list_failed">Brisanje liste nije uspelo</string>
     <string name="library_list_order_updated">Redosled lista je ažuriran</string>
@@ -2278,11 +2309,11 @@
     <string name="trakt_error_mark_watched_failed">Označavanje kao odgledano na Trakt-u nije uspelo (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Ažuriranje biblioteke nije uspelo</string>
-    <string name="detail_error_load_lists_failed">Učitavanje lista nije uspelo</string>
-    <string name="detail_error_update_lists_failed">Ažuriranje lista nije uspelo</string>
-    <string name="detail_error_update_watched_failed">Ažuriranje statusa gledanja nije uspelo</string>
-    <string name="detail_error_update_episode_watched_failed">Ažuriranje statusa gledanja epizode nije uspelo</string>
+    <string name="detail_error_update_library_failed">Nije moguće ažurirati vašu biblioteku. Proverite vezu i pokušajte ponovo.</string>
+    <string name="detail_error_load_lists_failed">Nije moguće učitati vaše liste. Proverite vezu i pokušajte ponovo.</string>
+    <string name="detail_error_update_lists_failed">Nije moguće ažurirati vaše liste. Proverite vezu i pokušajte ponovo.</string>
+    <string name="detail_error_update_watched_failed">Nije moguće ažurirati status gledanja. Proverite vezu i pokušajte ponovo.</string>
+    <string name="detail_error_update_episode_watched_failed">Nije moguće ažurirati status gledanja ove epizode. Proverite vezu i pokušajte ponovo.</string>
     <string name="poster_options_error_load_lists_failed">Učitavanje lista nije uspelo</string>
     <string name="poster_options_error_update_lists_failed">Ažuriranje lista nije uspelo</string>
 
@@ -2468,7 +2499,7 @@
     <string name="diag_value_never_rendered">Nikada nije prikazano</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Reprodukcija izabranog strima nije uspela</string>
+    <string name="player_error_play_stream_failed">Nije moguće pustiti izabrani strim. Izaberite drugi izvor.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2529,6 +2560,9 @@
     <string name="addon_health_ok">Odgovara · %1$s</string>
     <string name="addon_health_slow">Sporo · %1$s</string>
     <string name="addon_health_timed_out">Poslednjem zahtevu je isteklo vreme</string>
+    <string name="source_chip_failed">neuspešno</string>
+    <string name="source_chip_loading">učitavanje</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s mora da se podesi pre instalacije</string>
     <string name="advanced_introdb_api_key">IntroDB API ključ</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Napravite ključ na introdb.app. Počinje sa idb_.</string>
@@ -2544,6 +2578,7 @@
     <string name="autoplay_mode_best_desc">Rangira svaki rezultat po kvalitetu, vašim pravilima i onome što ovaj uređaj može da pusti, pa pokreće pobednika. Ostali izvori su na jedan pritisak.</string>
     <string name="best_match_cached">Keširano</string>
     <string name="best_match_excluded">Ne pušta se automatski: %1$s</string>
+    <string name="stream_hold_for_options">Držite OK za opcije Najboljeg podudaranja</string>
     <string name="best_match_preview_sub">Pita vaše dodatke za strim o naslovu dok ga gledate, tako da dugme Pusti može da prikaže fajl, a reprodukcija počne brže. Isključite da bi se pretraga vršila tek nakon pritiska na Pusti.</string>
     <string name="best_match_preview_title">Prikaži izbor na dugmetu Pusti</string>
     <string name="catalog_order_pin">Zakači na vrh</string>

@@ -4,6 +4,7 @@ package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.ui.theme.FetchRadii
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.FetchPrimitives
 
 import androidx.compose.foundation.background
 import androidx.compose.ui.draw.alpha
@@ -107,7 +108,7 @@ internal fun SubtitleStyleSidePanel(
                 Text(
                     text = stringResource(R.string.subtitle_style_title),
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
+                    color = FetchTheme.colors.Player.TextPrimary
                 )
             }
         }
@@ -250,7 +251,7 @@ internal fun SubtitleStyleSidePanel(
                             Text(
                                 text = stringResource(R.string.subtitle_style_color),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color.White.copy(alpha = 0.7f)
+                                color = FetchTheme.colors.Player.TextTertiary
                             )
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
@@ -299,15 +300,16 @@ internal fun SubtitleStyleSidePanel(
                     Card(
                         onClick = { onEvent(PlayerEvent.OnResetSubtitleDefaults) },
                         colors = CardDefaults.colors(
-                            containerColor = Color.White.copy(alpha = 0.1f),
-                            focusedContainerColor = Color.White.copy(alpha = 0.2f)
+                            containerColor = FetchTheme.colors.Player.Control,
+                            contentColor = FetchTheme.colors.Player.TextSecondary,
+                            focusedContainerColor = FetchTheme.colors.Player.Focus,
+                            focusedContentColor = FetchTheme.colors.Player.OnFocus
                         ),
                         shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                     ) {
                         Text(
                             text = stringResource(R.string.subtitle_style_reset),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.8f),
                             modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = 10.dp)
                         )
                     }
@@ -327,7 +329,7 @@ private fun SubtitleStyleSection(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(FetchRadii.tokens.md))
-            .background(Color.White.copy(alpha = 0.06f))
+            .background(FetchTheme.colors.Player.Control)
             .padding(FetchTheme.spacing.md)
     ) {
         Column(
@@ -340,7 +342,7 @@ private fun SubtitleStyleSection(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.8f)
+                    color = FetchTheme.colors.Player.TextSecondary
                 )
             }
         }
@@ -367,7 +369,7 @@ private fun SubtitleStyleSettingRow(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
         }
@@ -390,10 +392,10 @@ private fun SubtitleStyleStepperButton(
         onClick = onClick,
         modifier = modifier.size(FetchTheme.spacing.xxl),
         colors = IconButtonDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.16f),
-            focusedContainerColor = Color.White.copy(alpha = 0.28f),
-            contentColor = Color.White,
-            focusedContentColor = Color.White
+            containerColor = FetchTheme.colors.Player.Control,
+            focusedContainerColor = FetchTheme.colors.Player.Focus,
+            contentColor = FetchTheme.colors.Player.TextPrimary,
+            focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
         shape = IconButtonDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.sm))
     ) {
@@ -407,14 +409,14 @@ private fun SubtitleStyleValueDisplay(text: String) {
         modifier = Modifier
             .widthIn(min = 52.dp)
             .clip(RoundedCornerShape(FetchRadii.tokens.sm))
-            .background(Color.White.copy(alpha = 0.12f))
+            .background(FetchTheme.colors.Player.Control)
             .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White,
+            color = FetchTheme.colors.Player.TextPrimary,
             maxLines = 1,
             softWrap = false
         )
@@ -432,7 +434,7 @@ private fun SubtitleStyleColorChip(
 
     val borderModifier = when {
         isFocused -> Modifier.border(FetchTheme.focusRing.border(FetchTheme.spacing.xxs), CircleShape)
-        isSelected -> Modifier.border(FetchTheme.spacing.xxs, Color.White, CircleShape)
+        isSelected -> Modifier.border(FetchTheme.spacing.xxs, FetchTheme.colors.Player.Focus, CircleShape)
         else -> Modifier
     }
 
@@ -445,8 +447,8 @@ private fun SubtitleStyleColorChip(
         colors = IconButtonDefaults.colors(
             containerColor = color,
             focusedContainerColor = color,
-            contentColor = if (isLight) Color.Black else Color.White,
-            focusedContentColor = if (isLight) Color.Black else Color.White
+            contentColor = if (isLight) FetchPrimitives.black else FetchTheme.colors.Player.TextPrimary,
+            focusedContentColor = if (isLight) FetchPrimitives.black else FetchTheme.colors.Player.TextPrimary
         ),
         shape = IconButtonDefaults.shape(shape = CircleShape)
     ) {
@@ -464,15 +466,16 @@ private fun SubtitleStyleToggleButton(
     Card(
         onClick = onClick,
         colors = CardDefaults.colors(
-            containerColor = if (isEnabled) Color.White.copy(alpha = 0.18f) else Color.White.copy(alpha = 0.08f),
-            focusedContainerColor = Color.White.copy(alpha = 0.28f)
+            containerColor = if (isEnabled) FetchTheme.colors.Player.ControlSelected else FetchTheme.colors.Player.Control,
+            contentColor = if (isEnabled) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextDisabled,
+            focusedContainerColor = FetchTheme.colors.Player.Focus,
+            focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
         shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm))
     ) {
         Text(
             text = if (isEnabled) stringResource(R.string.subtitle_style_on) else stringResource(R.string.subtitle_style_off),
             style = MaterialTheme.typography.bodySmall,
-            color = if (isEnabled) Color.White else Color.White.copy(alpha = 0.55f),
             modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = 6.dp)
         )
     }

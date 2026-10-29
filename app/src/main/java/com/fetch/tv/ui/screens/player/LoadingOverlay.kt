@@ -127,7 +127,7 @@ fun LoadingOverlay(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black)
+                .background(FetchPrimitives.black)
         ) {
             if (backdropRequest != null) {
                 AsyncImage(
@@ -221,7 +221,7 @@ fun LoadingOverlay(
                         Text(
                             text = title,
                             style = MaterialTheme.typography.headlineMedium,
-                            color = Color.White,
+                            color = FetchTheme.colors.Player.TextPrimary,
                             textAlign = TextAlign.Center,
                             maxLines = 2,
                             modifier = Modifier
@@ -271,7 +271,7 @@ fun LoadingOverlay(
                                     Text(
                                         text = loadingMessage,
                                         style = MaterialTheme.typography.labelMedium,
-                                        color = Color.White.copy(alpha = 0.72f),
+                                        color = FetchTheme.colors.Player.TextTertiary,
                                         textAlign = TextAlign.Center,
                                         maxLines = 2,
                                         modifier = Modifier.fillMaxWidth()
@@ -287,14 +287,14 @@ fun LoadingOverlay(
                                 animationSpec = tween(durationMillis = FetchMotion.tokens.durations.overlay, easing = LinearEasing),
                                 label = "loadingProgress"
                             )
-                            val fillColor = Color.White.copy(alpha = 0.85f)
+                            val fillColor = FetchPrimitives.white.copy(alpha = 0.85f)
                             val fillRadius = FetchTheme.radii.xxs
                             Box(
                                 modifier = Modifier
                                     .width(240.dp)
                                     .height(FetchTheme.spacing.xs)
                                     .background(
-                                        color = Color.White.copy(alpha = 0.2f),
+                                        color = FetchPrimitives.white.copy(alpha = 0.2f),
                                         shape = RoundedCornerShape(FetchTheme.radii.xxs)
                                     )
                                     .drawBehind {

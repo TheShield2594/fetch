@@ -460,7 +460,7 @@ internal fun SubtitleSelectionOverlay(
             Text(
                 text = stringResource(R.string.subtitle_dialog_title),
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.padding(bottom = FetchTheme.spacing.md)
             )
 
@@ -855,13 +855,13 @@ private fun SubtitleStyleRail(
                         Text(
                             text = stringResource(R.string.subtitle_tab_delay),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White
+                            color = FetchTheme.colors.Player.TextPrimary
                         )
                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                             Text(
                                 text = formatSubtitleDelay(subtitleDelayMs),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.7f)
+                                color = FetchTheme.colors.Player.TextTertiary
                             )
                         }
                     }
@@ -1057,7 +1057,7 @@ private fun SubtitleStyleRail(
                     Text(
                         text = stringResource(R.string.subtitle_reset_defaults),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
+                        color = FetchTheme.colors.Player.TextPrimary,
                         modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = 10.dp)
                     )
                 }
@@ -1095,7 +1095,7 @@ private fun SubtitleLanguageCard(
     onMoveRight: (() -> Unit)?,
     onFocused: () -> Unit
 ) {
-    val textColor = if (isSelected) FetchTheme.colors.OnSecondary else Color.White
+    val textColor = if (isSelected) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val moveToOptionsKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_LEFT else android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 
@@ -1169,7 +1169,7 @@ private fun SubtitleOptionCard(
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    val titleColor = if (item.isSelected) FetchTheme.colors.OnSecondary else Color.White
+    val titleColor = if (item.isSelected) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary
     val metaColor = if (item.isSelected) {
         FetchTheme.colors.OnSecondary.copy(alpha = 0.72f)
     } else {
@@ -1279,7 +1279,7 @@ private fun CountBadge(
         modifier = Modifier
             .background(
                 color = if (selected) {
-                    Color.White.copy(alpha = 0.18f)
+                    FetchTheme.colors.Player.ControlSelected
                 } else {
                     FetchTheme.colors.Secondary.copy(alpha = 0.85f)
                 },
@@ -1303,7 +1303,7 @@ private fun SourceChip(label: String, selected: Boolean = false) {
                 if (selected) {
                     FetchTheme.colors.OnSecondary.copy(alpha = 0.14f)
                 } else {
-                    Color.White.copy(alpha = 0.08f)
+                    FetchTheme.colors.Player.Control
                 },
                 RoundedCornerShape(FetchRadii.tokens.full)
             )
@@ -1326,7 +1326,7 @@ private fun SourceChip(label: String, selected: Boolean = false) {
             color = if (selected) {
                 FetchTheme.colors.OnSecondary.copy(alpha = 0.9f)
             } else {
-                Color.White.copy(alpha = 0.78f)
+                FetchTheme.colors.Player.TextTertiary
             }
         )
     }
@@ -1382,7 +1382,7 @@ private fun OverlaySectionCard(
         Text(
             text = title,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White
+            color = FetchTheme.colors.Player.TextPrimary
         )
         content()
     }
@@ -1416,14 +1416,14 @@ private fun StepperRow(
         Box(
             modifier = Modifier
                 .width(valueWidth)
-                .background(Color.White.copy(alpha = 0.06f), RoundedCornerShape(FetchTheme.radii.md))
+                .background(FetchTheme.colors.Player.Control, RoundedCornerShape(FetchTheme.radii.md))
                 .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White
+                color = FetchTheme.colors.Player.TextPrimary
             )
         }
         StepperButton(
@@ -1489,10 +1489,10 @@ private fun StepperButton(
                 }
             },
         colors = IconButtonDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.08f),
-            focusedContainerColor = Color.White.copy(alpha = 0.14f),
-            contentColor = Color.White,
-            focusedContentColor = Color.White
+            containerColor = FetchTheme.colors.Player.Control,
+            focusedContainerColor = FetchTheme.colors.Player.Focus,
+            contentColor = FetchTheme.colors.Player.TextPrimary,
+            focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
         shape = IconButtonDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
         scale = IconButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
@@ -1570,7 +1570,7 @@ private fun ToggleChip(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (isEnabled) FetchTheme.colors.OnSecondary else Color.White,
+            color = if (isEnabled) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary,
             modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm)
         )
     }
@@ -1648,7 +1648,7 @@ private fun ColorChip(
             }
             .then(
                 when {
-                    isSelected -> Modifier.border(FetchTheme.spacing.xxs, Color.White, CircleShape)
+                    isSelected -> Modifier.border(FetchTheme.spacing.xxs, FetchTheme.colors.Player.Focus, CircleShape)
                     isFocused -> Modifier.border(FetchTheme.focusRing.border(FetchTheme.spacing.xxs), CircleShape)
                     else -> Modifier
                 }

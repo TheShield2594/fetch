@@ -163,7 +163,7 @@ private fun SyncPromptPanel(
         Text(
             text = stringResource(R.string.subtitle_timing_press_sync),
             style = MaterialTheme.typography.headlineSmall,
-            color = Color.White
+            color = FetchTheme.colors.Player.TextPrimary
         )
 
         Card(
@@ -171,15 +171,15 @@ private fun SyncPromptPanel(
             modifier = Modifier
                 .focusRequester(focusRequester),
             colors = CardDefaults.colors(
-                containerColor = Color.White.copy(alpha = 0.14f),
-                focusedContainerColor = Color.White.copy(alpha = 0.26f)
+                containerColor = FetchTheme.colors.Player.Divider,
+                focusedContainerColor = FetchTheme.colors.Player.Track
             ),
             shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.md))
         ) {
             Text(
                 text = stringResource(R.string.subtitle_timing_sync_button),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md)
             )
         }
@@ -231,14 +231,14 @@ private fun CueSelectionPanel(
                     stringResource(R.string.subtitle_timing_capturing)
                 },
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.9f)
+                color = FetchTheme.colors.Player.TextSecondary
             )
 
             if (selectedAddonSubtitle != null) {
                 Text(
                     text = Subtitle.languageCodeToName(selectedAddonSubtitle.lang),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.68f)
+                    color = FetchTheme.colors.Player.TextTertiary
                 )
             }
         }
@@ -284,7 +284,7 @@ private fun CueSelectionPanel(
                     Text(
                         text = stringResource(R.string.subtitle_timing_loading),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = FetchTheme.colors.Player.TextTertiary
                     )
                 }
             }
@@ -295,7 +295,7 @@ private fun CueSelectionPanel(
             Text(
                 text = stringResource(R.string.subtitle_timing_no_lines_found),
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.72f)
+                color = FetchTheme.colors.Player.TextTertiary
             )
             return
         }
@@ -326,7 +326,7 @@ private fun CueSelectionPanel(
         Text(
             text = stringResource(R.string.subtitle_timing_press_back_cancel),
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.55f)
+            color = FetchTheme.colors.Player.TextDisabled
         )
     }
 }
@@ -352,7 +352,7 @@ private fun CueRow(
             containerColor = if (isFocused) {
                 focusedContainer
             } else {
-                Color.White.copy(alpha = 0.07f)
+                FetchTheme.colors.Player.Control
             },
             focusedContainerColor = focusedContainer
         ),
@@ -380,14 +380,14 @@ private fun CueRow(
             Text(
                 text = formatAutoSyncTimestamp(cue.startTimeMs),
                 style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = if (isFocused) focusedTextColor.copy(alpha = 0.9f) else Color.White.copy(alpha = 0.78f),
+                color = if (isFocused) focusedTextColor.copy(alpha = 0.9f) else FetchTheme.colors.Player.TextTertiary,
                 modifier = Modifier.width(72.dp)
             )
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Text(
                     text = sanitizeCuePreviewText(cue.text),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (isFocused) focusedTextColor else Color.White,
+                    color = if (isFocused) focusedTextColor else FetchTheme.colors.Player.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

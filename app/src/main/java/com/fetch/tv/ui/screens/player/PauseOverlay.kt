@@ -141,7 +141,7 @@ private fun PauseOverlayClock(modifier: Modifier = Modifier) {
             fontWeight = FontWeight.Normal,
             fontSize = 34.sp
         ),
-        color = Color.White.copy(alpha = 0.95f),
+        color = FetchTheme.colors.Player.TextPrimary,
         modifier = modifier
     )
 }
@@ -192,7 +192,7 @@ private fun PauseMetadataView(
                         text = title,
                         modifier = Modifier.align(title.contentTextDirection().toAbsoluteAlignment()),
                         style = MaterialTheme.typography.headlineLarge,
-                        color = Color.White,
+                        color = FetchTheme.colors.Player.TextPrimary,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -202,7 +202,7 @@ private fun PauseMetadataView(
                     text = title,
                     modifier = Modifier.align(title.contentTextDirection().toAbsoluteAlignment()),
                     style = MaterialTheme.typography.headlineLarge,
-                    color = Color.White,
+                    color = FetchTheme.colors.Player.TextPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -228,7 +228,7 @@ private fun PauseMetadataView(
                 Text(
                     text = episodeTitle.localizeEpisodeTitle(context),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White,
+                    color = FetchTheme.colors.Player.TextPrimary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = FetchTheme.spacing.md)
@@ -280,15 +280,15 @@ private fun CastChip(
     Card(
         onClick = onClick,
         colors = CardDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.1f),
-            focusedContainerColor = Color.White.copy(alpha = 0.18f)
+            containerColor = FetchTheme.colors.Player.Control,
+            focusedContainerColor = FetchTheme.colors.Player.ControlSelected
         ),
         shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md))
     ) {
         Text(
             text = member.name,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White,
+            color = FetchTheme.colors.Player.TextPrimary,
             modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -350,7 +350,7 @@ private fun CastDetailView(
                 Text(
                     text = member.name,
                     style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
+                    color = FetchTheme.colors.Player.TextPrimary,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis

@@ -49,7 +49,7 @@ internal fun PreferNextTimePrompt(
     Column(
         modifier = modifier
             .widthIn(max = 520.dp)
-            .background(Color.Black.copy(alpha = 0.82f), RoundedCornerShape(FetchTheme.radii.md))
+            .background(FetchTheme.colors.Player.ScrimStrong, RoundedCornerShape(FetchTheme.radii.md))
             .padding(FetchTheme.spacing.lg)
             .focusGroup()
             .onFocusChanged { onFocusChanged(it.hasFocus) },
@@ -58,7 +58,7 @@ internal fun PreferNextTimePrompt(
         Text(
             text = stringResource(R.string.prefer_next_time_title),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = Color.White
+            color = FetchTheme.colors.Player.TextPrimary
         )
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
             suggestions.forEachIndexed { index, suggestion ->

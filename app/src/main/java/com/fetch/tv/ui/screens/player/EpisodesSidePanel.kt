@@ -119,7 +119,7 @@ internal fun EpisodesSidePanel(
     Box(
         modifier = modifier
             .fillMaxHeight()
-            .width(PlayerSidePanelWidth)
+            .width(PlayerSidePanelListWidth)
             .clip(RoundedCornerShape(topStart = FetchTheme.spacing.lg, bottomStart = FetchTheme.spacing.lg))
             .background(FetchTheme.colors.BackgroundElevated)
     ) {
@@ -398,7 +398,7 @@ private fun EpisodeStreamsView(
             Text(
                 text = uiState.episodeStreamsError,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.85f)
+                color = FetchTheme.colors.Player.TextSecondary
             )
         }
 
@@ -406,7 +406,7 @@ private fun EpisodeStreamsView(
             Text(
                 text = stringResource(R.string.episodes_panel_no_streams),
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.7f)
+                color = FetchTheme.colors.Player.TextTertiary
             )
         }
 
@@ -566,7 +566,7 @@ private fun EpisodesListView(
             Text(
                 text = uiState.episodesError,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.85f)
+                color = FetchTheme.colors.Player.TextSecondary
             )
         }
 
@@ -574,7 +574,7 @@ private fun EpisodesListView(
             Text(
                 text = stringResource(R.string.episodes_panel_no_episodes),
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.7f)
+                color = FetchTheme.colors.Player.TextTertiary
             )
         }
 
@@ -720,8 +720,11 @@ private fun EpisodesSeasonTabs(
                     },
                 shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.spacing.xl)),
                 colors = CardDefaults.colors(
-                    containerColor = if (isSelected) FetchPrimitives.neutral100 else FetchTheme.colors.BackgroundCard,
-                    focusedContainerColor = if (isSelected) Color.White else FetchTheme.colors.Secondary
+                    // Focus is white on any tab; the selected season, unfocused, is the lighter
+                    // fill. Before, selected was white and focus was the accent, the reverse of
+                    // every other screen.
+                    containerColor = if (isSelected) FetchTheme.colors.Player.ControlSelected else FetchTheme.colors.BackgroundCard,
+                    focusedContainerColor = FetchTheme.colors.Player.Focus
                 ),
                 border = CardDefaults.border(
                     border = Border(
@@ -739,8 +742,8 @@ private fun EpisodesSeasonTabs(
                     text = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
                     style = MaterialTheme.typography.labelLarge,
                     color = when {
-                        isSelected -> Color.Black
-                        isFocused -> FetchTheme.colors.OnSecondary
+                        isFocused -> FetchTheme.colors.Player.OnFocus
+                        isSelected -> FetchTheme.colors.Player.TextPrimary
                         else -> FetchTheme.extendedColors.textSecondary
                     },
                     modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
@@ -879,13 +882,13 @@ private fun EpisodeItem(
                             .align(Alignment.BottomStart)
                             .padding(FetchTheme.spacing.sm)
                             .clip(RoundedCornerShape(FetchRadii.tokens.sm))
-                            .background(Color.Black.copy(alpha = 0.75f))
+                            .background(FetchTheme.colors.Player.Scrim)
                             .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
                     ) {
                         Text(
                             text = episodeCode,
                             style = MaterialTheme.typography.labelMedium,
-                            color = Color.White
+                            color = FetchTheme.colors.Player.TextPrimary
                         )
                     }
                 }
@@ -897,7 +900,7 @@ private fun EpisodeItem(
                             .padding(6.dp)
                             .size(22.dp)
                             .clip(RoundedCornerShape(FetchRadii.tokens.md))
-                            .background(Color.Black.copy(alpha = 0.7f)),
+                            .background(FetchTheme.colors.Player.Scrim),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -914,7 +917,7 @@ private fun EpisodeItem(
                             .padding(6.dp)
                             .size(22.dp)
                             .clip(RoundedCornerShape(FetchRadii.tokens.md))
-                            .background(Color.Black.copy(alpha = 0.7f)),
+                            .background(FetchTheme.colors.Player.Scrim),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

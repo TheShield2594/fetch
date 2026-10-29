@@ -24,11 +24,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.FetchPrimitives
 
-/** Every right-hand panel in the player is this wide (Audio, Subtitles, Sources, Queue, Episodes). */
+/** Two-column panels (Audio's tracks beside its options, the subtitle style grid) need this much. */
 internal val PlayerSidePanelWidth = 640.dp
+
+/**
+ * Single-list panels (Sources, Queue, Episodes): a little over half the screen, so the paused
+ * frame stays readable beside the list instead of two thirds of it going behind the panel.
+ */
+internal val PlayerSidePanelListWidth = 520.dp
 internal val PlayerSidePanelContentPadding = 20.dp
 
 /**
@@ -44,6 +52,7 @@ internal fun PlayerSidePanel(
     scrimAlpha: Float = 0.45f,
     /** Draws the standard panel surface and padding; panels that style themselves leave it off. */
     drawSurface: Boolean = false,
+    width: Dp = PlayerSidePanelWidth,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -55,7 +64,7 @@ internal fun PlayerSidePanel(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = scrimAlpha))
+                    .background(FetchPrimitives.black.copy(alpha = scrimAlpha))
             )
         }
         val fullMotion = FetchTheme.fullMotion
@@ -83,7 +92,7 @@ internal fun PlayerSidePanel(
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(PlayerSidePanelWidth)
+                    .width(width)
                     .playerSidePanelFocusTrap(open = visible)
                     .then(
                         if (drawSurface) {

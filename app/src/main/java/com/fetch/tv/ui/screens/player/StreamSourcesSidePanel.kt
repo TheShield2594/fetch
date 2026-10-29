@@ -225,7 +225,7 @@ internal fun StreamSourcesSidePanel(
         modifier = modifier
             .onFocusChanged { panelHasFocus = it.hasFocus }
             .fillMaxHeight()
-            .width(PlayerSidePanelWidth)
+            .width(PlayerSidePanelListWidth)
             .clip(RoundedCornerShape(topStart = FetchTheme.spacing.lg, bottomStart = FetchTheme.spacing.lg))
             .background(FetchTheme.colors.BackgroundElevated)
     ) {
@@ -338,7 +338,7 @@ internal fun StreamSourcesSidePanel(
                     Text(
                         text = uiState.sourceStreamsError,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.85f)
+                        color = FetchTheme.colors.Player.TextSecondary
                     )
                 }
 
@@ -346,7 +346,7 @@ internal fun StreamSourcesSidePanel(
                     Text(
                         text = stringResource(R.string.sources_no_streams),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = FetchTheme.colors.Player.TextTertiary
                     )
                 }
 

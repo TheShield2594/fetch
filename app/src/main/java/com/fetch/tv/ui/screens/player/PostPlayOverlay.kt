@@ -129,7 +129,7 @@ fun PostPlayOverlay(
             ),
             border = CardDefaults.border(
                 border = Border(
-                    border = BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.16f)),
+                    border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Player.Divider),
                     shape = RoundedCornerShape(FetchRadii.tokens.md),
                 ),
                 focusedBorder = Border(
@@ -225,14 +225,14 @@ private fun AutoPlayBody(
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
             Text(
                 text = stringResource(R.string.next_episode_label),
-                color = Color.White.copy(alpha = 0.8f),
+                color = FetchTheme.colors.Player.TextSecondary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
             )
             Spacer(modifier = Modifier.height(FetchTheme.spacing.xxs))
             Text(
                 text = nextEpisodeDisplayLabel(nextEpisode),
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -263,13 +263,13 @@ private fun AutoPlayBody(
                     val fillWidth = size.width * fraction
                     val left = if (layoutDirection == LayoutDirection.Rtl) size.width - fillWidth else 0f
                     drawRect(
-                        color = Color.White.copy(alpha = 0.16f),
+                        color = FetchPrimitives.white.copy(alpha = 0.16f),
                         topLeft = Offset(left, 0f),
                         size = Size(fillWidth, size.height),
                     )
                 }
                 .border(
-                    BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.2f)),
+                    BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Player.ControlSelected),
                     CircleShape,
                 )
                 .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs),
@@ -278,7 +278,7 @@ private fun AutoPlayBody(
             Icon(
                 imageVector = Icons.Default.PlayArrow,
                 contentDescription = null,
-                tint = if (isPlayable) Color.White else Color.White.copy(alpha = 0.65f),
+                tint = if (isPlayable) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextTertiary,
                 modifier = Modifier.size(14.dp),
             )
             Text(
@@ -287,7 +287,7 @@ private fun AutoPlayBody(
                 } else {
                     stringResource(R.string.next_episode_unaired)
                 },
-                color = if (isPlayable) Color.White else Color.White.copy(alpha = 0.72f),
+                color = if (isPlayable) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextTertiary,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = FetchTheme.spacing.xs),
             )
@@ -325,14 +325,14 @@ private fun StillWatchingBody(
         ) {
             Text(
                 text = stringResource(R.string.still_watching_title),
-                color = Color.White.copy(alpha = 0.8f),
+                color = FetchTheme.colors.Player.TextSecondary,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
             )
             Spacer(modifier = Modifier.height(FetchTheme.spacing.xxs))
             Text(
                 text = nextEpisodeDisplayLabel(nextEpisode),
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 fontSize = 14.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -353,9 +353,9 @@ private fun StillWatchingBody(
         ) {
             PostPlayPillButton(
                 icon = Icons.Default.PlayArrow,
-                iconTint = Color.White,
+                iconTint = FetchTheme.colors.Player.TextPrimary,
                 label = stringResource(R.string.still_watching_continue),
-                textColor = Color.White,
+                textColor = FetchTheme.colors.Player.TextPrimary,
                 onClick = onContinue,
                 focusRequester = continueFocusRequester,
                 modifier = Modifier
@@ -372,9 +372,9 @@ private fun StillWatchingBody(
             )
             PostPlayPillButton(
                 icon = Icons.Default.Close,
-                iconTint = Color.White.copy(alpha = 0.65f),
+                iconTint = FetchTheme.colors.Player.TextTertiary,
                 label = stringResource(R.string.still_watching_exit),
-                textColor = Color.White.copy(alpha = 0.72f),
+                textColor = FetchTheme.colors.Player.TextTertiary,
                 onClick = onDismiss,
                 focusRequester = exitFocusRequester,
                 modifier = Modifier.focusProperties {
@@ -401,11 +401,11 @@ private fun PostPlayPillButton(
         shape = CardDefaults.shape(shape = CircleShape),
         colors = CardDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = Color.White.copy(alpha = 0.15f),
+            focusedContainerColor = FetchTheme.colors.Player.ControlSelected,
         ),
         border = CardDefaults.border(
             border = Border(
-                border = BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.2f)),
+                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Player.ControlSelected),
                 shape = CircleShape,
             ),
             focusedBorder = Border(
@@ -469,7 +469,7 @@ private fun NextEpisodeThumbnail(
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.32f)),
+                        colors = listOf(Color.Transparent, FetchTheme.colors.Player.ScrimLight),
                     ),
                 ),
         )
@@ -480,7 +480,7 @@ private fun NextEpisodeThumbnail(
 private fun NextEpisodeStatusLine(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        color = Color.White.copy(alpha = 0.78f),
+        color = FetchTheme.colors.Player.TextTertiary,
         fontSize = 12.sp,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,

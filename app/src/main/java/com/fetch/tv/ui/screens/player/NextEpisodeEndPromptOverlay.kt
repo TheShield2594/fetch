@@ -60,7 +60,7 @@ fun NextEpisodeEndPromptOverlay(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.9f))
+            .background(FetchTheme.colors.Player.ScrimStrong)
             .zIndex(3f),
         contentAlignment = Alignment.Center
     ) {
@@ -75,14 +75,14 @@ fun NextEpisodeEndPromptOverlay(
             Text(
                 text = stringResource(R.string.player_next_episode_prompt_title),
                 style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.SemiBold),
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 textAlign = TextAlign.Center
             )
 
             Text(
                 text = stringResource(R.string.player_next_episode_prompt_message),
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White.copy(alpha = 0.72f),
+                color = FetchTheme.colors.Player.TextTertiary,
                 textAlign = TextAlign.Center
             )
 
@@ -91,14 +91,14 @@ fun NextEpisodeEndPromptOverlay(
             Text(
                 text = stringResource(R.string.next_episode_label),
                 style = MaterialTheme.typography.labelLarge,
-                color = Color.White.copy(alpha = 0.46f),
+                color = FetchTheme.colors.Player.TextDisabled,
                 textAlign = TextAlign.Center
             )
 
             Text(
                 text = nextEpisodeText,
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Medium),
-                color = Color.White.copy(alpha = 0.88f),
+                color = FetchTheme.colors.Player.TextSecondary,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis

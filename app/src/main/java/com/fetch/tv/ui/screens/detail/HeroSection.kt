@@ -837,18 +837,19 @@ private fun MetaInfoRow(
     val strStatusRumored = stringResource(if (isSeries) R.string.series_status_rumored else R.string.movie_status_rumored)
     val strStatusInProduction = stringResource(if (isSeries) R.string.series_status_in_production else R.string.movie_status_in_production)
     val strStatusPostProduction = stringResource(if (isSeries) R.string.series_status_post_production else R.string.movie_status_post_production)
+    val displayLocale = LocalConfiguration.current.locales[0]
     val statusBadge = remember(meta.status, isSeries) {
         when (meta.status?.trim()?.lowercase()) {
-            "ended" -> strStatusEnded.uppercase()
-            "continuing", "returning series" -> strStatusContinuing.uppercase()
-            "current" -> strStatusCurrent.uppercase()
-            "cancelled", "canceled" -> strStatusCancelled.uppercase()
-            "released" -> strStatusReleased.uppercase()
-            "planned" -> strStatusPlanned.uppercase()
-            "rumored" -> strStatusRumored.uppercase()
-            "in production" -> strStatusInProduction.uppercase()
-            "post production" -> strStatusPostProduction.uppercase()
-            else -> meta.status?.trim()?.takeIf { it.isNotBlank() }?.uppercase()
+            "ended" -> strStatusEnded.uppercase(displayLocale)
+            "continuing", "returning series" -> strStatusContinuing.uppercase(displayLocale)
+            "current" -> strStatusCurrent.uppercase(displayLocale)
+            "cancelled", "canceled" -> strStatusCancelled.uppercase(displayLocale)
+            "released" -> strStatusReleased.uppercase(displayLocale)
+            "planned" -> strStatusPlanned.uppercase(displayLocale)
+            "rumored" -> strStatusRumored.uppercase(displayLocale)
+            "in production" -> strStatusInProduction.uppercase(displayLocale)
+            "post production" -> strStatusPostProduction.uppercase(displayLocale)
+            else -> meta.status?.trim()?.takeIf { it.isNotBlank() }?.uppercase(displayLocale)
         }
     }
     Log.d("HeroBadge", "name=${meta.name} ageRating=${meta.ageRating} status=${meta.status} ageRatingBadge=$ageRatingBadge statusBadge=$statusBadge")

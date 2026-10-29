@@ -344,7 +344,7 @@ internal fun buildContinueWatchingItem(
                 context.getString(R.string.cw_next_up)
             }
         }
-    }.uppercase()
+    }.uppercase(context.resources.configuration.locales[0])
 
     val heroPreview = when (item) {
         is ContinueWatchingItem.InProgress -> {

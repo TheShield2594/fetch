@@ -9,13 +9,13 @@
     <string name="website_manage_body">Profiles, parental limits and collections sync with this website. Signing out keeps everything on this TV as it is now.</string>
     <string name="website_sync_now">Sync now</string>
     <string name="website_sign_out">Sign out</string>
-    <string name="website_enter_address">Enter your Fetch website\'s API address, the same one its README calls FETCH_API_PUBLIC.</string>
+    <string name="website_enter_address">Enter your Fetch website’s API address, the same one its README calls FETCH_API_PUBLIC.</string>
     <string name="website_enter_address_other">Or enter its API address, the same one its README calls FETCH_API_PUBLIC.</string>
     <string name="website_discovering">Looking for Fetch websites on your network…</string>
     <string name="website_discovered_title">Found on your network</string>
     <string name="website_address_placeholder">http://192.168.1.25:7000</string>
-    <string name="website_address_invalid">That doesn\'t look like a web address.</string>
-    <string name="website_pairing_failed">Couldn\'t reach the website: %1$s</string>
+    <string name="website_address_invalid">That doesn’t look like a web address.</string>
+    <string name="website_pairing_failed">Couldn’t reach the website: %1$s</string>
     <string name="website_continue">Continue</string>
     <string name="website_pairing_starting">Asking the website for a code…</string>
     <string name="website_code_instruction_qr">Scan the code with your phone, or open the website and enter the code under Settings → TVs &amp; Devices.</string>
@@ -32,5 +32,5 @@
     <string name="website_list_source_label">Fetch website list</string>
     <string name="website_list_source_not_signed_in">Sign in to the Fetch website in Settings → Account to show this list.</string>
     <string name="website_list_source_missing">This list no longer exists on the Fetch website.</string>
-    <string name="website_list_source_failed">Couldn\'t load this list from the Fetch website.</string>
+    <string name="website_list_source_failed">Couldn’t load this list from the Fetch website.</string>
 </resources>

@@ -78,6 +78,7 @@ import kotlinx.coroutines.delay
 import com.fetch.tv.ui.components.ImdbRatingSourceLabel
 import com.fetch.tv.ui.components.TrailerPlayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalConfiguration
 
 private data class ModernHeroSecondaryMeta(
     val highlightText: String?,
@@ -425,11 +426,12 @@ private fun HeroTitleContent(
         verticalArrangement = Arrangement.spacedBy(titleSpacing)
     ) {
         eyebrowText?.let { text ->
+            val displayLocale = LocalConfiguration.current.locales[0]
             val eyebrowStyle = remember(labelMedium) {
                 labelMedium.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 1.5.sp)
             }
             Text(
-                text = text.uppercase(),
+                text = text.uppercase(displayLocale),
                 style = eyebrowStyle.copy(textDirection = text.contentTextDirection()),
                 color = FetchTheme.colors.TextSecondary,
                 maxLines = 1,
@@ -471,6 +473,7 @@ private fun HeroTitleContent(
         val strStatusRumored = stringResource(if (preview.isSeries) R.string.series_status_rumored else R.string.movie_status_rumored)
         val strStatusInProduction = stringResource(if (preview.isSeries) R.string.series_status_in_production else R.string.movie_status_in_production)
         val strStatusPostProduction = stringResource(if (preview.isSeries) R.string.series_status_post_production else R.string.movie_status_post_production)
+        val displayLocale = LocalConfiguration.current.locales[0]
         val secondaryMeta = remember(
             preview.secondaryHighlightText,
             preview.ageRatingText,
@@ -481,16 +484,16 @@ private fun HeroTitleContent(
                 highlightText = preview.secondaryHighlightText?.trim()?.takeIf { it.isNotBlank() },
                 ageRating = preview.ageRatingText?.trim()?.takeIf { it.isNotBlank() },
                 status = when (preview.statusText?.trim()?.lowercase()) {
-                    "ended" -> strStatusEnded.uppercase()
-                    "continuing", "returning series" -> strStatusContinuing.uppercase()
-                    "current" -> strStatusCurrent.uppercase()
-                    "cancelled", "canceled" -> strStatusCancelled.uppercase()
-                    "released" -> strStatusReleased.uppercase()
-                    "planned" -> strStatusPlanned.uppercase()
-                    "rumored" -> strStatusRumored.uppercase()
-                    "in production" -> strStatusInProduction.uppercase()
-                    "post production" -> strStatusPostProduction.uppercase()
-                    else -> preview.statusText?.trim()?.takeIf { it.isNotBlank() }?.uppercase()
+                    "ended" -> strStatusEnded.uppercase(displayLocale)
+                    "continuing", "returning series" -> strStatusContinuing.uppercase(displayLocale)
+                    "current" -> strStatusCurrent.uppercase(displayLocale)
+                    "cancelled", "canceled" -> strStatusCancelled.uppercase(displayLocale)
+                    "released" -> strStatusReleased.uppercase(displayLocale)
+                    "planned" -> strStatusPlanned.uppercase(displayLocale)
+                    "rumored" -> strStatusRumored.uppercase(displayLocale)
+                    "in production" -> strStatusInProduction.uppercase(displayLocale)
+                    "post production" -> strStatusPostProduction.uppercase(displayLocale)
+                    else -> preview.statusText?.trim()?.takeIf { it.isNotBlank() }?.uppercase(displayLocale)
                 },
                 details = buildList {
                     preview.languageText?.trim()?.takeIf { it.isNotBlank() }?.let(::add)

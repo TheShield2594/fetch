@@ -225,7 +225,7 @@
     <string name="detail_marked_previous_watched">Previous episodes marked as watched: %1$d</string>
 
     <string name="playback_unavailable">Playback unavailable</string>
-    <string name="playback_unavailable_message">Playback isn’t available for this title with your current setup.</string>
+    <string name="playback_unavailable_message">None of your addons can play this title. Add or turn on a streaming addon in Settings &gt; Content &amp; Discovery &gt; Addons.</string>
     <string name="detail_btn_play">Play</string>
     <string name="detail_btn_resume">Resume</string>
     <string name="detail_btn_play_episode">Play S%1$d E%2$d</string>
@@ -2698,11 +2698,11 @@
     <string name="trakt_error_mark_watched_failed">Failed to mark watched on Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Failed to update library</string>
-    <string name="detail_error_load_lists_failed">Failed to load lists</string>
-    <string name="detail_error_update_lists_failed">Failed to update lists</string>
-    <string name="detail_error_update_watched_failed">Failed to update watched status</string>
-    <string name="detail_error_update_episode_watched_failed">Failed to update episode watched status</string>
+    <string name="detail_error_update_library_failed">Couldn’t update your library. Check your connection and try again.</string>
+    <string name="detail_error_load_lists_failed">Couldn’t load your lists. Check your connection and try again.</string>
+    <string name="detail_error_update_lists_failed">Couldn’t update your lists. Check your connection and try again.</string>
+    <string name="detail_error_update_watched_failed">Couldn’t update watched status. Check your connection and try again.</string>
+    <string name="detail_error_update_episode_watched_failed">Couldn’t update this episode’s watched status. Check your connection and try again.</string>
     <string name="poster_options_error_load_lists_failed">Failed to load lists</string>
     <string name="poster_options_error_update_lists_failed">Failed to update lists</string>
 

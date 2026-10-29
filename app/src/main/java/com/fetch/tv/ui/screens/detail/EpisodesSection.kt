@@ -353,15 +353,23 @@ fun SeasonTabs(
                 border = tabBorder,
                 scale = tabScale
             ) {
+                val labelColor = when {
+                    isFocused -> FetchTheme.colors.OnHighlight
+                    isSelected -> FetchTheme.colors.TextPrimary
+                    else -> textSecondary
+                }
                 Text(
                     text = if (season == 0) stringResource(R.string.episodes_specials) else stringResource(R.string.episodes_season, season),
                     style = tabTextStyle,
-                    color = when {
-                        isFocused -> FetchTheme.colors.OnHighlight
-                        isSelected -> FetchTheme.colors.TextPrimary
-                        else -> textSecondary
-                    },
-                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
+                    color = labelColor,
+                    modifier = Modifier
+                        .selectedTabIndicator(
+                            selected = isSelected,
+                            color = labelColor,
+                            thickness = FetchTheme.strokes.heavy,
+                            inset = 20.dp
+                        )
+                        .padding(vertical = 10.dp, horizontal = 20.dp)
                 )
             }
         }
@@ -590,6 +598,8 @@ fun EpisodesRow(
             onNavigateEpisode = { step ->
                 adjacentEpisode(dedupedEpisodes, selectedEpisode, step)?.let { optionsEpisode = it }
             },
+            canNavigatePrevious = adjacentEpisode(dedupedEpisodes, selectedEpisode, -1) != null,
+            canNavigateNext = adjacentEpisode(dedupedEpisodes, selectedEpisode, 1) != null,
             isPlayEnabled = canPlayEpisode(selectedEpisode),
             onPlay = {
                 onEpisodeClick(selectedEpisode)

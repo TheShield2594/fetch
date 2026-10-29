@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -2265,7 +2266,7 @@ class MetaDetailsViewModel @Inject constructor(
                 pendingDefaultLibraryToggle = null
                 _uiState.update { it.copy(defaultLibraryTogglePending = false) }
                 showMessage(
-                    message = error.message ?: context.getString(com.fetch.tv.R.string.detail_error_update_library_failed),
+                    message = failureMessage(error, R.string.detail_error_update_library_failed),
                     isError = true
                 )
             }
@@ -2290,11 +2291,11 @@ class MetaDetailsViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         pickerPending = false,
-                        pickerError = error.message ?: context.getString(com.fetch.tv.R.string.detail_error_load_lists_failed),
+                        pickerError = failureMessage(error, R.string.detail_error_load_lists_failed),
                         showListPicker = false
                     )
                 }
-                showMessage(error.message ?: context.getString(com.fetch.tv.R.string.detail_error_load_lists_failed), isError = true)
+                showMessage(failureMessage(error, R.string.detail_error_load_lists_failed), isError = true)
             }
         }
     }
@@ -2343,10 +2344,10 @@ class MetaDetailsViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         pickerPending = false,
-                        pickerError = error.message ?: context.getString(com.fetch.tv.R.string.detail_error_update_lists_failed)
+                        pickerError = failureMessage(error, R.string.detail_error_update_lists_failed)
                     )
                 }
-                showMessage(error.message ?: context.getString(com.fetch.tv.R.string.detail_error_update_lists_failed), isError = true)
+                showMessage(failureMessage(error, R.string.detail_error_update_lists_failed), isError = true)
             }
         }
     }
@@ -2398,8 +2399,7 @@ class MetaDetailsViewModel @Inject constructor(
                     it.copy(
                         pickerPending = false,
                         removalConfirmations = emptyList(),
-                        pickerError = error.message
-                            ?: context.getString(com.fetch.tv.R.string.detail_error_update_lists_failed)
+                        pickerError = failureMessage(error, R.string.detail_error_update_lists_failed)
                     )
                 }
             }
@@ -2447,8 +2447,7 @@ class MetaDetailsViewModel @Inject constructor(
                     )
                 }
                 showMessage(
-                    message = error.message
-                        ?: context.getString(com.fetch.tv.R.string.detail_error_update_library_failed),
+                    message = failureMessage(error, R.string.detail_error_update_library_failed),
                     isError = true
                 )
             }
@@ -2496,7 +2495,7 @@ class MetaDetailsViewModel @Inject constructor(
                 }
             }.onFailure { error ->
                 showMessage(
-                    message = error.message ?: context.getString(com.fetch.tv.R.string.detail_error_update_watched_failed),
+                    message = failureMessage(error, R.string.detail_error_update_watched_failed),
                     isError = true
                 )
             }
@@ -2532,7 +2531,7 @@ class MetaDetailsViewModel @Inject constructor(
                 }
             }.onFailure { error ->
                 showMessage(
-                    message = error.message ?: context.getString(com.fetch.tv.R.string.detail_error_update_episode_watched_failed),
+                    message = failureMessage(error, R.string.detail_error_update_episode_watched_failed),
                     isError = true
                 )
             }
@@ -2797,6 +2796,21 @@ class MetaDetailsViewModel @Inject constructor(
 
     private fun episodePendingKey(video: Video): String {
         return "${video.id}:${video.season ?: -1}:${video.episode ?: -1}"
+    }
+
+    /**
+     * The text to show for a failed library, list or watched action. Exception text is often
+     * English, technical or an HTTP body, so it is logged, and the screen shows [fallback], which
+     * names a next step. The one message the library raises for the user (a media-server title it
+     * can't hold) is kept, since it says what to change.
+     */
+    private fun failureMessage(error: Throwable, @StringRes fallback: Int): String {
+        Log.w(TAG, "Detail action failed: ${error.message}", error)
+        return if (error.message == context.getString(R.string.library_server_title_unsupported)) {
+            localizedContext.getString(R.string.library_server_title_unsupported)
+        } else {
+            localizedContext.getString(fallback)
+        }
     }
 
     private fun showMessage(message: String, isError: Boolean = false) {

@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import com.fetch.tv.domain.model.AppTheme
+import com.fetch.tv.ui.screens.detail.episodeRatingChipColor
+import com.fetch.tv.ui.screens.detail.episodeRatingChipTextColor
 import org.junit.Assert.fail
 import org.junit.Test
 import java.util.Locale
@@ -41,6 +43,16 @@ class ThemeContrastTest {
                 }
             }
         }.distinct()
+        if (failures.isNotEmpty()) fail("Below ${MIN_RATIO}:1\n" + failures.joinToString("\n"))
+    }
+
+    @Test
+    fun `every episode rating chip meets WCAG AA`() {
+        // One rating inside each heatmap band, best to worst.
+        val failures = listOf(9.8, 9.3, 8.5, 7.7, 7.2, 6.5, 5.0).mapNotNull { rating ->
+            val ratio = contrast(episodeRatingChipTextColor(rating), episodeRatingChipColor(rating), Color.Black)
+            if (ratio < MIN_RATIO) String.format(Locale.US, "rating %.1f chip is %.2f:1", rating, ratio) else null
+        }
         if (failures.isNotEmpty()) fail("Below ${MIN_RATIO}:1\n" + failures.joinToString("\n"))
     }
 

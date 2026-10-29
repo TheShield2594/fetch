@@ -2512,6 +2512,11 @@
     <string name="collection_editor_folder_count_other">%1$d items</string>
     <string name="collections_editor_delete_folder_title">Delete Folder?</string>
     <string name="collections_editor_delete_folder_subtitle">This will permanently delete \"%1$s\" and its contents.</string>
+    <string name="collections_editor_discard_title">Discard changes?</string>
+    <string name="collections_editor_discard_collection_subtitle">Your changes to this collection haven’t been saved.</string>
+    <string name="collections_editor_discard_folder_subtitle">Your changes to this folder haven’t been saved.</string>
+    <string name="collections_editor_keep_editing">Keep editing</string>
+    <string name="collections_editor_discard">Discard</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Best Action Movies, Korean Dramas, 2024 Animation</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>

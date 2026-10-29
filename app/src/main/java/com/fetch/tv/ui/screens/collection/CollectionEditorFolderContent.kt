@@ -205,7 +205,20 @@ fun FolderEditorContent(
         return
     }
 
-    BackHandler { viewModel.cancelFolderEdit() }
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    BackHandler {
+        if (uiState.hasUnsavedFolderChanges) showDiscardDialog = true else viewModel.cancelFolderEdit()
+    }
+    if (showDiscardDialog) {
+        DiscardChangesDialog(
+            subtitle = stringResource(R.string.collections_editor_discard_folder_subtitle),
+            onKeepEditing = { showDiscardDialog = false },
+            onDiscard = {
+                showDiscardDialog = false
+                viewModel.cancelFolderEdit()
+            }
+        )
+    }
 
     val titleFocusRequester = remember { FocusRequester() }
 

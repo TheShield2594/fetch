@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.collection
 
 import com.fetch.tv.ui.theme.FetchTheme
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -132,6 +133,22 @@ fun CollectionEditorScreen(
             LoadingIndicator()
         }
         return
+    }
+
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    // With unsaved edits, Back asks first; with none it leaves at once. The folder editor has its own.
+    BackHandler(enabled = !uiState.showFolderEditor && uiState.hasUnsavedCollectionChanges) {
+        showDiscardDialog = true
+    }
+    if (showDiscardDialog) {
+        DiscardChangesDialog(
+            subtitle = stringResource(R.string.collections_editor_discard_collection_subtitle),
+            onKeepEditing = { showDiscardDialog = false },
+            onDiscard = {
+                showDiscardDialog = false
+                onBack()
+            }
+        )
     }
 
     if (uiState.showFolderEditor) {

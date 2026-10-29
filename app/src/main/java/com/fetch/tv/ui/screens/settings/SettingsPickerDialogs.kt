@@ -42,7 +42,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
@@ -189,7 +188,9 @@ internal fun ColorSelectionDialog(
                     onClick = { alphaPercent = (alphaPercent - 10).coerceAtLeast(0) },
                     colors = CardDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundElevated,
-                        focusedContainerColor = FetchTheme.colors.Primary
+                        contentColor = FetchTheme.colors.TextPrimary,
+                        focusedContainerColor = FetchTheme.colors.Highlight,
+                        focusedContentColor = FetchTheme.colors.OnHighlight
                     ),
                     border = CardDefaults.border(
                         focusedBorder = Border(
@@ -202,7 +203,6 @@ internal fun ColorSelectionDialog(
                     Text(
                         text = "−",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = FetchTheme.colors.TextPrimary,
                         modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm)
                     )
                 }
@@ -230,7 +230,9 @@ internal fun ColorSelectionDialog(
                     onClick = { alphaPercent = (alphaPercent + 10).coerceAtMost(100) },
                     colors = CardDefaults.colors(
                         containerColor = FetchTheme.colors.BackgroundElevated,
-                        focusedContainerColor = FetchTheme.colors.Primary
+                        contentColor = FetchTheme.colors.TextPrimary,
+                        focusedContainerColor = FetchTheme.colors.Highlight,
+                        focusedContentColor = FetchTheme.colors.OnHighlight
                     ),
                     border = CardDefaults.border(
                         focusedBorder = Border(
@@ -243,7 +245,6 @@ internal fun ColorSelectionDialog(
                     Text(
                         text = "+",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = FetchTheme.colors.TextPrimary,
                         modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm)
                     )
                 }
@@ -251,60 +252,16 @@ internal fun ColorSelectionDialog(
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Card(
-                    onClick = onDismiss,
-                    colors = CardDefaults.colors(
-                        containerColor = FetchTheme.colors.BackgroundElevated,
-                        focusedContainerColor = FetchTheme.colors.Primary
-                    ),
-                    border = CardDefaults.border(
-                        focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                            shape = RoundedCornerShape(FetchTheme.radii.sm)
-                        )
-                    ),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm)),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = stringResource(R.string.action_cancel),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = FetchTheme.colors.TextPrimary,
-                        modifier = Modifier
-                            .padding(FetchTheme.spacing.md)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-                Card(
+            SettingsDialogActionRow {
+                SettingsDialogActionButton(
+                    text = stringResource(R.string.action_cancel),
+                    onClick = onDismiss
+                )
+                SettingsDialogActionButton(
+                    text = stringResource(R.string.action_apply),
                     onClick = { onColorSelected(currentChipColor.copy(alpha = alphaPercent / 100f)) },
-                    colors = CardDefaults.colors(
-                        containerColor = FetchTheme.colors.BackgroundElevated,
-                        focusedContainerColor = FetchTheme.colors.Primary
-                    ),
-                    border = CardDefaults.border(
-                        focusedBorder = Border(
-                            border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                            shape = RoundedCornerShape(FetchTheme.radii.sm)
-                        )
-                    ),
-                    shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm)),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = stringResource(R.string.action_apply),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = FetchTheme.colors.TextPrimary,
-                        modifier = Modifier
-                            .padding(FetchTheme.spacing.md)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
+                    primary = true
+                )
             }
         }
     }

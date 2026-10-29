@@ -856,10 +856,10 @@ fun ProfileSelectionScreen(
                     modifier = Modifier
                         .padding(bottom = 34.dp)
                         .clip(RoundedCornerShape(FetchRadii.tokens.full))
-                        .background(Color.Black.copy(alpha = 0.78f))
+                        .background(FetchTheme.colors.Overlay)
                         .border(
                             width = FetchTheme.spacing.hairline,
-                            color = Color.White.copy(alpha = 0.14f),
+                            color = FetchTheme.colors.TextPrimary.copy(alpha = 0.14f),
                             shape = RoundedCornerShape(FetchRadii.tokens.full)
                         )
                         .padding(horizontal = FetchTheme.spacing.xl, vertical = 14.dp)
@@ -1581,16 +1581,13 @@ private fun ProfileCard(
         label = "profileFocusProgress"
     )
     val itemScale = 1f + (0.04f * focusProgress)
-    val avatarSize = androidx.compose.ui.unit.lerp(
-        if (compact) ProfileSelectionSpacing.CompactAvatarSize else 96.dp,
-        if (compact) ProfileSelectionSpacing.CompactFocusedAvatarSize else 102.dp,
-        focusProgress
-    )
-    val outerAvatarSize = androidx.compose.ui.unit.lerp(
-        if (compact) ProfileSelectionSpacing.CompactOuterAvatarSize else 114.dp,
-        if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp,
-        focusProgress
-    )
+    // The avatar and its ring keep their resting size in layout and grow in the draw layer, so
+    // a focus move redraws the card instead of re-measuring it on every frame. The ring's growth
+    // (122/114) carries the avatar inside it, within a pixel of its old 102/96.
+    val avatarSize = if (compact) ProfileSelectionSpacing.CompactAvatarSize else 96.dp
+    val outerAvatarSize = if (compact) ProfileSelectionSpacing.CompactOuterAvatarSize else 114.dp
+    val focusedOuterAvatarSize = if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp
+    val avatarFocusScale = 1f + (focusedOuterAvatarSize / outerAvatarSize - 1f) * focusProgress
     val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, FetchTheme.strokes.focus, focusProgress)
     val nameColor = lerp(
         FetchTheme.colors.TextSecondary,
@@ -1663,6 +1660,10 @@ private fun ProfileCard(
         ) {
             Box(
                 modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = avatarFocusScale
+                        scaleY = avatarFocusScale
+                    }
                     .size(outerAvatarSize)
                     .clip(CircleShape)
                     .border(
@@ -1702,7 +1703,7 @@ private fun ProfileCard(
                     Icon(
                         imageVector = Icons.Rounded.Lock,
                         contentDescription = stringResource(R.string.cd_profile_locked),
-                        tint = Color.White,
+                        tint = FetchTheme.colors.TextPrimary,
                         modifier = Modifier.size(if (compact) 12.dp else 14.dp)
                     )
                 }
@@ -1798,11 +1799,10 @@ private fun AddProfileCard(
         label = "addFocusProgress"
     )
     val itemScale = 1f + (0.04f * focusProgress)
-    val outerAvatarSize = androidx.compose.ui.unit.lerp(
-        if (compact) ProfileSelectionSpacing.CompactOuterAvatarSize else 114.dp,
-        if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp,
-        focusProgress
-    )
+    // Grows in the draw layer, not in layout; see the profile card above.
+    val outerAvatarSize = if (compact) ProfileSelectionSpacing.CompactOuterAvatarSize else 114.dp
+    val focusedOuterAvatarSize = if (compact) ProfileSelectionSpacing.CompactFocusedOuterAvatarSize else 122.dp
+    val avatarFocusScale = 1f + (focusedOuterAvatarSize / outerAvatarSize - 1f) * focusProgress
     val ringWidth = androidx.compose.ui.unit.lerp(FetchTheme.spacing.hairline, FetchTheme.strokes.focus, focusProgress)
     val nameColor = lerp(
         FetchTheme.colors.TextTertiary,
@@ -1811,12 +1811,12 @@ private fun AddProfileCard(
     )
     val plusColor = lerp(
         FetchTheme.colors.TextTertiary,
-        Color.White,
+        FetchTheme.colors.TextPrimary,
         focusProgress
     )
     val addBackgroundColor = lerp(
-        Color.White.copy(alpha = 0.06f),
-        Color.White.copy(alpha = 0.12f),
+        FetchTheme.colors.TextPrimary.copy(alpha = 0.06f),
+        FetchTheme.colors.TextPrimary.copy(alpha = 0.12f),
         focusProgress
     )
 
@@ -1856,6 +1856,10 @@ private fun AddProfileCard(
         ) {
             Box(
                 modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = avatarFocusScale
+                        scaleY = avatarFocusScale
+                    }
                     .size(outerAvatarSize)
                     .clip(CircleShape)
                     .border(
@@ -1950,7 +1954,7 @@ private fun CreateProfileOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.85f))
+            .background(FetchTheme.colors.Overlay)
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
                 if (native.action == AndroidKeyEvent.ACTION_UP &&
@@ -1994,7 +1998,7 @@ private fun CreateProfileOverlay(
             ) {
                 Text(
                     text = stringResource(R.string.profile_create_title),
-                    color = Color.White,
+                    color = FetchTheme.colors.TextPrimary,
                     style = MaterialTheme.typography.headlineLarge
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
@@ -2331,7 +2335,7 @@ private fun EditProfileOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.85f))
+            .background(FetchTheme.colors.Overlay)
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
                 if (native.action == AndroidKeyEvent.ACTION_UP &&
@@ -2385,7 +2389,7 @@ private fun EditProfileOverlay(
                         style = MaterialTheme.typography.headlineLarge.copy(
                             textDirection = profile.name.contentTextDirection()
                         ),
-                        color = Color.White
+                        color = FetchTheme.colors.TextPrimary
                     )
                 }
                 OverlayButton(
@@ -3009,9 +3013,9 @@ private fun ProfilePinBoxes(
             val borderColor by animateColorAsState(
                 targetValue = when {
                     isErrorState -> FetchStatusTones.errorBorder
-                    isFilled -> Color.White.copy(alpha = 0.92f)
-                    isActive -> Color.White
-                    else -> Color.White.copy(alpha = 0.72f)
+                    isFilled -> FetchTheme.colors.TextPrimary.copy(alpha = 0.92f)
+                    isActive -> FetchTheme.colors.TextPrimary
+                    else -> FetchTheme.colors.TextSecondary
                 },
                 animationSpec = tween(FetchMotion.tokens.durations.quick),
                 label = "pinBoxBorder"
@@ -3019,8 +3023,8 @@ private fun ProfilePinBoxes(
             val backgroundColor by animateColorAsState(
                 targetValue = when {
                     isErrorState -> FetchStatusTones.errorContainer.copy(alpha = 0.76f)
-                    isFilled -> Color.White.copy(alpha = 0.07f)
-                    isActive -> Color.White.copy(alpha = 0.04f)
+                    isFilled -> FetchTheme.colors.TextPrimary.copy(alpha = 0.07f)
+                    isActive -> FetchTheme.colors.TextPrimary.copy(alpha = 0.04f)
                     else -> Color.Transparent
                 },
                 animationSpec = tween(FetchMotion.tokens.durations.quick),
@@ -3053,7 +3057,7 @@ private fun ProfilePinBoxes(
                             modifier = Modifier
                                 .size(dotSize)
                                 .clip(CircleShape)
-                                .background(Color.White)
+                                .background(FetchTheme.colors.TextPrimary)
                         )
                     }
 
@@ -3086,7 +3090,7 @@ private fun PinCursor(height: Dp) {
             .width(FetchTheme.spacing.xxs)
             .height(height)
             .graphicsLayer { alpha = blink?.value ?: 1f }
-            .background(Color.White)
+            .background(FetchTheme.colors.TextPrimary)
     )
 }
 
@@ -3111,7 +3115,7 @@ private fun ProfileNameField(
     var isFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val backgroundColor by animateColorAsState(
-        targetValue = if (isFocused) FetchTheme.colors.FocusBackground else Color.White.copy(alpha = 0.05f),
+        targetValue = if (isFocused) FetchTheme.colors.FocusBackground else FetchTheme.colors.TextPrimary.copy(alpha = 0.05f),
         animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "profileNameBackground"
     )
@@ -3151,7 +3155,7 @@ private fun ProfileNameField(
                 .focusRequester(focusRequester)
                 .onFocusChanged { isFocused = it.isFocused },
             textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = Color.White,
+                color = FetchTheme.colors.TextPrimary,
                 textDirection = TextDirection.Content
             ),
             singleLine = true,
@@ -3179,11 +3183,11 @@ private fun OverlayButton(
 
     val bgColor by animateColorAsState(
         targetValue = when {
-            !enabled -> Color.White.copy(alpha = 0.04f)
+            !enabled -> FetchTheme.colors.TextPrimary.copy(alpha = 0.04f)
             isPrimary && isFocused -> FetchTheme.colors.SecondaryVariant
             isPrimary -> FetchTheme.colors.Secondary
             isFocused -> FetchTheme.colors.FocusBackground
-            else -> Color.White.copy(alpha = 0.06f)
+            else -> FetchTheme.colors.TextPrimary.copy(alpha = 0.06f)
         },
         animationSpec = tween(FetchMotion.tokens.durations.quick),
         label = "btnBg"
@@ -3325,8 +3329,8 @@ private fun ProfileColorSwatch(
             .border(
                 border = when {
                     isFocused -> FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
-                    isSelected -> BorderStroke(FetchTheme.spacing.xxs, Color.White)
-                    else -> BorderStroke(FetchTheme.spacing.hairline, Color.White.copy(alpha = 0.2f))
+                    isSelected -> BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.TextPrimary)
+                    else -> BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.TextPrimary.copy(alpha = 0.2f))
                 },
                 shape = CircleShape
             )
@@ -3347,7 +3351,7 @@ private fun ProfileColorSwatch(
                 modifier = Modifier
                     .size(7.dp)
                     .clip(CircleShape)
-                    .background(Color.White)
+                    .background(FetchTheme.colors.TextPrimary)
             )
         }
     }

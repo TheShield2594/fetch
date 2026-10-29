@@ -5,7 +5,7 @@ import com.fetch.tv.R
 import com.fetch.tv.domain.model.AppTheme
 
 /**
- * The wordmark drawn in each theme's colour. Fetch, White and Signal use the white wordmark, and so does
+ * The wordmark drawn in each theme's colour. Fetch and White use the white wordmark, and so does
  * Custom, whose colours are only known at runtime. The bitmaps come from
  * scripts/brand/generate_brand.py.
  */
@@ -23,5 +23,5 @@ val AppTheme.brandWordmarkResource: Int
         AppTheme.EMERALD -> R.drawable.app_logo_wordmark_emerald
         AppTheme.AMBER -> R.drawable.app_logo_wordmark_amber
         AppTheme.ROSE -> R.drawable.app_logo_wordmark_rose
-        AppTheme.FETCH, AppTheme.WHITE, AppTheme.SIGNAL, AppTheme.CUSTOM -> R.drawable.app_logo_wordmark
+        AppTheme.FETCH, AppTheme.WHITE, AppTheme.CUSTOM -> R.drawable.app_logo_wordmark
     }

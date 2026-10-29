@@ -92,10 +92,10 @@ internal fun AmbientModeSettingsCard(
         SettingsSingleChoiceDialog(
             title = stringResource(R.string.ambient_mode_face),
             subtitle = stringResource(R.string.ambient_mode_face_subtitle),
-            options = listOf(null, AmbientFace.ARTWORK, AmbientFace.CLOCK).map { face ->
+            options = AmbientFace.entries.map { face ->
                 SettingsPickerOption(face, faceLabel(face))
             },
-            selectedValue = settings.face,
+            selectedValue = settings.face ?: AmbientFace.ARTWORK,
             onOptionSelected = { face ->
                 viewModel.setFace(face)
                 showFaceDialog = false
@@ -125,8 +125,7 @@ internal fun AmbientModeSettingsCard(
 }
 
 @Composable
-private fun faceLabel(face: AmbientFace?): String = when (face) {
-    null -> stringResource(R.string.ambient_mode_face_theme)
+private fun faceLabel(face: AmbientFace?): String = when (face ?: AmbientFace.ARTWORK) {
     AmbientFace.ARTWORK -> stringResource(R.string.ambient_mode_face_artwork)
     AmbientFace.CLOCK -> stringResource(R.string.ambient_mode_face_clock)
 }

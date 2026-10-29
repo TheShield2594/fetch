@@ -74,9 +74,7 @@ fun FetchTheme(
     )
     val typography = buildFetchTypography(getFontFamily(appFont))
     val themeStyle = appTheme.themeStyle()
-    val textStyles = buildFetchTextStyles(typography).let { styles ->
-        if (appTheme == AppTheme.SIGNAL) styles.withSignalType() else styles
-    }
+    val textStyles = buildFetchTextStyles(typography)
     val fullMotion = rememberFullMotionAllowed()
 
     val materialColorScheme = darkColorScheme(
@@ -142,7 +140,7 @@ object FetchTheme {
         @ReadOnlyComposable
         get() = LocalFetchTextStyles.current
 
-    /** What the theme changes beyond colour: dots for progress, a signal colour for state. */
+    /** What the theme changes beyond colour: its corners and shapes. */
     val style: FetchThemeStyle
         @Composable
         @ReadOnlyComposable

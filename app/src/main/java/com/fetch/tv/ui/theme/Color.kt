@@ -131,6 +131,8 @@ class FetchColorScheme(
     val SecondaryVariant = palette.secondaryVariant
     val OnSecondary = palette.onSecondary
     val OnSecondaryVariant = palette.onSecondaryVariant
+    /** "Here" and "now": progress fills, the current page, the wordmark's dot. Never a label colour. */
+    val Accent = palette.accent
 
     val TextPrimary = FetchPrimitives.white
     val TextSecondary = if (highContrast) FetchPrimitives.neutral200 else FetchPrimitives.neutral400

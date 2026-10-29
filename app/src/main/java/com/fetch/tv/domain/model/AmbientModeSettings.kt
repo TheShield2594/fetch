@@ -13,7 +13,7 @@ data class AmbientModeSettings(
     val enabled: Boolean = true,
     val timeoutMinutes: Int = DEFAULT_TIMEOUT_MINUTES,
     val catalogKeys: List<String> = emptyList(),
-    /** Null until the member picks one: the theme decides (Signal shows the clock). */
+    /** Null until the member picks one, which means [AmbientFace.ARTWORK]. */
     val face: AmbientFace? = null
 ) {
     companion object {

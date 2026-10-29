@@ -10,6 +10,8 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Immutable
 data class FetchMotionDurations(
@@ -35,7 +37,11 @@ data class FetchMotionDurations(
     val spinner: Int,
     val shimmer: Int,
     /** The startup splash fading out over Home: once per session, so it may exceed the 300ms UI budget. */
-    val splashExit: Int
+    val splashExit: Int,
+    /** The hero backdrop crossfading to the focused title's artwork. */
+    val backdropCrossfade: Int,
+    /** Player controls hide after this long without a key press. */
+    val playerControlsAutoHide: Int
 )
 
 @Immutable
@@ -62,6 +68,12 @@ data class FetchMotionTokens(
 data class FetchFocusTokens(
     val scale: Float,
     val subtleScale: Float,
+    /** How much a focused media card grows. */
+    val cardScale: Float,
+    /** Shadow under a focused media card, so it lifts off the row instead of only growing. */
+    val cardShadow: Dp,
+    /** How far content dims while the navigation rail has focus. */
+    val railContentDim: Float,
     val scrollViewportTarget: Float,
     val longPressInitialDelayMillis: Long,
     val longPressRepeatMillis: Long
@@ -82,7 +94,9 @@ object FetchMotion {
             hero = 450,
             spinner = 1000,
             shimmer = 1200,
-            splashExit = 400
+            splashExit = 400,
+            backdropCrossfade = 400,
+            playerControlsAutoHide = 4000
         ),
         easings = FetchMotionEasings(
             standard = FastOutSlowInEasing,
@@ -120,6 +134,9 @@ object FetchFocus {
     val tokens = FetchFocusTokens(
         scale = 1.02f,
         subtleScale = 1.01f,
+        cardScale = 1.08f,
+        cardShadow = 16.dp,
+        railContentDim = 0.5f,
         scrollViewportTarget = 0.42f,
         longPressInitialDelayMillis = 360L,
         longPressRepeatMillis = 72L

@@ -63,20 +63,6 @@ object FetchRadii {
         xl = 16.dp,
         full = 999.dp
     )
-
-    /**
-     * Signal's: machined, almost square. Tags and badges are square, cards and buttons keep a
-     * 2dp break so they don't look clipped, and panels only soften slightly. Pills stay pills.
-     */
-    val signal = FetchRadiusTokens(
-        none = 0.dp,
-        xxs = 0.dp,
-        xs = 0.dp,
-        sm = 2.dp,
-        md = 4.dp,
-        xl = 6.dp,
-        full = 999.dp
-    )
 }
 
 object FetchShapes {
@@ -100,16 +86,10 @@ object FetchShapes {
         circle = CircleShape
     )
 
-    val tokens = from(FetchRadii.tokens)
-
-    /**
-     * Signal breaks its own square rule in two places, like a device's hardware keys: the main
-     * button is a pill and icon buttons are circles. Chips are square tags.
-     */
-    val signal = from(FetchRadii.signal).copy(
-        button = RoundedCornerShape(FetchRadii.signal.full),
-        iconButton = CircleShape,
-        chip = RoundedCornerShape(FetchRadii.signal.none)
+    /** Buttons are pills and icon buttons circles, so an action never reads as a card. */
+    val tokens = from(FetchRadii.tokens).copy(
+        button = RoundedCornerShape(FetchRadii.tokens.full),
+        iconButton = CircleShape
     )
 }
 

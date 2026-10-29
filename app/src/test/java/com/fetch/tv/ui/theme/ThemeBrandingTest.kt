@@ -29,7 +29,7 @@ class ThemeBrandingTest {
 
     @Test
     fun neutralAndCustomThemesUseTheWhiteWordmark() {
-        listOf(AppTheme.FETCH, AppTheme.WHITE, AppTheme.SIGNAL, AppTheme.CUSTOM).forEach { theme ->
+        listOf(AppTheme.FETCH, AppTheme.WHITE, AppTheme.CUSTOM).forEach { theme ->
             assertEquals(theme.name, R.drawable.app_logo_wordmark, theme.brandWordmarkResource)
         }
     }

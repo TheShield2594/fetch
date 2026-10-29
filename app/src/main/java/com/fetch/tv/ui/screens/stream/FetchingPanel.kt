@@ -6,7 +6,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,8 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -48,7 +45,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.streams.BestMatchPreview
-import com.fetch.tv.ui.components.DotProgressRow
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
 import com.fetch.tv.ui.theme.FetchTheme
@@ -114,9 +110,6 @@ internal fun FetchingPanel(
             .padding(FetchTheme.spacing.xl),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
-        if (FetchTheme.style.dotMatrix && sourceChips.isNotEmpty()) {
-            AddonCountReadout(answered = answered, total = sourceChips.size, waiting = waiting > 0)
-        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -149,11 +142,7 @@ internal fun FetchingPanel(
                 Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
                     Text(
                         text = stringResource(R.string.fetching_best_so_far).uppercase(),
-                        style = if (FetchTheme.style.dotMatrix) {
-                            FetchTheme.textStyles.badge
-                        } else {
-                            MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                        },
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                         color = FetchTheme.colors.TextSecondary
                     )
                     FlowRow(
@@ -233,59 +222,16 @@ private fun rememberSecondsUntil(deadlineElapsedMs: Long?): Int? {
     return secondsLeft
 }
 
-/**
- * Signal's header: the answered count in dot-matrix figures beside a row of dots, one per addon,
- * whose next dot blinks while addons are still out.
- */
-@Composable
-private fun AddonCountReadout(answered: Int, total: Int, waiting: Boolean) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
-    ) {
-        Text(
-            text = "$answered/$total",
-            style = FetchTheme.textStyles.display,
-            color = FetchTheme.colors.TextPrimary,
-            // The sentence below says the same thing in words.
-            modifier = Modifier.clearAndSetSemantics {}
-        )
-        DotProgressRow(
-            progress = answered.toFloat() / total,
-            active = waiting,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
 @Composable
 private fun SpecChip(text: String, highlighted: Boolean = false) {
-    val mono = FetchTheme.style.dotMatrix
-    val shape = RoundedCornerShape(FetchTheme.radii.xs)
     Text(
         text = text,
-        style = if (mono) {
-            FetchTheme.textStyles.spec
-        } else {
-            MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
-        },
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
         color = if (highlighted) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
         modifier = Modifier
             .background(
-                when {
-                    highlighted -> FetchTheme.colors.Highlight
-                    // Signal outlines its tags instead of filling them.
-                    mono -> Color.Transparent
-                    else -> FetchTheme.colors.BackgroundCard
-                },
-                shape
-            )
-            .then(
-                if (mono && !highlighted) {
-                    Modifier.border(FetchTheme.strokes.hairline, FetchTheme.colors.TextPrimary.copy(alpha = 0.4f), shape)
-                } else {
-                    Modifier
-                }
+                if (highlighted) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard,
+                RoundedCornerShape(FetchTheme.radii.xs)
             )
             .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
     )
@@ -293,13 +239,11 @@ private fun SpecChip(text: String, highlighted: Boolean = false) {
 
 @Composable
 private fun AddonStatus(chip: SourceChipItem) {
-    // Signal has no green: an answer is a lit dot, a failure its red.
-    val signal = FetchTheme.style.signal
     val dotColor = animateColorAsState(
         targetValue = when (chip.status) {
-            SourceChipStatus.SUCCESS -> if (signal != null) FetchTheme.colors.TextPrimary else FetchTheme.colors.Success
-            SourceChipStatus.LOADING -> if (signal != null) FetchTheme.colors.TextPrimary.copy(alpha = 0.16f) else FetchTheme.colors.TextSecondary
-            SourceChipStatus.ERROR, SourceChipStatus.TIMED_OUT -> signal ?: FetchTheme.colors.Error
+            SourceChipStatus.SUCCESS -> FetchTheme.colors.Success
+            SourceChipStatus.LOADING -> FetchTheme.colors.TextSecondary
+            SourceChipStatus.ERROR, SourceChipStatus.TIMED_OUT -> FetchTheme.colors.Error
         },
         animationSpec = FetchMotion.focusTween(),
         label = "addonDot"

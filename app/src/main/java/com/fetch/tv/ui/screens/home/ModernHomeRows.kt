@@ -5,8 +5,6 @@ package com.fetch.tv.ui.screens.home
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.components.FetchCardDefaults
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.theme.SpaceMonoFamily
-import androidx.compose.ui.platform.LocalConfiguration
 
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.core.AnimationSpec
@@ -549,17 +547,10 @@ internal fun ModernRowSection(
         )
     ) {
         val titleMediumStyle = MaterialTheme.typography.titleMedium
-        val monoTitles = FetchTheme.style.dotMatrix
-        val rowTitleStyle = remember(titleMediumStyle, monoTitles) {
-            if (monoTitles) {
-                // Signal labels its rows like a readout: monospace capitals at the same line height.
-                titleMediumStyle.copy(fontFamily = SpaceMonoFamily, fontWeight = FontWeight.Normal, letterSpacing = 1.5.sp)
-            } else {
-                titleMediumStyle.copy(fontWeight = FontWeight.SemiBold)
-            }
+        val rowTitleStyle = remember(titleMediumStyle) {
+            titleMediumStyle.copy(fontWeight = FontWeight.SemiBold)
         }
-        val locale = LocalConfiguration.current.locales[0]
-        val rowTitle = if (monoTitles) row.title.uppercase(locale) else row.title
+        val rowTitle = row.title
         val textColor = FetchTheme.colors.TextPrimary
         val textModifier = remember(rowTitleBottom) {
             Modifier.padding(start = 52.dp, bottom = rowTitleBottom)

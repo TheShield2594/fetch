@@ -277,18 +277,9 @@ class ReadmeScreenshots {
         }
     }
 
-    // The Signal theme: the same screens in monochrome and dots (written next to the README ones).
+    // Ambient Mode's clock face, at a fixed time.
     @Test
-    fun signalHome() = render("signal-home", appTheme = AppTheme.SIGNAL) { SampleHome() }
-
-    @Test
-    fun signalFetching() = render("signal-fetching", appTheme = AppTheme.SIGNAL) { SampleFetching() }
-
-    @Test
-    fun signalDetail() = render("signal-detail", appTheme = AppTheme.SIGNAL) { SampleDetail() }
-
-    @Test
-    fun signalAmbient() = render("signal-ambient", focusFirst = false, appTheme = AppTheme.SIGNAL) {
+    fun ambientClock() = render("ambient-clock", focusFirst = false) {
         val resume = (Samples.continueWatching.first() as com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress).progress
         // 9:47 pm on a Thursday, at an even second so the colon is lit.
         val evening = java.time.LocalDateTime.of(2026, 10, 29, 21, 47, 0)

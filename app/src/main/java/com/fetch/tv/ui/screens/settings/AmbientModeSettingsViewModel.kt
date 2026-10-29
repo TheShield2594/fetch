@@ -44,7 +44,7 @@ class AmbientModeSettingsViewModel @Inject constructor(
         viewModelScope.launch { dataStore.setTimeoutMinutes(minutes) }
     }
 
-    fun setFace(face: AmbientFace?) {
+    fun setFace(face: AmbientFace) {
         viewModelScope.launch { dataStore.setFace(face) }
     }
 

@@ -58,11 +58,8 @@ class AmbientModeDataStore @Inject constructor(
         store().edit { it[timeoutMinutesKey] = minutes }
     }
 
-    /** Null goes back to following the theme. */
-    suspend fun setFace(face: AmbientFace?) {
-        store().edit { prefs ->
-            if (face == null) prefs.remove(faceKey) else prefs[faceKey] = face.name
-        }
+    suspend fun setFace(face: AmbientFace) {
+        store().edit { it[faceKey] = face.name }
     }
 
     suspend fun setCatalogKeys(keys: List<String>) {

@@ -64,23 +64,13 @@ object FetchCardDefaults {
 }
 
 /**
- * Draws a card's watch progress: a rounded track with a [fillColor] fill, or with [dots] (the
- * Signal theme) a row of dots. Drawn rather than composed, so a row of cards doesn't add two
- * layout nodes per card.
+ * Draws a card's watch progress: a rounded track with a [fillColor] fill. Drawn rather than
+ * composed, so a row of cards doesn't add two layout nodes per card.
  */
-fun Modifier.fetchCardProgress(progress: Float, fillColor: Color, dots: Boolean = false): Modifier = this
+fun Modifier.fetchCardProgress(progress: Float, fillColor: Color): Modifier = this
     .fillMaxWidth()
     .height(FetchCardDefaults.ProgressBarHeight)
-    .then(
-        if (dots) {
-            Modifier.dotProgress(progress, fillColor, FetchCardDefaults.ProgressTrackColor)
-        } else {
-            Modifier.fetchCardProgressBar(progress, fillColor)
-        }
-    )
-
-private fun Modifier.fetchCardProgressBar(progress: Float, fillColor: Color): Modifier =
-    drawWithCache {
+    .drawWithCache {
         val radius = CornerRadius(size.height / 2f)
         val fillWidth = size.width * progress.coerceIn(0f, 1f)
         onDrawBehind {
@@ -102,8 +92,7 @@ fun ReadyDot(modifier: Modifier = Modifier) {
         modifier = modifier
             .size(12.dp)
             .border(2.dp, FetchTheme.colors.Background.copy(alpha = 0.6f), CircleShape)
-            // Signal marks it in its red, like a recording light.
-            .background(FetchTheme.style.signal ?: FetchTheme.colors.TextPrimary, CircleShape)
+            .background(FetchTheme.colors.TextPrimary, CircleShape)
             .semantics { contentDescription = description }
     )
 }

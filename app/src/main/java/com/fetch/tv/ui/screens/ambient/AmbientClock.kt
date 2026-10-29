@@ -34,11 +34,10 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.WatchProgress
-import com.fetch.tv.ui.components.DotProgressRow
+import com.fetch.tv.ui.components.fetchCardProgress
 import com.fetch.tv.ui.components.formatContinueWatchingProgressLabel
 import com.fetch.tv.ui.theme.DotoFamily
 import com.fetch.tv.ui.theme.FetchTheme
-import com.fetch.tv.ui.theme.SpaceMonoFamily
 import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.ZoneId
@@ -91,7 +90,7 @@ fun AmbientClock(
         DateTimeFormatter.ofPattern(pattern, locale).withZone(zone).format(instant).uppercase(locale)
     }
     val colonLit = !fullMotion || (nowMs / 1_000L) % 2L == 0L
-    val signal = FetchTheme.style.signal ?: FetchTheme.colors.TextPrimary
+    val signal = FetchTheme.colors.Accent
     val drift = DRIFT_STEPS[((nowMs / 60_000L) % DRIFT_STEPS.size).toInt()]
 
     Box(
@@ -110,7 +109,7 @@ fun AmbientClock(
                     text = buildAnnotatedString {
                         time.forEach { char ->
                             if (char == ':') {
-                                // The one red thing on screen, like a device's status light.
+                                // The one red thing on screen, like a status light.
                                 withStyle(SpanStyle(color = if (colonLit) signal else signal.copy(alpha = 0.2f))) {
                                     append(char)
                                 }
@@ -179,10 +178,10 @@ private fun ResumeWidget(resume: WatchProgress, modifier: Modifier = Modifier) {
             style = MonoStyle.copy(fontSize = 14.sp, letterSpacing = 0.5.sp),
             color = FetchTheme.colors.TextSecondary
         )
-        DotProgressRow(
-            progress = resume.progressPercentage,
-            active = false,
-            modifier = Modifier.padding(top = 4.dp)
+        Box(
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .fetchCardProgress(resume.progressPercentage, FetchTheme.colors.Accent)
         )
     }
 }
@@ -195,10 +194,11 @@ private val ClockStyle = TextStyle(
     letterSpacing = 4.sp
 )
 
-private val MonoStyle = TextStyle(
-    fontFamily = SpaceMonoFamily,
-    fontWeight = FontWeight.Normal,
-    fontSize = 20.sp,
-    lineHeight = 28.sp,
-    letterSpacing = 3.sp
-)
+/** Spaced capitals in the member's font: the date and the card's labels. */
+private val MonoStyle: TextStyle
+    @Composable get() = FetchTheme.textStyles.metadata.copy(
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 3.sp
+    )

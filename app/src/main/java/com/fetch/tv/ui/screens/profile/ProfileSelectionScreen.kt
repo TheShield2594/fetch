@@ -77,6 +77,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -1317,6 +1318,7 @@ private fun ProfileSelectionBackground(
     val gradientMid = lerp(baseBg, animatedAvatarColor, 0.14f)
     val halfFadeStrong = animatedAvatarColor.copy(alpha = 0.26f)
     val halfFadeSoft = animatedAvatarColor.copy(alpha = 0.08f)
+    val imageScrim = FetchTheme.colors.ImageScrim
 
     AnimatedContent(
         targetState = profileBackground,
@@ -1337,12 +1339,16 @@ private fun ProfileSelectionBackground(
             is ProfileBackgroundArtwork.Catalog -> ProfileBackgroundImage(
                 background = background.background,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .profileArtworkScrim(imageScrim)
             )
             is ProfileBackgroundArtwork.Custom -> CustomProfileBackgroundImage(
                 imageUrl = background.url,
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .profileArtworkScrim(imageScrim)
             )
             null -> {
                 Box(
@@ -1372,6 +1378,17 @@ private fun ProfileSelectionBackground(
             }
         }
     }
+}
+
+/**
+ * Darkens member-supplied artwork so the subtitle, hint and profile names stay readable on it.
+ * One pass of [imageScrim] still leaves white artwork near #6B6B6B (about 2:1 for the hint);
+ * two passes bring it to about #2D2D2D, where the hint measures 4.7:1 and the subtitle 6.6:1.
+ */
+private fun Modifier.profileArtworkScrim(imageScrim: Color): Modifier = drawWithContent {
+    drawContent()
+    drawRect(color = imageScrim)
+    drawRect(color = imageScrim)
 }
 
 @Composable

@@ -1280,6 +1280,13 @@ private fun ModernCarouselCard(
             !landscapeLogoLoadFailed &&
             !(useLandscapeAsExpanded && !trailerFirstFrameRendered) &&
             (effectiveIgnoreLandscapePoster || isBackdropExpanded || item.metaPreview?.landscapePoster.isNullOrBlank() || customPosterLoadFailed)
+    // Title text drawn in place of a missing or failed logo; it needs the same bottom scrim.
+    val showsFallbackTitle =
+        !hasLandscapeLogo &&
+            (useLandscapeOverlayTreatment || isBackdropExpanded) &&
+            !isCollectionFolder &&
+            !(useLandscapeAsExpanded && !trailerFirstFrameRendered) &&
+            (effectiveIgnoreLandscapePoster || item.metaPreview?.landscapePoster.isNullOrBlank() || customPosterLoadFailed)
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
     val backgroundCardColor = FetchTheme.colors.BackgroundCard
@@ -1375,8 +1382,9 @@ private fun ModernCarouselCard(
                     .fillMaxSize()
                     .clip(cardShape)
             ) {
-                val mediaLayerModifier = remember(hasLandscapeLogo) {
-                    if (hasLandscapeLogo) {
+                val drawsBottomScrim = hasLandscapeLogo || showsFallbackTitle
+                val mediaLayerModifier = remember(drawsBottomScrim) {
+                    if (drawsBottomScrim) {
                         Modifier
                             .fillMaxSize()
                             .drawWithCache {
@@ -1488,7 +1496,7 @@ private fun ModernCarouselCard(
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterStart
                     )
-                } else if ((useLandscapeOverlayTreatment || isBackdropExpanded) && !isCollectionFolder && !(useLandscapeAsExpanded && !trailerFirstFrameRendered) && (effectiveIgnoreLandscapePoster || item.metaPreview?.landscapePoster.isNullOrBlank() || customPosterLoadFailed)) {
+                } else if (showsFallbackTitle) {
                     Text(
                         text = item.title,
                         style = titleStyle.copy(

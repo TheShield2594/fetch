@@ -44,7 +44,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.absoluteOffset
@@ -2889,7 +2893,13 @@ internal fun PlayerControlsOverlay(
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
 
+            // With More open (and the focus label beside the focused button) the row can be
+            // wider than the screen, so it scrolls instead of squeezing its last buttons to
+            // nothing; ControlButton brings itself and its label into view on focus.
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -3225,10 +3235,18 @@ private fun ControlButton(
     focusLabel: String? = contentDescription
 ) {
     var isFocused by remember { mutableStateOf(false) }
+    // In the scrolling bottom row, keep the label (not just the button) on screen once it joins.
+    val labelBringIntoView = remember { BringIntoViewRequester() }
+    LaunchedEffect(isFocused) {
+        if (isFocused && focusLabel != null) labelBringIntoView.bringIntoView()
+    }
 
     // Icon-only buttons (engine, party, aspect, flag, report) were hard to tell apart from the
     // couch. The label joins and leaves layout in one frame with focus; only its fade animates.
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.bringIntoViewRequester(labelBringIntoView),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
     IconButton(
         onClick = onClick,
         enabled = enabled,

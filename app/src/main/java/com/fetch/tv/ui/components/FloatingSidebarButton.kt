@@ -3,6 +3,10 @@ package com.fetch.tv.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -59,8 +63,11 @@ internal fun sidebarScrimBrush(background: Color): Brush = Brush.horizontalGradi
 )
 
 /**
- * One sidebar entry: a round icon that keeps a white fill for the current page, and a label
- * that slides out beside it while it has focus.
+ * One sidebar entry: a round icon and a label that slides out beside it while it has focus.
+ *
+ * Focus is the loudest state: the focused item fills white, whether or not it is the current
+ * page. The current page, unfocused, keeps a bright icon and a short accent tick at its leading
+ * edge. Before, the current page held the white fill, so it out-shouted the item focus was on.
  */
 @Composable
 internal fun FloatingSidebarButton(
@@ -75,15 +82,17 @@ internal fun FloatingSidebarButton(
     val tokens = FetchComponents.tokens.sidebar
     // Snaps with the focus ring: focus moves through the sidebar far too often for a colour fade.
     val circleColor = when {
-        selected -> FetchTheme.colors.Highlight
-        isFocused -> FetchTheme.colors.FocusBackground
+        isFocused -> FetchTheme.colors.Highlight
+        selected -> FetchTheme.colors.FocusBackground
         else -> Color.Transparent
     }
     val iconTint = when {
-        selected -> FetchTheme.colors.OnHighlight
-        isFocused -> FetchTheme.colors.TextPrimary
+        isFocused -> FetchTheme.colors.OnHighlight
+        selected -> FetchTheme.colors.TextPrimary
         else -> FetchTheme.colors.TextSecondary
     }
+    val tickColor = FetchTheme.colors.Secondary
+    val showTick = selected && !isFocused
 
     // The ring sits outside the circle with a small gap, so the slot is wider than the circle.
     val ringGap = FetchTheme.strokes.focus + 2.dp
@@ -112,6 +121,24 @@ internal fun FloatingSidebarButton(
                 .then(
                     if (isFocused) {
                         Modifier.border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), CircleShape)
+                    } else {
+                        Modifier
+                    }
+                )
+                .then(
+                    if (showTick) {
+                        // In the ring's gap at the leading edge, so it never covers the icon.
+                        Modifier.drawBehind {
+                            val tickWidth = ringGap.toPx() * 0.75f
+                            val tickHeight = size.height * 0.36f
+                            val left = if (layoutDirection == LayoutDirection.Rtl) size.width - tickWidth else 0f
+                            drawRoundRect(
+                                color = tickColor,
+                                topLeft = Offset(left, (size.height - tickHeight) / 2f),
+                                size = Size(tickWidth, tickHeight),
+                                cornerRadius = CornerRadius(tickWidth / 2f)
+                            )
+                        }
                     } else {
                         Modifier
                     }

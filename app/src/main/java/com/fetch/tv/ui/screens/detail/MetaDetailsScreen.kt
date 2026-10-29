@@ -1368,7 +1368,10 @@ private fun MetaDetailsContent(
     // Up from the rows below lands on the card last focused in the up-next row, else the next episode.
     var lastFocusedUpNextId by remember(meta.id) { mutableStateOf<String?>(null) }
     val upNextUpTarget = upNextFocusRequester?.let { fallback ->
-        lastFocusedUpNextId?.let { upNextFocusRequesters[it] } ?: fallback
+        lastFocusedUpNextId
+            ?.takeIf { id -> upNextEpisodes.any { it.id == id } }
+            ?.let { upNextFocusRequesters[it] }
+            ?: fallback
     }
     val heroVideo = remember(meta, nextToWatch, episodesForSeason) {
         resolveHeroPlaybackVideo(

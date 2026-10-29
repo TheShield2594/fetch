@@ -26,6 +26,7 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
@@ -73,6 +74,8 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.EmptyScreenState
@@ -441,6 +444,9 @@ private fun DiscoverDropdownPicker(
                             color = itemBackgroundColor,
                             shape = RoundedCornerShape(FetchRadii.tokens.sm)
                         )
+                        // The selected option carries a checkmark and a selected state, so it
+                        // stays identifiable (and announced) when focus is on another option.
+                        .semantics { selected = isSelected }
                         .onFocusChanged { state ->
                             val hasFocus = state.isFocused || state.hasFocus
                             focusedOptionValue = when {
@@ -459,6 +465,18 @@ private fun DiscoverDropdownPicker(
                                 textDirection = option.label.contentTextDirection()
                             )
                         )
+                    },
+                    trailingIcon = if (isSelected) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = itemTextColor
+                            )
+                        }
+                    } else {
+                        null
                     },
                     onClick = { onSelect(option) },
                     colors = MenuDefaults.itemColors(

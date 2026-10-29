@@ -76,6 +76,9 @@
   --bar-tint: color-mix(in srgb, var(--bg-1) 76%, transparent);
   --bar-hairline: color-mix(in srgb, var(--text) 14%, transparent);
   --bar-highlight: color-mix(in srgb, var(--text) 10%, transparent);
+
+  /* Sidebar glyphs. The accent in every theme but Fetch, which restates it. */
+  --nav-glyph: rgb(var(--accent-rgb));
 }
 
 :root,
@@ -464,6 +467,18 @@
    * below.
    */
   --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/*
+ * The Fetch theme's sidebar, as on the TV: glyphs in the secondary text colour,
+ * and the accent only on the page you are on (router links mark it with
+ * aria-current="page"). The accent means "go" or "here", not decoration.
+ */
+[data-theme="fetch"] {
+  --nav-glyph: var(--text-dim);
+}
+[data-theme="fetch"] [aria-current="page"] {
+  --nav-glyph: rgb(var(--accent-rgb));
 }
 
 /*

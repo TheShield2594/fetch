@@ -352,14 +352,15 @@ export function Sidebar({
               onPointerEnter={() => prefetchRoute(item.to)}
               onFocus={() => prefetchRoute(item.to)}
             >
-              {/* Accent-tinted whether or not the row is selected, which is
-                  how a source list draws its glyphs — the fill behind the row
-                  is what says which one you are on, so the icon is free to be
-                  the app's colour rather than a second selection signal. */}
+              {/* --nav-glyph: accent-tinted whether or not the row is selected
+                  in most themes, which is how a source list draws its glyphs —
+                  the fill behind the row says which one you are on. The Fetch
+                  theme follows the TV sidebar instead: quiet glyphs, and the
+                  accent only on the current page. See --nav-glyph in index.css. */}
               <item.icon
                 className="h-[1.0625rem] w-[1.0625rem] flex-none"
                 strokeWidth={2}
-                style={{ color: "rgb(var(--accent-rgb))" }}
+                style={{ color: "var(--nav-glyph)" }}
               />
               <span className="whitespace-nowrap" style={{ opacity: expanded ? 1 : 0 }}>
                 {item.label}
@@ -432,7 +433,7 @@ export function Sidebar({
             <List
               className="h-[1.0625rem] w-[1.0625rem] flex-none"
               strokeWidth={2}
-              style={{ color: "rgb(var(--accent-rgb))" }}
+              style={{ color: "var(--nav-glyph)" }}
             />
             <span className="whitespace-nowrap" style={{ opacity: expanded ? 1 : 0 }}>
               All Lists
@@ -500,7 +501,7 @@ export function Sidebar({
               <item.icon
                 className="h-[1.0625rem] w-[1.0625rem] flex-none"
                 strokeWidth={2}
-                style={{ color: "rgb(var(--accent-rgb))" }}
+                style={{ color: "var(--nav-glyph)" }}
               />
               <span className="whitespace-nowrap" style={{ opacity: expanded ? 1 : 0 }}>
                 {item.label}

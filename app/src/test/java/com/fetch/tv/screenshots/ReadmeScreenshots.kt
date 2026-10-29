@@ -304,7 +304,10 @@ class ReadmeScreenshots {
                 ),
                 bestSoFar = BestMatchPreview(
                     videoId = "tt0000001:2:6",
+                    // The three cuts BestMatchPreviewer makes of one file.
                     labels = listOf("4K", "DV P8", "TrueHD Atmos", "18.2 GB"),
+                    specLabels = listOf("4K", "DV P8", "TrueHD Atmos"),
+                    buttonLabels = listOf("4K", "Dolby Vision", "Atmos"),
                     isCached = true,
                     addonName = "Torrentio",
                     sourceCount = 14,

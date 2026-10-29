@@ -144,6 +144,8 @@
     <string name="cw_new_episode_short">New</string>
     <string name="cw_new_season">New Season</string>
     <string name="cw_resume">Resume</string>
+    <!-- The remote's centre button, named on the Home hero: OK on the focused card resumes. -->
+    <string name="hero_resume_ok_key" translatable="false">OK</string>
     <string name="cw_percent_watched">%1$d%% Watched</string>
     <string name="cw_hours_min_left">%1$dh %2$dm left</string>
     <string name="cw_min_left">%1$dm left</string>

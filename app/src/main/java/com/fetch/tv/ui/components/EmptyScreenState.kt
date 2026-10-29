@@ -95,8 +95,9 @@ fun StateActionButton(action: StateAction, modifier: Modifier = Modifier) {
         colors = ButtonDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
             contentColor = FetchTheme.colors.TextPrimary,
-            focusedContainerColor = FetchTheme.colors.FocusBackground,
-            focusedContentColor = FetchTheme.colors.Primary
+            // Focus is white everywhere; a grey-on-grey focused button was easy to miss.
+            focusedContainerColor = FetchTheme.colors.Highlight,
+            focusedContentColor = FetchTheme.colors.OnHighlight
         ),
         shape = ButtonDefaults.shape(FetchTheme.shapes.button)
     ) {

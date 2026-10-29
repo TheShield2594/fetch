@@ -767,6 +767,7 @@ fun ModernHomeContent(
                             frozenLogoUrl = activeCarouselItem?.heroPreview?.frozenLogoUrl,
                             resumeActionText = activeCarouselItem?.heroPreview?.resumeActionText,
                             resumeTimeLeftText = activeCarouselItem?.heroPreview?.resumeTimeLeftText,
+                            resumeProgressFraction = activeCarouselItem?.heroPreview?.resumeProgressFraction,
                             bestMatchKey = activeCarouselItem?.heroPreview?.bestMatchKey,
                             eyebrowText = activeCarouselItem?.heroPreview?.eyebrowText
                         )

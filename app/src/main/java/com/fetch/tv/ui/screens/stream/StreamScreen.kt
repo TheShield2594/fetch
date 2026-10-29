@@ -1503,9 +1503,9 @@ internal fun StreamCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                // With the spec strip shown, the addon's name line mostly repeats it, so it joins
-                // the release name on the focused card. A party mark keeps the line visible.
-                if (!hasParsedSpec || isFocused || markedLabel != null) Row(
+                // Shown on every card, one line when the spec strip is there, so focusing a card
+                // never changes its height and the list doesn't jump under the D-pad.
+                Row(
                     modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
@@ -1519,7 +1519,7 @@ internal fun StreamCard(
                             MaterialTheme.typography.titleMedium.copy(textDirection = streamName.contentTextDirection())
                         },
                         color = if (hasParsedSpec) FetchTheme.extendedColors.textSecondary else FetchTheme.colors.TextPrimary,
-                        maxLines = if (hasParsedSpec && !isFocused) 1 else Int.MAX_VALUE,
+                        maxLines = if (hasParsedSpec) 1 else Int.MAX_VALUE,
                         overflow = TextOverflow.Ellipsis
                     )
                     if (markedLabel != null) {
@@ -1539,16 +1539,19 @@ internal fun StreamCard(
                 }
 
                 streamDescription?.let { description ->
-                    // The parsed chips already say what the description spells out; show the
-                    // addon's own text only on the focused card.
-                    if (description.isNotBlank() && description != streamName && (!hasParsedSpec || isFocused)) {
+                    // The parsed chips already say most of what the description spells out, so on
+                    // those cards it is one quiet line. It is shown focused or not: a line that
+                    // appeared on focus made the focused card taller and the list jump.
+                    if (description.isNotBlank() && description != streamName) {
                         Text(
                             text = description,
                             modifier = Modifier.align(description.contentTextDirection().toAbsoluteAlignment()),
                             style = MaterialTheme.typography.bodySmall.copy(
                                 textDirection = description.contentTextDirection()
                             ),
-                            color = FetchTheme.extendedColors.textSecondary
+                            color = if (hasParsedSpec) FetchTheme.colors.TextTertiary else FetchTheme.extendedColors.textSecondary,
+                            maxLines = if (hasParsedSpec) 1 else Int.MAX_VALUE,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }

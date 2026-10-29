@@ -90,6 +90,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import com.fetch.tv.ui.components.focusLabelEntrance
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -3201,10 +3203,15 @@ private fun ControlButton(
     enabled: Boolean = true,
     onDownKey: (() -> Unit)? = null,
     onFocused: (() -> Unit)? = null,
-    contentColor: Color = Color.White
+    contentColor: Color = Color.White,
+    /** Shown beside the focused button, as on the detail hero; null keeps the button bare. */
+    focusLabel: String? = contentDescription
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
+    // Icon-only buttons (engine, party, aspect, flag, report) were hard to tell apart from the
+    // couch. The label joins and leaves layout in one frame with focus; only its fade animates.
+    Row(verticalAlignment = Alignment.CenterVertically) {
     IconButton(
         onClick = onClick,
         enabled = enabled,
@@ -3267,6 +3274,22 @@ private fun ControlButton(
                 modifier = Modifier.size(28.dp)
             )
         }
+    }
+    if (isFocused && focusLabel != null) {
+        Text(
+            text = focusLabel,
+            color = FetchTheme.colors.TextPrimary,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(start = FetchTheme.spacing.sm)
+                .focusLabelEntrance()
+                .clearAndSetSemantics { }
+                .background(FetchTheme.colors.BackgroundCard, FetchTheme.shapes.navItem)
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
+        )
+    }
     }
 }
 

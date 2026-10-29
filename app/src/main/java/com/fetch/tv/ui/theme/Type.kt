@@ -159,11 +159,13 @@ fun buildFetchTypography(fontFamily: FontFamily): Typography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.sp
     ),
+    // Secondary lines people actually read (settings subtitles, addon names, episode
+    // descriptions, exclusion reasons): 14sp, 28px at 1080p, not the 12sp badge floor.
     bodySmall = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     ),
     labelLarge = TextStyle(
@@ -173,17 +175,19 @@ fun buildFetchTypography(fontFamily: FontFamily): Typography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 0.sp
     ),
+    // Metadata and spec lines (year, runtime, "4K · Dolby Vision"): read, not glanced at, so 14sp.
     labelMedium = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.2.sp
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
     ),
     labelSmall = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.Medium,
-        // 12sp is the floor for every style: 24px at 1080p, the usual minimum for TV text.
+        // 12sp is the floor for every style: 24px at 1080p. Only badges and chips sit here;
+        // anything read as a sentence or a metadata line uses bodySmall or labelMedium (14sp).
         fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.2.sp

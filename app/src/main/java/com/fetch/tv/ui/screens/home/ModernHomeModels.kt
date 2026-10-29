@@ -82,6 +82,8 @@ data class HeroPreview(
     val resumeActionText: String? = null,
     /** Continue Watching only: time left ("38m left"), the first part of the spec line. */
     val resumeTimeLeftText: String? = null,
+    /** Continue Watching only: how much is watched, 0..1, drawn as the hero's progress line. */
+    val resumeProgressFraction: Float? = null,
     /** Continue Watching only: key of this video in the Best match cache. */
     val bestMatchKey: String? = null,
     /** Why this title is on Home ("NEW EPISODE", a recommendation reason), shown above the title. */
@@ -387,6 +389,8 @@ internal fun buildContinueWatchingItem(
                     context.getString(R.string.detail_btn_resume)
                 },
                 resumeTimeLeftText = timeLeft,
+                resumeProgressFraction = item.progress.progressPercentage
+                    .takeIf { it > 0f && !item.progress.isCompleted() },
                 bestMatchKey = com.fetch.tv.data.local.BestMatchCacheDataStore.contentKey(
                     item.progress.contentType,
                     item.progress.videoId

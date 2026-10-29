@@ -1038,10 +1038,16 @@ internal fun PlayerRuntimeController.scheduleProgressSyncAfterSeek() {
     }
 }
 
+/**
+ * How long the controls stay up after the last key press while playing. 3s was too short to read
+ * the spec line or find a panel pill from across the room; 5s is the usual TV player window.
+ */
+internal const val PLAYER_CONTROLS_AUTO_HIDE_MS = 5_000L
+
 fun PlayerRuntimeController.scheduleHideControls() {
     hideControlsJob?.cancel()
     hideControlsJob = scope.launch {
-        delay(3000)
+        delay(PLAYER_CONTROLS_AUTO_HIDE_MS)
         if (_uiState.value.isPlaying && !_uiState.value.showAudioOverlay &&
             !_uiState.value.showSubtitleOverlay && !_uiState.value.showSubtitleStylePanel &&
             !_uiState.value.showSpeedDialog && !_uiState.value.showMoreDialog &&

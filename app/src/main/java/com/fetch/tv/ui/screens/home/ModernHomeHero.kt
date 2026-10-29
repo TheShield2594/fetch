@@ -44,6 +44,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -710,6 +715,7 @@ private fun HeroTitleContent(
             HeroResumeRow(
                 actionText = actionText,
                 specLine = specLine,
+                progressFraction = preview.resumeProgressFraction,
                 textStyle = labelMedium,
                 modifier = Modifier.graphicsLayer { alpha = metaAlpha }
             )
@@ -732,46 +738,88 @@ internal fun heroResumeSpecLine(
     leading = timeLeftText
 )
 
-/** Not focusable: it names what OK on the focused Continue Watching card does. */
+/**
+ * Not focusable: it names what OK on the focused Continue Watching card does. It is drawn as a
+ * hint (an outlined OK key and the action), never as a filled button, because focus is on the
+ * card below and a white pill here read as a second focused control. The accent line under it
+ * is the title's watched progress, the same line the card carries.
+ */
 @Composable
 private fun HeroResumeRow(
     actionText: String,
     specLine: SpecLine?,
+    progressFraction: Float?,
     textStyle: androidx.compose.ui.text.TextStyle,
     modifier: Modifier = Modifier
 ) {
-    // The spec strip sits beside the button, so the action and what it will play read as one line.
-    Row(
+    val accent = FetchTheme.colors.Secondary
+    val keyStyle = remember(textStyle) { textStyle.copy(fontWeight = FontWeight.Bold) }
+    val actionStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+    Column(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
     ) {
         Row(
-            modifier = Modifier
-                .offersPlayLaunchOrigin()
-                .background(FetchTheme.colors.TextPrimary, FetchTheme.shapes.button)
-                .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            Icon(
-                imageVector = Icons.Filled.PlayArrow,
-                contentDescription = null,
-                tint = FetchTheme.colors.Background,
-                modifier = Modifier.size(20.dp)
-            )
-            Text(
-                text = actionText,
-                style = textStyle.copy(fontWeight = FontWeight.SemiBold),
-                color = FetchTheme.colors.Background,
-                maxLines = 1
-            )
+            // The launch morph grows from here, so the hint and the action stay one origin.
+            Row(
+                modifier = Modifier.offersPlayLaunchOrigin(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
+            ) {
+                Text(
+                    text = stringResource(R.string.hero_resume_ok_key),
+                    style = keyStyle,
+                    color = accent,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .border(FetchTheme.strokes.focus, accent, CircleShape)
+                        .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
+                )
+                // Capped, so a long (or translated) action can't take the whole row and leave
+                // the spec line nothing; the row's leftover goes to the spec line's weight.
+                Text(
+                    text = actionText,
+                    style = actionStyle,
+                    color = FetchTheme.colors.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.widthIn(max = HERO_ACTION_MAX_WIDTH)
+                )
+            }
+            specLine?.let { line ->
+                SpecStrip(line = line, style = textStyle, modifier = Modifier.weight(1f, fill = false))
+            }
         }
-        specLine?.let { line ->
-            SpecStrip(line = line, style = textStyle, modifier = Modifier.weight(1f, fill = false))
+        progressFraction?.let { fraction ->
+            HeroProgressLine(fraction = fraction, color = accent)
         }
     }
 }
+
+/** The Fetch line: a thin track with the watched part in the accent. Drawn, not laid out. */
+@Composable
+private fun HeroProgressLine(fraction: Float, color: Color) {
+    val track = FetchTheme.colors.TextPrimary.copy(alpha = 0.16f)
+    val clamped = fraction.coerceIn(0f, 1f)
+    Box(
+        modifier = Modifier
+            // The card and hero text only say the time left; this announces how much is watched.
+            .semantics { progressBarRangeInfo = ProgressBarRangeInfo(clamped, 0f..1f) }
+            .width(HERO_PROGRESS_LINE_WIDTH)
+            .height(FetchTheme.spacing.xs)
+            .clip(CircleShape)
+            .drawBehind {
+                drawRect(track)
+                drawRect(color, size = size.copy(width = size.width * clamped))
+            }
+    )
+}
+
+private val HERO_PROGRESS_LINE_WIDTH = 280.dp
+private val HERO_ACTION_MAX_WIDTH = 240.dp
 
 @Composable
 private fun HeroImdbMeta(

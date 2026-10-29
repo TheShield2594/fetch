@@ -19,6 +19,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
@@ -83,12 +86,25 @@ internal fun FetchingPanel(
     }
     val orderedChips = addonsInAnswerOrder(sourceChips, answerOrder)
 
+    // Once a key has been pressed in the panel, focus stays where the member put it. Moving it to
+    // Play now when the first result lands turned an OK meant for "See all sources" into playback.
+    var userPressedKey by remember { mutableStateOf(false) }
     LaunchedEffect(hasBest) {
-        runCatching { if (hasBest) playNowFocus.requestFocus() else seeAllFocus.requestFocus() }
+        runCatching {
+            when {
+                // Play now is gone, so focus has to leave it.
+                !hasBest -> seeAllFocus.requestFocus()
+                !userPressedKey -> playNowFocus.requestFocus()
+            }
+        }
     }
 
     Column(
         modifier = modifier
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) userPressedKey = true
+                false
+            }
             .widthIn(max = 880.dp)
             .background(FetchTheme.colors.BackgroundElevated.copy(alpha = FETCHING_PANEL_ALPHA), RoundedCornerShape(FetchTheme.radii.md))
             .padding(FetchTheme.spacing.xl),
@@ -133,13 +149,16 @@ internal fun FetchingPanel(
                         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
                         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
                     ) {
-                        best.labels.forEach { label -> SpecChip(label) }
+                        // The Play button's words ("4K · Dolby Vision · Atmos"), so the file reads the
+                        // same here as on the button that started this; profile and codec stay on
+                        // Sources. Size joins the addon name as the quiet detail.
+                        best.buttonLabels.forEach { label -> SpecChip(label) }
                         if (best.isCached) {
                             SpecChip(stringResource(R.string.best_match_cached), highlighted = true)
                         }
-                        best.addonName?.let { name ->
+                        fetchingPanelDetailLine(best)?.let { detail ->
                             Text(
-                                text = name,
+                                text = detail,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = FetchTheme.colors.TextSecondary,
                                 modifier = Modifier.align(Alignment.CenterVertically)
@@ -283,4 +302,10 @@ private fun PanelButton(
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
         )
     }
+}
+
+/** "18.2 GB · Torrentio": the size (the one label the spec line leaves out) and the addon. */
+internal fun fetchingPanelDetailLine(best: BestMatchPreview): String? {
+    val size = best.labels.firstOrNull { it !in best.specLabels }
+    return listOfNotNull(size, best.addonName).joinToString(" · ").takeIf { it.isNotEmpty() }
 }

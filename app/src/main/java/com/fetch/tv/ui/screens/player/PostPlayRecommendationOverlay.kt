@@ -5,6 +5,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchPrimitives
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.annotation.RawRes
 import androidx.compose.animation.AnimatedContent
@@ -154,15 +155,15 @@ fun PostPlayRecommendationOverlay(
     )
     val horizontalScrim = if (isRtl) {
         Brush.horizontalGradient(
-            0f to Color.Black.copy(alpha = 0.22f),
-            0.46f to Color.Black.copy(alpha = 0.16f),
-            1f to Color.Black.copy(alpha = 0.88f)
+            0f to FetchPrimitives.black.copy(alpha = 0.22f),
+            0.46f to FetchPrimitives.black.copy(alpha = 0.16f),
+            1f to FetchPrimitives.black.copy(alpha = 0.88f)
         )
     } else {
         Brush.horizontalGradient(
-            0f to Color.Black.copy(alpha = 0.88f),
-            0.54f to Color.Black.copy(alpha = 0.16f),
-            1f to Color.Black.copy(alpha = 0.22f)
+            0f to FetchPrimitives.black.copy(alpha = 0.88f),
+            0.54f to FetchPrimitives.black.copy(alpha = 0.16f),
+            1f to FetchPrimitives.black.copy(alpha = 0.22f)
         )
     }
 
@@ -270,9 +271,9 @@ fun PostPlayRecommendationOverlay(
                     .background(horizontalScrim)
                     .background(
                         Brush.verticalGradient(
-                            0f to Color.Black.copy(alpha = 0.08f),
+                            0f to FetchPrimitives.black.copy(alpha = 0.08f),
                             0.58f to Color.Transparent,
-                            1f to Color.Black.copy(alpha = 0.82f)
+                            1f to FetchPrimitives.black.copy(alpha = 0.82f)
                         )
                     )
             )
@@ -786,10 +787,11 @@ private fun PostPlayRecommendationButton(
                 false
             },
         colors = ButtonDefaults.colors(
-            containerColor = if (primary) Color.White else FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = if (primary) Color.White else FetchTheme.colors.Secondary,
-            contentColor = if (primary) Color.Black else FetchTheme.colors.TextPrimary,
-            focusedContentColor = if (primary) Color.Black else FetchTheme.colors.OnSecondary
+            // Primary carries the accent and keeps it on focus (the ring marks it); others go white.
+            containerColor = if (primary) FetchTheme.colors.Secondary else FetchTheme.colors.BackgroundCard,
+            focusedContainerColor = if (primary) FetchTheme.colors.Secondary else FetchTheme.colors.Player.Focus,
+            contentColor = if (primary) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
+            focusedContentColor = if (primary) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.OnFocus
         ),
         shape = ButtonDefaults.shape(shape = shape),
         border = ButtonDefaults.border(

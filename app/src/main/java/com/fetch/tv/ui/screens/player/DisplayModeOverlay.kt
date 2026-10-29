@@ -106,7 +106,7 @@ fun DisplayModeOverlay(
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .clip(RoundedCornerShape(FetchRadii.tokens.sm))
-                    .background(Color.Black.copy(alpha = 0.45f))
+                    .background(FetchTheme.colors.Player.ScrimLight)
                     .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
             )
         }
@@ -127,19 +127,19 @@ fun DisplayModeOverlay(
                         Text(
                             text = item.first,
                             fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.85f),
+                            color = FetchTheme.colors.Player.TextSecondary,
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.End
                         )
                         Text(
                             text = " - ",
                             fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.4f),
+                            color = FetchTheme.colors.Player.TextDisabled,
                         )
                         Text(
                             text = item.second,
                             fontSize = 12.sp,
-                            color = Color.White.copy(alpha = 0.6f),
+                            color = FetchTheme.colors.Player.TextTertiary,
                             textAlign = TextAlign.End
                         )
                     }

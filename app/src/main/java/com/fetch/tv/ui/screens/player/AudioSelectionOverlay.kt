@@ -163,7 +163,7 @@ internal fun AudioSelectionOverlay(
             Text(
                 text = stringResource(R.string.audio_dialog_title),
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.padding(bottom = FetchTheme.spacing.sm)
             )
 
@@ -235,7 +235,7 @@ private fun AudioTracksContent(
         Text(
             text = stringResource(R.string.audio_lang_default),
             style = MaterialTheme.typography.bodyLarge,
-            color = Color.White.copy(alpha = 0.7f),
+            color = FetchTheme.colors.Player.TextTertiary,
             modifier = Modifier.padding(top = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.md)
         )
         return
@@ -307,11 +307,11 @@ private fun AudioTrackCard(
         ),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
-        val primaryTextColor = if (isSelected) FetchTheme.colors.OnSecondary else Color.White
+        val primaryTextColor = if (isSelected) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary
         val secondaryTextColor = if (isSelected) {
             FetchTheme.colors.OnSecondary.copy(alpha = 0.82f)
         } else {
-            Color.White.copy(alpha = 0.72f)
+            FetchTheme.colors.Player.TextTertiary
         }
         val metadataTextColor = if (isSelected) {
             FetchTheme.colors.OnSecondary.copy(alpha = 0.72f)
@@ -615,7 +615,7 @@ private fun AudioControlsContent(
                         stringResource(R.string.audio_mix_persist_off)
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (persistAmplification) FetchTheme.colors.OnSecondary else Color.White,
+                    color = if (persistAmplification) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary,
                     modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm)
                 )
             }
@@ -648,14 +648,14 @@ private fun AdjustmentSection(
         Text(
             text = title,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.92f)
+            color = FetchTheme.colors.Player.TextSecondary
         )
 
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             Text(
                 text = valueText,
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White
+                color = FetchTheme.colors.Player.TextPrimary
             )
         }
 
@@ -688,7 +688,7 @@ private fun AdjustmentSection(
         Text(
             text = helperText,
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.66f)
+            color = FetchTheme.colors.Player.TextTertiary
         )
     }
 }
@@ -750,13 +750,13 @@ private fun StepCard(
                 downFocusRequester?.let { down = it }
             },
         colors = CardDefaults.colors(
-            containerColor = if (enabled) Color.Transparent else Color.White.copy(alpha = 0.06f),
-            focusedContainerColor = if (enabled) Color.Transparent else Color.White.copy(alpha = 0.06f)
+            containerColor = if (enabled) Color.Transparent else FetchTheme.colors.Player.Control,
+            focusedContainerColor = if (enabled) Color.Transparent else FetchTheme.colors.Player.Control
         ),
         shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
         border = CardDefaults.border(
             border = Border(
-                border = BorderStroke(FetchTheme.spacing.xxs, if (enabled) Color.White.copy(alpha = 0.18f) else Color.Transparent),
+                border = BorderStroke(FetchTheme.spacing.xxs, if (enabled) FetchTheme.colors.Player.ControlSelected else Color.Transparent),
                 shape = RoundedCornerShape(FetchTheme.radii.md)
             ),
             focusedBorder = Border(
@@ -778,7 +778,7 @@ private fun StepCard(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (enabled) Color.White else Color.White.copy(alpha = 0.35f)
+                tint = if (enabled) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextDisabled
             )
         }
     }

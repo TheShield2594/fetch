@@ -243,12 +243,12 @@ fun SkipIntroButton(
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = null,
-                        tint = if (isFocused) FetchTheme.colors.OnSecondary else Color.White,
+                        tint = if (isFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = getSkipLabel(lastType, targetsPostCredits),
-                        color = if (isFocused) FetchTheme.colors.OnSecondary else Color.White,
+                        color = if (isFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.TextPrimary,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(start = FetchTheme.spacing.sm)
                     )
@@ -260,7 +260,7 @@ fun SkipIntroButton(
                         .fillMaxWidth()
                         .height(FetchTheme.spacing.xs)
                         .clip(RoundedCornerShape(bottomStart = FetchTheme.spacing.md, bottomEnd = FetchTheme.spacing.md))
-                        .background(Color.White.copy(alpha = if (countdownHidden) 0f else 0.15f))
+                        .background(FetchPrimitives.white.copy(alpha = if (countdownHidden) 0f else 0.15f))
                         // Read while drawing only: the countdown runs for the whole segment.
                         .drawBehind {
                             val fraction = progress.value.coerceIn(0f, 1f)

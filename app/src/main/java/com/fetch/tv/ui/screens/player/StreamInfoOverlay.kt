@@ -139,7 +139,7 @@ private fun StreamInfoContent(data: StreamInfoData) {
                     Text(
                         text = data.addonName,
                         style = MaterialTheme.typography.headlineMedium,
-                        color = Color.White,
+                        color = FetchTheme.colors.Player.TextPrimary,
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -286,7 +286,7 @@ private fun InfoItem(label: String, value: String?, modifier: Modifier = Modifie
         Text(
             text = value,
             style = MaterialTheme.typography.titleMedium,
-            color = Color.White,
+            color = FetchTheme.colors.Player.TextPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -354,10 +354,10 @@ private fun StreamInfoHudButton(
             },
         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
         colors = ButtonDefaults.colors(
-            containerColor = if (enabled) FetchTheme.colors.Secondary.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.08f),
-            contentColor = if (enabled) Color.White else Color.White.copy(alpha = 0.7f),
-            focusedContainerColor = if (enabled) FetchTheme.colors.Secondary else Color.White,
-            focusedContentColor = if (enabled) FetchTheme.colors.OnSecondary else Color.Black
+            containerColor = if (enabled) FetchTheme.colors.Secondary.copy(alpha = 0.22f) else FetchTheme.colors.Player.Control,
+            contentColor = if (enabled) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextTertiary,
+            focusedContainerColor = if (enabled) FetchTheme.colors.Secondary else FetchTheme.colors.Player.Focus,
+            focusedContentColor = if (enabled) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.OnFocus
         ),
         shape = ButtonDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm)),
         scale = ButtonDefaults.scale(focusedScale = 1.05f),
@@ -365,7 +365,7 @@ private fun StreamInfoHudButton(
             border = Border(
                 border = BorderStroke(
                     1.dp,
-                    if (enabled) FetchTheme.colors.Secondary.copy(alpha = 0.45f) else Color.White.copy(alpha = 0.12f)
+                    if (enabled) FetchTheme.colors.Secondary.copy(alpha = 0.45f) else FetchTheme.colors.Player.Control
                 ),
                 shape = RoundedCornerShape(FetchTheme.radii.sm)
             ),
@@ -390,7 +390,7 @@ private fun StreamInfoHudButton(
                     if (enabled) {
                         if (isFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.FocusRing
                     } else {
-                        if (isFocused) Color.Black.copy(alpha = 0.35f) else Color.White.copy(alpha = 0.4f)
+                        if (isFocused) FetchTheme.colors.Player.ScrimLight else FetchTheme.colors.Player.TrackFocused
                     }
                 )
         )

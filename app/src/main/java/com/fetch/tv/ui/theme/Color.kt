@@ -173,6 +173,9 @@ class FetchColorScheme(
     val VideoControlsScrim = FetchPrimitives.black.copy(alpha = 0.72f)
     val PosterFallback = BackgroundCard
 
+    /** Chrome over video: controls, overlays, scrims. See [FetchPlayerChromeColors]. */
+    val Player = FetchPlayerChromeColors(highContrast)
+
     val DisabledContainer = SurfaceVariant.copy(alpha = 0.42f)
     val DisabledContent = TextDisabled
     val DisabledBorder = Border.copy(alpha = 0.48f)

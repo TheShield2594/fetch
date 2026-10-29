@@ -132,18 +132,18 @@ fun ParentalGuideOverlay(
                     Text(
                         text = warning.label,
                         fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.85f),
+                        color = FetchTheme.colors.Player.TextSecondary,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = " · ",
                         fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.4f),
+                        color = FetchTheme.colors.Player.TextDisabled,
                     )
                     Text(
                         text = warning.severity,
                         fontSize = 12.sp,
-                        color = Color.White.copy(alpha = 0.5f),
+                        color = FetchTheme.colors.Player.TextDisabled,
                     )
                 }
             }

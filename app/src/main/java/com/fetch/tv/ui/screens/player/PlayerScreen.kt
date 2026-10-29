@@ -714,7 +714,7 @@ fun PlayerScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .then(if (transparentLetterbox) Modifier else Modifier.background(Color.Black))
+            .then(if (transparentLetterbox) Modifier else Modifier.background(FetchPrimitives.black))
             .focusRequester(containerFocusRequester)
             .focusable(enabled = uiState.error == null)
             .onPreviewKeyEvent { keyEvent ->
@@ -1156,14 +1156,14 @@ fun PlayerScreen(
             .drawWithContent {
                 val t = postPlayShrink.value
                 val fullscreen = !postPlayVisible && t < 0.001f
-                if (!(transparentLetterbox && fullscreen)) drawRect(Color.Black)
+                if (!(transparentLetterbox && fullscreen)) drawRect(FetchPrimitives.black)
                 drawContent()
                 val borderAlpha = POST_PLAY_PLAYER_BORDER_ALPHA * t
                 if (borderAlpha > 0f) {
                     val half = postPlayBorderWidthPx / 2f
                     val radius = (postPlayCornerRadiusPx * t - half).coerceAtLeast(0f)
                     drawRoundRect(
-                        color = Color.White.copy(alpha = borderAlpha),
+                        color = FetchPrimitives.white.copy(alpha = borderAlpha),
                         topLeft = Offset(half, half),
                         size = Size(size.width - postPlayBorderWidthPx, size.height - postPlayBorderWidthPx),
                         cornerRadius = CornerRadius(radius),
@@ -1815,7 +1815,7 @@ fun PlayerScreen(
         }
 
         // Episodes/streams side panel
-        PlayerSidePanel(visible = uiState.showEpisodesPanel && uiState.error == null) {
+        PlayerSidePanel(visible = uiState.showEpisodesPanel && uiState.error == null, width = PlayerSidePanelListWidth) {
                 EpisodesSidePanel(
                     uiState = uiState,
                     episodesFocusRequester = episodesFocusRequester,
@@ -1831,7 +1831,7 @@ fun PlayerScreen(
         }
 
         // Sources panel
-        PlayerSidePanel(visible = uiState.showSourcesPanel && uiState.error == null) {
+        PlayerSidePanel(visible = uiState.showSourcesPanel && uiState.error == null, width = PlayerSidePanelListWidth) {
                 StreamSourcesSidePanel(
                     uiState = uiState,
                     streamsFocusRequester = sourceStreamsFocusRequester,
@@ -1850,7 +1850,7 @@ fun PlayerScreen(
         }
 
         // Queue panel
-        PlayerSidePanel(visible = uiState.showQueuePanel && uiState.error == null) {
+        PlayerSidePanel(visible = uiState.showQueuePanel && uiState.error == null, width = PlayerSidePanelListWidth) {
             QueueSidePanel(
                 items = uiState.queueItems,
                 currentVideoId = uiState.currentVideoId,
@@ -1869,7 +1869,7 @@ fun PlayerScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.45f))
+                    .background(FetchTheme.colors.Player.ScrimLight)
             )
         }
 
@@ -1940,7 +1940,7 @@ fun PlayerScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.35f))
+                    .background(FetchTheme.colors.Player.ScrimLight)
             )
         }
 
@@ -2677,7 +2677,7 @@ internal fun PlayerControlsOverlay(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color.Black.copy(alpha = 0.7f),
+                            FetchTheme.colors.Player.Scrim,
                             Color.Transparent
                         )
                     )
@@ -2694,7 +2694,7 @@ internal fun PlayerControlsOverlay(
                     Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 0.85f)
+                            FetchTheme.colors.Player.ScrimStrong
                         )
                     )
                 )
@@ -2717,7 +2717,7 @@ internal fun PlayerControlsOverlay(
             Text(
                 text = displayName,
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -2740,7 +2740,7 @@ internal fun PlayerControlsOverlay(
                 Text(
                     text = episodeInfo,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White.copy(alpha = 0.9f),
+                    color = FetchTheme.colors.Player.TextSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -2748,7 +2748,7 @@ internal fun PlayerControlsOverlay(
                 Text(
                     text = uiState.releaseYear,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.68f)
+                    color = FetchTheme.colors.Player.TextTertiary
                 )
             }
 
@@ -2760,7 +2760,7 @@ internal fun PlayerControlsOverlay(
                 Text(
                     text = stringResource(R.string.player_via, (uiState.currentStreamName ?: "").replace("\n", " · ")),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.68f),
+                    color = FetchTheme.colors.Player.TextTertiary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -2874,7 +2874,7 @@ internal fun PlayerControlsOverlay(
                         SpecStrip(
                             line = line,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.78f)
+                            color = FetchTheme.colors.Player.TextSecondary
                         )
                     }
                 }
@@ -2948,7 +2948,10 @@ internal fun PlayerControlsOverlay(
                     )
                 }
 
-                if (onShowPartyPanel != null) {
+                // The main row holds what people reach for while watching. Party stays here
+                // only while a party is running, where its accent icon is live status; otherwise
+                // it waits under More with the engine switch, a troubleshooting action.
+                if (onShowPartyPanel != null && partyActive) {
                     ControlButton(
                         icon = Icons.Rounded.Groups,
                         contentDescription = stringResource(R.string.party_title),
@@ -2956,18 +2959,9 @@ internal fun PlayerControlsOverlay(
                         upFocusRequester = playPauseFocusRequester,
                         onDownKey = onHideControls,
                         onFocused = onResetHideTimer,
-                        contentColor = if (partyActive) FetchTheme.colors.Secondary else Color.White
+                        contentColor = FetchTheme.colors.Secondary
                     )
                 }
-
-                ControlButton(
-                    icon = Icons.Default.SwapHoriz,
-                    contentDescription = stringResource(R.string.cd_switch_player_engine),
-                    onClick = onSwitchPlayerEngine,
-                    upFocusRequester = playPauseFocusRequester,
-                    onDownKey = onHideControls,
-                    onFocused = onResetHideTimer
-                )
 
                 AnimatedVisibility(
                     visible = uiState.showMoreDialog,
@@ -3051,9 +3045,27 @@ internal fun PlayerControlsOverlay(
                                 upFocusRequester = playPauseFocusRequester,
                                 onDownKey = onHideControls,
                                 onFocused = onResetHideTimer,
-                                contentColor = if (marking) FetchTheme.colors.Secondary else Color.White
+                                contentColor = if (marking) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextPrimary
                             )
                         }
+                        if (onShowPartyPanel != null && !partyActive) {
+                            ControlButton(
+                                icon = Icons.Rounded.Groups,
+                                contentDescription = stringResource(R.string.party_title),
+                                onClick = onShowPartyPanel,
+                                upFocusRequester = playPauseFocusRequester,
+                                onDownKey = onHideControls,
+                                onFocused = onResetHideTimer
+                            )
+                        }
+                        ControlButton(
+                            icon = Icons.Default.SwapHoriz,
+                            contentDescription = stringResource(R.string.cd_switch_player_engine),
+                            onClick = onSwitchPlayerEngine,
+                            upFocusRequester = playPauseFocusRequester,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer
+                        )
                         if (uiState.playbackIssueReportsEnabled) {
                             ReportControlButton(
                                 reportId = uiState.playbackIssueReportId,
@@ -3147,7 +3159,7 @@ private fun PlayerControlsTimeTextHost(viewModel: PlayerViewModel) {
     Text(
         text = timeText,
         style = MaterialTheme.typography.bodyMedium,
-        color = Color.White.copy(alpha = 0.9f)
+        color = FetchTheme.colors.Player.TextSecondary
     )
 }
 
@@ -3182,10 +3194,10 @@ private fun ReportControlButton(
             Text(
                 text = reportId.orEmpty(),
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.White,
+                color = FetchTheme.colors.Player.TextPrimary,
                 maxLines = 1,
                 modifier = Modifier
-                    .background(Color.Black.copy(alpha = 0.78f), RoundedCornerShape(FetchRadii.tokens.xs))
+                    .background(FetchTheme.colors.Player.Scrim, RoundedCornerShape(FetchRadii.tokens.xs))
                     .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
             )
         }
@@ -3203,7 +3215,7 @@ private fun ControlButton(
     enabled: Boolean = true,
     onDownKey: (() -> Unit)? = null,
     onFocused: (() -> Unit)? = null,
-    contentColor: Color = Color.White,
+    contentColor: Color = FetchTheme.colors.Player.TextPrimary,
     /** Shown beside the focused button, as on the detail hero; null keeps the button bare. */
     focusLabel: String? = contentDescription
 ) {
@@ -3255,9 +3267,9 @@ private fun ControlButton(
             },
         colors = IconButtonDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = Color.White,
+            focusedContainerColor = FetchTheme.colors.Player.Focus,
             contentColor = contentColor,
-            focusedContentColor = Color.Black
+            focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
         shape = IconButtonDefaults.shape(shape = CircleShape)
     ) {
@@ -3327,10 +3339,10 @@ private fun PanelControlButton(
             }
             .onFocusChanged { if (it.isFocused) onFocused() },
         colors = ButtonDefaults.colors(
-            containerColor = Color.White.copy(alpha = 0.12f),
-            contentColor = Color.White,
-            focusedContainerColor = Color.White,
-            focusedContentColor = Color.Black
+            containerColor = FetchTheme.colors.Player.Control,
+            contentColor = FetchTheme.colors.Player.TextPrimary,
+            focusedContainerColor = FetchTheme.colors.Player.Focus,
+            focusedContentColor = FetchTheme.colors.Player.OnFocus
         ),
         shape = ButtonDefaults.shape(shape = CircleShape),
         scale = ButtonDefaults.scale(focusedScale = 1f),
@@ -3366,8 +3378,8 @@ private fun UpNextQueueCard(
             .focusProperties { down = downFocusRequester }
             .onFocusChanged { if (it.isFocused) onFocused() },
         colors = CardDefaults.colors(
-            containerColor = Color.Black.copy(alpha = 0.55f),
-            focusedContainerColor = Color.White.copy(alpha = 0.18f)
+            containerColor = FetchTheme.colors.Player.Scrim,
+            focusedContainerColor = FetchTheme.colors.Player.ControlSelected
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
@@ -3388,7 +3400,7 @@ private fun UpNextQueueCard(
                     .width(96.dp)
                     .height(54.dp)
                     .clip(RoundedCornerShape(FetchTheme.radii.md))
-                    .background(Color.White.copy(alpha = 0.08f))
+                    .background(FetchTheme.colors.Player.Control)
             ) {
                 coil3.compose.AsyncImage(
                     model = item.backdrop ?: item.poster,
@@ -3401,13 +3413,13 @@ private fun UpNextQueueCard(
                 Text(
                     text = stringResource(R.string.player_up_next_in_queue),
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = FetchTheme.colors.Player.TextTertiary,
                     maxLines = 1
                 )
                 Text(
                     text = item.name,
                     style = MaterialTheme.typography.titleSmall,
-                    color = Color.White,
+                    color = FetchTheme.colors.Player.TextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -3415,7 +3427,7 @@ private fun UpNextQueueCard(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White.copy(alpha = 0.78f),
+                        color = FetchTheme.colors.Player.TextSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -3577,15 +3589,15 @@ private fun ProgressBar(
                 .height(if (isFocused) FetchTheme.spacing.md else FetchTheme.spacing.sm)
                 .clip(RoundedCornerShape(FetchRadii.tokens.xs))
                 .background(
-                    if (isFocused) Color.White.copy(alpha = 0.45f)
-                    else Color.White.copy(alpha = 0.3f)
+                    if (isFocused) FetchTheme.colors.Player.TrackFocused
+                    else FetchTheme.colors.Player.Track
                 )
                 .playerProgressFill(
                     progress = { animatedProgress },
                     bufferedProgress = { animatedBufferedProgress },
                     // Neutral, so the buffered run never reads as part of the themed played
                     // line (a gradient theme's accent differs from its last stop).
-                    bufferedColor = Color.White,
+                    bufferedColor = FetchPrimitives.white,
                     playedBrush = accentBrush
                 )
         )
@@ -3622,7 +3634,7 @@ private fun SeekOverlay(
                 Text(
                     text = "${formatTime(currentPosition)} / ${formatTime(duration)}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.9f)
+                    color = FetchTheme.colors.Player.TextSecondary
                 )
             }
         }
@@ -3680,13 +3692,13 @@ private fun PlayerClockOverlay(
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold
             ),
-            color = Color.White.copy(alpha = 0.96f)
+            color = FetchTheme.colors.Player.TextPrimary
         )
         if (!isLive) {
             Text(
                 text = stringResource(R.string.player_ends_at, endTimeText),
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                color = Color.White.copy(alpha = 0.78f)
+                color = FetchTheme.colors.Player.TextSecondary
             )
         }
     }
@@ -3743,7 +3755,7 @@ private fun AspectRatioIndicator(text: String) {
     Row(
         modifier = Modifier
             .background(
-                color = Color.Black.copy(alpha = 0.85f),
+                color = FetchTheme.colors.Player.ScrimStrong,
                 shape = RoundedCornerShape(FetchTheme.spacing.xl)
             )
             .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
@@ -3763,7 +3775,7 @@ private fun AspectRatioIndicator(text: String) {
             Icon(
                 painter = customAspectPainter,
                 contentDescription = null,
-                tint = Color.White,
+                tint = FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -3777,7 +3789,7 @@ private fun AspectRatioIndicator(text: String) {
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             ),
-            color = Color.White
+            color = FetchTheme.colors.Player.TextPrimary
         )
     }
 }
@@ -3787,7 +3799,7 @@ private fun StreamSourceIndicator(text: String) {
     Row(
         modifier = Modifier
             .background(
-                color = Color.Black.copy(alpha = 0.82f),
+                color = FetchTheme.colors.Player.ScrimStrong,
                 shape = RoundedCornerShape(FetchRadii.tokens.xl)
             )
             .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
@@ -3796,7 +3808,7 @@ private fun StreamSourceIndicator(text: String) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-            color = Color.White,
+            color = FetchTheme.colors.Player.TextPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -3811,7 +3823,7 @@ private fun PlayerEngineSwitchIndicator(
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(FetchRadii.tokens.xl))
-            .background(Color.Black.copy(alpha = 0.86f))
+            .background(FetchTheme.colors.Player.ScrimStrong)
             .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.lg),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -3822,13 +3834,13 @@ private fun PlayerEngineSwitchIndicator(
             Icon(
                 imageVector = Icons.Default.SwapHoriz,
                 contentDescription = null,
-                tint = Color.White,
+                tint = FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.size(22.dp)
             )
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = Color.White
+                color = FetchTheme.colors.Player.TextPrimary
             )
         }
 
@@ -3837,7 +3849,7 @@ private fun PlayerEngineSwitchIndicator(
         Text(
             text = message,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.92f),
+            color = FetchTheme.colors.Player.TextSecondary,
             textAlign = TextAlign.Center
         )
     }
@@ -3864,7 +3876,7 @@ private fun SubtitleDelayOverlay(
 ) {
     val fraction = ((subtitleDelayMs - SUBTITLE_DELAY_MIN_MS).toFloat() /
         (SUBTITLE_DELAY_MAX_MS - SUBTITLE_DELAY_MIN_MS).toFloat()).coerceIn(0f, 1f)
-    val sliderAccent = if (isSliderFocused) FetchPrimitives.blue300 else Color.White
+    val sliderAccent = if (isSliderFocused) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextSecondary
 
     Column(
         modifier = Modifier
@@ -3881,13 +3893,13 @@ private fun SubtitleDelayOverlay(
             Text(
                 text = stringResource(R.string.player_subtitle_delay),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = Color.White
+                color = FetchTheme.colors.Player.TextPrimary
             )
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                 Text(
                     text = formatSubtitleDelay(subtitleDelayMs),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White.copy(alpha = 0.95f)
+                    color = FetchTheme.colors.Player.TextPrimary
                 )
             }
         }
@@ -3908,7 +3920,7 @@ private fun SubtitleDelayOverlay(
                     .height(FetchTheme.spacing.xs)
                     .clip(RoundedCornerShape(FetchTheme.radii.xxs))
                     .align(AbsoluteAlignment.CenterLeft)
-                    .background(Color.White.copy(alpha = 0.15f))
+                    .background(FetchTheme.colors.Player.Track)
             )
 
             Row(
@@ -3957,11 +3969,11 @@ private fun SubtitleDelayOverlay(
                     },
                 colors = CardDefaults.colors(
                     containerColor = if (isResetButtonFocused) {
-                        Color.White.copy(alpha = 0.22f)
+                        FetchTheme.colors.Player.Focus
                     } else {
-                        Color.White.copy(alpha = 0.11f)
+                        FetchTheme.colors.Player.Control
                     },
-                    focusedContainerColor = Color.White.copy(alpha = 0.22f)
+                    focusedContainerColor = FetchTheme.colors.Player.Focus
                 ),
                 shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
             ) {
@@ -3974,7 +3986,7 @@ private fun SubtitleDelayOverlay(
                     Text(
                         text = stringResource(R.string.subtitle_delay_reset),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        color = Color.White,
+                        color = if (isResetButtonFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Player.TextPrimary,
                         textAlign = TextAlign.Center,
                         maxLines = 1
                     )
@@ -3993,11 +4005,11 @@ private fun SubtitleDelayOverlay(
                     },
                 colors = CardDefaults.colors(
                     containerColor = if (isSyncLineButtonFocused) {
-                        Color.White.copy(alpha = 0.22f)
+                        FetchTheme.colors.Player.Focus
                     } else {
-                        Color.White.copy(alpha = 0.11f)
+                        FetchTheme.colors.Player.Control
                     },
-                    focusedContainerColor = Color.White.copy(alpha = 0.22f)
+                    focusedContainerColor = FetchTheme.colors.Player.Focus
                 ),
                 shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
             ) {
@@ -4010,7 +4022,7 @@ private fun SubtitleDelayOverlay(
                     Text(
                         text = stringResource(R.string.player_sync_line),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        color = Color.White,
+                        color = if (isSyncLineButtonFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Player.TextPrimary,
                         textAlign = TextAlign.Center,
                         maxLines = 1
                     )
@@ -4037,7 +4049,7 @@ private fun LoadingIssueReportAction(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(FetchTheme.radii.md))
-            .background(Color.Black.copy(alpha = 0.72f))
+            .background(FetchTheme.colors.Player.Scrim)
             .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
@@ -4058,7 +4070,7 @@ private fun LoadingIssueReportAction(
         Text(
             text = reportMessage,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.86f),
+            color = FetchTheme.colors.Player.TextSecondary,
             textAlign = TextAlign.Center
         )
         DialogButton(
@@ -4111,7 +4123,7 @@ private fun ErrorOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.9f))
+            .background(FetchTheme.colors.Player.ScrimStrong)
             .zIndex(3f)
             .onPreviewKeyEvent { event ->
                 if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
@@ -4135,13 +4147,13 @@ private fun ErrorOverlay(
             Text(
                 text = stringResource(R.string.player_error_title),
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White
+                color = FetchTheme.colors.Player.TextPrimary
             )
 
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.White.copy(alpha = 0.7f),
+                color = FetchTheme.colors.Player.TextTertiary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxl)
             )
@@ -4161,7 +4173,7 @@ private fun ErrorOverlay(
                     color = when (reportStatus) {
                         PlaybackIssueReportStatus.Sent -> FetchTheme.colors.Secondary
                         PlaybackIssueReportStatus.Failed -> FetchStatusTones.errorText
-                        else -> Color.White.copy(alpha = 0.7f)
+                        else -> FetchTheme.colors.Player.TextTertiary
                     },
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxl)
@@ -4245,10 +4257,12 @@ internal fun PlayerOverlayButton(
         enabled = enabled,
         modifier = modifier,
         colors = ButtonDefaults.colors(
-            containerColor = if (primary) Color.White else FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = if (primary) Color.White else FetchTheme.colors.Secondary,
-            contentColor = if (primary) Color.Black else FetchTheme.colors.TextPrimary,
-            focusedContentColor = if (primary) Color.Black else FetchTheme.colors.OnSecondary
+            // The primary action carries the accent at rest and keeps it on focus, where the
+            // white ring marks it; any other button turns white on focus, never accent.
+            containerColor = if (primary) FetchTheme.colors.Secondary else FetchTheme.colors.BackgroundCard,
+            focusedContainerColor = if (primary) FetchTheme.colors.Secondary else FetchTheme.colors.Player.Focus,
+            contentColor = if (primary) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
+            focusedContentColor = if (primary) FetchTheme.colors.OnSecondary else FetchTheme.colors.Player.OnFocus
         ),
         shape = ButtonDefaults.shape(shape = shape),
         border = ButtonDefaults.border(

@@ -1753,9 +1753,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Nije moguće sačuvati PIN. Pokušajte ponovo.</string>
     <string name="profile_pin_locked">Profil je zaključan. Pokušajte ponovo za %1$ds.</string>
-    <string name="profile_pin_invalid">Nevažeći PIN. Pokušajte ponovo.</string>
     <string name="profile_pin_verify_error">Nije moguće potvrditi PIN. Pokušajte ponovo.</string>
-    <string name="profile_pin_incorrect">Trenutni PIN je netačan.</string>
+    <string name="profile_pin_incorrect">Netačan PIN. Pokušajte ponovo.</string>
     <string name="profile_pin_current_required">Ovaj profil već ima PIN. Unesite trenutni PIN da biste ga promenili.</string>
 
     <!-- Account Screen -->
@@ -2902,7 +2901,7 @@
     <string name="profile_pin_forgot_needs_main">Zaboravili ste PIN? Prvo podesite PIN na profilu %1$s, a zatim njime resetujte ovaj.</string>
     <string name="profile_pin_forgot_main">PIN glavnog profila ne može da se resetuje, zato ga čuvajte na sigurnom.</string>
     <string name="profile_pin_reset_for_profile">PIN je resetovan za %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Netačan PIN za %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Netačan PIN za %1$s. Pokušajte ponovo.</string>
     <string name="profile_selection_kids_badge">Dečji</string>
     <string name="profile_manage_done">Gotovo</string>
     <string name="cd_profile_locked">Zaključano PIN-om</string>
@@ -2922,4 +2921,37 @@
     <string name="parental_pin_nudge_subtitle">Podesite PIN na profilu %1$s. Bez njega svako može da menja ograničenja profila %2$s ili da pređe na drugi profil.</string>
     <string name="parental_pin_nudge_set">Podesi PIN na profilu %1$s</string>
     <string name="parental_pin_nudge_later">Ne sada</string>
+    <string name="parental_gate_open_support">Profil %1$s nema sopstveni PIN, pa je za njegovo otvaranje potreban PIN roditelja dok drugi profil ima roditeljska ograničenja.</string>
+    <string name="parental_lock_profiles_title">Zaključaj profile bez ograničenja</string>
+    <string name="parental_lock_profiles_subtitle">Dok neki profil ima roditeljska ograničenja, za otvaranje profila bez ograničenja i bez sopstvenog PIN-a potreban je PIN profila %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Prvo podesite PIN na profilu %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Zaključati i ostale profile?</string>
+    <string name="parental_lock_profiles_offer_subtitle">Profil %1$s može da otvori %2$s i zaobiđe sva ograničenja, jer nemaju PIN. Fetch umesto toga može da traži PIN profila %3$s za njihovo otvaranje.</string>
+    <string name="parental_lock_profiles_offer_accept">Traži PIN profila %1$s</string>
+    <string name="kids_autoplay_cap">Automatska reprodukcija zaredom: %1$s</string>
+    <string name="kids_approved_only">Samo odobreni naslovi: %1$s</string>
+    <string name="kids_approved_movies">Filmovi za vas</string>
+    <string name="kids_approved_shows">Serije za vas</string>
+    <string name="kids_approved_only_hint">Na ovom profilu prikazuju se samo uvek dozvoljeni naslovi. Dozvolite naslov iz menija dugog pritiska na njegovom posteru na glavnom profilu.</string>
+    <string name="kids_daily_time">Dnevno vreme ispred ekrana: %1$s</string>
+    <string name="kids_bedtime">Vreme za spavanje: od %1$s do %2$s</string>
+    <string name="kids_bedtime_off">Vreme za spavanje: isključeno</string>
+    <string name="kids_at_limit_finish">Na granici: završi ono što se pušta</string>
+    <string name="kids_at_limit_stop">Na granici: odmah zaustavi</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d epizoda</item>
+        <item quantity="few">%1$d epizode</item>
+        <item quantity="other">%1$d epizoda</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">To je sve za danas</string>
+    <string name="screen_time_daily">Današnje vreme ispred ekrana je potrošeno. Vidimo se sutra!</string>
+    <string name="screen_time_bedtime">Vreme je za spavanje. Vidimo se sutra!</string>
+    <string name="screen_time_choose">Koliko još vremena?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Još vremena (roditelj)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Bez ograničenja do kraja dana</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

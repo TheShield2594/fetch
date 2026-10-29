@@ -1319,7 +1319,8 @@
     <string name="profile_pin_forgot_needs_main">Glemt PIN? Angi en PIN på %1$s først, og bruk den til å tilbakestille denne.</string>
     <string name="profile_pin_forgot_main">PIN-en til hovedprofilen kan ikke tilbakestilles, så oppbevar den på et trygt sted.</string>
     <string name="profile_pin_reset_for_profile">PIN tilbakestilt for %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Feil PIN for %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Feil PIN for %1$s. Prøv igjen.</string>
+    <string name="profile_pin_incorrect">Feil PIN. Prøv igjen.</string>
     <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Ferdig</string>
     <string name="cd_profile_locked">Låst med PIN</string>
@@ -1339,4 +1340,36 @@
     <string name="parental_pin_nudge_subtitle">Angi en PIN på %1$s. Uten en PIN kan hvem som helst endre begrensningene til %2$s eller bytte til en annen profil.</string>
     <string name="parental_pin_nudge_set">Angi PIN på %1$s</string>
     <string name="parental_pin_nudge_later">Ikke nå</string>
+    <string name="parental_gate_open_support">%1$s har ingen egen PIN-kode, så en forelders PIN-kode kreves for å åpne den mens en annen profil har foreldrebegrensninger.</string>
+    <string name="parental_lock_profiles_title">Lås profiler uten begrensninger</string>
+    <string name="parental_lock_profiles_subtitle">Mens en profil har foreldrebegrensninger, kreves PIN-koden til %1$s for å åpne en profil uten begrensninger og uten egen PIN-kode.</string>
+    <string name="parental_lock_profiles_needs_pin">Angi en PIN-kode på %1$s først.</string>
+    <string name="parental_lock_profiles_offer_title">Låse de andre profilene også?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s kan åpne %2$s og hoppe over alle begrensninger, siden de ikke har PIN-kode. Fetch kan i stedet be om PIN-koden til %3$s for å åpne dem.</string>
+    <string name="parental_lock_profiles_offer_accept">Be om PIN-koden til %1$s</string>
+    <string name="kids_autoplay_cap">Autoavspilling på rad: %1$s</string>
+    <string name="kids_approved_only">Bare godkjente titler: %1$s</string>
+    <string name="kids_approved_movies">Filmer for deg</string>
+    <string name="kids_approved_shows">Serier for deg</string>
+    <string name="kids_approved_only_hint">Bare titler som alltid er tillatt, vises på denne profilen. Tillat en tittel fra menyen du får ved å holde inne plakaten på hovedprofilen.</string>
+    <string name="kids_daily_time">Daglig skjermtid: %1$s</string>
+    <string name="kids_bedtime">Leggetid: %1$s til %2$s</string>
+    <string name="kids_bedtime_off">Leggetid: Av</string>
+    <string name="kids_at_limit_finish">Ved grensen: fullfør det som spilles</string>
+    <string name="kids_at_limit_stop">Ved grensen: stopp med en gang</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d episode</item>
+        <item quantity="other">%1$d episoder</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Det var alt for i dag</string>
+    <string name="screen_time_daily">Dagens skjermtid er brukt opp. Vi ses i morgen!</string>
+    <string name="screen_time_bedtime">Det er leggetid. Vi ses i morgen!</string>
+    <string name="screen_time_choose">Hvor mye mer tid?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Mer tid (forelder)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Ingen grense resten av dagen</string>
+    <string name="kids_hours">%1$d t</string>
+    <string name="kids_hours_minutes">%1$d t %2$d min</string>
 </resources>

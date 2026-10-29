@@ -1750,9 +1750,8 @@
     <string name="update_error_apk_missing">ডাউনলোড করা ফাইলটি পাওয়া যাচ্ছে না</string>
     <string name="profile_pin_save_error">পিন সেভ করা যায়নি। আবার চেষ্টা করুন।</string>
     <string name="profile_pin_locked">প্রোফাইল লক করা আছে। %1$d সেকেন্ড পর আবার চেষ্টা করুন।</string>
-    <string name="profile_pin_invalid">অকার্যকর পিন। আবার চেষ্টা করুন।</string>
     <string name="profile_pin_verify_error">পিন যাচাই করা যায়নি। আবার চেষ্টা করুন।</string>
-    <string name="profile_pin_incorrect">বর্তমান পিন ভুল।</string>
+    <string name="profile_pin_incorrect">ভুল পিন। আবার চেষ্টা করুন।</string>
     <string name="profile_pin_current_required">এই প্রোফাইলে ইতিমধ্যেই একটি পিন রয়েছে। এটি পরিবর্তন করতে বর্তমান পিনটি লিখুন।</string>
     <string name="discover_disabled_title">Discover নিষ্ক্রিয় করা আছে</string>
     <string name="discover_disabled_subtitle">লেআউট সেটিংসে Discover সক্রিয় করুন</string>
@@ -2821,7 +2820,7 @@
     <string name="profile_pin_forgot_needs_main">পিন ভুলে গেছেন? আগে %1$s-এ একটি পিন সেট করুন, তারপর সেটি দিয়ে এই পিন রিসেট করুন।</string>
     <string name="profile_pin_forgot_main">প্রাইমারি প্রোফাইলের পিন রিসেট করা যায় না, তাই এটি নিরাপদে রাখুন।</string>
     <string name="profile_pin_reset_for_profile">%1$s-এর পিন রিসেট করা হয়েছে।</string>
-    <string name="profile_pin_incorrect_for_profile">%1$s-এর জন্য ভুল পিন।</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s-এর জন্য ভুল পিন। আবার চেষ্টা করুন।</string>
     <string name="profile_selection_kids_badge">শিশু</string>
     <string name="profile_manage_done">সম্পন্ন</string>
     <string name="cd_profile_locked">পিন দিয়ে লক করা</string>
@@ -2841,4 +2840,36 @@
     <string name="parental_pin_nudge_subtitle">%1$s-এ একটি পিন সেট করুন। পিন না থাকলে যে কেউ %2$s-এর সীমা পরিবর্তন করতে বা অন্য প্রোফাইলে যেতে পারবে।</string>
     <string name="parental_pin_nudge_set">%1$s-এ পিন সেট করুন</string>
     <string name="parental_pin_nudge_later">এখন নয়</string>
+    <string name="parental_gate_open_support">%1$s-এর নিজস্ব পিন নেই, তাই অন্য কোনো প্রোফাইলে প্যারেন্টাল লিমিট থাকা অবস্থায় এটি খুলতে একজন অভিভাবকের পিন প্রয়োজন।</string>
+    <string name="parental_lock_profiles_title">লিমিট ছাড়া প্রোফাইলগুলো লক করুন</string>
+    <string name="parental_lock_profiles_subtitle">কোনো প্রোফাইলে প্যারেন্টাল লিমিট থাকলে, লিমিট ও নিজস্ব পিন ছাড়া কোনো প্রোফাইল খুলতে %1$s-এর পিন লাগবে।</string>
+    <string name="parental_lock_profiles_needs_pin">আগে %1$s-এ একটি পিন সেট করুন।</string>
+    <string name="parental_lock_profiles_offer_title">অন্য প্রোফাইলগুলোও লক করবেন?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%2$s-এর কোনো পিন না থাকায় %1$s সেগুলো খুলে সব লিমিট এড়িয়ে যেতে পারে। এর বদলে সেগুলো খুলতে Fetch %3$s-এর পিন চাইতে পারে।</string>
+    <string name="parental_lock_profiles_offer_accept">%1$s-এর পিন চান</string>
+    <string name="kids_autoplay_cap">পরপর অটোপ্লে: %1$s</string>
+    <string name="kids_approved_only">শুধু অনুমোদিত টাইটেল: %1$s</string>
+    <string name="kids_approved_movies">আপনার জন্য মুভি</string>
+    <string name="kids_approved_shows">আপনার জন্য শো</string>
+    <string name="kids_approved_only_hint">এই প্রোফাইলে শুধু সবসময়-অনুমোদিত টাইটেলগুলো দেখায়। মূল প্রোফাইলে পোস্টারের লং-প্রেস মেনু থেকে একটি টাইটেল অনুমোদন করুন।</string>
+    <string name="kids_daily_time">দৈনিক স্ক্রিন টাইম: %1$s</string>
+    <string name="kids_bedtime">ঘুমের সময়: %1$s থেকে %2$s</string>
+    <string name="kids_bedtime_off">ঘুমের সময়: বন্ধ</string>
+    <string name="kids_at_limit_finish">লিমিটে পৌঁছালে: যা চলছে তা শেষ করুন</string>
+    <string name="kids_at_limit_stop">লিমিটে পৌঁছালে: সঙ্গে সঙ্গে বন্ধ করুন</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d পর্ব</item>
+        <item quantity="other">%1$d পর্ব</item>
+    </plurals>
+    <string name="kids_minutes">%1$d মিনিট</string>
+    <string name="screen_time_title">আজকের মতো এটুকুই</string>
+    <string name="screen_time_daily">আজকের স্ক্রিন টাইম শেষ। কাল দেখা হবে!</string>
+    <string name="screen_time_bedtime">ঘুমের সময় হয়েছে। কাল দেখা হবে!</string>
+    <string name="screen_time_choose">আর কত সময়?</string>
+    <string name="screen_time_ok">ঠিক আছে</string>
+    <string name="screen_time_more">আরও সময় (অভিভাবক)</string>
+    <string name="screen_time_add_minutes">+%1$d মিনিট</string>
+    <string name="screen_time_rest_of_day">আজকের বাকি সময় কোনো লিমিট নেই</string>
+    <string name="kids_hours">%1$d ঘণ্টা</string>
+    <string name="kids_hours_minutes">%1$d ঘণ্টা %2$d মিনিট</string>
 </resources>

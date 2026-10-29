@@ -1463,9 +1463,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">PINを保存できませんでした。もう一度お試しください。</string>
     <string name="profile_pin_locked">プロフィールはロックされています。%1$ds後にもう一度お試しください。</string>
-    <string name="profile_pin_invalid">無効なPINです。もう一度お試しください。</string>
     <string name="profile_pin_verify_error">PINを確認できませんでした。もう一度お試しください。</string>
-    <string name="profile_pin_incorrect">現在のPINが正しくありません。</string>
+    <string name="profile_pin_incorrect">PINが正しくありません。もう一度お試しください。</string>
     <string name="profile_pin_current_required">このプロフィールには既にPINが設定されています。変更するには現在のPINを入力してください。</string>
 
     <!-- Account Screen -->
@@ -2533,7 +2532,7 @@
     <string name="profile_pin_forgot_needs_main">PINをお忘れですか？まず%1$sにPINを設定し、それを使ってこのPINをリセットしてください。</string>
     <string name="profile_pin_forgot_main">メインプロフィールのPINはリセットできないため、安全な場所に保管してください。</string>
     <string name="profile_pin_reset_for_profile">%1$sのPINをリセットしました。</string>
-    <string name="profile_pin_incorrect_for_profile">%1$sのPINが正しくありません。</string>
+    <string name="profile_pin_incorrect_for_profile">%1$sのPINが正しくありません。もう一度お試しください。</string>
     <string name="profile_selection_kids_badge">キッズ</string>
     <string name="profile_manage_done">完了</string>
     <string name="cd_profile_locked">PINでロック中</string>
@@ -2553,4 +2552,35 @@
     <string name="parental_pin_nudge_subtitle">%1$sにPINを設定してください。PINがないと、誰でも%2$sの視聴制限を変更したり、別のプロフィールに切り替えたりできます。</string>
     <string name="parental_pin_nudge_set">%1$sにPINを設定</string>
     <string name="parental_pin_nudge_later">後で</string>
+    <string name="parental_gate_open_support">%1$sには専用のPINがないため、他のプロフィールに視聴制限がある間は、開くのに保護者のPINが必要です。</string>
+    <string name="parental_lock_profiles_title">制限のないプロフィールをロック</string>
+    <string name="parental_lock_profiles_subtitle">視聴制限のあるプロフィールがある間、制限も専用のPINもないプロフィールを開くには%1$sのPINが必要です。</string>
+    <string name="parental_lock_profiles_needs_pin">先に%1$sにPINを設定してください。</string>
+    <string name="parental_lock_profiles_offer_title">他のプロフィールもロックしますか？</string>
+    <string name="parental_lock_profiles_offer_subtitle">%2$sにはPINがないため、%1$sはそれらを開いてすべての制限を回避できます。代わりに、開くときに%3$sのPINを求めるようFetchで設定できます。</string>
+    <string name="parental_lock_profiles_offer_accept">%1$sのPINを求める</string>
+    <string name="kids_autoplay_cap">連続自動再生: %1$s</string>
+    <string name="kids_approved_only">承認済みタイトルのみ: %1$s</string>
+    <string name="kids_approved_movies">あなた向けの映画</string>
+    <string name="kids_approved_shows">あなた向けの番組</string>
+    <string name="kids_approved_only_hint">このプロフィールには常に許可するタイトルのみが表示されます。メインプロフィールでポスターを長押ししてメニューからタイトルを許可してください。</string>
+    <string name="kids_daily_time">1日の視聴時間: %1$s</string>
+    <string name="kids_bedtime">就寝時間: %1$s～%2$s</string>
+    <string name="kids_bedtime_off">就寝時間: オフ</string>
+    <string name="kids_at_limit_finish">上限に達したら: 再生中のものを最後まで</string>
+    <string name="kids_at_limit_stop">上限に達したら: すぐに停止</string>
+    <plurals name="kids_episodes">
+        <item quantity="other">%1$d話</item>
+    </plurals>
+    <string name="kids_minutes">%1$d分</string>
+    <string name="screen_time_title">今日はここまで</string>
+    <string name="screen_time_daily">今日の視聴時間を使い切りました。また明日！</string>
+    <string name="screen_time_bedtime">寝る時間です。また明日！</string>
+    <string name="screen_time_choose">あとどれくらい延長しますか？</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">時間を延長（保護者）</string>
+    <string name="screen_time_add_minutes">+%1$d分</string>
+    <string name="screen_time_rest_of_day">今日はこの後制限なし</string>
+    <string name="kids_hours">%1$d時間</string>
+    <string name="kids_hours_minutes">%1$d時間%2$d分</string>
 </resources>

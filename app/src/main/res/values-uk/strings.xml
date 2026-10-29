@@ -1458,9 +1458,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Не вдалося зберегти PIN. Спробуйте знову.</string>
     <string name="profile_pin_locked">Профіль заблоковано. Спробуйте через %1$d с.</string>
-    <string name="profile_pin_invalid">Невірний PIN. Спробуйте знову.</string>
     <string name="profile_pin_verify_error">Не вдалося перевірити PIN. Спробуйте знову.</string>
-    <string name="profile_pin_incorrect">Поточний PIN невірний.</string>
+    <string name="profile_pin_incorrect">Неправильний PIN. Спробуйте знову.</string>
     <string name="profile_pin_current_required">Цей профіль вже має PIN. Введіть поточний PIN для зміни.</string>
 
     <!-- Account Screen -->
@@ -2566,7 +2565,7 @@
     <string name="profile_pin_forgot_needs_main">Забули PIN? Спершу встановіть PIN для %1$s, а потім скористайтеся ним, щоб скинути цей.</string>
     <string name="profile_pin_forgot_main">PIN основного профілю не можна скинути, тож зберігайте його в надійному місці.</string>
     <string name="profile_pin_reset_for_profile">PIN для %1$s скинуто.</string>
-    <string name="profile_pin_incorrect_for_profile">Неправильний PIN для %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Неправильний PIN для %1$s. Спробуйте знову.</string>
     <string name="profile_selection_kids_badge">Дитячий</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заблоковано PIN-кодом</string>
@@ -2586,4 +2585,38 @@
     <string name="parental_pin_nudge_subtitle">Встановіть PIN для %1$s. Без нього будь-хто зможе змінити обмеження профілю %2$s або перейти на інший профіль.</string>
     <string name="parental_pin_nudge_set">Встановити PIN для %1$s</string>
     <string name="parental_pin_nudge_later">Не зараз</string>
+    <string name="parental_gate_open_support">Профіль %1$s не має власного PIN, тому для його відкриття потрібен PIN батьків, поки інший профіль має батьківські обмеження.</string>
+    <string name="parental_lock_profiles_title">Блокувати профілі без обмежень</string>
+    <string name="parental_lock_profiles_subtitle">Поки якийсь профіль має батьківські обмеження, для відкриття профілю без обмежень і без власного PIN потрібен PIN профілю %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Спершу встановіть PIN для %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Заблокувати й інші профілі?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s може відкрити %2$s і обійти всі обмеження, бо вони не мають PIN. Натомість Fetch може запитувати PIN профілю %3$s для їх відкриття.</string>
+    <string name="parental_lock_profiles_offer_accept">Запитувати PIN профілю %1$s</string>
+    <string name="kids_autoplay_cap">Автовідтворення поспіль: %1$s</string>
+    <string name="kids_approved_only">Лише схвалений контент: %1$s</string>
+    <string name="kids_approved_movies">Фільми для вас</string>
+    <string name="kids_approved_shows">Серіали для вас</string>
+    <string name="kids_approved_only_hint">У цьому профілі показано лише завжди дозволений контент. Дозвольте його через меню довгого натискання на постері в основному профілі.</string>
+    <string name="kids_daily_time">Щоденний екранний час: %1$s</string>
+    <string name="kids_bedtime">Час спати: з %1$s до %2$s</string>
+    <string name="kids_bedtime_off">Час спати: Вимк.</string>
+    <string name="kids_at_limit_finish">При досягненні ліміту: дограти поточне</string>
+    <string name="kids_at_limit_stop">При досягненні ліміту: зупинити одразу</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d епізод</item>
+        <item quantity="few">%1$d епізоди</item>
+        <item quantity="many">%1$d епізодів</item>
+        <item quantity="other">%1$d епізоду</item>
+    </plurals>
+    <string name="kids_minutes">%1$d хв</string>
+    <string name="screen_time_title">На сьогодні все</string>
+    <string name="screen_time_daily">Екранний час на сьогодні вичерпано. До завтра!</string>
+    <string name="screen_time_bedtime">Час спати. До завтра!</string>
+    <string name="screen_time_choose">Скільки ще часу?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Більше часу (батьки)</string>
+    <string name="screen_time_add_minutes">+%1$d хв</string>
+    <string name="screen_time_rest_of_day">Без ліміту до кінця дня</string>
+    <string name="kids_hours">%1$d год</string>
+    <string name="kids_hours_minutes">%1$d год %2$d хв</string>
 </resources>

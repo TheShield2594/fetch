@@ -1726,9 +1726,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Kon de pincode niet opslaan. Probeer het opnieuw.</string>
     <string name="profile_pin_locked">Het profiel is vergrendeld. Probeer het over %1$d s opnieuw.</string>
-    <string name="profile_pin_invalid">Ongeldige pincode. Probeer het opnieuw.</string>
     <string name="profile_pin_verify_error">Kon de pincode niet verifiëren. Probeer het opnieuw.</string>
-    <string name="profile_pin_incorrect">De huidige pincode is onjuist.</string>
+    <string name="profile_pin_incorrect">Onjuiste pincode. Probeer het opnieuw.</string>
     <string name="profile_pin_current_required">Dit profiel heeft al een pincode. Voer de huidige pincode in om deze te wijzigen.</string>
 
     <!-- Account Screen -->
@@ -2871,7 +2870,7 @@
     <string name="profile_pin_forgot_needs_main">Pincode vergeten? Stel eerst een pincode in op %1$s en reset deze daarmee.</string>
     <string name="profile_pin_forgot_main">De pincode van het hoofdprofiel kan niet worden gereset, dus bewaar hem goed.</string>
     <string name="profile_pin_reset_for_profile">Pincode gereset voor %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Onjuiste pincode voor %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Onjuiste pincode voor %1$s. Probeer het opnieuw.</string>
     <string name="profile_selection_kids_badge">Kinderen</string>
     <string name="profile_manage_done">Klaar</string>
     <string name="cd_profile_locked">Vergrendeld met pincode</string>
@@ -2891,4 +2890,36 @@
     <string name="parental_pin_nudge_subtitle">Stel een pincode in op %1$s. Zonder pincode kan iedereen de beperkingen van %2$s wijzigen of naar een ander profiel wisselen.</string>
     <string name="parental_pin_nudge_set">Pincode instellen op %1$s</string>
     <string name="parental_pin_nudge_later">Niet nu</string>
+    <string name="parental_gate_open_support">%1$s heeft geen eigen pincode, dus de pincode van een ouder is nodig om het te openen zolang een ander profiel ouderlijke beperkingen heeft.</string>
+    <string name="parental_lock_profiles_title">Profielen zonder beperkingen vergrendelen</string>
+    <string name="parental_lock_profiles_subtitle">Zolang een profiel ouderlijke beperkingen heeft, is de pincode van %1$s nodig om een profiel zonder beperkingen en zonder eigen pincode te openen.</string>
+    <string name="parental_lock_profiles_needs_pin">Stel eerst een pincode in op %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Ook de andere profielen vergrendelen?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s kan %2$s openen en alle beperkingen omzeilen, omdat die geen pincode hebben. Fetch kan in plaats daarvan om de pincode van %3$s vragen om ze te openen.</string>
+    <string name="parental_lock_profiles_offer_accept">Vraag om pincode van %1$s</string>
+    <string name="kids_autoplay_cap">Automatisch afspelen achter elkaar: %1$s</string>
+    <string name="kids_approved_only">Alleen goedgekeurde titels: %1$s</string>
+    <string name="kids_approved_movies">Films voor jou</string>
+    <string name="kids_approved_shows">Series voor jou</string>
+    <string name="kids_approved_only_hint">Op dit profiel worden alleen altijd toegestane titels getoond. Sta een titel toe via het menu dat je opent door lang op de poster te drukken in het hoofdprofiel.</string>
+    <string name="kids_daily_time">Dagelijkse schermtijd: %1$s</string>
+    <string name="kids_bedtime">Bedtijd: %1$s tot %2$s</string>
+    <string name="kids_bedtime_off">Bedtijd: Uit</string>
+    <string name="kids_at_limit_finish">Bij de limiet: afmaken wat er speelt</string>
+    <string name="kids_at_limit_stop">Bij de limiet: meteen stoppen</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d aflevering</item>
+        <item quantity="other">%1$d afleveringen</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Dat was het voor vandaag</string>
+    <string name="screen_time_daily">De schermtijd voor vandaag is op. Tot morgen!</string>
+    <string name="screen_time_bedtime">Het is bedtijd. Tot morgen!</string>
+    <string name="screen_time_choose">Hoeveel extra tijd?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Meer tijd (ouder)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Geen limiet voor de rest van vandaag</string>
+    <string name="kids_hours">%1$d u</string>
+    <string name="kids_hours_minutes">%1$d u %2$d min</string>
 </resources>

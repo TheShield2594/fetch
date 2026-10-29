@@ -1507,9 +1507,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">PIN nemohl být uložen. Zkuste to znovu.</string>
     <string name="profile_pin_locked">Profil je uzamčen. Zkuste to znovu za %1$ds.</string>
-    <string name="profile_pin_invalid">Neplatný PIN. Zkuste to znovu.</string>
     <string name="profile_pin_verify_error">PIN nemohl být ověřen. Zkuste to znovu.</string>
-    <string name="profile_pin_incorrect">Aktuální PIN je nesprávný.</string>
+    <string name="profile_pin_incorrect">Nesprávný PIN. Zkuste to znovu.</string>
     <string name="profile_pin_current_required">Tento profil již má PIN. Pro změnu zadejte aktuální PIN.</string>
 
     <!-- Account Screen -->
@@ -2617,7 +2616,7 @@
     <string name="profile_pin_forgot_needs_main">Zapomněli jste PIN? Nejprve nastavte PIN na profilu %1$s a pak ho použijte k obnovení tohoto.</string>
     <string name="profile_pin_forgot_main">PIN hlavního profilu nelze obnovit, proto si ho uschovejte na bezpečném místě.</string>
     <string name="profile_pin_reset_for_profile">PIN pro %1$s byl obnoven.</string>
-    <string name="profile_pin_incorrect_for_profile">Nesprávný PIN pro %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Nesprávný PIN pro %1$s. Zkuste to znovu.</string>
     <string name="profile_selection_kids_badge">Dětský</string>
     <string name="profile_manage_done">Hotovo</string>
     <string name="cd_profile_locked">Uzamčeno PINem</string>
@@ -2637,4 +2636,38 @@
     <string name="parental_pin_nudge_subtitle">Nastavte PIN na profilu %1$s. Bez něj může kdokoli změnit omezení profilu %2$s nebo přepnout na jiný profil.</string>
     <string name="parental_pin_nudge_set">Nastavit PIN na profilu %1$s</string>
     <string name="parental_pin_nudge_later">Teď ne</string>
+    <string name="parental_gate_open_support">Profil %1$s nemá vlastní PIN, takže k jeho otevření je potřeba PIN rodiče, dokud má jiný profil rodičovská omezení.</string>
+    <string name="parental_lock_profiles_title">Zamknout profily bez omezení</string>
+    <string name="parental_lock_profiles_subtitle">Dokud má některý profil rodičovská omezení, otevření profilu bez omezení a bez vlastního PINu vyžaduje PIN profilu %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Nejprve nastavte PIN profilu %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Zamknout i ostatní profily?</string>
+    <string name="parental_lock_profiles_offer_subtitle">Profil %1$s může otevřít %2$s a obejít všechna omezení, protože nemají PIN. Fetch může místo toho k jejich otevření vyžadovat PIN profilu %3$s.</string>
+    <string name="parental_lock_profiles_offer_accept">Vyžadovat PIN profilu %1$s</string>
+    <string name="kids_autoplay_cap">Automatické přehrávání za sebou: %1$s</string>
+    <string name="kids_approved_only">Jen schválené tituly: %1$s</string>
+    <string name="kids_approved_movies">Filmy pro vás</string>
+    <string name="kids_approved_shows">Seriály pro vás</string>
+    <string name="kids_approved_only_hint">Na tomto profilu se zobrazují jen vždy povolené tituly. Titul povolíte v nabídce dlouhého stisknutí jeho plakátu na hlavním profilu.</string>
+    <string name="kids_daily_time">Denní čas u obrazovky: %1$s</string>
+    <string name="kids_bedtime">Večerka: od %1$s do %2$s</string>
+    <string name="kids_bedtime_off">Večerka: vypnuto</string>
+    <string name="kids_at_limit_finish">Při dosažení limitu: dokončit přehrávané</string>
+    <string name="kids_at_limit_stop">Při dosažení limitu: ihned zastavit</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d epizoda</item>
+        <item quantity="few">%1$d epizody</item>
+        <item quantity="many">%1$d epizody</item>
+        <item quantity="other">%1$d epizod</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">To je pro dnešek vše</string>
+    <string name="screen_time_daily">Dnešní čas u obrazovky vypršel. Uvidíme se zítra!</string>
+    <string name="screen_time_bedtime">Je čas jít spát. Uvidíme se zítra!</string>
+    <string name="screen_time_choose">Kolik času navíc?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Více času (rodič)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Bez limitu do konce dne</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

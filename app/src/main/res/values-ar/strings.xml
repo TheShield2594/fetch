@@ -1484,9 +1484,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">تعذر حفظ رمز PIN. حاول مجدداً.</string>
     <string name="profile_pin_locked">الملف الشخصي مقفل. حاول مجدداً بعد %1$d ثوان.</string>
-    <string name="profile_pin_invalid">رمز PIN غير صالح. حاول مجدداً.</string>
     <string name="profile_pin_verify_error">تعذر التحقق من رمز PIN. حاول مجدداً.</string>
-    <string name="profile_pin_incorrect">رمز PIN الحالي غير صحيح.</string>
+    <string name="profile_pin_incorrect">رمز PIN غير صحيح. حاول مجدداً.</string>
     <string name="profile_pin_current_required">الملف محمي برمز PIN.أدخل الرمز الحالي لتغييره.</string>
 
     <!-- Search -->
@@ -2801,7 +2800,7 @@
     <string name="profile_pin_forgot_needs_main">نسيت رمز PIN؟ عيّن رمز PIN لـ %1$s أولاً، ثم استخدمه لإعادة تعيين هذا الرمز.</string>
     <string name="profile_pin_forgot_main">لا يمكن إعادة تعيين رمز PIN للملف الشخصي الرئيسي، لذا احتفظ به في مكان آمن.</string>
     <string name="profile_pin_reset_for_profile">تمت إعادة تعيين رمز PIN لـ %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">رمز PIN غير صحيح لـ %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">رمز PIN غير صحيح لـ %1$s. حاول مجدداً.</string>
     <string name="profile_selection_kids_badge">أطفال</string>
     <string name="profile_manage_done">تم</string>
     <string name="cd_profile_locked">مقفل برمز PIN</string>
@@ -2821,4 +2820,40 @@
     <string name="parental_pin_nudge_subtitle">عيّن رمز PIN لـ %1$s. بدونه، يمكن لأي شخص تغيير قيود %2$s أو التبديل إلى ملف شخصي آخر.</string>
     <string name="parental_pin_nudge_set">عيّن رمز PIN لـ %1$s</string>
     <string name="parental_pin_nudge_later">ليس الآن</string>
+    <string name="parental_gate_open_support">لا يملك %1$s رمز PIN خاصاً به، لذا يلزم رمز PIN لأحد الوالدين لفتحه ما دام هناك ملف شخصي آخر عليه قيود أبوية.</string>
+    <string name="parental_lock_profiles_title">قفل الملفات الشخصية بدون قيود</string>
+    <string name="parental_lock_profiles_subtitle">ما دام هناك ملف شخصي عليه قيود أبوية، يتطلب فتح أي ملف شخصي بلا قيود وبلا رمز PIN خاص به رمز PIN الخاص بـ %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">عيّن رمز PIN لـ %1$s أولاً.</string>
+    <string name="parental_lock_profiles_offer_title">قفل الملفات الشخصية الأخرى أيضاً؟</string>
+    <string name="parental_lock_profiles_offer_subtitle">يمكن لـ %1$s فتح %2$s وتجاوز كل القيود، لأنها بلا رمز PIN. يمكن لـ Fetch طلب رمز PIN الخاص بـ %3$s لفتحها بدلاً من ذلك.</string>
+    <string name="parental_lock_profiles_offer_accept">طلب رمز PIN الخاص بـ %1$s</string>
+    <string name="kids_autoplay_cap">التشغيل التلقائي المتتالي: %1$s</string>
+    <string name="kids_approved_only">العناوين المعتمدة فقط: %1$s</string>
+    <string name="kids_approved_movies">أفلام لك</string>
+    <string name="kids_approved_shows">مسلسلات لك</string>
+    <string name="kids_approved_only_hint">تظهر على هذا الملف الشخصي العناوين المسموح بها دائماً فقط. اسمح بعنوان من قائمة الضغط المطوّل على ملصقه في الملف الشخصي الرئيسي.</string>
+    <string name="kids_daily_time">وقت الشاشة اليومي: %1$s</string>
+    <string name="kids_bedtime">وقت النوم: من %1$s إلى %2$s</string>
+    <string name="kids_bedtime_off">وقت النوم: متوقف</string>
+    <string name="kids_at_limit_finish">عند بلوغ الحد: إنهاء ما يُعرض</string>
+    <string name="kids_at_limit_stop">عند بلوغ الحد: الإيقاف فوراً</string>
+    <plurals name="kids_episodes">
+        <item quantity="zero">%1$d حلقة</item>
+        <item quantity="one">%1$d حلقة</item>
+        <item quantity="two">%1$d حلقتان</item>
+        <item quantity="few">%1$d حلقات</item>
+        <item quantity="many">%1$d حلقة</item>
+        <item quantity="other">%1$d حلقة</item>
+    </plurals>
+    <string name="kids_minutes">%1$d دقيقة</string>
+    <string name="screen_time_title">هذا كل شيء لليوم</string>
+    <string name="screen_time_daily">انتهى وقت الشاشة لليوم. نراك غداً!</string>
+    <string name="screen_time_bedtime">حان وقت النوم. نراك غداً!</string>
+    <string name="screen_time_choose">كم من الوقت الإضافي؟</string>
+    <string name="screen_time_ok">موافق</string>
+    <string name="screen_time_more">وقت إضافي (للوالدين)</string>
+    <string name="screen_time_add_minutes">+%1$d دقيقة</string>
+    <string name="screen_time_rest_of_day">بلا حد لبقية اليوم</string>
+    <string name="kids_hours">%1$d ساعة</string>
+    <string name="kids_hours_minutes">%1$d ساعة %2$d دقيقة</string>
 </resources>

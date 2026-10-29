@@ -2026,9 +2026,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">PIN kaydedilemedi. Tekrar deneyin.</string>
     <string name="profile_pin_locked">Profil kilitli. %1$d sn sonra tekrar deneyin.</string>
-    <string name="profile_pin_invalid">Geçersiz PIN. Tekrar deneyin.</string>
     <string name="profile_pin_verify_error">PIN doğrulanamadı. Tekrar deneyin.</string>
-    <string name="profile_pin_incorrect">Mevcut PIN yanlış.</string>
+    <string name="profile_pin_incorrect">PIN hatalı. Tekrar deneyin.</string>
     <string name="profile_pin_current_required">Bu profilde zaten bir PIN var. Değiştirmek için mevcut PIN\'i girin.</string>
     <string name="profile_pin_saved_for_profile">%1$s için PIN kaydedildi.</string>
     <string name="profile_pin_lock_removed_for_profile">%1$s için PIN kilidi kaldırıldı.</string>
@@ -3089,7 +3088,7 @@
     <string name="profile_pin_forgot_needs_main">PIN\'i mi unuttunuz? Önce %1$s profiline bir PIN belirleyin, ardından bunu sıfırlamak için kullanın.</string>
     <string name="profile_pin_forgot_main">Ana profilin PIN\'i sıfırlanamaz, bu yüzden güvenli bir yerde saklayın.</string>
     <string name="profile_pin_reset_for_profile">%1$s için PIN sıfırlandı.</string>
-    <string name="profile_pin_incorrect_for_profile">%1$s için PIN hatalı.</string>
+    <string name="profile_pin_incorrect_for_profile">%1$s için PIN hatalı. Tekrar deneyin.</string>
     <string name="profile_selection_kids_badge">Çocuk</string>
     <string name="profile_manage_done">Tamam</string>
     <string name="cd_profile_locked">PIN ile kilitli</string>
@@ -3109,4 +3108,36 @@
     <string name="parental_pin_nudge_subtitle">%1$s profiline bir PIN koy. PIN olmadan herkes %2$s profilinin sınırlarını değiştirebilir veya başka bir profile geçebilir.</string>
     <string name="parental_pin_nudge_set">%1$s profiline PIN koy</string>
     <string name="parental_pin_nudge_later">Şimdi değil</string>
+    <string name="parental_gate_open_support">%1$s profilinin kendi PIN’i yok; başka bir profilde ebeveyn sınırları varken bu profili açmak için ebeveyn PIN’i gerekir.</string>
+    <string name="parental_lock_profiles_title">Sınırı olmayan profilleri kilitle</string>
+    <string name="parental_lock_profiles_subtitle">Bir profilde ebeveyn sınırları varken, sınırı ve kendi PIN’i olmayan bir profili açmak için %1$s profilinin PIN’i gerekir.</string>
+    <string name="parental_lock_profiles_needs_pin">Önce %1$s profiline bir PIN koy.</string>
+    <string name="parental_lock_profiles_offer_title">Diğer profiller de kilitlensin mi?</string>
+    <string name="parental_lock_profiles_offer_subtitle">PIN’leri olmadığı için %1$s, %2$s profillerini açıp tüm sınırları atlayabilir. Fetch bunun yerine onları açmak için %3$s profilinin PIN’ini isteyebilir.</string>
+    <string name="parental_lock_profiles_offer_accept">%1$s profilinin PIN’ini iste</string>
+    <string name="kids_autoplay_cap">Art arda otomatik oynatma: %1$s</string>
+    <string name="kids_approved_only">Yalnızca onaylı başlıklar: %1$s</string>
+    <string name="kids_approved_movies">Sana özel filmler</string>
+    <string name="kids_approved_shows">Sana özel diziler</string>
+    <string name="kids_approved_only_hint">Bu profilde yalnızca her zaman izin verilen başlıklar görünür. Ana profilde bir başlığa, afişinin uzun basma menüsünden izin ver.</string>
+    <string name="kids_daily_time">Günlük ekran süresi: %1$s</string>
+    <string name="kids_bedtime">Yatma saati: %1$s – %2$s</string>
+    <string name="kids_bedtime_off">Yatma saati: Kapalı</string>
+    <string name="kids_at_limit_finish">Sınıra gelince: oynatılanı bitir</string>
+    <string name="kids_at_limit_stop">Sınıra gelince: hemen durdur</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d bölüm</item>
+        <item quantity="other">%1$d bölüm</item>
+    </plurals>
+    <string name="kids_minutes">%1$d dk</string>
+    <string name="screen_time_title">Bugünlük bu kadar</string>
+    <string name="screen_time_daily">Bugünkü ekran süresi doldu. Yarın görüşürüz!</string>
+    <string name="screen_time_bedtime">Yatma vakti. Yarın görüşürüz!</string>
+    <string name="screen_time_choose">Ne kadar ek süre?</string>
+    <string name="screen_time_ok">Tamam</string>
+    <string name="screen_time_more">Ek süre (ebeveyn)</string>
+    <string name="screen_time_add_minutes">+%1$d dk</string>
+    <string name="screen_time_rest_of_day">Bugünün geri kalanında sınır yok</string>
+    <string name="kids_hours">%1$d sa</string>
+    <string name="kids_hours_minutes">%1$d sa %2$d dk</string>
 </resources>

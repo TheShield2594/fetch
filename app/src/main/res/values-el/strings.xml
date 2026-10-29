@@ -1749,9 +1749,8 @@
   <!-- Profile PIN errors -->
   <string name="profile_pin_save_error">Δεν ήταν δυνατή η αποθήκευση του PIN. Δοκιμάστε ξανά.</string>
   <string name="profile_pin_locked">Το προφίλ είναι κλειδωμένο. Δοκιμάστε ξανά σε %1$ds.</string>
-  <string name="profile_pin_invalid">Μη έγκυρο PIN. Δοκιμάστε ξανά.</string>
   <string name="profile_pin_verify_error">Δεν ήταν δυνατή η επαλήθευση του PIN. Δοκιμάστε ξανά.</string>
-  <string name="profile_pin_incorrect">Το τρέχον PIN είναι λανθασμένο.</string>
+  <string name="profile_pin_incorrect">Λάθος PIN. Δοκιμάστε ξανά.</string>
   <string name="profile_pin_current_required">Αυτό το προφίλ έχει ήδη PIN. Εισαγάγετε το τρέχον PIN για να το αλλάξετε.</string>
   <!-- Account Screen -->
   <string name="account_signin_create_title">Σύνδεση / Δημιουργία λογαριασμού</string>
@@ -2989,7 +2988,7 @@
     <string name="profile_pin_forgot_needs_main">Ξεχάσατε το PIN; Ορίστε πρώτα PIN στο %1$s και μετά χρησιμοποιήστε το για επαναφορά αυτού.</string>
     <string name="profile_pin_forgot_main">Το PIN του κύριου προφίλ δεν μπορεί να επαναφερθεί, οπότε φυλάξτε το σε ασφαλές μέρος.</string>
     <string name="profile_pin_reset_for_profile">Έγινε επαναφορά του PIN για το %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Λάθος PIN για το %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Λάθος PIN για το %1$s. Δοκιμάστε ξανά.</string>
     <string name="profile_selection_kids_badge">Παιδικό</string>
     <string name="profile_manage_done">Τέλος</string>
     <string name="cd_profile_locked">Κλειδωμένο με PIN</string>
@@ -3009,4 +3008,36 @@
     <string name="parental_pin_nudge_subtitle">Ορίστε PIN στο %1$s. Χωρίς αυτό, οποιοσδήποτε μπορεί να αλλάξει τα όρια του %2$s ή να μεταβεί σε άλλο προφίλ.</string>
     <string name="parental_pin_nudge_set">Ορισμός PIN στο %1$s</string>
     <string name="parental_pin_nudge_later">Όχι τώρα</string>
+    <string name="parental_gate_open_support">Το %1$s δεν έχει δικό του PIN, οπότε χρειάζεται το PIN ενός γονέα για να ανοίξει, όσο ένα άλλο προφίλ έχει γονικά όρια.</string>
+    <string name="parental_lock_profiles_title">Κλείδωμα προφίλ χωρίς όρια</string>
+    <string name="parental_lock_profiles_subtitle">Όσο ένα προφίλ έχει γονικά όρια, για το άνοιγμα προφίλ χωρίς όρια και χωρίς δικό τους PIN απαιτείται το PIN του προφίλ %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Ορίστε πρώτα PIN στο προφίλ %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Κλείδωμα και των άλλων προφίλ;</string>
+    <string name="parental_lock_profiles_offer_subtitle">Το %1$s μπορεί να ανοίξει τα %2$s και να παρακάμψει κάθε όριο, αφού δεν έχουν PIN. Το Fetch μπορεί αντί γι’ αυτό να ζητά το PIN του προφίλ %3$s για να ανοίγουν.</string>
+    <string name="parental_lock_profiles_offer_accept">Ζήτηση PIN του προφίλ %1$s</string>
+    <string name="kids_autoplay_cap">Συνεχόμενη αυτόματη αναπαραγωγή: %1$s</string>
+    <string name="kids_approved_only">Μόνο εγκεκριμένοι τίτλοι: %1$s</string>
+    <string name="kids_approved_movies">Ταινίες για εσάς</string>
+    <string name="kids_approved_shows">Σειρές για εσάς</string>
+    <string name="kids_approved_only_hint">Σε αυτό το προφίλ εμφανίζονται μόνο τίτλοι που επιτρέπονται πάντα. Επιτρέψτε έναν τίτλο από το μενού παρατεταμένου πατήματος της αφίσας του στο κύριο προφίλ.</string>
+    <string name="kids_daily_time">Ημερήσιος χρόνος οθόνης: %1$s</string>
+    <string name="kids_bedtime">Ώρα ύπνου: %1$s έως %2$s</string>
+    <string name="kids_bedtime_off">Ώρα ύπνου: Απενεργοποιημένη</string>
+    <string name="kids_at_limit_finish">Στο όριο: να τελειώσει ό,τι παίζει</string>
+    <string name="kids_at_limit_stop">Στο όριο: άμεση διακοπή</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d επεισόδιο</item>
+        <item quantity="other">%1$d επεισόδια</item>
+    </plurals>
+    <string name="kids_minutes">%1$d λεπ.</string>
+    <string name="screen_time_title">Αυτά για σήμερα</string>
+    <string name="screen_time_daily">Ο χρόνος οθόνης για σήμερα τελείωσε. Τα λέμε αύριο!</string>
+    <string name="screen_time_bedtime">Ώρα για ύπνο. Τα λέμε αύριο!</string>
+    <string name="screen_time_choose">Πόσος επιπλέον χρόνος;</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Περισσότερος χρόνος (γονέας)</string>
+    <string name="screen_time_add_minutes">+%1$d λεπ.</string>
+    <string name="screen_time_rest_of_day">Χωρίς όριο για την υπόλοιπη ημέρα</string>
+    <string name="kids_hours">%1$d ώ.</string>
+    <string name="kids_hours_minutes">%1$d ώ. %2$d λεπ.</string>
 </resources>

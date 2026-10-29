@@ -1275,9 +1275,8 @@
     <string name="profile_edit_header">Edytuj profil</string>
     <string name="profile_pin_save_error">Nie można zapisać PIN-u. Spróbuj ponownie.</string>
     <string name="profile_pin_locked">Profil jest zablokowany. Spróbuj ponownie za %1$ds.</string>
-    <string name="profile_pin_invalid">Nieprawidłowy PIN. Spróbuj ponownie.</string>
     <string name="profile_pin_verify_error">Nie można zweryfikować PIN-u. Spróbuj ponownie.</string>
-    <string name="profile_pin_incorrect">Bieżący PIN jest nieprawidłowy.</string>
+    <string name="profile_pin_incorrect">Nieprawidłowy PIN. Spróbuj ponownie.</string>
 
     <string name="ratings_season_label">S%1$d</string>
     <string name="ratings_episode_label">E%1$d</string>
@@ -3161,7 +3160,7 @@
     <string name="profile_pin_forgot_needs_main">Nie pamiętasz PIN-u? Najpierw ustaw PIN w profilu %1$s, a potem użyj go do zresetowania tego.</string>
     <string name="profile_pin_forgot_main">PIN-u profilu głównego nie można zresetować, więc przechowuj go w bezpiecznym miejscu.</string>
     <string name="profile_pin_reset_for_profile">Zresetowano PIN profilu %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Nieprawidłowy PIN profilu %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Nieprawidłowy PIN profilu %1$s. Spróbuj ponownie.</string>
     <string name="profile_selection_kids_badge">Dzieci</string>
     <string name="profile_manage_done">Gotowe</string>
     <string name="cd_profile_locked">Zablokowany PIN-em</string>
@@ -3181,4 +3180,38 @@
     <string name="parental_pin_nudge_subtitle">Ustaw PIN w profilu %1$s. Bez niego każdy może zmienić limity profilu %2$s lub przełączyć się na inny profil.</string>
     <string name="parental_pin_nudge_set">Ustaw PIN w profilu %1$s</string>
     <string name="parental_pin_nudge_later">Nie teraz</string>
+    <string name="parental_gate_open_support">Profil %1$s nie ma własnego PIN-u, więc do jego otwarcia potrzebny jest PIN rodzica, dopóki inny profil ma ograniczenia rodzicielskie.</string>
+    <string name="parental_lock_profiles_title">Blokuj profile bez ograniczeń</string>
+    <string name="parental_lock_profiles_subtitle">Gdy któryś profil ma ograniczenia rodzicielskie, otwarcie profilu bez ograniczeń i bez własnego PIN-u wymaga PIN-u profilu %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Najpierw ustaw PIN dla profilu %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Zablokować też pozostałe profile?</string>
+    <string name="parental_lock_profiles_offer_subtitle">Profil %1$s może otworzyć %2$s i ominąć wszystkie ograniczenia, bo nie mają PIN-u. Zamiast tego Fetch może prosić o PIN profilu %3$s przy ich otwieraniu.</string>
+    <string name="parental_lock_profiles_offer_accept">Proś o PIN profilu %1$s</string>
+    <string name="kids_autoplay_cap">Autoodtwarzanie z rzędu: %1$s</string>
+    <string name="kids_approved_only">Tylko zatwierdzone tytuły: %1$s</string>
+    <string name="kids_approved_movies">Filmy dla Ciebie</string>
+    <string name="kids_approved_shows">Seriale dla Ciebie</string>
+    <string name="kids_approved_only_hint">Na tym profilu widać tylko zawsze dozwolone tytuły. Zezwól na tytuł w menu, które otworzysz, przytrzymując jego plakat na profilu głównym.</string>
+    <string name="kids_daily_time">Dzienny czas przed ekranem: %1$s</string>
+    <string name="kids_bedtime">Pora snu: %1$s–%2$s</string>
+    <string name="kids_bedtime_off">Pora snu: Wył.</string>
+    <string name="kids_at_limit_finish">Po osiągnięciu limitu: dokończ odtwarzanie</string>
+    <string name="kids_at_limit_stop">Po osiągnięciu limitu: zatrzymaj od razu</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d odcinek</item>
+        <item quantity="few">%1$d odcinki</item>
+        <item quantity="many">%1$d odcinków</item>
+        <item quantity="other">%1$d odcinka</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Na dziś to wszystko</string>
+    <string name="screen_time_daily">Dzisiejszy czas przed ekranem się skończył. Do jutra!</string>
+    <string name="screen_time_bedtime">Pora spać. Do jutra!</string>
+    <string name="screen_time_choose">Ile jeszcze czasu?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Więcej czasu (rodzic)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Bez limitu do końca dnia</string>
+    <string name="kids_hours">%1$d godz.</string>
+    <string name="kids_hours_minutes">%1$d godz. %2$d min</string>
 </resources>

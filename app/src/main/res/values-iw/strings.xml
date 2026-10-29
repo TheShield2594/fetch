@@ -1899,9 +1899,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">לא ניתן היה לשמור את הסיסמה. כדאי לנסות שוב.</string>
     <string name="profile_pin_locked">הפרופיל נעול. כדאי לנסות שוב בעוד %1$d שנ׳.</string>
-    <string name="profile_pin_invalid">סיסמה שגויה. כדאי לנסות שוב.</string>
     <string name="profile_pin_verify_error">לא ניתן היה לאמת את הסיסמה. כדאי לנסות שוב.</string>
-    <string name="profile_pin_incorrect">הסיסמה הנוכחית שגויה.</string>
+    <string name="profile_pin_incorrect">סיסמה שגויה. כדאי לנסות שוב.</string>
     <string name="profile_pin_current_required">לפרופיל זה יש כבר סיסמה. יש להזין את הסיסמה הנוכחית כדי לשנות אותה.</string>
 
     <!-- Account Screen -->
@@ -3085,7 +3084,7 @@
     <string name="profile_pin_forgot_needs_main">שכחת את הסיסמה? יש להגדיר קודם סיסמה ל-%1$s ואז להשתמש בה כדי לאפס את הסיסמה הזו.</string>
     <string name="profile_pin_forgot_main">לא ניתן לאפס את הסיסמה של הפרופיל הראשי, לכן כדאי לשמור אותה במקום בטוח.</string>
     <string name="profile_pin_reset_for_profile">הסיסמה של %1$s אופסה.</string>
-    <string name="profile_pin_incorrect_for_profile">סיסמה שגויה עבור %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">סיסמה שגויה עבור %1$s. כדאי לנסות שוב.</string>
     <string name="profile_selection_kids_badge">ילדים</string>
     <string name="profile_manage_done">סיום</string>
     <string name="cd_profile_locked">נעול בסיסמה</string>
@@ -3105,4 +3104,37 @@
     <string name="parental_pin_nudge_subtitle">יש להגדיר קוד PIN ל-%1$s. בלעדיו, כל אחד יכול לשנות את ההגבלות של %2$s או לעבור לפרופיל אחר.</string>
     <string name="parental_pin_nudge_set">הגדרת קוד PIN ל-%1$s</string>
     <string name="parental_pin_nudge_later">לא עכשיו</string>
+    <string name="parental_gate_open_support">ל-%1$s אין קוד PIN משלו, ולכן נדרש קוד PIN של הורה כדי לפתוח אותו כל עוד לפרופיל אחר יש הגבלות הורים.</string>
+    <string name="parental_lock_profiles_title">נעילת פרופילים ללא הגבלות</string>
+    <string name="parental_lock_profiles_subtitle">כל עוד לפרופיל כלשהו יש הגבלות הורים, פתיחת פרופיל ללא הגבלות וללא קוד PIN משלו דורשת את קוד ה-PIN של %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">יש להגדיר קודם קוד PIN עבור %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">לנעול גם את שאר הפרופילים?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s יכול לפתוח את %2$s ולעקוף כל הגבלה, כי אין להם קוד PIN. במקום זאת, Fetch יכול לבקש את קוד ה-PIN של %3$s כדי לפתוח אותם.</string>
+    <string name="parental_lock_profiles_offer_accept">בקשת קוד ה-PIN של %1$s</string>
+    <string name="kids_autoplay_cap">הפעלה אוטומטית ברצף: %1$s</string>
+    <string name="kids_approved_only">כותרים מאושרים בלבד: %1$s</string>
+    <string name="kids_approved_movies">סרטים בשבילך</string>
+    <string name="kids_approved_shows">סדרות בשבילך</string>
+    <string name="kids_approved_only_hint">בפרופיל הזה מוצגים רק כותרים שתמיד מותרים. אפשר לאשר כותר מתפריט הלחיצה הארוכה על הפוסטר שלו בפרופיל הראשי.</string>
+    <string name="kids_daily_time">זמן מסך יומי: %1$s</string>
+    <string name="kids_bedtime">שעת שינה: %1$s עד %2$s</string>
+    <string name="kids_bedtime_off">שעת שינה: כבויה</string>
+    <string name="kids_at_limit_finish">בהגעה למגבלה: לסיים את מה שמתנגן</string>
+    <string name="kids_at_limit_stop">בהגעה למגבלה: לעצור מיד</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d פרק</item>
+        <item quantity="two">%1$d פרקים</item>
+        <item quantity="other">%1$d פרקים</item>
+    </plurals>
+    <string name="kids_minutes">%1$d דק׳</string>
+    <string name="screen_time_title">זהו להיום</string>
+    <string name="screen_time_daily">זמן המסך להיום נגמר. נתראה מחר!</string>
+    <string name="screen_time_bedtime">הגיע הזמן לישון. נתראה מחר!</string>
+    <string name="screen_time_choose">כמה זמן נוסף?</string>
+    <string name="screen_time_ok">אישור</string>
+    <string name="screen_time_more">עוד זמן (הורה)</string>
+    <string name="screen_time_add_minutes">+%1$d דק׳</string>
+    <string name="screen_time_rest_of_day">ללא הגבלה עד סוף היום</string>
+    <string name="kids_hours">%1$d שע׳</string>
+    <string name="kids_hours_minutes">%1$d שע׳ %2$d דק׳</string>
 </resources>

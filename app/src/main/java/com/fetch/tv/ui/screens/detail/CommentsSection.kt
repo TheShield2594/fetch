@@ -666,7 +666,8 @@ private fun EpisodeCommentPickerDialog(
         title = stringResource(R.string.detail_comments_episode_picker_title),
         subtitle = stringResource(R.string.detail_comments_episode_picker_subtitle),
         width = 560.dp,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),

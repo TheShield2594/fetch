@@ -1894,9 +1894,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Không thể lưu mã PIN. Vui lòng thử lại.</string>
     <string name="profile_pin_locked">Hồ sơ đã bị khóa. Vui lòng thử lại sau %1$ds.</string>
-    <string name="profile_pin_invalid">Mã PIN không hợp lệ. Vui lòng thử lại.</string>
     <string name="profile_pin_verify_error">Không thể xác thực mã PIN. Vui lòng thử lại.</string>
-    <string name="profile_pin_incorrect">Mã PIN hiện tại không đúng.</string>
+    <string name="profile_pin_incorrect">Mã PIN không đúng. Vui lòng thử lại.</string>
     <string name="profile_pin_current_required">Hồ sơ này đã có mã PIN. Nhập mã PIN hiện tại để thay đổi.</string>
 
     <!-- Account Screen -->
@@ -3072,7 +3071,7 @@
     <string name="profile_pin_forgot_needs_main">Quên mã PIN? Hãy đặt mã PIN cho %1$s trước, rồi dùng mã đó để đặt lại mã này.</string>
     <string name="profile_pin_forgot_main">Không thể đặt lại mã PIN của hồ sơ chính, vì vậy hãy cất giữ cẩn thận.</string>
     <string name="profile_pin_reset_for_profile">Đã đặt lại mã PIN cho %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Mã PIN của %1$s không đúng.</string>
+    <string name="profile_pin_incorrect_for_profile">Mã PIN của %1$s không đúng. Vui lòng thử lại.</string>
     <string name="profile_selection_kids_badge">Trẻ em</string>
     <string name="profile_manage_done">Xong</string>
     <string name="cd_profile_locked">Đã khóa bằng mã PIN</string>
@@ -3092,4 +3091,35 @@
     <string name="parental_pin_nudge_subtitle">Hãy đặt mã PIN cho %1$s. Nếu không, bất kỳ ai cũng có thể thay đổi giới hạn của %2$s hoặc chuyển sang hồ sơ khác.</string>
     <string name="parental_pin_nudge_set">Đặt mã PIN cho %1$s</string>
     <string name="parental_pin_nudge_later">Để sau</string>
+    <string name="parental_gate_open_support">%1$s không có mã PIN riêng, nên cần mã PIN của phụ huynh để mở khi một hồ sơ khác có giới hạn của phụ huynh.</string>
+    <string name="parental_lock_profiles_title">Khóa các hồ sơ không có giới hạn</string>
+    <string name="parental_lock_profiles_subtitle">Khi một hồ sơ có giới hạn của phụ huynh, việc mở hồ sơ không có giới hạn và không có mã PIN riêng sẽ cần mã PIN của %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Hãy đặt mã PIN cho %1$s trước.</string>
+    <string name="parental_lock_profiles_offer_title">Khóa cả các hồ sơ khác?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s có thể mở %2$s và bỏ qua mọi giới hạn vì các hồ sơ này không có mã PIN. Thay vào đó, Fetch có thể yêu cầu mã PIN của %3$s để mở chúng.</string>
+    <string name="parental_lock_profiles_offer_accept">Yêu cầu mã PIN của %1$s</string>
+    <string name="kids_autoplay_cap">Tự động phát liên tiếp: %1$s</string>
+    <string name="kids_approved_only">Chỉ nội dung đã duyệt: %1$s</string>
+    <string name="kids_approved_movies">Phim dành cho bạn</string>
+    <string name="kids_approved_shows">Chương trình dành cho bạn</string>
+    <string name="kids_approved_only_hint">Hồ sơ này chỉ hiển thị nội dung luôn được cho phép. Cho phép một nội dung từ menu nhấn giữ trên áp phích của nó ở hồ sơ chính.</string>
+    <string name="kids_daily_time">Thời gian xem mỗi ngày: %1$s</string>
+    <string name="kids_bedtime">Giờ đi ngủ: %1$s đến %2$s</string>
+    <string name="kids_bedtime_off">Giờ đi ngủ: Tắt</string>
+    <string name="kids_at_limit_finish">Khi đạt giới hạn: xem hết nội dung đang phát</string>
+    <string name="kids_at_limit_stop">Khi đạt giới hạn: dừng ngay</string>
+    <plurals name="kids_episodes">
+        <item quantity="other">%1$d tập</item>
+    </plurals>
+    <string name="kids_minutes">%1$d phút</string>
+    <string name="screen_time_title">Hôm nay vậy là đủ rồi</string>
+    <string name="screen_time_daily">Đã hết thời gian xem hôm nay. Hẹn gặp lại ngày mai!</string>
+    <string name="screen_time_bedtime">Đến giờ đi ngủ rồi. Hẹn gặp lại ngày mai!</string>
+    <string name="screen_time_choose">Thêm bao nhiêu thời gian?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Thêm thời gian (phụ huynh)</string>
+    <string name="screen_time_add_minutes">+%1$d phút</string>
+    <string name="screen_time_rest_of_day">Không giới hạn đến hết hôm nay</string>
+    <string name="kids_hours">%1$d giờ</string>
+    <string name="kids_hours_minutes">%1$d giờ %2$d phút</string>
 </resources>

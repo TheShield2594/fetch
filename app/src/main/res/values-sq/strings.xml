@@ -1559,9 +1559,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Nuk mund të ruhej PIN-i. Provo përsëri.</string>
     <string name="profile_pin_locked">Profili është i bllokuar. Provo përsëri pas %1$ds.</string>
-    <string name="profile_pin_invalid">PIN i pavlefshëm. Provo përsëri.</string>
     <string name="profile_pin_verify_error">Nuk mund të verifikohej PIN-i. Provo përsëri.</string>
-    <string name="profile_pin_incorrect">PIN-i aktual është i pasaktë.</string>
+    <string name="profile_pin_incorrect">PIN i pasaktë. Provo përsëri.</string>
     <string name="profile_pin_current_required">Ky profil tashmë ka PIN. Shkruaj PIN-in aktual për ta ndryshuar.</string>
     <!-- Account Screen -->
     <!-- Sync screens -->
@@ -2648,7 +2647,7 @@
     <string name="profile_pin_forgot_needs_main">Harrove PIN-in? Cakto fillimisht një PIN te %1$s, pastaj përdore për ta rivendosur këtë.</string>
     <string name="profile_pin_forgot_main">PIN-i i profilit kryesor nuk mund të rivendoset, ndaj ruaje në një vend të sigurt.</string>
     <string name="profile_pin_reset_for_profile">PIN-i u rivendos për %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">PIN i pasaktë për %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN i pasaktë për %1$s. Provo përsëri.</string>
     <string name="profile_selection_kids_badge">Fëmijë</string>
     <string name="profile_manage_done">U krye</string>
     <string name="cd_profile_locked">I bllokuar me PIN</string>
@@ -2668,4 +2667,36 @@
     <string name="parental_pin_nudge_subtitle">Cakto një PIN te %1$s. Pa të, kushdo mund të ndryshojë kufizimet e %2$s ose të kalojë te një profil tjetër.</string>
     <string name="parental_pin_nudge_set">Cakto një PIN te %1$s</string>
     <string name="parental_pin_nudge_later">Jo tani</string>
+    <string name="parental_gate_open_support">%1$s nuk ka PIN-in e vet, ndaj duhet PIN-i i një prindi për ta hapur ndërsa një profil tjetër ka kufizime prindërore.</string>
+    <string name="parental_lock_profiles_title">Blloko profilet pa kufizime</string>
+    <string name="parental_lock_profiles_subtitle">Ndërsa një profil ka kufizime prindërore, hapja e një profili pa kufizime dhe pa PIN-in e vet kërkon PIN-in e %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Cakto fillimisht një PIN te %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Të bllokohen edhe profilet e tjera?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s mund të hapë %2$s dhe të anashkalojë çdo kufizim, sepse nuk kanë PIN. Në vend të kësaj, Fetch mund të kërkojë PIN-in e %3$s për t’i hapur.</string>
+    <string name="parental_lock_profiles_offer_accept">Kërko PIN-in e %1$s</string>
+    <string name="kids_autoplay_cap">Luajtje automatike radhazi: %1$s</string>
+    <string name="kids_approved_only">Vetëm tituj të miratuar: %1$s</string>
+    <string name="kids_approved_movies">Filma për ty</string>
+    <string name="kids_approved_shows">Seriale për ty</string>
+    <string name="kids_approved_only_hint">Në këtë profil shfaqen vetëm titujt gjithmonë të lejuar. Lejo një titull nga menyja e shtypjes së gjatë të posterit të tij në profilin kryesor.</string>
+    <string name="kids_daily_time">Koha ditore para ekranit: %1$s</string>
+    <string name="kids_bedtime">Ora e gjumit: %1$s deri në %2$s</string>
+    <string name="kids_bedtime_off">Ora e gjumit: Joaktive</string>
+    <string name="kids_at_limit_finish">Në kufi: përfundo atë që po luhet</string>
+    <string name="kids_at_limit_stop">Në kufi: ndalo menjëherë</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d episod</item>
+        <item quantity="other">%1$d episode</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Kaq për sot</string>
+    <string name="screen_time_daily">Koha e sotme para ekranit mbaroi. Shihemi nesër!</string>
+    <string name="screen_time_bedtime">Është koha për gjumë. Shihemi nesër!</string>
+    <string name="screen_time_choose">Sa kohë më shumë?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Më shumë kohë (prindi)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Pa kufi për pjesën tjetër të ditës</string>
+    <string name="kids_hours">%1$d orë</string>
+    <string name="kids_hours_minutes">%1$d orë %2$d min</string>
 </resources>

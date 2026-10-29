@@ -1241,9 +1241,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Kunde inte spara PIN. Försök igen.</string>
     <string name="profile_pin_locked">Profilen är låst. Försök igen om %1$ds.</string>
-    <string name="profile_pin_invalid">Ogiltig PIN. Försök igen.</string>
     <string name="profile_pin_verify_error">Kunde inte verifiera PIN. Försök igen.</string>
-    <string name="profile_pin_incorrect">Nuvarande PIN är felaktig.</string>
+    <string name="profile_pin_incorrect">Fel PIN. Försök igen.</string>
     <string name="profile_pin_current_required">Denna profil har redan en PIN. Ange den nuvarande PIN-koden för att ändra den.</string>
     <string name="profile_pin_overlay_delete_verify_heading">Ange nuvarande PIN för att radera %1$s.</string>
     <string name="profile_pin_overlay_delete_verify_support">Ange den nuvarande 4-siffriga PIN-koden innan du raderar denna profil.</string>
@@ -1767,7 +1766,7 @@
     <string name="profile_pin_forgot_needs_main">Glömt PIN? Ställ först in en PIN på %1$s och använd den sedan för att återställa den här.</string>
     <string name="profile_pin_forgot_main">Huvudprofilens PIN kan inte återställas, så förvara den på ett säkert ställe.</string>
     <string name="profile_pin_reset_for_profile">PIN återställd för %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Fel PIN för %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Fel PIN för %1$s. Försök igen.</string>
     <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Klar</string>
     <string name="cd_profile_locked">Låst med PIN</string>
@@ -1787,4 +1786,36 @@
     <string name="parental_pin_nudge_subtitle">Ställ in en PIN på %1$s. Utan den kan vem som helst ändra begränsningarna för %2$s eller byta till en annan profil.</string>
     <string name="parental_pin_nudge_set">Ställ in PIN på %1$s</string>
     <string name="parental_pin_nudge_later">Inte nu</string>
+    <string name="parental_gate_open_support">%1$s har ingen egen PIN, så en förälders PIN krävs för att öppna den medan en annan profil har föräldrabegränsningar.</string>
+    <string name="parental_lock_profiles_title">Lås profiler utan begränsningar</string>
+    <string name="parental_lock_profiles_subtitle">Medan en profil har föräldrabegränsningar krävs PIN för %1$s för att öppna en profil utan begränsningar och utan egen PIN.</string>
+    <string name="parental_lock_profiles_needs_pin">Ställ in en PIN på %1$s först.</string>
+    <string name="parental_lock_profiles_offer_title">Lås de andra profilerna också?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s kan öppna %2$s och kringgå alla begränsningar, eftersom de saknar PIN. Fetch kan i stället fråga efter PIN för %3$s för att öppna dem.</string>
+    <string name="parental_lock_profiles_offer_accept">Fråga efter PIN för %1$s</string>
+    <string name="kids_autoplay_cap">Automatisk uppspelning i följd: %1$s</string>
+    <string name="kids_approved_only">Endast godkända titlar: %1$s</string>
+    <string name="kids_approved_movies">Filmer för dig</string>
+    <string name="kids_approved_shows">Serier för dig</string>
+    <string name="kids_approved_only_hint">Endast titlar som alltid är tillåtna visas på den här profilen. Tillåt en titel via affischens långtrycksmeny på huvudprofilen.</string>
+    <string name="kids_daily_time">Daglig skärmtid: %1$s</string>
+    <string name="kids_bedtime">Läggdags: %1$s till %2$s</string>
+    <string name="kids_bedtime_off">Läggdags: Av</string>
+    <string name="kids_at_limit_finish">Vid gränsen: spela klart det som spelas</string>
+    <string name="kids_at_limit_stop">Vid gränsen: stoppa direkt</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d avsnitt</item>
+        <item quantity="other">%1$d avsnitt</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Det var allt för i dag</string>
+    <string name="screen_time_daily">Dagens skärmtid är slut. Vi ses i morgon!</string>
+    <string name="screen_time_bedtime">Det är läggdags. Vi ses i morgon!</string>
+    <string name="screen_time_choose">Hur mycket mer tid?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Mer tid (förälder)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Ingen gräns resten av dagen</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

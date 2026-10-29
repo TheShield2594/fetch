@@ -321,7 +321,7 @@ private fun CompanyLogoCard(
                 Text(
                     text = company.name,
                     style = MaterialTheme.typography.labelLarge,
-                    color = FetchTheme.extendedColors.textSecondary,
+                    color = FetchTheme.colors.TextInverse,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg)

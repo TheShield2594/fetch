@@ -871,7 +871,7 @@ fun CommentOverlay(
                     text = stringResource(R.string.detail_comments_back_hint),
                     modifier = Modifier.padding(start = FetchTheme.spacing.lg),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.34f)
+                    color = FetchTheme.colors.TextSecondary
                 )
             }
         }
@@ -1021,7 +1021,7 @@ private fun CommentOverlayContent(
                     Text(
                         text = "...",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.42f)
+                        color = FetchTheme.colors.TextSecondary
                     )
                 }
             }

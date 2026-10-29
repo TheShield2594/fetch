@@ -98,8 +98,8 @@ fun EpisodeRatingsSection(
             val episodeNumber = episode.episode ?: return@mapNotNull null
             val rating = ratings[season to episodeNumber]
             val ratingText = rating?.let { String.format("%.1f", it) } ?: "—"
-            val chipColor = rating?.let(::ratingColor) ?: defaultChipColor
-            val chipTextColor = rating?.let(::ratingTextColor) ?: defaultChipTextColor
+            val chipColor = rating?.let(::episodeRatingChipColor) ?: defaultChipColor
+            val chipTextColor = rating?.let(::episodeRatingChipTextColor) ?: defaultChipTextColor
             EpisodeRatingChipUi(
                 id = episode.id,
                 seasonNumber = season,
@@ -285,7 +285,8 @@ fun EpisodeRatingsSection(
     }
 }
 
-private fun ratingColor(value: Double): androidx.compose.ui.graphics.Color {
+/** The heatmap fill for an episode rated [value]. */
+internal fun episodeRatingChipColor(value: Double): Color {
     return when {
         value >= 9.7 -> FetchContentColors.ratingExceptional
         value >= 9.0 -> FetchContentColors.ratingGreat
@@ -297,9 +298,15 @@ private fun ratingColor(value: Double): androidx.compose.ui.graphics.Color {
     }
 }
 
-private fun ratingTextColor(value: Double): Color {
+/**
+ * The text drawn on [episodeRatingChipColor]. Only the two darkest fills (Great and Bad) take
+ * white; the rest take dark text so every band reaches 4.5:1 (ThemeContrastTest checks this).
+ */
+internal fun episodeRatingChipTextColor(value: Double): Color {
     return when {
-        value >= 7.0 && value < 8.0 -> FetchContentColors.ratingTextOnLight
+        value >= 9.7 -> FetchContentColors.ratingTextOnLight
+        value >= 9.0 -> Color.White
+        value >= 6.0 -> FetchContentColors.ratingTextOnLight
         else -> Color.White
     }
 }

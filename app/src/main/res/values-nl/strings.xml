@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Home heeft een catalogus-add-on nodig om titels te tonen.</string>
     <string name="home_empty_no_catalogs_title">Geen catalogi om te tonen</string>
     <string name="home_empty_no_catalogs_subtitle">Je add-ons bieden geen catalogi voor Home.</string>
-    <string name="auth_notice_fetch_logged_out">Je bent afgemeld bij Fetch. Meld je opnieuw aan.</string>
-    <string name="auth_notice_trakt_logged_out">Je bent afgemeld bij Trakt. Maak opnieuw verbinding.</string>
+    <string name="auth_notice_fetch_logged_out">Afgemeld bij Fetch. Meld je opnieuw aan via Instellingen &gt; Account.</string>
+    <string name="auth_notice_trakt_logged_out">Afgemeld bij Trakt. Maak opnieuw verbinding via Instellingen &gt; Tracking.</string>
     <string name="error_generic">Er is een fout opgetreden</string>
 
     <string name="action_retry">Opnieuw proberen</string>
@@ -2875,6 +2875,16 @@
     <string name="profile_selection_kids_badge">Kinderen</string>
     <string name="profile_manage_done">Klaar</string>
     <string name="cd_profile_locked">Vergrendeld met pincode</string>
+    <string name="cd_profile_pin_progress">%1$d van %2$d cijfers ingevoerd</string>
+    <string name="cd_profile_color_crimson">Karmozijn</string>
+    <string name="cd_profile_color_ocean">Oceaan</string>
+    <string name="cd_profile_color_violet">Violet</string>
+    <string name="cd_profile_color_emerald">Smaragd</string>
+    <string name="cd_profile_color_amber">Amber</string>
+    <string name="cd_profile_color_rose">Roze</string>
+    <string name="cd_profile_color_cyan">Cyaan</string>
+    <string name="cd_profile_color_brown">Bruin</string>
+    <string name="cd_profile_color_position">Kleur %1$d van %2$d</string>
     <string name="profile_save_error">Kon het profiel niet opslaan. Probeer het opnieuw.</string>
     <string name="profile_delete_error">Kon het profiel niet verwijderen. Probeer het opnieuw.</string>
     <string name="parental_pin_nudge_title">Bescherm de beperkingen van %1$s</string>

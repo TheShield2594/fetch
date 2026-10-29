@@ -103,8 +103,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Zaslon Domov potrebuje dodatek za katalog, da prikaže naslove.</string>
     <string name="home_empty_no_catalogs_title">Ni katalogov za prikaz</string>
     <string name="home_empty_no_catalogs_subtitle">Vaši dodatki ne ponujajo katalogov za zaslon Domov.</string>
-    <string name="auth_notice_fetch_logged_out">Odjavljeni ste bili iz storitve Fetch. Prosimo, prijavite se znova.</string>
-    <string name="auth_notice_trakt_logged_out">Odjavljeni ste bili iz storitve Trakt. Prosimo, ponovno se povežite.</string>
+    <string name="auth_notice_fetch_logged_out">Odjavljeni ste bili iz storitve Fetch. Znova se prijavite v razdelku Nastavitve &gt; Račun.</string>
+    <string name="auth_notice_trakt_logged_out">Odjavljeni ste bili iz storitve Trakt. Znova jo povežite v razdelku Nastavitve &gt; Sledenje.</string>
     <string name="error_generic">Prišlo je do napake</string>
 	<!-- ErrorState -->
 	<string name="action_retry">Poskusi znova</string>
@@ -352,6 +352,7 @@
 	<!-- SettingsScreen categories -->
     <string name="settings_experience">Uporabniška izkušnja</string>
 	<string name="settings_account">Račun</string>
+	<string name="settings_tracking_title">Sledenje</string>
     <string name="settings_profiles">Profili</string>
     <string name="settings_layout">Postavitev</string>
     <string name="settings_integration">Integracija</string>
@@ -2277,6 +2278,16 @@
     <string name="profile_selection_kids_badge">Otroci</string>
     <string name="profile_manage_done">Končano</string>
     <string name="cd_profile_locked">Zaklenjeno s kodo PIN</string>
+    <string name="cd_profile_pin_progress">Vnesenih števk: %1$d od %2$d</string>
+    <string name="cd_profile_color_crimson">Škrlatna</string>
+    <string name="cd_profile_color_ocean">Oceanska</string>
+    <string name="cd_profile_color_violet">Vijolična</string>
+    <string name="cd_profile_color_emerald">Smaragdna</string>
+    <string name="cd_profile_color_amber">Jantarna</string>
+    <string name="cd_profile_color_rose">Rožnata</string>
+    <string name="cd_profile_color_cyan">Cian</string>
+    <string name="cd_profile_color_brown">Rjava</string>
+    <string name="cd_profile_color_position">Barva %1$d od %2$d</string>
     <string name="profile_save_error">Profila ni bilo mogoče shraniti. Poskusite znova.</string>
     <string name="profile_delete_error">Profila ni bilo mogoče izbrisati. Poskusite znova.</string>
     <string name="parental_pin_nudge_title">Zaščitite omejitve profila %1$s</string>

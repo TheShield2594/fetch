@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">L’Accueil a besoin d’un addon de catalogue pour afficher des titres.</string>
     <string name="home_empty_no_catalogs_title">Aucun catalogue à afficher</string>
     <string name="home_empty_no_catalogs_subtitle">Vos addons ne proposent aucun catalogue pour l’Accueil.</string>
-    <string name="auth_notice_fetch_logged_out">Vous avez été déconnecté de Fetch. Veuillez vous reconnecter.</string>
-    <string name="auth_notice_trakt_logged_out">Vous avez été déconnecté de Trakt. Veuillez vous reconnecter.</string>
+    <string name="auth_notice_fetch_logged_out">Déconnecté de Fetch. Reconnectez-vous depuis Paramètres &gt; Compte.</string>
+    <string name="auth_notice_trakt_logged_out">Déconnecté de Trakt. Reconnectez-le depuis Paramètres &gt; Suivi.</string>
     <string name="error_generic">Une erreur est survenue</string>
 
     <string name="action_retry">Réessayer</string>
@@ -3084,6 +3084,16 @@
     <string name="profile_selection_kids_badge">Enfant</string>
     <string name="profile_manage_done">Terminé</string>
     <string name="cd_profile_locked">Verrouillé par un code PIN</string>
+    <string name="cd_profile_pin_progress">Chiffres saisis : %1$d sur %2$d</string>
+    <string name="cd_profile_color_crimson">Cramoisi</string>
+    <string name="cd_profile_color_ocean">Océan</string>
+    <string name="cd_profile_color_violet">Violet</string>
+    <string name="cd_profile_color_emerald">Émeraude</string>
+    <string name="cd_profile_color_amber">Ambre</string>
+    <string name="cd_profile_color_rose">Rose</string>
+    <string name="cd_profile_color_cyan">Cyan</string>
+    <string name="cd_profile_color_brown">Marron</string>
+    <string name="cd_profile_color_position">Couleur %1$d sur %2$d</string>
     <string name="profile_save_error">Impossible d’enregistrer le profil. Veuillez réessayer.</string>
     <string name="profile_delete_error">Impossible de supprimer le profil. Veuillez réessayer.</string>
     <string name="parental_pin_nudge_title">Protégez les limites de %1$s</string>

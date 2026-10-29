@@ -68,8 +68,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Главной нужен аддон каталога, чтобы показывать тайтлы.</string>
     <string name="home_empty_no_catalogs_title">Нет каталогов для показа</string>
     <string name="home_empty_no_catalogs_subtitle">Ваши аддоны не предлагают каталогов для главной.</string>
-    <string name="auth_notice_fetch_logged_out">Вы вышли из системы Fetch. Пожалуйста, войдите снова.</string>
-    <string name="auth_notice_trakt_logged_out">Вы вышли из системы Trakt. Пожалуйста, переподключитесь.</string>
+    <string name="auth_notice_fetch_logged_out">Вы вышли из Fetch. Войдите снова в разделе Настройки &gt; Аккаунт.</string>
+    <string name="auth_notice_trakt_logged_out">Вы вышли из Trakt. Подключите его снова в разделе Настройки &gt; Отслеживание.</string>
     <string name="error_generic">Произошла ошибка</string>
 
     <!-- ErrorState -->
@@ -2860,6 +2860,16 @@
     <string name="profile_selection_kids_badge">Детский</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Защищено PIN</string>
+    <string name="cd_profile_pin_progress">Введено цифр: %1$d из %2$d</string>
+    <string name="cd_profile_color_crimson">Малиновый</string>
+    <string name="cd_profile_color_ocean">Океан</string>
+    <string name="cd_profile_color_violet">Фиолетовый</string>
+    <string name="cd_profile_color_emerald">Изумрудный</string>
+    <string name="cd_profile_color_amber">Янтарный</string>
+    <string name="cd_profile_color_rose">Розовый</string>
+    <string name="cd_profile_color_cyan">Голубой</string>
+    <string name="cd_profile_color_brown">Коричневый</string>
+    <string name="cd_profile_color_position">Цвет %1$d из %2$d</string>
     <string name="profile_save_error">Не удалось сохранить профиль. Попробуйте ещё раз.</string>
     <string name="profile_delete_error">Не удалось удалить профиль. Попробуйте ещё раз.</string>
     <string name="parental_pin_nudge_title">Защитите ограничения профиля %1$s</string>

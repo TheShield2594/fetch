@@ -10,8 +10,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Hem behöver ett katalogtillägg för att visa titlar.</string>
     <string name="home_empty_no_catalogs_title">Inga kataloger att visa</string>
     <string name="home_empty_no_catalogs_subtitle">Dina tillägg erbjuder inga kataloger för Hem.</string>
-    <string name="auth_notice_fetch_logged_out">Du har loggats ut från Fetch. Logga in igen.</string>
-    <string name="auth_notice_trakt_logged_out">Du har loggats ut från Trakt. Anslut igen.</string>
+    <string name="auth_notice_fetch_logged_out">Du har loggats ut från Fetch. Logga in igen under Inställningar &gt; Konto.</string>
+    <string name="auth_notice_trakt_logged_out">Du har loggats ut från Trakt. Anslut igen under Inställningar &gt; Spårning.</string>
     <string name="error_generic">Ett fel uppstod</string>
 
     <!-- ErrorState -->
@@ -192,6 +192,7 @@
 
     <!-- SettingsScreen categories -->
     <string name="settings_account">Konto</string>
+    <string name="settings_tracking_title">Spårning</string>
     <string name="settings_profiles">Profiler</string>
     <string name="settings_layout">Layout</string>
     <string name="settings_integration">Integrationer</string>
@@ -1770,6 +1771,16 @@
     <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Klar</string>
     <string name="cd_profile_locked">Låst med PIN</string>
+    <string name="cd_profile_pin_progress">%1$d av %2$d siffror angivna</string>
+    <string name="cd_profile_color_crimson">Karmosin</string>
+    <string name="cd_profile_color_ocean">Hav</string>
+    <string name="cd_profile_color_violet">Violett</string>
+    <string name="cd_profile_color_emerald">Smaragd</string>
+    <string name="cd_profile_color_amber">Bärnsten</string>
+    <string name="cd_profile_color_rose">Rosa</string>
+    <string name="cd_profile_color_cyan">Cyan</string>
+    <string name="cd_profile_color_brown">Brun</string>
+    <string name="cd_profile_color_position">Färg %1$d av %2$d</string>
     <string name="profile_save_error">Kunde inte spara profilen. Försök igen.</string>
     <string name="profile_delete_error">Kunde inte radera profilen. Försök igen.</string>
     <string name="parental_pin_nudge_title">Skydda begränsningarna för %1$s</string>

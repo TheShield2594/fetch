@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">ホームに作品を表示するにはカタログアドオンが必要です。</string>
     <string name="home_empty_no_catalogs_title">表示できるカタログがありません</string>
     <string name="home_empty_no_catalogs_subtitle">お使いのアドオンにはホーム用のカタログがありません。</string>
-    <string name="auth_notice_fetch_logged_out">Fetchからサインアウトされました。再度サインインしてください</string>
-    <string name="auth_notice_trakt_logged_out">Traktからサインアウトされました。再接続してください</string>
+    <string name="auth_notice_fetch_logged_out">Fetchからサインアウトされました。設定 &gt; アカウントから再度サインインしてください。</string>
+    <string name="auth_notice_trakt_logged_out">Traktからサインアウトされました。設定 &gt; トラッキングから再接続してください。</string>
     <string name="error_generic">エラーが発生しました</string>
 
     <string name="action_retry">再試行</string>
@@ -368,6 +368,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">エクスペリエンス</string>
     <string name="settings_account">アカウント</string>
+    <string name="settings_tracking_title">トラッキング</string>
     <string name="settings_profiles">プロフィール</string>
     <string name="settings_layout">レイアウト</string>
     <string name="settings_content_discovery">コンテンツ &amp; ディスカバー</string>
@@ -2536,6 +2537,16 @@
     <string name="profile_selection_kids_badge">キッズ</string>
     <string name="profile_manage_done">完了</string>
     <string name="cd_profile_locked">PINでロック中</string>
+    <string name="cd_profile_pin_progress">%2$d桁中%1$d桁入力済み</string>
+    <string name="cd_profile_color_crimson">クリムゾン</string>
+    <string name="cd_profile_color_ocean">オーシャン</string>
+    <string name="cd_profile_color_violet">バイオレット</string>
+    <string name="cd_profile_color_emerald">エメラルド</string>
+    <string name="cd_profile_color_amber">アンバー</string>
+    <string name="cd_profile_color_rose">ローズ</string>
+    <string name="cd_profile_color_cyan">シアン</string>
+    <string name="cd_profile_color_brown">ブラウン</string>
+    <string name="cd_profile_color_position">カラー %1$d/%2$d</string>
     <string name="profile_save_error">プロフィールを保存できませんでした。もう一度お試しください。</string>
     <string name="profile_delete_error">プロフィールを削除できませんでした。もう一度お試しください。</string>
     <string name="parental_pin_nudge_title">%1$sの視聴制限を保護</string>

@@ -104,8 +104,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">تحتاج الرئيسية إلى إضافة قوائم عرض لعرض العناوين.</string>
     <string name="home_empty_no_catalogs_title">لا توجد قوائم عرض</string>
     <string name="home_empty_no_catalogs_subtitle">لا تقدّم إضافاتك أي قوائم عرض للرئيسية.</string>
-    <string name="auth_notice_fetch_logged_out">تم تسجيل خروجك من Fetch. يرجى تسجيل الدخول مرة أخرى.</string>
-    <string name="auth_notice_trakt_logged_out">تم تسجيل خروجك من Trakt. يرجى إعادة الاتصال.</string>
+    <string name="auth_notice_fetch_logged_out">تم تسجيل خروجك من Fetch. سجّل الدخول مرة أخرى من الإعدادات &gt; الحساب.</string>
+    <string name="auth_notice_trakt_logged_out">تم تسجيل خروجك من Trakt. أعد الاتصال من الإعدادات &gt; التتبع.</string>
     <string name="error_generic">حدث خطأ</string>
 
     <!-- ErrorState -->
@@ -2805,6 +2805,16 @@
     <string name="profile_selection_kids_badge">أطفال</string>
     <string name="profile_manage_done">تم</string>
     <string name="cd_profile_locked">مقفل برمز PIN</string>
+    <string name="cd_profile_pin_progress">تم إدخال %1$d من %2$d أرقام</string>
+    <string name="cd_profile_color_crimson">القرمزي</string>
+    <string name="cd_profile_color_ocean">المحيطي</string>
+    <string name="cd_profile_color_violet">البنفسجي</string>
+    <string name="cd_profile_color_emerald">الزمردي</string>
+    <string name="cd_profile_color_amber">الكهرماني</string>
+    <string name="cd_profile_color_rose">الوردي</string>
+    <string name="cd_profile_color_cyan">سماوي</string>
+    <string name="cd_profile_color_brown">بني</string>
+    <string name="cd_profile_color_position">اللون %1$d من %2$d</string>
     <string name="profile_save_error">تعذر حفظ الملف الشخصي. حاول مجدداً.</string>
     <string name="profile_delete_error">تعذر حذف الملف الشخصي. حاول مجدداً.</string>
     <string name="parental_pin_nudge_title">احمِ قيود %1$s</string>

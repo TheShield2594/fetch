@@ -102,8 +102,8 @@
   <string name="home_empty_no_catalog_addons_subtitle">Η Αρχική χρειάζεται ένα πρόσθετο καταλόγου για να εμφανίσει τίτλους.</string>
   <string name="home_empty_no_catalogs_title">Δεν υπάρχουν κατάλογοι για εμφάνιση</string>
   <string name="home_empty_no_catalogs_subtitle">Τα πρόσθετά σας δεν προσφέρουν καταλόγους για την Αρχική.</string>
-  <string name="auth_notice_fetch_logged_out">Έχετε αποσυνδεθεί από το Fetch. Συνδεθείτε ξανά.</string>
-  <string name="auth_notice_trakt_logged_out">Έχετε αποσυνδεθεί από το Trakt. Συνδεθείτε ξανά.</string>
+  <string name="auth_notice_fetch_logged_out">Αποσυνδεθήκατε από το Fetch. Συνδεθείτε ξανά από Ρυθμίσεις &gt; Λογαριασμός.</string>
+  <string name="auth_notice_trakt_logged_out">Αποσυνδεθήκατε από το Trakt. Συνδέστε το ξανά από Ρυθμίσεις &gt; Παρακολούθηση.</string>
   <string name="error_generic">Προέκυψε σφάλμα</string>
   <!-- ErrorState -->
   <string name="action_retry">Δοκιμάστε ξανά</string>
@@ -2993,6 +2993,16 @@
     <string name="profile_selection_kids_badge">Παιδικό</string>
     <string name="profile_manage_done">Τέλος</string>
     <string name="cd_profile_locked">Κλειδωμένο με PIN</string>
+    <string name="cd_profile_pin_progress">Καταχωρίστηκαν %1$d από %2$d ψηφία</string>
+    <string name="cd_profile_color_crimson">Βυσσινί</string>
+    <string name="cd_profile_color_ocean">Ωκεανός</string>
+    <string name="cd_profile_color_violet">Βιολετί</string>
+    <string name="cd_profile_color_emerald">Σμαραγδί</string>
+    <string name="cd_profile_color_amber">Κεχριμπάρι</string>
+    <string name="cd_profile_color_rose">Ροζ</string>
+    <string name="cd_profile_color_cyan">Κυανό</string>
+    <string name="cd_profile_color_brown">Καφέ</string>
+    <string name="cd_profile_color_position">Χρώμα %1$d από %2$d</string>
     <string name="profile_save_error">Δεν ήταν δυνατή η αποθήκευση του προφίλ. Δοκιμάστε ξανά.</string>
     <string name="profile_delete_error">Δεν ήταν δυνατή η διαγραφή του προφίλ. Δοκιμάστε ξανά.</string>
     <string name="parental_pin_nudge_title">Προστατέψτε τα όρια του %1$s</string>

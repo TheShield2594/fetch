@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Domů potřebuje katalogový doplněk, aby mohl zobrazit tituly.</string>
     <string name="home_empty_no_catalogs_title">Žádné katalogy k zobrazení</string>
     <string name="home_empty_no_catalogs_subtitle">Vaše doplňky nenabízejí žádné katalogy pro Domů.</string>
-    <string name="auth_notice_fetch_logged_out">Byli jste odhlášeni z aplikace Fetch. Přihlaste se prosím znovu.</string>
-    <string name="auth_notice_trakt_logged_out">Byli jste odhlášeni z Trakt. Připojte se prosím znovu.</string>
+    <string name="auth_notice_fetch_logged_out">Byli jste odhlášeni z aplikace Fetch. Znovu se přihlaste v Nastavení &gt; Účet.</string>
+    <string name="auth_notice_trakt_logged_out">Byli jste odhlášeni z Trakt. Znovu ho připojte v Nastavení &gt; Sledování.</string>
     <string name="error_generic">Došlo k chybě</string>
 
     <string name="action_retry">Opakovat</string>
@@ -374,6 +374,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Zkušenost</string>
     <string name="settings_account">Účet</string>
+    <string name="settings_tracking_title">Sledování</string>
     <string name="settings_profiles">Profily</string>
     <string name="settings_layout">Rozvržení</string>
     <string name="settings_content_discovery">Obsah a objevování</string>
@@ -2620,6 +2621,16 @@
     <string name="profile_selection_kids_badge">Dětský</string>
     <string name="profile_manage_done">Hotovo</string>
     <string name="cd_profile_locked">Uzamčeno PINem</string>
+    <string name="cd_profile_pin_progress">Zadáno číslic: %1$d z %2$d</string>
+    <string name="cd_profile_color_crimson">Karmínová</string>
+    <string name="cd_profile_color_ocean">Oceánová</string>
+    <string name="cd_profile_color_violet">Fialová</string>
+    <string name="cd_profile_color_emerald">Smaragdová</string>
+    <string name="cd_profile_color_amber">Jantarová</string>
+    <string name="cd_profile_color_rose">Růžová</string>
+    <string name="cd_profile_color_cyan">Azurová</string>
+    <string name="cd_profile_color_brown">Hnědá</string>
+    <string name="cd_profile_color_position">Barva %1$d z %2$d</string>
     <string name="profile_save_error">Profil se nepodařilo uložit. Zkuste to znovu.</string>
     <string name="profile_delete_error">Profil se nepodařilo smazat. Zkuste to znovu.</string>
     <string name="parental_pin_nudge_title">Chraňte omezení profilu %1$s</string>

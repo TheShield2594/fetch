@@ -553,12 +553,15 @@ internal fun ModernRowSection(
         val rowTitle = row.title
         val textColor = FetchTheme.colors.TextPrimary
         val textModifier = remember(rowTitleBottom) {
-            Modifier.padding(start = 52.dp, bottom = rowTitleBottom)
+            Modifier.padding(start = 52.dp, end = 52.dp, bottom = rowTitleBottom)
         }
+        // One line, because the hero backdrop height reserves a single title line for each row.
         Text(
             text = rowTitle,
             style = rowTitleStyle.copy(textDirection = rowTitle.contentTextDirection()),
             color = textColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = textModifier
         )
 

@@ -11,8 +11,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Hjem trenger et katalogtillegg for å vise titler.</string>
     <string name="home_empty_no_catalogs_title">Ingen kataloger å vise</string>
     <string name="home_empty_no_catalogs_subtitle">Tilleggene dine tilbyr ingen kataloger for Hjem.</string>
-    <string name="auth_notice_fetch_logged_out">Du har blitt logget ut av Fetch. Logg inn igjen.</string>
-    <string name="auth_notice_trakt_logged_out">Du har blitt logget ut av Trakt. Koble til igjen.</string>
+    <string name="auth_notice_fetch_logged_out">Du er logget ut av Fetch. Logg inn igjen under Innstillinger &gt; Konto.</string>
+    <string name="auth_notice_trakt_logged_out">Du er logget ut av Trakt. Koble til igjen under Innstillinger &gt; Sporing.</string>
     <string name="error_generic">En feil har oppstått</string>
 
     <!-- ErrorState -->
@@ -215,6 +215,7 @@
 
     <!-- SettingsScreen categories -->
     <string name="settings_account">Konto</string>
+    <string name="settings_tracking_title">Sporing</string>
     <string name="settings_profiles">Profiler</string>
     <string name="settings_layout">Oppsett</string>
     <string name="settings_integration">Integrasjoner</string>
@@ -1322,6 +1323,16 @@
     <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Ferdig</string>
     <string name="cd_profile_locked">Låst med PIN</string>
+    <string name="cd_profile_pin_progress">%1$d av %2$d sifre angitt</string>
+    <string name="cd_profile_color_crimson">Karmosin</string>
+    <string name="cd_profile_color_ocean">Hav</string>
+    <string name="cd_profile_color_violet">Fiolett</string>
+    <string name="cd_profile_color_emerald">Smaragd</string>
+    <string name="cd_profile_color_amber">Rav</string>
+    <string name="cd_profile_color_rose">Rosa</string>
+    <string name="cd_profile_color_cyan">Cyan</string>
+    <string name="cd_profile_color_brown">Brun</string>
+    <string name="cd_profile_color_position">Farge %1$d av %2$d</string>
     <string name="profile_save_error">Kunne ikke lagre profilen. Prøv igjen.</string>
     <string name="profile_delete_error">Kunne ikke slette profilen. Prøv igjen.</string>
     <string name="parental_pin_nudge_title">Beskytt begrensningene til %1$s</string>

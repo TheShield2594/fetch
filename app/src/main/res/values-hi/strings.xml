@@ -190,6 +190,7 @@
 
     <!-- SettingsScreen categories -->
     <string name="settings_account">अकाउंट</string>
+    <string name="settings_tracking_title">ट्रैकिंग</string>
     <string name="settings_profiles">प्रोफाइल</string>
     <string name="settings_layout">लेआउट</string>
     <string name="settings_integration">इंटीग्रेशन</string>
@@ -1230,6 +1231,18 @@
     <string name="profile_selection_kids_badge">किड्स</string>
     <string name="profile_manage_done">पूरा</string>
     <string name="cd_profile_locked">PIN से लॉक</string>
+    <string name="cd_profile_pin_progress">%2$d में से %1$d अंक दर्ज किए गए</string>
+    <string name="cd_profile_color_crimson">क्रिमसन</string>
+    <string name="cd_profile_color_ocean">समुद्री</string>
+    <string name="cd_profile_color_violet">बैंगनी</string>
+    <string name="cd_profile_color_emerald">पन्ना</string>
+    <string name="cd_profile_color_amber">एम्बर</string>
+    <string name="cd_profile_color_rose">गुलाबी</string>
+    <string name="cd_profile_color_cyan">सियान</string>
+    <string name="cd_profile_color_brown">भूरा</string>
+    <string name="cd_profile_color_position">रंग %2$d में से %1$d</string>
+    <string name="auth_notice_fetch_logged_out">Fetch से साइन आउट हो गए। सेटिंग्स &gt; अकाउंट से फिर से साइन इन करें।</string>
+    <string name="auth_notice_trakt_logged_out">Trakt से साइन आउट हो गए। सेटिंग्स &gt; ट्रैकिंग से इसे फिर से कनेक्ट करें।</string>
     <string name="profile_save_error">प्रोफाइल सेव नहीं हो सका। फिर से कोशिश करें।</string>
     <string name="profile_delete_error">प्रोफाइल हटाया नहीं जा सका। फिर से कोशिश करें।</string>
     <string name="parental_pin_nudge_title">%1$s की सीमाएँ सुरक्षित करें</string>

@@ -100,8 +100,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">O Início precisa de um addon de catálogo para mostrar títulos.</string>
     <string name="home_empty_no_catalogs_title">Nenhum catálogo para mostrar</string>
     <string name="home_empty_no_catalogs_subtitle">Os teus addons não oferecem catálogos para o Início.</string>
-    <string name="auth_notice_fetch_logged_out">A tua sessão no Fetch foi terminada. Inicia sessão novamente.</string>
-    <string name="auth_notice_trakt_logged_out">A tua sessão no Trakt foi terminada. Volta a ligar a conta.</string>
+    <string name="auth_notice_fetch_logged_out">A tua sessão no Fetch foi terminada. Inicia sessão novamente em Definições &gt; Conta.</string>
+    <string name="auth_notice_trakt_logged_out">A tua sessão no Trakt foi terminada. Volta a ligar a conta em Definições &gt; Monitorização.</string>
     <string name="error_generic">Ocorreu um erro</string>
     <string name="action_retry">Tentar novamente</string>
     <string name="error_state_generic_issue">Algo correu mal.</string>
@@ -354,6 +354,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Experiência</string>
     <string name="settings_account">Conta</string>
+    <string name="settings_tracking_title">Monitorização</string>
     <string name="settings_profiles">Perfis</string>
     <string name="settings_layout">Esquema</string>
     <string name="settings_content_discovery">Conteúdo e descoberta</string>
@@ -2419,6 +2420,16 @@
     <string name="profile_selection_kids_badge">Infantil</string>
     <string name="profile_manage_done">Concluído</string>
     <string name="cd_profile_locked">Bloqueado com PIN</string>
+    <string name="cd_profile_pin_progress">%1$d de %2$d dígitos introduzidos</string>
+    <string name="cd_profile_color_crimson">Carmesim</string>
+    <string name="cd_profile_color_ocean">Oceano</string>
+    <string name="cd_profile_color_violet">Violeta</string>
+    <string name="cd_profile_color_emerald">Esmeralda</string>
+    <string name="cd_profile_color_amber">Âmbar</string>
+    <string name="cd_profile_color_rose">Rosa</string>
+    <string name="cd_profile_color_cyan">Ciano</string>
+    <string name="cd_profile_color_brown">Castanho</string>
+    <string name="cd_profile_color_position">Cor %1$d de %2$d</string>
     <string name="profile_save_error">Não foi possível guardar o perfil. Tenta novamente.</string>
     <string name="profile_delete_error">Não foi possível eliminar o perfil. Tenta novamente.</string>
     <string name="parental_pin_nudge_title">Protege os limites de %1$s</string>

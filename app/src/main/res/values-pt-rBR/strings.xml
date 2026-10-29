@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">O Início precisa de um addon de catálogo para mostrar títulos.</string>
     <string name="home_empty_no_catalogs_title">Nenhum catálogo para mostrar</string>
     <string name="home_empty_no_catalogs_subtitle">Seus addons não oferecem catálogos para o Início.</string>
-    <string name="auth_notice_fetch_logged_out">Você foi desconectado do Fetch. Faça login novamente.</string>
-    <string name="auth_notice_trakt_logged_out">Você foi desconectado do Trakt. Reconecte-se.</string>
+    <string name="auth_notice_fetch_logged_out">Você saiu do Fetch. Entre novamente em Ajustes &gt; Conta.</string>
+    <string name="auth_notice_trakt_logged_out">Você saiu do Trakt. Reconecte em Ajustes &gt; Rastreamento.</string>
     <string name="error_generic">Ocorreu um erro</string>
 
     <string name="action_retry">Tentar novamente</string>
@@ -2905,6 +2905,16 @@
     <string name="profile_selection_kids_badge">Infantil</string>
     <string name="profile_manage_done">Concluído</string>
     <string name="cd_profile_locked">Bloqueado com PIN</string>
+    <string name="cd_profile_pin_progress">%1$d de %2$d dígitos inseridos</string>
+    <string name="cd_profile_color_crimson">Carmesim</string>
+    <string name="cd_profile_color_ocean">Oceano</string>
+    <string name="cd_profile_color_violet">Violeta</string>
+    <string name="cd_profile_color_emerald">Esmeralda</string>
+    <string name="cd_profile_color_amber">Âmbar</string>
+    <string name="cd_profile_color_rose">Rosa</string>
+    <string name="cd_profile_color_cyan">Ciano</string>
+    <string name="cd_profile_color_brown">Marrom</string>
+    <string name="cd_profile_color_position">Cor %1$d de %2$d</string>
     <string name="profile_save_error">Não foi possível salvar o perfil. Tente novamente.</string>
     <string name="profile_delete_error">Não foi possível excluir o perfil. Tente novamente.</string>
     <string name="parental_pin_nudge_title">Proteja os limites de %1$s</string>

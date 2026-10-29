@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Trang chủ cần một tiện ích danh mục để hiển thị nội dung.</string>
     <string name="home_empty_no_catalogs_title">Không có danh mục để hiển thị</string>
     <string name="home_empty_no_catalogs_subtitle">Các tiện ích của bạn không cung cấp danh mục nào cho Trang chủ.</string>
-    <string name="auth_notice_fetch_logged_out">Bạn đã đăng xuất khỏi Fetch. Vui lòng đăng nhập lại.</string>
-    <string name="auth_notice_trakt_logged_out">Bạn đã đăng xuất khỏi Trakt. Vui lòng kết nối lại.</string>
+    <string name="auth_notice_fetch_logged_out">Bạn đã đăng xuất khỏi Fetch. Hãy đăng nhập lại trong Cài đặt &gt; Tài khoản.</string>
+    <string name="auth_notice_trakt_logged_out">Bạn đã đăng xuất khỏi Trakt. Hãy kết nối lại trong Cài đặt &gt; Theo dõi.</string>
     <string name="error_generic">Đã xảy ra lỗi</string>
 
     <string name="action_retry">Thử lại</string>
@@ -3076,6 +3076,16 @@
     <string name="profile_selection_kids_badge">Trẻ em</string>
     <string name="profile_manage_done">Xong</string>
     <string name="cd_profile_locked">Đã khóa bằng mã PIN</string>
+    <string name="cd_profile_pin_progress">Đã nhập %1$d/%2$d chữ số</string>
+    <string name="cd_profile_color_crimson">Đỏ thẫm</string>
+    <string name="cd_profile_color_ocean">Xanh lam</string>
+    <string name="cd_profile_color_violet">Tím</string>
+    <string name="cd_profile_color_emerald">Ngọc lục bảo</string>
+    <string name="cd_profile_color_amber">Cam</string>
+    <string name="cd_profile_color_rose">Hồng</string>
+    <string name="cd_profile_color_cyan">Lục lam</string>
+    <string name="cd_profile_color_brown">Nâu</string>
+    <string name="cd_profile_color_position">Màu %1$d/%2$d</string>
     <string name="profile_save_error">Không thể lưu hồ sơ. Vui lòng thử lại.</string>
     <string name="profile_delete_error">Không thể xóa hồ sơ. Vui lòng thử lại.</string>
     <string name="parental_pin_nudge_title">Bảo vệ giới hạn của %1$s</string>

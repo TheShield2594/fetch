@@ -159,7 +159,8 @@ fun ParentalTitleDialogHost(viewModel: ParentalTitleViewModel = hiltViewModel())
         title = editing.name,
         subtitle = stringResource(R.string.parental_title_dialog_subtitle),
         width = 520.dp,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         others.forEachIndexed { index, profile ->
             val state = remember(lists, editing, profile.id) { viewModel.stateFor(profile.id, editing) }

@@ -47,7 +47,8 @@ private fun PhoneAddonConfirmContent(
         onDismiss = onReject,
         title = stringResource(R.string.phone_addon_confirm_title),
         subtitle = request.name,
-        width = 560.dp
+        width = 560.dp,
+        scrollable = true
     ) {
         request.description?.let { description ->
             Text(

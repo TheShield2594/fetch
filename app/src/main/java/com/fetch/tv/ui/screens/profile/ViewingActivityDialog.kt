@@ -59,10 +59,12 @@ internal fun ViewingActivityDialog(
                     runCatching { firstRow.requestFocus() }
                 }
                 val dateFormat = remember { DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT) }
+                // Fits under FetchDialog's 492dp cap with the padding, title and gap at 1.3x text,
+                // so the last row isn't clipped below the dialog edge.
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 460.dp),
+                        .heightIn(max = 380.dp),
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
                 ) {
                     items(

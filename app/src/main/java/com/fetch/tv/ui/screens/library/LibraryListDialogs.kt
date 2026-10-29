@@ -235,7 +235,8 @@ internal fun ListEditorDialog(
     FetchDialog(
         onDismiss = onCancel,
         title = if (state.mode == LibraryListEditorState.Mode.CREATE) stringResource(R.string.library_list_create_dialog_title) else stringResource(R.string.library_list_edit_dialog_title),
-        width = 560.dp
+        width = 560.dp,
+        scrollable = true
     ) {
         androidx.compose.material3.OutlinedTextField(
             value = state.name,

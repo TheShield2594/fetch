@@ -940,7 +940,7 @@
     <string name="profile_avatar_category_movie">Filmes</string>
     <string name="profile_avatar_category_tv">TV</string>
     <string name="profile_avatar_category_gaming">Jogos</string>
-    <string name="profile_add_new">Adicionar Perfil</string>
+    <string name="profile_add_new">Adicionar perfil</string>
     <string name="profile_cancel">Cancelar</string>
     <string name="profile_save">Guardar</string>
     <string name="profile_pin_set">Definir PIN</string>
@@ -1238,7 +1238,7 @@
     <string name="library_sort_released_asc">Lançamento ↑</string>
     <string name="library_sort_title_asc">Título A-Z</string>
     <string name="library_sort_title_desc">Título Z-A</string>
-    <string name="library_manage_lists">Gerir Listas</string>
+    <string name="library_manage_lists">Gerir listas</string>
     <string name="library_no_lists">Ainda não tens listas pessoais.</string>
     <string name="library_list_create">Criar</string>
     <string name="library_list_edit">Editar</string>
@@ -1323,10 +1323,10 @@
     <string name="profile_selection_hint">Mantém premido para gerir o perfil</string>
     <string name="profile_selection_empty">Nenhum perfil encontrado</string>
     <string name="profile_selection_primary_badge">Principal</string>
-    <string name="profile_selection_options_title">Opções do Perfil</string>
-    <string name="profile_delete_confirm_title">Eliminar Perfil?</string>
+    <string name="profile_selection_options_title">Opções do perfil</string>
+    <string name="profile_delete_confirm_title">Eliminar perfil?</string>
     <string name="profile_delete_confirm_subtitle">Isto irá eliminar permanentemente este perfil e todos os seus dados, incluindo a biblioteca, o histórico de visualização e as definições de addons. Esta ação não pode ser desfeita.</string>
-    <string name="profile_delete_btn">Eliminar Perfil</string>
+    <string name="profile_delete_btn">Eliminar perfil</string>
     <string name="profile_saving">A guardar...</string>
     <string name="cast_detail_error">Algo correu mal</string>
     <string name="cast_detail_retry">Tentar novamente</string>

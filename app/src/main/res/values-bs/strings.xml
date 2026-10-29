@@ -637,18 +637,18 @@
     <!-- ProfileSettingsContent -->
     <string name="profile_title">Profili</string>
     <string name="profile_subtitle">Upravljaj korisničkim profilima za ovaj račun.</string>
-    <string name="profile_manage_button">Upravljaj Profilima</string>
-    <string name="profile_manage_title">Upravljaj Profilima</string>
+    <string name="profile_manage_button">Upravljaj profilima</string>
+    <string name="profile_manage_title">Upravljaj profilima</string>
     <string name="profile_manage_subtitle">Odaberi profil za uređivanje, promjenu ili kreiraj novi</string>
     <string name="profile_manage_hint">Odaberi profil za upravljanje</string>
     <string name="profile_edit_label">Uredi</string>
-    <string name="profile_edit_header">Uredi Profil</string>
-    <string name="profile_create_title">Kreiraj Profil</string>
+    <string name="profile_edit_header">Uredi profil</string>
+    <string name="profile_create_title">Kreiraj profil</string>
     <string name="profile_name_placeholder">Ime profila</string>
     <string name="profile_creating">Kreiranje…</string>
     <string name="profile_create_btn">Kreiraj</string>
     <string name="profile_delete">Izbriši</string>
-    <string name="profile_choose_avatar">Odaberi Avatar</string>
+    <string name="profile_choose_avatar">Odaberi avatar</string>
     <string name="profile_avatar_focus_hint">Fokusiraj avatar da vidiš njegovo ime</string>
     <string name="profile_avatar_category_all">Sve</string>
     <string name="profile_avatar_category_anime">Anime</string>
@@ -656,7 +656,7 @@
     <string name="profile_avatar_category_movie">Film</string>
     <string name="profile_avatar_category_tv">TV</string>
     <string name="profile_avatar_category_gaming">Gaming</string>
-    <string name="profile_add_new">Dodaj Profil</string>
+    <string name="profile_add_new">Dodaj profil</string>
     <string name="profile_cancel">Otkaži</string>
     <string name="profile_save">Spremi</string>
     <string name="profile_pin_set">Postavi PIN</string>
@@ -914,7 +914,7 @@
     <string name="library_sort_added_asc">Dodano ↑</string>
     <string name="library_sort_title_asc">Naslov A-Ž</string>
     <string name="library_sort_title_desc">Naslov Ž-A</string>
-    <string name="library_manage_lists">Upravljaj Listama</string>
+    <string name="library_manage_lists">Upravljaj listama</string>
     <string name="library_no_lists">Još nema ličnih listi.</string>
     <string name="library_list_create">Kreiraj</string>
     <string name="library_list_edit">Uredi</string>
@@ -990,10 +990,10 @@
     <string name="profile_selection_hint">Zadrži za upravljanje profilom</string>
     <string name="profile_selection_empty">Profili nisu pronađeni</string>
     <string name="profile_selection_primary_badge">Primarni</string>
-    <string name="profile_selection_options_title">Opcije Profila</string>
-    <string name="profile_delete_confirm_title">Izbrisati Profil?</string>
+    <string name="profile_selection_options_title">Opcije profila</string>
+    <string name="profile_delete_confirm_title">Izbrisati profil?</string>
     <string name="profile_delete_confirm_subtitle">Ovo će trajno izbrisati ovaj profil i sve njegove podatke uključujući biblioteku, historiju gledanja i postavke addona. Ovo se ne može poništiti.</string>
-    <string name="profile_delete_btn">Izbriši Profil</string>
+    <string name="profile_delete_btn">Izbriši profil</string>
     <string name="profile_saving">Spremanje…</string>
 
     <!-- CastDetailScreen -->

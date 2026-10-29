@@ -6,6 +6,6 @@
     <string name="local_list_source_missing">This list was deleted on this TV.</string>
     <string name="collections_editor_add_local_list">Add My List</string>
     <string name="collections_editor_select_local_lists">Select Lists</string>
-    <string name="collections_editor_no_local_lists">No lists yet. Make one in Library → Manage Lists.</string>
+    <string name="collections_editor_no_local_lists">No lists yet. Make one in Library → Manage lists.</string>
     <string name="collections_editor_local_list_count">Titles: %1$d</string>
 </resources>

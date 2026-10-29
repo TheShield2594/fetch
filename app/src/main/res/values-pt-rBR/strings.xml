@@ -1100,18 +1100,18 @@
     
     <string name="profile_title">Perfis</string>
     <string name="profile_subtitle">Gerencie os perfis desta conta</string>
-    <string name="profile_manage_button">Gerenciar Perfis</string>
-    <string name="profile_manage_title">Gerenciar Perfis</string>
+    <string name="profile_manage_button">Gerenciar perfis</string>
+    <string name="profile_manage_title">Gerenciar perfis</string>
     <string name="profile_manage_subtitle">Selecione um perfil para editar, alternar ou criar um novo.</string>
     <string name="profile_manage_hint">Selecione um perfil para gerenciar.</string>
     <string name="profile_edit_label">Editar</string>
-    <string name="profile_edit_header">Editar Perfil</string>
-    <string name="profile_create_title">Criar Perfil</string>
+    <string name="profile_edit_header">Editar perfil</string>
+    <string name="profile_create_title">Criar perfil</string>
     <string name="profile_name_placeholder">Nome do perfil</string>
     <string name="profile_creating">Criando\u2026</string>
     <string name="profile_create_btn">Criar</string>
     <string name="profile_delete">Excluir</string>
-    <string name="profile_choose_avatar">Escolher Avatar</string>
+    <string name="profile_choose_avatar">Escolher avatar</string>
     <string name="profile_editor_tab_avatar">Avatar</string>
     <string name="profile_editor_tab_background">Plano de fundo</string>
     <string name="profile_choose_background">Escolher plano de fundo do perfil</string>
@@ -1125,7 +1125,7 @@
     <string name="profile_avatar_category_movie">Filmes</string>
     <string name="profile_avatar_category_tv">Séries e TV</string>
     <string name="profile_avatar_category_gaming">Jogos</string>
-    <string name="profile_add_new">Adicionar Perfil</string>
+    <string name="profile_add_new">Adicionar perfil</string>
     <string name="profile_cancel">Cancelar</string>
     <string name="profile_save">Salvar</string>
     <string name="profile_copy_settings_label">Copiar configurações</string>
@@ -1514,7 +1514,7 @@
     <string name="library_sort_released_asc">Lançamento ↑</string>
     <string name="library_sort_title_asc">Título A-Z</string>
     <string name="library_sort_title_desc">Título Z-A</string>
-    <string name="library_manage_lists">Gerenciar Listas</string>
+    <string name="library_manage_lists">Gerenciar listas</string>
     <string name="library_no_lists">Nenhuma lista pessoal ainda.</string>
     <string name="library_list_create">Criar</string>
     <string name="library_list_edit">Editar</string>
@@ -1664,10 +1664,10 @@
     <string name="profile_selection_hint">Segure para gerenciar o perfil</string>
     <string name="profile_selection_empty">Nenhum perfil encontrado</string>
     <string name="profile_selection_primary_badge">Principal</string>
-    <string name="profile_selection_options_title">Opções do Perfil</string>
-    <string name="profile_delete_confirm_title">Excluir Perfil?</string>
+    <string name="profile_selection_options_title">Opções do perfil</string>
+    <string name="profile_delete_confirm_title">Excluir perfil?</string>
     <string name="profile_delete_confirm_subtitle">Isso excluirá permanentemente este perfil e todos os seus dados, incluindo biblioteca, histórico e configurações de addons. Esta ação não pode ser desfeita.</string>
-    <string name="profile_delete_btn">Excluir Perfil</string>
+    <string name="profile_delete_btn">Excluir perfil</string>
     <string name="profile_saving">Salvando\u2026</string>
 
     <string name="cast_detail_error">Algo deu errado</string>

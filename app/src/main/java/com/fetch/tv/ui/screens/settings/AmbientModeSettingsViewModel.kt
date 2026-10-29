@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.data.local.AmbientModeDataStore
+import com.fetch.tv.domain.model.AmbientFace
 import com.fetch.tv.domain.model.AmbientModeSettings
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -41,6 +42,10 @@ class AmbientModeSettingsViewModel @Inject constructor(
 
     fun setTimeoutMinutes(minutes: Int) {
         viewModelScope.launch { dataStore.setTimeoutMinutes(minutes) }
+    }
+
+    fun setFace(face: AmbientFace?) {
+        viewModelScope.launch { dataStore.setFace(face) }
     }
 
     fun setCatalogKeys(keys: List<String>) {

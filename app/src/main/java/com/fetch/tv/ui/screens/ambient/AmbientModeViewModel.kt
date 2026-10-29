@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.data.local.AmbientModeDataStore
 import com.fetch.tv.domain.model.AmbientModeSettings
+import com.fetch.tv.domain.model.WatchProgress
+import com.fetch.tv.domain.repository.WatchProgressRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -27,11 +29,18 @@ private const val REFRESH_INTERVAL_MS = 30L * 60_000L
 @HiltViewModel
 class AmbientModeViewModel @Inject constructor(
     dataStore: AmbientModeDataStore,
-    private val loader: AmbientSlideLoader
+    private val loader: AmbientSlideLoader,
+    watchProgressRepository: WatchProgressRepository
 ) : ViewModel() {
 
     val settings: StateFlow<AmbientModeSettings> = dataStore.settings
         .stateIn(viewModelScope, SharingStarted.Eagerly, AmbientModeSettings())
+
+    /** The clock face's "Resume" card: the most recently watched unfinished title. */
+    val resume: StateFlow<WatchProgress?> = watchProgressRepository.continueWatching
+        .map { items -> items.firstOrNull { !it.isCompleted() } }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val _slides = MutableStateFlow<List<AmbientSlide>>(emptyList())
     val slides: StateFlow<List<AmbientSlide>> = _slides.asStateFlow()

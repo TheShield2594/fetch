@@ -140,6 +140,7 @@ class SettingsChangedViewModel @Inject constructor(
                 listOf(
                     rule(appearance, R.string.ambient_mode_title) { it.enabled },
                     rule(appearance, R.string.ambient_mode_timeout) { it.timeoutMinutes },
+                    rule(appearance, R.string.ambient_mode_face) { it.face },
                     rule(appearance, R.string.ambient_mode_catalogs) { it.catalogKeys }
                 )
             )

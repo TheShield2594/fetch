@@ -47,6 +47,7 @@ import com.fetch.tv.core.streams.StreamBadgePlacement
 import com.fetch.tv.ui.screens.setup.FirstRunStatus
 import com.fetch.tv.ui.screens.setup.FirstRunStep
 import com.fetch.tv.ui.screens.setup.FirstRunWizardContent
+import com.fetch.tv.ui.screens.ambient.AmbientClock
 import com.fetch.tv.ui.screens.player.LoadingOverlay
 import com.fetch.tv.ui.screens.stream.StreamCard
 import androidx.compose.foundation.layout.padding
@@ -285,6 +286,15 @@ class ReadmeScreenshots {
 
     @Test
     fun signalDetail() = render("signal-detail", appTheme = AppTheme.SIGNAL) { SampleDetail() }
+
+    @Test
+    fun signalAmbient() = render("signal-ambient", focusFirst = false, appTheme = AppTheme.SIGNAL) {
+        val resume = (Samples.continueWatching.first() as com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress).progress
+        // 9:47 pm on a Thursday, at an even second so the colon is lit.
+        val evening = java.time.LocalDateTime.of(2026, 10, 29, 21, 47, 0)
+            .atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        AmbientClock(resume = resume, now = { evening })
+    }
 
     @Test
     fun fetchingPanel() = render("fetching") { SampleFetching() }

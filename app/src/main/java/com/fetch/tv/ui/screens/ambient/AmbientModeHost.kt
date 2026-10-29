@@ -1,6 +1,8 @@
 package com.fetch.tv.ui.screens.ambient
 
+import com.fetch.tv.domain.model.AmbientFace
 import com.fetch.tv.ui.theme.FetchMotion
+import com.fetch.tv.ui.theme.FetchTheme
 import android.os.SystemClock
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -31,6 +33,9 @@ fun AmbientModeHost(
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val isShowing by controller.isShowing.collectAsStateWithLifecycle()
     val slides by viewModel.slides.collectAsStateWithLifecycle()
+    val resume by viewModel.resume.collectAsStateWithLifecycle()
+    // Until the member picks, the theme decides: Signal's dot-matrix themes show the clock.
+    val face = settings.face ?: if (FetchTheme.style.dotMatrix) AmbientFace.CLOCK else AmbientFace.ARTWORK
     val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     val active = settings.enabled && allowed && lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
     val timeoutMs = settings.timeoutMinutes * 60_000L
@@ -61,11 +66,12 @@ fun AmbientModeHost(
         enter = fadeIn(tween(FetchMotion.tokens.durations.long)),
         exit = fadeOut(FetchMotion.exitTween())
     ) {
-        AmbientSlideshow(
-            slides = slides,
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) { detectTapGestures { controller.dismiss() } }
-        )
+        val faceModifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) { detectTapGestures { controller.dismiss() } }
+        when (face) {
+            AmbientFace.CLOCK -> AmbientClock(resume = resume, modifier = faceModifier)
+            AmbientFace.ARTWORK -> AmbientSlideshow(slides = slides, modifier = faceModifier)
+        }
     }
 }

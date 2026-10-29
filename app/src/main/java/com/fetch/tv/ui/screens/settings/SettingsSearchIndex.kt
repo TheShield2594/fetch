@@ -227,6 +227,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.appearance_language_dialog_title,
         R.string.ambient_mode_title,
         R.string.ambient_mode_timeout,
+        R.string.ambient_mode_face,
         R.string.ambient_mode_catalogs,
         R.string.appearance_app_icon_picker_title,
         R.string.appearance_app_icon_confirmation_title,

@@ -2,6 +2,22 @@
 @config "../tailwind.config.ts";
 
 /*
+ * Schibsted Grotesk, self-hosted. The TV app's own face (OFL; licence beside
+ * the file in /fonts), converted from app/src/main/res/font to WOFF2 (70 KB).
+ * Only the Fetch theme names it in --font-ui, and a browser fetches a face only
+ * when a rule uses it, so the other themes keep their zero-download system UI
+ * face. Served from this origin, not a font CDN: no third-party request, and
+ * the service worker precaches it for offline use.
+ */
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("/fonts/schibsted-grotesk-variable.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
  * Two accent tokens exist because one accent colour can't do both jobs at a
  * readable contrast:
  *
@@ -34,7 +50,7 @@
  * of backgrounds and borders can't supply on its own.
  *
  * Declared here, ahead of the themes, and derived from --text / --bg-1 so the
- * three themes that don't restate them (glass, midnight, letterboxd) still get
+ * themes that don't restate them (glass, midnight, letterboxd, fetch) still get
  * a segmented control and a tab bar that belong to their own palette. Custom
  * properties substitute at use time rather than at declaration, so these read
  * whichever theme's --text is in force on the element.
@@ -106,7 +122,7 @@
  * Light's platform surfaces, in a block of their own. They used to sit in the
  * `:root, [data-theme="light"]` block above, and `:root` is the <html> element
  * under every theme: the themes that don't restate these (glass, midnight,
- * letterboxd) took light's white segmented thumb under their own
+ * letterboxd, fetch) took light's white segmented thumb under their own
  * near-white text, so the selected segment's label vanished, and a white tab
  * bar. Scoped to light, those themes get the derived values in the first
  * :root block, which follow their own --text and --bg-1.
@@ -284,6 +300,46 @@
   --focus-ring: #00e054;
 }
 
+[data-theme="fetch"] {
+  color-scheme: dark;
+  --poster-ratio: 2 / 3;
+
+  /*
+   * Fetch — the TV app's own look, so the web side and the couch read as one
+   * product: the graphite #0d0e10 ground and card ramp from the TV palette
+   * (ThemeColors.Fetch), its tennis-ball accent, and white focus. On the TV,
+   * focus is white in every theme so it never competes with the accent, which
+   * is kept for the primary action and progress; the ring here does the same.
+   * The face is Schibsted Grotesk, the TV app's default: self-hosted at the top
+   * of this file, set in :root[data-theme="fetch"] after the shared --font-ui.
+   */
+  --bg-0: #0d0e10;
+  --bg-1: #17191d;
+  --bg-2: #f5f5f5;
+  --surface: rgba(255,255,255,0.06);
+  --surface-strong: rgba(255,255,255,0.10);
+  --border: rgba(255,255,255,0.09);
+  --border-strong: rgba(255,255,255,0.18);
+  --text: #ffffff;
+  --text-dim: #b4b7bd;
+  --text-mute: #9a9ea6;
+  --accent: #d7f75b;
+  --accent-2: #e6fb97;
+  --accent-3: #3dd68c;
+  --accent-rgb: 215 247 91;
+  --accent-2-rgb: 230 251 151;
+  --accent-strong-rgb: 185 220 58;
+  --accent-tint-rgb: 244 253 214;
+  --accent-light-rgb: 233 250 166;
+  /* The accent is light, so the label on it is the ground colour, as on the
+     TV's Play button: 15.9:1 on --accent, 11.6:1 on the hover fill. */
+  --on-accent-rgb: 13 14 16;
+  --on-accent: rgb(var(--on-accent-rgb));
+  --accent-text-rgb: 215 247 91;
+  --accent-text: rgb(var(--accent-text-rgb));
+  --focus-ring: #f5f5f5;
+}
+
 /*
  * Elevation — three tiers, and only three. The tier a surface takes has to
  * agree with the order it stacks in, or the shadows say one thing and the
@@ -313,7 +369,8 @@
 [data-theme="dark"],
 [data-theme="glass"],
 [data-theme="midnight"],
-[data-theme="letterboxd"] {
+[data-theme="letterboxd"],
+[data-theme="fetch"] {
   --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.40), 0 2px 6px rgba(0, 0, 0, 0.32);
   --elevation-2: 0 2px 8px rgba(0, 0, 0, 0.45), 0 10px 28px rgba(0, 0, 0, 0.45);
   --elevation-3: 0 6px 20px rgba(0, 0, 0, 0.55), 0 24px 56px rgba(0, 0, 0, 0.60);
@@ -410,6 +467,15 @@
 }
 
 /*
+ * The Fetch theme's face. Its own rule, after the shared :root one above, and
+ * at :root[data-theme] specificity, because a [data-theme] block and :root tie
+ * and the later declaration would otherwise put the system face back.
+ */
+:root[data-theme="fetch"] {
+  --font-ui: "Schibsted Grotesk", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/*
  * Status colours — "returning", "cancelled", "saved", and friends.
  *
  * Split light/dark for the same reason the elevations above are: these were
@@ -437,7 +503,8 @@
 [data-theme="dark"],
 [data-theme="glass"],
 [data-theme="midnight"],
-[data-theme="letterboxd"] {
+[data-theme="letterboxd"],
+[data-theme="fetch"] {
   --status-ok: #34d399;
   --status-bad: #fb7185;
   --status-warn: #fbbf24;

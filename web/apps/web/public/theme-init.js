@@ -1,6 +1,7 @@
 (function () {
   // Keep in sync with THEMES/THEME_BG in apps/web/src/hooks/useTheme.ts
   var themeBg = {
+    fetch: "#0d0e10",
     light: "#f2f2f7",
     dark: "#000000",
     glass: "#0b0d12",
@@ -14,6 +15,7 @@
   // blue and red themes, on the one frame a visitor sees first. Keep in sync
   // with the --accent declarations in apps/web/src/index.css.
   var themeAccent = {
+    fetch: "#d7f75b",
     light: "#ff9500",
     dark: "#ff9f0a",
     glass: "#0a84ff",
@@ -28,11 +30,19 @@
     // localStorage unavailable (private browsing, disabled storage, etc.) — fall back to default theme.
   }
 
-  // No stored choice: follow the OS the same way getInitialTheme() in
-  // useTheme.ts does. Defaulting to "light" here painted a full-screen cream
-  // flash over the loader for dark-mode visitors, then jumped once React mounted.
-  var prefersDark = typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  var theme = Object.prototype.hasOwnProperty.call(themeBg, stored) ? stored : prefersDark ? "dark" : "light";
+  var picked = null;
+  try {
+    picked = localStorage.getItem("fetch:theme-picked");
+  } catch (e) {
+    // As above.
+  }
+
+  // Mirrors resolveInitialTheme() in useTheme.ts, so the first paint matches
+  // what React mounts: no stored choice, or a light/dark the app saved itself
+  // before anyone picked one, starts on Fetch.
+  var known = Object.prototype.hasOwnProperty.call(themeBg, stored);
+  var autoSaved = (stored === "light" || stored === "dark") && picked !== "1";
+  var theme = known && !autoSaved ? stored : "fetch";
   document.documentElement.setAttribute("data-theme", theme);
   document.documentElement.style.colorScheme = theme === "light" ? "light" : "dark";
   document.documentElement.style.backgroundColor = themeBg[theme];

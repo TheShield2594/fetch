@@ -1824,6 +1824,8 @@
     <string name="search_no_results_title">No Results</string>
     <string name="search_no_results_subtitle">Try searching with different keywords</string>
     <string name="search_error_no_catalogs">No searchable catalogs found in installed addons</string>
+    <string name="search_no_catalogs_title">None of your addons can search</string>
+    <string name="search_no_catalogs_subtitle">Install an addon with a search catalog, then try again.</string>
 
     <string name="library_title">Library</string>
     <string name="library_filter_list">List</string>

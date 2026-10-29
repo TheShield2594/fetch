@@ -49,6 +49,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -106,6 +107,7 @@ import androidx.tv.material3.IconButtonDefaults as TvIconButtonDefaults
 import androidx.tv.material3.Text
 import com.fetch.tv.ui.components.CatalogRowSection
 import com.fetch.tv.ui.components.EmptyScreenState
+import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.LoadingIndicator
@@ -141,7 +143,8 @@ fun SearchScreen(
     viewModel: SearchViewModel = hiltViewModel(),
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToSeeAll: (catalogId: String, addonId: String, type: String) -> Unit = { _, _, _ -> },
-    onOpenDiscover: () -> Unit = {}
+    onOpenDiscover: () -> Unit = {},
+    onNavigateToAddons: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsState()
@@ -153,6 +156,7 @@ fun SearchScreen(
     val strVoiceMicPermission = stringResource(R.string.search_voice_mic_permission)
     val strVoiceFailed = stringResource(R.string.search_voice_failed)
     val strVoiceUnavailable = stringResource(R.string.search_voice_unavailable)
+    val noSearchCatalogsError = stringResource(R.string.search_error_no_catalogs)
     val voiceFocusRequester = remember { FocusRequester() }
     val searchFocusRequester = remember { FocusRequester() }
     val discoverFirstItemFocusRequester = remember { FocusRequester() }
@@ -768,6 +772,22 @@ fun SearchScreen(
                                 posterCardStyle = posterCardStyle,
                                 showAddonName = uiState.catalogAddonNameEnabled,
                                 modifier = Modifier.padding(bottom = 24.dp)
+                            )
+                        }
+                    }
+
+                    // Retry can't fix this one: no installed addon has a search catalog, so point
+                    // the user at installing one.
+                    uiState.error == noSearchCatalogsError && uiState.catalogRows.isEmpty() -> {
+                        item {
+                            EmptyScreenState(
+                                title = stringResource(R.string.search_no_catalogs_title),
+                                subtitle = stringResource(R.string.search_no_catalogs_subtitle),
+                                icon = Icons.Default.Extension,
+                                action = StateAction(
+                                    stringResource(R.string.empty_state_add_addon),
+                                    onNavigateToAddons
+                                )
                             )
                         }
                     }

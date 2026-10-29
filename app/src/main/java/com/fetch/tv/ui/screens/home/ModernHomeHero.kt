@@ -45,6 +45,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -775,11 +778,15 @@ private fun HeroResumeRow(
                         .border(FetchTheme.strokes.focus, accent, CircleShape)
                         .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
                 )
+                // Capped, so a long (or translated) action can't take the whole row and leave
+                // the spec line nothing; the row's leftover goes to the spec line's weight.
                 Text(
                     text = actionText,
                     style = actionStyle,
                     color = FetchTheme.colors.TextPrimary,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.widthIn(max = HERO_ACTION_MAX_WIDTH)
                 )
             }
             specLine?.let { line ->
@@ -799,6 +806,8 @@ private fun HeroProgressLine(fraction: Float, color: Color) {
     val clamped = fraction.coerceIn(0f, 1f)
     Box(
         modifier = Modifier
+            // The card and hero text only say the time left; this announces how much is watched.
+            .semantics { progressBarRangeInfo = ProgressBarRangeInfo(clamped, 0f..1f) }
             .width(HERO_PROGRESS_LINE_WIDTH)
             .height(FetchTheme.spacing.xs)
             .clip(CircleShape)
@@ -810,6 +819,7 @@ private fun HeroProgressLine(fraction: Float, color: Color) {
 }
 
 private val HERO_PROGRESS_LINE_WIDTH = 280.dp
+private val HERO_ACTION_MAX_WIDTH = 240.dp
 
 @Composable
 private fun HeroImdbMeta(

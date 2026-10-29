@@ -127,7 +127,8 @@ private fun FetchWebsitePairingDialog(viewModel: FetchWebsiteViewModel, onDismis
     FetchDialog(
         onDismiss = onDismiss,
         title = stringResource(R.string.website_sign_in_title),
-        width = 640.dp
+        width = 640.dp,
+        scrollable = true
     ) {
         FetchWebsitePairingContent(viewModel = viewModel, onCancel = onDismiss, onDone = onDismiss)
     }

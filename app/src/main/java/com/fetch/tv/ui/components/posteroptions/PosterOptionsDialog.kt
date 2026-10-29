@@ -148,7 +148,8 @@ fun PosterListPickerDialog(
         onDismiss = onDismiss,
         title = title,
         subtitle = stringResource(R.string.detail_lists_subtitle),
-        width = 500.dp
+        width = 500.dp,
+        scrollable = true
     ) {
         if (!error.isNullOrBlank()) {
             Text(

@@ -115,7 +115,8 @@ internal fun AddonHealthPanel(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 380.dp),
+                // Leaves room for the chips and the Clear/Close row under FetchDialog's 492dp cap.
+                .heightIn(max = 220.dp),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
         ) {
             items(rows, key = { it.addon.baseUrl }) { row ->

@@ -715,7 +715,8 @@ private fun EpisodeCommentPickerDialog(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(320.dp),
+                    // Fits under FetchDialog's 492dp cap together with the season row.
+                    .height(270.dp),
                 state = episodeListState,
                 contentPadding = PaddingValues(vertical = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)

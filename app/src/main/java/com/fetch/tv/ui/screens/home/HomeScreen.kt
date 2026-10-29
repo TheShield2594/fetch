@@ -288,7 +288,8 @@ fun HomeScreen(
             uiState.error != null && uiState.catalogRows.isEmpty() -> {
                 ErrorState(
                     message = uiState.error ?: stringResource(R.string.error_generic),
-                    onRetry = { viewModel.onEvent(HomeEvent.OnRetry) }
+                    onRetry = { viewModel.onEvent(HomeEvent.OnRetry) },
+                    requestInitialFocus = true
                 )
             }
 

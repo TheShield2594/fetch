@@ -679,7 +679,8 @@ fun MetaDetailsScreen(
             uiState.error != null -> {
                 ErrorState(
                     message = uiState.error ?: stringResource(R.string.error_generic),
-                    onRetry = { viewModel.onEvent(MetaDetailsEvent.OnRetry) }
+                    onRetry = { viewModel.onEvent(MetaDetailsEvent.OnRetry) },
+                    requestInitialFocus = true
                 )
             }
             uiState.meta != null -> {

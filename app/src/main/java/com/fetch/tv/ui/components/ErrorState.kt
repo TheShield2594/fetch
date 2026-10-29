@@ -1,5 +1,9 @@
 package com.fetch.tv.ui.components
 
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -32,8 +36,18 @@ import com.fetch.tv.R
 fun ErrorState(
     message: String,
     onRetry: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /**
+     * True when the error fills the screen and nothing else can hold focus: Retry takes it, so
+     * the first D-pad press doesn't go to finding focus. Leave false where the error sits beside
+     * other focusable content.
+     */
+    requestInitialFocus: Boolean = false
 ) {
+    val retryFocus = remember { FocusRequester() }
+    if (requestInitialFocus) {
+        LaunchedEffect(Unit) { runCatching { retryFocus.requestFocus() } }
+    }
     val displayMessage = buildErrorStatePresentation(
         message = message,
         strings = rememberErrorStateStrings()
@@ -60,7 +74,10 @@ fun ErrorState(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
-        StateActionButton(StateAction(stringResource(R.string.action_retry), onRetry))
+        StateActionButton(
+            StateAction(stringResource(R.string.action_retry), onRetry),
+            modifier = Modifier.focusRequester(retryFocus)
+        )
     }
 }
 

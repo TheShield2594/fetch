@@ -25,6 +25,9 @@ data class ThemeColorPalette(
 )
 
 object ThemeColors {
+    // Each built-in theme is an art direction, not a hue swap: its own tinted ground ramp
+    // (background → elevated → card → surface → variant), an accent with a dark label on it,
+    // and a focus background in the same family. Focus itself stays white in every theme.
     /** Fetch's own look: near-black surfaces and a tennis-ball accent that reads on any poster. */
     val Fetch = ThemeColorPalette(
         secondary = Color(0xFFD7F75B),
@@ -43,58 +46,112 @@ object ThemeColors {
         modal = Color(0xFF141519)
     )
 
+    /** Velvet-seat warm black and a red that still reads on black text. */
     val Crimson = ThemeColorPalette(
-        secondary = FetchPrimitives.red500,
-        secondaryVariant = FetchPrimitives.red600,
-        // Neither white nor the near-black text reaches 4.5:1 on this red; pure black does.
-        onSecondary = FetchPrimitives.black,
-        focusBackground = Color(0xFF3D1A1A),
-        backgroundCard = Color(0xFF241A1A)
+        secondary = Color(0xFFE5484D),
+        secondaryVariant = Color(0xFFD9434A),
+        onSecondary = Color(0xFF000000),
+        onSecondaryVariant = Color(0xFF000000),
+        focusBackground = Color(0xFF3A2224),
+        background = Color(0xFF120B0C),
+        backgroundElevated = Color(0xFF1B1112),
+        backgroundCard = Color(0xFF211517),
+        surface = Color(0xFF241719),
+        surfaceVariant = Color(0xFF2C1C1E),
+        panel = Color(0xFF1B1112),
+        field = Color(0xFF241719),
+        menu = Color(0xFF241719),
+        modal = Color(0xFF1B1112)
     )
 
+    /** Blue-black night with a lifted blue, so the Play label can be dark. */
     val Ocean = ThemeColorPalette(
-        secondary = FetchPrimitives.blue500,
-        secondaryVariant = FetchPrimitives.blue700,
-        onSecondary = FetchPrimitives.neutral925,
-        focusBackground = Color(0xFF1A2D3D),
-        background = Color(0xFF0D0D0F),
-        backgroundElevated = Color(0xFF1A1A1E),
-        backgroundCard = Color(0xFF1A1F24)
+        secondary = Color(0xFF4CB5F5),
+        secondaryVariant = Color(0xFF2E95D6),
+        onSecondary = Color(0xFF0A0F14),
+        onSecondaryVariant = Color(0xFF0A0F14),
+        focusBackground = Color(0xFF1F3242),
+        background = Color(0xFF0A0F14),
+        backgroundElevated = Color(0xFF101820),
+        backgroundCard = Color(0xFF131D27),
+        surface = Color(0xFF16212C),
+        surfaceVariant = Color(0xFF1A2733),
+        panel = Color(0xFF101820),
+        field = Color(0xFF16212C),
+        menu = Color(0xFF16212C),
+        modal = Color(0xFF101820)
     )
 
+    /** Ink-violet ground and a soft lavender accent. */
     val Violet = ThemeColorPalette(
-        secondary = FetchPrimitives.violet500,
-        secondaryVariant = FetchPrimitives.violet700,
-        focusBackground = Color(0xFF2D1A3D),
-        background = Color(0xFF0D0D0F),
-        backgroundElevated = Color(0xFF1A1A1E),
-        backgroundCard = Color(0xFF1F1A24)
+        secondary = Color(0xFFA78BFA),
+        secondaryVariant = Color(0xFF8B6CF0),
+        onSecondary = Color(0xFF0E0B14),
+        onSecondaryVariant = Color(0xFF0E0B14),
+        focusBackground = Color(0xFF2F2645),
+        background = Color(0xFF0E0B14),
+        backgroundElevated = Color(0xFF15111E),
+        backgroundCard = Color(0xFF1A1524),
+        surface = Color(0xFF1C1727),
+        surfaceVariant = Color(0xFF241D33),
+        panel = Color(0xFF15111E),
+        field = Color(0xFF1C1727),
+        menu = Color(0xFF1C1727),
+        modal = Color(0xFF15111E)
     )
 
+    /** Green-room black with a clean signal green. */
     val Emerald = ThemeColorPalette(
-        secondary = FetchPrimitives.green500,
-        secondaryVariant = FetchPrimitives.green700,
-        onSecondary = FetchPrimitives.neutral925,
-        focusBackground = Color(0xFF1A3D1E),
-        backgroundCard = Color(0xFF1A241A)
+        secondary = Color(0xFF3DD68C),
+        secondaryVariant = Color(0xFF26B873),
+        onSecondary = Color(0xFF0B110E),
+        onSecondaryVariant = Color(0xFF0B110E),
+        focusBackground = Color(0xFF213A2D),
+        background = Color(0xFF0B110E),
+        backgroundElevated = Color(0xFF111A15),
+        backgroundCard = Color(0xFF142019),
+        surface = Color(0xFF16231C),
+        surfaceVariant = Color(0xFF1B2A22),
+        panel = Color(0xFF111A15),
+        field = Color(0xFF16231C),
+        menu = Color(0xFF16231C),
+        modal = Color(0xFF111A15)
     )
 
+    /** Tungsten warmth: brown-black ground, a marquee-bulb accent. */
     val Amber = ThemeColorPalette(
-        secondary = FetchPrimitives.amber500,
-        secondaryVariant = FetchPrimitives.amber700,
-        onSecondary = FetchPrimitives.neutral925,
-        onSecondaryVariant = FetchPrimitives.neutral925,
-        focusBackground = Color(0xFF3D2D1A),
-        background = Color(0xFF0F0D0D),
-        backgroundElevated = Color(0xFF1E1A1A),
-        backgroundCard = Color(0xFF24201A)
+        secondary = Color(0xFFF5A524),
+        secondaryVariant = Color(0xFFD88A0E),
+        onSecondary = Color(0xFF120F0B),
+        onSecondaryVariant = Color(0xFF120F0B),
+        focusBackground = Color(0xFF3A2F20),
+        background = Color(0xFF120F0B),
+        backgroundElevated = Color(0xFF1B1711),
+        backgroundCard = Color(0xFF201B14),
+        surface = Color(0xFF231D16),
+        surfaceVariant = Color(0xFF2C251B),
+        panel = Color(0xFF1B1711),
+        field = Color(0xFF231D16),
+        menu = Color(0xFF231D16),
+        modal = Color(0xFF1B1711)
     )
 
+    /** Plum-black ground with a rose that dark text sits on. */
     val Rose = ThemeColorPalette(
-        secondary = FetchPrimitives.rose500,
-        secondaryVariant = FetchPrimitives.rose700,
-        focusBackground = Color(0xFF3D1A2D),
-        backgroundCard = Color(0xFF241A1F)
+        secondary = Color(0xFFF06A9E),
+        secondaryVariant = Color(0xFFD94E85),
+        onSecondary = Color(0xFF130B10),
+        onSecondaryVariant = Color(0xFF130B10),
+        focusBackground = Color(0xFF3D2333),
+        background = Color(0xFF130B10),
+        backgroundElevated = Color(0xFF1C1118),
+        backgroundCard = Color(0xFF22151D),
+        surface = Color(0xFF25171F),
+        surfaceVariant = Color(0xFF2E1C27),
+        panel = Color(0xFF1C1118),
+        field = Color(0xFF25171F),
+        menu = Color(0xFF25171F),
+        modal = Color(0xFF1C1118)
     )
 
     val White = ThemeColorPalette(

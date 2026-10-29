@@ -29,6 +29,7 @@ _OUTSIDE_CIRCLE = np.hypot(_xx - SIZE / 2, _yy - SIZE / 2) > CIRCLE * SIZE
 
 
 def prepare(src: Path, dst: Path) -> float:
+    """Write the avatar for cut-out `src` to `dst`; returns the subject's share of the canvas."""
     image = Image.open(src).convert("RGBA")
     alpha = image.getchannel("A").point(lambda v: 0 if v < HAZE else v)
     image.putalpha(alpha)
@@ -36,14 +37,15 @@ def prepare(src: Path, dst: Path) -> float:
 
     scale = FILL * SIZE / max(image.size)
     while True:
-        width, height = round(image.width * scale), round(image.height * scale)
+        width = max(1, round(image.width * scale))
+        height = max(1, round(image.height * scale))
         canvas = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
         canvas.alpha_composite(
             image.resize((width, height), Image.LANCZOS),
             ((SIZE - width) // 2, (SIZE - height) // 2),
         )
         solid = np.asarray(canvas.getchannel("A")) > 64
-        if np.count_nonzero(solid & _OUTSIDE_CIRCLE) <= 16 or scale < 0.2:
+        if np.count_nonzero(solid & _OUTSIDE_CIRCLE) <= 16:
             break
         scale *= 0.97
 
@@ -52,6 +54,7 @@ def prepare(src: Path, dst: Path) -> float:
 
 
 def main() -> None:
+    """Prepare every PNG in the source folder into the output folder."""
     if len(sys.argv) != 3:
         sys.exit(__doc__)
     src_dir, out_dir = Path(sys.argv[1]), Path(sys.argv[2])

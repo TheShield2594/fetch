@@ -28,7 +28,8 @@ subject sits inside that circle with some room around it.
    avatar's background colour from `BundledAvatars.kt`.
 2. **Cut out** the background with Higgsfield's background remover, and save the
    PNG as `<id>.png` (the part after `fetch:`).
-3. **Size and export** to the app's assets, then copy to the web panel:
+3. **Size and export** to the app's assets, then copy to the web panel. The
+   script needs NumPy and Pillow (`python3 -m pip install numpy pillow`).
 
    ```bash
    python3 scripts/avatars/prepare_avatars.py <folder of cut-outs> app/src/main/assets/avatars

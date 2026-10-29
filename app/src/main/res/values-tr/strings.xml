@@ -230,7 +230,7 @@
     <string name="detail_marked_episodes_unwatched">İzlenmedi olarak işaretlenen bölümler: %1$d</string>
     <string name="detail_marked_previous_watched">İzlendi olarak işaretlenen önceki bölümler: %1$d</string>
     <string name="playback_unavailable">Oynatma kullanılamıyor</string>
-    <string name="playback_unavailable_message">Eklentilerinizin hiçbiri bu içeriği oynatamıyor. Ayarlar &gt; İçerik ve Keşif &gt; Eklentiler bölümünden bir yayın eklentisi ekleyin veya açın.</string>
+    <string name="playback_unavailable_message">Kurduğunuz hiçbir kaynak bu içeriği oynatamıyor. Ayarlar &gt; İçerik ve Keşif &gt; Eklentiler bölümünden bir yayın eklentisi ekleyin veya açın ya da medya sunucusu bağlantınızı kontrol edin.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Oynat</string>
@@ -2537,9 +2537,9 @@
     <string name="player_error_stream_unavailable">\n\nYayın sunucusu şu an kullanılamıyor. Başka bir kaynak seçin.</string>
     <string name="player_error_source_invalid_content">Kaynak hatası: Yayın kaynağı geçersiz veya oynatılamaz içerik döndürdü. Bağlantının süresi dolmuş olabilir veya sunucu video yerine hata sayfası döndürmüş olabilir.\n\nBaşka bir kaynak seçin. [%1$s]</string>
     <string name="player_error_unsupported_format">Bu yayın cihazınızın desteklemeyebileceği bir format kullanıyor. Başka bir kaynak seçin. [%1$s]</string>
-    <string name="player_error_initialize_failed">Oynatıcı başlatılamadı. Başka bir kaynak seçin.</string>
-    <string name="player_error_mpv_surface_failed">mpv oynatıcısı başlatılamadı. Başka bir kaynak seçin.</string>
-    <string name="player_error_mpv_playback_failed">mpv oynatıcısında oynatma başlatılamadı. Başka bir kaynak seçin.</string>
+    <string name="player_error_initialize_failed">Oynatıcı başlatılamadı. Fetch’i yeniden başlatıp tekrar deneyin.</string>
+    <string name="player_error_mpv_surface_failed">mpv oynatıcısı başlatılamadı. Tekrar deneyin veya Ayarlar &gt; Oynatma bölümünden Dahili Oynatıcı Motoru ayarını değiştirin.</string>
+    <string name="player_error_mpv_playback_failed">mpv oynatıcısında oynatma başlatılamadı. Tekrar deneyin veya Ayarlar &gt; Oynatma bölümünden Dahili Oynatıcı Motoru ayarını değiştirin.</string>
     <string name="player_error_playback_fallback">Bu yayın oynatılamadı. Başka bir kaynak seçin.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Bu dosyada altyazı satırı bulunamadı.</string>

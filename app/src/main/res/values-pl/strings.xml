@@ -232,7 +232,7 @@
     <string name="playback_true_black_letterbox">Czysto czarne paski</string>
     <string name="playback_true_black_letterbox_sub">Zostaw paski wokół obrazu niemalowane, aby HDR zachował czystą czerń. Wyłącz jeśli na paskach pojawia się jasna linia.</string>
     <string name="playback_unavailable">Odtwarzanie niedostępne</string>
-    <string name="playback_unavailable_message">Żaden z Twoich dodatków nie może odtworzyć tego tytułu. Dodaj lub włącz dodatek do streamingu w Ustawienia &gt; Treści i odkrywanie &gt; Dodatki.</string>
+    <string name="playback_unavailable_message">Żadne z Twoich źródeł nie może odtworzyć tego tytułu. Dodaj lub włącz dodatek do streamingu w Ustawienia &gt; Treści i odkrywanie &gt; Dodatki albo sprawdź połączenie z serwerem mediów.</string>
     <string name="playback_cache_write_warning">Na urządzeniach z pamięcią wbudowaną ciągły zapis może z czasem powodować zużycie nośnika.</string>
 
     <!-- PlaybackAudioSettings -->
@@ -2071,9 +2071,9 @@
     <string name="licenses_attributions_trakt_body">Fetch łączy się z Trakt w celu uwierzytelniania konta, historii obejrzanych, synchronizacji postępu, danych biblioteki, ocen, list i komentarzy. Fetch nie jest powiązany z Trakt.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="playback_player_internal_desc">Użyj wbudowanego odtwarzacza Fetch</string>
-    <string name="player_error_initialize_failed">Nie można uruchomić odtwarzacza. Wybierz inne źródło.</string>
-    <string name="player_error_mpv_playback_failed">Nie można rozpocząć odtwarzania w odtwarzaczu mpv. Wybierz inne źródło.</string>
-    <string name="player_error_mpv_surface_failed">Nie można uruchomić odtwarzacza mpv. Wybierz inne źródło.</string>
+    <string name="player_error_initialize_failed">Nie można uruchomić odtwarzacza. Uruchom ponownie Fetch i spróbuj jeszcze raz.</string>
+    <string name="player_error_mpv_playback_failed">Nie można rozpocząć odtwarzania w odtwarzaczu mpv. Spróbuj ponownie lub zmień Silnik wewnętrzny w Ustawienia &gt; Odtwarzanie.</string>
+    <string name="player_error_mpv_surface_failed">Nie można uruchomić odtwarzacza mpv. Spróbuj ponownie lub zmień Silnik wewnętrzny w Ustawienia &gt; Odtwarzanie.</string>
     <string name="player_error_playback_fallback">Nie można odtworzyć tego streamu. Wybierz inne źródło.</string>
     <string name="player_error_source_invalid_content">Błąd źródła: Źródło streamu zwróciło nieprawidłową lub nieodtwarzalną zawartość. Link mógł wygasnąć lub serwer zwrócił stronę błędu zamiast wideo.\n\nWybierz inne źródło. [%1$s]</string>
     <string name="player_error_stream_blocked">\n\nŹródło streamu jest zablokowane lub ograniczone. Wybierz inne źródło.</string>

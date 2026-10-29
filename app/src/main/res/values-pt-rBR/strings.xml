@@ -221,6 +221,7 @@
     <string name="detail_marked_episodes_watched">Episódios marcados como assistidos: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episódios marcados como não assistidos: %1$d</string>
     <string name="detail_marked_previous_watched">Episódios anteriores marcados como assistidos: %1$d</string>
+    <string name="playback_unavailable_message">Nada do que você configurou consegue reproduzir este título. Adicione ou ative um addon de streaming em Ajustes &gt; Conteúdo e Descoberta &gt; Addons, ou verifique a conexão com seu servidor de mídia.</string>
     
     <string name="detail_btn_play">Assistir</string>
     <string name="detail_btn_resume">Continuar</string>
@@ -2215,9 +2216,9 @@
     <string name="player_error_stream_unavailable">\n\nServidor indisponível no momento. Escolha outra fonte.</string>
     <string name="player_error_source_invalid_content">Erro de fonte: conteúdo inválido ou não reproduzível. O link pode ter expirado ou o servidor retornou uma página de erro em vez do vídeo.\n\nEscolha outra fonte. [%1$s]</string>
     <string name="player_error_unsupported_format">Este vídeo usa um formato que seu dispositivo talvez não suporte. Escolha outra fonte. [%1$s]</string>
-    <string name="player_error_initialize_failed">Não foi possível iniciar o player. Escolha outra fonte.</string>
-    <string name="player_error_mpv_surface_failed">Não foi possível iniciar o player mpv. Escolha outra fonte.</string>
-    <string name="player_error_mpv_playback_failed">Não foi possível iniciar a reprodução no player mpv. Escolha outra fonte.</string>
+    <string name="player_error_initialize_failed">Não foi possível iniciar o player. Reinicie o Fetch e tente novamente.</string>
+    <string name="player_error_mpv_surface_failed">Não foi possível iniciar o player mpv. Tente novamente ou altere Player Interno em Ajustes &gt; Reprodução.</string>
+    <string name="player_error_mpv_playback_failed">Não foi possível iniciar a reprodução no player mpv. Tente novamente ou altere Player Interno em Ajustes &gt; Reprodução.</string>
     <string name="player_error_playback_fallback">Não foi possível reproduzir este stream. Escolha outra fonte.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nenhum texto encontrado nesta legenda</string>

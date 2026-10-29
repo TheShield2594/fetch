@@ -1891,9 +1891,9 @@
     <string name="player_error_stream_unavailable">\n\nServer streamu je momentálne nedostupný. Vyberte iný zdroj.</string>
     <string name="player_error_source_invalid_content">Chyba zdroja: Zdroj streamu vrátil neplatný alebo neprehrateľný obsah. Odkaz mohol vypršať alebo server vrátil chybovú stránku namiesto videa.\n\nVyberte iný zdroj. [%1$s]</string>
     <string name="player_error_unsupported_format">Tento stream používa formát, ktorý vaše zariadenie nemusí podporovať. Vyberte iný zdroj. [%1$s]</string>
-    <string name="player_error_initialize_failed">Prehrávač sa nepodarilo spustiť. Vyberte iný zdroj.</string>
-    <string name="player_error_mpv_surface_failed">Prehrávač mpv sa nepodarilo spustiť. Vyberte iný zdroj.</string>
-    <string name="player_error_mpv_playback_failed">V prehrávači mpv sa nepodarilo spustiť prehrávanie. Vyberte iný zdroj.</string>
+    <string name="player_error_initialize_failed">Prehrávač sa nepodarilo spustiť. Reštartujte Fetch a skúste to znova.</string>
+    <string name="player_error_mpv_surface_failed">Prehrávač mpv sa nepodarilo spustiť. Skúste to znova alebo zmeňte Interný engine v Nastavenia &gt; Prehrávanie.</string>
+    <string name="player_error_mpv_playback_failed">V prehrávači mpv sa nepodarilo spustiť prehrávanie. Skúste to znova alebo zmeňte Interný engine v Nastavenia &gt; Prehrávanie.</string>
     <string name="player_error_playback_fallback">Tento stream sa nepodarilo prehrať. Vyberte iný zdroj.</string>
     
     <string name="subtitle_timing_file_no_lines">V tomto súbore sa nenašli žiadne riadky titulkov.</string>
@@ -2543,7 +2543,7 @@
     <string name="cd_remove_recent_search">Odstrániť %1$s z nedávnych vyhľadávaní</string>
 
     <string name="playback_unavailable">Prehrávanie nie je k dispozícii</string>
-    <string name="playback_unavailable_message">Žiadny z vašich doplnkov nevie prehrať tento titul. Pridajte alebo zapnite streamovací doplnok v Nastavenia &gt; Obsah a objavovanie &gt; Doplnky.</string>
+    <string name="playback_unavailable_message">Nič z toho, čo máte nastavené, nevie prehrať tento titul. Pridajte alebo zapnite streamovací doplnok v Nastavenia &gt; Obsah a objavovanie &gt; Doplnky, alebo skontrolujte pripojenie k mediálnemu serveru.</string>
     <string name="detail_more_like_this_powered_by_simkl">S podporou Simkl</string>
     <string name="because_you_watched_row_title">Pretože ste pozerali %1$s</string>
     <string name="because_you_watched_reason_collection">Aj z: %1$s</string>

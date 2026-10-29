@@ -221,7 +221,7 @@
     <string name="detail_marked_episodes_unwatched">Nem látottként megjelölt epizódok: %1$d</string>
     <string name="detail_marked_previous_watched">Megnézettként megjelölt korábbi epizódok: %1$d</string>
     <string name="playback_unavailable">A lejátszás nem érhető el</string>
-    <string name="playback_unavailable_message">Egyik bővítményed sem tudja lejátszani ezt a címet. Adj hozzá vagy kapcsolj be egy stream bővítményt itt: Beállítások &gt; Tartalom és felfedezés &gt; Bővítmények.</string>
+    <string name="playback_unavailable_message">Semmi, amit beállítottál, nem tudja lejátszani ezt a címet. Adj hozzá vagy kapcsolj be egy stream bővítményt itt: Beállítások &gt; Tartalom és felfedezés &gt; Bővítmények, vagy ellenőrizd a médiaszerver-kapcsolatot.</string>
 
     <string name="detail_btn_play">Lejátszás</string>
     <string name="detail_btn_resume">Folytatás</string>
@@ -2346,9 +2346,9 @@
     <string name="player_error_stream_unavailable">\n\nA stream szerver jelenleg nem elérhető. Válassz másik forrást.</string>
     <string name="player_error_source_invalid_content">Forráshiba: A stream forrás érvénytelen vagy lejátszhatatlan tartalmat adott vissza. Lehet, hogy a link lejárt, vagy a szerver hibaoldalt adott vissza videó helyett.\n\nVálassz másik forrást. [%1$s]</string>
     <string name="player_error_unsupported_format">Ez a stream olyan formátumot használ, amelyet a készüléked nem biztos, hogy támogat. Válassz másik forrást. [%1$s]</string>
-    <string name="player_error_initialize_failed">Nem sikerült elindítani a lejátszót. Válassz másik forrást.</string>
-    <string name="player_error_mpv_surface_failed">Nem sikerült elindítani az mpv lejátszót. Válassz másik forrást.</string>
-    <string name="player_error_mpv_playback_failed">Nem sikerült elindítani a lejátszást az mpv lejátszóban. Válassz másik forrást.</string>
+    <string name="player_error_initialize_failed">Nem sikerült elindítani a lejátszót. Indítsd újra a Fetch-et, és próbáld újra.</string>
+    <string name="player_error_mpv_surface_failed">Nem sikerült elindítani az mpv lejátszót. Próbáld újra, vagy módosítsd a Belső motor beállítást itt: Beállítások &gt; Lejátszás.</string>
+    <string name="player_error_mpv_playback_failed">Nem sikerült elindítani a lejátszást az mpv lejátszóban. Próbáld újra, vagy módosítsd a Belső motor beállítást itt: Beállítások &gt; Lejátszás.</string>
     <string name="player_error_playback_fallback">Ez a stream nem játszható le. Válassz másik forrást.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nem találhatók feliratsorok ebben a fájlban.</string>

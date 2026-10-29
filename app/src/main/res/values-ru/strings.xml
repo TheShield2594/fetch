@@ -193,6 +193,7 @@
     <string name="detail_marked_episodes_watched">Отмечено эпизодов как просмотренные: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Отмечено эпизодов как непросмотренные: %1$d</string>
     <string name="detail_marked_previous_watched">Предыдущие эпизоды отмечены как просмотренные: %1$d</string>
+    <string name="playback_unavailable_message">Ни один из настроенных источников не может воспроизвести этот контент. Добавьте или включите аддон для стриминга в Настройки &gt; Контент и поиск &gt; Аддоны или проверьте подключение к медиасерверу.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Смотреть</string>
@@ -2206,9 +2207,9 @@
     <string name="player_error_stream_unavailable">\n\nСервер потока временно недоступен. Выберите другой источник.</string>
     <string name="player_error_source_invalid_content">Ошибка источника: источник вернул неверный или невоспроизводимый контент. Ссылка могла устареть или сервер вернул страницу ошибки вместо видео.\n\nВыберите другой источник. [%1$s]</string>
     <string name="player_error_unsupported_format">Поток использует формат, который ваше устройство может не поддерживать. Выберите другой источник. [%1$s]</string>
-    <string name="player_error_initialize_failed">Не удалось запустить плеер. Выберите другой источник.</string>
-    <string name="player_error_mpv_surface_failed">Не удалось запустить плеер mpv. Выберите другой источник.</string>
-    <string name="player_error_mpv_playback_failed">Не удалось начать воспроизведение в плеере mpv. Выберите другой источник.</string>
+    <string name="player_error_initialize_failed">Не удалось запустить плеер. Перезапустите Fetch и попробуйте снова.</string>
+    <string name="player_error_mpv_surface_failed">Не удалось запустить плеер mpv. Попробуйте снова или измените Движок встроенного плеера в Настройки &gt; Воспроизведение.</string>
+    <string name="player_error_mpv_playback_failed">Не удалось начать воспроизведение в плеере mpv. Попробуйте снова или измените Движок встроенного плеера в Настройки &gt; Воспроизведение.</string>
     <string name="player_error_playback_fallback">Не удалось воспроизвести этот поток. Выберите другой источник.</string>
     <string name="subtitle_timing_file_no_lines">В этом файле не найдено строк субтитров.</string>
     <string name="subtitle_timing_load_lines_failed">Не удалось загрузить строки субтитров.</string>

@@ -221,6 +221,7 @@
     <string name="detail_marked_episodes_watched">Afleveringen gemarkeerd als bekeken: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Afleveringen gemarkeerd als onbekeken: %1$d</string>
     <string name="detail_marked_previous_watched">Voorgaande afleveringen gemarkeerd als bekeken: %1$d</string>
+    <string name="playback_unavailable_message">Niets wat je hebt ingesteld kan deze titel afspelen. Voeg een streaming-add-on toe of zet er een aan in Instellingen &gt; Inhoud &amp; ontdekken &gt; Add-ons, of controleer de verbinding met je mediaserver.</string>
 
     <string name="detail_btn_play">Afspelen</string>
     <string name="detail_btn_resume">Hervatten</string>
@@ -2185,9 +2186,9 @@
     <string name="player_error_stream_unavailable">\n\nDe streamserver is momenteel niet beschikbaar. Kies een andere bron.</string>
     <string name="player_error_source_invalid_content">Bronfout: de streambron gaf ongeldige of onafspeelbare inhoud terug. De link is mogelijk verlopen of de server gaf een foutpagina terug in plaats van video.\n\nKies een andere bron. [%1$s]</string>
     <string name="player_error_unsupported_format">Deze stream gebruikt een formaat dat je apparaat mogelijk niet ondersteunt. Kies een andere bron. [%1$s]</string>
-    <string name="player_error_initialize_failed">Kan de speler niet starten. Kies een andere bron.</string>
-    <string name="player_error_mpv_surface_failed">Kan de mpv-speler niet starten. Kies een andere bron.</string>
-    <string name="player_error_mpv_playback_failed">Kan het afspelen in de mpv-speler niet starten. Kies een andere bron.</string>
+    <string name="player_error_initialize_failed">Kan de speler niet starten. Start Fetch opnieuw en probeer het nog eens.</string>
+    <string name="player_error_mpv_surface_failed">Kan de mpv-speler niet starten. Probeer het opnieuw of wijzig Interne engine in Instellingen &gt; Afspelen.</string>
+    <string name="player_error_mpv_playback_failed">Kan het afspelen in de mpv-speler niet starten. Probeer het opnieuw of wijzig Interne engine in Instellingen &gt; Afspelen.</string>
     <string name="player_error_playback_fallback">Kan deze stream niet afspelen. Kies een andere bron.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Er zijn geen ondertitelregels in dit bestand gevonden.</string>

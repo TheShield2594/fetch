@@ -130,6 +130,7 @@
     <string name="detail_marked_episodes_watched">Episoder markert som sett: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episoder markert som usett: %1$d</string>
     <string name="detail_marked_previous_watched">Tidligere episoder markert som sett: %1$d</string>
+    <string name="playback_unavailable_message">Ingenting du har satt opp, kan spille av denne tittelen. Legg til eller slå på et strømmetillegg under Innstillinger &gt; Innhold og oppdagelse &gt; Tillegg, eller sjekk tilkoblingen til medieserveren din.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Spill av</string>
@@ -1005,6 +1006,9 @@
     <string name="collections_editor_discard_folder_subtitle">Endringene dine i denne mappen er ikke lagret.</string>
     <string name="collections_editor_keep_editing">Fortsett å redigere</string>
     <string name="collections_editor_discard">Forkast</string>
+    <string name="player_error_initialize_failed">Kunne ikke starte spilleren. Start Fetch på nytt og prøv igjen.</string>
+    <string name="player_error_mpv_surface_failed">Kunne ikke starte mpv-spilleren. Prøv igjen, eller endre Intern motor under Innstillinger &gt; Avspilling.</string>
+    <string name="player_error_mpv_playback_failed">Kunne ikke starte avspilling i mpv-spilleren. Prøv igjen, eller endre Intern motor under Innstillinger &gt; Avspilling.</string>
     <string name="library_error_save_list_next_step">Sjekk tilkoblingen, og prøv igjen.</string>
     <string name="cd_mark_credits_start">Marker start på rulletekst</string>
     <string name="cd_mark_intro_end">Marker slutt på intro</string>

@@ -226,7 +226,7 @@
     <string name="detail_marked_previous_watched">%1$d פרקים קודמים סומנו כנצפו.</string>
 
     <string name="playback_unavailable">ההפעלה לא זמינה</string>
-    <string name="playback_unavailable_message">אף אחד מהתוספים שלך לא יכול להפעיל את הכותר הזה. אפשר להוסיף או להפעיל תוסף סטרים בהגדרות &gt; תוכן וגילוי &gt; תוספים.</string>
+    <string name="playback_unavailable_message">אף אחד מהמקורות שהוגדרו לא יכול להפעיל את הכותר הזה. אפשר להוסיף או להפעיל תוסף סטרים בהגדרות &gt; תוכן וגילוי &gt; תוספים, או לבדוק את החיבור לשרת המדיה.</string>
     <string name="detail_btn_play">הפעלה</string>
     <string name="detail_btn_resume">המשך</string>
     <string name="detail_btn_play_episode">הפעלת S%1$d E%2$d</string>
@@ -2359,9 +2359,9 @@
     <string name="player_error_stream_unavailable">\n\nשרת המקור אינו זמין כרגע. יש לבחור מקור אחר.</string>
     <string name="player_error_source_invalid_content">שגיאת מקור: המקור החזיר תוכן לא תקין או שלא ניתן להפעיל. ייתכן שפג תוקף הקישור, או שהשרת החזיר דף שגיאה במקום וידאו.\n\nיש לבחור מקור אחר. [%1$s]</string>
     <string name="player_error_unsupported_format">המקור הזה משתמש בפורמט שייתכן שהמכשיר אינו תומך בו. יש לבחור מקור אחר. [%1$s]</string>
-    <string name="player_error_initialize_failed">לא ניתן להפעיל את הנגן. יש לבחור מקור אחר.</string>
-    <string name="player_error_mpv_surface_failed">לא ניתן להפעיל את נגן mpv. יש לבחור מקור אחר.</string>
-    <string name="player_error_mpv_playback_failed">לא ניתן להתחיל את ההפעלה בנגן mpv. יש לבחור מקור אחר.</string>
+    <string name="player_error_initialize_failed">לא ניתן להפעיל את הנגן. יש להפעיל מחדש את Fetch ולנסות שוב.</string>
+    <string name="player_error_mpv_surface_failed">לא ניתן להפעיל את נגן mpv. יש לנסות שוב, או לשנות את מנוע פנימי בהגדרות &gt; הפעלה.</string>
+    <string name="player_error_mpv_playback_failed">לא ניתן להתחיל את ההפעלה בנגן mpv. יש לנסות שוב, או לשנות את מנוע פנימי בהגדרות &gt; הפעלה.</string>
     <string name="player_error_playback_fallback">לא ניתן להפעיל את הסטרים הזה. יש לבחור מקור אחר.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">לא נמצאו שורות כתוביות בקובץ זה.</string>

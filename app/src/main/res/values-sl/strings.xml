@@ -211,7 +211,8 @@
 	<string name="detail_all_previous_seasons_watched">Vse prejšnje sezone so že ogledane</string>																								
     <string name="detail_marked_episodes_watched">Epizode, označene kot ogledane: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizode, označene kot neogledane: %1$d</string>
-    <string name="detail_marked_previous_watched">Prejšnje epizode, označene kot ogledane: %1$d</string>																		
+    <string name="detail_marked_previous_watched">Prejšnje epizode, označene kot ogledane: %1$d</string>
+    <string name="playback_unavailable_message">Nič od tega, kar ste nastavili, ne more predvajati tega naslova. Dodajte ali vklopite dodatek za pretakanje v Nastavitve &gt; Vsebina in odkrivanje &gt; Dodatki ali preverite povezavo z medijskim strežnikom.</string>																		
 	<!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Predvajaj</string>
     <string name="detail_btn_resume">Nadaljuj</string>
@@ -1766,9 +1767,9 @@
     <string name="player_error_stream_unavailable">\n\nStrežnik za pretakanje trenutno ni na voljo. Izberite drug vir.</string>
     <string name="player_error_source_invalid_content">Napaka vira: Vir za pretakanje je vrnil neveljavno vsebino ali vsebino, ki je ni mogoče predvajati. Povezava je morda potekla ali pa je strežnik namesto videa vrnil stran z napako.\n\nIzberite drug vir. [%1$s]</string>
        <string name="player_error_unsupported_format">Ta vir uporablja format, ki ga vaša naprava morda ne podpira. Izberite drug vir. [%1$s]</string>
-    <string name="player_error_initialize_failed">Predvajalnika ni bilo mogoče zagnati. Izberite drug vir.</string>
-    <string name="player_error_mpv_surface_failed">Predvajalnika mpv ni bilo mogoče zagnati. Izberite drug vir.</string>
-    <string name="player_error_mpv_playback_failed">Predvajanja v predvajalniku mpv ni bilo mogoče začeti. Izberite drug vir.</string>
+    <string name="player_error_initialize_failed">Predvajalnika ni bilo mogoče zagnati. Znova zaženite Fetch in poskusite znova.</string>
+    <string name="player_error_mpv_surface_failed">Predvajalnika mpv ni bilo mogoče zagnati. Poskusite znova ali spremenite Predvajalnik v Nastavitve &gt; Predvajanje.</string>
+    <string name="player_error_mpv_playback_failed">Predvajanja v predvajalniku mpv ni bilo mogoče začeti. Poskusite znova ali spremenite Predvajalnik v Nastavitve &gt; Predvajanje.</string>
        <string name="player_error_playback_fallback">Tega pretoka ni bilo mogoče predvajati. Izberite drug vir.</string>
     <!-- Subtitle timing recovery -->    
     <string name="subtitle_timing_file_no_lines">V tej datoteki ni bilo najdenih vrstic s podnapisi.</string>

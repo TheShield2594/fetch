@@ -211,6 +211,7 @@
     <string name="detail_marked_episodes_watched">Episódios marcados como vistos: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episódios marcados como não vistos: %1$d</string>
     <string name="detail_marked_previous_watched">Episódios anteriores marcados como vistos: %1$d</string>
+    <string name="playback_unavailable_message">Nada do que configuraste consegue reproduzir este título. Adiciona ou ativa um addon de streaming em Definições &gt; Conteúdo e descoberta &gt; Addons, ou verifica a ligação ao teu servidor multimédia.</string>
     <string name="detail_btn_play">Reproduzir</string>
     <string name="detail_btn_resume">Retomar</string>
     <string name="detail_btn_play_episode">Reproduzir T%1$d E%2$d</string>
@@ -1822,9 +1823,9 @@
     <string name="player_error_stream_unavailable">\n\nO servidor do stream está indisponível de momento. Escolhe outra fonte.</string>
     <string name="player_error_source_invalid_content">Erro de fonte: A fonte do stream devolveu conteúdo inválido ou não reproduzível. O link pode ter expirado ou o servidor devolveu uma página de erro em vez do vídeo.\n\nEscolhe outra fonte. [%1$s]</string>
     <string name="player_error_unsupported_format">Este stream utiliza um formato que o teu dispositivo pode não suportar. Escolhe outra fonte. [%1$s]</string>
-    <string name="player_error_initialize_failed">Não foi possível iniciar o leitor. Escolhe outra fonte.</string>
-    <string name="player_error_mpv_surface_failed">Não foi possível iniciar o leitor mpv. Escolhe outra fonte.</string>
-    <string name="player_error_mpv_playback_failed">Não foi possível iniciar a reprodução no leitor mpv. Escolhe outra fonte.</string>
+    <string name="player_error_initialize_failed">Não foi possível iniciar o leitor. Reinicia o Fetch e tenta novamente.</string>
+    <string name="player_error_mpv_surface_failed">Não foi possível iniciar o leitor mpv. Tenta novamente ou altera Motor interno em Definições &gt; Reprodução.</string>
+    <string name="player_error_mpv_playback_failed">Não foi possível iniciar a reprodução no leitor mpv. Tenta novamente ou altera Motor interno em Definições &gt; Reprodução.</string>
     <string name="player_error_playback_fallback">Não foi possível reproduzir este stream. Escolhe outra fonte.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Não foram encontradas linhas de legenda neste ficheiro.</string>

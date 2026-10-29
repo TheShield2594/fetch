@@ -206,7 +206,7 @@
     <string name="detail_marked_episodes_unwatched">এপিসোডগুলো দেখা হয়নি হিসেবে মার্ক করা হয়েছে: %1$d</string>
     <string name="detail_marked_previous_watched">আগের এপিসোডগুলো দেখা হয়েছে হিসেবে মার্ক করা হয়েছে: %1$d</string>
     <string name="playback_unavailable">প্লেব্যাক উপলব্ধ নেই</string>
-    <string name="playback_unavailable_message">আপনার কোনো অ্যাডন এই শিরোনামটি প্লে করতে পারে না। সেটিংস &gt; কন্টেন্ট ও ডিসকভারি &gt; অ্যাডনসমূহ-এ গিয়ে একটি স্ট্রিমিং অ্যাডন যোগ করুন বা চালু করুন।</string>
+    <string name="playback_unavailable_message">আপনার সেট আপ করা কোনো কিছুই এই শিরোনামটি প্লে করতে পারে না। সেটিংস &gt; কন্টেন্ট ও ডিসকভারি &gt; অ্যাডনসমূহ-এ গিয়ে একটি স্ট্রিমিং অ্যাডন যোগ করুন বা চালু করুন, অথবা আপনার মিডিয়া সার্ভারের কানেকশন চেক করুন।</string>
     <string name="detail_btn_play">প্লে</string>
     <string name="detail_btn_resume">আবার শুরু করুন</string>
     <string name="detail_btn_play_episode">প্লে করুন S%1$d E%2$d</string>
@@ -2166,9 +2166,9 @@
     <string name="player_error_stream_unavailable">\n\nস্ট্রীম সার্ভার বর্তমানে আনঅ্যাভেইলেবল। অন্য একটি সোর্স বেছে নিন।</string>
     <string name="player_error_source_invalid_content">সোর্স এরর: স্ট্রীম সোর্সটি ইনভ্যালিড বা আনপ্লেয়েবল কনটেন্ট রিটার্ন করেছে। লিংকটির মেয়াদ হয়তো শেষ অথবা সার্ভার ভিডিওর বদলে একটি এরর পেইজ রিটার্ন করেছে।\n\nঅন্য একটি সোর্স বেছে নিন। [%1$s]</string>
     <string name="player_error_unsupported_format">এই স্ট্রীমটি এমন একটি ফরম্যাট ব্যবহার করে যা আপনার ডিভাইস সাপোর্ট নাও করতে পারে। অন্য একটি সোর্স বেছে নিন। [%1$s]</string>
-    <string name="player_error_initialize_failed">প্লেয়ার চালু করা যায়নি। অন্য একটি সোর্স বেছে নিন।</string>
-    <string name="player_error_mpv_surface_failed">mpv প্লেয়ার চালু করা যায়নি। অন্য একটি সোর্স বেছে নিন।</string>
-    <string name="player_error_mpv_playback_failed">mpv প্লেয়ারে প্লেব্যাক শুরু করা যায়নি। অন্য একটি সোর্স বেছে নিন।</string>
+    <string name="player_error_initialize_failed">প্লেয়ার চালু করা যায়নি। Fetch রিস্টার্ট করে আবার চেষ্টা করুন।</string>
+    <string name="player_error_mpv_surface_failed">mpv প্লেয়ার চালু করা যায়নি। আবার চেষ্টা করুন, অথবা সেটিংস &gt; প্লেব্যাক-এ ইন্টারনাল ইঞ্জিন পরিবর্তন করুন।</string>
+    <string name="player_error_mpv_playback_failed">mpv প্লেয়ারে প্লেব্যাক শুরু করা যায়নি। আবার চেষ্টা করুন, অথবা সেটিংস &gt; প্লেব্যাক-এ ইন্টারনাল ইঞ্জিন পরিবর্তন করুন।</string>
     <string name="player_error_playback_fallback">এই স্ট্রীমটি প্লে করা যায়নি। অন্য একটি সোর্স বেছে নিন।</string>
     <string name="subtitle_timing_file_no_lines">এই ফাইলে কোনো সাবটাইটেল লাইন পাওয়া যায়নি।</string>
     <string name="subtitle_timing_load_lines_failed">সাবটাইটেল লাইন লোড করতে ব্যর্থ।</string>

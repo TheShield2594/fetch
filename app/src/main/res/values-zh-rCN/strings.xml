@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">已标记为已观看的先前剧集：%1$d</string>
 
     <string name="playback_unavailable">无法播放</string>
-    <string name="playback_unavailable_message">您的扩展均无法播放此标题。请在“设置 &gt; 内容与发现 &gt; 扩展”中添加或启用流媒体扩展。</string>
+    <string name="playback_unavailable_message">您设置的所有来源均无法播放此标题。请在“设置 &gt; 内容与发现 &gt; 扩展”中添加或启用流媒体扩展，或检查媒体服务器连接。</string>
     <string name="detail_btn_play">播放</string>
     <string name="detail_btn_resume">继续播放</string>
     <string name="detail_btn_play_episode">播放 S%1$d E%2$d</string>
@@ -2269,9 +2269,9 @@
     <string name="player_error_stream_unavailable">\n\n流服务器当前不可用。请选择其他来源。</string>
     <string name="player_error_source_invalid_content">来源错误：流来源返回无效或无法播放的内容。链接可能已过期或服务器返回了错误页面而非视频。\n\n请选择其他来源。[%1$s]</string>
     <string name="player_error_unsupported_format">此流使用的格式您的设备可能不支持。请选择其他来源。[%1$s]</string>
-    <string name="player_error_initialize_failed">无法启动播放器。请选择其他来源。</string>
-    <string name="player_error_mpv_surface_failed">无法启动 mpv 播放器。请选择其他来源。</string>
-    <string name="player_error_mpv_playback_failed">无法在 mpv 播放器中开始播放。请选择其他来源。</string>
+    <string name="player_error_initialize_failed">无法启动播放器。请重启 Fetch 后重试。</string>
+    <string name="player_error_mpv_surface_failed">无法启动 mpv 播放器。请重试，或在“设置 &gt; 播放”中更改“内置播放引擎”。</string>
+    <string name="player_error_mpv_playback_failed">无法在 mpv 播放器中开始播放。请重试，或在“设置 &gt; 播放”中更改“内置播放引擎”。</string>
     <string name="player_error_playback_fallback">无法播放此流。请选择其他来源。</string>
     <!-- 字幕时间同步恢复 -->
     <string name="subtitle_timing_file_no_lines">在此文件中找不到字幕行。</string>

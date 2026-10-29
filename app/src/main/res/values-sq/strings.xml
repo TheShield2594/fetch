@@ -213,6 +213,7 @@
     <string name="detail_marked_episodes_watched">Episode të shënuara si të shikuara: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode të shënuara si të pashikuara: %1$d</string>
     <string name="detail_marked_previous_watched">Episode të mëparshme të shënuara si të shikuara: %1$d</string>
+    <string name="playback_unavailable_message">Asgjë nga ato që ke konfiguruar nuk mund ta luajë këtë titull. Shto ose aktivizo një shtesë transmetimi te Cilësimet &gt; Përmbajtja dhe zbulimi &gt; Shtesa, ose kontrollo lidhjen me serverin e medias.</string>
     <string name="detail_btn_play">Luaj</string>
     <string name="detail_btn_resume">Vazhdo</string>
     <string name="detail_btn_play_episode">Luaj S%1$d E%2$d</string>
@@ -1995,9 +1996,9 @@
     <string name="player_error_stream_unavailable">\n\nServeri i transmetimit nuk është aktualisht i disponueshëm. Zgjidh një burim tjetër.</string>
     <string name="player_error_source_invalid_content">Gabim burimi: Burimi i transmetimit ktheu përmbajtje të pavlefshme ose të paluajtshme. Lidhja mund të ketë skaduar ose serveri mund të ketë kthyer një faqe gabimi në vend të videos.\n\nZgjidh një burim tjetër. [%1$s]</string>
     <string name="player_error_unsupported_format">Ky transmetim përdor një format që pajisja jote mund të mos e mbështesë. Zgjidh një burim tjetër. [%1$s]</string>
-    <string name="player_error_initialize_failed">Luajtësi nuk mund të nisej. Zgjidh një burim tjetër.</string>
-    <string name="player_error_mpv_surface_failed">Luajtësi mpv nuk mund të nisej. Zgjidh një burim tjetër.</string>
-    <string name="player_error_mpv_playback_failed">Riprodhimi në luajtësin mpv nuk mund të nisej. Zgjidh një burim tjetër.</string>
+    <string name="player_error_initialize_failed">Luajtësi nuk mund të nisej. Rinis Fetch dhe provo përsëri.</string>
+    <string name="player_error_mpv_surface_failed">Luajtësi mpv nuk mund të nisej. Provo përsëri ose ndrysho Motori i brendshëm te Cilësimet &gt; Riprodhimi.</string>
+    <string name="player_error_mpv_playback_failed">Riprodhimi në luajtësin mpv nuk mund të nisej. Provo përsëri ose ndrysho Motori i brendshëm te Cilësimet &gt; Riprodhimi.</string>
     <string name="player_error_playback_fallback">Ky transmetim nuk mund të luhet. Zgjidh një burim tjetër.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nuk u gjetën rreshta titrash në këtë skedar.</string>

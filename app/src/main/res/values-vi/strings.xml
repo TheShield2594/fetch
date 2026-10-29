@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">Đã đánh dấu %1$d tập trước đã xem</string>
 
     <string name="playback_unavailable">Không thể phát nội dung</string>
-    <string name="playback_unavailable_message">Không tiện ích nào của bạn có thể phát nội dung này. Hãy thêm hoặc bật một tiện ích phát trực tuyến trong Cài đặt &gt; Nội dung &amp; Khám phá &gt; Tiện ích.</string>
+    <string name="playback_unavailable_message">Không nguồn nào bạn đã thiết lập có thể phát nội dung này. Hãy thêm hoặc bật một tiện ích phát trực tuyến trong Cài đặt &gt; Nội dung &amp; Khám phá &gt; Tiện ích, hoặc kiểm tra kết nối máy chủ đa phương tiện.</string>
     <string name="detail_btn_play">Phát</string>
     <string name="detail_btn_resume">Xem tiếp</string>
     <string name="detail_btn_play_episode">Phát M%1$dT%2$d</string>
@@ -2354,9 +2354,9 @@
     <string name="player_error_stream_unavailable">\n\nMáy chủ nguồn phát hiện không khả dụng. Vui lòng chọn nguồn khác.</string>
     <string name="player_error_source_invalid_content">Lỗi nguồn: Nguồn phát trả về nội dung không hợp lệ hoặc không thể phát. Liên kết có thể đã hết hạn hoặc máy chủ đã trả về trang lỗi thay vì video.\n\nVui lòng chọn nguồn khác. [%1$s]</string>
     <string name="player_error_unsupported_format">Luồng phát này sử dụng định dạng mà thiết bị của bạn có thể không hỗ trợ. Vui lòng chọn nguồn khác. [%1$s]</string>
-    <string name="player_error_initialize_failed">Không thể khởi động trình phát. Vui lòng chọn nguồn khác.</string>
-    <string name="player_error_mpv_surface_failed">Không thể khởi động trình phát mpv. Vui lòng chọn nguồn khác.</string>
-    <string name="player_error_mpv_playback_failed">Không thể bắt đầu phát trong trình phát mpv. Vui lòng chọn nguồn khác.</string>
+    <string name="player_error_initialize_failed">Không thể khởi động trình phát. Vui lòng khởi động lại Fetch và thử lại.</string>
+    <string name="player_error_mpv_surface_failed">Không thể khởi động trình phát mpv. Vui lòng thử lại hoặc thay đổi mục Lõi trình phát bên trong tại Cài đặt &gt; Phát lại.</string>
+    <string name="player_error_mpv_playback_failed">Không thể bắt đầu phát trong trình phát mpv. Vui lòng thử lại hoặc thay đổi mục Lõi trình phát bên trong tại Cài đặt &gt; Phát lại.</string>
     <string name="player_error_playback_fallback">Không thể phát luồng này. Vui lòng chọn nguồn khác.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Không tìm thấy dòng phụ đề nào trong tệp này.</string>

@@ -227,6 +227,7 @@
     <string name="detail_marked_episodes_watched">Episode ditandai sudah ditonton: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode ditandai belum ditonton: %1$d</string>
     <string name="detail_marked_previous_watched">Episode sebelumnya ditandai sudah ditonton: %1$d</string>
+    <string name="playback_unavailable_message">Tidak ada yang Anda siapkan yang dapat memutar judul ini. Tambahkan atau aktifkan addon streaming di Pengaturan &gt; Konten &amp; Penemuan &gt; Addon, atau periksa koneksi server media Anda.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Putar</string>
@@ -1880,9 +1881,9 @@
     <string name="player_error_stream_unavailable">\n\nServer stream saat ini tidak tersedia. Pilih sumber lain.</string>
     <string name="player_error_source_invalid_content">Error sumber: Sumber stream menghasilkan konten tidak valid atau tidak dapat diputar. Tautan mungkin telah kedaluwarsa atau server menghasilkan halaman error, bukan video.\n\nPilih sumber lain. [%1$s]</string>
     <string name="player_error_unsupported_format">Stream ini menggunakan format yang mungkin tidak didukung perangkat Anda. Pilih sumber lain. [%1$s]</string>
-    <string name="player_error_initialize_failed">Tidak dapat memulai pemutar. Pilih sumber lain.</string>
-    <string name="player_error_mpv_surface_failed">Tidak dapat memulai pemutar mpv. Pilih sumber lain.</string>
-    <string name="player_error_mpv_playback_failed">Tidak dapat memulai pemutaran di pemutar mpv. Pilih sumber lain.</string>
+    <string name="player_error_initialize_failed">Tidak dapat memulai pemutar. Mulai ulang Fetch dan coba lagi.</string>
+    <string name="player_error_mpv_surface_failed">Tidak dapat memulai pemutar mpv. Coba lagi, atau ubah Mesin Internal di Pengaturan &gt; Pemutaran.</string>
+    <string name="player_error_mpv_playback_failed">Tidak dapat memulai pemutaran di pemutar mpv. Coba lagi, atau ubah Mesin Internal di Pengaturan &gt; Pemutaran.</string>
     <string name="player_error_playback_fallback">Tidak dapat memutar stream ini. Pilih sumber lain.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Tidak ada baris subtitle ditemukan dalam file ini.</string>

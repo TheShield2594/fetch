@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">已標記為已觀看的先前集數：%1$d</string>
 
     <string name="playback_unavailable">無法播放</string>
-    <string name="playback_unavailable_message">您的擴充套件都無法播放此標題。請在「設定 &gt; 內容與探索 &gt; 擴充套件」中新增或啟用串流擴充套件。</string>
+    <string name="playback_unavailable_message">您設定的所有來源都無法播放此標題。請在「設定 &gt; 內容與探索 &gt; 擴充套件」中新增或啟用串流擴充套件，或檢查媒體伺服器連線。</string>
     <string name="detail_btn_play">播放</string>
     <string name="detail_btn_resume">繼續播放</string>
     <string name="detail_btn_play_episode">播放 S%1$d E%2$d</string>
@@ -2269,9 +2269,9 @@
     <string name="player_error_stream_unavailable">\n\n串流伺服器目前無法使用。請選擇其他來源。</string>
     <string name="player_error_source_invalid_content">來源錯誤：串流來源回傳無效或無法播放的內容。連結可能已過期或伺服器回傳了錯誤頁面而非影片。\n\n請選擇其他來源。[%1$s]</string>
     <string name="player_error_unsupported_format">此串流使用的格式您的裝置可能不支援。請選擇其他來源。[%1$s]</string>
-    <string name="player_error_initialize_failed">無法啟動播放器。請選擇其他來源。</string>
-    <string name="player_error_mpv_surface_failed">無法啟動 mpv 播放器。請選擇其他來源。</string>
-    <string name="player_error_mpv_playback_failed">無法在 mpv 播放器中開始播放。請選擇其他來源。</string>
+    <string name="player_error_initialize_failed">無法啟動播放器。請重新啟動 Fetch 後重試。</string>
+    <string name="player_error_mpv_surface_failed">無法啟動 mpv 播放器。請重試，或在「設定 &gt; 播放」中變更「內建播放引擎」。</string>
+    <string name="player_error_mpv_playback_failed">無法在 mpv 播放器中開始播放。請重試，或在「設定 &gt; 播放」中變更「內建播放引擎」。</string>
     <string name="player_error_playback_fallback">無法播放此串流。請選擇其他來源。</string>
     <!-- 字幕時間同步復原 -->
     <string name="subtitle_timing_file_no_lines">在此檔案中找不到字幕行。</string>

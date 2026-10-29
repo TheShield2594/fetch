@@ -211,6 +211,7 @@
     <string name="detail_marked_episodes_watched">பார்த்ததாக குறிக்கப்பட்ட அத்தியாயங்கள்: %1$d</string>
     <string name="detail_marked_episodes_unwatched">பார்க்காததாக குறிக்கப்பட்ட அத்தியாயங்கள்: %1$d</string>
     <string name="detail_marked_previous_watched">முந்தைய அத்தியாயங்கள் பார்த்ததாக குறிக்கப்பட்டது: %1$d</string>
+    <string name="playback_unavailable_message">நீங்கள் அமைத்த எதனாலும் இந்தத் தலைப்பை இயக்க முடியவில்லை. அமைப்புகள் &gt; உள்ளடக்கம் &amp; கண்டுபிடிப்பு &gt; அட்ஆன்கள் என்பதில் ஒரு ஸ்ட்ரீமிங் அட்ஆனைச் சேர்க்கவும் அல்லது இயக்கவும், அல்லது உங்கள் மீடியா சர்வர் இணைப்பைச் சரிபார்க்கவும்.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">இயக்கு</string>
@@ -1848,9 +1849,9 @@
     <string name="player_error_stream_unavailable">\n\nஸ்ட்ரீம் சேவையகம் தற்போது கிடைக்கவில்லை. வேறு மூலத்தைத் தேர்ந்தெடுக்கவும்.</string>
     <string name="player_error_source_invalid_content">மூலப் பிழை: ஸ்ட்ரீம் மூலம் தவறான அல்லது இயக்க முடியாத உள்ளடக்கத்தை வழங்கியது. இணைப்பு காலாவதியாகியிருக்கலாம் அல்லது சேவையகம் காணொளிக்கு பதிலாக பிழைப் பக்கத்தை வழங்கியிருக்கலாம்.\n\nவேறு மூலத்தைத் தேர்ந்தெடுக்கவும். [%1$s]</string>
     <string name="player_error_unsupported_format">இந்த ஸ்ட்ரீம் உங்கள் சாதனம் ஆதரிக்காமல் போகக்கூடிய வடிவத்தைப் பயன்படுத்துகிறது. வேறு மூலத்தைத் தேர்ந்தெடுக்கவும். [%1$s]</string>
-    <string name="player_error_initialize_failed">பிளேயரைத் தொடங்க முடியவில்லை. வேறு மூலத்தைத் தேர்ந்தெடுக்கவும்.</string>
-    <string name="player_error_mpv_surface_failed">mpv பிளேயரைத் தொடங்க முடியவில்லை. வேறு மூலத்தைத் தேர்ந்தெடுக்கவும்.</string>
-    <string name="player_error_mpv_playback_failed">mpv பிளேயரில் இயக்கத்தைத் தொடங்க முடியவில்லை. வேறு மூலத்தைத் தேர்ந்தெடுக்கவும்.</string>
+    <string name="player_error_initialize_failed">பிளேயரைத் தொடங்க முடியவில்லை. Fetch-ஐ மீண்டும் தொடங்கி, மீண்டும் முயற்சிக்கவும்.</string>
+    <string name="player_error_mpv_surface_failed">mpv பிளேயரைத் தொடங்க முடியவில்லை. மீண்டும் முயற்சிக்கவும், அல்லது அமைப்புகள் &gt; இயக்கம் என்பதில் உள்ளமை engine-ஐ மாற்றவும்.</string>
+    <string name="player_error_mpv_playback_failed">mpv பிளேயரில் இயக்கத்தைத் தொடங்க முடியவில்லை. மீண்டும் முயற்சிக்கவும், அல்லது அமைப்புகள் &gt; இயக்கம் என்பதில் உள்ளமை engine-ஐ மாற்றவும்.</string>
     <string name="player_error_playback_fallback">இந்த ஸ்ட்ரீமை இயக்க முடியவில்லை. வேறு மூலத்தைத் தேர்ந்தெடுக்கவும்.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">இந்த கோப்பில் வசன வரிகள் எதுவும் கிடைக்கவில்லை.</string>

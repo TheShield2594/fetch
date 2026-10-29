@@ -227,6 +227,7 @@
     <string name="detail_marked_episodes_watched">الحلقات المحددة كمشاهدة: %1$d</string>
     <string name="detail_marked_episodes_unwatched">الحلقات المحددة كغير مشاهدة: %1$d</string>
     <string name="detail_marked_previous_watched">الحلقات السابقة المحددة كمشاهدة: %1$d</string>
+    <string name="playback_unavailable_message">لا يمكن لأي مما أعددته تشغيل هذا العنوان. أضف إضافة بث أو فعّلها في الإعدادات &gt; المحتوى والاكتشاف &gt; الإضافات، أو تحقق من الاتصال بخادم الوسائط.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">تشغيل</string>
@@ -1925,9 +1926,9 @@
     <string name="player_error_stream_unavailable">\n\nخادم البث غير متوفر حالياً. يرجى اختيار مصدر آخر.</string>
     <string name="player_error_source_invalid_content">خطأ في المصدر: أرجع مصدر البث محتوى غير صالح أو غير قابل للتشغيل. قد يكون الرابط قد انتهت صلاحيته أو أرجع الخادم صفحة خطأ بدلاً من الفيديو.\n\nيرجى اختيار مصدر آخر. [%1$s]</string>
     <string name="player_error_unsupported_format">يستخدم هذا البث تنسيقاً قد لا يدعمه جهازك. يرجى اختيار مصدر آخر. [%1$s]</string>
-    <string name="player_error_initialize_failed">تعذر بدء تشغيل المشغل. يرجى اختيار مصدر آخر.</string>
-    <string name="player_error_mpv_surface_failed">تعذر بدء تشغيل مشغل mpv. يرجى اختيار مصدر آخر.</string>
-    <string name="player_error_mpv_playback_failed">تعذر بدء التشغيل في مشغل mpv. يرجى اختيار مصدر آخر.</string>
+    <string name="player_error_initialize_failed">تعذر بدء تشغيل المشغل. أعد تشغيل Fetch وحاول مجدداً.</string>
+    <string name="player_error_mpv_surface_failed">تعذر بدء تشغيل مشغل mpv. حاول مجدداً، أو غيّر محرك التشغيل الداخلي في الإعدادات &gt; وسائط التشغيل.</string>
+    <string name="player_error_mpv_playback_failed">تعذر بدء التشغيل في مشغل mpv. حاول مجدداً، أو غيّر محرك التشغيل الداخلي في الإعدادات &gt; وسائط التشغيل.</string>
     <string name="player_error_playback_fallback">تعذر تشغيل هذا البث. يرجى اختيار مصدر آخر.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">لم يتم العثور على أسطر ترجمة في هذا الملف.</string>

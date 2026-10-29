@@ -225,6 +225,7 @@
     <string name="detail_marked_episodes_watched">Epizody označené jako zhlédnuté: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizody označené jako nezhlédnuté: %1$d</string>
     <string name="detail_marked_previous_watched">Předchozí epizody označené jako zhlédnuté: %1$d</string>
+    <string name="playback_unavailable_message">Nic z toho, co máte nastavené, nedokáže tento titul přehrát. Přidejte nebo zapněte doplněk pro streamování v Nastavení &gt; Obsah a objevování &gt; Doplňky, nebo zkontrolujte připojení k mediálnímu serveru.</string>
 
     <string name="detail_btn_play">Přehrát</string>
     <string name="detail_btn_resume">Pokračovat</string>
@@ -1956,9 +1957,9 @@
     <string name="player_error_stream_unavailable">\n\nServer streamu je momentálně nedostupný. Vyberte jiný zdroj.</string>
     <string name="player_error_source_invalid_content">Chyba zdroje: Zdroj streamu vrátil neplatný nebo nepřehratelný obsah. Platnost odkazu mohla vypršet, nebo server vrátil chybovou stránku místo videa.\n\nVyberte jiný zdroj. [%1$s]</string>
     <string name="player_error_unsupported_format">Tento stream používá formát, který vaše zařízení možná nepodporuje. Vyberte jiný zdroj. [%1$s]</string>
-    <string name="player_error_initialize_failed">Přehrávač se nepodařilo spustit. Vyberte jiný zdroj.</string>
-    <string name="player_error_mpv_surface_failed">Přehrávač mpv se nepodařilo spustit. Vyberte jiný zdroj.</string>
-    <string name="player_error_mpv_playback_failed">Přehrávání v přehrávači mpv se nepodařilo spustit. Vyberte jiný zdroj.</string>
+    <string name="player_error_initialize_failed">Přehrávač se nepodařilo spustit. Restartujte Fetch a zkuste to znovu.</string>
+    <string name="player_error_mpv_surface_failed">Přehrávač mpv se nepodařilo spustit. Zkuste to znovu, nebo změňte Interní engine v Nastavení &gt; Přehrávání.</string>
+    <string name="player_error_mpv_playback_failed">Přehrávání v přehrávači mpv se nepodařilo spustit. Zkuste to znovu, nebo změňte Interní engine v Nastavení &gt; Přehrávání.</string>
     <string name="player_error_playback_fallback">Tento stream nelze přehrát. Vyberte jiný zdroj.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">V tomto souboru nebyly nalezeny žádné řádky titulků.</string>

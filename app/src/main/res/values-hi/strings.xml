@@ -123,6 +123,7 @@
     <string name="detail_marked_episodes_watched">देखे हुए मार्क किए गए एपिसोड: %1$d</string>
     <string name="detail_marked_episodes_unwatched">अनदेखे मार्क किए गए एपिसोड: %1$d</string>
     <string name="detail_marked_previous_watched">देखे हुए मार्क किए गए पिछले एपिसोड: %1$d</string>
+    <string name="playback_unavailable_message">आपके सेट किए गए किसी भी स्रोत से यह टाइटल नहीं चल सकता। सेटिंग्स &gt; सामग्री और खोज &gt; ऐडऑन में कोई स्ट्रीमिंग ऐडऑन जोड़ें या चालू करें, या अपने मीडिया सर्वर का कनेक्शन जाँचें।</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">चलाएँ</string>
@@ -1005,6 +1006,9 @@
     <string name="collections_editor_discard_folder_subtitle">इस फ़ोल्डर में किए गए आपके बदलाव सेव नहीं हुए हैं।</string>
     <string name="collections_editor_keep_editing">एडिट करते रहें</string>
     <string name="collections_editor_discard">छोड़ें</string>
+    <string name="player_error_initialize_failed">प्लेयर शुरू नहीं हो सका। Fetch को रीस्टार्ट करें और फिर से कोशिश करें।</string>
+    <string name="player_error_mpv_surface_failed">mpv प्लेयर शुरू नहीं हो सका। फिर से कोशिश करें, या सेटिंग्स &gt; प्लेबैक में इंटरनल इंजन बदलें।</string>
+    <string name="player_error_mpv_playback_failed">mpv प्लेयर में प्लेबैक शुरू नहीं हो सका। फिर से कोशिश करें, या सेटिंग्स &gt; प्लेबैक में इंटरनल इंजन बदलें।</string>
     <string name="library_error_save_list_next_step">अपना कनेक्शन जांचें और फिर से कोशिश करें।</string>
     <string name="autoplay_mode_best">बेस्ट मैच</string>
     <string name="autoplay_mode_best_desc">हर रिज़ल्ट को क्वालिटी, आपके नियमों और इस डिवाइस की प्ले करने की क्षमता के आधार पर रैंक करता है, फिर सबसे अच्छा शुरू करता है। बाकी सोर्स बस एक बटन दूर रहते हैं।</string>

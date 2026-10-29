@@ -219,6 +219,7 @@
     <string name="detail_marked_episodes_watched">Episoder markeret som set: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episoder markeret som ikke set: %1$d</string>
     <string name="detail_marked_previous_watched">Tidligere episoder markeret som set: %1$d</string>
+    <string name="playback_unavailable_message">Intet af det, du har sat op, kan afspille denne titel. Tilføj eller slå et streaming-addon til under Indstillinger &gt; Indhold &amp; Opdagelse &gt; Addons, eller tjek forbindelsen til din medieserver.</string>
 
     <string name="detail_btn_play">Afspil</string>
     <string name="detail_btn_resume">Genoptag</string>
@@ -1912,9 +1913,9 @@
     <string name="player_error_stream_unavailable">\n\nStream-serveren er i øjeblikket utilgængelig. Vælg en anden kilde.</string>
     <string name="player_error_source_invalid_content">Kildefejl: Stream-kilden returnerede ugyldigt eller ikke-afspilleligt indhold. Linket kan være udløbet, eller serveren returnerede en fejlside i stedet for video.\n\nVælg en anden kilde. [%1$s]</string>
     <string name="player_error_unsupported_format">Denne stream bruger et format, som din enhed muligvis ikke understøtter. Vælg en anden kilde. [%1$s]</string>
-    <string name="player_error_initialize_failed">Kunne ikke starte afspilleren. Vælg en anden kilde.</string>
-    <string name="player_error_mpv_surface_failed">Kunne ikke starte mpv-afspilleren. Vælg en anden kilde.</string>
-    <string name="player_error_mpv_playback_failed">Kunne ikke starte afspilning i mpv-afspilleren. Vælg en anden kilde.</string>
+    <string name="player_error_initialize_failed">Kunne ikke starte afspilleren. Genstart Fetch, og prøv igen.</string>
+    <string name="player_error_mpv_surface_failed">Kunne ikke starte mpv-afspilleren. Prøv igen, eller skift Intern motor under Indstillinger &gt; Afspilning.</string>
+    <string name="player_error_mpv_playback_failed">Kunne ikke starte afspilning i mpv-afspilleren. Prøv igen, eller skift Intern motor under Indstillinger &gt; Afspilning.</string>
     <string name="player_error_playback_fallback">Kan ikke afspille denne stream. Vælg en anden kilde.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Der blev ikke fundet undertekstlinjer i denne fil.</string>

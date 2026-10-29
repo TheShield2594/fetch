@@ -227,6 +227,7 @@
     <string name="detail_marked_episodes_watched">Als gesehen markierte Episoden: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Als nicht angesehen markierte Episoden: %1$d</string>
     <string name="detail_marked_previous_watched">Als gesehen markierte vorherige Episoden: %1$d</string>
+    <string name="playback_unavailable_message">Nichts, was Sie eingerichtet haben, kann diesen Titel abspielen. Fügen Sie unter Optionen &gt; Inhalte &amp; Entdecken &gt; Addons ein Streaming-Addon hinzu oder aktivieren Sie eines, oder prüfen Sie die Verbindung zu Ihrem Medienserver.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Abspielen</string>
@@ -1862,9 +1863,9 @@
     <string name="player_error_stream_unavailable">\n\nDer Stream-Server ist derzeit nicht verfügbar. Wählen Sie eine andere Quelle.</string>
     <string name="player_error_source_invalid_content">Quellfehler: Die Stream-Quelle hat ungültige oder nicht abspielbare Inhalte geliefert. Der Link ist möglicherweise abgelaufen oder der Server hat statt eines Videos eine Fehlerseite zurückgegeben.\n\nWählen Sie eine andere Quelle. [%1$s]</string>
     <string name="player_error_unsupported_format">Dieser Stream verwendet ein Format, das Ihr Gerät möglicherweise nicht unterstützt. Wählen Sie eine andere Quelle. [%1$s]</string>
-    <string name="player_error_initialize_failed">Der Player konnte nicht gestartet werden. Wählen Sie eine andere Quelle.</string>
-    <string name="player_error_mpv_surface_failed">Der mpv-Player konnte nicht gestartet werden. Wählen Sie eine andere Quelle.</string>
-    <string name="player_error_mpv_playback_failed">Die Wiedergabe im mpv-Player konnte nicht gestartet werden. Wählen Sie eine andere Quelle.</string>
+    <string name="player_error_initialize_failed">Der Player konnte nicht gestartet werden. Starten Sie Fetch neu und versuchen Sie es erneut.</string>
+    <string name="player_error_mpv_surface_failed">Der mpv-Player konnte nicht gestartet werden. Versuchen Sie es erneut oder ändern Sie Internal Engine unter Optionen &gt; Wiedergabe.</string>
+    <string name="player_error_mpv_playback_failed">Die Wiedergabe im mpv-Player konnte nicht gestartet werden. Versuchen Sie es erneut oder ändern Sie Internal Engine unter Optionen &gt; Wiedergabe.</string>
     <string name="player_error_playback_fallback">Dieser Stream kann nicht abgespielt werden. Wählen Sie eine andere Quelle.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">No subtitle lines were found in this file.</string>

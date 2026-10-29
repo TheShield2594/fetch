@@ -82,6 +82,7 @@
     <string name="detail_marked_episodes_watched">Episoade marcate ca vizionate: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episoade marcate ca necitite: %1$d</string>
     <string name="detail_marked_previous_watched">Episoadele anterioare marcate ca vizionate: %1$d</string>
+    <string name="playback_unavailable_message">Nimic din ce ai configurat nu poate reda acest titlu. Adaugă sau activează un complement de streaming în Setări &gt; Conținut și descoperire &gt; Complementuri sau verifică conexiunea cu serverul media.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Redă</string>
@@ -775,6 +776,9 @@
     <string name="collections_editor_discard_folder_subtitle">Modificările aduse acestui dosar nu au fost salvate.</string>
     <string name="collections_editor_keep_editing">Continuă editarea</string>
     <string name="collections_editor_discard">Renunță</string>
+    <string name="player_error_initialize_failed">Playerul nu a putut porni. Repornește Fetch și încearcă din nou.</string>
+    <string name="player_error_mpv_surface_failed">Playerul mpv nu a putut porni. Încearcă din nou sau schimbă Motor intern în Setări &gt; Redare.</string>
+    <string name="player_error_mpv_playback_failed">Redarea în playerul mpv nu a putut porni. Încearcă din nou sau schimbă Motor intern în Setări &gt; Redare.</string>
     <string name="library_error_save_list_next_step">Verifică conexiunea și încearcă din nou.</string>
     <string name="cd_mark_credits_start">Marchează începutul genericului de final</string>
     <string name="cd_mark_intro_end">Marchează sfârșitul intro-ului</string>

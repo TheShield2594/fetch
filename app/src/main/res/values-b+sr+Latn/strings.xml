@@ -225,7 +225,7 @@
     <string name="detail_marked_previous_watched">Prethodne epizode označene kao odgledane: %1$d</string>
 
     <string name="playback_unavailable">Reprodukcija nije dostupna</string>
-    <string name="playback_unavailable_message">Nijedan vaš dodatak ne može da pusti ovaj naslov. Dodajte ili uključite dodatak za strimovanje u Podešavanja &gt; Sadržaj i otkrivanje &gt; Dodaci.</string>
+    <string name="playback_unavailable_message">Ništa od onoga što ste podesili ne može da pusti ovaj naslov. Dodajte ili uključite dodatak za strimovanje u Podešavanja &gt; Sadržaj i otkrivanje &gt; Dodaci ili proverite vezu sa medijskim serverom.</string>
     <string name="detail_btn_play">Pusti</string>
     <string name="detail_btn_resume">Nastavi</string>
     <string name="detail_btn_play_episode">Pusti S%1$d E%2$d</string>
@@ -2212,9 +2212,9 @@
     <string name="player_error_stream_unavailable">\n\nServer strima trenutno nije dostupan. Izaberite drugi izvor.</string>
     <string name="player_error_source_invalid_content">Greška izvora: Izvor strima je vratio nevažeći sadržaj koji se ne može reprodukovati. Veza je možda istekla ili je server vratio stranicu sa greškom umesto videa.\n\nIzaberite drugi izvor. [%1$s]</string>
     <string name="player_error_unsupported_format">Ovaj strim koristi format koji vaš uređaj možda ne podržava. Izaberite drugi izvor. [%1$s]</string>
-    <string name="player_error_initialize_failed">Nije moguće pokrenuti plejer. Izaberite drugi izvor.</string>
-    <string name="player_error_mpv_surface_failed">Nije moguće pokrenuti mpv plejer. Izaberite drugi izvor.</string>
-    <string name="player_error_mpv_playback_failed">Nije moguće pokrenuti reprodukciju u mpv plejeru. Izaberite drugi izvor.</string>
+    <string name="player_error_initialize_failed">Nije moguće pokrenuti plejer. Ponovo pokrenite Fetch i pokušajte ponovo.</string>
+    <string name="player_error_mpv_surface_failed">Nije moguće pokrenuti mpv plejer. Pokušajte ponovo ili promenite Interni mehanizam u Podešavanja &gt; Reprodukcija.</string>
+    <string name="player_error_mpv_playback_failed">Nije moguće pokrenuti reprodukciju u mpv plejeru. Pokušajte ponovo ili promenite Interni mehanizam u Podešavanja &gt; Reprodukcija.</string>
     <string name="player_error_playback_fallback">Nije moguće pustiti ovaj strim. Izaberite drugi izvor.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">U ovoj datoteci nisu pronađene linije titla.</string>

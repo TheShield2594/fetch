@@ -224,6 +224,7 @@
     <string name="detail_marked_episodes_watched">Позначено епізодів як переглянуті: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Позначено епізодів як непереглянуті: %1$d</string>
     <string name="detail_marked_previous_watched">Попередні епізоди позначено як переглянуті: %1$d</string>
+    <string name="playback_unavailable_message">Жодне з налаштованих джерел не може відтворити цей контент. Додайте або увімкніть адон для стримінгу в Налаштування &gt; Контент і пошук &gt; Адони або перевірте з’єднання з медіасервером.</string>
 
     <string name="detail_btn_play">Дивитися</string>
     <string name="detail_btn_resume">Продовжити</string>
@@ -1907,9 +1908,9 @@
     <string name="player_error_stream_unavailable">\n\nСервер потоку тимчасово недоступний. Виберіть інше джерело.</string>
     <string name="player_error_source_invalid_content">Помилка джерела: джерело повернуло невірний або невідтворюваний контент. Посилання могло застаріти або сервер повернув сторінку помилки замість відео.\n\nВиберіть інше джерело. [%1$s]</string>
     <string name="player_error_unsupported_format">Потік використовує формат, який ваш пристрій може не підтримувати. Виберіть інше джерело. [%1$s]</string>
-    <string name="player_error_initialize_failed">Не вдалося запустити плеєр. Виберіть інше джерело.</string>
-    <string name="player_error_mpv_surface_failed">Не вдалося запустити плеєр mpv. Виберіть інше джерело.</string>
-    <string name="player_error_mpv_playback_failed">Не вдалося почати відтворення в плеєрі mpv. Виберіть інше джерело.</string>
+    <string name="player_error_initialize_failed">Не вдалося запустити плеєр. Перезапустіть Fetch і спробуйте ще раз.</string>
+    <string name="player_error_mpv_surface_failed">Не вдалося запустити плеєр mpv. Спробуйте ще раз або змініть Рушій вбудованого плеєра в Налаштування &gt; Відтворення.</string>
+    <string name="player_error_mpv_playback_failed">Не вдалося почати відтворення в плеєрі mpv. Спробуйте ще раз або змініть Рушій вбудованого плеєра в Налаштування &gt; Відтворення.</string>
     <string name="player_error_playback_fallback">Не вдалося відтворити цей потік. Виберіть інше джерело.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">У цьому файлі не знайдено рядків субтитрів.</string>

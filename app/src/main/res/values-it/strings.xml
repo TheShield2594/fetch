@@ -2181,9 +2181,9 @@
 <string name="player_error_stream_unavailable">\n\nIl server dello streaming non è attualmente disponibile. Scegli un’altra sorgente.</string>
 <string name="player_error_source_invalid_content">Errore sorgente: la sorgente streaming ha restituito contenuti non validi o non riproducibili. Il link potrebbe essere scaduto o il server ha restituito una pagina di errore invece del video.\n\nScegli un’altra sorgente. [%1$s]</string>
 <string name="player_error_unsupported_format">Questo streaming utilizza un formato che il tuo dispositivo potrebbe non supportare. Scegli un’altra sorgente. [%1$s]</string>
-<string name="player_error_initialize_failed">Impossibile avviare il lettore. Scegli un’altra sorgente.</string>
-<string name="player_error_mpv_surface_failed">Impossibile avviare il lettore mpv. Scegli un’altra sorgente.</string>
-<string name="player_error_mpv_playback_failed">Impossibile avviare la riproduzione nel lettore mpv. Scegli un’altra sorgente.</string>
+<string name="player_error_initialize_failed">Impossibile avviare il lettore. Riavvia Fetch e riprova.</string>
+<string name="player_error_mpv_surface_failed">Impossibile avviare il lettore mpv. Riprova o cambia Motore Interno in Impostazioni &gt; Riproduzione.</string>
+<string name="player_error_mpv_playback_failed">Impossibile avviare la riproduzione nel lettore mpv. Riprova o cambia Motore Interno in Impostazioni &gt; Riproduzione.</string>
 <string name="player_error_playback_fallback">Impossibile riprodurre questo stream. Scegli un’altra sorgente.</string>
     <!-- Subtitle timing recovery -->
 <string name="subtitle_timing_file_no_lines">Nessuna riga di sottotitoli trovata in questo file.</string>
@@ -2504,7 +2504,7 @@
 
 
     <string name="playback_unavailable">Riproduzione non disponibile</string>
-    <string name="playback_unavailable_message">Nessuno dei tuoi addon può riprodurre questo titolo. Aggiungi o attiva un addon stream in Impostazioni &gt; Contenuti e scoperta &gt; Addon.</string>
+    <string name="playback_unavailable_message">Niente di ciò che hai configurato può riprodurre questo titolo. Aggiungi o attiva un addon stream in Impostazioni &gt; Contenuti e scoperta &gt; Addon, oppure controlla la connessione al server multimediale.</string>
     <string name="detail_more_like_this_powered_by_simkl">Offerto da Simkl</string>
     <string name="because_you_watched_row_title">Perché hai guardato %1$s</string>
     <string name="because_you_watched_reason_collection">Anche in %1$s</string>

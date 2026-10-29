@@ -179,6 +179,7 @@
     <string name="detail_marked_episodes_watched">Epizode označene kao odgledane: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Epizode označene kao neodgledane: %1$d</string>
     <string name="detail_marked_previous_watched">Prethodne epizode označene kao odgledane: %1$d</string>
+    <string name="playback_unavailable_message">Ništa od onoga što je postavljeno ne može reproducirati ovaj naslov. Dodaj ili uključi addon za streamove u Postavke &gt; Sadržaj i otkrivanje &gt; Addoni ili provjeri vezu s medijskim serverom.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Pusti</string>
@@ -1283,6 +1284,9 @@
     <string name="collections_editor_discard_folder_subtitle">Tvoje promjene ovog foldera nisu spremljene.</string>
     <string name="collections_editor_keep_editing">Nastavi uređivanje</string>
     <string name="collections_editor_discard">Odbaci</string>
+    <string name="player_error_initialize_failed">Nije moguće pokrenuti player. Ponovo pokreni Fetch i pokušaj ponovo.</string>
+    <string name="player_error_mpv_surface_failed">Nije moguće pokrenuti mpv player. Pokušaj ponovo ili promijeni Interni Engine u Postavke &gt; Playback.</string>
+    <string name="player_error_mpv_playback_failed">Nije moguće pokrenuti reprodukciju u mpv playeru. Pokušaj ponovo ili promijeni Interni Engine u Postavke &gt; Playback.</string>
     <string name="library_error_save_list_next_step">Provjeri vezu i pokušaj ponovo.</string>
 
     <!-- Fetch: new and changed strings -->

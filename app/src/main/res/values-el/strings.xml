@@ -220,7 +220,7 @@
   <string name="detail_marked_episodes_unwatched">Επισημάνθηκαν ως μη προβληθέντα επεισόδια: %1$d</string>
   <string name="detail_marked_previous_watched">Επισημάνθηκαν ως προβληθέντα προηγούμενα επεισόδια: %1$d</string>
   <string name="playback_unavailable">Μη διαθέσιμη αναπαραγωγή</string>
-  <string name="playback_unavailable_message">Κανένα από τα πρόσθετά σας δεν μπορεί να αναπαραγάγει αυτόν τον τίτλο. Προσθέστε ή ενεργοποιήστε ένα πρόσθετο ροών στις Ρυθμίσεις &gt; Περιεχόμενο &amp; Ανακάλυψη &gt; Πρόσθετα.</string>
+  <string name="playback_unavailable_message">Τίποτα από όσα έχετε ρυθμίσει δεν μπορεί να αναπαραγάγει αυτόν τον τίτλο. Προσθέστε ή ενεργοποιήστε ένα πρόσθετο ροών στις Ρυθμίσεις &gt; Περιεχόμενο &amp; Ανακάλυψη &gt; Πρόσθετα ή ελέγξτε τη σύνδεση με τον διακομιστή πολυμέσων σας.</string>
   <!-- MetaDetailsScreen -->
   <string name="detail_btn_play">Αναπαραγωγή</string>
   <string name="detail_btn_resume">Συνέχεια</string>
@@ -2203,9 +2203,9 @@
   <string name="player_error_stream_unavailable">\n\nΟ διακομιστής ροής δεν είναι διαθέσιμος αυτή τη στιγμή. Επιλέξτε άλλη πηγή.</string>
   <string name="player_error_source_invalid_content">Σφάλμα πηγής: Η πηγή ροής επέστρεψε μη έγκυρο ή μη αναπαραγώγιμο περιεχόμενο. Ο σύνδεσμος μπορεί να έληξε ή ο διακομιστής επέστρεψε σελίδα σφάλματος αντί για βίντεο.\n\nΕπιλέξτε άλλη πηγή. [%1$s]</string>
   <string name="player_error_unsupported_format">Αυτή η ροή χρησιμοποιεί μορφή που η συσκευή σας μπορεί να μην υποστηρίζει. Επιλέξτε άλλη πηγή. [%1$s]</string>
-  <string name="player_error_initialize_failed">Δεν είναι δυνατή η εκκίνηση του προγράμματος αναπαραγωγής. Επιλέξτε άλλη πηγή.</string>
-  <string name="player_error_mpv_surface_failed">Δεν είναι δυνατή η εκκίνηση του προγράμματος αναπαραγωγής mpv. Επιλέξτε άλλη πηγή.</string>
-  <string name="player_error_mpv_playback_failed">Δεν είναι δυνατή η έναρξη αναπαραγωγής στο πρόγραμμα αναπαραγωγής mpv. Επιλέξτε άλλη πηγή.</string>
+  <string name="player_error_initialize_failed">Δεν είναι δυνατή η εκκίνηση του προγράμματος αναπαραγωγής. Επανεκκινήστε το Fetch και δοκιμάστε ξανά.</string>
+  <string name="player_error_mpv_surface_failed">Δεν είναι δυνατή η εκκίνηση του προγράμματος αναπαραγωγής mpv. Δοκιμάστε ξανά ή αλλάξτε την επιλογή Εσωτερική μηχανή στις Ρυθμίσεις &gt; Αναπαραγωγή.</string>
+  <string name="player_error_mpv_playback_failed">Δεν είναι δυνατή η έναρξη αναπαραγωγής στο πρόγραμμα αναπαραγωγής mpv. Δοκιμάστε ξανά ή αλλάξτε την επιλογή Εσωτερική μηχανή στις Ρυθμίσεις &gt; Αναπαραγωγή.</string>
   <string name="player_error_playback_fallback">Δεν είναι δυνατή η αναπαραγωγή αυτής της ροής. Επιλέξτε άλλη πηγή.</string>
   <!-- Subtitle timing recovery -->
   <string name="subtitle_timing_file_no_lines">Δεν βρέθηκαν γραμμές υπότιτλων σε αυτό το αρχείο.</string>

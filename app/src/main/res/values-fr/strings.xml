@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">Épisodes précédents marqués comme vus&#160;: %1$d</string>
 
     <string name="playback_unavailable">Lecture indisponible</string>
-    <string name="playback_unavailable_message">Aucun de vos addons ne peut lire ce titre. Ajoutez ou activez un addon de flux dans Paramètres &gt; Contenu et découverte &gt; Addons.</string>
+    <string name="playback_unavailable_message">Rien de ce que vous avez configuré ne peut lire ce titre. Ajoutez ou activez un addon de flux dans Paramètres &gt; Contenu et découverte &gt; Addons, ou vérifiez la connexion à votre serveur multimédia.</string>
     <string name="detail_btn_play">Regarder</string>
     <string name="detail_btn_resume">Reprendre</string>
     <string name="detail_btn_play_episode">Regarder S%1$d E%2$d</string>
@@ -2354,9 +2354,9 @@
     <string name="player_error_stream_unavailable">\n\nLe serveur du flux est actuellement indisponible. Choisissez une autre source.</string>
     <string name="player_error_source_invalid_content">Erreur de source : la source du flux a renvoyé un contenu invalide ou illisible. Le lien a peut-être expiré, ou le serveur a renvoyé une page d’erreur au lieu de la vidéo.\n\nChoisissez une autre source. [%1$s]</string>
     <string name="player_error_unsupported_format">Ce flux utilise un format que votre appareil ne prend peut-être pas en charge. Choisissez une autre source. [%1$s]</string>
-    <string name="player_error_initialize_failed">Impossible de démarrer le lecteur. Choisissez une autre source.</string>
-    <string name="player_error_mpv_surface_failed">Impossible de démarrer le lecteur mpv. Choisissez une autre source.</string>
-    <string name="player_error_mpv_playback_failed">Impossible de lancer la lecture dans le lecteur mpv. Choisissez une autre source.</string>
+    <string name="player_error_initialize_failed">Impossible de démarrer le lecteur. Redémarrez Fetch et réessayez.</string>
+    <string name="player_error_mpv_surface_failed">Impossible de démarrer le lecteur mpv. Réessayez ou modifiez Moteur interne dans Paramètres &gt; Lecture.</string>
+    <string name="player_error_mpv_playback_failed">Impossible de lancer la lecture dans le lecteur mpv. Réessayez ou modifiez Moteur interne dans Paramètres &gt; Lecture.</string>
     <string name="player_error_playback_fallback">Impossible de lire ce flux. Choisissez une autre source.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Aucune ligne de sous-titres trouvée dans ce fichier.</string>

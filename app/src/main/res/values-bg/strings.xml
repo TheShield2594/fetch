@@ -219,6 +219,7 @@
     <string name="detail_marked_episodes_watched">Маркирани епизоди като гледани: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Маркирани епизоди като негледани: %1$d</string>
     <string name="detail_marked_previous_watched">Предишни епизоди маркирани като гледани: %1$d</string>
+    <string name="playback_unavailable_message">Нито един от настроените ти източници не може да възпроизведе това заглавие. Добави или включи добавка за стрийминг в Настройки &gt; Съдържание и откриване &gt; Добавки или провери връзката с медийния сървър.</string>
 
     <string name="detail_btn_play">Пусни</string>
     <string name="detail_btn_resume">Продължи</string>
@@ -1905,9 +1906,9 @@
     <string name="player_error_stream_unavailable">\n\nСървърът на потока в момента е недостъпен. Избери друг източник.</string>
     <string name="player_error_source_invalid_content">Грешка в източника: Източникът на потока върна невалидно или невъзпроизводимо съдържание. Връзката може да е изтекла или сървърът е върнал страница с грешка вместо видео.\n\nИзбери друг източник. [%1$s]</string>
     <string name="player_error_unsupported_format">Този поток използва формат, който устройството ти може да не поддържа. Избери друг източник. [%1$s]</string>
-    <string name="player_error_initialize_failed">Не успяхме да стартираме плейъра. Избери друг източник.</string>
-    <string name="player_error_mpv_surface_failed">Не успяхме да стартираме mpv плейъра. Избери друг източник.</string>
-    <string name="player_error_mpv_playback_failed">Не успяхме да стартираме възпроизвеждането в mpv плейъра. Избери друг източник.</string>
+    <string name="player_error_initialize_failed">Не успяхме да стартираме плейъра. Рестартирай Fetch и опитай отново.</string>
+    <string name="player_error_mpv_surface_failed">Не успяхме да стартираме mpv плейъра. Опитай отново или смени Вграден двигател в Настройки &gt; Възпроизвеждане.</string>
+    <string name="player_error_mpv_playback_failed">Не успяхме да стартираме възпроизвеждането в mpv плейъра. Опитай отново или смени Вграден двигател в Настройки &gt; Възпроизвеждане.</string>
     <string name="player_error_playback_fallback">Този поток не може да се възпроизведе. Избери друг източник.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Не са намерени субтитърни линии в този файл.</string>

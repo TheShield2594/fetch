@@ -219,6 +219,7 @@
     <string name="detail_marked_episodes_watched">視聴済みにしたエピソード: %1$d</string>
     <string name="detail_marked_episodes_unwatched">未視聴にしたエピソード: %1$d</string>
     <string name="detail_marked_previous_watched">視聴済みにした前のエピソード: %1$d</string>
+    <string name="playback_unavailable_message">設定済みのどのソースでもこのタイトルを再生できません。設定 &gt; コンテンツ &amp; ディスカバー &gt; アドオンでストリーミングアドオンを追加または有効にするか、メディアサーバーの接続を確認してください。</string>
 
     <string name="detail_btn_play">再生</string>
     <string name="detail_btn_resume">再開</string>
@@ -1909,9 +1910,9 @@
     <string name="player_error_stream_unavailable">\n\nストリームサーバーが現在利用できません。別のソースを選択してください。</string>
     <string name="player_error_source_invalid_content">ソースエラー: ストリームソースが無効または再生不可能なコンテンツを返しました。リンクの有効期限が切れたか、サーバーがビデオの代わりにエラーページを返した可能性があります。\n\n別のソースを選択してください。[%1$s]</string>
     <string name="player_error_unsupported_format">このストリームはお使いのデバイスがサポートしていない形式を使用している可能性があります。別のソースを選択してください。[%1$s]</string>
-    <string name="player_error_initialize_failed">プレーヤーを起動できません。別のソースを選択してください。</string>
-    <string name="player_error_mpv_surface_failed">mpvプレーヤーを起動できません。別のソースを選択してください。</string>
-    <string name="player_error_mpv_playback_failed">mpvプレーヤーで再生を開始できません。別のソースを選択してください。</string>
+    <string name="player_error_initialize_failed">プレーヤーを起動できません。Fetchを再起動して、もう一度お試しください。</string>
+    <string name="player_error_mpv_surface_failed">mpvプレーヤーを起動できません。もう一度お試しいただくか、設定 &gt; 再生で内部エンジンを変更してください。</string>
+    <string name="player_error_mpv_playback_failed">mpvプレーヤーで再生を開始できません。もう一度お試しいただくか、設定 &gt; 再生で内部エンジンを変更してください。</string>
     <string name="player_error_playback_fallback">このストリームを再生できません。別のソースを選択してください。</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">このファイルに字幕行が見つかりませんでした。</string>

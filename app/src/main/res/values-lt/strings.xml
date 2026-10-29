@@ -114,6 +114,7 @@
     <string name="detail_marked_episodes_watched">Serijų pažymėta kaip žiūrėta: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Serijų pažymėta kaip nežiūrėta: %1$d</string>
     <string name="detail_marked_previous_watched">Ankstesnių serijų pažymėta kaip žiūrėta: %1$d</string>
+    <string name="playback_unavailable_message">Niekas iš to, ką nustatėte, negali paleisti šio pavadinimo. Pridėkite arba įjunkite srautinio perdavimo priedą skiltyje Nustatymai &gt; Turinys ir atradimai &gt; Priedai arba patikrinkite ryšį su medijos serveriu.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Leisti</string>
@@ -910,6 +911,9 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="collections_editor_discard_folder_subtitle">Šio aplanko pakeitimai neišsaugoti.</string>
     <string name="collections_editor_keep_editing">Toliau redaguoti</string>
     <string name="collections_editor_discard">Atmesti</string>
+    <string name="player_error_initialize_failed">Nepavyko paleisti grotuvo. Iš naujo paleiskite Fetch ir bandykite dar kartą.</string>
+    <string name="player_error_mpv_surface_failed">Nepavyko paleisti mpv grotuvo. Bandykite dar kartą arba pakeiskite Vidinis variklis skiltyje Nustatymai &gt; Atkūrimas.</string>
+    <string name="player_error_mpv_playback_failed">Nepavyko pradėti atkūrimo mpv grotuve. Bandykite dar kartą arba pakeiskite Vidinis variklis skiltyje Nustatymai &gt; Atkūrimas.</string>
     <string name="library_error_save_list_next_step">Patikrinkite ryšį ir bandykite dar kartą.</string>
     <string name="cd_mark_credits_start">Pažymėti titrų pradžią</string>
     <string name="cd_mark_intro_end">Pažymėti įžangos pabaigą</string>

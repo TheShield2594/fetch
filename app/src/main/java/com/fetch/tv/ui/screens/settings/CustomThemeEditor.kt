@@ -194,7 +194,7 @@ internal fun CustomThemeEditor(
                     ),
                     shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                     border = CardDefaults.border(
-                        focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = RoundedCornerShape(FetchRadii.tokens.sm))
+                        focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = RoundedCornerShape(FetchRadii.tokens.sm))
                     ),
                     scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
                 ) {
@@ -227,14 +227,14 @@ internal fun CustomThemeEditor(
         ) {
             Text(
                 stringResource(R.string.custom_theme_remote_hint),
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = FetchTheme.colors.TextSecondary,
                 modifier = Modifier.weight(1f)
             )
             Button(
                 onClick = onDismiss,
                 modifier = Modifier
-                    .height(36.dp)
+                    .height(FetchTheme.components.buttonHeight)
                     .focusRequester(cancelFocusRequester)
                     .focusProperties { up = hexFocusRequester }
             ) {
@@ -242,12 +242,16 @@ internal fun CustomThemeEditor(
             }
             Button(
                 onClick = { onSave(colors) },
-                modifier = Modifier.height(36.dp).focusProperties { up = hexFocusRequester },
+                modifier = Modifier.height(FetchTheme.components.buttonHeight).focusProperties { up = hexFocusRequester },
+                // Save is the primary action: the accent, kept on focus and marked by the ring.
                 colors = ButtonDefaults.colors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black,
-                    focusedContainerColor = Color.White,
-                    focusedContentColor = Color.Black
+                    containerColor = FetchTheme.colors.Secondary,
+                    contentColor = FetchTheme.colors.OnSecondary,
+                    focusedContainerColor = FetchTheme.colors.Secondary,
+                    focusedContentColor = FetchTheme.colors.OnSecondary
+                ),
+                border = ButtonDefaults.border(
+                    focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = FetchTheme.shapes.button)
                 )
             ) { Text(stringResource(R.string.custom_theme_save)) }
         }
@@ -287,8 +291,8 @@ private fun ThemeColorSlot(
             focusedContainerColor = FetchTheme.colors.Background
         ),
         border = CardDefaults.border(
-            border = if (selected) Border(BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)), shape = shape) else Border.None,
-            focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = shape)
+            border = if (selected) Border(FetchTheme.focusRing.border(FetchTheme.spacing.hairline, alpha = 0.5f), shape = shape) else Border.None,
+            focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = shape)
         ),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {

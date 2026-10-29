@@ -87,7 +87,7 @@ internal fun ThemeColorPicker(
                 Card(
                     onClick = { onColorChanged(swatch) },
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(SWATCH_SIZE)
                         .then(if (index == 0) Modifier.focusRequester(firstSwatchFocusRequester) else Modifier)
                         .semantics { contentDescription = formatHexColor(swatch) },
                     shape = CardDefaults.shape(CircleShape),
@@ -96,7 +96,7 @@ internal fun ThemeColorPicker(
                         focusedContainerColor = Color(swatch or 0xFF000000.toInt())
                     ),
                     border = CardDefaults.border(
-                        focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = CircleShape)
+                        focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = CircleShape)
                     ),
                     scale = CardDefaults.scale(focusedScale = 1.15f, pressedScale = 1f)
                 ) { Box(Modifier.fillMaxSize()) }
@@ -156,7 +156,13 @@ private fun ColorChannelSlider(
                     else -> return@onPreviewKeyEvent false
                 }
                 if (native.action == KeyEvent.ACTION_DOWN) {
-                    val increment = if (native.repeatCount > 6) step * 3 else step
+                    // Holding the D-pad speeds up twice, so the hue wheel sweeps in about two
+                    // seconds of hold instead of forty repeats, and a tap still moves one step.
+                    val increment = when {
+                        native.repeatCount > 20 -> step * 8
+                        native.repeatCount > 6 -> step * 3
+                        else -> step
+                    }
                     onValueChange((value + direction * increment).coerceIn(0, maximum))
                 }
                 true
@@ -175,7 +181,7 @@ private fun ColorChannelSlider(
         ),
         shape = CardDefaults.shape(shape),
         border = CardDefaults.border(
-            focusedBorder = Border(BorderStroke(2.dp, Color.White), shape = shape)
+            focusedBorder = Border(FetchTheme.focusRing.border(FetchTheme.strokes.focus), shape = shape)
         ),
         scale = CardDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
@@ -185,7 +191,7 @@ private fun ColorChannelSlider(
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(title, style = MaterialTheme.typography.labelMedium, color = FetchTheme.colors.TextPrimary)
-                Text(valueLabel, style = MaterialTheme.typography.labelSmall, color = FetchTheme.colors.TextSecondary)
+                Text(valueLabel, style = MaterialTheme.typography.bodySmall, color = FetchTheme.colors.TextSecondary)
             }
             Box(
                 Modifier
@@ -208,3 +214,6 @@ private fun ColorChannelSlider(
 private fun Int.toHsv(): FloatArray = FloatArray(3).also {
     android.graphics.Color.colorToHSV(this or 0xFF000000.toInt(), it)
 }
+
+/** Preset swatches: 40dp, up from 30, so the focused one is easy to find from the couch. */
+private val SWATCH_SIZE = 40.dp

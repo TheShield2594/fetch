@@ -206,7 +206,9 @@ val LocalSplashBackground = compositionLocalOf { SplashBackground() }
 
 private const val SIDEBAR_AUTO_COLLAPSE_DELAY_MS = 3_000L
 
-private const val MAX_SUPPORTED_FONT_SCALE = 1.15f
+// Android TV's largest text setting is 1.3, so every system text size is honoured; the cap only
+// guards against phone-sized scales (up to 2.0) reaching TV layouts.
+private const val MAX_SUPPORTED_FONT_SCALE = 1.3f
 
 private const val STATE_LAUNCH_PENDING = "fetch.launch_pending"
 private const val STATE_DEEP_LINK_PENDING = "fetch.deep_link_pending"

@@ -55,6 +55,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -144,7 +146,7 @@ import com.fetch.tv.ui.theme.FetchStatusTones
 
 private object ProfileSelectionSpacing {
     val ScreenPaddingHorizontal = FetchTheme.spacing.huge
-    val ScreenPaddingVertical = FetchTheme.spacing.xxxl
+    val ScreenPaddingVertical = FetchTheme.spacing.screen.vertical
     val LogoHeight = 44.dp
     val LogoToHeading = 28.dp
     val HeadingToSubheading = FetchTheme.spacing.md
@@ -1391,71 +1393,78 @@ private fun ProfileSelectionMainContent(
     onProfileLongPress: (UserProfile) -> Unit,
     onAddProfileClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(
-                horizontal = ProfileSelectionSpacing.ScreenPaddingHorizontal,
-                vertical = ProfileSelectionSpacing.ScreenPaddingVertical
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        MemberBrandWordmark(
-            height = ProfileSelectionSpacing.LogoHeight,
-            contentDescription = stringResource(R.string.cd_fetch_logo),
-            drawableOverride = brandWordmarkRes
-        )
-
-        Spacer(modifier = Modifier.height(ProfileSelectionSpacing.LogoToHeading))
-
-        Text(
-            text = screenTitle,
-            color = FetchTheme.colors.TextPrimary,
-            style = MaterialTheme.typography.displayLarge
-        )
-
-        Spacer(modifier = Modifier.height(ProfileSelectionSpacing.HeadingToSubheading))
-
-        Text(
-            text = screenSubtitle,
-            color = FetchTheme.colors.TextSecondary,
-            style = MaterialTheme.typography.titleLarge
-        )
-
-        Spacer(modifier = Modifier.weight(1f, fill = true))
-
-        ProfileGrid(
-            profiles = profiles,
-            activeProfileId = activeProfileId,
-            isManagementMode = isManagementMode,
-            canAddProfile = canAddProfile,
-            profilePinEnabled = profilePinEnabled,
-            profileRestrictions = profileRestrictions,
-            avatarImageUrlsById = avatarImageUrlsById,
-            onProfileFocused = onProfileFocused,
-            onProfileSelected = onProfileSelected,
-            onProfileLongPress = onProfileLongPress,
-            onAddProfileClick = onAddProfileClick
-        )
-
-        Spacer(modifier = Modifier.weight(1f, fill = true))
-
-        if (onToggleManagement != null) {
-            OverlayButton(
-                text = stringResource(
-                    if (isManagementMode) R.string.profile_manage_done else R.string.profile_manage_button
+    // At large font scales the content outgrows the screen, so the column scrolls; focus moving to
+    // Manage profiles brings it into view. The minimum height keeps the weighted spacers filling
+    // the screen when everything fits.
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = maxHeight)
+                .padding(
+                    horizontal = ProfileSelectionSpacing.ScreenPaddingHorizontal,
+                    vertical = ProfileSelectionSpacing.ScreenPaddingVertical
                 ),
-                isPrimary = false,
-                onClick = onToggleManagement
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            MemberBrandWordmark(
+                height = ProfileSelectionSpacing.LogoHeight,
+                contentDescription = stringResource(R.string.cd_fetch_logo),
+                drawableOverride = brandWordmarkRes
             )
-            Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
-        }
 
-        Text(
-            text = screenHint,
-            color = FetchTheme.colors.TextTertiary.copy(alpha = 0.9f),
-            style = MaterialTheme.typography.titleSmall
-        )
+            Spacer(modifier = Modifier.height(ProfileSelectionSpacing.LogoToHeading))
+
+            Text(
+                text = screenTitle,
+                color = FetchTheme.colors.TextPrimary,
+                style = MaterialTheme.typography.displayLarge
+            )
+
+            Spacer(modifier = Modifier.height(ProfileSelectionSpacing.HeadingToSubheading))
+
+            Text(
+                text = screenSubtitle,
+                color = FetchTheme.colors.TextSecondary,
+                style = MaterialTheme.typography.titleLarge
+            )
+
+            Spacer(modifier = Modifier.weight(1f, fill = true))
+
+            ProfileGrid(
+                profiles = profiles,
+                activeProfileId = activeProfileId,
+                isManagementMode = isManagementMode,
+                canAddProfile = canAddProfile,
+                profilePinEnabled = profilePinEnabled,
+                profileRestrictions = profileRestrictions,
+                avatarImageUrlsById = avatarImageUrlsById,
+                onProfileFocused = onProfileFocused,
+                onProfileSelected = onProfileSelected,
+                onProfileLongPress = onProfileLongPress,
+                onAddProfileClick = onAddProfileClick
+            )
+
+            Spacer(modifier = Modifier.weight(1f, fill = true))
+
+            if (onToggleManagement != null) {
+                OverlayButton(
+                    text = stringResource(
+                        if (isManagementMode) R.string.profile_manage_done else R.string.profile_manage_button
+                    ),
+                    isPrimary = false,
+                    onClick = onToggleManagement
+                )
+                Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+            }
+
+            Text(
+                text = screenHint,
+                color = FetchTheme.colors.TextTertiary.copy(alpha = 0.9f),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
     }
 }
 
@@ -1757,7 +1766,7 @@ private fun ProfileCard(
         Spacer(modifier = Modifier.height(ProfileSelectionSpacing.NameToMeta))
 
         Box(
-            modifier = Modifier.height(ProfileSelectionSpacing.MetaSlotHeight),
+            modifier = Modifier.heightIn(min = ProfileSelectionSpacing.MetaSlotHeight),
             contentAlignment = Alignment.TopCenter
         ) {
             // Badge strings are stored in normal case; the badge style shows them in capitals.
@@ -1914,7 +1923,7 @@ private fun AddProfileCard(
         )
 
         Spacer(modifier = Modifier.height(ProfileSelectionSpacing.NameToMeta))
-        Box(modifier = Modifier.height(ProfileSelectionSpacing.MetaSlotHeight))
+        Box(modifier = Modifier.heightIn(min = ProfileSelectionSpacing.MetaSlotHeight))
     }
 }
 

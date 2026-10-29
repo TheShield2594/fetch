@@ -181,6 +181,7 @@
 
     <!-- SettingsScreen categories -->
     <string name="settings_account">Paskyra</string>
+    <string name="settings_tracking_title">Stebėjimas</string>
     <string name="settings_profiles">Profiliai</string>
     <string name="settings_layout">Išdėstymas</string>
     <string name="settings_integration">Integracijos</string>
@@ -1235,6 +1236,18 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="profile_selection_kids_badge">Vaikams</string>
     <string name="profile_manage_done">Atlikta</string>
     <string name="cd_profile_locked">Užrakinta PIN kodu</string>
+    <string name="cd_profile_pin_progress">Įvesta skaitmenų: %1$d iš %2$d</string>
+    <string name="cd_profile_color_crimson">Tamsiai raudona</string>
+    <string name="cd_profile_color_ocean">Vandenyno</string>
+    <string name="cd_profile_color_violet">Violetinė</string>
+    <string name="cd_profile_color_emerald">Smaragdinė</string>
+    <string name="cd_profile_color_amber">Gintarinė</string>
+    <string name="cd_profile_color_rose">Rožinė</string>
+    <string name="cd_profile_color_cyan">Žydra</string>
+    <string name="cd_profile_color_brown">Ruda</string>
+    <string name="cd_profile_color_position">Spalva %1$d iš %2$d</string>
+    <string name="auth_notice_fetch_logged_out">Atsijungta nuo Fetch. Vėl prisijunkite skiltyje Nustatymai &gt; Paskyra.</string>
+    <string name="auth_notice_trakt_logged_out">Atsijungta nuo Trakt. Vėl prijunkite skiltyje Nustatymai &gt; Stebėjimas.</string>
     <string name="profile_save_error">Nepavyko išsaugoti profilio. Bandykite dar kartą.</string>
     <string name="profile_delete_error">Nepavyko ištrinti profilio. Bandykite dar kartą.</string>
     <string name="parental_pin_nudge_title">Apsaugokite profilio %1$s apribojimus</string>

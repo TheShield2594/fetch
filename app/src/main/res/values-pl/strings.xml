@@ -1023,8 +1023,8 @@
     <string name="audio_mix_range_saved">Zakres: %1$d dB do %2$d dB (zapisano)</string>
     <string name="audio_mix_unavailable">Wzmocnienie nie jest dostępne na tym urządzeniu</string>
 
-    <string name="auth_notice_fetch_logged_out">Zostałeś wylogowany z aplikacji Fetch. Zaloguj się ponownie.</string>
-    <string name="auth_notice_trakt_logged_out">Zostałeś wylogowany z Trakt. Połącz ponownie.</string>
+    <string name="auth_notice_fetch_logged_out">Wylogowano z Fetch. Zaloguj się ponownie w Ustawienia &gt; Konto.</string>
+    <string name="auth_notice_trakt_logged_out">Wylogowano z Trakt. Połącz ponownie w Ustawienia &gt; Śledzenie.</string>
 
     <string name="error_state_generic_issue">Coś poszło nie tak.</string>
     <string name="error_state_possible_fix">Możliwe rozwiązanie: %1$s</string>
@@ -3165,6 +3165,16 @@
     <string name="profile_selection_kids_badge">Dzieci</string>
     <string name="profile_manage_done">Gotowe</string>
     <string name="cd_profile_locked">Zablokowany PIN-em</string>
+    <string name="cd_profile_pin_progress">Wprowadzono %1$d z %2$d cyfr</string>
+    <string name="cd_profile_color_crimson">Karmazynowy</string>
+    <string name="cd_profile_color_ocean">Oceaniczny</string>
+    <string name="cd_profile_color_violet">Fioletowy</string>
+    <string name="cd_profile_color_emerald">Szmaragdowy</string>
+    <string name="cd_profile_color_amber">Bursztynowy</string>
+    <string name="cd_profile_color_rose">Różany</string>
+    <string name="cd_profile_color_cyan">Cyjan</string>
+    <string name="cd_profile_color_brown">Brązowy</string>
+    <string name="cd_profile_color_position">Kolor %1$d z %2$d</string>
     <string name="profile_save_error">Nie można zapisać profilu. Spróbuj ponownie.</string>
     <string name="profile_delete_error">Nie można usunąć profilu. Spróbuj ponownie.</string>
     <string name="parental_pin_nudge_title">Chroń limity profilu %1$s</string>

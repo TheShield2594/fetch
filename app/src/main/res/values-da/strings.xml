@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Hjem skal bruge en katalog-addon for at vise titler.</string>
     <string name="home_empty_no_catalogs_title">Ingen kataloger at vise</string>
     <string name="home_empty_no_catalogs_subtitle">Dine addons tilbyder ingen kataloger til Hjem.</string>
-    <string name="auth_notice_fetch_logged_out">Du er blevet logget ud af Fetch. Log venligst ind igen.</string>
-    <string name="auth_notice_trakt_logged_out">Du er blevet logget ud af Trakt. Tilslut venligst igen.</string>
+    <string name="auth_notice_fetch_logged_out">Du er logget ud af Fetch. Log ind igen under Indstillinger &gt; Konto.</string>
+    <string name="auth_notice_trakt_logged_out">Du er logget ud af Trakt. Forbind igen under Indstillinger &gt; Sporing.</string>
     <string name="error_generic">Der opstod en fejl</string>
 
     <string name="action_retry">Prøv igen</string>
@@ -368,6 +368,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Oplevelse</string>
     <string name="settings_account">Konto</string>
+    <string name="settings_tracking_title">Sporing</string>
     <string name="settings_profiles">Profiler</string>
     <string name="settings_layout">Layout</string>
     <string name="settings_content_discovery">Indhold &amp; Opdagelse</string>
@@ -2542,6 +2543,16 @@
     <string name="profile_selection_kids_badge">Børn</string>
     <string name="profile_manage_done">Udført</string>
     <string name="cd_profile_locked">Låst med PIN</string>
+    <string name="cd_profile_pin_progress">%1$d af %2$d cifre indtastet</string>
+    <string name="cd_profile_color_crimson">Karmosin</string>
+    <string name="cd_profile_color_ocean">Ocean</string>
+    <string name="cd_profile_color_violet">Violet</string>
+    <string name="cd_profile_color_emerald">Smaragd</string>
+    <string name="cd_profile_color_amber">Rav</string>
+    <string name="cd_profile_color_rose">Rosa</string>
+    <string name="cd_profile_color_cyan">Cyan</string>
+    <string name="cd_profile_color_brown">Brun</string>
+    <string name="cd_profile_color_position">Farve %1$d af %2$d</string>
     <string name="profile_save_error">Kunne ikke gemme profil. Prøv igen.</string>
     <string name="profile_delete_error">Kunne ikke slette profil. Prøv igen.</string>
     <string name="parental_pin_nudge_title">Beskyt begrænsningerne for %1$s</string>

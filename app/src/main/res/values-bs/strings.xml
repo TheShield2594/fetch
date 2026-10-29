@@ -68,8 +68,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Početnoj treba addon za katalog da prikaže naslove.</string>
     <string name="home_empty_no_catalogs_title">Nema kataloga za prikaz</string>
     <string name="home_empty_no_catalogs_subtitle">Vaši addoni ne nude nijedan katalog za Početnu.</string>
-    <string name="auth_notice_fetch_logged_out">Odjavljeni ste iz Nuvia. Molimo prijavite se ponovo.</string>
-    <string name="auth_notice_trakt_logged_out">Odjavljeni ste sa Trakta. Molimo ponovo se povežite.</string>
+    <string name="auth_notice_fetch_logged_out">Odjavljeni ste iz Fetcha. Ponovo se prijavite putem Postavke &gt; Račun.</string>
+    <string name="auth_notice_trakt_logged_out">Odjavljeni ste sa Trakta. Ponovo ga povežite putem Postavke &gt; Praćenje.</string>
     <string name="error_generic">Došlo je do greške</string>
 
     <!-- ErrorState -->
@@ -266,6 +266,7 @@
 
     <!-- SettingsScreen categories -->
     <string name="settings_account">Račun</string>
+    <string name="settings_tracking_title">Praćenje</string>
     <string name="settings_profiles">Profili</string>
     <string name="settings_layout">Raspored</string>
     <string name="settings_integration">Integracije</string>
@@ -1658,6 +1659,16 @@
     <string name="profile_selection_kids_badge">Dječiji</string>
     <string name="profile_manage_done">Gotovo</string>
     <string name="cd_profile_locked">Zaključano PIN-om</string>
+    <string name="cd_profile_pin_progress">Uneseno cifara: %1$d od %2$d</string>
+    <string name="cd_profile_color_crimson">Grimizna</string>
+    <string name="cd_profile_color_ocean">Okean</string>
+    <string name="cd_profile_color_violet">Ljubičasta</string>
+    <string name="cd_profile_color_emerald">Smaragdna</string>
+    <string name="cd_profile_color_amber">Ćilibar</string>
+    <string name="cd_profile_color_rose">Ruža</string>
+    <string name="cd_profile_color_cyan">Cijan</string>
+    <string name="cd_profile_color_brown">Smeđa</string>
+    <string name="cd_profile_color_position">Boja %1$d od %2$d</string>
     <string name="profile_save_error">Nije moguće spasiti profil. Pokušaj ponovo.</string>
     <string name="profile_delete_error">Nije moguće izbrisati profil. Pokušaj ponovo.</string>
     <string name="parental_pin_nudge_title">Zaštiti ograničenja za %1$s</string>

@@ -104,8 +104,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Beranda memerlukan addon katalog untuk menampilkan judul.</string>
     <string name="home_empty_no_catalogs_title">Tidak ada katalog untuk ditampilkan</string>
     <string name="home_empty_no_catalogs_subtitle">Addon Anda tidak menyediakan katalog Beranda.</string>
-    <string name="auth_notice_fetch_logged_out">Anda telah keluar dari Fetch. Silakan masuk kembali.</string>
-    <string name="auth_notice_trakt_logged_out">Anda telah keluar dari Trakt. Silakan sambungkan kembali.</string>
+    <string name="auth_notice_fetch_logged_out">Anda telah keluar dari Fetch. Masuk kembali melalui Pengaturan &gt; Akun.</string>
+    <string name="auth_notice_trakt_logged_out">Anda telah keluar dari Trakt. Sambungkan kembali melalui Pengaturan &gt; Pelacakan.</string>
     <string name="error_generic">Terjadi kesalahan</string>
 
     <!-- ErrorState -->
@@ -381,6 +381,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Pengalaman</string>
     <string name="settings_account">Akun</string>
+    <string name="settings_tracking_title">Pelacakan</string>
     <string name="settings_profiles">Profil</string>
     <string name="settings_layout">Tata Letak</string>
     <string name="settings_integration">Integrasi</string>
@@ -2379,6 +2380,16 @@
     <string name="profile_selection_kids_badge">Anak</string>
     <string name="profile_manage_done">Selesai</string>
     <string name="cd_profile_locked">Dikunci dengan PIN</string>
+    <string name="cd_profile_pin_progress">%1$d dari %2$d digit dimasukkan</string>
+    <string name="cd_profile_color_crimson">Merah Tua</string>
+    <string name="cd_profile_color_ocean">Samudra</string>
+    <string name="cd_profile_color_violet">Ungu</string>
+    <string name="cd_profile_color_emerald">Zamrud</string>
+    <string name="cd_profile_color_amber">Amber</string>
+    <string name="cd_profile_color_rose">Merah Muda</string>
+    <string name="cd_profile_color_cyan">Sian</string>
+    <string name="cd_profile_color_brown">Cokelat</string>
+    <string name="cd_profile_color_position">Warna %1$d dari %2$d</string>
     <string name="profile_save_error">Tidak dapat menyimpan profil. Coba lagi.</string>
     <string name="profile_delete_error">Tidak dapat menghapus profil. Coba lagi.</string>
     <string name="parental_pin_nudge_title">Lindungi batasan %1$s</string>

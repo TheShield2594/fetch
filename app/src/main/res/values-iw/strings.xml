@@ -103,8 +103,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">מסך הבית צריך תוסף קטלוג כדי להציג כותרים.</string>
     <string name="home_empty_no_catalogs_title">אין קטלוגים להצגה</string>
     <string name="home_empty_no_catalogs_subtitle">התוספים שלך לא מציעים קטלוגים למסך הבית.</string>
-    <string name="auth_notice_fetch_logged_out">יצאת מחשבון Fetch. נדרשת התחברות מחדש.</string>
-    <string name="auth_notice_trakt_logged_out">יצאת מחשבון Trakt. נדרשת התחברות מחדש.</string>
+    <string name="auth_notice_fetch_logged_out">יצאת מחשבון Fetch. אפשר להתחבר מחדש דרך הגדרות &gt; חשבון.</string>
+    <string name="auth_notice_trakt_logged_out">יצאת מחשבון Trakt. אפשר לחבר אותו מחדש דרך הגדרות &gt; מעקב.</string>
     <string name="error_generic">אירעה שגיאה</string>
 
     <string name="action_retry">ניסיון נוסף</string>
@@ -3089,6 +3089,16 @@
     <string name="profile_selection_kids_badge">ילדים</string>
     <string name="profile_manage_done">סיום</string>
     <string name="cd_profile_locked">נעול בסיסמה</string>
+    <string name="cd_profile_pin_progress">הוזנו %1$d מתוך %2$d ספרות</string>
+    <string name="cd_profile_color_crimson">ארגמן</string>
+    <string name="cd_profile_color_ocean">אוקיינוס</string>
+    <string name="cd_profile_color_violet">סגול</string>
+    <string name="cd_profile_color_emerald">אזמרגד</string>
+    <string name="cd_profile_color_amber">ענבר</string>
+    <string name="cd_profile_color_rose">ורוד</string>
+    <string name="cd_profile_color_cyan">טורקיז</string>
+    <string name="cd_profile_color_brown">חום</string>
+    <string name="cd_profile_color_position">צבע %1$d מתוך %2$d</string>
     <string name="profile_save_error">לא ניתן היה לשמור את הפרופיל. כדאי לנסות שוב.</string>
     <string name="profile_delete_error">לא ניתן היה למחוק את הפרופיל. כדאי לנסות שוב.</string>
     <string name="parental_pin_nudge_title">הגנה על ההגבלות של %1$s</string>

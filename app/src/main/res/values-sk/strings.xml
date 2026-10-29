@@ -104,8 +104,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Domov potrebuje katalógový doplnok, aby mohol zobraziť tituly.</string>
     <string name="home_empty_no_catalogs_title">Žiadne katalógy na zobrazenie</string>
     <string name="home_empty_no_catalogs_subtitle">Vaše doplnky neponúkajú žiadne katalógy pre Domov.</string>
-    <string name="auth_notice_fetch_logged_out">Boli ste odhlásení z aplikácie Fetch. Prihláste sa znova.</string>
-    <string name="auth_notice_trakt_logged_out">Boli ste odhlásení z Trakt. Znova sa pripojte.</string>
+    <string name="auth_notice_fetch_logged_out">Boli ste odhlásení z aplikácie Fetch. Znova sa prihláste v časti Nastavenia &gt; Účet.</string>
+    <string name="auth_notice_trakt_logged_out">Boli ste odhlásení z Trakt. Znova ho pripojte v časti Nastavenia &gt; Sledovanie obsahu.</string>
     <string name="error_generic">Vyskytla sa chyba</string>
 
     
@@ -3100,6 +3100,16 @@
     <string name="profile_selection_kids_badge">Detský</string>
     <string name="profile_manage_done">Hotovo</string>
     <string name="cd_profile_locked">Zamknuté PIN kódom</string>
+    <string name="cd_profile_pin_progress">Zadané číslice: %1$d z %2$d</string>
+    <string name="cd_profile_color_crimson">Karmínová</string>
+    <string name="cd_profile_color_ocean">Oceánová</string>
+    <string name="cd_profile_color_violet">Fialová</string>
+    <string name="cd_profile_color_emerald">Smaragdová</string>
+    <string name="cd_profile_color_amber">Jantárová</string>
+    <string name="cd_profile_color_rose">Ružová</string>
+    <string name="cd_profile_color_cyan">Azúrová</string>
+    <string name="cd_profile_color_brown">Hnedá</string>
+    <string name="cd_profile_color_position">Farba %1$d z %2$d</string>
     <string name="profile_save_error">Profil sa nepodarilo uložiť. Skúste to znova.</string>
     <string name="profile_delete_error">Profil sa nepodarilo odstrániť. Skúste to znova.</string>
     <string name="parental_pin_nudge_title">Chráňte obmedzenia profilu %1$s</string>

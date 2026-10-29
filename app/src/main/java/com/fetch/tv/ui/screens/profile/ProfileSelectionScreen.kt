@@ -241,6 +241,20 @@ private data class NewProfileSetup(
     val usesMainAddons: Boolean
 )
 
+/**
+ * Feedback shown in the bottom toast. A confirmation fades after a moment; an error stays
+ * until the user has had time to read it and then presses a key.
+ */
+private sealed interface ProfileActionMessage {
+    val text: String
+
+    data class Info(override val text: String) : ProfileActionMessage
+    data class Error(override val text: String) : ProfileActionMessage
+}
+
+private const val ProfileInfoMessageMillis = 2600L
+private const val ProfileErrorMessageMinMillis = 8000L
+
 /** An action on [profile] that runs once its PIN has been entered. */
 private data class ProfilePinCheck(
     val profile: UserProfile,
@@ -314,7 +328,9 @@ fun ProfileSelectionScreen(
     var settingsCopyError by remember { mutableStateOf<String?>(null) }
     var pinOverlayState by remember { mutableStateOf<ProfilePinOverlayState?>(null) }
     var pinOverlayError by remember { mutableStateOf<String?>(null) }
-    var profileActionMessage by remember { mutableStateOf<String?>(null) }
+    var profileActionMessage by remember { mutableStateOf<ProfileActionMessage?>(null) }
+    // An error stays until it has been up long enough to read and the user then presses a key.
+    var errorReadyToDismiss by remember { mutableStateOf(false) }
     var pinCheck by remember { mutableStateOf<ProfilePinCheck?>(null) }
     var parentPinNudgeFor by remember { mutableStateOf<UserProfile?>(null) }
     var lockOfferFor by remember { mutableStateOf<UserProfile?>(null) }
@@ -416,7 +432,9 @@ fun ProfileSelectionScreen(
                 onComplete = onProfileSelected,
                 onFailure = {
                     onProfileSelectionFailed()
-                    profileActionMessage = context.getString(R.string.account_error_generic_retry)
+                    profileActionMessage = ProfileActionMessage.Error(
+                        context.getString(R.string.account_error_generic_retry)
+                    )
                 }
             )
         }
@@ -461,7 +479,17 @@ fun ProfileSelectionScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .onPreviewKeyEvent { event ->
+                // Observes key presses without consuming them, to clear an error that has been read.
+                if (errorReadyToDismiss && event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_DOWN) {
+                    profileActionMessage = null
+                }
+                false
+            }
+    ) {
         val overlayProfileColor = pinOverlayState?.profile?.avatarColorHex?.let(::parseProfileColor)
         val backgroundProfile = pinOverlayState?.profile ?: focusedProfile
         val backgroundSelection = resolveProfileBackgroundSelection(
@@ -578,7 +606,7 @@ fun ProfileSelectionScreen(
             } else {
                 val pinResetFinished: (UserProfile, String) -> Unit = { _, message ->
                     pinOverlayState = null
-                    profileActionMessage = message
+                    profileActionMessage = ProfileActionMessage.Info(message)
                 }
                 ProfilePinOverlay(
                     state = activePinOverlay,
@@ -621,7 +649,9 @@ fun ProfileSelectionScreen(
                                         is SetProfilePinResult.Success -> {
                                             pinOverlayState = null
                                             pinOverlayError = null
-                                            profileActionMessage = context.getString(R.string.profile_pin_saved_for_profile, activePinOverlay.profile.name)
+                                            profileActionMessage = ProfileActionMessage.Info(
+                                                context.getString(R.string.profile_pin_saved_for_profile, activePinOverlay.profile.name)
+                                            )
                                         }
                                         is SetProfilePinResult.CurrentPinRequired -> {
                                             pinOverlayState = ProfilePinOverlayState.VerifyCurrentForChange(
@@ -687,7 +717,9 @@ fun ProfileSelectionScreen(
                                         if (verify.unlocked) {
                                             pinOverlayError = null
                                             pinOverlayState = null
-                                            profileActionMessage = context.getString(R.string.profile_pin_lock_removed_for_profile, activePinOverlay.profile.name)
+                                            profileActionMessage = ProfileActionMessage.Info(
+                                                context.getString(R.string.profile_pin_lock_removed_for_profile, activePinOverlay.profile.name)
+                                            )
                                         } else {
                                             pinOverlayError = if (verify.retryAfterSeconds > 0) {
                                                 context.getString(R.string.profile_pin_locked, verify.retryAfterSeconds)
@@ -780,18 +812,17 @@ fun ProfileSelectionScreen(
                                 if (setup.isKidsProfile && parentHasPin) lockOfferFor = result.profile
                                 val sourceName = profiles.firstOrNull { it.id == setup.copyFromProfileId }?.name
                                 if (result.settingsCopyResult?.isSuccess == true && sourceName != null) {
-                                    profileActionMessage = context.getString(
-                                        R.string.profile_copy_settings_created_success,
-                                        sourceName
+                                    profileActionMessage = ProfileActionMessage.Info(
+                                        context.getString(R.string.profile_copy_settings_created_success, sourceName)
                                     )
                                 } else if (result.settingsCopyResult?.isFailure == true) {
-                                    profileActionMessage = context.getString(
-                                        R.string.profile_copy_settings_created_error
+                                    profileActionMessage = ProfileActionMessage.Error(
+                                        context.getString(R.string.profile_copy_settings_created_error)
                                     )
                                 }
                             }
                             CreateProfileResult.Failed -> {
-                                profileActionMessage = context.getString(R.string.profile_create_error)
+                                profileActionMessage = ProfileActionMessage.Error(context.getString(R.string.profile_create_error))
                             }
                         }
                     }
@@ -832,7 +863,7 @@ fun ProfileSelectionScreen(
                                 if (saved) {
                                     profileToEdit = null
                                 } else {
-                                    profileActionMessage = context.getString(R.string.profile_save_error)
+                                    profileActionMessage = ProfileActionMessage.Error(context.getString(R.string.profile_save_error))
                                 }
                             }
                         }
@@ -842,9 +873,17 @@ fun ProfileSelectionScreen(
         }
 
         LaunchedEffect(profileActionMessage) {
-            if (profileActionMessage != null) {
-                delay(2600)
-                profileActionMessage = null
+            errorReadyToDismiss = false
+            when (profileActionMessage) {
+                is ProfileActionMessage.Info -> {
+                    delay(ProfileInfoMessageMillis)
+                    profileActionMessage = null
+                }
+                is ProfileActionMessage.Error -> {
+                    delay(ProfileErrorMessageMinMillis)
+                    errorReadyToDismiss = true
+                }
+                null -> Unit
             }
         }
 
@@ -854,7 +893,7 @@ fun ProfileSelectionScreen(
             exit = fadeOut(tween(FetchMotion.tokens.durations.fast)),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            profileActionMessage?.let { message ->
+            profileActionMessage?.text?.let { message ->
                 Box(
                     modifier = Modifier
                         .padding(bottom = 34.dp)
@@ -986,13 +1025,17 @@ fun ProfileSelectionScreen(
                                     profile.copy(usesPrimaryAddons = shared)
                                 ) { saved ->
                                     profileActionMessage = when {
-                                        !saved -> context.getString(R.string.profile_save_error)
-                                        shared -> context.getString(
-                                            R.string.profile_addons_shared_saved,
-                                            profile.name,
-                                            parentProfile.name
+                                        !saved -> ProfileActionMessage.Error(context.getString(R.string.profile_save_error))
+                                        shared -> ProfileActionMessage.Info(
+                                            context.getString(
+                                                R.string.profile_addons_shared_saved,
+                                                profile.name,
+                                                parentProfile.name
+                                            )
                                         )
-                                        else -> context.getString(R.string.profile_addons_own_saved, profile.name)
+                                        else -> ProfileActionMessage.Info(
+                                            context.getString(R.string.profile_addons_own_saved, profile.name)
+                                        )
                                     }
                                 }
                             }
@@ -1102,7 +1145,9 @@ fun ProfileSelectionScreen(
                     viewModel.setProfileRestrictions(targetProfile.id, restrictions)
                     viewModel.setKidsRules(targetProfile.id, kidsRules)
                     limitsTarget = null
-                    profileActionMessage = context.getString(R.string.parental_limits_saved, targetProfile.name)
+                    profileActionMessage = ProfileActionMessage.Info(
+                        context.getString(R.string.parental_limits_saved, targetProfile.name)
+                    )
                     if (restrictions.isRestricted && !primaryHasPin) parentPinNudgeFor = targetProfile
                     if (restrictions.isRestricted && primaryHasPin) lockOfferFor = targetProfile
                 },
@@ -1133,10 +1178,12 @@ fun ProfileSelectionScreen(
                         ) { result ->
                             if (result.isSuccess) {
                                 settingsCopyTarget = null
-                                profileActionMessage = context.getString(
-                                    R.string.profile_copy_settings_success,
-                                    sourceName,
-                                    targetProfile.name
+                                profileActionMessage = ProfileActionMessage.Info(
+                                    context.getString(
+                                        R.string.profile_copy_settings_success,
+                                        sourceName,
+                                        targetProfile.name
+                                    )
                                 )
                             } else {
                                 settingsCopyError = context.getString(R.string.profile_copy_settings_error)
@@ -1180,7 +1227,7 @@ fun ProfileSelectionScreen(
                     onClick = {
                         viewModel.deleteProfile(profile.id) { deleted ->
                             if (!deleted) {
-                                profileActionMessage = context.getString(R.string.profile_delete_error)
+                                profileActionMessage = ProfileActionMessage.Error(context.getString(R.string.profile_delete_error))
                             }
                         }
                         profileToDelete = null
@@ -1287,7 +1334,7 @@ fun ProfileSelectionScreen(
                                     setError = { pinCheckError = it },
                                     onReset = { _, message ->
                                         dismissPinCheck()
-                                        profileActionMessage = message
+                                        profileActionMessage = ProfileActionMessage.Info(message)
                                         check.onVerified()
                                     }
                                 )
@@ -1776,7 +1823,8 @@ private fun ProfileCard(
             color = nameColor,
             fontWeight = nameWeight,
             textAlign = TextAlign.Center,
-            maxLines = 1,
+            // Two lines fit the 20-character limit, so similar long names stay distinguishable.
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
 
@@ -1935,7 +1983,7 @@ private fun AddProfileCard(
             style = if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
             fontWeight = if (isFocused) FontWeight.SemiBold else FontWeight.Medium,
             textAlign = TextAlign.Center,
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
 

@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Начало се нуждае от каталожна добавка, за да показва заглавия.</string>
     <string name="home_empty_no_catalogs_title">Няма каталози за показване</string>
     <string name="home_empty_no_catalogs_subtitle">Вашите добавки не предлагат каталози за Начало.</string>
-    <string name="auth_notice_fetch_logged_out">Излезли сте от Fetch. Моля, влезте отново.</string>
-    <string name="auth_notice_trakt_logged_out">Излезли сте от Trakt. Моля, свържете отново акаунта си.</string>
+    <string name="auth_notice_fetch_logged_out">Излязохте от Fetch. Влезте отново от Настройки &gt; Акаунт.</string>
+    <string name="auth_notice_trakt_logged_out">Излязохте от Trakt. Свържете го отново от Настройки &gt; Проследяване.</string>
     <string name="error_generic">Възникна грешка</string>
 
     <string name="action_retry">Опитай отново</string>
@@ -368,6 +368,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Изживяване</string>
     <string name="settings_account">Акаунт</string>
+    <string name="settings_tracking_title">Проследяване</string>
     <string name="settings_profiles">Профили</string>
     <string name="settings_layout">Оформление</string>
     <string name="settings_integration">Интеграции</string>
@@ -2532,6 +2533,16 @@
     <string name="profile_selection_kids_badge">Детски</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заключен с PIN</string>
+    <string name="cd_profile_pin_progress">Въведени цифри: %1$d от %2$d</string>
+    <string name="cd_profile_color_crimson">Пурпурен</string>
+    <string name="cd_profile_color_ocean">Океан</string>
+    <string name="cd_profile_color_violet">Виолетов</string>
+    <string name="cd_profile_color_emerald">Изумруден</string>
+    <string name="cd_profile_color_amber">Кехлибарен</string>
+    <string name="cd_profile_color_rose">Розов</string>
+    <string name="cd_profile_color_cyan">Циан</string>
+    <string name="cd_profile_color_brown">Кафяв</string>
+    <string name="cd_profile_color_position">Цвят %1$d от %2$d</string>
     <string name="profile_save_error">Профилът не можа да се запази. Опитай отново.</string>
     <string name="profile_delete_error">Профилът не можа да се изтрие. Опитай отново.</string>
     <string name="parental_pin_nudge_title">Защити ограниченията на %1$s</string>

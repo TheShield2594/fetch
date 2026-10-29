@@ -103,8 +103,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Головній потрібен адон каталогу, щоб показувати тайтли.</string>
     <string name="home_empty_no_catalogs_title">Немає каталогів для показу</string>
     <string name="home_empty_no_catalogs_subtitle">Ваші адони не пропонують каталогів для головної.</string>
-    <string name="auth_notice_fetch_logged_out">Ви вийшли з системи Fetch. Будь ласка, увійдіть знову.</string>
-    <string name="auth_notice_trakt_logged_out">Ви вийшли з системи Trakt. Будь ласка, підключіться знову.</string>
+    <string name="auth_notice_fetch_logged_out">Ви вийшли з Fetch. Увійдіть знову в розділі Налаштування &gt; Акаунт.</string>
+    <string name="auth_notice_trakt_logged_out">Ви вийшли з Trakt. Підключіть його знову в розділі Налаштування &gt; Відстеження.</string>
     <string name="error_generic">Сталася помилка</string>
 
     <string name="action_retry">Повторити</string>
@@ -373,6 +373,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Режим роботи</string>
     <string name="settings_account">Акаунт</string>
+    <string name="settings_tracking_title">Відстеження</string>
     <string name="settings_profiles">Профілі</string>
     <string name="settings_layout">Інтерфейс</string>
     <string name="settings_integration">Інтеграції</string>
@@ -2569,6 +2570,16 @@
     <string name="profile_selection_kids_badge">Дитячий</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заблоковано PIN-кодом</string>
+    <string name="cd_profile_pin_progress">Введено цифр: %1$d з %2$d</string>
+    <string name="cd_profile_color_crimson">Малиновий</string>
+    <string name="cd_profile_color_ocean">Океан</string>
+    <string name="cd_profile_color_violet">Фіолетовий</string>
+    <string name="cd_profile_color_emerald">Смарагдовий</string>
+    <string name="cd_profile_color_amber">Бурштиновий</string>
+    <string name="cd_profile_color_rose">Рожевий</string>
+    <string name="cd_profile_color_cyan">Блакитний</string>
+    <string name="cd_profile_color_brown">Коричневий</string>
+    <string name="cd_profile_color_position">Колір %1$d з %2$d</string>
     <string name="profile_save_error">Не вдалося зберегти профіль. Спробуйте ще раз.</string>
     <string name="profile_delete_error">Не вдалося видалити профіль. Спробуйте ще раз.</string>
     <string name="parental_pin_nudge_title">Захистіть обмеження профілю %1$s</string>

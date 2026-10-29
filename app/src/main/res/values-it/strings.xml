@@ -102,8 +102,8 @@
 <string name="home_empty_no_catalog_addons_subtitle">La Home ha bisogno di un addon di catalogo per mostrare i titoli.</string>
 <string name="home_empty_no_catalogs_title">Nessun catalogo da mostrare</string>
 <string name="home_empty_no_catalogs_subtitle">I tuoi addon non offrono cataloghi per la Home.</string>
-<string name="auth_notice_fetch_logged_out">Sei stato disconnesso da Fetch. Accedi di nuovo.</string>
-<string name="auth_notice_trakt_logged_out">Sei stato disconnesso da Trakt. Riconnettiti.</string>
+<string name="auth_notice_fetch_logged_out">Disconnesso da Fetch. Accedi di nuovo da Impostazioni &gt; Account.</string>
+<string name="auth_notice_trakt_logged_out">Disconnesso da Trakt. Ricollegalo da Impostazioni &gt; Tracciamento.</string>
 <string name="error_generic">Si è verificato un errore</string>
 
 <string name="action_retry">Riprova</string>
@@ -3073,6 +3073,16 @@
     <string name="profile_selection_kids_badge">Bambini</string>
     <string name="profile_manage_done">Fatto</string>
     <string name="cd_profile_locked">Bloccato con PIN</string>
+    <string name="cd_profile_pin_progress">%1$d di %2$d cifre inserite</string>
+    <string name="cd_profile_color_crimson">Cremisi</string>
+    <string name="cd_profile_color_ocean">Oceano</string>
+    <string name="cd_profile_color_violet">Viola</string>
+    <string name="cd_profile_color_emerald">Smeraldo</string>
+    <string name="cd_profile_color_amber">Ambra</string>
+    <string name="cd_profile_color_rose">Rosa</string>
+    <string name="cd_profile_color_cyan">Ciano</string>
+    <string name="cd_profile_color_brown">Marrone</string>
+    <string name="cd_profile_color_position">Colore %1$d di %2$d</string>
     <string name="profile_save_error">Impossibile salvare il profilo. Riprova.</string>
     <string name="profile_delete_error">Impossibile eliminare il profilo. Riprova.</string>
     <string name="parental_pin_nudge_title">Proteggi i limiti di %1$s</string>

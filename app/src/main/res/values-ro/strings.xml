@@ -125,6 +125,7 @@
 
     <!-- SettingsScreen categories -->
     <string name="settings_account">Cont</string>
+    <string name="settings_tracking_title">Urmărire</string>
     <string name="settings_profiles">Profile</string>
     <string name="settings_layout">Aranjament</string>
     <string name="settings_integration">Integrări</string>
@@ -1102,6 +1103,18 @@
     <string name="profile_selection_kids_badge">Copii</string>
     <string name="profile_manage_done">Gata</string>
     <string name="cd_profile_locked">Blocat cu PIN</string>
+    <string name="cd_profile_pin_progress">%1$d din %2$d cifre introduse</string>
+    <string name="cd_profile_color_crimson">Carmin</string>
+    <string name="cd_profile_color_ocean">Ocean</string>
+    <string name="cd_profile_color_violet">Violet</string>
+    <string name="cd_profile_color_emerald">Smarald</string>
+    <string name="cd_profile_color_amber">Chihlimbar</string>
+    <string name="cd_profile_color_rose">Roz</string>
+    <string name="cd_profile_color_cyan">Cyan</string>
+    <string name="cd_profile_color_brown">Maro</string>
+    <string name="cd_profile_color_position">Culoarea %1$d din %2$d</string>
+    <string name="auth_notice_fetch_logged_out">Ai fost deconectat de la Fetch. Conectează-te din nou din Setări &gt; Cont.</string>
+    <string name="auth_notice_trakt_logged_out">Ai fost deconectat de la Trakt. Reconectează-l din Setări &gt; Urmărire.</string>
     <string name="profile_save_error">Profilul nu a putut fi salvat. Încearcă din nou.</string>
     <string name="profile_delete_error">Profilul nu a putut fi șters. Încearcă din nou.</string>
     <string name="parental_pin_nudge_title">Protejează limitele pentru %1$s</string>

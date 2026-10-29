@@ -104,8 +104,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">தலைப்புகளைக் காட்ட முகப்புக்கு ஒரு பட்டியல் ஆடான் தேவை.</string>
     <string name="home_empty_no_catalogs_title">காட்ட பட்டியல்கள் எதுவும் இல்லை</string>
     <string name="home_empty_no_catalogs_subtitle">உங்கள் ஆடான்கள் முகப்புக்கான பட்டியல்கள் எதையும் வழங்கவில்லை.</string>
-    <string name="auth_notice_fetch_logged_out">நீங்கள் Fetch-இலிருந்து வெளியேற்றப்பட்டுள்ளீர்கள். மீண்டும் உள்நுழையவும்.</string>
-    <string name="auth_notice_trakt_logged_out">நீங்கள் ட்ராக்டில் இருந்து வெளியேற்றப்பட்டுள்ளீர்கள். மீண்டும் இணைக்கவும்.</string>
+    <string name="auth_notice_fetch_logged_out">நீங்கள் Fetch-இலிருந்து வெளியேற்றப்பட்டுள்ளீர்கள். அமைப்புகள் &gt; அக்கவுண்ட் என்பதில் மீண்டும் உள்நுழையவும்.</string>
+    <string name="auth_notice_trakt_logged_out">நீங்கள் Trakt-இலிருந்து வெளியேற்றப்பட்டுள்ளீர்கள். அமைப்புகள் &gt; டிராக்கிங் என்பதில் மீண்டும் இணைக்கவும்.</string>
     <string name="error_generic">ஒரு பிழை ஏற்பட்டது</string>
 
     <!-- ErrorState -->
@@ -365,6 +365,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">பயன்பாட்டு முறை</string>
     <string name="settings_account">அக்கவுண்ட்</string>
+    <string name="settings_tracking_title">டிராக்கிங்</string>
     <string name="settings_profiles">புரொஃபைல்கள்</string>
     <string name="settings_layout">அமைப்பு வடிவம்</string>
     <string name="settings_integration">ஒருங்கிணைப்புகள்</string>
@@ -2351,6 +2352,16 @@
     <string name="profile_selection_kids_badge">குழந்தைகள்</string>
     <string name="profile_manage_done">முடிந்தது</string>
     <string name="cd_profile_locked">பின் மூலம் பூட்டப்பட்டுள்ளது</string>
+    <string name="cd_profile_pin_progress">%2$d இலக்கங்களில் %1$d உள்ளிடப்பட்டது</string>
+    <string name="cd_profile_color_crimson">கருஞ்சிவப்பு</string>
+    <string name="cd_profile_color_ocean">கடல் நீலம்</string>
+    <string name="cd_profile_color_violet">ஊதா</string>
+    <string name="cd_profile_color_emerald">மரகதம்</string>
+    <string name="cd_profile_color_amber">அம்பர்</string>
+    <string name="cd_profile_color_rose">ரோஜா</string>
+    <string name="cd_profile_color_cyan">சியான்</string>
+    <string name="cd_profile_color_brown">பழுப்பு</string>
+    <string name="cd_profile_color_position">நிறம் %2$d இல் %1$d</string>
     <string name="profile_save_error">சுயவிவரத்தைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
     <string name="profile_delete_error">சுயவிவரத்தை நீக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
     <string name="parental_pin_nudge_title">%1$s இன் வரம்புகளைப் பாதுகாக்கவும்</string>

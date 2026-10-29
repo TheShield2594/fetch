@@ -101,8 +101,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">শিরোনাম দেখাতে হোমের একটি ক্যাটালগ অ্যাডন দরকার।</string>
     <string name="home_empty_no_catalogs_title">দেখানোর মতো কোনো ক্যাটালগ নেই</string>
     <string name="home_empty_no_catalogs_subtitle">আপনার অ্যাডনগুলো হোমের জন্য কোনো ক্যাটালগ দেয় না।</string>
-    <string name="auth_notice_fetch_logged_out">আপনি Fetch থেকে সাইন আউট হয়েছেন। অনুগ্রহ করে আবার সাইন ইন করুন।</string>
-    <string name="auth_notice_trakt_logged_out">আপনি Trakt থেকে সাইন আউট হয়েছেন। অনুগ্রহ করে আবার কানেক্ট করুন।</string>
+    <string name="auth_notice_fetch_logged_out">আপনি Fetch থেকে সাইন আউট হয়েছেন। সেটিংস &gt; অ্যাকাউন্ট থেকে আবার সাইন ইন করুন।</string>
+    <string name="auth_notice_trakt_logged_out">আপনি Trakt থেকে সাইন আউট হয়েছেন। সেটিংস &gt; ট্র্যাকিং থেকে আবার কানেক্ট করুন।</string>
     <string name="error_generic">একটি সমস্যা হয়েছে</string>
     <string name="action_retry">আবার চেষ্টা করুন</string>
     <string name="error_state_generic_issue">কিছু একটা ভুল হয়েছে।</string>
@@ -2825,6 +2825,16 @@
     <string name="profile_selection_kids_badge">শিশু</string>
     <string name="profile_manage_done">সম্পন্ন</string>
     <string name="cd_profile_locked">পিন দিয়ে লক করা</string>
+    <string name="cd_profile_pin_progress">%2$d-এর মধ্যে %1$d অঙ্ক দেওয়া হয়েছে</string>
+    <string name="cd_profile_color_crimson">ক্রিমসন</string>
+    <string name="cd_profile_color_ocean">সমুদ্রনীল</string>
+    <string name="cd_profile_color_violet">বেগুনি</string>
+    <string name="cd_profile_color_emerald">পান্না</string>
+    <string name="cd_profile_color_amber">অ্যাম্বার</string>
+    <string name="cd_profile_color_rose">গোলাপি</string>
+    <string name="cd_profile_color_cyan">সায়ান</string>
+    <string name="cd_profile_color_brown">বাদামি</string>
+    <string name="cd_profile_color_position">রং %2$d-এর মধ্যে %1$d</string>
     <string name="profile_save_error">প্রোফাইল সেভ করা যায়নি। আবার চেষ্টা করুন।</string>
     <string name="profile_delete_error">প্রোফাইল মুছে ফেলা যায়নি। আবার চেষ্টা করুন।</string>
     <string name="parental_pin_nudge_title">%1$s-এর সীমা সুরক্ষিত রাখুন</string>

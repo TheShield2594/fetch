@@ -118,7 +118,8 @@ fun FetchDialog(
                         color = FetchTheme.colors.TextPrimary,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = titleTextAlign,
-                        maxLines = 1,
+                        // Titles often carry a media or profile name, so let them wrap rather than cut off.
+                        maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )
                 }

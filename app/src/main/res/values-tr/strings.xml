@@ -104,8 +104,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Ana Menü\'nün başlıkları göstermesi için bir katalog eklentisi gerekir.</string>
     <string name="home_empty_no_catalogs_title">Gösterilecek katalog yok</string>
     <string name="home_empty_no_catalogs_subtitle">Eklentileriniz Ana Menü için katalog sunmuyor.</string>
-    <string name="auth_notice_fetch_logged_out">Fetch hesabınızdan çıkış yapıldı. Lütfen tekrar giriş yapın.</string>
-    <string name="auth_notice_trakt_logged_out">Trakt hesabınızdan çıkış yapıldı. Lütfen yeniden bağlanın.</string>
+    <string name="auth_notice_fetch_logged_out">Fetch hesabınızdan çıkış yapıldı. Ayarlar &gt; Hesap bölümünden tekrar giriş yapın.</string>
+    <string name="auth_notice_trakt_logged_out">Trakt hesabınızdan çıkış yapıldı. Ayarlar &gt; Takip bölümünden yeniden bağlanın.</string>
     <string name="error_generic">Bir hata oluştu</string>
 
     <!-- ErrorState -->
@@ -3093,6 +3093,16 @@
     <string name="profile_selection_kids_badge">Çocuk</string>
     <string name="profile_manage_done">Tamam</string>
     <string name="cd_profile_locked">PIN ile kilitli</string>
+    <string name="cd_profile_pin_progress">%2$d basamaktan %1$d tanesi girildi</string>
+    <string name="cd_profile_color_crimson">Kızıl</string>
+    <string name="cd_profile_color_ocean">Okyanus</string>
+    <string name="cd_profile_color_violet">Mor</string>
+    <string name="cd_profile_color_emerald">Zümrüt</string>
+    <string name="cd_profile_color_amber">Kehribar</string>
+    <string name="cd_profile_color_rose">Gül</string>
+    <string name="cd_profile_color_cyan">Camgöbeği</string>
+    <string name="cd_profile_color_brown">Kahverengi</string>
+    <string name="cd_profile_color_position">Renk %1$d / %2$d</string>
     <string name="profile_save_error">Profil kaydedilemedi. Tekrar deneyin.</string>
     <string name="profile_delete_error">Profil silinemedi. Tekrar deneyin.</string>
     <string name="parental_pin_nudge_title">%1$s profilinin sınırlarını koru</string>

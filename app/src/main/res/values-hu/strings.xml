@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">A Kezdőlapnak katalógusbővítményre van szüksége a címek megjelenítéséhez.</string>
     <string name="home_empty_no_catalogs_title">Nincs megjeleníthető katalógus</string>
     <string name="home_empty_no_catalogs_subtitle">A bővítményeid nem kínálnak katalógust a Kezdőlapra.</string>
-    <string name="auth_notice_fetch_logged_out">Kijelentkeztél a Fetch-fiókodból. Jelentkezz be újra.</string>
-    <string name="auth_notice_trakt_logged_out">Kijelentkeztél a Trakt-fiókodból. Csatlakoztasd újra a fiókot.</string>
+    <string name="auth_notice_fetch_logged_out">Kijelentkeztél a Fetch-fiókodból. Jelentkezz be újra itt: Beállítások &gt; Fiók.</string>
+    <string name="auth_notice_trakt_logged_out">Kijelentkeztél a Trakt-fiókodból. Csatlakoztasd újra itt: Beállítások &gt; Követés.</string>
     <string name="error_generic">Hiba történt</string>
 
     <string name="action_retry">Próbáld újra</string>
@@ -3052,6 +3052,16 @@
     <string name="profile_selection_kids_badge">Gyerek</string>
     <string name="profile_manage_done">Kész</string>
     <string name="cd_profile_locked">PIN-kóddal zárolva</string>
+    <string name="cd_profile_pin_progress">%2$d számjegyből %1$d megadva</string>
+    <string name="cd_profile_color_crimson">Bíbor</string>
+    <string name="cd_profile_color_ocean">Óceán</string>
+    <string name="cd_profile_color_violet">Ibolya</string>
+    <string name="cd_profile_color_emerald">Smaragd</string>
+    <string name="cd_profile_color_amber">Borostyán</string>
+    <string name="cd_profile_color_rose">Rózsa</string>
+    <string name="cd_profile_color_cyan">Cián</string>
+    <string name="cd_profile_color_brown">Barna</string>
+    <string name="cd_profile_color_position">Szín: %1$d / %2$d</string>
     <string name="profile_save_error">Nem sikerült menteni a profilt. Próbáld újra.</string>
     <string name="profile_delete_error">Nem sikerült törölni a profilt. Próbáld újra.</string>
     <string name="parental_pin_nudge_title">Védd %1$s korlátozásait</string>

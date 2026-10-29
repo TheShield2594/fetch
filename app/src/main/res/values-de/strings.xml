@@ -104,8 +104,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Die Startseite braucht ein Katalog-Add-on, um Titel anzuzeigen.</string>
     <string name="home_empty_no_catalogs_title">Keine Kataloge zum Anzeigen</string>
     <string name="home_empty_no_catalogs_subtitle">Ihre Add-ons bieten keine Kataloge für die Startseite an.</string>
-    <string name="auth_notice_fetch_logged_out">Du wurdest von Fetch abgemeldet. Bitte logge dich erneut ein.</string>
-    <string name="auth_notice_trakt_logged_out">Du wurdest von Trakt abgemeldet. Bitte logge dich erneut ein.</string>
+    <string name="auth_notice_fetch_logged_out">Von Fetch abgemeldet. Melde dich unter Optionen &gt; Konto erneut an.</string>
+    <string name="auth_notice_trakt_logged_out">Von Trakt abgemeldet. Verbinde es unter Optionen &gt; Tracking erneut.</string>
     <string name="error_generic">Ein Fehler ist aufgetreten</string>
 
     <!-- ErrorState -->
@@ -381,6 +381,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">App-Erlebnis</string>
     <string name="settings_account">Konto</string>
+    <string name="settings_tracking_title">Tracking</string>
     <string name="settings_profiles">Profile</string>
     <string name="settings_layout">Layout</string>
     <string name="settings_integration">Integrationen</string>
@@ -2365,6 +2366,16 @@
     <string name="profile_selection_kids_badge">Kinder</string>
     <string name="profile_manage_done">Fertig</string>
     <string name="cd_profile_locked">Mit PIN gesperrt</string>
+    <string name="cd_profile_pin_progress">%1$d von %2$d Ziffern eingegeben</string>
+    <string name="cd_profile_color_crimson">Karmesin</string>
+    <string name="cd_profile_color_ocean">Ozean</string>
+    <string name="cd_profile_color_violet">Violett</string>
+    <string name="cd_profile_color_emerald">Smaragd</string>
+    <string name="cd_profile_color_amber">Bernstein</string>
+    <string name="cd_profile_color_rose">Rosé</string>
+    <string name="cd_profile_color_cyan">Cyan</string>
+    <string name="cd_profile_color_brown">Braun</string>
+    <string name="cd_profile_color_position">Farbe %1$d von %2$d</string>
     <string name="profile_save_error">Profil konnte nicht gespeichert werden. Bitte erneut versuchen.</string>
     <string name="profile_delete_error">Profil konnte nicht gelöscht werden. Bitte erneut versuchen.</string>
     <string name="parental_pin_nudge_title">Jugendschutz für %1$s absichern</string>

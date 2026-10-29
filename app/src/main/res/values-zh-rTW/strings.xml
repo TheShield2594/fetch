@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">首頁需要目錄擴充套件才能顯示內容。</string>
     <string name="home_empty_no_catalogs_title">沒有可顯示的目錄</string>
     <string name="home_empty_no_catalogs_subtitle">你的擴充套件未提供任何首頁目錄。</string>
-    <string name="auth_notice_fetch_logged_out">您已登出 Fetch。請重新登入。</string>
-    <string name="auth_notice_trakt_logged_out">您已登出 Trakt。請重新連線。</string>
+    <string name="auth_notice_fetch_logged_out">已登出 Fetch。請前往「設定 &gt; 帳戶」重新登入。</string>
+    <string name="auth_notice_trakt_logged_out">已登出 Trakt。請前往「設定 &gt; 追蹤」重新連線。</string>
     <string name="error_generic">發生錯誤</string>
 
     <string name="action_retry">重試</string>
@@ -2963,6 +2963,16 @@
     <string name="profile_selection_kids_badge">兒童</string>
     <string name="profile_manage_done">完成</string>
     <string name="cd_profile_locked">已用 PIN 鎖定</string>
+    <string name="cd_profile_pin_progress">已輸入 %1$d 位，共 %2$d 位</string>
+    <string name="cd_profile_color_crimson">深紅</string>
+    <string name="cd_profile_color_ocean">海洋藍</string>
+    <string name="cd_profile_color_violet">紫羅蘭</string>
+    <string name="cd_profile_color_emerald">翡翠綠</string>
+    <string name="cd_profile_color_amber">琥珀</string>
+    <string name="cd_profile_color_rose">玫瑰</string>
+    <string name="cd_profile_color_cyan">青色</string>
+    <string name="cd_profile_color_brown">棕色</string>
+    <string name="cd_profile_color_position">顏色 %1$d/%2$d</string>
     <string name="profile_save_error">無法儲存個人資料。請重試。</string>
     <string name="profile_delete_error">無法刪除個人資料。請重試。</string>
     <string name="parental_pin_nudge_title">保護 %1$s 的限制</string>

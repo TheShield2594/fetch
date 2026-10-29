@@ -623,10 +623,26 @@ fun MetaDetailsScreen(
                             else -> false
                         }
                     }
-                    // During auto trailer preview, consume all keys except back/ESC so content doesn't scroll.
                     val keyCode = keyEvent.nativeKeyEvent.keyCode
-                    return@onPreviewKeyEvent keyCode != KeyEvent.KEYCODE_BACK &&
-                            keyCode != KeyEvent.KEYCODE_ESCAPE
+                    if (keyCode == KeyEvent.KEYCODE_BACK ||
+                        keyCode == KeyEvent.KEYCODE_ESCAPE ||
+                        keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+                        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
+                        keyCode == KeyEvent.KEYCODE_VOLUME_MUTE
+                    ) {
+                        return@onPreviewKeyEvent false
+                    }
+                    // Any other key ends an auto trailer preview the way Back does, so no key is a
+                    // dead end. The key itself is consumed, so the page doesn't scroll under it.
+                    if (!currentShowTrailerControls &&
+                        keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN &&
+                        keyEvent.nativeKeyEvent.repeatCount == 0
+                    ) {
+                        restorePlayFocusAfterTrailerBackToken += 1
+                        isTrailerPaused = false
+                        viewModel.onEvent(MetaDetailsEvent.OnTrailerEnded)
+                    }
+                    return@onPreviewKeyEvent true
                 }
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
                     val nativeEvent = keyEvent.nativeKeyEvent

@@ -857,7 +857,6 @@
     <string name="library_list_description_label">Opis</string>
     <string name="library_list_privacy">Prywatność</string>
     <string name="library_delete_title">Usunąć tę listę?</string>
-    <string name="library_delete_subtitle">Spowoduje to usunięcie listy i wszystkich jej elementów z Trakt.</string>
     <string name="library_source_local">LOKALNA</string>
     <string name="library_type_all">Wszystkie</string>
     <string name="library_empty_type_movies">filmów</string>

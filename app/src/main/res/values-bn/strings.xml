@@ -1556,7 +1556,6 @@
     <string name="library_list_description_label">বিবরণ</string>
     <string name="library_list_privacy">প্রাইভেসি</string>
     <string name="library_delete_title">এই লিস্ট মুছবেন?</string>
-    <string name="library_delete_subtitle">এটি Trakt থেকে লিস্ট এবং লিস্টের সমস্ত আইটেম মুছে ফেলবে।</string>
     <string name="library_source_local">লোকাল</string>
     <string name="library_source_saved">সংরক্ষিত</string>
     <string name="library_watchlist">ওয়াচলিস্ট</string>

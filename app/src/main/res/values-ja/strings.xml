@@ -1302,7 +1302,6 @@
     <string name="library_list_description_label">説明</string>
     <string name="library_list_privacy">プライバシー</string>
     <string name="library_delete_title">このリストを削除しますか？</string>
-    <string name="library_delete_subtitle">Traktからリストとすべてのリストアイテムが削除されます</string>
     <string name="library_source_local">ローカル</string>
     <string name="library_source_saved">保存済み</string>
     <string name="library_watchlist">ウォッチリスト</string>

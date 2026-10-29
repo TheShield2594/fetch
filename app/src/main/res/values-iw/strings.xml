@@ -1674,7 +1674,6 @@
     <string name="library_list_description_label">תיאור</string>
     <string name="library_list_privacy">פרטיות</string>
     <string name="library_delete_title">למחוק רשימה זו?</string>
-    <string name="library_delete_subtitle">פעולה זו תסיר את הרשימה וכל הפריטים שבה מ-Trakt.</string>
     <string name="library_source_local">מקומי</string>
     <string name="library_source_saved">נשמר</string>
     <string name="library_watchlist">רשימת צפייה</string>

@@ -1222,7 +1222,6 @@
     <string name="library_list_description_label">விளக்கம்</string>
     <string name="library_list_privacy">தனியுரிமை</string>
     <string name="library_delete_title">இந்த பட்டியலை அழிக்கவா?</string>
-    <string name="library_delete_subtitle">இது பட்டியலையும் அதிலுள்ள அனைத்து உருப்படிகளையும் ட்ராக்டிலிருந்து அகற்றும்.</string>
     <string name="library_source_local">உள்ளகம்</string>
     <string name="library_watchlist">பார்க்க வேண்டிய பட்டியல்</string>
     <string name="library_syncing_library">நூலகம் ஒத்திசைக்கப்படுகிறது\u2026</string>

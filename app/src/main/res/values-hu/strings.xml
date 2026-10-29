@@ -1661,7 +1661,6 @@
     <string name="library_list_description_label">Leírás</string>
     <string name="library_list_privacy">Láthatóság</string>
     <string name="library_delete_title">Törlöd ezt a listát?</string>
-    <string name="library_delete_subtitle">Ez eltávolítja a listát és annak minden elemét a Trakt-ról.</string>
     <string name="library_source_local">HELYI</string>
     <string name="library_source_saved">Mentett</string>
     <string name="library_watchlist">Várólista</string>

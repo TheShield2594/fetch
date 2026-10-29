@@ -931,7 +931,6 @@
     <string name="library_list_description_label">Opis</string>
     <string name="library_list_privacy">Privatnost</string>
     <string name="library_delete_title">Izbrisati ovu listu?</string>
-    <string name="library_delete_subtitle">Ovo uklanja listu i sve stavke sa Trakta.</string>
     <string name="library_source_local">LOKALNO</string>
     <string name="library_syncing_library">Sinhronizacija biblioteke…</string>
     <string name="library_type_all">Sve</string>

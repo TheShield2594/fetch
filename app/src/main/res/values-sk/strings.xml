@@ -1258,7 +1258,6 @@
     <string name="library_list_description_label">Popis</string>
     <string name="library_list_privacy">Súkromie</string>
     <string name="library_delete_title">Odstrániť tento zoznam?</string>
-    <string name="library_delete_subtitle">Týmto sa odstráni zoznam aj všetky položky zoznamu z Trakt.</string>
     <string name="library_source_local">LOKÁLNE</string>
     <string name="library_source_saved">Uložené</string>
     <string name="library_watchlist">Watchlist</string>

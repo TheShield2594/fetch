@@ -1333,7 +1333,6 @@
     <string name="library_list_description_label">Popis</string>
     <string name="library_list_privacy">Soukromí</string>
     <string name="library_delete_title">Smazat tento seznam?</string>
-    <string name="library_delete_subtitle">Toto odebere seznam a všechny položky seznamu z Trakt.</string>
     <string name="library_source_local">MÍSTNÍ</string>
     <string name="library_source_saved">Uloženo</string>
     <string name="library_watchlist">Watchlist</string>

@@ -1560,7 +1560,6 @@
   <string name="library_list_description_label">Περιγραφή</string>
   <string name="library_list_privacy">Απόρρητο</string>
   <string name="library_delete_title">Διαγραφή αυτής της λίστας;</string>
-  <string name="library_delete_subtitle">Αυτό θα διαγράψει τη λίστα και όλα τα στοιχεία της από το Trakt.</string>
   <string name="library_source_local">ΤΟΠΙΚΗ</string>
   <string name="library_source_saved">Αποθηκευμένα</string>
   <string name="library_watchlist">Λίστα παρακολούθησης</string>

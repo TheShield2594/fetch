@@ -1669,7 +1669,6 @@
     <string name="library_list_description_label">Mô tả</string>
     <string name="library_list_privacy">Quyền riêng tư</string>
     <string name="library_delete_title">Xóa danh sách này?</string>
-    <string name="library_delete_subtitle">Thao tác này sẽ xóa danh sách và tất cả mục danh sách khỏi Trakt.</string>
     <string name="library_source_local">CỤC BỘ</string>
     <string name="library_source_saved">Đã lưu</string>
     <string name="library_watchlist">Danh sách theo dõi</string>

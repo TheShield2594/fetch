@@ -1316,7 +1316,6 @@
     <string name="library_list_description_label">الوصف</string>
     <string name="library_list_privacy">الخصوصية</string>
     <string name="library_delete_title">حذف هذه القائمة؟</string>
-    <string name="library_delete_subtitle">سيؤدي هذا لحذف القائمة وجميع عناصرها من Trakt.</string>
     <string name="library_source_local">محلي</string>
     <string name="library_source_saved">محفوظ</string>
     <string name="library_watchlist">قائمة المشاهدة</string>

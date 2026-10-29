@@ -1169,7 +1169,6 @@
     <string name="library_list_description_label">Opis</string>
     <string name="library_list_privacy">Zasebnost</string>
     <string name="library_delete_title">Izbriši ta seznam?</string>
-    <string name="library_delete_subtitle">To odstrani seznam in vse elemente seznama iz Trakt.</string>
     <string name="library_source_local">LOKALNO</string>
 	<string name="library_watchlist">Seznam za ogled</string> 
 	<string name="library_syncing_library">Sinhroniziranje knjižnice\u2026</string>

@@ -1497,7 +1497,6 @@
 <string name="library_list_description_label">Descrizione</string>
 <string name="library_list_privacy">Privacy</string>
 <string name="library_delete_title">Eliminare questa lista?</string>
-<string name="library_delete_subtitle">Questo rimuoverà la lista e tutti gli elementi da Trakt.</string>
 <string name="library_source_local">LOCALE</string>
 <string name="library_source_saved">Salvati</string>
 <string name="library_watchlist">Lista da guardare</string>

@@ -178,9 +178,6 @@
   <string name="action_see_all">Προβολή όλων</string>
   <string name="action_load_more">Φόρτωση περισσότερων</string>
   <!-- HeroSection -->
-  <string name="hero_creator">Δημιουργός: %1$s</string>
-  <string name="hero_director">Σκηνοθέτης: %1$s</string>
-  <string name="hero_writer">Σεναριογράφος: %1$s</string>
   <string name="hero_play">Αναπαραγωγή</string>
   <string name="hero_add_to_library">Προσθήκη στη βιβλιοθήκη</string>
   <string name="hero_remove_from_library">Αφαίρεση από τη βιβλιοθήκη</string>

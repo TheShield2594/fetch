@@ -178,9 +178,6 @@
     <string name="action_see_all">Se alle</string>
     <string name="action_load_more">Indlæs mere</string>
 
-    <string name="hero_creator">Skaber: %1$s</string>
-    <string name="hero_director">Instruktør: %1$s</string>
-    <string name="hero_writer">Forfatter: %1$s</string>
     <string name="hero_play">Afspil</string>
     <string name="hero_add_to_library">Føj til bibliotek</string>
     <string name="hero_remove_from_library">Fjern fra bibliotek</string>

@@ -151,9 +151,6 @@
     <string name="action_see_all">Показать все</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Создатель: %1$s</string>
-    <string name="hero_director">Режиссер: %1$s</string>
-    <string name="hero_writer">Сценарист: %1$s</string>
     <string name="hero_play">Смотреть</string>
     <string name="hero_add_to_library">Добавить в библиотеку</string>
     <string name="hero_remove_from_library">Удалить из библиотеки</string>

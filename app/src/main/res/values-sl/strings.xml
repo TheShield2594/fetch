@@ -171,9 +171,6 @@
     <string name="action_see_all">Prikaži vse</string>
 	<string name="action_load_more">Naloži več</string>												  
     <!-- HeroSection -->
-    <string name="hero_creator">Ustvarjalec: %1$s</string>
-    <string name="hero_director">Režiser: %1$s</string>
-    <string name="hero_writer">Scenarist: %1$s</string>
     <string name="hero_play">Predvajaj</string>
     <string name="hero_add_to_library">Dodaj v knjižnico</string>
     <string name="hero_remove_from_library">Odstrani iz knjižnice</string>

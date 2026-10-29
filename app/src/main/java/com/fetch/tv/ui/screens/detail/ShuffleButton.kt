@@ -26,13 +26,14 @@ internal fun ShuffleButton(
     pending: Boolean,
     onClick: () -> Unit,
     focusRequester: FocusRequester?,
-    onFocused: () -> Unit
+    onFocused: () -> Unit,
+    upFocusRequester: FocusRequester = FocusRequester.Cancel
 ) {
     Button(
         onClick = { if (!pending) onClick() },
         modifier = Modifier
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
-            .focusProperties { up = FocusRequester.Cancel }
+            .focusProperties { up = upFocusRequester }
             .onFocusChanged { if (it.isFocused) onFocused() }
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {

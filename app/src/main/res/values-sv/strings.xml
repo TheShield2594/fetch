@@ -85,9 +85,6 @@
     <string name="action_see_all">Se Allt</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Skapare: %1$s</string>
-    <string name="hero_director">Regissör: %1$s</string>
-    <string name="hero_writer">Skribent: %1$s</string>
     <string name="hero_play">Spela</string>
     <string name="hero_add_to_library">Lägg till i biblioteket</string>
     <string name="hero_remove_from_library">Ta bort från biblioteket</string>

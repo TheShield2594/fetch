@@ -178,9 +178,6 @@
     <string name="action_see_all">Xem tất cả</string>
     <string name="action_load_more">Tải thêm</string>
 
-    <string name="hero_creator">Nhà sáng tạo: %1$s</string>
-    <string name="hero_director">Đạo diễn: %1$s</string>
-    <string name="hero_writer">Biên kịch: %1$s</string>
     <string name="hero_play">Xem</string>
     <string name="hero_add_to_library">Thêm vào thư viện</string>
     <string name="hero_remove_from_library">Xóa khỏi thư viện</string>

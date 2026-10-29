@@ -189,9 +189,6 @@
     <string name="action_load_more">Načítať viac</string>
 
     
-    <string name="hero_creator">Tvorca: %1$s</string>
-    <string name="hero_director">Režisér: %1$s</string>
-    <string name="hero_writer">Scenár: %1$s</string>
     <string name="hero_play">Prehrať</string>
     <string name="hero_add_to_library">Pridať do knižnice</string>
     <string name="hero_remove_from_library">Odstrániť z knižnice</string>

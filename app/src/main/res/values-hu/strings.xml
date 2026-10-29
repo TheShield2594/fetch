@@ -177,9 +177,6 @@
     <string name="action_see_all">Összes megtekintése</string>
     <string name="action_load_more">Továbbiak betöltése</string>
 
-    <string name="hero_creator">Alkotó: %1$s</string>
-    <string name="hero_director">Rendező: %1$s</string>
-    <string name="hero_writer">Író: %1$s</string>
     <string name="hero_play">Lejátszás</string>
     <string name="hero_add_to_library">Hozzáadás a könyvtárhoz</string>
     <string name="hero_remove_from_library">Eltávolítás a könyvtárból</string>

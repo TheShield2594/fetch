@@ -181,9 +181,6 @@
     <string name="action_see_all">Ver todo</string>
     <string name="action_load_more">Cargar más</string>
 
-    <string name="hero_creator">Creador: %1$s</string>
-    <string name="hero_director">Director: %1$s</string>
-    <string name="hero_writer">Guionista: %1$s</string>
     <string name="hero_play">Reproducir</string>
     <string name="hero_add_to_library">Añadir a biblioteca</string>
     <string name="hero_remove_from_library">Eliminar de biblioteca</string>

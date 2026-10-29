@@ -184,9 +184,6 @@
     <string name="action_load_more">Mehr laden</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Ersteller: %1$s</string>
-    <string name="hero_director">Regisseur: %1$s</string>
-    <string name="hero_writer">Autor: %1$s</string>
     <string name="hero_play">Abspielen</string>
     <string name="hero_add_to_library">Zur Bibliothek hinzufügen</string>
     <string name="hero_remove_from_library">Aus Bibliothek entfernen</string>

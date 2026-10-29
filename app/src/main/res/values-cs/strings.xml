@@ -182,9 +182,6 @@
     <string name="action_see_all">Zobrazit vše</string>
     <string name="action_load_more">Načíst další</string>
 
-    <string name="hero_creator">Tvůrce: %1$s</string>
-    <string name="hero_director">Režisér: %1$s</string>
-    <string name="hero_writer">Scenárista: %1$s</string>
     <string name="hero_play">Přehrát</string>
     <string name="hero_add_to_library">Přidat do knihovny</string>
     <string name="hero_remove_from_library">Odebrat z knihovny</string>

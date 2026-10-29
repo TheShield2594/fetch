@@ -178,9 +178,6 @@
     <string name="action_see_all">查看全部</string>
     <string name="action_load_more">加载更多</string>
 
-    <string name="hero_creator">创作者：%1$s</string>
-    <string name="hero_director">导演：%1$s</string>
-    <string name="hero_writer">编剧：%1$s</string>
     <string name="hero_play">播放</string>
     <string name="hero_add_to_library">加入媒体库</string>
     <string name="hero_remove_from_library">从媒体库移除</string>

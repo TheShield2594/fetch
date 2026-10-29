@@ -180,9 +180,6 @@
     <string name="action_see_all">Prikaži sve</string>
     <string name="action_load_more">Učitaj još</string>
 
-    <string name="hero_creator">Autor: %1$s</string>
-    <string name="hero_director">Režiser: %1$s</string>
-    <string name="hero_writer">Scenarista: %1$s</string>
     <string name="hero_play">Pusti</string>
     <string name="hero_add_to_library">Dodaj u biblioteku</string>
     <string name="hero_remove_from_library">Ukloni iz biblioteke</string>

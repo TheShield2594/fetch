@@ -172,9 +172,6 @@
     <string name="catalog_from_addon">de %1$s</string>
     <string name="action_see_all">Ver tudo</string>
     <string name="action_load_more">Carregar mais</string>
-    <string name="hero_creator">Criação: %1$s</string>
-    <string name="hero_director">Realização: %1$s</string>
-    <string name="hero_writer">Argumento: %1$s</string>
     <string name="hero_play">Reproduzir</string>
     <string name="hero_add_to_library">Adicionar à biblioteca</string>
     <string name="hero_remove_from_library">Remover da biblioteca</string>

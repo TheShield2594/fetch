@@ -55,9 +55,6 @@
     <string name="action_see_all">Zobacz wszystkie</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Twórca: %1$s</string>
-    <string name="hero_director">Reżyser: %1$s</string>
-    <string name="hero_writer">Scenarzysta: %1$s</string>
     <string name="hero_play">Odtwórz</string>
     <string name="hero_add_to_library">Dodaj do biblioteki</string>
     <string name="hero_remove_from_library">Usuń z biblioteki</string>

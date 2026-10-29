@@ -74,9 +74,6 @@
     <string name="action_see_all">Žiūrėti viską</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Kūrėjas: %1$s</string>
-    <string name="hero_director">Režisierius: %1$s</string>
-    <string name="hero_writer">Scenaristas: %1$s</string>
     <string name="hero_play">Leisti</string>
     <string name="hero_add_to_library">Pridėti į biblioteką</string>
     <string name="hero_remove_from_library">Pašalinti iš bibliotekos</string>

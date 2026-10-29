@@ -178,9 +178,6 @@
     <string name="action_see_all">Alles bekijken</string>
     <string name="action_load_more">Meer laden</string>
 
-    <string name="hero_creator">Maker: %1$s</string>
-    <string name="hero_director">Regisseur: %1$s</string>
-    <string name="hero_writer">Schrijver: %1$s</string>
     <string name="hero_play">Afspelen</string>
     <string name="hero_add_to_library">Toevoegen aan bibliotheek</string>
     <string name="hero_remove_from_library">Verwijderen uit bibliotheek</string>

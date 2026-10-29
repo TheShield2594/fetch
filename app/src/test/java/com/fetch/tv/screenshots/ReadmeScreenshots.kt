@@ -52,6 +52,9 @@ import com.fetch.tv.ui.screens.ambient.AmbientClock
 import com.fetch.tv.ui.screens.player.LoadingOverlay
 import com.fetch.tv.ui.screens.stream.StreamCard
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
@@ -249,7 +252,24 @@ class ReadmeScreenshots {
                     Brush.verticalGradient(0.55f to Color.Transparent, 1f to FetchTheme.colors.Background)
                 )
             )
-            Box(Modifier.fillMaxSize().padding(start = 48.dp, top = 110.dp)) {
+            // Same order as the page: the 540dp hero, then the Sources row under it.
+            val bestMatch = BestMatchPreview(
+                videoId = "sample-long-field:2:6",
+                labels = listOf("4K", "DV P8", "TrueHD Atmos", "18.2 GB"),
+                buttonLabels = listOf("4K", "Dolby Vision", "Atmos"),
+                isCached = true,
+                addonName = "Torrentio",
+                sourceCount = 14,
+                isFinal = true
+            )
+            // Unbounded like the page's list, then scrolled to Sources the way Down from Play does.
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(Alignment.Top, unbounded = true)
+                    .padding(start = 48.dp)
+                    .offset(y = (-190).dp)
+            ) {
                 HeroContentSection(
                     meta = meta,
                     nextEpisode = meta.videos.firstOrNull { it.episode == 6 },
@@ -261,15 +281,7 @@ class ReadmeScreenshots {
                         nextEpisode = 6,
                         displayText = "Play S2 E6"
                     ),
-                    bestMatch = BestMatchPreview(
-                        videoId = "sample-long-field:2:6",
-                        labels = listOf("4K", "DV P8", "TrueHD Atmos", "18.2 GB"),
-                        buttonLabels = listOf("4K", "Dolby Vision", "Atmos"),
-                        isCached = true,
-                        addonName = "Torrentio",
-                        sourceCount = 14,
-                        isFinal = true
-                    ),
+                    bestMatch = bestMatch,
                     onPlayClick = {},
                     isInLibrary = true,
                     onToggleLibrary = {},
@@ -278,6 +290,12 @@ class ReadmeScreenshots {
                     isMovieWatchedPending = false,
                     onToggleMovieWatched = {},
                     trailerAvailable = true
+                )
+                com.fetch.tv.ui.screens.detail.DetailSourcesRow(
+                    bestMatch = bestMatch,
+                    onPlayBestMatch = {},
+                    onAllSources = {},
+                    modifier = Modifier.padding(start = FetchTheme.spacing.xxxl)
                 )
             }
         }

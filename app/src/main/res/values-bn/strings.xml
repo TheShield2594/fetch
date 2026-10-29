@@ -164,9 +164,6 @@
     <string name="catalog_from_addon">%1$s থেকে</string>
     <string name="action_see_all">সবগুলো দেখুন</string>
     <string name="action_load_more">আরও লোড করুন</string>
-    <string name="hero_creator">ক্রিয়েটর: %1$s</string>
-    <string name="hero_director">ডিরেক্টর: %1$s</string>
-    <string name="hero_writer">রাইটার: %1$s</string>
     <string name="hero_play">প্লে</string>
     <string name="hero_add_to_library">লাইব্রেরিতে যোগ করুন</string>
     <string name="hero_remove_from_library">লাইব্রেরি থেকে সরান</string>

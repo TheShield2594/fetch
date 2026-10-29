@@ -83,9 +83,6 @@
     <string name="action_see_all">सब देखें</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">निर्माता: %1$s</string>
-    <string name="hero_director">निर्देशक: %1$s</string>
-    <string name="hero_writer">लेखक: %1$s</string>
     <string name="hero_play">चलाएँ</string>
     <string name="hero_add_to_library">लाइब्रेरी में जोड़ें</string>
     <string name="hero_remove_from_library">लाइब्रेरी से हटाएँ</string>

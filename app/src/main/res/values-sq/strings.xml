@@ -172,9 +172,6 @@
     <string name="catalog_from_addon">nga %1$s</string>
     <string name="action_see_all">Shfaq të gjitha</string>
     <string name="action_load_more">Ngarko më shumë</string>
-    <string name="hero_creator">Krijuesi: %1$s</string>
-    <string name="hero_director">Regjisori: %1$s</string>
-    <string name="hero_writer">Skenaristi: %1$s</string>
     <string name="hero_play">Luaj</string>
     <string name="hero_add_to_library">Shto në bibliotekë</string>
     <string name="hero_remove_from_library">Hiq nga biblioteka</string>

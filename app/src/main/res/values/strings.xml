@@ -180,12 +180,10 @@
     <string name="action_see_all">See All</string>
     <string name="action_load_more">Load More</string>
 
-    <string name="hero_creator">Creator: %1$s</string>
-    <string name="hero_director">Director: %1$s</string>
-    <string name="hero_writer">Writer: %1$s</string>
     <string name="hero_play">Play</string>
     <string name="hero_add_to_library">Add to library</string>
     <string name="hero_remove_from_library">Remove from library</string>
+    <string name="hero_in_library">In library</string>
     <string name="hero_mark_watched">Mark as watched</string>
     <string name="hero_mark_unwatched">Mark as unwatched</string>
     <string name="hero_play_trailer">Play trailer</string>
@@ -1704,6 +1702,13 @@
     <string name="stream_info_player_engine">Player Engine</string>
 
     <string name="sources_title">Sources</string>
+    <string name="detail_sources_all">All sources</string>
+    <string name="detail_sources_choose">Choose a file</string>
+    <string name="detail_sources_searching">Searching…</string>
+    <plurals name="detail_sources_found">
+        <item quantity="one">%1$d found</item>
+        <item quantity="other">%1$d found</item>
+    </plurals>
     <string name="sources_close">Close</string>
     <string name="sources_playing">Playing</string>
     <string name="sources_no_streams">No streams found</string>

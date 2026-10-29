@@ -183,9 +183,6 @@
     <string name="action_see_all">Показати всі</string>
     <string name="action_load_more">Завантажити ще</string>
 
-    <string name="hero_creator">Автор: %1$s</string>
-    <string name="hero_director">Режисер: %1$s</string>
-    <string name="hero_writer">Сценарист: %1$s</string>
     <string name="hero_play">Дивитися</string>
     <string name="hero_add_to_library">Додати до бібліотеки</string>
     <string name="hero_remove_from_library">Видалити з бібліотеки</string>

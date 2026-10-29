@@ -90,9 +90,6 @@
     <string name="action_see_all">Se alt</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Forfatter: %1$s</string>
-    <string name="hero_director">Regissør: %1$s</string>
-    <string name="hero_writer">Skribent: %1$s</string>
     <string name="hero_play">Spill av</string>
     <string name="hero_add_to_library">Legg til i biblioteket</string>
     <string name="hero_remove_from_library">Fjern fra biblioteket</string>

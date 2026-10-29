@@ -43,9 +43,6 @@
     <string name="action_see_all">Vezi tot</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">Creator: %1$s</string>
-    <string name="hero_director">Director: %1$s</string>
-    <string name="hero_writer">Scriitor: %1$s</string>
     <string name="hero_play">Redă</string>
     <string name="hero_add_to_library">Adaugă în bibliotecă</string>
     <string name="hero_remove_from_library">Elimină din bibliotecă</string>

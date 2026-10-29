@@ -2641,6 +2641,24 @@ private fun MetaDetailsContent(
             }
 
             // Season tabs and episodes for series
+            // Sources: the pick Play starts and a way to every file, right under the hero.
+            if (!shufflePoolEmpty && isPlayEnabled) {
+                item(key = "sources", contentType = "sources") {
+                    DetailSourcesRow(
+                        bestMatch = heroBestMatch,
+                        onPlayBestMatch = heroPlayClick,
+                        // With auto-play on, Play starts the pick, so "All sources" asks for the
+                        // list; with it off, Play already opens the list.
+                        onAllSources = if (showManualPlayOption) heroPlayManualClick else heroPlayClick,
+                        modifier = Modifier.padding(
+                            start = FetchTheme.spacing.xxxl,
+                            end = FetchTheme.spacing.xxxl,
+                            bottom = FetchTheme.spacing.xl
+                        )
+                    )
+                }
+            }
+
             if (showSeasonTabs) {
                 item(key = "season_tabs", contentType = "season_tabs") {
                     Box(modifier = Modifier.bringIntoViewResponder(detailRowBringIntoViewResponder)) {

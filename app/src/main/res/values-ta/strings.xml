@@ -168,9 +168,6 @@
     <string name="action_load_more">மேலும் ஏற்று</string>
 
     <!-- HeroSection -->
-    <string name="hero_creator">உருவாக்கியவர்: %1$s</string>
-    <string name="hero_director">இயக்குனர்: %1$s</string>
-    <string name="hero_writer">எழுத்தாளர்: %1$s</string>
     <string name="hero_play">இயக்கு</string>
     <string name="hero_add_to_library">நூலகத்தில் சேர்</string>
     <string name="hero_remove_from_library">நூலகத்திலிருந்து நீக்கு</string>

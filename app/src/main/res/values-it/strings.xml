@@ -178,9 +178,6 @@
 <string name="action_see_all">Vedi tutto</string>
 <string name="action_load_more">Carica Altro</string>
 
-<string name="hero_creator">Creatore: %1$s</string>
-<string name="hero_director">Regista: %1$s</string>
-<string name="hero_writer">Sceneggiatore: %1$s</string>
 <string name="hero_play">Riproduci</string>
 <string name="hero_add_to_library">Aggiungi alla libreria</string>
 <string name="hero_remove_from_library">Rimuovi dalla libreria</string>

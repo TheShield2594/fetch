@@ -181,9 +181,6 @@
     <string name="action_see_all">הצגת הכול</string>
     <string name="action_load_more">לטעון עוד</string>
 
-    <string name="hero_creator">יוצר: %1$s</string>
-    <string name="hero_director">בימוי: %1$s</string>
-    <string name="hero_writer">כתיבה: %1$s</string>
     <string name="hero_play">הפעלה</string>
     <string name="hero_add_to_library">הוספה לספרייה</string>
     <string name="hero_remove_from_library">הסרה מהספרייה</string>

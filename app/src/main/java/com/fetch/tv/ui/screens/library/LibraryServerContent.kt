@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.fetch.tv.R
+import com.fetch.tv.data.mediaserver.ServerFailure
 import com.fetch.tv.data.mediaserver.messageRes
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.MetaPreview
@@ -26,6 +27,7 @@ import com.fetch.tv.ui.components.PosterCardStyle
 internal fun LazyGridScope.libraryServerContent(
     shelves: List<LibraryServerShelf>?,
     onNavigateToSettings: () -> Unit,
+    onRetry: () -> Unit,
     posterCardStyle: PosterCardStyle,
     rowInset: Dp,
     focusTarget: Pair<String, Int>?,
@@ -74,11 +76,24 @@ internal fun LazyGridScope.libraryServerContent(
                 }
             } else if (failure != null) {
                 item(key = "server_shelf_error_${shelf.key}", span = { GridItemSpan(maxLineSpan) }) {
+                    // Offer the action that addresses the failure: a retry for a server that may
+                    // come back, Settings for sign-in, access or library choices.
+                    val action = when (failure) {
+                        ServerFailure.UNREACHABLE,
+                        ServerFailure.FAILED,
+                        ServerFailure.INCOMPLETE -> StateAction(stringResource(R.string.action_retry), onRetry)
+                        ServerFailure.AUTH_REQUIRED,
+                        ServerFailure.FORBIDDEN,
+                        ServerFailure.NOT_FOUND,
+                        ServerFailure.UNSUPPORTED -> StateAction(stringResource(R.string.nav_settings), onNavigateToSettings)
+                    }
                     EmptyScreenState(
                         title = stringResource(R.string.library_server_load_failed, shelf.title),
                         subtitle = stringResource(failure.messageRes()),
                         icon = Icons.Default.Dns,
-                        height = 180.dp
+                        // Wrap the content: a fixed 180dp no longer fits the icon, text and button.
+                        height = Dp.Unspecified,
+                        action = action
                     )
                 }
             }

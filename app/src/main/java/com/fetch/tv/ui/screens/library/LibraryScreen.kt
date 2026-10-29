@@ -476,6 +476,7 @@ fun LibraryScreen(
             libraryServerContent(
                 shelves = serverShelves,
                 onNavigateToSettings = onNavigateToSettings,
+                onRetry = serversViewModel::reload,
                 posterCardStyle = posterCardStyle,
                 rowInset = FetchTheme.spacing.xxxl,
                 focusTarget = serverFocusTarget,

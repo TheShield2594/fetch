@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.ui.theme.FetchContentColors
+import com.fetch.tv.ui.theme.FetchPrimitives
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -305,9 +306,9 @@ internal fun episodeRatingChipColor(value: Double): Color {
 internal fun episodeRatingChipTextColor(value: Double): Color {
     return when {
         value >= 9.7 -> FetchContentColors.ratingTextOnLight
-        value >= 9.0 -> Color.White
+        value >= 9.0 -> FetchPrimitives.white
         value >= 6.0 -> FetchContentColors.ratingTextOnLight
-        else -> Color.White
+        else -> FetchPrimitives.white
     }
 }
 

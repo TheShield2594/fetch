@@ -26,10 +26,9 @@ com/fetch/tv/ui/screens/account/AccountSettingsContent.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/account/AuthQrSignInScreen.kt|WHITE_BLACK|5
 com/fetch/tv/ui/screens/addon/AddonManagerScreen.kt|WHITE_BLACK|5
 com/fetch/tv/ui/screens/ambient/AmbientSlideshow.kt|WHITE_BLACK|4
-com/fetch/tv/ui/screens/detail/CommentsSection.kt|WHITE_BLACK|11
+com/fetch/tv/ui/screens/detail/CommentsSection.kt|WHITE_BLACK|9
 com/fetch/tv/ui/screens/detail/CompanyLogosSection.kt|WHITE_BLACK|3
 com/fetch/tv/ui/screens/detail/EpisodeOptionsOverlay.kt|WHITE_BLACK|4
-com/fetch/tv/ui/screens/detail/EpisodeRatingsSection.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/detail/EpisodeShufflePreview.kt|WHITE_BLACK|2
 com/fetch/tv/ui/screens/detail/EpisodesSection.kt|WHITE_BLACK|11
 com/fetch/tv/ui/screens/detail/HeroSection.kt|WHITE_BLACK|3

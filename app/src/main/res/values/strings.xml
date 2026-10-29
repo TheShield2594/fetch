@@ -2785,6 +2785,10 @@
     <string name="addon_health_clear">Clear history</string>
     <string name="addon_health_close">Close</string>
     <string name="source_chip_timed_out">timed out</string>
+    <string name="source_chip_failed">failed</string>
+    <string name="source_chip_loading">loading</string>
+    <!-- An addon chip with its state: "Torrentio · loading". %1$s = addon name, %2$s = state. -->
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="advanced_section_addons">Addons</string>
     <string name="advanced_addon_timeout">Addon timeout</string>
     <string name="advanced_addon_timeout_subtitle">How long to wait for each addon’s streams, catalogs and details before giving up on it</string>

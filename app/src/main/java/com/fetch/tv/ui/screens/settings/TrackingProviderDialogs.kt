@@ -696,9 +696,11 @@ private fun TrackingBrandPrimaryButton(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp),
+        // Resting fill is a tint of white so the solid white focus fill reads as a change, not
+        // just the small focus scale.
         colors = ButtonDefaults.colors(
-            containerColor = Color.White,
-            focusedContainerColor = Color.White,
+            containerColor = Color.White.copy(alpha = 0.72f),
+            focusedContainerColor = FetchTheme.colors.Highlight,
             contentColor = TrackingBrandButtonContent,
             focusedContentColor = TrackingBrandButtonContent,
             disabledContainerColor = Color.White.copy(alpha = 0.34f),

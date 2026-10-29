@@ -182,10 +182,10 @@ internal fun HexColorEditor(
                 enabled = color != null,
                 modifier = Modifier.weight(1f).height(36.dp),
                 colors = ButtonDefaults.colors(
-                    containerColor = Color.White,
-                    contentColor = Color.Black,
-                    focusedContainerColor = Color.White,
-                    focusedContentColor = Color.Black
+                    containerColor = FetchTheme.colors.FocusBackground,
+                    contentColor = FetchTheme.colors.TextPrimary,
+                    focusedContainerColor = FetchTheme.colors.Highlight,
+                    focusedContentColor = FetchTheme.colors.OnHighlight
                 )
             ) { Text(stringResource(R.string.custom_theme_use_color)) }
         }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -171,6 +172,7 @@ fun EpisodeRatingsSection(
                         } else {
                             seasonFocusRequesters.getValue(season)
                         }
+                        var isFocused by remember { mutableStateOf(false) }
 
                         Card(
                             onClick = { selectedSeason = season },
@@ -182,6 +184,7 @@ fun EpisodeRatingsSection(
                                     down = effectiveRatingsGridFocusRequester
                                 }
                                 .onFocusChanged { state ->
+                                    isFocused = state.isFocused
                                     if (state.isFocused && selectedSeason != season) {
                                         selectedSeason = season
                                     }
@@ -189,11 +192,11 @@ fun EpisodeRatingsSection(
                             shape = CardDefaults.shape(shape = RoundedCornerShape(FetchRadii.tokens.md)),
                             colors = CardDefaults.colors(
                                 containerColor = if (isSelected) {
-                                    FetchTheme.colors.FocusBackground
+                                    FetchTheme.colors.Highlight
                                 } else {
                                     FetchTheme.colors.BackgroundCard
                                 },
-                                focusedContainerColor = FetchTheme.colors.FocusBackground
+                                focusedContainerColor = FetchTheme.colors.Highlight
                             ),
                             border = CardDefaults.border(
                                 focusedBorder = Border(
@@ -206,7 +209,7 @@ fun EpisodeRatingsSection(
                             Text(
                                 text = stringResource(R.string.ratings_season_label, season),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = FetchTheme.colors.TextPrimary,
+                                color = if (isSelected || isFocused) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
                                 modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
                             )
                         }

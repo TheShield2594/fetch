@@ -3558,15 +3558,23 @@ private fun PeopleSectionTabButton(
         ),
         scale = CardDefaults.scale(focusedScale = 1f)
     ) {
+        val labelColor = when {
+            isFocused -> FetchTheme.colors.OnHighlight
+            selected -> FetchTheme.colors.TextPrimary
+            else -> FetchTheme.colors.TextPrimary.copy(alpha = 0.55f)
+        }
         Text(
             text = label,
             style = MaterialTheme.typography.titleLarge,
-            color = when {
-                isFocused -> FetchTheme.colors.OnHighlight
-                selected -> FetchTheme.colors.TextPrimary.copy(alpha = 0.92f)
-                else -> FetchTheme.colors.TextPrimary.copy(alpha = 0.55f)
-            },
-            modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
+            color = labelColor,
+            modifier = Modifier
+                .selectedTabIndicator(
+                    selected = selected,
+                    color = labelColor,
+                    thickness = FetchTheme.strokes.heavy,
+                    inset = FetchTheme.spacing.md
+                )
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
         )
     }
 }

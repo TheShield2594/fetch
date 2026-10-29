@@ -799,8 +799,13 @@ fun FolderEditorContent(
                                     Icon(Icons.Default.Edit, stringResource(R.string.cd_edit))
                                 }
                             }
+                            val canMoveUp = index > 0
+                            val canMoveDown = index < folder.sources.size - 1
+                            // Same disabled look as FetchButton; a disabled button can't take focus.
                             Button(
                                 onClick = { viewModel.moveCatalogSourceUp(index) },
+                                enabled = canMoveUp,
+                                modifier = if (canMoveUp) Modifier else Modifier.alpha(0.35f),
                                 colors = ButtonDefaults.colors(
                                     containerColor = FetchTheme.colors.BackgroundCard,
                                     contentColor = FetchTheme.colors.TextSecondary,
@@ -815,10 +820,12 @@ fun FolderEditorContent(
                                 ),
                                 shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                             ) {
-                                Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.cd_move_up), tint = if (index > 0) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary)
+                                Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.cd_move_up))
                             }
                             Button(
                                 onClick = { viewModel.moveCatalogSourceDown(index) },
+                                enabled = canMoveDown,
+                                modifier = if (canMoveDown) Modifier else Modifier.alpha(0.35f),
                                 colors = ButtonDefaults.colors(
                                     containerColor = FetchTheme.colors.BackgroundCard,
                                     contentColor = FetchTheme.colors.TextSecondary,
@@ -833,7 +840,7 @@ fun FolderEditorContent(
                                 ),
                                 shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
                             ) {
-                                Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.cd_move_down), tint = if (index < folder.sources.size - 1) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary)
+                                Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.cd_move_down))
                             }
                             Button(
                                 onClick = {

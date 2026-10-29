@@ -514,11 +514,11 @@ private fun FolderListItem(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)) {
-                FetchButton(onClick = onMoveUp) {
-                    Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.cd_move_up), tint = if (!isFirst) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary)
+                FetchButton(onClick = onMoveUp, enabled = !isFirst) {
+                    Icon(Icons.Default.KeyboardArrowUp, stringResource(R.string.cd_move_up), tint = FetchTheme.colors.TextSecondary)
                 }
-                FetchButton(onClick = onMoveDown) {
-                    Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.cd_move_down), tint = if (!isLast) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextTertiary)
+                FetchButton(onClick = onMoveDown, enabled = !isLast) {
+                    Icon(Icons.Default.KeyboardArrowDown, stringResource(R.string.cd_move_down), tint = FetchTheme.colors.TextSecondary)
                 }
                 FetchButton(
                     onClick = onEdit,

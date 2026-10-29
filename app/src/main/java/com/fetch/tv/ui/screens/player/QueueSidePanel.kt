@@ -49,6 +49,7 @@ import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import com.fetch.tv.R
 import com.fetch.tv.data.local.QueueItem
+import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 
@@ -65,6 +66,9 @@ internal fun queueItemSubtitle(item: QueueItem): String? {
     return listOfNotNull(code, episodeTitle).joinToString(" · ").takeIf { it.isNotBlank() }
 }
 
+/** A queue item the person just removed, and where it sat in the full queue. */
+private data class RemovedQueueItem(val item: QueueItem, val index: Int)
+
 /** The player's Queue panel: what plays after this, in order, with play, reorder and remove. */
 @Composable
 internal fun QueueSidePanel(
@@ -73,14 +77,26 @@ internal fun QueueSidePanel(
     onPlay: (QueueItem) -> Unit,
     onMove: (QueueItem, up: Boolean) -> Unit,
     onRemove: (QueueItem) -> Unit,
+    /** Puts a removed item back at [index] in the full queue. */
+    onRestore: (item: QueueItem, index: Int) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val upcoming = remember(items, currentVideoId) { upcomingQueueItems(items, currentVideoId) }
     val firstItemFocusRequester = remember { FocusRequester() }
     val closeFocusRequester = remember { FocusRequester() }
+    val undoFocusRequester = remember { FocusRequester() }
 
     var panelHasFocus by remember { mutableStateOf(false) }
+    // The last removal, kept while the panel is open so it can be undone from here.
+    var lastRemoved by remember { mutableStateOf<RemovedQueueItem?>(null) }
+
+    // A removal takes focus to its Undo, which sits where the removed row was reached from.
+    LaunchedEffect(lastRemoved) {
+        if (lastRemoved == null) return@LaunchedEffect
+        withFrameNanos { }
+        runCatching { undoFocusRequester.requestFocus() }
+    }
 
     // On open, and again when the focused row was removed, so focus never falls out of the panel.
     LaunchedEffect(upcoming.size) {
@@ -119,6 +135,34 @@ internal fun QueueSidePanel(
             )
         }
 
+        lastRemoved?.let { removed ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = FetchTheme.spacing.lg),
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.player_queue_removed, removed.item.name),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FetchTheme.colors.TextSecondary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                DialogButton(
+                    text = stringResource(R.string.player_queue_undo),
+                    onClick = {
+                        lastRemoved = null
+                        onRestore(removed.item, removed.index)
+                    },
+                    isPrimary = false,
+                    modifier = Modifier.focusRequester(undoFocusRequester)
+                )
+            }
+        }
+
         if (upcoming.isEmpty()) {
             Text(
                 text = stringResource(R.string.player_queue_empty),
@@ -143,7 +187,13 @@ internal fun QueueSidePanel(
                     focusRequester = if (index == 0) firstItemFocusRequester else null,
                     onPlay = { onPlay(item) },
                     onMove = { up -> onMove(item, up) },
-                    onRemove = { onRemove(item) }
+                    onRemove = {
+                        lastRemoved = RemovedQueueItem(
+                            item = item,
+                            index = items.indexOfFirst { it.videoId == item.videoId }.coerceAtLeast(0)
+                        )
+                        onRemove(item)
+                    }
                 )
             }
         }
@@ -240,7 +290,8 @@ private fun QueueRow(
             icon = Icons.Default.Close,
             contentDescription = stringResource(R.string.cw_action_remove_from_queue),
             enabled = true,
-            onClick = onRemove
+            onClick = onRemove,
+            destructive = true
         )
     }
 }
@@ -250,7 +301,9 @@ private fun QueueRowIconButton(
     icon: ImageVector,
     contentDescription: String,
     enabled: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    /** Remove: a red fill and a focus ring on focus, so it can't be mistaken for a reorder arrow. */
+    destructive: Boolean = false
 ) {
     IconButton(
         onClick = onClick,
@@ -258,12 +311,22 @@ private fun QueueRowIconButton(
         modifier = Modifier.size(FetchTheme.spacing.xxxl),
         colors = IconButtonDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
-            focusedContainerColor = FetchTheme.colors.TextPrimary,
+            focusedContainerColor = if (destructive) FetchStatusTones.errorContainer else FetchTheme.colors.TextPrimary,
             contentColor = FetchTheme.colors.TextPrimary,
-            focusedContentColor = FetchTheme.colors.Background,
+            focusedContentColor = if (destructive) FetchStatusTones.errorText else FetchTheme.colors.Background,
             disabledContainerColor = FetchTheme.colors.BackgroundCard.copy(alpha = 0.4f),
             disabledContentColor = FetchTheme.colors.TextTertiary
         ),
+        border = if (destructive) {
+            IconButtonDefaults.border(
+                focusedBorder = Border(
+                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                    shape = CircleShape
+                )
+            )
+        } else {
+            IconButtonDefaults.border()
+        },
         shape = IconButtonDefaults.shape(shape = CircleShape)
     ) {
         Icon(imageVector = icon, contentDescription = contentDescription, modifier = Modifier.size(22.dp))

@@ -1866,6 +1866,7 @@ fun PlayerScreen(
                 onPlay = { viewModel.onEvent(PlayerEvent.OnPlayQueueItem(it)) },
                 onMove = { item, up -> viewModel.onEvent(PlayerEvent.OnMoveQueueItem(item.videoId, up)) },
                 onRemove = { viewModel.onEvent(PlayerEvent.OnRemoveQueueItem(it.videoId)) },
+                onRestore = { item, index -> viewModel.onEvent(PlayerEvent.OnRestoreQueueItem(item, index)) },
                 onClose = { viewModel.onEvent(PlayerEvent.OnDismissQueuePanel) }
             )
         }

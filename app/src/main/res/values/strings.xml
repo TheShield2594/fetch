@@ -1650,6 +1650,8 @@
     <string name="player_up_next_in_queue">Up next in queue</string>
     <string name="player_queue_move_up">Move up</string>
     <string name="player_queue_move_down">Move down</string>
+    <string name="player_queue_removed">Removed %1$s from the queue</string>
+    <string name="player_queue_undo">Undo</string>
     <string name="player_seek_back_10">Back 10 seconds</string>
     <string name="player_seek_forward_30">Forward 30 seconds</string>
     <string name="player_live_watched">LIVE  %1$s</string>

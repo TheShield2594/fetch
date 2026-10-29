@@ -223,8 +223,23 @@ fun HeroContentSection(
     // The logo's layout top within the hero, and the glide that draws it from where it was.
     var heroCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var logoLayoutTop by remember { mutableFloatStateOf(Float.NaN) }
-    var logoGlide by remember { mutableStateOf<Animatable<Float, AnimationVector1D>?>(null) }
-    val logoGlideScope = rememberCoroutineScope()
+    // The glide runs in an effect, never from the layout pass: placement only reads it.
+    // Before, the offset lambda created the Animatable, wrote state and launched coroutines
+    // while placing, which can trigger extra relayouts.
+    val logoGlide = remember { Animatable(0f) }
+    var logoGlideReady by remember { mutableStateOf(false) }
+    LaunchedEffect(logoLayoutTop, fullMotion) {
+        val target = logoLayoutTop
+        when {
+            target.isNaN() || !fullMotion -> logoGlideReady = false
+            !logoGlideReady -> {
+                logoGlide.snapTo(target)
+                logoGlideReady = true
+            }
+            // A new target mid-glide cancels this and continues from where the logo is.
+            else -> logoGlide.animateTo(target, FetchMotion.moveTween())
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -252,16 +267,9 @@ fun HeroContentSection(
                         }
                         .offset {
                             val target = logoLayoutTop
-                            if (target.isNaN() || !fullMotion) {
-                                logoGlide = null
-                                return@offset IntOffset.Zero
-                            }
-                            val glide = logoGlide ?: Animatable(target).also { logoGlide = it }
-                            if (glide.targetValue != target) {
-                                logoGlideScope.launch { glide.animateTo(target, FetchMotion.moveTween()) }
-                            }
+                            if (!logoGlideReady || target.isNaN()) return@offset IntOffset.Zero
                             // Drawn where the glide is, so a snapped layout never shows a jump.
-                            IntOffset(0, (glide.value - target).roundToInt())
+                            IntOffset(0, (logoGlide.value - target).roundToInt())
                         }
                         .padding(bottom = if (trailerLayout) FetchTheme.spacing.xl else FetchTheme.spacing.lg)
                         // 100dp slot minus the 16dp resting padding: today's resting image area.

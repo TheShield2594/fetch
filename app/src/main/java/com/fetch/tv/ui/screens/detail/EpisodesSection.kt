@@ -886,16 +886,12 @@ private fun EpisodeCard(
                 contentDescription = episode.title.localizeEpisodeTitle(context),
                 modifier = Modifier
                     .fillMaxSize()
-                    .graphicsLayer {
-                        compositingStrategy =
-                            CompositingStrategy.Offscreen
-                    }
                     .clipToBounds()
 
-                    //Gradient for text legibility
-                    .drawWithContent {
-                        drawContent()
-
+                    // Gradient for text legibility. Built once per size in drawWithCache instead of
+                    // on every draw, and drawn source-over without an offscreen layer per card (the
+                    // card's clip already rounds it).
+                    .drawWithCache {
                         // Floor-fade text-protection scrim across the whole card: fully transparent
                         // over the artwork up top, easing in gradually (no abrupt onset, which banded
                         // into a visible "line" over smooth/blurred thumbnails) and ramping to ~95%
@@ -904,20 +900,23 @@ private fun EpisodeCard(
                         val localBrush = Brush.verticalGradient(
                             colorStops = arrayOf(
                                 0.0f to Color.Transparent,
-                                0.20f to Color.Black.copy(alpha = 0.04f),
-                                0.38f to Color.Black.copy(alpha = 0.26f),
-                                0.54f to Color.Black.copy(alpha = 0.56f),
-                                0.70f to Color.Black.copy(alpha = 0.76f),
-                                0.86f to Color.Black.copy(alpha = 0.88f),
-                                1.0f to Color.Black.copy(alpha = 0.95f)
+                                0.20f to FetchPrimitives.black.copy(alpha = 0.04f),
+                                0.38f to FetchPrimitives.black.copy(alpha = 0.26f),
+                                0.54f to FetchPrimitives.black.copy(alpha = 0.56f),
+                                0.70f to FetchPrimitives.black.copy(alpha = 0.76f),
+                                0.86f to FetchPrimitives.black.copy(alpha = 0.88f),
+                                1.0f to FetchPrimitives.black.copy(alpha = 0.95f)
                             ),
                             startY = 0f,
                             endY = size.height
                         )
-                        drawRect(
-                            brush = localBrush,
-                            alpha = if (isFocusedState.value) 1f else 0.94f
-                        )
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(
+                                brush = localBrush,
+                                alpha = if (isFocusedState.value) 1f else 0.94f
+                            )
+                        }
                     },
                 contentScale = ContentScale.Crop,
                 placeholder = bgPainter,

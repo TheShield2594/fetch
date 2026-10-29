@@ -97,8 +97,12 @@
     <string name="web_import_success">Uvezeno kolekcija: {count}. Pregledaj ih i pritisni Spremi promjene za primjenu.</string>
     <string name="web_import_invalid_json">Neispravan JSON</string>
 
-    <string name="home_no_addons">Nema instaliranih dodataka. Dodaj jedan za početak.</string>
-    <string name="home_no_catalog_addons">Nema instaliranih dodataka s katalozima. Instaliraj dodatak s katalogom za prikaz sadržaja.</string>
+    <string name="home_empty_no_addons_title">Još nema dodataka</string>
+    <string name="home_empty_no_addons_subtitle">Dodaci donose filmove i serije na Početnu.</string>
+    <string name="home_empty_no_catalog_addons_title">Još nema dodataka s katalozima</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Početnoj treba dodatak s katalogom za prikaz naslova.</string>
+    <string name="home_empty_no_catalogs_title">Nema kataloga za prikaz</string>
+    <string name="home_empty_no_catalogs_subtitle">Tvoji dodaci ne nude nijedan katalog za Početnu.</string>
     <string name="auth_notice_fetch_logged_out">Sesija u Fetchu je završila. Prijavi se ponovno.</string>
     <string name="auth_notice_trakt_logged_out">Veza s Traktom je prekinuta. Ponovno se poveži.</string>
     <string name="error_generic">Došlo je do pogreške</string>

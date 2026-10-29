@@ -94,8 +94,12 @@
     <string name="web_import_error_source_missing_trakt_id">Coleção \"{collection}\", pasta \"{folder}\", fonte {index}: ID de lista do Trakt em falta</string>
     <string name="web_import_success">Coleções importadas: {count}. Revê e carrega em Guardar alterações para as aplicares.</string>
     <string name="web_import_invalid_json">JSON inválido</string>
-    <string name="home_no_addons">Nenhum addon instalado. Adiciona um para começar.</string>
-    <string name="home_no_catalog_addons">Nenhum addon de catálogo instalado. Instala um addon de catálogo para veres conteúdos.</string>
+    <string name="home_empty_no_addons_title">Ainda sem addons</string>
+    <string name="home_empty_no_addons_subtitle">Os addons fornecem os filmes e séries do Início.</string>
+    <string name="home_empty_no_catalog_addons_title">Ainda sem addons de catálogo</string>
+    <string name="home_empty_no_catalog_addons_subtitle">O Início precisa de um addon de catálogo para mostrar títulos.</string>
+    <string name="home_empty_no_catalogs_title">Nenhum catálogo para mostrar</string>
+    <string name="home_empty_no_catalogs_subtitle">Os teus addons não oferecem catálogos para o Início.</string>
     <string name="auth_notice_fetch_logged_out">A tua sessão no Fetch foi terminada. Inicia sessão novamente.</string>
     <string name="auth_notice_trakt_logged_out">A tua sessão no Trakt foi terminada. Volta a ligar a conta.</string>
     <string name="error_generic">Ocorreu um erro</string>

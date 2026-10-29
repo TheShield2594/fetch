@@ -96,8 +96,12 @@
     <string name="web_import_success">{count} collection(s) importée(s). Vérifiez, puis appuyez sur «&#160;Enregistrer les modifications&#160;» pour les appliquer.</string>
     <string name="web_import_invalid_json">JSON invalide</string>
 
-    <string name="home_no_addons">Aucun addon installé. Ajoutez-en un pour commencer.</string>
-    <string name="home_no_catalog_addons">Aucun addon de catalogue installé. Installez-en un pour afficher du contenu.</string>
+    <string name="home_empty_no_addons_title">Aucun addon pour l’instant</string>
+    <string name="home_empty_no_addons_subtitle">Les addons fournissent les films et séries de l’Accueil.</string>
+    <string name="home_empty_no_catalog_addons_title">Aucun addon de catalogue pour l’instant</string>
+    <string name="home_empty_no_catalog_addons_subtitle">L’Accueil a besoin d’un addon de catalogue pour afficher des titres.</string>
+    <string name="home_empty_no_catalogs_title">Aucun catalogue à afficher</string>
+    <string name="home_empty_no_catalogs_subtitle">Vos addons ne proposent aucun catalogue pour l’Accueil.</string>
     <string name="auth_notice_fetch_logged_out">Vous avez été déconnecté de Fetch. Veuillez vous reconnecter.</string>
     <string name="auth_notice_trakt_logged_out">Vous avez été déconnecté de Trakt. Veuillez vous reconnecter.</string>
     <string name="error_generic">Une erreur est survenue</string>

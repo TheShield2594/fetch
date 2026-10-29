@@ -96,8 +96,12 @@
     <string name="web_import_success">Importováno {count} kolekcí. Zkontrolujte a stiskněte Uložit změny pro aplikování.</string>
     <string name="web_import_invalid_json">Neplatný JSON</string>
 
-    <string name="home_no_addons">Nejsou nainstalovány žádné doplňky. Přidejte jeden pro začátek.</string>
-    <string name="home_no_catalog_addons">Nejsou nainstalovány žádné katalogové doplňky. Nainstalujte katalogový doplněk pro zobrazení obsahu.</string>
+    <string name="home_empty_no_addons_title">Zatím žádné doplňky</string>
+    <string name="home_empty_no_addons_subtitle">Doplňky dodávají filmy a seriály na Domů.</string>
+    <string name="home_empty_no_catalog_addons_title">Zatím žádné katalogové doplňky</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Domů potřebuje katalogový doplněk, aby mohl zobrazit tituly.</string>
+    <string name="home_empty_no_catalogs_title">Žádné katalogy k zobrazení</string>
+    <string name="home_empty_no_catalogs_subtitle">Vaše doplňky nenabízejí žádné katalogy pro Domů.</string>
     <string name="auth_notice_fetch_logged_out">Byli jste odhlášeni z aplikace Fetch. Přihlaste se prosím znovu.</string>
     <string name="auth_notice_trakt_logged_out">Byli jste odhlášeni z Trakt. Připojte se prosím znovu.</string>
     <string name="error_generic">Došlo k chybě</string>

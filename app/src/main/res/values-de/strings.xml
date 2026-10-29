@@ -98,8 +98,12 @@
     <string name="web_import_invalid_json">Invalid JSON</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Keine Add-ons installiert. Fügen Sie eines hinzu, um zu beginnen.</string>
-    <string name="home_no_catalog_addons">Keine Katalog-Add-ons installiert. Installieren Sie ein Katalog-Add-on, um Inhalte anzuzeigen.</string>
+    <string name="home_empty_no_addons_title">Noch keine Add-ons</string>
+    <string name="home_empty_no_addons_subtitle">Add-ons liefern die Filme und Serien auf der Startseite.</string>
+    <string name="home_empty_no_catalog_addons_title">Noch keine Katalog-Add-ons</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Die Startseite braucht ein Katalog-Add-on, um Titel anzuzeigen.</string>
+    <string name="home_empty_no_catalogs_title">Keine Kataloge zum Anzeigen</string>
+    <string name="home_empty_no_catalogs_subtitle">Ihre Add-ons bieten keine Kataloge für die Startseite an.</string>
     <string name="auth_notice_fetch_logged_out">Du wurdest von Fetch abgemeldet. Bitte logge dich erneut ein.</string>
     <string name="auth_notice_trakt_logged_out">Du wurdest von Trakt abgemeldet. Bitte logge dich erneut ein.</string>
     <string name="error_generic">Ein Fehler ist aufgetreten</string>

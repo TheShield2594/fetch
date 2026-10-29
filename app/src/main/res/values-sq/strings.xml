@@ -94,8 +94,12 @@
     <string name="web_import_error_source_missing_trakt_id">Koleksioni \"{collection}\", dosja \"{folder}\", burimi {index}: mungon ID-ja e listës Trakt</string>
     <string name="web_import_success">U importuan {count} koleksion(e). Rishikoni dhe zgjidhni Ruaj ndryshimet për t’i zbatuar.</string>
     <string name="web_import_invalid_json">JSON i pavlefshëm</string>
-    <string name="home_no_addons">Nuk ka shtesa të instaluara. Shtoni një për të filluar.</string>
-    <string name="home_no_catalog_addons">Nuk ka shtesa katalogu të instaluara. Instaloni një shtesë katalogu për të parë përmbajtjen.</string>
+    <string name="home_empty_no_addons_title">Ende pa shtesa</string>
+    <string name="home_empty_no_addons_subtitle">Shtesat sjellin filmat dhe serialet në Faqen kryesore.</string>
+    <string name="home_empty_no_catalog_addons_title">Ende pa shtesa katalogu</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Faqja kryesore ka nevojë për një shtesë katalogu për të shfaqur tituj.</string>
+    <string name="home_empty_no_catalogs_title">Nuk ka kataloge për të shfaqur</string>
+    <string name="home_empty_no_catalogs_subtitle">Shtesat tuaja nuk ofrojnë kataloge për Faqen kryesore.</string>
     <string name="auth_notice_fetch_logged_out">Jeni çkyçur nga Fetch. Ju lutemi kyçuni përsëri.</string>
     <string name="auth_notice_trakt_logged_out">Jeni çkyçur nga Trakt. Ju lutemi rilidhuni.</string>
     <string name="error_generic">Ndodhi një gabim</string>

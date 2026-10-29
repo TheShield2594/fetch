@@ -96,8 +96,12 @@
     <string name="web_import_success">Imported {count} collection(s). Review and hit Save Changes to apply.</string>
     <string name="web_import_invalid_json">Invalid JSON</string>
 
-    <string name="home_no_addons">No addons installed. Add one to get started.</string>
-    <string name="home_no_catalog_addons">No catalog addons installed. Install a catalog addon to see content.</string>
+    <string name="home_empty_no_addons_title">No addons yet</string>
+    <string name="home_empty_no_addons_subtitle">Addons supply the movies and shows on Home.</string>
+    <string name="home_empty_no_catalog_addons_title">No catalog addons yet</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Home needs a catalog addon to show titles.</string>
+    <string name="home_empty_no_catalogs_title">No catalogs to show</string>
+    <string name="home_empty_no_catalogs_subtitle">Your addons don\'t offer any Home catalogs.</string>
     <string name="auth_notice_fetch_logged_out">Signed out of Fetch. Sign in again from Settings &gt; Account.</string>
     <string name="auth_notice_trakt_logged_out">Signed out of Trakt. Reconnect it from Settings &gt; Tracking.</string>
     <string name="error_generic">An error occurred</string>

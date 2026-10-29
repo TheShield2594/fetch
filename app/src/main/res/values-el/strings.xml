@@ -96,8 +96,12 @@
   <string name="web_import_success">Εισήχθησαν {count} συλλογές. Ελέγξτε τες και πατήστε Αποθήκευση αλλαγών για εφαρμογή.</string>
   <string name="web_import_invalid_json">Μη έγκυρο JSON</string>
   <!-- HomeScreen -->
-  <string name="home_no_addons">Δεν έχετε εγκαταστήσει πρόσθετα. Προσθέστε ένα για να ξεκινήσετε.</string>
-  <string name="home_no_catalog_addons">Δεν έχετε εγκαταστήσει πρόσθετα καταλόγου. Εγκαταστήστε ένα πρόσθετο καταλόγου για να δείτε περιεχόμενο.</string>
+  <string name="home_empty_no_addons_title">Δεν υπάρχουν ακόμη πρόσθετα</string>
+  <string name="home_empty_no_addons_subtitle">Τα πρόσθετα παρέχουν τις ταινίες και τις σειρές της Αρχικής.</string>
+  <string name="home_empty_no_catalog_addons_title">Δεν υπάρχουν ακόμη πρόσθετα καταλόγου</string>
+  <string name="home_empty_no_catalog_addons_subtitle">Η Αρχική χρειάζεται ένα πρόσθετο καταλόγου για να εμφανίσει τίτλους.</string>
+  <string name="home_empty_no_catalogs_title">Δεν υπάρχουν κατάλογοι για εμφάνιση</string>
+  <string name="home_empty_no_catalogs_subtitle">Τα πρόσθετά σας δεν προσφέρουν καταλόγους για την Αρχική.</string>
   <string name="auth_notice_fetch_logged_out">Έχετε αποσυνδεθεί από το Fetch. Συνδεθείτε ξανά.</string>
   <string name="auth_notice_trakt_logged_out">Έχετε αποσυνδεθεί από το Trakt. Συνδεθείτε ξανά.</string>
   <string name="error_generic">Προέκυψε σφάλμα</string>

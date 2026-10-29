@@ -96,8 +96,12 @@
     <string name="web_import_success">{count} 個のコレクションをインポートしました。確認して「変更を保存」を押して適用してください。</string>
     <string name="web_import_invalid_json">無効なJSON</string>
 
-    <string name="home_no_addons">アドオンがインストールされていません。追加して始めましょう</string>
-    <string name="home_no_catalog_addons">カタログアドオンがインストールされていません。コンテンツを表示するにはカタログアドオンをインストールしてください</string>
+    <string name="home_empty_no_addons_title">アドオンがまだありません</string>
+    <string name="home_empty_no_addons_subtitle">ホームの映画や番組はアドオンから提供されます。</string>
+    <string name="home_empty_no_catalog_addons_title">カタログアドオンがまだありません</string>
+    <string name="home_empty_no_catalog_addons_subtitle">ホームに作品を表示するにはカタログアドオンが必要です。</string>
+    <string name="home_empty_no_catalogs_title">表示できるカタログがありません</string>
+    <string name="home_empty_no_catalogs_subtitle">お使いのアドオンにはホーム用のカタログがありません。</string>
     <string name="auth_notice_fetch_logged_out">Fetchからサインアウトされました。再度サインインしてください</string>
     <string name="auth_notice_trakt_logged_out">Traktからサインアウトされました。再接続してください</string>
     <string name="error_generic">エラーが発生しました</string>

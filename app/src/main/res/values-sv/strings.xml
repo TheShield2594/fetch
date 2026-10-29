@@ -4,8 +4,12 @@
     <string name="type_unknown">Okänd</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Inga tillägg installerade. Lägg till ett tillägg för att komma igång.</string>
-    <string name="home_no_catalog_addons">Inga tillägg med kataloger installerade. Installera ett katalogtillägg för att se innehåll.</string>
+    <string name="home_empty_no_addons_title">Inga tillägg än</string>
+    <string name="home_empty_no_addons_subtitle">Tillägg står för filmerna och serierna på Hem.</string>
+    <string name="home_empty_no_catalog_addons_title">Inga katalogtillägg än</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Hem behöver ett katalogtillägg för att visa titlar.</string>
+    <string name="home_empty_no_catalogs_title">Inga kataloger att visa</string>
+    <string name="home_empty_no_catalogs_subtitle">Dina tillägg erbjuder inga kataloger för Hem.</string>
     <string name="auth_notice_fetch_logged_out">Du har loggats ut från Fetch. Logga in igen.</string>
     <string name="auth_notice_trakt_logged_out">Du har loggats ut från Trakt. Anslut igen.</string>
     <string name="error_generic">Ett fel uppstod</string>

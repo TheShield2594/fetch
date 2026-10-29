@@ -98,8 +98,12 @@
     <string name="web_import_invalid_json">JSON tidak valid</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Tidak ada addon terpasang. Tambahkan satu untuk memulai.</string>
-    <string name="home_no_catalog_addons">Tidak ada addon katalog terpasang. Pasang addon katalog untuk melihat konten.</string>
+    <string name="home_empty_no_addons_title">Belum ada addon</string>
+    <string name="home_empty_no_addons_subtitle">Addon menyediakan film dan acara di Beranda.</string>
+    <string name="home_empty_no_catalog_addons_title">Belum ada addon katalog</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Beranda memerlukan addon katalog untuk menampilkan judul.</string>
+    <string name="home_empty_no_catalogs_title">Tidak ada katalog untuk ditampilkan</string>
+    <string name="home_empty_no_catalogs_subtitle">Addon Anda tidak menyediakan katalog Beranda.</string>
     <string name="auth_notice_fetch_logged_out">Anda telah keluar dari Fetch. Silakan masuk kembali.</string>
     <string name="auth_notice_trakt_logged_out">Anda telah keluar dari Trakt. Silakan sambungkan kembali.</string>
     <string name="error_generic">Terjadi kesalahan</string>

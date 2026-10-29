@@ -5,8 +5,12 @@
     <string name="type_unknown">अज्ञात</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">कोई ऐडऑन इंस्टॉल नहीं है। शुरू करने के लिए एक ऐडऑन जोड़ें।</string>
-    <string name="home_no_catalog_addons">कोई कैटलॉग ऐडऑन इंस्टॉल नहीं है। कंटेंट देखने के लिए एक कैटलॉग ऐडऑन इंस्टॉल करें।</string>
+    <string name="home_empty_no_addons_title">अभी कोई ऐडऑन नहीं</string>
+    <string name="home_empty_no_addons_subtitle">ऐडऑन होम पर फ़िल्में और शो लाते हैं।</string>
+    <string name="home_empty_no_catalog_addons_title">अभी कोई कैटलॉग ऐडऑन नहीं</string>
+    <string name="home_empty_no_catalog_addons_subtitle">टाइटल दिखाने के लिए होम को एक कैटलॉग ऐडऑन चाहिए।</string>
+    <string name="home_empty_no_catalogs_title">दिखाने के लिए कोई कैटलॉग नहीं</string>
+    <string name="home_empty_no_catalogs_subtitle">आपके ऐडऑन होम के लिए कोई कैटलॉग नहीं देते।</string>
     <string name="error_generic">कुछ गलत हो गया</string>
 
     <!-- ErrorState -->

@@ -96,8 +96,12 @@
     <string name="web_import_success">{count} gyűjtemény importálva. Ellenőrizd őket, majd a módosítások alkalmazásához válaszd a Változtatások mentése gombot.</string>
     <string name="web_import_invalid_json">Érvénytelen JSON</string>
 
-    <string name="home_no_addons">Nincsenek telepített bővítmények. A kezdéshez adj hozzá egyet.</string>
-    <string name="home_no_catalog_addons">Nincsenek katalógusbővítmények. Telepíts egyet a tartalom megtekintéséhez.</string>
+    <string name="home_empty_no_addons_title">Még nincsenek bővítmények</string>
+    <string name="home_empty_no_addons_subtitle">A bővítmények adják a Kezdőlap filmjeit és sorozatait.</string>
+    <string name="home_empty_no_catalog_addons_title">Még nincsenek katalógusbővítmények</string>
+    <string name="home_empty_no_catalog_addons_subtitle">A Kezdőlapnak katalógusbővítményre van szüksége a címek megjelenítéséhez.</string>
+    <string name="home_empty_no_catalogs_title">Nincs megjeleníthető katalógus</string>
+    <string name="home_empty_no_catalogs_subtitle">A bővítményeid nem kínálnak katalógust a Kezdőlapra.</string>
     <string name="auth_notice_fetch_logged_out">Kijelentkeztél a Fetch-fiókodból. Jelentkezz be újra.</string>
     <string name="auth_notice_trakt_logged_out">Kijelentkeztél a Trakt-fiókodból. Csatlakoztasd újra a fiókot.</string>
     <string name="error_generic">Hiba történt</string>

@@ -3,8 +3,12 @@
     <string name="type_series">Serial</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Brak zainstalowanych dodatków. Dodaj jeden, aby zacząć.</string>
-    <string name="home_no_catalog_addons">Brak dodatków katalogowych. Zainstaluj dodatek katalogowy, aby zobaczyć treści.</string>
+    <string name="home_empty_no_addons_title">Brak dodatków</string>
+    <string name="home_empty_no_addons_subtitle">Dodatki dostarczają filmy i seriale na stronę główną.</string>
+    <string name="home_empty_no_catalog_addons_title">Brak dodatków katalogowych</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Strona główna potrzebuje dodatku katalogowego, by pokazać tytuły.</string>
+    <string name="home_empty_no_catalogs_title">Brak katalogów do wyświetlenia</string>
+    <string name="home_empty_no_catalogs_subtitle">Twoje dodatki nie oferują katalogów dla strony głównej.</string>
     <string name="error_generic">Wystąpił błąd</string>
 
     <!-- ErrorState -->

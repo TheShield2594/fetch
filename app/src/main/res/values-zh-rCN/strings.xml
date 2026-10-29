@@ -96,8 +96,12 @@
     <string name="web_import_success">已导入 {count} 个收藏。请审阅并点击「保存更改」以应用。</string>
     <string name="web_import_invalid_json">无效的 JSON</string>
 
-    <string name="home_no_addons">未安装扩展。请添加一个以开始使用。</string>
-    <string name="home_no_catalog_addons">未安装目录扩展。请安装目录扩展以浏览内容。</string>
+    <string name="home_empty_no_addons_title">暂无扩展</string>
+    <string name="home_empty_no_addons_subtitle">首页的电影和剧集由扩展提供。</string>
+    <string name="home_empty_no_catalog_addons_title">暂无目录扩展</string>
+    <string name="home_empty_no_catalog_addons_subtitle">首页需要目录扩展才能显示内容。</string>
+    <string name="home_empty_no_catalogs_title">没有可显示的目录</string>
+    <string name="home_empty_no_catalogs_subtitle">你的扩展未提供任何首页目录。</string>
     <string name="auth_notice_fetch_logged_out">您已登出 Fetch。请重新登录。</string>
     <string name="auth_notice_trakt_logged_out">您已登出 Trakt。请重新连接。</string>
     <string name="error_generic">出错了</string>

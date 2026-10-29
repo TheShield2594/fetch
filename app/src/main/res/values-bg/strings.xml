@@ -96,8 +96,12 @@
     <string name="web_import_success">Импортирани са {count} колекции. Прегледайте и натиснете „Запази промените“, за да ги приложите.</string>
     <string name="web_import_invalid_json">Невалиден JSON</string>
 
-    <string name="home_no_addons">Няма инсталирани добавки. Добавете една, за да започнете.</string>
-    <string name="home_no_catalog_addons">Няма инсталирани каталожни добавки. Инсталирайте каталожна добавка, за да виждате съдържание.</string>
+    <string name="home_empty_no_addons_title">Все още няма добавки</string>
+    <string name="home_empty_no_addons_subtitle">Добавките осигуряват филмите и сериалите в Начало.</string>
+    <string name="home_empty_no_catalog_addons_title">Все още няма каталожни добавки</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Начало се нуждае от каталожна добавка, за да показва заглавия.</string>
+    <string name="home_empty_no_catalogs_title">Няма каталози за показване</string>
+    <string name="home_empty_no_catalogs_subtitle">Вашите добавки не предлагат каталози за Начало.</string>
     <string name="auth_notice_fetch_logged_out">Излезли сте от Fetch. Моля, влезте отново.</string>
     <string name="auth_notice_trakt_logged_out">Излезли сте от Trakt. Моля, свържете отново акаунта си.</string>
     <string name="error_generic">Възникна грешка</string>

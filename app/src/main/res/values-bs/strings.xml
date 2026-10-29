@@ -62,8 +62,12 @@
     <string name="web_import_tab_url">URL</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Nema instaliranih addona. Dodajte jedan za početak.</string>
-    <string name="home_no_catalog_addons">Nema instaliranih addona za katalog. Instalirajte katalog addon da vidite sadržaj.</string>
+    <string name="home_empty_no_addons_title">Još nema addona</string>
+    <string name="home_empty_no_addons_subtitle">Addoni donose filmove i serije na Početnu.</string>
+    <string name="home_empty_no_catalog_addons_title">Još nema addona za katalog</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Početnoj treba addon za katalog da prikaže naslove.</string>
+    <string name="home_empty_no_catalogs_title">Nema kataloga za prikaz</string>
+    <string name="home_empty_no_catalogs_subtitle">Vaši addoni ne nude nijedan katalog za Početnu.</string>
     <string name="auth_notice_fetch_logged_out">Odjavljeni ste iz Nuvia. Molimo prijavite se ponovo.</string>
     <string name="auth_notice_trakt_logged_out">Odjavljeni ste sa Trakta. Molimo ponovo se povežite.</string>
     <string name="error_generic">Došlo je do greške</string>

@@ -138,6 +138,15 @@ internal fun settingsRowBorder(
     )
 )
 
+/**
+ * Focus ring for the option cards in settings pickers. A selected option already carries the
+ * focus fill, so without a ring of its own it looks the same with or without focus.
+ */
+@Composable
+internal fun settingsOptionCardBorder(
+    shape: RoundedCornerShape = RoundedCornerShape(FetchRadii.tokens.sm)
+): CardBorder = settingsRowBorder(shape = shape)
+
 internal object SettingsTestTags {
     const val ROW_ICON = "settings_row_icon"
 }
@@ -748,6 +757,7 @@ internal fun <T> SettingsSingleChoiceDialog(
                             containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                             focusedContainerColor = FetchTheme.colors.FocusBackground
                         ),
+                        border = settingsOptionCardBorder(),
                         shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                         scale = CardDefaults.scale(focusedScale = 1f)
                     ) {
@@ -863,6 +873,7 @@ internal fun <T> SettingsMultiChoiceDialog(
                                 containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground
                             ),
+                            border = settingsOptionCardBorder(),
                             shape = CardDefaults.shape(RoundedCornerShape(FetchRadii.tokens.sm)),
                             scale = CardDefaults.scale(focusedScale = 1f)
                         ) {

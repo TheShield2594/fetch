@@ -47,6 +47,7 @@ import com.fetch.tv.R
 import com.fetch.tv.core.streams.BestMatchPreview
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
+import com.fetch.tv.ui.components.sourceChipLabel
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.FetchMotion
 import kotlinx.coroutines.delay
@@ -259,11 +260,7 @@ private fun AddonStatus(chip: SourceChipItem) {
                 .drawBehind { drawCircle(dotColor.value) }
         )
         Text(
-            text = if (chip.status == SourceChipStatus.TIMED_OUT) {
-                "${chip.name} · ${stringResource(R.string.source_chip_timed_out)}"
-            } else {
-                chip.name
-            },
+            text = sourceChipLabel(chip.name, chip.status),
             style = MaterialTheme.typography.bodySmall,
             color = if (chip.status == SourceChipStatus.LOADING) FetchTheme.colors.TextSecondary else FetchTheme.colors.TextPrimary
         )

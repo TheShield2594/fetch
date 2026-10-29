@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -38,16 +40,24 @@ fun RefreshFilterChip(
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val contentColor = if (isFocused) {
-        FetchTheme.colors.OnHighlight
-    } else {
-        FetchTheme.colors.TextSecondary
+    // Loading dims the icon as well as spinning it, so it still reads as busy when reduced
+    // motion keeps it still.
+    val contentColor = when {
+        isFocused -> FetchTheme.colors.OnHighlight
+        isLoading -> FetchTheme.colors.TextTertiary
+        else -> FetchTheme.colors.TextSecondary
     }
+    val loadingDescription = stringResource(R.string.source_chip_loading)
 
+    val fullMotion = FetchTheme.fullMotion
     val rotationAnimatable = remember { Animatable(0f) }
     var hasCompletedFullRotation by remember { mutableStateOf(false) }
-    LaunchedEffect(isLoading) {
-        if (isLoading) {
+    LaunchedEffect(isLoading, fullMotion) {
+        if (!fullMotion) {
+            // Reduced motion: no spin at all; the dimmed icon and stateDescription carry it.
+            rotationAnimatable.snapTo(0f)
+            hasCompletedFullRotation = false
+        } else if (isLoading) {
             // Spin continuously while loading
             coroutineDelay(100)
             hasCompletedFullRotation = false
@@ -83,10 +93,14 @@ fun RefreshFilterChip(
     FilterChip(
         selected = false,
         onClick = onClick,
-        modifier = modifier.onFocusChanged {
-            isFocused = it.isFocused
-            onFocusChanged(it.isFocused)
-        },
+        modifier = modifier
+            .onFocusChanged {
+                isFocused = it.isFocused
+                onFocusChanged(it.isFocused)
+            }
+            .semantics {
+                if (isLoading) stateDescription = loadingDescription
+            },
         colors = FilterChipDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
             focusedContainerColor = FetchTheme.colors.Highlight,

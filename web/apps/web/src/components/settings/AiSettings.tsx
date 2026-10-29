@@ -384,7 +384,7 @@ export function AiSettings() {
                 setSaved(false);
                 setTestStatus(null);
               }}
-              className="w-full rounded-xl border px-4 py-2.5 text-sm focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+              className="w-full rounded-xl border px-4 py-2.5 text-sm field-control"
               style={{
                 borderColor: "var(--border-strong)",
                 color: "var(--text)",
@@ -421,7 +421,7 @@ export function AiSettings() {
                 setSaved(false);
                 setTestStatus(null);
               }}
-              className="w-full rounded-xl border px-4 py-2.5 font-mono text-sm focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+              className="w-full rounded-xl border px-4 py-2.5 font-mono text-sm field-control"
               style={{
                 borderColor: "var(--border-strong)",
                 color: "var(--text)",
@@ -455,7 +455,7 @@ export function AiSettings() {
                   setSaved(false);
                   setTestStatus(null);
                 }}
-                className="w-full rounded-xl border px-4 py-2.5 text-sm focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+                className="w-full rounded-xl border px-4 py-2.5 text-sm field-control"
                 style={{
                   borderColor: "var(--border-strong)",
                   color: "var(--text)",
@@ -490,7 +490,7 @@ export function AiSettings() {
                   setSaved(false);
                   setTestStatus(null);
                 }}
-                className="w-full rounded-xl border px-4 py-2.5 text-sm focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+                className="w-full rounded-xl border px-4 py-2.5 text-sm field-control"
                 style={{
                   borderColor: "var(--border-strong)",
                   color: "var(--text)",
@@ -544,7 +544,7 @@ export function AiSettings() {
               }
             }}
             rows={8}
-            className="w-full rounded-xl border px-4 py-3 font-mono text-xs placeholder:text-[var(--text-mute)] focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/30 resize-y"
+            className="w-full rounded-xl border px-4 py-3 font-mono text-xs placeholder:text-[var(--text-mute)] field-control resize-y"
             style={{
               borderColor: "var(--border-strong)",
               color: "var(--text)",

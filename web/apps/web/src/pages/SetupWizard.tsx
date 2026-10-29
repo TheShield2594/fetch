@@ -90,7 +90,7 @@ function WizardShell({
 type AccountMode = "bootstrap" | "login" | "register";
 
 const INPUT_CLASS =
-  "w-full rounded-xl border border-[var(--border-strong)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15";
+  "w-full rounded-xl border border-[var(--border-strong)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] field-control";
 
 /** A password field with a show/hide toggle. */
 function PasswordInput({

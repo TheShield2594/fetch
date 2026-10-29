@@ -42,7 +42,7 @@ import {
 } from "../utils/collections";
 
 const INPUT =
-  "w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15";
+  "w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control";
 const INPUT_STYLE = { borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" };
 const CARD = "rounded-2xl border p-4";
 const CARD_STYLE = { borderColor: "var(--border)", background: "var(--bg-1)" };

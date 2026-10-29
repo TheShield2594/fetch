@@ -268,7 +268,7 @@ export function GameDetailPanel({
               aria-labelledby="game-notes-heading"
               placeholder="Add personal notes about this game..."
               rows={4}
-              className="w-full rounded-xl border p-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+              className="w-full rounded-xl border p-3 text-sm field-control"
               style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--text)" }}
             />
           </div>

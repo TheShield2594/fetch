@@ -93,7 +93,7 @@ export function CheckInModal({
                 id="checkin-season"
                 type="number" min="1" value={season}
                 onChange={(e) => setSeason(e.target.value)}
-                className="w-full rounded-xl border px-3 py-2.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+                className="w-full rounded-xl border px-3 py-2.5 text-sm field-control"
                 style={{ borderColor: "var(--border-strong)", background: "var(--surface)", color: "var(--text)" }}
               />
             </div>
@@ -103,7 +103,7 @@ export function CheckInModal({
                 id="checkin-episode"
                 type="number" min="1" value={episode}
                 onChange={(e) => setEpisode(e.target.value)}
-                className="w-full rounded-xl border px-3 py-2.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+                className="w-full rounded-xl border px-3 py-2.5 text-sm field-control"
                 style={{ borderColor: "var(--border-strong)", background: "var(--surface)", color: "var(--text)" }}
               />
             </div>

@@ -237,7 +237,7 @@ export function ListsSection({
                   }}
                   placeholder="List name..."
                   aria-label="New list name"
-                  className="min-w-0 flex-1 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-claw-500/40"
+                  className="min-w-0 flex-1 rounded-md px-2 py-1 text-sm field-control"
                   style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", background: "var(--bg-1)", color: "var(--text)" }}
                 />
                 <button

@@ -88,7 +88,7 @@ export function TagsSection({
           }}
           placeholder="Add tag..."
           aria-label="Add tag"
-          className="w-28 rounded-full bg-transparent px-3 py-1.5 text-xs outline-none"
+          className="w-28 rounded-full bg-transparent px-3 py-1.5 text-xs field-control"
           style={{ border: "1px solid var(--border)", color: "var(--text)" }}
         />
       </div>

@@ -16,7 +16,7 @@ export function formatPairingCodeInput(raw: string): string {
 const isCompleteCode = (code: string) => code.replace("-", "").length === 8;
 
 const INPUT =
-  "w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15";
+  "w-full min-w-0 rounded-lg border px-2.5 py-1.5 text-sm field-control";
 const INPUT_STYLE = { borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" };
 
 /**

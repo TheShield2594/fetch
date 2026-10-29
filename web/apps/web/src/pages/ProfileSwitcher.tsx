@@ -127,7 +127,7 @@ function CreateProfileForm({
         onChange={(e) => setName(e.target.value)}
         placeholder="Profile name"
         aria-label="Profile name"
-        className="w-full rounded-xl border px-4 py-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        className="w-full rounded-xl border px-4 py-3 text-sm field-control"
         style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       <input
@@ -139,7 +139,7 @@ function CreateProfileForm({
         onChange={(e) => setPin(e.target.value)}
         placeholder="PIN (optional)"
         aria-label="PIN (optional)"
-        className="w-full rounded-xl border px-4 py-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        className="w-full rounded-xl border px-4 py-3 text-sm field-control"
         style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       {error && (
@@ -214,7 +214,7 @@ function PinPrompt({
         onChange={(e) => setPin(e.target.value)}
         placeholder="PIN"
         aria-label={`PIN for ${profile.name}`}
-        className="w-full rounded-xl border px-4 py-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+        className="w-full rounded-xl border px-4 py-3 text-sm field-control"
         style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
       />
       {error && (

@@ -52,7 +52,6 @@ import com.fetch.tv.domain.model.Subtitle
 import com.fetch.tv.ui.components.LoadingIndicator
 import kotlinx.coroutines.delay
 import kotlin.math.abs
-import com.fetch.tv.ui.theme.FetchPrimitives
 
 private enum class SyncStage {
     WAIT_FOR_SYNC,
@@ -110,13 +109,7 @@ internal fun SubtitleTimingDialog(
         modifier = modifier
             .fillMaxWidth(if (stage == SyncStage.PICK_LINE) 0.94f else 0.6f)
             .clip(RoundedCornerShape(FetchTheme.spacing.xl))
-            .background(
-                if (stage == SyncStage.PICK_LINE) {
-                    FetchPrimitives.black.copy(alpha = 0.18f)
-                } else {
-                    FetchPrimitives.black.copy(alpha = 0.28f)
-                }
-            )
+            .background(FetchTheme.colors.Player.Scrim)
             .padding(
                 horizontal = if (stage == SyncStage.PICK_LINE) 26.dp else 34.dp,
                 vertical = if (stage == SyncStage.PICK_LINE) 20.dp else 30.dp

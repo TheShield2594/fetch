@@ -665,7 +665,8 @@ private fun EpisodeCommentPickerDialog(
         title = stringResource(R.string.detail_comments_episode_picker_title),
         subtitle = stringResource(R.string.detail_comments_episode_picker_subtitle),
         width = 560.dp,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -767,7 +768,6 @@ fun CommentOverlay(
     onNext: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val primaryFocusRequester = remember { FocusRequester() }
     val mainContentFocusRequester = remember { FocusRequester() }
 
     Dialog(
@@ -841,7 +841,6 @@ fun CommentOverlay(
                 CommentOverlayContent(
                     review = currentReview,
                     episode = episode,
-                    primaryFocusRequester = primaryFocusRequester,
                     mainContentFocusRequester = mainContentFocusRequester,
                     isLoadingNext = isLoadingNext
                 )
@@ -851,12 +850,7 @@ fun CommentOverlay(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .width(168.dp)
-                    .padding(top = 6.dp, end = FetchTheme.spacing.xs)
-                    .focusRequester(primaryFocusRequester)
-                    .focusable()
-                    .focusProperties {
-                        down = mainContentFocusRequester
-                    },
+                    .padding(top = 6.dp, end = FetchTheme.spacing.xs),
                 horizontalAlignment = Alignment.Start,
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
             ) {
@@ -870,9 +864,18 @@ fun CommentOverlay(
                     text = stringResource(R.string.detail_comments_back_hint),
                     modifier = Modifier.padding(start = FetchTheme.spacing.lg),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.34f)
+                    color = FetchTheme.colors.TextSecondary
                 )
             }
+
+            // Left and Right page through comments; the chevrons sit in the side padding.
+            OverlayPagingCues(
+                showPrevious = canNavigatePrevious,
+                showNext = canNavigateNext,
+                followLayoutDirection = false,
+                iconSize = FetchTheme.spacing.xl,
+                edgeOffset = FetchTheme.spacing.xl
+            )
         }
     }
 }
@@ -882,11 +885,11 @@ fun CommentOverlay(
 private fun CommentOverlayContent(
     review: TraktCommentReview,
     episode: Video?,
-    primaryFocusRequester: FocusRequester,
     mainContentFocusRequester: FocusRequester,
     isLoadingNext: Boolean
 ) {
     val commentScrollState = rememberScrollState()
+    var isCommentFocused by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var isSpoilerRevealed by rememberSaveable(review.id) { mutableStateOf(!review.hasSpoilerContent) }
     val commentText = if (review.hasSpoilerContent && !isSpoilerRevealed) {
@@ -955,12 +958,22 @@ private fun CommentOverlayContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
+                    .onFocusChanged { isCommentFocused = it.hasFocus }
+                    .scrollableTextPanel(
+                        scrollState = commentScrollState,
+                        focusBorder = if (isCommentFocused) FetchTheme.focusRing.border(FetchTheme.spacing.xxs) else null,
+                        shape = RoundedCornerShape(FetchTheme.radii.md),
+                        thumbColor = FetchTheme.colors.TextSecondary,
+                        trackColor = FetchTheme.colors.Divider
+                    )
+                    .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
                     .verticalScroll(commentScrollState)
                     .focusRequester(mainContentFocusRequester)
-                    .focusable()
                     .focusProperties {
-                        up = primaryFocusRequester
+                        // The comment is the reader's only focus stop.
+                        up = FocusRequester.Cancel
                     }
+                    .focusable()
                     .onPreviewKeyEvent { event ->
                         when {
                             event.type != KeyEventType.KeyDown -> false
@@ -1020,7 +1033,7 @@ private fun CommentOverlayContent(
                     Text(
                         text = "...",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.42f)
+                        color = FetchTheme.colors.TextSecondary
                     )
                 }
             }

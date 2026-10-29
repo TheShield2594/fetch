@@ -87,7 +87,11 @@ data class LibraryListEditorState(
     val listId: String? = null,
     val name: String = "",
     val description: String = "",
-    val privacy: LibraryListPrivacy = LibraryListPrivacy.PRIVATE
+    val privacy: LibraryListPrivacy = LibraryListPrivacy.PRIVATE,
+    // Shown inside the editor: the screen and Manage lists both sit under the editor's window.
+    val error: String? = null,
+    // True when [error] is about the name field.
+    val nameError: Boolean = false
 ) {
     enum class Mode {
         CREATE,
@@ -397,7 +401,7 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    fun onUpdateEditorName(value: String) = updateListEditor { copy(name = value) }
+    fun onUpdateEditorName(value: String) = updateListEditor { copy(name = value, error = null, nameError = false) }
 
     fun onUpdateEditorDescription(value: String) {
         if (_uiState.value.listManagement?.supportsDescription == true) updateListEditor { copy(description = value) }
@@ -420,7 +424,14 @@ class LibraryViewModel @Inject constructor(
         val editor = _uiState.value.listEditorState ?: return
         val name = editor.name.trim()
         if (name.isBlank()) {
-            setError(context.getString(R.string.library_error_list_name_required))
+            _uiState.update { current ->
+                current.copy(
+                    listEditorState = current.listEditorState?.copy(
+                        error = context.getString(R.string.library_error_list_name_required),
+                        nameError = true
+                    )
+                )
+            }
             return
         }
         val message = if (editor.mode == LibraryListEditorState.Mode.CREATE) R.string.library_list_created else R.string.library_list_updated
@@ -458,7 +469,13 @@ class LibraryViewModel @Inject constructor(
     private fun runListOperation(successMessage: Int, errorMessage: Int, action: suspend (LibrarySourceMode) -> Unit) {
         if (!isListManagementCurrent() || _uiState.value.pendingOperation) return
         val operationContext = requireNotNull(listManagementContext)
-        _uiState.update { it.copy(pendingOperation = true, errorMessage = null) }
+        _uiState.update {
+            it.copy(
+                pendingOperation = true,
+                errorMessage = null,
+                listEditorState = it.listEditorState?.copy(error = null, nameError = false)
+            )
+        }
         viewModelScope.launch {
             try {
                 if (!isListManagementCurrent(operationContext)) return@launch
@@ -470,7 +487,19 @@ class LibraryViewModel @Inject constructor(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                if (isListManagementCurrent(operationContext)) setError(error.message ?: context.getString(errorMessage))
+                if (isListManagementCurrent(operationContext)) {
+                    if (_uiState.value.listEditorState != null) {
+                        // A failed save keeps the editor open, so the message has to be in it. Use
+                        // fixed text with a next step rather than the exception's own message.
+                        val editorError = context.getString(errorMessage) + "\n" +
+                            context.getString(R.string.library_error_save_list_next_step)
+                        _uiState.update { current ->
+                            current.copy(listEditorState = current.listEditorState?.copy(error = editorError, nameError = false))
+                        }
+                    } else {
+                        setError(error.message ?: context.getString(errorMessage))
+                    }
+                }
             } finally {
                 if (operationContext == listManagementContext) _uiState.update { it.copy(pendingOperation = false) }
             }

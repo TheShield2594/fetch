@@ -111,6 +111,7 @@
     <string name="detail_marked_episodes_watched">Serijų pažymėta kaip žiūrėta: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Serijų pažymėta kaip nežiūrėta: %1$d</string>
     <string name="detail_marked_previous_watched">Ankstesnių serijų pažymėta kaip žiūrėta: %1$d</string>
+    <string name="playback_unavailable_message">Niekas iš to, ką nustatėte, negali paleisti šio pavadinimo. Pridėkite arba įjunkite srautinio perdavimo priedą skiltyje Nustatymai &gt; Turinys ir atradimai &gt; Priedai arba patikrinkite ryšį su medijos serveriu.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Leisti</string>
@@ -178,6 +179,7 @@
 
     <!-- SettingsScreen categories -->
     <string name="settings_account">Paskyra</string>
+    <string name="settings_tracking_title">Stebėjimas</string>
     <string name="settings_profiles">Profiliai</string>
     <string name="settings_layout">Išdėstymas</string>
     <string name="settings_integration">Integracijos</string>
@@ -199,6 +201,9 @@
     <string name="playback_subtitle">Konfigūruoti vaizdo atkūrimo ir subtitrų parinktis</string>
     <string name="cd_decrease">Sumažinti</string>
     <string name="cd_increase">Padidinti</string>
+    <string name="cd_decrease_setting">Sumažinti: %1$s</string>
+    <string name="cd_increase_setting">Padidinti: %1$s</string>
+    <string name="cd_seek_bar">Prasukimo juosta</string>
     <string name="action_cancel">Atšaukti</string>
     <string name="action_none">Nėra</string>
     <string name="action_close">Uždaryti</string>
@@ -395,7 +400,7 @@
     <string name="mdblist_dialog_title">MDBList API raktas</string>
     <string name="mdblist_dialog_placeholder">Įveskite MDBList API raktą</string>
     <string name="mdblist_not_set">Nenustatyta</string>
-    <string name="mdblist_invalid_api_key">Neteisingas MDBList API raktas</string>
+    <string name="mdblist_invalid_api_key">Nepavyko patvirtinti šio API rakto. Patikrinkite, ar jis sutampa su raktu jūsų „MDBList“ paskyroje ir ar esate prisijungę prie interneto, tada bandykite dar kartą.</string>
 
     <!-- Anime-Skip -->
     <string name="animeskip_title">Anime praleidimas (Anime Skip)</string>
@@ -407,7 +412,7 @@
     <string name="animeskip_dialog_title">Anime Skip kliento ID</string>
     <string name="animeskip_dialog_subtitle">Susikurkite savo kliento ID adresu anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Įveskite kliento ID</string>
-    <string name="animeskip_invalid_client_id">Neteisingas kliento ID</string>
+    <string name="animeskip_invalid_client_id">Nepavyko patvirtinti šio kliento ID. Patikrinkite, ar jis sutampa su ID jūsų „Anime Skip“ paskyroje ir ar esate prisijungę prie interneto, tada bandykite dar kartą.</string>
     <string name="action_clear">Išvalyti</string>
 
     <!-- TmdbSettingsScreen -->
@@ -527,6 +532,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_install_btn">Įdiegti</string>
     <string name="addon_installed_section">Įdiegta</string>
     <string name="addon_empty">Nėra įdiegtų priedų. Pridėkite vieną, kad pradėtumėte.</string>
+    <string name="addon_list_load_failed">Nepavyko įkelti įdiegtų priedų. Bandykite dar kartą.</string>
     <string name="addon_remove">Pašalinti</string>
     <string name="addon_manage_from_phone_title">Valdyti iš telefono</string>
     <string name="addon_manage_from_phone_subtitle">Skenuokite QR kodą, kad valdytumėte priedus ir pradinio ekrano katalogus iš savo telefono</string>
@@ -581,12 +587,14 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="player_up_next_in_queue">Kitas eilėje</string>
     <string name="player_queue_move_up">Perkelti aukštyn</string>
     <string name="player_queue_move_down">Perkelti žemyn</string>
+    <string name="player_queue_removed">Pašalinta iš eilės: %1$s</string>
+    <string name="player_queue_undo">Anuliuoti</string>
     <string name="player_seek_back_10">Atgal 10 sekundžių</string>
     <string name="player_seek_forward_30">Pirmyn 30 sekundžių</string>
     <string name="player_via">per %1$s</string>
     <string name="player_subtitle_delay">Subtitrų delsa</string>
     <string name="player_error_title">Atkūrimo klaida</string>
-    <string name="player_go_back">Grįžti atgal</string>
+    <string name="player_error_choose_source">Pasirinkite kitą šaltinį</string>
     <string name="player_speed_title">Atkūrimo greitis</string>
     <string name="player_more_actions_title">Daugiau veiksmų</string>
     <string name="player_more_speed">Atkūrimo greitis</string>
@@ -639,8 +647,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Jūs žiūrite</string>
     <string name="pause_cast_label">Aktoriai</string>
-    <string name="pause_back_to_details">Grįžti į informaciją</string>
-    <string name="pause_as_character">kaip %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Kita serija</string>
@@ -662,10 +668,14 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="search_start_title">Pradėti paiešką</string>
     <string name="search_start_subtitle">Įveskite bent 2 simbolius</string>
     <string name="search_start_subtitle_no_discover">„Atrasti“ funkcija išjungta. Įveskite bent 2 simbolius</string>
+    <string name="search_recent_clear_confirm_title">Išvalyti paieškos istoriją?</string>
+    <string name="search_recent_clear_confirm_subtitle">Visos naujausios paieškos bus pašalintos. Šio veiksmo anuliuoti negalima.</string>
     <string name="search_voice_no_speech">Kalba neaptikta. Bandykite dar kartą.</string>
     <string name="search_voice_mic_permission">Balsinei paieškai reikalingas leidimas naudoti mikrofoną.</string>
     <string name="search_voice_failed">Balsinis atpažinimas nepavyko. Bandykite dar kartą.</string>
     <string name="search_voice_unavailable">Balsinė paieška šiame įrenginyje neprieinama.</string>
+    <string name="search_no_catalogs_title">Nė vienas jūsų priedas negali ieškoti</string>
+    <string name="search_no_catalogs_subtitle">Įdiekite priedą su paieškos katalogu ir bandykite dar kartą.</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">Biblioteka</string>
@@ -683,12 +693,15 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="library_list_move_up">Pakelti</string>
     <string name="library_list_move_down">Nuleisti</string>
     <string name="library_list_delete">Ištrinti</string>
+    <string name="library_list_delete_named">Ištrinti „%1$s“</string>
     <string name="library_list_close">Uždaryti</string>
     <string name="library_list_name_label">Pavadinimas</string>
     <string name="library_list_description_label">Aprašymas</string>
     <string name="library_list_privacy">Privatumas</string>
     <string name="library_delete_title">Ištrinti šį sąrašą?</string>
-    <string name="library_delete_subtitle">Tai pašalins sąrašą ir visus jo elementus iš „Trakt“.</string>
+    <string name="library_delete_title_named">Ištrinti „%1$s“?</string>
+    <string name="library_delete_subtitle_provider">Sąrašas ir jo elementai bus pašalinti iš %1$s. Šio veiksmo anuliuoti negalima.</string>
+    <string name="library_delete_subtitle_local">Sąrašas ir jo elementai bus pašalinti iš jūsų bibliotekos. Šio veiksmo anuliuoti negalima.</string>
     <string name="library_source_local">VIETINĖ</string>
     <string name="library_type_all">Visi</string>
     <string name="library_empty_local_title">Kol kas nėra %1$s</string>
@@ -855,6 +868,9 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_health_ok">Atsako · %1$s</string>
     <string name="addon_health_slow">Lėtas · %1$s</string>
     <string name="addon_health_timed_out">Baigėsi paskutinės užklausos laikas</string>
+    <string name="source_chip_failed">nepavyko</string>
+    <string name="source_chip_loading">įkeliama</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">Prieš diegiant %1$s reikia sukonfigūruoti</string>
     <string name="advanced_introdb_api_key">„IntroDB“ API raktas</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Sukurkite raktą svetainėje introdb.app. Jis prasideda idb_.</string>
@@ -870,12 +886,32 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="autoplay_mode_best_desc">Surikiuoja visus rezultatus pagal kokybę, jūsų taisykles ir tai, ką gali atkurti šis įrenginys, tada paleidžia geriausią. Kiti šaltiniai lieka vieno paspaudimo atstumu.</string>
     <string name="best_match_cached">Talpykloje</string>
     <string name="best_match_excluded">Nepaleista automatiškai: %1$s</string>
+    <string name="stream_hold_for_options">Laikykite OK, kad atvertumėte Geriausio atitikmens parinktis</string>
     <string name="best_match_preview_sub">Kol žiūrite į pavadinimą, užklausia srautų priedus, kad mygtukas „Leisti“ galėtų parodyti failą ir atkūrimas prasidėtų greičiau. Išjunkite, kad paieška vyktų tik paspaudus „Leisti“.</string>
     <string name="best_match_preview_title">Rodyti pasirinkimą ant mygtuko „Leisti“</string>
     <string name="catalog_order_pin">Prisegti viršuje</string>
     <string name="catalog_order_pinned_on_home">Prisegta pagrindinio ekrano viršuje</string>
     <string name="catalog_order_unpin">Atsegti</string>
     <string name="cd_mark_credits_end">Pažymėti titrų pabaigą</string>
+    <string name="cd_move_addon_up">Perkelti %1$s aukštyn</string>
+    <string name="cd_move_addon_down">Perkelti %1$s žemyn</string>
+    <string name="cd_addon_enabled_toggle">%1$s įjungtas</string>
+    <string name="cd_configure_addon">Konfigūruoti %1$s</string>
+    <string name="cd_remove_addon">Pašalinti %1$s</string>
+    <string name="folder_error_addon_source">Nepavyko įkelti šio katalogo. Patikrinkite, ar jo priedas įdiegtas ir pasiekiamas, tada bandykite dar kartą.</string>
+    <string name="folder_error_addon_missing">Šio katalogo priedas neįdiegtas. Įdiekite jį skiltyje Priedai arba pašalinkite šį šaltinį iš aplanko.</string>
+    <string name="folder_error_tmdb_source">Nepavyko įkelti iš „TMDB“. Patikrinkite ryšį ir bandykite dar kartą.</string>
+    <string name="folder_error_trakt_source">Nepavyko įkelti šio „Trakt“ sąrašo. Patikrinkite ryšį ir ar sąrašas vis dar viešas, tada bandykite dar kartą.</string>
+    <string name="folder_error_list_source">Nepavyko įkelti šio sąrašo. Patikrinkite ryšį ir bandykite dar kartą.</string>
+    <string name="collections_editor_discard_title">Atmesti pakeitimus?</string>
+    <string name="collections_editor_discard_collection_subtitle">Šios kolekcijos pakeitimai neišsaugoti.</string>
+    <string name="collections_editor_discard_folder_subtitle">Šio aplanko pakeitimai neišsaugoti.</string>
+    <string name="collections_editor_keep_editing">Toliau redaguoti</string>
+    <string name="collections_editor_discard">Atmesti</string>
+    <string name="player_error_initialize_failed">Nepavyko paleisti grotuvo. Iš naujo paleiskite Fetch ir bandykite dar kartą.</string>
+    <string name="player_error_mpv_surface_failed">Nepavyko paleisti mpv grotuvo. Bandykite dar kartą arba pakeiskite Vidinis variklis skiltyje Nustatymai &gt; Atkūrimas.</string>
+    <string name="player_error_mpv_playback_failed">Nepavyko pradėti atkūrimo mpv grotuve. Bandykite dar kartą arba pakeiskite Vidinis variklis skiltyje Nustatymai &gt; Atkūrimas.</string>
+    <string name="library_error_save_list_next_step">Patikrinkite ryšį ir bandykite dar kartą.</string>
     <string name="cd_mark_credits_start">Pažymėti titrų pradžią</string>
     <string name="cd_mark_intro_end">Pažymėti įžangos pabaigą</string>
     <string name="cd_mark_intro_start">Pažymėti įžangos pradžią</string>
@@ -1227,14 +1263,61 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="profile_pin_forgot_needs_main">Pamiršote PIN? Pirmiausia nustatykite PIN profiliui %1$s, tada juo iš naujo nustatykite šį.</string>
     <string name="profile_pin_forgot_main">Pagrindinio profilio PIN negalima nustatyti iš naujo, todėl laikykite jį saugioje vietoje.</string>
     <string name="profile_pin_reset_for_profile">Profilio %1$s PIN nustatytas iš naujo.</string>
-    <string name="profile_pin_incorrect_for_profile">Neteisingas profilio %1$s PIN.</string>
+    <string name="profile_pin_incorrect_for_profile">Neteisingas profilio %1$s PIN. Bandykite dar kartą.</string>
+    <string name="profile_pin_incorrect">Neteisingas PIN. Bandykite dar kartą.</string>
     <string name="profile_selection_kids_badge">Vaikams</string>
     <string name="profile_manage_done">Atlikta</string>
     <string name="cd_profile_locked">Užrakinta PIN kodu</string>
+    <string name="cd_profile_pin_progress">Įvesta skaitmenų: %1$d iš %2$d</string>
+    <string name="cd_profile_color_crimson">Tamsiai raudona</string>
+    <string name="cd_profile_color_ocean">Vandenyno</string>
+    <string name="cd_profile_color_violet">Violetinė</string>
+    <string name="cd_profile_color_emerald">Smaragdinė</string>
+    <string name="cd_profile_color_amber">Gintarinė</string>
+    <string name="cd_profile_color_rose">Rožinė</string>
+    <string name="cd_profile_color_cyan">Žydra</string>
+    <string name="cd_profile_color_brown">Ruda</string>
+    <string name="cd_profile_color_position">Spalva %1$d iš %2$d</string>
+    <string name="auth_notice_fetch_logged_out">Atsijungta nuo Fetch. Vėl prisijunkite skiltyje Nustatymai &gt; Paskyra.</string>
+    <string name="auth_notice_trakt_logged_out">Atsijungta nuo Trakt. Vėl prijunkite skiltyje Nustatymai &gt; Stebėjimas.</string>
     <string name="profile_save_error">Nepavyko išsaugoti profilio. Bandykite dar kartą.</string>
     <string name="profile_delete_error">Nepavyko ištrinti profilio. Bandykite dar kartą.</string>
     <string name="parental_pin_nudge_title">Apsaugokite profilio %1$s apribojimus</string>
     <string name="parental_pin_nudge_subtitle">Nustatykite PIN profiliui %1$s. Be jo bet kas gali pakeisti profilio %2$s apribojimus arba persijungti į kitą profilį.</string>
     <string name="parental_pin_nudge_set">Nustatyti PIN profiliui %1$s</string>
     <string name="parental_pin_nudge_later">Ne dabar</string>
+    <string name="parental_gate_open_support">Profilis %1$s neturi savo PIN, todėl, kol kitam profiliui taikomi tėvų apribojimai, jam atidaryti reikia tėvų PIN.</string>
+    <string name="parental_lock_profiles_title">Užrakinti profilius be apribojimų</string>
+    <string name="parental_lock_profiles_subtitle">Kol kuriam nors profiliui taikomi tėvų apribojimai, profiliui be apribojimų ir be savo PIN atidaryti reikia profilio %1$s PIN.</string>
+    <string name="parental_lock_profiles_needs_pin">Pirmiausia nustatykite profilio %1$s PIN.</string>
+    <string name="parental_lock_profiles_offer_title">Užrakinti ir kitus profilius?</string>
+    <string name="parental_lock_profiles_offer_subtitle">Profilis %1$s gali atidaryti %2$s ir apeiti visus apribojimus, nes jie neturi PIN. Vietoj to Fetch gali juos atidarant prašyti profilio %3$s PIN.</string>
+    <string name="parental_lock_profiles_offer_accept">Prašyti profilio %1$s PIN</string>
+    <string name="kids_autoplay_cap">Automatinis paleidimas iš eilės: %1$s</string>
+    <string name="kids_approved_only">Tik patvirtinti pavadinimai: %1$s</string>
+    <string name="kids_approved_movies">Filmai jums</string>
+    <string name="kids_approved_shows">Serialai jums</string>
+    <string name="kids_approved_only_hint">Šiame profilyje rodomi tik visada leidžiami pavadinimai. Pavadinimą leiskite pagrindiniame profilyje per jo plakato ilgo paspaudimo meniu.</string>
+    <string name="kids_daily_time">Dienos ekrano laikas: %1$s</string>
+    <string name="kids_bedtime">Miego laikas: %1$s–%2$s</string>
+    <string name="kids_bedtime_off">Miego laikas: Išjungta</string>
+    <string name="kids_at_limit_finish">Pasiekus ribą: baigti tai, kas rodoma</string>
+    <string name="kids_at_limit_stop">Pasiekus ribą: iškart sustabdyti</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d serija</item>
+        <item quantity="few">%1$d serijos</item>
+        <item quantity="many">%1$d serijos</item>
+        <item quantity="other">%1$d serijų</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min.</string>
+    <string name="screen_time_title">Šiandienai viskas</string>
+    <string name="screen_time_daily">Šiandienos ekrano laikas baigėsi. Iki rytojaus!</string>
+    <string name="screen_time_bedtime">Laikas miegoti. Iki rytojaus!</string>
+    <string name="screen_time_choose">Kiek dar laiko?</string>
+    <string name="screen_time_ok">Gerai</string>
+    <string name="screen_time_more">Daugiau laiko (tėvams)</string>
+    <string name="screen_time_add_minutes">+%1$d min.</string>
+    <string name="screen_time_rest_of_day">Be ribos iki dienos pabaigos</string>
+    <string name="kids_hours">%1$d val.</string>
+    <string name="kids_hours_minutes">%1$d val. %2$d min.</string>
 </resources>

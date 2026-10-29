@@ -8,14 +8,22 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -26,6 +34,7 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +54,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.tv.material3.Border
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -55,6 +66,7 @@ import com.fetch.tv.core.server.AddonWebConfigMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -69,14 +81,24 @@ fun EssentialAddonSetupScreen(
         onDispose { viewModel.stopQrMode() }
     }
 
+    LaunchedEffect(uiState.transientMessage) {
+        if (uiState.transientMessage != null) {
+            delay(3200)
+            viewModel.clearTransientMessage()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = FetchTheme.spacing.huge, vertical = FetchTheme.spacing.xxxl),
         contentAlignment = Alignment.Center
     ) {
+        // Scrolls if the taller cards push Continue for now off a 540dp screen at large text sizes.
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -91,15 +113,19 @@ fun EssentialAddonSetupScreen(
                 color = FetchTheme.colors.TextSecondary
             )
             Spacer(modifier = Modifier.height(28.dp))
+            // Cards grow with their content at large text sizes; the intrinsic height keeps them level.
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(18.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .height(220.dp),
+                        .fillMaxHeight()
+                        .heightIn(min = 220.dp),
                     colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundCard),
                     shape = RoundedCornerShape(FetchTheme.radii.md)
                 ) {
@@ -112,12 +138,15 @@ fun EssentialAddonSetupScreen(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, textDirection = TextDirection.Content),
                             color = FetchTheme.colors.TextPrimary,
                         )
+                        var isUrlFieldFocused by remember { mutableStateOf(false) }
+                        val urlFieldShape = RoundedCornerShape(FetchTheme.radii.md)
                         BasicTextField(
                             value = uiState.installUrl,
                             onValueChange = viewModel::onInstallUrlChange,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(FetchTheme.spacing.xxxl),
+                                .height(FetchTheme.spacing.xxxl)
+                                .onFocusChanged { isUrlFieldFocused = it.isFocused },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Uri,
@@ -133,9 +162,19 @@ fun EssentialAddonSetupScreen(
                                             textDirection = TextDirection.Content),
                             cursorBrush = SolidColor(FetchTheme.colors.Primary),
                             decorationBox = { innerTextField ->
+                                // Same edge and focus ring as the full addon manager's URL field.
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
+                                        .background(FetchTheme.colors.BackgroundElevated, urlFieldShape)
+                                        .border(
+                                            border = if (isUrlFieldFocused) {
+                                                FetchTheme.focusRing.border(FetchTheme.spacing.xxs)
+                                            } else {
+                                                BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border)
+                                            },
+                                            shape = urlFieldShape
+                                        )
                                         .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)
                                 ) {
                                     if (uiState.installUrl.isEmpty()) {
@@ -158,7 +197,14 @@ fun EssentialAddonSetupScreen(
                             colors = ButtonDefaults.colors(
                                 containerColor = FetchTheme.colors.Secondary,
                                 contentColor = FetchTheme.colors.OnSecondary,
-                                focusedContainerColor = FetchTheme.colors.SecondaryVariant
+                                focusedContainerColor = FetchTheme.colors.SecondaryVariant,
+                                focusedContentColor = FetchTheme.colors.OnSecondary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(50)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(50))
                         ) {
@@ -189,7 +235,8 @@ fun EssentialAddonSetupScreen(
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .height(220.dp),
+                        .fillMaxHeight()
+                        .heightIn(min = 220.dp),
                     colors = CardDefaults.cardColors(containerColor = FetchTheme.colors.BackgroundCard),
                     shape = RoundedCornerShape(FetchTheme.radii.md)
                 ) {
@@ -218,7 +265,13 @@ fun EssentialAddonSetupScreen(
                                 containerColor = FetchTheme.colors.BackgroundElevated,
                                 contentColor = FetchTheme.colors.TextPrimary,
                                 focusedContainerColor = FetchTheme.colors.FocusBackground,
-                                focusedContentColor = FetchTheme.colors.Primary
+                                focusedContentColor = FetchTheme.colors.TextPrimary
+                            ),
+                            border = ButtonDefaults.border(
+                                focusedBorder = Border(
+                                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                                    shape = RoundedCornerShape(50)
+                                )
                             ),
                             shape = ButtonDefaults.shape(RoundedCornerShape(50))
                         ) {
@@ -235,7 +288,13 @@ fun EssentialAddonSetupScreen(
                     containerColor = FetchTheme.colors.BackgroundCard,
                     contentColor = FetchTheme.colors.TextPrimary,
                     focusedContainerColor = FetchTheme.colors.FocusBackground,
-                    focusedContentColor = FetchTheme.colors.Primary
+                    focusedContentColor = FetchTheme.colors.TextPrimary
+                ),
+                border = ButtonDefaults.border(
+                    focusedBorder = Border(
+                        border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
+                        shape = RoundedCornerShape(50)
+                    )
                 ),
                 shape = ButtonDefaults.shape(RoundedCornerShape(50))
             ) {

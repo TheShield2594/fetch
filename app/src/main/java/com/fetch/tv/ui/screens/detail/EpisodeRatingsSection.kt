@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.ui.theme.FetchContentColors
+import com.fetch.tv.ui.theme.FetchPrimitives
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -96,8 +98,8 @@ fun EpisodeRatingsSection(
             val episodeNumber = episode.episode ?: return@mapNotNull null
             val rating = ratings[season to episodeNumber]
             val ratingText = rating?.let { String.format("%.1f", it) } ?: "—"
-            val chipColor = rating?.let(::ratingColor) ?: defaultChipColor
-            val chipTextColor = rating?.let(::ratingTextColor) ?: defaultChipTextColor
+            val chipColor = rating?.let(::episodeRatingChipColor) ?: defaultChipColor
+            val chipTextColor = rating?.let(::episodeRatingChipTextColor) ?: defaultChipTextColor
             EpisodeRatingChipUi(
                 id = episode.id,
                 seasonNumber = season,
@@ -170,6 +172,7 @@ fun EpisodeRatingsSection(
                         } else {
                             seasonFocusRequesters.getValue(season)
                         }
+                        var isFocused by remember { mutableStateOf(false) }
 
                         Card(
                             onClick = { selectedSeason = season },
@@ -181,6 +184,7 @@ fun EpisodeRatingsSection(
                                     down = effectiveRatingsGridFocusRequester
                                 }
                                 .onFocusChanged { state ->
+                                    isFocused = state.isFocused
                                     if (state.isFocused && selectedSeason != season) {
                                         selectedSeason = season
                                     }
@@ -188,11 +192,11 @@ fun EpisodeRatingsSection(
                             shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
                             colors = CardDefaults.colors(
                                 containerColor = if (isSelected) {
-                                    FetchTheme.colors.FocusBackground
+                                    FetchTheme.colors.Highlight
                                 } else {
                                     FetchTheme.colors.BackgroundCard
                                 },
-                                focusedContainerColor = FetchTheme.colors.FocusBackground
+                                focusedContainerColor = FetchTheme.colors.Highlight
                             ),
                             border = CardDefaults.border(
                                 focusedBorder = Border(
@@ -205,7 +209,7 @@ fun EpisodeRatingsSection(
                             Text(
                                 text = stringResource(R.string.ratings_season_label, season),
                                 style = MaterialTheme.typography.labelMedium,
-                                color = FetchTheme.colors.TextPrimary,
+                                color = if (isSelected || isFocused) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
                                 modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
                             )
                         }
@@ -281,7 +285,8 @@ fun EpisodeRatingsSection(
     }
 }
 
-private fun ratingColor(value: Double): androidx.compose.ui.graphics.Color {
+/** The heatmap fill for an episode rated [value]. */
+internal fun episodeRatingChipColor(value: Double): Color {
     return when {
         value >= 9.7 -> FetchContentColors.ratingExceptional
         value >= 9.0 -> FetchContentColors.ratingGreat
@@ -293,10 +298,16 @@ private fun ratingColor(value: Double): androidx.compose.ui.graphics.Color {
     }
 }
 
-private fun ratingTextColor(value: Double): Color {
+/**
+ * The text drawn on [episodeRatingChipColor]. Only the two darkest fills (Great and Bad) take
+ * white; the rest take dark text so every band reaches 4.5:1 (ThemeContrastTest checks this).
+ */
+internal fun episodeRatingChipTextColor(value: Double): Color {
     return when {
-        value >= 7.0 && value < 8.0 -> FetchContentColors.ratingTextOnLight
-        else -> Color.White
+        value >= 9.7 -> FetchContentColors.ratingTextOnLight
+        value >= 9.0 -> FetchPrimitives.white
+        value >= 6.0 -> FetchContentColors.ratingTextOnLight
+        else -> FetchPrimitives.white
     }
 }
 

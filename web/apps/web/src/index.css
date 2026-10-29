@@ -822,10 +822,17 @@ body {
    *
    * --focus-ring is measured at >= 3:1 against every surface in every theme;
    * see the note at the top of this file.
+   *
+   * `.field-control` is the same indicator for text inputs and textareas. They
+   * used to pair an accent border with an accent ring at 0.15-0.4 alpha (or a
+   * hard-coded violet), which measured under 2.2:1 on the light theme; two
+   * fields drew nothing but the caret. Don't add `focus:outline-none` next to
+   * it: utilities sit in a later layer and would remove the outline.
    */
   .checkbox-control:focus-visible,
   .switch-control:focus-visible,
-  .select-control:focus-visible {
+  .select-control:focus-visible,
+  .field-control:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
     box-shadow: none;

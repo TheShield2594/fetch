@@ -66,6 +66,12 @@ class LibraryServersViewModel @Inject constructor(
         }
     }
 
+    /** Loads every shelf again even though the server list hasn't changed, for Retry. */
+    fun reload() {
+        loadedRevision = null
+        load()
+    }
+
     private suspend fun shelf(ref: ServerLibraryRef): LibraryServerShelf {
         val key = "${ref.connection.id}:${ref.library.id}"
         return try {

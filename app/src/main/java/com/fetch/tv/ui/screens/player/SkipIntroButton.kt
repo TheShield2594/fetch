@@ -228,7 +228,7 @@ fun SkipIntroButton(
                     if (it.isFocused) onFocused?.invoke()
                 },
             colors = CardDefaults.colors(
-                containerColor = FetchPrimitives.neutral875.copy(alpha = 0.85f),
+                containerColor = FetchTheme.colors.Player.ScrimStrong,
                 focusedContainerColor = FetchTheme.colors.Secondary
             ),
             shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md))
@@ -254,7 +254,7 @@ fun SkipIntroButton(
                     )
                 }
                 val countdownHidden = controlsVisible || autoHidden || dismissed
-                val countdownFill = FetchPrimitives.neutral875.copy(alpha = if (countdownHidden) 0f else 0.85f)
+                val countdownFill = if (countdownHidden) Color.Transparent else FetchTheme.colors.Player.ScrimStrong
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

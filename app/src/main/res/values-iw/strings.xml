@@ -103,8 +103,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">מסך הבית צריך תוסף קטלוג כדי להציג כותרים.</string>
     <string name="home_empty_no_catalogs_title">אין קטלוגים להצגה</string>
     <string name="home_empty_no_catalogs_subtitle">התוספים שלך לא מציעים קטלוגים למסך הבית.</string>
-    <string name="auth_notice_fetch_logged_out">יצאת מחשבון Fetch. נדרשת התחברות מחדש.</string>
-    <string name="auth_notice_trakt_logged_out">יצאת מחשבון Trakt. נדרשת התחברות מחדש.</string>
+    <string name="auth_notice_fetch_logged_out">יצאת מחשבון Fetch. אפשר להתחבר מחדש דרך הגדרות &gt; חשבון.</string>
+    <string name="auth_notice_trakt_logged_out">יצאת מחשבון Trakt. אפשר לחבר אותו מחדש דרך הגדרות &gt; מעקב.</string>
     <string name="error_generic">אירעה שגיאה</string>
 
     <string name="action_retry">ניסיון נוסף</string>
@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">%1$d פרקים קודמים סומנו כנצפו.</string>
 
     <string name="playback_unavailable">ההפעלה לא זמינה</string>
-    <string name="playback_unavailable_message">ההפעלה לא זמינה לכותרת הזו בהגדרות הנוכחיות.</string>
+    <string name="playback_unavailable_message">אף אחד מהמקורות שהוגדרו לא יכול להפעיל את הכותר הזה. אפשר להוסיף או להפעיל תוסף סטרים בהגדרות &gt; תוכן וגילוי &gt; תוספים, או לבדוק את החיבור לשרת המדיה.</string>
     <string name="detail_btn_play">הפעלה</string>
     <string name="detail_btn_resume">המשך</string>
     <string name="detail_btn_play_episode">הפעלת S%1$d E%2$d</string>
@@ -607,6 +607,9 @@
     <string name="playback_subtitle">הגדרת אפשרויות הפעלת וידאו וכתוביות</string>
     <string name="cd_decrease">הפחתה</string>
     <string name="cd_increase">הגדלה</string>
+    <string name="cd_decrease_setting">הפחתת %1$s</string>
+    <string name="cd_increase_setting">הגדלת %1$s</string>
+    <string name="cd_seek_bar">סרגל דילוג</string>
     <string name="action_cancel">ביטול</string>
     <string name="action_apply">החלה</string>
     <string name="sub_opacity">שקיפות</string>
@@ -1061,7 +1064,7 @@
     <string name="mdblist_dialog_title">מפתח API של MDBList</string>
     <string name="mdblist_dialog_placeholder">מפתח API של MDBList</string>
     <string name="mdblist_not_set">לא הוגדר</string>
-    <string name="mdblist_invalid_api_key">מפתח API של MDBList לא תקין</string>
+    <string name="mdblist_invalid_api_key">לא ניתן היה לאמת את מפתח ה-API הזה. יש לוודא שהוא תואם למפתח בחשבון MDBList שלך ושיש חיבור לאינטרנט, ולנסות שוב.</string>
     <string name="mdblist_library_lists">רשימות ספרייה</string>
     <string name="mdblist_library_lists_description">בחירת רשימות ה-MDBList שיוצגו בספרייה ובניהול רשימות. רשימת הצפייה מוצגת תמיד.</string>
     <string name="mdblist_library_lists_empty">עדיין לא נמצאו רשימות בחשבון ה-MDBList. יש לסנכרן כדי לטעון אותן.</string>
@@ -1112,7 +1115,7 @@
     <string name="animeskip_dialog_title">מזהה לקוח Anime Skip</string>
     <string name="animeskip_dialog_subtitle">יצירת מזהה לקוח משלך באתר anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">מזהה לקוח</string>
-    <string name="animeskip_invalid_client_id">מזהה לקוח לא תקין</string>
+    <string name="animeskip_invalid_client_id">לא ניתן היה לאמת את מזהה הלקוח הזה. יש לוודא שהוא תואם למזהה בחשבון Anime Skip שלך ושיש חיבור לאינטרנט, ולנסות שוב.</string>
     <string name="action_clear">ניקוי</string>
 
     <string name="tmdb_title">העשרת TMDB</string>
@@ -1330,6 +1333,7 @@
     <string name="addon_error_invalid_scheme">כתובת התוסף חייבת להתחיל ב-http או https</string>
     <string name="addon_installed_section">מותקן</string>
     <string name="addon_empty">אין תוספים מותקנים. יש להוסיף אחד כדי להתחיל.</string>
+    <string name="addon_list_load_failed">לא ניתן היה לטעון את התוספים המותקנים. כדאי לנסות שוב.</string>
     <string name="addon_remove">הסרה</string>
     <string name="addon_delete_confirm_title">למחוק את התוסף?</string>
     <string name="addon_delete_confirm_message">פעולה זו תמחק את התוסף לצמיתות. להמשיך?</string>
@@ -1429,6 +1433,8 @@
     <string name="player_up_next_in_queue">הבא בתור</string>
     <string name="player_queue_move_up">העברה למעלה</string>
     <string name="player_queue_move_down">העברה למטה</string>
+    <string name="player_queue_removed">%1$s הוסר מהתור</string>
+    <string name="player_queue_undo">ביטול</string>
     <string name="player_seek_back_10">10 שניות אחורה</string>
     <string name="player_seek_forward_30">30 שניות קדימה</string>
     <string name="player_live_watched">LIVE  %1$s</string>
@@ -1437,7 +1443,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">עיכוב כתוביות</string>
     <string name="player_error_title">שגיאת הפעלה</string>
-    <string name="player_go_back">חזרה</string>
+    <string name="player_error_choose_source">יש לבחור מקור אחר</string>
     <string name="player_switch_to_mpv">מעבר לנגן MPV</string>
     <string name="player_report_issue">דיווח על תקלה</string>
     <string name="player_report_issue_sending">שולח דוח הפעלה…</string>
@@ -1456,7 +1462,7 @@
     <string name="player_more_speed">מהירות הפעלה</string>
     <string name="player_more_aspect_ratio">יחס גובה-רוחב</string>
     <string name="player_more_open_external">פתיחה בנגן חיצוני</string>
-    <string name="player_error_no_stream_url">לא סופקה כתובת URL למקור</string>
+    <string name="player_error_no_stream_url">למקור הזה אין קישור לסטרים. יש לבחור מקור אחר.</string>
 
 
     <string name="stream_info_section_source">מקור</string>
@@ -1544,8 +1550,6 @@
 
     <string name="pause_you_are_watching">על המסך עכשיו</string>
     <string name="pause_cast_label">שחקנים</string>
-    <string name="pause_back_to_details">חזרה לפרטים</string>
-    <string name="pause_as_character">בתפקיד %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">הפרק הבא</string>
@@ -1589,6 +1593,8 @@
     <string name="search_start_subtitle_no_discover">גילוי מושבת. יש להקליד לפחות 2 תווים</string>
     <string name="search_recent_title">חיפושים אחרונים</string>
     <string name="search_recent_clear">ניקוי היסטוריה</string>
+    <string name="search_recent_clear_confirm_title">לנקות את היסטוריית החיפוש?</string>
+    <string name="search_recent_clear_confirm_subtitle">כל החיפושים האחרונים יוסרו. לא ניתן לבטל פעולה זו.</string>
     <string name="cd_remove_recent_search">הסרת %1$s מהחיפושים האחרונים</string>
     <string name="search_voice_no_speech">לא זוהה דיבור. כדאי לנסות שוב.</string>
     <string name="search_voice_mic_permission">נדרשת הרשאת מיקרופון לחיפוש קולי.</string>
@@ -1597,6 +1603,8 @@
     <string name="search_no_results_title">אין תוצאות</string>
     <string name="search_no_results_subtitle">כדאי לנסות לחפש במילים אחרות</string>
     <string name="search_error_no_catalogs">אף אחד מהתוספים המותקנים לא תומך בחיפוש.</string>
+    <string name="search_no_catalogs_title">אף אחד מהתוספים שלך לא תומך בחיפוש</string>
+    <string name="search_no_catalogs_subtitle">יש להתקין תוסף עם קטלוג חיפוש ולנסות שוב.</string>
 
     <string name="library_title">ספרייה</string>
     <string name="library_filter_list">רשימה</string>
@@ -1665,13 +1673,16 @@
     <string name="library_list_move_up">הזזה למעלה</string>
     <string name="library_list_move_down">הזזה למטה</string>
     <string name="library_list_delete">מחיקה</string>
+    <string name="library_list_delete_named">מחיקת “%1$s”</string>
     <string name="library_list_close">סגירה</string>
     <string name="library_list_name_label">שם</string>
-    <string name="library_error_list_name_required">נדרש שם לרשימה</string>
+    <string name="library_error_list_name_required">יש להזין שם לרשימה</string>
     <string name="library_list_description_label">תיאור</string>
     <string name="library_list_privacy">פרטיות</string>
     <string name="library_delete_title">למחוק רשימה זו?</string>
-    <string name="library_delete_subtitle">פעולה זו תסיר את הרשימה וכל הפריטים שבה מ-Trakt.</string>
+    <string name="library_delete_title_named">למחוק את “%1$s”?</string>
+    <string name="library_delete_subtitle_provider">הרשימה והפריטים שבה יוסרו מ-%1$s. לא ניתן לבטל פעולה זו.</string>
+    <string name="library_delete_subtitle_local">הרשימה והפריטים שבה יוסרו מהספרייה שלך. לא ניתן לבטל פעולה זו.</string>
     <string name="library_source_local">מקומי</string>
     <string name="library_source_saved">נשמר</string>
     <string name="library_watchlist">רשימת צפייה</string>
@@ -1896,9 +1907,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">לא ניתן היה לשמור את הסיסמה. כדאי לנסות שוב.</string>
     <string name="profile_pin_locked">הפרופיל נעול. כדאי לנסות שוב בעוד %1$d שנ׳.</string>
-    <string name="profile_pin_invalid">סיסמה שגויה. כדאי לנסות שוב.</string>
     <string name="profile_pin_verify_error">לא ניתן היה לאמת את הסיסמה. כדאי לנסות שוב.</string>
-    <string name="profile_pin_incorrect">הסיסמה הנוכחית שגויה.</string>
+    <string name="profile_pin_incorrect">סיסמה שגויה. כדאי לנסות שוב.</string>
     <string name="profile_pin_current_required">לפרופיל זה יש כבר סיסמה. יש להזין את הסיסמה הנוכחית כדי לשנות אותה.</string>
 
     <!-- Account Screen -->
@@ -1913,7 +1923,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">נדרש חיבור ל-Wi-Fi או לאינטרנט כדי להשתמש בתכונה זו</string>
-    <string name="error_server_ports_unavailable">לא ניתן היה להפעיל את השרת. כל היציאות בשימוש.</string>
+    <string name="error_server_ports_unavailable">לא ניתן היה להפעיל את החיבור לטלפון. יש להפעיל מחדש את Fetch ולנסות שוב.</string>
 
     <!-- Trakt errors -->
 
@@ -1978,6 +1988,11 @@
     <string name="cd_loading_logo">טוען לוגו</string>
     <string name="cd_move_up">הזזה למעלה</string>
     <string name="cd_move_down">הזזה למטה</string>
+    <string name="cd_move_addon_up">העברת %1$s למעלה</string>
+    <string name="cd_move_addon_down">העברת %1$s למטה</string>
+    <string name="cd_addon_enabled_toggle">%1$s מופעל</string>
+    <string name="cd_configure_addon">הגדרת %1$s</string>
+    <string name="cd_remove_addon">הסרת %1$s</string>
     <string name="cd_edit">עריכה</string>
     <string name="cd_delete">מחיקה</string>
     <string name="cd_qr_code">קוד QR</string>
@@ -2013,7 +2028,7 @@
     <string name="collections_import">ייבוא</string>
     <string name="collections_export_file">ייצוא קובץ</string>
     <string name="collections_saved_downloads">נשמר בהורדות</string>
-    <string name="collections_export_failed">הייצוא נכשל</string>
+    <string name="collections_export_failed">לא ניתן היה לשמור בהורדות. יש לבדוק את הרשאת האחסון ואת המקום הפנוי, ולנסות שוב.</string>
     <string name="collections_import_header">ייבוא אוספים</string>
     <string name="collections_import_description">ייבוא אוספים מ-JSON. קטלוגים מתוספים שאינם מותקנים יציגו אזהרה.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2258,6 +2273,16 @@
     <string name="collection_editor_folder_count_other">%1$d פריטים</string>
     <string name="collections_editor_delete_folder_title">למחוק תיקייה?</string>
     <string name="collections_editor_delete_folder_subtitle">פעולה זו תמחק לצמיתות את \"%1$s\" ואת תכולתה.</string>
+    <string name="folder_error_addon_source">לא ניתן היה לטעון את הקטלוג הזה. יש לוודא שהתוסף שלו מותקן ומחובר, ולנסות שוב.</string>
+    <string name="folder_error_addon_missing">התוסף של הקטלוג הזה אינו מותקן. אפשר להתקין אותו דרך תוספים, או להסיר את המקור הזה מהתיקייה.</string>
+    <string name="folder_error_tmdb_source">לא ניתן היה לטעון את התוכן הזה מ-TMDB. יש לבדוק את החיבור ולנסות שוב.</string>
+    <string name="folder_error_trakt_source">לא ניתן היה לטעון את רשימת ה-Trakt הזו. יש לבדוק את החיבור ולוודא שהרשימה עדיין ציבורית, ולנסות שוב.</string>
+    <string name="folder_error_list_source">לא ניתן היה לטעון את הרשימה הזו. יש לבדוק את החיבור ולנסות שוב.</string>
+    <string name="collections_editor_discard_title">לבטל את השינויים?</string>
+    <string name="collections_editor_discard_collection_subtitle">השינויים שלך באוסף הזה לא נשמרו.</string>
+    <string name="collections_editor_discard_folder_subtitle">השינויים שלך בתיקייה הזו לא נשמרו.</string>
+    <string name="collections_editor_keep_editing">המשך עריכה</string>
+    <string name="collections_editor_discard">ביטול השינויים</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Best Action Movies, Korean Dramas, 2024 Animation</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
@@ -2324,17 +2349,17 @@
     <string name="player_track_subtitle_fallback">כתוביות %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nהמקור חסום או מוגבל. כדאי לנסות מקור אחר.</string>
-    <string name="player_error_stream_removed">\n\nקישור המקור פג תוקף או הוסר. כדאי לנסות מקור אחר.</string>
-    <string name="player_error_stream_expired">\n\nפג תוקף קישור המקור. כדאי לנסות מקור אחר.</string>
-    <string name="player_error_stream_rate_limited">\n\nיותר מדי בקשות למקור. כדאי להמתין רגע ולנסות שוב.</string>
-    <string name="player_error_stream_unavailable">\n\nשרת המקור אינו זמין כרגע. כדאי לנסות מקור אחר.</string>
-    <string name="player_error_source_invalid_content">שגיאת מקור: המקור החזיר תוכן לא תקין או שלא ניתן להפעיל. ייתכן שפג תוקף הקישור, או שהשרת החזיר דף שגיאה במקום וידאו.\n\nכדאי לנסות מקור אחר. [%1$s]</string>
-    <string name="player_error_unsupported_format">המקור הזה משתמש בפורמט שייתכן שהמכשיר אינו תומך בו. כדאי לנסות מקור אחר. [%1$s]</string>
-    <string name="player_error_initialize_failed">אתחול הנגן נכשל</string>
-    <string name="player_error_mpv_surface_failed">אתחול משטח ה-libmpv נכשל</string>
-    <string name="player_error_mpv_playback_failed">אתחול ההפעלה של libmpv נכשל</string>
-    <string name="player_error_playback_fallback">שגיאת הפעלה</string>
+    <string name="player_error_stream_blocked">\n\nהמקור חסום או מוגבל. יש לבחור מקור אחר.</string>
+    <string name="player_error_stream_removed">\n\nקישור המקור פג תוקף או הוסר. יש לבחור מקור אחר.</string>
+    <string name="player_error_stream_expired">\n\nפג תוקף קישור המקור. יש לבחור מקור אחר.</string>
+    <string name="player_error_stream_rate_limited">\n\nיותר מדי בקשות למקור. כדאי להמתין רגע ואז לבחור מקור שוב.</string>
+    <string name="player_error_stream_unavailable">\n\nשרת המקור אינו זמין כרגע. יש לבחור מקור אחר.</string>
+    <string name="player_error_source_invalid_content">שגיאת מקור: המקור החזיר תוכן לא תקין או שלא ניתן להפעיל. ייתכן שפג תוקף הקישור, או שהשרת החזיר דף שגיאה במקום וידאו.\n\nיש לבחור מקור אחר. [%1$s]</string>
+    <string name="player_error_unsupported_format">המקור הזה משתמש בפורמט שייתכן שהמכשיר אינו תומך בו. יש לבחור מקור אחר. [%1$s]</string>
+    <string name="player_error_initialize_failed">לא ניתן להפעיל את הנגן. יש להפעיל מחדש את Fetch ולנסות שוב.</string>
+    <string name="player_error_mpv_surface_failed">לא ניתן להפעיל את נגן mpv. יש לנסות שוב, או לשנות את מנוע פנימי בהגדרות &gt; הפעלה.</string>
+    <string name="player_error_mpv_playback_failed">לא ניתן להתחיל את ההפעלה בנגן mpv. יש לנסות שוב, או לשנות את מנוע פנימי בהגדרות &gt; הפעלה.</string>
+    <string name="player_error_playback_fallback">לא ניתן להפעיל את הסטרים הזה. יש לבחור מקור אחר.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">לא נמצאו שורות כתוביות בקובץ זה.</string>
     <string name="subtitle_timing_load_lines_failed">טעינת שורות הכתוביות נכשלה.</string>
@@ -2365,6 +2390,7 @@
     <string name="library_list_created">הרשימה נוצרה</string>
     <string name="library_list_updated">הרשימה עודכנה</string>
     <string name="library_error_save_list_failed">שמירת הרשימה נכשלה</string>
+    <string name="library_error_save_list_next_step">יש לבדוק את החיבור ולנסות שוב.</string>
     <string name="library_list_deleted">הרשימה נמחקה</string>
     <string name="library_error_delete_list_failed">מחיקת הרשימה נכשלה</string>
     <string name="library_list_order_updated">סדר הרשימה עודכן</string>
@@ -2427,11 +2453,11 @@
     <string name="trakt_error_mark_watched_failed">נכשל בסימון כנצפה ב-Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">נכשל בעדכון הספרייה</string>
-    <string name="detail_error_load_lists_failed">נכשל בטעינת הרשימות</string>
-    <string name="detail_error_update_lists_failed">נכשל בעדכון הרשימות</string>
-    <string name="detail_error_update_watched_failed">נכשל בעדכון סטטוס הצפייה</string>
-    <string name="detail_error_update_episode_watched_failed">עדכון סטטוס הצפייה בפרק נכשל</string>
+    <string name="detail_error_update_library_failed">לא ניתן היה לעדכן את הספרייה שלך. יש לבדוק את החיבור ולנסות שוב.</string>
+    <string name="detail_error_load_lists_failed">לא ניתן היה לטעון את הרשימות שלך. יש לבדוק את החיבור ולנסות שוב.</string>
+    <string name="detail_error_update_lists_failed">לא ניתן היה לעדכן את הרשימות שלך. יש לבדוק את החיבור ולנסות שוב.</string>
+    <string name="detail_error_update_watched_failed">לא ניתן היה לעדכן את סטטוס הצפייה. יש לבדוק את החיבור ולנסות שוב.</string>
+    <string name="detail_error_update_episode_watched_failed">לא ניתן היה לעדכן את סטטוס הצפייה בפרק הזה. יש לבדוק את החיבור ולנסות שוב.</string>
     <string name="poster_options_error_load_lists_failed">טעינת הרשימות נכשלה</string>
     <string name="poster_options_error_update_lists_failed">עדכון הרשימות נכשל</string>
 
@@ -2625,7 +2651,7 @@
     <string name="diag_value_never_rendered">מעולם לא הוצג</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">הפעלת הסטרים שנבחר נכשלה</string>
+    <string name="player_error_play_stream_failed">לא ניתן להפעיל את הסטרים שנבחר. יש לבחור מקור אחר.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2722,6 +2748,9 @@
     <string name="addon_health_ok">מגיב · %1$s</string>
     <string name="addon_health_slow">איטי · %1$s</string>
     <string name="addon_health_timed_out">הזמן לבקשה האחרונה פג</string>
+    <string name="source_chip_failed">נכשל</string>
+    <string name="source_chip_loading">בטעינה</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">יש להגדיר את %1$s לפני שניתן להתקין אותו</string>
     <string name="advanced_introdb_api_key">מפתח API של IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">יש ליצור מפתח ב-introdb.app. הוא מתחיל ב-idb_.</string>
@@ -2737,6 +2766,7 @@
     <string name="autoplay_mode_best_desc">מדרג כל תוצאה לפי איכות, הכללים שלך ומה שהמכשיר הזה יכול לנגן, ואז מפעיל את המנצחת. שאר המקורות במרחק לחיצה אחת.</string>
     <string name="best_match_cached">במטמון</string>
     <string name="best_match_excluded">לא הופעל אוטומטית: %1$s</string>
+    <string name="stream_hold_for_options">לחיצה ארוכה על OK פותחת את אפשרויות ההתאמה הטובה ביותר</string>
     <string name="best_match_preview_sub">שואל את תוספי הסטרים על כותר בזמן שמסתכלים עליו, כך שכפתור הניגון יכול להציג את שם הקובץ וההפעלה מתחילה מהר יותר. יש לכבות כדי לחפש רק אחרי לחיצה על ניגון.</string>
     <string name="best_match_preview_title">הצגת הבחירה על כפתור הניגון</string>
     <string name="catalog_order_pin">הצמדה למעלה</string>
@@ -3081,14 +3111,57 @@
     <string name="profile_pin_forgot_needs_main">שכחת את הסיסמה? יש להגדיר קודם סיסמה ל-%1$s ואז להשתמש בה כדי לאפס את הסיסמה הזו.</string>
     <string name="profile_pin_forgot_main">לא ניתן לאפס את הסיסמה של הפרופיל הראשי, לכן כדאי לשמור אותה במקום בטוח.</string>
     <string name="profile_pin_reset_for_profile">הסיסמה של %1$s אופסה.</string>
-    <string name="profile_pin_incorrect_for_profile">סיסמה שגויה עבור %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">סיסמה שגויה עבור %1$s. כדאי לנסות שוב.</string>
     <string name="profile_selection_kids_badge">ילדים</string>
     <string name="profile_manage_done">סיום</string>
     <string name="cd_profile_locked">נעול בסיסמה</string>
+    <string name="cd_profile_pin_progress">הוזנו %1$d מתוך %2$d ספרות</string>
+    <string name="cd_profile_color_crimson">ארגמן</string>
+    <string name="cd_profile_color_ocean">אוקיינוס</string>
+    <string name="cd_profile_color_violet">סגול</string>
+    <string name="cd_profile_color_emerald">אזמרגד</string>
+    <string name="cd_profile_color_amber">ענבר</string>
+    <string name="cd_profile_color_rose">ורוד שושנה</string>
+    <string name="cd_profile_color_cyan">ציאן</string>
+    <string name="cd_profile_color_brown">חום</string>
+    <string name="cd_profile_color_position">צבע %1$d מתוך %2$d</string>
     <string name="profile_save_error">לא ניתן היה לשמור את הפרופיל. כדאי לנסות שוב.</string>
     <string name="profile_delete_error">לא ניתן היה למחוק את הפרופיל. כדאי לנסות שוב.</string>
     <string name="parental_pin_nudge_title">הגנה על ההגבלות של %1$s</string>
     <string name="parental_pin_nudge_subtitle">יש להגדיר קוד PIN ל-%1$s. בלעדיו, כל אחד יכול לשנות את ההגבלות של %2$s או לעבור לפרופיל אחר.</string>
     <string name="parental_pin_nudge_set">הגדרת קוד PIN ל-%1$s</string>
     <string name="parental_pin_nudge_later">לא עכשיו</string>
+    <string name="parental_gate_open_support">ל-%1$s אין קוד PIN משלו, ולכן נדרש קוד PIN של הורה כדי לפתוח אותו כל עוד לפרופיל אחר יש הגבלות הורים.</string>
+    <string name="parental_lock_profiles_title">נעילת פרופילים ללא הגבלות</string>
+    <string name="parental_lock_profiles_subtitle">כל עוד לפרופיל כלשהו יש הגבלות הורים, פתיחת פרופיל ללא הגבלות וללא קוד PIN משלו דורשת את קוד ה-PIN של %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">יש להגדיר קודם קוד PIN עבור %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">לנעול גם את שאר הפרופילים?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s יכול לפתוח את %2$s ולעקוף כל הגבלה, כי אין להם קוד PIN. במקום זאת, Fetch יכול לבקש את קוד ה-PIN של %3$s כדי לפתוח אותם.</string>
+    <string name="parental_lock_profiles_offer_accept">בקשת קוד ה-PIN של %1$s</string>
+    <string name="kids_autoplay_cap">הפעלה אוטומטית ברצף: %1$s</string>
+    <string name="kids_approved_only">כותרים מאושרים בלבד: %1$s</string>
+    <string name="kids_approved_movies">סרטים בשבילך</string>
+    <string name="kids_approved_shows">סדרות בשבילך</string>
+    <string name="kids_approved_only_hint">בפרופיל הזה מוצגים רק כותרים שתמיד מותרים. אפשר לאשר כותר מתפריט הלחיצה הארוכה על הפוסטר שלו בפרופיל הראשי.</string>
+    <string name="kids_daily_time">זמן מסך יומי: %1$s</string>
+    <string name="kids_bedtime">שעת שינה: %1$s עד %2$s</string>
+    <string name="kids_bedtime_off">שעת שינה: כבויה</string>
+    <string name="kids_at_limit_finish">בהגעה למגבלה: לסיים את מה שמתנגן</string>
+    <string name="kids_at_limit_stop">בהגעה למגבלה: לעצור מיד</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d פרק</item>
+        <item quantity="two">%1$d פרקים</item>
+        <item quantity="other">%1$d פרקים</item>
+    </plurals>
+    <string name="kids_minutes">%1$d דק׳</string>
+    <string name="screen_time_title">זהו להיום</string>
+    <string name="screen_time_daily">זמן המסך להיום נגמר. נתראה מחר!</string>
+    <string name="screen_time_bedtime">הגיע הזמן לישון. נתראה מחר!</string>
+    <string name="screen_time_choose">כמה זמן נוסף?</string>
+    <string name="screen_time_ok">אישור</string>
+    <string name="screen_time_more">עוד זמן (הורה)</string>
+    <string name="screen_time_add_minutes">+%1$d דק׳</string>
+    <string name="screen_time_rest_of_day">ללא הגבלה עד סוף היום</string>
+    <string name="kids_hours">%1$d שע׳</string>
+    <string name="kids_hours_minutes">%1$d שע׳ %2$d דק׳</string>
 </resources>

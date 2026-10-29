@@ -21,6 +21,7 @@ object PhoneHubWebPage {
           input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #333a46; background: #161a21; color: inherit; font: inherit; }
           button { padding: 12px 16px; border: 0; border-radius: 10px; background: #2d6cdf; color: #fff; font: inherit; cursor: pointer; }
           button.secondary { background: #2a303b; }
+          button:disabled { opacity: 0.5; cursor: default; }
           .row { display: flex; gap: 8px; margin-top: 8px; }
           .row > * { flex: 1; }
           .status { min-height: 1.4em; margin-top: 8px; color: #9aa3b2; font-size: 14px; }
@@ -36,12 +37,22 @@ object PhoneHubWebPage {
 
     private val COMMON_JS = """
         <script>
-        async function post(path, body) {
-          const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const TV_UNREACHABLE = 'Can’t reach the TV. Open Configure from phone on the TV, then scan the new code.';
+        // A network failure (the TV closed the page) or a lapsed pairing both mean scanning again.
+        async function request(path, options) {
+          let response;
+          try { response = await fetch(path, options); } catch (e) { throw new Error(TV_UNREACHABLE); }
           let data = {};
           try { data = await response.json(); } catch (e) {}
-          if (!response.ok) throw new Error(data.error || ('Request failed (' + response.status + ')'));
+          if (response.status === 401 || response.status === 403) throw new Error(TV_UNREACHABLE);
+          if (!response.ok) throw new Error(data.error || 'The TV couldn’t do that. Try again.');
           return data;
+        }
+        function post(path, body) {
+          return request(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        }
+        function load(path) {
+          return request(path);
         }
         function show(id, text, isError) {
           const el = document.getElementById(id);
@@ -78,6 +89,7 @@ object PhoneHubWebPage {
             title = "Fetch on your TV",
             showBack = false,
             body = """
+                <p style="color:#9aa3b2;font-size:14px">If this page stops responding, open Configure from phone on the TV and scan the new code.</p>
                 ${card("/remote", "Remote and keyboard", "D-pad, OK, Back, play/pause, and typing into the TV")}
                 ${card("/addons", "Addons", "Add a stream addon by its link. The TV asks before installing it")}
                 ${card("/accounts", "Accounts", "MDBList, Trakt, Simkl and media servers")}
@@ -141,6 +153,7 @@ object PhoneHubWebPage {
     fun accounts(): String = page(
         title = "Accounts",
         body = """
+            <div id="loadStatus" class="status"></div>
             <h2>MDBList ratings</h2>
             <label for="mdbKey">API key</label>
             <input id="mdbKey" type="password" autocomplete="off">
@@ -169,7 +182,8 @@ object PhoneHubWebPage {
               return String(value).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
             }
             function refresh() {
-              fetch('/api/accounts').then(function (r) { return r.json(); }).then(function (s) {
+              load('/api/accounts').then(function (s) {
+                show('loadStatus', '');
                 show('mdbStatus', s.mdbList ? 'A key is saved.' : '');
                 const trackers = [];
                 if (s.trakt.connected) trackers.push('Trakt' + (s.trakt.username ? ' (' + s.trakt.username + ')' : ''));
@@ -183,6 +197,8 @@ object PhoneHubWebPage {
                   });
                 }
                 if (s.mediaServers.length) show('serverStatus', 'Connected: ' + s.mediaServers.join(', '));
+              }).catch(function (e) {
+                show('loadStatus', e.message === TV_UNREACHABLE ? e.message : 'Couldn’t load your accounts. Reload this page.', true);
               });
             }
             document.getElementById('saveMdb').addEventListener('click', function () {
@@ -256,7 +272,7 @@ object PhoneHubWebPage {
             <label for="maxResults">Results to keep (0 for all)</label><input id="maxResults" type="number" min="0" step="1">
             <label for="maxPerResolution">Results per resolution (0 for all)</label><input id="maxPerResolution" type="number" min="0" step="1">
             <label for="maxPerSource">Results per release type (0 for all)</label><input id="maxPerSource" type="number" min="0" step="1">
-            <div class="row"><button id="save">Save</button></div>
+            <div class="row"><button id="save" disabled>Save</button></div>
             <div id="status" class="status"></div>
         """,
         script = """
@@ -295,29 +311,36 @@ object PhoneHubWebPage {
               ticked[id] = (values || []).slice();
               document.querySelectorAll('[data-group="' + id + '"]').forEach(function (i) { i.checked = ticked[id].indexOf(i.value) >= 0; });
             }
-            let current = {};
+            // Save stays off until the TV's rules have loaded, so a failed load can't save blank rules over them.
+            let current = null;
             ['preferredResolution','maxResolution','minResolution'].forEach(function (id) {
               const select = document.getElementById(id);
               RESOLUTIONS.forEach(function (r) { const o = document.createElement('option'); o.value = r[0]; o.textContent = r[1]; select.appendChild(o); });
             });
             function lines(id) { return document.getElementById(id).value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean); }
             function number(id) { const v = document.getElementById(id).value; return v === '' ? null : Number(v); }
-            fetch('/api/ranking').then(function (r) { return r.json(); }).then(function (d) {
-              current = d.rules;
-              ['preferredResolution','maxResolution','minResolution'].forEach(function (id) { document.getElementById(id).value = current[id]; });
-              document.getElementById('maxSizeGb').value = current.maxSizeGb == null ? '' : current.maxSizeGb;
-              document.getElementById('preferredMaxSizeGb').value = current.preferredMaxSizeGb == null ? '' : current.preferredMaxSizeGb;
-              BOOLEANS.forEach(function (id) { document.getElementById(id).checked = !!current[id]; });
-              document.getElementById('preferredKeywords').value = (current.preferredKeywords || []).join('\n');
-              document.getElementById('excludedKeywords').value = (current.excludedKeywords || []).join('\n');
-              document.getElementById('minSizeGb').value = current.minSizeGb == null ? '' : current.minSizeGb;
-              Object.keys(CHOICES).forEach(function (id) { setChoices(id, current[id]); });
-              document.getElementById('preferredReleaseGroups').value = (current.preferredReleaseGroups || []).join('\n');
-              document.getElementById('excludedReleaseGroups').value = (current.excludedReleaseGroups || []).join('\n');
-              document.getElementById('preferredAddons').value = (current.preferredAddons || []).join('\n');
-              NUMBERS.forEach(function (id) { document.getElementById(id).value = current[id] || 0; });
+            load('/api/ranking').then(function (d) {
+              if (!d.rules) throw new Error('No rules');
+              const loaded = d.rules;
+              ['preferredResolution','maxResolution','minResolution'].forEach(function (id) { document.getElementById(id).value = loaded[id]; });
+              document.getElementById('maxSizeGb').value = loaded.maxSizeGb == null ? '' : loaded.maxSizeGb;
+              document.getElementById('preferredMaxSizeGb').value = loaded.preferredMaxSizeGb == null ? '' : loaded.preferredMaxSizeGb;
+              BOOLEANS.forEach(function (id) { document.getElementById(id).checked = !!loaded[id]; });
+              document.getElementById('preferredKeywords').value = (loaded.preferredKeywords || []).join('\n');
+              document.getElementById('excludedKeywords').value = (loaded.excludedKeywords || []).join('\n');
+              document.getElementById('minSizeGb').value = loaded.minSizeGb == null ? '' : loaded.minSizeGb;
+              Object.keys(CHOICES).forEach(function (id) { setChoices(id, loaded[id]); });
+              document.getElementById('preferredReleaseGroups').value = (loaded.preferredReleaseGroups || []).join('\n');
+              document.getElementById('excludedReleaseGroups').value = (loaded.excludedReleaseGroups || []).join('\n');
+              document.getElementById('preferredAddons').value = (loaded.preferredAddons || []).join('\n');
+              NUMBERS.forEach(function (id) { document.getElementById(id).value = loaded[id] || 0; });
+              current = loaded;
+              document.getElementById('save').disabled = false;
+            }).catch(function (e) {
+              show('status', e.message === TV_UNREACHABLE ? e.message : 'Couldn’t load the current rules, so they can’t be saved. Reload this page.', true);
             });
             document.getElementById('save').addEventListener('click', function () {
+              if (!current) return;
               const rules = Object.assign({}, current);
               ['preferredResolution','maxResolution','minResolution'].forEach(function (id) { rules[id] = document.getElementById(id).value; });
               rules.maxSizeGb = number('maxSizeGb');
@@ -355,13 +378,15 @@ object PhoneHubWebPage {
               return String(value).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
             }
             function refresh() {
-              fetch('/api/profiles').then(function (r) { return r.json(); }).then(function (d) {
+              load('/api/profiles').then(function (d) {
                 const box = document.getElementById('profiles');
                 box.innerHTML = d.profiles.map(function (p) {
                   return '<a class="card" download href="/api/profiles/export?id=' + encodeURIComponent(p.id) + '">' +
                     escapeHtml(p.name) + '<span>Save as a file</span></a>';
                 }).join('');
                 show('exportStatus', d.profiles.length ? '' : 'No profile can be saved. A profile with a PIN has to have it removed on the TV first.');
+              }).catch(function (e) {
+                show('exportStatus', e.message === TV_UNREACHABLE ? e.message : 'Couldn’t load this TV’s profiles. Reload this page.', true);
               });
             }
             document.getElementById('import').addEventListener('click', function () {
@@ -403,7 +428,7 @@ object PhoneHubWebPage {
               return /^https?:\/\//i.test(url) ? url : '#';
             }
             function refresh() {
-              fetch('/api/addons').then(function (r) { return r.json(); }).then(function (d) {
+              load('/api/addons').then(function (d) {
                 const streams = d.installed.filter(function (a) { return a.streams; }).length;
                 document.getElementById('installed').textContent = d.installed.length
                   ? d.installed.map(function (a) { return a.name; }).join(', ') + '. ' +
@@ -422,6 +447,8 @@ object PhoneHubWebPage {
                     send();
                   });
                 });
+              }).catch(function (e) {
+                show('installed', e.message === TV_UNREACHABLE ? e.message : 'Couldn’t load this TV’s addons. Reload this page.', true);
               });
             }
             let pollTimer = null;

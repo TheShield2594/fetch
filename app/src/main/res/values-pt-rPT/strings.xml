@@ -100,8 +100,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">O Início precisa de um addon de catálogo para mostrar títulos.</string>
     <string name="home_empty_no_catalogs_title">Nenhum catálogo para mostrar</string>
     <string name="home_empty_no_catalogs_subtitle">Os teus addons não oferecem catálogos para o Início.</string>
-    <string name="auth_notice_fetch_logged_out">A tua sessão no Fetch foi terminada. Inicia sessão novamente.</string>
-    <string name="auth_notice_trakt_logged_out">A tua sessão no Trakt foi terminada. Volta a ligar a conta.</string>
+    <string name="auth_notice_fetch_logged_out">A tua sessão no Fetch foi terminada. Inicia sessão novamente em Definições &gt; Conta.</string>
+    <string name="auth_notice_trakt_logged_out">A tua sessão no Trakt foi terminada. Volta a ligar a conta em Definições &gt; Monitorização.</string>
     <string name="error_generic">Ocorreu um erro</string>
     <string name="action_retry">Tentar novamente</string>
     <string name="error_state_generic_issue">Algo correu mal.</string>
@@ -208,6 +208,7 @@
     <string name="detail_marked_episodes_watched">Episódios marcados como vistos: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episódios marcados como não vistos: %1$d</string>
     <string name="detail_marked_previous_watched">Episódios anteriores marcados como vistos: %1$d</string>
+    <string name="playback_unavailable_message">Nada do que configuraste consegue reproduzir este título. Adiciona ou ativa um addon de streaming em Definições &gt; Conteúdo e descoberta &gt; Addons, ou verifica a ligação ao teu servidor multimédia.</string>
     <string name="detail_btn_play">Reproduzir</string>
     <string name="detail_btn_resume">Retomar</string>
     <string name="detail_btn_play_episode">Reproduzir T%1$d E%2$d</string>
@@ -351,6 +352,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Experiência</string>
     <string name="settings_account">Conta</string>
+    <string name="settings_tracking_title">Monitorização</string>
     <string name="settings_profiles">Perfis</string>
     <string name="settings_layout">Esquema</string>
     <string name="settings_content_discovery">Conteúdo e descoberta</string>
@@ -466,6 +468,9 @@
     <string name="playback_subtitle">Configura as opções de reprodução de vídeo e legendas</string>
     <string name="cd_decrease">Diminuir</string>
     <string name="cd_increase">Aumentar</string>
+    <string name="cd_decrease_setting">Diminuir %1$s</string>
+    <string name="cd_increase_setting">Aumentar %1$s</string>
+    <string name="cd_seek_bar">Barra de progresso</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_apply">Aplicar</string>
     <string name="sub_opacity">Opacidade</string>
@@ -764,7 +769,7 @@
     <string name="mdblist_dialog_title">Chave API MDBList</string>
     <string name="mdblist_dialog_placeholder">Introduzir chave API MDBList</string>
     <string name="mdblist_not_set">Não definido</string>
-    <string name="mdblist_invalid_api_key">Chave API MDBList inválida</string>
+    <string name="mdblist_invalid_api_key">Não foi possível verificar esta chave API. Verifica se corresponde à chave da tua conta MDBList e se estás online e tenta novamente.</string>
     <string name="mdblist_library_lists">Listas da Biblioteca</string>
     <string name="mdblist_library_lists_description">Escolhe que listas do MDBList aparecem na Biblioteca e em Gerir Listas. A Lista de Interesse aparece sempre.</string>
     <string name="mdblist_library_lists_empty">Ainda não foram encontradas listas na tua conta MDBList. Sincroniza para as carregar.</string>
@@ -811,7 +816,7 @@
     <string name="animeskip_dialog_title">Client ID do Anime Skip</string>
     <string name="animeskip_dialog_subtitle">Cria o teu próprio Client ID em anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Introduzir Client ID</string>
-    <string name="animeskip_invalid_client_id">Client ID inválido</string>
+    <string name="animeskip_invalid_client_id">Não foi possível verificar este Client ID. Verifica se corresponde ao da tua conta Anime Skip e se estás online e tenta novamente.</string>
     <string name="action_clear">Limpar</string>
     <string name="tmdb_title">Enriquecimento TMDB</string>
     <string name="tmdb_subtitle">Escolhe que campos de metadados devem vir do TMDB</string>
@@ -982,6 +987,7 @@
     <string name="addon_error_invalid_scheme">O URL do addon deve começar por http ou https</string>
     <string name="addon_installed_section">Instalados</string>
     <string name="addon_empty">Nenhum addon instalado. Adiciona um para começar.</string>
+    <string name="addon_list_load_failed">Não foi possível carregar os teus addons instalados. Tenta novamente.</string>
     <string name="addon_remove">Remover</string>
     <string name="addons_badge_disabled">Desativado</string>
     <string name="addon_manage_from_phone_title">Gerir a partir do telemóvel</string>
@@ -1069,6 +1075,8 @@
     <string name="player_up_next_in_queue">A seguir na fila</string>
     <string name="player_queue_move_up">Mover para cima</string>
     <string name="player_queue_move_down">Mover para baixo</string>
+    <string name="player_queue_removed">Removido da fila: %1$s</string>
+    <string name="player_queue_undo">Anular</string>
     <string name="player_seek_back_10">Recuar 10 segundos</string>
     <string name="player_seek_forward_30">Avançar 30 segundos</string>
     <string name="player_via">via %1$s</string>
@@ -1076,13 +1084,13 @@
     <string name="season_episode_format">T%1$d E%2$d</string>
     <string name="player_subtitle_delay">Atraso das Legendas</string>
     <string name="player_error_title">Erro de Reprodução</string>
-    <string name="player_go_back">Voltar atrás</string>
+    <string name="player_error_choose_source">Escolhe outra fonte</string>
     <string name="player_speed_title">Velocidade de Reprodução</string>
     <string name="player_more_actions_title">Mais Ações</string>
     <string name="player_more_speed">Velocidade de Reprodução</string>
     <string name="player_more_aspect_ratio">Proporção do ecrã</string>
     <string name="player_more_open_external">Abrir em Leitor Externo</string>
-    <string name="player_error_no_stream_url">Nenhum URL de stream fornecido</string>
+    <string name="player_error_no_stream_url">Esta fonte não tem link de stream. Escolhe outra fonte.</string>
     <string name="stream_info_section_source">FONTE</string>
     <string name="stream_info_section_file">FICHEIRO</string>
     <string name="stream_info_section_video">VÍDEO</string>
@@ -1160,8 +1168,6 @@
     <string name="subtitle_style_weight">Espessura (Weight)</string>
     <string name="pause_you_are_watching">Estás a ver</string>
     <string name="pause_cast_label">Elenco</string>
-    <string name="pause_back_to_details">Voltar aos detalhes</string>
-    <string name="pause_as_character">como %1$s</string>
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Próximo episódio</string>
     <string name="next_episode_finding_source">A procurar fonte…</string>
@@ -1193,6 +1199,8 @@
     <string name="search_start_subtitle_no_discover">A Descoberta está desativada. Introduz pelo menos 2 caracteres</string>
     <string name="search_recent_title">Pesquisas recentes</string>
     <string name="search_recent_clear">Limpar histórico</string>
+    <string name="search_recent_clear_confirm_title">Limpar o histórico de pesquisa?</string>
+    <string name="search_recent_clear_confirm_subtitle">Todas as tuas pesquisas recentes serão removidas. Esta ação não pode ser anulada.</string>
     <string name="search_voice_no_speech">Nenhuma voz detetada. Tenta novamente.</string>
     <string name="search_voice_mic_permission">É necessária a permissão do microfone para a pesquisa por voz.</string>
     <string name="search_voice_failed">Falha no reconhecimento de voz. Tenta novamente.</string>
@@ -1200,6 +1208,8 @@
     <string name="search_no_results_title">Sem Resultados</string>
     <string name="search_no_results_subtitle">Tenta pesquisar com palavras-chave diferentes</string>
     <string name="search_error_no_catalogs">Nenhum catálogo pesquisável encontrado nos addons instalados</string>
+    <string name="search_no_catalogs_title">Nenhum dos teus addons permite pesquisar</string>
+    <string name="search_no_catalogs_subtitle">Instala um addon com um catálogo de pesquisa e tenta novamente.</string>
     <string name="library_title">Biblioteca</string>
     <string name="library_filter_list">Lista</string>
     <string name="library_filter_type">Tipo</string>
@@ -1246,13 +1256,16 @@
     <string name="library_list_move_up">Mover para Cima</string>
     <string name="library_list_move_down">Mover para Baixo</string>
     <string name="library_list_delete">Eliminar</string>
+    <string name="library_list_delete_named">Eliminar «%1$s»</string>
     <string name="library_list_close">Fechar</string>
     <string name="library_list_name_label">Nome</string>
-    <string name="library_error_list_name_required">O nome da lista é obrigatório</string>
+    <string name="library_error_list_name_required">Introduz um nome para a lista</string>
     <string name="library_list_description_label">Descrição</string>
     <string name="library_list_privacy">Privacidade</string>
     <string name="library_delete_title">Eliminar esta lista?</string>
-    <string name="library_delete_subtitle">Isto remove a lista e todos os seus itens do Trakt.</string>
+    <string name="library_delete_title_named">Eliminar «%1$s»?</string>
+    <string name="library_delete_subtitle_provider">Isto remove a lista e os respetivos itens de %1$s. Esta ação não pode ser anulada.</string>
+    <string name="library_delete_subtitle_local">Isto remove a lista e os respetivos itens da tua biblioteca. Esta ação não pode ser anulada.</string>
     <string name="library_source_local">LOCAL</string>
     <string name="library_source_saved">Guardado</string>
     <string name="library_watchlist">Lista de Interesse</string>
@@ -1392,9 +1405,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Não foi possível guardar o PIN. Tenta novamente.</string>
     <string name="profile_pin_locked">O perfil está bloqueado. Tenta novamente em %1$ds.</string>
-    <string name="profile_pin_invalid">PIN inválido. Tenta novamente.</string>
     <string name="profile_pin_verify_error">Não foi possível verificar o PIN. Tenta novamente.</string>
-    <string name="profile_pin_incorrect">O PIN atual está incorreto.</string>
+    <string name="profile_pin_incorrect">PIN incorreto. Tenta novamente.</string>
     <string name="profile_pin_current_required">Este perfil já possui um PIN. Introduz o PIN atual para o alterar.</string>
     <!-- Account Screen -->
     <!-- Sync screens -->
@@ -1404,7 +1416,7 @@
     <!-- Library -->
     <!-- Error messages (shared) -->
     <string name="error_network_required">Liga-te ao Wi-Fi ou Ethernet para utilizar esta funcionalidade</string>
-    <string name="error_server_ports_unavailable">Não foi possível iniciar o servidor. Todas as portas estão em utilização.</string>
+    <string name="error_server_ports_unavailable">Não foi possível iniciar a ligação ao telemóvel. Reinicia o Fetch e tenta novamente.</string>
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">O código do dispositivo expirou. Tenta novamente.</string>
     <string name="trakt_error_code_used">O código do dispositivo já foi utilizado. Começa de novo.</string>
@@ -1459,6 +1471,11 @@
     <string name="cd_loading_logo">A carregar logótipo</string>
     <string name="cd_move_up">Mover para cima</string>
     <string name="cd_move_down">Mover para baixo</string>
+    <string name="cd_move_addon_up">Mover %1$s para cima</string>
+    <string name="cd_move_addon_down">Mover %1$s para baixo</string>
+    <string name="cd_addon_enabled_toggle">%1$s ativado</string>
+    <string name="cd_configure_addon">Configurar %1$s</string>
+    <string name="cd_remove_addon">Remover %1$s</string>
     <string name="cd_edit">Editar</string>
     <string name="cd_delete">Eliminar</string>
     <string name="cd_qr_code">Código QR</string>
@@ -1491,7 +1508,7 @@
     <string name="collections_import">Importar</string>
     <string name="collections_export_file">Exportar Ficheiro</string>
     <string name="collections_saved_downloads">Guardado nas Transferências (Downloads)</string>
-    <string name="collections_export_failed">A exportação falhou</string>
+    <string name="collections_export_failed">Não foi possível guardar em Transferências. Verifica a permissão de armazenamento e o espaço livre e tenta novamente.</string>
     <string name="collections_import_header">Importar coleções</string>
     <string name="collections_import_description">Importa coleções a partir de um JSON. Os catálogos de addons que não tenhas instalados irão apresentar um aviso.</string>
     <string name="collections_import_url_placeholder">https://exemplo.com/colecoes.json</string>
@@ -1727,6 +1744,16 @@
     <string name="collection_editor_folder_count_other">%1$d itens</string>
     <string name="collections_editor_delete_folder_title">Eliminar Pasta?</string>
     <string name="collections_editor_delete_folder_subtitle">Isto irá eliminar permanentemente \"%1$s\" e o seu conteúdo.</string>
+    <string name="folder_error_addon_source">Não foi possível carregar este catálogo. Verifica se o respetivo addon está instalado e online e tenta novamente.</string>
+    <string name="folder_error_addon_missing">O addon deste catálogo não está instalado. Instala-o em Addons ou remove esta fonte da pasta.</string>
+    <string name="folder_error_tmdb_source">Não foi possível carregar a partir do TMDB. Verifica a tua ligação e tenta novamente.</string>
+    <string name="folder_error_trakt_source">Não foi possível carregar esta lista do Trakt. Verifica a tua ligação e se a lista ainda é pública e tenta novamente.</string>
+    <string name="folder_error_list_source">Não foi possível carregar esta lista. Verifica a tua ligação e tenta novamente.</string>
+    <string name="collections_editor_discard_title">Descartar alterações?</string>
+    <string name="collections_editor_discard_collection_subtitle">As tuas alterações a esta coleção não foram guardadas.</string>
+    <string name="collections_editor_discard_folder_subtitle">As tuas alterações a esta pasta não foram guardadas.</string>
+    <string name="collections_editor_keep_editing">Continuar a editar</string>
+    <string name="collections_editor_discard">Descartar</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Filmes da Marvel, Originais Netflix, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Melhores Filmes de Ação, Dramas Coreanos, Animação de 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Filmes com Tom Hanks, Atores favoritos</string>
@@ -1786,17 +1813,17 @@
     <string name="player_track_audio_fallback">Áudio %1$d</string>
     <string name="player_track_subtitle_fallback">Legenda %1$d</string>
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nA fonte do stream está bloqueada ou restrita. Tenta uma fonte diferente.</string>
-    <string name="player_error_stream_removed">\n\nO link do stream expirou ou foi removido. Tenta uma fonte diferente.</string>
-    <string name="player_error_stream_expired">\n\nO link do stream expirou. Tenta uma fonte diferente.</string>
-    <string name="player_error_stream_rate_limited">\n\nMuitos pedidos enviados para a fonte do stream. Aguarda um momento e tenta novamente.</string>
-    <string name="player_error_stream_unavailable">\n\nO servidor do stream está indisponível de momento. Tenta uma fonte diferente.</string>
-    <string name="player_error_source_invalid_content">Erro de fonte: A fonte do stream devolveu conteúdo inválido ou não reproduzível. O link pode ter expirado ou o servidor devolveu uma página de erro em vez do vídeo.\n\nTenta uma fonte diferente. [%1$s]</string>
-    <string name="player_error_unsupported_format">Este stream utiliza um formato que o teu dispositivo pode não suportar. Tenta uma fonte diferente. [%1$s]</string>
-    <string name="player_error_initialize_failed">Falha ao inicializar o leitor</string>
-    <string name="player_error_mpv_surface_failed">Falha ao inicializar a superfície libmpv</string>
-    <string name="player_error_mpv_playback_failed">Falha ao inicializar a reprodução libmpv</string>
-    <string name="player_error_playback_fallback">Erro de reprodução</string>
+    <string name="player_error_stream_blocked">\n\nA fonte do stream está bloqueada ou restrita. Escolhe outra fonte.</string>
+    <string name="player_error_stream_removed">\n\nO link do stream expirou ou foi removido. Escolhe outra fonte.</string>
+    <string name="player_error_stream_expired">\n\nO link do stream expirou. Escolhe outra fonte.</string>
+    <string name="player_error_stream_rate_limited">\n\nMuitos pedidos enviados para a fonte do stream. Aguarda um momento e volta a escolher uma fonte.</string>
+    <string name="player_error_stream_unavailable">\n\nO servidor do stream está indisponível de momento. Escolhe outra fonte.</string>
+    <string name="player_error_source_invalid_content">Erro de fonte: A fonte do stream devolveu conteúdo inválido ou não reproduzível. O link pode ter expirado ou o servidor devolveu uma página de erro em vez do vídeo.\n\nEscolhe outra fonte. [%1$s]</string>
+    <string name="player_error_unsupported_format">Este stream utiliza um formato que o teu dispositivo pode não suportar. Escolhe outra fonte. [%1$s]</string>
+    <string name="player_error_initialize_failed">Não foi possível iniciar o leitor. Reinicia o Fetch e tenta novamente.</string>
+    <string name="player_error_mpv_surface_failed">Não foi possível iniciar o leitor mpv. Tenta novamente ou altera Motor interno em Definições &gt; Reprodução.</string>
+    <string name="player_error_mpv_playback_failed">Não foi possível iniciar a reprodução no leitor mpv. Tenta novamente ou altera Motor interno em Definições &gt; Reprodução.</string>
+    <string name="player_error_playback_fallback">Não foi possível reproduzir este stream. Escolhe outra fonte.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Não foram encontradas linhas de legenda neste ficheiro.</string>
     <string name="subtitle_timing_load_lines_failed">Falha ao carregar as linhas de legenda.</string>
@@ -1825,6 +1852,7 @@
     <string name="library_list_created">Lista criada</string>
     <string name="library_list_updated">Lista atualizada</string>
     <string name="library_error_save_list_failed">Falha ao guardar a lista</string>
+    <string name="library_error_save_list_next_step">Verifica a tua ligação e tenta novamente.</string>
     <string name="library_list_deleted">Lista eliminada</string>
     <string name="library_error_delete_list_failed">Falha ao eliminar a lista</string>
     <string name="library_list_order_updated">Ordem das listas atualizada</string>
@@ -1851,11 +1879,11 @@
     <string name="trakt_error_request_failed">O pedido do Trakt falhou</string>
     <string name="trakt_error_mark_watched_failed">Falha ao marcar como visto no Trakt (%1$d)</string>
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Falha ao atualizar a biblioteca</string>
-    <string name="detail_error_load_lists_failed">Falha ao carregar as listas</string>
-    <string name="detail_error_update_lists_failed">Falha ao atualizar as listas</string>
-    <string name="detail_error_update_watched_failed">Falha ao atualizar o estado de visto</string>
-    <string name="detail_error_update_episode_watched_failed">Falha ao atualizar o estado de visto do episódio</string>
+    <string name="detail_error_update_library_failed">Não foi possível atualizar a tua biblioteca. Verifica a tua ligação e tenta novamente.</string>
+    <string name="detail_error_load_lists_failed">Não foi possível carregar as tuas listas. Verifica a tua ligação e tenta novamente.</string>
+    <string name="detail_error_update_lists_failed">Não foi possível atualizar as tuas listas. Verifica a tua ligação e tenta novamente.</string>
+    <string name="detail_error_update_watched_failed">Não foi possível atualizar o estado de visto. Verifica a tua ligação e tenta novamente.</string>
+    <string name="detail_error_update_episode_watched_failed">Não foi possível atualizar o estado de visto deste episódio. Verifica a tua ligação e tenta novamente.</string>
     <string name="poster_options_error_load_lists_failed">Falha ao carregar as listas</string>
     <string name="poster_options_error_update_lists_failed">Falha ao atualizar as listas</string>
     <!-- Search errors -->
@@ -2007,7 +2035,7 @@
     <string name="diag_value_conversions_fmt">%1$d de %2$d bem-sucedidas</string>
     <string name="diag_value_never_rendered">Nunca renderizado</string>
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Falha ao reproduzir o stream selecionado</string>
+    <string name="player_error_play_stream_failed">Não foi possível reproduzir o stream selecionado. Escolhe outra fonte.</string>
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
     <string name="unit_size_kb">%1$s KB</string>
@@ -2046,6 +2074,9 @@
     <string name="addon_health_ok">A responder · %1$s</string>
     <string name="addon_health_slow">Lento · %1$s</string>
     <string name="addon_health_timed_out">O último pedido expirou</string>
+    <string name="source_chip_failed">falhou</string>
+    <string name="source_chip_loading">a carregar</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s tem de ser configurado antes de poder ser instalado</string>
     <string name="advanced_introdb_api_key">Chave API do IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Cria uma chave em introdb.app. Começa por idb_.</string>
@@ -2061,6 +2092,7 @@
     <string name="autoplay_mode_best_desc">Classifica todos os resultados por qualidade, pelas tuas regras e pelo que este dispositivo consegue reproduzir, e inicia o vencedor. As outras fontes ficam a um clique.</string>
     <string name="best_match_cached">Em cache</string>
     <string name="best_match_excluded">Não reproduzido automaticamente: %1$s</string>
+    <string name="stream_hold_for_options">Mantém OK premido para ver as opções da Melhor correspondência</string>
     <string name="best_match_preview_sub">Consulta os teus addons de streams sobre um título enquanto o vês, para que o botão Reproduzir mostre o ficheiro e a reprodução comece mais depressa. Desliga para só pesquisar depois de premires Reproduzir.</string>
     <string name="best_match_preview_title">Mostrar a escolha no botão Reproduzir</string>
     <string name="catalog_order_pin">Fixar no topo</string>
@@ -2411,14 +2443,57 @@
     <string name="profile_pin_forgot_needs_main">Esqueceste o PIN? Define primeiro um PIN em %1$s e depois usa-o para repor este.</string>
     <string name="profile_pin_forgot_main">O PIN do perfil principal não pode ser reposto, por isso guarda-o num local seguro.</string>
     <string name="profile_pin_reset_for_profile">PIN de %1$s reposto.</string>
-    <string name="profile_pin_incorrect_for_profile">PIN incorreto para %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN incorreto para %1$s. Tenta novamente.</string>
     <string name="profile_selection_kids_badge">Infantil</string>
     <string name="profile_manage_done">Concluído</string>
     <string name="cd_profile_locked">Bloqueado com PIN</string>
+    <string name="cd_profile_pin_progress">%1$d de %2$d dígitos introduzidos</string>
+    <string name="cd_profile_color_crimson">Carmesim</string>
+    <string name="cd_profile_color_ocean">Oceano</string>
+    <string name="cd_profile_color_violet">Violeta</string>
+    <string name="cd_profile_color_emerald">Esmeralda</string>
+    <string name="cd_profile_color_amber">Âmbar</string>
+    <string name="cd_profile_color_rose">Rosa</string>
+    <string name="cd_profile_color_cyan">Ciano</string>
+    <string name="cd_profile_color_brown">Castanho</string>
+    <string name="cd_profile_color_position">Cor %1$d de %2$d</string>
     <string name="profile_save_error">Não foi possível guardar o perfil. Tenta novamente.</string>
     <string name="profile_delete_error">Não foi possível eliminar o perfil. Tenta novamente.</string>
     <string name="parental_pin_nudge_title">Protege os limites de %1$s</string>
     <string name="parental_pin_nudge_subtitle">Define um PIN em %1$s. Sem ele, qualquer pessoa pode alterar os limites de %2$s ou mudar para outro perfil.</string>
     <string name="parental_pin_nudge_set">Definir PIN em %1$s</string>
     <string name="parental_pin_nudge_later">Agora não</string>
+    <string name="parental_gate_open_support">%1$s não tem PIN próprio, por isso é necessário o PIN de um adulto para o abrir enquanto outro perfil tiver limites parentais.</string>
+    <string name="parental_lock_profiles_title">Bloquear perfis sem limites</string>
+    <string name="parental_lock_profiles_subtitle">Enquanto um perfil tiver limites parentais, abrir um perfil sem limites e sem PIN próprio requer o PIN de %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Define primeiro um PIN em %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Bloquear também os outros perfis?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s pode abrir %2$s e contornar todos os limites, porque não têm PIN. Em alternativa, o Fetch pode pedir o PIN de %3$s para os abrir.</string>
+    <string name="parental_lock_profiles_offer_accept">Pedir o PIN de %1$s</string>
+    <string name="kids_autoplay_cap">Reprodução automática seguida: %1$s</string>
+    <string name="kids_approved_only">Apenas títulos aprovados: %1$s</string>
+    <string name="kids_approved_movies">Filmes para ti</string>
+    <string name="kids_approved_shows">Séries para ti</string>
+    <string name="kids_approved_only_hint">Apenas os títulos sempre permitidos aparecem neste perfil. Permite um título no menu que abre ao manteres premido o cartaz no perfil principal.</string>
+    <string name="kids_daily_time">Tempo de ecrã diário: %1$s</string>
+    <string name="kids_bedtime">Hora de dormir: %1$s às %2$s</string>
+    <string name="kids_bedtime_off">Hora de dormir: Desligado</string>
+    <string name="kids_at_limit_finish">No limite: terminar o que está a dar</string>
+    <string name="kids_at_limit_stop">No limite: parar de imediato</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d episódio</item>
+        <item quantity="many">%1$d episódios</item>
+        <item quantity="other">%1$d episódios</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Por hoje é tudo</string>
+    <string name="screen_time_daily">O tempo de ecrã de hoje acabou. Até amanhã!</string>
+    <string name="screen_time_bedtime">É hora de dormir. Até amanhã!</string>
+    <string name="screen_time_choose">Quanto tempo mais?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Mais tempo (adulto)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Sem limite durante o resto do dia</string>
+    <string name="kids_hours">%1$d h</string>
+    <string name="kids_hours_minutes">%1$d h %2$d min</string>
 </resources>

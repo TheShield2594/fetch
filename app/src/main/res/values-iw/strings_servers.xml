@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">לא ניתן להגיע לשרת.</string>
     <string name="servers_error_unsupported">נדרשת גרסה %2$s ומעלה של %1$s.</string>
     <string name="servers_error_forbidden">למשתמש זה אין גישה.</string>
-    <string name="servers_error_failed">לא ניתן להתחבר לשרת.</string>
+    <string name="servers_error_failed">לא ניתן להתחבר לשרת. יש לוודא שהוא פועל ונגיש, ולנסות שוב.</string>
     <string name="servers_failure_auth">יש להתחבר לשרת זה מחדש בהגדרות.</string>
-    <string name="servers_failure_unreachable">השרת אינו זמין.</string>
+    <string name="servers_failure_unreachable">השרת אינו זמין. יש לוודא שהוא פועל ונגיש, ולנסות שוב.</string>
     <string name="servers_failure_not_found">פריט זה אינו זמין עוד בשרת.</string>
     <string name="servers_failure_unsupported">השרת אינו תומך בפריט זה.</string>
     <string name="servers_failure_incomplete">הספרייה של שרת זה עדיין נבדקת. יש לנסות שוב בעוד רגע.</string>

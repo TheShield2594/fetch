@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">ホームに作品を表示するにはカタログアドオンが必要です。</string>
     <string name="home_empty_no_catalogs_title">表示できるカタログがありません</string>
     <string name="home_empty_no_catalogs_subtitle">お使いのアドオンにはホーム用のカタログがありません。</string>
-    <string name="auth_notice_fetch_logged_out">Fetchからサインアウトされました。再度サインインしてください</string>
-    <string name="auth_notice_trakt_logged_out">Traktからサインアウトされました。再接続してください</string>
+    <string name="auth_notice_fetch_logged_out">Fetchからサインアウトされました。設定 &gt; アカウントから再度サインインしてください。</string>
+    <string name="auth_notice_trakt_logged_out">Traktからサインアウトされました。設定 &gt; トラッキングから再接続してください。</string>
     <string name="error_generic">エラーが発生しました</string>
 
     <string name="action_retry">再試行</string>
@@ -216,6 +216,7 @@
     <string name="detail_marked_episodes_watched">視聴済みにしたエピソード: %1$d</string>
     <string name="detail_marked_episodes_unwatched">未視聴にしたエピソード: %1$d</string>
     <string name="detail_marked_previous_watched">視聴済みにした前のエピソード: %1$d</string>
+    <string name="playback_unavailable_message">設定済みのどのソースでもこのタイトルを再生できません。設定 &gt; コンテンツ &amp; ディスカバー &gt; アドオンでストリーミングアドオンを追加または有効にするか、メディアサーバーの接続を確認してください。</string>
 
     <string name="detail_btn_play">再生</string>
     <string name="detail_btn_resume">再開</string>
@@ -365,6 +366,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">エクスペリエンス</string>
     <string name="settings_account">アカウント</string>
+    <string name="settings_tracking_title">トラッキング</string>
     <string name="settings_profiles">プロフィール</string>
     <string name="settings_layout">レイアウト</string>
     <string name="settings_content_discovery">コンテンツ &amp; ディスカバー</string>
@@ -481,6 +483,9 @@
     <string name="playback_subtitle">動画再生と字幕オプションを設定</string>
     <string name="cd_decrease">減らす</string>
     <string name="cd_increase">増やす</string>
+    <string name="cd_decrease_setting">%1$sを減らす</string>
+    <string name="cd_increase_setting">%1$sを増やす</string>
+    <string name="cd_seek_bar">シークバー</string>
     <string name="action_cancel">キャンセル</string>
     <string name="action_apply">適用</string>
     <string name="sub_opacity">不透明度</string>
@@ -791,7 +796,7 @@
     <string name="mdblist_dialog_title">MDBList APIキー</string>
     <string name="mdblist_dialog_placeholder">MDBList APIキーを入力</string>
     <string name="mdblist_not_set">未設定</string>
-    <string name="mdblist_invalid_api_key">無効なMDBList APIキー</string>
+    <string name="mdblist_invalid_api_key">このAPIキーを確認できませんでした。MDBListアカウントのキーと一致しているか、オンラインかを確認してから、もう一度お試しください。</string>
 
 
 
@@ -836,7 +841,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">anime-skip.com/account/settingsでClient IDを作成</string>
     <string name="animeskip_dialog_placeholder">Client IDを入力</string>
-    <string name="animeskip_invalid_client_id">無効なClient ID</string>
+    <string name="animeskip_invalid_client_id">このClient IDを確認できませんでした。Anime SkipアカウントのClient IDと一致しているか、オンラインかを確認してから、もう一度お試しください。</string>
     <string name="action_clear">クリア</string>
 
     <string name="tmdb_title">TMDB補完</string>
@@ -1014,6 +1019,7 @@
     <string name="addon_error_invalid_scheme">アドオンURLはhttpまたはhttpsで始まる必要があります</string>
     <string name="addon_installed_section">インストール済み</string>
     <string name="addon_empty">アドオンがインストールされていません。追加して始めましょう</string>
+    <string name="addon_list_load_failed">インストール済みのアドオンを読み込めませんでした。もう一度お試しください。</string>
     <string name="addon_remove">削除</string>
     <string name="addons_badge_disabled">無効</string>
     <string name="addon_manage_from_phone_title">スマートフォンから管理</string>
@@ -1106,6 +1112,8 @@
     <string name="player_up_next_in_queue">キューの次の作品</string>
     <string name="player_queue_move_up">上へ移動</string>
     <string name="player_queue_move_down">下へ移動</string>
+    <string name="player_queue_removed">%1$sをキューから削除しました</string>
+    <string name="player_queue_undo">元に戻す</string>
     <string name="player_seek_back_10">10秒戻る</string>
     <string name="player_seek_forward_30">30秒進む</string>
     <string name="player_via">%1$s</string>
@@ -1113,13 +1121,13 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">字幕の遅延</string>
     <string name="player_error_title">再生エラー</string>
-    <string name="player_go_back">戻る</string>
+    <string name="player_error_choose_source">別のソースを選択</string>
     <string name="player_speed_title">再生速度</string>
     <string name="player_more_actions_title">その他の操作</string>
     <string name="player_more_speed">再生速度</string>
     <string name="player_more_aspect_ratio">アスペクト比</string>
     <string name="player_more_open_external">外部プレーヤーで開く</string>
-    <string name="player_error_no_stream_url">ストリームURLが指定されていません</string>
+    <string name="player_error_no_stream_url">このソースにはストリームリンクがありません。別のソースを選択してください。</string>
 
     
     <string name="stream_info_section_source">SOURCE</string>
@@ -1204,8 +1212,6 @@
 
     <string name="pause_you_are_watching">視聴中</string>
     <string name="pause_cast_label">キャスト</string>
-    <string name="pause_back_to_details">詳細に戻る</string>
-    <string name="pause_as_character">%1$s 役</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">次のエピソード</string>
@@ -1240,6 +1246,8 @@
     <string name="search_start_subtitle_no_discover">ディスカバーは無効です。2文字以上入力してください</string>
     <string name="search_recent_title">最近の検索</string>
     <string name="search_recent_clear">履歴をクリア</string>
+    <string name="search_recent_clear_confirm_title">検索履歴をクリアしますか？</string>
+    <string name="search_recent_clear_confirm_subtitle">最近の検索がすべて削除されます。この操作は取り消せません。</string>
     <string name="search_voice_no_speech">音声が検出されませんでした。もう一度お試しください</string>
     <string name="search_voice_mic_permission">音声検索にはマイクの権限が必要です</string>
     <string name="search_voice_failed">音声認識に失敗しました。もう一度お試しください</string>
@@ -1247,6 +1255,8 @@
     <string name="search_no_results_title">結果なし</string>
     <string name="search_no_results_subtitle">別のキーワードで検索してみてください</string>
     <string name="search_error_no_catalogs">インストール済みアドオンに検索可能なカタログがありません</string>
+    <string name="search_no_catalogs_title">検索できるアドオンがありません</string>
+    <string name="search_no_catalogs_subtitle">検索カタログのあるアドオンをインストールしてから、もう一度お試しください。</string>
 
     <string name="library_title">ライブラリ</string>
     <string name="library_filter_list">リスト</string>
@@ -1292,13 +1302,16 @@
     <string name="library_list_move_up">上に移動</string>
     <string name="library_list_move_down">下に移動</string>
     <string name="library_list_delete">削除</string>
+    <string name="library_list_delete_named">「%1$s」を削除</string>
     <string name="library_list_close">閉じる</string>
     <string name="library_list_name_label">名前</string>
-    <string name="library_error_list_name_required">リスト名は必須です</string>
+    <string name="library_error_list_name_required">リスト名を入力してください</string>
     <string name="library_list_description_label">説明</string>
     <string name="library_list_privacy">プライバシー</string>
     <string name="library_delete_title">このリストを削除しますか？</string>
-    <string name="library_delete_subtitle">Traktからリストとすべてのリストアイテムが削除されます</string>
+    <string name="library_delete_title_named">「%1$s」を削除しますか？</string>
+    <string name="library_delete_subtitle_provider">%1$sからリストとその中のアイテムが削除されます。この操作は取り消せません。</string>
+    <string name="library_delete_subtitle_local">ライブラリからリストとその中のアイテムが削除されます。この操作は取り消せません。</string>
     <string name="library_source_local">ローカル</string>
     <string name="library_source_saved">保存済み</string>
     <string name="library_watchlist">ウォッチリスト</string>
@@ -1459,9 +1472,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">PINを保存できませんでした。もう一度お試しください。</string>
     <string name="profile_pin_locked">プロフィールはロックされています。%1$ds後にもう一度お試しください。</string>
-    <string name="profile_pin_invalid">無効なPINです。もう一度お試しください。</string>
     <string name="profile_pin_verify_error">PINを確認できませんでした。もう一度お試しください。</string>
-    <string name="profile_pin_incorrect">現在のPINが正しくありません。</string>
+    <string name="profile_pin_incorrect">PINが正しくありません。もう一度お試しください。</string>
     <string name="profile_pin_current_required">このプロフィールには既にPINが設定されています。変更するには現在のPINを入力してください。</string>
 
     <!-- Account Screen -->
@@ -1476,7 +1488,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">この機能を使用するにはWi-Fiまたは有線LANに接続してください</string>
-    <string name="error_server_ports_unavailable">サーバーを起動できませんでした。すべてのポートが使用中です。</string>
+    <string name="error_server_ports_unavailable">スマートフォン接続を開始できませんでした。Fetchを再起動して、もう一度お試しください。</string>
 
     <!-- Trakt errors -->
     
@@ -1538,6 +1550,11 @@
     <string name="cd_loading_logo">ロゴ読み込み中</string>
     <string name="cd_move_up">上に移動</string>
     <string name="cd_move_down">下に移動</string>
+    <string name="cd_move_addon_up">%1$sを上へ移動</string>
+    <string name="cd_move_addon_down">%1$sを下へ移動</string>
+    <string name="cd_addon_enabled_toggle">%1$sを有効化</string>
+    <string name="cd_configure_addon">%1$sを設定</string>
+    <string name="cd_remove_addon">%1$sを削除</string>
     <string name="cd_edit">編集</string>
     <string name="cd_delete">削除</string>
     <string name="cd_qr_code">QRコード</string>
@@ -1572,7 +1589,7 @@
     <string name="collections_import">インポート</string>
     <string name="collections_export_file">ファイルにエクスポート</string>
     <string name="collections_saved_downloads">ダウンロードに保存しました</string>
-    <string name="collections_export_failed">エクスポートに失敗しました</string>
+    <string name="collections_export_failed">ダウンロードフォルダに保存できませんでした。ストレージの権限と空き容量を確認してから、もう一度お試しください。</string>
     <string name="collections_import_header">コレクションをインポート</string>
     <string name="collections_import_description">JSONからコレクションをインポートします。インストールされていないアドオンのカタログは警告が表示されます。</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1809,6 +1826,16 @@
     <string name="collection_editor_folder_count_other">%1$d個のアイテム</string>
     <string name="collections_editor_delete_folder_title">フォルダーを削除しますか？</string>
     <string name="collections_editor_delete_folder_subtitle">\"%1$s\" とその内容を完全に削除します。</string>
+    <string name="folder_error_addon_source">このカタログを読み込めませんでした。アドオンがインストール済みでオンラインか確認してから、もう一度お試しください。</string>
+    <string name="folder_error_addon_missing">このカタログのアドオンがインストールされていません。アドオンからインストールするか、このソースをフォルダーから削除してください。</string>
+    <string name="folder_error_tmdb_source">TMDBから読み込めませんでした。接続を確認してから、もう一度お試しください。</string>
+    <string name="folder_error_trakt_source">このTraktリストを読み込めませんでした。接続と、リストがまだ公開されているかを確認してから、もう一度お試しください。</string>
+    <string name="folder_error_list_source">このリストを読み込めませんでした。接続を確認してから、もう一度お試しください。</string>
+    <string name="collections_editor_discard_title">変更を破棄しますか？</string>
+    <string name="collections_editor_discard_collection_subtitle">このコレクションへの変更は保存されていません。</string>
+    <string name="collections_editor_discard_folder_subtitle">このフォルダーへの変更は保存されていません。</string>
+    <string name="collections_editor_keep_editing">編集を続ける</string>
+    <string name="collections_editor_discard">破棄</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">マーベル映画、Netflixオリジナル、ピクサー</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">ベストアクション映画、韓国ドラマ、2024アニメーション</string>
     <string name="collections_editor_tmdb_person_title_placeholder">トム・ハンクス映画、お気に入りの俳優</string>
@@ -1873,17 +1900,17 @@
     <string name="player_track_subtitle_fallback">字幕%1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nストリームソースがブロックまたは制限されています。別のソースを試してください。</string>
-    <string name="player_error_stream_removed">\n\nストリームリンクの有効期限が切れたか削除されました。別のソースを試してください。</string>
-    <string name="player_error_stream_expired">\n\nストリームリンクの有効期限が切れました。別のソースを試してください。</string>
-    <string name="player_error_stream_rate_limited">\n\nストリームソースへのリクエストが多すぎます。しばらく待ってから再試行してください。</string>
-    <string name="player_error_stream_unavailable">\n\nストリームサーバーが現在利用できません。別のソースを試してください。</string>
-    <string name="player_error_source_invalid_content">ソースエラー: ストリームソースが無効または再生不可能なコンテンツを返しました。リンクの有効期限が切れたか、サーバーがビデオの代わりにエラーページを返した可能性があります。\n\n別のソースを試してください。[%1$s]</string>
-    <string name="player_error_unsupported_format">このストリームはお使いのデバイスがサポートしていない形式を使用しています。別のソースを試してください。[%1$s]</string>
-    <string name="player_error_initialize_failed">プレーヤーの初期化に失敗しました</string>
-    <string name="player_error_mpv_surface_failed">libmpvサーフェスの初期化に失敗しました</string>
-    <string name="player_error_mpv_playback_failed">libmpv再生の初期化に失敗しました</string>
-    <string name="player_error_playback_fallback">再生エラー</string>
+    <string name="player_error_stream_blocked">\n\nストリームソースがブロックまたは制限されています。別のソースを選択してください。</string>
+    <string name="player_error_stream_removed">\n\nストリームリンクの有効期限が切れたか削除されました。別のソースを選択してください。</string>
+    <string name="player_error_stream_expired">\n\nストリームリンクの有効期限が切れました。別のソースを選択してください。</string>
+    <string name="player_error_stream_rate_limited">\n\nストリームソースへのリクエストが多すぎます。しばらく待ってから、もう一度ソースを選択してください。</string>
+    <string name="player_error_stream_unavailable">\n\nストリームサーバーが現在利用できません。別のソースを選択してください。</string>
+    <string name="player_error_source_invalid_content">ソースエラー: ストリームソースが無効または再生不可能なコンテンツを返しました。リンクの有効期限が切れたか、サーバーがビデオの代わりにエラーページを返した可能性があります。\n\n別のソースを選択してください。[%1$s]</string>
+    <string name="player_error_unsupported_format">このストリームはお使いのデバイスがサポートしていない形式を使用している可能性があります。別のソースを選択してください。[%1$s]</string>
+    <string name="player_error_initialize_failed">プレーヤーを起動できません。Fetchを再起動して、もう一度お試しください。</string>
+    <string name="player_error_mpv_surface_failed">mpvプレーヤーを起動できません。もう一度お試しいただくか、設定 &gt; 再生で内部エンジンを変更してください。</string>
+    <string name="player_error_mpv_playback_failed">mpvプレーヤーで再生を開始できません。もう一度お試しいただくか、設定 &gt; 再生で内部エンジンを変更してください。</string>
+    <string name="player_error_playback_fallback">このストリームを再生できません。別のソースを選択してください。</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">このファイルに字幕行が見つかりませんでした。</string>
     <string name="subtitle_timing_load_lines_failed">字幕行の読み込みに失敗しました。</string>
@@ -1914,6 +1941,7 @@
     <string name="library_list_created">リストを作成しました</string>
     <string name="library_list_updated">リストを更新しました</string>
     <string name="library_error_save_list_failed">リストの保存に失敗しました</string>
+    <string name="library_error_save_list_next_step">接続を確認して、もう一度お試しください。</string>
     <string name="library_list_deleted">リストを削除しました</string>
     <string name="library_error_delete_list_failed">リストの削除に失敗しました</string>
     <string name="library_list_order_updated">リストの順序を更新しました</string>
@@ -1942,11 +1970,11 @@
     <string name="trakt_error_mark_watched_failed">Traktで視聴済みにするのに失敗しました (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">ライブラリの更新に失敗しました</string>
-    <string name="detail_error_load_lists_failed">リストの読み込みに失敗しました</string>
-    <string name="detail_error_update_lists_failed">リストの更新に失敗しました</string>
-    <string name="detail_error_update_watched_failed">視聴状態の更新に失敗しました</string>
-    <string name="detail_error_update_episode_watched_failed">エピソードの視聴状態更新に失敗しました</string>
+    <string name="detail_error_update_library_failed">ライブラリを更新できませんでした。接続を確認して、もう一度お試しください。</string>
+    <string name="detail_error_load_lists_failed">リストを読み込めませんでした。接続を確認して、もう一度お試しください。</string>
+    <string name="detail_error_update_lists_failed">リストを更新できませんでした。接続を確認して、もう一度お試しください。</string>
+    <string name="detail_error_update_watched_failed">視聴状態を更新できませんでした。接続を確認して、もう一度お試しください。</string>
+    <string name="detail_error_update_episode_watched_failed">このエピソードの視聴状態を更新できませんでした。接続を確認して、もう一度お試しください。</string>
     <string name="poster_options_error_load_lists_failed">リストの読み込みに失敗しました</string>
     <string name="poster_options_error_update_lists_failed">リストの更新に失敗しました</string>
 
@@ -2127,7 +2155,7 @@
     <string name="diag_value_never_rendered">レンダリングなし</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">選択したストリームの再生に失敗しました</string>
+    <string name="player_error_play_stream_failed">選択したストリームを再生できません。別のソースを選択してください。</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2168,6 +2196,9 @@
     <string name="addon_health_ok">応答あり · %1$s</string>
     <string name="addon_health_slow">低速 · %1$s</string>
     <string name="addon_health_timed_out">前回のリクエストはタイムアウトしました</string>
+    <string name="source_chip_failed">失敗</string>
+    <string name="source_chip_loading">読み込み中</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$sはインストール前に設定が必要です</string>
     <string name="advanced_introdb_api_key">IntroDB APIキー</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">introdb.appでキーを作成してください。キーは idb_ で始まります。</string>
@@ -2183,6 +2214,7 @@
     <string name="autoplay_mode_best_desc">画質、設定したルール、このデバイスで再生できるかどうかですべての結果を順位付けし、最上位を再生します。他のソースもワンタッチで選べます。</string>
     <string name="best_match_cached">キャッシュ済み</string>
     <string name="best_match_excluded">自動再生対象外: %1$s</string>
+    <string name="stream_hold_for_options">OKを長押しでベストマッチのオプション</string>
     <string name="best_match_preview_sub">タイトルを表示している間にストリームアドオンへ問い合わせ、再生ボタンにファイル名を表示して再生を早く開始します。オフにすると再生を押した後にのみ検索します。</string>
     <string name="best_match_preview_title">再生ボタンに選択結果を表示</string>
     <string name="catalog_order_pin">先頭に固定</string>
@@ -2528,14 +2560,55 @@
     <string name="profile_pin_forgot_needs_main">PINをお忘れですか？まず%1$sにPINを設定し、それを使ってこのPINをリセットしてください。</string>
     <string name="profile_pin_forgot_main">メインプロフィールのPINはリセットできないため、安全な場所に保管してください。</string>
     <string name="profile_pin_reset_for_profile">%1$sのPINをリセットしました。</string>
-    <string name="profile_pin_incorrect_for_profile">%1$sのPINが正しくありません。</string>
+    <string name="profile_pin_incorrect_for_profile">%1$sのPINが正しくありません。もう一度お試しください。</string>
     <string name="profile_selection_kids_badge">キッズ</string>
     <string name="profile_manage_done">完了</string>
     <string name="cd_profile_locked">PINでロック中</string>
+    <string name="cd_profile_pin_progress">%2$d桁中%1$d桁入力済み</string>
+    <string name="cd_profile_color_crimson">クリムゾン</string>
+    <string name="cd_profile_color_ocean">オーシャン</string>
+    <string name="cd_profile_color_violet">バイオレット</string>
+    <string name="cd_profile_color_emerald">エメラルド</string>
+    <string name="cd_profile_color_amber">アンバー</string>
+    <string name="cd_profile_color_rose">ローズ</string>
+    <string name="cd_profile_color_cyan">シアン</string>
+    <string name="cd_profile_color_brown">ブラウン</string>
+    <string name="cd_profile_color_position">カラー %1$d/%2$d</string>
     <string name="profile_save_error">プロフィールを保存できませんでした。もう一度お試しください。</string>
     <string name="profile_delete_error">プロフィールを削除できませんでした。もう一度お試しください。</string>
     <string name="parental_pin_nudge_title">%1$sの視聴制限を保護</string>
     <string name="parental_pin_nudge_subtitle">%1$sにPINを設定してください。PINがないと、誰でも%2$sの視聴制限を変更したり、別のプロフィールに切り替えたりできます。</string>
     <string name="parental_pin_nudge_set">%1$sにPINを設定</string>
     <string name="parental_pin_nudge_later">後で</string>
+    <string name="parental_gate_open_support">%1$sには専用のPINがないため、他のプロフィールに視聴制限がある間は、開くのに保護者のPINが必要です。</string>
+    <string name="parental_lock_profiles_title">制限のないプロフィールをロック</string>
+    <string name="parental_lock_profiles_subtitle">視聴制限のあるプロフィールがある間、制限も専用のPINもないプロフィールを開くには%1$sのPINが必要です。</string>
+    <string name="parental_lock_profiles_needs_pin">先に%1$sにPINを設定してください。</string>
+    <string name="parental_lock_profiles_offer_title">他のプロフィールもロックしますか？</string>
+    <string name="parental_lock_profiles_offer_subtitle">%2$sにはPINがないため、%1$sはそれらを開いてすべての制限を回避できます。代わりに、開くときに%3$sのPINを求めるようFetchで設定できます。</string>
+    <string name="parental_lock_profiles_offer_accept">%1$sのPINを求める</string>
+    <string name="kids_autoplay_cap">連続自動再生: %1$s</string>
+    <string name="kids_approved_only">承認済みタイトルのみ: %1$s</string>
+    <string name="kids_approved_movies">あなた向けの映画</string>
+    <string name="kids_approved_shows">あなた向けの番組</string>
+    <string name="kids_approved_only_hint">このプロフィールには常に許可するタイトルのみが表示されます。メインプロフィールでポスターを長押ししてメニューからタイトルを許可してください。</string>
+    <string name="kids_daily_time">1日の視聴時間: %1$s</string>
+    <string name="kids_bedtime">就寝時間: %1$s～%2$s</string>
+    <string name="kids_bedtime_off">就寝時間: オフ</string>
+    <string name="kids_at_limit_finish">上限に達したら: 再生中のものを最後まで</string>
+    <string name="kids_at_limit_stop">上限に達したら: すぐに停止</string>
+    <plurals name="kids_episodes">
+        <item quantity="other">%1$d話</item>
+    </plurals>
+    <string name="kids_minutes">%1$d分</string>
+    <string name="screen_time_title">今日はここまで</string>
+    <string name="screen_time_daily">今日の視聴時間を使い切りました。また明日！</string>
+    <string name="screen_time_bedtime">寝る時間です。また明日！</string>
+    <string name="screen_time_choose">あとどれくらい延長しますか？</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">時間を延長（保護者）</string>
+    <string name="screen_time_add_minutes">+%1$d分</string>
+    <string name="screen_time_rest_of_day">今日はこの後制限なし</string>
+    <string name="kids_hours">%1$d時間</string>
+    <string name="kids_hours_minutes">%1$d時間%2$d分</string>
 </resources>

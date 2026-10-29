@@ -89,8 +89,39 @@ data class CollectionEditorUiState(
     val traktPopularResults: List<TraktPublicListSearchResult> = emptyList(),
     val traktSearchError: String? = null,
     val genrePickerSourceIndex: Int? = null,
-    val showEmojiPicker: Boolean = false
+    val showEmojiPicker: Boolean = false,
+    /** The collection as it was loaded (or blank, for a new one); null until loading finishes. */
+    val savedBaseline: CollectionEditorBaseline? = null,
+    /** [editingFolder] as it was when the folder editor opened. */
+    val editingFolderBaseline: CollectionFolder? = null
 )
+
+/** The parts of a collection that Save writes, to tell whether leaving the editor loses edits. */
+data class CollectionEditorBaseline(
+    val title: String,
+    val backdropImageUrl: String,
+    val pinToTop: Boolean,
+    val viewMode: FolderViewMode,
+    val showAllTab: Boolean,
+    val folders: List<CollectionFolder>
+)
+
+private fun CollectionEditorUiState.baseline() = CollectionEditorBaseline(
+    title = title,
+    backdropImageUrl = backdropImageUrl,
+    pinToTop = pinToTop,
+    viewMode = viewMode,
+    showAllTab = showAllTab,
+    folders = folders
+)
+
+/** True when the collection differs from what was loaded, so Back should ask before leaving. */
+val CollectionEditorUiState.hasUnsavedCollectionChanges: Boolean
+    get() = savedBaseline != null && savedBaseline != baseline()
+
+/** True when the folder being edited differs from when its editor opened. */
+val CollectionEditorUiState.hasUnsavedFolderChanges: Boolean
+    get() = editingFolder != null && editingFolder != editingFolderBaseline
 
 data class AvailableCatalog(
     val addonId: String,
@@ -199,7 +230,7 @@ class CollectionEditorViewModel @Inject constructor(
                             installedAddonIds = addons.map { addon -> addon.id }.toSet(),
                             addonCatalogInfoByKey = addonCatalogInfoByKey,
                             isLoading = false
-                        )
+                        ).let { loaded -> loaded.copy(savedBaseline = loaded.baseline()) }
                     }
                     return@launch
                 }
@@ -213,7 +244,7 @@ class CollectionEditorViewModel @Inject constructor(
                     installedAddonIds = addons.map { addon -> addon.id }.toSet(),
                     addonCatalogInfoByKey = addonCatalogInfoByKey,
                     isLoading = false
-                )
+                ).let { loaded -> loaded.copy(savedBaseline = loaded.baseline()) }
             }
         }
     }
@@ -238,13 +269,13 @@ class CollectionEditorViewModel @Inject constructor(
             sources = emptyList()
         )
         _uiState.update {
-            it.copy(editingFolder = newFolder, showFolderEditor = true)
+            it.copy(editingFolder = newFolder, editingFolderBaseline = newFolder, showFolderEditor = true)
         }
     }
 
     fun editFolder(folderId: String) {
         val folder = _uiState.value.folders.find { it.id == folderId } ?: return
-        _uiState.update { it.copy(editingFolder = folder, showFolderEditor = true) }
+        _uiState.update { it.copy(editingFolder = folder, editingFolderBaseline = folder, showFolderEditor = true) }
     }
 
     fun removeFolder(folderId: String) {
@@ -1137,6 +1168,7 @@ class CollectionEditorViewModel @Inject constructor(
                 folders = newFolders,
                 showFolderEditor = false,
                 editingFolder = null,
+                editingFolderBaseline = null,
                 showCatalogPicker = false,
                 showTmdbSourcePicker = false,
                 showTraktSourcePicker = false,
@@ -1152,6 +1184,7 @@ class CollectionEditorViewModel @Inject constructor(
             it.copy(
                 showFolderEditor = false,
                 editingFolder = null,
+                editingFolderBaseline = null,
                 showCatalogPicker = false,
                 showTmdbSourcePicker = false,
                 showTraktSourcePicker = false,

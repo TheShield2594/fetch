@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.data.local.QueueItem
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -80,6 +81,24 @@ internal fun PlayerRuntimeController.playQueueItem(item: QueueItem) {
 
 internal fun PlayerRuntimeController.removeQueueItem(videoId: String) {
     scope.launch { runCatching { episodeQueueStore.remove(videoId) } }
+}
+
+/**
+ * Undo for [removeQueueItem]: adds [item] back (at the end) and moves it up to [index], where it
+ * sat before. The store only appends and moves one place at a time, so this walks it back.
+ */
+internal fun PlayerRuntimeController.restoreQueueItem(item: QueueItem, index: Int) {
+    scope.launch {
+        runCatching {
+            episodeQueueStore.add(item)
+            val restored = episodeQueueStore.items.first()
+            val current = restored.indexOfFirst { it.videoId == item.videoId }
+            if (current < 0) return@runCatching
+            repeat((current - index.coerceAtLeast(0)).coerceAtLeast(0)) {
+                episodeQueueStore.move(item.videoId, up = true)
+            }
+        }
+    }
 }
 
 internal fun PlayerRuntimeController.moveQueueItem(videoId: String, up: Boolean) {

@@ -285,9 +285,9 @@ fun HeroContentSection(
                 }
             }
 
-            // Everything below the logo fades out during trailer
+            // The way out of the trailer stays on screen even when the logo is hidden.
             AnimatedVisibility(
-                visible = trailerLayout && !hideLogoDuringTrailer,
+                visible = trailerLayout,
                 enter = fadeIn(FetchMotion.enterTween()),
                 // Leaves at once, so the returning logo moves in one glide, not two.
                 exit = ExitTransition.None
@@ -436,7 +436,8 @@ fun HeroContentSection(
                             ),
                             style = MaterialTheme.typography.labelMedium,
                             color = FetchTheme.colors.TextSecondary,
-                            maxLines = 1,
+                            // Two lines fit the longest reason at the 1.3x text scale.
+                            maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)

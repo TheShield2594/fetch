@@ -104,8 +104,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">تحتاج الرئيسية إلى إضافة قوائم عرض لعرض العناوين.</string>
     <string name="home_empty_no_catalogs_title">لا توجد قوائم عرض</string>
     <string name="home_empty_no_catalogs_subtitle">لا تقدّم إضافاتك أي قوائم عرض للرئيسية.</string>
-    <string name="auth_notice_fetch_logged_out">تم تسجيل خروجك من Fetch. يرجى تسجيل الدخول مرة أخرى.</string>
-    <string name="auth_notice_trakt_logged_out">تم تسجيل خروجك من Trakt. يرجى إعادة الاتصال.</string>
+    <string name="auth_notice_fetch_logged_out">تم تسجيل خروجك من Fetch. سجّل الدخول مرة أخرى من الإعدادات &gt; الحساب.</string>
+    <string name="auth_notice_trakt_logged_out">تم تسجيل خروجك من Trakt. أعد الاتصال من الإعدادات &gt; التتبع.</string>
     <string name="error_generic">حدث خطأ</string>
 
     <!-- ErrorState -->
@@ -224,6 +224,7 @@
     <string name="detail_marked_episodes_watched">الحلقات المحددة كمشاهدة: %1$d</string>
     <string name="detail_marked_episodes_unwatched">الحلقات المحددة كغير مشاهدة: %1$d</string>
     <string name="detail_marked_previous_watched">الحلقات السابقة المحددة كمشاهدة: %1$d</string>
+    <string name="playback_unavailable_message">لا يمكن لأي مما أعددته تشغيل هذا العنوان. أضف إضافة بث أو فعّلها في الإعدادات &gt; المحتوى والاكتشاف &gt; الإضافات، أو تحقق من الاتصال بخادم الوسائط.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">تشغيل</string>
@@ -490,6 +491,9 @@
     <string name="playback_subtitle">ضبط خيارات تشغيل الفيديو والترجمة</string>
     <string name="cd_decrease">تقليل</string>
     <string name="cd_increase">زيادة</string>
+    <string name="cd_decrease_setting">تقليل %1$s</string>
+    <string name="cd_increase_setting">زيادة %1$s</string>
+    <string name="cd_seek_bar">شريط التقدم</string>
     <string name="action_cancel">إلغاء</string>
     <string name="action_apply">تطبيق</string>
     <string name="sub_opacity">الشفافية</string>
@@ -797,7 +801,7 @@
     <string name="mdblist_dialog_title">مفتاح MDBList API</string>
     <string name="mdblist_dialog_placeholder">أدخل مفتاح MDBList API</string>
     <string name="mdblist_not_set">غير محدد</string>
-    <string name="mdblist_invalid_api_key">مفتاح MDBList API غير صالح</string>
+    <string name="mdblist_invalid_api_key">تعذر التحقق من مفتاح API هذا. تأكد من مطابقته للمفتاح في حسابك على MDBList ومن أنك متصل بالإنترنت، ثم حاول مجدداً.</string>
     
 
 
@@ -833,7 +837,7 @@
     <string name="animeskip_dialog_title">معرف عميل Anime Skip</string>
     <string name="animeskip_dialog_subtitle">أنشئ معرف العميل الخاص بك في anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">أدخل معرف العميل</string>
-    <string name="animeskip_invalid_client_id">معرف العميل غير صالح</string>
+    <string name="animeskip_invalid_client_id">تعذر التحقق من معرف العميل هذا. تأكد من مطابقته للمعرف في حسابك على Anime Skip ومن أنك متصل بالإنترنت، ثم حاول مجدداً.</string>
     <string name="action_clear">مسح</string>
 
     <!-- TmdbSettingsScreen -->
@@ -1015,6 +1019,7 @@
     <string name="addon_error_invalid_scheme">يجب أن يبدأ رابط الإضافة بـ http أو https</string>
     <string name="addon_installed_section">مثبتة</string>
     <string name="addon_empty">لا توجد إضافات مثبتة. أضف واحدة للبدء.</string>
+    <string name="addon_list_load_failed">تعذر تحميل الإضافات المثبتة. حاول مجدداً.</string>
     <string name="addon_remove">إزالة</string>
     <string name="addons_badge_disabled">معطل</string>
     <string name="addon_manage_from_phone_title">الإدارة من الهاتف</string>
@@ -1112,6 +1117,8 @@
     <string name="player_up_next_in_queue">التالي في قائمة الانتظار</string>
     <string name="player_queue_move_up">نقل لأعلى</string>
     <string name="player_queue_move_down">نقل لأسفل</string>
+    <string name="player_queue_removed">تمت إزالة %1$s من قائمة الانتظار</string>
+    <string name="player_queue_undo">تراجع</string>
     <string name="player_seek_back_10">رجوع 10 ثوانٍ</string>
     <string name="player_seek_forward_30">تقديم 30 ثانية</string>
     <string name="player_via">بواسطة %1$s</string>
@@ -1119,13 +1126,13 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">تأخير الترجمة</string>
     <string name="player_error_title">خطأ في التشغيل</string>
-    <string name="player_go_back">رجوع</string>
+    <string name="player_error_choose_source">اختر مصدراً آخر</string>
     <string name="player_speed_title">سرعة التشغيل</string>
     <string name="player_more_actions_title">إجراءات إضافية</string>
     <string name="player_more_speed">سرعة التشغيل</string>
     <string name="player_more_aspect_ratio">نسبة العرض إلى الارتفاع</string>
     <string name="player_more_open_external">فتح في مشغل خارجي</string>
-    <string name="player_error_no_stream_url">لم يتم توفير رابط للمصدر</string>
+    <string name="player_error_no_stream_url">لا يحتوي هذا المصدر على رابط بث. يرجى اختيار مصدر آخر.</string>
 
     <!-- StreamInfoOverlay -->
     <string name="stream_info_section_source">المصدر</string>
@@ -1215,8 +1222,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">أنت تشاهد</string>
     <string name="pause_cast_label">طاقم العمل</string>
-    <string name="pause_back_to_details">العودة للتفاصيل</string>
-    <string name="pause_as_character">بدور %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">الحلقة التالية</string>
@@ -1252,6 +1257,8 @@
     <string name="search_start_subtitle_no_discover">ميزة \"استكشاف\" معطلة. أدخل حرفين على الأقل</string>
     <string name="search_recent_title">سجل البحث</string>
     <string name="search_recent_clear">مسح السجل</string>
+    <string name="search_recent_clear_confirm_title">مسح سجل البحث؟</string>
+    <string name="search_recent_clear_confirm_subtitle">ستتم إزالة جميع عمليات البحث الأخيرة. لا يمكن التراجع عن هذا الإجراء.</string>
     <string name="search_voice_no_speech">لم يتم رصد صوت. حاول مجدداً.</string>
     <string name="search_voice_mic_permission">إذن الميكروفون مطلوب للبحث الصوتي.</string>
     <string name="search_voice_failed">فشل التعرف على الصوت. حاول مجدداً.</string>
@@ -1259,6 +1266,8 @@
     <string name="search_no_results_title">لا توجد نتائج</string>
     <string name="search_no_results_subtitle">جرّب البحث باستخدام كلمات رئيسية مختلفة</string>
     <string name="search_error_no_catalogs">لم يتم العثور على قوائم قابلة للبحث في الإضافات المثبتة</string>
+    <string name="search_no_catalogs_title">لا توجد إضافة لديك تدعم البحث</string>
+    <string name="search_no_catalogs_subtitle">ثبّت إضافة تحتوي على فهرس للبحث، ثم حاول مجدداً.</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">المكتبة</string>
@@ -1307,13 +1316,16 @@
     <string name="library_list_move_up">تحريك للأعلى</string>
     <string name="library_list_move_down">تحريك للأسفل</string>
     <string name="library_list_delete">حذف</string>
+    <string name="library_list_delete_named">حذف «%1$s»</string>
     <string name="library_list_close">إغلاق</string>
     <string name="library_list_name_label">الاسم</string>
-    <string name="library_error_list_name_required">اسم القائمة مطلوب</string>
+    <string name="library_error_list_name_required">أدخل اسماً للقائمة</string>
     <string name="library_list_description_label">الوصف</string>
     <string name="library_list_privacy">الخصوصية</string>
     <string name="library_delete_title">حذف هذه القائمة؟</string>
-    <string name="library_delete_subtitle">سيؤدي هذا لحذف القائمة وجميع عناصرها من Trakt.</string>
+    <string name="library_delete_title_named">حذف «%1$s»؟</string>
+    <string name="library_delete_subtitle_provider">سيؤدي هذا إلى إزالة القائمة وعناصرها من %1$s. لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="library_delete_subtitle_local">سيؤدي هذا إلى إزالة القائمة وعناصرها من مكتبتك. لا يمكن التراجع عن هذا الإجراء.</string>
     <string name="library_source_local">محلي</string>
     <string name="library_source_saved">محفوظ</string>
     <string name="library_watchlist">قائمة المشاهدة</string>
@@ -1481,9 +1493,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">تعذر حفظ رمز PIN. حاول مجدداً.</string>
     <string name="profile_pin_locked">الملف الشخصي مقفل. حاول مجدداً بعد %1$d ثوان.</string>
-    <string name="profile_pin_invalid">رمز PIN غير صالح. حاول مجدداً.</string>
     <string name="profile_pin_verify_error">تعذر التحقق من رمز PIN. حاول مجدداً.</string>
-    <string name="profile_pin_incorrect">رمز PIN الحالي غير صحيح.</string>
+    <string name="profile_pin_incorrect">رمز PIN غير صحيح. حاول مجدداً.</string>
     <string name="profile_pin_current_required">الملف محمي برمز PIN.أدخل الرمز الحالي لتغييره.</string>
 
     <!-- Search -->
@@ -1492,7 +1503,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">اتصل بشبكة انترنت لاستخدام هذه الميزة</string>
-    <string name="error_server_ports_unavailable">تعذر بدء الخادم. جميع المنافذ قيد الاستخدام.</string>
+    <string name="error_server_ports_unavailable">تعذر بدء الاتصال بالهاتف. أعد تشغيل Fetch وحاول مجدداً.</string>
 
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">انتهت صلاحية الرمز. ابدأ مجدداً.</string>
@@ -1554,6 +1565,11 @@
     <string name="cd_loading_logo">جاري تحميل الشعار</string>
     <string name="cd_move_up">تحريك للأعلى</string>
     <string name="cd_move_down">تحريك للأسفل</string>
+    <string name="cd_move_addon_up">نقل %1$s لأعلى</string>
+    <string name="cd_move_addon_down">نقل %1$s لأسفل</string>
+    <string name="cd_addon_enabled_toggle">%1$s مفعّلة</string>
+    <string name="cd_configure_addon">ضبط %1$s</string>
+    <string name="cd_remove_addon">إزالة %1$s</string>
     <string name="cd_edit">تعديل</string>
     <string name="cd_delete">حذف</string>
     <string name="cd_qr_code">رمز QR</string>
@@ -1589,7 +1605,7 @@
     <string name="collections_import">استيراد</string>
     <string name="collections_export_file">تصدير كملف</string>
     <string name="collections_saved_downloads">تم الحفظ في التنزيلات</string>
-    <string name="collections_export_failed">تعذر التصدير</string>
+    <string name="collections_export_failed">تعذر الحفظ في التنزيلات. تحقق من إذن التخزين والمساحة المتاحة، ثم حاول مجدداً.</string>
     <string name="collections_import_header">استيراد المجموعات</string>
     <string name="collections_import_description">استيراد المجموعات من ملف JSON. القوائم من الإضافات غير المثبتة لديك ستعرض تحذيراً.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1826,6 +1842,16 @@
     <string name="collection_editor_folder_count_other">%1$d عنصر</string>
     <string name="collections_editor_delete_folder_title">حذف المجلد؟</string>
     <string name="collections_editor_delete_folder_subtitle">هذا سيحذف \"%1$s\" ومحتوياته نهائياً.</string>
+    <string name="folder_error_addon_source">تعذر تحميل هذا الفهرس. تأكد من أن إضافته مثبتة ومتصلة، ثم حاول مجدداً.</string>
+    <string name="folder_error_addon_missing">إضافة هذا الفهرس غير مثبتة. ثبّتها من الإضافات، أو أزل هذا المصدر من المجلد.</string>
+    <string name="folder_error_tmdb_source">تعذر التحميل من TMDB. تحقق من اتصالك، ثم حاول مجدداً.</string>
+    <string name="folder_error_trakt_source">تعذر تحميل قائمة Trakt هذه. تحقق من اتصالك ومن أن القائمة لا تزال عامة، ثم حاول مجدداً.</string>
+    <string name="folder_error_list_source">تعذر تحميل هذه القائمة. تحقق من اتصالك، ثم حاول مجدداً.</string>
+    <string name="collections_editor_discard_title">تجاهل التغييرات؟</string>
+    <string name="collections_editor_discard_collection_subtitle">لم يتم حفظ تغييراتك على هذه المجموعة.</string>
+    <string name="collections_editor_discard_folder_subtitle">لم يتم حفظ تغييراتك على هذا المجلد.</string>
+    <string name="collections_editor_keep_editing">متابعة التعديل</string>
+    <string name="collections_editor_discard">تجاهل</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">أفلام Marvel، إنتاجات Netflix، Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">أفضل أفلام الأكشن، دراما كورية</string>
     <string name="collections_editor_tmdb_person_title_placeholder">أفلام توم هانكس، الممثلون المفضلون</string>
@@ -1893,14 +1919,14 @@
     <string name="player_error_stream_blocked">\n\nمصدر البث محجوب أو مقيد. يرجى اختيار مصدر آخر.</string>
     <string name="player_error_stream_removed">\n\nرابط البث منتهي الصلاحية أو تم حذفه. يرجى اختيار مصدر آخر.</string>
     <string name="player_error_stream_expired">\n\nانتهت صلاحية رابط البث. يرجى اختيار مصدر آخر.</string>
-    <string name="player_error_stream_rate_limited">\n\nطلبات كثيرة جداً لمصدر البث. انتظر لحظة ثم حاول مجدداً.</string>
+    <string name="player_error_stream_rate_limited">\n\nطلبات كثيرة جداً لمصدر البث. انتظر لحظة، ثم اختر مصدراً مجدداً.</string>
     <string name="player_error_stream_unavailable">\n\nخادم البث غير متوفر حالياً. يرجى اختيار مصدر آخر.</string>
     <string name="player_error_source_invalid_content">خطأ في المصدر: أرجع مصدر البث محتوى غير صالح أو غير قابل للتشغيل. قد يكون الرابط قد انتهت صلاحيته أو أرجع الخادم صفحة خطأ بدلاً من الفيديو.\n\nيرجى اختيار مصدر آخر. [%1$s]</string>
     <string name="player_error_unsupported_format">يستخدم هذا البث تنسيقاً قد لا يدعمه جهازك. يرجى اختيار مصدر آخر. [%1$s]</string>
-    <string name="player_error_initialize_failed">فشل تهيئة المشغل</string>
-    <string name="player_error_mpv_surface_failed">فشل تهيئة واجهة libmpv</string>
-    <string name="player_error_mpv_playback_failed">فشل تهيئة تشغيل libmpv</string>
-    <string name="player_error_playback_fallback">خطأ في التشغيل</string>
+    <string name="player_error_initialize_failed">تعذر بدء تشغيل المشغل. أعد تشغيل Fetch وحاول مجدداً.</string>
+    <string name="player_error_mpv_surface_failed">تعذر بدء تشغيل مشغل mpv. حاول مجدداً، أو غيّر محرك التشغيل الداخلي في الإعدادات &gt; وسائط التشغيل.</string>
+    <string name="player_error_mpv_playback_failed">تعذر بدء التشغيل في مشغل mpv. حاول مجدداً، أو غيّر محرك التشغيل الداخلي في الإعدادات &gt; وسائط التشغيل.</string>
+    <string name="player_error_playback_fallback">تعذر تشغيل هذا البث. يرجى اختيار مصدر آخر.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">لم يتم العثور على أسطر ترجمة في هذا الملف.</string>
     <string name="subtitle_timing_load_lines_failed">فشل تحميل أسطر الترجمة.</string>
@@ -1931,6 +1957,7 @@
     <string name="library_list_created">تم إنشاء القائمة</string>
     <string name="library_list_updated">تم تحديث القائمة</string>
     <string name="library_error_save_list_failed">فشل حفظ القائمة</string>
+    <string name="library_error_save_list_next_step">تحقق من اتصالك وحاول مجدداً.</string>
     <string name="library_list_deleted">تم حذف القائمة</string>
     <string name="library_error_delete_list_failed">فشل حذف القائمة</string>
     <string name="library_list_order_updated">تم تحديث ترتيب القوائم</string>
@@ -1959,11 +1986,11 @@
     <string name="trakt_error_mark_watched_failed">تعذر التمييز كمشاهد على Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">تعذر تحديث المكتبة</string>
-    <string name="detail_error_load_lists_failed">تعذر تحميل القوائم</string>
-    <string name="detail_error_update_lists_failed">تعذر تحديث القوائم</string>
-    <string name="detail_error_update_watched_failed">تعذر تحديث حالة المشاهدة</string>
-    <string name="detail_error_update_episode_watched_failed">تعذر تحديث حالة مشاهدة الحلقة</string>
+    <string name="detail_error_update_library_failed">تعذر تحديث مكتبتك. تحقق من اتصالك وحاول مجدداً.</string>
+    <string name="detail_error_load_lists_failed">تعذر تحميل قوائمك. تحقق من اتصالك وحاول مجدداً.</string>
+    <string name="detail_error_update_lists_failed">تعذر تحديث قوائمك. تحقق من اتصالك وحاول مجدداً.</string>
+    <string name="detail_error_update_watched_failed">تعذر تحديث حالة المشاهدة. تحقق من اتصالك وحاول مجدداً.</string>
+    <string name="detail_error_update_episode_watched_failed">تعذر تحديث حالة مشاهدة هذه الحلقة. تحقق من اتصالك وحاول مجدداً.</string>
     <string name="poster_options_error_load_lists_failed">تعذر تحميل القوائم</string>
     <string name="poster_options_error_update_lists_failed">تعذر تحديث القوائم</string>
 
@@ -2257,7 +2284,7 @@
     <string name="playback_reset_to_default">إعادة الضبط للافتراضي</string>
     <string name="playback_section_buffer_network">المخزون المؤقت والشبكة</string>
     <string name="playback_section_buffer_network_desc">مقدار المحتوى المحتفظ به في الذاكرة وطريقة جلب البثوث.</string>
-    <string name="player_error_play_stream_failed">فشل تشغيل البث المحدد</string>
+    <string name="player_error_play_stream_failed">تعذر تشغيل البث المحدد. يرجى اختيار مصدر آخر.</string>
     <string name="player_report_issue">الإبلاغ عن مشكلة</string>
     <string name="player_report_issue_failed">تعذر إرسال التقرير</string>
     <string name="player_report_issue_sending">جارٍ إرسال تقرير التشغيل...</string>
@@ -2418,6 +2445,9 @@
     <string name="addon_health_ok">تستجيب · %1$s</string>
     <string name="addon_health_slow">بطيئة · %1$s</string>
     <string name="addon_health_timed_out">انتهت مهلة آخر طلب</string>
+    <string name="source_chip_failed">فشل</string>
+    <string name="source_chip_loading">جارٍ التحميل</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">يجب إعداد %1$s قبل أن يمكن تثبيتها</string>
     <string name="advanced_introdb_api_key">مفتاح API لـ IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">أنشئ مفتاحاً على introdb.app. يبدأ بـ idb_.</string>
@@ -2433,6 +2463,7 @@
     <string name="autoplay_mode_best_desc">يرتّب كل النتائج حسب الجودة وقواعدك وما يستطيع هذا الجهاز تشغيله، ثم يشغّل الأفضل. تبقى المصادر الأخرى على بعد ضغطة واحدة.</string>
     <string name="best_match_cached">مخزّن مؤقتاً</string>
     <string name="best_match_excluded">لا يُشغَّل تلقائياً: %1$s</string>
+    <string name="stream_hold_for_options">اضغط مطولاً على OK لخيارات أفضل تطابق</string>
     <string name="best_match_preview_sub">يسأل إضافات المصادر عن العنوان أثناء تصفحك له، ليعرض زر التشغيل اسم الملف ويبدأ التشغيل أسرع. أوقفه للبحث فقط بعد الضغط على تشغيل.</string>
     <string name="best_match_preview_title">إظهار الاختيار على زر التشغيل</string>
     <string name="catalog_order_pin">تثبيت في الأعلى</string>
@@ -2797,14 +2828,60 @@
     <string name="profile_pin_forgot_needs_main">نسيت رمز PIN؟ عيّن رمز PIN لـ %1$s أولاً، ثم استخدمه لإعادة تعيين هذا الرمز.</string>
     <string name="profile_pin_forgot_main">لا يمكن إعادة تعيين رمز PIN للملف الشخصي الرئيسي، لذا احتفظ به في مكان آمن.</string>
     <string name="profile_pin_reset_for_profile">تمت إعادة تعيين رمز PIN لـ %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">رمز PIN غير صحيح لـ %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">رمز PIN غير صحيح لـ %1$s. حاول مجدداً.</string>
     <string name="profile_selection_kids_badge">أطفال</string>
     <string name="profile_manage_done">تم</string>
     <string name="cd_profile_locked">مقفل برمز PIN</string>
+    <string name="cd_profile_pin_progress">تم إدخال %1$d من %2$d أرقام</string>
+    <string name="cd_profile_color_crimson">القرمزي</string>
+    <string name="cd_profile_color_ocean">المحيطي</string>
+    <string name="cd_profile_color_violet">البنفسجي</string>
+    <string name="cd_profile_color_emerald">الزمردي</string>
+    <string name="cd_profile_color_amber">الكهرماني</string>
+    <string name="cd_profile_color_rose">الوردي</string>
+    <string name="cd_profile_color_cyan">سماوي</string>
+    <string name="cd_profile_color_brown">بني</string>
+    <string name="cd_profile_color_position">اللون %1$d من %2$d</string>
     <string name="profile_save_error">تعذر حفظ الملف الشخصي. حاول مجدداً.</string>
     <string name="profile_delete_error">تعذر حذف الملف الشخصي. حاول مجدداً.</string>
     <string name="parental_pin_nudge_title">احمِ قيود %1$s</string>
     <string name="parental_pin_nudge_subtitle">عيّن رمز PIN لـ %1$s. بدونه، يمكن لأي شخص تغيير قيود %2$s أو التبديل إلى ملف شخصي آخر.</string>
     <string name="parental_pin_nudge_set">عيّن رمز PIN لـ %1$s</string>
     <string name="parental_pin_nudge_later">ليس الآن</string>
+    <string name="parental_gate_open_support">لا يملك %1$s رمز PIN خاصاً به، لذا يلزم رمز PIN لأحد الوالدين لفتحه ما دام هناك ملف شخصي آخر عليه قيود أبوية.</string>
+    <string name="parental_lock_profiles_title">قفل الملفات الشخصية بدون قيود</string>
+    <string name="parental_lock_profiles_subtitle">ما دام هناك ملف شخصي عليه قيود أبوية، يتطلب فتح أي ملف شخصي بلا قيود وبلا رمز PIN خاص به رمز PIN الخاص بـ %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">عيّن رمز PIN لـ %1$s أولاً.</string>
+    <string name="parental_lock_profiles_offer_title">قفل الملفات الشخصية الأخرى أيضاً؟</string>
+    <string name="parental_lock_profiles_offer_subtitle">يمكن لـ %1$s فتح %2$s وتجاوز كل القيود، لأنها بلا رمز PIN. يمكن لـ Fetch طلب رمز PIN الخاص بـ %3$s لفتحها بدلاً من ذلك.</string>
+    <string name="parental_lock_profiles_offer_accept">طلب رمز PIN الخاص بـ %1$s</string>
+    <string name="kids_autoplay_cap">التشغيل التلقائي المتتالي: %1$s</string>
+    <string name="kids_approved_only">العناوين المعتمدة فقط: %1$s</string>
+    <string name="kids_approved_movies">أفلام لك</string>
+    <string name="kids_approved_shows">مسلسلات لك</string>
+    <string name="kids_approved_only_hint">تظهر على هذا الملف الشخصي العناوين المسموح بها دائماً فقط. اسمح بعنوان من قائمة الضغط المطوّل على ملصقه في الملف الشخصي الرئيسي.</string>
+    <string name="kids_daily_time">وقت الشاشة اليومي: %1$s</string>
+    <string name="kids_bedtime">وقت النوم: من %1$s إلى %2$s</string>
+    <string name="kids_bedtime_off">وقت النوم: متوقف</string>
+    <string name="kids_at_limit_finish">عند بلوغ الحد: إنهاء ما يُعرض</string>
+    <string name="kids_at_limit_stop">عند بلوغ الحد: الإيقاف فوراً</string>
+    <plurals name="kids_episodes">
+        <item quantity="zero">%1$d حلقة</item>
+        <item quantity="one">%1$d حلقة</item>
+        <item quantity="two">%1$d حلقتان</item>
+        <item quantity="few">%1$d حلقات</item>
+        <item quantity="many">%1$d حلقة</item>
+        <item quantity="other">%1$d حلقة</item>
+    </plurals>
+    <string name="kids_minutes">%1$d دقيقة</string>
+    <string name="screen_time_title">هذا كل شيء لليوم</string>
+    <string name="screen_time_daily">انتهى وقت الشاشة لليوم. نراك غداً!</string>
+    <string name="screen_time_bedtime">حان وقت النوم. نراك غداً!</string>
+    <string name="screen_time_choose">كم من الوقت الإضافي؟</string>
+    <string name="screen_time_ok">موافق</string>
+    <string name="screen_time_more">وقت إضافي (للوالدين)</string>
+    <string name="screen_time_add_minutes">+%1$d دقيقة</string>
+    <string name="screen_time_rest_of_day">بلا حد لبقية اليوم</string>
+    <string name="kids_hours">%1$d ساعة</string>
+    <string name="kids_hours_minutes">%1$d ساعة %2$d دقيقة</string>
 </resources>

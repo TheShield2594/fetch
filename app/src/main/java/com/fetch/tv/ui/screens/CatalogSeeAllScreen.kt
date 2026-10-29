@@ -53,7 +53,9 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
+import com.fetch.tv.data.mediaserver.messageRes
 import com.fetch.tv.ui.components.EmptyScreenState
+import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.PosterCardDefaults
@@ -113,7 +115,7 @@ fun CatalogSeeAllScreen(
         it.legacyKey() == catalogKey
     }
     val serverRow = serverCatalog?.row?.collectAsState()
-    val serverFailed = serverCatalog?.failed?.collectAsState()
+    val serverFailure = serverCatalog?.failure?.collectAsState()
     val catalogRow = when {
         serverCatalog != null -> serverRow?.value
         isSearchMode -> searchCatalogRow
@@ -230,7 +232,8 @@ fun CatalogSeeAllScreen(
         Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
 
         val hasItems = catalogRow?.items?.isNotEmpty() == true
-        val isCatalogLoading = if (catalogRow == null) serverFailed?.value != true else catalogRow.isLoading
+        val failure = serverFailure?.value
+        val isCatalogLoading = if (catalogRow == null) failure == null else catalogRow.isLoading
 
         if (hasItems) {
             val seeAllItemKeys = remember(catalogRow?.items) {
@@ -342,6 +345,14 @@ fun CatalogSeeAllScreen(
                     }
                 }
             }
+        } else if (catalogRow == null && failure != null && serverCatalog != null) {
+            // A media server that failed to load isn't an empty catalog: say why and offer Retry.
+            // Nothing else on the screen can take focus, so Retry does.
+            ErrorState(
+                message = stringResource(failure.messageRes()),
+                onRetry = serverCatalog::reload,
+                requestInitialFocus = true
+            )
         } else if (isCatalogLoading) {
             PosterGridSkeleton(
                 modifier = Modifier

@@ -131,12 +131,14 @@ internal fun SubtitleStyleSidePanel(
                     SubtitleStyleSettingRow {
                         SubtitleStyleStepperButton(
                             icon = Icons.Default.Remove,
+                            contentDescription = stringResource(R.string.cd_decrease_setting, stringResource(R.string.subtitle_style_font_size)),
                             onClick = { onEvent(PlayerEvent.OnSetSubtitleSize(subtitleStyle.size - 10)) },
                             modifier = Modifier.focusRequester(firstItemFocusRequester)
                         )
                         SubtitleStyleValueDisplay(text = "${subtitleStyle.size}%")
                         SubtitleStyleStepperButton(
                             icon = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.cd_increase_setting, stringResource(R.string.subtitle_style_font_size)),
                             onClick = { onEvent(PlayerEvent.OnSetSubtitleSize(subtitleStyle.size + 10)) }
                         )
                     }
@@ -169,6 +171,11 @@ internal fun SubtitleStyleSidePanel(
                         .height(140.dp)
                 ) {
                     val currentAlphaPercent = (Color(subtitleStyle.textColor).alpha * 100f).roundToInt().coerceIn(0, 100)
+                    val opacityLabel = if (isEditingHdrStyle) {
+                        stringResource(R.string.subtitle_style_text_opacity_hdr)
+                    } else {
+                        stringResource(R.string.subtitle_style_text_opacity)
+                    }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
@@ -191,6 +198,7 @@ internal fun SubtitleStyleSidePanel(
                         ) {
                             SubtitleStyleStepperButton(
                                 icon = Icons.Default.Remove,
+                                contentDescription = stringResource(R.string.cd_decrease_setting, opacityLabel),
                                 onClick = {
                                     val newAlpha = (currentAlphaPercent - 10).coerceAtLeast(0) / 100f
                                     onEvent(PlayerEvent.OnSetSubtitleTextColor(Color(subtitleStyle.textColor).copy(alpha = newAlpha).toArgb()))
@@ -199,6 +207,7 @@ internal fun SubtitleStyleSidePanel(
                             SubtitleStyleValueDisplay(text = "$currentAlphaPercent%")
                             SubtitleStyleStepperButton(
                                 icon = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.cd_increase_setting, opacityLabel),
                                 onClick = {
                                     val newAlpha = (currentAlphaPercent + 10).coerceAtMost(100) / 100f
                                     onEvent(PlayerEvent.OnSetSubtitleTextColor(Color(subtitleStyle.textColor).copy(alpha = newAlpha).toArgb()))
@@ -217,6 +226,7 @@ internal fun SubtitleStyleSidePanel(
                         SubtitleStyleSettingRow {
                             SubtitleStyleStepperButton(
                                 icon = Icons.Default.Remove,
+                                contentDescription = stringResource(R.string.cd_decrease_setting, stringResource(R.string.subtitle_style_brightness_hdr)),
                                 onClick = {
                                     onEvent(PlayerEvent.OnSetSubtitleHdrBrightness(subtitleStyle.hdrBrightness - 10))
                                 }
@@ -224,6 +234,7 @@ internal fun SubtitleStyleSidePanel(
                             SubtitleStyleValueDisplay(text = "${subtitleStyle.hdrBrightness}%")
                             SubtitleStyleStepperButton(
                                 icon = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.cd_increase_setting, stringResource(R.string.subtitle_style_brightness_hdr)),
                                 onClick = {
                                     onEvent(PlayerEvent.OnSetSubtitleHdrBrightness(subtitleStyle.hdrBrightness + 10))
                                 }
@@ -281,11 +292,13 @@ internal fun SubtitleStyleSidePanel(
                     SubtitleStyleSettingRow {
                         SubtitleStyleStepperButton(
                             icon = Icons.Default.Remove,
+                            contentDescription = stringResource(R.string.cd_decrease_setting, stringResource(R.string.subtitle_style_bottom_offset)),
                             onClick = { onEvent(PlayerEvent.OnSetSubtitleVerticalOffset(subtitleStyle.verticalOffset - 5)) }
                         )
                         SubtitleStyleValueDisplay(text = subtitleStyle.verticalOffset.toString())
                         SubtitleStyleStepperButton(
                             icon = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.cd_increase_setting, stringResource(R.string.subtitle_style_bottom_offset)),
                             onClick = { onEvent(PlayerEvent.OnSetSubtitleVerticalOffset(subtitleStyle.verticalOffset + 5)) }
                         )
                     }
@@ -384,6 +397,7 @@ private fun SubtitleStyleSettingRow(
 @Composable
 private fun SubtitleStyleStepperButton(
     icon: ImageVector,
+    contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -398,7 +412,7 @@ private fun SubtitleStyleStepperButton(
         ),
         shape = IconButtonDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.sm))
     ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(FetchTheme.spacing.lg))
+        Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(FetchTheme.spacing.lg))
     }
 }
 

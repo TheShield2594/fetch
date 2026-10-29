@@ -49,6 +49,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -129,11 +135,22 @@ fun CollectionManagementScreen(
         }
     }
 
-    var exportMessage by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(exportMessage) {
-        if (exportMessage != null) {
-            kotlinx.coroutines.delay(3000)
-            exportMessage = null
+    // true once the file is written, false when it couldn't be. A confirmation fades after a
+    // moment; a failure stays until it has been up long enough to read and a key is then pressed.
+    var exportSucceeded by remember { mutableStateOf<Boolean?>(null) }
+    var exportErrorReadyToDismiss by remember { mutableStateOf(false) }
+    LaunchedEffect(exportSucceeded) {
+        exportErrorReadyToDismiss = false
+        when (exportSucceeded) {
+            true -> {
+                kotlinx.coroutines.delay(3000)
+                exportSucceeded = null
+            }
+            false -> {
+                kotlinx.coroutines.delay(8000)
+                exportErrorReadyToDismiss = true
+            }
+            null -> Unit
         }
     }
 
@@ -170,7 +187,17 @@ fun CollectionManagementScreen(
         return
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            // Observes keys without consuming them, to clear an export error that has been read.
+            .onPreviewKeyEvent { event ->
+                if (exportErrorReadyToDismiss && event.type == KeyEventType.KeyDown) {
+                    exportSucceeded = null
+                }
+                false
+            }
+    ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -196,7 +223,7 @@ fun CollectionManagementScreen(
                 if (uiState.collections.isNotEmpty()) {
                     FetchButton(onClick = {
                         scope.launch {
-                            try {
+                            exportSucceeded = try {
                                 val json = viewModel.getExportJson()
                                 withContext(Dispatchers.IO) {
                                     val resolver = context.contentResolver
@@ -212,22 +239,19 @@ fun CollectionManagementScreen(
                                         put(android.provider.MediaStore.Downloads.DISPLAY_NAME, "fetch-collections.json")
                                         put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/json")
                                     }
-                                    val uri = resolver.insert(existingUri, values)
-                                    uri?.let { resolver.openOutputStream(it)?.use { os -> os.write(json.toByteArray()) } }
+                                    // Saved only once the bytes are written; a null insert or stream is a failure.
+                                    val uri = resolver.insert(existingUri, values) ?: return@withContext false
+                                    resolver.openOutputStream(uri)?.use { os ->
+                                        os.write(json.toByteArray())
+                                        true
+                                    } ?: false
                                 }
-                                exportMessage = "saved"
                             } catch (_: Exception) {
-                                exportMessage = "failed"
+                                false
                             }
                         }
                     }) {
-                        Text(exportMessage?.let {
-                            when (it) {
-                                "saved" -> stringResource(R.string.collections_saved_downloads)
-                                "failed" -> stringResource(R.string.collections_export_failed)
-                                else -> it
-                            }
-                        } ?: stringResource(R.string.collections_export_file))
+                        Text(stringResource(R.string.collections_export_file))
                     }
                 }
                 FetchButton(onClick = { viewModel.showImportDialog() }) {
@@ -243,6 +267,22 @@ fun CollectionManagementScreen(
                     Text(stringResource(R.string.collections_new))
                 }
             }
+        }
+
+        exportSucceeded?.let { saved ->
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+            Text(
+                text = if (saved) {
+                    stringResource(R.string.collections_saved_downloads)
+                } else {
+                    stringResource(R.string.collections_export_failed)
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (saved) FetchTheme.colors.TextSecondary else FetchTheme.colors.Error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { liveRegion = LiveRegionMode.Polite }
+            )
         }
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
@@ -481,41 +521,22 @@ private fun ImportContent(
                     }
 
                     ImportMode.URL -> {
-                        Surface(
-                            shape = RoundedCornerShape(FetchTheme.radii.md),
-                            colors = SurfaceDefaults.colors(containerColor = FetchTheme.colors.BackgroundElevated),
-                            border = Border(
-                                border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(FetchTheme.spacing.huge)
-                        ) {
-                            Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md), contentAlignment = Alignment.CenterStart) {
-                                BasicTextField(
-                                    value = importUrl,
-                                    onValueChange = onUrlChange,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                        color = FetchTheme.colors.TextPrimary,
-                                            textDirection = TextDirection.Content
-                                    ),
-                                    cursorBrush = SolidColor(FetchTheme.colors.Primary),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                                    decorationBox = { innerTextField ->
-                                        if (importUrl.isEmpty()) {
-                                            Text(
-                                                text = stringResource(R.string.collections_import_url_placeholder),
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = FetchTheme.colors.TextTertiary
-                                            )
-                                        }
-                                        innerTextField()
-                                    }
-                                )
-                            }
+                        FetchTextField(
+                            value = importUrl,
+                            onValueChange = onUrlChange,
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = stringResource(R.string.collections_import_url_placeholder),
+                            isError = importError != null
+                        )
+
+                        // The error belongs to the field, so it sits right under it.
+                        if (importError != null) {
+                            Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
+                            Text(
+                                text = importError,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = FetchTheme.colors.Error
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
@@ -566,7 +587,7 @@ private fun ImportContent(
                 }
             }
 
-            if (importError != null) {
+            if (importError != null && importMode != ImportMode.URL) {
                 item {
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
                     Text(

@@ -11,8 +11,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Hjem trenger et katalogtillegg for å vise titler.</string>
     <string name="home_empty_no_catalogs_title">Ingen kataloger å vise</string>
     <string name="home_empty_no_catalogs_subtitle">Tilleggene dine tilbyr ingen kataloger for Hjem.</string>
-    <string name="auth_notice_fetch_logged_out">Du har blitt logget ut av Fetch. Logg inn igjen.</string>
-    <string name="auth_notice_trakt_logged_out">Du har blitt logget ut av Trakt. Koble til igjen.</string>
+    <string name="auth_notice_fetch_logged_out">Du er logget ut av Fetch. Logg inn igjen under Innstillinger &gt; Konto.</string>
+    <string name="auth_notice_trakt_logged_out">Du er logget ut av Trakt. Koble til igjen under Innstillinger &gt; Sporing.</string>
     <string name="error_generic">En feil har oppstått</string>
 
     <!-- ErrorState -->
@@ -127,6 +127,7 @@
     <string name="detail_marked_episodes_watched">Episoder markert som sett: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episoder markert som usett: %1$d</string>
     <string name="detail_marked_previous_watched">Tidligere episoder markert som sett: %1$d</string>
+    <string name="playback_unavailable_message">Ingenting du har satt opp, kan spille av denne tittelen. Legg til eller slå på et strømmetillegg under Innstillinger &gt; Innhold og oppdagelse &gt; Tillegg, eller sjekk tilkoblingen til medieserveren din.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Spill av</string>
@@ -212,6 +213,7 @@
 
     <!-- SettingsScreen categories -->
     <string name="settings_account">Konto</string>
+    <string name="settings_tracking_title">Sporing</string>
     <string name="settings_profiles">Profiler</string>
     <string name="settings_layout">Oppsett</string>
     <string name="settings_integration">Integrasjoner</string>
@@ -248,6 +250,9 @@
     <string name="playback_subtitle">Konfigurer videoavspilling og undertekst</string>
     <string name="cd_decrease">Reduser</string>
     <string name="cd_increase">Øk</string>
+    <string name="cd_decrease_setting">Reduser %1$s</string>
+    <string name="cd_increase_setting">Øk %1$s</string>
+    <string name="cd_seek_bar">Spolelinje</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_none">Ingen</string>
     <string name="action_close">Lukk</string>
@@ -448,7 +453,7 @@
     <string name="mdblist_dialog_title">MDBList API-nøkkel</string>
     <string name="mdblist_dialog_placeholder">Skriv inn MDBList API-nøkkel</string>
     <string name="mdblist_not_set">Ikke angitt</string>
-    <string name="mdblist_invalid_api_key">Ugyldig MDBList API-nøkkel</string>
+    <string name="mdblist_invalid_api_key">Kunne ikke bekrefte denne API-nøkkelen. Sjekk at den samsvarer med nøkkelen i MDBList-kontoen din og at du er på nett, og prøv igjen.</string>
 
     <!-- Anime-Skip -->
     <string name="animeskip_title">Anime hopp</string>
@@ -460,7 +465,7 @@
     <string name="animeskip_dialog_title">Anime hopp-klient-ID</string>
     <string name="animeskip_dialog_subtitle">Lag din egen klient-ID på anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Skriv inn klient-ID</string>
-    <string name="animeskip_invalid_client_id">Ugyldig klient-ID</string>
+    <string name="animeskip_invalid_client_id">Kunne ikke bekrefte denne klient-ID-en. Sjekk at den samsvarer med den i Anime Skip-kontoen din og at du er på nett, og prøv igjen.</string>
     <string name="action_clear">Tøm</string>
 
     <!-- TmdbSettingsScreen -->
@@ -611,6 +616,7 @@
     <string name="addon_error_invalid_scheme">Tilleggs-URL må starte med http eller https</string>
     <string name="addon_installed_section">Installert</string>
     <string name="addon_empty">Ingen tillegg installert. Legg til ett for å komme i gang.</string>
+    <string name="addon_list_load_failed">Kunne ikke laste inn de installerte tilleggene dine. Prøv igjen.</string>
     <string name="addon_remove">Fjern</string>
     <string name="addon_manage_from_phone_title">Administrer fra telefon</string>
     <string name="addon_manage_from_phone_subtitle">Skann en QR-kode for å administrere tillegg og hjemmekatalogier fra telefonen din</string>
@@ -665,12 +671,14 @@
     <string name="player_up_next_in_queue">Neste i køen</string>
     <string name="player_queue_move_up">Flytt opp</string>
     <string name="player_queue_move_down">Flytt ned</string>
+    <string name="player_queue_removed">Fjernet %1$s fra køen</string>
+    <string name="player_queue_undo">Angre</string>
     <string name="player_seek_back_10">10 sekunder tilbake</string>
     <string name="player_seek_forward_30">30 sekunder frem</string>
     <string name="player_via">via %1$s</string>
     <string name="player_subtitle_delay">Undertekst forsinkelse</string>
     <string name="player_error_title">Avspillingsfeil</string>
-    <string name="player_go_back">Gå tilbake</string>
+    <string name="player_error_choose_source">Velg en annen kilde</string>
     <string name="player_speed_title">Avspillingshastighet</string>
     <string name="player_more_actions_title">Flere handlinger</string>
     <string name="player_more_speed">Avspillingshastighet</string>
@@ -730,8 +738,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Du ser</string>
     <string name="pause_cast_label">Kast</string>
-    <string name="pause_back_to_details">Tilbake til detaljer</string>
-    <string name="pause_as_character">som %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Neste episode</string>
@@ -753,10 +759,14 @@
     <string name="search_start_title">Start søk</string>
     <string name="search_start_subtitle">Skriv inn minst 2 tegn</string>
     <string name="search_start_subtitle_no_discover">Discover er deaktivert. Skriv inn minst 2 tegn</string>
+    <string name="search_recent_clear_confirm_title">Vil du tømme søkehistorikken?</string>
+    <string name="search_recent_clear_confirm_subtitle">Alle de nylige søkene dine fjernes. Dette kan ikke angres.</string>
     <string name="search_voice_no_speech">Ingen tale oppdaget. Prøv igjen.</string>
     <string name="search_voice_mic_permission">Mikrofonrettighet er nødvendig for røstsøk.</string>
     <string name="search_voice_failed">Røstgjenkjenning mislyktes. Prøv igjen.</string>
     <string name="search_voice_unavailable">Røstsøk er utilgjengelig på denne enheten.</string>
+    <string name="search_no_catalogs_title">Ingen av tilleggene dine kan søke</string>
+    <string name="search_no_catalogs_subtitle">Installer et tillegg med en søkekatalog, og prøv igjen.</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">Bibliotek</string>
@@ -774,12 +784,15 @@
     <string name="library_list_move_up">Flytt opp</string>
     <string name="library_list_move_down">Flytt ned</string>
     <string name="library_list_delete">Slett</string>
+    <string name="library_list_delete_named">Slett «%1$s»</string>
     <string name="library_list_close">Lukk</string>
     <string name="library_list_name_label">Navn</string>
     <string name="library_list_description_label">Beskrivelse</string>
     <string name="library_list_privacy">Personvern</string>
     <string name="library_delete_title">Slett denne listen?</string>
-    <string name="library_delete_subtitle">Dette fjerner listen og alle listeelementer fra Trakt.</string>
+    <string name="library_delete_title_named">Vil du slette «%1$s»?</string>
+    <string name="library_delete_subtitle_provider">Dette fjerner listen og elementene i den fra %1$s. Dette kan ikke angres.</string>
+    <string name="library_delete_subtitle_local">Dette fjerner listen og elementene i den fra biblioteket ditt. Dette kan ikke angres.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_type_all">Alle</string>
     <string name="library_empty_local_title">Ingen %1$s ennå</string>
@@ -950,6 +963,9 @@
     <string name="addon_health_ok">Svarer · %1$s</string>
     <string name="addon_health_slow">Treg · %1$s</string>
     <string name="addon_health_timed_out">Siste forespørsel fikk tidsavbrudd</string>
+    <string name="source_chip_failed">mislyktes</string>
+    <string name="source_chip_loading">laster inn</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s må konfigureres før det kan installeres</string>
     <string name="advanced_introdb_api_key">IntroDB API-nøkkel</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Opprett en nøkkel på introdb.app. Den starter med idb_.</string>
@@ -965,12 +981,32 @@
     <string name="autoplay_mode_best_desc">Rangerer hvert resultat etter kvalitet, reglene dine og hva denne enheten kan spille av, og starter så vinneren. Andre kilder er bare ett trykk unna.</string>
     <string name="best_match_cached">Bufret</string>
     <string name="best_match_excluded">Ikke autoavspilt: %1$s</string>
+    <string name="stream_hold_for_options">Hold inne OK for Beste treff-valg</string>
     <string name="best_match_preview_sub">Spør strømmetilleggene om en tittel mens du ser på den, slik at Spill av-knappen kan vise filen og avspillingen starter raskere. Slå av for å søke først etter at du trykker Spill av.</string>
     <string name="best_match_preview_title">Vis valget på Spill av-knappen</string>
     <string name="catalog_order_pin">Fest øverst</string>
     <string name="catalog_order_pinned_on_home">Festet øverst på Hjem</string>
     <string name="catalog_order_unpin">Løsne</string>
     <string name="cd_mark_credits_end">Marker slutt på rulletekst</string>
+    <string name="cd_move_addon_up">Flytt %1$s opp</string>
+    <string name="cd_move_addon_down">Flytt %1$s ned</string>
+    <string name="cd_addon_enabled_toggle">%1$s aktivert</string>
+    <string name="cd_configure_addon">Konfigurer %1$s</string>
+    <string name="cd_remove_addon">Fjern %1$s</string>
+    <string name="folder_error_addon_source">Kunne ikke laste inn denne katalogen. Sjekk at tillegget er installert og tilgjengelig, og prøv igjen.</string>
+    <string name="folder_error_addon_missing">Tillegget for denne katalogen er ikke installert. Installer det fra Tillegg, eller fjern denne kilden fra mappen.</string>
+    <string name="folder_error_tmdb_source">Kunne ikke laste inn dette fra TMDB. Sjekk tilkoblingen, og prøv igjen.</string>
+    <string name="folder_error_trakt_source">Kunne ikke laste inn denne Trakt-listen. Sjekk tilkoblingen og at listen fortsatt er offentlig, og prøv igjen.</string>
+    <string name="folder_error_list_source">Kunne ikke laste inn denne listen. Sjekk tilkoblingen, og prøv igjen.</string>
+    <string name="collections_editor_discard_title">Vil du forkaste endringene?</string>
+    <string name="collections_editor_discard_collection_subtitle">Endringene dine i denne samlingen er ikke lagret.</string>
+    <string name="collections_editor_discard_folder_subtitle">Endringene dine i denne mappen er ikke lagret.</string>
+    <string name="collections_editor_keep_editing">Fortsett å redigere</string>
+    <string name="collections_editor_discard">Forkast</string>
+    <string name="player_error_initialize_failed">Kunne ikke starte spilleren. Start Fetch på nytt og prøv igjen.</string>
+    <string name="player_error_mpv_surface_failed">Kunne ikke starte mpv-spilleren. Prøv igjen, eller endre Intern motor under Innstillinger &gt; Avspilling.</string>
+    <string name="player_error_mpv_playback_failed">Kunne ikke starte avspilling i mpv-spilleren. Prøv igjen, eller endre Intern motor under Innstillinger &gt; Avspilling.</string>
+    <string name="library_error_save_list_next_step">Sjekk tilkoblingen, og prøv igjen.</string>
     <string name="cd_mark_credits_start">Marker start på rulletekst</string>
     <string name="cd_mark_intro_end">Marker slutt på intro</string>
     <string name="cd_mark_intro_start">Marker start på intro</string>
@@ -1314,14 +1350,57 @@
     <string name="profile_pin_forgot_needs_main">Glemt PIN? Angi en PIN på %1$s først, og bruk den til å tilbakestille denne.</string>
     <string name="profile_pin_forgot_main">PIN-en til hovedprofilen kan ikke tilbakestilles, så oppbevar den på et trygt sted.</string>
     <string name="profile_pin_reset_for_profile">PIN tilbakestilt for %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">Feil PIN for %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Feil PIN for %1$s. Prøv igjen.</string>
+    <string name="profile_pin_incorrect">Feil PIN. Prøv igjen.</string>
     <string name="profile_selection_kids_badge">Barn</string>
     <string name="profile_manage_done">Ferdig</string>
     <string name="cd_profile_locked">Låst med PIN</string>
+    <string name="cd_profile_pin_progress">%1$d av %2$d sifre angitt</string>
+    <string name="cd_profile_color_crimson">Karmosin</string>
+    <string name="cd_profile_color_ocean">Hav</string>
+    <string name="cd_profile_color_violet">Fiolett</string>
+    <string name="cd_profile_color_emerald">Smaragd</string>
+    <string name="cd_profile_color_amber">Rav</string>
+    <string name="cd_profile_color_rose">Rosa</string>
+    <string name="cd_profile_color_cyan">Cyan</string>
+    <string name="cd_profile_color_brown">Brun</string>
+    <string name="cd_profile_color_position">Farge %1$d av %2$d</string>
     <string name="profile_save_error">Kunne ikke lagre profilen. Prøv igjen.</string>
     <string name="profile_delete_error">Kunne ikke slette profilen. Prøv igjen.</string>
     <string name="parental_pin_nudge_title">Beskytt begrensningene til %1$s</string>
     <string name="parental_pin_nudge_subtitle">Angi en PIN på %1$s. Uten en PIN kan hvem som helst endre begrensningene til %2$s eller bytte til en annen profil.</string>
     <string name="parental_pin_nudge_set">Angi PIN på %1$s</string>
     <string name="parental_pin_nudge_later">Ikke nå</string>
+    <string name="parental_gate_open_support">%1$s har ingen egen PIN-kode, så en forelders PIN-kode kreves for å åpne den mens en annen profil har foreldrebegrensninger.</string>
+    <string name="parental_lock_profiles_title">Lås profiler uten begrensninger</string>
+    <string name="parental_lock_profiles_subtitle">Mens en profil har foreldrebegrensninger, kreves PIN-koden til %1$s for å åpne en profil uten begrensninger og uten egen PIN-kode.</string>
+    <string name="parental_lock_profiles_needs_pin">Angi en PIN-kode på %1$s først.</string>
+    <string name="parental_lock_profiles_offer_title">Låse de andre profilene også?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s kan åpne %2$s og hoppe over alle begrensninger, siden de ikke har PIN-kode. Fetch kan i stedet be om PIN-koden til %3$s for å åpne dem.</string>
+    <string name="parental_lock_profiles_offer_accept">Be om PIN-koden til %1$s</string>
+    <string name="kids_autoplay_cap">Autoavspilling på rad: %1$s</string>
+    <string name="kids_approved_only">Bare godkjente titler: %1$s</string>
+    <string name="kids_approved_movies">Filmer for deg</string>
+    <string name="kids_approved_shows">Serier for deg</string>
+    <string name="kids_approved_only_hint">Bare titler som alltid er tillatt, vises på denne profilen. Tillat en tittel fra menyen du får ved å holde inne plakaten på hovedprofilen.</string>
+    <string name="kids_daily_time">Daglig skjermtid: %1$s</string>
+    <string name="kids_bedtime">Leggetid: %1$s til %2$s</string>
+    <string name="kids_bedtime_off">Leggetid: Av</string>
+    <string name="kids_at_limit_finish">Ved grensen: fullfør det som spilles</string>
+    <string name="kids_at_limit_stop">Ved grensen: stopp med en gang</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d episode</item>
+        <item quantity="other">%1$d episoder</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Det var alt for i dag</string>
+    <string name="screen_time_daily">Dagens skjermtid er brukt opp. Vi ses i morgen!</string>
+    <string name="screen_time_bedtime">Det er leggetid. Vi ses i morgen!</string>
+    <string name="screen_time_choose">Hvor mye mer tid?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Mer tid (forelder)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Ingen grense resten av dagen</string>
+    <string name="kids_hours">%1$d t</string>
+    <string name="kids_hours_minutes">%1$d t %2$d min</string>
 </resources>

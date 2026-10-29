@@ -227,7 +227,8 @@ private fun YouTubeChannelPickerDialog(
             state.accounts.isEmpty() -> SettingsNote(text = stringResource(R.string.youtube_channel_picker_failed))
             else -> {
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 420.dp),
+                    // Fits under FetchDialog's 492dp cap with the padding, title and subtitle at 1.3x text.
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 320.dp),
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
                 ) {
                     itemsIndexed(state.accounts, key = { index, account -> "${account.pageId}_$index" }) { index, account ->

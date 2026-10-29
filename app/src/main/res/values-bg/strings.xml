@@ -102,8 +102,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Начало се нуждае от каталожна добавка, за да показва заглавия.</string>
     <string name="home_empty_no_catalogs_title">Няма каталози за показване</string>
     <string name="home_empty_no_catalogs_subtitle">Вашите добавки не предлагат каталози за Начало.</string>
-    <string name="auth_notice_fetch_logged_out">Излезли сте от Fetch. Моля, влезте отново.</string>
-    <string name="auth_notice_trakt_logged_out">Излезли сте от Trakt. Моля, свържете отново акаунта си.</string>
+    <string name="auth_notice_fetch_logged_out">Излязохте от Fetch. Влезте отново от Настройки &gt; Акаунт.</string>
+    <string name="auth_notice_trakt_logged_out">Излязохте от Trakt. Свържете го отново от Настройки &gt; Проследяване.</string>
     <string name="error_generic">Възникна грешка</string>
 
     <string name="action_retry">Опитай отново</string>
@@ -216,6 +216,7 @@
     <string name="detail_marked_episodes_watched">Маркирани епизоди като гледани: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Маркирани епизоди като негледани: %1$d</string>
     <string name="detail_marked_previous_watched">Предишни епизоди маркирани като гледани: %1$d</string>
+    <string name="playback_unavailable_message">Нито един от настроените ти източници не може да възпроизведе това заглавие. Добави или включи добавка за стрийминг в Настройки &gt; Съдържание и откриване &gt; Добавки или провери връзката с медийния сървър.</string>
 
     <string name="detail_btn_play">Пусни</string>
     <string name="detail_btn_resume">Продължи</string>
@@ -365,6 +366,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Изживяване</string>
     <string name="settings_account">Акаунт</string>
+    <string name="settings_tracking_title">Проследяване</string>
     <string name="settings_profiles">Профили</string>
     <string name="settings_layout">Оформление</string>
     <string name="settings_integration">Интеграции</string>
@@ -478,6 +480,9 @@
     <string name="playback_subtitle">Конфигурирай опциите за видео възпроизвеждане и субтитри</string>
     <string name="cd_decrease">Намали</string>
     <string name="cd_increase">Увеличи</string>
+    <string name="cd_decrease_setting">Намали %1$s</string>
+    <string name="cd_increase_setting">Увеличи %1$s</string>
+    <string name="cd_seek_bar">Лента за превъртане</string>
     <string name="action_cancel">Отказ</string>
     <string name="action_apply">Приложи</string>
     <string name="sub_opacity">Непрозрачност</string>
@@ -784,7 +789,7 @@
     <string name="mdblist_dialog_title">MDBList API ключ</string>
     <string name="mdblist_dialog_placeholder">Въведи MDBList API ключ</string>
     <string name="mdblist_not_set">Не е зададен</string>
-    <string name="mdblist_invalid_api_key">Невалиден MDBList API ключ</string>
+    <string name="mdblist_invalid_api_key">Не успяхме да проверим този API ключ. Провери дали съвпада с ключа в акаунта ти в MDBList и дали си онлайн, след което опитай отново.</string>
 
 
 
@@ -829,7 +834,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Създай свой Client ID на anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Въведи Client ID</string>
-    <string name="animeskip_invalid_client_id">Невалиден Client ID</string>
+    <string name="animeskip_invalid_client_id">Не успяхме да проверим този Client ID. Провери дали съвпада с този в акаунта ти в Anime Skip и дали си онлайн, след което опитай отново.</string>
     <string name="action_clear">Изчисти</string>
 
     <string name="tmdb_title">TMDB обогатяване</string>
@@ -1007,6 +1012,7 @@
     <string name="addon_error_invalid_scheme">URL адресът на добавката трябва да започва с http или https</string>
     <string name="addon_installed_section">Инсталирани</string>
     <string name="addon_empty">Няма инсталирани добавки. Добави една, за да започнеш.</string>
+    <string name="addon_list_load_failed">Не успяхме да заредим инсталираните ти добавки. Опитай отново.</string>
     <string name="addon_remove">Премахни</string>
     <string name="addons_badge_disabled">Деактивирани</string>
     <string name="addon_manage_from_phone_title">Управлявай от телефона</string>
@@ -1099,6 +1105,8 @@
     <string name="player_up_next_in_queue">Следващо в опашката</string>
     <string name="player_queue_move_up">Премести нагоре</string>
     <string name="player_queue_move_down">Премести надолу</string>
+    <string name="player_queue_removed">Премахнато от опашката: %1$s</string>
+    <string name="player_queue_undo">Отмени</string>
     <string name="player_seek_back_10">Назад 10 секунди</string>
     <string name="player_seek_forward_30">Напред 30 секунди</string>
     <string name="player_via">чрез %1$s</string>
@@ -1106,13 +1114,13 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Забавяне на субтитрите</string>
     <string name="player_error_title">Грешка при възпроизвеждане</string>
-    <string name="player_go_back">Върни се</string>
+    <string name="player_error_choose_source">Избери друг източник</string>
     <string name="player_speed_title">Скорост на възпроизвеждане</string>
     <string name="player_more_actions_title">Още действия</string>
     <string name="player_more_speed">Скорост на възпроизвеждане</string>
     <string name="player_more_aspect_ratio">Съотношение на страните</string>
     <string name="player_more_open_external">Отвори във външен плейър</string>
-    <string name="player_error_no_stream_url">Не е предоставен URL на поток</string>
+    <string name="player_error_no_stream_url">Този източник няма връзка към поток. Избери друг източник.</string>
 
 
     <string name="stream_info_section_source">ИЗТОЧНИК</string>
@@ -1197,8 +1205,6 @@
 
     <string name="pause_you_are_watching">Гледаш</string>
     <string name="pause_cast_label">Актьорски състав</string>
-    <string name="pause_back_to_details">Обратно към детайлите</string>
-    <string name="pause_as_character">като %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Следващ епизод</string>
@@ -1233,6 +1239,8 @@
     <string name="search_start_subtitle_no_discover">Discover е деактивиран. Въведи поне 2 символа</string>
     <string name="search_recent_title">Скорошни търсения</string>
     <string name="search_recent_clear">Изчисти история</string>
+    <string name="search_recent_clear_confirm_title">Изчисти историята на търсенето?</string>
+    <string name="search_recent_clear_confirm_subtitle">Всички скорошни търсения ще бъдат премахнати. Това не може да се отмени.</string>
     <string name="search_voice_no_speech">Не е открит говор. Опитай отново.</string>
     <string name="search_voice_mic_permission">Необходим е достъп до микрофона за гласово търсене.</string>
     <string name="search_voice_failed">Разпознаването на глас се провали. Опитай отново.</string>
@@ -1240,6 +1248,8 @@
     <string name="search_no_results_title">Няма резултати</string>
     <string name="search_no_results_subtitle">Опитай с различни ключови думи</string>
     <string name="search_error_no_catalogs">Не са намерени търсими каталози в инсталираните добавки</string>
+    <string name="search_no_catalogs_title">Нито една от добавките ти не може да търси</string>
+    <string name="search_no_catalogs_subtitle">Инсталирай добавка с каталог за търсене, след което опитай отново.</string>
 
     <string name="library_title">Библиотека</string>
     <string name="library_filter_list">Списък</string>
@@ -1285,13 +1295,16 @@
     <string name="library_list_move_up">Премести нагоре</string>
     <string name="library_list_move_down">Премести надолу</string>
     <string name="library_list_delete">Изтрий</string>
+    <string name="library_list_delete_named">Изтрий „%1$s“</string>
     <string name="library_list_close">Затвори</string>
     <string name="library_list_name_label">Име</string>
-    <string name="library_error_list_name_required">Името на списъка е задължително</string>
+    <string name="library_error_list_name_required">Въведи име за списъка</string>
     <string name="library_list_description_label">Описание</string>
     <string name="library_list_privacy">Поверителност</string>
     <string name="library_delete_title">Изтрий този списък?</string>
-    <string name="library_delete_subtitle">Това ще премахне списъка и всички елементи от него от Trakt.</string>
+    <string name="library_delete_title_named">Изтрий „%1$s“?</string>
+    <string name="library_delete_subtitle_provider">Това премахва списъка и елементите му от %1$s. Това не може да се отмени.</string>
+    <string name="library_delete_subtitle_local">Това премахва списъка и елементите му от библиотеката ти. Това не може да се отмени.</string>
     <string name="library_source_local">ЛОКАЛНО</string>
     <string name="library_source_saved">Запазено</string>
     <string name="library_watchlist">Списък за гледане</string>
@@ -1452,9 +1465,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Не можахме да запазим PIN. Опитай отново.</string>
     <string name="profile_pin_locked">Профилът е заключен. Опитай отново след %1$dс.</string>
-    <string name="profile_pin_invalid">Невалиден PIN. Опитай отново.</string>
     <string name="profile_pin_verify_error">Не можахме да проверим PIN. Опитай отново.</string>
-    <string name="profile_pin_incorrect">Текущият PIN е грешен.</string>
+    <string name="profile_pin_incorrect">Грешен PIN. Опитай отново.</string>
     <string name="profile_pin_current_required">Този профил вече има PIN. Въведи текущия PIN, за да го промениш.</string>
 
     <!-- Account Screen -->
@@ -1469,7 +1481,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Свържи се с Wi-Fi или Ethernet, за да използваш тази функция</string>
-    <string name="error_server_ports_unavailable">Не можахме да стартираме сървъра. Всички портове са заети.</string>
+    <string name="error_server_ports_unavailable">Не успяхме да стартираме връзката с телефона. Рестартирай Fetch и опитай отново.</string>
 
     <!-- Trakt errors -->
 
@@ -1534,6 +1546,11 @@
     <string name="cd_loading_logo">Зареждане на лого</string>
     <string name="cd_move_up">Премести нагоре</string>
     <string name="cd_move_down">Премести надолу</string>
+    <string name="cd_move_addon_up">Премести %1$s нагоре</string>
+    <string name="cd_move_addon_down">Премести %1$s надолу</string>
+    <string name="cd_addon_enabled_toggle">%1$s е активирана</string>
+    <string name="cd_configure_addon">Конфигуриране на %1$s</string>
+    <string name="cd_remove_addon">Премахни %1$s</string>
     <string name="cd_edit">Редактирай</string>
     <string name="cd_delete">Изтрий</string>
     <string name="cd_qr_code">QR код</string>
@@ -1568,7 +1585,7 @@
     <string name="collections_import">Импортирай</string>
     <string name="collections_export_file">Експортирай файл</string>
     <string name="collections_saved_downloads">Запазено в Downloads</string>
-    <string name="collections_export_failed">Експортирането се провали</string>
+    <string name="collections_export_failed">Не успяхме да запазим в Изтегляния. Провери разрешението за хранилище и свободното място, след което опитай отново.</string>
     <string name="collections_import_header">Импортиране на колекции</string>
     <string name="collections_import_description">Импортирай колекции от JSON. Каталози от добавки, които не са инсталирани, ще покажат предупреждение.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1805,6 +1822,16 @@
     <string name="collection_editor_folder_count_other">%1$d елемента</string>
     <string name="collections_editor_delete_folder_title">Изтрий папката?</string>
     <string name="collections_editor_delete_folder_subtitle">Това ще изтрие завинаги „%1$s“ и съдържанието ѝ.</string>
+    <string name="folder_error_addon_source">Не успяхме да заредим този каталог. Провери дали добавката му е инсталирана и онлайн, след което опитай отново.</string>
+    <string name="folder_error_addon_missing">Добавката на този каталог не е инсталирана. Инсталирай я от Добавки или премахни този източник от папката.</string>
+    <string name="folder_error_tmdb_source">Не успяхме да заредим това от TMDB. Провери връзката си, след което опитай отново.</string>
+    <string name="folder_error_trakt_source">Не успяхме да заредим този списък от Trakt. Провери връзката си и дали списъкът все още е публичен, след което опитай отново.</string>
+    <string name="folder_error_list_source">Не успяхме да заредим този списък. Провери връзката си, след което опитай отново.</string>
+    <string name="collections_editor_discard_title">Отхвърли промените?</string>
+    <string name="collections_editor_discard_collection_subtitle">Промените ти в тази колекция не са запазени.</string>
+    <string name="collections_editor_discard_folder_subtitle">Промените ти в тази папка не са запазени.</string>
+    <string name="collections_editor_keep_editing">Продължи редактирането</string>
+    <string name="collections_editor_discard">Отхвърли</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Най-добри екшън филми, Корейски драми, 2024 анимация</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks филми, Любимите актьори</string>
@@ -1869,17 +1896,17 @@
     <string name="player_track_subtitle_fallback">Субтитри %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nИзточникът на потока е блокиран или ограничен. Опитай друг източник.</string>
-    <string name="player_error_stream_removed">\n\nВръзката на потока е изтекла или премахната. Опитай друг източник.</string>
-    <string name="player_error_stream_expired">\n\nВръзката на потока е изтекла. Опитай друг източник.</string>
-    <string name="player_error_stream_rate_limited">\n\nТвърде много заявки към източника на потока. Изчакай малко и опитай отново.</string>
-    <string name="player_error_stream_unavailable">\n\nСървърът на потока в момента е недостъпен. Опитай друг източник.</string>
-    <string name="player_error_source_invalid_content">Грешка в източника: Източникът на потока върна невалидно или невъзпроизводимо съдържание. Връзката може да е изтекла или сървърът е върнал страницата с грешка вместо видео.\n\nОпитай друг източник. [%1$s]</string>
-    <string name="player_error_unsupported_format">Този поток използва формат, който устройството ти може да не поддържа. Опитай друг източник. [%1$s]</string>
-    <string name="player_error_initialize_failed">Неуспешна инициализация на плейъра</string>
-    <string name="player_error_mpv_surface_failed">Неуспешна инициализация на libmpv surface</string>
-    <string name="player_error_mpv_playback_failed">Неуспешна инициализация на libmpv възпроизвеждане</string>
-    <string name="player_error_playback_fallback">Грешка при възпроизвеждане</string>
+    <string name="player_error_stream_blocked">\n\nИзточникът на потока е блокиран или ограничен. Избери друг източник.</string>
+    <string name="player_error_stream_removed">\n\nВръзката на потока е изтекла или премахната. Избери друг източник.</string>
+    <string name="player_error_stream_expired">\n\nВръзката на потока е изтекла. Избери друг източник.</string>
+    <string name="player_error_stream_rate_limited">\n\nТвърде много заявки към източника на потока. Изчакай малко, след което избери източник отново.</string>
+    <string name="player_error_stream_unavailable">\n\nСървърът на потока в момента е недостъпен. Избери друг източник.</string>
+    <string name="player_error_source_invalid_content">Грешка в източника: Източникът на потока върна невалидно или невъзпроизводимо съдържание. Връзката може да е изтекла или сървърът е върнал страница с грешка вместо видео.\n\nИзбери друг източник. [%1$s]</string>
+    <string name="player_error_unsupported_format">Този поток използва формат, който устройството ти може да не поддържа. Избери друг източник. [%1$s]</string>
+    <string name="player_error_initialize_failed">Не успяхме да стартираме плейъра. Рестартирай Fetch и опитай отново.</string>
+    <string name="player_error_mpv_surface_failed">Не успяхме да стартираме mpv плейъра. Опитай отново или смени Вграден двигател в Настройки &gt; Възпроизвеждане.</string>
+    <string name="player_error_mpv_playback_failed">Не успяхме да стартираме възпроизвеждането в mpv плейъра. Опитай отново или смени Вграден двигател в Настройки &gt; Възпроизвеждане.</string>
+    <string name="player_error_playback_fallback">Този поток не може да се възпроизведе. Избери друг източник.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Не са намерени субтитърни линии в този файл.</string>
     <string name="subtitle_timing_load_lines_failed">Неуспешно зареждане на субтитърни линии.</string>
@@ -1910,6 +1937,7 @@
     <string name="library_list_created">Списъкът е създаден</string>
     <string name="library_list_updated">Списъкът е обновен</string>
     <string name="library_error_save_list_failed">Неуспешно запазване на списъка</string>
+    <string name="library_error_save_list_next_step">Провери връзката си и опитай отново.</string>
     <string name="library_list_deleted">Списъкът е изтрит</string>
     <string name="library_error_delete_list_failed">Неуспешно изтриване на списъка</string>
     <string name="library_list_order_updated">Редът на списъците е обновен</string>
@@ -1938,11 +1966,11 @@
     <string name="trakt_error_mark_watched_failed">Неуспешно маркиране като гледано в Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Неуспешно обновяване на библиотеката</string>
-    <string name="detail_error_load_lists_failed">Неуспешно зареждане на списъци</string>
-    <string name="detail_error_update_lists_failed">Неуспешно обновяване на списъците</string>
-    <string name="detail_error_update_watched_failed">Неуспешно обновяване на статуса на гледане</string>
-    <string name="detail_error_update_episode_watched_failed">Неуспешно обновяване на статуса на гледане на епизода</string>
+    <string name="detail_error_update_library_failed">Не успяхме да обновим библиотеката ти. Провери връзката си и опитай отново.</string>
+    <string name="detail_error_load_lists_failed">Не успяхме да заредим списъците ти. Провери връзката си и опитай отново.</string>
+    <string name="detail_error_update_lists_failed">Не успяхме да обновим списъците ти. Провери връзката си и опитай отново.</string>
+    <string name="detail_error_update_watched_failed">Не успяхме да обновим статуса на гледане. Провери връзката си и опитай отново.</string>
+    <string name="detail_error_update_episode_watched_failed">Не успяхме да обновим статуса на гледане на този епизод. Провери връзката си и опитай отново.</string>
     <string name="poster_options_error_load_lists_failed">Неуспешно зареждане на списъци</string>
     <string name="poster_options_error_update_lists_failed">Неуспешно обновяване на списъците</string>
 
@@ -2120,7 +2148,7 @@
     <string name="diag_value_never_rendered">Никога не е рендирано</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Неуспешно пускане на избрания поток</string>
+    <string name="player_error_play_stream_failed">Не успяхме да пуснем избрания поток. Избери друг източник.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
@@ -2160,6 +2188,9 @@
     <string name="addon_health_ok">Отговаря · %1$s</string>
     <string name="addon_health_slow">Бавно · %1$s</string>
     <string name="addon_health_timed_out">Времето за последната заявка изтече</string>
+    <string name="source_chip_failed">неуспешно</string>
+    <string name="source_chip_loading">зареждане</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s трябва да се настрои, преди да може да се инсталира</string>
     <string name="advanced_introdb_api_key">IntroDB API ключ</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Създай ключ на introdb.app. Започва с idb_.</string>
@@ -2175,6 +2206,7 @@
     <string name="autoplay_mode_best_desc">Подрежда всеки резултат по качество, твоите правила и това, което устройството може да възпроизведе, след което пуска победителя. Другите източници са на едно натискане разстояние.</string>
     <string name="best_match_cached">Кеширан</string>
     <string name="best_match_excluded">Не се пуска автоматично: %1$s</string>
+    <string name="stream_hold_for_options">Задръж OK за опции на Най-доброто съвпадение</string>
     <string name="best_match_preview_sub">Пита стрийм добавките ти за заглавие, докато го разглеждаш, така че бутонът Пусни да покаже файла и възпроизвеждането да започне по-бързо. Изключи, за да се търси само след натискане на Пусни.</string>
     <string name="best_match_preview_title">Показвай избора на бутона Пусни</string>
     <string name="catalog_order_pin">Закачи най-горе</string>
@@ -2524,14 +2556,56 @@
     <string name="profile_pin_forgot_needs_main">Забрави PIN? Първо задай PIN на %1$s, после го използвай, за да нулираш този.</string>
     <string name="profile_pin_forgot_main">PIN на основния профил не може да се нулира, затова го пази на сигурно място.</string>
     <string name="profile_pin_reset_for_profile">PIN за %1$s е нулиран.</string>
-    <string name="profile_pin_incorrect_for_profile">Грешен PIN за %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Грешен PIN за %1$s. Опитай отново.</string>
     <string name="profile_selection_kids_badge">Детски</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заключен с PIN</string>
+    <string name="cd_profile_pin_progress">Въведени цифри: %1$d от %2$d</string>
+    <string name="cd_profile_color_crimson">Кървавочервено</string>
+    <string name="cd_profile_color_ocean">Океан</string>
+    <string name="cd_profile_color_violet">Виолетово</string>
+    <string name="cd_profile_color_emerald">Смарагдово</string>
+    <string name="cd_profile_color_amber">Кехлибар</string>
+    <string name="cd_profile_color_rose">Роза</string>
+    <string name="cd_profile_color_cyan">Циан</string>
+    <string name="cd_profile_color_brown">Кафяв</string>
+    <string name="cd_profile_color_position">Цвят %1$d от %2$d</string>
     <string name="profile_save_error">Профилът не можа да се запази. Опитай отново.</string>
     <string name="profile_delete_error">Профилът не можа да се изтрие. Опитай отново.</string>
     <string name="parental_pin_nudge_title">Защити ограниченията на %1$s</string>
     <string name="parental_pin_nudge_subtitle">Задай PIN на %1$s. Без него всеки може да променя ограниченията на %2$s или да превключи към друг профил.</string>
     <string name="parental_pin_nudge_set">Задай PIN на %1$s</string>
     <string name="parental_pin_nudge_later">Не сега</string>
+    <string name="parental_gate_open_support">%1$s няма собствен PIN, затова е нужен PIN на родител, за да се отвори, докато друг профил има родителски ограничения.</string>
+    <string name="parental_lock_profiles_title">Заключване на профили без ограничения</string>
+    <string name="parental_lock_profiles_subtitle">Докато някой профил има родителски ограничения, отварянето на профил без ограничения и без собствен PIN изисква PIN на %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Първо задай PIN на %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Да се заключат ли и другите профили?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s може да отвори %2$s и да заобиколи всички ограничения, тъй като нямат PIN. Fetch може вместо това да изисква PIN на %3$s, за да ги отвори.</string>
+    <string name="parental_lock_profiles_offer_accept">Изисквай PIN на %1$s</string>
+    <string name="kids_autoplay_cap">Автоматично пускане подред: %1$s</string>
+    <string name="kids_approved_only">Само одобрени заглавия: %1$s</string>
+    <string name="kids_approved_movies">Филми за теб</string>
+    <string name="kids_approved_shows">Сериали за теб</string>
+    <string name="kids_approved_only_hint">В този профил се показват само винаги разрешени заглавия. Разреши заглавие от менюто при продължително натискане на плаката му в основния профил.</string>
+    <string name="kids_daily_time">Дневно екранно време: %1$s</string>
+    <string name="kids_bedtime">Време за сън: от %1$s до %2$s</string>
+    <string name="kids_bedtime_off">Време за сън: изключено</string>
+    <string name="kids_at_limit_finish">При лимита: довърши текущото</string>
+    <string name="kids_at_limit_stop">При лимита: спри веднага</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d епизод</item>
+        <item quantity="other">%1$d епизода</item>
+    </plurals>
+    <string name="kids_minutes">%1$d мин</string>
+    <string name="screen_time_title">Това е всичко за днес</string>
+    <string name="screen_time_daily">Екранното време за днес изтече. До утре!</string>
+    <string name="screen_time_bedtime">Време е за сън. До утре!</string>
+    <string name="screen_time_choose">Колко още време?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Още време (родител)</string>
+    <string name="screen_time_add_minutes">+%1$d мин</string>
+    <string name="screen_time_rest_of_day">Без лимит до края на деня</string>
+    <string name="kids_hours">%1$d ч</string>
+    <string name="kids_hours_minutes">%1$d ч %2$d мин</string>
 </resources>

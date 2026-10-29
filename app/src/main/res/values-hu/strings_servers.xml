@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">Nem sikerült elérni a szervert.</string>
     <string name="servers_error_unsupported">%1$s %2$s vagy újabb verzió szükséges.</string>
     <string name="servers_error_forbidden">Ennek a felhasználónak nincs hozzáférése.</string>
-    <string name="servers_error_failed">Nem sikerült csatlakozni a szerverhez.</string>
+    <string name="servers_error_failed">Nem sikerült csatlakozni a szerverhez. Ellenőrizd, hogy be van-e kapcsolva és elérhető-e, majd próbáld újra.</string>
     <string name="servers_failure_auth">Jelentkezz be újra erre a szerverre a Beállításokban.</string>
-    <string name="servers_failure_unreachable">A szerver nem érhető el.</string>
+    <string name="servers_failure_unreachable">A szerver nem érhető el. Ellenőrizd, hogy be van-e kapcsolva és elérhető-e, majd próbáld újra.</string>
     <string name="servers_failure_not_found">Ez az elem már nem érhető el a szerveren.</string>
     <string name="servers_failure_unsupported">A szerver nem támogatja ezt az elemet.</string>
     <string name="servers_failure_incomplete">A szerver könyvtárának ellenőrzése még tart. Próbáld újra egy pillanat múlva.</string>

@@ -105,7 +105,7 @@ function ApiKeyForm() {
               placeholder="Paste your MDBList API key"
               aria-label="MDBList API key"
               autoComplete="off"
-              className="w-full rounded-xl border px-4 py-3 pr-20 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+              className="w-full rounded-xl border px-4 py-3 pr-20 text-sm field-control"
               style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
             />
             <button

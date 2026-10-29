@@ -42,10 +42,12 @@ import java.util.Date
 internal fun ViewingActivityDialog(
     profile: UserProfile,
     entries: List<ViewingActivityEntry>?,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     FetchDialog(
         onDismiss = onDismiss,
+        modifier = modifier,
         title = stringResource(R.string.profile_viewing_activity_title, profile.name),
         width = 640.dp
     ) {
@@ -59,12 +61,12 @@ internal fun ViewingActivityDialog(
                     runCatching { firstRow.requestFocus() }
                 }
                 val dateFormat = remember { DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT) }
-                // Fits under FetchDialog's 492dp cap with the padding, title and gap at 1.3x text,
-                // so the last row isn't clipped below the dialog edge.
+                // Fits under FetchDialog's 492dp cap with the padding, a two-line title (long profile
+                // name) and the gap at 1.3x text, so the last row isn't clipped below the dialog edge.
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 380.dp),
+                        .heightIn(max = 340.dp),
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
                 ) {
                     items(

@@ -636,7 +636,7 @@ export function ListsPage() {
             onChange={(e) => setNewListName(e.target.value)}
             placeholder="New list name..."
             aria-label="New list name"
-            className="min-w-0 flex-1 rounded-xl border px-3.5 py-2.5 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+            className="min-w-0 flex-1 rounded-xl border px-3.5 py-2.5 text-sm field-control"
             style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
           />
           <button
@@ -690,7 +690,7 @@ export function ListsPage() {
                       onBlur={cancelRename}
                       onKeyDown={(e) => { if (e.key === "Escape") cancelRename(); }}
                       aria-label={`Rename list ${selectedList.name}`}
-                      className={`min-w-0 flex-1 rounded-lg border px-3 py-1.5 ${PAGE_TITLE} focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15`}
+                      className={`min-w-0 flex-1 rounded-lg border px-3 py-1.5 ${PAGE_TITLE} field-control`}
                       style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
                     />
                     <button
@@ -754,7 +754,7 @@ export function ListsPage() {
                     onChange={(e) => setFilterQuery(e.target.value)}
                     placeholder="Search this list..."
                     aria-label="Search within list"
-                    className="w-full rounded-full border py-2 pl-9 pr-3 text-sm focus:border-claw-500 focus:outline-none focus:ring-2 focus:ring-claw-500/15"
+                    className="w-full rounded-full border py-2 pl-9 pr-3 text-sm field-control"
                     style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
                   />
                 </div>

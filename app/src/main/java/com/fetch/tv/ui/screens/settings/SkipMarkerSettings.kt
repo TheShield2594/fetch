@@ -5,7 +5,6 @@ package com.fetch.tv.ui.screens.settings
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -27,7 +26,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -93,8 +91,8 @@ internal fun SkipMarkerSettingsGroup(
     val baseUrl by viewModel.introDbBaseUrl.collectAsStateWithLifecycle()
     val apiKey by viewModel.introDbApiKey.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<SkipMarkerField?>(null) }
-    val context = LocalContext.current
-    val invalidUrl = stringResource(R.string.advanced_introdb_server_invalid)
+    // Reset whenever a dialog opens or closes, so an old error never shows on a fresh dialog.
+    var serverInvalid by remember(editing) { mutableStateOf(false) }
 
     SettingsGroupCard(
         modifier = Modifier.fillMaxWidth(),
@@ -129,9 +127,11 @@ internal fun SkipMarkerSettingsGroup(
                 if (viewModel.setIntroDbUrlOverride(value)) {
                     editing = null
                 } else {
-                    Toast.makeText(context, invalidUrl, Toast.LENGTH_SHORT).show()
+                    serverInvalid = true
                 }
             },
+            errorMessage = if (serverInvalid) stringResource(R.string.advanced_introdb_server_invalid) else null,
+            onValueEdited = { serverInvalid = false },
             onClear = { viewModel.setIntroDbUrlOverride(""); editing = null },
             onDismiss = { editing = null }
         )
@@ -172,7 +172,9 @@ private fun SettingsTextInputDialog(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onSave: (String) -> Unit,
     onClear: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    errorMessage: String? = null,
+    onValueEdited: () -> Unit = {}
 ) {
     var value by remember(initialValue) { mutableStateOf(initialValue) }
     var isInputFocused by remember { mutableStateOf(false) }
@@ -208,7 +210,10 @@ private fun SettingsTextInputDialog(
             Box(modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.md)) {
                 BasicTextField(
                     value = value,
-                    onValueChange = { value = it },
+                    onValueChange = {
+                        value = it
+                        onValueEdited()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(inputFocusRequester)
@@ -241,6 +246,8 @@ private fun SettingsTextInputDialog(
                 )
             }
         }
+
+        SettingsInputErrorText(errorMessage)
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             Button(

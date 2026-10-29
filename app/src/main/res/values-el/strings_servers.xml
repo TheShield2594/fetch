@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">Δεν ήταν δυνατή η πρόσβαση στον διακομιστή.</string>
     <string name="servers_error_unsupported">Απαιτείται %1$s %2$s ή νεότερη έκδοση.</string>
     <string name="servers_error_forbidden">Αυτός ο χρήστης δεν έχει πρόσβαση.</string>
-    <string name="servers_error_failed">Δεν ήταν δυνατή η σύνδεση με τον διακομιστή.</string>
+    <string name="servers_error_failed">Δεν ήταν δυνατή η σύνδεση με τον διακομιστή. Ελέγξτε ότι είναι ενεργός και προσβάσιμος και δοκιμάστε ξανά.</string>
     <string name="servers_failure_auth">Συνδεθείτε ξανά σε αυτόν τον διακομιστή από τις Ρυθμίσεις.</string>
-    <string name="servers_failure_unreachable">Ο διακομιστής δεν είναι διαθέσιμος.</string>
+    <string name="servers_failure_unreachable">Ο διακομιστής δεν είναι διαθέσιμος. Ελέγξτε ότι είναι ενεργός και προσβάσιμος και δοκιμάστε ξανά.</string>
     <string name="servers_failure_not_found">Αυτό το στοιχείο δεν είναι πλέον διαθέσιμο στον διακομιστή.</string>
     <string name="servers_failure_unsupported">Ο διακομιστής δεν υποστηρίζει αυτό το στοιχείο.</string>
     <string name="servers_failure_incomplete">Γίνεται ακόμα έλεγχος της βιβλιοθήκης αυτού του διακομιστή. Δοκιμάστε ξανά σε λίγο.</string>

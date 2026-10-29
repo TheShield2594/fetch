@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDirection
@@ -92,7 +93,8 @@ internal fun AddonHealthPanel(
         subtitle = stringResource(R.string.addon_health_panel_subtitle, AddonHealth.WINDOW_SIZE),
         width = 760.dp,
         usePlatformDefaultWidth = false,
-        suppressFirstKeyUp = false
+        suppressFirstKeyUp = false,
+        scrollable = true
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
@@ -149,15 +151,18 @@ private fun AddonHealthPanelRow(
     onDisable: () -> Unit
 ) {
     val health = row.health?.takeIf { it.requests > 0 }
+    var isFocused by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Focusable so the list scrolls with the D-pad; there's nothing to open.
+        // Focusable so the list scrolls with the D-pad, and so the full last error shows while focused.
         Surface(
             onClick = {},
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .onFocusChanged { isFocused = it.isFocused },
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
                 focusedContainerColor = FetchTheme.colors.FocusBackground
@@ -182,7 +187,8 @@ private fun AddonHealthPanelRow(
                         textDirection = TextDirection.Content
                     ),
                     color = FetchTheme.colors.TextPrimary,
-                    maxLines = 1,
+                    // Two lines, so similar names ("Torrentio | RD+PM") stay tellable apart.
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 if (health == null) {
@@ -192,7 +198,7 @@ private fun AddonHealthPanelRow(
                         color = FetchTheme.colors.TextSecondary
                     )
                 } else {
-                    AddonHealthStats(health)
+                    AddonHealthStats(health, showFullError = isFocused)
                 }
             }
         }
@@ -205,7 +211,7 @@ private fun AddonHealthPanelRow(
 }
 
 @Composable
-private fun AddonHealthStats(health: AddonHealth) {
+private fun AddonHealthStats(health: AddonHealth, showFullError: Boolean) {
     val median = health.p50LatencyMs?.let {
         stringResource(R.string.addon_health_median, stringResource(R.string.addon_health_latency, it / 1000.0))
     }
@@ -234,7 +240,7 @@ private fun AddonHealthStats(health: AddonHealth) {
             text = stringResource(R.string.addon_health_last_error, error),
             style = MaterialTheme.typography.bodySmall,
             color = FetchTheme.colors.TextSecondary,
-            maxLines = 2,
+            maxLines = if (showFullError) Int.MAX_VALUE else 2,
             overflow = TextOverflow.Ellipsis
         )
     }

@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.collection
 
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -111,6 +112,7 @@ data class FolderDetailGridFocusState(
 )
 
 private const val TRAILER_PREVIEW_DEBOUNCE_MS = 180L
+private const val TAG = "FolderDetailViewModel"
 
 @HiltViewModel
 class FolderDetailViewModel @Inject constructor(
@@ -716,7 +718,7 @@ class FolderDetailViewModel @Inject constructor(
                         _uiState.update { s ->
                             val tabs = s.tabs.toMutableList()
                             if (tabIndex < tabs.size) {
-                                tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = result.message)
+                                tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = sourceErrorMessage(tabs[tabIndex].source, result.message))
                             }
                             s.copy(tabs = tabs)
                         }
@@ -747,7 +749,7 @@ class FolderDetailViewModel @Inject constructor(
                     if (tabIndex < tabs.size) {
                         tabs[tabIndex] = tabs[tabIndex].copy(
                             isLoading = false,
-                            error = appContext.getString(R.string.addon_error_not_found)
+                            error = appContext.getString(R.string.folder_error_addon_missing)
                         )
                     }
                     state.copy(tabs = tabs)
@@ -810,7 +812,7 @@ class FolderDetailViewModel @Inject constructor(
                         _uiState.update { state ->
                             val tabs = state.tabs.toMutableList()
                             if (tabIndex < tabs.size) {
-                                tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = result.message)
+                                tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = sourceErrorMessage(tabs[tabIndex].source, result.message))
                             }
                             state.copy(tabs = tabs)
                         }
@@ -863,7 +865,7 @@ class FolderDetailViewModel @Inject constructor(
                     _uiState.update { state ->
                         val tabs = state.tabs.toMutableList()
                         if (tabIndex < tabs.size) {
-                            tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = result.message)
+                            tabs[tabIndex] = tabs[tabIndex].copy(isLoading = false, error = sourceErrorMessage(tabs[tabIndex].source, result.message))
                         }
                         state.copy(tabs = tabs)
                     }
@@ -872,6 +874,46 @@ class FolderDetailViewModel @Inject constructor(
                 }
                 NetworkResult.Loading -> {}
             }
+        }
+    }
+
+    /**
+     * The text a failed row or tab shows. The repository's message is often English, technical or
+     * an HTTP body, so it is logged, and the screen names the source and what to check instead.
+     */
+    private fun sourceErrorMessage(source: CollectionSource?, detail: String?): String {
+        Log.w(TAG, "Folder source failed to load: $detail")
+        return appContext.getString(
+            when (source) {
+                is AddonCatalogCollectionSource -> R.string.folder_error_addon_source
+                is TmdbCollectionSource -> R.string.folder_error_tmdb_source
+                is TraktCollectionSource -> R.string.folder_error_trakt_source
+                else -> R.string.folder_error_list_source
+            }
+        )
+    }
+
+    /** Reloads a tab whose source failed; for the All tab, every source that failed. */
+    fun retryTab(tabIndex: Int) {
+        val tabs = _uiState.value.tabs
+        val tab = tabs.getOrNull(tabIndex) ?: return
+        val targets = if (tab.isAllTab) {
+            tabs.indices.filter { tabs[it].error != null && tabs[it].source != null }
+        } else {
+            listOf(tabIndex)
+        }
+        targets.forEach { index ->
+            val source = _uiState.value.tabs.getOrNull(index)?.source ?: return@forEach
+            _uiState.update { state ->
+                val updated = state.tabs.toMutableList()
+                if (index < updated.size) updated[index] = updated[index].copy(isLoading = true, error = null)
+                state.copy(tabs = updated)
+            }
+            loadSourceForTab(index, source)
+        }
+        if (targets.isNotEmpty()) {
+            rebuildAllTab()
+            rebuildFollowLayoutState()
         }
     }
 
@@ -1117,7 +1159,7 @@ class FolderDetailViewModel @Inject constructor(
                             if (current != null) {
                                 tabs[tabIndex] = current.copy(
                                     isLoading = false,
-                                    error = result.message,
+                                    error = sourceErrorMessage(current.source, result.message),
                                     catalogRow = current.catalogRow?.copy(isLoading = false)
                                 )
                             }
@@ -1180,7 +1222,7 @@ class FolderDetailViewModel @Inject constructor(
                             if (current != null) {
                                 tabs[tabIndex] = current.copy(
                                     isLoading = false,
-                                    error = result.message,
+                                    error = sourceErrorMessage(current.source, result.message),
                                     catalogRow = current.catalogRow?.copy(isLoading = false)
                                 )
                             }

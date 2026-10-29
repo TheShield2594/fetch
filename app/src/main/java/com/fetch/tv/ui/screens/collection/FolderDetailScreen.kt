@@ -75,6 +75,9 @@ import com.fetch.tv.ui.components.CatalogRowSection
 import com.fetch.tv.ui.components.ContentCard
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.LoadingIndicator
+import com.fetch.tv.ui.components.StateActionButton
+import com.fetch.tv.ui.components.StateAction
+import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.R
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.ui.components.PosterCardDefaults
@@ -173,6 +176,7 @@ fun FolderDetailScreen(
                     onNavigateToDetail = onNavigateToDetail,
                     isItemWatched = isItemWatched,
                     onLoadMore = { viewModel.loadMoreItems(uiState.selectedTabIndex) },
+                    onRetryTab = { viewModel.retryTab(uiState.selectedTabIndex) },
                     onSaveFocusState = { verticalIndex, verticalOffset, focusedItemKey ->
                         viewModel.saveTabFocusState(
                             tabIndex = uiState.selectedTabIndex,
@@ -193,6 +197,10 @@ fun FolderDetailScreen(
                         onNavigateToDetail = onNavigateToDetail,
                         isItemWatched = isItemWatched,
                         onLoadMoreCatalog = viewModel::loadMoreForCatalog,
+                        onRetryTab = { tab ->
+                            val index = uiState.tabs.indexOf(tab)
+                            if (index >= 0) viewModel.retryTab(index)
+                        },
                         onSaveFocusState = { vi, vo, rk, ikm, m, ma, ri, ii ->
                             viewModel.saveRowsFocusState(vi, vo, rk, ikm, m, ma, ri, ii)
                         },
@@ -271,6 +279,7 @@ private fun TabbedGridContent(
     onNavigateToDetail: (String, String, String) -> Unit,
     onSaveFocusState: (Int, Int, String?) -> Unit,
     onLoadMore: () -> Unit = {},
+    onRetryTab: () -> Unit = {},
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> }
 ) {
@@ -396,12 +405,7 @@ private fun TabbedGridContent(
             )
         }
         currentTab.error != null -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = currentTab.error,
-                    color = FetchTheme.colors.TextSecondary
-                )
-            }
+            ErrorState(message = currentTab.error, onRetry = onRetryTab)
         }
         currentTab.catalogRow != null -> {
             val items = currentTab.catalogRow.items
@@ -600,6 +604,7 @@ private fun RowsContent(
     focusState: HomeScreenFocusState,
     onNavigateToDetail: (String, String, String) -> Unit,
     onLoadMoreCatalog: (String, String, String) -> Unit = { _, _, _ -> },
+    onRetryTab: (FolderTab) -> Unit = {},
     onSaveFocusState: (Int, Int, String?, Map<String, String>, Map<String, Int>, Map<String, String>, Int, Int) -> Unit,
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemFocus: (MetaPreview) -> Unit = {},
@@ -831,13 +836,23 @@ private fun RowsContent(
                                 color = FetchTheme.colors.TextPrimary,
                                 modifier = Modifier.padding(start = FetchTheme.spacing.xxxl, end = FetchTheme.spacing.xxxl, bottom = FetchTheme.spacing.md)
                             )
-                            Box(
+                            // The message and a focusable Retry, in the row's own height.
+                            Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(containerHeight),
-                                contentAlignment = Alignment.Center
+                                    .height(containerHeight)
+                                    .padding(horizontal = FetchTheme.spacing.xxxl),
+                                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(text = tab.error, color = FetchTheme.colors.TextSecondary)
+                                Text(
+                                    text = tab.error,
+                                    color = FetchTheme.colors.TextSecondary,
+                                    modifier = Modifier.weight(1f, fill = false)
+                                )
+                                StateActionButton(
+                                    StateAction(stringResource(R.string.action_retry)) { onRetryTab(tab) }
+                                )
                             }
                         }
                     }

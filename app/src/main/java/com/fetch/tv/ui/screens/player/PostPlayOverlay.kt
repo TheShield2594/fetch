@@ -123,8 +123,8 @@ fun PostPlayOverlay(
             onClick = onCardClick,
             shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
             colors = CardDefaults.colors(
-                containerColor = FetchPrimitives.neutral900.copy(alpha = 0.89f),
-                focusedContainerColor = FetchPrimitives.neutral900.copy(alpha = 0.89f),
+                containerColor = FetchTheme.colors.Player.ScrimStrong,
+                focusedContainerColor = FetchTheme.colors.Player.ScrimStrong,
             ),
             border = CardDefaults.border(
                 border = Border(

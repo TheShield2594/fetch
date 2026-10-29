@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -33,6 +34,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.focusable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.DropdownMenu
@@ -71,6 +73,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
@@ -106,7 +110,6 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.platform.LocalConfiguration
 import com.fetch.tv.R
-import com.fetch.tv.ui.theme.FetchStatusTones
 
 private const val KEY_REPEAT_THROTTLE_MS = 80L
 
@@ -473,6 +476,7 @@ fun LibraryScreen(
             libraryServerContent(
                 shelves = serverShelves,
                 onNavigateToSettings = onNavigateToSettings,
+                onRetry = serversViewModel::reload,
                 posterCardStyle = posterCardStyle,
                 rowInset = FetchTheme.spacing.xxxl,
                 focusTarget = serverFocusTarget,
@@ -516,6 +520,8 @@ fun LibraryScreen(
 
     if (showDeleteConfirm && uiState.showManageDialog) {
         ConfirmDeleteDialog(
+            listTitle = uiState.listTabs.firstOrNull { it.key == uiState.manageSelectedListKey }?.localizedTitle(),
+            sourceMode = uiState.sourceMode,
             pending = uiState.pendingOperation,
             onConfirm = {
                 showDeleteConfirm = false
@@ -583,16 +589,15 @@ private fun LibraryViewModeRow(
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
             modes.forEach { mode ->
-                val selected = mode == selectedMode
+                val isSelected = mode == selectedMode
                 Button(
                     onClick = { onSelected(mode) },
                     modifier = Modifier
-                        .then(if (selected) Modifier.focusRequester(primaryFocusRequester) else Modifier),
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (selected) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
-                        contentColor = FetchTheme.colors.TextPrimary
-                    )
+                        .then(if (isSelected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
+                        .semantics { selected = isSelected },
+                    colors = selectableButtonColors(isSelected)
                 ) {
+                    if (isSelected) SelectedCheckmark()
                     Text(
                         text = when (mode) {
                             LibraryViewMode.Saved -> stringResource(R.string.library_source_saved)
@@ -924,6 +929,7 @@ private fun LibraryDropdownPicker(
                             color = itemBackgroundColor,
                             shape = RoundedCornerShape(FetchTheme.radii.sm)
                         )
+                        .semantics { selected = isSelected }
                         .onFocusChanged { state ->
                             val hasFocus = state.isFocused || state.hasFocus
                             focusedOptionValue = when {
@@ -939,6 +945,20 @@ private fun LibraryDropdownPicker(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                    },
+                    // The current choice keeps a checkmark, so it stays identifiable once focus
+                    // moves to another option.
+                    trailingIcon = if (isSelected) {
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = itemTextColor
+                            )
+                        }
+                    } else {
+                        null
                     },
                     onClick = { onSelect(option) },
                     colors = MenuDefaults.itemColors(
@@ -1000,26 +1020,64 @@ private fun LibraryActionsRow(
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun ConfirmDeleteDialog(
+    listTitle: String?,
+    sourceMode: LibrarySourceMode,
     pending: Boolean,
     onConfirm: () -> Unit,
     onCancel: () -> Unit
 ) {
+    val cancelFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        runCatching { cancelFocusRequester.requestFocus() }
+    }
+    // Name the service the list is really deleted from; this used to say Trakt for every provider.
+    val providerName = when (sourceMode) {
+        LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
+        LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
+        LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
+        LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
+        LibrarySourceMode.LOCAL -> null
+    }
     FetchDialog(
         onDismiss = onCancel,
-        title = stringResource(R.string.library_delete_title),
-        subtitle = stringResource(R.string.library_delete_subtitle),
+        title = if (listTitle != null) {
+            stringResource(R.string.library_delete_title_named, listTitle)
+        } else {
+            stringResource(R.string.library_delete_title)
+        },
+        subtitle = if (providerName != null) {
+            stringResource(R.string.library_delete_subtitle_provider, providerName)
+        } else {
+            stringResource(R.string.library_delete_subtitle_local)
+        },
         width = 420.dp
     ) {
-        Button(
-            onClick = onConfirm,
-            enabled = !pending,
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = FetchStatusTones.errorContainer,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            Text(stringResource(R.string.library_list_delete))
+            // Cancel first and focused, so one stray OK press can't delete the list.
+            Button(
+                onClick = onCancel,
+                enabled = !pending,
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(cancelFocusRequester),
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(stringResource(R.string.action_cancel))
+            }
+            Button(
+                onClick = onConfirm,
+                enabled = !pending,
+                modifier = Modifier.weight(1f),
+                colors = destructiveButtonColors()
+            ) {
+                Text(stringResource(R.string.library_list_delete))
+            }
         }
     }
 }

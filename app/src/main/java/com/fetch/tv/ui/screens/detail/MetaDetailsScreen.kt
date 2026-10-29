@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewResponder
 import androidx.compose.foundation.relocation.bringIntoViewResponder
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -77,6 +76,9 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
@@ -366,6 +368,10 @@ private const val RETURN_FOCUS_SEASON_ADVANCE_WAIT_MS = 400L
 
 private const val USER_INTERACTION_DISPATCH_DEBOUNCE_MS = 120L
 
+// A confirmation fades after a moment; an error stays at least this long, then until a key press.
+private const val USER_INFO_MESSAGE_MS = 2500L
+private const val USER_ERROR_MESSAGE_MIN_MS = 8000L
+
 
 private fun formatDetailYearRange(releaseInfo: String?): String? {
     if (releaseInfo.isNullOrBlank()) return null
@@ -525,10 +531,18 @@ fun MetaDetailsScreen(
         }
     }
 
-    LaunchedEffect(uiState.userMessage) {
+    // An error stays until it has been up long enough to read and the user then presses a key.
+    var userErrorReadyToDismiss by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.userMessage, uiState.userMessageIsError) {
+        userErrorReadyToDismiss = false
         if (uiState.userMessage != null) {
-            delay(2500)
-            viewModel.onEvent(MetaDetailsEvent.OnClearMessage)
+            if (uiState.userMessageIsError) {
+                delay(USER_ERROR_MESSAGE_MIN_MS)
+                userErrorReadyToDismiss = true
+            } else {
+                delay(USER_INFO_MESSAGE_MS)
+                viewModel.onEvent(MetaDetailsEvent.OnClearMessage)
+            }
         }
     }
 
@@ -563,6 +577,11 @@ fun MetaDetailsScreen(
             .fillMaxSize()
             .background(FetchTheme.colors.Background)
             .onPreviewKeyEvent { keyEvent ->
+                // Observes the key without consuming it, to clear an error that has been read.
+                if (userErrorReadyToDismiss && keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                    userErrorReadyToDismiss = false
+                    viewModel.onEvent(MetaDetailsEvent.OnClearMessage)
+                }
                 if (currentIsTrailerPlaying) {
                     if (currentShowTrailerControls) {
                         if (keyEvent.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) {
@@ -625,10 +644,26 @@ fun MetaDetailsScreen(
                             else -> false
                         }
                     }
-                    // During auto trailer preview, consume all keys except back/ESC so content doesn't scroll.
                     val keyCode = keyEvent.nativeKeyEvent.keyCode
-                    return@onPreviewKeyEvent keyCode != KeyEvent.KEYCODE_BACK &&
-                            keyCode != KeyEvent.KEYCODE_ESCAPE
+                    if (keyCode == KeyEvent.KEYCODE_BACK ||
+                        keyCode == KeyEvent.KEYCODE_ESCAPE ||
+                        keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+                        keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
+                        keyCode == KeyEvent.KEYCODE_VOLUME_MUTE
+                    ) {
+                        return@onPreviewKeyEvent false
+                    }
+                    // Any other key ends an auto trailer preview the way Back does, so no key is a
+                    // dead end. The key itself is consumed, so the page doesn't scroll under it.
+                    if (!currentShowTrailerControls &&
+                        keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN &&
+                        keyEvent.nativeKeyEvent.repeatCount == 0
+                    ) {
+                        restorePlayFocusAfterTrailerBackToken += 1
+                        isTrailerPaused = false
+                        viewModel.onEvent(MetaDetailsEvent.OnTrailerEnded)
+                    }
+                    return@onPreviewKeyEvent true
                 }
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
                     val nativeEvent = keyEvent.nativeKeyEvent
@@ -700,7 +735,7 @@ fun MetaDetailsScreen(
                 }
                 val playEpisode: (Video) -> Unit = playEpisode@{ video ->
                     if (!playbackAvailability.canStream(meta.apiType, video.id, meta.id, video)) {
-                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_LONG).show()
                         return@playEpisode
                     }
                     onPlayClick(
@@ -722,7 +757,7 @@ fun MetaDetailsScreen(
                 }
                 val playEpisodeManually: (Video) -> Unit = playEpisodeManually@{ video ->
                     if (!playbackAvailability.canStream(meta.apiType, video.id, meta.id, video)) {
-                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_LONG).show()
                         return@playEpisodeManually
                     }
                     onPlayManuallyClick(
@@ -744,7 +779,7 @@ fun MetaDetailsScreen(
                 }
                 val playTitle: (String) -> Unit = playTitle@{ videoId ->
                     if (!playbackAvailability.canStream(meta.apiType, videoId, meta.id)) {
-                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_LONG).show()
                         return@playTitle
                     }
                     onPlayClick(
@@ -766,7 +801,7 @@ fun MetaDetailsScreen(
                 }
                 val playTitleManually: (String) -> Unit = playTitleManually@{ videoId ->
                     if (!playbackAvailability.canStream(meta.apiType, videoId, meta.id)) {
-                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_LONG).show()
                         return@playTitleManually
                     }
                     onPlayManuallyClick(
@@ -817,7 +852,7 @@ fun MetaDetailsScreen(
                     }
                     if (!playbackAvailability.canStream(meta.apiType, playOnLoadVideo?.id ?: meta.id, meta.id, playOnLoadVideo)) {
                         playOnLoadReturnObserved.value = true
-                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_LONG).show()
                         return@LaunchedEffect
                     }
                     playOnLoadHandoffDispatched.value = true
@@ -906,7 +941,7 @@ fun MetaDetailsScreen(
                     onPlayManuallyClick = playTitleManually,
                     onEpisodeStartFromBeginningClick = onEpisodeStartFromBeginningClick@{ video ->
                         if (!playbackAvailability.canStream(meta.apiType, video.id, meta.id, video)) {
-                            Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_LONG).show()
                             return@onEpisodeStartFromBeginningClick
                         }
                         onPlayStartFromBeginningClick(
@@ -928,7 +963,7 @@ fun MetaDetailsScreen(
                     },
                     onPlayStartFromBeginningClick = onPlayStartFromBeginningClick@{ videoId ->
                         if (!playbackAvailability.canStream(meta.apiType, videoId, meta.id)) {
-                            Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_LONG).show()
                             return@onPlayStartFromBeginningClick
                         }
                         onPlayStartFromBeginningClick(
@@ -1136,6 +1171,7 @@ fun MetaDetailsScreen(
                         shape = RoundedCornerShape(FetchTheme.radii.sm)
                     )
                     .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
+                    .semantics { liveRegion = LiveRegionMode.Polite }
             ) {
                 Text(
                     text = message,
@@ -3565,27 +3601,36 @@ private fun PeopleSectionTabButton(
                     onFocused()
                 }
             },
+        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.xl)),
         colors = CardDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent
+            focusedContainerColor = FetchTheme.colors.Highlight
         ),
         border = CardDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FetchTheme.spacing.none, Color.Transparent),
+                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
                 shape = RoundedCornerShape(FetchTheme.radii.xl)
             )
         ),
-        scale = CardDefaults.scale(focusedScale = 1.03f)
+        scale = CardDefaults.scale(focusedScale = 1f)
     ) {
+        val labelColor = when {
+            isFocused -> FetchTheme.colors.OnHighlight
+            selected -> FetchTheme.colors.TextPrimary
+            else -> FetchTheme.colors.TextPrimary.copy(alpha = 0.55f)
+        }
         Text(
             text = label,
             style = MaterialTheme.typography.titleLarge,
-            color = when {
-                isFocused -> FetchTheme.colors.TextPrimary
-                selected -> FetchTheme.colors.TextPrimary.copy(alpha = 0.92f)
-                else -> FetchTheme.colors.TextPrimary.copy(alpha = 0.55f)
-            },
-            modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxs, vertical = FetchTheme.spacing.xxs)
+            color = labelColor,
+            modifier = Modifier
+                .selectedTabIndicator(
+                    selected = selected,
+                    color = labelColor,
+                    thickness = FetchTheme.strokes.heavy,
+                    inset = FetchTheme.spacing.md
+                )
+                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
         )
     }
 }

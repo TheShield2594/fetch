@@ -104,8 +104,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Beranda memerlukan addon katalog untuk menampilkan judul.</string>
     <string name="home_empty_no_catalogs_title">Tidak ada katalog untuk ditampilkan</string>
     <string name="home_empty_no_catalogs_subtitle">Addon Anda tidak menyediakan katalog Beranda.</string>
-    <string name="auth_notice_fetch_logged_out">Anda telah keluar dari Fetch. Silakan masuk kembali.</string>
-    <string name="auth_notice_trakt_logged_out">Anda telah keluar dari Trakt. Silakan sambungkan kembali.</string>
+    <string name="auth_notice_fetch_logged_out">Anda telah keluar dari Fetch. Masuk kembali melalui Pengaturan &gt; Akun.</string>
+    <string name="auth_notice_trakt_logged_out">Anda telah keluar dari Trakt. Sambungkan kembali melalui Pengaturan &gt; Pelacakan.</string>
     <string name="error_generic">Terjadi kesalahan</string>
 
     <!-- ErrorState -->
@@ -224,6 +224,7 @@
     <string name="detail_marked_episodes_watched">Episode ditandai sudah ditonton: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode ditandai belum ditonton: %1$d</string>
     <string name="detail_marked_previous_watched">Episode sebelumnya ditandai sudah ditonton: %1$d</string>
+    <string name="playback_unavailable_message">Tidak ada yang Anda siapkan yang dapat memutar judul ini. Tambahkan atau aktifkan addon streaming di Pengaturan &gt; Konten &amp; Penemuan &gt; Addon, atau periksa koneksi server media Anda.</string>
 
     <!-- MetaDetailsScreen -->
     <string name="detail_btn_play">Putar</string>
@@ -378,6 +379,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Pengalaman</string>
     <string name="settings_account">Akun</string>
+    <string name="settings_tracking_title">Pelacakan</string>
     <string name="settings_profiles">Profil</string>
     <string name="settings_layout">Tata Letak</string>
     <string name="settings_integration">Integrasi</string>
@@ -490,6 +492,9 @@
     <string name="playback_subtitle">Konfigurasikan pemutaran video dan opsi subtitle</string>
     <string name="cd_decrease">Kurangi</string>
     <string name="cd_increase">Tambah</string>
+    <string name="cd_decrease_setting">Kurangi %1$s</string>
+    <string name="cd_increase_setting">Tambah %1$s</string>
+    <string name="cd_seek_bar">Bilah progres</string>
     <string name="action_cancel">Batal</string>
     <string name="action_apply">Terapkan</string>
     <string name="sub_opacity">Opasitas</string>
@@ -767,7 +772,7 @@
     <string name="mdblist_dialog_title">Kunci API MDBList</string>
     <string name="mdblist_dialog_placeholder">Masukkan kunci API MDBList</string>
     <string name="mdblist_not_set">Tidak diatur</string>
-    <string name="mdblist_invalid_api_key">Kunci API MDBList tidak valid</string>
+    <string name="mdblist_invalid_api_key">Tidak dapat memverifikasi kunci API ini. Pastikan kunci sama dengan yang ada di akun MDBList Anda dan Anda sedang online, lalu coba lagi.</string>
 
 
 
@@ -782,7 +787,7 @@
     <string name="animeskip_dialog_title">Client ID Anime Skip</string>
     <string name="animeskip_dialog_subtitle">Buat Client ID Anda sendiri di anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Masukkan Client ID</string>
-    <string name="animeskip_invalid_client_id">Client ID tidak valid</string>
+    <string name="animeskip_invalid_client_id">Tidak dapat memverifikasi Client ID ini. Pastikan sama dengan yang ada di akun Anime Skip Anda dan Anda sedang online, lalu coba lagi.</string>
     <string name="action_clear">Hapus</string>
 
     <!-- TmdbSettingsScreen -->
@@ -962,6 +967,7 @@
     <string name="addon_error_invalid_scheme">URL addon harus diawali dengan http atau https</string>
     <string name="addon_installed_section">Terpasang</string>
     <string name="addon_empty">Tidak ada addon terpasang. Tambahkan satu untuk memulai.</string>
+    <string name="addon_list_load_failed">Tidak dapat memuat addon terpasang Anda. Coba lagi.</string>
     <string name="addon_remove">Hapus</string>
     <string name="addons_badge_disabled">Tidak Aktif</string>
     <string name="addon_manage_from_phone_title">Kelola dari ponsel</string>
@@ -1053,6 +1059,8 @@
     <string name="player_up_next_in_queue">Berikutnya di antrean</string>
     <string name="player_queue_move_up">Naikkan</string>
     <string name="player_queue_move_down">Turunkan</string>
+    <string name="player_queue_removed">%1$s dihapus dari antrean</string>
+    <string name="player_queue_undo">Urungkan</string>
     <string name="player_seek_back_10">Mundur 10 detik</string>
     <string name="player_seek_forward_30">Maju 30 detik</string>
     <string name="player_via">via %1$s</string>
@@ -1060,7 +1068,7 @@
     <string name="season_episode_format">M%1$d E%2$d</string>
     <string name="player_subtitle_delay">Penundaan Subtitle</string>
     <string name="player_error_title">Error Pemutaran</string>
-    <string name="player_go_back">Kembali</string>
+    <string name="player_error_choose_source">Pilih sumber lain</string>
     <string name="player_speed_title">Kecepatan Pemutaran</string>
     <string name="player_more_actions_title">Aksi Lainnya</string>
     <string name="player_more_speed">Kecepatan Pemutaran</string>
@@ -1154,8 +1162,6 @@
     <!-- PauseOverlay -->
     <string name="pause_you_are_watching">Anda sedang menonton</string>
     <string name="pause_cast_label">Pemeran</string>
-    <string name="pause_back_to_details">Kembali ke detail</string>
-    <string name="pause_as_character">sebagai %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Episode Berikutnya</string>
@@ -1191,6 +1197,8 @@
     <string name="search_start_subtitle_no_discover">Penemuan dinonaktifkan. Masukkan setidaknya 2 karakter</string>
     <string name="search_recent_title">Pencarian terbaru</string>
     <string name="search_recent_clear">Hapus riwayat</string>
+    <string name="search_recent_clear_confirm_title">Hapus riwayat pencarian?</string>
+    <string name="search_recent_clear_confirm_subtitle">Semua pencarian terbaru Anda akan dihapus. Tindakan ini tidak dapat diurungkan.</string>
     <string name="search_voice_no_speech">Tidak ada ucapan terdeteksi. Coba lagi.</string>
     <string name="search_voice_mic_permission">Izin mikrofon diperlukan untuk pencarian suara.</string>
     <string name="search_voice_failed">Pengenalan suara gagal. Coba lagi.</string>
@@ -1243,13 +1251,16 @@
     <string name="library_list_move_up">Pindah ke Atas</string>
     <string name="library_list_move_down">Pindah ke Bawah</string>
     <string name="library_list_delete">Hapus</string>
+    <string name="library_list_delete_named">Hapus “%1$s”</string>
     <string name="library_list_close">Tutup</string>
     <string name="library_list_name_label">Nama</string>
-    <string name="library_error_list_name_required">Nama daftar diperlukan</string>
+    <string name="library_error_list_name_required">Masukkan nama untuk daftar</string>
     <string name="library_list_description_label">Deskripsi</string>
     <string name="library_list_privacy">Privasi</string>
     <string name="library_delete_title">Hapus daftar ini?</string>
-    <string name="library_delete_subtitle">Ini menghapus daftar dan semua item daftar dari Trakt.</string>
+    <string name="library_delete_title_named">Hapus “%1$s”?</string>
+    <string name="library_delete_subtitle_provider">Tindakan ini menghapus daftar beserta itemnya dari %1$s. Tindakan ini tidak dapat diurungkan.</string>
+    <string name="library_delete_subtitle_local">Tindakan ini menghapus daftar beserta itemnya dari pustaka Anda. Tindakan ini tidak dapat diurungkan.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Tersimpan</string>
     <string name="library_watchlist">Daftar Tonton</string>
@@ -1400,9 +1411,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Tidak dapat menyimpan PIN. Coba lagi.</string>
     <string name="profile_pin_locked">Profil terkunci. Coba lagi dalam %1$d dtk.</string>
-    <string name="profile_pin_invalid">PIN tidak valid. Coba lagi.</string>
     <string name="profile_pin_verify_error">Tidak dapat memverifikasi PIN. Coba lagi.</string>
-    <string name="profile_pin_incorrect">PIN saat ini salah.</string>
+    <string name="profile_pin_incorrect">PIN salah. Coba lagi.</string>
     <string name="profile_pin_current_required">Profil ini sudah memiliki PIN. Masukkan PIN saat ini untuk mengubahnya.</string>
 
     <!-- Account Screen -->
@@ -1433,7 +1443,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Hubungkan ke Wi-Fi atau Ethernet untuk menggunakan fitur ini</string>
-    <string name="error_server_ports_unavailable">Tidak dapat memulai server. Semua port digunakan.</string>
+    <string name="error_server_ports_unavailable">Tidak dapat memulai koneksi ponsel. Mulai ulang Fetch dan coba lagi.</string>
 
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Kode perangkat kedaluwarsa. Mulai lagi.</string>
@@ -1468,12 +1478,14 @@
 
     <!-- Search errors -->
     <string name="search_error_no_catalogs">Tidak ada katalog yang bisa dicari ditemukan di addon terpasang</string>
+    <string name="search_no_catalogs_title">Tidak ada addon Anda yang bisa mencari</string>
+    <string name="search_no_catalogs_subtitle">Pasang addon dengan katalog pencarian, lalu coba lagi.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Tidak ada addon katalog terpasang</string>
 
     <!-- Player errors -->
-    <string name="player_error_no_stream_url">Tidak ada URL stream yang diberikan</string>
+    <string name="player_error_no_stream_url">Sumber ini tidak memiliki tautan stream. Pilih sumber lain.</string>
 
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Dukungan HDR dengan rendering canvas. Mungkin memblokir thread UI.</string>
@@ -1508,6 +1520,11 @@
     <string name="cd_loading_logo">Memuat logo</string>
     <string name="cd_move_up">Pindah ke atas</string>
     <string name="cd_move_down">Pindah ke bawah</string>
+    <string name="cd_move_addon_up">Naikkan %1$s</string>
+    <string name="cd_move_addon_down">Turunkan %1$s</string>
+    <string name="cd_addon_enabled_toggle">%1$s aktif</string>
+    <string name="cd_configure_addon">Konfigurasi %1$s</string>
+    <string name="cd_remove_addon">Hapus %1$s</string>
     <string name="cd_edit">Edit</string>
     <string name="cd_delete">Hapus</string>
     <string name="cd_qr_code">Kode QR</string>
@@ -1543,7 +1560,7 @@
     <string name="collections_import">Impor</string>
     <string name="collections_export_file">Ekspor File</string>
     <string name="collections_saved_downloads">Disimpan ke Unduhan</string>
-    <string name="collections_export_failed">Ekspor gagal</string>
+    <string name="collections_export_failed">Tidak dapat menyimpan ke Unduhan. Periksa izin penyimpanan dan ruang kosong, lalu coba lagi.</string>
     <string name="collections_import_header">Impor Koleksi</string>
     <string name="collections_import_description">Impor koleksi dari JSON. Katalog dari addon yang belum Anda pasang akan menampilkan peringatan.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1780,6 +1797,16 @@
     <string name="collection_editor_folder_count_other">%1$d item</string>
     <string name="collections_editor_delete_folder_title">Hapus Folder?</string>
     <string name="collections_editor_delete_folder_subtitle">Ini akan menghapus \"%1$s\" dan seluruh isinya secara permanen.</string>
+    <string name="folder_error_addon_source">Tidak dapat memuat katalog ini. Pastikan addon-nya terpasang dan online, lalu coba lagi.</string>
+    <string name="folder_error_addon_missing">Addon katalog ini tidak terpasang. Pasang dari Addon, atau hapus sumber ini dari folder.</string>
+    <string name="folder_error_tmdb_source">Tidak dapat memuat ini dari TMDB. Periksa koneksi Anda, lalu coba lagi.</string>
+    <string name="folder_error_trakt_source">Tidak dapat memuat daftar Trakt ini. Periksa koneksi Anda dan pastikan daftar masih publik, lalu coba lagi.</string>
+    <string name="folder_error_list_source">Tidak dapat memuat daftar ini. Periksa koneksi Anda, lalu coba lagi.</string>
+    <string name="collections_editor_discard_title">Buang perubahan?</string>
+    <string name="collections_editor_discard_collection_subtitle">Perubahan Anda pada koleksi ini belum disimpan.</string>
+    <string name="collections_editor_discard_folder_subtitle">Perubahan Anda pada folder ini belum disimpan.</string>
+    <string name="collections_editor_keep_editing">Lanjutkan mengedit</string>
+    <string name="collections_editor_discard">Buang</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Film Marvel, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Film Aksi Terbaik, Drama Korea, Animasi 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Film Tom Hanks, Aktor Favorit</string>
@@ -1844,17 +1871,17 @@
     <string name="player_track_subtitle_fallback">Subtitle %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nSumber stream diblokir atau dibatasi. Coba sumber lain.</string>
-    <string name="player_error_stream_removed">\n\nTautan stream telah kedaluwarsa atau dihapus. Coba sumber lain.</string>
-    <string name="player_error_stream_expired">\n\nTautan stream telah kedaluwarsa. Coba sumber lain.</string>
-    <string name="player_error_stream_rate_limited">\n\nTerlalu banyak permintaan ke sumber stream. Tunggu sebentar dan coba lagi.</string>
-    <string name="player_error_stream_unavailable">\n\nServer stream saat ini tidak tersedia. Coba sumber lain.</string>
-    <string name="player_error_source_invalid_content">Error sumber: Sumber stream menghasilkan konten tidak valid atau tidak dapat diputar. Tautan mungkin telah kedaluwarsa atau server menghasilkan halaman error, bukan video.\n\nCoba sumber lain. [%1$s]</string>
-    <string name="player_error_unsupported_format">Stream ini menggunakan format yang mungkin tidak didukung perangkat Anda. Coba sumber lain. [%1$s]</string>
-    <string name="player_error_initialize_failed">Gagal menginisialisasi pemutar</string>
-    <string name="player_error_mpv_surface_failed">Gagal menginisialisasi permukaan libmpv</string>
-    <string name="player_error_mpv_playback_failed">Gagal menginisialisasi pemutaran libmpv</string>
-    <string name="player_error_playback_fallback">Error pemutaran</string>
+    <string name="player_error_stream_blocked">\n\nSumber stream diblokir atau dibatasi. Pilih sumber lain.</string>
+    <string name="player_error_stream_removed">\n\nTautan stream telah kedaluwarsa atau dihapus. Pilih sumber lain.</string>
+    <string name="player_error_stream_expired">\n\nTautan stream telah kedaluwarsa. Pilih sumber lain.</string>
+    <string name="player_error_stream_rate_limited">\n\nTerlalu banyak permintaan ke sumber stream. Tunggu sebentar, lalu pilih sumber lagi.</string>
+    <string name="player_error_stream_unavailable">\n\nServer stream saat ini tidak tersedia. Pilih sumber lain.</string>
+    <string name="player_error_source_invalid_content">Error sumber: Sumber stream menghasilkan konten tidak valid atau tidak dapat diputar. Tautan mungkin telah kedaluwarsa atau server menghasilkan halaman error, bukan video.\n\nPilih sumber lain. [%1$s]</string>
+    <string name="player_error_unsupported_format">Stream ini menggunakan format yang mungkin tidak didukung perangkat Anda. Pilih sumber lain. [%1$s]</string>
+    <string name="player_error_initialize_failed">Tidak dapat memulai pemutar. Mulai ulang Fetch dan coba lagi.</string>
+    <string name="player_error_mpv_surface_failed">Tidak dapat memulai pemutar mpv. Coba lagi, atau ubah Mesin Internal di Pengaturan &gt; Pemutaran.</string>
+    <string name="player_error_mpv_playback_failed">Tidak dapat memulai pemutaran di pemutar mpv. Coba lagi, atau ubah Mesin Internal di Pengaturan &gt; Pemutaran.</string>
+    <string name="player_error_playback_fallback">Tidak dapat memutar stream ini. Pilih sumber lain.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Tidak ada baris subtitle ditemukan dalam file ini.</string>
     <string name="subtitle_timing_load_lines_failed">Gagal memuat baris subtitle.</string>
@@ -1885,6 +1912,7 @@
     <string name="library_list_created">Daftar dibuat</string>
     <string name="library_list_updated">Daftar diperbarui</string>
     <string name="library_error_save_list_failed">Gagal menyimpan daftar</string>
+    <string name="library_error_save_list_next_step">Periksa koneksi Anda dan coba lagi.</string>
     <string name="library_list_deleted">Daftar dihapus</string>
     <string name="library_error_delete_list_failed">Gagal menghapus daftar</string>
     <string name="library_list_order_updated">Urutan daftar diperbarui</string>
@@ -1913,11 +1941,11 @@
     <string name="trakt_error_mark_watched_failed">Gagal menandai sudah ditonton di Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Gagal memperbarui pustaka</string>
-    <string name="detail_error_load_lists_failed">Gagal memuat daftar</string>
-    <string name="detail_error_update_lists_failed">Gagal memperbarui daftar</string>
-    <string name="detail_error_update_watched_failed">Gagal memperbarui status tonton</string>
-    <string name="detail_error_update_episode_watched_failed">Gagal memperbarui status tonton episode</string>
+    <string name="detail_error_update_library_failed">Tidak dapat memperbarui pustaka Anda. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="detail_error_load_lists_failed">Tidak dapat memuat daftar Anda. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="detail_error_update_lists_failed">Tidak dapat memperbarui daftar Anda. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="detail_error_update_watched_failed">Tidak dapat memperbarui status tonton. Periksa koneksi Anda dan coba lagi.</string>
+    <string name="detail_error_update_episode_watched_failed">Tidak dapat memperbarui status tonton episode ini. Periksa koneksi Anda dan coba lagi.</string>
     <string name="poster_options_error_load_lists_failed">Gagal memuat daftar</string>
     <string name="poster_options_error_update_lists_failed">Gagal memperbarui daftar</string>
 
@@ -1994,6 +2022,7 @@
     <string name="prefer_next_time_not_now">Jangan sekarang</string>
     <string name="prefer_next_time_saved">Kecocokan terbaik akan mengutamakan: %1$s</string>
     <string name="best_match_excluded">Tidak diputar otomatis: %1$s</string>
+    <string name="stream_hold_for_options">Tahan OK untuk opsi Kecocokan terbaik</string>
     <string name="exclusion_above_max_resolution">melebihi resolusi maksimum Anda</string>
     <string name="exclusion_below_min_resolution">di bawah resolusi minimum Anda</string>
     <string name="exclusion_over_max_size">melebihi batas ukuran Anda</string>
@@ -2172,6 +2201,9 @@
     <string name="addon_health_slow">Lambat · %1$s</string>
     <string name="addon_health_failing">Permintaan terakhir gagal</string>
     <string name="addon_health_timed_out">Permintaan terakhir habis waktu</string>
+    <string name="source_chip_failed">gagal</string>
+    <string name="source_chip_loading">memuat</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="account_local_only_note">Sinkronisasi mati. Fetch menyimpan addon, progres, dan pengaturan Anda di TV ini dan tidak memerlukan akun. Untuk menyinkronkan antarperangkat, hubungkan server sinkronisasi Anda sendiri dari opsi server.</string>
     <string name="parental_title_blocked">Judul ini melebihi batas rating profil ini.</string>
     <string name="parental_addons_blocked">Profil ini tidak bisa memasang addon. Minta bantuan orang tua.</string>
@@ -2371,14 +2403,55 @@
     <string name="profile_pin_forgot_needs_main">Lupa PIN? Atur PIN pada %1$s terlebih dahulu, lalu gunakan untuk mereset PIN ini.</string>
     <string name="profile_pin_forgot_main">PIN profil utama tidak dapat direset, jadi simpan di tempat yang aman.</string>
     <string name="profile_pin_reset_for_profile">PIN untuk %1$s telah direset.</string>
-    <string name="profile_pin_incorrect_for_profile">PIN salah untuk %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN salah untuk %1$s. Coba lagi.</string>
     <string name="profile_selection_kids_badge">Anak</string>
     <string name="profile_manage_done">Selesai</string>
     <string name="cd_profile_locked">Dikunci dengan PIN</string>
+    <string name="cd_profile_pin_progress">%1$d dari %2$d digit dimasukkan</string>
+    <string name="cd_profile_color_crimson">Delima</string>
+    <string name="cd_profile_color_ocean">Samudra</string>
+    <string name="cd_profile_color_violet">Lavender</string>
+    <string name="cd_profile_color_emerald">Zamrud</string>
+    <string name="cd_profile_color_amber">Amber</string>
+    <string name="cd_profile_color_rose">Mawar</string>
+    <string name="cd_profile_color_cyan">Sian</string>
+    <string name="cd_profile_color_brown">Cokelat</string>
+    <string name="cd_profile_color_position">Warna %1$d dari %2$d</string>
     <string name="profile_save_error">Tidak dapat menyimpan profil. Coba lagi.</string>
     <string name="profile_delete_error">Tidak dapat menghapus profil. Coba lagi.</string>
     <string name="parental_pin_nudge_title">Lindungi batasan %1$s</string>
     <string name="parental_pin_nudge_subtitle">Atur PIN pada %1$s. Tanpa PIN, siapa pun bisa mengubah batasan %2$s atau beralih ke profil lain.</string>
     <string name="parental_pin_nudge_set">Atur PIN pada %1$s</string>
     <string name="parental_pin_nudge_later">Nanti saja</string>
+    <string name="parental_gate_open_support">%1$s tidak punya PIN sendiri, jadi PIN orang tua diperlukan untuk membukanya selama profil lain memiliki batasan orang tua.</string>
+    <string name="parental_lock_profiles_title">Kunci profil tanpa batasan</string>
+    <string name="parental_lock_profiles_subtitle">Selama ada profil dengan batasan orang tua, membuka profil tanpa batasan dan tanpa PIN sendiri memerlukan PIN %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Atur PIN pada %1$s terlebih dahulu.</string>
+    <string name="parental_lock_profiles_offer_title">Kunci profil lainnya juga?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s bisa membuka %2$s dan melewati semua batasan, karena profil tersebut tidak punya PIN. Fetch bisa meminta PIN %3$s untuk membukanya.</string>
+    <string name="parental_lock_profiles_offer_accept">Minta PIN %1$s</string>
+    <string name="kids_autoplay_cap">Putar otomatis berturut-turut: %1$s</string>
+    <string name="kids_approved_only">Hanya judul yang disetujui: %1$s</string>
+    <string name="kids_approved_movies">Film untuk Anda</string>
+    <string name="kids_approved_shows">Acara untuk Anda</string>
+    <string name="kids_approved_only_hint">Hanya judul yang selalu diizinkan yang tampil di profil ini. Izinkan judul dari menu tekan lama pada posternya di profil utama.</string>
+    <string name="kids_daily_time">Waktu layar harian: %1$s</string>
+    <string name="kids_bedtime">Waktu tidur: %1$s sampai %2$s</string>
+    <string name="kids_bedtime_off">Waktu tidur: Mati</string>
+    <string name="kids_at_limit_finish">Saat batas tercapai: selesaikan yang sedang diputar</string>
+    <string name="kids_at_limit_stop">Saat batas tercapai: langsung berhenti</string>
+    <plurals name="kids_episodes">
+        <item quantity="other">%1$d episode</item>
+    </plurals>
+    <string name="kids_minutes">%1$d mnt</string>
+    <string name="screen_time_title">Sekian untuk hari ini</string>
+    <string name="screen_time_daily">Waktu layar hari ini sudah habis. Sampai jumpa besok!</string>
+    <string name="screen_time_bedtime">Sudah waktunya tidur. Sampai jumpa besok!</string>
+    <string name="screen_time_choose">Tambah berapa lama?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Tambah waktu (orang tua)</string>
+    <string name="screen_time_add_minutes">+%1$d mnt</string>
+    <string name="screen_time_rest_of_day">Tanpa batas sampai akhir hari ini</string>
+    <string name="kids_hours">%1$d j</string>
+    <string name="kids_hours_minutes">%1$d j %2$d mnt</string>
 </resources>

@@ -37,9 +37,9 @@
     <string name="servers_error_unreachable">Could not reach the server.</string>
     <string name="servers_error_unsupported">%1$s %2$s or later is required.</string>
     <string name="servers_error_forbidden">This user does not have access.</string>
-    <string name="servers_error_failed">Could not connect to the server.</string>
+    <string name="servers_error_failed">Could not connect to the server. Check that it’s on and reachable, then try again.</string>
     <string name="servers_failure_auth">Sign in to this server again in Settings.</string>
-    <string name="servers_failure_unreachable">The server is unavailable.</string>
+    <string name="servers_failure_unreachable">The server is unavailable. Check that it’s on and reachable, then try again.</string>
     <string name="servers_failure_not_found">This item is no longer available on the server.</string>
     <string name="servers_failure_unsupported">The server doesn’t support this item.</string>
     <string name="servers_failure_incomplete">Still checking this server’s library. Try again in a moment.</string>

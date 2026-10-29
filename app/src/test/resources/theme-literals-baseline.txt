@@ -26,10 +26,9 @@ com/fetch/tv/ui/screens/account/AccountSettingsContent.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/account/AuthQrSignInScreen.kt|WHITE_BLACK|5
 com/fetch/tv/ui/screens/addon/AddonManagerScreen.kt|WHITE_BLACK|5
 com/fetch/tv/ui/screens/ambient/AmbientSlideshow.kt|WHITE_BLACK|4
-com/fetch/tv/ui/screens/detail/CommentsSection.kt|WHITE_BLACK|11
+com/fetch/tv/ui/screens/detail/CommentsSection.kt|WHITE_BLACK|9
 com/fetch/tv/ui/screens/detail/CompanyLogosSection.kt|WHITE_BLACK|3
 com/fetch/tv/ui/screens/detail/EpisodeOptionsOverlay.kt|WHITE_BLACK|4
-com/fetch/tv/ui/screens/detail/EpisodeRatingsSection.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/detail/EpisodeShufflePreview.kt|WHITE_BLACK|2
 com/fetch/tv/ui/screens/detail/EpisodesSection.kt|WHITE_BLACK|11
 com/fetch/tv/ui/screens/detail/HeroSection.kt|WHITE_BLACK|3
@@ -39,12 +38,12 @@ com/fetch/tv/ui/screens/home/ModernHomeModels.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/home/ModernHomeRows.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/party/PartyCode.kt|WHITE_BLACK|2
 com/fetch/tv/ui/screens/party/PartyPanel.kt|WHITE_BLACK|4
-com/fetch/tv/ui/screens/settings/HexColorDialog.kt|WHITE_BLACK|5
+com/fetch/tv/ui/screens/settings/HexColorDialog.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/settings/PlaybackSubtitleSettings.kt|WHITE_BLACK|3
 com/fetch/tv/ui/screens/settings/SettingsDesignSystem.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/settings/SettingsPickerDialogs.kt|WHITE_BLACK|3
 com/fetch/tv/ui/screens/settings/SettingsValueRows.kt|WHITE_BLACK|2
 com/fetch/tv/ui/screens/settings/ThemeColorPicker.kt|WHITE_BLACK|4
-com/fetch/tv/ui/screens/settings/TrackingProviderDialogs.kt|WHITE_BLACK|26
+com/fetch/tv/ui/screens/settings/TrackingProviderDialogs.kt|WHITE_BLACK|25
 com/fetch/tv/ui/screens/tmdb/TmdbEntityBrowseScreen.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/youtube/YouTubePlayerOverlay.kt|WHITE_BLACK|18

@@ -100,8 +100,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Faqja kryesore ka nevojë për një shtesë katalogu për të shfaqur tituj.</string>
     <string name="home_empty_no_catalogs_title">Nuk ka kataloge për të shfaqur</string>
     <string name="home_empty_no_catalogs_subtitle">Shtesat tuaja nuk ofrojnë kataloge për Faqen kryesore.</string>
-    <string name="auth_notice_fetch_logged_out">Jeni çkyçur nga Fetch. Ju lutemi kyçuni përsëri.</string>
-    <string name="auth_notice_trakt_logged_out">Jeni çkyçur nga Trakt. Ju lutemi rilidhuni.</string>
+    <string name="auth_notice_fetch_logged_out">Jeni çkyçur nga Fetch. Kyçuni përsëri te Cilësimet &gt; Llogaria.</string>
+    <string name="auth_notice_trakt_logged_out">Jeni çkyçur nga Trakt. Rilidheni te Cilësimet &gt; Gjurmimi.</string>
     <string name="error_generic">Ndodhi një gabim</string>
     <string name="action_retry">Provo përsëri</string>
     <string name="error_state_generic_issue">Diçka shkoi keq.</string>
@@ -210,6 +210,7 @@
     <string name="detail_marked_episodes_watched">Episode të shënuara si të shikuara: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Episode të shënuara si të pashikuara: %1$d</string>
     <string name="detail_marked_previous_watched">Episode të mëparshme të shënuara si të shikuara: %1$d</string>
+    <string name="playback_unavailable_message">Asgjë nga ato që ke konfiguruar nuk mund ta luajë këtë titull. Shto ose aktivizo një shtesë transmetimi te Cilësimet &gt; Përmbajtja dhe zbulimi &gt; Shtesa, ose kontrollo lidhjen me serverin e medias.</string>
     <string name="detail_btn_play">Luaj</string>
     <string name="detail_btn_resume">Vazhdo</string>
     <string name="detail_btn_play_episode">Luaj S%1$d E%2$d</string>
@@ -508,6 +509,9 @@
     <string name="playback_subtitle">Konfiguro riprodhimin e videos dhe opsionet e titrave</string>
     <string name="cd_decrease">Zvogëlo</string>
     <string name="cd_increase">Rrit</string>
+    <string name="cd_decrease_setting">Zvogëlo %1$s</string>
+    <string name="cd_increase_setting">Rrit %1$s</string>
+    <string name="cd_seek_bar">Shiriti i përparimit</string>
     <string name="action_cancel">Anulo</string>
     <string name="action_apply">Apliko</string>
     <string name="sub_opacity">Patejdukshmëria</string>
@@ -835,7 +839,7 @@
     <string name="mdblist_dialog_title">Çelësi API i MDBList</string>
     <string name="mdblist_dialog_placeholder">Shkruaj çelësin API të MDBList</string>
     <string name="mdblist_not_set">Nuk është caktuar</string>
-    <string name="mdblist_invalid_api_key">Çelës API i pavlefshëm i MDBList</string>
+    <string name="mdblist_invalid_api_key">Ky çelës API nuk u verifikua. Kontrollo që përputhet me çelësin në llogarinë tënde MDBList dhe që je online, pastaj provo përsëri.</string>
     <string name="settings_stream_badges_section">Stili Fusion</string>
     <string name="settings_stream_size_badges_title">Etiketat e madhësisë</string>
     <string name="settings_stream_size_badges_description">Shfaq etiketat e madhësisë së skedarit në rezultatet e transmetimit dhe panelet e burimeve të luajtësit.</string>
@@ -876,7 +880,7 @@
     <string name="animeskip_dialog_title">Client ID i Anime Skip</string>
     <string name="animeskip_dialog_subtitle">Krijo Client ID-në tënde në anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Shkruaj Client ID</string>
-    <string name="animeskip_invalid_client_id">Client ID i pavlefshëm</string>
+    <string name="animeskip_invalid_client_id">Ky Client ID nuk u verifikua. Kontrollo që përputhet me atë në llogarinë tënde Anime Skip dhe që je online, pastaj provo përsëri.</string>
     <string name="action_clear">Pastro</string>
     <string name="tmdb_title">Pasurimi TMDB</string>
     <string name="tmdb_subtitle">Zgjidh cilat fusha të metadata-ve duhet të vijnë nga TMDB</string>
@@ -1064,6 +1068,7 @@
     <string name="addon_error_invalid_scheme">URL-ja e shtesës duhet të fillojë me http ose https</string>
     <string name="addon_installed_section">Instaluar</string>
     <string name="addon_empty">Nuk ka shtesa të instaluara. Shtoni një për të filluar.</string>
+    <string name="addon_list_load_failed">Shtesat e instaluara nuk u ngarkuan. Provo përsëri.</string>
     <string name="addon_remove">Hiq</string>
     <string name="addon_delete_confirm_title">Të fshihet shtesa?</string>
     <string name="addon_delete_confirm_message">Je i sigurt që dëshiron ta fshish?</string>
@@ -1156,6 +1161,8 @@
     <string name="player_up_next_in_queue">Në vijim në radhë</string>
     <string name="player_queue_move_up">Lëviz lart</string>
     <string name="player_queue_move_down">Lëviz poshtë</string>
+    <string name="player_queue_removed">%1$s u hoq nga radha</string>
+    <string name="player_queue_undo">Zhbëj</string>
     <string name="player_seek_back_10">Prapa 10 sekonda</string>
     <string name="player_seek_forward_30">Përpara 30 sekonda</string>
     <string name="player_via">përmes %1$s</string>
@@ -1163,7 +1170,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Vonesa e titrave</string>
     <string name="player_error_title">Gabim riprodhimi</string>
-    <string name="player_go_back">Kthehu</string>
+    <string name="player_error_choose_source">Zgjidh një burim tjetër</string>
     <string name="player_report_issue">Raporto problem</string>
     <string name="player_report_issue_sending">Duke dërguar raportin e riprodhimit...</string>
     <string name="player_report_issue_sending_button">Duke dërguar...</string>
@@ -1180,7 +1187,7 @@
     <string name="player_more_speed">Shpejtësia e riprodhimit</string>
     <string name="player_more_aspect_ratio">Raporti i pamjes</string>
     <string name="player_more_open_external">Hap në luajtës të jashtëm</string>
-    <string name="player_error_no_stream_url">Nuk u dha URL transmetimi</string>
+    <string name="player_error_no_stream_url">Ky burim nuk ka lidhje transmetimi. Zgjidh një burim tjetër.</string>
     <string name="stream_info_section_source">BURIMI</string>
     <string name="stream_info_section_file">SKEDARI</string>
     <string name="stream_info_section_video">VIDEO</string>
@@ -1259,8 +1266,6 @@
     <string name="subtitle_style_weight">Trashësia</string>
     <string name="pause_you_are_watching">Po shikon</string>
     <string name="pause_cast_label">Aktorët</string>
-    <string name="pause_back_to_details">Kthehu te detajet</string>
-    <string name="pause_as_character">si %1$s</string>
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Episodi tjetër</string>
     <string name="next_episode_finding_source">Duke kërkuar burimin…</string>
@@ -1292,6 +1297,8 @@
     <string name="search_start_subtitle_no_discover">Zbulo është çaktivizuar. Shkruaj të paktën 2 karaktere</string>
     <string name="search_recent_title">Kërkimet e fundit</string>
     <string name="search_recent_clear">Pastro historikun</string>
+    <string name="search_recent_clear_confirm_title">Të pastrohet historiku i kërkimeve?</string>
+    <string name="search_recent_clear_confirm_subtitle">Të gjitha kërkimet e fundit do të hiqen. Ky veprim nuk mund të zhbëhet.</string>
     <string name="search_voice_no_speech">Nuk u zbulua të folur. Provo përsëri.</string>
     <string name="search_voice_mic_permission">Kërkohet leja e mikrofonit për kërkimin me zë.</string>
     <string name="search_voice_failed">Njohja e zërit dështoi. Provo përsëri.</string>
@@ -1299,6 +1306,8 @@
     <string name="search_no_results_title">Nuk ka rezultate</string>
     <string name="search_no_results_subtitle">Provo të kërkosh me fjalë kyçe të tjera</string>
     <string name="search_error_no_catalogs">Nuk u gjetën katalogë të kërkueshëm në shtesat e instaluara</string>
+    <string name="search_no_catalogs_title">Asnjë nga shtesat e tua nuk mund të kërkojë</string>
+    <string name="search_no_catalogs_subtitle">Instalo një shtesë me katalog kërkimi, pastaj provo përsëri.</string>
     <string name="library_title">Biblioteka</string>
     <string name="library_filter_list">Lista</string>
     <string name="library_filter_type">Lloji</string>
@@ -1348,13 +1357,16 @@
     <string name="library_list_move_up">Zhvendos lart</string>
     <string name="library_list_move_down">Zhvendos poshtë</string>
     <string name="library_list_delete">Fshi</string>
+    <string name="library_list_delete_named">Fshi „%1$s“</string>
     <string name="library_list_close">Mbyll</string>
     <string name="library_list_name_label">Emri</string>
-    <string name="library_error_list_name_required">Kërkohet emri i listës</string>
+    <string name="library_error_list_name_required">Shkruaj një emër për listën</string>
     <string name="library_list_description_label">Përshkrimi</string>
     <string name="library_list_privacy">Privatësia</string>
     <string name="library_delete_title">Të fshihet kjo listë?</string>
-    <string name="library_delete_subtitle">Kjo heq listën dhe të gjithë artikujt e saj nga Trakt.</string>
+    <string name="library_delete_title_named">Të fshihet „%1$s“?</string>
+    <string name="library_delete_subtitle_provider">Kjo e heq listën dhe artikujt e saj nga %1$s. Ky veprim nuk mund të zhbëhet.</string>
+    <string name="library_delete_subtitle_local">Kjo e heq listën dhe artikujt e saj nga biblioteka jote. Ky veprim nuk mund të zhbëhet.</string>
     <string name="library_source_local">LOKAL</string>
     <string name="library_source_saved">Ruajtur</string>
     <string name="library_watchlist">Lista e shikimit</string>
@@ -1556,9 +1568,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Nuk mund të ruhej PIN-i. Provo përsëri.</string>
     <string name="profile_pin_locked">Profili është i bllokuar. Provo përsëri pas %1$ds.</string>
-    <string name="profile_pin_invalid">PIN i pavlefshëm. Provo përsëri.</string>
     <string name="profile_pin_verify_error">Nuk mund të verifikohej PIN-i. Provo përsëri.</string>
-    <string name="profile_pin_incorrect">PIN-i aktual është i pasaktë.</string>
+    <string name="profile_pin_incorrect">PIN i pasaktë. Provo përsëri.</string>
     <string name="profile_pin_current_required">Ky profil tashmë ka PIN. Shkruaj PIN-in aktual për ta ndryshuar.</string>
     <!-- Account Screen -->
     <!-- Sync screens -->
@@ -1568,7 +1579,7 @@
     <!-- Library -->
     <!-- Error messages (shared) -->
     <string name="error_network_required">Lidhu me Wi-Fi ose Ethernet për ta përdorur këtë veçori</string>
-    <string name="error_server_ports_unavailable">Nuk mund të nisej serveri. Të gjitha portet janë në përdorim.</string>
+    <string name="error_server_ports_unavailable">Lidhja me telefonin nuk mund të nisej. Rinis Fetch dhe provo përsëri.</string>
     <!-- Trakt errors -->
     <string name="trakt_error_code_expired">Kodi i pajisjes ka skaduar. Fillo përsëri.</string>
     <string name="trakt_error_code_used">Kodi i pajisjes është përdorur tashmë. Fillo përsëri.</string>
@@ -1623,6 +1634,11 @@
     <string name="cd_loading_logo">Duke ngarkuar logon</string>
     <string name="cd_move_up">Zhvendos lart</string>
     <string name="cd_move_down">Zhvendos poshtë</string>
+    <string name="cd_move_addon_up">Lëviz %1$s lart</string>
+    <string name="cd_move_addon_down">Lëviz %1$s poshtë</string>
+    <string name="cd_addon_enabled_toggle">%1$s aktiv</string>
+    <string name="cd_configure_addon">Konfiguro %1$s</string>
+    <string name="cd_remove_addon">Hiq %1$s</string>
     <string name="cd_edit">Redakto</string>
     <string name="cd_delete">Fshi</string>
     <string name="cd_qr_code">Kodi QR</string>
@@ -1656,7 +1672,7 @@
     <string name="collections_import">Importo</string>
     <string name="collections_export_file">Eksporto skedarin</string>
     <string name="collections_saved_downloads">U ruajt te Shkarkimet</string>
-    <string name="collections_export_failed">Eksportimi dështoi</string>
+    <string name="collections_export_failed">Nuk u ruajt dot te Shkarkimet. Kontrollo lejen e hapësirës ruajtëse dhe hapësirën e lirë, pastaj provo përsëri.</string>
     <string name="collections_import_header">Importo koleksione</string>
     <string name="collections_import_description">Importo koleksione nga JSON. Katalogët nga shtesa që nuk i ke të instaluara do të shfaqin një paralajmërim.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1899,6 +1915,16 @@
     <string name="collection_editor_folder_count_other">%1$d artikuj</string>
     <string name="collections_editor_delete_folder_title">Të fshihet dosja?</string>
     <string name="collections_editor_delete_folder_subtitle">Kjo do ta fshijë përgjithmonë \"%1$s\" dhe përmbajtjen e saj.</string>
+    <string name="folder_error_addon_source">Ky katalog nuk u ngarkua. Kontrollo që shtesa e tij është e instaluar dhe online, pastaj provo përsëri.</string>
+    <string name="folder_error_addon_missing">Shtesa e këtij katalogu nuk është e instaluar. Instaloje nga Shtesa ose hiqe këtë burim nga dosja.</string>
+    <string name="folder_error_tmdb_source">Kjo nuk u ngarkua nga TMDB. Kontrollo lidhjen, pastaj provo përsëri.</string>
+    <string name="folder_error_trakt_source">Kjo listë Trakt nuk u ngarkua. Kontrollo lidhjen dhe që lista është ende publike, pastaj provo përsëri.</string>
+    <string name="folder_error_list_source">Kjo listë nuk u ngarkua. Kontrollo lidhjen, pastaj provo përsëri.</string>
+    <string name="collections_editor_discard_title">Të hidhen poshtë ndryshimet?</string>
+    <string name="collections_editor_discard_collection_subtitle">Ndryshimet e tua në këtë koleksion nuk janë ruajtur.</string>
+    <string name="collections_editor_discard_folder_subtitle">Ndryshimet e tua në këtë dosje nuk janë ruajtur.</string>
+    <string name="collections_editor_keep_editing">Vazhdo redaktimin</string>
+    <string name="collections_editor_discard">Hidhi poshtë</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Best Action Movies, Korean Dramas, 2024 Animation</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
@@ -1960,17 +1986,17 @@
     <string name="player_track_audio_fallback">Audio %1$d</string>
     <string name="player_track_subtitle_fallback">Titra %1$d</string>
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nBurimi i transmetimit është bllokuar ose kufizuar. Provo një burim tjetër.</string>
-    <string name="player_error_stream_removed">\n\nLidhja e transmetimit ka skaduar ose është hequr. Provo një burim tjetër.</string>
-    <string name="player_error_stream_expired">\n\nLidhja e transmetimit ka skaduar. Provo një burim tjetër.</string>
-    <string name="player_error_stream_rate_limited">\n\nShumë kërkesa drejt burimit të transmetimit. Prit pak dhe provo përsëri.</string>
-    <string name="player_error_stream_unavailable">\n\nServeri i transmetimit nuk është aktualisht i disponueshëm. Provo një burim tjetër.</string>
-    <string name="player_error_source_invalid_content">Gabim burimi: Burimi i transmetimit ktheu përmbajtje të pavlefshme ose të paluajtshme. Lidhja mund të ketë skaduar ose serveri mund të ketë kthyer një faqe gabimi në vend të videos.\n\nProvo një burim tjetër. [%1$s]</string>
-    <string name="player_error_unsupported_format">Ky transmetim përdor një format që pajisja jote mund të mos e mbështesë. Provo një burim tjetër. [%1$s]</string>
-    <string name="player_error_initialize_failed">Inicializimi i luajtësit dështoi</string>
-    <string name="player_error_mpv_surface_failed">Inicializimi i sipërfaqes libmpv dështoi</string>
-    <string name="player_error_mpv_playback_failed">Inicializimi i riprodhimit libmpv dështoi</string>
-    <string name="player_error_playback_fallback">Gabim riprodhimi</string>
+    <string name="player_error_stream_blocked">\n\nBurimi i transmetimit është bllokuar ose kufizuar. Zgjidh një burim tjetër.</string>
+    <string name="player_error_stream_removed">\n\nLidhja e transmetimit ka skaduar ose është hequr. Zgjidh një burim tjetër.</string>
+    <string name="player_error_stream_expired">\n\nLidhja e transmetimit ka skaduar. Zgjidh një burim tjetër.</string>
+    <string name="player_error_stream_rate_limited">\n\nShumë kërkesa drejt burimit të transmetimit. Prit pak, pastaj zgjidh përsëri një burim.</string>
+    <string name="player_error_stream_unavailable">\n\nServeri i transmetimit nuk është aktualisht i disponueshëm. Zgjidh një burim tjetër.</string>
+    <string name="player_error_source_invalid_content">Gabim burimi: Burimi i transmetimit ktheu përmbajtje të pavlefshme ose të paluajtshme. Lidhja mund të ketë skaduar ose serveri mund të ketë kthyer një faqe gabimi në vend të videos.\n\nZgjidh një burim tjetër. [%1$s]</string>
+    <string name="player_error_unsupported_format">Ky transmetim përdor një format që pajisja jote mund të mos e mbështesë. Zgjidh një burim tjetër. [%1$s]</string>
+    <string name="player_error_initialize_failed">Luajtësi nuk mund të nisej. Rinis Fetch dhe provo përsëri.</string>
+    <string name="player_error_mpv_surface_failed">Luajtësi mpv nuk mund të nisej. Provo përsëri ose ndrysho Motori i brendshëm te Cilësimet &gt; Riprodhimi.</string>
+    <string name="player_error_mpv_playback_failed">Riprodhimi në luajtësin mpv nuk mund të nisej. Provo përsëri ose ndrysho Motori i brendshëm te Cilësimet &gt; Riprodhimi.</string>
+    <string name="player_error_playback_fallback">Ky transmetim nuk mund të luhet. Zgjidh një burim tjetër.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">Nuk u gjetën rreshta titrash në këtë skedar.</string>
     <string name="subtitle_timing_load_lines_failed">Ngarkimi i rreshtave të titrave dështoi.</string>
@@ -1999,6 +2025,7 @@
     <string name="library_list_created">Lista u krijua</string>
     <string name="library_list_updated">Lista u përditësua</string>
     <string name="library_error_save_list_failed">Ruajtja e listës dështoi</string>
+    <string name="library_error_save_list_next_step">Kontrollo lidhjen dhe provo përsëri.</string>
     <string name="library_list_deleted">Lista u fshi</string>
     <string name="library_error_delete_list_failed">Fshirja e listës dështoi</string>
     <string name="library_list_order_updated">Renditja e listave u përditësua</string>
@@ -2059,11 +2086,11 @@
     <string name="cd_simkl_logo">Logoja Simkl</string>
     <string name="trakt_error_mark_watched_failed">Shënimi si i shikuar në Trakt dështoi (%1$d)</string>
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Përditësimi i bibliotekës dështoi</string>
-    <string name="detail_error_load_lists_failed">Ngarkimi i listave dështoi</string>
-    <string name="detail_error_update_lists_failed">Përditësimi i listave dështoi</string>
-    <string name="detail_error_update_watched_failed">Përditësimi i statusit të shikimit dështoi</string>
-    <string name="detail_error_update_episode_watched_failed">Përditësimi i statusit të shikimit të episodit dështoi</string>
+    <string name="detail_error_update_library_failed">Biblioteka nuk u përditësua. Kontrollo lidhjen dhe provo përsëri.</string>
+    <string name="detail_error_load_lists_failed">Listat e tua nuk u ngarkuan. Kontrollo lidhjen dhe provo përsëri.</string>
+    <string name="detail_error_update_lists_failed">Listat e tua nuk u përditësuan. Kontrollo lidhjen dhe provo përsëri.</string>
+    <string name="detail_error_update_watched_failed">Statusi i shikimit nuk u përditësua. Kontrollo lidhjen dhe provo përsëri.</string>
+    <string name="detail_error_update_episode_watched_failed">Statusi i shikimit të këtij episodi nuk u përditësua. Kontrollo lidhjen dhe provo përsëri.</string>
     <string name="poster_options_error_load_lists_failed">Ngarkimi i listave dështoi</string>
     <string name="poster_options_error_update_lists_failed">Përditësimi i listave dështoi</string>
     <!-- Search errors -->
@@ -2223,7 +2250,7 @@
     <string name="diag_value_conversions_fmt">%1$d nga %2$d të suksesshme</string>
     <string name="diag_value_never_rendered">Nuk u renderua kurrë</string>
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Luajtja e transmetimit të zgjedhur dështoi</string>
+    <string name="player_error_play_stream_failed">Transmetimi i zgjedhur nuk mund të luhet. Zgjidh një burim tjetër.</string>
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>
     <string name="unit_size_kb">%1$s KB</string>
@@ -2281,6 +2308,9 @@
     <string name="addon_health_ok">Përgjigjet · %1$s</string>
     <string name="addon_health_slow">I ngadaltë · %1$s</string>
     <string name="addon_health_timed_out">Kërkesës së fundit i skadoi koha</string>
+    <string name="source_chip_failed">dështoi</string>
+    <string name="source_chip_loading">po ngarkohet</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s duhet konfiguruar para se të instalohet</string>
     <string name="advanced_introdb_api_key">Çelësi API i IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Krijo një çelës në introdb.app. Fillon me idb_.</string>
@@ -2296,6 +2326,7 @@
     <string name="autoplay_mode_best_desc">Rendit çdo rezultat sipas cilësisë, rregullave të tua dhe asaj që mund të luajë kjo pajisje, pastaj nis fituesin. Burimet e tjera mbeten një shtypje larg.</string>
     <string name="best_match_cached">Në cache</string>
     <string name="best_match_excluded">Nuk luhet automatikisht: %1$s</string>
+    <string name="stream_hold_for_options">Mbaj shtypur OK për opsionet e Përputhjes më të mirë</string>
     <string name="best_match_preview_sub">Pyet shtesat e transmetimeve për një titull ndërsa e shikon, që butoni Luaj të emërtojë skedarin dhe luajtja të nisë më shpejt. Çaktivizoje për të kërkuar vetëm pasi shtyp Luaj.</string>
     <string name="best_match_preview_title">Shfaq zgjedhjen në butonin Luaj</string>
     <string name="catalog_order_pin">Fikso në krye</string>
@@ -2644,14 +2675,56 @@
     <string name="profile_pin_forgot_needs_main">Harrove PIN-in? Cakto fillimisht një PIN te %1$s, pastaj përdore për ta rivendosur këtë.</string>
     <string name="profile_pin_forgot_main">PIN-i i profilit kryesor nuk mund të rivendoset, ndaj ruaje në një vend të sigurt.</string>
     <string name="profile_pin_reset_for_profile">PIN-i u rivendos për %1$s.</string>
-    <string name="profile_pin_incorrect_for_profile">PIN i pasaktë për %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">PIN i pasaktë për %1$s. Provo përsëri.</string>
     <string name="profile_selection_kids_badge">Fëmijë</string>
     <string name="profile_manage_done">U krye</string>
     <string name="cd_profile_locked">I bllokuar me PIN</string>
+    <string name="cd_profile_pin_progress">U futën %1$d nga %2$d shifra</string>
+    <string name="cd_profile_color_crimson">E kuqe e mbyllur</string>
+    <string name="cd_profile_color_ocean">Oqean</string>
+    <string name="cd_profile_color_violet">Vjollcë</string>
+    <string name="cd_profile_color_emerald">Smerald</string>
+    <string name="cd_profile_color_amber">Qelibar</string>
+    <string name="cd_profile_color_rose">Rozë</string>
+    <string name="cd_profile_color_cyan">Cian</string>
+    <string name="cd_profile_color_brown">Kafe</string>
+    <string name="cd_profile_color_position">Ngjyra %1$d nga %2$d</string>
     <string name="profile_save_error">Profili nuk mund të ruhej. Provo përsëri.</string>
     <string name="profile_delete_error">Profili nuk mund të fshihej. Provo përsëri.</string>
     <string name="parental_pin_nudge_title">Mbro kufizimet e %1$s</string>
     <string name="parental_pin_nudge_subtitle">Cakto një PIN te %1$s. Pa të, kushdo mund të ndryshojë kufizimet e %2$s ose të kalojë te një profil tjetër.</string>
     <string name="parental_pin_nudge_set">Cakto një PIN te %1$s</string>
     <string name="parental_pin_nudge_later">Jo tani</string>
+    <string name="parental_gate_open_support">%1$s nuk ka PIN-in e vet, ndaj duhet PIN-i i një prindi për ta hapur ndërsa një profil tjetër ka kufizime prindërore.</string>
+    <string name="parental_lock_profiles_title">Blloko profilet pa kufizime</string>
+    <string name="parental_lock_profiles_subtitle">Ndërsa një profil ka kufizime prindërore, hapja e një profili pa kufizime dhe pa PIN-in e vet kërkon PIN-in e %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Cakto fillimisht një PIN te %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Të bllokohen edhe profilet e tjera?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s mund të hapë %2$s dhe të anashkalojë çdo kufizim, sepse nuk kanë PIN. Në vend të kësaj, Fetch mund të kërkojë PIN-in e %3$s për t’i hapur.</string>
+    <string name="parental_lock_profiles_offer_accept">Kërko PIN-in e %1$s</string>
+    <string name="kids_autoplay_cap">Luajtje automatike radhazi: %1$s</string>
+    <string name="kids_approved_only">Vetëm tituj të miratuar: %1$s</string>
+    <string name="kids_approved_movies">Filma për ty</string>
+    <string name="kids_approved_shows">Seriale për ty</string>
+    <string name="kids_approved_only_hint">Në këtë profil shfaqen vetëm titujt gjithmonë të lejuar. Lejo një titull nga menyja e shtypjes së gjatë të posterit të tij në profilin kryesor.</string>
+    <string name="kids_daily_time">Koha ditore para ekranit: %1$s</string>
+    <string name="kids_bedtime">Ora e gjumit: %1$s deri në %2$s</string>
+    <string name="kids_bedtime_off">Ora e gjumit: Joaktive</string>
+    <string name="kids_at_limit_finish">Në kufi: përfundo atë që po luhet</string>
+    <string name="kids_at_limit_stop">Në kufi: ndalo menjëherë</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d episod</item>
+        <item quantity="other">%1$d episode</item>
+    </plurals>
+    <string name="kids_minutes">%1$d min</string>
+    <string name="screen_time_title">Kaq për sot</string>
+    <string name="screen_time_daily">Koha e sotme para ekranit mbaroi. Shihemi nesër!</string>
+    <string name="screen_time_bedtime">Është koha për gjumë. Shihemi nesër!</string>
+    <string name="screen_time_choose">Sa kohë më shumë?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Më shumë kohë (prindi)</string>
+    <string name="screen_time_add_minutes">+%1$d min</string>
+    <string name="screen_time_rest_of_day">Pa kufi për pjesën tjetër të ditës</string>
+    <string name="kids_hours">%1$d orë</string>
+    <string name="kids_hours_minutes">%1$d orë %2$d min</string>
 </resources>

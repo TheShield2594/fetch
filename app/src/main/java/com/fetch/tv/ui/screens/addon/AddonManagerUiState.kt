@@ -8,6 +8,9 @@ data class AddonManagerUiState(
     val isInstalling: Boolean = false,
     val installUrl: String = "",
     val installedAddons: List<Addon> = emptyList(),
+    /** The installed-addon list couldn't be read; the screen offers a retry instead of the empty state. */
+    val installedAddonsLoadFailed: Boolean = false,
+    /** Install-field validation and install failures only; other failures go through [transientMessage]. */
     val error: String? = null,
     val transientMessage: String? = null,
     val transientMessageIsError: Boolean = false,

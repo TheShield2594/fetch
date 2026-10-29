@@ -589,7 +589,12 @@ class SearchViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 if (generation == searchGeneration && activeSearchQuery == query) {
-                    _uiState.update { it.copy(isSearching = false, error = e.message ?: context.getString(com.fetch.tv.R.string.search_error_load_addons_failed)) }
+                    _uiState.update {
+                        it.copy(
+                            isSearching = false,
+                            error = errorWithFix(R.string.search_error_load_addons_failed, R.string.error_state_fix_retry_soon)
+                        )
+                    }
                 }
                 return@launch
             }
@@ -778,7 +783,9 @@ class SearchViewModel @Inject constructor(
                     pendingCatalogResponses = (pendingCatalogResponses - 1).coerceAtLeast(0)
                     // Ignore per-catalog errors unless we have nothing to show.
                     if (catalogsMap.isEmpty()) {
-                        _uiState.update { it.copy(error = result.message ?: context.getString(com.fetch.tv.R.string.search_error_failed)) }
+                        _uiState.update {
+                            it.copy(error = errorWithFix(R.string.search_error_failed, R.string.error_state_fix_addon_generic))
+                        }
                     }
                     scheduleCatalogRowsUpdate()
                 }
@@ -913,6 +920,14 @@ class SearchViewModel @Inject constructor(
             )
         }
     }
+
+    /**
+     * A search error as shown on screen: a fixed issue plus what to try, never the raw exception or
+     * HTTP status text, which doesn't tell the user how to recover.
+     */
+    private fun errorWithFix(issueRes: Int, fixRes: Int): String =
+        context.getString(issueRes) + "\n\n" +
+            context.getString(R.string.error_state_possible_fix, context.getString(fixRes))
 
     private suspend fun searchAddons(): List<Addon> =
         addonRepository.getInstalledAddons().first().enabledAddons() + serverCatalog.searchAddons.first()

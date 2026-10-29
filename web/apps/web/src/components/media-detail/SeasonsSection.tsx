@@ -537,7 +537,7 @@ export function SeasonsSection({
                             className={`w-5 flex-none text-[0.9375rem] tabular-nums ${isCurrent ? "font-semibold" : ""}`}
                             style={{
                               color: isCurrent
-                                ? "rgb(var(--accent-rgb))"
+                                ? "var(--accent-text)"
                                 : isWatched
                                   ? "var(--text-mute)"
                                   : "var(--text-dim)",

@@ -103,8 +103,8 @@
     <string name="home_empty_no_catalog_addons_subtitle">Головній потрібен адон каталогу, щоб показувати тайтли.</string>
     <string name="home_empty_no_catalogs_title">Немає каталогів для показу</string>
     <string name="home_empty_no_catalogs_subtitle">Ваші адони не пропонують каталогів для головної.</string>
-    <string name="auth_notice_fetch_logged_out">Ви вийшли з системи Fetch. Будь ласка, увійдіть знову.</string>
-    <string name="auth_notice_trakt_logged_out">Ви вийшли з системи Trakt. Будь ласка, підключіться знову.</string>
+    <string name="auth_notice_fetch_logged_out">Ви вийшли з Fetch. Увійдіть знову в розділі Налаштування &gt; Акаунт.</string>
+    <string name="auth_notice_trakt_logged_out">Ви вийшли з Trakt. Підключіть його знову в розділі Налаштування &gt; Відстеження.</string>
     <string name="error_generic">Сталася помилка</string>
 
     <string name="action_retry">Повторити</string>
@@ -221,6 +221,7 @@
     <string name="detail_marked_episodes_watched">Позначено епізодів як переглянуті: %1$d</string>
     <string name="detail_marked_episodes_unwatched">Позначено епізодів як непереглянуті: %1$d</string>
     <string name="detail_marked_previous_watched">Попередні епізоди позначено як переглянуті: %1$d</string>
+    <string name="playback_unavailable_message">Жодне з налаштованих джерел не може відтворити цей контент. Додайте або увімкніть адон для стримінгу в Налаштування &gt; Контент і пошук &gt; Адони або перевірте з’єднання з медіасервером.</string>
 
     <string name="detail_btn_play">Дивитися</string>
     <string name="detail_btn_resume">Продовжити</string>
@@ -370,6 +371,7 @@
     <!-- SettingsScreen categories -->
     <string name="settings_experience">Режим роботи</string>
     <string name="settings_account">Акаунт</string>
+    <string name="settings_tracking_title">Відстеження</string>
     <string name="settings_profiles">Профілі</string>
     <string name="settings_layout">Інтерфейс</string>
     <string name="settings_integration">Інтеграції</string>
@@ -483,6 +485,9 @@
     <string name="playback_subtitle">Налаштування параметрів відео та субтитрів</string>
     <string name="cd_decrease">Зменшити</string>
     <string name="cd_increase">Збільшити</string>
+    <string name="cd_decrease_setting">Зменшити %1$s</string>
+    <string name="cd_increase_setting">Збільшити %1$s</string>
+    <string name="cd_seek_bar">Панель перемотування</string>
     <string name="action_cancel">Скасувати</string>
     <string name="action_apply">Застосувати</string>
     <string name="sub_opacity">Прозорість</string>
@@ -789,7 +794,7 @@
     <string name="mdblist_dialog_title">API Ключ MDBList</string>
     <string name="mdblist_dialog_placeholder">Введіть API ключ MDBList</string>
     <string name="mdblist_not_set">Не задано</string>
-    <string name="mdblist_invalid_api_key">Невірний API ключ MDBList</string>
+    <string name="mdblist_invalid_api_key">Не вдалося перевірити цей API-ключ. Перевірте, чи він збігається з ключем у вашому обліковому записі MDBList і чи ви онлайн, а потім спробуйте ще раз.</string>
 
 
 
@@ -831,7 +836,7 @@
     <string name="animeskip_dialog_title">Client ID для Anime Skip</string>
     <string name="animeskip_dialog_subtitle">Створіть свій Client ID на anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Введіть Client ID</string>
-    <string name="animeskip_invalid_client_id">Невірний Client ID</string>
+    <string name="animeskip_invalid_client_id">Не вдалося перевірити цей Client ID. Перевірте, чи він збігається з тим, що у вашому обліковому записі Anime Skip, і чи ви онлайн, а потім спробуйте ще раз.</string>
     <string name="action_clear">Очистити</string>
 
     <string name="tmdb_title">Збагачення через TMDB</string>
@@ -1009,6 +1014,7 @@
     <string name="addon_error_invalid_scheme">URL адона повинен починатися з http або https</string>
     <string name="addon_installed_section">Встановлені</string>
     <string name="addon_empty">Немає встановлених адонів. Додайте один для початку.</string>
+    <string name="addon_list_load_failed">Не вдалося завантажити встановлені адони. Спробуйте ще раз.</string>
     <string name="addon_remove">Видалити</string>
     <string name="addons_badge_disabled">Вимкнено</string>
     <string name="addon_manage_from_phone_title">Керувати з телефону</string>
@@ -1101,6 +1107,8 @@
     <string name="player_up_next_in_queue">Далі в черзі</string>
     <string name="player_queue_move_up">Перемістити вгору</string>
     <string name="player_queue_move_down">Перемістити вниз</string>
+    <string name="player_queue_removed">%1$s видалено з черги</string>
+    <string name="player_queue_undo">Скасувати</string>
     <string name="player_seek_back_10">Назад на 10 секунд</string>
     <string name="player_seek_forward_30">Уперед на 30 секунд</string>
     <string name="player_via">через %1$s</string>
@@ -1108,13 +1116,13 @@
     <string name="season_episode_format">С%1$d Е%2$d</string>
     <string name="player_subtitle_delay">Затримка субтитрів</string>
     <string name="player_error_title">Помилка відтворення</string>
-    <string name="player_go_back">Назад</string>
+    <string name="player_error_choose_source">Виберіть інше джерело</string>
     <string name="player_speed_title">Швидкість відтворення</string>
     <string name="player_more_actions_title">Додаткові дії</string>
     <string name="player_more_speed">Швидкість відтворення</string>
     <string name="player_more_aspect_ratio">Співвідношення сторін</string>
     <string name="player_more_open_external">Відкрити у зовнішньому плеєрі</string>
-    <string name="player_error_no_stream_url">URL потоку не надано</string>
+    <string name="player_error_no_stream_url">Це джерело не має посилання на потік. Виберіть інше джерело.</string>
 
 
     <string name="stream_info_section_source">ДЖЕРЕЛО</string>
@@ -1199,8 +1207,6 @@
 
     <string name="pause_you_are_watching">Ви дивитесь</string>
     <string name="pause_cast_label">У ролях</string>
-    <string name="pause_back_to_details">Назад до деталей</string>
-    <string name="pause_as_character">роль: %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Наступний епізод</string>
@@ -1235,6 +1241,8 @@
     <string name="search_start_subtitle_no_discover">Навігатор вимкнено. Введіть мінімум 2 символи</string>
     <string name="search_recent_title">Нещодавні пошуки</string>
     <string name="search_recent_clear">Очистити історію</string>
+    <string name="search_recent_clear_confirm_title">Очистити історію пошуку?</string>
+    <string name="search_recent_clear_confirm_subtitle">Усі нещодавні пошуки буде видалено. Цю дію не можна скасувати.</string>
     <string name="search_voice_no_speech">Мову не розпізнано. Спробуйте ще раз.</string>
     <string name="search_voice_mic_permission">Для голосового пошуку потрібен дозвіл на використання мікрофона.</string>
     <string name="search_voice_failed">Помилка розпізнавання голосу. Спробуйте ще раз.</string>
@@ -1242,6 +1250,8 @@
     <string name="search_no_results_title">Немає результатів</string>
     <string name="search_no_results_subtitle">Спробуйте пошукати з іншими ключовими словами</string>
     <string name="search_error_no_catalogs">У встановлених адонах немає каталогів для пошуку</string>
+    <string name="search_no_catalogs_title">Жоден із ваших адонів не підтримує пошук</string>
+    <string name="search_no_catalogs_subtitle">Установіть адон із каталогом пошуку, а потім спробуйте ще раз.</string>
 
     <string name="library_title">Бібліотека</string>
     <string name="library_filter_list">Список</string>
@@ -1287,13 +1297,16 @@
     <string name="library_list_move_up">Вгору</string>
     <string name="library_list_move_down">Вниз</string>
     <string name="library_list_delete">Видалити</string>
+    <string name="library_list_delete_named">Видалити «%1$s»</string>
     <string name="library_list_close">Закрити</string>
     <string name="library_list_name_label">Назва</string>
-    <string name="library_error_list_name_required">Назва списку обов\'язкова</string>
+    <string name="library_error_list_name_required">Введіть назву списку</string>
     <string name="library_list_description_label">Опис</string>
     <string name="library_list_privacy">Приватність</string>
     <string name="library_delete_title">Видалити цей список?</string>
-    <string name="library_delete_subtitle">Це видалить список та всі його елементи з Trakt.</string>
+    <string name="library_delete_title_named">Видалити «%1$s»?</string>
+    <string name="library_delete_subtitle_provider">Список і його елементи буде видалено з %1$s. Цю дію не можна скасувати.</string>
+    <string name="library_delete_subtitle_local">Список і його елементи буде видалено з вашої бібліотеки. Цю дію не можна скасувати.</string>
     <string name="library_source_local">ЛОКАЛЬНО</string>
     <string name="library_source_saved">Збережене</string>
     <string name="library_watchlist">Список для перегляду</string>
@@ -1454,9 +1467,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Не вдалося зберегти PIN. Спробуйте знову.</string>
     <string name="profile_pin_locked">Профіль заблоковано. Спробуйте через %1$d с.</string>
-    <string name="profile_pin_invalid">Невірний PIN. Спробуйте знову.</string>
     <string name="profile_pin_verify_error">Не вдалося перевірити PIN. Спробуйте знову.</string>
-    <string name="profile_pin_incorrect">Поточний PIN невірний.</string>
+    <string name="profile_pin_incorrect">Неправильний PIN. Спробуйте знову.</string>
     <string name="profile_pin_current_required">Цей профіль вже має PIN. Введіть поточний PIN для зміни.</string>
 
     <!-- Account Screen -->
@@ -1471,7 +1483,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Підключіться до Wi-Fi або Ethernet, щоб використовувати цю функцію</string>
-    <string name="error_server_ports_unavailable">Не вдалося запустити сервер. Всі порти зайняті.</string>
+    <string name="error_server_ports_unavailable">Не вдалося запустити з’єднання з телефоном. Перезапустіть Fetch і спробуйте ще раз.</string>
 
     <!-- Trakt errors -->
 
@@ -1536,6 +1548,11 @@
     <string name="cd_loading_logo">Завантаження логотипу</string>
     <string name="cd_move_up">Перемістити вгору</string>
     <string name="cd_move_down">Перемістити вниз</string>
+    <string name="cd_move_addon_up">Перемістити %1$s вгору</string>
+    <string name="cd_move_addon_down">Перемістити %1$s вниз</string>
+    <string name="cd_addon_enabled_toggle">%1$s увімкнено</string>
+    <string name="cd_configure_addon">Налаштувати %1$s</string>
+    <string name="cd_remove_addon">Видалити %1$s</string>
     <string name="cd_edit">Редагувати</string>
     <string name="cd_delete">Видалити</string>
     <string name="cd_qr_code">QR Код</string>
@@ -1570,7 +1587,7 @@
     <string name="collections_import">Імпорт</string>
     <string name="collections_export_file">Експорт файлу</string>
     <string name="collections_saved_downloads">Збережено у Завантаження</string>
-    <string name="collections_export_failed">Експорт не вдався</string>
+    <string name="collections_export_failed">Не вдалося зберегти в «Завантаження». Перевірте дозвіл на доступ до сховища та вільне місце, а потім спробуйте ще раз.</string>
     <string name="collections_import_header">Імпорт колекцій</string>
     <string name="collections_import_description">Імпортуйте колекції з JSON. Каталоги з адонів, які у вас не встановлені, будуть показані з попередженням.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -1807,6 +1824,16 @@
     <string name="collection_editor_folder_count_other">%1$d елементів</string>
     <string name="collections_editor_delete_folder_title">Видалити папку?</string>
     <string name="collections_editor_delete_folder_subtitle">Це безповоротно видалить \"%1$s\" та її вміст.</string>
+    <string name="folder_error_addon_source">Не вдалося завантажити цей каталог. Перевірте, чи встановлено його адон і чи він онлайн, а потім спробуйте ще раз.</string>
+    <string name="folder_error_addon_missing">Адон цього каталогу не встановлено. Установіть його в розділі «Адони» або видаліть це джерело з папки.</string>
+    <string name="folder_error_tmdb_source">Не вдалося завантажити дані з TMDB. Перевірте з’єднання, а потім спробуйте ще раз.</string>
+    <string name="folder_error_trakt_source">Не вдалося завантажити цей список Trakt. Перевірте з’єднання і чи список досі публічний, а потім спробуйте ще раз.</string>
+    <string name="folder_error_list_source">Не вдалося завантажити цей список. Перевірте з’єднання, а потім спробуйте ще раз.</string>
+    <string name="collections_editor_discard_title">Скасувати зміни?</string>
+    <string name="collections_editor_discard_collection_subtitle">Зміни в цій колекції не збережено.</string>
+    <string name="collections_editor_discard_folder_subtitle">Зміни в цій папці не збережено.</string>
+    <string name="collections_editor_keep_editing">Продовжити редагування</string>
+    <string name="collections_editor_discard">Відхилити</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Найкращі бойовики, Корейські дорами, Аніме 2024</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Фільми з Tom Hanks, Улюблені актори</string>
@@ -1871,17 +1898,17 @@
     <string name="player_track_subtitle_fallback">Субтитри %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nДжерело потоку заблоковано або обмежено. Спробуйте інше джерело.</string>
-    <string name="player_error_stream_removed">\n\nПосилання на потік застаріло або видалено. Спробуйте інше джерело.</string>
-    <string name="player_error_stream_expired">\n\nПосилання на потік закінчилося. Спробуйте інше джерело.</string>
-    <string name="player_error_stream_rate_limited">\n\nЗабагато запитів до джерела. Зачекайте трохи і спробуйте знову.</string>
-    <string name="player_error_stream_unavailable">\n\nСервер потоку тимчасово недоступний. Спробуйте інше джерело.</string>
-    <string name="player_error_source_invalid_content">Помилка джерела: джерело повернуло невірний або невідтворюваний контент. Посилання могло застаріти або сервер повернув сторінку помилки замість відео.\n\nСпробуйте інше джерело. [%1$s]</string>
-    <string name="player_error_unsupported_format">Потік використовує формат, який ваш пристрій може не підтримувати. Спробуйте інше джерело. [%1$s]</string>
-    <string name="player_error_initialize_failed">Не вдалося ініціалізувати плеєр</string>
-    <string name="player_error_mpv_surface_failed">Не вдалося ініціалізувати поверхню libmpv</string>
-    <string name="player_error_mpv_playback_failed">Не вдалося ініціалізувати відтворення libmpv</string>
-    <string name="player_error_playback_fallback">Помилка відтворення</string>
+    <string name="player_error_stream_blocked">\n\nДжерело потоку заблоковано або обмежено. Виберіть інше джерело.</string>
+    <string name="player_error_stream_removed">\n\nПосилання на потік застаріло або видалено. Виберіть інше джерело.</string>
+    <string name="player_error_stream_expired">\n\nПосилання на потік застаріло. Виберіть інше джерело.</string>
+    <string name="player_error_stream_rate_limited">\n\nЗабагато запитів до джерела. Зачекайте трохи, а потім знову виберіть джерело.</string>
+    <string name="player_error_stream_unavailable">\n\nСервер потоку тимчасово недоступний. Виберіть інше джерело.</string>
+    <string name="player_error_source_invalid_content">Помилка джерела: джерело повернуло невірний або невідтворюваний контент. Посилання могло застаріти або сервер повернув сторінку помилки замість відео.\n\nВиберіть інше джерело. [%1$s]</string>
+    <string name="player_error_unsupported_format">Потік використовує формат, який ваш пристрій може не підтримувати. Виберіть інше джерело. [%1$s]</string>
+    <string name="player_error_initialize_failed">Не вдалося запустити плеєр. Перезапустіть Fetch і спробуйте ще раз.</string>
+    <string name="player_error_mpv_surface_failed">Не вдалося запустити плеєр mpv. Спробуйте ще раз або змініть Рушій вбудованого плеєра в Налаштування &gt; Відтворення.</string>
+    <string name="player_error_mpv_playback_failed">Не вдалося почати відтворення в плеєрі mpv. Спробуйте ще раз або змініть Рушій вбудованого плеєра в Налаштування &gt; Відтворення.</string>
+    <string name="player_error_playback_fallback">Не вдалося відтворити цей потік. Виберіть інше джерело.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">У цьому файлі не знайдено рядків субтитрів.</string>
     <string name="subtitle_timing_load_lines_failed">Не вдалося завантажити рядки субтитрів.</string>
@@ -1912,6 +1939,7 @@
     <string name="library_list_created">Список створено</string>
     <string name="library_list_updated">Список оновлено</string>
     <string name="library_error_save_list_failed">Не вдалося зберегти список</string>
+    <string name="library_error_save_list_next_step">Перевірте з’єднання і спробуйте ще раз.</string>
     <string name="library_list_deleted">Список видалено</string>
     <string name="library_error_delete_list_failed">Не вдалося видалити список</string>
     <string name="library_list_order_updated">Порядок списків оновлено</string>
@@ -1940,11 +1968,11 @@
     <string name="trakt_error_mark_watched_failed">Не вдалося позначити перегляд у Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Не вдалося оновити бібліотеку</string>
-    <string name="detail_error_load_lists_failed">Не вдалося завантажити списки</string>
-    <string name="detail_error_update_lists_failed">Не вдалося оновити списки</string>
-    <string name="detail_error_update_watched_failed">Не вдалося оновити статус перегляду</string>
-    <string name="detail_error_update_episode_watched_failed">Не вдалося оновити статус перегляду епізоду</string>
+    <string name="detail_error_update_library_failed">Не вдалося оновити бібліотеку. Перевірте з’єднання і спробуйте ще раз.</string>
+    <string name="detail_error_load_lists_failed">Не вдалося завантажити ваші списки. Перевірте з’єднання і спробуйте ще раз.</string>
+    <string name="detail_error_update_lists_failed">Не вдалося оновити ваші списки. Перевірте з’єднання і спробуйте ще раз.</string>
+    <string name="detail_error_update_watched_failed">Не вдалося оновити статус перегляду. Перевірте з’єднання і спробуйте ще раз.</string>
+    <string name="detail_error_update_episode_watched_failed">Не вдалося оновити статус перегляду цього епізоду. Перевірте з’єднання і спробуйте ще раз.</string>
     <string name="poster_options_error_load_lists_failed">Не вдалося завантажити списки</string>
     <string name="poster_options_error_update_lists_failed">Не вдалося оновити списки</string>
 
@@ -2152,7 +2180,7 @@
     <string name="diag_value_off">Вимкнено</string>
     <string name="diag_value_conversions_fmt">%1$d з %2$d успішно</string>
     <string name="diag_value_never_rendered">Ніколи не рендерилося</string>
-    <string name="player_error_play_stream_failed">Не вдалося відтворити вибраний потік</string>
+    <string name="player_error_play_stream_failed">Не вдалося відтворити вибраний потік. Виберіть інше джерело.</string>
     <string name="unit_size_b">%1$d Б</string>
     <string name="unit_size_kb">%1$s КБ</string>
     <string name="unit_size_mb">%1$s МБ</string>
@@ -2189,6 +2217,9 @@
     <string name="addon_health_ok">Відповідає · %1$s</string>
     <string name="addon_health_slow">Повільно · %1$s</string>
     <string name="addon_health_timed_out">Час очікування останнього запиту минув</string>
+    <string name="source_chip_failed">помилка</string>
+    <string name="source_chip_loading">завантаження</string>
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="addon_needs_configuration">%1$s потрібно налаштувати перед встановленням</string>
     <string name="advanced_introdb_api_key">API-ключ IntroDB</string>
     <string name="advanced_introdb_api_key_dialog_subtitle">Створіть ключ на introdb.app. Він починається з idb_.</string>
@@ -2204,6 +2235,7 @@
     <string name="autoplay_mode_best_desc">Оцінює кожен результат за якістю, вашими правилами та тим, що може відтворити цей пристрій, і запускає найкращий. Інші джерела — за одне натискання.</string>
     <string name="best_match_cached">У кеші</string>
     <string name="best_match_excluded">Не відтворено автоматично: %1$s</string>
+    <string name="stream_hold_for_options">Утримуйте OK для параметрів «Найкращий збіг»</string>
     <string name="best_match_preview_sub">Опитує адони потоків, поки ви переглядаєте картку, щоб кнопка «Дивитися» показувала файл, а відтворення починалося швидше. Вимкніть, щоб шукати лише після натискання «Дивитися».</string>
     <string name="best_match_preview_title">Показувати вибір на кнопці «Дивитися»</string>
     <string name="catalog_order_pin">Закріпити вгорі</string>
@@ -2561,14 +2593,58 @@
     <string name="profile_pin_forgot_needs_main">Забули PIN? Спершу встановіть PIN для %1$s, а потім скористайтеся ним, щоб скинути цей.</string>
     <string name="profile_pin_forgot_main">PIN основного профілю не можна скинути, тож зберігайте його в надійному місці.</string>
     <string name="profile_pin_reset_for_profile">PIN для %1$s скинуто.</string>
-    <string name="profile_pin_incorrect_for_profile">Неправильний PIN для %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Неправильний PIN для %1$s. Спробуйте знову.</string>
     <string name="profile_selection_kids_badge">Дитячий</string>
     <string name="profile_manage_done">Готово</string>
     <string name="cd_profile_locked">Заблоковано PIN-кодом</string>
+    <string name="cd_profile_pin_progress">Введено цифр: %1$d з %2$d</string>
+    <string name="cd_profile_color_crimson">Малиновий</string>
+    <string name="cd_profile_color_ocean">Океан</string>
+    <string name="cd_profile_color_violet">Фіолетовий</string>
+    <string name="cd_profile_color_emerald">Смарагдовий</string>
+    <string name="cd_profile_color_amber">Бурштиновий</string>
+    <string name="cd_profile_color_rose">Рожевий</string>
+    <string name="cd_profile_color_cyan">Блакитний</string>
+    <string name="cd_profile_color_brown">Коричневий</string>
+    <string name="cd_profile_color_position">Колір %1$d з %2$d</string>
     <string name="profile_save_error">Не вдалося зберегти профіль. Спробуйте ще раз.</string>
     <string name="profile_delete_error">Не вдалося видалити профіль. Спробуйте ще раз.</string>
     <string name="parental_pin_nudge_title">Захистіть обмеження профілю %1$s</string>
     <string name="parental_pin_nudge_subtitle">Встановіть PIN для %1$s. Без нього будь-хто зможе змінити обмеження профілю %2$s або перейти на інший профіль.</string>
     <string name="parental_pin_nudge_set">Встановити PIN для %1$s</string>
     <string name="parental_pin_nudge_later">Не зараз</string>
+    <string name="parental_gate_open_support">Профіль %1$s не має власного PIN, тому для його відкриття потрібен PIN батьків, поки інший профіль має батьківські обмеження.</string>
+    <string name="parental_lock_profiles_title">Блокувати профілі без обмежень</string>
+    <string name="parental_lock_profiles_subtitle">Поки якийсь профіль має батьківські обмеження, для відкриття профілю без обмежень і без власного PIN потрібен PIN профілю %1$s.</string>
+    <string name="parental_lock_profiles_needs_pin">Спершу встановіть PIN для %1$s.</string>
+    <string name="parental_lock_profiles_offer_title">Заблокувати й інші профілі?</string>
+    <string name="parental_lock_profiles_offer_subtitle">%1$s може відкрити %2$s і обійти всі обмеження, бо вони не мають PIN. Натомість Fetch може запитувати PIN профілю %3$s для їх відкриття.</string>
+    <string name="parental_lock_profiles_offer_accept">Запитувати PIN профілю %1$s</string>
+    <string name="kids_autoplay_cap">Автовідтворення поспіль: %1$s</string>
+    <string name="kids_approved_only">Лише схвалений контент: %1$s</string>
+    <string name="kids_approved_movies">Фільми для вас</string>
+    <string name="kids_approved_shows">Серіали для вас</string>
+    <string name="kids_approved_only_hint">У цьому профілі показано лише завжди дозволений контент. Дозвольте його через меню довгого натискання на постері в основному профілі.</string>
+    <string name="kids_daily_time">Щоденний екранний час: %1$s</string>
+    <string name="kids_bedtime">Час спати: з %1$s до %2$s</string>
+    <string name="kids_bedtime_off">Час спати: Вимк.</string>
+    <string name="kids_at_limit_finish">При досягненні ліміту: дограти поточне</string>
+    <string name="kids_at_limit_stop">При досягненні ліміту: зупинити одразу</string>
+    <plurals name="kids_episodes">
+        <item quantity="one">%1$d епізод</item>
+        <item quantity="few">%1$d епізоди</item>
+        <item quantity="many">%1$d епізодів</item>
+        <item quantity="other">%1$d епізоду</item>
+    </plurals>
+    <string name="kids_minutes">%1$d хв</string>
+    <string name="screen_time_title">На сьогодні все</string>
+    <string name="screen_time_daily">Екранний час на сьогодні вичерпано. До завтра!</string>
+    <string name="screen_time_bedtime">Час спати. До завтра!</string>
+    <string name="screen_time_choose">Скільки ще часу?</string>
+    <string name="screen_time_ok">OK</string>
+    <string name="screen_time_more">Більше часу (батьки)</string>
+    <string name="screen_time_add_minutes">+%1$d хв</string>
+    <string name="screen_time_rest_of_day">Без ліміту до кінця дня</string>
+    <string name="kids_hours">%1$d год</string>
+    <string name="kids_hours_minutes">%1$d год %2$d хв</string>
 </resources>

@@ -623,7 +623,8 @@ private fun HomePosterOptionsDialog(
     FetchDialog(
         onDismiss = onDismiss,
         title = title,
-        subtitle = stringResource(R.string.home_poster_dialog_subtitle)
+        subtitle = stringResource(R.string.home_poster_dialog_subtitle),
+        scrollable = true
     ) {
         Button(
             onClick = onDetails,

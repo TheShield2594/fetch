@@ -358,6 +358,7 @@ sealed class PlayerEvent {
     data object OnDismissQueuePanel : PlayerEvent()
     data class OnPlayQueueItem(val item: com.fetch.tv.data.local.QueueItem) : PlayerEvent()
     data class OnRemoveQueueItem(val videoId: String) : PlayerEvent()
+    data class OnRestoreQueueItem(val item: com.fetch.tv.data.local.QueueItem, val index: Int) : PlayerEvent()
     data class OnMoveQueueItem(val videoId: String, val up: Boolean) : PlayerEvent()
     data object OnQueuePlaybackHandled : PlayerEvent()
     data object OnShowPartyPanel : PlayerEvent()

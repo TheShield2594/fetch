@@ -48,10 +48,10 @@ object FetchContentColors {
     val ratingVeryGood = Color(0xFF28B463)
     val ratingGood = Color(0xFFF4D03F)
     val ratingFair = Color(0xFFF39C12)
-    val ratingPoor = Color(0xFFE74C3C)
+    val ratingPoor = Color(0xFFE85445)
     val ratingBad = Color(0xFF633974)
 
-    /** Text on the light heatmap cells (Good and Fair). */
+    /** Text on every heatmap cell except the two darkest (Great and Bad), which take white. */
     val ratingTextOnLight = Color(0xFF1D1D1F)
 
     /** Continue Watching badges for a new episode or a new season. */

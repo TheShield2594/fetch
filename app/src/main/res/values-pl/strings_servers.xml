@@ -36,9 +36,9 @@
     <string name="servers_error_unreachable">Nie udało się połączyć z serwerem.</string>
     <string name="servers_error_unsupported">Wymagany jest %1$s %2$s lub nowszy.</string>
     <string name="servers_error_forbidden">Ten użytkownik nie ma dostępu.</string>
-    <string name="servers_error_failed">Nie udało się połączyć z serwerem.</string>
+    <string name="servers_error_failed">Nie udało się połączyć z serwerem. Sprawdź, czy jest włączony i osiągalny, a potem spróbuj ponownie.</string>
     <string name="servers_failure_auth">Zaloguj się ponownie do tego serwera w Ustawieniach.</string>
-    <string name="servers_failure_unreachable">Serwer jest niedostępny.</string>
+    <string name="servers_failure_unreachable">Serwer jest niedostępny. Sprawdź, czy jest włączony i osiągalny, a potem spróbuj ponownie.</string>
     <string name="servers_failure_not_found">Ten element nie jest już dostępny na serwerze.</string>
     <string name="servers_failure_unsupported">Serwer nie obsługuje tego elementu.</string>
     <string name="servers_failure_incomplete">Trwa sprawdzanie biblioteki tego serwera. Spróbuj ponownie za chwilę.</string>

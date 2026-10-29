@@ -223,7 +223,7 @@
     <string name="detail_marked_previous_watched">Previous episodes marked as watched: %1$d</string>
 
     <string name="playback_unavailable">Playback unavailable</string>
-    <string name="playback_unavailable_message">Playback isn’t available for this title with your current setup.</string>
+    <string name="playback_unavailable_message">Nothing you’ve set up can play this title. Add or turn on a streaming addon in Settings &gt; Content &amp; Discovery &gt; Addons, or check your media server connection.</string>
     <string name="detail_btn_play">Play</string>
     <string name="detail_btn_resume">Resume</string>
     <string name="detail_btn_play_episode">Play S%1$d E%2$d</string>
@@ -355,6 +355,7 @@
     <string name="prefer_next_time_not_now">Not now</string>
     <string name="prefer_next_time_saved">Best match will prefer: %1$s</string>
     <string name="best_match_excluded">Not auto-played: %1$s</string>
+    <string name="stream_hold_for_options">Hold OK for Best match options</string>
     <string name="best_match_skipped">Skipped %1$s: %2$s</string>
     <string name="exclusion_above_max_resolution">above your maximum resolution</string>
     <string name="exclusion_below_min_resolution">below your minimum resolution</string>
@@ -684,6 +685,9 @@
     <string name="playback_subtitle">Configure video playback and subtitle options</string>
     <string name="cd_decrease">Decrease</string>
     <string name="cd_increase">Increase</string>
+    <string name="cd_decrease_setting">Decrease %1$s</string>
+    <string name="cd_increase_setting">Increase %1$s</string>
+    <string name="cd_seek_bar">Seek bar</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_apply">Apply</string>
     <string name="sub_opacity">Opacity</string>
@@ -1148,7 +1152,7 @@
     <string name="mdblist_dialog_title">MDBList API Key</string>
     <string name="mdblist_dialog_placeholder">Enter MDBList API key</string>
     <string name="mdblist_not_set">Not set</string>
-    <string name="mdblist_invalid_api_key">Invalid MDBList API key</string>
+    <string name="mdblist_invalid_api_key">Couldn’t verify this API key. Check it matches the key in your MDBList account and that you’re online, then try again.</string>
     <string name="mdblist_library_lists">Library lists</string>
     <string name="mdblist_library_lists_description">Choose which MDBList lists appear in the Library and in Manage lists. The Watchlist is always shown.</string>
     <string name="mdblist_library_lists_empty">No lists found in your MDBList account yet. Sync to load them.</string>
@@ -1199,7 +1203,7 @@
     <string name="animeskip_dialog_title">Anime Skip Client ID</string>
     <string name="animeskip_dialog_subtitle">Create your own Client ID at anime-skip.com/account/settings</string>
     <string name="animeskip_dialog_placeholder">Enter Client ID</string>
-    <string name="animeskip_invalid_client_id">Invalid Client ID</string>
+    <string name="animeskip_invalid_client_id">Couldn’t verify this Client ID. Check it matches the one in your Anime Skip account and that you’re online, then try again.</string>
     <string name="action_clear">Clear</string>
 
     <string name="tmdb_title">TMDB Enrichment</string>
@@ -1470,7 +1474,7 @@
     <string name="profile_pin_forgot_main">The main profile’s PIN can’t be reset, so keep it somewhere safe.</string>
     <string name="profile_pin_reset_for_profile">PIN reset for %1$s.</string>
     <string name="profile_pin_reset_local_only">PIN reset for %1$s on this TV. Your other devices still use the old PIN.</string>
-    <string name="profile_pin_incorrect_for_profile">Incorrect PIN for %1$s.</string>
+    <string name="profile_pin_incorrect_for_profile">Incorrect PIN for %1$s. Try again.</string>
 
 
     <!-- Essential addon setup wizard -->
@@ -1493,6 +1497,7 @@
     <string name="addon_error_invalid_scheme">Addon URL must start with http or https</string>
     <string name="addon_installed_section">Installed</string>
     <string name="addon_empty">No addons installed. Add one to get started.</string>
+    <string name="addon_list_load_failed">Couldn’t load your installed addons. Try again.</string>
     <string name="addon_remove">Remove</string>
     <string name="addon_configure">Configure</string>
     <string name="addon_badge_needs_setup">Needs setup</string>
@@ -1650,6 +1655,8 @@
     <string name="player_up_next_in_queue">Up next in queue</string>
     <string name="player_queue_move_up">Move up</string>
     <string name="player_queue_move_down">Move down</string>
+    <string name="player_queue_removed">Removed %1$s from the queue</string>
+    <string name="player_queue_undo">Undo</string>
     <string name="player_seek_back_10">Back 10 seconds</string>
     <string name="player_seek_forward_30">Forward 30 seconds</string>
     <string name="player_live_watched">LIVE  %1$s</string>
@@ -1658,7 +1665,7 @@
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Subtitles Delay</string>
     <string name="player_error_title">Playback Error</string>
-    <string name="player_go_back">Go Back</string>
+    <string name="player_error_choose_source">Choose another source</string>
     <string name="player_switch_to_mpv">Switch to MPV Player</string>
     <string name="player_report_issue">Report Issue</string>
     <string name="player_report_issue_sending">Sending playback report…</string>
@@ -1676,7 +1683,7 @@
     <string name="player_more_speed">Playback Speed</string>
     <string name="player_more_aspect_ratio">Aspect Ratio</string>
     <string name="player_more_open_external">Open in External Player</string>
-    <string name="player_error_no_stream_url">No stream URL provided</string>
+    <string name="player_error_no_stream_url">This source has no stream link. Choose another source.</string>
 
 
     <string name="stream_info_section_source">SOURCE</string>
@@ -1774,8 +1781,6 @@
 
     <string name="pause_you_are_watching">You’re watching</string>
     <string name="pause_cast_label">Cast</string>
-    <string name="pause_back_to_details">Back to details</string>
-    <string name="pause_as_character">as %1$s</string>
 
     <!-- PostPlayOverlay -->
     <string name="next_episode_label">Next Episode</string>
@@ -1824,6 +1829,8 @@
     <string name="search_start_subtitle_no_discover">Discover is disabled. Enter at least 2 characters</string>
     <string name="search_recent_title">Recent searches</string>
     <string name="search_recent_clear">Clear history</string>
+    <string name="search_recent_clear_confirm_title">Clear search history?</string>
+    <string name="search_recent_clear_confirm_subtitle">All your recent searches will be removed. This can’t be undone.</string>
     <string name="cd_remove_recent_search">Remove %1$s from recent searches</string>
     <string name="search_voice_no_speech">No speech detected. Try again.</string>
     <string name="search_voice_mic_permission">Microphone permission is required for voice search.</string>
@@ -1832,6 +1839,8 @@
     <string name="search_no_results_title">No Results</string>
     <string name="search_no_results_subtitle">Try searching with different keywords</string>
     <string name="search_error_no_catalogs">No searchable catalogs found in installed addons</string>
+    <string name="search_no_catalogs_title">None of your addons can search</string>
+    <string name="search_no_catalogs_subtitle">Install an addon with a search catalog, then try again.</string>
 
     <string name="library_title">Library</string>
     <string name="library_filter_list">List</string>
@@ -1900,13 +1909,16 @@
     <string name="library_list_move_up">Move Up</string>
     <string name="library_list_move_down">Move Down</string>
     <string name="library_list_delete">Delete</string>
+    <string name="library_list_delete_named">Delete “%1$s”</string>
     <string name="library_list_close">Close</string>
     <string name="library_list_name_label">Name</string>
-    <string name="library_error_list_name_required">List name is required</string>
+    <string name="library_error_list_name_required">Enter a name for the list</string>
     <string name="library_list_description_label">Description</string>
     <string name="library_list_privacy">Privacy</string>
     <string name="library_delete_title">Delete this list?</string>
-    <string name="library_delete_subtitle">This removes the list and all list items from Trakt.</string>
+    <string name="library_delete_title_named">Delete “%1$s”?</string>
+    <string name="library_delete_subtitle_provider">This removes the list and its items from %1$s. This can’t be undone.</string>
+    <string name="library_delete_subtitle_local">This removes the list and its items from your library. This can’t be undone.</string>
     <string name="library_source_local">LOCAL</string>
     <string name="library_source_saved">Saved</string>
     <string name="library_watchlist">Watchlist</string>
@@ -2156,9 +2168,8 @@
     <!-- Profile PIN errors -->
     <string name="profile_pin_save_error">Could not save PIN. Try again.</string>
     <string name="profile_pin_locked">Profile is locked. Try again in %1$ds.</string>
-    <string name="profile_pin_invalid">Invalid PIN. Try again.</string>
     <string name="profile_pin_verify_error">Could not verify PIN. Try again.</string>
-    <string name="profile_pin_incorrect">Current PIN is incorrect.</string>
+    <string name="profile_pin_incorrect">Incorrect PIN. Try again.</string>
     <string name="profile_pin_current_required">This profile already has a PIN. Enter the current PIN to change it.</string>
 
     <!-- Account Screen -->
@@ -2173,7 +2184,7 @@
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">Connect to Wi-Fi or Ethernet to use this feature</string>
-    <string name="error_server_ports_unavailable">Could not start server. All ports in use.</string>
+    <string name="error_server_ports_unavailable">Couldn’t start the phone connection. Restart Fetch and try again.</string>
 
     <!-- Trakt errors -->
 
@@ -2242,6 +2253,11 @@
     <string name="cd_loading_logo">Loading logo</string>
     <string name="cd_move_up">Move up</string>
     <string name="cd_move_down">Move down</string>
+    <string name="cd_move_addon_up">Move %1$s up</string>
+    <string name="cd_move_addon_down">Move %1$s down</string>
+    <string name="cd_addon_enabled_toggle">%1$s enabled</string>
+    <string name="cd_configure_addon">Configure %1$s</string>
+    <string name="cd_remove_addon">Remove %1$s</string>
     <string name="cd_edit">Edit</string>
     <string name="cd_delete">Delete</string>
     <string name="cd_qr_code">QR Code</string>
@@ -2277,7 +2293,7 @@
     <string name="collections_import">Import</string>
     <string name="collections_export_file">Export File</string>
     <string name="collections_saved_downloads">Saved to Downloads</string>
-    <string name="collections_export_failed">Export failed</string>
+    <string name="collections_export_failed">Couldn’t save to Downloads. Check storage permission and free space, then try again.</string>
     <string name="collections_import_header">Import Collections</string>
     <string name="collections_import_description">Import collections from JSON. Catalogs from addons you don’t have installed will show a warning.</string>
     <string name="collections_import_url_placeholder">https://example.com/collections.json</string>
@@ -2522,6 +2538,16 @@
     <string name="collection_editor_folder_count_other">%1$d items</string>
     <string name="collections_editor_delete_folder_title">Delete Folder?</string>
     <string name="collections_editor_delete_folder_subtitle">This will permanently delete \"%1$s\" and its contents.</string>
+    <string name="folder_error_addon_source">Couldn’t load this catalog. Check that its addon is installed and online, then try again.</string>
+    <string name="folder_error_addon_missing">This catalog’s addon isn’t installed. Install it from Addons, or remove this source from the folder.</string>
+    <string name="folder_error_tmdb_source">Couldn’t load this from TMDB. Check your connection, then try again.</string>
+    <string name="folder_error_trakt_source">Couldn’t load this Trakt list. Check your connection and that the list is still public, then try again.</string>
+    <string name="folder_error_list_source">Couldn’t load this list. Check your connection, then try again.</string>
+    <string name="collections_editor_discard_title">Discard changes?</string>
+    <string name="collections_editor_discard_collection_subtitle">Your changes to this collection haven’t been saved.</string>
+    <string name="collections_editor_discard_folder_subtitle">Your changes to this folder haven’t been saved.</string>
+    <string name="collections_editor_keep_editing">Keep editing</string>
+    <string name="collections_editor_discard">Discard</string>
     <string name="collections_editor_tmdb_movie_title_placeholder">Marvel Movies, Netflix Originals, Pixar</string>
     <string name="collections_editor_tmdb_tv_title_placeholder">Best Action Movies, Korean Dramas, 2024 Animation</string>
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
@@ -2588,17 +2614,17 @@
     <string name="player_track_subtitle_fallback">Subtitle %1$d</string>
 
     <!-- Player runtime: error recovery -->
-    <string name="player_error_stream_blocked">\n\nThe stream source is blocked or restricted. Try a different source.</string>
-    <string name="player_error_stream_removed">\n\nThe stream link has expired or been removed. Try a different source.</string>
-    <string name="player_error_stream_expired">\n\nThe stream link has expired. Try a different source.</string>
-    <string name="player_error_stream_rate_limited">\n\nToo many requests to the stream source. Wait a moment and try again.</string>
-    <string name="player_error_stream_unavailable">\n\nThe stream server is currently unavailable. Try a different source.</string>
-    <string name="player_error_source_invalid_content">Source error: The stream source returned invalid or unplayable content. The link may have expired or the server returned an error page instead of video.\n\nTry a different source. [%1$s]</string>
-    <string name="player_error_unsupported_format">This stream uses a format your device may not support. Try a different source. [%1$s]</string>
-    <string name="player_error_initialize_failed">Failed to initialize player</string>
-    <string name="player_error_mpv_surface_failed">Failed to initialize libmpv surface</string>
-    <string name="player_error_mpv_playback_failed">Failed to initialize libmpv playback</string>
-    <string name="player_error_playback_fallback">Playback error</string>
+    <string name="player_error_stream_blocked">\n\nThe stream source is blocked or restricted. Choose another source.</string>
+    <string name="player_error_stream_removed">\n\nThe stream link has expired or been removed. Choose another source.</string>
+    <string name="player_error_stream_expired">\n\nThe stream link has expired. Choose another source.</string>
+    <string name="player_error_stream_rate_limited">\n\nToo many requests to the stream source. Wait a moment, then choose a source again.</string>
+    <string name="player_error_stream_unavailable">\n\nThe stream server is currently unavailable. Choose another source.</string>
+    <string name="player_error_source_invalid_content">Source error: The stream source returned invalid or unplayable content. The link may have expired or the server returned an error page instead of video.\n\nChoose another source. [%1$s]</string>
+    <string name="player_error_unsupported_format">This stream uses a format your device may not support. Choose another source. [%1$s]</string>
+    <string name="player_error_initialize_failed">Unable to start the player. Restart Fetch and try again.</string>
+    <string name="player_error_mpv_surface_failed">Unable to start the mpv player. Try again, or change Internal Engine in Settings &gt; Playback.</string>
+    <string name="player_error_mpv_playback_failed">Unable to start playback in the mpv player. Try again, or change Internal Engine in Settings &gt; Playback.</string>
+    <string name="player_error_playback_fallback">Unable to play this stream. Choose another source.</string>
     <!-- Subtitle timing recovery -->
     <string name="subtitle_timing_file_no_lines">No subtitle lines were found in this file.</string>
     <string name="subtitle_timing_load_lines_failed">Failed to load subtitle lines.</string>
@@ -2629,6 +2655,7 @@
     <string name="library_list_created">List created</string>
     <string name="library_list_updated">List updated</string>
     <string name="library_error_save_list_failed">Failed to save list</string>
+    <string name="library_error_save_list_next_step">Check your connection and try again.</string>
     <string name="library_list_deleted">List deleted</string>
     <string name="library_error_delete_list_failed">Failed to delete list</string>
     <string name="library_list_order_updated">List order updated</string>
@@ -2691,11 +2718,11 @@
     <string name="trakt_error_mark_watched_failed">Failed to mark watched on Trakt (%1$d)</string>
 
     <!-- Detail / poster options errors -->
-    <string name="detail_error_update_library_failed">Failed to update library</string>
-    <string name="detail_error_load_lists_failed">Failed to load lists</string>
-    <string name="detail_error_update_lists_failed">Failed to update lists</string>
-    <string name="detail_error_update_watched_failed">Failed to update watched status</string>
-    <string name="detail_error_update_episode_watched_failed">Failed to update episode watched status</string>
+    <string name="detail_error_update_library_failed">Couldn’t update your library. Check your connection and try again.</string>
+    <string name="detail_error_load_lists_failed">Couldn’t load your lists. Check your connection and try again.</string>
+    <string name="detail_error_update_lists_failed">Couldn’t update your lists. Check your connection and try again.</string>
+    <string name="detail_error_update_watched_failed">Couldn’t update watched status. Check your connection and try again.</string>
+    <string name="detail_error_update_episode_watched_failed">Couldn’t update this episode’s watched status. Check your connection and try again.</string>
     <string name="poster_options_error_load_lists_failed">Failed to load lists</string>
     <string name="poster_options_error_update_lists_failed">Failed to update lists</string>
 
@@ -2795,6 +2822,10 @@
     <string name="addon_health_clear">Clear history</string>
     <string name="addon_health_close">Close</string>
     <string name="source_chip_timed_out">timed out</string>
+    <string name="source_chip_failed">failed</string>
+    <string name="source_chip_loading">loading</string>
+    <!-- An addon chip with its state: "Torrentio · loading". %1$s = addon name, %2$s = state. -->
+    <string name="source_chip_with_status">%1$s · %2$s</string>
     <string name="advanced_section_addons">Addons</string>
     <string name="advanced_addon_timeout">Addon timeout</string>
     <string name="advanced_addon_timeout_subtitle">How long to wait for each addon’s streams, catalogs and details before giving up on it</string>
@@ -2965,7 +2996,7 @@
     <string name="diag_value_never_rendered">Never rendered</string>
 
     <!-- Player errors -->
-    <string name="player_error_play_stream_failed">Failed to play selected stream</string>
+    <string name="player_error_play_stream_failed">Unable to play the selected stream. Choose another source.</string>
 
     <!-- Size and speed units -->
     <string name="unit_size_b">%1$d B</string>

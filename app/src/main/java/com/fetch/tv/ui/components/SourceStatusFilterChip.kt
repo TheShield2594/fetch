@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components
 
+import com.fetch.tv.R
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.contentTextDirection
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -39,6 +41,22 @@ data class SourceChipItem(
     val name: String,
     val status: SourceChipStatus
 )
+
+/**
+ * The addon's name, plus its state in words unless it finished: "Torrentio · loading". Colour,
+ * the error shake and the loading shimmer stay as second cues; this one survives greyscale,
+ * reduced motion and a screen reader.
+ */
+@Composable
+fun sourceChipLabel(name: String, status: SourceChipStatus): String {
+    val statusLabel = when (status) {
+        SourceChipStatus.SUCCESS -> return name
+        SourceChipStatus.LOADING -> stringResource(R.string.source_chip_loading)
+        SourceChipStatus.ERROR -> stringResource(R.string.source_chip_failed)
+        SourceChipStatus.TIMED_OUT -> stringResource(R.string.source_chip_timed_out)
+    }
+    return stringResource(R.string.source_chip_with_status, name, statusLabel)
+}
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -144,7 +162,7 @@ fun SourceStatusFilterChip(
         shape = FilterChipDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.xl))
     ) {
         Text(
-            text = name,
+            text = sourceChipLabel(name, status),
             modifier = Modifier.shimmer(isLoading),
             style = MaterialTheme.typography.labelLarge.copy(
                 textDirection = name.contentTextDirection()

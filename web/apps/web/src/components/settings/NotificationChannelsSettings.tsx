@@ -58,7 +58,7 @@ const KINDS: [KindSpec, ...KindSpec[]] = [
 const kindSpec = (kind: NotificationChannelKind): KindSpec => KINDS.find((k) => k.id === kind) ?? KINDS[0];
 
 const inputClass =
-  "w-full rounded-xl border px-4 py-2.5 text-sm focus:border-violet-500/60 focus:outline-none focus:ring-1 focus:ring-violet-500/30";
+  "w-full rounded-xl border px-4 py-2.5 text-sm field-control";
 const inputStyle = { borderColor: "var(--border-strong)", color: "var(--text)", background: "var(--bg-1)" };
 const labelClass = "mb-1 block text-xs font-medium";
 const labelStyle = { color: "var(--text-dim)" };

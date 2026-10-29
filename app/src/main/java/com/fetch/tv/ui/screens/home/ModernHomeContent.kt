@@ -1195,6 +1195,15 @@ fun ModernHomeContent(
                 modifier = heroMetadataModifier
             )
 
+            // The time, top right, so a long evening on the couch has a clock without leaving.
+            // Steps aside with the hero text when a trailer plays full screen.
+            com.fetch.tv.ui.components.ClockText(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = FetchTheme.spacing.xl, end = FetchTheme.spacing.xxxl)
+                    .graphicsLayer { alpha = trailerContentAlphaState.value }
+            )
+
             val latestOnFocusedRowKeyChanged by rememberUpdatedState(onFocusedRowKeyChanged)
             val onActiveRowKeyChangeLambda = remember {
                 { key: String? ->

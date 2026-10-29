@@ -175,10 +175,15 @@ internal fun ModernHeroMediaLayer(
         displayedBackdrop?.let { HeroBackdropState.update(it) }
     }
 
-    // Focus settles on a new card hundreds of times a day: keep the backdrop swap short, and
-    // skip the blend entirely when motion is reduced (also the low-RAM path).
+    // A slow, eased blend so moving between titles feels like a cut in a film, not a flicker.
+    // It only starts once focus settles (the URL is frozen upstream during fast moves), and is
+    // skipped entirely when motion is reduced (also the low-RAM path).
     val backdropCrossfadeSpec: FiniteAnimationSpec<Float> =
-        if (FetchTheme.fullMotion) FetchMotion.enterTween() else snap()
+        if (FetchTheme.fullMotion) {
+            tween(FetchMotion.tokens.durations.backdropCrossfade, easing = FetchMotion.tokens.easings.out)
+        } else {
+            snap()
+        }
 
     Box(modifier = modifier) {
         androidx.compose.animation.Crossfade(
@@ -407,8 +412,10 @@ private fun HeroTitleContent(
         animationSpec = tween(durationMillis = FetchMotion.tokens.durations.slow),
         label = "heroMetaFade"
     )
+    // Without a logo the title is set in a medium weight: a title card, not a block headline.
     val scaledTitleStyle = remember(headlineLarge, titleScale) {
         headlineLarge.copy(
+            fontWeight = FontWeight.Medium,
             fontSize = headlineLarge.fontSize * titleScale,
             lineHeight = headlineLarge.lineHeight * titleScale
         )

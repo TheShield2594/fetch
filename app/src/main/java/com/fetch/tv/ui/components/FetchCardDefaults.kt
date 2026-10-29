@@ -2,11 +2,9 @@ package com.fetch.tv.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
@@ -15,13 +13,8 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
-import com.fetch.tv.R
 import com.fetch.tv.ui.theme.FetchComponents
 import com.fetch.tv.ui.theme.FetchStrokes
 import com.fetch.tv.ui.theme.FetchTheme
@@ -80,19 +73,3 @@ fun Modifier.fetchCardProgress(progress: Float, fillColor: Color): Modifier = th
             }
         }
     }
-
-/**
- * Fetch's "ready" mark: a small white dot on a card whose Best match is cached and recently
- * confirmed, so OK starts it at once. It means only that, everywhere it appears.
- */
-@Composable
-fun ReadyDot(modifier: Modifier = Modifier) {
-    val description = stringResource(R.string.ready_to_play)
-    Box(
-        modifier = modifier
-            .size(12.dp)
-            .border(2.dp, FetchTheme.colors.Background.copy(alpha = 0.6f), CircleShape)
-            .background(FetchTheme.colors.TextPrimary, CircleShape)
-            .semantics { contentDescription = description }
-    )
-}

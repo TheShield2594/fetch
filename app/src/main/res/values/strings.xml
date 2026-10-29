@@ -3095,7 +3095,6 @@
     <string name="screen_time_rest_of_day">No limit for the rest of today</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
-    <string name="ready_to_play">Ready to play</string>
     <string name="home_row_ready_tonight">Ready tonight</string>
     <string name="ready_check_title">Check what’s ready in the background</string>
     <string name="autoplay_start_early_title">Start without waiting for every addon</string>

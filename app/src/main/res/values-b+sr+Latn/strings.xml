@@ -2737,7 +2737,6 @@
     <string name="because_you_watched_reason_creator">Isti autor: %1$s</string>
     <string name="because_you_watched_reason_writer">Isti scenarista: %1$s</string>
     <string name="because_you_watched_reason_cast">Takođe glumi %1$s</string>
-    <string name="ready_to_play">Spremno za puštanje</string>
     <string name="home_row_ready_tonight">Spremno za večeras</string>
     <string name="ready_check_title">Proveravaj u pozadini šta je spremno</string>
     <string name="ready_check_sub">Preko Wi-Fi ili Etherneta pita vaše dodatke za najviše 6 naslova iz Nastavi gledanje i Liste za gledanje, svaki najviše jednom u 12 sati, kako bi Početna označila one koji počinju odmah.</string>

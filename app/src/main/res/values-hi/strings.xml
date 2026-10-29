@@ -1061,7 +1061,6 @@
     <string name="because_you_watched_reason_creator">वही क्रिएटर: %1$s</string>
     <string name="because_you_watched_reason_writer">वही राइटर: %1$s</string>
     <string name="because_you_watched_reason_cast">इसमें भी %1$s</string>
-    <string name="ready_to_play">चलाने के लिए तैयार</string>
     <string name="home_row_ready_tonight">आज रात के लिए तैयार</string>
     <string name="ready_check_title">पृष्ठभूमि में जाँचें कि क्या तैयार है</string>
     <string name="ready_check_sub">Wi-Fi या Ethernet पर, देखना जारी रखें और वॉचलिस्ट के अधिकतम 6 शीर्षकों के बारे में आपके ऐडऑन से पूछता है, हर एक के लिए 12 घंटे में अधिकतम एक बार, ताकि होम तुरंत शुरू होने वाले शीर्षक चिह्नित कर सके।</string>

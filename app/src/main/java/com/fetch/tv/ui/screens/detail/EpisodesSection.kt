@@ -809,7 +809,7 @@ private fun EpisodeCard(
         episode.episode?.let { number -> "$prefix $number" } ?: prefix
     }
 
-    val progressColor = FetchTheme.colors.TextPrimary
+    val progressColor = FetchTheme.colors.Accent
     val textPrimary = FetchTheme.colors.TextPrimary
     val focusRingBorder = FetchTheme.focusRing.border(FetchCardDefaults.FocusedBorderWidth)
 

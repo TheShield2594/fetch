@@ -2659,7 +2659,6 @@
     <string name="subtitle_style_text_color_hdr">টেক্সট কালার (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">টেক্সট অপাসিটি (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="ready_to_play">চালানোর জন্য প্রস্তুত</string>
     <string name="home_row_ready_tonight">আজ রাতের জন্য প্রস্তুত</string>
     <string name="ready_check_title">পটভূমিতে কোনগুলো প্রস্তুত তা যাচাই করুন</string>
     <string name="ready_check_sub">Wi-Fi বা Ethernet-এ, দেখা চালিয়ে যান ও ওয়াচলিস্ট থেকে সর্বোচ্চ ৬টি শিরোনাম সম্পর্কে আপনার অ্যাডঅনগুলোকে জিজ্ঞেস করে, প্রতিটি সর্বোচ্চ ১২ ঘণ্টায় একবার, যাতে হোম তাৎক্ষণিক শুরু হওয়াগুলো চিহ্নিত করতে পারে।</string>

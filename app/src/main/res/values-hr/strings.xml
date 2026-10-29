@@ -2847,7 +2847,6 @@
     <string name="parental_hidden_titles">Skriveni naslovi</string>
     <string name="parental_allowed_titles">Uvijek dopušteni naslovi</string>
     <string name="parental_title_lists_hint">Odaberi naslov da ga ponovno prepustiš ograničenju oznake</string>
-    <string name="ready_to_play">Spremno za reprodukciju</string>
     <string name="home_row_ready_tonight">Spremno za večeras</string>
     <string name="ready_check_title">Provjeravaj u pozadini što je spremno</string>
     <string name="ready_check_sub">Preko Wi-Fi ili Etherneta pita vaše dodatke za najviše 6 naslova iz Nastavi gledati i Popisa za gledanje, svaki najviše jednom u 12 sati, kako bi Početna označila one koji počinju odmah.</string>

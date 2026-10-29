@@ -287,10 +287,7 @@ class ReadmeScreenshots {
     @Test
     fun ambientClock() = render("ambient-clock", focusFirst = false) {
         val resume = (Samples.continueWatching.first() as com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress).progress
-        // 9:47 pm on a Thursday, at an even second so the colon is lit.
-        val evening = java.time.LocalDateTime.of(2026, 10, 29, 21, 47, 0)
-            .atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-        AmbientClock(resume = resume, now = { evening })
+        AmbientClock(resume = resume, now = { SAMPLE_EVENING })
     }
 
     @Test
@@ -426,7 +423,12 @@ class ReadmeScreenshots {
         appTheme: AppTheme = DEFAULT_APP_THEME,
         content: @Composable () -> Unit
     ) {
-        compose.setContent { FetchTheme(appTheme = appTheme) { content() } }
+        // A fixed evening, so the clocks on screen don't change every run.
+        compose.setContent {
+            CompositionLocalProvider(com.fetch.tv.ui.components.LocalWallClock provides { SAMPLE_EVENING }) {
+                FetchTheme(appTheme = appTheme) { content() }
+            }
+        }
         // Let images load and enter animations settle before drawing.
         repeat(6) {
             compose.mainClock.advanceTimeBy(1_000)
@@ -452,3 +454,7 @@ class ReadmeScreenshots {
         println("Wrote $out (${bitmap.width}x${bitmap.height})")
     }
 }
+
+/** 9:47 pm on a Thursday, at an even second so the Ambient Mode clock's colon is lit. */
+private val SAMPLE_EVENING: Long = java.time.LocalDateTime.of(2026, 10, 29, 21, 47, 0)
+    .atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()

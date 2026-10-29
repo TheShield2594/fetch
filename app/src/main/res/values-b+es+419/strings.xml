@@ -2917,7 +2917,6 @@
     <string name="subtitle_style_text_color_hdr">Color del texto (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Opacidad del texto (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="ready_to_play">Listo para reproducir</string>
     <string name="home_row_ready_tonight">Listo para esta noche</string>
     <string name="ready_check_title">Revisar en segundo plano qué está listo</string>
     <string name="ready_check_sub">Con Wi-Fi o Ethernet, consulta a tus addons hasta 6 títulos de Seguir Viendo y tu Lista de seguimiento, cada uno como máximo cada 12 horas, para que Inicio marque los que empiezan al instante.</string>

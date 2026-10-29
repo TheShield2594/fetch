@@ -2932,7 +2932,6 @@
     <string name="subtitle_style_text_color_hdr">Farba textu (HDR)</string>
     <string name="subtitle_style_text_opacity_hdr">Nepriehľadnosť textu (HDR)</string>
     <string name="theme_color_fetch">Fetch</string>
-    <string name="ready_to_play">Pripravené na prehranie</string>
     <string name="home_row_ready_tonight">Pripravené na dnešný večer</string>
     <string name="ready_check_title">Kontrolovať na pozadí, čo je pripravené</string>
     <string name="ready_check_sub">Cez Wi-Fi alebo Ethernet sa opýta doplnkov na najviac 6 titulov z Pokračovať v sledovaní a Watchlistu, na každý najviac raz za 12 hodín, aby Domov mohla označiť tie, ktoré sa spustia okamžite.</string>

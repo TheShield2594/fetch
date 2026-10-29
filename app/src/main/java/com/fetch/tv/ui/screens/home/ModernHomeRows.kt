@@ -122,7 +122,6 @@ import com.fetch.tv.ui.components.continueWatchingShouldBlur
 import com.fetch.tv.ui.components.continueWatchingUsesEpisodeThumbnails
 import com.fetch.tv.ui.components.MonochromePosterPlaceholder
 import com.fetch.tv.ui.components.TrailerPlayer
-import com.fetch.tv.ui.components.ReadyDot
 import com.fetch.tv.ui.components.WatchedMarker
 import com.fetch.tv.ui.components.placeholderCardShimmer
 import com.fetch.tv.ui.components.LightweightCard
@@ -1521,14 +1520,6 @@ private fun ModernCarouselCard(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(end = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm)
-                            .zIndex(2f)
-                    )
-                }
-                if (isReady) {
-                    ReadyDot(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(FetchTheme.spacing.sm)
                             .zIndex(2f)
                     )
                 }

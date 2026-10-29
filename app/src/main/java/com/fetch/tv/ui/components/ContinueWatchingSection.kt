@@ -783,7 +783,6 @@ fun ContinueWatchingCard(
                 }
 
                 if (item.shufflePlayback) EpisodeShuffleBadge(Modifier.align(Alignment.TopStart))
-                if (isReady) ReadyDot(Modifier.align(Alignment.TopStart).padding(FetchTheme.spacing.sm))
 
                 // Content info at bottom
                 if (!textBelowArtwork) {
@@ -841,7 +840,7 @@ fun ContinueWatchingCard(
                                 }
                             )
                     ) {
-                        Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.TextPrimary))
+                        Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.Accent))
                     }
                 }
             }
@@ -942,7 +941,6 @@ private fun WideCardContent(
                 )
             }
             if (shufflePlayback) EpisodeShuffleBadge(Modifier.align(Alignment.TopStart))
-            if (isReady) ReadyDot(Modifier.align(Alignment.TopStart).padding(FetchTheme.spacing.xs))
         }
 
         Column(
@@ -1018,7 +1016,7 @@ private fun WideCardContent(
                     .alpha(if (hasProgress) 1f else 0f),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
             ) {
-                Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.TextPrimary))
+                Box(modifier = Modifier.fetchCardProgress(progressFraction, FetchTheme.colors.Accent))
                 Text(
                     text = badgeText,
                     style = MaterialTheme.typography.labelSmall,
@@ -1040,14 +1038,7 @@ private fun ContinueWatchingCardText(
     titleMarqueeActive: Boolean,
     episodeTitle: String?
 ) {
-    if (episodeStr != null) {
-        Text(
-            text = episodeStr,
-            style = MaterialTheme.typography.labelMedium,
-            color = FetchTheme.colors.TextPrimary
-        )
-    }
-
+    // The show first, then which episode: "S2 E6 · The Hollow".
     FocusMarqueeText(
         text = titleText,
         focused = titleMarqueeActive,
@@ -1055,10 +1046,11 @@ private fun ContinueWatchingCardText(
         color = FetchTheme.colors.TextPrimary
     )
 
-    episodeTitle?.let { title ->
+    val episodeLine = listOfNotNull(episodeStr, episodeTitle).joinToString(" · ")
+    if (episodeLine.isNotEmpty()) {
         Text(
-            text = title,
-            style = MaterialTheme.typography.bodySmall,
+            text = episodeLine,
+            style = MaterialTheme.typography.labelMedium,
             color = FetchTheme.extendedColors.textSecondary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

@@ -1019,8 +1019,10 @@ private fun RecentSearchesSection(
                 colors = ButtonDefaults.colors(
                     containerColor = FetchTheme.colors.BackgroundCard,
                     contentColor = FetchTheme.colors.TextPrimary,
-                    focusedContainerColor = FetchTheme.colors.FocusBackground,
-                    focusedContentColor = FetchTheme.colors.Primary
+                    // Focus is the neutral white pair, as in StateActionButton; the old
+                    // grey-on-grey fill with a dimmer label was nearly invisible.
+                    focusedContainerColor = FetchTheme.colors.Highlight,
+                    focusedContentColor = FetchTheme.colors.OnHighlight
                 ),
                 shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
             ) {
@@ -1079,8 +1081,8 @@ private fun RecentSearchesSection(
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundCard,
                             contentColor = FetchTheme.colors.TextPrimary,
-                            focusedContainerColor = FetchTheme.colors.FocusBackground,
-                            focusedContentColor = FetchTheme.colors.Primary
+                            focusedContainerColor = FetchTheme.colors.Highlight,
+                            focusedContentColor = FetchTheme.colors.OnHighlight
                         ),
                         scale = ButtonDefaults.scale(focusedScale = 1f),
                         shape = ButtonDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))

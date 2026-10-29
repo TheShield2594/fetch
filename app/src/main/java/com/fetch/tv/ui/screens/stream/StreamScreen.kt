@@ -1368,7 +1368,7 @@ internal fun StreamCard(
     val unknownStreamLabel = stringResource(R.string.stream_unknown)
     val streamDescription = remember(stream) { stream.getDisplayDescription() }
     // Parsed from the addon's free-form text: the card leads with these chips and keeps the raw
-    // release name for the focused card, where there is room to read it.
+    // release name to one line, opening it (and the description) in full on the focused card.
     val descriptor = remember(stream) { StreamTitleParser.parse(stream) }
     val headline = descriptor.resolution.label.takeIf { it.isNotEmpty() }
     val specChips = remember(descriptor) {
@@ -1499,12 +1499,13 @@ internal fun StreamCard(
                         text = stringResource(R.string.best_match_excluded, reason.label(context, descriptor)),
                         style = MaterialTheme.typography.bodySmall,
                         color = FetchTheme.colors.TextTertiary,
-                        maxLines = 1,
+                        maxLines = if (isFocused) Int.MAX_VALUE else 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                // Shown on every card, one line when the spec strip is there, so focusing a card
-                // never changes its height and the list doesn't jump under the D-pad.
+                // Shown on every card, one line when the spec strip is there. The focused card
+                // shows it in full: the cut-off tail (group, edition, audio) is what people
+                // choose a source by. The card only grows below its top, so the list keeps its place.
                 Row(
                     modifier = Modifier.align(streamName.contentTextDirection().toAbsoluteAlignment()),
                     verticalAlignment = Alignment.CenterVertically,
@@ -1519,7 +1520,7 @@ internal fun StreamCard(
                             MaterialTheme.typography.titleMedium.copy(textDirection = streamName.contentTextDirection())
                         },
                         color = if (hasParsedSpec) FetchTheme.extendedColors.textSecondary else FetchTheme.colors.TextPrimary,
-                        maxLines = if (hasParsedSpec) 1 else Int.MAX_VALUE,
+                        maxLines = if (hasParsedSpec && !isFocused) 1 else Int.MAX_VALUE,
                         overflow = TextOverflow.Ellipsis
                     )
                     if (markedLabel != null) {
@@ -1540,8 +1541,8 @@ internal fun StreamCard(
 
                 streamDescription?.let { description ->
                     // The parsed chips already say most of what the description spells out, so on
-                    // those cards it is one quiet line. It is shown focused or not: a line that
-                    // appeared on focus made the focused card taller and the list jump.
+                    // those cards it is one quiet line, opened in full on the focused card. It is
+                    // shown focused or not, so focus never adds a line from nothing.
                     if (description.isNotBlank() && description != streamName) {
                         Text(
                             text = description,
@@ -1550,7 +1551,7 @@ internal fun StreamCard(
                                 textDirection = description.contentTextDirection()
                             ),
                             color = if (hasParsedSpec) FetchTheme.colors.TextTertiary else FetchTheme.extendedColors.textSecondary,
-                            maxLines = if (hasParsedSpec) 1 else Int.MAX_VALUE,
+                            maxLines = if (hasParsedSpec && !isFocused) 1 else Int.MAX_VALUE,
                             overflow = TextOverflow.Ellipsis
                         )
                     }

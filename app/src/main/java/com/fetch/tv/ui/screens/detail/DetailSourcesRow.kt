@@ -47,9 +47,9 @@ internal fun DetailSourcesRow(
     bestMatch: BestMatchPreview?,
     onPlayBestMatch: () -> Unit,
     onAllSources: () -> Unit,
-    focusRequester: FocusRequester,
-    upFocusRequester: FocusRequester?,
-    downFocusRequester: FocusRequester?,
+    focusRequester: FocusRequester? = null,
+    upFocusRequester: FocusRequester? = null,
+    downFocusRequester: FocusRequester? = null,
     modifier: Modifier = Modifier
 ) {
     val neighbours = Modifier.focusProperties {
@@ -67,7 +67,7 @@ internal fun DetailSourcesRow(
                 SourceCard(
                     onClick = onPlayBestMatch,
                     modifier = neighbours
-                        .focusRequester(focusRequester)
+                        .then(focusRequester?.let { Modifier.focusRequester(it) } ?: Modifier)
                         .widthIn(min = 300.dp, max = 420.dp)
                 ) {
                     // Red marks the pick: it is what OK on Play starts.
@@ -96,7 +96,7 @@ internal fun DetailSourcesRow(
             SourceCard(
                 onClick = onAllSources,
                 modifier = neighbours
-                    .then(if (bestMatch == null) Modifier.focusRequester(focusRequester) else Modifier)
+                    .then(focusRequester?.takeIf { bestMatch == null }?.let { Modifier.focusRequester(it) } ?: Modifier)
                     .width(240.dp)
             ) {
                 Text(

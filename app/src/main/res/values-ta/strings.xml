@@ -98,8 +98,12 @@
     <string name="web_import_invalid_json">தவறான JSON</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">ஆடான்கள் எதுவும் நிறுவப்படவில்லை. தொடங்க ஒன்றை சேர்க்கவும்.</string>
-    <string name="home_no_catalog_addons">பட்டியல் ஆடான்கள் எதுவும் நிறுவப்படவில்லை. உள்ளடக்கத்தை பார்க்க ஒரு பட்டியல் ஆடானை நிறுவவும்.</string>
+    <string name="home_empty_no_addons_title">இன்னும் ஆடான்கள் இல்லை</string>
+    <string name="home_empty_no_addons_subtitle">முகப்பில் உள்ள திரைப்படங்களையும் நிகழ்ச்சிகளையும் ஆடான்கள் வழங்குகின்றன.</string>
+    <string name="home_empty_no_catalog_addons_title">இன்னும் பட்டியல் ஆடான்கள் இல்லை</string>
+    <string name="home_empty_no_catalog_addons_subtitle">தலைப்புகளைக் காட்ட முகப்புக்கு ஒரு பட்டியல் ஆடான் தேவை.</string>
+    <string name="home_empty_no_catalogs_title">காட்ட பட்டியல்கள் எதுவும் இல்லை</string>
+    <string name="home_empty_no_catalogs_subtitle">உங்கள் ஆடான்கள் முகப்புக்கான பட்டியல்கள் எதையும் வழங்கவில்லை.</string>
     <string name="auth_notice_fetch_logged_out">நீங்கள் Fetch-இலிருந்து வெளியேற்றப்பட்டுள்ளீர்கள். மீண்டும் உள்நுழையவும்.</string>
     <string name="auth_notice_trakt_logged_out">நீங்கள் ட்ராக்டில் இருந்து வெளியேற்றப்பட்டுள்ளீர்கள். மீண்டும் இணைக்கவும்.</string>
     <string name="error_generic">ஒரு பிழை ஏற்பட்டது</string>

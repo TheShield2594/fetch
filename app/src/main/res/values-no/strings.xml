@@ -5,8 +5,12 @@
     <string name="type_unknown">Ukjent</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Ingen tillegg installert. Legg til et for å komme i gang.</string>
-    <string name="home_no_catalog_addons">Ingen katalogtillegg installert. Installer et katalogtillegg for å se innhold.</string>
+    <string name="home_empty_no_addons_title">Ingen tillegg ennå</string>
+    <string name="home_empty_no_addons_subtitle">Tillegg leverer filmene og seriene på Hjem.</string>
+    <string name="home_empty_no_catalog_addons_title">Ingen katalogtillegg ennå</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Hjem trenger et katalogtillegg for å vise titler.</string>
+    <string name="home_empty_no_catalogs_title">Ingen kataloger å vise</string>
+    <string name="home_empty_no_catalogs_subtitle">Tilleggene dine tilbyr ingen kataloger for Hjem.</string>
     <string name="auth_notice_fetch_logged_out">Du har blitt logget ut av Fetch. Logg inn igjen.</string>
     <string name="auth_notice_trakt_logged_out">Du har blitt logget ut av Trakt. Koble til igjen.</string>
     <string name="error_generic">En feil har oppstått</string>

@@ -96,8 +96,12 @@
     <string name="web_import_success">{count} collectie(s) geïmporteerd. Controleer ze en druk op Wijzigingen opslaan om ze toe te passen.</string>
     <string name="web_import_invalid_json">Ongeldige JSON</string>
 
-    <string name="home_no_addons">Er zijn geen add-ons geïnstalleerd. Voeg er één toe om te beginnen.</string>
-    <string name="home_no_catalog_addons">Er zijn geen catalogus-add-ons geïnstalleerd. Installeer een catalogus-add-on om de inhoud te bekijken.</string>
+    <string name="home_empty_no_addons_title">Nog geen add-ons</string>
+    <string name="home_empty_no_addons_subtitle">Add-ons leveren de films en series op Home.</string>
+    <string name="home_empty_no_catalog_addons_title">Nog geen catalogus-add-ons</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Home heeft een catalogus-add-on nodig om titels te tonen.</string>
+    <string name="home_empty_no_catalogs_title">Geen catalogi om te tonen</string>
+    <string name="home_empty_no_catalogs_subtitle">Je add-ons bieden geen catalogi voor Home.</string>
     <string name="auth_notice_fetch_logged_out">Je bent afgemeld bij Fetch. Meld je opnieuw aan.</string>
     <string name="auth_notice_trakt_logged_out">Je bent afgemeld bij Trakt. Maak opnieuw verbinding.</string>
     <string name="error_generic">Er is een fout opgetreden</string>

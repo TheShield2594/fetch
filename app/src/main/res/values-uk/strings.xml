@@ -97,8 +97,12 @@
     <string name="web_import_success">Імпортовано {count} колекцій(і). Перевірте та натисніть «Зберегти зміни».</string>
     <string name="web_import_invalid_json">Невірний JSON</string>
 
-    <string name="home_no_addons">Немає встановлених адонів. Додайте один для початку.</string>
-    <string name="home_no_catalog_addons">Немає встановлених адонів каталогу. Встановіть адон каталогу, щоб побачити контент.</string>
+    <string name="home_empty_no_addons_title">Адонів поки немає</string>
+    <string name="home_empty_no_addons_subtitle">Фільми й серіали на головній надходять з адонів.</string>
+    <string name="home_empty_no_catalog_addons_title">Адонів каталогу поки немає</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Головній потрібен адон каталогу, щоб показувати тайтли.</string>
+    <string name="home_empty_no_catalogs_title">Немає каталогів для показу</string>
+    <string name="home_empty_no_catalogs_subtitle">Ваші адони не пропонують каталогів для головної.</string>
     <string name="auth_notice_fetch_logged_out">Ви вийшли з системи Fetch. Будь ласка, увійдіть знову.</string>
     <string name="auth_notice_trakt_logged_out">Ви вийшли з системи Trakt. Будь ласка, підключіться знову.</string>
     <string name="error_generic">Сталася помилка</string>

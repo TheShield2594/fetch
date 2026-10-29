@@ -5,8 +5,12 @@
     <string name="type_unknown">Nežinoma</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Nėra įdiegtų priedų. Pridėkite vieną, kad pradėtumėte.</string>
-    <string name="home_no_catalog_addons">Nėra įdiegtų katalogo priedų. Įdiekite katalogo priedą, kad matytumėte turinį.</string>
+    <string name="home_empty_no_addons_title">Priedų dar nėra</string>
+    <string name="home_empty_no_addons_subtitle">Priedai pateikia filmus ir serialus pagrindiniame ekrane.</string>
+    <string name="home_empty_no_catalog_addons_title">Katalogo priedų dar nėra</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Pagrindiniam ekranui reikia katalogo priedo, kad būtų rodomi pavadinimai.</string>
+    <string name="home_empty_no_catalogs_title">Nėra rodytinų katalogų</string>
+    <string name="home_empty_no_catalogs_subtitle">Jūsų priedai nesiūlo katalogų pagrindiniam ekranui.</string>
     <string name="error_generic">Įvyko klaida</string>
 
     <!-- ErrorState -->

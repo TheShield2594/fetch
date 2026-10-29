@@ -95,8 +95,12 @@
     <string name="web_import_error_source_missing_trakt_id">Collection \"{collection}\", folder \"{folder}\", source {index}: Trakt লিস্ট ID নেই</string>
     <string name="web_import_success">{count}টি কালেকশন ইম্পোর্ট করা হয়েছে। রিভিউ করুন এবং অ্যাপ্লাই করতে Save Changes-এ চাপ দিন।</string>
     <string name="web_import_invalid_json">ভুল JSON</string>
-    <string name="home_no_addons">কোনো অ্যাডন ইনস্টল করা নেই। শুরু করতে একটি যোগ করুন।</string>
-    <string name="home_no_catalog_addons">কোনো ক্যাটালগ অ্যাডন ইনস্টল করা নেই। কন্টেন্ট দেখতে একটি ক্যাটালগ অ্যাডন ইনস্টল করুন।</string>
+    <string name="home_empty_no_addons_title">এখনও কোনো অ্যাডন নেই</string>
+    <string name="home_empty_no_addons_subtitle">অ্যাডনগুলো হোমের সিনেমা ও শো সরবরাহ করে।</string>
+    <string name="home_empty_no_catalog_addons_title">এখনও কোনো ক্যাটালগ অ্যাডন নেই</string>
+    <string name="home_empty_no_catalog_addons_subtitle">শিরোনাম দেখাতে হোমের একটি ক্যাটালগ অ্যাডন দরকার।</string>
+    <string name="home_empty_no_catalogs_title">দেখানোর মতো কোনো ক্যাটালগ নেই</string>
+    <string name="home_empty_no_catalogs_subtitle">আপনার অ্যাডনগুলো হোমের জন্য কোনো ক্যাটালগ দেয় না।</string>
     <string name="auth_notice_fetch_logged_out">আপনি Fetch থেকে সাইন আউট হয়েছেন। অনুগ্রহ করে আবার সাইন ইন করুন।</string>
     <string name="auth_notice_trakt_logged_out">আপনি Trakt থেকে সাইন আউট হয়েছেন। অনুগ্রহ করে আবার কানেক্ট করুন।</string>
     <string name="error_generic">একটি সমস্যা হয়েছে</string>

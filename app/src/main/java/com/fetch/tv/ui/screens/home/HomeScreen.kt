@@ -262,7 +262,8 @@ fun HomeScreen(
                     Unit
                 } else {
                     EmptyScreenState(
-                        title = stringResource(R.string.home_no_addons),
+                        title = stringResource(R.string.home_empty_no_addons_title),
+                        subtitle = stringResource(R.string.home_empty_no_addons_subtitle),
                         icon = Icons.Default.Extension,
                         modifier = Modifier.fillMaxSize(),
                         height = Dp.Unspecified,
@@ -276,7 +277,8 @@ fun HomeScreen(
                     Unit
                 } else {
                     EmptyScreenState(
-                        title = stringResource(R.string.home_no_catalog_addons),
+                        title = stringResource(R.string.home_empty_no_catalog_addons_title),
+                        subtitle = stringResource(R.string.home_empty_no_catalog_addons_subtitle),
                         icon = Icons.Default.Extension,
                         modifier = Modifier.fillMaxSize(),
                         height = Dp.Unspecified,
@@ -300,7 +302,8 @@ fun HomeScreen(
                     Unit
                 } else {
                     EmptyScreenState(
-                        title = stringResource(R.string.web_no_catalogs),
+                        title = stringResource(R.string.home_empty_no_catalogs_title),
+                        subtitle = stringResource(R.string.home_empty_no_catalogs_subtitle),
                         icon = Icons.Default.Extension,
                         modifier = Modifier.fillMaxSize(),
                         height = Dp.Unspecified,

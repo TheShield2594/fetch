@@ -96,8 +96,12 @@
     <string name="web_import_success">Importerede {count} samling(er). Gennemgå og tryk Gem ændringer for at anvende.</string>
     <string name="web_import_invalid_json">Ugyldig JSON</string>
 
-    <string name="home_no_addons">Ingen addons installeret. Tilføj en for at komme i gang.</string>
-    <string name="home_no_catalog_addons">Ingen katalog-addons installeret. Installer en katalog-addon for at se indhold.</string>
+    <string name="home_empty_no_addons_title">Ingen addons endnu</string>
+    <string name="home_empty_no_addons_subtitle">Addons leverer film og serier på Hjem.</string>
+    <string name="home_empty_no_catalog_addons_title">Ingen katalog-addons endnu</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Hjem skal bruge en katalog-addon for at vise titler.</string>
+    <string name="home_empty_no_catalogs_title">Ingen kataloger at vise</string>
+    <string name="home_empty_no_catalogs_subtitle">Dine addons tilbyder ingen kataloger til Hjem.</string>
     <string name="auth_notice_fetch_logged_out">Du er blevet logget ud af Fetch. Log venligst ind igen.</string>
     <string name="auth_notice_trakt_logged_out">Du er blevet logget ud af Trakt. Tilslut venligst igen.</string>
     <string name="error_generic">Der opstod en fejl</string>

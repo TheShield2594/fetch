@@ -97,8 +97,12 @@
     <string name="web_import_invalid_json">Neveljaven JSON</string>
 	
 	<!-- HomeScreen -->
-    <string name="home_no_addons">Ni nameščenih dodatkov. Dodajte enega za začetek.</string>
-    <string name="home_no_catalog_addons">Nameščen ni noben dodatek za katalog. Namestite dodatek za katalog, da vidite vsebino.</string>
+    <string name="home_empty_no_addons_title">Še ni dodatkov</string>
+    <string name="home_empty_no_addons_subtitle">Dodatki zagotavljajo filme in serije na zaslonu Domov.</string>
+    <string name="home_empty_no_catalog_addons_title">Še ni dodatkov za katalog</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Zaslon Domov potrebuje dodatek za katalog, da prikaže naslove.</string>
+    <string name="home_empty_no_catalogs_title">Ni katalogov za prikaz</string>
+    <string name="home_empty_no_catalogs_subtitle">Vaši dodatki ne ponujajo katalogov za zaslon Domov.</string>
     <string name="auth_notice_fetch_logged_out">Odjavljeni ste bili iz storitve Fetch. Prosimo, prijavite se znova.</string>
     <string name="auth_notice_trakt_logged_out">Odjavljeni ste bili iz storitve Trakt. Prosimo, ponovno se povežite.</string>
     <string name="error_generic">Prišlo je do napake</string>

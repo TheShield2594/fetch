@@ -96,8 +96,12 @@
     <string name="web_import_success">Đã nhập {count} bộ sưu tập. Đánh giá và nhấn Lưu thay đổi để áp dụng..</string>
     <string name="web_import_invalid_json">JSON không hợp lệ</string>
 
-    <string name="home_no_addons">Chưa cài đặt tiện ích nào. Thêm một tiện ích để bắt đầu.</string>
-    <string name="home_no_catalog_addons">Chưa cài đặt tiện ích danh mục nào. Cài đặt tiện ích danh mục để xem nội dung.</string>
+    <string name="home_empty_no_addons_title">Chưa có tiện ích</string>
+    <string name="home_empty_no_addons_subtitle">Tiện ích cung cấp phim và chương trình trên Trang chủ.</string>
+    <string name="home_empty_no_catalog_addons_title">Chưa có tiện ích danh mục</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Trang chủ cần một tiện ích danh mục để hiển thị nội dung.</string>
+    <string name="home_empty_no_catalogs_title">Không có danh mục để hiển thị</string>
+    <string name="home_empty_no_catalogs_subtitle">Các tiện ích của bạn không cung cấp danh mục nào cho Trang chủ.</string>
     <string name="auth_notice_fetch_logged_out">Bạn đã đăng xuất khỏi Fetch. Vui lòng đăng nhập lại.</string>
     <string name="auth_notice_trakt_logged_out">Bạn đã đăng xuất khỏi Trakt. Vui lòng kết nối lại.</string>
     <string name="error_generic">Đã xảy ra lỗi</string>
@@ -1246,7 +1250,7 @@
     <string name="profile_creating">Đang tạo\u2026</string>
     <string name="profile_create_btn">Tạo</string>
     <string name="profile_delete">Xóa</string>
-    <string name="profile_choose_avatar">Chọn Ảnh đại diện</string>
+    <string name="profile_choose_avatar">Chọn ảnh đại diện</string>
     <string name="profile_editor_tab_avatar">Ảnh đại diện</string>
     <string name="profile_editor_tab_background">Hình nền</string>
     <string name="profile_choose_background">Chọn hình nền hồ sơ</string>

@@ -96,8 +96,12 @@
     <string name="web_import_success">已匯入 {count} 個收藏。請檢閱並點擊「儲存變更」以套用。</string>
     <string name="web_import_invalid_json">無效的 JSON</string>
 
-    <string name="home_no_addons">未安裝擴充套件。請新增一個以開始使用。</string>
-    <string name="home_no_catalog_addons">未安裝目錄擴充套件。請安裝目錄擴充套件以瀏覽內容。</string>
+    <string name="home_empty_no_addons_title">尚無擴充套件</string>
+    <string name="home_empty_no_addons_subtitle">首頁的電影和影集由擴充套件提供。</string>
+    <string name="home_empty_no_catalog_addons_title">尚無目錄擴充套件</string>
+    <string name="home_empty_no_catalog_addons_subtitle">首頁需要目錄擴充套件才能顯示內容。</string>
+    <string name="home_empty_no_catalogs_title">沒有可顯示的目錄</string>
+    <string name="home_empty_no_catalogs_subtitle">你的擴充套件未提供任何首頁目錄。</string>
     <string name="auth_notice_fetch_logged_out">您已登出 Fetch。請重新登入。</string>
     <string name="auth_notice_trakt_logged_out">您已登出 Trakt。請重新連線。</string>
     <string name="error_generic">發生錯誤</string>

@@ -97,8 +97,12 @@
     <string name="web_import_success">Se importaron {count} colección(es). Revísalas y pulsa Guardar cambios para aplicarlas.</string>
     <string name="web_import_invalid_json">JSON no válido</string>
 
-    <string name="home_no_addons">No hay complementos instalados. Instala uno para empezar.</string>
-    <string name="home_no_catalog_addons">No hay complementos de catálogo instalados. Instala un complemento de catálogo para ver contenido.</string>
+    <string name="home_empty_no_addons_title">Aún no hay complementos</string>
+    <string name="home_empty_no_addons_subtitle">Los complementos aportan las películas y series de Inicio.</string>
+    <string name="home_empty_no_catalog_addons_title">Aún no hay complementos de catálogo</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Inicio necesita un complemento de catálogo para mostrar títulos.</string>
+    <string name="home_empty_no_catalogs_title">No hay catálogos que mostrar</string>
+    <string name="home_empty_no_catalogs_subtitle">Tus complementos no ofrecen catálogos para Inicio.</string>
     <string name="auth_notice_fetch_logged_out">Has sido desconectado de Fetch. Por favor, inicia sesión de nuevo.</string>
     <string name="auth_notice_trakt_logged_out">Has sido desconectado de Trakt. Por favor, reconéctate.</string>
     <string name="error_generic">Ha ocurrido un error</string>

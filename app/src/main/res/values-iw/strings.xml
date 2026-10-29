@@ -97,8 +97,12 @@
     <string name="web_import_success">יובאו {count} .אוספים. יש לסקור אותם וללחוץ על \"שמירת השינויים\" כדי להחיל</string>
     <string name="web_import_invalid_json">לא תקין JSON</string>
 
-    <string name="home_no_addons">אין עדיין תוספים מותקנים. יש להוסיף תוסף כדי להתחיל לצפות.</string>
-    <string name="home_no_catalog_addons">אין תוספי קטלוג מותקנים עדיין. יש להתקין תוסף קטלוג כדי להתחיל לראות תוכן.</string>
+    <string name="home_empty_no_addons_title">אין עדיין תוספים</string>
+    <string name="home_empty_no_addons_subtitle">תוספים מספקים את הסרטים והסדרות במסך הבית.</string>
+    <string name="home_empty_no_catalog_addons_title">אין עדיין תוספי קטלוג</string>
+    <string name="home_empty_no_catalog_addons_subtitle">מסך הבית צריך תוסף קטלוג כדי להציג כותרים.</string>
+    <string name="home_empty_no_catalogs_title">אין קטלוגים להצגה</string>
+    <string name="home_empty_no_catalogs_subtitle">התוספים שלך לא מציעים קטלוגים למסך הבית.</string>
     <string name="auth_notice_fetch_logged_out">יצאת מחשבון Fetch. נדרשת התחברות מחדש.</string>
     <string name="auth_notice_trakt_logged_out">יצאת מחשבון Trakt. נדרשת התחברות מחדש.</string>
     <string name="error_generic">אירעה שגיאה</string>

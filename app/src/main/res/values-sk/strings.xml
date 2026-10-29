@@ -98,8 +98,12 @@
     <string name="web_import_invalid_json">Neplatný JSON</string>
 
     
-    <string name="home_no_addons">Žiadne doplnky nie sú nainštalované. Pridajte jeden pre začiatok.</string>
-    <string name="home_no_catalog_addons">Žiadne katalógové doplnky. Nainštalujte katalógový doplnok pre zobrazenie obsahu.</string>
+    <string name="home_empty_no_addons_title">Zatiaľ žiadne doplnky</string>
+    <string name="home_empty_no_addons_subtitle">Doplnky dodávajú filmy a seriály na Domov.</string>
+    <string name="home_empty_no_catalog_addons_title">Zatiaľ žiadne katalógové doplnky</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Domov potrebuje katalógový doplnok, aby mohol zobraziť tituly.</string>
+    <string name="home_empty_no_catalogs_title">Žiadne katalógy na zobrazenie</string>
+    <string name="home_empty_no_catalogs_subtitle">Vaše doplnky neponúkajú žiadne katalógy pre Domov.</string>
     <string name="auth_notice_fetch_logged_out">Boli ste odhlásení z aplikácie Fetch. Prihláste sa znova.</string>
     <string name="auth_notice_trakt_logged_out">Boli ste odhlásení z Trakt. Znova sa pripojte.</string>
     <string name="error_generic">Vyskytla sa chyba</string>

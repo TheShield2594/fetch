@@ -96,8 +96,12 @@
     <string name="web_import_success">Se importaron {count} colección(es). Revísalas y presiona Guardar cambios para aplicar.</string>
     <string name="web_import_invalid_json">JSON inválido</string>
 
-    <string name="home_no_addons">No hay addons instalados. Agrega uno para empezar.</string>
-    <string name="home_no_catalog_addons">No hay addons de catálogo instalados. Instala un addon de catálogo para ver contenido.</string>
+    <string name="home_empty_no_addons_title">Aún no hay addons</string>
+    <string name="home_empty_no_addons_subtitle">Los addons aportan las películas y series de Inicio.</string>
+    <string name="home_empty_no_catalog_addons_title">Aún no hay addons de catálogo</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Inicio necesita un addon de catálogo para mostrar títulos.</string>
+    <string name="home_empty_no_catalogs_title">No hay catálogos para mostrar</string>
+    <string name="home_empty_no_catalogs_subtitle">Tus addons no ofrecen catálogos para Inicio.</string>
     <string name="auth_notice_fetch_logged_out">Se cerró tu sesión de Fetch. Por favor, vuelve a iniciar sesión.</string>
     <string name="auth_notice_trakt_logged_out">Se cerró tu sesión de Trakt. Por favor, vuelve a conectarla.</string>
     <string name="error_generic">Ocurrió un error</string>

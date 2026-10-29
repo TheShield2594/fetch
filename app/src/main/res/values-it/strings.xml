@@ -96,8 +96,12 @@
 <string name="web_import_success">Importate {count} collezioni. Controlla e premi Salva modifiche per applicare.</string>
 <string name="web_import_invalid_json">JSON non valido</string>
 
-<string name="home_no_addons">Nessun addon installato. Aggiungine uno per iniziare.</string>
-<string name="home_no_catalog_addons">Nessun catalogo installato. Installane uno per vedere i contenuti.</string>
+<string name="home_empty_no_addons_title">Ancora nessun addon</string>
+<string name="home_empty_no_addons_subtitle">Gli addon forniscono i film e le serie della Home.</string>
+<string name="home_empty_no_catalog_addons_title">Ancora nessun addon di catalogo</string>
+<string name="home_empty_no_catalog_addons_subtitle">La Home ha bisogno di un addon di catalogo per mostrare i titoli.</string>
+<string name="home_empty_no_catalogs_title">Nessun catalogo da mostrare</string>
+<string name="home_empty_no_catalogs_subtitle">I tuoi addon non offrono cataloghi per la Home.</string>
 <string name="auth_notice_fetch_logged_out">Sei stato disconnesso da Fetch. Accedi di nuovo.</string>
 <string name="auth_notice_trakt_logged_out">Sei stato disconnesso da Trakt. Riconnettiti.</string>
 <string name="error_generic">Si è verificato un errore</string>
@@ -1070,8 +1074,8 @@
 
 <string name="profile_title">Profili</string>
 <string name="profile_subtitle">Gestisci i profili utente per questo account</string>
-<string name="profile_manage_button">Gestisci Profili</string>
-<string name="profile_manage_title">Gestisci Profili</string>
+<string name="profile_manage_button">Gestisci profili</string>
+<string name="profile_manage_title">Gestisci profili</string>
 <string name="profile_manage_subtitle">Seleziona un profilo da modificare o utilizzare oppure creane uno nuovo</string>
 <string name="profile_manage_hint">Seleziona un profilo da gestire</string>
 <string name="profile_edit_label">Modifica</string>
@@ -1081,7 +1085,7 @@
 <string name="profile_creating">Creazione in corso\u2026</string>
 <string name="profile_create_btn">Crea</string>
 <string name="profile_delete">Elimina</string>
-<string name="profile_choose_avatar">Scegli Avatar</string>
+<string name="profile_choose_avatar">Scegli avatar</string>
 <string name="profile_editor_tab_avatar">Avatar</string>
 <string name="profile_editor_tab_background">Sfondo</string>
 <string name="profile_choose_background">Scegli sfondo profilo</string>
@@ -1095,7 +1099,7 @@
 <string name="profile_avatar_category_movie">Film</string>
 <string name="profile_avatar_category_tv">TV</string>
 <string name="profile_avatar_category_gaming">Videogiochi</string>
-<string name="profile_add_new">Aggiungi Profilo</string>
+<string name="profile_add_new">Aggiungi profilo</string>
 <string name="profile_cancel">Annulla</string>
 <string name="profile_save">Salva</string>
 <string name="profile_copy_settings_label">Copia impostazioni</string>
@@ -1118,7 +1122,7 @@
 <string name="profile_copy_settings_success">Impostazioni copiate da %1$s a %2$s.</string>
 <string name="profile_copy_settings_error">Impossibile copiare le impostazioni. Controlla la connessione e riprova.</string>
 <string name="profile_copy_settings_created_success">Profilo creato con le impostazioni di %1$s.</string>
-<string name="profile_copy_settings_created_error">Profilo creato, ma non è stato possibile copiare le impostazioni. Puoi riprovare dalle Opzioni profilo.</string>
+<string name="profile_copy_settings_created_error">Profilo creato, ma non è stato possibile copiare le impostazioni. Puoi riprovare da Opzioni profilo.</string>
 <string name="profile_create_error">Impossibile creare il profilo. Riprova.</string>
 <string name="profile_pin_set">Imposta PIN</string>
 <string name="profile_pin_change">Cambia PIN</string>
@@ -1630,10 +1634,10 @@
 <string name="profile_selection_hint">Tieni premuto per gestire il profilo</string>
 <string name="profile_selection_empty">Nessun profilo trovato</string>
 <string name="profile_selection_primary_badge">Principale</string>
-<string name="profile_selection_options_title">Opzioni Profilo</string>
-<string name="profile_delete_confirm_title">Cancellare Profilo?</string>
+<string name="profile_selection_options_title">Opzioni profilo</string>
+<string name="profile_delete_confirm_title">Cancellare il profilo?</string>
 <string name="profile_delete_confirm_subtitle">Questo cancellerà permanentemente questo profilo e i dati ad esso associati, inclusi libreria, storico e impostazioni. L\'operazione non si può annullare.</string>
-<string name="profile_delete_btn">Cancella Profilo</string>
+<string name="profile_delete_btn">Cancella profilo</string>
 <string name="profile_saving">Salvataggio…</string>
 
 <string name="cast_detail_error">Qualcosa è andato storto</string>

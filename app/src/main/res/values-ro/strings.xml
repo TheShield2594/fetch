@@ -4,8 +4,12 @@
     <string name="type_series">Serial</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Nu sunt instalate extensii. Adaugă una pentru a începe.</string>
-    <string name="home_no_catalog_addons">Nu sunt instalate extensii de catalog. Instalează o extensie de catalog pentru a vedea conținutul.</string>
+    <string name="home_empty_no_addons_title">Încă nu există extensii</string>
+    <string name="home_empty_no_addons_subtitle">Extensiile furnizează filmele și serialele din Acasă.</string>
+    <string name="home_empty_no_catalog_addons_title">Încă nu există extensii de catalog</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Acasă are nevoie de o extensie de catalog pentru a afișa titluri.</string>
+    <string name="home_empty_no_catalogs_title">Niciun catalog de afișat</string>
+    <string name="home_empty_no_catalogs_subtitle">Extensiile tale nu oferă cataloage pentru Acasă.</string>
     <string name="error_generic">A apărut o eroare</string>
 
     <!-- ErrorState -->

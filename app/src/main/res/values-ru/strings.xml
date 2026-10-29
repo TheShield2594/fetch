@@ -62,8 +62,12 @@
     <string name="web_import_tab_url">URL</string>
 
     <!-- HomeScreen -->
-    <string name="home_no_addons">Нет установленных аддонов. Добавьте один для начала.</string>
-    <string name="home_no_catalog_addons">Нет установленных аддонов каталога. Установите аддон каталога, чтобы увидеть контент.</string>
+    <string name="home_empty_no_addons_title">Аддонов пока нет</string>
+    <string name="home_empty_no_addons_subtitle">Фильмы и сериалы на главной берутся из аддонов.</string>
+    <string name="home_empty_no_catalog_addons_title">Аддонов каталога пока нет</string>
+    <string name="home_empty_no_catalog_addons_subtitle">Главной нужен аддон каталога, чтобы показывать тайтлы.</string>
+    <string name="home_empty_no_catalogs_title">Нет каталогов для показа</string>
+    <string name="home_empty_no_catalogs_subtitle">Ваши аддоны не предлагают каталогов для главной.</string>
     <string name="auth_notice_fetch_logged_out">Вы вышли из системы Fetch. Пожалуйста, войдите снова.</string>
     <string name="auth_notice_trakt_logged_out">Вы вышли из системы Trakt. Пожалуйста, переподключитесь.</string>
     <string name="error_generic">Произошла ошибка</string>

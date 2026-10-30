@@ -1000,7 +1000,6 @@
     <string name="search_placeholder">Поиск фильмов и сериалов</string>
     <string name="search_start_title">Начните поиск</string>
     <string name="search_start_subtitle">Введите минимум 2 символа</string>
-    <string name="search_start_subtitle_no_discover">Навигатор отключен. Введите минимум 2 символа</string>
     <string name="search_recent_title">Недавние поиски</string>
     <string name="search_recent_clear">Очистить историю</string>
     <string name="search_recent_clear_confirm_title">Очистить историю поиска?</string>
@@ -1254,7 +1253,6 @@
     <string name="discover_filter_catalog">Каталог</string>
     <string name="discover_filter_genre">Жанр</string>
     <string name="discover_select_catalog">Выбрать</string>
-    <string name="discover_genre_default">По умолчанию</string>
     <string name="discover_empty_no_catalog_title">Выберите каталог</string>
     <string name="discover_empty_no_catalog_subtitle">Выберите каталог для просмотра</string>
     <string name="discover_empty_no_content_title">Контент не найден</string>
@@ -1304,7 +1302,6 @@
     <string name="sync_generate_code_btn">Сгенерировать код</string>
 
     <!-- Search -->
-    <string name="search_no_results_title">Нет результатов</string>
     <string name="search_no_results_subtitle">Попробуйте поискать с другими ключевыми словами</string>
     <string name="discover_disabled_title">Навигатор отключен</string>
     <string name="discover_disabled_subtitle">Включите Навигатор в настройках поиска</string>

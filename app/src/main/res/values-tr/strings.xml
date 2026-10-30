@@ -1585,7 +1585,6 @@
     <string name="search_placeholder">Film ve dizi ara</string>
     <string name="search_start_title">Aramaya Başlayın</string>
     <string name="search_start_subtitle">En az 2 karakter girin</string>
-    <string name="search_start_subtitle_no_discover">Keşfet kapalı. En az 2 karakter girin</string>
     <string name="search_recent_title">Son aramalar</string>
     <string name="search_recent_clear">Geçmişi temizle</string>
     <string name="search_recent_clear_confirm_title">Arama geçmişi temizlensin mi?</string>
@@ -1857,7 +1856,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Kategori</string>
     <string name="discover_select_catalog">Seç</string>
-    <string name="discover_genre_default">Varsayılan</string>
     <string name="discover_empty_no_catalog_title">Katalog seçin</string>
     <string name="discover_empty_no_catalog_subtitle">Keşfetmek için bir katalog seçin</string>
     <string name="discover_empty_no_content_title">İçerik bulunamadı</string>
@@ -2048,7 +2046,6 @@
     <string name="sync_generate_code_btn">Kod Oluştur</string>
 
     <!-- Search -->
-    <string name="search_no_results_title">Sonuç yok</string>
     <string name="search_no_results_subtitle">Farklı kelimelerle aramayı deneyin</string>
     <string name="discover_disabled_title">Keşfet kapalı</string>
     <string name="discover_disabled_subtitle">Ayarlardan Arama Keşfet\'i açın</string>

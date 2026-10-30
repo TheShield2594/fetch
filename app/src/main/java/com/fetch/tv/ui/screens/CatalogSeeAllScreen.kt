@@ -248,7 +248,7 @@ fun CatalogSeeAllScreen(
                     modifier = Modifier.dpadRepeatThrottle(),
                     contentPadding = PaddingValues(
                         start = FetchTheme.spacing.xxxl,
-                        end = FetchTheme.spacing.xl,
+                        end = FetchTheme.spacing.xxxl,
                         top = FetchTheme.spacing.md,
                         bottom = FetchTheme.spacing.xxl
                     ),

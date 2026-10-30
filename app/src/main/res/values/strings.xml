@@ -1819,19 +1819,19 @@
 
 
     <string name="search_placeholder">Search movies &amp; series</string>
-    <string name="search_start_title">Start Searching</string>
+    <string name="search_start_title">Start searching</string>
     <string name="search_start_subtitle">Enter at least 2 characters</string>
-    <string name="search_start_subtitle_no_discover">Discover is disabled. Enter at least 2 characters</string>
     <string name="search_recent_title">Recent searches</string>
     <string name="search_recent_clear">Clear history</string>
     <string name="search_recent_clear_confirm_title">Clear search history?</string>
     <string name="search_recent_clear_confirm_subtitle">All your recent searches will be removed. This can’t be undone.</string>
     <string name="cd_remove_recent_search">Remove %1$s from recent searches</string>
+    <string name="search_voice_listening">Listening…</string>
     <string name="search_voice_no_speech">No speech detected. Try again.</string>
     <string name="search_voice_mic_permission">Microphone permission is required for voice search.</string>
     <string name="search_voice_failed">Voice recognition failed. Try again.</string>
     <string name="search_voice_unavailable">Voice search is unavailable on this device.</string>
-    <string name="search_no_results_title">No Results</string>
+    <string name="search_no_results_query_title">No results for \"%1$s\"</string>
     <string name="search_no_results_subtitle">Try searching with different keywords</string>
     <string name="search_error_no_catalogs">No searchable catalogs found in installed addons</string>
     <string name="search_no_catalogs_title">None of your addons can search</string>
@@ -2133,7 +2133,7 @@
     <string name="discover_filter_catalog">Catalog</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_select_catalog">Select</string>
-    <string name="discover_genre_default">Default</string>
+    <string name="discover_genre_default">All genres</string>
     <string name="discover_empty_no_catalog_title">Select a catalog</string>
     <string name="discover_empty_no_catalog_subtitle">Choose a discover catalog to browse</string>
     <string name="discover_empty_no_content_title">No content found</string>

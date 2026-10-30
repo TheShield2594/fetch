@@ -1497,7 +1497,6 @@
     <string name="search_placeholder">搜尋電影與影集</string>
     <string name="search_start_title">開始搜尋</string>
     <string name="search_start_subtitle">請輸入至少 2 個字元</string>
-    <string name="search_start_subtitle_no_discover">探索已停用。請輸入至少 2 個字元</string>
     <string name="search_recent_title">最近的搜尋</string>
     <string name="search_recent_clear">清除歷史記錄</string>
     <string name="search_recent_clear_confirm_title">清除搜尋記錄？</string>
@@ -1507,7 +1506,6 @@
     <string name="search_voice_mic_permission">語音搜尋需要麥克風權限。</string>
     <string name="search_voice_failed">語音辨識失敗。請重試。</string>
     <string name="search_voice_unavailable">此裝置不支援語音搜尋。</string>
-    <string name="search_no_results_title">無結果</string>
     <string name="search_no_results_subtitle">請嘗試使用不同的關鍵字搜尋</string>
     <string name="search_error_no_catalogs">在已安裝的擴充套件中找不到可搜尋的目錄</string>
     <string name="search_no_catalogs_title">您的擴充套件都不支援搜尋</string>
@@ -1776,7 +1774,6 @@
     <string name="discover_filter_catalog">目錄</string>
     <string name="discover_filter_genre">類型</string>
     <string name="discover_select_catalog">選擇</string>
-    <string name="discover_genre_default">預設</string>
     <string name="discover_empty_no_catalog_title">選擇目錄</string>
     <string name="discover_empty_no_catalog_subtitle">選擇一個探索目錄以瀏覽</string>
     <string name="discover_empty_no_content_title">找不到內容</string>

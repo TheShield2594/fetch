@@ -1581,7 +1581,6 @@
     <string name="search_placeholder">Tìm kiếm phim &amp; loạt phim</string>
     <string name="search_start_title">Bắt đầu tìm kiếm</string>
     <string name="search_start_subtitle">Nhập ít nhất 2 ký tự</string>
-    <string name="search_start_subtitle_no_discover">Khám phá đã tắt. Nhập ít nhất 2 ký tự</string>
     <string name="search_recent_title">Tìm kiếm gần đây</string>
     <string name="search_recent_clear">Xóa lịch sử</string>
     <string name="search_recent_clear_confirm_title">Xóa lịch sử tìm kiếm?</string>
@@ -1591,7 +1590,6 @@
     <string name="search_voice_mic_permission">Cần quyền micro để tìm kiếm bằng giọng nói.</string>
     <string name="search_voice_failed">Nhận dạng giọng nói thất bại. Thử lại.</string>
     <string name="search_voice_unavailable">Tìm kiếm bằng giọng nói không khả dụng trên thiết bị này.</string>
-    <string name="search_no_results_title">Không có kết quả</string>
     <string name="search_no_results_subtitle">Thử tìm kiếm bằng từ khóa khác</string>
     <string name="search_error_no_catalogs">Không tìm thấy danh mục có thể tìm kiếm trong các tiện ích đã cài đặt</string>
     <string name="search_no_catalogs_title">Không tiện ích nào của bạn có thể tìm kiếm</string>
@@ -1862,7 +1860,6 @@
     <string name="discover_filter_catalog">Danh mục</string>
     <string name="discover_filter_genre">Thể loại</string>
     <string name="discover_select_catalog">Chọn</string>
-    <string name="discover_genre_default">Mặc định</string>
     <string name="discover_empty_no_catalog_title">Chọn một danh mục</string>
     <string name="discover_empty_no_catalog_subtitle">Chọn danh mục khám phá để duyệt</string>
     <string name="discover_empty_no_content_title">Không tìm thấy nội dung</string>

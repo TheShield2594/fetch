@@ -91,7 +91,6 @@ import com.fetch.tv.ui.util.RtlKeyUtils
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -632,7 +631,7 @@ fun SearchScreen(
                 .dpadRepeatThrottle(),
             state = listState,
             contentPadding = PaddingValues(
-                top = if (isDiscoverMode) 10.dp else FetchTheme.spacing.lg,
+                top = if (isDiscoverMode) FetchTheme.spacing.md else FetchTheme.spacing.lg,
                 bottom = FetchTheme.spacing.lg
             ),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
@@ -686,7 +685,7 @@ fun SearchScreen(
                             onSectionFocusChanged = { focused -> isRecentSearchSectionFocused = focused },
                             clearHistoryFocusRequester = recentClearHistoryFocusRequester,
                             emptyHistoryFocusRequester = searchFocusRequester,
-                            modifier = Modifier.padding(horizontal = 52.dp)
+                            modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
                         )
                     }
                 } else {
@@ -719,16 +718,12 @@ fun SearchScreen(
                                     },
                                     clearHistoryFocusRequester = recentClearHistoryFocusRequester,
                                     emptyHistoryFocusRequester = searchFocusRequester,
-                                    modifier = Modifier.padding(horizontal = 52.dp)
+                                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.xxxl)
                                 )
                             } else {
                                 EmptyScreenState(
                                     title = stringResource(R.string.search_start_title),
-                                    subtitle = if (uiState.discoverLocation == DiscoverLocation.OFF) {
-                                        stringResource(R.string.search_start_subtitle_no_discover)
-                                    } else {
-                                        stringResource(R.string.search_start_subtitle)
-                                    },
+                                    subtitle = stringResource(R.string.search_start_subtitle),
                                     icon = Icons.Default.Search
                                 )
                             }
@@ -773,7 +768,7 @@ fun SearchScreen(
                                 onItemClick = { _, _, _ -> },
                                 posterCardStyle = posterCardStyle,
                                 showAddonName = uiState.catalogAddonNameEnabled,
-                                modifier = Modifier.padding(bottom = 24.dp)
+                                modifier = Modifier.padding(bottom = FetchTheme.spacing.xl)
                             )
                         }
                     }
@@ -806,9 +801,14 @@ fun SearchScreen(
                     !uiState.isSearching && !hasPendingUnsubmittedQuery && visibleCatalogRows.isEmpty() -> {
                         item {
                             EmptyScreenState(
-                                title = stringResource(R.string.search_no_results_title),
+                                title = stringResource(R.string.search_no_results_query_title, trimmedSubmittedQuery),
                                 subtitle = stringResource(R.string.search_no_results_subtitle),
-                                icon = Icons.Default.Search
+                                icon = Icons.Default.Search,
+                                action = StateAction(stringResource(R.string.cd_clear_search)) {
+                                    // Same as the field's X: focus the field first, then clear.
+                                    runCatching { searchFocusRequester.requestFocus() }
+                                    handleQueryChanged("")
+                                }
                             )
                         }
                     }
@@ -949,7 +949,7 @@ fun SearchScreen(
                                     onItemClick = { _, _, _ -> },
                                     posterCardStyle = posterCardStyle,
                                     showAddonName = uiState.catalogAddonNameEnabled,
-                                    modifier = Modifier.padding(bottom = 24.dp)
+                                    modifier = Modifier.padding(bottom = FetchTheme.spacing.xl)
                                 )
                             }
                         }
@@ -1083,7 +1083,7 @@ private fun RecentSearchesSection(
             .onFocusChanged { state ->
                 onSectionFocusChanged(state.hasFocus || state.isFocused)
             },
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1140,7 +1140,7 @@ private fun RecentSearchesSection(
                 ) {
                     var isSearchFocused by remember(recentQuery) { mutableStateOf(false) }
                     val searchScale by animateFloatAsState(
-                        targetValue = if (isSearchFocused) FetchTheme.focus.scale else 1f,
+                        targetValue = if (isSearchFocused && FetchTheme.fullMotion) FetchTheme.focus.scale else 1f,
                         animationSpec = tween(durationMillis = FetchMotion.tokens.durations.quick),
                         label = "recentSearchScale"
                     )
@@ -1393,19 +1393,36 @@ private fun SearchInputField(
                         )
                         .onFocusChanged { isVoiceButtonFocused = it.isFocused }
                         .size(FetchTheme.spacing.huge)
+                        // The outer border is the focus ring in both states; listening draws its
+                        // accent ring inside it, so focus never disappears behind the accent.
                         .border(
-                            width = if (isVoiceButtonFocused || isVoiceListening) FetchTheme.spacing.xxs else FetchTheme.spacing.hairline,
-                            color = if (isVoiceListening) themeAccent else if (isVoiceButtonFocused) FetchTheme.colors.FocusRing else FetchTheme.colors.Border,
+                            width = if (isVoiceButtonFocused) FetchTheme.spacing.xxs else FetchTheme.spacing.hairline,
+                            color = if (isVoiceButtonFocused) FetchTheme.colors.FocusRing else FetchTheme.colors.Border,
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
                         .background(
                             color = if (isVoiceListening) themeAccent.copy(alpha = 0.15f) else FetchTheme.colors.BackgroundCard,
                             shape = RoundedCornerShape(FetchTheme.radii.md)
                         )
+                        .then(
+                            if (isVoiceListening) {
+                                Modifier
+                                    .padding(FetchTheme.spacing.xs)
+                                    .border(
+                                        width = FetchTheme.spacing.xxs,
+                                        color = themeAccent,
+                                        shape = RoundedCornerShape(FetchTheme.radii.sm)
+                                    )
+                            } else {
+                                Modifier
+                            }
+                        )
                 ) {
                     Icon(
                         imageVector = Icons.Default.Mic,
-                        contentDescription = stringResource(R.string.cd_voice_search),
+                        contentDescription = stringResource(
+                            if (isVoiceListening) R.string.search_voice_listening else R.string.cd_voice_search
+                        ),
                         tint = if (isVoiceListening) themeAccent else FetchTheme.colors.TextPrimary
                     )
                 }
@@ -1475,11 +1492,16 @@ private fun SearchInputField(
             shape = RoundedCornerShape(FetchTheme.radii.md),
             placeholder = {
                 Text(
-                    text = stringResource(R.string.search_placeholder),
+                    // While voice search is listening, say so in text, not only with the accent.
+                    text = stringResource(
+                        if (isVoiceListening) R.string.search_voice_listening else R.string.search_placeholder
+                    ),
+                    style = androidx.tv.material3.MaterialTheme.typography.bodyLarge,
                     color = FetchTheme.colors.TextTertiary
                 )
             },
-            textStyle = TextStyle(
+            // Copy the app type scale so the typed query keeps the selected app font.
+            textStyle = androidx.tv.material3.MaterialTheme.typography.bodyLarge.copy(
                 textDirection = TextDirection.Content
             ),
             colors = TextFieldDefaults.colors(

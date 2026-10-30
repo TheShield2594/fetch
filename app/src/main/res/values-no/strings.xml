@@ -758,7 +758,6 @@
     <string name="search_placeholder">Søk i filmer &amp; serier</string>
     <string name="search_start_title">Start søk</string>
     <string name="search_start_subtitle">Skriv inn minst 2 tegn</string>
-    <string name="search_start_subtitle_no_discover">Discover er deaktivert. Skriv inn minst 2 tegn</string>
     <string name="search_recent_clear_confirm_title">Vil du tømme søkehistorikken?</string>
     <string name="search_recent_clear_confirm_subtitle">Alle de nylige søkene dine fjernes. Dette kan ikke angres.</string>
     <string name="search_voice_no_speech">Ingen tale oppdaget. Prøv igjen.</string>
@@ -905,7 +904,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Sjanger</string>
     <string name="discover_select_catalog">Velg</string>
-    <string name="discover_genre_default">Standard</string>
     <string name="discover_empty_no_catalog_title">Velg en katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Velg en oppdagelseskatalog for å bla gjennom</string>
     <string name="discover_empty_no_content_title">Ingen innhold funnet</string>

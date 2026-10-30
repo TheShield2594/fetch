@@ -1236,7 +1236,6 @@
     <string name="search_placeholder">Търси филми и сериали</string>
     <string name="search_start_title">Започни търсене</string>
     <string name="search_start_subtitle">Въведи поне 2 символа</string>
-    <string name="search_start_subtitle_no_discover">Discover е деактивиран. Въведи поне 2 символа</string>
     <string name="search_recent_title">Скорошни търсения</string>
     <string name="search_recent_clear">Изчисти история</string>
     <string name="search_recent_clear_confirm_title">Изчисти историята на търсенето?</string>
@@ -1245,7 +1244,6 @@
     <string name="search_voice_mic_permission">Необходим е достъп до микрофона за гласово търсене.</string>
     <string name="search_voice_failed">Разпознаването на глас се провали. Опитай отново.</string>
     <string name="search_voice_unavailable">Гласовото търсене не е налично на това устройство.</string>
-    <string name="search_no_results_title">Няма резултати</string>
     <string name="search_no_results_subtitle">Опитай с различни ключови думи</string>
     <string name="search_error_no_catalogs">Не са намерени търсими каталози в инсталираните добавки</string>
     <string name="search_no_catalogs_title">Нито една от добавките ти не може да търси</string>
@@ -1430,7 +1428,6 @@
     <string name="discover_filter_catalog">Каталог</string>
     <string name="discover_filter_genre">Жанр</string>
     <string name="discover_select_catalog">Избери</string>
-    <string name="discover_genre_default">По подразбиране</string>
     <string name="discover_empty_no_catalog_title">Избери каталог</string>
     <string name="discover_empty_no_catalog_subtitle">Избери discover каталог за преглед</string>
     <string name="discover_empty_no_content_title">Не е намерено съдържание</string>

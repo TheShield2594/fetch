@@ -1238,7 +1238,6 @@
     <string name="search_placeholder">Пошук фільмів та серіалів</string>
     <string name="search_start_title">Почніть пошук</string>
     <string name="search_start_subtitle">Введіть мінімум 2 символи</string>
-    <string name="search_start_subtitle_no_discover">Навігатор вимкнено. Введіть мінімум 2 символи</string>
     <string name="search_recent_title">Нещодавні пошуки</string>
     <string name="search_recent_clear">Очистити історію</string>
     <string name="search_recent_clear_confirm_title">Очистити історію пошуку?</string>
@@ -1247,7 +1246,6 @@
     <string name="search_voice_mic_permission">Для голосового пошуку потрібен дозвіл на використання мікрофона.</string>
     <string name="search_voice_failed">Помилка розпізнавання голосу. Спробуйте ще раз.</string>
     <string name="search_voice_unavailable">Голосовий пошук недоступний на цьому пристрої.</string>
-    <string name="search_no_results_title">Немає результатів</string>
     <string name="search_no_results_subtitle">Спробуйте пошукати з іншими ключовими словами</string>
     <string name="search_error_no_catalogs">У встановлених адонах немає каталогів для пошуку</string>
     <string name="search_no_catalogs_title">Жоден із ваших адонів не підтримує пошук</string>
@@ -1432,7 +1430,6 @@
     <string name="discover_filter_catalog">Каталог</string>
     <string name="discover_filter_genre">Жанр</string>
     <string name="discover_select_catalog">Обрати</string>
-    <string name="discover_genre_default">За замовчуванням</string>
     <string name="discover_empty_no_catalog_title">Оберіть каталог</string>
     <string name="discover_empty_no_catalog_subtitle">Оберіть каталог для перегляду</string>
     <string name="discover_empty_no_content_title">Контент не знайдено</string>

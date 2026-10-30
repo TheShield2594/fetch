@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -56,7 +57,6 @@ import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import kotlinx.coroutines.delay
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
@@ -227,7 +227,7 @@ internal fun DiscoverSection(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 28.dp, bottom = 28.dp),
+                        .padding(vertical = FetchTheme.spacing.xl),
                     contentAlignment = Alignment.Center
                 ) {
                     LoadingIndicator()
@@ -371,7 +371,7 @@ private fun DiscoverDropdownPicker(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = FetchTheme.colors.TextTertiary
                 )
                 Row(
@@ -416,13 +416,14 @@ private fun DiscoverDropdownPicker(
             options.forEach { option ->
                 val isSelected = option.value == selectedValue
                 val isOptionFocused = option.value == focusedOptionValue
+                // Focus is the neutral white pair everywhere in the app; the accent stays for
+                // primary actions.
                 val itemTextColor = when {
-                    isOptionFocused -> FetchTheme.colors.OnSecondary
-                    isSelected -> FetchTheme.colors.TextPrimary
+                    isOptionFocused -> FetchTheme.colors.OnHighlight
                     else -> FetchTheme.colors.TextPrimary
                 }
                 val itemBackgroundColor = when {
-                    isOptionFocused -> FetchTheme.colors.Secondary
+                    isOptionFocused -> FetchTheme.colors.Highlight
                     isSelected -> FetchTheme.colors.FocusBackground
                     else -> Color.Transparent
                 }
@@ -460,7 +461,7 @@ private fun DiscoverDropdownPicker(
                             color = itemTextColor,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            style = TextStyle(
+                            style = MaterialTheme.typography.bodyLarge.copy(
                                 textDirection = option.label.contentTextDirection()
                             )
                         )
@@ -580,6 +581,13 @@ internal fun DiscoverGrid(
         }
     }
 
+    // A load that ends without new items (failed or empty) drops the pending hand-off, so
+    // focus stays on the action card instead of jumping when a later page arrives.
+    LaunchedEffect(isLoadingMore) {
+        val targetIndex = pendingFocusOnNewItemIndex ?: return@LaunchedEffect
+        if (!isLoadingMore && items.size <= targetIndex) pendingFocusOnNewItemIndex = null
+    }
+
     LaunchedEffect(items.size, pendingFocusOnNewItemIndex) {
         val targetIndex = pendingFocusOnNewItemIndex ?: return@LaunchedEffect
         if (items.size <= targetIndex) return@LaunchedEffect
@@ -667,7 +675,7 @@ internal fun DiscoverGrid(
                 }
             ),
         contentPadding = PaddingValues(bottom = FetchTheme.spacing.xxl),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
     ) {
         itemsIndexed(
@@ -691,7 +699,8 @@ internal fun DiscoverGrid(
                     if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
                 modifier = Modifier
-                    .padding(top = 3.dp)
+                    // Headroom so the focused card's scale isn't clipped by the grid's top edge.
+                    .padding(top = FetchTheme.spacing.xs)
                     .width(adaptiveStyle.width),
                 focusRequester = focusReq,
                 onFocused = {
@@ -715,7 +724,7 @@ internal fun DiscoverGrid(
                     actionType = actionType,
                     posterCardStyle = adaptiveStyle,
                     modifier = Modifier
-                        .padding(top = 3.dp)
+                        .padding(top = FetchTheme.spacing.xs)
                         .width(adaptiveStyle.width),
                     focusRequester = focusReq,
                     onFocused = { onItemFocused(actionIndex) },
@@ -775,7 +784,8 @@ private fun DiscoverActionCard(
                     if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(com.fetch.tv.domain.model.PosterShape.LANDSCAPE.aspectRatio())
                     else Modifier.width(posterCardStyle.width).height(posterCardStyle.height)
                 )
-                .focusProperties { canFocus = actionType != DiscoverGridAction.Loading }
+                // Stays focusable while loading (clicks are a no-op then), so focus stays on the
+                // card from the press until the new items take it, or after a failed/empty load.
                 .onPreviewKeyEvent { event ->
                     actionType != DiscoverGridAction.None &&
                         event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_DOWN &&
@@ -797,7 +807,9 @@ private fun DiscoverActionCard(
                     shape = cardShape
                 )
             ),
-            scale = CardDefaults.scale(focusedScale = posterCardStyle.focusedScale)
+            scale = CardDefaults.scale(
+                focusedScale = if (FetchTheme.fullMotion) posterCardStyle.focusedScale else FetchMotion.tokens.reducedMotionScale
+            )
         ) {
             Box(
                 modifier = Modifier

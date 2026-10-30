@@ -1198,7 +1198,6 @@
     <string name="search_placeholder">Hľadať filmy a seriály</string>
     <string name="search_start_title">Začnite vyhľadávať</string>
     <string name="search_start_subtitle">Zadajte aspoň 2 znaky</string>
-    <string name="search_start_subtitle_no_discover">Objavovanie je vypnuté. Zadajte aspoň 2 znaky</string>
     <string name="search_recent_title">Nedávne vyhľadávania</string>
     <string name="search_recent_clear">Vymazať históriu</string>
     <string name="search_recent_clear_confirm_title">Vymazať históriu vyhľadávania?</string>
@@ -1384,7 +1383,6 @@
     <string name="discover_filter_catalog">Katalóg</string>
     <string name="discover_filter_genre">Žáner</string>
     <string name="discover_select_catalog">Vybrať</string>
-    <string name="discover_genre_default">Predvolené</string>
     <string name="discover_empty_no_catalog_title">Vyberte katalóg</string>
     <string name="discover_empty_no_catalog_subtitle">Vyberte katalóg Objavovania na prehliadanie</string>
     <string name="discover_empty_no_content_title">Nenašiel sa žiadny obsah</string>
@@ -1437,7 +1435,6 @@
     <string name="sync_generate_code_btn">Generovať kód</string>
 
     
-    <string name="search_no_results_title">Žiadne výsledky</string>
     <string name="search_no_results_subtitle">Skúste vyhľadávať pomocou iných kľúčových slov</string>
     <string name="discover_disabled_title">Objavovanie je vypnuté</string>
     <string name="discover_disabled_subtitle">Povoľte Objavovanie v nastaveniach Rozloženia</string>

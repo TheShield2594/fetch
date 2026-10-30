@@ -670,7 +670,6 @@
     <string name="search_placeholder">मूवी और सीरीज़ खोजें</string>
     <string name="search_start_title">खोज शुरू करें</string>
     <string name="search_start_subtitle">कम से कम 2 अक्षर दर्ज करें</string>
-    <string name="search_start_subtitle_no_discover">Discover बंद है। कम से कम 2 अक्षर दर्ज करें</string>
     <string name="search_recent_clear_confirm_title">खोज इतिहास साफ़ करें?</string>
     <string name="search_recent_clear_confirm_subtitle">आपकी सभी हाल की खोजें हटा दी जाएँगी। इसे पहले जैसा नहीं किया जा सकता।</string>
     <string name="search_voice_no_speech">कोई आवाज़ नहीं मिली। फिर से कोशिश करें।</string>
@@ -814,7 +813,6 @@
     <string name="discover_filter_catalog">कैटलॉग</string>
     <string name="discover_filter_genre">जॉनर</string>
     <string name="discover_select_catalog">चुनें</string>
-    <string name="discover_genre_default">डिफ़ॉल्ट</string>
     <string name="discover_empty_no_catalog_title">एक कैटलॉग चुनें</string>
     <string name="discover_empty_no_catalog_subtitle">ब्राउज़ करने के लिए एक डिस्कवर कैटलॉग चुनें</string>
     <string name="discover_empty_no_content_title">कोई कंटेंट नहीं मिला</string>

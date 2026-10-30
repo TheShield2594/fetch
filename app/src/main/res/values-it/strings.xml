@@ -1413,7 +1413,6 @@
 <string name="search_placeholder">Cerca film &amp; serie</string>
 <string name="search_start_title">Inizia Ricerca</string>
 <string name="search_start_subtitle">Inserisci almeno 2 caratteri</string>
-<string name="search_start_subtitle_no_discover">Scopri disabilitato. Inserisci almeno 2 caratteri</string>
 <string name="search_recent_title">Ricerche recenti</string>
 <string name="search_recent_clear">Cancella cronologia</string>
 <string name="search_recent_clear_confirm_title">Cancellare la cronologia di ricerca?</string>
@@ -1422,7 +1421,6 @@
 <string name="search_voice_mic_permission">I permessi per il microfono sono richiesti per la ricerca vocale.</string>
 <string name="search_voice_failed">Riconoscimento vocale fallito. Riprova.</string>
 <string name="search_voice_unavailable">La ricerca vocale non è disponibile per questo dispositivo.</string>
-<string name="search_no_results_title">Nessun risultato</string>
 <string name="search_no_results_subtitle">Prova a cercare con parole chiave diverse</string>
 <string name="search_error_no_catalogs">Nessun catalogo ricercabile trovato negli addon installati</string>
 <string name="search_no_catalogs_title">Nessuno dei tuoi addon supporta la ricerca</string>
@@ -1690,7 +1688,6 @@
 <string name="discover_filter_catalog">Catalogo</string>
 <string name="discover_filter_genre">Genere</string>
 <string name="discover_select_catalog">Seleziona</string>
-<string name="discover_genre_default">Predefinito</string>
 <string name="discover_empty_no_catalog_title">Seleziona un catalogo</string>
 <string name="discover_empty_no_catalog_subtitle">Scegli un catalogo da sfogliare</string>
 <string name="discover_empty_no_content_title">Nessun contenuto trovato</string>

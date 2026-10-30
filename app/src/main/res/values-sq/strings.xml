@@ -1290,7 +1290,6 @@
     <string name="search_placeholder">Kërko filma dhe seriale</string>
     <string name="search_start_title">Fillo kërkimin</string>
     <string name="search_start_subtitle">Shkruaj të paktën 2 karaktere</string>
-    <string name="search_start_subtitle_no_discover">Zbulo është çaktivizuar. Shkruaj të paktën 2 karaktere</string>
     <string name="search_recent_title">Kërkimet e fundit</string>
     <string name="search_recent_clear">Pastro historikun</string>
     <string name="search_recent_clear_confirm_title">Të pastrohet historiku i kërkimeve?</string>
@@ -1299,7 +1298,6 @@
     <string name="search_voice_mic_permission">Kërkohet leja e mikrofonit për kërkimin me zë.</string>
     <string name="search_voice_failed">Njohja e zërit dështoi. Provo përsëri.</string>
     <string name="search_voice_unavailable">Kërkimi me zë nuk është i disponueshëm në këtë pajisje.</string>
-    <string name="search_no_results_title">Nuk ka rezultate</string>
     <string name="search_no_results_subtitle">Provo të kërkosh me fjalë kyçe të tjera</string>
     <string name="search_error_no_catalogs">Nuk u gjetën katalogë të kërkueshëm në shtesat e instaluara</string>
     <string name="search_no_catalogs_title">Asnjë nga shtesat e tua nuk mund të kërkojë</string>
@@ -1536,7 +1534,6 @@
     <string name="discover_filter_catalog">Katalogu</string>
     <string name="discover_filter_genre">Zhanri</string>
     <string name="discover_select_catalog">Zgjidh</string>
-    <string name="discover_genre_default">Parazgjedhur</string>
     <string name="discover_empty_no_catalog_title">Zgjidh një katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Zgjidh një katalog Zbulo për të shfletuar</string>
     <string name="discover_empty_no_content_title">Nuk u gjet përmbajtje</string>

@@ -830,7 +830,6 @@
     <string name="search_placeholder">Szukaj filmów i seriali</string>
     <string name="search_start_title">Zacznij szukać</string>
     <string name="search_start_subtitle">Wpisz co najmniej 2 znaki</string>
-    <string name="search_start_subtitle_no_discover">Odkrywanie jest wyłączone. Wpisz co najmniej 2 znaki</string>
     <string name="search_voice_no_speech">Nie wykryto mowy. Spróbuj ponownie.</string>
     <string name="search_voice_mic_permission">Uprawnienie do mikrofonu jest wymagane do wyszukiwania głosowego.</string>
     <string name="search_voice_failed">Rozpoznawanie głosu nie powiodło się. Spróbuj ponownie.</string>
@@ -972,7 +971,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Gatunek</string>
     <string name="discover_select_catalog">Wybierz</string>
-    <string name="discover_genre_default">Domyślny</string>
     <string name="discover_empty_no_catalog_title">Wybierz katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Wybierz katalog odkrywania, aby przeglądać</string>
     <string name="discover_empty_no_content_title">Brak treści</string>
@@ -1289,7 +1287,6 @@
     <string name="ratings_season_label">S%1$d</string>
     <string name="ratings_episode_label">E%1$d</string>
 
-    <string name="search_no_results_title">Brak wyników</string>
     <string name="search_no_results_subtitle">Spróbuj wyszukać z innymi słowami kluczowymi</string>
     <string name="search_error_no_catalogs">Nie znaleziono katalogów z możliwością wyszukiwania w zainstalowanych dodatkach</string>
     <string name="search_no_catalogs_title">Żaden z Twoich dodatków nie obsługuje wyszukiwania</string>

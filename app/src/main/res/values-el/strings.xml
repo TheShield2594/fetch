@@ -1472,7 +1472,6 @@
   <string name="search_placeholder">Αναζήτηση ταινιών &amp; σειρών</string>
   <string name="search_start_title">Ξεκινήστε την αναζήτηση</string>
   <string name="search_start_subtitle">Εισάγετε τουλάχιστον 2 χαρακτήρες</string>
-  <string name="search_start_subtitle_no_discover">Η Ανακάλυψη είναι απενεργοποιημένη. Εισάγετε τουλάχιστον 2 χαρακτήρες</string>
   <string name="search_recent_title">Πρόσφατες αναζητήσεις</string>
   <string name="search_recent_clear">Εκκαθάριση ιστορικού</string>
   <string name="search_recent_clear_confirm_title">Εκκαθάριση ιστορικού αναζήτησης;</string>
@@ -1723,7 +1722,6 @@
   <string name="discover_filter_catalog">Κατάλογος</string>
   <string name="discover_filter_genre">Είδος</string>
   <string name="discover_select_catalog">Επιλογή</string>
-  <string name="discover_genre_default">Προεπιλογή</string>
   <string name="discover_empty_no_catalog_title">Επιλέξτε κατάλογο</string>
   <string name="discover_empty_no_catalog_subtitle">Επιλέξτε κατάλογο Ανακάλυψης για περιήγηση</string>
   <string name="discover_empty_no_content_title">Δεν βρέθηκε περιεχόμενο</string>
@@ -1766,7 +1764,6 @@
   <string name="sync_generate_generating">Δημιουργία…</string>
   <string name="sync_generate_code_btn">Δημιουργία κωδικού</string>
   <!-- Search -->
-  <string name="search_no_results_title">Δεν υπάρχουν αποτελέσματα</string>
   <string name="search_no_results_subtitle">Δοκιμάστε αναζήτηση με διαφορετικές λέξεις-κλειδιά</string>
   <string name="discover_disabled_title">Η Ανακάλυψη είναι απενεργοποιημένη</string>
   <string name="discover_disabled_subtitle">Ενεργοποιήστε την Ανακάλυψη στις ρυθμίσεις διάταξης</string>

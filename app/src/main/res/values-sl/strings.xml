@@ -1111,7 +1111,6 @@
     <string name="search_placeholder">Išči filme &amp; serije</string>
     <string name="search_start_title">Začnite z iskanjem</string>
     <string name="search_start_subtitle">Vnesite vsaj 2 znaka</string>
-    <string name="search_start_subtitle_no_discover">Odkrivanje je onemogočeno. Vnesite vsaj 2 znaka</string>
     <string name="search_recent_title">Nedavna iskanja</string>
     <string name="search_recent_clear">Počisti zgodovino</string>
     <string name="search_recent_clear_confirm_title">Želite počistiti zgodovino iskanja?</string>
@@ -1281,7 +1280,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
     <string name="discover_select_catalog">Izberi</string>
-    <string name="discover_genre_default">Privzeto</string>
     <string name="discover_empty_no_catalog_title">Izberite katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Izberite katalog za odkrivanje in brskanje</string>
     <string name="discover_empty_no_content_title">Ni najdene vsebine</string>
@@ -1325,7 +1323,6 @@
     <string name="sync_generate_generating">Ustvarjanje\u2026</string>
     <string name="sync_generate_code_btn">Ustvari kodo</string>																									 
 	<!-- Search -->																													   
-	<string name="search_no_results_title">Ni rezultatov</string>
     <string name="search_no_results_subtitle">Poskusite iskati z drugimi ključnimi besedami</string>
     <string name="discover_disabled_title">Odkrivanje je onemogočeno</string>
     <string name="discover_disabled_subtitle">V nastavitvah omogočite odkrivanje</string>															 

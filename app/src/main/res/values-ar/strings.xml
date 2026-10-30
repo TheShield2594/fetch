@@ -1254,7 +1254,6 @@
     <string name="search_placeholder">أبحث عن أفلام &amp; مسلسلات</string>
     <string name="search_start_title">ابدأ البحث</string>
     <string name="search_start_subtitle">أدخل حرفين على الأقل</string>
-    <string name="search_start_subtitle_no_discover">ميزة \"استكشاف\" معطلة. أدخل حرفين على الأقل</string>
     <string name="search_recent_title">سجل البحث</string>
     <string name="search_recent_clear">مسح السجل</string>
     <string name="search_recent_clear_confirm_title">مسح سجل البحث؟</string>
@@ -1263,7 +1262,6 @@
     <string name="search_voice_mic_permission">إذن الميكروفون مطلوب للبحث الصوتي.</string>
     <string name="search_voice_failed">فشل التعرف على الصوت. حاول مجدداً.</string>
     <string name="search_voice_unavailable">البحث الصوتي غير متاح على هذا الجهاز.</string>
-    <string name="search_no_results_title">لا توجد نتائج</string>
     <string name="search_no_results_subtitle">جرّب البحث باستخدام كلمات رئيسية مختلفة</string>
     <string name="search_error_no_catalogs">لم يتم العثور على قوائم قابلة للبحث في الإضافات المثبتة</string>
     <string name="search_no_catalogs_title">لا توجد إضافة لديك تدعم البحث</string>
@@ -1460,7 +1458,6 @@
     <string name="discover_filter_catalog">القائمة</string>
     <string name="discover_filter_genre">التصنيف</string>
     <string name="discover_select_catalog">إختر</string>
-    <string name="discover_genre_default">افتراضي</string>
     <string name="discover_empty_no_catalog_title">إختر قائمة</string>
     <string name="discover_empty_no_catalog_subtitle">إختر قائمة للتصفح</string>
     <string name="discover_empty_no_content_title">لم يتم العثور على محتوى</string>

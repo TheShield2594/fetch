@@ -1179,7 +1179,6 @@
     <string name="search_placeholder">Filme und Serien suchen</string>
     <string name="search_start_title">Suche starten</string>
     <string name="search_start_subtitle">Geben Sie mindestens 2 Zeichen ein</string>
-    <string name="search_start_subtitle_no_discover">Entdecken ist deaktiviert. Geben Sie mindestens 2 Zeichen ein</string>
     <string name="search_recent_title">Letzte Suchbegriffe</string>
     <string name="search_recent_clear">Verlauf löschen</string>
     <string name="search_recent_clear_confirm_title">Suchverlauf löschen?</string>
@@ -1362,7 +1361,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_select_catalog">Auswählen</string>
-    <string name="discover_genre_default">Standard</string>
     <string name="discover_empty_no_catalog_title">Katalog auswählen</string>
     <string name="discover_empty_no_catalog_subtitle">Wählen Sie einen Entdeckungskatalog zum Durchsuchen aus</string>
     <string name="discover_empty_no_content_title">Kein Inhalt gefunden</string>
@@ -1413,7 +1411,6 @@
     <string name="sync_generate_code_btn">Code generieren</string>
 
     <!-- Search -->
-    <string name="search_no_results_title">keine Ergebnisse</string>
     <string name="search_no_results_subtitle">Versuche andere Suchwörter</string>
     <string name="discover_disabled_title">Entdecken ist deaktiviert</string>
     <string name="discover_disabled_subtitle">Schalte Entdecken in den Layout-Einstellungen ein</string>

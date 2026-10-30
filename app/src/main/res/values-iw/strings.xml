@@ -1586,7 +1586,6 @@
     <string name="search_placeholder">חיפוש סרט או סדרה</string>
     <string name="search_start_title">להתחיל לחפש</string>
     <string name="search_start_subtitle">יש להקליד לפחות 2 תווים</string>
-    <string name="search_start_subtitle_no_discover">גילוי מושבת. יש להקליד לפחות 2 תווים</string>
     <string name="search_recent_title">חיפושים אחרונים</string>
     <string name="search_recent_clear">ניקוי היסטוריה</string>
     <string name="search_recent_clear_confirm_title">לנקות את היסטוריית החיפוש?</string>
@@ -1596,7 +1595,6 @@
     <string name="search_voice_mic_permission">נדרשת הרשאת מיקרופון לחיפוש קולי.</string>
     <string name="search_voice_failed">זיהוי קול נכשל. כדאי לנסות שוב.</string>
     <string name="search_voice_unavailable">חיפוש קולי אינו זמין במכשיר זה.</string>
-    <string name="search_no_results_title">אין תוצאות</string>
     <string name="search_no_results_subtitle">כדאי לנסות לחפש במילים אחרות</string>
     <string name="search_error_no_catalogs">אף אחד מהתוספים המותקנים לא תומך בחיפוש.</string>
     <string name="search_no_catalogs_title">אף אחד מהתוספים שלך לא תומך בחיפוש</string>
@@ -1867,7 +1865,6 @@
     <string name="discover_filter_catalog">קטלוג</string>
     <string name="discover_filter_genre">ז׳אנר</string>
     <string name="discover_select_catalog">בחירה</string>
-    <string name="discover_genre_default">ברירת מחדל</string>
     <string name="discover_empty_no_catalog_title">בחירת קטלוג</string>
     <string name="discover_empty_no_catalog_subtitle">בחירת קטלוג לגלישה</string>
     <string name="discover_empty_no_content_title">לא נמצא תוכן</string>

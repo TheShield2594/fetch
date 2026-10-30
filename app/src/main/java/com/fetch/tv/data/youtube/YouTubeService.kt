@@ -88,8 +88,12 @@ class YouTubeService @Inject constructor(
         const val HISTORY_BROWSE_ID = "FEhistory"
         /** The account's playlists, as SmartTube reads them for its library. */
         const val PLAYLISTS_BROWSE_ID = "FEplaylist_aggregation"
-        const val WATCH_LATER_BROWSE_ID = "VLWL"
-        const val LIKED_BROWSE_ID = "VLLL"
+        const val WATCH_LATER_PLAYLIST_ID = "WL"
+        const val LIKED_PLAYLIST_ID = "LL"
+        /** A playlist's page is its id behind this prefix. */
+        const val PLAYLIST_BROWSE_PREFIX = "VL"
+        const val WATCH_LATER_BROWSE_ID = PLAYLIST_BROWSE_PREFIX + WATCH_LATER_PLAYLIST_ID
+        const val LIKED_BROWSE_ID = PLAYLIST_BROWSE_PREFIX + LIKED_PLAYLIST_ID
 
         const val HISTORY_START_THRESHOLD_SEC = 180f
 
@@ -290,6 +294,44 @@ class YouTubeService @Inject constructor(
             putJsonArray("channelIds") { add(channelId) }
             params?.let { put("params", it) }
         }
+        Unit
+    }
+
+    /**
+     * The selected channel's playlists, Watch Later first, each saying whether it holds [videoId]:
+     * what YouTube's own "Save" menu lists (SmartTube's PlaylistManager reads the same).
+     */
+    suspend fun loadPlaylistOptions(videoId: String): List<YouTubePlaylistOption> = withContext(Dispatchers.IO) {
+        val options = YouTubeResponseParser.parsePlaylistOptions(
+            innertube("playlist/get_add_to_playlist", validAccessToken()) {
+                putJsonArray("videoIds") { add(videoId) }
+                put("excludeWatchLater", false)
+            }
+        )
+        options.sortedByDescending { it.isWatchLater }
+    }
+
+    /** Adds [videoId] to [playlistId], or takes it out. Throws if YouTube refuses. */
+    suspend fun setInPlaylist(playlistId: String, videoId: String, inPlaylist: Boolean) = withContext(Dispatchers.IO) {
+        val response = innertube("browse/edit_playlist", validAccessToken()) {
+            put("playlistId", playlistId)
+            putJsonArray("actions") {
+                add(
+                    buildJsonObject {
+                        if (inPlaylist) {
+                            put("action", "ACTION_ADD_VIDEO")
+                            put("addedVideoId", videoId)
+                        } else {
+                            put("action", "ACTION_REMOVE_VIDEO_BY_VIDEO_ID")
+                            put("removedVideoId", videoId)
+                        }
+                    }
+                )
+            }
+        }
+        // YouTube answers 200 with a failed status when the playlist isn't the channel's to edit.
+        val status = ((response as? JsonObject)?.get("status") as? JsonPrimitive)?.contentOrNull
+        if (status != null && status != "STATUS_SUCCEEDED") throw IllegalStateException("YouTube edit_playlist: $status")
         Unit
     }
 

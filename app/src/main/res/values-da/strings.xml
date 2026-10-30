@@ -1243,7 +1243,6 @@
     <string name="search_placeholder">Søg efter film &amp; serier</string>
     <string name="search_start_title">Begynd at søge</string>
     <string name="search_start_subtitle">Indtast mindst 2 tegn</string>
-    <string name="search_start_subtitle_no_discover">Opdag er deaktiveret. Indtast mindst 2 tegn</string>
     <string name="search_recent_title">Seneste søgninger</string>
     <string name="search_recent_clear">Ryd historik</string>
     <string name="search_recent_clear_confirm_title">Ryd søgehistorik?</string>
@@ -1252,7 +1251,6 @@
     <string name="search_voice_mic_permission">Mikrofontilladelse er påkrævet for stemmesøgning.</string>
     <string name="search_voice_failed">Stemmegenkendelse mislykkedes. Prøv igen.</string>
     <string name="search_voice_unavailable">Stemmesøgning er ikke tilgængelig på denne enhed.</string>
-    <string name="search_no_results_title">Ingen resultater</string>
     <string name="search_no_results_subtitle">Prøv at søge med andre søgeord</string>
     <string name="search_error_no_catalogs">Ingen søgbare kataloger fundet i installerede addons</string>
     <string name="search_no_catalogs_title">Ingen af dine addons kan søge</string>
@@ -1437,7 +1435,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_select_catalog">Vælg</string>
-    <string name="discover_genre_default">Standard</string>
     <string name="discover_empty_no_catalog_title">Vælg et katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Vælg et opdagelseskatalog at gennemse</string>
     <string name="discover_empty_no_content_title">Intet indhold fundet</string>

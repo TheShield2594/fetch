@@ -1443,7 +1443,6 @@
     <string name="search_placeholder">Pretraži filmove i serije</string>
     <string name="search_start_title">Započnite pretragu</string>
     <string name="search_start_subtitle">Unesite najmanje 2 karaktera</string>
-    <string name="search_start_subtitle_no_discover">Otkrivanje je onemogućeno. Unesite najmanje 2 karaktera</string>
     <string name="search_recent_title">Nedavne pretrage</string>
     <string name="search_recent_clear">Obriši istoriju</string>
     <string name="search_recent_clear_confirm_title">Obrisati istoriju pretrage?</string>
@@ -1453,7 +1452,6 @@
     <string name="search_voice_mic_permission">Dozvola za mikrofon je potrebna za glasovnu pretragu.</string>
     <string name="search_voice_failed">Glasovno prepoznavanje nije uspelo. Pokušajte ponovo.</string>
     <string name="search_voice_unavailable">Glasovna pretraga nije dostupna na ovom uređaju.</string>
-    <string name="search_no_results_title">Nema rezultata</string>
     <string name="search_no_results_subtitle">Pokušajte sa drugim ključnim rečima</string>
     <string name="search_error_no_catalogs">Nisu pronađeni pretraživi katalozi u instaliranim dodacima</string>
     <string name="search_no_catalogs_title">Nijedan vaš dodatak ne može da pretražuje</string>
@@ -1721,7 +1719,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
     <string name="discover_select_catalog">Izaberi</string>
-    <string name="discover_genre_default">Podrazumevano</string>
     <string name="discover_empty_no_catalog_title">Izaberite katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Izaberite katalog za otkrivanje radi pregledanja</string>
     <string name="discover_empty_no_content_title">Nije pronađen sadržaj</string>

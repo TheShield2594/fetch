@@ -683,7 +683,6 @@
     <string name="search_placeholder">Sök filmer &amp; serier</string>
     <string name="search_start_title">Börja söka</string>
     <string name="search_start_subtitle">Ange minst 2 tecken</string>
-    <string name="search_start_subtitle_no_discover">Utforska är inaktiverat. Ange minst 2 tecken</string>
     <string name="search_voice_no_speech">Inget tal upptäckt. Försök igen.</string>
     <string name="search_voice_mic_permission">Mikrofonbehörighet krävs för röstsökning.</string>
     <string name="search_voice_failed">Röstigenkänning misslyckades. Försök igen.</string>
@@ -855,7 +854,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_select_catalog">Välj</string>
-    <string name="discover_genre_default">Standard</string>
     <string name="discover_empty_no_catalog_title">Välj en katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Välj en utforskakatalog att bläddra i</string>
     <string name="discover_empty_no_content_title">Inget innehåll hittades</string>
@@ -1202,7 +1200,6 @@
     <string name="sync_generate_code_btn">Generera kod</string>
 
     <!-- Search -->
-    <string name="search_no_results_title">Inga resultat</string>
     <string name="search_no_results_subtitle">Försök söka med andra nyckelord</string>
     <string name="discover_disabled_title">Utforska är inaktiverat</string>
     <string name="discover_disabled_subtitle">Aktivera Sök Utforska i inställningar</string>

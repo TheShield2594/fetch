@@ -1581,7 +1581,6 @@
     <string name="search_placeholder">Rechercher des films et des séries</string>
     <string name="search_start_title">Lancer une recherche</string>
     <string name="search_start_subtitle">Saisissez au moins 2 caractères</string>
-    <string name="search_start_subtitle_no_discover">La fonction Découvrir est désactivée. Saisissez au moins 2 caractères</string>
     <string name="search_recent_title">Recherches récentes</string>
     <string name="search_recent_clear">Effacer l’historique</string>
     <string name="search_recent_clear_confirm_title">Effacer l’historique de recherche ?</string>
@@ -1591,7 +1590,6 @@
     <string name="search_voice_mic_permission">L’autorisation d’utiliser le micro est requise pour la recherche vocale.</string>
     <string name="search_voice_failed">Échec de la reconnaissance vocale. Veuillez réessayer.</string>
     <string name="search_voice_unavailable">La recherche vocale n’est pas disponible sur cet appareil.</string>
-    <string name="search_no_results_title">Aucun résultat</string>
     <string name="search_no_results_subtitle">Essayez avec d’autres mots-clés</string>
     <string name="search_error_no_catalogs">Aucun catalogue pouvant faire l’objet d’une recherche n’a été trouvé dans les addons installés</string>
     <string name="search_no_catalogs_title">Aucun de vos addons ne permet la recherche</string>
@@ -1862,7 +1860,6 @@
     <string name="discover_filter_catalog">Catalogue</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_select_catalog">Sélectionner</string>
-    <string name="discover_genre_default">Par défaut</string>
     <string name="discover_empty_no_catalog_title">Sélectionnez un catalogue</string>
     <string name="discover_empty_no_catalog_subtitle">Choisissez un catalogue Découvrir à parcourir</string>
     <string name="discover_empty_no_content_title">Aucun contenu trouvé</string>

@@ -1573,7 +1573,6 @@
     <string name="search_placeholder">Filmek és sorozatok keresése</string>
     <string name="search_start_title">Kezdj el keresni</string>
     <string name="search_start_subtitle">Adj meg legalább 2 karaktert</string>
-    <string name="search_start_subtitle_no_discover">A felfedezés ki van kapcsolva. Adj meg legalább 2 karaktert</string>
     <string name="search_recent_title">Legutóbbi keresések</string>
     <string name="search_recent_clear">Előzmények törlése</string>
     <string name="search_recent_clear_confirm_title">Törlöd a keresési előzményeket?</string>
@@ -1583,7 +1582,6 @@
     <string name="search_voice_mic_permission">A hangalapú kereséshez mikrofonengedély szükséges.</string>
     <string name="search_voice_failed">A hangfelismerés nem sikerült. Próbáld újra.</string>
     <string name="search_voice_unavailable">A hangalapú keresés nem érhető el ezen az eszközön.</string>
-    <string name="search_no_results_title">Nincs találat</string>
     <string name="search_no_results_subtitle">Próbálkozz más kulcsszavakkal</string>
     <string name="search_error_no_catalogs">Nincsenek kereshető katalógusok a telepített bővítményekben</string>
     <string name="search_no_catalogs_title">Egyik bővítményed sem tud keresni</string>
@@ -1854,7 +1852,6 @@
     <string name="discover_filter_catalog">Katalógus</string>
     <string name="discover_filter_genre">Műfaj</string>
     <string name="discover_select_catalog">Választás</string>
-    <string name="discover_genre_default">Alapértelmezett</string>
     <string name="discover_empty_no_catalog_title">Válassz katalógust</string>
     <string name="discover_empty_no_catalog_subtitle">Válassz egy katalógust a böngészéshez</string>
     <string name="discover_empty_no_content_title">Nincs tartalom</string>

@@ -873,7 +873,6 @@
     <string name="search_placeholder">Pretraži filmove i serije</string>
     <string name="search_start_title">Započni Pretragu</string>
     <string name="search_start_subtitle">Unesi najmanje 2 karaktera</string>
-    <string name="search_start_subtitle_no_discover">Otkrivanje je onemogućeno. Unesi najmanje 2 karaktera</string>
     <string name="search_recent_title">Nedavne pretrage</string>
     <string name="search_recent_clear">Očisti historiju</string>
     <string name="search_recent_clear_confirm_title">Očistiti historiju pretrage?</string>
@@ -1053,7 +1052,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žanr</string>
     <string name="discover_select_catalog">Odaberi</string>
-    <string name="discover_genre_default">Zadano</string>
     <string name="discover_empty_no_catalog_title">Odaberi katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Odaberi katalog za pretragu kako bi pretraživao/la</string>
     <string name="discover_empty_no_content_title">Sadržaj nije pronađen</string>
@@ -1102,7 +1100,6 @@
     <string name="sync_generate_code_btn">Generiši Kod</string>
 
     <!-- Search -->
-    <string name="search_no_results_title">Nema Rezultata</string>
     <string name="search_no_results_subtitle">Pokušaj pretragu sa drugačijim ključnim riječima</string>
     <string name="discover_disabled_title">Otkrivanje je onemogućeno</string>
     <string name="discover_disabled_subtitle">Omogući Otkrij u Pretrazi u postavkama</string>

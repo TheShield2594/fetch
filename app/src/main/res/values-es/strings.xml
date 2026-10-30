@@ -1501,7 +1501,6 @@
     <string name="search_placeholder">Buscar películas y series</string>
     <string name="search_start_title">Empezar a buscar</string>
     <string name="search_start_subtitle">Introduce al menos 2 caracteres</string>
-    <string name="search_start_subtitle_no_discover">El descubrimiento está desactivado. Introduce al menos 2 caracteres</string>
     <string name="search_recent_title">Búsquedas recientes</string>
     <string name="search_recent_clear">Borrar historial</string>
     <string name="search_recent_clear_confirm_title">¿Borrar el historial de búsqueda?</string>
@@ -1511,7 +1510,6 @@
     <string name="search_voice_mic_permission">Se requiere permiso de micrófono para búsqueda por voz.</string>
     <string name="search_voice_failed">Falló el reconocimiento de voz. Intenta de nuevo.</string>
     <string name="search_voice_unavailable">La búsqueda por voz no está disponible en este dispositivo.</string>
-    <string name="search_no_results_title">Sin resultados</string>
     <string name="search_no_results_subtitle">Prueba a buscar con otras palabras clave</string>
     <string name="search_error_no_catalogs">No se encontraron catálogos con búsqueda en los complementos instalados</string>
     <string name="search_no_catalogs_title">Ninguno de tus complementos permite buscar</string>
@@ -1780,7 +1778,6 @@
     <string name="discover_filter_catalog">Catálogo</string>
     <string name="discover_filter_genre">Género</string>
     <string name="discover_select_catalog">Seleccionar</string>
-    <string name="discover_genre_default">Predeterminado</string>
     <string name="discover_empty_no_catalog_title">Selecciona un catálogo</string>
     <string name="discover_empty_no_catalog_subtitle">Elige un catálogo de descubrimiento para explorar</string>
     <string name="discover_empty_no_content_title">No se encontró contenido</string>

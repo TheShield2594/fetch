@@ -1445,7 +1445,6 @@
     <string name="search_placeholder">Buscar filmes e séries</string>
     <string name="search_start_title">Comece a pesquisar</string>
     <string name="search_start_subtitle">Digite ao menos 2 caracteres</string>
-    <string name="search_start_subtitle_no_discover">Descobrir desativado. Digite ao menos 2 caracteres</string>
     <string name="search_recent_title">Pesquisas recentes</string>
     <string name="search_recent_clear">Limpar histórico</string>
     <string name="search_recent_clear_confirm_title">Limpar histórico de pesquisa?</string>
@@ -1455,7 +1454,6 @@
     <string name="search_voice_mic_permission">Permissão do microfone necessária para busca por voz</string>
     <string name="search_voice_failed">Falha no reconhecimento de voz. Tente novamente</string>
     <string name="search_voice_unavailable">Busca por voz indisponível neste dispositivo</string>
-    <string name="search_no_results_title">Nenhum resultado</string>
     <string name="search_no_results_subtitle">Tente buscar usando outras palavras</string>
     <string name="search_error_no_catalogs">Nenhum catálogo de busca encontrado nos addons instalados</string>
     <string name="search_no_catalogs_title">Nenhum dos seus addons pode pesquisar</string>
@@ -1725,7 +1723,6 @@
     <string name="discover_filter_catalog">Catálogo</string>
     <string name="discover_filter_genre">Gênero</string>
     <string name="discover_select_catalog">Selecionar</string>
-    <string name="discover_genre_default">Destaques</string>
     <string name="discover_empty_no_catalog_title">Escolha um catálogo</string>
     <string name="discover_empty_no_catalog_subtitle">Selecione uma categoria para navegar</string>
     <string name="discover_empty_no_content_title">Nenhum resultado encontrado</string>

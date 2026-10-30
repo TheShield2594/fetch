@@ -667,7 +667,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="search_placeholder">Ieškoti filmų ir serialų</string>
     <string name="search_start_title">Pradėti paiešką</string>
     <string name="search_start_subtitle">Įveskite bent 2 simbolius</string>
-    <string name="search_start_subtitle_no_discover">„Atrasti“ funkcija išjungta. Įveskite bent 2 simbolius</string>
     <string name="search_recent_clear_confirm_title">Išvalyti paieškos istoriją?</string>
     <string name="search_recent_clear_confirm_subtitle">Visos naujausios paieškos bus pašalintos. Šio veiksmo anuliuoti negalima.</string>
     <string name="search_voice_no_speech">Kalba neaptikta. Bandykite dar kartą.</string>
@@ -811,7 +810,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="discover_filter_catalog">Katalogas</string>
     <string name="discover_filter_genre">Žanras</string>
     <string name="discover_select_catalog">Pasirinkti katalogą</string>
-    <string name="discover_genre_default">Visi žanrai</string>
     <string name="discover_empty_no_catalog_title">Katalogų nerasta</string>
     <string name="discover_empty_no_catalog_subtitle">Įdiekite priedą, kad matytumėte „Atrasti“ turinį</string>
     <string name="discover_empty_no_content_title">Turinio nerasta</string>

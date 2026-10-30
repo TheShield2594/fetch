@@ -1417,7 +1417,6 @@
     <string name="search_placeholder">Zoek films &amp; series</string>
     <string name="search_start_title">Begin met zoeken</string>
     <string name="search_start_subtitle">Voer minimaal 2 tekens in</string>
-    <string name="search_start_subtitle_no_discover">Ontdekken is uitgeschakeld. Voer minimaal 2 tekens in</string>
     <string name="search_recent_title">Recente zoekopdrachten</string>
     <string name="search_recent_clear">Geschiedenis wissen</string>
     <string name="search_recent_clear_confirm_title">Zoekgeschiedenis wissen?</string>
@@ -1427,7 +1426,6 @@
     <string name="search_voice_mic_permission">Toestemming voor de microfoon is vereist voor spraakzoeken.</string>
     <string name="search_voice_failed">Spraakherkenning mislukt. Probeer het opnieuw.</string>
     <string name="search_voice_unavailable">Spraakzoeken is niet beschikbaar op dit apparaat.</string>
-    <string name="search_no_results_title">Geen resultaten</string>
     <string name="search_no_results_subtitle">Probeer te zoeken met andere trefwoorden</string>
     <string name="search_error_no_catalogs">Geen doorzoekbare catalogi gevonden in de geïnstalleerde add-ons</string>
     <string name="search_no_catalogs_title">Geen van je add-ons kan zoeken</string>
@@ -1695,7 +1693,6 @@
     <string name="discover_filter_catalog">Catalogus</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_select_catalog">Selecteren</string>
-    <string name="discover_genre_default">Standaard</string>
     <string name="discover_empty_no_catalog_title">Selecteer een catalogus</string>
     <string name="discover_empty_no_catalog_subtitle">Kies een catalogus om te bladeren</string>
     <string name="discover_empty_no_content_title">Geen inhoud gevonden</string>

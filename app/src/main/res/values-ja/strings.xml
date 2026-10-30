@@ -1243,7 +1243,6 @@
     <string name="search_placeholder">映画とシリーズを検索</string>
     <string name="search_start_title">検索を始める</string>
     <string name="search_start_subtitle">2文字以上入力してください</string>
-    <string name="search_start_subtitle_no_discover">ディスカバーは無効です。2文字以上入力してください</string>
     <string name="search_recent_title">最近の検索</string>
     <string name="search_recent_clear">履歴をクリア</string>
     <string name="search_recent_clear_confirm_title">検索履歴をクリアしますか？</string>
@@ -1252,7 +1251,6 @@
     <string name="search_voice_mic_permission">音声検索にはマイクの権限が必要です</string>
     <string name="search_voice_failed">音声認識に失敗しました。もう一度お試しください</string>
     <string name="search_voice_unavailable">このデバイスでは音声検索は利用できません</string>
-    <string name="search_no_results_title">結果なし</string>
     <string name="search_no_results_subtitle">別のキーワードで検索してみてください</string>
     <string name="search_error_no_catalogs">インストール済みアドオンに検索可能なカタログがありません</string>
     <string name="search_no_catalogs_title">検索できるアドオンがありません</string>
@@ -1437,7 +1435,6 @@
     <string name="discover_filter_catalog">カタログ</string>
     <string name="discover_filter_genre">ジャンル</string>
     <string name="discover_select_catalog">選択</string>
-    <string name="discover_genre_default">デフォルト</string>
     <string name="discover_empty_no_catalog_title">カタログを選択</string>
     <string name="discover_empty_no_catalog_subtitle">ディスカバーカタログを選択して閲覧</string>
     <string name="discover_empty_no_content_title">コンテンツが見つかりません</string>

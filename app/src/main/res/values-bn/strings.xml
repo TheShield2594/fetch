@@ -1471,7 +1471,6 @@
     <string name="search_placeholder">সিনেমা ও সিরিজ সার্চ করুন</string>
     <string name="search_start_title">সার্চ করা শুরু করুন</string>
     <string name="search_start_subtitle">কমপক্ষে ২টি অক্ষর লিখুন</string>
-    <string name="search_start_subtitle_no_discover">Discover নিষ্ক্রিয় করা আছে। কমপক্ষে ২টি অক্ষর লিখুন</string>
     <string name="search_recent_title">সাম্প্রতিক সার্চ</string>
     <string name="search_recent_clear">হিস্ট্রি মুছুন</string>
     <string name="search_recent_clear_confirm_title">সার্চ হিস্ট্রি মুছবেন?</string>
@@ -1481,7 +1480,6 @@
     <string name="search_voice_mic_permission">ভয়েস সার্চের জন্য মাইক্রোফোন পারমিশন প্রয়োজন।</string>
     <string name="search_voice_failed">ভয়েস রিকগনিশন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</string>
     <string name="search_voice_unavailable">এই ডিভাইসে ভয়েস সার্চ উপলব্ধ নেই।</string>
-    <string name="search_no_results_title">কোনো ফলাফল নেই</string>
     <string name="search_no_results_subtitle">ভিন্ন কীওয়ার্ড দিয়ে সার্চ করার চেষ্টা করুন</string>
     <string name="search_error_no_catalogs">ইনস্টল করা অ্যাডনগুলোতে কোনো সার্চযোগ্য ক্যাটালগ পাওয়া যায়নি</string>
     <string name="search_no_catalogs_title">আপনার কোনো অ্যাডন সার্চ করতে পারে না</string>
@@ -1731,7 +1729,6 @@
     <string name="discover_filter_catalog">ক্যাটালগ</string>
     <string name="discover_filter_genre">জনরা</string>
     <string name="discover_select_catalog">ক্যাটালগ নির্বাচন করুন</string>
-    <string name="discover_genre_default">ডিফল্ট</string>
     <string name="discover_empty_no_catalog_title">একটি ক্যাটালগ নির্বাচন করুন</string>
     <string name="discover_empty_no_catalog_subtitle">ব্রাউজ করতে একটি ডিসকভার ক্যাটালগ বেছে নিন</string>
     <string name="discover_empty_no_content_title">কোনো কন্টেন্ট পাওয়া যায়নি</string>

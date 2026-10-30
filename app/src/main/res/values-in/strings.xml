@@ -1194,7 +1194,6 @@
     <string name="search_placeholder">Cari film &amp; serial</string>
     <string name="search_start_title">Mulai Mencari</string>
     <string name="search_start_subtitle">Masukkan setidaknya 2 karakter</string>
-    <string name="search_start_subtitle_no_discover">Penemuan dinonaktifkan. Masukkan setidaknya 2 karakter</string>
     <string name="search_recent_title">Pencarian terbaru</string>
     <string name="search_recent_clear">Hapus riwayat</string>
     <string name="search_recent_clear_confirm_title">Hapus riwayat pencarian?</string>
@@ -1378,7 +1377,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_select_catalog">Pilih</string>
-    <string name="discover_genre_default">Setelan Bawaan</string>
     <string name="discover_empty_no_catalog_title">Pilih katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Pilih katalog penemuan untuk dijelajahi</string>
     <string name="discover_empty_no_content_title">Tidak ada konten ditemukan</string>
@@ -1429,7 +1427,6 @@
     <string name="sync_generate_code_btn">Buat Kode</string>
 
     <!-- Search -->
-    <string name="search_no_results_title">Tidak Ada Hasil</string>
     <string name="search_no_results_subtitle">Coba cari dengan kata kunci yang berbeda</string>
     <string name="discover_disabled_title">Penemuan dinonaktifkan</string>
     <string name="discover_disabled_subtitle">Aktifkan Penemuan di pengaturan Tata Letak</string>

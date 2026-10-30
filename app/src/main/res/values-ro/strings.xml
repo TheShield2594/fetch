@@ -550,7 +550,6 @@
     <string name="search_placeholder">Caută filme &amp; seriale</string>
     <string name="search_start_title">Începe căutarea</string>
     <string name="search_start_subtitle">Introdu cel puțin 2 caractere</string>
-    <string name="search_start_subtitle_no_discover">Descoperirea este dezactivată. Introdu cel puțin 2 caractere</string>
     <string name="search_recent_clear_confirm_title">Ștergi istoricul căutărilor?</string>
     <string name="search_recent_clear_confirm_subtitle">Toate căutările recente vor fi eliminate. Acțiunea nu poate fi anulată.</string>
     <string name="search_no_catalogs_title">Niciuna dintre extensiile tale nu poate căuta</string>
@@ -677,7 +676,6 @@
     <string name="discover_filter_catalog">Catalog</string>
     <string name="discover_filter_genre">Gen</string>
     <string name="discover_select_catalog">Selectează</string>
-    <string name="discover_genre_default">Implicit</string>
     <string name="discover_empty_no_catalog_title">Selectați un catalog</string>
     <string name="discover_empty_no_catalog_subtitle">Alegeți un catalog de descoperire pentru a naviga</string>
     <string name="discover_empty_no_content_title">Nu a fost găsit niciun conținut</string>

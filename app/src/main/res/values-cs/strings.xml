@@ -1274,7 +1274,6 @@
     <string name="search_placeholder">Hledat filmy a seriály</string>
     <string name="search_start_title">Začněte hledat</string>
     <string name="search_start_subtitle">Zadejte alespoň 2 znaky</string>
-    <string name="search_start_subtitle_no_discover">Objevování je zakázáno. Zadejte alespoň 2 znaky</string>
     <string name="search_recent_title">Nedávná hledání</string>
     <string name="search_recent_clear">Vymazat historii</string>
     <string name="search_recent_clear_confirm_title">Vymazat historii hledání?</string>
@@ -1283,7 +1282,6 @@
     <string name="search_voice_mic_permission">Pro hlasové vyhledávání je vyžadováno oprávnění k mikrofonu.</string>
     <string name="search_voice_failed">Rozpoznání hlasu selhalo. Zkuste to znovu.</string>
     <string name="search_voice_unavailable">Hlasové vyhledávání není na tomto zařízení dostupné.</string>
-    <string name="search_no_results_title">Žádné výsledky</string>
     <string name="search_no_results_subtitle">Zkuste hledat s jinými klíčovými slovy</string>
     <string name="search_error_no_catalogs">V nainstalovaných doplňcích nebyly nalezeny žádné prohledávatelné katalogy</string>
     <string name="search_no_catalogs_title">Žádný z vašich doplňků neumí vyhledávat</string>
@@ -1481,7 +1479,6 @@
     <string name="discover_filter_catalog">Katalog</string>
     <string name="discover_filter_genre">Žánr</string>
     <string name="discover_select_catalog">Vybrat</string>
-    <string name="discover_genre_default">Výchozí</string>
     <string name="discover_empty_no_catalog_title">Vyberte katalog</string>
     <string name="discover_empty_no_catalog_subtitle">Vyberte katalog objevování k procházení</string>
     <string name="discover_empty_no_content_title">Nebyl nalezen žádný obsah</string>

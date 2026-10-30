@@ -1163,7 +1163,6 @@
     <string name="search_placeholder">திரைப்படங்கள் &amp; தொடர்கள் தேடு</string>
     <string name="search_start_title">தேடலை தொடங்கு</string>
     <string name="search_start_subtitle">குறைந்தது 2 எழுத்துகளை உள்ளிடவும்</string>
-    <string name="search_start_subtitle_no_discover">டிஸ்கவர் முடக்கப்பட்டுள்ளது. குறைந்தது 2 எழுத்துகளை உள்ளிடவும்</string>
     <string name="search_recent_title">சமீபத்திய தேடல்கள்</string>
     <string name="search_recent_clear">வரலாற்றை அழி</string>
     <string name="search_recent_clear_confirm_title">தேடல் வரலாற்றை அழிக்கவா?</string>
@@ -1346,7 +1345,6 @@
     <string name="discover_filter_catalog">கேட்டலாக்</string>
     <string name="discover_filter_genre">வகைப்பாடு</string>
     <string name="discover_select_catalog">தேர்ந்தெடு</string>
-    <string name="discover_genre_default">இயல்புநிலை</string>
     <string name="discover_empty_no_catalog_title">ஒரு கேட்டலாக் தேர்ந்தெடுக்கவும்</string>
     <string name="discover_empty_no_catalog_subtitle">உலாவ ஒரு கண்டறிதல் கேட்டலாக் தேர்ந்தெடுக்கவும்</string>
     <string name="discover_empty_no_content_title">உள்ளடக்கம் எதுவும் இல்லை</string>
@@ -1397,7 +1395,6 @@
     <string name="sync_generate_code_btn">குறியீடு உருவாக்கு</string>
 
     <!-- Search -->
-    <string name="search_no_results_title">முடிவுகள் இல்லை</string>
     <string name="search_no_results_subtitle">வேறு முக்கிய சொற்களுடன் தேட முயற்சிக்கவும்</string>
     <string name="discover_disabled_title">கண்டறிதல் முடக்கப்பட்டுள்ளது</string>
     <string name="discover_disabled_subtitle">வடிவமைப்பு அமைப்புகளில் கண்டறிதலை இயக்கு</string>

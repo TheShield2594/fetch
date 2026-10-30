@@ -109,10 +109,11 @@ internal val SettingsRowMinHeight = FetchSizes.tokens.settings.rowMinHeight
 internal const val SettingsDisabledContentAlpha = 0.4f
 
 /**
- * Lines a row title or value gets before it is cut off. Focus lifts the limit, so a long or
- * translated name can always be read in full on the row that has focus.
+ * Lines a row title or value gets before it is cut off. Focus raises the limit, so a long or
+ * translated name can be read in full on the row that has focus, while a runaway name still
+ * can't grow the row taller than the screen.
  */
-internal fun settingsRowTextMaxLines(focused: Boolean): Int = if (focused) Int.MAX_VALUE else 2
+internal fun settingsRowTextMaxLines(focused: Boolean): Int = if (focused) 6 else 2
 
 /**
  * Marks a row that holds several options side by side. Without it, moving into the row uses a

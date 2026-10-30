@@ -2945,9 +2945,10 @@
     <string name="playback_reset_to_default">Reset to default</string>
     <string name="playback_reset_buffer_confirm_title">Reset the buffer settings?</string>
     <string name="playback_reset_network_confirm_title">Reset the network settings?</string>
-    <string name="settings_reset_confirm_message">Every setting in this section goes back to its default. You can’t undo this.</string>
+    <string name="settings_reset_confirm_message">The settings above this button go back to their defaults. You can’t undo this.</string>
     <string name="settings_reset_confirm_action">Reset</string>
     <string name="settings_external_player_disabled_note">These options apply to Fetch’s own player only. Set Default Player to Internal to change them.</string>
+    <string name="settings_external_player_disabled_subtitles_note">Subtitle languages also choose which subtitles are forwarded. The other options apply to Fetch’s own player only. Set Default Player to Internal to change them.</string>
     <string name="playback_auto_skip_needs_skip_intro_note">Turn on Skip Intro to choose what is skipped automatically.</string>
     <string name="playback_net_custom">Custom Network</string>
     <string name="playback_net_custom_sub">Use multiple parallel connections to fetch progressive streams. When off, a single connection is used.</string>

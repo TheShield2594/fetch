@@ -44,7 +44,16 @@ internal fun PlaybackSubtitlesSection(
     val languageSelectionEnabled = enabled || settings.externalPlayerForwardSubtitles
 
     if (!enabled) {
-        SettingsNote(text = stringResource(R.string.settings_external_player_disabled_note))
+        // With forwarding on, the language rows still apply (they pick what is forwarded).
+        SettingsNote(
+            text = stringResource(
+                if (settings.externalPlayerForwardSubtitles) {
+                    R.string.settings_external_player_disabled_subtitles_note
+                } else {
+                    R.string.settings_external_player_disabled_note
+                }
+            )
+        )
     }
 
     SettingsSectionLabel(text = stringResource(R.string.sub_languages_label))

@@ -6,6 +6,7 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.disabled
@@ -85,7 +87,9 @@ internal fun SliderSettingsItem(
         ),
         onSetProgress = { target ->
             val stepCount = if (step > 0) ((target - minValue) / step).roundToInt() else 0
-            val newValue = (minValue + stepCount * step).coerceIn(minValue, maxValue)
+            // A maximum off the step grid is still reachable, as it is with Right.
+            val newValue = if (target >= maxValue) maxValue
+                else (minValue + stepCount * step).coerceIn(minValue, maxValue)
             if (newValue != value) onValueChange(newValue)
         },
         onDecrease = {
@@ -254,7 +258,7 @@ private fun SliderSettingsItemLayout(
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                SliderStepIcon(icon = Icons.Default.Remove, enabled = enabled)
+                SliderStepIcon(icon = Icons.Default.Remove, enabled = enabled, onTap = onDecrease)
 
                 Box(
                     modifier = Modifier
@@ -272,26 +276,31 @@ private fun SliderSettingsItemLayout(
                     )
                 }
 
-                SliderStepIcon(icon = Icons.Default.Add, enabled = enabled)
+                SliderStepIcon(icon = Icons.Default.Add, enabled = enabled, onTap = onIncrease)
             }
         }
     }
 }
 
 /**
- * The − and + beside the track. Only a hint at what Left and Right do: they can't take focus,
- * since the row already handles both keys and extra stops only trapped them.
+ * The − and + beside the track. They can't take focus, since the row already handles Left and
+ * Right and extra stops only trapped them, but a tap with a pointer or touch still steps the value.
  */
 @Composable
 private fun SliderStepIcon(
     icon: ImageVector,
-    enabled: Boolean
+    enabled: Boolean,
+    onTap: () -> Unit
 ) {
     Icon(
         imageVector = icon,
         contentDescription = null,
         tint = FetchTheme.colors.TextSecondary.copy(alpha = if (enabled) 1f else SettingsDisabledContentAlpha),
-        modifier = Modifier.size(20.dp)
+        modifier = Modifier
+            .size(20.dp)
+            .pointerInput(enabled, onTap) {
+                if (enabled) detectTapGestures { onTap() }
+            }
     )
 }
 

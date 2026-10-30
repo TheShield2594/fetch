@@ -66,18 +66,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
@@ -101,6 +101,7 @@ import com.fetch.tv.domain.model.localizedTitle
 import com.fetch.tv.ui.components.PosterGridSkeleton
 import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.FetchDialog
+import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.localizedContentType
 import com.fetch.tv.ui.util.localizedGenreLabel
@@ -240,22 +241,27 @@ fun LibraryScreen(
         LaunchedEffect(uiState.isLoading) {
             loadingFocusRequester.requestFocus()
         }
+        val syncingText = stringResource(R.string.library_syncing_library)
 
         Box(modifier = Modifier.fillMaxSize()) {
+            // Holds focus until the grid is ready. It's named, so TalkBack doesn't land on an
+            // unlabelled element.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .focusRequester(loadingFocusRequester)
                     .focusable()
+                    .semantics { contentDescription = syncingText }
             )
             Column(
                 modifier = Modifier.padding(start = FetchTheme.spacing.xxxl, top = FetchTheme.spacing.xl),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
             ) {
                 Text(
-                    text = stringResource(R.string.library_syncing_library),
+                    text = syncingText,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = FetchTheme.colors.TextSecondary
+                    color = FetchTheme.colors.TextSecondary,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
                 )
                 PosterGridSkeleton(cardWidth = posterCardStyle.width, cardHeight = posterCardStyle.height)
             }
@@ -285,6 +291,10 @@ fun LibraryScreen(
             }
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
+                // Observed, not consumed: clears an error banner that has been up long enough to read.
+                if (native.action == AndroidKeyEvent.ACTION_DOWN && uiState.transientMessageDismissible) {
+                    viewModel.onDismissReadError()
+                }
                 if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount > 0) {
                     val now = System.currentTimeMillis()
                     if (now - lastKeyRepeatTime[0] < KEY_REPEAT_THROTTLE_MS) {
@@ -306,25 +316,23 @@ fun LibraryScreen(
             ) {
                 Text(
                     text = stringResource(R.string.library_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = if (showBuiltInHeader) FetchTheme.colors.TextPrimary else Color.Transparent,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.5.sp
+                    style = FetchTheme.textStyles.sectionTitle,
+                    color = if (showBuiltInHeader) FetchTheme.colors.TextPrimary else Color.Transparent
                 )
+                // Source names are stored in natural case and capitalized here, once, for the locale.
+                val sourceName = when {
+                    viewMode == LibraryViewMode.Servers -> stringResource(R.string.library_source_servers)
+                    uiState.sourceMode == LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
+                    uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
+                    uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
+                    uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
+                    uiState.isFetchAccount -> stringResource(R.string.app_name)
+                    else -> stringResource(R.string.library_source_local)
+                }
                 Text(
-                    text = when {
-                        viewMode == LibraryViewMode.Servers -> stringResource(R.string.library_source_servers).uppercase(LocalConfiguration.current.locales[0])
-                        uiState.sourceMode == LibrarySourceMode.TRAKT -> "TRAKT"
-                        uiState.sourceMode == LibrarySourceMode.SIMKL -> "SIMKL"
-                        uiState.sourceMode == LibrarySourceMode.MDBLIST -> "MDBLIST"
-                        uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name).uppercase(LocalConfiguration.current.locales[0])
-                        uiState.isFetchAccount -> "FETCH"
-                        else -> stringResource(R.string.library_source_local)
-                    },
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (showBuiltInHeader) FetchTheme.colors.TextTertiary else Color.Transparent,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 2.sp
+                    text = sourceName.uppercase(LocalConfiguration.current.locales[0]),
+                    style = FetchTheme.textStyles.eyebrow,
+                    color = if (showBuiltInHeader) FetchTheme.colors.TextTertiary else Color.Transparent
                 )
             }
         }
@@ -436,9 +444,12 @@ fun LibraryScreen(
                         height = 300.dp,
                         modifier = Modifier.padding(bottom = FetchTheme.spacing.xxl),
                         action = if (signedOut) {
-                            StateAction(stringResource(R.string.nav_settings), onNavigateToSettings)
+                            val providerName = stringResource(
+                                if (uiState.sourceMode == LibrarySourceMode.SIMKL) R.string.simkl_name else R.string.trakt_name
+                            )
+                            StateAction(stringResource(R.string.library_action_connect_provider, providerName), onNavigateToSettings)
                         } else {
-                            StateAction(stringResource(R.string.nav_search), onNavigateToSearch)
+                            StateAction(stringResource(R.string.library_action_search_titles), onNavigateToSearch)
                         }
                     )
                 }
@@ -555,8 +566,9 @@ fun LibraryScreen(
             Text(
                 text = transientMessage,
                 style = MaterialTheme.typography.bodyMedium,
-                color = FetchTheme.colors.TextPrimary,
+                color = if (uiState.transientMessageIsError) FetchStatusTones.errorText else FetchTheme.colors.TextPrimary,
                 modifier = Modifier
+                    .semantics { liveRegion = LiveRegionMode.Polite }
                     .padding(top = FetchTheme.spacing.xl)
                     .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchTheme.radii.sm))
                     .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
@@ -595,6 +607,7 @@ private fun LibraryViewModeRow(
                     modifier = Modifier
                         .then(if (isSelected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
                         .semantics { selected = isSelected },
+                    shape = libraryButtonShape(),
                     colors = selectableButtonColors(isSelected)
                 ) {
                     if (isSelected) SelectedCheckmark()
@@ -648,7 +661,7 @@ private fun LibrarySelectorsRow(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -685,9 +698,9 @@ private fun LibrarySelectorsRow(
                 expanded = expandedPicker == "type",
                 options = typeTabs.map {
                     val label = if (it.key == LibraryTypeTab.ALL_KEY) it.label else {
-                        val countPart = it.label.substringAfterLast("(", "").removeSuffix(")")
+                        val count = it.label.substringAfterLast("(", "").removeSuffix(")").trim().toIntOrNull()
                         val localizedName = localizedTypeLabel(it.key)
-                        if (countPart.isNotBlank()) "$localizedName ($countPart)" else localizedName
+                        if (count != null) stringResource(R.string.library_filter_option_count, localizedName, count) else localizedName
                     }
                     LibraryOption(label, it.key)
                 },
@@ -727,7 +740,7 @@ private fun LibrarySelectorsRow(
                     selectedValue = selectedGenre ?: "__all__",
                     expanded = expandedPicker == "genre",
                     options = listOf(genreAllOption) + genres.map {
-                        LibraryOption("${localizedGenreLabel(it.label)} (${it.count})", it.key)
+                        LibraryOption(stringResource(R.string.library_filter_option_count, localizedGenreLabel(it.label), it.count), it.key)
                     },
                     onExpandedChange = { onExpandedChange("genre", it) },
                     onSelect = { option ->
@@ -745,7 +758,7 @@ private fun LibrarySelectorsRow(
                     selectedValue = selectedYear ?: "__all__",
                     expanded = expandedPicker == "year",
                     options = listOf(yearAllOption) + years.map {
-                        LibraryOption("${it.label} (${it.count})", it.key)
+                        LibraryOption(stringResource(R.string.library_filter_option_count, it.label, it.count), it.key)
                     },
                     onExpandedChange = { onExpandedChange("year", it) },
                     onSelect = { option ->
@@ -860,7 +873,7 @@ private fun LibraryDropdownPicker(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = FetchTheme.colors.TextTertiary
                 )
                 Row(
@@ -902,13 +915,13 @@ private fun LibraryDropdownPicker(
             options.forEach { option ->
                 val isSelected = option.value == selectedValue
                 val isOptionFocused = option.value == focusedOptionValue
+                // Focus is the neutral white used everywhere else; the accent is kept for primary actions.
                 val itemTextColor = when {
-                    isOptionFocused -> FetchTheme.colors.OnSecondary
-                    isSelected -> FetchTheme.colors.TextPrimary
+                    isOptionFocused -> FetchTheme.colors.OnHighlight
                     else -> FetchTheme.colors.TextPrimary
                 }
                 val itemBackgroundColor = when {
-                    isOptionFocused -> FetchTheme.colors.Secondary
+                    isOptionFocused -> FetchTheme.colors.Highlight
                     isSelected -> FetchTheme.colors.FocusBackground
                     else -> Color.Transparent
                 }
@@ -994,22 +1007,19 @@ private fun LibraryActionsRow(
             Button(
                 onClick = onManageLists,
                 enabled = !pending && !isSyncing,
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
+                shape = libraryButtonShape(),
+                colors = libraryButtonColors()
             ) {
                 Text(stringResource(R.string.library_manage_lists))
             }
         }
         if (showRefresh) {
+            // Stays enabled while syncing so it keeps focus; the "Syncing…" label is the state cue
+            // and a press during a sync does nothing.
             Button(
-                onClick = onRefresh,
-                enabled = !pending && !isSyncing,
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
+                onClick = { if (!pending && !isSyncing) onRefresh() },
+                shape = libraryButtonShape(),
+                colors = libraryButtonColors()
             ) {
                 Text(if (isSyncing) stringResource(R.string.library_syncing_btn) else stringResource(R.string.library_sync_btn))
             }
@@ -1063,10 +1073,8 @@ private fun ConfirmDeleteDialog(
                 modifier = Modifier
                     .weight(1f)
                     .focusRequester(cancelFocusRequester),
-                colors = ButtonDefaults.colors(
-                    containerColor = FetchTheme.colors.BackgroundCard,
-                    contentColor = FetchTheme.colors.TextPrimary
-                )
+                shape = libraryButtonShape(),
+                colors = libraryButtonColors()
             ) {
                 Text(stringResource(R.string.action_cancel))
             }
@@ -1074,6 +1082,7 @@ private fun ConfirmDeleteDialog(
                 onClick = onConfirm,
                 enabled = !pending,
                 modifier = Modifier.weight(1f),
+                shape = libraryButtonShape(),
                 colors = destructiveButtonColors()
             ) {
                 Text(stringResource(R.string.library_list_delete))

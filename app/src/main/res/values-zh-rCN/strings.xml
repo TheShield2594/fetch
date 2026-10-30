@@ -1293,9 +1293,6 @@
     <string name="stream_no_streams">找不到流</string>
     <string name="stream_no_streams_hint">尝试安装更多扩展以寻找流</string>
     <string name="stream_finding_source">正在寻找流来源</string>
-    <string name="stream_player_picker_title">应使用哪个播放器？</string>
-    <string name="stream_player_internal">内置</string>
-    <string name="stream_player_external">外部</string>
     <string name="stream_filter_all">全部</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
 

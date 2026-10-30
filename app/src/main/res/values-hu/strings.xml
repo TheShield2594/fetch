@@ -1369,9 +1369,6 @@
     <string name="stream_finding_source">Forrás keresése</string>
     <string name="youtube_resolving_stream">YouTube-videó betöltése</string>
     <string name="youtube_resolution_failed">Nem sikerült betölteni ezt a YouTube-videót.</string>
-    <string name="stream_player_picker_title">Melyik lejátszót használjuk?</string>
-    <string name="stream_player_internal">Belső</string>
-    <string name="stream_player_external">Külső</string>
     <string name="stream_filter_all">Összes</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
 

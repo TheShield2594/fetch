@@ -1012,9 +1012,6 @@
     <string name="stream_no_streams">Tidak ada stream ditemukan</string>
     <string name="stream_no_streams_hint">Coba pasang lebih banyak addon untuk menemukan stream</string>
     <string name="stream_finding_source">Mencari sumber stream</string>
-    <string name="stream_player_picker_title">Pemutar apa yang harus digunakan?</string>
-    <string name="stream_player_internal">Internal</string>
-    <string name="stream_player_external">Eksternal</string>
     <string name="stream_filter_all">Semua</string>
 
     <!-- PlayerScreen -->

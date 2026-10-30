@@ -1058,9 +1058,6 @@
     <string name="stream_no_streams">Не са намерени потоци</string>
     <string name="stream_no_streams_hint">Опитай да инсталираш повече добавки, за да намериш потоци</string>
     <string name="stream_finding_source">Търсене на източник на поток</string>
-    <string name="stream_player_picker_title">Кой плейър да се използва?</string>
-    <string name="stream_player_internal">Вграден</string>
-    <string name="stream_player_external">Външен</string>
     <string name="stream_filter_all">Всички</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
 

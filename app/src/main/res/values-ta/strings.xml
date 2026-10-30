@@ -987,9 +987,6 @@
     <string name="stream_no_streams">ஸ்ட்ரீம்கள் எதுவும் கிடைக்கவில்லை</string>
     <string name="stream_no_streams_hint">ஸ்ட்ரீம்களை கண்டுபிடிக்க மேலும் ஆடான்களை நிறுவ முயற்சிக்கவும்</string>
     <string name="stream_finding_source">ஸ்ட்ரீம் மூலத்தை கண்டுபிடிக்கிறது</string>
-    <string name="stream_player_picker_title">எந்த பிளேயர் பயன்படுத்தப்பட வேண்டும்?</string>
-    <string name="stream_player_internal">உள்ளமைவு</string>
-    <string name="stream_player_external">வெளிப்புறம்</string>
     <string name="stream_filter_all">அனைத்தும்</string>
 
     <!-- PlayerScreen -->

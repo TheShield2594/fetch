@@ -568,9 +568,6 @@
     <string name="stream_no_streams">कोई स्ट्रीम नहीं मिली</string>
     <string name="stream_no_streams_hint">स्ट्रीम खोजने के लिए और ऐडऑन इंस्टॉल करने की कोशिश करें</string>
     <string name="stream_finding_source">स्ट्रीम सोर्स खोजा जा रहा है</string>
-    <string name="stream_player_picker_title">कौन सा प्लेयर उपयोग किया जाए?</string>
-    <string name="stream_player_internal">इंटरनल</string>
-    <string name="stream_player_external">एक्सटर्नल</string>
 
     <!-- PlayerScreen -->
     <string name="player_no_external_player">कोई एक्सटर्नल प्लेयर नहीं मिला</string>

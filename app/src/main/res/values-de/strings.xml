@@ -1003,9 +1003,6 @@
     <string name="stream_no_streams">Keine Streams gefunden</string>
     <string name="stream_no_streams_hint">Versuchen Sie, weitere Add-ons zu installieren, um Streams zu finden</string>
     <string name="stream_finding_source">Suche nach Stream-Quelle</string>
-    <string name="stream_player_picker_title">Welcher Player soll verwendet werden?</string>
-    <string name="stream_player_internal">Intern</string>
-    <string name="stream_player_external">Extern</string>
     <string name="stream_filter_all">Alle</string>
 
     <!-- PlayerScreen -->

@@ -1377,9 +1377,6 @@
     <string name="stream_finding_source">Kaynak aranıyor</string>
     <string name="youtube_resolving_stream">YouTube videosu yükleniyor…</string>
     <string name="youtube_resolution_failed">Bu YouTube videosu yüklenemedi.</string>
-    <string name="stream_player_picker_title">Hangi oynatıcı kullanılsın?</string>
-    <string name="stream_player_internal">Dahili Oynatıcı</string>
-    <string name="stream_player_external">Harici Oynatıcı</string>
     <string name="stream_filter_all">Tümü</string>
 
     <!-- PlayerScreen -->

@@ -565,9 +565,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="stream_no_streams">Srautų nerasta</string>
     <string name="stream_no_streams_hint">Pabandykite įdiegti daugiau priedų srautų paieškai</string>
     <string name="stream_finding_source">Ieškoma srauto šaltinio</string>
-    <string name="stream_player_picker_title">Kuris grotuvas turėtų būti naudojamas?</string>
-    <string name="stream_player_internal">Vidinis</string>
-    <string name="stream_player_external">Išorinis</string>
 
     <!-- PlayerScreen -->
     <string name="player_no_external_player">Išorinis grotuvas nerastas</string>

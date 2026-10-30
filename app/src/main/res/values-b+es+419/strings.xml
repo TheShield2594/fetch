@@ -1377,9 +1377,6 @@
     <string name="stream_finding_source">Buscando fuentes de transmisión</string>
     <string name="youtube_resolving_stream">Cargando video de YouTube</string>
     <string name="youtube_resolution_failed">No se pudo cargar este video de YouTube.</string>
-    <string name="stream_player_picker_title">¿Qué reproductor se debería usar?</string>
-    <string name="stream_player_internal">Interno</string>
-    <string name="stream_player_external">Externo</string>
     <string name="stream_filter_all">Todos</string>
     <string name="stream_episode_label">T%1$d E%2$d</string>
     

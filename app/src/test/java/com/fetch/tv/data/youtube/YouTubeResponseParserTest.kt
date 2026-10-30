@@ -606,4 +606,30 @@ class YouTubeResponseParserTest {
             video.channels
         )
     }
+
+    @Test
+    fun `playlist options say which playlists already hold the video`() {
+        val options = YouTubeResponseParser.parsePlaylistOptions(
+            Json.parseToJsonElement(
+                """
+                {"contents": [{"addToPlaylistRenderer": {"playlists": [
+                  {"playlistAddToOptionRenderer": {"playlistId": "WL", "title": {"simpleText": "Watch later"},
+                    "containsSelectedVideos": "NONE"}},
+                  {"playlistAddToOptionRenderer": {"playlistId": "PLmine", "title": {"runs": [{"text": "Favourites"}]},
+                    "containsSelectedVideos": "ALL"}},
+                  {"playlistAddToOptionRenderer": {"playlistId": "PLnotitle"}}
+                ]}}]}
+                """
+            )
+        )
+
+        assertEquals(
+            listOf(
+                YouTubePlaylistOption("WL", "Watch later", containsVideo = false),
+                YouTubePlaylistOption("PLmine", "Favourites", containsVideo = true)
+            ),
+            options
+        )
+        assertTrue(options.first().isWatchLater)
+    }
 }

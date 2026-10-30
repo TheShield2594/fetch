@@ -19,6 +19,7 @@ import com.fetch.tv.data.youtube.YouTubeFeed
 import com.fetch.tv.data.youtube.YouTubeLikeStatus
 import com.fetch.tv.data.youtube.YouTubeLinkKind
 import com.fetch.tv.data.youtube.YouTubePage
+import com.fetch.tv.data.youtube.YouTubePlaylistOption
 import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeSignedOutException
@@ -75,6 +76,50 @@ data class YouTubePlaybackState(
     val actionFailed: Boolean = false
 )
 
+/**
+ * A video's long-press menu, and what it learns about the video once open: the channel's
+ * playlists (to save it to, or take it out of) and whether the channel is subscribed to.
+ */
+data class YouTubeVideoMenuState(
+    val video: YouTubeVideo,
+    /** The page under the menu, when it's a playlist; the menu can take the video out of it. */
+    val openPlaylist: YouTubeBrowseTarget? = null,
+    /** Null while loading, and when they couldn't be read ([playlistsFailed]). */
+    val playlists: List<YouTubePlaylistOption>? = null,
+    val playlistsFailed: Boolean = false,
+    /** The subscribe state of the video's channel, once the watch page has loaded. */
+    val actions: YouTubeVideoActions? = null,
+    /** The list of playlists to save to is showing, in place of the menu. */
+    val pickingPlaylist: Boolean = false
+) {
+    val watchLater: YouTubePlaylistOption?
+        get() = playlists?.firstOrNull { it.isWatchLater }
+
+    /** The video is in Watch Later; before the playlists load, only known on Watch Later's own page. */
+    val inWatchLater: Boolean
+        get() = watchLater?.containsVideo ?: (openPlaylist?.browseId == YouTubeService.WATCH_LATER_BROWSE_ID)
+
+    /** The open playlist, when it's one of the channel's own: only those can be edited. */
+    val editablePlaylist: YouTubePlaylistOption?
+        get() = openPlaylist?.let { page ->
+            playlists?.firstOrNull { YouTubeService.PLAYLIST_BROWSE_PREFIX + it.playlistId == page.browseId }
+        }
+
+    /** The open page is Liked videos, which the video leaves by being unliked. */
+    val inLikedVideos: Boolean
+        get() = openPlaylist?.browseId == YouTubeService.LIKED_BROWSE_ID
+}
+
+/** A short message about something done from the menu, shown once. */
+sealed interface YouTubeNotice {
+    data class Saved(val playlist: String) : YouTubeNotice
+    data class Removed(val playlist: String) : YouTubeNotice
+    data object RemovedFromLiked : YouTubeNotice
+    data class Subscribed(val channel: String?) : YouTubeNotice
+    data class Unsubscribed(val channel: String?) : YouTubeNotice
+    data object Failed : YouTubeNotice
+}
+
 /** A page opened over the tabs: a channel, a playlist, or all of a row. Back closes it. */
 data class YouTubeBrowsePage(
     val target: YouTubeBrowseTarget,
@@ -88,7 +133,9 @@ data class YouTubeUiState(
     val signedOut: Boolean = false,
     val playback: YouTubePlaybackState? = null,
     /** Pages opened from the feeds, the one showing last. */
-    val browse: List<YouTubeBrowsePage> = emptyList()
+    val browse: List<YouTubeBrowsePage> = emptyList(),
+    val menu: YouTubeVideoMenuState? = null,
+    val notice: YouTubeNotice? = null
 ) {
     val currentFeed: YouTubeFeedState
         get() = browse.lastOrNull()?.feed ?: feeds[selectedFeed] ?: YouTubeFeedState()
@@ -135,6 +182,7 @@ class YouTubeViewModel @Inject constructor(
     private val loadMoreJobs = mutableListOf<Job>()
     private var playbackJob: Job? = null
     private var captionJob: Job? = null
+    private var menuJob: Job? = null
     private var watchSession: YouTubeWatchSession? = null
     private var lastPositionMs = 0L
     private var lastDurationMs = 0L
@@ -152,7 +200,10 @@ class YouTubeViewModel @Inject constructor(
                 lastIdentity = identity
                 // Nothing the old account asked for may land in the new one's feeds.
                 cancelFeedLoads()
-                _uiState.update { it.copy(signedOut = !signedIn, feeds = emptyMap(), searchQuery = "", browse = emptyList()) }
+                menuJob?.cancel()
+                _uiState.update {
+                    it.copy(signedOut = !signedIn, feeds = emptyMap(), searchQuery = "", browse = emptyList(), menu = null)
+                }
                 val selected = _uiState.value.selectedFeed
                 if (signedIn && selected != YouTubeFeed.SEARCH) load(FeedKey.Tab(selected))
             }
@@ -433,6 +484,131 @@ class YouTubeViewModel @Inject constructor(
                 // Only undone if nothing changed it since.
                 if (playback.actions == after) playback.copy(actions = before, actionFailed = true) else playback
             }
+        }
+    }
+
+    /** Opens [video]'s long-press menu, and reads its playlists and channel for the actions that need them. */
+    fun openMenu(video: YouTubeVideo) {
+        menuJob?.cancel()
+        val openPlaylist = _uiState.value.browse.lastOrNull()?.target
+            ?.takeIf { it.browseId.startsWith(YouTubeService.PLAYLIST_BROWSE_PREFIX) }
+        _uiState.update { it.copy(menu = YouTubeVideoMenuState(video, openPlaylist)) }
+        menuJob = viewModelScope.launch {
+            val actions = async { orNull { youTubeService.loadWatchNext(video.videoId).actions } }
+            val playlists = orNull { youTubeService.loadPlaylistOptions(video.videoId) }
+            updateMenu(video) { it.copy(playlists = playlists, playlistsFailed = playlists == null) }
+            val loaded = actions.await()
+            updateMenu(video) { it.copy(actions = loaded) }
+        }
+    }
+
+    fun closeMenu() {
+        menuJob?.cancel()
+        menuJob = null
+        _uiState.update { it.copy(menu = null) }
+    }
+
+    /** Shows the list of playlists to save the menu's video to, or goes back to the menu. */
+    fun showPlaylistPicker(show: Boolean) {
+        _uiState.update { state -> state.copy(menu = state.menu?.copy(pickingPlaylist = show)) }
+    }
+
+    /**
+     * Saves the menu's video to [option], or takes it out when it's there already. Shown at once,
+     * and undone if YouTube refuses. Taken out of the playlist that's open, it leaves its page too.
+     */
+    fun togglePlaylist(option: YouTubePlaylistOption, closeMenu: Boolean = false) {
+        val video = _uiState.value.menu?.video ?: return
+        val add = !option.containsVideo
+        fun mark(contains: Boolean) = updateMenu(video) { menu ->
+            menu.copy(playlists = menu.playlists?.map {
+                if (it.playlistId == option.playlistId) it.copy(containsVideo = contains) else it
+            })
+        }
+        mark(add)
+        if (closeMenu) closeMenu()
+        viewModelScope.launch {
+            val done = orNull { youTubeService.setInPlaylist(option.playlistId, video.videoId, inPlaylist = add) } != null
+            if (!done) {
+                mark(!add)
+                notify(YouTubeNotice.Failed)
+                return@launch
+            }
+            if (!add) removeFromPage(YouTubeService.PLAYLIST_BROWSE_PREFIX + option.playlistId, video.videoId)
+            notify(if (add) YouTubeNotice.Saved(option.title) else YouTubeNotice.Removed(option.title))
+        }
+    }
+
+    /** Saves the menu's video to Watch Later, or takes it out, and closes the menu. */
+    fun toggleWatchLater() {
+        val menu = _uiState.value.menu ?: return
+        // Before the playlists load, untitled: the screen names it.
+        val option = menu.watchLater
+            ?: YouTubePlaylistOption(YouTubeService.WATCH_LATER_PLAYLIST_ID, title = "", containsVideo = menu.inWatchLater)
+        togglePlaylist(option, closeMenu = true)
+    }
+
+    /** Takes the menu's video out of Liked videos by clearing its like, and closes the menu. */
+    fun removeFromLiked() {
+        val video = _uiState.value.menu?.video ?: return
+        closeMenu()
+        viewModelScope.launch {
+            val done = orNull { youTubeService.setLikeStatus(video.videoId, YouTubeLikeStatus.INDIFFERENT) } != null
+            if (done) removeFromPage(YouTubeService.LIKED_BROWSE_ID, video.videoId)
+            notify(if (done) YouTubeNotice.RemovedFromLiked else YouTubeNotice.Failed)
+        }
+    }
+
+    /** Subscribes to the menu's video's channel, or unsubscribes, and closes the menu. */
+    fun toggleMenuSubscription() {
+        val actions = _uiState.value.menu?.actions ?: return
+        val channelId = actions.channelId ?: return
+        val subscribed = actions.subscribed ?: return
+        closeMenu()
+        viewModelScope.launch {
+            val done = orNull {
+                youTubeService.setSubscribed(
+                    channelId,
+                    subscribed = !subscribed,
+                    params = if (subscribed) actions.unsubscribeParams else actions.subscribeParams
+                )
+            } != null
+            notify(
+                when {
+                    !done -> YouTubeNotice.Failed
+                    subscribed -> YouTubeNotice.Unsubscribed(actions.channelName)
+                    else -> YouTubeNotice.Subscribed(actions.channelName)
+                }
+            )
+        }
+    }
+
+    /** The notice was shown. */
+    fun consumeNotice() {
+        _uiState.update { it.copy(notice = null) }
+    }
+
+    private fun notify(notice: YouTubeNotice) {
+        _uiState.update { it.copy(notice = notice) }
+    }
+
+    private fun updateMenu(video: YouTubeVideo, transform: (YouTubeVideoMenuState) -> YouTubeVideoMenuState) {
+        _uiState.update { state ->
+            val menu = state.menu?.takeIf { it.video.videoId == video.videoId } ?: return@update state
+            state.copy(menu = transform(menu))
+        }
+    }
+
+    /** Drops [videoId] from the open pages of [browseId], once it's been taken out of that playlist. */
+    private fun removeFromPage(browseId: String, videoId: String) {
+        _uiState.update { state ->
+            state.copy(browse = state.browse.map { page ->
+                if (page.target.browseId != browseId) return@map page
+                val shelves = page.feed.shelves
+                    .map { shelf -> shelf.copy(videos = shelf.videos.filterNot { it.videoId == videoId }) }
+                    .filterNot { it.isEmpty() }
+                page.copy(feed = page.feed.copy(shelves = shelves))
+            })
         }
     }
 

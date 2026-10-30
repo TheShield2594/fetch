@@ -111,6 +111,25 @@ internal object YouTubeResponseParser {
         )
     }
 
+    /**
+     * The playlists of a `playlist/get_add_to_playlist` response, from each
+     * `playlistAddToOptionRenderer`. `containsSelectedVideos` is "ALL" when the video is in it.
+     */
+    fun parsePlaylistOptions(root: JsonElement): List<YouTubePlaylistOption> {
+        val found = mutableListOf<JsonObject>()
+        findObjectsWithKey(root, "playlistAddToOptionRenderer", found, depth = 0)
+        return found
+            .mapNotNull { holder ->
+                val option = holder["playlistAddToOptionRenderer"] as? JsonObject ?: return@mapNotNull null
+                YouTubePlaylistOption(
+                    playlistId = option["playlistId"].stringOrNull() ?: return@mapNotNull null,
+                    title = text(option["title"]) ?: return@mapNotNull null,
+                    containsVideo = option["containsSelectedVideos"].stringOrNull() == "ALL"
+                )
+            }
+            .distinctBy { it.playlistId }
+    }
+
     /** Every channel the signed-in Google account can act as: the account itself and its brand accounts. */
     fun parseAccounts(root: JsonElement): List<YouTubeAccount> {
         val accounts = mutableListOf<JsonObject>()

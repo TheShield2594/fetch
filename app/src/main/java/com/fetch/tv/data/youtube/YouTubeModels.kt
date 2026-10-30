@@ -128,6 +128,18 @@ data class YouTubeVideoActions(
     val unsubscribeParams: String? = null
 )
 
+/** One of the signed-in channel's playlists a video can be saved to, Watch Later among them. */
+data class YouTubePlaylistOption(
+    /** The playlist's own id: "WL" for Watch Later, otherwise a PL… id. Its page is "VL" + this. */
+    val playlistId: String,
+    val title: String,
+    /** The video is already in it. */
+    val containsVideo: Boolean
+) {
+    val isWatchLater: Boolean
+        get() = playlistId == YouTubeService.WATCH_LATER_PLAYLIST_ID
+}
+
 enum class YouTubeLikeStatus {
     LIKE,
     DISLIKE,

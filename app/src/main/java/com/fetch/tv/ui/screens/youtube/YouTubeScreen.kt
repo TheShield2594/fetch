@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.youtube
 
 import android.view.KeyEvent
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +31,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
+import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
@@ -52,8 +56,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -77,6 +83,8 @@ import com.fetch.tv.data.youtube.YouTubeChannelRef
 import com.fetch.tv.data.youtube.YouTubeFeed
 import com.fetch.tv.data.youtube.YouTubeLink
 import com.fetch.tv.data.youtube.YouTubeLinkKind
+import com.fetch.tv.data.youtube.YouTubePlaylistOption
+import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.ui.components.EmptyScreenState
@@ -102,8 +110,6 @@ fun YouTubeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val firstTabFocusRequester = remember { FocusRequester() }
-    // The video whose long-press menu is open.
-    var menuVideo by remember { mutableStateOf<YouTubeVideo?>(null) }
     val openPage = state.browse.lastOrNull()
     val pageKey = pageKey(state, state.browse.size)
     val memory = remember { YouTubePageMemory() }
@@ -141,6 +147,19 @@ fun YouTubeScreen(
             pendingFocus = null
             firstTabFocusRequester.requestFocusAfterFrames()
         }
+    }
+    // What was done from a video's menu, said once.
+    val context = LocalContext.current
+    val notice = state.notice
+    val noticeText = notice?.let { noticeText(it) }
+    LaunchedEffect(notice) {
+        if (noticeText == null) return@LaunchedEffect
+        Toast.makeText(context, noticeText, Toast.LENGTH_SHORT).show()
+        viewModel.consumeNotice()
+    }
+    // A video leaving the open playlist takes its card away: the card beside it takes focus.
+    val focusAfterRemoving = { video: YouTubeVideo ->
+        pendingFocus = PendingFocus(pageKey, neighbourItem(feed, video.videoId) ?: NO_CARD)
     }
     val cardFocus = CardFocus(
         page = pageKey,
@@ -225,7 +244,7 @@ fun YouTubeScreen(
                         isLoadingMore = feed.isLoadingMore || 0 in feed.loadingShelves,
                         onNearEnd = viewModel::loadMore,
                         onPlay = viewModel::play,
-                        onMenu = { menuVideo = it },
+                        onMenu = viewModel::openMenu,
                         onOpen = viewModel::openBrowse
                     )
                     else -> YouTubeShelves(
@@ -236,7 +255,7 @@ fun YouTubeScreen(
                         onNearFeedEnd = viewModel::loadMore,
                         onNearShelfEnd = viewModel::loadMoreInShelf,
                         onPlay = viewModel::play,
-                        onMenu = { menuVideo = it },
+                        onMenu = viewModel::openMenu,
                         onViewAll = viewModel::openBrowse
                     )
                 }
@@ -244,19 +263,50 @@ fun YouTubeScreen(
         }
     }
 
-    menuVideo?.let { video ->
-        YouTubeVideoMenu(
-            video = video,
-            onDismiss = { menuVideo = null },
-            onPlay = {
-                menuVideo = null
-                viewModel.play(video)
-            },
-            onOpenChannel = { channel ->
-                menuVideo = null
-                viewModel.openChannel(video, channel)
-            }
-        )
+    state.menu?.let { menu ->
+        val video = menu.video
+        if (menu.pickingPlaylist) {
+            YouTubePlaylistPicker(
+                menu = menu,
+                onBack = { viewModel.showPlaylistPicker(false) },
+                onToggle = { option ->
+                    // Out of the playlist that's open, the video leaves the page under the menu: the menu closes.
+                    val leavesPage = option.containsVideo &&
+                        menu.openPlaylist?.browseId == YouTubeService.PLAYLIST_BROWSE_PREFIX + option.playlistId
+                    if (leavesPage) focusAfterRemoving(video)
+                    viewModel.togglePlaylist(option, closeMenu = leavesPage)
+                }
+            )
+        } else {
+            YouTubeVideoMenu(
+                menu = menu,
+                onDismiss = viewModel::closeMenu,
+                onPlay = {
+                    viewModel.closeMenu()
+                    viewModel.play(video)
+                },
+                onOpenChannel = { channel ->
+                    viewModel.closeMenu()
+                    viewModel.openChannel(video, channel)
+                },
+                onToggleSubscription = viewModel::toggleMenuSubscription,
+                onToggleWatchLater = {
+                    val leavesPage = menu.inWatchLater &&
+                        menu.openPlaylist?.browseId == YouTubeService.WATCH_LATER_BROWSE_ID
+                    if (leavesPage) focusAfterRemoving(video)
+                    viewModel.toggleWatchLater()
+                },
+                onSaveToPlaylist = { viewModel.showPlaylistPicker(true) },
+                onRemoveFromOpenPlaylist = {
+                    focusAfterRemoving(video)
+                    if (menu.inLikedVideos) {
+                        viewModel.removeFromLiked()
+                    } else {
+                        menu.editablePlaylist?.let { viewModel.togglePlaylist(it, closeMenu = true) }
+                    }
+                }
+            )
+        }
     }
 
     state.playback?.let { playback ->
@@ -276,6 +326,42 @@ fun YouTubeScreen(
 
 /** How many frames a card asked to take focus has to show up before the tabs take it instead. */
 private const val FOCUS_RESTORE_FRAMES = 10
+
+/** A card no page has, so the tabs take focus: for when the last card of a page goes. */
+private const val NO_CARD = "none"
+
+/**
+ * The focus key of the card beside [videoId] on [feed]'s page, the one after it or else the one
+ * before; null when it's the only card in its row. Keys match the grid's and the rows' own.
+ */
+private fun neighbourItem(feed: YouTubeFeedState, videoId: String): String? {
+    feed.shelves.forEachIndexed { index, shelf ->
+        val position = shelf.videos.indexOfFirst { it.videoId == videoId }
+        if (position < 0) return@forEachIndexed
+        val neighbour = shelf.videos.getOrNull(position + 1) ?: shelf.videos.getOrNull(position - 1) ?: return null
+        return if (feed.shelves.size == 1) neighbour.videoId else "shelf_$index/${neighbour.videoId}"
+    }
+    return null
+}
+
+@Composable
+private fun noticeText(notice: YouTubeNotice): String = when (notice) {
+    // Watch Later saved before the playlists loaded has no title from YouTube.
+    is YouTubeNotice.Saved -> stringResource(
+        R.string.youtube_notice_saved,
+        notice.playlist.ifBlank { stringResource(R.string.youtube_watch_later) }
+    )
+    is YouTubeNotice.Removed -> stringResource(
+        R.string.youtube_notice_removed,
+        notice.playlist.ifBlank { stringResource(R.string.youtube_watch_later) }
+    )
+    YouTubeNotice.RemovedFromLiked -> stringResource(R.string.youtube_notice_removed, stringResource(R.string.youtube_liked_videos))
+    is YouTubeNotice.Subscribed -> notice.channel?.let { stringResource(R.string.youtube_notice_subscribed, it) }
+        ?: stringResource(R.string.youtube_action_subscribed)
+    is YouTubeNotice.Unsubscribed -> notice.channel?.let { stringResource(R.string.youtube_notice_unsubscribed, it) }
+        ?: stringResource(R.string.youtube_notice_unsubscribed_plain)
+    YouTubeNotice.Failed -> stringResource(R.string.youtube_action_failed)
+}
 
 /** The tab, or the page opened [depth] deep over the tabs, that [state] shows at that depth. */
 private fun pageKey(state: YouTubeUiState, depth: Int): String {
@@ -719,46 +805,147 @@ private fun YouTubeViewAllCard(
     }
 }
 
-/** A video's long-press menu: play it, or open its channel, or one of a collaboration's. */
+/**
+ * A video's long-press menu, as in YouTube's TV app and SmartTube: play it, open its channel (or
+ * one of a collaboration's), subscribe, save it to Watch Later or a playlist, and take it out of
+ * the playlist it's being shown in. The actions that need the channel's playlists or the watch
+ * page show once those load.
+ */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun YouTubeVideoMenu(
-    video: YouTubeVideo,
+    menu: YouTubeVideoMenuState,
     onDismiss: () -> Unit,
     onPlay: () -> Unit,
-    onOpenChannel: (YouTubeChannelRef?) -> Unit
+    onOpenChannel: (YouTubeChannelRef?) -> Unit,
+    onToggleSubscription: () -> Unit,
+    onToggleWatchLater: () -> Unit,
+    onSaveToPlaylist: () -> Unit,
+    onRemoveFromOpenPlaylist: () -> Unit
 ) {
+    val video = menu.video
     val playFocusRequester = remember { FocusRequester() }
     // The dialog's content attaches after this effect starts.
     LaunchedEffect(Unit) { playFocusRequester.requestFocusAfterFrames() }
-    val buttonColors = ButtonDefaults.colors(
-        containerColor = FetchTheme.colors.BackgroundCard,
-        contentColor = FetchTheme.colors.TextPrimary
-    )
     FetchDialog(onDismiss = onDismiss, title = video.title, subtitle = video.channelName, scrollable = true) {
-        Button(
+        YouTubeMenuButton(
+            text = stringResource(R.string.youtube_menu_play),
             onClick = onPlay,
-            colors = buttonColors,
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(playFocusRequester)
-        ) {
-            Text(stringResource(R.string.youtube_menu_play))
-        }
+            modifier = Modifier.focusRequester(playFocusRequester)
+        )
         // A collaboration names each of its channels; a video from one channel just goes to it.
         val named = video.channels.filter { it.name != null }
         if (named.size > 1) {
             named.forEach { channel ->
-                Button(onClick = { onOpenChannel(channel) }, colors = buttonColors, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.youtube_menu_go_to_named_channel, channel.name.orEmpty()))
+                YouTubeMenuButton(stringResource(R.string.youtube_menu_go_to_named_channel, channel.name.orEmpty())) {
+                    onOpenChannel(channel)
                 }
             }
         } else if (video.channelId != null || video.channels.isNotEmpty()) {
-            Button(onClick = { onOpenChannel(null) }, colors = buttonColors, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.youtube_menu_go_to_channel))
+            YouTubeMenuButton(stringResource(R.string.youtube_menu_go_to_channel)) { onOpenChannel(null) }
+        }
+        // There's no subscribe button for the channel's own videos.
+        val actions = menu.actions
+        if (actions?.channelId != null && actions.subscribed != null) {
+            val channel = actions.channelName ?: video.channelName
+            val label = when {
+                channel == null && actions.subscribed -> stringResource(R.string.youtube_menu_unsubscribe)
+                channel == null -> stringResource(R.string.youtube_action_subscribe)
+                actions.subscribed -> stringResource(R.string.youtube_menu_unsubscribe_from, channel)
+                else -> stringResource(R.string.youtube_menu_subscribe_to, channel)
+            }
+            YouTubeMenuButton(label, onClick = onToggleSubscription)
+        }
+        YouTubeMenuButton(
+            text = stringResource(
+                if (menu.inWatchLater) R.string.youtube_menu_remove_watch_later
+                else R.string.youtube_menu_save_watch_later
+            ),
+            onClick = onToggleWatchLater
+        )
+        YouTubeMenuButton(stringResource(R.string.youtube_menu_save_to_playlist), onClick = onSaveToPlaylist)
+        // Watch Later's own button already takes the video out of it.
+        val removable = menu.editablePlaylist?.takeIf { !it.isWatchLater && it.containsVideo }
+        when {
+            menu.inLikedVideos -> YouTubeMenuButton(
+                stringResource(R.string.youtube_menu_remove_from_playlist, stringResource(R.string.youtube_liked_videos)),
+                onClick = onRemoveFromOpenPlaylist
+            )
+            removable != null -> YouTubeMenuButton(
+                stringResource(R.string.youtube_menu_remove_from_playlist, removable.title),
+                onClick = onRemoveFromOpenPlaylist
+            )
+        }
+    }
+}
+
+/** The channel's playlists, each checked when it holds the menu's video. Pressing one saves it there, or takes it out. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun YouTubePlaylistPicker(
+    menu: YouTubeVideoMenuState,
+    onBack: () -> Unit,
+    onToggle: (YouTubePlaylistOption) -> Unit
+) {
+    val firstFocusRequester = remember { FocusRequester() }
+    val playlists = menu.playlists
+    // Focus waits for the list, which may still be loading when this opens.
+    LaunchedEffect(playlists != null) {
+        if (!playlists.isNullOrEmpty()) firstFocusRequester.requestFocusAfterFrames()
+    }
+    FetchDialog(
+        onDismiss = onBack,
+        title = stringResource(R.string.youtube_menu_save_to_playlist_title),
+        subtitle = menu.video.title,
+        scrollable = true
+    ) {
+        when {
+            menu.playlistsFailed -> YouTubeMenuMessage(stringResource(R.string.youtube_menu_playlists_failed))
+            playlists == null -> YouTubeMenuMessage(stringResource(R.string.youtube_menu_playlists_loading))
+            playlists.isEmpty() -> YouTubeMenuMessage(stringResource(R.string.youtube_menu_playlists_empty))
+            else -> playlists.forEachIndexed { index, option ->
+                YouTubeMenuButton(
+                    text = option.title,
+                    onClick = { onToggle(option) },
+                    icon = if (option.containsVideo) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
+                    modifier = if (index == 0) Modifier.focusRequester(firstFocusRequester) else Modifier
+                )
             }
         }
     }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun YouTubeMenuButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.colors(
+            containerColor = FetchTheme.colors.BackgroundCard,
+            contentColor = FetchTheme.colors.TextPrimary
+        ),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        if (icon != null) {
+            Icon(imageVector = icon, contentDescription = null)
+            Spacer(Modifier.width(FetchTheme.spacing.sm))
+        }
+        Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+@Composable
+private fun YouTubeMenuMessage(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = FetchTheme.colors.TextSecondary
+    )
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

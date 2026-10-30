@@ -837,9 +837,6 @@
     <string name="stream_no_streams">Потоки не найдены</string>
     <string name="stream_no_streams_hint">Попробуйте установить больше аддонов для поиска потоков</string>
     <string name="stream_finding_source">Поиск источника потока</string>
-    <string name="stream_player_picker_title">Какой плеер использовать?</string>
-    <string name="stream_player_internal">Встроенный</string>
-    <string name="stream_player_external">Внешний</string>
 
     <!-- PlayerScreen -->
     <string name="player_no_external_player">Внешний плеер не найден</string>

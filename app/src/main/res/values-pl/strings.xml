@@ -689,9 +689,6 @@
     <string name="stream_no_streams">Nie znaleziono źródeł</string>
     <string name="stream_no_streams_hint">Spróbuj zainstalować więcej dodatków, aby znaleźć źródła</string>
     <string name="stream_finding_source">Wyszukiwanie źródła strumienia</string>
-    <string name="stream_player_picker_title">Którego odtwarzacza użyć?</string>
-    <string name="stream_player_internal">Wbudowany</string>
-    <string name="stream_player_external">Zewnętrzny</string>
 
     <!-- PlayerScreen -->
     <string name="player_ends_at">Koniec o: %1$s</string>

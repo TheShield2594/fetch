@@ -1111,9 +1111,6 @@
     <string name="stream_no_streams">Nuk u gjetën transmetime</string>
     <string name="stream_no_streams_hint">Provo të instalosh më shumë shtesa për të gjetur transmetime</string>
     <string name="stream_finding_source">Duke kërkuar burimin e transmetimit</string>
-    <string name="stream_player_picker_title">Cili luajtës duhet të përdoret?</string>
-    <string name="stream_player_internal">I brendshëm</string>
-    <string name="stream_player_external">I jashtëm</string>
     <string name="stream_filter_all">Të gjitha</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
     <string name="player_no_external_player">Nuk u gjet luajtës i jashtëm</string>

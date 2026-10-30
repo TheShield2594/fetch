@@ -35,6 +35,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
@@ -123,13 +128,20 @@ internal fun FetchingPanel(
                     stringResource(R.string.fetching_addons_done, answered)
                 },
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = FetchTheme.colors.TextPrimary
+                color = FetchTheme.colors.TextPrimary,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
             )
             if (secondsLeft != null && hasBest) {
+                // The visible count ticks every second; TalkBack hears once that playback will start.
+                val autoPlayNotice = stringResource(R.string.fetching_auto_play_notice)
                 Text(
                     text = pluralStringResource(R.plurals.fetching_starting_in, secondsLeft, secondsLeft),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = FetchTheme.colors.TextSecondary
+                    color = FetchTheme.colors.TextSecondary,
+                    modifier = Modifier.clearAndSetSemantics {
+                        contentDescription = autoPlayNotice
+                        liveRegion = LiveRegionMode.Polite
+                    }
                 )
             }
         }
@@ -142,7 +154,7 @@ internal fun FetchingPanel(
             shownBest.value?.let { best ->
                 Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
                     Text(
-                        text = stringResource(R.string.fetching_best_so_far).uppercase(),
+                        text = stringResource(R.string.fetching_best_so_far),
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                         color = FetchTheme.colors.TextSecondary
                     )

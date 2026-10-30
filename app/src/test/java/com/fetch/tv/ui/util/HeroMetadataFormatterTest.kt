@@ -1,9 +1,17 @@
 package com.fetch.tv.ui.util
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import java.util.Locale
 
+// Robolectric for android.icu's MeasureFormat, which the runtime text comes from.
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], application = android.app.Application::class)
 class HeroMetadataFormatterTest {
 
     @Test
@@ -11,6 +19,13 @@ class HeroMetadataFormatterTest {
         assertEquals("2h 5m", formatHeroRuntime("125"))
         assertEquals("1h 30m", formatHeroRuntime("90 min"))
         assertEquals("45m", formatHeroRuntime("45"))
+    }
+
+    @Test
+    fun `uses the locale's units`() {
+        assertEquals("2h 5m", formatRuntimeMinutes(125, Locale.US))
+        assertEquals(formatRuntimeMinutes(125, Locale.US), formatHeroRuntime("125"))
+        assertNotEquals("2h 5m", formatRuntimeMinutes(125, Locale.GERMAN))
     }
 
     @Test

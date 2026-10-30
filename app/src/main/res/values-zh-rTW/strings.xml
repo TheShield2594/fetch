@@ -1293,9 +1293,6 @@
     <string name="stream_no_streams">找不到串流</string>
     <string name="stream_no_streams_hint">嘗試安裝更多擴充套件以尋找串流</string>
     <string name="stream_finding_source">正在尋找串流來源</string>
-    <string name="stream_player_picker_title">應使用哪個播放器？</string>
-    <string name="stream_player_internal">內建</string>
-    <string name="stream_player_external">外部</string>
     <string name="stream_filter_all">全部</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
 

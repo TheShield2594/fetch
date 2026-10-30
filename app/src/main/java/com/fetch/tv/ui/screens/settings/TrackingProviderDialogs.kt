@@ -3,6 +3,8 @@
 package com.fetch.tv.ui.screens.settings
 
 import android.content.Intent
+import android.icu.util.Measure
+import android.icu.util.MeasureUnit
 import android.net.Uri
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
@@ -66,6 +68,7 @@ import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.util.formatDuration
 import com.fetch.tv.ui.util.rememberRawSvgPainter
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.delay
@@ -932,10 +935,10 @@ internal fun formatTrackingDuration(valueMs: Long): String {
     val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) % 60
     val seconds = totalSeconds % 60
     return when {
-        days > 0 -> "${days}d ${hours}h"
-        hours > 0 -> "${hours}h ${minutes}m"
-        minutes > 0 -> "${minutes}m ${seconds}s"
-        else -> "${seconds}s"
+        days > 0 -> formatDuration(Measure(days, MeasureUnit.DAY), Measure(hours, MeasureUnit.HOUR))
+        hours > 0 -> formatDuration(Measure(hours, MeasureUnit.HOUR), Measure(minutes, MeasureUnit.MINUTE))
+        minutes > 0 -> formatDuration(Measure(minutes, MeasureUnit.MINUTE), Measure(seconds, MeasureUnit.SECOND))
+        else -> formatDuration(Measure(seconds, MeasureUnit.SECOND))
     }
 }
 

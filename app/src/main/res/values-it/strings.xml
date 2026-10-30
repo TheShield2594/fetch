@@ -1210,9 +1210,6 @@
 <string name="stream_no_streams">Nessuno stream trovato</string>
 <string name="stream_no_streams_hint">Prova a installare più addon per trovare degli stream</string>
 <string name="stream_finding_source">Recupero Sorgente Video</string>
-<string name="stream_player_picker_title">Quale player vuoi usare?</string>
-<string name="stream_player_internal">Interno</string>
-<string name="stream_player_external">Esterno</string>
 <string name="stream_filter_all">Tutto</string>
 <string name="stream_episode_label">S%1$d E%2$d</string>
 

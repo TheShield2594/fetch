@@ -1241,9 +1241,6 @@
     <string name="stream_no_streams">Nenhuma fonte encontrada</string>
     <string name="stream_no_streams_hint">Tente instalar mais addons para encontrar links</string>
     <string name="stream_finding_source">Buscando fontes…</string>
-    <string name="stream_player_picker_title">Qual player deseja usar?</string>
-    <string name="stream_player_internal">Player Interno</string>
-    <string name="stream_player_external">Player Externo</string>
     <string name="stream_filter_all">Tudo</string>
     <string name="stream_episode_label">T%1$d:E%2$d</string>
     

@@ -1286,9 +1286,6 @@
     <string name="stream_finding_source">স্ট্রিম সোর্স খোঁজা হচ্ছে</string>
     <string name="youtube_resolving_stream">YouTube ভিডিও লোড করা হচ্ছে</string>
     <string name="youtube_resolution_failed">এই YouTube ভিডিওটি লোড করা যায়নি।</string>
-    <string name="stream_player_picker_title">কোন প্লেয়ার ব্যবহার করা উচিত?</string>
-    <string name="stream_player_internal">ইন্টারনাল</string>
-    <string name="stream_player_external">এক্সটার্নাল</string>
     <string name="stream_filter_all">সব</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
     <string name="player_no_external_player">কোনো এক্সটার্নাল প্লেয়ার পাওয়া যায়নি</string>

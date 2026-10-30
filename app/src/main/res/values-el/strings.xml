@@ -1287,9 +1287,6 @@
   <string name="stream_finding_source">Αναζήτηση πηγής ροής</string>
   <string name="youtube_resolving_stream">Φόρτωση βίντεο YouTube</string>
   <string name="youtube_resolution_failed">Δεν ήταν δυνατή η φόρτωση αυτού του βίντεο YouTube.</string>
-  <string name="stream_player_picker_title">Ποιο πρόγραμμα αναπαραγωγής να χρησιμοποιηθεί;</string>
-  <string name="stream_player_internal">Εσωτερικό</string>
-  <string name="stream_player_external">Εξωτερικό</string>
   <string name="stream_filter_all">Όλα</string>
   <!-- PlayerScreen -->
   <string name="player_no_external_player">Δεν βρέθηκε εξωτερικό πρόγραμμα αναπαραγωγής</string>

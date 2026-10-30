@@ -388,6 +388,7 @@
         <item quantity="other">Starting in %1$d seconds</item>
     </plurals>
     <string name="fetching_best_so_far">Best so far</string>
+    <string name="fetching_auto_play_notice">The best stream so far will start playing on its own.</string>
     <string name="fetching_play_now">Play now</string>
     <string name="fetching_see_all_sources">See all sources</string>
     <string name="theme_color_custom">Custom</string>
@@ -1599,12 +1600,15 @@
     <string name="stream_retry">Retry</string>
     <string name="stream_no_streams">No streams found</string>
     <string name="stream_no_streams_hint">Try installing more addons to find streams</string>
+    <string name="stream_no_streams_from_addon">No streams from %1$s.</string>
+    <string name="stream_show_all_sources">Show all sources</string>
+    <string name="stream_choose_another_source">Choose another source.</string>
     <string name="stream_finding_source">Finding stream source</string>
     <string name="youtube_resolving_stream">Loading YouTube video</string>
     <string name="youtube_resolution_failed">Could not load this YouTube video.</string>
-    <string name="stream_player_picker_title">What player should be used?</string>
-    <string name="stream_player_internal">Internal</string>
-    <string name="stream_player_external">External</string>
+    <string name="stream_player_picker_title">Play with which player?</string>
+    <string name="stream_player_internal">Play in Fetch</string>
+    <string name="stream_player_external">Open in external player</string>
     <string name="stream_filter_all">All</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
 
@@ -3149,6 +3153,10 @@
     <string name="empty_state_add_addon">Add an addon</string>
     <string name="source_group_other">Other quality</string>
     <string name="source_group_passed_over">Not auto-played</string>
+    <plurals name="source_group_count">
+        <item quantity="one">%d source</item>
+        <item quantity="other">%d sources</item>
+    </plurals>
     <string name="source_options_title">Teach Best match</string>
     <string name="source_options_subtitle">Saved to your stream rules, which the phone hub also edits.</string>
     <string name="source_rule_prefer_addon">Prefer %1$s</string>

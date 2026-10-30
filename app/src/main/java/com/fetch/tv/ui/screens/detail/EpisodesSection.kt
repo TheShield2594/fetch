@@ -105,6 +105,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 import com.fetch.tv.ui.util.contentTextDirection
+import com.fetch.tv.ui.util.formatRuntimeMinutes
 import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.ui.theme.FetchContentColors
@@ -1302,13 +1303,7 @@ private fun rememberEpisodeCardMetrics(posterCardCornerRadiusDp: Int = THEME_CAR
 
 private fun formatEpisodeRuntime(runtimeMinutes: Int): String {
     if (runtimeMinutes <= 0) return ""
-    val hours = runtimeMinutes / 60
-    val minutes = runtimeMinutes % 60
-    return when {
-        hours > 0 && minutes > 0 -> "${hours}h ${minutes}m"
-        hours > 0 -> "${hours}h"
-        else -> "${minutes}m"
-    }
+    return formatRuntimeMinutes(runtimeMinutes)
 }
 
 private fun formatEpisodeCardDate(isoDate: String): String {

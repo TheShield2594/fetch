@@ -87,6 +87,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.fetch.tv.ui.util.localizedGenreLabel
+import com.fetch.tv.ui.util.formatRuntimeMinutes
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.rememberRawSvgPainter
@@ -1124,10 +1125,7 @@ private fun formatRuntime(runtime: String): String? {
         val hours = Regex("(\\d+)\\s*h").find(trimmed)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val mins = Regex("(\\d+)\\s*m").find(trimmed)?.groupValues?.get(1)?.toIntOrNull() ?: 0
         val total = hours * 60 + mins
-        if (total > 0) return if (total >= 60) {
-            val h = total / 60; val m = total % 60
-            if (m > 0) "${h}h ${m}m" else "${h}h"
-        } else "${total}m"
+        if (total > 0) return formatRuntimeMinutes(total)
     }
     // "H:MM" or "HH:MM" format
     if (trimmed.contains(':')) {
@@ -1135,21 +1133,12 @@ private fun formatRuntime(runtime: String): String? {
         val hours = parts.getOrNull(0)?.toIntOrNull() ?: 0
         val mins = parts.getOrNull(1)?.toIntOrNull() ?: 0
         val total = hours * 60 + mins
-        if (total > 0) return if (total >= 60) {
-            val m = total % 60
-            if (m > 0) "${hours}h ${m}m" else "${hours}h"
-        } else "${total}m"
+        if (total > 0) return formatRuntimeMinutes(total)
     }
     // Plain number (minutes)
     val minutes = trimmed.filter { it.isDigit() }.toIntOrNull() ?: return runtime
     if (minutes <= 0) return null
-    return if (minutes >= 60) {
-        val hours = minutes / 60
-        val mins = minutes % 60
-        if (mins > 0) "${hours}h ${mins}m" else "${hours}h"
-    } else {
-        "${minutes}m"
-    }
+    return formatRuntimeMinutes(minutes)
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

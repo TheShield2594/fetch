@@ -1016,9 +1016,6 @@
     <string name="stream_no_streams">Nenašli sa žiadne streamy</string>
     <string name="stream_no_streams_hint">Skúste nainštalovať viac doplnkov</string>
     <string name="stream_finding_source">Hľadá sa zdroj streamu</string>
-    <string name="stream_player_picker_title">Ktorý prehrávač sa má použiť?</string>
-    <string name="stream_player_internal">Interný</string>
-    <string name="stream_player_external">Externý</string>
     <string name="stream_filter_all">Všetky</string>
 
     

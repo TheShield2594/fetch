@@ -649,9 +649,6 @@
     <string name="stream_no_streams">Ingen strømmer funnet</string>
     <string name="stream_no_streams_hint">Prøv å installer flere tillegg for å finne strømmer</string>
     <string name="stream_finding_source">Finner strømkilde</string>
-    <string name="stream_player_picker_title">Hvilken spiller skal brukes?</string>
-    <string name="stream_player_internal">Intern</string>
-    <string name="stream_player_external">Ekstern</string>
 
     <!-- PlayerScreen -->
     <string name="player_no_external_player">Ingen ekstern spiller funnet</string>

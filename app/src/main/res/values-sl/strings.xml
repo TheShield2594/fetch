@@ -950,10 +950,7 @@
     <string name="stream_no_streams">Prenosi niso najdeni</string>
     <string name="stream_no_streams_hint">Poskusite namestiti več dodatkov za iskanje prenosov</string>
     <string name="stream_finding_source">Iskanje vira prenosa</string>
-                               <string name="stream_player_picker_title">Kateri predvajalnik naj se uporabi?</string>
-    <string name="stream_player_internal">Notranji</string>
-    <string name="stream_player_external">Zunanji</string>
-	<string name="stream_filter_all">All</string>											 
+                           	<string name="stream_filter_all">All</string>											 
     <!-- PlayerScreen -->
     <string name="player_no_external_player">Zunanjega predvajalnika ni bilo mogoče najti</string>
 	<string name="player_loading_preparing">Pripravljanje predvajanja…</string>

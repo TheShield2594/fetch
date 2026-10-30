@@ -574,9 +574,6 @@
     <string name="stream_no_streams">Inga strömmar hittades</string>
     <string name="stream_no_streams_hint">Försök installera fler tillägg för att hitta strömmar</string>
     <string name="stream_finding_source">Söker strömkälla</string>
-    <string name="stream_player_picker_title">Vilken spelare ska användas?</string>
-    <string name="stream_player_internal">Intern</string>
-    <string name="stream_player_external">Extern</string>
 
     <!-- PlayerScreen -->
     <string name="player_no_external_player">Ingen extern spelare hittades</string>

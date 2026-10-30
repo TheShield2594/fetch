@@ -1082,9 +1082,6 @@
     <string name="stream_no_streams">Nenalezeny žádné streamy</string>
     <string name="stream_no_streams_hint">Zkuste nainstalovat více doplňků pro nalezení streamů</string>
     <string name="stream_finding_source">Hledání zdroje streamu</string>
-    <string name="stream_player_picker_title">Jaký přehrávač by měl být použit?</string>
-    <string name="stream_player_internal">Interní</string>
-    <string name="stream_player_external">Externí</string>
     <string name="stream_filter_all">Vše</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
 

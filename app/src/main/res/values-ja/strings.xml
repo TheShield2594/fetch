@@ -1065,9 +1065,6 @@
     <string name="stream_no_streams">ストリームが見つかりません</string>
     <string name="stream_no_streams_hint">より多くのアドオンをインストールしてストリームを見つけてみてください</string>
     <string name="stream_finding_source">ストリームソースを検索中</string>
-    <string name="stream_player_picker_title">使用するプレーヤーを選択してください</string>
-    <string name="stream_player_internal">内部</string>
-    <string name="stream_player_external">外部</string>
     <string name="stream_filter_all">すべて</string>
     <string name="stream_episode_label">S%1$d E%2$d</string>
 

@@ -3,6 +3,8 @@
 package com.fetch.tv.ui.screens.stream
 
 import androidx.compose.material.icons.filled.Extension
+import com.fetch.tv.ui.components.FetchDialog
+import com.fetch.tv.ui.components.StateActionButton
 import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.EmptyScreenState
@@ -23,7 +25,6 @@ import com.fetch.tv.core.streams.ranking.label
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -91,6 +92,7 @@ import androidx.compose.ui.platform.LocalDensity
 import com.fetch.tv.core.party.PartySource
 import com.fetch.tv.core.party.matches
 import com.fetch.tv.ui.util.contentTextDirection
+import com.fetch.tv.ui.util.formatRuntimeMinutes
 import com.fetch.tv.ui.util.toAbsoluteAlignment
 import com.fetch.tv.ui.util.isPlaceholderEpisodeTitle
 import com.fetch.tv.ui.util.localizeEpisodeTitle
@@ -114,6 +116,10 @@ import com.fetch.tv.ui.components.StreamsSkeletonList
 import com.fetch.tv.ui.screens.player.LoadingOverlay
 import com.fetch.tv.ui.screens.player.AddonFilterChips
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.FetchStatusTones
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import com.fetch.tv.ui.navigation.sourceSelectionRestoreTarget
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -122,6 +128,7 @@ import kotlinx.coroutines.launch as coroutineLaunch
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import android.util.Log
@@ -295,12 +302,6 @@ fun StreamScreen(
             viewModel.awaitStreamLinkCacheSave()
             routeAutoPlay(playbackInfo)
         }
-    }
-
-    LaunchedEffect(uiState.playbackErrorMessage) {
-        val message = uiState.playbackErrorMessage ?: return@LaunchedEffect
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        viewModel.onPlaybackErrorShown()
     }
 
     // Once streams are resolved, release the MainActivity auto-next loader so it doesn't
@@ -503,6 +504,7 @@ fun StreamScreen(
                 RightStreamSection(
                     isLoading = uiState.isLoading,
                     error = uiState.error,
+                    playbackError = uiState.playbackErrorMessage,
                     streams = uiState.filteredStreams,
                     streamExclusions = uiState.streamExclusions,
                     bestMatchFirst = uiState.bestMatchFirst,
@@ -765,15 +767,8 @@ internal fun LeftContentSection(
                 }
                 if (runtime != null) {
                     Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
-                    val runtimeText = if (runtime >= 60) {
-                        val hours = runtime / 60
-                        val mins = runtime % 60
-                        if (mins > 0) "${hours}h ${mins}m" else "${hours}h"
-                    } else {
-                        "${runtime}m"
-                    }
                     Text(
-                        text = runtimeText,
+                        text = formatRuntimeMinutes(runtime),
                         style = MaterialTheme.typography.bodyMedium,
                         color = FetchTheme.extendedColors.textSecondary,
                         textAlign = TextAlign.Start
@@ -800,6 +795,8 @@ internal fun LeftContentSection(
 private fun RightStreamSection(
     isLoading: Boolean,
     error: String?,
+    /** Why the last stream picked didn't start; stays until another stream is picked. */
+    playbackError: String? = null,
     streams: List<Stream>,
     availableAddons: List<String>,
     sourceChips: List<SourceChipItem>,
@@ -859,20 +856,6 @@ private fun RightStreamSection(
             orderedAddonNames.forEach { addon ->
                 add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
             }
-        }
-    }
-    fun onAddonFilterSelectedGuarded(addon: String?) {
-        userMovedFromFirstResult = true
-        onAddonFilterSelected(addon)
-        focusJob?.cancel()
-        focusJob = scope.coroutineLaunch {
-            withFrameNanos {}
-            val targetRequester = if (addon == null) {
-                chipFocusRequesters.getOrNull(1)
-            } else {
-                addonFocusRequesters[addon]
-            }
-            runCatching { targetRequester?.requestFocus() }
         }
     }
 
@@ -949,6 +932,11 @@ private fun RightStreamSection(
 
         Spacer(modifier = Modifier.height(FetchTheme.spacing.lg))
 
+        if (playbackError != null) {
+            PlaybackErrorBanner(message = playbackError)
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.md))
+        }
+
         androidx.compose.animation.AnimatedVisibility(
             visible = enter,
             enter = if (fullMotion) {
@@ -984,13 +972,20 @@ private fun RightStreamSection(
                     sharedStream == null && streams.isEmpty() -> {
                         EmptyScreenState(
                             title = stringResource(R.string.stream_no_streams),
-                            subtitle = stringResource(R.string.stream_no_streams_hint),
+                            subtitle = if (selectedAddonFilter == null) {
+                                stringResource(R.string.stream_no_streams_hint)
+                            } else {
+                                stringResource(R.string.stream_no_streams_from_addon, selectedAddonFilter)
+                            },
                             icon = Icons.Default.Extension,
                             // With an addon filter on, other addons may still have streams.
                             action = if (selectedAddonFilter == null) {
                                 StateAction(stringResource(R.string.empty_state_add_addon), onNavigateToAddons)
                             } else {
-                                null
+                                StateAction(stringResource(R.string.stream_show_all_sources)) {
+                                    onAddonFilterSelected(null)
+                                    requestChipFocus(1)
+                                }
                             }
                         )
                     }
@@ -1013,7 +1008,6 @@ private fun RightStreamSection(
                             showAddonLogo = showAddonLogo,
                             badgePlacement = badgePlacement,
                             hasBadgeRules = hasBadgeRules,
-                            onAddonFilterSelected = { onAddonFilterSelectedGuarded(it) },
                             orderedAddonNames = orderedAddonNames,
                             onRequestChipFocus = { requestChipFocus(it) },
                             onUserNavigatedFromFirstResult = {
@@ -1029,6 +1023,31 @@ private fun RightStreamSection(
                 }
             }
         }
+    }
+}
+
+/** A stream that failed to start, and what to do next. Read out once when it appears. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun PlaybackErrorBanner(message: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(FetchStatusTones.errorBanner, RoundedCornerShape(FetchTheme.radii.sm))
+            .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
+            .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = FetchStatusTones.errorText
+        )
+        Text(
+            text = stringResource(R.string.stream_choose_another_source),
+            style = MaterialTheme.typography.bodyMedium,
+            color = FetchTheme.colors.TextPrimary
+        )
     }
 }
 
@@ -1059,7 +1078,6 @@ internal fun StreamsList(
     showAddonLogo: Boolean = true,
     badgePlacement: StreamBadgePlacement = StreamBadgePlacement.BOTTOM,
     hasBadgeRules: Boolean = false,
-    onAddonFilterSelected: (String?) -> Unit = {},
     orderedAddonNames: List<String> = emptyList(),
     onRequestChipFocus: (Int) -> Unit = {},
     onUserNavigatedFromFirstResult: () -> Unit = {},
@@ -1070,7 +1088,6 @@ internal fun StreamsList(
     sourceRuleOptions: (Stream) -> List<SourceRule> = { emptyList() },
     onSourceOptions: (Stream, List<SourceRule>) -> Unit = { _, _ -> }
 ) {
-    val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val lastKeyRepeatDispatchRef = remember { java.util.concurrent.atomic.AtomicLong(0L) }
     val restoreFocusRequester = remember { FocusRequester() }
     val streamListState = rememberLazyListState()
@@ -1211,28 +1228,8 @@ internal fun StreamsList(
                 if (event.key == Key.DirectionDown) {
                     onUserNavigatedFromFirstResult()
                 }
-                if (orderedAddonNames.isEmpty()) return@onKeyEvent false
-                val allOptions = listOf<String?>(null) + orderedAddonNames
-                val currentIdx = allOptions.indexOf(selectedAddonFilter)
-                when (event.key) {
-                    Key.DirectionLeft -> {
-                        if (isRtl) {
-                            if (currentIdx < allOptions.lastIndex) { onAddonFilterSelected(allOptions[currentIdx + 1]); true } else true
-                        } else {
-                            if (currentIdx > 0) { onAddonFilterSelected(allOptions[currentIdx - 1]); true }
-                            else { true }
-                        }
-                    }
-                    Key.DirectionRight -> {
-                        if (isRtl) {
-                            if (currentIdx > 0) { onAddonFilterSelected(allOptions[currentIdx - 1]); true }
-                            else { true }
-                        } else {
-                            if (currentIdx < allOptions.lastIndex) { onAddonFilterSelected(allOptions[currentIdx + 1]); true } else true
-                        }
-                    }
-                    else -> false
-                }
+                // Left/Right are left to focus search: the chip row above switches addons.
+                false
             },
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         contentPadding = PaddingValues(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.xxl)
@@ -1339,7 +1336,7 @@ private fun SourceGroupHeader(group: SourceGroup, count: Int) {
             color = FetchTheme.colors.TextPrimary
         )
         Text(
-            text = count.toString(),
+            text = pluralStringResource(R.plurals.source_group_count, count, count),
             style = FetchTheme.textStyles.spec,
             color = FetchTheme.colors.TextTertiary
         )
@@ -1655,97 +1652,23 @@ internal fun PlayerChoiceDialog(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        runCatching { focusRequester.requestFocus() }
     }
 
-    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
-        Box(
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = stringResource(R.string.stream_player_picker_title)
+    ) {
+        StateActionButton(
+            action = StateAction(stringResource(R.string.stream_player_internal), onInternalSelected),
             modifier = Modifier
-                .clip(RoundedCornerShape(FetchTheme.radii.xl))
-                .background(FetchTheme.colors.BackgroundCard)
-        ) {
-            Column(
-                modifier = Modifier
-                    .width(400.dp)
-                    .padding(FetchTheme.spacing.xl),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = stringResource(R.string.stream_player_picker_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = FetchTheme.colors.TextPrimary,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    var internalFocused by remember { mutableStateOf(false) }
-                    Card(
-                        onClick = onInternalSelected,
-                        modifier = Modifier
-                            .weight(1f)
-                            .focusRequester(focusRequester)
-                            .onFocusChanged { internalFocused = it.isFocused },
-                        colors = CardDefaults.colors(
-                            containerColor = FetchTheme.colors.BackgroundElevated,
-                            focusedContainerColor = FetchTheme.colors.Secondary
-                        ),
-                        border = CardDefaults.border(
-                            focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            )
-                        ),
-                        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
-                        scale = CardDefaults.scale(focusedScale = 1.05f)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.stream_player_internal),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = if (internalFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
-                            modifier = Modifier
-                                .padding(horizontal = FetchTheme.spacing.lg, vertical = 14.dp)
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-
-                    var externalFocused by remember { mutableStateOf(false) }
-                    Card(
-                        onClick = onExternalSelected,
-                        modifier = Modifier
-                            .weight(1f)
-                            .onFocusChanged { externalFocused = it.isFocused },
-                        colors = CardDefaults.colors(
-                            containerColor = FetchTheme.colors.BackgroundElevated,
-                            focusedContainerColor = FetchTheme.colors.Secondary
-                        ),
-                        border = CardDefaults.border(
-                            focusedBorder = Border(
-                                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                                shape = RoundedCornerShape(FetchTheme.radii.md)
-                            )
-                        ),
-                        shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
-                        scale = CardDefaults.scale(focusedScale = 1.05f)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.stream_player_external),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = if (externalFocused) FetchTheme.colors.OnSecondary else FetchTheme.colors.TextPrimary,
-                            modifier = Modifier
-                                .padding(horizontal = FetchTheme.spacing.lg, vertical = 14.dp)
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+        )
+        StateActionButton(
+            action = StateAction(stringResource(R.string.stream_player_external), onExternalSelected),
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

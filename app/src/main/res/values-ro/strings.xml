@@ -460,9 +460,6 @@
     <string name="stream_no_streams">Nu s-au găsit fluxuri</string>
     <string name="stream_no_streams_hint">Încearcă să instalezi mai multe suplimente pentru a găsi fluxuri</string>
     <string name="stream_finding_source">Se caută sursa fluxului</string>
-    <string name="stream_player_picker_title">Ce player ar trebui folosit?</string>
-    <string name="stream_player_internal">Intern</string>
-    <string name="stream_player_external">Extern</string>
 
     <!-- PlayerScreen -->
     <string name="player_ends_at">Se termină la %1$s</string>

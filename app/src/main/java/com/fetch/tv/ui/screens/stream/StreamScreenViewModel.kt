@@ -1398,6 +1398,8 @@ class StreamScreenViewModel @Inject constructor(
     }
 
     suspend fun resolveStreamForPlayback(stream: Stream, saveLastLink: Boolean = true): StreamPlaybackInfo? {
+        // A new pick replaces the last one's failure message.
+        updateUiStateIfChanged { it.copy(playbackErrorMessage = null) }
         stream.serverTarget?.let { target -> return prepareServerStream(stream, target) }
         if (stream.youTubeIdToResolve() != null) {
             return resolveYouTubeStreamForPlayback(stream)
@@ -1462,10 +1464,6 @@ class StreamScreenViewModel @Inject constructor(
         }
         // The resolved URL stops working after a few hours, so it isn't kept for reusing the last link.
         return getStreamForPlayback(resolved, saveLastLink = false)
-    }
-
-    fun onPlaybackErrorShown() {
-        updateUiStateIfChanged { it.copy(playbackErrorMessage = null) }
     }
 
     fun onInternalPlayerLaunching() {

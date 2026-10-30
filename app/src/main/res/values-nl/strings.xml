@@ -1170,6 +1170,8 @@
     <string name="addon_empty">Geen add-ons geïnstalleerd. Voeg er één toe om te beginnen.</string>
     <string name="addon_list_load_failed">Kon je geïnstalleerde add-ons niet laden. Probeer het opnieuw.</string>
     <string name="addon_remove">Verwijderen</string>
+    <string name="addon_remove_confirm_title">%1$s verwijderen?</string>
+    <string name="addon_remove_confirm_message">De catalogi en streams ervan verschijnen niet meer op deze tv.</string>
     <string name="addons_badge_disabled">Uitgeschakeld</string>
     <string name="addon_manage_from_phone_title">Beheren via telefoon</string>
     <string name="addon_manage_from_phone_subtitle">Scan een QR-code om add-ons, catalogi en collecties te beheren vanaf je telefoon</string>
@@ -1189,8 +1191,8 @@
     <string name="addon_confirm_catalogs_disabled">Catalogi uitgeschakeld op het startscherm:</string>
     <string name="addon_confirm_catalogs_enabled">Catalogi ingeschakeld op het startscherm:</string>
     <string name="addon_confirm_no_changes">Geen zichtbare wijzigingen gedetecteerd</string>
-    <string name="addon_confirm_reject">Weigeren</string>
-    <string name="addon_confirm_confirm">Bevestigen</string>
+    <string name="addon_confirm_reject">Wijzigingen negeren</string>
+    <string name="addon_confirm_confirm">Wijzigingen toepassen</string>
     <string name="addon_refresh_action">Add-ons vernieuwen</string>
     <string name="addon_refresh_default_subtitle">Haal de nieuwste add-onwijzigingen op voor het huidige profiel</string>
     <string name="addon_refresh_done_subtitle">Add-ons zojuist vernieuwd</string>
@@ -2527,6 +2529,8 @@
     <string name="addon_health_ok">Reageert · %1$s</string>
     <string name="addon_health_slow">Traag · %1$s</string>
     <string name="addon_health_timed_out">Time-out bij laatste verzoek</string>
+    <string name="addon_health_clear">Geschiedenis wissen</string>
+    <string name="addon_health_clear_confirm">Druk nogmaals om te wissen</string>
     <string name="source_chip_failed">mislukt</string>
     <string name="source_chip_loading">laden</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

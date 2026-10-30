@@ -534,6 +534,8 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_empty">Nėra įdiegtų priedų. Pridėkite vieną, kad pradėtumėte.</string>
     <string name="addon_list_load_failed">Nepavyko įkelti įdiegtų priedų. Bandykite dar kartą.</string>
     <string name="addon_remove">Pašalinti</string>
+    <string name="addon_remove_confirm_title">Pašalinti %1$s?</string>
+    <string name="addon_remove_confirm_message">Jo katalogai ir srautai nebebus rodomi šiame televizoriuje.</string>
     <string name="addon_manage_from_phone_title">Valdyti iš telefono</string>
     <string name="addon_manage_from_phone_subtitle">Skenuokite QR kodą, kad valdytumėte priedus ir pradinio ekrano katalogus iš savo telefono</string>
     <string name="addon_reorder_title">Keisti pradinio ekrano katalogų tvarką</string>
@@ -548,8 +550,8 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_confirm_catalogs_disabled">Katalogai išjungti pradiniame ekrane:</string>
     <string name="addon_confirm_catalogs_enabled">Katalogai įjungti pradiniame ekrane:</string>
     <string name="addon_confirm_no_changes">Nematomų pakeitimų neaptikta</string>
-    <string name="addon_confirm_reject">Atmesti</string>
-    <string name="addon_confirm_confirm">Patvirtinti</string>
+    <string name="addon_confirm_reject">Atmesti pakeitimus</string>
+    <string name="addon_confirm_confirm">Taikyti pakeitimus</string>
 
     <!-- CatalogOrderScreen -->
     <string name="catalog_order_title">Keisti pradinio ekrano katalogų tvarką</string>
@@ -868,6 +870,8 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_health_ok">Atsako · %1$s</string>
     <string name="addon_health_slow">Lėtas · %1$s</string>
     <string name="addon_health_timed_out">Baigėsi paskutinės užklausos laikas</string>
+    <string name="addon_health_clear">Išvalyti istoriją</string>
+    <string name="addon_health_clear_confirm">Paspauskite dar kartą, kad išvalytumėte</string>
     <string name="source_chip_failed">nepavyko</string>
     <string name="source_chip_loading">įkeliama</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

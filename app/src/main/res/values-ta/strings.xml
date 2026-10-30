@@ -945,6 +945,8 @@
     <string name="addon_empty">அட்ஆன்கள் எதுவும் நிறுவப்படவில்லை. தொடங்க ஒன்றை சேர்க்கவும்.</string>
     <string name="addon_list_load_failed">நிறுவிய ஆடான்களை ஏற்ற முடியவில்லை. மீண்டும் முயற்சிக்கவும்.</string>
     <string name="addon_remove">அகற்று</string>
+    <string name="addon_remove_confirm_title">%1$s ஐ அகற்றவா?</string>
+    <string name="addon_remove_confirm_message">அதன் பட்டியல்களும் ஸ்ட்ரீம்களும் இந்த டிவியில் இனி தோன்றாது.</string>
     <string name="addon_manage_from_phone_title">தொலைபேசியிலிருந்து நிர்வகிக்கவும்</string>
     <string name="addon_manage_from_phone_subtitle">உங்கள் தொலைபேசியில் இருந்து அட்ஆன்கள், கேட்டலாக்கள் மற்றும் தொகுப்புகளை நிர்வகிக்க க்யூஆர் குறியீட்டை ஸ்கேன் செய்யவும்</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">உங்கள் தொலைபேசியில் இருந்து அட்ஆன்களை நிறுவ அல்லது அகற்ற க்யூஆர் குறியீட்டை ஸ்கேன் செய்யவும்</string>
@@ -963,8 +965,8 @@
     <string name="addon_confirm_catalogs_disabled">முகப்பில் முடக்கப்பட்ட கேட்டலாக்கள்:</string>
     <string name="addon_confirm_catalogs_enabled">முகப்பில் இயக்கப்பட்ட கேட்டலாக்கள்:</string>
     <string name="addon_confirm_no_changes">காணக்கூடிய மாற்றங்கள் எதுவும் கண்டறியப்படவில்லை</string>
-    <string name="addon_confirm_reject">நிராகரி</string>
-    <string name="addon_confirm_confirm">உறுதிப்படுத்து</string>
+    <string name="addon_confirm_reject">மாற்றங்களை நிராகரி</string>
+    <string name="addon_confirm_confirm">மாற்றங்களைப் பயன்படுத்து</string>
     <string name="addon_refresh_action">அட்ஆன்களை புதுப்பிக்கவும்</string>
     <string name="addon_refresh_default_subtitle">தற்போதைய சுயவிவரத்திற்கான புதிய அட்ஆன் மாற்றங்களை பெறு</string>
     <string name="addon_refresh_done_subtitle">அட்ஆன்கள் இப்போதுதான் புதுப்பிக்கப்பட்டன</string>
@@ -2007,6 +2009,8 @@
     <string name="addon_health_ok">பதிலளிக்கிறது · %1$s</string>
     <string name="addon_health_slow">மெதுவாக · %1$s</string>
     <string name="addon_health_timed_out">கடைசி கோரிக்கை நேரம் கடந்தது</string>
+    <string name="addon_health_clear">வரலாற்றை அழி</string>
+    <string name="addon_health_clear_confirm">அழிக்க மீண்டும் அழுத்தவும்</string>
     <string name="source_chip_failed">தோல்வி</string>
     <string name="source_chip_loading">ஏற்றுகிறது</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

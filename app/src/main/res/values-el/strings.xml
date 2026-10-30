@@ -1245,6 +1245,8 @@
   <string name="addon_empty">Δεν έχετε εγκαταστήσει πρόσθετα. Προσθέστε ένα για να ξεκινήσετε.</string>
   <string name="addon_list_load_failed">Δεν ήταν δυνατή η φόρτωση των εγκατεστημένων προσθέτων σας. Δοκιμάστε ξανά.</string>
   <string name="addon_remove">Αφαίρεση</string>
+  <string name="addon_remove_confirm_title">Αφαίρεση του %1$s;</string>
+  <string name="addon_remove_confirm_message">Οι κατάλογοι και οι ροές του δεν θα εμφανίζονται πλέον σε αυτήν την τηλεόραση.</string>
   <string name="addon_manage_from_phone_title">Διαχείριση από κινητό</string>
   <string name="addon_manage_from_phone_subtitle">Σαρώστε QR code για να διαχειριστείτε πρόσθετα και καταλόγους αρχικής οθόνης από το κινητό σας</string>
   <string name="addon_manage_addons_only_from_phone_subtitle">Σαρώστε QR code για εγκατάσταση ή αφαίρεση πρόσθετων από το κινητό σας</string>
@@ -1263,8 +1265,8 @@
   <string name="addon_confirm_catalogs_disabled">Καταλόγοι απενεργοποιημένοι στην Αρχική:</string>
   <string name="addon_confirm_catalogs_enabled">Καταλόγοι ενεργοποιημένοι στην Αρχική:</string>
   <string name="addon_confirm_no_changes">Δεν εντοπίστηκαν ορατές αλλαγές</string>
-  <string name="addon_confirm_reject">Απόρριψη</string>
-  <string name="addon_confirm_confirm">Επιβεβαίωση</string>
+  <string name="addon_confirm_reject">Απόρριψη αλλαγών</string>
+  <string name="addon_confirm_confirm">Εφαρμογή αλλαγών</string>
   <string name="addon_refresh_action">Ανανέωση πρόσθετων</string>
   <string name="addon_refresh_default_subtitle">Ανάκτηση των τελευταίων αλλαγών πρόσθετων για το τρέχον προφίλ</string>
   <string name="addon_refresh_done_subtitle">Τα πρόσθετα ανανεώθηκαν μόλις τώρα</string>
@@ -2817,6 +2819,8 @@
     <string name="addon_health_slow">Αργό · %1$s</string>
     <string name="addon_health_failing">Το τελευταίο αίτημα απέτυχε</string>
     <string name="addon_health_timed_out">Το τελευταίο αίτημα έληξε</string>
+  <string name="addon_health_clear">Εκκαθάριση ιστορικού</string>
+  <string name="addon_health_clear_confirm">Πατήστε ξανά για εκκαθάριση</string>
     <string name="source_chip_failed">απέτυχε</string>
     <string name="source_chip_loading">φόρτωση</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

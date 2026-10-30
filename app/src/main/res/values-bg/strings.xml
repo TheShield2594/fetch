@@ -1014,6 +1014,8 @@
     <string name="addon_empty">Няма инсталирани добавки. Добави една, за да започнеш.</string>
     <string name="addon_list_load_failed">Не успяхме да заредим инсталираните ти добавки. Опитай отново.</string>
     <string name="addon_remove">Премахни</string>
+    <string name="addon_remove_confirm_title">Да се премахне ли %1$s?</string>
+    <string name="addon_remove_confirm_message">Каталозите и потоците му вече няма да се показват на този телевизор.</string>
     <string name="addons_badge_disabled">Деактивирани</string>
     <string name="addon_manage_from_phone_title">Управлявай от телефона</string>
     <string name="addon_manage_from_phone_subtitle">Сканирай QR код, за да управляваш добавки, каталози и колекции от телефона си</string>
@@ -1033,8 +1035,8 @@
     <string name="addon_confirm_catalogs_disabled">Деактивирани каталози на началния екран:</string>
     <string name="addon_confirm_catalogs_enabled">Активирани каталози на началния екран:</string>
     <string name="addon_confirm_no_changes">Не са открити видими промени</string>
-    <string name="addon_confirm_reject">Отхвърли</string>
-    <string name="addon_confirm_confirm">Потвърди</string>
+    <string name="addon_confirm_reject">Отхвърли промените</string>
+    <string name="addon_confirm_confirm">Приложи промените</string>
     <string name="addon_refresh_action">Обнови добавките</string>
     <string name="addon_refresh_default_subtitle">Извлечи най-новите промени по добавките за текущия профил</string>
     <string name="addon_refresh_done_subtitle">Добавките са обновени току-що</string>
@@ -2188,6 +2190,8 @@
     <string name="addon_health_ok">Отговаря · %1$s</string>
     <string name="addon_health_slow">Бавно · %1$s</string>
     <string name="addon_health_timed_out">Времето за последната заявка изтече</string>
+    <string name="addon_health_clear">Изчисти историята</string>
+    <string name="addon_health_clear_confirm">Натиснете отново, за да изчистите</string>
     <string name="source_chip_failed">неуспешно</string>
     <string name="source_chip_loading">зареждане</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

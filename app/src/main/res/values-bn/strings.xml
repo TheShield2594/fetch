@@ -1243,6 +1243,8 @@
     <string name="addon_empty">কোনো অ্যাডন ইনস্টল করা নেই। শুরু করতে একটি যোগ করুন।</string>
     <string name="addon_list_load_failed">আপনার ইনস্টল করা অ্যাডনগুলো লোড করা যায়নি। আবার চেষ্টা করুন।</string>
     <string name="addon_remove">সরান</string>
+    <string name="addon_remove_confirm_title">%1$s সরাবেন?</string>
+    <string name="addon_remove_confirm_message">এর ক্যাটালগ ও স্ট্রিম এই টিভিতে আর দেখা যাবে না।</string>
     <string name="addons_badge_disabled">নিষ্ক্রিয়</string>
     <string name="addon_manage_from_phone_title">ফোন থেকে ম্যানেজ করুন</string>
     <string name="addon_manage_from_phone_subtitle">আপনার ফোন থেকে অ্যাডন, ক্যাটালগ এবং কালেকশন ম্যানেজ করতে একটি কিউআর কোড স্ক্যান করুন</string>
@@ -1262,8 +1264,8 @@
     <string name="addon_confirm_catalogs_disabled">হোমে যে ক্যাটালগগুলো ডিজেবল করা হয়েছে:</string>
     <string name="addon_confirm_catalogs_enabled">হোমে যে ক্যাটালগগুলো এনাবল করা হয়েছে:</string>
     <string name="addon_confirm_no_changes">কোনো দৃশ্যমান পরিবর্তন পাওয়া যায়নি</string>
-    <string name="addon_confirm_reject">প্রত্যাখ্যান করুন</string>
-    <string name="addon_confirm_confirm">নিশ্চিত করুন</string>
+    <string name="addon_confirm_reject">পরিবর্তন বাতিল করুন</string>
+    <string name="addon_confirm_confirm">পরিবর্তন প্রয়োগ করুন</string>
     <string name="addon_refresh_action">অ্যাডন রিফ্রেশ করুন</string>
     <string name="addon_refresh_default_subtitle">বর্তমান প্রোফাইলের জন্য সর্বশেষ অ্যাডন পরিবর্তনগুলো পুল করুন</string>
     <string name="addon_refresh_done_subtitle">অ্যাডনগুলো এইমাত্র রিফ্রেশ করা হয়েছে</string>
@@ -2484,6 +2486,8 @@
     <string name="addon_health_ok">সাড়া দিচ্ছে · %1$s</string>
     <string name="addon_health_slow">ধীর · %1$s</string>
     <string name="addon_health_timed_out">শেষ রিকোয়েস্টের সময় শেষ হয়ে গেছে</string>
+    <string name="addon_health_clear">ইতিহাস মুছুন</string>
+    <string name="addon_health_clear_confirm">মুছতে আবার চাপুন</string>
     <string name="source_chip_failed">ব্যর্থ</string>
     <string name="source_chip_loading">লোড হচ্ছে</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

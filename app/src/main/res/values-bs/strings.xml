@@ -696,6 +696,8 @@
     <string name="addon_empty">Nema instaliranih addona. Dodaj jedan za početak.</string>
     <string name="addon_list_load_failed">Nije moguće učitati instalirane addone. Pokušaj ponovo.</string>
     <string name="addon_remove">Ukloni</string>
+    <string name="addon_remove_confirm_title">Ukloniti %1$s?</string>
+    <string name="addon_remove_confirm_message">Njegovi katalozi i streamovi više se neće prikazivati na ovom TV-u.</string>
     <string name="addon_manage_from_phone_title">Upravljaj preko telefona</string>
     <string name="addon_manage_from_phone_subtitle">Skeniraj QR kod da upravljaš addonima, katalozima i kolekcijama sa svog telefona</string>
     <string name="addon_manage_collections_from_phone_subtitle">Skeniraj QR kod da upravljaš kolekcijama sa svog telefona</string>
@@ -712,8 +714,8 @@
     <string name="addon_confirm_catalogs_disabled">Katalozi onemogućeni na početnoj:</string>
     <string name="addon_confirm_catalogs_enabled">Katalozi omogućeni na početnoj:</string>
     <string name="addon_confirm_no_changes">Nisu pronađene vidljive promjene</string>
-    <string name="addon_confirm_reject">Odbij</string>
-    <string name="addon_confirm_confirm">Potvrdi</string>
+    <string name="addon_confirm_reject">Odbaci promjene</string>
+    <string name="addon_confirm_confirm">Primijeni promjene</string>
 
     <!-- CatalogOrderScreen -->
     <string name="catalog_order_title">Redoslijed Početnih Kataloga</string>
@@ -1313,6 +1315,8 @@
     <string name="addon_health_ok">Odgovara · %1$s</string>
     <string name="addon_health_slow">Sporo · %1$s</string>
     <string name="addon_health_timed_out">Posljednjem zahtjevu je isteklo vrijeme</string>
+    <string name="addon_health_clear">Obriši historiju</string>
+    <string name="addon_health_clear_confirm">Pritisnite ponovo za brisanje</string>
     <string name="source_chip_failed">neuspješno</string>
     <string name="source_chip_loading">učitavanje</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

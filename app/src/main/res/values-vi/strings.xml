@@ -1331,6 +1331,8 @@
     <string name="addon_empty">Chưa cài đặt tiện ích nào. Thêm một tiện ích để bắt đầu.</string>
     <string name="addon_list_load_failed">Không thể tải các tiện ích đã cài đặt. Vui lòng thử lại.</string>
     <string name="addon_remove">Xóa</string>
+    <string name="addon_remove_confirm_title">Xóa %1$s?</string>
+    <string name="addon_remove_confirm_message">Danh mục và luồng phát của tiện ích này sẽ không còn xuất hiện trên TV này.</string>
     <string name="addons_badge_disabled">Đã tắt</string>
     <string name="addon_manage_from_phone_title">Quản lý từ điện thoại</string>
     <string name="addon_manage_from_phone_subtitle">Quét mã QR để quản lý tiện ích, danh mục và bộ sưu tập từ điện thoại</string>
@@ -1350,8 +1352,8 @@
     <string name="addon_confirm_catalogs_disabled">Danh mục đã tắt trên Trang chủ:</string>
     <string name="addon_confirm_catalogs_enabled">Danh mục đã bật trên Trang chủ:</string>
     <string name="addon_confirm_no_changes">Không phát hiện thay đổi nào</string>
-    <string name="addon_confirm_reject">Từ chối</string>
-    <string name="addon_confirm_confirm">Xác nhận</string>
+    <string name="addon_confirm_reject">Hủy thay đổi</string>
+    <string name="addon_confirm_confirm">Áp dụng thay đổi</string>
     <string name="addon_refresh_action">Làm mới Tiện ích.</string>
     <string name="addon_refresh_default_subtitle">Tải các thay đổi mới nhất của tiện ích cho hồ sơ hiện tại</string>
     <string name="addon_refresh_done_subtitle">Tiện ích vừa được làm mới</string>
@@ -2739,6 +2741,8 @@
     <string name="addon_health_ok">Đang phản hồi · %1$s</string>
     <string name="addon_health_slow">Chậm · %1$s</string>
     <string name="addon_health_timed_out">Yêu cầu gần nhất đã hết thời gian chờ</string>
+    <string name="addon_health_clear">Xóa lịch sử</string>
+    <string name="addon_health_clear_confirm">Nhấn lần nữa để xóa</string>
     <string name="source_chip_failed">thất bại</string>
     <string name="source_chip_loading">đang tải</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

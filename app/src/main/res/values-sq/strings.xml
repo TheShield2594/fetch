@@ -1070,6 +1070,8 @@
     <string name="addon_empty">Nuk ka shtesa të instaluara. Shtoni një për të filluar.</string>
     <string name="addon_list_load_failed">Shtesat e instaluara nuk u ngarkuan. Provo përsëri.</string>
     <string name="addon_remove">Hiq</string>
+    <string name="addon_remove_confirm_title">Të hiqet %1$s?</string>
+    <string name="addon_remove_confirm_message">Katalogët dhe transmetimet e tij nuk do të shfaqen më në këtë televizor.</string>
     <string name="addons_badge_disabled">Çaktivizuar</string>
     <string name="addon_manage_from_phone_title">Menaxho nga telefoni</string>
     <string name="addon_manage_from_phone_subtitle">Skano një kod QR për të menaxhuar shtesat, katalogët dhe koleksionet nga telefoni</string>
@@ -1089,8 +1091,8 @@
     <string name="addon_confirm_catalogs_disabled">Katalogët e çaktivizuar në Faqen kryesore:</string>
     <string name="addon_confirm_catalogs_enabled">Katalogët e aktivizuar në Faqen kryesore:</string>
     <string name="addon_confirm_no_changes">Nuk u zbuluan ndryshime të dukshme</string>
-    <string name="addon_confirm_reject">Refuzo</string>
-    <string name="addon_confirm_confirm">Konfirmo</string>
+    <string name="addon_confirm_reject">Hidh poshtë ndryshimet</string>
+    <string name="addon_confirm_confirm">Zbato ndryshimet</string>
     <string name="addon_refresh_action">Rifresko shtesat</string>
     <string name="addon_refresh_default_subtitle">Merr ndryshimet më të fundit të shtesave për profilin aktual</string>
     <string name="addon_refresh_done_subtitle">Shtesat u rifreskuan tani</string>
@@ -2304,6 +2306,8 @@
     <string name="addon_health_ok">Përgjigjet · %1$s</string>
     <string name="addon_health_slow">I ngadaltë · %1$s</string>
     <string name="addon_health_timed_out">Kërkesës së fundit i skadoi koha</string>
+    <string name="addon_health_clear">Pastro historikun</string>
+    <string name="addon_health_clear_confirm">Shtyp përsëri për ta pastruar</string>
     <string name="source_chip_failed">dështoi</string>
     <string name="source_chip_loading">po ngarkohet</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

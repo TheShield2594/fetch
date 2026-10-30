@@ -1253,6 +1253,8 @@
     <string name="addon_empty">No hay complementos instalados. Instala uno para empezar.</string>
     <string name="addon_list_load_failed">No se pudieron cargar tus complementos instalados. Inténtalo de nuevo.</string>
     <string name="addon_remove">Eliminar</string>
+    <string name="addon_remove_confirm_title">¿Eliminar %1$s?</string>
+    <string name="addon_remove_confirm_message">Sus catálogos y streams dejarán de aparecer en esta TV.</string>
     <string name="addons_badge_disabled">Deshabilitado</string>
     <string name="addon_manage_from_phone_title">Administrar desde teléfono</string>
     <string name="addon_manage_from_phone_subtitle">Escanea un código QR para administrar complementos y catálogos de inicio desde tu teléfono</string>
@@ -1272,8 +1274,8 @@
     <string name="addon_confirm_catalogs_disabled">Catálogos deshabilitados en inicio:</string>
     <string name="addon_confirm_catalogs_enabled">Catálogos habilitados en inicio:</string>
     <string name="addon_confirm_no_changes">No se detectaron cambios visibles</string>
-    <string name="addon_confirm_reject">Rechazar</string>
-    <string name="addon_confirm_confirm">Confirmar</string>
+    <string name="addon_confirm_reject">Descartar cambios</string>
+    <string name="addon_confirm_confirm">Aplicar cambios</string>
     <string name="addon_refresh_action">Actualizar complementos</string>
     <string name="addon_refresh_default_subtitle">Obtiene los últimos cambios de complementos para el perfil actual</string>
     <string name="addon_refresh_done_subtitle">Complementos actualizados justo ahora</string>
@@ -2788,6 +2790,8 @@
     <string name="addon_health_slow">Lento · %1$s</string>
     <string name="addon_health_failing">La última solicitud falló</string>
     <string name="addon_health_timed_out">La última solicitud agotó el tiempo de espera</string>
+    <string name="addon_health_clear">Borrar historial</string>
+    <string name="addon_health_clear_confirm">Pulsa de nuevo para borrar</string>
     <string name="source_chip_failed">error</string>
     <string name="source_chip_loading">cargando</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

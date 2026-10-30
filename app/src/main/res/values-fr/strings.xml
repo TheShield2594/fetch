@@ -1331,6 +1331,8 @@
     <string name="addon_empty">Aucun addon installé. Ajoutez-en un pour commencer.</string>
     <string name="addon_list_load_failed">Impossible de charger vos addons installés. Réessayez.</string>
     <string name="addon_remove">Supprimer</string>
+    <string name="addon_remove_confirm_title">Supprimer %1$s&#160;?</string>
+    <string name="addon_remove_confirm_message">Ses catalogues et flux n’apparaîtront plus sur ce téléviseur.</string>
     <string name="addons_badge_disabled">Désactivé</string>
     <string name="addon_manage_from_phone_title">Gérer depuis le téléphone</string>
     <string name="addon_manage_from_phone_subtitle">Scannez un code QR pour gérer les addons, les catalogues et les collections depuis votre téléphone</string>
@@ -1350,8 +1352,8 @@
     <string name="addon_confirm_catalogs_disabled">Catalogues désactivés sur l’accueil&#160;:</string>
     <string name="addon_confirm_catalogs_enabled">Catalogues activés sur l’accueil&#160;:</string>
     <string name="addon_confirm_no_changes">Aucune modification visible détectée</string>
-    <string name="addon_confirm_reject">Refuser</string>
-    <string name="addon_confirm_confirm">Confirmer</string>
+    <string name="addon_confirm_reject">Annuler les modifications</string>
+    <string name="addon_confirm_confirm">Appliquer les modifications</string>
     <string name="addon_refresh_action">Actualiser les addons</string>
     <string name="addon_refresh_default_subtitle">Récupérer les dernières modifications des addons pour le profil actuel</string>
     <string name="addon_refresh_done_subtitle">Addons actualisés à l’instant</string>
@@ -2907,6 +2909,8 @@
     <string name="addon_health_slow">Lent · %1$s</string>
     <string name="addon_health_failing">Échec de la dernière requête</string>
     <string name="addon_health_timed_out">Délai dépassé pour la dernière requête</string>
+    <string name="addon_health_clear">Effacer l’historique</string>
+    <string name="addon_health_clear_confirm">Appuyez à nouveau pour effacer</string>
     <string name="source_chip_failed">échec</string>
     <string name="source_chip_loading">chargement</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

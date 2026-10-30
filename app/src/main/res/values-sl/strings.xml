@@ -912,6 +912,8 @@
     <string name="addon_empty">Ni nameščenih dodatkov. Dodajte enega za začetek.</string>
     <string name="addon_list_load_failed">Nameščenih dodatkov ni bilo mogoče naložiti. Poskusite znova.</string>
     <string name="addon_remove">Odstrani</string>
+    <string name="addon_remove_confirm_title">Odstranim %1$s?</string>
+    <string name="addon_remove_confirm_message">Njegovi katalogi in pretoki se na tem televizorju ne bodo več prikazovali.</string>
     <string name="addon_manage_from_phone_title">Upravljajte s telefonom</string>
     <string name="addon_manage_from_phone_subtitle">Skenirajte QR kodo za upravljanje dodatkov in domačih katalogov s telefona</string>
 	<string name="addon_manage_addons_only_from_phone_subtitle">Skenirajte kodo QR za namestitev ali odstranitev dodatkov prek telefona</string>
@@ -930,8 +932,8 @@
     <string name="addon_confirm_catalogs_disabled">Katalogi onemogočeni na domačem zaslonu:</string>
     <string name="addon_confirm_catalogs_enabled">Katalogi omogočeni na domačem zaslonu:</string>
     <string name="addon_confirm_no_changes">Ni zaznanih vidnih sprememb</string>
-    <string name="addon_confirm_reject">Zavrni</string>
-    <string name="addon_confirm_confirm">Potrdi</string>
+    <string name="addon_confirm_reject">Zavrzi spremembe</string>
+    <string name="addon_confirm_confirm">Uveljavi spremembe</string>
 	<string name="addon_refresh_action">Osveži dodatke</string>
     <string name="addon_refresh_default_subtitle">Prenesi zadnje spremembe dodatkov za trenutni profil</string>
     <string name="addon_refresh_done_subtitle">Dodatki so bili ravnokar osveženi</string>
@@ -1925,6 +1927,8 @@
     <string name="addon_health_ok">Se odziva · %1$s</string>
     <string name="addon_health_slow">Počasno · %1$s</string>
     <string name="addon_health_timed_out">Zadnja zahteva je potekla</string>
+    <string name="addon_health_clear">Počisti zgodovino</string>
+    <string name="addon_health_clear_confirm">Pritisnite znova za čiščenje</string>
     <string name="source_chip_failed">ni uspelo</string>
     <string name="source_chip_loading">nalaganje</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

@@ -1016,6 +1016,8 @@
     <string name="addon_empty">Немає встановлених адонів. Додайте один для початку.</string>
     <string name="addon_list_load_failed">Не вдалося завантажити встановлені адони. Спробуйте ще раз.</string>
     <string name="addon_remove">Видалити</string>
+    <string name="addon_remove_confirm_title">Видалити %1$s?</string>
+    <string name="addon_remove_confirm_message">Його каталоги й потоки більше не з’являтимуться на цьому телевізорі.</string>
     <string name="addons_badge_disabled">Вимкнено</string>
     <string name="addon_manage_from_phone_title">Керувати з телефону</string>
     <string name="addon_manage_from_phone_subtitle">Відскануйте QR-код для керування адонами, каталогами та колекціями з вашого телефону</string>
@@ -1035,8 +1037,8 @@
     <string name="addon_confirm_catalogs_disabled">Каталоги вимкнено на головному екрані:</string>
     <string name="addon_confirm_catalogs_enabled">Каталоги увімкнено на головному екрані:</string>
     <string name="addon_confirm_no_changes">Видимих змін не виявлено</string>
-    <string name="addon_confirm_reject">Відхилити</string>
-    <string name="addon_confirm_confirm">Підтвердити</string>
+    <string name="addon_confirm_reject">Скасувати зміни</string>
+    <string name="addon_confirm_confirm">Застосувати зміни</string>
     <string name="addon_refresh_action">Оновити адони</string>
     <string name="addon_refresh_default_subtitle">Отримати останні зміни адонів для поточного профілю</string>
     <string name="addon_refresh_done_subtitle">Адони щойно оновлено</string>
@@ -2217,6 +2219,8 @@
     <string name="addon_health_ok">Відповідає · %1$s</string>
     <string name="addon_health_slow">Повільно · %1$s</string>
     <string name="addon_health_timed_out">Час очікування останнього запиту минув</string>
+    <string name="addon_health_clear">Очистити історію</string>
+    <string name="addon_health_clear_confirm">Натисніть ще раз, щоб очистити</string>
     <string name="source_chip_failed">помилка</string>
     <string name="source_chip_loading">завантаження</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

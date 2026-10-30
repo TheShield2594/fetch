@@ -1038,6 +1038,8 @@
     <string name="addon_empty">Žádné nainstalované doplňky. Přidejte jeden pro začátek.</string>
     <string name="addon_list_load_failed">Nainstalované doplňky se nepodařilo načíst. Zkuste to znovu.</string>
     <string name="addon_remove">Odebrat</string>
+    <string name="addon_remove_confirm_title">Odebrat %1$s?</string>
+    <string name="addon_remove_confirm_message">Jeho katalogy a streamy se na této televizi přestanou zobrazovat.</string>
     <string name="addons_badge_disabled">Vypnuto</string>
     <string name="addon_manage_from_phone_title">Spravovat z telefonu</string>
     <string name="addon_manage_from_phone_subtitle">Naskenujte QR kód pro správu doplňků, katalogů a kolekcí z telefonu</string>
@@ -1057,8 +1059,8 @@
     <string name="addon_confirm_catalogs_disabled">Katalogy zakázané na Domově:</string>
     <string name="addon_confirm_catalogs_enabled">Katalogy povolené na Domově:</string>
     <string name="addon_confirm_no_changes">Nebyly zjištěny žádné viditelné změny</string>
-    <string name="addon_confirm_reject">Odmítnout</string>
-    <string name="addon_confirm_confirm">Potvrdit</string>
+    <string name="addon_confirm_reject">Zahodit změny</string>
+    <string name="addon_confirm_confirm">Použít změny</string>
     <string name="addon_refresh_action">Obnovit doplňky</string>
     <string name="addon_refresh_default_subtitle">Získat nejnovější změny doplňků pro aktuální profil</string>
     <string name="addon_refresh_done_subtitle">Doplňky byly právě obnoveny</string>
@@ -2268,6 +2270,8 @@
     <string name="addon_health_ok">Odpovídá · %1$s</string>
     <string name="addon_health_slow">Pomalý · %1$s</string>
     <string name="addon_health_timed_out">Časový limit posledního požadavku vypršel</string>
+    <string name="addon_health_clear">Vymazat historii</string>
+    <string name="addon_health_clear_confirm">Stiskněte znovu pro vymazání</string>
     <string name="source_chip_failed">selhalo</string>
     <string name="source_chip_loading">načítání</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

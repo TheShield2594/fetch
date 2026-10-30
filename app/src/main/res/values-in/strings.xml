@@ -969,6 +969,8 @@
     <string name="addon_empty">Tidak ada addon terpasang. Tambahkan satu untuk memulai.</string>
     <string name="addon_list_load_failed">Tidak dapat memuat addon terpasang Anda. Coba lagi.</string>
     <string name="addon_remove">Hapus</string>
+    <string name="addon_remove_confirm_title">Hapus %1$s?</string>
+    <string name="addon_remove_confirm_message">Katalog dan streamnya tidak akan muncul lagi di TV ini.</string>
     <string name="addons_badge_disabled">Tidak Aktif</string>
     <string name="addon_manage_from_phone_title">Kelola dari ponsel</string>
     <string name="addon_manage_from_phone_subtitle">Pindai kode QR untuk mengelola addon, katalog, dan koleksi dari ponsel Anda</string>
@@ -988,8 +990,8 @@
     <string name="addon_confirm_catalogs_disabled">Katalog dinonaktifkan di Beranda:</string>
     <string name="addon_confirm_catalogs_enabled">Katalog diaktifkan di Beranda:</string>
     <string name="addon_confirm_no_changes">Tidak ada perubahan yang terdeteksi</string>
-    <string name="addon_confirm_reject">Tolak</string>
-    <string name="addon_confirm_confirm">Konfirmasi</string>
+    <string name="addon_confirm_reject">Buang perubahan</string>
+    <string name="addon_confirm_confirm">Terapkan perubahan</string>
     <string name="addon_refresh_action">Perbarui Addon</string>
     <string name="addon_refresh_default_subtitle">Tarik perubahan addon terbaru untuk profil saat ini</string>
     <string name="addon_refresh_done_subtitle">Addon baru saja diperbarui</string>
@@ -2201,6 +2203,8 @@
     <string name="addon_health_slow">Lambat · %1$s</string>
     <string name="addon_health_failing">Permintaan terakhir gagal</string>
     <string name="addon_health_timed_out">Permintaan terakhir habis waktu</string>
+    <string name="addon_health_clear">Hapus riwayat</string>
+    <string name="addon_health_clear_confirm">Tekan lagi untuk menghapus</string>
     <string name="source_chip_failed">gagal</string>
     <string name="source_chip_loading">memuat</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

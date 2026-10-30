@@ -49,7 +49,7 @@ internal fun LazyGridScope.libraryServerContent(
                 subtitle = stringResource(R.string.library_servers_empty_message),
                 icon = Icons.Default.Dns,
                 height = 320.dp,
-                action = StateAction(stringResource(R.string.nav_settings), onNavigateToSettings)
+                action = StateAction(stringResource(R.string.library_action_choose_libraries), onNavigateToSettings)
             )
         }
 
@@ -82,10 +82,10 @@ internal fun LazyGridScope.libraryServerContent(
                         ServerFailure.UNREACHABLE,
                         ServerFailure.FAILED,
                         ServerFailure.INCOMPLETE -> StateAction(stringResource(R.string.action_retry), onRetry)
-                        ServerFailure.AUTH_REQUIRED,
+                        ServerFailure.AUTH_REQUIRED -> StateAction(stringResource(R.string.servers_sign_in_again), onNavigateToSettings)
                         ServerFailure.FORBIDDEN,
                         ServerFailure.NOT_FOUND,
-                        ServerFailure.UNSUPPORTED -> StateAction(stringResource(R.string.nav_settings), onNavigateToSettings)
+                        ServerFailure.UNSUPPORTED -> StateAction(stringResource(R.string.library_action_server_settings), onNavigateToSettings)
                     }
                     EmptyScreenState(
                         title = stringResource(R.string.library_server_load_failed, shelf.title),

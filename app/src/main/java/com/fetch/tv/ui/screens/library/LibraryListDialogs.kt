@@ -1,21 +1,18 @@
 package com.fetch.tv.ui.screens.library
 
 import android.view.KeyEvent as AndroidKeyEvent
-import androidx.compose.foundation.background
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -30,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -40,7 +36,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -57,10 +52,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import com.fetch.tv.R
 import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
-import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
 import com.fetch.tv.ui.theme.FetchStatusTones
 
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 internal fun ManageListsDialog(
     tabs: List<LibraryListTab>,
@@ -89,136 +83,129 @@ internal fun ManageListsDialog(
         }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
-        AmbientDialogEffect(onDismiss)
-        Box(
-            modifier = Modifier
-                .width(620.dp)
-                .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchTheme.radii.xl))
-                .padding(FetchTheme.spacing.xl)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text(
-                    text = stringResource(R.string.library_manage_lists),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = FetchTheme.colors.TextPrimary
-                )
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = stringResource(R.string.library_manage_lists),
+        width = 620.dp,
+        contentSpacing = FetchTheme.spacing.md
+    ) {
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = FetchStatusTones.errorText,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
+            )
+        }
 
-                if (errorMessage != null) {
-                    Text(
-                        text = errorMessage,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = FetchStatusTones.errorText
-                    )
-                }
-
-                if (personalTabs.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.library_no_lists),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = FetchTheme.extendedColors.textSecondary
-                    )
-                } else {
-                    LazyColumn(
+        if (personalTabs.isEmpty()) {
+            Text(
+                text = stringResource(R.string.library_no_lists),
+                style = MaterialTheme.typography.bodyMedium,
+                color = FetchTheme.extendedColors.textSecondary
+            )
+        } else {
+            // Gives up height before the buttons do, so the dialog stays inside its height cap.
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+                    .heightIn(max = 220.dp),
+                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+            ) {
+                items(personalTabs, key = { it.key }) { tab ->
+                    val isSelected = tab.key == selectedKey
+                    Button(
+                        onClick = { onSelect(tab.key) },
+                        enabled = !pending,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(220.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        items(personalTabs, key = { it.key }) { tab ->
-                            val isSelected = tab.key == selectedKey
-                            Button(
-                                onClick = { onSelect(tab.key) },
-                                enabled = !pending,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .then(
-                                        if (tab.key == personalTabs.firstOrNull()?.key) {
-                                            Modifier.focusRequester(firstFocusRequester)
-                                        } else {
-                                            Modifier
-                                        }
-                                    )
-                                    .semantics { selected = isSelected },
-                                colors = selectableButtonColors(isSelected)
-                            ) {
-                                if (isSelected) SelectedCheckmark()
-                                Text(
-                                    text = tab.localizedTitle(),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(
-                        onClick = onCreate,
-                        modifier = if (personalTabs.isEmpty()) Modifier.focusRequester(firstFocusRequester) else Modifier,
-                        enabled = !pending,
-                        colors = ButtonDefaults.colors(
-                            containerColor = FetchTheme.colors.BackgroundCard,
-                            contentColor = FetchTheme.colors.TextPrimary
-                        )
-                    ) { Text(stringResource(R.string.library_list_create)) }
-                    Button(
-                        onClick = onEdit,
-                        enabled = !pending && selectedKey != null,
-                        colors = ButtonDefaults.colors(
-                            containerColor = FetchTheme.colors.BackgroundCard,
-                            contentColor = FetchTheme.colors.TextPrimary
-                        )
-                    ) { Text(stringResource(R.string.library_list_edit)) }
-                    if (capabilities.supportsReordering) {
-                        Button(
-                            onClick = onMoveUp,
-                            enabled = !pending && selectedKey != null,
-                            colors = ButtonDefaults.colors(
-                                containerColor = FetchTheme.colors.BackgroundCard,
-                                contentColor = FetchTheme.colors.TextPrimary
+                            .then(
+                                if (tab.key == personalTabs.firstOrNull()?.key) {
+                                    Modifier.focusRequester(firstFocusRequester)
+                                } else {
+                                    Modifier
+                                }
                             )
-                        ) { Text(stringResource(R.string.library_list_move_up)) }
-                        Button(
-                            onClick = onMoveDown,
-                            enabled = !pending && selectedKey != null,
-                            colors = ButtonDefaults.colors(
-                                containerColor = FetchTheme.colors.BackgroundCard,
-                                contentColor = FetchTheme.colors.TextPrimary
-                            )
-                        ) { Text(stringResource(R.string.library_list_move_down)) }
-                    }
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Button(
-                        onClick = onDelete,
-                        enabled = !pending && selectedKey != null,
-                        colors = destructiveButtonColors()
+                            .semantics { selected = isSelected },
+                        shape = libraryButtonShape(),
+                        colors = selectableButtonColors(isSelected)
                     ) {
-                        // Name the list Delete acts on, so the target is never ambiguous.
-                        val selectedTitle = personalTabs.firstOrNull { it.key == selectedKey }?.localizedTitle()
+                        if (isSelected) SelectedCheckmark()
                         Text(
-                            text = if (selectedTitle != null) {
-                                stringResource(R.string.library_list_delete_named, selectedTitle)
-                            } else {
-                                stringResource(R.string.library_list_delete)
-                            },
+                            text = tab.localizedTitle(),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    Button(
-                        onClick = onDismiss,
-                        enabled = !pending,
-                        colors = ButtonDefaults.colors(
-                            containerColor = FetchTheme.colors.BackgroundCard,
-                            contentColor = FetchTheme.colors.TextPrimary
-                        )
-                    ) { Text(stringResource(R.string.library_list_close)) }
                 }
             }
+        }
+
+        // Wraps instead of squeezing the trailing buttons at large text sizes or in long languages.
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+        ) {
+            Button(
+                onClick = onCreate,
+                modifier = if (personalTabs.isEmpty()) Modifier.focusRequester(firstFocusRequester) else Modifier,
+                enabled = !pending,
+                shape = libraryButtonShape(),
+                colors = libraryButtonColors()
+            ) { Text(stringResource(R.string.library_list_create)) }
+            Button(
+                onClick = onEdit,
+                enabled = !pending && selectedKey != null,
+                shape = libraryButtonShape(),
+                colors = libraryButtonColors()
+            ) { Text(stringResource(R.string.library_list_edit)) }
+            if (capabilities.supportsReordering) {
+                Button(
+                    onClick = onMoveUp,
+                    enabled = !pending && selectedKey != null,
+                    shape = libraryButtonShape(),
+                    colors = libraryButtonColors()
+                ) { Text(stringResource(R.string.library_list_move_up)) }
+                Button(
+                    onClick = onMoveDown,
+                    enabled = !pending && selectedKey != null,
+                    shape = libraryButtonShape(),
+                    colors = libraryButtonColors()
+                ) { Text(stringResource(R.string.library_list_move_down)) }
+            }
+        }
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
+        ) {
+            Button(
+                onClick = onDelete,
+                enabled = !pending && selectedKey != null,
+                shape = libraryButtonShape(),
+                colors = destructiveButtonColors()
+            ) {
+                // Name the list Delete acts on, so the target is never ambiguous.
+                val selectedTitle = personalTabs.firstOrNull { it.key == selectedKey }?.localizedTitle()
+                Text(
+                    text = if (selectedTitle != null) {
+                        stringResource(R.string.library_list_delete_named, selectedTitle)
+                    } else {
+                        stringResource(R.string.library_list_delete)
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Button(
+                onClick = onDismiss,
+                enabled = !pending,
+                shape = libraryButtonShape(),
+                colors = libraryButtonColors()
+            ) { Text(stringResource(R.string.library_list_close)) }
         }
     }
 }
@@ -377,17 +364,18 @@ internal fun ListEditorDialog(
                 color = FetchTheme.extendedColors.textSecondary
             )
 
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
                 items(capabilities.privacyOptions, key = { it.name }) { privacy ->
                     val isSelected = privacy == state.privacy
                     Button(
                         onClick = { onPrivacyChanged(privacy) },
                         enabled = !pending,
                         modifier = Modifier.semantics { selected = isSelected },
+                        shape = libraryButtonShape(),
                         colors = selectableButtonColors(isSelected)
                     ) {
                         if (isSelected) SelectedCheckmark()
-                        Text(privacy.apiValue.replaceFirstChar { it.uppercase() })
+                        Text(stringResource(privacy.labelRes()))
                     }
                 }
             }
@@ -407,15 +395,40 @@ internal fun ListEditorDialog(
             onClick = onSave,
             enabled = !pending,
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
+            shape = libraryButtonShape(),
+            colors = libraryButtonColors()
         ) {
             Text(if (pending) stringResource(R.string.action_saving) else stringResource(R.string.action_save))
         }
     }
 }
+
+/** Translatable label for a list privacy option, instead of the provider's wire value. */
+@StringRes
+private fun LibraryListPrivacy.labelRes(): Int = when (this) {
+    LibraryListPrivacy.PRIVATE -> R.string.library_list_privacy_private
+    LibraryListPrivacy.LINK -> R.string.library_list_privacy_link
+    LibraryListPrivacy.FRIENDS -> R.string.library_list_privacy_friends
+    LibraryListPrivacy.PUBLIC -> R.string.library_list_privacy_public
+}
+
+/** The project button shape, so Library buttons match the cards and pickers beside them. */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+internal fun libraryButtonShape() = ButtonDefaults.shape(FetchTheme.shapes.button)
+
+/**
+ * Colors for a plain Library button. The focused pair is the theme's neutral Highlight, stated here
+ * rather than left to the library default.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+internal fun libraryButtonColors() = ButtonDefaults.colors(
+    containerColor = FetchTheme.colors.BackgroundCard,
+    contentColor = FetchTheme.colors.TextPrimary,
+    focusedContainerColor = FetchTheme.colors.Highlight,
+    focusedContentColor = FetchTheme.colors.OnHighlight
+)
 
 /**
  * Colors for a Library button that can be the current choice. The selected one takes the neutral
@@ -425,7 +438,9 @@ internal fun ListEditorDialog(
 @Composable
 internal fun selectableButtonColors(selected: Boolean) = ButtonDefaults.colors(
     containerColor = if (selected) FetchTheme.colors.Highlight else FetchTheme.colors.BackgroundCard,
-    contentColor = if (selected) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary
+    contentColor = if (selected) FetchTheme.colors.OnHighlight else FetchTheme.colors.TextPrimary,
+    focusedContainerColor = FetchTheme.colors.Highlight,
+    focusedContentColor = FetchTheme.colors.OnHighlight
 )
 
 /** Leading checkmark for the selected option, so selection isn't carried by color alone. */

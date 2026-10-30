@@ -67,5 +67,7 @@
     <string name="library_source_servers">Servers</string>
     <string name="library_servers_empty_title">No libraries selected</string>
     <string name="library_servers_empty_message">Choose which libraries to show in Settings, under Content &amp; Discovery, then Media servers.</string>
+    <string name="library_action_choose_libraries">Choose libraries</string>
+    <string name="library_action_server_settings">Open server settings</string>
     <string name="library_server_load_failed">Couldn’t load %1$s</string>
 </resources>

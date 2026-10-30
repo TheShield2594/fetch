@@ -74,6 +74,8 @@ data class FetchTextStyleTokens(
     /** Stream specs ("4K · DV · Atmos · Cached"). */
     val spec: TextStyle,
     val badge: TextStyle,
+    /** Tracked capitals above or beside a title, such as the Library source label. */
+    val eyebrow: TextStyle,
     val button: TextStyle,
     val tab: TextStyle,
     val nav: TextStyle,
@@ -218,6 +220,10 @@ fun buildFetchTextStyles(typography: Typography): FetchTextStyleTokens = FetchTe
     badge = typography.labelSmall.copy(
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.5.sp
+    ),
+    eyebrow = typography.labelLarge.copy(
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 2.sp
     ),
     button = typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
     tab = typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),

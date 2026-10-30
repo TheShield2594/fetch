@@ -40,6 +40,8 @@ import java.util.Locale
 import javax.inject.Inject
 
 private val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
+private const val INFO_MESSAGE_MILLIS = 2200L
+private const val ERROR_MESSAGE_MIN_MILLIS = 8000L
 
 data class LibraryTypeTab(
     val key: String,
@@ -126,6 +128,9 @@ data class LibraryUiState(
     val isSyncing: Boolean = false,
     val errorMessage: String? = null,
     val transientMessage: String? = null,
+    // An error banner stays until it has been up long enough to read and the user presses a key.
+    val transientMessageIsError: Boolean = false,
+    val transientMessageDismissible: Boolean = false,
     val listManagement: TrackingListManagementCapabilities? = null,
     val showManageDialog: Boolean = false,
     val manageSelectedListKey: String? = null,
@@ -348,8 +353,8 @@ class LibraryViewModel @Inject constructor(
             runCatching {
                 libraryRepository.refreshNow()
                 setTransientMessage(context.getString(R.string.library_synced))
-            }.onFailure { error ->
-                setError(error.message ?: context.getString(R.string.library_error_refresh_failed))
+            }.onFailure {
+                setError(context.getString(R.string.library_error_refresh_failed))
             }
         }
     }
@@ -458,7 +463,12 @@ class LibraryViewModel @Inject constructor(
     fun onMoveSelectedListDown() = reorderSelectedList(moveUp = false)
 
     fun onClearTransientMessage() {
-        _uiState.update { it.copy(transientMessage = null) }
+        _uiState.update { it.copy(transientMessage = null, transientMessageIsError = false, transientMessageDismissible = false) }
+    }
+
+    /** Clears an error banner once it has been up long enough to read; a no-op otherwise. */
+    fun onDismissReadError() {
+        if (_uiState.value.transientMessageIsError && _uiState.value.transientMessageDismissible) onClearTransientMessage()
     }
 
     private fun isListManagementCurrent(expected: ListManagementContext? = listManagementContext): Boolean =
@@ -486,7 +496,7 @@ class LibraryViewModel @Inject constructor(
                 }
             } catch (error: CancellationException) {
                 throw error
-            } catch (error: Exception) {
+            } catch (_: Exception) {
                 if (isListManagementCurrent(operationContext)) {
                     if (_uiState.value.listEditorState != null) {
                         // A failed save keeps the editor open, so the message has to be in it. Use
@@ -497,7 +507,7 @@ class LibraryViewModel @Inject constructor(
                             current.copy(listEditorState = current.listEditorState?.copy(error = editorError, nameError = false))
                         }
                     } else {
-                        setError(error.message ?: context.getString(errorMessage))
+                        setError(context.getString(errorMessage))
                     }
                 }
             } finally {
@@ -692,19 +702,34 @@ class LibraryViewModel @Inject constructor(
     }
 
     private fun setError(message: String) {
-        _uiState.update { it.copy(errorMessage = message, transientMessage = message) }
+        _uiState.update {
+            it.copy(
+                errorMessage = message,
+                transientMessage = message,
+                transientMessageIsError = true,
+                transientMessageDismissible = false
+            )
+        }
         messageClearJob?.cancel()
+        // Errors don't time out: after a minimum reading time the next key press clears them.
         messageClearJob = viewModelScope.launch {
-            delay(2800)
-            _uiState.update { it.copy(transientMessage = null) }
+            delay(ERROR_MESSAGE_MIN_MILLIS)
+            _uiState.update { it.copy(transientMessageDismissible = it.transientMessageIsError) }
         }
     }
 
     private fun setTransientMessage(message: String) {
-        _uiState.update { it.copy(transientMessage = message, errorMessage = null) }
+        _uiState.update {
+            it.copy(
+                transientMessage = message,
+                transientMessageIsError = false,
+                transientMessageDismissible = false,
+                errorMessage = null
+            )
+        }
         messageClearJob?.cancel()
         messageClearJob = viewModelScope.launch {
-            delay(2200)
+            delay(INFO_MESSAGE_MILLIS)
             _uiState.update { it.copy(transientMessage = null) }
         }
     }

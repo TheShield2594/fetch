@@ -2541,7 +2541,7 @@
     <string name="youtube_menu_play">Přehrát</string>
     <string name="youtube_menu_go_to_channel">Přejít na kanál</string>
     <string name="youtube_menu_go_to_named_channel">Přejít na %1$s</string>
-    <string name="youtube_actions_hint">Stisknutím nahoru dáte líbí se, uložíte, odeberete nebo přejdete na kanál</string>
+    <string name="youtube_actions_hint">Stisknutím nahoru dáte líbí se, uložíte, začnete odebírat nebo přejdete na kanál</string>
     <string name="youtube_action_like">Líbí se mi</string>
     <string name="youtube_action_dislike">Nelíbí se mi</string>
     <string name="youtube_action_save">Uložit</string>

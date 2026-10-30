@@ -120,10 +120,9 @@ fun YouTubePlayerOverlay(
     val focusRequester = remember { FocusRequester() }
     val saveFocusRequester = remember { FocusRequester() }
     val canControl = !playback.videoUrl.isNullOrBlank() && !playback.isLoading && !playback.failed
-    // Without the watch page (it failed, or hasn't loaded), the menu still offers the tile's channel.
-    val menuActions = playback.actions ?: video.channelId?.let {
-        YouTubeVideoActions(likeStatus = null, channelId = it, channelName = video.channelName, subscribed = null)
-    }
+    // Without the watch page (it failed, or hasn't loaded), the menu still offers Save and the tile's channel.
+    val menuActions = playback.actions
+        ?: YouTubeVideoActions(likeStatus = null, channelId = video.channelId, channelName = video.channelName, subscribed = null)
 
     fun seekBy(deltaMs: Long) {
         seekDeltaMs = deltaMs
@@ -217,13 +216,9 @@ fun YouTubePlayerOverlay(
                         }
                         KeyEvent.KEYCODE_DPAD_UP -> {
                             if (!canControl) return@onPreviewKeyEvent false
-                            // Up opens like, save, subscribe and the channel once the watch page says what they are.
-                            if (menuActions != null) {
-                                actionsMenuOpen = true
-                                controlsVisible = false
-                            } else {
-                                controlsVisible = true
-                            }
+                            // Up opens Save at once; like, subscribe and the channel once the watch page says what they are.
+                            actionsMenuOpen = true
+                            controlsVisible = false
                             true
                         }
                         KeyEvent.KEYCODE_DPAD_DOWN -> {
@@ -295,7 +290,7 @@ fun YouTubePlayerOverlay(
                     video.channelName?.let {
                         Text(text = it, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.82f))
                     }
-                    if (canControl && menuActions != null) {
+                    if (canControl) {
                         Text(
                             text = stringResource(R.string.youtube_actions_hint),
                             style = MaterialTheme.typography.bodySmall,
@@ -381,7 +376,7 @@ fun YouTubePlayerOverlay(
                 )
             }
 
-            if (actionsMenuOpen && menuActions != null && !ended) {
+            if (actionsMenuOpen && !ended) {
                 VideoActionsMenu(
                     actions = menuActions,
                     failed = playback.actionFailed,

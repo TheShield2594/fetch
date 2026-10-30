@@ -1166,10 +1166,6 @@
 <string name="addon_empty">Nessun addon installato. Aggiungine uno per iniziare.</string>
 <string name="addon_list_load_failed">Impossibile caricare gli addon installati. Riprova.</string>
 <string name="addon_remove">Rimuovi</string>
-<string name="addon_delete_confirm_title">Eliminare l\'addon?</string>
-<string name="addon_delete_confirm_message">Sei sicuro di volerlo eliminare?</string>
-<string name="addon_delete_no">No</string>
-<string name="addon_delete_yes">Sì</string>
 <string name="addons_badge_disabled">Disattivato</string>
 <string name="addon_manage_from_phone_title">Gestisci dal telefono</string>
 <string name="addon_manage_from_phone_subtitle">Scansiona un codice QR per gestire gli addon e i cataloghi Home dal tuo telefono</string>

@@ -1332,10 +1332,6 @@
     <string name="addon_empty">Kurulu eklenti bulunamadı. Başlamak için bir tane ekleyin.</string>
     <string name="addon_list_load_failed">Yüklü eklentileriniz yüklenemedi. Tekrar deneyin.</string>
     <string name="addon_remove">Kaldır</string>
-    <string name="addon_delete_confirm_title">Eklenti silinsin mi?</string>
-    <string name="addon_delete_confirm_message">Silmek istediğinizden emin misiniz?</string>
-    <string name="addon_delete_no">Hayır</string>
-    <string name="addon_delete_yes">Evet</string>
     <string name="addons_badge_disabled">Kapalı</string>
     <string name="addon_manage_from_phone_title">Telefondan Yönet</string>
     <string name="addon_manage_from_phone_subtitle">Telefondan eklentileri ve ana sayfa kataloglarını yönetmek için QR kodunu tayın</string>

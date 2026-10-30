@@ -1331,10 +1331,6 @@
     <string name="addon_empty">Aucun addon installé. Ajoutez-en un pour commencer.</string>
     <string name="addon_list_load_failed">Impossible de charger vos addons installés. Réessayez.</string>
     <string name="addon_remove">Supprimer</string>
-    <string name="addon_delete_confirm_title">Supprimer l’addon&#160;?</string>
-    <string name="addon_delete_confirm_message">Voulez-vous vraiment le supprimer&#160;?</string>
-    <string name="addon_delete_no">Non</string>
-    <string name="addon_delete_yes">Oui</string>
     <string name="addons_badge_disabled">Désactivé</string>
     <string name="addon_manage_from_phone_title">Gérer depuis le téléphone</string>
     <string name="addon_manage_from_phone_subtitle">Scannez un code QR pour gérer les addons, les catalogues et les collections depuis votre téléphone</string>

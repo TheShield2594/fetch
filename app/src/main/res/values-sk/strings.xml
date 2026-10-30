@@ -2385,10 +2385,6 @@
     <string name="profile_background_normal">Normálne</string>
     <string name="profile_background_custom">Vlastné</string>
     <string name="profile_avatar_category_supporter">Podporovateľ</string>
-    <string name="addon_delete_confirm_title">Odstrániť doplnok?</string>
-    <string name="addon_delete_confirm_message">Naozaj ho chcete odstrániť?</string>
-    <string name="addon_delete_no">Nie</string>
-    <string name="addon_delete_yes">Áno</string>
     <string name="subtitle_delay_reset">Obnoviť</string>
     <string name="library_filter_watched">Pozrené</string>
     <string name="library_watched_filter_all">Všetko</string>

@@ -1249,10 +1249,6 @@
     <string name="addon_empty">未安裝擴充套件。請新增一個以開始使用。</string>
     <string name="addon_list_load_failed">無法載入已安裝的擴充套件。請重試。</string>
     <string name="addon_remove">移除</string>
-    <string name="addon_delete_confirm_title">刪除擴充套件？</string>
-    <string name="addon_delete_confirm_message">您確定要刪除它嗎？</string>
-    <string name="addon_delete_no">否</string>
-    <string name="addon_delete_yes">是</string>
     <string name="addons_badge_disabled">已停用</string>
     <string name="addon_manage_from_phone_title">從手機管理</string>
     <string name="addon_manage_from_phone_subtitle">掃描 QR 碼以從手機管理擴充套件、目錄和收藏</string>

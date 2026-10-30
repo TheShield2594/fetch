@@ -1245,10 +1245,6 @@
   <string name="addon_empty">Δεν έχετε εγκαταστήσει πρόσθετα. Προσθέστε ένα για να ξεκινήσετε.</string>
   <string name="addon_list_load_failed">Δεν ήταν δυνατή η φόρτωση των εγκατεστημένων προσθέτων σας. Δοκιμάστε ξανά.</string>
   <string name="addon_remove">Αφαίρεση</string>
-  <string name="addon_delete_confirm_title">Διαγραφή πρόσθετου;</string>
-  <string name="addon_delete_confirm_message">Είστε σίγουροι ότι θέλετε να το διαγράψετε;</string>
-  <string name="addon_delete_no">Όχι</string>
-  <string name="addon_delete_yes">Ναι</string>
   <string name="addon_manage_from_phone_title">Διαχείριση από κινητό</string>
   <string name="addon_manage_from_phone_subtitle">Σαρώστε QR code για να διαχειριστείτε πρόσθετα και καταλόγους αρχικής οθόνης από το κινητό σας</string>
   <string name="addon_manage_addons_only_from_phone_subtitle">Σαρώστε QR code για εγκατάσταση ή αφαίρεση πρόσθετων από το κινητό σας</string>

@@ -1170,10 +1170,6 @@
     <string name="addon_empty">Geen add-ons geïnstalleerd. Voeg er één toe om te beginnen.</string>
     <string name="addon_list_load_failed">Kon je geïnstalleerde add-ons niet laden. Probeer het opnieuw.</string>
     <string name="addon_remove">Verwijderen</string>
-    <string name="addon_delete_confirm_title">Add-on verwijderen?</string>
-    <string name="addon_delete_confirm_message">Weet je zeker dat je deze wilt verwijderen?</string>
-    <string name="addon_delete_no">Nee</string>
-    <string name="addon_delete_yes">Ja</string>
     <string name="addons_badge_disabled">Uitgeschakeld</string>
     <string name="addon_manage_from_phone_title">Beheren via telefoon</string>
     <string name="addon_manage_from_phone_subtitle">Scan een QR-code om add-ons, catalogi en collecties te beheren vanaf je telefoon</string>

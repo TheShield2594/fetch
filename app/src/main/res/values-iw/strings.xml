@@ -1335,10 +1335,6 @@
     <string name="addon_empty">אין תוספים מותקנים. יש להוסיף אחד כדי להתחיל.</string>
     <string name="addon_list_load_failed">לא ניתן היה לטעון את התוספים המותקנים. כדאי לנסות שוב.</string>
     <string name="addon_remove">הסרה</string>
-    <string name="addon_delete_confirm_title">למחוק את התוסף?</string>
-    <string name="addon_delete_confirm_message">פעולה זו תמחק את התוסף לצמיתות. להמשיך?</string>
-    <string name="addon_delete_no">לא</string>
-    <string name="addon_delete_yes">כן</string>
     <string name="addons_badge_disabled">מושבת</string>
     <string name="addon_manage_from_phone_title">ניהול מהטלפון</string>
     <string name="addon_manage_from_phone_subtitle">יש לסרוק קוד QR לניהול תוספים, קטלוגים ואוספים מהטלפון</string>

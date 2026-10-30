@@ -1197,10 +1197,6 @@
     <string name="addon_empty">Nenhum addon instalado. Adicione um para começar.</string>
     <string name="addon_list_load_failed">Não foi possível carregar seus addons instalados. Tente novamente.</string>
     <string name="addon_remove">Remover</string>
-    <string name="addon_delete_confirm_title">Excluir addon?</string>
-    <string name="addon_delete_confirm_message">Tem certeza de que deseja excluí-lo?</string>
-    <string name="addon_delete_no">Não</string>
-    <string name="addon_delete_yes">Sim</string>
     <string name="addons_badge_disabled">Desativar</string>
     <string name="addon_manage_from_phone_title">Gerenciar pelo celular</string>
     <string name="addon_manage_from_phone_subtitle">Escaneie um QR para gerenciar addons, catálogos e coleções pelo celular</string>

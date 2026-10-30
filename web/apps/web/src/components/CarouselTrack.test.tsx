@@ -13,6 +13,9 @@ const fades = (container: HTMLElement) => container.querySelectorAll("[data-caro
 const fade = (container: HTMLElement, side: "left" | "right") =>
   container.querySelector(`[data-carousel-fade="${side}"]`) as HTMLElement;
 const isVisible = (el: HTMLElement) => !el.className.includes("opacity-0");
+// The gradient is read off the inline style: jsdom's `getComputedStyle`, which
+// `toHaveStyle` compares through, drops a `background` whose `var()` it can't
+// resolve, and the theme's colour tokens are never defined under test.
 const track = (container: HTMLElement) => container.querySelector(".overflow-x-auto") as HTMLElement;
 
 describe("CarouselTrack", () => {
@@ -33,7 +36,7 @@ describe("CarouselTrack", () => {
     const { container } = renderTrack(false, true);
     expect(isVisible(fade(container, "left"))).toBe(false);
     expect(isVisible(fade(container, "right"))).toBe(true);
-    expect(fade(container, "right")).toHaveStyle({ background: "linear-gradient(to left, var(--bg-0), transparent)" });
+    expect(fade(container, "right").style.background).toBe("linear-gradient(to left, var(--bg-0), transparent)");
   });
 
   it("shows only the left fade at the end of a scrollable row", () => {
@@ -93,6 +96,6 @@ describe("CarouselTrack", () => {
         <span>Card</span>
       </CarouselTrack>
     );
-    expect(fades(container)[0]).toHaveStyle({ background: "linear-gradient(to right, var(--bg-1), transparent)" });
+    expect((fades(container)[0] as HTMLElement).style.background).toBe("linear-gradient(to right, var(--bg-1), transparent)");
   });
 });

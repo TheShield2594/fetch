@@ -69,8 +69,9 @@ const currentRows = () =>
 // Compared as the authored `calc()` rather than a pixel count: the rail adds
 // `env(safe-area-inset-left)` so its material can run under a landscape notch
 // while its rows stay clear of one, and jsdom neither resolves `env()` nor
-// evaluates `calc()`. The two states are still distinguishable, which is all
-// these assertions need.
+// evaluates `calc()`. Read off the inline style, not `toHaveStyle`: that goes
+// through `getComputedStyle`, which jsdom now resolves `rem` to `px` in, so the
+// comparison would hinge on jsdom's root font size rather than on the rail.
 const COLLAPSED_WIDTH = "calc(4rem + env(safe-area-inset-left))";
 const EXPANDED_WIDTH = "calc(15rem + env(safe-area-inset-left))";
 
@@ -231,11 +232,11 @@ describe("Sidebar", () => {
     const user = userEvent.setup();
     renderSidebar();
 
-    expect(rail()).toHaveStyle({ width: COLLAPSED_WIDTH });
+    expect(rail().style.width).toBe(COLLAPSED_WIDTH);
 
     await user.tab();
     expect(screen.getByRole("link", { name: "Shelf" })).toHaveFocus();
-    expect(rail()).toHaveStyle({ width: EXPANDED_WIDTH });
+    expect(rail().style.width).toBe(EXPANDED_WIDTH);
   });
 
   it("stays expanded while focus moves between two of its own controls", async () => {
@@ -246,7 +247,7 @@ describe("Sidebar", () => {
     await user.tab();
 
     expect(screen.getByRole("link", { name: "Search" })).toHaveFocus();
-    expect(rail()).toHaveStyle({ width: EXPANDED_WIDTH });
+    expect(rail().style.width).toBe(EXPANDED_WIDTH);
   });
 
   it("collapses again once focus leaves for something outside the rail", async () => {
@@ -259,10 +260,10 @@ describe("Sidebar", () => {
     );
 
     await user.tab();
-    expect(rail()).toHaveStyle({ width: EXPANDED_WIDTH });
+    expect(rail().style.width).toBe(EXPANDED_WIDTH);
 
     await user.click(screen.getByRole("button", { name: "elsewhere" }));
-    expect(rail()).toHaveStyle({ width: COLLAPSED_WIDTH });
+    expect(rail().style.width).toBe(COLLAPSED_WIDTH);
   });
 
   it("names each collapsed icon with a title, and drops it once the label is readable", async () => {

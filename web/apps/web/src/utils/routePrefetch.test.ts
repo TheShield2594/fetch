@@ -30,6 +30,17 @@ afterEach(() => {
 // rather than as the runner giving up on the case.
 const WARM_UP = { timeout: 4000 };
 
+// Vitest only queues a `doMock`; the next module fetch registers it, and does so
+// asynchronously. `prefetchRoute` fires the route's chunk import and the warmer's
+// `import("../api")` back to back, so the chunk's fetch drains the queue and the
+// warmer's, arriving before the mock is in place, loads the real client — whose
+// network error the warmer then swallows. Importing it here first lets the mock
+// land before anything races it.
+const mockApi = async (api: Record<string, unknown>) => {
+  vi.doMock("../api", () => ({ api }));
+  await import("../api");
+};
+
 describe("route prefetch coverage", () => {
   it("has a loader for every sidebar destination", () => {
     for (const item of SIDEBAR_NAV_ITEMS) {
@@ -54,7 +65,7 @@ describe("route prefetch coverage", () => {
     resetDataCacheForTests();
     resetPrefetchStateForTests();
     const events = [{ id: "ev-1", imdbId: "tt1", type: "movie", name: "Alien" }];
-    vi.doMock("../api", () => ({ api: { getWatchHistory: async () => events } }));
+    await mockApi({ getWatchHistory: async () => events });
 
     prefetchRoute("/history");
     await vi.waitFor(() => expect(readCache("history:events:all")).toEqual(events), WARM_UP);
@@ -67,7 +78,7 @@ describe("route prefetch coverage", () => {
     resetDataCacheForTests();
     resetPrefetchStateForTests();
     const getWatchHistory = vi.fn(async () => []);
-    vi.doMock("../api", () => ({ api: { getWatchHistory } }));
+    await mockApi({ getWatchHistory });
 
     prefetchRoute("/history");
 

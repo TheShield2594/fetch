@@ -13,6 +13,8 @@ Commands:
   generate-profile      Regenerate app/src/main/generated/baselineProfiles from a Fetch build
                         (connected device or emulator, API 28+, first-run onboarding reachable)
   benchmark             Run the cold-start Macrobenchmark (StartupBenchmark) on a connected device
+  frames                Run the frame-timing Macrobenchmark (FrameTimingBenchmark): Home scrolling
+                        and opening a detail page, on a connected device
   cold-start [runs]     Measure cold start with 'am start -W' on the installed app (default 10 runs)
                         and print TotalTime per run plus the median; works on any adb device
   heap [label]          Snapshot 'dumpsys meminfo' for the running app into perf/heap-<label>.txt
@@ -30,6 +32,12 @@ case "$cmd" in
     ./gradlew \
       :baselineprofile:connectedBenchmarkReleaseAndroidTest \
       -Pandroid.testInstrumentationRunnerArguments.class=com.fetch.tv.baselineprofile.StartupBenchmark \
+      -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=Macrobenchmark
+    ;;
+  frames)
+    ./gradlew \
+      :baselineprofile:connectedBenchmarkReleaseAndroidTest \
+      -Pandroid.testInstrumentationRunnerArguments.class=com.fetch.tv.baselineprofile.FrameTimingBenchmark \
       -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=Macrobenchmark
     ;;
   cold-start)

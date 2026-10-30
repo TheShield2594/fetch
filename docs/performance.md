@@ -78,12 +78,13 @@ git add app/src/main/generated/baselineProfiles/
 ```
 
 The generator (`BaselineProfileGenerator.kt`) runs in English and records two profiles. The
-app journey goes through first-run onboarding with the D-pad ("Continue without account" →
-"Advanced", which opens Home), scrolls Home and opens a title; it feeds the baseline profile
-only. Startup then records a cold launch to Home on its own, which is all the startup profile
-should hold, so `startup-prof.txt` comes out much smaller than `baseline-prof.txt`. If the two
-files are identical, the startup run is recording more than launch. If onboarding labels
-change, update the generator. After
+app journey goes through first-run onboarding with the D-pad ("Continue without account", then
+"Skip for now" or "Continue" on each first-run wizard step, then "Advanced", which opens Home),
+scrolls Home and opens a title; it feeds the baseline profile only. The onboarding steps live in
+`Journeys.kt`, shared with the benchmarks. Startup then records a cold launch to Home on its
+own, which is all the startup profile should hold, so `startup-prof.txt` comes out much smaller than `baseline-prof.txt`. If the two
+files are identical, the startup run is recording more than launch. If onboarding labels or
+wizard steps change, update `Journeys.kt`. After
 regenerating, run `scripts/perf_baseline.sh benchmark` and check that the "profile" column
 beats "no profile".
 
@@ -119,3 +120,36 @@ Record the numbers here:
 | | Defaults | | | | |
 | | Custom, max buffer | | | | |
 | | After exit to Home | | | | |
+
+## 4. Frame timing
+
+Measure on each API 28+ device, release build, same preparation as cold start:
+
+```sh
+# Home scrolling and opening a detail page, with the baseline profile.
+# Results land in baselineprofile/build/outputs/.
+scripts/perf_baseline.sh frames
+```
+
+The Macrobenchmark is `baselineprofile/src/main/java/com/fetch/tv/baselineprofile/FrameTimingBenchmark.kt`.
+It reports `frameDurationCpuMs` and `frameOverrunMs` at P50/P90/P95/P99; a positive overrun is a
+missed frame. Play → fetching panel → first frame needs real streams, so measure it by hand:
+
+```sh
+adb shell dumpsys gfxinfo com.fetch.tv reset
+# Press Play on a title, wait for the first video frame, then:
+adb shell dumpsys gfxinfo com.fetch.tv | grep -E "Total frames|Janky frames|percentile"
+```
+
+On Fire OS 5/6 sticks (below API 28) use the `dumpsys gfxinfo` route for all three.
+
+Record the numbers here:
+
+| Device | Build | Journey | Frame duration P50 / P90 / P99 (ms) | Frame overrun P90 / P99 (ms) or janky % | Notes |
+|---|---|---|---|---|---|
+| Fire TV Stick Lite | main | Home scrolling | | | |
+| Fire TV Stick Lite | main | Open detail page | | | |
+| Fire TV Stick Lite | main | Play → first frame | | | |
+| Chromecast with Google TV HD | main | Home scrolling | | | |
+| Chromecast with Google TV HD | main | Open detail page | | | |
+| Chromecast with Google TV HD | main | Play → first frame | | | |

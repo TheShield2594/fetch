@@ -748,9 +748,9 @@ internal fun heroResumeSpecLine(
 )
 
 /**
- * Not focusable: it names what OK on the focused Continue Watching card does. It is drawn as a
- * hint (an outlined OK key and the action), never as a filled button, because focus is on the
- * card below and a white pill here read as a second focused control. The accent line under it
+ * Not focusable: it names what the focused Continue Watching card resumes. It is drawn as plain
+ * text, never as a filled button, because focus is on the card below and a white pill here read
+ * as a second focused control. The accent line under it
  * is the title's watched progress, the same line the card carries.
  */
 @Composable
@@ -762,7 +762,6 @@ private fun HeroResumeRow(
     modifier: Modifier = Modifier
 ) {
     val accent = FetchTheme.colors.Secondary
-    val keyStyle = remember(textStyle) { textStyle.copy(fontWeight = FontWeight.Bold) }
     val actionStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
     Column(
         modifier = modifier,
@@ -772,32 +771,19 @@ private fun HeroResumeRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            // The launch morph grows from here, so the hint and the action stay one origin.
-            Row(
-                modifier = Modifier.offersPlayLaunchOrigin(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-            ) {
-                Text(
-                    text = stringResource(R.string.hero_resume_ok_key),
-                    style = keyStyle,
-                    color = accent,
-                    maxLines = 1,
-                    modifier = Modifier
-                        .border(FetchTheme.strokes.focus, accent, CircleShape)
-                        .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
-                )
-                // Capped, so a long (or translated) action can't take the whole row and leave
-                // the spec line nothing; the row's leftover goes to the spec line's weight.
-                Text(
-                    text = actionText,
-                    style = actionStyle,
-                    color = FetchTheme.colors.TextPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.widthIn(max = HERO_ACTION_MAX_WIDTH)
-                )
-            }
+            // The launch morph grows from the action. Capped, so a long (or translated) action
+            // can't take the whole row and leave the spec line nothing; the row's leftover goes
+            // to the spec line's weight.
+            Text(
+                text = actionText,
+                style = actionStyle,
+                color = FetchTheme.colors.TextPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .offersPlayLaunchOrigin()
+                    .widthIn(max = HERO_ACTION_MAX_WIDTH)
+            )
             specLine?.let { line ->
                 SpecStrip(line = line, style = textStyle, modifier = Modifier.weight(1f, fill = false))
             }

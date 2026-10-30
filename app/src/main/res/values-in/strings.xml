@@ -2303,9 +2303,10 @@
     <string name="youtube_menu_play">Putar</string>
     <string name="youtube_menu_go_to_channel">Buka channel</string>
     <string name="youtube_menu_go_to_named_channel">Buka %1$s</string>
-    <string name="youtube_actions_hint">Tekan atas untuk menyukai, berlangganan, atau membuka channel</string>
+    <string name="youtube_actions_hint">Tekan atas untuk menyukai, menyimpan, berlangganan, atau membuka channel</string>
     <string name="youtube_action_like">Suka</string>
     <string name="youtube_action_dislike">Tidak suka</string>
+    <string name="youtube_action_save">Simpan</string>
     <string name="youtube_action_subscribe">Berlangganan</string>
     <string name="youtube_action_subscribed">Telah berlangganan</string>
     <string name="youtube_action_failed">YouTube tidak menerimanya. Coba lagi.</string>

@@ -2724,9 +2724,10 @@
     <string name="youtube_menu_play">تشغيل</string>
     <string name="youtube_menu_go_to_channel">الانتقال إلى القناة</string>
     <string name="youtube_menu_go_to_named_channel">الانتقال إلى %1$s</string>
-    <string name="youtube_actions_hint">اضغط للأعلى للإعجاب أو الاشتراك أو الانتقال إلى القناة</string>
+    <string name="youtube_actions_hint">اضغط للأعلى للإعجاب أو الحفظ أو الاشتراك أو الانتقال إلى القناة</string>
     <string name="youtube_action_like">إعجاب</string>
     <string name="youtube_action_dislike">عدم إعجاب</string>
+    <string name="youtube_action_save">حفظ</string>
     <string name="youtube_action_subscribe">اشتراك</string>
     <string name="youtube_action_subscribed">تم الاشتراك</string>
     <string name="youtube_action_failed">لم يقبل YouTube ذلك. حاول مرة أخرى.</string>

@@ -2575,9 +2575,10 @@
     <string name="youtube_menu_play">Luaj</string>
     <string name="youtube_menu_go_to_channel">Shko te kanali</string>
     <string name="youtube_menu_go_to_named_channel">Shko te %1$s</string>
-    <string name="youtube_actions_hint">Shtyp lart për të pëlqyer, abonuar ose shkuar te kanali</string>
+    <string name="youtube_actions_hint">Shtyp lart për të pëlqyer, ruajtur, abonuar ose shkuar te kanali</string>
     <string name="youtube_action_like">Pëlqe</string>
     <string name="youtube_action_dislike">Mos e pëlqe</string>
+    <string name="youtube_action_save">Ruaj</string>
     <string name="youtube_action_subscribe">Abonohu</string>
     <string name="youtube_action_subscribed">I abonuar</string>
     <string name="youtube_action_failed">YouTube nuk e pranoi. Provo përsëri.</string>

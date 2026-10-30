@@ -2781,9 +2781,10 @@
     <string name="youtube_menu_play">Воспроизвести</string>
     <string name="youtube_menu_go_to_channel">Перейти на канал</string>
     <string name="youtube_menu_go_to_named_channel">Перейти на канал %1$s</string>
-    <string name="youtube_actions_hint">Нажмите вверх, чтобы поставить лайк, подписаться или перейти на канал</string>
+    <string name="youtube_actions_hint">Нажмите вверх, чтобы поставить лайк, сохранить, подписаться или перейти на канал</string>
     <string name="youtube_action_like">Нравится</string>
     <string name="youtube_action_dislike">Не нравится</string>
+    <string name="youtube_action_save">Сохранить</string>
     <string name="youtube_action_subscribe">Подписаться</string>
     <string name="youtube_action_subscribed">Вы подписаны</string>
     <string name="youtube_action_failed">YouTube не принял это действие. Повторите попытку.</string>

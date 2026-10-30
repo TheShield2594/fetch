@@ -3015,9 +3015,10 @@
     <string name="youtube_menu_play">Oynat</string>
     <string name="youtube_menu_go_to_channel">Kanala git</string>
     <string name="youtube_menu_go_to_named_channel">%1$s kanalına git</string>
-    <string name="youtube_actions_hint">Beğenmek, abone olmak veya kanala gitmek için yukarı basın</string>
+    <string name="youtube_actions_hint">Beğenmek, kaydetmek, abone olmak veya kanala gitmek için yukarı basın</string>
     <string name="youtube_action_like">Beğen</string>
     <string name="youtube_action_dislike">Beğenme</string>
+    <string name="youtube_action_save">Kaydet</string>
     <string name="youtube_action_subscribe">Abone ol</string>
     <string name="youtube_action_subscribed">Abone olundu</string>
     <string name="youtube_action_failed">YouTube bunu kabul etmedi. Tekrar deneyin.</string>

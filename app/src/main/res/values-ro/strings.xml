@@ -1022,9 +1022,10 @@
     <string name="youtube_menu_play">Redă</string>
     <string name="youtube_menu_go_to_channel">Mergi la canal</string>
     <string name="youtube_menu_go_to_named_channel">Mergi la %1$s</string>
-    <string name="youtube_actions_hint">Apasă sus pentru a aprecia, a te abona sau a merge la canal</string>
+    <string name="youtube_actions_hint">Apasă sus pentru a aprecia, a salva, a te abona sau a merge la canal</string>
     <string name="youtube_action_like">Apreciază</string>
     <string name="youtube_action_dislike">Nu apreciez</string>
+    <string name="youtube_action_save">Salvează</string>
     <string name="youtube_action_subscribe">Abonează-te</string>
     <string name="youtube_action_subscribed">Abonat</string>
     <string name="youtube_action_failed">YouTube nu a acceptat acțiunea. Încearcă din nou.</string>

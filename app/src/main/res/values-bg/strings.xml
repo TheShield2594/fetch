@@ -2455,9 +2455,10 @@
     <string name="youtube_menu_play">Пусни</string>
     <string name="youtube_menu_go_to_channel">Към канала</string>
     <string name="youtube_menu_go_to_named_channel">Към %1$s</string>
-    <string name="youtube_actions_hint">Натисни нагоре, за да харесаш, да се абонираш или да отидеш към канала</string>
+    <string name="youtube_actions_hint">Натисни нагоре, за да харесаш, да запазиш, да се абонираш или да отидеш към канала</string>
     <string name="youtube_action_like">Харесвам</string>
     <string name="youtube_action_dislike">Не харесвам</string>
+    <string name="youtube_action_save">Запазване</string>
     <string name="youtube_action_subscribe">Абониране</string>
     <string name="youtube_action_subscribed">Абониран</string>
     <string name="youtube_action_failed">YouTube не прие това. Опитай отново.</string>

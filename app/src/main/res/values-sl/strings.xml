@@ -2198,9 +2198,10 @@
     <string name="youtube_menu_play">Predvajaj</string>
     <string name="youtube_menu_go_to_channel">Pojdi na kanal</string>
     <string name="youtube_menu_go_to_named_channel">Pojdi na %1$s</string>
-    <string name="youtube_actions_hint">Pritisnite navzgor, da všečkate, se naročite ali odprete kanal</string>
+    <string name="youtube_actions_hint">Pritisnite navzgor, da všečkate, shranite, se naročite ali odprete kanal</string>
     <string name="youtube_action_like">Všeč mi je</string>
     <string name="youtube_action_dislike">Ni mi všeč</string>
+    <string name="youtube_action_save">Shrani</string>
     <string name="youtube_action_subscribe">Naroči se</string>
     <string name="youtube_action_subscribed">Naročeni</string>
     <string name="youtube_action_failed">YouTube tega dejanja ni sprejel. Poskusite znova.</string>

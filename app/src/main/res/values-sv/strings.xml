@@ -1696,9 +1696,10 @@
     <string name="youtube_menu_play">Spela upp</string>
     <string name="youtube_menu_go_to_channel">Gå till kanal</string>
     <string name="youtube_menu_go_to_named_channel">Gå till %1$s</string>
-    <string name="youtube_actions_hint">Tryck uppåt för att gilla, prenumerera eller gå till kanalen</string>
+    <string name="youtube_actions_hint">Tryck uppåt för att gilla, spara, prenumerera eller gå till kanalen</string>
     <string name="youtube_action_like">Gilla</string>
     <string name="youtube_action_dislike">Ogilla</string>
+    <string name="youtube_action_save">Spara</string>
     <string name="youtube_action_subscribe">Prenumerera</string>
     <string name="youtube_action_subscribed">Prenumererar</string>
     <string name="youtube_action_failed">YouTube godtog inte det. Försök igen.</string>

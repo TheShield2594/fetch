@@ -2974,9 +2974,10 @@
     <string name="youtube_menu_play">Lejátszás</string>
     <string name="youtube_menu_go_to_channel">Ugrás a csatornára</string>
     <string name="youtube_menu_go_to_named_channel">Ugrás ide: %1$s</string>
-    <string name="youtube_actions_hint">Nyomd meg a felfelé gombot a kedveléshez, feliratkozáshoz vagy a csatornára ugráshoz</string>
+    <string name="youtube_actions_hint">Nyomd meg a felfelé gombot a kedveléshez, mentéshez, feliratkozáshoz vagy a csatornára ugráshoz</string>
     <string name="youtube_action_like">Tetszik</string>
     <string name="youtube_action_dislike">Nem tetszik</string>
+    <string name="youtube_action_save">Mentés</string>
     <string name="youtube_action_subscribe">Feliratkozás</string>
     <string name="youtube_action_subscribed">Feliratkozva</string>
     <string name="youtube_action_failed">A YouTube nem fogadta el ezt. Próbáld újra.</string>

@@ -2288,9 +2288,10 @@
     <string name="youtube_menu_play">Abspielen</string>
     <string name="youtube_menu_go_to_channel">Zum Kanal</string>
     <string name="youtube_menu_go_to_named_channel">Zu %1$s</string>
-    <string name="youtube_actions_hint">Drücke nach oben, um zu liken, zu abonnieren oder zum Kanal zu wechseln</string>
+    <string name="youtube_actions_hint">Drücke nach oben, um zu liken, zu speichern, zu abonnieren oder zum Kanal zu wechseln</string>
     <string name="youtube_action_like">Gefällt mir</string>
     <string name="youtube_action_dislike">Gefällt mir nicht</string>
+    <string name="youtube_action_save">Speichern</string>
     <string name="youtube_action_subscribe">Abonnieren</string>
     <string name="youtube_action_subscribed">Abonniert</string>
     <string name="youtube_action_failed">YouTube hat das nicht akzeptiert. Versuche es erneut.</string>

@@ -2747,9 +2747,10 @@
     <string name="youtube_menu_play">চালান</string>
     <string name="youtube_menu_go_to_channel">চ্যানেলে যান</string>
     <string name="youtube_menu_go_to_named_channel">%1$s-এ যান</string>
-    <string name="youtube_actions_hint">লাইক, সাবস্ক্রাইব বা চ্যানেলে যেতে উপরে চাপুন</string>
+    <string name="youtube_actions_hint">লাইক, সেভ, সাবস্ক্রাইব বা চ্যানেলে যেতে উপরে চাপুন</string>
     <string name="youtube_action_like">লাইক</string>
     <string name="youtube_action_dislike">ডিসলাইক</string>
+    <string name="youtube_action_save">সেভ করুন</string>
     <string name="youtube_action_subscribe">সাবস্ক্রাইব</string>
     <string name="youtube_action_subscribed">সাবস্ক্রাইব করা হয়েছে</string>
     <string name="youtube_action_failed">YouTube এটি গ্রহণ করেনি। আবার চেষ্টা করুন।</string>

@@ -2827,9 +2827,10 @@
     <string name="youtube_menu_play">Reprodukuj</string>
     <string name="youtube_menu_go_to_channel">Idi na kanal</string>
     <string name="youtube_menu_go_to_named_channel">Idi na %1$s</string>
-    <string name="youtube_actions_hint">Pritisnite gore da lajkujete, pretplatite se ili idete na kanal</string>
+    <string name="youtube_actions_hint">Pritisnite gore da lajkujete, sačuvate, pretplatite se ili idete na kanal</string>
     <string name="youtube_action_like">Sviđa mi se</string>
     <string name="youtube_action_dislike">Ne sviđa mi se</string>
+    <string name="youtube_action_save">Sačuvaj</string>
     <string name="youtube_action_subscribe">Pretplati se</string>
     <string name="youtube_action_subscribed">Pretplaćeni ste</string>
     <string name="youtube_action_failed">YouTube nije prihvatio to. Pokušajte ponovo.</string>

@@ -2798,9 +2798,10 @@
     <string name="youtube_menu_play">Afspelen</string>
     <string name="youtube_menu_go_to_channel">Naar kanaal</string>
     <string name="youtube_menu_go_to_named_channel">Ga naar %1$s</string>
-    <string name="youtube_actions_hint">Druk omhoog om te liken, je te abonneren of naar het kanaal te gaan</string>
+    <string name="youtube_actions_hint">Druk omhoog om te liken, op te slaan, je te abonneren of naar het kanaal te gaan</string>
     <string name="youtube_action_like">Leuk</string>
     <string name="youtube_action_dislike">Niet leuk</string>
+    <string name="youtube_action_save">Opslaan</string>
     <string name="youtube_action_subscribe">Abonneren</string>
     <string name="youtube_action_subscribed">Geabonneerd</string>
     <string name="youtube_action_failed">YouTube heeft dit niet geaccepteerd. Probeer het opnieuw.</string>

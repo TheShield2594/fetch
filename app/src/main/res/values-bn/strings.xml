@@ -560,8 +560,6 @@
     <string name="settings_animeskip_subtitle">অ্যানিমে ইন্ট্রো/আউট্রো স্কিপ টাইমস্ট্যাম্প</string>
     <string name="playback_title">প্লেব্যাক সেটিংস</string>
     <string name="playback_subtitle">ভিডিও প্লেব্যাক এবং সাবটাইটেল অপশন কনফিগার করুন</string>
-    <string name="cd_decrease">কমান</string>
-    <string name="cd_increase">বাড়ান</string>
     <string name="cd_decrease_setting">%1$s কমান</string>
     <string name="cd_increase_setting">%1$s বাড়ান</string>
     <string name="cd_seek_bar">সিক বার</string>
@@ -1745,7 +1743,6 @@
     <string name="nav_library">লাইব্রেরি</string>
     <string name="nav_settings">সেটিংস</string>
     <string name="action_select">নির্বাচন করুন</string>
-    <string name="settings_rounded_ui">রাউন্ডেড UI</string>
     <string name="update_waiting_for_stable">আপনি পরবর্তী স্থিতিশীল রিলিজ পাবেন যখন এটি উপলব্ধ হবে</string>
     <string name="update_download_complete">ডাউনলোড সম্পন্ন হয়েছে। ইনস্টল করতে প্রস্তুত।</string>
     <string name="update_close">বন্ধ করুন</string>

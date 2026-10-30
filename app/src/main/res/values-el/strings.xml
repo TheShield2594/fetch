@@ -540,8 +540,6 @@
   <!-- PlaybackSettingsScreen -->
   <string name="playback_title">Ρυθμίσεις αναπαραγωγής</string>
   <string name="playback_subtitle">Διαμόρφωση αναπαραγωγής βίντεο και επιλογών υπότιτλων</string>
-  <string name="cd_decrease">Μείωση</string>
-  <string name="cd_increase">Αύξηση</string>
   <string name="cd_decrease_setting">Μείωση %1$s</string>
   <string name="cd_increase_setting">Αύξηση %1$s</string>
   <string name="cd_seek_bar">Γραμμή προόδου</string>
@@ -1744,7 +1742,6 @@
   <string name="nav_library">Βιβλιοθήκη</string>
   <string name="nav_settings">Ρυθμίσεις</string>
   <string name="action_select">Επιλογή</string>
-  <string name="settings_rounded_ui">Στρογγυλεμένο UI</string>
   <string name="update_waiting_for_stable">Θα λάβετε την επόμενη σταθερή έκδοση όταν γίνει διαθέσιμη</string>
   <string name="update_download_complete">Η λήψη ολοκληρώθηκε. Έτοιμο για εγκατάσταση.</string>
   <string name="update_close">Κλείσιμο</string>

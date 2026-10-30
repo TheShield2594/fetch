@@ -481,8 +481,6 @@
 
     <string name="playback_title">Afspilningsindstillinger</string>
     <string name="playback_subtitle">Konfigurer videoafspilning og undertekstindstillinger</string>
-    <string name="cd_decrease">Mindsk</string>
-    <string name="cd_increase">Øg</string>
     <string name="cd_decrease_setting">Mindsk %1$s</string>
     <string name="cd_increase_setting">Øg %1$s</string>
     <string name="cd_seek_bar">Tidslinje</string>
@@ -1459,7 +1457,6 @@
     <string name="nav_library">Bibliotek</string>
     <string name="nav_settings">Indstillinger</string>
     <string name="action_select">Vælg</string>
-    <string name="settings_rounded_ui">Afrundet UI</string>
 
     <string name="update_download_complete">Download færdig. Klar til installation.</string>
     <string name="update_close">Luk</string>

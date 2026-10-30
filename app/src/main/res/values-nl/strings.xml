@@ -566,8 +566,6 @@
 
     <string name="playback_title">Afspeelinstellingen</string>
     <string name="playback_subtitle">Configureer videoweergave en ondertitelopties</string>
-    <string name="cd_decrease">Verlagen</string>
-    <string name="cd_increase">Verhogen</string>
     <string name="cd_decrease_setting">%1$s verlagen</string>
     <string name="cd_increase_setting">%1$s verhogen</string>
     <string name="cd_seek_bar">Zoekbalk</string>
@@ -1717,7 +1715,6 @@
     <string name="nav_library">Bibliotheek</string>
     <string name="nav_settings">Instellingen</string>
     <string name="action_select">Selecteren</string>
-    <string name="settings_rounded_ui">Afgeronde UI</string>
 
     <string name="update_waiting_for_stable">Je ontvangt de volgende stabiele release zodra die beschikbaar is</string>
     <string name="update_download_complete">Download voltooid. Klaar om te installeren.</string>

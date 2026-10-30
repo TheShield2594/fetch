@@ -601,8 +601,6 @@
 
     <string name="playback_title">Ajustes de Reproducción</string>
     <string name="playback_subtitle">Configurar reproducción de video y opciones de subtítulos</string>
-    <string name="cd_decrease">Disminuir</string>
-    <string name="cd_increase">Aumentar</string>
     <string name="cd_decrease_setting">Disminuir %1$s</string>
     <string name="cd_increase_setting">Aumentar %1$s</string>
     <string name="cd_seek_bar">Barra de progreso</string>
@@ -1884,7 +1882,6 @@
     <string name="nav_library">Biblioteca</string>
     <string name="nav_settings">Configuración</string>
     <string name="action_select">Seleccionar</string>
-    <string name="settings_rounded_ui">Interfaz redondeada</string>
 
     <string name="update_waiting_for_stable">Recibirás la próxima versión estable cuando esté disponible</string>
     <string name="update_download_complete">Descarga completa. Listo para instalar.</string>

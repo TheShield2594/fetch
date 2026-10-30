@@ -53,11 +53,7 @@ fun TrackingSettingsScreen(
         runCatching { initialFocusRequester.requestFocus() }
     }
 
-    SettingsStandaloneScaffold(
-        title = stringResource(R.string.settings_tracking_title),
-        subtitle = stringResource(R.string.settings_tracking_description),
-        classicContainer = false
-    ) {
+    SettingsStandaloneScaffold(classicContainer = false) {
         TrackingSettingsContent(initialFocusRequester = initialFocusRequester)
     }
 }
@@ -337,7 +333,7 @@ fun TrackingSettingsContent(
                             TrackingProviderId.FETCH_WEBSITE -> Unit
                         }
                     },
-                    primary = true
+                    destructive = true
                 )
             }
         }

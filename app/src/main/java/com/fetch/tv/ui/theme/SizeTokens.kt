@@ -135,7 +135,7 @@ object FetchSizes {
             railWidth = 280.dp
         ),
         settings = FetchSettingsSizes(
-            railWidth = 260.dp,
+            railWidth = 220.dp,
             railItemHeight = 56.dp,
             workspaceMinWidth = 720.dp,
             rowMinHeight = 64.dp

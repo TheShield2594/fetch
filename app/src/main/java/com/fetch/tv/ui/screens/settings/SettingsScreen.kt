@@ -175,7 +175,7 @@ private fun settingsSectionSpec(category: SettingsCategory): SettingsSectionSpec
         SettingsCategory.YOUTUBE -> SettingsSectionSpec(category, stringResource(R.string.youtube_name), rawIconRes = R.raw.youtube_logo, destination = SettingsSectionDestination.Inline)
         SettingsCategory.TMDB -> SettingsSectionSpec(category, "TMDB", rawIconRes = R.raw.mdblist_tmdb, destination = SettingsSectionDestination.Inline)
         SettingsCategory.MDBLIST -> SettingsSectionSpec(category, stringResource(R.string.mdblist_title), rawIconRes = R.raw.mdblist_logo, destination = SettingsSectionDestination.Inline)
-        SettingsCategory.ANIME_SKIP -> SettingsSectionSpec(category, "Anime-Skip", Icons.Default.FastForward, destination = SettingsSectionDestination.Inline)
+        SettingsCategory.ANIME_SKIP -> SettingsSectionSpec(category, stringResource(R.string.animeskip_title), Icons.Default.FastForward, destination = SettingsSectionDestination.Inline)
         SettingsCategory.ADVANCED -> SettingsSectionSpec(category, stringResource(R.string.settings_advanced), Icons.Default.Build, destination = SettingsSectionDestination.Inline)
         SettingsCategory.ABOUT -> SettingsSectionSpec(category, stringResource(R.string.about_title), Icons.Default.Info, destination = SettingsSectionDestination.Inline)
         SettingsCategory.DEBUG -> SettingsSectionSpec(category, stringResource(R.string.settings_debug), Icons.Default.BugReport, destination = SettingsSectionDestination.Inline)
@@ -526,7 +526,7 @@ fun SettingsScreen(
         ) {
             Box(
                 modifier = Modifier
-                    .width(220.dp)
+                    .width(FetchTheme.sizes.settings.railWidth)
                     .fillMaxHeight()
             ) {
                 LazyColumn(
@@ -583,7 +583,7 @@ fun SettingsScreen(
                                 false
                             }
                         },
-                    verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
+                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm, Alignment.CenterVertically)
                 ) {
                     itemsIndexed(
                         items = visibleSections,

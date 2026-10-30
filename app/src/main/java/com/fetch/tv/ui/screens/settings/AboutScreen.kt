@@ -52,10 +52,7 @@ fun AboutScreen(
 ) {
     BackHandler { onBackPress() }
 
-    SettingsStandaloneScaffold(
-        title = stringResource(R.string.about_title),
-        subtitle = stringResource(R.string.about_subtitle)
-    ) {
+    SettingsStandaloneScaffold {
         AboutSettingsContent(
             onNavigateToLicensesAttributions = onNavigateToLicensesAttributions
         )

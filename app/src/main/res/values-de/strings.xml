@@ -490,8 +490,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Wiedergabeeinstellungen</string>
     <string name="playback_subtitle">Optionen für die Videowiedergabe und Untertitel konfigurieren</string>
-    <string name="cd_decrease">Verringern</string>
-    <string name="cd_increase">Erhöhen</string>
     <string name="cd_decrease_setting">%1$s verringern</string>
     <string name="cd_increase_setting">%1$s erhöhen</string>
     <string name="cd_seek_bar">Fortschrittsleiste</string>
@@ -1387,7 +1385,6 @@
     <string name="nav_library">Bibliothek</string>
     <string name="nav_settings">Optionen</string>
     <string name="action_select">Auswählen</string>
-    <string name="settings_rounded_ui">Abgerundete Benutzeroberfläche</string>
 
     <string name="update_download_complete">Update heruntergeladen. Bereit zum Installieren.</string>
     <string name="update_close">Schließen</string>

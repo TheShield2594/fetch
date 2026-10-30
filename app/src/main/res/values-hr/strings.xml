@@ -589,8 +589,6 @@
 
     <string name="playback_title">Postavke reprodukcije</string>
     <string name="playback_subtitle">Konfiguriraj opcije reprodukcije videa i titlova</string>
-    <string name="cd_decrease">Smanji</string>
-    <string name="cd_increase">Povećaj</string>
     <string name="cd_decrease_setting">Smanji %1$s</string>
     <string name="cd_increase_setting">Povećaj %1$s</string>
     <string name="cd_seek_bar">Traka za premotavanje</string>
@@ -1837,7 +1835,6 @@
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Postavke</string>
     <string name="action_select">Odaberi</string>
-    <string name="settings_rounded_ui">Zaobljeno sučelje</string>
 
     <string name="update_waiting_for_stable">Dobit ćeš sljedeće stabilno izdanje kada postane dostupno</string>
     <string name="update_download_complete">Preuzimanje dovršeno. Spremno za instalaciju.</string>

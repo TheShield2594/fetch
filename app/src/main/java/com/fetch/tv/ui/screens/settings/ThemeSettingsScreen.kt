@@ -53,6 +53,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -72,6 +73,7 @@ import com.fetch.tv.domain.model.AppIconOption
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
 import com.fetch.tv.ui.components.FetchDialog
+import com.fetch.tv.ui.components.FocusMarqueeText
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.theme.ThemeColors
 import com.fetch.tv.ui.theme.accentBrush
@@ -86,10 +88,7 @@ fun ThemeSettingsScreen(
 ) {
     BackHandler { onBackPress() }
 
-    SettingsStandaloneScaffold(
-        title = stringResource(R.string.appearance_title),
-        subtitle = stringResource(R.string.appearance_subtitle)
-    ) {
+    SettingsStandaloneScaffold {
         ThemeSettingsContent(viewModel = viewModel)
     }
 }
@@ -467,11 +466,14 @@ private fun ThemeSwatchChip(
 
             Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
 
-            Text(
+            // The chip is a fixed width in a row of swatches, so a long name scrolls on focus
+            // instead of wrapping and pushing the row out of line.
+            FocusMarqueeText(
                 text = theme.localizedName(),
+                focused = isFocused,
                 style = MaterialTheme.typography.labelMedium,
                 color = if (isFocused || isSelected) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                maxLines = 1
+                textAlign = TextAlign.Center
             )
         }
     }

@@ -208,8 +208,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">प्लेबैक सेटिंग्स</string>
     <string name="playback_subtitle">वीडियो प्लेबैक और सबटाइटल विकल्प कॉन्फ़िगर करें</string>
-    <string name="cd_decrease">कम करें</string>
-    <string name="cd_increase">बढ़ाएँ</string>
     <string name="cd_decrease_setting">%1$s कम करें</string>
     <string name="cd_increase_setting">%1$s बढ़ाएँ</string>
     <string name="cd_seek_bar">सीक बार</string>
@@ -838,7 +836,6 @@
     <string name="nav_search">खोज</string>
     <string name="nav_library">लाइब्रेरी</string>
     <string name="nav_settings">सेटिंग्स</string>
-    <string name="settings_rounded_ui">राउंडेड UI</string>
 
     <string name="update_close">बंद करें</string>
     <string name="update_open_settings">सेटिंग्स खोलें</string>

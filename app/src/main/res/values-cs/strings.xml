@@ -489,8 +489,6 @@
 
     <string name="playback_title">Nastavení přehrávání</string>
     <string name="playback_subtitle">Konfigurovat možnosti přehrávání videa a titulků</string>
-    <string name="cd_decrease">Snížit</string>
-    <string name="cd_increase">Zvýšit</string>
     <string name="cd_decrease_setting">Snížit %1$s</string>
     <string name="cd_increase_setting">Zvýšit %1$s</string>
     <string name="cd_seek_bar">Posuvník přehrávání</string>
@@ -1503,7 +1501,6 @@
     <string name="nav_library">Knihovna</string>
     <string name="nav_settings">Nastavení</string>
     <string name="action_select">Vybrat</string>
-    <string name="settings_rounded_ui">Zakulacené UI</string>
 
     <string name="update_download_complete">Stahování dokončeno. Připraveno k instalaci.</string>
     <string name="update_close">Zavřít</string>

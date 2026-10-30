@@ -350,8 +350,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Настройки воспроизведения</string>
     <string name="playback_subtitle">Настройка опций видео и субтитров</string>
-    <string name="cd_decrease">Уменьшить</string>
-    <string name="cd_increase">Увеличить</string>
     <string name="cd_decrease_setting">Уменьшить: %1$s</string>
     <string name="cd_increase_setting">Увеличить: %1$s</string>
     <string name="cd_seek_bar">Полоса перемотки</string>
@@ -1278,7 +1276,6 @@
     <string name="nav_search">Поиск</string>
     <string name="nav_library">Библиотека</string>
     <string name="nav_settings">Настройки</string>
-    <string name="settings_rounded_ui">Скругленный интерфейс</string>
 
     <string name="update_waiting_for_stable">Вы получите следующий стабильный релиз, как только он станет доступен</string>
     <string name="update_download_complete">Скачивание завершено. Готово к установке.</string>

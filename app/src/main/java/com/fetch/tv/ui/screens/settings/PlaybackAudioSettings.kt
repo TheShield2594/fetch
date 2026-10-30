@@ -21,6 +21,9 @@ internal fun PlaybackAudioSection(
     val isExoEngine = settings.usesExoPlayerEngine
 
     SettingsNote(text = stringResource(R.string.audio_passthrough_info))
+    if (!enabled) {
+        SettingsNote(text = stringResource(R.string.settings_external_player_disabled_note))
+    }
 
     SettingsActionRow(
         title = stringResource(R.string.audio_preferred_lang),

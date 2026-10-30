@@ -601,8 +601,6 @@
 
     <string name="playback_title">Cài đặt phát lại</string>
     <string name="playback_subtitle">Cấu hình trình phát lại video và tuỳ chọn phụ đề</string>
-    <string name="cd_decrease">Giảm</string>
-    <string name="cd_increase">Tăng</string>
     <string name="cd_decrease_setting">Giảm %1$s</string>
     <string name="cd_increase_setting">Tăng %1$s</string>
     <string name="cd_seek_bar">Thanh tua</string>
@@ -1884,7 +1882,6 @@
     <string name="nav_library">Thư viện</string>
     <string name="nav_settings">Cài đặt</string>
     <string name="action_select">Chọn</string>
-    <string name="settings_rounded_ui">Giao diện bo góc</string>
 
     <string name="update_waiting_for_stable">Bạn sẽ nhận bản phát hành ổn định tiếp theo khi có sẵn</string>
     <string name="update_download_complete">Tải xuống hoàn tất. Sẵn sàng cài đặt.</string>

@@ -38,10 +38,7 @@ fun PlaybackSettingsScreen(
 ) {
     BackHandler { onBackPress() }
 
-    SettingsStandaloneScaffold(
-        title = stringResource(R.string.playback_title),
-        subtitle = stringResource(R.string.playback_subtitle)
-    ) {
+    SettingsStandaloneScaffold {
         PlaybackSettingsContent(viewModel = viewModel)
     }
 }

@@ -40,8 +40,6 @@ com/fetch/tv/ui/screens/party/PartyCode.kt|WHITE_BLACK|2
 com/fetch/tv/ui/screens/party/PartyPanel.kt|WHITE_BLACK|4
 com/fetch/tv/ui/screens/settings/HexColorDialog.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/settings/PlaybackSubtitleSettings.kt|WHITE_BLACK|3
-com/fetch/tv/ui/screens/settings/SettingsDesignSystem.kt|WHITE_BLACK|1
-com/fetch/tv/ui/screens/settings/SettingsPickerDialogs.kt|WHITE_BLACK|3
 com/fetch/tv/ui/screens/settings/SettingsValueRows.kt|WHITE_BLACK|2
 com/fetch/tv/ui/screens/settings/ThemeColorPicker.kt|WHITE_BLACK|4
 com/fetch/tv/ui/screens/settings/TrackingProviderDialogs.kt|WHITE_BLACK|25

@@ -142,8 +142,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Setări redare</string>
     <string name="playback_subtitle">Configurează redarea video și opțiunile de subtitrări</string>
-    <string name="cd_decrease">Scade</string>
-    <string name="cd_increase">Mărește</string>
     <string name="cd_decrease_setting">Scade %1$s</string>
     <string name="cd_increase_setting">Crește %1$s</string>
     <string name="cd_seek_bar">Bară de derulare</string>
@@ -701,7 +699,6 @@
     <string name="nav_search">Căutare</string>
     <string name="nav_library">Bibliotecă</string>
     <string name="nav_settings">Setări</string>
-    <string name="settings_rounded_ui">Interfață rotunjită</string>
     <string name="update_close">Închide</string>
     <string name="update_open_settings">Deschide Setările</string>
     <string name="update_install">Instalează</string>

@@ -120,11 +120,7 @@ fun PartyScreen(
         ) { image ->
             if (image != null) StreamBackdrop(backdrop = image, isLoading = false)
         }
-        SettingsStandaloneScaffold(
-            title = stringResource(R.string.party_title),
-            subtitle = stringResource(R.string.party_settings_description),
-            classicContainer = false,
-        ) {
+        SettingsStandaloneScaffold(classicContainer = false) {
             SettingsDetailHeader(
                 title = stringResource(R.string.party_title),
                 subtitle = shown

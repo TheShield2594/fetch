@@ -517,7 +517,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                 ) {
                     Text(
                         text = allLabel,
-                        color = if (selected.isEmpty()) FetchTheme.colors.Primary else FetchTheme.colors.TextPrimary,
+                        color = FetchTheme.colors.TextPrimary,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f)
                     )
@@ -525,7 +525,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = stringResource(R.string.cd_selected),
-                            tint = FetchTheme.colors.Primary,
+                            tint = FetchTheme.colors.TextPrimary,
                             modifier = Modifier.height(20.dp)
                         )
                     }
@@ -576,7 +576,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                             ) {
                                 Text(
                                     text = item,
-                                    color = if (isSelected) FetchTheme.colors.Primary else FetchTheme.colors.TextPrimary,
+                                    color = FetchTheme.colors.TextPrimary,
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -584,7 +584,7 @@ private fun StreamAutoPlayProviderSelectionDialog(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = stringResource(R.string.cd_selected),
-                                        tint = FetchTheme.colors.Primary,
+                                        tint = FetchTheme.colors.TextPrimary,
                                         modifier = Modifier.height(18.dp)
                                     )
                                 }
@@ -712,7 +712,7 @@ private fun StreamRegexDialog(
                                 text = label,
                                 modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = if (isFocused) FetchTheme.colors.Primary else FetchTheme.colors.TextPrimary
+                                color = if (isFocused) FetchTheme.colors.FocusContent else FetchTheme.colors.TextPrimary
                             )
                         }
                     }
@@ -764,7 +764,7 @@ private fun StreamRegexDialog(
                             ),
                             textStyle = MaterialTheme.typography.bodyMedium.copy(color = FetchTheme.colors.TextPrimary,
                                             textDirection = TextDirection.Content),
-                            cursorBrush = SolidColor(if (isInputFocused) FetchTheme.colors.Primary else Color.Transparent),
+                            cursorBrush = SolidColor(if (isInputFocused) FetchTheme.colors.TextPrimary else Color.Transparent),
                             decorationBox = { innerTextField ->
                                 if (regex.isBlank()) {
                                     Text(
@@ -796,8 +796,8 @@ private fun StreamRegexDialog(
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundElevated,
                             contentColor = FetchTheme.colors.TextPrimary,
-                            focusedContainerColor = FetchTheme.colors.FocusBackground,
-                            focusedContentColor = FetchTheme.colors.Primary
+                            focusedContainerColor = FetchTheme.colors.Highlight,
+                            focusedContentColor = FetchTheme.colors.OnHighlight
                         ),
                         shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm))
                     ) {
@@ -812,8 +812,8 @@ private fun StreamRegexDialog(
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundElevated,
                             contentColor = FetchTheme.colors.TextPrimary,
-                            focusedContainerColor = FetchTheme.colors.FocusBackground,
-                            focusedContentColor = FetchTheme.colors.Primary
+                            focusedContainerColor = FetchTheme.colors.Highlight,
+                            focusedContentColor = FetchTheme.colors.OnHighlight
                         ),
                         shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm))
                     ) {
@@ -835,8 +835,8 @@ private fun StreamRegexDialog(
                         colors = ButtonDefaults.colors(
                             containerColor = FetchTheme.colors.BackgroundCard,
                             contentColor = FetchTheme.colors.TextPrimary,
-                            focusedContainerColor = FetchTheme.colors.FocusBackground,
-                            focusedContentColor = FetchTheme.colors.Primary
+                            focusedContainerColor = FetchTheme.colors.Highlight,
+                            focusedContentColor = FetchTheme.colors.OnHighlight
                         ),
                         shape = ButtonDefaults.shape(androidx.compose.foundation.shape.RoundedCornerShape(FetchTheme.radii.sm))
                     ) {

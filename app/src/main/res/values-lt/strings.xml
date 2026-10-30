@@ -199,8 +199,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Atkūrimo nustatymai</string>
     <string name="playback_subtitle">Konfigūruoti vaizdo atkūrimo ir subtitrų parinktis</string>
-    <string name="cd_decrease">Sumažinti</string>
-    <string name="cd_increase">Padidinti</string>
     <string name="cd_decrease_setting">Sumažinti: %1$s</string>
     <string name="cd_increase_setting">Padidinti: %1$s</string>
     <string name="cd_seek_bar">Prasukimo juosta</string>
@@ -835,7 +833,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="nav_search">Paieška</string>
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Nustatymai</string>
-    <string name="settings_rounded_ui">Suapvalinta sąsaja</string>
 
     <string name="update_close">Uždaryti</string>
     <string name="update_open_settings">Atidaryti nustatymus</string>

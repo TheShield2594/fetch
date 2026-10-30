@@ -248,8 +248,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Avspillingsinnstillinger</string>
     <string name="playback_subtitle">Konfigurer videoavspilling og undertekst</string>
-    <string name="cd_decrease">Reduser</string>
-    <string name="cd_increase">Øk</string>
     <string name="cd_decrease_setting">Reduser %1$s</string>
     <string name="cd_increase_setting">Øk %1$s</string>
     <string name="cd_seek_bar">Spolelinje</string>
@@ -929,7 +927,6 @@
     <string name="nav_search">Søk</string>
     <string name="nav_library">Bibliotek</string>
     <string name="nav_settings">Innstillinger</string>
-    <string name="settings_rounded_ui">Avrundet brukergrensesnitt</string>
 
     <string name="update_download_complete">Nedlasting ferdig. Klar til å installere.</string>
     <string name="update_close">Lukk</string>

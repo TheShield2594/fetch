@@ -24,7 +24,7 @@ com/fetch/tv/ui/components/StreamBadgeChips.kt|WHITE_BLACK|1
 com/fetch/tv/ui/components/Synopsis.kt|WHITE_BLACK|6
 com/fetch/tv/ui/screens/account/AccountSettingsContent.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/account/AuthQrSignInScreen.kt|WHITE_BLACK|5
-com/fetch/tv/ui/screens/addon/AddonManagerScreen.kt|WHITE_BLACK|5
+com/fetch/tv/ui/screens/addon/AddonManagerScreen.kt|WHITE_BLACK|3
 com/fetch/tv/ui/screens/ambient/AmbientSlideshow.kt|WHITE_BLACK|4
 com/fetch/tv/ui/screens/detail/CommentsSection.kt|WHITE_BLACK|9
 com/fetch/tv/ui/screens/detail/CompanyLogosSection.kt|WHITE_BLACK|3

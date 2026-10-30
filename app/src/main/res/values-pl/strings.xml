@@ -2604,10 +2604,6 @@
     <string name="theme_color_graphite">Grafit</string>
     <string name="theme_color_custom">Własny</string>
 
-    <string name="addon_delete_confirm_title">Usunąć dodatek?</string>
-    <string name="addon_delete_confirm_message">Czy na pewno chcesz go usunąć?</string>
-    <string name="addon_delete_no">Nie</string>
-    <string name="addon_delete_yes">Tak</string>
 
     <string name="layout_overall_ratings">Ogólne oceny</string>
     <string name="layout_overall_ratings_sub_on">Standardowe oceny i TMDB są wyświetlane.</string>

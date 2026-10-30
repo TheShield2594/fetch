@@ -9,7 +9,7 @@
 
     <string name="web_manage_addons_title">Manage Addons</string>
     <string name="web_manage_addons_subtitle">Manage addons, catalogs, and collections</string>
-    <string name="web_manage_addons_only_subtitle">Install or remove add-ons</string>
+    <string name="web_manage_addons_only_subtitle">Install or remove addons</string>
     <string name="web_add_addon_url">Add addon by URL</string>
     <string name="web_placeholder_url">https://example.com/manifest.json</string>
     <string name="web_btn_add">Add</string>
@@ -509,7 +509,7 @@
     <string name="settings_layout">Layout</string>
     <string name="settings_content_discovery">Content &amp; Discovery</string>
     <string name="settings_content_discovery_subtitle">Add-ons, catalogs, and discovery sources</string>
-    <string name="settings_content_discovery_addons_subtitle">Manage add-ons, catalog order, and collections</string>
+    <string name="settings_content_discovery_addons_subtitle">Manage addons, catalog order, and collections</string>
     <string name="settings_integration">Integrations</string>
     <string name="settings_playback">Playback</string>
     <string name="settings_tracking_title">Tracking</string>
@@ -558,7 +558,7 @@
     <string name="experience_mode_advanced">Advanced</string>
     <string name="experience_mode_choose_title">Choose your Fetch experience</string>
     <string name="experience_mode_choose_subtitle">Start simple or unlock every customization. You can switch anytime.</string>
-    <string name="experience_mode_essential_card_subtitle">Focused setup, add-ons, playback basics, Trakt, and account settings.</string>
+    <string name="experience_mode_essential_card_subtitle">Focused setup, addons, playback basics, Trakt, and account settings.</string>
     <string name="experience_mode_advanced_card_subtitle">Full settings, layout controls, catalog order, collections, plug-ins, and diagnostics.</string>
     <string name="experience_mode_group_title">Experience mode</string>
     <string name="essential_addon_continue_for_now">Continue for now</string>
@@ -1476,8 +1476,8 @@
 
 
     <!-- Essential addon setup wizard -->
-    <string name="essential_addon_setup_title">Set up add-ons</string>
-    <string name="essential_addon_setup_subtitle">Install one add-on to start streaming. You can add more later from Addons.</string>
+    <string name="essential_addon_setup_title">Set up addons</string>
+    <string name="essential_addon_setup_subtitle">Install one addon to start streaming. You can add more later from Addons.</string>
     <string name="essential_addon_show_qr">Show QR</string>
     <!-- Collection editor fallbacks -->
     <string name="collection_editor_no_trakt_lists_found">No Trakt lists found</string>
@@ -1518,19 +1518,17 @@
     <string name="addon_configure_web_sent">Sent. Confirm it on your TV.</string>
     <string name="addon_configure_web_invalid">That doesn’t look like an addon link.</string>
     <string name="addon_configure_web_failed">Couldn’t reach the TV. Is it still on the configure screen?</string>
-    <string name="addon_delete_confirm_title">Delete addon?</string>
-    <string name="addon_delete_confirm_message">Are you sure you want to delete it?</string>
-    <string name="addon_delete_no">No</string>
-    <string name="addon_delete_yes">Yes</string>
+    <string name="addon_remove_confirm_title">Remove %1$s?</string>
+    <string name="addon_remove_confirm_message">Its catalogs and streams stop appearing on this TV.</string>
     <string name="addons_badge_disabled">Disabled</string>
     <string name="addon_manage_from_phone_title">Manage from phone</string>
     <string name="addon_manage_from_phone_subtitle">Scan a QR code to manage addons, catalogs, and collections from your phone</string>
-    <string name="addon_manage_addons_only_from_phone_subtitle">Scan a QR code to install or remove add-ons from your phone</string>
+    <string name="addon_manage_addons_only_from_phone_subtitle">Scan a QR code to install or remove addons from your phone</string>
     <string name="addon_manage_collections_from_phone_subtitle">Scan a QR code to manage collections from your phone</string>
     <string name="addon_reorder_title">Reorder home catalogs</string>
     <string name="addon_reorder_subtitle">Controls catalog and collection row order on Home (Classic + Modern + Grid)</string>
     <string name="addon_qr_scan_instruction">Scan with your phone to manage addons, catalogs, and collections</string>
-    <string name="addon_qr_addons_only_scan_instruction">Scan with your phone to install or remove add-ons</string>
+    <string name="addon_qr_addons_only_scan_instruction">Scan with your phone to install or remove addons</string>
     <string name="addon_qr_collections_scan_instruction">Scan with your phone to manage collections</string>
     <string name="addon_qr_close">Close</string>
     <string name="addon_confirm_title">Confirm addon &amp; catalog changes</string>
@@ -1541,9 +1539,9 @@
     <string name="addon_confirm_catalogs_disabled">Catalogs disabled on Home:</string>
     <string name="addon_confirm_catalogs_enabled">Catalogs enabled on Home:</string>
     <string name="addon_confirm_no_changes">No visible changes detected</string>
-    <string name="addon_confirm_reject">Reject</string>
-    <string name="addon_confirm_confirm">Confirm</string>
-    <string name="addon_refresh_action">Refresh Addons</string>
+    <string name="addon_confirm_reject">Discard changes</string>
+    <string name="addon_confirm_confirm">Apply changes</string>
+    <string name="addon_refresh_action">Refresh addons</string>
     <string name="addon_refresh_default_subtitle">Pull latest addon changes for current profile</string>
     <string name="addon_refresh_done_subtitle">Addons refreshed just now</string>
     <string name="addon_pending_collections_updated">Collections updated</string>
@@ -1552,7 +1550,7 @@
     <string name="addon_confirm_total_catalogs">Total catalogs: %1$d</string>
     <string name="addon_catalogs_types">Catalogs: %1$d - Types: %2$s</string>
 
-    <string name="catalog_order_title">Reorder Home Catalogs</string>
+    <string name="catalog_order_title">Reorder home catalogs</string>
     <string name="catalog_order_subtitle">This controls catalog row order on Home (Classic + Modern + Grid).</string>
     <string name="catalog_order_follow_addons">Follow addons order</string>
     <string name="catalog_order_follow_addons_desc">Catalogs follow addon manifest order. Collections can still be moved between addons.</string>
@@ -2825,6 +2823,7 @@
     <string name="addon_health_no_requests">No requests yet</string>
     <string name="addon_health_disable">Disable</string>
     <string name="addon_health_clear">Clear history</string>
+    <string name="addon_health_clear_confirm">Press again to clear</string>
     <string name="addon_health_close">Close</string>
     <string name="source_chip_timed_out">timed out</string>
     <string name="source_chip_failed">failed</string>
@@ -3059,7 +3058,7 @@
 
     <!-- Subtitle AutoSync -->
     <string name="autosync_setting_title">Auto Sync Subtitles</string>
-    <string name="autosync_setting_description">Match the selected add-on subtitle to the timing of the subtitles embedded in the video.</string>
+    <string name="autosync_setting_description">Match the selected addon subtitle to the timing of the subtitles embedded in the video.</string>
     <string name="autosync_tolerance_title">Auto Sync Tolerance</string>
     <string name="autosync_tolerance_description">Keep the original timing when the correction needed is this small or smaller.</string>
     <string name="autosync_tolerance_off">Off</string>

@@ -3,7 +3,7 @@ package com.fetch.tv.ui.screens.addon
 import com.fetch.tv.core.streams.AddonHealth
 import com.fetch.tv.core.streams.AddonHealthStatus
 import com.fetch.tv.core.streams.AddonRequestOutcome
-import com.fetch.tv.ui.theme.FetchPrimitives
+import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -82,7 +82,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.toggleableState
@@ -280,12 +282,16 @@ fun AddonManagerScreen(
             contentPadding = PaddingValues(horizontal = 36.dp, vertical = 28.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            item {
-                Text(
-                    text = stringResource(R.string.addon_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = if (showBuiltInHeader) FetchTheme.colors.TextPrimary else Color.Transparent
-                )
+            // Left out entirely when the host draws its own header, so there's no blank band and
+            // TalkBack doesn't read "Addons" twice.
+            if (showBuiltInHeader) {
+                item {
+                    Text(
+                        text = stringResource(R.string.addon_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = FetchTheme.colors.TextPrimary
+                    )
+                }
             }
 
             if (viewModel.isReadOnly) {
@@ -618,32 +624,41 @@ fun AddonManagerScreen(
         }
 
         addonUrlPendingDeletion?.let { addonUrl ->
+            // Name the addon, so the question can be answered without looking back at the list.
+            val addonName = uiState.installedAddons.firstOrNull { it.baseUrl == addonUrl }?.displayName ?: addonUrl
             FetchDialog(
                 onDismiss = { addonUrlPendingDeletion = null },
-                title = stringResource(R.string.addon_delete_confirm_title),
-                subtitle = stringResource(R.string.addon_delete_confirm_message),
+                title = stringResource(R.string.addon_remove_confirm_title, addonName),
+                subtitle = stringResource(R.string.addon_remove_confirm_message),
                 suppressFirstKeyUp = false
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md, Alignment.End)
                 ) {
+                    // Cancel first and focused, so one stray OK press can't remove the addon.
                     Button(
                         onClick = { addonUrlPendingDeletion = null },
                         modifier = Modifier
                             .focusRequester(deleteDialogFocusRequester)
                             .semantics { role = Role.Button }
                     ) {
-                        Text(stringResource(R.string.addon_delete_no))
+                        Text(stringResource(R.string.action_cancel))
                     }
                     Button(
                         onClick = {
                             viewModel.removeAddon(addonUrl)
                             addonUrlPendingDeletion = null
                         },
-                        modifier = Modifier.semantics { role = Role.Button }
+                        modifier = Modifier.semantics { role = Role.Button },
+                        colors = ButtonDefaults.colors(
+                            containerColor = FetchStatusTones.errorContainer,
+                            contentColor = FetchTheme.colors.TextPrimary,
+                            focusedContainerColor = FetchTheme.colors.Error,
+                            focusedContentColor = FetchTheme.colors.OnHighlight
+                        )
                     ) {
-                        Text(stringResource(R.string.addon_delete_yes))
+                        Text(stringResource(R.string.addon_remove))
                     }
                 }
             }
@@ -674,33 +689,29 @@ internal fun AddonMessageOverlay(
             exit = fadeOut()
         ) {
             val visibleMessage = message ?: return@AnimatedVisibility
-            Surface(
-                onClick = { },
-                colors = ClickableSurfaceDefaults.colors(
-                    containerColor = if (isError) {
-                        FetchPrimitives.red600.copy(alpha = 0.92f)
-                    } else {
-                        FetchPrimitives.green700.copy(alpha = 0.92f)
-                    }
-                ),
-                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+            // Not clickable, so it never takes D-pad focus; a polite live region reads it out once.
+            // The status role tokens carry the meaning, so theme and contrast settings reach it.
+            val statusColor = if (isError) FetchTheme.colors.Error else FetchTheme.colors.Success
+            val shape = RoundedCornerShape(FetchTheme.radii.md)
+            Row(
+                modifier = Modifier
+                    .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
+                    .background(FetchTheme.colors.BackgroundElevated, shape)
+                    .border(BorderStroke(FetchTheme.spacing.xxs, statusColor), shape)
+                    .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-                ) {
-                    Icon(
-                        imageVector = if (isError) Icons.Default.Close else Icons.Default.Check,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                    Text(
-                        text = visibleMessage,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
-                    )
-                }
+                Icon(
+                    imageVector = if (isError) Icons.Default.Close else Icons.Default.Check,
+                    contentDescription = null,
+                    tint = statusColor
+                )
+                Text(
+                    text = visibleMessage,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FetchTheme.colors.TextPrimary
+                )
             }
         }
     }
@@ -1112,15 +1123,12 @@ internal fun ConfirmAddonChangesDialog(
             .background(Color.Black.copy(alpha = 0.8f)),
         contentAlignment = Alignment.Center
     ) {
-        Surface(
-            onClick = { },
+        // A plain container: a clickable Surface here was announced as a button wrapping the real ones.
+        Box(
             modifier = Modifier
                 .width(560.dp)
-                .heightIn(max = maxDialogHeight),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = FetchTheme.colors.SurfaceVariant
-            ),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.xl))
+                .heightIn(max = maxDialogHeight)
+                .background(FetchTheme.colors.SurfaceVariant, RoundedCornerShape(FetchTheme.radii.xl))
         ) {
             Column(
                 modifier = Modifier.padding(FetchTheme.spacing.xl),
@@ -1426,23 +1434,25 @@ private fun AddonCard(
     toggleFocusRequester: FocusRequester? = null
 ) {
     if (isReadOnly) {
-        Surface(
-            onClick = { },
+        // Focusable so the list scrolls with the D-pad, but not clickable: there's nothing to press,
+        // so TalkBack reads the card's content instead of announcing a button.
+        var isFocused by remember { mutableStateOf(false) }
+        val shape = RoundedCornerShape(FetchTheme.radii.md)
+        Box(
             modifier = modifier
                 .fillMaxWidth()
-                .animateContentSize(animationSpec = FetchMotion.moveTween()),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                focusedContainerColor = FetchTheme.colors.BackgroundCard
-            ),
-            border = ClickableSurfaceDefaults.border(
-                focusedBorder = Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                    shape = RoundedCornerShape(FetchTheme.radii.md)
+                .animateContentSize(animationSpec = FetchMotion.moveTween())
+                .onFocusChanged { isFocused = it.isFocused }
+                .focusable()
+                .semantics(mergeDescendants = true) { }
+                .background(FetchTheme.colors.BackgroundCard, shape)
+                .then(
+                    if (isFocused) {
+                        Modifier.border(FetchTheme.focusRing.border(FetchTheme.spacing.xxs), shape)
+                    } else {
+                        Modifier
+                    }
                 )
-            ),
-            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(FetchTheme.radii.md)),
-            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
         ) {
             AddonCardContent(addon = addon, health = health, isReadOnly = true)
         }
@@ -1725,7 +1735,7 @@ private fun AddonHealthLabel(health: AddonHealth) {
             stringResource(R.string.addon_health_failing)
         }
         AddonHealthStatus.SLOW -> FetchTheme.colors.Warning to stringResource(R.string.addon_health_slow, latency)
-        else -> FetchTheme.colors.Secondary to stringResource(R.string.addon_health_ok, latency)
+        else -> FetchTheme.colors.Success to stringResource(R.string.addon_health_ok, latency)
     }
     Text(
         text = "\u25CF $text",

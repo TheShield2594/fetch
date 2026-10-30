@@ -1286,10 +1286,6 @@
     <string name="addon_empty">Nema instaliranih dodataka. Dodaj jedan za početak.</string>
     <string name="addon_list_load_failed">Nije moguće učitati instalirane dodatke. Pokušaj ponovno.</string>
     <string name="addon_remove">Ukloni</string>
-    <string name="addon_delete_confirm_title">Izbrisati dodatak?</string>
-    <string name="addon_delete_confirm_message">Želiš li izbrisati ovaj dodatak??</string>
-    <string name="addon_delete_no">Ne</string>
-    <string name="addon_delete_yes">Da</string>
     <string name="addons_badge_disabled">Onemogućeno</string>
     <string name="addon_manage_from_phone_title">Upravljaj s mobitela</string>
     <string name="addon_manage_from_phone_subtitle">Skeniraj QR kôd za upravljanje dodacima, katalozima i kolekcijama s mobitela</string>

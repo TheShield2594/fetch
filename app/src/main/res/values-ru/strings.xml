@@ -807,10 +807,6 @@
     <string name="addon_empty">Нет установленных аддонов. Добавьте один для начала.</string>
     <string name="addon_list_load_failed">Не удалось загрузить установленные аддоны. Попробуйте снова.</string>
     <string name="addon_remove">Удалить</string>
-    <string name="addon_delete_confirm_title">Удалить аддон?</string>
-    <string name="addon_delete_confirm_message">Вы уверены, что хотите его удалить?</string>
-    <string name="addon_delete_no">Нет</string>
-    <string name="addon_delete_yes">Да</string>
     <string name="addon_manage_from_phone_title">Управлять с телефона</string>
     <string name="addon_manage_from_phone_subtitle">Отсканируйте QR-код для управления аддонами, каталогами и коллекциями с вашего телефона</string>
     <string name="addon_reorder_title">Изменить порядок каталогов</string>

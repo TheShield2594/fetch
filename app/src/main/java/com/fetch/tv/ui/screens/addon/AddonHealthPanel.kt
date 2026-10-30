@@ -133,11 +133,28 @@ internal fun AddonHealthPanel(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md, Alignment.End)
         ) {
-            Button(onClick = onClearHistory) {
-                Text(stringResource(R.string.addon_health_clear))
-            }
+            // Close first, and Clear history asks for a second press: one stray OK shouldn't erase
+            // the history this panel exists to show. Moving focus away disarms it.
+            var clearArmed by remember { mutableStateOf(false) }
             Button(onClick = onDismiss) {
                 Text(stringResource(R.string.addon_health_close))
+            }
+            Button(
+                onClick = {
+                    if (clearArmed) {
+                        clearArmed = false
+                        onClearHistory()
+                    } else {
+                        clearArmed = true
+                    }
+                },
+                modifier = Modifier.onFocusChanged { if (!it.isFocused) clearArmed = false }
+            ) {
+                Text(
+                    stringResource(
+                        if (clearArmed) R.string.addon_health_clear_confirm else R.string.addon_health_clear
+                    )
+                )
             }
         }
     }

@@ -1323,10 +1323,6 @@
     <string name="addon_empty">Nincsenek telepített bővítmények. A kezdéshez adj hozzá egyet.</string>
     <string name="addon_list_load_failed">Nem sikerült betölteni a telepített bővítményeidet. Próbáld újra.</string>
     <string name="addon_remove">Eltávolítás</string>
-    <string name="addon_delete_confirm_title">Törlöd a bővítményt?</string>
-    <string name="addon_delete_confirm_message">Biztosan törölni szeretnéd?</string>
-    <string name="addon_delete_no">Nem</string>
-    <string name="addon_delete_yes">Igen</string>
     <string name="addons_badge_disabled">Kikapcsolva</string>
     <string name="addon_manage_from_phone_title">Kezelés telefonról</string>
     <string name="addon_manage_from_phone_subtitle">Olvasd be a QR-kódot a bővítmények, katalógusok és gyűjtemények telefonos kezeléséhez</string>

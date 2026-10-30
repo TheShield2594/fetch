@@ -1331,10 +1331,6 @@
     <string name="addon_empty">Chưa cài đặt tiện ích nào. Thêm một tiện ích để bắt đầu.</string>
     <string name="addon_list_load_failed">Không thể tải các tiện ích đã cài đặt. Vui lòng thử lại.</string>
     <string name="addon_remove">Xóa</string>
-    <string name="addon_delete_confirm_title">Xóa tiện ích?</string>
-    <string name="addon_delete_confirm_message">Bạn có chắc chắn muốn xóa không?</string>
-    <string name="addon_delete_no">Không</string>
-    <string name="addon_delete_yes">Có</string>
     <string name="addons_badge_disabled">Đã tắt</string>
     <string name="addon_manage_from_phone_title">Quản lý từ điện thoại</string>
     <string name="addon_manage_from_phone_subtitle">Quét mã QR để quản lý tiện ích, danh mục và bộ sưu tập từ điện thoại</string>

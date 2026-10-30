@@ -1243,10 +1243,6 @@
     <string name="addon_empty">কোনো অ্যাডন ইনস্টল করা নেই। শুরু করতে একটি যোগ করুন।</string>
     <string name="addon_list_load_failed">আপনার ইনস্টল করা অ্যাডনগুলো লোড করা যায়নি। আবার চেষ্টা করুন।</string>
     <string name="addon_remove">সরান</string>
-    <string name="addon_delete_confirm_title">অ্যাডন মুছবেন?</string>
-    <string name="addon_delete_confirm_message">আপনি কি এটি মুছতে চান?</string>
-    <string name="addon_delete_no">না</string>
-    <string name="addon_delete_yes">হ্যাঁ</string>
     <string name="addons_badge_disabled">নিষ্ক্রিয়</string>
     <string name="addon_manage_from_phone_title">ফোন থেকে ম্যানেজ করুন</string>
     <string name="addon_manage_from_phone_subtitle">আপনার ফোন থেকে অ্যাডন, ক্যাটালগ এবং কালেকশন ম্যানেজ করতে একটি কিউআর কোড স্ক্যান করুন</string>

@@ -1070,10 +1070,6 @@
     <string name="addon_empty">Nuk ka shtesa të instaluara. Shtoni një për të filluar.</string>
     <string name="addon_list_load_failed">Shtesat e instaluara nuk u ngarkuan. Provo përsëri.</string>
     <string name="addon_remove">Hiq</string>
-    <string name="addon_delete_confirm_title">Të fshihet shtesa?</string>
-    <string name="addon_delete_confirm_message">Je i sigurt që dëshiron ta fshish?</string>
-    <string name="addon_delete_no">Jo</string>
-    <string name="addon_delete_yes">Po</string>
     <string name="addons_badge_disabled">Çaktivizuar</string>
     <string name="addon_manage_from_phone_title">Menaxho nga telefoni</string>
     <string name="addon_manage_from_phone_subtitle">Skano një kod QR për të menaxhuar shtesat, katalogët dhe koleksionet nga telefoni</string>

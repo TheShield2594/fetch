@@ -483,8 +483,6 @@
 
     <string name="playback_title">Налаштування відтворення</string>
     <string name="playback_subtitle">Налаштування параметрів відео та субтитрів</string>
-    <string name="cd_decrease">Зменшити</string>
-    <string name="cd_increase">Збільшити</string>
     <string name="cd_decrease_setting">Зменшити %1$s</string>
     <string name="cd_increase_setting">Збільшити %1$s</string>
     <string name="cd_seek_bar">Панель перемотування</string>
@@ -1454,7 +1452,6 @@
     <string name="nav_library">Бібліотека</string>
     <string name="nav_settings">Налаштування</string>
     <string name="action_select">Вибрати</string>
-    <string name="settings_rounded_ui">Заокруглений інтерфейс</string>
 
     <string name="update_download_complete">Завантаження завершено. Готово до встановлення.</string>
     <string name="update_close">Закрити</string>

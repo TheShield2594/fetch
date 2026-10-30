@@ -3,6 +3,7 @@
 package com.fetch.tv.ui.screens.settings
 
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.theme.readableContentOn
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -329,7 +330,7 @@ private fun ColorOption(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = stringResource(R.string.cd_selected),
-                    tint = if (color == Color.White || color == Color.Yellow) Color.Black else Color.White,
+                    tint = readableContentOn(color),
                     modifier = Modifier.size(20.dp)
                 )
             }

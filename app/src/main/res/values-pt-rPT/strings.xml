@@ -466,8 +466,6 @@
     <string name="settings_animeskip_subtitle">Marcas de tempo para saltar intro/outro de anime</string>
     <string name="playback_title">Definições de reprodução</string>
     <string name="playback_subtitle">Configura as opções de reprodução de vídeo e legendas</string>
-    <string name="cd_decrease">Diminuir</string>
-    <string name="cd_increase">Aumentar</string>
     <string name="cd_decrease_setting">Diminuir %1$s</string>
     <string name="cd_increase_setting">Aumentar %1$s</string>
     <string name="cd_seek_bar">Barra de progresso</string>
@@ -1395,7 +1393,6 @@
     <string name="nav_library">Biblioteca</string>
     <string name="nav_settings">Definições</string>
     <string name="action_select">Selecionar</string>
-    <string name="settings_rounded_ui">Interface Arredondada</string>
     <string name="update_download_complete">Transferência concluída. Pronto para instalar.</string>
     <string name="update_close">Fechar</string>
     <string name="update_open_settings">Abrir Definições</string>

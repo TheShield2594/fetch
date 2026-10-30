@@ -39,10 +39,7 @@ fun TmdbSettingsScreen(
 ) {
     BackHandler { onBackPress() }
 
-    SettingsStandaloneScaffold(
-        title = stringResource(R.string.tmdb_title),
-        subtitle = stringResource(R.string.tmdb_subtitle)
-    ) {
+    SettingsStandaloneScaffold {
         TmdbSettingsContent(viewModel = viewModel)
     }
 }

@@ -210,8 +210,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Uppspelningsinställningar</string>
     <string name="playback_subtitle">Konfigurera videouppspelning och undertextalternativ</string>
-    <string name="cd_decrease">Minska</string>
-    <string name="cd_increase">Öka</string>
     <string name="cd_decrease_setting">Minska %1$s</string>
     <string name="cd_increase_setting">Öka %1$s</string>
     <string name="cd_seek_bar">Tidslinje</string>
@@ -879,7 +877,6 @@
     <string name="nav_search">Sök</string>
     <string name="nav_library">Bibliotek</string>
     <string name="nav_settings">Inställningar</string>
-    <string name="settings_rounded_ui">Rundat gränssnitt</string>
 
     <string name="update_close">Stäng</string>
     <string name="update_open_settings">Öppna inställningar</string>

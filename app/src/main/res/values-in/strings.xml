@@ -490,8 +490,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Pengaturan Pemutaran</string>
     <string name="playback_subtitle">Konfigurasikan pemutaran video dan opsi subtitle</string>
-    <string name="cd_decrease">Kurangi</string>
-    <string name="cd_increase">Tambah</string>
     <string name="cd_decrease_setting">Kurangi %1$s</string>
     <string name="cd_increase_setting">Tambah %1$s</string>
     <string name="cd_seek_bar">Bilah progres</string>
@@ -1403,7 +1401,6 @@
     <string name="nav_library">Pustaka</string>
     <string name="nav_settings">Pengaturan</string>
     <string name="action_select">Pilih</string>
-    <string name="settings_rounded_ui">UI Membulat</string>
 
     <string name="update_download_complete">Unduhan selesai. Siap dipasang.</string>
     <string name="update_close">Tutup</string>

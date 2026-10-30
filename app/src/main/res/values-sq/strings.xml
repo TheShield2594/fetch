@@ -507,8 +507,6 @@
     <string name="settings_animeskip_subtitle">Kohëshënues për kapërcimin e hyrjes/daljes së animeve</string>
     <string name="playback_title">Cilësimet e riprodhimit</string>
     <string name="playback_subtitle">Konfiguro riprodhimin e videos dhe opsionet e titrave</string>
-    <string name="cd_decrease">Zvogëlo</string>
-    <string name="cd_increase">Rrit</string>
     <string name="cd_decrease_setting">Zvogëlo %1$s</string>
     <string name="cd_increase_setting">Rrit %1$s</string>
     <string name="cd_seek_bar">Shiriti i përparimit</string>
@@ -1554,7 +1552,6 @@
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Cilësimet</string>
     <string name="action_select">Zgjidh</string>
-    <string name="settings_rounded_ui">Ndërfaqe e rrumbullakosur</string>
     <string name="update_download_complete">Shkarkimi përfundoi. Gati për instalim.</string>
     <string name="update_close">Mbyll</string>
     <string name="update_open_settings">Hap Cilësimet</string>

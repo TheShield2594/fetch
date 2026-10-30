@@ -541,6 +541,9 @@ fun AdvancedSettingsContent(
                     enabled = !uiState.skipSlowAddons,
                     onClick = { showAddonTimeoutDialog = true }
                 )
+                if (uiState.skipSlowAddons) {
+                    SettingsNote(text = stringResource(R.string.advanced_addon_timeout_disabled_note))
+                }
             }
         }
 

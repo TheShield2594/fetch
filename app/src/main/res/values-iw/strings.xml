@@ -605,8 +605,6 @@
 
     <string name="playback_title">הגדרות הפעלה</string>
     <string name="playback_subtitle">הגדרת אפשרויות הפעלת וידאו וכתוביות</string>
-    <string name="cd_decrease">הפחתה</string>
-    <string name="cd_increase">הגדלה</string>
     <string name="cd_decrease_setting">הפחתת %1$s</string>
     <string name="cd_increase_setting">הגדלת %1$s</string>
     <string name="cd_seek_bar">סרגל דילוג</string>
@@ -1889,7 +1887,6 @@
     <string name="nav_library">ספרייה</string>
     <string name="nav_settings">הגדרות</string>
     <string name="action_select">בחירה</string>
-    <string name="settings_rounded_ui">ממשק מעוגל</string>
 
     <string name="update_waiting_for_stable">הגרסה היציבה הבאה תתקבל כשתהיה זמינה</string>
     <string name="update_download_complete">ההורדה הושלמה. מוכן להתקנה.</string>

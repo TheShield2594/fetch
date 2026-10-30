@@ -489,8 +489,6 @@
 
     <string name="playback_title">إعدادات التشغيل</string>
     <string name="playback_subtitle">ضبط خيارات تشغيل الفيديو والترجمة</string>
-    <string name="cd_decrease">تقليل</string>
-    <string name="cd_increase">زيادة</string>
     <string name="cd_decrease_setting">تقليل %1$s</string>
     <string name="cd_increase_setting">زيادة %1$s</string>
     <string name="cd_seek_bar">شريط التقدم</string>
@@ -1480,7 +1478,6 @@
     <string name="nav_library">المكتبة</string>
     <string name="nav_settings">الإعدادات</string>
     <string name="action_select">اختيار</string>
-    <string name="settings_rounded_ui">واجهة مستديرة</string>
 
     <string name="update_download_complete">اكتمل التحميل. جاهز للتثبيت.</string>
     <string name="update_close">إغلاق</string>

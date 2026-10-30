@@ -281,7 +281,8 @@ internal fun LayoutPosterCardSection(
     )
     SettingsResetButton(
         text = stringResource(R.string.layout_reset_default),
-        onClick = { onEvent(LayoutSettingsEvent.ResetPosterCardStyle) }
+        confirmTitle = stringResource(R.string.layout_reset_poster_confirm_title),
+        onConfirm = { onEvent(LayoutSettingsEvent.ResetPosterCardStyle) }
     )
 }
 
@@ -357,15 +358,13 @@ private fun CwStyleCard(
                 isFocused = nowFocused
             }
         },
+        // Selection is the filled card and its check mark; the white ring is kept for focus, so
+        // a selected card and the focused one never differ only by ring width.
         colors = CardDefaults.colors(
-            containerColor = FetchTheme.colors.Background,
-            focusedContainerColor = FetchTheme.colors.Background
+            containerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.Background,
+            focusedContainerColor = if (isSelected) FetchTheme.colors.FocusBackground else FetchTheme.colors.Background
         ),
         border = CardDefaults.border(
-            border = if (isSelected) Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
-                shape = RoundedCornerShape(SettingsSecondaryCardRadius)
-            ) else Border.None,
             focusedBorder = Border(
                 border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
@@ -402,7 +401,7 @@ private fun CwStyleCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = stringResource(R.string.cd_selected),
-                        tint = FetchTheme.colors.FocusRing,
+                        tint = FetchTheme.colors.TextPrimary,
                         modifier = Modifier
                             .size(FetchTheme.spacing.lg)
                             .padding(end = 6.dp)

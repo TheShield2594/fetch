@@ -478,8 +478,6 @@
 
     <string name="playback_title">Настройки на възпроизвеждането</string>
     <string name="playback_subtitle">Конфигурирай опциите за видео възпроизвеждане и субтитри</string>
-    <string name="cd_decrease">Намали</string>
-    <string name="cd_increase">Увеличи</string>
     <string name="cd_decrease_setting">Намали %1$s</string>
     <string name="cd_increase_setting">Увеличи %1$s</string>
     <string name="cd_seek_bar">Лента за превъртане</string>
@@ -1452,7 +1450,6 @@
     <string name="nav_library">Библиотека</string>
     <string name="nav_settings">Настройки</string>
     <string name="action_select">Избери</string>
-    <string name="settings_rounded_ui">Заоблен UI</string>
 
     <string name="update_download_complete">Изтеглянето е завършено. Готово за инсталиране.</string>
     <string name="update_close">Затвори</string>

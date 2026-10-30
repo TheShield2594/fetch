@@ -23,6 +23,9 @@ internal fun PlaybackPlayerSection(
         value = playerPreferenceLabel(settings.playerPreference),
         onClick = { onOpenDialog(PlaybackDialog.PLAYER_PREFERENCE) }
     )
+    if (usesExternalPlayer) {
+        SettingsNote(text = stringResource(R.string.settings_external_player_disabled_note))
+    }
     SettingsActionRow(
         title = stringResource(R.string.playback_internal_player_engine),
         subtitle = null,
@@ -63,6 +66,10 @@ internal fun PlaybackSkipSegmentsSection(
     val internalPlayer = settings.playerPreference != PlayerPreference.EXTERNAL
     val autoSkipEnabled = internalPlayer && settings.skipIntroEnabled
 
+    if (!internalPlayer) {
+        SettingsNote(text = stringResource(R.string.settings_external_player_disabled_note))
+    }
+
     SettingsToggleRow(
         title = stringResource(R.string.playback_skip_intro),
         subtitle = stringResource(R.string.playback_skip_intro_sub),
@@ -75,6 +82,9 @@ internal fun PlaybackSkipSegmentsSection(
         text = stringResource(R.string.playback_auto_skip_segments),
         description = stringResource(R.string.playback_auto_skip_segments_sub)
     )
+    if (internalPlayer && !settings.skipIntroEnabled) {
+        SettingsNote(text = stringResource(R.string.playback_auto_skip_needs_skip_intro_note))
+    }
     AutoSkipToggle(
         segment = AutoSkipSegmentType.INTRO,
         title = stringResource(R.string.auto_skip_intro),

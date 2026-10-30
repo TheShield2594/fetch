@@ -481,8 +481,6 @@
 
     <string name="playback_title">再生設定</string>
     <string name="playback_subtitle">動画再生と字幕オプションを設定</string>
-    <string name="cd_decrease">減らす</string>
-    <string name="cd_increase">増やす</string>
     <string name="cd_decrease_setting">%1$sを減らす</string>
     <string name="cd_increase_setting">%1$sを増やす</string>
     <string name="cd_seek_bar">シークバー</string>
@@ -1459,7 +1457,6 @@
     <string name="nav_library">ライブラリ</string>
     <string name="nav_settings">設定</string>
     <string name="action_select">選択</string>
-    <string name="settings_rounded_ui">丸みのあるUI</string>
 
     <string name="update_download_complete">ダウンロード完了。インストールの準備ができました</string>
     <string name="update_close">閉じる</string>

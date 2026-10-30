@@ -202,7 +202,7 @@ internal fun MediaServerSettingsContent(
                         confirmRemove = false
                         viewModel.remove(connection.id)
                     },
-                    primary = true
+                    destructive = true
                 )
             }
         }

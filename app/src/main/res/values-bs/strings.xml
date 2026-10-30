@@ -299,8 +299,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Postavke Reprodukcije</string>
     <string name="playback_subtitle">Konfigurirajte opcije za video i titlove</string>
-    <string name="cd_decrease">Smanji</string>
-    <string name="cd_increase">Povećaj</string>
     <string name="cd_decrease_setting">Smanji %1$s</string>
     <string name="cd_increase_setting">Povećaj %1$s</string>
     <string name="cd_seek_bar">Traka za premotavanje</string>
@@ -1077,7 +1075,6 @@
     <string name="nav_search">Pretraga</string>
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Postavke</string>
-    <string name="settings_rounded_ui">Zaobljeni UI</string>
 
     <string name="update_download_complete">Preuzimanje završeno. Spremno za instalaciju.</string>
     <string name="update_close">Zatvori</string>

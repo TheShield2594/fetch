@@ -46,10 +46,7 @@ fun LayoutSettingsScreen(
         }
     }
 
-    SettingsStandaloneScaffold(
-        title = stringResource(R.string.layout_title),
-        subtitle = stringResource(R.string.layout_subtitle)
-    ) {
+    SettingsStandaloneScaffold {
         LayoutSettingsContent(viewModel = viewModel)
     }
 }

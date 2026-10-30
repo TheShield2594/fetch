@@ -267,7 +267,8 @@ private fun CustomBufferControls(
 
     SettingsResetButton(
         text = stringResource(R.string.playback_reset_to_default),
-        onClick = { updateMemory { resetBufferSettingsToDefaults() } }
+        confirmTitle = stringResource(R.string.playback_reset_buffer_confirm_title),
+        onConfirm = { updateMemory { resetBufferSettingsToDefaults() } }
     )
 }
 
@@ -389,7 +390,8 @@ private fun ParallelNetworkControls(
 
     SettingsResetButton(
         text = stringResource(R.string.playback_reset_to_default),
-        onClick = { updateMemory { resetNetworkSettingsToDefaults() } }
+        confirmTitle = stringResource(R.string.playback_reset_network_confirm_title),
+        onConfirm = { updateMemory { resetNetworkSettingsToDefaults() } }
     )
 }
 

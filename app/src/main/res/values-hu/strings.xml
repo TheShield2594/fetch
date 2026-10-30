@@ -600,8 +600,6 @@
 
     <string name="playback_title">Lejátszási beállítások</string>
     <string name="playback_subtitle">Videólejátszás és feliratok konfigurálása</string>
-    <string name="cd_decrease">Csökkentés</string>
-    <string name="cd_increase">Növelés</string>
     <string name="cd_decrease_setting">%1$s csökkentése</string>
     <string name="cd_increase_setting">%1$s növelése</string>
     <string name="cd_seek_bar">Tekerősáv</string>
@@ -1876,7 +1874,6 @@
     <string name="nav_library">Könyvtár</string>
     <string name="nav_settings">Beállítások</string>
     <string name="action_select">Kiválasztás</string>
-    <string name="settings_rounded_ui">Lekerekített felület</string>
 
     <string name="update_waiting_for_stable">A következő stabil verziót akkor kapod meg, amikor megjelenik</string>
     <string name="update_download_complete">A letöltés befejeződött. Telepítésre kész.</string>

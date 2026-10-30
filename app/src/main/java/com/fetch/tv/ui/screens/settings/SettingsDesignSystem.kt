@@ -38,7 +38,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,7 +52,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
@@ -77,7 +75,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.Border
@@ -93,18 +90,30 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.ui.components.FocusMarqueeText
-import com.fetch.tv.ui.components.BrandWordmark
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
+import com.fetch.tv.ui.screens.library.destructiveButtonColors
 import com.fetch.tv.ui.theme.FetchComponents
 import com.fetch.tv.ui.theme.FetchRadii
+import com.fetch.tv.ui.theme.FetchSizes
 import com.fetch.tv.ui.util.rememberRawSvgPainter
 
 internal val SettingsContainerRadius = FetchComponents.tokens.settings.containerRadius
 internal val SettingsPillRadius = FetchRadii.tokens.full
 internal val SettingsSecondaryCardRadius = FetchComponents.tokens.settings.secondaryCardRadius
 internal val SettingsRailItemHeight = FetchComponents.tokens.settings.railItemHeight
+internal val SettingsRowMinHeight = FetchSizes.tokens.settings.rowMinHeight
+
+/** Disabled rows stay focusable so the D-pad can stop on them; this dims them instead. */
+internal const val SettingsDisabledContentAlpha = 0.4f
+
+/**
+ * Lines a row title or value gets before it is cut off. Focus raises the limit, so a long or
+ * translated name can be read in full on the row that has focus, while a runaway name still
+ * can't grow the row taller than the screen.
+ */
+internal fun settingsRowTextMaxLines(focused: Boolean): Int = if (focused) 6 else 2
 
 /**
  * Marks a row that holds several options side by side. Without it, moving into the row uses a
@@ -159,7 +168,7 @@ private fun SettingsRowLeadingIcon(
     enabled: Boolean,
     focused: Boolean
 ) {
-    val contentAlpha = if (enabled) 1f else 0.4f
+    val contentAlpha = if (enabled) 1f else SettingsDisabledContentAlpha
     Icon(
         imageVector = icon,
         contentDescription = null,
@@ -181,8 +190,6 @@ internal data class SettingsPickerOption<T>(
 
 @Composable
 internal fun SettingsStandaloneScaffold(
-    title: String,
-    subtitle: String,
     classicContainer: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -207,92 +214,6 @@ internal fun SettingsStandaloneScaffold(
 }
 
 @Composable
-internal fun SettingsBrandPanel(
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier,
-    showBuiltInHeader: Boolean = true
-) {
-    val titleColor = if (showBuiltInHeader) FetchTheme.colors.TextPrimary else Color.Transparent
-    val subtitleColor = if (showBuiltInHeader) FetchTheme.colors.TextSecondary else Color.Transparent
-
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(SettingsContainerRadius))
-            .background(FetchTheme.colors.BackgroundElevated)
-            .border(
-                width = FetchTheme.spacing.hairline,
-                color = FetchTheme.colors.Border,
-                shape = RoundedCornerShape(SettingsContainerRadius)
-            )
-            .padding(26.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(FetchTheme.colors.BackgroundCard),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = null,
-                    tint = titleColor
-                )
-            }
-            Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
-            Text(
-                text = stringResource(R.string.nav_settings),
-                style = MaterialTheme.typography.titleLarge,
-                color = titleColor
-            )
-        }
-
-        Spacer(modifier = Modifier.height(26.dp))
-
-        BrandWordmark(
-            contentDescription = stringResource(R.string.cd_fetch_logo),
-            modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .height(72.dp),
-            contentScale = ContentScale.Fit
-        )
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = titleColor,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
-
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.bodyMedium,
-            color = subtitleColor,
-            maxLines = 4,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Text(
-            text = stringResource(R.string.settings_rounded_ui),
-            style = MaterialTheme.typography.labelMedium,
-            letterSpacing = 1.2.sp,
-            color = subtitleColor
-        )
-    }
-}
-
-@Composable
 internal fun SettingsWorkspaceSurface(
     modifier: Modifier = Modifier,
     classicContainer: Boolean = true,
@@ -313,7 +234,7 @@ internal fun SettingsWorkspaceSurface(
                     color = FetchTheme.colors.Border,
                     shape = RoundedCornerShape(SettingsContainerRadius)
                 )
-                .padding(20.dp),
+                .padding(FetchComponents.tokens.settings.workspacePadding),
             content = content
         )
     }
@@ -396,7 +317,7 @@ internal fun SettingsRailButton(
                         Image(
                             painter = rememberRawSvgPainter(rawIconRes),
                             contentDescription = null,
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(FetchTheme.sizes.icons.sm),
                             contentScale = ContentScale.Fit,
                             colorFilter = ColorFilter.tint(
                                 if (isSelected || isFocused) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary
@@ -407,12 +328,12 @@ internal fun SettingsRailButton(
                             imageVector = icon,
                             contentDescription = null,
                             tint = if (isSelected || isFocused) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(FetchTheme.sizes.icons.sm)
                         )
                     }
 
                     if (rawIconRes != null || icon != null) {
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                     }
 
                     FocusMarqueeText(
@@ -429,7 +350,7 @@ internal fun SettingsRailButton(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     tint = FetchTheme.colors.TextTertiary,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(FetchTheme.sizes.icons.sm)
                 )
             }
         }
@@ -445,7 +366,7 @@ internal fun SettingsDetailHeader(
     SettingsPageTitleTarget(title)
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
     ) {
         Text(
             text = title,
@@ -479,8 +400,8 @@ internal fun SettingsGroupCard(
                 color = FetchTheme.colors.Border,
                 shape = RoundedCornerShape(SettingsSecondaryCardRadius)
             )
-            .padding(14.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .padding(FetchTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
     ) {
         if (!title.isNullOrBlank()) {
             Text(
@@ -513,7 +434,7 @@ internal fun SettingsToggleRow(
     titleTrailingIconTint: Color = FetchTheme.colors.TextPrimary,
     expandSubtitleOnFocus: Boolean = false
 ) {
-    val contentAlpha = if (enabled) 1f else 0.4f
+    val contentAlpha = if (enabled) 1f else SettingsDisabledContentAlpha
     var isFocused by remember { mutableStateOf(false) }
 
     Card(
@@ -523,8 +444,7 @@ internal fun SettingsToggleRow(
         modifier = modifier
             .settingsRowTarget(title)
             .fillMaxWidth()
-            .heightIn(min = 62.dp)
-            .focusProperties { canFocus = enabled }
+            .heightIn(min = SettingsRowMinHeight)
             .semantics {
                 if (!enabled) disabled()
                 role = Role.Switch
@@ -555,7 +475,7 @@ internal fun SettingsToggleRow(
                         text = title,
                         style = MaterialTheme.typography.bodyLarge,
                         color = FetchTheme.colors.TextPrimary.copy(alpha = contentAlpha),
-                        maxLines = 1,
+                        maxLines = settingsRowTextMaxLines(isFocused),
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
                     )
@@ -606,7 +526,7 @@ internal fun SettingsActionRow(
     leadingArtworkSize: Dp = FetchTheme.spacing.xl,
     valueColor: Color = FetchTheme.colors.TextSecondary
 ) {
-    val contentAlpha = if (enabled) 1f else 0.4f
+    val contentAlpha = if (enabled) 1f else SettingsDisabledContentAlpha
     var isFocused by remember { mutableStateOf(false) }
 
     Card(
@@ -615,7 +535,6 @@ internal fun SettingsActionRow(
             .settingsRowTarget(title)
             .padding(top = FetchTheme.spacing.xxs, bottom = FetchTheme.spacing.xxs)
             .fillMaxWidth()
-            .focusProperties { canFocus = enabled }
             .semantics {
                 if (!enabled) disabled()
                 role = Role.Button
@@ -635,7 +554,7 @@ internal fun SettingsActionRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 62.dp)
+                .heightIn(min = SettingsRowMinHeight)
                 .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -659,7 +578,7 @@ internal fun SettingsActionRow(
                         text = title,
                         style = MaterialTheme.typography.bodyLarge,
                         color = FetchTheme.colors.TextPrimary.copy(alpha = contentAlpha),
-                        maxLines = 1,
+                        maxLines = settingsRowTextMaxLines(isFocused),
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
                     )
@@ -686,23 +605,23 @@ internal fun SettingsActionRow(
             }
 
             if (!value.isNullOrBlank()) {
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
                 Text(
                     text = value,
                     style = MaterialTheme.typography.labelLarge,
                     color = valueColor.copy(alpha = contentAlpha),
-                    maxLines = 1,
+                    maxLines = settingsRowTextMaxLines(isFocused),
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.widthIn(max = 260.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
             Icon(
                 imageVector = trailingIcon,
                 contentDescription = null,
                 tint = FetchTheme.colors.TextTertiary.copy(alpha = contentAlpha),
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(FetchTheme.sizes.icons.sm)
             )
         }
     }
@@ -773,7 +692,7 @@ internal fun <T> SettingsSingleChoiceDialog(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = option.title,
-                                    color = if (isSelected) FetchTheme.colors.Primary else FetchTheme.colors.TextPrimary,
+                                    color = FetchTheme.colors.TextPrimary,
                                     style = MaterialTheme.typography.bodyLarge,
                                     fontFamily = option.titleFontFamily
                                 )
@@ -799,7 +718,7 @@ internal fun <T> SettingsSingleChoiceDialog(
                                 Icon(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = stringResource(R.string.cd_selected),
-                                    tint = FetchTheme.colors.Primary,
+                                    tint = FetchTheme.colors.TextPrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -845,7 +764,7 @@ internal fun <T> SettingsMultiChoiceDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = maxHeight),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
             Box(
                 modifier = Modifier
@@ -890,7 +809,7 @@ internal fun <T> SettingsMultiChoiceDialog(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = option.title,
-                                        color = if (isSelected) FetchTheme.colors.Primary else FetchTheme.colors.TextPrimary,
+                                        color = FetchTheme.colors.TextPrimary,
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontFamily = option.titleFontFamily
                                     )
@@ -908,7 +827,7 @@ internal fun <T> SettingsMultiChoiceDialog(
                                     Icon(
                                         imageVector = Icons.Default.Check,
                                         contentDescription = stringResource(R.string.cd_selected),
-                                        tint = FetchTheme.colors.Primary,
+                                        tint = FetchTheme.colors.TextPrimary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
@@ -966,16 +885,22 @@ internal fun SettingsDialogActionButton(
     onClick: () -> Unit,
     primary: Boolean = false,
     enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // Remove, Disconnect and the like: drawn in the error tone so they don't pass for Save.
+    destructive: Boolean = false
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        colors = ButtonDefaults.colors(
-            containerColor = if (primary) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
-            contentColor = FetchTheme.colors.TextPrimary
-        )
+        colors = if (destructive) {
+            destructiveButtonColors()
+        } else {
+            ButtonDefaults.colors(
+                containerColor = if (primary) FetchTheme.colors.FocusBackground else FetchTheme.colors.BackgroundCard,
+                contentColor = FetchTheme.colors.TextPrimary
+            )
+        }
     ) {
         Text(
             text = text,
@@ -1033,7 +958,7 @@ internal fun SettingsChoiceChip(
                 textDirection = label.contentTextDirection()
             ),
             color = if (selected || isFocused) FetchTheme.colors.TextPrimary else FetchTheme.colors.TextSecondary,
-            modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = 10.dp)
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm)
         )
     }
 }
@@ -1044,24 +969,31 @@ private fun SettingsTogglePill(
     enabled: Boolean
 ) {
     val alpha = if (enabled) 1f else 0.35f
-    val trackColor = if (checked) {
-        FetchTheme.colors.Secondary.copy(alpha = 0.35f * alpha)
+    val trackShape = RoundedCornerShape(SettingsPillRadius)
+    // On fills the track with the accent and gives the knob the accent's content colour. Off
+    // leaves the track unfilled, outlined in the border grey, with a grey knob. So on and off
+    // differ by accent against the row fill (at least 4:1 in every built-in theme) and by knob
+    // colour, not only by where the knob sits. A grey off fill sat within 1.1:1 of the accent.
+    val trackColor = if (checked) FetchTheme.colors.Secondary.copy(alpha = alpha) else Color.Transparent
+    val outlineColor = if (checked) Color.Transparent else FetchTheme.colors.Border.copy(alpha = alpha)
+    val knobColor = if (checked) {
+        FetchTheme.colors.OnSecondary.copy(alpha = alpha)
     } else {
-        FetchTheme.colors.Border.copy(alpha = alpha)
+        FetchTheme.colors.TextSecondary.copy(alpha = alpha)
     }
-    val knobColor = Color.White.copy(alpha = alpha)
     Box(
         modifier = Modifier
             .width(46.dp)
             .height(FetchTheme.spacing.xl)
-            .clip(RoundedCornerShape(SettingsPillRadius))
+            .clip(trackShape)
             .background(trackColor)
-            .padding(FetchTheme.spacing.xxs),
+            .border(FetchTheme.spacing.xxs, outlineColor, trackShape)
+            .padding(FetchTheme.spacing.xs),
         contentAlignment = if (checked) Alignment.CenterEnd else Alignment.CenterStart
     ) {
         Box(
             modifier = Modifier
-                .size(20.dp)
+                .size(FetchTheme.spacing.lg)
                 .clip(CircleShape)
                 .background(knobColor)
         )

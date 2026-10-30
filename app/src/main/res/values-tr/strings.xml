@@ -607,8 +607,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Oynatma Ayarları</string>
     <string name="playback_subtitle">Video oynatma ve altyazı seçeneklerini yapılandırın</string>
-    <string name="cd_decrease">Azalt</string>
-    <string name="cd_increase">Artır</string>
     <string name="cd_decrease_setting">%1$s değerini azalt</string>
     <string name="cd_increase_setting">%1$s değerini artır</string>
     <string name="cd_seek_bar">İlerleme çubuğu</string>
@@ -1882,7 +1880,6 @@
     <string name="nav_library">Kütüphanem</string>
     <string name="nav_settings">Ayarlar</string>
     <string name="action_select">Seç</string>
-    <string name="settings_rounded_ui">Yuvarlak Arayüz</string>
 
     <string name="update_waiting_for_stable">Sonraki kararlı sürüm yayınlandığında alacaksınız</string>
     <string name="update_download_complete">İndirme tamamlandı. Kurulum için hazır.</string>

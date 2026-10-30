@@ -162,8 +162,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">Ustawienia odtwarzania</string>
     <string name="playback_subtitle">Konfiguruj odtwarzanie wideo i napisy</string>
-    <string name="cd_decrease">Zmniejsz</string>
-    <string name="cd_increase">Zwiększ</string>
     <string name="cd_decrease_setting">Zmniejsz: %1$s</string>
     <string name="cd_increase_setting">Zwiększ: %1$s</string>
     <string name="cd_seek_bar">Pasek przewijania</string>
@@ -996,7 +994,6 @@
     <string name="nav_search">Szukaj</string>
     <string name="nav_library">Biblioteka</string>
     <string name="nav_settings">Ustawienia</string>
-    <string name="settings_rounded_ui">Zaokrąglony interfejs</string>
 
     <string name="action_close">Zamknij</string>
     <string name="update_close">Zamknij</string>

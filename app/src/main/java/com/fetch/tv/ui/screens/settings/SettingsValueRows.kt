@@ -6,6 +6,7 @@ import com.fetch.tv.ui.theme.FetchTheme
 
 import android.view.KeyEvent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,19 +38,24 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
-import com.fetch.tv.R
+import kotlin.math.roundToInt
 
 @Composable
 internal fun SliderSettingsItem(
@@ -74,6 +80,18 @@ internal fun SliderSettingsItem(
         subtitle = subtitle,
         enabled = enabled,
         progressFraction = progress,
+        rangeInfo = ProgressBarRangeInfo(
+            current = value.toFloat(),
+            range = minValue.toFloat()..maxValue.toFloat(),
+            steps = if (step > 0) ((maxValue - minValue) / step - 1).coerceAtLeast(0) else 0
+        ),
+        onSetProgress = { target ->
+            val stepCount = if (step > 0) ((target - minValue) / step).roundToInt() else 0
+            // A maximum off the step grid is still reachable, as it is with Right.
+            val newValue = if (target >= maxValue) maxValue
+                else (minValue + stepCount * step).coerceIn(minValue, maxValue)
+            if (newValue != value) onValueChange(newValue)
+        },
         onDecrease = {
             val newValue = (value - step).coerceAtLeast(minValue)
             if (newValue != value) onValueChange(newValue)
@@ -111,6 +129,15 @@ internal fun SliderSettingsItem(
         subtitle = subtitle,
         enabled = enabled,
         progressFraction = progress,
+        rangeInfo = ProgressBarRangeInfo(
+            current = index.toFloat(),
+            range = 0f..lastIndex.toFloat().coerceAtLeast(0f),
+            steps = (lastIndex - 1).coerceAtLeast(0)
+        ),
+        onSetProgress = { target ->
+            val newValue = values[target.roundToInt().coerceIn(0, lastIndex)]
+            if (newValue != selected) onValueChange(newValue)
+        },
         onDecrease = {
             val newValue = values[(index - 1).coerceAtLeast(0)]
             if (newValue != selected) onValueChange(newValue)
@@ -131,13 +158,15 @@ private fun SliderSettingsItemLayout(
     subtitle: String?,
     enabled: Boolean,
     progressFraction: Float,
+    rangeInfo: ProgressBarRangeInfo,
+    onSetProgress: (Float) -> Unit,
     onDecrease: () -> Unit,
     onIncrease: () -> Unit,
     onFocused: () -> Unit,
     modifier: Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val contentAlpha = if (enabled) 1f else 0.4f
+    val contentAlpha = if (enabled) 1f else SettingsDisabledContentAlpha
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val shape = settingsTallRowShape()
 
@@ -167,6 +196,17 @@ private fun SliderSettingsItemLayout(
                     }
                     else -> false
                 }
+            }
+            // The row is the one control: Left/Right move the value, and TalkBack hears an
+            // adjustable range with its current value rather than a button.
+            .semantics(mergeDescendants = true) {
+                if (!enabled) disabled()
+                progressBarRangeInfo = rangeInfo
+                stateDescription = valueText
+                setProgress { target ->
+                    if (enabled) onSetProgress(target)
+                    enabled
+                }
             },
         colors = settingsRowColors(),
         border = settingsRowBorder(contentAlpha = if (enabled) 1f else 0.3f, shape = shape),
@@ -187,7 +227,7 @@ private fun SliderSettingsItemLayout(
                         text = title,
                         style = MaterialTheme.typography.bodyLarge,
                         color = FetchTheme.colors.TextPrimary.copy(alpha = contentAlpha),
-                        maxLines = 1,
+                        maxLines = settingsRowTextMaxLines(isFocused),
                         overflow = TextOverflow.Ellipsis
                     )
                     if (subtitle != null) {
@@ -207,24 +247,18 @@ private fun SliderSettingsItemLayout(
                 Text(
                     text = valueText,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = FetchTheme.colors.Primary.copy(alpha = contentAlpha)
+                    color = FetchTheme.colors.TextPrimary.copy(alpha = contentAlpha)
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(FetchTheme.spacing.sm))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                SliderStepButton(
-                    icon = Icons.Default.Remove,
-                    contentDescription = stringResource(R.string.cd_decrease),
-                    enabled = enabled,
-                    onClick = onDecrease,
-                    onFocused = onFocused
-                )
+                SliderStepIcon(icon = Icons.Default.Remove, enabled = enabled, onTap = onDecrease)
 
                 Box(
                     modifier = Modifier
@@ -238,67 +272,36 @@ private fun SliderSettingsItemLayout(
                             .fillMaxWidth(progressFraction.coerceIn(0f, 1f))
                             .height(FetchTheme.spacing.sm)
                             .clip(RoundedCornerShape(FetchTheme.radii.xs))
-                            .background(FetchTheme.colors.Primary.copy(alpha = contentAlpha))
+                            .background(FetchTheme.colors.Accent.copy(alpha = contentAlpha))
                     )
                 }
 
-                SliderStepButton(
-                    icon = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.cd_increase),
-                    enabled = enabled,
-                    onClick = onIncrease,
-                    onFocused = onFocused
-                )
+                SliderStepIcon(icon = Icons.Default.Add, enabled = enabled, onTap = onIncrease)
             }
         }
     }
 }
 
+/**
+ * The − and + beside the track. They can't take focus, since the row already handles Left and
+ * Right and extra stops only trapped them, but a tap with a pointer or touch still steps the value.
+ */
 @Composable
-private fun SliderStepButton(
+private fun SliderStepIcon(
     icon: ImageVector,
-    contentDescription: String,
     enabled: Boolean,
-    onClick: () -> Unit,
-    onFocused: () -> Unit
+    onTap: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    val contentAlpha = if (enabled) 1f else 0.4f
-
-    Card(
-        onClick = { if (enabled) onClick() },
-        modifier = Modifier.onFocusChanged { state ->
-            val nowFocused = state.isFocused
-            if (isFocused != nowFocused) {
-                isFocused = nowFocused
-                if (nowFocused) onFocused()
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = FetchTheme.colors.TextSecondary.copy(alpha = if (enabled) 1f else SettingsDisabledContentAlpha),
+        modifier = Modifier
+            .size(20.dp)
+            .pointerInput(enabled, onTap) {
+                if (enabled) detectTapGestures { onTap() }
             }
-        },
-        colors = CardDefaults.colors(
-            containerColor = FetchTheme.colors.Background,
-            focusedContainerColor = FetchTheme.colors.Background
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(
-                border = FetchTheme.focusRing.border(FetchTheme.spacing.xxs),
-                shape = CircleShape
-            )
-        ),
-        shape = CardDefaults.shape(shape = CircleShape),
-        scale = CardDefaults.scale(focusedScale = 1.1f)
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.size(38.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = FetchTheme.colors.TextPrimary.copy(alpha = contentAlpha),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-    }
+    )
 }
 
 @Composable
@@ -311,7 +314,7 @@ internal fun ColorSettingsItem(
     enabled: Boolean = true
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val contentAlpha = if (enabled) 1f else 0.4f
+    val contentAlpha = if (enabled) 1f else SettingsDisabledContentAlpha
 
     Card(
         onClick = { if (enabled) onClick() },
@@ -333,7 +336,7 @@ internal fun ColorSettingsItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 62.dp)
+                .heightIn(min = SettingsRowMinHeight)
                 .padding(horizontal = SettingsRowContentInset, vertical = FetchTheme.spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -341,7 +344,7 @@ internal fun ColorSettingsItem(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
                 color = FetchTheme.colors.TextPrimary.copy(alpha = contentAlpha),
-                maxLines = 1,
+                maxLines = settingsRowTextMaxLines(isFocused),
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )

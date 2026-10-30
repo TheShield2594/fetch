@@ -578,8 +578,6 @@
 
     <string name="playback_title">播放设置</string>
     <string name="playback_subtitle">配置视频播放和字幕选项</string>
-    <string name="cd_decrease">减少</string>
-    <string name="cd_increase">增加</string>
     <string name="cd_decrease_setting">减少%1$s</string>
     <string name="cd_increase_setting">增加%1$s</string>
     <string name="cd_seek_bar">进度条</string>
@@ -1798,7 +1796,6 @@
     <string name="nav_library">媒体库</string>
     <string name="nav_settings">设置</string>
     <string name="action_select">选择</string>
-    <string name="settings_rounded_ui">圆角 UI</string>
 
     <string name="update_waiting_for_stable">下一个稳定版本发布时您将收到通知</string>
     <string name="update_download_complete">下载完成。准备安装。</string>

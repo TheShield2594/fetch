@@ -20,6 +20,10 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -39,6 +43,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
+import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchTheme
 
 internal val SettingsRowContentInset = 18.dp
@@ -160,13 +165,38 @@ internal fun SettingsRailHeading(text: String, first: Boolean) {
 @Composable
 internal fun SettingsResetButton(
     text: String,
-    onClick: () -> Unit,
+    confirmTitle: String,
+    onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     onFocused: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(SettingsPillRadius)
+    // A reset overwrites several tuned values at once and has no undo, so it asks first.
+    var confirming by remember { mutableStateOf(false) }
+    if (confirming) {
+        FetchDialog(
+            onDismiss = { confirming = false },
+            title = confirmTitle,
+            subtitle = stringResource(R.string.settings_reset_confirm_message)
+        ) {
+            SettingsDialogActionRow {
+                SettingsDialogActionButton(
+                    text = stringResource(R.string.action_cancel),
+                    onClick = { confirming = false }
+                )
+                SettingsDialogActionButton(
+                    text = stringResource(R.string.settings_reset_confirm_action),
+                    onClick = {
+                        confirming = false
+                        onConfirm()
+                    },
+                    destructive = true
+                )
+            }
+        }
+    }
     Button(
-        onClick = onClick,
+        onClick = { confirming = true },
         modifier = modifier.onFocusChanged { if (it.isFocused) onFocused() },
         shape = ButtonDefaults.shape(shape = shape),
         colors = ButtonDefaults.colors(
@@ -186,7 +216,7 @@ internal fun SettingsResetButton(
                 imageVector = Icons.Default.RestartAlt,
                 contentDescription = null,
                 tint = FetchTheme.colors.TextSecondary,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(FetchTheme.sizes.icons.sm)
             )
             Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
             Text(

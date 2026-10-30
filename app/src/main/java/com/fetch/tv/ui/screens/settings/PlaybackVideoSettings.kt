@@ -61,6 +61,10 @@ internal fun PlaybackVideoSection(
     val showAfrWarning = settings.frameRateMatchingMode != FrameRateMatchingMode.OFF ||
         (settings.resolutionMatchingEnabled && !resolutionSwitchingSupported)
 
+    if (!enabled) {
+        SettingsNote(text = stringResource(R.string.settings_external_player_disabled_note))
+    }
+
     SettingsSectionLabel(text = stringResource(R.string.playback_auto_frame_rate))
     SettingsActionRow(
         title = stringResource(R.string.playback_afr_mode),

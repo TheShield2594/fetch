@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -171,9 +172,11 @@ private fun AppIconOptionCard(
             focusedContainerColor = FetchTheme.colors.FocusBackground
         ),
         border = CardDefaults.border(
+            // Selection is a grey outline plus the check mark; the white ring is kept for focus, so
+            // a selected card and the focused one never differ only by ring width.
             border = if (selected) {
                 Border(
-                    border = FetchTheme.focusRing.border(FetchTheme.spacing.hairline),
+                    border = BorderStroke(FetchTheme.spacing.xxs, FetchTheme.colors.Border),
                     shape = shape
                 )
             } else {
@@ -225,7 +228,7 @@ private fun AppIconOptionCard(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = stringResource(R.string.cd_selected),
-                        tint = FetchTheme.colors.Primary,
+                        tint = FetchTheme.colors.TextPrimary,
                         modifier = Modifier.size(18.dp)
                     )
                 }

@@ -474,8 +474,6 @@
     <!-- PlaybackSettingsScreen -->
     <string name="playback_title">இயக்க அமைப்புகள்</string>
     <string name="playback_subtitle">வீடியோ இயக்கம் மற்றும் வசனவரி விருப்பங்களை அமைக்கவும்</string>
-    <string name="cd_decrease">குறைத்தல்</string>
-    <string name="cd_increase">அதிகரித்தல்</string>
     <string name="cd_decrease_setting">%1$s குறைத்தல்</string>
     <string name="cd_increase_setting">%1$s அதிகரித்தல்</string>
     <string name="cd_seek_bar">தேடு பட்டி</string>
@@ -1371,7 +1369,6 @@
     <string name="nav_library">நூலகம்</string>
     <string name="nav_settings">அமைப்புகள்</string>
     <string name="action_select">தேர்ந்தெடு</string>
-    <string name="settings_rounded_ui">வட்டமான இடைமுகம்</string>
 
     <string name="update_download_complete">பதிவிறக்கம் முடிந்தது. நிறுவ தயாராக உள்ளது.</string>
     <string name="update_close">மூடு</string>

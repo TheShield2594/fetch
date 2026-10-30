@@ -429,6 +429,8 @@
     <string name="addon_empty">Niciun complement instalat. Adaugă unul pentru a începe.</string>
     <string name="addon_list_load_failed">Nu s-au putut încărca extensiile instalate. Încearcă din nou.</string>
     <string name="addon_remove">Înlătură</string>
+    <string name="addon_remove_confirm_title">Înlături %1$s?</string>
+    <string name="addon_remove_confirm_message">Cataloagele și fluxurile sale nu vor mai apărea pe acest televizor.</string>
     <string name="addon_manage_from_phone_title">Gestionează de pe telefon</string>
     <string name="addon_manage_from_phone_subtitle">Scanează un cod QR pentru a gestiona complementele și cataloagele Home de pe telefon</string>
     <string name="addon_reorder_title">Rearanjează cataloagele Home</string>
@@ -443,8 +445,8 @@
     <string name="addon_confirm_catalogs_disabled">Cataloage dezactivate pe Home:</string>
     <string name="addon_confirm_catalogs_enabled">Cataloage activate pe Acasă:</string>
     <string name="addon_confirm_no_changes">Nu au fost detectate modificări vizibile</string>
-    <string name="addon_confirm_reject">Respinge</string>
-    <string name="addon_confirm_confirm">Confirmă</string>
+    <string name="addon_confirm_reject">Renunță la modificări</string>
+    <string name="addon_confirm_confirm">Aplică modificările</string>
 
     <!-- CatalogOrderScreen -->
     <string name="catalog_order_title">Rearanjează cataloagele de pe Acasă</string>
@@ -733,6 +735,8 @@
     <string name="addon_health_ok">Răspunde · %1$s</string>
     <string name="addon_health_slow">Lent · %1$s</string>
     <string name="addon_health_timed_out">Ultima cerere a expirat</string>
+    <string name="addon_health_clear">Șterge istoricul</string>
+    <string name="addon_health_clear_confirm">Apasă din nou pentru a șterge</string>
     <string name="source_chip_failed">eșuat</string>
     <string name="source_chip_loading">se încarcă</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

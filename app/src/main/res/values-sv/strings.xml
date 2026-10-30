@@ -543,6 +543,8 @@
     <string name="addon_empty">Inga tillägg installerade. Lägg till ett för att komma igång.</string>
     <string name="addon_list_load_failed">Det gick inte att läsa in dina installerade tillägg. Försök igen.</string>
     <string name="addon_remove">Ta bort</string>
+    <string name="addon_remove_confirm_title">Ta bort %1$s?</string>
+    <string name="addon_remove_confirm_message">Dess kataloger och strömmar visas inte längre på den här tv:n.</string>
     <string name="addon_manage_from_phone_title">Hantera från telefon</string>
     <string name="addon_manage_from_phone_subtitle">Skanna en QR-kod för att hantera tillägg och hemkataloger från din telefon</string>
     <string name="addon_reorder_title">Ordna om hemkataloger</string>
@@ -557,8 +559,8 @@
     <string name="addon_confirm_catalogs_disabled">Kataloger inaktiverade på Hem:</string>
     <string name="addon_confirm_catalogs_enabled">Kataloger aktiverade på Hem:</string>
     <string name="addon_confirm_no_changes">Inga synliga ändringar upptäckta</string>
-    <string name="addon_confirm_reject">Avvisa</string>
-    <string name="addon_confirm_confirm">Bekräfta</string>
+    <string name="addon_confirm_reject">Släng ändringar</string>
+    <string name="addon_confirm_confirm">Tillämpa ändringar</string>
 
     <!-- CatalogOrderScreen -->
     <string name="catalog_order_title">Ordna om hemkataloger</string>
@@ -1429,6 +1431,8 @@
     <string name="addon_health_ok">Svarar · %1$s</string>
     <string name="addon_health_slow">Långsam · %1$s</string>
     <string name="addon_health_timed_out">Senaste begäran tog för lång tid</string>
+    <string name="addon_health_clear">Rensa historik</string>
+    <string name="addon_health_clear_confirm">Tryck igen för att rensa</string>
     <string name="source_chip_failed">misslyckades</string>
     <string name="source_chip_loading">läses in</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

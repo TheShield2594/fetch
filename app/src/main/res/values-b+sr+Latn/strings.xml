@@ -1194,6 +1194,8 @@
     <string name="addon_empty">Nema instaliranih dodataka. Dodajte jedan da biste započeli.</string>
     <string name="addon_list_load_failed">Nije moguće učitati instalirane dodatke. Pokušajte ponovo.</string>
     <string name="addon_remove">Ukloni</string>
+    <string name="addon_remove_confirm_title">Ukloniti %1$s?</string>
+    <string name="addon_remove_confirm_message">Njegovi katalozi i strimovi više se neće prikazivati na ovom TV-u.</string>
     <string name="addons_badge_disabled">Onemogućeno</string>
     <string name="addon_manage_from_phone_title">Upravljajte sa telefona</string>
     <string name="addon_manage_from_phone_subtitle">Skenirajte QR kod za upravljanje dodacima, katalozima i kolekcijama sa svog telefona</string>
@@ -1213,8 +1215,8 @@
     <string name="addon_confirm_catalogs_disabled">Katalozi onemogućeni na Početnoj:</string>
     <string name="addon_confirm_catalogs_enabled">Katalozi omogućeni na Početnoj:</string>
     <string name="addon_confirm_no_changes">Nisu detektovane vidljive izmene</string>
-    <string name="addon_confirm_reject">Odbij</string>
-    <string name="addon_confirm_confirm">Potvrdi</string>
+    <string name="addon_confirm_reject">Odbaci izmene</string>
+    <string name="addon_confirm_confirm">Primeni izmene</string>
     <string name="addon_refresh_action">Osveži dodatke</string>
     <string name="addon_refresh_default_subtitle">Preuzmi najnovije izmene dodataka za trenutni profil</string>
     <string name="addon_refresh_done_subtitle">Dodaci su upravo osveženi</string>
@@ -2553,6 +2555,8 @@
     <string name="addon_health_ok">Odgovara · %1$s</string>
     <string name="addon_health_slow">Sporo · %1$s</string>
     <string name="addon_health_timed_out">Poslednjem zahtevu je isteklo vreme</string>
+    <string name="addon_health_clear">Obriši istoriju</string>
+    <string name="addon_health_clear_confirm">Pritisni ponovo za brisanje</string>
     <string name="source_chip_failed">neuspešno</string>
     <string name="source_chip_loading">učitavanje</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

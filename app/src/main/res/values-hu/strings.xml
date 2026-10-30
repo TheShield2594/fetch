@@ -1323,6 +1323,8 @@
     <string name="addon_empty">Nincsenek telepített bővítmények. A kezdéshez adj hozzá egyet.</string>
     <string name="addon_list_load_failed">Nem sikerült betölteni a telepített bővítményeidet. Próbáld újra.</string>
     <string name="addon_remove">Eltávolítás</string>
+    <string name="addon_remove_confirm_title">Eltávolítod ezt: %1$s?</string>
+    <string name="addon_remove_confirm_message">Katalógusai és streamjei többé nem jelennek meg ezen a tévén.</string>
     <string name="addons_badge_disabled">Kikapcsolva</string>
     <string name="addon_manage_from_phone_title">Kezelés telefonról</string>
     <string name="addon_manage_from_phone_subtitle">Olvasd be a QR-kódot a bővítmények, katalógusok és gyűjtemények telefonos kezeléséhez</string>
@@ -1342,8 +1344,8 @@
     <string name="addon_confirm_catalogs_disabled">A kezdőlapon letiltott katalógusok:</string>
     <string name="addon_confirm_catalogs_enabled">A kezdőlapon engedélyezett katalógusok:</string>
     <string name="addon_confirm_no_changes">Nem történt látható változás</string>
-    <string name="addon_confirm_reject">Elvetés</string>
-    <string name="addon_confirm_confirm">Megerősítés</string>
+    <string name="addon_confirm_reject">Módosítások elvetése</string>
+    <string name="addon_confirm_confirm">Módosítások alkalmazása</string>
     <string name="addon_refresh_action">Bővítmények frissítése</string>
     <string name="addon_refresh_default_subtitle">A legújabb bővítmény-változások letöltése az aktuális profilhoz</string>
     <string name="addon_refresh_done_subtitle">Bővítmények épp most frissítve</string>
@@ -2876,6 +2878,8 @@
     <string name="addon_health_slow">Lassú · %1$s</string>
     <string name="addon_health_failing">Az utolsó kérés sikertelen volt</string>
     <string name="addon_health_timed_out">Az utolsó kérés túllépte az időkorlátot</string>
+    <string name="addon_health_clear">Előzmények törlése</string>
+    <string name="addon_health_clear_confirm">Nyomd meg újra a törléshez</string>
     <string name="source_chip_failed">sikertelen</string>
     <string name="source_chip_loading">betöltés</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

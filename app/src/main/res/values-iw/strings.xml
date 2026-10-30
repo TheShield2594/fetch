@@ -1335,6 +1335,8 @@
     <string name="addon_empty">אין תוספים מותקנים. יש להוסיף אחד כדי להתחיל.</string>
     <string name="addon_list_load_failed">לא ניתן היה לטעון את התוספים המותקנים. כדאי לנסות שוב.</string>
     <string name="addon_remove">הסרה</string>
+    <string name="addon_remove_confirm_title">להסיר את %1$s?</string>
+    <string name="addon_remove_confirm_message">הקטלוגים והסטרימים שלו יפסיקו להופיע בטלוויזיה הזו.</string>
     <string name="addons_badge_disabled">מושבת</string>
     <string name="addon_manage_from_phone_title">ניהול מהטלפון</string>
     <string name="addon_manage_from_phone_subtitle">יש לסרוק קוד QR לניהול תוספים, קטלוגים ואוספים מהטלפון</string>
@@ -1354,8 +1356,8 @@
     <string name="addon_confirm_catalogs_disabled">קטלוגים שהושבתו בבית:</string>
     <string name="addon_confirm_catalogs_enabled">קטלוגים שהופעלו בבית:</string>
     <string name="addon_confirm_no_changes">לא זוהו שינויים גלויים</string>
-    <string name="addon_confirm_reject">דחייה</string>
-    <string name="addon_confirm_confirm">אישור</string>
+    <string name="addon_confirm_reject">ביטול השינויים</string>
+    <string name="addon_confirm_confirm">החלת השינויים</string>
     <string name="addon_refresh_action">ריענון תוספים</string>
     <string name="addon_refresh_default_subtitle">משיכת שינויי התוסף האחרונים עבור הפרופיל הנוכחי</string>
     <string name="addon_refresh_done_subtitle">התוספים רועננו כעת</string>
@@ -2744,6 +2746,8 @@
     <string name="addon_health_ok">מגיב · %1$s</string>
     <string name="addon_health_slow">איטי · %1$s</string>
     <string name="addon_health_timed_out">הזמן לבקשה האחרונה פג</string>
+    <string name="addon_health_clear">ניקוי ההיסטוריה</string>
+    <string name="addon_health_clear_confirm">יש ללחוץ שוב כדי לנקות</string>
     <string name="source_chip_failed">נכשל</string>
     <string name="source_chip_loading">בטעינה</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

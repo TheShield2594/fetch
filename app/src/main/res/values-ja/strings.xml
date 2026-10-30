@@ -1021,6 +1021,8 @@
     <string name="addon_empty">アドオンがインストールされていません。追加して始めましょう</string>
     <string name="addon_list_load_failed">インストール済みのアドオンを読み込めませんでした。もう一度お試しください。</string>
     <string name="addon_remove">削除</string>
+    <string name="addon_remove_confirm_title">%1$s を削除しますか？</string>
+    <string name="addon_remove_confirm_message">このテレビにそのカタログとストリームが表示されなくなります。</string>
     <string name="addons_badge_disabled">無効</string>
     <string name="addon_manage_from_phone_title">スマートフォンから管理</string>
     <string name="addon_manage_from_phone_subtitle">QRコードをスキャンしてスマートフォンからアドオン、カタログ、コレクションを管理</string>
@@ -1040,8 +1042,8 @@
     <string name="addon_confirm_catalogs_disabled">ホームで無効化されたカタログ:</string>
     <string name="addon_confirm_catalogs_enabled">ホームで有効化されたカタログ:</string>
     <string name="addon_confirm_no_changes">表示上の変更は検出されませんでした</string>
-    <string name="addon_confirm_reject">拒否</string>
-    <string name="addon_confirm_confirm">確認</string>
+    <string name="addon_confirm_reject">変更を破棄</string>
+    <string name="addon_confirm_confirm">変更を適用</string>
     <string name="addon_refresh_action">アドオンを更新</string>
     <string name="addon_refresh_default_subtitle">現在のプロフィールのアドオン変更を取得</string>
     <string name="addon_refresh_done_subtitle">アドオンを更新しました</string>
@@ -2196,6 +2198,8 @@
     <string name="addon_health_ok">応答あり · %1$s</string>
     <string name="addon_health_slow">低速 · %1$s</string>
     <string name="addon_health_timed_out">前回のリクエストはタイムアウトしました</string>
+    <string name="addon_health_clear">履歴を消去</string>
+    <string name="addon_health_clear_confirm">もう一度押すと消去します</string>
     <string name="source_chip_failed">失敗</string>
     <string name="source_chip_loading">読み込み中</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

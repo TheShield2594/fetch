@@ -537,6 +537,8 @@
     <string name="addon_empty">कोई ऐडऑन इंस्टॉल नहीं है। शुरू करने के लिए एक जोड़ें।</string>
     <string name="addon_list_load_failed">आपके इंस्टॉल किए गए ऐडऑन लोड नहीं हो सके। फिर से कोशिश करें।</string>
     <string name="addon_remove">हटाएँ</string>
+    <string name="addon_remove_confirm_title">%1$s हटाएँ?</string>
+    <string name="addon_remove_confirm_message">इसके कैटलॉग और स्ट्रीम इस टीवी पर दिखना बंद हो जाएँगे।</string>
     <string name="addon_manage_from_phone_title">फोन से मैनेज करें</string>
     <string name="addon_manage_from_phone_subtitle">अपने फोन से ऐडऑन और होम कैटलॉग मैनेज करने के लिए QR कोड स्कैन करें</string>
     <string name="addon_reorder_title">होम कैटलॉग क्रम बदलें</string>
@@ -551,8 +553,8 @@
     <string name="addon_confirm_catalogs_disabled">होम पर अक्षम किए गए कैटलॉग:</string>
     <string name="addon_confirm_catalogs_enabled">होम पर सक्षम किए गए कैटलॉग:</string>
     <string name="addon_confirm_no_changes">कोई दृश्य बदलाव नहीं मिला</string>
-    <string name="addon_confirm_reject">अस्वीकार करें</string>
-    <string name="addon_confirm_confirm">पुष्टि करें</string>
+    <string name="addon_confirm_reject">बदलाव छोड़ें</string>
+    <string name="addon_confirm_confirm">बदलाव लागू करें</string>
 
     <!-- CatalogOrderScreen -->
     <string name="catalog_order_title">होम कैटलॉग क्रम बदलें</string>
@@ -1055,6 +1057,8 @@
     <string name="addon_health_slow">धीमा · %1$s</string>
     <string name="addon_health_failing">पिछली रिक्वेस्ट फ़ेल हुई</string>
     <string name="addon_health_timed_out">पिछली रिक्वेस्ट का समय खत्म हो गया</string>
+    <string name="addon_health_clear">इतिहास साफ़ करें</string>
+    <string name="addon_health_clear_confirm">साफ़ करने के लिए फिर से दबाएँ</string>
     <string name="source_chip_failed">विफल</string>
     <string name="source_chip_loading">लोड हो रहा है</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

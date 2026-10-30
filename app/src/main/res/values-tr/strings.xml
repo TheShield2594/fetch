@@ -1332,6 +1332,8 @@
     <string name="addon_empty">Kurulu eklenti bulunamadı. Başlamak için bir tane ekleyin.</string>
     <string name="addon_list_load_failed">Yüklü eklentileriniz yüklenemedi. Tekrar deneyin.</string>
     <string name="addon_remove">Kaldır</string>
+    <string name="addon_remove_confirm_title">%1$s kaldırılsın mı?</string>
+    <string name="addon_remove_confirm_message">Katalogları ve yayınları artık bu TV’de görünmeyecek.</string>
     <string name="addons_badge_disabled">Kapalı</string>
     <string name="addon_manage_from_phone_title">Telefondan Yönet</string>
     <string name="addon_manage_from_phone_subtitle">Telefondan eklentileri ve ana sayfa kataloglarını yönetmek için QR kodunu tayın</string>
@@ -1351,8 +1353,8 @@
     <string name="addon_confirm_catalogs_disabled">Ana sayfada devre dışı bırakılan kataloglar:</string>
     <string name="addon_confirm_catalogs_enabled">Ana sayfada etkinleştirilen kataloglar:</string>
     <string name="addon_confirm_no_changes">Okunan yeni bir değişiklik algılanmadı</string>
-    <string name="addon_confirm_reject">Reddet</string>
-    <string name="addon_confirm_confirm">Onayla</string>
+    <string name="addon_confirm_reject">Değişiklikleri at</string>
+    <string name="addon_confirm_confirm">Değişiklikleri uygula</string>
     <string name="addon_refresh_action">Eklentileri Yenile</string>
     <string name="addon_refresh_default_subtitle">Mevcut profil için son eklenti değişikliklerini çek</string>
     <string name="addon_refresh_done_subtitle">Eklentiler az önce yenilendi</string>
@@ -2752,6 +2754,8 @@
     <string name="addon_health_ok">Yanıt veriyor · %1$s</string>
     <string name="addon_health_slow">Yavaş · %1$s</string>
     <string name="addon_health_timed_out">Son istek zaman aşımına uğradı</string>
+    <string name="addon_health_clear">Geçmişi temizle</string>
+    <string name="addon_health_clear_confirm">Temizlemek için tekrar basın</string>
     <string name="source_chip_failed">başarısız</string>
     <string name="source_chip_loading">yükleniyor</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

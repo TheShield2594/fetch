@@ -1021,6 +1021,8 @@
     <string name="addon_empty">لا توجد إضافات مثبتة. أضف واحدة للبدء.</string>
     <string name="addon_list_load_failed">تعذر تحميل الإضافات المثبتة. حاول مجدداً.</string>
     <string name="addon_remove">إزالة</string>
+    <string name="addon_remove_confirm_title">إزالة %1$s؟</string>
+    <string name="addon_remove_confirm_message">لن تظهر كتالوجاته وبثّه على هذا التلفاز بعد الآن.</string>
     <string name="addons_badge_disabled">معطل</string>
     <string name="addon_manage_from_phone_title">الإدارة من الهاتف</string>
     <string name="addon_manage_from_phone_subtitle">امسح رمز QR لإدارة الإضافات والقوائم الرئيسية من هاتفك</string>
@@ -1040,8 +1042,8 @@
     <string name="addon_confirm_catalogs_disabled">قوائم تم تعطيلها في الرئيسية:</string>
     <string name="addon_confirm_catalogs_enabled">قوائم تم تفعيلها في الرئيسية:</string>
     <string name="addon_confirm_no_changes">لم يتم رصد تغييرات</string>
-    <string name="addon_confirm_reject">رفض</string>
-    <string name="addon_confirm_confirm">تأكيد</string>
+    <string name="addon_confirm_reject">تجاهل التغييرات</string>
+    <string name="addon_confirm_confirm">تطبيق التغييرات</string>
     <string name="addon_refresh_action">تحديث الإضافات</string>
     <string name="addon_refresh_default_subtitle">جلب اخر تحديثات الإضافات للملف الحالي</string>
     <string name="addon_refresh_done_subtitle">تم تحديث الإضافات الآن</string>
@@ -2445,6 +2447,8 @@
     <string name="addon_health_ok">تستجيب · %1$s</string>
     <string name="addon_health_slow">بطيئة · %1$s</string>
     <string name="addon_health_timed_out">انتهت مهلة آخر طلب</string>
+    <string name="addon_health_clear">مسح السجل</string>
+    <string name="addon_health_clear_confirm">اضغط مرة أخرى للمسح</string>
     <string name="source_chip_failed">فشل</string>
     <string name="source_chip_loading">جارٍ التحميل</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

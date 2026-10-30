@@ -1249,6 +1249,8 @@
     <string name="addon_empty">未安裝擴充套件。請新增一個以開始使用。</string>
     <string name="addon_list_load_failed">無法載入已安裝的擴充套件。請重試。</string>
     <string name="addon_remove">移除</string>
+    <string name="addon_remove_confirm_title">移除 %1$s？</string>
+    <string name="addon_remove_confirm_message">它的目錄和串流將不再顯示在這台電視上。</string>
     <string name="addons_badge_disabled">已停用</string>
     <string name="addon_manage_from_phone_title">從手機管理</string>
     <string name="addon_manage_from_phone_subtitle">掃描 QR 碼以從手機管理擴充套件、目錄和收藏</string>
@@ -1268,8 +1270,8 @@
     <string name="addon_confirm_catalogs_disabled">已在首頁停用的目錄：</string>
     <string name="addon_confirm_catalogs_enabled">已在首頁啟用的目錄：</string>
     <string name="addon_confirm_no_changes">未偵測到可見變更</string>
-    <string name="addon_confirm_reject">拒絕</string>
-    <string name="addon_confirm_confirm">確認</string>
+    <string name="addon_confirm_reject">捨棄變更</string>
+    <string name="addon_confirm_confirm">套用變更</string>
     <string name="addon_refresh_action">重新整理擴充套件</string>
     <string name="addon_refresh_default_subtitle">為目前個人資料提取最新的擴充套件變更</string>
     <string name="addon_refresh_done_subtitle">擴充套件剛剛重新整理</string>
@@ -2618,6 +2620,8 @@
     <string name="addon_health_ok">正常回應 · %1$s</string>
     <string name="addon_health_slow">回應緩慢 · %1$s</string>
     <string name="addon_health_timed_out">上次請求逾時</string>
+    <string name="addon_health_clear">清除記錄</string>
+    <string name="addon_health_clear_confirm">再按一次以清除</string>
     <string name="source_chip_failed">失敗</string>
     <string name="source_chip_loading">載入中</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

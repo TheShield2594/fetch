@@ -618,6 +618,8 @@
     <string name="addon_empty">Ingen tillegg installert. Legg til ett for å komme i gang.</string>
     <string name="addon_list_load_failed">Kunne ikke laste inn de installerte tilleggene dine. Prøv igjen.</string>
     <string name="addon_remove">Fjern</string>
+    <string name="addon_remove_confirm_title">Fjerne %1$s?</string>
+    <string name="addon_remove_confirm_message">Katalogene og strømmene fra den vises ikke lenger på denne TV-en.</string>
     <string name="addon_manage_from_phone_title">Administrer fra telefon</string>
     <string name="addon_manage_from_phone_subtitle">Skann en QR-kode for å administrere tillegg og hjemmekatalogier fra telefonen din</string>
     <string name="addon_reorder_title">Omorganiser hjemmekatalogier</string>
@@ -632,8 +634,8 @@
     <string name="addon_confirm_catalogs_disabled">Kataloger deaktivert på hjemmet:</string>
     <string name="addon_confirm_catalogs_enabled">Kataloger aktivert på hjemmet:</string>
     <string name="addon_confirm_no_changes">Ingen synlige endringer oppdaget</string>
-    <string name="addon_confirm_reject">Avvis</string>
-    <string name="addon_confirm_confirm">Bekreft</string>
+    <string name="addon_confirm_reject">Forkast endringer</string>
+    <string name="addon_confirm_confirm">Bruk endringer</string>
 
     <!-- CatalogOrderScreen -->
     <string name="catalog_order_title">Omorganiser hjemmekatalogier</string>
@@ -963,6 +965,8 @@
     <string name="addon_health_ok">Svarer · %1$s</string>
     <string name="addon_health_slow">Treg · %1$s</string>
     <string name="addon_health_timed_out">Siste forespørsel fikk tidsavbrudd</string>
+    <string name="addon_health_clear">Tøm historikk</string>
+    <string name="addon_health_clear_confirm">Trykk igjen for å tømme</string>
     <string name="source_chip_failed">mislyktes</string>
     <string name="source_chip_loading">laster inn</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

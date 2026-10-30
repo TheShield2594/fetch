@@ -1166,6 +1166,8 @@
 <string name="addon_empty">Nessun addon installato. Aggiungine uno per iniziare.</string>
 <string name="addon_list_load_failed">Impossibile caricare gli addon installati. Riprova.</string>
 <string name="addon_remove">Rimuovi</string>
+<string name="addon_remove_confirm_title">Rimuovere %1$s?</string>
+<string name="addon_remove_confirm_message">I suoi cataloghi e stream non appariranno più su questa TV.</string>
 <string name="addons_badge_disabled">Disattivato</string>
 <string name="addon_manage_from_phone_title">Gestisci dal telefono</string>
 <string name="addon_manage_from_phone_subtitle">Scansiona un codice QR per gestire gli addon e i cataloghi Home dal tuo telefono</string>
@@ -1185,8 +1187,8 @@
 <string name="addon_confirm_catalogs_disabled">Cataloghi disabilitati nella Home:</string>
 <string name="addon_confirm_catalogs_enabled">Cataloghi abilitati nella Home:</string>
 <string name="addon_confirm_no_changes">Nessuna modifica visibile rilevata</string>
-<string name="addon_confirm_reject">Rifiuta</string>
-<string name="addon_confirm_confirm">Conferma</string>
+<string name="addon_confirm_reject">Annulla modifiche</string>
+<string name="addon_confirm_confirm">Applica modifiche</string>
 <string name="addon_refresh_action">Aggiorna Add-on</string>
 <string name="addon_refresh_default_subtitle">Recupera le ultime modifiche agli add-on per il profilo corrente</string>
 <string name="addon_refresh_done_subtitle">Add-on appena aggiornati</string>
@@ -2731,6 +2733,8 @@
     <string name="addon_health_ok">Risponde · %1$s</string>
     <string name="addon_health_slow">Lento · %1$s</string>
     <string name="addon_health_timed_out">Ultima richiesta scaduta</string>
+<string name="addon_health_clear">Cancella cronologia</string>
+<string name="addon_health_clear_confirm">Premi di nuovo per cancellare</string>
     <string name="source_chip_failed">errore</string>
     <string name="source_chip_loading">caricamento</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

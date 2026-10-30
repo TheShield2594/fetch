@@ -807,6 +807,8 @@
     <string name="addon_empty">Нет установленных аддонов. Добавьте один для начала.</string>
     <string name="addon_list_load_failed">Не удалось загрузить установленные аддоны. Попробуйте снова.</string>
     <string name="addon_remove">Удалить</string>
+    <string name="addon_remove_confirm_title">Удалить %1$s?</string>
+    <string name="addon_remove_confirm_message">Его каталоги и потоки перестанут отображаться на этом телевизоре.</string>
     <string name="addon_manage_from_phone_title">Управлять с телефона</string>
     <string name="addon_manage_from_phone_subtitle">Отсканируйте QR-код для управления аддонами, каталогами и коллекциями с вашего телефона</string>
     <string name="addon_reorder_title">Изменить порядок каталогов</string>
@@ -821,8 +823,8 @@
     <string name="addon_confirm_catalogs_disabled">Каталоги отключены на главном экране:</string>
     <string name="addon_confirm_catalogs_enabled">Каталоги включены на главном экране:</string>
     <string name="addon_confirm_no_changes">Видимых изменений не обнаружено</string>
-    <string name="addon_confirm_reject">Отклонить</string>
-    <string name="addon_confirm_confirm">Подтвердить</string>
+    <string name="addon_confirm_reject">Отменить изменения</string>
+    <string name="addon_confirm_confirm">Применить изменения</string>
 
     <!-- CatalogOrderScreen -->
     <string name="catalog_order_title">Порядок каталогов на главном экране</string>
@@ -2504,6 +2506,8 @@
     <string name="addon_health_ok">Отвечает · %1$s</string>
     <string name="addon_health_slow">Медленно · %1$s</string>
     <string name="addon_health_timed_out">Время последнего запроса истекло</string>
+    <string name="addon_health_clear">Очистить историю</string>
+    <string name="addon_health_clear_confirm">Нажмите ещё раз, чтобы очистить</string>
     <string name="source_chip_failed">ошибка</string>
     <string name="source_chip_loading">загрузка</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

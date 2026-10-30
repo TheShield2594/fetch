@@ -973,6 +973,8 @@
     <string name="addon_empty">Žiadne doplnky nie sú nainštalované. Pridajte jeden pre začiatok.</string>
     <string name="addon_list_load_failed">Nainštalované doplnky sa nepodarilo načítať. Skúste to znova.</string>
     <string name="addon_remove">Odstrániť</string>
+    <string name="addon_remove_confirm_title">Odstrániť %1$s?</string>
+    <string name="addon_remove_confirm_message">Jeho katalógy a streamy sa na tomto televízore prestanú zobrazovať.</string>
     <string name="addons_badge_disabled">Zakázané</string>
     <string name="addon_manage_from_phone_title">Spravovať z telefónu</string>
     <string name="addon_manage_from_phone_subtitle">Naskenujte QR kód a spravujte doplnky, katalógy a kolekcie z telefónu</string>
@@ -992,8 +994,8 @@
     <string name="addon_confirm_catalogs_disabled">Katalógy vypnuté na domovskej obrazovke:</string>
     <string name="addon_confirm_catalogs_enabled">Katalógy zapnuté na domovskej obrazovke:</string>
     <string name="addon_confirm_no_changes">Neboli zistené žiadne zmeny</string>
-    <string name="addon_confirm_reject">Zamietnuť</string>
-    <string name="addon_confirm_confirm">Potvrdiť</string>
+    <string name="addon_confirm_reject">Zahodiť zmeny</string>
+    <string name="addon_confirm_confirm">Použiť zmeny</string>
     <string name="addon_refresh_action">Obnoviť doplnky</string>
     <string name="addon_refresh_default_subtitle">Načítať najnovšie zmeny doplnkov pre aktuálny profil</string>
     <string name="addon_refresh_done_subtitle">Doplnky boli práve obnovené</string>
@@ -2751,6 +2753,8 @@
     <string name="addon_health_ok">Odpovedá · %1$s</string>
     <string name="addon_health_slow">Pomalé · %1$s</string>
     <string name="addon_health_timed_out">Časový limit poslednej požiadavky vypršal</string>
+    <string name="addon_health_clear">Vymazať históriu</string>
+    <string name="addon_health_clear_confirm">Stlačte znova na vymazanie</string>
     <string name="source_chip_failed">zlyhalo</string>
     <string name="source_chip_loading">načítava sa</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

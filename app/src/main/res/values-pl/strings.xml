@@ -654,6 +654,8 @@
     <string name="addon_empty">Brak zainstalowanych dodatków. Dodaj jeden, aby zacząć.</string>
     <string name="addon_list_load_failed">Nie udało się załadować zainstalowanych dodatków. Spróbuj ponownie.</string>
     <string name="addon_remove">Usuń</string>
+    <string name="addon_remove_confirm_title">Usunąć %1$s?</string>
+    <string name="addon_remove_confirm_message">Jego katalogi i strumienie przestaną się pojawiać na tym telewizorze.</string>
     <string name="addon_manage_from_phone_title">Zarządzaj z telefonu</string>
     <string name="addon_manage_from_phone_subtitle">Zeskanuj kod QR, aby zarządzać dodatkami, katalogami i kolekcjami z telefonu</string>
     <string name="addon_manage_collections_from_phone_subtitle">Zeskanuj kod QR, aby zarządzać kolekcjami z telefonu</string>
@@ -670,8 +672,8 @@
     <string name="addon_confirm_catalogs_disabled">Katalogi wyłączone na ekranie głównym:</string>
     <string name="addon_confirm_catalogs_enabled">Katalogi włączone na ekranie głównym:</string>
     <string name="addon_confirm_no_changes">Nie wykryto widocznych zmian</string>
-    <string name="addon_confirm_reject">Odrzuć</string>
-    <string name="addon_confirm_confirm">Potwierdź</string>
+    <string name="addon_confirm_reject">Odrzuć zmiany</string>
+    <string name="addon_confirm_confirm">Zastosuj zmiany</string>
 
     <!-- CatalogOrderScreen -->
     <string name="catalog_order_title">Zmień kolejność katalogów</string>
@@ -2819,6 +2821,8 @@
     <string name="addon_health_ok">Odpowiada · %1$s</string>
     <string name="addon_health_slow">Wolny · %1$s</string>
     <string name="addon_health_timed_out">Przekroczono czas ostatniego żądania</string>
+    <string name="addon_health_clear">Wyczyść historię</string>
+    <string name="addon_health_clear_confirm">Naciśnij ponownie, aby wyczyścić</string>
     <string name="source_chip_failed">błąd</string>
     <string name="source_chip_loading">ładowanie</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

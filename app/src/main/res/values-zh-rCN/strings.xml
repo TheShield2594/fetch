@@ -1249,6 +1249,8 @@
     <string name="addon_empty">未安装扩展。请添加一个以开始使用。</string>
     <string name="addon_list_load_failed">无法加载已安装的扩展。请重试。</string>
     <string name="addon_remove">移除</string>
+    <string name="addon_remove_confirm_title">移除 %1$s？</string>
+    <string name="addon_remove_confirm_message">它的目录和流将不再显示在这台电视上。</string>
     <string name="addons_badge_disabled">已禁用</string>
     <string name="addon_manage_from_phone_title">从手机管理</string>
     <string name="addon_manage_from_phone_subtitle">扫描 QR 码以从手机管理扩展、目录和收藏</string>
@@ -1268,8 +1270,8 @@
     <string name="addon_confirm_catalogs_disabled">已在首页禁用的目录：</string>
     <string name="addon_confirm_catalogs_enabled">已在首页启用的目录：</string>
     <string name="addon_confirm_no_changes">未检测到可见更改</string>
-    <string name="addon_confirm_reject">拒绝</string>
-    <string name="addon_confirm_confirm">确认</string>
+    <string name="addon_confirm_reject">放弃更改</string>
+    <string name="addon_confirm_confirm">应用更改</string>
     <string name="addon_refresh_action">刷新扩展</string>
     <string name="addon_refresh_default_subtitle">为当前个人资料提取最新的扩展更改</string>
     <string name="addon_refresh_done_subtitle">扩展刚刚刷新</string>
@@ -2618,6 +2620,8 @@
     <string name="addon_health_ok">正常响应 · %1$s</string>
     <string name="addon_health_slow">响应慢 · %1$s</string>
     <string name="addon_health_timed_out">上次请求超时</string>
+    <string name="addon_health_clear">清除历史记录</string>
+    <string name="addon_health_clear_confirm">再按一次以清除</string>
     <string name="source_chip_failed">失败</string>
     <string name="source_chip_loading">加载中</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

@@ -989,6 +989,8 @@
     <string name="addon_empty">Nenhum addon instalado. Adiciona um para começar.</string>
     <string name="addon_list_load_failed">Não foi possível carregar os teus addons instalados. Tenta novamente.</string>
     <string name="addon_remove">Remover</string>
+    <string name="addon_remove_confirm_title">Remover %1$s?</string>
+    <string name="addon_remove_confirm_message">Os catálogos e streams deste deixarão de aparecer nesta TV.</string>
     <string name="addons_badge_disabled">Desativado</string>
     <string name="addon_manage_from_phone_title">Gerir a partir do telemóvel</string>
     <string name="addon_manage_from_phone_subtitle">Lê um código QR para gerir addons, catálogos e coleções a partir do teu telemóvel</string>
@@ -1008,8 +1010,8 @@
     <string name="addon_confirm_catalogs_disabled">Catálogos desativados na página inicial:</string>
     <string name="addon_confirm_catalogs_enabled">Catálogos ativados na página inicial:</string>
     <string name="addon_confirm_no_changes">Nenhuma alteração visível detetada</string>
-    <string name="addon_confirm_reject">Rejeitar</string>
-    <string name="addon_confirm_confirm">Confirmar</string>
+    <string name="addon_confirm_reject">Descartar alterações</string>
+    <string name="addon_confirm_confirm">Aplicar alterações</string>
     <string name="addon_refresh_action">Atualizar addons</string>
     <string name="addon_refresh_default_subtitle">Obter as alterações mais recentes de addons para o perfil atual</string>
     <string name="addon_refresh_done_subtitle">Addons atualizados mesmo agora</string>
@@ -2074,6 +2076,8 @@
     <string name="addon_health_ok">A responder · %1$s</string>
     <string name="addon_health_slow">Lento · %1$s</string>
     <string name="addon_health_timed_out">O último pedido expirou</string>
+    <string name="addon_health_clear">Limpar histórico</string>
+    <string name="addon_health_clear_confirm">Prima novamente para limpar</string>
     <string name="source_chip_failed">falhou</string>
     <string name="source_chip_loading">a carregar</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

@@ -1197,6 +1197,8 @@
     <string name="addon_empty">Nenhum addon instalado. Adicione um para começar.</string>
     <string name="addon_list_load_failed">Não foi possível carregar seus addons instalados. Tente novamente.</string>
     <string name="addon_remove">Remover</string>
+    <string name="addon_remove_confirm_title">Remover %1$s?</string>
+    <string name="addon_remove_confirm_message">Os catálogos e streams dele deixarão de aparecer nesta TV.</string>
     <string name="addons_badge_disabled">Desativar</string>
     <string name="addon_manage_from_phone_title">Gerenciar pelo celular</string>
     <string name="addon_manage_from_phone_subtitle">Escaneie um QR para gerenciar addons, catálogos e coleções pelo celular</string>
@@ -1216,8 +1218,8 @@
     <string name="addon_confirm_catalogs_disabled">Catálogos ocultados na Home:</string>
     <string name="addon_confirm_catalogs_enabled">Catálogos ativados na Home:</string>
     <string name="addon_confirm_no_changes">Nenhuma alteração detectada.</string>
-    <string name="addon_confirm_reject">Recusar</string>
-    <string name="addon_confirm_confirm">Confirmar</string>
+    <string name="addon_confirm_reject">Descartar alterações</string>
+    <string name="addon_confirm_confirm">Aplicar alterações</string>
     <string name="addon_refresh_action">Atualizar addons</string>
     <string name="addon_refresh_default_subtitle">Busca mudanças recentes para este perfil</string>
     <string name="addon_refresh_done_subtitle">Addons atualizadas agora mesmo</string>
@@ -2556,6 +2558,8 @@
     <string name="addon_health_ok">Respondendo · %1$s</string>
     <string name="addon_health_slow">Lento · %1$s</string>
     <string name="addon_health_timed_out">A última solicitação expirou</string>
+    <string name="addon_health_clear">Limpar histórico</string>
+    <string name="addon_health_clear_confirm">Pressione novamente para limpar</string>
     <string name="source_chip_failed">falhou</string>
     <string name="source_chip_loading">carregando</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

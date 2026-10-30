@@ -961,6 +961,8 @@
     <string name="addon_empty">Keine Add-ons installiert. Fügen Sie eines hinzu, um zu beginnen. </string>
     <string name="addon_list_load_failed">Ihre installierten Add-ons konnten nicht geladen werden. Versuchen Sie es erneut.</string>
     <string name="addon_remove">Entfernen</string>
+    <string name="addon_remove_confirm_title">%1$s entfernen?</string>
+    <string name="addon_remove_confirm_message">Seine Kataloge und Streams werden auf diesem Fernseher nicht mehr angezeigt.</string>
     <string name="addon_manage_from_phone_title">Mit Smartphone verwalten</string>
     <string name="addon_manage_from_phone_subtitle">Scannen Sie einen QR-Code, um Add-ons und Home-Kataloge von Ihrem Smartphone aus zu verwalten</string>
     <string name="addon_manage_addons_only_from_phone_subtitle">Scanne einen QR-Code um Add-Ons über dein Smartphone zu installieren oder zu löschen</string>
@@ -979,8 +981,8 @@
     <string name="addon_confirm_catalogs_disabled">Kataloge auf der Startseite deaktiviert:</string>
     <string name="addon_confirm_catalogs_enabled">Kataloge auf der Startseite aktiviert:</string>
     <string name="addon_confirm_no_changes">Keine sichtbaren Änderungen festgestellt</string>
-    <string name="addon_confirm_reject">Ablehnen</string>
-    <string name="addon_confirm_confirm">Bestätigen</string>
+    <string name="addon_confirm_reject">Änderungen verwerfen</string>
+    <string name="addon_confirm_confirm">Änderungen übernehmen</string>
     <string name="addon_refresh_action">Addons neuladen</string>
     <string name="addon_refresh_default_subtitle">Aktuelle Add-On Konfiguration für aktuelles Profil laden</string>
     <string name="addon_refresh_done_subtitle">Add-Ons gerade neu geladen</string>
@@ -2186,6 +2188,8 @@
     <string name="addon_health_slow">Langsam · %1$s</string>
     <string name="addon_health_failing">Letzte Anfrage fehlgeschlagen</string>
     <string name="addon_health_timed_out">Letzte Anfrage hat das Zeitlimit überschritten</string>
+    <string name="addon_health_clear">Verlauf löschen</string>
+    <string name="addon_health_clear_confirm">Zum Löschen erneut drücken</string>
     <string name="source_chip_failed">fehlgeschlagen</string>
     <string name="source_chip_loading">lädt</string>
     <string name="source_chip_with_status">%1$s · %2$s</string>

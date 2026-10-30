@@ -1157,9 +1157,10 @@
     <string name="youtube_menu_play">चलाएँ</string>
     <string name="youtube_menu_go_to_channel">चैनल पर जाएँ</string>
     <string name="youtube_menu_go_to_named_channel">%1$s पर जाएँ</string>
-    <string name="youtube_actions_hint">पसंद करने, सब्सक्राइब करने या चैनल पर जाने के लिए ऊपर दबाएँ</string>
+    <string name="youtube_actions_hint">पसंद करने, सेव करने, सब्सक्राइब करने या चैनल पर जाने के लिए ऊपर दबाएँ</string>
     <string name="youtube_action_like">पसंद करें</string>
     <string name="youtube_action_dislike">नापसंद करें</string>
+    <string name="youtube_action_save">सेव करें</string>
     <string name="youtube_action_subscribe">सब्सक्राइब करें</string>
     <string name="youtube_action_subscribed">सब्सक्राइब किया</string>
     <string name="youtube_action_failed">YouTube ने इसे स्वीकार नहीं किया। फिर कोशिश करें।</string>

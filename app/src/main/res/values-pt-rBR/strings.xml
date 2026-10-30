@@ -2827,9 +2827,10 @@
     <string name="youtube_menu_play">Reproduzir</string>
     <string name="youtube_menu_go_to_channel">Ir para o canal</string>
     <string name="youtube_menu_go_to_named_channel">Ir para %1$s</string>
-    <string name="youtube_actions_hint">Pressione para cima para curtir, se inscrever ou ir para o canal</string>
+    <string name="youtube_actions_hint">Pressione para cima para curtir, salvar, se inscrever ou ir para o canal</string>
     <string name="youtube_action_like">Curtir</string>
     <string name="youtube_action_dislike">Não curtir</string>
+    <string name="youtube_action_save">Salvar</string>
     <string name="youtube_action_subscribe">Inscrever-se</string>
     <string name="youtube_action_subscribed">Inscrito</string>
     <string name="youtube_action_failed">O YouTube não aceitou essa ação. Tente novamente.</string>

@@ -3005,9 +3005,10 @@
     <string name="youtube_menu_play">Lire</string>
     <string name="youtube_menu_go_to_channel">Accéder à la chaîne</string>
     <string name="youtube_menu_go_to_named_channel">Accéder à %1$s</string>
-    <string name="youtube_actions_hint">Appuyez vers le haut pour aimer, vous abonner ou accéder à la chaîne</string>
+    <string name="youtube_actions_hint">Appuyez vers le haut pour aimer, enregistrer, vous abonner ou accéder à la chaîne</string>
     <string name="youtube_action_like">J\'aime</string>
     <string name="youtube_action_dislike">Je n\'aime pas</string>
+    <string name="youtube_action_save">Enregistrer</string>
     <string name="youtube_action_subscribe">S\'abonner</string>
     <string name="youtube_action_subscribed">Abonné</string>
     <string name="youtube_action_failed">YouTube n\'a pas accepté cette action. Réessayez.</string>

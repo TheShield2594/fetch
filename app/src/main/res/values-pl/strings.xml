@@ -3085,9 +3085,10 @@
     <string name="youtube_menu_play">Odtwórz</string>
     <string name="youtube_menu_go_to_channel">Przejdź do kanału</string>
     <string name="youtube_menu_go_to_named_channel">Przejdź do kanału %1$s</string>
-    <string name="youtube_actions_hint">Naciśnij w górę, aby polubić, zasubskrybować lub przejść do kanału</string>
+    <string name="youtube_actions_hint">Naciśnij w górę, aby polubić, zapisać, zasubskrybować lub przejść do kanału</string>
     <string name="youtube_action_like">Lubię to</string>
     <string name="youtube_action_dislike">Nie lubię tego</string>
+    <string name="youtube_action_save">Zapisz</string>
     <string name="youtube_action_subscribe">Subskrybuj</string>
     <string name="youtube_action_subscribed">Subskrybujesz</string>
     <string name="youtube_action_failed">YouTube nie przyjął tej akcji. Spróbuj ponownie.</string>

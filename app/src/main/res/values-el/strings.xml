@@ -2915,9 +2915,10 @@
     <string name="youtube_menu_play">Αναπαραγωγή</string>
     <string name="youtube_menu_go_to_channel">Μετάβαση στο κανάλι</string>
     <string name="youtube_menu_go_to_named_channel">Μετάβαση στο %1$s</string>
-    <string name="youtube_actions_hint">Πατήστε πάνω για να κάνετε like, συνδρομή ή μετάβαση στο κανάλι</string>
+    <string name="youtube_actions_hint">Πατήστε πάνω για να κάνετε like, αποθήκευση, συνδρομή ή μετάβαση στο κανάλι</string>
     <string name="youtube_action_like">Μου αρέσει</string>
     <string name="youtube_action_dislike">Δεν μου αρέσει</string>
+    <string name="youtube_action_save">Αποθήκευση</string>
     <string name="youtube_action_subscribe">Συνδρομή</string>
     <string name="youtube_action_subscribed">Εγγεγραμμένος</string>
     <string name="youtube_action_failed">Το YouTube δεν αποδέχτηκε αυτή την ενέργεια. Δοκιμάστε ξανά.</string>

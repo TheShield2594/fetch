@@ -2888,9 +2888,10 @@
     <string name="youtube_menu_play">Reproducir</string>
     <string name="youtube_menu_go_to_channel">Ir al canal</string>
     <string name="youtube_menu_go_to_named_channel">Ir a %1$s</string>
-    <string name="youtube_actions_hint">Pulsa arriba para dar me gusta, suscribirte o ir al canal</string>
+    <string name="youtube_actions_hint">Pulsa arriba para dar me gusta, guardar, suscribirte o ir al canal</string>
     <string name="youtube_action_like">Me gusta</string>
     <string name="youtube_action_dislike">No me gusta</string>
+    <string name="youtube_action_save">Guardar</string>
     <string name="youtube_action_subscribe">Suscribirse</string>
     <string name="youtube_action_subscribed">Suscrito</string>
     <string name="youtube_action_failed">YouTube no aceptó esa acción. Inténtalo de nuevo.</string>

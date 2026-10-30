@@ -2994,9 +2994,10 @@
     <string name="youtube_menu_play">Riproduci</string>
     <string name="youtube_menu_go_to_channel">Vai al canale</string>
     <string name="youtube_menu_go_to_named_channel">Vai a %1$s</string>
-    <string name="youtube_actions_hint">Premi su per mettere Mi piace, iscriverti o andare al canale</string>
+    <string name="youtube_actions_hint">Premi su per mettere Mi piace, salvare, iscriverti o andare al canale</string>
     <string name="youtube_action_like">Mi piace</string>
     <string name="youtube_action_dislike">Non mi piace</string>
+    <string name="youtube_action_save">Salva</string>
     <string name="youtube_action_subscribe">Iscriviti</string>
     <string name="youtube_action_subscribed">Iscritto</string>
     <string name="youtube_action_failed">YouTube non ha accettato l\'operazione. Riprova.</string>

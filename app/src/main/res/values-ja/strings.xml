@@ -2460,9 +2460,10 @@
     <string name="youtube_menu_play">再生</string>
     <string name="youtube_menu_go_to_channel">チャンネルへ移動</string>
     <string name="youtube_menu_go_to_named_channel">%1$sへ移動</string>
-    <string name="youtube_actions_hint">上ボタンで高評価、登録、チャンネルへの移動ができます</string>
+    <string name="youtube_actions_hint">上ボタンで高評価、保存、登録、チャンネルへの移動ができます</string>
     <string name="youtube_action_like">高評価</string>
     <string name="youtube_action_dislike">低評価</string>
+    <string name="youtube_action_save">保存</string>
     <string name="youtube_action_subscribe">登録</string>
     <string name="youtube_action_subscribed">登録済み</string>
     <string name="youtube_action_failed">YouTubeに受け付けられませんでした。もう一度お試しください。</string>

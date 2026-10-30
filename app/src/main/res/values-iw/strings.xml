@@ -3010,9 +3010,10 @@
     <string name="youtube_menu_play">הפעלה</string>
     <string name="youtube_menu_go_to_channel">מעבר לערוץ</string>
     <string name="youtube_menu_go_to_named_channel">מעבר אל %1$s</string>
-    <string name="youtube_actions_hint">לחצו למעלה כדי לסמן אהבתי, להירשם או לעבור לערוץ</string>
+    <string name="youtube_actions_hint">לחצו למעלה כדי לסמן אהבתי, לשמור, להירשם או לעבור לערוץ</string>
     <string name="youtube_action_like">אהבתי</string>
     <string name="youtube_action_dislike">לא אהבתי</string>
+    <string name="youtube_action_save">שמירה</string>
     <string name="youtube_action_subscribe">הרשמה</string>
     <string name="youtube_action_subscribed">רשום</string>
     <string name="youtube_action_failed">YouTube לא קיבלה את הפעולה. נסו שוב.</string>

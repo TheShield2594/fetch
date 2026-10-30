@@ -2999,9 +2999,10 @@
     <string name="youtube_menu_play">Phát</string>
     <string name="youtube_menu_go_to_channel">Đến kênh</string>
     <string name="youtube_menu_go_to_named_channel">Đến %1$s</string>
-    <string name="youtube_actions_hint">Nhấn lên để thích, đăng ký hoặc đến kênh</string>
+    <string name="youtube_actions_hint">Nhấn lên để thích, lưu, đăng ký hoặc đến kênh</string>
     <string name="youtube_action_like">Thích</string>
     <string name="youtube_action_dislike">Không thích</string>
+    <string name="youtube_action_save">Lưu</string>
     <string name="youtube_action_subscribe">Đăng ký</string>
     <string name="youtube_action_subscribed">Đã đăng ký</string>
     <string name="youtube_action_failed">YouTube không chấp nhận thao tác đó. Hãy thử lại.</string>

@@ -3020,9 +3020,10 @@
     <string name="youtube_menu_play">Prehrať</string>
     <string name="youtube_menu_go_to_channel">Prejsť na kanál</string>
     <string name="youtube_menu_go_to_named_channel">Prejsť na %1$s</string>
-    <string name="youtube_actions_hint">Stlačením nahor dáte páči sa mi, odoberiete alebo prejdete na kanál</string>
+    <string name="youtube_actions_hint">Stlačením nahor dáte páči sa mi, uložíte, odoberiete alebo prejdete na kanál</string>
     <string name="youtube_action_like">Páči sa mi</string>
     <string name="youtube_action_dislike">Nepáči sa mi</string>
+    <string name="youtube_action_save">Uložiť</string>
     <string name="youtube_action_subscribe">Odoberať</string>
     <string name="youtube_action_subscribed">Odoberáte</string>
     <string name="youtube_action_failed">YouTube túto akciu neprijal. Skúste to znova.</string>

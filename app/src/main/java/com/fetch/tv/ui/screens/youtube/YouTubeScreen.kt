@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,8 +30,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
-import androidx.compose.material.icons.filled.CheckBox
-import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
@@ -56,7 +53,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -68,8 +64,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
-import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -83,7 +77,6 @@ import com.fetch.tv.data.youtube.YouTubeChannelRef
 import com.fetch.tv.data.youtube.YouTubeFeed
 import com.fetch.tv.data.youtube.YouTubeLink
 import com.fetch.tv.data.youtube.YouTubeLinkKind
-import com.fetch.tv.data.youtube.YouTubePlaylistOption
 import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeVideo
@@ -267,7 +260,9 @@ fun YouTubeScreen(
         val video = menu.video
         if (menu.pickingPlaylist) {
             YouTubePlaylistPicker(
-                menu = menu,
+                videoTitle = video.title,
+                playlists = menu.playlists,
+                failed = menu.playlistsFailed,
                 onBack = { viewModel.showPlaylistPicker(false) },
                 onToggle = { option ->
                     // Out of the playlist that's open, the video leaves the page under the menu: the menu closes.
@@ -275,7 +270,8 @@ fun YouTubeScreen(
                         menu.openPlaylist?.browseId == YouTubeService.PLAYLIST_BROWSE_PREFIX + option.playlistId
                     if (leavesPage) focusAfterRemoving(video)
                     viewModel.togglePlaylist(option, closeMenu = leavesPage)
-                }
+                },
+                onCreate = { title, privacy -> viewModel.createPlaylist(YouTubeSaveList.MENU, title, privacy) }
             )
         } else {
             YouTubeVideoMenu(
@@ -319,7 +315,10 @@ fun YouTubeScreen(
             onRetry = viewModel::retryPlayback,
             onRate = viewModel::rate,
             onToggleSubscription = viewModel::toggleSubscription,
-            onOpenChannel = viewModel::openPlayingChannel
+            onOpenChannel = viewModel::openPlayingChannel,
+            onLoadPlaylists = viewModel::loadPlayingPlaylists,
+            onTogglePlaylist = viewModel::togglePlayingPlaylist,
+            onCreatePlaylist = { title, privacy -> viewModel.createPlaylist(YouTubeSaveList.PLAYER, title, privacy) }
         )
     }
 }
@@ -877,75 +876,6 @@ private fun YouTubeVideoMenu(
             )
         }
     }
-}
-
-/** The channel's playlists, each checked when it holds the menu's video. Pressing one saves it there, or takes it out. */
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun YouTubePlaylistPicker(
-    menu: YouTubeVideoMenuState,
-    onBack: () -> Unit,
-    onToggle: (YouTubePlaylistOption) -> Unit
-) {
-    val firstFocusRequester = remember { FocusRequester() }
-    val playlists = menu.playlists
-    // Focus waits for the list, which may still be loading when this opens.
-    LaunchedEffect(playlists != null) {
-        if (!playlists.isNullOrEmpty()) firstFocusRequester.requestFocusAfterFrames()
-    }
-    FetchDialog(
-        onDismiss = onBack,
-        title = stringResource(R.string.youtube_menu_save_to_playlist_title),
-        subtitle = menu.video.title,
-        scrollable = true
-    ) {
-        when {
-            menu.playlistsFailed -> YouTubeMenuMessage(stringResource(R.string.youtube_menu_playlists_failed))
-            playlists == null -> YouTubeMenuMessage(stringResource(R.string.youtube_menu_playlists_loading))
-            playlists.isEmpty() -> YouTubeMenuMessage(stringResource(R.string.youtube_menu_playlists_empty))
-            else -> playlists.forEachIndexed { index, option ->
-                YouTubeMenuButton(
-                    text = option.title,
-                    onClick = { onToggle(option) },
-                    icon = if (option.containsVideo) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
-                    modifier = if (index == 0) Modifier.focusRequester(firstFocusRequester) else Modifier
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun YouTubeMenuButton(
-    text: String,
-    modifier: Modifier = Modifier,
-    icon: ImageVector? = null,
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.colors(
-            containerColor = FetchTheme.colors.BackgroundCard,
-            contentColor = FetchTheme.colors.TextPrimary
-        ),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        if (icon != null) {
-            Icon(imageVector = icon, contentDescription = null)
-            Spacer(Modifier.width(FetchTheme.spacing.sm))
-        }
-        Text(text, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-}
-
-@Composable
-private fun YouTubeMenuMessage(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        color = FetchTheme.colors.TextSecondary
-    )
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

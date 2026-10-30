@@ -86,6 +86,17 @@ class YouTubeServiceParsingTest {
     }
 
     @Test
+    fun `a created playlist's id is read`() {
+        assertEquals(
+            "PLnew",
+            service.parseCreatedPlaylistId(json("""{"responseContext": {}, "playlistId": "PLnew"}"""))
+        )
+        assertNull(service.parseCreatedPlaylistId(json("""{"responseContext": {}}""")))
+        assertNull(service.parseCreatedPlaylistId(json("""{"playlistId": ""}""")))
+        assertNull(service.parseCreatedPlaylistId(null))
+    }
+
+    @Test
     fun `a watch time report keeps the tracking params and adds the position`() {
         val session = YouTubeWatchSession("vid", "p", "w", clientPlaybackNonce = "NONCE", lastPositionSec = 0f)
         val base = "https://s.youtube.com/api/stats/watchtime?ei=E&of=O&len=1"

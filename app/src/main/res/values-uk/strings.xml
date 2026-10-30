@@ -2490,9 +2490,10 @@
     <string name="youtube_menu_play">Відтворити</string>
     <string name="youtube_menu_go_to_channel">Перейти на канал</string>
     <string name="youtube_menu_go_to_named_channel">Перейти на канал %1$s</string>
-    <string name="youtube_actions_hint">Натисніть угору, щоб вподобати, підписатися або перейти на канал</string>
+    <string name="youtube_actions_hint">Натисніть угору, щоб вподобати, зберегти, підписатися або перейти на канал</string>
     <string name="youtube_action_like">Подобається</string>
     <string name="youtube_action_dislike">Не подобається</string>
+    <string name="youtube_action_save">Зберегти</string>
     <string name="youtube_action_subscribe">Підписатися</string>
     <string name="youtube_action_subscribed">Ви підписані</string>
     <string name="youtube_action_failed">YouTube не прийняв цю дію. Повторіть спробу.</string>

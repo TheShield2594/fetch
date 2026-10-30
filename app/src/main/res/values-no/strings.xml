@@ -1249,9 +1249,10 @@
     <string name="youtube_menu_play">Spill av</string>
     <string name="youtube_menu_go_to_channel">Gå til kanal</string>
     <string name="youtube_menu_go_to_named_channel">Gå til %1$s</string>
-    <string name="youtube_actions_hint">Trykk opp for å like, abonnere eller gå til kanalen</string>
+    <string name="youtube_actions_hint">Trykk opp for å like, lagre, abonnere eller gå til kanalen</string>
     <string name="youtube_action_like">Lik</string>
     <string name="youtube_action_dislike">Mislik</string>
+    <string name="youtube_action_save">Lagre</string>
     <string name="youtube_action_subscribe">Abonner</string>
     <string name="youtube_action_subscribed">Abonnerer</string>
     <string name="youtube_action_failed">YouTube godtok ikke det. Prøv igjen.</string>

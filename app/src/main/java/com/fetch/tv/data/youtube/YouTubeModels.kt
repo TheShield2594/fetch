@@ -140,6 +140,13 @@ data class YouTubePlaylistOption(
         get() = playlistId == YouTubeService.WATCH_LATER_PLAYLIST_ID
 }
 
+/** Who can see a new playlist. [apiValue] is InnerTube's `privacyStatus`. */
+enum class YouTubePlaylistPrivacy(val apiValue: String) {
+    PRIVATE("PRIVATE"),
+    UNLISTED("UNLISTED"),
+    PUBLIC("PUBLIC")
+}
+
 enum class YouTubeLikeStatus {
     LIKE,
     DISLIKE,

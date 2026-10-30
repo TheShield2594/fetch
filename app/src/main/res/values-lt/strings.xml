@@ -1160,9 +1160,10 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="youtube_menu_play">Leisti</string>
     <string name="youtube_menu_go_to_channel">Eiti į kanalą</string>
     <string name="youtube_menu_go_to_named_channel">Eiti į %1$s</string>
-    <string name="youtube_actions_hint">Paspauskite aukštyn, kad pažymėtumėte patiktuką, užsiprenumeruotumėte arba pereitumėte į kanalą</string>
+    <string name="youtube_actions_hint">Paspauskite aukštyn, kad pažymėtumėte patiktuką, išsaugotumėte, užsiprenumeruotumėte arba pereitumėte į kanalą</string>
     <string name="youtube_action_like">Patinka</string>
     <string name="youtube_action_dislike">Nepatinka</string>
+    <string name="youtube_action_save">Išsaugoti</string>
     <string name="youtube_action_subscribe">Prenumeruoti</string>
     <string name="youtube_action_subscribed">Prenumeruojama</string>
     <string name="youtube_action_failed">YouTube šio veiksmo nepriėmė. Bandykite dar kartą.</string>

@@ -2886,9 +2886,10 @@
     <string name="youtube_menu_play">播放</string>
     <string name="youtube_menu_go_to_channel">前往頻道</string>
     <string name="youtube_menu_go_to_named_channel">前往 %1$s</string>
-    <string name="youtube_actions_hint">按上鍵即可按讚、訂閱或前往頻道</string>
+    <string name="youtube_actions_hint">按上鍵即可按讚、儲存、訂閱或前往頻道</string>
     <string name="youtube_action_like">喜歡</string>
     <string name="youtube_action_dislike">不喜歡</string>
+    <string name="youtube_action_save">儲存</string>
     <string name="youtube_action_subscribe">訂閱</string>
     <string name="youtube_action_subscribed">已訂閱</string>
     <string name="youtube_action_failed">YouTube 未接受該操作，請再試一次。</string>

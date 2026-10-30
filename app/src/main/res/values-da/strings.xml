@@ -2465,9 +2465,10 @@
     <string name="youtube_menu_play">Afspil</string>
     <string name="youtube_menu_go_to_channel">Gå til kanal</string>
     <string name="youtube_menu_go_to_named_channel">Gå til %1$s</string>
-    <string name="youtube_actions_hint">Tryk op for at like, abonnere eller gå til kanalen</string>
+    <string name="youtube_actions_hint">Tryk op for at like, gemme, abonnere eller gå til kanalen</string>
     <string name="youtube_action_like">Like</string>
     <string name="youtube_action_dislike">Dislike</string>
+    <string name="youtube_action_save">Gem</string>
     <string name="youtube_action_subscribe">Abonner</string>
     <string name="youtube_action_subscribed">Abonneret</string>
     <string name="youtube_action_failed">YouTube accepterede ikke det. Prøv igen.</string>

@@ -78,6 +78,14 @@ class YouTubeService @Inject constructor(
         const val TV_URL = "https://www.youtube.com/tv"
         const val TV_USER_AGENT =
             "Mozilla/5.0 (ChromiumStylePlatform) Cobalt/25.lts.30.1034943-gold (unlike Gecko), Unknown_TV_Unknown_0/Unknown (Unknown, Unknown)"
+        // The web client, for the calls SmartTube sends with it rather than the TV one
+        // (PostDataHelper.createQueryWeb): creating a playlist.
+        const val WEB_CLIENT_NAME = "WEB"
+        const val WEB_CLIENT_NAME_ID = "1"
+        const val WEB_CLIENT_VERSION = "2.20260901.00.00"
+        const val WEB_URL = "https://www.youtube.com/"
+        const val WEB_USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
 
         /** Refresh this long before the access token runs out, so a request never carries a stale one. */
         const val TOKEN_REFRESH_MARGIN_MS = 60_000L
@@ -335,6 +343,24 @@ class YouTubeService @Inject constructor(
         Unit
     }
 
+    /**
+     * Creates a playlist named [title] holding [videoId], in one request, and returns its id.
+     * The body is SmartTube's (PlaylistApiHelper.getCreatePlaylistQuery), sent with the web
+     * client as SmartTube does, plus the privacy YouTube's web app sends. Throws if YouTube refuses.
+     */
+    suspend fun createPlaylist(title: String, videoId: String, privacy: YouTubePlaylistPrivacy): String =
+        withContext(Dispatchers.IO) {
+            val response = innertube("playlist/create", validAccessToken(), webClient = true) {
+                put("title", title)
+                putJsonArray("videoIds") { add(videoId) }
+                put("privacyStatus", privacy.apiValue)
+            }
+            parseCreatedPlaylistId(response) ?: throw IllegalStateException("YouTube playlist/create gave no playlist")
+        }
+
+    internal fun parseCreatedPlaylistId(response: JsonElement?): String? =
+        ((response as? JsonObject)?.get("playlistId") as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() }
+
     /** A history session for [videoId] from its tracking links, or null when YouTube gave none. */
     fun newWatchSession(videoId: String, info: YouTubePlayerInfo?, startPositionSec: Float): YouTubeWatchSession? {
         val (playbackUrl, watchtimeUrl) = info?.trackingLinks ?: return null
@@ -498,25 +524,34 @@ class YouTubeService @Inject constructor(
         endpoint: String,
         accessToken: String,
         actAsSelectedChannel: Boolean = true,
+        /** Sends the web client's context instead of the TV app's, for calls SmartTube makes as web. */
+        webClient: Boolean = false,
         params: JsonObjectBuilder.() -> Unit
     ): JsonElement {
         val pageId = if (actAsSelectedChannel) authDataStore.getCurrentState().pageId else null
         val visitorData = runCatching { tvAppConfig().visitorData }.getOrNull()
+        val userAgent = if (webClient) WEB_USER_AGENT else TV_USER_AGENT
         // The context SmartTube sends for TV browse requests (common/helpers/AppClient.kt).
         val body = buildJsonObject {
             putJsonObject("context") {
                 putJsonObject("client") {
-                    put("clientName", TV_CLIENT_NAME)
-                    put("clientVersion", TV_CLIENT_VERSION)
-                    put("clientScreen", "WATCH")
-                    put("userAgent", TV_USER_AGENT)
-                    putJsonObject("tvAppInfo") {
-                        // Keeps Shorts out of the subscriptions feed.
-                        put("appQuality", "TV_APP_QUALITY_FULL_ANIMATION")
-                        put("zylonLeftNav", true)
+                    if (webClient) {
+                        put("clientName", WEB_CLIENT_NAME)
+                        put("clientVersion", WEB_CLIENT_VERSION)
+                        put("userAgent", userAgent)
+                    } else {
+                        put("clientName", TV_CLIENT_NAME)
+                        put("clientVersion", TV_CLIENT_VERSION)
+                        put("clientScreen", "WATCH")
+                        put("userAgent", userAgent)
+                        putJsonObject("tvAppInfo") {
+                            // Keeps Shorts out of the subscriptions feed.
+                            put("appQuality", "TV_APP_QUALITY_FULL_ANIMATION")
+                            put("zylonLeftNav", true)
+                        }
+                        put("webpSupport", false)
+                        put("animatedWebpSupport", true)
                     }
-                    put("webpSupport", false)
-                    put("animatedWebpSupport", true)
                     put("hl", Locale.getDefault().language.ifBlank { "en" })
                     Locale.getDefault().country.takeIf { it.isNotBlank() }?.let { put("gl", it) }
                     put("utcOffsetMinutes", java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis()) / 60_000)
@@ -534,11 +569,11 @@ class YouTubeService @Inject constructor(
         val request = Request.Builder()
             .url("$INNERTUBE_URL/$endpoint?prettyPrint=false")
             .header("Authorization", "Bearer $accessToken")
-            .header("User-Agent", TV_USER_AGENT)
-            .header("X-YouTube-Client-Name", TV_CLIENT_NAME_ID)
-            .header("X-YouTube-Client-Version", TV_CLIENT_VERSION)
+            .header("User-Agent", userAgent)
+            .header("X-YouTube-Client-Name", if (webClient) WEB_CLIENT_NAME_ID else TV_CLIENT_NAME_ID)
+            .header("X-YouTube-Client-Version", if (webClient) WEB_CLIENT_VERSION else TV_CLIENT_VERSION)
             .header("Origin", "https://www.youtube.com")
-            .header("Referer", TV_URL)
+            .header("Referer", if (webClient) WEB_URL else TV_URL)
             .apply { visitorData?.let { header("X-Goog-Visitor-Id", it) } }
             // Acts as the chosen brand account, as SmartTube's YouTubeSignInService does.
             .apply { pageId?.let { header("X-Goog-Pageid", it) } }

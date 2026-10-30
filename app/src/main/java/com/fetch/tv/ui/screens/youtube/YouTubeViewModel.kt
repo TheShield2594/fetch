@@ -20,6 +20,7 @@ import com.fetch.tv.data.youtube.YouTubeLikeStatus
 import com.fetch.tv.data.youtube.YouTubeLinkKind
 import com.fetch.tv.data.youtube.YouTubePage
 import com.fetch.tv.data.youtube.YouTubePlaylistOption
+import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
 import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeSignedOutException
@@ -73,7 +74,13 @@ data class YouTubePlaybackState(
     /** The like and subscribe state, once the watch page has loaded. */
     val actions: YouTubeVideoActions? = null,
     /** YouTube refused the last like or subscribe; the change was undone. */
-    val actionFailed: Boolean = false
+    val actionFailed: Boolean = false,
+    /**
+     * The playlists to save the video to, read when the player's Save list opens rather than
+     * with every video. Null until then, and while loading or when they couldn't be read.
+     */
+    val playlists: List<YouTubePlaylistOption>? = null,
+    val playlistsFailed: Boolean = false
 )
 
 /**
@@ -109,6 +116,9 @@ data class YouTubeVideoMenuState(
     val inLikedVideos: Boolean
         get() = openPlaylist?.browseId == YouTubeService.LIKED_BROWSE_ID
 }
+
+/** Where a list of playlists to save a video to shows: the long-press menu, or the player. */
+enum class YouTubeSaveList { MENU, PLAYER }
 
 /** A short message about something done from the menu, shown once. */
 sealed interface YouTubeNotice {
@@ -183,6 +193,7 @@ class YouTubeViewModel @Inject constructor(
     private var playbackJob: Job? = null
     private var captionJob: Job? = null
     private var menuJob: Job? = null
+    private var playingPlaylistsJob: Job? = null
     private var watchSession: YouTubeWatchSession? = null
     private var lastPositionMs = 0L
     private var lastDurationMs = 0L
@@ -342,6 +353,7 @@ class YouTubeViewModel @Inject constructor(
     fun play(video: YouTubeVideo) {
         playbackJob?.cancel()
         captionJob?.cancel()
+        playingPlaylistsJob?.cancel()
         finishWatchSession()
         _uiState.update { it.copy(playback = YouTubePlaybackState(video)) }
         playbackJob = viewModelScope.launch {
@@ -432,6 +444,7 @@ class YouTubeViewModel @Inject constructor(
     fun closePlayback() {
         playbackJob?.cancel()
         captionJob?.cancel()
+        playingPlaylistsJob?.cancel()
         playbackJob = null
         markProgressOnCard()
         _uiState.update { it.copy(playback = null) }
@@ -519,11 +532,19 @@ class YouTubeViewModel @Inject constructor(
      */
     fun togglePlaylist(option: YouTubePlaylistOption, closeMenu: Boolean = false) {
         val video = _uiState.value.menu?.video ?: return
+        editPlaylist(YouTubeSaveList.MENU, video, option, closeMenu)
+    }
+
+    /** Saves the playing video to [option], or takes it out, from the player's Save list. */
+    fun togglePlayingPlaylist(option: YouTubePlaylistOption) {
+        val video = _uiState.value.playback?.video ?: return
+        editPlaylist(YouTubeSaveList.PLAYER, video, option, closeMenu = false)
+    }
+
+    private fun editPlaylist(list: YouTubeSaveList, video: YouTubeVideo, option: YouTubePlaylistOption, closeMenu: Boolean) {
         val add = !option.containsVideo
-        fun mark(contains: Boolean) = updateMenu(video) { menu ->
-            menu.copy(playlists = menu.playlists?.map {
-                if (it.playlistId == option.playlistId) it.copy(containsVideo = contains) else it
-            })
+        fun mark(contains: Boolean) = updatePlaylists(list, video) { playlists ->
+            playlists?.map { if (it.playlistId == option.playlistId) it.copy(containsVideo = contains) else it }
         }
         mark(add)
         if (closeMenu) closeMenu()
@@ -536,6 +557,40 @@ class YouTubeViewModel @Inject constructor(
             }
             if (!add) removeFromPage(YouTubeService.PLAYLIST_BROWSE_PREFIX + option.playlistId, video.videoId)
             notify(if (add) YouTubeNotice.Saved(option.title) else YouTubeNotice.Removed(option.title))
+        }
+    }
+
+    /**
+     * Reads the playing video's playlists for the player's Save list, each time it opens: only
+     * then, so starting a video doesn't make the request.
+     */
+    fun loadPlayingPlaylists() {
+        val video = _uiState.value.playback?.video ?: return
+        playingPlaylistsJob?.cancel()
+        updatePlayback(video) { it.copy(playlists = null, playlistsFailed = false) }
+        playingPlaylistsJob = viewModelScope.launch {
+            val playlists = orNull { youTubeService.loadPlaylistOptions(video.videoId) }
+            updatePlayback(video) { it.copy(playlists = playlists, playlistsFailed = playlists == null) }
+        }
+    }
+
+    /**
+     * Makes a playlist named [title] with the video of [list] in it, then reads the playlists
+     * again so the new one shows, ticked.
+     */
+    fun createPlaylist(list: YouTubeSaveList, title: String, privacy: YouTubePlaylistPrivacy) {
+        val video = when (list) {
+            YouTubeSaveList.MENU -> _uiState.value.menu?.video
+            YouTubeSaveList.PLAYER -> _uiState.value.playback?.video
+        } ?: return
+        val name = title.trim().takeIf { it.isNotEmpty() } ?: return
+        // The list shows as loading until it's read again.
+        setPlaylists(list, video, playlists = null, failed = false)
+        viewModelScope.launch {
+            val created = orNull { youTubeService.createPlaylist(name, video.videoId, privacy) } != null
+            notify(if (created) YouTubeNotice.Saved(name) else YouTubeNotice.Failed)
+            val playlists = orNull { youTubeService.loadPlaylistOptions(video.videoId) }
+            setPlaylists(list, video, playlists, failed = playlists == null)
         }
     }
 
@@ -591,6 +646,21 @@ class YouTubeViewModel @Inject constructor(
     private fun notify(notice: YouTubeNotice) {
         _uiState.update { it.copy(notice = notice) }
     }
+
+    private fun updatePlaylists(
+        list: YouTubeSaveList,
+        video: YouTubeVideo,
+        transform: (List<YouTubePlaylistOption>?) -> List<YouTubePlaylistOption>?
+    ) = when (list) {
+        YouTubeSaveList.MENU -> updateMenu(video) { it.copy(playlists = transform(it.playlists)) }
+        YouTubeSaveList.PLAYER -> updatePlayback(video) { it.copy(playlists = transform(it.playlists)) }
+    }
+
+    private fun setPlaylists(list: YouTubeSaveList, video: YouTubeVideo, playlists: List<YouTubePlaylistOption>?, failed: Boolean) =
+        when (list) {
+            YouTubeSaveList.MENU -> updateMenu(video) { it.copy(playlists = playlists, playlistsFailed = failed) }
+            YouTubeSaveList.PLAYER -> updatePlayback(video) { it.copy(playlists = playlists, playlistsFailed = failed) }
+        }
 
     private fun updateMenu(video: YouTubeVideo, transform: (YouTubeVideoMenuState) -> YouTubeVideoMenuState) {
         _uiState.update { state ->

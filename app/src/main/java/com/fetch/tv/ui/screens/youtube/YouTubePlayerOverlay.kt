@@ -61,6 +61,8 @@ import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.data.youtube.YouTubeCaptionCue
 import com.fetch.tv.data.youtube.YouTubeCaptionTrack
 import com.fetch.tv.data.youtube.YouTubeLikeStatus
+import com.fetch.tv.data.youtube.YouTubePlaylistOption
+import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.data.youtube.YouTubeVideoActions
@@ -90,7 +92,10 @@ fun YouTubePlayerOverlay(
     onRetry: () -> Unit,
     onRate: (YouTubeLikeStatus) -> Unit,
     onToggleSubscription: () -> Unit,
-    onOpenChannel: () -> Unit
+    onOpenChannel: () -> Unit,
+    onLoadPlaylists: () -> Unit,
+    onTogglePlaylist: (YouTubePlaylistOption) -> Unit,
+    onCreatePlaylist: (title: String, privacy: YouTubePlaylistPrivacy) -> Unit
 ) {
     val video = playback.video
     var isPaused by remember(video.videoId) { mutableStateOf(false) }
@@ -106,15 +111,18 @@ fun YouTubePlayerOverlay(
     val currentSegments by rememberUpdatedState(playback.skipSegments)
     var captionMenuOpen by remember(video.videoId) { mutableStateOf(false) }
     var actionsMenuOpen by remember(video.videoId) { mutableStateOf(false) }
+    // The Save list opens over the actions panel, in a dialog of its own; playback carries on behind.
+    var playlistPickerOpen by remember(video.videoId) { mutableStateOf(false) }
+    var playlistPickerClosed by remember(video.videoId) { mutableIntStateOf(0) }
     var positionMs by remember(video.videoId) { mutableLongStateOf(0L) }
     var ended by remember(video.videoId) { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
+    val saveFocusRequester = remember { FocusRequester() }
     val canControl = !playback.videoUrl.isNullOrBlank() && !playback.isLoading && !playback.failed
-    // Without the watch page (it failed, or hasn't loaded), the menu still offers the tile's channel.
-    val menuActions = playback.actions ?: video.channelId?.let {
-        YouTubeVideoActions(likeStatus = null, channelId = it, channelName = video.channelName, subscribed = null)
-    }
+    // Without the watch page (it failed, or hasn't loaded), the menu still offers Save and the tile's channel.
+    val menuActions = playback.actions
+        ?: YouTubeVideoActions(likeStatus = null, channelId = video.channelId, channelName = video.channelName, subscribed = null)
 
     fun seekBy(deltaMs: Long) {
         seekDeltaMs = deltaMs
@@ -127,6 +135,10 @@ fun YouTubePlayerOverlay(
             delay(CONTROLS_HIDE_DELAY_MS)
             controlsVisible = false
         }
+    }
+    // Closing the Save list goes back to the Save entry.
+    LaunchedEffect(playlistPickerClosed) {
+        if (playlistPickerClosed > 0) saveFocusRequester.requestFocusAfterFrames()
     }
     LaunchedEffect(skipNoticeToken) {
         if (skipNoticeToken == 0) return@LaunchedEffect
@@ -204,13 +216,9 @@ fun YouTubePlayerOverlay(
                         }
                         KeyEvent.KEYCODE_DPAD_UP -> {
                             if (!canControl) return@onPreviewKeyEvent false
-                            // Up opens like, subscribe and the channel once the watch page says what they are.
-                            if (menuActions != null) {
-                                actionsMenuOpen = true
-                                controlsVisible = false
-                            } else {
-                                controlsVisible = true
-                            }
+                            // Up opens Save at once; like, subscribe and the channel once the watch page says what they are.
+                            actionsMenuOpen = true
+                            controlsVisible = false
                             true
                         }
                         KeyEvent.KEYCODE_DPAD_DOWN -> {
@@ -259,6 +267,7 @@ fun YouTubePlayerOverlay(
                             ended = true
                             captionMenuOpen = false
                             actionsMenuOpen = false
+                            playlistPickerOpen = false
                         } else {
                             onDismiss()
                         }
@@ -281,7 +290,7 @@ fun YouTubePlayerOverlay(
                     video.channelName?.let {
                         Text(text = it, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.82f))
                     }
-                    if (canControl && menuActions != null) {
+                    if (canControl) {
                         Text(
                             text = stringResource(R.string.youtube_actions_hint),
                             style = MaterialTheme.typography.bodySmall,
@@ -367,14 +376,35 @@ fun YouTubePlayerOverlay(
                 )
             }
 
-            if (actionsMenuOpen && menuActions != null && !ended) {
+            if (actionsMenuOpen && !ended) {
                 VideoActionsMenu(
                     actions = menuActions,
                     failed = playback.actionFailed,
                     onRate = onRate,
                     onToggleSubscription = onToggleSubscription,
                     onOpenChannel = onOpenChannel,
+                    onSave = {
+                        // Read now rather than with every video, so starting playback makes no extra request.
+                        onLoadPlaylists()
+                        playlistPickerOpen = true
+                    },
+                    saveFocusRequester = saveFocusRequester,
                     modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
+
+            // Inside the player's dialog, so it opens above the video rather than behind it.
+            if (playlistPickerOpen && actionsMenuOpen && !ended) {
+                YouTubePlaylistPicker(
+                    videoTitle = video.title,
+                    playlists = playback.playlists,
+                    failed = playback.playlistsFailed,
+                    onBack = {
+                        playlistPickerOpen = false
+                        playlistPickerClosed += 1
+                    },
+                    onToggle = onTogglePlaylist,
+                    onCreate = onCreatePlaylist
                 )
             }
 
@@ -393,11 +423,9 @@ fun YouTubePlayerOverlay(
     }
 }
 
-private enum class ActionRow { LIKE, SUBSCRIBE, CHANNEL }
-
 /**
- * Like, dislike, subscribe and go to channel, for the playing video. It stays open after a choice
- * so the tick shows; Back closes it.
+ * Like, dislike, save to Watch later or a playlist, subscribe and go to channel, for the playing
+ * video. It stays open after a choice so the tick shows; Back closes it.
  */
 @Composable
 private fun VideoActionsMenu(
@@ -406,9 +434,12 @@ private fun VideoActionsMenu(
     onRate: (YouTubeLikeStatus) -> Unit,
     onToggleSubscription: () -> Unit,
     onOpenChannel: () -> Unit,
+    onSave: () -> Unit,
+    saveFocusRequester: FocusRequester,
     modifier: Modifier = Modifier
 ) {
-    val firstFocus = remember { FocusRequester() }
+    val likeFocus = remember { FocusRequester() }
+    val status = actions.likeStatus
     Column(
         modifier = modifier
             .padding(FetchTheme.spacing.xl)
@@ -434,21 +465,13 @@ private fun VideoActionsMenu(
                 color = FetchTheme.colors.Error
             )
         }
-        val status = actions.likeStatus
         val subscribed = actions.subscribed?.takeIf { actions.channelId != null }
-        // Focus starts on the top row, whichever rows YouTube offered.
-        val first = when {
-            status != null -> ActionRow.LIKE
-            subscribed != null -> ActionRow.SUBSCRIBE
-            else -> ActionRow.CHANNEL
-        }
-        fun focusIf(row: ActionRow) = if (row == first) Modifier.focusRequester(firstFocus) else Modifier
         if (status != null) {
             CaptionMenuRow(
                 label = stringResource(R.string.youtube_action_like),
                 selected = status == YouTubeLikeStatus.LIKE,
                 onClick = { onRate(if (status == YouTubeLikeStatus.LIKE) YouTubeLikeStatus.INDIFFERENT else YouTubeLikeStatus.LIKE) },
-                modifier = focusIf(ActionRow.LIKE)
+                modifier = Modifier.focusRequester(likeFocus)
             )
             CaptionMenuRow(
                 label = stringResource(R.string.youtube_action_dislike),
@@ -456,24 +479,29 @@ private fun VideoActionsMenu(
                 onClick = { onRate(if (status == YouTubeLikeStatus.DISLIKE) YouTubeLikeStatus.INDIFFERENT else YouTubeLikeStatus.DISLIKE) }
             )
         }
+        CaptionMenuRow(
+            label = stringResource(R.string.youtube_action_save),
+            selected = false,
+            onClick = onSave,
+            modifier = Modifier.focusRequester(saveFocusRequester)
+        )
         if (subscribed != null) {
             CaptionMenuRow(
                 label = stringResource(if (subscribed) R.string.youtube_action_subscribed else R.string.youtube_action_subscribe),
                 selected = subscribed,
-                onClick = onToggleSubscription,
-                modifier = focusIf(ActionRow.SUBSCRIBE)
+                onClick = onToggleSubscription
             )
         }
         if (actions.channelId != null) {
             CaptionMenuRow(
                 label = stringResource(R.string.youtube_menu_go_to_channel),
                 selected = false,
-                onClick = onOpenChannel,
-                modifier = focusIf(ActionRow.CHANNEL)
+                onClick = onOpenChannel
             )
         }
     }
-    LaunchedEffect(Unit) { firstFocus.requestFocusAfterFrames() }
+    // Focus starts on the top row: Like, when YouTube offered it, else Save.
+    LaunchedEffect(Unit) { (if (status != null) likeFocus else saveFocusRequester).requestFocusAfterFrames() }
 }
 
 /**

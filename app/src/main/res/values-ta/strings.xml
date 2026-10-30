@@ -2274,9 +2274,10 @@
     <string name="youtube_menu_play">இயக்கு</string>
     <string name="youtube_menu_go_to_channel">சேனலுக்குச் செல்</string>
     <string name="youtube_menu_go_to_named_channel">%1$s சேனலுக்குச் செல்</string>
-    <string name="youtube_actions_hint">விரும்ப, சந்தா செலுத்த அல்லது சேனலுக்குச் செல்ல மேலே அழுத்தவும்</string>
+    <string name="youtube_actions_hint">விரும்ப, சேமிக்க, சந்தா செலுத்த அல்லது சேனலுக்குச் செல்ல மேலே அழுத்தவும்</string>
     <string name="youtube_action_like">விரும்பு</string>
     <string name="youtube_action_dislike">விரும்பவில்லை</string>
+    <string name="youtube_action_save">சேமி</string>
     <string name="youtube_action_subscribe">சந்தா செலுத்து</string>
     <string name="youtube_action_subscribed">சந்தா செலுத்தியுள்ளீர்கள்</string>
     <string name="youtube_action_failed">YouTube அதை ஏற்கவில்லை. மீண்டும் முயலவும்.</string>
